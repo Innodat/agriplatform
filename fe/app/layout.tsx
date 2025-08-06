@@ -1,11 +1,11 @@
-import type { Metadata } from 'next'
-import { GeistSans } from 'geist/font/sans'
-import { GeistMono } from 'geist/font/mono'
-import './globals.css'
 
-export const metadata: Metadata = {
-  title: 'v0 App',
-  description: 'Created with v0',
+
+import './globals.css'
+import { Toaster } from "@/components/ui/toaster"
+
+export const metadata = {
+  title: 'Receipts',
+  description: 'Capture Your Receipts',
   generator: 'v0.dev',
 }
 
@@ -17,15 +17,20 @@ export default function RootLayout({
   return (
     <html lang="en">
       <head>
+        <link rel="icon" type="image/x-icon" href="/favicon.ico" />
+        <link rel="icon" type="image/png" href="/favicon.png" />
+        <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap" rel="stylesheet" />
         <style>{`
 html {
-  font-family: ${GeistSans.style.fontFamily};
-  --font-sans: ${GeistSans.variable};
-  --font-mono: ${GeistMono.variable};
+  font-family: 'Inter', sans-serif;
 }
         `}</style>
       </head>
-      <body>{children}</body>
+      <body>
+        {children}
+        {/* Toast notifications */}
+        <Toaster />
+      </body>
     </html>
   )
 }

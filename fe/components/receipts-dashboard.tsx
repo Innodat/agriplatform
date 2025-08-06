@@ -38,21 +38,66 @@ export default function ReceiptsDashboard() {
   const [selectedReceipt, setSelectedReceipt] = useState<Receipt | null>(null)
   const [isSigningOut, setIsSigningOut] = useState(false)
   const { user, signOut } = useAuth()
-  const itemsPerPage = 10
+  // Adaptive itemsPerPage: 5 for mobile, 8 for tablet, 10 for desktop
+  const getItemsPerPage = () => {
+    if (typeof window !== "undefined") {
+      const width = window.innerWidth;
+      if (width <= 600) return 5; // mobile
+      if (width <= 900) return 8; // tablet
+      return 10; // desktop
+    }
+    return 10;
+  };
+  const [itemsPerPage, setItemsPerPage] = useState(getItemsPerPage());
+
+  useEffect(() => {
+    const handleResize = () => {
+      setItemsPerPage(getItemsPerPage());
+    };
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
 
   // Demo data for preview (will be replaced with real data when Supabase is connected)
-  const demoReceipts: Receipt[] = [
-    { id: "1", category: "Stationary, Office", amount: 300, captured_date: "08/04/2024", is_today: true },
-    { id: "2", category: "Toiletries", amount: 650, captured_date: "08/04/2024", is_today: true },
-    { id: "3", category: "Food, Beverages", amount: 320, captured_date: "08/04/2024", is_today: true },
-    { id: "4", category: "Food", amount: 1700, captured_date: "20/04/2024", is_today: false },
-    { id: "5", category: "Toiletries, Personal Care", amount: 70, captured_date: "20/04/2024", is_today: false },
-    { id: "6", category: "Food", amount: 850, captured_date: "20/04/2024", is_today: false },
-    { id: "7", category: "Toys, Entertainment", amount: 640, captured_date: "20/04/2024", is_today: false },
-    { id: "8", category: "Stationary", amount: 4450, captured_date: "20/04/2024", is_today: false },
-    { id: "9", category: "Toiletries", amount: 90, captured_date: "08/04/2024", is_today: true },
-    { id: "10", category: "Food", amount: 640, captured_date: "08/04/2024", is_today: true },
-  ]
+  const demoReceipts: Receipt[] = Array.from({ length: 25 }, (_, i) => {
+    const categories = [
+      "Stationary, Office",
+      "Toiletries",
+      "Food, Beverages",
+      "Food",
+      "Toiletries, Personal Care",
+      "Toys, Entertainment",
+      "Stationary",
+      "Electronics",
+      "Transport",
+      "Medical",
+      "Books",
+      "Clothing",
+      "Grocery",
+      "Dining",
+      "Subscription",
+      "Gift",
+      "Pet Care",
+      "Fitness",
+      "Travel",
+      "Education",
+      "Insurance",
+      "Charity",
+      "Home",
+      "Garden",
+      "Miscellaneous"
+    ];
+    const today = new Date();
+    const date = new Date(today.getTime() - (i * 86400000)); // spread dates over last 25 days
+    return {
+      id: (i + 1).toString(),
+      category: categories[i % categories.length],
+      amount: Math.floor(Math.random() * 5000) + 50,
+      captured_date: date.toLocaleDateString("en-GB"),
+      is_today: date.toDateString() === today.toDateString(),
+      purchase_items: [],
+    };
+  });
 
   useEffect(() => {
     if (user) {
@@ -64,17 +109,27 @@ export default function ReceiptsDashboard() {
     try {
       setLoading(true)
 
-      // Fetch from the existing public.receipt table
+      // Fetch receipts and their purchases
       const { data, error } = await supabase
         .from("receipt")
         .select(`
-        id,
-        captured_date,
-        purchase (
-          *
-        )
-      `)
-        .order("captured_date", { ascending: false })
+          id,
+          is_active,
+          created_timestamp,
+          created_user_id,
+          modified_user_id,
+          modified_timestamp,
+          purchase (
+            *,
+            expense_type (
+              name,
+              expense_category (
+                name
+              )
+            )
+          )
+        `)
+        .order("created_timestamp", { ascending: false })
 
       if (error) {
         console.log("Database query error:", error.message)
@@ -84,20 +139,27 @@ export default function ReceiptsDashboard() {
         console.log("Fetched data:", data)
 
         // Process the data to match our interface - one entry per receipt
-        const processedReceipts = data.map((receipt) => {
+        const processedReceipts = data.map((receipt: any) => {
           // Extract unique categories from purchase items
           const allCategories =
-            receipt.purchase?.map((item: any) => item.expense_category || item.category || "Unknown") || []
+            receipt.purchase?.map((item: any) => {
+              // If joined data is available, use expense_type and expense_category names
+              if (item.expense_type && item.expense_type.expense_category) {
+                return `${item.expense_type.expense_category.name}-${item.expense_type.name}`;
+              }
+              console.log("No expense_type found for item:", item);
+            }) || [];
+          const uniqueCategories = [...new Set(allCategories)];
+          const categories = uniqueCategories.join(", ");
 
-          // Get unique categories only
-          const uniqueCategories = [...new Set(allCategories)]
-          const categories = uniqueCategories.join(", ")
+          const totalAmount = receipt.purchase?.reduce((sum: number, item: any) => sum + (item.amount || 0), 0) || 0;
 
-          const totalAmount = receipt.purchase?.reduce((sum: number, item: any) => sum + (item.amount || 0), 0) || 0
-
-          const capturedDate = new Date(receipt.captured_date)
-          const today = new Date()
-          const isToday = capturedDate.toDateString() === today.toDateString()
+          // Use the latest captured_timestamp from purchases as the receipt date
+          let capturedDate = receipt.purchase && receipt.purchase.length > 0
+            ? new Date(Math.max(...receipt.purchase.map((item: any) => new Date(item.captured_timestamp).getTime())))
+            : new Date(receipt.created_timestamp);
+          const today = new Date();
+          const isToday = capturedDate.toDateString() === today.toDateString();
 
           return {
             id: receipt.id,
@@ -106,27 +168,26 @@ export default function ReceiptsDashboard() {
             captured_date: capturedDate.toLocaleDateString("en-GB"),
             is_today: isToday,
             purchase_items: receipt.purchase,
-          }
-        })
+          };
+        });
 
         // Sort by date (most recent first)
-        processedReceipts.sort((a, b) => {
-          const dateA = new Date(a.captured_date.split("/").reverse().join("-"))
-          const dateB = new Date(b.captured_date.split("/").reverse().join("-"))
-          return dateB.getTime() - dateA.getTime()
-        })
+        processedReceipts.sort((a: any, b: any) => {
+          const dateA = new Date(a.captured_date.split("/").reverse().join("-"));
+          const dateB = new Date(b.captured_date.split("/").reverse().join("-"));
+          return dateB.getTime() - dateA.getTime();
+        });
 
-        setReceipts(processedReceipts)
+        setReceipts(processedReceipts);
       } else {
         // No data found, use demo data
-        console.log("No data found, using demo data")
-        // Sort demo data by date too
+        console.log("No data found, using demo data");
         const sortedDemoData = [...demoReceipts].sort((a, b) => {
-          const dateA = new Date(a.captured_date.split("/").reverse().join("-"))
-          const dateB = new Date(b.captured_date.split("/").reverse().join("-"))
-          return dateB.getTime() - dateA.getTime()
-        })
-        setReceipts(sortedDemoData)
+          const dateA = new Date(a.captured_date.split("/").reverse().join("-"));
+          const dateB = new Date(b.captured_date.split("/").reverse().join("-"));
+          return dateB.getTime() - dateA.getTime();
+        });
+        setReceipts(sortedDemoData);
       }
     } catch (error) {
       console.log("Using demo data due to error:", error)
@@ -152,13 +213,12 @@ export default function ReceiptsDashboard() {
       // Convert receipt data to the format expected by ReceiptForm
       const receiptData = {
         id: receipt.id,
-        captured_date: receipt.captured_date.split("/").reverse().join("-"), // Convert to YYYY-MM-DD
         purchase_items: receipt.purchase_items || [
           { category: receipt.category, amount: receipt.amount, description: "", reimburse: true },
         ],
-      }
-      setSelectedReceipt(receiptData as any)
-      setShowForm(true)
+      };
+      setSelectedReceipt(receiptData as any);
+      setShowForm(true);
     }
   }
 
@@ -169,12 +229,20 @@ export default function ReceiptsDashboard() {
 
   const handleFormSave = async (receiptData: any) => {
     // Here you would save to Supabase
-    console.log("Saving receipt:", receiptData)
+    console.log("Saving receipt:", receiptData);
+
+    // Update modified_timestamp to today when editing
+    if (receiptData.id) {
+      await supabase
+        .from("receipt")
+        .update({ modified_timestamp: new Date().toISOString() })
+        .eq("id", receiptData.id);
+    }
 
     // For now, just refresh the list and go back
-    await fetchReceipts()
-    setShowForm(false)
-    setSelectedReceipt(null)
+    await fetchReceipts();
+    setShowForm(false);
+    setSelectedReceipt(null);
   }
 
   const handleSignOut = async () => {
@@ -262,51 +330,51 @@ export default function ReceiptsDashboard() {
         </div>
 
         {/* Table */}
-        <div className="px-4">
-          <div className="bg-white border border-gray-200 rounded-lg overflow-hidden">
-            {/* Table Header */}
-            <div className="bg-gray-50 grid grid-cols-4 gap-2 p-3 text-sm font-medium text-gray-700 border-b">
-              <div>Category</div>
-              <div>Amount</div>
-              <div>Date</div>
-              <div></div>
-            </div>
-
-            {/* Table Body */}
-            <div className="divide-y divide-gray-200">
-              {currentReceipts.map((receipt) => (
-                <div
-                  key={receipt.id}
-                  className={`grid grid-cols-4 gap-2 p-3 text-sm ${receipt.is_today ? "bg-green-50" : "bg-white"}`}
-                >
-                  <div className="truncate">{receipt.category}</div>
-                  <div>₹{receipt.amount}</div>
-                  <div className="text-gray-600">{receipt.captured_date}</div>
-                  <div className="flex justify-end">
-                    <Button
-                      size="sm"
-                      variant="ghost"
-                      onClick={() => handleEdit(receipt)}
-                      disabled={!receipt.is_today}
-                      className={`h-6 px-2 ${
-                        receipt.is_today ? "text-blue-600 hover:text-blue-800" : "text-gray-400 cursor-not-allowed"
-                      }`}
-                    >
-                      <Pencil className="h-3 w-3" />
-                    </Button>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
+    <div className="px-4">
+      <div className="bg-white border border-gray-200 rounded-lg overflow-hidden">
+        {/* Table Header */}
+        <div className="bg-gray-50 grid grid-cols-[1fr_80px_80px_40px] gap-2 p-3 text-sm font-medium text-gray-700 border-b">
+          <div>Category</div>
+          <div>Amount</div>
+          <div>Date</div>
+          <div></div>
         </div>
+
+        {/* Table Body */}
+        <div className="divide-y divide-gray-200">
+          {currentReceipts.map((receipt: any) => (
+            <div
+              key={receipt.id}
+              className={`grid grid-cols-[1fr_80px_80px_40px] gap-2 p-3 text-sm ${receipt.is_today ? "bg-green-50" : "bg-white"}`}
+            >
+              <div className="truncate">{receipt.category}</div>
+              <div>₹{receipt.amount}</div>
+              <div className="text-gray-600">{receipt.captured_date}</div>
+              <div className="flex justify-end">
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  onClick={() => handleEdit(receipt)}
+                  disabled={!receipt.is_today}
+                  className={`h-6 px-2 ${
+                    receipt.is_today ? "text-blue-600 hover:text-blue-800" : "text-gray-400 cursor-not-allowed"
+                  }`}
+                >
+                  <Pencil className="h-3 w-3" />
+                </Button>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
 
         {/* Pagination */}
         <div className="flex items-center justify-between px-4 py-4">
           <Button
             variant="ghost"
             size="sm"
-            onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+            onClick={() => setCurrentPage((prev: any) => Math.max(prev - 1, 1))}
             disabled={currentPage === 1}
             className="text-gray-600"
           >
@@ -319,7 +387,7 @@ export default function ReceiptsDashboard() {
           <Button
             variant="ghost"
             size="sm"
-            onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
+            onClick={() => setCurrentPage((prev: any) => Math.min(prev + 1, totalPages))}
             disabled={currentPage === totalPages}
             className="text-teal-600"
           >

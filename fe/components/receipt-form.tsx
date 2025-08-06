@@ -1,5 +1,13 @@
 "use client"
 
+// Fix all remaining TypeScript lint errors: add missing parameter types, use React.JSX.Element for JSX, and ensure all arrow functions are typed
+
+// Utility to truncate text for dropdown display
+function truncateText(text: string, maxLength: number): string {
+  if (text.length <= maxLength) return text;
+  return text.slice(0, maxLength - 1) + "…";
+}
+
 import type React from "react"
 
 import { useState, useRef, useEffect } from "react"
@@ -29,7 +37,7 @@ interface PurchaseItem {
   id?: string
   expense_type_id: string
   amount: number
-  description: string
+  other_category: string
   reimburse: boolean
 }
 
@@ -48,10 +56,10 @@ interface ReceiptFormProps {
 }
 
 export default function ReceiptForm({ receiptData, onBack, onSave }: ReceiptFormProps) {
+  const { toast } = require("@/hooks/use-toast")
   const [receipt, setReceipt] = useState<ReceiptData>({
-    captured_date: new Date().toISOString().split("T")[0],
     currency: "INR",
-    purchase_items: [{ expense_type_id: "", amount: 0, description: "", reimburse: true }],
+    purchase_items: [{ expense_type_id: "", amount: 0, description: "", reimburse: true, captured_timestamp: new Date().toISOString().split("T")[0] }],
     ...receiptData,
   })
   const [ownMoney, setOwnMoney] = useState(false)
@@ -82,10 +90,9 @@ export default function ReceiptForm({ receiptData, onBack, onSave }: ReceiptForm
     fetchExpenseTypes()
   }, [])
 
-  const fetchExpenseTypes = async () => {
+  const fetchExpenseTypes = async (): Promise<void> => {
     try {
       setLoadingExpenseTypes(true)
-
       const { data, error } = await supabase
         .from("expense_type")
         .select(`
@@ -97,29 +104,37 @@ export default function ReceiptForm({ receiptData, onBack, onSave }: ReceiptForm
         )
       `)
         .order("name") // This already orders by name
-
+      const sortExpenseTypes = (types: ExpenseType[]): ExpenseType[] => {
+        // Group by expense_category, sort each group alphabetically, but put 'Other' last within its category
+        const grouped: { [cat: string]: ExpenseType[] } = {};
+        types.forEach((type: ExpenseType) => {
+          if (!grouped[type.expense_category.name]) grouped[type.expense_category.name] = [];
+          grouped[type.expense_category.name].push(type);
+        });
+        // Sort each group: all except 'Other' alphabetically, then 'Other' last
+        const sortedGroups = Object.keys(grouped)
+          .sort()
+          .map((cat: string) => {
+            const group = grouped[cat];
+            const others = group.filter((t) => t.name.toLowerCase() === "other");
+            const rest = group.filter((t) => t.name.toLowerCase() !== "other").sort((a, b) => a.name.localeCompare(b.name));
+            return [...rest, ...others];
+          });
+        // Flatten all groups
+        return ([] as ExpenseType[]).concat(...sortedGroups);
+      };
       if (error) {
         console.error("Error fetching expense types:", error)
-        // Fallback data for demo - sorted alphabetically
+        // Fallback data for demo
         const fallbackData = [
           { id: "4", name: "Office Supplies", expense_category: { id: "3", name: "Business" } },
           { id: "1", name: "Other", expense_category: { id: "1", name: "Other" } },
           { id: "2", name: "Groceries", expense_category: { id: "2", name: "Food" } },
           { id: "3", name: "Restaurants", expense_category: { id: "2", name: "Food" } },
-        ].sort((a, b) => {
-          const displayA = a.name.toLowerCase() === "other" ? "Other" : `${a.expense_category.name} - ${a.name}`
-          const displayB = b.name.toLowerCase() === "other" ? "Other" : `${b.expense_category.name} - ${b.name}`
-          return displayA.localeCompare(displayB)
-        })
-        setExpenseTypes(fallbackData)
+        ];
+        setExpenseTypes(sortExpenseTypes(fallbackData));
       } else {
-        // Sort the data alphabetically by display name
-        const sortedData = (data || []).sort((a, b) => {
-          const displayA = a.name.toLowerCase() === "other" ? "Other" : `${a.expense_category.name} - ${a.name}`
-          const displayB = b.name.toLowerCase() === "other" ? "Other" : `${b.expense_category.name} - ${b.name}`
-          return displayA.localeCompare(displayB)
-        })
-        setExpenseTypes(sortedData)
+        setExpenseTypes(sortExpenseTypes(data || []));
       }
     } catch (error) {
       console.error("Error fetching expense types:", error)
@@ -130,8 +145,8 @@ export default function ReceiptForm({ receiptData, onBack, onSave }: ReceiptForm
         { id: "2", name: "Groceries", expense_category: { id: "2", name: "Food" } },
         { id: "3", name: "Restaurants", expense_category: { id: "2", name: "Food" } },
       ].sort((a, b) => {
-        const displayA = a.name.toLowerCase() === "other" ? "Other" : `${a.expense_category.name} - ${a.name}`
-        const displayB = b.name.toLowerCase() === "other" ? "Other" : `${b.expense_category.name} - ${b.name}`
+        const displayA = `${a.expense_category.name} - ${a.name}`
+        const displayB = `${b.expense_category.name} - ${b.name}`
         return displayA.localeCompare(displayB)
       })
       setExpenseTypes(fallbackData)
@@ -141,39 +156,35 @@ export default function ReceiptForm({ receiptData, onBack, onSave }: ReceiptForm
   }
 
   const getExpenseTypeDisplayName = (expenseType: ExpenseType) => {
-    // Special case for "Other" - just show "Other"
-    if (expenseType.name.toLowerCase() === "other") {
-      return "Other"
-    }
     // For all others, show "Category - Type"
     return `${expenseType.expense_category.name} - ${expenseType.name}`
   }
 
-  const getSelectedExpenseType = (expenseTypeId: string) => {
-    return expenseTypes.find((et) => et.id === expenseTypeId)
+  const getSelectedExpenseType = (expenseTypeId: string): ExpenseType | undefined => {
+    return expenseTypes.find((et: ExpenseType) => et.id === expenseTypeId)
   }
 
-  const isOtherExpenseType = (expenseTypeId: string) => {
+  const isOtherExpenseType = (expenseTypeId: string): boolean => {
     const expenseType = getSelectedExpenseType(expenseTypeId)
     return expenseType?.name.toLowerCase() === "other"
   }
 
   // Update reimburse field for all items when ownMoney changes
   useEffect(() => {
-    setReceipt((prev) => ({
+    setReceipt((prev: ReceiptData) => ({
       ...prev,
-      purchase_items: prev.purchase_items.map((item) => ({ ...item, reimburse: !ownMoney })),
+      purchase_items: prev.purchase_items.map((item: PurchaseItem) => ({ ...item, reimburse: !ownMoney })),
     }))
   }, [ownMoney])
 
-  const handleImageCapture = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleImageCapture = (event: React.ChangeEvent<HTMLInputElement>): void => {
     const file = event.target.files?.[0]
     if (file) {
       processImageFile(file)
     }
   }
 
-  const processImageFile = (file: File) => {
+  const processImageFile = (file: File): void => {
     // Validate file type
     if (!file.type.startsWith("image/")) {
       alert("Please select an image file.")
@@ -197,19 +208,19 @@ export default function ReceiptForm({ receiptData, onBack, onSave }: ReceiptForm
   }
 
   // Drag and drop handlers
-  const handleDragOver = (e: React.DragEvent) => {
+  const handleDragOver = (e: React.DragEvent<HTMLDivElement>): void => {
     e.preventDefault()
     e.stopPropagation()
     setIsDragOver(true)
   }
 
-  const handleDragLeave = (e: React.DragEvent) => {
+  const handleDragLeave = (e: React.DragEvent<HTMLDivElement>): void => {
     e.preventDefault()
     e.stopPropagation()
     setIsDragOver(false)
   }
 
-  const handleDrop = (e: React.DragEvent) => {
+  const handleDrop = (e: React.DragEvent<HTMLDivElement>): void => {
     e.preventDefault()
     e.stopPropagation()
     setIsDragOver(false)
@@ -224,47 +235,95 @@ export default function ReceiptForm({ receiptData, onBack, onSave }: ReceiptForm
     }
   }
 
-  const addPurchaseItem = () => {
-    setReceipt((prev) => ({
+  const addPurchaseItem = (): void => {
+    setReceipt((prev: ReceiptData) => ({
       ...prev,
       purchase_items: [
         ...prev.purchase_items,
-        { expense_type_id: "", amount: 0, description: "", reimburse: !ownMoney },
+        { expense_type_id: "", amount: 0, other_category: "", reimburse: !ownMoney },
       ],
     }))
   }
 
-  const removePurchaseItem = (index: number) => {
+  const removePurchaseItem = (index: number): void => {
     if (receipt.purchase_items.length > 1) {
-      setReceipt((prev) => ({
+      setReceipt((prev: ReceiptData) => ({
         ...prev,
         purchase_items: prev.purchase_items.filter((_, i) => i !== index),
       }))
     }
   }
 
-  const updatePurchaseItem = (index: number, field: keyof PurchaseItem, value: any) => {
-    setReceipt((prev) => ({
+  const updatePurchaseItem = (index: number, field: keyof PurchaseItem, value: any): void => {
+    setReceipt((prev: ReceiptData) => ({
       ...prev,
-      purchase_items: prev.purchase_items.map((item, i) => (i === index ? { ...item, [field]: value } : item)),
+      purchase_items: prev.purchase_items.map((item: PurchaseItem, i: number) => (i === index ? { ...item, [field]: value } : item)),
     }))
   }
 
-  const calculateTotal = () => {
-    return receipt.purchase_items.reduce((sum, item) => sum + (item.amount || 0), 0)
+  const calculateTotal = (): number => {
+    return receipt.purchase_items.reduce((sum: number, item: PurchaseItem) => sum + (item.amount || 0), 0)
   }
 
-  const handleSave = async () => {
+  const handleSave = async (): Promise<void> => {
     setIsLoading(true)
-
+    let errorOccurred = false;
     try {
-      // Here you would save to Supabase
-      // For now, we'll just call the onSave callback
-      onSave(receipt)
-    } catch (error) {
-      console.error("Error saving receipt:", error)
+      // Save to Supabase
+      if (isEditing && receiptData?.id) {
+        // Update modified_timestamp in receipt
+        const { error: receiptError } = await supabase
+          .from("receipt")
+          .update({ modified_timestamp: new Date().toISOString() })
+          .eq("id", receiptData.id);
+        if (receiptError) throw receiptError;
+      }
+
+      // Insert or update purchase items
+      for (const item of receipt.purchase_items) {
+        if (isEditing && item.id) {
+          const { error: purchaseError } = await supabase
+            .from("purchase")
+            .update({
+              expense_type_id: item.expense_type_id,
+              amount: item.amount,
+              other_category: item.other_category,
+              reimbursable: item.reimburse,
+              captured_timestamp: item.captured_timestamp || new Date().toISOString().split("T")[0],
+            })
+            .eq("id", item.id);
+          if (purchaseError) throw purchaseError;
+        } else if (receiptData?.id) {
+          const { error: purchaseError } = await supabase
+            .from("purchase")
+            .insert({
+              receipt_id: receiptData.id,
+              expense_type_id: item.expense_type_id,
+              amount: item.amount,
+              other_category: item.other_category,
+              reimbursable: item.reimburse,
+              captured_timestamp: item.captured_timestamp || new Date().toISOString().split("T")[0],
+            });
+          if (purchaseError) throw purchaseError;
+        }
+      }
+    } catch (error: any) {
+      errorOccurred = true;
+      console.error("Error saving receipt:", error);
+      if (toast) {
+        toast({
+          title: "Error saving receipt",
+          description: error?.message || "An unexpected error occurred.",
+          variant: "destructive",
+        });
+      } else {
+        alert("Error saving receipt: " + (error?.message || "An unexpected error occurred."));
+      }
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
+      if (!errorOccurred) {
+        onSave(receipt);
+      }
     }
   }
 
@@ -378,8 +437,20 @@ export default function ReceiptForm({ receiptData, onBack, onSave }: ReceiptForm
               <Input
                 id="date"
                 type="date"
-                value={receipt.captured_date}
-                onChange={(e) => setReceipt((prev) => ({ ...prev, captured_date: e.target.value }))}
+                value={
+                  receipt.purchase_items[0]?.captured_timestamp
+                    ? receipt.purchase_items[0].captured_timestamp.length === 10
+                      ? receipt.purchase_items[0].captured_timestamp
+                      : receipt.purchase_items[0].captured_timestamp.split("T")[0]
+                    : new Date().toISOString().split("T")[0]
+                }
+                onChange={(e) => setReceipt((prev) => ({
+                  ...prev,
+                  purchase_items: prev.purchase_items.map((item, idx) => ({
+                    ...item,
+                    captured_timestamp: e.target.value,
+                  })),
+                }))}
                 className="w-full"
               />
             </div>
@@ -429,7 +500,7 @@ export default function ReceiptForm({ receiptData, onBack, onSave }: ReceiptForm
               </Button>
             </div>
 
-            {receipt.purchase_items.map((item, index) => (
+            {receipt.purchase_items.map((item: PurchaseItem, index: number) => (
               <div key={index} className="border border-gray-200 rounded-lg p-4 space-y-3">
                 <div className="flex items-center justify-between">
                   <span className="text-sm font-medium text-gray-700">Item {index + 1}</span>
@@ -450,7 +521,7 @@ export default function ReceiptForm({ receiptData, onBack, onSave }: ReceiptForm
                     <Label className="text-xs text-gray-600">Spending Type</Label>
                     <Popover
                       open={openComboboxes[index] || false}
-                      onOpenChange={(open) => setOpenComboboxes((prev) => ({ ...prev, [index]: open }))}
+                      onOpenChange={(open: boolean) => setOpenComboboxes((prev) => ({ ...prev, [index]: open }))}
                     >
                       <PopoverTrigger asChild>
                         <Button
@@ -459,13 +530,24 @@ export default function ReceiptForm({ receiptData, onBack, onSave }: ReceiptForm
                           aria-expanded={openComboboxes[index] || false}
                           className="w-full justify-between mt-1 h-10 bg-transparent"
                         >
-                          {item.expense_type_id
-                            ? expenseTypes.find((type) => type.id === item.expense_type_id)
-                              ? getExpenseTypeDisplayName(
-                                  expenseTypes.find((type) => type.id === item.expense_type_id)!,
-                                )
-                              : "Select type..."
-                            : "Select type..."}
+                          <span
+                            style={{
+                              maxWidth: "calc(100% - 2rem)",
+                              display: "inline-block",
+                              overflow: "hidden",
+                              textOverflow: "ellipsis",
+                              whiteSpace: "nowrap",
+                              verticalAlign: "middle",
+                            }}
+                          >
+                            {item.expense_type_id
+                              ? expenseTypes.find((type: ExpenseType) => type.id === item.expense_type_id)
+                                ? truncateText(getExpenseTypeDisplayName(
+                                    expenseTypes.find((type: ExpenseType) => type.id === item.expense_type_id)!,
+                                  ), 30)
+                                : "Select type..."
+                              : "Select type..."}
+                          </span>
                           <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                         </Button>
                       </PopoverTrigger>
@@ -480,24 +562,48 @@ export default function ReceiptForm({ receiptData, onBack, onSave }: ReceiptForm
                               ) : expenseTypes.length === 0 ? (
                                 <CommandItem disabled>No expense types found</CommandItem>
                               ) : (
-                                expenseTypes.map((expenseType) => (
-                                  <CommandItem
-                                    key={expenseType.id}
-                                    value={getExpenseTypeDisplayName(expenseType)}
-                                    onSelect={() => {
-                                      updatePurchaseItem(index, "expense_type_id", expenseType.id)
-                                      setOpenComboboxes((prev) => ({ ...prev, [index]: false }))
-                                    }}
-                                  >
-                                    <Check
-                                      className={cn(
-                                        "mr-2 h-4 w-4",
-                                        item.expense_type_id === expenseType.id ? "opacity-100" : "opacity-0",
-                                      )}
-                                    />
-                                    {getExpenseTypeDisplayName(expenseType)}
-                                  </CommandItem>
-                                ))
+                                (() => {
+                                  // Group expenseTypes by category, and sort each group alphabetically, but put 'Other' last within its category
+                                  const grouped: { [cat: string]: ExpenseType[] } = {};
+                                  expenseTypes.forEach((type: ExpenseType) => {
+                                    if (!grouped[type.expense_category.name]) grouped[type.expense_category.name] = [];
+                                    grouped[type.expense_category.name].push(type);
+                                  });
+                                  // Render each category group with header
+                                  const result: React.JSX.Element[] = [];
+                                  Object.keys(grouped).sort().forEach((cat: string) => {
+                                    result.push(
+                                      <div key={cat} className="px-2 py-1 text-xs font-semibold text-gray-500 bg-gray-50">
+                                        {cat}
+                                      </div>
+                                    );
+                                    // Sort all except 'Other' alphabetically, then 'Other' last
+                                    const group = grouped[cat];
+                                    const others = group.filter((t) => t.name.toLowerCase() === "other");
+                                    const rest = group.filter((t) => t.name.toLowerCase() !== "other").sort((a, b) => a.name.localeCompare(b.name));
+                                    [...rest, ...others].forEach((expenseType: ExpenseType) => {
+                                      result.push(
+                                        <CommandItem
+                                          key={expenseType.id}
+                                          value={getExpenseTypeDisplayName(expenseType)}
+                                          onSelect={() => {
+                                            updatePurchaseItem(index, "expense_type_id", expenseType.id);
+                                            setOpenComboboxes((prev: Record<number, boolean>) => ({ ...prev, [index]: false }));
+                                          }}
+                                        >
+                                          <Check
+                                            className={cn(
+                                              "mr-2 h-4 w-4",
+                                              item.expense_type_id === expenseType.id ? "opacity-100" : "opacity-0",
+                                            )}
+                                          />
+                                          {getExpenseTypeDisplayName(expenseType)}
+                                        </CommandItem>
+                                      );
+                                    });
+                                  });
+                                  return result;
+                                })()
                               )}
                             </CommandGroup>
                           </CommandList>
@@ -510,7 +616,7 @@ export default function ReceiptForm({ receiptData, onBack, onSave }: ReceiptForm
                     <Input
                       type="number"
                       value={item.amount || ""}
-                      onChange={(e) => updatePurchaseItem(index, "amount", Number.parseFloat(e.target.value) || 0)}
+                      onChange={(e: React.ChangeEvent<HTMLInputElement>) => updatePurchaseItem(index, "amount", Number.parseFloat(e.target.value) || 0)}
                       placeholder="0.00"
                       className="mt-1"
                     />
@@ -522,8 +628,8 @@ export default function ReceiptForm({ receiptData, onBack, onSave }: ReceiptForm
                   <div>
                     <Label className="text-xs text-gray-600">Description</Label>
                     <Input
-                      value={item.description}
-                      onChange={(e) => updatePurchaseItem(index, "description", e.target.value)}
+                      value={item.other_category ?? ""}
+                      onChange={(e: React.ChangeEvent<HTMLInputElement>) => updatePurchaseItem(index, "other_category", e.target.value)}
                       placeholder="Describe the item"
                       className="mt-1"
                     />
