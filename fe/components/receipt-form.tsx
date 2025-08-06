@@ -38,7 +38,8 @@ interface PurchaseItem {
   expense_type_id: string
   amount: number
   other_category: string
-  reimburse: boolean
+  reimbursable: boolean
+  captured_timestamp?: string
 }
 
 interface ReceiptData {
@@ -59,10 +60,16 @@ export default function ReceiptForm({ receiptData, onBack, onSave }: ReceiptForm
   const { toast } = require("@/hooks/use-toast")
   const [receipt, setReceipt] = useState<ReceiptData>({
     currency: "INR",
-    purchase_items: [{ expense_type_id: "", amount: 0, description: "", reimburse: true, captured_timestamp: new Date().toISOString().split("T")[0] }],
+    purchase_items: [{ expense_type_id: "", amount: 0, other_category: "", reimbursable: true, captured_timestamp: new Date().toISOString().split("T")[0] }],
     ...receiptData,
   })
-  const [ownMoney, setOwnMoney] = useState(false)
+  // Checkbox is checked if some purchase items are reimbursable
+  const [ownMoney, setOwnMoney] = useState(() => {
+    if (receiptData?.purchase_items && receiptData.purchase_items.length > 0) {
+      return receiptData.purchase_items.some(item => item.reimbursable === true);
+    }
+    return true;
+  });
   const [isLoading, setIsLoading] = useState(false)
   const [receiptImage, setReceiptImage] = useState<string | null>(receiptData?.receipt_image || null)
   const [expenseTypes, setExpenseTypes] = useState<ExpenseType[]>([])
@@ -169,13 +176,16 @@ export default function ReceiptForm({ receiptData, onBack, onSave }: ReceiptForm
     return expenseType?.name.toLowerCase() === "other"
   }
 
-  // Update reimburse field for all items when ownMoney changes
+  // Update reimbursable field for all items when ownMoney changes
   useEffect(() => {
-    setReceipt((prev: ReceiptData) => ({
-      ...prev,
-      purchase_items: prev.purchase_items.map((item: PurchaseItem) => ({ ...item, reimburse: !ownMoney })),
-    }))
-  }, [ownMoney])
+    setReceipt((prev: ReceiptData) => {
+      const updated = {
+        ...prev,
+        purchase_items: prev.purchase_items.map((item: PurchaseItem) => ({ ...item, reimbursable: ownMoney })),
+      };
+      return updated;
+    });
+  }, [ownMoney]);
 
   const handleImageCapture = (event: React.ChangeEvent<HTMLInputElement>): void => {
     const file = event.target.files?.[0]
@@ -240,7 +250,7 @@ export default function ReceiptForm({ receiptData, onBack, onSave }: ReceiptForm
       ...prev,
       purchase_items: [
         ...prev.purchase_items,
-        { expense_type_id: "", amount: 0, other_category: "", reimburse: !ownMoney },
+        { expense_type_id: "", amount: 0, other_category: "", reimbursable: ownMoney },
       ],
     }))
   }
@@ -281,29 +291,32 @@ export default function ReceiptForm({ receiptData, onBack, onSave }: ReceiptForm
 
       // Insert or update purchase items
       for (const item of receipt.purchase_items) {
+        console.log("Saving purchase item payload:", item);
         if (isEditing && item.id) {
-          const { error: purchaseError } = await supabase
+          const { error: purchaseError, data: updateData } = await supabase
             .from("purchase")
             .update({
               expense_type_id: item.expense_type_id,
               amount: item.amount,
               other_category: item.other_category,
-              reimbursable: item.reimburse,
+              reimbursable: item.reimbursable,
               captured_timestamp: item.captured_timestamp || new Date().toISOString().split("T")[0],
             })
             .eq("id", item.id);
+          console.log("Supabase update response:", { error: purchaseError, data: updateData });
           if (purchaseError) throw purchaseError;
         } else if (receiptData?.id) {
-          const { error: purchaseError } = await supabase
+          const { error: purchaseError, data: insertData } = await supabase
             .from("purchase")
             .insert({
               receipt_id: receiptData.id,
               expense_type_id: item.expense_type_id,
               amount: item.amount,
               other_category: item.other_category,
-              reimbursable: item.reimburse,
+              reimbursable: item.reimbursable,
               captured_timestamp: item.captured_timestamp || new Date().toISOString().split("T")[0],
             });
+          console.log("Supabase insert response:", { error: purchaseError, data: insertData });
           if (purchaseError) throw purchaseError;
         }
       }
@@ -479,7 +492,11 @@ export default function ReceiptForm({ receiptData, onBack, onSave }: ReceiptForm
 
           {/* Own Money Checkbox */}
           <div className="flex items-center space-x-2">
-            <Checkbox id="ownMoney" checked={ownMoney} onCheckedChange={(checked) => setOwnMoney(checked as boolean)} />
+            <Checkbox
+              id="ownMoney"
+              checked={ownMoney}
+              onCheckedChange={(checked) => setOwnMoney(checked as boolean)}
+            />
             <Label htmlFor="ownMoney" className="text-sm font-medium text-gray-700">
               Own money
             </Label>
@@ -632,6 +649,7 @@ export default function ReceiptForm({ receiptData, onBack, onSave }: ReceiptForm
                       onChange={(e: React.ChangeEvent<HTMLInputElement>) => updatePurchaseItem(index, "other_category", e.target.value)}
                       placeholder="Describe the item"
                       className="mt-1"
+
                     />
                   </div>
                 )}
