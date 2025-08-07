@@ -1,6 +1,6 @@
 {
   "builds": [
-    { "src": "next.config.mjs", "use": "@vercel/next" }
+    { "src": "package.json", "use": "@vercel/next" }
   ],
   "routes": [
     { "src": "/(.*)", "dest": "/$1" }
