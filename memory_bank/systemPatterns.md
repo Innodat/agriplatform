@@ -77,6 +77,31 @@
 
 ---
 
+## Content System Pattern
+
+**Architecture**: Hexagonal/Clean Architecture for content management
+- **Domain**: Content is decoupled from business domains (finance, logistics, etc.)
+- **Storage**: All media/files accessed via FastAPI Content Service; frontend never accesses storage directly
+- **Security**: Upload/download through signed URLs with short lifetimes; backend validates permissions
+
+**Database Schema (cs schema)**:
+- `cs.content_source`: Storage provider configs (Azure Blob, future: S3)
+- `cs.content_store`: Content metadata (external_key, mime_type, size, checksum)
+- `cs.receipt_content`: Domain mapping (receipt_id → content_id with role)
+
+**Flow**:
+1. **Upload**: FE → POST /api/content/initiate → BE returns signed upload URL → FE uploads to storage → POST /api/content/{id}/finalize
+2. **Download**: FE → GET /api/receipts/{id}/content → BE returns signed download URLs
+3. **Delete**: FE → DELETE /api/content/{id} → BE removes from storage + database
+
+**Benefits**:
+- Domain separation: Finance doesn't know about Azure Blob details
+- Security: All access controlled through backend with JWT validation
+- Flexibility: Easy to switch storage providers or add CDN
+- Auditability: All content operations logged through backend
+
+---
+
 ## Usage Notes
 - Any time a schema changes in Supabase:
   1. Regenerate backend models (Zod or Pydantic).

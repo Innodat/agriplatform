@@ -116,10 +116,61 @@ packages/frontend/src/
 
 ### Remaining TODOs
 - **Supabase Integration**: Connect live database queries to replace mock data
-- **Zod Schema Generation**: Create type-safe schemas from Supabase MCP
+- ✔ **Zod Schema Generation**: Create type-safe schemas from Supabase MCP
 - **Form Validation**: Implement proper form validation in AddReceiptDialog
 - **React Router**: Add proper routing for scalable navigation
 - **Authentication**: Integrate real user authentication and role management
+- **Content System**: Implement receipt file upload/management via FastAPI Content Service
+- **Database Security**: Enable RLS policies on public tables and add missing indexes
+
+---
+
+## Post‑ACT Update – 2025‑09‑25
+
+### What Was Delivered
+- **Zod Schema Generation**: Created complete type-safe schemas from live Supabase MCP for finance domain
+  - `packages/shared/schemas/zod/finance/`: receipt, purchase, expense-category, expense-type, currency
+  - `packages/shared/schemas/zod/auth/`: minimal users schema for FK validation
+  - All schemas include Row/Insert/Update variants with proper nullability and TypeScript inference
+- **Content System Architecture**: Designed and implemented hexagonal content management system
+  - Database schema: `cs.content_source`, `cs.content_store`, `cs.receipt_content` with RLS policies
+  - Migration file: `supabase/migrations/20250925T1644_create_content_system_schema.sql`
+  - Decoupled content from business domains for flexibility and security
+- **Documentation Updates**: 
+  - `memory_bank/systemPatterns.md`: Added Content System Pattern with flow diagrams
+  - `memory_bank/progress.md`: Updated TODO status and added content system requirements
+
+### Deviations from Original Plan
+- **Read-only MCP**: Could not apply migration directly via MCP (read-only mode), created migration file instead
+- **Content System Priority**: Implemented content system schema alongside Zod schemas for complete foundation
+
+### Current Schema Architecture
+```
+packages/shared/schemas/zod/
+├── finance/
+│   ├── receipt.schema.ts ✔
+│   ├── purchase.schema.ts ✔
+│   ├── expense-category.schema.ts ✔
+│   ├── expense-type.schema.ts ✔
+│   ├── currency.schema.ts ✔
+│   └── index.ts ✔
+└── auth/
+    ├── users-min.schema.ts ✔
+    └── index.ts ✔
+
+supabase/migrations/
+└── 20250925T1644_create_content_system_schema.sql ✔
+```
+
+### Remaining TODOs (Updated Priority)
+1. **Database Migration**: Apply content system migration to live Supabase instance
+2. **Supabase Integration**: Connect live database queries using new Zod schemas
+3. **FastAPI Content Service**: Implement initiate/finalize/list/delete endpoints with JWT validation
+4. **Form Validation**: Integrate Zod schemas into AddReceiptDialog and purchase forms
+5. **Frontend Content UX**: Build upload widget and content listing components
+6. **Authentication & Role Management**: Implement Supabase Auth in Vite frontend
+7. **Database Security**: Enable RLS on existing public tables and add missing indexes
+8. **Testing**: Unit/component/integration/E2E test coverage
 
 ---
 
@@ -127,3 +178,4 @@ packages/frontend/src/
 - This baseline will be used as the "before" snapshot for this module.
 - Future updates to this file will mark ✔ for completed tasks and add dates.
 - Any schema change in Supabase → regenerate Zod; if FastAPI added later → sync with Pydantic.
+- Content System follows hexagonal architecture: FE → FastAPI → Azure Blob (never direct storage access)
