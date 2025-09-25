@@ -2,7 +2,7 @@
 -- 5 receipts, 2 for today
 
 -- Receipts
-INSERT INTO finance.receipt (id, is_active, created_timestamp, created_user_id, modified_user_id, modified_timestamp)
+INSERT INTO public.receipt (id, is_active, created_timestamp, created_user_id, modified_user_id, modified_timestamp)
 VALUES
   (1, TRUE, CURRENT_TIMESTAMP, 'system', 'system', CURRENT_TIMESTAMP),
   (2, TRUE, CURRENT_TIMESTAMP, 'system', 'system', CURRENT_TIMESTAMP),
@@ -31,7 +31,7 @@ VALUES
   (25, TRUE, CURRENT_DATE - INTERVAL '30 days', 'system', 'system', CURRENT_DATE - INTERVAL '30 days');
 
 -- Purchases (linked to receipts above)
-INSERT INTO finance.purchase (receipt_id, expense_type_id, other_category, currency_id, user_id, amount, reimbursable, captured_timestamp, is_active, created_timestamp, created_user_id, modified_user_id, modified_timestamp)
+INSERT INTO public.purchase (receipt_id, expense_type_id, other_category, currency_id, user_id, amount, reimbursable, captured_timestamp, is_active, created_timestamp, created_user_id, modified_user_id, modified_timestamp)
 VALUES
   (1, 1, NULL, 1, '7c838a24-6ecc-4755-b585-39954bfd83d4', 150.00, TRUE, CURRENT_TIMESTAMP, TRUE, CURRENT_TIMESTAMP, 'system', 'system', CURRENT_TIMESTAMP),
   (1, 2, NULL, 2, '7c838a24-6ecc-4755-b585-39954bfd83d4', 75.50, FALSE, CURRENT_TIMESTAMP, TRUE, CURRENT_TIMESTAMP, 'system', 'system', CURRENT_TIMESTAMP),

@@ -1,0 +1,8 @@
+{
+  "files": [],
+  "references": [
+    { "path": "./packages/shared" },
+    { "path": "./packages/tools/ts" },
+    { "path": "./packages/frontend" }
+  ]
+}

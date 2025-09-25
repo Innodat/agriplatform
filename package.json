@@ -1,0 +1,31 @@
+{
+  "name": "agriplatform",
+  "version": "1.0.0",
+  "private": true,
+  "workspaces": [
+    "packages/*"
+  ],
+  "scripts": {
+    "tools": "python packages/tools/tools.py",
+    "dev": "npm run tools -- tailwind --watch",
+    "build": "npm run tools -- tailwind --minify"
+  },
+  "devDependencies": {
+    "supabase": "^2.34.3",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.4.0",
+    "zod": "^3.22.4"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Innodat/agriplatform.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Innodat/agriplatform/issues"
+  },
+  "homepage": "https://github.com/Innodat/agriplatform#readme",
+  "description": ""
+}

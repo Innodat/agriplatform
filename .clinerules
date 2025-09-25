@@ -1,0 +1,120 @@
+# Project Operating Rules — Digital Twin Platform
+(React + Vite + Supabase MCP + ShadCN UI + Full‑stack Discipline)
+
+## Workflow Modes
+- Always start in **PLAN** mode:
+  - Read memory_bank/* before output.
+  - Query Supabase MCP for **live schema** before proposing any data models, UI components, or API endpoints.
+  - For frontend (UI): Use the “Frontend Planning Prompt” below.
+  - For backend (API/services): Use the “Backend Planning Prompt” below.
+  - Include a section recommending `.clinerules` / memory_bank updates for future quality/speed.
+  - WAIT for explicit `APPROVE LAYOUT: yes` before writing **any code**.
+
+- **ACT** mode:
+  - Implement **only** what was approved in PLAN.
+  - Use the corresponding “Acting Prompt” below.
+  - Chunk changes; stop after scaffolding for confirmation before deeper integrations.
+
+## Model Routing Defaults
+- Planning (free, UI‑strong): `Gemini 2.5 Pro`
+- Planning (deep/full‑stack vision): `GPT‑5 Thinking`
+- Acting (frontend or backend): `Claude Sonnet 4` for clean, maintainable code
+- Budget: `DeepSeek R1` (plan) / `DeepSeek V3` (act)
+
+## Supabase MCP
+- MUST be queried before any data model or API changes.
+- Zod schemas must exactly match MCP schema (types, enums, nullability).
+- Backend: also generate request/response Zod schemas per endpoint.
+
+## UI Patterns
+- Stack: React + Vite + TypeScript + Tailwind + **ShadCN UI** (installed components)
+- Nav: `<AppShell>` (Topbar + Sidebar); Departments in sidebar; modules as subroutes.
+- Accessibility: labels, aria‑attributes, keyboard nav, color contrast checks.
+- Responsiveness: mobile‑first, Tailwind grid/flex.
+
+## Backend Patterns
+- Service layer per business capability; thin controllers/handlers.
+- Routes reflect clear REST or RPC patterns.
+- Input validation with Zod; outputs also validated.
+- Consistent error payloads: `{ error: string, code?: number, details?: any }`
+
+## Confirmation Gates
+- Gate 1: Layout/API diagram approved (`APPROVE LAYOUT: yes`)
+- Gate 2: Scaffolding approved before wiring DB or business logic.
+- Gate 3: Final review before merge.
+
+## Conventions
+- Files: kebab-case; Components & Services: PascalCase; Types: infer from Zod.
+- Commits: conventional commits (`feat:`, `fix:`, `refactor:`, `docs:`, `chore:`)
+
+---
+
+### 📜 Frontend Planning Prompt (embedded)
+
+> Model: `Gemini 2.5 Pro` (free) or `GPT‑5 Thinking` (deep)
+> 
+> “You are an expert React + Vite engineer, full‑stack architect, and prompt‑engineering strategist, operating inside Cline with Supabase MCP enabled.
+> 
+> **Project context**: Digital twin platform for a farm. Current focus: Finance → Receipt Capturing.
+> 
+> **Tasks**:
+> 1. Query Supabase MCP for `receipts` and role/auth tables.
+> 2. Generate exact Zod schemas; infer types.
+> 3. Review page.tsx; list components (shared vs feature-local); define props.
+> 4. Design scalable platform layout (AppShell + Departments + module tabs).
+> 5. **Show ASCII layout diagram + route map first** — no code.
+> 6. Propose file tree for React+Vite + ShadCN UI.
+> 7. Output: (A) ASCII layout + routes (B) Components list (C) Zod schemas (D) File tree (E) Refactor steps (F) Acceptance checklist (G) Rule/memory updates.
+> 
+> WAIT for ‘APPROVE LAYOUT: yes’ before coding.”
+
+---
+
+### 📜 Backend Planning Prompt (embedded)
+
+> Model: `Gemini 2.5 Pro` or `GPT‑5 Thinking`
+> 
+> “You are an expert TypeScript backend and API architect, operating inside Cline with Supabase MCP enabled.
+> 
+> **Project context**: Digital twin platform. Current focus: Finance → Receipt Capturing APIs.
+> 
+> **Persistent Context for Frontend:**
+> - Monorepo layout:
+>   - /packages/frontend → React + Vite + Tailwind + ShadCN UI
+>   - /supabase → CLI config, migrations, seeds, MCP access
+>   - /memory_bank and .clinerules at repo root with system patterns and dual‑schema sync rules
+> - Current module: Finance → Receipt Capturing dashboard
+> - Backend: Supabase direct from frontend (no custom backend yet)
+> - Validation: Zod schemas from live Supabase MCP schema
+> - UI: Role‑gated tabs (Admin vs Employee) — Views: Overview, Today, Admin
+> - Current goals: Refine layout & styling to match original `page.tsx` look and feel; re‑implement Today and Admin; add Supabase‑auth login screen
+> **Tasks**:
+> 1. Query Supabase MCP for `receipts` and role/auth schemas.
+> 2. Generate Zod schemas for requests/responses matching live schema.
+> 3. Design service/API architecture for this module (REST or RPC).
+> 4. Produce API diagram + route map first — no code yet.
+> 5. Propose folder structure for services, routes, lib.
+> 6. Output: (A) API diagram/map (B) Services/routes list (C) Zod schemas (D) File tree (E) Build steps (F) Acceptance checklist (G) Rule/memory updates.
+> 
+> WAIT for ‘APPROVE LAYOUT: yes’ before coding.”
+
+---
+
+### 📜 Acting Prompt (Frontend & Backend, embedded)
+
+> Model: `Claude Sonnet 4` (UI clean code) or `GPT‑5 Standard` (unified flow)
+> 
+> “Using the approved plan:
+> - Scaffold as planned (FE: layouts/components; BE: services/routes).
+> - Integrate Zod validation from plan.
+> - Wire Supabase MCP queries/mutations aligned to live schema.
+> - Keep Tailwind + ShadCN UI (frontend).
+> - Ensure accessibility (FE) and strict TS (both).
+> - Stop after scaffolding for confirmation before wiring complex logic.”
+> - **After scaffolding or refactor work is complete**:
+>   - Open `memory_bank/progress.md`
+>   - Mark completed checklist items with ✔
+>   - Add a dated "Post‑ACT Update – YYYY‑MM‑DD" section noting:
+>     - What was delivered
+>     - Any deviations from the original plan
+>     - Remaining TODOs”
