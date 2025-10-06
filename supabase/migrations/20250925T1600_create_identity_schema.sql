@@ -18,7 +18,9 @@ create type identity.app_role as enum ('admin', 'financeadmin', 'employee');
 create table identity.users (
   id          uuid references auth.users not null primary key, -- UUID from auth.users
   username    text,
+  actor_key text,
   is_active BOOLEAN DEFAULT TRUE,
+  is_system boolean DEFAULT false,
   created_by uuid references identity.users(id) on delete set null,
   created_at timestamptz DEFAULT now(),
   updated_by uuid references identity.users(id) on delete set null,
@@ -26,6 +28,7 @@ create table identity.users (
 );
 comment on table identity.users is 'Profile data for each user.';
 comment on column identity.users.id is 'References the internal Supabase Auth user.';
+CREATE UNIQUE INDEX IF NOT EXISTS identity_users_actor_key_idx ON identity.users (actor_key) WHERE actor_key IS NOT NULL;
 
 -- USER ROLES
 create table identity.user_roles (

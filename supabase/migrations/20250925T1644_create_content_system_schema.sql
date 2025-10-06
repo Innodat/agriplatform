@@ -55,7 +55,7 @@ INSERT INTO cs.content_source (provider, name, settings) VALUES (
   '{
     "account_name": "PLACEHOLDER",
     "container_name": "receipts",
-    "connection_secret", "LISELI_AZURE_STORAGE_CONNECTION"
+    "connection_secret": "LISELI_AZURE_STORAGE_CONNECTION"
   }'
 );
 
@@ -64,10 +64,9 @@ returns text
 language sql
 security definer
 as $$
-  select decrypted_secret
-  from vault.secrets
-  where name = secret_name;
+  select vault.secret(secret_name);
 $$;
+
 
 -- Lock it down: only allow your backend role to call it
 revoke all on function cs.resolve_secret(text) from public;

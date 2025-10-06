@@ -16,27 +16,34 @@ security definer
 as $$
 declare
   actor_id uuid := nullif(current_setting('request.jwt.claims', true)::json ->> 'sub', '');
-  row_diff jsonb;
-  col_changes jsonb := '{}';
-  key text;
+  row_diff jsonb := '{}'::jsonb;
+  col_changes jsonb := '{}'::jsonb;
+  col_key text;
 begin
   if tg_op = 'INSERT' then
     row_diff := to_jsonb(new);
 
   elsif tg_op = 'UPDATE' then
-    row_diff := jsonb_strip_nulls(to_jsonb(new) - to_jsonb(old));
+  -- Build row_diff containing only keys whose values changed
+  row_diff := (
+    SELECT coalesce(jsonb_object_agg(k, to_jsonb(new) -> k), '{}'::jsonb)
+    FROM (
+      SELECT key AS k FROM jsonb_object_keys(to_jsonb(new)) AS t(key)
+      WHERE (to_jsonb(new) -> t.key) IS DISTINCT FROM (to_jsonb(old) -> t.key)
+      ) s
+  );
 
-    -- Build per-column change map
-    for key in select jsonb_object_keys(row_diff)
-    loop
-      col_changes := col_changes || jsonb_build_object(
-        key,
-        jsonb_build_object(
-          'old', to_jsonb(old) -> key,
-          'new', to_jsonb(new) -> key
-        )
-      );
-    end loop;
+  -- Build per-column change map for those changed keys
+  FOR col_key IN SELECT jsonb_object_keys(row_diff)
+  LOOP
+    col_changes := col_changes || jsonb_build_object(
+      col_key,
+      jsonb_build_object(
+        'old', to_jsonb(old) -> col_key,
+        'new', to_jsonb(new) -> col_key
+      )
+    );
+  END LOOP;
 
   elsif tg_op = 'DELETE' then
     row_diff := to_jsonb(old);
@@ -55,11 +62,11 @@ begin
     tg_op,
     actor_id,
     row_diff,
-    nullif(col_changes, '{}')
+    nullif(col_changes, '{}'::jsonb)
   );
 
   return coalesce(new, old);
-end;
+  end;
 $$;
 
 create trigger audit_log_finance_purchase
