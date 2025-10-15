@@ -179,3 +179,59 @@ supabase/migrations/
 - Future updates to this file will mark ✔ for completed tasks and add dates.
 - Any schema change in Supabase → regenerate Zod; if FastAPI added later → sync with Pydantic.
 - Content System follows hexagonal architecture: FE → FastAPI → Azure Blob (never direct storage access)
+
+---
+
+## Post‑ACT Update – 2025‑10‑15
+
+### What Was Delivered
+- **Comprehensive Technical Specification Document**: Created `docs/tech-spec.md` covering all aspects of the platform
+  - 12 major sections with detailed subsections
+  - Architecture diagrams and patterns
+  - Database schema documentation with Mermaid ER diagrams
+  - Type safety and validation strategies
+  - Frontend and backend patterns
+  - Development workflow (Plan → Approve → Act)
+  - Code conventions and naming standards
+  - Security and access control (RBAC, RLS)
+  - Testing strategy (Unit, Integration, E2E)
+  - Deployment and CI/CD guidelines
+  - Future considerations and technical debt tracking
+  - Quick reference appendix
+
+- **Updated .clinerules**: Added reference to tech-spec.md in PLAN mode workflow
+  - Ensures all future planning tasks consult the technical specification
+  - Maintains consistency across development efforts
+
+### Purpose and Benefits
+- **Single Source of Truth**: Centralized documentation for architectural decisions
+- **Onboarding**: New team members can quickly understand the platform
+- **Consistency**: Ensures all development follows established patterns
+- **Planning Reference**: AI planning tasks now have comprehensive context
+- **Living Document**: Designed to be updated as the platform evolves
+
+### Document Structure
+```
+docs/tech-spec.md (12 sections, ~500 lines)
+├── 1. Project Overview (Vision, Focus, Tech Stack)
+├── 2. Architecture (Monorepo, Frontend, Backend, Content System)
+├── 3. Database Schema (Organization, ER Diagrams, Audit, RLS, Enums)
+├── 4. Type Safety & Validation (Zod, Dual-Schema Sync)
+├── 5. Frontend Patterns (Components, Layout, ShadCN UI, State, A11y)
+├── 6. Backend Patterns (Services, API Design, Error Handling)
+├── 7. Development Workflow (Plan/Act Gates, Model Routing, Memory Bank)
+├── 8. Code Conventions (Naming, Types, Commits, TypeScript Config)
+├── 9. Security & Access Control (RBAC, Permissions, RLS, Content Security)
+├── 10. Testing Strategy (Pyramid, Unit, Integration, E2E, Database)
+├── 11. Deployment & CI/CD (Build, Migrations, Environments, Pipeline)
+└── 12. Future Considerations (Planned Features, Tech Debt, Scalability)
+```
+
+### Deviations from Original Plan
+- None - delivered as planned
+
+### Remaining TODOs
+- **Documentation Maintenance**: Review tech-spec.md quarterly and after major changes
+- **Team Review**: Solicit feedback from team members on the technical specification
+- **Integration**: Ensure all team members are aware of and reference the tech-spec.md
+- **Updates**: Keep tech-spec.md synchronized with actual implementation as platform evolves

@@ -4,6 +4,7 @@
 ## Workflow Modes
 - Always start in **PLAN** mode:
   - Read memory_bank/* before output.
+  - Read docs/tech-spec.md for architectural patterns and conventions.
   - Query Supabase MCP for **live schema** before proposing any data models, UI components, or API endpoints.
   - For frontend (UI): Use the “Frontend Planning Prompt” below.
   - For backend (API/services): Use the “Backend Planning Prompt” below.
@@ -95,6 +96,7 @@
 > 4. Produce API diagram + route map first — no code yet.
 > 5. Propose folder structure for services, routes, lib.
 > 6. Output: (A) API diagram/map (B) Services/routes list (C) Zod schemas (D) File tree (E) Build steps (F) Acceptance checklist (G) Rule/memory updates.
+> 7. Produce updates to the docs/tech-spec.md file to keep the architecture, design decisions, and patterns up to date. The purpose is for future planning tasks to keep to adhere to it.  
 > 
 > WAIT for ‘APPROVE LAYOUT: yes’ before coding.”
 
@@ -102,7 +104,7 @@
 
 ### 📜 Acting Prompt (Frontend & Backend, embedded)
 
-> Model: `Claude Sonnet 4` (UI clean code) or `GPT‑5 Standard` (unified flow)
+> Model: `Claude Sonnet 4.5` (UI clean code) or `GPT‑5 Codex` (unified flow)
 > 
 > “Using the approved plan:
 > - Scaffold as planned (FE: layouts/components; BE: services/routes).
