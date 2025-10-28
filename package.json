@@ -27,5 +27,8 @@
     "url": "https://github.com/Innodat/agriplatform/issues"
   },
   "homepage": "https://github.com/Innodat/agriplatform#readme",
-  "description": ""
+  "description": "",
+  "dependencies": {
+    "@supabase/supabase-js": "^2.76.1"
+  }
 }

@@ -8,6 +8,7 @@
   - Query Supabase MCP for **live schema** before proposing any data models, UI components, or API endpoints.
   - For frontend (UI): Use the “Frontend Planning Prompt” below.
   - For backend (API/services): Use the “Backend Planning Prompt” below.
+  - Enumerate required updates to `docs/tech-spec.md` and include an explicit section describing the affected sections and proposed changes.
   - Include a section recommending `.clinerules` / memory_bank updates for future quality/speed.
   - WAIT for explicit `APPROVE LAYOUT: yes` before writing **any code**.
 
@@ -65,7 +66,8 @@
 > 4. Design scalable platform layout (AppShell + Departments + module tabs).
 > 5. **Show ASCII layout diagram + route map first** — no code.
 > 6. Propose file tree for React+Vite + ShadCN UI.
-> 7. Output: (A) ASCII layout + routes (B) Components list (C) Zod schemas (D) File tree (E) Refactor steps (F) Acceptance checklist (G) Rule/memory updates.
+> 7. Output: (A) ASCII layout + routes (B) Components list (C) Zod schemas (D) File tree (E) Refactor steps (F) Acceptance checklist (G) Rule/memory updates (H) `docs/tech-spec.md` updates.
+> 8. Document the exact `docs/tech-spec.md` sections to update, including summary of changes, new patterns introduced, and any diagrams impacted.
 > 
 > WAIT for ‘APPROVE LAYOUT: yes’ before coding.”
 
@@ -95,8 +97,8 @@
 > 3. Design service/API architecture for this module (REST or RPC).
 > 4. Produce API diagram + route map first — no code yet.
 > 5. Propose folder structure for services, routes, lib.
-> 6. Output: (A) API diagram/map (B) Services/routes list (C) Zod schemas (D) File tree (E) Build steps (F) Acceptance checklist (G) Rule/memory updates.
-> 7. Produce updates to the docs/tech-spec.md file to keep the architecture, design decisions, and patterns up to date. The purpose is for future planning tasks to keep to adhere to it.  
+> 6. Output: (A) API diagram/map (B) Services/routes list (C) Zod schemas (D) File tree (E) Build steps (F) Acceptance checklist (G) Rule/memory updates (H) `docs/tech-spec.md` updates.
+> 7. Produce updates to the docs/tech-spec.md file to keep the architecture, design decisions, and patterns up to date. The purpose is for future planning tasks to keep to adhere to it. Document the sections affected, the exact content to add or modify, and any supporting diagrams or examples required.  
 > 
 > WAIT for ‘APPROVE LAYOUT: yes’ before coding.”
 

@@ -18,7 +18,7 @@ create type identity.app_role as enum ('admin', 'financeadmin', 'employee');
 create table identity.users (
   id          uuid references auth.users not null primary key, -- UUID from auth.users
   username    text,
-  actor_key text,
+  actor_key text UNIQUE,
   is_active BOOLEAN DEFAULT TRUE,
   is_system boolean DEFAULT false,
   created_by uuid references identity.users(id) on delete set null,

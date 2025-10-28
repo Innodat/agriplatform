@@ -539,13 +539,210 @@ export function MyComponent() {
 
 ### 5.4 State Management
 
-**Current:** React useState/useContext  
-**Future:** Consider Zustand or React Query for complex state
+**Current:** React useState/useContext + Custom Hooks for Server State  
+**Future:** Consider Zustand for complex client state
 
-**Pattern:**
-- **Local State:** useState for component-specific state
-- **Shared State:** Context API for cross-component state (auth, theme)
-- **Server State:** Direct Supabase queries (future: React Query)
+**Patterns:**
+
+**Local State:** useState for component-specific state
+```typescript
+const [isDialogOpen, setIsDialogOpen] = useState(false)
+const [searchTerm, setSearchTerm] = useState('')
+```
+
+**Shared State:** Context API for cross-component state (auth, theme)
+```typescript
+const { user, role } = useAuth()
+const { theme, setTheme } = useTheme()
+```
+
+**Server State:** Custom hooks wrapping Supabase queries
+```typescript
+// Query hook pattern
+const { data, loading, error, refetch } = usePurchases({
+  capturedOn: today,
+  isActive: true
+})
+
+// Mutation hook pattern
+const { create, update, archive, loading, error } = usePurchaseMutations()
+```
+
+**Service Layer Architecture:**
+```
+Components → Hooks → Services → Supabase Client → Database
+
+Example Flow:
+TodayPage.tsx
+  → usePurchases({ capturedOn: today })
+    → getPurchases(filters)
+      → supabase.from('purchase').select()
+        → PostgreSQL Query
+```
+
+**Benefits:**
+- Clean separation of concerns
+- Reusable data fetching logic
+- Consistent error handling
+- Type-safe operations with Zod validation
+- Easy to test (mock at service layer)
+
+### 5.7 Data Fetching Patterns
+
+**Architecture:** Service Layer with Custom Hooks
+
+**Implementation:**
+
+**1. Service Layer** (`src/services/finance/`)
+```typescript
+// receipt.service.ts
+export async function getReceipts(filters: ReceiptFilters) {
+  const query = supabase
+    .from('receipt')
+    .select('*')
+    .eq('is_active', true)
+  
+  if (filters.supplier) {
+    query.ilike('supplier', `%${filters.supplier}%`)
+  }
+  
+  const { data, error } = await query
+  return { data: data || [], error }
+}
+
+export async function createReceipt(payload: ReceiptInsert) {
+  return supabase.from('receipt').insert(payload).select().single()
+}
+```
+
+**2. Custom Hooks** (`src/hooks/finance/`)
+```typescript
+// useReceipts.ts - Query hook
+export function useReceipts(filters?: ReceiptFilters) {
+  const [data, setData] = useState<ReceiptRow[]>([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<Error | null>(null)
+  
+  const refetch = useCallback(async () => {
+    setLoading(true)
+    const { data, error } = await getReceipts(filters || {})
+    if (error) setError(new Error(error.message))
+    else setData(data)
+    setLoading(false)
+  }, [filters])
+  
+  useEffect(() => { refetch() }, [refetch])
+  
+  return { data, loading, error, refetch }
+}
+
+// useReceiptMutations.ts - Mutation hook
+export function useReceiptMutations() {
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState<Error | null>(null)
+  
+  const create = async (payload: ReceiptInsert) => {
+    setLoading(true)
+    const { data, error } = await createReceipt(payload)
+    if (error) setError(new Error(error.message))
+    setLoading(false)
+    return data
+  }
+  
+  return { create, loading, error }
+}
+```
+
+**3. Component Usage**
+```typescript
+// TodayPage.tsx
+export function TodayPage() {
+  const { data: purchases, loading, error, refetch } = usePurchases({
+    capturedOn: today,
+    isActive: true
+  })
+  
+  const { create, loading: creating } = usePurchaseMutations()
+  
+  const handleCreate = async (data: PurchaseInsert) => {
+    const result = await create(data)
+    if (result) {
+      toast({ title: "Success", variant: "success" })
+      refetch() // Refresh data after mutation
+    }
+  }
+  
+  if (loading) return <LoadingState />
+  if (error) return <ErrorState error={error} onRetry={refetch} />
+  
+  return <PurchaseList purchases={purchases} onCreate={handleCreate} />
+}
+```
+
+**Benefits:**
+- **Separation of Concerns**: Services handle data access, hooks manage state
+- **Reusability**: Same service can be used by multiple hooks/components
+- **Type Safety**: Full TypeScript support with Zod validation
+- **Testability**: Easy to mock services in tests
+- **Consistency**: Standardized error handling and loading states
+
+**Reference Data Pattern:**
+```typescript
+// useReferenceData.ts
+export function useExpenseTypes(categoryId?: number) {
+  const { data, loading } = useSupabaseQuery(
+    () => getExpenseTypes(categoryId),
+    { enabled: true }
+  )
+  
+  // Create lookup map for efficient access
+  const expenseTypeMap = useMemo(() => {
+    const map = new Map<number, string>()
+    data.forEach(type => map.set(type.id, type.name))
+    return map
+  }, [data])
+  
+  return { data, loading, expenseTypeMap }
+}
+```
+
+**Error Handling Pattern:**
+```typescript
+// Consistent error structure
+interface DataFetchError {
+  message: string
+  code?: string
+  details?: unknown
+}
+
+// Service layer catches and normalizes errors
+try {
+  const { data, error } = await supabase.from('table').select()
+  if (error) throw new Error(error.message)
+  return { data, error: null }
+} catch (err) {
+  return { 
+    data: null, 
+    error: { 
+      message: err instanceof Error ? err.message : 'Unknown error',
+      details: err
+    }
+  }
+}
+```
+
+**Loading States:**
+- **Initial Load**: Show skeleton or spinner
+- **Refetch**: Show subtle loading indicator
+- **Mutations**: Disable buttons, show inline spinner
+- **Background Refresh**: Silent update without blocking UI
+
+**Future Enhancements:**
+- Implement React Query for advanced caching and synchronization
+- Add optimistic updates for better perceived performance
+- Implement request deduplication
+- Add retry logic with exponential backoff
+- Support for infinite scroll/pagination
 
 ### 5.5 Accessibility
 

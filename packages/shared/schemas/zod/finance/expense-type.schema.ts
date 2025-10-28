@@ -5,11 +5,11 @@ export const expenseTypeRowSchema = z.object({
   expense_category_id: z.number().nullable(),
   name: z.string(),
   description: z.string().nullable(),
-  created_user_id: z.string().nullable(),
-  modified_user_id: z.string().nullable(),
   is_active: z.boolean().nullable(),
-  created_timestamp: z.string().datetime().nullable(),
-  modified_timestamp: z.string().datetime().nullable(),
+  created_by: z.string().uuid().nullable(),
+  updated_by: z.string().uuid().nullable(),
+  created_at: z.string().datetime().nullable(),
+  updated_at: z.string().datetime().nullable(),
 });
 export type ExpenseTypeRow = z.infer<typeof expenseTypeRowSchema>;
 
@@ -18,23 +18,15 @@ export const expenseTypeInsertSchema = z.object({
   expense_category_id: z.number().nullable().optional(),
   name: z.string(),
   description: z.string().nullable().optional(),
-  created_user_id: z.string().nullable().optional(),
-  modified_user_id: z.string().nullable().optional(),
   is_active: z.boolean().optional(),
-  created_timestamp: z.string().datetime().optional(),
-  modified_timestamp: z.string().datetime().optional(),
+  created_by: z.string().uuid().nullable().optional(),
+  updated_by: z.string().uuid().nullable().optional(),
+  created_at: z.string().datetime().optional(),
+  updated_at: z.string().datetime().optional(),
 });
 export type ExpenseTypeInsert = z.infer<typeof expenseTypeInsertSchema>;
 
-export const expenseTypeUpdateSchema = z.object({
-  id: z.number().optional(),
-  expense_category_id: z.number().nullable().optional(),
-  name: z.string().optional(),
-  description: z.string().nullable().optional(),
-  created_user_id: z.string().nullable().optional(),
-  modified_user_id: z.string().nullable().optional(),
-  is_active: z.boolean().nullable().optional(),
-  created_timestamp: z.string().datetime().nullable().optional(),
-  modified_timestamp: z.string().datetime().nullable().optional(),
-});
+export const expenseTypeUpdateSchema = expenseTypeInsertSchema
+  .partial()
+  .extend({ id: z.number() });
 export type ExpenseTypeUpdate = z.infer<typeof expenseTypeUpdateSchema>;

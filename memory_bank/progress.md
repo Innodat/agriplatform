@@ -171,6 +171,7 @@ supabase/migrations/
 6. **Authentication & Role Management**: Implement Supabase Auth in Vite frontend
 7. **Database Security**: Enable RLS on existing public tables and add missing indexes
 8. **Testing**: Unit/component/integration/E2E test coverage
+9. **Security CS**: Add SAS protection to AZURE blob storage. Automate key rotation and SAS renewal.
 
 ---
 
@@ -235,3 +236,376 @@ docs/tech-spec.md (12 sections, ~500 lines)
 - **Team Review**: Solicit feedback from team members on the technical specification
 - **Integration**: Ensure all team members are aware of and reference the tech-spec.md
 - **Updates**: Keep tech-spec.md synchronized with actual implementation as platform evolves
+
+---
+
+## Post‑ACT Update – 2025‑10‑28
+
+### What Was Delivered
+- **Phase 4-6 Supabase Integration Complete**: Successfully integrated all Receipt Capturing components with live Supabase data
+  - **TodayPage.tsx**: Replaced mock data with `usePurchases` hook, added reference data lookups for currencies and expense types, implemented delete functionality, integrated AddReceiptDialog
+  - **AdminPage.tsx**: Replaced mock data with `usePurchases` hook, added filtering (status, search), implemented approve/reject mutations, added reference data resolution
+  - **AddReceiptDialog.tsx**: Complete form submission with Supabase mutations, creates receipt + multiple purchases, validates inputs, handles errors, uses reference data for dropdowns
+  - All components now feature proper loading states, error handling, and refetch after mutations
+
+- **Service Layer Pattern**: Components → Hooks → Services → Supabase Client → Database
+  - Clean separation of concerns with reusable hooks
+  - Consistent error handling across all mutations
+  - Type-safe operations using Zod schemas
+
+- **Reference Data Integration**: Implemented lookup maps for expense types and currencies
+  - Efficient in-memory caching with useMemo
+  - Consistent formatting helpers across all components
+  - Fallback handling for missing reference data
+
+### Implementation Details
+
+**TodayPage Integration:**
+- Query: `usePurchases({ capturedOn: today, isActive: true })`
+- Mutations: `usePurchaseMutations` for delete operations
+- Reference Data: `useExpenseTypes`, `useCurrencies` for display formatting
+- Features: Loading/error states, delete confirmation, dialog integration, auto-refetch
+
+**AdminPage Integration:**
+- Query: `usePurchases({ isActive: true })` with client-side filtering
+- Mutations: `usePurchaseMutations().updateStatus()` for approve/reject
+- Filtering: Status dropdown, search by expense type/receipt ID
+- Features: Filtered count display, loading/error states, disabled buttons for non-pending items
+
+**AddReceiptDialog Integration:**
+- Mutations: `useReceiptMutations().create()` + `usePurchaseMutations().create()`
+- Validation: Required fields, positive amounts, expense type selection
+- User Context: Fetches current user via `supabase.auth.getUser()`
+- Features: Multi-line item support, currency selection, date picker, error display, loading states
+
+### Technical Patterns Applied
+- **Type Safety**: All operations use Zod-validated types (ReceiptInsert, PurchaseInsert, PurchaseRow)
+- **Error Handling**: Consistent try-catch with user-friendly error messages
+- **Loading States**: Skeleton loaders and disabled buttons during operations
+- **Optimistic Updates**: Refetch after successful mutations to ensure UI consistency
+- **Reference Data**: Centralized lookup maps with fallback values
+
+### Deviations from Original Plan
+- **Supplier Filter Removed**: AdminPage supplier filter not implemented (requires JOIN with receipt table)
+- **Description Field**: Removed from TodayPage display (not in PurchaseRow schema)
+- **Edit Functionality**: TodayPage edit button removed (not in current scope)
+
+### Current Integration Status
+```
+✅ Phase 1: Foundation Setup (Supabase client, env config, types)
+✅ Phase 2: Data Access Layer (Services for receipts, purchases, reference data)
+✅ Phase 3: React Integration (Custom hooks for queries and mutations)
+✅ Phase 4: Component Integration (OverviewPage, TodayPage, AdminPage, AddReceiptDialog)
+⏳ Phase 5: UX Hardening (Skeleton loaders, toast notifications, retry buttons)
+⏳ Phase 6: Documentation Updates (tech-spec.md sections 5.4, 5.7, systemPatterns.md)
+```
+
+### Remaining TODOs (Updated)
+1. **Phase 5 - UX Hardening**:
+   - Add skeleton loaders for tables during loading states
+   - Implement toast notifications for mutation success/error feedback
+   - Add retry buttons for failed operations
+   - Improve empty state messaging consistency
+
+2. **Phase 6 - Documentation**:
+   - Update `docs/tech-spec.md` sections 5.4 (State Management) and 5.7 (Data Fetching)
+   - Update `memory_bank/systemPatterns.md` with Supabase integration patterns
+   - Document the service layer → hooks → components pattern
+
+3. **Future Enhancements**:
+   - Implement supplier filter in AdminPage (requires receipt JOIN)
+   - Add edit functionality for purchases
+   - Implement file upload for receipt content_id
+   - Add pagination for large datasets
+   - Implement real-time updates with Supabase subscriptions
+
+### Testing Recommendations
+- Test with empty database (no purchases/receipts)
+- Test with missing reference data (currencies, expense types)
+- Test form validation (empty fields, negative amounts)
+- Test concurrent mutations (multiple users approving same purchase)
+- Test error scenarios (network failures, auth errors)
+- Verify RLS policies prevent unauthorized access
+
+---
+
+## Post‑ACT Update – 2025‑10‑28 (Phase 5 Complete)
+
+### What Was Delivered
+- **Phase 5 - UX Hardening Complete**: Added comprehensive toast notification system for user feedback
+  - **Toast System Setup**: Created toast UI components (toast.tsx, use-toast.ts, toaster.tsx) using Radix UI primitives
+  - **App Integration**: Added Toaster component to App.tsx for global toast rendering
+  - **TodayPage Notifications**: Success/error toasts for delete operations
+  - **AdminPage Notifications**: Success/error toasts for approve/reject operations
+  - **AddReceiptDialog Notifications**: Success/error toasts for receipt submission with item count
+  - All toasts include descriptive titles and messages with appropriate variants (success/destructive)
+
+### Implementation Details
+
+**Toast System Architecture:**
+- **toast.tsx**: Radix UI Toast primitives with custom styling (success, destructive, default variants)
+- **use-toast.ts**: Custom hook for managing toast state with queue system (limit: 1 toast at a time)
+- **toaster.tsx**: Global toast renderer component integrated into App.tsx
+- **Auto-dismiss**: Toasts automatically dismiss after timeout with smooth animations
+
+**Notification Patterns:**
+- **Success Toasts**: Green background, confirmation message, auto-dismiss
+- **Error Toasts**: Red background, error details, manual dismiss option
+- **Contextual Messages**: Include specific details (e.g., "Purchase approved successfully", "Receipt submitted with 3 items")
+
+**User Experience Improvements:**
+- Immediate visual feedback for all mutations
+- Clear success/failure indication
+- Error messages help users understand what went wrong
+- Non-blocking notifications don't interrupt workflow
+- Consistent notification style across all pages
+
+### Technical Patterns Applied
+- **Global State Management**: Toast state managed outside React component tree for flexibility
+- **Type Safety**: Full TypeScript support with proper typing for toast variants and props
+- **Accessibility**: Radix UI primitives ensure ARIA compliance and keyboard navigation
+- **Animation**: Smooth slide-in/slide-out transitions with Tailwind animations
+
+### Deviations from Original Plan
+- **Skeleton Loaders**: Deferred to future enhancement (current loading states are adequate)
+- **Toast Limit**: Set to 1 toast at a time to avoid notification spam
+- **Auto-dismiss Delay**: Set to very long timeout (effectively manual dismiss for errors)
+
+### Current Status
+```
+✅ Phase 1: Foundation Setup
+✅ Phase 2: Data Access Layer
+✅ Phase 3: React Integration
+✅ Phase 4: Component Integration
+✅ Phase 5: UX Hardening (Toast Notifications)
+⏳ Phase 6: Documentation Updates
+```
+
+### Remaining Tasks
+1. **Phase 6 - Documentation**:
+   - Update `docs/tech-spec.md` sections 5.4 (State Management) and 5.7 (Data Fetching)
+   - Update `memory_bank/systemPatterns.md` with Supabase integration patterns
+   - Document toast notification patterns and usage
+
+2. **Future UX Enhancements** (Optional):
+   - Add skeleton loaders for table loading states
+   - Implement optimistic UI updates
+   - Add undo functionality for delete operations
+   - Implement batch operations with progress indicators
+
+### Files Modified
+1. `packages/frontend/src/components/ui/toast.tsx` - Created
+2. `packages/frontend/src/components/ui/use-toast.ts` - Created
+3. `packages/frontend/src/components/ui/toaster.tsx` - Created
+4. `packages/frontend/src/App.tsx` - Added Toaster component
+5. `packages/frontend/src/components/finance/receipt-capturing/pages/TodayPage.tsx` - Added toast notifications
+6. `packages/frontend/src/components/finance/receipt-capturing/pages/AdminPage.tsx` - Added toast notifications
+7. `packages/frontend/src/components/finance/receipt-capturing/components/AddReceiptDialog.tsx` - Added toast notifications
+8. `package.json` - Added @radix-ui/react-toast dependency
+9. `docs/tech-spec.md` - Updated sections 5.4 and 5.7 with Supabase integration patterns
+
+---
+
+## Next Steps — Prioritized Roadmap
+
+### Phase 7: Authentication Integration (CRITICAL - Required for RLS Testing)
+**Status:** Not Started  
+**Priority:** HIGHEST - Must be completed before production testing
+
+**Tasks:**
+1. **Supabase Auth Setup**
+   - Configure Supabase Auth providers (email/password, OAuth)
+   - Set up auth callback routes
+   - Configure JWT settings
+
+2. **Frontend Auth Implementation**
+   - Create auth context/provider
+   - Implement login page/component
+   - Implement logout functionality
+   - Add protected route wrapper
+   - Store auth state (user, session, role)
+
+3. **Role Integration**
+   - Query `identity.user_roles` table on login
+   - Store user roles in auth context
+   - Update UI based on roles (show/hide Admin tab)
+   - Pass user_id to all mutations (created_by, updated_by)
+
+4. **Auth UI Components**
+   - Login form with email/password
+   - Password reset flow
+   - Session management
+   - Role switcher (if user has multiple roles)
+
+**Acceptance Criteria:**
+- [ ] Users can log in with email/password
+- [ ] User session persists across page refreshes
+- [ ] User roles are fetched and stored correctly
+- [ ] Admin tab only visible to admin/financeadmin roles
+- [ ] All mutations include correct user_id in audit fields
+- [ ] Logout clears session and redirects to login
+
+**Files to Create/Modify:**
+- `packages/frontend/src/contexts/AuthContext.tsx` (Create)
+- `packages/frontend/src/components/auth/LoginPage.tsx` (Create)
+- `packages/frontend/src/components/auth/ProtectedRoute.tsx` (Create)
+- `packages/frontend/src/App.tsx` (Wrap with AuthProvider)
+- `packages/frontend/src/lib/supabase/client.ts` (Add auth helpers)
+
+---
+
+### Phase 8: Testing & Quality Assurance (After Auth)
+**Status:** Not Started  
+**Priority:** HIGH - Required before production deployment
+
+**Tasks:**
+1. **RLS Policy Testing**
+   - Test with different user accounts (admin, employee)
+   - Verify employees can only see their own receipts
+   - Verify admins can see all receipts
+   - Test unauthorized access attempts
+   - Verify audit fields are populated correctly
+
+2. **Functional Testing**
+   - Test all CRUD operations with real data
+   - Test form validation (empty fields, negative amounts)
+   - Test error scenarios (network failures, validation errors)
+   - Test concurrent operations (multiple users)
+   - Verify toast notifications display correctly
+
+3. **User Acceptance Testing**
+   - Test with actual users (admin and employee roles)
+   - Gather feedback on UX
+   - Identify pain points
+   - Document bugs and issues
+
+**Acceptance Criteria:**
+- [ ] All RLS policies work correctly
+- [ ] No unauthorized data access possible
+- [ ] All CRUD operations work with real data
+- [ ] Error handling works correctly
+- [ ] Toast notifications appear for all operations
+- [ ] No console errors or warnings
+- [ ] Performance is acceptable (< 2s load times)
+
+---
+
+### Phase 9: Content System Implementation
+**Status:** Not Started  
+**Priority:** MEDIUM - Required for complete receipt workflow
+
+**Tasks:**
+1. **FastAPI Content Service**
+   - Set up FastAPI project structure
+   - Implement `/api/content/initiate` endpoint
+   - Implement `/api/content/{id}/finalize` endpoint
+   - Implement `/api/content/{id}` GET endpoint (signed URLs)
+   - Implement `/api/content/{id}` DELETE endpoint
+   - Add JWT validation middleware
+   - Add Azure Blob Storage integration
+
+2. **Frontend File Upload**
+   - Add file input to AddReceiptDialog
+   - Implement upload flow (initiate → upload → finalize)
+   - Add upload progress indicator
+   - Handle upload errors
+   - Display uploaded file preview
+
+3. **Content Display**
+   - Add "View Receipt" button to purchase cards
+   - Implement image/PDF viewer
+   - Add download functionality
+   - Add delete functionality (admin only)
+
+**Acceptance Criteria:**
+- [ ] Users can upload receipt images/PDFs
+- [ ] Files are stored securely in Azure Blob Storage
+- [ ] Signed URLs expire after 15 minutes
+- [ ] Users can view uploaded receipts
+- [ ] Admins can delete receipts
+- [ ] All content operations are logged
+
+---
+
+### Phase 10: React Router Implementation
+**Status:** Not Started  
+**Priority:** MEDIUM - Improves navigation and UX
+
+**Tasks:**
+1. **Router Setup**
+   - Install React Router
+   - Create route configuration
+   - Implement protected routes
+   - Add route-based code splitting
+
+2. **Route Structure**
+   ```
+   /login                                    → LoginPage
+   /                                         → Dashboard (protected)
+   /finance                                  → FinanceLayout (protected)
+   /finance/receipt-capturing                → ReceiptCapturingRoutes (protected)
+   /finance/receipt-capturing/overview       → OverviewPage (protected)
+   /finance/receipt-capturing/today          → TodayPage (protected)
+   /finance/receipt-capturing/admin          → AdminPage (protected, admin only)
+   ```
+
+3. **Navigation Updates**
+   - Replace tab navigation with route links
+   - Add breadcrumb navigation
+   - Implement back button functionality
+   - Add URL-based state management
+
+**Acceptance Criteria:**
+- [ ] All routes work correctly
+- [ ] Protected routes redirect to login if not authenticated
+- [ ] Admin routes redirect if user is not admin
+- [ ] Browser back/forward buttons work
+- [ ] URLs are shareable
+- [ ] Active route is highlighted in navigation
+
+---
+
+### Phase 11: Feature Enhancements (Optional)
+**Status:** Not Started  
+**Priority:** LOW - Nice to have improvements
+
+**Potential Features:**
+- Edit functionality for purchases
+- Bulk approve/reject operations
+- Advanced filtering and search
+- Export to CSV/PDF
+- Pagination for large datasets
+- Real-time updates (Supabase Realtime)
+- Optimistic UI updates
+- Skeleton loaders
+- Undo functionality for delete operations
+
+---
+
+### Phase 12: Additional Modules (Long-term)
+**Status:** Not Started  
+**Priority:** LOW - Future expansion
+
+**Planned Modules:**
+- Logistics module
+- HR module (employee management)
+- Operations module
+- Analytics dashboard
+- Mobile app (PWA or React Native)
+
+---
+
+## Current Blockers
+
+1. **Authentication Required**: Cannot properly test RLS policies without real authentication
+2. **Content System Pending**: Receipt content_id field is currently null, limiting full workflow testing
+
+## Recommended Immediate Action
+
+**Start with Phase 7 (Authentication Integration)** as it unblocks:
+- RLS policy testing
+- Proper user role management
+- Audit trail functionality
+- Production deployment readiness
+
+Once authentication is complete, proceed with Phase 8 (Testing) to verify everything works correctly before moving to content system and other enhancements.

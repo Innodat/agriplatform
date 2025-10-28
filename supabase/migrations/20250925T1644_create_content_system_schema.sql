@@ -1,7 +1,7 @@
 -- Create Content System (CS) schema for hexagonal content management
 CREATE SCHEMA IF NOT EXISTS cs;
 
--- Content source table (Azure Blob, future: S3, etc.)
+-- Content source table (Supabase, Azure Blob, S3, etc.)
 CREATE TABLE cs.content_source (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   provider text NOT NULL CHECK (provider IN ('azure_blob')),
@@ -53,21 +53,8 @@ INSERT INTO cs.content_source (provider, name, settings) VALUES (
   'azure_blob',
   'Liseli Azure Storage',
   '{
-    "account_name": "PLACEHOLDER",
-    "container_name": "receipts",
-    "connection_secret": "LISELI_AZURE_STORAGE_CONNECTION"
+    "account_name": "liseliblob",
+    "container_name": "content",
+    "connection_secret": "LISELI_AZURE_BLOB_CONNECTION"
   }'
 );
-
-create or replace function cs.resolve_secret(secret_name text)
-returns text
-language sql
-security definer
-as $$
-  select vault.secret(secret_name);
-$$;
-
-
--- Lock it down: only allow your backend role to call it
-revoke all on function cs.resolve_secret(text) from public;
-grant execute on function cs.resolve_secret(text) to service_role;
