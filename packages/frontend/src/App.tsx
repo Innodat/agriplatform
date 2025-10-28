@@ -3,6 +3,7 @@ import './App.css'
 import { OverviewPage } from './components/finance/receipt-capturing/pages/OverviewPage'
 import { TodayPage } from './components/finance/receipt-capturing/pages/TodayPage'
 import { AdminPage } from './components/finance/receipt-capturing/pages/AdminPage'
+import { Toaster } from './components/ui/toaster'
 
 type TabType = 'overview' | 'today' | 'admin'
 
@@ -125,6 +126,7 @@ function App() {
           </div>
         </main>
       </div>
+      <Toaster />
     </div>
   )
 }

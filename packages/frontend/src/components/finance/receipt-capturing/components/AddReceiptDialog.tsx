@@ -6,10 +6,16 @@ import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Plus, Trash2 } from 'lucide-react'
+import { useReceiptMutations } from '@/hooks/finance/useReceiptMutations'
+import { usePurchaseMutations } from '@/hooks/finance/usePurchaseMutations'
+import { useExpenseTypes, useCurrencies } from '@/hooks/finance/useReferenceData'
+import { supabase } from '@/lib/supabase/client'
+import { useToast } from '@/components/ui/use-toast'
+import type { ReceiptInsert, PurchaseInsert } from '@/types'
 
 interface LineItem {
   id: string
-  expenseType: string
+  expenseTypeId: number | null
   otherCategory?: string
   amount: number
   description: string
@@ -21,22 +27,38 @@ interface AddReceiptDialogProps {
 
 export function AddReceiptDialog({ onClose }: AddReceiptDialogProps) {
   const [supplier, setSupplier] = useState('')
-  const [currency, setCurrency] = useState('USD')
+  const [currencyId, setCurrencyId] = useState<number | null>(null)
   const [isReimbursable, setIsReimbursable] = useState(false)
   const [date, setDate] = useState(new Date().toISOString().split('T')[0])
   const [lineItems, setLineItems] = useState<LineItem[]>([
     {
       id: '1',
-      expenseType: '',
+      expenseTypeId: null,
       amount: 0,
       description: ''
     }
   ])
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+  const { toast } = useToast()
+
+  // Load reference data
+  const { data: expenseTypes } = useExpenseTypes()
+  const { data: currencies } = useCurrencies()
+
+  // Mutation hooks
+  const receiptMutations = useReceiptMutations()
+  const purchaseMutations = usePurchaseMutations()
+
+  // Set default currency to first one if available
+  if (currencyId === null && currencies.length > 0) {
+    setCurrencyId(currencies[0].id)
+  }
 
   const addLineItem = () => {
     const newItem: LineItem = {
       id: Date.now().toString(),
-      expenseType: '',
+      expenseTypeId: null,
       amount: 0,
       description: ''
     }
@@ -55,19 +77,100 @@ export function AddReceiptDialog({ onClose }: AddReceiptDialogProps) {
     ))
   }
 
-  const handleSubmit = () => {
-    console.log('Submitting receipt:', {
-      supplier,
-      currency,
-      isReimbursable,
-      date,
-      lineItems
-    })
-    // TODO: Implement Supabase submission
-    onClose()
+  const handleSubmit = async () => {
+    setError(null)
+    setIsSubmitting(true)
+
+    try {
+      // Validate inputs
+      if (!supplier.trim()) {
+        throw new Error('Supplier is required')
+      }
+
+      if (!currencyId) {
+        throw new Error('Currency is required')
+      }
+
+      if (lineItems.length === 0) {
+        throw new Error('At least one line item is required')
+      }
+
+      for (const item of lineItems) {
+        if (!item.expenseTypeId && !item.otherCategory) {
+          throw new Error('Each line item must have an expense type')
+        }
+        if (item.amount <= 0) {
+          throw new Error('Each line item must have a positive amount')
+        }
+      }
+
+      // Get current user
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!user) {
+        throw new Error('You must be logged in to submit a receipt')
+      }
+
+      // Create receipt
+      const receiptPayload: ReceiptInsert = {
+        supplier,
+        content_id: null, // TODO: Handle file upload
+        created_by: user.id,
+        updated_by: user.id,
+      }
+
+      const receipt = await receiptMutations.create(receiptPayload)
+      if (!receipt) {
+        throw new Error(receiptMutations.error?.message || 'Failed to create receipt')
+      }
+
+      // Create purchases for each line item
+      const purchasePromises = lineItems.map(async (item) => {
+        const purchasePayload: PurchaseInsert = {
+          receipt_id: receipt.id,
+          expense_type_id: item.expenseTypeId,
+          other_category: item.otherCategory || null,
+          currency_id: currencyId,
+          amount: item.amount,
+          captured_timestamp: `${date}T${new Date().toTimeString().split(' ')[0]}`,
+          reimbursable: isReimbursable,
+          user_id: user.id,
+          status: 'pending',
+          created_by: user.id,
+          updated_by: user.id,
+        }
+
+        const purchase = await purchaseMutations.create(purchasePayload)
+        if (!purchase) {
+          throw new Error(purchaseMutations.error?.message || 'Failed to create purchase')
+        }
+        return purchase
+      })
+
+      await Promise.all(purchasePromises)
+
+      // Success - show toast and close dialog
+      toast({
+        title: "Success",
+        description: `Receipt submitted with ${lineItems.length} ${lineItems.length === 1 ? 'item' : 'items'}`,
+        variant: "success",
+      })
+      onClose()
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'An error occurred'
+      setError(errorMessage)
+      toast({
+        title: "Error",
+        description: errorMessage,
+        variant: "destructive",
+      })
+    } finally {
+      setIsSubmitting(false)
+    }
   }
 
   const totalAmount = lineItems.reduce((sum, item) => sum + (item.amount || 0), 0)
+  const selectedCurrency = currencies.find(c => c.id === currencyId)
+  const currencySymbol = selectedCurrency?.symbol || selectedCurrency?.name || 'K'
 
   return (
     <DialogContent className="sm:max-w-[600px] max-h-[80vh] overflow-y-auto">
@@ -78,6 +181,12 @@ export function AddReceiptDialog({ onClose }: AddReceiptDialogProps) {
         </DialogDescription>
       </DialogHeader>
       
+      {error && (
+        <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded">
+          {error}
+        </div>
+      )}
+
       <div className="space-y-6">
         {/* Receipt Header */}
         <Card>
@@ -93,31 +202,37 @@ export function AddReceiptDialog({ onClose }: AddReceiptDialogProps) {
                   placeholder="Enter supplier name"
                   value={supplier}
                   onChange={(e) => setSupplier(e.target.value)}
+                  disabled={isSubmitting}
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="currency">Currency</Label>
+                <Label htmlFor="currency">Currency *</Label>
                 <select 
                   id="currency"
-                  value={currency} 
-                  onChange={(e) => setCurrency(e.target.value)}
+                  value={currencyId || ''} 
+                  onChange={(e) => setCurrencyId(Number(e.target.value))}
                   className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm"
+                  disabled={isSubmitting}
                 >
-                  <option value="USD">USD ($)</option>
-                  <option value="EUR">EUR (€)</option>
-                  <option value="ZAR">ZAR (R)</option>
+                  <option value="">Select currency</option>
+                  {currencies.map((currency) => (
+                    <option key={currency.id} value={currency.id}>
+                      {currency.name} ({currency.symbol || currency.name})
+                    </option>
+                  ))}
                 </select>
               </div>
             </div>
             
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="date">Date</Label>
+                <Label htmlFor="date">Date *</Label>
                 <Input
                   id="date"
                   type="date"
                   value={date}
                   onChange={(e) => setDate(e.target.value)}
+                  disabled={isSubmitting}
                 />
               </div>
               <div className="space-y-2">
@@ -127,6 +242,7 @@ export function AddReceiptDialog({ onClose }: AddReceiptDialogProps) {
                   value={isReimbursable ? 'yes' : 'no'} 
                   onChange={(e) => setIsReimbursable(e.target.value === 'yes')}
                   className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm"
+                  disabled={isSubmitting}
                 >
                   <option value="yes">Yes</option>
                   <option value="no">No</option>
@@ -140,7 +256,13 @@ export function AddReceiptDialog({ onClose }: AddReceiptDialogProps) {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between">
             <CardTitle className="text-lg">Line Items</CardTitle>
-            <Button type="button" variant="outline" size="sm" onClick={addLineItem}>
+            <Button 
+              type="button" 
+              variant="outline" 
+              size="sm" 
+              onClick={addLineItem}
+              disabled={isSubmitting}
+            >
               <Plus className="h-4 w-4 mr-1" />
               Add Item
             </Button>
@@ -156,6 +278,7 @@ export function AddReceiptDialog({ onClose }: AddReceiptDialogProps) {
                       variant="ghost"
                       size="sm"
                       onClick={() => removeLineItem(item.id)}
+                      disabled={isSubmitting}
                     >
                       <Trash2 className="h-4 w-4" />
                     </Button>
@@ -164,18 +287,20 @@ export function AddReceiptDialog({ onClose }: AddReceiptDialogProps) {
                 
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <Label>Expense Category *</Label>
+                    <Label>Expense Type *</Label>
                     <select 
-                      value={item.expenseType} 
-                      onChange={(e) => updateLineItem(item.id, 'expenseType', e.target.value)}
+                      value={item.expenseTypeId || ''} 
+                      onChange={(e) => updateLineItem(item.id, 'expenseTypeId', e.target.value ? Number(e.target.value) : null)}
                       className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm"
+                      disabled={isSubmitting}
                     >
-                      <option value="">Select category</option>
-                      <option value="fuel">Fuel</option>
-                      <option value="equipment">Equipment</option>
-                      <option value="supplies">Supplies</option>
-                      <option value="maintenance">Maintenance</option>
-                      <option value="other">Other</option>
+                      <option value="">Select type</option>
+                      {expenseTypes.map((type) => (
+                        <option key={type.id} value={type.id}>
+                          {type.name}
+                        </option>
+                      ))}
+                      <option value="0">Other</option>
                     </select>
                   </div>
                   
@@ -187,17 +312,19 @@ export function AddReceiptDialog({ onClose }: AddReceiptDialogProps) {
                       placeholder="0.00"
                       value={item.amount || ''}
                       onChange={(e) => updateLineItem(item.id, 'amount', parseFloat(e.target.value) || 0)}
+                      disabled={isSubmitting}
                     />
                   </div>
                 </div>
                 
-                {item.expenseType === 'other' && (
+                {item.expenseTypeId === 0 && (
                   <div className="space-y-2">
                     <Label>Other Category *</Label>
                     <Input
                       placeholder="Specify category"
                       value={item.otherCategory || ''}
                       onChange={(e) => updateLineItem(item.id, 'otherCategory', e.target.value)}
+                      disabled={isSubmitting}
                     />
                   </div>
                 )}
@@ -208,6 +335,7 @@ export function AddReceiptDialog({ onClose }: AddReceiptDialogProps) {
                     placeholder="Brief description of the expense"
                     value={item.description}
                     onChange={(e) => updateLineItem(item.id, 'description', e.target.value)}
+                    disabled={isSubmitting}
                   />
                 </div>
               </div>
@@ -215,7 +343,7 @@ export function AddReceiptDialog({ onClose }: AddReceiptDialogProps) {
             
             <div className="flex justify-end pt-4 border-t">
               <div className="text-lg font-semibold">
-                Total: {currency === 'USD' ? '$' : currency === 'EUR' ? '€' : 'R'}{totalAmount.toFixed(2)}
+                Total: {currencySymbol} {totalAmount.toFixed(2)}
               </div>
             </div>
           </CardContent>
@@ -223,11 +351,20 @@ export function AddReceiptDialog({ onClose }: AddReceiptDialogProps) {
       </div>
 
       <DialogFooter>
-        <Button type="button" variant="outline" onClick={onClose}>
+        <Button 
+          type="button" 
+          variant="outline" 
+          onClick={onClose}
+          disabled={isSubmitting}
+        >
           Cancel
         </Button>
-        <Button type="button" onClick={handleSubmit}>
-          Submit Receipt
+        <Button 
+          type="button" 
+          onClick={handleSubmit}
+          disabled={isSubmitting}
+        >
+          {isSubmitting ? 'Submitting...' : 'Submit Receipt'}
         </Button>
       </DialogFooter>
     </DialogContent>

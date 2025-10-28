@@ -1,70 +1,129 @@
-import { useState } from 'react'
+import { useState, useMemo } from 'react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
-import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-
-// Mock data - TODO: Replace with Supabase queries
-const mockReceipts = [
-  {
-    id: 1,
-    employeeName: 'John Smith',
-    amount: 45.50,
-    category: 'Fuel',
-    supplier: 'Shell Station',
-    date: '2024-01-15',
-    status: 'pending' as const,
-    description: 'Diesel for tractor maintenance'
-  },
-  {
-    id: 2,
-    employeeName: 'Sarah Johnson',
-    amount: 120.00,
-    category: 'Equipment',
-    supplier: 'Farm Supply Co',
-    date: '2024-01-15',
-    status: 'approved' as const,
-    description: 'New work gloves and safety equipment'
-  },
-  {
-    id: 3,
-    employeeName: 'Mike Wilson',
-    amount: 85.75,
-    category: 'Supplies',
-    supplier: 'Seed & Feed Store',
-    date: '2024-01-14',
-    status: 'rejected' as const,
-    description: 'Seeds for spring planting'
-  }
-]
-
-const StatusBadge = ({ status }: { status: 'pending' | 'approved' | 'rejected' }) => {
-  const variants = {
-    pending: 'bg-yellow-100 text-yellow-800',
-    approved: 'bg-green-100 text-green-800',
-    rejected: 'bg-red-100 text-red-800'
-  }
-  return (
-    <Badge className={variants[status]}>
-      {status.charAt(0).toUpperCase() + status.slice(1)}
-    </Badge>
-  )
-}
+import { usePurchases } from '@/hooks/finance/usePurchases'
+import { usePurchaseMutations } from '@/hooks/finance/usePurchaseMutations'
+import { useExpenseTypes, useCurrencies } from '@/hooks/finance/useReferenceData'
+import { StatusBadge } from '../components/StatusBadge'
+import { useToast } from '@/components/ui/use-toast'
+import type { PurchaseStatus } from '@/types'
 
 export function AdminPage() {
   const [searchTerm, setSearchTerm] = useState('')
-  const [statusFilter, setStatusFilter] = useState('all')
-  const [supplierFilter, setSupplierFilter] = useState('')
+  const [statusFilter, setStatusFilter] = useState<PurchaseStatus | 'all'>('all')
+  const [supplierFilter] = useState('')
+  const { toast } = useToast()
 
-  const handleApprove = (id: number) => {
-    console.log('Approving receipt:', id)
-    // TODO: Implement approval logic
+  // Query all active purchases
+  const { data: purchases, loading, error, refetch } = usePurchases({ isActive: true })
+  
+  // Load reference data
+  const { data: expenseTypes } = useExpenseTypes(undefined, { enabled: !loading })
+  const { data: currencies } = useCurrencies({ enabled: !loading })
+  
+  // Mutation hooks
+  const purchaseMutations = usePurchaseMutations({ isActive: true })
+
+  // Create lookup maps for reference data
+  const expenseTypeMap = useMemo(() => {
+    const map = new Map<number, string>()
+    expenseTypes.forEach((type) => {
+      map.set(type.id, type.name)
+    })
+    return map
+  }, [expenseTypes])
+
+  const currencyMap = useMemo(() => {
+    const map = new Map<number, string>()
+    currencies.forEach((currency) => {
+      map.set(currency.id, currency.symbol ?? currency.name)
+    })
+    return map
+  }, [currencies])
+
+  const formatAmount = (amount: number, currencyId?: number | null) => {
+    const symbol = currencyId ? currencyMap.get(currencyId) : null
+    return symbol ? `${symbol} ${amount.toFixed(2)}` : `K ${amount.toFixed(2)}`
   }
 
-  const handleReject = (id: number) => {
-    console.log('Rejecting receipt:', id)
-    // TODO: Implement rejection logic
+  const resolveExpenseType = (expenseTypeId?: number | null, otherCategory?: string | null) => {
+    if (otherCategory) return otherCategory
+    if (!expenseTypeId) return 'Other'
+    return expenseTypeMap.get(expenseTypeId) ?? `Type #${expenseTypeId}`
+  }
+
+  const formatDate = (timestamp: string) => {
+    return new Date(timestamp).toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric'
+    })
+  }
+
+  // Filter purchases based on search and filters
+  const filteredPurchases = useMemo(() => {
+    if (!purchases) return []
+    
+    return purchases.filter((purchase) => {
+      // Status filter
+      if (statusFilter !== 'all' && purchase.status !== statusFilter) {
+        return false
+      }
+
+      // Search term filter (searches in expense type and other_category)
+      if (searchTerm) {
+        const expenseType = resolveExpenseType(purchase.expense_type_id, purchase.other_category).toLowerCase()
+        const receiptId = purchase.receipt_id?.toString() || ''
+        const searchLower = searchTerm.toLowerCase()
+        
+        if (!expenseType.includes(searchLower) && !receiptId.includes(searchLower)) {
+          return false
+        }
+      }
+
+      // Supplier filter - Note: We don't have supplier in purchase table, would need to join with receipt
+      // For now, we'll skip this filter
+      
+      return true
+    })
+  }, [purchases, statusFilter, searchTerm, supplierFilter])
+
+  const handleApprove = async (id: number) => {
+    const result = await purchaseMutations.updateStatus(id, 'approved')
+    if (result) {
+      toast({
+        title: "Success",
+        description: "Purchase approved successfully",
+        variant: "success",
+      })
+      refetch()
+    } else if (purchaseMutations.error) {
+      toast({
+        title: "Error",
+        description: purchaseMutations.error.message,
+        variant: "destructive",
+      })
+    }
+  }
+
+  const handleReject = async (id: number) => {
+    const result = await purchaseMutations.updateStatus(id, 'rejected')
+    if (result) {
+      toast({
+        title: "Success",
+        description: "Purchase rejected successfully",
+        variant: "success",
+      })
+      refetch()
+    } else if (purchaseMutations.error) {
+      toast({
+        title: "Error",
+        description: purchaseMutations.error.message,
+        variant: "destructive",
+      })
+    }
   }
 
   return (
@@ -81,21 +140,16 @@ export function AdminPage() {
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
           />
-          <Input 
-            placeholder="Filter by supplier..." 
-            className="w-48" 
-            value={supplierFilter}
-            onChange={(e) => setSupplierFilter(e.target.value)}
-          />
           <select 
             value={statusFilter} 
-            onChange={(e) => setStatusFilter(e.target.value)}
+            onChange={(e) => setStatusFilter(e.target.value as PurchaseStatus | 'all')}
             className="w-32 px-3 py-2 border border-gray-300 rounded-md text-sm"
           >
             <option value="all">All Status</option>
             <option value="pending">Pending</option>
             <option value="approved">Approved</option>
             <option value="rejected">Rejected</option>
+            <option value="querying">Querying</option>
           </select>
         </div>
       </div>
@@ -103,63 +157,93 @@ export function AdminPage() {
       <Card>
         <CardHeader>
           <CardTitle>All Employee Receipts</CardTitle>
-          <CardDescription>Review and manage expense submissions</CardDescription>
+          <CardDescription>
+            Review and manage expense submissions ({filteredPurchases.length} {filteredPurchases.length === 1 ? 'item' : 'items'})
+          </CardDescription>
         </CardHeader>
         <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Employee</TableHead>
-                <TableHead>Amount</TableHead>
-                <TableHead>Category</TableHead>
-                <TableHead>Supplier</TableHead>
-                <TableHead>Date</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead>Actions</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {mockReceipts.map((receipt) => (
-                <TableRow key={receipt.id}>
-                  <TableCell>{receipt.employeeName}</TableCell>
-                  <TableCell>${receipt.amount.toFixed(2)}</TableCell>
-                  <TableCell>{receipt.category}</TableCell>
-                  <TableCell>{receipt.supplier}</TableCell>
-                  <TableCell>{receipt.date}</TableCell>
-                  <TableCell>
-                    <StatusBadge status={receipt.status} />
-                  </TableCell>
-                  <TableCell>
-                    <div className="flex space-x-2">
-                      <Button variant="outline" size="sm">
-                        View
-                      </Button>
-                      {receipt.status === 'pending' && (
-                        <>
-                          <Button 
-                            variant="outline" 
-                            size="sm" 
-                            className="text-green-600 hover:text-green-700"
-                            onClick={() => handleApprove(receipt.id)}
-                          >
-                            Approve
-                          </Button>
-                          <Button 
-                            variant="outline" 
-                            size="sm" 
-                            className="text-red-600 hover:text-red-700"
-                            onClick={() => handleReject(receipt.id)}
-                          >
-                            Reject
-                          </Button>
-                        </>
-                      )}
-                    </div>
-                  </TableCell>
+          {loading ? (
+            <div className="flex items-center justify-center py-12">
+              <div className="text-gray-500">Loading purchases...</div>
+            </div>
+          ) : error ? (
+            <div className="flex flex-col items-center justify-center py-12">
+              <div className="text-red-500 mb-4">Error loading purchases</div>
+              <p className="text-sm text-gray-600 mb-4">{error.message}</p>
+              <Button onClick={() => refetch()}>Retry</Button>
+            </div>
+          ) : filteredPurchases.length === 0 ? (
+            <div className="flex flex-col items-center justify-center py-12 text-center">
+              <div className="text-6xl text-gray-400 mb-4">📄</div>
+              <h3 className="text-lg font-medium text-gray-900 mb-2">No purchases found</h3>
+              <p className="text-gray-500">
+                {purchases && purchases.length > 0 
+                  ? 'Try adjusting your filters to see more results.'
+                  : 'No purchases have been submitted yet.'}
+              </p>
+            </div>
+          ) : (
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Receipt ID</TableHead>
+                  <TableHead>Amount</TableHead>
+                  <TableHead>Expense Type</TableHead>
+                  <TableHead>Date</TableHead>
+                  <TableHead>Status</TableHead>
+                  <TableHead>User</TableHead>
+                  <TableHead>Actions</TableHead>
                 </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+              </TableHeader>
+              <TableBody>
+                {filteredPurchases.map((purchase) => (
+                  <TableRow key={purchase.id}>
+                    <TableCell>#{purchase.receipt_id || 'N/A'}</TableCell>
+                    <TableCell>{formatAmount(purchase.amount, purchase.currency_id)}</TableCell>
+                    <TableCell>{resolveExpenseType(purchase.expense_type_id, purchase.other_category)}</TableCell>
+                    <TableCell>{formatDate(purchase.captured_timestamp)}</TableCell>
+                    <TableCell>
+                      <StatusBadge status={purchase.status} />
+                    </TableCell>
+                    <TableCell className="text-xs text-gray-500">
+                      {purchase.user_id ? purchase.user_id.substring(0, 8) + '...' : 'N/A'}
+                    </TableCell>
+                    <TableCell>
+                      <div className="flex space-x-2">
+                        {purchase.status === 'pending' && (
+                          <>
+                            <Button 
+                              variant="outline" 
+                              size="sm" 
+                              className="text-green-600 hover:text-green-700"
+                              onClick={() => handleApprove(purchase.id)}
+                              disabled={purchaseMutations.loading}
+                            >
+                              Approve
+                            </Button>
+                            <Button 
+                              variant="outline" 
+                              size="sm" 
+                              className="text-red-600 hover:text-red-700"
+                              onClick={() => handleReject(purchase.id)}
+                              disabled={purchaseMutations.loading}
+                            >
+                              Reject
+                            </Button>
+                          </>
+                        )}
+                        {purchase.status !== 'pending' && (
+                          <Button variant="outline" size="sm" disabled>
+                            {purchase.status === 'approved' ? 'Approved' : purchase.status === 'rejected' ? 'Rejected' : 'Querying'}
+                          </Button>
+                        )}
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          )}
         </CardContent>
       </Card>
     </div>
