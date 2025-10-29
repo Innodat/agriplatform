@@ -4,12 +4,25 @@ import { OverviewPage } from './components/finance/receipt-capturing/pages/Overv
 import { TodayPage } from './components/finance/receipt-capturing/pages/TodayPage'
 import { AdminPage } from './components/finance/receipt-capturing/pages/AdminPage'
 import { Toaster } from './components/ui/toaster'
+import { useAuth } from './contexts/AuthContext'
+import { LoginPage } from './components/auth/LoginPage'
+import { LoadingScreen } from './components/auth/LoadingScreen'
 
 type TabType = 'overview' | 'today' | 'admin'
 
 function App() {
+  const { user, loading, isAdmin, signOut } = useAuth()
   const [activeTab, setActiveTab] = useState<TabType>('overview')
-  const [userRole] = useState<'admin' | 'employee'>('admin') // Mock user role - TODO: Get from auth
+
+  // Show loading screen while checking auth
+  if (loading) {
+    return <LoadingScreen />
+  }
+
+  // Show login page if not authenticated
+  if (!user) {
+    return <LoginPage />
+  }
 
   const renderTabContent = () => {
     switch (activeTab) {
@@ -34,7 +47,13 @@ function App() {
               <h1 className="text-xl font-semibold text-gray-900">Liseli</h1>
             </div>
             <div className="flex items-center space-x-4">
-              <span className="text-sm text-gray-500">Welcome, {userRole === 'admin' ? 'Admin' : 'Employee'}</span>
+              <span className="text-sm text-gray-500">Welcome, {user.email}</span>
+              <button
+                onClick={signOut}
+                className="text-sm text-gray-500 hover:text-gray-700 underline"
+              >
+                Logout
+              </button>
             </div>
           </div>
         </div>
@@ -104,7 +123,7 @@ function App() {
                   Today's Receipts
                 </button>
                 {/* Admin Panel - Only visible to admin users */}
-                {userRole === 'admin' && (
+                {isAdmin && (
                   <button
                     onClick={() => setActiveTab('admin')}
                     className={`whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm ${
