@@ -34,6 +34,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
   const fetchUserRoles = async (userId: string): Promise<AppRole[]> => {
     try {
       // Call the database function to get user roles
+      console.log("Get Roles...");
       const { data, error } = await supabase.rpc('get_user_roles')
 
       if (error) {
@@ -69,6 +70,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
     const { data: { subscription } } = authHelpers.onAuthStateChange(
       async (event, session) => {
         console.log('Auth state changed:', event)
+        console.log(session);
         setSession(session)
         setUser(session?.user ?? null)
         

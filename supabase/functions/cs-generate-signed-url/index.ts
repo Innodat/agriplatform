@@ -28,7 +28,7 @@ serve(async (req: Request) => {
 
     // 1. Look up content_store + content_source
     const { data, error } = await supabase
-      .from("cs.content_store")
+      .schema("cs").from("content_store")
       .select(`
         external_key,
         source:cs.content_source (

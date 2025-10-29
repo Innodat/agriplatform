@@ -1,0 +1,6 @@
+GRANT USAGE ON SCHEMA finance TO anon, authenticated;
+ALTER DEFAULT PRIVILEGES IN SCHEMA finance GRANT SELECT ON TABLES TO anon, authenticated;
+GRANT USAGE ON SCHEMA cs TO anon, authenticated;
+ALTER DEFAULT PRIVILEGES IN SCHEMA cs GRANT SELECT ON TABLES TO anon, authenticated;
+GRANT USAGE ON SCHEMA identity TO anon, authenticated;
+ALTER DEFAULT PRIVILEGES IN SCHEMA identity GRANT SELECT ON TABLES TO anon, authenticated;

@@ -101,7 +101,7 @@ export default function ReceiptForm({ receiptData, onBack, onSave }: ReceiptForm
     try {
       setLoadingExpenseTypes(true)
       const { data, error } = await supabase
-        .from("expense_type")
+        .schema("finance").from("expense_type")
         .select(`
         id,
         name,
@@ -283,7 +283,7 @@ export default function ReceiptForm({ receiptData, onBack, onSave }: ReceiptForm
       if (isEditing && receiptData?.id) {
         // Update modified_timestamp in receipt
         const { error: receiptError } = await supabase
-          .from("receipt")
+          .schema("finance").from("receipt")
           .update({ modified_timestamp: new Date().toISOString() })
           .eq("id", receiptData.id);
         if (receiptError) throw receiptError;
@@ -294,7 +294,7 @@ export default function ReceiptForm({ receiptData, onBack, onSave }: ReceiptForm
         console.log("Saving purchase item payload:", item);
         if (isEditing && item.id) {
           const { error: purchaseError, data: updateData } = await supabase
-            .from("purchase")
+            .schema("finance").from("purchase")
             .update({
               expense_type_id: item.expense_type_id,
               amount: item.amount,
@@ -307,7 +307,7 @@ export default function ReceiptForm({ receiptData, onBack, onSave }: ReceiptForm
           if (purchaseError) throw purchaseError;
         } else if (receiptData?.id) {
           const { error: purchaseError, data: insertData } = await supabase
-            .from("purchase")
+            .schema("finance").from("purchase")
             .insert({
               receipt_id: receiptData.id,
               expense_type_id: item.expense_type_id,

@@ -111,7 +111,7 @@ export default function ReceiptsDashboard() {
 
       // Fetch receipts and their purchases
       const { data, error } = await supabase
-        .from("receipt")
+        .schema("finance").from("receipt")
         .select(`
           id,
           is_active,
@@ -234,7 +234,7 @@ export default function ReceiptsDashboard() {
     // Update modified_timestamp to today when editing
     if (receiptData.id) {
       await supabase
-        .from("receipt")
+        .schema("finance").from("receipt")
         .update({ modified_timestamp: new Date().toISOString() })
         .eq("id", receiptData.id);
     }

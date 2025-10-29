@@ -1,10 +1,19 @@
 /**
- * AUTH HOOKS
- * Create an auth hook to add a custom claim to the access token jwt.
+ * FIX: Update auth hook to properly populate user_role claim in JWT
+ * 
+ * Issue: The previous auth hook was not properly setting the user_role claim,
+ * causing 403 errors when accessing finance schema tables due to RLS policies
+ * expecting the claim.
+ * 
+ * Changes:
+ * - Ensure claims object exists with coalesce
+ * - Query only active roles (is_active = true)
+ * - Populate user_role with first active role
+ * - Add role_ids array for future use
+ * - Add department_ids placeholder for future department mapping
  */
 
--- Create the auth hook function
--- https://supabase.com/docs/guides/auth/auth-hooks#hook-custom-access-token
+-- Drop and recreate the auth hook function with proper claim population
 create or replace function identity.custom_access_token_hook(
   event jsonb
 ) returns jsonb
@@ -53,6 +62,7 @@ begin
 end;
 $$;
 
+-- Ensure proper grants are in place (idempotent)
 grant usage on schema identity to supabase_auth_admin;
 
 grant execute
@@ -62,16 +72,3 @@ grant execute
 revoke execute
   on function identity.custom_access_token_hook
   from authenticated, anon;
-
-grant all
-  on table identity.user_roles
-to supabase_auth_admin;
-
-revoke all
-  on table identity.user_roles
-  from authenticated, anon;
-
-create policy "Allow auth admin to read user roles" ON identity.user_roles
-as permissive for select
-to supabase_auth_admin
-using (true)

@@ -910,6 +910,11 @@ return res.json(response);
    - Any deviations from plan
    - Remaining TODOs
 
+**Auth Hook Modifications:**
+- When modifying `identity.custom_access_token_hook`, users must refresh their sessions to receive updated JWT claims
+- Methods to refresh: Sign out and sign back in, or call `supabase.auth.refreshSession()` programmatically
+- Test auth hook changes by inspecting JWT payload after refresh
+
 ### 7.2 Model Routing
 
 **Planning Tasks:**
@@ -1070,11 +1075,48 @@ No breaking changes to exported types.
 - Checked via RLS policies
 - Enforced at database level
 
-### 9.3 Row Level Security (RLS)
+### 9.3 JWT Claims Contract
+
+**Custom Claims in Access Token:**
+
+The authentication system populates the JWT access token with custom claims via the `identity.custom_access_token_hook` function:
+
+| Claim | Type | Description |
+|-------|------|-------------|
+| `user_role` | `identity.app_role` | Primary active role for the user (first from array) |
+| `role_ids` | `bigint[]` | Array of all active role IDs for the user |
+| `department_ids` | `bigint[]` | Array of department IDs (placeholder for future implementation) |
+
+**Example JWT Payload:**
+```json
+{
+  "sub": "user-uuid",
+  "email": "user@example.com",
+  "user_role": "employee",
+  "role_ids": [1, 2],
+  "department_ids": []
+}
+```
+
+**Usage in RLS Policies:**
+```sql
+-- Access user_role claim
+(auth.jwt() ->> 'user_role')::identity.app_role
+
+-- Check if user has specific role
+identity.authorize('finance.receipt.read')
+```
+
+**Important Notes:**
+- Claims are populated on sign-in and token refresh
+- After modifying the auth hook, users must sign out and sign back in (or call `supabase.auth.refreshSession()`) to get updated claims
+- The `identity.authorize()` function checks if the user's role has the requested permission
+
+### 9.4 Row Level Security (RLS)
 
 **Implementation:**
 - Enabled on all tables
-- Policies based on `auth.uid()` and role checks
+- Policies based on `auth.uid()` and role checks via JWT claims
 - Separate policies for SELECT, INSERT, UPDATE, DELETE
 
 **Example Policy:**

@@ -28,7 +28,7 @@ function parsePurchaseRows(rows: unknown[]): PurchaseRow[] {
 export async function getPurchases(
   filters: PurchaseFilters = {}
 ): Promise<{ data: PurchaseRow[]; error: PostgrestError | null }> {
-  let query = supabase.from("purchase").select("*").order("captured_timestamp", {
+  let query = supabase.schema("finance").from("purchase").select("*").order("captured_timestamp", {
     ascending: false,
   });
 
@@ -70,7 +70,7 @@ export async function createPurchase(
   const validated = purchaseInsertSchema.parse(payload);
 
   const { data, error } = await supabase
-    .from("purchase")
+    .schema("finance").from("purchase")
     .insert(validated)
     .select()
     .maybeSingle();
@@ -91,7 +91,7 @@ export async function updatePurchase(
   const validated = purchaseUpdateSchema.parse(payload);
 
   const { data, error } = await supabase
-    .from("purchase")
+    .schema("finance").from("purchase")
     .update(validated)
     .eq("id", validated.id)
     .select()

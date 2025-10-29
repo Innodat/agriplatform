@@ -29,7 +29,7 @@ function parseReceiptRows(rows: unknown[]): ReceiptRow[] {
 export async function getReceipts(
   filters: ReceiptFilters = {}
 ): Promise<{ data: ReceiptRow[]; error: PostgrestError | null }> {
-  let query = supabase.from("receipt").select("*").order("created_at", {
+  let query = supabase.schema("finance").from("receipt").select("*").order("created_at", {
     ascending: false,
   });
 
@@ -65,7 +65,7 @@ export async function getReceiptById(
   id: number
 ): Promise<{ data: ReceiptWithPurchases | null; error: PostgrestError | null }> {
   const { data, error } = await supabase
-    .from("receipt")
+    .schema("finance").from("receipt")
     .select("*, purchases(*)")
     .eq("id", id)
     .maybeSingle();
@@ -89,7 +89,7 @@ export async function createReceipt(
   const validated = receiptInsertSchema.parse(payload);
 
   const { data, error } = await supabase
-    .from("receipt")
+    .schema("finance").from("receipt")
     .insert(validated)
     .select()
     .maybeSingle();
@@ -110,7 +110,7 @@ export async function updateReceipt(
   const validated = receiptUpdateSchema.parse(payload);
 
   const { data, error } = await supabase
-    .from("receipt")
+    .schema("finance").from("receipt")
     .update(validated)
     .eq("id", validated.id)
     .select()

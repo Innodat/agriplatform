@@ -222,7 +222,7 @@ create policy "Allow soft delete for self or admin" on finance.receipt for updat
 
 -- Finance: expense_category
 create policy "Allow read for self or admin" on finance.expense_category for select using (
-  ( (auth.uid())::uuid = created_by and identity.authorize('finance.expense_category.read') )
+  ( auth.role() = 'authenticated' and identity.authorize('finance.expense_category.read') )
   or identity.authorize('finance.expense_category.admin')
 );
 create policy "Allow insert for self or admin" on finance.expense_category for insert with check (
@@ -240,7 +240,7 @@ create policy "Allow soft delete for self or admin" on finance.expense_category 
 
 -- Finance: expense_type
 create policy "Allow read for self or admin" on finance.expense_type for select using (
-  ( (auth.uid())::uuid = created_by and identity.authorize('finance.expense_type.read') )
+  ( auth.role() = 'authenticated' and identity.authorize('finance.expense_type.read') )
   or identity.authorize('finance.expense_type.admin')
 );
 create policy "Allow insert for self or admin" on finance.expense_type for insert with check (
@@ -258,7 +258,7 @@ create policy "Allow soft delete for self or admin" on finance.expense_type for 
 
 -- Finance: currency
 create policy "Allow read for self or admin" on finance.currency for select using (
-  ( (auth.uid())::uuid = created_by and identity.authorize('finance.currency.read') )
+  ( auth.role() = 'authenticated' and identity.authorize('finance.currency.read') )
   or identity.authorize('finance.currency.admin')
 );
 create policy "Allow insert for self or admin" on finance.currency for insert with check (

@@ -15,4 +15,11 @@ export default defineConfig({
       "@shared": path.resolve(__dirname, "../shared"),
     },
   },
+  test: {
+    environment: 'node',
+    setupFiles: ['./tests/setup/vitest.setup.ts'],
+    globals: true,
+    include: ['tests/**/*.test.ts'],
+  },
+
 })

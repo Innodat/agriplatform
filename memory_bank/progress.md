@@ -595,10 +595,104 @@ docs/tech-spec.md (12 sections, ~500 lines)
 
 ---
 
+---
+
+## Post‑ACT Update – 2025‑10‑29 (Auth Hook JWT Claims Fix)
+
+### What Was Delivered
+- **JWT Claims Fix**: Resolved 403 Forbidden errors when accessing finance schema tables
+  - **Root Cause**: Auth hook was not properly populating `user_role` claim in JWT, causing RLS policies to fail
+  - **Migration Created**: `supabase/migrations/20251029T1249_fix_auth_hook_user_role_claim.sql`
+  - **Updated Hook Logic**: 
+    - Ensures claims object exists with coalesce
+    - Queries only active roles (is_active = true)
+    - Populates user_role with first active role
+    - Adds role_ids array for future use
+    - Adds department_ids placeholder for future department mapping
+  - **Documentation Updated**: 
+    - `docs/tech-spec.md` Section 9.3: Added JWT Claims Contract documentation
+    - `docs/tech-spec.md` Section 7.1: Added Auth Hook Modifications workflow notes
+
+### Technical Details
+
+**JWT Claims Contract:**
+| Claim | Type | Description |
+|-------|------|-------------|
+| `user_role` | `identity.app_role` | Primary active role for the user (first from array) |
+| `role_ids` | `bigint[]` | Array of all active role IDs for the user |
+| `department_ids` | `bigint[]` | Array of department IDs (placeholder for future) |
+
+**Example JWT Payload:**
+```json
+{
+  "sub": "user-uuid",
+  "email": "user@example.com",
+  "user_role": "employee",
+  "role_ids": [1, 2],
+  "department_ids": []
+}
+```
+
+**Auth Hook Function Changes:**
+- Added proper null handling for claims object
+- Implemented array aggregation for role_ids
+- Selected first active role as primary user_role
+- Converted arrays to JSONB for JWT compatibility
+- Added comprehensive inline documentation
+
+### Implementation Status
+- ✅ Migration file created
+- ✅ Original auth hook migration updated (20250925T1622_auth-hook.sql)
+- ✅ Tech spec documentation updated
+- ⏳ Migration needs to be applied to database
+- ⏳ Users need to refresh sessions after migration
+
+### Next Steps for This Fix
+1. **Apply Migration**: Run migration on Supabase instance
+   ```bash
+   # Option 1: Via Supabase CLI (if linked)
+   cd supabase && npx supabase db push
+   
+   # Option 2: Via Supabase Dashboard
+   # Copy SQL from migration file and execute in SQL Editor
+   ```
+
+2. **Refresh User Sessions**: After migration is applied
+   ```typescript
+   // Option 1: Sign out and sign back in
+   await supabase.auth.signOut()
+   // Then sign in again
+   
+   // Option 2: Programmatic refresh
+   await supabase.auth.refreshSession()
+   ```
+
+3. **Verify Fix**: Check JWT payload includes user_role claim
+   ```typescript
+   const { data: { session } } = await supabase.auth.getSession()
+   console.log(session?.access_token) // Decode to verify claims
+   ```
+
+### Files Modified
+1. `supabase/migrations/20250925T1622_auth-hook.sql` - Updated with proper claim population
+2. `supabase/migrations/20251029T1249_fix_auth_hook_user_role_claim.sql` - New migration file
+3. `docs/tech-spec.md` - Added Section 9.3 (JWT Claims Contract) and updated Section 7.1
+4. `memory_bank/progress.md` - This update
+
+### Impact on RLS Policies
+- All RLS policies using `identity.authorize()` will now work correctly
+- Policies checking `(auth.jwt() ->> 'user_role')::identity.app_role` will succeed
+- Finance schema queries will no longer return 403 Forbidden errors
+- Users will be able to access data according to their assigned roles
+
+---
+
 ## Current Blockers
 
-1. **Authentication Required**: Cannot properly test RLS policies without real authentication
-2. **Content System Pending**: Receipt content_id field is currently null, limiting full workflow testing
+1. **Auth Hook Migration Pending**: Migration needs to be applied to database before JWT claims work
+2. **Session Refresh Required**: Users need to refresh sessions after migration is applied
+3. **Authentication Required**: Cannot properly test RLS policies without real authentication
+4. **Content System Pending**: Receipt content_id field is currently null, limiting full workflow testing
 
 ## Recommended Immediate Action
 
