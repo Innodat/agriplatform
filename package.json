@@ -2,9 +2,6 @@
   "name": "agriplatform",
   "version": "1.0.0",
   "private": true,
-  "workspaces": [
-    "packages/*"
-  ],
   "scripts": {
     "tools": "python packages/tools/tools.py",
     "dev": "npm run tools -- tailwind --watch",

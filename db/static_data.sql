@@ -1,5 +1,7 @@
 -- static_data.sql: Static data inserts for currency, expense_category, and expense_type tables
 
+
+
 -- Currency
 INSERT INTO finance.currency (id, symbol, name, is_active, created_timestamp, created_user_id, modified_timestamp, modified_user_id)
 VALUES

@@ -136,7 +136,7 @@ Once the signup flow is implemented in the application:
 
 1. Start the development server:
    ```bash
-   cd packages/frontend
+   cd packages/web
    npm run dev
    ```
 
@@ -257,5 +257,5 @@ After creating test users:
 ## Reference Files
 
 - SQL Script: `supabase/seed_test_users.sql`
-- Auth Context: `packages/frontend/src/contexts/AuthContext.tsx`
-- Login Page: `packages/frontend/src/components/auth/LoginPage.tsx`
+- Auth Context: `packages/web/src/contexts/AuthContext.tsx`
+- Login Page: `packages/web/src/components/auth/LoginPage.tsx`

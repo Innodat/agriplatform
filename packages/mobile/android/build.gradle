@@ -1,21 +1,40 @@
-buildscript {
-    ext {
-        buildToolsVersion = "36.0.0"
-        minSdkVersion = 24
-        compileSdkVersion = 36
-        targetSdkVersion = 36
-        ndkVersion = "27.1.12297006"
-        kotlinVersion = "2.1.20"
-    }
-    repositories {
-        google()
-        mavenCentral()
-    }
-    dependencies {
-        classpath("com.android.tools.build:gradle")
-        classpath("com.facebook.react:react-native-gradle-plugin")
-        classpath("org.jetbrains.kotlin:kotlin-gradle-plugin")
-    }
+// android/build.gradle (root)
+
+// Modern Gradle plugins DSL:
+plugins {
+  // Pin Android Gradle Plugin (AGP) and Kotlin plugin here.
+  // These versions are compatible with RN 0.82 and Android API 36.
+  id "com.android.application" version "8.7.2" apply false
+  id "org.jetbrains.kotlin.android" version "2.0.21" apply false
+
+  // Apply the React Native *root* plugin (provided via settings.gradle includeBuild)
+  id "com.facebook.react.rootproject"
 }
 
-apply plugin: "com.facebook.react.rootproject"
+ext {
+  // Use the same values you use in app/build.gradle
+  compileSdkVersion = 36
+  targetSdkVersion  = 36
+  minSdkVersion     = 24
+}
+
+
+// (Optional) Keep centralized repositories for subprojects:
+allprojects {
+  repositories {
+    google()
+    mavenCentral()
+  }
+}
+
+
+subprojects { proj ->
+  if (proj.name == "react-native-vision-camera" || proj.name == "react-native-screens") {
+    afterEvaluate {
+      def androidExt = proj.extensions.findByName("android")
+      if (androidExt != null && androidExt.hasProperty("defaultConfig")) {
+        androidExt.defaultConfig.minSdkVersion = 24
+      }
+    }
+  }
+}

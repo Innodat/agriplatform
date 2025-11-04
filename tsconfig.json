@@ -3,6 +3,7 @@
   "references": [
     { "path": "./packages/shared" },
     { "path": "./packages/tools/ts" },
-    { "path": "./packages/frontend" }
+    { "path": "./packages/web" },
+    { "path": "./packages/mobile" }
   ]
 }

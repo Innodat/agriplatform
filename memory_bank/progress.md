@@ -394,13 +394,13 @@ docs/tech-spec.md (12 sections, ~500 lines)
    - Implement batch operations with progress indicators
 
 ### Files Modified
-1. `packages/frontend/src/components/ui/toast.tsx` - Created
-2. `packages/frontend/src/components/ui/use-toast.ts` - Created
-3. `packages/frontend/src/components/ui/toaster.tsx` - Created
-4. `packages/frontend/src/App.tsx` - Added Toaster component
-5. `packages/frontend/src/components/finance/receipt-capturing/pages/TodayPage.tsx` - Added toast notifications
-6. `packages/frontend/src/components/finance/receipt-capturing/pages/AdminPage.tsx` - Added toast notifications
-7. `packages/frontend/src/components/finance/receipt-capturing/components/AddReceiptDialog.tsx` - Added toast notifications
+1. `packages/web/src/components/ui/toast.tsx` - Created
+2. `packages/web/src/components/ui/use-toast.ts` - Created
+3. `packages/web/src/components/ui/toaster.tsx` - Created
+4. `packages/web/src/App.tsx` - Added Toaster component
+5. `packages/web/src/components/finance/receipt-capturing/pages/TodayPage.tsx` - Added toast notifications
+6. `packages/web/src/components/finance/receipt-capturing/pages/AdminPage.tsx` - Added toast notifications
+7. `packages/web/src/components/finance/receipt-capturing/components/AddReceiptDialog.tsx` - Added toast notifications
 8. `package.json` - Added @radix-ui/react-toast dependency
 9. `docs/tech-spec.md` - Updated sections 5.4 and 5.7 with Supabase integration patterns
 
@@ -446,11 +446,11 @@ docs/tech-spec.md (12 sections, ~500 lines)
 - [ ] Logout clears session and redirects to login
 
 **Files to Create/Modify:**
-- `packages/frontend/src/contexts/AuthContext.tsx` (Create)
-- `packages/frontend/src/components/auth/LoginPage.tsx` (Create)
-- `packages/frontend/src/components/auth/ProtectedRoute.tsx` (Create)
-- `packages/frontend/src/App.tsx` (Wrap with AuthProvider)
-- `packages/frontend/src/lib/supabase/client.ts` (Add auth helpers)
+- `packages/web/src/contexts/AuthContext.tsx` (Create)
+- `packages/web/src/components/auth/LoginPage.tsx` (Create)
+- `packages/web/src/components/auth/ProtectedRoute.tsx` (Create)
+- `packages/web/src/App.tsx` (Wrap with AuthProvider)
+- `packages/web/src/lib/supabase/client.ts` (Add auth helpers)
 
 ---
 
