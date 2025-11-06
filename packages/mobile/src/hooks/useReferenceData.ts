@@ -47,11 +47,15 @@ export function useReferenceData(): UseReferenceDataResult {
         }
 
         setCurrencies(currenciesResult.data);
+        console.log("Currencies:")
+        console.log(currenciesResult.data)
+        console.log("--- CURRENCIES ---")
         setCategories(categoriesResult.data);
         setExpenseTypes(typesResult.data);
       } catch (err) {
         setError(err instanceof Error ? err.message : 'Failed to fetch reference data');
       } finally {
+        console.log("TEst:", currencies)
         setLoading(false);
       }
     };

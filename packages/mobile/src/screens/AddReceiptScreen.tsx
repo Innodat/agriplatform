@@ -41,6 +41,8 @@ export function AddReceiptScreen({ navigation }: any) {
   const [showCurrencyPicker, setShowCurrencyPicker] = useState(false);
   const { currencies, expenseTypes, loading: refLoading } = useReferenceData();
 
+  console.log("Currencies", currencies)
+
   const { control, handleSubmit, watch, setValue, formState: { errors } } = useForm<ReceiptFormData>({
     resolver: zodResolver(receiptFormSchema),
     defaultValues: {

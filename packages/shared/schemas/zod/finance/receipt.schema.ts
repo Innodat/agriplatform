@@ -7,13 +7,13 @@ export const receiptRowSchema = z.object({
   is_active: z.boolean().nullable(),
   created_by: z.string().uuid().nullable(),
   updated_by: z.string().uuid().nullable(),
-  created_at: z.string().datetime().nullable(),
-  updated_at: z.string().datetime().nullable(),
-  created_timestamp: z.string().datetime().nullable(),
+  created_at: z.string().datetime({ offset: true, precision: 6 }).nullable(),
+  updated_at: z.string().datetime({ offset: true, precision: 6 }).nullable(),
+  created_timestamp: z.string().datetime({ offset: true, precision: 6 }).nullable(),
   created_user_id: z.string().nullable(),
-  modified_timestamp: z.string().datetime().nullable(),
+  modified_timestamp: z.string().datetime({ offset: true, precision: 6 }).nullable(),
   modified_user_id: z.string().nullable(),
-  captured_at: z.string().datetime().nullable(),
+  captured_at: z.string().datetime({ offset: true, precision: 6 }).nullable(),
 });
 export type ReceiptRow = z.infer<typeof receiptRowSchema>;
 

@@ -8,8 +8,8 @@ export const currencyRowSchema = z.object({
   is_active: z.boolean().nullable(),
   created_by: z.string().uuid().nullable(),
   updated_by: z.string().uuid().nullable(),
-  created_at: z.string().datetime().nullable(),
-  updated_at: z.string().datetime().nullable(),
+  created_at: z.string().datetime({ offset: true, precision: 6 }).nullable(),
+  updated_at: z.string().datetime({ offset: true, precision: 6 }).nullable(),
 });
 export type CurrencyRow = z.infer<typeof currencyRowSchema>;
 

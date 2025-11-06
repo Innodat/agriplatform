@@ -401,8 +401,8 @@ export const ReceiptRowSchema = z.object({
   is_active: z.boolean().nullable().default(true),
   created_by: z.string().uuid().nullable(),
   updated_by: z.string().uuid().nullable(),
-  created_at: z.string().datetime().nullable(),
-  updated_at: z.string().datetime().nullable(),
+  created_at: z.string().datetime({ offset: true, precision: 6 }).nullable(),
+  updated_at: z.string().datetime({ offset: true, precision: 6 }).nullable(),
 });
 
 // Insert schema (omit auto-generated fields)

@@ -38,6 +38,8 @@ export function BottomSheetPicker({
 }: BottomSheetPickerProps) {
   const [searchQuery, setSearchQuery] = useState('');
 
+  console.log("Items:", items, "#");
+
   const filteredItems = useMemo(() => {
     if (!searchQuery.trim()) {
       return items;
