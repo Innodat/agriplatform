@@ -9,8 +9,9 @@ import {
   SafeAreaView,
   ActivityIndicator,
   Alert,
+  Modal,
 } from 'react-native';
-import { useForm, useFieldArray } from 'react-hook-form';
+import { useForm, useFieldArray, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { launchCamera, launchImageLibrary } from 'react-native-image-picker';
@@ -25,8 +26,8 @@ const receiptFormSchema = z.object({
   currency_id: z.number(),
   own_money: z.boolean(),
   items: z.array(z.object({
-    expense_type_id: z.number(),
-    amount: z.number().positive(),
+    expense_type_id: z.number().min(1, 'Expense type is required'),
+    amount: z.number().positive('Amount must be greater than 0'),
     other_category: z.string().optional(),
   })).min(1, 'At least one item is required'),
 });
@@ -36,9 +37,10 @@ type ReceiptFormData = z.infer<typeof receiptFormSchema>;
 export function AddReceiptScreen({ navigation }: any) {
   const [imageUri, setImageUri] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
+  const [showCurrencyPicker, setShowCurrencyPicker] = useState(false);
   const { currencies, expenseTypes, loading: refLoading } = useReferenceData();
 
-  const { control, handleSubmit, watch, formState: { errors } } = useForm<ReceiptFormData>({
+  const { control, handleSubmit, watch, setValue, formState: { errors } } = useForm<ReceiptFormData>({
     resolver: zodResolver(receiptFormSchema),
     defaultValues: {
       supplier: '',
@@ -55,6 +57,8 @@ export function AddReceiptScreen({ navigation }: any) {
   });
 
   const items = watch('items');
+  const currencyId = watch('currency_id');
+  const selectedCurrency = currencies.find(c => c.id === currencyId);
   const totalAmount = items.reduce((sum, item) => sum + (item.amount || 0), 0);
 
   const handleCameraCapture = async () => {
@@ -83,16 +87,22 @@ export function AddReceiptScreen({ navigation }: any) {
     try {
       setSaving(true);
 
-      // Create receipt
-      const { data: receipt, error: receiptError } = await createReceipt(supabase, {
-        supplier: data.supplier,
-      });
+      // Create receipt with captured_at
+      const { data: receipt, error: receiptError } = await supabase
+        .schema('finance')
+        .from('receipt')
+        .insert({
+          supplier: data.supplier,
+          captured_at: new Date().toISOString(),
+        })
+        .select()
+        .single();
 
       if (receiptError || !receipt) {
         throw new Error(receiptError?.message || 'Failed to create receipt');
       }
 
-      // Create purchases
+      // Create purchases (without captured_timestamp)
       for (const item of data.items) {
         const { error: purchaseError } = await supabase
           .schema('finance')
@@ -104,7 +114,6 @@ export function AddReceiptScreen({ navigation }: any) {
             other_category: item.other_category,
             currency_id: data.currency_id,
             reimbursable: data.own_money,
-            captured_timestamp: new Date().toISOString(),
           });
 
         if (purchaseError) {
@@ -133,8 +142,8 @@ export function AddReceiptScreen({ navigation }: any) {
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
-        <TouchableOpacity onPress={() => navigation.goBack()}>
-          <Text style={styles.backButton}>← Add Receipt</Text>
+        <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
+          <Text style={styles.backButtonText}>← Add Receipt</Text>
         </TouchableOpacity>
       </View>
 
@@ -161,45 +170,74 @@ export function AddReceiptScreen({ navigation }: any) {
         <View style={styles.row}>
           <View style={[styles.field, styles.fieldHalf]}>
             <Text style={styles.label}>Date</Text>
-            <TextInput
-              style={styles.input}
-              value={watch('date')}
-              editable={false}
+            <Controller
+              control={control}
+              name="date"
+              render={({ field: { value } }) => (
+                <TextInput
+                  style={styles.input}
+                  value={value}
+                  editable={false}
+                />
+              )}
             />
           </View>
           <View style={[styles.field, styles.fieldHalf]}>
             <Text style={styles.label}>Currency</Text>
-            <View style={styles.pickerContainer}>
-              <Text style={styles.pickerText}>
-                {currencies.find(c => c.id === watch('currency_id'))?.symbol || '₹'}
-              </Text>
-            </View>
+            <Controller
+              control={control}
+              name="currency_id"
+              render={({ field: { value } }) => (
+                <TouchableOpacity
+                  style={styles.pickerContainer}
+                  onPress={() => setShowCurrencyPicker(true)}
+                >
+                  <Text style={styles.pickerText}>
+                    {selectedCurrency?.symbol || '₹'} {selectedCurrency?.name || 'USD'}
+                  </Text>
+                </TouchableOpacity>
+              )}
+            />
           </View>
         </View>
 
         {/* Supplier */}
         <View style={styles.field}>
           <Text style={styles.label}>Supplier *</Text>
-          <TextInput
-            style={[styles.input, errors.supplier && styles.inputError]}
-            placeholder="Enter supplier name"
-            onChangeText={(text) => control._formValues.supplier = text}
+          <Controller
+            control={control}
+            name="supplier"
+            render={({ field: { onChange, onBlur, value }, fieldState: { error } }) => (
+              <>
+                <TextInput
+                  style={[styles.input, error && styles.inputError]}
+                  placeholder="Enter supplier name"
+                  onBlur={onBlur}
+                  onChangeText={onChange}
+                  value={value}
+                />
+                {error && <Text style={styles.errorText}>{error.message}</Text>}
+              </>
+            )}
           />
-          {errors.supplier && (
-            <Text style={styles.errorText}>{errors.supplier.message}</Text>
-          )}
         </View>
 
         {/* Own Money Checkbox */}
-        <TouchableOpacity
-          style={styles.checkbox}
-          onPress={() => control._formValues.own_money = !watch('own_money')}
-        >
-          <View style={[styles.checkboxBox, watch('own_money') && styles.checkboxChecked]}>
-            {watch('own_money') && <Text style={styles.checkboxCheck}>✓</Text>}
-          </View>
-          <Text style={styles.checkboxLabel}>Own money (reimbursable)</Text>
-        </TouchableOpacity>
+        <Controller
+          control={control}
+          name="own_money"
+          render={({ field: { onChange, value } }) => (
+            <TouchableOpacity
+              style={styles.checkbox}
+              onPress={() => onChange(!value)}
+            >
+              <View style={[styles.checkboxBox, value && styles.checkboxChecked]}>
+                {value && <Text style={styles.checkboxCheck}>✓</Text>}
+              </View>
+              <Text style={styles.checkboxLabel}>Own money (reimbursable)</Text>
+            </TouchableOpacity>
+          )}
+        />
 
         {/* Purchase Items */}
         <View style={styles.section}>
@@ -221,6 +259,7 @@ export function AddReceiptScreen({ navigation }: any) {
               expenseTypes={expenseTypes}
               onRemove={() => remove(index)}
               showRemove={fields.length > 1}
+              currencySymbol={selectedCurrency?.symbol || '₹'}
             />
           ))}
         </View>
@@ -229,7 +268,7 @@ export function AddReceiptScreen({ navigation }: any) {
         <View style={styles.totalContainer}>
           <Text style={styles.totalLabel}>Total Amount:</Text>
           <Text style={styles.totalAmount}>
-            {currencies.find(c => c.id === watch('currency_id'))?.symbol || '₹'}
+            {selectedCurrency?.symbol || '₹'}
             {totalAmount.toFixed(2)}
           </Text>
         </View>
@@ -247,6 +286,44 @@ export function AddReceiptScreen({ navigation }: any) {
           )}
         </TouchableOpacity>
       </ScrollView>
+
+      {/* Currency Picker Modal */}
+      <Modal
+        visible={showCurrencyPicker}
+        transparent
+        animationType="slide"
+        onRequestClose={() => setShowCurrencyPicker(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContent}>
+            <View style={styles.modalHeader}>
+              <Text style={styles.modalTitle}>Select Currency</Text>
+              <TouchableOpacity onPress={() => setShowCurrencyPicker(false)}>
+                <Text style={styles.modalClose}>✕</Text>
+              </TouchableOpacity>
+            </View>
+            <ScrollView>
+              {currencies.map((currency) => (
+                <TouchableOpacity
+                  key={currency.id}
+                  style={styles.modalItem}
+                  onPress={() => {
+                    setValue('currency_id', currency.id);
+                    setShowCurrencyPicker(false);
+                  }}
+                >
+                  <Text style={styles.modalItemText}>
+                    {currency.symbol} {currency.name}
+                  </Text>
+                  {currencyId === currency.id && (
+                    <Text style={styles.modalItemCheck}>✓</Text>
+                  )}
+                </TouchableOpacity>
+              ))}
+            </ScrollView>
+          </View>
+        </View>
+      </Modal>
     </SafeAreaView>
   );
 }
@@ -261,6 +338,10 @@ const styles = StyleSheet.create({
     backgroundColor: '#00897B',
   },
   backButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  backButtonText: {
     fontSize: 18,
     color: '#fff',
     fontWeight: '600',
@@ -429,5 +510,49 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontSize: 16,
     fontWeight: '600',
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.5)',
+    justifyContent: 'flex-end',
+  },
+  modalContent: {
+    backgroundColor: '#fff',
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
+    maxHeight: '70%',
+  },
+  modalHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    padding: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: '#E0E0E0',
+  },
+  modalTitle: {
+    fontSize: 18,
+    fontWeight: '600',
+    color: '#333',
+  },
+  modalClose: {
+    fontSize: 24,
+    color: '#666',
+  },
+  modalItem: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    padding: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: '#F5F5F5',
+  },
+  modalItemText: {
+    fontSize: 16,
+    color: '#333',
+  },
+  modalItemCheck: {
+    fontSize: 20,
+    color: '#00897B',
   },
 });

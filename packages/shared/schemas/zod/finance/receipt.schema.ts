@@ -13,6 +13,7 @@ export const receiptRowSchema = z.object({
   created_user_id: z.string().nullable(),
   modified_timestamp: z.string().datetime().nullable(),
   modified_user_id: z.string().nullable(),
+  captured_at: z.string().datetime().nullable(),
 });
 export type ReceiptRow = z.infer<typeof receiptRowSchema>;
 
