@@ -8,6 +8,8 @@ plugins {
 
 
 
+apply from: project(':react-native-config').projectDir.getPath() + "/dotenv.gradle"
+
 /**
  * This is the configuration block to customize your React Native Android app.
  * By default you don't need to apply any configuration, just uncomment the lines you need.
@@ -88,9 +90,6 @@ def enableProguardInReleaseBuilds = false
  * this variant is about 6MiB larger per architecture than default.
  */
 def jscFlavor = 'io.github.react-native-community:jsc-android:2026004.+'
-
-// Apply dotenv BEFORE the android { } block
-apply from: project(':react-native-config').projectDir.getPath() + "/dotenv.gradle"
 
 android {
     // ndkVersion rootProject.ext.ndkVersion
