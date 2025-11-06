@@ -4,6 +4,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { LoginScreen } from '../screens/LoginScreen';
 import { ForgotPasswordScreen } from '../screens/ForgotPasswordScreen';
 import { ReceiptListScreen } from '../screens/ReceiptListScreen';
+import { AddReceiptScreen } from '../screens/AddReceiptScreen';
 import { ActivityIndicator, View, StyleSheet } from 'react-native';
 
 export type RootStackParamList = {
@@ -13,6 +14,8 @@ export type RootStackParamList = {
   
   // Main Stack
   ReceiptList: undefined;
+  AddReceipt: undefined;
+  EditReceipt: { receiptId: number };
 };
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -44,6 +47,7 @@ export function RootNavigator() {
         // Main Stack
         <>
           <Stack.Screen name="ReceiptList" component={ReceiptListScreen} />
+          <Stack.Screen name="AddReceipt" component={AddReceiptScreen} />
         </>
       )}
     </Stack.Navigator>

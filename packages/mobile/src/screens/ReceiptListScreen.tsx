@@ -22,13 +22,12 @@ export function ReceiptListScreen({ navigation }: any) {
   };
 
   const handleEditReceipt = (receiptId: number) => {
-    // TODO: Navigate to edit screen in Phase 4
+    // TODO: Implement edit screen
     console.log('Edit receipt:', receiptId);
   };
 
   const handleAddReceipt = () => {
-    // TODO: Navigate to add screen in Phase 4
-    console.log('Add receipt');
+    navigation.navigate('AddReceipt');
   };
 
   const renderEmpty = () => {
