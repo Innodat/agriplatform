@@ -18,6 +18,7 @@ import { z } from 'zod';
 import { launchCamera, launchImageLibrary } from 'react-native-image-picker';
 import { useReferenceData } from '../hooks/useReferenceData';
 import { PurchaseItemForm } from '../components/PurchaseItemForm';
+import { BottomSheetPicker } from '../components/BottomSheetPicker';
 import { supabase } from '../lib/supabase';
 
 const receiptFormSchema = z.object({
@@ -295,51 +296,16 @@ export function AddReceiptScreen({ navigation }: any) {
         </TouchableOpacity>
       </ScrollView>
 
-      {/* Currency Picker Modal */}
-      <Modal
+      {/* Currency Picker */}
+      <BottomSheetPicker
         visible={showCurrencyPicker}
-        transparent
-        animationType="slide"
-        onRequestClose={() => setShowCurrencyPicker(false)}
-      >
-        <TouchableOpacity 
-          style={styles.modalOverlay}
-          activeOpacity={1}
-          onPress={() => setShowCurrencyPicker(false)}
-        >
-          <TouchableOpacity 
-            style={styles.modalContent}
-            activeOpacity={1}
-            onPress={(e) => e.stopPropagation()}
-          >
-            <View style={styles.modalHeader}>
-              <Text style={styles.modalTitle}>Select Currency</Text>
-              <TouchableOpacity onPress={() => setShowCurrencyPicker(false)}>
-                <Text style={styles.modalClose}>✕</Text>
-              </TouchableOpacity>
-            </View>
-            <ScrollView style={styles.modalScrollView}>
-              {currencies.map((currency) => (
-                <TouchableOpacity
-                  key={currency.id}
-                  style={styles.modalItem}
-                  onPress={() => {
-                    setValue('currency_id', currency.id);
-                    setShowCurrencyPicker(false);
-                  }}
-                >
-                  <Text style={styles.modalItemText}>
-                    {currency.symbol} {currency.name}
-                  </Text>
-                  {currencyId === currency.id && (
-                    <Text style={styles.modalItemCheck}>✓</Text>
-                  )}
-                </TouchableOpacity>
-              ))}
-            </ScrollView>
-          </TouchableOpacity>
-        </TouchableOpacity>
-      </Modal>
+        title="Select Currency"
+        items={currencies.map(c => ({ id: c.id, name: c.name, symbol: c.symbol || '' }))}
+        selectedId={currencyId}
+        onSelect={(id) => setValue('currency_id', id)}
+        onClose={() => setShowCurrencyPicker(false)}
+        searchPlaceholder="Search currencies..."
+      />
     </SafeAreaView>
   );
 }

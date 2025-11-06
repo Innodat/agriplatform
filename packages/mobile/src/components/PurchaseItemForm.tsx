@@ -5,11 +5,10 @@ import {
   TextInput,
   TouchableOpacity,
   StyleSheet,
-  Modal,
-  ScrollView,
 } from 'react-native';
 import { Controller, Control } from 'react-hook-form';
 import type { ExpenseTypeRow } from '@agriplatform/shared';
+import { BottomSheetPicker } from './BottomSheetPicker';
 
 interface PurchaseItemFormProps {
   index: number;
@@ -62,49 +61,16 @@ export function PurchaseItemForm({
                 </TouchableOpacity>
                 {error && <Text style={styles.errorText}>{error.message}</Text>}
 
-                {/* Expense Type Picker Modal */}
-                <Modal
+                {/* Expense Type Picker */}
+                <BottomSheetPicker
                   visible={showExpenseTypePicker}
-                  transparent
-                  animationType="slide"
-                  onRequestClose={() => setShowExpenseTypePicker(false)}
-                >
-                  <TouchableOpacity 
-                    style={styles.modalOverlay}
-                    activeOpacity={1}
-                    onPress={() => setShowExpenseTypePicker(false)}
-                  >
-                    <TouchableOpacity 
-                      style={styles.modalContent}
-                      activeOpacity={1}
-                      onPress={(e) => e.stopPropagation()}
-                    >
-                      <View style={styles.modalHeader}>
-                        <Text style={styles.modalTitle}>Select Spending Type</Text>
-                        <TouchableOpacity onPress={() => setShowExpenseTypePicker(false)}>
-                          <Text style={styles.modalClose}>✕</Text>
-                        </TouchableOpacity>
-                      </View>
-                      <ScrollView style={styles.modalScrollView}>
-                        {expenseTypes.map((type) => (
-                          <TouchableOpacity
-                            key={type.id}
-                            style={styles.modalItem}
-                            onPress={() => {
-                              onChange(type.id);
-                              setShowExpenseTypePicker(false);
-                            }}
-                          >
-                            <Text style={styles.modalItemText}>{type.name}</Text>
-                            {value === type.id && (
-                              <Text style={styles.modalItemCheck}>✓</Text>
-                            )}
-                          </TouchableOpacity>
-                        ))}
-                      </ScrollView>
-                    </TouchableOpacity>
-                  </TouchableOpacity>
-                </Modal>
+                  title="Select Spending Type"
+                  items={expenseTypes.map(t => ({ id: t.id, name: t.name }))}
+                  selectedId={value}
+                  onSelect={onChange}
+                  onClose={() => setShowExpenseTypePicker(false)}
+                  searchPlaceholder="Search expense types..."
+                />
               </>
             );
           }}
@@ -244,52 +210,5 @@ const styles = StyleSheet.create({
     color: '#C62828',
     fontSize: 12,
     marginTop: 4,
-  },
-  modalOverlay: {
-    flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.5)',
-    justifyContent: 'flex-end',
-  },
-  modalContent: {
-    backgroundColor: '#fff',
-    borderTopLeftRadius: 20,
-    borderTopRightRadius: 20,
-    maxHeight: '70%',
-  },
-  modalHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    padding: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: '#E0E0E0',
-  },
-  modalTitle: {
-    fontSize: 18,
-    fontWeight: '600',
-    color: '#333',
-  },
-  modalClose: {
-    fontSize: 24,
-    color: '#666',
-  },
-  modalScrollView: {
-    maxHeight: 400,
-  },
-  modalItem: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    padding: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: '#F5F5F5',
-  },
-  modalItemText: {
-    fontSize: 16,
-    color: '#333',
-  },
-  modalItemCheck: {
-    fontSize: 20,
-    color: '#00897B',
   },
 });
