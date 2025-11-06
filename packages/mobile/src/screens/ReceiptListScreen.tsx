@@ -5,18 +5,62 @@ import {
   TouchableOpacity,
   StyleSheet,
   SafeAreaView,
+  FlatList,
+  ActivityIndicator,
+  RefreshControl,
 } from 'react-native';
 import { useAuth } from '../contexts/AuthContext';
+import { useReceipts } from '../hooks/useReceipts';
+import { ReceiptListItem } from '../components/ReceiptListItem';
 
 export function ReceiptListScreen({ navigation }: any) {
   const { user, signOut } = useAuth();
+  const { receipts, loading, error, refresh, loadMore, hasMore } = useReceipts();
 
   const handleSignOut = async () => {
     await signOut();
   };
 
+  const handleEditReceipt = (receiptId: number) => {
+    // TODO: Navigate to edit screen in Phase 4
+    console.log('Edit receipt:', receiptId);
+  };
+
+  const handleAddReceipt = () => {
+    // TODO: Navigate to add screen in Phase 4
+    console.log('Add receipt');
+  };
+
+  const renderEmpty = () => {
+    if (loading) {
+      return null;
+    }
+
+    return (
+      <View style={styles.emptyContainer}>
+        <Text style={styles.emptyText}>No receipts found</Text>
+        <Text style={styles.emptySubtext}>
+          Tap the ADD button to create your first receipt
+        </Text>
+      </View>
+    );
+  };
+
+  const renderFooter = () => {
+    if (!hasMore) {
+      return null;
+    }
+
+    return (
+      <View style={styles.footerLoader}>
+        <ActivityIndicator size="small" color="#00897B" />
+      </View>
+    );
+  };
+
   return (
     <SafeAreaView style={styles.container}>
+      {/* Header */}
       <View style={styles.header}>
         <Text style={styles.headerTitle}>Receipts</Text>
         <TouchableOpacity onPress={handleSignOut} style={styles.profileButton}>
@@ -28,17 +72,62 @@ export function ReceiptListScreen({ navigation }: any) {
         </TouchableOpacity>
       </View>
 
-      <View style={styles.content}>
-        <Text style={styles.placeholderText}>
-          Receipt List Screen
-        </Text>
-        <Text style={styles.placeholderSubtext}>
-          This will be implemented in Phase 3
-        </Text>
-        <Text style={styles.userEmail}>
-          Signed in as: {user?.email}
-        </Text>
-      </View>
+      {/* Add Button */}
+      <TouchableOpacity style={styles.addButton} onPress={handleAddReceipt}>
+        <Text style={styles.addButtonText}>ADD</Text>
+      </TouchableOpacity>
+
+      {/* Error Message */}
+      {error && (
+        <View style={styles.errorContainer}>
+          <Text style={styles.errorText}>{error}</Text>
+        </View>
+      )}
+
+      {/* Receipt List */}
+      {loading && receipts.length === 0 ? (
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator size="large" color="#00897B" />
+          <Text style={styles.loadingText}>Loading receipts...</Text>
+        </View>
+      ) : (
+        <FlatList
+          data={receipts}
+          keyExtractor={(item) => item.id.toString()}
+          renderItem={({ item }) => (
+            <ReceiptListItem
+              id={item.id}
+              supplier={item.supplier || 'Unknown Supplier'}
+              totalAmount={item.totalAmount}
+              currency={item.currency}
+              capturedDate={item.created_timestamp || item.created_at || ''}
+              onEdit={() => handleEditReceipt(item.id)}
+            />
+          )}
+          ListEmptyComponent={renderEmpty}
+          ListFooterComponent={renderFooter}
+          refreshControl={
+            <RefreshControl
+              refreshing={false}
+              onRefresh={refresh}
+              colors={['#00897B']}
+              tintColor="#00897B"
+            />
+          }
+          onEndReached={loadMore}
+          onEndReachedThreshold={0.5}
+        />
+      )}
+
+      {/* Pagination Info */}
+      {receipts.length > 0 && (
+        <View style={styles.paginationInfo}>
+          <Text style={styles.paginationText}>
+            Showing {receipts.length} receipt{receipts.length !== 1 ? 's' : ''}
+            {hasMore && ' • Pull down to refresh'}
+          </Text>
+        </View>
+      )}
     </SafeAreaView>
   );
 }
@@ -76,25 +165,67 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     color: '#00897B',
   },
-  content: {
+  addButton: {
+    backgroundColor: '#00897B',
+    padding: 16,
+    margin: 16,
+    borderRadius: 8,
+    alignItems: 'center',
+  },
+  addButtonText: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: '600',
+  },
+  errorContainer: {
+    backgroundColor: '#FFEBEE',
+    padding: 12,
+    marginHorizontal: 16,
+    marginBottom: 8,
+    borderRadius: 8,
+  },
+  errorText: {
+    color: '#C62828',
+    fontSize: 14,
+  },
+  loadingContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    padding: 24,
   },
-  placeholderText: {
-    fontSize: 24,
+  loadingText: {
+    marginTop: 12,
+    fontSize: 16,
+    color: '#666',
+  },
+  emptyContainer: {
+    padding: 48,
+    alignItems: 'center',
+  },
+  emptyText: {
+    fontSize: 18,
     fontWeight: '600',
     color: '#333',
     marginBottom: 8,
   },
-  placeholderSubtext: {
-    fontSize: 16,
-    color: '#666',
-    marginBottom: 24,
-  },
-  userEmail: {
+  emptySubtext: {
     fontSize: 14,
-    color: '#999',
+    color: '#666',
+    textAlign: 'center',
+  },
+  footerLoader: {
+    paddingVertical: 20,
+    alignItems: 'center',
+  },
+  paginationInfo: {
+    padding: 12,
+    backgroundColor: '#F5F5F5',
+    borderTopWidth: 1,
+    borderTopColor: '#E0E0E0',
+  },
+  paginationText: {
+    fontSize: 12,
+    color: '#666',
+    textAlign: 'center',
   },
 });

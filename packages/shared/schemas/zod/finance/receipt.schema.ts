@@ -9,6 +9,10 @@ export const receiptRowSchema = z.object({
   updated_by: z.string().uuid().nullable(),
   created_at: z.string().datetime().nullable(),
   updated_at: z.string().datetime().nullable(),
+  created_timestamp: z.string().datetime().nullable(),
+  created_user_id: z.string().nullable(),
+  modified_timestamp: z.string().datetime().nullable(),
+  modified_user_id: z.string().nullable(),
 });
 export type ReceiptRow = z.infer<typeof receiptRowSchema>;
 
