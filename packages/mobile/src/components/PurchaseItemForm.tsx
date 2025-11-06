@@ -69,15 +69,23 @@ export function PurchaseItemForm({
                   animationType="slide"
                   onRequestClose={() => setShowExpenseTypePicker(false)}
                 >
-                  <View style={styles.modalOverlay}>
-                    <View style={styles.modalContent}>
+                  <TouchableOpacity 
+                    style={styles.modalOverlay}
+                    activeOpacity={1}
+                    onPress={() => setShowExpenseTypePicker(false)}
+                  >
+                    <TouchableOpacity 
+                      style={styles.modalContent}
+                      activeOpacity={1}
+                      onPress={(e) => e.stopPropagation()}
+                    >
                       <View style={styles.modalHeader}>
                         <Text style={styles.modalTitle}>Select Spending Type</Text>
                         <TouchableOpacity onPress={() => setShowExpenseTypePicker(false)}>
                           <Text style={styles.modalClose}>✕</Text>
                         </TouchableOpacity>
                       </View>
-                      <ScrollView>
+                      <ScrollView style={styles.modalScrollView}>
                         {expenseTypes.map((type) => (
                           <TouchableOpacity
                             key={type.id}
@@ -94,8 +102,8 @@ export function PurchaseItemForm({
                           </TouchableOpacity>
                         ))}
                       </ScrollView>
-                    </View>
-                  </View>
+                    </TouchableOpacity>
+                  </TouchableOpacity>
                 </Modal>
               </>
             );
@@ -264,6 +272,9 @@ const styles = StyleSheet.create({
   modalClose: {
     fontSize: 24,
     color: '#666',
+  },
+  modalScrollView: {
+    maxHeight: 400,
   },
   modalItem: {
     flexDirection: 'row',

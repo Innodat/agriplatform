@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -10,6 +10,7 @@ import {
   ActivityIndicator,
   Alert,
   Modal,
+  Platform,
 } from 'react-native';
 import { useForm, useFieldArray, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -18,7 +19,6 @@ import { launchCamera, launchImageLibrary } from 'react-native-image-picker';
 import { useReferenceData } from '../hooks/useReferenceData';
 import { PurchaseItemForm } from '../components/PurchaseItemForm';
 import { supabase } from '../lib/supabase';
-import { createReceipt } from '@agriplatform/shared';
 
 const receiptFormSchema = z.object({
   supplier: z.string().min(1, 'Supplier is required'),
@@ -45,11 +45,18 @@ export function AddReceiptScreen({ navigation }: any) {
     defaultValues: {
       supplier: '',
       date: new Date().toISOString().split('T')[0],
-      currency_id: currencies[0]?.id || 1,
+      currency_id: 1, // Default to Zambian Kwacha
       own_money: false,
       items: [{ expense_type_id: 0, amount: 0, other_category: '' }],
     },
   });
+
+  // Set default currency to Zambian Kwacha (id=1) when currencies load
+  useEffect(() => {
+    if (currencies.length > 0 && !watch('currency_id')) {
+      setValue('currency_id', 1);
+    }
+  }, [currencies, setValue, watch]);
 
   const { fields, append, remove } = useFieldArray({
     control,
@@ -93,7 +100,7 @@ export function AddReceiptScreen({ navigation }: any) {
         .from('receipt')
         .insert({
           supplier: data.supplier,
-          captured_at: new Date().toISOString(),
+          captured_at: data.date + 'T00:00:00Z',
         })
         .select()
         .single();
@@ -102,7 +109,7 @@ export function AddReceiptScreen({ navigation }: any) {
         throw new Error(receiptError?.message || 'Failed to create receipt');
       }
 
-      // Create purchases (without captured_timestamp)
+      // Create purchases
       for (const item of data.items) {
         const { error: purchaseError } = await supabase
           .schema('finance')
@@ -173,11 +180,12 @@ export function AddReceiptScreen({ navigation }: any) {
             <Controller
               control={control}
               name="date"
-              render={({ field: { value } }) => (
+              render={({ field: { onChange, value } }) => (
                 <TextInput
                   style={styles.input}
                   value={value}
-                  editable={false}
+                  onChangeText={onChange}
+                  placeholder="YYYY-MM-DD"
                 />
               )}
             />
@@ -193,7 +201,7 @@ export function AddReceiptScreen({ navigation }: any) {
                   onPress={() => setShowCurrencyPicker(true)}
                 >
                   <Text style={styles.pickerText}>
-                    {selectedCurrency?.symbol || '₹'} {selectedCurrency?.name || 'USD'}
+                    {selectedCurrency?.symbol || 'K'} {selectedCurrency?.name || 'Zambian Kwatchas'}
                   </Text>
                 </TouchableOpacity>
               )}
@@ -259,7 +267,7 @@ export function AddReceiptScreen({ navigation }: any) {
               expenseTypes={expenseTypes}
               onRemove={() => remove(index)}
               showRemove={fields.length > 1}
-              currencySymbol={selectedCurrency?.symbol || '₹'}
+              currencySymbol={selectedCurrency?.symbol || 'K'}
             />
           ))}
         </View>
@@ -268,7 +276,7 @@ export function AddReceiptScreen({ navigation }: any) {
         <View style={styles.totalContainer}>
           <Text style={styles.totalLabel}>Total Amount:</Text>
           <Text style={styles.totalAmount}>
-            {selectedCurrency?.symbol || '₹'}
+            {selectedCurrency?.symbol || 'K'}
             {totalAmount.toFixed(2)}
           </Text>
         </View>
@@ -294,15 +302,23 @@ export function AddReceiptScreen({ navigation }: any) {
         animationType="slide"
         onRequestClose={() => setShowCurrencyPicker(false)}
       >
-        <View style={styles.modalOverlay}>
-          <View style={styles.modalContent}>
+        <TouchableOpacity 
+          style={styles.modalOverlay}
+          activeOpacity={1}
+          onPress={() => setShowCurrencyPicker(false)}
+        >
+          <TouchableOpacity 
+            style={styles.modalContent}
+            activeOpacity={1}
+            onPress={(e) => e.stopPropagation()}
+          >
             <View style={styles.modalHeader}>
               <Text style={styles.modalTitle}>Select Currency</Text>
               <TouchableOpacity onPress={() => setShowCurrencyPicker(false)}>
                 <Text style={styles.modalClose}>✕</Text>
               </TouchableOpacity>
             </View>
-            <ScrollView>
+            <ScrollView style={styles.modalScrollView}>
               {currencies.map((currency) => (
                 <TouchableOpacity
                   key={currency.id}
@@ -321,8 +337,8 @@ export function AddReceiptScreen({ navigation }: any) {
                 </TouchableOpacity>
               ))}
             </ScrollView>
-          </View>
-        </View>
+          </TouchableOpacity>
+        </TouchableOpacity>
       </Modal>
     </SafeAreaView>
   );
@@ -520,7 +536,8 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
-    maxHeight: '70%',
+    maxHeight: '60%',
+    minHeight: 300,
   },
   modalHeader: {
     flexDirection: 'row',
@@ -538,6 +555,9 @@ const styles = StyleSheet.create({
   modalClose: {
     fontSize: 24,
     color: '#666',
+  },
+  modalScrollView: {
+    maxHeight: 400,
   },
   modalItem: {
     flexDirection: 'row',
