@@ -6,7 +6,7 @@ import {
   TouchableOpacity,
   StyleSheet,
   Modal,
-  FlatList,
+  SectionList,
   KeyboardAvoidingView,
   Platform,
 } from 'react-native';
@@ -15,6 +15,7 @@ interface PickerItem {
   id: number;
   name: string;
   symbol?: string;
+  category?: string;
 }
 
 interface BottomSheetPickerProps {
@@ -25,6 +26,12 @@ interface BottomSheetPickerProps {
   onSelect: (id: number) => void;
   onClose: () => void;
   searchPlaceholder?: string;
+  grouped?: boolean; // Whether to group items by category
+}
+
+interface SectionData {
+  title: string;
+  data: PickerItem[];
 }
 
 export function BottomSheetPicker({
@@ -35,21 +42,43 @@ export function BottomSheetPicker({
   onSelect,
   onClose,
   searchPlaceholder = 'Search...',
+  grouped = false,
 }: BottomSheetPickerProps) {
   const [searchQuery, setSearchQuery] = useState('');
 
-  console.log("Items:", items, "#");
+  // Group items by category if grouped is true
+  const sections = useMemo((): SectionData[] => {
+    const itemsToProcess = searchQuery.trim()
+      ? items.filter(item =>
+          item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          item.symbol?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          item.category?.toLowerCase().includes(searchQuery.toLowerCase())
+        )
+      : items;
 
-  const filteredItems = useMemo(() => {
-    if (!searchQuery.trim()) {
-      return items;
+    if (!grouped) {
+      // Return as single section without header
+      return [{ title: '', data: itemsToProcess }];
     }
-    const query = searchQuery.toLowerCase();
-    return items.filter(item =>
-      item.name.toLowerCase().includes(query) ||
-      item.symbol?.toLowerCase().includes(query)
-    );
-  }, [items, searchQuery]);
+
+    // Group by category
+    const groupedItems = itemsToProcess.reduce((acc, item) => {
+      const category = item.category || 'Other';
+      if (!acc[category]) {
+        acc[category] = [];
+      }
+      acc[category].push(item);
+      return acc;
+    }, {} as Record<string, PickerItem[]>);
+
+    // Convert to sections array and sort by category name
+    return Object.entries(groupedItems)
+      .sort(([a], [b]) => a.localeCompare(b))
+      .map(([category, data]) => ({
+        title: category,
+        data,
+      }));
+  }, [items, searchQuery, grouped]);
 
   const handleSelect = (id: number) => {
     onSelect(id);
@@ -60,6 +89,32 @@ export function BottomSheetPicker({
   const handleClose = () => {
     setSearchQuery('');
     onClose();
+  };
+
+  const renderItem = ({ item }: { item: PickerItem }) => (
+    <TouchableOpacity
+      style={styles.item}
+      onPress={() => handleSelect(item.id)}
+    >
+      <Text style={styles.itemText}>
+        {item.symbol ? `${item.symbol} ${item.name}` : item.name}
+      </Text>
+      {selectedId === item.id && (
+        <Text style={styles.checkmark}>✓</Text>
+      )}
+    </TouchableOpacity>
+  );
+
+  const renderSectionHeader = ({ section }: { section: SectionData }) => {
+    // Don't render header if title is empty (non-grouped mode)
+    if (!section.title) {
+      return null;
+    }
+    return (
+      <View style={styles.sectionHeader}>
+        <Text style={styles.sectionHeaderText}>{section.title}</Text>
+      </View>
+    );
   };
 
   return (
@@ -106,28 +161,18 @@ export function BottomSheetPicker({
             </View>
 
             {/* List */}
-            <FlatList
-              data={filteredItems}
+            <SectionList
+              sections={sections}
               keyExtractor={(item) => item.id.toString()}
-              renderItem={({ item }) => (
-                <TouchableOpacity
-                  style={styles.item}
-                  onPress={() => handleSelect(item.id)}
-                >
-                  <Text style={styles.itemText}>
-                    {item.symbol ? `${item.symbol} ${item.name}` : item.name}
-                  </Text>
-                  {selectedId === item.id && (
-                    <Text style={styles.checkmark}>✓</Text>
-                  )}
-                </TouchableOpacity>
-              )}
+              renderItem={renderItem}
+              renderSectionHeader={renderSectionHeader}
               ListEmptyComponent={
                 <View style={styles.emptyContainer}>
                   <Text style={styles.emptyText}>No items found</Text>
                 </View>
               }
               style={styles.list}
+              stickySectionHeadersEnabled={true}
             />
           </View>
         </TouchableOpacity>
@@ -200,13 +245,28 @@ const styles = StyleSheet.create({
   list: {
     maxHeight: 400,
   },
+  sectionHeader: {
+    backgroundColor: '#F5F5F5',
+    paddingVertical: 8,
+    paddingHorizontal: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: '#E0E0E0',
+  },
+  sectionHeaderText: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#666',
+    textTransform: 'uppercase',
+  },
   item: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
     padding: 16,
+    paddingLeft: 24,
     borderBottomWidth: 1,
     borderBottomColor: '#F5F5F5',
+    backgroundColor: '#fff',
   },
   itemText: {
     fontSize: 16,

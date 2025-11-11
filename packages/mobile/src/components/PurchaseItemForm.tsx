@@ -65,11 +65,16 @@ export function PurchaseItemForm({
                 <BottomSheetPicker
                   visible={showExpenseTypePicker}
                   title="Select Spending Type"
-                  items={expenseTypes.map(t => ({ id: t.id, name: t.name }))}
+                  items={expenseTypes.map(t => ({ 
+                    id: t.id, 
+                    name: t.name,
+                    category: (t as any).categoryName 
+                  }))}
                   selectedId={value}
                   onSelect={onChange}
                   onClose={() => setShowExpenseTypePicker(false)}
                   searchPlaceholder="Search expense types..."
+                  grouped={true}
                 />
               </>
             );

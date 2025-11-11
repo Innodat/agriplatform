@@ -47,11 +47,18 @@ export function useReferenceData(): UseReferenceDataResult {
         }
 
         setCurrencies(currenciesResult.data);
-        console.log("Currencies:")
-        console.log(currenciesResult.data)
-        console.log("--- CURRENCIES ---")
         setCategories(categoriesResult.data);
-        setExpenseTypes(typesResult.data);
+        
+        // Enrich expense types with category names
+        const enrichedExpenseTypes = typesResult.data.map(type => {
+          const category = categoriesResult.data.find(cat => cat.id === type.expense_category_id);
+          return {
+            ...type,
+            categoryName: category?.name || 'Other',
+          };
+        });
+        
+        setExpenseTypes(enrichedExpenseTypes as ExpenseTypeRow[]);
       } catch (err) {
         setError(err instanceof Error ? err.message : 'Failed to fetch reference data');
       } finally {

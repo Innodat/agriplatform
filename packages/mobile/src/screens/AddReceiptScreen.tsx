@@ -19,6 +19,7 @@ import { launchCamera, launchImageLibrary } from 'react-native-image-picker';
 import { useReferenceData } from '../hooks/useReferenceData';
 import { PurchaseItemForm } from '../components/PurchaseItemForm';
 import { BottomSheetPicker } from '../components/BottomSheetPicker';
+import { DatePickerField } from '../components/DatePickerField';
 import { supabase } from '../lib/supabase';
 
 const receiptFormSchema = z.object({
@@ -178,17 +179,15 @@ export function AddReceiptScreen({ navigation }: any) {
 
         {/* Date and Currency */}
         <View style={styles.row}>
-          <View style={[styles.field, styles.fieldHalf]}>
-            <Text style={styles.label}>Date</Text>
+          <View style={[styles.fieldHalf]}>
             <Controller
               control={control}
               name="date"
               render={({ field: { onChange, value } }) => (
-                <TextInput
-                  style={styles.input}
+                <DatePickerField
                   value={value}
-                  onChangeText={onChange}
-                  placeholder="YYYY-MM-DD"
+                  onChange={onChange}
+                  label="Date"
                 />
               )}
             />
