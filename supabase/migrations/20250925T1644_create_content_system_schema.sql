@@ -8,7 +8,7 @@ CREATE TABLE cs.content_source (
   name text NOT NULL,
   settings jsonb NOT NULL, -- Azure account/container/credential config
   is_active boolean NOT NULL DEFAULT true,
-  created_by uuid references identity.users(id) on delete set null,
+  created_by uuid references identity.users(id) on delete set null DEFAULT auth.uid(),
   created_at timestamptz DEFAULT now(),
   updated_by uuid references identity.users(id) on delete set null,
   updated_at timestamptz DEFAULT now()
@@ -24,7 +24,7 @@ CREATE TABLE cs.content_store (
   checksum text,
   metadata jsonb, -- EXIF, dimensions, etc.
   is_active boolean NOT NULL DEFAULT true,
-  created_by uuid references identity.users(id) on delete set null,
+  created_by uuid references identity.users(id) on delete set null DEFAULT auth.uid(),
   created_at timestamptz DEFAULT now(),
   updated_by uuid references identity.users(id) on delete set null,
   updated_at timestamptz DEFAULT now()

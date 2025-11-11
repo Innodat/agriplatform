@@ -11,15 +11,7 @@ begin
   actor_id := nullif(current_setting('request.jwt.claims', true)::json ->> 'sub', '');
 
   if tg_op = 'INSERT' then
-    -- Only set created_by if not already provided
-    if new.created_by is null then
-      new.created_by := actor_id;
-    end if;
-
-    -- updated_by is always set to the actor (if present)
     new.updated_by := actor_id;
-
-    -- created_at and updated_at are handled by default values
   elsif tg_op = 'UPDATE' then
     new.updated_by := actor_id;
     new.updated_at := now();

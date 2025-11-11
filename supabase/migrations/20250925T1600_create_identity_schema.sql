@@ -21,7 +21,7 @@ create table identity.users (
   actor_key text UNIQUE,
   is_active BOOLEAN DEFAULT TRUE,
   is_system boolean DEFAULT false,
-  created_by uuid references identity.users(id) on delete set null,
+  created_by uuid references identity.users(id) on delete set null DEFAULT auth.uid(),
   created_at timestamptz DEFAULT now(),
   updated_by uuid references identity.users(id) on delete set null,
   updated_at timestamptz DEFAULT now()
@@ -37,7 +37,7 @@ create table identity.user_roles (
   role      identity.app_role not null,
   unique (user_id, role),
   is_active BOOLEAN DEFAULT TRUE,
-  created_by uuid references identity.users(id) on delete set null,
+  created_by uuid references identity.users(id) on delete set null DEFAULT auth.uid(),
   created_at timestamptz DEFAULT now(),
   updated_by uuid references identity.users(id) on delete set null,
   updated_at timestamptz DEFAULT now()
@@ -51,7 +51,7 @@ create table identity.role_permissions (
   permission   identity.app_permission not null,
   unique (role, permission),
   is_active BOOLEAN DEFAULT TRUE,
-  created_by uuid references identity.users(id) on delete set null,
+  created_by uuid references identity.users(id) on delete set null DEFAULT auth.uid(),
   created_at timestamptz DEFAULT now(),
   updated_by uuid references identity.users(id) on delete set null,
   updated_at timestamptz DEFAULT now()
@@ -154,16 +154,20 @@ alter table identity.role_permissions enable row level security;
 
 
 -- Identity: users
+DROP POLICY IF EXISTS "Allow logged-in read or admin" ON identity.users;
 create policy "Allow logged-in read or admin read" on identity.users for select using (
-  auth.role() = 'authenticated' or identity.authorize('identity.users.admin')
+  auth.role() = 'authenticated' or identity.authorize('identity.users.admin') and is_active = true
 );
+DROP POLICY IF EXISTS "Allow insert for self or admin" ON identity.users;
 create policy "Allow insert for self or admin" on identity.users for insert with check (
   (auth.uid())::uuid = id or identity.authorize('identity.users.admin')
 );
+DROP POLICY IF EXISTS "Allow update for self or admin" ON identity.users;
 create policy "Allow update for self or admin" on identity.users for update with check (
   ( (auth.uid())::uuid = id and is_active = true )
   or ( identity.authorize('identity.users.admin') and is_active = true )
 );
+DROP POLICY IF EXISTS "Allow soft delete for self or admin" ON identity.users;
 create policy "Allow soft delete for self or admin" on identity.users for update with check (
   ( (auth.uid())::uuid = id and is_active = false )
   or ( identity.authorize('identity.users.admin') and is_active = false )
@@ -171,107 +175,174 @@ create policy "Allow soft delete for self or admin" on identity.users for update
 
 
 -- Identity: user_roles
+DROP POLICY IF EXISTS "Allow read for self or admin" ON identity.user_roles;
 create policy "Allow read for self or admin" on identity.user_roles for select using (
-  (auth.uid())::uuid = user_id or identity.authorize('identity.user_roles.admin')
+  (auth.uid())::uuid = user_id or identity.authorize('identity.user_roles.admin') and is_active = true
 );
+DROP POLICY IF EXISTS "Allow insert for self or admin" ON identity.user_roles;
 create policy "Allow insert for self or admin" on identity.user_roles for insert with check (
   identity.authorize('identity.user_roles.admin')
 );
+DROP POLICY IF EXISTS "Allow update for self or admin" ON identity.user_roles;
 create policy "Allow update for self or admin" on identity.user_roles for update with check (
   identity.authorize('identity.user_roles.admin') and is_active = true
 );
+DROP POLICY IF EXISTS "Allow soft delete for self or admin" ON identity.user_roles;
 create policy "Allow soft delete for self or admin" on identity.user_roles for update with check (
   identity.authorize('identity.user_roles.admin') and is_active = false
 );
 
 -- Finance: purchase
+DROP POLICY IF EXISTS "Allow read for self or admin" ON finance.purchase;
 create policy "Allow read for self or admin" on finance.purchase for select using (
-  ( (auth.uid())::uuid = created_by and identity.authorize('finance.purchase.read') )
+  ( (auth.uid())::uuid = created_by and identity.authorize('finance.purchase.read') and is_active = true )
   or identity.authorize('finance.purchase.admin')
 );
-create policy "Allow insert for self or admin" on finance.purchase for insert with check (
-  ( (auth.uid())::uuid = created_by and identity.authorize('finance.purchase.insert') )
-  or identity.authorize('finance.purchase.admin')
+DROP POLICY IF EXISTS "Allow insert for self or admin" ON finance.purchase;
+CREATE POLICY "Allow insert for self or admin" ON finance.purchase FOR INSERT WITH CHECK (
+    ( (auth.uid())::uuid = created_by AND identity.authorize('finance.purchase.insert') ) 
+    OR identity.authorize('finance.purchase.admin')
 );
-create policy "Allow update for self or admin" on finance.purchase for update with check (
-  ( (auth.uid())::uuid = created_by and identity.authorize('finance.purchase.update') and is_active = true )
-  or ( identity.authorize('finance.purchase.admin') and is_active = true )
+DROP POLICY IF EXISTS "Allow update for self or admin" ON finance.purchase;
+create policy "Allow update for self or admin" on finance.purchase
+FOR UPDATE
+USING (
+    is_active = true AND 
+    ( (auth.uid())::uuid = created_by AND identity.authorize('finance.purchase.update') )
+    OR identity.authorize('finance.purchase.admin')
+)
+WITH CHECK (
+    ( (auth.uid())::uuid = created_by AND identity.authorize('finance.purchase.update') )
+    OR identity.authorize('finance.purchase.admin')
 );
-create policy "Allow soft delete for self or admin" on finance.purchase for update with check (
-  ( (auth.uid())::uuid = created_by and identity.authorize('finance.purchase.delete') and is_active = false )
-  or ( identity.authorize('finance.purchase.admin') and is_active = false )
+DROP POLICY IF EXISTS "Allow soft delete for self or admin" ON finance.purchase;
+create policy "Allow soft delete for self or admin" on finance.purchase
+FOR UPDATE
+USING (
+    is_active = true AND 
+    ( (auth.uid())::uuid = created_by AND identity.authorize('finance.purchase.delete') )
+    OR identity.authorize('finance.purchase.admin')
+)
+WITH CHECK (
+    ( (auth.uid())::uuid = created_by AND is_active = false AND identity.authorize('finance.purchase.delete') )
+    OR identity.authorize('finance.purchase.admin')
 );
 
 -- Finance: receipt
+DROP POLICY IF EXISTS "Allow read for self or admin" ON finance.receipt;
 create policy "Allow read for self or admin" on finance.receipt for select using (
-  ( (auth.uid())::uuid = created_by and identity.authorize('finance.receipt.read') )
+  ( (auth.uid())::uuid = created_by and identity.authorize('finance.receipt.read') and is_active = true )
   or identity.authorize('finance.receipt.admin')
 );
-create policy "Allow insert for self or admin" on finance.receipt for insert with check (
-  ( (auth.uid())::uuid = created_by and identity.authorize('finance.receipt.insert') )
-  or identity.authorize('finance.receipt.admin')
+DROP POLICY IF EXISTS "Allow insert for self or admin" ON finance.receipt;
+CREATE POLICY "Allow insert for self or admin" ON finance.receipt FOR INSERT WITH CHECK (
+    ( (auth.uid())::uuid = created_by AND identity.authorize('finance.receipt.insert') ) 
+    OR identity.authorize('finance.receipt.admin')
 );
-create policy "Allow update for self or admin" on finance.receipt for update with check (
-  ( (auth.uid())::uuid = created_by and identity.authorize('finance.receipt.update') and is_active = true )
-  or ( identity.authorize('finance.receipt.admin') and is_active = true )
+DROP POLICY IF EXISTS "Allow update for self or admin" ON finance.receipt;
+create policy "Allow update for self or admin" on finance.receipt
+FOR UPDATE
+USING (
+    is_active = true AND 
+    ( (auth.uid())::uuid = created_by AND identity.authorize('finance.receipt.update') )
+    OR identity.authorize('finance.receipt.admin')
+)
+WITH CHECK (
+    ( (auth.uid())::uuid = created_by AND identity.authorize('finance.receipt.update') )
+    OR identity.authorize('finance.receipt.admin')
 );
-create policy "Allow soft delete for self or admin" on finance.receipt for update with check (
-  ( (auth.uid())::uuid = created_by and identity.authorize('finance.receipt.delete') and is_active = false )
-  or ( identity.authorize('finance.receipt.admin') and is_active = false )
+DROP POLICY IF EXISTS "Allow soft delete for self or admin" ON finance.receipt;
+create policy "Allow soft delete for self or admin" on finance.receipt
+FOR UPDATE
+USING (
+    is_active = true AND 
+    ( (auth.uid())::uuid = created_by AND identity.authorize('finance.receipt.delete') )
+    OR identity.authorize('finance.receipt.admin')
+)
+WITH CHECK (
+    ( (auth.uid())::uuid = created_by AND is_active = false AND identity.authorize('finance.receipt.delete') )
+    OR identity.authorize('finance.receipt.admin')
 );
 
 -- Finance: expense_category
+DROP POLICY IF EXISTS "Allow read for self or admin" ON finance.expense_category;
 create policy "Allow read for self or admin" on finance.expense_category for select using (
-  ( auth.role() = 'authenticated' and identity.authorize('finance.expense_category.read') )
-  or identity.authorize('finance.expense_category.admin')
+  is_active = true AND (
+    ( auth.role() = 'authenticated' and identity.authorize('finance.expense_category.read') )
+    or identity.authorize('finance.expense_category.admin')
+  )
 );
+DROP POLICY IF EXISTS "Allow insert for self or admin" ON finance.expense_category;
 create policy "Allow insert for self or admin" on finance.expense_category for insert with check (
-  ( (auth.uid())::uuid = created_by and identity.authorize('finance.expense_category.insert') )
-  or identity.authorize('finance.expense_category.admin')
+  identity.authorize('finance.expense_category.admin')
 );
-create policy "Allow update for self or admin" on finance.expense_category for update with check (
-  ( (auth.uid())::uuid = created_by and identity.authorize('finance.expense_category.update') and is_active = true )
-  or ( identity.authorize('finance.expense_category.admin') and is_active = true )
+DROP POLICY IF EXISTS "Allow update for admin only" ON finance.expense_category;
+create policy "Allow update for admin only" on finance.expense_category
+FOR UPDATE USING (
+    identity.authorize('finance.expense_category.admin') AND is_active = true
+) WITH CHECK (
+    identity.authorize('finance.expense_category.admin') AND is_active = true
 );
-create policy "Allow soft delete for self or admin" on finance.expense_category for update with check (
-  ( (auth.uid())::uuid = created_by and identity.authorize('finance.expense_category.delete') and is_active = false )
-  or ( identity.authorize('finance.expense_category.admin') and is_active = false )
+DROP POLICY IF EXISTS "Allow soft delete for admin only" ON finance.expense_category;
+create policy "Allow soft delete for admin only" on finance.expense_category
+FOR UPDATE USING (
+    identity.authorize('finance.expense_category.admin') AND is_active = true
+) WITH CHECK (
+    identity.authorize('finance.expense_category.admin') AND is_active = false
 );
 
 -- Finance: expense_type
+DROP POLICY IF EXISTS "Allow read for self or admin" ON finance.expense_type;
 create policy "Allow read for self or admin" on finance.expense_type for select using (
-  ( auth.role() = 'authenticated' and identity.authorize('finance.expense_type.read') )
-  or identity.authorize('finance.expense_type.admin')
+  is_active = true AND (
+    ( auth.role() = 'authenticated' and identity.authorize('finance.expense_type.read') )
+    or identity.authorize('finance.expense_type.admin')
+  )
 );
+DROP POLICY IF EXISTS "Allow insert for self or admin" ON finance.expense_type;
 create policy "Allow insert for self or admin" on finance.expense_type for insert with check (
-  ( (auth.uid())::uuid = created_by and identity.authorize('finance.expense_type.insert') )
-  or identity.authorize('finance.expense_type.admin')
+  identity.authorize('finance.expense_type.admin')
 );
-create policy "Allow update for self or admin" on finance.expense_type for update with check (
-  ( (auth.uid())::uuid = created_by and identity.authorize('finance.expense_type.update') and is_active = true )
-  or ( identity.authorize('finance.expense_type.admin') and is_active = true )
+DROP POLICY IF EXISTS "Allow update for admin only" ON finance.expense_type;
+create policy "Allow update for admin only" on finance.expense_type
+FOR UPDATE USING (
+    identity.authorize('finance.expense_type.admin') AND is_active = true
+) WITH CHECK (
+    identity.authorize('finance.expense_type.admin') AND is_active = true
 );
-create policy "Allow soft delete for self or admin" on finance.expense_type for update with check (
-  ( (auth.uid())::uuid = created_by and identity.authorize('finance.expense_type.delete') and is_active = false )
-  or ( identity.authorize('finance.expense_type.admin') and is_active = false )
+DROP POLICY IF EXISTS "Allow soft delete for admin only" ON finance.expense_type;
+create policy "Allow soft delete for admin only" on finance.expense_type
+FOR UPDATE USING (
+    identity.authorize('finance.expense_type.admin') AND is_active = true
+) WITH CHECK (
+    identity.authorize('finance.expense_type.admin') AND is_active = false
 );
 
 -- Finance: currency
+DROP POLICY IF EXISTS "Allow read for self or admin" ON finance.currency;
 create policy "Allow read for self or admin" on finance.currency for select using (
-  ( auth.role() = 'authenticated' and identity.authorize('finance.currency.read') )
-  or identity.authorize('finance.currency.admin')
+  is_active = true AND (
+    ( auth.role() = 'authenticated' and identity.authorize('finance.currency.read') )
+    or identity.authorize('finance.currency.admin')
+  )
 );
+DROP POLICY IF EXISTS "Allow insert for self or admin" ON finance.currency;
 create policy "Allow insert for self or admin" on finance.currency for insert with check (
-  ( (auth.uid())::uuid = created_by and identity.authorize('finance.currency.insert') )
-  or identity.authorize('finance.currency.admin')
+  identity.authorize('finance.currency.admin')
 );
-create policy "Allow update for self or admin" on finance.currency for update with check (
-  ( (auth.uid())::uuid = created_by and identity.authorize('finance.currency.update') and is_active = true )
-  or ( identity.authorize('finance.currency.admin') and is_active = true )
+DROP POLICY IF EXISTS "Allow update for admin only" ON finance.currency;
+create policy "Allow update for admin only" on finance.currency
+FOR UPDATE USING (
+    identity.authorize('finance.currency.admin') AND is_active = true
+) WITH CHECK (
+    identity.authorize('finance.currency.admin') AND is_active = true
 );
-create policy "Allow soft delete for self or admin" on finance.currency for update with check (
-  ( (auth.uid())::uuid = created_by and identity.authorize('finance.currency.delete') and is_active = false )
-  or ( identity.authorize('finance.currency.admin') and is_active = false )
+DROP POLICY IF EXISTS "Allow soft delete for admin only" ON finance.currency;
+create policy "Allow soft delete for admin only" on finance.currency
+FOR UPDATE USING (
+    identity.authorize('finance.currency.admin') AND is_active = true
+) WITH CHECK (
+    identity.authorize('finance.currency.admin') AND is_active = false
 );
 
 -- inserts a row into identity.users and assigns roles
