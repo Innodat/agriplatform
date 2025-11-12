@@ -56,7 +56,7 @@ export function PurchaseItemForm({
                   onPress={() => setShowExpenseTypePicker(true)}
                 >
                   <Text style={[styles.pickerText, !selectedType && styles.placeholderText]}>
-                    {selectedType?.name || 'Select type...'}
+                    {(selectedType as any)?.categoryName || selectedType?.name ? `${(selectedType as any)?.categoryName ?? ''} - ${selectedType?.name ?? ''}` : 'Select type...'}
                   </Text>
                 </TouchableOpacity>
                 {error && <Text style={styles.errorText}>{error.message}</Text>}
