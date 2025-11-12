@@ -21,6 +21,7 @@ import { PurchaseItemForm } from '../components/PurchaseItemForm';
 import { BottomSheetPicker } from '../components/BottomSheetPicker';
 import { DatePickerField } from '../components/DatePickerField';
 import { ImagePickerBottomSheet } from '../components/ImagePickerBottomSheet';
+import { FullScreenImageViewer } from '../components/FullScreenImageViewer';
 import { supabase } from '../lib/supabase';
 
 const receiptFormSchema = z.object({
@@ -42,6 +43,7 @@ export function AddReceiptScreen({ navigation }: any) {
   const [saving, setSaving] = useState(false);
   const [showCurrencyPicker, setShowCurrencyPicker] = useState(false);
   const [showImagePicker, setShowImagePicker] = useState(false);
+  const [showFullScreenViewer, setShowFullScreenViewer] = useState(false);
   const { currencies, expenseTypes, loading: refLoading } = useReferenceData();
 
   const { control, handleSubmit, watch, setValue, formState: { errors } } = useForm<ReceiptFormData>({
@@ -161,15 +163,22 @@ export function AddReceiptScreen({ navigation }: any) {
       <ScrollView style={styles.content}>
         {/* Receipt Image - Modern Design */}
         {imageUri ? (
-          <View style={styles.imagePreviewContainer}>
+          <TouchableOpacity
+            style={styles.imagePreviewContainer}
+            onPress={() => setShowFullScreenViewer(true)}
+            activeOpacity={0.9}
+          >
             <Image source={{ uri: imageUri }} style={styles.imagePreview} resizeMode="cover" />
             <TouchableOpacity
               style={styles.editImageButton}
-              onPress={() => setShowImagePicker(true)}
+              onPress={(e) => {
+                e.stopPropagation();
+                setShowImagePicker(true);
+              }}
             >
               <Text style={styles.editImageIcon}>✏️</Text>
             </TouchableOpacity>
-          </View>
+          </TouchableOpacity>
         ) : (
           <TouchableOpacity
             style={styles.addImageButton}
@@ -320,6 +329,15 @@ export function AddReceiptScreen({ navigation }: any) {
         onClose={() => setShowImagePicker(false)}
         onTakePhoto={handleCameraCapture}
         onChooseFromGallery={handleGallerySelect}
+      />
+
+      {/* Full Screen Image Viewer */}
+      <FullScreenImageViewer
+        visible={showFullScreenViewer}
+        imageUri={imageUri}
+        onClose={() => setShowFullScreenViewer(false)}
+        onReplace={() => setShowImagePicker(true)}
+        onDelete={() => setImageUri(null)}
       />
     </SafeAreaView>
   );
