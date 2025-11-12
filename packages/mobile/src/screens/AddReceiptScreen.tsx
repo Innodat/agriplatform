@@ -16,6 +16,9 @@ import { useForm, useFieldArray, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { launchCamera, launchImageLibrary } from 'react-native-image-picker';
+import { useNavigation } from '@react-navigation/native';
+import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import type { RootStackParamList } from '../navigation/RootNavigator';
 import { useReferenceData } from '../hooks/useReferenceData';
 import { PurchaseItemForm } from '../components/PurchaseItemForm';
 import { BottomSheetPicker } from '../components/BottomSheetPicker';
@@ -37,8 +40,10 @@ const receiptFormSchema = z.object({
 });
 
 type ReceiptFormData = z.infer<typeof receiptFormSchema>;
+type AddReceiptScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, 'AddReceipt'>;
 
-export function AddReceiptScreen({ navigation }: any) {
+export function AddReceiptScreen() {
+  const navigation = useNavigation<AddReceiptScreenNavigationProp>();
   const [imageUri, setImageUri] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
   const [showCurrencyPicker, setShowCurrencyPicker] = useState(false);
