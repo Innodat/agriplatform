@@ -163,22 +163,27 @@ export function AddReceiptScreen({ navigation }: any) {
       <ScrollView style={styles.content}>
         {/* Receipt Image - Modern Design */}
         {imageUri ? (
-          <TouchableOpacity
-            style={styles.imagePreviewContainer}
-            onPress={() => setShowFullScreenViewer(true)}
-            activeOpacity={0.9}
-          >
-            <Image source={{ uri: imageUri }} style={styles.imagePreview} resizeMode="cover" />
+          <View style={styles.imagePreviewContainer}>
+            <TouchableOpacity
+              onPress={() => setShowFullScreenViewer(true)}
+              activeOpacity={0.9}
+              style={styles.imagePreviewTouchable}
+            >
+              <Image 
+                source={{ uri: imageUri }} 
+                style={styles.imagePreview} 
+                resizeMode="cover"
+                onError={(error) => console.log('Image load error:', error.nativeEvent)}
+                onLoad={() => console.log('Image loaded successfully')}
+              />
+            </TouchableOpacity>
             <TouchableOpacity
               style={styles.editImageButton}
-              onPress={(e) => {
-                e.stopPropagation();
-                setShowImagePicker(true);
-              }}
+              onPress={() => setShowImagePicker(true)}
             >
               <Text style={styles.editImageIcon}>✏️</Text>
             </TouchableOpacity>
-          </TouchableOpacity>
+          </View>
         ) : (
           <TouchableOpacity
             style={styles.addImageButton}
@@ -431,6 +436,10 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
     backgroundColor: '#F5F5F5',
     minHeight: 200,
+  },
+  imagePreviewTouchable: {
+    width: '100%',
+    height: 200,
   },
   imagePreview: {
     width: '100%',
