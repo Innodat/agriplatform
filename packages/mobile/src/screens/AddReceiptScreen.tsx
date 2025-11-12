@@ -9,7 +9,7 @@ import {
   SafeAreaView,
   ActivityIndicator,
   Alert,
-  Modal,
+  Image,
   Platform,
 } from 'react-native';
 import { useForm, useFieldArray, Controller } from 'react-hook-form';
@@ -20,6 +20,7 @@ import { useReferenceData } from '../hooks/useReferenceData';
 import { PurchaseItemForm } from '../components/PurchaseItemForm';
 import { BottomSheetPicker } from '../components/BottomSheetPicker';
 import { DatePickerField } from '../components/DatePickerField';
+import { ImagePickerBottomSheet } from '../components/ImagePickerBottomSheet';
 import { supabase } from '../lib/supabase';
 
 const receiptFormSchema = z.object({
@@ -40,9 +41,8 @@ export function AddReceiptScreen({ navigation }: any) {
   const [imageUri, setImageUri] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
   const [showCurrencyPicker, setShowCurrencyPicker] = useState(false);
+  const [showImagePicker, setShowImagePicker] = useState(false);
   const { currencies, expenseTypes, loading: refLoading } = useReferenceData();
-
-  console.log("Currencies", currencies)
 
   const { control, handleSubmit, watch, setValue, formState: { errors } } = useForm<ReceiptFormData>({
     resolver: zodResolver(receiptFormSchema),
@@ -159,23 +159,29 @@ export function AddReceiptScreen({ navigation }: any) {
       </View>
 
       <ScrollView style={styles.content}>
-        {/* Receipt Image */}
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Receipt Image</Text>
-          <View style={styles.imageButtons}>
-            <TouchableOpacity style={styles.imageButton} onPress={handleCameraCapture}>
-              <Text style={styles.imageButtonIcon}>📷</Text>
-              <Text style={styles.imageButtonText}>Scan with Camera</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.imageButton} onPress={handleGallerySelect}>
-              <Text style={styles.imageButtonIcon}>📁</Text>
-              <Text style={styles.imageButtonText}>Choose from Photos</Text>
+        {/* Receipt Image - Modern Design */}
+        {imageUri ? (
+          <View style={styles.imagePreviewContainer}>
+            <Image source={{ uri: imageUri }} style={styles.imagePreview} resizeMode="cover" />
+            <TouchableOpacity
+              style={styles.editImageButton}
+              onPress={() => setShowImagePicker(true)}
+            >
+              <Text style={styles.editImageIcon}>✏️</Text>
             </TouchableOpacity>
           </View>
-          {imageUri && (
-            <Text style={styles.imageSelected}>Image selected ✓</Text>
-          )}
-        </View>
+        ) : (
+          <TouchableOpacity
+            style={styles.addImageButton}
+            onPress={() => setShowImagePicker(true)}
+          >
+            <View style={styles.addImageIconContainer}>
+              <Text style={styles.addImageIcon}>📷</Text>
+            </View>
+            <Text style={styles.addImageText}>Add Receipt Image</Text>
+            <Text style={styles.addImageSubtext}>Tap to take photo or choose from gallery</Text>
+          </TouchableOpacity>
+        )}
 
         {/* Date and Currency */}
         <View style={styles.row}>
@@ -307,6 +313,14 @@ export function AddReceiptScreen({ navigation }: any) {
         onClose={() => setShowCurrencyPicker(false)}
         searchPlaceholder="Search currencies..."
       />
+
+      {/* Image Picker Bottom Sheet */}
+      <ImagePickerBottomSheet
+        visible={showImagePicker}
+        onClose={() => setShowImagePicker(false)}
+        onTakePhoto={handleCameraCapture}
+        onChooseFromGallery={handleGallerySelect}
+      />
     </SafeAreaView>
   );
 }
@@ -353,32 +367,75 @@ const styles = StyleSheet.create({
     color: '#333',
     marginBottom: 12,
   },
-  imageButtons: {
-    flexDirection: 'row',
-    gap: 12,
-  },
-  imageButton: {
-    flex: 1,
-    borderWidth: 2,
-    borderColor: '#ddd',
-    borderStyle: 'dashed',
-    borderRadius: 8,
-    padding: 24,
+  // Modern Image Picker Styles
+  addImageButton: {
+    backgroundColor: '#F8F9FA',
+    borderRadius: 16,
+    padding: 32,
     alignItems: 'center',
+    marginBottom: 24,
+    borderWidth: 2,
+    borderColor: '#E0E0E0',
+    borderStyle: 'dashed',
   },
-  imageButtonIcon: {
+  addImageIconContainer: {
+    width: 64,
+    height: 64,
+    borderRadius: 32,
+    backgroundColor: '#fff',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 16,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+  addImageIcon: {
     fontSize: 32,
-    marginBottom: 8,
   },
-  imageButtonText: {
-    fontSize: 12,
+  addImageText: {
+    fontSize: 18,
+    fontWeight: '600',
+    color: '#333',
+    marginBottom: 4,
+  },
+  addImageSubtext: {
+    fontSize: 14,
     color: '#666',
     textAlign: 'center',
   },
-  imageSelected: {
-    marginTop: 8,
-    color: '#4CAF50',
-    fontSize: 14,
+  imagePreviewContainer: {
+    position: 'relative',
+    marginBottom: 24,
+    borderRadius: 16,
+    overflow: 'hidden',
+    backgroundColor: '#F5F5F5',
+  },
+  imagePreview: {
+    width: '100%',
+    height: 200,
+    borderRadius: 16,
+  },
+  editImageButton: {
+    position: 'absolute',
+    top: 12,
+    right: 12,
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: '#fff',
+    justifyContent: 'center',
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
+    elevation: 4,
+  },
+  editImageIcon: {
+    fontSize: 20,
   },
   row: {
     flexDirection: 'row',
