@@ -430,11 +430,11 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     overflow: 'hidden',
     backgroundColor: '#F5F5F5',
+    minHeight: 200,
   },
   imagePreview: {
     width: '100%',
     height: 200,
-    borderRadius: 16,
   },
   editImageButton: {
     position: 'absolute',
@@ -450,7 +450,8 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.2,
     shadowRadius: 4,
-    elevation: 4,
+    elevation: 5,
+    zIndex: 10,
   },
   editImageIcon: {
     fontSize: 20,
