@@ -1,5 +1,7 @@
 import { z } from "zod";
 
+const dateRegex = /^\d{4}-\d{2}-\d{2}$/;
+
 export const receiptRowSchema = z.object({
   id: z.number(),
   supplier: z.string().nullable(),
@@ -13,7 +15,7 @@ export const receiptRowSchema = z.object({
   created_user_id: z.string().nullable(),
   modified_timestamp: z.string().datetime({ offset: true, precision: 6 }).nullable(),
   modified_user_id: z.string().nullable(),
-  captured_at: z.string().datetime({ offset: true, precision: 6 }).nullable(),
+  receipt_date: z.string().regex(dateRegex).nullable(),
 });
 export type ReceiptRow = z.infer<typeof receiptRowSchema>;
 

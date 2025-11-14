@@ -100,50 +100,52 @@ export function AddReceiptScreen() {
       setImageUri(result.assets[0].uri || null);
     }
   };
+  
+  type RpcRow = {
+    receipt_id: number;
+    receipt: unknown;
+    purchases: unknown;
+  };
 
   const onSubmit = async (data: ReceiptFormData) => {
     try {
       setSaving(true);
-
-      // Create receipt with captured_at
-      const { data: receipt, error: receiptError } = await supabase
-        .schema('finance')
-        .from('receipt')
-        .insert({
-          supplier: data.supplier,
-          captured_at: data.date + 'T00:00:00Z',
-        })
-        .select()
-        .single();
-
-      if (receiptError || !receipt) {
-        throw new Error(receiptError?.message || 'Failed to create receipt');
-      }
-
-      // Create purchases
-      for (const item of data.items) {
-        const { error: purchaseError } = await supabase
-          .schema('finance')
-          .from('purchase')
-          .insert({
-            receipt_id: receipt.id,
-            expense_type_id: item.expense_type_id,
-            amount: item.amount,
-            other_category: item.other_category,
-            currency_id: data.currency_id,
-            reimbursable: data.own_money,
-          });
-
-        if (purchaseError) {
-          throw new Error(purchaseError.message);
-        }
-      }
-
+  
+      // Map form items to the JSON structure expected by jsonb_to_recordset(...)
+      // (optional overrides like currency_id/reimbursable/user_id are not sent here)
+      const items = data.items.map((it) => ({
+        expense_type_id: it.expense_type_id,
+        amount: it.amount,
+        other_category: it.other_category ?? null,
+      }));
+  
+      const { data: rows, error } = await supabase
+        .schema('finance') // function is in a custom schema
+        .rpc('create_receipt_with_purchases', {
+          p_supplier: data.supplier,
+          p_receipt_date: data.date,       // <-- DATE string: 'YYYY-MM-DD'
+          p_currency_id: data.currency_id,
+          p_reimbursable: data.own_money,
+          p_items: items,
+        });
+  
+      if (error) throw error;
+  
+      const row = (rows as RpcRow[] | null)?.[0];
+      if (!row) throw new Error('No data returned from function');
+  
+      // Optional: validate result shape if you want extra safety
+      // const parsed = purchaseRowSchema.array().safeParse(row.purchases);
+      // if (!parsed.success) throw new Error(parsed.error.message);
+  
       Alert.alert('Success', 'Receipt saved successfully', [
         { text: 'OK', onPress: () => navigation.goBack() },
       ]);
-    } catch (error) {
-      Alert.alert('Error', error instanceof Error ? error.message : 'Failed to save receipt');
+    } catch (err) {
+      Alert.alert(
+        'Error',
+        err instanceof Error ? err.message : 'Failed to save receipt'
+      );
     } finally {
       setSaving(false);
     }

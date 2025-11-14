@@ -59,3 +59,6 @@ VALUES
   (23, 6, NULL, 4, '7c838a24-6ecc-4755-b585-39954bfd83d4', 150.00, FALSE, CURRENT_DATE - INTERVAL '28 days', TRUE, CURRENT_DATE - INTERVAL '28 days', 'system', 'system', CURRENT_DATE - INTERVAL '28 days'),
   (24, 1, NULL, 5, '7c838a24-6ecc-4755-b585-39954bfd83d4', 190.00, TRUE, CURRENT_DATE - INTERVAL '29 days', TRUE, CURRENT_DATE - INTERVAL '29 days', 'system', 'system', CURRENT_DATE - INTERVAL '29 days'),
   (25, 2, NULL, 1, '7c838a24-6ecc-4755-b585-39954bfd83d4', 105.00, FALSE, CURRENT_DATE - INTERVAL '30 days', TRUE, CURRENT_DATE - INTERVAL '30 days', 'system', 'system', CURRENT_DATE - INTERVAL '30 days');
+
+SELECT setval('finance.invoice_id_seq', (SELECT COALESCE(MAX(id), 1) FROM finance.receipt));
+SELECT setval('finance.purchase_id_seq', (SELECT COALESCE(MAX(id), 1) FROM finance.purchase));

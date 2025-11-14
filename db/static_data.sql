@@ -63,3 +63,8 @@ VALUES
     (31, 5, 'Other', 'Other', TRUE, CURRENT_TIMESTAMP, 1, CURRENT_TIMESTAMP, 1),
     -- L3
     (32, 6, 'Other', 'Other', TRUE, CURRENT_TIMESTAMP, 1, CURRENT_TIMESTAMP, 1);
+
+
+SELECT setval('finance.expense_category_id_seq', (SELECT COALESCE(MAX(id), 1) FROM finance.expense_category));
+SELECT setval('finance.currency_id_seq', (SELECT COALESCE(MAX(id), 1) FROM finance.currency));
+SELECT setval('finance.expense_type_id_seq', (SELECT COALESCE(MAX(id), 1) FROM finance.expense_type));

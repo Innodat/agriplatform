@@ -99,7 +99,7 @@ export function ReceiptListScreen({ navigation }: any) {
               supplier={item.supplier || 'Unknown Supplier'}
               totalAmount={item.totalAmount}
               currency={item.currency}
-              capturedDate={item.captured_at || item.created_timestamp || item.created_at || ''}
+              capturedDate={item.receipt_date || ''}
               onEdit={() => handleEditReceipt(item.id)}
             />
           )}

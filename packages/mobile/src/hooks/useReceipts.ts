@@ -64,8 +64,8 @@ export function useReceipts(): UseReceiptsResult {
 
       // Sort by date (newest first)
       const sortedReceipts = enrichedReceipts.sort((a, b) => {
-        const dateA = a.captured_at || a.created_timestamp || a.created_at || '';
-        const dateB = b.captured_at || b.created_timestamp || b.created_at || '';
+        const dateA = a.receipt_date || '';
+        const dateB = b.receipt_date || '';
         return new Date(dateB).getTime() - new Date(dateA).getTime();
       });
 
