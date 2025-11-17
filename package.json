@@ -8,7 +8,7 @@
     "build": "npm run tools -- tailwind --minify"
   },
   "devDependencies": {
-    "supabase": "^2.34.3",
+    "supabase": "^2.58.5",
     "ts-node": "^10.9.2",
     "typescript": "^5.4.0",
     "zod": "^3.22.4"
