@@ -1,12 +1,12 @@
 create table identity.audit_log (
   id uuid primary key default gen_random_uuid(),
   table_name text not null,
-  record_id uuid not null,
+  record_id text not null,
   operation text not null, -- 'INSERT', 'UPDATE', 'DELETE'
-  actor_id uuid,
+  actor_id uuid null,
   timestamp timestamptz default now(),
-  diff jsonb,              -- full row snapshot or row-level diff
-  column_changes jsonb     -- per-column changes: { column: {old, new} }
+  diff jsonb null,              -- full row snapshot or row-level diff
+  column_changes jsonb null     -- per-column changes: { column: {old, new} }
 );
 
 create or replace function identity.log_audit()

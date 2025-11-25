@@ -1,4 +1,3 @@
-BEGIN;
 -- 1) Ensure auth.users entries exist (use deterministic UUIDs)
 INSERT INTO auth.users (id, raw_app_meta_data, raw_user_meta_data, created_at) VALUES ('11111111-1111-1111-1111-111111111111', '{}'::jsonb, '{}'::jsonb, now()), -- system
 ('22222222-2222-2222-2222-222222222222', '{}'::jsonb, '{}'::jsonb, now()) -- migrate
@@ -21,4 +20,3 @@ DO UPDATE SET
   username = EXCLUDED.username,
   updated_at = now()
 RETURNING id;
-COMMIT;
