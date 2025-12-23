@@ -14,36 +14,74 @@ set search_path = public, pg_temp
 as $$
 declare
   claims jsonb;
-  user_role identity.app_role;
-  role_ids_array bigint[];
-  role_ids_json jsonb;
+  current_org_id uuid;
+  current_member_id bigint;
+  user_roles_arr identity.app_role[];
+  role_ids_arr bigint[];
+  org_ids_arr uuid[];
+  is_owner boolean;
+  org_slug text;
 begin
   -- Ensure claims object exists
   claims := coalesce(event->'claims', '{}'::jsonb);
 
-  -- Query active roles for this user
-  select 
-    array_agg(ur.id) filter (where ur.is_active = true),
-    (array_agg(ur.role) filter (where ur.is_active = true))[1]
-  into 
-    role_ids_array,
-    user_role
-  from identity.user_roles ur
-  where ur.user_id = (event->>'user_id')::uuid
-    and ur.is_active = true;
+  -- Determine current org from user_metadata or first membership
+  current_org_id := coalesce(
+    (event->'user_metadata'->>'current_org_id')::uuid,
+    (
+      select om.org_id
+      from identity.org_member om
+      where om.user_id = (event->>'user_id')::uuid
+        and om.is_active = true
+      order by om.is_owner desc, om.created_at asc
+      limit 1
+    )
+  );
 
-  -- Convert role_ids array to jsonb
-  role_ids_json := coalesce(to_jsonb(role_ids_array), '[]'::jsonb);
-
-  -- Set the claims
-  if user_role is not null then
-    claims := jsonb_set(claims, '{user_role}', to_jsonb(user_role));
-  else 
-    claims := jsonb_set(claims, '{user_role}', 'null'::jsonb);
+  if current_org_id is not null then
+    select o.slug
+      into org_slug
+    from identity.org o
+    where o.id = current_org_id
+      and o.is_active = true;
   end if;
 
-  claims := jsonb_set(claims, '{role_ids}', role_ids_json);
+  if current_org_id is not null then
+    select om.id, om.is_owner
+      into current_member_id, is_owner
+    from identity.org_member om
+    where om.user_id = (event->>'user_id')::uuid
+      and om.org_id = current_org_id
+      and om.is_active = true;
+  end if;
+
+  if current_member_id is not null then
+    select
+      array_agg(mr.role) filter (where mr.is_active = true),
+      array_agg(mr.id) filter (where mr.is_active = true)
+    into user_roles_arr, role_ids_arr
+    from identity.member_role mr
+    where mr.member_id = current_member_id
+      and mr.is_active = true;
+  end if;
+
+  select array_agg(om.org_id)
+    into org_ids_arr
+  from identity.org_member om
+  where om.user_id = (event->>'user_id')::uuid
+    and om.is_active = true;
+
+  claims := jsonb_set(claims, '{org_id}', coalesce(to_jsonb(current_org_id), 'null'::jsonb));
+  claims := jsonb_set(claims, '{org_slug}', coalesce(to_jsonb(org_slug), 'null'::jsonb));
+  claims := jsonb_set(claims, '{member_id}', coalesce(to_jsonb(current_member_id), 'null'::jsonb));
+  claims := jsonb_set(claims, '{user_roles}', coalesce(to_jsonb(user_roles_arr), '[]'::jsonb));
+  claims := jsonb_set(claims, '{role_ids}', coalesce(to_jsonb(role_ids_arr), '[]'::jsonb));
+  claims := jsonb_set(claims, '{org_ids}', coalesce(to_jsonb(org_ids_arr), '[]'::jsonb));
+  claims := jsonb_set(claims, '{is_org_owner}', to_jsonb(coalesce(is_owner, false)));
+
   claims := jsonb_set(claims, '{department_ids}', '[]'::jsonb); -- Placeholder
+  -- Legacy: we no longer set single user_role claim (multi-role now lives in user_roles[])
+  -- role_ids, user_roles, org context are set above.
 
   -- Update the 'claims' object in the original event
   event := jsonb_set(event, '{claims}', claims);
@@ -63,15 +101,5 @@ revoke execute
   on function identity.custom_access_token_hook
   from authenticated, anon;
 
-grant all
-  on table identity.user_roles
-to supabase_auth_admin;
-
-revoke all
-  on table identity.user_roles
-  from authenticated, anon;
-
-create policy "Allow auth admin to read user roles" ON identity.user_roles
-as permissive for select
-to supabase_auth_admin
-using (true)
+-- NOTE: identity.user_roles was removed. Grants/policies are now applied to org_member/member_role in
+-- supabase/migrations/20251222163200_multitenancy_orgs.sql

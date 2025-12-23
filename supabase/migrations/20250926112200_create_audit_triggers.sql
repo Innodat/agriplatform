@@ -47,9 +47,10 @@ create trigger audit_identity_users
 before insert or update on identity.users
 for each row execute function identity.set_audit_fields();
 
-create trigger audit_identity_user_roles
-before insert or update on identity.user_roles
-for each row execute function identity.set_audit_fields();
+-- NOTE: identity.user_roles removed in multi-tenancy refactor
+-- create trigger audit_identity_user_roles
+-- before insert or update on identity.user_roles
+-- for each row execute function identity.set_audit_fields();
 
 create trigger audit_identity_role_permissions
 before insert or update on identity.role_permissions

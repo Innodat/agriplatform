@@ -3,18 +3,35 @@
   "version": "1.0.0",
   "main": "index.ts",
   "types": "index.ts",
+  "exports": {
+    "./schemas": "./schemas/zod/index.ts",
+    "./schemas/zod": "./schemas/zod/index.ts",
+    "./schemas/zod/content-system": "./schemas/zod/content-system/index.ts",
+    "./schemas/zod/finance": "./schemas/zod/finance/index.ts",
+    "./schemas/zod/identity": "./schemas/zod/identity/index.ts",
+    "./schemas/zod/auth": "./schemas/zod/auth/index.ts",
+    "./services": "./services/index.ts",
+    "./lib": "./lib/index.ts",
+    ".": "./index.ts"
+  },
   "scripts": {
-    "type-check": "tsc --noEmit"
+    "type-check": "tsc --noEmit",
+    "clean": "rimraf dist",
+    "build:react": "tsc -p tsconfig.json",
+    "build:dyno": "tsc -p tsconfig.dyno.json",
+    "build": "npm run clean && npm run build:react",
+    "start:dyno": "node dist/index.js"
   },
   "dependencies": {
-    "zod": "^3.24.1",
-    "@supabase/supabase-js": "^2.55.0"
+    "@supabase/supabase-js": "^2.55.0",
+    "zod": "^3.24.1"
   },
   "peerDependencies": {
     "react": "^18.0.0 || ^19.0.0"
   },
   "devDependencies": {
-    "typescript": "^5.4.0",
-    "@types/react": "^18.0.0"
+    "@types/react": "^18.0.0",
+    "rimraf": "^6.1.2",
+    "typescript": "^5.4.0"
   }
 }

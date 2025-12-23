@@ -93,9 +93,10 @@ create trigger audit_log_identity_users
 after insert or update or delete on identity.users
 for each row execute function identity.log_audit();
 
-create trigger audit_log_identity_user_roles
-after insert or update or delete on identity.user_roles
-for each row execute function identity.log_audit();
+-- NOTE: identity.user_roles removed in multi-tenancy refactor
+-- create trigger audit_log_identity_user_roles
+-- after insert or update or delete on identity.user_roles
+-- for each row execute function identity.log_audit();
 
 create trigger audit_log_identity_role_permissions
 after insert or update or delete on identity.role_permissions

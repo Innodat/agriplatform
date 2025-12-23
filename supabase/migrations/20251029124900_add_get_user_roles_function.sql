@@ -10,17 +10,21 @@ LANGUAGE plpgsql
 SECURITY DEFINER
 SET search_path = public, identity
 AS $$
+DECLARE
+  member_id bigint;
 BEGIN
-  -- Return roles for the currently authenticated user
+  member_id := nullif(auth.jwt() ->> 'member_id', '')::bigint;
+
+  -- Return roles for the current org membership (multi-tenant)
   RETURN QUERY
-  SELECT ur.role::text
-  FROM identity.user_roles ur
-  WHERE ur.user_id = auth.uid()
-    AND ur.is_active = true;
+  SELECT mr.role::text
+  FROM identity.member_role mr
+  WHERE mr.member_id = member_id
+    AND mr.is_active = true;
 END;
 $$;
 
 -- Grant execute permission to authenticated users
 GRANT EXECUTE ON FUNCTION public.get_user_roles() TO authenticated;
 
-COMMENT ON FUNCTION public.get_user_roles() IS 'Returns the active roles for the currently authenticated user';
+COMMENT ON FUNCTION public.get_user_roles() IS 'Returns the active roles for the current org membership of the authenticated user';

@@ -7,9 +7,15 @@
     "esModuleInterop": true,
     "strict": true,
     "baseUrl": ".",
+    "outDir": "dist",              // compiled JS output
+    "declaration": true,           // emit .d.ts files for type safety
     "paths": {
-      "@schemas/*": ["schemas/zod/*"]
+      "@schemas/*": ["schemas/zod/*"],
+      "@services/*": ["services/*"],
+      "@lib/*": ["lib/*"],
+      "@shared": ["index.ts"] // barrel for the whole package
+
     }
   },
-  "include": ["schemas/zod"]
+  "include": ["schemas/zod", "index.ts", "services", "lib"]
 }

@@ -6,7 +6,7 @@ import {
   type ExpenseCategoryRow,
   type ExpenseTypeRow,
   type CurrencyRow,
-} from "../../schemas/zod/finance";
+} from "@schemas/finance";
 
 export type ReferenceDataType = "categories" | "types" | "currencies";
 

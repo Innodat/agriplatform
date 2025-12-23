@@ -7,7 +7,7 @@ import {
   type PurchaseInsert,
   type PurchaseRow,
   type PurchaseUpdate,
-} from "../../schemas/zod/finance";
+} from "@schemas/finance";
 
 export type PurchaseStatus = "pending" | "approved" | "rejected" | "querying";
 

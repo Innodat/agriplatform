@@ -2,8 +2,8 @@ import { beforeAll, afterAll, describe, it, expect } from 'vitest';
 import { createClient, type SupabaseClient } from '@supabase/supabase-js';
 
 const url = process.env.SUPABASE_URL!;
-const anon = process.env.SUPABASE_ANON_KEY!;
-const service = process.env.SUPABASE_SERVICE_ROLE_KEY!;
+const anon = process.env.SUPABASE_PUBLISHABLE_KEY!;
+const service = process.env.SUPABASE_SECRET_KEY!;
 
 const EMP_EMAIL = process.env.TEST_USER_EMAIL!;              // e.g., employee@...
 const EMP_PASS  = process.env.TEST_USER_PASSWORD!;           // e.g., SuperSecret123!

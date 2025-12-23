@@ -6,7 +6,7 @@ import {
   type ReceiptInsert,
   type ReceiptRow,
   type ReceiptUpdate,
-} from "../../schemas/zod/finance";
+} from "@schemas/finance";
 
 export interface ReceiptFilters {
   supplier?: string;

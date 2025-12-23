@@ -54,7 +54,7 @@ INSERT INTO cs.content_source (provider, name, settings) VALUES (
   'Liseli Azure Storage',
   '{
     "account_name": "liseliblob",
-    "container_name": "content",
+    "container_name": "content_{org_slug}_{env}",
     "connection_secret": "LISELI_AZURE_BLOB_CONNECTION"
   }'
 );

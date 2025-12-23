@@ -174,18 +174,18 @@ The content system decouples media/file storage from business domains, providing
 Content System Flow:
 
 Upload:
-Frontend → POST /api/content/initiate 
+Frontend → POST /functions/v1/cs-upload-content
         → Backend returns signed upload URL
         → Frontend uploads to Azure Blob
-        → POST /api/content/{id}/finalize
+        → POST /functions/v1/cs-finalize-upload
 
 Download:
-Frontend → GET /api/receipts/{id}/content
-        → Backend returns signed download URLs
+Frontend → GET /functions/v1/cs-generate-signed-url?id={id}
+        → Backend returns signed download URL
 
-Delete:
-Frontend → DELETE /api/content/{id}
-        → Backend removes from storage + database
+Update:
+Frontend → PUT /functions/v1/cs-update-content
+        → Backend updates metadata and returns signed upload URL (if re-upload needed)
 ```
 
 **Database Schema (cs schema):**
@@ -211,7 +211,7 @@ The database is organized into logical schemas:
 |--------|---------|--------|
 | `public` | Default schema (minimal use) | - |
 | `finance` | Financial operations | receipt, purchase, expense_category, expense_type, currency |
-| `identity` | User management & RBAC | users, user_roles, role_permissions, audit_log |
+| `identity` | User management & RBAC + multi-tenancy | users, org, org_member, member_role, role_permissions, audit_log |
 | `cs` | Content system | content_source, content_store, receipt_content |
 | `audit` | Audit logging (future) | - |
 
@@ -328,30 +328,41 @@ CREATE TRIGGER trg_<schema>_<table>_audit
 ### 3.4 Row Level Security (RLS)
 
 **Status:** Enabled on all tables  
-**Implementation:** Per-table policies based on user roles
+**Implementation:** Policies are **tenant-aware** (org-scoped) and permission-gated.
 
-**Example Policy Pattern:**
+**Multi-tenancy pattern (org scoping):**
+- Tables that belong to an organization include `org_id` (uuid) and RLS enforces `org_id = identity.current_org_id()`.
+- Tables that don’t have `org_id` directly (e.g. `finance.purchase`) are scoped through a parent join (e.g. purchase → receipt → org).
+
+**Current org resolution:**
+- `identity.current_org_id()` returns the org/tenant for the authenticated user (based on membership).
+- `identity.current_member_id()` returns the membership row id for the authenticated user.
+
+**Example Policy Pattern (tenant + permission):**
 ```sql
--- Read access for all authenticated users
-CREATE POLICY "Users can read active records"
+-- Read active receipts within current org
+CREATE POLICY "Receipts: read in org"
   ON finance.receipt FOR SELECT
-  USING (is_active = true AND auth.uid() IS NOT NULL);
+  USING (
+    is_active = true
+    AND org_id = identity.current_org_id()
+    AND identity.authorize('finance.receipt.read')
+  );
 
--- Insert access for employees
-CREATE POLICY "Employees can insert receipts"
+-- Insert receipts into current org
+CREATE POLICY "Receipts: insert in org"
   ON finance.receipt FOR INSERT
-  WITH CHECK (auth.uid() = created_by);
+  WITH CHECK (
+    org_id = identity.current_org_id()
+    AND identity.authorize('finance.receipt.insert')
+  );
 
--- Update access for admins
-CREATE POLICY "Admins can update receipts"
+-- Update receipts within current org
+CREATE POLICY "Receipts: update in org"
   ON finance.receipt FOR UPDATE
   USING (
-    EXISTS (
-      SELECT 1 FROM identity.user_roles
-      WHERE user_id = auth.uid()
-      AND role = 'admin'
-      AND is_active = true
-    )
+    org_id = identity.current_org_id()
+    AND identity.authorize('finance.receipt.update')
   );
 ```
 
@@ -1054,10 +1065,10 @@ No breaking changes to exported types.
 | `financeadmin` | Finance department admin | Full access to finance module |
 | `employee` | Regular employee | Limited access, can create receipts |
 
-**Role Assignment:**
-- Stored in `identity.user_roles` table
-- Multiple roles per user supported
-- Roles can be activated/deactivated via `is_active` flag
+**Role Assignment (multi-role, per-org):**
+- Users belong to one or more orgs via `identity.org_member`.
+- Roles are assigned to memberships via `identity.member_role` (a user can have **multiple roles per org**).
+- Roles can be activated/deactivated via `is_active`.
 
 ### 9.2 Permission System
 
@@ -1079,31 +1090,33 @@ No breaking changes to exported types.
 
 **Custom Claims in Access Token:**
 
-The authentication system populates the JWT access token with custom claims via the `identity.custom_access_token_hook` function:
+The authentication system populates the JWT access token with custom claims via the `identity.custom_access_token_hook` function.
 
 | Claim | Type | Description |
 |-------|------|-------------|
-| `user_role` | `identity.app_role` | Primary active role for the user (first from array) |
-| `role_ids` | `bigint[]` | Array of all active role IDs for the user |
-| `department_ids` | `bigint[]` | Array of department IDs (placeholder for future implementation) |
+| `user_roles` | `identity.app_role[]` | Array of active roles for the current user (for the current org context) |
+| `user_role` | `identity.app_role` | Convenience: first role from `user_roles` |
+| `org_id` | `uuid` | Current org/tenant id |
+| `member_id` | `bigint` | Current membership row id |
 
 **Example JWT Payload:**
 ```json
 {
   "sub": "user-uuid",
   "email": "user@example.com",
-  "user_role": "employee",
-  "role_ids": [1, 2],
-  "department_ids": []
+  "org_id": "org-uuid",
+  "member_id": 123,
+  "user_roles": ["employee", "financeadmin"],
+  "user_role": "employee"
 }
 ```
 
 **Usage in RLS Policies:**
 ```sql
--- Access user_role claim
-(auth.jwt() ->> 'user_role')::identity.app_role
+-- Example: scope by org
+identity.current_org_id()
 
--- Check if user has specific role
+-- Gate by permission
 identity.authorize('finance.receipt.read')
 ```
 
@@ -1121,16 +1134,12 @@ identity.authorize('finance.receipt.read')
 
 **Example Policy:**
 ```sql
-CREATE POLICY "Employees can view their own receipts"
+CREATE POLICY "Receipts: read in org"
   ON finance.receipt FOR SELECT
   USING (
     created_by = auth.uid()
-    OR EXISTS (
-      SELECT 1 FROM identity.user_roles
-      WHERE user_id = auth.uid()
-      AND role IN ('admin', 'financeadmin')
-      AND is_active = true
-    )
+    AND org_id = identity.current_org_id()
+    AND identity.authorize('finance.receipt.read')
   );
 ```
 
