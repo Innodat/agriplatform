@@ -57,6 +57,7 @@ Deno.test({
         method: "POST",
         headers,
         body: JSON.stringify({
+          // source_id is now determined from org settings (from JWT token)
           mime_type: "text/plain",
           size_bytes: 12,
           metadata: { test: "integration" },

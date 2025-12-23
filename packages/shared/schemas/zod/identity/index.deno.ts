@@ -1,4 +1,4 @@
 // Identity domain Zod schemas - barrel export
-export * from './org.schema';
-export * from './org-member.schema';
-export * from './member-role.schema';
+export * from './org.schema.ts';
+export * from './org-member.schema.ts';
+export * from './member-role.schema.ts';

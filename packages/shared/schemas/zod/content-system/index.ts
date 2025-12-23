@@ -59,7 +59,6 @@ export const csUploadContentRequestSchema = z.object({
   size_bytes: sizeBytesSchema.optional(),
   checksum: z.string().min(1).optional(),
   metadata: metadataSchema.optional(),
-  source_id: uuid.optional(),
 });
 export type CsUploadContentRequest = z.infer<typeof csUploadContentRequestSchema>;
 

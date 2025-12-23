@@ -4,7 +4,7 @@ CREATE SCHEMA IF NOT EXISTS cs;
 -- Content source table (Supabase, Azure Blob, S3, etc.)
 CREATE TABLE cs.content_source (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-  provider text NOT NULL CHECK (provider IN ('azure_blob')),
+  provider text NOT NULL CHECK (provider IN ('azure_blob', 'supabase_storage')),
   name text NOT NULL,
   settings jsonb NOT NULL, -- Azure account/container/credential config
   is_active boolean NOT NULL DEFAULT true,
@@ -43,10 +43,22 @@ CREATE INDEX idx_content_store_created_by ON cs.content_store(created_by);
 ALTER TABLE cs.content_source ENABLE ROW LEVEL SECURITY;
 ALTER TABLE cs.content_store ENABLE ROW LEVEL SECURITY;
 
+
+GRANT usage ON SCHEMA cs TO service_role;
+GRANT all ON TABLE cs.content_source TO service_role;
+GRANT all ON TABLE cs.content_store TO service_role;
+
 -- RLS Policies
 -- content_source: Admin only
 CREATE POLICY "Admin can manage content sources" ON cs.content_source
   FOR ALL USING (auth.jwt() ->> 'role' = 'admin');
+
+-- Create policy for service role (edge functions use service role client)
+CREATE POLICY "Service role can manage content sources" ON cs.content_source
+  FOR ALL
+  TO service_role
+  USING (true)
+  WITH CHECK (true);
 
 -- Insert default Azure Blob source (placeholder settings)
 INSERT INTO cs.content_source (provider, name, settings) VALUES (
@@ -57,4 +69,11 @@ INSERT INTO cs.content_source (provider, name, settings) VALUES (
     "container_name": "content_{org_slug}_{env}",
     "connection_secret": "LISELI_AZURE_BLOB_CONNECTION"
   }'
-);
+), (
+  'supabase_storage',
+  'Default Supabase Storage',
+  '{
+    "bucket_name": "content",
+    "connection_secret": "SUPABASE_SERVICE_ROLE_KEY"
+  }'
+) ON CONFLICT DO NOTHING;

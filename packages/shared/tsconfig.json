@@ -17,5 +17,6 @@
 
     }
   },
-  "include": ["schemas/zod", "index.ts", "services", "lib"]
+  "include": ["schemas/zod", "index.ts", "services", "lib"],
+  "exclude": ["**/*.deno.ts"]
 }

@@ -43,26 +43,66 @@ const defaultDeps: Dependencies = {
 
 async function defaultResolveContentSource(
   supabase: SupabaseLike,
-  sourceId?: string,
+  orgId?: string,
 ) {
-  let query = supabase.schema("cs").from("content_source")
-    .select("id, settings")
-    .eq("is_active", true);
-
-  if (sourceId) {
-    query = query.eq("id", sourceId);
-  } else {
-    query = query.order("created_at", { ascending: true }).limit(1);
+  let contentSourceId: string | null = null;
+  
+  // Step 1: Try to get content_source_id from org settings
+  if (orgId) {
+    const { data: org, error: orgError } = await supabase
+      .schema("identity")
+      .from("org")
+      .select("settings")
+      .eq("id", orgId)
+      .single();
+    
+    // Throw error if org lookup fails
+    if (orgError) {
+      throw new HttpError(`Failed to lookup organization: ${orgError.message}`, 500);
+    }
+    
+    if (org?.settings) {
+      contentSourceId = org.settings.content_source_id as string;
+    }
   }
-
-  const { data, error } = await query.single();
+  
+  // Step 2: Fall back to default global source by name
+  if (!contentSourceId) {
+    const { data: defaultSource, error: defaultError } = await supabase
+      .schema("cs")
+      .from("content_source")
+      .select("id")
+      .eq("name", "Default Supabase Storage")
+      .eq("is_active", true)
+      .limit(1)
+      .single();
+    
+    if (defaultError || !defaultSource) {
+      console.error(defaultError)
+      throw new HttpError("No content source available", 500);
+    }
+    
+    contentSourceId = defaultSource.id;
+  }
+  
+  // Step 3: Query the content source
+  const { data, error } = await supabase
+    .schema("cs")
+    .from("content_source")
+    .select("id, settings, is_active, provider, name")
+    .eq("id", contentSourceId)
+    .single();
+  
   if (error || !data) {
-    throw new HttpError("Unable to resolve content source for [" + sourceId + "]", 400);
+    throw new HttpError("Unable to resolve content source", 500);
   }
-
+  
   return data as unknown as {
     id: string;
-    settings: { container_name: string; connection_secret: string };
+    settings: { container_name: string; bucket_name: string; connection_secret: string };
+    is_active: boolean;
+    provider: string;
+    name: string;
   };
 }
 
@@ -84,9 +124,10 @@ export function createUploadHandler(overrides: Partial<Dependencies> = {}) {
       const _reqJson = await req.json()
       console.log("request: ",  _reqJson)
       const payload = csUploadContentRequestSchema.parse(_reqJson);
+      const orgId = auth.payload.org_id as string | undefined; // From JWT token
       const source = await deps.resolveContentSource(
         deps.supabase,
-        payload.source_id,
+        orgId,
       );
 
       const connectionString = Deno.env.get(source.settings.connection_secret);

@@ -63,11 +63,6 @@ create table if not exists identity.member_role (
 comment on table identity.member_role is 'Roles assigned to an org member (user can have multiple roles per org).';
 
 -- -----------------------------------------------------------------------------
--- Drop old per-user role table (no longer needed)
--- -----------------------------------------------------------------------------
-drop table if exists identity.user_roles cascade;
-
--- -----------------------------------------------------------------------------
 -- Org scoping columns
 -- -----------------------------------------------------------------------------
 -- NOTE: org_id columns are created in 20250815120000_create_finance_schema.sql so that
@@ -224,19 +219,16 @@ revoke all on table identity.org_member from authenticated, anon;
 revoke all on table identity.member_role from authenticated, anon;
 revoke all on table identity.org from authenticated, anon;
 
-drop policy if exists "Allow auth admin to read user roles" on identity.org_member;
 create policy "Allow auth admin to read org members" on identity.org_member
 as permissive for select
 to supabase_auth_admin
 using (true);
 
-drop policy if exists "Allow auth admin to read member roles" on identity.member_role;
 create policy "Allow auth admin to read member roles" on identity.member_role
 as permissive for select
 to supabase_auth_admin
 using (true);
 
-drop policy if exists "Allow auth admin to read orgs" on identity.org;
 create policy "Allow auth admin to read orgs" on identity.org
 as permissive for select
 to supabase_auth_admin
