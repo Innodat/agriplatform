@@ -2,15 +2,13 @@ import {
   mergeCorsHeaders as defaultMergeCors,
   handleCors as defaultHandleCors,
 } from "../_shared/cors.ts";
-import {
-  generateSignedBlobUrl as defaultGenerateSignedBlobUrl,
-  resolveContainerName as defaultResolveContainerName,
-} from "../_shared/azure-blob.ts";
 import { supabaseAdmin } from "../_shared/supabase.ts";
 import { HttpError, requireAuth as defaultRequireAuth } from "../_shared/auth.ts";
 import { csUploadContentRequestSchema } from "@shared";
 // @ts-ignore: Deno/Node interop
 import { ZodError } from "zod";
+import { getProvider, resolveBucketOrContainerName } from "../_shared/storage-providers/registry.ts";
+import type { StorageProvider } from "../_shared/storage-providers/types.ts";
 
 const DEFAULT_PREFIX = "receipts";
 
@@ -24,9 +22,9 @@ type SupabaseLike = typeof supabaseAdmin;
 interface Dependencies {
   handleCors: typeof defaultHandleCors;
   mergeCorsHeaders: typeof defaultMergeCors;
-  generateSignedBlobUrl: typeof defaultGenerateSignedBlobUrl;
-  resolveContainerName: typeof defaultResolveContainerName;
   resolveContentSource: typeof defaultResolveContentSource;
+  getProvider: typeof getProvider;
+  resolveBucketOrContainerName: typeof resolveBucketOrContainerName;
   supabase: SupabaseLike;
   requireAuth: typeof defaultRequireAuth;
 }
@@ -34,9 +32,9 @@ interface Dependencies {
 const defaultDeps: Dependencies = {
   handleCors: defaultHandleCors,
   mergeCorsHeaders: defaultMergeCors,
-  generateSignedBlobUrl: defaultGenerateSignedBlobUrl,
-  resolveContainerName: defaultResolveContainerName,
   resolveContentSource: defaultResolveContentSource,
+  getProvider,
+  resolveBucketOrContainerName,
   supabase: supabaseAdmin,
   requireAuth: defaultRequireAuth,
 };
@@ -99,7 +97,7 @@ async function defaultResolveContentSource(
   
   return data as unknown as {
     id: string;
-    settings: { container_name: string; bucket_name: string; connection_secret: string };
+    settings: Record<string, any>; //{ container_name: string; bucket_name: string; connection_secret: string };
     is_active: boolean;
     provider: string;
     name: string;
@@ -130,19 +128,17 @@ export function createUploadHandler(overrides: Partial<Dependencies> = {}) {
         orgId,
       );
 
-      const connectionString = Deno.env.get(source.settings.connection_secret);
-      if (!connectionString) {
-        throw new HttpError(
-          `Missing secret ${source.settings.connection_secret}`,
-          500,
-        );
-      }
+      // Get the storage provider for this content source
+      const provider = deps.getProvider(source.provider, source.settings);
 
-      const containerName = deps.resolveContainerName(
-        source.settings.container_name,
+      // Resolve bucket/container name with environment substitution
+      const bucketOrContainer = deps.resolveBucketOrContainerName(
+        source.settings.container_name ?? source.settings.bucket_name
       );
+
       const externalKey = buildExternalKey(payload.mime_type, auth.userId);
 
+      // Create content_store record (inactive until finalized)
       const { data: inserted, error: insertError } = await deps.supabase
         .schema("cs")
         .from("content_store")
@@ -163,20 +159,22 @@ export function createUploadHandler(overrides: Partial<Dependencies> = {}) {
         throw new HttpError("Failed to create content_store record", 500);
       }
 
-      const sas = deps.generateSignedBlobUrl({
-        connectionString,
-        containerName,
-        blobName: externalKey,
-        permissions: "w",
+      // Generate upload URL using the provider
+      const uploadUrlResult = await provider.generateUploadUrl({
+        bucketOrContainer,
+        path: externalKey,
+        contentType: payload.mime_type,
+        expectedSizeBytes: payload.size_bytes,
+        checksumBase64: payload.checksum,
         expiresInMinutes: 15,
       });
 
       return new Response(
         JSON.stringify({
           content_id: inserted.id,
-          upload_url: sas.url,
+          upload_url: uploadUrlResult.url,
           external_key: externalKey,
-          expires_at: sas.expiresAt.toISOString(),
+          expires_at: uploadUrlResult.expiresAt.toISOString(),
         }),
         {
           headers: deps.mergeCorsHeaders({ "Content-Type": "application/json" }),

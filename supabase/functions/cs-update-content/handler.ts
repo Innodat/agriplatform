@@ -1,20 +1,25 @@
 import { handleCors as defaultHandleCors, mergeCorsHeaders as defaultMergeCors } from "../_shared/cors.ts";
-import {
-  generateSignedBlobUrl as defaultGenerateSignedBlobUrl,
-  resolveContainerName as defaultResolveContainerName,
-} from "../_shared/azure-blob.ts";
 import { supabaseAdmin } from "../_shared/supabase.ts";
 import { HttpError, hasRole, requireAuth as defaultRequireAuth } from "../_shared/auth.ts";
 import { csUpdateContentRequestSchema } from "@shared";
 import { ZodError } from "zod";
+import { getProvider, resolveBucketOrContainerName } from "../_shared/storage-providers/registry.ts";
+import type { StorageProvider } from "../_shared/storage-providers/types.ts";
+
+const DEFAULT_PREFIX = "receipts";
+
+function buildExternalKey(mimeType: string, userId: string) {
+  const extension = mimeType.split("/")[1] ?? "bin";
+  return `${DEFAULT_PREFIX}/${userId}/${crypto.randomUUID()}.${extension}`;
+}
 
 type SupabaseLike = typeof supabaseAdmin;
 
 interface Dependencies {
   handleCors: typeof defaultHandleCors;
   mergeCorsHeaders: typeof defaultMergeCors;
-  generateSignedBlobUrl: typeof defaultGenerateSignedBlobUrl;
-  resolveContainerName: typeof defaultResolveContainerName;
+  getProvider: typeof getProvider;
+  resolveBucketOrContainerName: typeof resolveBucketOrContainerName;
   supabase: SupabaseLike;
   requireAuth: typeof defaultRequireAuth;
 }
@@ -22,8 +27,8 @@ interface Dependencies {
 const defaultDeps: Dependencies = {
   handleCors: defaultHandleCors,
   mergeCorsHeaders: defaultMergeCors,
-  generateSignedBlobUrl: defaultGenerateSignedBlobUrl,
-  resolveContainerName: defaultResolveContainerName,
+  getProvider,
+  resolveBucketOrContainerName,
   supabase: supabaseAdmin,
   requireAuth: defaultRequireAuth,
 };
@@ -41,9 +46,13 @@ async function fetchContentRecord(
       source_id,
       external_key,
       mime_type,
+      size_bytes,
+      checksum,
+      metadata,
       created_by,
       source:cs.content_source (
         id,
+        provider,
         settings
       )
     `,
@@ -60,8 +69,15 @@ async function fetchContentRecord(
     source_id: string;
     external_key: string;
     mime_type: string;
+    size_bytes: number | null;
+    checksum: string | null;
+    metadata: Record<string, unknown> | null;
     created_by: string;
-    source: { settings: { container_name: string; connection_secret: string } };
+    source: { 
+      id: string;
+      provider: string;
+      settings: Record<string, any>;
+    };
   };
 }
 
@@ -88,17 +104,53 @@ export function createUpdateHandler(overrides: Partial<Dependencies> = {}) {
         throw new HttpError("Forbidden", 403);
       }
 
-      const connectionString = Deno.env.get(
-        record.source.settings.connection_secret,
+      // Get the storage provider
+      const provider = deps.getProvider(record.source.provider, record.source.settings);
+
+      // Resolve bucket/container name
+      const bucketOrContainer = deps.resolveBucketOrContainerName(
+        record.source.settings.container_name ?? record.source.settings.bucket_name
       );
-      if (!connectionString) {
-        throw new HttpError(
-          `Missing secret ${record.source.settings.connection_secret}`,
-          500,
-        );
+
+      // Archive current version before updating
+      // Get the next version number
+      const { data: versions } = await deps.supabase
+        .schema("cs")
+        .from("content_version")
+        .select("version_number")
+        .eq("content_id", record.id)
+        .order("version_number", { ascending: false })
+        .limit(1);
+
+      const nextVersion = (versions && versions.length > 0 ? versions[0].version_number : 0) + 1;
+
+      // Insert the current version into content_version table
+      const { error: versionError } = await deps.supabase
+        .schema("cs")
+        .from("content_version")
+        .insert({
+          content_id: record.id,
+          version_number: nextVersion,
+          external_key: record.external_key,
+          mime_type: record.mime_type,
+          size_bytes: record.size_bytes,
+          checksum: record.checksum,
+          metadata: record.metadata,
+          replaced_by: auth.userId,
+        });
+
+      if (versionError) {
+        console.error("Failed to create version record:", versionError);
+        throw new HttpError("Failed to archive current version", 500);
       }
 
+      // Generate new external key for the updated content
+      const newMimeType = payload.mime_type ?? record.mime_type;
+      const newExternalKey = buildExternalKey(newMimeType, auth.userId);
+
+      // Update content_store with new key and mark inactive
       const updates: Record<string, unknown> = {
+        external_key: newExternalKey,
         updated_by: auth.userId,
         is_active: false,
       };
@@ -118,24 +170,23 @@ export function createUpdateHandler(overrides: Partial<Dependencies> = {}) {
         throw new HttpError("Failed to update content metadata", 500);
       }
 
-      const containerName = deps.resolveContainerName(
-        record.source.settings.container_name,
-      );
-
-      const sas = deps.generateSignedBlobUrl({
-        connectionString,
-        containerName,
-        blobName: record.external_key,
-        permissions: "w",
+      // Generate upload URL for the new content
+      const uploadUrlResult = await provider.generateUploadUrl({
+        bucketOrContainer,
+        path: newExternalKey,
+        contentType: newMimeType,
+        expectedSizeBytes: payload.size_bytes,
+        checksumBase64: payload.checksum,
         expiresInMinutes: 15,
       });
 
       return new Response(
         JSON.stringify({
           content_id: record.id,
-          upload_url: sas.url,
-          external_key: record.external_key,
-          expires_at: sas.expiresAt.toISOString(),
+          upload_url: uploadUrlResult.url,
+          external_key: newExternalKey,
+          expires_at: uploadUrlResult.expiresAt.toISOString(),
+          version_archived: nextVersion,
         }),
         { headers: deps.mergeCorsHeaders({ "Content-Type": "application/json" }) },
       );

@@ -3,7 +3,7 @@ import { jsonRequest, parseJson } from "../helpers/request.ts";
 import {
   createSupabaseMock,
   createAuthMock,
-  createAzureMock,
+  createStorageProviderMock,
 } from "../helpers/mocks.ts";
 
 import { noopCors } from "../helpers/mocks.ts";
@@ -11,18 +11,21 @@ import { noopCors } from "../helpers/mocks.ts";
 Deno.test("cs-upload-content rejects requests without mime_type", async () => {
   const supabase = createSupabaseMock();
   const auth = createAuthMock();
-  const azure = createAzureMock();
+  const provider = createStorageProviderMock();
 
   const handler = createUploadHandler({
     handleCors: noopCors.handleCors,
     mergeCorsHeaders: noopCors.mergeCorsHeaders,
     supabase: supabase as any,
     requireAuth: auth.requireAuth as any,
-    generateSignedBlobUrl: azure.generateSignedBlobUrl,
-    resolveContainerName: azure.resolveContainerName,
+    getProvider: () => provider as any,
+    resolveBucketOrContainerName: (name: string) => name.replace("{env}", "test"),
     resolveContentSource: () =>
       Promise.resolve({
         id: "source-1",
+        provider: "azure_blob",
+        name: "Test Source",
+        is_active: true,
         settings: { container_name: "content_{env}", connection_secret: "CONN" },
       }),
   });
@@ -43,18 +46,21 @@ Deno.test("cs-upload-content rejects requests without mime_type", async () => {
 Deno.test("cs-upload-content creates record and returns signed URL", async () => {
   const supabase = createSupabaseMock();
   const auth = createAuthMock();
-  const azure = createAzureMock();
+  const provider = createStorageProviderMock();
 
   const handler = createUploadHandler({
     handleCors: noopCors.handleCors,
     mergeCorsHeaders: noopCors.mergeCorsHeaders,
     supabase: supabase as any,
     requireAuth: auth.requireAuth as any,
-    generateSignedBlobUrl: azure.generateSignedBlobUrl,
-    resolveContainerName: azure.resolveContainerName,
+    getProvider: () => provider as any,
+    resolveBucketOrContainerName: (name: string) => name.replace("{env}", "test"),
     resolveContentSource: () =>
       Promise.resolve({
         id: "source-1",
+        provider: "azure_blob",
+        name: "Test Source",
+        is_active: true,
         settings: { container_name: "content_{env}", connection_secret: "CONN" },
       }),
   });

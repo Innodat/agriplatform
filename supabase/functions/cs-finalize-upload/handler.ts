@@ -1,20 +1,18 @@
 import { handleCors as defaultHandleCors, mergeCorsHeaders as defaultMergeCors } from "../_shared/cors.ts";
-import {
-  blobExists as defaultBlobExists,
-  resolveContainerName as defaultResolveContainerName,
-} from "../_shared/azure-blob.ts";
 import { supabaseAdmin } from "../_shared/supabase.ts";
 import { HttpError, hasRole, requireAuth as defaultRequireAuth } from "../_shared/auth.ts";
 import { csFinalizeContentRequestSchema } from "@shared";
 import { ZodError } from "zod";
+import { getProvider, resolveBucketOrContainerName } from "../_shared/storage-providers/registry.ts";
+import type { StorageProvider } from "../_shared/storage-providers/types.ts";
 
 type SupabaseLike = typeof supabaseAdmin;
 
 interface Dependencies {
   handleCors: typeof defaultHandleCors;
   mergeCorsHeaders: typeof defaultMergeCors;
-  blobExists: typeof defaultBlobExists;
-  resolveContainerName: typeof defaultResolveContainerName;
+  getProvider: typeof getProvider;
+  resolveBucketOrContainerName: typeof resolveBucketOrContainerName;
   supabase: SupabaseLike;
   requireAuth: typeof defaultRequireAuth;
 }
@@ -22,8 +20,8 @@ interface Dependencies {
 const defaultDeps: Dependencies = {
   handleCors: defaultHandleCors,
   mergeCorsHeaders: defaultMergeCors,
-  blobExists: defaultBlobExists,
-  resolveContainerName: defaultResolveContainerName,
+  getProvider,
+  resolveBucketOrContainerName,
   supabase: supabaseAdmin,
   requireAuth: defaultRequireAuth,
 };
@@ -41,6 +39,7 @@ async function fetchContentRecord(supabase: SupabaseLike, contentId: string) {
       created_by,
       source:cs.content_source (
         id,
+        provider,
         settings
       )
     `,
@@ -58,7 +57,11 @@ async function fetchContentRecord(supabase: SupabaseLike, contentId: string) {
     external_key: string;
     size_bytes: number | null;
     created_by: string;
-    source: { settings: { container_name: string; connection_secret: string } };
+    source: { 
+      id: string;
+      provider: string;
+      settings: Record<string, any>;
+    };
   };
 }
 
@@ -85,30 +88,25 @@ export function createFinalizeHandler(overrides: Partial<Dependencies> = {}) {
         throw new HttpError("Forbidden", 403);
       }
 
-      const connectionString = Deno.env.get(
-        record.source.settings.connection_secret,
-      );
-      if (!connectionString) {
-        throw new HttpError(
-          `Missing secret ${record.source.settings.connection_secret}`,
-          500,
-        );
-      }
+      // Get the storage provider
+      const provider = deps.getProvider(record.source.provider, record.source.settings);
 
-      const containerName = deps.resolveContainerName(
-        record.source.settings.container_name,
+      // Resolve bucket/container name
+      const bucketOrContainer = deps.resolveBucketOrContainerName(
+        record.source.settings.container_name ?? record.source.settings.bucket_name
       );
 
-      const exists = await deps.blobExists({
-        connectionString,
-        containerName,
-        blobName: record.external_key,
+      // Check if the blob exists using the provider
+      const exists = await provider.exists({
+        bucketOrContainer,
+        path: record.external_key,
       });
 
       if (!exists.exists) {
         throw new HttpError("Blob not found. Please re-upload before finalizing.", 400);
       }
 
+      // Update content_store to mark as active
       const { error: updateError } = await deps.supabase
         .schema("cs")
         .from("content_store")

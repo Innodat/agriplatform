@@ -199,6 +199,85 @@ Frontend → PUT /functions/v1/cs-update-content
 - Flexibility: Easy to switch storage providers or add CDN
 - Auditability: All content operations logged through backend
 
+### 2.5 Content Store Provider Architecture
+
+**Pattern:** Provider Registry with Multi-Provider Support
+
+The content store system uses a provider abstraction layer that supports multiple storage backends (Azure Blob Storage, Supabase Storage) through a unified interface.
+
+**Provider Interface:**
+```typescript
+export interface StorageProvider {
+  generateReadUrl(params: ReadUrlParams): Promise<SignedUrlResult>;
+  generateUploadUrl(params: UploadUrlParams): Promise<SignedUrlResult>;
+  exists(params: ExistsParams): Promise<ExistsResult>;
+  delete(params: DeleteParams): Promise<void>;
+}
+```
+
+**Supported Providers:**
+- **Azure Blob Storage**: Uses SAS tokens for signed URLs
+- **Supabase Storage**: Uses Supabase's built-in signed URL generation
+
+**Provider Registry:**
+```typescript
+// Factory pattern for provider instantiation
+export function getProvider(
+  providerName: string,
+  settings: ProviderSettings
+): StorageProvider {
+  switch (providerName) {
+    case "azure_blob":
+      return new AzureBlobProvider(settings);
+    case "supabase_storage":
+      return new SupabaseStorageProvider(settings);
+    default:
+      throw new Error(`Unknown provider: ${providerName}`);
+  }
+}
+```
+
+**Content Versioning:**
+
+When content is updated, the system automatically archives the previous version:
+
+```
+Update Flow with Versioning:
+1. User requests content update
+2. System archives current version to cs.content_version table
+3. System generates new external_key for updated content
+4. System returns upload URL for new content
+5. User uploads new content
+6. User finalizes upload (marks content active)
+```
+
+**Database Schema:**
+- `cs.content_source`: Storage provider configurations
+- `cs.content_store`: Active content metadata
+- `cs.content_version`: Historical versions (for rollback/archival)
+
+**Provider Selection:**
+1. Check org settings for `content_source_id`
+2. If not found, use "Default Supabase Storage"
+3. Instantiate provider based on `provider` field
+4. Use provider for all storage operations
+
+**Benefits:**
+- **Multi-Provider Support**: Easy to switch between Azure, Supabase, or add new providers
+- **Version Control**: Automatic archival of previous versions when updating
+- **Tenant Isolation**: Each org can use different storage providers
+- **Type Safety**: Full TypeScript support with provider interface
+- **Testability**: Easy to mock providers in tests
+
+**File Structure:**
+```
+supabase/functions/_shared/storage-providers/
+├── types.ts                    # StorageProvider interface
+├── azure-blob-provider.ts      # Azure Blob implementation
+├── supabase-provider.ts        # Supabase Storage implementation
+└── registry.ts                 # Provider factory
+```
+
 ---
 
 ## 3. Database Schema

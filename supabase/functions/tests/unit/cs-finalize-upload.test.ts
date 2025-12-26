@@ -3,7 +3,7 @@ import { jsonRequest, parseJson } from "../helpers/request.ts";
 import {
   createSupabaseMock,
   createAuthMock,
-  createAzureMock,
+  createStorageProviderMock,
   noopCors,
 } from "../helpers/mocks.ts";
 
@@ -13,8 +13,8 @@ Deno.test("cs-finalize-upload requires content_id", async () => {
     mergeCorsHeaders: noopCors.mergeCorsHeaders,
     supabase: createSupabaseMock() as any,
     requireAuth: createAuthMock().requireAuth as any,
-    blobExists: createAzureMock().blobExists,
-    resolveContainerName: createAzureMock().resolveContainerName,
+    getProvider: () => createStorageProviderMock() as any,
+    resolveBucketOrContainerName: (name: string) => name.replace("{env}", "test"),
   });
 
   const req = jsonRequest("https://example.com/finalize", "POST", {});
@@ -33,19 +33,23 @@ Deno.test("cs-finalize-upload verifies blob and marks active", async () => {
     external_key: "receipts/user-123/file.jpg",
     size_bytes: 512,
     created_by: "user-123",
-    source: { settings: { container_name: "content_{env}", connection_secret: "CONN" } },
+    source: { 
+      id: "source-1",
+      provider: "azure_blob",
+      settings: { container_name: "content_{env}", connection_secret: "CONN" } 
+    },
   });
 
   const auth = createAuthMock();
-  const azure = createAzureMock();
+  const provider = createStorageProviderMock();
 
   const handler = createFinalizeHandler({
     handleCors: noopCors.handleCors,
     mergeCorsHeaders: noopCors.mergeCorsHeaders,
     supabase: supabase as any,
     requireAuth: auth.requireAuth as any,
-    blobExists: azure.blobExists,
-    resolveContainerName: azure.resolveContainerName,
+    getProvider: () => provider as any,
+    resolveBucketOrContainerName: (name: string) => name.replace("{env}", "test"),
   });
 
   Deno.env.set("CONN", "UseDevelopmentStorage=true");

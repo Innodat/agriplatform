@@ -98,3 +98,28 @@ export const noopCors = {
   handleCors: () => null,
   mergeCorsHeaders: (headers: HeadersInit = {}) => new Headers(headers),
 };
+
+/**
+ * Create a mock StorageProvider for testing
+ */
+export function createStorageProviderMock() {
+  let blobState: { exists: boolean; size?: number } = { exists: true, size: 256 };
+
+  return {
+    generateReadUrl: () =>
+      Promise.resolve({
+        url: "https://example.com/read",
+        expiresAt: new Date(Date.now() + 15 * 60 * 1000),
+      }),
+    generateUploadUrl: () =>
+      Promise.resolve({
+        url: "https://example.com/upload",
+        expiresAt: new Date(Date.now() + 15 * 60 * 1000),
+      }),
+    exists: () => Promise.resolve(blobState),
+    delete: () => Promise.resolve(),
+    _setBlobState(state: { exists: boolean; size?: number }) {
+      blobState = state;
+    },
+  };
+}

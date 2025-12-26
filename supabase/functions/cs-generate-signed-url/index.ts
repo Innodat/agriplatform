@@ -1,13 +1,10 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { handleCors, mergeCorsHeaders } from "../_shared/cors.ts";
-import {
-  generateSignedBlobUrl,
-  resolveContainerName,
-} from "../_shared/azure-blob.ts";
 import { supabaseAdmin } from "../_shared/supabase.ts";
 import { HttpError, hasRole, requireAuth } from "../_shared/auth.ts";
 import { csGenerateSignedUrlParamsSchema } from "@shared";
 import { ZodError } from "zod";
+import { getProvider, resolveBucketOrContainerName } from "../_shared/storage-providers/registry.ts";
 
 serve(async (req) => {
   try {
@@ -36,6 +33,7 @@ serve(async (req) => {
         is_active,
         created_by,
         source:cs.content_source (
+          provider,
           settings
         )
       `,
@@ -47,37 +45,47 @@ serve(async (req) => {
       throw new HttpError("Not found", 404);
     }
 
-    if (!data.is_active) {
+    const record = data as unknown as {
+      id: string;
+      external_key: string;
+      is_active: boolean;
+      created_by: string;
+      source: {
+        provider: string;
+        settings: Record<string, any>;
+      };
+    };
+
+    if (!record.is_active) {
       throw new HttpError("Content not finalized", 409);
     }
 
-    const isOwner = data.created_by === auth.userId;
+    const isOwner = record.created_by === auth.userId;
     const isAdmin = hasRole(auth, ["admin", "financeadmin"]);
     if (!isOwner && !isAdmin) {
       throw new HttpError("Forbidden", 403);
     }
 
-    const settings = data.source.settings;
-    const secretName = settings.connection_secret;
-    const connectionString = Deno.env.get(secretName);
-    if (!connectionString) {
-      throw new HttpError(`Secret ${secretName} not found`, 500);
-    }
+    // Get the storage provider
+    const provider = getProvider(record.source.provider, record.source.settings);
 
-    const containerName = resolveContainerName(settings.container_name);
+    // Resolve bucket/container name
+    const bucketOrContainer = resolveBucketOrContainerName(
+      record.source.settings.container_name ?? record.source.settings.bucket_name
+    );
 
-    const sas = generateSignedBlobUrl({
-      connectionString,
-      containerName,
-      blobName: data.external_key,
+    // Generate read URL using the provider
+    const readUrlResult = await provider.generateReadUrl({
+      bucketOrContainer,
+      path: record.external_key,
       permissions: "r",
       expiresInMinutes: 15,
     });
 
     return new Response(
       JSON.stringify({
-        signed_url: sas.url,
-        expires_at: sas.expiresAt.toISOString(),
+        signed_url: readUrlResult.url,
+        expires_at: readUrlResult.expiresAt.toISOString(),
       }),
       {
         headers: mergeCorsHeaders({ "Content-Type": "application/json" }),
