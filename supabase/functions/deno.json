@@ -1,20 +1,19 @@
 {
   "imports": {
-    "@shared": "../../../packages/shared/index.deno.ts",
+    "@shared": "../../packages/shared/index.deno.ts",
     "@supabase/supabase-js": "npm:@supabase/supabase-js@2.76.1",
     "@azure/storage-blob": "npm:@azure/storage-blob@12.29.1",
-    "@schemas/finance": "../../../packages/shared/schemas/zod/finance/index.deno.ts",
-    "@schemas/content-system": "../../../packages/shared/schemas/zod/content-system/index.ts",
-    "@schemas/identity": "../../../packages/shared/schemas/zod/identity/index.deno.ts",
-    "@schemas/auth": "../../../packages/shared/schemas/zod/auth/index.deno.ts",
-    "@services/finance/receipt.service": "../../../packages/shared/services/finance/receipt.service.ts",
-    "@services/finance/purchase.service": "../../../packages/shared/services/finance/purchase.service.ts",
-    "@services/finance/reference.service": "../../../packages/shared/services/finance/reference.service.ts",
-    "@lib/supabase-factory": "../../../packages/shared/lib/supabase-factory.ts",
+    "@schemas/finance": "../../packages/shared/schemas/zod/finance/index.deno.ts",
+    "@schemas/content-system": "../../packages/shared/schemas/zod/content-system/index.ts",
+    "@schemas/identity": "../../packages/shared/schemas/zod/identity/index.deno.ts",
+    "@schemas/auth": "../../packages/shared/schemas/zod/auth/index.deno.ts",
+    "@services/finance/receipt.service": "../../packages/shared/services/finance/receipt.service.ts",
+    "@services/finance/purchase.service": "../../packages/shared/services/finance/purchase.service.ts",
+    "@services/finance/reference.service": "../../packages/shared/services/finance/reference.service.ts",
+    "@lib/supabase-factory": "../../packages/shared/lib/supabase-factory.ts",
     "zod": "npm:zod@^3.24.1"
   },
   "tasks": {
     "test": "deno test --allow-all supabase/functions/tests/integration/"
   }
-
 }

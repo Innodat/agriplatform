@@ -1,4 +1,4 @@
-import { createFinalizeHandler } from "../../cs-finalize-upload/handler.ts";
+import { handleFinalizeUpload } from "../../cs-finalize-upload/handler.ts";
 import { jsonRequest, parseJson } from "../helpers/request.ts";
 import {
   createSupabaseMock,
@@ -8,17 +8,19 @@ import {
 } from "../helpers/mocks.ts";
 
 Deno.test("cs-finalize-upload requires content_id", async () => {
-  const handler = createFinalizeHandler({
-    handleCors: noopCors.handleCors,
-    mergeCorsHeaders: noopCors.mergeCorsHeaders,
-    supabase: createSupabaseMock() as any,
-    requireAuth: createAuthMock().requireAuth as any,
-    getProvider: () => createStorageProviderMock() as any,
-    resolveBucketOrContainerName: (name: string) => name.replace("{env}", "test"),
-  });
+  const supabase = createSupabaseMock();
+  const auth = createAuthMock();
+  const provider = createStorageProviderMock();
 
   const req = jsonRequest("https://example.com/finalize", "POST", {});
-  const res = await handler(req);
+  const res = await handleFinalizeUpload(req, {
+    supabase: supabase as any,
+    requireAuth: auth.requireAuth as any,
+    getProvider: () => provider as any,
+    resolveBucketOrContainerName: (name: string) => name.replace("{env}", "test"),
+    handleCors: noopCors.handleCors,
+    mergeCorsHeaders: noopCors.mergeCorsHeaders,
+  });
   const body = await parseJson(res);
 
   if (res.status !== 400 || body.error !== "content_id is required") {
@@ -43,24 +45,20 @@ Deno.test("cs-finalize-upload verifies blob and marks active", async () => {
   const auth = createAuthMock();
   const provider = createStorageProviderMock();
 
-  const handler = createFinalizeHandler({
-    handleCors: noopCors.handleCors,
-    mergeCorsHeaders: noopCors.mergeCorsHeaders,
-    supabase: supabase as any,
-    requireAuth: auth.requireAuth as any,
-    getProvider: () => provider as any,
-    resolveBucketOrContainerName: (name: string) => name.replace("{env}", "test"),
-  });
-
-  Deno.env.set("CONN", "UseDevelopmentStorage=true");
-
   const req = jsonRequest(
     "https://example.com/finalize",
     "POST",
     { content_id: "00000000-0000-0000-0000-000000000001" },
   );
 
-  const res = await handler(req);
+  const res = await handleFinalizeUpload(req, {
+    supabase: supabase as any,
+    requireAuth: auth.requireAuth as any,
+    getProvider: () => provider as any,
+    resolveBucketOrContainerName: (name: string) => name.replace("{env}", "test"),
+    handleCors: noopCors.handleCors,
+    mergeCorsHeaders: noopCors.mergeCorsHeaders,
+  });
   const body = await parseJson(res);
 
   if (res.status !== 200) {

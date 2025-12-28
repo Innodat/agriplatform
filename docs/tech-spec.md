@@ -166,38 +166,53 @@ Backend Architecture (Current):
 
 ### 2.4 Content System Architecture
 
-**Pattern:** Hexagonal/Clean Architecture
+**Pattern:** Hexagonal/Clean Architecture with Provider Abstraction
 
-The content system decouples media/file storage from business domains, providing a secure, flexible layer for all content operations.
+The content system decouples media/file storage from business domains, providing a secure, flexible layer for all content operations. It supports multiple storage providers (Azure Blob, Supabase Storage) through a unified provider interface.
 
 ```
 Content System Flow:
 
 Upload:
 Frontend → POST /functions/v1/cs-upload-content
-        → Backend returns signed upload URL
-        → Frontend uploads to Azure Blob
-        → POST /functions/v1/cs-finalize-upload
+        → Backend creates content_store record (inactive)
+        → Backend generates signed upload URL via provider
+        → Frontend uploads directly to provider (Azure/Supabase)
+        → POST /functions/v1/cs-finalize-upload (verifies blob, marks active)
 
 Download:
 Frontend → GET /functions/v1/cs-generate-signed-url?id={id}
-        → Backend returns signed download URL
+        → Backend returns signed read URL via provider
 
-Update:
+Update with Versioning:
 Frontend → PUT /functions/v1/cs-update-content
-        → Backend updates metadata and returns signed upload URL (if re-upload needed)
+        → Backend archives current version to cs.content_version
+        → Backend generates new external_key
+        → Backend returns signed upload URL for new content
+        → Frontend uploads new content
+        → POST /functions/v1/cs-finalize-upload (marks new version active)
 ```
 
 **Database Schema (cs schema):**
-- `cs.content_source`: Storage provider configurations (Azure Blob, future: S3)
-- `cs.content_store`: Content metadata (external_key, mime_type, size, checksum)
+- `cs.content_source`: Storage provider configurations (Azure Blob, Supabase Storage)
+- `cs.content_store`: Active content metadata (external_key, mime_type, size, checksum, is_active)
+- `cs.content_version`: Historical versions (version_number, external_key, replaced_by)
 - `cs.receipt_content`: Domain mapping (receipt_id → content_id with role)
 
+**Provider Selection Logic:**
+1. Check org.settings.content_source_id for tenant-specific provider
+2. If not found, use "Default Supabase Storage" (fallback)
+3. Instantiate provider based on content_source.provider field
+4. Use provider for all storage operations (read, upload, exists, delete)
+
 **Benefits:**
-- Domain separation: Finance doesn't know about Azure Blob details
-- Security: All access controlled through backend with JWT validation
-- Flexibility: Easy to switch storage providers or add CDN
-- Auditability: All content operations logged through backend
+- **Multi-Provider Support**: Easy to switch between Azure, Supabase, or add new providers
+- **Tenant Isolation**: Each org can use different storage providers
+- **Version Control**: Automatic archival of previous versions when updating
+- **Domain Separation**: Finance doesn't know about storage provider details
+- **Security**: All access controlled through backend with JWT validation
+- **Flexibility**: Easy to add CDN or change storage backends
+- **Auditability**: All content operations logged through backend
 
 ### 2.5 Content Store Provider Architecture
 

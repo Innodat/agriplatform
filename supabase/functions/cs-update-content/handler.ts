@@ -1,10 +1,8 @@
 import { handleCors as defaultHandleCors, mergeCorsHeaders as defaultMergeCors } from "../_shared/cors.ts";
-import { supabaseAdmin } from "../_shared/supabase.ts";
 import { HttpError, hasRole, requireAuth as defaultRequireAuth } from "../_shared/auth.ts";
+import { supabaseAdmin } from "../_shared/supabase.ts";
 import { csUpdateContentRequestSchema } from "@shared";
-import { ZodError } from "zod";
 import { getProvider, resolveBucketOrContainerName } from "../_shared/storage-providers/registry.ts";
-import type { StorageProvider } from "../_shared/storage-providers/types.ts";
 
 const DEFAULT_PREFIX = "receipts";
 
@@ -13,30 +11,7 @@ function buildExternalKey(mimeType: string, userId: string) {
   return `${DEFAULT_PREFIX}/${userId}/${crypto.randomUUID()}.${extension}`;
 }
 
-type SupabaseLike = typeof supabaseAdmin;
-
-interface Dependencies {
-  handleCors: typeof defaultHandleCors;
-  mergeCorsHeaders: typeof defaultMergeCors;
-  getProvider: typeof getProvider;
-  resolveBucketOrContainerName: typeof resolveBucketOrContainerName;
-  supabase: SupabaseLike;
-  requireAuth: typeof defaultRequireAuth;
-}
-
-const defaultDeps: Dependencies = {
-  handleCors: defaultHandleCors,
-  mergeCorsHeaders: defaultMergeCors,
-  getProvider,
-  resolveBucketOrContainerName,
-  supabase: supabaseAdmin,
-  requireAuth: defaultRequireAuth,
-};
-
-async function fetchContentRecord(
-  supabase: SupabaseLike,
-  contentId: string,
-) {
+async function fetchContentRecord(supabase: typeof supabaseAdmin, contentId: string) {
   const { data, error } = await supabase
     .schema("cs")
     .from("content_store")
@@ -81,138 +56,158 @@ async function fetchContentRecord(
   };
 }
 
-export function createUpdateHandler(overrides: Partial<Dependencies> = {}) {
-  const deps = { ...defaultDeps, ...overrides };
+export async function handleUpdateContent(
+  req: Request,
+  options: {
+    supabase?: typeof supabaseAdmin;
+    requireAuth?: typeof defaultRequireAuth;
+    handleCors?: typeof defaultHandleCors;
+    mergeCorsHeaders?: typeof defaultMergeCors;
+    getProvider?: typeof getProvider;
+    resolveBucketOrContainerName?: typeof resolveBucketOrContainerName;
+  } = {},
+): Promise<Response> {
+  const {
+    supabase = supabaseAdmin,
+    requireAuth = defaultRequireAuth,
+    handleCors = defaultHandleCors,
+    mergeCorsHeaders = defaultMergeCors,
+    getProvider,
+    resolveBucketOrContainerName: resolveContainer = resolveBucketOrContainerName,
+  } = options;
 
-  return async function handler(req: Request): Promise<Response> {
-    try {
-      const corsResponse = deps.handleCors(req);
-      if (corsResponse) return corsResponse;
+  try {
+    const corsResponse = handleCors(req);
+    if (corsResponse) return corsResponse;
 
-      if (req.method !== "PUT") {
-        throw new HttpError("Method not allowed", 405);
-      }
+    if (req.method !== "PUT") {
+      throw new HttpError("Method not allowed", 405);
+    }
 
-      const auth = await deps.requireAuth(req);
-      const payload = csUpdateContentRequestSchema.parse(await req.json());
+    const auth = await requireAuth(req);
+    const payload = csUpdateContentRequestSchema.parse(await req.json());
 
-      const record = await fetchContentRecord(deps.supabase, payload.content_id);
+    const record = await fetchContentRecord(supabase, payload.content_id);
 
-      const isOwner = auth.userId === record.created_by;
-      const isAdmin = hasRole(auth, ["admin", "financeadmin"]);
-      if (!isOwner && !isAdmin) {
-        throw new HttpError("Forbidden", 403);
-      }
+    const isOwner = auth.userId === record.created_by;
+    const isAdmin = hasRole(auth, ["admin", "financeadmin"]);
+    if (!isOwner && !isAdmin) {
+      throw new HttpError("Forbidden", 403);
+    }
 
-      // Get the storage provider
-      const provider = deps.getProvider(record.source.provider, record.source.settings);
+    // Get the storage provider
+    const provider = getProvider?.(record.source.provider, record.source.settings) ?? 
+      getProvider!(record.source.provider, record.source.settings);
 
-      // Resolve bucket/container name
-      const bucketOrContainer = deps.resolveBucketOrContainerName(
-        record.source.settings.container_name ?? record.source.settings.bucket_name
-      );
+    // Resolve bucket/container name
+    const bucketOrContainer = resolveContainer(
+      record.source.settings.container_name ?? record.source.settings.bucket_name
+    );
 
-      // Archive current version before updating
-      // Get the next version number
-      const { data: versions } = await deps.supabase
-        .schema("cs")
-        .from("content_version")
-        .select("version_number")
-        .eq("content_id", record.id)
-        .order("version_number", { ascending: false })
-        .limit(1);
+    // Archive current version before updating
+    // Get the next version number
+    const { data: versions } = await supabase
+      .schema("cs")
+      .from("content_version")
+      .select("version_number")
+      .eq("content_id", record.id)
+      .order("version_number", { ascending: false })
+      .limit(1);
 
-      const nextVersion = (versions && versions.length > 0 ? versions[0].version_number : 0) + 1;
+    const nextVersion = (versions && versions.length > 0 ? versions[0].version_number : 0) + 1;
 
-      // Insert the current version into content_version table
-      const { error: versionError } = await deps.supabase
-        .schema("cs")
-        .from("content_version")
-        .insert({
-          content_id: record.id,
-          version_number: nextVersion,
-          external_key: record.external_key,
-          mime_type: record.mime_type,
-          size_bytes: record.size_bytes,
-          checksum: record.checksum,
-          metadata: record.metadata,
-          replaced_by: auth.userId,
-        });
-
-      if (versionError) {
-        console.error("Failed to create version record:", versionError);
-        throw new HttpError("Failed to archive current version", 500);
-      }
-
-      // Generate new external key for the updated content
-      const newMimeType = payload.mime_type ?? record.mime_type;
-      const newExternalKey = buildExternalKey(newMimeType, auth.userId);
-
-      // Update content_store with new key and mark inactive
-      const updates: Record<string, unknown> = {
-        external_key: newExternalKey,
-        updated_by: auth.userId,
-        is_active: false,
-      };
-
-      if (payload.mime_type) updates.mime_type = payload.mime_type;
-      if (payload.size_bytes !== undefined) updates.size_bytes = payload.size_bytes;
-      if (payload.checksum !== undefined) updates.checksum = payload.checksum;
-      if (payload.metadata !== undefined) updates.metadata = payload.metadata;
-
-      const { error: updateError } = await deps.supabase
-        .schema("cs")
-        .from("content_store")
-        .update(updates)
-        .eq("id", record.id);
-
-      if (updateError) {
-        throw new HttpError("Failed to update content metadata", 500);
-      }
-
-      // Generate upload URL for the new content
-      const uploadUrlResult = await provider.generateUploadUrl({
-        bucketOrContainer,
-        path: newExternalKey,
-        contentType: newMimeType,
-        expectedSizeBytes: payload.size_bytes,
-        checksumBase64: payload.checksum,
-        expiresInMinutes: 15,
+    // Insert the current version into content_version table
+    const { error: versionError } = await supabase
+      .schema("cs")
+      .from("content_version")
+      .insert({
+        content_id: record.id,
+        version_number: nextVersion,
+        external_key: record.external_key,
+        mime_type: record.mime_type,
+        size_bytes: record.size_bytes,
+        checksum: record.checksum,
+        metadata: record.metadata,
+        replaced_by: auth.userId,
       });
 
-      return new Response(
-        JSON.stringify({
-          content_id: record.id,
-          upload_url: uploadUrlResult.url,
-          external_key: newExternalKey,
-          expires_at: uploadUrlResult.expiresAt.toISOString(),
-          version_archived: nextVersion,
-        }),
-        { headers: deps.mergeCorsHeaders({ "Content-Type": "application/json" }) },
-      );
-    } catch (error) {
-      if (error instanceof ZodError) {
-        const issue = error.issues[0];
-        return new Response(JSON.stringify({ error: issue?.message ?? "Invalid payload" }), {
-          status: 400,
-          headers: deps.mergeCorsHeaders({ "Content-Type": "application/json" }),
-        });
-      }
+    if (versionError) {
+      console.error("Failed to create version record:", versionError);
+      throw new HttpError("Failed to archive current version", 500);
+    }
 
-      if (error instanceof HttpError) {
-        return new Response(JSON.stringify({ error: error.message }), {
-          status: error.status,
-          headers: deps.mergeCorsHeaders({ "Content-Type": "application/json" }),
-        });
-      }
+    // Generate new external key for the updated content
+    const newMimeType = payload.mime_type ?? record.mime_type;
+    const newExternalKey = buildExternalKey(newMimeType, auth.userId);
 
-      console.error("cs-update-content error:", error);
-      return new Response(JSON.stringify({ error: "Internal Server Error" }), {
-        status: 500,
-        headers: deps.mergeCorsHeaders({ "Content-Type": "application/json" }),
+    // Update content_store with new key and mark inactive
+    const updates: Record<string, unknown> = {
+      external_key: newExternalKey,
+      updated_by: auth.userId,
+      is_active: false,
+    };
+
+    if (payload.mime_type) updates.mime_type = payload.mime_type;
+    if (payload.size_bytes !== undefined) updates.size_bytes = payload.size_bytes;
+    if (payload.checksum !== undefined) updates.checksum = payload.checksum;
+    if (payload.metadata !== undefined) updates.metadata = payload.metadata;
+
+    const { error: updateError } = await supabase
+      .schema("cs")
+      .from("content_store")
+      .update(updates)
+      .eq("id", record.id);
+
+    if (updateError) {
+      throw new HttpError("Failed to update content metadata", 500);
+    }
+
+    // Generate upload URL for the new content
+    const uploadUrlResult = await provider.generateUploadUrl({
+      bucketOrContainer,
+      path: newExternalKey,
+      contentType: newMimeType,
+      expectedSizeBytes: payload.size_bytes,
+      checksumBase64: payload.checksum,
+      expiresInMinutes: 15,
+    });
+
+    return new Response(
+      JSON.stringify({
+        content_id: record.id,
+        upload_url: uploadUrlResult.url,
+        external_key: newExternalKey,
+        expires_at: uploadUrlResult.expiresAt.toISOString(),
+        version_archived: nextVersion,
+      }),
+      { headers: mergeCorsHeaders({ "Content-Type": "application/json" }) },
+    );
+  } catch (error) {
+    // Check for ZodError by checking for 'issues' property
+    // (Zod may be loaded from different module instances)
+    const isZodError = error && typeof error === "object" && "issues" in error && Array.isArray((error as any).issues);
+    if (isZodError) {
+      const issue = (error as any).issues[0];
+      return new Response(JSON.stringify({ error: issue?.message ?? "Invalid payload" }), {
+        status: 400,
+        headers: mergeCorsHeaders({ "Content-Type": "application/json" }),
       });
     }
-  };
+
+    if (error instanceof HttpError) {
+      return new Response(JSON.stringify({ error: error.message }), {
+        status: error.status,
+        headers: mergeCorsHeaders({ "Content-Type": "application/json" }),
+      });
+    }
+
+    console.error("cs-update-content error:", error);
+    return new Response(JSON.stringify({ error: "Internal Server Error" }), {
+      status: 500,
+      headers: mergeCorsHeaders({ "Content-Type": "application/json" }),
+    });
+  }
 }
 
-export const handler = createUpdateHandler();
+// Default export for Supabase Functions
+export const handler = handleUpdateContent;

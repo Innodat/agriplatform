@@ -3,13 +3,19 @@ import { HttpError } from "../../_shared/auth.ts";
 type SelectResult = { row: Record<string, unknown> | null; error: Error | null };
 
 export function createSupabaseMock() {
-  let selectResult: SelectResult = { row: null, error: null };
+  let selectResults: SelectResult[] = [{ row: null, error: null }];
+  let selectIndex = 0;
   const insertedRows: Record<string, unknown>[] = [];
   const updatedRows: Record<string, unknown>[] = [];
 
   const mock = {
     _setSelectResult(row: Record<string, unknown> | null, error: Error | null = null) {
-      selectResult = { row, error };
+      selectResults = [{ row, error }];
+      selectIndex = 0;
+    },
+    _setSelectResults(results: (SelectResult | null)[]) {
+      selectResults = results.map(r => r ?? { row: null, error: null });
+      selectIndex = 0;
     },
     _getInsertedRows() {
       return insertedRows;
@@ -36,13 +42,15 @@ export function createSupabaseMock() {
       return this;
     },
     single() {
-      if (selectResult.error) {
-        return { data: null, error: selectResult.error };
+      const currentResult = selectResults[selectIndex] || selectResults[selectResults.length - 1];
+      selectIndex++;
+      if (currentResult.error) {
+        return { data: null, error: currentResult.error };
       }
-      if (!selectResult.row) {
+      if (!currentResult.row) {
         return { data: null, error: new HttpError("Not found", 404) };
       }
-      return { data: selectResult.row, error: null };
+      return { data: currentResult.row, error: null };
     },
     insert(payload: Record<string, unknown>) {
       insertedRows.push(payload);
@@ -68,12 +76,13 @@ export function createSupabaseMock() {
   return mock;
 }
 
-export function createAuthMock(userId = "user-123", roles: string[] = []) {
+export function createAuthMock(userId = "user-123", roles: string[] = [], payload?: Record<string, unknown>) {
   return {
     requireAuth: () =>
       Promise.resolve({
         userId,
         roles,
+        payload: payload ?? { org_id: "org-123" },
       }),
   };
 }

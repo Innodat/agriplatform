@@ -1,4 +1,4 @@
-import { createUpdateHandler } from "../../cs-update-content/handler.ts";
+import { handleUpdateContent } from "../../cs-update-content/handler.ts";
 import { jsonRequest, parseJson } from "../helpers/request.ts";
 import {
   createSupabaseMock,
@@ -12,17 +12,15 @@ Deno.test("cs-update-content requires content_id", async () => {
   const auth = createAuthMock();
   const provider = createStorageProviderMock();
 
-  const handler = createUpdateHandler({
-    handleCors: noopCors.handleCors,
-    mergeCorsHeaders: noopCors.mergeCorsHeaders,
+  const req = jsonRequest("https://example.com/update", "PUT", {});
+  const res = await handleUpdateContent(req, {
     supabase: supabase as any,
     requireAuth: auth.requireAuth as any,
     getProvider: () => provider as any,
     resolveBucketOrContainerName: (name: string) => name.replace("{env}", "test"),
+    handleCors: noopCors.handleCors,
+    mergeCorsHeaders: noopCors.mergeCorsHeaders,
   });
-
-  const req = jsonRequest("https://example.com/update", "PUT", {});
-  const res = await handler(req);
   const body = await parseJson(res);
 
   if (res.status !== 400 || body.error !== "content_id is required") {
@@ -50,24 +48,20 @@ Deno.test("cs-update-content updates metadata and returns signed URL with versio
   const auth = createAuthMock();
   const provider = createStorageProviderMock();
 
-  const handler = createUpdateHandler({
-    handleCors: noopCors.handleCors,
-    mergeCorsHeaders: noopCors.mergeCorsHeaders,
-    supabase: supabase as any,
-    requireAuth: auth.requireAuth as any,
-    getProvider: () => provider as any,
-    resolveBucketOrContainerName: (name: string) => name.replace("{env}", "test"),
-  });
-
-  Deno.env.set("CONN", "UseDevelopmentStorage=true");
-
   const req = jsonRequest(
     "https://example.com/update",
     "PUT",
     { content_id: "00000000-0000-0000-0000-000000000001", mime_type: "image/jpeg" },
   );
 
-  const res = await handler(req);
+  const res = await handleUpdateContent(req, {
+    supabase: supabase as any,
+    requireAuth: auth.requireAuth as any,
+    getProvider: () => provider as any,
+    resolveBucketOrContainerName: (name: string) => name.replace("{env}", "test"),
+    handleCors: noopCors.handleCors,
+    mergeCorsHeaders: noopCors.mergeCorsHeaders,
+  });
   const body = await parseJson(res);
 
   if (res.status !== 200) {

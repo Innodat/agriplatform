@@ -12,9 +12,5 @@
     "@services/finance/reference.service": "../../../packages/shared/services/finance/reference.service.ts",
     "@lib/supabase-factory": "../../../packages/shared/lib/supabase-factory.ts",
     "zod": "npm:zod@^3.24.1"
-  },
-  "tasks": {
-    "test": "deno test --allow-all supabase/functions/tests/integration/"
   }
-
 }

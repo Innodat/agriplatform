@@ -1,32 +1,10 @@
 import { handleCors as defaultHandleCors, mergeCorsHeaders as defaultMergeCors } from "../_shared/cors.ts";
-import { supabaseAdmin } from "../_shared/supabase.ts";
 import { HttpError, hasRole, requireAuth as defaultRequireAuth } from "../_shared/auth.ts";
+import { supabaseAdmin } from "../_shared/supabase.ts";
 import { csFinalizeContentRequestSchema } from "@shared";
-import { ZodError } from "zod";
 import { getProvider, resolveBucketOrContainerName } from "../_shared/storage-providers/registry.ts";
-import type { StorageProvider } from "../_shared/storage-providers/types.ts";
 
-type SupabaseLike = typeof supabaseAdmin;
-
-interface Dependencies {
-  handleCors: typeof defaultHandleCors;
-  mergeCorsHeaders: typeof defaultMergeCors;
-  getProvider: typeof getProvider;
-  resolveBucketOrContainerName: typeof resolveBucketOrContainerName;
-  supabase: SupabaseLike;
-  requireAuth: typeof defaultRequireAuth;
-}
-
-const defaultDeps: Dependencies = {
-  handleCors: defaultHandleCors,
-  mergeCorsHeaders: defaultMergeCors,
-  getProvider,
-  resolveBucketOrContainerName,
-  supabase: supabaseAdmin,
-  requireAuth: defaultRequireAuth,
-};
-
-async function fetchContentRecord(supabase: SupabaseLike, contentId: string) {
+async function fetchContentRecord(supabase: typeof supabaseAdmin, contentId: string) {
   const { data, error } = await supabase
     .schema("cs")
     .from("content_store")
@@ -65,94 +43,113 @@ async function fetchContentRecord(supabase: SupabaseLike, contentId: string) {
   };
 }
 
-export function createFinalizeHandler(overrides: Partial<Dependencies> = {}) {
-  const deps = { ...defaultDeps, ...overrides };
+export async function handleFinalizeUpload(
+  req: Request,
+  options: {
+    supabase?: typeof supabaseAdmin;
+    requireAuth?: typeof defaultRequireAuth;
+    handleCors?: typeof defaultHandleCors;
+    mergeCorsHeaders?: typeof defaultMergeCors;
+    getProvider?: typeof getProvider;
+    resolveBucketOrContainerName?: typeof resolveBucketOrContainerName;
+  } = {},
+): Promise<Response> {
+  const {
+    supabase = supabaseAdmin,
+    requireAuth = defaultRequireAuth,
+    handleCors = defaultHandleCors,
+    mergeCorsHeaders = defaultMergeCors,
+    getProvider,
+    resolveBucketOrContainerName: resolveContainer = resolveBucketOrContainerName,
+  } = options;
 
-  return async function handler(req: Request): Promise<Response> {
-    try {
-      const corsResponse = deps.handleCors(req);
-      if (corsResponse) return corsResponse;
+  try {
+    const corsResponse = handleCors(req);
+    if (corsResponse) return corsResponse;
 
-      if (req.method !== "POST") {
-        throw new HttpError("Method not allowed", 405);
-      }
+    if (req.method !== "POST") {
+      throw new HttpError("Method not allowed", 405);
+    }
 
-      const auth = await deps.requireAuth(req);
-      const payload = csFinalizeContentRequestSchema.parse(await req.json());
+    const auth = await requireAuth(req);
+    const payload = csFinalizeContentRequestSchema.parse(await req.json());
 
-      const record = await fetchContentRecord(deps.supabase, payload.content_id);
-      const isOwner = auth.userId === record.created_by;
-      const isAdmin = hasRole(auth, ["admin", "financeadmin"]);
+    const record = await fetchContentRecord(supabase, payload.content_id);
+    const isOwner = auth.userId === record.created_by;
+    const isAdmin = hasRole(auth, ["admin", "financeadmin"]);
 
-      if (!isOwner && !isAdmin) {
-        throw new HttpError("Forbidden", 403);
-      }
+    if (!isOwner && !isAdmin) {
+      throw new HttpError("Forbidden", 403);
+    }
 
-      // Get the storage provider
-      const provider = deps.getProvider(record.source.provider, record.source.settings);
+    // Get the storage provider
+    const provider = getProvider?.(record.source.provider, record.source.settings) ?? 
+      getProvider!(record.source.provider, record.source.settings);
 
-      // Resolve bucket/container name
-      const bucketOrContainer = deps.resolveBucketOrContainerName(
-        record.source.settings.container_name ?? record.source.settings.bucket_name
-      );
+    // Resolve bucket/container name
+    const bucketOrContainer = resolveContainer(
+      record.source.settings.container_name ?? record.source.settings.bucket_name
+    );
 
-      // Check if the blob exists using the provider
-      const exists = await provider.exists({
-        bucketOrContainer,
-        path: record.external_key,
-      });
+    // Check if the blob exists using the provider
+    const exists = await provider.exists({
+      bucketOrContainer,
+      path: record.external_key,
+    });
 
-      if (!exists.exists) {
-        throw new HttpError("Blob not found. Please re-upload before finalizing.", 400);
-      }
+    if (!exists.exists) {
+      throw new HttpError("Blob not found. Please re-upload before finalizing.", 400);
+    }
 
-      // Update content_store to mark as active
-      const { error: updateError } = await deps.supabase
-        .schema("cs")
-        .from("content_store")
-        .update({
-          is_active: true,
-          size_bytes: exists.size ?? record.size_bytes,
-          updated_by: auth.userId,
-        })
-        .eq("id", record.id);
+    // Update content_store to mark as active
+    const { error: updateError } = await supabase
+      .schema("cs")
+      .from("content_store")
+      .update({
+        is_active: true,
+        size_bytes: exists.size ?? record.size_bytes,
+        updated_by: auth.userId,
+      })
+      .eq("id", record.id);
 
-      if (updateError) {
-        throw new HttpError("Failed to finalize content", 500);
-      }
+    if (updateError) {
+      throw new HttpError("Failed to finalize content", 500);
+    }
 
-      return new Response(
-        JSON.stringify({
-          success: true,
-          content_id: record.id,
-          external_key: record.external_key,
-          verified_size: exists.size ?? null,
-        }),
-        { headers: deps.mergeCorsHeaders({ "Content-Type": "application/json" }) },
-      );
-    } catch (error) {
-      if (error instanceof ZodError) {
-        const issue = error.issues[0];
-        return new Response(JSON.stringify({ error: issue?.message ?? "Invalid payload" }), {
-          status: 400,
-          headers: deps.mergeCorsHeaders({ "Content-Type": "application/json" }),
-        });
-      }
-
-      if (error instanceof HttpError) {
-        return new Response(JSON.stringify({ error: error.message }), {
-          status: error.status,
-          headers: deps.mergeCorsHeaders({ "Content-Type": "application/json" }),
-        });
-      }
-
-      console.error("cs-finalize-upload error:", error);
-      return new Response(JSON.stringify({ error: "Internal Server Error" }), {
-        status: 500,
-        headers: deps.mergeCorsHeaders({ "Content-Type": "application/json" }),
+    return new Response(
+      JSON.stringify({
+        success: true,
+        content_id: record.id,
+        external_key: record.external_key,
+        verified_size: exists.size ?? null,
+      }),
+      { headers: mergeCorsHeaders({ "Content-Type": "application/json" }) },
+    );
+  } catch (error) {
+    // Check for ZodError by checking for 'issues' property
+    const isZodError = error && typeof error === "object" && "issues" in error && Array.isArray((error as any).issues);
+    if (isZodError) {
+      const issue = (error as any).issues[0];
+      return new Response(JSON.stringify({ error: issue?.message ?? "Invalid payload" }), {
+        status: 400,
+        headers: mergeCorsHeaders({ "Content-Type": "application/json" }),
       });
     }
-  };
+
+    if (error instanceof HttpError) {
+      return new Response(JSON.stringify({ error: error.message }), {
+        status: error.status,
+        headers: mergeCorsHeaders({ "Content-Type": "application/json" }),
+      });
+    }
+
+    console.error("cs-finalize-upload error:", error);
+    return new Response(JSON.stringify({ error: "Internal Server Error" }), {
+      status: 500,
+      headers: mergeCorsHeaders({ "Content-Type": "application/json" }),
+    });
+  }
 }
 
-export const handler = createFinalizeHandler();
+// Default export for Supabase Functions
+export const handler = handleFinalizeUpload;

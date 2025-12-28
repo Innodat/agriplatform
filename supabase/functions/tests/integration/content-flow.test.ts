@@ -22,20 +22,40 @@ Deno.test({
       },
     });
 
-    // 2. Create test user
+    // 2. Create test user with org_id in user_metadata (will be picked up by auth hook)
     const email = `test-${crypto.randomUUID()}@example.com`;
     const password = "test-password";
+    const testOrgId = crypto.randomUUID();
+    
     const { data: { user }, error: signUpError } = await adminAuth.auth.admin.createUser({
       email,
       password,
       email_confirm: true,
+      user_metadata: {
+        current_org_id: testOrgId,
+      },
     });
 
     if (signUpError || !user) {
       throw new Error(`Failed to create test user: ${signUpError?.message}`);
     }
 
-    // 3. Login as user to get token
+    // 3. Create default content source for test
+    const { error: sourceError } = await adminAuth
+      .schema("cs")
+      .from("content_source")
+      .insert({
+        name: "Default Supabase Storage",
+        provider: "supabase_storage",
+        settings: { bucket_name: "test-content" },
+        is_active: true,
+      });
+    
+    if (sourceError && !sourceError.message.includes("duplicate")) {
+      console.log("Warning: Could not create content source:", sourceError.message);
+    }
+
+    // 4. Login as user to get token
     const { data: { session }, error: loginError } = await supabase.auth.signInWithPassword({
       email,
       password,
@@ -46,13 +66,18 @@ Deno.test({
     }
 
     const token = session.access_token;
+    
+    // Debug: Decode JWT to see what claims are present
+    const jwtPayload = JSON.parse(atob(token.split('.')[1].replace(/-/g, '+').replace(/_/g, '/')));
+    console.log("JWT payload:", JSON.stringify(jwtPayload, null, 2));
+    
     const headers = {
       "Authorization": `Bearer ${token}`,
       "Content-Type": "application/json",
     };
 
     try {
-      // 4. Step 1: Upload Content (Initialize)
+      // 5. Step 1: Upload Content (Initialize)
       const uploadRes = await fetch(`${SUPABASE_URL}/functions/v1/cs-upload-content`, {
         method: "POST",
         headers,
@@ -73,21 +98,19 @@ Deno.test({
       const contentId = uploadData.content_id;
       const uploadUrl = uploadData.upload_url;
 
-      // 5. Step 2: Upload actual blob data to Azure (Azurite)
-      // The uploadUrl is a SAS URL. We can PUT to it.
+      // 6. Step 2: Upload actual blob data using Supabase upload URL
       const blobContent = new TextEncoder().encode("Hello World!");
       const blobUploadRes = await fetch(uploadUrl, {
         method: "PUT",
         headers: {
-          "x-ms-blob-type": "BlockBlob",
           "Content-Type": "text/plain",
         },
         body: blobContent,
       });
       
-      assertEquals(blobUploadRes.status, 201, "Blob upload failed");
+      assertEquals(blobUploadRes.status, 200, "Blob upload failed");
 
-      // 6. Step 3: Update Content (Optional Metadata)
+      // 7. Step 3: Update Content (Optional Metadata)
       const updateRes = await fetch(`${SUPABASE_URL}/functions/v1/cs-update-content`, {
         method: "PUT",
         headers,
@@ -101,7 +124,7 @@ Deno.test({
       assertEquals(updateRes.status, 200, `Update failed: ${JSON.stringify(updateData)}`);
       assertEquals(updateData.content_id, contentId);
 
-      // 7. Step 4: Finalize Upload
+      // 8. Step 4: Finalize Upload
       const finalizeRes = await fetch(`${SUPABASE_URL}/functions/v1/cs-finalize-upload`, {
         method: "POST",
         headers,
@@ -115,7 +138,7 @@ Deno.test({
       assertEquals(finalizeData.success, true);
       assertEquals(finalizeData.verified_size, 12);
 
-      // 8. Step 5: Generate Signed URL (Read)
+      // 9. Step 5: Generate Signed URL (Read)
       const signRes = await fetch(`${SUPABASE_URL}/functions/v1/cs-generate-signed-url?id=${contentId}`, {
         method: "GET",
         headers,
@@ -125,7 +148,7 @@ Deno.test({
       assertEquals(signRes.status, 200, `Sign URL failed: ${JSON.stringify(signData)}`);
       assert(signData.signed_url, "Missing signed_url");
 
-      // 9. Verify Read
+      // 10. Verify Read
       const readRes = await fetch(signData.signed_url);
       const readText = await readRes.text();
       assertEquals(readText, "Hello World!");
