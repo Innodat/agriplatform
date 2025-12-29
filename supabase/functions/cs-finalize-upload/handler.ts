@@ -2,7 +2,7 @@ import { handleCors as defaultHandleCors, mergeCorsHeaders as defaultMergeCors }
 import { HttpError, hasRole, requireAuth as defaultRequireAuth } from "../_shared/auth.ts";
 import { supabaseAdmin } from "../_shared/supabase.ts";
 import { csFinalizeContentRequestSchema } from "@shared";
-import { getProvider, resolveBucketOrContainerName } from "../_shared/storage-providers/registry.ts";
+import { getProvider as getProviderRegistry, resolveBucketOrContainerName } from "../_shared/storage-providers/registry.ts";
 
 async function fetchContentRecord(supabase: typeof supabaseAdmin, contentId: string) {
   const { data, error } = await supabase
@@ -15,7 +15,7 @@ async function fetchContentRecord(supabase: typeof supabaseAdmin, contentId: str
       external_key,
       size_bytes,
       created_by,
-      source:cs.content_source (
+      source:content_source (
         id,
         provider,
         settings
@@ -50,16 +50,17 @@ export async function handleFinalizeUpload(
     requireAuth?: typeof defaultRequireAuth;
     handleCors?: typeof defaultHandleCors;
     mergeCorsHeaders?: typeof defaultMergeCors;
-    getProvider?: typeof getProvider;
+    getProvider?: typeof getProviderRegistry;
     resolveBucketOrContainerName?: typeof resolveBucketOrContainerName;
   } = {},
 ): Promise<Response> {
+  console.log("Finalize Upload")
   const {
     supabase = supabaseAdmin,
     requireAuth = defaultRequireAuth,
     handleCors = defaultHandleCors,
     mergeCorsHeaders = defaultMergeCors,
-    getProvider,
+    getProvider = getProviderRegistry,
     resolveBucketOrContainerName: resolveContainer = resolveBucketOrContainerName,
   } = options;
 
@@ -74,6 +75,7 @@ export async function handleFinalizeUpload(
     const auth = await requireAuth(req);
     const payload = csFinalizeContentRequestSchema.parse(await req.json());
 
+    console.log("Fetch content record", payload.content_id)
     const record = await fetchContentRecord(supabase, payload.content_id);
     const isOwner = auth.userId === record.created_by;
     const isAdmin = hasRole(auth, ["admin", "financeadmin"]);
@@ -83,25 +85,30 @@ export async function handleFinalizeUpload(
     }
 
     // Get the storage provider
+    console.log("Get the storage provider", record.source.provider, record.source.settings)
     const provider = getProvider?.(record.source.provider, record.source.settings) ?? 
-      getProvider!(record.source.provider, record.source.settings);
+      getProviderRegistry(record.source.provider, record.source.settings);
 
     // Resolve bucket/container name
+    console.log("Resolve the bucket name")
     const bucketOrContainer = resolveContainer(
       record.source.settings.container_name ?? record.source.settings.bucket_name
     );
 
     // Check if the blob exists using the provider
+    console.log("Does the file exist?")
     const exists = await provider.exists({
       bucketOrContainer,
       path: record.external_key,
     });
 
     if (!exists.exists) {
+      console.error("The blob does not exist", exists)
       throw new HttpError("Blob not found. Please re-upload before finalizing.", 400);
     }
 
     // Update content_store to mark as active
+    console.log("Mark the uploaded content as active")
     const { error: updateError } = await supabase
       .schema("cs")
       .from("content_store")
@@ -113,6 +120,7 @@ export async function handleFinalizeUpload(
       .eq("id", record.id);
 
     if (updateError) {
+      console.error(updateError);
       throw new HttpError("Failed to finalize content", 500);
     }
 

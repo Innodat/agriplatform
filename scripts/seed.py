@@ -130,6 +130,86 @@ def set_org_content_source(org_id: str, content_source_id: str) -> None:
     }).eq("id", org_id).execute()
 
 
+def create_supabase_bucket(bucket_name: str, is_public: bool = False) -> None:
+    """Create a Supabase Storage bucket"""
+    try:
+        res = supabase.storage.create_bucket(
+            bucket_name,
+            options={"public": is_public},
+        )
+        print(f"✅ Created Supabase bucket: {bucket_name} (public={is_public})")
+    except Exception as e:
+        if "already exists" in str(e).lower():
+            print(f"ℹ️  Bucket {bucket_name} already exists, skipping creation")
+        else:
+            raise
+
+
+def create_azure_container_dev(container_name: str) -> None:
+    """Create Azure container in Azurite (dev environment only)"""
+    # Azure containers are typically created via Azure Portal/CLI
+    # For dev with Azurite, this would need to use Azure SDK
+    # Since we're using environment variables for connection,
+    # we'll skip this and rely on lazy creation in handlers
+    if ENV in ("development", "dev"):
+        print(f"ℹ️  Azure container {container_name} will be created lazily via handlers (dev environment)")
+    else:
+        print(f"ℹ️  Skipping Azure container creation in {ENV} environment")
+
+
+def create_content_source(name: str, provider: str, settings: dict) -> str:
+    """Create a content source record and return its ID"""
+    res = (
+        supabase.table("cs.content_source")
+        .upsert(
+            {
+                "name": name,
+                "provider": provider,
+                "settings": settings,
+                "is_active": True,
+            },
+            on_conflict="name",
+        )
+        .select("id")
+        .single()
+        .execute()
+    )
+    source_id = res.data["id"]
+    print(f"✅ Created content source: {name} (provider={provider}, id={source_id})")
+    return source_id
+
+
+def seed_org_storage(org_slug: str, org_id: str, provider: str) -> str:
+    """Complete storage setup for an organization"""
+    bucket_name = f"content-{org_slug}"
+    
+    print(f"\n{'='*60}")
+    print(f"Setting up storage for org: {org_slug}")
+    print(f"  Bucket/Container: {bucket_name}")
+    print(f"  Provider: {provider}")
+    print(f"{'='*60}")
+    
+    # Create bucket/container
+    if provider == "supabase_storage":
+        create_supabase_bucket(bucket_name, is_public=False)
+    elif provider == "azure_blob":
+        create_azure_container_dev(bucket_name)
+    
+    # Create content source
+    source_name = f"{org_slug.replace('-', ' ').title()} Storage"
+    source_id = create_content_source(
+        name=source_name,
+        provider=provider,
+        settings={"bucket_name": bucket_name},
+    )
+    
+    # Link to org
+    set_org_content_source(org_id, source_id)
+    print(f"✅ Linked org {org_slug} to content source: {source_name}")
+    
+    return source_id
+
+
 def seed_receipts(user_id: str, org_id: str):
     # Insert 5 receipts, 2 for today
     receipts = []
@@ -239,9 +319,16 @@ def seed_receipts(user_id: str, org_id: str):
 
 if __name__ == "__main__":
     if ENV in ("development", "dev"):
-        # Get content source IDs
-        default_source_id = get_content_source_by_name("Default Supabase Storage")
-        liseli_azure_source_id = get_content_source_by_name("Liseli Azure Storage")
+        # Create default fallback content source (if not exists)
+        try:
+            default_source_id = create_content_source(
+                name="Default Supabase Storage",
+                provider="supabase_storage",
+                settings={"bucket_name": "content"},
+            )
+        except Exception as e:
+            print(f"ℹ️  Default Supabase Storage might already exist: {e}")
+            default_source_id = get_content_source_by_name("Default Supabase Storage")
         
         # ==================== LISELI ORG ====================
         admin_id = seed_user("admin@liselifoundation.org", "Admin123!")
@@ -251,8 +338,8 @@ if __name__ == "__main__":
         # ensure org exists
         liseli_org_id = get_liseli_org_id()
         
-        # Set content source for Liseli org (Liseli Azure Storage)
-        set_org_content_source(liseli_org_id, liseli_azure_source_id)
+        # Set up storage for Liseli org (Azure Blob)
+        seed_org_storage("liseli", liseli_org_id, provider="azure_blob")
 
         # memberships
         admin_member_id = seed_org_member(liseli_org_id, admin_id, is_owner=True)
@@ -278,6 +365,9 @@ if __name__ == "__main__":
         # ensure org exists
         kok_home_org_id = get_kok_home_org_id()
         
+        # Set up storage for Kok Home org (Supabase Storage)
+        seed_org_storage("kok-home", kok_home_org_id, provider="supabase_storage")
+
         # memberships
         kok_admin_member_id = seed_org_member(kok_home_org_id, kok_admin_id, is_owner=True)
         kok_finance_member_id = seed_org_member(kok_home_org_id, kok_finance_id, is_owner=False)

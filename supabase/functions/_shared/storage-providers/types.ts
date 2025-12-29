@@ -61,14 +61,23 @@ export interface StorageProvider {
   generateUploadUrl(params: UploadUrlParams): Promise<SignedUrlResult>;
 
   /**
-   * Check if content exists at the given path
+   * Check if content exists at given path
    */
   exists(params: ExistsParams): Promise<ExistsResult>;
 
   /**
-   * Delete content at the given path
+   * Delete content at given path
    */
   delete(params: DeleteParams): Promise<void>;
+
+  /**
+   * Ensure bucket/container exists, create if it doesn't
+   * Optional method - providers can implement if they support creation
+   */
+  ensureBucketExists?(params: {
+    bucketOrContainer: string;
+    isPublic?: boolean;
+  }): Promise<void>;
 }
 
 /**

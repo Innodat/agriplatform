@@ -2,7 +2,7 @@ import { handleCors as defaultHandleCors, mergeCorsHeaders as defaultMergeCors }
 import { HttpError, hasRole, requireAuth as defaultRequireAuth } from "../_shared/auth.ts";
 import { supabaseAdmin } from "../_shared/supabase.ts";
 import { csUpdateContentRequestSchema } from "@shared";
-import { getProvider, resolveBucketOrContainerName } from "../_shared/storage-providers/registry.ts";
+import { getProvider as getProviderRegistry, resolveBucketOrContainerName } from "../_shared/storage-providers/registry.ts";
 
 const DEFAULT_PREFIX = "receipts";
 
@@ -12,6 +12,7 @@ function buildExternalKey(mimeType: string, userId: string) {
 }
 
 async function fetchContentRecord(supabase: typeof supabaseAdmin, contentId: string) {
+  console.log("Fetch content record", contentId)
   const { data, error } = await supabase
     .schema("cs")
     .from("content_store")
@@ -25,7 +26,7 @@ async function fetchContentRecord(supabase: typeof supabaseAdmin, contentId: str
       checksum,
       metadata,
       created_by,
-      source:cs.content_source (
+      source:content_source (
         id,
         provider,
         settings
@@ -34,8 +35,9 @@ async function fetchContentRecord(supabase: typeof supabaseAdmin, contentId: str
     )
     .eq("id", contentId)
     .single();
-
+  
   if (error || !data) {
+    console.log("Error", error);
     throw new HttpError("Content not found", 404);
   }
 
@@ -63,7 +65,7 @@ export async function handleUpdateContent(
     requireAuth?: typeof defaultRequireAuth;
     handleCors?: typeof defaultHandleCors;
     mergeCorsHeaders?: typeof defaultMergeCors;
-    getProvider?: typeof getProvider;
+    getProvider?: typeof getProviderRegistry;
     resolveBucketOrContainerName?: typeof resolveBucketOrContainerName;
   } = {},
 ): Promise<Response> {
@@ -72,7 +74,7 @@ export async function handleUpdateContent(
     requireAuth = defaultRequireAuth,
     handleCors = defaultHandleCors,
     mergeCorsHeaders = defaultMergeCors,
-    getProvider,
+    getProvider = getProviderRegistry,
     resolveBucketOrContainerName: resolveContainer = resolveBucketOrContainerName,
   } = options;
 
@@ -86,7 +88,6 @@ export async function handleUpdateContent(
 
     const auth = await requireAuth(req);
     const payload = csUpdateContentRequestSchema.parse(await req.json());
-
     const record = await fetchContentRecord(supabase, payload.content_id);
 
     const isOwner = auth.userId === record.created_by;
@@ -97,7 +98,8 @@ export async function handleUpdateContent(
 
     // Get the storage provider
     const provider = getProvider?.(record.source.provider, record.source.settings) ?? 
-      getProvider!(record.source.provider, record.source.settings);
+      getProviderRegistry(record.source.provider, record.source.settings);
+    // const provider = getProvider!(record.source.provider, record.source.settings);
 
     // Resolve bucket/container name
     const bucketOrContainer = resolveContainer(

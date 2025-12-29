@@ -131,6 +131,18 @@ export async function handleUploadContent(
     // Resolve bucket/container name with environment substitution
     const bucketOrContainer = resolveContainer(source.settings.container_name ?? source.settings.bucket_name);
 
+    // Ensure bucket/container exists (lazy creation)
+    if (provider.ensureBucketExists) {
+      try {
+        await provider.ensureBucketExists({
+          bucketOrContainer,
+          isPublic: false,
+        });
+      } catch (error) {
+        console.warn(`Failed to ensure bucket exists: ${error}. Continuing anyway...`);
+      }
+    }
+
     const externalKey = buildExternalKey(payload.mime_type, auth.userId);
 
     // Create content_store record (inactive until finalized)
