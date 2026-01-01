@@ -32,7 +32,7 @@ serve(async (req) => {
         external_key,
         is_active,
         created_by,
-        source:cs.content_source (
+        source:content_source (
           provider,
           settings
         )

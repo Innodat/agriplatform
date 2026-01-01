@@ -103,7 +103,7 @@ export async function handleFinalizeUpload(
     });
 
     if (!exists.exists) {
-      console.error("The blob does not exist", exists)
+      console.error("The blob does not exist", bucketOrContainer, record.external_key)
       throw new HttpError("Blob not found. Please re-upload before finalizing.", 400);
     }
 

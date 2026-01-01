@@ -4,6 +4,7 @@ import {
   assertEquals,
 } from "https://deno.land/std@0.168.0/testing/asserts.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { Console } from "node:console";
 
 /**
  * Integration Test for Content Flow
@@ -23,11 +24,20 @@ const SUPABASE_URL = Deno.env.get("SUPABASE_URL") ?? "http://localhost:54321";
 const SUPABASE_PUBLISHABLE_KEY = Deno.env.get("SUPABASE_PUBLISHABLE_KEY")!;
 const SUPABASE_SECRET_KEY = Deno.env.get("SUPABASE_SECRET_KEY")!;
 
+const URL_DEV_KONG = 'http://kong:8000'
+const URL_LOCAL_KONG = Deno.env.get("KONG_URL") || URL_DEV_KONG;
+
+
 Deno.test({
   name: "content flow integration test",
   async fn() {
     //1. Setup clients
-    const supabase = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
+    const supabase = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
+      auth: {
+        autoRefreshToken: false,
+        persistSession: false,
+      },
+    });
     const adminAuth = createClient(SUPABASE_URL, SUPABASE_SECRET_KEY, {
       auth: {
         autoRefreshToken: false,
@@ -35,46 +45,45 @@ Deno.test({
       },
     });
 
-    // 2. Create test user with mock org_id in user_metadata
-    const orgId = crypto.randomUUID();
-    const email = `test-${crypto.randomUUID()}@example.com`;
-    const password = "test-password";
-
-    const { data: { user }, error: signUpError } = await adminAuth.auth.admin.createUser({
-      email,
-      password,
-      email_confirm: true,
-      user_metadata: {
-        current_org_id: orgId,
-      },
-    });
-
-    if (signUpError || !user) {
-      throw new Error(`Failed to create test user: ${signUpError?.message}`);
-    }
-
-    // 3. Login as user to get token
-    const { data: { session }, error: loginError } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
-
-    if (loginError || !session) {
-      throw new Error(`Failed to login: ${loginError?.message}`);
-    }
-
-    const token = session.access_token;
-
-    // Debug: Decode JWT to see what claims are present
-    const jwtPayload = JSON.parse(atob(token.split('.')[1].replace(/-/g, '+').replace(/_/g, '/')));
-    console.log("JWT payload:", JSON.stringify(jwtPayload, null, 2));
-
-    const headers = {
-      "Authorization": `Bearer ${token}`,
-      "Content-Type": "application/json",
-    };
-
     try {
+      // 2. Create test user with mock org_id in user_metadata
+      const orgId = crypto.randomUUID();
+      const email = `test-${crypto.randomUUID()}@example.com`;
+      const password = "test-password";
+
+      const { data: { user }, error: signUpError } = await adminAuth.auth.admin.createUser({
+        email,
+        password,
+        email_confirm: true,
+        user_metadata: {
+          current_org_id: orgId,
+        },
+      });
+
+      if (signUpError || !user) {
+        throw new Error(`Failed to create test user: ${signUpError?.message}`);
+      }
+
+      // 3. Login as user to get token
+      const { data: { session }, error: loginError } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
+
+      if (loginError || !session) {
+        throw new Error(`Failed to login: ${loginError?.message}`);
+      }
+
+      const token = session.access_token;
+
+      // Debug: Decode JWT to see what claims are present
+      //const jwtPayload = JSON.parse(atob(token.split('.')[1].replace(/-/g, '+').replace(/_/g, '/')));
+
+      const headers = {
+        "Authorization": `Bearer ${token}`,
+        "Content-Type": "application/json",
+      };
+
       console.log("Step 1: Upload Content (Initialize)");
       const uploadRes = await fetch(`${SUPABASE_URL}/functions/v1/cs-upload-content`, {
         method: "POST",
@@ -94,11 +103,9 @@ Deno.test({
 
       const contentId = uploadData.content_id;
       
-      const local_dev_kong_url = 'http://kong:8000'
-      const local_kong_url = Deno.env.get("KONG_URL") || local_dev_kong_url;
-      const uploadUrl = uploadData.upload_url.replace(local_dev_kong_url, local_kong_url);
+      const uploadUrl = uploadData.upload_url.replace(URL_DEV_KONG, URL_LOCAL_KONG);
 
-      console.log("Step 2: Upload actual blob data using Supabase upload URL", uploadUrl);
+      console.log("Step 2: Upload actual blob data using Supabase upload URL");
       const blobContent = new TextEncoder().encode("Hello World!");
       const blobUploadRes = await fetch(uploadUrl, {
         method: "PUT",
@@ -120,7 +127,6 @@ Deno.test({
       });
 
       const finalizeData = await finalizeRes.json();
-      console.log(finalizeData.verified_size)
       assertEquals(finalizeRes.status, 200, `Finalize failed: ${JSON.stringify(finalizeData)}`);
       assertEquals(finalizeData.success, true, "The result returned 'failure'");
       assertEquals(finalizeData.verified_size, 12);
@@ -135,8 +141,9 @@ Deno.test({
       assertEquals(signRes.status, 200, `Sign URL failed: ${JSON.stringify(signData)}`);
       assert(signData.signed_url, "Missing signed_url");
 
+      const readUrl = signData.signed_url.replace(URL_DEV_KONG, URL_LOCAL_KONG);
       console.log("Step 5. Verify Read");
-      const readRes = await fetch(signData.signed_url);
+      const readRes = await fetch(readUrl);
       const readText = await readRes.text();
       assertEquals(readText, "Hello World!");
 
@@ -155,8 +162,8 @@ Deno.test({
       assertEquals(updateData.content_id, contentId);
 
       
-      const uploadUpdateUrl = uploadData.upload_url.replace(local_dev_kong_url, local_kong_url);
-      console.log("Step 7: Upload actual update blob data using Supabase upload URL", uploadUpdateUrl);
+      const uploadUpdateUrl = updateData.upload_url.replace(URL_DEV_KONG, URL_LOCAL_KONG);
+      console.log("Step 7: Upload actual update blob data using Supabase upload URL");
       const blobUpdateContent = new TextEncoder().encode("Hello World Updated!");
       const blobUpdateUploadRes = await fetch(uploadUpdateUrl, {
         method: "PUT",
@@ -165,13 +172,14 @@ Deno.test({
         },
         body: blobUpdateContent,
       });
+      const updateUploadResData = await blobUpdateUploadRes.json();
 
-      console.log("Step 6: Finalize Update Upload");
+      console.log("Step 8: Finalize Update Upload", updateData.content_id, updateUploadResData);
       const finalizeUpdateRes = await fetch(`${SUPABASE_URL}/functions/v1/cs-finalize-upload`, {
         method: "POST",
         headers,
         body: JSON.stringify({
-          content_id: contentId,
+          content_id: updateData.content_id,
         }),
       });
 
@@ -190,14 +198,18 @@ Deno.test({
       assertEquals(signUpdateReadRes.status, 200, `Sign URL failed: ${JSON.stringify(signUpdateReadData)}`);
       assert(signUpdateReadData.signed_url, "Missing signed_url");
 
+      const readUrlPostUpdate = signUpdateReadData.signed_url.replace(URL_DEV_KONG, URL_LOCAL_KONG);
       console.log("10. Verify Read");
-      const readUpdateRes = await fetch(signUpdateReadData.signed_url);
+      const readUpdateRes = await fetch(readUrlPostUpdate);
       const readUpdateText = await readUpdateRes.text();
       assertEquals(readUpdateText, "Hello World Updated!");
+      console.log("Integration Tests completed!");
 
     } finally {
       // Cleanup is best-effort - we don't delete buckets or content sources
       // as they may be needed for debugging
+      await supabase.auth.signOut();
+      await adminAuth.auth.signOut();
     }
   },
 });

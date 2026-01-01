@@ -165,6 +165,7 @@ export async function handleUpdateContent(
     }
 
     // Generate upload URL for the new content
+    console.log("New External Key", newExternalKey);
     const uploadUrlResult = await provider.generateUploadUrl({
       bucketOrContainer,
       path: newExternalKey,
@@ -173,6 +174,7 @@ export async function handleUpdateContent(
       checksumBase64: payload.checksum,
       expiresInMinutes: 15,
     });
+    console.log("URL", uploadUrlResult.url);
 
     return new Response(
       JSON.stringify({
