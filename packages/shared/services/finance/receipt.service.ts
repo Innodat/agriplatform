@@ -6,7 +6,7 @@ import {
   type ReceiptInsert,
   type ReceiptRow,
   type ReceiptUpdate,
-} from "@schemas/finance";
+} from "../../";
 
 export interface ReceiptFilters {
   supplier?: string;

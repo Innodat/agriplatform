@@ -1,8 +1,8 @@
 @echo off
 REM === CONFIGURE PATHS ===
-set JAVA_HOME=C:\Program Files\Eclipse Adoptium\jdk-17
+set JAVA_HOME="C:\Program Files\Eclipse Adoptium\jdk-17"
 set ANDROID_HOME=C:\Users\%USERNAME%\AppData\Local\Android\Sdk
-set PATH=%PATH%;%JAVA_HOME%\bin;%ANDROID_HOME%\platform-tools;%ANDROID_HOME%\emulator;%ANDROID_HOME%\cmdline-tools\latest\bin
+set PATH="%PATH%;%JAVA_HOME%\bin;%ANDROID_HOME%\platform-tools;%ANDROID_HOME%\emulator;%ANDROID_HOME%\cmdline-tools\latest\bin"
 
 echo === Verifying Java ===
 java -version || (echo Java not found. Please install JDK 17 and set JAVA_HOME correctly. & exit /b)
@@ -21,10 +21,10 @@ if %errorlevel% neq 0 (
 echo === Build, if needed ===
 cd packages/mobile/android
 mklink /J node_modules ..\node_modules
-gradlew clean
-gradlew :app:assembleDebug --stacktrace --inf
+./gradlew clean
+./gradlew :app:assembleDebug --stacktrace
 
-cd ../packages/mobile
+cd packages/mobile
 echo === Starting Emulator ===
 start cmd /k emulator -avd Pixel_6
 

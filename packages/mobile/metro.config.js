@@ -5,6 +5,7 @@ const path = require('path');
 const projectRoot = __dirname;
 // mobile is at repo-root/packages/mobile -> repoRoot is two levels up
 const repoRoot = path.resolve(projectRoot, '..', '..');
+console.log("Repo Root", repoRoot);
 
 const extraConfig = {
   projectRoot,
@@ -21,6 +22,9 @@ const extraConfig = {
 
     // Ensure TS/JS files are resolved consistently
     sourceExts: ['ts', 'tsx', 'js', 'jsx', 'json'],
+    extraNodeModules: {
+      '@schemas': path.resolve(repoRoot, 'packages/shared'),
+    },
   },
   // transformer: { } // keep defaults unless you have custom plugins
 };

@@ -1,5 +1,5 @@
 // Schemas
-export * from "@schemas/content-system";
+export * from "./schemas/zod/content-system";
 export * from "./schemas/zod/finance";
 export * from "./schemas/zod/identity";
 export * from "./schemas/zod/auth";

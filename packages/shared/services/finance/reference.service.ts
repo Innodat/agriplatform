@@ -6,7 +6,7 @@ import {
   type ExpenseCategoryRow,
   type ExpenseTypeRow,
   type CurrencyRow,
-} from "@schemas/finance";
+} from "../../";
 
 export type ReferenceDataType = "categories" | "types" | "currencies";
 

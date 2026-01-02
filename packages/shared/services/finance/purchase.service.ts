@@ -7,7 +7,7 @@ import {
   type PurchaseInsert,
   type PurchaseRow,
   type PurchaseUpdate,
-} from "@schemas/finance";
+} from "../../";
 
 export type PurchaseStatus = "pending" | "approved" | "rejected" | "querying";
 
