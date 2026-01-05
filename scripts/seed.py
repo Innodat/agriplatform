@@ -40,8 +40,8 @@ def seed_user(email: str, password: str) -> str:
 def get_liseli_org_id() -> str:
     # finance seed inserts org too, but we may run this script without SQL seeds.
     # Use upsert-by-slug semantics.
-    res = (
-        supabase.table("identity.org")
+    _ = (
+        supabase.schema("identity").table("org")
         .upsert(
             {
                 "name": "Liseli",
@@ -49,17 +49,26 @@ def get_liseli_org_id() -> str:
                 "is_active": True,
             },
             on_conflict="slug",
+            returning="minimal",  # default; body may be empty
         )
+        .execute()
+    )
+    res = (
+        supabase.schema("identity").table("org")
         .select("id")
+        .eq("slug", "liseli")
+        .limit(1)
         .single()
         .execute()
     )
+
     return res.data["id"]
+
 
 
 def seed_org_member(org_id: str, user_id: str, is_owner: bool) -> int:
     res = (
-        supabase.table("identity.org_member")
+        supabase.schema("identity").table("org_member")
         .upsert(
             {
                 "org_id": org_id,
@@ -78,7 +87,7 @@ def seed_org_member(org_id: str, user_id: str, is_owner: bool) -> int:
 
 def seed_member_role(member_id: int, role: str) -> None:
     # role is identity.app_role enum
-    supabase.table("identity.member_role").upsert(
+    supabase.schema("identity").table("member_role").upsert(
         {
             "member_id": member_id,
             "role": role,
@@ -89,13 +98,13 @@ def seed_member_role(member_id: int, role: str) -> None:
 
 
 def mark_platform_admin(user_id: str, is_platform_admin: bool) -> None:
-    supabase.table("identity.users").update({"is_platform_admin": is_platform_admin}).eq("id", user_id).execute()
+    supabase.schema("identity").table("users").update({"is_platform_admin": is_platform_admin}).eq("id", user_id).execute()
 
 
 def get_content_source_by_name(name: str) -> str:
     """Get content source ID by name"""
     res = (
-        supabase.table("cs.content_source")
+        supabase.schema("cs").table("content_source")
         .select("id")
         .eq("name", name)
         .eq("is_active", True)
@@ -108,7 +117,7 @@ def get_content_source_by_name(name: str) -> str:
 
 def get_kok_home_org_id() -> str:
     res = (
-        supabase.table("identity.org")
+        supabase.schema("identity").table("org")
         .upsert(
             {
                 "name": "Kok Home",
@@ -125,7 +134,7 @@ def get_kok_home_org_id() -> str:
 
 
 def set_org_content_source(org_id: str, content_source_id: str) -> None:
-    supabase.table("identity.org").update({
+    supabase.schema("identity").table("org").update({
         "settings": {"content_source_id": content_source_id}
     }).eq("id", org_id).execute()
 
@@ -160,7 +169,7 @@ def create_azure_container_dev(container_name: str) -> None:
 def create_content_source(name: str, provider: str, settings: dict) -> str:
     """Create a content source record and return its ID"""
     res = (
-        supabase.table("cs.content_source")
+        supabase.schema("cs").table("content_source")
         .upsert(
             {
                 "name": name,
@@ -229,7 +238,7 @@ def seed_receipts(user_id: str, org_id: str):
             }
         )
 
-    supabase.table("finance.receipt").insert(receipts).execute()
+    supabase.schema("finance").table("receipt").insert(receipts).execute()
 
     # Insert purchases linked to receipt 1..5
     purchases = [
@@ -313,12 +322,24 @@ def seed_receipts(user_id: str, org_id: str):
         },
     ]
 
-    supabase.table("finance.purchase").insert(purchases).execute()
+    supabase.schema("finance").table("purchase").insert(purchases).execute()
     print(f"Seeded {len(receipts)} receipts and {len(purchases)} purchases")
 
 
 if __name__ == "__main__":
-    if ENV in ("development", "dev"):
+
+    url = os.getenv("SUPABASE_URL")
+    key = os.getenv("SUPABASE_SECRET_KEY")
+
+    print("SUPABASE_URL:", url)
+    print("SUPABASE_SECRET_KEY present:", bool(key))
+
+    # Decode claims WITHOUT verifying signature
+    claims = jwt.decode(key, options={"verify_signature": False})
+    print("JWT role claim:", claims.get("role"))
+    print("JWT iss:", claims.get("iss"))  # should match your project URL domain
+
+    if ENV not in ("development", "dev"):
         # Create default fallback content source (if not exists)
         try:
             default_source_id = create_content_source(
