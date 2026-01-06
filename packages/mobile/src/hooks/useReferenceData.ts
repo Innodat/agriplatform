@@ -62,7 +62,6 @@ export function useReferenceData(): UseReferenceDataResult {
       } catch (err) {
         setError(err instanceof Error ? err.message : 'Failed to fetch reference data');
       } finally {
-        console.log("TEst:", currencies)
         setLoading(false);
       }
     };

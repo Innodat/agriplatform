@@ -26,8 +26,6 @@ export function LoginScreen({ navigation }: any) {
       return;
     }
 
-    console.log("!!!")
-
     setLoading(true);
     setError('');
 
