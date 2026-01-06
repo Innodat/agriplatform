@@ -112,3 +112,10 @@ GRANT USAGE ON SCHEMA finance TO service_role;  -- equivalent elevated role
 GRANT SELECT, INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA finance TO service_role;
 ALTER DEFAULT PRIVILEGES IN SCHEMA finance
   GRANT SELECT, INSERT, UPDATE, DELETE ON TABLES TO service_role;
+
+-- Grants to authenticated users (RLS policies control actual access)
+-- Note: No DELETE permission - soft deletes via is_active flag only
+GRANT USAGE ON SCHEMA finance TO authenticated;
+GRANT SELECT, INSERT, UPDATE ON ALL TABLES IN SCHEMA finance TO authenticated;
+ALTER DEFAULT PRIVILEGES IN SCHEMA finance
+  GRANT SELECT, INSERT, UPDATE ON TABLES TO authenticated;

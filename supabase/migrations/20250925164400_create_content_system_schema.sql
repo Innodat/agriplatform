@@ -48,6 +48,12 @@ GRANT usage ON SCHEMA cs TO service_role;
 GRANT all ON TABLE cs.content_source TO service_role;
 GRANT all ON TABLE cs.content_store TO service_role;
 
+-- Grants to authenticated users (RLS policies control actual access)
+GRANT USAGE ON SCHEMA cs TO authenticated;
+GRANT SELECT ON ALL TABLES IN SCHEMA cs TO authenticated;
+ALTER DEFAULT PRIVILEGES IN SCHEMA cs
+  GRANT SELECT ON TABLES TO authenticated;
+
 -- RLS Policies
 -- content_source: Admin only
 CREATE POLICY "Admin can manage content sources" ON cs.content_source
