@@ -14,7 +14,7 @@ supabase: Client = create_client(os.getenv("SUPABASE_URL"), os.getenv("SUPABASE_
 
 
 def seed_secrets():
-    command = ["supabase", "secrets", "set"]
+    command = ["npx", "supabase", "secrets", "set"]
     secrets = ["LISELI_AZURE_STORAGE_CONNECTION", "ALLOWED_ORIGINS"]
     for s in secrets:
         command.append(f"{s}={os.getenv(s)}")
@@ -30,6 +30,7 @@ def seed_user(email: str, password: str) -> str:
     user = supabase.auth.admin.create_user({
         "email": email,
         "password": password,
+        "email_confirm": True
     })
     user_id = user.user.id
 
@@ -37,15 +38,15 @@ def seed_user(email: str, password: str) -> str:
     return user_id
 
 
-def get_liseli_org_id() -> str:
+def upsert_org_id(name: str, slug: str) -> str:
     # finance seed inserts org too, but we may run this script without SQL seeds.
     # Use upsert-by-slug semantics.
     _ = (
         supabase.schema("identity").table("org")
         .upsert(
             {
-                "name": "Liseli",
-                "slug": "liseli",
+                "name": name,
+                "slug": slug,
                 "is_active": True,
             },
             on_conflict="slug",
@@ -56,7 +57,7 @@ def get_liseli_org_id() -> str:
     res = (
         supabase.schema("identity").table("org")
         .select("id")
-        .eq("slug", "liseli")
+        .eq("slug", slug)
         .limit(1)
         .single()
         .execute()
@@ -77,12 +78,12 @@ def seed_org_member(org_id: str, user_id: str, is_owner: bool) -> int:
                 "is_active": True,
             },
             on_conflict="org_id,user_id",
+            returning="representation"
+
         )
-        .select("id")
-        .single()
         .execute()
     )
-    return int(res.data["id"])
+    return int(res.data[0]["id"])
 
 
 def seed_member_role(member_id: int, role: str) -> None:
@@ -109,24 +110,6 @@ def get_content_source_by_name(name: str) -> str:
         .eq("name", name)
         .eq("is_active", True)
         .limit(1)
-        .single()
-        .execute()
-    )
-    return res.data["id"]
-
-
-def get_kok_home_org_id() -> str:
-    res = (
-        supabase.schema("identity").table("org")
-        .upsert(
-            {
-                "name": "Kok Home",
-                "slug": "kok-home",
-                "is_active": True,
-            },
-            on_conflict="slug",
-        )
-        .select("id")
         .single()
         .execute()
     )
@@ -177,13 +160,11 @@ def create_content_source(name: str, provider: str, settings: dict) -> str:
                 "settings": settings,
                 "is_active": True,
             },
-            on_conflict="name",
-        )
-        .select("id")
-        .single()
-        .execute()
+            on_conflict="id",
+            returning="representation"
+        ).execute()
     )
-    source_id = res.data["id"]
+    source_id = res.data[0]["id"]
     print(f"✅ Created content source: {name} (provider={provider}, id={source_id})")
     return source_id
 
@@ -222,14 +203,14 @@ def seed_org_storage(org_slug: str, org_id: str, provider: str) -> str:
 def seed_receipts(user_id: str, org_id: str):
     # Insert 5 receipts, 2 for today
     receipts = []
+    today = datetime.today().date()
     for i in range(1, 6):
+        receipt_date = today if i <= 2 else (today - timedelta(days=i * 2))
+        receipt_date_str = receipt_date.isoformat()
         receipts.append(
             {
-                "id": i,
                 "org_id": org_id,
-                "receipt_date": datetime.today().date()
-                if i <= 2
-                else (datetime.today().date() - timedelta(days=i * 2)),
+                "receipt_date": receipt_date_str,
                 "is_active": True,
                 "created_at": datetime.now().isoformat(),
                 "created_by": user_id,
@@ -327,19 +308,9 @@ def seed_receipts(user_id: str, org_id: str):
 
 
 if __name__ == "__main__":
-
-    url = os.getenv("SUPABASE_URL")
-    key = os.getenv("SUPABASE_SECRET_KEY")
-
-    print("SUPABASE_URL:", url)
-    print("SUPABASE_SECRET_KEY present:", bool(key))
-
-    # Decode claims WITHOUT verifying signature
-    claims = jwt.decode(key, options={"verify_signature": False})
-    print("JWT role claim:", claims.get("role"))
-    print("JWT iss:", claims.get("iss"))  # should match your project URL domain
-
-    if ENV not in ("development", "dev"):
+    if ENV in ("development", "dev"):
+        # Apply DEV grants to schemas
+        
         # Create default fallback content source (if not exists)
         try:
             default_source_id = create_content_source(
@@ -357,7 +328,7 @@ if __name__ == "__main__":
         employee_id = seed_user("employee@liselifoundation.org", "Employee123!")
 
         # ensure org exists
-        liseli_org_id = get_liseli_org_id()
+        liseli_org_id = upsert_org_id("Liseli", "liseli")
         
         # Set up storage for Liseli org (Azure Blob)
         seed_org_storage("liseli", liseli_org_id, provider="azure_blob")
@@ -384,7 +355,7 @@ if __name__ == "__main__":
         kok_employee_id = seed_user("employee@kokhome.org", "Employee123!")
 
         # ensure org exists
-        kok_home_org_id = get_kok_home_org_id()
+        kok_home_org_id = upsert_org_id("Kok Home", "kok-home")
         
         # Set up storage for Kok Home org (Supabase Storage)
         seed_org_storage("kok-home", kok_home_org_id, provider="supabase_storage")
@@ -406,4 +377,4 @@ if __name__ == "__main__":
         seed_receipts(kok_employee_id, kok_home_org_id)
         
         # ==================== SECRETS ====================
-        seed_secrets()
+        # seed_secrets()  # Not needed for local supabase cli, env file is used

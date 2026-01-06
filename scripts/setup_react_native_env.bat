@@ -18,6 +18,13 @@ if %errorlevel% neq 0 (
     avdmanager create avd -n Pixel_6 -k "system-images;android-36_1;google_apis;x86_64" --device "pixel_6"
 )
 
+echo === Enable local ports ===
+netsh interface portproxy add v4tov4 listenport=54321 listenaddress=192.168.0.112 connectport=54321 connectaddress=127.0.0.1
+netsh interface portproxy add v4tov4 listenport=54322 listenaddress=192.168.0.112 connectport=54322 connectaddress=127.0.0.1
+netsh interface portproxy add v4tov4 listenport=54323 listenaddress=192.168.0.112 connectport=54323 connectaddress=127.0.0.1
+netsh interface portproxy add v4tov4 listenport=54324 listenaddress=192.168.0.112 connectport=54324 connectaddress=127.0.0.1
+
+
 echo === Build, if needed ===
 cd packages/mobile/android
 mklink /J node_modules ..\node_modules

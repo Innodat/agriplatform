@@ -106,3 +106,9 @@ alter table finance.receipt enable row level security;
 alter table finance.expense_category enable row level security;
 alter table finance.expense_type enable row level security;
 alter table finance.currency enable row level security;
+
+-- Grants to the service role
+GRANT USAGE ON SCHEMA finance TO service_role;  -- equivalent elevated role
+GRANT SELECT, INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA finance TO service_role;
+ALTER DEFAULT PRIVILEGES IN SCHEMA finance
+  GRANT SELECT, INSERT, UPDATE, DELETE ON TABLES TO service_role;
