@@ -236,7 +236,7 @@ begin
 end;
 $$ language plpgsql;
 
-/* Grants to the service role */
+-- Grants to the service role
 GRANT USAGE ON SCHEMA identity TO service_role;  -- equivalent elevated role
 GRANT SELECT, INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA identity TO service_role;
 ALTER DEFAULT PRIVILEGES IN SCHEMA identity
