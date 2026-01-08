@@ -2,7 +2,7 @@ import { z } from "zod";
 
 export const currencyRowSchema = z.object({
   id: z.number(),
-  org_id: z.string().uuid().nullable(),
+  org_id: z.string().uuid(),
   name: z.string(),
   description: z.string().nullable(),
   symbol: z.string().nullable(),
@@ -16,7 +16,7 @@ export type CurrencyRow = z.infer<typeof currencyRowSchema>;
 
 export const currencyInsertSchema = z.object({
   id: z.number().optional(),
-  org_id: z.string().uuid().nullable().optional(),
+  org_id: z.string().uuid().optional(),
   name: z.string(),
   description: z.string().nullable().optional(),
   symbol: z.string().nullable().optional(),

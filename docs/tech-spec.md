@@ -1237,7 +1237,90 @@ CREATE POLICY "Receipts: read in org"
   );
 ```
 
-### 9.4 Content Access Security
+### 9.4 Multi-Tenancy: org_id Requirements
+
+**Tables with org_id (NOT NULL):**
+- `finance.receipt.org_id`
+- `finance.expense_category.org_id`
+- `finance.expense_type.org_id`
+- `finance.currency.org_id`
+
+**Tables without direct org_id (scoped via parent):**
+- `finance.purchase` - Inherits org_id through `receipt_id` foreign key relationship
+
+**org_id Sourcing:**
+
+The `org_id` MUST always be sourced from the JWT context, never from client input:
+
+```sql
+-- Correct: Get org_id from JWT
+DECLARE
+  v_org_id uuid := identity.current_org_id();
+BEGIN
+  IF v_org_id IS NULL THEN
+    RAISE EXCEPTION 'Organization context required';
+  END IF;
+  
+  INSERT INTO finance.receipt (org_id, ...)
+  VALUES (v_org_id, ...);
+```
+
+**Zod Schema Enforcement:**
+
+Zod schemas MUST reflect the NOT NULL constraint:
+
+```typescript
+// ✅ Correct: org_id is required
+export const receiptRowSchema = z.object({
+  id: z.number(),
+  org_id: z.string().uuid(),  // NOT nullable
+  ...
+});
+
+// ❌ Incorrect: org_id should not be nullable
+export const receiptRowSchema = z.object({
+  org_id: z.string().uuid().nullable(),  // WRONG
+  ...
+});
+```
+
+**Database Function Pattern:**
+
+When creating database functions that insert records with `org_id`, always:
+
+1. Retrieve `org_id` from JWT context using `identity.current_org_id()`
+2. Validate that `org_id` is not null before proceeding
+3. Use the retrieved `org_id` in INSERT statements
+4. Never accept `org_id` as a function parameter
+
+```sql
+CREATE OR REPLACE FUNCTION finance.create_receipt_with_purchases(
+  p_supplier      text,
+  ...
+)
+RETURNS ...
+AS $fn$
+DECLARE
+  v_user uuid := auth.uid();
+  v_org_id uuid := identity.current_org_id();  -- From JWT
+BEGIN
+  IF v_org_id IS NULL THEN
+    RAISE EXCEPTION 'Organization context required';
+  END IF;
+  
+  INSERT INTO finance.receipt (org_id, supplier, ...)
+  VALUES (v_org_id, p_supplier, ...);
+END;
+$fn$;
+```
+
+**Benefits:**
+- **Security**: Prevents users from manipulating organization context
+- **Consistency**: All records are properly scoped to their organization
+- **Auditability**: Clear ownership chain for all data
+- **RLS Support**: Enables proper row-level security policies
+
+### 9.5 Content Access Security
 
 **Principles:**
 - Frontend never accesses storage directly

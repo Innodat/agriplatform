@@ -2,7 +2,7 @@ import { z } from "zod";
 
 export const expenseTypeRowSchema = z.object({
   id: z.number(),
-  org_id: z.string().uuid().nullable(),
+  org_id: z.string().uuid(),
   expense_category_id: z.number().nullable(),
   name: z.string(),
   description: z.string().nullable(),
@@ -16,7 +16,7 @@ export type ExpenseTypeRow = z.infer<typeof expenseTypeRowSchema>;
 
 export const expenseTypeInsertSchema = z.object({
   id: z.number().optional(),
-  org_id: z.string().uuid().nullable().optional(),
+  org_id: z.string().uuid().optional(),
   expense_category_id: z.number().nullable().optional(),
   name: z.string(),
   description: z.string().nullable().optional(),

@@ -16,18 +16,23 @@ SET search_path = ''  -- 🔒 lock search_path; fully qualify below
 AS $fn$
 DECLARE
   v_user uuid := auth.uid();
+  v_org_id uuid := identity.current_org_id();
   v_receipt_id bigint;
 BEGIN
   IF v_user IS NULL THEN
     RAISE EXCEPTION 'Not authenticated';
   END IF;
 
+  IF v_org_id IS NULL THEN
+    RAISE EXCEPTION 'Organization context required';
+  END IF;
+
   IF p_items IS NULL OR jsonb_typeof(p_items) <> 'array' OR jsonb_array_length(p_items) = 0 THEN
     RAISE EXCEPTION 'items must be a non-empty JSON array';
   END IF;
 
-  INSERT INTO finance.receipt (supplier, receipt_date, created_by, created_at, updated_at)
-  VALUES (p_supplier, p_receipt_date, v_user, now(), now())
+  INSERT INTO finance.receipt (org_id, supplier, receipt_date, created_by, created_at, updated_at)
+  VALUES (v_org_id, p_supplier, p_receipt_date, v_user, now(), now())
   RETURNING id INTO v_receipt_id;
 
   WITH ins AS (
@@ -101,4 +106,3 @@ GRANT USAGE ON SCHEMA finance TO authenticated, anon;
 GRANT EXECUTE ON FUNCTION finance.create_receipt_with_purchases(
   text, date, bigint, boolean, jsonb
 ) TO authenticated;
-

@@ -75,12 +75,10 @@ export async function getCurrencies(
     .select("*")
     .eq("is_active", true)
     .order("name", { ascending: true });
-  console.log("gc_test", data, error)
   if (error || !data) {
-    console.log("WHY")
+    console.error("Error retrieving the currencies", error);
     return { data: [], error };
   }
-  console.log("PARSING!")
   
   const results = data.map((row) => currencyRowSchema.safeParse(row));
 
@@ -90,10 +88,9 @@ export async function getCurrencies(
       console.error(`Row ${i} failed:`, res.error.format());
     }
   });
-  console.log("PARSED!", results)
 
-  var currency_list = data.map((row) => currencyRowSchema.parse(row))
-  console.log("get_currencies", currency_list)
+  // var currency_list = data.map((row) => currencyRowSchema.parse(row))
+  // console.log("get_currencies", currency_list)
 
   return { data: parseCurrencies(data), error: null };
 }

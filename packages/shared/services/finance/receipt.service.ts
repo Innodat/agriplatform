@@ -20,7 +20,16 @@ export type ReceiptWithPurchases = ReceiptRow & {
 };
 
 function parseReceiptRows(rows: unknown[]): ReceiptRow[] {
-  return rows.map((row) => receiptRowSchema.parse(row));
+  return rows.map((row, index) => {
+      console.log("Parse", index, row);
+      const result = receiptRowSchema.safeParse(row);
+      if (!result.success) {
+        console.error(`❌ Receipt row at index ${index} failed validation:`);
+        console.error(JSON.stringify(result.error.format(), null, 2));
+        throw result.error;
+      }
+      return result.data;
+  });
 }
 
 export async function getReceipts(
@@ -48,8 +57,9 @@ export async function getReceipts(
   }
 
   const { data, error } = await query;
-
+  console.log("Receipts", data)
   if (error || !data) {
+    console.error("Error retrieving the receipts", error)
     return { data: [], error };
   }
 
