@@ -241,3 +241,9 @@ GRANT USAGE ON SCHEMA identity TO service_role;  -- equivalent elevated role
 GRANT SELECT, INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA identity TO service_role;
 ALTER DEFAULT PRIVILEGES IN SCHEMA identity
   GRANT SELECT, INSERT, UPDATE, DELETE ON TABLES TO service_role;
+
+-- Grants to authenticated users (RLS policies control actual access)
+GRANT USAGE ON SCHEMA identity TO authenticated;
+GRANT SELECT, INSERT, UPDATE ON ALL TABLES IN SCHEMA identity TO authenticated;
+ALTER DEFAULT PRIVILEGES IN SCHEMA identity
+  GRANT SELECT, INSERT, UPDATE ON TABLES TO authenticated;
