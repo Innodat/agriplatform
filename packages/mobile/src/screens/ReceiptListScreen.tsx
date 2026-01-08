@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useCallback } from 'react';
 import {
   View,
   Text,
@@ -9,6 +9,7 @@ import {
   ActivityIndicator,
   RefreshControl,
 } from 'react-native';
+import { useFocusEffect } from '@react-navigation/native';
 import { useAuth } from '../contexts/AuthContext';
 import { useReceipts } from '../hooks/useReceipts';
 import { ReceiptListItem } from '../components/ReceiptListItem';
@@ -16,6 +17,13 @@ import { ReceiptListItem } from '../components/ReceiptListItem';
 export function ReceiptListScreen({ navigation }: any) {
   const { user, signOut } = useAuth();
   const { receipts, loading, error, refresh, loadMore, hasMore } = useReceipts();
+
+  // Automatically refresh receipts when screen comes into focus
+  useFocusEffect(
+    useCallback(() => {
+      refresh();
+    }, [refresh])
+  );
 
   const handleSignOut = async () => {
     await signOut();
