@@ -8,6 +8,8 @@ export * from "./schemas/zod/auth";
 export * from "./services/finance/receipt.service";
 export * from "./services/finance/purchase.service";
 export * from "./services/finance/reference.service";
+export * from "./services/content/content.service";
 
 // Lib
 export * from "./lib/supabase-factory";
+export * from "./lib/image-utils";

@@ -19,10 +19,10 @@ if %errorlevel% neq 0 (
 )
 
 echo === Enable local ports ===
-netsh interface portproxy add v4tov4 listenport=54321 listenaddress=192.168.0.113 connectport=54321 connectaddress=127.0.0.1
-netsh interface portproxy add v4tov4 listenport=54322 listenaddress=192.168.0.113 connectport=54322 connectaddress=127.0.0.1
-netsh interface portproxy add v4tov4 listenport=54323 listenaddress=192.168.0.113 connectport=54323 connectaddress=127.0.0.1
-netsh interface portproxy add v4tov4 listenport=54324 listenaddress=192.168.0.113 connectport=54324 connectaddress=127.0.0.1
+netsh interface portproxy add v4tov4 listenport=54321 listenaddress=192.168.0.112 connectport=54321 connectaddress=127.0.0.1
+netsh interface portproxy add v4tov4 listenport=54322 listenaddress=192.168.0.112 connectport=54322 connectaddress=127.0.0.1
+netsh interface portproxy add v4tov4 listenport=54323 listenaddress=192.168.0.112 connectport=54323 connectaddress=127.0.0.1
+netsh interface portproxy add v4tov4 listenport=54324 listenaddress=192.168.0.112 connectport=54324 connectaddress=127.0.0.1
 
 
 echo === Build, if needed ===

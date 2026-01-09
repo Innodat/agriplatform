@@ -3,6 +3,7 @@ CREATE OR REPLACE FUNCTION finance.create_receipt_with_purchases(
   p_receipt_date  date,
   p_currency_id   bigint,
   p_reimbursable  boolean,
+  p_content_id    uuid DEFAULT NULL,
   p_items         jsonb
 )
 RETURNS TABLE (
@@ -31,8 +32,8 @@ BEGIN
     RAISE EXCEPTION 'items must be a non-empty JSON array';
   END IF;
 
-  INSERT INTO finance.receipt (org_id, supplier, receipt_date, created_by, created_at, updated_at)
-  VALUES (v_org_id, p_supplier, p_receipt_date, v_user, now(), now())
+  INSERT INTO finance.receipt (org_id, supplier, receipt_date, content_id, created_by, created_at, updated_at)
+  VALUES (v_org_id, p_supplier, p_receipt_date, p_content_id, v_user, now(), now())
   RETURNING id INTO v_receipt_id;
 
   WITH ins AS (
@@ -104,5 +105,5 @@ $fn$;
 GRANT USAGE ON SCHEMA finance TO authenticated, anon;
 
 GRANT EXECUTE ON FUNCTION finance.create_receipt_with_purchases(
-  text, date, bigint, boolean, jsonb
+  text, date, bigint, boolean, uuid, jsonb
 ) TO authenticated;

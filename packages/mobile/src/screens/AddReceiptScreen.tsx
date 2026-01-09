@@ -25,7 +25,9 @@ import { BottomSheetPicker } from '../components/BottomSheetPicker';
 import { DatePickerField } from '../components/DatePickerField';
 import { ImagePickerBottomSheet } from '../components/ImagePickerBottomSheet';
 import { FullScreenImageViewer } from '../components/FullScreenImageViewer';
-import { supabase } from '../lib/supabase';
+import { supabase, supabaseUrl } from '../lib/supabase';
+import { uploadImage } from '@agriplatform/shared';
+import { useAuth } from '../contexts/AuthContext';
 
 const receiptFormSchema = z.object({
   supplier: z.string().min(1, 'Supplier is required'),
@@ -44,8 +46,11 @@ type AddReceiptScreenNavigationProp = NativeStackNavigationProp<RootStackParamLi
 
 export function AddReceiptScreen() {
   const navigation = useNavigation<AddReceiptScreenNavigationProp>();
+  const { session } = useAuth();
   const [imageUri, setImageUri] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
+  const [uploadingImage, setUploadingImage] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState(0);
   const [showCurrencyPicker, setShowCurrencyPicker] = useState(false);
   const [showImagePicker, setShowImagePicker] = useState(false);
   const [showFullScreenViewer, setShowFullScreenViewer] = useState(false);
@@ -110,6 +115,45 @@ export function AddReceiptScreen() {
   const onSubmit = async (data: ReceiptFormData) => {
     try {
       setSaving(true);
+      let contentId: string | null = null;
+
+      // Upload image if one was captured
+      if (imageUri) {
+        try {
+          setUploadingImage(true);
+          setUploadProgress(0);
+          
+          const uploadResult = await uploadImage(imageUri, {
+            supabaseUrl,
+            accessToken: session?.access_token ?? '',
+            onProgress: (progress) => setUploadProgress(progress),
+          });
+          
+          contentId = uploadResult.contentId;
+          console.log('Image uploaded successfully, content_id:', contentId);
+        } catch (uploadError) {
+          console.error('Image upload failed:', uploadError);
+          // Ask user if they want to continue without the image
+          const shouldContinue = await new Promise<boolean>((resolve) => {
+            Alert.alert(
+              'Image Upload Failed',
+              'Failed to upload the receipt image. Do you want to save the receipt without the image?',
+              [
+                { text: 'Cancel', style: 'cancel', onPress: () => resolve(false) },
+                { text: 'Save Without Image', onPress: () => resolve(true) },
+              ]
+            );
+          });
+          
+          if (!shouldContinue) {
+            setUploadingImage(false);
+            setSaving(false);
+            return;
+          }
+        } finally {
+          setUploadingImage(false);
+        }
+      }
   
       // Map form items to the JSON structure expected by jsonb_to_recordset(...)
       // (optional overrides like currency_id/reimbursable/user_id are not sent here)
@@ -126,6 +170,7 @@ export function AddReceiptScreen() {
           p_receipt_date: data.date,       // <-- DATE string: 'YYYY-MM-DD'
           p_currency_id: data.currency_id,
           p_reimbursable: data.own_money,
+          p_content_id: contentId,          // <-- NEW: content_id from image upload
           p_items: items,
         });
   
