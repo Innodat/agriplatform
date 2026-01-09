@@ -1,15 +1,17 @@
 -- Static data inserts for currency, expense_category, and expense_type tables
 
 -- Ensure default org exists
-INSERT INTO identity.org (name, slug, created_by, updated_by)
+INSERT INTO identity.org (name, slug, settings, created_by, updated_by)
 VALUES (
   'Liseli',
   'liseli',
+  jsonb_build_object('content_source_id', (SELECT id FROM cs.content_source WHERE name = 'Liseli Azure Storage' LIMIT 1)),
   '11111111-1111-1111-1111-111111111111'::uuid,
   '11111111-1111-1111-1111-111111111111'::uuid
 )
 ON CONFLICT (slug) DO UPDATE
   SET name = EXCLUDED.name,
+      settings = EXCLUDED.settings,
       updated_at = now(),
       updated_by = EXCLUDED.updated_by;
 
