@@ -9,8 +9,7 @@ import {
   SafeAreaView,
   ActivityIndicator,
   Alert,
-  Image,
-  Platform,
+  Image
 } from 'react-native';
 import { useForm, useFieldArray, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -26,7 +25,7 @@ import { DatePickerField } from '../components/DatePickerField';
 import { ImagePickerBottomSheet } from '../components/ImagePickerBottomSheet';
 import { FullScreenImageViewer } from '../components/FullScreenImageViewer';
 import { supabase, supabaseUrl } from '../lib/supabase';
-import { uploadImage } from '@agriplatform/shared';
+import { uploadImage } from '../services/content/content.service';
 import { useAuth } from '../contexts/AuthContext';
 
 const receiptFormSchema = z.object({

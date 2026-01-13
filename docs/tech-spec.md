@@ -293,6 +293,162 @@ supabase/functions/_shared/storage-providers/
 └── registry.ts                 # Provider factory
 ```
 
+### 2.6 Platform Service Pattern (React Native)
+
+**Pattern:** Hybrid Service Layer with Platform-Specific Overrides
+
+When building for multiple platforms (web, React Native), some services require platform-specific implementations while maintaining shared business logic. The pattern is:
+
+1. **Shared Service** (`packages/shared/services/`): Contains reusable business logic and platform-agnostic functions
+2. **Platform-Specific Service** (`packages/mobile/src/services/`): Overrides only platform-specific functions while reusing shared logic
+3. **Type Safety**: All types exported from shared service to ensure consistency across platforms
+
+**Implementation Example: Content Service**
+
+**Shared Service Structure** (`packages/shared/services/content/content.service.ts`):
+```typescript
+// Export types for all platforms
+export interface UploadImageResult { ... }
+export interface UploadImageOptions { ... }
+export interface RequestUploadUrlParams { ... }
+export interface RequestUploadUrlResponse { ... }
+export interface FinalizeUploadParams { ... }
+export interface FinalizeUploadResponse { ... }
+
+// Platform-agnostic functions (reused by all platforms)
+export async function requestUploadUrl(
+  supabaseUrl: string,
+  accessToken: string,
+  params: RequestUploadUrlParams
+): Promise<RequestUploadUrlResponse> {
+  // API call to get presigned URL
+}
+
+export async function finalizeUpload(
+  supabaseUrl: string,
+  accessToken: string,
+  contentId: string
+): Promise<FinalizeUploadResponse> {
+  // API call to finalize upload
+}
+
+// Platform-specific implementation (Web)
+export async function uploadToPresignedUrl(
+  uploadUrl: string,
+  imageUri: string,
+  mimeType: string
+): Promise<void> {
+  // Web-specific implementation using fetch()
+}
+
+export async function uploadImage(
+  imageUri: string,
+  options: UploadImageOptions
+): Promise<UploadImageResult> {
+  // Full web orchestration
+}
+```
+
+**React Native Service Structure** (`packages/mobile/src/services/content/content.service.ts`):
+```typescript
+// Import shared types and functions
+import {
+  requestUploadUrl,
+  finalizeUpload,
+  type UploadImageResult,
+  type UploadImageOptions,
+} from '@agriplatform/shared';
+
+// Re-export shared types for convenience
+export type { UploadImageResult, UploadImageOptions };
+
+// Platform-specific override
+export async function uploadToPresignedUrl(
+  uploadUrl: string,
+  imageUri: string,
+  mimeType: string
+): Promise<void> {
+  // RN-specific implementation:
+  // - Android content:// URIs → RNFS read → base64 → ArrayBuffer
+  // - iOS file:// URIs → fetch → ArrayBuffer
+}
+
+// RN wrapper using shared logic + platform-specific upload
+export async function uploadImage(
+  imageUri: string,
+  options: UploadImageOptions
+): Promise<UploadImageResult> {
+  const { supabaseUrl, accessToken, onProgress } = options;
+  
+  // Step 1: Get image info (from shared utilities)
+  const { mimeType, sizeBytes } = await getImageInfo(imageUri);
+  onProgress?.(10);
+
+  // Step 2: Request upload URL (from shared service)
+  const uploadContentResponse = await requestUploadUrl(
+    supabaseUrl,
+    accessToken,
+    { mime_type: mimeType, size_bytes: sizeBytes, ... }
+  );
+  onProgress?.(20);
+
+  // Step 3: Upload using RN-specific implementation
+  await uploadToPresignedUrl(upload_url, imageUri, mimeType);
+  onProgress?.(80);
+
+  // Step 4: Finalize upload (from shared service)
+  await finalizeUpload(supabaseUrl, accessToken, content_id);
+  onProgress?.(100);
+
+  return { contentId, externalKey };
+}
+```
+
+**Benefits:**
+- **Code Reuse**: Shared logic (requestUploadUrl, finalizeUpload) implemented once
+- **Platform Isolation**: Platform-specific code clearly separated
+- **Type Safety**: All types from shared, ensuring consistency
+- **Maintainability**: Shared service changes automatically benefit all platforms
+- **Flexibility**: Easy to add platform-specific features without affecting others
+- **Import Clarity**: Platform code imports from clear, single source
+
+**When to Use This Pattern:**
+
+**Use when:**
+- Service has platform-specific implementations (file I/O, storage, networking)
+- Business logic can be shared across platforms
+- You need to maintain type consistency across platforms
+- Platform differences are isolated to specific functions
+
+**Don't use when:**
+- Entire service logic is platform-agnostic (use shared service directly)
+- Platforms have completely different implementations (create separate services)
+- Service doesn't need TypeScript types (rare)
+
+**File Structure Pattern:**
+```
+packages/shared/services/<domain>/
+└── <domain>.service.ts          # Shared logic + platform-agnostic implementation
+
+packages/mobile/src/services/<domain>/
+└── <domain>.service.ts          # Platform-specific overrides + wrapper
+
+packages/web/src/services/<domain>/  # Future: if needed
+└── <domain>.service.ts          # Platform-specific overrides + wrapper
+```
+
+**Import Patterns:**
+
+**Web (using shared directly):**
+```typescript
+import { uploadImage, type UploadImageOptions } from '@agriplatform/shared';
+```
+
+**React Native (using platform service):**
+```typescript
+import { uploadImage, type UploadImageOptions } from '../services/content/content.service';
+```
+
 ---
 
 ## 3. Database Schema
@@ -506,8 +662,8 @@ export const ReceiptRowSchema = z.object({
   is_active: z.boolean().nullable().default(true),
   created_by: z.string().uuid().nullable(),
   updated_by: z.string().uuid().nullable(),
-  created_at: z.string().datetime({ offset: true, precision: 6 }).nullable(),
-  updated_at: z.string().datetime({ offset: true, precision: 6 }).nullable(),
+  created_at: z.string().datetime({ offset: true }).nullable(),
+  updated_at: z.string().datetime({ offset: true }).nullable(),
 });
 
 // Insert schema (omit auto-generated fields)

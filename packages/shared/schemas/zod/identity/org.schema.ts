@@ -7,9 +7,9 @@ export const OrgRowSchema = z.object({
   settings: z.unknown(), // jsonb
   is_active: z.boolean(),
   created_by: z.string().uuid().nullable(),
-  created_at: z.string().datetime({ offset: true, precision: 6 }),
+  created_at: z.string().datetime({ offset: true }),
   updated_by: z.string().uuid().nullable(),
-  updated_at: z.string().datetime({ offset: true, precision: 6 }),
+  updated_at: z.string().datetime({ offset: true }),
 })
 
 export type OrgRow = z.infer<typeof OrgRowSchema>
@@ -21,9 +21,9 @@ export const OrgInsertSchema = z.object({
   settings: z.unknown().optional(),
   is_active: z.boolean().optional(),
   created_by: z.string().uuid().nullable().optional(),
-  created_at: z.string().datetime({ offset: true, precision: 6 }).optional(),
+  created_at: z.string().datetime({ offset: true }).optional(),
   updated_by: z.string().uuid().nullable().optional(),
-  updated_at: z.string().datetime({ offset: true, precision: 6 }).optional(),
+  updated_at: z.string().datetime({ offset: true }).optional(),
 })
 
 export type OrgInsert = z.infer<typeof OrgInsertSchema>

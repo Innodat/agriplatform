@@ -7,9 +7,9 @@ export const expenseCategoryRowSchema = z.object({
   description: z.string().nullable(),
   is_active: z.boolean().nullable(),
   created_by: z.string().uuid().nullable(),
-  created_at: z.string().datetime({ offset: true, precision: 6 }).nullable(),
+  created_at: z.string().datetime({ offset: true }).nullable(),
   updated_by: z.string().uuid().nullable(),
-  updated_at: z.string().datetime({ offset: true, precision: 6 }).nullable(),
+  updated_at: z.string().datetime({ offset: true }).nullable(),
 });
 export type ExpenseCategoryRow = z.infer<typeof expenseCategoryRowSchema>;
 
@@ -20,9 +20,9 @@ export const expenseCategoryInsertSchema = z.object({
   description: z.string().nullable().optional(),
   is_active: z.boolean().optional(),
   created_by: z.string().uuid().nullable().optional(),
-  created_at: z.string().datetime({ offset: true, precision: 6 }).optional(),
+  created_at: z.string().datetime({ offset: true }).optional(),
   updated_by: z.string().uuid().nullable().optional(),
-  updated_at: z.string().datetime({ offset: true, precision: 6 }).optional(),
+  updated_at: z.string().datetime({ offset: true }).optional(),
 });
 export type ExpenseCategoryInsert = z.infer<typeof expenseCategoryInsertSchema>;
 

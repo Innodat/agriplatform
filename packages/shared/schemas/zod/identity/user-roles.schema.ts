@@ -15,8 +15,8 @@ export const UserRoleRowSchema = z.object({
   is_active: z.boolean().nullable().default(true),
   created_by: z.string().nullable(),
   updated_by: z.string().nullable(),
-  created_at: z.string().datetime({ offset: true, precision: 6 }).nullable(),
-  updated_at: z.string().datetime({ offset: true, precision: 6 }).nullable(),
+  created_at: z.string().datetime({ offset: true }).nullable(),
+  updated_at: z.string().datetime({ offset: true }).nullable(),
 })
 
 /**

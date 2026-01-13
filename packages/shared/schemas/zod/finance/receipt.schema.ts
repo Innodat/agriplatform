@@ -24,9 +24,9 @@ export const receiptInsertSchema = z.object({
   is_active: z.boolean().optional(),
   receipt_date: z.string().regex(dateRegex).optional(),
   created_by: z.string().uuid().nullable().optional(),
-  created_at: z.string().datetime({ offset: true, precision: 6 }).optional(),
+  created_at: z.string().datetime({ offset: true }).optional(),
   updated_by: z.string().uuid().nullable().optional(),
-  updated_at: z.string().datetime({ offset: true, precision: 6 }).optional(),
+  updated_at: z.string().datetime({ offset: true }).optional(),
 });
 export type ReceiptInsert = z.infer<typeof receiptInsertSchema>;
 

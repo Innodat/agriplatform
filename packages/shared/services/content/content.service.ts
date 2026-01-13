@@ -6,7 +6,7 @@
  * 3. Finalize upload (cs-finalize-upload)
  */
 
-import { getImageInfo, uriToBlob } from '../../lib/image-utils';
+import { getImageInfo, uriToArrayBuffer } from '../../lib/image-utils';
 
 export interface UploadImageResult {
   contentId: string;
@@ -77,21 +77,21 @@ export async function uploadImage(
 /**
  * Step 1: Request upload URL from cs-upload-content edge function
  */
-interface RequestUploadUrlParams {
+export interface RequestUploadUrlParams {
   mime_type: string;
   size_bytes?: number;
   checksum?: string;
   metadata?: any;
 }
 
-interface RequestUploadUrlResponse {
+export interface RequestUploadUrlResponse {
   content_id: string;
   upload_url: string;
   external_key: string;
   expires_at: string;
 }
 
-async function requestUploadUrl(
+export async function requestUploadUrl(
   supabaseUrl: string,
   accessToken: string,
   params: RequestUploadUrlParams
@@ -119,21 +119,26 @@ async function requestUploadUrl(
 /**
  * Step 3: Upload image to presigned URL
  */
-async function uploadToPresignedUrl(
+export async function uploadToPresignedUrl(
   uploadUrl: string,
   imageUri: string,
   mimeType: string
 ): Promise<void> {
+    
+  const safeUrl = uploadUrl.replace(/&amp;/g, '&');
+  console.log('safeUrl', safeUrl);
   try {
     // Convert URI to Blob for upload
-    const blob = await uriToBlob(imageUri);
-    
-    const response = await fetch(uploadUrl, {
+    //const blob = await uriToBlob(imageUri);
+    // const blob = new TextEncoder().encode('hello').buffer;
+    const data = await uriToArrayBuffer(imageUri);
+    const response = await fetch(safeUrl, {
       method: 'PUT',
       headers: {
+        'x-ms-blob-type': 'BlockBlob',
         'Content-Type': mimeType,
       },
-      body: blob,
+      body: data,
     });
 
     if (!response.ok) {
@@ -141,9 +146,9 @@ async function uploadToPresignedUrl(
       throw new Error(`Failed to upload image: ${response.status} - ${errorText}`);
     }
 
-    console.log('Image uploaded successfully to:', uploadUrl);
+    console.log('Image uploaded successfully to:', safeUrl);
   } catch (error) {
-    console.error('Upload to presigned URL failed:', error);
+    console.error('Upload to presigned URL failed...:', safeUrl, 'Error', error);
     throw error;
   }
 }
@@ -151,18 +156,18 @@ async function uploadToPresignedUrl(
 /**
  * Step 4: Finalize upload to mark content as active
  */
-interface FinalizeUploadParams {
+export interface FinalizeUploadParams {
   content_id: string;
 }
 
-interface FinalizeUploadResponse {
+export interface FinalizeUploadResponse {
   success: boolean;
   content_id: string;
   external_key: string;
   verified_size: number | null;
 }
 
-async function finalizeUpload(
+export async function finalizeUpload(
   supabaseUrl: string,
   accessToken: string,
   contentId: string

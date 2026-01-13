@@ -9,9 +9,9 @@ export const MemberRoleRowSchema = z.object({
   role: AppRoleEnum,
   is_active: z.boolean(),
   created_by: z.string().uuid().nullable(),
-  created_at: z.string().datetime({ offset: true, precision: 6 }),
+  created_at: z.string().datetime({ offset: true }),
   updated_by: z.string().uuid().nullable(),
-  updated_at: z.string().datetime({ offset: true, precision: 6 }),
+  updated_at: z.string().datetime({ offset: true }),
 })
 
 export type MemberRoleRow = z.infer<typeof MemberRoleRowSchema>
@@ -22,9 +22,9 @@ export const MemberRoleInsertSchema = z.object({
   role: AppRoleEnum,
   is_active: z.boolean().optional(),
   created_by: z.string().uuid().nullable().optional(),
-  created_at: z.string().datetime({ offset: true, precision: 6 }).optional(),
+  created_at: z.string().datetime({ offset: true }).optional(),
   updated_by: z.string().uuid().nullable().optional(),
-  updated_at: z.string().datetime({ offset: true, precision: 6 }).optional(),
+  updated_at: z.string().datetime({ offset: true }).optional(),
 })
 
 export type MemberRoleInsert = z.infer<typeof MemberRoleInsertSchema>

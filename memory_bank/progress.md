@@ -2,6 +2,13 @@
 
 ## Completed Tasks
 
+- [x] Implement Platform Service Pattern for React Native content service
+- [x] Export shared content service functions for platform reuse
+- [x] Create React Native-specific uploadToPresignedUrl with Android content:// support
+- [x] Document Platform Service Pattern in tech-spec.md
+
+## Completed Tasks
+
 - [x] Scaffold content-system shared schemas
 - [x] Update package exports/build for Deno consumption
 - [x] Wire Supabase functions to shared schemas
@@ -16,6 +23,38 @@
 - [ ] Validate with deno test & summarize
 - [ ] Deploy functions to Supabase
 - [ ] Integrate frontend with new content system API
+
+---
+
+## Post-ACT Update – 2026-01-13
+
+### Delivered
+- Implemented Platform Service Pattern for cross-platform content services:
+  - Exported shared functions from `packages/shared/services/content/content.service.ts`:
+    - `requestUploadUrl()` - Platform-agnostic API call to get presigned URL
+    - `finalizeUpload()` - Platform-agnostic API call to finalize upload
+    - All types exported for consistency across platforms
+  - Created React Native content service at `packages/mobile/src/services/content/content.service.ts`:
+    - Platform-specific `uploadToPresignedUrl()` implementation
+    - Android content:// URI handling via react-native-fs (base64 → ArrayBuffer)
+    - iOS file:// URI handling via fetch → ArrayBuffer
+    - `uploadImage()` wrapper that reuses shared logic with RN-specific upload
+- Updated documentation:
+  - Added section 2.6 "Platform Service Pattern (React Native)" to `docs/tech-spec.md`
+  - Documented hybrid approach: shared logic + platform-specific overrides
+  - Included when to use/don't use the pattern
+  - Added file structure and import pattern examples
+
+### Deviations / Notes
+- User chose hybrid approach over full duplication: RN service reuses shared `requestUploadUrl()` and `finalizeUpload()`
+- Only `uploadToPresignedUrl()` and `uploadImage()` wrapper are platform-specific
+- Types exported from shared to ensure consistency across platforms
+- Import paths use `@agriplatform/shared` package alias for mobile
+
+### Remaining TODOs
+- Add `react-native-fs` dependency to mobile package if not already present
+- Test RN content service with actual image upload flow
+- Consider adding iOS-specific optimizations if needed
 
 ---
 

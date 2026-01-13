@@ -20,8 +20,8 @@ export const purchaseRowSchema = z.object({
   receipt_id: z.number().nullable(),
   created_by: z.string().uuid().nullable(),
   updated_by: z.string().uuid().nullable(),
-  created_at: z.string().datetime({ offset: true, precision: 6 }).nullable(),
-  updated_at: z.string().datetime({ offset: true, precision: 6 }).nullable(),
+  created_at: z.string().datetime({ offset: true }).nullable(),
+  updated_at: z.string().datetime({ offset: true }).nullable(),
   status: purchaseStatusEnum,
 });
 export type PurchaseRow = z.infer<typeof purchaseRowSchema>;
