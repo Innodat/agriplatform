@@ -30,8 +30,7 @@ export function ReceiptListScreen({ navigation }: any) {
   };
 
   const handleEditReceipt = (receiptId: number) => {
-    // TODO: Implement edit screen
-    console.log('Edit receipt:', receiptId);
+    navigation.navigate('EditReceipt', { receiptId });
   };
 
   const handleAddReceipt = () => {
