@@ -72,14 +72,14 @@ INSERT INTO cs.content_source (provider, name, settings) VALUES (
   'Liseli Azure Storage',
   '{
     "account_name": "liseliblob",
-    "container_name": "content-{org_slug}-{env}",
+    "container_name": "content-liseli-dev",
     "connection_secret": "LISELI_AZURE_BLOB_CONNECTION"
-  }'
+  }'::jsonb
 ), (
   'supabase_storage',
   'Default Supabase Storage',
   '{
-    "bucket_name": "content-{org_slug}-{env}",
+    "bucket_name": "content-dev",
     "connection_secret": "SUPABASE_SERVICE_ROLE_KEY"
-  }'
+  }'::jsonb
 ) ON CONFLICT DO NOTHING;

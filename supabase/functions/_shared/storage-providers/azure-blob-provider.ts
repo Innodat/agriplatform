@@ -6,6 +6,7 @@
 
 import {
   BlobSASPermissions,
+  SASProtocol,
   BlobServiceClient,
   StorageSharedKeyCredential,
   generateBlobSASQueryParameters,
@@ -63,7 +64,7 @@ export class AzureBlobProvider implements StorageProvider {
     );
 
     const expiresInMinutes = params.expiresInMinutes ?? 15;
-    const startsOn = new Date(Date.now() - 5 * 60 * 1000); // clock skew tolerance
+    const startsOn = new Date(Date.now() - 15 * 60 * 1000); // clock skew tolerance
     const expiresAt = new Date(Date.now() + expiresInMinutes * 60 * 1000);
 
     const sasToken = generateBlobSASQueryParameters(
@@ -73,6 +74,7 @@ export class AzureBlobProvider implements StorageProvider {
         permissions,
         startsOn,
         expiresOn: expiresAt,
+        protocol: SASProtocol.Https, // restrict to HTTPS
       },
       this.credential
     ).toString();
@@ -86,7 +88,7 @@ export class AzureBlobProvider implements StorageProvider {
     const permissions = BlobSASPermissions.parse(PERMISSIONS_MAP.w);
 
     const expiresInMinutes = params.expiresInMinutes ?? 15;
-    const startsOn = new Date(Date.now() - 5 * 60 * 1000); // clock skew tolerance
+    const startsOn = new Date(Date.now() - 15 * 60 * 1000); // clock skew tolerance
     const expiresAt = new Date(Date.now() + expiresInMinutes * 60 * 1000);
 
     const sasToken = generateBlobSASQueryParameters(
@@ -96,6 +98,7 @@ export class AzureBlobProvider implements StorageProvider {
         permissions,
         startsOn,
         expiresOn: expiresAt,
+        protocol: SASProtocol.Https, // restrict to HTTPS
       },
       this.credential
     ).toString();

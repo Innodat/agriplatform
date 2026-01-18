@@ -3,8 +3,8 @@ CREATE OR REPLACE FUNCTION finance.create_receipt_with_purchases(
   p_receipt_date  date,
   p_currency_id   bigint,
   p_reimbursable  boolean,
-  p_content_id    uuid DEFAULT NULL,
-  p_items         jsonb
+  p_items         jsonb,
+  p_content_id    uuid DEFAULT NULL
 )
 RETURNS TABLE (
   receipt_id bigint,
@@ -105,5 +105,5 @@ $fn$;
 GRANT USAGE ON SCHEMA finance TO authenticated, anon;
 
 GRANT EXECUTE ON FUNCTION finance.create_receipt_with_purchases(
-  text, date, bigint, boolean, uuid, jsonb
+  text, date, bigint, boolean, jsonb, uuid
 ) TO authenticated;
