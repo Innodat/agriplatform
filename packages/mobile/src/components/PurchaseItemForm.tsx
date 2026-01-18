@@ -9,6 +9,7 @@ import {
 import { Controller, Control } from 'react-hook-form';
 import type { ExpenseTypeRow } from '@agriplatform/shared';
 import { BottomSheetPicker } from './BottomSheetPicker';
+import { StatusBadge } from './StatusBadge';
 
 interface PurchaseItemFormProps {
   index: number;
@@ -17,6 +18,8 @@ interface PurchaseItemFormProps {
   onRemove: () => void;
   showRemove: boolean;
   currencySymbol: string;
+  readOnly?: boolean;
+  status?: 'pending' | 'approved' | 'rejected' | 'querying';
 }
 
 export function PurchaseItemForm({
@@ -26,16 +29,21 @@ export function PurchaseItemForm({
   onRemove,
   showRemove,
   currencySymbol,
+  readOnly = false,
+  status,
 }: PurchaseItemFormProps) {
   const [showExpenseTypePicker, setShowExpenseTypePicker] = useState(false);
 
   return (
     <View style={styles.container}>
       <View style={styles.header}>
-        <Text style={styles.title}>Item {index + 1}</Text>
+        <View>
+          <Text style={styles.title}>Item {index + 1}</Text>
+          {status && <StatusBadge status={status} />}
+        </View>
         {showRemove && (
-          <TouchableOpacity onPress={onRemove} style={styles.deleteButton}>
-            <Text style={styles.deleteText}>Delete</Text>
+          <TouchableOpacity onPress={onRemove} style={styles.deleteButton} disabled={readOnly}>
+            <Text style={[styles.deleteText, readOnly && styles.deleteTextDisabled]}>Delete</Text>
           </TouchableOpacity>
         )}
       </View>
@@ -51,31 +59,41 @@ export function PurchaseItemForm({
             const selectedType = expenseTypes.find(t => t.id === value);
             return (
               <>
-                <TouchableOpacity
-                  style={[styles.pickerContainer, error && styles.pickerError]}
-                  onPress={() => setShowExpenseTypePicker(true)}
-                >
-                  <Text style={[styles.pickerText, !selectedType && styles.placeholderText]}>
-                    {(selectedType as any)?.categoryName || selectedType?.name ? `${(selectedType as any)?.categoryName ?? ''} - ${selectedType?.name ?? ''}` : 'Select type...'}
-                  </Text>
-                </TouchableOpacity>
-                {error && <Text style={styles.errorText}>{error.message}</Text>}
+                {readOnly ? (
+                  <View style={[styles.pickerContainer, styles.readOnlyContainer]}>
+                    <Text style={styles.readOnlyText}>
+                      {(selectedType as any)?.categoryName || selectedType?.name ? `${(selectedType as any)?.categoryName ?? ''} - ${selectedType?.name ?? ''}` : 'Select type...'}
+                    </Text>
+                  </View>
+                ) : (
+                  <>
+                    <TouchableOpacity
+                      style={[styles.pickerContainer, error && styles.pickerError]}
+                      onPress={() => setShowExpenseTypePicker(true)}
+                    >
+                      <Text style={[styles.pickerText, !selectedType && styles.placeholderText]}>
+                        {(selectedType as any)?.categoryName || selectedType?.name ? `${(selectedType as any)?.categoryName ?? ''} - ${selectedType?.name ?? ''}` : 'Select type...'}
+                      </Text>
+                    </TouchableOpacity>
+                    {error && <Text style={styles.errorText}>{error.message}</Text>}
 
-                {/* Expense Type Picker */}
-                <BottomSheetPicker
-                  visible={showExpenseTypePicker}
-                  title="Select Spending Type"
-                  items={expenseTypes.map(t => ({ 
-                    id: t.id, 
-                    name: t.name,
-                    category: (t as any).categoryName 
-                  }))}
-                  selectedId={value}
-                  onSelect={onChange}
-                  onClose={() => setShowExpenseTypePicker(false)}
-                  searchPlaceholder="Search expense types..."
-                  grouped={true}
-                />
+                    {/* Expense Type Picker */}
+                    <BottomSheetPicker
+                      visible={showExpenseTypePicker}
+                      title="Select Spending Type"
+                      items={expenseTypes.map(t => ({ 
+                        id: t.id, 
+                        name: t.name,
+                        category: (t as any).categoryName 
+                      }))}
+                      selectedId={value}
+                      onSelect={onChange}
+                      onClose={() => setShowExpenseTypePicker(false)}
+                      searchPlaceholder="Search expense types..."
+                      grouped={true}
+                    />
+                  </>
+                )}
               </>
             );
           }}
@@ -94,17 +112,25 @@ export function PurchaseItemForm({
           }}
           render={({ field: { onChange, onBlur, value }, fieldState: { error } }) => (
             <>
-              <TextInput
-                style={[styles.input, error && styles.inputError]}
-                placeholder="0.00"
-                keyboardType="decimal-pad"
-                onBlur={onBlur}
-                onChangeText={(text) => {
-                  const numValue = parseFloat(text) || 0;
-                  onChange(numValue);
-                }}
-                value={value ? value.toString() : ''}
-              />
+              {readOnly ? (
+                <View style={[styles.input, styles.readOnlyContainer]}>
+                  <Text style={styles.readOnlyText}>
+                    {value ? value.toString() : '0.00'}
+                  </Text>
+                </View>
+              ) : (
+                <TextInput
+                  style={[styles.input, error && styles.inputError]}
+                  placeholder="0.00"
+                  keyboardType="decimal-pad"
+                  onBlur={onBlur}
+                  onChangeText={(text) => {
+                    const numValue = parseFloat(text) || 0;
+                    onChange(numValue);
+                  }}
+                  value={value ? value.toString() : ''}
+                />
+              )}
               {error && <Text style={styles.errorText}>{error.message}</Text>}
             </>
           )}
@@ -130,14 +156,22 @@ export function PurchaseItemForm({
               render={({ field: { onChange, onBlur, value } }) => (
                 <View style={styles.field}>
                   <Text style={styles.label}>Description</Text>
-                  <TextInput
-                    style={styles.input}
-                    placeholder="Enter description for 'Other'"
-                    onBlur={onBlur}
-                    onChangeText={onChange}
-                    value={value || ''}
-                    multiline
-                  />
+                  {readOnly ? (
+                    <View style={[styles.input, styles.readOnlyContainer]}>
+                      <Text style={styles.readOnlyText}>
+                        {value || 'No description provided'}
+                      </Text>
+                    </View>
+                  ) : (
+                    <TextInput
+                      style={styles.input}
+                      placeholder="Enter description for 'Other'"
+                      onBlur={onBlur}
+                      onChangeText={onChange}
+                      value={value || ''}
+                      multiline
+                    />
+                  )}
                 </View>
               )}
             />
@@ -174,8 +208,17 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: '500',
   },
+  deleteTextDisabled: {
+    color: '#999',
+  },
   field: {
     marginBottom: 12,
+  },
+  readOnlyContainer: {
+    backgroundColor: '#F5F5F5',
+  },
+  readOnlyText: {
+    color: '#666',
   },
   label: {
     fontSize: 14,
