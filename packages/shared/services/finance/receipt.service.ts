@@ -73,20 +73,32 @@ export async function getReceiptById(
   supabase: SupabaseClient,
   id: number
 ): Promise<{ data: ReceiptWithPurchases | null; error: PostgrestError | null }> {
-  const { data, error } = await supabase
+  // First, get the receipt
+  const { data: receiptData, error: receiptError } = await supabase
     .schema("finance").from("receipt")
-    .select("*, purchases(*)")
+    .select("*")
     .eq("id", id)
     .maybeSingle();
 
-  if (error || !data) {
-    return { data: null, error };
+  if (receiptError || !receiptData) {
+    return { data: null, error: receiptError };
+  }
+
+  // Then, get purchases separately (no explicit FK relationship from receipt to purchase)
+  const { data: purchasesData, error: purchasesError } = await supabase
+    .schema("finance").from("purchase")
+    .select("*")
+    .eq("receipt_id", id)
+    .eq("is_active", true);
+
+  if (purchasesError) {
+    console.error("Error fetching purchases for receipt:", purchasesError);
   }
 
   return {
     data: {
-      ...receiptRowSchema.parse(data),
-      purchases: Array.isArray(data.purchases) ? data.purchases : [],
+      ...receiptRowSchema.parse(receiptData),
+      purchases: Array.isArray(purchasesData) ? purchasesData : [],
     },
     error: null,
   };

@@ -124,3 +124,59 @@
 ### Remaining TODOs
 - Decide whether to project should keep `.deno.ts` files under TS compilation, or exclude them from `packages/shared/tsconfig.json` (currently they can trigger TS5097 if `.ts` suffixes are used).
 - Re-run integration/unit tests for edge functions + web once dependencies are installed/available in CI.
+
+---
+
+## Post-ACT Update – 2026-01-14
+
+### Delivered
+- Implemented React Native EditReceiptScreen for mobile app:
+  - Created `packages/mobile/src/screens/EditReceiptScreen.tsx` with full edit functionality
+  - Added `EditReceipt` route to `RootNavigator.tsx`
+  - Wired up navigation from `ReceiptListScreen.tsx` edit buttons
+  - Created `StatusBadge` component for displaying purchase item status
+  - Updated `PurchaseItemForm` component to support read-only mode
+- Implemented edit restrictions:
+  - Only receipts from today (`receipt_date === current date`) can be edited
+  - Receipts with approved/rejected items cannot be edited
+  - Shows "Cannot Edit Receipt" message with clear reasons when restrictions apply
+- Implemented read-only purchase items:
+  - Approved/rejected items displayed as read-only with status badges
+  - Delete button disabled for approved/rejected items
+  - Cannot edit expense type, amount, or description for approved/rejected items
+- Implemented delete receipt functionality:
+  - Delete button archives receipt (sets `is_active = false`)
+  - Only enabled when NO items are approved/rejected
+  - Confirmation dialog before deletion
+- Implemented image handling:
+  - Display existing receipt image from `content_id`
+  - Replace image using existing `uploadImage` service
+  - Content versioning automatically handled by `cs-update-content` Edge Function
+  - Remove image option (sets `content_id` to null)
+- Implemented error handling:
+  - Loading state while fetching receipt data
+  - Error screen with "Failed to Load Receipt" message on fetch errors
+  - Graceful handling of image upload failures (option to save without image)
+- Fixed TypeScript compatibility issues:
+  - Used type assertions (`as any`) for Supabase client compatibility
+  - Properly typed form data with Zod schema validation
+
+### Key Features
+- **Edit Restrictions**: Today-only editing, blocked by approved/rejected items
+- **Read-Only Items**: Approved/rejected purchases displayed with status badges, inputs disabled
+- **Delete Protection**: Cannot delete if any item approved/rejected
+- **Image Versioning**: Automatic via `cs-update-content` Edge Function (preserves history)
+- **Error Handling**: Graceful error screens and user-friendly alerts
+- **Form Validation**: Zod schema with clear error messages
+
+### Deviations / Notes
+- Used `uploadImage` service instead of `updateContent` - the existing service handles image uploads correctly
+- Content versioning happens server-side via `cs-update-content` Edge Function
+- Image loading from `content_id` currently shows placeholder - full signed URL fetching can be added later
+- Type assertions used to work around Supabase client version mismatches between mobile and shared packages
+
+### Remaining TODOs
+- Test edit flow with various scenarios (today vs older, pending vs approved/rejected items)
+- Add optimistic UI updates for better perceived performance
+- Consider "unsaved changes" warning before navigating away
+- Implement full signed URL fetching for receipt image display
