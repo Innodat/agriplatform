@@ -9,7 +9,7 @@ module.exports = {
       alias: {
         '@agriplatform/shared': path.resolve(__dirname, '..', 'shared')
       }
-    }]
+    }],
+    'react-native-reanimated/plugin', // Must be last
   ]
 };
-

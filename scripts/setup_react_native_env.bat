@@ -19,17 +19,18 @@ if %errorlevel% neq 0 (
 )
 
 echo === Enable local ports ===
-netsh interface portproxy add v4tov4 listenport=54321 listenaddress=0.0.0.0 connectport=54321 connectaddress=127.0.0.1
-netsh interface portproxy add v4tov4 listenport=54322 listenaddress=0.0.0.0 connectport=54322 connectaddress=127.0.0.1
-netsh interface portproxy add v4tov4 listenport=54323 listenaddress=0.0.0.0 connectport=54323 connectaddress=127.0.0.1
-netsh interface portproxy add v4tov4 listenport=54324 listenaddress=0.0.0.0 connectport=54324 connectaddress=127.0.0.1
+netsh interface portproxy reset
 
+netsh interface portproxy add v4tov4 listenport=54321 listenaddress=0.0.0.0 connectport=54321 connectaddress=172.22.131.216
+netsh interface portproxy add v4tov4 listenport=54322 listenaddress=0.0.0.0 connectport=54322 connectaddress=172.22.131.216
+netsh interface portproxy add v4tov4 listenport=54323 listenaddress=0.0.0.0 connectport=54323 connectaddress=172.22.131.216
+netsh interface portproxy add v4tov4 listenport=54324 listenaddress=0.0.0.0 connectport=54324 connectaddress=172.22.131.216
 
 echo === Build, if needed ===
 cd packages/mobile/android
 mklink /J node_modules ..\node_modules
-./gradlew clean
-./gradlew :app:assembleDebug --stacktrace
+gradlew clean
+gradlew :app:assembleDebug --stacktrace
 
 cd packages/mobile
 echo === Starting Emulator ===

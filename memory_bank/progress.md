@@ -127,6 +127,51 @@
 
 ---
 
+## Post-ACT Update – 2026-01-23
+
+### Delivered
+- Replaced `react-native-vector-icons` with `lucide-react-native` throughout the mobile app:
+- Installed `lucide-react-native@0.563.0` package (latest version supporting React ^19.0.0)
+  - Removed `react-native-vector-icons` dependency from `package.json`
+  - Updated all icon imports from `import Icon from 'react-native-vector-icons/Feather'` to `import * as Icon from 'lucide-react-native'`
+  - Mapped Feather icon names to Lucide equivalents:
+    - `chevron-left` → `ChevronLeft`
+    - `chevron-right` → `ChevronRight`
+    - `plus` → `Plus`
+    - `check` → `Check`
+    - `x` → `X`
+    - `trash-2` → `Trash2`
+    - `edit-2` → `Pencil`
+    - `camera` → `Camera`
+    - `eye` → `Eye`
+    - `calendar` → `Calendar`
+    - `more-vertical` → `MoreVertical`
+    - `chevron-down` → `ChevronDown`
+    - `alert-circle` → `AlertCircle`
+    - `image` → `Image`
+  - Updated component files:
+    - `ContextMenu.tsx` - Conditional rendering of icons based on icon name
+    - `SwipeableReceiptItem.tsx` - Edit, delete, and chevron icons
+    - `UndoSnackbar.tsx` - Trash and X icons
+    - `AddReceiptScreen.tsx` - Back, camera, check, edit icons
+    - `ReceiptListScreen.tsx` - Plus icon for add button
+    - `ViewReceiptScreen.tsx` - All icons for view/edit mode
+  - Fixed TypeScript type errors in `FullScreenImageViewer` optional callbacks
+
+### Deviations / Notes
+- Latest version (0.563.0) properly supports React ^19.0.0 without requiring --legacy-peer-deps flag
+- Lucide icons use PascalCase component names (e.g., `Icon.Check`) instead of string names (e.g., `name="check"`)
+- Some icons required conditional rendering in `ContextMenu.tsx` due to dynamic icon name prop
+- Lucide icons are SVG-based and don't require native Android/iOS font configuration
+
+### Remaining TODOs
+- Test application to ensure all icons render correctly
+- Remove Android app build.gradle changes if any react-native-vector-icons fonts were configured
+- Clean up node_modules if old react-native-vector-icons references cause issues
+- Run `npx pod-install` for iOS if needed
+
+---
+
 ## Post-ACT Update – 2026-01-14
 
 ### Delivered

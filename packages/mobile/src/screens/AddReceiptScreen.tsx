@@ -27,6 +27,7 @@ import { FullScreenImageViewer } from '../components/FullScreenImageViewer';
 import { supabase, supabaseUrl } from '../lib/supabase';
 import { uploadImage } from '../services/content/content.service';
 import { useAuth } from '../contexts/AuthContext';
+import * as Icon from 'lucide-react-native';
 
 const receiptFormSchema = z.object({
   supplier: z.string().min(1, 'Supplier is required'),
@@ -207,7 +208,8 @@ export function AddReceiptScreen() {
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
         <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
-          <Text style={styles.backButtonText}>← Add Receipt</Text>
+          <Icon.ChevronLeft size={24} color="#fff" />
+          <Text style={styles.backButtonText}>Add Receipt</Text>
         </TouchableOpacity>
       </View>
 
@@ -232,7 +234,7 @@ export function AddReceiptScreen() {
               style={styles.editImageButton}
               onPress={() => setShowImagePicker(true)}
             >
-              <Text style={styles.editImageIcon}>✏️</Text>
+              <Icon.Pencil size={18} color="#00897B" />
             </TouchableOpacity>
           </View>
         ) : (
@@ -241,7 +243,7 @@ export function AddReceiptScreen() {
             onPress={() => setShowImagePicker(true)}
           >
             <View style={styles.addImageIconContainer}>
-              <Text style={styles.addImageIcon}>📷</Text>
+              <Icon.Camera size={32} color="#6B7280" />
             </View>
             <Text style={styles.addImageText}>Add Receipt Image</Text>
             <Text style={styles.addImageSubtext}>Tap to take photo or choose from gallery</Text>
@@ -313,7 +315,7 @@ export function AddReceiptScreen() {
               onPress={() => onChange(!value)}
             >
               <View style={[styles.checkboxBox, value && styles.checkboxChecked]}>
-                {value && <Text style={styles.checkboxCheck}>✓</Text>}
+                {value && <Icon.Check size={16} color="#fff" />}
               </View>
               <Text style={styles.checkboxLabel}>Own money (reimbursable)</Text>
             </TouchableOpacity>
@@ -363,7 +365,10 @@ export function AddReceiptScreen() {
           {saving ? (
             <ActivityIndicator color="#fff" />
           ) : (
-            <Text style={styles.saveButtonText}>💾 Save Receipt</Text>
+            <View style={styles.saveButtonContent}>
+              <Icon.Check size={20} color="#fff" />
+              <Text style={styles.saveButtonText}>Save Receipt</Text>
+            </View>
           )}
         </TouchableOpacity>
       </ScrollView>
@@ -624,6 +629,11 @@ const styles = StyleSheet.create({
   },
   saveButtonDisabled: {
     backgroundColor: '#B2DFDB',
+  },
+  saveButtonContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
   },
   saveButtonText: {
     color: '#fff',
