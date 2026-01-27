@@ -76,16 +76,3 @@ VALUES
 
   -- L3
   (32, 6, 'Other', 'Other', (select id from identity.org where slug = 'liseli'), TRUE, CURRENT_TIMESTAMP, '11111111-1111-1111-1111-111111111111'::uuid, CURRENT_TIMESTAMP, '11111111-1111-1111-1111-111111111111'::uuid);
-
--- Receipt seed examples (status lives on receipt)
-INSERT INTO finance.receipt (id, org_id, supplier, receipt_date, status, is_active, created_at, created_by, updated_at, updated_by)
-VALUES
-  (1, (select id from identity.org where slug = 'liseli'), 'Seed Supplier A', CURRENT_DATE, 'pending', TRUE, CURRENT_TIMESTAMP, '11111111-1111-1111-1111-111111111111'::uuid, CURRENT_TIMESTAMP, '11111111-1111-1111-1111-111111111111'::uuid),
-  (2, (select id from identity.org where slug = 'liseli'), 'Seed Supplier B', CURRENT_DATE - INTERVAL '1 day', 'querying', TRUE, CURRENT_TIMESTAMP, '11111111-1111-1111-1111-111111111111'::uuid, CURRENT_TIMESTAMP, '11111111-1111-1111-1111-111111111111'::uuid),
-  (3, (select id from identity.org where slug = 'liseli'), 'Seed Supplier C', CURRENT_DATE - INTERVAL '5 days', 'approved', TRUE, CURRENT_TIMESTAMP, '11111111-1111-1111-1111-111111111111'::uuid, CURRENT_TIMESTAMP, '11111111-1111-1111-1111-111111111111'::uuid);
-
-INSERT INTO finance.purchase (receipt_id, expense_type_id, currency_id, user_id, amount, reimbursable, is_active, created_at, created_by, updated_at, updated_by)
-VALUES
-  (1, 1, 1, '11111111-1111-1111-1111-111111111111'::uuid, 150.00, TRUE, TRUE, CURRENT_TIMESTAMP, '11111111-1111-1111-1111-111111111111'::uuid, CURRENT_TIMESTAMP, '11111111-1111-1111-1111-111111111111'::uuid),
-  (2, 2, 1, '11111111-1111-1111-1111-111111111111'::uuid, 75.50, FALSE, TRUE, CURRENT_TIMESTAMP, '11111111-1111-1111-1111-111111111111'::uuid, CURRENT_TIMESTAMP, '11111111-1111-1111-1111-111111111111'::uuid),
-  (3, 3, 1, '11111111-1111-1111-1111-111111111111'::uuid, 200.00, TRUE, TRUE, CURRENT_TIMESTAMP, '11111111-1111-1111-1111-111111111111'::uuid, CURRENT_TIMESTAMP, '11111111-1111-1111-1111-111111111111'::uuid);
