@@ -155,15 +155,12 @@ export class AzureBlobProvider implements StorageProvider {
       
       // Use createIfNotExists - handles the case where it already exists
       await containerClient.createIfNotExists();
-      
-      console.log(`Created or verified container ${params.bucketOrContainer} exists (dev environment)`);
     } catch (error) {
       // Handle gracefully - container might already exist
       if (error instanceof Error) {
         const errorStr = error.message.toLowerCase();
         if (errorStr.includes("container already exists") || 
             errorStr.includes("containerbeingcreated")) {
-          console.log(`Container ${params.bucketOrContainer} already exists, skipping creation`);
           return;
         }
       }

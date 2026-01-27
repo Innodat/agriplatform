@@ -22,7 +22,6 @@ export async function uploadToPresignedUrl(
 ): Promise<void> {
   // Ensure raw '&' between SAS params (defensive only)
   const safeUrl = uploadUrl.replace(/&/g, '&');
-  console.log('safeUrl RN', safeUrl);
 
   // Inline reader: URI -> ArrayBuffer
   async function uriToArrayBuffer(uri: string): Promise<ArrayBuffer> {
@@ -30,7 +29,6 @@ export async function uploadToPresignedUrl(
     if (Platform.OS === 'android') {
       // read with RNFS for content://
       if (uri.startsWith('content://')) {
-        console.log('Android + content:// -> using RNFS');
         const RNFS = (await import('react-native-fs')).default;
         const base64 = await RNFS.readFile(uri, 'base64'); // RNFS returns base64 for content://
         // convert base64 -> bytes (upload binary, not base64)
@@ -42,7 +40,6 @@ export async function uploadToPresignedUrl(
 
       // read with RNFS for file:// (strip scheme to real FS path)
       if (uri.startsWith('file://')) {
-        console.log('Android + file:// -> using RNFS');
         const path = uri.replace('file://', ''); // RNFS prefers a real path
         const RNFS = (await import('react-native-fs')).default;
         const base64 = await RNFS.readFile(path, 'base64');
@@ -65,9 +62,7 @@ export async function uploadToPresignedUrl(
 
 
   // Read bytes and PUT with required Azure headers
-  console.log('Convert image');
   const data = await uriToArrayBuffer(imageUri);
-  console.log('PUT');
   const response = await fetch(safeUrl, {
     method: 'PUT',
     headers: {
@@ -81,8 +76,6 @@ export async function uploadToPresignedUrl(
     const errorText = await response.text().catch(() => '(no body)');
     throw new Error(`Failed to upload image: ${response.status} - ${errorText}`);
   }
-
-  console.log('Image uploaded successfully to:', safeUrl);
 }
 
 /**
@@ -123,13 +116,10 @@ export async function uploadImage(
     const { content_id, upload_url, external_key } = uploadContentResponse;
 
     // Step 3: Upload using RN-specific implementation
-    console.log("Step 3: Upload using RN-specific implementation");
     await uploadToPresignedUrl(upload_url, imageUri, mimeType);
-    console.log("Progress: 80%");
     onProgress?.(80);
 
     // Step 4: Finalize upload (from shared service)
-    console.log("Step 4: Finalize upload (from shared service)");
     await finalizeUpload(supabaseUrl, accessToken, content_id);
     onProgress?.(100);
 

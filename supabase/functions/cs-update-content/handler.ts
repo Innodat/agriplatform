@@ -12,7 +12,6 @@ function buildExternalKey(mimeType: string, userId: string) {
 }
 
 async function fetchContentRecord(supabase: typeof supabaseAdmin, contentId: string) {
-  console.log("Fetch content record", contentId)
   const { data, error } = await supabase
     .schema("cs")
     .from("content_store")
@@ -37,7 +36,7 @@ async function fetchContentRecord(supabase: typeof supabaseAdmin, contentId: str
     .single();
   
   if (error || !data) {
-    console.log("Error", error);
+    console.error("Error", error);
     throw new HttpError("Content not found", 404);
   }
 

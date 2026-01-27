@@ -54,7 +54,6 @@ export async function handleFinalizeUpload(
     resolveBucketOrContainerName?: typeof resolveBucketOrContainerName;
   } = {},
 ): Promise<Response> {
-  console.log("Finalize Upload")
   const {
     supabase = supabaseAdmin,
     requireAuth = defaultRequireAuth,
@@ -75,7 +74,6 @@ export async function handleFinalizeUpload(
     const auth = await requireAuth(req);
     const payload = csFinalizeContentRequestSchema.parse(await req.json());
 
-    console.log("Fetch content record", payload.content_id)
     const record = await fetchContentRecord(supabase, payload.content_id);
     const isOwner = auth.userId === record.created_by;
     const isAdmin = hasRole(auth, ["admin", "financeadmin"]);
@@ -85,18 +83,15 @@ export async function handleFinalizeUpload(
     }
 
     // Get the storage provider
-    console.log("Get the storage provider", record.source.provider, record.source.settings)
     const provider = getProvider?.(record.source.provider, record.source.settings) ?? 
       getProviderRegistry(record.source.provider, record.source.settings);
 
     // Resolve bucket/container name
-    console.log("Resolve the bucket name")
     const bucketOrContainer = resolveContainer(
       record.source.settings.container_name ?? record.source.settings.bucket_name
     );
 
     // Check if the blob exists using the provider
-    console.log("Does the file exist?")
     const exists = await provider.exists({
       bucketOrContainer,
       path: record.external_key,

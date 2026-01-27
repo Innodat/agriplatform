@@ -73,7 +73,6 @@ export class SupabaseStorageProvider implements StorageProvider {
     const expiresInSeconds = expiresInMinutes * 60;
 
     // Try to use createSignedUploadUrl if available
-    console.log('Client storage request params:', params.bucketOrContainer, params.path);
     const storage = this.client.storage.from(params.bucketOrContainer);
     
     // Check if createSignedUploadUrl exists (newer versions of supabase-js)
@@ -188,7 +187,6 @@ export class SupabaseStorageProvider implements StorageProvider {
       if (error) {
         // If bucket already exists, that's okay
         if (error.message.includes("already exists") || error.message.includes("DuplicateBucket")) {
-          console.log(`Bucket ${params.bucketOrContainer} already exists, skipping creation`);
           return;
         }
         throw new Error(`Failed to create bucket ${params.bucketOrContainer}: ${error.message}`);
@@ -199,7 +197,6 @@ export class SupabaseStorageProvider implements StorageProvider {
       // Handle gracefully - bucket might already exist
       if (error instanceof Error && 
           (error.message.includes("already exists") || error.message.includes("DuplicateBucket"))) {
-        console.log(`Bucket ${params.bucketOrContainer} already exists, skipping creation`);
         return;
       }
       throw error;

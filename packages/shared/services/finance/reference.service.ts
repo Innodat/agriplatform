@@ -84,13 +84,9 @@ export async function getCurrencies(
 
   results.forEach((res, i) => {
     if (!res.success) {
-      console.log(`Row ${i} failed:`, res.error.format())
       console.error(`Row ${i} failed:`, res.error.format());
     }
   });
-
-  // var currency_list = data.map((row) => currencyRowSchema.parse(row))
-  // console.log("get_currencies", currency_list)
 
   return { data: parseCurrencies(data), error: null };
 }

@@ -126,7 +126,6 @@ export async function uploadToPresignedUrl(
 ): Promise<void> {
     
   const safeUrl = uploadUrl.replace(/&amp;/g, '&');
-  console.log('safeUrl', safeUrl);
   try {
     // Convert URI to Blob for upload
     //const blob = await uriToBlob(imageUri);
@@ -145,8 +144,6 @@ export async function uploadToPresignedUrl(
       const errorText = await response.text();
       throw new Error(`Failed to upload image: ${response.status} - ${errorText}`);
     }
-
-    console.log('Image uploaded successfully to:', safeUrl);
   } catch (error) {
     console.error('Upload to presigned URL failed...:', safeUrl, 'Error', error);
     throw error;
