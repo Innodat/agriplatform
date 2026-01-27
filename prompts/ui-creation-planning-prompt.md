@@ -38,4 +38,3 @@ Rules:
 - Use canonical ASCII + route map style from `systemPatterns.md`
 - Confirm live schema with MCP before writing Zod
 - Mark any uncertain schema elements for follow‑up
-- WAIT for explicit `APPROVE LAYOUT: yes` before writing any code

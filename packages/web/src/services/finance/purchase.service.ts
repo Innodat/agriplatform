@@ -4,19 +4,16 @@ import {
   purchaseInsertSchema,
   purchaseRowSchema,
   purchaseUpdateSchema,
-  purchaseStatusEnum,
 } from "@shared/schemas/zod/finance";
 import type {
   PurchaseInsert,
   PurchaseRow,
-  PurchaseStatus,
   PurchaseUpdate,
 } from "../../types/finance";
 
 export interface PurchaseFilters {
   receiptId?: number;
   userId?: string;
-  status?: PurchaseStatus;
   isActive?: boolean;
   capturedOn?: string;
 }
@@ -38,10 +35,6 @@ export async function getPurchases(
 
   if (filters.userId) {
     query = query.eq("user_id", filters.userId);
-  }
-
-  if (filters.status) {
-    query = query.eq("status", filters.status);
   }
 
   if (typeof filters.isActive === "boolean") {
@@ -105,18 +98,6 @@ export async function updatePurchase(
     data: purchaseRowSchema.parse(data),
     error: null,
   };
-}
-
-export async function updatePurchaseStatus(
-  id: number,
-  status: PurchaseStatus
-): Promise<{ data: PurchaseRow | null; error: PostgrestError | null }> {
-  purchaseStatusEnum.parse(status);
-
-  return updatePurchase({
-    id,
-    status,
-  });
 }
 
 export async function archivePurchase(

@@ -1,12 +1,5 @@
 import { z } from "zod";
 
-export const purchaseStatusEnum = z.enum([
-  "pending",
-  "approved",
-  "rejected",
-  "querying",
-]);
-
 export const purchaseRowSchema = z.object({
   id: z.number(),
   expense_type_id: z.number().nullable(),
@@ -22,7 +15,6 @@ export const purchaseRowSchema = z.object({
   updated_by: z.string().uuid().nullable(),
   created_at: z.string().datetime({ offset: true }).nullable(),
   updated_at: z.string().datetime({ offset: true }).nullable(),
-  status: purchaseStatusEnum,
 });
 export type PurchaseRow = z.infer<typeof purchaseRowSchema>;
 
@@ -41,7 +33,6 @@ export const purchaseInsertSchema = z.object({
   updated_by: z.string().uuid().nullable().optional(),
   created_at: z.string().datetime().optional(),
   updated_at: z.string().datetime().optional(),
-  status: purchaseStatusEnum.optional().default("pending"),
 });
 export type PurchaseInsert = z.infer<typeof purchaseInsertSchema>;
 

@@ -29,7 +29,7 @@ export function useReceipts(): UseReceiptsResult {
       }
       setError(null);
 
-      const { data, error: fetchError } = await getReceipts(supabase, {
+      const { data, error: fetchError } = await getReceipts(supabase as any, {
         isActive: true,
       });
 

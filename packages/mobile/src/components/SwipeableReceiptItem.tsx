@@ -13,6 +13,7 @@ import {
 } from 'react-native-gesture-handler';
 import * as Icon from 'lucide-react-native';
 import { format, isToday } from 'date-fns';
+import { StatusBadge } from './StatusBadge';
 
 const SCREEN_WIDTH = Dimensions.get('window').width;
 const ACTION_WIDTH = 72;
@@ -62,10 +63,15 @@ export function SwipeableReceiptItem({
     onDelete();
   }, [closeSwipeable, onDelete]);
 
+  const canModify = status === 'pending' || status === 'querying';
+
   const renderRightActions = (
     progress: Animated.AnimatedInterpolation<number>,
     dragX: Animated.AnimatedInterpolation<number>
   ) => {
+    if (!canModify) {
+      return null;
+    }
     // Edit button animation
     const editTranslateX = progress.interpolate({
       inputRange: [0, 0.5, 1],
@@ -163,6 +169,11 @@ export function SwipeableReceiptItem({
               </View>
             )}
           </View>
+          {status && (
+            <View style={styles.statusContainer}>
+              <StatusBadge status={status} />
+            </View>
+          )}
           <View style={styles.details}>
             <Text style={styles.amount}>
               {currency}
@@ -198,6 +209,9 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     marginBottom: 4,
+  },
+  statusContainer: {
+    marginBottom: 6,
   },
   supplier: {
     fontSize: 16,

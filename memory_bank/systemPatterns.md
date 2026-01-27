@@ -77,6 +77,21 @@
 
 ---
 
+## Receipt Status Gating Pattern
+
+**Rule:** Receipts are editable/deletable only when `receipt.status` is `pending` or `querying`.
+
+**Enforcement Locations:**
+- UI: disable edit/delete actions and show status badge in list/details.
+- DB: RLS update/delete policies must include status check.
+
+**Seed Sync:**
+- Any schema change affecting seeded tables must be mirrored in:
+  - `supabase/seeds/*.sql`
+  - `scripts/seed.py`
+
+---
+
 ## Content System Pattern
 
 **Architecture**: Hexagonal/Clean Architecture with Provider Abstraction

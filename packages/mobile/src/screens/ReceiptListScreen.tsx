@@ -26,6 +26,9 @@ interface PendingDelete {
   supplier: string;
 }
 
+const canModifyReceipt = (status?: string | null) =>
+  status === 'pending' || status === 'querying';
+
 export function ReceiptListScreen({ navigation }: any) {
   const { user, signOut } = useAuth();
   const { receipts, loading, error, refresh, loadMore, hasMore } = useReceipts();
@@ -84,10 +87,13 @@ export function ReceiptListScreen({ navigation }: any) {
   // Actually perform the delete
   const performDelete = async (receiptId: number) => {
     try {
-      await archiveReceipt(supabase as any, receiptId);
-      refresh();
+      const { error } = await archiveReceipt(supabase as any, receiptId);
+      if (error) {
+        throw new Error(error.message);
+      }
+      await refresh();
     } catch (err) {
-      Alert.alert('Error', 'Failed to delete receipt');
+      Alert.alert('Error', err instanceof Error ? err.message : 'Failed to delete receipt');
     }
   };
 
@@ -118,6 +124,11 @@ export function ReceiptListScreen({ navigation }: any) {
   };
 
   // Context menu items
+  const selectedReceiptStatus = selectedReceipt
+    ? receipts.find(r => r.id === selectedReceipt.id)?.status
+    : undefined;
+  const allowModifySelected = canModifyReceipt(selectedReceiptStatus);
+
   const contextMenuItems: ContextMenuItem[] = selectedReceipt ? [
     {
       id: 'view',
@@ -125,19 +136,19 @@ export function ReceiptListScreen({ navigation }: any) {
       icon: 'eye',
       onPress: () => handleViewReceipt(selectedReceipt.id),
     },
-    {
+    ...(allowModifySelected ? [{
       id: 'edit',
       label: 'Edit Receipt',
       icon: 'edit-2',
       onPress: () => handleEditReceipt(selectedReceipt.id),
-    },
-    {
+    }] : []),
+    ...(allowModifySelected ? [{
       id: 'delete',
       label: 'Delete Receipt',
       icon: 'trash-2',
       onPress: () => handleDeleteWithConfirmation(selectedReceipt.id, selectedReceipt.supplier),
       destructive: true,
-    },
+    }] : []),
   ] : [];
 
   const renderEmpty = () => {
@@ -217,9 +228,18 @@ export function ReceiptListScreen({ navigation }: any) {
                 totalAmount={item.totalAmount}
                 currency={item.currency}
                 capturedDate={item.receipt_date || ''}
+                status={item.status}
                 onPress={() => handleViewReceipt(item.id)}
-                onEdit={() => handleEditReceipt(item.id)}
-                onDelete={() => handleDeleteWithConfirmation(item.id, item.supplier || 'Unknown Supplier')}
+                onEdit={() => {
+                  if (canModifyReceipt(item.status)) {
+                    handleEditReceipt(item.id);
+                  }
+                }}
+                onDelete={() => {
+                  if (canModifyReceipt(item.status)) {
+                    handleDeleteWithConfirmation(item.id, item.supplier || 'Unknown Supplier');
+                  }
+                }}
                 onLongPress={() => handleLongPress(item.id, item.supplier || 'Unknown Supplier')}
               />
             )}

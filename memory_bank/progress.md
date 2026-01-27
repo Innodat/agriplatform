@@ -172,6 +172,34 @@
 
 ---
 
+## Post-ACT Update – 2026-01-27
+
+### Delivered
+- Added receipt-level status with new migration `20260127163200_add_receipt_status.sql`.
+- Updated `finance.create_receipt_with_purchases` to set receipt status.
+- Tightened receipt update/delete RLS policies to allow changes only when status is `pending` or `querying`.
+- Updated shared Zod receipt schema to include `status` enum.
+- Updated mobile UI:
+  - Status badge shown in list/details.
+  - Edit/delete gating based on receipt status (pending/querying only).
+  - Removed purchase-item status gating.
+- Fixed delete error surfacing in list/details screens.
+- Updated seed data:
+  - `supabase/seeds/010_finance.sql` includes receipt status.
+  - `scripts/seed.py` inserts receipt status.
+- Updated docs:
+  - `docs/tech-spec.md`, `docs/finance/receipt-capturing-frd.md`, `docs/mobile-app/tech-spec.md`.
+  - Added seed-sync reminder.
+
+### Deviations / Notes
+- Purchase status column remains in DB but is no longer used by the app logic (kept for backward compatibility).
+
+### Remaining TODOs
+- Run `supabase db reset` to apply migration and verify seeds.
+- Smoke test mobile edit/delete gating with status scenarios.
+
+---
+
 ## Post-ACT Update – 2026-01-14
 
 ### Delivered

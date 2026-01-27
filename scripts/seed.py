@@ -136,10 +136,12 @@ def seed_receipts(user_id: str, org_id: str):
     for i in range(1, 6):
         receipt_date = today if i <= 2 else (today - timedelta(days=i * 2))
         receipt_date_str = receipt_date.isoformat()
+        status = "pending" if i <= 2 else "approved"
         receipts.append(
             {
                 "org_id": org_id,
                 "receipt_date": receipt_date_str,
+                "status": status,
                 "is_active": True,
                 "created_at": datetime.now().isoformat(),
                 "created_by": user_id,
@@ -148,12 +150,15 @@ def seed_receipts(user_id: str, org_id: str):
             }
         )
 
-    supabase.schema("finance").table("receipt").insert(receipts).execute()
+    receipt_result = supabase.schema("finance").table("receipt").insert(receipts).execute()
+
+    receipt_rows = receipt_result.data or []
+    receipt_ids = [row.get("id") for row in receipt_rows if row.get("id") is not None]
 
     # Insert purchases linked to receipt 1..5
     purchases = [
         {
-            "receipt_id": 1,
+            "receipt_id": receipt_ids[0] if len(receipt_ids) > 0 else None,
             "expense_type_id": 1,
             "currency_id": 1,
             "user_id": user_id,
@@ -166,7 +171,7 @@ def seed_receipts(user_id: str, org_id: str):
             "updated_at": datetime.now().isoformat(),
         },
         {
-            "receipt_id": 1,
+            "receipt_id": receipt_ids[0] if len(receipt_ids) > 0 else None,
             "expense_type_id": 2,
             "currency_id": 2,
             "user_id": user_id,
@@ -179,7 +184,7 @@ def seed_receipts(user_id: str, org_id: str):
             "updated_at": datetime.now().isoformat(),
         },
         {
-            "receipt_id": 2,
+            "receipt_id": receipt_ids[1] if len(receipt_ids) > 1 else None,
             "expense_type_id": 3,
             "currency_id": 3,
             "user_id": user_id,
@@ -192,7 +197,7 @@ def seed_receipts(user_id: str, org_id: str):
             "updated_at": datetime.now().isoformat(),
         },
         {
-            "receipt_id": 3,
+            "receipt_id": receipt_ids[2] if len(receipt_ids) > 2 else None,
             "expense_type_id": 4,
             "currency_id": 4,
             "user_id": user_id,
@@ -205,7 +210,7 @@ def seed_receipts(user_id: str, org_id: str):
             "updated_at": (datetime.now() - timedelta(days=2)).isoformat(),
         },
         {
-            "receipt_id": 4,
+            "receipt_id": receipt_ids[3] if len(receipt_ids) > 3 else None,
             "expense_type_id": 5,
             "currency_id": 5,
             "user_id": user_id,
@@ -218,7 +223,7 @@ def seed_receipts(user_id: str, org_id: str):
             "updated_at": (datetime.now() - timedelta(days=5)).isoformat(),
         },
         {
-            "receipt_id": 5,
+            "receipt_id": receipt_ids[4] if len(receipt_ids) > 4 else None,
             "expense_type_id": 6,
             "currency_id": 1,
             "user_id": user_id,
@@ -232,6 +237,7 @@ def seed_receipts(user_id: str, org_id: str):
         },
     ]
 
+    purchases = [row for row in purchases if row["receipt_id"] is not None]
     supabase.schema("finance").table("purchase").insert(purchases).execute()
     print(f"Seeded {len(receipts)} receipts and {len(purchases)} purchases")
 

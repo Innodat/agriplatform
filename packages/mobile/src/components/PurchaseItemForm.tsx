@@ -9,7 +9,6 @@ import {
 import { Controller, Control } from 'react-hook-form';
 import type { ExpenseTypeRow } from '@agriplatform/shared';
 import { BottomSheetPicker } from './BottomSheetPicker';
-import { StatusBadge } from './StatusBadge';
 
 interface PurchaseItemFormProps {
   index: number;
@@ -19,7 +18,6 @@ interface PurchaseItemFormProps {
   showRemove: boolean;
   currencySymbol: string;
   readOnly?: boolean;
-  status?: 'pending' | 'approved' | 'rejected' | 'querying';
 }
 
 export function PurchaseItemForm({
@@ -30,7 +28,6 @@ export function PurchaseItemForm({
   showRemove,
   currencySymbol,
   readOnly = false,
-  status,
 }: PurchaseItemFormProps) {
   const [showExpenseTypePicker, setShowExpenseTypePicker] = useState(false);
 
@@ -39,7 +36,6 @@ export function PurchaseItemForm({
       <View style={styles.header}>
         <View>
           <Text style={styles.title}>Item {index + 1}</Text>
-          {status && <StatusBadge status={status} />}
         </View>
         {showRemove && (
           <TouchableOpacity onPress={onRemove} style={styles.deleteButton} disabled={readOnly}>

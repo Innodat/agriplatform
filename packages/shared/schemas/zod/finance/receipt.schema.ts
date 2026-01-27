@@ -2,12 +2,20 @@ import { z } from "zod";
 
 const dateRegex = /^\d{4}-\d{2}-\d{2}$/;
 
+export const receiptStatusEnum = z.enum([
+  "pending",
+  "querying",
+  "approved",
+  "rejected",
+]);
+
 export const receiptRowSchema = z.object({
   id: z.number(),
   org_id: z.string().uuid(),
   supplier: z.string().nullable(),
   content_id: z.string().uuid().nullable(),
   is_active: z.boolean().nullable(),
+  status: receiptStatusEnum,
   receipt_date: z.string().regex(dateRegex),
   created_by: z.string().uuid().nullable(),
   created_at: z.string().datetime({ offset: true }).nullable(),
@@ -22,6 +30,7 @@ export const receiptInsertSchema = z.object({
   supplier: z.string().nullable().optional(),
   content_id: z.string().uuid().nullable().optional(),
   is_active: z.boolean().optional(),
+  status: receiptStatusEnum.optional().default("pending"),
   receipt_date: z.string().regex(dateRegex).optional(),
   created_by: z.string().uuid().nullable().optional(),
   created_at: z.string().datetime({ offset: true }).optional(),

@@ -5,11 +5,11 @@ Owner: Finance Module
 Scope: Frontend (React+Vite+ShadCN) + Supabase (direct; no custom backend)
 
 ## Overview
-Employees log spend by creating a Receipt (header: supplier, currency, reimbursable, date) and adding one or more Purchase items (line items: expense category/type, amount, optional Other category when "Other" is chosen). Admin moderates items via per-item status.
+Employees log spend by creating a Receipt (header: supplier, currency, reimbursable, date, status) and adding one or more Purchase items (line items: expense category/type, amount, optional Other category when "Other" is chosen). Admin moderates status at the receipt level.
 
 ## Objectives
 - Multi-item receipt capture with clear parent/child editing.
-- Per-item moderation (pending → approved/rejected) with default pending.
+- Receipt moderation (pending/querying → approved/rejected) with default pending.
 - Derived description "Category - Item" via deep select joins.
 - Supplier captured as string on receipt, indexed for filtering.
 - Standard audit columns auto-managed via centralized triggers.
@@ -25,6 +25,7 @@ erDiagram
   RECEIPT {
     int8 id PK
     text supplier  "indexed for filtering"
+    receipt_status status "pending|querying|approved|rejected"
     bool is_active
     timestamptz created_timestamp
     text created_user_id
@@ -42,7 +43,6 @@ erDiagram
     numeric amount
     bool reimbursable
     timestamptz captured_timestamp
-    purchase_status status "pending|approved|rejected (default pending)"
     bool is_active
     timestamptz created_timestamp
     text created_user_id
@@ -79,9 +79,9 @@ sequenceDiagram
   E->>UI: Open "Today's Receipts"
   UI->>UI: Enter Receipt header {supplier, currency, reimbursable, date}
   E->>UI: Add 1..N line items {category/type, amount, optional other_category}
-  UI->>SB: INSERT finance.receipt
+  UI->>SB: INSERT finance.receipt (status='pending')
   loop for each line item
-    UI->>SB: INSERT finance.purchase { receipt_id, expense_type_id, amount, currency_id (from header), reimbursable (from header), status='pending', captured_timestamp }
+    UI->>SB: INSERT finance.purchase { receipt_id, expense_type_id, amount, currency_id (from header), reimbursable (from header), captured_timestamp }
   end
   SB-->>UI: Success
 ```
@@ -92,6 +92,8 @@ stateDiagram-v2
   [*] --> pending
   pending --> approved: Admin Approve
   pending --> rejected: Admin Reject
+  querying --> approved: Admin Approve
+  querying --> rejected: Admin Reject
   approved --> [*]
   rejected --> [*]
 ```
@@ -115,7 +117,7 @@ graph TD
 ```
 
 ## Data Contracts (Zod)
-- Tables (finance.*): ReceiptTable (adds supplier), PurchaseTable (adds status), ExpenseType, ExpenseCategory, Currency.
+- Tables (finance.*): ReceiptTable (adds supplier + status), PurchaseTable, ExpenseType, ExpenseCategory, Currency.
 - Deep row: PurchaseDeep = PurchaseTable + expense_type(expense_category) + currency.
 - UI models: PurchaseSchema with derived description "Category - Item"; ReceiptWithAggregates includes supplier, totals, items.
 - Role: employee display name from auth user metadata (client only).
@@ -142,7 +144,7 @@ graph TD
 - Supplier is required; case-insensitive filtering supported.
 
 ## Admin Rules
-- Approve/Reject per purchase item; filter by supplier and status.
+- Approve/Reject per receipt; filter by supplier and status.
 
 ## Non-Goals
 - No supplier table at this stage.

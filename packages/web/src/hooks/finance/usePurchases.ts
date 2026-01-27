@@ -17,7 +17,6 @@ function normalizeFilters(filters?: PurchaseFilters): PurchaseFilters | undefine
     ...filters,
     receiptId: filters.receiptId ?? undefined,
     userId: filters.userId ?? undefined,
-    status: filters.status ?? undefined,
     isActive:
       typeof filters.isActive === "boolean" ? filters.isActive : undefined,
     capturedOn: filters.capturedOn ?? undefined,

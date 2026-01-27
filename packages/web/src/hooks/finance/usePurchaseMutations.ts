@@ -3,14 +3,12 @@ import type { PostgrestError } from "@supabase/supabase-js";
 import {
   createPurchase,
   updatePurchase,
-  updatePurchaseStatus,
   archivePurchase,
   type PurchaseFilters,
 } from "../../services/finance/purchase.service";
 import type {
   PurchaseInsert,
   PurchaseRow,
-  PurchaseStatus,
   PurchaseUpdate,
 } from "../../types/finance";
 
@@ -19,7 +17,6 @@ export interface UsePurchaseMutationsResult {
   error: Error | null;
   create: (payload: PurchaseInsert) => Promise<PurchaseRow | null>;
   update: (payload: PurchaseUpdate) => Promise<PurchaseRow | null>;
-  updateStatus: (id: number, status: PurchaseStatus) => Promise<PurchaseRow | null>;
   archive: (id: number) => Promise<PurchaseRow | null>;
   lastFilters?: PurchaseFilters;
 }
@@ -67,8 +64,6 @@ export function usePurchaseMutations(
       execute(() => createPurchase(payload)),
     update: (payload) =>
       execute(() => updatePurchase(payload)),
-    updateStatus: (id, status) =>
-      execute(() => updatePurchaseStatus(id, status)),
     archive: (id) =>
       execute(() => archivePurchase(id)),
   };

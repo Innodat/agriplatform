@@ -34,4 +34,4 @@ export type {
   CurrencyUpdate,
 };
 
-export type PurchaseStatus = PurchaseRow["status"];
+

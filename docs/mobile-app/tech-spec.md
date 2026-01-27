@@ -33,7 +33,8 @@ The AgriPlatform Mobile App is a React Native application designed for receipt c
 - **Receipt Capture**: Camera scanning and gallery selection
 - **Multi-Item Receipts**: Support for multiple purchase items per receipt
 - **Supplier Tracking**: Required supplier field for all receipts
-- **Today's Receipts**: Highlighted and editable only on capture day
+- **Receipt Status**: Status badge displayed in list/details
+- **Edit/Delete Rule**: Only when receipt status is pending or querying
 - **Offline Support**: Queue operations when offline, sync when online
 - **Supabase Integration**: Direct backend access with RLS security
 
@@ -232,9 +233,9 @@ const { data, error } = await getReceipts(supabase, filters);
 ```
 
 **Features**:
-- Display: Supplier | Amount | Date
+- Display: Supplier | Amount | Date | Status badge
 - Today's receipts: Green background
-- Edit button: Enabled only for today's receipts
+- Edit/Delete: Enabled only when status is pending or querying
 - Pull-to-refresh
 - Pagination controls
 

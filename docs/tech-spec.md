@@ -478,11 +478,13 @@ erDiagram
     RECEIPT {
         int8 id PK
         text supplier
+        finance.receipt_status status
         bool is_active
         uuid created_by FK
         uuid updated_by FK
         timestamptz created_at
         timestamptz updated_at
+        date receipt_date
     }
     
     PURCHASE {
@@ -495,7 +497,7 @@ erDiagram
         numeric amount
         bool reimbursable
         timestamptz captured_timestamp
-        purchase_status status
+        -- status is stored on receipt only
         bool is_active
         uuid created_by FK
         uuid updated_by FK
@@ -618,11 +620,15 @@ CREATE POLICY "Receipts: update in org"
 
 ### 3.5 Enums
 
-**finance.purchase_status:**
+**finance.receipt_status:**
 - `pending` (default)
+- `querying`
 - `approved`
 - `rejected`
-- `querying`
+
+**finance.receipt.status:**
+- Stored on `finance.receipt`
+- Values: `pending | querying | approved | rejected`
 
 **identity.app_role:**
 - `admin`
@@ -847,6 +853,10 @@ TodayPage.tsx
 - Consistent error handling
 - Type-safe operations with Zod validation
 - Easy to test (mock at service layer)
+
+**Receipt Edit/Delete Rule:**
+- Receipts are editable/deletable only when `receipt.status` is `pending` or `querying`.
+- Enforced in UI and Supabase RLS policies.
 
 ### 5.7 Data Fetching Patterns
 
@@ -1160,7 +1170,6 @@ return res.json(response);
 4. For backend: Use "Backend Planning Prompt"
 5. Show ASCII layout diagram + route map FIRST (no code)
 6. Include recommendations for `.clinerules` / memory_bank updates
-7. **WAIT for explicit `APPROVE LAYOUT: yes` before writing code**
 
 **ACT MODE:**
 1. Implement **only** what was approved in PLAN
@@ -1191,9 +1200,7 @@ return res.json(response);
 
 ### 7.3 Confirmation Gates
 
-**Gate 1:** Layout/API diagram approved (`APPROVE LAYOUT: yes`)  
-**Gate 2:** Scaffolding approved before wiring DB or business logic  
-**Gate 3:** Final review before merge
+**Gate 1:** Final review before merge
 
 ### 7.4 Memory Bank Usage
 
@@ -1207,6 +1214,12 @@ return res.json(response);
 - After each major milestone
 - When patterns change
 - When new conventions are established
+
+**Seed Sync Reminder:**
+- Any schema change that affects seeded tables must be updated in **both**:
+  - `supabase/seeds/*.sql`
+  - `scripts/seed.py`
+- Document changes in `docs/tech-spec.md` and `memory_bank/progress.md`.
 
 ---
 

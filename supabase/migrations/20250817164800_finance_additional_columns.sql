@@ -6,16 +6,18 @@
 alter table finance.receipt add column if not exists supplier text;
 create index if not exists idx_finance_receipt_supplier on finance.receipt (supplier);
 
--- Create purchase status enum and add status column
+-- Create receipt status enum and add status column to receipt
 do $$
 begin
   if not exists (
     select 1 from pg_type t join pg_namespace n on n.oid=t.typnamespace
-    where t.typname='purchase_status' and n.nspname='finance'
+    where t.typname = 'receipt_status' and n.nspname = 'finance'
   ) then
-    create type finance.purchase_status as enum ('pending','querying','approved','rejected');
+    create type finance.receipt_status as enum ('pending','querying','approved','rejected');
   end if;
 end$$;
 
-alter table finance.purchase add column if not exists status finance.purchase_status not null default 'pending';
+alter table finance.receipt add column if not exists status finance.receipt_status not null default 'pending';
+
+
 

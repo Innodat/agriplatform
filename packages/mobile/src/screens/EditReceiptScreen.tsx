@@ -38,7 +38,6 @@ const receiptFormSchema = z.object({
     expense_type_id: z.number().min(1, 'Expense type is required'),
     amount: z.number().positive('Amount must be greater than 0'),
     other_category: z.string().optional(),
-    status: z.enum(['pending', 'approved', 'rejected', 'querying']).optional(),
   })).min(1, 'At least one item is required'),
 });
 
@@ -53,7 +52,6 @@ interface PurchaseData {
   other_category: string | null;
   currency_id: number;
   reimbursable: boolean;
-  status: 'pending' | 'approved' | 'rejected' | 'querying';
 }
 
 interface ReceiptWithPurchases {
@@ -61,8 +59,12 @@ interface ReceiptWithPurchases {
   supplier: string | null;
   receipt_date: string | null;
   content_id: string | null;
+  status: 'pending' | 'approved' | 'rejected' | 'querying';
   purchases: PurchaseData[];
 }
+
+const canModifyReceipt = (status?: string | null) =>
+  status === 'pending' || status === 'querying';
 
 export function EditReceiptScreen() {
   const route = useRoute<EditReceiptScreenRouteProp>();
@@ -110,27 +112,13 @@ export function EditReceiptScreen() {
   // Check if receipt is editable
   const canEdit = useCallback(() => {
     if (!receipt) return false;
-    
-    // Check if receipt is from today
-    const today = new Date().toISOString().split('T')[0];
-    const isToday = receipt.receipt_date === today;
-    if (!isToday) return false;
-    
-    // Check if any item is approved/rejected
-    const hasApprovedOrRejected = receipt.purchases.some(
-      p => p.status === 'approved' || p.status === 'rejected'
-    );
-    if (hasApprovedOrRejected) return false;
-    
-    return true;
+    return canModifyReceipt(receipt.status);
   }, [receipt]);
 
   // Check if delete is allowed
   const canDelete = useCallback(() => {
     if (!receipt) return false;
-    return !receipt.purchases.some(
-      p => p.status === 'approved' || p.status === 'rejected'
-    );
+    return canModifyReceipt(receipt.status);
   }, [receipt]);
 
   // Load receipt data
@@ -200,7 +188,6 @@ export function EditReceiptScreen() {
         expense_type_id: p.expense_type_id,
         amount: Number(p.amount),
         other_category: p.other_category || '',
-        status: p.status,
       })));
       
     } catch (err) {
@@ -246,7 +233,10 @@ export function EditReceiptScreen() {
           onPress: async () => {
             try {
               setDeleting(true);
-      await archiveReceipt(supabase as any, receiptId);
+              const { error } = await archiveReceipt(supabase as any, receiptId);
+              if (error) {
+                throw new Error(error.message);
+              }
               Alert.alert('Success', 'Receipt deleted successfully', [
                 { text: 'OK', onPress: () => navigation.goBack() },
               ]);
@@ -356,11 +346,6 @@ export function EditReceiptScreen() {
 
     // Update or insert items
     for (const item of data.items) {
-      // Skip approved/rejected items (read-only)
-      if (item.status === 'approved' || item.status === 'rejected') {
-        continue;
-      }
-
       if (item.id) {
         // Update existing
         const { error } = await supabase
@@ -431,11 +416,7 @@ export function EditReceiptScreen() {
 
   // Show cannot edit message
   if (!canEdit()) {
-    const today = new Date().toISOString().split('T')[0];
-    const isToday = receipt?.receipt_date === today;
-    const hasApprovedOrRejected = receipt?.purchases.some(
-      p => p.status === 'approved' || p.status === 'rejected'
-    );
+    const canModify = receipt ? canModifyReceipt(receipt.status) : false;
 
     return (
       <SafeAreaView style={styles.container}>
@@ -449,14 +430,9 @@ export function EditReceiptScreen() {
             <Text style={styles.cannotEditIcon}>🔒</Text>
             <Text style={styles.cannotEditTitle}>Cannot Edit Receipt</Text>
             <View style={styles.cannotEditReasons}>
-              {!isToday && (
+              {!canModify && (
                 <Text style={styles.cannotEditReason}>
-                  • This receipt was not captured today
-                </Text>
-              )}
-              {hasApprovedOrRejected && (
-                <Text style={styles.cannotEditReason}>
-                  • Some items have been approved or rejected
+                  • Receipt can only be edited or deleted when status is pending or querying
                 </Text>
               )}
             </View>
@@ -598,8 +574,7 @@ export function EditReceiptScreen() {
           </View>
 
           {fields.map((field, index) => {
-            const item = items[index];
-            const isReadOnly = item.status === 'approved' || item.status === 'rejected';
+            const isReadOnly = !canEdit();
             
             return (
               <PurchaseItemForm

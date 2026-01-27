@@ -17,6 +17,7 @@
     "@react-native/new-app-screen": "0.82.1",
     "@react-navigation/native": "^6.1.18",
     "@react-navigation/native-stack": "^6.11.0",
+    "@supabase/mcp-server-supabase": "^0.6.2",
     "@supabase/supabase-js": "^2.55.0",
     "buffer": "^6.0.3",
     "date-fns": "^4.1.0",

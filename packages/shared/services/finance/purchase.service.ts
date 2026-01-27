@@ -3,18 +3,14 @@ import {
   purchaseInsertSchema,
   purchaseRowSchema,
   purchaseUpdateSchema,
-  purchaseStatusEnum,
   type PurchaseInsert,
   type PurchaseRow,
   type PurchaseUpdate,
 } from "../../";
 
-export type PurchaseStatus = "pending" | "approved" | "rejected" | "querying";
-
 export interface PurchaseFilters {
   receiptId?: number;
   userId?: string;
-  status?: PurchaseStatus;
   isActive?: boolean;
   capturedOn?: string;
 }
@@ -37,10 +33,6 @@ export async function getPurchases(
 
   if (filters.userId) {
     query = query.eq("user_id", filters.userId);
-  }
-
-  if (filters.status) {
-    query = query.eq("status", filters.status);
   }
 
   if (typeof filters.isActive === "boolean") {
@@ -106,19 +98,6 @@ export async function updatePurchase(
     data: purchaseRowSchema.parse(data),
     error: null,
   };
-}
-
-export async function updatePurchaseStatus(
-  supabase: SupabaseClient,
-  id: number,
-  status: PurchaseStatus
-): Promise<{ data: PurchaseRow | null; error: PostgrestError | null }> {
-  purchaseStatusEnum.parse(status);
-
-  return updatePurchase(supabase, {
-    id,
-    status,
-  });
 }
 
 export async function archivePurchase(

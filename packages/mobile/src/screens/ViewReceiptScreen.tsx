@@ -30,6 +30,7 @@ import { uploadImage } from '../services/content/content.service';
 import { useAuth } from '../contexts/AuthContext';
 import * as Icon from 'lucide-react-native';
 import { format, isToday } from 'date-fns';
+import { StatusBadge } from '../components/StatusBadge';
 
 const receiptFormSchema = z.object({
   supplier: z.string().min(1, 'Supplier is required'),
@@ -41,7 +42,6 @@ const receiptFormSchema = z.object({
     expense_type_id: z.number().min(1, 'Expense type is required'),
     amount: z.number().positive('Amount must be greater than 0'),
     other_category: z.string().optional(),
-    status: z.enum(['pending', 'approved', 'rejected', 'querying']).optional(),
   })).min(1, 'At least one item is required'),
 });
 
@@ -56,7 +56,6 @@ interface PurchaseData {
   other_category: string | null;
   currency_id: number;
   reimbursable: boolean;
-  status: 'pending' | 'approved' | 'rejected' | 'querying';
 }
 
 interface ReceiptWithPurchases {
@@ -64,8 +63,12 @@ interface ReceiptWithPurchases {
   supplier: string | null;
   receipt_date: string | null;
   content_id: string | null;
+  status: 'pending' | 'approved' | 'rejected' | 'querying';
   purchases: PurchaseData[];
 }
+
+const canModifyReceipt = (status?: string | null) =>
+  status === 'pending' || status === 'querying';
 
 export function ViewReceiptScreen() {
   const route = useRoute<ViewReceiptScreenRouteProp>();
@@ -117,49 +120,19 @@ export function ViewReceiptScreen() {
   // Check if receipt is editable
   const canEdit = useCallback(() => {
     if (!receipt) return false;
-    
-    // Check if receipt is from today
-    const today = new Date().toISOString().split('T')[0];
-    const isReceiptToday = receipt.receipt_date === today;
-    if (!isReceiptToday) return false;
-    
-    // Check if any item is approved/rejected
-    const hasApprovedOrRejected = receipt.purchases.some(
-      p => p.status === 'approved' || p.status === 'rejected'
-    );
-    if (hasApprovedOrRejected) return false;
-    
-    return true;
+    return canModifyReceipt(receipt.status);
   }, [receipt]);
 
   // Check if delete is allowed
   const canDelete = useCallback(() => {
     if (!receipt) return false;
-    return !receipt.purchases.some(
-      p => p.status === 'approved' || p.status === 'rejected'
-    );
+    return canModifyReceipt(receipt.status);
   }, [receipt]);
 
   // Get edit restriction reason
   const getEditRestrictionReason = useCallback(() => {
     if (!receipt) return '';
-    
-    const today = new Date().toISOString().split('T')[0];
-    const isReceiptToday = receipt.receipt_date === today;
-    
-    if (!isReceiptToday) {
-      return 'Cannot edit receipts from previous days';
-    }
-    
-    const hasApprovedOrRejected = receipt.purchases.some(
-      p => p.status === 'approved' || p.status === 'rejected'
-    );
-    
-    if (hasApprovedOrRejected) {
-      return 'Cannot edit - some items have been approved or rejected';
-    }
-    
-    return '';
+    return 'Receipt can only be edited when status is pending or querying';
   }, [receipt]);
 
   // Load receipt data
@@ -225,7 +198,6 @@ export function ViewReceiptScreen() {
         expense_type_id: p.expense_type_id,
         amount: Number(p.amount),
         other_category: p.other_category || '',
-        status: p.status,
       })));
       
     } catch (err) {
@@ -301,7 +273,10 @@ export function ViewReceiptScreen() {
           onPress: async () => {
             try {
               setDeleting(true);
-              await archiveReceipt(supabase as any, receiptId);
+              const { error } = await archiveReceipt(supabase as any, receiptId);
+              if (error) {
+                throw new Error(error.message);
+              }
               Alert.alert('Success', 'Receipt deleted successfully', [
                 { text: 'OK', onPress: () => navigation.goBack() },
               ]);
@@ -406,10 +381,6 @@ export function ViewReceiptScreen() {
     }
 
     for (const item of data.items) {
-      if (item.status === 'approved' || item.status === 'rejected') {
-        continue;
-      }
-
       if (item.id) {
         const { error } = await supabase
           .schema('finance')
@@ -600,7 +571,7 @@ export function ViewReceiptScreen() {
           </View>
         )}
 
-        {/* Date Badge */}
+        {/* Date + Status Badges */}
         <View style={styles.dateBadgeContainer}>
           <View style={[styles.dateBadge, isTodayReceipt && styles.dateBadgeToday]}>
             <Icon.Calendar size={16} color={isTodayReceipt ? '#10B981' : '#6B7280'} />
@@ -609,6 +580,11 @@ export function ViewReceiptScreen() {
               {isTodayReceipt && ' (Today)'}
             </Text>
           </View>
+          {receipt?.status && (
+            <View style={styles.statusBadgeWrapper}>
+              <StatusBadge status={receipt.status} />
+            </View>
+          )}
         </View>
 
         {/* Supplier */}
@@ -703,7 +679,7 @@ export function ViewReceiptScreen() {
 
           {fields.map((field, index) => {
             const item = items[index];
-            const isReadOnly = !isEditMode || item.status === 'approved' || item.status === 'rejected';
+            const isReadOnly = !isEditMode;
             
             return (
               <PurchaseItemForm
@@ -957,6 +933,7 @@ const styles = StyleSheet.create({
   },
   dateBadgeContainer: {
     marginBottom: 16,
+    gap: 8,
   },
   dateBadge: {
     flexDirection: 'row',
@@ -978,6 +955,9 @@ const styles = StyleSheet.create({
   },
   dateBadgeTextToday: {
     color: '#10B981',
+  },
+  statusBadgeWrapper: {
+    alignSelf: 'flex-start',
   },
   field: {
     marginBottom: 16,
