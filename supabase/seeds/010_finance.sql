@@ -23,12 +23,6 @@ VALUES
   (3, '$', 'United States Dollars', (select id from identity.org where slug = 'liseli'), TRUE, CURRENT_TIMESTAMP, '11111111-1111-1111-1111-111111111111'::uuid, CURRENT_TIMESTAMP, '11111111-1111-1111-1111-111111111111'::uuid),
   (4, 'P', 'Botswana Pula', (select id from identity.org where slug = 'liseli'), TRUE, CURRENT_TIMESTAMP, '11111111-1111-1111-1111-111111111111'::uuid, CURRENT_TIMESTAMP, '11111111-1111-1111-1111-111111111111'::uuid),
   (5, 'N', 'Namibian Dollars', (select id from identity.org where slug = 'liseli'), TRUE, CURRENT_TIMESTAMP, '11111111-1111-1111-1111-111111111111'::uuid, CURRENT_TIMESTAMP, '11111111-1111-1111-1111-111111111111'::uuid)
-ON CONFLICT (org_id, id) DO UPDATE
-  SET symbol = EXCLUDED.symbol,
-      name = EXCLUDED.name,
-      is_active = EXCLUDED.is_active,
-      updated_at = EXCLUDED.updated_at,
-      updated_by = EXCLUDED.updated_by;
 
 -- Expense Category
 INSERT INTO finance.expense_category (id, name, description, org_id, is_active, created_at, created_by, updated_at, updated_by)
@@ -40,12 +34,6 @@ VALUES
   (5, 'L2', 'Liseli Farm 2', (select id from identity.org where slug = 'liseli'), TRUE, CURRENT_TIMESTAMP, '11111111-1111-1111-1111-111111111111'::uuid, CURRENT_TIMESTAMP, '11111111-1111-1111-1111-111111111111'::uuid),
   (6, 'L3', 'Liseli Farm 3', (select id from identity.org where slug = 'liseli'), TRUE, CURRENT_TIMESTAMP, '11111111-1111-1111-1111-111111111111'::uuid, CURRENT_TIMESTAMP, '11111111-1111-1111-1111-111111111111'::uuid),
   (7, 'Other', 'Other', (select id from identity.org where slug = 'liseli'), TRUE, CURRENT_TIMESTAMP, '11111111-1111-1111-1111-111111111111'::uuid, CURRENT_TIMESTAMP, '11111111-1111-1111-1111-111111111111'::uuid)
-ON CONFLICT (org_id, id) DO UPDATE
-  SET name = EXCLUDED.name,
-      description = EXCLUDED.description,
-      is_active = EXCLUDED.is_active,
-      updated_at = EXCLUDED.updated_at,
-      updated_by = EXCLUDED.updated_by;
 
 -- Expense Type
 INSERT INTO finance.expense_type (id, expense_category_id, name, description, org_id, is_active, created_at, created_by, updated_at, updated_by)
@@ -93,7 +81,7 @@ VALUES
 
   -- L3
   (32, 6, 'Other', 'Other', (select id from identity.org where slug = 'liseli'), TRUE, CURRENT_TIMESTAMP, '11111111-1111-1111-1111-111111111111'::uuid, CURRENT_TIMESTAMP, '11111111-1111-1111-1111-111111111111'::uuid)
-ON CONFLICT (org_id, id) DO UPDATE
+ON CONFLICT (id) DO UPDATE
   SET expense_category_id = EXCLUDED.expense_category_id,
       name = EXCLUDED.name,
       description = EXCLUDED.description,
@@ -107,13 +95,6 @@ VALUES
   (1, (select id from identity.org where slug = 'liseli'), 'Seed Supplier A', CURRENT_DATE, 'pending', TRUE, CURRENT_TIMESTAMP, '11111111-1111-1111-1111-111111111111'::uuid, CURRENT_TIMESTAMP, '11111111-1111-1111-1111-111111111111'::uuid),
   (2, (select id from identity.org where slug = 'liseli'), 'Seed Supplier B', CURRENT_DATE - INTERVAL '1 day', 'querying', TRUE, CURRENT_TIMESTAMP, '11111111-1111-1111-1111-111111111111'::uuid, CURRENT_TIMESTAMP, '11111111-1111-1111-1111-111111111111'::uuid),
   (3, (select id from identity.org where slug = 'liseli'), 'Seed Supplier C', CURRENT_DATE - INTERVAL '5 days', 'approved', TRUE, CURRENT_TIMESTAMP, '11111111-1111-1111-1111-111111111111'::uuid, CURRENT_TIMESTAMP, '11111111-1111-1111-1111-111111111111'::uuid)
-ON CONFLICT (org_id, id) DO UPDATE
-  SET supplier = EXCLUDED.supplier,
-      receipt_date = EXCLUDED.receipt_date,
-      status = EXCLUDED.status,
-      is_active = EXCLUDED.is_active,
-      updated_at = EXCLUDED.updated_at,
-      updated_by = EXCLUDED.updated_by;
 
 INSERT INTO finance.purchase (receipt_id, expense_type_id, currency_id, user_id, amount, reimbursable, is_active, created_at, created_by, updated_at, updated_by)
 VALUES
