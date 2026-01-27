@@ -89,6 +89,7 @@ export async function handleUploadContent(
     resolveBucketOrContainerName?: typeof resolveBucketOrContainerName;
   } = {},
 ): Promise<Response> {
+  console.log("TEST Upload CONTENT!!!!");
   const {
     supabase = supabaseAdmin,
     requireAuth = defaultRequireAuth,

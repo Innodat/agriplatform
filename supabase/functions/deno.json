@@ -1,8 +1,8 @@
 {
   "imports": {
     "@shared": "../../packages/shared/index.deno.ts",
-    "@supabase/supabase-js": "npm:@supabase/supabase-js@2.76.1",
-    "@azure/storage-blob": "npm:@azure/storage-blob@12.29.1",
+    "@supabase/supabase-js": "npm:@supabase/supabase-js@2.91.1",
+    "@azure/storage-blob": "npm:@azure/storage-blob@12.30.0",
     "@schemas/finance": "../../packages/shared/schemas/zod/finance/index.deno.ts",
     "@schemas/content-system": "../../packages/shared/schemas/zod/content-system/index.ts",
     "@schemas/identity": "../../packages/shared/schemas/zod/identity/index.deno.ts",

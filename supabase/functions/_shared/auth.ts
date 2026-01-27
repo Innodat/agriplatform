@@ -1,3 +1,4 @@
+import { createClient } from "npm:@supabase/supabase-js@2.91.0";
 import { getAccessToken, supabaseAdmin } from "./supabase.ts";
 
 export class HttpError extends Error {
@@ -17,6 +18,7 @@ export interface AuthContext {
 }
 
 function decodeJwtPayload(token: string): Record<string, unknown> {
+
   const segments = token.split(".");
   if (segments.length < 2) {
     throw new HttpError("Invalid access token", 401);
@@ -66,31 +68,37 @@ function extractNumberArray(value: unknown): number[] {
     .filter((item): item is number => typeof item === "number" && !Number.isNaN(item));
 }
 
+
 export async function requireAuth(req: Request): Promise<AuthContext> {
   const token = getAccessToken(req);
-  if (!token) {
+  if (!token || token.split(".").length !== 3) {
     throw new HttpError("Unauthorized", 401);
   }
 
-  const { data, error } = await supabaseAdmin.auth.getUser(token);
-  if (error || !data.user) {
-    throw new HttpError("Unauthorized", 401);
+  const SUPABASE_URL = Deno.env.get("SUPABASE_URL");
+  const SUPABASE_ANON_KEY = Deno.env.get("SUPABASE_ANON_KEY");
+  if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
+    throw new HttpError("Server misconfigured", 500);
   }
 
+  // Request-scoped client; forward the user's Authorization header
+  const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+    global: { headers: { Authorization: `Bearer ${token}` } },
+  });
+
+  // Let Supabase Auth validate the token
+  const { data: { user }, error } = await supabase.auth.getUser();
+  if (error || !user) throw new HttpError("Unauthorized", 401);
+
+  // Your existing helpers
   const payload = decodeJwtPayload(token);
   const roles = extractRoles(payload);
   const roleIds = extractNumberArray(payload["role_ids"]);
   const departmentIds = extractNumberArray(payload["department_ids"]);
 
-  return {
-    userId: data.user.id,
-    token,
-    roles,
-    roleIds,
-    departmentIds,
-    payload,
-  };
+  return { userId: user.id, token, roles, roleIds, departmentIds, payload };
 }
+
 
 export function hasRole(auth: AuthContext, allowed: string | string[]): boolean {
   const allowedList = Array.isArray(allowed) ? allowed : [allowed];
