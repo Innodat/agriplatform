@@ -32,7 +32,7 @@ begin
       select om.org_id
       from identity.org_member om
       where om.user_id = (event->>'user_id')::uuid
-        and om.is_active = true
+        and om.deleted_at IS NULL
       order by om.is_owner desc, om.created_at asc
       limit 1
     )
@@ -43,7 +43,7 @@ begin
       into org_slug
     from identity.org o
     where o.id = current_org_id
-      and o.is_active = true;
+      and o.deleted_at IS NULL;
   end if;
 
   if current_org_id is not null then
@@ -52,24 +52,24 @@ begin
     from identity.org_member om
     where om.user_id = (event->>'user_id')::uuid
       and om.org_id = current_org_id
-      and om.is_active = true;
+      and om.deleted_at IS NULL;
   end if;
 
   if current_member_id is not null then
     select
-      array_agg(mr.role) filter (where mr.is_active = true),
-      array_agg(mr.id) filter (where mr.is_active = true)
+      array_agg(mr.role) filter (where mr.deleted_at IS NULL),
+      array_agg(mr.id) filter (where mr.deleted_at IS NULL)
     into user_roles_arr, role_ids_arr
     from identity.member_role mr
     where mr.member_id = current_member_id
-      and mr.is_active = true;
+      and mr.deleted_at IS NULL;
   end if;
 
   select array_agg(om.org_id)
     into org_ids_arr
   from identity.org_member om
   where om.user_id = (event->>'user_id')::uuid
-    and om.is_active = true;
+    and om.deleted_at IS NULL;
 
   claims := jsonb_set(claims, '{org_id}', coalesce(to_jsonb(current_org_id), 'null'::jsonb));
   claims := jsonb_set(claims, '{org_slug}', coalesce(to_jsonb(org_slug), 'null'::jsonb));

@@ -1,13 +1,13 @@
 /**
  * FIX: Update auth hook to properly populate user_role claim in JWT
  * 
- * Issue: The previous auth hook was not properly setting the user_role claim,
+ * Issue: The previous auth hook was not properly setting user_role claim,
  * causing 403 errors when accessing finance schema tables due to RLS policies
- * expecting the claim.
+ * expecting to claim.
  * 
  * Changes:
  * - Ensure claims object exists with coalesce
- * - Query only active roles (is_active = true)
+ * - Query only active roles (deleted_at IS NULL)
  * - Populate user_role with first active role
  * - Add role_ids array for future use
  * - Add department_ids placeholder for future department mapping

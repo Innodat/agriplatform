@@ -20,7 +20,7 @@ BEGIN
   SELECT mr.role::text
   FROM identity.member_role mr
   WHERE mr.member_id = member_id
-    AND mr.is_active = true;
+    AND mr.deleted_at IS NULL;
 END;
 $$;
 

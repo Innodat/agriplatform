@@ -7,7 +7,7 @@ CREATE TABLE cs.content_source (
   provider text NOT NULL CHECK (provider IN ('azure_blob', 'supabase_storage')),
   name text NOT NULL,
   settings jsonb NOT NULL, -- Azure account/container/credential config
-  is_active boolean NOT NULL DEFAULT true,
+  deleted_at timestamptz DEFAULT NULL,
   created_by uuid references identity.users(id) on delete set null DEFAULT auth.uid(),
   created_at timestamptz DEFAULT now(),
   updated_by uuid references identity.users(id) on delete set null,
@@ -23,7 +23,7 @@ CREATE TABLE cs.content_store (
   size_bytes bigint,
   checksum text,
   metadata jsonb, -- EXIF, dimensions, etc.
-  is_active boolean NOT NULL DEFAULT true,
+  deleted_at timestamptz DEFAULT NULL,
   created_by uuid references identity.users(id) on delete set null DEFAULT auth.uid(),
   created_at timestamptz DEFAULT now(),
   updated_by uuid references identity.users(id) on delete set null,

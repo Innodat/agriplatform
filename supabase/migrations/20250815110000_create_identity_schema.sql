@@ -35,7 +35,7 @@ create table if not exists identity.org (
   name        text not null,
   slug        text not null unique,
   settings    jsonb not null default '{}'::jsonb,
-  is_active   boolean not null default true,
+  deleted_at  timestamptz DEFAULT NULL,
   created_by  uuid references identity.users(id) on delete set null,
   created_at  timestamptz not null default now(),
   updated_by  uuid references identity.users(id) on delete set null,
@@ -61,7 +61,7 @@ create table identity.role_permissions (
   role         identity.app_role not null,
   permission   identity.app_permission not null,
   unique (role, permission),
-  is_active BOOLEAN DEFAULT TRUE,
+  deleted_at timestamptz DEFAULT NULL,
   created_by uuid references identity.users(id) on delete set null DEFAULT auth.uid(),
   created_at timestamptz DEFAULT now(),
   updated_by uuid references identity.users(id) on delete set null,
@@ -84,7 +84,7 @@ begin
     from identity.role_permissions rp
     where rp.permission = requested_permission
       and rp.role = (auth.jwt() ->> 'user_role')::identity.app_role
-      and rp.is_active
+      and rp.deleted_at IS NULL
   );
 end;
 $$;
@@ -159,19 +159,6 @@ values
 alter table identity.users enable row level security;
 alter table identity.role_permissions enable row level security;
 
-
--- ============================================================================
--- READ VIEW: identity.users_read
--- ============================================================================
-
-CREATE OR REPLACE VIEW identity.users_read
-WITH (security_barrier, security_invoker = true)
-AS
-SELECT * FROM identity.users
-WHERE deleted_at IS NULL;
-
--- Grant SELECT on read view to authenticated users
-GRANT SELECT ON identity.users_read TO authenticated;
 
 -- ============================================================================
 -- RLS POLICIES: identity.users
