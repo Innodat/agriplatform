@@ -29,9 +29,7 @@ export function useReceipts(): UseReceiptsResult {
       }
       setError(null);
 
-      const { data, error: fetchError } = await getReceipts(supabase as any, {
-        isActive: true,
-      });
+      const { data, error: fetchError } = await getReceipts(supabase as any);
 
       if (fetchError) {
         throw new Error(fetchError.message);
@@ -40,7 +38,7 @@ export function useReceipts(): UseReceiptsResult {
       // Fetch purchases for all receipts to calculate totals
       const { data: purchases, error: purchasesError } = await supabase
         .schema('finance')
-        .from('purchase')
+        .from('purchase_read')
         .select('receipt_id, amount, currency:currency_id(symbol)')
         .in('receipt_id', data.map(r => r.id));
 

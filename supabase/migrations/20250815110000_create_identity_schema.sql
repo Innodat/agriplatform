@@ -18,7 +18,7 @@ create table identity.users (
   id          uuid references auth.users not null primary key, -- UUID from auth.users
   username    text,
   actor_key text UNIQUE,
-  is_active BOOLEAN DEFAULT TRUE,
+  deleted_at timestamptz DEFAULT NULL,
   is_system boolean DEFAULT false,
   created_by uuid references identity.users(id) on delete set null DEFAULT auth.uid(),
   created_at timestamptz DEFAULT now(),
@@ -160,24 +160,58 @@ alter table identity.users enable row level security;
 alter table identity.role_permissions enable row level security;
 
 
--- Identity: users
+-- ============================================================================
+-- READ VIEW: identity.users_read
+-- ============================================================================
+
+CREATE OR REPLACE VIEW identity.users_read
+WITH (security_barrier, security_invoker = true)
+AS
+SELECT * FROM identity.users
+WHERE deleted_at IS NULL;
+
+-- Grant SELECT on read view to authenticated users
+GRANT SELECT ON identity.users_read TO authenticated;
+
+-- ============================================================================
+-- RLS POLICIES: identity.users
+-- ============================================================================
+
 DROP POLICY IF EXISTS "Allow logged-in read or admin" ON identity.users;
-create policy "Allow logged-in read or admin read" on identity.users for select using (
-  auth.role() = 'authenticated' or identity.authorize('identity.users.admin') and is_active = true
+CREATE POLICY "Allow logged-in read or admin read" ON identity.users 
+FOR SELECT USING (
+  auth.role() = 'authenticated' OR identity.authorize('identity.users.admin')
 );
+
 DROP POLICY IF EXISTS "Allow insert for self or admin" ON identity.users;
-create policy "Allow insert for self or admin" on identity.users for insert with check (
-  (auth.uid())::uuid = id or identity.authorize('identity.users.admin')
+CREATE POLICY "Allow insert for self or admin" ON identity.users 
+FOR INSERT WITH CHECK (
+  (auth.uid())::uuid = id OR identity.authorize('identity.users.admin')
 );
+
 DROP POLICY IF EXISTS "Allow update for self or admin" ON identity.users;
-create policy "Allow update for self or admin" on identity.users for update with check (
-  ( (auth.uid())::uuid = id and is_active = true )
-  or ( identity.authorize('identity.users.admin') and is_active = true )
-);
 DROP POLICY IF EXISTS "Allow soft delete for self or admin" ON identity.users;
-create policy "Allow soft delete for self or admin" on identity.users for update with check (
-  ( (auth.uid())::uuid = id and is_active = false )
-  or ( identity.authorize('identity.users.admin') and is_active = false )
+CREATE POLICY "Allow update and soft delete (self or admin)" ON identity.users
+FOR UPDATE
+USING (
+  -- Minimal target-set
+  (auth.uid())::uuid = id OR identity.authorize('identity.users.admin')
+)
+WITH CHECK (
+  (
+    -- Admin can do anything
+    identity.authorize('identity.users.admin')
+    -- OR self: choose path based on final deleted_at
+    OR (
+      (auth.uid())::uuid = id
+      AND (
+        -- Update path: deleted_at stays NULL
+        deleted_at IS NULL
+        -- Delete path: deleted_at becomes NOT NULL
+        OR deleted_at IS NOT NULL
+      )
+    )
+  )
 );
 
 
@@ -243,7 +277,8 @@ ALTER DEFAULT PRIVILEGES IN SCHEMA identity
   GRANT SELECT, INSERT, UPDATE, DELETE ON TABLES TO service_role;
 
 -- Grants to authenticated users (RLS policies control actual access)
+-- Note: SELECT permission on views only (granted above for users_read)
 GRANT USAGE ON SCHEMA identity TO authenticated;
-GRANT SELECT, INSERT, UPDATE ON ALL TABLES IN SCHEMA identity TO authenticated;
+GRANT INSERT, UPDATE ON ALL TABLES IN SCHEMA identity TO authenticated;
 ALTER DEFAULT PRIVILEGES IN SCHEMA identity
-  GRANT SELECT, INSERT, UPDATE ON TABLES TO authenticated;
+  GRANT INSERT, UPDATE ON TABLES TO authenticated;

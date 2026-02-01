@@ -1,269 +1,278 @@
--- Finance: purchase
+-- Finance Schema: RLS Policies with Read Views and Unified UPDATE Pattern
+-- Pattern: deleted_at for soft deletes, *_read views for active records, unified UPDATE policies
+
+-- ============================================================================
+-- READ VIEWS (filter deleted_at IS NULL)
+-- ============================================================================
+
+-- Finance: receipt_read view
+CREATE OR REPLACE VIEW finance.receipt_read
+WITH (security_barrier, security_invoker = true)
+AS
+SELECT * FROM finance.receipt
+WHERE deleted_at IS NULL;
+
+-- Finance: purchase_read view
+CREATE OR REPLACE VIEW finance.purchase_read
+WITH (security_barrier, security_invoker = true)
+AS
+SELECT * FROM finance.purchase
+WHERE deleted_at IS NULL;
+
+-- Finance: expense_category_read view
+CREATE OR REPLACE VIEW finance.expense_category_read
+WITH (security_barrier, security_invoker = true)
+AS
+SELECT * FROM finance.expense_category
+WHERE deleted_at IS NULL;
+
+-- Finance: expense_type_read view
+CREATE OR REPLACE VIEW finance.expense_type_read
+WITH (security_barrier, security_invoker = true)
+AS
+SELECT * FROM finance.expense_type
+WHERE deleted_at IS NULL;
+
+-- Finance: currency_read view
+CREATE OR REPLACE VIEW finance.currency_read
+WITH (security_barrier, security_invoker = true)
+AS
+SELECT * FROM finance.currency
+WHERE deleted_at IS NULL;
+
+-- ============================================================================
+-- GRANTS: SELECT on views only, INSERT/UPDATE on base tables
+-- ============================================================================
+
+-- Grant SELECT on read views to authenticated users
+GRANT SELECT ON finance.receipt_read TO authenticated;
+GRANT SELECT ON finance.purchase_read TO authenticated;
+GRANT SELECT ON finance.expense_category_read TO authenticated;
+GRANT SELECT ON finance.expense_type_read TO authenticated;
+GRANT SELECT ON finance.currency_read TO authenticated;
+
+-- Service role keeps full access to base tables (already granted in schema migration)
+
+-- ============================================================================
+-- RLS POLICIES: finance.purchase
+-- ============================================================================
+
 -- NOTE: purchases are org-scoped indirectly via finance.receipt.org_id
+
 DROP POLICY IF EXISTS "Allow read for self or admin" ON finance.purchase;
-create policy "Allow read for self or admin" on finance.purchase for select using (
-  is_active = true
-  and exists (
-    select 1
-    from finance.receipt r
-    where r.id = finance.purchase.receipt_id
-      and r.org_id = identity.current_org_id()
+CREATE POLICY "Allow read for self or admin" ON finance.purchase 
+FOR SELECT USING (
+  EXISTS (
+    SELECT 1
+    FROM finance.receipt r
+    WHERE r.id = finance.purchase.receipt_id
+      AND r.org_id = identity.current_org_id()
   )
-  and (
-    ( (auth.uid())::uuid = created_by and identity.authorize('finance.purchase.read') )
-    or identity.authorize('finance.purchase.admin')
+  AND (
+    ( (auth.uid())::uuid = created_by AND identity.authorize('finance.purchase.read') )
+    OR identity.authorize('finance.purchase.admin')
   )
 );
 
 DROP POLICY IF EXISTS "Allow insert for self or admin" ON finance.purchase;
-CREATE POLICY "Allow insert for self or admin" ON finance.purchase FOR INSERT WITH CHECK (
-  exists (
-    select 1
-    from finance.receipt r
-    where r.id = finance.purchase.receipt_id
-      and r.org_id = identity.current_org_id()
+CREATE POLICY "Allow insert for self or admin" ON finance.purchase 
+FOR INSERT WITH CHECK (
+  EXISTS (
+    SELECT 1
+    FROM finance.receipt r
+    WHERE r.id = finance.purchase.receipt_id
+      AND r.org_id = identity.current_org_id()
   )
-  and (
+  AND (
     ( (auth.uid())::uuid = created_by AND identity.authorize('finance.purchase.insert') )
     OR identity.authorize('finance.purchase.admin')
   )
 );
 
 DROP POLICY IF EXISTS "Allow update for self or admin" ON finance.purchase;
-create policy "Allow update for self or admin" on finance.purchase
-FOR UPDATE
-USING (
-  is_active = true
-  and exists (
-    select 1
-    from finance.receipt r
-    where r.id = finance.purchase.receipt_id
-      and r.org_id = identity.current_org_id()
-  )
-  and (
-    ( (auth.uid())::uuid = created_by AND identity.authorize('finance.purchase.update') )
-    OR identity.authorize('finance.purchase.admin')
-  )
-)
-WITH CHECK (
-  exists (
-    select 1
-    from finance.receipt r
-    where r.id = finance.purchase.receipt_id
-      and r.org_id = identity.current_org_id()
-  )
-  and (
-    ( (auth.uid())::uuid = created_by AND identity.authorize('finance.purchase.update') )
-    OR identity.authorize('finance.purchase.admin')
-  )
-);
-
 DROP POLICY IF EXISTS "Allow soft delete for self or admin" ON finance.purchase;
-create policy "Allow soft delete for self or admin" on finance.purchase
+CREATE POLICY "Allow update and soft delete (self or admin)" ON finance.purchase
 FOR UPDATE
 USING (
-  is_active = true
-  and exists (
-    select 1
-    from finance.receipt r
-    where r.id = finance.purchase.receipt_id
-      and r.org_id = identity.current_org_id()
-  )
-  and (
-    ( (auth.uid())::uuid = created_by AND identity.authorize('finance.purchase.delete') )
-    OR identity.authorize('finance.purchase.admin')
+  -- Minimal target-set: only same-org rows are targetable
+  EXISTS (
+    SELECT 1
+    FROM finance.receipt r
+    WHERE r.id = finance.purchase.receipt_id
+      AND r.org_id = identity.current_org_id()
   )
 )
 WITH CHECK (
-  exists (
-    select 1
-    from finance.receipt r
-    where r.id = finance.purchase.receipt_id
-      and r.org_id = identity.current_org_id()
+  EXISTS (
+    SELECT 1
+    FROM finance.receipt r
+    WHERE r.id = finance.purchase.receipt_id
+      AND r.org_id = identity.current_org_id()
   )
-  and (
-    ( (auth.uid())::uuid = created_by AND is_active = false AND identity.authorize('finance.purchase.delete') )
-    OR identity.authorize('finance.purchase.admin')
+  AND (
+    -- Admin can do anything
+    identity.authorize('finance.purchase.admin')
+    -- OR creator: choose path based on the final deleted_at
+    OR (
+      (auth.uid())::uuid = created_by
+      AND (
+        -- General update path → final state must be active (deleted_at IS NULL)
+        (deleted_at IS NULL AND identity.authorize('finance.purchase.update'))
+        -- Soft-delete path → final state must be inactive (deleted_at IS NOT NULL)
+        OR (deleted_at IS NOT NULL AND identity.authorize('finance.purchase.delete'))
+      )
+    )
   )
 );
 
--- Finance: receipt
+-- ============================================================================
+-- RLS POLICIES: finance.receipt
+-- ============================================================================
+
 DROP POLICY IF EXISTS "Allow read for self or admin" ON finance.receipt;
-create policy "Allow read for self or admin" on finance.receipt for select using (
-  is_active = true
-  and org_id = identity.current_org_id()
-  and (
-    ( (auth.uid())::uuid = created_by and identity.authorize('finance.receipt.read') )
-    or identity.authorize('finance.receipt.admin')
+CREATE POLICY "Allow read for self or admin" ON finance.receipt 
+FOR SELECT USING (
+  org_id = identity.current_org_id()
+  AND (
+    ( (auth.uid())::uuid = created_by AND identity.authorize('finance.receipt.read') )
+    OR identity.authorize('finance.receipt.admin')
   )
 );
 
 DROP POLICY IF EXISTS "Allow insert for self or admin" ON finance.receipt;
-CREATE POLICY "Allow insert for self or admin" ON finance.receipt FOR INSERT WITH CHECK (
+CREATE POLICY "Allow insert for self or admin" ON finance.receipt 
+FOR INSERT WITH CHECK (
   org_id = identity.current_org_id()
-  and (
+  AND (
     ( (auth.uid())::uuid = created_by AND identity.authorize('finance.receipt.insert') )
     OR identity.authorize('finance.receipt.admin')
   )
 );
 
 DROP POLICY IF EXISTS "Allow update for self or admin" ON finance.receipt;
-create policy "Allow update for self or admin" on finance.receipt
-FOR UPDATE
-USING (
-  is_active = true
-  and org_id = identity.current_org_id()
-  and (
-    ( (auth.uid())::uuid = created_by AND identity.authorize('finance.receipt.update') )
-    OR identity.authorize('finance.receipt.admin')
-  )
-)
-WITH CHECK (
-  org_id = identity.current_org_id()
-  and (
-    ( (auth.uid())::uuid = created_by AND identity.authorize('finance.receipt.update') )
-    OR identity.authorize('finance.receipt.admin')
-  )
-);
-
 DROP POLICY IF EXISTS "Allow soft delete for self or admin" ON finance.receipt;
-create policy "Allow soft delete for self or admin" on finance.receipt
+CREATE POLICY "Allow update and soft delete (self or admin)" ON finance.receipt
 FOR UPDATE
 USING (
-  is_active = true
-  and org_id = identity.current_org_id()
-  and (
-    ( (auth.uid())::uuid = created_by AND identity.authorize('finance.receipt.delete') )
-    OR identity.authorize('finance.receipt.admin')
-  )
+  -- Minimal target-set: only same-org rows are targetable
+  org_id = identity.current_org_id()
 )
 WITH CHECK (
   org_id = identity.current_org_id()
-  and (
-    ( (auth.uid())::uuid = created_by AND is_active = false AND identity.authorize('finance.receipt.delete') )
-    OR identity.authorize('finance.receipt.admin')
+  AND (
+    -- Admin can do anything
+    identity.authorize('finance.receipt.admin')
+    -- OR creator: choose path based on the final deleted_at
+    OR (
+      (auth.uid())::uuid = created_by
+      AND (
+        -- General update path → final state must be active (deleted_at IS NULL)
+        (deleted_at IS NULL AND identity.authorize('finance.receipt.update'))
+        -- Soft-delete path → final state must be inactive (deleted_at IS NOT NULL)
+        OR (deleted_at IS NOT NULL AND identity.authorize('finance.receipt.delete'))
+      )
+    )
   )
 );
 
--- Finance: expense_category (org-scoped reference data)
+-- ============================================================================
+-- RLS POLICIES: finance.expense_category (org-scoped reference data)
+-- ============================================================================
+
 DROP POLICY IF EXISTS "Allow read for self or admin" ON finance.expense_category;
-create policy "Allow read for self or admin" on finance.expense_category for select using (
-  is_active = true
-  and org_id = identity.current_org_id()
-  and (
-    ( auth.role() = 'authenticated' and identity.authorize('finance.expense_category.read') )
-    or identity.authorize('finance.expense_category.admin')
+CREATE POLICY "Allow read for self or admin" ON finance.expense_category 
+FOR SELECT USING (
+  org_id = identity.current_org_id()
+  AND (
+    ( auth.role() = 'authenticated' AND identity.authorize('finance.expense_category.read') )
+    OR identity.authorize('finance.expense_category.admin')
   )
 );
 
 DROP POLICY IF EXISTS "Allow insert for self or admin" ON finance.expense_category;
-create policy "Allow insert for self or admin" on finance.expense_category for insert with check (
+CREATE POLICY "Allow insert for admin only" ON finance.expense_category 
+FOR INSERT WITH CHECK (
   org_id = identity.current_org_id()
-  and identity.authorize('finance.expense_category.admin')
+  AND identity.authorize('finance.expense_category.admin')
 );
 
 DROP POLICY IF EXISTS "Allow update for admin only" ON finance.expense_category;
-create policy "Allow update for admin only" on finance.expense_category
-FOR UPDATE USING (
-  org_id = identity.current_org_id()
-  and identity.authorize('finance.expense_category.admin')
-  and is_active = true
-) WITH CHECK (
-  org_id = identity.current_org_id()
-  and identity.authorize('finance.expense_category.admin')
-  and is_active = true
-);
-
 DROP POLICY IF EXISTS "Allow soft delete for admin only" ON finance.expense_category;
-create policy "Allow soft delete for admin only" on finance.expense_category
-FOR UPDATE USING (
+CREATE POLICY "Allow update and soft delete (admin only)" ON finance.expense_category
+FOR UPDATE
+USING (
+  -- Minimal target-set: only same-org rows are targetable
   org_id = identity.current_org_id()
-  and identity.authorize('finance.expense_category.admin')
-  and is_active = true
-) WITH CHECK (
+)
+WITH CHECK (
   org_id = identity.current_org_id()
-  and identity.authorize('finance.expense_category.admin')
-  and is_active = false
+  AND identity.authorize('finance.expense_category.admin')
 );
 
--- Finance: expense_type (org-scoped reference data)
+-- ============================================================================
+-- RLS POLICIES: finance.expense_type (org-scoped reference data)
+-- ============================================================================
+
 DROP POLICY IF EXISTS "Allow read for self or admin" ON finance.expense_type;
-create policy "Allow read for self or admin" on finance.expense_type for select using (
-  is_active = true
-  and org_id = identity.current_org_id()
-  and (
-    ( auth.role() = 'authenticated' and identity.authorize('finance.expense_type.read') )
-    or identity.authorize('finance.expense_type.admin')
+CREATE POLICY "Allow read for self or admin" ON finance.expense_type 
+FOR SELECT USING (
+  org_id = identity.current_org_id()
+  AND (
+    ( auth.role() = 'authenticated' AND identity.authorize('finance.expense_type.read') )
+    OR identity.authorize('finance.expense_type.admin')
   )
 );
 
 DROP POLICY IF EXISTS "Allow insert for self or admin" ON finance.expense_type;
-create policy "Allow insert for self or admin" on finance.expense_type for insert with check (
+CREATE POLICY "Allow insert for admin only" ON finance.expense_type 
+FOR INSERT WITH CHECK (
   org_id = identity.current_org_id()
-  and identity.authorize('finance.expense_type.admin')
+  AND identity.authorize('finance.expense_type.admin')
 );
 
 DROP POLICY IF EXISTS "Allow update for admin only" ON finance.expense_type;
-create policy "Allow update for admin only" on finance.expense_type
-FOR UPDATE USING (
-  org_id = identity.current_org_id()
-  and identity.authorize('finance.expense_type.admin')
-  and is_active = true
-) WITH CHECK (
-  org_id = identity.current_org_id()
-  and identity.authorize('finance.expense_type.admin')
-  and is_active = true
-);
-
 DROP POLICY IF EXISTS "Allow soft delete for admin only" ON finance.expense_type;
-create policy "Allow soft delete for admin only" on finance.expense_type
-FOR UPDATE USING (
+CREATE POLICY "Allow update and soft delete (admin only)" ON finance.expense_type
+FOR UPDATE
+USING (
+  -- Minimal target-set: only same-org rows are targetable
   org_id = identity.current_org_id()
-  and identity.authorize('finance.expense_type.admin')
-  and is_active = true
-) WITH CHECK (
+)
+WITH CHECK (
   org_id = identity.current_org_id()
-  and identity.authorize('finance.expense_type.admin')
-  and is_active = false
+  AND identity.authorize('finance.expense_type.admin')
 );
 
--- Finance: currency (org-scoped reference data)
+-- ============================================================================
+-- RLS POLICIES: finance.currency (org-scoped reference data)
+-- ============================================================================
+
 DROP POLICY IF EXISTS "Allow read for self or admin" ON finance.currency;
-create policy "Allow read for self or admin" on finance.currency for select using (
-  is_active = true
-  and org_id = identity.current_org_id()
-  and (
-    ( auth.role() = 'authenticated' and identity.authorize('finance.currency.read') )
-    or identity.authorize('finance.currency.admin')
+CREATE POLICY "Allow read for self or admin" ON finance.currency 
+FOR SELECT USING (
+  org_id = identity.current_org_id()
+  AND (
+    ( auth.role() = 'authenticated' AND identity.authorize('finance.currency.read') )
+    OR identity.authorize('finance.currency.admin')
   )
 );
 
 DROP POLICY IF EXISTS "Allow insert for self or admin" ON finance.currency;
-create policy "Allow insert for self or admin" on finance.currency for insert with check (
+CREATE POLICY "Allow insert for admin only" ON finance.currency 
+FOR INSERT WITH CHECK (
   org_id = identity.current_org_id()
-  and identity.authorize('finance.currency.admin')
+  AND identity.authorize('finance.currency.admin')
 );
 
 DROP POLICY IF EXISTS "Allow update for admin only" ON finance.currency;
-create policy "Allow update for admin only" on finance.currency
-FOR UPDATE USING (
-  org_id = identity.current_org_id()
-  and identity.authorize('finance.currency.admin')
-  and is_active = true
-) WITH CHECK (
-  org_id = identity.current_org_id()
-  and identity.authorize('finance.currency.admin')
-  and is_active = true
-);
-
 DROP POLICY IF EXISTS "Allow soft delete for admin only" ON finance.currency;
-create policy "Allow soft delete for admin only" on finance.currency
-FOR UPDATE USING (
+CREATE POLICY "Allow update and soft delete (admin only)" ON finance.currency
+FOR UPDATE
+USING (
+  -- Minimal target-set: only same-org rows are targetable
   org_id = identity.current_org_id()
-  and identity.authorize('finance.currency.admin')
-  and is_active = true
-) WITH CHECK (
+)
+WITH CHECK (
   org_id = identity.current_org_id()
-  and identity.authorize('finance.currency.admin')
-  and is_active = false
+  AND identity.authorize('finance.currency.admin')
 );

@@ -1,7 +1,7 @@
 # Technical Specification — Digital Twin Platform (AgriPlatform)
 
-**Version:** 1.0  
-**Last Updated:** 2025-10-15  
+**Version:** 1.1  
+**Last Updated:** 2026-02-01  
 **Owner:** Platform Architecture Team  
 **Status:** Living Document
 
@@ -254,7 +254,7 @@ export function getProvider(
 
 **Content Versioning:**
 
-When content is updated, the system automatically archives the previous version:
+When content is updated, system automatically archives previous version:
 
 ```
 Update Flow with Versioning:
@@ -479,7 +479,7 @@ erDiagram
         int8 id PK
         text supplier
         finance.receipt_status status
-        bool is_active
+        timestamptz deleted_at
         uuid created_by FK
         uuid updated_by FK
         timestamptz created_at
@@ -498,7 +498,7 @@ erDiagram
         bool reimbursable
         timestamptz captured_timestamp
         -- status is stored on receipt only
-        bool is_active
+        timestamptz deleted_at
         uuid created_by FK
         uuid updated_by FK
         timestamptz created_at
@@ -510,21 +510,21 @@ erDiagram
         int8 expense_category_id FK
         text name
         text description
-        bool is_active
+        timestamptz deleted_at
     }
     
     EXPENSE_CATEGORY {
         int8 id PK
         text name
         text description
-        bool is_active
+        timestamptz deleted_at
     }
     
     CURRENCY {
         int8 id PK
         text name
         text symbol
-        bool is_active
+        timestamptz deleted_at
     }
     
     USER {
@@ -572,8 +572,8 @@ CREATE TRIGGER trg_<schema>_<table>_audit
 ```
 
 **Standard Audit Columns:**
-- `created_by` (uuid or varchar): User who created the record
-- `updated_by` (uuid or varchar): User who last updated the record
+- `created_by` (uuid or varchar): User who created record
+- `updated_by` (uuid or varchar): User who last updated record
 - `created_at` (timestamptz): Creation timestamp
 - `updated_at` (timestamptz): Last update timestamp
 
@@ -584,11 +584,11 @@ CREATE TRIGGER trg_<schema>_<table>_audit
 
 **Multi-tenancy pattern (org scoping):**
 - Tables that belong to an organization include `org_id` (uuid) and RLS enforces `org_id = identity.current_org_id()`.
-- Tables that don’t have `org_id` directly (e.g. `finance.purchase`) are scoped through a parent join (e.g. purchase → receipt → org).
+- Tables that don't have `org_id` directly (e.g. `finance.purchase`) are scoped through a parent join (e.g. purchase → receipt → org).
 
 **Current org resolution:**
-- `identity.current_org_id()` returns the org/tenant for the authenticated user (based on membership).
-- `identity.current_member_id()` returns the membership row id for the authenticated user.
+- `identity.current_org_id()` returns to org/tenant for authenticated user (based on membership).
+- `identity.current_member_id()` returns to membership row id for the authenticated user.
 
 **Example Policy Pattern (tenant + permission):**
 ```sql
@@ -596,7 +596,7 @@ CREATE TRIGGER trg_<schema>_<table>_audit
 CREATE POLICY "Receipts: read in org"
   ON finance.receipt FOR SELECT
   USING (
-    is_active = true
+    deleted_at IS NULL
     AND org_id = identity.current_org_id()
     AND identity.authorize('finance.receipt.read')
   );
@@ -617,6 +617,126 @@ CREATE POLICY "Receipts: update in org"
     AND identity.authorize('finance.receipt.update')
   );
 ```
+
+### 3.4a Soft Delete Pattern (Finance Tables)
+
+**Migration Date:** 2026-02-01  
+**Affected Tables:** All finance tables (receipt, purchase, currency, expense_category, expense_type)
+
+**Pattern Overview:**
+Finance tables use a `deleted_at` timestamp for soft deletion instead of `is_active` boolean.
+
+**Key Benefits:**
+- **Auditing**: Deletion timestamp preserves when a record was removed
+- **Restoration**: Records can be easily restored by clearing `deleted_at`
+- **Filtering**: Automatic exclusion of deleted records via read views
+- **Consistency**: Timestamp-based pattern aligns with audit trail requirements
+
+**Database Schema:**
+```sql
+-- Column type
+deleted_at TIMESTAMPTZ NULL
+
+-- Meaning:
+-- NULL    = Record is active (not deleted)
+-- NOT NULL = Record is soft-deleted (timestamp of deletion)
+```
+
+**Read-Only Views Pattern:**
+
+All finance tables have corresponding `_read` views that automatically filter deleted records:
+
+```sql
+CREATE OR REPLACE VIEW finance.receipt_read AS
+SELECT * FROM finance.receipt
+WHERE deleted_at IS NULL;
+
+CREATE OR REPLACE VIEW finance.purchase_read AS
+SELECT * FROM finance.purchase
+WHERE deleted_at IS NULL;
+
+-- Similar views for: currency_read, expense_category_read, expense_type_read
+```
+
+**Application Layer Usage:**
+
+**Read Operations:** Use `_read` views
+```typescript
+// ✅ Correct: Use view for SELECT
+supabase.from('receipt_read').select('*')
+
+// ❌ Avoid: Direct table access includes deleted records
+supabase.from('receipt').select('*')
+```
+
+**Write Operations:** Use base tables directly
+```typescript
+// ✅ Correct: Insert into base table
+supabase.from('receipt').insert(payload)
+
+// ✅ Correct: Update base table
+supabase.from('receipt').update(changes).eq('id', id)
+
+// ✅ Correct: Soft delete by setting deleted_at
+supabase.from('receipt').update({ deleted_at: new Date().toISOString() }).eq('id', id)
+```
+
+**Archive/Restore Pattern:**
+```typescript
+// Archive (soft delete)
+async function archiveReceipt(id: number) {
+  return supabase.from('receipt')
+    .update({ deleted_at: new Date().toISOString() })
+    .eq('id', id);
+}
+
+// Restore (future enhancement)
+async function restoreReceipt(id: number) {
+  return supabase.from('receipt')
+    .update({ deleted_at: null })
+    .eq('id', id);
+}
+```
+
+**Zod Schema Pattern:**
+```typescript
+export const receiptRowSchema = z.object({
+  id: z.number(),
+  supplier: z.string().nullable(),
+  deleted_at: z.string().datetime({ offset: true }).nullable(),  // Instead of is_active
+  // ... other fields
+});
+```
+
+**RLS Policy Updates:**
+
+Policies on base tables must handle both active and deleted records:
+
+```sql
+-- Example: Read access for non-deleted records
+CREATE POLICY "Receipts: read in org"
+  ON finance.receipt FOR SELECT
+  USING (
+    org_id = identity.current_org_id()
+    AND deleted_at IS NULL  -- Exclude soft-deleted records
+    AND identity.authorize('finance.receipt.read')
+  );
+
+-- Example: Update access (prevents modification of deleted records)
+CREATE POLICY "Receipts: update in org"
+  ON finance.receipt FOR UPDATE
+  USING (
+    org_id = identity.current_org_id()
+    AND deleted_at IS NULL  -- Can only update active records
+    AND identity.authorize('finance.receipt.update')
+  );
+```
+
+**Migration Reference:**
+- Migration file: `supabase/migrations/20260201000000_finance_soft_delete.sql`
+- Schema updates: Added `deleted_at`, dropped `is_active`
+- Views created: `*_read` views for automatic filtering
+- Services updated: All services use `_read` views for SELECT operations
 
 ### 3.5 Enums
 
@@ -665,7 +785,7 @@ import { z } from 'zod';
 export const ReceiptRowSchema = z.object({
   id: z.number(),
   supplier: z.string().nullable(),
-  is_active: z.boolean().nullable().default(true),
+  deleted_at: z.string().datetime({ offset: true }).nullable(),
   created_by: z.string().uuid().nullable(),
   updated_by: z.string().uuid().nullable(),
   created_at: z.string().datetime({ offset: true }).nullable(),
@@ -706,7 +826,7 @@ export type ReceiptUpdate = z.infer<typeof ReceiptUpdateSchema>;
 - **Sync:** Automated conversion as part of build/CI workflow
 
 **Benefits:**
-- Ensures frontend and backend speak the same language
+- Ensures frontend and backend speak to same language
 - Changes in DB schema propagate: MCP → backend models → frontend schemas
 - Prevents runtime errors from mismatched payloads
 
@@ -827,8 +947,7 @@ const { theme, setTheme } = useTheme()
 ```typescript
 // Query hook pattern
 const { data, loading, error, refetch } = usePurchases({
-  capturedOn: today,
-  isActive: true
+  capturedOn: today
 })
 
 // Mutation hook pattern
@@ -869,9 +988,8 @@ TodayPage.tsx
 // receipt.service.ts
 export async function getReceipts(filters: ReceiptFilters) {
   const query = supabase
-    .from('receipt')
+    .from('receipt_read')
     .select('*')
-    .eq('is_active', true)
   
   if (filters.supplier) {
     query.ilike('supplier', `%${filters.supplier}%`)
@@ -929,8 +1047,7 @@ export function useReceiptMutations() {
 // TodayPage.tsx
 export function TodayPage() {
   const { data: purchases, loading, error, refetch } = usePurchases({
-    capturedOn: today,
-    isActive: true
+    capturedOn: today
   })
   
   const { create, loading: creating } = usePurchaseMutations()
@@ -1353,11 +1470,11 @@ No breaking changes to exported types.
 
 **Custom Claims in Access Token:**
 
-The authentication system populates the JWT access token with custom claims via the `identity.custom_access_token_hook` function.
+The authentication system populates to JWT access token with custom claims via `identity.custom_access_token_hook` function.
 
 | Claim | Type | Description |
 |-------|------|-------------|
-| `user_roles` | `identity.app_role[]` | Array of active roles for the current user (for the current org context) |
+| `user_roles` | `identity.app_role[]` | Array of active roles for current user (for current org context) |
 | `user_role` | `identity.app_role` | Convenience: first role from `user_roles` |
 | `org_id` | `uuid` | Current org/tenant id |
 | `member_id` | `bigint` | Current membership row id |
@@ -1385,8 +1502,8 @@ identity.authorize('finance.receipt.read')
 
 **Important Notes:**
 - Claims are populated on sign-in and token refresh
-- After modifying the auth hook, users must sign out and sign back in (or call `supabase.auth.refreshSession()`) to get updated claims
-- The `identity.authorize()` function checks if the user's role has the requested permission
+- After modifying to auth hook, users must sign out and sign back in (or call `supabase.auth.refreshSession()`) to get updated claims
+- The `identity.authorize()` function checks if to user's role has to requested permission
 
 ### 9.4 Row Level Security (RLS)
 
@@ -1406,7 +1523,7 @@ CREATE POLICY "Receipts: read in org"
   );
 ```
 
-### 9.4 Multi-Tenancy: org_id Requirements
+### 9.5 Multi-Tenancy: org_id Requirements
 
 **Tables with org_id (NOT NULL):**
 - `finance.receipt.org_id`
@@ -1436,7 +1553,7 @@ BEGIN
 
 **Zod Schema Enforcement:**
 
-Zod schemas MUST reflect the NOT NULL constraint:
+Zod schemas MUST reflect to NOT NULL constraint:
 
 ```typescript
 // ✅ Correct: org_id is required
@@ -1459,7 +1576,7 @@ When creating database functions that insert records with `org_id`, always:
 
 1. Retrieve `org_id` from JWT context using `identity.current_org_id()`
 2. Validate that `org_id` is not null before proceeding
-3. Use the retrieved `org_id` in INSERT statements
+3. Use to retrieved `org_id` in INSERT statements
 4. Never accept `org_id` as a function parameter
 
 ```sql
@@ -1485,11 +1602,11 @@ $fn$;
 
 **Benefits:**
 - **Security**: Prevents users from manipulating organization context
-- **Consistency**: All records are properly scoped to their organization
+- **Consistency**: All records are properly scoped to to their organization
 - **Auditability**: Clear ownership chain for all data
 - **RLS Support**: Enables proper row-level security policies
 
-### 9.5 Content Access Security
+### 9.6 Content Access Security
 
 **Principles:**
 - Frontend never accesses storage directly
@@ -1544,7 +1661,7 @@ describe('ReceiptInsertSchema', () => {
   it('should validate valid receipt data', () => {
     const data = {
       supplier: 'Test Supplier',
-      is_active: true,
+      deleted_at: null,
     };
     expect(() => ReceiptInsertSchema.parse(data)).not.toThrow();
   });
@@ -1879,6 +1996,7 @@ packages/frontend/src/components/              # React components
 
 | Version | Date | Author | Changes |
 |---------|------|--------|---------|
+| 1.1 | 2026-02-01 | AI Assistant | Added soft delete pattern documentation for finance tables (deleted_at vs is_active) |
 | 1.0 | 2025-10-15 | AI Assistant | Initial comprehensive technical specification |
 
 ---

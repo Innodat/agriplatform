@@ -13,7 +13,6 @@ import type {
 
 export interface ReceiptFilters {
   supplier?: string;
-  isActive?: boolean;
   createdAfter?: string;
   createdBefore?: string;
 }
@@ -29,16 +28,12 @@ function parseReceiptRows(rows: unknown[]): ReceiptRow[] {
 export async function getReceipts(
   filters: ReceiptFilters = {}
 ): Promise<{ data: ReceiptRow[]; error: PostgrestError | null }> {
-  let query = supabase.schema("finance").from("receipt").select("*").order("created_at", {
+  let query = supabase.schema("finance").from("receipt_read").select("*").order("created_at", {
     ascending: false,
   });
 
   if (filters.supplier) {
     query = query.ilike("supplier", `%${filters.supplier}%`);
-  }
-
-  if (typeof filters.isActive === "boolean") {
-    query = query.eq("is_active", filters.isActive);
   }
 
   if (filters.createdAfter) {
@@ -65,7 +60,7 @@ export async function getReceiptById(
   id: number
 ): Promise<{ data: ReceiptWithPurchases | null; error: PostgrestError | null }> {
   const { data, error } = await supabase
-    .schema("finance").from("receipt")
+    .schema("finance").from("receipt_read")
     .select("*, purchases(*)")
     .eq("id", id)
     .maybeSingle();
@@ -129,8 +124,21 @@ export async function updateReceipt(
 export async function archiveReceipt(
   id: number
 ): Promise<{ data: ReceiptRow | null; error: PostgrestError | null }> {
-  return updateReceipt({
-    id,
-    is_active: false,
-  });
+  const { data, error } = await supabase
+    .schema("finance")
+    .from("receipt")
+    .update({ deleted_at: new Date().toISOString() })
+    .eq("id", id)
+    .select()
+    .maybeSingle();
+
+  if (error || !data) {
+    console.error("Error archiving receipt:", error);
+    return { data: null, error };
+  }
+
+  return {
+    data: receiptRowSchema.parse(data),
+    error: null,
+  };
 }

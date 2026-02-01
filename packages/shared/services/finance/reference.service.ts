@@ -29,9 +29,8 @@ export async function getExpenseCategories(
   error: PostgrestError | null;
 }> {
   const { data, error } = await supabase
-    .schema("finance").from("expense_category")
+    .schema("finance").from("expense_category_read")
     .select("*")
-    .eq("is_active", true)
     .order("name", { ascending: true });
 
   if (error || !data) {
@@ -46,9 +45,8 @@ export async function getExpenseTypes(
   categoryId?: number
 ): Promise<{ data: ExpenseTypeRow[]; error: PostgrestError | null }> {
   let query = supabase
-    .schema("finance").from("expense_type")
+    .schema("finance").from("expense_type_read")
     .select("*")
-    .eq("is_active", true)
     .order("name", { ascending: true });
 
   if (categoryId) {
@@ -71,12 +69,11 @@ export async function getCurrencies(
   error: PostgrestError | null;
 }> {
   const { data, error } = await supabase
-    .schema("finance").from("currency")
+    .schema("finance").from("currency_read")
     .select("*")
-    .eq("is_active", true)
     .order("name", { ascending: true });
   if (error || !data) {
-    console.error("Error retrieving the currencies", error);
+    console.error("Error retrieving currencies", error);
     return { data: [], error };
   }
   

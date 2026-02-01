@@ -8,7 +8,7 @@ export const purchaseRowSchema = z.object({
   user_id: z.string().uuid().nullable(),
   amount: z.coerce.number(),
   captured_timestamp: z.string(),
-  is_active: z.boolean().nullable(),
+  deleted_at: z.string().datetime({ offset: true }).nullable(),
   reimbursable: z.boolean(),
   receipt_id: z.number().nullable(),
   created_by: z.string().uuid().nullable(),
@@ -26,13 +26,13 @@ export const purchaseInsertSchema = z.object({
   user_id: z.string().uuid().nullable().optional(),
   amount: z.coerce.number(),
   captured_timestamp: z.string(),
-  is_active: z.boolean().optional(),
+  deleted_at: z.string().datetime({ offset: true }).nullable().optional(),
   reimbursable: z.boolean(),
   receipt_id: z.number().nullable().optional(),
   created_by: z.string().uuid().nullable().optional(),
   updated_by: z.string().uuid().nullable().optional(),
-  created_at: z.string().datetime().optional(),
-  updated_at: z.string().datetime().optional(),
+  created_at: z.string().datetime({ offset: true }).optional(),
+  updated_at: z.string().datetime({ offset: true }).optional(),
 });
 export type PurchaseInsert = z.infer<typeof purchaseInsertSchema>;
 

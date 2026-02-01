@@ -11,7 +11,6 @@ import {
 export interface PurchaseFilters {
   receiptId?: number;
   userId?: string;
-  isActive?: boolean;
   capturedOn?: string;
 }
 
@@ -23,7 +22,7 @@ export async function getPurchases(
   supabase: SupabaseClient,
   filters: PurchaseFilters = {}
 ): Promise<{ data: PurchaseRow[]; error: PostgrestError | null }> {
-  let query = supabase.schema("finance").from("purchase").select("*").order("captured_timestamp", {
+  let query = supabase.schema("finance").from("purchase_read").select("*").order("captured_timestamp", {
     ascending: false,
   });
 
@@ -33,10 +32,6 @@ export async function getPurchases(
 
   if (filters.userId) {
     query = query.eq("user_id", filters.userId);
-  }
-
-  if (typeof filters.isActive === "boolean") {
-    query = query.eq("is_active", filters.isActive);
   }
 
   if (filters.capturedOn) {
@@ -104,8 +99,21 @@ export async function archivePurchase(
   supabase: SupabaseClient,
   id: number
 ): Promise<{ data: PurchaseRow | null; error: PostgrestError | null }> {
-  return updatePurchase(supabase, {
-    id,
-    is_active: false,
-  });
+  const { data, error } = await supabase
+    .schema("finance")
+    .from("purchase")
+    .update({ deleted_at: new Date().toISOString() })
+    .eq("id", id)
+    .select()
+    .maybeSingle();
+
+  if (error || !data) {
+    console.error("Error archiving purchase:", error);
+    return { data: null, error };
+  }
+
+  return {
+    data: purchaseRowSchema.parse(data),
+    error: null,
+  };
 }

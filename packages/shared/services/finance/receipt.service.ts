@@ -10,7 +10,6 @@ import {
 
 export interface ReceiptFilters {
   supplier?: string;
-  isActive?: boolean;
   createdAfter?: string;
   createdBefore?: string;
 }
@@ -21,7 +20,6 @@ export type ReceiptWithPurchases = ReceiptRow & {
 
 function parseReceiptRows(rows: unknown[]): ReceiptRow[] {
   return rows.map((row, index) => {
-      console.log("Parse", index, row);
       const result = receiptRowSchema.safeParse(row);
       if (!result.success) {
         console.error(`❌ Receipt row at index ${index} failed validation:`);
@@ -36,16 +34,12 @@ export async function getReceipts(
   supabase: SupabaseClient,
   filters: ReceiptFilters = {}
 ): Promise<{ data: ReceiptRow[]; error: PostgrestError | null }> {
-  let query = supabase.schema("finance").from("receipt").select("*").order("created_at", {
+  let query = supabase.schema("finance").from("receipt_read").select("*").order("created_at", {
     ascending: false,
   });
 
   if (filters.supplier) {
     query = query.ilike("supplier", `%${filters.supplier}%`);
-  }
-
-  if (typeof filters.isActive === "boolean") {
-    query = query.eq("is_active", filters.isActive);
   }
 
   if (filters.createdAfter) {
@@ -57,9 +51,8 @@ export async function getReceipts(
   }
 
   const { data, error } = await query;
-  console.log("Receipts", data)
   if (error || !data) {
-    console.error("Error retrieving the receipts", error)
+    console.error("Error retrieving receipts", error)
     return { data: [], error };
   }
 
@@ -75,7 +68,7 @@ export async function getReceiptById(
 ): Promise<{ data: ReceiptWithPurchases | null; error: PostgrestError | null }> {
   // First, get the receipt
   const { data: receiptData, error: receiptError } = await supabase
-    .schema("finance").from("receipt")
+    .schema("finance").from("receipt_read")
     .select("*")
     .eq("id", id)
     .maybeSingle();
@@ -86,10 +79,9 @@ export async function getReceiptById(
 
   // Then, get purchases separately (no explicit FK relationship from receipt to purchase)
   const { data: purchasesData, error: purchasesError } = await supabase
-    .schema("finance").from("purchase")
+    .schema("finance").from("purchase_read")
     .select("*")
-    .eq("receipt_id", id)
-    .eq("is_active", true);
+    .eq("receipt_id", id);
 
   if (purchasesError) {
     console.error("Error fetching purchases for receipt:", purchasesError);
@@ -153,8 +145,21 @@ export async function archiveReceipt(
   supabase: SupabaseClient,
   id: number
 ): Promise<{ data: ReceiptRow | null; error: PostgrestError | null }> {
-  return updateReceipt(supabase, {
-    id,
-    is_active: false,
-  });
+  const { data, error } = await supabase
+    .schema('finance')
+    .from('receipt')
+    .update({ deleted_at: new Date().toISOString() })
+    .eq('id', id)
+    .select()
+    .maybeSingle();
+
+  if (error || !data) {
+    console.error("Error archiving receipt:", error);
+    return { data: null, error };
+  }
+
+  return {
+    data: receiptRowSchema.parse(data),
+    error: null,
+  };
 }
