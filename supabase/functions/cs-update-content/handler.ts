@@ -145,7 +145,7 @@ export async function handleUpdateContent(
     const updates: Record<string, unknown> = {
       external_key: newExternalKey,
       updated_by: auth.userId,
-      is_active: false,
+      deleted_at: new Date().toISOString(),
     };
 
     if (payload.mime_type) updates.mime_type = payload.mime_type;
@@ -164,7 +164,6 @@ export async function handleUpdateContent(
     }
 
     // Generate upload URL for the new content
-    console.log("New External Key", newExternalKey);
     const uploadUrlResult = await provider.generateUploadUrl({
       bucketOrContainer,
       path: newExternalKey,
@@ -173,7 +172,6 @@ export async function handleUpdateContent(
       checksumBase64: payload.checksum,
       expiresInMinutes: 15,
     });
-    console.log("URL", uploadUrlResult.url);
 
     return new Response(
       JSON.stringify({

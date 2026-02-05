@@ -45,7 +45,7 @@ async function resolveContentSource(
       .from("content_source")
       .select("id")
       .eq("name", "Default Supabase Storage")
-      .eq("is_active", true)
+      .eq("deleted_at", null)
       .limit(1)
       .single();
     
@@ -61,18 +61,19 @@ async function resolveContentSource(
   const { data, error } = await supabase
     .schema("cs")
     .from("content_source")
-    .select("id, settings, is_active, provider, name")
+    .select("id, settings, provider, name")
     .eq("id", contentSourceId)
+    .eq("deleted_at", null)
     .single();
   
   if (error || !data) {
+    console.error("Unable to resolve content source", contentSourceId, error);
     throw new HttpError("Unable to resolve content source", 500);
   }
   
   return data as unknown as {
     id: string;
     settings: Record<string, any>;
-    is_active: boolean;
     provider: string;
     name: string;
   };
@@ -89,7 +90,6 @@ export async function handleUploadContent(
     resolveBucketOrContainerName?: typeof resolveBucketOrContainerName;
   } = {},
 ): Promise<Response> {
-  console.log("TEST Upload CONTENT!!!!");
   const {
     supabase = supabaseAdmin,
     requireAuth = defaultRequireAuth,
@@ -111,7 +111,6 @@ export async function handleUploadContent(
 
     const auth = await requireAuth(req);
     const _reqJson = await req.json()
-    console.log("request: ", _reqJson)
     const payload = csUploadContentRequestSchema.parse(_reqJson);
     
     // Get org_id from JWT payload (if auth hook is running) or fall back to user_metadata
@@ -157,7 +156,7 @@ export async function handleUploadContent(
         size_bytes: payload.size_bytes ?? null,
         checksum: payload.checksum ?? null,
         metadata: payload.metadata ?? null,
-        is_active: false,
+        deleted_at: new Date().toISOString(),
         created_by: auth.userId,
       })
       .select("id")

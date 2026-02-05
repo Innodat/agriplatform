@@ -48,14 +48,14 @@ Deno.test("cs-upload-content creates record and returns signed URL", async () =>
       error: null 
     },
     { 
-      row: { id: "source-default", name: "Default Supabase Storage", is_active: true }, 
+      row: { id: "source-default", name: "Default Supabase Storage", deleted_at: null }, 
       error: null 
     },
     { 
       row: { 
         id: "source-default", 
         settings: { bucket_name: "content-test" },
-        is_active: true,
+        deleted_at: null,
         provider: "supabase_storage",
         name: "Default Supabase Storage"
       }, 

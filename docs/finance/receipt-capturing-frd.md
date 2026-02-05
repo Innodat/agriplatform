@@ -26,7 +26,7 @@ erDiagram
     int8 id PK
     text supplier  "indexed for filtering"
     receipt_status status "pending|querying|approved|rejected"
-    bool is_active
+    timestamptz deleted_at
     timestamptz created_timestamp
     text created_user_id
     timestamptz modified_timestamp
@@ -43,7 +43,7 @@ erDiagram
     numeric amount
     bool reimbursable
     timestamptz captured_timestamp
-    bool is_active
+    timestamptz deleted_at
     timestamptz created_timestamp
     text created_user_id
     timestamptz modified_timestamp

@@ -30,11 +30,6 @@ CREATE TABLE cs.content_store (
   updated_at timestamptz DEFAULT now()
 );
 
--- Receipt-content mapping on the finance.receipt table
-ALTER TABLE finance.receipt
-ADD COLUMN content_id uuid
-REFERENCES cs.content_store(id) ON DELETE CASCADE;
-
 -- Indexes for performance
 CREATE INDEX idx_content_store_source_id ON cs.content_store(source_id);
 CREATE INDEX idx_content_store_created_by ON cs.content_store(created_by);

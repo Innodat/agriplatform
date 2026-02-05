@@ -30,7 +30,7 @@ serve(async (req) => {
         `
         id,
         external_key,
-        is_active,
+        deleted_at,
         created_by,
         source:content_source (
           provider,
@@ -48,7 +48,7 @@ serve(async (req) => {
     const record = data as unknown as {
       id: string;
       external_key: string;
-      is_active: boolean;
+      deleted_at: boolean;
       created_by: string;
       source: {
         provider: string;
@@ -56,7 +56,7 @@ serve(async (req) => {
       };
     };
 
-    if (!record.is_active) {
+    if (record.deleted_at != null) {
       throw new HttpError("Content not finalized", 409);
     }
 

@@ -339,7 +339,7 @@ export function EditReceiptScreen() {
       const { error } = await supabase
         .schema('finance')
         .from('purchase')
-        .update({ is_active: false })
+        .update({ deleted_at: new Date().toISOString() })
         .eq('id', id);
       if (error) throw new Error(error.message);
     }

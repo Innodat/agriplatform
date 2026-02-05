@@ -164,20 +164,16 @@ alter table identity.role_permissions enable row level security;
 -- RLS POLICIES: identity.users
 -- ============================================================================
 
-DROP POLICY IF EXISTS "Allow logged-in read or admin" ON identity.users;
 CREATE POLICY "Allow logged-in read or admin read" ON identity.users 
 FOR SELECT USING (
   auth.role() = 'authenticated' OR identity.authorize('identity.users.admin')
 );
 
-DROP POLICY IF EXISTS "Allow insert for self or admin" ON identity.users;
 CREATE POLICY "Allow insert for self or admin" ON identity.users 
 FOR INSERT WITH CHECK (
   (auth.uid())::uuid = id OR identity.authorize('identity.users.admin')
 );
 
-DROP POLICY IF EXISTS "Allow update for self or admin" ON identity.users;
-DROP POLICY IF EXISTS "Allow soft delete for self or admin" ON identity.users;
 CREATE POLICY "Allow update and soft delete (self or admin)" ON identity.users
 FOR UPDATE
 USING (

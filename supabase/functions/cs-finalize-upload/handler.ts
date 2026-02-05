@@ -108,7 +108,7 @@ export async function handleFinalizeUpload(
       .schema("cs")
       .from("content_store")
       .update({
-        is_active: true,
+        deleted_at: null,
         size_bytes: exists.size ?? record.size_bytes,
         updated_by: auth.userId,
       })

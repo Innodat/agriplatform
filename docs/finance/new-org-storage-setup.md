@@ -54,7 +54,7 @@ const { data: defaultSource } = await supabase
   .from("content_source")
   .select("id")
   .eq("name", "Default Supabase Storage")
-  .eq("is_active", true)
+  .eq("deleted_at", null)
   .limit(1)
   .single();
 
@@ -69,7 +69,6 @@ const { data: org } = await supabase
       content_source_id: defaultSource.id,
       bucket_name: `content-${orgSlug}-${env}`
     },
-    is_active: true,
     created_by: userId,
     updated_by: userId
   })

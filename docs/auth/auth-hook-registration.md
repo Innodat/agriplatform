@@ -135,7 +135,7 @@ If the hook still doesn't execute after registration:
    -- Replace with actual user UUID
    SELECT * FROM identity.user_roles 
    WHERE user_id = '8080f75c-5406-4bf3-a0cb-4d08be333373'
-     AND is_active = true;
+     AND deleted_at = NULL;
    ```
 
 3. **Test function manually**:

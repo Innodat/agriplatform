@@ -15,7 +15,7 @@ beforeAll(async () => {
   serviceClient = createClient(url, service, { auth: { persistSession: false } });
   userClient    = createClient(url, anon,    { auth: { persistSession: false } });
 
-  // 1) Ensure user exists with the expected role in the JWT
+  // 1) Ensure user exists with expected role in JWT
   await serviceClient.auth.admin.createUser({
     email: EMAIL,
     password: PASS,
@@ -30,9 +30,9 @@ beforeAll(async () => {
 
   // 3) Seed some currencies via service (bypass RLS)
   await serviceClient.from('finance.currency').insert([
-    { name: 'USD', description: 'US Dollar', symbol: '$', is_active: true },
-    { name: 'EUR', description: 'Euro',      symbol: '€', is_active: true },
-    { name: 'ZAR', description: 'Rand',      symbol: 'R', is_active: false }, // inactive row
+    { name: 'USD', description: 'US Dollar', symbol: '$', deleted_at: null },
+    { name: 'EUR', description: 'Euro',      symbol: '€', deleted_at: null },
+    { name: 'ZAR', description: 'Rand',      symbol: 'R', deleted_at: new Date().toISOString() },
   ]).throwOnError();
 });
 
@@ -64,22 +64,21 @@ describe('finance.currency — employee read behavior', () => {
     expect(row.raw_jwt).toBeTruthy();                  // optional: inspect claim placement during a failure
   });
 
-  it('selects active currencies for employee (per policy)', async () => {
+  it('selects currencies for employee (per policy)', async () => {
     const { data, error } = await userClient
       .from('finance.currency')
-      .select('id, name, is_active')
+      .select('id, name, deleted_at')
       .order('id', { ascending: true });
 
     // If there's a failure, this message helps distinguish GRANT issues vs. RLS
     if (error) {
-      // Helpful triage output for the test runner
+      // Helpful triage output for test runner
       // eslint-disable-next-line no-console
       console.error('currency select error:', error);
     }
 
     expect(error).toBeNull();            // should succeed after grants + correct authorize resolution
     expect(Array.isArray(data)).toBe(true);
-    expect(data!.length).toBeGreaterThanOrEqual(2); // at least two active rows (USD, EUR)
-    // Your policy doesn’t filter by is_active, but rows exist as seeded
+    expect(data!.length).toBeGreaterThanOrEqual(2); // all seeded active rows (USD, EUR)
   });
 });

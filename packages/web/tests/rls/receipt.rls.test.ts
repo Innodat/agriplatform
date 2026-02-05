@@ -75,14 +75,14 @@ beforeAll(async () => {
   otherId = oUser.data.user.id;
 
   // 3) identity.users rows to satisfy FK (created_by references identity.users.id)
-  await serviceClient.from('identity.users').upsert({ id: employeeId, username: 'employee', is_active: true }).throwOnError();
-  await serviceClient.from('identity.users').upsert({ id: adminId,    username: 'financeadmin', is_active: true }).throwOnError();
-  await serviceClient.from('identity.users').upsert({ id: otherId,    username: 'other',    is_active: true }).throwOnError();
+  await serviceClient.from('identity.users').upsert({ id: employeeId, username: 'employee' }).throwOnError();
+  await serviceClient.from('identity.users').upsert({ id: adminId,    username: 'financeadmin' }).throwOnError();
+  await serviceClient.from('identity.users').upsert({ id: otherId,    username: 'other' }).throwOnError();
 
   // 4) Seed receipts (via service; bypass RLS)
   const empSeed = await serviceClient
     .from('finance.receipt')
-    .insert({ supplier: 'Emp Supplier', is_active: true, created_by: employeeId })
+    .insert({ supplier: 'Emp Supplier', created_by: employeeId })
     .select('id')
     .single();
   if (empSeed.error) throw empSeed.error;
@@ -90,7 +90,7 @@ beforeAll(async () => {
 
   const otherSeed = await serviceClient
     .from('finance.receipt')
-    .insert({ supplier: 'Other Supplier', is_active: true, created_by: otherId })
+    .insert({ supplier: 'Other Supplier', created_by: otherId })
     .select('id')
     .single();
   if (otherSeed.error) throw otherSeed.error;
@@ -141,7 +141,7 @@ describe('RLS: finance.receipt — employee behavior', () => {
   it('employee can INSERT only with created_by = self', async () => {
     const ok = await employeeClient
       .from('finance.receipt')
-      .insert({ supplier: 'Emp Insert OK', created_by: employeeId, is_active: true })
+      .insert({ supplier: 'Emp Insert OK', created_by: employeeId })
       .select('id, created_by')
       .single();
 
@@ -150,13 +150,13 @@ describe('RLS: finance.receipt — employee behavior', () => {
 
     const bad = await employeeClient
       .from('finance.receipt')
-      .insert({ supplier: 'Emp Insert BAD', created_by: otherId, is_active: true })
+      .insert({ supplier: 'Emp Insert BAD', created_by: otherId })
       .select('id');
 
     expect(bad.error).toBeTruthy();
   });
 
-  it('employee can UPDATE own receipt (is_active=true path) and cannot UPDATE others', async () => {
+  it('employee can UPDATE own receipt and cannot UPDATE others', async () => {
     // Update own
     const upOwn = await employeeClient
       .from('finance.receipt')
@@ -177,20 +177,20 @@ describe('RLS: finance.receipt — employee behavior', () => {
     expect(upOther.error).toBeTruthy();
   });
 
-  it('employee can SOFT DELETE own receipt (set is_active=false), cannot soft delete others', async () => {
+  it('employee can SOFT DELETE own receipt (set deleted_at), cannot soft delete others', async () => {
     const softOwn = await employeeClient
       .from('finance.receipt')
-      .update({ is_active: false })
+      .update({ deleted_at: new Date().toISOString() })
       .eq('id', employeeReceiptId)
-      .select('is_active')
+      .select('deleted_at')
       .single();
 
     expect(softOwn.error).toBeNull();
-    expect(softOwn.data?.is_active).toBe(false);
+    expect(softOwn.data?.deleted_at).toBeTruthy();
 
     const softOther = await employeeClient
       .from('finance.receipt')
-      .update({ is_active: false })
+      .update({ deleted_at: new Date().toISOString() })
       .eq('id', otherReceiptId);
 
     expect(softOther.error).toBeTruthy();
@@ -210,8 +210,8 @@ describe('RLS: finance.receipt — employee behavior', () => {
      *   on finance.receipt for update
      *   using ((created_by = auth.uid()) or identity.authorize('finance.receipt.admin'))
      *   with check (
-     *     ((created_by = auth.uid()) and is_active = true)
-     *     or (identity.authorize('finance.receipt.admin') and is_active = true)
+     *     ((created_by = auth.uid()) and deleted_at IS NULL)
+     *     or (identity.authorize('finance.receipt.admin') and deleted_at IS NULL)
      *   );
      *
      *   -- And same pattern for your "soft delete" update policy (USING with created_by check).
@@ -233,7 +233,7 @@ describe('RLS: finance.receipt — financeadmin behavior', () => {
     expect(ids).toEqual(expect.arrayContaining([employeeReceiptId, otherReceiptId]));
   });
 
-  it('financeadmin can UPDATE any receipt (is_active=true path)', async () => {
+  it('financeadmin can UPDATE any receipt', async () => {
     const upOther = await adminClient
       .from('finance.receipt')
       .update({ supplier: 'Admin Updated' })
@@ -248,12 +248,12 @@ describe('RLS: finance.receipt — financeadmin behavior', () => {
   it('financeadmin can SOFT DELETE any receipt', async () => {
     const softOther = await adminClient
       .from('finance.receipt')
-      .update({ is_active: false })
+      .update({ deleted_at: new Date().toISOString() })
       .eq('id', otherReceiptId)
-      .select('is_active')
+      .select('deleted_at')
       .single();
 
     expect(softOther.error).toBeNull();
-    expect(softOther.data?.is_active).toBe(false);
+    expect(softOther.data?.deleted_at).toBeTruthy();
   });
 });

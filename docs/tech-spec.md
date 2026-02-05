@@ -195,7 +195,7 @@ Frontend → PUT /functions/v1/cs-update-content
 
 **Database Schema (cs schema):**
 - `cs.content_source`: Storage provider configurations (Azure Blob, Supabase Storage)
-- `cs.content_store`: Active content metadata (external_key, mime_type, size, checksum, is_active)
+- `cs.content_store`: Active content metadata (external_key, mime_type, size, checksum, deleted_at)
 - `cs.content_version`: Historical versions (version_number, external_key, replaced_by)
 - `cs.receipt_content`: Domain mapping (receipt_id → content_id with role)
 
@@ -477,14 +477,15 @@ erDiagram
     
     RECEIPT {
         int8 id PK
+        int8 content_id FK
         text supplier
         finance.receipt_status status
+        date receipt_date
         timestamptz deleted_at
         uuid created_by FK
         uuid updated_by FK
         timestamptz created_at
         timestamptz updated_at
-        date receipt_date
     }
     
     PURCHASE {
@@ -497,7 +498,6 @@ erDiagram
         numeric amount
         bool reimbursable
         timestamptz captured_timestamp
-        -- status is stored on receipt only
         timestamptz deleted_at
         uuid created_by FK
         uuid updated_by FK
@@ -530,9 +530,9 @@ erDiagram
     USER {
         uuid id PK
         text username
-        bool is_active
         bool is_system
         text actor_key
+        timestamptz deleted_at
     }
 ```
 
@@ -624,7 +624,7 @@ CREATE POLICY "Receipts: update in org"
 **Affected Tables:** All finance tables (receipt, purchase, currency, expense_category, expense_type)
 
 **Pattern Overview:**
-Finance tables use a `deleted_at` timestamp for soft deletion instead of `is_active` boolean.
+Finance tables use a `deleted_at` timestamp for soft deletion.
 
 **Key Benefits:**
 - **Auditing**: Deletion timestamp preserves when a record was removed
@@ -703,7 +703,7 @@ async function restoreReceipt(id: number) {
 export const receiptRowSchema = z.object({
   id: z.number(),
   supplier: z.string().nullable(),
-  deleted_at: z.string().datetime({ offset: true }).nullable(),  // Instead of is_active
+  deleted_at: z.string().datetime({ offset: true }).nullable(),
   // ... other fields
 });
 ```
@@ -733,8 +733,6 @@ CREATE POLICY "Receipts: update in org"
 ```
 
 **Migration Reference:**
-- Migration file: `supabase/migrations/20260201000000_finance_soft_delete.sql`
-- Schema updates: Added `deleted_at`, dropped `is_active`
 - Views created: `*_read` views for automatic filtering
 - Services updated: All services use `_read` views for SELECT operations
 
@@ -1448,7 +1446,7 @@ No breaking changes to exported types.
 **Role Assignment (multi-role, per-org):**
 - Users belong to one or more orgs via `identity.org_member`.
 - Roles are assigned to memberships via `identity.member_role` (a user can have **multiple roles per org**).
-- Roles can be activated/deactivated via `is_active`.
+- Roles can be activated/deactivated by setting making the `deleted_at` field null or setting it to a  timestamp.
 
 ### 9.2 Permission System
 

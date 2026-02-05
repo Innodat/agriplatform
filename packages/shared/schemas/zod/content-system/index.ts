@@ -26,7 +26,7 @@ export const contentStoreRowSchema = z.object({
   size_bytes: z.number().int().nonnegative().nullable(),
   checksum: z.string().min(1).nullable(),
   metadata: metadataSchema.nullable(),
-  is_active: z.boolean(),
+  deleted_at: isoDateTime.nullable(),
   created_by: uuid.nullable(),
   created_at: isoDateTime.nullable(),
   updated_by: uuid.nullable(),
@@ -39,10 +39,10 @@ export const contentStoreInsertSchema = contentStoreRowSchema.omit({
   created_at: true,
   updated_at: true,
   updated_by: true,
-  is_active: true,
+  deleted_at: true,
 }).extend({
   id: uuid.optional(),
-  is_active: z.boolean().optional(),
+  deleted_at: isoDateTime.nullable().optional(),
 });
 export type ContentStoreInsert = z.infer<typeof contentStoreInsertSchema>;
 

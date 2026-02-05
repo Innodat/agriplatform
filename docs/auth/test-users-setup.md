@@ -40,16 +40,16 @@ UPDATE identity.users SET username = 'Finance Admin' where id = 'PASTE-FINANCE-U
 UPDATE identity.users SET username = 'Employee User' where id = 'PASTE-EMPLOYEE-UUID-HERE';
 
 -- if it does not exist for some reason:
-INSERT INTO identity.users (id, username, is_active, is_system)
-VALUES ('PASTE-ADMIN-UUID-HERE', 'Admin User', true, false);
+INSERT INTO identity.users (id, username, is_system)
+VALUES ('PASTE-ADMIN-UUID-HERE', 'Admin User', false);
 
 -- Finance Admin User
-INSERT INTO identity.users (id, username, is_active, is_system)
-VALUES ('PASTE-FINANCE-UUID-HERE', 'Finance Admin', true, false);
+INSERT INTO identity.users (id, username, is_system)
+VALUES ('PASTE-FINANCE-UUID-HERE', 'Finance Admin', false);
 
 -- Employee User
-INSERT INTO identity.users (id, username, is_active, is_system)
-VALUES ('PASTE-EMPLOYEE-UUID-HERE', 'Employee User', true, false);
+INSERT INTO identity.users (id, username, is_system)
+VALUES ('PASTE-EMPLOYEE-UUID-HERE', 'Employee User', false);
 ```
 
 ### Step 3: Assign Roles
@@ -58,16 +58,16 @@ Run the following SQL to assign roles (replace UUIDs with actual values):
 
 ```sql
 -- Admin Role
-INSERT INTO identity.user_roles (user_id, role, is_active)
-VALUES ('PASTE-ADMIN-UUID-HERE', 'admin', true);
+INSERT INTO identity.user_roles (user_id, role)
+VALUES ('PASTE-ADMIN-UUID-HERE', 'admin');
 
 -- Finance Admin Role
-INSERT INTO identity.user_roles (user_id, role, is_active)
-VALUES ('PASTE-FINANCE-UUID-HERE', 'financeadmin', true);
+INSERT INTO identity.user_roles (user_id, role)
+VALUES ('PASTE-FINANCE-UUID-HERE', 'financeadmin');
 
 -- Employee Role
-INSERT INTO identity.user_roles (user_id, role, is_active)
-VALUES ('PASTE-EMPLOYEE-UUID-HERE', 'employee', true);
+INSERT INTO identity.user_roles (user_id, role)
+VALUES ('PASTE-EMPLOYEE-UUID-HERE', 'employee');
 ```
 
 ### Step 4: Verify Setup
@@ -81,7 +81,7 @@ SELECT
   u.email,
   iu.username,
   ur.role,
-  ur.is_active as role_active
+  ur.deleted_at as role_active
 FROM auth.users u
 LEFT JOIN identity.users iu ON u.id = iu.id
 LEFT JOIN identity.user_roles ur ON u.id = ur.user_id
@@ -199,7 +199,7 @@ If no role exists, run the INSERT statement from Step 3.
 1. Check if role is active:
    ```sql
    SELECT * FROM identity.user_roles 
-   WHERE user_id = 'USER-UUID-HERE' AND is_active = true;
+   WHERE user_id = 'USER-UUID-HERE' AND deleted_at = NULL;
    ```
 2. Clear browser cache and localStorage
 3. Log out and log back in

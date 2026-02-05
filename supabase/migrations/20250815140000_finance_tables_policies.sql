@@ -59,7 +59,6 @@ GRANT SELECT ON finance.currency_read TO authenticated;
 
 -- NOTE: purchases are org-scoped indirectly via finance.receipt.org_id
 
-DROP POLICY IF EXISTS "Allow read for self or admin" ON finance.purchase;
 CREATE POLICY "Allow read for self or admin" ON finance.purchase 
 FOR SELECT USING (
   EXISTS (
@@ -74,7 +73,6 @@ FOR SELECT USING (
   )
 );
 
-DROP POLICY IF EXISTS "Allow insert for self or admin" ON finance.purchase;
 CREATE POLICY "Allow insert for self or admin" ON finance.purchase 
 FOR INSERT WITH CHECK (
   EXISTS (
@@ -89,8 +87,6 @@ FOR INSERT WITH CHECK (
   )
 );
 
-DROP POLICY IF EXISTS "Allow update for self or admin" ON finance.purchase;
-DROP POLICY IF EXISTS "Allow soft delete for self or admin" ON finance.purchase;
 CREATE POLICY "Allow update and soft delete (self or admin)" ON finance.purchase
 FOR UPDATE
 USING (
@@ -129,7 +125,6 @@ WITH CHECK (
 -- RLS POLICIES: finance.receipt
 -- ============================================================================
 
-DROP POLICY IF EXISTS "Allow read for self or admin" ON finance.receipt;
 CREATE POLICY "Allow read for self or admin" ON finance.receipt 
 FOR SELECT USING (
   org_id = identity.current_org_id()
@@ -139,7 +134,6 @@ FOR SELECT USING (
   )
 );
 
-DROP POLICY IF EXISTS "Allow insert for self or admin" ON finance.receipt;
 CREATE POLICY "Allow insert for self or admin" ON finance.receipt 
 FOR INSERT WITH CHECK (
   org_id = identity.current_org_id()
@@ -149,8 +143,6 @@ FOR INSERT WITH CHECK (
   )
 );
 
-DROP POLICY IF EXISTS "Allow update for self or admin" ON finance.receipt;
-DROP POLICY IF EXISTS "Allow soft delete for self or admin" ON finance.receipt;
 CREATE POLICY "Allow update and soft delete (self or admin)" ON finance.receipt
 FOR UPDATE
 USING (
@@ -179,7 +171,6 @@ WITH CHECK (
 -- RLS POLICIES: finance.expense_category (org-scoped reference data)
 -- ============================================================================
 
-DROP POLICY IF EXISTS "Allow read for self or admin" ON finance.expense_category;
 CREATE POLICY "Allow read for self or admin" ON finance.expense_category 
 FOR SELECT USING (
   org_id = identity.current_org_id()
@@ -189,15 +180,12 @@ FOR SELECT USING (
   )
 );
 
-DROP POLICY IF EXISTS "Allow insert for self or admin" ON finance.expense_category;
 CREATE POLICY "Allow insert for admin only" ON finance.expense_category 
 FOR INSERT WITH CHECK (
   org_id = identity.current_org_id()
   AND identity.authorize('finance.expense_category.admin')
 );
 
-DROP POLICY IF EXISTS "Allow update for admin only" ON finance.expense_category;
-DROP POLICY IF EXISTS "Allow soft delete for admin only" ON finance.expense_category;
 CREATE POLICY "Allow update and soft delete (admin only)" ON finance.expense_category
 FOR UPDATE
 USING (
@@ -213,7 +201,6 @@ WITH CHECK (
 -- RLS POLICIES: finance.expense_type (org-scoped reference data)
 -- ============================================================================
 
-DROP POLICY IF EXISTS "Allow read for self or admin" ON finance.expense_type;
 CREATE POLICY "Allow read for self or admin" ON finance.expense_type 
 FOR SELECT USING (
   org_id = identity.current_org_id()
@@ -223,15 +210,12 @@ FOR SELECT USING (
   )
 );
 
-DROP POLICY IF EXISTS "Allow insert for self or admin" ON finance.expense_type;
 CREATE POLICY "Allow insert for admin only" ON finance.expense_type 
 FOR INSERT WITH CHECK (
   org_id = identity.current_org_id()
   AND identity.authorize('finance.expense_type.admin')
 );
 
-DROP POLICY IF EXISTS "Allow update for admin only" ON finance.expense_type;
-DROP POLICY IF EXISTS "Allow soft delete for admin only" ON finance.expense_type;
 CREATE POLICY "Allow update and soft delete (admin only)" ON finance.expense_type
 FOR UPDATE
 USING (
@@ -247,7 +231,6 @@ WITH CHECK (
 -- RLS POLICIES: finance.currency (org-scoped reference data)
 -- ============================================================================
 
-DROP POLICY IF EXISTS "Allow read for self or admin" ON finance.currency;
 CREATE POLICY "Allow read for self or admin" ON finance.currency 
 FOR SELECT USING (
   org_id = identity.current_org_id()
@@ -257,15 +240,12 @@ FOR SELECT USING (
   )
 );
 
-DROP POLICY IF EXISTS "Allow insert for self or admin" ON finance.currency;
 CREATE POLICY "Allow insert for admin only" ON finance.currency 
 FOR INSERT WITH CHECK (
   org_id = identity.current_org_id()
   AND identity.authorize('finance.currency.admin')
 );
 
-DROP POLICY IF EXISTS "Allow update for admin only" ON finance.currency;
-DROP POLICY IF EXISTS "Allow soft delete for admin only" ON finance.currency;
 CREATE POLICY "Allow update and soft delete (admin only)" ON finance.currency
 FOR UPDATE
 USING (
