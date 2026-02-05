@@ -54,7 +54,7 @@ const { data: defaultSource } = await supabase
   .from("content_source")
   .select("id")
   .eq("name", "Default Supabase Storage")
-  .eq("deleted_at", null)
+  .is("deleted_at", null)
   .limit(1)
   .single();
 

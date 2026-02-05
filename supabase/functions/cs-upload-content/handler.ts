@@ -45,7 +45,7 @@ async function resolveContentSource(
       .from("content_source")
       .select("id")
       .eq("name", "Default Supabase Storage")
-      .eq("deleted_at", null)
+      .is("deleted_at", null)
       .limit(1)
       .single();
     
@@ -63,7 +63,7 @@ async function resolveContentSource(
     .from("content_source")
     .select("id, settings, provider, name")
     .eq("id", contentSourceId)
-    .eq("deleted_at", null)
+    .is("deleted_at", null)
     .single();
   
   if (error || !data) {
