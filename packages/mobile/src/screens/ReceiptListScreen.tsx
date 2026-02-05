@@ -59,7 +59,7 @@ export function ReceiptListScreen({ navigation }: any) {
 
   // Swipe or menu edit
   const handleEditReceipt = (receiptId: number) => {
-    navigation.navigate('ViewReceipt', { receiptId });
+    navigation.navigate('EditReceipt', { receiptId });
   };
 
   // Delete with confirmation (from swipe button tap)

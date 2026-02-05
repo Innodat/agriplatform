@@ -520,9 +520,16 @@ export function ViewReceiptScreen() {
               </TouchableOpacity>
               <TouchableOpacity 
                 onPress={() => setShowMoreMenu(true)}
-                style={styles.headerButton}
+                style={[
+                  styles.headerButton,
+                  !canEdit() && !canDelete() && styles.headerButtonDisabled
+                ]}
+                disabled={!canEdit() && !canDelete()}
               >
-                <Icon.MoreVertical size={22} color="#fff" />
+                <Icon.MoreVertical 
+                  size={22} 
+                  color={(canEdit() || canDelete()) ? '#fff' : 'rgba(255,255,255,0.5)'} 
+                />
               </TouchableOpacity>
             </>
           )}
