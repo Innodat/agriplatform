@@ -2,7 +2,7 @@ import 'react-native-url-polyfill/auto';
 import { createClient } from '@supabase/supabase-js';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-const SUPABASE_URL = "http://192.168.0.112:54321"
+const SUPABASE_URL = "http://10.0.0.140:54321"
 const SUPABASE_ANON_KEY = "sb_publishable_ACJWlzQHlZjBrEguHvfOxg_3BJgxAaH"
 
 if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
