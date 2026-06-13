@@ -1,9 +1,8 @@
 {
   "files": [],
   "references": [
-    { "path": "./packages/shared" },
-    { "path": "./packages/tools/ts" },
-    { "path": "./packages/web" },
-    { "path": "./packages/mobile" }
+    { "path": "./platform/shared" },
+    { "path": "./apps/receipts-web" },
+    { "path": "./apps/receipts-mobile" }
   ]
 }

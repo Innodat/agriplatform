@@ -2,8 +2,13 @@
   "name": "agriplatform",
   "version": "1.0.0",
   "private": true,
+  "workspaces": [
+    "platform/*",
+    "apps/*",
+    "tools"
+  ],
   "scripts": {
-    "tools": "python packages/tools/tools.py",
+    "tools": "python tools/tools.py",
     "dev": "npm run tools -- tailwind --watch",
     "build": "npm run tools -- tailwind --minify"
   },

@@ -1,26 +1,27 @@
 # Project Operating Rules — Digital Twin Platform
-(React + Vite + Supabase MCP + ShadCN UI + Full‑stack Discipline)
+(React + Vite + Supabase MCP + ShadCN UI + Full-stack Discipline)
 
 ## Workflow Modes
 - Always start in **PLAN** mode:
-  - Read memory_bank/* before output.
-  - Read docs/tech-spec.md for architectural patterns and conventions.
+  - Load `platform/prompts/base.md` (always) + task prompt from `platform/prompts/registry.md`.
+  - Do NOT load `memory_bank/` — it is archived. See `memory_bank/README.md`.
+  - Read `docs/tech-spec.md` for architectural patterns and conventions.
   - Query Supabase MCP for **live schema** before proposing any data models, UI components, or API endpoints.
-  - For frontend (UI): Use the “Frontend Planning Prompt” below.
-  - For backend (API/services): Use the “Backend Planning Prompt” below.
+  - For frontend (UI): Use the "Frontend Planning Prompt" below.
+  - For backend (API/services): Use the "Backend Planning Prompt" below.
   - Enumerate required updates to `docs/tech-spec.md` and include an explicit section describing the affected sections and proposed changes.
-  - Include a section recommending `.clinerules` / memory_bank updates for future quality/speed.
+  - Include a section recommending `.clinerules` / prompt system updates for future quality/speed.
 
 - **ACT** mode:
   - Implement **only** what was approved in PLAN.
-  - Use the corresponding “Acting Prompt” below.
+  - Use the corresponding "Acting Prompt" below.
   - Chunk changes; stop after scaffolding for confirmation before deeper integrations.
 
 ## Model Routing Defaults
-- Planning (free, UI‑strong): `Gemini 2.5 Pro`
-- Planning (deep/full‑stack vision): `GPT‑5 Thinking`
-- Acting (frontend or backend): `Claude Sonnet 4` for clean, maintainable code
-- Budget: `DeepSeek R1` (plan) / `DeepSeek V3` (act)
+- Planning (free, UI-strong): `Gemini 2.5 Pro`
+- Planning (deep/full-stack vision): `GPT-5 Thinking`
+- Acting (frontend or backend): `Claude Sonnet 4` for clean, maintainable code
+- Budget: `DeepSeek R1` (plan) / `DeepSeek V3` (act)
 
 ## Supabase MCP
 - MUST be queried before any data model or API changes.
@@ -30,8 +31,8 @@
 ## UI Patterns
 - Stack: React + Vite + TypeScript + Tailwind + **ShadCN UI** (installed components)
 - Nav: `<AppShell>` (Topbar + Sidebar); Departments in sidebar; modules as subroutes.
-- Accessibility: labels, aria‑attributes, keyboard nav, color contrast checks.
-- Responsiveness: mobile‑first, Tailwind grid/flex.
+- Accessibility: labels, aria-attributes, keyboard nav, color contrast checks.
+- Responsiveness: mobile-first, Tailwind grid/flex.
 
 ## Backend Patterns
 - Service layer per business capability; thin controllers/handlers.
@@ -46,72 +47,71 @@
 - Files: kebab-case; Components & Services: PascalCase; Types: infer from Zod.
 - Commits: conventional commits (`feat:`, `fix:`, `refactor:`, `docs:`, `chore:`)
 
+## Repo Layout Rules (Phase 0+)
+- `platform/*` — shared packages (future publishable); never app-specific logic.
+- `apps/*` — applications; each uses `@platform/*` packages.
+- `apps/receipts-*` — frozen legacy apps; direct Supabase OK; no forced FastAPI migration.
+- `apps/scribeswell` — clean reference app; must use FastAPI + generated api-client for data.
+- **Never** import `@supabase/supabase-js` for data CRUD in `apps/*` (Auth/Realtime exempt).
+- **Never** hand-edit files with `// GENERATED — do not edit` banner.
+- Prompt size budget enforced: base <= 50 lines, task <= 40 lines, context <= 30 lines.
+
 ---
 
-### 📜 Frontend Planning Prompt (embedded)
+### Frontend Planning Prompt (embedded)
 
-> Model: `Gemini 2.5 Pro` (free) or `GPT‑5 Thinking` (deep)
-> 
-> “You are an expert React + Vite engineer, full‑stack architect, and prompt‑engineering strategist, operating inside Cline with Supabase MCP enabled.
-> 
-> **Project context**: Digital twin platform for a farm. Current focus: Finance → Receipt Capturing.
-> 
+> Model: `Gemini 2.5 Pro` (free) or `GPT-5 Thinking` (deep)
+>
+> "You are an expert React + Vite engineer, full-stack architect, and prompt-engineering strategist, operating inside Cline with Supabase MCP enabled.
+>
+> **Project context**: Digital twin platform. Repo: polyrepo-lite (platform/* + apps/*).
+>
 > **Tasks**:
-> 1. Query Supabase MCP for `receipts` and role/auth tables.
-> 2. Generate exact Zod schemas; infer types.
-> 3. Review page.tsx; list components (shared vs feature-local); define props.
+> 1. Load `platform/prompts/base.md` + relevant context from `platform/prompts/registry.md`.
+> 2. Query Supabase MCP for relevant tables and role/auth tables.
+> 3. Generate exact Zod schemas; infer types.
 > 4. Design scalable platform layout (AppShell + Departments + module tabs).
 > 5. **Show ASCII layout diagram + route map first** — no code.
 > 6. Propose file tree for React+Vite + ShadCN UI.
-> 7. Output: (A) ASCII layout + routes (B) Components list (C) Zod schemas (D) File tree (E) Refactor steps (F) Acceptance checklist (G) Rule/memory updates (H) `docs/tech-spec.md` updates.
-> 8. Document the exact `docs/tech-spec.md` sections to update, including summary of changes, new patterns introduced, and any diagrams impacted.
+> 7. Output: (A) ASCII layout + routes (B) Components list (C) Zod schemas (D) File tree (E) Refactor steps (F) Acceptance checklist (G) Prompt/rule updates (H) `docs/tech-spec.md` updates.
+> 8. Document the exact `docs/tech-spec.md` sections to update, including summary of changes, new patterns introduced, and any diagrams impacted."
 
 ---
 
-### 📜 Backend Planning Prompt (embedded)
+### Backend Planning Prompt (embedded)
 
-> Model: `Gemini 2.5 Pro` or `GPT‑5 Thinking`
-> 
-> “You are an expert TypeScript backend and API architect, operating inside Cline with Supabase MCP enabled.
-> 
-> **Project context**: Digital twin platform. Current focus: Finance → Receipt Capturing APIs.
-> 
-> **Persistent Context for Frontend:**
-> - Monorepo layout:
->   - /packages/frontend → React + Vite + Tailwind + ShadCN UI
->   - /supabase → CLI config, migrations, seeds, MCP access
->   - /memory_bank and .clinerules at repo root with system patterns and dual‑schema sync rules
-> - Current module: Finance → Receipt Capturing dashboard
-> - Backend: Supabase direct from frontend (no custom backend yet)
-> - Validation: Zod schemas from live Supabase MCP schema
-> - UI: Role‑gated tabs (Admin vs Employee) — Views: Overview, Today, Admin
-> - Current goals: Refine layout & styling to match original `page.tsx` look and feel; re‑implement Today and Admin; add Supabase‑auth login screen
+> Model: `Gemini 2.5 Pro` or `GPT-5 Thinking`
+>
+> "You are an expert FastAPI + Python backend architect, operating inside Cline with Supabase MCP enabled.
+>
+> **Project context**: Digital twin platform. Repo: polyrepo-lite (platform/* + apps/*).
+> Backend lives in `platform/backend/` (FastAPI). UI calls FastAPI for all data CRUD.
+> Supabase client only for Auth/Realtime on the frontend.
+>
 > **Tasks**:
-> 1. Query Supabase MCP for `receipts` and role/auth schemas.
-> 2. Generate Zod schemas for requests/responses matching live schema.
-> 3. Design service/API architecture for this module (REST or RPC).
-> 4. Produce API diagram + route map first — no code yet.
-> 5. Propose folder structure for services, routes, lib.
-> 6. Output: (A) API diagram/map (B) Services/routes list (C) Zod schemas (D) File tree (E) Build steps (F) Acceptance checklist (G) Rule/memory updates (H) `docs/tech-spec.md` updates.
-> 7. Produce updates to the docs/tech-spec.md file to keep the architecture, design decisions, and patterns up to date. The purpose is for future planning tasks to keep to adhere to it. Document the sections affected, the exact content to add or modify, and any supporting diagrams or examples required. 
+> 1. Load `platform/prompts/base.md` + `context/error-payload.md` + `context/rls-notes.md`.
+> 2. Query Supabase MCP for relevant schemas.
+> 3. Generate Pydantic models (from DB) and Zod schemas (from OpenAPI).
+> 4. Design service/API architecture for this module (REST or RPC).
+> 5. Produce API diagram + route map first — no code yet.
+> 6. Propose folder structure for routers, services, schemas, models/generated.
+> 7. Output: (A) API diagram/map (B) Services/routes list (C) Pydantic+Zod schemas (D) File tree (E) Build steps (F) Acceptance checklist (G) Prompt/rule updates (H) `docs/tech-spec.md` updates."
 
 ---
 
-### 📜 Acting Prompt (Frontend & Backend, embedded)
+### Acting Prompt (Frontend & Backend, embedded)
 
-> Model: `Claude Sonnet 4.5` (UI clean code) or `GPT‑5 Codex` (unified flow)
-> 
-> “Using the approved plan:
-> - Scaffold as planned (FE: layouts/components; BE: services/routes).
-> - Integrate Zod validation from plan.
-> - Wire Supabase MCP queries/mutations aligned to live schema.
+> Model: `Claude Sonnet 4` (UI clean code) or `GPT-5 Codex` (unified flow)
+>
+> "Using the approved plan:
+> - Scaffold as planned (FE: layouts/components; BE: routers/services).
+> - Integrate Zod (FE) / Pydantic (BE) validation from plan.
+> - Wire api-client (generated) for FE data calls; never direct Supabase for CRUD.
 > - Keep Tailwind + ShadCN UI (frontend).
-> - Ensure accessibility (FE) and strict TS (both).
-> - Stop after scaffolding for confirmation before wiring complex logic.”
-> - **After scaffolding or refactor work is complete**:
->   - Open `memory_bank/progress.md`
->   - Mark completed checklist items with ✔
->   - Add a dated "Post‑ACT Update – YYYY‑MM‑DD" section noting:
+> - Ensure accessibility (FE) and strict TS/Python types (both).
+> - Stop after scaffolding for confirmation before wiring complex logic.
+> - After scaffolding or refactor work is complete:
+>   - Add a dated entry to `platform/prompts/CHANGELOG.md` noting:
 >     - What was delivered
 >     - Any deviations from the original plan
->     - Remaining TODOs”
+>     - Remaining TODOs"

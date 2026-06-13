@@ -1,7 +1,7 @@
 # Technical Specification — Digital Twin Platform (AgriPlatform)
 
-**Version:** 1.1  
-**Last Updated:** 2026-02-01  
+**Version:** 1.2  
+**Last Updated:** 2026-06-13  
 **Owner:** Platform Architecture Team  
 **Status:** Living Document
 
@@ -58,43 +58,48 @@ AgriPlatform is a **Digital Twin Platform** designed for comprehensive farm mana
 
 ### 2.1 Monorepo Structure
 
+**Strategy:** Polyrepo-lite — `platform/` and `apps/` are clearly separated so a future split is a publish step, not a rewrite.
+
 ```
 agriplatform/
 ├── .clinerules                    # AI workflow rules
-├── package.json                   # Root workspace config
+├── package.json                   # Root workspace config (workspaces: platform/*, apps/*)
 ├── tsconfig.json                  # Root TypeScript config
 ├── docs/                          # Documentation
-│   ├── tech-spec.md              # This document
-│   ├── finance/                  # Domain-specific docs
-│   └── hr/                       # HR documentation
-├── memory_bank/                   # AI context persistence
-│   ├── systemPatterns.md         # Architectural patterns
-│   ├── progress.md               # Development progress
-│   ├── techContext.md            # Technical context
-│   └── activeContext.md          # Current work context
-├── packages/
-│   ├── frontend/                 # React + Vite application
-│   │   ├── src/
-│   │   │   ├── components/       # UI components
-│   │   │   │   ├── layout/       # AppShell, Topbar, Sidebar
-│   │   │   │   ├── ui/           # ShadCN UI components
-│   │   │   │   └── finance/      # Finance domain components
-│   │   │   ├── lib/              # Utilities
-│   │   │   └── App.tsx           # Root component
-│   │   └── package.json
-│   ├── shared/                   # Shared schemas & types
-│   │   └── schemas/
-│   │       ├── zod/              # Zod schemas (TypeScript)
-│   │       └── pydantic/         # Pydantic models (Python)
-│   ├── backend/                  # Future: Custom backend services
-│   └── tools/                    # Build & dev tools
-├── supabase/                     # Supabase configuration
-│   ├── config.toml               # Supabase CLI config
+├── memory_bank/                   # ARCHIVED — see memory_bank/README.md
+│   └── _archived/                # Original memory_bank files (reference only)
+├── platform/                      # ← future "platform-core" publishable packages
+│   ├── shared/                   # Shared Zod schemas, services, lib (@platform/shared)
+│   │   ├── schemas/zod/          # Zod schemas (TypeScript) — source of truth
+│   │   ├── schemas/pydantic/     # Pydantic models (Python) — GENERATED
+│   │   └── services/             # Shared service logic (client-injected)
+│   ├── ui-core/                  # [Phase 3] ShadCN base wrappers (@platform/ui-core)
+│   ├── ui-business/              # [Phase 3] Reusable domain components (@platform/ui-business)
+│   ├── backend/                  # [Phase 1] FastAPI app (@platform/backend)
+│   ├── api-client/               # [Phase 2] GENERATED TS client from FastAPI OpenAPI
+│   ├── builder-cli/              # [Phase 3] create-feature / generate-models / validate-patterns
+│   └── prompts/                  # Minimal prompt system (replaces memory_bank)
+│       ├── base.md               # Always-loaded hard rules (≤50 lines)
+│       ├── registry.md           # Task → prompt → context routing
+│       ├── tasks/                # Task-specific prompts (≤40 lines each)
+│       └── context/              # On-demand context snippets (≤30 lines each)
+├── apps/                          # ← applications (each uses platform/* packages)
+│   ├── receipts-web/             # Legacy receipts web app (frozen; direct Supabase OK)
+│   ├── receipts-mobile/          # Legacy receipts mobile app (frozen)
+│   └── bible-web/                # [Phase 1] Hebrew Bible reader (clean reference app)
+├── supabase/                     # Supabase configuration (shared infra)
+│   ├── config.toml
 │   ├── migrations/               # Database migrations
-│   ├── seed.sql                  # Production seed data
-│   └── seed_dev.sql              # Development seed data
-└── prompts/                      # AI planning prompts
+│   ├── functions/                # Edge functions (content system)
+│   └── seeds/
+└── tools/                        # Repo-level dev tooling (tools.py, schema sync)
 ```
+
+**Key rules:**
+- `apps/*` never import `@supabase/supabase-js` for data CRUD (Auth/Realtime exempt).
+- `apps/receipts-*` are frozen legacy — no forced migration to FastAPI.
+- `apps/bible-web` is the clean reference app — born on FastAPI + generated client.
+- Generated files carry `// GENERATED — do not edit` banner; `validate-patterns` enforces this.
 
 ### 2.2 Frontend Architecture
 
@@ -1279,20 +1284,19 @@ return res.json(response);
 **Workflow Modes:**
 
 **PLAN MODE:**
-1. Read `memory_bank/*` before output
-2. Query Supabase MCP for live schema
-3. For frontend: Use "Frontend Planning Prompt"
-4. For backend: Use "Backend Planning Prompt"
-5. Show ASCII layout diagram + route map FIRST (no code)
-6. Include recommendations for `.clinerules` / memory_bank updates
+1. Load `platform/prompts/base.md` + task prompt from `platform/prompts/registry.md`
+2. Query Supabase MCP for live schema (always, before any data model work)
+3. Show ASCII layout diagram + route map FIRST (no code)
+4. Enumerate required updates to `docs/tech-spec.md`
+5. Include recommendations for `.clinerules` / prompt system updates
 
 **ACT MODE:**
 1. Implement **only** what was approved in PLAN
-2. Use corresponding "Acting Prompt"
+2. Load only the context files listed in `platform/prompts/registry.md` for the task
 3. Chunk changes; stop after scaffolding for confirmation before deeper integrations
-4. After completion, update `memory_bank/progress.md` with:
+4. After completion, add a dated entry to `platform/prompts/CHANGELOG.md` noting:
    - What was delivered
-   - Any deviations from plan
+   - Any deviations from the plan
    - Remaining TODOs
 
 **Auth Hook Modifications:**
@@ -1317,24 +1321,28 @@ return res.json(response);
 
 **Gate 1:** Final review before merge
 
-### 7.4 Memory Bank Usage
+### 7.4 Prompt System (replaces memory_bank)
+
+**Location:** `platform/prompts/`
 
 **Files:**
-- `systemPatterns.md`: Architectural patterns, ASCII templates
-- `progress.md`: Development progress, completed tasks, TODOs
-- `techContext.md`: Technology stack summary
-- `activeContext.md`: Current work context
+- `base.md`: Always-loaded hard rules (≤50 lines) — stack, constraints, repo layout
+- `registry.md`: Task → prompt → context routing table + size budget
+- `tasks/*.md`: Task-specific prompts (≤40 lines each)
+- `context/*.md`: On-demand context snippets (≤30 lines each)
+- `CHANGELOG.md`: Prompt version history
 
-**Update Frequency:**
-- After each major milestone
-- When patterns change
-- When new conventions are established
+**Usage:**
+- Always load `base.md` + one task prompt from `registry.md`
+- Load ONLY the context files listed in `registry.md` for the task
+- Do NOT auto-load `memory_bank/` (archived)
+- After ACT completion, add a dated entry to `CHANGELOG.md`
 
 **Seed Sync Reminder:**
 - Any schema change that affects seeded tables must be updated in **both**:
   - `supabase/seeds/*.sql`
   - `scripts/seed.py`
-- Document changes in `docs/tech-spec.md` and `memory_bank/progress.md`.
+- Document changes in `docs/tech-spec.md` and `platform/prompts/CHANGELOG.md`.
 
 ---
 
@@ -1974,10 +1982,15 @@ npm run tools -- sync-schemas  # Sync Zod/Pydantic schemas
 ```
 docs/tech-spec.md                              # This document
 .clinerules                                    # AI workflow rules
-memory_bank/systemPatterns.md                  # Architectural patterns
-packages/shared/schemas/zod/                   # Zod schemas
+platform/prompts/base.md                       # Always-loaded AI rules (replaces memory_bank)
+platform/prompts/registry.md                   # Task → prompt → context routing
+platform/shared/schemas/zod/                   # Zod schemas (source of truth)
+platform/backend/                              # FastAPI app [Phase 1]
+platform/api-client/                           # GENERATED TS client [Phase 2]
+apps/receipts-web/                             # Legacy receipts web app (frozen)
+apps/bible-web/                                # Hebrew Bible reader (clean reference app)
 supabase/migrations/                           # Database migrations
-packages/frontend/src/components/              # React components
+tools/                                         # Repo-level dev tooling
 ```
 
 ### Key Contacts
@@ -1994,6 +2007,7 @@ packages/frontend/src/components/              # React components
 
 | Version | Date | Author | Changes |
 |---------|------|--------|---------|
+| 1.2 | 2026-06-13 | AI Assistant | Platform refactor: polyrepo-lite layout (platform/+apps/), prompt system replaces memory_bank, FastAPI backend planned, bible-web app added |
 | 1.1 | 2026-02-01 | AI Assistant | Added soft delete pattern documentation for finance tables (deleted_at vs is_active) |
 | 1.0 | 2025-10-15 | AI Assistant | Initial comprehensive technical specification |
 
