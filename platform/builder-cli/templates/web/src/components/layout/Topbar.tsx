@@ -1,10 +1,10 @@
 /**
  * Topbar — brand + AppLauncher (burger) + Sign In / user menu.
+ * Replace "{{APP_DISPLAY_NAME}}" with your app's display name.
  */
-import { BookOpen, LogIn, LogOut, User } from "lucide-react";
+import { LogIn, LogOut, User } from "lucide-react";
 import { useState } from "react";
 import { useAuth } from "@/context/AuthContext";
-import { SignInDialog } from "@/components/auth/SignInDialog";
 import { AppLauncher } from "@/components/layout/AppLauncher";
 import { useMyApps } from "@/hooks/useMyApps";
 
@@ -19,13 +19,9 @@ export function Topbar() {
         {/* Left: AppLauncher + Brand */}
         <div className="flex items-center gap-3">
           <AppLauncher apps={apps} isLoading={appsLoading} />
-
-          <div className="flex items-center gap-2 text-stone-800">
-            <BookOpen className="w-5 h-5 text-amber-600" aria-hidden="true" />
-            <span className="font-semibold text-lg tracking-tight">
-              Hebrew Bible
-            </span>
-          </div>
+          <span className="font-semibold text-lg tracking-tight text-stone-800">
+            {{APP_DISPLAY_NAME}}
+          </span>
         </div>
 
         {/* Right: Auth */}
@@ -59,8 +55,8 @@ export function Topbar() {
           </div>
         )}
       </div>
-
-      {showSignIn && <SignInDialog onClose={() => setShowSignIn(false)} />}
+      {/* TODO: add SignInDialog here */}
+      {showSignIn && <div />}
     </header>
   );
 }

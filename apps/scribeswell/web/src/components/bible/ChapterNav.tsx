@@ -1,7 +1,7 @@
 /**
  * ChapterNav — chapter number grid for a selected book.
  */
-import type { ChapterSummary } from "@platform/shared/schemas/zod/bible/bible.schema";
+import type { ChapterSummary } from "@/schemas/bible.schema";
 
 interface ChapterNavProps {
   chapters: ChapterSummary[];

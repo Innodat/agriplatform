@@ -2,7 +2,10 @@
   "files": [],
   "references": [
     { "path": "./platform/shared" },
+    { "path": "./platform/app-directory-client" },
+    { "path": "./platform/ui-business" },
     { "path": "./apps/receipts-web" },
-    { "path": "./apps/receipts-mobile" }
+    { "path": "./apps/receipts-mobile" },
+    { "path": "./apps/scribeswell/web" }
   ]
 }

@@ -1,6 +1,6 @@
 # Technical Specification — Digital Twin Platform (AgriPlatform)
 
-**Version:** 1.4  
+**Version:** 1.5  
 **Last Updated:** 2026-06-14  
 **Owner:** Platform Architecture Team  
 **Status:** Living Document
@@ -83,6 +83,17 @@ agriplatform/
 │       ├── registry.md           # Task → prompt → context routing
 │       ├── tasks/                # Task-specific prompts (≤40 lines each)
 │       └── context/              # On-demand context snippets (≤30 lines each)
+├── services/                      # ← cross-app runtime services (Phase 2+)
+│   └── app-directory/            # App entitlement + catalog service (port 8001)
+│       ├── main.py               # FastAPI app
+│       ├── catalog.py            # APP_CATALOG (5 apps; scribeswell enabled)
+│       ├── auth/jwt_optional.py  # JWT verify (Supabase secret)
+│       ├── routers/apps.py       # GET /api/me/apps, /me/context, /apps
+│       ├── schemas/app_schemas.py # Pydantic: AppEntry, MeContext, MeAppsResponse
+│       ├── requirements.txt
+│       ├── .env.example
+│       ├── docs/app-directory.md
+│       └── CHANGELOG.md
 ├── apps/                          # ← applications (SILO MODEL — each app is self-contained)
 │   ├── receipts-web/             # Legacy receipts web app (frozen; direct Supabase OK)
 │   ├── receipts-mobile/          # Legacy receipts mobile app (frozen)
@@ -2053,6 +2064,7 @@ tools/                                         # Repo-level dev tooling
 
 | Version | Date | Author | Changes |
 |---------|------|--------|---------|
+| 1.5 | 2026-06-14 | AI Assistant | Phase 2 Multi-App Foundation: `services/` tier added; `services/app-directory` FastAPI service; `platform/app-directory-client` typed FE client; `platform/ui-business` AppLauncher seeded; `platform/builder-cli/templates/web/` scaffold; AppLauncher wired into Scribeswell Topbar; bible schemas migrated to silo-local; tsc clean; §2.1 + Document History updated |
 | 1.4 | 2026-06-14 | AI Assistant | Silo model adopted: apps/bible-web → apps/scribeswell (silo); platform/backend deleted; builder-cli/templates/backend created; §2.1 monorepo structure updated; .clinerules rewritten; Important Paths updated |
 | 1.3 | 2026-06-14 | AI Assistant | Phase 1 complete: bible schema (§3.6), FastAPI backend wired, apps/bible-web scaffolded (Vite+React+Tailwind, RTL reader, morphology panel), tsc clean |
 | 1.2 | 2026-06-13 | AI Assistant | Platform refactor: polyrepo-lite layout (platform/+apps/), prompt system replaces memory_bank, FastAPI backend planned, bible-web app added |

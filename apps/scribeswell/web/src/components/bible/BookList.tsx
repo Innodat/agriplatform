@@ -1,7 +1,7 @@
 /**
  * BookList — displays all 39 Tanakh books grouped by testament.
  */
-import type { BookResponse } from "@platform/shared/schemas/zod/bible/bible.schema";
+import type { BookResponse } from "@/schemas/bible.schema";
 
 const TESTAMENT_LABELS: Record<string, string> = {
   torah: "Torah",

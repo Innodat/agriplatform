@@ -1,10 +1,10 @@
 {
-  "name": "scribeswell-web",
+  "name": "{{APP_NAME}}-web",
   "private": true,
   "version": "0.1.0",
   "type": "module",
   "scripts": {
-    "dev": "vite --port 5174",
+    "dev": "vite --port {{DEV_PORT}}",
     "build": "tsc -b && vite build",
     "preview": "vite preview",
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0"

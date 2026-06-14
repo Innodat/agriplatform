@@ -2,7 +2,7 @@
  * MorphologyPanel — shows decoded morpheme breakdown for a selected word.
  */
 import { X } from "lucide-react";
-import type { WordWithMorphologyResponse } from "@platform/shared/schemas/zod/bible/bible.schema";
+import type { WordWithMorphologyResponse, Morpheme } from "@/schemas/bible.schema";
 
 interface MorphologyPanelProps {
   word: WordWithMorphologyResponse;
@@ -56,7 +56,7 @@ export function MorphologyPanel({ word, onClose }: MorphologyPanelProps) {
         <p className="text-sm text-stone-400 italic">No morphology data.</p>
       ) : (
         <div className="space-y-3">
-          {word.morphemes.map((m) => (
+          {word.morphemes.map((m: Morpheme) => (
             <div
               key={m.segment_index}
               className="border border-stone-100 rounded-lg p-3 bg-stone-50"

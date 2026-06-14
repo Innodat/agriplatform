@@ -5,7 +5,7 @@
 import type {
   VerseWithWordsResponse,
   WordResponse,
-} from "@platform/shared/schemas/zod/bible/bible.schema";
+} from "@/schemas/bible.schema";
 
 interface VerseReaderProps {
   verses: VerseWithWordsResponse[];

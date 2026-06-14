@@ -74,6 +74,12 @@
 - `platform/backend/` has been deleted — superseded by per-app backends.
 - `platform/api-client/` has been superseded — api-client is generated per-app.
 
+### services/* rules (Phase 2+)
+- `services/` holds **cross-app runtime services** called over HTTP (not imported at build time).
+- First service: `services/app-directory` (port 8001) — JWT-optional entitlement + app catalog.
+- Apps call services via typed HTTP clients in `platform/<service>-client/` (resolved via tsconfig paths + Vite alias).
+- `platform/app-directory-client` is the **one sanctioned shared FE package** — typed HTTP client only, no business logic.
+
 ### Legacy apps
 - `apps/receipts-*` — frozen legacy apps; direct Supabase OK; no forced migration.
 

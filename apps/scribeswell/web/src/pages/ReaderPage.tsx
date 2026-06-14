@@ -14,7 +14,7 @@ import { ChapterNav } from "@/components/bible/ChapterNav";
 import { VerseReader } from "@/components/bible/VerseReader";
 import { MorphologyPanel } from "@/components/bible/MorphologyPanel";
 import { useBooks, useBook, useVerses, useWordMorphology } from "@/hooks/useBible";
-import type { WordResponse } from "@platform/shared/schemas/zod/bible/bible.schema";
+import type { WordResponse } from "@/schemas/bible.schema";
 
 export function ReaderPage() {
   const [selectedOsisId, setSelectedOsisId] = useState<string | null>("Gen");
@@ -38,7 +38,7 @@ export function ReaderPage() {
   }
 
   function handleWordClick(word: WordResponse) {
-    setSelectedWord((prev) => (prev?.id === word.id ? null : word));
+    setSelectedWord((prev: WordResponse | null) => (prev?.id === word.id ? null : word));
   }
 
   return (
@@ -53,7 +53,7 @@ export function ReaderPage() {
         )}
         {books.data && (
           <BookList
-            books={books.data.data}
+            books={books.data.books}
             selectedOsisId={selectedOsisId}
             onSelect={handleBookSelect}
           />
@@ -99,7 +99,7 @@ export function ReaderPage() {
         )}
         {verses.data && (
           <VerseReader
-            verses={verses.data.data}
+            verses={verses.data.verses}
             selectedWordId={selectedWord?.id ?? null}
             onWordClick={handleWordClick}
           />

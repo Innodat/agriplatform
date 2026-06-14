@@ -2,36 +2,25 @@
 
 ---
 
-## 2026-06-14 — Phase 1 restructure: silo architecture
-
-### What changed
-- App renamed from `bible-web` → `scribeswell` (silo model adopted for all apps).
-- Backend moved from `platform/backend/` → `apps/scribeswell/backend/` (app-owned).
-- Zod schema moved from `platform/shared/schemas/zod/bible/` → `apps/scribeswell/web/src/schemas/bible.schema.ts`.
-- Bible migration moved from `supabase/migrations/` → `apps/scribeswell/supabase/migrations/`.
-- Import tools moved from `tools/py/` → `apps/scribeswell/tools/`.
-- `@platform` alias removed from `vite.config.ts` + `tsconfig.app.json`; imports now use `@/schemas/`.
-- `platform/builder-cli/templates/backend/` created as the canonical scaffold template.
-- `tsc --noEmit` passes with zero errors.
-
-### Deviations
-- None from the approved silo plan.
-
-### Remaining TODOs
-- Populate `.env` in `apps/scribeswell/backend/` with real Supabase credentials.
-- Run `python apps/scribeswell/tools/import_bible.py --source <path/to/hebrew.json>` to populate data.
-- Phase 2: generate api-client from FastAPI OpenAPI spec into `apps/scribeswell/web/src/api-client/`.
-- Phase 2: add ShadCN UI components.
-- Phase 2: search (Strong's number, word), bookmarks (requires auth).
-
----
-
-## 2026-06-14 — Phase 1: Hebrew Bible Reader (initial build)
+## 2026-06-14 — Phase 2: Multi-App Foundation
 
 ### Delivered
-- DB migration: `bible` schema (book/chapter/verse/word/morpheme + RLS).
-- OSHB morphology parser + full Tanakh importer.
-- FastAPI backend: 5 public bible endpoints.
-- Vite + React 19 + TypeScript + Tailwind CSS 4 reader UI.
-- 3-column layout: BookList | RTL VerseReader | MorphologyPanel.
-- Optional Supabase Auth (reader works signed-out).
+- **AppLauncher integrated into Topbar** — burger menu (LayoutGrid icon) appears left of brand when user is signed in; shows all enabled apps from the app-directory service.
+- **`src/components/layout/AppLauncher.tsx`** — vendored from `platform/ui-business`; generic, data-driven, accessible (aria-expanded, role="menu", Escape-to-close, click-outside-to-close).
+- **`src/hooks/useMyApps.ts`** — fetches `/api/me/apps` from app-directory service; silently degrades if service is unavailable.
+- **`src/lib/app-directory.ts`** — singleton app-directory client wired with Supabase session token.
+- **`src/schemas/bible.schema.ts`** — silo-local Zod schemas (migrated from `@platform/shared/schemas/zod/bible/bible.schema`).
+- **`src/vite-env.d.ts`** — added Vite client types reference.
+- **`tsconfig.app.json`** — added `@platform/app-directory-client` path alias.
+- **`vite.config.ts`** — added `@platform/app-directory-client` Vite alias.
+- **`.env.example`** — added `VITE_APP_DIRECTORY_URL`.
+- **`package.json`** — renamed from `bible-web` → `scribeswell-web`; added `@platform/app-directory-client` dep.
+- **`tsc --noEmit` exits 0** — all pre-existing TS errors resolved.
+
+### Deviations from plan
+- None.
+
+### Remaining TODOs
+- Set `VITE_APP_DIRECTORY_URL` in `.env.local` (default: `http://localhost:8001`).
+- Start `services/app-directory` locally to see the launcher populate.
+- Phase 3+: AppLauncher will show more apps as they are built and enabled in the catalog.
