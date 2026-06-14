@@ -26,7 +26,7 @@
 ## Supabase MCP
 - MUST be queried before any data model or API changes.
 - Zod schemas must exactly match MCP schema (types, enums, nullability).
-- Backend: also generate request/response Zod schemas per endpoint.
+- Backend: also generate request/response Pydantic schemas per endpoint.
 
 ## UI Patterns
 - Stack: React + Vite + TypeScript + Tailwind + **ShadCN UI** (installed components)
@@ -37,21 +37,47 @@
 ## Backend Patterns
 - Service layer per business capability; thin controllers/handlers.
 - Routes reflect clear REST or RPC patterns.
-- Input validation with Zod; outputs also validated.
+- Input validation with Pydantic (BE) / Zod (FE); outputs also validated.
 - Consistent error payloads: `{ error: string, code?: number, details?: any }`
+- Backend scaffold generated from `platform/builder-cli/templates/backend/`; generated code is **vendored into `apps/<app>/backend/`** and owned by the app (no runtime import from `platform/*`).
 
 ## Confirmation Gates
 - Gate 1: Final review before merge.
 
 ## Conventions
-- Files: kebab-case; Components & Services: PascalCase; Types: infer from Zod.
+- Files: kebab-case; Components & Services: PascalCase; Types: infer from Zod/Pydantic.
 - Commits: conventional commits (`feat:`, `fix:`, `refactor:`, `docs:`, `chore:`)
 
-## Repo Layout Rules (Phase 0+)
-- `platform/*` — shared packages (future publishable); never app-specific logic.
-- `apps/*` — applications; each uses `@platform/*` packages.
-- `apps/receipts-*` — frozen legacy apps; direct Supabase OK; no forced FastAPI migration.
-- `apps/scribeswell` — clean reference app; must use FastAPI + generated api-client for data.
+## Repo Layout Rules — SILO MODEL (adopted 2026-06-14)
+
+**Architecture decision:** Each app in `apps/*` is a **self-contained silo**. Apps are designed to be extractable into their own repository without modification.
+
+### Silo rules
+- `apps/<app>/` owns **everything** for that app:
+  - `backend/` — FastAPI app (scaffolded from `platform/builder-cli/templates/backend/`, then vendored)
+  - `web/` — Vite + React frontend
+  - `supabase/migrations/` — DB migrations (applied to shared DB instance; travel with app on repo-split)
+  - `tools/` — app-specific scripts (importers, generators)
+  - `docs/` — app documentation
+  - `CHANGELOG.md` — app-owned changelog
+- **No runtime imports from `platform/*`** in any `apps/<app>/backend/` or `apps/<app>/web/src/` (Auth/Realtime Supabase client exempt in web).
+- Zod schemas live in `apps/<app>/web/src/schemas/` (not in `platform/shared`).
+- Generated api-client lives in `apps/<app>/web/src/api-client/` (Phase 2; generated per-app from OpenAPI spec).
+
+### platform/* rules
+- `platform/*` holds **only cross-cutting** concerns:
+  - `platform/prompts/` — AI workflow prompt system
+  - `platform/builder-cli/templates/` — scaffold templates (stamped into apps; not imported at runtime)
+  - `platform/ui-core/` — future: shared ShadCN base wrappers (Phase 3)
+  - `platform/ui-business/` — future: shared domain components (Phase 3)
+- **No app-specific backend logic in `platform/`.**
+- `platform/backend/` has been deleted — superseded by per-app backends.
+- `platform/api-client/` has been superseded — api-client is generated per-app.
+
+### Legacy apps
+- `apps/receipts-*` — frozen legacy apps; direct Supabase OK; no forced migration.
+
+### Always
 - **Never** import `@supabase/supabase-js` for data CRUD in `apps/*` (Auth/Realtime exempt).
 - **Never** hand-edit files with `// GENERATED — do not edit` banner.
 - Prompt size budget enforced: base <= 50 lines, task <= 40 lines, context <= 30 lines.
@@ -65,14 +91,15 @@
 > "You are an expert React + Vite engineer, full-stack architect, and prompt-engineering strategist, operating inside Cline with Supabase MCP enabled.
 >
 > **Project context**: Digital twin platform. Repo: polyrepo-lite (platform/* + apps/*).
+> Each app is a **silo**: owns its own backend/, web/, supabase/migrations/, tools/, docs/.
 >
 > **Tasks**:
 > 1. Load `platform/prompts/base.md` + relevant context from `platform/prompts/registry.md`.
 > 2. Query Supabase MCP for relevant tables and role/auth tables.
-> 3. Generate exact Zod schemas; infer types.
-> 4. Design scalable platform layout (AppShell + Departments + module tabs).
+> 3. Generate exact Zod schemas into `apps/<app>/web/src/schemas/`; infer types.
+> 4. Design scalable app layout (AppShell + Departments + module tabs).
 > 5. **Show ASCII layout diagram + route map first** — no code.
-> 6. Propose file tree for React+Vite + ShadCN UI.
+> 6. Propose file tree for React+Vite + ShadCN UI inside `apps/<app>/web/`.
 > 7. Output: (A) ASCII layout + routes (B) Components list (C) Zod schemas (D) File tree (E) Refactor steps (F) Acceptance checklist (G) Prompt/rule updates (H) `docs/tech-spec.md` updates.
 > 8. Document the exact `docs/tech-spec.md` sections to update, including summary of changes, new patterns introduced, and any diagrams impacted."
 
@@ -85,17 +112,19 @@
 > "You are an expert FastAPI + Python backend architect, operating inside Cline with Supabase MCP enabled.
 >
 > **Project context**: Digital twin platform. Repo: polyrepo-lite (platform/* + apps/*).
-> Backend lives in `platform/backend/` (FastAPI). UI calls FastAPI for all data CRUD.
-> Supabase client only for Auth/Realtime on the frontend.
+> Each app is a **silo**: backend lives in `apps/<app>/backend/` (FastAPI).
+> Scaffold from `platform/builder-cli/templates/backend/`; generated code is vendored (no runtime platform import).
+> UI calls FastAPI for all data CRUD. Supabase client only for Auth/Realtime on the frontend.
 >
 > **Tasks**:
 > 1. Load `platform/prompts/base.md` + `context/error-payload.md` + `context/rls-notes.md`.
 > 2. Query Supabase MCP for relevant schemas.
-> 3. Generate Pydantic models (from DB) and Zod schemas (from OpenAPI).
-> 4. Design service/API architecture for this module (REST or RPC).
-> 5. Produce API diagram + route map first — no code yet.
-> 6. Propose folder structure for routers, services, schemas, models/generated.
-> 7. Output: (A) API diagram/map (B) Services/routes list (C) Pydantic+Zod schemas (D) File tree (E) Build steps (F) Acceptance checklist (G) Prompt/rule updates (H) `docs/tech-spec.md` updates."
+> 3. Generate Pydantic models (from DB) into `apps/<app>/backend/models/generated/`.
+> 4. Generate Zod schemas (from API shape) into `apps/<app>/web/src/schemas/`.
+> 5. Design service/API architecture for this module (REST or RPC).
+> 6. Produce API diagram + route map first — no code yet.
+> 7. Propose folder structure: `routers/`, `services/`, `schemas/`, `models/generated/` inside `apps/<app>/backend/`.
+> 8. Output: (A) API diagram/map (B) Services/routes list (C) Pydantic+Zod schemas (D) File tree (E) Build steps (F) Acceptance checklist (G) Prompt/rule updates (H) `docs/tech-spec.md` updates."
 
 ---
 
@@ -104,14 +133,15 @@
 > Model: `Claude Sonnet 4` (UI clean code) or `GPT-5 Codex` (unified flow)
 >
 > "Using the approved plan:
-> - Scaffold as planned (FE: layouts/components; BE: routers/services).
+> - Scaffold as planned (FE: layouts/components in `apps/<app>/web/`; BE: routers/services in `apps/<app>/backend/`).
 > - Integrate Zod (FE) / Pydantic (BE) validation from plan.
-> - Wire api-client (generated) for FE data calls; never direct Supabase for CRUD.
+> - Wire api-client (fetch+Zod or generated) for FE data calls; never direct Supabase for CRUD.
 > - Keep Tailwind + ShadCN UI (frontend).
 > - Ensure accessibility (FE) and strict TS/Python types (both).
 > - Stop after scaffolding for confirmation before wiring complex logic.
 > - After scaffolding or refactor work is complete:
->   - Add a dated entry to `platform/prompts/CHANGELOG.md` noting:
+>   - Add a dated entry to `apps/<app>/CHANGELOG.md` noting:
 >     - What was delivered
 >     - Any deviations from the original plan
->     - Remaining TODOs"
+>     - Remaining TODOs
+>   - Also add a brief entry to `platform/prompts/CHANGELOG.md` for platform-level decisions."

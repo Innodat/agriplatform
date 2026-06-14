@@ -1,7 +1,7 @@
 # Technical Specification — Digital Twin Platform (AgriPlatform)
 
-**Version:** 1.2  
-**Last Updated:** 2026-06-13  
+**Version:** 1.4  
+**Last Updated:** 2026-06-14  
 **Owner:** Platform Architecture Team  
 **Status:** Living Document
 
@@ -83,23 +83,31 @@ agriplatform/
 │       ├── registry.md           # Task → prompt → context routing
 │       ├── tasks/                # Task-specific prompts (≤40 lines each)
 │       └── context/              # On-demand context snippets (≤30 lines each)
-├── apps/                          # ← applications (each uses platform/* packages)
+├── apps/                          # ← applications (SILO MODEL — each app is self-contained)
 │   ├── receipts-web/             # Legacy receipts web app (frozen; direct Supabase OK)
 │   ├── receipts-mobile/          # Legacy receipts mobile app (frozen)
-│   └── bible-web/                # [Phase 1] Hebrew Bible reader (clean reference app)
+│   └── scribeswell/              # [Phase 1] Hebrew Bible reader — canonical silo reference
+│       ├── backend/              # FastAPI (vendored from builder-cli template)
+│       ├── web/                  # Vite + React 19 + Tailwind
+│       ├── supabase/migrations/  # App-owned migrations (travel with app on repo-split)
+│       ├── tools/                # import_bible.py, oshb_morph.py
+│       ├── docs/                 # scribeswell.md
+│       └── CHANGELOG.md
 ├── supabase/                     # Supabase configuration (shared infra)
 │   ├── config.toml
-│   ├── migrations/               # Database migrations
+│   ├── migrations/               # Platform-level migrations (identity, cs, finance)
 │   ├── functions/                # Edge functions (content system)
 │   └── seeds/
 └── tools/                        # Repo-level dev tooling (tools.py, schema sync)
 ```
 
-**Key rules:**
-- `apps/*` never import `@supabase/supabase-js` for data CRUD (Auth/Realtime exempt).
-- `apps/receipts-*` are frozen legacy — no forced migration to FastAPI.
-- `apps/bible-web` is the clean reference app — born on FastAPI + generated client.
-- Generated files carry `// GENERATED — do not edit` banner; `validate-patterns` enforces this.
+**Key rules (SILO MODEL — adopted 2026-06-14):**
+- Each `apps/<app>/` owns its own `backend/`, `web/`, `supabase/migrations/`, `tools/`, `docs/`, `CHANGELOG.md`.
+- **No runtime imports from `platform/*`** in any app backend or web src (Auth/Realtime Supabase client exempt in web).
+- Zod schemas live in `apps/<app>/web/src/schemas/` (not in `platform/shared`).
+- Backend scaffold generated from `platform/builder-cli/templates/backend/`; vendored into app (not imported at runtime).
+- `apps/receipts-*` are frozen legacy — no forced migration.
+- Generated files carry `// GENERATED — do not edit` banner.
 
 ### 2.2 Frontend Architecture
 
@@ -468,6 +476,7 @@ The database is organized into logical schemas:
 | `finance` | Financial operations | receipt, purchase, expense_category, expense_type, currency |
 | `identity` | User management & RBAC + multi-tenancy | users, org, org_member, member_role, role_permissions, audit_log |
 | `cs` | Content system | content_source, content_store, receipt_content |
+| `bible` | Hebrew Bible reference data (Phase 1) | book, chapter, verse, word, morpheme |
 | `audit` | Audit logging (future) | - |
 
 ### 3.2 Core Entity Relationships
@@ -762,6 +771,41 @@ CREATE POLICY "Receipts: update in org"
 - Format: `<schema>.<table>.<action>`
 - Actions: `admin`, `read`, `insert`, `update`, `delete`
 - Example: `finance.purchase.read`, `finance.receipt.admin`
+
+### 3.6 Bible Schema (Phase 1)
+
+**Migration:** `20260614000000_create_bible_schema.sql`  
+**Purpose:** Global read-only Hebrew Bible reference data for `apps/bible-web`.  
+**RLS Deviation:** No `org_id` — public SELECT for `anon` + `authenticated` roles. Import uses service role.
+
+**Entity Hierarchy:** `book → chapter → verse → word → morpheme`
+
+```
+bible.book        id(PK), osis_id, name_en, name_he, testament, book_order
+bible.chapter     id(PK), book_id→book, chapter_num
+bible.verse       id(PK), chapter_id→chapter, verse_num, book_id(denorm), chapter_num(denorm)
+bible.word        id(PK), verse_id→verse, position, surface_he, display_he, lemma_strong, morph_code
+bible.morpheme    id(PK), word_id→word, segment_index, language, part_of_speech, pos_code,
+                  gender, number, state, verb_stem, verb_aspect, person
+```
+
+**OSHB Morphology Codes** (`tools/py/oshb_morph.py`):
+- Format: `<H|A><POS>[features][/<POS>[features]...]`
+- `H`=Hebrew, `A`=Aramaic; POS: `N`=noun, `V`=verb, `C`=conjunction, `T`=particle, `R`=preposition, etc.
+- Example: `HC/Td/Ncbsa` → Conjunction / Article / Noun-common-both-singular-absolute
+
+**Read views:** `bible.*_read` (pass-through; consistent with finance pattern).
+
+**Import pipeline:** `python tools/py/import_bible.py --source <hebrew.json> [--dry-run] [--book Gen]`
+
+**FastAPI endpoints (all public):**
+```
+GET /api/bible/books
+GET /api/bible/books/{osis_id}
+GET /api/bible/books/{osis_id}/chapters/{n}
+GET /api/bible/books/{osis_id}/chapters/{n}/verses
+GET /api/bible/words/{word_id}/morphology
+```
 
 ---
 
@@ -1985,10 +2029,12 @@ docs/tech-spec.md                              # This document
 platform/prompts/base.md                       # Always-loaded AI rules (replaces memory_bank)
 platform/prompts/registry.md                   # Task → prompt → context routing
 platform/shared/schemas/zod/                   # Zod schemas (source of truth)
-platform/backend/                              # FastAPI app [Phase 1]
-platform/api-client/                           # GENERATED TS client [Phase 2]
+platform/builder-cli/templates/backend/        # Backend scaffold template (stamp into apps)
 apps/receipts-web/                             # Legacy receipts web app (frozen)
-apps/bible-web/                                # Hebrew Bible reader (clean reference app)
+apps/scribeswell/                              # Hebrew Bible reader — canonical silo app
+apps/scribeswell/backend/                      # FastAPI (vendored from builder-cli template)
+apps/scribeswell/web/                          # Vite + React 19 frontend
+apps/scribeswell/supabase/migrations/          # App-owned DB migrations
 supabase/migrations/                           # Database migrations
 tools/                                         # Repo-level dev tooling
 ```
@@ -2007,6 +2053,8 @@ tools/                                         # Repo-level dev tooling
 
 | Version | Date | Author | Changes |
 |---------|------|--------|---------|
+| 1.4 | 2026-06-14 | AI Assistant | Silo model adopted: apps/bible-web → apps/scribeswell (silo); platform/backend deleted; builder-cli/templates/backend created; §2.1 monorepo structure updated; .clinerules rewritten; Important Paths updated |
+| 1.3 | 2026-06-14 | AI Assistant | Phase 1 complete: bible schema (§3.6), FastAPI backend wired, apps/bible-web scaffolded (Vite+React+Tailwind, RTL reader, morphology panel), tsc clean |
 | 1.2 | 2026-06-13 | AI Assistant | Platform refactor: polyrepo-lite layout (platform/+apps/), prompt system replaces memory_bank, FastAPI backend planned, bible-web app added |
 | 1.1 | 2026-02-01 | AI Assistant | Added soft delete pattern documentation for finance tables (deleted_at vs is_active) |
 | 1.0 | 2025-10-15 | AI Assistant | Initial comprehensive technical specification |

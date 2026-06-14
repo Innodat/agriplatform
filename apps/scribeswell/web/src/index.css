@@ -1,0 +1,31 @@
+@import "tailwindcss";
+
+/* Hebrew text — right-to-left, larger for readability */
+.hebrew-text {
+  font-family: "SBL Hebrew", "Ezra SIL", "David", serif;
+  direction: rtl;
+  unicode-bidi: embed;
+}
+
+/* Verse display */
+.verse-line {
+  direction: rtl;
+  text-align: right;
+  line-height: 2.2;
+}
+
+/* Clickable word highlight */
+.word-token {
+  cursor: pointer;
+  border-radius: 2px;
+  padding: 0 2px;
+  transition: background-color 150ms ease;
+}
+
+.word-token:hover {
+  background-color: rgb(254 240 138); /* yellow-200 */
+}
+
+.word-token.selected {
+  background-color: rgb(253 224 71); /* yellow-300 */
+}
