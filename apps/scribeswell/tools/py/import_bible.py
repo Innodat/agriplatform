@@ -54,7 +54,7 @@ load_dotenv(REPO_ROOT / ".env")
 load_dotenv(REPO_ROOT / ".env.local", override=True)
 
 SUPABASE_URL = os.environ.get("SUPABASE_URL", "")
-SUPABASE_SERVICE_KEY = os.environ.get("SUPABASE_SERVICE_KEY", "")
+SUPABASE_SECRET_KEY = os.environ.get("SUPABASE_SECRET_KEY", "")
 
 # ── Book metadata ─────────────────────────────────────────────────────────────
 # Canonical Tanakh order: Torah (1-5), Nevi'im (6-24), Ketuvim (25-39)
@@ -118,12 +118,12 @@ def chunked(lst: list, size: int):
 # ── Importer ──────────────────────────────────────────────────────────────────
 
 class BibleImporter:
-    def __init__(self, supabase_url: str, service_key: str, dry_run: bool = False):
+    def __init__(self, supabase_url: str, secret_key: str, dry_run: bool = False):
         self.dry_run = dry_run
         if not dry_run:
             try:
                 from supabase import create_client
-                self.sb = create_client(supabase_url, service_key)
+                self.sb = create_client(supabase_url, secret_key)
             except ImportError:
                 print("❌ supabase package not installed. Run: pip install supabase")
                 sys.exit(1)
@@ -432,13 +432,13 @@ def main() -> None:
         if not SUPABASE_URL:
             print("❌ SUPABASE_URL not set in environment")
             sys.exit(1)
-        if not SUPABASE_SERVICE_KEY:
-            print("❌ SUPABASE_SERVICE_KEY not set in environment")
+        if not SUPABASE_SECRET_KEY:
+            print("❌ SUPABASE_SECRET_KEY not set in environment")
             sys.exit(1)
 
     importer = BibleImporter(
         supabase_url=SUPABASE_URL,
-        service_key=SUPABASE_SERVICE_KEY,
+        secret_key=SUPABASE_SECRET_KEY,
         dry_run=args.dry_run,
     )
     importer.run(source_path=source, only_book=args.book)

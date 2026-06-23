@@ -1,5 +1,5 @@
 # GENERATED — do not edit
-# Source: Supabase bible schema — Phase 1
+# Source: Supabase scribeswell schema — Phase 1
 # Regenerate with: python apps/scribeswell/tools/generate_models.py
 
 from __future__ import annotations
