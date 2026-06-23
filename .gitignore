@@ -210,3 +210,15 @@ __marimo__/
 
 # Other
 frontend-mobile_old/
+
+# Supabase
+
+# Root Supabase composed/generated assets
+supabase/migrations/*.sql
+supabase/seeds/**/*.sql
+supabase/functions/*
+supabase/.composed-manifest.json
+# Keep folders
+!supabase/migrations/.gitkeep
+!supabase/seeds/.gitkeep
+!supabase/functions/.gitkeep

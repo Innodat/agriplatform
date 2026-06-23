@@ -10,7 +10,13 @@
   "scripts": {
     "tools": "python tools/tools.py",
     "dev": "npm run tools -- tailwind --watch",
-    "build": "npm run tools -- tailwind --minify"
+    "build": "npm run tools -- tailwind --minify",
+    "db:compose": "python tools/tools.py compose_supabase",
+    "db:compose:check": "python tools/tools.py compose_supabase --check-only",
+    "db:push:local": "npm run db:compose && npx supabase db push --workdir supabase --local",
+    "db:push": "npm run db:compose && npx supabase db push --workdir supabase",
+    "fn:deploy": "npm run db:compose && npx supabase functions deploy --workdir supabase"
+
   },
   "devDependencies": {
     "supabase": "^2.72.8",
