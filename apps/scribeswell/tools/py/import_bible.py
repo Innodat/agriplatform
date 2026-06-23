@@ -156,7 +156,7 @@ class BibleImporter:
 
     # ── import one book ───────────────────────────────────────────────────────
 
-    def import_book(self, osis_id: str, book_data: dict) -> None:
+    def import_book(self, osis_id: str, book_data: list) -> None:
         meta = OSIS_TO_META.get(osis_id)
         if not meta:
             print(f"   ⚠ Unknown book OSIS id: {osis_id!r} — skipping")
@@ -169,13 +169,8 @@ class BibleImporter:
         morpheme_rows: list[dict] = []
 
         # ── chapters ──────────────────────────────────────────────────────────
-        for ch_str, ch_data in book_data.items():
-            try:
-                chapter_num = int(ch_str)
-            except ValueError:
-                continue
-
-            chapter_rows.append({"book_id": book_id, "chapter_num": chapter_num})
+        for idx, ch_data in enumerate(book_data):
+            chapter_rows.append({"book_id": book_id, "chapter_num": idx})
 
         # Upsert chapters and fetch back IDs
         if not self.dry_run:
@@ -196,27 +191,13 @@ class BibleImporter:
         self.stats["chapters"] += len(chapter_rows)
 
         # ── verses ────────────────────────────────────────────────────────────
-        for ch_str, ch_data in book_data.items():
-            try:
-                chapter_num = int(ch_str)
-            except ValueError:
-                continue
-
-            chapter_id = chapter_id_map.get(chapter_num)
-            if chapter_id is None:
-                continue
-
-            for v_str, v_words in ch_data.items():
-                try:
-                    verse_num = int(v_str)
-                except ValueError:
-                    continue
-
+        for ch_idx, ch_data in enumerate(book_data):
+            for v_idx, v_words in enumerate(ch_data):
                 verse_rows.append({
-                    "chapter_id": chapter_id,
-                    "verse_num": verse_num,
+                    "chapter_id": chapter_id_map.get(ch_idx),
+                    "verse_num": v_idx,
                     "book_id": book_id,
-                    "chapter_num": chapter_num,
+                    "chapter_num": ch_idx,
                 })
 
         # Upsert verses and fetch back IDs
@@ -240,23 +221,13 @@ class BibleImporter:
         self.stats["verses"] += len(verse_rows)
 
         # ── words + morphemes ─────────────────────────────────────────────────
-        for ch_str, ch_data in book_data.items():
-            try:
-                chapter_num = int(ch_str)
-            except ValueError:
-                continue
-
-            chapter_id = chapter_id_map.get(chapter_num)
+        for ch_idx, ch_data in enumerate(book_data):
+            chapter_id = chapter_id_map.get(ch_idx)
             if chapter_id is None:
                 continue
 
-            for v_str, v_words in ch_data.items():
-                try:
-                    verse_num = int(v_str)
-                except ValueError:
-                    continue
-
-                verse_id = verse_id_map.get((chapter_id, verse_num))
+            for v_idx, v_words in enumerate(ch_data):
+                verse_id = verse_id_map.get((chapter_id, v_idx))
                 if verse_id is None and not self.dry_run:
                     continue
 
@@ -308,23 +279,13 @@ class BibleImporter:
         self.stats["words"] += len(word_rows)
 
         # ── morphemes ─────────────────────────────────────────────────────────
-        for ch_str, ch_data in book_data.items():
-            try:
-                chapter_num = int(ch_str)
-            except ValueError:
-                continue
-
-            chapter_id = chapter_id_map.get(chapter_num)
+        for ch_idx, ch_data in enumerate(book_data):
+            chapter_id = chapter_id_map.get(ch_idx)
             if chapter_id is None:
                 continue
 
-            for v_str, v_words in ch_data.items():
-                try:
-                    verse_num = int(v_str)
-                except ValueError:
-                    continue
-
-                verse_id = verse_id_map.get((chapter_id, verse_num))
+            for v_idx, v_words in enumerate(ch_data):
+                verse_id = verse_id_map.get((chapter_id, v_idx))
                 if verse_id is None and not self.dry_run:
                     continue
 
