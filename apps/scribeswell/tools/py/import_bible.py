@@ -1,7 +1,7 @@
 """
 import_bible.py — Full Tanakh importer
 ======================================
-Reads the OSHB hebrew.json source file and populates the bible schema in Supabase.
+Reads the OSHB hebrew.json source file and populates the scribeswell schema in Supabase.
 
 Usage:
     python tools/py/import_bible.py --source <path/to/hebrew.json> [--dry-run] [--book Gen]
@@ -141,7 +141,7 @@ class BibleImporter:
         if self.dry_run or not rows:
             return
         for batch in chunked(rows, BATCH_SIZE):
-            self.sb.schema("bible").table(table).upsert(
+            self.sb.schema("scribeswell").table(table).upsert(
                 batch, on_conflict=on_conflict
             ).execute()
 
@@ -181,7 +181,7 @@ class BibleImporter:
         if not self.dry_run:
             self._upsert("chapter", chapter_rows, on_conflict="book_id,chapter_num")
             ch_resp = (
-                self.sb.schema("bible")
+                self.sb.schema("scribeswell")
                 .table("chapter")
                 .select("id,chapter_num")
                 .eq("book_id", book_id)
@@ -224,7 +224,7 @@ class BibleImporter:
             self._upsert("verse", verse_rows, on_conflict="chapter_id,verse_num")
             # Fetch all verse IDs for this book at once
             v_resp = (
-                self.sb.schema("bible")
+                self.sb.schema("scribeswell")
                 .table("verse")
                 .select("id,chapter_id,verse_num")
                 .eq("book_id", book_id)
@@ -294,7 +294,7 @@ class BibleImporter:
             word_id_map: dict[tuple[int, int], int] = {}
             for id_batch in chunked(verse_ids, 200):
                 w_resp = (
-                    self.sb.schema("bible")
+                    self.sb.schema("scribeswell")
                     .table("word")
                     .select("id,verse_id,position")
                     .in_("verse_id", id_batch)
@@ -407,7 +407,7 @@ class BibleImporter:
 
 def main() -> None:
     parser = argparse.ArgumentParser(
-        description="Import full Tanakh from OSHB hebrew.json into Supabase bible schema"
+        description="Import full Tanakh from OSHB hebrew.json into Supabase scribeswell schema"
     )
     parser.add_argument(
         "--source", required=True,
