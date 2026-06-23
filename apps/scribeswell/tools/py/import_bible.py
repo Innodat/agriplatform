@@ -68,10 +68,10 @@ BOOK_METADATA: list[dict] = [
     # Nevi'im
     {"id": 6,  "osis_id": "Josh", "name_en": "Joshua",           "name_he": "יְהוֹשֻׁעַ", "testament": "nevi_im",  "book_order": 1},
     {"id": 7,  "osis_id": "Judg", "name_en": "Judges",           "name_he": "שׁוֹפְטִים",  "testament": "nevi_im",  "book_order": 2},
-    {"id": 8,  "osis_id": "1Sam", "name_en": "1 Samuel",         "name_he": "שְׁמוּאֵל א", "testament": "nevi_im",  "book_order": 3},
-    {"id": 9,  "osis_id": "2Sam", "name_en": "2 Samuel",         "name_he": "שְׁמוּאֵל ב", "testament": "nevi_im",  "book_order": 4},
-    {"id": 10, "osis_id": "1Kgs", "name_en": "1 Kings",          "name_he": "מְלָכִים א",  "testament": "nevi_im",  "book_order": 5},
-    {"id": 11, "osis_id": "2Kgs", "name_en": "2 Kings",          "name_he": "מְלָכִים ב",  "testament": "nevi_im",  "book_order": 6},
+    {"id": 8,  "osis_id": "1Sam", "name_en": "I Samuel",         "name_he": "שְׁמוּאֵל א", "testament": "nevi_im",  "book_order": 3},
+    {"id": 9,  "osis_id": "2Sam", "name_en": "II Samuel",        "name_he": "שְׁמוּאֵל ב", "testament": "nevi_im",  "book_order": 4},
+    {"id": 10, "osis_id": "1Kgs", "name_en": "I Kings",          "name_he": "מְלָכִים א",  "testament": "nevi_im",  "book_order": 5},
+    {"id": 11, "osis_id": "2Kgs", "name_en": "II Kings",         "name_he": "מְלָכִים ב",  "testament": "nevi_im",  "book_order": 6},
     {"id": 12, "osis_id": "Isa",  "name_en": "Isaiah",           "name_he": "יְשַׁעְיָהוּ","testament": "nevi_im",  "book_order": 7},
     {"id": 13, "osis_id": "Jer",  "name_en": "Jeremiah",         "name_he": "יִרְמְיָהוּ", "testament": "nevi_im",  "book_order": 8},
     {"id": 14, "osis_id": "Ezek", "name_en": "Ezekiel",          "name_he": "יְחֶזְקֵאל",  "testament": "nevi_im",  "book_order": 9},
@@ -91,7 +91,7 @@ BOOK_METADATA: list[dict] = [
     {"id": 27, "osis_id": "Ps",   "name_en": "Psalms",           "name_he": "תְּהִלִּים",  "testament": "ketuvim",  "book_order": 1},
     {"id": 28, "osis_id": "Prov", "name_en": "Proverbs",         "name_he": "מִשְׁלֵי",    "testament": "ketuvim",  "book_order": 2},
     {"id": 29, "osis_id": "Job",  "name_en": "Job",              "name_he": "אִיּוֹב",     "testament": "ketuvim",  "book_order": 3},
-    {"id": 30, "osis_id": "Song", "name_en": "Song of Songs",    "name_he": "שִׁיר הַשִּׁירִים","testament": "ketuvim","book_order": 4},
+    {"id": 30, "osis_id": "Song", "name_en": "Song of Solomon",    "name_he": "שִׁיר הַשִּׁירִים","testament": "ketuvim","book_order": 4},
     {"id": 31, "osis_id": "Ruth", "name_en": "Ruth",             "name_he": "רוּת",        "testament": "ketuvim",  "book_order": 5},
     {"id": 32, "osis_id": "Lam",  "name_en": "Lamentations",     "name_he": "אֵיכָה",      "testament": "ketuvim",  "book_order": 6},
     {"id": 33, "osis_id": "Eccl", "name_en": "Ecclesiastes",     "name_he": "קֹהֶלֶת",    "testament": "ketuvim",  "book_order": 7},
@@ -99,8 +99,8 @@ BOOK_METADATA: list[dict] = [
     {"id": 35, "osis_id": "Dan",  "name_en": "Daniel",           "name_he": "דָּנִיֵּאל",  "testament": "ketuvim",  "book_order": 9},
     {"id": 36, "osis_id": "Ezra", "name_en": "Ezra",             "name_he": "עֶזְרָא",     "testament": "ketuvim",  "book_order": 10},
     {"id": 37, "osis_id": "Neh",  "name_en": "Nehemiah",         "name_he": "נְחֶמְיָה",   "testament": "ketuvim",  "book_order": 11},
-    {"id": 38, "osis_id": "1Chr", "name_en": "1 Chronicles",     "name_he": "דִּבְרֵי הַיָּמִים א","testament": "ketuvim","book_order": 12},
-    {"id": 39, "osis_id": "2Chr", "name_en": "2 Chronicles",     "name_he": "דִּבְרֵי הַיָּמִים ב","testament": "ketuvim","book_order": 13},
+    {"id": 38, "osis_id": "1Chr", "name_en": "I Chronicles",     "name_he": "דִּבְרֵי הַיָּמִים א","testament": "ketuvim","book_order": 12},
+    {"id": 39, "osis_id": "2Chr", "name_en": "II Chronicles",     "name_he": "דִּבְרֵי הַיָּמִים ב","testament": "ketuvim","book_order": 13},
 ]
 
 OSIS_TO_META = {b["osis_id"]: b for b in BOOK_METADATA}
@@ -160,7 +160,7 @@ class BibleImporter:
     def import_book(self, osis_id: str, book_data: list) -> None:
         meta = NAME_EN_TO_META.get(osis_id)
         if not meta:
-            print(f"   ⚠ Unknown book OSIS id: {osis_id!r} — skipping")
+            print(f"   ⚠ Unknown book name: {osis_id!r} — skipping")
             return
 
         book_id = meta["id"]
