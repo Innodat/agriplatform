@@ -109,22 +109,46 @@ CREATE POLICY "scribeswell.morpheme: public read"
 
 
 -- Grants to the anon role
-grant usage on schema scribeswell to anon;
-GRANT SELECT ON book IN SCHEMA scribeswell TO service_role;
-GRANT SELECT ON chapter IN SCHEMA scribeswell TO service_role;
-GRANT SELECT ON verse IN SCHEMA scribeswell TO service_role;
-GRANT SELECT ON word IN SCHEMA scribeswell TO service_role;
-GRANT SELECT ON morpheme IN SCHEMA scribeswell TO service_role;
 
--- Grants to the service role
-GRANT USAGE ON SCHEMA scribeswell TO service_role;  -- equivalent elevated role
-GRANT SELECT, INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA scribeswell TO service_role;
-ALTER DEFAULT PRIVILEGES IN SCHEMA scribeswell
-  GRANT SELECT, INSERT, UPDATE, DELETE ON TABLES TO service_role;
 
--- Grants to authenticated users (RLS policies control actual access)
--- Note: SELECT permission on views only (granted above for users_read)
+- ── Schema access ────────────────────────────────────────────
+GRANT USAGE ON SCHEMA scribeswell TO anon;
 GRANT USAGE ON SCHEMA scribeswell TO authenticated;
-GRANT INSERT, UPDATE ON ALL TABLES IN SCHEMA scribeswell TO authenticated;
+GRANT USAGE ON SCHEMA scribeswell TO service_role;
+
+-- ── Public read access ───────────────────────────────────────
+-- RLS policies allow SELECT, but roles still need SELECT privilege.
+GRANT SELECT
+ON ALL TABLES IN SCHEMA scribeswell
+TO authenticated;
+
 ALTER DEFAULT PRIVILEGES IN SCHEMA scribeswell
-  GRANT INSERT, UPDATE ON TABLES TO authenticated;
+GRANT SELECT
+ON TABLES
+TO authenticated;
+
+GRANT SELECT ON book IN SCHEMA scribeswell TO anon;
+GRANT SELECT ON chapter IN SCHEMA scribeswell TO anon;
+GRANT SELECT ON verse IN SCHEMA scribeswell TO anon;
+GRANT SELECT ON word IN SCHEMA scribeswell TO anon;
+GRANT SELECT ON morpheme IN SCHEMA scribeswell TO anon;
+
+-- ── Service role import/write access ─────────────────────────
+GRANT SELECT, INSERT, UPDATE, DELETE
+ON ALL TABLES IN SCHEMA scribeswell
+TO service_role;
+
+ALTER DEFAULT PRIVILEGES IN SCHEMA scribeswell
+GRANT SELECT, INSERT, UPDATE, DELETE
+ON TABLES
+TO service_role;
+
+-- ── Sequence access for SERIAL/BIGSERIAL/identity defaults ───
+GRANT USAGE, SELECT, UPDATE
+ON ALL SEQUENCES IN SCHEMA scribeswell
+TO service_role;
+
+ALTER DEFAULT PRIVILEGES IN SCHEMA scribeswell
+GRANT USAGE, SELECT, UPDATE
+ON SEQUENCES
+TO service_role;
