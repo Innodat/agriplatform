@@ -106,3 +106,16 @@ CREATE POLICY "scribeswell.word: public read"
 
 CREATE POLICY "scribeswell.morpheme: public read"
     ON scribeswell.morpheme FOR SELECT TO anon, authenticated USING (true);
+
+-- Grants to the service role
+GRANT USAGE ON SCHEMA scribeswell TO service_role;  -- equivalent elevated role
+GRANT SELECT, INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA scribeswell TO service_role;
+ALTER DEFAULT PRIVILEGES IN SCHEMA scribeswell
+  GRANT SELECT, INSERT, UPDATE, DELETE ON TABLES TO service_role;
+
+-- Grants to authenticated users (RLS policies control actual access)
+-- Note: SELECT permission on views only (granted above for users_read)
+GRANT USAGE ON SCHEMA scribeswell TO authenticated;
+GRANT INSERT, UPDATE ON ALL TABLES IN SCHEMA scribeswell TO authenticated;
+ALTER DEFAULT PRIVILEGES IN SCHEMA scribeswell
+  GRANT INSERT, UPDATE ON TABLES TO authenticated;
