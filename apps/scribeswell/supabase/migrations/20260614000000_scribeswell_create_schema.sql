@@ -13,7 +13,8 @@ CREATE TABLE scribeswell.book (
     osis_id       TEXT        NOT NULL UNIQUE,   -- e.g. "Gen", "Exod"
     name_en       TEXT        NOT NULL,          -- "Genesis"
     name_he       TEXT        NOT NULL,          -- "בְּרֵאשִׁית"
-    testament     TEXT        NOT NULL CHECK (testament IN ('torah','nevi_im','ketuvim')),
+    testament     TEXT        NOT NULL CHECK (testament IN ('old', 'new')),
+    division      TEXT        NOT NULL CHECK (division IN ('torah','nevi_im','ketuvim')),
     book_order    SMALLINT    NOT NULL           -- display order within testament
 );
 
