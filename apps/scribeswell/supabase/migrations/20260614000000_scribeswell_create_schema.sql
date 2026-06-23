@@ -124,11 +124,11 @@ GRANT SELECT
 ON TABLES
 TO authenticated;
 
-GRANT SELECT ON book IN SCHEMA scribeswell TO anon;
-GRANT SELECT ON chapter IN SCHEMA scribeswell TO anon;
-GRANT SELECT ON verse IN SCHEMA scribeswell TO anon;
-GRANT SELECT ON word IN SCHEMA scribeswell TO anon;
-GRANT SELECT ON morpheme IN SCHEMA scribeswell TO anon;
+GRANT SELECT ON scribeswell.book IN SCHEMA scribeswell TO anon;
+GRANT SELECT ON scribeswell.chapter IN SCHEMA scribeswell TO anon;
+GRANT SELECT ON scribeswell.verse IN SCHEMA scribeswell TO anon;
+GRANT SELECT ON scribeswell.word IN SCHEMA scribeswell TO anon;
+GRANT SELECT ON scribeswell.morpheme IN SCHEMA scribeswell TO anon;
 
 -- ── Service role import/write access ─────────────────────────
 GRANT SELECT, INSERT, UPDATE, DELETE
