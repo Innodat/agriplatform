@@ -104,6 +104,7 @@ BOOK_METADATA: list[dict] = [
 ]
 
 OSIS_TO_META = {b["osis_id"]: b for b in BOOK_METADATA}
+NAME_EN_TO_META = {b["name_en"]: b for b in BOOK_METADATA}
 
 # ── Batch helpers ─────────────────────────────────────────────────────────────
 
@@ -157,7 +158,7 @@ class BibleImporter:
     # ── import one book ───────────────────────────────────────────────────────
 
     def import_book(self, osis_id: str, book_data: list) -> None:
-        meta = OSIS_TO_META.get(osis_id)
+        meta = NAME_EN_TO_META.get(osis_id)
         if not meta:
             print(f"   ⚠ Unknown book OSIS id: {osis_id!r} — skipping")
             return
