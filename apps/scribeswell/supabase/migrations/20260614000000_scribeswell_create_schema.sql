@@ -107,6 +107,15 @@ CREATE POLICY "scribeswell.word: public read"
 CREATE POLICY "scribeswell.morpheme: public read"
     ON scribeswell.morpheme FOR SELECT TO anon, authenticated USING (true);
 
+
+-- Grants to the anon role
+grant usage on schema scribeswell to anon;
+GRANT SELECT ON book IN SCHEMA scribeswell TO service_role;
+GRANT SELECT ON chapter IN SCHEMA scribeswell TO service_role;
+GRANT SELECT ON verse IN SCHEMA scribeswell TO service_role;
+GRANT SELECT ON word IN SCHEMA scribeswell TO service_role;
+GRANT SELECT ON morpheme IN SCHEMA scribeswell TO service_role;
+
 -- Grants to the service role
 GRANT USAGE ON SCHEMA scribeswell TO service_role;  -- equivalent elevated role
 GRANT SELECT, INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA scribeswell TO service_role;
