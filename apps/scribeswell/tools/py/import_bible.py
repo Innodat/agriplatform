@@ -36,6 +36,7 @@ Each word object may have:
 import argparse
 import json
 import os
+import re
 import sys
 import time
 from pathlib import Path
@@ -106,6 +107,19 @@ BOOK_METADATA: list[dict] = [
 OSIS_TO_META = {b["osis_id"]: b for b in BOOK_METADATA}
 NAME_EN_TO_META = {b["name_en"]: b for b in BOOK_METADATA}
 
+HEBREW_RE = re.compile(r'[\u0590-\u05FF]')
+DIGIT_RE = re.compile(r'\d')
+
+
+def is_hebrew(text):
+    return bool(HEBREW_RE.search(text))
+
+
+def is_lexical(text):
+    # lexical codes always contain digits (e.g. 430, 7225, 1961 a, c/853)
+    return bool(DIGIT_RE.search(text))
+
+
 # ── Batch helpers ─────────────────────────────────────────────────────────────
 
 BATCH_SIZE = 500
@@ -157,10 +171,10 @@ class BibleImporter:
 
     # ── import one book ───────────────────────────────────────────────────────
 
-    def import_book(self, osis_id: str, book_data: list) -> None:
-        meta = NAME_EN_TO_META.get(osis_id)
+    def import_book(self, book_name: str, book_data: list) -> None:
+        meta = NAME_EN_TO_META.get(book_name)
         if not meta:
-            print(f"   ⚠ Unknown book name: {osis_id!r} — skipping")
+            print(f"   ⚠ Unknown book name: {book_name!r} — skipping")
             return
 
         book_id = meta["id"]
@@ -236,16 +250,26 @@ class BibleImporter:
                     continue
 
                 for pos_idx, word_obj in enumerate(v_words):
-                    if not isinstance(word_obj, dict):
-                        continue
+                    if not isinstance(word_obj, list) and len(word_obj) != 3:
+                        err_msg = f"   ⚠ Unexpected word object format at {book_name} {ch_idx+1}:{v_idx+1} pos {pos_idx+1}: {word_obj}"
+                        raise ValueError(err_msg)
 
-                    surface = word_obj.get("w") or word_obj.get("text") or ""
-                    if not surface:
-                        continue
+                    surface = None
+                    strong = None
+                    if word_obj[0] if is_hebrew(word_obj[0]):
+                        surface = word_obj[0]
+                        strong = word_obj[1]
+                    elif word_obj[1] if is_hebrew(word_obj[1]):
+                        surface = word_obj[1]
+                        strong = word_obj[0]
+                    surface = word_obj[0] if is_hebrew(word_obj[0]) else word_obj[1] if is_hebrew(word_obj[1]) else ""
+                    if not surface and strong:
+                        err_msg = f"   ⚠ Missing Hebrew surface text at {book_name} {ch_idx+1}:{v_idx+1} pos {pos_idx+1}: {word_obj}"
+                        raise ValueError(err_msg)
 
-                    morph_code: Optional[str] = word_obj.get("morph") or word_obj.get("m")
-                    strong: Optional[str] = word_obj.get("strong") or word_obj.get("s")
-                    display: Optional[str] = word_obj.get("x")
+                    morph_code: Optional[str] = word_obj[2]
+                    strong: Optional[str] = strong
+                    display: Optional[str] = surface.replace("/", "")
                     position = pos_idx + 1  # 1-based
 
                     word_rows.append({
@@ -351,10 +375,10 @@ class BibleImporter:
         )
 
         total = len(books_to_import)
-        for idx, (osis_id, book_data) in enumerate(books_to_import.items(), 1):
-            print(f"[{idx:2}/{total}] Importing {osis_id}...")
+        for idx, (book_name, book_data) in enumerate(books_to_import.items(), 1):
+            print(f"[{idx:2}/{total}] Importing {book_name}...")
             t0 = time.time()
-            self.import_book(osis_id, book_data)
+            self.import_book(book_name, book_data)
             elapsed = time.time() - t0
             print(f"         ✓ done in {elapsed:.1f}s")
 
