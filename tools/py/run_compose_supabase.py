@@ -492,7 +492,6 @@ def clean_generated_dir(directory: Path, patterns: list[str] | None = None, remo
 
 
 def copy_migrations(migrations: list[MigrationFile]) -> None:
-    ensure_generated_marker(OUTPUT_MIGRATIONS_DIR)
     for migration in migrations:
         shutil.copy2(migration.source_path, OUTPUT_MIGRATIONS_DIR / migration.file_name)
 
