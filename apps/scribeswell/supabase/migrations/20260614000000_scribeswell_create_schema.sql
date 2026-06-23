@@ -5,10 +5,10 @@
 -- RLS: permissive SELECT for anon + authenticated; no writes via API
 -- ============================================================
 
-CREATE SCHEMA IF NOT EXISTS bible;
+CREATE SCHEMA IF NOT EXISTS scribeswell;
 
 -- ── book ────────────────────────────────────────────────────
-CREATE TABLE bible.book (
+CREATE TABLE scribeswell.book (
     id            SMALLINT PRIMARY KEY,          -- canonical book number 1-39 (Tanakh order)
     osis_id       TEXT        NOT NULL UNIQUE,   -- e.g. "Gen", "Exod"
     name_en       TEXT        NOT NULL,          -- "Genesis"
@@ -18,30 +18,30 @@ CREATE TABLE bible.book (
 );
 
 -- ── chapter ─────────────────────────────────────────────────
-CREATE TABLE bible.chapter (
+CREATE TABLE scribeswell.chapter (
     id            SERIAL      PRIMARY KEY,
-    book_id       SMALLINT    NOT NULL REFERENCES bible.book(id),
+    book_id       SMALLINT    NOT NULL REFERENCES scribeswell.book(id),
     chapter_num   SMALLINT    NOT NULL,
     UNIQUE (book_id, chapter_num)
 );
 
 -- ── verse ────────────────────────────────────────────────────
-CREATE TABLE bible.verse (
+CREATE TABLE scribeswell.verse (
     id            SERIAL      PRIMARY KEY,
-    chapter_id    INT         NOT NULL REFERENCES bible.chapter(id),
+    chapter_id    INT         NOT NULL REFERENCES scribeswell.chapter(id),
     verse_num     SMALLINT    NOT NULL,
     -- Convenience denorm for fast lookups
-    book_id       SMALLINT    NOT NULL REFERENCES bible.book(id),
+    book_id       SMALLINT    NOT NULL REFERENCES scribeswell.book(id),
     chapter_num   SMALLINT    NOT NULL,
     UNIQUE (chapter_id, verse_num)
 );
 
-CREATE INDEX idx_verse_book_chapter ON bible.verse(book_id, chapter_num);
+CREATE INDEX idx_verse_book_chapter ON scribeswell.verse(book_id, chapter_num);
 
 -- ── word ─────────────────────────────────────────────────────
-CREATE TABLE bible.word (
+CREATE TABLE scribeswell.word (
     id            SERIAL      PRIMARY KEY,
-    verse_id      INT         NOT NULL REFERENCES bible.verse(id),
+    verse_id      INT         NOT NULL REFERENCES scribeswell.verse(id),
     position      SMALLINT    NOT NULL,          -- 1-based word order within verse
     surface_he    TEXT        NOT NULL,          -- pointed Hebrew/Aramaic text
     display_he    TEXT,                          -- alternate display form (optional)
@@ -50,13 +50,13 @@ CREATE TABLE bible.word (
     UNIQUE (verse_id, position)
 );
 
-CREATE INDEX idx_word_verse ON bible.word(verse_id);
+CREATE INDEX idx_word_verse ON scribeswell.word(verse_id);
 
 -- ── morpheme ─────────────────────────────────────────────────
 -- One row per morpheme segment within a word (split on '/')
-CREATE TABLE bible.morpheme (
+CREATE TABLE scribeswell.morpheme (
     id              SERIAL      PRIMARY KEY,
-    word_id         INT         NOT NULL REFERENCES bible.word(id),
+    word_id         INT         NOT NULL REFERENCES scribeswell.word(id),
     segment_index   SMALLINT    NOT NULL,        -- 0-based position in morph_code split
     language        TEXT        NOT NULL CHECK (language IN ('hebrew','aramaic')),
     part_of_speech  TEXT        NOT NULL,        -- decoded: noun/verb/adjective/preposition/...
@@ -72,37 +72,37 @@ CREATE TABLE bible.morpheme (
     UNIQUE (word_id, segment_index)
 );
 
-CREATE INDEX idx_morpheme_word ON bible.morpheme(word_id);
+CREATE INDEX idx_morpheme_word ON scribeswell.morpheme(word_id);
 
 -- ── read views ───────────────────────────────────────────────
-CREATE OR REPLACE VIEW bible.book_read       AS SELECT * FROM bible.book;
-CREATE OR REPLACE VIEW bible.chapter_read    AS SELECT * FROM bible.chapter;
-CREATE OR REPLACE VIEW bible.verse_read      AS SELECT * FROM bible.verse;
-CREATE OR REPLACE VIEW bible.word_read       AS SELECT * FROM bible.word;
-CREATE OR REPLACE VIEW bible.morpheme_read   AS SELECT * FROM bible.morpheme;
+CREATE OR REPLACE VIEW scribeswell.book_read       AS SELECT * FROM scribeswell.book;
+CREATE OR REPLACE VIEW scribeswell.chapter_read    AS SELECT * FROM scribeswell.chapter;
+CREATE OR REPLACE VIEW scribeswell.verse_read      AS SELECT * FROM scribeswell.verse;
+CREATE OR REPLACE VIEW scribeswell.word_read       AS SELECT * FROM scribeswell.word;
+CREATE OR REPLACE VIEW scribeswell.morpheme_read   AS SELECT * FROM scribeswell.morpheme;
 
 -- ── RLS ──────────────────────────────────────────────────────
 -- Bible is global reference data — public read (anon + authenticated)
 -- No writes via RLS (import pipeline uses service role)
 
-ALTER TABLE bible.book      ENABLE ROW LEVEL SECURITY;
-ALTER TABLE bible.chapter   ENABLE ROW LEVEL SECURITY;
-ALTER TABLE bible.verse     ENABLE ROW LEVEL SECURITY;
-ALTER TABLE bible.word      ENABLE ROW LEVEL SECURITY;
-ALTER TABLE bible.morpheme  ENABLE ROW LEVEL SECURITY;
+ALTER TABLE scribeswell.book      ENABLE ROW LEVEL SECURITY;
+ALTER TABLE scribeswell.chapter   ENABLE ROW LEVEL SECURITY;
+ALTER TABLE scribeswell.verse     ENABLE ROW LEVEL SECURITY;
+ALTER TABLE scribeswell.word      ENABLE ROW LEVEL SECURITY;
+ALTER TABLE scribeswell.morpheme  ENABLE ROW LEVEL SECURITY;
 
 -- Public SELECT for anon role
-CREATE POLICY "bible.book: public read"
-    ON bible.book FOR SELECT TO anon, authenticated USING (true);
+CREATE POLICY "scribeswell.book: public read"
+    ON scribeswell.book FOR SELECT TO anon, authenticated USING (true);
 
-CREATE POLICY "bible.chapter: public read"
-    ON bible.chapter FOR SELECT TO anon, authenticated USING (true);
+CREATE POLICY "scribeswell.chapter: public read"
+    ON scribeswell.chapter FOR SELECT TO anon, authenticated USING (true);
 
-CREATE POLICY "bible.verse: public read"
-    ON bible.verse FOR SELECT TO anon, authenticated USING (true);
+CREATE POLICY "scribeswell.verse: public read"
+    ON scribeswell.verse FOR SELECT TO anon, authenticated USING (true);
 
-CREATE POLICY "bible.word: public read"
-    ON bible.word FOR SELECT TO anon, authenticated USING (true);
+CREATE POLICY "scribeswell.word: public read"
+    ON scribeswell.word FOR SELECT TO anon, authenticated USING (true);
 
-CREATE POLICY "bible.morpheme: public read"
-    ON bible.morpheme FOR SELECT TO anon, authenticated USING (true);
+CREATE POLICY "scribeswell.morpheme: public read"
+    ON scribeswell.morpheme FOR SELECT TO anon, authenticated USING (true);

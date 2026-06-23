@@ -12,16 +12,6 @@ alter table if exists identity.users
 -- Ensure we can enforce per-org reference data uniqueness by (org_id, id)
 -- (IDs are seeded deterministically today; without this, an upsert would update the wrong org)
 
--- org-scoped unique indexes for deterministic IDs
-create unique index if not exists finance_currency_org_id_id_uniq
-  on finance.currency (org_id, id);
-
-create unique index if not exists finance_expense_category_org_id_id_uniq
-  on finance.expense_category (org_id, id);
-
-create unique index if not exists finance_expense_type_org_id_id_uniq
-  on finance.expense_type (org_id, id);
-
 -- -----------------------------------------------------------------------------
 -- identity.org
 -- -----------------------------------------------------------------------------

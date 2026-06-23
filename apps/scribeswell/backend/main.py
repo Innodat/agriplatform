@@ -21,7 +21,7 @@ from config import settings
 
 app = FastAPI(
     title="Scribeswell API",
-    description="Hebrew Bible reader — FastAPI backend",
+    description="Hebrew Bible study API",
     version="0.1.0",
     docs_url="/docs",
     redoc_url="/redoc",
