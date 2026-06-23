@@ -108,10 +108,7 @@ CREATE POLICY "scribeswell.morpheme: public read"
     ON scribeswell.morpheme FOR SELECT TO anon, authenticated USING (true);
 
 
--- Grants to the anon role
-
-
-- ── Schema access ────────────────────────────────────────────
+-- ── Schema access ────────────────────────────────────────────
 GRANT USAGE ON SCHEMA scribeswell TO anon;
 GRANT USAGE ON SCHEMA scribeswell TO authenticated;
 GRANT USAGE ON SCHEMA scribeswell TO service_role;
