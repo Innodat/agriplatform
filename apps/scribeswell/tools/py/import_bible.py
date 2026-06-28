@@ -256,10 +256,10 @@ class BibleImporter:
 
                     surface = None
                     strong = None
-                    if word_obj[0] if is_hebrew(word_obj[0]):
+                    if word_obj[0] and is_hebrew(word_obj[0]):
                         surface = word_obj[0]
                         strong = word_obj[1]
-                    elif word_obj[1] if is_hebrew(word_obj[1]):
+                    elif word_obj[1] and is_hebrew(word_obj[1]):
                         surface = word_obj[1]
                         strong = word_obj[0]
                     surface = word_obj[0] if is_hebrew(word_obj[0]) else word_obj[1] if is_hebrew(word_obj[1]) else ""
