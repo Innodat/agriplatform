@@ -2,6 +2,32 @@
 
 ---
 
+## 2026-06-28 — Bible response contract alignment
+
+### Delivered
+- Fixed Scribeswell Bible frontend Zod schemas to match the actual FastAPI response envelopes from `apps/scribeswell/backend`.
+- Updated reader page consumers to read book and verse lists from `{ data, total }` instead of non-existent `{ books }` / `{ verses }` properties.
+- Verified `npm run build` succeeds after the schema/client alignment.
+
+### Deviations from plan
+- None.
+
+### Remaining TODOs
+- Start `services/app-directory` on port `8001` if you want the app launcher to populate without `ERR_CONNECTION_REFUSED` in the browser console.
+
+## 2026-06-28 — Workspace dependency fix
+
+### Delivered
+- Updated `web/package.json` to use a local `file:` dependency for `@platform/app-directory-client` so npm resolves the monorepo-local package instead of querying the public registry.
+- Confirmed the existing TypeScript/Vite alias setup remains the source-resolution mechanism for local development.
+- Updated the root workspace entry to target `apps/scribeswell/web`, which is the actual npm package boundary.
+
+### Deviations from plan
+- None.
+
+### Remaining TODOs
+- Run `npm install` from the monorepo root (`c:\repos\innodat\agriplatform`) so npm can link the local `file:` dependency correctly.
+
 ## 2026-06-14 — Phase 2: Multi-App Foundation
 
 ### Delivered

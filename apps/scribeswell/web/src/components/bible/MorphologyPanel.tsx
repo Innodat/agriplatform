@@ -27,9 +27,9 @@ export function MorphologyPanel({ word, onClose }: MorphologyPanelProps) {
             className="text-3xl font-hebrew leading-none mb-1"
             dir="rtl"
             lang="he"
-            aria-label={`Hebrew word: ${word.surface_he}`}
+            aria-label={`Hebrew word: ${word.display_he}`}
           >
-            {word.surface_he}
+            {word.display_he}
           </p>
           {word.lemma_strong && (
             <p className="text-xs text-stone-400 font-mono">

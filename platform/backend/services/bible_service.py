@@ -26,7 +26,7 @@ from schemas.bible_schemas import (
 
 
 def _get_client() -> Client:
-    return create_client(settings.supabase_url, settings.supabase_service_key)
+    return create_client(settings.supabase_url, settings.supabase_secret_key)
 
 
 # ── Books ─────────────────────────────────────────────────────────────────────
@@ -35,7 +35,7 @@ def get_books() -> BooksListResponse:
     """Return all books ordered by testament + book_order."""
     sb = _get_client()
     resp = (
-        sb.schema("bible")
+        sb.schema("scribeswell")
         .table("book_read")
         .select("*")
         .order("id")
@@ -50,7 +50,7 @@ def get_book(osis_id: str) -> BookWithChaptersResponse:
     sb = _get_client()
 
     book_resp = (
-        sb.schema("bible")
+        sb.schema("scribeswell")
         .table("book_read")
         .select("*")
         .eq("osis_id", osis_id)
@@ -61,7 +61,7 @@ def get_book(osis_id: str) -> BookWithChaptersResponse:
         raise NotFoundError("Book", osis_id)
 
     ch_resp = (
-        sb.schema("bible")
+        sb.schema("scribeswell")
         .table("chapter_read")
         .select("id,chapter_num")
         .eq("book_id", book_resp.data["id"])
@@ -81,7 +81,7 @@ def get_chapter(osis_id: str, chapter_num: int) -> ChapterWithVersesResponse:
 
     # Resolve book
     book_resp = (
-        sb.schema("bible")
+        sb.schema("scribeswell")
         .table("book_read")
         .select("id")
         .eq("osis_id", osis_id)
@@ -94,7 +94,7 @@ def get_chapter(osis_id: str, chapter_num: int) -> ChapterWithVersesResponse:
     book_id = book_resp.data["id"]
 
     ch_resp = (
-        sb.schema("bible")
+        sb.schema("scribeswell")
         .table("chapter_read")
         .select("id,book_id,chapter_num")
         .eq("book_id", book_id)
@@ -108,7 +108,7 @@ def get_chapter(osis_id: str, chapter_num: int) -> ChapterWithVersesResponse:
     chapter_id = ch_resp.data["id"]
 
     v_resp = (
-        sb.schema("bible")
+        sb.schema("scribeswell")
         .table("verse_read")
         .select("id,verse_num")
         .eq("chapter_id", chapter_id)
@@ -128,7 +128,7 @@ def get_verses(osis_id: str, chapter_num: int) -> VersesListResponse:
 
     # Resolve book
     book_resp = (
-        sb.schema("bible")
+        sb.schema("scribeswell")
         .table("book_read")
         .select("id")
         .eq("osis_id", osis_id)
@@ -142,7 +142,7 @@ def get_verses(osis_id: str, chapter_num: int) -> VersesListResponse:
 
     # Get verses for this chapter (using denorm columns for speed)
     v_resp = (
-        sb.schema("bible")
+        sb.schema("scribeswell")
         .table("verse_read")
         .select("id,verse_num,book_id,chapter_num")
         .eq("book_id", book_id)
@@ -158,7 +158,7 @@ def get_verses(osis_id: str, chapter_num: int) -> VersesListResponse:
 
     # Fetch all words for these verses in one query
     w_resp = (
-        sb.schema("bible")
+        sb.schema("scribeswell")
         .table("word_read")
         .select("id,verse_id,position,surface_he,display_he,lemma_strong,morph_code")
         .in_("verse_id", verse_ids)
@@ -191,7 +191,7 @@ def get_word_morphology(word_id: int) -> WordWithMorphologyResponse:
     sb = _get_client()
 
     w_resp = (
-        sb.schema("bible")
+        sb.schema("scribeswell")
         .table("word_read")
         .select("id,verse_id,position,surface_he,display_he,lemma_strong,morph_code")
         .eq("id", word_id)
@@ -202,7 +202,7 @@ def get_word_morphology(word_id: int) -> WordWithMorphologyResponse:
         raise NotFoundError("Word", word_id)
 
     m_resp = (
-        sb.schema("bible")
+        sb.schema("scribeswell")
         .table("morpheme_read")
         .select(
             "segment_index,language,part_of_speech,pos_code,"

@@ -26,7 +26,7 @@ from schemas.bible_schemas import (
 
 
 def _get_client() -> Client:
-    return create_client(settings.supabase_url, settings.supabase_service_key)
+    return create_client(settings.supabase_url, settings.supabase_secret_key)
 
 
 # ── Books ─────────────────────────────────────────────────────────────────────

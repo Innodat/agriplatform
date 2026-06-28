@@ -184,7 +184,7 @@ class BibleImporter:
         morpheme_rows: list[dict] = []
 
         # ── chapters ──────────────────────────────────────────────────────────
-        for idx, ch_data in enumerate(book_data):
+        for idx, ch_data in enumerate(book_data, start=1):
             chapter_rows.append({"book_id": book_id, "chapter_num": idx})
 
         # Upsert chapters and fetch back IDs
@@ -206,8 +206,8 @@ class BibleImporter:
         self.stats["chapters"] += len(chapter_rows)
 
         # ── verses ────────────────────────────────────────────────────────────
-        for ch_idx, ch_data in enumerate(book_data):
-            for v_idx, v_words in enumerate(ch_data):
+        for ch_idx, ch_data in enumerate(book_data, start=1):
+            for v_idx, v_words in enumerate(ch_data, start=1):
                 verse_rows.append({
                     "chapter_id": chapter_id_map.get(ch_idx),
                     "verse_num": v_idx,
@@ -236,12 +236,12 @@ class BibleImporter:
         self.stats["verses"] += len(verse_rows)
 
         # ── words + morphemes ─────────────────────────────────────────────────
-        for ch_idx, ch_data in enumerate(book_data):
+        for ch_idx, ch_data in enumerate(book_data, start=1):
             chapter_id = chapter_id_map.get(ch_idx)
             if chapter_id is None:
                 continue
 
-            for v_idx, v_words in enumerate(ch_data):
+            for v_idx, v_words in enumerate(ch_data, start=1):
                 verse_id = verse_id_map.get((chapter_id, v_idx))
                 if verse_id is None and not self.dry_run:
                     continue
@@ -249,7 +249,7 @@ class BibleImporter:
                 if not isinstance(v_words, list):
                     continue
 
-                for pos_idx, word_obj in enumerate(v_words):
+                for pos_idx, word_obj in enumerate(v_words, start=1):
                     if not isinstance(word_obj, list) and len(word_obj) != 3:
                         err_msg = f"   ⚠ Unexpected word object format at {book_name} {ch_idx+1}:{v_idx+1} pos {pos_idx+1}: {word_obj}"
                         raise ValueError(err_msg)
@@ -270,11 +270,10 @@ class BibleImporter:
                     morph_code: Optional[str] = word_obj[2]
                     strong: Optional[str] = strong
                     display: Optional[str] = surface.replace("/", "")
-                    position = pos_idx + 1  # 1-based
 
                     word_rows.append({
                         "verse_id": verse_id if verse_id else 0,
-                        "position": position,
+                        "position": pos_idx,
                         "surface_he": surface,
                         "display_he": display,
                         "lemma_strong": strong,
@@ -304,12 +303,12 @@ class BibleImporter:
         self.stats["words"] += len(word_rows)
 
         # ── morphemes ─────────────────────────────────────────────────────────
-        for ch_idx, ch_data in enumerate(book_data):
+        for ch_idx, ch_data in enumerate(book_data, start=1):
             chapter_id = chapter_id_map.get(ch_idx)
             if chapter_id is None:
                 continue
 
-            for v_idx, v_words in enumerate(ch_data):
+            for v_idx, v_words in enumerate(ch_data, start=1):
                 verse_id = verse_id_map.get((chapter_id, v_idx))
                 if verse_id is None and not self.dry_run:
                     continue
@@ -317,7 +316,7 @@ class BibleImporter:
                 if not isinstance(v_words, list):
                     continue
 
-                for pos_idx, word_obj in enumerate(v_words):
+                for pos_idx, word_obj in enumerate(v_words, start=1):
                     if not isinstance(word_obj, dict):
                         continue
 
@@ -326,9 +325,8 @@ class BibleImporter:
                         continue
 
                     morph_code = word_obj.get("morph") or word_obj.get("m")
-                    position = pos_idx + 1
 
-                    word_id = word_id_map.get((verse_id, position)) if verse_id else None
+                    word_id = word_id_map.get((verse_id, pos_idx)) if verse_id else None
 
                     if morph_code and (word_id or self.dry_run):
                         try:

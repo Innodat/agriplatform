@@ -10,7 +10,7 @@
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0"
   },
   "dependencies": {
-    "@platform/app-directory-client": "*",
+    "@platform/app-directory-client": "file:../../../platform/app-directory-client",
     "@supabase/supabase-js": "^2.76.1",
     "lucide-react": "^0.400.0",
     "react": "^19.1.1",

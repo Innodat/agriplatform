@@ -4,7 +4,7 @@
   "private": true,
   "workspaces": [
     "platform/*",
-    "apps/scribeswell",
+    "apps/scribeswell/web",
     "tools"
   ],
   "scripts": {

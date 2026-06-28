@@ -53,7 +53,7 @@ export function ReaderPage() {
         )}
         {books.data && (
           <BookList
-            books={books.data.books}
+            books={books.data.data}
             selectedOsisId={selectedOsisId}
             onSelect={handleBookSelect}
           />
@@ -99,7 +99,7 @@ export function ReaderPage() {
         )}
         {verses.data && (
           <VerseReader
-            verses={verses.data.verses}
+            verses={verses.data.data}
             selectedWordId={selectedWord?.id ?? null}
             onWordClick={handleWordClick}
           />

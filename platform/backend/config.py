@@ -15,9 +15,8 @@ class Settings(BaseSettings):
     )
 
     # Supabase
-    supabase_url: str = ""
-    supabase_service_key: str = ""
-    supabase_anon_key: str = ""
+    supabase_url: str
+    supabase_secret_key: str
 
     # JWT — Supabase signs JWTs with the project JWT secret
     supabase_jwt_secret: str = ""

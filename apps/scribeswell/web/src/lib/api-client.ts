@@ -83,11 +83,13 @@ export async function getVerses(
   chapterNum: number,
   token?: string
 ): Promise<VersesListResponse> {
-  return apiFetch(
+  var result = await apiFetch(
     `${BASE}/books/${encodeURIComponent(osisId)}/chapters/${chapterNum}/verses`,
     VersesListResponseSchema,
     token
   );
+  console.log("getVerses: result", result);
+  return result;
 }
 
 // ── Morphology ────────────────────────────────────────────────────────────────

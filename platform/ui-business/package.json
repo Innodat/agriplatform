@@ -13,7 +13,7 @@
     "react-dom": ">=19.0.0"
   },
   "dependencies": {
-    "@platform/app-directory-client": "*"
+    "@platform/app-directory-client": "file:../app-directory-client"
   },
   "devDependencies": {
     "@types/react": "^19.1.1",

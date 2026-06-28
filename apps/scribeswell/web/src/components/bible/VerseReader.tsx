@@ -18,6 +18,7 @@ export function VerseReader({
   selectedWordId,
   onWordClick,
 }: VerseReaderProps) {
+  console.log("VerseReader: verses", verses);
   if (!verses.length) {
     return (
       <p className="text-stone-400 text-sm italic">No verses found.</p>
@@ -53,10 +54,10 @@ export function VerseReader({
                 className={`word-token inline-block mx-0.5 ${
                   selectedWordId === word.id ? "selected" : ""
                 }`}
-                aria-label={`Word: ${word.surface_he}${word.lemma_strong ? ` (${word.lemma_strong})` : ""}`}
+                aria-label={`Word: ${word.display_he}${word.lemma_strong ? ` (${word.lemma_strong})` : ""}`}
                 aria-pressed={selectedWordId === word.id}
               >
-                {word.surface_he}
+                {word.display_he}
               </button>
             ))}
           </p>

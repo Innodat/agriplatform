@@ -20,8 +20,8 @@ from config import settings
 # ── App ───────────────────────────────────────────────────────────────────────
 
 app = FastAPI(
-    title="AgriPlatform API",
-    description="Digital Twin Platform — FastAPI backend",
+    title="Symposia API",
+    description="Symposia Platform — FastAPI backend",
     version="0.1.0",
     docs_url="/docs",
     redoc_url="/redoc",
@@ -76,7 +76,7 @@ async def health():
 
 @app.get("/", tags=["system"])
 async def root():
-    return {"message": "AgriPlatform API", "docs": "/docs"}
+    return {"message": "Symposia API", "docs": "/docs"}
 
 # ── Routers ───────────────────────────────────────────────────────────────────
 # Routers are registered here as they are built.

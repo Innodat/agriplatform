@@ -2,6 +2,15 @@
 
 ---
 
+## 2026-06-28 — Workspace dependency resolution guidance
+
+### Platform-level decisions recorded
+- Internal platform packages consumed inside the monorepo should declare a local-link dependency (`workspace:*` where supported, otherwise `file:`) instead of `*` to prevent accidental npm registry lookups.
+- npm workspace installs should be run from the repository root when linking unpublished `platform/*` packages.
+
+### Prompt/rule updates recommended
+- Add a monorepo dependency rule: unpublished internal packages must use a local-link specifier (`workspace:*` or `file:`) in `package.json`.
+
 ## 2026-06-14 — Phase 2: Multi-App Foundation
 
 ### Platform-level decisions recorded
