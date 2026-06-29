@@ -2,6 +2,59 @@
 
 ---
 
+## 2026-06-29 — Reader UI polish: RTL fixes, verse layout, selector position
+
+### Delivered
+- **`VerseReader.tsx`** — four fixes:
+  - Removed leftover duplicate `<p>` block from interrupted edit session.
+  - Removed debug `console.log`.
+  - Spacing tightened: `space-y-4` → `space-y-1`; `text-2xl leading-loose` → `text-xl` with `lineHeight: 1.9`.
+  - Verse number moved to visual left: row flipped to `flex-row-reverse items-baseline`. DOM order is `[<p> Hebrew text][<span> verse num]`; `flex-row-reverse` puts the number on the left visually without fighting RTL text flow.
+- **`book-chapter-selector.tsx`** — three fixes:
+  - Chapter grid container now has `dir="rtl"` — CSS `auto-fill` grid now flows right-to-left so א appears top-right.
+  - `normaliseTestament()` utility added — defensively maps any API testament string variant (`"nevi'im"`, `"neviim"`, `"Nevi_Im"`, etc.) to a known key, fixing the empty book list.
+  - `ChapterPanel` loading guard tightened: spinner only shows when `loading && !bookData` — avoids a flash of "Loading…" on first open when `hoveredOsisId` is null.
+  - Dropdown anchors from `right-0` (opens leftward from trigger) — correct for RTL-primary layout.
+- **`ReaderPage.tsx`** — selector header row changed to `justify-end` so the trigger sits on the right/RTL-start of the page.
+
+### Deviations from plan
+- None.
+
+### Remaining TODOs
+- Delete `BookList.tsx` and `ChapterNav.tsx` (dead code).
+- Remove unused path routes from `App.tsx`.
+
+## 2026-06-29 — Compact book/chapter selector — replace sidebar navigation
+
+### Delivered
+- **`src/lib/hebrew-ordinal.ts`** (new) — pure `toHebrewOrdinal(n)` utility; full gematria mapping 1–150 using greedy algorithm; special-cases 15→טו and 16→טז to avoid divine names. No external dependencies.
+- **`src/components/bible/book-chapter-selector.tsx`** (new) — `BookChapterSelector` compact dropdown component replacing the old left-sidebar `BookList + ChapterNav` pattern:
+  - Trigger button shows active book name + Hebrew chapter gematria letter + `ChevronDown`.
+  - Dropdown opens as a two-panel overlay: left = book list (Torah / Nevi'im / Ketuvim), right = chapter grid for hovered/active book.
+  - Hover (desktop) or click (touch) on a book row fetches and shows that book's chapters via `useBook()`.
+  - Chapter buttons labeled with Hebrew gematria (א, ב, כב, קנ…) using `toHebrewOrdinal`.
+  - Active book highlighted amber-100; active chapter highlighted amber-500/white.
+  - Escape key and click-outside close the dropdown; focus returns to trigger on close.
+  - `aria-haspopup`, `aria-expanded`, `aria-current`, `aria-label`, `dir="rtl" lang="he"` on all Hebrew text.
+  - No new npm dependencies — Tailwind + Lucide (`ChevronDown`) only.
+- **`src/pages/ReaderPage.tsx`** (refactored):
+  - Removed left `<aside w-56>` sidebar (BookList + ChapterNav) entirely.
+  - Removed decorative breadcrumb.
+  - Added `useSearchParams` (react-router-dom) — navigation state now lives in URL: `?book=Gen&chapter=1`.
+  - Dropped unused `useBook` call; `BookChapterSelector` manages its own internal hover-book fetch.
+  - `VerseReader` and `MorphologyPanel` are completely unchanged.
+  - All hooks (`useBooks`, `useVerses`, `useWordMorphology`), api-client, and Zod schemas untouched.
+- `tsc --noEmit` exits 0 (zero TypeScript errors).
+
+### Deviations from plan
+- `BookList.tsx` and `ChapterNav.tsx` left in place as dead code (not deleted) to keep this PR focused. Flagged for removal in a follow-up.
+- `App.tsx` route params `/:osisId` and `/:osisId/:chapter` left in place as dead routes; query params (`?book=&chapter=`) are the live navigation mechanism per spec.
+
+### Remaining TODOs
+- Delete `src/components/bible/BookList.tsx` and `src/components/bible/ChapterNav.tsx` in a follow-up cleanup PR.
+- Remove unused path routes from `App.tsx` (`/:osisId`, `/:osisId/:chapter`) in the same cleanup.
+- Consider adding a platform-level prompt note about `toHebrewOrdinal` being available in `scribeswell/web/src/lib/`.
+
 ## 2026-06-28 — Bible response contract alignment
 
 ### Delivered

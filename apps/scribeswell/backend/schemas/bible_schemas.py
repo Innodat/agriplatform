@@ -15,6 +15,7 @@ class BookResponse(BaseModel):
     name_en: str
     name_he: str
     testament: str
+    division: str
     book_order: int
 
 

@@ -14,6 +14,9 @@ export const BookResponseSchema = z.object({
   name_en: z.string(),
   name_he: z.string(),
   testament: z.string(),
+  // division is present in the Pydantic schema but not always populated from DB;
+  // make optional so Zod does not reject responses where it is absent.
+  division: z.string().optional(),
   book_order: z.number().int(),
 });
 

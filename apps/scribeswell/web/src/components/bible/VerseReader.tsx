@@ -1,6 +1,13 @@
 /**
  * VerseReader — renders verses with clickable Hebrew words.
  * Clicking a word triggers morphology lookup.
+ *
+ * Layout per verse row (CSS grid, dir="ltr" on the row):
+ *   col 1 (w-6, left)  : verse number
+ *   col 2 (flex-1, right): Hebrew text block (dir="rtl" internally)
+ *
+ * Using an explicit LTR grid guarantees col 1 is always on the left
+ * regardless of any inherited direction context.
  */
 import type {
   VerseWithWordsResponse,
@@ -18,7 +25,6 @@ export function VerseReader({
   selectedWordId,
   onWordClick,
 }: VerseReaderProps) {
-  console.log("VerseReader: verses", verses);
   if (!verses.length) {
     return (
       <p className="text-stone-400 text-sm italic">No verses found.</p>
@@ -26,24 +32,29 @@ export function VerseReader({
   }
 
   return (
-    <div className="space-y-4" role="list" aria-label="Verses">
+    <div className="space-y-0" role="list" aria-label="Verses">
       {verses.map((verse) => (
         <div
           key={verse.id}
           role="listitem"
-          className="flex gap-3 items-start"
+          // dir="ltr" on the row so grid columns are always left=col1, right=col2.
+          // The Hebrew <p> inside col2 overrides direction back to RTL.
+          dir="rtl"
+          className="grid items-baseline"
+          style={{ gridTemplateColumns: "1.5rem 1fr" }}
         >
-          {/* Verse number */}
+          {/* Col 1: verse number — always on the left */}
           <span
-            className="text-xs text-stone-400 font-mono mt-1 w-6 shrink-0 text-right select-none"
+            className="text-xs text-stone-400 font-mono select-none text-right pr-1 pt-px"
             aria-label={`Verse ${verse.verse_num}`}
           >
             {verse.verse_num}
           </span>
 
-          {/* Hebrew words — RTL */}
+          {/* Col 2: Hebrew text — RTL within its column */}
           <p
-            className="verse-line flex-1 text-2xl leading-loose"
+            className="verse-line text-xl"
+            style={{ lineHeight: "1.9" }}
             dir="rtl"
             lang="he"
           >

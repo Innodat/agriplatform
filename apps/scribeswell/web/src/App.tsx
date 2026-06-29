@@ -10,8 +10,6 @@ export default function App() {
         <AppShell>
           <Routes>
             <Route path="/" element={<ReaderPage />} />
-            <Route path="/:osisId" element={<ReaderPage />} />
-            <Route path="/:osisId/:chapter" element={<ReaderPage />} />
           </Routes>
         </AppShell>
       </AuthProvider>

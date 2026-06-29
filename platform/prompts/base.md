@@ -9,7 +9,7 @@ React + ShadCN UI (ui-core → ui-business → ui-app) · FastAPI · Supabase ·
 2. **Generated files are source of truth.** Never hand-edit files in `*/generated/` or `*/schemas/generated/`.
 3. **Reuse before inventing.** Check `platform/prompts/context/` and `platform/ui-*` before creating new patterns.
 4. **Error shape:** `{ error: string, code?: number, details?: any }` — everywhere.
-5. **Strict TypeScript.** No `any`. Zod (FE) ⇄ Pydantic (BE) both generated from Supabase DB.
+5. **Strict TypeScript.** No `any`. FE contracts derive from FastAPI OpenAPI/Pydantic; Supabase schema is backend persistence detail.
 6. **Files:** kebab-case. **Components/Services:** PascalCase. **Commits:** conventional (`feat:`, `fix:`, `refactor:`, `docs:`, `chore:`).
 7. **Prefer Builder CLI scaffolds** (`create-feature`, `generate-models`) over manual creation.
 8. **Deviations** must include one-line reasoning + trade-off (Flexibility Clause).
@@ -24,7 +24,7 @@ platform/api-client/ → GENERATED typed TS client (from FastAPI OpenAPI)
 platform/builder-cli/→ create-feature / generate-models / validate-patterns
 apps/receipts-web/   → legacy receipts app (frozen; direct Supabase OK here)
 apps/receipts-mobile/→ legacy receipts mobile (frozen)
-apps/bible-web/      → Hebrew Bible reader (clean reference app)
+apps/scribeswell/      → Hebrew Bible reader (clean reference app)
 supabase/            → migrations, edge functions, seeds
 tools/               → repo-level dev tooling
 ```
