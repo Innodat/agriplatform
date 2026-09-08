@@ -1,0 +1,4393 @@
+{
+  "schema_version": "0.1.0",
+  "representation_id": "3eaad922-8db1-4930-8494-ccaece414ad0",
+  "created_at": "2026-09-07T19:38:11.290850Z",
+  "pipeline_version": "0.1.0",
+  "psalm": 23,
+  "sources": [
+    {
+      "id": "morphhb",
+      "dataset": "Open Scriptures Hebrew Bible",
+      "revision": "3d15126fb1ef74867fc1434be1942e837932691f",
+      "sha256": "fe55eef316a65fb0f46d833d526ca2fd722e86ff7339f1a39f0c5b7f9062ced2",
+      "uri": "/home/ck/repos/innodat/agriplatform/apps/scribeswell/poetry_engine/data/raw/morphhb/Ps.xml",
+      "license": "CC-BY-4.0",
+      "attribution": "Open Scriptures Hebrew Bible; https://github.com/openscriptures/morphhb",
+      "metadata": {
+        "reading_policy": "main-text direct w elements; note alternatives retained separately",
+        "alternative_notes": [
+          {
+            "verse": "Ps.23.1",
+            "type": null,
+            "xml": "<ns0:note xmlns:ns0=\"http://www.bibletechnologies.net/2003/OSIS/namespace\">KJV:Ps.23.1</ns0:note>\n          "
+          }
+        ]
+      }
+    },
+    {
+      "id": "bhsa",
+      "dataset": "ETCBC BHSA",
+      "revision": "4db00e2157915495e1a4d3d57e41223df24775da",
+      "sha256": "c0ec73f772d755b1a58ec29be6a280d71bc190753222451497b0f6cb6c098554",
+      "uri": "/home/ck/repos/innodat/agriplatform/apps/scribeswell/poetry_engine/data/raw/bhsa-2021",
+      "license": "CC-BY-NC-4.0",
+      "attribution": "ETCBC, VU Amsterdam; https://doi.org/10.17026/dans-z6y-skyh",
+      "metadata": {
+        "version": "2021",
+        "files": {
+          "otype.tf": "bb5da974a3b1dd7ff9ddab54dfb533059442642ab830b832a49eea8670aaa920",
+          "oslots.tf": "c4efaeed8047d4e75834cc94856d79eacc7a146aea01c34d8be88497d8fa303b",
+          "otext.tf": "20c1c41bc602804ecafbf56bfc88541b0af92afcc16fb594db6acfc6f3a846e9",
+          "book.tf": "2f84c9493bb9a553bb40d7955472673b85933fe0af116299036d33e09d75702a",
+          "chapter.tf": "a09f8a2df52e7d2cec99b251852f9f88a6ecc0ea4a37ad5bd4a7fd3f3f3b2fc9",
+          "verse.tf": "ad850b19aae6ecb31c75fa4ff80ad956835e5089d60d37c7d73aa0d5a0893b84",
+          "g_word_utf8.tf": "504330f4b4dbcfac628e45998796bcf0ba58b0c905c30a8ebdec088b10d692e0",
+          "lex_utf8.tf": "21f0dde6d79cdde12558b88ae5e07b5717b1a5f7566d37847c57ff7b53b74627",
+          "sp.tf": "7fa4a18e308531e6dfdc4793ab267587629d4b882f4a4a5d839f8bc896af7861",
+          "function.tf": "3b4f87ac5691826c48a71c71b6cb53a5318f779ca82402e48c1a5db2fbda60b2",
+          "typ.tf": "277409ffea258a56cd3aaaf69f0f620d025e884010a82b33c3a5b41c2ad6ff22",
+          "voc_lex_utf8.tf": "e67e3a0d67205fbb8508faabfc210c59e1475465084ea8bfe88fa160bfb628b3",
+          "g_lex_utf8.tf": "4026b48c461ed5f73d6fd39a36927ae0435f32ddc7abdcba1d00993e1fe68669",
+          "g_lex.tf": "3c81d126a2fae0ca67aad0d923c37b3ddfd6b741cf93e96760d196322056b828",
+          "lex.tf": "2469664dc71bcde35a916d6a85453a5567cff3dcbc3e3323204e1120bc5ed25a",
+          "qere_utf8.tf": "970fd6e1099e9a8c08ccaa35af896f963d3ad7c7e153fbf833fb36b84efa321e",
+          "qere_trailer_utf8.tf": "6aed11605413792577afe76f1f05a05d5bb8f22b47375971e53295aa1e8043e0",
+          "trailer_utf8.tf": "cc9120b92248318cd335a088381e464c0650976ff39027ebe87a99b664567899",
+          "g_cons_utf8.tf": "1b5a3e41fdadb63e162404fadf83bbebc1ff1a1e016cdee321701ce863c5c87b",
+          "qere.tf": "3aa63d0061ffe37d22f07f105c187cc96507f859e1867ff2b3b283de4ee2393f",
+          "g_word.tf": "191726a37db8976ebead3aee8cc01f3520d41bf7ba2fd077b4ca08604e953ca4",
+          "qere_trailer.tf": "a0ee4a58cde242bc5375cb6959c5cbc394b6a7a56ec39f187fcff44aa2c37e26",
+          "trailer.tf": "d41a18f54482fc20c615cd207091a40ff8cbd667752b6da25f04fe209f109663",
+          "g_cons.tf": "39161c1ba2dc44f19f070fa320cb00dc2c51bbe566f8da4495749b769d1e06a4",
+          "gn.tf": "93b0b0281a4552a9bfb4723f0fc41a4300c27bd1db41c7994c6fcf3ebb61aab5",
+          "nu.tf": "e08c8cdf69a537ddaf137962ce8aa82f784ee629c0754b8d25684bddfb7cb25d",
+          "ps.tf": "2007c8cfeaf407a88e8727a6737c28e4f301d604cc33159854d48e2370f61d59",
+          "st.tf": "fbfabb8145c53e07c78e89d5d0ba5594bcd051a9da29211cfe64275b1984d5b5",
+          "vs.tf": "db8efa910e185d226797ffd62270746d04f1bdc53fbe6a9dbacb65cbd41bf665",
+          "vt.tf": "fa49244a53eae279c8b119b3f4710722111fc81edf01bf7bcc3c43bfd1c7c41d"
+        }
+      }
+    },
+    {
+      "id": "pdf:6e3e56b3a7f3c0dc9c3b4b202089430d1c0cd4829ee120a316052105329acde4",
+      "dataset": "psalms-23.pdf",
+      "revision": "6e3e56b3a7f3c0dc9c3b4b202089430d1c0cd4829ee120a316052105329acde4",
+      "sha256": "6e3e56b3a7f3c0dc9c3b4b202089430d1c0cd4829ee120a316052105329acde4",
+      "uri": "/home/ck/repos/innodat/agriplatform/apps/scribeswell/poetry_engine/resources/psalms-23.pdf",
+      "license": "unknown; local research only",
+      "attribution": "",
+      "metadata": {
+        "/Author": "Milton Watt",
+        "/Creator": "Microsoft® Word LTSC",
+        "/CreationDate": "D:20260612180559+02'00'",
+        "/ModDate": "D:20260612180559+02'00'",
+        "/Producer": "Microsoft® Word LTSC"
+      }
+    }
+  ],
+  "tokens": [
+    {
+      "id": "morphhb:19eip",
+      "source_id": "morphhb",
+      "verse": 1,
+      "position": 1,
+      "surface": "מִזְמ֥וֹר",
+      "surface_status": "present",
+      "lemma": "4210",
+      "morphology": "HNcmsa",
+      "features": {
+        "osis_ref": "Ps.23.1",
+        "original_id": "19eip"
+      }
+    },
+    {
+      "id": "morphhb:19jhu",
+      "source_id": "morphhb",
+      "verse": 1,
+      "position": 2,
+      "surface": "לְ/דָוִ֑ד",
+      "surface_status": "present",
+      "lemma": "l/1732",
+      "morphology": "HR/Np",
+      "features": {
+        "osis_ref": "Ps.23.1",
+        "original_id": "19jhu"
+      }
+    },
+    {
+      "id": "morphhb:192fr",
+      "source_id": "morphhb",
+      "verse": 1,
+      "position": 3,
+      "surface": "יְהוָ֥ה",
+      "surface_status": "present",
+      "lemma": "3068",
+      "morphology": "HNp",
+      "features": {
+        "osis_ref": "Ps.23.1",
+        "original_id": "192fr"
+      }
+    },
+    {
+      "id": "morphhb:195Aa",
+      "source_id": "morphhb",
+      "verse": 1,
+      "position": 4,
+      "surface": "רֹ֝עִ֗/י",
+      "surface_status": "present",
+      "lemma": "7462 b",
+      "morphology": "HVqrmsc/Sp1cs",
+      "features": {
+        "osis_ref": "Ps.23.1",
+        "original_id": "195Aa"
+      }
+    },
+    {
+      "id": "morphhb:19zuz",
+      "source_id": "morphhb",
+      "verse": 1,
+      "position": 5,
+      "surface": "לֹ֣א",
+      "surface_status": "present",
+      "lemma": "3808",
+      "morphology": "HTn",
+      "features": {
+        "osis_ref": "Ps.23.1",
+        "original_id": "19zuz"
+      }
+    },
+    {
+      "id": "morphhb:19BTS",
+      "source_id": "morphhb",
+      "verse": 1,
+      "position": 6,
+      "surface": "אֶחְסָֽר",
+      "surface_status": "present",
+      "lemma": "2637",
+      "morphology": "HVqi1cs",
+      "features": {
+        "osis_ref": "Ps.23.1",
+        "original_id": "19BTS"
+      }
+    },
+    {
+      "id": "morphhb:19Hdk",
+      "source_id": "morphhb",
+      "verse": 2,
+      "position": 1,
+      "surface": "בִּ/נְא֣וֹת",
+      "surface_status": "present",
+      "lemma": "b/4999",
+      "morphology": "HR/Ncfpc",
+      "features": {
+        "osis_ref": "Ps.23.2",
+        "original_id": "19Hdk"
+      }
+    },
+    {
+      "id": "morphhb:19tbG",
+      "source_id": "morphhb",
+      "verse": 2,
+      "position": 2,
+      "surface": "דֶּ֭שֶׁא",
+      "surface_status": "present",
+      "lemma": "1877",
+      "morphology": "HNcmsa",
+      "features": {
+        "osis_ref": "Ps.23.2",
+        "original_id": "19tbG"
+      }
+    },
+    {
+      "id": "morphhb:198hT",
+      "source_id": "morphhb",
+      "verse": 2,
+      "position": 3,
+      "surface": "יַרְבִּיצֵ֑/נִי",
+      "surface_status": "present",
+      "lemma": "7257",
+      "morphology": "HVhi3ms/Sp1cs",
+      "features": {
+        "osis_ref": "Ps.23.2",
+        "original_id": "198hT"
+      }
+    },
+    {
+      "id": "morphhb:191EK",
+      "source_id": "morphhb",
+      "verse": 2,
+      "position": 4,
+      "surface": "עַל",
+      "surface_status": "present",
+      "lemma": "5921 a",
+      "morphology": "HR",
+      "features": {
+        "osis_ref": "Ps.23.2",
+        "original_id": "191EK"
+      }
+    },
+    {
+      "id": "morphhb:19UYd",
+      "source_id": "morphhb",
+      "verse": 2,
+      "position": 5,
+      "surface": "מֵ֖י",
+      "surface_status": "present",
+      "lemma": "4325",
+      "morphology": "HNcmpc",
+      "features": {
+        "osis_ref": "Ps.23.2",
+        "original_id": "19UYd"
+      }
+    },
+    {
+      "id": "morphhb:19w2J",
+      "source_id": "morphhb",
+      "verse": 2,
+      "position": 6,
+      "surface": "מְנֻח֣וֹת",
+      "surface_status": "present",
+      "lemma": "4496",
+      "morphology": "HNcbpa",
+      "features": {
+        "osis_ref": "Ps.23.2",
+        "original_id": "19w2J"
+      }
+    },
+    {
+      "id": "morphhb:19UcZ",
+      "source_id": "morphhb",
+      "verse": 2,
+      "position": 7,
+      "surface": "יְנַהֲלֵֽ/נִי",
+      "surface_status": "present",
+      "lemma": "5095",
+      "morphology": "HVpi3ms/Sp1cs",
+      "features": {
+        "osis_ref": "Ps.23.2",
+        "original_id": "19UcZ"
+      }
+    },
+    {
+      "id": "morphhb:19SZA",
+      "source_id": "morphhb",
+      "verse": 3,
+      "position": 1,
+      "surface": "נַפְשִׁ֥/י",
+      "surface_status": "present",
+      "lemma": "5315",
+      "morphology": "HNcbsc/Sp1cs",
+      "features": {
+        "osis_ref": "Ps.23.3",
+        "original_id": "19SZA"
+      }
+    },
+    {
+      "id": "morphhb:19WeX",
+      "source_id": "morphhb",
+      "verse": 3,
+      "position": 2,
+      "surface": "יְשׁוֹבֵ֑ב",
+      "surface_status": "present",
+      "lemma": "7725",
+      "morphology": "HVoi3ms",
+      "features": {
+        "osis_ref": "Ps.23.3",
+        "original_id": "19WeX"
+      }
+    },
+    {
+      "id": "morphhb:19FoN",
+      "source_id": "morphhb",
+      "verse": 3,
+      "position": 3,
+      "surface": "יַֽנְחֵ֥/נִי",
+      "surface_status": "present",
+      "lemma": "5148",
+      "morphology": "HVhi3ms/Sp1cs",
+      "features": {
+        "osis_ref": "Ps.23.3",
+        "original_id": "19FoN"
+      }
+    },
+    {
+      "id": "morphhb:19BK2",
+      "source_id": "morphhb",
+      "verse": 3,
+      "position": 4,
+      "surface": "בְ/מַעְגְּלֵי",
+      "surface_status": "present",
+      "lemma": "b/4570",
+      "morphology": "HR/Ncmpc",
+      "features": {
+        "osis_ref": "Ps.23.3",
+        "original_id": "19BK2"
+      }
+    },
+    {
+      "id": "morphhb:19qoQ",
+      "source_id": "morphhb",
+      "verse": 3,
+      "position": 5,
+      "surface": "צֶ֝֗דֶק",
+      "surface_status": "present",
+      "lemma": "6664",
+      "morphology": "HNcmsa",
+      "features": {
+        "osis_ref": "Ps.23.3",
+        "original_id": "19qoQ"
+      }
+    },
+    {
+      "id": "morphhb:19DV4",
+      "source_id": "morphhb",
+      "verse": 3,
+      "position": 6,
+      "surface": "לְמַ֣עַן",
+      "surface_status": "present",
+      "lemma": "4616",
+      "morphology": "HR",
+      "features": {
+        "osis_ref": "Ps.23.3",
+        "original_id": "19DV4"
+      }
+    },
+    {
+      "id": "morphhb:19iex",
+      "source_id": "morphhb",
+      "verse": 3,
+      "position": 7,
+      "surface": "שְׁמֽ/וֹ",
+      "surface_status": "present",
+      "lemma": "8034",
+      "morphology": "HNcmsc/Sp3ms",
+      "features": {
+        "osis_ref": "Ps.23.3",
+        "original_id": "19iex"
+      }
+    },
+    {
+      "id": "morphhb:19LMe",
+      "source_id": "morphhb",
+      "verse": 4,
+      "position": 1,
+      "surface": "גַּ֤ם",
+      "surface_status": "present",
+      "lemma": "1571",
+      "morphology": "HTa",
+      "features": {
+        "osis_ref": "Ps.23.4",
+        "original_id": "19LMe"
+      }
+    },
+    {
+      "id": "morphhb:19zuk",
+      "source_id": "morphhb",
+      "verse": 4,
+      "position": 2,
+      "surface": "כִּֽי",
+      "surface_status": "present",
+      "lemma": "3588 a",
+      "morphology": "HC",
+      "features": {
+        "osis_ref": "Ps.23.4",
+        "original_id": "19zuk"
+      }
+    },
+    {
+      "id": "morphhb:195hm",
+      "source_id": "morphhb",
+      "verse": 4,
+      "position": 3,
+      "surface": "אֵלֵ֨ךְ",
+      "surface_status": "present",
+      "lemma": "3212",
+      "morphology": "HVqi1cs",
+      "features": {
+        "osis_ref": "Ps.23.4",
+        "original_id": "195hm"
+      }
+    },
+    {
+      "id": "morphhb:19a8a",
+      "source_id": "morphhb",
+      "verse": 4,
+      "position": 4,
+      "surface": "בְּ/גֵ֪יא",
+      "surface_status": "present",
+      "lemma": "b/1516",
+      "morphology": "HR/Ncbsc",
+      "features": {
+        "osis_ref": "Ps.23.4",
+        "original_id": "19a8a"
+      }
+    },
+    {
+      "id": "morphhb:19Avd",
+      "source_id": "morphhb",
+      "verse": 4,
+      "position": 5,
+      "surface": "צַלְמָ֡וֶת",
+      "surface_status": "present",
+      "lemma": "6757",
+      "morphology": "HNcmsa",
+      "features": {
+        "osis_ref": "Ps.23.4",
+        "original_id": "19Avd"
+      }
+    },
+    {
+      "id": "morphhb:196nG",
+      "source_id": "morphhb",
+      "verse": 4,
+      "position": 6,
+      "surface": "לֹא",
+      "surface_status": "present",
+      "lemma": "3808",
+      "morphology": "HTn",
+      "features": {
+        "osis_ref": "Ps.23.4",
+        "original_id": "196nG"
+      }
+    },
+    {
+      "id": "morphhb:19p6C",
+      "source_id": "morphhb",
+      "verse": 4,
+      "position": 7,
+      "surface": "אִ֘ירָ֤א",
+      "surface_status": "present",
+      "lemma": "3372",
+      "morphology": "HVqi1cs",
+      "features": {
+        "osis_ref": "Ps.23.4",
+        "original_id": "19p6C"
+      }
+    },
+    {
+      "id": "morphhb:19Dn5",
+      "source_id": "morphhb",
+      "verse": 4,
+      "position": 8,
+      "surface": "רָ֗ע",
+      "surface_status": "present",
+      "lemma": "7451 b",
+      "morphology": "HAamsa",
+      "features": {
+        "osis_ref": "Ps.23.4",
+        "original_id": "19Dn5"
+      }
+    },
+    {
+      "id": "morphhb:197mc",
+      "source_id": "morphhb",
+      "verse": 4,
+      "position": 9,
+      "surface": "כִּי",
+      "surface_status": "present",
+      "lemma": "3588 a",
+      "morphology": "HC",
+      "features": {
+        "osis_ref": "Ps.23.4",
+        "original_id": "197mc"
+      }
+    },
+    {
+      "id": "morphhb:19icW",
+      "source_id": "morphhb",
+      "verse": 4,
+      "position": 10,
+      "surface": "אַתָּ֥ה",
+      "surface_status": "present",
+      "lemma": "859 a",
+      "morphology": "HPp2ms",
+      "features": {
+        "osis_ref": "Ps.23.4",
+        "original_id": "19icW"
+      }
+    },
+    {
+      "id": "morphhb:19WQu",
+      "source_id": "morphhb",
+      "verse": 4,
+      "position": 11,
+      "surface": "עִמָּדִ֑/י",
+      "surface_status": "present",
+      "lemma": "5978",
+      "morphology": "HR/Sp1cs",
+      "features": {
+        "osis_ref": "Ps.23.4",
+        "original_id": "19WQu"
+      }
+    },
+    {
+      "id": "morphhb:19rMa",
+      "source_id": "morphhb",
+      "verse": 4,
+      "position": 12,
+      "surface": "שִׁבְטְ/ךָ֥",
+      "surface_status": "present",
+      "lemma": "7626",
+      "morphology": "HNcmsc/Sp2ms",
+      "features": {
+        "osis_ref": "Ps.23.4",
+        "original_id": "19rMa"
+      }
+    },
+    {
+      "id": "morphhb:19H5x",
+      "source_id": "morphhb",
+      "verse": 4,
+      "position": 13,
+      "surface": "וּ֝/מִשְׁעַנְתֶּ֗/ךָ",
+      "surface_status": "present",
+      "lemma": "c/4938 b",
+      "morphology": "HC/Ncfsc/Sp2ms",
+      "features": {
+        "osis_ref": "Ps.23.4",
+        "original_id": "19H5x"
+      }
+    },
+    {
+      "id": "morphhb:19Lft",
+      "source_id": "morphhb",
+      "verse": 4,
+      "position": 14,
+      "surface": "הֵ֣מָּה",
+      "surface_status": "present",
+      "lemma": "1992",
+      "morphology": "HPp3mp",
+      "features": {
+        "osis_ref": "Ps.23.4",
+        "original_id": "19Lft"
+      }
+    },
+    {
+      "id": "morphhb:19bTD",
+      "source_id": "morphhb",
+      "verse": 4,
+      "position": 15,
+      "surface": "יְנַֽחֲמֻֽ/נִי",
+      "surface_status": "present",
+      "lemma": "5162",
+      "morphology": "HVpi3mp/Sp1cs",
+      "features": {
+        "osis_ref": "Ps.23.4",
+        "original_id": "19bTD"
+      }
+    },
+    {
+      "id": "morphhb:19W19",
+      "source_id": "morphhb",
+      "verse": 5,
+      "position": 1,
+      "surface": "תַּעֲרֹ֬ךְ",
+      "surface_status": "present",
+      "lemma": "6186 a",
+      "morphology": "HVqi2ms",
+      "features": {
+        "osis_ref": "Ps.23.5",
+        "original_id": "19W19"
+      }
+    },
+    {
+      "id": "morphhb:19CUd",
+      "source_id": "morphhb",
+      "verse": 5,
+      "position": 2,
+      "surface": "לְ/פָנַ֨/י",
+      "surface_status": "present",
+      "lemma": "l/6440",
+      "morphology": "HR/Ncbpc/Sp1cs",
+      "features": {
+        "osis_ref": "Ps.23.5",
+        "original_id": "19CUd"
+      }
+    },
+    {
+      "id": "morphhb:19dBb",
+      "source_id": "morphhb",
+      "verse": 5,
+      "position": 3,
+      "surface": "שֻׁלְחָ֗ן",
+      "surface_status": "present",
+      "lemma": "7979",
+      "morphology": "HNcmsa",
+      "features": {
+        "osis_ref": "Ps.23.5",
+        "original_id": "19dBb"
+      }
+    },
+    {
+      "id": "morphhb:19oQH",
+      "source_id": "morphhb",
+      "verse": 5,
+      "position": 4,
+      "surface": "נֶ֥גֶד",
+      "surface_status": "present",
+      "lemma": "5048",
+      "morphology": "HR",
+      "features": {
+        "osis_ref": "Ps.23.5",
+        "original_id": "19oQH"
+      }
+    },
+    {
+      "id": "morphhb:19FgV",
+      "source_id": "morphhb",
+      "verse": 5,
+      "position": 5,
+      "surface": "צֹרְרָ֑/י",
+      "surface_status": "present",
+      "lemma": "6887 d",
+      "morphology": "HVqrmpc/Sp1cs",
+      "features": {
+        "osis_ref": "Ps.23.5",
+        "original_id": "19FgV"
+      }
+    },
+    {
+      "id": "morphhb:19sAH",
+      "source_id": "morphhb",
+      "verse": 5,
+      "position": 6,
+      "surface": "דִּשַּׁ֖נְתָּ",
+      "surface_status": "present",
+      "lemma": "1878",
+      "morphology": "HVpp2ms",
+      "features": {
+        "osis_ref": "Ps.23.5",
+        "original_id": "19sAH"
+      }
+    },
+    {
+      "id": "morphhb:19fPE",
+      "source_id": "morphhb",
+      "verse": 5,
+      "position": 7,
+      "surface": "בַ/שֶּׁ֥מֶן",
+      "surface_status": "present",
+      "lemma": "b/8081",
+      "morphology": "HRd/Ncmsa",
+      "features": {
+        "osis_ref": "Ps.23.5",
+        "original_id": "19fPE"
+      }
+    },
+    {
+      "id": "morphhb:19kFY",
+      "source_id": "morphhb",
+      "verse": 5,
+      "position": 8,
+      "surface": "רֹ֝אשִׁ֗/י",
+      "surface_status": "present",
+      "lemma": "7218 a",
+      "morphology": "HNcmsc/Sp1cs",
+      "features": {
+        "osis_ref": "Ps.23.5",
+        "original_id": "19kFY"
+      }
+    },
+    {
+      "id": "morphhb:19oVM",
+      "source_id": "morphhb",
+      "verse": 5,
+      "position": 9,
+      "surface": "כּוֹסִ֥/י",
+      "surface_status": "present",
+      "lemma": "3563 a",
+      "morphology": "HNcfsc/Sp1cs",
+      "features": {
+        "osis_ref": "Ps.23.5",
+        "original_id": "19oVM"
+      }
+    },
+    {
+      "id": "morphhb:19DD6",
+      "source_id": "morphhb",
+      "verse": 5,
+      "position": 10,
+      "surface": "רְוָיָֽה",
+      "surface_status": "present",
+      "lemma": "7310",
+      "morphology": "HNcfsa",
+      "features": {
+        "osis_ref": "Ps.23.5",
+        "original_id": "19DD6"
+      }
+    },
+    {
+      "id": "morphhb:19T6s",
+      "source_id": "morphhb",
+      "verse": 6,
+      "position": 1,
+      "surface": "אַ֤ךְ",
+      "surface_status": "present",
+      "lemma": "389",
+      "morphology": "HTa",
+      "features": {
+        "osis_ref": "Ps.23.6",
+        "original_id": "19T6s"
+      }
+    },
+    {
+      "id": "morphhb:19UTG",
+      "source_id": "morphhb",
+      "verse": 6,
+      "position": 2,
+      "surface": "ט֤וֹב",
+      "surface_status": "present",
+      "lemma": "2896 b",
+      "morphology": "HAamsa",
+      "features": {
+        "osis_ref": "Ps.23.6",
+        "original_id": "19UTG"
+      }
+    },
+    {
+      "id": "morphhb:19TjC",
+      "source_id": "morphhb",
+      "verse": 6,
+      "position": 3,
+      "surface": "וָ/חֶ֣סֶד",
+      "surface_status": "present",
+      "lemma": "c/2617 a",
+      "morphology": "HC/Ncmsa",
+      "features": {
+        "osis_ref": "Ps.23.6",
+        "original_id": "19TjC"
+      }
+    },
+    {
+      "id": "morphhb:19B7W",
+      "source_id": "morphhb",
+      "verse": 6,
+      "position": 4,
+      "surface": "יִ֭רְדְּפוּ/נִי",
+      "surface_status": "present",
+      "lemma": "7291",
+      "morphology": "HVpi3mp/Sp1cs",
+      "features": {
+        "osis_ref": "Ps.23.6",
+        "original_id": "19B7W"
+      }
+    },
+    {
+      "id": "morphhb:19ggZ",
+      "source_id": "morphhb",
+      "verse": 6,
+      "position": 5,
+      "surface": "כָּל",
+      "surface_status": "present",
+      "lemma": "3605",
+      "morphology": "HNcmsc",
+      "features": {
+        "osis_ref": "Ps.23.6",
+        "original_id": "19ggZ"
+      }
+    },
+    {
+      "id": "morphhb:19sDo",
+      "source_id": "morphhb",
+      "verse": 6,
+      "position": 6,
+      "surface": "יְמֵ֣י",
+      "surface_status": "present",
+      "lemma": "3117",
+      "morphology": "HNcmpc",
+      "features": {
+        "osis_ref": "Ps.23.6",
+        "original_id": "19sDo"
+      }
+    },
+    {
+      "id": "morphhb:19hQe",
+      "source_id": "morphhb",
+      "verse": 6,
+      "position": 7,
+      "surface": "חַיָּ֑/י",
+      "surface_status": "present",
+      "lemma": "2416 e",
+      "morphology": "HNcmpc/Sp1cs",
+      "features": {
+        "osis_ref": "Ps.23.6",
+        "original_id": "19hQe"
+      }
+    },
+    {
+      "id": "morphhb:19Fmq",
+      "source_id": "morphhb",
+      "verse": 6,
+      "position": 8,
+      "surface": "וְ/שַׁבְתִּ֥י",
+      "surface_status": "present",
+      "lemma": "c/3427",
+      "morphology": "HC/Vqq1cs",
+      "features": {
+        "osis_ref": "Ps.23.6",
+        "original_id": "19Fmq"
+      }
+    },
+    {
+      "id": "morphhb:194ga",
+      "source_id": "morphhb",
+      "verse": 6,
+      "position": 9,
+      "surface": "בְּ/בֵית",
+      "surface_status": "present",
+      "lemma": "b/1004 b",
+      "morphology": "HR/Ncmsc",
+      "features": {
+        "osis_ref": "Ps.23.6",
+        "original_id": "194ga"
+      }
+    },
+    {
+      "id": "morphhb:19qZF",
+      "source_id": "morphhb",
+      "verse": 6,
+      "position": 10,
+      "surface": "יְ֝הוָ֗ה",
+      "surface_status": "present",
+      "lemma": "3068",
+      "morphology": "HNp",
+      "features": {
+        "osis_ref": "Ps.23.6",
+        "original_id": "19qZF"
+      }
+    },
+    {
+      "id": "morphhb:19o7p",
+      "source_id": "morphhb",
+      "verse": 6,
+      "position": 11,
+      "surface": "לְ/אֹ֣רֶךְ",
+      "surface_status": "present",
+      "lemma": "l/753",
+      "morphology": "HR/Ncmsc",
+      "features": {
+        "osis_ref": "Ps.23.6",
+        "original_id": "19o7p"
+      }
+    },
+    {
+      "id": "morphhb:19BQB",
+      "source_id": "morphhb",
+      "verse": 6,
+      "position": 12,
+      "surface": "יָמִֽים",
+      "surface_status": "present",
+      "lemma": "3117",
+      "morphology": "HNcmpa",
+      "features": {
+        "osis_ref": "Ps.23.6",
+        "original_id": "19BQB"
+      }
+    },
+    {
+      "id": "bhsa:313897",
+      "source_id": "bhsa",
+      "verse": 1,
+      "position": 1,
+      "surface": "מִזְמֹ֥ור",
+      "surface_status": "present",
+      "lemma": "מזמור",
+      "morphology": null,
+      "features": {
+        "sp": "subs",
+        "original_node": 313897,
+        "gn": "m",
+        "nu": "sg",
+        "ps": "NA",
+        "st": "a",
+        "vs": "NA",
+        "vt": "NA"
+      }
+    },
+    {
+      "id": "bhsa:313898",
+      "source_id": "bhsa",
+      "verse": 1,
+      "position": 2,
+      "surface": "לְ",
+      "surface_status": "present",
+      "lemma": "ל",
+      "morphology": null,
+      "features": {
+        "sp": "prep",
+        "original_node": 313898,
+        "gn": "NA",
+        "nu": "NA",
+        "ps": "NA",
+        "st": "NA",
+        "vs": "NA",
+        "vt": "NA"
+      }
+    },
+    {
+      "id": "bhsa:313899",
+      "source_id": "bhsa",
+      "verse": 1,
+      "position": 3,
+      "surface": "דָוִ֑ד",
+      "surface_status": "present",
+      "lemma": "דוד",
+      "morphology": null,
+      "features": {
+        "sp": "nmpr",
+        "original_node": 313899,
+        "gn": "m",
+        "nu": "sg",
+        "ps": "NA",
+        "st": "a",
+        "vs": "NA",
+        "vt": "NA"
+      }
+    },
+    {
+      "id": "bhsa:313900",
+      "source_id": "bhsa",
+      "verse": 1,
+      "position": 4,
+      "surface": "יְהוָ֥ה",
+      "surface_status": "present",
+      "lemma": "יהוה",
+      "morphology": null,
+      "features": {
+        "sp": "nmpr",
+        "original_node": 313900,
+        "gn": "m",
+        "nu": "sg",
+        "ps": "NA",
+        "st": "a",
+        "vs": "NA",
+        "vt": "NA"
+      }
+    },
+    {
+      "id": "bhsa:313901",
+      "source_id": "bhsa",
+      "verse": 1,
+      "position": 5,
+      "surface": "רֹ֝עִ֗י",
+      "surface_status": "present",
+      "lemma": "רעה",
+      "morphology": null,
+      "features": {
+        "sp": "verb",
+        "original_node": 313901,
+        "gn": "m",
+        "nu": "sg",
+        "ps": "unknown",
+        "st": "a",
+        "vs": "qal",
+        "vt": "ptca"
+      }
+    },
+    {
+      "id": "bhsa:313902",
+      "source_id": "bhsa",
+      "verse": 1,
+      "position": 6,
+      "surface": "לֹ֣א",
+      "surface_status": "present",
+      "lemma": "לא",
+      "morphology": null,
+      "features": {
+        "sp": "nega",
+        "original_node": 313902,
+        "gn": "NA",
+        "nu": "NA",
+        "ps": "NA",
+        "st": "NA",
+        "vs": "NA",
+        "vt": "NA"
+      }
+    },
+    {
+      "id": "bhsa:313903",
+      "source_id": "bhsa",
+      "verse": 1,
+      "position": 7,
+      "surface": "אֶחְסָֽר",
+      "surface_status": "present",
+      "lemma": "חסר",
+      "morphology": null,
+      "features": {
+        "sp": "verb",
+        "original_node": 313903,
+        "gn": "unknown",
+        "nu": "sg",
+        "ps": "p1",
+        "st": "NA",
+        "vs": "qal",
+        "vt": "impf"
+      }
+    },
+    {
+      "id": "bhsa:313904",
+      "source_id": "bhsa",
+      "verse": 2,
+      "position": 1,
+      "surface": "בִּ",
+      "surface_status": "present",
+      "lemma": "ב",
+      "morphology": null,
+      "features": {
+        "sp": "prep",
+        "original_node": 313904,
+        "gn": "NA",
+        "nu": "NA",
+        "ps": "NA",
+        "st": "NA",
+        "vs": "NA",
+        "vt": "NA"
+      }
+    },
+    {
+      "id": "bhsa:313905",
+      "source_id": "bhsa",
+      "verse": 2,
+      "position": 2,
+      "surface": "נְאֹ֣ות",
+      "surface_status": "present",
+      "lemma": "נוה",
+      "morphology": null,
+      "features": {
+        "sp": "subs",
+        "original_node": 313905,
+        "gn": "f",
+        "nu": "pl",
+        "ps": "NA",
+        "st": "c",
+        "vs": "NA",
+        "vt": "NA"
+      }
+    },
+    {
+      "id": "bhsa:313906",
+      "source_id": "bhsa",
+      "verse": 2,
+      "position": 3,
+      "surface": "דֶּ֭שֶׁא",
+      "surface_status": "present",
+      "lemma": "דשׁא",
+      "morphology": null,
+      "features": {
+        "sp": "subs",
+        "original_node": 313906,
+        "gn": "m",
+        "nu": "sg",
+        "ps": "NA",
+        "st": "a",
+        "vs": "NA",
+        "vt": "NA"
+      }
+    },
+    {
+      "id": "bhsa:313907",
+      "source_id": "bhsa",
+      "verse": 2,
+      "position": 4,
+      "surface": "יַרְבִּיצֵ֑נִי",
+      "surface_status": "present",
+      "lemma": "רבץ",
+      "morphology": null,
+      "features": {
+        "sp": "verb",
+        "original_node": 313907,
+        "gn": "m",
+        "nu": "sg",
+        "ps": "p3",
+        "st": "NA",
+        "vs": "hif",
+        "vt": "impf"
+      }
+    },
+    {
+      "id": "bhsa:313908",
+      "source_id": "bhsa",
+      "verse": 2,
+      "position": 5,
+      "surface": "עַל",
+      "surface_status": "present",
+      "lemma": "על",
+      "morphology": null,
+      "features": {
+        "sp": "prep",
+        "original_node": 313908,
+        "gn": "NA",
+        "nu": "NA",
+        "ps": "NA",
+        "st": "NA",
+        "vs": "NA",
+        "vt": "NA"
+      }
+    },
+    {
+      "id": "bhsa:313909",
+      "source_id": "bhsa",
+      "verse": 2,
+      "position": 6,
+      "surface": "מֵ֖י",
+      "surface_status": "present",
+      "lemma": "מים",
+      "morphology": null,
+      "features": {
+        "sp": "subs",
+        "original_node": 313909,
+        "gn": "m",
+        "nu": "pl",
+        "ps": "NA",
+        "st": "c",
+        "vs": "NA",
+        "vt": "NA"
+      }
+    },
+    {
+      "id": "bhsa:313910",
+      "source_id": "bhsa",
+      "verse": 2,
+      "position": 7,
+      "surface": "מְנֻחֹ֣ות",
+      "surface_status": "present",
+      "lemma": "מנוחה",
+      "morphology": null,
+      "features": {
+        "sp": "subs",
+        "original_node": 313910,
+        "gn": "f",
+        "nu": "pl",
+        "ps": "NA",
+        "st": "a",
+        "vs": "NA",
+        "vt": "NA"
+      }
+    },
+    {
+      "id": "bhsa:313911",
+      "source_id": "bhsa",
+      "verse": 2,
+      "position": 8,
+      "surface": "יְנַהֲלֵֽנִי",
+      "surface_status": "present",
+      "lemma": "נהל",
+      "morphology": null,
+      "features": {
+        "sp": "verb",
+        "original_node": 313911,
+        "gn": "m",
+        "nu": "sg",
+        "ps": "p3",
+        "st": "NA",
+        "vs": "piel",
+        "vt": "impf"
+      }
+    },
+    {
+      "id": "bhsa:313912",
+      "source_id": "bhsa",
+      "verse": 3,
+      "position": 1,
+      "surface": "נַפְשִׁ֥י",
+      "surface_status": "present",
+      "lemma": "נפשׁ",
+      "morphology": null,
+      "features": {
+        "sp": "subs",
+        "original_node": 313912,
+        "gn": "f",
+        "nu": "sg",
+        "ps": "NA",
+        "st": "a",
+        "vs": "NA",
+        "vt": "NA"
+      }
+    },
+    {
+      "id": "bhsa:313913",
+      "source_id": "bhsa",
+      "verse": 3,
+      "position": 2,
+      "surface": "יְשֹׁובֵ֑ב",
+      "surface_status": "present",
+      "lemma": "שׁוב",
+      "morphology": null,
+      "features": {
+        "sp": "verb",
+        "original_node": 313913,
+        "gn": "m",
+        "nu": "sg",
+        "ps": "p3",
+        "st": "NA",
+        "vs": "piel",
+        "vt": "impf"
+      }
+    },
+    {
+      "id": "bhsa:313914",
+      "source_id": "bhsa",
+      "verse": 3,
+      "position": 3,
+      "surface": "יַֽנְחֵ֥נִי",
+      "surface_status": "present",
+      "lemma": "נחה",
+      "morphology": null,
+      "features": {
+        "sp": "verb",
+        "original_node": 313914,
+        "gn": "m",
+        "nu": "sg",
+        "ps": "p3",
+        "st": "NA",
+        "vs": "hif",
+        "vt": "impf"
+      }
+    },
+    {
+      "id": "bhsa:313915",
+      "source_id": "bhsa",
+      "verse": 3,
+      "position": 4,
+      "surface": "בְ",
+      "surface_status": "present",
+      "lemma": "ב",
+      "morphology": null,
+      "features": {
+        "sp": "prep",
+        "original_node": 313915,
+        "gn": "NA",
+        "nu": "NA",
+        "ps": "NA",
+        "st": "NA",
+        "vs": "NA",
+        "vt": "NA"
+      }
+    },
+    {
+      "id": "bhsa:313916",
+      "source_id": "bhsa",
+      "verse": 3,
+      "position": 5,
+      "surface": "מַעְגְּלֵי",
+      "surface_status": "present",
+      "lemma": "מעגל",
+      "morphology": null,
+      "features": {
+        "sp": "subs",
+        "original_node": 313916,
+        "gn": "m",
+        "nu": "pl",
+        "ps": "NA",
+        "st": "c",
+        "vs": "NA",
+        "vt": "NA"
+      }
+    },
+    {
+      "id": "bhsa:313917",
+      "source_id": "bhsa",
+      "verse": 3,
+      "position": 6,
+      "surface": "צֶ֝֗דֶק",
+      "surface_status": "present",
+      "lemma": "צדק",
+      "morphology": null,
+      "features": {
+        "sp": "subs",
+        "original_node": 313917,
+        "gn": "m",
+        "nu": "sg",
+        "ps": "NA",
+        "st": "a",
+        "vs": "NA",
+        "vt": "NA"
+      }
+    },
+    {
+      "id": "bhsa:313918",
+      "source_id": "bhsa",
+      "verse": 3,
+      "position": 7,
+      "surface": "לְמַ֣עַן",
+      "surface_status": "present",
+      "lemma": "למען",
+      "morphology": null,
+      "features": {
+        "sp": "prep",
+        "original_node": 313918,
+        "gn": "NA",
+        "nu": "NA",
+        "ps": "NA",
+        "st": "NA",
+        "vs": "NA",
+        "vt": "NA"
+      }
+    },
+    {
+      "id": "bhsa:313919",
+      "source_id": "bhsa",
+      "verse": 3,
+      "position": 8,
+      "surface": "שְׁמֹֽו",
+      "surface_status": "present",
+      "lemma": "שׁם",
+      "morphology": null,
+      "features": {
+        "sp": "subs",
+        "original_node": 313919,
+        "gn": "m",
+        "nu": "sg",
+        "ps": "NA",
+        "st": "a",
+        "vs": "NA",
+        "vt": "NA"
+      }
+    },
+    {
+      "id": "bhsa:313920",
+      "source_id": "bhsa",
+      "verse": 4,
+      "position": 1,
+      "surface": "גַּ֤ם",
+      "surface_status": "present",
+      "lemma": "גם",
+      "morphology": null,
+      "features": {
+        "sp": "advb",
+        "original_node": 313920,
+        "gn": "NA",
+        "nu": "NA",
+        "ps": "NA",
+        "st": "NA",
+        "vs": "NA",
+        "vt": "NA"
+      }
+    },
+    {
+      "id": "bhsa:313921",
+      "source_id": "bhsa",
+      "verse": 4,
+      "position": 2,
+      "surface": "כִּֽי",
+      "surface_status": "present",
+      "lemma": "כי",
+      "morphology": null,
+      "features": {
+        "sp": "conj",
+        "original_node": 313921,
+        "gn": "NA",
+        "nu": "NA",
+        "ps": "NA",
+        "st": "NA",
+        "vs": "NA",
+        "vt": "NA"
+      }
+    },
+    {
+      "id": "bhsa:313922",
+      "source_id": "bhsa",
+      "verse": 4,
+      "position": 3,
+      "surface": "אֵלֵ֨ךְ",
+      "surface_status": "present",
+      "lemma": "הלך",
+      "morphology": null,
+      "features": {
+        "sp": "verb",
+        "original_node": 313922,
+        "gn": "unknown",
+        "nu": "sg",
+        "ps": "p1",
+        "st": "NA",
+        "vs": "qal",
+        "vt": "impf"
+      }
+    },
+    {
+      "id": "bhsa:313923",
+      "source_id": "bhsa",
+      "verse": 4,
+      "position": 4,
+      "surface": "בְּ",
+      "surface_status": "present",
+      "lemma": "ב",
+      "morphology": null,
+      "features": {
+        "sp": "prep",
+        "original_node": 313923,
+        "gn": "NA",
+        "nu": "NA",
+        "ps": "NA",
+        "st": "NA",
+        "vs": "NA",
+        "vt": "NA"
+      }
+    },
+    {
+      "id": "bhsa:313924",
+      "source_id": "bhsa",
+      "verse": 4,
+      "position": 5,
+      "surface": "גֵ֪יא",
+      "surface_status": "present",
+      "lemma": "גיא",
+      "morphology": null,
+      "features": {
+        "sp": "subs",
+        "original_node": 313924,
+        "gn": "unknown",
+        "nu": "sg",
+        "ps": "NA",
+        "st": "c",
+        "vs": "NA",
+        "vt": "NA"
+      }
+    },
+    {
+      "id": "bhsa:313925",
+      "source_id": "bhsa",
+      "verse": 4,
+      "position": 6,
+      "surface": "צַלְמָ֡וֶת",
+      "surface_status": "present",
+      "lemma": "צלמות",
+      "morphology": null,
+      "features": {
+        "sp": "subs",
+        "original_node": 313925,
+        "gn": "m",
+        "nu": "sg",
+        "ps": "NA",
+        "st": "a",
+        "vs": "NA",
+        "vt": "NA"
+      }
+    },
+    {
+      "id": "bhsa:313926",
+      "source_id": "bhsa",
+      "verse": 4,
+      "position": 7,
+      "surface": "לֹא",
+      "surface_status": "present",
+      "lemma": "לא",
+      "morphology": null,
+      "features": {
+        "sp": "nega",
+        "original_node": 313926,
+        "gn": "NA",
+        "nu": "NA",
+        "ps": "NA",
+        "st": "NA",
+        "vs": "NA",
+        "vt": "NA"
+      }
+    },
+    {
+      "id": "bhsa:313927",
+      "source_id": "bhsa",
+      "verse": 4,
+      "position": 8,
+      "surface": "אִ֘ירָ֤א",
+      "surface_status": "present",
+      "lemma": "ירא",
+      "morphology": null,
+      "features": {
+        "sp": "verb",
+        "original_node": 313927,
+        "gn": "unknown",
+        "nu": "sg",
+        "ps": "p1",
+        "st": "NA",
+        "vs": "qal",
+        "vt": "impf"
+      }
+    },
+    {
+      "id": "bhsa:313928",
+      "source_id": "bhsa",
+      "verse": 4,
+      "position": 9,
+      "surface": "רָ֗ע",
+      "surface_status": "present",
+      "lemma": "רע",
+      "morphology": null,
+      "features": {
+        "sp": "adjv",
+        "original_node": 313928,
+        "gn": "m",
+        "nu": "sg",
+        "ps": "NA",
+        "st": "a",
+        "vs": "NA",
+        "vt": "NA"
+      }
+    },
+    {
+      "id": "bhsa:313929",
+      "source_id": "bhsa",
+      "verse": 4,
+      "position": 10,
+      "surface": "כִּי",
+      "surface_status": "present",
+      "lemma": "כי",
+      "morphology": null,
+      "features": {
+        "sp": "conj",
+        "original_node": 313929,
+        "gn": "NA",
+        "nu": "NA",
+        "ps": "NA",
+        "st": "NA",
+        "vs": "NA",
+        "vt": "NA"
+      }
+    },
+    {
+      "id": "bhsa:313930",
+      "source_id": "bhsa",
+      "verse": 4,
+      "position": 11,
+      "surface": "אַתָּ֥ה",
+      "surface_status": "present",
+      "lemma": "אתה",
+      "morphology": null,
+      "features": {
+        "sp": "prps",
+        "original_node": 313930,
+        "gn": "m",
+        "nu": "sg",
+        "ps": "p2",
+        "st": "NA",
+        "vs": "NA",
+        "vt": "NA"
+      }
+    },
+    {
+      "id": "bhsa:313931",
+      "source_id": "bhsa",
+      "verse": 4,
+      "position": 12,
+      "surface": "עִמָּדִ֑י",
+      "surface_status": "present",
+      "lemma": "עמד",
+      "morphology": null,
+      "features": {
+        "sp": "subs",
+        "original_node": 313931,
+        "gn": "m",
+        "nu": "sg",
+        "ps": "NA",
+        "st": "a",
+        "vs": "NA",
+        "vt": "NA"
+      }
+    },
+    {
+      "id": "bhsa:313932",
+      "source_id": "bhsa",
+      "verse": 4,
+      "position": 13,
+      "surface": "שִׁבְטְךָ֥",
+      "surface_status": "present",
+      "lemma": "שׁבט",
+      "morphology": null,
+      "features": {
+        "sp": "subs",
+        "original_node": 313932,
+        "gn": "m",
+        "nu": "sg",
+        "ps": "NA",
+        "st": "a",
+        "vs": "NA",
+        "vt": "NA"
+      }
+    },
+    {
+      "id": "bhsa:313933",
+      "source_id": "bhsa",
+      "verse": 4,
+      "position": 14,
+      "surface": "וּ֝",
+      "surface_status": "present",
+      "lemma": "ו",
+      "morphology": null,
+      "features": {
+        "sp": "conj",
+        "original_node": 313933,
+        "gn": "NA",
+        "nu": "NA",
+        "ps": "NA",
+        "st": "NA",
+        "vs": "NA",
+        "vt": "NA"
+      }
+    },
+    {
+      "id": "bhsa:313934",
+      "source_id": "bhsa",
+      "verse": 4,
+      "position": 15,
+      "surface": "מִשְׁעַנְתֶּ֗ךָ",
+      "surface_status": "present",
+      "lemma": "משׁענת",
+      "morphology": null,
+      "features": {
+        "sp": "subs",
+        "original_node": 313934,
+        "gn": "f",
+        "nu": "sg",
+        "ps": "NA",
+        "st": "a",
+        "vs": "NA",
+        "vt": "NA"
+      }
+    },
+    {
+      "id": "bhsa:313935",
+      "source_id": "bhsa",
+      "verse": 4,
+      "position": 16,
+      "surface": "הֵ֣מָּה",
+      "surface_status": "present",
+      "lemma": "המה",
+      "morphology": null,
+      "features": {
+        "sp": "prps",
+        "original_node": 313935,
+        "gn": "m",
+        "nu": "pl",
+        "ps": "p3",
+        "st": "NA",
+        "vs": "NA",
+        "vt": "NA"
+      }
+    },
+    {
+      "id": "bhsa:313936",
+      "source_id": "bhsa",
+      "verse": 4,
+      "position": 17,
+      "surface": "יְנַֽחֲמֻֽנִי",
+      "surface_status": "present",
+      "lemma": "נחם",
+      "morphology": null,
+      "features": {
+        "sp": "verb",
+        "original_node": 313936,
+        "gn": "m",
+        "nu": "pl",
+        "ps": "p3",
+        "st": "NA",
+        "vs": "piel",
+        "vt": "impf"
+      }
+    },
+    {
+      "id": "bhsa:313937",
+      "source_id": "bhsa",
+      "verse": 5,
+      "position": 1,
+      "surface": "תַּעֲרֹ֬ךְ",
+      "surface_status": "present",
+      "lemma": "ערך",
+      "morphology": null,
+      "features": {
+        "sp": "verb",
+        "original_node": 313937,
+        "gn": "m",
+        "nu": "sg",
+        "ps": "p2",
+        "st": "NA",
+        "vs": "qal",
+        "vt": "impf"
+      }
+    },
+    {
+      "id": "bhsa:313938",
+      "source_id": "bhsa",
+      "verse": 5,
+      "position": 2,
+      "surface": "לְ",
+      "surface_status": "present",
+      "lemma": "ל",
+      "morphology": null,
+      "features": {
+        "sp": "prep",
+        "original_node": 313938,
+        "gn": "NA",
+        "nu": "NA",
+        "ps": "NA",
+        "st": "NA",
+        "vs": "NA",
+        "vt": "NA"
+      }
+    },
+    {
+      "id": "bhsa:313939",
+      "source_id": "bhsa",
+      "verse": 5,
+      "position": 3,
+      "surface": "פָנַ֨י",
+      "surface_status": "present",
+      "lemma": "פנה",
+      "morphology": null,
+      "features": {
+        "sp": "subs",
+        "original_node": 313939,
+        "gn": "m",
+        "nu": "pl",
+        "ps": "NA",
+        "st": "a",
+        "vs": "NA",
+        "vt": "NA"
+      }
+    },
+    {
+      "id": "bhsa:313940",
+      "source_id": "bhsa",
+      "verse": 5,
+      "position": 4,
+      "surface": "שֻׁלְחָ֗ן",
+      "surface_status": "present",
+      "lemma": "שׁלחן",
+      "morphology": null,
+      "features": {
+        "sp": "subs",
+        "original_node": 313940,
+        "gn": "m",
+        "nu": "sg",
+        "ps": "NA",
+        "st": "a",
+        "vs": "NA",
+        "vt": "NA"
+      }
+    },
+    {
+      "id": "bhsa:313941",
+      "source_id": "bhsa",
+      "verse": 5,
+      "position": 5,
+      "surface": "נֶ֥גֶד",
+      "surface_status": "present",
+      "lemma": "נגד",
+      "morphology": null,
+      "features": {
+        "sp": "subs",
+        "original_node": 313941,
+        "gn": "m",
+        "nu": "sg",
+        "ps": "NA",
+        "st": "c",
+        "vs": "NA",
+        "vt": "NA"
+      }
+    },
+    {
+      "id": "bhsa:313942",
+      "source_id": "bhsa",
+      "verse": 5,
+      "position": 6,
+      "surface": "צֹרְרָ֑י",
+      "surface_status": "present",
+      "lemma": "צרר",
+      "morphology": null,
+      "features": {
+        "sp": "verb",
+        "original_node": 313942,
+        "gn": "m",
+        "nu": "pl",
+        "ps": "unknown",
+        "st": "a",
+        "vs": "qal",
+        "vt": "ptca"
+      }
+    },
+    {
+      "id": "bhsa:313943",
+      "source_id": "bhsa",
+      "verse": 5,
+      "position": 7,
+      "surface": "דִּשַּׁ֖נְתָּ",
+      "surface_status": "present",
+      "lemma": "דשׁן",
+      "morphology": null,
+      "features": {
+        "sp": "verb",
+        "original_node": 313943,
+        "gn": "m",
+        "nu": "sg",
+        "ps": "p2",
+        "st": "NA",
+        "vs": "piel",
+        "vt": "perf"
+      }
+    },
+    {
+      "id": "bhsa:313944",
+      "source_id": "bhsa",
+      "verse": 5,
+      "position": 8,
+      "surface": "בַ",
+      "surface_status": "present",
+      "lemma": "ב",
+      "morphology": null,
+      "features": {
+        "sp": "prep",
+        "original_node": 313944,
+        "gn": "NA",
+        "nu": "NA",
+        "ps": "NA",
+        "st": "NA",
+        "vs": "NA",
+        "vt": "NA"
+      }
+    },
+    {
+      "id": "bhsa:313945",
+      "source_id": "bhsa",
+      "verse": 5,
+      "position": 9,
+      "surface": "",
+      "surface_status": "source_empty",
+      "lemma": "ה",
+      "morphology": null,
+      "features": {
+        "sp": "art",
+        "original_node": 313945,
+        "gn": "NA",
+        "nu": "NA",
+        "ps": "NA",
+        "st": "NA",
+        "vs": "NA",
+        "vt": "NA"
+      }
+    },
+    {
+      "id": "bhsa:313946",
+      "source_id": "bhsa",
+      "verse": 5,
+      "position": 10,
+      "surface": "שֶּׁ֥מֶן",
+      "surface_status": "present",
+      "lemma": "שׁמן",
+      "morphology": null,
+      "features": {
+        "sp": "subs",
+        "original_node": 313946,
+        "gn": "m",
+        "nu": "sg",
+        "ps": "NA",
+        "st": "a",
+        "vs": "NA",
+        "vt": "NA"
+      }
+    },
+    {
+      "id": "bhsa:313947",
+      "source_id": "bhsa",
+      "verse": 5,
+      "position": 11,
+      "surface": "רֹ֝אשִׁ֗י",
+      "surface_status": "present",
+      "lemma": "ראשׁ",
+      "morphology": null,
+      "features": {
+        "sp": "subs",
+        "original_node": 313947,
+        "gn": "m",
+        "nu": "sg",
+        "ps": "NA",
+        "st": "a",
+        "vs": "NA",
+        "vt": "NA"
+      }
+    },
+    {
+      "id": "bhsa:313948",
+      "source_id": "bhsa",
+      "verse": 5,
+      "position": 12,
+      "surface": "כֹּוסִ֥י",
+      "surface_status": "present",
+      "lemma": "כוס",
+      "morphology": null,
+      "features": {
+        "sp": "subs",
+        "original_node": 313948,
+        "gn": "f",
+        "nu": "sg",
+        "ps": "NA",
+        "st": "a",
+        "vs": "NA",
+        "vt": "NA"
+      }
+    },
+    {
+      "id": "bhsa:313949",
+      "source_id": "bhsa",
+      "verse": 5,
+      "position": 13,
+      "surface": "רְוָיָֽה",
+      "surface_status": "present",
+      "lemma": "רויה",
+      "morphology": null,
+      "features": {
+        "sp": "subs",
+        "original_node": 313949,
+        "gn": "f",
+        "nu": "sg",
+        "ps": "NA",
+        "st": "a",
+        "vs": "NA",
+        "vt": "NA"
+      }
+    },
+    {
+      "id": "bhsa:313950",
+      "source_id": "bhsa",
+      "verse": 6,
+      "position": 1,
+      "surface": "אַ֤ךְ",
+      "surface_status": "present",
+      "lemma": "אך",
+      "morphology": null,
+      "features": {
+        "sp": "advb",
+        "original_node": 313950,
+        "gn": "NA",
+        "nu": "NA",
+        "ps": "NA",
+        "st": "NA",
+        "vs": "NA",
+        "vt": "NA"
+      }
+    },
+    {
+      "id": "bhsa:313951",
+      "source_id": "bhsa",
+      "verse": 6,
+      "position": 2,
+      "surface": "טֹ֤וב",
+      "surface_status": "present",
+      "lemma": "טוב",
+      "morphology": null,
+      "features": {
+        "sp": "adjv",
+        "original_node": 313951,
+        "gn": "m",
+        "nu": "sg",
+        "ps": "NA",
+        "st": "a",
+        "vs": "NA",
+        "vt": "NA"
+      }
+    },
+    {
+      "id": "bhsa:313952",
+      "source_id": "bhsa",
+      "verse": 6,
+      "position": 3,
+      "surface": "וָ",
+      "surface_status": "present",
+      "lemma": "ו",
+      "morphology": null,
+      "features": {
+        "sp": "conj",
+        "original_node": 313952,
+        "gn": "NA",
+        "nu": "NA",
+        "ps": "NA",
+        "st": "NA",
+        "vs": "NA",
+        "vt": "NA"
+      }
+    },
+    {
+      "id": "bhsa:313953",
+      "source_id": "bhsa",
+      "verse": 6,
+      "position": 4,
+      "surface": "חֶ֣סֶד",
+      "surface_status": "present",
+      "lemma": "חסד",
+      "morphology": null,
+      "features": {
+        "sp": "subs",
+        "original_node": 313953,
+        "gn": "m",
+        "nu": "sg",
+        "ps": "NA",
+        "st": "a",
+        "vs": "NA",
+        "vt": "NA"
+      }
+    },
+    {
+      "id": "bhsa:313954",
+      "source_id": "bhsa",
+      "verse": 6,
+      "position": 5,
+      "surface": "יִ֭רְדְּפוּנִי",
+      "surface_status": "present",
+      "lemma": "רדף",
+      "morphology": null,
+      "features": {
+        "sp": "verb",
+        "original_node": 313954,
+        "gn": "m",
+        "nu": "pl",
+        "ps": "p3",
+        "st": "NA",
+        "vs": "qal",
+        "vt": "impf"
+      }
+    },
+    {
+      "id": "bhsa:313955",
+      "source_id": "bhsa",
+      "verse": 6,
+      "position": 6,
+      "surface": "כָּל",
+      "surface_status": "present",
+      "lemma": "כל",
+      "morphology": null,
+      "features": {
+        "sp": "subs",
+        "original_node": 313955,
+        "gn": "m",
+        "nu": "sg",
+        "ps": "NA",
+        "st": "c",
+        "vs": "NA",
+        "vt": "NA"
+      }
+    },
+    {
+      "id": "bhsa:313956",
+      "source_id": "bhsa",
+      "verse": 6,
+      "position": 7,
+      "surface": "יְמֵ֣י",
+      "surface_status": "present",
+      "lemma": "יום",
+      "morphology": null,
+      "features": {
+        "sp": "subs",
+        "original_node": 313956,
+        "gn": "m",
+        "nu": "pl",
+        "ps": "NA",
+        "st": "c",
+        "vs": "NA",
+        "vt": "NA"
+      }
+    },
+    {
+      "id": "bhsa:313957",
+      "source_id": "bhsa",
+      "verse": 6,
+      "position": 8,
+      "surface": "חַיָּ֑י",
+      "surface_status": "present",
+      "lemma": "חיים",
+      "morphology": null,
+      "features": {
+        "sp": "subs",
+        "original_node": 313957,
+        "gn": "m",
+        "nu": "pl",
+        "ps": "NA",
+        "st": "a",
+        "vs": "NA",
+        "vt": "NA"
+      }
+    },
+    {
+      "id": "bhsa:313958",
+      "source_id": "bhsa",
+      "verse": 6,
+      "position": 9,
+      "surface": "וְ",
+      "surface_status": "present",
+      "lemma": "ו",
+      "morphology": null,
+      "features": {
+        "sp": "conj",
+        "original_node": 313958,
+        "gn": "NA",
+        "nu": "NA",
+        "ps": "NA",
+        "st": "NA",
+        "vs": "NA",
+        "vt": "NA"
+      }
+    },
+    {
+      "id": "bhsa:313959",
+      "source_id": "bhsa",
+      "verse": 6,
+      "position": 10,
+      "surface": "שַׁבְתִּ֥י",
+      "surface_status": "present",
+      "lemma": "שׁוב",
+      "morphology": null,
+      "features": {
+        "sp": "verb",
+        "original_node": 313959,
+        "gn": "unknown",
+        "nu": "sg",
+        "ps": "p1",
+        "st": "NA",
+        "vs": "qal",
+        "vt": "perf"
+      }
+    },
+    {
+      "id": "bhsa:313960",
+      "source_id": "bhsa",
+      "verse": 6,
+      "position": 11,
+      "surface": "בְּ",
+      "surface_status": "present",
+      "lemma": "ב",
+      "morphology": null,
+      "features": {
+        "sp": "prep",
+        "original_node": 313960,
+        "gn": "NA",
+        "nu": "NA",
+        "ps": "NA",
+        "st": "NA",
+        "vs": "NA",
+        "vt": "NA"
+      }
+    },
+    {
+      "id": "bhsa:313961",
+      "source_id": "bhsa",
+      "verse": 6,
+      "position": 12,
+      "surface": "בֵית",
+      "surface_status": "present",
+      "lemma": "בית",
+      "morphology": null,
+      "features": {
+        "sp": "subs",
+        "original_node": 313961,
+        "gn": "m",
+        "nu": "sg",
+        "ps": "NA",
+        "st": "c",
+        "vs": "NA",
+        "vt": "NA"
+      }
+    },
+    {
+      "id": "bhsa:313962",
+      "source_id": "bhsa",
+      "verse": 6,
+      "position": 13,
+      "surface": "יְ֝הוָ֗ה",
+      "surface_status": "present",
+      "lemma": "יהוה",
+      "morphology": null,
+      "features": {
+        "sp": "nmpr",
+        "original_node": 313962,
+        "gn": "m",
+        "nu": "sg",
+        "ps": "NA",
+        "st": "a",
+        "vs": "NA",
+        "vt": "NA"
+      }
+    },
+    {
+      "id": "bhsa:313963",
+      "source_id": "bhsa",
+      "verse": 6,
+      "position": 14,
+      "surface": "לְ",
+      "surface_status": "present",
+      "lemma": "ל",
+      "morphology": null,
+      "features": {
+        "sp": "prep",
+        "original_node": 313963,
+        "gn": "NA",
+        "nu": "NA",
+        "ps": "NA",
+        "st": "NA",
+        "vs": "NA",
+        "vt": "NA"
+      }
+    },
+    {
+      "id": "bhsa:313964",
+      "source_id": "bhsa",
+      "verse": 6,
+      "position": 15,
+      "surface": "אֹ֣רֶךְ",
+      "surface_status": "present",
+      "lemma": "ארך",
+      "morphology": null,
+      "features": {
+        "sp": "subs",
+        "original_node": 313964,
+        "gn": "m",
+        "nu": "sg",
+        "ps": "NA",
+        "st": "c",
+        "vs": "NA",
+        "vt": "NA"
+      }
+    },
+    {
+      "id": "bhsa:313965",
+      "source_id": "bhsa",
+      "verse": 6,
+      "position": 16,
+      "surface": "יָמִֽים",
+      "surface_status": "present",
+      "lemma": "יום",
+      "morphology": null,
+      "features": {
+        "sp": "subs",
+        "original_node": 313965,
+        "gn": "m",
+        "nu": "pl",
+        "ps": "NA",
+        "st": "a",
+        "vs": "NA",
+        "vt": "NA"
+      }
+    }
+  ],
+  "units": [
+    {
+      "id": "morphhb:Ps.23.1",
+      "source_id": "morphhb",
+      "level": "verse",
+      "token_ids": [
+        "morphhb:19eip",
+        "morphhb:19jhu",
+        "morphhb:192fr",
+        "morphhb:195Aa",
+        "morphhb:19zuz",
+        "morphhb:19BTS"
+      ],
+      "features": {}
+    },
+    {
+      "id": "morphhb:Ps.23.2",
+      "source_id": "morphhb",
+      "level": "verse",
+      "token_ids": [
+        "morphhb:19Hdk",
+        "morphhb:19tbG",
+        "morphhb:198hT",
+        "morphhb:191EK",
+        "morphhb:19UYd",
+        "morphhb:19w2J",
+        "morphhb:19UcZ"
+      ],
+      "features": {}
+    },
+    {
+      "id": "morphhb:Ps.23.3",
+      "source_id": "morphhb",
+      "level": "verse",
+      "token_ids": [
+        "morphhb:19SZA",
+        "morphhb:19WeX",
+        "morphhb:19FoN",
+        "morphhb:19BK2",
+        "morphhb:19qoQ",
+        "morphhb:19DV4",
+        "morphhb:19iex"
+      ],
+      "features": {}
+    },
+    {
+      "id": "morphhb:Ps.23.4",
+      "source_id": "morphhb",
+      "level": "verse",
+      "token_ids": [
+        "morphhb:19LMe",
+        "morphhb:19zuk",
+        "morphhb:195hm",
+        "morphhb:19a8a",
+        "morphhb:19Avd",
+        "morphhb:196nG",
+        "morphhb:19p6C",
+        "morphhb:19Dn5",
+        "morphhb:197mc",
+        "morphhb:19icW",
+        "morphhb:19WQu",
+        "morphhb:19rMa",
+        "morphhb:19H5x",
+        "morphhb:19Lft",
+        "morphhb:19bTD"
+      ],
+      "features": {}
+    },
+    {
+      "id": "morphhb:Ps.23.5",
+      "source_id": "morphhb",
+      "level": "verse",
+      "token_ids": [
+        "morphhb:19W19",
+        "morphhb:19CUd",
+        "morphhb:19dBb",
+        "morphhb:19oQH",
+        "morphhb:19FgV",
+        "morphhb:19sAH",
+        "morphhb:19fPE",
+        "morphhb:19kFY",
+        "morphhb:19oVM",
+        "morphhb:19DD6"
+      ],
+      "features": {}
+    },
+    {
+      "id": "morphhb:Ps.23.6",
+      "source_id": "morphhb",
+      "level": "verse",
+      "token_ids": [
+        "morphhb:19T6s",
+        "morphhb:19UTG",
+        "morphhb:19TjC",
+        "morphhb:19B7W",
+        "morphhb:19ggZ",
+        "morphhb:19sDo",
+        "morphhb:19hQe",
+        "morphhb:19Fmq",
+        "morphhb:194ga",
+        "morphhb:19qZF",
+        "morphhb:19o7p",
+        "morphhb:19BQB"
+      ],
+      "features": {}
+    },
+    {
+      "id": "bhsa:1429847",
+      "source_id": "bhsa",
+      "level": "verse",
+      "token_ids": [
+        "bhsa:313897",
+        "bhsa:313898",
+        "bhsa:313899",
+        "bhsa:313900",
+        "bhsa:313901",
+        "bhsa:313902",
+        "bhsa:313903"
+      ],
+      "features": {}
+    },
+    {
+      "id": "bhsa:491196",
+      "source_id": "bhsa",
+      "level": "clause",
+      "token_ids": [
+        "bhsa:313897",
+        "bhsa:313898",
+        "bhsa:313899"
+      ],
+      "features": {
+        "function": null,
+        "type": "NmCl"
+      }
+    },
+    {
+      "id": "bhsa:837691",
+      "source_id": "bhsa",
+      "level": "phrase",
+      "token_ids": [
+        "bhsa:313897",
+        "bhsa:313898",
+        "bhsa:313899"
+      ],
+      "features": {
+        "function": "PreC",
+        "type": "NP"
+      }
+    },
+    {
+      "id": "bhsa:1218714",
+      "source_id": "bhsa",
+      "level": "sentence",
+      "token_ids": [
+        "bhsa:313897",
+        "bhsa:313898",
+        "bhsa:313899"
+      ],
+      "features": {
+        "function": null,
+        "type": null
+      }
+    },
+    {
+      "id": "bhsa:491197",
+      "source_id": "bhsa",
+      "level": "clause",
+      "token_ids": [
+        "bhsa:313900",
+        "bhsa:313901"
+      ],
+      "features": {
+        "function": null,
+        "type": "NmCl"
+      }
+    },
+    {
+      "id": "bhsa:837692",
+      "source_id": "bhsa",
+      "level": "phrase",
+      "token_ids": [
+        "bhsa:313900"
+      ],
+      "features": {
+        "function": "Subj",
+        "type": "PrNP"
+      }
+    },
+    {
+      "id": "bhsa:1218715",
+      "source_id": "bhsa",
+      "level": "sentence",
+      "token_ids": [
+        "bhsa:313900",
+        "bhsa:313901"
+      ],
+      "features": {
+        "function": null,
+        "type": null
+      }
+    },
+    {
+      "id": "bhsa:837693",
+      "source_id": "bhsa",
+      "level": "phrase",
+      "token_ids": [
+        "bhsa:313901"
+      ],
+      "features": {
+        "function": "PreC",
+        "type": "NP"
+      }
+    },
+    {
+      "id": "bhsa:491198",
+      "source_id": "bhsa",
+      "level": "clause",
+      "token_ids": [
+        "bhsa:313902",
+        "bhsa:313903"
+      ],
+      "features": {
+        "function": null,
+        "type": "xYq0"
+      }
+    },
+    {
+      "id": "bhsa:837694",
+      "source_id": "bhsa",
+      "level": "phrase",
+      "token_ids": [
+        "bhsa:313902"
+      ],
+      "features": {
+        "function": "Nega",
+        "type": "NegP"
+      }
+    },
+    {
+      "id": "bhsa:1218716",
+      "source_id": "bhsa",
+      "level": "sentence",
+      "token_ids": [
+        "bhsa:313902",
+        "bhsa:313903"
+      ],
+      "features": {
+        "function": null,
+        "type": null
+      }
+    },
+    {
+      "id": "bhsa:837695",
+      "source_id": "bhsa",
+      "level": "phrase",
+      "token_ids": [
+        "bhsa:313903"
+      ],
+      "features": {
+        "function": "Pred",
+        "type": "VP"
+      }
+    },
+    {
+      "id": "bhsa:1429848",
+      "source_id": "bhsa",
+      "level": "verse",
+      "token_ids": [
+        "bhsa:313904",
+        "bhsa:313905",
+        "bhsa:313906",
+        "bhsa:313907",
+        "bhsa:313908",
+        "bhsa:313909",
+        "bhsa:313910",
+        "bhsa:313911"
+      ],
+      "features": {}
+    },
+    {
+      "id": "bhsa:491199",
+      "source_id": "bhsa",
+      "level": "clause",
+      "token_ids": [
+        "bhsa:313904",
+        "bhsa:313905",
+        "bhsa:313906",
+        "bhsa:313907"
+      ],
+      "features": {
+        "function": null,
+        "type": "xYq0"
+      }
+    },
+    {
+      "id": "bhsa:837696",
+      "source_id": "bhsa",
+      "level": "phrase",
+      "token_ids": [
+        "bhsa:313904",
+        "bhsa:313905",
+        "bhsa:313906"
+      ],
+      "features": {
+        "function": "Cmpl",
+        "type": "PP"
+      }
+    },
+    {
+      "id": "bhsa:1218717",
+      "source_id": "bhsa",
+      "level": "sentence",
+      "token_ids": [
+        "bhsa:313904",
+        "bhsa:313905",
+        "bhsa:313906",
+        "bhsa:313907"
+      ],
+      "features": {
+        "function": null,
+        "type": null
+      }
+    },
+    {
+      "id": "bhsa:837697",
+      "source_id": "bhsa",
+      "level": "phrase",
+      "token_ids": [
+        "bhsa:313907"
+      ],
+      "features": {
+        "function": "PreO",
+        "type": "VP"
+      }
+    },
+    {
+      "id": "bhsa:491200",
+      "source_id": "bhsa",
+      "level": "clause",
+      "token_ids": [
+        "bhsa:313908",
+        "bhsa:313909",
+        "bhsa:313910",
+        "bhsa:313911"
+      ],
+      "features": {
+        "function": null,
+        "type": "xYq0"
+      }
+    },
+    {
+      "id": "bhsa:837698",
+      "source_id": "bhsa",
+      "level": "phrase",
+      "token_ids": [
+        "bhsa:313908",
+        "bhsa:313909",
+        "bhsa:313910"
+      ],
+      "features": {
+        "function": "Cmpl",
+        "type": "PP"
+      }
+    },
+    {
+      "id": "bhsa:1218718",
+      "source_id": "bhsa",
+      "level": "sentence",
+      "token_ids": [
+        "bhsa:313908",
+        "bhsa:313909",
+        "bhsa:313910",
+        "bhsa:313911"
+      ],
+      "features": {
+        "function": null,
+        "type": null
+      }
+    },
+    {
+      "id": "bhsa:837699",
+      "source_id": "bhsa",
+      "level": "phrase",
+      "token_ids": [
+        "bhsa:313911"
+      ],
+      "features": {
+        "function": "PreO",
+        "type": "VP"
+      }
+    },
+    {
+      "id": "bhsa:1429849",
+      "source_id": "bhsa",
+      "level": "verse",
+      "token_ids": [
+        "bhsa:313912",
+        "bhsa:313913",
+        "bhsa:313914",
+        "bhsa:313915",
+        "bhsa:313916",
+        "bhsa:313917",
+        "bhsa:313918",
+        "bhsa:313919"
+      ],
+      "features": {}
+    },
+    {
+      "id": "bhsa:491201",
+      "source_id": "bhsa",
+      "level": "clause",
+      "token_ids": [
+        "bhsa:313912",
+        "bhsa:313913"
+      ],
+      "features": {
+        "function": null,
+        "type": "xYq0"
+      }
+    },
+    {
+      "id": "bhsa:837700",
+      "source_id": "bhsa",
+      "level": "phrase",
+      "token_ids": [
+        "bhsa:313912"
+      ],
+      "features": {
+        "function": "Objc",
+        "type": "NP"
+      }
+    },
+    {
+      "id": "bhsa:1218719",
+      "source_id": "bhsa",
+      "level": "sentence",
+      "token_ids": [
+        "bhsa:313912",
+        "bhsa:313913"
+      ],
+      "features": {
+        "function": null,
+        "type": null
+      }
+    },
+    {
+      "id": "bhsa:837701",
+      "source_id": "bhsa",
+      "level": "phrase",
+      "token_ids": [
+        "bhsa:313913"
+      ],
+      "features": {
+        "function": "Pred",
+        "type": "VP"
+      }
+    },
+    {
+      "id": "bhsa:491202",
+      "source_id": "bhsa",
+      "level": "clause",
+      "token_ids": [
+        "bhsa:313914",
+        "bhsa:313915",
+        "bhsa:313916",
+        "bhsa:313917",
+        "bhsa:313918",
+        "bhsa:313919"
+      ],
+      "features": {
+        "function": null,
+        "type": "ZYq0"
+      }
+    },
+    {
+      "id": "bhsa:837702",
+      "source_id": "bhsa",
+      "level": "phrase",
+      "token_ids": [
+        "bhsa:313914"
+      ],
+      "features": {
+        "function": "PreO",
+        "type": "VP"
+      }
+    },
+    {
+      "id": "bhsa:1218720",
+      "source_id": "bhsa",
+      "level": "sentence",
+      "token_ids": [
+        "bhsa:313914",
+        "bhsa:313915",
+        "bhsa:313916",
+        "bhsa:313917",
+        "bhsa:313918",
+        "bhsa:313919"
+      ],
+      "features": {
+        "function": null,
+        "type": null
+      }
+    },
+    {
+      "id": "bhsa:837703",
+      "source_id": "bhsa",
+      "level": "phrase",
+      "token_ids": [
+        "bhsa:313915",
+        "bhsa:313916",
+        "bhsa:313917"
+      ],
+      "features": {
+        "function": "Cmpl",
+        "type": "PP"
+      }
+    },
+    {
+      "id": "bhsa:837704",
+      "source_id": "bhsa",
+      "level": "phrase",
+      "token_ids": [
+        "bhsa:313918",
+        "bhsa:313919"
+      ],
+      "features": {
+        "function": "Adju",
+        "type": "PP"
+      }
+    },
+    {
+      "id": "bhsa:1429850",
+      "source_id": "bhsa",
+      "level": "verse",
+      "token_ids": [
+        "bhsa:313920",
+        "bhsa:313921",
+        "bhsa:313922",
+        "bhsa:313923",
+        "bhsa:313924",
+        "bhsa:313925",
+        "bhsa:313926",
+        "bhsa:313927",
+        "bhsa:313928",
+        "bhsa:313929",
+        "bhsa:313930",
+        "bhsa:313931",
+        "bhsa:313932",
+        "bhsa:313933",
+        "bhsa:313934",
+        "bhsa:313935",
+        "bhsa:313936"
+      ],
+      "features": {}
+    },
+    {
+      "id": "bhsa:491203",
+      "source_id": "bhsa",
+      "level": "clause",
+      "token_ids": [
+        "bhsa:313920",
+        "bhsa:313921",
+        "bhsa:313922",
+        "bhsa:313923",
+        "bhsa:313924",
+        "bhsa:313925"
+      ],
+      "features": {
+        "function": null,
+        "type": "xYq0"
+      }
+    },
+    {
+      "id": "bhsa:837705",
+      "source_id": "bhsa",
+      "level": "phrase",
+      "token_ids": [
+        "bhsa:313920"
+      ],
+      "features": {
+        "function": "Modi",
+        "type": "AdvP"
+      }
+    },
+    {
+      "id": "bhsa:1218721",
+      "source_id": "bhsa",
+      "level": "sentence",
+      "token_ids": [
+        "bhsa:313920",
+        "bhsa:313921",
+        "bhsa:313922",
+        "bhsa:313923",
+        "bhsa:313924",
+        "bhsa:313925"
+      ],
+      "features": {
+        "function": null,
+        "type": null
+      }
+    },
+    {
+      "id": "bhsa:837706",
+      "source_id": "bhsa",
+      "level": "phrase",
+      "token_ids": [
+        "bhsa:313921"
+      ],
+      "features": {
+        "function": "Conj",
+        "type": "CP"
+      }
+    },
+    {
+      "id": "bhsa:837707",
+      "source_id": "bhsa",
+      "level": "phrase",
+      "token_ids": [
+        "bhsa:313922"
+      ],
+      "features": {
+        "function": "Pred",
+        "type": "VP"
+      }
+    },
+    {
+      "id": "bhsa:837708",
+      "source_id": "bhsa",
+      "level": "phrase",
+      "token_ids": [
+        "bhsa:313923",
+        "bhsa:313924",
+        "bhsa:313925"
+      ],
+      "features": {
+        "function": "Cmpl",
+        "type": "PP"
+      }
+    },
+    {
+      "id": "bhsa:491204",
+      "source_id": "bhsa",
+      "level": "clause",
+      "token_ids": [
+        "bhsa:313926",
+        "bhsa:313927",
+        "bhsa:313928"
+      ],
+      "features": {
+        "function": null,
+        "type": "xYq0"
+      }
+    },
+    {
+      "id": "bhsa:837709",
+      "source_id": "bhsa",
+      "level": "phrase",
+      "token_ids": [
+        "bhsa:313926"
+      ],
+      "features": {
+        "function": "Nega",
+        "type": "NegP"
+      }
+    },
+    {
+      "id": "bhsa:1218722",
+      "source_id": "bhsa",
+      "level": "sentence",
+      "token_ids": [
+        "bhsa:313926",
+        "bhsa:313927",
+        "bhsa:313928"
+      ],
+      "features": {
+        "function": null,
+        "type": null
+      }
+    },
+    {
+      "id": "bhsa:837710",
+      "source_id": "bhsa",
+      "level": "phrase",
+      "token_ids": [
+        "bhsa:313927"
+      ],
+      "features": {
+        "function": "Pred",
+        "type": "VP"
+      }
+    },
+    {
+      "id": "bhsa:837711",
+      "source_id": "bhsa",
+      "level": "phrase",
+      "token_ids": [
+        "bhsa:313928"
+      ],
+      "features": {
+        "function": "Objc",
+        "type": "NP"
+      }
+    },
+    {
+      "id": "bhsa:491205",
+      "source_id": "bhsa",
+      "level": "clause",
+      "token_ids": [
+        "bhsa:313929",
+        "bhsa:313930",
+        "bhsa:313931"
+      ],
+      "features": {
+        "function": null,
+        "type": "NmCl"
+      }
+    },
+    {
+      "id": "bhsa:837712",
+      "source_id": "bhsa",
+      "level": "phrase",
+      "token_ids": [
+        "bhsa:313929"
+      ],
+      "features": {
+        "function": "Conj",
+        "type": "CP"
+      }
+    },
+    {
+      "id": "bhsa:1218723",
+      "source_id": "bhsa",
+      "level": "sentence",
+      "token_ids": [
+        "bhsa:313929",
+        "bhsa:313930",
+        "bhsa:313931",
+        "bhsa:313932",
+        "bhsa:313933",
+        "bhsa:313934",
+        "bhsa:313935",
+        "bhsa:313936",
+        "bhsa:313937",
+        "bhsa:313938",
+        "bhsa:313939",
+        "bhsa:313940",
+        "bhsa:313941",
+        "bhsa:313942",
+        "bhsa:313943",
+        "bhsa:313944",
+        "bhsa:313945",
+        "bhsa:313946",
+        "bhsa:313947",
+        "bhsa:313948",
+        "bhsa:313949"
+      ],
+      "features": {
+        "function": null,
+        "type": null
+      }
+    },
+    {
+      "id": "bhsa:837713",
+      "source_id": "bhsa",
+      "level": "phrase",
+      "token_ids": [
+        "bhsa:313930"
+      ],
+      "features": {
+        "function": "Subj",
+        "type": "PPrP"
+      }
+    },
+    {
+      "id": "bhsa:837714",
+      "source_id": "bhsa",
+      "level": "phrase",
+      "token_ids": [
+        "bhsa:313931"
+      ],
+      "features": {
+        "function": "PreC",
+        "type": "PP"
+      }
+    },
+    {
+      "id": "bhsa:491206",
+      "source_id": "bhsa",
+      "level": "clause",
+      "token_ids": [
+        "bhsa:313932",
+        "bhsa:313933",
+        "bhsa:313934"
+      ],
+      "features": {
+        "function": null,
+        "type": "CPen"
+      }
+    },
+    {
+      "id": "bhsa:837715",
+      "source_id": "bhsa",
+      "level": "phrase",
+      "token_ids": [
+        "bhsa:313932",
+        "bhsa:313933",
+        "bhsa:313934"
+      ],
+      "features": {
+        "function": "Frnt",
+        "type": "NP"
+      }
+    },
+    {
+      "id": "bhsa:491207",
+      "source_id": "bhsa",
+      "level": "clause",
+      "token_ids": [
+        "bhsa:313935",
+        "bhsa:313936"
+      ],
+      "features": {
+        "function": null,
+        "type": "XYqt"
+      }
+    },
+    {
+      "id": "bhsa:837716",
+      "source_id": "bhsa",
+      "level": "phrase",
+      "token_ids": [
+        "bhsa:313935"
+      ],
+      "features": {
+        "function": "Subj",
+        "type": "PPrP"
+      }
+    },
+    {
+      "id": "bhsa:837717",
+      "source_id": "bhsa",
+      "level": "phrase",
+      "token_ids": [
+        "bhsa:313936"
+      ],
+      "features": {
+        "function": "PreO",
+        "type": "VP"
+      }
+    },
+    {
+      "id": "bhsa:1429851",
+      "source_id": "bhsa",
+      "level": "verse",
+      "token_ids": [
+        "bhsa:313937",
+        "bhsa:313938",
+        "bhsa:313939",
+        "bhsa:313940",
+        "bhsa:313941",
+        "bhsa:313942",
+        "bhsa:313943",
+        "bhsa:313944",
+        "bhsa:313945",
+        "bhsa:313946",
+        "bhsa:313947",
+        "bhsa:313948",
+        "bhsa:313949"
+      ],
+      "features": {}
+    },
+    {
+      "id": "bhsa:491208",
+      "source_id": "bhsa",
+      "level": "clause",
+      "token_ids": [
+        "bhsa:313937",
+        "bhsa:313938",
+        "bhsa:313939",
+        "bhsa:313940",
+        "bhsa:313941",
+        "bhsa:313942"
+      ],
+      "features": {
+        "function": null,
+        "type": "ZYq0"
+      }
+    },
+    {
+      "id": "bhsa:837718",
+      "source_id": "bhsa",
+      "level": "phrase",
+      "token_ids": [
+        "bhsa:313937"
+      ],
+      "features": {
+        "function": "Pred",
+        "type": "VP"
+      }
+    },
+    {
+      "id": "bhsa:837719",
+      "source_id": "bhsa",
+      "level": "phrase",
+      "token_ids": [
+        "bhsa:313938",
+        "bhsa:313939"
+      ],
+      "features": {
+        "function": "Adju",
+        "type": "PP"
+      }
+    },
+    {
+      "id": "bhsa:837720",
+      "source_id": "bhsa",
+      "level": "phrase",
+      "token_ids": [
+        "bhsa:313940"
+      ],
+      "features": {
+        "function": "Objc",
+        "type": "NP"
+      }
+    },
+    {
+      "id": "bhsa:837721",
+      "source_id": "bhsa",
+      "level": "phrase",
+      "token_ids": [
+        "bhsa:313941",
+        "bhsa:313942"
+      ],
+      "features": {
+        "function": "Adju",
+        "type": "PP"
+      }
+    },
+    {
+      "id": "bhsa:491209",
+      "source_id": "bhsa",
+      "level": "clause",
+      "token_ids": [
+        "bhsa:313943",
+        "bhsa:313944",
+        "bhsa:313945",
+        "bhsa:313946",
+        "bhsa:313947"
+      ],
+      "features": {
+        "function": null,
+        "type": "ZQt0"
+      }
+    },
+    {
+      "id": "bhsa:837722",
+      "source_id": "bhsa",
+      "level": "phrase",
+      "token_ids": [
+        "bhsa:313943"
+      ],
+      "features": {
+        "function": "Pred",
+        "type": "VP"
+      }
+    },
+    {
+      "id": "bhsa:837723",
+      "source_id": "bhsa",
+      "level": "phrase",
+      "token_ids": [
+        "bhsa:313944",
+        "bhsa:313945",
+        "bhsa:313946"
+      ],
+      "features": {
+        "function": "Cmpl",
+        "type": "PP"
+      }
+    },
+    {
+      "id": "bhsa:837724",
+      "source_id": "bhsa",
+      "level": "phrase",
+      "token_ids": [
+        "bhsa:313947"
+      ],
+      "features": {
+        "function": "Objc",
+        "type": "NP"
+      }
+    },
+    {
+      "id": "bhsa:491210",
+      "source_id": "bhsa",
+      "level": "clause",
+      "token_ids": [
+        "bhsa:313948",
+        "bhsa:313949"
+      ],
+      "features": {
+        "function": null,
+        "type": "NmCl"
+      }
+    },
+    {
+      "id": "bhsa:837725",
+      "source_id": "bhsa",
+      "level": "phrase",
+      "token_ids": [
+        "bhsa:313948"
+      ],
+      "features": {
+        "function": "Subj",
+        "type": "NP"
+      }
+    },
+    {
+      "id": "bhsa:837726",
+      "source_id": "bhsa",
+      "level": "phrase",
+      "token_ids": [
+        "bhsa:313949"
+      ],
+      "features": {
+        "function": "PreC",
+        "type": "NP"
+      }
+    },
+    {
+      "id": "bhsa:1429852",
+      "source_id": "bhsa",
+      "level": "verse",
+      "token_ids": [
+        "bhsa:313950",
+        "bhsa:313951",
+        "bhsa:313952",
+        "bhsa:313953",
+        "bhsa:313954",
+        "bhsa:313955",
+        "bhsa:313956",
+        "bhsa:313957",
+        "bhsa:313958",
+        "bhsa:313959",
+        "bhsa:313960",
+        "bhsa:313961",
+        "bhsa:313962",
+        "bhsa:313963",
+        "bhsa:313964",
+        "bhsa:313965"
+      ],
+      "features": {}
+    },
+    {
+      "id": "bhsa:491211",
+      "source_id": "bhsa",
+      "level": "clause",
+      "token_ids": [
+        "bhsa:313950",
+        "bhsa:313951",
+        "bhsa:313952",
+        "bhsa:313953",
+        "bhsa:313954",
+        "bhsa:313955",
+        "bhsa:313956",
+        "bhsa:313957"
+      ],
+      "features": {
+        "function": null,
+        "type": "XYqt"
+      }
+    },
+    {
+      "id": "bhsa:837727",
+      "source_id": "bhsa",
+      "level": "phrase",
+      "token_ids": [
+        "bhsa:313950",
+        "bhsa:313951",
+        "bhsa:313952",
+        "bhsa:313953"
+      ],
+      "features": {
+        "function": "Subj",
+        "type": "NP"
+      }
+    },
+    {
+      "id": "bhsa:1218724",
+      "source_id": "bhsa",
+      "level": "sentence",
+      "token_ids": [
+        "bhsa:313950",
+        "bhsa:313951",
+        "bhsa:313952",
+        "bhsa:313953",
+        "bhsa:313954",
+        "bhsa:313955",
+        "bhsa:313956",
+        "bhsa:313957"
+      ],
+      "features": {
+        "function": null,
+        "type": null
+      }
+    },
+    {
+      "id": "bhsa:837728",
+      "source_id": "bhsa",
+      "level": "phrase",
+      "token_ids": [
+        "bhsa:313954"
+      ],
+      "features": {
+        "function": "PreO",
+        "type": "VP"
+      }
+    },
+    {
+      "id": "bhsa:837729",
+      "source_id": "bhsa",
+      "level": "phrase",
+      "token_ids": [
+        "bhsa:313955",
+        "bhsa:313956",
+        "bhsa:313957"
+      ],
+      "features": {
+        "function": "Time",
+        "type": "NP"
+      }
+    },
+    {
+      "id": "bhsa:491212",
+      "source_id": "bhsa",
+      "level": "clause",
+      "token_ids": [
+        "bhsa:313958",
+        "bhsa:313959",
+        "bhsa:313960",
+        "bhsa:313961",
+        "bhsa:313962",
+        "bhsa:313963",
+        "bhsa:313964",
+        "bhsa:313965"
+      ],
+      "features": {
+        "function": null,
+        "type": "WQt0"
+      }
+    },
+    {
+      "id": "bhsa:837730",
+      "source_id": "bhsa",
+      "level": "phrase",
+      "token_ids": [
+        "bhsa:313958"
+      ],
+      "features": {
+        "function": "Conj",
+        "type": "CP"
+      }
+    },
+    {
+      "id": "bhsa:1218725",
+      "source_id": "bhsa",
+      "level": "sentence",
+      "token_ids": [
+        "bhsa:313958",
+        "bhsa:313959",
+        "bhsa:313960",
+        "bhsa:313961",
+        "bhsa:313962",
+        "bhsa:313963",
+        "bhsa:313964",
+        "bhsa:313965"
+      ],
+      "features": {
+        "function": null,
+        "type": null
+      }
+    },
+    {
+      "id": "bhsa:837731",
+      "source_id": "bhsa",
+      "level": "phrase",
+      "token_ids": [
+        "bhsa:313959"
+      ],
+      "features": {
+        "function": "Pred",
+        "type": "VP"
+      }
+    },
+    {
+      "id": "bhsa:837732",
+      "source_id": "bhsa",
+      "level": "phrase",
+      "token_ids": [
+        "bhsa:313960",
+        "bhsa:313961",
+        "bhsa:313962"
+      ],
+      "features": {
+        "function": "Cmpl",
+        "type": "PP"
+      }
+    },
+    {
+      "id": "bhsa:837733",
+      "source_id": "bhsa",
+      "level": "phrase",
+      "token_ids": [
+        "bhsa:313963",
+        "bhsa:313964",
+        "bhsa:313965"
+      ],
+      "features": {
+        "function": "Time",
+        "type": "PP"
+      }
+    }
+  ],
+  "alignments": [
+    {
+      "verse": 1,
+      "left_ids": [
+        "morphhb:19eip"
+      ],
+      "right_ids": [
+        "bhsa:313897"
+      ],
+      "status": "consonantal_match",
+      "method": "verse-local-contiguous-consonantal-v1",
+      "confidence": 0.95,
+      "reviewer_status": "pending",
+      "note": "Consonantal agreement only; vocalization/alternative alignments not adjudicated."
+    },
+    {
+      "verse": 1,
+      "left_ids": [
+        "morphhb:19jhu"
+      ],
+      "right_ids": [
+        "bhsa:313898",
+        "bhsa:313899"
+      ],
+      "status": "consonantal_match",
+      "method": "verse-local-contiguous-consonantal-v1",
+      "confidence": 0.8,
+      "reviewer_status": "pending",
+      "note": "Consonantal agreement only; vocalization/alternative alignments not adjudicated."
+    },
+    {
+      "verse": 1,
+      "left_ids": [
+        "morphhb:192fr"
+      ],
+      "right_ids": [
+        "bhsa:313900"
+      ],
+      "status": "consonantal_match",
+      "method": "verse-local-contiguous-consonantal-v1",
+      "confidence": 0.95,
+      "reviewer_status": "pending",
+      "note": "Consonantal agreement only; vocalization/alternative alignments not adjudicated."
+    },
+    {
+      "verse": 1,
+      "left_ids": [
+        "morphhb:195Aa"
+      ],
+      "right_ids": [
+        "bhsa:313901"
+      ],
+      "status": "consonantal_match",
+      "method": "verse-local-contiguous-consonantal-v1",
+      "confidence": 0.95,
+      "reviewer_status": "pending",
+      "note": "Consonantal agreement only; vocalization/alternative alignments not adjudicated."
+    },
+    {
+      "verse": 1,
+      "left_ids": [
+        "morphhb:19zuz"
+      ],
+      "right_ids": [
+        "bhsa:313902"
+      ],
+      "status": "consonantal_match",
+      "method": "verse-local-contiguous-consonantal-v1",
+      "confidence": 0.95,
+      "reviewer_status": "pending",
+      "note": "Consonantal agreement only; vocalization/alternative alignments not adjudicated."
+    },
+    {
+      "verse": 1,
+      "left_ids": [
+        "morphhb:19BTS"
+      ],
+      "right_ids": [
+        "bhsa:313903"
+      ],
+      "status": "consonantal_match",
+      "method": "verse-local-contiguous-consonantal-v1",
+      "confidence": 0.95,
+      "reviewer_status": "pending",
+      "note": "Consonantal agreement only; vocalization/alternative alignments not adjudicated."
+    },
+    {
+      "verse": 2,
+      "left_ids": [
+        "morphhb:19Hdk"
+      ],
+      "right_ids": [
+        "bhsa:313904",
+        "bhsa:313905"
+      ],
+      "status": "consonantal_match",
+      "method": "verse-local-contiguous-consonantal-v1",
+      "confidence": 0.8,
+      "reviewer_status": "pending",
+      "note": "Consonantal agreement only; vocalization/alternative alignments not adjudicated."
+    },
+    {
+      "verse": 2,
+      "left_ids": [
+        "morphhb:19tbG"
+      ],
+      "right_ids": [
+        "bhsa:313906"
+      ],
+      "status": "consonantal_match",
+      "method": "verse-local-contiguous-consonantal-v1",
+      "confidence": 0.95,
+      "reviewer_status": "pending",
+      "note": "Consonantal agreement only; vocalization/alternative alignments not adjudicated."
+    },
+    {
+      "verse": 2,
+      "left_ids": [
+        "morphhb:198hT"
+      ],
+      "right_ids": [
+        "bhsa:313907"
+      ],
+      "status": "consonantal_match",
+      "method": "verse-local-contiguous-consonantal-v1",
+      "confidence": 0.95,
+      "reviewer_status": "pending",
+      "note": "Consonantal agreement only; vocalization/alternative alignments not adjudicated."
+    },
+    {
+      "verse": 2,
+      "left_ids": [
+        "morphhb:191EK"
+      ],
+      "right_ids": [
+        "bhsa:313908"
+      ],
+      "status": "consonantal_match",
+      "method": "verse-local-contiguous-consonantal-v1",
+      "confidence": 0.95,
+      "reviewer_status": "pending",
+      "note": "Consonantal agreement only; vocalization/alternative alignments not adjudicated."
+    },
+    {
+      "verse": 2,
+      "left_ids": [
+        "morphhb:19UYd"
+      ],
+      "right_ids": [
+        "bhsa:313909"
+      ],
+      "status": "consonantal_match",
+      "method": "verse-local-contiguous-consonantal-v1",
+      "confidence": 0.95,
+      "reviewer_status": "pending",
+      "note": "Consonantal agreement only; vocalization/alternative alignments not adjudicated."
+    },
+    {
+      "verse": 2,
+      "left_ids": [
+        "morphhb:19w2J"
+      ],
+      "right_ids": [
+        "bhsa:313910"
+      ],
+      "status": "consonantal_match",
+      "method": "verse-local-contiguous-consonantal-v1",
+      "confidence": 0.95,
+      "reviewer_status": "pending",
+      "note": "Consonantal agreement only; vocalization/alternative alignments not adjudicated."
+    },
+    {
+      "verse": 2,
+      "left_ids": [
+        "morphhb:19UcZ"
+      ],
+      "right_ids": [
+        "bhsa:313911"
+      ],
+      "status": "consonantal_match",
+      "method": "verse-local-contiguous-consonantal-v1",
+      "confidence": 0.95,
+      "reviewer_status": "pending",
+      "note": "Consonantal agreement only; vocalization/alternative alignments not adjudicated."
+    },
+    {
+      "verse": 3,
+      "left_ids": [
+        "morphhb:19SZA"
+      ],
+      "right_ids": [
+        "bhsa:313912"
+      ],
+      "status": "consonantal_match",
+      "method": "verse-local-contiguous-consonantal-v1",
+      "confidence": 0.95,
+      "reviewer_status": "pending",
+      "note": "Consonantal agreement only; vocalization/alternative alignments not adjudicated."
+    },
+    {
+      "verse": 3,
+      "left_ids": [
+        "morphhb:19WeX"
+      ],
+      "right_ids": [
+        "bhsa:313913"
+      ],
+      "status": "consonantal_match",
+      "method": "verse-local-contiguous-consonantal-v1",
+      "confidence": 0.95,
+      "reviewer_status": "pending",
+      "note": "Consonantal agreement only; vocalization/alternative alignments not adjudicated."
+    },
+    {
+      "verse": 3,
+      "left_ids": [
+        "morphhb:19FoN"
+      ],
+      "right_ids": [
+        "bhsa:313914"
+      ],
+      "status": "consonantal_match",
+      "method": "verse-local-contiguous-consonantal-v1",
+      "confidence": 0.95,
+      "reviewer_status": "pending",
+      "note": "Consonantal agreement only; vocalization/alternative alignments not adjudicated."
+    },
+    {
+      "verse": 3,
+      "left_ids": [
+        "morphhb:19BK2"
+      ],
+      "right_ids": [
+        "bhsa:313915",
+        "bhsa:313916"
+      ],
+      "status": "consonantal_match",
+      "method": "verse-local-contiguous-consonantal-v1",
+      "confidence": 0.8,
+      "reviewer_status": "pending",
+      "note": "Consonantal agreement only; vocalization/alternative alignments not adjudicated."
+    },
+    {
+      "verse": 3,
+      "left_ids": [
+        "morphhb:19qoQ"
+      ],
+      "right_ids": [
+        "bhsa:313917"
+      ],
+      "status": "consonantal_match",
+      "method": "verse-local-contiguous-consonantal-v1",
+      "confidence": 0.95,
+      "reviewer_status": "pending",
+      "note": "Consonantal agreement only; vocalization/alternative alignments not adjudicated."
+    },
+    {
+      "verse": 3,
+      "left_ids": [
+        "morphhb:19DV4"
+      ],
+      "right_ids": [
+        "bhsa:313918"
+      ],
+      "status": "consonantal_match",
+      "method": "verse-local-contiguous-consonantal-v1",
+      "confidence": 0.95,
+      "reviewer_status": "pending",
+      "note": "Consonantal agreement only; vocalization/alternative alignments not adjudicated."
+    },
+    {
+      "verse": 3,
+      "left_ids": [
+        "morphhb:19iex"
+      ],
+      "right_ids": [
+        "bhsa:313919"
+      ],
+      "status": "consonantal_match",
+      "method": "verse-local-contiguous-consonantal-v1",
+      "confidence": 0.95,
+      "reviewer_status": "pending",
+      "note": "Consonantal agreement only; vocalization/alternative alignments not adjudicated."
+    },
+    {
+      "verse": 4,
+      "left_ids": [
+        "morphhb:19LMe"
+      ],
+      "right_ids": [
+        "bhsa:313920"
+      ],
+      "status": "consonantal_match",
+      "method": "verse-local-contiguous-consonantal-v1",
+      "confidence": 0.95,
+      "reviewer_status": "pending",
+      "note": "Consonantal agreement only; vocalization/alternative alignments not adjudicated."
+    },
+    {
+      "verse": 4,
+      "left_ids": [
+        "morphhb:19zuk"
+      ],
+      "right_ids": [
+        "bhsa:313921"
+      ],
+      "status": "consonantal_match",
+      "method": "verse-local-contiguous-consonantal-v1",
+      "confidence": 0.95,
+      "reviewer_status": "pending",
+      "note": "Consonantal agreement only; vocalization/alternative alignments not adjudicated."
+    },
+    {
+      "verse": 4,
+      "left_ids": [
+        "morphhb:195hm"
+      ],
+      "right_ids": [
+        "bhsa:313922"
+      ],
+      "status": "consonantal_match",
+      "method": "verse-local-contiguous-consonantal-v1",
+      "confidence": 0.95,
+      "reviewer_status": "pending",
+      "note": "Consonantal agreement only; vocalization/alternative alignments not adjudicated."
+    },
+    {
+      "verse": 4,
+      "left_ids": [
+        "morphhb:19a8a"
+      ],
+      "right_ids": [
+        "bhsa:313923",
+        "bhsa:313924"
+      ],
+      "status": "consonantal_match",
+      "method": "verse-local-contiguous-consonantal-v1",
+      "confidence": 0.8,
+      "reviewer_status": "pending",
+      "note": "Consonantal agreement only; vocalization/alternative alignments not adjudicated."
+    },
+    {
+      "verse": 4,
+      "left_ids": [
+        "morphhb:19Avd"
+      ],
+      "right_ids": [
+        "bhsa:313925"
+      ],
+      "status": "consonantal_match",
+      "method": "verse-local-contiguous-consonantal-v1",
+      "confidence": 0.95,
+      "reviewer_status": "pending",
+      "note": "Consonantal agreement only; vocalization/alternative alignments not adjudicated."
+    },
+    {
+      "verse": 4,
+      "left_ids": [
+        "morphhb:196nG"
+      ],
+      "right_ids": [
+        "bhsa:313926"
+      ],
+      "status": "consonantal_match",
+      "method": "verse-local-contiguous-consonantal-v1",
+      "confidence": 0.95,
+      "reviewer_status": "pending",
+      "note": "Consonantal agreement only; vocalization/alternative alignments not adjudicated."
+    },
+    {
+      "verse": 4,
+      "left_ids": [
+        "morphhb:19p6C"
+      ],
+      "right_ids": [
+        "bhsa:313927"
+      ],
+      "status": "consonantal_match",
+      "method": "verse-local-contiguous-consonantal-v1",
+      "confidence": 0.95,
+      "reviewer_status": "pending",
+      "note": "Consonantal agreement only; vocalization/alternative alignments not adjudicated."
+    },
+    {
+      "verse": 4,
+      "left_ids": [
+        "morphhb:19Dn5"
+      ],
+      "right_ids": [
+        "bhsa:313928"
+      ],
+      "status": "consonantal_match",
+      "method": "verse-local-contiguous-consonantal-v1",
+      "confidence": 0.95,
+      "reviewer_status": "pending",
+      "note": "Consonantal agreement only; vocalization/alternative alignments not adjudicated."
+    },
+    {
+      "verse": 4,
+      "left_ids": [
+        "morphhb:197mc"
+      ],
+      "right_ids": [
+        "bhsa:313929"
+      ],
+      "status": "consonantal_match",
+      "method": "verse-local-contiguous-consonantal-v1",
+      "confidence": 0.95,
+      "reviewer_status": "pending",
+      "note": "Consonantal agreement only; vocalization/alternative alignments not adjudicated."
+    },
+    {
+      "verse": 4,
+      "left_ids": [
+        "morphhb:19icW"
+      ],
+      "right_ids": [
+        "bhsa:313930"
+      ],
+      "status": "consonantal_match",
+      "method": "verse-local-contiguous-consonantal-v1",
+      "confidence": 0.95,
+      "reviewer_status": "pending",
+      "note": "Consonantal agreement only; vocalization/alternative alignments not adjudicated."
+    },
+    {
+      "verse": 4,
+      "left_ids": [
+        "morphhb:19WQu"
+      ],
+      "right_ids": [
+        "bhsa:313931"
+      ],
+      "status": "consonantal_match",
+      "method": "verse-local-contiguous-consonantal-v1",
+      "confidence": 0.95,
+      "reviewer_status": "pending",
+      "note": "Consonantal agreement only; vocalization/alternative alignments not adjudicated."
+    },
+    {
+      "verse": 4,
+      "left_ids": [
+        "morphhb:19rMa"
+      ],
+      "right_ids": [
+        "bhsa:313932"
+      ],
+      "status": "consonantal_match",
+      "method": "verse-local-contiguous-consonantal-v1",
+      "confidence": 0.95,
+      "reviewer_status": "pending",
+      "note": "Consonantal agreement only; vocalization/alternative alignments not adjudicated."
+    },
+    {
+      "verse": 4,
+      "left_ids": [
+        "morphhb:19H5x"
+      ],
+      "right_ids": [
+        "bhsa:313933",
+        "bhsa:313934"
+      ],
+      "status": "consonantal_match",
+      "method": "verse-local-contiguous-consonantal-v1",
+      "confidence": 0.8,
+      "reviewer_status": "pending",
+      "note": "Consonantal agreement only; vocalization/alternative alignments not adjudicated."
+    },
+    {
+      "verse": 4,
+      "left_ids": [
+        "morphhb:19Lft"
+      ],
+      "right_ids": [
+        "bhsa:313935"
+      ],
+      "status": "consonantal_match",
+      "method": "verse-local-contiguous-consonantal-v1",
+      "confidence": 0.95,
+      "reviewer_status": "pending",
+      "note": "Consonantal agreement only; vocalization/alternative alignments not adjudicated."
+    },
+    {
+      "verse": 4,
+      "left_ids": [
+        "morphhb:19bTD"
+      ],
+      "right_ids": [
+        "bhsa:313936"
+      ],
+      "status": "consonantal_match",
+      "method": "verse-local-contiguous-consonantal-v1",
+      "confidence": 0.95,
+      "reviewer_status": "pending",
+      "note": "Consonantal agreement only; vocalization/alternative alignments not adjudicated."
+    },
+    {
+      "verse": 5,
+      "left_ids": [
+        "morphhb:19W19"
+      ],
+      "right_ids": [
+        "bhsa:313937"
+      ],
+      "status": "consonantal_match",
+      "method": "verse-local-contiguous-consonantal-v1",
+      "confidence": 0.95,
+      "reviewer_status": "pending",
+      "note": "Consonantal agreement only; vocalization/alternative alignments not adjudicated."
+    },
+    {
+      "verse": 5,
+      "left_ids": [
+        "morphhb:19CUd"
+      ],
+      "right_ids": [
+        "bhsa:313938",
+        "bhsa:313939"
+      ],
+      "status": "consonantal_match",
+      "method": "verse-local-contiguous-consonantal-v1",
+      "confidence": 0.8,
+      "reviewer_status": "pending",
+      "note": "Consonantal agreement only; vocalization/alternative alignments not adjudicated."
+    },
+    {
+      "verse": 5,
+      "left_ids": [
+        "morphhb:19dBb"
+      ],
+      "right_ids": [
+        "bhsa:313940"
+      ],
+      "status": "consonantal_match",
+      "method": "verse-local-contiguous-consonantal-v1",
+      "confidence": 0.95,
+      "reviewer_status": "pending",
+      "note": "Consonantal agreement only; vocalization/alternative alignments not adjudicated."
+    },
+    {
+      "verse": 5,
+      "left_ids": [
+        "morphhb:19oQH"
+      ],
+      "right_ids": [
+        "bhsa:313941"
+      ],
+      "status": "consonantal_match",
+      "method": "verse-local-contiguous-consonantal-v1",
+      "confidence": 0.95,
+      "reviewer_status": "pending",
+      "note": "Consonantal agreement only; vocalization/alternative alignments not adjudicated."
+    },
+    {
+      "verse": 5,
+      "left_ids": [
+        "morphhb:19FgV"
+      ],
+      "right_ids": [
+        "bhsa:313942"
+      ],
+      "status": "consonantal_match",
+      "method": "verse-local-contiguous-consonantal-v1",
+      "confidence": 0.95,
+      "reviewer_status": "pending",
+      "note": "Consonantal agreement only; vocalization/alternative alignments not adjudicated."
+    },
+    {
+      "verse": 5,
+      "left_ids": [
+        "morphhb:19sAH"
+      ],
+      "right_ids": [
+        "bhsa:313943"
+      ],
+      "status": "consonantal_match",
+      "method": "verse-local-contiguous-consonantal-v1",
+      "confidence": 0.95,
+      "reviewer_status": "pending",
+      "note": "Consonantal agreement only; vocalization/alternative alignments not adjudicated."
+    },
+    {
+      "verse": 5,
+      "left_ids": [
+        "morphhb:19fPE"
+      ],
+      "right_ids": [
+        "bhsa:313944",
+        "bhsa:313945",
+        "bhsa:313946"
+      ],
+      "status": "consonantal_match",
+      "method": "verse-local-contiguous-consonantal-v1",
+      "confidence": 0.8,
+      "reviewer_status": "pending",
+      "note": "Consonantal agreement only; vocalization/alternative alignments not adjudicated."
+    },
+    {
+      "verse": 5,
+      "left_ids": [
+        "morphhb:19kFY"
+      ],
+      "right_ids": [
+        "bhsa:313947"
+      ],
+      "status": "consonantal_match",
+      "method": "verse-local-contiguous-consonantal-v1",
+      "confidence": 0.95,
+      "reviewer_status": "pending",
+      "note": "Consonantal agreement only; vocalization/alternative alignments not adjudicated."
+    },
+    {
+      "verse": 5,
+      "left_ids": [
+        "morphhb:19oVM"
+      ],
+      "right_ids": [
+        "bhsa:313948"
+      ],
+      "status": "consonantal_match",
+      "method": "verse-local-contiguous-consonantal-v1",
+      "confidence": 0.95,
+      "reviewer_status": "pending",
+      "note": "Consonantal agreement only; vocalization/alternative alignments not adjudicated."
+    },
+    {
+      "verse": 5,
+      "left_ids": [
+        "morphhb:19DD6"
+      ],
+      "right_ids": [
+        "bhsa:313949"
+      ],
+      "status": "consonantal_match",
+      "method": "verse-local-contiguous-consonantal-v1",
+      "confidence": 0.95,
+      "reviewer_status": "pending",
+      "note": "Consonantal agreement only; vocalization/alternative alignments not adjudicated."
+    },
+    {
+      "verse": 6,
+      "left_ids": [
+        "morphhb:19T6s"
+      ],
+      "right_ids": [
+        "bhsa:313950"
+      ],
+      "status": "consonantal_match",
+      "method": "verse-local-contiguous-consonantal-v1",
+      "confidence": 0.95,
+      "reviewer_status": "pending",
+      "note": "Consonantal agreement only; vocalization/alternative alignments not adjudicated."
+    },
+    {
+      "verse": 6,
+      "left_ids": [
+        "morphhb:19UTG"
+      ],
+      "right_ids": [
+        "bhsa:313951"
+      ],
+      "status": "consonantal_match",
+      "method": "verse-local-contiguous-consonantal-v1",
+      "confidence": 0.95,
+      "reviewer_status": "pending",
+      "note": "Consonantal agreement only; vocalization/alternative alignments not adjudicated."
+    },
+    {
+      "verse": 6,
+      "left_ids": [
+        "morphhb:19TjC"
+      ],
+      "right_ids": [
+        "bhsa:313952",
+        "bhsa:313953"
+      ],
+      "status": "consonantal_match",
+      "method": "verse-local-contiguous-consonantal-v1",
+      "confidence": 0.8,
+      "reviewer_status": "pending",
+      "note": "Consonantal agreement only; vocalization/alternative alignments not adjudicated."
+    },
+    {
+      "verse": 6,
+      "left_ids": [
+        "morphhb:19B7W"
+      ],
+      "right_ids": [
+        "bhsa:313954"
+      ],
+      "status": "consonantal_match",
+      "method": "verse-local-contiguous-consonantal-v1",
+      "confidence": 0.95,
+      "reviewer_status": "pending",
+      "note": "Consonantal agreement only; vocalization/alternative alignments not adjudicated."
+    },
+    {
+      "verse": 6,
+      "left_ids": [
+        "morphhb:19ggZ"
+      ],
+      "right_ids": [
+        "bhsa:313955"
+      ],
+      "status": "consonantal_match",
+      "method": "verse-local-contiguous-consonantal-v1",
+      "confidence": 0.95,
+      "reviewer_status": "pending",
+      "note": "Consonantal agreement only; vocalization/alternative alignments not adjudicated."
+    },
+    {
+      "verse": 6,
+      "left_ids": [
+        "morphhb:19sDo"
+      ],
+      "right_ids": [
+        "bhsa:313956"
+      ],
+      "status": "consonantal_match",
+      "method": "verse-local-contiguous-consonantal-v1",
+      "confidence": 0.95,
+      "reviewer_status": "pending",
+      "note": "Consonantal agreement only; vocalization/alternative alignments not adjudicated."
+    },
+    {
+      "verse": 6,
+      "left_ids": [
+        "morphhb:19hQe"
+      ],
+      "right_ids": [
+        "bhsa:313957"
+      ],
+      "status": "consonantal_match",
+      "method": "verse-local-contiguous-consonantal-v1",
+      "confidence": 0.95,
+      "reviewer_status": "pending",
+      "note": "Consonantal agreement only; vocalization/alternative alignments not adjudicated."
+    },
+    {
+      "verse": 6,
+      "left_ids": [
+        "morphhb:19Fmq"
+      ],
+      "right_ids": [
+        "bhsa:313958",
+        "bhsa:313959"
+      ],
+      "status": "consonantal_match",
+      "method": "verse-local-contiguous-consonantal-v1",
+      "confidence": 0.8,
+      "reviewer_status": "pending",
+      "note": "Consonantal agreement only; vocalization/alternative alignments not adjudicated."
+    },
+    {
+      "verse": 6,
+      "left_ids": [
+        "morphhb:194ga"
+      ],
+      "right_ids": [
+        "bhsa:313960",
+        "bhsa:313961"
+      ],
+      "status": "consonantal_match",
+      "method": "verse-local-contiguous-consonantal-v1",
+      "confidence": 0.8,
+      "reviewer_status": "pending",
+      "note": "Consonantal agreement only; vocalization/alternative alignments not adjudicated."
+    },
+    {
+      "verse": 6,
+      "left_ids": [
+        "morphhb:19qZF"
+      ],
+      "right_ids": [
+        "bhsa:313962"
+      ],
+      "status": "consonantal_match",
+      "method": "verse-local-contiguous-consonantal-v1",
+      "confidence": 0.95,
+      "reviewer_status": "pending",
+      "note": "Consonantal agreement only; vocalization/alternative alignments not adjudicated."
+    },
+    {
+      "verse": 6,
+      "left_ids": [
+        "morphhb:19o7p"
+      ],
+      "right_ids": [
+        "bhsa:313963",
+        "bhsa:313964"
+      ],
+      "status": "consonantal_match",
+      "method": "verse-local-contiguous-consonantal-v1",
+      "confidence": 0.8,
+      "reviewer_status": "pending",
+      "note": "Consonantal agreement only; vocalization/alternative alignments not adjudicated."
+    },
+    {
+      "verse": 6,
+      "left_ids": [
+        "morphhb:19BQB"
+      ],
+      "right_ids": [
+        "bhsa:313965"
+      ],
+      "status": "consonantal_match",
+      "method": "verse-local-contiguous-consonantal-v1",
+      "confidence": 0.95,
+      "reviewer_status": "pending",
+      "note": "Consonantal agreement only; vocalization/alternative alignments not adjudicated."
+    }
+  ],
+  "claims": [
+    {
+      "id": "ps23-shepherd-image-v1",
+      "category": "metaphor",
+      "value": "Psalm 23:1 describes YHWH as the speaker’s shepherd. Preserve the shepherd image rather than replacing it entirely with abstract care.",
+      "scope": [
+        "morphhb:192fr",
+        "morphhb:195Aa"
+      ],
+      "confidence": 0.9,
+      "evidence": [
+        {
+          "source_id": "morphhb",
+          "locator": "Ps.23.1",
+          "token_ids": [
+            "morphhb:192fr",
+            "morphhb:195Aa"
+          ],
+          "page": null,
+          "note": ""
+        }
+      ],
+      "method": "llm",
+      "reviewer_status": "pending",
+      "reviewer": null,
+      "reviewer_notes": "Machine proposal; requires qualified human review. Does not assert that every image in the Psalm is a single kingship metaphor.",
+      "revision": 1,
+      "supersedes": null,
+      "alternatives": [],
+      "diagnostic_indicators": [],
+      "constraints": [],
+      "examples": [],
+      "counterexamples": []
+    }
+  ],
+  "principles": [
+    {
+      "id": "ps23-review-imagery-parallelism-v1",
+      "category": "poetry_principle",
+      "value": "Evaluate whether a draft preserves parallel line relationships and metaphorical imagery, and record losses separately from the translation.",
+      "scope": [],
+      "confidence": 0.8,
+      "evidence": [
+        {
+          "source_id": "pdf:6e3e56b3a7f3c0dc9c3b4b202089430d1c0cd4829ee120a316052105329acde4",
+          "locator": "psalms-23.pdf, page 17",
+          "token_ids": [],
+          "page": 17,
+          "note": "Paraphrased evaluation guidance; extracted text is not included."
+        }
+      ],
+      "method": "llm",
+      "reviewer_status": "pending",
+      "reviewer": null,
+      "reviewer_notes": "Machine proposal based on supplied PDF; no human approval recorded.",
+      "revision": 1,
+      "supersedes": null,
+      "alternatives": [],
+      "diagnostic_indicators": [
+        "Compare corresponding source and target lines",
+        "Identify metaphors flattened into abstract explanation"
+      ],
+      "constraints": [
+        "Do not force a parallelism classification when evidence is uncertain"
+      ],
+      "examples": [],
+      "counterexamples": []
+    }
+  ],
+  "brief": {
+    "language": "af",
+    "audience": "adult readers; qualified translator review",
+    "desired_register": "natural contemporary Afrikaans",
+    "philosophy": "preserve meaning, theological constraints, imagery and defensible poetic relationships",
+    "required_features": [
+      "meaning",
+      "imagery",
+      "ambiguity"
+    ],
+    "negotiable_features": [],
+    "special_terms": {},
+    "musical_constraints": null,
+    "instructions": ""
+  },
+  "synthetic": false,
+  "limitations": [
+    "Consonantal alignment is heuristic and awaits human review.",
+    "No melody supplied; no claim of full singability.",
+    "No automatically inferred poetic or theological interpretation is treated as fact."
+  ]
+}

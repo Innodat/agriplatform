@@ -4,23 +4,24 @@ Consistent error payload shape for all API responses.
 Error shape:
     { "error": str, "code"?: int, "details"?: any }
 """
+from typing import Any
+
 from fastapi import HTTPException
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel
-from typing import Any, Optional
 
 
 class ErrorPayload(BaseModel):
     error: str
-    code: Optional[int] = None
-    details: Optional[Any] = None
+    code: int | None = None
+    details: Any | None = None
 
 
 def error_response(
     status_code: int,
     message: str,
-    code: Optional[int] = None,
-    details: Optional[Any] = None,
+    code: int | None = None,
+    details: Any | None = None,
 ) -> JSONResponse:
     return JSONResponse(
         status_code=status_code,
@@ -41,3 +42,10 @@ class NotFoundError(HTTPException):
 class UnauthorizedError(HTTPException):
     def __init__(self, message: str = "Unauthorized"):
         super().__init__(status_code=401, detail=message)
+
+
+class DataIntegrityError(HTTPException):
+    """Stored reference data is incomplete; expose an actionable client error."""
+
+    def __init__(self, message: str):
+        super().__init__(status_code=503, detail=message)

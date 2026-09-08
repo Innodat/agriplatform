@@ -1,0 +1,9 @@
+.venv/
+data/interim/
+runs/
+*.egg-info/
+dist/
+build/
+
+# Text-Fabric derived binary caches
+**/.tf/

@@ -1,0 +1,28 @@
+checked_on: '2026-09-07'
+sources:
+  morphhb:
+    url: https://github.com/openscriptures/morphhb
+    license_url: https://github.com/openscriptures/morphhb/blob/master/LICENSE.md
+    dataset_license: CC-BY-4.0
+    attribution: Open Scriptures Hebrew Bible, https://github.com/openscriptures/morphhb
+    commercial_use: permitted_with_attribution
+    redistribution: permitted_with_attribution
+    local_path: data/raw/morphhb/Ps.xml
+    revision: 3d15126fb1ef74867fc1434be1942e837932691f
+  bhsa:
+    url: https://github.com/ETCBC/bhsa
+    license_url: https://github.com/ETCBC/bhsa#license
+    dataset_license: CC-BY-NC-4.0
+    software_license: MIT
+    attribution: ETCBC, VU Amsterdam; https://doi.org/10.17026/dans-z6y-skyh
+    commercial_use: requires_consent
+    redistribution: subject_to_attribution_and_noncommercial_terms
+    version: '2021'
+    local_path: data/raw/bhsa-2021
+    revision: 4db00e2157915495e1a4d3d57e41223df24775da
+  research_pdfs:
+    local_path: resources
+    dataset_license: unknown_per_document
+    commercial_use: unverified
+    redistribution: unverified_do_not_publish_extracted_text
+    reviewer_status: pending

@@ -1,0 +1,597 @@
+{
+  "$defs": {
+    "Alignment": {
+      "additionalProperties": false,
+      "properties": {
+        "verse": {
+          "minimum": 1,
+          "title": "Verse",
+          "type": "integer"
+        },
+        "left_ids": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Left Ids",
+          "type": "array"
+        },
+        "right_ids": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Right Ids",
+          "type": "array"
+        },
+        "status": {
+          "enum": [
+            "consonantal_match",
+            "unmatched"
+          ],
+          "title": "Status",
+          "type": "string"
+        },
+        "method": {
+          "default": "verse-local-contiguous-consonantal-v1",
+          "title": "Method",
+          "type": "string"
+        },
+        "confidence": {
+          "maximum": 1,
+          "minimum": 0,
+          "title": "Confidence",
+          "type": "number"
+        },
+        "reviewer_status": {
+          "default": "pending",
+          "enum": [
+            "pending",
+            "approved",
+            "disputed"
+          ],
+          "title": "Reviewer Status",
+          "type": "string"
+        },
+        "note": {
+          "default": "",
+          "title": "Note",
+          "type": "string"
+        }
+      },
+      "required": [
+        "verse",
+        "left_ids",
+        "right_ids",
+        "status",
+        "confidence"
+      ],
+      "title": "Alignment",
+      "type": "object"
+    },
+    "Claim": {
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "title": "Id",
+          "type": "string"
+        },
+        "category": {
+          "title": "Category",
+          "type": "string"
+        },
+        "value": {
+          "minLength": 1,
+          "title": "Value",
+          "type": "string"
+        },
+        "scope": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Scope",
+          "type": "array"
+        },
+        "confidence": {
+          "anyOf": [
+            {
+              "maximum": 1,
+              "minimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Confidence"
+        },
+        "evidence": {
+          "items": {
+            "$ref": "#/$defs/Evidence"
+          },
+          "minItems": 1,
+          "title": "Evidence",
+          "type": "array"
+        },
+        "method": {
+          "enum": [
+            "imported",
+            "rule",
+            "llm",
+            "human"
+          ],
+          "title": "Method",
+          "type": "string"
+        },
+        "reviewer_status": {
+          "default": "pending",
+          "enum": [
+            "pending",
+            "approved",
+            "rejected",
+            "disputed"
+          ],
+          "title": "Reviewer Status",
+          "type": "string"
+        },
+        "reviewer": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Reviewer"
+        },
+        "reviewer_notes": {
+          "default": "",
+          "title": "Reviewer Notes",
+          "type": "string"
+        },
+        "revision": {
+          "default": 1,
+          "minimum": 1,
+          "title": "Revision",
+          "type": "integer"
+        },
+        "supersedes": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Supersedes"
+        },
+        "alternatives": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Alternatives",
+          "type": "array"
+        },
+        "diagnostic_indicators": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Diagnostic Indicators",
+          "type": "array"
+        },
+        "constraints": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Constraints",
+          "type": "array"
+        },
+        "examples": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Examples",
+          "type": "array"
+        },
+        "counterexamples": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Counterexamples",
+          "type": "array"
+        }
+      },
+      "required": [
+        "id",
+        "category",
+        "value",
+        "evidence",
+        "method"
+      ],
+      "title": "Claim",
+      "type": "object"
+    },
+    "Evidence": {
+      "additionalProperties": false,
+      "properties": {
+        "source_id": {
+          "title": "Source Id",
+          "type": "string"
+        },
+        "locator": {
+          "minLength": 1,
+          "title": "Locator",
+          "type": "string"
+        },
+        "token_ids": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Token Ids",
+          "type": "array"
+        },
+        "page": {
+          "anyOf": [
+            {
+              "minimum": 1,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Page"
+        },
+        "note": {
+          "default": "",
+          "title": "Note",
+          "type": "string"
+        }
+      },
+      "required": [
+        "source_id",
+        "locator"
+      ],
+      "title": "Evidence",
+      "type": "object"
+    },
+    "Source": {
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "title": "Id",
+          "type": "string"
+        },
+        "dataset": {
+          "title": "Dataset",
+          "type": "string"
+        },
+        "revision": {
+          "minLength": 1,
+          "title": "Revision",
+          "type": "string"
+        },
+        "sha256": {
+          "pattern": "^[a-f0-9]{64}$",
+          "title": "Sha256",
+          "type": "string"
+        },
+        "uri": {
+          "title": "Uri",
+          "type": "string"
+        },
+        "license": {
+          "title": "License",
+          "type": "string"
+        },
+        "attribution": {
+          "default": "",
+          "title": "Attribution",
+          "type": "string"
+        },
+        "metadata": {
+          "additionalProperties": true,
+          "title": "Metadata",
+          "type": "object"
+        }
+      },
+      "required": [
+        "id",
+        "dataset",
+        "revision",
+        "sha256",
+        "uri",
+        "license"
+      ],
+      "title": "Source",
+      "type": "object"
+    },
+    "Token": {
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "title": "Id",
+          "type": "string"
+        },
+        "source_id": {
+          "title": "Source Id",
+          "type": "string"
+        },
+        "verse": {
+          "minimum": 1,
+          "title": "Verse",
+          "type": "integer"
+        },
+        "position": {
+          "minimum": 1,
+          "title": "Position",
+          "type": "integer"
+        },
+        "surface": {
+          "title": "Surface",
+          "type": "string"
+        },
+        "surface_status": {
+          "default": "present",
+          "enum": [
+            "present",
+            "source_empty"
+          ],
+          "title": "Surface Status",
+          "type": "string"
+        },
+        "lemma": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Lemma"
+        },
+        "morphology": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Morphology"
+        },
+        "features": {
+          "additionalProperties": true,
+          "title": "Features",
+          "type": "object"
+        }
+      },
+      "required": [
+        "id",
+        "source_id",
+        "verse",
+        "position",
+        "surface"
+      ],
+      "title": "Token",
+      "type": "object"
+    },
+    "TranslationBrief": {
+      "additionalProperties": false,
+      "properties": {
+        "language": {
+          "default": "af",
+          "title": "Language",
+          "type": "string"
+        },
+        "audience": {
+          "default": "adult readers; qualified translator review",
+          "title": "Audience",
+          "type": "string"
+        },
+        "desired_register": {
+          "default": "natural contemporary Afrikaans",
+          "title": "Desired Register",
+          "type": "string"
+        },
+        "philosophy": {
+          "default": "preserve meaning, theological constraints, imagery and defensible poetic relationships",
+          "title": "Philosophy",
+          "type": "string"
+        },
+        "required_features": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Required Features",
+          "type": "array"
+        },
+        "negotiable_features": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Negotiable Features",
+          "type": "array"
+        },
+        "special_terms": {
+          "additionalProperties": {
+            "type": "string"
+          },
+          "title": "Special Terms",
+          "type": "object"
+        },
+        "musical_constraints": {
+          "anyOf": [
+            {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Musical Constraints"
+        },
+        "instructions": {
+          "default": "",
+          "title": "Instructions",
+          "type": "string"
+        }
+      },
+      "title": "TranslationBrief",
+      "type": "object"
+    },
+    "Unit": {
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "title": "Id",
+          "type": "string"
+        },
+        "source_id": {
+          "title": "Source Id",
+          "type": "string"
+        },
+        "level": {
+          "enum": [
+            "stanza",
+            "strophe",
+            "verse",
+            "colon",
+            "line",
+            "clause",
+            "phrase",
+            "sentence"
+          ],
+          "title": "Level",
+          "type": "string"
+        },
+        "token_ids": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Token Ids",
+          "type": "array"
+        },
+        "features": {
+          "additionalProperties": true,
+          "title": "Features",
+          "type": "object"
+        }
+      },
+      "required": [
+        "id",
+        "source_id",
+        "level",
+        "token_ids"
+      ],
+      "title": "Unit",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": {
+      "const": "0.1.0",
+      "default": "0.1.0",
+      "title": "Schema Version",
+      "type": "string"
+    },
+    "representation_id": {
+      "title": "Representation Id",
+      "type": "string"
+    },
+    "created_at": {
+      "format": "date-time",
+      "title": "Created At",
+      "type": "string"
+    },
+    "pipeline_version": {
+      "default": "0.1.0",
+      "title": "Pipeline Version",
+      "type": "string"
+    },
+    "psalm": {
+      "maximum": 150,
+      "minimum": 1,
+      "title": "Psalm",
+      "type": "integer"
+    },
+    "sources": {
+      "items": {
+        "$ref": "#/$defs/Source"
+      },
+      "minItems": 1,
+      "title": "Sources",
+      "type": "array"
+    },
+    "tokens": {
+      "items": {
+        "$ref": "#/$defs/Token"
+      },
+      "minItems": 1,
+      "title": "Tokens",
+      "type": "array"
+    },
+    "units": {
+      "items": {
+        "$ref": "#/$defs/Unit"
+      },
+      "title": "Units",
+      "type": "array"
+    },
+    "alignments": {
+      "items": {
+        "$ref": "#/$defs/Alignment"
+      },
+      "title": "Alignments",
+      "type": "array"
+    },
+    "claims": {
+      "items": {
+        "$ref": "#/$defs/Claim"
+      },
+      "title": "Claims",
+      "type": "array"
+    },
+    "principles": {
+      "items": {
+        "$ref": "#/$defs/Claim"
+      },
+      "title": "Principles",
+      "type": "array"
+    },
+    "brief": {
+      "$ref": "#/$defs/TranslationBrief"
+    },
+    "synthetic": {
+      "default": false,
+      "title": "Synthetic",
+      "type": "boolean"
+    },
+    "limitations": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Limitations",
+      "type": "array"
+    }
+  },
+  "required": [
+    "psalm",
+    "sources",
+    "tokens"
+  ],
+  "title": "CanonicalPsalmRepresentation",
+  "type": "object"
+}

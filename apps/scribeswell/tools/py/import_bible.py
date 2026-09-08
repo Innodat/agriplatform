@@ -11,48 +11,39 @@ Requirements:
 
 Environment variables (from .env or environment):
     SUPABASE_URL          — project URL
-    SUPABASE_SERVICE_KEY  — service role key (bypasses RLS for import)
+    SUPABASE_SECRET_KEY  — service role key (bypasses RLS for import)
 
-JSON shape expected (OSHB format):
-    {
-      "Gen": {
-        "1": {
-          "1": [
-            { "w": "בְּ", "morph": "HR/Sp3ms", "strong": "H0" },
-            ...
-          ]
-        }
-      },
-      ...
-    }
-
-Each word object may have:
-    w      — surface Hebrew text (required)
-    morph  — OSHB morph code (optional)
-    strong — Strong's number (optional)
-    x      — alternate/display form (optional)
+Source format: {"Genesis": [[[ ["Hebrew surface", "Strong code", "morphology"] ]]]}.
+Chapter, verse and word positions are one-based list positions. The first two word
+fields may be swapped in the supplied export. All records are validated before writes.
+Use --verify-only for a read-only comparison; imports upsert and then verify each chapter.
+Writes are not atomic across a book: an interrupted run exits unsuccessfully and can
+be resumed with --book. Existing IDs are preserved. Unexpected extra rows fail verification.
 """
 
 import argparse
+import hashlib
 import json
 import os
 import re
 import sys
-import time
+from dataclasses import asdict
 from pathlib import Path
-from typing import Optional
 
 from dotenv import load_dotenv
 
 # ── Path setup ────────────────────────────────────────────────────────────────
-REPO_ROOT = Path(__file__).resolve().parents[2]
+REPO_ROOT = Path(__file__).resolve().parents[4]
 sys.path.insert(0, str(Path(__file__).parent))
 
+sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "backend"))
 from oshb_morph import parse_morph_code
+from pagination import fetch_all
 
 # ── Load env ──────────────────────────────────────────────────────────────────
 load_dotenv(REPO_ROOT / ".env")
-load_dotenv(REPO_ROOT / ".env.local", override=True)
+load_dotenv(REPO_ROOT / ".env.local")
+load_dotenv(Path(__file__).resolve().parents[2] / "backend" / ".env")
 
 SUPABASE_URL = os.environ.get("SUPABASE_URL", "")
 SUPABASE_SECRET_KEY = os.environ.get("SUPABASE_SECRET_KEY", "")
@@ -169,222 +160,139 @@ class BibleImporter:
         self.stats["books"] = len(BOOK_METADATA)
         print(f"   ✓ {len(BOOK_METADATA)} books")
 
-    # ── import one book ───────────────────────────────────────────────────────
+    def _read(self, table, **filters):
+        query = self.sb.schema("scribeswell").table(table).select("*", count="exact")
+        for key, value in filters.items():
+            query = query.eq(key, value)
+        return fetch_all(query.order("id"))
 
-    def import_book(self, book_name: str, book_data: list) -> None:
-        meta = NAME_EN_TO_META.get(book_name)
-        if not meta:
-            print(f"   ⚠ Unknown book name: {book_name!r} — skipping")
-            return
+    def validate_book(self, book_name, book_data):
+        if book_name not in NAME_EN_TO_META:
+            raise ValueError(f"Unknown book name: {book_name!r}")
+        if not isinstance(book_data, list) or not book_data:
+            raise ValueError(f"{book_name}: expected nonempty chapter list")
+        for c, verses in enumerate(book_data, 1):
+            if not isinstance(verses, list) or not verses:
+                raise ValueError(f"{book_name} {c}: empty or malformed chapter")
+            for v, words in enumerate(verses, 1):
+                if not isinstance(words, list) or not words:
+                    raise ValueError(f"{book_name} {c}:{v}: empty or malformed verse")
+                for pos, word in enumerate(words, 1):
+                    self.decode_word(word, f"{book_name} {c}:{v} word {pos}")
 
-        book_id = meta["id"]
-        chapter_rows: list[dict] = []
-        verse_rows: list[dict] = []
-        word_rows: list[dict] = []
-        morpheme_rows: list[dict] = []
+    @staticmethod
+    def decode_word(word, reference):
+        if not isinstance(word, list) or len(word) != 3 or not all(isinstance(x, str) for x in word):
+            raise ValueError(f"{reference}: expected three strings [surface/Strong, Strong/surface, morphology]")
+        first_hebrew, second_hebrew = is_hebrew(word[0]), is_hebrew(word[1])
+        if first_hebrew == second_hebrew:
+            raise ValueError(f"{reference}: expected exactly one Hebrew surface form")
+        surface, strong = (word[0], word[1]) if first_hebrew else (word[1], word[0])
+        morph = word[2]
+        if not morph or morph[0] not in ("H", "A") or any(not x for x in morph[1:].split("/")):
+            raise ValueError(f"{reference}: missing or malformed morphology {morph!r}")
+        parsed = parse_morph_code(morph)
+        if any(m.part_of_speech == "unknown" for m in parsed):
+            raise ValueError(f"{reference}: unrecognized morphology {morph!r}")
+        return {"surface_he": surface, "display_he": surface.replace("/", ""),
+                "lemma_strong": strong, "morph_code": morph}, [asdict(m) for m in parsed]
 
-        # ── chapters ──────────────────────────────────────────────────────────
-        for idx, ch_data in enumerate(book_data, start=1):
-            chapter_rows.append({"book_id": book_id, "chapter_num": idx})
+    @staticmethod
+    def _compare(actual, expected, keys, reference):
+        def indexed(rows):
+            result = {tuple(row[k] for k in keys): row for row in rows}
+            if len(result) != len(rows):
+                raise RuntimeError(f"{reference}: duplicate keys")
+            return result
+        got, want = indexed(actual), indexed(expected)
+        if got.keys() != want.keys():
+            raise RuntimeError(f"{reference}: missing {len(want.keys() - got.keys())}, unexpected {len(got.keys() - want.keys())} records")
+        for key, row in want.items():
+            if any(got[key].get(k) != value for k, value in row.items()):
+                raise RuntimeError(f"{reference}: stored values differ at {key}")
 
-        # Upsert chapters and fetch back IDs
-        if not self.dry_run:
-            self._upsert("chapter", chapter_rows, on_conflict="book_id,chapter_num")
-            ch_resp = (
-                self.sb.schema("scribeswell")
-                .table("chapter")
-                .select("id,chapter_num")
-                .eq("book_id", book_id)
-                .execute()
-            )
-            chapter_id_map: dict[int, int] = {
-                row["chapter_num"]: row["id"] for row in ch_resp.data
-            }
-        else:
-            chapter_id_map = {int(k): -(int(k)) for k in book_data.keys()}
-
-        self.stats["chapters"] += len(chapter_rows)
-
-        # ── verses ────────────────────────────────────────────────────────────
-        for ch_idx, ch_data in enumerate(book_data, start=1):
-            for v_idx, v_words in enumerate(ch_data, start=1):
-                verse_rows.append({
-                    "chapter_id": chapter_id_map.get(ch_idx),
-                    "verse_num": v_idx,
-                    "book_id": book_id,
-                    "chapter_num": ch_idx,
-                })
-
-        # Upsert verses and fetch back IDs
-        if not self.dry_run:
-            self._upsert("verse", verse_rows, on_conflict="chapter_id,verse_num")
-            # Fetch all verse IDs for this book at once
-            v_resp = (
-                self.sb.schema("scribeswell")
-                .table("verse")
-                .select("id,chapter_id,verse_num")
-                .eq("book_id", book_id)
-                .execute()
-            )
-            verse_id_map: dict[tuple[int, int], int] = {
-                (row["chapter_id"], row["verse_num"]): row["id"]
-                for row in v_resp.data
-            }
-        else:
-            verse_id_map = {}
-
-        self.stats["verses"] += len(verse_rows)
-
-        # ── words + morphemes ─────────────────────────────────────────────────
-        for ch_idx, ch_data in enumerate(book_data, start=1):
-            chapter_id = chapter_id_map.get(ch_idx)
-            if chapter_id is None:
-                continue
-
-            for v_idx, v_words in enumerate(ch_data, start=1):
-                verse_id = verse_id_map.get((chapter_id, v_idx))
-                if verse_id is None and not self.dry_run:
-                    continue
-
-                if not isinstance(v_words, list):
-                    continue
-
-                for pos_idx, word_obj in enumerate(v_words, start=1):
-                    if not isinstance(word_obj, list) and len(word_obj) != 3:
-                        err_msg = f"   ⚠ Unexpected word object format at {book_name} {ch_idx+1}:{v_idx+1} pos {pos_idx+1}: {word_obj}"
-                        raise ValueError(err_msg)
-
-                    surface = None
-                    strong = None
-                    if word_obj[0] and is_hebrew(word_obj[0]):
-                        surface = word_obj[0]
-                        strong = word_obj[1]
-                    elif word_obj[1] and is_hebrew(word_obj[1]):
-                        surface = word_obj[1]
-                        strong = word_obj[0]
-                    surface = word_obj[0] if is_hebrew(word_obj[0]) else word_obj[1] if is_hebrew(word_obj[1]) else ""
-                    if not surface and strong:
-                        err_msg = f"   ⚠ Missing Hebrew surface text at {book_name} {ch_idx+1}:{v_idx+1} pos {pos_idx+1}: {word_obj}"
-                        raise ValueError(err_msg)
-
-                    morph_code: Optional[str] = word_obj[2]
-                    strong: Optional[str] = strong
-                    display: Optional[str] = surface.replace("/", "")
-
-                    word_rows.append({
-                        "verse_id": verse_id if verse_id else 0,
-                        "position": pos_idx,
-                        "surface_he": surface,
-                        "display_he": display,
-                        "lemma_strong": strong,
-                        "morph_code": morph_code,
-                    })
-
-        # Upsert words and fetch back IDs
-        if not self.dry_run and word_rows:
-            self._upsert("word", word_rows, on_conflict="verse_id,position")
-            # Fetch word IDs for this book's verses
-            verse_ids = list(verse_id_map.values())
-            # Fetch in batches to avoid URL length limits
-            word_id_map: dict[tuple[int, int], int] = {}
-            for id_batch in chunked(verse_ids, 200):
-                w_resp = (
-                    self.sb.schema("scribeswell")
-                    .table("word")
-                    .select("id,verse_id,position")
-                    .in_("verse_id", id_batch)
-                    .execute()
-                )
-                for row in w_resp.data:
-                    word_id_map[(row["verse_id"], row["position"])] = row["id"]
-        else:
-            word_id_map = {}
-
-        self.stats["words"] += len(word_rows)
-
-        # ── morphemes ─────────────────────────────────────────────────────────
-        for ch_idx, ch_data in enumerate(book_data, start=1):
-            chapter_id = chapter_id_map.get(ch_idx)
-            if chapter_id is None:
-                continue
-
-            for v_idx, v_words in enumerate(ch_data, start=1):
-                verse_id = verse_id_map.get((chapter_id, v_idx))
-                if verse_id is None and not self.dry_run:
-                    continue
-
-                if not isinstance(v_words, list):
-                    continue
-
-                for pos_idx, word_obj in enumerate(v_words, start=1):
-                    if not isinstance(word_obj, dict):
-                        continue
-
-                    surface = word_obj.get("w") or word_obj.get("text") or ""
-                    if not surface:
-                        continue
-
-                    morph_code = word_obj.get("morph") or word_obj.get("m")
-
-                    word_id = word_id_map.get((verse_id, pos_idx)) if verse_id else None
-
-                    if morph_code and (word_id or self.dry_run):
-                        try:
-                            parsed_morphemes = parse_morph_code(morph_code)
-                            for seg_idx, pm in enumerate(parsed_morphemes):
-                                morpheme_rows.append({
-                                    "word_id": word_id if word_id else 0,
-                                    "segment_index": seg_idx,
-                                    "language": pm.language,
-                                    "part_of_speech": pm.part_of_speech,
-                                    "pos_code": pm.pos_code,
-                                    "gender": pm.gender,
-                                    "number": pm.number,
-                                    "state": pm.state,
-                                    "verb_stem": pm.verb_stem,
-                                    "verb_aspect": pm.verb_aspect,
-                                    "person": pm.person,
-                                })
-                        except Exception as e:
-                            self.stats["errors"] += 1
-                            if self.dry_run:
-                                print(f"   ⚠ morph parse error for {morph_code!r}: {e}")
-
-        if not self.dry_run and morpheme_rows:
-            self._upsert("morpheme", morpheme_rows, on_conflict="word_id,segment_index")
-
-        self.stats["morphemes"] += len(morpheme_rows)
-
-    # ── run ───────────────────────────────────────────────────────────────────
-
-    def run(self, source_path: Path, only_book: Optional[str] = None) -> None:
-        print(f"📖 Loading {source_path}...")
-        with open(source_path, encoding="utf-8") as f:
-            data = json.load(f)
-
-        print(f"   Found {len(data)} book(s) in source file.")
-
-        self.seed_books()
-
-        books_to_import = (
-            {only_book: data[only_book]}
-            if only_book and only_book in data
-            else data
-        )
-
-        total = len(books_to_import)
-        for idx, (book_name, book_data) in enumerate(books_to_import.items(), 1):
-            print(f"[{idx:2}/{total}] Importing {book_name}...")
-            t0 = time.time()
-            self.import_book(book_name, book_data)
-            elapsed = time.time() - t0
-            print(f"         ✓ done in {elapsed:.1f}s")
-
-        print("\n── Import complete ──────────────────────────────────────")
-        for k, v in self.stats.items():
-            print(f"   {k:12}: {v:,}")
+    def import_book(self, book_name: str, book_data: list, verify_only=False) -> None:
+        self.validate_book(book_name, book_data)
+        book_id = NAME_EN_TO_META[book_name]["id"]
+        chapters = [{"book_id": book_id, "chapter_num": c} for c in range(1, len(book_data)+1)]
         if self.dry_run:
-            print("\n   (DRY RUN — no data written to database)")
+            self.stats["chapters"] += len(chapters)
+            for c, verses in enumerate(book_data, 1):
+                self.stats["verses"] += len(verses)
+                for v, words in enumerate(verses, 1):
+                    for pos, word in enumerate(words, 1):
+                        _, morphs = self.decode_word(word, f"{book_name} {c}:{v} word {pos}")
+                        self.stats["words"] += 1
+                        self.stats["morphemes"] += len(morphs)
+            return
+        if not verify_only:
+            self._upsert("chapter", chapters, "book_id,chapter_num")
+        actual = self._read("chapter", book_id=book_id)
+        self._compare(actual, chapters, ["chapter_num"], book_name + " chapters")
+        chapter_ids = {r["chapter_num"]: r["id"] for r in actual}
+        self.stats["chapters"] += len(chapters)
+        for c, verses in enumerate(book_data, 1):
+            ref = f"{book_name} {c}"
+            chapter_id = chapter_ids[c]
+            expected_verses = [{"chapter_id": chapter_id, "verse_num": v, "book_id": book_id, "chapter_num": c}
+                               for v in range(1, len(verses)+1)]
+            if not verify_only:
+                self._upsert("verse", expected_verses, "chapter_id,verse_num")
+            actual_verses = self._read("verse", chapter_id=chapter_id)
+            self._compare(actual_verses, expected_verses, ["verse_num"], ref + " verses")
+            verse_ids = {r["verse_num"]: r["id"] for r in actual_verses}
+            words, morphs_by_key = [], {}
+            for v, source_words in enumerate(verses, 1):
+                for pos, source_word in enumerate(source_words, 1):
+                    word, morphs = self.decode_word(source_word, f"{ref}:{v} word {pos}")
+                    key = (verse_ids[v], pos)
+                    words.append({"verse_id": key[0], "position": pos, **word})
+                    morphs_by_key[key] = morphs
+            if not verify_only:
+                self._upsert("word", words, "verse_id,position")
+            actual_words = fetch_all(self.sb.schema("scribeswell").table("word").select("*", count="exact")
+                                     .in_("verse_id", list(verse_ids.values())).order("id"))
+            self._compare(actual_words, words, ["verse_id", "position"], ref + " words")
+            morphemes = []
+            for word in actual_words:
+                for i, morph in enumerate(morphs_by_key[(word["verse_id"], word["position"]) ]):
+                    morphemes.append({"word_id": word["id"], "segment_index": i, **morph})
+            if not verify_only:
+                self._upsert("morpheme", morphemes, "word_id,segment_index")
+            actual_morphs = []
+            for batch in chunked([w["id"] for w in actual_words], 100):
+                actual_morphs.extend(fetch_all(self.sb.schema("scribeswell").table("morpheme")
+                    .select("*", count="exact").in_("word_id", batch).order("id")))
+            self._compare(actual_morphs, morphemes, ["word_id", "segment_index"], ref + " morphemes")
+            self.stats["verses"] += len(verses)
+            self.stats["words"] += len(words)
+            self.stats["morphemes"] += len(morphemes)
+        print(f"   Verified {book_name}: {len(chapters)} chapters", flush=True)
+
+    def run(self, source_path: Path, only_book: str | None = None, verify_only=False) -> None:
+        data = json.loads(source_path.read_text(encoding="utf-8"))
+        if not isinstance(data, dict) or not data:
+            raise ValueError("Source must be a nonempty mapping of English book names to chapter lists")
+        if only_book:
+            meta = OSIS_TO_META.get(only_book) or NAME_EN_TO_META.get(only_book)
+            if not meta or meta["name_en"] not in data:
+                raise ValueError(f"Requested book {only_book!r} is unavailable")
+            data = {meta["name_en"]: data[meta["name_en"]]}
+        elif set(data) != set(NAME_EN_TO_META):
+            raise ValueError("Full import requires exactly the 39 known books; use --book for a partial source")
+        # Validate the entire selected source before the first database write.
+        for name, chapters in data.items():
+            self.validate_book(name, chapters)
+        if verify_only:
+            self._compare(self._read("book"), BOOK_METADATA, ["id"], "books")
+            self.stats["books"] = len(BOOK_METADATA)
+        else:
+            self.seed_books()
+        for name, chapters in data.items():
+            print(f"{'Checking' if verify_only else 'Importing'} {name}...", flush=True)
+            self.import_book(name, chapters, verify_only=verify_only)
+        print(json.dumps({"status": "validated" if self.dry_run else "verified", "source_sha256":
+                          hashlib.sha256(source_path.read_bytes()).hexdigest(), "counts": self.stats}), flush=True)
 
 
 # ── CLI ───────────────────────────────────────────────────────────────────────
@@ -405,7 +313,10 @@ def main() -> None:
         "--book", default=None,
         help="Import only one book by OSIS id (e.g. Gen, Exod)"
     )
+    parser.add_argument("--verify-only", action="store_true", help="Compare stored data with source without writing")
     args = parser.parse_args()
+    if args.dry_run and args.verify_only:
+        parser.error("--dry-run and --verify-only are mutually exclusive")
 
     source = Path(args.source)
     if not source.exists():
@@ -425,7 +336,7 @@ def main() -> None:
         secret_key=SUPABASE_SECRET_KEY,
         dry_run=args.dry_run,
     )
-    importer.run(source_path=source, only_book=args.book)
+    importer.run(source_path=source, only_book=args.book, verify_only=args.verify_only)
 
 
 if __name__ == "__main__":

@@ -45,7 +45,7 @@ const DIVISION_LABELS: Record<Division, string> = {
  * Normalise a division string from the API to a known Division key.
  * The DB may return "nevi'im", "neviim", "Nevi'im" etc. — this is defensive.
  */
-function normaliseDivision(raw: string): Division {
+function normaliseDivision(raw = ""): Division {
   const s = raw.toLowerCase().replace(/[^a-z]/g, "");
   if (s === "torah") return "torah";
   if (s.startsWith("nev")) return "nevi_im";
@@ -363,4 +363,3 @@ export function BookChapterSelector({
     </div>
   );
 }
-

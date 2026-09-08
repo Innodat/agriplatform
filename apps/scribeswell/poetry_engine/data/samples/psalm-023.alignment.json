@@ -1,0 +1,818 @@
+{
+  "representation_id": "3eaad922-8db1-4930-8494-ccaece414ad0",
+  "morphhb_tokens": 57,
+  "bhsa_tokens": 69,
+  "unmatched_groups": 0,
+  "groups": [
+    {
+      "verse": 1,
+      "left_ids": [
+        "morphhb:19eip"
+      ],
+      "right_ids": [
+        "bhsa:313897"
+      ],
+      "status": "consonantal_match",
+      "method": "verse-local-contiguous-consonantal-v1",
+      "confidence": 0.95,
+      "reviewer_status": "pending",
+      "note": "Consonantal agreement only; vocalization/alternative alignments not adjudicated."
+    },
+    {
+      "verse": 1,
+      "left_ids": [
+        "morphhb:19jhu"
+      ],
+      "right_ids": [
+        "bhsa:313898",
+        "bhsa:313899"
+      ],
+      "status": "consonantal_match",
+      "method": "verse-local-contiguous-consonantal-v1",
+      "confidence": 0.8,
+      "reviewer_status": "pending",
+      "note": "Consonantal agreement only; vocalization/alternative alignments not adjudicated."
+    },
+    {
+      "verse": 1,
+      "left_ids": [
+        "morphhb:192fr"
+      ],
+      "right_ids": [
+        "bhsa:313900"
+      ],
+      "status": "consonantal_match",
+      "method": "verse-local-contiguous-consonantal-v1",
+      "confidence": 0.95,
+      "reviewer_status": "pending",
+      "note": "Consonantal agreement only; vocalization/alternative alignments not adjudicated."
+    },
+    {
+      "verse": 1,
+      "left_ids": [
+        "morphhb:195Aa"
+      ],
+      "right_ids": [
+        "bhsa:313901"
+      ],
+      "status": "consonantal_match",
+      "method": "verse-local-contiguous-consonantal-v1",
+      "confidence": 0.95,
+      "reviewer_status": "pending",
+      "note": "Consonantal agreement only; vocalization/alternative alignments not adjudicated."
+    },
+    {
+      "verse": 1,
+      "left_ids": [
+        "morphhb:19zuz"
+      ],
+      "right_ids": [
+        "bhsa:313902"
+      ],
+      "status": "consonantal_match",
+      "method": "verse-local-contiguous-consonantal-v1",
+      "confidence": 0.95,
+      "reviewer_status": "pending",
+      "note": "Consonantal agreement only; vocalization/alternative alignments not adjudicated."
+    },
+    {
+      "verse": 1,
+      "left_ids": [
+        "morphhb:19BTS"
+      ],
+      "right_ids": [
+        "bhsa:313903"
+      ],
+      "status": "consonantal_match",
+      "method": "verse-local-contiguous-consonantal-v1",
+      "confidence": 0.95,
+      "reviewer_status": "pending",
+      "note": "Consonantal agreement only; vocalization/alternative alignments not adjudicated."
+    },
+    {
+      "verse": 2,
+      "left_ids": [
+        "morphhb:19Hdk"
+      ],
+      "right_ids": [
+        "bhsa:313904",
+        "bhsa:313905"
+      ],
+      "status": "consonantal_match",
+      "method": "verse-local-contiguous-consonantal-v1",
+      "confidence": 0.8,
+      "reviewer_status": "pending",
+      "note": "Consonantal agreement only; vocalization/alternative alignments not adjudicated."
+    },
+    {
+      "verse": 2,
+      "left_ids": [
+        "morphhb:19tbG"
+      ],
+      "right_ids": [
+        "bhsa:313906"
+      ],
+      "status": "consonantal_match",
+      "method": "verse-local-contiguous-consonantal-v1",
+      "confidence": 0.95,
+      "reviewer_status": "pending",
+      "note": "Consonantal agreement only; vocalization/alternative alignments not adjudicated."
+    },
+    {
+      "verse": 2,
+      "left_ids": [
+        "morphhb:198hT"
+      ],
+      "right_ids": [
+        "bhsa:313907"
+      ],
+      "status": "consonantal_match",
+      "method": "verse-local-contiguous-consonantal-v1",
+      "confidence": 0.95,
+      "reviewer_status": "pending",
+      "note": "Consonantal agreement only; vocalization/alternative alignments not adjudicated."
+    },
+    {
+      "verse": 2,
+      "left_ids": [
+        "morphhb:191EK"
+      ],
+      "right_ids": [
+        "bhsa:313908"
+      ],
+      "status": "consonantal_match",
+      "method": "verse-local-contiguous-consonantal-v1",
+      "confidence": 0.95,
+      "reviewer_status": "pending",
+      "note": "Consonantal agreement only; vocalization/alternative alignments not adjudicated."
+    },
+    {
+      "verse": 2,
+      "left_ids": [
+        "morphhb:19UYd"
+      ],
+      "right_ids": [
+        "bhsa:313909"
+      ],
+      "status": "consonantal_match",
+      "method": "verse-local-contiguous-consonantal-v1",
+      "confidence": 0.95,
+      "reviewer_status": "pending",
+      "note": "Consonantal agreement only; vocalization/alternative alignments not adjudicated."
+    },
+    {
+      "verse": 2,
+      "left_ids": [
+        "morphhb:19w2J"
+      ],
+      "right_ids": [
+        "bhsa:313910"
+      ],
+      "status": "consonantal_match",
+      "method": "verse-local-contiguous-consonantal-v1",
+      "confidence": 0.95,
+      "reviewer_status": "pending",
+      "note": "Consonantal agreement only; vocalization/alternative alignments not adjudicated."
+    },
+    {
+      "verse": 2,
+      "left_ids": [
+        "morphhb:19UcZ"
+      ],
+      "right_ids": [
+        "bhsa:313911"
+      ],
+      "status": "consonantal_match",
+      "method": "verse-local-contiguous-consonantal-v1",
+      "confidence": 0.95,
+      "reviewer_status": "pending",
+      "note": "Consonantal agreement only; vocalization/alternative alignments not adjudicated."
+    },
+    {
+      "verse": 3,
+      "left_ids": [
+        "morphhb:19SZA"
+      ],
+      "right_ids": [
+        "bhsa:313912"
+      ],
+      "status": "consonantal_match",
+      "method": "verse-local-contiguous-consonantal-v1",
+      "confidence": 0.95,
+      "reviewer_status": "pending",
+      "note": "Consonantal agreement only; vocalization/alternative alignments not adjudicated."
+    },
+    {
+      "verse": 3,
+      "left_ids": [
+        "morphhb:19WeX"
+      ],
+      "right_ids": [
+        "bhsa:313913"
+      ],
+      "status": "consonantal_match",
+      "method": "verse-local-contiguous-consonantal-v1",
+      "confidence": 0.95,
+      "reviewer_status": "pending",
+      "note": "Consonantal agreement only; vocalization/alternative alignments not adjudicated."
+    },
+    {
+      "verse": 3,
+      "left_ids": [
+        "morphhb:19FoN"
+      ],
+      "right_ids": [
+        "bhsa:313914"
+      ],
+      "status": "consonantal_match",
+      "method": "verse-local-contiguous-consonantal-v1",
+      "confidence": 0.95,
+      "reviewer_status": "pending",
+      "note": "Consonantal agreement only; vocalization/alternative alignments not adjudicated."
+    },
+    {
+      "verse": 3,
+      "left_ids": [
+        "morphhb:19BK2"
+      ],
+      "right_ids": [
+        "bhsa:313915",
+        "bhsa:313916"
+      ],
+      "status": "consonantal_match",
+      "method": "verse-local-contiguous-consonantal-v1",
+      "confidence": 0.8,
+      "reviewer_status": "pending",
+      "note": "Consonantal agreement only; vocalization/alternative alignments not adjudicated."
+    },
+    {
+      "verse": 3,
+      "left_ids": [
+        "morphhb:19qoQ"
+      ],
+      "right_ids": [
+        "bhsa:313917"
+      ],
+      "status": "consonantal_match",
+      "method": "verse-local-contiguous-consonantal-v1",
+      "confidence": 0.95,
+      "reviewer_status": "pending",
+      "note": "Consonantal agreement only; vocalization/alternative alignments not adjudicated."
+    },
+    {
+      "verse": 3,
+      "left_ids": [
+        "morphhb:19DV4"
+      ],
+      "right_ids": [
+        "bhsa:313918"
+      ],
+      "status": "consonantal_match",
+      "method": "verse-local-contiguous-consonantal-v1",
+      "confidence": 0.95,
+      "reviewer_status": "pending",
+      "note": "Consonantal agreement only; vocalization/alternative alignments not adjudicated."
+    },
+    {
+      "verse": 3,
+      "left_ids": [
+        "morphhb:19iex"
+      ],
+      "right_ids": [
+        "bhsa:313919"
+      ],
+      "status": "consonantal_match",
+      "method": "verse-local-contiguous-consonantal-v1",
+      "confidence": 0.95,
+      "reviewer_status": "pending",
+      "note": "Consonantal agreement only; vocalization/alternative alignments not adjudicated."
+    },
+    {
+      "verse": 4,
+      "left_ids": [
+        "morphhb:19LMe"
+      ],
+      "right_ids": [
+        "bhsa:313920"
+      ],
+      "status": "consonantal_match",
+      "method": "verse-local-contiguous-consonantal-v1",
+      "confidence": 0.95,
+      "reviewer_status": "pending",
+      "note": "Consonantal agreement only; vocalization/alternative alignments not adjudicated."
+    },
+    {
+      "verse": 4,
+      "left_ids": [
+        "morphhb:19zuk"
+      ],
+      "right_ids": [
+        "bhsa:313921"
+      ],
+      "status": "consonantal_match",
+      "method": "verse-local-contiguous-consonantal-v1",
+      "confidence": 0.95,
+      "reviewer_status": "pending",
+      "note": "Consonantal agreement only; vocalization/alternative alignments not adjudicated."
+    },
+    {
+      "verse": 4,
+      "left_ids": [
+        "morphhb:195hm"
+      ],
+      "right_ids": [
+        "bhsa:313922"
+      ],
+      "status": "consonantal_match",
+      "method": "verse-local-contiguous-consonantal-v1",
+      "confidence": 0.95,
+      "reviewer_status": "pending",
+      "note": "Consonantal agreement only; vocalization/alternative alignments not adjudicated."
+    },
+    {
+      "verse": 4,
+      "left_ids": [
+        "morphhb:19a8a"
+      ],
+      "right_ids": [
+        "bhsa:313923",
+        "bhsa:313924"
+      ],
+      "status": "consonantal_match",
+      "method": "verse-local-contiguous-consonantal-v1",
+      "confidence": 0.8,
+      "reviewer_status": "pending",
+      "note": "Consonantal agreement only; vocalization/alternative alignments not adjudicated."
+    },
+    {
+      "verse": 4,
+      "left_ids": [
+        "morphhb:19Avd"
+      ],
+      "right_ids": [
+        "bhsa:313925"
+      ],
+      "status": "consonantal_match",
+      "method": "verse-local-contiguous-consonantal-v1",
+      "confidence": 0.95,
+      "reviewer_status": "pending",
+      "note": "Consonantal agreement only; vocalization/alternative alignments not adjudicated."
+    },
+    {
+      "verse": 4,
+      "left_ids": [
+        "morphhb:196nG"
+      ],
+      "right_ids": [
+        "bhsa:313926"
+      ],
+      "status": "consonantal_match",
+      "method": "verse-local-contiguous-consonantal-v1",
+      "confidence": 0.95,
+      "reviewer_status": "pending",
+      "note": "Consonantal agreement only; vocalization/alternative alignments not adjudicated."
+    },
+    {
+      "verse": 4,
+      "left_ids": [
+        "morphhb:19p6C"
+      ],
+      "right_ids": [
+        "bhsa:313927"
+      ],
+      "status": "consonantal_match",
+      "method": "verse-local-contiguous-consonantal-v1",
+      "confidence": 0.95,
+      "reviewer_status": "pending",
+      "note": "Consonantal agreement only; vocalization/alternative alignments not adjudicated."
+    },
+    {
+      "verse": 4,
+      "left_ids": [
+        "morphhb:19Dn5"
+      ],
+      "right_ids": [
+        "bhsa:313928"
+      ],
+      "status": "consonantal_match",
+      "method": "verse-local-contiguous-consonantal-v1",
+      "confidence": 0.95,
+      "reviewer_status": "pending",
+      "note": "Consonantal agreement only; vocalization/alternative alignments not adjudicated."
+    },
+    {
+      "verse": 4,
+      "left_ids": [
+        "morphhb:197mc"
+      ],
+      "right_ids": [
+        "bhsa:313929"
+      ],
+      "status": "consonantal_match",
+      "method": "verse-local-contiguous-consonantal-v1",
+      "confidence": 0.95,
+      "reviewer_status": "pending",
+      "note": "Consonantal agreement only; vocalization/alternative alignments not adjudicated."
+    },
+    {
+      "verse": 4,
+      "left_ids": [
+        "morphhb:19icW"
+      ],
+      "right_ids": [
+        "bhsa:313930"
+      ],
+      "status": "consonantal_match",
+      "method": "verse-local-contiguous-consonantal-v1",
+      "confidence": 0.95,
+      "reviewer_status": "pending",
+      "note": "Consonantal agreement only; vocalization/alternative alignments not adjudicated."
+    },
+    {
+      "verse": 4,
+      "left_ids": [
+        "morphhb:19WQu"
+      ],
+      "right_ids": [
+        "bhsa:313931"
+      ],
+      "status": "consonantal_match",
+      "method": "verse-local-contiguous-consonantal-v1",
+      "confidence": 0.95,
+      "reviewer_status": "pending",
+      "note": "Consonantal agreement only; vocalization/alternative alignments not adjudicated."
+    },
+    {
+      "verse": 4,
+      "left_ids": [
+        "morphhb:19rMa"
+      ],
+      "right_ids": [
+        "bhsa:313932"
+      ],
+      "status": "consonantal_match",
+      "method": "verse-local-contiguous-consonantal-v1",
+      "confidence": 0.95,
+      "reviewer_status": "pending",
+      "note": "Consonantal agreement only; vocalization/alternative alignments not adjudicated."
+    },
+    {
+      "verse": 4,
+      "left_ids": [
+        "morphhb:19H5x"
+      ],
+      "right_ids": [
+        "bhsa:313933",
+        "bhsa:313934"
+      ],
+      "status": "consonantal_match",
+      "method": "verse-local-contiguous-consonantal-v1",
+      "confidence": 0.8,
+      "reviewer_status": "pending",
+      "note": "Consonantal agreement only; vocalization/alternative alignments not adjudicated."
+    },
+    {
+      "verse": 4,
+      "left_ids": [
+        "morphhb:19Lft"
+      ],
+      "right_ids": [
+        "bhsa:313935"
+      ],
+      "status": "consonantal_match",
+      "method": "verse-local-contiguous-consonantal-v1",
+      "confidence": 0.95,
+      "reviewer_status": "pending",
+      "note": "Consonantal agreement only; vocalization/alternative alignments not adjudicated."
+    },
+    {
+      "verse": 4,
+      "left_ids": [
+        "morphhb:19bTD"
+      ],
+      "right_ids": [
+        "bhsa:313936"
+      ],
+      "status": "consonantal_match",
+      "method": "verse-local-contiguous-consonantal-v1",
+      "confidence": 0.95,
+      "reviewer_status": "pending",
+      "note": "Consonantal agreement only; vocalization/alternative alignments not adjudicated."
+    },
+    {
+      "verse": 5,
+      "left_ids": [
+        "morphhb:19W19"
+      ],
+      "right_ids": [
+        "bhsa:313937"
+      ],
+      "status": "consonantal_match",
+      "method": "verse-local-contiguous-consonantal-v1",
+      "confidence": 0.95,
+      "reviewer_status": "pending",
+      "note": "Consonantal agreement only; vocalization/alternative alignments not adjudicated."
+    },
+    {
+      "verse": 5,
+      "left_ids": [
+        "morphhb:19CUd"
+      ],
+      "right_ids": [
+        "bhsa:313938",
+        "bhsa:313939"
+      ],
+      "status": "consonantal_match",
+      "method": "verse-local-contiguous-consonantal-v1",
+      "confidence": 0.8,
+      "reviewer_status": "pending",
+      "note": "Consonantal agreement only; vocalization/alternative alignments not adjudicated."
+    },
+    {
+      "verse": 5,
+      "left_ids": [
+        "morphhb:19dBb"
+      ],
+      "right_ids": [
+        "bhsa:313940"
+      ],
+      "status": "consonantal_match",
+      "method": "verse-local-contiguous-consonantal-v1",
+      "confidence": 0.95,
+      "reviewer_status": "pending",
+      "note": "Consonantal agreement only; vocalization/alternative alignments not adjudicated."
+    },
+    {
+      "verse": 5,
+      "left_ids": [
+        "morphhb:19oQH"
+      ],
+      "right_ids": [
+        "bhsa:313941"
+      ],
+      "status": "consonantal_match",
+      "method": "verse-local-contiguous-consonantal-v1",
+      "confidence": 0.95,
+      "reviewer_status": "pending",
+      "note": "Consonantal agreement only; vocalization/alternative alignments not adjudicated."
+    },
+    {
+      "verse": 5,
+      "left_ids": [
+        "morphhb:19FgV"
+      ],
+      "right_ids": [
+        "bhsa:313942"
+      ],
+      "status": "consonantal_match",
+      "method": "verse-local-contiguous-consonantal-v1",
+      "confidence": 0.95,
+      "reviewer_status": "pending",
+      "note": "Consonantal agreement only; vocalization/alternative alignments not adjudicated."
+    },
+    {
+      "verse": 5,
+      "left_ids": [
+        "morphhb:19sAH"
+      ],
+      "right_ids": [
+        "bhsa:313943"
+      ],
+      "status": "consonantal_match",
+      "method": "verse-local-contiguous-consonantal-v1",
+      "confidence": 0.95,
+      "reviewer_status": "pending",
+      "note": "Consonantal agreement only; vocalization/alternative alignments not adjudicated."
+    },
+    {
+      "verse": 5,
+      "left_ids": [
+        "morphhb:19fPE"
+      ],
+      "right_ids": [
+        "bhsa:313944",
+        "bhsa:313945",
+        "bhsa:313946"
+      ],
+      "status": "consonantal_match",
+      "method": "verse-local-contiguous-consonantal-v1",
+      "confidence": 0.8,
+      "reviewer_status": "pending",
+      "note": "Consonantal agreement only; vocalization/alternative alignments not adjudicated."
+    },
+    {
+      "verse": 5,
+      "left_ids": [
+        "morphhb:19kFY"
+      ],
+      "right_ids": [
+        "bhsa:313947"
+      ],
+      "status": "consonantal_match",
+      "method": "verse-local-contiguous-consonantal-v1",
+      "confidence": 0.95,
+      "reviewer_status": "pending",
+      "note": "Consonantal agreement only; vocalization/alternative alignments not adjudicated."
+    },
+    {
+      "verse": 5,
+      "left_ids": [
+        "morphhb:19oVM"
+      ],
+      "right_ids": [
+        "bhsa:313948"
+      ],
+      "status": "consonantal_match",
+      "method": "verse-local-contiguous-consonantal-v1",
+      "confidence": 0.95,
+      "reviewer_status": "pending",
+      "note": "Consonantal agreement only; vocalization/alternative alignments not adjudicated."
+    },
+    {
+      "verse": 5,
+      "left_ids": [
+        "morphhb:19DD6"
+      ],
+      "right_ids": [
+        "bhsa:313949"
+      ],
+      "status": "consonantal_match",
+      "method": "verse-local-contiguous-consonantal-v1",
+      "confidence": 0.95,
+      "reviewer_status": "pending",
+      "note": "Consonantal agreement only; vocalization/alternative alignments not adjudicated."
+    },
+    {
+      "verse": 6,
+      "left_ids": [
+        "morphhb:19T6s"
+      ],
+      "right_ids": [
+        "bhsa:313950"
+      ],
+      "status": "consonantal_match",
+      "method": "verse-local-contiguous-consonantal-v1",
+      "confidence": 0.95,
+      "reviewer_status": "pending",
+      "note": "Consonantal agreement only; vocalization/alternative alignments not adjudicated."
+    },
+    {
+      "verse": 6,
+      "left_ids": [
+        "morphhb:19UTG"
+      ],
+      "right_ids": [
+        "bhsa:313951"
+      ],
+      "status": "consonantal_match",
+      "method": "verse-local-contiguous-consonantal-v1",
+      "confidence": 0.95,
+      "reviewer_status": "pending",
+      "note": "Consonantal agreement only; vocalization/alternative alignments not adjudicated."
+    },
+    {
+      "verse": 6,
+      "left_ids": [
+        "morphhb:19TjC"
+      ],
+      "right_ids": [
+        "bhsa:313952",
+        "bhsa:313953"
+      ],
+      "status": "consonantal_match",
+      "method": "verse-local-contiguous-consonantal-v1",
+      "confidence": 0.8,
+      "reviewer_status": "pending",
+      "note": "Consonantal agreement only; vocalization/alternative alignments not adjudicated."
+    },
+    {
+      "verse": 6,
+      "left_ids": [
+        "morphhb:19B7W"
+      ],
+      "right_ids": [
+        "bhsa:313954"
+      ],
+      "status": "consonantal_match",
+      "method": "verse-local-contiguous-consonantal-v1",
+      "confidence": 0.95,
+      "reviewer_status": "pending",
+      "note": "Consonantal agreement only; vocalization/alternative alignments not adjudicated."
+    },
+    {
+      "verse": 6,
+      "left_ids": [
+        "morphhb:19ggZ"
+      ],
+      "right_ids": [
+        "bhsa:313955"
+      ],
+      "status": "consonantal_match",
+      "method": "verse-local-contiguous-consonantal-v1",
+      "confidence": 0.95,
+      "reviewer_status": "pending",
+      "note": "Consonantal agreement only; vocalization/alternative alignments not adjudicated."
+    },
+    {
+      "verse": 6,
+      "left_ids": [
+        "morphhb:19sDo"
+      ],
+      "right_ids": [
+        "bhsa:313956"
+      ],
+      "status": "consonantal_match",
+      "method": "verse-local-contiguous-consonantal-v1",
+      "confidence": 0.95,
+      "reviewer_status": "pending",
+      "note": "Consonantal agreement only; vocalization/alternative alignments not adjudicated."
+    },
+    {
+      "verse": 6,
+      "left_ids": [
+        "morphhb:19hQe"
+      ],
+      "right_ids": [
+        "bhsa:313957"
+      ],
+      "status": "consonantal_match",
+      "method": "verse-local-contiguous-consonantal-v1",
+      "confidence": 0.95,
+      "reviewer_status": "pending",
+      "note": "Consonantal agreement only; vocalization/alternative alignments not adjudicated."
+    },
+    {
+      "verse": 6,
+      "left_ids": [
+        "morphhb:19Fmq"
+      ],
+      "right_ids": [
+        "bhsa:313958",
+        "bhsa:313959"
+      ],
+      "status": "consonantal_match",
+      "method": "verse-local-contiguous-consonantal-v1",
+      "confidence": 0.8,
+      "reviewer_status": "pending",
+      "note": "Consonantal agreement only; vocalization/alternative alignments not adjudicated."
+    },
+    {
+      "verse": 6,
+      "left_ids": [
+        "morphhb:194ga"
+      ],
+      "right_ids": [
+        "bhsa:313960",
+        "bhsa:313961"
+      ],
+      "status": "consonantal_match",
+      "method": "verse-local-contiguous-consonantal-v1",
+      "confidence": 0.8,
+      "reviewer_status": "pending",
+      "note": "Consonantal agreement only; vocalization/alternative alignments not adjudicated."
+    },
+    {
+      "verse": 6,
+      "left_ids": [
+        "morphhb:19qZF"
+      ],
+      "right_ids": [
+        "bhsa:313962"
+      ],
+      "status": "consonantal_match",
+      "method": "verse-local-contiguous-consonantal-v1",
+      "confidence": 0.95,
+      "reviewer_status": "pending",
+      "note": "Consonantal agreement only; vocalization/alternative alignments not adjudicated."
+    },
+    {
+      "verse": 6,
+      "left_ids": [
+        "morphhb:19o7p"
+      ],
+      "right_ids": [
+        "bhsa:313963",
+        "bhsa:313964"
+      ],
+      "status": "consonantal_match",
+      "method": "verse-local-contiguous-consonantal-v1",
+      "confidence": 0.8,
+      "reviewer_status": "pending",
+      "note": "Consonantal agreement only; vocalization/alternative alignments not adjudicated."
+    },
+    {
+      "verse": 6,
+      "left_ids": [
+        "morphhb:19BQB"
+      ],
+      "right_ids": [
+        "bhsa:313965"
+      ],
+      "status": "consonantal_match",
+      "method": "verse-local-contiguous-consonantal-v1",
+      "confidence": 0.95,
+      "reviewer_status": "pending",
+      "note": "Consonantal agreement only; vocalization/alternative alignments not adjudicated."
+    }
+  ]
+}

@@ -1,0 +1,30 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "scribeswell-psalm-engine"
+version = "0.1.0"
+description = "Evidence-preserving Psalm translation research pipeline"
+requires-python = ">=3.12"
+dependencies = ["pydantic>=2.7,<3"]
+
+[project.optional-dependencies]
+sources = ["text-fabric>=12,<14", "pypdf>=5,<7"]
+dev = ["pytest>=8,<10", "ruff>=0.11", "mypy>=1.15"]
+
+[project.scripts]
+psalm-engine = "psalm_engine.cli:main"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/psalm_engine"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+
+[tool.ruff]
+line-length = 100
+
+[tool.mypy]
+python_version = "3.12"
+check_untyped_defs = true

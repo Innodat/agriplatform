@@ -1,0 +1,10 @@
+{
+  "dataset": "MorphHB",
+  "revision": "3d15126fb1ef74867fc1434be1942e837932691f",
+  "url": "https://github.com/openscriptures/morphhb",
+  "dataset_license": "CC-BY-4.0",
+  "files": {
+    "Ps.xml": "fe55eef316a65fb0f46d833d526ca2fd722e86ff7339f1a39f0c5b7f9062ced2"
+  },
+  "changes": "Unmodified Psalms OSIS file, copied from local upstream checkout; other books omitted"
+}

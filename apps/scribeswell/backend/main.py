@@ -9,13 +9,14 @@ OpenAPI docs:
     http://localhost:8000/docs
     http://localhost:8000/redoc
 """
-from fastapi import FastAPI, Request
-from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import JSONResponse
-from fastapi.exceptions import RequestValidationError
-from starlette.exceptions import HTTPException as StarletteHTTPException
+import logging
 
 from config import settings
+from fastapi import FastAPI, Request
+from fastapi.exceptions import RequestValidationError
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
+from starlette.exceptions import HTTPException as StarletteHTTPException
 
 # ── App ───────────────────────────────────────────────────────────────────────
 
@@ -61,6 +62,7 @@ async def validation_exception_handler(request: Request, exc: RequestValidationE
 
 @app.exception_handler(Exception)
 async def unhandled_exception_handler(request: Request, exc: Exception):
+    logging.getLogger(__name__).error("Unhandled API error on %s", request.url.path, exc_info=exc)
     return JSONResponse(
         status_code=500,
         content={"error": "Internal server error"},
@@ -80,6 +82,6 @@ async def root():
 
 # ── Routers ───────────────────────────────────────────────────────────────────
 
-from routers import bible as bible_router  # noqa: E402
+from routers import bible as bible_router
 
 app.include_router(bible_router.router, prefix="/api/bible", tags=["bible"])

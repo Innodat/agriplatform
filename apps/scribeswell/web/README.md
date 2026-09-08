@@ -23,6 +23,39 @@ Book → Chapter → Verse → Word → Morphology
 ## Data source
 Hebrew text + morphology data imported from JSON → Supabase via import script.
 
+## Running locally
+
+### Backend
+
+`main.py` defines the FastAPI application but does not start a server when run
+directly. From the repository root, install the Python dependencies and launch
+the application with Uvicorn:
+
+```bash
+cd apps/scribeswell/backend
+python -m pip install -r requirements.txt
+python -m uvicorn main:app --reload --port 8000
+```
+
+The backend loads its configuration from `apps/scribeswell/backend/.env` or
+`.env.local`. Once running, the following endpoints are available:
+
+- API: <http://localhost:8000>
+- Health check: <http://localhost:8000/health>
+- Swagger documentation: <http://localhost:8000/docs>
+- ReDoc documentation: <http://localhost:8000/redoc>
+
+### Frontend
+
+In a second terminal, run the frontend from the repository root:
+
+```bash
+npm run dev --workspace=apps/scribeswell/web
+```
+
+The frontend runs at <http://localhost:5174> and proxies `/api` requests to the
+backend at `http://localhost:8000`.
+
 ## Phase
 Scaffolded in **Phase 1** alongside the FastAPI skeleton.
 See `platform/prompts/context/reader-pattern.md` for UI patterns.

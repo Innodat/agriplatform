@@ -1,5 +1,22 @@
 # Scribeswell — CHANGELOG
 
+
+## 2026-09-08 — Reference-data repair and Psalm experiment prototype
+
+- Repaired and independently audited all 39 books: 929 chapters, 23,213 verses,
+  306,785 words and 471,674 decoded morphemes. Importer now validates before writes,
+  paginates reads, verifies stored values, and fails on missing or unexpected records.
+- Reader fetches every word page and reports incomplete data to the client; unhandled
+  API failures are logged. Live Psalm 119 check returned all 1,067 words.
+- Added the independent Python poetry-engine prototype with pinned, Git-trackable
+  MorphHB/BHSA sources and dataset notices, canonical schema, explicit token alignment,
+  PDF extraction, comparable request preparation, provider-command orchestration and
+  human evaluation records. Real Psalm 23 representation validated (57/69 source tokens).
+- Verification: 8 data/API tests and 15 engine tests passed; engine lint, formatting and
+  type checks passed. Real LLM generation and human review remain pending.
+
+Details: `docs/data-repair.md` and `poetry_engine/README.md`.
+
 ---
 
 ## 2026-06-29 — Reader UI polish: RTL fixes, verse layout, selector position

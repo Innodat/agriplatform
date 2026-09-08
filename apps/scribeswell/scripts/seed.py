@@ -40,6 +40,7 @@ def main() -> None:
         help="Path to hebrew.json. Defaults to apps/scribeswell/scripts/hebrew.json",
     )
 
+    parser.add_argument("--verify-only", action="store_true", help="Audit source against stored data without writes")
     args = parser.parse_args()
 
     source = Path(args.source).resolve()
@@ -59,6 +60,9 @@ def main() -> None:
         str(source),
     ]
 
+    if args.verify_only:
+        cmd.append("--verify-only")
+
     if args.dry_run:
         cmd.append("--dry-run")
 
@@ -72,6 +76,7 @@ def main() -> None:
         cmd,
         cwd=str(APP_ROOT),
         env=os.environ.copy(),
+        check=False,
     )
 
     sys.exit(result.returncode)
