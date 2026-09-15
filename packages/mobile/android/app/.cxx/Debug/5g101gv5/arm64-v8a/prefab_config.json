@@ -1,0 +1,10 @@
+{
+  "enabled": true,
+  "prefabPath": "C:\\Users\\krist\\.gradle\\caches\\modules-2\\files-2.1\\com.google.prefab\\cli\\2.1.0\\aa32fec809c44fa531f01dcfb739b5b3304d3050\\cli-2.1.0-all.jar",
+  "packages": [
+    "C:\\repos\\innodat\\agriplatform\\packages\\mobile\\node_modules\\react-native-vision-camera\\android\\build\\intermediates\\prefab_package\\debug\\prefab",
+    "C:\\Users\\krist\\.gradle\\caches\\9.0.0\\transforms\\b2d18372b9424f8c4a429df534642bbf\\transformed\\react-android-0.82.1-debug\\prefab",
+    "C:\\Users\\krist\\.gradle\\caches\\9.0.0\\transforms\\c1a26c6b9545f2461cca9cf8ec3a5162\\transformed\\hermes-android-0.82.1-debug\\prefab",
+    "C:\\Users\\krist\\.gradle\\caches\\9.0.0\\transforms\\ee972d0957e1667d2571a865c158e351\\transformed\\fbjni-0.7.0\\prefab"
+  ]
+}

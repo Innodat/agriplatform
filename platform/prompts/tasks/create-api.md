@@ -1,5 +1,5 @@
 # Task: Create API Endpoint (FastAPI)
-version: 1.0.0
+version: 1.1.0
 
 ## Goal
 Add a new FastAPI endpoint following platform backend patterns.
@@ -14,13 +14,13 @@ See `registry.md` → load `context/error-payload.md` + `context/naming.md` + `c
 Inject: the generated Pydantic model for the entity + one reference router file.
 
 ## Steps
-1. Use generated Pydantic models from `platform/backend/models/generated/` — never hand-write.
-2. Define request/response schemas in `platform/backend/schemas/<domain>.py`.
-3. Add route in `platform/backend/routers/<domain>.py` (thin controller only).
-4. Business logic goes in `platform/backend/services/<domain>.py`.
-5. Validate JWT + permissions in the route (use shared auth dependency).
-6. Return consistent error shape: `{ error, code?, details? }`.
-7. Add to router registry in `platform/backend/main.py`.
+1. Define an acceptance/contract example including success, validation, and authorization outcomes.
+2. Add a failing API test through the real FastAPI route and confirm its failure.
+3. Define request/response schemas in the target app/service and keep the route thin.
+4. Add focused domain/service tests and implement through red-green-refactor.
+5. Validate server-derived identity, NGO context, and permissions.
+6. Return the platform error shape and update/verify OpenAPI contracts.
+7. Run focused, contract, and relevant tenant-isolation tests; record evidence.
 
 ## Output contract
 - Router: `platform/backend/routers/<domain>.py`
@@ -32,3 +32,4 @@ Inject: the generated Pydantic model for the entity + one reference router file.
 - Do not put business logic in the router
 - Do not bypass Pydantic validation
 - Do not access Supabase with service-role key unless explicitly required
+- Do not test only a service function when route/auth/serialization behavior is part of acceptance

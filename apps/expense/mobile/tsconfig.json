@@ -4,9 +4,8 @@
   "exclude": ["**/node_modules", "**/Pods"],
   
 "compilerOptions": {
-    "baseUrl": ".",
     "paths": {
-      "@agriplatform/shared": ["../shared"]
+      "@agriplatform/shared": ["./../shared"]
     }
   }
 

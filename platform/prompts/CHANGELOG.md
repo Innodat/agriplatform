@@ -2,6 +2,48 @@
 
 ---
 
+## 2026-09-04 — BMAD adopted as generic workflow
+
+### Applied
+
+- Superseded the custom generic SPDD direction with BMAD under ADR-0010.
+- Marked this directory as an SPDD prototype transitioning to portable,
+  Agriplatform-specific agent context and safeguards.
+- Added Phase 1 work to reconcile the existing content rather than deleting useful
+  rules or duplicating BMAD workflows.
+
+## 2026-09-03 — ATDD and TDD made core delivery loops
+
+### Applied
+
+- Adopted ATDD as the outer feature loop and TDD as the inner implementation loop.
+- Added ADR-0009 and `context/testing-strategy.md`.
+- Routed feature, API, UI, bug-fix, and refactor work through the testing strategy.
+- Required failing acceptance/regression behavior before production implementation.
+- Required characterization tests before risky AI refactoring of insufficiently
+  tested behavior.
+- Added focused-to-broad test execution and concise verification-evidence rules to
+  reduce ambiguous failures, unnecessary reruns, and avoidable agent context usage.
+
+## 2026-09-01 — Selective SPDD governance adopted
+
+### Applied
+
+- Adopted selective Structured Prompt-Driven Development for substantial features,
+  services, migrations, security changes, and complex refactors.
+- Added `platform/prompts/README.md` defining artifact ownership, full versus
+  lightweight workflows, synchronization, and recurring prompt-impact review.
+- Recorded the approach in platform ADR-0008.
+- Identified the current prompt pack as a prototype requiring alignment with the
+  silo, service, identity, content, notification, scaffold, and UI decisions before
+  the Leave implementation uses it as authoritative guidance.
+
+### Next alignment milestone
+
+- Reconcile `base.md`, `registry.md`, tasks, and context snippets during Leave Phase 1.
+- Add prompt validation and generated/app-local prompt-pack checks alongside builder
+  generation tests.
+
 ## 2026-06-28 — Workspace dependency resolution guidance
 
 ### Platform-level decisions recorded

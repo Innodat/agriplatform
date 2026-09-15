@@ -1,5 +1,5 @@
 # Base Rules (always loaded — keep minimal)
-version: 1.0.0
+version: 1.1.0
 
 ## Stack
 React + ShadCN UI (ui-core → ui-business → ui-app) · FastAPI · Supabase · Arq (Redis workers)
@@ -13,6 +13,10 @@ React + ShadCN UI (ui-core → ui-business → ui-app) · FastAPI · Supabase ·
 6. **Files:** kebab-case. **Components/Services:** PascalCase. **Commits:** conventional (`feat:`, `fix:`, `refactor:`, `docs:`, `chore:`).
 7. **Prefer Builder CLI scaffolds** (`create-feature`, `generate-models`) over manual creation.
 8. **Deviations** must include one-line reasoning + trade-off (Flexibility Clause).
+9. **ATDD/TDD.** Define failing acceptance behavior before substantial features;
+   use focused red-green-refactor tests for implementation and defects.
+10. **Safe refactoring.** Add characterization tests before changing relied-upon,
+    insufficiently tested behavior; never change expectations to hide unexplained failures.
 
 ## Repo Layout
 ```

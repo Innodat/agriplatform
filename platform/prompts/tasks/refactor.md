@@ -1,5 +1,5 @@
 # Task: Refactor
-version: 1.0.0
+version: 1.1.0
 
 ## Goal
 Improve existing code without changing behaviour: reduce duplication, align to patterns, improve types.
@@ -12,12 +12,13 @@ Improve existing code without changing behaviour: reduce duplication, align to p
 See `registry.md` → load `context/naming.md` + the files being refactored (inject directly).
 
 ## Steps
-1. Identify the specific anti-pattern (duplication / direct DB access / missing types / etc.).
-2. Check if a platform pattern already exists that replaces it.
-3. Make the smallest change that fixes the issue — do not over-engineer.
-4. Preserve public API (exports, prop types) unless explicitly changing them.
-5. Verify TypeScript compiles (`tsc --noEmit`) after changes.
-6. Note any follow-on refactors needed but do NOT do them in this task.
+1. Identify the behavior and public contracts that must remain unchanged.
+2. Assess existing coverage; add characterization tests for relied-upon gaps.
+3. Confirm tests pass before changing code and identify known defects separately.
+4. Refactor in bounded steps, running the narrow relevant suite after each step.
+5. Preserve public contracts unless an approved requirement explicitly changes them.
+6. Run affected acceptance/contract suites and static checks; record evidence.
+7. Complete prompt/scaffold impact review for any newly proven pattern.
 
 ## Output contract
 - Modified file(s) only
@@ -28,3 +29,4 @@ See `registry.md` → load `context/naming.md` + the files being refactored (inj
 - Do not refactor files outside the stated scope
 - Do not introduce new dependencies without justification
 - Do not change public APIs without explicit approval
+- Do not approve changed behavior by editing expectations without a requirement decision

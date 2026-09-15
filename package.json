@@ -16,12 +16,12 @@
     "db:push:local": "npm run db:compose && npx supabase db push --workdir supabase --local",
     "db:push": "npm run db:compose && npx supabase db push --workdir supabase",
     "fn:deploy": "npm run db:compose && npx supabase functions deploy --workdir supabase"
-
   },
   "devDependencies": {
     "supabase": "^2.72.8",
-    "ts-node": "^10.9.2",
-    "typescript": "^5.4.0",
+    "tailwindcss": "^4.3.3",
+    "tsx": "^4.23.13",
+    "typescript": "^7.0.2",
     "zod": "^3.22.4"
   },
   "repository": {

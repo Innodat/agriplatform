@@ -13,11 +13,11 @@ def discover_wrappers():
     # Scan TS wrappers
     for file in TS_DIR.glob("*.ts"):
         name = file.stem.replace("run-", "")
-        wrappers[name] = ("ts-node", str(file))
+        wrappers[name] = (["node", "--import", "tsx"], str(file))
     # Scan PY wrappers
     for file in PY_DIR.glob("*.py"):
         name = file.stem.replace("run_", "").replace("run-", "")
-        wrappers[name] = ("python", str(file))
+        wrappers[name] = (["python"], str(file))
     return wrappers
 
 def main():
@@ -36,8 +36,8 @@ def main():
         print(f"❌ Wrapper not found: {exec_path}")
         sys.exit(1)
 
-    print(f"▶ Routing '{cmd_key}' → {runner} {exec_path.relative_to(REPO_ROOT)}")
-    result = subprocess.run([runner, str(exec_path), *sys.argv[2:]],
+    print(f"▶ Routing '{cmd_key}' → {' '.join(runner)} {exec_path.relative_to(REPO_ROOT)}")
+    result = subprocess.run([*runner, str(exec_path), *sys.argv[2:]],
                             shell=(sys.platform == "win32"))
     sys.exit(result.returncode)
 

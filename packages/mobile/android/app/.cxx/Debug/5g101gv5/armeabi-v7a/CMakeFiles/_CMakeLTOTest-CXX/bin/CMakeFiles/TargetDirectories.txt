@@ -1,0 +1,4 @@
+C:/repos/innodat/agriplatform/packages/mobile/android/app/.cxx/Debug/5g101gv5/armeabi-v7a/CMakeFiles/_CMakeLTOTest-CXX/bin/CMakeFiles/foo.dir
+C:/repos/innodat/agriplatform/packages/mobile/android/app/.cxx/Debug/5g101gv5/armeabi-v7a/CMakeFiles/_CMakeLTOTest-CXX/bin/CMakeFiles/boo.dir
+C:/repos/innodat/agriplatform/packages/mobile/android/app/.cxx/Debug/5g101gv5/armeabi-v7a/CMakeFiles/_CMakeLTOTest-CXX/bin/CMakeFiles/edit_cache.dir
+C:/repos/innodat/agriplatform/packages/mobile/android/app/.cxx/Debug/5g101gv5/armeabi-v7a/CMakeFiles/_CMakeLTOTest-CXX/bin/CMakeFiles/rebuild_cache.dir
