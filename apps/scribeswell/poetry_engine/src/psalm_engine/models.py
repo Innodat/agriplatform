@@ -1,7 +1,7 @@
 """Versioned evidence records. No inferred linguistic analysis is a source fact."""
 
 from datetime import UTC, datetime
-from typing import Any, Literal
+from typing import Annotated, Any, Literal
 from uuid import uuid4
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
@@ -67,6 +67,7 @@ class Claim(Record):
     category: str
     value: str = Field(min_length=1)
     scope: list[str] = Field(default_factory=list)
+    applicable_psalms: list[Annotated[int, Field(ge=1, le=150)]] = Field(default_factory=list)
     confidence: float | None = Field(default=None, ge=0, le=1)
     evidence: list[Evidence] = Field(min_length=1)
     method: Literal["imported", "rule", "llm", "human"]
@@ -148,6 +149,8 @@ class CanonicalPsalmRepresentation(Record):
             if unit.source_id not in sources or any(t not in tokens for t in unit.token_ids):
                 raise ValueError("Unit references unknown source/token")
         for claim in self.claims + self.principles:
+            if claim.applicable_psalms and self.psalm not in claim.applicable_psalms:
+                raise ValueError("Claim is not applicable to this Psalm")
             if any(t not in tokens for t in claim.scope):
                 raise ValueError("Claim scope references unknown token")
             for evidence in claim.evidence:
@@ -215,7 +218,7 @@ class DecisionNote(Record):
 
 class Candidate(Record):
     id: str
-    lines: list[str] = Field(min_length=1)
+    lines: list[Annotated[str, Field(min_length=1, pattern=r"\S")]] = Field(min_length=1)
     notes: list[DecisionNote] = Field(default_factory=list)
     losses: list[str] = Field(default_factory=list)
     uncertainty: list[str] = Field(default_factory=list)

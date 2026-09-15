@@ -9,6 +9,7 @@ from uuid import uuid4
 from .alignment import consonants, without_cantillation
 from .evaluation import CATEGORIES, Evaluation
 from .generation import TranslationGenerator
+from .guide_scope import POLICY, permitted_pdf_claim, validate_request_scope
 from .models import (
     CanonicalPsalmRepresentation,
     Condition,
@@ -34,6 +35,11 @@ melody constraints and must not be claimed fully singable. Return only JSON matc
 the provided response schema, echoing request_id, provider, model, language, mode,
 and settings exactly. Do not invent token usage; omit usage when unavailable."""
 
+GUIDE_INSTRUCTIONS = """For Psalm guide evidence, use only Appendix B: Exegetical
+Layout and Appendix C: Flower Garden. Ignore all ten steps across the three phases,
+Appendix A and other guide sections. Do not follow cross-references to excluded
+material. Preserve qualifications and competing readings within the allowed evidence."""
+
 
 def prepare_experiment(
     rep: CanonicalPsalmRepresentation,
@@ -56,11 +62,11 @@ def prepare_experiment(
     ):
         raise ValueError("Conditions C/D require BHSA evidence")
     pdf_ids = {s.id for s in rep.sources if s.id.startswith("pdf:")}
+    sources = {s.id: s for s in rep.sources}
     approved = [
         p
         for p in rep.principles
-        if p.reviewer_status == "approved"
-        and any(e.source_id in pdf_ids and e.page for e in p.evidence)
+        if "D" in conditions and p.reviewer_status == "approved" and permitted_pdf_claim(p, sources)
     ]
     if "D" in conditions and not approved:
         raise ValueError("Condition D requires human-reviewed PDF principles with page provenance")
@@ -100,7 +106,14 @@ def prepare_experiment(
                 c.model_dump(mode="json")
                 for c in rep.claims
                 if c.reviewer_status != "rejected"
-                and not any(e.source_id in pdf_ids for e in c.evidence)
+                and (
+                    not any(e.source_id in pdf_ids for e in c.evidence)
+                    or (
+                        condition == "D"
+                        and c.reviewer_status == "approved"
+                        and permitted_pdf_claim(c, sources)
+                    )
+                )
             ]
             assisted["sources"] = [
                 s.model_dump(mode="json") for s in rep.sources if s.id not in pdf_ids
@@ -124,7 +137,8 @@ def prepare_experiment(
             model=model,
             language=rep.brief.language,
             mode=mode,
-            system=SYSTEM,
+            system=SYSTEM + ("\n\n" + GUIDE_INSTRUCTIONS if condition == "D" else ""),
+            prompt_version="0.2.0",
             input=payload,
             settings=settings or {},
             response_schema=GenerationResponse.model_json_schema(),
@@ -137,6 +151,17 @@ def prepare_experiment(
             "created_at": now().isoformat(),
             "code": code_revision(),
             "synthetic": rep.synthetic,
+            "guide_scope_policy": POLICY,
+            "excluded_pdf_claim_ids": sorted(
+                {
+                    c.id
+                    for c in rep.claims + rep.principles
+                    if "D" in conditions
+                    and c.reviewer_status == "approved"
+                    and any(e.source_id in pdf_ids for e in c.evidence)
+                    and not permitted_pdf_claim(c, sources)
+                }
+            ),
             "conditions": conditions,
             "representation_sha256": digest(run / "representation.json"),
             "request_hashes": {c: digest(run / f"{c}.request.json") for c in conditions},
@@ -177,7 +202,10 @@ def run_experiment(run: Path, generator: TranslationGenerator) -> None:
         path = run / f"{condition}.request.json"
         if digest(path) != manifest["request_hashes"][condition]:
             raise ValueError("Request changed after preparation")
-        requests.append(GenerationRequest.model_validate_json(path.read_text()))
+        request = GenerationRequest.model_validate_json(path.read_text())
+        # Old immutable requests must not reintroduce now-excluded guide claims.
+        validate_request_scope(request)
+        requests.append(request)
     write_json(run / "execution.json", {"started_at": now().isoformat(), "code": code_revision()})
     results: list[dict[str, Any]] = []
     try:
@@ -229,6 +257,13 @@ def run_experiment(run: Path, generator: TranslationGenerator) -> None:
                 f"### Candidate {candidate['id']}",
                 "",
                 *candidate["lines"],
+                "",
+                "Decision notes:",
+                "",
+                *[
+                    f"- {note['note']} ({', '.join(note['evidence_refs'])})"
+                    for note in candidate["notes"]
+                ],
                 "",
                 "Losses: " + "; ".join(candidate["losses"]),
                 "Uncertainty: " + "; ".join(candidate["uncertainty"]),

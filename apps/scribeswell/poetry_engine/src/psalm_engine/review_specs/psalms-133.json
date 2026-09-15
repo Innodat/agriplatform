@@ -1,0 +1,393 @@
+{
+  "version": "visual-review-spec-1",
+  "guide": "psalms-133.pdf",
+  "pdf_sha256": "40c3fb86d45ffab7480858bcc0ecbebe28dbb11d3be7758c5dc6104895de5623",
+  "images": [
+    {
+      "file": "psalms-133-images/1.png",
+      "sha256": "a2bd5eb210a30187e017e01d0e0972c6a26574dd7c474c1a064dde99e14847d0",
+      "pages": [
+        16
+      ]
+    },
+    {
+      "file": "psalms-133-images/2.png",
+      "sha256": "80a63c69d5ff9ce7f8f6ff08421b722b07f71c3b4db556958248058027e70c2f",
+      "pages": [
+        17,
+        18
+      ]
+    },
+    {
+      "file": "psalms-133-images/3.png",
+      "sha256": "cc16fcb58c2fd312d49302b9ccd9a8687ad4264b12a66976f2298338dd026c3f",
+      "pages": [
+        19
+      ]
+    }
+  ],
+  "footnote_pages": [
+    {
+      "page": 16,
+      "first_block": 11,
+      "printed_numbers": [
+        1,
+        2,
+        3
+      ],
+      "number_aliases": {}
+    },
+    {
+      "page": 17,
+      "first_block": 10,
+      "printed_numbers": [
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15
+      ],
+      "number_aliases": {}
+    },
+    {
+      "page": 18,
+      "first_block": 9,
+      "printed_numbers": [
+        16,
+        17,
+        18,
+        19,
+        20,
+        21,
+        22
+      ],
+      "number_aliases": {}
+    }
+  ],
+  "extra_units": [
+    {
+      "id": "intro",
+      "page": 16,
+      "blocks": [
+        2
+      ],
+      "label": "Appendix B genre statement",
+      "split_numbered": false
+    },
+    {
+      "id": "garden",
+      "page": 19,
+      "blocks": [
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11
+      ],
+      "label": "Flower Garden diagram and legend",
+      "split_numbered": false
+    }
+  ],
+  "items": [
+    {
+      "id": "genre",
+      "title": "A pilgrimage setting",
+      "references": [
+        "Ps 133"
+      ],
+      "category": "genre",
+      "summary": "The guide classifies Psalm 133 as a pilgrim’s psalm. Use that as a proposed contextual frame without adding a particular festival or occasion to the verse.",
+      "support": [
+        "intro"
+      ],
+      "alternatives": [],
+      "psalms": [
+        133
+      ],
+      "kind": "analysis"
+    },
+    {
+      "id": "opening",
+      "title": "Attention, exclamation and delayed focus",
+      "references": [
+        "Ps 133:1"
+      ],
+      "category": "emphasis",
+      "summary": "The guide connects behold, repeated how, paired adjectives and the delayed brothers in unity phrase with heightened emotion and emphasis. Preserve the culminating focus with natural target-language word order.",
+      "support": [
+        "n1",
+        "n6",
+        "n7",
+        "n8",
+        "garden"
+      ],
+      "alternatives": [],
+      "psalms": [
+        133
+      ],
+      "kind": "analysis"
+    },
+    {
+      "id": "good",
+      "title": "The recurrence of good",
+      "references": [
+        "Ps 133:1–2"
+      ],
+      "category": "repetition",
+      "summary": "The guide links good in verse 1 with good oil in verse 2. Its claim about four biblical occurrences of good and pleasant needs verification; preserve the visible lexical link without treating that frequency claim as established.",
+      "support": [
+        "n3",
+        "n10",
+        "garden"
+      ],
+      "alternatives": [],
+      "psalms": [
+        133
+      ],
+      "kind": "analysis"
+    },
+    {
+      "id": "sound",
+      "title": "A proposed Hebrew sound link",
+      "references": [
+        "Ps 133:1"
+      ],
+      "category": "sound",
+      "summary": "The guide proposes that pleasant and brothers rhyme in Hebrew. Check that sound relationship against the source; consider a natural poetic correspondence rather than forcing an exact target-language rhyme.",
+      "support": [
+        "n2"
+      ],
+      "alternatives": [],
+      "psalms": [
+        133
+      ],
+      "kind": "analysis"
+    },
+    {
+      "id": "together",
+      "title": "Dwelling or sitting together and who the brothers are",
+      "references": [
+        "Ps 133:1"
+      ],
+      "category": "ambiguity",
+      "summary": "The guide allows dwelling or sitting for SHEBET and several scopes for brothers: a household, a community or Israel gathering in Jerusalem. It favours the gathering interpretation but does not make the referent certain.",
+      "support": [
+        "n4",
+        "n5"
+      ],
+      "alternatives": [
+        "Household or extended family",
+        "A community",
+        "Israel gathering in Jerusalem"
+      ],
+      "psalms": [
+        133
+      ],
+      "kind": "analysis"
+    },
+    {
+      "id": "liquids",
+      "title": "Oil and dew as paired images",
+      "references": [
+        "Ps 133:2–3"
+      ],
+      "category": "imagery",
+      "summary": "The guide pairs oil and dew as flowing, refreshing images. The Flower Garden borders the two similes; preserve their parallel relation and sensory force without replacing them with abstract unity.",
+      "support": [
+        "n9",
+        "n16",
+        "garden"
+      ],
+      "alternatives": [],
+      "psalms": [
+        133
+      ],
+      "kind": "analysis"
+    },
+    {
+      "id": "downward",
+      "title": "Repeated downward motion",
+      "references": [
+        "Ps 133:2–3"
+      ],
+      "category": "repetition",
+      "summary": "The guide and Flower Garden emphasise repeated downward movement in the oil and dew imagery and associate it with blessing. Keep the lexical and directional recurrence where natural.",
+      "support": [
+        "n11",
+        "garden"
+      ],
+      "alternatives": [],
+      "psalms": [
+        133
+      ],
+      "kind": "principle"
+    },
+    {
+      "id": "aaron",
+      "title": "Aaron and competing explanations for the oil",
+      "references": [
+        "Ps 133:2"
+      ],
+      "category": "cultural_context",
+      "summary": "The guide favours priestly consecration for Aaron’s oil but also allows an oil-of-welcome interpretation. Preserve Aaron and the oil image without making either explanatory scenario part of the translated line.",
+      "support": [
+        "n12"
+      ],
+      "alternatives": [
+        "Priestly consecration, favoured by the guide",
+        "Welcoming or hospitality oil"
+      ],
+      "psalms": [
+        133
+      ],
+      "kind": "analysis"
+    },
+    {
+      "id": "relative",
+      "title": "What is running down?",
+      "references": [
+        "Ps 133:2"
+      ],
+      "category": "ambiguity",
+      "summary": "The guide discusses whether the relative clause refers to oil or Aaron’s beard and favours oil to sustain the liquid imagery. Keep the grammatical alternative visible during review rather than silently declaring it impossible.",
+      "support": [
+        "n13",
+        "n14"
+      ],
+      "alternatives": [
+        "Oil running down",
+        "The beard as the relative clause’s referent"
+      ],
+      "psalms": [
+        133
+      ],
+      "kind": "analysis"
+    },
+    {
+      "id": "robe",
+      "title": "Collar, opening or hem of the robe",
+      "references": [
+        "Ps 133:2"
+      ],
+      "category": "ambiguity",
+      "summary": "The guide records disagreement about the robe’s opening or edge and favours a longer downward path toward the hem. Preserve the ambiguity instead of specifying a garment detail without review.",
+      "support": [
+        "n15"
+      ],
+      "alternatives": [
+        "Collar or opening for the head",
+        "Lower edge or hem"
+      ],
+      "psalms": [
+        133
+      ],
+      "kind": "analysis"
+    },
+    {
+      "id": "dew",
+      "title": "Hermon’s dew and the striking geographical image",
+      "references": [
+        "Ps 133:3"
+      ],
+      "category": "figures_of_speech",
+      "summary": "The guide regards dew travelling from Hermon to Zion as a rhetorically exaggerated image rather than literal meteorology. Preserve the striking association and Zion’s Jerusalem reference without flattening the comparison into an explanation.",
+      "support": [
+        "n17",
+        "n18"
+      ],
+      "alternatives": [],
+      "psalms": [
+        133
+      ],
+      "kind": "analysis"
+    },
+    {
+      "id": "closing",
+      "title": "A slower closing declaration",
+      "references": [
+        "Ps 133:3"
+      ],
+      "category": "structure",
+      "summary": "The guide proposes that three cola slow the final verse and focus attention on the concluding blessing. Consider the emphasis and pacing without asserting a required metre.",
+      "support": [
+        "n19"
+      ],
+      "alternatives": [],
+      "psalms": [
+        133
+      ],
+      "kind": "analysis"
+    },
+    {
+      "id": "for",
+      "title": "Emphasis or reason in the closing connective",
+      "references": [
+        "Ps 133:3"
+      ],
+      "category": "ambiguity",
+      "summary": "The guide allows the connective for to add emphasis or explain why living in unity is good. Assess how best to preserve that relationship in the selected language.",
+      "support": [
+        "n20"
+      ],
+      "alternatives": [
+        "Emphasis",
+        "Reason or explanation"
+      ],
+      "psalms": [
+        133
+      ],
+      "kind": "analysis"
+    },
+    {
+      "id": "there",
+      "title": "Where is there?",
+      "references": [
+        "Ps 133:3"
+      ],
+      "category": "ambiguity",
+      "summary": "The guide allows there to refer to Zion or to brothers dwelling in unity. It recommends retaining there with an explanatory note rather than selecting one referent in the verse.",
+      "support": [
+        "n21"
+      ],
+      "alternatives": [
+        "Zion",
+        "The setting of brothers dwelling in unity"
+      ],
+      "psalms": [
+        133
+      ],
+      "kind": "analysis"
+    },
+    {
+      "id": "blessing",
+      "title": "Blessing and life without importing later application",
+      "references": [
+        "Ps 133:3"
+      ],
+      "category": "theological_terms",
+      "summary": "The guide discusses blessing as covenant benefit and contrasts earlier material associations with later theological application. Preserve blessing and life in the source line without silently replacing them with an exclusively later spiritual meaning.",
+      "support": [
+        "n22",
+        "garden"
+      ],
+      "alternatives": [],
+      "psalms": [
+        133
+      ],
+      "kind": "analysis"
+    }
+  ],
+  "context_note_ids": []
+}

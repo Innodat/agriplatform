@@ -1,0 +1,742 @@
+{
+  "version": "visual-review-spec-1",
+  "guide": "psalms-42-43.pdf",
+  "pdf_sha256": "07bc4e50e8d9339da315b9354cd4d71fa94849dcdaa812aadfc16c79dc359bb3",
+  "images": [
+    {
+      "file": "psalms-42-43-images/1.png",
+      "sha256": "87f5c5aa0159039d7988c2f7366a9c680b7e6949ca644ad3c24d45208a1d628e",
+      "pages": [
+        22
+      ]
+    },
+    {
+      "file": "psalms-42-43-images/2.png",
+      "sha256": "75be9e0e4677b4b1621974b728ead1aec0a5f001ef3289f02cecc458ac2e3de6",
+      "pages": [
+        23,
+        24
+      ]
+    },
+    {
+      "file": "psalms-42-43-images/3.png",
+      "sha256": "d461efaf1f4fa3c709811bdb513ce498fc42ffb7dd2855808ef2838dab8a58d4",
+      "pages": [
+        25,
+        26
+      ]
+    },
+    {
+      "file": "psalms-42-43-images/4.png",
+      "sha256": "aeaa0297d7fdcaa445999fe529a8a638ce461eb66d89453973e0c4f2b3b46ec9",
+      "pages": [
+        27,
+        28
+      ]
+    },
+    {
+      "file": "psalms-42-43-images/5.png",
+      "sha256": "e795ce6a18b52f9d1ced519cfb41ed385429e190ca46c9e24ba35ef63d82b08b",
+      "pages": [
+        29
+      ]
+    }
+  ],
+  "footnote_pages": [
+    {
+      "page": 22,
+      "first_block": 10,
+      "printed_numbers": [
+        2
+      ],
+      "number_aliases": {}
+    },
+    {
+      "page": 23,
+      "first_block": 12,
+      "printed_numbers": [
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11
+      ],
+      "number_aliases": {}
+    },
+    {
+      "page": 24,
+      "first_block": 21,
+      "printed_numbers": [
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18
+      ],
+      "number_aliases": {}
+    },
+    {
+      "page": 25,
+      "first_block": 16,
+      "printed_numbers": [
+        19,
+        20,
+        21,
+        22,
+        23,
+        24,
+        25
+      ],
+      "number_aliases": {}
+    },
+    {
+      "page": 26,
+      "first_block": 15,
+      "printed_numbers": [
+        26,
+        27,
+        28,
+        29,
+        30,
+        31,
+        32,
+        33,
+        34
+      ],
+      "number_aliases": {}
+    },
+    {
+      "page": 27,
+      "first_block": 22,
+      "printed_numbers": [
+        35,
+        36,
+        37,
+        38,
+        39,
+        40,
+        41,
+        42,
+        43
+      ],
+      "number_aliases": {}
+    },
+    {
+      "page": 28,
+      "first_block": 20,
+      "printed_numbers": [
+        44,
+        45,
+        46,
+        47,
+        48,
+        49
+      ],
+      "number_aliases": {}
+    },
+    {
+      "page": 29,
+      "first_block": 5,
+      "printed_numbers": [
+        50
+      ],
+      "number_aliases": {}
+    }
+  ],
+  "extra_units": [
+    {
+      "id": "intro2",
+      "page": 22,
+      "blocks": [
+        2
+      ],
+      "label": "Appendix B introduction paragraph 1",
+      "split_numbered": false
+    },
+    {
+      "id": "intro3",
+      "page": 22,
+      "blocks": [
+        3
+      ],
+      "label": "Appendix B introduction paragraph 2",
+      "split_numbered": false
+    },
+    {
+      "id": "intro4",
+      "page": 22,
+      "blocks": [
+        4
+      ],
+      "label": "Appendix B introduction paragraph 3",
+      "split_numbered": false
+    },
+    {
+      "id": "intro5",
+      "page": 22,
+      "blocks": [
+        5
+      ],
+      "label": "Appendix B introduction paragraph 4",
+      "split_numbered": false
+    },
+    {
+      "id": "intro6",
+      "page": 22,
+      "blocks": [
+        6
+      ],
+      "label": "Appendix B introduction paragraph 5",
+      "split_numbered": false
+    },
+    {
+      "id": "intro7",
+      "page": 22,
+      "blocks": [
+        7
+      ],
+      "label": "Appendix B introduction paragraph 6",
+      "split_numbered": false
+    }
+  ],
+  "items": [
+    {
+      "id": "unity",
+      "title": "One poem or two connected compositions?",
+      "references": [
+        "Ps 42–43"
+      ],
+      "category": "structure",
+      "summary": "The guide favours reading Psalms 42–43 together because of the three refrains and missing superscription for Psalm 43. Its footnote also records a case for distinct compositions. Preserve that disagreement rather than treating unity as settled.",
+      "support": [
+        "intro2",
+        "n2"
+      ],
+      "alternatives": [
+        "A single poem later divided",
+        "Distinct but closely related compositions"
+      ],
+      "psalms": [
+        42,
+        43
+      ],
+      "kind": "analysis"
+    },
+    {
+      "id": "movement",
+      "title": "Lament and hope without a neat resolution",
+      "references": [
+        "Ps 42–43"
+      ],
+      "category": "discourse",
+      "summary": "The guide traces greater intensity in the second stanza and more direct prayer in the third, while stressing that distress and trust continue together without a full resolution. Avoid turning the ending into unqualified happiness.",
+      "support": [
+        "intro7",
+        "n50"
+      ],
+      "alternatives": [],
+      "psalms": [
+        42,
+        43
+      ],
+      "kind": "analysis"
+    },
+    {
+      "id": "water",
+      "title": "Water moving from longing to turmoil",
+      "references": [
+        "Ps 42:1–7 (Heb 42:2–8)"
+      ],
+      "category": "imagery",
+      "summary": "The guide traces water through thirst, tears and overwhelming waves, with positive and negative associations. It notes that this water imagery does not continue into Psalm 43; do not import it there.",
+      "support": [
+        "intro3",
+        "n6",
+        "n13",
+        "n26",
+        "n28"
+      ],
+      "alternatives": [],
+      "psalms": [
+        42
+      ],
+      "kind": "analysis"
+    },
+    {
+      "id": "setting",
+      "title": "Longing for Jerusalem and uncertain biography",
+      "references": [
+        "Ps 42–43"
+      ],
+      "category": "cultural_context",
+      "summary": "The guide infers distance from home and longing for Jerusalem, but presents exile, a Levitical author and the precise northern location as uncertain. Do not insert that reconstructed biography as source fact.",
+      "support": [
+        "intro4",
+        "intro5",
+        "n23",
+        "n24",
+        "n25"
+      ],
+      "alternatives": [],
+      "psalms": [
+        42,
+        43
+      ],
+      "kind": "analysis"
+    },
+    {
+      "id": "maskil",
+      "title": "The uncertain meaning of MASKIL",
+      "references": [
+        "Ps 42 superscription (Heb 42:1)"
+      ],
+      "category": "ambiguity",
+      "summary": "The guide lists contemplative, instructive, skilful and well-written as possibilities for MASKIL while explicitly saying its meaning is unknown. Keep the uncertainty visible.",
+      "support": [
+        "n3"
+      ],
+      "alternatives": [
+        "Contemplative or instructional",
+        "Skilful or well-written",
+        "Uncertain technical designation"
+      ],
+      "psalms": [
+        42
+      ],
+      "kind": "analysis"
+    },
+    {
+      "id": "deer",
+      "title": "The deer comparison and thirst",
+      "references": [
+        "Ps 42:1 (Heb 42:2)"
+      ],
+      "category": "imagery",
+      "summary": "The guide prefers the general deer image over specifying sex and allows thirsts, longs or pants while retaining the water comparison. It suggests that the simile may help mark a stanza opening; do not force that pattern universally.",
+      "support": [
+        "n5",
+        "n8"
+      ],
+      "alternatives": [],
+      "psalms": [
+        42
+      ],
+      "kind": "analysis"
+    },
+    {
+      "id": "nephesh",
+      "title": "Repeated whole-being longing",
+      "references": [
+        "Ps 42:1–2 (Heb 42:2–3)"
+      ],
+      "category": "lexical_semantics",
+      "summary": "The guide reads NAPHSHI as the whole being or a way of referring to oneself and stresses the repeated thirsting for God. Preserve repetition and intensity while checking whether soul, heart, self or another natural expression best retains the source sense.",
+      "support": [
+        "n7",
+        "n10"
+      ],
+      "alternatives": [],
+      "psalms": [
+        42
+      ],
+      "kind": "analysis"
+    },
+    {
+      "id": "names",
+      "title": "Divine names and the proposed central verse",
+      "references": [
+        "Ps 42:2,8 (Heb 42:3,9)"
+      ],
+      "category": "theological_terms",
+      "summary": "The guide notes EL and ELOHIM, the sole YHWH occurrence in these Psalms, and a proposed peak at English 42:8. It allows stylistic or personal reasons for name variation. Its claim that this verse has no finite verbs appears in tension with the marked verb in the layout and requires Hebrew verification; do not use that grammatical claim as settled evidence.",
+      "support": [
+        "intro6",
+        "n9",
+        "n11",
+        "n30"
+      ],
+      "alternatives": [],
+      "psalms": [
+        42
+      ],
+      "kind": "analysis"
+    },
+    {
+      "id": "presence",
+      "title": "Appearing before God",
+      "references": [
+        "Ps 42:2 (Heb 42:3)"
+      ],
+      "category": "lexical_semantics",
+      "summary": "The guide reads before the face of God as longing for divine presence. Preserve that longing rather than making the line a literal description of a face.",
+      "support": [
+        "n12"
+      ],
+      "alternatives": [],
+      "psalms": [
+        42
+      ],
+      "kind": "analysis"
+    },
+    {
+      "id": "tears",
+      "title": "Tears as food day and night",
+      "references": [
+        "Ps 42:3 (Heb 42:4)"
+      ],
+      "category": "figures_of_speech",
+      "summary": "The guide treats tears as food as hyperbole and day and night as continual sorrow. Preserve the watery image and intensity; explanatory adaptation should not quietly erase the metaphor.",
+      "support": [
+        "n13"
+      ],
+      "alternatives": [],
+      "psalms": [
+        42
+      ],
+      "kind": "analysis"
+    },
+    {
+      "id": "pour",
+      "title": "Pouring out the self in remembrance",
+      "references": [
+        "Ps 42:4 (Heb 42:5)"
+      ],
+      "category": "imagery",
+      "summary": "The guide links pouring out the self with the continuing water imagery and focused expression before God. Keep that link where natural instead of reducing it to a generic statement about remembering.",
+      "support": [
+        "n14"
+      ],
+      "alternatives": [],
+      "psalms": [
+        42
+      ],
+      "kind": "analysis"
+    },
+    {
+      "id": "procession",
+      "title": "Remembering the festival: crowd and leading",
+      "references": [
+        "Ps 42:4 (Heb 42:5)"
+      ],
+      "category": "ambiguity",
+      "summary": "The guide considers crowd a likely sense of a rare word, and favours a remembered role in leading worshippers to God’s house. It also records a substantially different textual interpretation. Preserve uncertainty and the remembered setting without proving a Levitical biography from it.",
+      "support": [
+        "n15",
+        "n16",
+        "n17"
+      ],
+      "alternatives": [
+        "Remembered leading of a festival procession",
+        "An alternative textual interpretation involving the Mighty One"
+      ],
+      "psalms": [
+        42
+      ],
+      "kind": "analysis"
+    },
+    {
+      "id": "inner-turmoil",
+      "title": "Bowed down and disturbed as paired distress",
+      "references": [
+        "Ps 42:5–6 (Heb 42:6–7); Ps 43:5"
+      ],
+      "category": "parallelism",
+      "summary": "The guide reads bowed down and disturbed as paired expressions of inward turmoil, with repetition intensifying the distress in the next stanza. Keep both the relationship and the recurrence rather than treating them as unrelated physical actions.",
+      "support": [
+        "n18",
+        "n19",
+        "n22"
+      ],
+      "alternatives": [],
+      "psalms": [
+        42,
+        43
+      ],
+      "kind": "analysis"
+    },
+    {
+      "id": "refrain",
+      "title": "The repeated refrain holds distress and hope together",
+      "references": [
+        "Ps 42:5,11 (Heb 42:6,12); Ps 43:5"
+      ],
+      "category": "refrain",
+      "summary": "The guide identifies three closely related refrains as a central link between the Psalms. Preserve recognisable recurrence, self-address and hope while retaining the final refrain’s continued distress. Do not substitute the guide’s later theological cross-reference for the Hebrew wording.",
+      "support": [
+        "n20",
+        "n37",
+        "n50"
+      ],
+      "alternatives": [],
+      "psalms": [
+        42,
+        43
+      ],
+      "kind": "principle"
+    },
+    {
+      "id": "salvation",
+      "title": "The difficult face/presence and salvation phrase",
+      "references": [
+        "Ps 42:5 (Heb 42:6)"
+      ],
+      "category": "ambiguity",
+      "summary": "The guide records different textual divisions and renderings of the salvation and face/presence phrase. Preserve both the possibility of a distinct expression in the first refrain and the relationship to the later refrains; do not harmonise them automatically.",
+      "support": [
+        "n21"
+      ],
+      "alternatives": [
+        "Different division or reading of the phrase",
+        "Masoretic wording retained as meaningful variation"
+      ],
+      "psalms": [
+        42
+      ],
+      "kind": "analysis"
+    },
+    {
+      "id": "deep",
+      "title": "Deep, waterfalls and overwhelming waves",
+      "references": [
+        "Ps 42:7 (Heb 42:8)"
+      ],
+      "category": "imagery",
+      "summary": "The guide reads the deep and waves as images of overwhelming turmoil, with possible chaos associations. It regards the rare waterfalls/waterspouts word as uncertain. Retain the force without asserting one physical water feature or importing a cosmic narrative into the verse.",
+      "support": [
+        "n26",
+        "n27",
+        "n28"
+      ],
+      "alternatives": [
+        "Waterfalls",
+        "Waterspouts or related water imagery"
+      ],
+      "psalms": [
+        42
+      ],
+      "kind": "analysis"
+    },
+    {
+      "id": "lovingkindness",
+      "title": "Divine love by day and song by night",
+      "references": [
+        "Ps 42:8 (Heb 42:9)"
+      ],
+      "category": "theological_terms",
+      "summary": "The guide connects HESED with faithful covenant love and favours sends or directs over a potentially unnatural literal commands. It reads song in the night as continuing divine presence. Preserve day/night correspondence and trust without requiring that explanatory reading.",
+      "support": [
+        "n29",
+        "n31",
+        "n32"
+      ],
+      "alternatives": [],
+      "psalms": [
+        42
+      ],
+      "kind": "analysis"
+    },
+    {
+      "id": "life",
+      "title": "From living God to God of my life",
+      "references": [
+        "Ps 42:2,8 (Heb 42:3,9)"
+      ],
+      "category": "repetition",
+      "summary": "The guide links living God with the more personal God of my life. Consider preserving the lexical echo and increased personal reference where natural.",
+      "support": [
+        "n33",
+        "n11"
+      ],
+      "alternatives": [],
+      "psalms": [
+        42
+      ],
+      "kind": "analysis"
+    },
+    {
+      "id": "rock",
+      "title": "Rock as stability amid turbulence",
+      "references": [
+        "Ps 42:9 (Heb 42:10)"
+      ],
+      "category": "imagery",
+      "summary": "The guide reads God my rock as a stability image following the turbulent waters. Preserve the image and its relationship to the surrounding complaint rather than treating trust as removal of lament.",
+      "support": [
+        "n34"
+      ],
+      "alternatives": [],
+      "psalms": [
+        42
+      ],
+      "kind": "analysis"
+    },
+    {
+      "id": "echo",
+      "title": "Echoes of oppression and mourning across the Psalms",
+      "references": [
+        "Ps 42:9 (Heb 42:10); Ps 43:2"
+      ],
+      "category": "repetition",
+      "summary": "The guide connects the mourning and oppression lines across Psalms 42 and 43 while noting verbal differences. Preserve recognisable echoes without erasing meaningful variation.",
+      "support": [
+        "n35",
+        "n45"
+      ],
+      "alternatives": [],
+      "psalms": [
+        42,
+        43
+      ],
+      "kind": "analysis"
+    },
+    {
+      "id": "bones",
+      "title": "Crushing taunts and fronted emphasis",
+      "references": [
+        "Ps 42:10 (Heb 42:11)"
+      ],
+      "category": "figures_of_speech",
+      "summary": "The guide reads the shattering-bones language as hyperbole for crushing mockery and notes fronted emphasis. Preserve its emotional force without turning it into an unsupported claim of literal injury.",
+      "support": [
+        "n36"
+      ],
+      "alternatives": [],
+      "psalms": [
+        42
+      ],
+      "kind": "analysis"
+    },
+    {
+      "id": "legal",
+      "title": "Vindication and pleading the speaker’s case",
+      "references": [
+        "Ps 43:1"
+      ],
+      "category": "imagery",
+      "summary": "The guide reads the requests through courtroom imagery while allowing pleading or striving more generally. Preserve the appeal for vindication and rescue without expanding it into a literal court scene.",
+      "support": [
+        "n38",
+        "n39"
+      ],
+      "alternatives": [],
+      "psalms": [
+        43
+      ],
+      "kind": "analysis"
+    },
+    {
+      "id": "opponents",
+      "title": "Faithlessness, deceit and injustice",
+      "references": [
+        "Ps 43:1"
+      ],
+      "category": "lexical_semantics",
+      "summary": "The guide connects the opposed group’s lack of faithfulness with covenant loyalty and distinguishes deceit from injustice. Keep those relationships and avoid reducing the group to a simple unclean/clean opposition.",
+      "support": [
+        "n40",
+        "n41",
+        "n42"
+      ],
+      "alternatives": [],
+      "psalms": [
+        43
+      ],
+      "kind": "analysis"
+    },
+    {
+      "id": "refuge",
+      "title": "God as refuge amid felt rejection",
+      "references": [
+        "Ps 43:2"
+      ],
+      "category": "imagery",
+      "summary": "The guide offers safe place, protection, stronghold or shelter for refuge and distinguishes felt rejection from an assertion of permanent abandonment. Preserve the tension between appeal to refuge and complaint.",
+      "support": [
+        "n43",
+        "n44"
+      ],
+      "alternatives": [],
+      "psalms": [
+        43
+      ],
+      "kind": "analysis"
+    },
+    {
+      "id": "light-truth",
+      "title": "Personified light and truth as guides",
+      "references": [
+        "Ps 43:3"
+      ],
+      "category": "imagery",
+      "summary": "The guide reads light and truth as personified guides toward God’s dwelling, with possible resonance of the earlier appeal for vindication. Preserve that imagery if intelligible; if adapting it, make the explanatory choice explicit rather than adding a new action unnoticed.",
+      "support": [
+        "n46"
+      ],
+      "alternatives": [],
+      "psalms": [
+        43
+      ],
+      "kind": "analysis"
+    },
+    {
+      "id": "holy-mountain",
+      "title": "The holy mountain and the return to worship",
+      "references": [
+        "Ps 43:3–4"
+      ],
+      "category": "cultural_context",
+      "summary": "The guide associates the holy mountain with Zion and links the hoped-for arrival to the earlier remembered festival. Preserve the sanctuary connection without adding a precise historical occasion.",
+      "support": [
+        "n47"
+      ],
+      "alternatives": [],
+      "psalms": [
+        43
+      ],
+      "kind": "analysis"
+    },
+    {
+      "id": "joy",
+      "title": "The emphatic joy of approaching God",
+      "references": [
+        "Ps 43:4"
+      ],
+      "category": "emphasis",
+      "summary": "The guide regards the joy expression as emphatic and offers God my greatest joy or God the source of my joy as possible renderings. Preserve the intensity without making either explanatory wording obligatory.",
+      "support": [
+        "n48"
+      ],
+      "alternatives": [],
+      "psalms": [
+        43
+      ],
+      "kind": "analysis"
+    },
+    {
+      "id": "lyre",
+      "title": "The instrument and uncertain performer identity",
+      "references": [
+        "Ps 43:4"
+      ],
+      "category": "cultural_context",
+      "summary": "The guide identifies KINOR as probably a plucked lyre but expresses uncertainty about its precise form and who played it. Preserve the musical reference without inventing a string count or identifying the speaker as a Levite on that basis alone.",
+      "support": [
+        "n49"
+      ],
+      "alternatives": [],
+      "psalms": [
+        43
+      ],
+      "kind": "analysis"
+    }
+  ],
+  "context_note_ids": [
+    "n4"
+  ]
+}

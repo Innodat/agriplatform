@@ -4,6 +4,7 @@ import json
 import subprocess
 from typing import Protocol
 
+from .guide_scope import validate_request_scope
 from .models import GenerationRequest, GenerationResponse
 
 
@@ -24,6 +25,7 @@ class CommandGenerator:
         self.command, self.timeout = command, timeout
 
     def generate(self, request: GenerationRequest) -> GenerationResponse:
+        validate_request_scope(request)
         completed = subprocess.run(
             self.command,
             input=request.model_dump_json(),

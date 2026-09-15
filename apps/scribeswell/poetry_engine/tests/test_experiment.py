@@ -96,8 +96,24 @@ def test_representation_rejects_unaccounted_token():
         CanonicalPsalmRepresentation.model_validate(rep)
 
 
+def test_representation_rejects_analysis_for_another_psalm():
+    rep = representation()
+    rep.claims.append(
+        Claim(
+            id="synthetic-psalm1",
+            category="test",
+            value="SYNTHETIC TEST ONLY",
+            method="rule",
+            applicable_psalms=[1],
+            evidence=[Evidence(source_id="morphhb", locator="synthetic")],
+        )
+    )
+    with pytest.raises(ValueError, match="not applicable"):
+        CanonicalPsalmRepresentation.model_validate(rep.model_dump())
+
+
 def test_complete_synthetic_run_records_comparison_and_rejects_overwrite(tmp_path):
-    from psalm_engine.models import Candidate, GenerationResponse
+    from psalm_engine.models import Candidate, DecisionNote, GenerationResponse
 
     class SyntheticGenerator:
         def generate(self, request):
@@ -108,13 +124,22 @@ def test_complete_synthetic_run_records_comparison_and_rejects_overwrite(tmp_pat
                 language=request.language,
                 mode=request.mode,
                 settings=request.settings,
-                candidates=[Candidate(id="synthetic-1", lines=["SYNTHETIC STRUCTURAL TEST ONLY"])],
+                candidates=[
+                    Candidate(
+                        id="synthetic-1",
+                        lines=["SYNTHETIC STRUCTURAL TEST ONLY"],
+                        notes=[
+                            DecisionNote(note="SYNTHETIC decision note", evidence_refs=["Ps.23.1"])
+                        ],
+                    )
+                ],
                 synthetic=True,
             )
 
     run = prepare_experiment(representation(), tmp_path, ["A", "B", "C"], "test", "test")
     run_experiment(run, SyntheticGenerator())
     assert "SYNTHETIC TEST OUTPUT" in (run / "comparison.md").read_text()
+    assert "SYNTHETIC decision note (Ps.23.1)" in (run / "comparison.md").read_text()
     assert len(json.loads((run / "results.json").read_text())) == 3
     assert (
         json.loads((run / "evaluation-template.json").read_text())[0]["scores"]["imagery"] is None
@@ -156,6 +181,56 @@ def test_pdf_claims_and_principles_are_absent_from_c(tmp_path):
     run = prepare_experiment(rep, tmp_path, ["C", "D"], "test", "test")
     assert "UNIQUE_PDF_DERIVED_VALUE" not in (run / "C.request.json").read_text()
     assert "UNIQUE_PDF_DERIVED_VALUE" in (run / "D.request.json").read_text()
+
+
+def test_d_includes_approved_pdf_analysis_but_never_pending_or_unpaged(tmp_path):
+    rep = representation()
+    rep.sources.append(
+        Source(
+            id="pdf:test",
+            dataset="synthetic",
+            revision="test",
+            sha256="0" * 64,
+            uri="synthetic:test",
+            license="synthetic",
+        )
+    )
+    base = Claim(
+        id="principle",
+        category="poetry",
+        value="SYNTHETIC PRINCIPLE",
+        method="human",
+        reviewer_status="approved",
+        reviewer="Synthetic test reviewer",
+        evidence=[Evidence(source_id="pdf:test", locator="synthetic", page=1)],
+    )
+    rep.principles.append(base)
+    rep.claims.extend(
+        [
+            base.model_copy(update={"id": "analysis", "value": "SYNTHETIC APPROVED ANALYSIS"}),
+            base.model_copy(
+                update={
+                    "id": "pending",
+                    "value": "SYNTHETIC PENDING ANALYSIS",
+                    "method": "llm",
+                    "reviewer_status": "pending",
+                }
+            ),
+            base.model_copy(
+                update={
+                    "id": "unpaged",
+                    "value": "SYNTHETIC UNPAGED ANALYSIS",
+                    "evidence": [Evidence(source_id="pdf:test", locator="unknown")],
+                }
+            ),
+        ]
+    )
+    run = prepare_experiment(rep, tmp_path, ["A", "B", "C", "D"], "test", "test")
+    for c in "ABC":
+        assert "SYNTHETIC APPROVED ANALYSIS" not in (run / f"{c}.request.json").read_text()
+    d = json.loads((run / "D.request.json").read_text())
+    assert [c["id"] for c in d["input"]["representation"]["claims"]] == ["analysis"]
+    assert "analysis" in d["input"]["allowed_evidence_refs"]
 
 
 def test_rubric_requires_all_scores_and_keeps_categories():
@@ -243,3 +318,73 @@ print(json.dumps(response))
         json.loads((run / "status.json").read_text())["status"]
         == "generated; awaiting human evaluation"
     )
+
+
+def test_psalm_guide_step_approval_cannot_enter_d(tmp_path):
+    from pathlib import Path
+
+    root = Path(__file__).resolve().parents[1]
+    legacy = Claim.model_validate_json(
+        (root / "data/annotations/principles.reviewed-v2.jsonl").read_text()
+    )
+    rep = representation()
+    rep.sources.append(
+        Source(
+            id=legacy.evidence[0].source_id,
+            dataset="psalms-23.pdf",
+            revision="test",
+            sha256=legacy.evidence[0].source_id.removeprefix("pdf:"),
+            uri=str(root / "resources/psalms-23.pdf"),
+            license="local research",
+        )
+    )
+    rep.principles.append(legacy)
+    with pytest.raises(ValueError, match="reviewed PDF"):
+        prepare_experiment(rep, tmp_path, ["D"], "test", "test")
+    allowed = legacy.model_copy(deep=True)
+    allowed.id = "synthetic-appendix-b"
+    allowed.value = "SYNTHETIC APPENDIX B CLAIM"
+    allowed.evidence[0].page = 20
+    allowed.evidence[0].locator = "Synthetic test: Appendix B page 20"
+    rep.principles.append(allowed)
+    rep.claims.extend([legacy, allowed])
+    mixed = allowed.model_copy(deep=True)
+    mixed.id = "synthetic-mixed-sections"
+    mixed.value = "SYNTHETIC MIXED SECTION CLAIM"
+    mixed.evidence.extend(legacy.evidence)
+    rep.principles.append(mixed)
+    rep.claims.append(mixed)
+    run = prepare_experiment(rep, tmp_path, ["D"], "test", "test")
+    request = json.loads((run / "D.request.json").read_text())
+    assert legacy.value not in json.dumps(request)
+    assert allowed.value in json.dumps(request)
+    assert mixed.value not in json.dumps(request)
+    assert legacy.id not in request["input"]["allowed_evidence_refs"]
+    assert set(json.loads((run / "manifest.json").read_text())["excluded_pdf_claim_ids"]) == {
+        legacy.id,
+        mixed.id,
+    }
+
+    # Simulate an intact old prepared request, including its recorded checksum.
+    from psalm_engine.storage import digest
+
+    request["input"]["representation"]["principles"].append(legacy.model_dump(mode="json"))
+    request_path = run / "D.request.json"
+    request_path.write_text(json.dumps(request))
+    manifest_path = run / "manifest.json"
+    manifest = json.loads(manifest_path.read_text())
+    manifest["request_hashes"]["D"] = digest(request_path)
+    manifest_path.write_text(json.dumps(manifest))
+    with pytest.raises(ValueError, match="violates Appendix B/C"):
+        run_experiment(run, None)
+    assert not (run / "execution.json").exists()
+
+    from psalm_engine.cline_runner import generate
+    from psalm_engine.generation import CommandGenerator
+    from psalm_engine.models import GenerationRequest
+
+    obsolete = GenerationRequest.model_validate(request)
+    with pytest.raises(ValueError, match="violates Appendix B/C"):
+        CommandGenerator(["must-not-execute"]).generate(obsolete)
+    with pytest.raises(ValueError, match="violates Appendix B/C"):
+        generate(obsolete, "must-not-execute")

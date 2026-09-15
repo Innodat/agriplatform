@@ -1,0 +1,478 @@
+{
+  "version": "visual-review-spec-1",
+  "guide": "psalms-23.pdf",
+  "pdf_sha256": "6e3e56b3a7f3c0dc9c3b4b202089430d1c0cd4829ee120a316052105329acde4",
+  "images": [
+    {
+      "file": "psalms-23-images/1.png",
+      "sha256": "5eaf3e1247b6acf37a51de05008d7affe9f3a288a4fe47dd4575c68866bae2f6",
+      "pages": [
+        20
+      ]
+    },
+    {
+      "file": "psalms-23-images/2.png",
+      "sha256": "c492813bb0981232b197b8b9d8983c0ae2ab9df7db3eca396437ffd3e875f7ea",
+      "pages": [
+        21,
+        22
+      ]
+    },
+    {
+      "file": "psalms-23-images/3.png",
+      "sha256": "593e26f8d91a23b74ee692a4c2595af37f0b8385831f077a982ce347347e9ff9",
+      "pages": [
+        23,
+        24
+      ]
+    }
+  ],
+  "footnote_pages": [
+    {
+      "page": 20,
+      "first_block": 15,
+      "printed_numbers": [
+        1,
+        22,
+        3
+      ],
+      "number_aliases": {
+        "22": 2
+      }
+    },
+    {
+      "page": 21,
+      "first_block": 15,
+      "printed_numbers": [
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10
+      ],
+      "number_aliases": {}
+    },
+    {
+      "page": 22,
+      "first_block": 10,
+      "printed_numbers": [
+        11,
+        12,
+        13,
+        14,
+        15,
+        16
+      ],
+      "number_aliases": {}
+    },
+    {
+      "page": 23,
+      "first_block": 8,
+      "printed_numbers": [
+        17,
+        18,
+        19
+      ],
+      "number_aliases": {}
+    }
+  ],
+  "extra_units": [
+    {
+      "id": "intro",
+      "page": 20,
+      "blocks": [
+        2
+      ],
+      "label": "Appendix B opening analysis",
+      "split_numbered": false
+    },
+    {
+      "id": "garden",
+      "page": 24,
+      "blocks": [
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8
+      ],
+      "label": "Flower Garden colour patterns",
+      "split_numbered": false
+    }
+  ],
+  "items": [
+    {
+      "id": "genre",
+      "title": "Confidence and closeness to YHWH",
+      "references": [
+        "Ps 23"
+      ],
+      "category": "genre",
+      "summary": "The guide reads Psalm 23 as a poem of confidence moving toward enduring closeness to YHWH. Treat this as its interpretive frame, not a reason to remove uncertainty from individual verses.",
+      "support": [
+        "intro"
+      ],
+      "alternatives": [],
+      "psalms": [
+        23
+      ],
+      "kind": "analysis"
+    },
+    {
+      "id": "lack",
+      "title": "Keep the opening assurance compact",
+      "references": [
+        "Ps 23:1"
+      ],
+      "category": "lexical_semantics",
+      "summary": "The guide offers several ways to express lacking nothing and favours a short, compact assurance. Preserve its breadth without adding a list of needs.",
+      "support": [
+        "n1"
+      ],
+      "alternatives": [],
+      "psalms": [
+        23
+      ],
+      "kind": "principle"
+    },
+    {
+      "id": "pasture",
+      "title": "Lush pasture without specifying the landscape",
+      "references": [
+        "Ps 23:2"
+      ],
+      "category": "imagery",
+      "summary": "The guide understands the pasture as lush grazing rather than a colour claim. Retain an image that permits both rare desert grazing patches and fertile pasture rather than choosing a landscape the line does not specify.",
+      "support": [
+        "n2"
+      ],
+      "alternatives": [
+        "Rare grazing patches in a dry landscape",
+        "Lush pasture in a fertile region"
+      ],
+      "psalms": [
+        23
+      ],
+      "kind": "analysis"
+    },
+    {
+      "id": "lie-down",
+      "title": "Rest after grazing and the verb’s modality",
+      "references": [
+        "Ps 23:2"
+      ],
+      "category": "grammar",
+      "summary": "The guide connects lying down with satisfied sheep. It favours customary action but allows continuation of a future or irrealis reading from verse 1; retain that grammatical uncertainty.",
+      "support": [
+        "n3"
+      ],
+      "alternatives": [
+        "Customary provision",
+        "Future or irrealis assurance"
+      ],
+      "psalms": [
+        23
+      ],
+      "kind": "analysis"
+    },
+    {
+      "id": "water",
+      "title": "Water as a place of rest",
+      "references": [
+        "Ps 23:2"
+      ],
+      "category": "imagery",
+      "summary": "The guide reads the waters as places of refreshment and rest, such as rainwater pools or springs. Do not imply diseased stagnant water merely to express stillness.",
+      "support": [
+        "n4"
+      ],
+      "alternatives": [],
+      "psalms": [
+        23
+      ],
+      "kind": "analysis"
+    },
+    {
+      "id": "nephesh",
+      "title": "Restoring the whole person",
+      "references": [
+        "Ps 23:3"
+      ],
+      "category": "lexical_semantics",
+      "summary": "The guide reads NEPHESH as the whole being, not exclusively an immaterial soul, and the verb as renewal or restoration. Preserve that breadth while assessing the lexical choice against the Hebrew.",
+      "support": [
+        "n5"
+      ],
+      "alternatives": [],
+      "psalms": [
+        23
+      ],
+      "kind": "analysis"
+    },
+    {
+      "id": "nephesh-stanza",
+      "title": "Fronting and a proposed stanza boundary",
+      "references": [
+        "Ps 23:3"
+      ],
+      "category": "structure",
+      "summary": "The guide proposes that fronting NEPHESH, after two other fronted constructions, marks a stanza ending. Assess the structural claim against the Hebrew and consider corresponding word-order emphasis where natural.",
+      "support": [
+        "n6"
+      ],
+      "alternatives": [],
+      "psalms": [
+        23
+      ],
+      "kind": "analysis"
+    },
+    {
+      "id": "paths",
+      "title": "Right paths or righteous paths",
+      "references": [
+        "Ps 23:3"
+      ],
+      "category": "ambiguity",
+      "summary": "The guide allows both appropriate tracks and morally righteous paths for TSEDEQ. It describes firm tracks rather than narrow footpaths and treats possible links to the divine name as inconclusive. Avoid collapsing the alternatives into a certain explanation.",
+      "support": [
+        "n7"
+      ],
+      "alternatives": [
+        "Appropriate or right tracks",
+        "Righteous paths with a moral resonance"
+      ],
+      "psalms": [
+        23
+      ],
+      "kind": "analysis"
+    },
+    {
+      "id": "name",
+      "title": "Preserve the purpose expressed by the divine name",
+      "references": [
+        "Ps 23:3"
+      ],
+      "category": "theological_terms",
+      "summary": "The guide interprets the name phrase as the purpose of YHWH’s shepherding and provision. Preserve that relationship without inserting an explanatory theology into the verse.",
+      "support": [
+        "n8"
+      ],
+      "alternatives": [],
+      "psalms": [
+        23
+      ],
+      "kind": "analysis"
+    },
+    {
+      "id": "darkness",
+      "title": "Dangerous darkness and the resonance of death",
+      "references": [
+        "Ps 23:4"
+      ],
+      "category": "ambiguity",
+      "summary": "The guide describes a dark, dangerous ravine but does not exclude danger or death as a deeper resonance. Keep the foreboding force without asserting that only literal darkness or only death is possible.",
+      "support": [
+        "n9"
+      ],
+      "alternatives": [
+        "Dark and dangerous ravines",
+        "Darkness with danger and death associations"
+      ],
+      "psalms": [
+        23
+      ],
+      "kind": "analysis"
+    },
+    {
+      "id": "presence",
+      "title": "The guide’s proposed peak: you are with me",
+      "references": [
+        "Ps 23:4"
+      ],
+      "category": "discourse",
+      "summary": "The guide identifies the assurance of divine presence as a central peak and asks how a song could highlight it. Consider emphasis without forcing a musical device or treating the peak analysis as independently verified.",
+      "support": [
+        "n10",
+        "garden"
+      ],
+      "alternatives": [],
+      "psalms": [
+        23
+      ],
+      "kind": "analysis"
+    },
+    {
+      "id": "rod-staff",
+      "title": "Protection and comfort through rod and staff",
+      "references": [
+        "Ps 23:4"
+      ],
+      "category": "imagery",
+      "summary": "The guide associates rod and staff with protection and guidance rather than punishment. It allows uncertainty about their simultaneous use and an idiomatic pairing. Preserve comfort without spelling out an unproved tool scenario.",
+      "support": [
+        "n11",
+        "n13"
+      ],
+      "alternatives": [
+        "Two protective or guiding tools",
+        "An idiomatic pairing expressing comprehensive protection"
+      ],
+      "psalms": [
+        23
+      ],
+      "kind": "analysis"
+    },
+    {
+      "id": "rod-staff-order",
+      "title": "Marked placement of “your rod and your staff”",
+      "references": [
+        "Ps 23:4"
+      ],
+      "category": "emphasis",
+      "summary": "The guide interprets the placement of your rod and your staff as a marked construction and proposes a stanza boundary. Consider preserving corresponding emphasis where appropriate, without imposing the guide’s structural analysis as certain.",
+      "support": [
+        "n12"
+      ],
+      "alternatives": [],
+      "psalms": [
+        23
+      ],
+      "kind": "analysis"
+    },
+    {
+      "id": "host",
+      "title": "The transition from shepherd to host",
+      "references": [
+        "Ps 23:5"
+      ],
+      "category": "imagery",
+      "summary": "The guide reads the prepared table as a meal or banquet and proposes a change from shepherd to host imagery. Preserve the scene without adding the guide’s possible locations as details of the Psalm.",
+      "support": [
+        "intro",
+        "n14"
+      ],
+      "alternatives": [],
+      "psalms": [
+        23
+      ],
+      "kind": "analysis"
+    },
+    {
+      "id": "enemies",
+      "title": "An openly prepared table before enemies",
+      "references": [
+        "Ps 23:5"
+      ],
+      "category": "ambiguity",
+      "summary": "The guide favours an openly visible feast and asks whether it implies shaming enemies or triumph under divine protection. Retain the striking juxtaposition without supplying an answer to that question or importing its cross-reference into the translation.",
+      "support": [
+        "n15"
+      ],
+      "alternatives": [
+        "Public vindication or triumph",
+        "A striking feast in the sight of enemies without an explicit explanation"
+      ],
+      "psalms": [
+        23
+      ],
+      "kind": "analysis"
+    },
+    {
+      "id": "cup",
+      "title": "A cup filled to capacity",
+      "references": [
+        "Ps 23:5"
+      ],
+      "category": "lexical_semantics",
+      "summary": "The guide favours a cup filled to its maximum capacity and connects it to the banquet’s abundance. Treat its objection to literal overflow and its cultural explanation as guide interpretations, not settled facts.",
+      "support": [
+        "n16"
+      ],
+      "alternatives": [
+        "Filled to the brim or saturation",
+        "More-than-full imagery, noted as an alternative rendering"
+      ],
+      "psalms": [
+        23
+      ],
+      "kind": "analysis"
+    },
+    {
+      "id": "final-stanza",
+      "title": "The emphatic opening of the final stanza",
+      "references": [
+        "Ps 23:6"
+      ],
+      "category": "discourse",
+      "summary": "The guide reads ACH as an emphatic connective introducing the final climactic stanza. Consider a target-language means of emphasis without converting the guide’s stanza proposal into a requirement for an identical line break.",
+      "support": [
+        "n17"
+      ],
+      "alternatives": [],
+      "psalms": [
+        23
+      ],
+      "kind": "analysis"
+    },
+    {
+      "id": "pursuit",
+      "title": "Goodness and covenant love pursuing the speaker",
+      "references": [
+        "Ps 23:6"
+      ],
+      "category": "imagery",
+      "summary": "The guide proposes personification in the pursuit by goodness and covenant love and relates it to shepherd imagery. Preserve the active pursuit while keeping this interpretation distinct from its host reading in verse 5.",
+      "support": [
+        "n18",
+        "garden"
+      ],
+      "alternatives": [],
+      "psalms": [
+        23
+      ],
+      "kind": "analysis"
+    },
+    {
+      "id": "days",
+      "title": "Length of days: lifespan and a later reading",
+      "references": [
+        "Ps 23:6"
+      ],
+      "category": "ambiguity",
+      "summary": "The guide favours the speaker’s full earthly lifespan for length of days, while acknowledging an eternity reading from a later theological perspective. Preserve the alternatives as interpretations; do not silently insert the later reading as the Hebrew’s only meaning.",
+      "support": [
+        "n19"
+      ],
+      "alternatives": [
+        "Full span of earthly life",
+        "A later theological reading of eternity"
+      ],
+      "psalms": [
+        23
+      ],
+      "kind": "analysis"
+    },
+    {
+      "id": "speaker",
+      "title": "From speaking about YHWH to addressing YHWH",
+      "references": [
+        "Ps 23:1–6"
+      ],
+      "category": "participants",
+      "summary": "The Flower Garden visually distinguishes divine references and speaker references. It shows a move from third-person description to direct address in verses 4–5 and a return to third-person reference in verse 6. Preserve the change in relationship and address.",
+      "support": [
+        "garden"
+      ],
+      "alternatives": [],
+      "psalms": [
+        23
+      ],
+      "kind": "analysis"
+    }
+  ],
+  "context_note_ids": []
+}

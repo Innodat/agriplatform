@@ -1,0 +1,576 @@
+{
+  "version": "visual-review-spec-1",
+  "guide": "psalms-1.pdf",
+  "pdf_sha256": "3d3e3a669d4935fce9c8ccd0b3a8593bb172bf9cf748d68805ec9bcd4227189a",
+  "images": [
+    {
+      "file": "psalms-1-images/1.png",
+      "sha256": "9cea6649d17110b442cdf45f79913a675707256b69c0d2138a176ceab8bdf956",
+      "pages": [
+        20
+      ]
+    },
+    {
+      "file": "psalms-1-images/2.png",
+      "sha256": "8cddab79099ec9590a3276aaebae473c2f86c5fc66fbcafe9e8fdcbaa3e5a7ad",
+      "pages": [
+        21,
+        22
+      ]
+    },
+    {
+      "file": "psalms-1-images/3.png",
+      "sha256": "9fa6561a73e4d25f6f2cfe1bfbc4564273065f98da983020d59bdf48572c5ac1",
+      "pages": [
+        23,
+        24
+      ]
+    },
+    {
+      "file": "psalms-1-images/4.png",
+      "sha256": "c94b29d0df952af9f12e4168f34534715c84b69b0de6c860a936dd08015b1fbc",
+      "pages": [
+        25,
+        26
+      ]
+    }
+  ],
+  "footnote_pages": [
+    {
+      "page": 21,
+      "first_block": 8,
+      "printed_numbers": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "number_aliases": {}
+    },
+    {
+      "page": 22,
+      "first_block": 12,
+      "printed_numbers": [
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14
+      ],
+      "number_aliases": {}
+    },
+    {
+      "page": 23,
+      "first_block": 12,
+      "printed_numbers": [
+        15,
+        16,
+        17,
+        18,
+        19,
+        20,
+        21,
+        22,
+        23
+      ],
+      "number_aliases": {}
+    },
+    {
+      "page": 24,
+      "first_block": 6,
+      "printed_numbers": [
+        24,
+        25,
+        26,
+        27
+      ],
+      "number_aliases": {}
+    }
+  ],
+  "extra_units": [
+    {
+      "id": "intro",
+      "page": 20,
+      "blocks": [
+        2
+      ],
+      "label": "Appendix B opening: intro",
+      "split_numbered": false
+    },
+    {
+      "id": "wisdom",
+      "page": 20,
+      "blocks": [
+        3
+      ],
+      "label": "Appendix B opening: wisdom",
+      "split_numbered": false
+    },
+    {
+      "id": "torah",
+      "page": 20,
+      "blocks": [
+        4
+      ],
+      "label": "Appendix B opening: torah",
+      "split_numbered": false
+    },
+    {
+      "id": "garden",
+      "page": 25,
+      "blocks": [
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        19,
+        20,
+        21
+      ],
+      "label": "Flower Garden diagram and legend",
+      "split_numbered": false
+    },
+    {
+      "id": "c",
+      "page": 26,
+      "blocks": [
+        2
+      ],
+      "label": "Flower Garden commentary",
+      "split_numbered": true
+    }
+  ],
+  "items": [
+    {
+      "id": "opening",
+      "title": "A proposed opening frame for the Psalter",
+      "references": [
+        "Ps 1"
+      ],
+      "category": "genre",
+      "summary": "The guide treats Psalms 1 and 2 as an opening frame for the Psalter, while offering different accounts of how that placement arose. Keep the literary observation separate from uncertain editorial history.",
+      "support": [
+        "intro"
+      ],
+      "alternatives": [
+        "Composed as an introduction",
+        "Existing poems later positioned and edited as an introduction"
+      ],
+      "psalms": [
+        1
+      ],
+      "kind": "analysis"
+    },
+    {
+      "id": "wisdom",
+      "title": "Wisdom and the contrast between ways",
+      "references": [
+        "Ps 1"
+      ],
+      "category": "genre",
+      "summary": "The guide reads Psalm 1 as instruction contrasting life shaped by YHWH’s teaching with a destructive alternative. Preserve the sustained contrast without treating its description of success as a promise of wealth.",
+      "support": [
+        "wisdom",
+        "c2"
+      ],
+      "alternatives": [],
+      "psalms": [
+        1
+      ],
+      "kind": "analysis"
+    },
+    {
+      "id": "blessed",
+      "title": "Opening blessedness and the singular person",
+      "references": [
+        "Ps 1:1"
+      ],
+      "category": "lexical_semantics",
+      "summary": "The guide offers favoured, happy and blessed for the opening, and prefers preserving the contrast between one exemplary person and the plural groups that follow. A gender-neutral person expression may retain that singular contrast.",
+      "support": [
+        "n1",
+        "n2"
+      ],
+      "alternatives": [],
+      "psalms": [
+        1
+      ],
+      "kind": "analysis"
+    },
+    {
+      "id": "parallel-lines",
+      "title": "Three negative lines and their progression",
+      "references": [
+        "Ps 1:1"
+      ],
+      "category": "parallelism",
+      "summary": "Preserve the repeated negation and corresponding walk, stand and sit lines. The guide proposes progression through actions and through counsel, way and seat; retain the parallel relationships without expanding their interpretation into the verse.",
+      "support": [
+        "n3",
+        "n4",
+        "n5",
+        "c3"
+      ],
+      "alternatives": [],
+      "psalms": [
+        1
+      ],
+      "kind": "principle"
+    },
+    {
+      "id": "wicked",
+      "title": "Wicked, sinners and scoffers",
+      "references": [
+        "Ps 1:1"
+      ],
+      "category": "wordplay",
+      "summary": "The guide distinguishes three terms for the opposed groups and proposes sound play between the opening blessedness and the sinners term. Its sound analysis needs Hebrew review; consider compensating poetic relationships only if appropriate, rather than forcing an equivalent pun.",
+      "support": [
+        "n6",
+        "c4"
+      ],
+      "alternatives": [],
+      "psalms": [
+        1
+      ],
+      "kind": "analysis"
+    },
+    {
+      "id": "torah",
+      "title": "Teaching and the possible legal sense of Torah",
+      "references": [
+        "Ps 1:2"
+      ],
+      "category": "theological_terms",
+      "summary": "The guide favours teaching or instruction for Torah here but retains an interpretation tied to the Law code. Preserve the chosen sense clearly and avoid making the broader or legal reading appear uncontested.",
+      "support": [
+        "torah",
+        "n8"
+      ],
+      "alternatives": [
+        "Teaching or instruction broadly",
+        "The instructions of the Law code"
+      ],
+      "psalms": [
+        1
+      ],
+      "kind": "analysis"
+    },
+    {
+      "id": "meditation",
+      "title": "Meditation with a murmuring image",
+      "references": [
+        "Ps 1:2"
+      ],
+      "category": "lexical_semantics",
+      "summary": "The guide reads the murmuring as meditation, potentially reading in an undertone. Where that image would mislead, it suggests pondering, studying or reflecting; preserve sustained engagement rather than mere noise.",
+      "support": [
+        "n9"
+      ],
+      "alternatives": [],
+      "psalms": [
+        1
+      ],
+      "kind": "analysis"
+    },
+    {
+      "id": "merism",
+      "title": "Day and night as sustained activity",
+      "references": [
+        "Ps 1:2"
+      ],
+      "category": "figures_of_speech",
+      "summary": "The guide treats day and night as a merism for constant activity and allows their order to follow natural target-language usage. Preserve the inclusive force.",
+      "support": [
+        "n10"
+      ],
+      "alternatives": [],
+      "psalms": [
+        1
+      ],
+      "kind": "principle"
+    },
+    {
+      "id": "tree",
+      "title": "Tree and chaff as contrasting central images",
+      "references": [
+        "Ps 1:3–4"
+      ],
+      "category": "imagery",
+      "summary": "The guide and Flower Garden contrast the fruitful, enduring tree with lightweight chaff blown away. Keep the paired images and their contrast; any shift from simile to metaphor requires checking that it does not change the meaning.",
+      "support": [
+        "n11",
+        "n18",
+        "n19",
+        "c8"
+      ],
+      "alternatives": [],
+      "psalms": [
+        1
+      ],
+      "kind": "analysis"
+    },
+    {
+      "id": "streams",
+      "title": "Streams without over-specifying irrigation",
+      "references": [
+        "Ps 1:3"
+      ],
+      "category": "ambiguity",
+      "summary": "The guide allows a broad stream or brook image rather than requiring artificial irrigation channels. It notes disagreement over planted versus transplanted and favours an image that does not specify more than the text establishes.",
+      "support": [
+        "n11",
+        "n12"
+      ],
+      "alternatives": [
+        "Streams or brooks broadly",
+        "Irrigation channels as a narrower possibility"
+      ],
+      "psalms": [
+        1
+      ],
+      "kind": "analysis"
+    },
+    {
+      "id": "fruit",
+      "title": "Fruit in season and enduring leaves",
+      "references": [
+        "Ps 1:3"
+      ],
+      "category": "lexical_semantics",
+      "summary": "The guide favours season for the fruit’s appointed time and offers wither or fade for the leaf. Preserve the tree’s timely fruitfulness and endurance; clarify only where a literal target expression would mislead.",
+      "support": [
+        "n13",
+        "n14"
+      ],
+      "alternatives": [],
+      "psalms": [
+        1
+      ],
+      "kind": "analysis"
+    },
+    {
+      "id": "prosper",
+      "title": "The scope and emphasis of prospering",
+      "references": [
+        "Ps 1:3"
+      ],
+      "category": "emphasis",
+      "summary": "The guide links prospering back to the person and highlights all as intensification. It interprets success broadly rather than only financially; preserve the emphasis without adding a guarantee absent from the wording.",
+      "support": [
+        "n15"
+      ],
+      "alternatives": [],
+      "psalms": [
+        1
+      ],
+      "kind": "analysis"
+    },
+    {
+      "id": "contrast",
+      "title": "The strong turn toward the wicked",
+      "references": [
+        "Ps 1:2,4"
+      ],
+      "category": "discourse",
+      "summary": "The guide links the contrastive connectives in verses 2 and 4 and treats not so as a decisive change of focus. Make the contrast audible and clear without requiring the guide translation’s exact phrasing.",
+      "support": [
+        "n7",
+        "n16",
+        "n17",
+        "c9"
+      ],
+      "alternatives": [],
+      "psalms": [
+        1
+      ],
+      "kind": "principle"
+    },
+    {
+      "id": "consequence",
+      "title": "Therefore and the relationship of consequence",
+      "references": [
+        "Ps 1:5"
+      ],
+      "category": "discourse",
+      "summary": "The guide treats therefore as marking consequence. If it is not translated explicitly, the relationship still needs to be recoverable.",
+      "support": [
+        "n20"
+      ],
+      "alternatives": [],
+      "psalms": [
+        1
+      ],
+      "kind": "principle"
+    },
+    {
+      "id": "judgment",
+      "title": "Parallel groups and the meaning of standing in judgment",
+      "references": [
+        "Ps 1:5–6"
+      ],
+      "category": "ambiguity",
+      "summary": "The guide reads wicked and sinners as parallel references to the same group and interprets not standing as failing to endure judgment. It favours final judgment but also acknowledges a local judicial setting; retain that distinction as an interpretation.",
+      "support": [
+        "n21",
+        "n22",
+        "n27",
+        "c11"
+      ],
+      "alternatives": [
+        "Local judgment",
+        "Final judgment, favoured by the guide"
+      ],
+      "psalms": [
+        1
+      ],
+      "kind": "analysis"
+    },
+    {
+      "id": "assembly",
+      "title": "The assembly of the righteous",
+      "references": [
+        "Ps 1:5"
+      ],
+      "category": "cultural_context",
+      "summary": "The guide identifies a worshipping community and distinguishes an original audience from later theological application. Avoid substituting the later application for the source scene.",
+      "support": [
+        "n23"
+      ],
+      "alternatives": [],
+      "psalms": [
+        1
+      ],
+      "kind": "analysis"
+    },
+    {
+      "id": "knowing",
+      "title": "Knowing as care and relationship",
+      "references": [
+        "Ps 1:6"
+      ],
+      "category": "lexical_semantics",
+      "summary": "The guide interprets YHWH’s knowing as relational care rather than merely possessing information, and as the explanation for the contrasting destinies. It offers watches over, takes care of and intimate acquaintance as alternatives.",
+      "support": [
+        "n24"
+      ],
+      "alternatives": [],
+      "psalms": [
+        1
+      ],
+      "kind": "analysis"
+    },
+    {
+      "id": "way",
+      "title": "The way motif from opening to close",
+      "references": [
+        "Ps 1:1,6"
+      ],
+      "category": "inclusio",
+      "summary": "The guide links way or path in the opening and closing as a framing motif and a metaphor for life direction. Prefer a recognisable lexical connection where natural, while retaining the contrast between the two ways.",
+      "support": [
+        "n25",
+        "n26",
+        "c10"
+      ],
+      "alternatives": [],
+      "psalms": [
+        1
+      ],
+      "kind": "analysis"
+    },
+    {
+      "id": "chiasm",
+      "title": "Qualified proposals for two chiastic patterns",
+      "references": [
+        "Ps 1:2,6"
+      ],
+      "category": "chiasm",
+      "summary": "The Flower Garden labels patterns in verses 2 and 6, but its commentary qualifies them as incomplete chiasms based on repeated middle terms. Keep that qualification and assess the Hebrew relationships before imposing a mirrored target structure.",
+      "support": [
+        "garden",
+        "c7",
+        "n26"
+      ],
+      "alternatives": [],
+      "psalms": [
+        1
+      ],
+      "kind": "analysis"
+    },
+    {
+      "id": "stanzas",
+      "title": "Three stanzas with a concluding peak",
+      "references": [
+        "Ps 1:1–6"
+      ],
+      "category": "structure",
+      "summary": "The Flower Garden proposes three stanzas: verses 1–3, verses 4–5 and verse 6. It reads the final stanza as a synthesis and peak, not simply a third equal block. Treat this as a proposed structure.",
+      "support": [
+        "garden",
+        "c1"
+      ],
+      "alternatives": [],
+      "psalms": [
+        1
+      ],
+      "kind": "analysis"
+    },
+    {
+      "id": "threads",
+      "title": "Righteous and wicked threads across the poem",
+      "references": [
+        "Ps 1:1–6"
+      ],
+      "category": "repetition",
+      "summary": "The commentary tracks righteous and wicked references across all three stanzas, with the righteous implicit in the first. Preserve the recurring contrast without adding explicit labels where the source leaves the reference implicit.",
+      "support": [
+        "c4",
+        "c5",
+        "garden"
+      ],
+      "alternatives": [],
+      "psalms": [
+        1
+      ],
+      "kind": "analysis"
+    },
+    {
+      "id": "divine-frame",
+      "title": "Divine reference near the beginning and end",
+      "references": [
+        "Ps 1:2,6"
+      ],
+      "category": "inclusio",
+      "summary": "The Flower Garden commentary proposes a divine-reference frame and relates teaching at the opening to care or judgment at the close. Keep this as an interpretive relationship, rather than asserting that YHWH is the poem’s first and last word.",
+      "support": [
+        "c6",
+        "garden"
+      ],
+      "alternatives": [],
+      "psalms": [
+        1
+      ],
+      "kind": "analysis"
+    }
+  ],
+  "context_note_ids": []
+}

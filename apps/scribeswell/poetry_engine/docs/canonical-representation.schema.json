@@ -90,6 +90,15 @@
           "title": "Scope",
           "type": "array"
         },
+        "applicable_psalms": {
+          "items": {
+            "maximum": 150,
+            "minimum": 1,
+            "type": "integer"
+          },
+          "title": "Applicable Psalms",
+          "type": "array"
+        },
         "confidence": {
           "anyOf": [
             {

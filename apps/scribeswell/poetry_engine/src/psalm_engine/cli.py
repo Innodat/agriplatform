@@ -11,6 +11,7 @@ from .alignment import align_tokens
 from .experiment import prepare_experiment, run_experiment, save_evaluations
 from .fetch import fetch_bhsa
 from .generation import CommandGenerator
+from .guide_review import export_review, extract_guides
 from .models import CanonicalPsalmRepresentation, Claim, Source, Token
 from .sources import ingest_pdf, load_bhsa, load_morphhb
 from .storage import write_json
@@ -100,6 +101,26 @@ def main() -> None:
     pdf = commands.add_parser("ingest-pdf")
     pdf.add_argument("path", type=Path)
     pdf.add_argument("--output", type=Path, required=True)
+    guides = commands.add_parser(
+        "extract-guides",
+        help="Review only Appendix B: Exegetical Layout and Appendix C: Flower Garden",
+    )
+    guides.add_argument("--resources", type=Path, default=Path("resources"))
+    guides.add_argument("--output", type=Path, required=True)
+    items = commands.add_parser(
+        "prepare-guide-items",
+        help="Prepare coherent review items for the four inspected image guides",
+    )
+    items.add_argument("--packets", type=Path, required=True)
+    items.add_argument("--resources", type=Path, default=Path("resources"))
+    items.add_argument("--output", type=Path, required=True)
+    review = commands.add_parser(
+        "export-guide-review", help="Export explicit human review decisions"
+    )
+    review.add_argument("--packet", type=Path, required=True)
+    review.add_argument("--decisions", type=Path, required=True)
+    review.add_argument("--psalm", type=int, required=True)
+    review.add_argument("--output", type=Path, required=True)
     experiment = commands.add_parser(
         "experiment", help="Prepare exact requests; optionally generate through a provider runner"
     )
@@ -138,6 +159,14 @@ def main() -> None:
         print(f"Validated Psalm {rep.psalm}, {len(rep.tokens)} source tokens")
     elif args.command == "ingest-pdf":
         ingest_pdf(args.path, args.output)
+    elif args.command == "extract-guides":
+        extract_guides(args.resources, args.output)
+    elif args.command == "prepare-guide-items":
+        from .review_items import prepare_item_reviews
+
+        prepare_item_reviews(args.packets, args.resources, args.output)
+    elif args.command == "export-guide-review":
+        export_review(args.packet, args.decisions, args.psalm, args.output)
     elif args.command == "experiment":
         rep = CanonicalPsalmRepresentation.model_validate_json(args.representation.read_text())
         run = prepare_experiment(

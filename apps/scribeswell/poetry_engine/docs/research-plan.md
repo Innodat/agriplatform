@@ -9,7 +9,8 @@ A separate local MorphHB checkout is available at `/home/ck/repos/temp/morphhb`
 source files directly; it must not infer canonical source identifiers from database
 surrogate keys. The existing 25 research PDFs have not yet been bibliographically
 reviewed. At initial assessment no BHSA dataset or translation-provider configuration was found.
-The pinned BHSA features have since been acquired and verified; provider selection remains open.
+The pinned BHSA features have since been acquired and verified. The user selected
+Cline’s `cline` provider and `anthropic/claude-sonnet-5` for poetic Afrikaans Psalm 23.
 
 Help qualified translators compare Afrikaans Psalm drafts while retaining evidence,
 ambiguity and poetic structure. First research question: does an explicit canonical
@@ -46,7 +47,7 @@ human review. Unknown is preferable to invented linguistic facts.
 2. Load real Psalm 23 MorphHB and BHSA, preserve source versions/hashes, align every
    token or mark it unmatched, and produce validated representation and audit JSON.
 3. Prepare A (Hebrew), B (+MorphHB), C (+BHSA/representation), D (+reviewed PDF
-   principles). Keep model, output mode, language and settings constant. Do not
+   principles from guide appendices B/C only). Keep model, output mode, language and settings constant. Do not
    silently run C without BHSA or D without human-approved PDF principles.
 4. Generate and store exact requests/responses, timing, provider-reported usage,
    model/settings, prompt version, input hashes and code revision. Save comparative
@@ -83,3 +84,12 @@ changes; no cross-silo runtime dependency or accepted ADR changes. This document
 records prototype decisions, not a new generic workflow. The master brief remains
 the research requirements source. Agent context: fail on invalid or incomplete
 required evidence; preserve uncertainty rather than replacing it with empty success.
+
+## Guide scope correction — 2026-09-12
+
+Use only Appendix B: Exegetical Layout and Appendix C: Flower Garden from all
+supplied guides. Ignore all ten steps/three phases, the introduction, Appendix A
+and every other section. The prior Psalm 23 page-17 approval is historical and
+ineligible under this scope. Extraction, review export, new prompts and execution
+of saved requests enforce the restriction. See `guide-review.md` for verification.
+No scaffold/shared-UI, platform or ADR changes; local agent instructions updated.

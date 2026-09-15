@@ -202,9 +202,15 @@ def load_bhsa(path: Path, psalm: int) -> tuple[Source, list[Token], list[Unit]]:
 
 def ingest_pdf(path: Path, output: Path) -> None:
     """Local page text for review. Never send extracted full text to a provider."""
-    from pypdf import PdfReader
-
+    from .guide_review import extract_guide
+    from .guide_scope import BY_HASH
     from .storage import write_json
+
+    # The generic command must not bypass the scope of the supplied Psalm guides.
+    if path.stem.lower().startswith("psalms-") or digest(path) in BY_HASH:
+        write_json(output, extract_guide(path))
+        return
+    from pypdf import PdfReader
 
     sha = digest(path)
     reader = PdfReader(path)
