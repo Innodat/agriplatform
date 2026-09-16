@@ -27,3 +27,4 @@ scaffolding, or more than one application.
 | [0008](./0008-selective-structured-prompt-driven-development.md) | Superseded | Use governed SPDD selectively and evolve prompts continuously |
 | [0009](./0009-atdd-and-tdd-development-loop.md) | Accepted | Use ATDD as the outer loop and TDD as the inner loop |
 | [0010](./0010-bmad-as-delivery-workflow.md) | Accepted | Use BMAD as the generic delivery workflow with project-owned quality gates |
+| [0011](./0011-application-roles-and-business-permissions.md) | Accepted | Application-maintained default roles, explicit business permissions, and advanced custom roles with reviewed grants |

@@ -415,9 +415,14 @@ membership switching, authorization, or RLS.
 - [ ] Add secure invitation/onboarding; login alone grants no NGO access
 - [ ] Implement NGO switcher and refresh active-org claims after switching
 - [ ] Replace enum-only global roles with extensible, tenant-scoped role identifiers
+- [ ] Connect Leave role/permission catalog to shared access management and reusable role controls; combine scoped grants without bypassing approval assignment, self-approval, or document rules; define shared runtime HTTP contracts before implementation
+- [ ] Implement application-maintained default roles and advanced custom-role copies backed by explicit business permissions; review new grants for custom roles (platform ADR-0011). Include temporary-approver exception capability in Leave Manager by default without granting approval authority
 - [ ] Add Leave Manager, Supervisor, Final Approver, and relevant permissions
 - [ ] Model departments, teams, locations, employment records, and effective-dated reporting lines
 - [ ] Model configured approvers and delegated/acting approvers
+- [ ] Allow authorized Leave Manager appointment of active NGO members without permanent approval roles; grant only specified temporary responsibilities/dates, preserving membership/self-approval/document boundaries (ADR-0079)
+- [ ] Require coverage of applicants' approval responsibilities before final approval, including automatic completion; allow submission with a gap and authorized reasoned exceptions while retaining gap visibility (ADR-0078)
+- [ ] Deliver dated approval cover for every step, delegate eligibility/absence/conflict checks, audited rerouting, alternate Leave Manager cover, and visible no-cover cases (ADR-0076/0077); include authorized scheduled return with eligibility recheck, audit, notification, and failed-return handling
 - [ ] Add tenant-isolation policies and negative cross-tenant tests
 - [ ] Ensure suspended memberships immediately lose access
 - [ ] Run `[CR]` after each security-boundary story and resolve all blocking/high
@@ -567,6 +572,7 @@ support, backup, and rollback are operational.
 
 ### Post-MVP roadmap
 
+- [ ] Shared Microsoft Graph reporting-relationship synchronization, separate from calendar integration; preserve authorized overrides, NGO/approval eligibility checks, and explicit handling of changes affecting pending requests
 - [ ] Microsoft 365/Outlook calendar synchronization
 - [ ] Google Calendar synchronization
 - [ ] Teams, Slack, and SMS notification adapters

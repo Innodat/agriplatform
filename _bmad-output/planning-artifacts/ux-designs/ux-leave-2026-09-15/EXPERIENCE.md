@@ -19,15 +19,72 @@ coaching is in progress; this is not a finalized experience contract.
 
 ## Component Patterns
 
+### Leave Manager home
+
+Lead with Needs attention, grouped into escalated approvals, balance deficits, and
+requests affected by changes. Preserve separate action permissions. On desktop,
+keep Organization overview beside the heading at the right; use an internal
+navigation arrow. Place Employee actions, Configuration, and Records in a secondary
+right column separated by a subtle vertical divider.
+
+On mobile, use a compact Overview text action beside the title and a Management
+tools control immediately below. The control opens a modal bottom sheet containing
+the same permitted tools in labelled groups with single-column links. Keep the
+attention queue below the control. Do not require scrolling through the queue to
+reach tools, or add a floating action button without demonstrated need. Target
+at least 48px-high actionable rows, with full-row touch targets and visible focus.
+The mobile tools sheet shares modal focus/close conventions, but navigation choices
+open their destination directly; it does not use the filter sheet's Apply step.
+
 ### Organization leave overview
+
+Use the available screen width to separate data controls from presentation controls.
+Place Timeline/List beside the heading, aligned right on desktop. Group the compact
+toolbar into time navigation first, attributes (employee search, location, team,
+status), and modifiers/reset (Show all employees, Clear filters). Use subtle
+dividers between groups and wrap coherently at narrower widths. Keep the legend
+compact and adjacent to the timeline, outside the primary control sequence.
+On mobile, retain a compact date navigation row and place Filters beside the view
+controls below it; List remains the default. Filters opens the shared modal bottom
+sheet defined in platform EXPERIENCE.md. Include employee search, approved/pending
+status choices, location, team, and Show all employees. Apply filters commits and
+closes; Close or Back discards unapplied changes. Reset filters restores defaults
+in the provisional selection: empty search, approved and awaiting approval selected,
+all locations/teams, and Show all employees off. Reset takes effect on Apply.
+The outside badge counts applied groups differing from defaults; omit zero and put
+no count on Apply filters. Keep header/footer reachable around scrollable content.
+
+Provide Search employees alongside the filters, searching employee names within
+the authorized NGO scope and preserving the selected dates and filters. Searching
+does not silently enable Show all employees; users explicitly enable that option
+to include employees without leave in the selected period.
+
+Use checkmark and clock status icons on narrow bars, retaining text where it fits.
+Keep a visible legend, the approved/pending border distinction, and accessible
+status labels. At continuation edges, remove the bar border and retain the chevron.
+The displayed date range is the calendar-picker trigger; omit a separate Date range
+button. Implement it as a keyboard-accessible control with an accessible name.
+
+For an empty period, show No leave to display for these dates and retain date
+navigation and Show all employees. When filters exclude all results, show No leave
+matches these filters with Clear filters. Never infer Everyone is available.
+Loading failures show an error with Retry instead of an empty timeline.
 
 Keep employee names fixed on the left and date headings fixed at the top while
 scrolling the timeline. Mobile retains the default date-grouped list so sideways
 timeline navigation is not required.
+Keep date columns readable and comfortably selectable, using horizontal scrolling
+when a full month does not fit. Allow long employee names to wrap in the fixed
+name column. Exact widths remain provisional pending visual validation.
 
 Show a small continuation marker at either bar edge when the request extends
 beyond the visible date range. Selecting the entry shows its full date range;
 the viewport boundary must not imply the request starts or ends there.
+
+Bars are selectable but cannot be dragged or resized to change dates. Date changes
+use the authorized request change or correction form, including the applicable
+balance, unpaid amount, and approval consequences before confirmation. Make the
+same actions accessible by keyboard and on mobile.
 
 Default to an employee-row timeline for comparing availability, with a List view
 for phones and detailed scanning. Do not add a third month-calendar presentation
@@ -147,6 +204,37 @@ so one NGO can support staff in multiple countries. Preserve existing effective
 configuration, historical request calculations, and authorization rules. The
 employee schedule defaults now use the work-profile pattern described above.
 
+### Administrative leave correction
+
+If an administrative replacement is rejected, show its rejection reason prominently
+and add Correction needs follow-up to the Leave Manager attention queue. Keep the
+original cancelled; do not automatically restore known-incorrect dates. An authorized
+person can edit and resubmit the rejected replacement under the existing resubmission
+rules, preserving history. Keep the unresolved historical record visible for follow-up.
+
+In employee history, make the replacement the main entry with a Corrected label
+separate from its current approval status. Expanded history shows the original as
+Cancelled — replaced by corrected request. Display the replacement on its corrected
+calendar dates with its current approval styling; keep the cancelled original in
+history rather than showing another absence. Preserve both linked audit records.
+
+When the employee opens a correction notification, show the updated request with
+a brief notice naming the correcting actor, original and corrected dates, and the
+employee-visible explanation. Below it, show current approval status and balance
+effect; make the original request accessible through history. Do not require an
+acknowledgement for the returned-early example. Increased requested unpaid leave
+still requires the agreed acknowledgement. These details belong in the authorized
+request view, not in the minimal email or in-app notification payload.
+
+The approved returned-early layout shows the original approved record, corrected
+dates, a before/after comparison, and the balance impact before confirmation.
+Separate restoration of the original deduction from reservation for the linked
+replacement; disclose other calculation effects when applicable. Require an
+employee-visible explanation and explain notification and approval consequences.
+Use Cancel original and submit replacement as the explicit confirmation action.
+Correction permission does not grant approval authority. Preserve the original
+on validation failure and retain its history after successful cancellation.
+
 ### One-off balance adjustment
 
 Show employee and leave type, Add or Deduct followed by an amount, effective date,
@@ -165,6 +253,35 @@ balance adjustment. Apply existing configuration authorization, effective dating
 and audit rules; do not silently rewrite historical grants or requests.
 
 ### Leave-type and policy configuration
+
+Keep approval requirements separate from the source of supervisor assignments.
+Maintain assignments manually for MVP; future shared Microsoft Graph directory
+integration may populate them without replacing Leave's approval rules. Preserve
+authorized overrides, flag missing/invalid assignments, and retain NGO/approver
+eligibility checks. Do not silently reroute pending requests on directory changes.
+
+Open a leave type's current policy as a readable summary before entering edit mode.
+Group it into entitlement/accrual, request rules, approval requirements, and
+documents/privacy. Show its effective date prominently; offer Edit policy to
+authorized managers and previous versions through history. Editing prepares a new
+version and does not immediately modify the active policy.
+
+Use a dedicated editing page on desktop and mobile, with the same four sections
+and expandable advanced options. Managers can directly reach a setting without
+a sequential wizard. Review changes is the primary action; it leads to the
+differences and effective-date review before publishing. This follows the shared
+exception to drawers for longer, complex forms.
+
+Before publishing, show changed settings with previous/new values, the effective
+date, covered employees with overrides distinguished, and any existing requests
+needing attention. Do not silently rewrite existing requests. Keep unchanged
+settings expandable. Offer Back to editing and Publish policy version.
+
+For future publication, retain the current policy as the main summary and show a
+Scheduled change notice with its effective date and a link to the scheduled version.
+Confirm Policy scheduled for [date], rather than implying immediate application.
+Label the future version Scheduled and the existing version Current until the
+effective date.
 
 Start with a leave-type list showing name, current policy, and active/archived
 status. Selecting a type opens configuration grouped into Entitlement, Request
@@ -204,6 +321,45 @@ or other source-correction permissions.
 
 ### Leave Manager escalated approvals
 
+If a temporary approver becomes unavailable after the covered employee's leave is
+approved, retain the leave approval and show Replacement approver needed to
+authorized Leave Managers. Require authorized reassignment; do not automatically
+cancel approved leave or extend another person's authority.
+
+Support planned approval cover for each step, including final approval, with an
+eligible named delegate and effective dates. Flag known approved absence without
+waiting for escalation; missing cover must remain visible. Preserve completed
+decisions and require explicit authorized rerouting for already assigned work.
+Provide alternate authorized Leave Manager cover rather than relying on one actor.
+Do not infer approval authority or substitutes from reporting relationships.
+
+An authorized Leave Manager may select any active member of the same NGO as the
+temporary approver. The explicit appointment supplies authority for the specified
+responsibilities and dates; do not require a permanent Approver role first. Show
+what authority is being granted and record actor/reason/scope/dates. Retain absence,
+membership, and self-approval checks. Do not grant separate medical-document access
+or unrelated approval/editing powers. The temporary authority ends at expiry.
+
+Notify the temporary approver by email and in-app on appointment, changes, and
+early termination. Include whom they act for, assignment dates, and a link to
+Approvals, without sensitive request details. No acceptance step is required in
+MVP; the appointing manager confirms availability beforehand and the assignment
+takes effect on its start date. Delivery uses the shared notification capability.
+
+Use Temporary approver in interface labels instead of cover. During setup, show
+already-waiting requests and offer Include these pending approvals. An authorized
+person confirms the selected reassignment with a recorded reason; completed
+approvals remain unchanged.
+
+During setup, disclose and authorize the default: When this assignment ends,
+unfinished approvals return to [original approver]. At expiry, automatically return
+outstanding steps only after rechecking the original approver's eligibility and
+known continuing absence. Preserve completed approvals, audit the transfer, and
+notify the returning approver. If checks fail, retain the pending request and flag
+an authorized Leave Manager; do not automatically extend temporary authority.
+An authorized extension before expiry postpones the return. This is a scheduled
+transfer authorized at setup, not an unannounced directory-driven reroute.
+
 Queue rows show employee, leave dates, current assigned approver, and time awaiting
 action. Opening an item shows the request and escalation history. Show Reassign
 approver only with existing rerouting permission; require a reason and preserve
@@ -211,6 +367,11 @@ earlier decisions. Apply the active NGO scope and existing permission checks to
 both display and action. Escalation alone grants no approval or rerouting authority.
 
 ### Approver queue
+
+Show delegated requests in the temporary approver's normal Approvals queue with
+a small Acting for [original approver] · until [end date] label. Reuse the usual
+review and approval actions; do not add a separate delegated-work screen. History
+records the actual decision-maker and the original approver they acted for.
 
 Each row shows employee name and leave dates, leave type and duration, elapsed
 time awaiting the current approver's action, and applicable flags such as balance
@@ -238,6 +399,21 @@ On mobile, use a compact list grouped by date rather than compressing the timeli
 Keep all results within permitted team scope, without requiring a separate calendar.
 
 ### Approval review
+
+Include the ability to record a missing-temporary-approver exception in the default
+Leave Manager role, backed by a distinct business permission that advanced custom
+roles may omit. Do not require an extra permission setup step for the default role.
+This capability does not confer approval authority. Use the shared role model in
+platform ADR-0011.
+
+If the applicant has approval responsibilities without coverage for the absence,
+show Approval coverage needed and explain that a temporary approver must be arranged
+before final approval, including coverage for new requests. Allow submission and
+retain the request while an authorized actor arranges cover. An authorized Leave
+Manager may record a justified exception with mandatory reason; keep the unresolved
+gap visible. Exception authority is separate from approval authority and does not
+waive other finalization requirements. Never alter actual absence dates to conceal
+a coverage gap. Enforce the same condition for automatic finalization paths.
 
 Order the content as employee/type/dates/duration, exceptions needing attention
 (including requested unpaid leave), balance effect and employee explanation,

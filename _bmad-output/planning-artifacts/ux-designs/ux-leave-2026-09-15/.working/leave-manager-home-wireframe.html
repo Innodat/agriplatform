@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Manage leave — home wireframe</title>
+<style>
+*{box-sizing:border-box}body{margin:0;color:#252525;background:#f8f8f7;font:16px/1.5 system-ui,sans-serif}header{padding:16px 32px;display:flex;align-items:center;gap:40px;background:white;border-bottom:1px solid #ddd}nav{display:flex;gap:24px}nav a{color:#626262;text-decoration:none}nav strong{font-size:15px}main{max-width:1500px;margin:auto;padding:32px}.heading{display:flex;align-items:center;justify-content:space-between;gap:24px;margin-bottom:32px}h1{font-size:28px;margin:0 0 6px}h2{font-size:20px;margin:0}h3{font-size:16px;margin:0}.muted,.heading p{color:#626262}.heading p{margin:0}a{color:inherit}button{font:inherit;color:inherit;cursor:pointer}.overview{padding:11px 16px;border:1px solid #aaa;border-radius:6px;background:white;text-decoration:none;white-space:nowrap}.layout{display:grid;grid-template-columns:minmax(0,1fr) 280px;gap:48px}.section-head{display:flex;align-items:center;gap:10px;margin-bottom:16px}.count{font-size:13px;color:#555;background:#e9e9e7;border-radius:20px;padding:2px 9px}.queue{background:white;border:1px solid #ddd;border-radius:8px;overflow:hidden;margin-bottom:28px}.queue-title{padding:16px 20px;border-bottom:1px solid #ddd;display:flex;gap:10px;align-items:center;background:#fbfbfa}.row{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;width:100%;text-align:left;border:0;border-bottom:1px solid #e4e4e4;background:white;padding:20px;gap:20px}.row:last-child{border-bottom:0}.row:hover{background:#f6f6f4}.row strong{display:block;margin-bottom:5px;font-weight:650}.row .row-meta{display:block;margin:0;color:#626262;font-size:14px}.row .reason{color:#353535;margin-top:5px}.open{color:#626262;font-size:14px}.side-section{margin-bottom:32px}.side-section h2{font-size:16px;margin-bottom:12px}.side-links{list-style:none;padding:0;margin:0}.side-links li{border-bottom:1px solid #dededc}.side-links button{background:none;border:0;padding:12px 0;text-align:left;width:100%;display:flex;justify-content:space-between;gap:12px}.note{font-size:13px;color:#626262;border-top:1px solid #ddd;margin-top:24px;padding-top:18px;max-width:1000px}.mobile-actions{display:none}button:focus-visible,a:focus-visible,summary:focus-visible{outline:2px solid #333;outline-offset:4px}dialog{border:1px solid #aaa;border-radius:10px;padding:28px;max-width:560px;width:calc(100% - 32px);max-height:85dvh;overflow:auto}dialog::backdrop{background:#0005}dialog h2{margin-bottom:16px}dialog button{background:white;border:1px solid #aaa;padding:9px 18px;border-radius:6px}.empty-example{margin-top:16px;color:#626262;font-size:14px}.empty-example summary{cursor:pointer}.empty-example p{background:white;padding:20px;border:1px solid #ddd;border-radius:6px}
+@media(max-width:850px){main{padding:24px 20px}.layout{grid-template-columns:minmax(0,1fr);gap:12px}.heading{align-items:flex-start;flex-direction:column;gap:16px;margin-bottom:28px}.overview{width:100%;text-align:center}header{padding:16px 20px;gap:22px}nav{gap:16px;font-size:14px}.side-section{margin-bottom:24px}.row{padding:18px 16px;gap:12px}.queue-title{padding:14px 16px}.open{font-size:0}.open:after{content:'›';font-size:22px}h1{font-size:26px}.queue{margin-bottom:24px}.side-links{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:0 24px}}
+@media(max-width:380px){.side-links{grid-template-columns:1fr}nav{gap:10px;font-size:12px}}
+
+aside{border-left:1px solid #ddd;padding-left:28px}.overview-mobile,.mobile-tools-trigger{display:none}.side-links button{min-height:48px}.tools-sheet{position:fixed;inset:auto 0 0;margin:0 auto;max-width:700px;width:100%;max-height:92dvh;padding:0;border-radius:18px 18px 0 0;border-bottom:0;overflow:hidden}.tools-sheet[open]{display:flex;flex-direction:column}.tools-head{display:flex;justify-content:space-between;align-items:center;gap:16px;padding:16px 24px;border-bottom:1px solid #ddd;flex-shrink:0}.tools-head h2{margin:0}.tools-head button{min-width:48px;min-height:48px}.tools-body{padding:20px 24px max(24px,env(safe-area-inset-bottom));overflow:auto;min-height:0}.tools-sheet .side-links{display:block}.tools-sheet .side-links button{border:0;border-radius:0;padding:12px 0;background:none;min-height:48px}.tools-sheet .side-section{margin-bottom:24px}
+@media(max-width:850px){.heading{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:12px;align-items:start;margin-bottom:18px}.heading h1{font-size:24px}.heading p{display:none}.overview{width:auto;padding:8px 0;border:0;background:none;min-height:48px;display:flex;align-items:center;gap:6px}.overview-desktop{display:none}.overview-mobile{display:inline}.mobile-tools-trigger{display:flex;align-items:center;justify-content:space-between;width:100%;min-height:48px;padding:10px 14px;margin-bottom:24px;background:white;border:1px solid #aaa;border-radius:6px}.layout>aside{display:none}.row{min-height:48px}}
+</style>
+</head>
+<body>
+<header><strong>Leave</strong><nav aria-label="Application sections"><a href="apply-wireframe.html">My Leave</a><a href="approval-review-wireframe.html">Approvals</a><strong aria-current="page">Manage Leave</strong></nav></header>
+<main>
+<div class="heading"><div><h1>Manage leave</h1><p>Review issues and manage your organization’s leave.</p></div><a class="overview" aria-label="Organization overview" href="organization-overview-wireframe.html"><span class="overview-desktop">Organization overview</span><span class="overview-mobile">Overview</span> <span aria-hidden="true">→</span></a></div>
+<button id="open-tools" class="mobile-tools-trigger" aria-haspopup="dialog">Management tools <span aria-hidden="true">⌃</span></button>
+<div class="layout">
+<section aria-labelledby="attention-title">
+<div class="section-head"><h2 id="attention-title">Needs attention</h2><span class="count" aria-label="4 items">4</span></div>
+<section class="queue" aria-labelledby="escalated-title"><div class="queue-title"><h3 id="escalated-title">Escalated approvals</h3><span class="count">2</span></div>
+<button class="row" data-title="Ana Isabel Matola Muchanga" data-detail="Annual leave · 12–14 Oct 2026. Awaiting Carlos Mendes for 9 days. The review screen shows the request and escalation history. Reassignment is available only with the separate permission; escalation does not grant approval authority."><span><strong>Ana Isabel Matola Muchanga</strong><span class="row-meta">12–14 Oct 2026 · Annual leave</span><span class="row-meta reason">Awaiting Carlos Mendes · 9 days</span></span><span class="open">Review ›</span></button>
+<button class="row" data-title="António Manuel Joaquim Pereira" data-detail="Annual leave · 19–20 Oct 2026. Awaiting Sofia Fernandes for 7 days. Open the request to review the escalation and permitted next actions."><span><strong>António Manuel Joaquim Pereira</strong><span class="row-meta">19–20 Oct 2026 · Annual leave</span><span class="row-meta reason">Awaiting Sofia Fernandes · 7 days</span></span><span class="open">Review ›</span></button>
+</section>
+<section class="queue" aria-labelledby="deficit-title"><div class="queue-title"><h3 id="deficit-title">Balance deficits</h3><span class="count">1</span></div>
+<button class="row" data-title="Joseph Chileshe Banda" data-detail="Annual leave · 5-day deficit following an employment-end correction. The example begins with 20 days granted and 15 taken; corrected entitlement is 10 days. Review the calculation and record an explained outcome. Any additional entitlement requires an explicit authorized adjustment; no automatic salary deduction or conversion to unpaid leave occurs."><span><strong>Joseph Chileshe Banda</strong><span class="row-meta">Annual leave · 5-day deficit</span><span class="row-meta reason">Employment end date changed</span></span><span class="open">Review ›</span></button>
+</section>
+<section class="queue" aria-labelledby="affected-title"><div class="queue-title"><h3 id="affected-title">Requests affected by changes</h3><span class="count">1</span></div>
+<button class="row" data-title="Maria Fernanda dos Santos" data-detail="Annual leave · 30 Oct–2 Nov 2026. Part of this request falls after the updated employment end date. Review the source change and permitted correction options. The system must not silently trim or cancel the request."><span><strong>Maria Fernanda dos Santos</strong><span class="row-meta">30 Oct–2 Nov 2026 · Annual leave</span><span class="row-meta reason">Leave extends beyond the updated employment end date</span></span><span class="open">Review ›</span></button>
+</section>
+<details class="empty-example"><summary>Preview when nothing needs attention</summary><p>No leave issues need your attention.<br>The organization overview and permitted management tools remain available.</p></details>
+</section>
+<aside aria-label="Management tools">
+<section class="side-section"><h2>Employee actions</h2><ul class="side-links">
+<li><button data-title="Correct leave" data-detail="Choose the employee and request, then review the authorized correction and its consequences. Existing on-behalf permission and a mandatory explanation apply.">Correct leave <span aria-hidden="true">›</span></button></li>
+<li><button data-title="Apply on behalf" data-detail="Choose the employee and prepare their request under the separate on-behalf permission. Record a reason and visible attribution.">Apply on behalf <span aria-hidden="true">›</span></button></li>
+<li><button data-title="Adjust a balance" data-detail="Choose employee, leave type, amount, effective date, and reason. Preview the resulting balance and affected requests before confirming under the separate adjustment permission.">Adjust a balance <span aria-hidden="true">›</span></button></li>
+</ul></section>
+<section class="side-section"><h2>Configuration</h2><ul class="side-links">
+<li><button data-title="Leave types and policies" data-detail="Open the agreed policy list and effective-dated version editor.">Leave types &amp; policies <span aria-hidden="true">›</span></button></li>
+<li><button data-title="Work profiles and schedules" data-detail="Manage inherited work profiles, employee overrides, and effective-dated schedule changes with impact review.">Work profiles &amp; schedules <span aria-hidden="true">›</span></button></li>
+<li><button data-title="Holiday calendars" data-detail="Manage configured location calendars and assignments.">Holiday calendars <span aria-hidden="true">›</span></button></li>
+<li><button data-title="Employee entitlements" data-detail="Review employee-specific entitlement overrides alongside their policy defaults.">Employee entitlements <span aria-hidden="true">›</span></button></li>
+</ul></section>
+<section class="side-section"><h2>Records</h2><ul class="side-links">
+<li><button data-title="Reports" data-detail="Open the report list with permitted filtering and CSV export.">Reports <span aria-hidden="true">›</span></button></li>
+<li><button data-title="Audit history" data-detail="Open searchable chronological history with authorized before-and-after details.">Audit history <span aria-hidden="true">›</span></button></li>
+</ul></section>
+</aside>
+</div>
+<p class="note">Design sketch · Illustrative records and counts. This example assumes permission to use the displayed management tools. Opening a row shows a prototype explanation; the application will use the agreed review drawer or mobile full page. Management role, approval authority, and document access remain separate. The organization overview link opens its wireframe. On mobile, Management tools opens the bottom sheet; selecting a tool opens a destination preview. Mobile browser Back integration is not simulated.</p>
+</main>
+<dialog id="preview" aria-labelledby="preview-title"><p class="muted">Destination preview</p><h2 id="preview-title"></h2><p id="preview-detail"></p><form method="dialog"><button>Close</button></form></dialog>
+<dialog id="tools-sheet" class="tools-sheet" aria-labelledby="tools-title"><div class="tools-head"><h2 id="tools-title">Management tools</h2><button id="close-tools" aria-label="Close management tools">✕</button></div><div class="tools-body">
+<section class="side-section"><h2>Employee actions</h2><ul class="side-links">
+<li><button data-title="Correct leave" data-detail="Choose the employee and request, then review the authorized correction and its consequences. Existing on-behalf permission and a mandatory explanation apply.">Correct leave <span aria-hidden="true">›</span></button></li>
+<li><button data-title="Apply on behalf" data-detail="Choose the employee and prepare their request under the separate on-behalf permission. Record a reason and visible attribution.">Apply on behalf <span aria-hidden="true">›</span></button></li>
+<li><button data-title="Adjust a balance" data-detail="Choose employee, leave type, amount, effective date, and reason. Preview the resulting balance and affected requests before confirming under the separate adjustment permission.">Adjust a balance <span aria-hidden="true">›</span></button></li>
+</ul></section>
+<section class="side-section"><h2>Configuration</h2><ul class="side-links">
+<li><button data-title="Leave types and policies" data-detail="Open the agreed policy list and effective-dated version editor.">Leave types &amp; policies <span aria-hidden="true">›</span></button></li>
+<li><button data-title="Work profiles and schedules" data-detail="Manage inherited work profiles, employee overrides, and effective-dated schedule changes with impact review.">Work profiles &amp; schedules <span aria-hidden="true">›</span></button></li>
+<li><button data-title="Holiday calendars" data-detail="Manage configured location calendars and assignments.">Holiday calendars <span aria-hidden="true">›</span></button></li>
+<li><button data-title="Employee entitlements" data-detail="Review employee-specific entitlement overrides alongside their policy defaults.">Employee entitlements <span aria-hidden="true">›</span></button></li>
+</ul></section>
+<section class="side-section"><h2>Records</h2><ul class="side-links">
+<li><button data-title="Reports" data-detail="Open the report list with permitted filtering and CSV export.">Reports <span aria-hidden="true">›</span></button></li>
+<li><button data-title="Audit history" data-detail="Open searchable chronological history with authorized before-and-after details.">Audit history <span aria-hidden="true">›</span></button></li>
+</ul></section>
+</div></dialog>
+<script>
+const preview=document.getElementById('preview');
+const toolsSheet=document.getElementById('tools-sheet');
+const toolsTrigger=document.getElementById('open-tools');
+toolsTrigger.addEventListener('click',()=>toolsSheet.showModal());
+document.getElementById('close-tools').addEventListener('click',()=>toolsSheet.close());
+toolsSheet.addEventListener('close',()=>toolsTrigger.focus());
+document.querySelectorAll('[data-title]').forEach(button=>button.addEventListener('click',()=>{
+ if(toolsSheet.open) toolsSheet.close();
+ document.getElementById('preview-title').textContent=button.dataset.title;
+ document.getElementById('preview-detail').textContent=button.dataset.detail;
+ preview.showModal();
+}));
+</script>
+</body></html>

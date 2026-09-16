@@ -101,6 +101,25 @@ automatically grant business-data or document access inside an NGO.
 
 ## Permissions
 
+Use application-maintained default roles backed by explicit business-capability
+permissions, with advanced custom roles as defined by
+[platform ADR-0011](../../../platform/docs/architecture/decisions/0011-application-roles-and-business-permissions.md).
+Default-role setup does not require clients to configure each permission. Custom
+roles can begin as copies; new permissions require review rather than silently
+expanding custom access. Production grants require an authorized actor.
+
+Combine assigned-role grants within the active NGO while preserving their scopes;
+absence of a permission in one custom role does not deny a grant from another.
+Approval-step assignment, self-approval rules, and sensitive-document checks remain
+independent requirements. Use shared platform access management and reusable role
+controls; Leave owns its catalog and enforces request-level checks in its API.
+
+Recording a justified exception for missing temporary approvers is an underlying
+capability included in Leave Manager by default. No additional client setup is
+required for that role. A custom role may omit it. This permission does not grant
+approval authority, and the explanation, audit, and unresolved-gap requirements
+remain. The catalog identifier will be set during permission-contract design.
+
 The role and permission model was approved on 2026-09-01. The permission families
 are:
 
@@ -1079,6 +1098,87 @@ Approvers can be resolved from:
 The resolved workflow is snapshotted on submission. Later organization changes do
 not silently replace an in-flight workflow without an explicit reroute action.
 
+#### Approval cover and planned absence
+
+Allow leave submission when the applicant's approval responsibilities lack temporary
+coverage; make the gap visible. Before final approval, require eligible coverage
+throughout the absence for those responsibilities, including new requests that may
+arrive. Employees without approval responsibilities have no such coverage condition.
+The employee need not have permission to appoint a substitute; an authorized actor
+arranges the assignment. Existing submission validation and approval-route rules
+still apply.
+
+An authorized Leave Manager may record an explicit coverage exception, with a
+mandatory reason, for unexpected sickness, emergencies, or other justified cases.
+Keep the unresolved gap prominent; the exception does not claim coverage exists,
+grant approval authority, or satisfy other approval requirements. Do not falsely
+delay or alter the recorded dates of an actual absence because coverage is missing.
+This condition applies to final approval, including any path that would otherwise
+complete approval automatically. See
+[ADR-0078](./architecture/decisions/0078-approval-coverage-before-final-approval.md).
+
+If arranged coverage becomes unavailable after the employee's leave has been
+approved, retain that approval. Flag **Replacement approver needed** to authorized
+Leave Managers and require reassignment under existing permissions. Do not
+automatically cancel the employee's leave or extend another person's authority.
+
+Include effective-dated delegation and authorized reassignment in MVP. An authorized
+Leave Manager can appoint any active member of the same NGO for specified approval
+responsibilities and dates, including second/final approval. The appointment itself
+grants that scoped temporary authority; no permanent Approver role is required.
+Record appointing actor, reason, responsibilities, and dates. Apply approved cover
+to work requiring action during the covered period. Check active NGO membership,
+known absence, and self-approval conflicts. Grant no separate sensitive-document
+access, permanent approval role, or unrelated approval/editing powers. Authority
+expires with the assignment and cannot be used after membership becomes inactive.
+See [ADR-0079](./architecture/decisions/0079-temporary-appointment-grants-scoped-authority.md).
+
+Notify the temporary approver by email and in-app on appointment, changes, and
+early termination, with the original approver, assignment dates, and a link to
+Approvals. Do not include sensitive request details. No additional acceptance step
+is required in MVP; the appointing manager confirms availability beforehand and the
+assignment takes effect on its start date. Use the shared notification capability.
+
+Keep the workflow snapshot rule: changes to already assigned outstanding steps
+require an explicit, permission-checked, audited reroute. Do not silently replace
+an assignee when delegation dates or directory relationships change. Preserve
+completed approvals. A return transfer explicitly authorized during temporary
+assignment setup may execute at the agreed expiry as described below.
+
+During temporary-approver setup, show already-waiting requests and offer
+**Include these pending approvals**. Require authorized confirmation of the
+selected reassignment and record its reason. Completed approvals remain unchanged.
+Use **Temporary approver** in the interface. This confirms the treatment of pending
+requests at setup.
+
+Default to an explicitly authorized scheduled return: **When this assignment ends,
+unfinished approvals return to [original approver].** At expiry, return outstanding
+steps only after rechecking the original approver's eligibility and known continuing
+absence. Retain completed approvals, record the transfer, and notify the returning
+approver. If checks fail, keep the request pending and flag an authorized Leave
+Manager; temporary authority must not automatically extend. An authorized extension
+before expiry postpones the return. See
+[ADR-0077](./architecture/decisions/0077-scheduled-return-of-temporary-approvals.md).
+
+Flag known approved absence as a coverage concern; do not choose a substitute
+automatically from the organization chart or wait seven days to flag known absence.
+An authorized Leave Manager can reassign outstanding work with a recorded reason.
+Support more than one Leave Manager with the separate reassignment permission so
+administrative cover does not depend on a single person. If no eligible cover is
+available, existing requests remain pending with a coverage issue; never skip or
+automatically approve a required step. The normal seven-day escalation still applies
+to unanswered approvals and grants no additional authority.
+
+Acceptance scenarios for delivery: supervisor and final approver both have dated
+delegates; the primary Leave Manager is also absent but an authorized alternate can
+reroute; missing eligible cover leaves a pending request unresolved and visible;
+an ineligible, absent, or self-conflicting delegate is flagged before assignment;
+rerouting retains earlier approvals and records the actor and reason.
+
+See [ADR-0076](./architecture/decisions/0076-approval-cover-and-planned-delegation.md).
+
+#### Approval decisions
+
 Self-approval is disabled by default and can be enabled explicitly. If one person
 occupies multiple consecutive steps, configured rules determine whether redundant
 steps collapse; the same person is not asked to perform an identical decision twice.
@@ -1398,6 +1498,12 @@ covers the active NGO under the MVP NGO-wide role scope. Work queues and actions
 remain subject to their separate permissions; Leave Manager status does not
 automatically make the actor an approver.
 
+A rejected administrative correction appears as **Correction needs follow-up** in
+the Leave Manager attention queue. Show the replacement's rejection reason and
+allow authorized edit/resubmission under the existing rejected-request lifecycle.
+The original stays cancelled rather than automatically restoring incorrect dates;
+retain both linked histories and keep the unresolved correction visible for follow-up.
+
 Acceptance example: A Leave Manager in NGO A can view its organization-wide leave
 overview, including employees in different departments, and find the administrative
 queues and configuration shortcuts on their home screen. They cannot use that
@@ -1699,6 +1805,11 @@ item, not a completed MVP capability. See
 
 ## MVP exclusions
 
+- Microsoft Graph reporting-relationship synchronization: a future shared platform
+  directory capability, separate from calendar integration. MVP supervisor assignments
+  are maintained manually. Leave continues to own approval rules; future imports
+  must preserve authorized overrides, flag missing/invalid managers, check NGO
+  membership and approval eligibility, and never silently reroute pending requests.
 - Microsoft 365, Google Calendar, payroll, and HRIS integrations
 - Teams, Slack, and SMS delivery
 - Generic drag-and-drop workflow builder

@@ -92,3 +92,7 @@ and are linked rather than duplicated here.
 | [0073](./0073-calm-practical-visual-direction.md) | Accepted | Calm, spacious, neutral visual design with a primary-action accent, expandable detail, and familiar accessible platform controls |
 | [0074](./0074-duration-only-partial-day-leave.md) | Accepted | Partial days use duration without exact times; warn on same-date requests and block daily totals above scheduled hours |
 | [0075](./0075-single-draft-and-safe-close.md) | Accepted | One employee application draft per employee per NGO; Apply resumes it; safe Close and confirmed discard |
+| [0076](./0076-approval-cover-and-planned-delegation.md) | Superseded in part by 0077 and 0079 | Dated approval cover; scheduled return and appointment-granted authority refined by later decisions |
+| [0077](./0077-scheduled-return-of-temporary-approvals.md) | Accepted | Authorize automatic return at temporary-assignment expiry with eligibility checks, audit, notification, and unresolved-cover fallback |
+| [0078](./0078-approval-coverage-before-final-approval.md) | Accepted | Require coverage before final approval, including automatic completion, with authorized explained exceptions; qualifies 0007/0008 |
+| [0079](./0079-temporary-appointment-grants-scoped-authority.md) | Accepted | Authorized temporary appointment grants bounded approval authority to active NGO members without a permanent approver role |

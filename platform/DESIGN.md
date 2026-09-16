@@ -3,7 +3,7 @@ name: Agriplatform
 description: Shared visual conventions under development, first exercised through Leave.
 status: draft
 created: 2026-09-15
-updated: 2026-09-15
+updated: 2026-09-16
 sources:
   - docs/architecture/decisions/README.md
 ---
@@ -23,6 +23,19 @@ full-page presentation when the viewport cannot comfortably contain it. The exac
 widths, padding, breakpoints, and tokens remain to be validated with the Leave form.
 
 ## Components
+
+### Collection toolbar and mobile filter sheet
+
+Place desktop view toggles at the opposite end of the heading from the title.
+Arrange data controls in compact purpose-based groups with restrained separators,
+using available width before adding rows. Legends remain visually secondary beside
+their data. Avoid giving every filter an independent full-width row on desktop.
+
+On mobile, use a bottom sheet for grouped filters: clear heading, close and reset
+controls, generously spaced labelled fields, and a persistent Apply action. Keep
+the background recognizable but inactive. Let content scroll without obscuring the
+header or footer. Exact sizing, breakpoints, and tokens require validation; behavior
+and application ownership are defined in [EXPERIENCE.md](./EXPERIENCE.md).
 
 ### Task drawer
 
