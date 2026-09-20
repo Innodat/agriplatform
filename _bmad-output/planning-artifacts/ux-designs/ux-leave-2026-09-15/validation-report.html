@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<!--
+  UX Design Validation Report — skeleton template.
+
+  This file is a starter the synthesis pass fills in directly. There is no
+  substitution engine. The LLM:
+    1. Reads {doc_workspace}/review-rubric.md and every review-{slug}.md from
+       additional reviewers.
+    2. Copies this skeleton.
+    3. Replaces the placeholder content (everything between TEMPLATE markers)
+       with the consolidated review, preserving the structure and CSS.
+    4. Writes the result to {doc_workspace}/validation-report.html.
+    5. Writes a markdown twin to {doc_workspace}/validation-report.md.
+
+  Visual rules the LLM must preserve:
+    - The container width, the color tokens, the typography.
+    - One dimension = one collapsible <section class="dimension">.
+    - Verdict pill uses the verdict-* class matching its judgment.
+    - Severity badge uses the badge-sev-* class matching its level.
+    - Each extra reviewer (accessibility, adversarial, etc.) gets its own
+      collapsible section below the rubric dimensions.
+    - The footer always shows the artifact paths and timestamp.
+-->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>UX Design Validation: Leave</title>
+<style>
+  :root {
+    --bg: #fafaf9;
+    --surface: #ffffff;
+    --border: #e7e5e4;
+    --text: #1c1917;
+    --muted: #78716c;
+
+    --verdict-strong: #16a34a;
+    --verdict-adequate: #65a30d;
+    --verdict-thin: #d97706;
+    --verdict-broken: #dc2626;
+
+    --sev-low: #64748b;
+    --sev-medium: #ca8a04;
+    --sev-high: #ea580c;
+    --sev-critical: #dc2626;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Inter, system-ui, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.6;
+    font-size: 15px;
+  }
+  .container { max-width: 960px; margin: 0 auto; padding: 32px 24px 64px; }
+
+  header.report-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 24px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 24px;
+  }
+  .title h1 { margin: 0; font-size: 22px; font-weight: 600; letter-spacing: -0.01em; }
+  .title .subtitle { color: var(--muted); font-size: 13px; margin-top: 4px; font-family: ui-monospace, "SF Mono", Menlo, monospace; }
+
+  .synthesis {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--muted);
+    border-radius: 8px;
+    padding: 18px 22px;
+    margin-bottom: 24px;
+    font-size: 15.5px;
+  }
+  .synthesis p { margin: 0 0 10px; }
+  .synthesis p:last-child { margin-bottom: 0; }
+
+  .dimension-summary {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 10px;
+    margin-bottom: 24px;
+  }
+  .dim-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 12px 14px;
+  }
+  .dim-card .dim-name { font-size: 13px; color: var(--muted); margin-bottom: 6px; }
+  .dim-card .dim-verdict { font-size: 14px; font-weight: 600; }
+
+  section.dimension, section.reviewer-section { margin-bottom: 14px; }
+  section.dimension details, section.reviewer-section details {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    overflow: hidden;
+  }
+  section summary {
+    padding: 14px 20px;
+    cursor: pointer;
+    user-select: none;
+    list-style: none;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  section summary::-webkit-details-marker { display: none; }
+  section summary::before {
+    content: "▸";
+    display: inline-block;
+    color: var(--muted);
+    transition: transform 0.15s ease;
+  }
+  section details[open] summary::before { transform: rotate(90deg); }
+  section summary h2 {
+    display: inline;
+    margin: 0;
+    font-size: 16px;
+    font-weight: 600;
+    letter-spacing: -0.005em;
+    flex: 1;
+  }
+  .verdict-pill {
+    font-size: 11px;
+    padding: 3px 10px;
+    border-radius: 999px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: white;
+  }
+  .verdict-strong { background: var(--verdict-strong); }
+  .verdict-adequate { background: var(--verdict-adequate); }
+  .verdict-thin { background: var(--verdict-thin); }
+  .verdict-broken { background: var(--verdict-broken); }
+
+  .dim-body { padding: 4px 20px 18px; }
+  .dim-judgment { color: var(--text); font-size: 14.5px; }
+  .dim-judgment p { margin: 0 0 10px; }
+
+  .findings-list { padding: 0 20px 4px; }
+  article.finding {
+    padding: 14px 0;
+    border-top: 1px solid var(--border);
+  }
+  article.finding:first-child { border-top: none; }
+  article.finding header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-bottom: 6px;
+  }
+  .badge {
+    font-size: 10.5px;
+    padding: 3px 8px;
+    border-radius: 4px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    line-height: 1.4;
+  }
+  .badge-sev-low { background: rgba(100, 116, 139, 0.12); color: var(--sev-low); }
+  .badge-sev-medium { background: rgba(202, 138, 4, 0.14); color: var(--sev-medium); }
+  .badge-sev-high { background: rgba(234, 88, 12, 0.14); color: var(--sev-high); }
+  .badge-sev-critical { background: rgba(220, 38, 38, 0.14); color: var(--sev-critical); }
+  .finding-title { margin: 0; font-size: 15px; font-weight: 500; flex: 1; min-width: 200px; }
+  .finding-location { font-family: ui-monospace, "SF Mono", Menlo, monospace; font-size: 12.5px; color: var(--muted); }
+  .finding-note, .finding-fix { margin-top: 6px; font-size: 14px; }
+  .finding-fix strong { color: var(--muted); font-weight: 500; }
+
+  .reviewer-source {
+    font-size: 12px;
+    color: var(--muted);
+    font-family: ui-monospace, "SF Mono", Menlo, monospace;
+  }
+
+  .mechanical {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 16px 20px;
+    margin-top: 24px;
+    font-size: 14px;
+  }
+  .mechanical h3 { margin: 0 0 10px; font-size: 14px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.04em; }
+  .mechanical ul { margin: 0; padding-left: 20px; }
+  .mechanical li { margin-bottom: 4px; color: var(--text); }
+
+  footer.report-footer {
+    margin-top: 40px;
+    padding-top: 16px;
+    border-top: 1px solid var(--border);
+    font-size: 12px;
+    color: var(--muted);
+    font-family: ui-monospace, "SF Mono", Menlo, monospace;
+  }
+  footer .meta { display: flex; gap: 24px; flex-wrap: wrap; }
+</style>
+</head>
+
+<body><div class="container"><header class="report-header"><div class="title"><h1>Leave — UX Design Validation Report</h1><div class="subtitle">Draft design contracts · 18 September 2026</div></div></header>
+<div class="synthesis"><p>The accepted interaction direction is coherent and well preserved: the employee, approval and management journeys fit together, named composites agree between the spines, and references resolve. The pair is still a planning draft rather than a complete implementation contract: visual tokens, some operational journeys and adverse states remain deliberately open, and recurring-entitlement effective dates need one explicit product decision. These are predominantly acknowledged handoff gaps, not regressions or reasons to reopen approved preferences.</p><p>The accessibility review adds three medium and one low interaction-contract gaps: focus transitions, consequential status announcements, validation-error navigation, and selected-date state. These call for shared behavior clarifications rather than a redesign. This is a static document and prototype review, not rendered-browser testing or an accessibility compliance assessment.</p><p>Severity describes the risk of treating these drafts as implementation-ready. The critical token finding is an acknowledged handoff blocker, not a regression or a defect in a deployed application. No design source or approved business rule was changed by this review.</p></div>
+<div class="dimension-summary">
+<div class="dim-card"><div class="dim-name">Flow coverage</div><div class="dim-verdict">thin</div></div>
+<div class="dim-card"><div class="dim-name">Token completeness</div><div class="dim-verdict">broken</div></div>
+<div class="dim-card"><div class="dim-name">Component coverage</div><div class="dim-verdict">adequate</div></div>
+<div class="dim-card"><div class="dim-name">State coverage</div><div class="dim-verdict">thin</div></div>
+<div class="dim-card"><div class="dim-name">Visual reference coverage</div><div class="dim-verdict">strong</div></div>
+<div class="dim-card"><div class="dim-name">Bloat &amp; overspecification</div><div class="dim-verdict">adequate</div></div>
+<div class="dim-card"><div class="dim-name">Inheritance discipline</div><div class="dim-verdict">thin</div></div>
+<div class="dim-card"><div class="dim-name">Shape fit</div><div class="dim-verdict">strong</div></div>
+</div>
+<section class="dimension"><details open><summary><h2>Flow coverage</h2><span class="verdict-pill verdict-thin">thin</span></summary><div class="dim-body"><div class="dim-judgment"><p>Pass 1: extracted the twenty feature-catalogue headings plus Permissions and compared them with the source-to-flow mapping in consolidation-coverage.md. Sixteen named-protagonist flows contain numbered steps, a climax and failure/limits. Feature headings are mapped rather than silently omitted; no UJ identifiers exist to preserve. Mapping alone does not close every required journey.</p></div></div><div class="findings-list"><article class="finding"><header><span class="badge badge-sev-high">high</span><h3 class="finding-title">UX-R01 — High-impact management journeys lack a complete decision path</h3></header><div class="finding-note"><p>EXPERIENCE.md Information Architecture, lines 51–65, and Key Flows 3, 5, 11 and 15 acknowledge dedicated balance-override/deficit, full employment/setup and profile/configuration gaps. In particular, the balance override is mentioned inside ordinary approval, but the authorized actor&#x27;s allocation choice, employee acknowledgement handoff and return to the blocked approval are not demonstrated as one complete journey. The employee future-date balance projection is listed in IA but has no end-to-end flow.</p></div><div class="finding-fix"><strong>Fix:</strong><p>close the balance-override/revised-acknowledgement and projection journeys, then use the existing coverage inventory to identify which remaining admin actions need dedicated layouts versus established form patterns. Do not create one flow per ledger calculation or a client migration-confirmation page.</p></div></article></div></details></section>
+<section class="dimension"><details open><summary><h2>Token completeness</h2><span class="verdict-pill verdict-broken">broken</span></summary><div class="dim-body"><div class="dim-judgment"><p>Pass 1: DESIGN.md frontmatter contains five deliberately empty token maps. No actual token references dangle; the literal <code>{path.to.token}</code> in explanatory prose is syntax guidance. Shared platform DESIGN.md has no approved token library to inherit. WCAG AA is an explicit target; a single illustrative text pair is not a complete palette verification.</p></div></div><div class="findings-list"><article class="finding"><header><span class="badge badge-sev-critical">critical</span><h3 class="finding-title">UX-R02 — There is no executable visual token contract</h3></header><div class="finding-note"><p>Leave DESIGN.md lines 11–15 and Colors lines 34–41; platform/DESIGN.md Layout &amp; Spacing and Open Visual Decisions. Surface, foreground, primary-action, border and focus combinations have no committed values or resolvable inherited tokens. This is explicitly disclosed and intentional for the draft, but implementations would otherwise invent incompatible palettes and cannot verify the promised contrast.</p></div><div class="finding-fix"><strong>Fix:</strong><p>approve a shared starting theme and committed color pairs, map Leave to it, and record typography/spacing/radius and responsive decisions needed by its components. Preserve the draft/readiness gate until then; do not silently adopt mock CSS or add a dark-mode palette unless dark mode is selected.</p></div></article></div></details></section>
+<section class="dimension"><details><summary><h2>Component coverage</h2><span class="verdict-pill verdict-adequate">adequate</span></summary><div class="dim-body"><div class="dim-judgment"><p>Pass 1: all 26 named EXPERIENCE Component Patterns sections have exact corresponding DESIGN Components rows with meaningful visual rules. Drawers, dialogs, uploads, filters and return navigation inherit explicit platform behaviors. Primitive widget coverage remains weaker than composite coverage.</p></div></div><div class="findings-list"><article class="finding"><header><span class="badge badge-sev-medium">medium</span><h3 class="finding-title">UX-R03 — Date and duration controls remain a composition gap</h3></header><div class="finding-note"><p>DESIGN.md Apply for leave and Agreed wireframe refinements; EXPERIENCE.md Apply for leave, Agreed wireframe refinements and Interaction Primitives. A unified range picker, single-date partial-day controls and a duration input are named, but their complete composition and invalid/incomplete range behavior are not assigned to an approved shared control or documented as an application delta. Manual/keyboard entry is required, which is a useful floor, but does not resolve the input/error behavior.</p></div><div class="finding-fix"><strong>Fix:</strong><p>select or document the shared control behavior, then specify only Leave-specific date/duration constraints and examples. Keep the agreed duration-only partial-day model; do not introduce exact times.</p></div></article></div></details></section>
+<section class="dimension"><details open><summary><h2>State coverage</h2><span class="verdict-pill verdict-thin">thin</span></summary><div class="dim-body"><div class="dim-judgment"><p>Pass 1: every IA group appears in the State Patterns matrix. Employee submission/save/access and approval-staleness handling are comparatively detailed. The matrix honestly lists unfinished loading, publishing, export, configuration-concurrency and notification states.</p></div></div><div class="findings-list"><article class="finding"><header><span class="badge badge-sev-high">high</span><h3 class="finding-title">UX-R04 — Administrative editing and confirmation lack a committed persistence/recovery contract</h3></header><div class="finding-note"><p>EXPERIENCE.md State Patterns lines 855–859; Key Flows 8–11 and 16; platform/EXPERIENCE.md Open Implementation Details. The shared Close/Back rules explicitly describe autosaved drafts, while policy, entitlement, schedule and custom-role editors have review/confirm actions without establishing whether their unconfirmed edits persist, what happens when leaving, or how a failed/uncertain confirmation and concurrent change are recovered. A consumer could accidentally equate saving editor input with publishing or granting access.</p></div><div class="finding-fix"><strong>Fix:</strong><p>define one reusable admin edit → review → confirm state pattern with explicit draft persistence and close semantics, stale-review invalidation and confirmed/unknown-result recovery. Apply domain-specific consequences without changing the separate employee draft policy.</p></div></article><article class="finding"><header><span class="badge badge-sev-medium">medium</span><h3 class="finding-title">UX-R05 — Collection and secondary-surface fallback treatment is not yet a real inherited contract</h3></header><div class="finding-note"><p>EXPERIENCE.md State Patterns lines 851–860 and Reports lines 760–765; platform/EXPERIENCE.md State Patterns. The Leave matrix describes some loading/empty/error/export feedback as inherited, while the platform says applications still specify it and Reports correctly says shared behavior is used “when established.” This is an unresolved dependency, not an implemented-service defect.</p></div><div class="finding-fix"><strong>Fix:</strong><p>establish a small shared loading / empty / filtered-empty / failed-load / retry / failed-export pattern and identify application-specific cases, including team-availability failure inside a decision and notification failure. Never turn a failed fetch into a truthful-looking empty result.</p></div></article></div></details></section>
+<section class="dimension"><details><summary><h2>Visual reference coverage</h2><span class="verdict-pill verdict-strong">strong</span></summary><div class="dim-body"><div class="dim-judgment"><p>Pass 1: all 17 <code>.working/*.html</code> references are linked from the spines with specific composition purposes; no orphan mock or broken local spine link was found. No promoted mockups/wireframes/imports are presented as complete. EXPERIENCE Foundation states spines win over mocks for presentation, while source requirements and accepted ADRs govern business rules. Explicitly labelled partial/spine-only surfaces remain coverage gaps under Flow and State coverage, not broken links. Promotion and browser verification are unfinished draft work, not contradictory evidence.</p></div></div><div class="findings-list"></div></details></section>
+<section class="dimension"><details><summary><h2>Bloat &amp; overspecification</h2><span class="verdict-pill verdict-adequate">adequate</span></summary><div class="dim-body"><div class="dim-judgment"><p>Pass 2: the visual spine is restrained and appropriately refuses to turn sample CSS into requirements. The experience spine preserves useful exceptions but sometimes states the same rules several times.</p></div></div><div class="findings-list"><article class="finding"><header><span class="badge badge-sev-low">low</span><h3 class="finding-title">UX-R06 — Repeated policy-publication rules increase maintenance drift</h3></header><div class="finding-note"><p>EXPERIENCE.md Leave-type and policy configuration, especially lines 687–712, repeats changed values/effective-date/impact review and protection of existing requests; similar brief repetitions occur across Components, State Patterns and Key Flows.</p></div><div class="finding-fix"><strong>Fix:</strong><p>keep each detailed rule in one canonical component/state section and retain short linked walkthrough summaries. Preserve meaningful failure paths and source links; do not shorten away approval/acknowledgement safeguards.</p></div></article></div></details></section>
+<section class="dimension"><details open><summary><h2>Inheritance discipline</h2><span class="verdict-pill verdict-thin">thin</span></summary><div class="dim-body"><div class="dim-judgment"><p>Pass 1 and 2: local sources and Markdown links resolve. Unified Approver terminology, normal-versus-temporary authority, separate document access, missing route versus missing applicant coverage, and platform/application ownership remain coherent. Composite names match exactly. No implementation import or runtime availability is implied by inheritance.</p></div></div><div class="findings-list"><article class="finding"><header><span class="badge badge-sev-high">high</span><h3 class="finding-title">UX-R07 — “Next leave-period start” is a default in the source but reads as a fixed input in the walkthrough</h3></header><div class="finding-note"><p>features.md §5, lines 240–250, permits effective-dated changes and defaults to next period; EXPERIENCE.md Employee entitlement override lines 637–659 repeats that default but labels the field “Next leave-period start”; Key Flow 10 step 2 supplies the next period without stating whether alternatives are possible. consolidation-coverage.md explicitly identifies non-default midperiod starts as unresolved. This is a known decision gap, not evidence that either alternative was approved.</p></div><div class="finding-fix"><strong>Fix:</strong><p>obtain an explicit choice between period-boundary-only recurring changes and an authorized non-default effective date. Then align the field, review and source. If non-default dates remain possible, define their prospective grant/accrual effects without silently resetting current balances or rewriting history.</p></div></article></div></details></section>
+<section class="dimension"><details><summary><h2>Shape fit</h2><span class="verdict-pill verdict-strong">strong</span></summary><div class="dim-body"><div class="dim-judgment"><p>Pass 2: DESIGN follows canonical section order. EXPERIENCE contains Foundation, Information Architecture, Voice and Tone, Component Patterns, State Patterns, Interaction Primitives, Accessibility Floor, Responsive &amp; Platform, Inspiration &amp; Anti-patterns and Key Flows. Additional coverage/reconciliation documents earn their place by separating open questions and evidence from approved rules. No invented persona or unnecessary new flow is needed to satisfy the format.</p></div></div><div class="findings-list"></div></details></section>
+<section class="reviewer-section"><details><summary><h2>Accessibility review</h2><span class="reviewer-source">review-accessibility.md</span></summary><div class="dim-body"><p>Three medium findings and one low finding; no critical or high findings established. These are gaps to resolve before adopting the drafts as a production interaction contract, not evidence that the existing layout preferences are unsuitable. No browser, keyboard, assistive-technology, zoom, touch, or contrast-palette test was performed. No compliance result is claimed. This review cites repository evidence; it does not add a new interpretation of an external standard.</p><p>Reviewed Leave DESIGN.md and EXPERIENCE.md, platform equivalents, and the Apply, Organization overview, Employee history, and Custom-role HTML studies. The shared modal focus containment/restoration, equivalent history List, accessible status labels, manual date entry, persistent save feedback, and inactive modal background are already sound requirements. Keep them. Missing theme tokens and unrendered states are explicitly acknowledged by the drafts and are not rediscovered defects.</p></div><div class="findings-list"><article class="finding"><header><span class="badge badge-sev-medium">medium</span><h3 class="finding-title">A11Y-01 — Focus after replacing a form or changing its presentation is unspecified</h3></header><div class="finding-note"><p><strong>Evidence:</strong> <a href="./EXPERIENCE.md#submitted-request">Submitted request</a> replaces the application form with request details in the same drawer. <a href="./EXPERIENCE.md#interaction-primitives">Interaction Primitives</a> and <a href="./EXPERIENCE.md#responsive--platform">Responsive &amp; Platform</a> switch contextual tasks between a modal drawer and a full page. Shared <a href="../../../../platform/EXPERIENCE.md#closing-autosaved-forms">Closing autosaved forms</a> requires containment and restoration on close, but does not cover these transitions.</p><p><strong>Consequence:</strong> Submission can remove the focused Submit button without putting focus on the new request context. A resize/zoom transition can leave modal trapping or an inactive background attached to a full-page layout. This is a missing shared contract, not an assertion about a current runtime implementation.</p></div><div class="finding-fix"><strong>Fix:</strong><p>Specify that successful form replacement focuses the resulting request heading, and full-page task entry announces its heading through deliberate focus. During a responsive transition, preserve the active field if it survives; otherwise focus the task heading. Apply modal containment/inactive-background rules only while the surface is modal. Continue using the approved save/leave safeguards. One shared paragraph and targeted delivery checks are sufficient.</p></div></article><article class="finding"><header><span class="badge badge-sev-medium">medium</span><h3 class="finding-title">A11Y-02 — Dynamic feedback has visible wording but no agreed announcement behavior</h3></header><div class="finding-note"><p><strong>Evidence:</strong> <a href="./EXPERIENCE.md#temporary-connection-loss">Temporary connection loss</a> puts an important failure beside the footer, while <a href="./EXPERIENCE.md#apply-for-leave">Apply for leave</a> updates calculated balances as fields change. <a href="./EXPERIENCE.md#accessibility-floor">Accessibility Floor</a> calls for testing status announcements but does not say which consequential changes must be announced without moving focus. In the history study, <code>#year-label</code> is a polite live region but <code>#month-name</code> is not: moving between months in the same year changes visible month content without an equivalent update announcement. Selected date details do explicitly receive focus, so that interaction is already covered by the prototype.</p><p><strong>Consequence:</strong> A person editing near the top can miss failed draft saving or a new unpaid acknowledgement requirement; a screen-reader user can miss the mobile month change. Announcing every autosave keystroke instead would also be disruptive.</p></div><div class="finding-fix"><strong>Fix:</strong><p>Add one shared status rule: announce meaningful save failure/recovery, completed submission, changed displayed period, and newly required unpaid response without unsolicited focus movement. Announce settled calculations rather than each keystroke. Preserve the persistent visible feedback. A polite status mechanism is appropriate for routine results; actual blocking failures need timely discoverable feedback. Component implementation can select the exact mechanism.</p></div></article><article class="finding"><header><span class="badge badge-sev-medium">medium</span><h3 class="finding-title">A11Y-03 — Submission-error placement is specified, but the route to errors is not</h3></header><div class="finding-note"><p><strong>Evidence:</strong> <a href="./EXPERIENCE.md#submission-failure">Submission failure</a> requires an error near Submit and field-specific errors. Shared <a href="../../../../platform/EXPERIENCE.md#accessibility-floor">Accessibility Floor</a> requires announced validation states, but neither specifies focus after a blocked submit or links between the summary and invalid fields. The custom-role study&#x27;s <code>#review-role</code> handler focuses an empty role name and silently returns; it renders no explanation and does not mark that field required.</p><p><strong>Consequence:</strong> Errors in earlier scrollable content may be hard to find from a persistent footer. Merely moving to a blank input does not explain what prevented Review. The mock is illustrative; its behavior should not become the reusable validation pattern.</p></div><div class="finding-fix"><strong>Fix:</strong><p>Define the shared blocked-submit behavior: preserve values, provide plain-language field errors programmatically associated with their controls, and focus an error summary with links or the first invalid field when there is only one error. A server-wide failure remains near the action and is announced. The custom-role example can then illustrate this with a required Role name message. No extra review screen is needed.</p></div></article><article class="finding"><header><span class="badge badge-sev-low">low</span><h3 class="finding-title">A11Y-04 — History day selection has no nonvisual selected-state contract</h3></header><div class="finding-note"><p><strong>Evidence:</strong> <a href="./EXPERIENCE.md#my-leave-history">My leave history</a> defines selecting a date to reveal its requests. In the <a href="./.working/employee-history-wireframe.html">history study</a>, selected days receive a <code>.selected</code> class, but their accessible label/state does not reflect that selection. The code correctly focuses the details region after selection; this is not a claim that its details are inaccessible. The specification has no requirement covering the selected date when returning to the calendar.</p><p><strong>Consequence:</strong> A keyboard or screen-reader user returning from details may not know which date the retained detail region represents without rereading it.</p></div><div class="finding-fix"><strong>Fix:</strong><p>Include the full selected date in the detail heading (as the mock already does) and expose the retained selected date through the chosen calendar control&#x27;s appropriate accessible state. Preserve a useful return focus target. Do not invent a custom calendar keyboard system here: verify the selected platform control and its List alternative during delivery.</p></div></article></div></details></section>
+<div class="mechanical"><h3>Mechanical evidence and next action</h3><p>64 local links resolve; all 17 working wireframes are referenced and 26 composite names match. No browser or assistive-technology testing was performed.</p><p>Roll shared interaction clarifications into the drafts, resolve the recurring-entitlement date choice, then complete balance journeys and shared theme before implementation handoff.</p></div>
+<footer class="report-footer"><div class="meta"><span><a href="DESIGN.md">DESIGN.md</a> · <a href="EXPERIENCE.md">EXPERIENCE.md</a> · <a href="review-rubric.md">Rubric</a> · <a href="review-accessibility.md">Accessibility</a> · <a href="validation-report.md">Markdown report</a></span><span>Generated: 2026-09-18T05:36:03+00:00</span></div></footer></div></body></html>

@@ -74,7 +74,7 @@ documentation, and acceptance checks are complete.
 | Leave Manager scope and home | NGO-wide employee scope for MVP, with separate action permissions; prioritize escalations/deficits, affected requests, authorized corrections, organization overview, and configuration/report/audit shortcuts |
 | Approver home screen | Current decision queue, short-notice/backdating/override/overdue flags, authorized team availability, own-workspace access, and permitted request calculation/history |
 | Employee home screen | Apply action, per-type balances, pending requests/required responses, upcoming approved leave, and year-calendar/history link within the active NGO |
-| Employee history and balances | Year calendar with accessible history list; distinguish taken/future/pending leave; per-type available/reserved/projected balances and explanations; pilot finding prior-year leave and available balances |
+| Employee history and balances | Year calendar with accessible history list; distinguish taken/future/pending leave; per-type available/reserved balances and explanations, with projections in the request form; pilot finding prior-year leave and available balances |
 | Language preference | Per user across NGO switches; personal notifications use preferred language when available, otherwise English; language does not change work timezone or policy |
 | Approval escalation | Default seven calendar days without required action, configurable per policy; notify authorized Leave Manager without automatic reassignment |
 | Language and dates | English default; dates such as 15 Sep 2026; localization-ready implementation with Portuguese planned next for Mozambique and Angola, release date pending |
@@ -417,9 +417,13 @@ membership switching, authorization, or RLS.
 - [ ] Replace enum-only global roles with extensible, tenant-scoped role identifiers
 - [ ] Connect Leave role/permission catalog to shared access management and reusable role controls; combine scoped grants without bypassing approval assignment, self-approval, or document rules; define shared runtime HTTP contracts before implementation
 - [ ] Implement application-maintained default roles and advanced custom-role copies backed by explicit business permissions; review new grants for custom roles (platform ADR-0011). Include temporary-approver exception capability in Leave Manager by default without granting approval authority
-- [ ] Add Leave Manager, Supervisor, Final Approver, and relevant permissions
+- [ ] Deliver shared custom-role lifecycle: blank creation, separate duplication, holder-impact review, unassigned-only deletion, preserved audit, clickable holders and return-to-origin (platform/EXPERIENCE.md)
+- [ ] Add Leave Manager and unified Approver role with relevant business permissions; enforce supervisor/final responsibilities through assigned workflow steps (ADR-0082)
 - [ ] Model departments, teams, locations, employment records, and effective-dated reporting lines
 - [ ] Model configured approvers and delegated/acting approvers
+- [ ] Provide editable one-supervisor starter approval policy (self-approval off, three-day reminders/seven-day escalation), with client-confirmed entitlement/schedules/holidays and approval-route setup checks
+- [ ] Preserve draft and block submission when no eligible approval route is configured; show setup-needed status and flag authorized route repair, distinct from handled absence or applicant coverage gaps
+- [ ] Implement optional directional absence policy (ADR-0080/0081): final approver may decide alone for absent supervisor, never the reverse; explicitly authorized temporary final approver may do so when both are absent; recognize fallback coverage and restore outstanding supervisor step on return before final decision; retain reminders while waiting
 - [ ] Allow authorized Leave Manager appointment of active NGO members without permanent approval roles; grant only specified temporary responsibilities/dates, preserving membership/self-approval/document boundaries (ADR-0079)
 - [ ] Require coverage of applicants' approval responsibilities before final approval, including automatic completion; allow submission with a gap and authorized reasoned exceptions while retaining gap visibility (ADR-0078)
 - [ ] Deliver dated approval cover for every step, delegate eligibility/absence/conflict checks, audited rerouting, alternate Leave Manager cover, and visible no-cover cases (ADR-0076/0077); include authorized scheduled return with eligibility recheck, audit, notification, and failed-return handling
@@ -476,12 +480,18 @@ tests, telemetry, and replacement of the non-production prototype are verified.
 
 - [ ] Create the tenant-scoped `leave` schema
 - [ ] Implement jurisdictions, locations, holiday calendars, and observed holidays
-- [ ] Implement effective-dated employee work schedules including breaks and timezone
+- [ ] Implement effective-dated employee work schedules including breaks and timezone; one explicit work profile with NGO fallback, team/location suggestions without silent reassignment, inherited values and overrides/reset, reason and impact review preserving history
 - [ ] Implement versioned leave-type CRUD and archive/restore
 - [ ] Implement policy versions: units, accrual, carry-over, expiry, limits, notice,
   eligibility, documentation, privacy, balance behavior, and workflow assignment
-- [ ] Implement effective-dated employee entitlement overrides with reason and preview
+- [ ] Implement effective-dated employee entitlement overrides with reason and preview; one Edit employee entitlement action for policy/custom recurrence restricted to leave-period boundaries (ADR-0083), default next boundary, separate one-off adjustment
 - [ ] Implement Leave Manager configuration screens and audit history
+- [ ] Keep setup checklist focused on application configuration; exclude consultant email status and a standard opening-balances row, preserving consultant-runbook approval and actual balance-issue handling
+- [ ] Implement optional period-relative carry-over expiry with last-usable-date preview (ADR-0085); settle and test month-end/leap-day anniversary arithmetic before readiness
+- [ ] Deliver shared date-entry behavior in Apply: calendar/typed range, single-date partial duration, incomplete/reversed-range feedback, and no-working-time explanation without misleading zero calculations
+- [ ] Apply shared loading/empty/filtered-empty/retry/export states, preserve filters and valid retained data on refresh failure, and distinguish unavailable team data from no absences
+- [ ] Verify shared focus transitions, preserved fields across responsive surfaces, validation-error navigation, consequential status announcements and accessible calendar selection in Leave screens
+- [ ] Apply shared administrative Edit → Review → Confirm behavior: no effects before confirmation, changed-form discard guard, related-record return preservation, failed/uncertain confirmation recovery, and refreshed review after concurrent changes
 - [ ] Add seed/demo configurations without representing them as legal advice
 
 **Exit gate:** A Leave Manager can configure an NGO without database access and
@@ -490,12 +500,14 @@ historical policy meaning is preserved after changes.
 ### Phase 6 — Balance ledger and accrual engine
 
 - [ ] Implement immutable balance ledger entries
+- [ ] Deliver Review then Confirm adjustment, correction by another explained entry, employee notifications and authorized details; renewed acknowledgement only for increased unpaid amounts
+- [ ] Deliver history year bounds preserving recorded leave/rehire, muted out-of-employment dates, and per-user/NGO Calendar/List preference
 - [ ] Define canonical duration storage in minutes and policy-specific display conversion
 - [ ] Implement opening balance, accrual, carry-over, expiry, adjustment, reservation,
   consumption, reversal, and unpaid/negative entries
 - [ ] Implement front-loaded annual and anniversary accrual
 - [ ] Implement monthly accrual and starter/leaver proration
-- [ ] Implement projected balance calculation at a future date
+- [ ] Implement projected balance calculation for requested dates; expose consequences in Apply with expandable explanation, deferring standalone calculator/graph (ADR-0084)
 - [ ] Implement effective-dated recalculation and adjustment preview
 - [ ] Add idempotent scheduled accrual jobs and reconciliation reports
 - [ ] Add deterministic clock-based and property/invariant tests
@@ -521,6 +533,7 @@ current/projected balances are reproducible from transactions.
 - [ ] Implement approve, reject, withdraw, resubmit, direct approved-leave
   cancellation, and admin override
 - [ ] Add concurrency/version checks and idempotency keys for commands
+- [ ] Deliver the in-request balance-override → revised unpaid acknowledgement → remaining approval journey, with actor/reason, exact-amount recheck, employee response prompt and approver waiting state
 - [ ] Persist complete transition and approval history
 
 **Exit gate:** All state transitions and balance effects pass authorization,
@@ -542,8 +555,7 @@ duplicate user-visible messages; failures are observable and recoverable.
 ### Phase 9 — Calendars, dashboards, and reporting
 
 - [ ] Employee calendar, applications, balances, and ledger view
-- [ ] Supervisor team calendar, capacity signals, and approval queue
-- [ ] Final approver organization view and queue
+- [ ] Unified Approvals queue with assigned supervisor/final-step context and permitted calendar/capacity information; no separate permanent approval roles or queues
 - [ ] Leave Manager operational dashboard and pending-aging view
 - [ ] Privacy-aware shared calendar labels
 - [ ] Filters for team, department, location, status, type, and date
@@ -563,6 +575,10 @@ performance targets.
 - [ ] Privacy, retention, and jurisdictional configuration review, including the
   proposed two-year default for medical attachments
 - [ ] Pilot NGO data import and reconciliation
+- [ ] Provide consultant-operated import tooling with templates, authorized import contracts, validation/preview, row errors, duplicate prevention, audit, and client reconciliation summary; defer self-service upload UI
+- [ ] Record authorized client email approval against the exact import batch before apply; revised data requires renewed approval, without a separate client confirmation page
+- [ ] Validate source balance dates/units and future-leave/reservation inclusion, reconcile transferred requests exactly once, and follow the [migration runbook](./operations/migration-runbook.md)
+- [ ] Agree old-system change cutoff and Leave handover; reconcile export-to-cutover changes and obtain renewed approval for revised batches before going live
 - [ ] User acceptance testing for every role
 - [ ] Operations runbooks, support guide, and release checklist
 - [ ] Enable Leave in App Directory for pilot memberships
@@ -644,7 +660,7 @@ for relied-upon behavior that lacks adequate coverage.
 | 2026-09-15 | Simplify post-submission confirmation and preserve reliable recovery | Avoid unnecessary workflow detail while showing status and required employee actions. See Leave ADR-0070 | Submission UX findings |
 | 2026-09-15 | Require a submission summary and exact unpaid-amount acknowledgement | Make the proposed financial consequence explicit while keeping fully funded submission simple. See Leave ADR-0069 | Submission UX or acknowledgement findings |
 | 2026-09-15 | Save original-NGO drafts before switching with explicit failed-save choices | Preserve work and tenant isolation during NGO changes. See Leave ADR-0068 | Switching UX or isolation findings |
-| 2026-09-15 | Autosave unfinished requests with truthful save status and explicit Save and close | Preserve entered work without confusing drafts with submitted reservations. See Leave ADR-0067 | Draft UX validation findings |
+| 2026-09-15 | Autosave unfinished requests with truthful save status and explicit Save and close | Preserve entered work without confusing drafts with submitted reservations. See Leave ADR-0067; button wording superseded by Close under ADR-0075 | Draft UX validation findings |
 | 2026-09-15 | Use permission-based role sections and separate required-work badges | Support multi-role users without mixing unresolved work with unread notifications. See Leave ADR-0066 | Navigation UX findings |
 | 2026-09-15 | Give MVP Leave Managers NGO-wide scope and an administrative home screen | Simplify employee scope while retaining distinct approval, correction, adjustment, and document permissions. See Leave ADR-0065 | Need for department/location-restricted administration |
 | 2026-09-15 | Prioritize required decisions and team availability on approver home | Support informed approval with visible exceptions and existing field/privacy permissions. See Leave ADR-0064 | Approver UX validation findings |

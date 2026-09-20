@@ -1,0 +1,13 @@
+{
+  "Quiet lagoon": {
+    "text/surface": 14.55,
+    "muted/surface": 6.1,
+    "muted/background": 5.59,
+    "white/primary": 6.62,
+    "control/surface": 3.69,
+    "focus/background": 8.47,
+    "text/selection": 12.55,
+    "muted/selection": 5.26,
+    "focus/selection": 7.96
+  }
+}

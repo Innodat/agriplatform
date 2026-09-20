@@ -65,15 +65,15 @@ behavior lacks adequate protection. See
 A person with an employment membership in an NGO. A single platform identity may
 be an employee of multiple NGOs and can switch active NGO context.
 
-### Supervisor
+### Approver
 
-Reviews configured employees' requests, assesses team availability, and may grant
-a policy-permitted insufficient-balance override.
-
-### Final approver
-
-Provides the last approval step when the assigned workflow requires it. This is a
-configured person/assignment, not a hard-coded `Director` title.
+Reviews requests assigned through the configured workflow and decides the assigned
+approval step. Supervisor relationships may resolve who receives a step; final
+approver describes a workflow position, not a separate role. Retain one-/two-step
+MVP workflows, self-approval rules, policy-permitted insufficient-balance override
+authorization, and separate document checks. The role never grants approval over
+unassigned requests. See
+[ADR-0082](./architecture/decisions/0082-one-approver-role-with-workflow-steps.md).
 
 ### Leave Manager
 
@@ -108,11 +108,18 @@ Default-role setup does not require clients to configure each permission. Custom
 roles can begin as copies; new permissions require review rather than silently
 expanding custom access. Production grants require an authorized actor.
 
+Each custom role belongs to one application, with multiple custom roles allowed
+for Leave. Inherit application context when opening Create custom role; begin with
+name, description, and capability selection rather than a required template choice.
+Duplicate role on an existing role may prefill the same editor. Do not introduce
+cross-application role bundles in MVP.
+
 Combine assigned-role grants within the active NGO while preserving their scopes;
 absence of a permission in one custom role does not deny a grant from another.
 Approval-step assignment, self-approval rules, and sensitive-document checks remain
 independent requirements. Use shared platform access management and reusable role
 controls; Leave owns its catalog and enforces request-level checks in its API.
+Follow the shared [role lifecycle and return-navigation contract](../../../platform/EXPERIENCE.md): review holder impact, allow deletion only when unassigned, preserve audit history, and link holders to their application access with a contextual return to the role editor.
 
 Recording a justified exception for missing temporary approvers is an underlying
 capability included in Leave Manager by default. No additional client setup is
@@ -126,8 +133,8 @@ are:
 - `leave.request.own.*`
 - `leave.request.team.read`
 - `leave.request.org.read`
-- `leave.approval.supervisor.act`
-- `leave.approval.final.act`
+- Unified approval action capability, scoped to assigned workflow steps (replaces
+  separate supervisor/final action entries; catalog identifier to be finalized)
 - `leave.balance.own.read`
 - `leave.balance.team.read`
 - `leave.balance.org.read`
@@ -172,6 +179,14 @@ does not grant cancellation or replacement rights over another employee's leave.
 
 **Rule:** Successful authentication does not by itself grant access to an NGO.
 
+Setup presents a non-sequential checklist for people/supervisors, work profiles/
+holidays and leave types/policies. Do not include consultant correspondence,
+email-approval status or a standard opening-balances row. Surface an actionable
+balance issue only when actually detected; do not infer missing opening data from
+a legitimate zero balance. Migration email approval remains in the consultant
+process with evidence tied to the exact import batch; no application email workflow
+is introduced. Normal authorized balance administration remains available.
+
 ### 2. Organization and employment structure
 
 - Manage departments, teams, locations, and employee employment records.
@@ -189,6 +204,15 @@ does not grant cancellation or replacement rights over another employee's leave.
 - Support observed holidays, special NGO holidays, and partial working days.
 - Apply timezone-aware, effective-dated employee schedules.
 - Preserve the calculated working-time snapshot on submitted applications.
+- Assign one explicit work profile per employee, with an NGO default fallback.
+  Team/location choices may suggest an initial profile; changing them must not
+  silently reassign a profile or merge several profiles.
+- Show inherited work-profile values and employee overrides, with a way to restore
+  each overridden value to the profile. Preserve explicit overrides when changing
+  the assigned profile.
+- Review effective date, reason, and affected employees/requests before applying
+  schedule changes. Preserve historical request calculations and surface impacts
+  through the existing correction and acknowledgement rules.
 
 The MVP does not claim to encode or maintain employment law. Configuration must be
 reviewed by each NGO for its operating jurisdictions.
@@ -215,20 +239,48 @@ Each versioned leave type/policy supports:
 - Configured approval workflow
 - Cancellation and amendment rules
 
+Policy editing uses conditional fields: show carry-over limit only for limited
+carry-over, expiry/repetition when carry-over is enabled, cap amount when capped,
+rounding when prorated, final approver for two steps, and a document threshold only
+for threshold-based requirements. A requirement for leave longer than 2 days does
+not require a document at exactly 2 days; a 3-day request requires it. This is an
+illustrative threshold, not a universal or jurisdictional default.
+
 Used leave types and policy versions are archived rather than hard-deleted.
 
 ### 5. Employee entitlement overrides
 
+Distinguish one-off balance adjustments from recurring entitlement overrides.
+Recurring overrides persist until explicitly changed, rather than lasting only
+one calendar year. MVP has no automatic override end date. Recurring changes, including a return to
+policy entitlement, take effect only at a leave-period boundary; default to the
+next boundary under the applicable policy, not necessarily 1 January. Use a
+separate authorized adjustment for an immediate balance change. Do not reset the
+current balance to the recurring allowance or introduce automatic midperiod
+recalculation on an override end date. One-off grant validity/expiry rules still apply.
+
 - Show policy entitlement and any employee-specific override together.
+- Use one **Edit employee entitlement** action to select policy entitlement or a
+  recurring custom entitlement. Link to **Adjust leave balance** for a one-off change.
 - Add an effective-dated entitlement override with reason and authorizer.
 - Preview its accrual/ledger effect before confirmation.
-- Support future-dated changes and ending an override.
+- Support future-dated changes and ending an override at leave-period boundaries.
+- Follow [ADR-0083](./architecture/decisions/0083-recurring-entitlement-period-boundaries.md); monthly accrual does not make every month a leave-period boundary.
 - Never rewrite historical ledger entries silently.
 - Audit every override and resulting adjustment.
 
 ### 6. Balance ledger and accrual
 
 Balances derive from immutable ledger entries rather than a mutable total.
+
+For manual adjustments, show Add/Deduct, amount, effective date, reason, current
+balance, resulting balance, and affected requests. Keep **Review adjustment** then
+**Confirm adjustment** so the authorized actor checks consequences before posting.
+Correct a mistaken adjustment through another explained adjustment; do not edit
+ledger history or introduce a separate correction command. Notify the employee by
+minimal email and in-app notification linking to authorized details: amount, date,
+resulting balance, actor, and reason. Require renewed acknowledgement only where
+an existing request's unpaid amount increases, following the existing safeguards.
 
 Supported transactions include:
 
@@ -553,6 +605,13 @@ no carry-over transfers zero, all-unused carry-over transfers 600, and a
 no carry-over expiry does not introduce an expiry merely because a period ends.
 Carry-over must preserve ledger history without duplicating entitlement.
 
+For expiry entry, offer Does not expire or Expires after a configured number of
+months from the new period start. Show the calculated inclusive last usable date:
+three months from 1 January gives 31 March; from 1 July gives 30 September. These
+are illustrative, not defaults. Existing expiry is never extended by repeated
+carry-over. See [ADR-0085](./architecture/decisions/0085-period-relative-carry-over-expiry.md);
+month-end/leap-day anniversary arithmetic requires deterministic delivery examples.
+
 Convert carry-over limits expressed in days using the employee's configured
 standard working-day duration effective at rollover. Save that conversion and its
 effective schedule context in the audit record. Later schedule changes do not
@@ -632,6 +691,12 @@ of the revised amount before final approval, preserving the explanation and
 acknowledgement in audit history. Scheduled processing must carry through the
 explanation from the underlying authorized change. This does not let a new request
 silently displace an existing reservation or treat a funding change as approved.
+
+Keep this response in the existing request: notify the employee and show Your
+response is needed on My Leave; show Waiting for employee acknowledgement to the
+approver. After acknowledgement, continue the remaining approval workflow without
+treating the response as approval. Unchanged or decreased unpaid amounts do not
+require renewed acknowledgement. No separate response workspace is needed.
 
 Acceptance examples:
 
@@ -1082,10 +1147,75 @@ reservations and ledger effects according to policy.
 
 ### 10. Configurable approval workflows
 
+For two-step policies, show the employee’s supervisor as Step 1 and require an
+explicit searchable final-approver selection for Step 2. Offer eligible people in
+the current NGO, with name/team/job-title context where needed; never assume the
+CEO. Explain when no eligible person is available, linking authorized access
+administrators to access management. Assignment does not itself grant additional
+permissions; dated temporary appointment remains its separate authorized flow.
+
+
 The number of required approval steps is configurable per NGO and leave policy,
 with at least one step. One organisation may require one approval and another two.
 MVP user-facing presets are one-tier and two-tier workflows; zero-step policies
 are not supported.
+
+If no eligible approval route can be resolved, preserve the employee's draft and
+block submission until the route is configured. Explain Your approval route needs
+to be set up and direct the employee to the Leave Manager; claim Draft saved only
+after confirmed persistence. Flag the configuration issue for an authorized manager.
+Do not silently skip approval or allow the employee to select an unauthorized
+alternative. This concerns a missing/invalid route, not the applicant's own coverage
+gap (which permits submission) or an absence handled through the configured fallback
+or authorized temporary assignment.
+
+For a new client, provide an editable starter approval configuration with one
+employee-supervisor step, self-approval disabled, temporary approvers available,
+reminders after three calendar days and escalation after seven calendar days.
+The second step and directional absence fallback are optional, not enabled by
+default. Setup assists supervisor assignment and flags missing or invalid approval
+routes. Require client confirmation of entitlement, schedules, holiday calendars,
+and organization-specific rules before activating the starter policy; do not
+assume a universal country or NGO allowance.
+
+For two-step workflows, all configured steps remain required by default. An explicit
+optional absence policy allows the configured final approver (for example, CEO) to
+approve alone when the supervisor is absent. The reverse is not allowed: when the
+final approver is absent, appoint a temporary final approver rather than accepting
+the supervisor's decision alone. Use recorded applicable absence, not slow response.
+Show an omitted step as **Not required under absence policy**, retain its policy
+basis and actual decision-maker, and require at least one valid approval. Existing
+self-approval, authorization, and other finalization conditions still apply.
+If both are absent, temporary approval remains required. See
+[ADR-0080](./architecture/decisions/0080-directional-absence-approval-policy.md).
+Evaluate approver absence when approval is needed, not during the applicant's
+requested leave dates. The applicant's own coverage check still concerns their
+absence period. Preserve the snapshotted policy while recording execution of its
+absence and return conditions. See
+[ADR-0081](./architecture/decisions/0081-absence-fallback-timing-and-return.md).
+
+The temporary approver or final approver may leave a nonurgent request pending to
+await the supervisor's return, optionally explaining this in a comment under normal
+visibility rules. Keep the request visible and normal reminders/escalation running.
+Under the final-approver fallback, restore the outstanding supervisor step when
+they return if no final decision has been made; record the transition. A completed
+final-approver decision remains valid. Temporary assignments follow their existing
+expiry return process. Waiting does not implicitly pause timers.
+
+When both configured approvers are absent, the temporary final approver may decide
+alone under this policy if the appointment explicitly includes **May approve
+without the supervisor's step when the supervisor is absent**. This is a scoped
+temporary responsibility, not an implicit permanent permission. Preserve normal
+self-approval and other finalization checks; a second substitute is not required
+solely to fill the omitted supervisor step.
+
+Recognize this policy-authorized fallback as valid coverage for the supervisor's
+responsibilities when the final approver, or explicitly authorized temporary final
+approver, is available to handle them alone. Do not require a duplicate temporary
+supervisor for those responsibilities. Other responsibilities outside this fallback
+still require eligible cover or an explained exception. Coverage checks must assess
+the responsibilities and applicable periods rather than only the existence of a
+named temporary-supervisor assignment.
 
 Approvers can be resolved from:
 
@@ -1139,6 +1269,20 @@ Approvals. Do not include sensitive request details. No additional acceptance st
 is required in MVP; the appointing manager confirms availability beforehand and the
 assignment takes effect on its start date. Use the shared notification capability.
 
+Allow authorized early termination with a required reason and a preview of
+outstanding requests and their proposed reassignment. Return them to the eligible,
+available original approver or appoint another person. End temporary authority on
+confirmation even if no replacement is available; preserve completed approvals and
+leave outstanding requests pending and flagged. Missing temporary approval coverage
+remains flagged to Leave Managers throughout the original approver's absence even
+when no requests are waiting. Clear it only when valid coverage is arranged or the
+original approver returns eligible to act. Do not cancel already-approved leave.
+
+Allow only one temporary approver for the same responsibilities on any given date.
+Sequential assignments are valid. If dates overlap, show the conflicting assignment
+and require adjusted dates or explicit authorized replacement; do not silently
+choose between assignments. Retain audit and outstanding-request transfer rules.
+
 Keep the workflow snapshot rule: changes to already assigned outstanding steps
 require an explicit, permission-checked, audited reroute. Do not silently replace
 an assignee when delegation dates or directory relationships change. Preserve
@@ -1165,8 +1309,9 @@ automatically from the organization chart or wait seven days to flag known absen
 An authorized Leave Manager can reassign outstanding work with a recorded reason.
 Support more than one Leave Manager with the separate reassignment permission so
 administrative cover does not depend on a single person. If no eligible cover is
-available, existing requests remain pending with a coverage issue; never skip or
-automatically approve a required step. The normal seven-day escalation still applies
+available, existing requests remain pending with a coverage issue. Never bypass or
+automatically approve a currently required step outside the explicitly configured
+absence policy; a policy-authorized omitted step is not an approved step. The normal seven-day escalation still applies
 to unanswered approvals and grants no additional authority.
 
 Acceptance scenarios for delivery: supervisor and final approver both have dated
@@ -1191,8 +1336,10 @@ automatically satisfy a step assigned to another person. Record the submission
 actor, employee, automatic approval outcomes, and their authorization basis in the
 audit history.
 
-If these automatic decisions satisfy all required steps, the request immediately
-becomes approved and its leave allocation is consumed exactly once. If another
+If these automatic decisions satisfy all currently required steps and the existing
+finalization conditions (including approval coverage or an authorized exception,
+and any required unpaid acknowledgement), the request immediately becomes approved
+and its leave allocation is consumed exactly once. If another
 person's approval remains required, the request stays in approval and the allocation
 remains reserved until final approval. Automatic outcomes use the existing
 `approved` step state (the accepted decision), not a new `accepted` status.
@@ -1423,7 +1570,8 @@ See [ADR-0063](./architecture/decisions/0063-employee-home-screen.md).
   Clearly distinguish leave already taken, approved future leave, and pending
   requests without relying on colour alone.
 - View a balance summary for each leave type showing currently available and
-  reserved amounts, plus projected balance for a selected future date. Open the
+  reserved amounts. Show future-date calculations in the leave application for its
+  selected dates; defer a separate future-balance calculator or graph. Open the
   explanation for grants, leave used, expiry, and adjustments using existing ledger
   and schedule-aware unit rules.
 - Apply for leave
@@ -1439,13 +1587,13 @@ See [ADR-0063](./architecture/decisions/0063-employee-home-screen.md).
   through approval again when dates or duration change
 - Switch active NGO
 
-### 15. Supervisor workspace
+### 15. Approver workspace
 
 The approver home screen prioritizes requests currently awaiting that person's
 decision, flags for short notice, backdating, balance overrides, and overdue
 requests, and team availability alongside the queue. Provide access to the
-approver's own employee workspace. Apply this pattern to supervisor and final
-approver roles within their authorized active NGO/resource scope; the layout
+approver's own employee workspace. Apply this pattern to the unified Approver role
+for assigned supervisor and final steps within authorized NGO/resource scope; the layout
 does not grant broader team visibility.
 
 Opening a request shows duration, balance effect, employee explanation, and
@@ -1476,7 +1624,11 @@ Assigned supervisors can see sensitive leave types and employee notes through th
 normal approval role. Medical documents require separate permission and
 request-level document authorization.
 
-### 16. Final approver workspace
+### 16. Final-step context in the Approver workspace
+
+Use the same Approvals queue and role; these are responsibilities of an assigned
+workflow step, not a separate role or navigation section. Calendar visibility
+continues to require the appropriate resource scope.
 
 - View organization or assigned-scope calendar
 - Review requests that completed earlier steps
@@ -1737,14 +1889,23 @@ See [ADR-0066](./architecture/decisions/0066-role-sections-and-action-badges.md)
 The employee experience includes a year-calendar and companion history list plus
 per-leave-type balance summaries. Pilot tasks include finding last year's leave
 taken and identifying the currently available balance for each leave type.
+Bound year navigation by known employment start/end, while extending those bounds
+where recorded leave or rehire history would otherwise be hidden. Show full boundary
+years with out-of-employment dates muted. Without an employment end date, do not
+invent an employment-based upper bound. Remember Calendar/List preference per user
+and NGO; reopen at the current year when it is within the available bounds.
 Design and implement these views before pilot testing; use observed confusion to
 refine the experience and retest. Pilot testing does not replace upfront UX design.
 
 Acceptance example: An employee selects the previous year, finds their recorded
 leave in the calendar, and can read its dates, type, duration, and status in the
 companion list. They can distinguish it from approved future and pending leave.
-For each leave type, they can identify available and reserved amounts, select a
-future date for projection, and open the ledger explanation. Preserve own-request
+For each leave type, they can identify available and reserved amounts and open the
+ledger explanation. In a leave draft, selecting dates shows their projected effect,
+paid/unpaid allocation and resulting balance without submission or reservation.
+Explain the policy-specific consequence of a shortfall rather than only showing a
+negative balance. Defer the standalone future-date calculator and balance graph
+under [ADR-0084](./architecture/decisions/0084-request-focused-balance-planning.md). Preserve own-request
 authorization and existing privacy boundaries; this view grants no additional
 access to another employee's history.
 
@@ -1805,6 +1966,14 @@ item, not a completed MVP capability. See
 
 ## MVP exclusions
 
+- General self-service migration/upload UI. MVP uses a consultant-operated import
+  tool with documented templates, validation and preview, employee/row errors,
+  duplicate prevention, import audit, and a client-facing reconciliation summary.
+  Import through supported application contracts with authorization and audit;
+  normal manual employee/opening-balance entry remains available. Consultant emails
+  the report to an authorized client contact and records their email approval
+  against the exact batch before applying it. Changed data requires a revised
+  report and renewed approval. No client confirmation page is required in MVP.
 - Microsoft Graph reporting-relationship synchronization: a future shared platform
   directory capability, separate from calendar integration. MVP supervisor assignments
   are maintained manually. Leave continues to own approval rules; future imports

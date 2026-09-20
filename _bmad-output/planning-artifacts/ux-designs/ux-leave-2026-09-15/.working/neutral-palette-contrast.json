@@ -1,0 +1,26 @@
+{
+  "Open ocean": {
+    "text/surface": 12.35,
+    "muted/surface": 5.57,
+    "muted/background": 5.09,
+    "white/primary": 7.02,
+    "control/surface": 3.67,
+    "focus/background": 7.87
+  },
+  "Pure grayscale": {
+    "text/surface": 14.55,
+    "muted/surface": 6.1,
+    "muted/background": 5.59,
+    "white/primary": 14.55,
+    "control/surface": 3.69,
+    "focus/background": 11.59
+  },
+  "Neutral + ocean blue": {
+    "text/surface": 14.55,
+    "muted/surface": 6.1,
+    "muted/background": 5.59,
+    "white/primary": 7.02,
+    "control/surface": 3.69,
+    "focus/background": 11.59
+  }
+}

@@ -23,8 +23,8 @@ and are linked rather than duplicated here.
 | [0004](./0004-configurable-approval-workflows.md) | Superseded by 0007 | Approval workflows are configurable and snapshotted; original record preserved |
 | [0005](./0005-jurisdiction-configured-policies.md) | Accepted | Jurisdiction is configurable metadata, not a statutory rules engine |
 | [0006](./0006-sensitive-attachment-access.md) | Accepted | Sensitive attachments require separate, domain-aware authorization |
-| [0007](./0007-required-approval-and-automatic-decisions.md) | Superseded in part by 0008 | Required approval and authorization rules remain; later-step ordering resolved in 0008 |
-| [0008](./0008-later-step-acceptance-on-submission.md) | Accepted | Record a submitting later approver's acceptance immediately; wait for every required step |
+| [0007](./0007-required-approval-and-automatic-decisions.md) | Superseded in part by 0008, 0078, and 0080 | Later-step ordering, coverage gate, and optional directional absence policy qualify approval rules |
+| [0008](./0008-later-step-acceptance-on-submission.md) | Superseded in part by 0078 and 0080 | Immediate later-step acceptance retained; coverage and optional absence policy qualify finalization |
 | [0009](./0009-resubmit-rejected-request.md) | Accepted | Correct and resubmit the same rejected request while preserving submission history |
 | [0010](./0010-cancel-and-replace-approved-leave.md) | Accepted | Cancel and replace approved leave through renewed approval, with scoped on-behalf rights |
 | [0011](./0011-colleague-absence-privacy.md) | Superseded in part by 0074 | Colleague type/detail privacy remains; partial days now show Part-day absence |
@@ -78,7 +78,7 @@ and are linked rather than duplicated here.
 | [0059](./0059-default-language-and-localization-readiness.md) | Accepted | English default with unambiguous dates; prepare for Portuguese as the next language |
 | [0060](./0060-portuguese-mozambique-and-angola.md) | Accepted | Initial Portuguese localization targets Mozambique and Angola, with regional validation for both |
 | [0061](./0061-user-language-preference.md) | Accepted | User language preference follows NGO switches and personal notifications, with English fallback |
-| [0062](./0062-employee-history-and-balance-views.md) | Accepted | Employee year calendar and accessible history list accompany per-type balances and explanations |
+| [0062](./0062-employee-history-and-balance-views.md) | Superseded in part by 0084 | Employee year calendar and accessible history list accompany per-type balances and explanations |
 | [0063](./0063-employee-home-screen.md) | Accepted | Employee home prioritizes applying, balances, pending actions, upcoming approved leave, and history navigation |
 | [0064](./0064-approver-home-screen.md) | Accepted | Approver home prioritizes required decisions, exception flags, scoped team availability, and employee-workspace access |
 | [0065](./0065-leave-manager-home-and-ngo-wide-scope.md) | Accepted | Leave Manager home prioritizes administrative work; MVP employee scope is NGO-wide with separate action permissions retained |
@@ -96,3 +96,9 @@ and are linked rather than duplicated here.
 | [0077](./0077-scheduled-return-of-temporary-approvals.md) | Accepted | Authorize automatic return at temporary-assignment expiry with eligibility checks, audit, notification, and unresolved-cover fallback |
 | [0078](./0078-approval-coverage-before-final-approval.md) | Accepted | Require coverage before final approval, including automatic completion, with authorized explained exceptions; qualifies 0007/0008 |
 | [0079](./0079-temporary-appointment-grants-scoped-authority.md) | Accepted | Authorized temporary appointment grants bounded approval authority to active NGO members without a permanent approver role |
+| [0080](./0080-directional-absence-approval-policy.md) | Superseded in part by 0081 | Directional absence policy retained; pending-step return/timing resolved in 0081 |
+| [0081](./0081-absence-fallback-timing-and-return.md) | Accepted | Allow pending work to await supervisor return; continue reminders, restore outstanding supervisor step before final decision, and retain completed approvals |
+| [0082](./0082-one-approver-role-with-workflow-steps.md) | Accepted | One Approver role; supervisor relationships and final-step authority resolved through workflow assignments |
+| [0083](./0083-recurring-entitlement-period-boundaries.md) | Accepted | Recurring employee entitlement changes only at leave-period boundaries; default next boundary, immediate changes use separate adjustments |
+| [0084](./0084-request-focused-balance-planning.md) | Accepted | Keep projections in Apply; defer standalone calculator/graph and explain actual policy consequences |
+| [0085](./0085-period-relative-carry-over-expiry.md) | Accepted | Optional carry-over expiry in months from new period start, showing last usable date; existing expiry is never extended |
