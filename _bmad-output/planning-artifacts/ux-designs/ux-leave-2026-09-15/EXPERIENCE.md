@@ -1,8 +1,8 @@
 ---
 name: Leave
-description: Responsive Leave experience draft distilled from approved coaching decisions.
+description: Responsive Leave experience distilled from approved coaching decisions.
 title: Leave Experience Design
-status: draft
+status: final
 created: 2026-09-15
 updated: 2026-09-20
 sources:
@@ -16,54 +16,59 @@ sources:
 
 Responsive web for desktop and phones. [DESIGN.md](./DESIGN.md) owns visual identity;
 [platform EXPERIENCE.md](../../../../platform/EXPERIENCE.md) supplies shared interaction
-conventions, still in draft. No specific component library or implemented shared
-shell is selected by this document. Leave owns its rules, calculations, permissions,
+conventions. Use the planned shadcn-based platform primitives and Lucide icons;
+the wrappers and shared shell are not claimed to be implemented. Leave owns its rules, calculations, permissions,
 and workflows in the [feature specification](../../../../apps/leave/docs/features.md)
 and linked accepted ADRs. This is a reviewable consolidation, not implementation
 readiness or a completed accessibility assessment.
 
 The paired spines take precedence over illustrative mocks for presentation;
 authoritative product requirements and accepted superseding ADRs govern business
-behavior. Unresolved source differences are listed in
-[consolidation coverage](./consolidation-coverage.md), not silently decided here.
+behavior. [Handoff coverage](./handoff-coverage.md) records final coverage and delivery
+follow-up; [consolidation coverage](./consolidation-coverage.md) retains the earlier
+source reconciliation and subsequent resolutions.
 
 Everyone starts on My Leave. Show Approvals and Manage Leave according to current
 permissions, in the same active NGO and session. Section badges count unresolved
 work separately from unread notifications. Shared identity, NGO switching, language,
 application access, and return-to-origin navigation remain platform-owned.
 
+Approved composition references are indexed in the [handoff inventory](./mockups/README.md).
+Historical comparisons remain separately labelled; written contracts govern any
+prototype simplifications.
+
 ## Information Architecture
 
 This table maps accepted needs to destinations; “partial” means the reference does
 not cover every state or field. It does not grant the actor access to that surface.
-Flow numbers refer to Key Flows below. Documentation-only and unresolved surfaces
+Flow numbers refer to Key Flows below. Documentation-only and shared-shell surfaces
 are explicit rather than new screens inferred from the feature catalogue.
 
 | Surface | Entry and purpose | Flow | Layout reference / coverage |
 |---|---|---|---|
-| My Leave and balance explanations | Default home; apply, available/reserved balances, pending responses, upcoming leave, history; request-date projection in Apply | 1, 2, 4 | [Apply background](./.working/apply-wireframe.html), partial; ledger composition open |
-| Apply for leave / resume draft | My Leave action; one saved application per employee/NGO | 1 | [Apply](./.working/apply-wireframe.html), funded and shortfall layouts |
-| Request details and lifecycle actions | Submission, own history, notification, overview | 2, 4 | [History](./.working/employee-history-wireframe.html) and [correction](./.working/leave-correction-wireframe.html), partial; acknowledgement/withdraw/cancel states specified below |
-| My leave history | My Leave; Calendar/List and bounded year navigation | 2 | [Employee history](./.working/employee-history-wireframe.html); list filters not implemented in mock |
-| Approvals and request review | Authorized section; assigned ordinary and temporary work | 3 | [Approval review](./.working/approval-review-wireframe.html), queue/filter coverage partial |
-| Team availability | Inside approval review; permitted colleagues during requested dates | 3 | [Approval review](./.working/approval-review-wireframe.html), desktop timeline/mobile list |
-| Manage Leave home | Authorized section; attention queues and grouped tools | 5 | [Manager home](./.working/leave-manager-home-wireframe.html) |
-| Organization overview | Manage Leave heading action; scoped staffing view and request drilldown | 6 | [Organization overview](./.working/organization-overview-wireframe.html) |
-| Escalation, deficit, affected-request and balance-override review | Attention item or authorized request action | 3, 5 | [Manager home](./.working/leave-manager-home-wireframe.html) entry previews; dedicated review layouts open |
-| Administrative leave correction / apply on behalf | Authorized employee actions | 4 | [Returned-early correction](./.working/leave-correction-wireframe.html); on-behalf entry not separately visualized |
-| Temporary approver assignment, review and termination | Authorized management action / coverage issue | 7 | [Temporary approver](./.working/temporary-approver-wireframe.html); end/conflict/expiry states spine-only |
-| Leave types; current/scheduled/past policy; editor and publication review | Configuration | 8 | [Policy summary/review](./.working/policy-review-wireframe.html), [approval section](./.working/approval-workflow-wireframe.html); complete editor open |
-| One-off adjustment and adjustment details | Employee actions or authorized notification link | 9 | [Balance adjustment](./.working/balance-adjustment-wireframe.html) |
-| Employee recurring entitlement | Configuration → employee/type | 10 | [Employee entitlement](./.working/employee-entitlement-wireframe.html) |
-| Work profiles and employee schedule | Configuration / setup | 11 | [Employee schedule](./.working/employee-schedule-wireframe.html); profile list/editor partial |
-| Holiday calendars | Configuration / setup; calendar/date review | 11 | [Holiday calendars](./.working/holiday-calendars-wireframe.html) |
-| Reports | Records; report selection, authorized results/export | 12 | [Reports](./.working/reports-wireframe.html), balance report example |
-| Audit history | Records; filtered chronological changes and details | 13 | [Audit history](./.working/audit-history-wireframe.html) |
-| Notification inbox | Shared shell bell; read state and authorized deep links | 4, 14 | Spine-only shared pattern |
-| Setup checklist, organization/employment/supervisor maintenance, manual opening balances | Authorized setup/settings; no assumption of imported employees | 15 | Checklist behavior below; complete organization/employee forms remain open |
+| My Leave and balance explanations | Default home; apply, available/reserved balances, pending responses, upcoming leave, history; request-date projection in Apply | 1, 2, 4 | [Apply background](./mockups/apply-wireframe.html) and [balance explanation](./mockups/balance-explanation-preview.html); partial loading/recovery specified below |
+| Apply for leave / resume draft | My Leave action; one saved application per employee/NGO | 1 | [Apply](./mockups/apply-wireframe.html), funded and shortfall layouts |
+| Request details and lifecycle actions | Optional View request after submission, own history, notification, overview | 2, 4 | [History](./mockups/employee-history-wireframe.html) and [correction](./mockups/leave-correction-wireframe.html), partial; [acknowledgement](./mockups/revised-unpaid-acknowledgement-preview.html); remaining lifecycle states specified below |
+| My leave history | My Leave; Calendar/List and bounded year navigation | 2 | [Employee history](./mockups/employee-history-wireframe.html); list filters not implemented in mock |
+| Approvals and request review | Authorized section; assigned ordinary and temporary work | 3 | [Approval review](./mockups/approval-review-wireframe.html), queue/filter coverage partial |
+| Team availability | Inside approval review; permitted colleagues during requested dates | 3 | [Approval review](./mockups/approval-review-wireframe.html), desktop timeline/mobile list |
+| Manage Leave home | Authorized section; attention queues and grouped tools | 5 | [Manager home](./mockups/leave-manager-home-wireframe.html) |
+| Organization overview | Manage Leave heading action; scoped staffing view and request drilldown | 6 | [Organization overview](./mockups/organization-overview-wireframe.html) |
+| Escalation, deficit, affected-request and balance-override review | Attention item or authorized request action | 3, 5 | [Deficit](./mockups/balance-deficit-preview.html) and [allocation](./mockups/balance-override-preview.html) reviews; multi-source allocation and remaining escalation states partial |
+| Administrative leave correction / apply on behalf | Authorized employee actions | 4, 4a | [Returned-early correction](./mockups/leave-correction-wireframe.html); [on-behalf preview](./mockups/apply-on-behalf-preview.html), layout approved; fixture-only |
+| Temporary approver assignment, review and termination | Authorized management action / coverage issue | 7 | [Temporary approver](./mockups/temporary-approver-wireframe.html); end/conflict/expiry states spine-only |
+| Leave types; current/scheduled/past policy; editor and publication review | Configuration | 8 | [Policy editor](./mockups/policy-editor-preview.html), [policy summary/review](./mockups/policy-review-wireframe.html) and [approval section](./mockups/approval-workflow-wireframe.html); field-level domain validation and runtime impacts require delivery verification |
+| One-off adjustment and adjustment details | Employee actions or authorized notification link | 9 | [Balance adjustment](./mockups/balance-adjustment-wireframe.html) |
+| Employee recurring entitlement | Configuration → employee/type | 10 | [Employee entitlement](./mockups/employee-entitlement-wireframe.html) |
+| Work profiles and employee schedule | Configuration / setup | 11 | [Employee schedule](./mockups/employee-schedule-wireframe.html) and [profile list/edit/review](./mockups/work-profiles-preview.html); create/archive/default states specified below |
+| Holiday calendars | Configuration / setup; calendar/date review | 11 | [Holiday calendars](./mockups/holiday-calendars-wireframe.html) |
+| Reports | Records; report selection, authorized results/export | 12 | [Reports](./mockups/reports-wireframe.html), balance report example |
+| Audit history | Records; filtered chronological changes and details | 13 | [Audit history](./mockups/audit-history-wireframe.html) |
+| Notification inbox | Shared shell bell; read state and authorized deep links | 4, 14 | Approved shared pattern and text sketch; no rendered mock |
+| Setup checklist, organization/employment/supervisor maintenance, manual opening balances | Authorized setup/settings; no assumption of imported employees | 15, 15a | [Setup checklist](./mockups/setup-checklist-preview.html) and [employee settings](./mockups/employee-leave-settings-preview.html); organization-wide settings partial |
 | Consultant migration and client email approval | Consultant tooling and email, not an application confirmation screen | 15 | [Migration runbook](../../../../apps/leave/docs/operations/migration-runbook.md); documentation-only |
-| Application access and advanced custom roles | Shared organization settings | 16 | [Application access](./.working/application-access-wireframe.html), [custom role](./.working/custom-role-wireframe.html); editing/deletion review states spine-only |
-| Sign-in, active NGO and language | Shared shell / account | 14 | Shared spine; dedicated visual coverage open |
+| Application access and advanced custom roles | Shared organization settings | 16 | [Application access](./mockups/application-access-wireframe.html), [custom role](./mockups/custom-role-wireframe.html); [editing/deletion review](./mockups/custom-role-lifecycle-preview.html), approved |
+| Sign-in, active NGO and language | Shared shell / account | 14 | Shared spine; written-pattern coverage, no Leave-specific visual override |
 
 ## Voice and Tone
 
@@ -103,7 +108,7 @@ acknowledgement, permitted use of future entitlement, or insufficient leave when
 not permitted. Do not substitute a generic negative-balance warning for that
 explanation. Existing policy, authorization and reservation rules still apply.
 
-The [balance explanation preview](./.working/balance-explanation-preview.html)
+The [balance explanation preview](./mockups/balance-explanation-preview.html)
 opens from My Leave and separates remaining entitlement, reservations against it
 and available amount. Its example reconciles 15 remaining minus 3 pending equals
 12 available; projected accrual is not included. Expand hours/calculation, follow
@@ -127,8 +132,8 @@ leave resumes it; show a small unfinished-application note beside the action on
 My Leave, without a Drafts section or badge. Within the form, Discard draft asks
 for confirmation before deletion. Submitted requests remain separate.
 
-Close, desktop Escape, and mobile Back close immediately when saved and finish
-an in-progress save before closing. On save failure offer Retry, Keep editing,
+Close, desktop Escape, and mobile Back close the form immediately when its changes
+are saved. If a save is in progress, wait for it to finish before closing. On save failure offer Retry, Keep editing,
 or Discard unsaved changes; the last option retains previously saved content.
 Confirm before discarding an approver’s unsent comment.
 
@@ -137,7 +142,8 @@ drawer over My Leave on desktop, with a full page on mobile or narrower screens.
 Keep essential balance information inside the form. Apply the same draft saving,
 validation, submission acknowledgement, and NGO ownership rules in both layouts.
 The shared convention defines the interaction foundation; Leave owns the form
-content and business meaning. Precise composition and widths remain open.
+content and business meaning. The standard drawer width is 560px; responsive
+thresholds and additional variants remain subject to rendered validation.
 
 Inherit shared [date-input behavior](../../../../platform/EXPERIENCE.md#date-inputs).
 Full days use one range control with calendar and typed entry; single-day requests
@@ -201,6 +207,13 @@ is missing or still being verified, explain why submission is not ready. Preserv
 entered data, existing document permissions, and content-safety rules; this adds
 no malware-scanning requirement to MVP.
 
+Inherit [shared upload feedback](../../../../platform/EXPERIENCE.md#shared-uploads):
+per-file Uploading/Cancel, failed/Retry/Remove and Attached/Remove states below
+Supporting document. Preserve the leave form after failures. Required files must
+be ready; optional failed files must be retried or explicitly removed before
+submission rather than silently omitted. Show actual file-type/size limits beside
+a rejected file. This presentation was approved on 20 September 2026.
+
 ### Request action area
 
 Keep Close and Submit request visible at the bottom of the desktop
@@ -231,9 +244,10 @@ revalidation, save-failure behavior, and exact unpaid-amount acknowledgement rul
 - Retain readable muted text. The wireframe's #626262 on white measures 6.10:1;
   this colour-pair check does not establish full accessibility compliance.
 
-Layout discussion artifact: [.working/apply-wireframe.html](./.working/apply-wireframe.html).
-This grayscale mock illustrates the current direction; dimensions, final tokens,
-input widgets, and unrendered states are not finalized.
+Layout discussion artifact: [mockups/apply-wireframe.html](./mockups/apply-wireframe.html).
+This grayscale mock illustrates composition; selected shared colour, type and
+layout tokens supersede its incidental CSS. Input-widget implementation and
+rendered-state verification remain delivery work.
 
 ### My leave history
 
@@ -255,7 +269,7 @@ Preserve the selected Calendar/List view and mobile month when changing years;
 mobile month navigation can cross year boundaries. Display records for the selected
 year and an honest empty state when none are available. Apply existing authorization
 and date/timezone rules. The approved year-calendar layout and its navigation are
-illustrated in [employee history](./.working/employee-history-wireframe.html).
+illustrated in [employee history](./mockups/employee-history-wireframe.html).
 
 
 Use one My leave history screen with Calendar and List views sharing a year
@@ -270,7 +284,9 @@ reveals its requests with permitted type, duration, and status; selecting a requ
 opens details. Use neutral shapes or patterns to distinguish pending and approved
 entries, with accessible text equivalents, rather than using the primary-action
 accent or colour alone. The List view exposes equivalent information directly.
-The approved employee-history mock illustrates the neutral markers and selected-date detail arrangement; final styling remains open.
+The approved employee-history mock illustrates the neutral markers and selected-date
+detail arrangement; apply inherited {components.status-marker} and current shared
+tokens rather than historical sample CSS.
 
 The List view shows dates, leave type, duration, and status, with leave-type and
 status filters. Default to most recent leave dates first. Selecting a row opens
@@ -304,6 +320,26 @@ option to sort by earliest leave date. Apply authorization and privacy to the
 results and filter choices; these controls do not broaden actionable scope.
 
 ### Approval review
+
+Order the content as employee/type/dates/duration, exceptions needing attention
+(including requested unpaid leave), balance effect and employee explanation,
+permission-controlled supporting-document status, then expandable approval history.
+Keep Reject and Approve visible at the bottom without obscuring content.
+
+Apply existing workflow-specific override and employee-acknowledgement gates;
+final approval must not proceed while required renewed acknowledgement is missing.
+Preserve the distinction between intermediate approval and final consumption.
+The layout does not grant document access or permission to decide an override.
+
+For approval, allow an optional comment followed by one explicit confirmation
+action. Rejection requires a reason clearly labelled Visible to the employee.
+After a confirmed decision, show the result and return to the queue. Do not imply
+that an intermediate approval is final request approval.
+
+If saving fails, keep the review open and preserve the comment. For an uncertain
+outcome, check whether the decision succeeded before permitting a retry that might
+duplicate it. Existing permission, concurrency, current-step, and acknowledgement
+checks still apply; neither action silently overrides a conflicting decision.
 
 Keep all steps required by default. For an explicitly enabled two-step absence
 policy, the configured final approver (CEO in the example) may approve alone when
@@ -346,26 +382,6 @@ gap visible. Exception authority is separate from approval authority and does no
 waive other finalization requirements. Never alter actual absence dates to conceal
 a coverage gap. Enforce the same condition for automatic finalization paths.
 
-Order the content as employee/type/dates/duration, exceptions needing attention
-(including requested unpaid leave), balance effect and employee explanation,
-permission-controlled supporting-document status, then expandable approval history.
-Keep Reject and Approve visible at the bottom without obscuring content.
-
-Apply existing workflow-specific override and employee-acknowledgement gates;
-final approval must not proceed while required renewed acknowledgement is missing.
-Preserve the distinction between intermediate approval and final consumption.
-The layout does not grant document access or permission to decide an override.
-
-For approval, allow an optional comment followed by one explicit confirmation
-action. Rejection requires a reason clearly labelled Visible to the employee.
-After a confirmed decision, show the result and return to the queue. Do not imply
-that an intermediate approval is final request approval.
-
-If saving fails, keep the review open and preserve the comment. For an uncertain
-outcome, check whether the decision succeeded before permitting a retry that might
-duplicate it. Existing permission, concurrency, current-step, and acknowledgement
-checks still apply; neither action silently overrides a conflicting decision.
-
 ### Team availability during approval
 
 Within the review drawer, show Team availability for the selected request's dates
@@ -381,9 +397,10 @@ Keep all results within permitted team scope, without requiring a separate calen
 
 ### Balance-override review
 
-[Allocation-review preview](.working/balance-override-preview.html) shows the
+[Allocation-review preview](mockups/balance-override-preview.html) shows the
 default unpaid shortfall and one illustrative authorized paid-grant alternative,
-with reason, comparison and acknowledgement consequences. Layout awaits feedback;
+with reason, comparison and acknowledgement consequences. Layout approved on
+20 September 2026; the grant amount is editable, not fixed at one day;
 this is not the complete multi-source funding editor.
 
 Show requested amount, available paid balance, and shortfall together, with unpaid
@@ -394,13 +411,21 @@ authorization for each funding source and employee acknowledgement requirements.
 Keep this decision separate from ordinary approval; permission to approve a
 request alone does not grant override authority.
 
+Retain a single employee request with an explicit paid/unpaid split and exact
+unpaid-amount acknowledgement. Do not require a separate unpaid request for the
+shortfall. Ordinary paid allocation cannot exceed eligible available/projected
+entitlement after protected reservations; extra paid funding requires its own
+authorized, recorded exception. Discretionary grants take an entered amount,
+subject to permitted units and funding limits, rather than a fixed one-day value.
+
 Keep the override, revised allocation and employee response within the existing
 request. An increased unpaid amount produces a notification and **Your response
 is needed** on My Leave. Show previous/revised amounts, actor and reason. The
-approver sees **Waiting for employee acknowledgement** and cannot complete approval
-until the employee acknowledges the current amount. An unchanged or decreased
-unpaid amount needs no renewed acknowledgement. The response resumes the remaining
-approval workflow; it does not approve leave or create another workspace.
+approver sees **Waiting for employee acknowledgement** and final approval cannot
+complete until the employee acknowledges the current amount. Intermediate steps may proceed when otherwise authorized; missing acknowledgement alone does not block them
+or erase prior decisions. An unchanged or decreased unpaid amount needs no renewed
+acknowledgement. The response satisfies this finalization gate; it does not approve
+leave or create another workspace.
 
 ### Leave Manager home
 
@@ -574,7 +599,7 @@ granted responsibilities, pending-request selection, required reason, and condit
 return at expiry. Review assignment shows a plain-language summary of these effects
 before Confirm temporary approver. For temporary final approval, explicitly state
 whether supervisor-absence single approval is included. The prototype reference is
-[temporary approver](./.working/temporary-approver-wireframe.html); its fixed sample
+[temporary approver](./mockups/temporary-approver-wireframe.html); its fixed sample
 values and preview dialog are not production behavior.
 
 During setup, disclose and authorize the default: When this assignment ends,
@@ -594,11 +619,14 @@ both display and action. Escalation alone grants no approval or rerouting author
 
 ### Administrative leave correction
 
-If an administrative replacement is rejected, show its rejection reason prominently
-and add Correction needs follow-up to the Leave Manager attention queue. Keep the
-original cancelled; do not automatically restore known-incorrect dates. An authorized
-person can edit and resubmit the rejected replacement under the existing resubmission
-rules, preserving history. Keep the unresolved historical record visible for follow-up.
+The approved returned-early layout shows the original approved record, corrected
+dates, a before/after comparison, and the balance impact before confirmation.
+Separate restoration of the original deduction from reservation for the linked
+replacement; disclose other calculation effects when applicable. Require an
+employee-visible explanation and explain notification and approval consequences.
+Use Cancel original and submit replacement as the explicit confirmation action.
+Correction permission does not grant approval authority. Preserve the original
+on validation failure and retain its history after successful cancellation.
 
 In employee history, make the replacement the main entry with a Corrected label
 separate from its current approval status. Expanded history shows the original as
@@ -614,18 +642,46 @@ acknowledgement for the returned-early example. Increased requested unpaid leave
 still requires the agreed acknowledgement. These details belong in the authorized
 request view, not in the minimal email or in-app notification payload.
 
-The approved returned-early layout shows the original approved record, corrected
-dates, a before/after comparison, and the balance impact before confirmation.
-Separate restoration of the original deduction from reservation for the linked
-replacement; disclose other calculation effects when applicable. Require an
-employee-visible explanation and explain notification and approval consequences.
-Use Cancel original and submit replacement as the explicit confirmation action.
-Correction permission does not grant approval authority. Preserve the original
-on validation failure and retain its history after successful cancellation.
+If an administrative replacement is rejected, show its rejection reason prominently
+and add Correction needs follow-up to the Leave Manager attention queue. Keep the
+original cancelled; do not automatically restore known-incorrect dates. An authorized
+person can edit and resubmit the rejected replacement under the existing resubmission
+rules, preserving history. Keep the unresolved historical record visible for follow-up.
+
+### Apply on behalf
+
+[On-behalf preview](mockups/apply-on-behalf-preview.html) places the authorized
+employee picker first, followed by persistent employee/recording-actor context,
+the familiar Leave fields and balance summary, required reason, and Review request.
+The review repeats the identity, dates, allocation, reason and actual approval
+consequence before Submit for employee. This layout was approved on 20 September 2026; the preview
+uses fixed dates/type/calculation and does not persist a request.
+
+Existing on-behalf permission does not grant approval authority. The second preview
+scenario shows authorized submission satisfying only the actor’s assigned step,
+with the other step still outstanding. Existing finalization gates remain. This
+preview is not a new employee draft or an amendment to the employee’s own draft.
+The illustrated request is fully funded; the initial-unpaid variant uses the same
+form and existing response surface. The manager may submit with the required reason
+and allocation. Show the consequence before confirmation: The employee must
+acknowledge the requested unpaid amount before final approval can complete.
+
+Notify the employee and show Your response is needed on My Leave, opening this
+submitted request. Only the employee acknowledges the exact current unpaid amount;
+the manager cannot do so on their behalf. Leave the employee’s own draft untouched.
+Recheck the amount when responding and show an explained change instead of accepting
+a stale amount. Existing withdrawal eligibility remains.
+
+A manager who is also the sole approver may have their own step recorded at
+submission, but final approval and consumption still wait for the employee response
+and all other gates. Otherwise-authorized intermediate steps may proceed; do not
+repeat a valid prior approval only because acknowledgement arrives later. Follow
+[ADR-0088](../../../../apps/leave/docs/architecture/decisions/0088-employee-acknowledgement-for-on-behalf-unpaid-leave.md).
+Full multi-source allocation remains governed by the existing funding rules.
 
 ### Balance-deficit review
 
-[Balance-deficit preview](.working/balance-deficit-preview.html) shows the
+[Balance-deficit preview](mockups/balance-deficit-preview.html) shows the
 illustrative departure case and four existing outcomes. Layout approved on
 20 September 2026;
 source-record and adjustment actions stop at an explanatory handoff.
@@ -722,6 +778,13 @@ integration may populate them without replacing Leave's approval rules. Preserve
 authorized overrides, flag missing/invalid assignments, and retain NGO/approver
 eligibility checks. Do not silently reroute pending requests on directory changes.
 
+Start with a leave-type list showing name, current policy, and active/archived
+status. Selecting a type opens configuration grouped into Entitlement, Request
+rules, Approval, and Documents & privacy. Keep advanced settings in expandable
+sections rather than displaying every rule at once. Preserve existing configuration
+permissions, policy versioning, and archive semantics; these groups are navigation
+and presentation, not new domain boundaries.
+
 Open a leave type's current policy as a readable summary before entering edit mode.
 Group it into entitlement/accrual, request rules, approval requirements, and
 documents/privacy. Show its effective date prominently; offer Edit policy to
@@ -734,7 +797,7 @@ a sequential wizard. Review changes is the primary action; it leads to the
 differences and effective-date review before publishing. This follows the shared
 exception to drawers for longer, complex forms.
 
-[Policy editor preview](./.working/policy-editor-preview.html) demonstrates the
+[Policy editor preview](./mockups/policy-editor-preview.html) demonstrates the
 four-section dedicated page, responsive section navigation, editable example
 settings, changed/unchanged review and Back to editing. Publication is disabled;
 affected-employee counts are illustrative and request impacts are not calculated.
@@ -765,6 +828,14 @@ new leave-period start. Show the resulting last usable date beneath it. Three
 months from 1 January ends on 31 March; from 1 July on 30 September. This avoids
 annual fixed-date maintenance, respects anniversary periods and never extends an
 existing carried portion’s expiry. Example values are not policy defaults.
+Calculate the destination month directly from the actual period start. Where its
+matching day exists, show the preceding day; otherwise show the destination month's
+last day without subtracting again. One month from 15 January 2026 ends on
+14 February; from 31 January 2026 on 28 February; from 31 January 2028 on
+29 February. Twelve months from 29 February 2028 ends on 28 February 2029.
+See [ADR-0089](../../../../apps/leave/docs/architecture/decisions/0089-carry-over-month-boundary-expiry.md).
+The keeper preview illustrates first-of-month periods only; delivery must also
+verify these month-end examples.
 
 Document example: Required above a duration threshold with 2 days means a request
 of 1 or 2 days can be submitted without a document, while 3 days requires one.
@@ -782,15 +853,7 @@ Confirm Policy scheduled for [date], rather than implying immediate application.
 Label the future version Scheduled and the existing version Current until the
 effective date.
 
-Start with a leave-type list showing name, current policy, and active/archived
-status. Selecting a type opens configuration grouped into Entitlement, Request
-rules, Approval, and Documents & privacy. Keep advanced settings in expandable
-sections rather than displaying every rule at once. Preserve existing configuration
-permissions, policy versioning, and archive semantics; these groups are navigation
-and presentation, not new domain boundaries.
-
-Before publishing policy changes, show the changed settings and effective date
-in a review step, followed by Publish policy version. Unconfirmed edits follow the shared administrative edit/review/confirm contract;
+Unconfirmed policy edits follow the shared administrative edit/review/confirm contract;
 they do not take effect or imply a separate persisted admin draft system. Explain that
 historical requests retain their recorded policy and existing requests are not
 silently recalculated. Apply existing effective-dated versioning and configuration
@@ -798,7 +861,7 @@ permissions; publishing is not a retroactive migration of request history.
 
 ### Work profiles and employee schedule defaults
 
-The approved [employee schedule wireframe](./.working/employee-schedule-wireframe.html)
+The approved [employee schedule wireframe](./mockups/employee-schedule-wireframe.html)
 shows the assigned profile first, inherited values together, and field-specific
 employee overrides clearly marked with an option to use the profile value. Preview
 the effective-date change with a required reason and request impacts before
@@ -825,7 +888,7 @@ List existing requests needing attention separately with the reason. Do not
 silently rewrite their recorded calculations. Apply existing configuration
 authorization and audit requirements.
 
-The [work-profile list/edit/review preview](./.working/work-profiles-preview.html)
+The [work-profile list/edit/review preview](./mockups/work-profiles-preview.html)
 connects an 18-person Maputo profile and six-person Luanda profile to focused
 edit/review surfaces. The Friday 8→7-hour example distinguishes 17 inherited changes
 from Ana’s retained 6-hour override, and illustrates one existing request requiring
@@ -875,7 +938,9 @@ permitted before/after details and a link to the affected record. Apply active-N
 authorization and sensitive-field permissions to list, search, details, and linked
 records; audit access must not bypass medical-document authorization.
 
-The [employee Leave-settings preview](./.working/employee-leave-settings-preview.html)
+### Employee Leave settings
+
+The [employee Leave-settings preview](./mockups/employee-leave-settings-preview.html)
 shows a readable employee summary grouped into Employment & approval, Work schedule
 and Leave entitlement. Authorized group actions open focused edit/review examples;
 balance adjustment is separate. A read-only preview hides mutation actions without
@@ -899,7 +964,32 @@ Show completion and unresolved
 issues. Name affected employees only when relevant data exists; otherwise show
 configuration tasks. Do not assume migration or pre-existing employees.
 
-[Setup checklist preview](./.working/setup-checklist-preview.html) shows a responsive
+Derive each section’s status from its saved, authorized configuration and the
+application’s required checks; do not store a separately toggled completion flag.
+
+| Status | Predicate |
+|---|---|
+| Not started | Essential configuration has not been entered; People remains Not started when no employees exist. |
+| Needs review | Configuration exists but required settings, assignments or consistency checks are incomplete or invalid. |
+| Ready | Required saved settings are present and their applicable checks pass, with no known blocking issue in that section. |
+| Couldn’t check | Assessment cannot complete; show Retry and never substitute Ready or Not started for unknown data. |
+
+People and supervisors is Ready when existing active employees have required
+employment details, valid work-profile assignments/fallbacks and valid approval
+routes. Work profiles and holidays checks required saved schedules, timezones and
+calendar configuration/links. Leave types and policies checks required policy
+settings and valid approval rules for the enabled leave types. Domain definitions
+of valid settings remain in the feature specification; the checklist adds no
+country-specific policy defaults, required holiday entries or new approval rules.
+
+Refresh the affected section after its underlying settings change. Other assessed
+sections remain usable. Ready describes application configuration checks; it does
+not record consultant/client email sign-off. No manual Mark complete or separate
+checklist activation action is introduced. Ordinary settings publication/review
+requirements remain in force. With no employees, show the configuration tasks
+without inventing employee-specific issues or blocking other setup sections.
+
+[Setup checklist preview](./mockups/setup-checklist-preview.html) shows a responsive
 three-area checklist, expandable issues and linked employee context with return to
 setup. Separate illustrative scenarios cover existing employees versus an empty
 NGO. Consultant email approval and its waiting status stay outside the Leave UI;
@@ -928,6 +1018,11 @@ the migration runbook linked from the Leave application README; do not add clien
 these source-mapping tasks.
 
 ### Notification inbox
+
+Inherit the approved [shared notification-panel layout](../../../../platform/EXPERIENCE.md#notification-panel):
+compact desktop panel and full-width mobile sheet, with event title, permitted
+request dates/status, unread marker and secondary time. Layout approved on
+20 September 2026; rendered verification remains outstanding.
 
 The bell opens a compact panel with newest notifications first, a clear unread
 marker, and Mark all as read for the active NGO only. Display only the approved
@@ -963,8 +1058,15 @@ origin/draft/position under shared save safeguards. Refresh holders and deletion
 eligibility on return; confirm deletion and retain definition/audit history.
 Application-maintained built-in roles cannot be deleted.
 
-The [access mock](./.working/application-access-wireframe.html) illustrates role
-selection and the [custom-role mock](./.working/custom-role-wireframe.html) illustrates
+The [assigned-role lifecycle preview](mockups/custom-role-lifecycle-preview.html)
+shows capability changes with holder impact, related-person navigation preserving
+unsaved role edits, deletion blocked while assigned, and unassigned-role deletion
+confirmation. Layout approved on 20 September 2026; all writes are disabled and the capability
+catalogue and assignment scenarios are illustrative. Actual combined-access and
+concurrency checks remain delivery work.
+
+The [access mock](./mockups/application-access-wireframe.html) illustrates role
+selection and the [custom-role mock](./mockups/custom-role-wireframe.html) illustrates
 simple creation; neither is a permission catalogue. The access mock's older wording
 about creation “from an application role” does not replace the accepted separate
 Duplicate role action.
@@ -974,20 +1076,35 @@ Duplicate role action.
 These are approved behaviors, not evidence of rendered states. Every protected
 surface rechecks current NGO and permission scope. Read/search/export cannot reveal
 more than its destination permits. Loading and failed loads must not masquerade as
-successful empty results. Detailed coverage gaps remain visible below.
+successful empty results. The table separates accepted rules from delivery verification.
 
-| Surface group | Accepted state coverage | Remaining treatment to resolve |
+| Surface group | Accepted state coverage | Delivery follow-up |
 |---|---|---|
-| My Leave / balances / history | No pending/upcoming items; no history in selected year; explicit year bounds; required-response notice; own-data scope | Cold-load/error composition for balances and all history filters |
-| Apply / details / lifecycle / acknowledgement | Saved/saving/failure, disconnected, expired session, stale/no access, field blocks, shortfall acknowledgement, submitted, rejection, withdrawal, cancellation/replacement | Complete upload-state visuals, part-day widgets and every lifecycle layout |
+| My Leave / balances / history | No pending/upcoming items; no history in selected year; explicit year bounds; required-response notice; own-data scope | Rendered verification of independent section loading/retry and history-filter context |
+| Apply / details / lifecycle / acknowledgement | Saved/saving/failure, disconnected, expired session, stale/no access, field blocks, shortfall acknowledgement, submitted, rejection, withdrawal, cancellation/replacement | Approved written-state patterns; verify actual part-day controls, upload feedback and lifecycle interactions during delivery |
 | Approvals / review / team availability | Empty versus filtered-empty queue; stale decision; failed/uncertain save; coverage and acknowledgement gates; no access | Rendered verification of shared loading and team-data failure treatment |
-| Manager home / overview | Empty attention queue; no leave versus filtered-empty; overview load failure/Retry; missing coverage and correction follow-up | Dedicated deficit/escalation/override load/error details |
-| Temporary assignment | Overlap conflict; pending transfer selection; expiry return eligibility failure; uncovered responsibilities remain flagged | Detailed termination/extension/concurrent-save layouts |
-| Policy / entitlement / schedule / calendars | Current/draft/scheduled; inherited/override; impact review, invalid route, affected requests | Complete validation/loading and domain-specific presentations; shared confirmation recovery and stale-review rules apply |
-| Adjustment / audit / reports | Required reason and review; audited before/after; inherited collection loading/empty/error/export feedback | Exact zero-results and export-failure treatment per report |
-| Access / custom roles | Proposed changes, review; holders block deletion; effective authority can remain from other grants | Authoritative capability dependencies, concurrent changes and complete deletion states |
-| Setup / notifications / shell | No assumed employees; unresolved tasks; empty notification inbox; shared access/session safeguards | Checklist failures/completion criteria, notification load failures and shared shell visuals |
+| Manager home / overview | Empty attention queue; no leave versus filtered-empty; overview load failure/Retry; missing coverage and correction follow-up | Approved review layouts and inherited load/error patterns; verify data-specific behavior during delivery |
+| Temporary assignment | Overlap conflict; pending transfer selection; expiry return eligibility failure; uncovered responsibilities remain flagged | Accepted written-pattern coverage; verify termination/extension/concurrent-save behavior |
+| Policy / entitlement / schedule / calendars | Current/draft/scheduled; inherited/override; impact review, invalid route, affected requests | Apply shared validation/loading, confirmation recovery and stale-review rules to each domain-specific form |
+| Adjustment / audit / reports | Required reason and review; audited before/after; inherited collection loading/empty/error/export feedback | Verify each report uses the approved zero-results and export-failure pattern |
+| Access / custom roles | Proposed changes, review; holders block deletion; effective authority can remain from other grants | Authoritative capability dependencies and runtime concurrent-change checks; deletion layout approved |
+| Setup / notifications / shell | No assumed employees; unresolved tasks; empty notification inbox; shared access/session safeguards | Approved derived status predicates; assessment API/error handling and shared-shell rendering require delivery verification |
 
+
+### Partial loading failure on My Leave
+
+Load and recover balances, requests and history independently where their data
+contracts allow. Keep successfully loaded authorized sections usable when another
+section fails. A failed balances section says We couldn’t load your balances with
+Retry; retry that section without clearing other results or resetting their
+context. Never substitute zero days or No requests for unavailable data. While
+loading, use the shared quiet loading treatment rather than showing an empty state.
+
+Apply for leave remains available when the balances panel fails. The form performs
+its own authoritative calculation; if that calculation cannot load, preserve input
+and explain beside the calculation that submission must wait for the balance check.
+A dashboard failure alone does not block submission when the required form checks
+succeed. Previously loaded data follows shared stale-data and authorization rules.
 
 ### Empty approval queue
 
@@ -1001,7 +1118,15 @@ Do not represent loading or a failed request as an empty successful result.
 Stop an outdated action and show: This request has changed. Review the latest
 version before continuing. Refresh the currently permitted details and status;
 offer only actions valid for that state and the actor's current permissions.
-Preserve any typed comment without automatically submitting it. For example, a
+Preserve any typed comment without automatically submitting it.
+
+Approved presentation: once a current authorized check confirms withdrawal, show
+**This request has been withdrawn**, followed by **Ana withdrew this request. No
+approval is needed.** Remove Approve and Reject and offer **Back to approvals**.
+Keep any typed comment locally available to copy while the screen remains open;
+do not submit it or promise persistence after leaving. For an edited request,
+show **This request has changed** and **Review latest version**; retain the comment
+and require review of the updated details before a new decision. For example, a
 request withdrawn while an approver was reviewing it cannot subsequently be
 approved from that stale view. If access is lost, use the no-access treatment
 rather than revealing updated request data.
@@ -1064,7 +1189,7 @@ has been deleted when the actual condition is lack of current authorization.
 
 ### Revised unpaid amount needs employee acknowledgement
 
-[Response-screen preview](.working/revised-unpaid-acknowledgement-preview.html)
+[Response-screen preview](mockups/revised-unpaid-acknowledgement-preview.html)
 shows the agreed five-day request changing from three paid plus two unpaid days
 to two paid plus three unpaid days. Layout approved on 20 September 2026; actions are
 illustrative and do not persist changes.
@@ -1072,10 +1197,10 @@ illustrative and do not persist changes.
 Lead with Your response is needed. Show the previously requested unpaid amount
 and revised requested unpaid amount, followed by Changed by and the explanation.
 Provide an explicit checkbox acknowledging the exact revised amount and an
-Acknowledge action. Example: I acknowledge that 2 days are now requested as unpaid
+Acknowledge action. Example: I acknowledge that 3 days are now requested as unpaid
 leave. Keep Withdraw request available for eligible pending requests.
 
-Acknowledgement satisfies the required employee response so approval can proceed;
+Acknowledgement satisfies the required employee response so final approval can complete;
 it does not approve leave. Recheck the current amount before recording the response
 and preserve the existing actor/reason/acknowledgement audit history.
 
@@ -1140,18 +1265,21 @@ configured policy and bounded temporary responsibilities, not an invented route.
 
 ### Submitted request
 
-After confirmed submission, replace the form with request details in the same
-desktop drawer; mobile retains its full-page presentation. Briefly show Request
-submitted. Lead with leave type, dates, and current status, followed by requested
-and paid amounts. Show Requested unpaid only when nonzero. Notes/documents and
-approval history expand on demand under existing visibility rules. Show Withdraw
-request for eligible pending requests; existing state and permission checks govern
-the action. Place required employee responses prominently above the details.
+After confirmed submission, close the desktop form or return from the mobile form
+to My Leave. Preserve previous list context and scroll position, show a brief
+Request submitted confirmation with an optional View request link, update the
+request list with dates and authoritative status, and remove the submitted draft
+indicator. Do not automatically open details or require another close action.
+See [ADR-0087](../../../../apps/leave/docs/architecture/decisions/0087-return-to-my-leave-after-submission.md),
+which partially supersedes ADR-0070.
 
-Example: Annual leave · 12–13 Oct 2026, Awaiting approval, Requested 2 days,
-Paid 2 days. Hide the zero unpaid row. Show Approved instead when authorized
-automatic decisions completed approval. Do not reintroduce a prominent reference
-number or next-approver name.
+Request details remain available on demand: leave type, dates, current status,
+requested and paid amounts; show Requested unpaid only when nonzero. Notes,
+documents and approval history expand under existing visibility rules. Keep
+eligible withdrawal and required employee responses available. Awaiting approval
+remains the normal status; show Approved when authorized automatic decisions
+complete approval. Do not introduce prominent reference numbers or next-approver
+names. A failed list refresh does not turn confirmed submission into failure.
 
 ### Submission failure
 
@@ -1161,6 +1289,14 @@ Offer Retry for a failed submission; when the result is uncertain, first check
 whether it succeeded so retries cannot create duplicate requests or reservations.
 Do not report success until confirmed or discard the draft because a response was
 lost. Existing revalidation and exact unpaid-amount acknowledgement rules apply.
+
+Use We couldn’t submit your request. Your entered details are still here for a
+confirmed failure, with Retry. For an unknown result, use We’re checking whether
+your request was submitted and prevent another submission while checking. If
+checking cannot finish, use We couldn’t confirm submission. Reconnect to check
+again with Check status. Keep feedback beside the bottom actions rather than
+only in a disappearing toast. Do not close the form until success is confirmed.
+
 
 ## Interaction Primitives
 
@@ -1189,10 +1325,12 @@ calculation disclosures. Shared modal focus/close behavior applies to drawers an
 sheets; closing restores useful context. Maintain readable content and reachable
 actions when zoomed or using a phone keyboard. No decision-critical text may be
 hidden behind a fixed footer. Management-tool rows target at least 48px high as
-approved; other final dimensions remain unresolved.
+approved; controls inherit {components.form-control}. Verify actual touch targets and
+reflow during delivery.
 
 Inherit the shared [focus, validation and announcement rules](../../../../platform/EXPERIENCE.md#accessibility-floor).
-After successful submission replaces the form, focus the request heading. Preserve
+After confirmed submission returns to My Leave, restore useful keyboard focus
+without forcing a scroll jump and announce success. Preserve
 input/active field across drawer-to-page changes. Guide failed-submit focus to
 associated field errors or their summary. Announce meaningful save failure/recovery,
 displayed-period changes and newly required unpaid acknowledgement without stealing
@@ -1218,7 +1356,8 @@ persistence mechanism is invented here.
 | Desktop drag/drop or Browse | Choose a file |
 
 Responsive transitions are based on usable content, not approved numeric
-breakpoints yet. Sample HTML widths, dates, people and calculations are illustrative.
+breakpoints. Select and verify thresholds against content and zoom during delivery.
+Sample HTML widths, dates, people and calculations are illustrative.
 Most references have structural/JavaScript checks only; browser, keyboard and
 assistive-technology verification remains outstanding.
 
@@ -1245,7 +1384,7 @@ map to the source catalogue in consolidation-coverage.md; sources define no UJ I
 1. Ana opens My Leave in the active NGO, reads available balances and chooses Apply for leave; an existing saved draft resumes.
 2. She chooses type, permitted duration and dates, then reads schedule-aware requested/paid/unpaid amounts and opens calculation details if needed.
 3. She acknowledges the exact requested unpaid amount when required and adds the permitted note/document.
-4. **Climax:** confirmed Submit request replaces the form with current request details; she sees Awaiting approval or an authorized automatic Approved result.
+4. **Climax:** confirmed Submit request closes the form and returns her to My Leave with preserved context, a brief confirmation and optional View request link. The updated list shows Awaiting approval or an authorized automatic Approved result; the submitted draft indicator is removed.
 
 Failure / limits: A field or connection failure preserves entered data. Uncertain submission is checked before retry; an older draft refreshes rules beside affected fields.
 
@@ -1271,7 +1410,7 @@ Failure / limits: A changed request stops the decision and retains the comment. 
 1. Sofia opens the shortfall in Ana’s existing pending request with the required override permission, chooses a permitted allocation and records a reason.
 2. She reviews and confirms the revised split. In this example an authorized correction changes 3 paid + 2 unpaid days to 2 paid + 3 unpaid days; a new request cannot displace Ana’s existing reservation.
 3. Ana receives a notification and opens Your response is needed on My Leave. She sees the previous/revised split, Sofia’s name and explanation, and acknowledges the exact current 3 unpaid days.
-4. **Climax:** the request continues through its remaining approvals. João sees Waiting for employee acknowledgement until the response is recorded; acknowledgement never substitutes for his decision.
+4. **Climax:** acknowledgement clears the final-approval gate; remaining required decisions still apply. João sees Waiting for employee acknowledgement until the response is recorded. Intermediate steps may proceed when otherwise authorized; acknowledgement never substitutes for his decision.
 
 Failure / limits: Recheck the unpaid amount before recording acknowledgement; a stale amount cannot satisfy the current requirement. Keep eligible withdrawal available. No renewed acknowledgement is needed when unpaid leave stays the same or decreases. An uncertain confirmation follows the shared recovery rules; no separate workspace is introduced.
 
@@ -1282,6 +1421,14 @@ Failure / limits: Recheck the unpaid amount before recording acknowledgement; a 
 3. **Climax:** Cancel original and submit replacement preserves linked history and starts fresh approval. Ana opens the minimal notification to see the actor, dates, reason and current balance effect.
 
 Failure / limits: Validation failure leaves the original intact. A later replacement rejection keeps the original cancelled and creates Correction needs follow-up. An increased requested unpaid amount sends Ana to explicit revised-amount acknowledgement; the returned-early example needs none.
+
+### 4a — Request lifecycle: Sofia applies on Ana’s behalf
+
+1. Sofia opens Apply on behalf with the required permission, selects Ana and reviews the employee and recording-actor context.
+2. She enters the leave details and required reason, then reviews allocation and the stated approval consequence.
+3. **Climax:** Submit for employee records the request under Ana with Sofia as the actor; only an authorized assigned approval step can be satisfied by that submission.
+
+Failure / limits: On-behalf authority alone cannot approve leave. Preserve entered data on failure, check uncertain submission before retry, and enforce current funding, acknowledgement and finalization gates. Do not replace Ana’s own saved draft.
 
 ### 5 — Leave Manager workspace: Sofia follows up an attention item
 
@@ -1314,7 +1461,7 @@ Failure / limits: An unavailable original at expiry leaves work pending and flag
 3. She reviews changed values, effective date, employees with overrides and affected existing requests.
 4. **Climax:** Publish policy version confirms Policy scheduled for the future date while the current summary remains Current.
 
-Failure / limits: Invalid/missing routes require attention; publishing never silently replaces recorded routes or recalculates existing requests. Complete editor failure presentation remains open.
+Failure / limits: Invalid/missing routes require attention; publishing never silently replaces recorded routes or recalculates existing requests. Use the shared validation, failed-confirmation and uncertain-outcome patterns for editor failures.
 
 ### 9 — Balance ledger and accrual: Sofia makes a one-off adjustment
 
@@ -1330,7 +1477,7 @@ Failure / limits: Incorrect prior adjustments are corrected by another explained
 2. She supplies the recurring amount when applicable, next leave-period start and reason; the quiet one-off link remains separate.
 3. **Climax:** Review change explains the before/after entitlement and affected requests before confirmation; the recurring choice continues until explicitly changed.
 
-Failure / limits: No automatic end-date or current-balance reset is implied. Unexpected consequences remain visible; detailed save/concurrency presentation remains open.
+Failure / limits: No automatic end-date or current-balance reset is implied. Unexpected consequences remain visible; shared administrative save/concurrency patterns apply.
 
 ### 11 — Jurisdictions and workplace calendars: Sofia restores Ana’s profile value
 
@@ -1339,7 +1486,7 @@ Failure / limits: No automatic end-date or current-balance reset is implied. Une
 3. She reaches the associated holiday calendar to inspect configured names/dates and authorized changes.
 4. **Climax:** review makes inherited versus explicitly overridden values and preserved historical calculations clear before any authorized change.
 
-Failure / limits: Profile location/team suggestions do not silently reassign Ana. Calendar examples are organization closures, not official holiday facts; full profile/calendar failure states remain open.
+Failure / limits: Profile location/team suggestions do not silently reassign Ana. Calendar examples are organization closures, not official holiday facts; shared field-validation, load/retry and administrative confirmation patterns apply to profiles and calendars.
 
 ### 12 — Reports and exports: Sofia exports matching balances
 
@@ -1355,7 +1502,7 @@ Failure / limits: Loading/empty/export feedback inherit the planned shared colle
 2. She expands Ana’s adjustment event to read when, who, what changed and why.
 3. **Climax:** permitted before/after values and the linked affected record explain the change without granting separate sensitive-document access.
 
-Failure / limits: An inaccessible detail/link must not expose stale private fields. Detailed load/filter errors remain open.
+Failure / limits: An inaccessible detail/link must not expose stale private fields. Load/filter errors use the approved collection feedback pattern.
 
 ### 14 — Identity, NGO context, and onboarding: Ana follows a notification
 
@@ -1371,7 +1518,15 @@ Failure / limits: Expired sign-in pauses saves/actions; reauthentication returns
 2. Where migration applies, the consultant validates the exact batch and source balance-date/future-request conventions and sends the generated reconciliation report to the authorized client contact by email.
 3. **Climax:** after client approval evidence and export-to-cutover reconciliation, the authorized import process applies that exact approved batch under the migration runbook; no in-app confirmation screen is added.
 
-Failure / limits: Changed data requires a revised report and renewed approval; validation/row errors and duplicate protection prevent an unreviewed apply. Operational commands/rollback and full setup layout remain open.
+Failure / limits: Changed data requires a revised report and renewed approval; validation/row errors and duplicate protection prevent an unreviewed apply. Setup layout and derived statuses are approved; executable import/rollback commands require delivery work in the consultant runbook.
+
+### 15a — Organization and employment structure: Sofia updates Ana’s Leave settings
+
+1. Sofia follows Ana’s setup issue to the employee’s shared identity and Leave-specific settings.
+2. She opens the authorized Employment & approval, Work schedule or Leave entitlement edit and reviews the proposed values, effective date, reason and applicable request effects.
+3. **Climax:** Explicit confirmation applies the authorized change while preserving historical context and inherited values that were not overridden; returning to setup refreshes the affected section’s checks.
+
+Failure / limits: Read-only access exposes no edit actions. Shared identity is not duplicated; invalid settings and stale impacts follow the shared edit/review/confirm recovery pattern. Recurring entitlement and immediate balance adjustment remain separate actions.
 
 ### 16 — Permissions: Ana’s application access and a custom role
 

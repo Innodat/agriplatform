@@ -1,7 +1,7 @@
 # Leave Tracker Functional Specification
 
 **Version:** 0.1  
-**Last updated:** 2026-09-14  
+**Last updated:** 2026-09-20  
 **Status:** Product scope approved; detailed acceptance criteria remain living documentation  
 **Scope:** MVP unless marked otherwise
 
@@ -183,7 +183,13 @@ Setup presents a non-sequential checklist for people/supervisors, work profiles/
 holidays and leave types/policies. Do not include consultant correspondence,
 email-approval status or a standard opening-balances row. Surface an actionable
 balance issue only when actually detected; do not infer missing opening data from
-a legitimate zero balance. Migration email approval remains in the consultant
+a legitimate zero balance.
+Derive checklist status from saved configuration: Not started for absent essentials,
+Needs review for incomplete/invalid settings, Ready when required checks pass, and
+Couldn’t check with Retry when assessment fails. People stays Not started with no
+employees; otherwise check active employees’ required employment, work-profile and
+approval-route configuration. Reassess after changes without a manual completion
+flag or consultant-email tracking. Migration email approval remains in the consultant
 process with evidence tied to the exact import batch; no application email workflow
 is introduced. Normal authorized balance administration remains available.
 
@@ -638,7 +644,16 @@ months from the new period start. Show the calculated inclusive last usable date
 three months from 1 January gives 31 March; from 1 July gives 30 September. These
 are illustrative, not defaults. Existing expiry is never extended by repeated
 carry-over. See [ADR-0085](./architecture/decisions/0085-period-relative-carry-over-expiry.md);
-month-end/leap-day anniversary arithmetic requires deterministic delivery examples.
+[ADR-0089](./architecture/decisions/0089-carry-over-month-boundary-expiry.md)
+resolves month-end and leap-day arithmetic. Add the configured calendar months
+once from the actual period start. If the matching day exists in the destination
+month, use the preceding day; otherwise use that month's last day directly.
+
+Acceptance example: One month from 15 January 2026 is usable through 14 February;
+from 31 January 2026 through 28 February; from 31 January 2028 through 29 February.
+Twelve months from 29 February 2028 is usable through 28 February 2029. The portion
+is ineligible on the following day. If an existing portion already expires earlier,
+retain that earlier date.
 
 Convert carry-over limits expressed in days using the employee's configured
 standard working-day duration effective at rollover. Save that conversion and its
@@ -1071,8 +1086,9 @@ names. Keep workflow details available on demand. Show the active NGO in the
 application header instead of repeating it in the summary; show an NGO switcher
 only for users with multiple active NGO memberships. Requests remain bound to
 their NGO regardless of presentation. If any amount is requested as
-unpaid leave, require explicit acknowledgement of that exact amount before
-submission. Without an unpaid amount, a single **Submit request** action suffices.
+unpaid leave in an employee’s own application, require their explicit acknowledgement
+of that exact amount before submission. Authorized on-behalf applications use the
+post-submission employee-response handoff below. Without an unpaid amount, a single **Submit request** action suffices.
 Acknowledgement is not approval of the request or authorization of an override.
 
 Acceptance example: A request summary shows 480 minutes requested, with 360 paid
@@ -1085,8 +1101,43 @@ subject to existing validation and required explanation rules.
 
 See [ADR-0069](./architecture/decisions/0069-submission-summary-and-unpaid-acknowledgement.md).
 
-After successful submission, open the request detail page with “Request submitted”,
-the leave dates, and current status. Do not prominently display a reference number
+For an initial on-behalf request containing unpaid leave, allow the authorized
+manager to submit with the required reason and allocation. Notify the employee
+and show Your response is needed on My Leave, linked to this submitted request.
+Only that employee may acknowledge its current exact unpaid amount; the manager’s
+on-behalf permission cannot stand in for the employee’s response. Preserve any
+employee-owned draft unchanged. Keep eligible withdrawal available under existing
+pending-request rules.
+
+Final approval remains blocked until the response and all other finalization checks
+pass. Intermediate steps may proceed when otherwise authorized. The submitting
+approver’s own step can be approved even when it is the sole step, but the overall
+request and paid reservation remain pending until the employee responds. When all
+conditions are met, finalize with one consumption; do not repeat an already valid
+approval solely because acknowledgement arrives later.
+
+Acceptance example: Sofia submits five days for Ana with three paid and two unpaid,
+with a reason. Ana’s separate saved draft is unchanged. Ana opens Your response is
+needed and acknowledges the current two unpaid days. If Sofia owns the sole approval
+step, that step is recorded on submission but the request is not Approved and the
+reservation is not consumed until Ana responds and remaining checks pass. If Sofia
+is not an assigned approver, her submission does not satisfy an approval step.
+
+Acceptance example: Deny Sofia an attempt to acknowledge as Ana. If an authorized,
+explained correction changes the unpaid amount from two to three before Ana’s
+response, show the revised allocation and explanation; an acknowledgement of two
+days must not satisfy the current three-day requirement. Audit the submission,
+correction, employee response and approval separately; retries do not duplicate
+requests or consumption.
+
+See [ADR-0088](./architecture/decisions/0088-employee-acknowledgement-for-on-behalf-unpaid-leave.md),
+which refines ADR-0069 only for on-behalf acknowledgement timing.
+
+
+After confirmed successful submission, close the form and return to My Leave,
+preserving previous list context and scroll position. Show a brief “Request submitted”
+confirmation with an optional View request link, update the request list with dates
+and authoritative status, and remove the submitted draft indicator. Do not prominently display a reference number
 or next-approver name in this confirmation. Keep stable internal identifiers for
 integrity and support, and keep approval history available on demand. When someone
 else must act, “Awaiting approval” is sufficient; when the employee must act, state
@@ -1097,14 +1148,16 @@ escalation, without requiring employees to chase approvers.
 If a connection failure leaves submission uncertain, check whether it succeeded
 before offering a retry. Retrying must not create a duplicate request or reservation.
 
-Acceptance example: A submitted request opens with its dates and Awaiting approval,
+Acceptance example: Confirmed submission returns to My Leave without an extra close
+action. The request appears with its dates and Awaiting approval,
 without a prominent reference number or next-approver name. Its history remains
 accessible. An immediately approved request shows Approved instead. A later unpaid
 increase clearly asks the employee for acknowledgement. If the submission response
 is lost after success, recovery finds the existing request rather than creating
 a second request or reservation.
 
-See [ADR-0070](./architecture/decisions/0070-simple-submission-confirmation.md).
+See [ADR-0070](./architecture/decisions/0070-simple-submission-confirmation.md),
+partially superseded by [ADR-0087](./architecture/decisions/0087-return-to-my-leave-after-submission.md).
 
 Acceptance example: A single-NGO employee sees the active NGO in the application
 header, with no NGO switcher. Their submission summary shows type, dates, duration,
@@ -1120,13 +1173,13 @@ The request page contains:
 - Active NGO and employee schedule context
 - Leave-type selector with plain-language policy summary
 - Full-day, half-day, or hourly selection
-- Accessible date and time inputs
+- Accessible date controls and duration selection, without exact start/end times
 - Optional employee note
 - Secure attachment uploader where permitted or required
 - Real-time duration breakdown
 - Current, reserved, projected, and post-request balance widget
 - Warnings and consequences requiring acknowledgement
-- Save draft and submit actions
+- Truthful automatic draft-saving status, Close and Submit request actions
 
 Dates remain visible even when non-working; the calculation explains why weekends,
 holidays, breaks, or unscheduled time do not consume leave.
@@ -1991,6 +2044,19 @@ item, not a completed MVP capability. See
 - Configurable data retention and auditable deletion
 - Deterministic date/time calculations and timezone handling
 - Performance targets agreed before release testing
+
+### Operational target ownership and decision gates
+
+| Decision | Responsible | Decision gate |
+|---|---|---|
+| Secure document-link / signed-operation lifetime | Technical architect and security lead | Architecture completion |
+| Backup recovery objectives and critical alert conditions | Technical lead and operations owner | Architecture completion |
+| Supported browsers and performance targets under representative workloads | Product owner and technical lead | Relevant story planning |
+
+One person may hold several responsibilities. Record measurable targets and their
+verification criteria at these gates; numerical targets are not yet selected.
+Delivery verifies the agreed targets before the pilot, including restoration
+rehearsals, alert checks, browser coverage and representative performance tests.
 
 ## MVP exclusions
 

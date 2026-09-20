@@ -1,0 +1,41 @@
+[
+  {
+    "pass": "structure",
+    "location": "EXPERIENCE / Approval review",
+    "action": "MOVE",
+    "change": "Normal content order, gates, decisions and save recovery precede absence exceptions.",
+    "disposition": "Applied; all words preserved."
+  },
+  {
+    "pass": "structure",
+    "location": "EXPERIENCE / Administrative leave correction",
+    "action": "MOVE",
+    "change": "Initiating correction precedes history, notification and rejection consequences.",
+    "disposition": "Applied; all words preserved."
+  },
+  {
+    "pass": "structure",
+    "location": "EXPERIENCE / Leave-type and policy configuration",
+    "action": "MOVE",
+    "change": "List navigation precedes current-policy summary and editing.",
+    "disposition": "Applied; all words preserved."
+  },
+  {
+    "pass": "prose",
+    "location": "EXPERIENCE / Balance-override review",
+    "change": "Clarify that missing acknowledgement alone does not block otherwise-authorized intermediate decisions.",
+    "disposition": "Applied; final-approval gate unchanged."
+  },
+  {
+    "pass": "prose",
+    "location": "EXPERIENCE / Revised unpaid amount",
+    "change": "Use 3 unpaid days consistently in the revised-amount example.",
+    "disposition": "Applied; example consistency only."
+  },
+  {
+    "pass": "prose",
+    "location": "EXPERIENCE / Apply for leave",
+    "change": "Separate close-when-saved from wait-for-in-progress-save wording.",
+    "disposition": "Applied; save-failure behavior unchanged."
+  }
+]

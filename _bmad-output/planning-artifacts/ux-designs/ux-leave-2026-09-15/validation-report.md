@@ -1,175 +1,146 @@
 # Validation Report — Leave
 
-- **DESIGN.md:** [Draft](./DESIGN.md)
-- **EXPERIENCE.md:** [Draft](./EXPERIENCE.md)
-- **Run at:** 2026-09-18T05:36:03+00:00
+- **DESIGN.md:** [Leave design](./DESIGN.md)
+- **EXPERIENCE.md:** [Leave experience](./EXPERIENCE.md)
+- **Run at:** 2026-09-20T16:11:06+00:00
+- **Scope:** final completeness/consistency and accessibility source review; supersedes the earlier consolidated review snapshot.
 
-## Overall verdict
+Subsequent corrections are tracked in [review-resolution.md](./review-resolution.md).
+The findings below remain the original review snapshot.
 
-The accepted interaction direction is coherent and well preserved: the employee, approval and management journeys fit together, named composites agree between the spines, and references resolve. The pair is still a planning draft rather than a complete implementation contract: visual tokens, some operational journeys and adverse states remain deliberately open, and recurring-entitlement effective dates need one explicit product decision. These are predominantly acknowledged handoff gaps, not regressions or reasons to reopen approved preferences.
+## Current disposition — 20 September 2026
 
-The accessibility review adds three medium and one low interaction-contract gaps: focus transitions, consequential status announcements, validation-error navigation, and selected-date state. These call for shared behavior clarifications rather than a redesign. This is a static document and prototype review, not rendered-browser testing or an accessibility compliance assessment.
+The two original **thin** ratings below are historical. Their underlying findings
+have since been addressed:
 
-Severity describes the risk of treating these drafts as implementation-ready. The critical token finding is an acknowledged handoff blocker, not a regression or a defect in a deployed application. No design source or approved business rule was changed by this review.
+- **Token completeness (UX-R08):** approved radii, borders, Lucide icons, marker
+  corners and drawer separation now have an owning source in
+  [shared DESIGN.md](../../../../platform/DESIGN.md).
+- **Visual reference coverage (UX-R11):** 28 approved references were promoted to
+  `mockups/`, with a [handoff inventory](./mockups/README.md); seven comparison
+  studies remain historical.
+
+Both Leave design contracts are now final. These are verified source corrections,
+not newly assigned rubric ratings or browser/accessibility certification. The
+original review and verdicts below are retained for provenance; see the
+[resolution log](./review-resolution.md) for all finding dispositions.
+
+## Original review synthesis
+
+The approved employee, approval and management journeys now form a coherent design contract. The earlier major design gaps are addressed; remaining findings concern a few handoff decisions, ambiguous approval-gating wording and document organization. The design documents should remain draft until these are resolved; runtime contracts and browser verification remain separate delivery work.
+
+Accessibility review found three prototype differences from already adequate written requirements: field-error associations, allocation-consequence announcements and retained history semantics. No redesign of the approved visual direction or workflows is indicated. This was static source review, not browser or assistive-technology testing.
+
+**Findings: 0 critical · 0 high · 6 medium · 3 low.** No overall grade is assigned. These counts do not establish implementation readiness.
 
 ## Category verdicts
 
-- Flow coverage — thin
-- Token completeness — broken
-- Component coverage — adequate
-- State coverage — thin
-- Visual reference coverage — strong
-- Bloat & overspecification — adequate
-- Inheritance discipline — thin
-- Shape fit — strong
+- Flow coverage — **adequate**
+- Token completeness — **thin**
+- Component coverage — **adequate**
+- State coverage — **adequate**
+- Visual reference coverage — **thin**
+- Bloat & overspecification — **adequate**
+- Inheritance discipline — **adequate**
+- Shape fit — **strong**
 
 ## Findings by severity
 
-### Critical (1)
+### Critical (0)
 
-**UX-R02 [Token completeness] — There is no executable visual token contract**
+None established by these reviews.
 
-Leave DESIGN.md lines 11–15 and Colors lines 34–41; platform/DESIGN.md Layout & Spacing and Open Visual Decisions. Surface, foreground, primary-action, border and focus combinations have no committed values or resolvable inherited tokens. This is explicitly disclosed and intentional for the draft, but implementations would otherwise invent incompatible palettes and cannot verify the promised contrast.
+### High (0)
 
-Fix: approve a shared starting theme and committed color pairs, map Leave to it, and record typography/spacing/radius and responsive decisions needed by its components. Preserve the draft/readiness gate until then; do not silently adopt mock CSS or add a dark-mode palette unless dark mode is selected.
+None established by these reviews.
 
-### High (3)
+### Medium (6)
 
-**UX-R01 [Flow coverage] — High-impact management journeys lack a complete decision path**
+#### UX-R08 — Remaining visual defaults need an owning source
+**Token completeness** · Locations: `DESIGN.md:98; platform/DESIGN.md:102`
 
-EXPERIENCE.md Information Architecture, lines 51–65, and Key Flows 3, 5, 11 and 15 acknowledge dedicated balance-override/deficit, full employment/setup and profile/configuration gaps. In particular, the balance override is mentioned inside ordinary approval, but the authorized actor's allocation choice, employee acknowledgement handoff and return to the blocked approval are not demonstrated as one complete journey. The employee future-date balance projection is listed in IA but has no end-to-end flow.
+Corner radii, icon family, marker geometry and drawer shadow/overlay remain uncommitted, with no selected component theme to inherit them from.
 
-Fix: close the balance-override/revised-acknowledgement and projection journeys, then use the existing coverage inventory to identify which remaining admin actions need dedicated layouts versus established form patterns. Do not create one flow per ledger calculation or a client migration-confirmation page.
+**Fix:** Choose a small shared default set or a concrete approved primitive/theme. Do not adopt incidental prototype CSS wholesale; dark mode remains deferred.
 
-**UX-R04 [State coverage] — Administrative editing and confirmation lack a committed persistence/recovery contract**
+#### UX-R10 — Define setup checklist status criteria
+**State coverage** · Locations: `EXPERIENCE.md:926; EXPERIENCE.md:1032`
 
-EXPERIENCE.md State Patterns lines 855–859; Key Flows 8–11 and 16; platform/EXPERIENCE.md Open Implementation Details. The shared Close/Back rules explicitly describe autosaved drafts, while policy, entitlement, schedule and custom-role editors have review/confirm actions without establishing whether their unconfirmed edits persist, what happens when leaving, or how a failed/uncertain confirmation and concurrent change are recovered. A consumer could accidentally equate saving editor input with publishing or granting access.
+Ready, Needs review and Not started are illustrated, but the source of truth for readiness is not fully defined for the three setup groups.
 
-Fix: define one reusable admin edit → review → confirm state pattern with explicit draft persistence and close semantics, stale-review invalidation and confirmed/unknown-result recovery. Apply domain-specific consequences without changing the separate employee draft policy.
+**Fix:** Specify concise status predicates and unavailable-assessment treatment using existing settings/review evidence. Do not add client-email approval UI, a new activation action or manual mark-complete flow.
 
-**UX-R07 [Inheritance discipline] — “Next leave-period start” is a default in the source but reads as a fixed input in the walkthrough**
+#### UX-R11 — Promote approved references for handoff
+**Visual reference coverage** · Locations: `DESIGN.md:46; EXPERIENCE.md:42; .working/`
 
-features.md §5, lines 240–250, permits effective-dated changes and defaults to next period; EXPERIENCE.md Employee entitlement override lines 637–659 repeats that default but labels the field “Next leave-period start”; Key Flow 10 step 2 supplies the next period without stating whether alternatives are possible. consolidation-coverage.md explicitly identifies non-default midperiod starts as unresolved. This is a known decision gap, not evidence that either alternative was approved.
+All 35 HTML studies remain under .working, without a stable keeper inventory separating approved references from historical comparisons.
 
-Fix: obtain an explicit choice between period-boundary-only recurring changes and an authorized non-default effective date. Then align the field, review and source. If non-default dates remain possible, define their prospective grant/accrual effects without silently resetting current balances or rewriting history.
+**Fix:** Promote approved keepers to mockups/ or wireframes/, update links, and document historical studies and accepted written-pattern coverage. No additional routine mockups are requested.
 
-### Medium (5)
+#### UX-R13 — Clarify final versus intermediate approval gating
+**Inheritance discipline** · Locations: `EXPERIENCE.md:413; EXPERIENCE.md:1351; apps/leave/docs/features.md:714; ADR-0032`
 
-**UX-R03 [Component coverage] — Date and duration controls remain a composition gap**
+Some renewed-acknowledgement wording could block all remaining approval decisions, while accepted product rules specifically gate final approval.
 
-DESIGN.md Apply for leave and Agreed wireframe refinements; EXPERIENCE.md Apply for leave, Agreed wireframe refinements and Interaction Primitives. A unified range picker, single-date partial-day controls and a duration input are named, but their complete composition and invalid/incomplete range behavior are not assigned to an approved shared control or documented as an application delta. Manual/keyboard entry is required, which is a useful floor, but does not resolve the input/error behavior.
+**Fix:** Use final approval cannot complete consistently and reference the accepted finalization rule for intermediate steps. A broader restriction would need a new explicit product decision.
 
-Fix: select or document the shared control behavior, then specify only Leave-specific date/duration constraints and examples. Keep the agreed duration-only partial-day model; do not introduce exact times.
+#### UX-A01 — Associate prototype validation errors with fields
+**Accessibility** · Locations: `.working/apply-on-behalf-preview.html:6; .working/balance-override-preview.html:7; .working/custom-role-lifecycle-preview.html:5`
 
-**UX-R05 [State coverage] — Collection and secondary-surface fallback treatment is not yet a real inherited contract**
+Visible alerts and focus moves do not establish a programmatic error relationship or invalid state for the affected input. The shared design contract already requires this.
 
-EXPERIENCE.md State Patterns lines 851–860 and Reports lines 760–765; platform/EXPERIENCE.md State Patterns. The Leave matrix describes some loading/empty/error/export feedback as inherited, while the platform says applications still specify it and Reports correctly says shared behavior is used “when established.” This is an unresolved dependency, not an implemented-service defect.
+**Fix:** Give field errors stable IDs, associate them with their inputs, and expose/clear invalid state. Keep general workflow errors separate from field errors.
 
-Fix: establish a small shared loading / empty / filtered-empty / failed-load / retry / failed-export pattern and identify application-specific cases, including team-availability failure inside a decision and notification failure. Never turn a failed fetch into a truthful-looking empty result.
+#### UX-A02 — Announce settled allocation consequences
+**Accessibility** · Locations: `.working/balance-override-preview.html:7; .working/balance-override-preview.html:12`
 
-**A11Y-01 [Accessibility] — Focus after replacing a form or changing its presentation is unspecified**
+Changing the discretionary grant updates unpaid allocation and acknowledgement consequences visibly but without the meaningful status announcement already required by the contract.
 
-**Evidence:** [Submitted request](./EXPERIENCE.md#submitted-request) replaces the
-application form with request details in the same drawer. [Interaction Primitives](./EXPERIENCE.md#interaction-primitives)
-and [Responsive & Platform](./EXPERIENCE.md#responsive--platform) switch contextual
-tasks between a modal drawer and a full page. Shared
-[Closing autosaved forms](../../../../platform/EXPERIENCE.md#closing-autosaved-forms)
-requires containment and restoration on close, but does not cover these transitions.
+**Fix:** Announce a concise settled allocation and acknowledgement consequence after a valid committed change, without moving focus or announcing each keystroke. Verify real announcement timing.
 
-**Consequence:** Submission can remove the focused Submit button without putting
-focus on the new request context. A resize/zoom transition can leave modal trapping
-or an inactive background attached to a full-page layout. This is a missing shared
-contract, not an assertion about a current runtime implementation.
 
-Fix: Specify that successful form replacement focuses the resulting
-request heading, and full-page task entry announces its heading through deliberate
-focus. During a responsive transition, preserve the active field if it survives;
-otherwise focus the task heading. Apply modal containment/inactive-background rules
-only while the surface is modal. Continue using the approved save/leave safeguards.
-One shared paragraph and targeted delivery checks are sufficient.
+### Low (3)
 
-**A11Y-02 [Accessibility] — Dynamic feedback has visible wording but no agreed announcement behavior**
+#### UX-R09 — Index the approved Apply on behalf composition
+**Component coverage** · Locations: `DESIGN.md:118; DESIGN.md:154; EXPERIENCE.md:641`
 
-**Evidence:** [Temporary connection loss](./EXPERIENCE.md#temporary-connection-loss)
-puts an important failure beside the footer, while [Apply for leave](./EXPERIENCE.md#apply-for-leave)
-updates calculated balances as fields change. [Accessibility Floor](./EXPERIENCE.md#accessibility-floor)
-calls for testing status announcements but does not say which consequential changes
-must be announced without moving focus. In the history study, `#year-label` is a
-polite live region but `#month-name` is not: moving between months in the same year
-changes visible month content without an equivalent update announcement. Selected
-date details do explicitly receive focus, so that interaction is already covered
-by the prototype.
+The approved layout exists in prose but is missing from the visual component table.
 
-**Consequence:** A person editing near the top can miss failed draft saving or a
-new unpaid acknowledgement requirement; a screen-reader user can miss the mobile
-month change. Announcing every autosave keystroke instead would also be disruptive.
+**Fix:** Add the matching component-table row and existing preview link; avoid repeating the narrative.
 
-Fix: Add one shared status rule: announce meaningful save failure/recovery,
-completed submission, changed displayed period, and newly required unpaid response
-without unsolicited focus movement. Announce settled calculations rather than each
-keystroke. Preserve the persistent visible feedback. A polite status mechanism is
-appropriate for routine results; actual blocking failures need timely discoverable
-feedback. Component implementation can select the exact mechanism.
+#### UX-R12 — Remove obsolete open-status wording
+**Bloat & overspecification** · Locations: `DESIGN.md:57; DESIGN.md:143; platform/DESIGN.md:75; platform/EXPERIENCE.md:366`
 
-**A11Y-03 [Accessibility] — Submission-error placement is specified, but the route to errors is not**
+Some text still calls dark mode, standard drawer dimensions and setup visuals unresolved, or does not distinguish approved written-pattern coverage from missing layouts. Policy review wording is repeated.
 
-**Evidence:** [Submission failure](./EXPERIENCE.md#submission-failure) requires an
-error near Submit and field-specific errors. Shared
-[Accessibility Floor](../../../../platform/EXPERIENCE.md#accessibility-floor)
-requires announced validation states, but neither specifies focus after a blocked
-submit or links between the summary and invalid fields. The custom-role study's
-`#review-role` handler focuses an empty role name and silently returns; it renders
-no explanation and does not mark that field required.
+**Fix:** Consolidate current status in the IA/state inventory and keep history in the log. Retain only the actual outstanding validation or architecture work.
 
-**Consequence:** Errors in earlier scrollable content may be hard to find from a
-persistent footer. Merely moving to a blank input does not explain what prevented
-Review. The mock is illustrative; its behavior should not become the reusable
-validation pattern.
+#### UX-A03 — Align retained history semantics with the contract
+**Accessibility** · Locations: `.working/employee-history-wireframe.html:5; .working/employee-history-wireframe.html:36`
 
-Fix: Define the shared blocked-submit behavior: preserve values, provide
-plain-language field errors programmatically associated with their controls, and
-focus an error summary with links or the first invalid field when there is only
-one error. A server-wide failure remains near the action and is announced. The
-custom-role example can then illustrate this with a required Role name message.
-No extra review screen is needed.
+The older history reference announces the year but not same-year mobile month changes, and marks selection only with a CSS class.
 
-### Low (2)
+**Fix:** Announce the visible period and expose selected-date semantics appropriate to the chosen control, or explicitly label these reference limitations. Preserve return focus; do not add grid roles without their keyboard behavior.
 
-**UX-R06 [Bloat & overspecification] — Repeated policy-publication rules increase maintenance drift**
+## Mechanical evidence and limits
 
-EXPERIENCE.md Leave-type and policy configuration, especially lines 687–712, repeats changed values/effective-date/impact review and protection of existing requests; similar brief repetitions occur across Components, State Patterns and Key Flows.
+- All 110 local Markdown file links across the Leave/shared spine pair resolve.
+- All 26 executable inline prototype scripts across 35 HTML references pass `node --check`; this checks syntax only.
+- All 35 working HTML studies are linked from at least one spine; none are promoted yet.
+- Selected palette contrast pairs were recalculated and match the documented values; see the accessibility review for the measured pairs and W3C source links.
+- No browser, screen-reader, keyboard, touch, zoom or mobile-keyboard verification ran.
+- No approved design documents or prototypes were changed as part of this review. Documents remain draft; Phase 1 readiness is still required before implementation.
 
-Fix: keep each detailed rule in one canonical component/state section and retain short linked walkthrough summaries. Preserve meaningful failure paths and source links; do not shorten away approval/acknowledgement safeguards.
+## Suggested update order
 
-**A11Y-04 [Accessibility] — History day selection has no nonvisual selected-state contract**
-
-**Evidence:** [My leave history](./EXPERIENCE.md#my-leave-history) defines selecting
-a date to reveal its requests. In the [history study](./.working/employee-history-wireframe.html),
-selected days receive a `.selected` class, but their accessible label/state does
-not reflect that selection. The code correctly focuses the details region after
-selection; this is not a claim that its details are inaccessible. The specification
-has no requirement covering the selected date when returning to the calendar.
-
-**Consequence:** A keyboard or screen-reader user returning from details may not
-know which date the retained detail region represents without rereading it.
-
-Fix: Include the full selected date in the detail heading (as the mock
-already does) and expose the retained selected date through the chosen calendar
-control's appropriate accessible state. Preserve a useful return focus target.
-Do not invent a custom calendar keyboard system here: verify the selected platform
-control and its List alternative during delivery.
-
-## Mechanical evidence
-
-- All 64 checked local Markdown links across the Leave and platform spines resolve.
-- All 17 working HTML wireframes are referenced; all 26 composite names match between the Leave spines.
-- No browser, screen-reader, zoom, touch, or complete palette contrast test was performed.
-
-## Suggested next action
-
-Roll the shared interaction clarifications into the draft documents, then resolve recurring entitlement effective dates with the user. Complete the remaining balance journeys and shared theme before implementation handoff. Keep the drafts and readiness gates open.
+1. Align approval-gating wording with ADR-0032 and define setup-status predicates.
+2. Resolve the remaining shared visual defaults without reopening approved layouts.
+3. Correct or explicitly annotate prototype accessibility differences.
+4. Refresh document status wording, complete the component index and promote approved references.
 
 ## Reviewer files
 
-- [Consistency/completeness](./review-rubric.md)
+- [Completeness and consistency](./review-rubric.md)
 - [Accessibility](./review-accessibility.md)
+
+The reviewer reports retain the full evidence and line citations for this source snapshot. This report does not silently resolve their findings.

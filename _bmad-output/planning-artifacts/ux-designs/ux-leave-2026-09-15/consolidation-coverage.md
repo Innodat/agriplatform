@@ -232,3 +232,90 @@ On 20 September the user approved balance-deficit review: cause and before/after
 balance, four existing outcomes, employee-visible explanation and reviewed
 decision distinct from separately authorized adjustment. Browser/runtime checks
 remain outstanding.
+
+The user approved allocation review and reaffirmed one request with an explicit
+paid/unpaid split. Paid entitlement remains constrained; additional paid funding
+requires an authorized recorded exception. Discretionary grant amount is editable,
+not fixed at one day. Full multi-source editing remains outside the preview.
+
+The user approved the compact shared notification panel and full-width mobile
+sheet: newest first, unread markers, minimal permitted context, secondary time
+and active-NGO Mark all as read. Reading does not complete required actions.
+Shared platform DESIGN/EXPERIENCE now hold this layout direction; no rendered
+notification mock or runtime implementation is claimed.
+
+The user approved stale-request presentation: confirmed withdrawal removes
+approval actions and offers Back to approvals; an edited request requires Review
+latest version. Unsent comments are preserved locally without automatic submission.
+Shared behavior and Leave-specific copy are recorded; runtime concurrency and
+rendered accessibility verification remain delivery work.
+
+The user approved attachment feedback beneath Supporting document: uploading
+with Cancel, failure with Retry/Remove and Attached with Remove. Failures preserve
+form input; required files must be ready and optional failed files are not silently
+omitted. Shared guidance and Leave inheritance updated; production upload behavior
+and rendered accessibility remain unverified.
+
+The user replaced automatic post-submit request details with automatic return to
+My Leave after confirmed success, preserving context/scroll, brief confirmation
+and optional View request, updated list status and removed draft indicator.
+ADR-0087 partially supersedes immutable ADR-0070. Confirmed failure/unknown outcome
+retain the form; check unknown outcomes before retry. Product truth, tracker and
+UX focus/navigation contracts are synchronized. Runtime and rendered checks remain
+outstanding; historical wireframes may still show the superseded success route.
+
+The user approved My Leave partial-load behavior: independent section loading and
+retry, retained usable authorized sections, no fabricated zero/empty results, and
+Apply remaining available. Submission waits only if its required authoritative
+calculation/checks cannot complete. Shared and Leave guidance updated; actual data
+contracts, rendered states and runtime recovery remain delivery work.
+
+The user selected light mode only for MVP. Shared theme direction and Leave DESIGN
+record that dark mode is deferred, with semantic colours retained for future work.
+The current IA coverage table now links the subsequently approved balance,
+acknowledgement, deficit/allocation, policy, profile, setup and employee previews.
+The older initial coverage snapshot above is historical. The user has not yet
+confirmed which remaining surfaces may rely on written patterns without another
+visual walkthrough.
+
+The user confirmed the remaining walkthrough scope: Apply on behalf, then assigned
+custom-role changes/deletion. Routine profile creation, archive confirmations,
+temporary-approver changes and loading/error states may use the approved patterns
+and written rules without extra mockups. This does not waive implementation or
+verification, decide unspecified business rules, or finalize Phase 1 readiness.
+The on-behalf preview is now linked and awaits feedback.
+
+The user approved the on-behalf layout: employee first, separate recording actor,
+required reason, review, and explicit distinction between submission-only and
+satisfying the actor’s own assigned approval step. The assigned-custom-role
+lifecycle preview is the final planned visual walkthrough and awaits feedback.
+
+The user approved the assigned-custom-role lifecycle preview on 20 September:
+capability additions/removals, affected holders, related-person navigation with
+preserved edits, deletion blocked while assigned and separate unassigned deletion
+confirmation. Both remaining requested visual walkthroughs are now approved.
+Routine variants retain the previously accepted written-pattern coverage. This
+closes the agreed walkthrough list, not the remaining token/contract questions,
+final document validation, artifact promotion or implementation-readiness gate.
+
+Post-review update: [review resolution](./review-resolution.md) records seven
+findings addressed in documentation/reference source and two remaining decisions
+(setup status criteria and shared visual defaults). Twenty-eight approved
+composition references now have stable mockups links and an inventory; seven
+comparison studies remain historical. Prototype accessibility fixes passed static
+and simulated-handler checks, not browser/AT verification. Both spines remain draft.
+
+UX-R10 resolved by user decision: setup status derives from saved settings and
+validation (Not started, Needs review, Ready, Couldn’t check with Retry). People
+stays Not started with no employees. Reassess affected sections on changes; no
+manual completion or consultant-email state. Product requirements, tracker and
+keeper copy updated. Only UX-R08 remains a user design decision; runtime assessment
+and accessibility verification remain separate delivery work.
+
+UX handoff finalized on 20 September 2026. All nine review findings have a recorded
+source correction or approved decision; final structure/prose polish is applied.
+The two Leave spines are final, 28 keepers are promoted, seven comparison studies
+remain historical, and accepted written-pattern coverage is indexed. Phase 1 UX
+task is complete; requirements validation, architecture, stories/readiness and
+technical foundation remain. Source checks passed; browser/AT verification is not
+claimed. See handoff-coverage.md and review-resolution.md for current disposition.

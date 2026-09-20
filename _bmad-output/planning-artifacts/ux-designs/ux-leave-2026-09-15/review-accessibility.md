@@ -1,131 +1,166 @@
 ---
 name: Leave UX accessibility and responsive interaction review
 status: review-findings
-reviewed: 2026-09-18
-scope: Static design-contract and representative-wireframe review
+reviewed: 2026-09-20
+scope: Final design-contract review and static inspection of representative approved references
 ---
 
 ## Result and limits
 
-Three medium findings and one low finding; no critical or high findings established.
-These are gaps to resolve before adopting the drafts as a production interaction
-contract, not evidence that the existing layout preferences are unsuitable.
-No browser, keyboard, assistive-technology, zoom, touch, or contrast-palette test was
-performed. No compliance result is claimed. This review cites repository evidence;
-it does not add a new interpretation of an external standard.
+**Two medium and one low finding; no critical or high finding established.** All
+three are prototype divergences from an already documented accessibility contract,
+not new product requirements or demonstrated production failures. The previous
+review's four design omissions are addressed in the shared and Leave contracts.
+Resolve or explicitly annotate the divergences before treating these references as
+interaction examples for implementation.
 
-Reviewed Leave DESIGN.md and EXPERIENCE.md, platform equivalents, and the Apply,
-Organization overview, Employee history, and Custom-role HTML studies. The shared
-modal focus containment/restoration, equivalent history List, accessible status
-labels, manual date entry, persistent save feedback, and inactive modal background
-are already sound requirements. Keep them. Missing theme tokens and unrendered
-states are explicitly acknowledged by the drafts and are not rediscovered defects.
+Reviewed both Leave spines and both platform spines, with static inspection of the
+history, organization-overview, policy-editor, Apply-on-behalf, custom-role
+lifecycle, revised-unpaid acknowledgement and allocation-override references.
+Checks included accessible names, error relationships, scripted focus, dynamic
+feedback, date/history semantics, responsive CSS and selected token contrast.
+Other linked previews supplied context; this is not an exhaustive control audit of
+every historical comparison artifact.
+
+No browser, screen-reader, keyboard, touch, zoom or mobile-keyboard test ran. Native
+`dialog` use and syntactically valid JavaScript do not establish assembled behavior.
+The parent reports all 26 executable inline scripts across 35 HTML references pass
+`node --check`; that is syntax evidence only. No WCAG conformance claim is made.
+Light-mode-only MVP and spine-only coverage of routine states are approved choices;
+neither is a finding or a waiver of delivery accessibility checks.
 
 ## Findings
 
-### A11Y-01 — Medium — Focus after replacing a form or changing its presentation is unspecified
+### UX-A01 — Medium — Field errors in current previews are not associated with their inputs
 
-**Evidence:** [Submitted request](./EXPERIENCE.md#submitted-request) replaces the
-application form with request details in the same drawer. [Interaction Primitives](./EXPERIENCE.md#interaction-primitives)
-and [Responsive & Platform](./EXPERIENCE.md#responsive--platform) switch contextual
-tasks between a modal drawer and a full page. Shared
-[Closing autosaved forms](../../../../platform/EXPERIENCE.md#closing-autosaved-forms)
-requires containment and restoration on close, but does not cover these transitions.
+**Classification:** Prototype divergence; shared design rule already exists.
 
-**Consequence:** Submission can remove the focused Submit button without putting
-focus on the new request context. A resize/zoom transition can leave modal trapping
-or an inactive background attached to a full-page layout. This is a missing shared
-contract, not an assertion about a current runtime implementation.
+**Evidence:** `platform/EXPERIENCE.md:321` requires programmatic field-error
+association. In [.working/apply-on-behalf-preview.html](./.working/apply-on-behalf-preview.html)
+line 6, `#reason` is required and the separate `#error` has `role="alert"`, but there
+is no error-description relationship. Its validation handler on line 13 shows the
+message and focuses the input. The same pattern occurs in
+[.working/balance-override-preview.html](./.working/balance-override-preview.html)
+lines 7 and 16. In
+[.working/custom-role-lifecycle-preview.html](./.working/custom-role-lifecycle-preview.html)
+lines 5–6 and 14, the blank-name error is remote from `#name`, with no associated
+error or invalid-state update.
 
-**Small fix:** Specify that successful form replacement focuses the resulting
-request heading, and full-page task entry announces its heading through deliberate
-focus. During a responsive transition, preserve the active field if it survives;
-otherwise focus the task heading. Apply modal containment/inactive-background rules
-only while the surface is modal. Continue using the approved save/leave safeguards.
-One shared paragraph and targeted delivery checks are sufficient.
+**Consequence:** An alert may announce the message once, but revisiting the field
+does not reliably expose why it failed. This particularly matters in a long,
+scrolling role editor. Moving focus and having a visible message are useful but do
+not implement the promised field relationship.
 
-### A11Y-02 — Medium — Dynamic feedback has visible wording but no agreed announcement behavior
+**Fix:** Give field-specific errors stable IDs, associate them with the relevant
+input, and expose/clear invalid state on validation. Keep general deletion/workflow
+errors separate from the name field; do not attach a multipurpose error container
+to every input. Preserve current focus and input-retention behavior. W3C provides
+an applicable implementation technique using
+[aria-invalid and associated error descriptions](https://www.w3.org/WAI/WCAG22/Techniques/aria/ARIA21.html).
 
-**Evidence:** [Temporary connection loss](./EXPERIENCE.md#temporary-connection-loss)
-puts an important failure beside the footer, while [Apply for leave](./EXPERIENCE.md#apply-for-leave)
-updates calculated balances as fields change. [Accessibility Floor](./EXPERIENCE.md#accessibility-floor)
-calls for testing status announcements but does not say which consequential changes
-must be announced without moving focus. In the history study, `#year-label` is a
-polite live region but `#month-name` is not: moving between months in the same year
-changes visible month content without an equivalent update announcement. Selected
-date details do explicitly receive focus, so that interaction is already covered
-by the prototype.
+### UX-A02 — Medium — Allocation changes update the acknowledgement consequence silently
 
-**Consequence:** A person editing near the top can miss failed draft saving or a
-new unpaid acknowledgement requirement; a screen-reader user can miss the mobile
-month change. Announcing every autosave keystroke instead would also be disruptive.
+**Classification:** Prototype divergence; no new acknowledgement rule needed.
 
-**Small fix:** Add one shared status rule: announce meaningful save failure/recovery,
-completed submission, changed displayed period, and newly required unpaid response
-without unsolicited focus movement. Announce settled calculations rather than each
-keystroke. Preserve the persistent visible feedback. A polite status mechanism is
-appropriate for routine results; actual blocking failures need timely discoverable
-feedback. Component implementation can select the exact mechanism.
+**Evidence:** [.working/balance-override-preview.html](./.working/balance-override-preview.html)
+line 7 places the revised acknowledgement consequence in plain `#effect` text.
+`update()` on line 12 changes that text and the allocation amounts; the radio and
+amount-input handlers on line 15 invoke it without a status announcement. The
+amount's description references only `amount-help`. This differs from shared
+`platform/EXPERIENCE.md:324` and Leave `EXPERIENCE.md:1275`, which require meaningful
+consequence updates without unsolicited focus changes or per-keystroke noise.
 
-### A11Y-03 — Medium — Submission-error placement is specified, but the route to errors is not
+**Consequence:** A screen-reader user changing the discretionary grant can miss
+whether Ana must acknowledge a new unpaid amount. The later review repeats the
+consequence, so it is not wholly inaccessible; the immediate decision feedback is
+unequal to the visible experience.
 
-**Evidence:** [Submission failure](./EXPERIENCE.md#submission-failure) requires an
-error near Submit and field-specific errors. Shared
-[Accessibility Floor](../../../../platform/EXPERIENCE.md#accessibility-floor)
-requires announced validation states, but neither specifies focus after a blocked
-submit or links between the summary and invalid fields. The custom-role study's
-`#review-role` handler focuses an empty role name and silently returns; it renders
-no explanation and does not mark that field required.
+**Fix:** Announce a concise settled allocation and acknowledgement consequence when
+the choice or valid committed amount changes. Keep the persistent visible summary,
+do not move focus, and do not announce every number-field keystroke or initial
+render. Use a suitable status mechanism and test actual announcement timing. This
+matches the intent of [W3C status-message guidance](https://www.w3.org/WAI/WCAG22/Understanding/status-messages.html).
 
-**Consequence:** Errors in earlier scrollable content may be hard to find from a
-persistent footer. Merely moving to a blank input does not explain what prevented
-Review. The mock is illustrative; its behavior should not become the reusable
-validation pattern.
+### UX-A03 — Low — The retained history reference still omits the now-agreed month and selection semantics
 
-**Small fix:** Define the shared blocked-submit behavior: preserve values, provide
-plain-language field errors programmatically associated with their controls, and
-focus an error summary with links or the first invalid field when there is only
-one error. A server-wide failure remains near the action and is announced. The
-custom-role example can then illustrate this with a required Role name message.
-No extra review screen is needed.
+**Classification:** Older prototype drift, not an unresolved spine decision.
 
-### A11Y-04 — Low — History day selection has no nonvisual selected-state contract
+**Evidence:** [.working/employee-history-wireframe.html](./.working/employee-history-wireframe.html)
+line 5 gives `#year-label` a polite live region but not `#month-name`; lines 42 and
+53 update the mobile month within the same year without an equivalent announced
+period. Line 36 adds only `.selected` to a chosen day; its accessible name/state
+never identifies selection. `EXPERIENCE.md:1275` explicitly requires period
+announcements and programmatic selected-date state.
 
-**Evidence:** [My leave history](./EXPERIENCE.md#my-leave-history) defines selecting
-a date to reveal its requests. In the [history study](./.working/employee-history-wireframe.html),
-selected days receive a `.selected` class, but their accessible label/state does
-not reflect that selection. The code correctly focuses the details region after
-selection; this is not a claim that its details are inaccessible. The specification
-has no requirement covering the selected date when returning to the calendar.
+**Consequence:** The retained example can teach an implementer the superseded
+behavior. A user may miss a same-year month change or be unable to identify the
+selected date when returning from details. The existing full-date detail heading,
+focus move on line 24 and List alternative reduce the impact.
 
-**Consequence:** A keyboard or screen-reader user returning from details may not
-know which date the retained detail region represents without rereading it.
+**Fix:** Bring this reference into line with the spine or label its remaining
+accessibility limitations beside the reference. Announce the changed visible
+period, expose the selected day through semantics appropriate to the chosen
+control, and preserve useful return focus. Do not add grid roles without also
+implementing their keyboard contract.
 
-**Small fix:** Include the full selected date in the detail heading (as the mock
-already does) and expose the retained selected date through the chosen calendar
-control's appropriate accessible state. Preserve a useful return focus target.
-Do not invent a custom calendar keyboard system here: verify the selected platform
-control and its List alternative during delivery.
+## Contrast verification
 
-## Explicit readiness items, not additional findings
+Recomputed the selected `platform/DESIGN.md:8` tokens using the sRGB relative
+luminance contrast formula. Results below are rounded for presentation, not for
+threshold decisions. W3C defines the relevant
+[text contrast](https://www.w3.org/WAI/WCAG22/Understanding/contrast-minimum.html)
+and [non-text contrast](https://www.w3.org/WAI/WCAG22/Understanding/non-text-contrast.html)
+requirements; these pair calculations do not certify assembled controls.
 
-- **Theme and target-size verification:** DESIGN.md deliberately leaves tokens
-  empty. Its one measured muted-text pair does not cover other surfaces, borders,
-  focus, disabled controls, or status patterns. EXPERIENCE.md only fixes the
-  approved management rows at 48px. Define and test the shared controls' eventual
-  sizing/contrast contract during theme selection; do not promote mock values.
-- **Responsive coverage:** Apply is a static desktop/phone composition with fixed
-  illustrative canvases and noninteractive field boxes. Organization overview bars
-  are static `span` elements and its timeline scroll container is not a proven
-  keyboard interaction. The spine explicitly requires selectable accessible bars
-  and a mobile List. These limitations are prototype coverage, not separate
-  production defects. Delivery validation should exercise the chosen control at
-  narrow widths and zoom, long employee names, translated labels, an open phone
-  keyboard, and fixed footers/headers, while retaining all required actions.
+| Pair | Ratio |
+|---|---:|
+| White / primary `#17685C` | 6.62:1 |
+| Secondary `#626262` / white | 6.10:1 |
+| Secondary / page `#F5F5F5` | 5.59:1 |
+| Secondary / emphasis `#E8F0ED` | 5.26:1 |
+| Control border `#858585` / white | 3.69:1 |
+| Control border / page | 3.38:1 |
+| Control border / emphasis | 3.18:1 |
+| Focus `#294E47` / white | 9.23:1 |
+| Focus / emphasis | 7.96:1 |
+| Subtle border `#DEDEDE` / white | 1.35:1 |
 
-## Suggested disposition
+The documented primary/secondary figures are correct. The subtle border is suitable
+for decoration; it must not become the sole necessary control or state indicator.
+This is not a request to darken every separator. Interaction states, native-control
+rendering, focus-ring adjacency and forced-colour behavior still need verification.
 
-Resolve A11Y-01 through A11Y-03 once in the shared interaction contract and reference
-that contract from Leave. Resolve A11Y-04 in the history behavior. Keep the existing
-calm visual direction, drawers/full pages, bottom sheets, and calendar/List choices.
-Do not claim that these text clarifications replace rendered accessibility testing.
+## Sound decisions and delivery checks
+
+- **Focus and keyboard:** Shared modal containment, inactive backgrounds and return
+  focus are specified; mobile full pages have a different focus model. The revised
+  submission flow explicitly restores useful focus on My Leave and announces
+  success (`EXPERIENCE.md:1272`). Test real routing, related-person return, Escape,
+  confirmations and removal of focused actions after concurrent changes.
+- **Errors and dynamic states:** Shared error-summary/field association, meaningful
+  status announcements and retained input are adequate design requirements. Upload
+  progress/failure/required-file blockers inherit them; there is no need to invent
+  another upload screen. Test per-file names and cancellation/retry feedback.
+- **Calendars and timelines:** Manual date entry, full accessible status labels,
+  non-colour status distinctions, selectable rather than draggable bars, and a
+  mobile List alternative are specified (`EXPERIENCE.md:143`, `:460`, `:481`). Older
+  static bars are layout illustrations, not verified keyboard widgets. Test the
+  chosen real date control and keep date/employee context available to assistive
+  technology; avoid duplicating a custom calendar interaction unnecessarily.
+- **Mobile, enlargement and targets:** Shared relative typography and growing
+  44px/48px minimum controls are specified (`platform/DESIGN.md:79`). Several
+  illustrative files still use pixel typography and nowrap buttons. Keep the
+  spine authoritative; test enlarged text, narrow reflow, translated action labels,
+  fixed footers, an open mobile keyboard and touch targets in actual components.
+  Do not infer successful reflow from media queries alone.
+- **Notifications and partial loading:** Minimal notification payloads, read versus
+  unresolved-action distinction, local retries and retained loaded sections are
+  sensible. Verify accessible unread names, load/error announcements and focus on
+  actual destinations without forcing more steps after submission.
+
+## Disposition
+
+The approved visual direction and workflow choices need no redesign on the evidence
+reviewed. Correct the three reference gaps or explicitly quarantine them before
+handoff; retain browser and assistive-technology verification as delivery work.
+This review does not authorize Leave implementation or close Phase 1 readiness.

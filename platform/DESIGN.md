@@ -35,6 +35,10 @@ typography:
   balance:
     fontSize: '2rem'
     lineHeight: '1.25'
+rounded:
+  sm: '4px'
+  md: '6px'
+  lg: '8px'
 spacing:
   form-section: '24px'
   label-gap: '8px'
@@ -44,9 +48,26 @@ spacing:
 components:
   task-drawer:
     width: '560px'
+    borderWidth: '1px'
+    borderColor: '{colors.border-subtle}'
+    backdropColor: '#00000006'
+    boxShadow: '-6px 0 20px #00000006'
   form-control:
+    borderRadius: '{rounded.md}'
+    borderWidth: '1px'
+    borderColor: '{colors.border-control}'
     minHeightDesktop: '2.75rem'
     minHeightMobile: '3rem'
+  card:
+    borderRadius: '{rounded.lg}'
+    borderWidth: '1px'
+    borderColor: '{colors.border-subtle}'
+  small-dialog:
+    borderRadius: '{rounded.lg}'
+  status-marker:
+    borderRadius: '{rounded.sm}'
+  icon:
+    family: 'Lucide'
 sources:
   - docs/architecture/decisions/README.md
 ---
@@ -61,6 +82,10 @@ are promoted to shared UI under existing repository governance.
 ## Colors
 
 Selected light-mode palette: **Neutral + Quiet lagoon**, chosen through Leave.
+The initial shared theme delivered for Leave MVP is light mode only. Keep colours
+in semantic tokens so dark mode can be designed and verified later; do not expose
+a dark-theme switch or infer a dark palette from automatic inversion. This scope
+does not disable browser accessibility features or dictate existing apps’ themes.
 Use the neutral page, white surfaces and charcoal text from the shared tokens.
 Deep teal is reserved for primary actions. Subtle lagoon-tinted emphasis supports
 selected controls and informational highlights, accompanied by clear labels and
@@ -68,8 +93,9 @@ borders; it does not imply success or an error. Status labels remain neutral.
 
 The selected palette’s measured white-on-primary contrast is 6.62:1; secondary
 text on white is 6.10:1 and on emphasis is 5.26:1. These numerical pairs do not
-establish full accessibility compliance. Dark mode and additional interactive
-states remain unresolved; do not invent their tokens from unrelated prototypes.
+establish full accessibility compliance. Dark mode is deferred for this MVP;
+additional interactive states still need verification. Do not invent their tokens
+from unrelated prototypes.
 
 ## Typography
 
@@ -100,7 +126,21 @@ additional width variants still need rendered validation.
 Keep the white drawer’s separation from the off-white page subtle. Soften background
 dimming before changing surface colours; use a fine divider and restrained shadow.
 The background remains recognizable and inactive. Exact overlay/shadow values are
-still visual refinements under review, not selected tokens.
+recorded in {components.task-drawer}; they carry forward the approved softened
+reference. Rendered contrast, focus and reflow checks remain required.
+
+## Shapes
+
+Use {rounded.md} for buttons/inputs and {rounded.lg} for cards and small dialogs.
+Calendar/timeline markers use the modest {rounded.sm} radius; continuation edges
+retain their open edge and chevron. Borders use the recorded 1px component tokens,
+with stronger control colour wherever the border identifies an interactive control.
+Icons use Lucide, already used by platform/ui-business. Prefer established icons
+with accessible names; decorative icons do not replace status text or patterns.
+
+These defaults apply to the shared foundation used by Leave. Existing applications
+adopt them deliberately; this approval does not mutate their styling or implement
+the planned shadcn wrappers under platform/ui-core.
 
 ## Components
 
@@ -135,6 +175,7 @@ real content. This draft specifies defaults, not an implemented shared drawer.
 | Related-record navigation | Contextual Back text names the originating surface; do not rely only on browser history |
 | Date inputs | Familiar unified range or single-date controls with readable typed values and adjacent validation messages |
 | Upload control | Familiar browse control with a drop region where appropriate; visible progress/error feedback |
+| Notification panel | Compact desktop list and full-width mobile sheet; unread marker, event title, permitted context and muted time; quiet Mark all as read action |
 | Draft status | Persistent adjacent status near actions, distinct from ephemeral confirmation messages |
 
 These are composition conventions, not numerical theme overrides. Use established

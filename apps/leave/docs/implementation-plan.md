@@ -1,8 +1,8 @@
 # Leave Tracker Implementation Plan
 
 **Version:** 0.1  
-**Last updated:** 2026-09-14  
-**Status:** Planning complete — ready for Phase 1  
+**Last updated:** 2026-09-20  
+**Status:** Phase 1 planning in progress — implementation readiness pending  
 **Owners:** Platform and Leave application teams
 
 ## Purpose
@@ -66,7 +66,7 @@ documentation, and acceptance checks are complete.
 | Future entitlement | Projected accrual may be used for future requests |
 | Visual direction | Calm/practical/low-friction; neutral backgrounds, subtle decoration, primary-action accent, generous space, prominent balances/actions, expandable granular detail, and familiar accessible platform controls |
 | Mobile workflows | Full employee request/upload/balance/history/required responses and approver review/decisions on phones; compact month calendar with history list retained |
-| Submission confirmation | Dates/status without prominent reference number or next-approver name; history on demand, explicit employee actions, immediate Approved where applicable, duplicate-safe uncertain-outcome recovery |
+| Submission confirmation | Confirmed success returns to My Leave with brief confirmation and optional View request, updated dates/status and removed draft indicator; failed/uncertain submissions remain open with duplicate-safe recovery (ADR-0087) |
 | Submission summary | Show type/dates/duration/paid-unpaid split and Approval required where applicable, with workflow details on demand; NGO stays in header, switcher only for multiple active memberships; exact unpaid acknowledgement retained |
 | Switching while editing | Save in original NGO before opening selected NGO's My Leave; never transfer draft data; on failure offer retry/stay/discard-unsaved-and-switch, preserving saved draft |
 | Draft saving | One employee application draft per employee per NGO; Apply for leave resumes it; truthful autosave status and safe Close; confirmed Discard draft; no reservation; submission revalidates (ADR-0075) |
@@ -356,10 +356,12 @@ approved; no unresolved question changes the core data model.
     `5f1c2d5`; audited repository commands, application/service boundaries,
     authoritative specifications, ADRs, and scaffold state. No Leave application
     implementation was performed.
-- [ ] Run `[PRD]` `bmad-prd` in validate/update mode against the approved Leave
+- [x] Run `[PRD]` `bmad-prd` in validate/update mode against the approved Leave
   feature specification; resolve findings without creating a competing source
-- [ ] Run `[CU]` `bmad-ux` because the employee application experience is material
-- [ ] Run `[CA]` `bmad-architecture` using the existing platform/Leave ADRs as inputs
+  - Evidence (2026-09-20): requirements revalidation and approved [finding dispositions](../../../_bmad-output/planning-artifacts/prds/prd-leave-2026-09-14/review-resolution.md) complete; ADR-0088/0089 resolve product gaps, stale controls corrected, operational targets assigned owners/gates. Architecture and implementation readiness remain pending.
+- [x] Run `[CU]` `bmad-ux` because the employee application experience is material
+  - Evidence (2026-09-20): approved and finalized [DESIGN](../../../_bmad-output/planning-artifacts/ux-designs/ux-leave-2026-09-15/DESIGN.md) and [EXPERIENCE](../../../_bmad-output/planning-artifacts/ux-designs/ux-leave-2026-09-15/EXPERIENCE.md), 28 promoted visual references, both final review lenses and resolved findings, required editorial polish, and source checks recorded in the [handoff coverage](../../../_bmad-output/planning-artifacts/ux-designs/ux-leave-2026-09-15/handoff-coverage.md). No Leave implementation or browser/AT compliance claim.
+- [ ] Run `[CA]` `bmad-architecture` using the existing platform/Leave ADRs as inputs; apply the [operational target ownership and decision gates](./features.md#operational-target-ownership-and-decision-gates) before architecture completion and relevant story planning
 - [ ] Run `[CE]` `bmad-create-epics-and-stories`, then `[SP]`
   `bmad-sprint-planning` as the implementation-readiness gate
 - [ ] Use `[BC]` `bmad-customize` to add ATDD/TDD, tenant-security, scaffold,
@@ -490,7 +492,7 @@ tests, telemetry, and replacement of the non-production prototype are verified.
 - [ ] Implement Leave Manager configuration screens and audit history
 - [ ] Deliver approved work-profile list/edit/review: profile name, working week and employee count; effective-dated changes with separate inherited effects, retained overrides and existing-request attention; preserve recorded calculations
 - [ ] Keep setup checklist focused on application configuration; exclude consultant email status and a standard opening-balances row, preserving consultant-runbook approval and actual balance-issue handling
-- [ ] Implement optional period-relative carry-over expiry with last-usable-date preview (ADR-0085); settle and test month-end/leap-day anniversary arithmetic before readiness
+- [ ] Implement optional period-relative carry-over expiry with last-usable-date preview (ADR-0085/0089); test agreed month-end/leap-day examples, direct multi-month calculation, inclusive eligibility and preservation of earlier expiry
 - [ ] Deliver shared date-entry behavior in Apply: calendar/typed range, single-date partial duration, incomplete/reversed-range feedback, and no-working-time explanation without misleading zero calculations
 - [ ] Apply shared loading/empty/filtered-empty/retry/export states, preserve filters and valid retained data on refresh failure, and distinguish unavailable team data from no absences
 - [ ] Verify shared focus transitions, preserved fields across responsive surfaces, validation-error navigation, consequential status announcements and accessible calendar selection in Leave screens
@@ -521,6 +523,9 @@ current/projected balances are reproducible from transactions.
 
 ### Phase 7 — Applications, validation, attachments, and approvals
 
+- [ ] Return confirmed submissions to My Leave with preserved context, brief confirmation and optional View request, updated list status and removed draft indicator; keep failed/uncertain forms open and check outcome before retry (ADR-0087)
+- [ ] Derive setup-section Not started / Needs review / Ready / Couldn’t check from saved configuration and checks; retry failed assessment independently, keep zero-employee People section Not started and refresh after settings changes without manual completion flags
+- [ ] Implement initial unpaid on-behalf response handoff: manager submits, employee alone acknowledges exact current amount in the submitted request, employee draft remains unchanged, final approval/consumption wait even for sole submitting approver; test stale amount and denied proxy acknowledgement (ADR-0088)
 - [ ] Implement draft and submission APIs
 - [ ] Implement working-time calculation for full day, half day, and hour ranges
 - [ ] Implement overlap, schedule, holiday, notice, backdating, eligibility, and
@@ -584,7 +589,7 @@ performance targets.
 - [ ] Validate source balance dates/units and future-leave/reservation inclusion, reconcile transferred requests exactly once, and follow the [migration runbook](./operations/migration-runbook.md)
 - [ ] Agree old-system change cutoff and Leave handover; reconcile export-to-cutover changes and obtain renewed approval for revised batches before going live
 - [ ] User acceptance testing for every role
-- [ ] Operations runbooks, support guide, and release checklist
+- [ ] Operations runbooks, support guide, and release checklist; verify agreed signed-operation lifetimes, recovery objectives through restoration rehearsals, critical alerts, browser coverage and workload/performance targets before pilot
 - [ ] Enable Leave in App Directory for pilot memberships
 
 **Exit gate:** Product owner, security reviewer, and pilot NGO sign off; monitoring,
@@ -742,7 +747,7 @@ Update this section at each planning or delivery review.
 | Milestone | Status | Completed | Notes |
 |---|---|---:|---|
 | Phase 0 — Planning | Complete | 12/12 | Product decisions and architecture baseline approved and recorded |
-| Phase 1 — Scaffold, BMAD, and test foundation | In progress | 1/20 | Verified root agent context established; no Leave implementation started |
+| Phase 1 — Scaffold, BMAD, and test foundation | In progress | 3/20 | Agent context, requirements validation and UX handoff complete; architecture, stories/readiness and technical foundation remain; no Leave implementation started |
 | Continuous BMAD, scaffold, and context evolution | Not started | Recurring | Required for every Phase 2–10 exit gate |
 | Phase 2 — Identity and authorization | Not started | 0/14 | Full-flow; Build per story plus additional Code Review |
 | Phase 3 — Design system | Not started | 0/7 | Expanded incrementally as Leave features prove reusable components |

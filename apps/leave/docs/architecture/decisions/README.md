@@ -85,8 +85,8 @@ and are linked rather than duplicated here.
 | [0066](./0066-role-sections-and-action-badges.md) | Accepted | Permission-based My Leave/Approvals/Manage Leave sections share active NGO; action badges are separate from unread counts |
 | [0067](./0067-automatic-draft-saving.md) | Superseded in part by 0075 | Truthful autosave, NGO-bound drafts, no reservation, and submission revalidation retained; closing label refined by 0075 |
 | [0068](./0068-ngo-switch-while-editing.md) | Accepted | Save drafts in the original NGO before switching; failed saves offer retry/stay/discard-unsaved-and-switch |
-| [0069](./0069-submission-summary-and-unpaid-acknowledgement.md) | Superseded in part by 0071 | Exact unpaid acknowledgement and submit behavior remain; summary context simplified by 0071 |
-| [0070](./0070-simple-submission-confirmation.md) | Accepted | Confirm submission with dates/status; keep identifiers internal, history accessible, employee actions clear, and retries duplicate-safe |
+| [0069](./0069-submission-summary-and-unpaid-acknowledgement.md) | Superseded in part by 0071 and 0088 | Exact unpaid acknowledgement and submit behavior remain; summary context simplified by 0071 |
+| [0070](./0070-simple-submission-confirmation.md) | Superseded in part by 0087 | Confirm submission with dates/status; keep identifiers internal, history accessible, employee actions clear, and retries duplicate-safe |
 | [0071](./0071-concise-summary-and-header-ngo-context.md) | Accepted | Keep NGO in header, show switcher only for multiple NGOs, and simplify summary without named approvers |
 | [0072](./0072-mobile-employee-and-approver-workflows.md) | Accepted | Complete employee/approver workflows on phones with compact month navigation and accessible history list |
 | [0073](./0073-calm-practical-visual-direction.md) | Accepted | Calm, spacious, neutral visual design with a primary-action accent, expandable detail, and familiar accessible platform controls |
@@ -103,3 +103,6 @@ and are linked rather than duplicated here.
 | [0084](./0084-request-focused-balance-planning.md) | Accepted | Keep projections in Apply; defer standalone calculator/graph and explain actual policy consequences |
 | [0085](./0085-period-relative-carry-over-expiry.md) | Accepted | Optional carry-over expiry in months from new period start, showing last usable date; existing expiry is never extended |
 | [0086](./0086-archive-markers-and-effective-dated-versions.md) | Accepted | Archive timestamps retire records; effective-dated versions preserve calculation rules; snapshots and audit remain distinct |
+| [0087](./0087-return-to-my-leave-after-submission.md) | Accepted | Return to My Leave after confirmed submission; optional detail link, persistent list status and duplicate-safe recovery |
+| [0088](./0088-employee-acknowledgement-for-on-behalf-unpaid-leave.md) | Accepted | Managers may submit unpaid on-behalf requests; employee exact-amount response gates final approval and leaves the employee draft untouched |
+| [0089](./0089-carry-over-month-boundary-expiry.md) | Accepted | Deterministic month-boundary carry-over expiry, inclusive last usable date and leap-year examples |

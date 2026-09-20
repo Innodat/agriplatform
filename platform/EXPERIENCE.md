@@ -2,7 +2,7 @@
 name: Agriplatform Shared Experience
 status: draft
 created: 2026-09-15
-updated: 2026-09-19
+updated: 2026-09-20
 sources:
   - docs/architecture/decisions/README.md
 ---
@@ -22,6 +22,7 @@ delivery; existing application boundaries and authorization rules still apply.
 | Custom roles | Application access → Advanced role settings | Create, duplicate, review, edit, and remove application-specific roles |
 | Related person access | Role-holder link | Resolve an assignment and return to the originating role editor |
 | Contextual drawer/full page | Application-owned record or create action | Host a focused task while preserving navigation context |
+| Notification panel | Shared shell bell | Show permitted active-NGO notifications and link to application-owned records |
 | Filter sheet | Collection-view Filters control on mobile | Stage filters and apply or discard the provisional selection |
 
 Applications own their domain navigation and records. Shared role controls do not
@@ -38,6 +39,28 @@ repeating explanatory summaries on every form. Specific application wording rema
 in its experience contract.
 
 ## Component Patterns
+
+### Notification panel
+
+The shell bell opens a compact desktop panel, newest first. Use a full-width
+sheet on mobile with the same content. Rows show a clear unread marker, a short
+event/status title, permitted record context, and a secondary time. Provide Mark
+all as read for the active NGO only. The empty state says No notifications yet.
+
+Applications supply permitted event content and authorized destinations through
+the planned shared notification contract. Selecting an item opens its destination
+subject to current authorization; reading or marking it read never completes an
+outstanding business action. Retain per-user read state and existing NGO count
+privacy. Keep sensitive record content inside its authorized application view.
+Leave's exact notification-content restrictions remain in its product contract.
+
+Reuse shared modal focus, close and return behavior on mobile. A load failure is
+not an empty inbox; retain the shared loading/error conventions. This is approved
+UX direction, not an implemented shared control or finalized runtime API.
+
+Impact: shared shell guidance and Leave references updated; scaffold integration,
+shared-UI implementation and service contracts remain delivery work. No agent-context
+change or accepted ADR replacement is needed for this layout refinement.
 
 ### Roles and permissions
 
@@ -99,6 +122,10 @@ browser Back, preserving draft and position through shared save/leave safeguards
 Refresh holders and deletion eligibility on return. Confirm deletion separately
 after assignments are removed; retain historical definitions and audit records.
 Application-defined roles are application-maintained and not deletable here.
+
+The approved [Leave role-lifecycle study](../_bmad-output/planning-artifacts/ux-designs/ux-leave-2026-09-15/mockups/custom-role-lifecycle-preview.html)
+illustrates this shared composition with a partial capability catalogue. It does
+not implement effective-access checks, assignment editing or deletion.
 
 ### Collection views and filters
 
@@ -178,6 +205,10 @@ be necessary to understand or complete it.
 - If refresh fails, retain previously loaded data only while access remains valid;
   clearly mark that it could not be refreshed and revalidate before accepting an
   action. Suppress protected data when access is lost.
+- In a multi-section page, keep independently loaded authorized sections usable
+  when another section fails. Retry the affected section without clearing other
+  results or resetting their context. Respect actual data dependencies; a failed
+  overview panel does not itself block a form whose required checks succeed.
 - If export fails, keep the report visible and show Retry export.
 - A failed supporting panel explains that its data could not be loaded. It does
   not independently block the main action unless an existing domain rule requires
@@ -208,6 +239,20 @@ server validation. Implement and prove it through Leave before promotion into
 shared UI; existing apps adopt it explicitly. It is not a global mutation of
 third-party shadcn controls.
 
+Show per-file state beside the upload field: Uploading… with Cancel; Couldn’t
+upload this file with Retry and Remove; and Attached with Remove only once the
+file is stored, associated with the record/draft, and any required checks finish.
+Keep unrelated entered form data when an upload fails. Show rejected file types
+or sizes beside the file with the actual application-supplied limits. Cancelling
+an upload does not cancel the surrounding form.
+
+Explain missing or unfinished required-document blockers beside the field. For an
+optional failed attachment, require retry or explicit removal before submission;
+do not silently omit a file the user intended to include. Pending uploads must
+finish or be explicitly cancelled/removed before submission proceeds. Preserve
+existing attachment authorization and retention rules. This interaction adds no
+new malware-scanning requirement.
+
 ### Administrative edits with explicit confirmation
 
 Administrative forms apply changes only after explicit confirmation. Where review
@@ -225,6 +270,18 @@ A failed confirmation retains input and explains the failure. If the result is
 uncertain, check whether the change succeeded before retrying. If another actor
 changed the underlying record, refresh the affected information and require a new
 review before confirmation; never silently overwrite that change.
+
+### A record changes during review
+
+Reject stale actions rather than silently applying them to changed records.
+After rechecking authorization, show the current state and only the actions that
+remain valid. When another person edited the record, offer Review latest version
+and require a fresh review before the user decides. Retain typed comments without
+submitting them automatically. When the action is no longer needed, explain why
+and offer a return to the originating queue; an unsent comment may remain locally
+available to copy while the view stays open. Do not promise saved persistence for
+that comment. Access loss follows the no-access treatment without exposing fresh
+record details. Applications supply lifecycle wording and valid actions.
 
 ### Closing autosaved forms
 
@@ -307,8 +364,9 @@ they are not new platform business roles or independently researched personas.
 ## Responsive & Platform
 
 The desktop drawer/mobile full-page preference is a shared design direction accepted
-through the Leave design discussion. Exact breakpoints and drawer dimensions remain
-open. Validate the pattern with Leave before promoting its implementation into
+through the Leave design discussion. The standard drawer width and spacing are
+selected in DESIGN.md; content-driven breakpoints and additional variants remain
+subject to rendered validation. Validate the pattern with Leave before promoting its implementation into
 shared UI or builder templates. This draft introduces no runtime dependencies.
 
 ## Deferred Capabilities
