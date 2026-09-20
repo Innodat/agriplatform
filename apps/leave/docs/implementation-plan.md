@@ -420,6 +420,7 @@ membership switching, authorization, or RLS.
 - [ ] Deliver shared custom-role lifecycle: blank creation, separate duplication, holder-impact review, unassigned-only deletion, preserved audit, clickable holders and return-to-origin (platform/EXPERIENCE.md)
 - [ ] Add Leave Manager and unified Approver role with relevant business permissions; enforce supervisor/final responsibilities through assigned workflow steps (ADR-0082)
 - [ ] Model departments, teams, locations, employment records, and effective-dated reporting lines
+- [ ] Deliver approved employee Leave-settings summary and focused edits using shared person identity, visible inherited/overridden values and separate balance actions; enforce action permissions without hiding permitted read-only history
 - [ ] Model configured approvers and delegated/acting approvers
 - [ ] Provide editable one-supervisor starter approval policy (self-approval off, three-day reminders/seven-day escalation), with client-confirmed entitlement/schedules/holidays and approval-route setup checks
 - [ ] Preserve draft and block submission when no eligible approval route is configured; show setup-needed status and flag authorized route repair, distinct from handled absence or applicant coverage gaps
@@ -482,10 +483,12 @@ tests, telemetry, and replacement of the non-production prototype are verified.
 - [ ] Implement jurisdictions, locations, holiday calendars, and observed holidays
 - [ ] Implement effective-dated employee work schedules including breaks and timezone; one explicit work profile with NGO fallback, team/location suggestions without silent reassignment, inherited values and overrides/reset, reason and impact review preserving history
 - [ ] Implement versioned leave-type CRUD and archive/restore
+- [ ] Design stable configuration identities, archive timestamps, effective-dated calculation versions and request snapshots (ADR-0086); preserve audit separately and enforce work-profile archive dependencies
 - [ ] Implement policy versions: units, accrual, carry-over, expiry, limits, notice,
   eligibility, documentation, privacy, balance behavior, and workflow assignment
 - [ ] Implement effective-dated employee entitlement overrides with reason and preview; one Edit employee entitlement action for policy/custom recurrence restricted to leave-period boundaries (ADR-0083), default next boundary, separate one-off adjustment
 - [ ] Implement Leave Manager configuration screens and audit history
+- [ ] Deliver approved work-profile list/edit/review: profile name, working week and employee count; effective-dated changes with separate inherited effects, retained overrides and existing-request attention; preserve recorded calculations
 - [ ] Keep setup checklist focused on application configuration; exclude consultant email status and a standard opening-balances row, preserving consultant-runbook approval and actual balance-issue handling
 - [ ] Implement optional period-relative carry-over expiry with last-usable-date preview (ADR-0085); settle and test month-end/leap-day anniversary arithmetic before readiness
 - [ ] Deliver shared date-entry behavior in Apply: calendar/typed range, single-date partial duration, incomplete/reversed-range feedback, and no-working-time explanation without misleading zero calculations
@@ -500,6 +503,7 @@ historical policy meaning is preserved after changes.
 ### Phase 6 — Balance ledger and accrual engine
 
 - [ ] Implement immutable balance ledger entries
+- [ ] Deliver approved employee balance detail: available/remaining/reserved breakdown, pending-request links and return context, expandable hours/history with actor/reason, and history-year filtering that leaves current balance unchanged; avoid double counting reservations
 - [ ] Deliver Review then Confirm adjustment, correction by another explained entry, employee notifications and authorized details; renewed acknowledgement only for increased unpaid amounts
 - [ ] Deliver history year bounds preserving recorded leave/rehire, muted out-of-employment dates, and per-user/NGO Calendar/List preference
 - [ ] Define canonical duration storage in minutes and policy-specific display conversion

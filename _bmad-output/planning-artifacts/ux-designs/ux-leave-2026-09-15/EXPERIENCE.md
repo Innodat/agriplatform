@@ -103,6 +103,17 @@ acknowledgement, permitted use of future entitlement, or insufficient leave when
 not permitted. Do not substitute a generic negative-balance warning for that
 explanation. Existing policy, authorization and reservation rules still apply.
 
+The [balance explanation preview](./.working/balance-explanation-preview.html)
+opens from My Leave and separates remaining entitlement, reservations against it
+and available amount. Its example reconciles 15 remaining minus 3 pending equals
+12 available; projected accrual is not included. Expand hours/calculation, follow
+the reserved request with return context, and expand plain-language entitlement
+history for amounts, source request or actor/reason. A history-year filter does
+not change the current balance. Reservations appear separately above entitlement
+history, avoiding a second deduction. The user approved this layout on 20 September
+2026; sample dates/amounts remain illustrative. No separate future-balance
+calculator is introduced.
+
 ### Apply for leave
 
 When reopening an older draft, preserve entered details and refresh balances and
@@ -370,6 +381,11 @@ Keep all results within permitted team scope, without requiring a separate calen
 
 ### Balance-override review
 
+[Allocation-review preview](.working/balance-override-preview.html) shows the
+default unpaid shortfall and one illustrative authorized paid-grant alternative,
+with reason, comparison and acknowledgement consequences. Layout awaits feedback;
+this is not the complete multi-source funding editor.
+
 Show requested amount, available paid balance, and shortfall together, with unpaid
 leave as the default proposal. An actor with override permission can accept that
 proposal or specify an authorized alternative allocation, with a mandatory reason.
@@ -609,6 +625,11 @@ on validation failure and retain its history after successful cancellation.
 
 ### Balance-deficit review
 
+[Balance-deficit preview](.working/balance-deficit-preview.html) shows the
+illustrative departure case and four existing outcomes. Layout approved on
+20 September 2026;
+source-record and adjustment actions stop at an explanatory handoff.
+
 Show employee and affected leave type, deficit amount and triggering change,
 before/after balance breakdown, and relevant history. Provide an outcome and
 mandatory explanation visible to the employee. Any additional paid entitlement
@@ -804,6 +825,25 @@ List existing requests needing attention separately with the reason. Do not
 silently rewrite their recorded calculations. Apply existing configuration
 authorization and audit requirements.
 
+The [work-profile list/edit/review preview](./.working/work-profiles-preview.html)
+connects an 18-person Maputo profile and six-person Luanda profile to focused
+edit/review surfaces. The Friday 8→7-hour example distinguishes 17 inherited changes
+from Ana’s retained 6-hour override, and illustrates one existing request requiring
+attention. Only that fixture has illustrative impact details; arbitrary edits show
+assessment unavailable. Confirmation is disabled. Creating/archiving profiles,
+changing the NGO default and actual impact calculations remain outside this study.
+The user approved the list/edit/review layout on 20 September 2026; numbers are
+not country defaults or real employee data.
+
+Approved profile lifecycle: Create profile uses the existing fields without
+automatically assigning employees. Setting the NGO default explicitly changes the
+fallback; preserve explicit assignments/overrides and review employees relying on
+that fallback. Archive only when no current or scheduled employee assignment depends
+on the profile and it is no longer the NGO default. Show blocking employees as
+links with shared return-to-origin navigation. Archived profiles remain in historical
+records and are unavailable for new assignments. The user approved archive timestamps plus effective-dated calculation versions
+under Leave ADR-0086; exact physical table structure remains architecture work.
+
 ### Holiday calendars
 
 List calendars by location, showing each calendar's name and year. Opening a
@@ -839,8 +879,9 @@ The [employee Leave-settings preview](./.working/employee-leave-settings-preview
 shows a readable employee summary grouped into Employment & approval, Work schedule
 and Leave entitlement. Authorized group actions open focused edit/review examples;
 balance adjustment is separate. A read-only preview hides mutation actions without
-hiding leave history. Ana’s setup issue now links to this preview. Layout awaits
-feedback; confirmation, real data lookup and impact calculations are not implemented.
+hiding leave history. Ana’s setup issue now links to this preview. The user approved
+the layout and shared-identity explanation on 20 September 2026; confirmation, real
+data lookup and impact calculations are not implemented.
 
 The shared-identity example is Ana’s name and sign-in email, reused by Leave and
 future applications. Leave-specific settings refer to that person rather than
@@ -1022,6 +1063,11 @@ Leave only if the user retains application access. Do not imply that a request
 has been deleted when the actual condition is lack of current authorization.
 
 ### Revised unpaid amount needs employee acknowledgement
+
+[Response-screen preview](.working/revised-unpaid-acknowledgement-preview.html)
+shows the agreed five-day request changing from three paid plus two unpaid days
+to two paid plus three unpaid days. Layout approved on 20 September 2026; actions are
+illustrative and do not persist changes.
 
 Lead with Your response is needed. Show the previously requested unpaid amount
 and revised requested unpaid amount, followed by Changed by and the explanation.

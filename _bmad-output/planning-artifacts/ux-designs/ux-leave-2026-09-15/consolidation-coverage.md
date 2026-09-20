@@ -207,3 +207,28 @@ standard opening-balances row are removed. Email interaction stays operational;
 Leave shows actual balances and detected data issues. The preview now has three
 setup areas and two areas needing attention in the illustrative existing-data case.
 This supersedes the earlier read-only consultant-status UI proposal.
+
+On 20 September the user approved the employee Leave-settings layout and shared
+identity explanation. The three groups, focused edits, distinct balance actions
+and read-only visibility are captured in product truth/tracking. Runtime identity
+contracts, impact calculations and browser/mobile routing verification remain open.
+
+On 20 September the user approved work-profile list/edit/review, including separate
+inherited effects, retained employee overrides and existing-request attention.
+Profile creation/archive/default actions and actual impact calculation remain open.
+
+On 20 September the user approved the balance-explanation layout: current balance
+breakdown, separate pending reservations linked to requests, expandable entitlement
+history with actor/reason and hours, and history-year filtering without changing
+current balances. The arithmetic example reconciles; runtime and rendered
+accessibility verification remain outstanding.
+
+On 20 September the user approved the revised-unpaid acknowledgement preview:
+before/after allocation, recorded actor explanation, exact-amount checkbox and
+separate eligible withdrawal. Acknowledgement allows approval to continue; it is
+not approval. Runtime amount revalidation and rendered checks remain outstanding.
+
+On 20 September the user approved balance-deficit review: cause and before/after
+balance, four existing outcomes, employee-visible explanation and reviewed
+decision distinct from separately authorized adjustment. Browser/runtime checks
+remain outstanding.

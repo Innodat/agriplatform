@@ -129,7 +129,7 @@ Leave-specific composition. States not pictured remain behavioral requirements.
 | Organization leave overview | Use available width; view toggle at heading right, grouped compact toolbar and adjacent secondary legend. Fixed employee names/date headers, readable horizontally scrollable columns. | [Layout](./.working/organization-overview-wireframe.html) |
 | Leave Manager escalated approvals | Employee/date/current approver/wait time identify rows. Temporary appointment groups people/dates, explicit responsibilities, pending transfers, reason and expiry explanation. | [Layout](./.working/temporary-approver-wireframe.html) |
 | Administrative leave correction | Original and replacement comparison, separate restored deduction/new reservation, reason and consequences before the explicit action. | [Layout](./.working/leave-correction-wireframe.html) |
-| Balance-deficit review | Employee/type, deficit and cause precede before/after history, chosen outcome and explanation. Dedicated detail layout remains open. | Spine-only / gap recorded |
+| Balance-deficit review | Employee/type, deficit and cause precede before/after history, chosen outcome and explanation. Approved detail layout uses the standard drawer. | [Preview](./.working/balance-deficit-preview.html) |
 | One-off balance adjustment | Employee/type, direction/amount/date/reason, balance preview and existing-request impact; concise review repeats only decision-critical values. | [Layout](./.working/balance-adjustment-wireframe.html) |
 | Employee entitlement override | Source choices lead; short related fields may pair responsively. Quiet helper text explains recurrence/next period and one-off link. No repeated What changes box in the edit form. Comparison belongs in review. | [Layout](./.working/employee-entitlement-wireframe.html) |
 | Leave-type and policy configuration | Readable Current summary in four groups; Scheduled notice and date link. Dedicated editor and change review with old/new values, affected employees and request exceptions. Ordered workflow steps show absence option beside final step. | [Layout](./.working/policy-review-wireframe.html) |
@@ -165,8 +165,22 @@ The [employee Leave-settings preview](./.working/employee-leave-settings-preview
 uses shared identity in the header and three spacious groups of Leave-specific
 settings, with explicit inherited/overridden values and separate balance actions.
 Focused edit examples use the selected drawer dimensions and mobile full-width
-presentation. This layout awaits feedback; its mobile modal simulation does not
+presentation. The user approved this layout on 20 September 2026; its mobile modal simulation does not
 establish production routing or focus behavior.
+
+The [work-profile management preview](./.working/work-profiles-preview.html) shows
+a spacious list and the selected 560px edit/review drawer. Review groups changed
+values, effective date/reason, inherited employee effects, retained overrides and
+requests needing attention. Mobile uses a full-width task composition with stacked
+actions where needed. The user approved this layout on 20 September 2026;
+browser behavior remains unverified.
+
+The [balance explanation preview](./.working/balance-explanation-preview.html) uses
+the selected contextual drawer/mobile full-width composition. A large available
+amount precedes a compact breakdown, reserved-request link and divider-separated
+expandable history entries. Positive/negative amounts use signs and words rather
+than status colours. The user approved this layout on 20 September 2026;
+runtime/browser checks remain open.
 
 ## Do's and Don'ts
 

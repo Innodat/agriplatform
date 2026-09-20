@@ -194,6 +194,14 @@ is introduced. Normal authorized balance administration remains available.
 - Configure acting/delegated approvers for an effective period.
 - Retain historical relationships so old requests retain their original context.
 - Support employees with non-standard schedules and locations.
+- Present employee Leave settings in Employment & approval, Work schedule, and
+  Leave entitlement groups, with authorized focused edits and separate balance
+  adjustment/history actions. Show inherited values and individual overrides.
+- Reuse shared person identity (name and sign-in email) rather than a second
+  editable Leave identity. Leave-specific settings refer to that person; this
+  does not move all employment data to a shared directory. Supervisor assignments
+  remain manually maintained in Leave for MVP; runtime ownership/API contracts
+  must preserve application boundaries.
 
 ### 3. Jurisdictions and workplace calendars
 
@@ -216,6 +224,16 @@ is introduced. Normal authorized balance administration remains available.
 
 The MVP does not claim to encode or maintain employment law. Configuration must be
 reviewed by each NGO for its operating jurisdictions.
+
+Preserve work-profile identity separately from its effective-dated schedule versions.
+Use an archive timestamp to retire a profile, retaining historical versions and
+request snapshots. Block archiving while current/scheduled assignments depend on
+it or it is the NGO default; provide affected-employee links to resolve assignments.
+Creating a profile does not assign employees automatically. Default changes preserve
+explicit assignments/overrides and review fallback-dependent employees.
+[ADR-0086](./architecture/decisions/0086-archive-markers-and-effective-dated-versions.md)
+distinguishes archiving, calculation versions and audit; physical schema design
+remains architecture work, without blanket duplicate history tables.
 
 ### 4. Leave types and policy management
 
@@ -272,6 +290,16 @@ recalculation on an override end date. One-off grant validity/expiry rules still
 ### 6. Balance ledger and accrual
 
 Balances derive from immutable ledger entries rather than a mutable total.
+
+Employee balance details show a prominent available amount with remaining
+entitlement and reservations against that entitlement distinguished. Link pending
+reservations to their requests, preserving return context. Use expandable,
+plain-language entitlement-history entries for grants, carry-over, expiry,
+approved deductions and adjustments, including relevant request context and
+adjustment actor/reason. Keep reservations visibly separate so they are not counted
+twice. A history-year filter changes history only, not the current balance.
+Expandable hours/calculations explain the applicable standard-day conversion;
+existing current-versus-projected funding rules remain authoritative.
 
 For manual adjustments, show Add/Deduct, amount, effective date, reason, current
 balance, resulting balance, and affected requests. Keep **Review adjustment** then

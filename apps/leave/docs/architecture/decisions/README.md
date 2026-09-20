@@ -102,3 +102,4 @@ and are linked rather than duplicated here.
 | [0083](./0083-recurring-entitlement-period-boundaries.md) | Accepted | Recurring employee entitlement changes only at leave-period boundaries; default next boundary, immediate changes use separate adjustments |
 | [0084](./0084-request-focused-balance-planning.md) | Accepted | Keep projections in Apply; defer standalone calculator/graph and explain actual policy consequences |
 | [0085](./0085-period-relative-carry-over-expiry.md) | Accepted | Optional carry-over expiry in months from new period start, showing last usable date; existing expiry is never extended |
+| [0086](./0086-archive-markers-and-effective-dated-versions.md) | Accepted | Archive timestamps retire records; effective-dated versions preserve calculation rules; snapshots and audit remain distinct |
