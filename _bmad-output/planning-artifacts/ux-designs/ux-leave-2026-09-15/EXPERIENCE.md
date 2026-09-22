@@ -785,7 +785,7 @@ sections rather than displaying every rule at once. Preserve existing configurat
 permissions, policy versioning, and archive semantics; these groups are navigation
 and presentation, not new domain boundaries.
 
-For automatic entitlement policies, enter Annual entitlement and choose when it
+For automatic entitlement policies, enter Leave per year (the full-year allowance) and choose when it
 becomes available: Earned daily, Available upfront, or Monthly instalments. Only
 monthly instalments show start/end-of-instalment timing. Instalment periods align
 with the employee's leave year: calendar months for calendar-year policies, or
@@ -802,7 +802,7 @@ Daily earned entitlement is calculated cumulatively; usable entitlement is floor
 to whole minutes while fractional precision contributes to later calculations.
 Never round daily portions independently or derive accrual from yesterday's rounded
 balance. This does not change the separate hourly request increment or prorated
-upfront/monthly rounding choices. See
+upfront/monthly final-grant rounding, now fixed under ADR-0103. See
 [ADR-0092](../../../../apps/leave/docs/architecture/decisions/0092-cumulative-daily-entitlement-precision.md).
 
 Changing between daily, monthly and upfront availability applies at each affected
@@ -824,9 +824,28 @@ employees in-app and email updates; amendments/cancellations notify again. Sensi
 types use generic notification text and authorized details. See
 [ADR-0101](../../../../apps/leave/docs/architecture/decisions/0101-monthly-rate-changes-and-effective-date-notifications.md).
 
-The existing policy-editor visual predates this change; update its controls after
-daily timing/rounding decisions are settled. This bounded follow-up does not reopen
-the approved general page composition.
+Annual-amount effective-date guidance follows the chosen availability method:
+daily uses the selected prospective date; monthly uses the next instalment start;
+upfront uses the employee's next leave-year start. Preserve current upfront grants
+and direct immediate extra allocations to the separate balance adjustment action.
+Show dates rather than only saying 'next period'. See
+[ADR-0102](../../../../apps/leave/docs/architecture/decisions/0102-upfront-entitlement-changes-next-period.md).
+Changing the availability method itself still requires the next leave-year boundary.
+
+Use visible concise help for unfamiliar terms and examples where the choice changes
+an employee's allowance. Label proration by its purpose: 'If someone joins or leaves
+partway through a period', with 'Adjust for time employed' or 'Give the full period
+allowance'. Explain that Leave per year is not the current balance. Spell out upfront
+availability as 'Available at the start of the leave year'. Hide no essential
+explanation exclusively in a tooltip. Remove the rounding selector; fixed final
+whole-minute rounding is a calculation convention under
+[ADR-0103](../../../../apps/leave/docs/architecture/decisions/0103-fixed-minute-rounding-and-plain-policy-language.md).
+
+The policy-editor preview now shows annual versus manual entitlement, all three
+availability choices, conditional monthly timing and rate/method-change guidance.
+It illustrates aligned calendar/anniversary dates; actual employee-specific impact
+and effective-date calculation remains unimplemented and publication stays disabled.
+The general page composition remains approved.
 
 Open a leave type's current policy as a readable summary before entering edit mode.
 Group it into entitlement/accrual, request rules, approval requirements, and
@@ -1578,3 +1597,13 @@ Failure / limits: Read-only access exposes no edit actions. Shared identity is n
 3. **Climax:** assignment or assigned-role edits show capability changes and affected holders before confirmation. Deletion requires removing every holder first, with links out and a preserved return to the role.
 
 Failure / limits: Another role or valid appointment may retain equivalent authorization. Built-ins cannot be deleted; stale holder/effective-grant checks and the final permission catalogue remain contract work. The administrator is an existing source role, not a newly named persona.
+
+### Monthly partial-employment default — 22 September 2026
+
+New monthly policies default to **Adjust for time employed**. Existing policies
+keep their selection. Show an example beside the setting: 18 days per year gives
+1.5 days per complete monthly period; 15 days employed in a 30-day period gives
+0.75 days when adjusted, or 1.5 days with **Give the full period allowance**.
+Count employment start/end dates inclusively and use the actual instalment period.
+Daily earning hides this choice. See
+[ADR-0104](../../../../apps/leave/docs/architecture/decisions/0104-monthly-partial-employment-default.md).

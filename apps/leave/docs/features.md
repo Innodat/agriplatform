@@ -299,7 +299,8 @@ recalculation on an override end date. One-off grant validity/expiry rules still
 
 ### 6. Balance ledger and accrual
 
-Balances derive from immutable ledger entries rather than a mutable total.
+Balances derive from immutable actual balance events and automatic entitlement
+calculated from effective-dated history, rather than a mutable total.
 
 Employee balance details show a prominent available amount with remaining
 entitlement and reservations against that entitlement distinguished. Link pending
@@ -323,7 +324,7 @@ an existing request's unpaid amount increases, following the existing safeguards
 Supported transactions include:
 
 - Opening balance
-- Accrual
+- Automatic accrual (derived; no daily posted transaction required)
 - Carry-over
 - Expiry
 - Pending reservation
@@ -342,6 +343,13 @@ date, without depending on a scheduled worker posting grants. Repeated calculati
 must not duplicate entitlement. Preserve immutable actual events, effective-dated
 inputs and request/decision snapshots; derived accrual and posted entries must not
 be counted twice. See [ADR-0090](./architecture/decisions/0090-annual-entitlement-availability-options.md).
+Use on-demand accrual rather than daily accrual transactions. Store effective-dated
+policy/employment history and immutable actual events; preserve calculation evidence
+at consequential submissions, approvals and confirmed changes. Routine balance reads
+need no accrual transaction or decision snapshot. Snapshots explain past decisions
+without replacing fresh backend validation for a new action. Any future materialized
+projection is subordinate to the authoritative calculation. See
+[ADR-0106](./architecture/decisions/0106-on-demand-accrual-with-decision-evidence.md).
 Daily precision follows ADR-0092 below. Historical interval/bucket treatment and
 ledger representation still require resolution before affected calculation stories
 are ready.
@@ -414,6 +422,13 @@ employees may have different effective dates, which must be shown in the preview
 This does not restrict prospective annual-rate changes within a daily policy under
 ADR-0096. See [ADR-0098](./architecture/decisions/0098-availability-method-changes-at-period-boundaries.md).
 
+Upfront annual-amount changes begin at the affected employee's next leave-period
+start. Preserve the current grant; immediate extra entitlement uses a separately
+authorized balance adjustment. For example, an 18-to-24-day change leaves this
+year's 18-day grant unchanged and uses 24 days next period, subject to applicable
+rules. Communicate actual effective dates under ADR-0101. See
+[ADR-0102](./architecture/decisions/0102-upfront-entitlement-changes-next-period.md).
+
 Monthly annual-rate changes start at the next applicable instalment period; leave
 the current and prior instalments unchanged. An 18-to-24-day increase during
 15 July–14 August changes the nominal portion from 1.5 to 2 days for the period
@@ -431,10 +446,16 @@ cumulative nominal amount (annual minutes × instalments elapsed / 12) to whole
 minutes; each instalment is the difference between successive cumulative nominal
 amounts. An 8,550-minute year gives 712 minutes first, 713 next, and 8,550 over twelve
 complete instalments. Calculate nominal portions independently of cap exclusions
-or leave consumption so neither is restored by later instalments. Partial employment
-months retain their separate proration/final-grant rounding rules; integration with
-anniversary periods and changed rates remains readiness work. See
-[ADR-0097](./architecture/decisions/0097-cumulative-monthly-instalment-rounding.md).
+or leave consumption so neither is restored by later instalments. Extend this precise
+running calculation to partial employment periods and effective-dated annual-rate
+changes within the leave year. Each portion uses its applicable rate and employment
+ratio; changing the rate does not reset earned fractions. Related monthly partial
+portions are cumulative, not independently rounded standalone grants. Apply cap and
+other balance effects chronologically without recovering excluded amounts. Uncapped
+exact portions of 712.5 and 952.5 minutes give 712 initially and 1,665 cumulatively.
+Year-end carry-over remains separately governed. See
+[ADR-0097](./architecture/decisions/0097-cumulative-monthly-instalment-rounding.md), extended by
+[ADR-0105](./architecture/decisions/0105-monthly-precision-across-partial-periods-and-rate-changes.md).
 
 Scheduled grants follow the configured effective dates and the availability rules
 below. Manual grants remain subject to existing balance-adjustment authorization,
@@ -444,6 +465,14 @@ multiply the period's entitlement by the number of calendar days employed within
 that period divided by its total calendar days. Include the first and last
 employment dates within the period. Manual-only grants remain explicit amounts.
 Different leave types may use different versioned policies and proration choices.
+For new monthly policies, default to **Adjust for time employed**; retain **Give
+the full period allowance** as the alternative without changing existing policies.
+Show the illustrative 18-days-per-year example: 1.5 days per complete instalment,
+0.75 days for 15 of 30 calendar days employed when adjusted, or 1.5 days with the
+full-period choice. Daily earning accounts for employment dates automatically and
+hides this selector. Availability timing and joining/leaving corrections remain
+unchanged. See [ADR-0104](./architecture/decisions/0104-monthly-partial-employment-default.md).
+
 
 Acceptance example: Under calendar-day proration, an employee employed for 15
 days of a 30-day monthly period receives half that month's entitlement. If the
@@ -452,19 +481,20 @@ the otherwise eligible employee receives the configured 480-minute period grant.
 Manual-only grants use the authorized explicit amount without automatic proration.
 See [ADR-0025](./architecture/decisions/0025-per-policy-calendar-day-proration.md).
 
-Each policy chooses rounding down, to nearest, or up to a whole minute for
-prorated entitlement grants. Apply rounding once to the final calculated grant,
-not to intermediate calculation steps. For nearest-minute rounding, exactly half
-a minute rounds up. This grant rule does not change hourly requests' 30-minute
-increments or half-day consumption of exactly 50% of scheduled hours.
+Use one fixed whole-minute rounding convention, without a policy selector. Keep
+full intermediate precision and preserve remainders across related cumulative
+earning portions; floor usable entitlement only at its defined final boundary.
+For a standalone prorated grant, round down once at its final calculated amount.
+A 481-minute period grant for 15 of 30 days gives 240.5 minutes and therefore
+240 usable minutes; 240.7 calculated minutes likewise gives 240. Record the
+calculation in its explanation. Request increments and schedule-based half days
+remain unchanged. See [ADR-0103](./architecture/decisions/0103-fixed-minute-rounding-and-plain-policy-language.md),
+which supersedes the former configurable rule in ADR-0026.
 
-Acceptance example: A 481-minute period grant prorated for 15 of 30 calendar days
-produces 240.5 minutes before rounding. The posted grant is 240 minutes with down,
-241 with nearest, and 241 with up. For a 240.4-minute final calculated grant,
-nearest produces 240 minutes and up produces 241. Preserve the calculation and
-policy rounding choice with the grant's audit explanation.
-
-See [ADR-0026](./architecture/decisions/0026-prorated-grant-rounding.md).
+Policy forms use plain-language labels and contextual examples: 'Leave per year'
+explains the full-year allowance, and partial-period settings explain adjusting for
+time employed rather than requiring familiarity with 'proration'. Core explanations
+are visible or expandable, not hover-only. Rounding is not an administrator setting.
 
 Acceptance examples: An annual-upfront policy grants its configured amount at the start of its
 entitlement period, with a joining grant for mid-period employment as defined below. A monthly policy grants its configured portion on its
@@ -1302,7 +1332,7 @@ Validation covers:
   entitlement. For example, 137 available minutes can fund a 120-minute hourly
   request, leaving 17 minutes. Full/half days retain schedule-based durations:
   half of a 450-minute working day is 225 minutes, without rounding to 30 minutes.
-  Existing policy rounding of final prorated grants to whole minutes remains.
+  Final standalone prorated grants use the fixed whole-minute floor under ADR-0103.
 - Half-day leave consumes exactly 50% of the employee's configured scheduled hours
   for that day; an 8-hour configured day therefore consumes 4 hours.
 - Canonical consumption is stored in minutes together with the schedule and policy

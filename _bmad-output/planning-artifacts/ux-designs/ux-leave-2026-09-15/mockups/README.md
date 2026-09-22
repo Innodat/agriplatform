@@ -4,12 +4,13 @@ These are the stable handoff copies of the approved visual studies. DESIGN.md an
 
 The original working studies are retained for provenance. Future keeper corrections belong here and in the design contracts; do not treat a working copy as a competing approved version.
 
-## Pending accrual-control update — 21 September 2026
+## Accrual-control update — 22 September 2026
 
-The policy-editor preview predates ADR-0090. Its general layout remains approved,
-but the current EXPERIENCE contract adds Earned daily and expresses automatic
-modes under Annual entitlement. Refresh the preview after daily boundaries and
-rounding are resolved; do not implement the old schedule controls as complete.
+The policy-editor preview now includes annual/manual entitlement, daily/upfront/monthly
+availability, conditional instalment timing, and effective-date guidance. Example
+calendar/anniversary dates are illustrative. Real employee impact/effective dates,
+policy persistence and publication are not implemented. This is a source-level
+preview update, not browser/accessibility certification.
 
 ## Approved composition references
 

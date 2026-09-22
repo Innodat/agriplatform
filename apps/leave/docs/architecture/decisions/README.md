@@ -42,7 +42,7 @@ and are linked rather than duplicated here.
 | [0023](./0023-employee-work-timezone.md) | Accepted | Employee work timezone defines leave dates and accrual/expiry boundaries independently of viewer timezone |
 | [0024](./0024-mvp-accrual-schedules.md) | Superseded in part by 0043 and 0045 | Annual/monthly/manual choices remain; annual dates follow periods and monthly dates use start/end of month |
 | [0025](./0025-per-policy-calendar-day-proration.md) | Accepted | Policies choose no proration or inclusive calendar-day employment proration; manual grants remain explicit |
-| [0026](./0026-prorated-grant-rounding.md) | Accepted | Round final prorated grants once per policy: down, nearest (half up), or up to whole minutes |
+| [0026](./0026-prorated-grant-rounding.md) | Superseded by 0103 | Round final prorated grants once per policy: down, nearest (half up), or up to whole minutes |
 | [0027](./0027-accrual-date-calendar-fallback.md) | Superseded in part by 0045 | Historical configured-date fallback; monthly dates now follow start/end of month |
 | [0028](./0028-policy-carry-over-options.md) | Accepted | Policies choose no, all-unused, or capped carry-over, with optional configured expiry |
 | [0029](./0029-repeated-carry-over.md) | Accepted | Policies choose once-only or repeated carry-over within limits; existing expiry dates never extend |
@@ -118,3 +118,8 @@ and are linked rather than duplicated here.
 | [0099](./0099-monthly-instalments-aligned-to-leave-year.md) | Accepted | Twelve monthly instalment periods follow calendar/anniversary leave-year boundaries; policy chooses start/end availability |
 | [0100](./0100-anchored-monthly-instalment-boundaries.md) | Accepted | Anchor each monthly boundary to original anniversary day, clamp only missing dates and avoid drift |
 | [0101](./0101-monthly-rate-changes-and-effective-date-notifications.md) | Accepted | Monthly annual-rate changes start next instalment; administrators and affected employees see effective and usable dates |
+| [0102](./0102-upfront-entitlement-changes-next-period.md) | Accepted | Upfront annual-amount changes begin next leave period; current grant preserved, immediate additions use adjustments |
+| [0103](./0103-fixed-minute-rounding-and-plain-policy-language.md) | Accepted | Fixed final whole-minute floor; remove rounding selector and explain policy settings in plain language |
+| [0104](./0104-monthly-partial-employment-default.md) | Accepted | Default new monthly policies to adjustment for calendar days employed; explain partial-period allowance |
+| [0105](./0105-monthly-precision-across-partial-periods-and-rate-changes.md) | Accepted | Preserve monthly precision across partial periods and annual-rate changes; no cap catch-up |
+| [0106](./0106-on-demand-accrual-with-decision-evidence.md) | Accepted | On-demand automatic accrual with effective-dated history, immutable actual events and decision snapshots |
