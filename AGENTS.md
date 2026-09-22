@@ -37,3 +37,14 @@ A TypeScript/React and Python/FastAPI workspace with Supabase-backed application
 - Never hand-edit files carrying a generated-file warning; update the owning generator or template.
 
 <!-- /bmad:context -->
+
+## Platform-wide release safety
+
+All application and shared-service delivery must follow
+[platform ADR-0020](platform/docs/architecture/decisions/0020-safe-schema-changes-and-release-recovery.md):
+controlled and coordinated migrations before release activation, compatibility with
+the previous running version for ordinary releases, activation blocked on migration
+failure, and explicit recovery. Do not run migrations independently on API/worker
+startup or automatically reverse applied migrations after failure. Incompatible
+changes require a planned maintenance window and recovery procedure. Include the
+ADR's evidence requirements in BMAD delivery and shared scaffold/release tooling.

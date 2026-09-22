@@ -17,7 +17,7 @@ and are linked rather than duplicated here.
 
 | ADR | Status | Decision |
 |---|---|---|
-| [0001](./0001-immutable-balance-ledger.md) | Accepted | Leave balances derive from an immutable ledger |
+| [0001](./0001-immutable-balance-ledger.md) | Superseded in part by 0090 for derived automatic accrual | Leave balances derive from an immutable ledger |
 | [0002](./0002-versioned-leave-policies.md) | Accepted | Leave types and policies are effective-dated and versioned |
 | [0003](./0003-working-time-in-minutes.md) | Accepted | Working-time consumption is stored canonically in minutes |
 | [0004](./0004-configurable-approval-workflows.md) | Superseded by 0007 | Approval workflows are configurable and snapshotted; original record preserved |
@@ -61,7 +61,7 @@ and are linked rather than duplicated here.
 | [0042](./0042-entitlement-period-basis.md) | Accepted | Policies choose calendar-year or employment-anniversary periods independently of accrual frequency |
 | [0043](./0043-annual-grants-at-period-start.md) | Accepted | Annual grants occur at period start, with policy-prorated calendar-year joining grants; supersedes 0024's independent annual date |
 | [0044](./0044-leap-day-employment-anniversaries.md) | Accepted | February 29 employment anniversaries use February 28 in non-leap years and return to February 29 in leap years |
-| [0045](./0045-monthly-grant-start-or-end.md) | Accepted | Monthly policies choose start or end of month, with agreed partial-month proration |
+| [0045](./0045-monthly-grant-start-or-end.md) | Superseded in part by 0099 | Monthly policies choose start or end of month, with agreed partial-month proration |
 | [0046](./0046-mid-month-joining-grants.md) | Accepted | Upfront monthly policies grant mid-month joiners at employment start; month-end policies wait until month-end |
 | [0047](./0047-month-end-grant-same-day-availability.md) | Accepted | Month-end grants are usable from the start of their grant date in the employee's work timezone |
 | [0048](./0048-upfront-grant-departure-recalculation.md) | Accepted | Recalculate upfront grants on departure using policy proration; explain corrections and review spent deficits |
@@ -106,3 +106,15 @@ and are linked rather than duplicated here.
 | [0087](./0087-return-to-my-leave-after-submission.md) | Accepted | Return to My Leave after confirmed submission; optional detail link, persistent list status and duplicate-safe recovery |
 | [0088](./0088-employee-acknowledgement-for-on-behalf-unpaid-leave.md) | Accepted | Managers may submit unpaid on-behalf requests; employee exact-amount response gates final approval and leaves the employee draft untouched |
 | [0089](./0089-carry-over-month-boundary-expiry.md) | Accepted | Deterministic month-boundary carry-over expiry, inclusive last usable date and leap-year examples |
+| [0090](./0090-annual-entitlement-availability-options.md) | Accepted | Annual entitlement with daily/upfront/monthly availability, manual grants retained, backend on-demand calculation |
+| [0091](./0091-start-of-day-daily-entitlement.md) | Accepted | Daily entitlement includes the current eligible date from its start in the employee work timezone |
+| [0092](./0092-cumulative-daily-entitlement-precision.md) | Accepted | Calculate daily entitlement cumulatively and floor usable total to whole minutes without per-day rounding loss |
+| [0093](./0093-daily-cap-and-prospective-resumption.md) | Accepted | Daily earning respects historical caps; room opened after the daily boundary enables next-day earning without catch-up |
+| [0094](./0094-daily-earning-employment-boundaries.md) | Accepted | Daily earning includes start/end dates and uses full leave-year length without accelerated or double prorated earning |
+| [0095](./0095-precise-cap-before-usable-rounding.md) | Accepted | Apply daily cap at full precision, retain earned fractions and exclude excess before whole-minute usability rounding |
+| [0096](./0096-daily-earning-across-policy-versions.md) | Accepted | Daily earning uses each date’s effective annual rate; preserve earlier earning and combine exact segments before rounding |
+| [0097](./0097-cumulative-monthly-instalment-rounding.md) | Accepted | Complete monthly instalments use differences of floored cumulative annual portions, preserving annual total without cap catch-up |
+| [0098](./0098-availability-method-changes-at-period-boundaries.md) | Accepted | Switch daily/monthly/upfront methods only at each employee’s next leave-period boundary |
+| [0099](./0099-monthly-instalments-aligned-to-leave-year.md) | Accepted | Twelve monthly instalment periods follow calendar/anniversary leave-year boundaries; policy chooses start/end availability |
+| [0100](./0100-anchored-monthly-instalment-boundaries.md) | Accepted | Anchor each monthly boundary to original anniversary day, clamp only missing dates and avoid drift |
+| [0101](./0101-monthly-rate-changes-and-effective-date-notifications.md) | Accepted | Monthly annual-rate changes start next instalment; administrators and affected employees see effective and usable dates |

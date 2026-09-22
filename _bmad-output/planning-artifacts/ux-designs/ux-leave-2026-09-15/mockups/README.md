@@ -4,6 +4,13 @@ These are the stable handoff copies of the approved visual studies. DESIGN.md an
 
 The original working studies are retained for provenance. Future keeper corrections belong here and in the design contracts; do not treat a working copy as a competing approved version.
 
+## Pending accrual-control update — 21 September 2026
+
+The policy-editor preview predates ADR-0090. Its general layout remains approved,
+but the current EXPERIENCE contract adds Earned daily and expresses automatic
+modes under Annual entitlement. Refresh the preview after daily boundaries and
+rounding are resolved; do not implement the old schedule controls as complete.
+
 ## Approved composition references
 
 | Reference | Use / limitation |

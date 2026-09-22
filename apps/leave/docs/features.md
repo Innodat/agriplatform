@@ -1,7 +1,7 @@
 # Leave Tracker Functional Specification
 
 **Version:** 0.1  
-**Last updated:** 2026-09-20  
+**Last updated:** 2026-09-22  
 **Status:** Product scope approved; detailed acceptance criteria remain living documentation  
 **Scope:** MVP unless marked otherwise
 
@@ -174,7 +174,11 @@ does not grant cancellation or replacement rights over another employee's leave.
 - Display the active NGO prominently in the application shell.
 - Load roles, permissions, employment record, policies, schedules, and reporting
   relationships separately for each NGO membership.
-- Block access immediately for suspended or ended memberships.
+- Block subsequent authorization checks immediately for suspended or ended
+  memberships, without waiting for sign-out or token expiry. An already-authorized,
+  short executing operation may finish; an open form grants no authority, and
+  queued/delayed new execution requires fresh authorization. Follow
+  [platform ADR-0021](../../../platform/docs/architecture/decisions/0021-revocation-and-in-flight-operations.md).
 - Record security-relevant identity and NGO-context changes in the audit log.
 
 **Rule:** Successful authentication does not by itself grant access to an NGO.
@@ -333,15 +337,104 @@ Supported transactions include:
 The system presents accrued, used, reserved, currently available, projected on the
 leave date, requested, and projected remaining amounts.
 
-Scheduled accrual is idempotent: retrying a job must not duplicate entitlement.
+Automatic entitlement is calculated authoritatively by the backend for the relevant
+date, without depending on a scheduled worker posting grants. Repeated calculations
+must not duplicate entitlement. Preserve immutable actual events, effective-dated
+inputs and request/decision snapshots; derived accrual and posted entries must not
+be counted twice. See [ADR-0090](./architecture/decisions/0090-annual-entitlement-availability-options.md).
+Daily precision follows ADR-0092 below. Historical interval/bucket treatment and
+ledger representation still require resolution before affected calculation stories
+are ready.
 
-MVP leave policies support these entitlement-grant schedules:
+MVP automatic policies configure an annual entitlement and its availability mode.
+Manual grants remain separate:
 
 | Schedule | Behavior |
 |---|---|
+| Earned daily | Earn annual entitlement proportionally across eligible calendar days in the leave year, including today from its start in the employee work timezone; calculate cumulative earning and floor usable total to whole minutes (ADR-0092) |
 | Annual upfront | Grant at the start of the entitlement period; a mid-period joiner receives a joining grant using the policy proration rule |
-| Monthly | Grant a configured portion at the start or end of each month, as selected by policy; prorate partial employment months under the policy's rule |
+| Monthly instalments | Release portions of annual entitlement at the start or end of each leave-year-aligned monthly instalment period, as selected by policy; prorate partial employment months under the policy's rule |
 | Manual only | Authorized staff grant entitlement with an audited reason; no automatic scheduled grants |
+
+Daily earning precision: calculate annual entitlement minutes multiplied by eligible
+days divided by actual leave-year days, retaining fractional precision and rounding
+down only the resulting usable total to whole minutes. Do not round individual
+daily portions or add to yesterday's rounded balance. With 8,640 annual minutes,
+100 eligible days in a 365-day year gives 2,367 usable minutes; all 365 days gives
+8,640 minutes, before other effects. The unchanged-input formula does not replace
+historical cap/expiry/policy replay. Existing prorated upfront/monthly grant rounding
+remains separate. See [ADR-0092](./architecture/decisions/0092-cumulative-daily-entitlement-precision.md).
+
+Daily employment boundaries: include the employee's start and end dates, earning
+nothing outside employment. Divide by the full applicable leave year's actual
+length, not the remaining employment duration. With 18 annual days and 100 eligible
+days in a 365-day period, earn 18 × 100 / 365 before other effects. Do not prorate
+the annual amount again for the same partial employment. One-date employment has
+one eligible day. Upfront/monthly joining and leaving rules remain separate. See
+[ADR-0094](./architecture/decisions/0094-daily-earning-employment-boundaries.md).
+
+Daily cap behavior: calculate earning in effective-date order, adding only what
+fits at each eligible day's start. If a current-effective balance deduction later
+that day creates room, resume at the next eligible day's start. Do not recover
+earning excluded while capped. For example, Ana at her cap Monday morning earns
+nothing Monday; a deduction later Monday permits Tuesday's normal portion, not a
+catch-up for Monday. Pending earned reservations and cancellation recalculation
+retain their existing cap safeguards. On-demand calculation must explain capped-out
+earning from historical inputs, without requiring daily posting. See
+[ADR-0093](./architecture/decisions/0093-daily-cap-and-prospective-resumption.md).
+
+Apply the daily accumulated cap before whole-minute usability rounding. With a
+120-minute cap, 119.8 minutes accumulated and 0.5 minutes newly eligible, accept
+0.2 and exclude 0.3. Earned fractions below the cap remain; excluded fractions do
+not become a hidden reserve for later recovery. Historical corrections still
+follow their existing recalculation safeguards. See
+[ADR-0095](./architecture/decisions/0095-precise-cap-before-usable-rounding.md).
+
+Daily policy-rate changes apply prospectively per eligible date. An annual rate
+increase from 18 to 24 days effective 1 July uses 18 for earlier dates and 24 from
+1 July, preserving prior earning. In an unchanged 365-day calendar year with full
+eligibility and no cap/expiry effects, compute 18 × 181 / 365 + 24 × 184 / 365
+days, converting under the applicable schedule and combining precise portions
+before whole-minute rounding. Do not use the segment length as the denominator.
+Individual recurring overrides retain their leave-period-boundary constraint;
+request impacts and backdated corrections retain their existing safeguards. See
+[ADR-0096](./architecture/decisions/0096-daily-earning-across-policy-versions.md).
+
+Daily availability example: With an unchanged 18-day annual amount and full
+eligibility throughout a 365-day calendar year, 1 January includes one day's
+portion, 2 January two portions, and 31 December all 365 portions. Apply other
+balance rules separately and use actual leave-year length. No worker execution
+is required to make the daily portion available. See
+[ADR-0091](./architecture/decisions/0091-start-of-day-daily-entitlement.md).
+
+Changes between daily, monthly and upfront availability take effect only at the
+employee's next leave-period boundary. Finish the current period under its existing
+method; preserve carry-over and existing request impact safeguards. Anniversary
+employees may have different effective dates, which must be shown in the preview.
+This does not restrict prospective annual-rate changes within a daily policy under
+ADR-0096. See [ADR-0098](./architecture/decisions/0098-availability-method-changes-at-period-boundaries.md).
+
+Monthly annual-rate changes start at the next applicable instalment period; leave
+the current and prior instalments unchanged. An 18-to-24-day increase during
+15 July–14 August changes the nominal portion from 1.5 to 2 days for the period
+starting 15 August. Under end-of-period availability it is usable on 14 September.
+Show old/new amounts and actual employee effective dates in editing/review, clearly
+distinguishing rate start from first availability. Confirmed annual-entitlement
+changes notify actually affected employees by in-app message and email; amended
+or cancelled scheduled changes notify again. Use generic text and authorized links
+for sensitive leave types. Continuing overrides that prevent an effective amount
+change must not produce a misleading entitlement-change notice. See
+[ADR-0101](./architecture/decisions/0101-monthly-rate-changes-and-effective-date-notifications.md).
+
+For complete monthly instalments with unchanged annual entitlement, floor the
+cumulative nominal amount (annual minutes × instalments elapsed / 12) to whole
+minutes; each instalment is the difference between successive cumulative nominal
+amounts. An 8,550-minute year gives 712 minutes first, 713 next, and 8,550 over twelve
+complete instalments. Calculate nominal portions independently of cap exclusions
+or leave consumption so neither is restored by later instalments. Partial employment
+months retain their separate proration/final-grant rounding rules; integration with
+anniversary periods and changed rates remains readiness work. See
+[ADR-0097](./architecture/decisions/0097-cumulative-monthly-instalment-rounding.md).
 
 Scheduled grants follow the configured effective dates and the availability rules
 below. Manual grants remain subject to existing balance-adjustment authorization,
@@ -382,14 +475,20 @@ reason is rejected.
 
 See [ADR-0024](./architecture/decisions/0024-mvp-accrual-schedules.md).
 
-Monthly grants use policy-selected start-of-month or end-of-month timing rather
-than a freely configured day. Start-of-month grants fall on the first calendar
-day; end-of-month grants fall on the last calendar day. Partial employment months
-use the agreed no-proration or calendar-day-proration rule and final-grant rounding.
-Use the employee's configured work timezone. This supersedes freely configured
-monthly dates; annual grants follow entitlement-period starts as defined below.
+Monthly instalments follow twelve monthly periods aligned to the employee's
+leave year. The policy selects the start or end of each instalment period.
+Calendar-year policies use calendar months; a 15-July anniversary year uses
+15 July–14 August, 15 August–14 September, and so on. Partial employment uses the
+applicable instalment period for proration and retains final-grant rounding.
+Use the employee's configured work timezone. Resolve each boundary independently from the original anniversary day and month
+offset, clamping only missing dates to that month's end. A 31 January anchor gives
+28/29 February, then 31 March and 30 April without drift. Each instalment ends the
+day before the next boundary; twelve instalments cover the leave year. This is
+separate from inclusive carry-over expiry arithmetic. See
+[ADR-0100](./architecture/decisions/0100-anchored-monthly-instalment-boundaries.md). See
+[ADR-0099](./architecture/decisions/0099-monthly-instalments-aligned-to-leave-year.md).
 
-Acceptance examples: A start-of-month policy grants on 1 April; an end-of-month
+Acceptance examples for calendar-year policies: A start-of-month policy grants on 1 April; an end-of-month
 policy grants on 30 April, then 31 May. February month-end is 28 February in a
 non-leap year and 29 February in a leap year. A 480-minute monthly grant for 15
 employed days in a 30-day month is 240 minutes under calendar-day proration.
@@ -397,11 +496,11 @@ Retrying the monthly grant must not duplicate it.
 
 See [ADR-0045](./architecture/decisions/0045-monthly-grant-start-or-end.md).
 
-For start-of-month policies, an employee joining after the month's grant date
-receives their initial grant on the employment start date, using the policy's
-partial-month proration and rounding rules. Normal grants resume on the first of
-each subsequent month. For end-of-month policies, the initial grant waits until
-month-end and uses the same applicable partial-month rules.
+For start-of-instalment policies, an employee joining after the instalment's grant
+date receives their initial grant on the employment start date, using the policy's
+partial-period proration and rounding rules. Normal grants resume at each subsequent
+instalment start. For end-of-instalment policies, the initial grant waits until that
+instalment's final date and uses the same applicable partial-period rules.
 
 Acceptance example: An employee starts on 16 April under a 480-minute monthly
 policy with calendar-day proration. They are employed for 15 of April's 30 days,
@@ -1198,6 +1297,12 @@ Validation covers:
 
 - Hourly leave is calculated against the employee's effective schedule and breaks.
 - Hourly leave is requested in 0.5 hour (30-minute) increments.
+  This is an input increment, not a rounding rule for accrued entitlement or the
+  ledger balance. Preserve remaining minutes and validate against actual eligible
+  entitlement. For example, 137 available minutes can fund a 120-minute hourly
+  request, leaving 17 minutes. Full/half days retain schedule-based durations:
+  half of a 450-minute working day is 225 minutes, without rounding to 30 minutes.
+  Existing policy rounding of final prorated grants to whole minutes remains.
 - Half-day leave consumes exactly 50% of the employee's configured scheduled hours
   for that day; an 8-hour configured day therefore consumes 4 hours.
 - Canonical consumption is stored in minutes together with the schedule and policy

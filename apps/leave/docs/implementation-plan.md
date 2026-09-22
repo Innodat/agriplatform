@@ -146,7 +146,7 @@ documentation, and acceptance checks are complete.
 apps/leave/
 ├── backend/                 Leave FastAPI API and domain rules
 ├── web/                     React, Vite, shadcn UI
-├── supabase/migrations/     Leave-owned schema and RLS
+├── backend/migrations/     Planned Alembic revisions for Leave schema and RLS
 ├── docs/                    Feature specification, plan, decisions
 ├── tools/
 └── CHANGELOG.md
@@ -162,6 +162,8 @@ platform/prompts/            Agriplatform-specific agent context and safeguards
 
 ### Boundary rules
 
+- Apply [platform ADR-0019](../../../platform/docs/architecture/decisions/0019-current-server-side-authorization.md): current shared membership/permission checks on protected requests plus Leave resource rules; deny revoked access and fail safely when verification is unavailable. [Platform ADR-0021](../../../platform/docs/architecture/decisions/0021-revocation-and-in-flight-operations.md) permits bounded already-authorized execution to finish; subsequent checks observe revocation. Specify execution timeouts and audit fields before affected story readiness.
+
 - The Leave application owns leave policies, schedules, balances, applications,
   approval routing, attachment associations, and attachment visibility rules.
 - The Content Service owns provider selection, content metadata, signed operations,
@@ -169,12 +171,15 @@ platform/prompts/            Agriplatform-specific agent context and safeguards
 - The Notification capability owns templates, delivery attempts, retry policy, and
   channel adapters. Leave decides which domain event occurred and who should be
   notified.
+- Database transactions carry verified NGO/actor context under [platform ADR-0018](../../../platform/docs/architecture/decisions/0018-transaction-scoped-tenant-context.md); missing tenant context denies NGO-owned data access, and pooled connections must not retain request scope.
 - Application frontends use FastAPI for business data. The Supabase browser client
   is limited to authentication and explicitly approved realtime use.
 - Cross-app runtime capabilities are called over HTTP; Leave does not import their
   server implementation.
 - Backend API contracts are Pydantic/OpenAPI-first and generate or validate strict
   frontend contracts.
+- Adopt [platform ADR-0014](../../../platform/docs/architecture/decisions/0014-python-database-access-and-api-models.md): SQLAlchemy/Psycopg database access, separate Pydantic API schemas, workflow-owned transactions, and no parallel Supabase Data API business-data path.
+- Adopt [platform ADR-0015](../../../platform/docs/architecture/decisions/0015-alembic-migration-authority.md): Alembic owns project-schema migrations. Transition existing SQL assets and bootstrap/reset/seed/CI commands deliberately; exclude Supabase-managed schemas and prevent dual migration ownership. [Platform ADR-0016](../../../platform/docs/architecture/decisions/0016-owned-migration-histories-and-coordination.md) assigns Leave its own schema, revision files and migration-version table, with dependency-aware shared deployment coordination. Exact operational recovery and locking remain architecture work.
 
 ## Continuous scaffold evolution
 
@@ -342,7 +347,7 @@ approved; no unresolved question changes the core data model.
 - [ ] Add a `leave` entry to the App Directory, initially disabled
 - [ ] Generate the Leave silo from `platform/builder-cli`
 - [ ] Establish local commands for web, API, database, workers, and shared services
-- [ ] Add environment validation and `.env.example` files without secrets
+- [ ] Add environment validation and `.env.example` files without secrets; separate restricted runtime and deployment-only migration identities under [platform ADR-0017](../../../platform/docs/architecture/decisions/0017-runtime-and-migration-database-authority.md)
 - [ ] Establish CI for linting, formatting, type checks, unit tests, migrations, and builds
 - [ ] Add health/readiness endpoints and structured error responses
 - [ ] Add OpenAPI generation and strict Leave web client generation/validation
@@ -515,7 +520,7 @@ historical policy meaning is preserved after changes.
 - [ ] Implement monthly accrual and starter/leaver proration
 - [ ] Implement projected balance calculation for requested dates; expose consequences in Apply with expandable explanation, deferring standalone calculator/graph (ADR-0084)
 - [ ] Implement effective-dated recalculation and adjustment preview
-- [ ] Add idempotent scheduled accrual jobs and reconciliation reports
+- [ ] Implement authoritative on-demand entitlement for daily/upfront/monthly modes under [ADR-0090](./architecture/decisions/0090-annual-entitlement-availability-options.md), retaining manual grants and reconciliation; apply start-of-day daily availability (ADR-0091) and apply cumulative daily precision (ADR-0092) and historical cap/resumption rules (ADR-0093) with precise cap-before-rounding behavior (ADR-0095) and daily employment boundaries (ADR-0094) plus prospective daily policy-rate segmentation (ADR-0096) and apply complete-month cumulative rounding (ADR-0097) and boundary-only availability-method transitions (ADR-0098) and next-instalment monthly rate changes with effective-date notifications (ADR-0101) and settle historical interval/bucket treatment, monthly partial-period integration (aligned, anchored boundaries approved in ADR-0099/0100) and event/snapshot representation before affected story readiness
 - [ ] Add deterministic clock-based and property/invariant tests
 
 **Exit gate:** Ledger totals reconcile, rerunning jobs creates no duplicates, and
@@ -541,7 +546,8 @@ current/projected balances are reproducible from transactions.
 - [ ] Implement self-approval rules and duplicate-step collapse
 - [ ] Implement approve, reject, withdraw, resubmit, direct approved-leave
   cancellation, and admin override
-- [ ] Add concurrency/version checks and idempotency keys for commands
+- [ ] Add concurrency/version checks and idempotency keys for commands under [platform ADR-0012](../../../platform/docs/architecture/decisions/0012-operation-identity-idempotency-and-tracing.md); verify lost-response retries, concurrent duplicate attempts, changed-payload rejection, tenant/actor isolation and atomic outcome recording
+- [ ] Apply [platform ADR-0013](../../../platform/docs/architecture/decisions/0013-explicit-revisions-for-reviewed-changes.md): explicit server-managed revisions, atomic expected-revision checks, stale-review recovery and protected revalidation of related balances/policies across every affected write path
 - [ ] Deliver the in-request balance-override → revised unpaid acknowledgement → remaining approval journey, with actor/reason, exact-amount recheck, employee response prompt and approver waiting state
 - [ ] Persist complete transition and approval history
 
@@ -550,7 +556,7 @@ concurrency, audit, and reversal tests.
 
 ### Phase 8 — Notifications
 
-- [ ] Define versioned Leave domain events and transactional outbox
+- [ ] Define versioned Leave domain events and transactional outbox with stable event IDs and originating operation links under platform ADR-0012; verify duplicate-safe acceptance and preserved tracing across retries
 - [ ] Implement notification templates with tenant branding
 - [ ] Implement asynchronous email delivery, retries, dead-letter handling, and deduplication
 - [ ] Implement in-app notification inbox and read state
@@ -579,7 +585,7 @@ performance targets.
 - [ ] WCAG 2.2 AA review including keyboard and screen-reader flows
 - [ ] Mobile/responsive usability review
 - [ ] Threat model for tenant switching, approvals, attachments, signed URLs, and exports
-- [ ] Backup/restore and migration rollback rehearsal
+- [ ] Verify backup/restoration and migration-failure recovery under [platform ADR-0020](../../../platform/docs/architecture/decisions/0020-safe-schema-changes-and-release-recovery.md), including previous-version compatibility, blocked activation on failure, migration coordination and explicit recovery; no automatic migration downgrade
 - [ ] Load, failure, retry, and worker-restart tests
 - [ ] Privacy, retention, and jurisdictional configuration review, including the
   proposed two-year default for medical attachments

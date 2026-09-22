@@ -785,6 +785,49 @@ sections rather than displaying every rule at once. Preserve existing configurat
 permissions, policy versioning, and archive semantics; these groups are navigation
 and presentation, not new domain boundaries.
 
+For automatic entitlement policies, enter Annual entitlement and choose when it
+becomes available: Earned daily, Available upfront, or Monthly instalments. Only
+monthly instalments show start/end-of-instalment timing. Instalment periods align
+with the employee's leave year: calendar months for calendar-year policies, or
+anniversary-aligned periods such as 15 July–14 August. Use explanatory date examples
+under [ADR-0099](../../../../apps/leave/docs/architecture/decisions/0099-monthly-instalments-aligned-to-leave-year.md). Manual-only grants remain a
+separate choice; do not imply every leave type has an annual balance. Balances come
+from authoritative backend calculations and do not depend on a worker posting
+accrual. See [ADR-0090](../../../../apps/leave/docs/architecture/decisions/0090-annual-entitlement-availability-options.md).
+Daily earning includes today's eligible portion from the start of the employee's
+local work date, calculated on demand under
+[ADR-0091](../../../../apps/leave/docs/architecture/decisions/0091-start-of-day-daily-entitlement.md).
+
+Daily earned entitlement is calculated cumulatively; usable entitlement is floored
+to whole minutes while fractional precision contributes to later calculations.
+Never round daily portions independently or derive accrual from yesterday's rounded
+balance. This does not change the separate hourly request increment or prorated
+upfront/monthly rounding choices. See
+[ADR-0092](../../../../apps/leave/docs/architecture/decisions/0092-cumulative-daily-entitlement-precision.md).
+
+Changing between daily, monthly and upfront availability applies at each affected
+employee's next leave-period boundary. Preview different anniversary effective
+dates where applicable and preserve existing-request impact review. A daily annual
+rate change remains prospective under its separate rule. See
+[ADR-0098](../../../../apps/leave/docs/architecture/decisions/0098-availability-method-changes-at-period-boundaries.md).
+
+Monthly boundary examples retain the original anniversary day: 31 January,
+28/29 February, 31 March, 30 April. Each period ends the day before its next
+boundary. Do not drift later boundaries from a shortened month's fallback. See
+[ADR-0100](../../../../apps/leave/docs/architecture/decisions/0100-anchored-monthly-instalment-boundaries.md).
+
+Monthly annual-amount changes begin at the next instalment period start. Editing
+shows the calculated effective date; confirmation shows old/new amounts and dates
+for affected employees, including differing anniversary dates. Distinguish the
+new rate date from its first usable instalment date. On confirmation send affected
+employees in-app and email updates; amendments/cancellations notify again. Sensitive
+types use generic notification text and authorized details. See
+[ADR-0101](../../../../apps/leave/docs/architecture/decisions/0101-monthly-rate-changes-and-effective-date-notifications.md).
+
+The existing policy-editor visual predates this change; update its controls after
+daily timing/rounding decisions are settled. This bounded follow-up does not reopen
+the approved general page composition.
+
 Open a leave type's current policy as a readable summary before entering edit mode.
 Group it into entitlement/accrual, request rules, approval requirements, and
 documents/privacy. Show its effective date prominently; offer Edit policy to

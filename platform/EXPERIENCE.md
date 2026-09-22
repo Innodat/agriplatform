@@ -273,7 +273,11 @@ review before confirmation; never silently overwrite that change.
 
 ### A record changes during review
 
-Reject stale actions rather than silently applying them to changed records.
+Reject stale actions rather than silently applying them to changed records. Use the explicit revision contract in
+[ADR-0013](./docs/architecture/decisions/0013-explicit-revisions-for-reviewed-changes.md).
+Explain that the information changed, preserve entered values where practical, and
+require review of current details before another confirmation. Do not silently
+refresh a revision and resubmit the action.
 After rechecking authorization, show the current state and only the actions that
 remain valid. When another person edited the record, offer Review latest version
 and require a fresh review before the user decides. Retain typed comments without
