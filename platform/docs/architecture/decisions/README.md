@@ -38,3 +38,11 @@ scaffolding, or more than one application.
 | [0019](./0019-current-server-side-authorization.md) | Accepted | Current membership/permission checks per protected request; domain checks, no stale grants and fail-closed access verification |
 | [0020](./0020-safe-schema-changes-and-release-recovery.md) | Accepted | Mandatory platform-wide migration coordination, compatible schema evolution, failure gates and explicit recovery |
 | [0021](./0021-revocation-and-in-flight-operations.md) | Accepted | Revocation blocks subsequent authorization checks; bounded already-authorized operations may complete |
+| [0022](./0022-short-transactions-and-external-service-calls.md) | Accepted | Keep transactions short and external service waits outside business locks by default; document justified exceptions |
+| [0023](./0023-structured-operational-logs-and-sensitive-data.md) | Accepted | Structured operational diagnostics with safe correlation fields; exclude sensitive content and keep audit separate |
+| [0024](./0024-durable-delivery-retries-and-audited-recovery.md) | Accepted | Bounded durable-delivery retries, retained failures and scoped audited operational recovery |
+| [0025](./0025-record-attribution-and-audit-provenance.md) | Accepted | Stable actor/time attribution, immutable audit provenance and table-category-aware scaffolding |
+| [0026](./0026-worker-service-identity-and-ngo-scope.md) | Accepted | Restricted owner-specific worker identity across NGOs with narrow discovery and per-item transaction scope |
+| [0027](./0027-bounded-worker-shutdown-and-deployment-reporting.md) | Accepted | Bounded recoverable shutdown, automatic forced-stop fallback and truthful deployment warnings |
+| [0028](./0028-event-payload-versions-and-queued-work-compatibility.md) | Accepted | Explicit event type/version and compatibility for queued, in-flight and retryable work across releases |
+| [0029](./0029-notification-retry-expiry-and-retention.md) | Accepted | Notification-only 90-day retry window, terminal retention and expiry-safe deduplication cleanup |

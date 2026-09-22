@@ -123,3 +123,13 @@ and are linked rather than duplicated here.
 | [0104](./0104-monthly-partial-employment-default.md) | Accepted | Default new monthly policies to adjustment for calendar days employed; explain partial-period allowance |
 | [0105](./0105-monthly-precision-across-partial-periods-and-rate-changes.md) | Accepted | Preserve monthly precision across partial periods and annual-rate changes; no cap catch-up |
 | [0106](./0106-on-demand-accrual-with-decision-evidence.md) | Accepted | On-demand automatic accrual with effective-dated history, immutable actual events and decision snapshots |
+| [0107](./0107-corrected-balances-preserve-decision-evidence.md) | Accepted | Corrected balances retain original approval evidence and expose it in request history |
+| [0108](./0108-measure-accrual-performance-before-checkpoints.md) | Accepted | Direct calculation first; measure performance before adding rebuildable checkpoints |
+| [0109](./0109-expiry-and-rollover-before-new-earning.md) | Accepted | Resolve expiry and year-boundary carry-over before new earning and cap evaluation |
+| [0110](./0110-stable-order-for-same-day-balance-events.md) | Accepted | Stable server ordering for same-effective-day balance changes, with separate effective and recorded dates |
+| [0111](./0111-modest-calculation-snapshots-and-version-evidence.md) | Accepted | Modest Leave-owned immutable calculation snapshots with version evidence; no generic framework |
+| [0112](./0112-revalidate-calculation-inputs-at-confirmation.md) | Accepted | Verify relevant calculation inputs through confirmation; re-confirm consequential changes only |
+| [0113](./0113-bounded-wait-for-concurrent-leave-changes.md) | Accepted | Bounded coordination wait with preserved form, fresh validation and duplicate-safe retry |
+| [0114](./0114-owned-outbox-worker-without-mvp-workflow-engine.md) | Accepted | Leave-owned database outbox and one initial worker; broker and workflow engine deferred |
+| [0115](./0115-single-worker-identity-with-scoped-ngo-processing.md) | Accepted | One worker service identity, narrow queue discovery and explicit per-item NGO transaction scope; shared convention: [platform ADR-0026](../../../../../platform/docs/architecture/decisions/0026-worker-service-identity-and-ngo-scope.md) |
+| [0116](./0116-owned-outbox-and-obsolete-notification-intent.md) | Accepted | Application-owned outbox; Leave skips obsolete unhanded action notifications with a recorded reason |

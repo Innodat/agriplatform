@@ -2,7 +2,7 @@
 name: Agriplatform Shared Experience
 status: draft
 created: 2026-09-15
-updated: 2026-09-20
+updated: 2026-09-22
 sources:
   - docs/architecture/decisions/README.md
 ---
@@ -413,6 +413,16 @@ remain to be designed at that point; this is a UX direction, not a runtime contr
 Impact: documentation direction only; no scaffold or shared-UI implementation now,
 no agent-context change, and no accepted ADR superseded. Evaluate architecture and
 record an ADR when the capability moves into delivery scope.
+
+## Error Messages and Support Details
+
+Keep user-facing errors plain-language and actionable. When useful, offer expandable
+support details with a non-secret operation or diagnostic reference. Do not expose
+stack traces, raw service/database errors or sensitive log contents. A reference is
+not permission to view business records. Operational diagnostics and authorized
+business audit history remain separate under
+[ADR-0023](./docs/architecture/decisions/0023-structured-operational-logs-and-sensitive-data.md).
+Reuse existing disclosure/error patterns; no new support screen is required.
 
 ## Open Implementation Details
 

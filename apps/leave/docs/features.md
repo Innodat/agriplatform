@@ -350,6 +350,194 @@ need no accrual transaction or decision snapshot. Snapshots explain past decisio
 without replacing fresh backend validation for a new action. Any future materialized
 projection is subordinate to the authoritative calculation. See
 [ADR-0106](./architecture/decisions/0106-on-demand-accrual-with-decision-evidence.md).
+Historical corrections preserve original approvals and calculation snapshots while
+recalculating affected balances from corrected information and subsequent events.
+Record the correction actor, explanation and consequences; apply existing protected
+request and renewed unpaid-acknowledgement safeguards. Ordinary balance views show
+the corrected result. Request history exposes the original **Balance at approval**
+and clearly distinguishes later recalculations. A corrected historical balance is
+not simply substituted for the current balance. See
+[ADR-0107](./architecture/decisions/0107-corrected-balances-preserve-decision-evidence.md).
+
+Initially calculate directly from efficiently queried authoritative history, without
+a balance cache, calculation checkpoints or another worker for accrual. Define a
+representative workload and response targets before affected story readiness; test
+realistic employee counts and several years of history before release. Only add
+rebuildable checkpoints if measurements justify them. Corrections invalidate all
+affected checkpoints and dependent later results; invalid checkpoints cannot support
+confirmation. Checkpoints remain disposable derived results, distinct from preserved
+decision evidence. See
+[ADR-0108](./architecture/decisions/0108-measure-accrual-performance-before-checkpoints.md).
+
+At each local date boundary, resolve expiry before new earning. At a leave-year
+boundary, resolve prior-period carry-over and expiry before new-period entitlement.
+Evaluate cap headroom after those effects. Inclusive expiry remains usable through
+the stated expiry date. Example: 20 days at cap, with 2 expiring at the end of
+31 March, becomes 18 before adding 1 April earning. This fixed ordering applies to
+on-demand calculations, historical replay and future projections without waiting
+for worker posting or double-counting recorded effects. Existing carry-over limits,
+reservation safeguards and no-catch-up rules remain. See
+[ADR-0109](./architecture/decisions/0109-expiry-and-rollover-before-new-earning.md).
+
+Store effective date, recorded time and an internal server-assigned sequence for
+balance changes. After automatic start-of-day effects, replay otherwise same-day
+user changes in their accepted sequence, assigned within the serialized employee/NGO
+mutation transaction. Do not rely on timestamp precision or client clocks. Retries
+retain the original event order. Backdated changes retain actual recorded time and
+follow existing impact/correction safeguards; original approval evidence remains.
+User-facing history shows effective date, actor and recorded time, not the internal
+sequence. See
+[ADR-0110](./architecture/decisions/0110-stable-order-for-same-day-balance-events.md).
+
+Store consequential calculation snapshots in a Leave-owned table linked to the
+request or other action, atomically with that action. Use searchable context columns
+and structured JSON for relevant inputs/results, allocation and version evidence.
+Preserve input values or retained immutable input versions, not mutable references
+alone. Record the calculation version separately from the policy version so a code
+fix can be investigated without rewriting original evidence. Existing correction
+safeguards govern resulting balance changes. Reuse current permission/history patterns;
+no generic framework, new administration screen or historical-code execution engine
+is required. Routine reads create no snapshot. See
+[ADR-0111](./architecture/decisions/0111-modest-calculation-snapshots-and-version-evidence.md).
+
+At consequential confirmation, verify applicable policy, calendar, employment and
+other calculation inputs alongside the balance and reviewed record. Recalculate
+changed inputs and require renewed confirmation if duration, paid/unpaid allocation
+or another consequential reviewed detail changes; preserve entered information.
+Changes without consequential effect may proceed after all other checks pass.
+Protect final verification and commit against concurrent relevant configuration
+changes, with participation by configuration writers; employee locking alone is
+insufficient. Preserve submitted-request policy snapshot semantics. See
+[ADR-0112](./architecture/decisions/0112-revalidate-calculation-inputs-at-confirmation.md).
+
+Recalculation after a cancellation or historical correction means evaluating updated
+authoritative history, not repairing a stored balance total. Evaluate consequential
+request/funding impacts before confirmation; after committing the immutable change,
+subsequent balance reads use that history and the frontend refreshes its result.
+Only if derived performance checkpoints are introduced later must affected ones be
+invalidated. Balance consequences must be checked even when no balance screen is open.
+
+Calculation acceptance coverage must include ordinary daily earning without a worker,
+partial monthly employment, expiry before same-day earning, cancellation/correction
+with original evidence and cap safeguards, changed inputs at confirmation, repeated
+submission, and concurrent attempts to consume the same entitlement. Combine focused
+arithmetic tests with transaction/integration tests; these are requirements for future
+implementation, not a claim of currently passing application tests.
+
+Concurrent changes for one employee use a short bounded coordination wait, then
+load fresh protected state. If coordination times out before business effects,
+preserve the form and show: **Another change is being completed for this employee.
+Please try again.** Retrying follows the existing operation-identity contract;
+changed consequential results require renewed confirmation. Distinguish a known
+uncommitted busy attempt from an uncertain network outcome, which still requires
+operation-status resolution. Define and test the timeout in the affected story.
+See [ADR-0113](./architecture/decisions/0113-bounded-wait-for-concurrent-leave-changes.md).
+
+Apply the platform-wide short-transaction principle: check current shared access
+before the protected Leave action; validate current Leave eligibility and calculation
+inputs inside it, and atomically commit domain effects, audit/snapshots and notification
+intent. Release employee coordination before shared-service delivery. Do not wait for
+external services while holding business locks by default. Preserve authorization
+freshness across delays and document justified exceptions under
+[platform ADR-0022](../../../platform/docs/architecture/decisions/0022-short-transactions-and-external-service-calls.md).
+
+Operational diagnostics follow
+[platform ADR-0023](../../../platform/docs/architecture/decisions/0023-structured-operational-logs-and-sensitive-data.md):
+structured action/outcome/timing/error fields and operation/event/trace links, with
+internal NGO/record identifiers only where needed. Exclude employee notes, medical
+content, credentials, signed URLs and payload dumps, including error/telemetry paths.
+Keep authorized business audit separate. Plain-language errors may offer safe support
+references in expandable details, never raw technical errors or sensitive contents.
+
+The MVP operational scope is safe structured logs with operation IDs, health checks,
+a few actionable alerts, basic OpenTelemetry API/shared-service tracing, and one
+working monitoring setup verified with a simple failure scenario. Telemetry export
+is bounded/asynchronous and cannot be a prerequisite for business actions. Browser
+tracing may follow backend instrumentation without blocking initial implementation.
+Comparative Loki/OpenSearch trials, AI diagnosis/repair and advanced error-management
+workflows are not MVP gates. See the
+[platform observability direction](../../../platform/docs/operations/observability-and-ai-investigation-direction.md).
+
+Report API readiness, worker health/progress and notification delivery separately.
+A delivery-provider outage flags failed/delayed notifications without preventing Leave
+submission or approval when their required dependencies are available. Detect a worker
+that is running but stuck when eligible work exists; an empty idle queue is not failure.
+Required authorization unavailability still fails closed. Health intervals/thresholds
+are operational delivery decisions, not administrator settings.
+
+MVP outbound delivery uses a Leave-owned PostgreSQL outbox and a separate worker
+process, initially one instance. The API writes intent atomically with business effects;
+the worker claims work briefly, releases its transaction before HTTP handover, and
+recovers expired claims. Preserve stable event identity and receiver deduplication;
+claim ownership protects completion during overlapping attempts. Remote acceptance
+completes handover, not final channel delivery. Other services do not read Leave tables.
+Keep this a small delivery worker, with no MVP broker, Temporal or custom workflow
+engine. Revisit broker fan-out or durable orchestration for concrete multi-consumer
+or multi-service workflows. See
+[ADR-0114](./architecture/decisions/0114-owned-outbox-worker-without-mvp-workflow-engine.md).
+
+Notification handover follows
+[platform ADR-0024](../../../platform/docs/architecture/decisions/0024-durable-delivery-retries-and-audited-recovery.md):
+retry temporary failures with bounded increasing delays; stop for correction-required
+failures; retain exhausted work and alert operations. Authorized audited recovery
+requeues the unchanged event through the normal worker with current state checks and
+duplicate safety. It never repeats the original leave action. Failure after shared
+notification acceptance belongs to that service. MVP recovery needs a command/runbook,
+not a Leave Manager queue-management screen; command hosting is not yet selected.
+
+Apply [platform ADR-0025](../../../platform/docs/architecture/decisions/0025-record-attribution-and-audit-provenance.md)
+to Leave persistence: server-managed creation/update actor IDs and UTC timestamps on
+mutable business records; creation attribution on immutable ledger/audit/snapshot
+records. Preserve human initiation separately from service execution. These summary
+fields do not replace consequential audit. Operational audit records command and
+release identifiers; source-file line numbers remain diagnostic details. Generated
+API inputs cannot override attribution, and all supported write paths must preserve it.
+
+The Leave worker uses one restricted service identity across NGOs, not per-NGO
+accounts or keys. A narrow queue-discovery/claim operation supplies authoritative
+item ownership. Process each item with explicit transaction-local NGO/service context;
+verify ownership and prevent pooled-context leakage. Context scopes access but does
+not grant authority or unrestricted cross-NGO employee access. Keep human initiation
+separate from service execution. See
+[ADR-0115](./architecture/decisions/0115-single-worker-identity-with-scoped-ngo-processing.md).
+
+The shared worker identity/scoping convention is authoritative under
+[platform ADR-0026](../../../platform/docs/architecture/decisions/0026-worker-service-identity-and-ngo-scope.md);
+Leave ADR-0115 specifies its application here. Apply
+[platform ADR-0027](../../../platform/docs/architecture/decisions/0027-bounded-worker-shutdown-and-deployment-reporting.md)
+to deployments: stop claims, permit bounded completion, then allow supervisor force
+termination with durable duplicate-safe recovery. Report grace-period overruns in the
+deployment report and structured logs. Verify replacement health and progress before
+claiming recovery; otherwise state that it is unconfirmed. Repeated forced stops or
+failed recovery draw operational attention; no dedicated MVP dashboard panel is needed.
+
+Durable Leave events carry explicit type and payload version under
+[platform ADR-0028](../../../platform/docs/architecture/decisions/0028-event-payload-versions-and-queued-work-compatibility.md).
+New consumers preserve the meaning of versions still produced or present in queued,
+in-flight and failed/retryable work. Retain and flag unsupported versions without
+silently discarding them or guessing payload meaning. Use explicit models and old-event
+compatibility tests; no MVP schema registry. Retire old handlers only after relevant
+work and producer versions no longer need them, including rollout/rollback considerations.
+
+Keep the outbox in the Leave-owned schema, not a shared cross-application SD schema.
+Reuse proven mechanics/scaffolding per owner. Before handover, Leave determines whether
+an action-request notification remains relevant; skip obsolete unhanded work with a
+reason while preserving payload and audit. Treat factual updates by their own rule.
+Shared notifications own delivery mechanics. Local skip state cannot cancel a remote
+accepted delivery or resolve uncertain acceptance; later changes may still race handover,
+and links must show current authorized state. See
+[ADR-0116](./architecture/decisions/0116-owned-outbox-and-obsolete-notification-intent.md).
+
+Notification retries expire 90 days after original event creation under
+[platform ADR-0029](../../../platform/docs/architecture/decisions/0029-notification-retry-expiry-and-retention.md).
+Retries never reset that deadline. Mark unresolved delivery expired and retain terminal
+completed/skipped/expired outbox details and attempts for 90 further days. Receiver
+deduplication lasts at least 90 days after acceptance and while unresolved; receivers
+reject expired events even after cleanup. A later communication requires a newly
+authorized notification based on current state, a new event ID, reason and original-ID
+reference, without repeating the leave action. These limits do not govern business
+audit, leave history, calculation snapshots or generic command idempotency.
+
 Daily precision follows ADR-0092 below. Historical interval/bucket treatment and
 ledger representation still require resolution before affected calculation stories
 are ready.

@@ -1607,3 +1607,33 @@ keep their selection. Show an example beside the setting: 18 days per year gives
 Count employment start/end dates inclusively and use the actual instalment period.
 Daily earning hides this choice. See
 [ADR-0104](../../../../apps/leave/docs/architecture/decisions/0104-monthly-partial-employment-default.md).
+
+### Historical correction evidence — 22 September 2026
+
+Ordinary balances show corrected results. Request history retains the original
+**Balance at approval**, clearly distinguished from later recalculations, and links
+the correction actor, explanation and consequences. Preserve existing impact review
+and renewed acknowledgement when unpaid leave increases. Keep detailed evidence in
+history rather than adding it to the everyday balance summary. See
+[ADR-0107](../../../../apps/leave/docs/architecture/decisions/0107-corrected-balances-preserve-decision-evidence.md).
+
+### Changed calculation inputs at confirmation — 22 September 2026
+
+If relevant policy, calendar or employment inputs changed, refresh the calculation
+at confirmation. Preserve entered information and show the updated review for renewed
+confirmation when duration, paid/unpaid allocation or another consequential detail
+changes. Proceed normally if the change has no consequential effect and other checks
+pass. A newly added public holiday can reduce a five-day draft to four days; show
+that revised result before submission. Existing submitted-policy snapshots remain
+binding. See
+[ADR-0112](../../../../apps/leave/docs/architecture/decisions/0112-revalidate-calculation-inputs-at-confirmation.md).
+
+### Concurrent employee changes — 22 September 2026
+
+Allow a brief bounded wait while another change for the employee completes. If the
+attempt times out without committing, keep entered values and show **Another change
+is being completed for this employee. Please try again.** Retry through the existing
+duplicate-safe action flow. Show consequential changed results for confirmation.
+Do not present uncertain network outcomes as this known-uncommitted busy state;
+retain existing operation-status recovery. See
+[ADR-0113](../../../../apps/leave/docs/architecture/decisions/0113-bounded-wait-for-concurrent-leave-changes.md).

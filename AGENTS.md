@@ -48,3 +48,46 @@ failure, and explicit recovery. Do not run migrations independently on API/worke
 startup or automatically reverse applied migrations after failure. Incompatible
 changes require a planned maintenance window and recovery procedure. Include the
 ADR's evidence requirements in BMAD delivery and shared scaffold/release tooling.
+
+## Platform-wide transaction boundaries
+
+Follow [platform ADR-0022](platform/docs/architecture/decisions/0022-short-transactions-and-external-service-calls.md):
+keep transactions short and external service waits outside business coordination/write
+locks by default. Preserve current authorization and domain validation; commit required
+outbound intent atomically and deliver it after releasing locks. Document justified
+exceptions with bounded timeouts, consistency and failure/retry behavior in the owning
+design; no separate user approval flow is introduced.
+
+## Platform-wide operational logging
+
+Follow [platform ADR-0023](platform/docs/architecture/decisions/0023-structured-operational-logs-and-sensitive-data.md):
+use selected structured diagnostic fields and operation/trace links. Never log sensitive
+business content, credentials, full signed URLs or request/response payload dumps,
+including through exception paths or debug settings. Keep authorized business audit
+separate; expose only safe references in optional user-facing support details.
+
+## Platform-wide record attribution
+
+Follow [platform ADR-0025](platform/docs/architecture/decisions/0025-record-attribution-and-audit-provenance.md)
+when designing or scaffolding tables: mutable business records use server-managed
+creation/update actor IDs and UTC timestamps; immutable records use creation attribution.
+Actors may be people or services; preserve initiator/executor distinctions. Last-change
+fields do not replace immutable consequential audit. Operational audit records command
+and release identifiers; source line numbers belong to diagnostics.
+
+## Platform-wide worker operations
+
+Follow [ADR-0026](platform/docs/architecture/decisions/0026-worker-service-identity-and-ngo-scope.md)
+for owner-specific restricted worker identity, narrow discovery and per-item NGO scope;
+no universal platform credential or default per-NGO keys. Follow
+[ADR-0027](platform/docs/architecture/decisions/0027-bounded-worker-shutdown-and-deployment-reporting.md)
+for bounded recoverable shutdown and supervisor-recorded warnings. Claim recovery or
+resumed processing only when verified; preserve evidence of forced termination.
+
+## Platform-wide durable event compatibility
+
+Follow [ADR-0028](platform/docs/architecture/decisions/0028-event-payload-versions-and-queued-work-compatibility.md):
+events carry explicit type/version; releases preserve supported interpretation of
+queued, in-flight and failed/retryable work and active producers. Retain unsupported
+versions for investigation. Do not remove old handlers solely because the ready queue
+is empty; include payload compatibility in release verification.

@@ -106,6 +106,16 @@ documentation, and acceptance checks are complete.
 | Repeated carry-over | Per policy: once-only or repeated transfer subject to carry-over limits; preserve existing expiry dates without extension |
 | Carry-over | Per policy: none, all unused eligible entitlement, or a configured limit; carried entitlement may have a configured expiry or no expiry |
 | Accrual dates | Annual grants follow period starts; monthly grants use policy-selected first/last calendar day; leap-day anniversaries use the agreed fallback |
+| Historical calculation corrections | Preserve original decision evidence; recompute corrected balances with subsequent events, actor/reason and affected-request safeguards (ADR-0107) |
+| Record attribution | Platform ADR-0025: mutable creation/update actor IDs and UTC times; immutable creation-only attribution; separate audit, verified identity and command/release provenance; scaffold all supported write paths |
+| Operational logging privacy | Follow platform ADR-0023: selected structured correlation fields, no sensitive payload/credential leakage, separate authorized audit and optional safe support details; verify error paths |
+| External service waits | Follow platform ADR-0022: short transactions, external delivery outside business locks, atomic outbox intent and documented justified exceptions |
+| Concurrent-change wait | Bounded coordination wait, fresh state after acquisition, preserved form and duplicate-safe retry; distinguish busy from uncertain outcome, set/test timeout in affected story (ADR-0113) |
+| Confirmation input consistency | Revalidate applicable policy/calendar/employment and balance dependencies through commit; re-confirm consequential changes, preserve entered data; concrete concurrency mechanism required in affected stories (ADR-0112) |
+| Calculation evidence | Modest Leave-owned snapshot table with searchable context and JSON details, saved atomically with consequential actions; distinct calculation/policy versions, no generic framework (ADR-0111) |
+| Same-day balance event ordering | Effective date plus recorded time and stable server sequence; serialize employee/NGO mutations, preserve retry order and backdated correction safeguards (ADR-0110) |
+| Accrual boundary ordering | Resolve expiry and prior-period carry-over before new earning; test inclusive dates, post-expiry cap headroom and repeated calculations (ADR-0109) |
+| Accrual performance | Direct indexed/history calculation initially; agree workload/targets before affected stories, verify before release, add rebuildable checkpoints only if measured need (ADR-0108) |
 | Automatic accrual persistence | Calculate on demand from effective-dated history and immutable actual events; save consequential decision snapshots, with no daily posting dependency (ADR-0106) |
 | Monthly cumulative precision | Preserve fractions across partial periods and annual-rate changes within the leave year; no reset or cap catch-up (ADR-0105) |
 | Monthly partial employment | New-policy default: Adjust for time employed; full-period alternative retained. Inclusive calendar-day ratio, visible 18 / 12 × 15 / 30 = 0.75-day example (ADR-0104) |
@@ -517,6 +527,7 @@ historical policy meaning is preserved after changes.
 - [ ] Deliver Review then Confirm adjustment, correction by another explained entry, employee notifications and authorized details; renewed acknowledgement only for increased unpaid amounts
 - [ ] Deliver history year bounds preserving recorded leave/rehire, muted out-of-employment dates, and per-user/NGO Calendar/List preference
 - [ ] Define canonical duration storage in minutes and policy-specific display conversion
+- [ ] Verify calculation acceptance scenarios: live daily earning, partial monthly employment, expiry-before-earning, cancellation/correction impact with preserved evidence and cap safeguards, changed confirmation inputs, duplicate submission and concurrent consumption; distinguish backend evaluation from frontend refresh and do not introduce a stored balance total
 - [ ] Implement opening balance, accrual, carry-over, expiry, adjustment, reservation,
   consumption, reversal, and unpaid/negative entries
 - [ ] Implement front-loaded annual and anniversary accrual
@@ -559,9 +570,15 @@ concurrency, audit, and reversal tests.
 
 ### Phase 8 — Notifications
 
+- [ ] Implement restricted cross-NGO queue discovery and per-item NGO transactions under platform ADR-0026 and Leave ADR-0115 using one owner-specific worker identity; verify real runtime-role permissions, queue ownership and pooled-context isolation; no per-NGO secrets
+- [ ] Implement the Leave-owned PostgreSQL outbox and separate worker under ADR-0114, initially one instance: bounded claims, stale-claim completion protection, restart recovery, HTTP handover and receiver deduplication; no broker/Temporal/custom orchestration engine required for MVP
+- [ ] Apply platform ADR-0028 event type/version contracts and queued/failed-event compatibility tests across deployment; retain unsupported work and coordinate producer/consumer rollout and handler retirement; no MVP schema registry
+- [ ] Keep outbox schema application-owned and implement ADR-0116 notification relevance: skip obsolete unhanded action requests with reason, preserve audit/payload, distinguish factual notices and accepted/uncertain remote handover
 - [ ] Define versioned Leave domain events and transactional outbox with stable event IDs and originating operation links under platform ADR-0012; verify duplicate-safe acceptance and preserved tracing across retries
 - [ ] Implement notification templates with tenant branding
 - [ ] Implement asynchronous email delivery, retries, dead-letter handling, and deduplication
+- [ ] Apply notification-only platform ADR-0029: 90-day original-event retry expiry, 90-day terminal detail retention, acceptance-based receiver deduplication retention with unresolved-work protection, expired-event rejection after cleanup and audited new-notification recovery without repeating leave actions
+- [ ] Apply platform ADR-0024 to owned handover: classify failures, retain exhausted work, alert operations and provide scoped audited recovery with state/claim checks and stable event identity; shared notification service owns post-acceptance channel recovery
 - [ ] Implement in-app notification inbox and read state
 - [ ] Implement secure action links that lead to authenticated application pages
 - [ ] Add reminders, escalation policy, and delivery-status administration
@@ -589,6 +606,9 @@ performance targets.
 - [ ] Mobile/responsive usability review
 - [ ] Threat model for tenant switching, approvals, attachments, signed URLs, and exports
 - [ ] Verify backup/restoration and migration-failure recovery under [platform ADR-0020](../../../platform/docs/architecture/decisions/0020-safe-schema-changes-and-release-recovery.md), including previous-version compatibility, blocked activation on failure, migration coordination and explicit recovery; no automatic migration downgrade
+- [ ] Deliver the [bounded MVP monitoring scope](../../../platform/docs/operations/observability-and-ai-investigation-direction.md): safe structured logs and operation IDs, health checks, actionable operational alerts, basic OpenTelemetry API/shared-service tracing and one working setup verified with a simple failure; no Loki/OpenSearch comparison or AI workflow gate
+- [ ] Verify separate API readiness, worker progress and notification-delivery signals: provider failure preserves unrelated API availability; stuck eligible work is detected; idle empty queues remain healthy
+- [ ] Verify platform ADR-0027 shutdown drain, bounded forced termination and recovery; deployment supervisor emits warning/log even if worker cannot; report replacement health/progress truthfully and configure repeated-failure alerts
 - [ ] Load, failure, retry, and worker-restart tests
 - [ ] Privacy, retention, and jurisdictional configuration review, including the
   proposed two-year default for medical attachments
@@ -605,6 +625,9 @@ performance targets.
 support, backup, and rollback are operational.
 
 ### Post-MVP roadmap
+
+- [ ] Evaluate monitoring investigation usability and Loki/OpenSearch alternatives when operational experience justifies it; future AI diagnosis and approved regression-test/fix/draft-PR workflow follow the platform direction, outside Leave MVP
+
 
 - [ ] Shared Microsoft Graph reporting-relationship synchronization, separate from calendar integration; preserve authorized overrides, NGO/approval eligibility checks, and explicit handling of changes affecting pending requests
 - [ ] Microsoft 365/Outlook calendar synchronization
