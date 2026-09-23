@@ -1,7 +1,8 @@
 # Leave Tracker Implementation Plan
 
 **Version:** 0.1  
-**Last updated:** 2026-09-20  
+**Last updated:** 2026-09-23
+
 **Status:** Phase 1 planning in progress — implementation readiness pending  
 **Owners:** Platform and Leave application teams
 
@@ -87,10 +88,10 @@ documentation, and acceptance checks are complete.
 | Minimum notice | Configurable calendar days per policy, default zero; permit shorter-notice requests with mandatory explanation and approver flag; backdating remains separate |
 | Employment end and leave dates | Block submission/final approval after the known end date; the last employment date remains eligible; flag affected existing requests with explanation without silent date changes |
 | Departure after upfront grant | Recalculate using policy proration and employment end date; explain audited corrections, retain eligible no-proration grants, and refer spent deficits for authorized review without automatic unpaid conversion |
-| Month-end availability | Grants are usable from the start of their grant date in employee work timezone, not deferred to the next month |
-| Initial monthly grant | Mid-month joiners under upfront policies receive a start-date grant using policy proration; normal grants resume next month; month-end policies wait until month-end |
+| End-of-instalment availability | Grants are usable from the start of their grant date in employee work timezone, not deferred to the next instalment |
+| Initial monthly grant | Joiners after an instalment starts receive a joining-date grant under start-of-instalment policies using policy proration; normal grants resume at the next aligned instalment start; end-of-instalment policies wait until its final date |
 | Leap-day anniversary | February 29 starts resolve to February 28 in non-leap years and return to February 29 in leap years; resolved dates start periods and trigger annual grants |
-| Entitlement periods | Per policy: calendar year or employee employment-anniversary year; monthly/annual grant frequency remains separate |
+| Entitlement periods | Per policy: calendar year or employee employment-anniversary year; period basis remains separate from daily/upfront/monthly availability |
 | Variable-length schedules | Explicit standard-day duration for entitlement conversions; actual leave consumes the requested date's scheduled working time, with half days at exactly 50% |
 | Carry-over day conversion | Use employee's configured standard working-day duration effective at rollover; audit the conversion and retain historical carried amounts after schedule changes |
 | Cancellation deficit reviewer | In-scope Leave Manager with balance-adjustment permission; mandatory reason and employee explanation; extra paid entitlement requires an explicit audited grant, with no automatic conversion of approved leave to unpaid |
@@ -105,7 +106,7 @@ documentation, and acceptance checks are complete.
 | Non-carried entitlement | Unused amounts excluded by carry-over rules expire at the period boundary with an auditable entry and employee explanation; no automatic payout or cross-type transfer |
 | Repeated carry-over | Per policy: once-only or repeated transfer subject to carry-over limits; preserve existing expiry dates without extension |
 | Carry-over | Per policy: none, all unused eligible entitlement, or a configured limit; carried entitlement may have a configured expiry or no expiry |
-| Accrual dates | Annual grants follow period starts; monthly grants use policy-selected first/last calendar day; leap-day anniversaries use the agreed fallback |
+| Accrual dates | Daily earning is available from each eligible day's start; annual upfront grants follow period starts; monthly grants use the start/end of leave-year-aligned instalments with anchored boundaries (ADR-0099/0100); leap-day anniversaries use the agreed fallback |
 | Historical calculation corrections | Preserve original decision evidence; recompute corrected balances with subsequent events, actor/reason and affected-request safeguards (ADR-0107) |
 | Record attribution | Platform ADR-0025: mutable creation/update actor IDs and UTC times; immutable creation-only attribution; separate audit, verified identity and command/release provenance; scaffold all supported write paths |
 | Operational logging privacy | Follow platform ADR-0023: selected structured correlation fields, no sensitive payload/credential leakage, separate authorized audit and optional safe support details; verify error paths |
@@ -121,7 +122,7 @@ documentation, and acceptance checks are complete.
 | Monthly partial employment | New-policy default: Adjust for time employed; full-period alternative retained. Inclusive calendar-day ratio, visible 18 / 12 × 15 / 30 = 0.75-day example (ADR-0104) |
 | Prorated grant rounding | Fixed final whole-minute floor (ADR-0103), retaining cumulative precision and exact schedule-based half days; no user-selectable rounding |
 | Partial-period proration | Policy chooses no proration or calendar days employed divided by period calendar days, including first/last employment dates; manual grants remain explicit |
-| MVP accrual schedules | Policy chooses annual upfront at entitlement-period start (with a policy-prorated mid-period joining grant), a configured monthly portion at policy-selected month start or end, or manual-only grants by authorized staff with an audited reason; partial-period proration is configured per policy |
+| MVP accrual schedules | Annual-target policies choose daily earning, annual upfront at entitlement-period start (with a policy-prorated joining grant), or monthly portions at aligned instalment start/end (ADR-0090/0099); separate manual-only grants require authorized staff and an audited reason. Monthly/upfront partial employment follows policy rules; daily earning accounts for employment dates directly |
 | Leave day timezone | Employee's configured work timezone defines leave dates, accrual, and expiry; viewer or approver timezone does not change entitlement outcomes |
 | Accrual availability | Usable from the start of the configured effective date, never for earlier leave; policy determines schedule and effective dates |
 | Entitlement expiry date | Last usable leave date, inclusive; unavailable from the following date even when the request was submitted before expiry |
@@ -192,7 +193,7 @@ platform/prompts/            Agriplatform-specific agent context and safeguards
 - Backend API contracts are Pydantic/OpenAPI-first and generate or validate strict
   frontend contracts.
 - Adopt [platform ADR-0014](../../../platform/docs/architecture/decisions/0014-python-database-access-and-api-models.md): SQLAlchemy/Psycopg database access, separate Pydantic API schemas, workflow-owned transactions, and no parallel Supabase Data API business-data path.
-- Adopt [platform ADR-0015](../../../platform/docs/architecture/decisions/0015-alembic-migration-authority.md): Alembic owns project-schema migrations. Transition existing SQL assets and bootstrap/reset/seed/CI commands deliberately; exclude Supabase-managed schemas and prevent dual migration ownership. [Platform ADR-0016](../../../platform/docs/architecture/decisions/0016-owned-migration-histories-and-coordination.md) assigns Leave its own schema, revision files and migration-version table, with dependency-aware shared deployment coordination. Exact operational recovery and locking remain architecture work.
+- Adopt [platform ADR-0015](../../../platform/docs/architecture/decisions/0015-alembic-migration-authority.md): Alembic owns project-schema migrations. Transition existing SQL assets and bootstrap/reset/seed/CI commands deliberately; exclude Supabase-managed schemas and prevent dual migration ownership. [Platform ADR-0016](../../../platform/docs/architecture/decisions/0016-owned-migration-histories-and-coordination.md) assigns Leave its own schema, revision files and migration-version table, with dependency-aware shared deployment coordination. Recovery follows platform ADR-0020 and Leave ADR-0119; concrete migration coordination/locking and runbook evidence remain delivery prerequisites.
 
 ## Continuous scaffold evolution
 
@@ -291,9 +292,12 @@ by `identity.org.settings.content_source_id`.
 - Do not issue a read URL until domain authorization and all enabled content-safety
   checks succeed.
 - Keep medical/supporting files private; never place them in public buckets.
-- Use short-lived, operation-specific signed URLs.
+- Use operation-specific signed URLs under platform ADR-0036: private read/download 5 minutes and upload 15 minutes by default; renewal rechecks authorization, preserves form/recovery state and is verified against provider-specific expiry/in-flight behavior.
 - Make upload-session creation and finalization idempotent.
+- Apply [platform ADR-0038](../../../platform/docs/architecture/decisions/0038-finalized-content-byte-identity.md): bind finalization, verification evidence, reads and associations to fixed file bytes; prove overwrite/replay and finalization-race protection before the attachment story. Replacement requires new identity, verification and authorized audited association change.
+- Verify per-attempt document failure/retry behavior: bounded dependency calls, accurate denied/missing/unavailable distinctions, no global frontend offline flag or health preflight, preserved mutation identity and unaffected independent Leave actions.
 - Clean up expired, unfinalized objects with a scheduled job.
+- Apply platform ADR-0030: distinguish uploaded/finalized content from confirmed domain association, support duplicate-safe attachment retries, and define a race-safe pending/confirmed association versus abandoned-object cleanup contract before implementation; preserve saved drafts and submitted attachments.
 - Audit create, finalize, read authorization, delete, scan result, and retention.
 
 The Leave API must authorize a document against the associated leave request
@@ -363,6 +367,7 @@ approved; no unresolved question changes the core data model.
 - [ ] Add environment validation and `.env.example` files without secrets; separate restricted runtime and deployment-only migration identities under [platform ADR-0017](../../../platform/docs/architecture/decisions/0017-runtime-and-migration-database-authority.md)
 - [ ] Establish CI for linting, formatting, type checks, unit tests, migrations, and builds
 - [ ] Add health/readiness endpoints and structured error responses
+- [ ] Apply platform ADR-0031 stable error identifiers and typed safe details; agree compatible wire fields, align OpenAPI/generated frontend/framework adapters, and verify localized behavior and unknown-error fallback
 - [ ] Add OpenAPI generation and strict Leave web client generation/validation
 - [ ] Establish correlation IDs, structured logs, and tenant-aware audit context
 - [ ] Add builder generation tests that create a disposable app and verify install,
@@ -379,7 +384,8 @@ approved; no unresolved question changes the core data model.
   - Evidence (2026-09-20): requirements revalidation and approved [finding dispositions](../../../_bmad-output/planning-artifacts/prds/prd-leave-2026-09-14/review-resolution.md) complete; ADR-0088/0089 resolve product gaps, stale controls corrected, operational targets assigned owners/gates. Architecture and implementation readiness remain pending.
 - [x] Run `[CU]` `bmad-ux` because the employee application experience is material
   - Evidence (2026-09-20): approved and finalized [DESIGN](../../../_bmad-output/planning-artifacts/ux-designs/ux-leave-2026-09-15/DESIGN.md) and [EXPERIENCE](../../../_bmad-output/planning-artifacts/ux-designs/ux-leave-2026-09-15/EXPERIENCE.md), 28 promoted visual references, both final review lenses and resolved findings, required editorial polish, and source checks recorded in the [handoff coverage](../../../_bmad-output/planning-artifacts/ux-designs/ux-leave-2026-09-15/handoff-coverage.md). No Leave implementation or browser/AT compliance claim.
-- [ ] Run `[CA]` `bmad-architecture` using the existing platform/Leave ADRs as inputs; apply the [operational target ownership and decision gates](./features.md#operational-target-ownership-and-decision-gates) before architecture completion and relevant story planning
+- [x] Run `[CA]` `bmad-architecture` using the existing platform/Leave ADRs as inputs; apply the [operational target ownership and decision gates](./features.md#operational-target-ownership-and-decision-gates) before architecture completion and relevant story planning
+  - Evidence (2026-09-23): finalized the [architecture spine](./architecture/ARCHITECTURE-SPINE.md), reconciled requirements/UX, completed independent rubric, adversarial and technology reviews, and passed structural/link/whitespace checks. [Review resolution](../../../_bmad-output/planning-artifacts/architecture/architecture-leave-2026-09-20/review-resolution.md) retains explicit pre-story contracts and the signed-upload provider feasibility gate. Stories/readiness remain pending; no runtime implementation.
 - [ ] Run `[CE]` `bmad-create-epics-and-stories`, then `[SP]`
   `bmad-sprint-planning` as the implementation-readiness gate
 - [ ] Use `[BC]` `bmad-customize` to add ATDD/TDD, tenant-security, scaffold,
@@ -417,6 +423,25 @@ approved; no unresolved question changes the core data model.
 These are recurring controls rather than a one-time phase. A phase cannot pass its
 exit gate while applicable BMAD, scaffold, or agent-context work is incomplete.
 
+### First end-to-end delivery slice after readiness
+
+After architecture, stories and relevant readiness gates are complete, the first
+working application slice is: **Sign in → select NGO → open a leave draft → enter
+details → autosave → close → reopen**. Deliver the minimum prerequisite shared identity,
+access, shell and persistence contracts needed for this authorized slice, respecting
+existing owner boundaries; this sequence does not waive Phase 1 or dependency gates.
+
+Prove shared shell navigation, current authorization, tenant-scoped database access,
+record attribution, safe errors and revision-protected autosaving together. Include
+acceptance scenarios for a second tab, expired sign-in with return navigation, failed
+save and successful draft resumption. Drafts reserve no entitlement and this slice
+does not imply that submission, policy calculations or approval are implemented.
+
+Use the existing ATDD/TDD workflow and update reusable scaffolding in the same delivery
+item where proven applicable. This is agreed sequencing, not authorization to begin
+Leave implementation before readiness. Keep subsequent stories focused rather than
+expanding this initial slice into the entire application.
+
 ### Phase 2 — Identity, tenants, organization structure, and authorization
 
 **BMAD path:** Full-flow, high-risk platform work. In a fresh context, begin with
@@ -433,6 +458,11 @@ membership switching, authorization, or RLS.
   before changing existing JWT hooks/RLS behavior
 - [ ] Configure Microsoft Entra login through Supabase Auth
 - [ ] Add secure invitation/onboarding; login alone grants no NGO access
+- [ ] Apply platform ADR-0035 structural database constraints in reviewed models/migrations: required/reference fields, scoped uniqueness and local tenant relationship integrity; verify concurrent/alternate writes, restricted-role behavior and safe error mapping alongside RLS
+- [ ] Apply platform ADR-0034 database-enforced employee/NGO active-draft uniqueness and atomic create-or-resume; test simultaneous creation, no overwrite, separate scopes and closed-draft retry safety
+- [ ] Apply platform ADR-0033 draft lifecycle guards: atomic submission/reservations/draft closure, late save/create-retry protection after submission/discard, explicit new draft and authorized lifecycle-conflict navigation
+- [ ] Verify Leave ADR-0118 revision-safe autosave: conflicting tabs pause and retain edits, saved-draft review rechecks access, same-tab saves serialize/coalesce, newer typing survives old acknowledgements and uncertain retries remain duplicate-safe
+- [ ] Verify platform ADR-0032 session renewal/re-authentication return to prior NGO/page/request/drawer and recoverable draft, with current access checks, safe account-change/invalid-target fallback and no automatic or duplicate submission
 - [ ] Implement NGO switcher and refresh active-org claims after switching
 - [ ] Replace enum-only global roles with extensible, tenant-scoped role identifiers
 - [ ] Connect Leave role/permission catalog to shared access management and reusable role controls; combine scoped grants without bypassing approval assignment, self-approval, or document rules; define shared runtime HTTP contracts before implementation
@@ -528,17 +558,21 @@ historical policy meaning is preserved after changes.
 - [ ] Deliver history year bounds preserving recorded leave/rehire, muted out-of-employment dates, and per-user/NGO Calendar/List preference
 - [ ] Define canonical duration storage in minutes and policy-specific display conversion
 - [ ] Verify calculation acceptance scenarios: live daily earning, partial monthly employment, expiry-before-earning, cancellation/correction impact with preserved evidence and cap safeguards, changed confirmation inputs, duplicate submission and concurrent consumption; distinguish backend evaluation from frontend refresh and do not introduce a stored balance total
-- [ ] Implement opening balance, accrual, carry-over, expiry, adjustment, reservation,
-  consumption, reversal, and unpaid/negative entries
+- [ ] Implement immutable actual opening-balance, adjustment, reservation, consumption,
+  reversal and unpaid/negative events; distinguish derived automatic earning, carry-over
+  and expiry effects from actual events and decision evidence without double counting;
+  retain required auditable carry-over/expiry explanations and evidence under their ADRs
 - [ ] Implement front-loaded annual and anniversary accrual
 - [ ] Implement monthly accrual and starter/leaver proration
 - [ ] Implement projected balance calculation for requested dates; expose consequences in Apply with expandable explanation, deferring standalone calculator/graph (ADR-0084)
 - [ ] Implement effective-dated recalculation and adjustment preview
-- [ ] Implement authoritative on-demand entitlement for daily/upfront/monthly modes under [ADR-0090](./architecture/decisions/0090-annual-entitlement-availability-options.md), retaining manual grants and reconciliation; apply start-of-day daily availability (ADR-0091) and apply cumulative daily precision (ADR-0092) and historical cap/resumption rules (ADR-0093) with precise cap-before-rounding behavior (ADR-0095) and daily employment boundaries (ADR-0094) plus prospective daily policy-rate segmentation (ADR-0096) and apply complete-month cumulative rounding (ADR-0097) and boundary-only availability-method transitions (ADR-0098) and next-instalment monthly rate changes with effective-date notifications (ADR-0101) and next-period upfront annual changes (ADR-0102) and settle historical interval/bucket treatment, monthly partial-period integration (aligned, anchored boundaries approved in ADR-0099/0100) and event/snapshot representation before affected story readiness
+- [ ] Implement authoritative on-demand entitlement for daily/upfront/monthly modes under [ADR-0090](./architecture/decisions/0090-annual-entitlement-availability-options.md), retaining manual grants and reconciliation; apply start-of-day daily availability (ADR-0091) and apply cumulative daily precision (ADR-0092) and historical cap/resumption rules (ADR-0093) with precise cap-before-rounding behavior (ADR-0095) and daily employment boundaries (ADR-0094) plus prospective daily policy-rate segmentation (ADR-0096) and apply complete-month cumulative rounding (ADR-0097) and boundary-only availability-method transitions (ADR-0098) and next-instalment monthly rate changes with effective-date notifications (ADR-0101) and next-period upfront annual changes (ADR-0102) and implement/verify monthly partial-employment and cumulative precision rules (ADR-0104/0105) with aligned, anchored boundaries (ADR-0099/0100); settle physical historical interval/bucket and event/snapshot representation before affected story readiness
 - [ ] Add deterministic clock-based and property/invariant tests
 
-**Exit gate:** Ledger totals reconcile, rerunning jobs creates no duplicates, and
-current/projected balances are reproducible from transactions.
+**Exit gate:** Actual events reconcile; current/projected balances are reproducible
+from effective-dated inputs and immutable actual events. Repeated calculation does
+not duplicate earning, and retrying actual mutations does not duplicate their effects.
+No automatic accrual posting job or stored current balance is required.
 
 ### Phase 7 — Applications, validation, attachments, and approvals
 
@@ -576,6 +610,7 @@ concurrency, audit, and reversal tests.
 - [ ] Keep outbox schema application-owned and implement ADR-0116 notification relevance: skip obsolete unhanded action requests with reason, preserve audit/payload, distinguish factual notices and accepted/uncertain remote handover
 - [ ] Define versioned Leave domain events and transactional outbox with stable event IDs and originating operation links under platform ADR-0012; verify duplicate-safe acceptance and preserved tracing across retries
 - [ ] Implement notification templates with tenant branding
+- [ ] Verify ADR-0117 delayed/reversed notifications: dated event wording, current authorized request links and independent progress of newer messages; no email-ordering mechanism
 - [ ] Implement asynchronous email delivery, retries, dead-letter handling, and deduplication
 - [ ] Apply notification-only platform ADR-0029: 90-day original-event retry expiry, 90-day terminal detail retention, acceptance-based receiver deduplication retention with unresolved-work protection, expired-event rejection after cleanup and audited new-notification recovery without repeating leave actions
 - [ ] Apply platform ADR-0024 to owned handover: classify failures, retain exhausted work, alert operations and provide scoped audited recovery with state/claim checks and stable event identity; shared notification service owns post-acceptance channel recovery
@@ -605,6 +640,8 @@ performance targets.
 - [ ] WCAG 2.2 AA review including keyboard and screen-reader flows
 - [ ] Mobile/responsive usability review
 - [ ] Threat model for tenant switching, approvals, attachments, signed URLs, and exports
+- [ ] Demonstrate Leave ADR-0120 alert thresholds through controlled failures and recovery; verify shared incident grouping, healthy idle worker detection and overdue notification age across retries under platform ADR-0037
+- [ ] Demonstrate Leave ADR-0119 recovery targets: at most one-hour loss, essential service within four hours of incident declaration, thirty-day backup retention; consistent DB/document/dependency recovery, outbound work held until replay checks, rehearsal before pilot then quarterly/after major backup changes
 - [ ] Verify backup/restoration and migration-failure recovery under [platform ADR-0020](../../../platform/docs/architecture/decisions/0020-safe-schema-changes-and-release-recovery.md), including previous-version compatibility, blocked activation on failure, migration coordination and explicit recovery; no automatic migration downgrade
 - [ ] Deliver the [bounded MVP monitoring scope](../../../platform/docs/operations/observability-and-ai-investigation-direction.md): safe structured logs and operation IDs, health checks, actionable operational alerts, basic OpenTelemetry API/shared-service tracing and one working setup verified with a simple failure; no Loki/OpenSearch comparison or AI workflow gate
 - [ ] Verify separate API readiness, worker progress and notification-delivery signals: provider failure preserves unrelated API availability; stuck eligible work is detected; idle empty queues remain healthy
@@ -685,6 +722,7 @@ for relied-upon behavior that lacks adequate coverage.
 
 | Date | Status | Risk/blocker | Owner | Mitigation or next action |
 |---|---|---|---|---|
+| 2026-09-23 | Open — before attachment story readiness | Standard Supabase signed-upload API documents two hours, while platform ADR-0036 targets fifteen minutes | Content/Platform | Prove a supported provider-enforced adapter path and expiration tests; frontend expiry is insufficient. Otherwise propose a superseding decision; see the architecture spine provider constraint |
 | 2026-09-01 | Open | Current role and permission types are PostgreSQL enums, which will become cumbersome as apps and roles grow | Platform | Design an extensible permission catalog before Phase 2 migration |
 | 2026-09-01 | Open | The current content upload prefix and authorization are receipt/finance-oriented | Platform | Replace the prototype with a domain-neutral namespace and authorization capability in the FastAPI contract |
 | 2026-09-01 | Open | A two-year medical-document retention default may not suit every operating jurisdiction | Product/Security | Require NGO/jurisdiction override and legal/privacy review before production |
@@ -779,7 +817,7 @@ Update this section at each planning or delivery review.
 | Milestone | Status | Completed | Notes |
 |---|---|---:|---|
 | Phase 0 — Planning | Complete | 12/12 | Product decisions and architecture baseline approved and recorded |
-| Phase 1 — Scaffold, BMAD, and test foundation | In progress | 3/20 | Agent context, requirements validation and UX handoff complete; architecture, stories/readiness and technical foundation remain; no Leave implementation started |
+| Phase 1 — Scaffold, BMAD, and test foundation | In progress | 4/21 | Agent context, requirements validation, UX handoff and architecture consolidation complete; stories/readiness and technical foundation remain; no Leave implementation started |
 | Continuous BMAD, scaffold, and context evolution | Not started | Recurring | Required for every Phase 2–10 exit gate |
 | Phase 2 — Identity and authorization | Not started | 0/14 | Full-flow; Build per story plus additional Code Review |
 | Phase 3 — Design system | Not started | 0/7 | Expanded incrementally as Leave features prove reusable components |

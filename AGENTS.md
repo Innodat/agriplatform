@@ -91,3 +91,48 @@ events carry explicit type/version; releases preserve supported interpretation o
 queued, in-flight and failed/retryable work and active producers. Retain unsupported
 versions for investigation. Do not remove old handlers solely because the ready queue
 is empty; include payload compatibility in release verification.
+
+## Platform-wide attachment recovery
+
+Follow [ADR-0030](platform/docs/architecture/decisions/0030-recoverable-content-attachment-association.md):
+file upload/finalization and application attachment confirmation are separate writes.
+Reuse content identity on retries, verify scope/readiness, and coordinate cleanup with
+association lifecycle so saved drafts, submitted records and in-flight confirmation
+are protected. Do not infer abandonment solely from another service's local state.
+
+## Platform-wide API error contracts
+
+Follow [ADR-0031](platform/docs/architecture/decisions/0031-machine-readable-api-errors-and-localized-presentation.md):
+use stable identifiers and safe typed details, never branch on English/localized error
+text. Evolve existing wire formats compatibly and synchronize backend contracts,
+generated frontend types, framework adapters and localized shared handling.
+
+## Platform-wide session recovery
+
+Follow [ADR-0032](platform/docs/architecture/decisions/0032-session-recovery-and-return-navigation.md):
+after re-authentication return the same authorized user to validated prior page/NGO
+and recoverable form context. Recheck access, protect prior-user data, keep sensitive
+values out of return URLs, and never automatically confirm a consequential action.
+
+## Platform-wide draft lifecycle protection
+
+Follow [ADR-0033](platform/docs/architecture/decisions/0033-draft-lifecycle-and-late-save-protection.md):
+check revision and editability together, prevent stale saves/retries from resurrecting
+closed drafts, and commit finalization with its required local effects. New drafts
+require explicit action; applications own lifecycle states and conflict navigation.
+
+## Scoped single-active-draft workflows
+
+For domains allowing one active draft, follow
+[ADR-0034](platform/docs/architecture/decisions/0034-atomic-single-active-draft-creation.md):
+enforce the domain-defined scope in the database and atomically create or resume without
+overwriting existing values. This is opt-in per workflow, not a universal draft limit.
+Keep old create retries distinct from new start actions under lifecycle safeguards.
+
+## Platform-wide structural database integrity
+
+Follow [ADR-0035](platform/docs/architecture/decisions/0035-database-structural-integrity-and-application-rules.md):
+enforce structural invariants with appropriate database constraints alongside API
+validation. Respect NGO scope and service ownership; complex business rules remain
+in protected application workflows. Verify concurrency, alternate write paths and
+safe constraint-error mapping rather than relying solely on frontend checks.

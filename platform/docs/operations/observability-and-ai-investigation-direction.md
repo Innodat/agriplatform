@@ -108,3 +108,12 @@ application monitoring or AI administration screen authorized. Agent context: ex
 privacy and BMAD instructions apply. Documentation: this direction is linked from shared
 scaffold guidance and Leave delivery tracking. ADR: no vendor-selection ADR accepted;
 existing platform decisions remain binding. No trial or runtime change performed.
+
+## Accepted alert pattern
+
+[ADR-0037](../architecture/decisions/0037-operational-alerts-and-incident-grouping.md)
+places technical alerts in shared monitoring with application-specific thresholds,
+grouped incidents and verified recovery. Leave selects its initial values in
+[ADR-0120](../../../apps/leave/docs/architecture/decisions/0120-initial-operational-alert-thresholds.md).
+Verify probes, routing and threshold behavior before pilot; no alerting is implemented
+by this planning record.

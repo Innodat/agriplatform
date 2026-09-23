@@ -46,3 +46,12 @@ scaffolding, or more than one application.
 | [0027](./0027-bounded-worker-shutdown-and-deployment-reporting.md) | Accepted | Bounded recoverable shutdown, automatic forced-stop fallback and truthful deployment warnings |
 | [0028](./0028-event-payload-versions-and-queued-work-compatibility.md) | Accepted | Explicit event type/version and compatibility for queued, in-flight and retryable work across releases |
 | [0029](./0029-notification-retry-expiry-and-retention.md) | Accepted | Notification-only 90-day retry window, terminal retention and expiry-safe deduplication cleanup |
+| [0030](./0030-recoverable-content-attachment-association.md) | Accepted | Separate upload from confirmed domain attachment, retry without re-upload and coordinate safe abandoned-content cleanup |
+| [0031](./0031-machine-readable-api-errors-and-localized-presentation.md) | Accepted | Stable machine-readable API errors, safe structured details and localized frontend presentation |
+| [0032](./0032-session-recovery-and-return-navigation.md) | Accepted | Recover expired sessions and return to prior authorized page/context without data leakage or automatic submission |
+| [0033](./0033-draft-lifecycle-and-late-save-protection.md) | Accepted | Draft revision/editability checks, atomic finalization and protection against resurrection by late saves |
+| [0034](./0034-atomic-single-active-draft-creation.md) | Accepted | Database-enforced atomic create-or-resume for workflows allowing one active draft per defined scope |
+| [0035](./0035-database-structural-integrity-and-application-rules.md) | Accepted | Database-enforced structural integrity complements application validation, policy logic and authorization |
+| [0036](./0036-private-content-signed-operation-lifetimes.md) | Accepted | Private document read links default to 5 minutes and upload links to 15 minutes, with reauthorized renewal |
+| [0037](./0037-operational-alerts-and-incident-grouping.md) | Accepted | Shared technical monitoring, application-specific thresholds, grouped incidents and verified recovery |
+| [0038](./0038-finalized-content-byte-identity.md) | Accepted | Finalized content IDs bind verified bytes; replacement requires a new identity and authorized audited association |

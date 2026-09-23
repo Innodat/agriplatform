@@ -111,6 +111,75 @@ when the worker cannot. Report recovered processing only with evidence. Coordina
 timeouts and retain existing retry/deduplication guarantees. Prove these hooks before
 template promotion; no current generator or supervisor behavior is claimed.
 
+## Attachment recovery direction
+
+Follow [ADR-0030](../docs/architecture/decisions/0030-recoverable-content-attachment-association.md):
+separate uploaded/finalized content from a persisted domain association. Reuse content
+and operation identity on association retry; validate scope/readiness server-side and
+block required-document confirmation until attached. Prove attaching/retry UI state
+and duplicate-safe recovery before template promotion. Content cleanup must coordinate
+with pending associations and protect saved drafts/submitted records; exact cross-service
+lifecycle contract is a delivery prerequisite, not an implemented generic helper.
+
+## API error contract direction
+
+Follow [ADR-0031](../docs/architecture/decisions/0031-machine-readable-api-errors-and-localized-presentation.md):
+stable machine-readable identifiers and safe typed details drive frontend behavior,
+not English message parsing. Align Pydantic/OpenAPI, framework error adapters, generated
+TypeScript and localized shared handling, including unknown-identifier fallback.
+The current template's numeric `code` is not this new semantic identifier contract;
+choose wire fields and compatibility before implementation. Update owning templates
+and tests, not generated outputs. No runtime format change is made by this guidance.
+
+## Authentication return flow
+
+Follow [ADR-0032](../docs/architecture/decisions/0032-session-recovery-and-return-navigation.md):
+shared shell/API-client renewal, validated return location and same-user/NGO permission
+checks restore the prior page and recoverable form context. Keep sensitive values out
+of return URLs; application drafts retain their own policy. Refresh consequential
+state and never auto-confirm after sign-in or duplicate an uncertain prior operation.
+Prove these cases before template promotion; this guidance implements no auth flow.
+
+## Draft lifecycle protection
+
+Follow [ADR-0033](../docs/architecture/decisions/0033-draft-lifecycle-and-late-save-protection.md):
+check expected revision and editability atomically, never upsert closed/missing drafts
+from late autosaves, and require explicit new-draft creation. Finalization commits with
+its local domain effects. Provide lifecycle-conflict hooks that stop autosave and retain
+local edits while applications supply states/navigation. Verify old create retries and
+concurrent submission/discard, not just stale update revisions. Prove the pattern before
+generation; no generic workflow engine or runtime lifecycle change is implemented here.
+
+## Single-active-draft creation
+
+For workflows opting into one active draft per defined domain scope, follow
+[ADR-0034](../docs/architecture/decisions/0034-atomic-single-active-draft-creation.md).
+Generate/prove database enforcement and atomic create-or-resume handling, rather than
+read-then-create logic. Concurrent creators must share one draft without overwriting
+its values. Applications supply scope and draft-count rules. Test races, separated
+NGOs/owners and old create retries after closure. Do not impose a universal one-draft
+rule or introduce shared runtime draft tables. No generator support exists yet.
+
+## Structural database integrity
+
+Follow [ADR-0035](../docs/architecture/decisions/0035-database-structural-integrity-and-application-rules.md):
+scaffold required fields, declared checks/references and scoped uniqueness in both
+persistence models and reviewed migrations. Tenant-owned local relationships enforce
+matching NGO scope; shared/global references need explicit treatment. Do not invent
+cross-service foreign keys or derive every business rule from column names. Keep
+complex policy decisions in workflows with existing authorization/transaction safeguards.
+Verify concurrent/alternate write paths, cross-NGO rejection and safe API error mapping;
+RLS and friendly API validation remain necessary. Generation is not implemented here.
+
+## Private content capability lifetimes
+
+Follow [ADR-0036](../docs/architecture/decisions/0036-private-content-signed-operation-lifetimes.md):
+shared content configuration defaults to 5-minute private read/download capabilities
+and 15-minute upload capabilities. Renew through authorized service contracts and
+preserve existing form/content recovery. Verify provider-specific expiry/in-flight
+behavior and secret-safe diagnostics; no generated business administration setting.
+These are planning defaults, not applied runtime configuration.
+
 ## Migration direction
 
 [Platform ADR-0015](../docs/architecture/decisions/0015-alembic-migration-authority.md)
@@ -183,3 +252,20 @@ platform/builder-cli/
 
 ## Phase
 Built in **Phase 3** after FastAPI + codegen (Phases 1–2) are stable.
+
+## Operational alert scaffolding
+
+Follow [ADR-0037](../docs/architecture/decisions/0037-operational-alerts-and-incident-grouping.md)
+when promoting proven monitoring templates: configurable per-application thresholds,
+separate API/worker/delivery signals, grouped ongoing incidents and verified recovery.
+Provide failure/recovery verification hooks. Do not generate business administration
+screens for technical alert settings. This is a future scaffold requirement.
+
+## Finalized content identity
+
+Shared content clients and provider contract tests follow
+[ADR-0038](../docs/architecture/decisions/0038-finalized-content-byte-identity.md).
+Finalized content identity binds verified bytes through association and reading;
+outstanding upload capabilities cannot mutate that identity. Replacement uses a new
+identity and authorized audited association change. Prove provider behavior and races
+before promoting adapter scaffolding; no new UI pattern is required.

@@ -6,6 +6,14 @@ authorized by the Phase 1 readiness gate. Product requirements live in
 [implementation-plan.md](./docs/implementation-plan.md), and accepted decisions in
 the [ADR index](./docs/architecture/decisions/README.md).
 
+## Architecture guide
+
+The [architecture spine](./docs/architecture/ARCHITECTURE-SPINE.md) consolidates
+accepted implementation boundaries, data and calculation rules, recovery targets,
+and the contracts required before affected stories can start. It links existing
+ADRs rather than replacing them. Story planning and the Phase 1 readiness gate
+still govern implementation authorization.
+
 ## UX design handoff
 
 The Leave UX contract is in [DESIGN.md](../../_bmad-output/planning-artifacts/ux-designs/ux-leave-2026-09-15/DESIGN.md)

@@ -871,7 +871,7 @@ defaults.
 Advanced controls reveal only applicable fields. Carry-over offers None, All unused
 entitlement, or Up to a limit; reveal limit only for the last option, and expiry/
 repeat-transfer options when carry-over is enabled. Applying a balance cap reveals
-the maximum. Enabling proration reveals rounding. Two approval steps reveal the
+the maximum. Proration uses the fixed final whole-minute rounding convention; no rounding selector is shown. Two approval steps reveal the
 final-approver picker and relevant absence rule. Duration-threshold document
 requirements reveal the threshold. These expose existing policy capabilities;
 layout approval does not choose policy defaults.
@@ -1637,3 +1637,21 @@ duplicate-safe action flow. Show consequential changed results for confirmation.
 Do not present uncertain network outcomes as this known-uncommitted busy state;
 retain existing operation-status recovery. See
 [ADR-0113](../../../../apps/leave/docs/architecture/decisions/0113-bounded-wait-for-concurrent-leave-changes.md).
+
+### Delayed and out-of-order notifications — 23 September 2026
+
+Describe the event with its occurrence date/time, distinguishing it from delivery
+time. A delayed approval notice must not assert that a later-cancelled request is
+currently approved. Opening the link shows current authorized state. Do not block
+new messages behind failed older ones or promise email arrival order; retain existing
+obsolete action-notification checks and sensitive-content limits. See
+[ADR-0117](../../../../apps/leave/docs/architecture/decisions/0117-notification-order-and-current-request-state.md).
+
+### Draft autosave across tabs — 23 September 2026
+
+On a revision conflict, pause autosaving and show **This draft changed elsewhere.
+Your latest changes haven’t been saved.** Offer **Review saved draft**, preserving
+local edits while the person decides and checking current access. Do not auto-merge
+or overwrite saved values. Same-tab saves serialize and preserve newer typing; saved
+status reflects acknowledged edits only. No durable local recovery is promised here.
+See [ADR-0118](../../../../apps/leave/docs/architecture/decisions/0118-revision-safe-draft-autosaving.md).

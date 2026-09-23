@@ -133,3 +133,7 @@ and are linked rather than duplicated here.
 | [0114](./0114-owned-outbox-worker-without-mvp-workflow-engine.md) | Accepted | Leave-owned database outbox and one initial worker; broker and workflow engine deferred |
 | [0115](./0115-single-worker-identity-with-scoped-ngo-processing.md) | Accepted | One worker service identity, narrow queue discovery and explicit per-item NGO transaction scope; shared convention: [platform ADR-0026](../../../../../platform/docs/architecture/decisions/0026-worker-service-identity-and-ngo-scope.md) |
 | [0116](./0116-owned-outbox-and-obsolete-notification-intent.md) | Accepted | Application-owned outbox; Leave skips obsolete unhanded action notifications with a recorded reason |
+| [0117](./0117-notification-order-and-current-request-state.md) | Accepted | Notifications describe dated events; current request state is authoritative, with no guaranteed email arrival order |
+| [0118](./0118-revision-safe-draft-autosaving.md) | Accepted | Revision-safe draft autosaves across tabs/devices, serialized saves and explicit conflict recovery |
+| [0119](./0119-initial-production-backup-and-recovery-targets.md) | Accepted | Leave targets: one-hour recovery point, four-hour recovery time, thirty-day backups and verified restore rehearsals |
+| [0120](./0120-initial-operational-alert-thresholds.md) | Accepted | Initial API, worker, notification-delay, recovery-point and integrity alert thresholds |

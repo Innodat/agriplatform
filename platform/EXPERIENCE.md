@@ -2,7 +2,7 @@
 name: Agriplatform Shared Experience
 status: draft
 created: 2026-09-15
-updated: 2026-09-22
+updated: 2026-09-23
 sources:
   - docs/architecture/decisions/README.md
 ---
@@ -287,6 +287,35 @@ available to copy while the view stays open. Do not promise saved persistence fo
 that comment. Access loss follows the no-access treatment without exposing fresh
 record details. Applications supply lifecycle wording and valid actions.
 
+### Autosaved draft conflicts
+
+Use explicit revisions for autosave as for other protected writes. Serialize saves
+within a tab; retain subsequent typing and show saved status only for acknowledged
+edits. If another tab/device changed the draft, pause autosaving, preserve local edits
+while the view remains open and offer review of the saved version after checking
+access. Do not silently refresh the revision and overwrite it or automatically merge.
+Applications supply draft wording and lifecycle behavior; uncertain saves retain
+existing duplicate-safe recovery.
+
+### A draft is submitted or discarded elsewhere
+
+Follow [ADR-0033](./docs/architecture/decisions/0033-draft-lifecycle-and-late-save-protection.md).
+Stop autosaving when the draft is no longer editable. Explain whether it was finalized
+or discarded and, after current access checks, offer the resulting record or safe
+return page. Keep unsaved local edits available where practical while the view remains
+open; do not automatically save them as a new draft. New-draft creation requires an
+explicit action. Applications provide lifecycle-specific wording and destinations.
+
+### Starting a workflow with one active draft
+
+For applications limiting active drafts per owner/workflow, the start action creates
+or resumes the active draft under
+[ADR-0034](./docs/architecture/decisions/0034-atomic-single-active-draft-creation.md).
+Concurrent starts resolve to the same authorized draft without an additional chooser.
+Never silently overwrite an existing draft with another tab's creation values; preserve
+local input where practical and use the existing conflict flow. Applications allowing
+multiple drafts retain their own interaction and are not forced into this pattern.
+
 ### Closing autosaved forms
 
 Use a familiar close icon in the drawer header with an accessible Close name;
@@ -423,6 +452,63 @@ not permission to view business records. Operational diagnostics and authorized
 business audit history remain separate under
 [ADR-0023](./docs/architecture/decisions/0023-structured-operational-logs-and-sensitive-data.md).
 Reuse existing disclosure/error patterns; no new support screen is required.
+
+## Recoverable Attachment Association
+
+Follow [ADR-0030](./docs/architecture/decisions/0030-recoverable-content-attachment-association.md).
+After file transfer, show **Attaching…** until the application confirms the association.
+If association saving fails, retain the uploaded content reference and offer an
+attachment retry without asking for another upload when that content is still usable.
+Do not present an uncertain save as definitely failed or create another association.
+Block an action requiring the document until its association and applicable checks
+succeed. Explain expired/missing content honestly when re-upload is necessary. Saved
+drafts and submitted records must keep their attachments through abandoned-file cleanup.
+These are shared behavior requirements, not implemented controls.
+
+## Dependency Failures During an Action
+
+Determine the outcome of each attempted operation, rather than treating one failed
+request as proof of a persistent service outage. A document-open connection failure,
+timeout or unavailable response shows **We couldn’t open this document. Please try
+again.** Permission denial and missing content use their own appropriate messages.
+Retry makes a fresh attempt and clears that operation's error on success; retain input
+and existing operation identity for uncertain mutation outcomes.
+
+Do not add frontend availability polling or a persistent Content Service offline flag
+for MVP. Operational health monitoring is separate and cannot guarantee the next
+request succeeds. Do not preflight every action with a health call. Direct-storage
+transfer failures and Content Service failures are distinct in diagnostics; user
+messages should describe the action they can retry without promising recovery.
+Only capabilities needing an unavailable dependency should fail: unrelated actions
+continue when their own required checks pass. Never bypass permissions or document
+requirements to keep an action working.
+
+## Stable API Error Behaviour
+
+Use machine-readable identifiers under
+[ADR-0031](./docs/architecture/decisions/0031-machine-readable-api-errors-and-localized-presentation.md)
+to choose behavior; never parse translated display text. Map safe typed details to
+field/attachment errors, refreshed reviews, retry or denied-access feedback. Keep input
+where recovery permits and show localized messages. Unknown identifiers receive a safe
+generic fallback, never implicit success. English and Portuguese translations must not
+change branching or duplicate-safe operation recovery.
+
+## Session Recovery and Return Navigation
+
+Follow [ADR-0032](./docs/architecture/decisions/0032-session-recovery-and-return-navigation.md).
+Try normal renewal first. If interactive sign-in is needed, explain **Please sign in
+again to continue.** Return the same authorized person to the prior page, NGO, record,
+filters and recoverable drawer/form context instead of defaulting to home. Verify current
+access before restoring protected content. For a different account or unavailable
+record/NGO, explain and choose a safe permitted destination. Use validated internal
+return targets and keep sensitive form contents out of URLs.
+
+Recover existing drafts and supported unsaved context honestly: if only saved values
+remain, say so. Refresh permissions and consequential calculations after restoration.
+Do not submit automatically after sign-in; resolve uncertain prior actions using the
+same operation identity. Authentication-service outages are not permission revocation.
+Application-specific draft rules determine recoverability; no new persistent sensitive
+form store is implied by this shared behavior.
 
 ## Open Implementation Details
 

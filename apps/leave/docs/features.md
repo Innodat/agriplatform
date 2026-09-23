@@ -1,9 +1,14 @@
 # Leave Tracker Functional Specification
 
 **Version:** 0.1  
-**Last updated:** 2026-09-22  
+**Last updated:** 2026-09-23
+
 **Status:** Product scope approved; detailed acceptance criteria remain living documentation  
 **Scope:** MVP unless marked otherwise
+
+Implementation consistency rules and owned delivery prerequisites are consolidated
+in the [architecture spine](./architecture/ARCHITECTURE-SPINE.md). This specification
+remains the product source of truth.
 
 ## Product purpose
 
@@ -255,8 +260,8 @@ Each versioned leave type/policy supports:
 - Name, code, description, color, icon, and active dates
 - Paid or unpaid classification
 - Permitted units: full day, half day, hours
-- Annual/anniversary front-loading or monthly accrual
-- Entitlement, proration, rounding, carry-over, cap, and expiry
+- Annual entitlement available daily, upfront, or in monthly instalments; manual-only grants remain separate
+- Entitlement, proration, carry-over, cap, and expiry, with fixed whole-minute precision
 - Minimum/maximum duration and notice period
 - Backdated and future-request rules
 - Current versus projected balance use
@@ -269,7 +274,7 @@ Each versioned leave type/policy supports:
 
 Policy editing uses conditional fields: show carry-over limit only for limited
 carry-over, expiry/repetition when carry-over is enabled, cap amount when capped,
-rounding when prorated, final approver for two steps, and a document threshold only
+final approver for two steps, and a document threshold only
 for threshold-based requirements. A requirement for leave longer than 2 days does
 not require a document at exactly 2 days; a 3-day request requires it. This is an
 illustrative threshold, not a universal or jurisdictional default.
@@ -538,6 +543,62 @@ authorized notification based on current state, a new event ID, reason and origi
 reference, without repeating the leave action. These limits do not govern business
 audit, leave history, calculation snapshots or generic command idempotency.
 
+Notifications describe dated historical events, not guaranteed current status. Do not
+guarantee email arrival order or block newer notifications behind failed older work.
+Links recheck authorization and show current request state; notification processing
+never rolls business state back to an older event. Preserve obsolete action-request
+checks and minimal sensitive content. See
+[ADR-0117](./architecture/decisions/0117-notification-order-and-current-request-state.md).
+
+Finalized content IDs bind the exact verified bytes under
+[platform ADR-0038](../../../platform/docs/architecture/decisions/0038-finalized-content-byte-identity.md).
+Outstanding upload capabilities and finalization races cannot change those bytes behind
+an existing attachment. Replacement requires a new content identity, fresh verification
+and an authorized audited association change, preserving original decision evidence.
+
+Attachments follow
+[platform ADR-0030](../../../platform/docs/architecture/decisions/0030-recoverable-content-attachment-association.md):
+separate finalized upload from confirmed Leave association, show Attaching until saved,
+and retry a failed/uncertain association using existing content and duplicate-safe
+operation identity. Validate NGO ownership/permission/readiness; block submission when
+a required attachment remains unconfirmed. Coordinate Content Service cleanup with
+association lifecycle so saved drafts/submitted attachments and confirmation races
+are protected; determine the concrete contract before affected implementation.
+
+Document operations determine success/failure on each attempt via the backend and
+bounded dependency calls. Report failure of the attempted action rather than declaring
+the Content Service globally offline or promising a temporary outage. Distinguish
+connection/timeout/unavailable errors from denied access or missing content; retries
+are fresh attempts, preserving identity for uncertain mutations. No MVP frontend
+availability polling or per-action health preflight is required. Keep Content Service
+and direct-storage failures distinct in diagnostics. Other Leave capabilities remain
+available when their own checks pass; required document/authorization checks cannot
+be bypassed. See the shared experience dependency-failure guidance.
+
+Leave follows
+[platform ADR-0031](../../../platform/docs/architecture/decisions/0031-machine-readable-api-errors-and-localized-presentation.md):
+stable error identifiers drive attachment attention, refreshed review, busy retry and
+access-denied behavior. Safe typed details and localized messages remain distinct.
+Unknown identifiers fall back safely; English/Portuguese wording does not control logic.
+Preserve form input and existing uncertain-operation recovery. Evolve the scaffold wire
+contract with generated frontend types and backend adapters before implementation.
+
+Session expiry recovery follows
+[platform ADR-0032](../../../platform/docs/architecture/decisions/0032-session-recovery-and-return-navigation.md):
+try normal renewal, then require sign-in if needed and return the same authorized user
+to the prior NGO/page/request and recoverable drawer/draft context. Reload permissions
+and calculations before continuing; never automatically submit after sign-in. Protect
+prior-user data on account changes and use safe fallback for lost access/deleted records.
+Retain existing Leave draft rules and resolve uncertain submissions by operation ID.
+
+Apply [platform ADR-0035](../../../platform/docs/architecture/decisions/0035-database-structural-integrity-and-application-rules.md)
+for structural persistence guarantees: required fields, valid owner-local references,
+scoped operation/event identity uniqueness, active-draft uniqueness and matching NGO
+scope for tenant-owned relationships. Retain RLS and friendly API validation. Complex
+leave calculations/approval decisions remain in authorized transactional workflows;
+map recognized database conflicts safely without leaking internals. Do not introduce
+unapproved cross-service schema dependencies through generated foreign keys.
+
 Daily precision follows ADR-0092 below. Historical interval/bucket treatment and
 ledger representation still require resolution before affected calculation stories
 are ready.
@@ -558,8 +619,8 @@ down only the resulting usable total to whole minutes. Do not round individual
 daily portions or add to yesterday's rounded balance. With 8,640 annual minutes,
 100 eligible days in a 365-day year gives 2,367 usable minutes; all 365 days gives
 8,640 minutes, before other effects. The unchanged-input formula does not replace
-historical cap/expiry/policy replay. Existing prorated upfront/monthly grant rounding
-remains separate. See [ADR-0092](./architecture/decisions/0092-cumulative-daily-entitlement-precision.md).
+historical cap/expiry/policy replay. Standalone upfront grants use final-amount
+rounding; related monthly partial portions preserve cumulative fractions under ADR-0105. See [ADR-0092](./architecture/decisions/0092-cumulative-daily-entitlement-precision.md).
 
 Daily employment boundaries: include the employee's start and end dates, earning
 nothing outside employment. Divide by the full applicable leave year's actual
@@ -672,8 +733,8 @@ See [ADR-0025](./architecture/decisions/0025-per-policy-calendar-day-proration.m
 Use one fixed whole-minute rounding convention, without a policy selector. Keep
 full intermediate precision and preserve remainders across related cumulative
 earning portions; floor usable entitlement only at its defined final boundary.
-For a standalone prorated grant, round down once at its final calculated amount.
-A 481-minute period grant for 15 of 30 days gives 240.5 minutes and therefore
+For a standalone prorated upfront grant, round down once at its final calculated amount.
+A 481-minute upfront period grant for 15 of 30 days gives 240.5 minutes and therefore
 240 usable minutes; 240.7 calculated minutes likewise gives 240. Record the
 calculation in its explanation. Request increments and schedule-based half days
 remain unchanged. See [ADR-0103](./architecture/decisions/0103-fixed-minute-rounding-and-plain-policy-language.md),
@@ -686,18 +747,22 @@ are visible or expandable, not hover-only. Rounding is not an administrator sett
 
 Acceptance examples: An annual-upfront policy grants its configured amount at the start of its
 entitlement period, with a joining grant for mid-period employment as defined below. A monthly policy grants its configured portion on its
-monthly effective date. Retrying either scheduled grant does not duplicate it. A
-manual-only policy creates no scheduled grant; authorized staff can grant an amount
-with an audited reason, while an unauthorized actor or a grant without the required
-reason is rejected.
+monthly effective date. Repeated calculation never counts the same automatic earning
+portion twice; no posting job is required. A manual-only policy creates no automatic
+entitlement; authorized staff can grant an amount with an audited reason, while an
+unauthorized actor or a grant without the required reason is rejected. Retrying an
+actual manual or correction command must not duplicate its effect.
 
-See [ADR-0024](./architecture/decisions/0024-mvp-accrual-schedules.md).
+See [ADR-0090](./architecture/decisions/0090-annual-entitlement-availability-options.md)
+and [ADR-0106](./architecture/decisions/0106-on-demand-accrual-with-decision-evidence.md),
+which refine the earlier schedules in ADR-0024.
 
 Monthly instalments follow twelve monthly periods aligned to the employee's
 leave year. The policy selects the start or end of each instalment period.
 Calendar-year policies use calendar months; a 15-July anniversary year uses
 15 July–14 August, 15 August–14 September, and so on. Partial employment uses the
-applicable instalment period for proration and retains final-grant rounding.
+applicable instalment period for proration and preserves cumulative fractions across
+related monthly portions under ADR-0105.
 Use the employee's configured work timezone. Resolve each boundary independently from the original anniversary day and month
 offset, clamping only missing dates to that month's end. A 31 January anchor gives
 28/29 February, then 31 March and 30 April without drift. Each instalment ends the
@@ -710,7 +775,7 @@ Acceptance examples for calendar-year policies: A start-of-month policy grants o
 policy grants on 30 April, then 31 May. February month-end is 28 February in a
 non-leap year and 29 February in a leap year. A 480-minute monthly grant for 15
 employed days in a 30-day month is 240 minutes under calendar-day proration.
-Retrying the monthly grant must not duplicate it.
+Repeated calculation must not double-count the monthly earning portion.
 
 See [ADR-0045](./architecture/decisions/0045-monthly-grant-start-or-end.md).
 
@@ -1249,7 +1314,7 @@ An employee joining on 1 July receives a joining grant effective 1 July, calcula
 using the policy's no-proration or calendar-day-proration setting and final-grant
 rounding rule. The next annual grant is due on 1 January. Under an anniversary-year
 policy, an employee starting on 1 July receives the annual grant at the start of
-their 1 July–30 June period. Retries do not duplicate grants.
+their 1 July–30 June period. Repeated calculation does not double-count the grant.
 
 See [ADR-0043](./architecture/decisions/0043-annual-grants-at-period-start.md).
 
@@ -1362,6 +1427,32 @@ See [ADR-0023](./architecture/decisions/0023-employee-work-timezone.md).
 Automatically save an unfinished request as a draft while the employee fills it
 in. Show a truthful “Saved” or “Not saved” indicator and provide **Close**.
 Keep at most one unfinished employee application draft per employee per NGO.
+Enforce employee/NGO active-draft uniqueness in the database and atomically create or
+resume the existing authorized draft under
+[platform ADR-0034](../../../platform/docs/architecture/decisions/0034-atomic-single-active-draft-creation.md).
+Two initial starts return the same draft; competing creation values never overwrite
+it. Existing revision checks protect subsequent edits. Old create retries follow their
+recorded outcome and cannot resurrect a closed draft or overwrite a later new one.
+
+Apply [platform ADR-0033](../../../platform/docs/architecture/decisions/0033-draft-lifecycle-and-late-save-protection.md):
+autosaves check revision and editability; submitted/discarded drafts cannot be recreated
+by stale writes or old create retries. Submission, reservations and draft closure commit
+with existing audit/outbox effects in one local transaction. Conflicting tabs stop
+saving, retain local edits where practical and show **This draft has already been
+submitted.** with **View request**, or **This draft was discarded elsewhere.** with
+**Back to My Leave**. Recheck access before showing current details. New draft creation
+is explicit, never automatic conversion of unsaved text.
+
+Each autosave carries its starting revision. Atomically reject stale writes, pause
+autosaving in the conflicting tab and show **This draft changed elsewhere. Your latest
+changes haven’t been saved.** Offer **Review saved draft** after rechecking access;
+retain local edits while the user decides, without promising persistence on closure.
+No automatic merging or collaborative editing is required. Serialize and coalesce
+same-tab saves; apply acknowledged revisions to subsequent writes, preserve newer
+typing, and show Saved only for acknowledged edits. Resolve uncertain saves through
+the existing operation-identity contract before another save. See
+[ADR-0118](./architecture/decisions/0118-revision-safe-draft-autosaving.md).
+
 On My Leave, **Apply for leave** resumes that draft, with a small unfinished-application
 note beside the action. Do not add a Drafts section or notification badge.
 Within the form, **Discard draft** requires confirmation before deleting it.
@@ -2360,7 +2451,7 @@ item, not a completed MVP capability. See
 - Strict database, API, job, cache, file, and log tenant isolation
 - Encryption in transit and at rest
 - Short-lived signed content operations
-- Idempotent commands, accrual jobs, and notification delivery
+- Idempotent commands and notification delivery; deterministic repeated automatic-entitlement calculation
 - Optimistic concurrency for decisions and configuration
 - Structured logs, metrics, traces/correlation IDs, and actionable alerts
 - Tested backups, restoration, migrations, and rollback
@@ -2368,16 +2459,26 @@ item, not a completed MVP capability. See
 - Deterministic date/time calculations and timezone handling
 - Performance targets agreed before release testing
 
+Recovery covers database and private document contents, their consistent associations,
+and required identity/access/configuration dependencies. Existing hosting is not assumed
+to meet the target. Pause outbound notification processing during restore until producer/
+receiver recovery evidence has been checked; hold uncertain work rather than blindly
+resending after rollback. Verify representative access, requests/balances, documents and
+queue handling in the restoration rehearsal under ADR-0119.
+
 ### Operational target ownership and decision gates
 
 | Decision | Responsible | Decision gate |
 |---|---|---|
-| Secure document-link / signed-operation lifetime | Technical architect and security lead | Architecture completion |
-| Backup recovery objectives and critical alert conditions | Technical lead and operations owner | Architecture completion |
+| Secure document-link / signed-operation lifetime | Technical architect and security lead | Selected: 5-minute private reads, 15-minute uploads under [platform ADR-0036](../../../platform/docs/architecture/decisions/0036-private-content-signed-operation-lifetimes.md); adapter/renewal verification before pilot |
+| Backup recovery objectives | Technical lead and operations owner | Selected under [Leave ADR-0119](./architecture/decisions/0119-initial-production-backup-and-recovery-targets.md): one-hour recovery point, four hours from incident declaration to essential service, thirty-day backup retention; rehearse before pilot, quarterly and after major backup changes |
+| Critical alert conditions | Technical lead and operations owner | Selected under [Leave ADR-0120](./architecture/decisions/0120-initial-operational-alert-thresholds.md): API/heartbeat five minutes; overdue notifications warn at fifteen minutes and escalate at one hour; recovery-point age over one hour and confirmed integrity failure alert immediately. Verify before pilot |
 | Supported browsers and performance targets under representative workloads | Product owner and technical lead | Relevant story planning |
 
 One person may hold several responsibilities. Record measurable targets and their
-verification criteria at these gates; numerical targets are not yet selected.
+verification criteria at these gates. Signed-operation defaults, backup targets (ADR-0119) and alert thresholds (ADR-0120)
+are selected and must be demonstrated. Browser coverage and workload/performance
+targets remain relevant-story planning decisions.
 Delivery verifies the agreed targets before the pilot, including restoration
 rehearsals, alert checks, browser coverage and representative performance tests.
 
