@@ -10,8 +10,10 @@ url: set via environment variable in production; defaults to localhost for dev.
 """
 from schemas.app_schemas import AppEntry
 from config import settings
+import os
 
 APP_CATALOG: list[AppEntry] = [
+    AppEntry(id="pts", name="PtS", url=os.environ.get("APP_URL_PTS", "http://localhost:5179"), icon="book-open", description="Swahili Poetry: poems, sources and witnesses", enabled=True),
     AppEntry(
         id="scribeswell",
         name="Scribeswell",

@@ -10,6 +10,18 @@ Implementation consistency rules and owned delivery prerequisites are consolidat
 in the [architecture spine](./architecture/ARCHITECTURE-SPINE.md). This specification
 remains the product source of truth.
 
+Terminology: **organization** is the general tenant, including nonprofit and
+for-profit organizations. Earlier NGO wording below denotes that tenant; new code,
+contracts and generic UI use organization and established `org_id` conventions under
+[platform ADR-0039](../../../platform/docs/architecture/decisions/0039-organization-neutral-tenancy.md).
+
+Common employment identity and dates/status belong to a shared capability under
+[platform ADR-0040](../../../platform/docs/architecture/decisions/0040-shared-employment-core-and-application-settings.md).
+Leave owns its domain settings and uses authorized shared contracts. This changes
+ownership, not the approved employee workflows. Shared optional supervisor, department and location assignments follow
+[platform ADR-0041](../../../platform/docs/architecture/decisions/0041-shared-supervisor-department-and-location.md).
+These belong to organization-specific employment, not the global person.
+
 ## Product purpose
 
 The Leave Tracker enables employees of multiple NGOs to request and manage leave,
@@ -208,15 +220,33 @@ is introduced. Normal authorized balance administration remains available.
 - Assign an effective-dated supervisor and other approval assignments.
 - Configure acting/delegated approvers for an effective period.
 - Retain historical relationships so old requests retain their original context.
+- Use one shared employment relationship per person per organization, retaining
+  distinct employment periods for leaving and rejoining without replacing historical
+  references (agreed 2026-09-23). Period constraints remain shared-contract work.
+- Under [platform ADR-0042](../../../platform/docs/architecture/decisions/0042-person-account-employment-and-legacy-adoption.md),
+  shared people/employment may exist without login accounts. Verified account linking
+  and access grants remain separate; employee-only acknowledgements still require
+  that employee's authenticated participation. E1 needs no accountless administration UI.
 - Support employees with non-standard schedules and locations.
 - Present employee Leave settings in Employment & approval, Work schedule, and
   Leave entitlement groups, with authorized focused edits and separate balance
   adjustment/history actions. Show inherited values and individual overrides.
 - Reuse shared person identity (name and sign-in email) rather than a second
   editable Leave identity. Leave-specific settings refer to that person; this
-  does not move all employment data to a shared directory. Supervisor assignments
-  remain manually maintained in Leave for MVP; runtime ownership/API contracts
-  must preserve application boundaries.
+  places common employment identity and dates/status with the shared employment
+  owner under platform ADR-0040. Under platform ADR-0041, the shared owner also
+  maintains optional department/location references and a manually maintained optional
+  supervisor reference in the same organization. Leave-specific settings remain local.
+  Shared edits use authorized service contracts; Leave owns approval policy.
+- Department and location may be unassigned (null); neither is required merely to
+  create an employee or draft. A supervisor may also be unassigned, but submission
+  needs a valid eligible supervisor when its configured route requires one. Resolve
+  and snapshot the supervisor at submission; subsequent changes do not silently
+  reroute pending requests. Preserve effective-dated assignment history.
+- Shared location is separate from the Leave work profile. Changing or clearing
+  department/location does not silently change schedules, timezone, holidays or
+  explicit profile overrides. Authorized reporting/filtering supports unassigned
+  values; an unavailable lookup must not masquerade as unassigned.
 
 ### 3. Jurisdictions and workplace calendars
 
@@ -1453,12 +1483,32 @@ typing, and show Saved only for acknowledged edits. Resolve uncertain saves thro
 the existing operation-identity contract before another save. See
 [ADR-0118](./architecture/decisions/0118-revision-safe-draft-autosaving.md).
 
+Draft eligibility and preservation (agreed 2026-09-23): employees with current or
+future employment may prepare drafts once explicitly granted Leave access. Ended
+employment preserves the draft with read-only access where still authorized; revoked
+membership denies access. On rehire, resume the retained draft with refreshed context
+and explain invalid inputs. Passing the selected leave end date does not discard or
+delete a draft. Reopening preserves entered details and rechecks current backdating
+rules and permissions; require date changes before submission only where those rules
+require them. Retention/cleanup is a separate explicit policy, not inferred from dates.
+
 On My Leave, **Apply for leave** resumes that draft, with a small unfinished-application
 note beside the action. Do not add a Drafts section or notification badge.
 Within the form, **Discard draft** requires confirmation before deleting it.
+Agreed 2026-09-24: confirmed discard removes the editable form contents, with no
+restore-discarded-draft UI. Keep minimal server-side lifecycle and operation evidence
+to reject delayed writes/retries; do not retain notes or whole form snapshots in
+that evidence. E1 has no automatic expiry of active drafts or compact replay evidence.
+Backup retention and any future safe cleanup policy are separate owned contracts.
 Submitted requests are separate and may be multiple. Drafts reserve no entitlement until
 submission. Submission rechecks all applicable rules; a saved draft is not a
 validated or approved request. A failed save must not be presented as successful.
+Agreed 2026-09-24: autosave also preserves bounded incomplete typed input, including
+partial dates, missing selections and reversed ranges. Reopening after an acknowledged
+save restores that input without silently filling defaults, swapping dates or erasing
+invalid text. Saved confirms persistence, not request validity. Calculate only when
+required inputs are valid; retain input-format context so locale changes cannot silently
+reinterpret entered dates/durations. Exact schemas and bounds remain contract work.
 
 Acceptance example: An employee enters a request and sees “Saved” after its draft
 is persisted. They can use Close and resume it through Apply for leave in My Leave in the same

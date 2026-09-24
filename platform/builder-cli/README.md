@@ -5,6 +5,19 @@
 CLI tool for scaffolding features and enforcing platform patterns.
 
 ## Purpose
+
+New templates use organization-neutral names under
+[ADR-0039](../docs/architecture/decisions/0039-organization-neutral-tenancy.md), retaining
+established `org_id` contracts. NGO is not the generic tenant code entity. Under
+[ADR-0040](../docs/architecture/decisions/0040-shared-employment-core-and-application-settings.md),
+applications needing employees consume shared employment through authorized HTTP
+clients; templates must not duplicate a common employee master or generate cross-owner
+table access. Prove reference/client and contract-test patterns before promotion;
+applications without employment needs do not acquire an HR dependency.
+[ADR-0041](../docs/architecture/decisions/0041-shared-supervisor-department-and-location.md)
+adds optional scoped department/location and manual supervisor references to the shared
+employment contract. Prove null-versus-unavailable handling, reference/history and
+client compatibility tests; do not generate a chart engine or Leave routing rules.
 - Automate boilerplate: one command creates router + service + page + hook
 - Enforce consistency: validate-patterns fails CI if patterns are violated
 - Reduce AI reliance: generated artifacts carry the structural knowledge

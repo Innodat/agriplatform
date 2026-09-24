@@ -35,6 +35,8 @@ supersession links; these AD identifiers provide a stable implementation map.
 [The working log](../../../../_bmad-output/planning-artifacts/architecture/architecture-leave-2026-09-20/.memlog.md)
 contains elicitation and rationale. Leave runtime and builder generation remain planned.
 
+Organization is the general tenant under [P-0039](../../../../platform/docs/architecture/decisions/0039-organization-neutral-tenancy.md), including for-profit organizations. Earlier NGO wording denotes organization scope. The 2026-09-23 shared-employment amendment follows [P-0040](../../../../platform/docs/architecture/decisions/0040-shared-employment-core-and-application-settings.md); the earlier consolidation review is not evidence that the new delivery contracts have passed readiness.
+
 ## Inherited Invariants
 
 References below use **P** for the [platform ADR collection](../../../../platform/docs/architecture/decisions/README.md)
@@ -48,6 +50,8 @@ and **L** for the [Leave ADR collection](./decisions/README.md). Original ADR nu
 | P-0019–0022 | Current authorization, safe releases, bounded in-flight authority and short transactions |
 | P-0023–0029 | Safe diagnostics, recovery commands, attribution, workers, versioned events and notification retention |
 | P-0030–0038 | Attachment association, errors, session/draft recovery, constraints, signed lifetimes and grouped monitoring |
+| P-0039–0041 | Organization-neutral tenancy; shared employment, optional manual supervisor/department/location; domain settings remain application-owned |
+| P-0042 | Platform-wide person/account separation and accountless employment; one employment relationship per person/organization with periods; deliberate existing identity/Expense adoption |
 | L-0001–0120 with recorded supersessions | Domain permissions, policy/workflow history, derived balances, protected reservations, UX and operational targets |
 
 ## Invariants & Rules
@@ -56,7 +60,7 @@ and **L** for the [Leave ADR collection](./decisions/README.md). Original ADR nu
 
 - **Binds:** All Leave components and shared integrations.
 - **Prevents:** A second browser data path, cross-silo database access and shared domain implementations.
-- **Rule:** Browser business data goes through Leave FastAPI; use HTTP contracts for shared runtime capabilities. Only authentication and explicitly approved realtime use the browser Supabase client; Content Service control-plane calls and signed file transfer are explicit content exceptions, preserving domain authorization. Leave owns requests, policies, schedules, employment settings, manually maintained supervisor assignments, approval routing, balance history and document associations. Shared identity supplies the person, never a second editable Leave directory. Platform packages supply build-time clients/UI/scaffolding, not imported service servers. Inherits P-0001–0006, P-0014.
+- **Rule:** Browser business data goes through Leave FastAPI; use HTTP contracts for shared runtime capabilities. Only authentication and explicitly approved realtime use the browser Supabase client; Content Service control-plane calls and signed file transfer are explicit content exceptions, preserving domain authorization. Shared identity supplies the person; common employment identity, dates/status and optional manual supervisor/department/location assignments belong to the shared employment capability under P-0040–0041. Leave owns requests, policies, schedules, Leave-specific employee settings, approval routing, balance history and document associations. Applications consume shared facts through authorized HTTP contracts, never a second editable employee directory. Platform packages supply build-time clients/UI/scaffolding, not imported service servers. Inherits P-0001–0006, P-0014.
 
 ```mermaid
 flowchart LR
@@ -66,6 +70,7 @@ flowchart LR
   Flow --> Data[Leave persistence]
   Data --> DB[(Leave-owned PostgreSQL schema)]
   Flow --> Access[Shared identity and access HTTP capability]
+  Flow --> People[Shared employment HTTP capability]
   Flow --> Content[Content Service HTTP]
   Worker[Leave worker] --> Flow
   Worker --> Notify[Shared Notification HTTP capability]
@@ -151,7 +156,7 @@ flowchart LR
 
 | Concern | Contract |
 | --- | --- |
-| Identity | Shared stable person/service IDs; NGO membership is distinct from authentication; effective Leave employment/settings reference shared identity |
+| Identity | Shared stable person/service IDs; NGO membership is distinct from authentication; common employment facts reference shared identity through their owning service; Leave-specific settings reference the shared employment contract |
 | Time | UTC recorded timestamps; employee-local business dates; explicit effective dates; server sequence resolves same-day ties |
 | Sensitive data | No notes, medical metadata, payload dumps, credentials or signed URLs in diagnostics; authorized audit is separate |
 | Dependency errors | Per-operation bounded attempt and retry; distinguish denied/missing/unavailable; no persistent frontend offline flag or health-preflight polling |
@@ -203,7 +208,7 @@ records repository and official-document checks; dependency pins remain a delive
 
 | Requirements area | Owning components | Governing ADs |
 | --- | --- | --- |
-| Identity, NGO setup, employee settings and roles | Shared identity/access plus Leave workflows | AD-1–2, AD-12 |
+| Identity, organization setup, employee settings and roles | Shared identity/access and employment capabilities plus Leave workflows | AD-1–2, AD-12 |
 | Policies, calendars, accrual, carry-over and history | Leave configuration, calculations and persistence | AD-3–7 |
 | Apply, balances, drafts and employee history | Leave web/API, shared shell | AD-4–8, AD-12 |
 | Approval, coverage and administrative corrections | Leave workflows and immutable evidence | AD-2–7 |
@@ -221,6 +226,7 @@ first affected story is ready. Track completion in the existing implementation p
 | Deferred item | Owner and deadline | Required resolution |
 | --- | --- | --- |
 | Shared identity/access ownership and contract | Platform identity owner + Leave lead; before first draft-slice story readiness | Existing identity schema adoption, service placement, person/membership/permission identifiers, current authorization API, role management, allowed references and revocation execution bounds; no second directory |
+| Shared employment contract | Platform identity/people owner + Leave lead; minimal identity/read contract before E1, shared writes before E2 and freshness/impact contract before dependent mutations | Stable person/organization/employment references, history/rehire, current and effective reads, access/mutation authority, revisions and audited changes; version/validity and affected-request coordination without assuming distributed atomicity. P-0041 owns nullable department/location and manual supervisor references in shared employment; define scoped reference/null/history/retirement contracts and supervisor freshness at workflow resolution. Leave snapshots eligible approvers; shared changes cannot silently reroute pending requests or change work profiles. No full HR suite or Graph dependency |
 | Dependency pins and environment topology | Technical lead + operations; before first dependent story | Verify live compatibility, lock dependencies, choose development/test/staging/production isolation, provider configuration and secret handling |
 | Concrete persistence and concurrency | Leave technical lead; before affected mutation story | Tables/keys, employee guard, shared-configuration and cross-employee approval/coverage dependency protection, lock order/timeouts, event sequencing, indexes and snapshot schema; all alternate writers participate |
 | API operation/error contracts | Platform API owner + Leave lead; before first draft-slice story | Request/result recovery, scoped deduplication lifetime, revision fields, compatibility with existing numeric-code template, generated clients and framework adapters |

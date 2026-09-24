@@ -1,0 +1,209 @@
+[
+  {
+    "lens": "adversarial",
+    "location": "platform/supabase/migrations/20250815210000_platform_multitenancy_orgs.sql:77",
+    "trigger_condition": "A membership, role assignment, user or organization is disabled while an already-issued JWT remains valid; authorize() still trusts its user_roles and org_id claims.",
+    "guard_snippet": "Resolve current user, organization, membership and permission state for each protected operation under ADR-0019; treat JWT organization and role claims as context hints. Add retained-token revocation tests.",
+    "potential_consequence": "Static inspection shows no current membership check in this authorization function, so removed access can remain effective until token replacement; runtime behavior has not been exercised."
+  },
+  {
+    "lens": "adversarial",
+    "location": "platform/supabase/migrations/20250815110000_platform_create_identity_schema.sql:177",
+    "trigger_condition": "An authenticated user updates their own identity.users row, which later gains is_platform_admin and already contains is_system and actor_key.",
+    "guard_snippet": "Expose an allowlisted self-profile command and deny direct updates to privilege, actor identity and attribution columns; test effective grants and RLS under the real authenticated role.",
+    "potential_consequence": "The self-update predicate imposes no column restrictions while authenticated receives table UPDATE privileges. Privileged fields can be self-assigned if this write path is usable; downstream exploitation is not established."
+  },
+  {
+    "lens": "adversarial",
+    "location": "platform/supabase/migrations/20250815110000_platform_create_identity_schema.sql:17",
+    "trigger_condition": "Planning treats identity.users as the shared employee/person master or needs a person without a Supabase Auth account.",
+    "guard_snippet": "Preserve existing account IDs but introduce an independent person identity and an explicit optional account link, with a separate organization-scoped employment relationship and employment periods.",
+    "potential_consequence": "Every identity.users ID must currently reference auth.users. Reusing this table unchanged forces placeholder login accounts and conflates authentication, employment and business attribution."
+  },
+  {
+    "lens": "adversarial",
+    "location": "platform/supabase/migrations/20250815110000_platform_create_identity_schema.sql:5",
+    "trigger_condition": "Leave or another application introduces organization-configurable roles and application-specific permissions.",
+    "guard_snippet": "Replace the fixed global role enum and global role-to-permission assignment with the ADR-0011 role model, including organization scope and application permission namespaces; migrate existing admin, financeadmin and employee assignments explicitly.",
+    "potential_consequence": "The existing enum and role_permissions uniqueness cannot represent per-organization custom roles, and the role name employee risks being mistaken for employment status."
+  },
+  {
+    "lens": "adversarial",
+    "location": "apps/expense/supabase/migrations/20250815200000_finance_create_func_add_receipt_with_items.sql:23",
+    "trigger_condition": "A caller invokes the SECURITY DEFINER receipt creation function with a non-null authenticated user and organization claim.",
+    "guard_snippet": "Require current membership and the necessary receipt/purchase permissions before writes, validate each referenced record's scope, and restrict function execution to intended callers.",
+    "potential_consequence": "The function checks authentication and presence of organization context but contains no membership or permission checks; if its owner bypasses RLS, the intended table policies do not protect these writes."
+  },
+  {
+    "lens": "adversarial",
+    "location": "apps/expense/supabase/migrations/20250815130000_finance_create_schema.sql:25",
+    "trigger_condition": "A write supplies an expense category, expense type, currency or purchase beneficiary belonging to another organization.",
+    "guard_snippet": "Enforce same-owner organization consistency with appropriate composite constraints and validate cross-owner references through authorized contracts. Validate the beneficiary's organization-specific employment separately.",
+    "potential_consequence": "The current foreign keys establish existence, not organization consistency. The receipt RPC copies supplied references without checking their organization, allowing structurally inconsistent cross-organization associations."
+  },
+  {
+    "lens": "adversarial",
+    "location": "apps/expense/supabase/migrations/20250815130000_finance_create_schema.sql:80",
+    "trigger_condition": "Receipt consolidation uses finance.purchase.user_id as the employee identifier or migrates it mechanically to an employment ID.",
+    "guard_snippet": "Document whether user_id represents claimant, beneficiary or another subject; retain created_by as the capturing actor and map the business subject explicitly to shared employment where required, preserving historical mappings.",
+    "potential_consequence": "The existing field references auth.users, while ownership policies use created_by. Treating both as employee identity can misattribute on-behalf purchases or attach history to the wrong employment."
+  },
+  {
+    "lens": "adversarial",
+    "location": "platform/supabase/migrations/20250815170000_platform_create_audit_triggers.sql:13",
+    "trigger_condition": "A caller supplies created_by or created_at, changes them later, or a service performs a write without an end-user JWT.",
+    "guard_snippet": "Make creation attribution immutable and server-managed, manage update attribution for all relevant tables, and define actor/initiator/executor context for both people and services under ADR-0025.",
+    "potential_consequence": "The trigger only assigns updated_by and, on UPDATE, updated_at. Creation fields remain caller-influenced, and service writes can receive null attribution."
+  },
+  {
+    "lens": "adversarial",
+    "location": "platform/supabase/migrations/20250815210000_platform_multitenancy_orgs.sql:23",
+    "trigger_condition": "An administrator changes organization membership, ownership or member roles.",
+    "guard_snippet": "Add server-managed attribution and immutable consequential audit for organization, org_member and member_role commands, with organization, command and actor context.",
+    "potential_consequence": "The shown audit triggers cover users and role_permissions but not the subsequently created membership/role tables, leaving access grants and revocations without equivalent recorded evidence."
+  },
+  {
+    "lens": "adversarial",
+    "location": "platform/supabase/migrations/20250815110000_platform_create_identity_schema.sql:237",
+    "trigger_condition": "An ordinary database role can reach the SECURITY DEFINER identity.create_user test helper.",
+    "guard_snippet": "Keep test-user creation outside deployable runtime migrations or revoke PUBLIC execution and grant it only to a dedicated fixture role; verify effective function privileges.",
+    "potential_consequence": "The helper inserts into auth.users and no explicit PUBLIC execution revocation is present in the inspected sources. PostgreSQL's default function privileges can expose an unintended account-creation capability; deployment reachability requires verification."
+  },
+  {
+    "lens": "adversarial",
+    "location": "apps/expense/web/src/services/finance/purchase.service.ts:27",
+    "trigger_condition": "The Receipt application is adopted as the implementation template for Leave or shared employment.",
+    "guard_snippet": "Plan an explicit Receipt transition to its FastAPI business API and authorized shared-service HTTP contracts; retain useful domain behavior without copying browser-to-business-table CRUD into the new scaffold.",
+    "potential_consequence": "The current client directly reads and writes finance tables through Supabase. Reusing this pattern would bypass the agreed server ownership and API boundaries."
+  },
+  {
+    "lens": "adversarial",
+    "location": "apps/expense/web/src/services/finance/purchase.service.ts:27",
+    "trigger_condition": "getPurchases executes against the purchase schema defined by the inspected migrations.",
+    "guard_snippet": "Align the ordering/filter contract with the existing created_at field or deliberately add a domain capture timestamp, then exercise the real client/schema query.",
+    "potential_consequence": "The client orders and filters by captured_timestamp, but the shown purchase table defines created_at and updated_at instead. This indicates a concrete schema/client mismatch that should be resolved before treating Receipt as a proven reference."
+  },
+  {
+    "lens": "edge-case-hunter",
+    "location": "platform/supabase/migrations/20250815210000_platform_multitenancy_orgs.sql:77-104",
+    "trigger_condition": "Membership, organization, profile, or assigned role is revoked while an issued JWT remains valid.",
+    "guard_snippet": "Authorize against current active profile, organization, membership and assigned roles for auth.uid().",
+    "potential_consequence": "Revoked users retain permissions until token claims change."
+  },
+  {
+    "lens": "edge-case-hunter",
+    "location": "platform/supabase/migrations/20250815210000_platform_multitenancy_orgs.sql:134-188",
+    "trigger_condition": "Requested organization lacks membership, is deleted, or contains a malformed UUID.",
+    "guard_snippet": "Parse safely; select current organization only through an active organization and current membership.",
+    "potential_consequence": "Tokens retain unauthorized organization context, or token issuance fails."
+  },
+  {
+    "lens": "edge-case-hunter",
+    "location": "platform/supabase/migrations/20250815180000_platform_add_get_user_roles_function.sql:14-23",
+    "trigger_condition": "get_user_roles executes with default PL/pgSQL variable-conflict handling.",
+    "guard_snippet": "Rename variable to v_member_id; WHERE mr.member_id = v_member_id.",
+    "potential_consequence": "The unqualified member_id reference is ambiguous and role retrieval fails."
+  },
+  {
+    "lens": "edge-case-hunter",
+    "location": "platform/supabase/migrations/20250815180000_platform_add_get_user_roles_function.sql:16-23",
+    "trigger_condition": "A membership is deleted while its role assignments and JWT member_id remain.",
+    "guard_snippet": "Join active org_member and org; verify membership belongs to auth.uid().",
+    "potential_consequence": "Role retrieval returns permissions belonging to an inactive membership."
+  },
+  {
+    "lens": "edge-case-hunter",
+    "location": "apps/expense/supabase/migrations/20250815200000_finance_create_func_add_receipt_with_items.sql:15-36",
+    "trigger_condition": "Authenticated caller has organization context but lacks current receipt-creation permission.",
+    "guard_snippet": "Require current scoped membership and receipt/purchase permissions before SECURITY DEFINER inserts.",
+    "potential_consequence": "The privileged function bypasses table RLS and creates unauthorized receipts."
+  },
+  {
+    "lens": "edge-case-hunter",
+    "location": "apps/expense/supabase/migrations/20250815130000_finance_create_schema.sql:24-25,74-80",
+    "trigger_condition": "A purchase or expense type references another organization's employee, currency, or category.",
+    "guard_snippet": "Enforce same-organization references with scoped constraints and authorized shared-employment validation.",
+    "potential_consequence": "Cross-organization employee and reference-data associations enter otherwise scoped receipts."
+  },
+  {
+    "lens": "edge-case-hunter",
+    "location": "platform/supabase/migrations/20250815110000_platform_create_identity_schema.sql:17-29",
+    "trigger_condition": "An employee or service actor must exist without a Supabase login account.",
+    "guard_snippet": "Separate durable person/service identity from optional authentication-account links and organization employment.",
+    "potential_consequence": "The current profile requires an authentication account for every represented identity."
+  },
+  {
+    "lens": "edge-case-hunter",
+    "location": "apps/expense/supabase/migrations/20250815130000_finance_create_schema.sql:74-80",
+    "trigger_condition": "An employee changes login account or their original authentication account is deleted.",
+    "guard_snippet": "Reference durable employment/person identity; migrate legacy auth UUID references through an explicit mapping.",
+    "potential_consequence": "Financial attribution stays bound to the old account and account deletion can fail."
+  },
+  {
+    "lens": "edge-case-hunter",
+    "location": "platform/supabase/migrations/20250815210000_platform_multitenancy_orgs.sql:23-50",
+    "trigger_condition": "A departed member rejoins after soft deletion while old role assignments remain active.",
+    "guard_snippet": "Use explicit membership restoration with reviewed grants; retain separate employment-period history.",
+    "potential_consequence": "Reinsertion conflicts with uniqueness; restoration can reactivate old privileges."
+  },
+  {
+    "lens": "edge-case-hunter",
+    "location": "platform/supabase/migrations/20250815110000_platform_create_identity_schema.sql:237-254",
+    "trigger_condition": "An authenticated database/API caller invokes the privileged test-user helper.",
+    "guard_snippet": "REVOKE EXECUTE ON FUNCTION identity.create_user(text) FROM PUBLIC; grant only dedicated provisioning authority.",
+    "potential_consequence": "Ordinary callers can create authentication records through a privileged helper."
+  },
+  {
+    "lens": "edge-case-hunter",
+    "location": "platform/supabase/migrations/20250815210000_platform_multitenancy_orgs.sql:200-201",
+    "trigger_condition": "A caller invokes the auth hook through inherited PUBLIC function-execution privileges.",
+    "guard_snippet": "REVOKE EXECUTE ON FUNCTION identity.custom_access_token_hook(jsonb) FROM PUBLIC; grant supabase_auth_admin only.",
+    "potential_consequence": "Revoking named roles alone leaves privileged membership and role enumeration callable."
+  },
+  {
+    "lens": "edge-case-hunter",
+    "location": "platform/supabase/migrations/20250815110000_platform_create_identity_schema.sql:266-267; platform/supabase/migrations/20250815160000_platform_create_audit_log_tbl.sql:1-10",
+    "trigger_condition": "Authenticated callers insert into the later-created audit_log table.",
+    "guard_snippet": "Revoke inherited audit-table writes; permit insertion only through restricted audit mechanisms.",
+    "potential_consequence": "Default table privileges permit forged audit entries without an audit-table RLS guard."
+  },
+  {
+    "lens": "edge-case-hunter",
+    "location": "platform/supabase/migrations/20250815170000_platform_create_audit_triggers.sql:13-17",
+    "trigger_condition": "A caller explicitly supplies or alters creation attribution fields.",
+    "guard_snippet": "On insert derive created_by/created_at; on update preserve OLD creation fields.",
+    "potential_consequence": "Creation actors and timestamps can be forged despite the audit-field trigger."
+  },
+  {
+    "lens": "edge-case-hunter",
+    "location": "platform/supabase/migrations/20250815210000_platform_multitenancy_orgs.sql:23-50",
+    "trigger_condition": "Organization memberships, ownership, or role assignments change.",
+    "guard_snippet": "Attach server attribution and immutable consequential audit to org, org_member and member_role changes.",
+    "potential_consequence": "Access changes lack the audit coverage attached to the older identity tables."
+  },
+  {
+    "lens": "edge-case-hunter",
+    "location": "apps/expense/supabase/migrations/20250815130000_finance_create_schema.sql:60",
+    "trigger_condition": "A referenced content-store record is physically deleted.",
+    "guard_snippet": "Protect associated business records; use explicit attachment lifecycle instead of content-to-receipt cascading deletion.",
+    "potential_consequence": "Receipt deletion is attempted, potentially erasing evidence or failing on purchase references."
+  },
+  {
+    "lens": "verification-gap",
+    "location": "platform/supabase/migrations/20250815210000_platform_multitenancy_orgs.sql:77",
+    "trigger_condition": "The existing identity implementation is treated as verified against organization-scoped, current authorization, but the receipt tests still exercise the older single-role model.",
+    "guard_snippet": "Seed actual organizations, org_member and member_role records; assert isolation between organizations and denial using an already-issued token after membership or role revocation. Wire this suite into a documented runnable command.",
+    "potential_consequence": "Current authorization or organization isolation could be carried into the shared service with defects that the existing test assets do not establish protection against. The fixtures cannot exercise the current model: they create app_metadata.user_role, create no memberships, and insert receipts without required org_id.",
+    "gap_shape": "broken-verification-gap",
+    "consumer": "Receipt RLS policies at apps/expense/supabase/migrations/20250815140000_finance_tables_policies.sql:130",
+    "evidence": "Read all three apps/expense/web/tests/rls files: finance.test.ts is empty; receipt.rls.test.ts:33-97 creates legacy role metadata and unscoped receipt fixtures; currency.employee.read.test.ts:20-35 likewise creates no organization or membership and inserts currencies without org_id, and :62 expects legacy jwt_role. Whole-repo test/spec symbol search for custom_access_token_hook, current_org_id, current_member_id, identity.authorize, org_member and member_role found no executable membership/revocation tests. Read the content-flow integration test too: it sets a random organization UUID in metadata without creating membership. apps/expense/web/package.json declares neither Vitest nor a test script; scripts/run_unit_tests.sh and run_integration_tests.sh target Deno content functions."
+  },
+  {
+    "lens": "verification-gap",
+    "location": "apps/expense/web/tests/rls/receipt.rls.test.ts:102",
+    "trigger_condition": "The receipt RLS suite is run against any configured database containing receipts outside this test's fixtures.",
+    "guard_snippet": "Require an explicitly disposable test database and restrict teardown to IDs created by this run; apply the same rule to currency.employee.read.test.ts:40.",
+    "potential_consequence": "The service-role teardown deletes every receipt whose ID is not -1, and the currency suite does the equivalent for all currencies. Reusing these tests as consolidation verification could delete unrelated development or pilot data; receipt foreign keys could instead cause teardown failure.",
+    "gap_shape": "other"
+  }
+]

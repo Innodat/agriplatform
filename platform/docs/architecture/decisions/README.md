@@ -55,3 +55,7 @@ scaffolding, or more than one application.
 | [0036](./0036-private-content-signed-operation-lifetimes.md) | Accepted | Private document read links default to 5 minutes and upload links to 15 minutes, with reauthorized renewal |
 | [0037](./0037-operational-alerts-and-incident-grouping.md) | Accepted | Shared technical monitoring, application-specific thresholds, grouped incidents and verified recovery |
 | [0038](./0038-finalized-content-byte-identity.md) | Accepted | Finalized content IDs bind verified bytes; replacement requires a new identity and authorized audited association |
+| [0039](./0039-organization-neutral-tenancy.md) | Accepted | Organization is the general tenant concept for nonprofit, for-profit and other organizations |
+| [0040](./0040-shared-employment-core-and-application-settings.md) | Accepted | Common employment facts have one shared HTTP service owner; applications retain their own settings and workflows |
+| [0041](./0041-shared-supervisor-department-and-location.md) | Accepted | Shared employment owns optional manual supervisor, department and location; application approval policies and Leave work profiles remain separate; refines 0040 |
+| [0042](./0042-person-account-employment-and-legacy-adoption.md) | Accepted | Platform-wide person/account separation, accountless employment, one relationship per person/organization and deliberate legacy identity/Expense adoption |

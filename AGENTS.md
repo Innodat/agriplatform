@@ -38,6 +38,28 @@ A TypeScript/React and Python/FastAPI workspace with Supabase-backed application
 
 <!-- /bmad:context -->
 
+## Organization terminology and shared employment
+
+Follow [ADR-0039](platform/docs/architecture/decisions/0039-organization-neutral-tenancy.md):
+use organization/Organization and established `org_id` conventions for the general
+tenant; NGO describes a type of organization, not the generic code entity. Support
+for-profit organizations under the same isolation and authorization contracts.
+Historical NGO wording in existing decisions denotes the organization tenant.
+
+Follow [ADR-0040](platform/docs/architecture/decisions/0040-shared-employment-core-and-application-settings.md):
+common employment facts have one shared service owner, consumed through authorized
+HTTP contracts. Applications own their domain settings; do not duplicate the employee
+master or access another owner's tables. Shared employment is not authorization.
+[ADR-0041](platform/docs/architecture/decisions/0041-shared-supervisor-department-and-location.md)
+places optional manual supervisor, department and location assignments with shared
+employment; preserve organization scope, history and application workflow snapshots.
+Shared location does not replace Leave work profiles.
+Follow [ADR-0042](platform/docs/architecture/decisions/0042-person-account-employment-and-legacy-adoption.md):
+separate person/account identity, permit accountless employment, retain one employment
+relationship per person/organization with historical periods, and adopt existing
+identity/Expense references through explicit compatible mappings. Employment and
+account linking alone never grant application access.
+
 ## Platform-wide release safety
 
 All application and shared-service delivery must follow

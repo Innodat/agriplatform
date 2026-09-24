@@ -410,7 +410,11 @@ A future shared directory capability may populate reporting relationships from
 Microsoft Graph for use by Leave, Travel, and other applications. Keep this separate
 from calendar synchronization and existing Entra sign-in. Applications retain
 ownership of approval policies; the directory supplies supervisor relationships.
-Leave maintains supervisor assignments manually for MVP.
+Shared employment maintains supervisor assignments manually for MVP under
+[ADR-0041](./docs/architecture/decisions/0041-shared-supervisor-department-and-location.md).
+It also owns optional department/location assignments. Employee administration uses
+nullable scoped selectors with an unassigned choice; no chart editor is required.
+Applications retain their approval rules, and Leave work profiles remain separate.
 
 Preserve authorized overrides and expose missing or invalid manager assignments
 for resolution. Imported relationships do not independently grant NGO membership

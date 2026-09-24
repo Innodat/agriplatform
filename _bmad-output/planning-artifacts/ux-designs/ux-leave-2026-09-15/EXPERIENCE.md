@@ -126,6 +126,11 @@ applicable rules. Explain changes beside the affected field or balance, without
 a separate Review draft screen. An increased unpaid amount requires acknowledgement
 before submission. Past dates follow existing backdating rules; they are not
 automatically invalid merely because the draft was saved earlier.
+Passing the selected end date does not delete or discard the draft. Preserve details;
+explain current backdating restrictions beside the dates and require corrections only
+where necessary for submission. Future employees with explicit Leave access may prepare
+drafts. Ended employment makes an otherwise authorized draft read-only; on rehire, resume
+the retained draft and refresh its context. Revoked membership still denies access.
 
 Keep one unfinished employee application draft per employee per NGO. Apply for
 leave resumes it; show a small unfinished-application note beside the action on
@@ -154,6 +159,10 @@ beside the control without silently swapping dates. Once required inputs are
 valid, calculate duration and balance. Incomplete input must not show a misleading
 zero. If selected dates contain no scheduled working time, explain this and ask
 for an adjusted selection. Leave owns schedule/holiday/policy validation.
+Agreed 2026-09-24: once acknowledged as saved, incomplete typed dates/durations and
+blank selections survive close/reopen. Preserve invalid/reversed input with appropriate
+field feedback; do not swap, fill or erase it. Saved describes preservation rather
+than validity. Locale changes must not silently reinterpret the stored input.
 
 The first form choice is leave type. Use it to determine applicable duration
 options, policy guidance, and document requirements. No default type or duration
@@ -773,7 +782,7 @@ confirmation of entitlement, schedules, holidays, and organization-specific rule
 do not present sample allowances as universal country defaults.
 
 Keep approval requirements separate from the source of supervisor assignments.
-Maintain assignments manually for MVP; future shared Microsoft Graph directory
+Maintain supervisor assignments manually in shared employment for MVP; future shared Microsoft Graph directory
 integration may populate them without replacing Leave's approval rules. Preserve
 authorized overrides, flag missing/invalid assignments, and retain NGO/approver
 eligibility checks. Do not silently reroute pending requests on directory changes.
@@ -1012,10 +1021,20 @@ data lookup and impact calculations are not implemented.
 
 The shared-identity example is Ana’s name and sign-in email, reused by Leave and
 future applications. Leave-specific settings refer to that person rather than
-maintaining a separate editable identity. This does not move all employment data
-into a shared directory: supervisor assignment remains manual in Leave for MVP.
-API/data-ownership contracts remain architecture work; no cross-silo imports or
-new shared directory implementation are implied by the visual example.
+maintaining a separate editable identity. The subsequent ownership decision in
+[platform ADR-0040](../../../../platform/docs/architecture/decisions/0040-shared-employment-core-and-application-settings.md)
+places common employment identity and dates/status with a shared owner; Leave-specific
+settings stay local. Under
+[platform ADR-0041](../../../../platform/docs/architecture/decisions/0041-shared-supervisor-department-and-location.md),
+shared employment owns optional manual supervisor, department and location assignments.
+Use optional selectors with an unassigned choice; these describe organization-specific
+employment. Missing department/location does not block the employee or draft. A missing
+or ineligible supervisor blocks only a route that requires one. Leave resolves and
+snapshots eligible approvers at submission; changes do not silently reroute requests.
+Location changes do not silently replace Leave work profiles or overrides. The same authorized employee-settings surface may compose both
+owners through their contracts. No cross-silo imports or implemented shared directory
+are implied by the visual example. Generic tenant labels use Organization under
+[platform ADR-0039](../../../../platform/docs/architecture/decisions/0039-organization-neutral-tenancy.md).
 
 ### Setup and migration
 

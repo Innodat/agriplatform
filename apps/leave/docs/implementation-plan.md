@@ -8,6 +8,60 @@
 
 ## Purpose
 
+Planning update, 2026-09-23: all eight epic groupings and their delivery sequence,
+including E5, are approved in the [epic planning artifact](../../../_bmad-output/planning-artifacts/epics.md).
+Individual stories and implementation readiness remain pending. Apply
+[platform ADR-0039](../../../platform/docs/architecture/decisions/0039-organization-neutral-tenancy.md)
+for organization-neutral tenancy and
+[platform ADR-0040](../../../platform/docs/architecture/decisions/0040-shared-employment-core-and-application-settings.md)
+for shared common employment facts. Earlier NGO wording denotes the general
+organization tenant. The first slice remains sign in → select organization →
+create/resume draft → autosave → close → reopen.
+
+Before E1 readiness, resolve the minimal shared employment reference/read contract
+alongside identity/access; before E2 employment writes, resolve the shared owner's
+mutation/history contract. Before dependent calculations/confirmations, resolve
+freshness and employment-change impact coordination without remote waits under
+business locks. Owners: Platform identity/people owner and Leave lead.
+The [E1 shared contract discussion](../../../platform/docs/architecture/contracts/identity-access-employment-e1.md)
+records current repository evidence and proposed ownership, identity and read behavior;
+its open wire, migration and eligibility decisions remain readiness blockers. The E1
+work breakdown is approved; individual stories are still pending. The
+[draft persistence/recovery contract discussion](./architecture/contracts/e1-draft-persistence-and-recovery.md)
+records agreed current/future-employment preparation, ended-employment read-only access,
+rehire resumption and preservation after selected end dates pass. Compact replay evidence retention and
+discarded-content removal were approved on 2026-09-24. Database lifecycle rows and
+separate application-owned operation receipts clarify storage; exact physical design
+and stale-start generation checks remain proposed. Remaining wire,
+freshness, retention and concurrency details still gate stories. Discussion progress is
+not gate completion.
+The [shared API error/recovery proposal](../../../platform/docs/architecture/contracts/api-errors-and-operation-recovery.md)
+now specifies proposed error identifiers, legacy numeric-code compatibility and
+committed/unresolved operation responses. E1 must verify safe framework adapters,
+generated clients and commit-then-lost-response recovery; this proposal is not a
+completed API contract/readiness gate.
+Bounded automatic uncertain-save recovery followed by truthful unresolved feedback
+and Retry was approved on 2026-09-24. The draft-input contract now proposes preserving
+incomplete typed values across acknowledged save/reopen, also approved on 2026-09-24;
+input format, bounds and
+payload details remain pre-story work, alongside exact recovery timing.
+The [E1 acceptance map](./testing/e1-acceptance-map.md) maps approved behavior to source
+requirements and planned browser/API/database/shared-scaffold evidence. This is test
+planning, not executed acceptance or a complete requirements coverage assessment.
+The [existing identity/Expense review and consolidation plan](../../../platform/docs/architecture/reviews/identity-expense-consolidation-2026-09-23.md)
+records shared-schema adoption and legacy-consumer compatibility work. Retain one
+employment relationship per person per organization with employment-period history,
+as agreed by the user; accountless-person support and the consolidation recommendations are accepted under
+[platform ADR-0042](../../../platform/docs/architecture/decisions/0042-person-account-employment-and-legacy-adoption.md). Identity
+adoption must characterize existing behavior and repair verification fixtures before
+using them as migration evidence; the full Expense API transition is separate from E1.
+[Platform ADR-0041](../../../platform/docs/architecture/decisions/0041-shared-supervisor-department-and-location.md)
+now places optional department/location assignments and the optional manually maintained
+supervisor relationship with shared employment. Resolve null/scoped-reference,
+history and retirement contracts before E2; supervisor freshness, eligibility and
+workflow snapshot/reroute checks before E5. Leave work profiles remain independent. This does not reopen completed
+architecture consolidation or claim its new amendment has passed implementation readiness.
+
 This document is the delivery plan and progress tracker for the Leave Tracker and
 the platform capabilities established through it. It should be updated as work is
 completed, decisions change, or scope is moved between releases.
@@ -469,7 +523,7 @@ membership switching, authorization, or RLS.
 - [ ] Implement application-maintained default roles and advanced custom-role copies backed by explicit business permissions; review new grants for custom roles (platform ADR-0011). Include temporary-approver exception capability in Leave Manager by default without granting approval authority
 - [ ] Deliver shared custom-role lifecycle: blank creation, separate duplication, holder-impact review, unassigned-only deletion, preserved audit, clickable holders and return-to-origin (platform/EXPERIENCE.md)
 - [ ] Add Leave Manager and unified Approver role with relevant business permissions; enforce supervisor/final responsibilities through assigned workflow steps (ADR-0082)
-- [ ] Model departments, teams, locations, employment records, and effective-dated reporting lines
+- [ ] Consume shared employment with nullable department/location and manual supervisor assignments under platform ADR-0041; establish authorized shared administration, scoped references and effective-dated history without duplicating an employee master. Preserve separately scoped team requirements; no organization-chart editor or Graph import dependency
 - [ ] Deliver approved employee Leave-settings summary and focused edits using shared person identity, visible inherited/overridden values and separate balance actions; enforce action permissions without hiding permitted read-only history
 - [ ] Model configured approvers and delegated/acting approvers
 - [ ] Provide editable one-supervisor starter approval policy (self-approval off, three-day reminders/seven-day escalation), with client-confirmed entitlement/schedules/holidays and approval-route setup checks
