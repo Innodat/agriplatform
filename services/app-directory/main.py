@@ -15,6 +15,8 @@ from fastapi.exceptions import RequestValidationError
 from starlette.exceptions import HTTPException as StarletteHTTPException
 
 from config import settings
+from catalog import APP_CATALOG
+from urllib.parse import urlsplit
 from routers import apps as apps_router
 
 # ── App ───────────────────────────────────────────────────────────────────────
@@ -32,7 +34,11 @@ app = FastAPI(
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=settings.cors_origins,
+    allow_origins=list(dict.fromkeys([
+        *settings.cors_origins,
+        *[f"{urlsplit(entry.url).scheme}://{urlsplit(entry.url).netloc}"
+          for entry in APP_CATALOG if entry.id == 'pts' and entry.enabled],
+    ])),
     allow_credentials=True,
     allow_methods=["GET", "OPTIONS"],
     allow_headers=["*"],

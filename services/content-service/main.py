@@ -61,8 +61,8 @@ def create_app(db=None,storage=None,verify=None):
     def upload(body:Upload,x_org_id:UUID=Header(),x_service_key:str=Header(default='')):
         import_scope(x_service_key,x_org_id)
         with scoped(db,x_org_id,'service:pts-import') as c:
-            c.execute(text("INSERT INTO content.objects(org_id,id,sha256,size,media_type) VALUES(:org,:id,:sha,:size,:mime) ON CONFLICT(org_id,sha256) DO NOTHING"),{'org':x_org_id,'id':str(uuid4()),'sha':body.sha256,'size':body.size,'mime':body.media_type})
-            row=c.execute(text('SELECT * FROM content.objects WHERE sha256=:sha'),{'sha':body.sha256}).mappings().one()
+            c.execute(text("INSERT INTO content.objects(org_id,id,sha256,size,media_type) VALUES(:org,:id,:sha,:size,:mime) ON CONFLICT(org_id,sha256) WHERE state<>'failed' DO NOTHING"),{'org':x_org_id,'id':str(uuid4()),'sha':body.sha256,'size':body.size,'mime':body.media_type})
+            row=c.execute(text("SELECT * FROM content.objects WHERE sha256=:sha AND state<>'failed'"),{'sha':body.sha256}).mappings().one()
         if row['size']!=body.size or row['media_type']!=body.media_type:raise HTTPException(409,{'code':'content_identity_conflict'})
         if row['state']=='ready':return {'content_id':row['id'],'state':'ready'}
         if row['state']=='finalizing':raise HTTPException(409,{'code':'finalization_in_progress'})
@@ -78,6 +78,7 @@ def create_app(db=None,storage=None,verify=None):
             row=c.execute(text('SELECT * FROM content.objects WHERE id=:id'),{'id':str(content_id)}).mappings().one_or_none()
             if not row:raise HTTPException(404,{'code':'content_missing'})
             if row['state']=='ready':return {'content_id':content_id,'state':'ready'}
+            if row['state']=='failed':raise HTTPException(409,{'code':'failed_identity_retained'})
             claimed=c.execute(text("UPDATE content.objects SET state='finalizing',updated_at=clock_timestamp(),updated_by=current_setting('app.actor_id') WHERE id=:id AND state='pending' RETURNING id"),{'id':str(content_id)}).scalar()
             if not claimed:raise HTTPException(409,{'code':'finalization_in_progress'})
         try:provider().seal(f'{x_org_id}/staging/{content_id}',f'{x_org_id}/sealed/{content_id}',row['sha256'],row['size'])
@@ -85,7 +86,7 @@ def create_app(db=None,storage=None,verify=None):
             raise HTTPException(503,{'code':'finalization_requires_recovery'}) from None
         with scoped(db,x_org_id,'service:pts-import') as c:
             c.execute(text("UPDATE content.objects SET state='ready',updated_at=clock_timestamp(),updated_by=current_setting('app.actor_id') WHERE id=:id AND state='finalizing'"),{'id':str(content_id)})
-        audit(x_org_id,'service:pts-import',content_id,'finalized')
+            c.execute(text("INSERT INTO content.events(org_id,id,content_id,operation) VALUES(:org,:id,:content,'finalized')"),{'org':x_org_id,'id':uuid4(),'content':str(content_id)})
         return {'content_id':content_id,'state':'ready'}
     @app.post('/v1/objects/{content_id}/read')
     def read(content_id:UUID,x_org_id:UUID=Header(),x_service_key:str=Header(default=''),authorization:str=Header(default='')):

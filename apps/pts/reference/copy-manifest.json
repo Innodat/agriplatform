@@ -1,0 +1,1058 @@
+{
+  "checksums.json": {
+    "sha256": "e4ed07b0ba0b72798462d3aa81140206fd496b47d8112364ebe21ddceace4c35",
+    "bytes": 30401
+  },
+  "COLLECTION_AUDIT.md": {
+    "sha256": "25932a4e54c46fc460d0f498b41ba0473f222f9b6bc96f646fb59c084898ff9d",
+    "bytes": 3289
+  },
+  "IMPORT_COMPARISON.json": {
+    "sha256": "a822a7ecdfd1295903e8351e8520a43fa71d2c7fbc4534e2020bbf0059042f42",
+    "bytes": 22789
+  },
+  "IMPORT_REPORT.md": {
+    "sha256": "91962da9c35113d4c6ae75217c4792f9016dfbd1013bcc0348177a9132031492",
+    "bytes": 2966
+  },
+  "IMPORT_REPORT_PREVIOUS.md": {
+    "sha256": "5795d15529ff8ee0d45fde43e8569a9730691e65e346d2ce6e4ff969152c275d",
+    "bytes": 2958
+  },
+  "index.html": {
+    "sha256": "aaac03d2d7c9274051a2d9286afa0a3ecf471e85cf66450f221119db464ee8fc",
+    "bytes": 3280398
+  },
+  "library-ui.js": {
+    "sha256": "55b67e9b2684dd259b366feb9654f612d1aad625a608c980d5d8454ffbb1ce83",
+    "bytes": 5222
+  },
+  "library.json": {
+    "sha256": "8cc12967f235b400373e042a5ef4a690e5597ff25d658cf5e55f91e2e0497f73",
+    "bytes": 1997956
+  },
+  "library.sqlite": {
+    "sha256": "282e0351b38b68e1dccd3f509bfb210958086f0cfcf4b016b60c583a9dcde6df",
+    "bytes": 2678784
+  },
+  "NEXT_IMPORT_COMPARISON.json": {
+    "sha256": "8120d0a1e7f908ee423f3da3ed59d6345ba243d354b84ffeb87cec4a4d2b0809",
+    "bytes": 1881
+  },
+  "poems.jsonl": {
+    "sha256": "7f6bc98f17c2cbe623ccb493bb5914053004deabb621148b9ca228ad2277330f",
+    "bytes": 1324211
+  },
+  "README.txt": {
+    "sha256": "2b880c76aa595093fd5b483ee1c7791c0b50c3f210265f4827fba38a642fb295",
+    "bytes": 2003
+  },
+  "REVIEW_LOG.md": {
+    "sha256": "20fa251e26f939ba2f90d4ed3da52047d9675dab5cf343e81bd2454b8e867858",
+    "bytes": 585
+  },
+  "rights.json": {
+    "sha256": "16e8ab15195bc33291b518f1c7468a810648d0f011aeacafeb4863168210fa19",
+    "bytes": 39362
+  },
+  "SHARING_PLAN.md": {
+    "sha256": "9fea82db3592a7e2631b66368dfb61dcacbe49e20e7c1b166b76c5df0251a608",
+    "bytes": 3220
+  },
+  "USABILITY_UPDATE.md": {
+    "sha256": "833631667a17a9a928db4871c11da7aa0ccc64b930ac47db56c7ff8e59308191",
+    "bytes": 1303
+  },
+  "witnesses.jsonl": {
+    "sha256": "5a7c4b45f740ab4acff57d3207e6e28496c5a4c9391b73f0d09c5bde32ba1f9f",
+    "bytes": 292083
+  },
+  "sources/AIELLO-GAUDIOSO-SANDO-2019_source.pdf": {
+    "sha256": "3d2b4f59582847fe98d1093a797b5239ff4a42b1f5af323b6a92f193a7a6e6fa",
+    "bytes": 250814
+  },
+  "sources/Aiello_2020_Shuwari.pdf": {
+    "sha256": "2ea0a86764d0a4abf6e330773aa274d3a3e43178366c925999b495c855de66fe",
+    "bytes": 278549
+  },
+  "sources/Aiello_Gaudioso_2019_Katanga.pdf": {
+    "sha256": "d03b9168d6a0b1a1241ffbe34a8124c815072fefe252667bc0d13d0ee6df4e83",
+    "bytes": 244266
+  },
+  "sources/Internet_Archive_metadata.json": {
+    "sha256": "9c74fa2daea9dec52f9a08f63cdb1021d1ed8428b033794442e789c26c55d56d",
+    "bytes": 89272
+  },
+  "sources/Murithi_Misigo_2021.pdf": {
+    "sha256": "4be8ae52a2d83704629bd3845ede8858ed7b6486d06c60263dc29880ea73bced",
+    "bytes": 375153
+  },
+  "sources/source_documents.json": {
+    "sha256": "91af938b6f42ce668c067573536a8c5db6fed41dd9334137b1e92cc2214d1604",
+    "bytes": 22029
+  },
+  "sources/SOURCE_DOCUMENTS_README.txt": {
+    "sha256": "271dc361323d60ec2793406927a40f9968ff3898f6d67e23d5ac015524d5a4ac",
+    "bytes": 9920
+  },
+  "sources/STEERE-1870_source.pdf": {
+    "sha256": "a90bc56953a1f50354363ea88052c16f5878f89a3241dec0ac739b751dbe5283",
+    "bytes": 19837982
+  },
+  "sources/US_Copyright_Office_Circular_22.pdf": {
+    "sha256": "52534d28df4f4326f2edd9d71f7a89f58b645f1ba4d67b451befa6f9ab6ee543",
+    "bytes": 396206
+  },
+  "sources/Velten_1907_OCR_UNCHECKED.txt": {
+    "sha256": "ffe4ce83d29b571cbf9c283bbf2e477f9f3b2fd758cefcc1379623a93762c0c2",
+    "bytes": 827011
+  },
+  "sources/Velten_1907_source.pdf": {
+    "sha256": "3ff2bddc24a6508d664a32d9d931c5d0af4f02335018eaa93ca2921f5c975729",
+    "bytes": 31594162
+  },
+  "sources/Velten_1907_structured_OCR_UNCHECKED.xml": {
+    "sha256": "505ebc25622bf9a839c15537e21afd74abf95dcbd0f78f6a86a0d74e48a886f2",
+    "bytes": 9053656
+  },
+  "sources/Velten_1917_article_OCR_UNCHECKED.txt": {
+    "sha256": "21602b5ec2fc091038028f5c2940c1ec20d4ed7f2b4926195718509287a42753",
+    "bytes": 272813
+  },
+  "sources/Velten_1917_source.pdf": {
+    "sha256": "4f199fd1c3c41ddc934e94dad00b9b48a052285ad6683689d94587394db417c0",
+    "bytes": 89237181
+  },
+  "sources/Velten_1918_INCOMPLETE_source.pdf": {
+    "sha256": "db745ba13581493d9c8183a67501f674ec0c2251791b1f562149f3a90e1e0eb1",
+    "bytes": 49049054
+  },
+  "sources/Buettner_1894/iiif-manifest.json": {
+    "sha256": "44d24da23bcb028ddd4888c0fb3bfaa9246396cebdaf18159e1d959c2c8976d4",
+    "bytes": 199206
+  },
+  "sources/Buettner_1894/original-OCR-UNCHECKED.txt": {
+    "sha256": "bcaef943429139bcd5f380ed6eab64dc42d21dfd6e3a729e2cb71ec9caac21dd",
+    "bytes": 298716
+  },
+  "sources/Buettner_1894/scan-199.jpg": {
+    "sha256": "82c944b22bebcb38cc0e58ef244666822e8657739c99f6e83b949d08c2fba0d7",
+    "bytes": 435694
+  },
+  "sources/Buettner_1894/scan-200.jpg": {
+    "sha256": "78119cc1fb4b119df4338fa79ada780a4f978163b5e819143baef295659ba222",
+    "bytes": 413899
+  },
+  "sources/Buettner_1894/scan-201.jpg": {
+    "sha256": "d9ac28d1eb6c1f30e39238558e9f3964ea04fc4c8c3a0ce450de6147cd28b46f",
+    "bytes": 377888
+  },
+  "sources/Buettner_1894/scan-202.jpg": {
+    "sha256": "1cd5325b7b7ccab4d4ad41c775a196aba2887ffa2cd78847bbd14ef7d1040d73",
+    "bytes": 356863
+  },
+  "sources/Buettner_1894/scan-203.jpg": {
+    "sha256": "c68db440ada09fc53269bca9854cac0eec2704dbaf0957986cafb5272f7253a8",
+    "bytes": 414165
+  },
+  "sources/Buettner_1894/scan-204.jpg": {
+    "sha256": "2fefceb48d8dd36b467682cb10198b62ee1d81b81d1575725de52d0f47e0cc6e",
+    "bytes": 268996
+  },
+  "sources/Buettner_1894/scan-205.jpg": {
+    "sha256": "4aa15e762854c38acbd41f4b239a822e5044f0799836b3d6282c2c987707a582",
+    "bytes": 301509
+  },
+  "sources/Buettner_1894/scan-206.jpg": {
+    "sha256": "4ac035823b2ac2e25a57d2e2c674e46457fd69fb6c3385df1e78829132d799b5",
+    "bytes": 309710
+  },
+  "sources/Buettner_1894/scan-207.jpg": {
+    "sha256": "5e24694ac2e25887fb10c4823e48ccdd1e1447a2e6e53d26eb75d51d65a79b92",
+    "bytes": 340017
+  },
+  "sources/Buettner_1894/scan-208.jpg": {
+    "sha256": "fabb177a6f8847ce4ab7c314cdd439087ada4f58babe86591c9df9824a5c9255",
+    "bytes": 240215
+  },
+  "sources/Buettner_1894/scan-50.jpg": {
+    "sha256": "3a6346363edee4acab06c5de596fa0c4082bc9c920ac32407e63cebe9f14c6a0",
+    "bytes": 253394
+  },
+  "sources/Buettner_1894/scan-51.jpg": {
+    "sha256": "94a028809e9c1ea01402fd9a9a091876428e5b8361abcf395ae30e49e621a8e5",
+    "bytes": 207570
+  },
+  "sources/Buettner_1894/scan-52.jpg": {
+    "sha256": "918b509f08e59ac158d1b2d74e34e6970a9bd9b778c3de9da1958ff8f6ba3212",
+    "bytes": 126137
+  },
+  "sources/Buettner_1894/scan-53.jpg": {
+    "sha256": "338b919be6547e8e3ec2f792093a3faf94c6880e98dc816b73928c2e3bb7cee3",
+    "bytes": 424373
+  },
+  "sources/Buettner_1894/scan-71.jpg": {
+    "sha256": "80eca395fce00f8413a2649a6b835197e1a209c762c5bd0e6689a64954f1d2e6",
+    "bytes": 250349
+  },
+  "sources/Buettner_1894/scan-72.jpg": {
+    "sha256": "e69992fc2bdf5ad989a7386a8859d3f2e140927c756b8d60db097ed20621a502",
+    "bytes": 138738
+  },
+  "sources/Buettner_1894/scan-73.jpg": {
+    "sha256": "ad1403ff2f1edd5086d4c092af2cf63799f61ab2598ce5e0b5c4057901b67f3a",
+    "bytes": 242036
+  },
+  "sources/Buettner_1894/scan-74.jpg": {
+    "sha256": "0938c86c121ce08be95ccf2d11324961dd3162da89698fdbf304524860130888",
+    "bytes": 146262
+  },
+  "sources/Buettner_1894/scan-75.jpg": {
+    "sha256": "09957de14e78635a3eac8a3e727939dcc16e633810ed92a5efe281bea55472c2",
+    "bytes": 418259
+  },
+  "sources/Buettner_1894/scan-95.jpg": {
+    "sha256": "f58e5057fa325b2dd260056e5ef559944a304332a71d9a39c2aa22e6bfc44990",
+    "bytes": 364811
+  },
+  "sources/Buettner_1894/scan-96.jpg": {
+    "sha256": "ef840a7e5f68855b01171b3d5449b56057783cf372ad3ddf0471836e71dbc171",
+    "bytes": 152688
+  },
+  "sources/Buettner_1894/source.html": {
+    "sha256": "47192f6490c25411ff17e3eee41be8fc4edd256fb8a6521f79110cef563a6159",
+    "bytes": 345755
+  },
+  "sources/Buettner_1894/original-hocr/1.html": {
+    "sha256": "793ec64edb4d3dcf43290a6a1e461331b2e4db76a579eaa4bedcc04ca4ad46a8",
+    "bytes": 501
+  },
+  "sources/Buettner_1894/original-hocr/10.html": {
+    "sha256": "a7c78e54155db5c707542870f614dd6a43c8a556519a4e24012498e1c4554fb8",
+    "bytes": 5411
+  },
+  "sources/Buettner_1894/original-hocr/100.html": {
+    "sha256": "ce2ecd69fdbb0c4e39d527202e6fc8c06c86b252012823e2e8991bab69b360a9",
+    "bytes": 26001
+  },
+  "sources/Buettner_1894/original-hocr/101.html": {
+    "sha256": "00f8753a14a576c1092ab85e68c05a2518043ef6e5e4381de0876a92de36c8ab",
+    "bytes": 25846
+  },
+  "sources/Buettner_1894/original-hocr/102.html": {
+    "sha256": "b7be42346cfb124cc9f72cc0c31f01f6755c93a6f611f94c6dd455a1be3a5c78",
+    "bytes": 27137
+  },
+  "sources/Buettner_1894/original-hocr/103.html": {
+    "sha256": "8668da9fa74cefba7b3011992be799fe6bc4910e706a17bd6702c407acf80e22",
+    "bytes": 27499
+  },
+  "sources/Buettner_1894/original-hocr/104.html": {
+    "sha256": "d40874ea69bfcbb49d1aad5ed350793eb23f39ebac79726e7aed9139e12e8b6b",
+    "bytes": 26547
+  },
+  "sources/Buettner_1894/original-hocr/105.html": {
+    "sha256": "a8c3e33609f9bc85019e6b6e435b2359075692804d52f508425ee55f822902d5",
+    "bytes": 25485
+  },
+  "sources/Buettner_1894/original-hocr/106.html": {
+    "sha256": "1148d15f4d9cbd614bf629f3e7549999841651f40af95bd79c75da0da08f3344",
+    "bytes": 24038
+  },
+  "sources/Buettner_1894/original-hocr/107.html": {
+    "sha256": "1546ee7e6290bf372621ceb2ec6627a1279857aca79bda92a35410b8030af46a",
+    "bytes": 22261
+  },
+  "sources/Buettner_1894/original-hocr/108.html": {
+    "sha256": "cf15b7e446aafcb2014051b76a48860c87cdae32fd8b6c015c32117449bdf1ba",
+    "bytes": 25591
+  },
+  "sources/Buettner_1894/original-hocr/109.html": {
+    "sha256": "ef1c33cd83547bb101d4ceb723e552282192c20f19126465e16cfc35f3024b00",
+    "bytes": 25283
+  },
+  "sources/Buettner_1894/original-hocr/11.html": {
+    "sha256": "76f029443d3c5510eb1d1d2d74163627c153525694bd6c346912e0555fed8751",
+    "bytes": 17525
+  },
+  "sources/Buettner_1894/original-hocr/110.html": {
+    "sha256": "9357be6e0ba33bcab1b13ed6c4da02b47df8ff6a72a7ac79b95a37958f7f828e",
+    "bytes": 26078
+  },
+  "sources/Buettner_1894/original-hocr/111.html": {
+    "sha256": "932a92f4e25f09e0b01b3beaa68593026115d7c4b08a0eef274b24226cd53ea7",
+    "bytes": 25186
+  },
+  "sources/Buettner_1894/original-hocr/112.html": {
+    "sha256": "9cac5f9283cbb7c096e50f3c157bc97128b833a553fb429b945853d42be3fbb6",
+    "bytes": 25635
+  },
+  "sources/Buettner_1894/original-hocr/113.html": {
+    "sha256": "bc2be6e67a29dd34962a223efe6c78f26d161c00ddafd225638eee7096bc9881",
+    "bytes": 27582
+  },
+  "sources/Buettner_1894/original-hocr/114.html": {
+    "sha256": "faaef55f39ae3951ee4fdcbaabc51f5ba1e36e707aaffe97694a6ce695a5fa93",
+    "bytes": 26989
+  },
+  "sources/Buettner_1894/original-hocr/115.html": {
+    "sha256": "6db7d47a95575a007fbc188117d29d72e8bbecccb0deddb38da05ea6e2ffc49d",
+    "bytes": 24606
+  },
+  "sources/Buettner_1894/original-hocr/116.html": {
+    "sha256": "b35323efaaa5feb11a7d511d9864c63defb9dd714bd558498465c76842bfb14b",
+    "bytes": 25874
+  },
+  "sources/Buettner_1894/original-hocr/117.html": {
+    "sha256": "5198ebb07b4d66e7ac3f6bcba1709210c0ecb437a2efe2739d238e58a5fbe5c4",
+    "bytes": 23821
+  },
+  "sources/Buettner_1894/original-hocr/118.html": {
+    "sha256": "fbb9b9bb94b1c7f497b2f5a27b372abd31cabedfa3901a0389fc44d03bcf7f9c",
+    "bytes": 26800
+  },
+  "sources/Buettner_1894/original-hocr/119.html": {
+    "sha256": "8a6ed1bac2398fcc2540da2cf8e00b232edc83ecd73a18e10f23b7aa081592b6",
+    "bytes": 26842
+  },
+  "sources/Buettner_1894/original-hocr/12.html": {
+    "sha256": "9fc19a6cc9f92766e549d03addd583d96c74687c6f4500cc0e612160d2aeb3d7",
+    "bytes": 27753
+  },
+  "sources/Buettner_1894/original-hocr/120.html": {
+    "sha256": "d149e09aadb236d00068f0582d42ab79bb323bc07cf512dd83ebc3e9d7c250e8",
+    "bytes": 25591
+  },
+  "sources/Buettner_1894/original-hocr/121.html": {
+    "sha256": "0258014394669f4d4bc12531e9d1f3dbbc4d2e674828f9bc1745621953a245fe",
+    "bytes": 25239
+  },
+  "sources/Buettner_1894/original-hocr/122.html": {
+    "sha256": "0fba0efd6bf5bbaedb009efeb4134959592cea9caafdc6e1e11a3722c87d0dc6",
+    "bytes": 24373
+  },
+  "sources/Buettner_1894/original-hocr/123.html": {
+    "sha256": "c539593e457e3f8ba1368c58f5197541dc70b38ffead4c20a4d7f28e3ba86003",
+    "bytes": 24113
+  },
+  "sources/Buettner_1894/original-hocr/124.html": {
+    "sha256": "618c1ae2ed78d0b131f50236e7af8a91d7d61fcb45f7e5b00cf3c28551be19de",
+    "bytes": 24141
+  },
+  "sources/Buettner_1894/original-hocr/125.html": {
+    "sha256": "ca3f5c3f239fd9f82ad71d88afe9ba7c576e373a3ef29e5d05d843b9cd941af6",
+    "bytes": 26165
+  },
+  "sources/Buettner_1894/original-hocr/126.html": {
+    "sha256": "864c86ef46e23632e20cc87187190513a5ffc422e857b73e86c033a98cf9a084",
+    "bytes": 24726
+  },
+  "sources/Buettner_1894/original-hocr/127.html": {
+    "sha256": "6be4dcaa9c8e111348cd9ecb7400c96138546648bb9b24489336bbc395208590",
+    "bytes": 27394
+  },
+  "sources/Buettner_1894/original-hocr/128.html": {
+    "sha256": "e482c70d6bf294cbfccd688e66a30e935cb12e62e5d3251eec46fb920c67932f",
+    "bytes": 27128
+  },
+  "sources/Buettner_1894/original-hocr/129.html": {
+    "sha256": "56990f8cc1131a7cd738162dcbb0a446b8d8005d6d08e0b9cfe96474c5c724c2",
+    "bytes": 26310
+  },
+  "sources/Buettner_1894/original-hocr/13.html": {
+    "sha256": "ff29637be0a4cc418a39827a6d7122f63325dfefd1d6ff661e0a6ba4857dd6ba",
+    "bytes": 26228
+  },
+  "sources/Buettner_1894/original-hocr/130.html": {
+    "sha256": "fec9e0f4c95434821564da5ca3a63823b2eec64c60659189afa4c2cb425452c8",
+    "bytes": 27107
+  },
+  "sources/Buettner_1894/original-hocr/131.html": {
+    "sha256": "14016af7763977a55e01ccca8d0f3c20524b534d1414c0d8102ef1981a449251",
+    "bytes": 26687
+  },
+  "sources/Buettner_1894/original-hocr/132.html": {
+    "sha256": "efcd034687013425c5b7515767a0023282814ca71e1c1d253f1a74520a1cbe56",
+    "bytes": 27961
+  },
+  "sources/Buettner_1894/original-hocr/133.html": {
+    "sha256": "6321037018f9c2e5c2572c7a17ca482d9992baefefb6c44f3c9c3590dd1bb8d9",
+    "bytes": 27944
+  },
+  "sources/Buettner_1894/original-hocr/134.html": {
+    "sha256": "30a05a4ae77196f93cbcde28a990f2acec4a185ac527e3278bfc8fb5db3979ff",
+    "bytes": 26031
+  },
+  "sources/Buettner_1894/original-hocr/135.html": {
+    "sha256": "eeb49ec747f914e019bb88189ab70e8d23ce3a5c7fa4b4324132c5c4728135c1",
+    "bytes": 25212
+  },
+  "sources/Buettner_1894/original-hocr/136.html": {
+    "sha256": "dde3a2c476cd62233656823da25e0ced359ae33b149bad1dd1c3c03a5bc036d3",
+    "bytes": 23024
+  },
+  "sources/Buettner_1894/original-hocr/137.html": {
+    "sha256": "05e5974287abe6cfa4d60c4beee3dabc21390c704bfc51412da3cedc7d653c0c",
+    "bytes": 24039
+  },
+  "sources/Buettner_1894/original-hocr/138.html": {
+    "sha256": "45b86047c2420bbff5aae613f0b0e0aacebaa5bb2e65693a6d0d679ec300ca90",
+    "bytes": 27088
+  },
+  "sources/Buettner_1894/original-hocr/139.html": {
+    "sha256": "14f19e5c4b5da2884ea5fa21fc706de7492ac0ce644745117e1868c52997a44b",
+    "bytes": 27667
+  },
+  "sources/Buettner_1894/original-hocr/14.html": {
+    "sha256": "64c8d896835384063265dcc41552469de330e0b59ff536079ce3730b5053fd39",
+    "bytes": 24950
+  },
+  "sources/Buettner_1894/original-hocr/140.html": {
+    "sha256": "5b5f7d377edda40105a63433be394369c99d49e741e4a2e46787b9e09cbca228",
+    "bytes": 26467
+  },
+  "sources/Buettner_1894/original-hocr/141.html": {
+    "sha256": "0ac51125b5ac6bfb5962bf1f1bd357463224ea720d2845969441edeffa5fc4c6",
+    "bytes": 25822
+  },
+  "sources/Buettner_1894/original-hocr/142.html": {
+    "sha256": "5b11e7baeaa2172057ac274eaedeeab95a76163836864122fd0edc8eca4610ce",
+    "bytes": 26693
+  },
+  "sources/Buettner_1894/original-hocr/143.html": {
+    "sha256": "cefc2ad8e77242a1be0cd1e1ae5d8ae50c72c77031fc4f13098fbd8afa4ebc82",
+    "bytes": 24036
+  },
+  "sources/Buettner_1894/original-hocr/144.html": {
+    "sha256": "abbb2a9b922a9d5e7e46a8ff0585d0a4822bae3c3393b48c5786afd1289ef5a4",
+    "bytes": 24580
+  },
+  "sources/Buettner_1894/original-hocr/145.html": {
+    "sha256": "60bcb0263de0cd8b255f65ee142aba7ab16ac2ed481cc1a948711be919e6ae79",
+    "bytes": 25744
+  },
+  "sources/Buettner_1894/original-hocr/146.html": {
+    "sha256": "0dd73656a1b2240cf4ff8d857577592a9c9bd32b8ed8d1c59b0c534b9b36f0ba",
+    "bytes": 26207
+  },
+  "sources/Buettner_1894/original-hocr/147.html": {
+    "sha256": "5629490d38a2e6c7326beb6b2443e51300bfeb778054a035740df835ca6617d5",
+    "bytes": 26374
+  },
+  "sources/Buettner_1894/original-hocr/148.html": {
+    "sha256": "9a79f8f665318da6a57447339dc12b800f289164c61372a1f3fbf0ff96dc2e2e",
+    "bytes": 24610
+  },
+  "sources/Buettner_1894/original-hocr/149.html": {
+    "sha256": "de177cd4379ec96f1f2c589a7bdf1d295f2ac1bf65574a49b39ec5f5058af8ab",
+    "bytes": 26637
+  },
+  "sources/Buettner_1894/original-hocr/15.html": {
+    "sha256": "1505af85895c7b16b2736b2b198c62b8e5505879554e68601cfb80505bae4b0c",
+    "bytes": 26729
+  },
+  "sources/Buettner_1894/original-hocr/150.html": {
+    "sha256": "8571c1500fd231097f903131dd45151a094d82c53253abe8621cc214c75922e6",
+    "bytes": 3431
+  },
+  "sources/Buettner_1894/original-hocr/151.html": {
+    "sha256": "1dbee738837b52f9fa2bdd9813447b0e3c6cb097c4f3be0e6a8d83b79146fd45",
+    "bytes": 1927
+  },
+  "sources/Buettner_1894/original-hocr/152.html": {
+    "sha256": "fbfc962a9b905400b5494d390d31eb7f3f9db94130aa17d8da18b13f9b6e4178",
+    "bytes": 443
+  },
+  "sources/Buettner_1894/original-hocr/153.html": {
+    "sha256": "57f6a415327f75b47853554391e8eb5e05c470a771a21561bc8d56c243938316",
+    "bytes": 18231
+  },
+  "sources/Buettner_1894/original-hocr/154.html": {
+    "sha256": "2a50ab0ed780a681afc7f7d8889fc4a783f5c2bf826a92c93e6ab91ccffffb92",
+    "bytes": 27369
+  },
+  "sources/Buettner_1894/original-hocr/155.html": {
+    "sha256": "ea42aebd6c78fd6f768128123c7125caa62d780100351c79ee7123b5770b1d70",
+    "bytes": 27526
+  },
+  "sources/Buettner_1894/original-hocr/156.html": {
+    "sha256": "28626a7ecbb5e326c2e5b897c25f0f5518ae82025ed3a747a65dfe8071b6da05",
+    "bytes": 27958
+  },
+  "sources/Buettner_1894/original-hocr/157.html": {
+    "sha256": "a27a6288d5bcb3b8be07f7901b5f5687e84df51832d4c0c5d9ac79b853267b85",
+    "bytes": 27884
+  },
+  "sources/Buettner_1894/original-hocr/158.html": {
+    "sha256": "4fd51af195f540a86844217dcc0ed23a2330074cb93fa2d0d7a82fab0d0cd422",
+    "bytes": 28618
+  },
+  "sources/Buettner_1894/original-hocr/159.html": {
+    "sha256": "8118b5ea603e2a962232f92ec7aa61a4a06ccea3ac82f6cdbb57cfb8b981f967",
+    "bytes": 26797
+  },
+  "sources/Buettner_1894/original-hocr/16.html": {
+    "sha256": "db39a3f55795ee9fb6416143baa1d3ff9edf4db52edaa797d78265c6ab8ae272",
+    "bytes": 26724
+  },
+  "sources/Buettner_1894/original-hocr/160.html": {
+    "sha256": "2b9590aa6a40d37092213e910d5bb5179bf3c29629a947de67c437160f284ac4",
+    "bytes": 27866
+  },
+  "sources/Buettner_1894/original-hocr/161.html": {
+    "sha256": "5013688ad7bcc8e0534a4ce8dec20378c84d0c880ad0260b6624e7c92c81970d",
+    "bytes": 27075
+  },
+  "sources/Buettner_1894/original-hocr/162.html": {
+    "sha256": "7eebf8dd54538458be75180c435ed473f7ba2544498a1fc0b1a59fb6b757a603",
+    "bytes": 28823
+  },
+  "sources/Buettner_1894/original-hocr/163.html": {
+    "sha256": "b12404e3320bb3f167784eaa9e0cf042d3aff806532f87075466eb79891ea261",
+    "bytes": 27923
+  },
+  "sources/Buettner_1894/original-hocr/164.html": {
+    "sha256": "2f1f62476f1b01442d3f2dd8848242194b03b6a4254410c3c8b3efe90c70b27f",
+    "bytes": 28506
+  },
+  "sources/Buettner_1894/original-hocr/165.html": {
+    "sha256": "13d30a66208d6c44ab3dfde995da6169a9b05b9fd1700ae468216e0f685a26b6",
+    "bytes": 6764
+  },
+  "sources/Buettner_1894/original-hocr/166.html": {
+    "sha256": "0d4de47fdc6c7e3721251582559ff094c77fd9f6a907958df6536cb5f78c0ab9",
+    "bytes": 443
+  },
+  "sources/Buettner_1894/original-hocr/167.html": {
+    "sha256": "87ee59f61193ba0884bb35662f69fba7219c39c186aaa5b3f4ce5e3b2286c76a",
+    "bytes": 5023
+  },
+  "sources/Buettner_1894/original-hocr/168.html": {
+    "sha256": "b88b71cc2b38900307e3ce3f2b92f2121817cd496ddd5984e1bf2f646e8ad2dc",
+    "bytes": 1090
+  },
+  "sources/Buettner_1894/original-hocr/169.html": {
+    "sha256": "cffc97a201724b4997281a7ecc67d647bc15e9de111331fbd7b94f6ee5a61765",
+    "bytes": 21345
+  },
+  "sources/Buettner_1894/original-hocr/17.html": {
+    "sha256": "f7ecf3817d63c8359281c15f51d653dab1a729f39390018b741a2660e9dd48d6",
+    "bytes": 26459
+  },
+  "sources/Buettner_1894/original-hocr/170.html": {
+    "sha256": "9e73d967b377f7eeb6ae764bd911e7b2625e6925117e181966f2c8904b1f8337",
+    "bytes": 24814
+  },
+  "sources/Buettner_1894/original-hocr/171.html": {
+    "sha256": "9ec0d2d75e35d1fe4b56ffc87ab59981c0376aac5c21bf9e72cbb07f0671a0f7",
+    "bytes": 26800
+  },
+  "sources/Buettner_1894/original-hocr/172.html": {
+    "sha256": "346517d5ed26cb575ba24a8656384514756ba4c8aaa3471f03f84da936336aaf",
+    "bytes": 24836
+  },
+  "sources/Buettner_1894/original-hocr/173.html": {
+    "sha256": "e33065bc41ac7c718b3b571bb7d657adb13e6932fa5da2418e43d84dacdd7cc5",
+    "bytes": 27249
+  },
+  "sources/Buettner_1894/original-hocr/174.html": {
+    "sha256": "1dbf39c8e6bb23930fc78ce2843971fc29fd1cd604282e9f1afb18b6a149f42b",
+    "bytes": 24040
+  },
+  "sources/Buettner_1894/original-hocr/175.html": {
+    "sha256": "8de977b6772a80613aacc0fcc272afd2efd65b096094cafbadbd873b695ccb89",
+    "bytes": 28323
+  },
+  "sources/Buettner_1894/original-hocr/176.html": {
+    "sha256": "bc782c504b2f3f882f114ac7edc511655890c34b24cc361b404f31acb96211d2",
+    "bytes": 25879
+  },
+  "sources/Buettner_1894/original-hocr/177.html": {
+    "sha256": "54a41c378664e42e69358dc5993c8ae5c1e514ba583ff6db1148b3f6ece8619e",
+    "bytes": 27620
+  },
+  "sources/Buettner_1894/original-hocr/178.html": {
+    "sha256": "2d26071cf814f625a87272953d1cd97fc77f400e7698ae74d0c4f8c3ed739e6d",
+    "bytes": 27316
+  },
+  "sources/Buettner_1894/original-hocr/179.html": {
+    "sha256": "ffc4058a3dc81a8141b57d70771115137a51856517f14694da4a6f762c6a276b",
+    "bytes": 23994
+  },
+  "sources/Buettner_1894/original-hocr/18.html": {
+    "sha256": "dea5dafdebba5aa8232a010514bb16f092252165717c5889293b16d61b212ca8",
+    "bytes": 27414
+  },
+  "sources/Buettner_1894/original-hocr/180.html": {
+    "sha256": "e416d8c29850a14c9c9d497b148a1e2ac2028adbcd46b13e21097a04cda35e7d",
+    "bytes": 27356
+  },
+  "sources/Buettner_1894/original-hocr/181.html": {
+    "sha256": "e9678685dc5936d54239b9ab39235173abeb6ebf0f28b5d1b5e2778509165369",
+    "bytes": 28613
+  },
+  "sources/Buettner_1894/original-hocr/182.html": {
+    "sha256": "f3639c981ec6fabaf3d0fe8fb50eea0fc8705a72436678acb4f7fa4adabec492",
+    "bytes": 27424
+  },
+  "sources/Buettner_1894/original-hocr/183.html": {
+    "sha256": "711d865e9067b8ec7e1c9456faee7e41600c7d673c8050964dd1de2a9ff3484e",
+    "bytes": 28305
+  },
+  "sources/Buettner_1894/original-hocr/184.html": {
+    "sha256": "422df58bcfe50c1dd1faa372d029d012c8e07468e5fa8ea0b45296d31ff573fd",
+    "bytes": 27776
+  },
+  "sources/Buettner_1894/original-hocr/185.html": {
+    "sha256": "2589b05085720198aa900a1e9f7568ff129ed75db98a50f676d4501186da184e",
+    "bytes": 27972
+  },
+  "sources/Buettner_1894/original-hocr/186.html": {
+    "sha256": "cd8213215da95b09a4a7e1066d5647dfaa1248c25a87b0a545466fcec6d82bb0",
+    "bytes": 26689
+  },
+  "sources/Buettner_1894/original-hocr/187.html": {
+    "sha256": "123ddb43cf923f9154c1ded4a5644045c2180ff5b05d92bc2040d2f48a32e0fa",
+    "bytes": 29272
+  },
+  "sources/Buettner_1894/original-hocr/188.html": {
+    "sha256": "15854a319df510937b4b13027506582182d9eabd8b81768a0e75c831cb0f413e",
+    "bytes": 26287
+  },
+  "sources/Buettner_1894/original-hocr/189.html": {
+    "sha256": "baece13746714b2aea6fe4da1410457b9064ca163f22e234b10f329c24433d21",
+    "bytes": 26962
+  },
+  "sources/Buettner_1894/original-hocr/19.html": {
+    "sha256": "bbd62ad3003b97c0c65b7d3e7ae4af948ea842751499692514e3b16768ba18d2",
+    "bytes": 26837
+  },
+  "sources/Buettner_1894/original-hocr/190.html": {
+    "sha256": "71cb6c543301a65a51ab1bf37a20e0012b9ae299798827c630247b4b952db805",
+    "bytes": 26381
+  },
+  "sources/Buettner_1894/original-hocr/191.html": {
+    "sha256": "fb64943fa1ed229a6968ddbcc3f38d5dc309191545fe56ad732290cd310cce4a",
+    "bytes": 27126
+  },
+  "sources/Buettner_1894/original-hocr/192.html": {
+    "sha256": "94a0669d9c520745f844af4db8d3f3517a6a67ea85bacaf55cc6aed10f56c7b9",
+    "bytes": 26603
+  },
+  "sources/Buettner_1894/original-hocr/193.html": {
+    "sha256": "a7619e0045cb3e8a3f99ce3de29f80f451127024b55c4c98a004e8cf16deae67",
+    "bytes": 26820
+  },
+  "sources/Buettner_1894/original-hocr/194.html": {
+    "sha256": "0d36510acd0c2caeaef8365ca340a057cabc4f74af8048be97c2e43d28febe4e",
+    "bytes": 28157
+  },
+  "sources/Buettner_1894/original-hocr/195.html": {
+    "sha256": "a2041918549cef7c5034595275bfde8a4d1cc137eda7d5ba906d087a06b4bbf1",
+    "bytes": 12609
+  },
+  "sources/Buettner_1894/original-hocr/196.html": {
+    "sha256": "92e3dde341966c9c50250c1ec8c03eb56126f19e927470502cd16d9aef4a270c",
+    "bytes": 443
+  },
+  "sources/Buettner_1894/original-hocr/197.html": {
+    "sha256": "29f51b5755ec7b7188e7e0e816200f353925e593ac80f6f4d4dee9d59cd2c07d",
+    "bytes": 2398
+  },
+  "sources/Buettner_1894/original-hocr/198.html": {
+    "sha256": "2934b9764dab52f50938b7e834eaf40d48a180536841efa63d95ea5df6f95822",
+    "bytes": 951
+  },
+  "sources/Buettner_1894/original-hocr/199.html": {
+    "sha256": "6891ff359333d6a920fcf8e318796f9ec8fb58ae6126023dd9c525e58750c8c9",
+    "bytes": 12375
+  },
+  "sources/Buettner_1894/original-hocr/2.html": {
+    "sha256": "ca575a85d9b5a892633bd5812bbe8f756cb84124c737aa2641fd0d7e9e893d80",
+    "bytes": 441
+  },
+  "sources/Buettner_1894/original-hocr/20.html": {
+    "sha256": "6888ac75bfaa5881c72a2c76fe111bd9f6bd6d330b08b0dc9e5aa941b7fd5ae5",
+    "bytes": 26179
+  },
+  "sources/Buettner_1894/original-hocr/200.html": {
+    "sha256": "86de31694621a71e52cf28e9b956017f0e17c4e55db454fbacd5ca36034debbc",
+    "bytes": 21525
+  },
+  "sources/Buettner_1894/original-hocr/201.html": {
+    "sha256": "d9445f6b50f52e44862984f506138359ef92952f6e1d474cf96a1aae7d616f1b",
+    "bytes": 15931
+  },
+  "sources/Buettner_1894/original-hocr/202.html": {
+    "sha256": "305260e3217ba381df47c116bb729f22a7c793f14a2cc7595f6e77f86efa017d",
+    "bytes": 13905
+  },
+  "sources/Buettner_1894/original-hocr/203.html": {
+    "sha256": "312219ed3ab3360ca691d40937ab0d18d36871dff3cc278a1353da9eaaf9bcde",
+    "bytes": 19802
+  },
+  "sources/Buettner_1894/original-hocr/204.html": {
+    "sha256": "7542518b1c7973835ef52f58bc00f80f55cfa22d908dfdcbfb5b3f25f7b5d3e0",
+    "bytes": 10529
+  },
+  "sources/Buettner_1894/original-hocr/205.html": {
+    "sha256": "3103bc55c773605ea22fdadb5e21938b01386f58dff47a3348cba2245c0f649a",
+    "bytes": 10997
+  },
+  "sources/Buettner_1894/original-hocr/206.html": {
+    "sha256": "d28da010cff2cc3cdcc22e7058de759792c56d5f0f43c3afebf5beaedc54e798",
+    "bytes": 13501
+  },
+  "sources/Buettner_1894/original-hocr/207.html": {
+    "sha256": "b2007e5da7d0120e5019db3d68dfbbe8fbd394e1b041ed51fe655f923966c43a",
+    "bytes": 14493
+  },
+  "sources/Buettner_1894/original-hocr/208.html": {
+    "sha256": "97ce6958c3761a506250f6d52e0704fc995790b13b5647261a5a78eff3003eda",
+    "bytes": 9889
+  },
+  "sources/Buettner_1894/original-hocr/21.html": {
+    "sha256": "f38a32e48d2c5a49d167b16091fc0599b80418f7f1adb061385e4c401c7f9f18",
+    "bytes": 2601
+  },
+  "sources/Buettner_1894/original-hocr/22.html": {
+    "sha256": "f389b34097fefe7ac6908f2496943dc60ee57b88ed0aa62654122942d544fb65",
+    "bytes": 442
+  },
+  "sources/Buettner_1894/original-hocr/23.html": {
+    "sha256": "52c24b88de4910457a6d8ee4c3d801ebcda0577b4e88ffcaf5b3a5c55a50921e",
+    "bytes": 19386
+  },
+  "sources/Buettner_1894/original-hocr/24.html": {
+    "sha256": "577fcd7d6f6358a24a709426f1dbb347beb045db6b940e978cb86ad85d099d94",
+    "bytes": 21785
+  },
+  "sources/Buettner_1894/original-hocr/25.html": {
+    "sha256": "0908e365776004096882618a5c4a783b297437b1937b8a14cb70fa997d0666e4",
+    "bytes": 20863
+  },
+  "sources/Buettner_1894/original-hocr/26.html": {
+    "sha256": "8790aea53b5d94be6113e323b1e6ff567d782f1169b50bdc82604dd5ac57d64e",
+    "bytes": 23202
+  },
+  "sources/Buettner_1894/original-hocr/27.html": {
+    "sha256": "661d4dde2cf475ef111128afea8215b901273495ccccbc85b4151a9b5ecc1e72",
+    "bytes": 23325
+  },
+  "sources/Buettner_1894/original-hocr/28.html": {
+    "sha256": "6ef562aff1b7b863e76050f204243836a59024f2c489683664eb5913ec91c2c7",
+    "bytes": 23908
+  },
+  "sources/Buettner_1894/original-hocr/29.html": {
+    "sha256": "76b0c341ad5daef2a04a4737a6664cb684337e675b6cac2b993021a6df620dc0",
+    "bytes": 21821
+  },
+  "sources/Buettner_1894/original-hocr/3.html": {
+    "sha256": "1a8eb8c5a9988c0ad0815f7f2df3236b3ee7284e5398b581de41c73ba49489fe",
+    "bytes": 7082
+  },
+  "sources/Buettner_1894/original-hocr/30.html": {
+    "sha256": "a89e377777bf5c3e3c1e46d6ed237776ba9bc9b5fc1390f3c83e5d1eed2b5291",
+    "bytes": 22198
+  },
+  "sources/Buettner_1894/original-hocr/31.html": {
+    "sha256": "96a495c50996945d33bdb82233b0578e2d17d5da7a551f42f720532b998587f4",
+    "bytes": 24515
+  },
+  "sources/Buettner_1894/original-hocr/32.html": {
+    "sha256": "bf2c039dad04dfe9551afab3b5acb2b86c18e6a8482306769234451c107144b9",
+    "bytes": 24582
+  },
+  "sources/Buettner_1894/original-hocr/33.html": {
+    "sha256": "a244d8d91716f4dd70394ef21d7fbde4d3497dd400352982eadcb7216b968c96",
+    "bytes": 21146
+  },
+  "sources/Buettner_1894/original-hocr/34.html": {
+    "sha256": "84993c84702ec3bb6fe957ee5f14ea854041d29cef9d892f1c5fa37c2e167fd2",
+    "bytes": 22594
+  },
+  "sources/Buettner_1894/original-hocr/35.html": {
+    "sha256": "acb0a639f9c8bdf321fc8cd4d434308e66e15fe2486e04598e1e29ce5ed93629",
+    "bytes": 19320
+  },
+  "sources/Buettner_1894/original-hocr/36.html": {
+    "sha256": "4ac9c6d81b91e8d12499eaa48e4501271376495647b96c2731fdd08f903b6ecd",
+    "bytes": 22178
+  },
+  "sources/Buettner_1894/original-hocr/37.html": {
+    "sha256": "503ca5e8e8e4c67c332ded85f18a9b25c11483b94e0dbe85a16f4d9b16d111e7",
+    "bytes": 20433
+  },
+  "sources/Buettner_1894/original-hocr/38.html": {
+    "sha256": "44f475c496f0be7cea5b0143ff540a9dcf7c11ad82dac13c302fcce2e09581a2",
+    "bytes": 24374
+  },
+  "sources/Buettner_1894/original-hocr/39.html": {
+    "sha256": "a29684b16455876199faf12cc35ed26068f19c8a478858d5c0985127db5e923f",
+    "bytes": 22755
+  },
+  "sources/Buettner_1894/original-hocr/4.html": {
+    "sha256": "b25ff7a234d66762c578c123c9b44ecd80d8c29e3786e2b57b7bb076271b28a6",
+    "bytes": 19968
+  },
+  "sources/Buettner_1894/original-hocr/40.html": {
+    "sha256": "4e3fa543e6f84ead954fa974257a68e76ddef7e82b8670ce18512c5d241423f7",
+    "bytes": 23482
+  },
+  "sources/Buettner_1894/original-hocr/41.html": {
+    "sha256": "7a334f6096f0b2c61c5166cc7dba5d0985ebcd732ac2ccdeda97dc6054dffef8",
+    "bytes": 23383
+  },
+  "sources/Buettner_1894/original-hocr/42.html": {
+    "sha256": "adf8fa86ebfb86898ab170440699743876d29fa1bddddfbc79ad439ec50e8851",
+    "bytes": 25065
+  },
+  "sources/Buettner_1894/original-hocr/43.html": {
+    "sha256": "85d08b063a7746e5ca8a248ed2595c49fa7a25e80a6817848d44c6310112dea9",
+    "bytes": 21465
+  },
+  "sources/Buettner_1894/original-hocr/44.html": {
+    "sha256": "5442e85b38d5ac13e0e6966199059e4336ee2de2759fde93f5f20ff58ffcc3d4",
+    "bytes": 24993
+  },
+  "sources/Buettner_1894/original-hocr/45.html": {
+    "sha256": "63e1db4e40ac7c144d491865985e26d9ba67d9d5803544d0d1de978d4441f61f",
+    "bytes": 22166
+  },
+  "sources/Buettner_1894/original-hocr/46.html": {
+    "sha256": "7e7cda0275294451ce66e9c3be6552eda1f4aaaef200f6fd2112922398f6ac32",
+    "bytes": 21710
+  },
+  "sources/Buettner_1894/original-hocr/47.html": {
+    "sha256": "fc6f32a32df5836e7d7e65763986f0886745363e051bb00077315a3e1c9dd98f",
+    "bytes": 19676
+  },
+  "sources/Buettner_1894/original-hocr/48.html": {
+    "sha256": "73cf3c062d1da467111d20e8216cfb4f6a1af5ce04a3532e64e0750bc85868b6",
+    "bytes": 22422
+  },
+  "sources/Buettner_1894/original-hocr/49.html": {
+    "sha256": "aa97f7da2791b8f2b2ae87ef5895cefb1005018555f10f6c87708277efe7a6e1",
+    "bytes": 24114
+  },
+  "sources/Buettner_1894/original-hocr/5.html": {
+    "sha256": "7e5506db994c5123ba2c1363368b5563681db038e42a51fa3402bbf26cf9baac",
+    "bytes": 1481
+  },
+  "sources/Buettner_1894/original-hocr/50.html": {
+    "sha256": "828efc5a36893d1c5f1c946c7b1814d38986d8ca5bad9d687db9e1ff5711c6d7",
+    "bytes": 9772
+  },
+  "sources/Buettner_1894/original-hocr/51.html": {
+    "sha256": "304880b4fda459d58767d0561c9eaf46fb6b630fb118a0101ff273e384f01cf6",
+    "bytes": 1674
+  },
+  "sources/Buettner_1894/original-hocr/52.html": {
+    "sha256": "b463a2c3a88e36dcdde47d7e687fb4540f4448d349532cb75589d0ffde39b3d8",
+    "bytes": 442
+  },
+  "sources/Buettner_1894/original-hocr/53.html": {
+    "sha256": "ef19804f851d28c4cebaffa0b5eda33a8ef05582645dc3de97957815d0270d31",
+    "bytes": 15284
+  },
+  "sources/Buettner_1894/original-hocr/54.html": {
+    "sha256": "38bc4cc0d0cbd692f136afd674f109676c2942985a79591c83726cca881a5dbf",
+    "bytes": 18153
+  },
+  "sources/Buettner_1894/original-hocr/55.html": {
+    "sha256": "d339c3a30bb9d790efbacaea85aa31c8b527a891c089f1593518e8b9420b8527",
+    "bytes": 17941
+  },
+  "sources/Buettner_1894/original-hocr/56.html": {
+    "sha256": "991e06b19c99c29b5e72dcc2a3afad9cce3fb814b155b88a512ce3a7c211f247",
+    "bytes": 21611
+  },
+  "sources/Buettner_1894/original-hocr/57.html": {
+    "sha256": "294928320a3df6847d7b5cac58dd60c221126b31fb5598d06bdcc08c0c28d36a",
+    "bytes": 21300
+  },
+  "sources/Buettner_1894/original-hocr/58.html": {
+    "sha256": "68ec663e648f9b6f5d457239918b4af0d207999b49522c83f31a5796353d8ea2",
+    "bytes": 19088
+  },
+  "sources/Buettner_1894/original-hocr/59.html": {
+    "sha256": "b3b824b9f4d8e2583e016d54f5ec4d03e6657119e66fa41ad6f5f7e40302b971",
+    "bytes": 16752
+  },
+  "sources/Buettner_1894/original-hocr/6.html": {
+    "sha256": "62e03a16ce53fbd76218897354b304bbc8c71603a1e33abae0ca5df57ba57963",
+    "bytes": 441
+  },
+  "sources/Buettner_1894/original-hocr/60.html": {
+    "sha256": "da7a19afbe4849dcaafa94d74737c9469628ae9f5172043d83407756e89954c5",
+    "bytes": 19827
+  },
+  "sources/Buettner_1894/original-hocr/61.html": {
+    "sha256": "ef5a0c716dff58be46f3908ce98f858a37a7be7641bb306b589b793a869fa38c",
+    "bytes": 18233
+  },
+  "sources/Buettner_1894/original-hocr/62.html": {
+    "sha256": "a9964d5506ef8a3067197f9a664cf53cfaab1a18711ce11495005c71a7c9ac58",
+    "bytes": 18695
+  },
+  "sources/Buettner_1894/original-hocr/63.html": {
+    "sha256": "713cef079f7f4500f3b3fa47d752dc633cf75b5ef98f24dbf859e81f20f11a6b",
+    "bytes": 19590
+  },
+  "sources/Buettner_1894/original-hocr/64.html": {
+    "sha256": "bd3425e95ca639ee63e9b178e92af4ea4c235b2f64643fbc137b7237b3d914ea",
+    "bytes": 18502
+  },
+  "sources/Buettner_1894/original-hocr/65.html": {
+    "sha256": "6caaa3dfb9f19279d6c8cf5f33026074d99e1675d693abe76d56402827376340",
+    "bytes": 18913
+  },
+  "sources/Buettner_1894/original-hocr/66.html": {
+    "sha256": "f778002cab9ebbdfc537cbec4869effa223ad55caa55fff71bffbc6e5600f99c",
+    "bytes": 17662
+  },
+  "sources/Buettner_1894/original-hocr/67.html": {
+    "sha256": "c2233fdfab6521ae993321beeceb2a18fd55d773b88dd7c5b568eb14c5f00092",
+    "bytes": 18349
+  },
+  "sources/Buettner_1894/original-hocr/68.html": {
+    "sha256": "7a3bf94051b777b5656821606c85288cf78d40f8d128ae68475b5e6cb152f209",
+    "bytes": 17381
+  },
+  "sources/Buettner_1894/original-hocr/69.html": {
+    "sha256": "a38ea091e036ee9930d48ca98fc5fba7741dd130fc7884d4e39201eeff1fd77b",
+    "bytes": 16727
+  },
+  "sources/Buettner_1894/original-hocr/7.html": {
+    "sha256": "60906d1c0bfe1ef8490b493f726ed9b57fbc676edf0a3b03ba9dd7115fcedbc0",
+    "bytes": 6927
+  },
+  "sources/Buettner_1894/original-hocr/70.html": {
+    "sha256": "38b79e3a35dab87df3c362ec32a230badd7655ca15cba221bd51f204401500ce",
+    "bytes": 19752
+  },
+  "sources/Buettner_1894/original-hocr/71.html": {
+    "sha256": "1d56708e85ba68f83c7faa91f23cdeb18eccf5ccf8b3c1b2a87fe2a5f7f78642",
+    "bytes": 7527
+  },
+  "sources/Buettner_1894/original-hocr/72.html": {
+    "sha256": "e74c27295e04221240a1fe11ac0f45e49185783da8a63bad180601e6e523c971",
+    "bytes": 442
+  },
+  "sources/Buettner_1894/original-hocr/73.html": {
+    "sha256": "0501aadca68f5fb0e3b056836e3dac5e90f6eaca24c3894ce5f2cbecd8b7b450",
+    "bytes": 1675
+  },
+  "sources/Buettner_1894/original-hocr/74.html": {
+    "sha256": "3e2b39f523c7e1a6e6054045ea6fcf6c9fca8cf82dbb263a58de1d229e79c0a6",
+    "bytes": 442
+  },
+  "sources/Buettner_1894/original-hocr/75.html": {
+    "sha256": "0df6d21284faa892458e5fb1e94b1e127066874084b7733e524f6067b3dfe55d",
+    "bytes": 14580
+  },
+  "sources/Buettner_1894/original-hocr/76.html": {
+    "sha256": "c0d752ba2bc303f07af8dee118c70f9160d996ed16f2cfc87bfcacf9688db7c5",
+    "bytes": 22827
+  },
+  "sources/Buettner_1894/original-hocr/77.html": {
+    "sha256": "b1d91456dd419c954de43f7bd95dc5efa3d335f324316caf6f10088532388d1a",
+    "bytes": 19233
+  },
+  "sources/Buettner_1894/original-hocr/78.html": {
+    "sha256": "ecc510fed294389ebee4b2b88510603935ec04948732d2fd44d5283452ae1e89",
+    "bytes": 23191
+  },
+  "sources/Buettner_1894/original-hocr/79.html": {
+    "sha256": "bb8bf0b0b80f917ede05b034f6d5510969c576b3f16a6cafdd276d5f78641708",
+    "bytes": 26878
+  },
+  "sources/Buettner_1894/original-hocr/8.html": {
+    "sha256": "ba6ad6255ff1c8690bd78310fa75561c9bbfeab99d2fd7ba3d9e7994cc948e7a",
+    "bytes": 1484
+  },
+  "sources/Buettner_1894/original-hocr/80.html": {
+    "sha256": "a4b23379bd070a1f85338e018520d18a484d46e0a6f996159f27f367a2097486",
+    "bytes": 21494
+  },
+  "sources/Buettner_1894/original-hocr/81.html": {
+    "sha256": "86aa0182c711ecc922a4b08c908323fef7a8c9819e07ae184c6bd79b38a525f2",
+    "bytes": 21307
+  },
+  "sources/Buettner_1894/original-hocr/82.html": {
+    "sha256": "2a08268f99500aa3f4277a96345d60f07fcc746f66c12ec8a5e7382d72e5d5f1",
+    "bytes": 21333
+  },
+  "sources/Buettner_1894/original-hocr/83.html": {
+    "sha256": "ec14a96680f2e7341ac0e684f4e7d628407ce3e43925fa5d23a6f0d345ca0104",
+    "bytes": 22179
+  },
+  "sources/Buettner_1894/original-hocr/84.html": {
+    "sha256": "acc6326c5f06b6a03e3898f96931c19a45c2a75801ade8d22e461e315b854293",
+    "bytes": 22516
+  },
+  "sources/Buettner_1894/original-hocr/85.html": {
+    "sha256": "02ebe6aa5ef844a95024c6053e21300b26ebc59cd2a6ed7cc57bb11fa21cd346",
+    "bytes": 22019
+  },
+  "sources/Buettner_1894/original-hocr/86.html": {
+    "sha256": "707dd74e220a0ab4220a6bf930ada4f746f1ec1c0d96633e4f03065d1f295deb",
+    "bytes": 21713
+  },
+  "sources/Buettner_1894/original-hocr/87.html": {
+    "sha256": "73c5b27362372224cecaaf105e2cdb84231cb3e04c23f9711986e0a2a0849eb9",
+    "bytes": 21973
+  },
+  "sources/Buettner_1894/original-hocr/88.html": {
+    "sha256": "c817bdebc214dec5b9b9f34aa9482249ce8afd4e1e97a8e99662c3b78b9bc2d3",
+    "bytes": 21246
+  },
+  "sources/Buettner_1894/original-hocr/89.html": {
+    "sha256": "caee693c5bdfbc5491afdcb37a3d29cdd132b9f0c8eb66cfadfaa411461a9d4e",
+    "bytes": 22132
+  },
+  "sources/Buettner_1894/original-hocr/9.html": {
+    "sha256": "3af6f3f41c5b536d4cb936aa2ed41ba57adc888c5ad4112395b80f3a2b6ec7c5",
+    "bytes": 21142
+  },
+  "sources/Buettner_1894/original-hocr/90.html": {
+    "sha256": "92a9a2fef54dec22f29a743b38d86686ce66848060f82b19a57397c2cc0e370b",
+    "bytes": 23599
+  },
+  "sources/Buettner_1894/original-hocr/91.html": {
+    "sha256": "5ec7e48a8747db5ba886b953b347e851b9fc3b5cb13f63e159c1a50aa353154c",
+    "bytes": 21885
+  },
+  "sources/Buettner_1894/original-hocr/92.html": {
+    "sha256": "7dc16bf1611badbb501e7a19a1bdf145445858512f8ee0c33d92919272b691e9",
+    "bytes": 22505
+  },
+  "sources/Buettner_1894/original-hocr/93.html": {
+    "sha256": "92d82170ba327e72bcc25e2989dc97df80698d1902524f4d306a767491953836",
+    "bytes": 22598
+  },
+  "sources/Buettner_1894/original-hocr/94.html": {
+    "sha256": "2e491bc82d7ef98280c959ef6f1784a5c8040c1a981718d761fda5081ff324da",
+    "bytes": 21531
+  },
+  "sources/Buettner_1894/original-hocr/95.html": {
+    "sha256": "029d8e86b731b85411d8efbe0d1541499cb530020cd140235c256950dfea1140",
+    "bytes": 17414
+  },
+  "sources/Buettner_1894/original-hocr/96.html": {
+    "sha256": "855d25b5667e3afa0cfa8b83fd5ec5ec6fb3d7f7f93c8f55197074e99bf8f8ab",
+    "bytes": 442
+  },
+  "sources/Buettner_1894/original-hocr/97.html": {
+    "sha256": "29005e21c124359cd0856b16d931d69b348dda941c3c2264602992b71a67bde3",
+    "bytes": 1467
+  },
+  "sources/Buettner_1894/original-hocr/98.html": {
+    "sha256": "5589385c5824366495be2dc403cbef583024598d20c86b2fbf56bc032a5dd08f",
+    "bytes": 442
+  },
+  "sources/Buettner_1894/original-hocr/99.html": {
+    "sha256": "6313bacb1321242264b4ba02c5bc624b05563d0f67207c7275285341c1bbd8c1",
+    "bytes": 20178
+  }
+}
