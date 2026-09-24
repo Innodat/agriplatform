@@ -114,3 +114,19 @@ Keep these in sync. If you change a field, update both.
 ## Silo note
 
 This service lives in `services/` (not `apps/` or `platform/`). It is a **cross-app runtime service** — it has a clear API contract, can be versioned, secured, monitored, and replaced independently. Apps call it over HTTP; they do not import from it at build time.
+
+### Current Supabase session verification
+
+Configure `SUPABASE_URL` and `SUPABASE_ANON_KEY` (public Auth key) alongside
+`SUPABASE_JWT_SECRET` when supporting current Supabase ES256/RS256 sessions.
+Environment variables and the service's `.env`/`.env.local` files are supported.
+Asymmetric sessions are verified through that project's `/auth/v1/user` endpoint;
+its user ID must match the token subject before directory context is read. Auth
+failure returns anonymous context. HTTP timeouts are five seconds per operation,
+not a total wall-clock deadline. Legacy HS256 verification remains compatible.
+No service-role key is required. Application APIs still enforce actual permissions.
+
+The verifier is refreshed directly from
+`platform/builder-cli/templates/backend/auth/jwt_optional.py`. The Supabase settings
+block is refreshed from the adjacent `config.py` template, retaining this service's
+application URL and CORS settings. The builder CLI is not yet implemented.

@@ -17,6 +17,8 @@ Usage:
 Token format: Supabase-issued JWT in Authorization: Bearer <token>
 """
 from typing import Annotated, Optional
+import httpx
+from starlette.concurrency import run_in_threadpool
 from fastapi import Depends, Request
 from jose import JWTError, jwt
 
@@ -33,17 +35,34 @@ def _extract_token(request: Request) -> Optional[str]:
 
 
 def _decode_token(token: str) -> Optional[dict]:
-    if not settings.supabase_jwt_secret:
-        return None
     try:
-        payload = jwt.decode(
-            token,
-            settings.supabase_jwt_secret,
-            algorithms=[ALGORITHM],
-            options={"verify_aud": False},
+        algorithm = jwt.get_unverified_header(token).get("alg")
+        if algorithm == ALGORITHM:
+            if not settings.supabase_jwt_secret:
+                return None
+            return jwt.decode(
+                token, settings.supabase_jwt_secret, algorithms=[ALGORITHM],
+                options={"verify_aud": False},
+            )
+        if algorithm not in {"ES256", "RS256"}:
+            return None
+        # Auth verifies signature, issuer and expiry against this configured project.
+        # Never derive the verification endpoint from untrusted token claims.
+        url = settings.supabase_url.rstrip("/")
+        key = settings.supabase_anon_key
+        if not url or not key:
+            return None
+        response = httpx.get(
+            url + "/auth/v1/user",
+            headers={"Authorization": "Bearer " + token, "apikey": key},
+            timeout=5,
         )
-        return payload
-    except JWTError:
+        response.raise_for_status()
+        claims = jwt.get_unverified_claims(token)
+        # Claims are used only after Auth has accepted this exact token.
+        actor = response.json().get("id")
+        return claims if actor and claims.get("sub") == actor else None
+    except (JWTError, httpx.HTTPError, ValueError, AttributeError):
         return None
 
 
@@ -55,7 +74,7 @@ async def get_optional_user(request: Request) -> Optional[dict]:
     token = _extract_token(request)
     if not token:
         return None
-    return _decode_token(token)
+    return await run_in_threadpool(_decode_token, token)
 
 
 async def get_required_user(request: Request) -> dict:
@@ -68,7 +87,7 @@ async def get_required_user(request: Request) -> dict:
     token = _extract_token(request)
     if not token:
         raise UnauthorizedError("Authentication required")
-    payload = _decode_token(token)
+    payload = await run_in_threadpool(_decode_token, token)
     if not payload:
         raise UnauthorizedError("Invalid or expired token")
     return payload

@@ -15,7 +15,12 @@ class Settings(BaseSettings):
         extra="ignore",
     )
 
-    # Supabase (used for JWT verification only — no data CRUD)
+    # Supabase
+    supabase_url: str = ""
+    supabase_service_key: str = ""
+    supabase_anon_key: str = ""
+
+    # JWT — Supabase signs JWTs with the project JWT secret
     supabase_jwt_secret: str = ""
 
     # App

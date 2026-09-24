@@ -5,6 +5,8 @@ shared current-access and private-content owners. Production uses the **existing
 Supabase PostgreSQL, Auth and Storage project**. The standalone PostgreSQL container
 used in verification is a disposable test fixture only.
 
+For the prepared local Supabase environment, see [sign-in, testing and restart instructions](docs/LOCAL_SETUP.md).
+
 ## Local dependencies and commands
 
 From the repository root, create an isolated environment and install the requirements:
@@ -62,6 +64,11 @@ normal production/destructive-change authorization:
    `tools/bootstrap_roles.sql`, provision separate restricted LOGIN credentials and
    schemas, and keep migrator credentials out of APIs. The file intentionally
    creates no passwords and is not blindly replayable against an existing deployment.
+   Supabase administrators are not PostgreSQL superusers: after creating the owner
+   roles and before creating their schemas, grant the three migrator roles to the
+   provisioning administrator so it can assign schema ownership. The local setup
+   used `GRANT pts_migrator, access_migrator, content_migrator TO postgres`.
+   Do not grant these owner roles to API or importer logins.
 2. Apply `services/access/tools/identity_bridge.sql` through the identity owner after
    existing identity migrations. It grants only current organization/member columns
    and adds actor/organization-scoped read policies for access_runtime.
