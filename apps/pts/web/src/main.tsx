@@ -2,7 +2,9 @@ import React,{useEffect,useRef,useState} from 'react';
 import {createRoot} from 'react-dom/client';
 import {AppLauncher} from '@platform/ui-business';
 import {createAppDirectoryClient,type AppEntry} from '@platform/app-directory-client';
-import {auth,configured,type Identity} from './auth';
+import {auth,clearPasswordFlow,passwordFlowFor,consumePasswordReturn,type Identity,type PasswordFlow} from './auth';
+import type {AuthChangeEvent,Session} from '@supabase/supabase-js';
+import {LoginForm} from './LoginForm';
 import type {CollectionResponse,PoemResponse,DocumentResponse,Selection} from './contracts';
 import './style.css';
 
@@ -15,6 +17,7 @@ const initial=new URLSearchParams(location.search);
 const initialFilters={...defaults,...Object.fromEntries(Object.keys(defaults).filter(k=>initial.has(k)).map(k=>[k,initial.get(k)!]))};
 function App(){
  const [identity,setIdentity]=useState<Identity|null>(null),[authReady,setAuthReady]=useState(false),[apps,setApps]=useState<AppEntry[]>([]);
+ const [passwordFlow,setPasswordFlow]=useState<PasswordFlow|null>(null),[loginError,setLoginError]=useState('');
  const [org,setOrg]=useState(validOrg(initial.get('org')));
  const [applied,setApplied]=useState<Filters>(initialFilters),[draft,setDraft]=useState<Filters>(initialFilters);
  const [poemId,setPoemId]=useState(initial.get('poem')||''),[data,setData]=useState<CollectionResponse|null>(null),[single,setSingle]=useState<PoemResponse|null>(null);
@@ -25,24 +28,47 @@ function App(){
  const generation=useRef(0),current=useRef<Identity|null>(null),lastUser=useRef(sessionStorage.getItem('pts-last-user'));
  function clear(){authorityEpoch.current++;generation.current++;setData(null);setSingle(null);setCopyText('');setDocumentUrl('');copyDialog.current?.close();setNotice('');}
  useEffect(()=>{
-   function accept(session:any){
+   let active=true,initialized=false,revision=0;
+   function accept(session:Session|null,event?:AuthChangeEvent){
+     revision++;
      const next=session?{id:session.user.id,token:session.access_token}:null;
-     if(current.current?.id!==next?.id){clear();setApps([]);}
+     const flow=passwordFlowFor(session,event);
+     if(current.current?.id!==next?.id||flow){clear();setApps([]);setError('');}
      if(next&&lastUser.current&&lastUser.current!==next.id){history.replaceState(null,'',location.pathname);setApplied(defaults);setDraft(defaults);setPoemId('');setOrg('');setNotice('Account changed. Choose your organization to continue.');}
+     if(next&&flow==='recovery'){
+       const restored=consumePasswordReturn(next.id);
+       if(restored){setApplied({...defaults,...Object.fromEntries(Object.keys(defaults).filter(k=>restored.has(k)).map(k=>[k,restored.get(k)!]))});setDraft(defaults);setOrg(validOrg(restored.get('org')));setPoemId(restored.get('poem')||'');history.replaceState(null,'',location.pathname+'?'+restored);}
+     }
      if(next){lastUser.current=next.id;sessionStorage.setItem('pts-last-user',next.id);}
-     current.current=next;setIdentity(next);setAuthReady(true);
+     current.current=next;setIdentity(next);setPasswordFlow(flow);setLoginError('');setAuthReady(true);
    }
-   auth.getSession().then(({data})=>accept(data.session));
-   const {data}=auth.onAuthStateChange((_event,session)=>accept(session));
-   return ()=>data.subscription.unsubscribe();
+   const {data}=auth.onAuthStateChange((event,session)=>{if(active&&initialized&&event!=='INITIAL_SESSION')accept(session,event);});
+   void (async()=>{
+     const result=await auth.initialize();
+     if(!active)return;
+     initialized=true;
+     if(result.error){clearPasswordFlow();history.replaceState(null,'',location.pathname+location.search);setLoginError('This sign-in link is invalid or has expired. Request a new reset link or sign in with your password.');setAuthReady(true);return;}
+     const atStart=revision;
+     const {data,error}=await auth.getSession();
+     if(active&&revision===atStart){if(error){setLoginError('We could not restore your session. Please sign in again.');setAuthReady(true);}else accept(data.session);}
+   })().catch(()=>{if(active){setLoginError('We could not restore your session. Please sign in again.');setAuthReady(true);}});
+   return ()=>{active=false;data.subscription.unsubscribe();};
  },[]);
+ function passwordSaved(){clearPasswordFlow();setPasswordFlow(null);setNotice('Password saved.');setReload(v=>v+1);}
+ async function signOut(){
+   clear();
+   const {error}=await auth.signOut({scope:'local'});
+   if(error){setLoginError('We could not sign you out. Please try again.');setError('We could not sign you out. Please try again.');return;}
+   clearPasswordFlow();clear();current.current=null;setIdentity(null);setPasswordFlow(null);
+ }
+
  useEffect(()=>{
-   if(!identity)return;
+   if(!identity||passwordFlow||!authReady)return;
    let active=true;
    const directory=createAppDirectoryClient({baseUrl:import.meta.env.VITE_APP_DIRECTORY_URL||'http://localhost:8001',getToken:async()=>identity.token});
    directory.getMyApps().then(result=>{if(active){setApps(result.apps);if(!org&&validOrg(result.context.org_id)) {setOrg(result.context.org_id!);}}}).catch(()=>{if(active)setApps([]);});
    return ()=>{active=false;};
- },[identity?.id]);
+ },[identity?.id,passwordFlow,authReady]);
  useEffect(()=>{const back=()=>{
    const wasFilter=dialog.current?.open;dialog.current?.close();
    if(pendingFilters.current){setApplied(pendingFilters.current);pendingFilters.current=null;filterButton.current?.focus();return;}
@@ -74,14 +100,14 @@ function App(){
  }
  const query=new URLSearchParams(applied).toString();
  useEffect(()=>{
-   if(!identity||!org)return;
+   if(!identity||!org||passwordFlow||!authReady)return;
    const serial=++generation.current;setLoading(true);setError('');setData(null);setSingle(null);
    const path=poemId?'/api/poetry/'+encodeURIComponent(poemId):'/api/poetry?'+query;
    request<CollectionResponse|PoemResponse>(path).then(result=>{if(serial===generation.current){if(poemId)setSingle(result as PoemResponse);else setData(result as CollectionResponse);}}).catch(e=>{if(serial===generation.current)setError(e.message);else if(current.current)setError(e.message);}).finally(()=>{if(serial===generation.current)setLoading(false);});
    const params=new URLSearchParams(applied);params.set('org',org);if(poemId)params.set('poem',poemId);
    history.replaceState(history.state,'','?'+params);
    return ()=>{generation.current++;};
- },[identity?.id,identity?.token,org,query,poemId,reload]);
+ },[identity?.id,identity?.token,org,query,poemId,reload,passwordFlow,authReady]);
  useEffect(()=>{const refresh=()=>{if(document.visibilityState==='visible'){clear();setReload(v=>v+1);}};window.addEventListener('focus',refresh);document.addEventListener('visibilitychange',refresh);return ()=>{window.removeEventListener('focus',refresh);document.removeEventListener('visibilitychange',refresh);};},[]);
  const selection:Selection|null=single?.evidence||data;
  const poems=single?[single.poem]:(data?.poems||[]);
@@ -90,9 +116,9 @@ function App(){
  async function openDocument(id:string){const epoch=authorityEpoch.current;try{const result=await request<DocumentResponse>('/api/documents/'+encodeURIComponent(id));if(epoch!==authorityEpoch.current)return;const url=safeLink(result.url);if(!url)throw new Error('The document link is unavailable.');setDocumentUrl(url);window.open(url,'_blank','noopener,noreferrer');setTimeout(()=>setDocumentUrl(''),Math.min(result.expires_in||300,300)*1000);setNotice(result.status==='link_only'?'Opened the original reference. No local copy is held.':'Opened private document. If the link expires, open it again.');}catch(e){setError((e as Error).message);}}
  function filterFields(values:Filters,update:(f:Filters)=>void,prefix:string){return <><label>Show poems<select value={values.availability} onChange={e=>update({...values,availability:e.target.value})}><option value="text">With text only</option><option value="all">All catalogue records</option><option value="checked">Checked transcriptions (complete)</option><option value="review">Needs text review</option></select></label>{(['source','genre','origin','dialect','status'] as const).map(key=><label key={key}>{key==='status'?'Text status':key[0].toUpperCase()+key.slice(1)}<select id={prefix+key} value={values[key]} onChange={e=>update({...values,[key]:e.target.value})}><option value="">All {key==='status'?'statuses':key+'s'}</option>{(data?.filters[key]||[]).map(v=><option key={v} value={v}>{v.replaceAll('_',' ')}</option>)}</select></label>)}</>;}
  const changed=Object.keys(defaults).filter(k=>applied[k as keyof Filters]!==defaults[k as keyof Filters]).length;
- return <><header className="shell"><AppLauncher apps={apps}/><a href="?" className="brand">PtS</a><span>Swahili Poetry</span>{identity&&<button className="signout" onClick={()=>{clear();auth.signOut();}}>Sign out</button>}</header><main>
+ return <><header className="shell"><AppLauncher apps={apps}/><a href="?" className="brand">PtS</a><span>Swahili Poetry</span>{identity&&<button className="signout" onClick={signOut}>Sign out</button>}</header><main>
  {!poemId&&<><h1>Swahili Poetry</h1><p className="intro">Read the collected poems, their source witnesses and the evidence behind them.</p></>}
- {!authReady?<p role="status">Checking your session…</p>:!identity?<section className="panel"><h2>Sign in to read</h2><p>This collection is available to authorized organization readers.</p><button disabled={!configured} onClick={()=>auth.signInWithOAuth({provider:'azure',options:{scopes:'email',redirectTo:location.origin+location.pathname+location.search}})}>Continue with Microsoft</button>{!configured&&<p>Sign-in is not configured for this installation.</p>}</section>:<>
+ {!authReady?<p role="status">Checking your session…</p>:(!identity||passwordFlow)?<LoginForm key={(identity?.id||'signed-out')+':'+passwordFlow+':'+loginError} flow={passwordFlow} initialError={loginError} onPasswordSaved={passwordSaved}/>:<>
  {!org&&<p role="status">No organization is selected. Select your organization in the platform directory, then return to this collection.</p>}
  {org&&<>{!poemId&&<section aria-label="Collection filters" className="panel"><label>Search title, poet, place, form or dialect<input type="search" value={applied.search} onChange={e=>setApplied({...applied,search:e.target.value})}/></label><div className="desktop-filters">{filterFields(applied,setApplied,'desktop-')}<button onClick={()=>setApplied(defaults)}>Reset filters</button></div><button className="mobile-filters" ref={filterButton} onClick={()=>{setDraft(applied);history.pushState({ptsFilters:true},'',location.href);dialog.current?.showModal();}}>Filters{changed?' ('+changed+')':''}</button></section>}
  {!poemId&&<p className="quality-note">Checked transcriptions reflect assistant source checks and completeness in the cited witness. They do not establish independent human review, rights clearance or training readiness.</p>}

@@ -6,23 +6,27 @@ PostgreSQL verification containers are stopped and are not part of this setup.
 
 ## Open and sign in
 
-1. Open the local mailbox at **http://localhost:54324**.
-2. Open the newest sign-in email addressed to **pts-reader@local.test** and click
-   its sign-in link. It opens **http://localhost:5179**.
-3. The header shows **PtS → Swahili Poetry**. This test reader belongs to the
-   **PtS Local Testing** organization and has explicit read, export and document
-   permissions. It is not a platform administrator.
+1. Open **http://localhost:5179** and sign in with an account created in local Supabase.
+2. To choose a password for the prepared **pts-reader@local.test** account, select
+   **Forgot password?**, enter that email and send a reset link.
+3. Open **http://localhost:54324**, choose the newest reset email, follow its link
+   and save your new password. You can then sign in normally with email/password.
 
-Mail is captured locally; nothing is delivered to an external mailbox. Links are
-single-use. If the link has expired or was already used, run from the repository root:
+The test reader belongs to **PtS Local Testing** and has explicit read, export and
+source-document permissions. It is not a platform administrator. Mail is captured
+locally; links are single-use. The optional `.local/login.py` helper still issues
+magic links, but normal sign-in no longer needs it.
 
-```bash
-apps/pts/.local/venv/bin/python apps/pts/.local/login.py
-```
+Administrators can use **Supabase Studio → Authentication → Users** to create a
+user with a password or send an invitation. An invitation opens **Set your password**.
+Creating an identity does not grant collection access: membership and the three
+PtS permissions are still required (see the main README). The local Auth Site URL
+is `http://localhost:5179`, and public self-registration is disabled.
 
-Use the newest email. The Microsoft sign-in button needs a configured Entra
-provider; for this local setup use the mailbox link instead. Both paths use
-Supabase Auth and the same backend permission checks.
+Microsoft sign-in is hidden by default. To enable it, configure Supabase's Azure
+provider, set `VITE_MICROSOFT_SIGN_IN_ENABLED=true` and restart Vite. For a hosted
+project, set the corresponding deployed Auth Site URL and allowed redirects and
+configure email delivery; no hosted settings were changed here.
 
 ## Things to try
 
@@ -97,6 +101,6 @@ README's explicit provisioning steps for a different workstation or database.
   directory verifier. The owning scaffold and directory copy now verify current
   sessions through configured Supabase Auth, while retaining HS256 compatibility.
 
-Before production, provision the intended users and organization, configure Entra
+Before production, provision the intended users and organization, configure the desired sign-in providers, email delivery
 and production URLs, and review source reuse restrictions. Production migration
 and public deployment remain separate approval steps.

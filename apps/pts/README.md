@@ -29,7 +29,11 @@ Do not use the HTML/SQLite/JSONL alternative snapshots as extra collection rows.
 runtime file. Assign only the variables needed by each process; never source the
 entire catalogue into an API. Generate distinct secrets and use TLS between deployed
 services. The browser gets only public Supabase Auth configuration and API URLs from
-`web/.env.example`. Configure Entra federation and an allowed callback for the reader.
+`web/.env.example`. Email/password sign-in and invitation/recovery password setup use Supabase Auth.
+Set the Auth Site URL and an allowed callback to the reader URL. Microsoft Entra
+is optional: enable the Supabase Azure provider and set
+`VITE_MICROSOFT_SIGN_IN_ENABLED=true` to show its button. Keep public signup
+disabled for administrator-provisioned accounts. See [login setup](docs/LOGIN.md).
 Organization selection comes from current app-directory context or a validated UUID
 in a deep link; it never proves access.
 

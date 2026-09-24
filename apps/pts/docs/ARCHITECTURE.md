@@ -1,7 +1,7 @@
 # PtS Swahili Poetry owner design
 
 The production target is the existing Supabase project: PostgreSQL, Supabase Auth
-(federated Microsoft Entra), and a private Supabase Storage bucket. The disposable
+(email/password, with optional Microsoft Entra federation), and a private Supabase Storage bucket. The disposable
 PostgreSQL container is only a verification fixture, never a new production database.
 The application boundary follows platform ADRs 0001–0005, 0011, 0014–0023, 0025,
 0030–0032 and 0035–0038. No accepted decision is superseded.
