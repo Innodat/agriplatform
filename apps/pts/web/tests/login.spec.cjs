@@ -91,3 +91,15 @@ test('Microsoft sign-in is opt-in and preserves the local return URL',async({pag
  const callback=new URL(new URL(page.url()).searchParams.get('redirect_to'));
  expect(callback.origin).toBe('http://127.0.0.1:5181');expect(callback.searchParams.get('org')).toBe(org);expect(callback.searchParams.get('availability')).toBe('checked');
 });
+
+test('connection reset gives a useful message and permits retry',async({page})=>{
+ await setup(page);await page.route('**/auth/v1/token*',r=>r.abort('connectionreset'));
+ await page.goto('/');await page.getByLabel('Email',{exact:true}).fill(user.email);await page.getByLabel('Password',{exact:true}).fill('fixture-password');await page.getByRole('button',{name:'Sign in',exact:true}).click();
+ await expect(page.getByRole('alert')).toContainText('could not reach the sign-in service');await expect(page.getByRole('button',{name:'Sign in',exact:true})).toBeEnabled();
+});
+
+test('stalled sign-in times out and restores the submit button',async({page})=>{
+ test.setTimeout(25000);await setup(page);await page.route('**/auth/v1/token*',()=>{});
+ await page.goto('/');await page.getByLabel('Email',{exact:true}).fill(user.email);await page.getByLabel('Password',{exact:true}).fill('fixture-password');await page.getByRole('button',{name:'Sign in',exact:true}).click();
+ await expect(page.getByRole('alert')).toContainText('could not reach the sign-in service',{timeout:19000});await expect(page.getByRole('button',{name:'Sign in',exact:true})).toBeEnabled();
+});

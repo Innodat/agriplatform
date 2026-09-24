@@ -7,7 +7,12 @@ const callback=new URLSearchParams(location.hash.slice(1));
 const callbackType=callback.get('type');
 let pendingFlow:PasswordFlow|null=Boolean(callback.get('access_token'))&&(callbackType==='invite'||callbackType==='recovery')?callbackType:null;
 const flowKey='pts-password-flow';
-export const auth=createClient(import.meta.env.VITE_SUPABASE_URL || 'https://unconfigured.invalid',import.meta.env.VITE_SUPABASE_ANON_KEY || 'unconfigured',{auth:{storageKey:'pts-auth'}}).auth;
+const authFetch:typeof fetch=(input,init)=>{
+ const deadline=AbortSignal.timeout(15000);
+ const caller=init?.signal||(input instanceof Request?input.signal:undefined);
+ return fetch(input,{...init,signal:caller?AbortSignal.any([caller,deadline]):deadline});
+};
+export const auth=createClient(import.meta.env.VITE_SUPABASE_URL || 'https://unconfigured.invalid',import.meta.env.VITE_SUPABASE_ANON_KEY || 'unconfigured',{auth:{storageKey:'pts-auth'},global:{fetch:authFetch}}).auth;
 export type Identity={id:string;token:string};
 export function clearPasswordFlow(){pendingFlow=null;sessionStorage.removeItem(flowKey);}
 export function passwordFlowFor(session:Session|null,event?:AuthChangeEvent):PasswordFlow|null{
@@ -26,6 +31,7 @@ export function passwordFlowFor(session:Session|null,event?:AuthChangeEvent):Pas
 }
 export function authError(error:unknown,action:'login'|'reset'|'password'|'oauth'){
  const code=(error as {code?:string})?.code;
+ if((error as {name?:string})?.name==='AuthRetryableFetchError'&&(error as {status?:number})?.status===0)return 'We could not reach the sign-in service. Check your connection and try again.';
  if(code==='over_email_send_rate_limit'||code==='over_request_rate_limit')return 'Too many attempts. Please wait a little and try again.';
  if(action==='login'&&code==='invalid_credentials')return 'Check your email and password, then try again.';
  if(action==='login'&&code==='email_not_confirmed')return 'Confirm your email using your invitation or confirmation link, then sign in.';

@@ -104,3 +104,23 @@ README's explicit provisioning steps for a different workstation or database.
 Before production, provision the intended users and organization, configure the desired sign-in providers, email delivery
 and production URLs, and review source reuse restrictions. Production migration
 and public deployment remain separate approval steps.
+
+
+## Windows / WSL Auth connectivity
+
+Use **http://localhost:5179** for the reader. Its local browser Auth URL must be
+`http://localhost:54321`, matching `api.external_url` in `supabase/config.toml`.
+On this workstation, native Windows requests to `127.0.0.1:54321` timed out while
+`localhost:54321` responded; testing only inside WSL missed that difference.
+The local Content service also signs document links with the localhost endpoint.
+The services' internal database/Auth connections can continue using 127.0.0.1.
+
+After changing Vite environment settings, reload the reader tab. Request a new
+password reset email and use its newest link only once; previously generated links
+retain their old hostname. Network failures now show connectivity guidance and
+Auth fetches abort after 15 seconds so the form permits retry.
+
+The requested **PtS** organization (description **Psalms that Sings**) is separate
+from the original testing organization and holds its own imported collection.
+Its production creation is recorded in `deployment/organization.json` and the
+[release checklist](LOCAL_AUTH_CONNECTIVITY.md#requested-organization-and-production-release).

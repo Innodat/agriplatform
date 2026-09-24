@@ -82,7 +82,11 @@ normal production/destructive-change authorization:
    /tmp/pts-venv/bin/python tools/py/deploy_pts.py --release-id REVIEWED_RELEASE --evidence /tmp/pts-release-REVIEWED_RELEASE.json
    ```
 
-4. Provision explicit application grants for the authorized organization/user through
+4. At production release, provision the requested **PtS** organization, description
+   **Psalms that Sings**, from `deployment/organization.json`; follow the
+   [identity/access-owner provisioning checklist](docs/LOCAL_AUTH_CONNECTIVITY.md#requested-organization-and-production-release).
+   Resolve production identities explicitly; never copy local UUIDs.
+   Provision explicit application grants for the authorized organization/user through
    a reviewed access-owner operation. The maintained Reader permission set is
    `pts.poetry.read`, `pts.poetry.export`, `pts.poetry.documents`. No default reader,
    email allowlist, production UUID or admin bypass is invented. Each access.grants

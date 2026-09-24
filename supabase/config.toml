@@ -8,6 +8,8 @@ project_id = "agriplatform"
 enabled = true
 # Port to use for the API URL.
 port = 54321
+# Windows browsers reach WSL Auth through localhost; also used in email links.
+external_url = "http://localhost:54321"
 # Schemas to expose in your API. Tables, views and stored procedures in this schema will get API
 # endpoints. `public` and `graphql_public` schemas are included by default.
 schemas = ["public", "graphql_public", "identity", "finance", "cs", "scribeswell"]
