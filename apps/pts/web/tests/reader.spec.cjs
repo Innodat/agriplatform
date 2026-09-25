@@ -122,7 +122,7 @@ test('launcher works and development server denies private archive paths',async(
  await page.route('http://127.0.0.1:8001/**',route=>route.fulfill({json:{apps:[{id:'pts',name:'PtS',url:'http://localhost:5179',icon:'book-open',description:'Swahili Poetry',enabled:true}],context:{org_id:org,member_id:1,roles:[]}}}));
  await page.goto('/');await expect(page.locator('.poem-text')).toBeVisible();
  await page.getByRole('button',{name:'App launcher',exact:true}).click();
- await expect(page.getByRole('link',{name:'Open PtS',exact:true})).toHaveAttribute('href','http://localhost:5179');
+ await expect(page.getByRole('menuitem',{name:'Open PtS',exact:true})).toHaveAttribute('href','http://localhost:5179');
  await page.keyboard.press('Escape');await expect(page.getByRole('menu')).toHaveCount(0);
  const path=require('node:path').resolve(__dirname,'../../reference/poetry-library/library.json');
  const blocked=await page.request.get('/@fs'+path);expect(blocked.status()).toBe(403);

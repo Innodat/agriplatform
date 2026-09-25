@@ -34,25 +34,21 @@ function useAsync<T>(
     error: null,
   });
 
-  const run = useCallback(() => {
-    setState({ data: null, loading: true, error: null });
-    fn()
-      .then((data) => setState({ data, loading: false, error: null }))
-      .catch((err: unknown) =>
-        setState({
-          data: null,
-          loading: false,
-          error: err instanceof Error ? err.message : "Unknown error",
-        })
-      );
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, deps);
-
+  const [revision,setRevision] = useState(0);
+  // The caller supplies the identity of the requested book/chapter/word.
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const fetchData = useCallback(fn,deps);
   useEffect(() => {
-    run();
-  }, [run]);
-
-  return { ...state, refetch: run };
+    let active = true;
+    setState({data:null,loading:true,error:null});
+    fetchData().then(data=>{
+      if(active)setState({data,loading:false,error:null});
+    }).catch((err:unknown)=>{
+      if(active)setState({data:null,loading:false,error:err instanceof Error?err.message:'Unable to load the reader.'});
+    });
+    return ()=>{active=false;};
+  },[fetchData,revision]);
+  return {...state,refetch:()=>setRevision(value=>value+1)};
 }
 
 // ── Public hooks ──────────────────────────────────────────────────────────────

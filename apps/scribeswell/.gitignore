@@ -1,0 +1,4 @@
+.local/
+web/test-results/
+web/playwright-report/
+.env.local

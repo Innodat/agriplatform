@@ -10,7 +10,7 @@
  *
  * Navigation state lives in URL search params: ?book=Gen&chapter=1
  */
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import { BookChapterSelector } from "@/components/bible/book-chapter-selector";
 import { VerseReader } from "@/components/bible/VerseReader";
@@ -33,6 +33,7 @@ export function ReaderPage() {
     parseInt(searchParams.get("chapter") ?? String(DEFAULT_CHAPTER), 10) ||
     DEFAULT_CHAPTER;
 
+  useEffect(()=>setSelectedWord(null),[selectedOsisId,selectedChapter]);
   const books = useBooks();
   const verses = useVerses(selectedOsisId, selectedChapter);
   const morphology = useWordMorphology(selectedWord?.id ?? null);
@@ -59,7 +60,7 @@ export function ReaderPage() {
           </span>
         )}
         {books.error && (
-          <span className="text-sm text-red-500">Error: {books.error}</span>
+          <span role="alert" className="text-sm text-red-700">Could not load books. <button className="underline" onClick={books.refetch}>Retry books</button></span>
         )}
         {books.data && (
           <BookChapterSelector
@@ -72,9 +73,9 @@ export function ReaderPage() {
       </div>
 
       {/* ── Reader area ────────────────────────────────────── */}
-      <div className="flex gap-6 flex-1">
+      <div className="flex flex-col md:flex-row gap-6 flex-1">
         {/* Main content */}
-        <main className="flex-1 min-w-0">
+        <section aria-label="Chapter text" className="flex-1 min-w-0">
           {verses.loading && (
             <div className="space-y-3 animate-pulse">
               {[...Array(5)].map((_, i) => (
@@ -83,7 +84,7 @@ export function ReaderPage() {
             </div>
           )}
           {verses.error && (
-            <p className="text-sm text-red-500">Error: {verses.error}</p>
+            <p role="alert" className="text-sm text-red-700">Could not load this chapter. <button className="underline" onClick={verses.refetch}>Retry chapter</button></p>
           )}
           {verses.data && (
             <VerseReader
@@ -92,11 +93,11 @@ export function ReaderPage() {
               onWordClick={handleWordClick}
             />
           )}
-        </main>
+        </section>
 
         {/* Morphology panel (conditional) */}
         {selectedWord && (
-          <aside className="w-72 shrink-0">
+          <aside className="fixed inset-x-3 bottom-3 z-40 max-h-[50dvh] overflow-y-auto md:static md:max-h-none md:overflow-visible md:w-72 shrink-0">
             {morphology.loading && (
               <div className="bg-white border border-stone-200 rounded-xl p-4 animate-pulse">
                 <div className="h-8 bg-stone-200 rounded w-24 mb-3" />
@@ -108,7 +109,7 @@ export function ReaderPage() {
               </div>
             )}
             {morphology.error && (
-              <p className="text-sm text-red-500">Error: {morphology.error}</p>
+              <p role="alert" className="bg-white p-4 text-sm text-red-700">Could not load word analysis. <button className="underline" onClick={morphology.refetch}>Retry word analysis</button><button className="ml-2 underline" onClick={()=>setSelectedWord(null)}>Close</button></p>
             )}
             {morphology.data && (
               <MorphologyPanel

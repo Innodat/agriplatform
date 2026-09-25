@@ -29,3 +29,6 @@
 .word-token.selected {
   background-color: rgb(253 224 71); /* yellow-300 */
 }
+
+/* Self-hosted font includes biblical vowel and cantillation marks. */
+[lang="he"], .font-hebrew, .verse-line {font-family:"Noto Serif Hebrew","SBL Hebrew","Ezra SIL",serif;}

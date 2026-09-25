@@ -1,111 +1,60 @@
-/**
- * AppLauncher — generic, data-driven burger menu / app switcher.
- *
- * Receives `apps` as props — knows no hardcoded apps.
- * Data comes from the app-directory service via useMyApps() in the consuming app.
- *
- * Usage:
- *   <AppLauncher apps={apps} isLoading={loading} />
- *
- * Accessibility:
- *   - Button has aria-label and aria-expanded
- *   - Dropdown has role="menu" with role="menuitem" children
- *   - Keyboard: Escape closes; click outside closes
- */
-import { useState, useRef, useEffect } from "react";
-import { LayoutGrid } from "lucide-react";
+/** Data-driven app switcher. Ships its own styles; no Tailwind setup required. */
+import { useState, useRef, useEffect, useId } from "react";
+import { LayoutGrid, ChevronDown } from "lucide-react";
 import type { AppEntry } from "@platform/app-directory-client";
 import { AppLauncherItem } from "./app-launcher-item";
+import './app-launcher.css';
 
 interface AppLauncherProps {
-  /** Apps to display. Pass an empty array to hide the launcher. */
   apps: AppEntry[];
-  /** Show a loading skeleton while apps are being fetched. */
   isLoading?: boolean;
-  /** Optional label for the trigger button (default: "App launcher"). */
   label?: string;
+  currentAppId?: string;
 }
 
-export function AppLauncher({
-  apps,
-  isLoading = false,
-  label = "App launcher",
-}: AppLauncherProps) {
+export function AppLauncher({apps, isLoading = false, label = 'App launcher', currentAppId}: AppLauncherProps) {
   const [open, setOpen] = useState(false);
-  const containerRef = useRef<HTMLDivElement>(null);
-
-  // Close on click outside
-  useEffect(() => {
-    if (!open) return;
-    function handleClick(e: MouseEvent) {
-      if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
-        setOpen(false);
-      }
-    }
-    document.addEventListener("mousedown", handleClick);
-    return () => document.removeEventListener("mousedown", handleClick);
-  }, [open]);
-
-  // Close on Escape
-  useEffect(() => {
-    if (!open) return;
-    function handleKey(e: KeyboardEvent) {
-      if (e.key === "Escape") setOpen(false);
-    }
-    document.addEventListener("keydown", handleKey);
-    return () => document.removeEventListener("keydown", handleKey);
-  }, [open]);
-
-  // Don't render if no apps and not loading
-  if (!isLoading && apps.length === 0) return null;
-
-  return (
-    <div ref={containerRef} className="relative">
-      {/* Trigger */}
-      <button
-        type="button"
-        onClick={() => setOpen((v) => !v)}
-        aria-label={label}
-        aria-expanded={open}
-        aria-haspopup="menu"
-        className="flex items-center justify-center w-8 h-8 rounded-md text-stone-500 hover:text-stone-800 hover:bg-stone-100 transition-colors"
-      >
-        <LayoutGrid className="w-5 h-5" aria-hidden="true" />
-      </button>
-
-      {/* Dropdown */}
-      {open && (
-        <div
-          role="menu"
-          aria-label="Available apps"
-          className="absolute left-0 top-full mt-1 w-72 bg-white border border-stone-200 rounded-lg shadow-lg z-50 py-1 overflow-hidden"
-        >
-          {isLoading ? (
-            <div className="px-3 py-4 space-y-2">
-              {[1, 2, 3].map((i) => (
-                <div key={i} className="flex items-center gap-3 animate-pulse">
-                  <div className="w-8 h-8 rounded-md bg-stone-200 shrink-0" />
-                  <div className="flex-1 space-y-1">
-                    <div className="h-3 bg-stone-200 rounded w-24" />
-                    <div className="h-2 bg-stone-100 rounded w-40" />
-                  </div>
-                </div>
-              ))}
-            </div>
-          ) : (
-            <>
-              <p className="px-3 pt-2 pb-1 text-xs font-medium text-stone-400 uppercase tracking-wide">
-                Apps
-              </p>
-              {apps.map((app) => (
-                <div key={app.id} role="menuitem">
-                  <AppLauncherItem app={app} onClose={() => setOpen(false)} />
-                </div>
-              ))}
-            </>
-          )}
-        </div>
-      )}
-    </div>
-  );
+  const container = useRef<HTMLDivElement>(null);
+  const trigger = useRef<HTMLButtonElement>(null);
+  const menu = useRef<HTMLDivElement>(null);
+  const initialFocus = useRef(0);
+  const menuId = useId();
+  function closeAndFocus(){setOpen(false);trigger.current?.focus();}
+  useEffect(()=>{
+    if(!open)return;
+    const links=menu.current?.querySelectorAll<HTMLAnchorElement>('[role=menuitem]');
+    links?.[initialFocus.current<0?links.length-1:0]?.focus();
+    function outside(e:PointerEvent){if(!container.current?.contains(e.target as Node))setOpen(false);}
+    document.addEventListener('pointerdown',outside);
+    return ()=>document.removeEventListener('pointerdown',outside);
+  },[open,isLoading]);
+  if(!isLoading&&!apps.length)return null;
+  return <div className="platform-app-launcher" ref={container}
+    onBlur={e=>{if(!e.currentTarget.contains(e.relatedTarget as Node))setOpen(false);}}
+    onKeyDown={e=>{if(e.key==='Escape'&&open){e.preventDefault();e.stopPropagation();closeAndFocus();}}}>
+    <button ref={trigger} type="button" className="platform-app-trigger" aria-label={label}
+      aria-expanded={open} aria-haspopup="menu" aria-controls={open?menuId:undefined}
+      onClick={()=>{initialFocus.current=0;setOpen(v=>!v);}}
+      onKeyDown={e=>{if(e.key==='ArrowDown'||e.key==='ArrowUp'){e.preventDefault();initialFocus.current=e.key==='ArrowUp'?-1:0;setOpen(true);}}}>
+      <LayoutGrid aria-hidden="true"/><span>Apps</span><ChevronDown className="platform-app-chevron" aria-hidden="true"/>
+    </button>
+    {open&&<div ref={menu} id={menuId} role="menu" aria-label="Available apps" className="platform-app-menu"
+      onKeyDown={e=>{
+        const items=Array.from(e.currentTarget.querySelectorAll<HTMLAnchorElement>('[role=menuitem]'));
+        const index=items.indexOf(document.activeElement as HTMLAnchorElement);
+        let next:number;
+        if(e.key==='ArrowDown')next=(index+1)%items.length;
+        else if(e.key==='ArrowUp')next=(index-1+items.length)%items.length;
+        else if(e.key==='Home')next=0;
+        else if(e.key==='End')next=items.length-1;
+        else if(e.key==='Tab'){if(e.shiftKey)e.preventDefault();closeAndFocus();return;}
+        else return;
+        e.preventDefault();items[next]?.focus();
+      }}>
+      <div className="platform-app-heading">Your apps</div>
+      {isLoading?<p className="platform-app-loading" role="status">Loading apps…</p>:
+        apps.map(app=><AppLauncherItem key={app.id} app={app} current={app.id===currentAppId} onClose={closeAndFocus}/>)}
+      <p className="platform-app-hint">Apps open in a new tab.</p>
+    </div>}
+  </div>;
 }

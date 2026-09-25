@@ -1,0 +1,2 @@
+const {defineConfig}=require('@playwright/test');
+module.exports=defineConfig({testDir:'tests',testMatch:'*.spec.cjs',use:{baseURL:'http://127.0.0.1:5182',headless:true},webServer:{command:'npm run dev -- --host 127.0.0.1 --port 5182',url:'http://127.0.0.1:5182',reuseExistingServer:false,env:{VITE_SUPABASE_URL:'https://reader-test.supabase.co',VITE_SUPABASE_ANON_KEY:'test-public-key',VITE_APP_DIRECTORY_URL:'http://127.0.0.1:8001'}},projects:[{name:'desktop',use:{viewport:{width:1280,height:900}}},{name:'mobile',use:{viewport:{width:390,height:844}}}]});

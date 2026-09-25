@@ -18,7 +18,7 @@ export function Topbar() {
       <div className="container mx-auto px-4 max-w-5xl h-14 flex items-center justify-between">
         {/* Left: AppLauncher + Brand */}
         <div className="flex items-center gap-3">
-          <AppLauncher apps={apps} isLoading={appsLoading} />
+          <AppLauncher apps={apps} isLoading={appsLoading} currentAppId="scribeswell" />
 
           <div className="flex items-center gap-2 text-stone-800">
             <BookOpen className="w-5 h-5 text-amber-600" aria-hidden="true" />
@@ -33,7 +33,7 @@ export function Topbar() {
           <div className="flex items-center gap-2">
             {user ? (
               <>
-                <span className="text-sm text-stone-500 flex items-center gap-1">
+                <span className="hidden sm:flex text-sm text-stone-500 items-center gap-1 max-w-48 truncate">
                   <User className="w-4 h-4" aria-hidden="true" />
                   {user.email}
                 </span>

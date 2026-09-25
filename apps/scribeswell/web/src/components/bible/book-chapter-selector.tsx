@@ -285,14 +285,14 @@ export function BookChapterSelector({
             "absolute right-0 top-full mt-2 z-50",
             "bg-white border border-stone-200 rounded-xl shadow-xl",
             "flex overflow-hidden",
-            "w-[28rem]",
+            "w-[28rem] max-w-[calc(100vw-2rem)]",
           ].join(" ")}
           onMouseDown={(e) => e.stopPropagation()}
         >
           {/* Left: Book list */}
           <nav
             aria-label="Books of the Tanakh"
-            className="w-48 shrink-0 border-r border-stone-100 overflow-y-auto"
+            className="w-40 sm:w-48 shrink-0 border-r border-stone-100 overflow-y-auto"
             style={{ maxHeight: "22rem" }}
           >
             {DIVISION_ORDER.map((division) => {
@@ -349,14 +349,14 @@ export function BookChapterSelector({
 
           {/* Right: Chapter grid */}
           <div className="flex-1 min-w-0">
-            <ChapterPanel
+            {hoveredBook.error?<p role="alert" className="p-3 text-sm text-red-700">Could not load chapters. <button type="button" className="underline" onClick={hoveredBook.refetch}>Retry</button></p>:<ChapterPanel
               bookData={hoveredBook.data}
               loading={hoveredBook.loading}
               selectedOsisId={selectedOsisId}
               hoveredOsisId={hoveredOsisId}
               selectedChapter={selectedChapter}
               onChapterClick={handleChapterClick}
-            />
+            />}
           </div>
         </div>
       )}

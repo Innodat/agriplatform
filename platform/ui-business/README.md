@@ -25,3 +25,16 @@ src/
 Will be seeded in **Phase 3** by extracting patterns from:
 - `apps/receipts-web` → CrudPage, StatsGrid, FilterBar
 - `apps/bible-web` → ReaderLayout
+
+## App launcher
+
+`AppLauncher` is implemented as a build-time React component, shared by PtS and
+Scribeswell. Import it from `@platform/ui-business`; its namespaced CSS is bundled
+with the component and does not require Tailwind. Supply directory-provided `apps`
+and optional `currentAppId`, `isLoading`, and `label`. Links open a new tab.
+
+The menu supports Enter/Space, Arrow Up/Down, Home/End, Escape, Tab and outside
+pointer dismissal. `AppLauncherItem` is a menuitem link and uses the catalogue's
+`book-open`/`library` icon or a generic grid fallback. Consumer apps must not override
+its internal layout with broad menu/link selectors. Browser acceptance coverage
+lives in the PtS launcher suite and Scribeswell reader suite.
