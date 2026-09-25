@@ -14,13 +14,16 @@ class Repo:
         import json
         from pathlib import Path
         return json.loads((Path(__file__).parents[1]/'reference/poetry-library/library.json').read_text())
+    def sources(self, org, actor):
+        library=self.read(org,actor)
+        return {key:library[key] for key in ('sources','rights','source_documents')}
     def attachment(self, org, actor, document): return None
 
 
 def test_all_protected_routes_check_current_authority():
     access = Access()
     client = TestClient(create_app(access=access, repository=Repo()))
-    routes=['/api/poetry','/api/poetry/SWA-001','/api/exports?format=json','/api/documents/DOC-VELTEN']
+    routes=['/api/sources','/api/poetry','/api/poetry/SWA-001','/api/exports?format=json','/api/documents/DOC-VELTEN']
     for route in routes:
         assert client.get(route,headers={'X-Org-ID':'00000000-0000-0000-0000-000000000002'}).status_code == 401
         for denied in (403,503):
@@ -62,3 +65,15 @@ def test_http_access_outage_fails_closed(monkeypatch):
     result=client.get('/api/poetry',headers={'Authorization':'Bearer admin','X-Org-ID':'00000000-0000-0000-0000-000000000002'})
     assert result.status_code==503
     assert result.json()['detail']['code']=='access_unavailable'
+
+
+def test_sources_include_uncollected_leads_and_exact_rights():
+    access = Access()
+    client = TestClient(create_app(access=access, repository=Repo()))
+    headers = {'Authorization':'Bearer authorized','X-Org-ID':'00000000-0000-0000-0000-000000000002'}
+    response = client.get('/api/sources', headers=headers)
+    assert response.status_code == 200
+    library = Repo().read(None, None)
+    assert response.json() == {key:library[key] for key in ('sources','rights','source_documents')}
+    assert [len(response.json()[key]) for key in ('sources','rights','source_documents')] == [19,19,30]
+    assert response.headers['cache-control'] == 'no-store'

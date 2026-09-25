@@ -6,7 +6,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy import text
 from sqlalchemy.exc import SQLAlchemyError
 from .collection import select, filters, citation, text_export
-from .contracts import CollectionResponse, PoemResponse, DocumentResponse, FilterQuery
+from .contracts import CollectionResponse, PoemResponse, DocumentResponse, FilterQuery, SourcesResponse
 from .db import engine, scoped, load
 from .clients import AccessClient, ContentClient
 
@@ -14,6 +14,10 @@ class Repository:
     def __init__(self, db): self.db=db
     def read(self, org, actor):
         with scoped(self.db,org,actor, consistent=True) as conn: return load(conn)
+    def sources(self, org, actor):
+        with scoped(self.db,org,actor,consistent=True) as conn:
+            return {kind:list(conn.execute(text(f'SELECT payload FROM pts.{kind} ORDER BY ordinal, id')).scalars())
+                    for kind in ('sources','rights','source_documents')}
     def attachment(self, org, actor, document):
         with scoped(self.db,org,actor) as conn:
             return conn.execute(text('SELECT content_id FROM pts.attachments WHERE document_id=:id'),{'id':document}).scalar()
@@ -46,6 +50,10 @@ def create_app(access=None, repository=None, content=None):
 
     @app.get('/health')
     def health(): return {'status':'running'}
+
+    @app.get('/api/sources',response_model=SourcesResponse)
+    def sources(ctx=Depends(authority('pts.poetry.read'))):
+        return repository.sources(ctx[0],ctx[1])
 
     @app.get('/api/poetry',response_model=CollectionResponse)
     def collection(query: FilterQuery = Depends(), ctx=Depends(authority('pts.poetry.read'))):

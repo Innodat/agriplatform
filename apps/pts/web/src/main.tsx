@@ -5,7 +5,8 @@ import {createAppDirectoryClient,type AppEntry} from '@platform/app-directory-cl
 import {auth,clearPasswordFlow,passwordFlowFor,consumePasswordReturn,type Identity,type PasswordFlow} from './auth';
 import type {AuthChangeEvent,Session} from '@supabase/supabase-js';
 import {LoginForm} from './LoginForm';
-import type {CollectionResponse,PoemResponse,DocumentResponse,Selection} from './contracts';
+import type {CollectionResponse,PoemResponse,DocumentResponse,Selection,SourcesResponse} from './contracts';
+import {SourcesView} from './SourcesView';
 import './style.css';
 
 type Filters={search:string;availability:string;source:string;genre:string;origin:string;dialect:string;status:string};
@@ -18,6 +19,7 @@ const initialFilters={...defaults,...Object.fromEntries(Object.keys(defaults).fi
 function App(){
  const [identity,setIdentity]=useState<Identity|null>(null),[authReady,setAuthReady]=useState(false),[apps,setApps]=useState<AppEntry[]>([]);
  const [passwordFlow,setPasswordFlow]=useState<PasswordFlow|null>(null),[loginError,setLoginError]=useState('');
+ const [view,setView]=useState(initial.get('view')==='sources'?'sources':'poems'),[sources,setSources]=useState<SourcesResponse|null>(null);
  const [org,setOrg]=useState(validOrg(initial.get('org')));
  const [applied,setApplied]=useState<Filters>(initialFilters),[draft,setDraft]=useState<Filters>(initialFilters);
  const [poemId,setPoemId]=useState(initial.get('poem')||''),[data,setData]=useState<CollectionResponse|null>(null),[single,setSingle]=useState<PoemResponse|null>(null);
@@ -26,7 +28,7 @@ function App(){
  const pendingFilters=useRef<Filters|null>(null);
  const authorityEpoch=useRef(0);
  const generation=useRef(0),current=useRef<Identity|null>(null),lastUser=useRef(sessionStorage.getItem('pts-last-user'));
- function clear(){authorityEpoch.current++;generation.current++;setData(null);setSingle(null);setCopyText('');setDocumentUrl('');copyDialog.current?.close();setNotice('');}
+ function clear(){authorityEpoch.current++;generation.current++;setData(null);setSingle(null);setSources(null);setCopyText('');setDocumentUrl('');copyDialog.current?.close();setNotice('');}
  useEffect(()=>{
    let active=true,initialized=false,revision=0;
    function accept(session:Session|null,event?:AuthChangeEvent){
@@ -34,10 +36,10 @@ function App(){
      const next=session?{id:session.user.id,token:session.access_token}:null;
      const flow=passwordFlowFor(session,event);
      if(current.current?.id!==next?.id||flow){clear();setApps([]);setError('');}
-     if(next&&lastUser.current&&lastUser.current!==next.id){history.replaceState(null,'',location.pathname);setApplied(defaults);setDraft(defaults);setPoemId('');setOrg('');setNotice('Account changed. Choose your organization to continue.');}
+     if(next&&lastUser.current&&lastUser.current!==next.id){history.replaceState(null,'',location.pathname);setApplied(defaults);setDraft(defaults);setPoemId('');setView('poems');setOrg('');setNotice('Account changed. Choose your organization to continue.');}
      if(next&&flow==='recovery'){
        const restored=consumePasswordReturn(next.id);
-       if(restored){setApplied({...defaults,...Object.fromEntries(Object.keys(defaults).filter(k=>restored.has(k)).map(k=>[k,restored.get(k)!]))});setDraft(defaults);setOrg(validOrg(restored.get('org')));setPoemId(restored.get('poem')||'');history.replaceState(null,'',location.pathname+'?'+restored);}
+       if(restored){setApplied({...defaults,...Object.fromEntries(Object.keys(defaults).filter(k=>restored.has(k)).map(k=>[k,restored.get(k)!]))});setDraft(defaults);setOrg(validOrg(restored.get('org')));setPoemId(restored.get('poem')||'');setView(restored.get('view')==='sources'?'sources':'poems');history.replaceState(null,'',location.pathname+'?'+restored);}
      }
      if(next){lastUser.current=next.id;sessionStorage.setItem('pts-last-user',next.id);}
      current.current=next;setIdentity(next);setPasswordFlow(flow);setLoginError('');setAuthReady(true);
@@ -74,9 +76,10 @@ function App(){
    if(pendingFilters.current){setApplied(pendingFilters.current);pendingFilters.current=null;filterButton.current?.focus();return;}
    if(wasFilter){filterButton.current?.focus();return;}
    const params=new URLSearchParams(location.search);
-   clear();setReload(v=>v+1);setPoemId(params.get('poem')||'');setOrg(validOrg(params.get('org')));
+   clear();setReload(v=>v+1);setPoemId(params.get('poem')||'');setView(params.get('view')==='sources'?'sources':'poems');setOrg(validOrg(params.get('org')));
    setApplied({...defaults,...Object.fromEntries(Object.keys(defaults).filter(k=>params.has(k)).map(k=>[k,params.get(k)!]))});
  };window.addEventListener('popstate',back);return ()=>window.removeEventListener('popstate',back);},[]);
+ function navigateView(next:string){if(next===view&&!poemId)return;const params=new URLSearchParams(applied);params.set('org',org);if(next==='sources')params.set('view','sources');history.pushState(null,'','?'+params);clear();setView(next);setPoemId('');window.scrollTo(0,0);}
  function navigatePoem(id:string){if(id===poemId)return;const params=new URLSearchParams(applied);params.set('org',org);if(id)params.set('poem',id);history.pushState(null,'','?'+params);clear();setPoemId(id);window.scrollTo(0,0);}
 
  function closeFilters(apply=false){if(apply)pendingFilters.current=draft;if(history.state?.ptsFilters)history.back();else{dialog.current?.close();if(apply){setApplied(draft);pendingFilters.current=null;}filterButton.current?.focus();}}
@@ -88,11 +91,12 @@ function App(){
      const refreshed=await auth.refreshSession();
      if(refreshed.data.session&&refreshed.data.session.user.id===atStart){response=await fetch(base+path,{headers:{Authorization:'Bearer '+refreshed.data.session.access_token,'X-Org-ID':org},cache:'no-store'});}
    }
+   if(authorityEpoch.current!==epoch)throw new Error('Session or access changed. Please try again.');
    if(current.current?.id!==atStart)throw new Error('Account changed. Please open the collection again.');
    if(!response.ok){
      if(response.status===401||response.status===403){clear();setLoading(false);if(response.status===401)setIdentity(null);}
      const messages:Record<number,string>={401:'Please sign in again to continue.',403:'You do not currently have access to this collection or action.',404:'This poem or document is unavailable.',503:'We could not verify access or complete this request. Please retry.'};
-     throw new Error(messages[response.status]||'We could not complete this request. Please retry.');
+     throw Object.assign(new Error(messages[response.status]||'We could not complete this request. Please retry.'),{authorityFailure:response.status===401||response.status===403});
    }
    const body=await ((response.headers.get('content-type')||'').includes('json')?response.json():response.text());
    if(current.current?.id!==atStart||authorityEpoch.current!==epoch)throw new Error('Session or access changed. Please try again.');
@@ -101,13 +105,13 @@ function App(){
  const query=new URLSearchParams(applied).toString();
  useEffect(()=>{
    if(!identity||!org||passwordFlow||!authReady)return;
-   const serial=++generation.current;setLoading(true);setError('');setData(null);setSingle(null);
-   const path=poemId?'/api/poetry/'+encodeURIComponent(poemId):'/api/poetry?'+query;
-   request<CollectionResponse|PoemResponse>(path).then(result=>{if(serial===generation.current){if(poemId)setSingle(result as PoemResponse);else setData(result as CollectionResponse);}}).catch(e=>{if(serial===generation.current)setError(e.message);else if(current.current)setError(e.message);}).finally(()=>{if(serial===generation.current)setLoading(false);});
-   const params=new URLSearchParams(applied);params.set('org',org);if(poemId)params.set('poem',poemId);
+   const serial=++generation.current;setLoading(true);setError('');setData(null);setSingle(null);setSources(null);
+   const path=view==='sources'?'/api/sources':poemId?'/api/poetry/'+encodeURIComponent(poemId):'/api/poetry?'+query;
+   request<CollectionResponse|PoemResponse|SourcesResponse>(path).then(result=>{if(serial===generation.current){if(view==='sources')setSources(result as SourcesResponse);else if(poemId)setSingle(result as PoemResponse);else setData(result as CollectionResponse);}}).catch(e=>{if(serial===generation.current)setError(e.message);else if(e.authorityFailure)setError(e.message);}).finally(()=>{if(serial===generation.current)setLoading(false);});
+   const params=new URLSearchParams(applied);params.set('org',org);if(view==='sources')params.set('view','sources');else if(poemId)params.set('poem',poemId);
    history.replaceState(history.state,'','?'+params);
    return ()=>{generation.current++;};
- },[identity?.id,identity?.token,org,query,poemId,reload,passwordFlow,authReady]);
+ },[identity?.id,identity?.token,org,query,poemId,view,reload,passwordFlow,authReady]);
  useEffect(()=>{const refresh=()=>{if(document.visibilityState==='visible'){clear();setReload(v=>v+1);}};window.addEventListener('focus',refresh);document.addEventListener('visibilitychange',refresh);return ()=>{window.removeEventListener('focus',refresh);document.removeEventListener('visibilitychange',refresh);};},[]);
  const selection:Selection|null=single?.evidence||data;
  const poems=single?[single.poem]:(data?.poems||[]);
@@ -117,13 +121,14 @@ function App(){
  function filterFields(values:Filters,update:(f:Filters)=>void,prefix:string){return <><label>Show poems<select value={values.availability} onChange={e=>update({...values,availability:e.target.value})}><option value="text">With text only</option><option value="all">All catalogue records</option><option value="checked">Checked transcriptions (complete)</option><option value="review">Needs text review</option></select></label>{(['source','genre','origin','dialect','status'] as const).map(key=><label key={key}>{key==='status'?'Text status':key[0].toUpperCase()+key.slice(1)}<select id={prefix+key} value={values[key]} onChange={e=>update({...values,[key]:e.target.value})}><option value="">All {key==='status'?'statuses':key+'s'}</option>{(data?.filters[key]||[]).map(v=><option key={v} value={v}>{v.replaceAll('_',' ')}</option>)}</select></label>)}</>;}
  const changed=Object.keys(defaults).filter(k=>applied[k as keyof Filters]!==defaults[k as keyof Filters]).length;
  return <><header className="shell"><AppLauncher apps={apps}/><a href="?" className="brand">PtS</a><span>Swahili Poetry</span>{identity&&<button className="signout" onClick={signOut}>Sign out</button>}</header><main>
- {!poemId&&<><h1>Swahili Poetry</h1><p className="intro">Read the collected poems, their source witnesses and the evidence behind them.</p></>}
+ {(!poemId||view==='sources')&&<><h1>{view==='sources'?'Sources':'Swahili Poetry'}</h1><p className="intro">Read the collected poems, their source witnesses and the evidence behind them.</p></>}
  {!authReady?<p role="status">Checking your session…</p>:(!identity||passwordFlow)?<LoginForm key={(identity?.id||'signed-out')+':'+passwordFlow+':'+loginError} flow={passwordFlow} initialError={loginError} onPasswordSaved={passwordSaved}/>:<>
  {!org&&<p role="status">No organization is selected. Select your organization in the platform directory, then return to this collection.</p>}
- {org&&<>{!poemId&&<section aria-label="Collection filters" className="panel"><label>Search title, poet, place, form or dialect<input type="search" value={applied.search} onChange={e=>setApplied({...applied,search:e.target.value})}/></label><div className="desktop-filters">{filterFields(applied,setApplied,'desktop-')}<button onClick={()=>setApplied(defaults)}>Reset filters</button></div><button className="mobile-filters" ref={filterButton} onClick={()=>{setDraft(applied);history.pushState({ptsFilters:true},'',location.href);dialog.current?.showModal();}}>Filters{changed?' ('+changed+')':''}</button></section>}
- {!poemId&&<p className="quality-note">Checked transcriptions reflect assistant source checks and completeness in the cited witness. They do not establish independent human review, rights clearance or training readiness.</p>}
- {loading&&<p role="status">Loading poems…</p>}{error&&<div role="alert" className="error">{error} <button onClick={()=>{setError('');setLoading(false);setReload(v=>v+1);}}>Retry</button></div>}<p role="status">{notice}</p>{documentUrl&&<p><a href={documentUrl} target="_blank" rel="noreferrer">Open document in a new tab</a></p>}
- {poemId&&<button onClick={()=>navigatePoem('')}>Back to results</button>}
+ {org&&<><nav className="source-actions" aria-label="Swahili Poetry views"><button aria-current={view==='poems'?'page':undefined} onClick={()=>navigateView('poems')}>Poems</button><button aria-current={view==='sources'?'page':undefined} onClick={()=>navigateView('sources')}>Sources</button></nav>{view==='poems'&&!poemId&&<section aria-label="Collection filters" className="panel"><label>Search title, poet, place, form or dialect<input type="search" value={applied.search} onChange={e=>setApplied({...applied,search:e.target.value})}/></label><div className="desktop-filters">{filterFields(applied,setApplied,'desktop-')}<button onClick={()=>setApplied(defaults)}>Reset filters</button></div><button className="mobile-filters" ref={filterButton} onClick={()=>{setDraft(applied);history.pushState({ptsFilters:true},'',location.href);dialog.current?.showModal();}}>Filters{changed?' ('+changed+')':''}</button></section>}
+ {view==='poems'&&!poemId&&<p className="quality-note">Checked transcriptions reflect assistant source checks and completeness in the cited witness. They do not establish independent human review, rights clearance or training readiness.</p>}
+ {loading&&<p role="status">Loading {view==='sources'?'sources':'poems'}…</p>}{error&&<div role="alert" className="error">{error} <button onClick={()=>{setError('');setLoading(false);setReload(v=>v+1);}}>Retry</button></div>}<p role="status">{notice}</p>{documentUrl&&<p><a href={documentUrl} target="_blank" rel="noreferrer">Open document in a new tab</a></p>}
+ {view==='sources'&&sources&&<SourcesView data={sources} onOpenDocument={openDocument}/>}
+ {view==='poems'&&poemId&&<button onClick={()=>navigatePoem('')}>Back to results</button>}
  {data&&<div className="result-tools"><p>{data.total} of {data.collection_total} records</p><button disabled={!data.total} onClick={()=>exportResult('json')}>Export results (JSON)</button><button disabled={!data.total} onClick={()=>exportResult('text')}>Export results (text)</button></div>}
  {data&&<details className="panel"><summary>Collection references and document notices</summary>{data.source_documents.filter(d=>!d.source_id).map(d=><section key={d.id}><h3>{d.title}</h3><p>{d.copying_basis}</p><button onClick={()=>openDocument(d.id)}>Open reference document</button></section>)}</details>}
  {!loading&&data&&poems.length===0&&<div className="panel"><p>No poems match these filters.</p><button onClick={()=>setApplied(defaults)}>Clear filters</button></div>}

@@ -42,7 +42,7 @@ export function authError(error:unknown,action:'login'|'reset'|'password'|'oauth
 }
 
 const returnKey='pts-password-return';
-const contextFields=['org','poem','search','availability','source','genre','origin','dialect','status'];
+const contextFields=['view','org','poem','search','availability','source','genre','origin','dialect','status'];
 function safeContext(params:URLSearchParams){
  const safe=new URLSearchParams();
  for(const name of contextFields){

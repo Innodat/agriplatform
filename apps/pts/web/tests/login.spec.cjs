@@ -80,6 +80,17 @@ test('password recovery restores same-user filters without including them in the
  await expect(page.getByText('0 of 312 records')).toBeVisible();await expect(page).toHaveURL(/availability=checked/);await expect(page.getByLabel('Search title, poet, place, form or dialect')).toHaveValue('fixture');
 });
 
+test('password recovery restores same-user Sources view without including them in the email URL',async({page})=>{
+ await setup(page);await page.route('http://127.0.0.1:8010/api/sources',r=>r.fulfill({json:{sources:[],rights:[],source_documents:[]}}));let redirect='';await page.addInitScript(actor=>sessionStorage.setItem('pts-last-user',actor),actor);
+ await page.route('**/auth/v1/recover*',r=>{redirect=r.request().url();return r.fulfill({json:{}});});
+ await page.goto('/?org='+org+'&view=sources&availability=checked&search=fixture');await page.getByRole('button',{name:'Forgot password?'}).click();
+ await page.getByLabel('Email',{exact:true}).fill(user.email);await page.getByRole('button',{name:'Send reset link'}).click();await expect(page.getByRole('status')).toContainText('If an account exists');
+ expect(redirect).not.toContain('fixture');
+ await page.goto(callback('recovery'));await expect(page.getByLabel('New password',{exact:true})).toBeVisible();
+ await page.getByLabel('New password',{exact:true}).fill('new-password');await page.getByLabel('Confirm password',{exact:true}).fill('new-password');await page.getByRole('button',{name:'Save password'}).click();
+ await expect(page.getByText('0 sources',{exact:true})).toBeVisible();await expect(page).toHaveURL(/view=sources/);await expect(page).toHaveURL(/availability=checked/);await expect(page).toHaveURL(/search=fixture/);
+});
+
 test('Microsoft sign-in is opt-in and preserves the local return URL',async({page})=>{
  await setup(page);await page.goto('/?org='+org+'&availability=checked');
  if(process.env.PTS_TEST_MICROSOFT!=='true'){

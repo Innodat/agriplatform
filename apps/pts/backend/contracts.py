@@ -36,3 +36,8 @@ class FilterQuery(BaseModel):
     origin: str = ''
     dialect: str = ''
     status: str = ''
+
+class SourcesResponse(BaseModel):
+    sources: list[dict[str, Any]]
+    rights: list[dict[str, Any]]
+    source_documents: list[dict[str, Any]]

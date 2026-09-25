@@ -4,4 +4,5 @@ export type DocumentResponse = {status: 'stored' | 'link_only';url: string;expir
 export type HTTPValidationError = {detail?: (ValidationError)[];};
 export type PoemResponse = {poem: Record<string, any>;evidence: Selection;citation: string;};
 export type Selection = {schema_version: string;exported_at: string;note: string;poems: (Record<string, any>)[];witnesses: (Record<string, any>)[];sources: (Record<string, any>)[];rights: (Record<string, any>)[];source_documents: (Record<string, any>)[];};
+export type SourcesResponse = {sources: (Record<string, any>)[];rights: (Record<string, any>)[];source_documents: (Record<string, any>)[];};
 export type ValidationError = {loc: (string | number)[];msg: string;type: string;};
