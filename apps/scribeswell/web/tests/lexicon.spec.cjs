@@ -106,7 +106,8 @@ test('review regression: actual BDB invalid Ezra reference remains text and Hebr
  const entry=JSON.parse(fs.readFileSync(path.resolve(__dirname,'../../data/hebrew-lexicon/lexicon.json'),'utf8')).entries['3247'];
  await page.route('**/api/bible/lexicon/**',r=>r.fulfill({json:{status:'available',...entry}}));
  await page.locator('.word-token').first().click();await page.getByText('BDB outline',{exact:true}).click();
- const outline=page.locator('details').filter({has:page.getByText('BDB outline',{exact:true})});
+ const outline=page.getByRole('region',{name:'BDB outline',exact:true});
+ if(await outline.getByRole('button',{name:'Show more',exact:true}).count())await outline.getByRole('button',{name:'Show more',exact:true}).click();
  await expect(outline).toContainText('13:17');await expect(outline.getByRole('button',{name:/13:17/})).toHaveCount(0);
  const hebrew=outline.locator('bdi[lang="he"]').first();await expect(hebrew).toHaveAttribute('dir','rtl');await expect(hebrew).toHaveCSS('font-family',/Noto Serif Hebrew/);
 });
@@ -118,4 +119,111 @@ test('review regression: unavailable reference previews cannot replace a working
  const preview=page.getByRole('region',{name:'Scripture preview'});await expect(preview.getByText('Verse not present in this collection.')).toBeVisible();
  await expect(preview.getByRole('button',{name:'Open in current passage',exact:true})).toBeDisabled();await expect(preview.getByRole('button',{name:'Open in comparison',exact:true})).toBeDisabled();
  await expect(page.getByRole('region',{name:'Passage 1',exact:true}).getByRole('button',{name:/Navigate: Genesis, chapter 1/})).toBeVisible();
+});
+
+test('compact grammar and linked dictionary preserve selected passage and restore entry history',async({page})=>{
+ await setup(page);
+ await page.route('**/api/bible/lexicon/**',r=>{const id=decodeURIComponent(new URL(r.request().url()).pathname.split('/').pop());return r.fulfill({json:{status:'available',lexical_id:id,lemma:id==='4428'?'מֶלֶךְ':'אָב',definition:id==='4428'?'king':'father',root:{id:'root',text:'אב',lexical_id:id==='4428'?'1':'6'},bdb:[{kind:'text',text:'Definition '.repeat(150)},{kind:'dictionary_reference',text:'six',lexical_id:'6'}]}});});
+ await page.locator('.word-token').first().click();
+ await expect(page.getByRole('heading',{name:'מֶלֶךְ',exact:true})).toBeVisible();
+ const url=page.url();await page.getByRole('button',{name:'Open dictionary entry 1'}).click();
+ await expect(page.getByRole('heading',{name:'אָב',exact:true})).toBeVisible();await expect(page.getByLabel('Word morphology',{exact:true})).toHaveCount(0);
+ expect(page.url()).toBe(url);await expect(page.locator('.selected')).toHaveCount(1);
+ await page.getByRole('button',{name:'Open dictionary entry 6',exact:true}).click();
+ await page.getByRole('button',{name:'Back to previous dictionary entry'}).click();await page.getByRole('button',{name:'Back to previous dictionary entry'}).click();
+ await expect(page.getByRole('heading',{name:'מֶלֶךְ',exact:true})).toBeVisible();await expect(page.getByLabel('Word morphology',{exact:true})).toBeVisible();
+});
+
+test('actual aligned participle segments remain readable and raw codes stay in source details',async({page})=>{
+ await setup(page);
+ await page.route('**/api/bible/words/*/morphology',r=>r.fulfill({json:{...words[0],surface_he:'בְּ/עֹשָׂ֑י/ו',display_he:'בְּעֹשָׂ֑יו',morph_code:'HR/Vqrmpc/Sp3ms',morphemes:[{segment_index:0,language:'hebrew',part_of_speech:'preposition',pos_code:'R'},{segment_index:1,language:'hebrew',part_of_speech:'verb',pos_code:'Vqrmpc',verb_stem:'qal',verb_aspect:'participle_active',gender:'masculine',number:'plural',state:'construct'},{segment_index:2,language:'hebrew',part_of_speech:'suffix',pos_code:'Sp3ms',person:'third',gender:'masculine',number:'singular'}]}}));
+ await page.locator('.word-token').first().click();const grammar=page.getByLabel('Word morphology',{exact:true});
+ await expect(grammar.getByText('עֹשָׂ֑י',{exact:true})).toBeVisible();await expect(grammar).toContainText('Qal active participle');await expect(grammar).toContainText('masculine · plural · construct');
+ await expect(page.getByText('HR/Vqrmpc/Sp3ms',{exact:true})).not.toBeVisible();await page.getByText('Source details',{exact:true}).click();await expect(page.getByText('HR/Vqrmpc/Sp3ms',{exact:true})).toBeVisible();
+});
+
+test('dictionary Back restores pagination, expansions and inspector scroll; clipped links are absent',async({page})=>{
+ await setup(page);
+ await page.route('**/api/bible/lexicon/**',r=>{const id=decodeURIComponent(new URL(r.request().url()).pathname.split('/').pop());return r.fulfill({json:{status:'available',lexical_id:id,lemma:id==='4428'?'מֶלֶךְ':'אָב',definition:'meaning',strong_definition:'Full Strong definition',bdb:[{kind:'text',text:'Long definition '.repeat(100)},{kind:'dictionary_reference',text:'father',lexical_id:'1'}]}});});
+ await page.locator('.word-token').first().click();await page.getByRole('tab',{name:'Occurrences'}).click();await page.getByLabel('Filter occurrences by book').selectOption('Gen');await page.getByRole('button',{name:'Next results'}).click();await page.getByRole('tab',{name:'Word',exact:true}).click();
+ await expect(page.getByRole('button',{name:'Open dictionary entry 1'})).toHaveCount(0);
+ await page.getByText('Strong’s definition and usage',{exact:true}).click();await page.getByText('Source details',{exact:true}).click();await page.getByRole('button',{name:'Show more',exact:true}).click();
+ const panel=page.getByRole('complementary',{name:'Word analysis panel'}), link=page.getByRole('button',{name:'Open dictionary entry 1'});
+ await link.scrollIntoViewIfNeeded();const position=await panel.evaluate(el=>el.scrollTop);const passage=page.locator('[data-reader-scroll]');const passagePosition=await passage.evaluate(el=>el.scrollTop);
+ await link.click();await expect(page.getByRole('heading',{name:'אָב',exact:true})).toBeVisible();await page.getByRole('button',{name:'Back to previous dictionary entry'}).click();
+ await expect(page.getByRole('button',{name:'Show less',exact:true})).toBeVisible();await expect(page.getByText('Full Strong definition',{exact:true})).toBeVisible();await expect(page.getByText('HNcmsa',{exact:true})).toBeVisible();
+ await expect.poll(()=>panel.evaluate(el=>el.scrollTop)).toBe(position);expect(await passage.evaluate(el=>el.scrollTop)).toBe(passagePosition);
+ await page.getByRole('tab',{name:'Occurrences'}).click();await expect(page.getByLabel('Filter occurrences by book')).toHaveValue('Gen');await expect(page.getByRole('button',{name:'Previous results'})).toBeEnabled();
+ await page.locator('.word-token').nth(1).click();await expect(page.getByRole('button',{name:'Back to previous dictionary entry'})).toHaveCount(0);
+});
+
+test('linked identity controls occurrences; late dictionaries and retry never restore token grammar',async({page})=>{
+ await setup(page);let release,fail=true;
+ await page.route('**/api/bible/lexicon/4428',r=>r.fulfill({json:{status:'available',lexical_id:'4428',lemma:'מֶלֶךְ',root:{id:'a',text:'אב',lexical_id:'1'}}}));
+ await page.route('**/api/bible/lexicon/1',async r=>{if(fail)return r.fulfill({status:503,json:{error:'unavailable'}});await new Promise(resolve=>release=resolve);await r.fulfill({json:{status:'available',lexical_id:'1',lemma:'late father'}});});
+ await page.route('**/api/bible/occurrences/1?**',r=>r.fulfill({json:{data:[],total:0,verse_total:0,offset:0,limit:25}}));
+ await page.locator('.word-token').first().click();await page.getByRole('button',{name:'Open dictionary entry 1'}).click();await expect(page.getByRole('button',{name:'Retry dictionary'})).toBeVisible();await expect(page.getByLabel('Word morphology',{exact:true})).toHaveCount(0);
+ await page.getByRole('tab',{name:'Occurrences'}).click();await expect(page.getByText('Exact lemma: 1',{exact:true})).toBeVisible();await expect(page.getByText('No matching occurrences.')).toBeVisible();await page.getByRole('tab',{name:'Word',exact:true}).click();
+ fail=false;await page.getByRole('button',{name:'Retry dictionary'}).click();await expect.poll(()=>Boolean(release)).toBe(true);await page.getByRole('button',{name:'Back to previous dictionary entry'}).click();
+ const response=page.waitForResponse('**/api/bible/lexicon/1');release();await (await response).finished();await expect(page.getByRole('heading',{name:'מֶלֶךְ',exact:true})).toBeVisible();await expect(page.getByText('late father')).toHaveCount(0);await expect(page.getByLabel('Word morphology',{exact:true})).toBeVisible();
+});
+
+test('unaligned source retains grammar without fabricated surface pieces',async({page})=>{
+ await setup(page);await page.route('**/api/bible/words/*/morphology',r=>r.fulfill({json:{...words[0],surface_he:'בְּעֹשָׂ֑יו',morph_code:'HR/Vqrmpc/Sp3ms',morphemes:[{segment_index:0,language:'hebrew',part_of_speech:'preposition',pos_code:'R'},{segment_index:1,language:'hebrew',part_of_speech:'verb',pos_code:'Vqrmpc',verb_stem:'qal',verb_aspect:'participle_active',gender:'masculine',number:'plural',state:'construct'},{segment_index:2,language:'hebrew',part_of_speech:'suffix',pos_code:'Sp3ms',person:'third',gender:'masculine',number:'singular'}]}}));
+ await page.locator('.word-token').first().click();const grammar=page.getByLabel('Word morphology',{exact:true});await expect(grammar).toContainText('Qal active participle');await expect(grammar.locator('[lang=he]')).toHaveCount(0);
+ const width=await page.evaluate(()=>({client:document.documentElement.clientWidth,scroll:document.documentElement.scrollWidth}));expect(width.scroll).toBe(width.client);
+});
+
+test('selecting the same token in the other passage resets dictionary history',async({page})=>{
+ await setup(page);await page.setViewportSize({width:1280,height:900});await page.getByRole('button',{name:'Compare passages',exact:true}).click();
+ await page.route('**/api/bible/lexicon/**',r=>r.fulfill({json:{status:'available',lexical_id:'4428',lemma:'מֶלֶךְ',root:{id:'a',text:'אב',lexical_id:'1'}}}));
+ const one=page.getByRole('region',{name:'Passage 1',exact:true}),two=page.getByRole('region',{name:'Passage 2',exact:true});
+ await one.locator('.word-token').first().click();await page.getByRole('button',{name:'Open dictionary entry 1'}).click();await expect(page.getByRole('button',{name:'Back to previous dictionary entry'})).toBeVisible();
+ await two.locator('.word-token').first().click();await expect(page.getByRole('button',{name:'Back to previous dictionary entry'})).toHaveCount(0);await expect(page.getByLabel('Word morphology',{exact:true})).toBeVisible();
+});
+
+test('keyboard dictionary Back restores originating link and failed-entry fallback focus',async({page})=>{
+ await setup(page);let unavailable=false;
+ await page.route('**/api/bible/lexicon/**',r=>{const id=decodeURIComponent(new URL(r.request().url()).pathname.split('/').pop());return r.fulfill({json:unavailable&&id==='4428'?{status:'unavailable',lexical_id:id}:{status:'available',lexical_id:id,lemma:id,root:{id:'a',text:'אב',lexical_id:id==='4428'?'1':'6'}}});});
+ await page.locator('.word-token').first().click();const origin=page.getByRole('button',{name:'Open dictionary entry 1',exact:true});await origin.focus();await page.keyboard.press('Enter');
+ await page.getByRole('button',{name:'Back to previous dictionary entry'}).focus();await page.keyboard.press('Enter');await expect(origin).toBeFocused();
+ await page.keyboard.press('Enter');unavailable=true;await page.getByRole('button',{name:'Back to previous dictionary entry'}).click();await expect(page.getByRole('button',{name:'Retry dictionary'})).toBeVisible();await expect(page.getByLabel('Dictionary inspector',{exact:true})).toBeFocused();
+ unavailable=false;await page.getByRole('button',{name:'Retry dictionary'}).click();await expect(origin).toBeFocused();
+});
+
+test('Back keeps saved scroll through failed reload and retry',async({page})=>{
+ await setup(page);let fail=false;
+ await page.route('**/api/bible/lexicon/**',r=>{const id=new URL(r.request().url()).pathname.split('/').pop();return r.fulfill({json:fail&&id==='4428'?{status:'unavailable',lexical_id:id}:{status:'available',lexical_id:id,lemma:id,bdb:[{kind:'text',text:'Long outline '.repeat(100)},{kind:'dictionary_reference',text:'father',lexical_id:'1'}]}});});
+ await page.locator('.word-token').first().click();await page.getByRole('button',{name:'Show more',exact:true}).click();const origin=page.getByRole('button',{name:'Open dictionary entry 1',exact:true});await origin.scrollIntoViewIfNeeded();const panel=page.getByRole('complementary',{name:'Word analysis panel'}),saved=await panel.evaluate(el=>el.scrollTop);await origin.click();await expect(page.getByRole('heading',{name:'1',exact:true})).toBeVisible();
+ fail=true;await page.getByRole('button',{name:'Back to previous dictionary entry'}).click();await expect(page.getByRole('button',{name:'Retry dictionary'})).toBeVisible();fail=false;await page.getByRole('button',{name:'Retry dictionary'}).click();await expect(origin).toBeFocused();await expect.poll(()=>panel.evaluate(el=>el.scrollTop)).toBe(saved);
+});
+
+test('delayed dictionary cannot move Occurrences scroll or focus its hidden heading',async({page})=>{
+ await setup(page);let release;
+ await page.route('**/api/bible/lexicon/4428',r=>r.fulfill({json:{status:'available',lexical_id:'4428',lemma:'king',root:{id:'a',text:'אב',lexical_id:'1'}}}));
+ await page.route('**/api/bible/lexicon/1',async r=>{await new Promise(resolve=>release=resolve);await r.fulfill({json:{status:'available',lexical_id:'1',lemma:'father'}});});
+ await page.route('**/api/bible/occurrences/1?**',r=>r.fulfill({json:{data:Array.from({length:25},(_,i)=>({id:i,position:1,surface_he:'אב',display_he:'אב',book:'Gen',book_name:'Genesis',chapter:1,verse:i+1})),total:25,verse_total:25,offset:0,limit:25}}));
+ await page.locator('.word-token').first().click();await page.getByRole('button',{name:'Open dictionary entry 1'}).click();await expect(page.getByText('Dictionary entry · Strong’s 1',{exact:true})).toBeVisible();await expect.poll(()=>Boolean(release)).toBe(true);
+ const tab=page.getByRole('tab',{name:'Occurrences',exact:true});await tab.click();await expect(page.getByText('25 word occurrences in 25 verses')).toBeVisible();const panel=page.getByRole('complementary',{name:'Word analysis panel'});await panel.evaluate(el=>el.scrollTop=180);await tab.focus();const saved=await panel.evaluate(el=>el.scrollTop);
+ const response=page.waitForResponse('**/api/bible/lexicon/1');release();await (await response).finished();await expect(tab).toBeFocused();await expect.poll(()=>panel.evaluate(el=>el.scrollTop)).toBe(saved);await expect(page.getByRole('heading',{name:'father',includeHidden:true})).not.toBeFocused();
+});
+
+test('self references are text and missing-stem aspects remain readable in Aramaic segments',async({page})=>{
+ await setup(page);
+ await page.route('**/api/bible/lexicon/**',r=>r.fulfill({json:{status:'available',lexical_id:'4428',lemma:'king',root:{id:'a',text:'מלך',lexical_id:'4428'},bdb:[{kind:'dictionary_reference',text:'same entry',lexical_id:'4428'}]}}));
+ await page.route('**/api/bible/words/*/morphology',r=>r.fulfill({json:{...words[0],surface_he:'מְהַחֲצֵ֣ף',morph_code:'AVxrmsa',morphemes:[{segment_index:0,language:'aramaic',part_of_speech:'verb',pos_code:'Vxrmsa',verb_aspect:'participle_active',gender:'masculine',number:'singular',state:'absolute'}]}}));
+ await page.locator('.word-token').first().click();await expect(page.getByRole('button',{name:'Open dictionary entry 4428'})).toHaveCount(0);await expect(page.getByText('same entry',{exact:true})).toBeVisible();const grammar=page.getByLabel('Word morphology',{exact:true});await expect(grammar).toContainText('Active participle');await expect(grammar.locator('bdi')).toHaveAttribute('lang','arc');
+});
+
+test('BDB preview bounds real nested outline and keeps graphemes and link labels intact',async({page})=>{
+ await setup(page);const fs=require('node:fs'),path=require('node:path');const entries=JSON.parse(fs.readFileSync(path.resolve(__dirname,'../../data/hebrew-lexicon/lexicon.json'),'utf8')).entries;
+ await page.route('**/api/bible/lexicon/**',r=>r.fulfill({json:{status:'available',...entries['6213 a']}}));await page.locator('.word-token').first().click();const outline=page.getByRole('region',{name:'BDB outline',exact:true});await expect(outline.getByRole('button',{name:'Show more',exact:true})).toBeVisible();expect(await outline.locator('[data-bdb-content] .border-l').count()).toBeLessThanOrEqual(2);expect((await outline.locator('[data-bdb-content]').boundingBox()).height).toBeLessThan(360);
+ await outline.getByRole('button',{name:'Show more',exact:true}).click();expect(await outline.locator('[data-bdb-content] .border-l').count()).toBeGreaterThan(2);
+ const pointed='אְ'.repeat(239)+'בַּ';await page.route('**/api/bible/lexicon/**',r=>r.fulfill({json:{status:'available',lexical_id:'4467',lemma:'test',bdb:[{kind:'text',text:pointed},{kind:'dictionary_reference',text:'complete label',lexical_id:'6'},{kind:'text',text:' tail'}]}}));await page.locator('.word-token').nth(1).click();await expect(outline.locator('[data-bdb-content]')).toHaveText(pointed);await expect(page.getByRole('button',{name:'Open dictionary entry 6'})).toHaveCount(0);await outline.getByRole('button',{name:'Show more',exact:true}).click();await expect(page.getByRole('button',{name:'Open dictionary entry 6'})).toHaveText('complete label');
+});
+
+test('actual entry 10 Strong source link follows 9 and restores keyboard origin on Back',async({page})=>{
+ await setup(page);const fs=require('node:fs'),path=require('node:path');const entries=JSON.parse(fs.readFileSync(path.resolve(__dirname,'../../data/hebrew-lexicon/lexicon.json'),'utf8')).entries;
+ await page.route('**/api/bible/words/*/morphology',r=>r.fulfill({json:{...words[0],lexical_id:'10',morphemes:[]}}));await page.route('**/api/bible/lexicon/**',r=>{const id=decodeURIComponent(new URL(r.request().url()).pathname.split('/').pop());return r.fulfill({json:{status:'available',...entries[id]}});});
+ await page.locator('.word-token').first().click();await page.getByText('Strong’s definition and usage',{exact:true}).click();const source=page.locator('details').filter({has:page.getByText('Strong’s definition and usage',{exact:true})});const link=source.getByRole('button',{name:'Open dictionary entry 9',exact:true});await link.focus();await page.keyboard.press('Enter');await expect(page.getByRole('heading',{name:entries['9'].lemma,exact:true})).toBeVisible();await page.getByRole('button',{name:'Back to previous dictionary entry'}).click();await expect(link).toBeFocused();await expect(page.getByRole('heading',{name:entries['10'].lemma,exact:true})).toBeVisible();
 });

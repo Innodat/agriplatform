@@ -42,30 +42,33 @@ def valid_reference(book, chapter, verse):
     return 1 <= chapter <= len(chapters) and 1 <= verse <= chapters[chapter - 1]
 
 
-def blocks(node, inherited_language="heb"):
+def blocks(node, inherited_language="heb", resolver=lambda value: None):
     """Preserve mixed-content separators and safe language/direction boundaries."""
     result = []
     if node.text:
         result.append({'kind': 'text', 'text': re.sub(r'\s+', ' ', node.text)})
     for child in node:
         if child.tag == 'sense':
-            result.append({'kind': 'sense', 'text': child.get('n', ''), 'children': blocks(child, inherited_language)})
+            result.append({'kind': 'sense', 'text': child.get('n', ''), 'children': blocks(child, inherited_language, resolver)})
         elif child.tag == 'ref' and re.fullmatch(r'[1-3]?[A-Za-z]+\.[1-9][0-9]*\.[1-9][0-9]*', child.get('r', '')):
             book, chapter, verse = child.get('r').split('.')
             if valid_reference(book, int(chapter), int(verse)):
                 result.append({'kind': 'reference', 'text': text(child), 'book': book, 'chapter': int(chapter), 'verse': int(verse)})
             else:
-                result.extend(blocks(child, inherited_language))
+                result.extend(blocks(child, inherited_language, resolver))
         elif child.tag in ('w', 'foreign'):
             language = child.get('{http://www.w3.org/XML/1998/namespace}lang', inherited_language if child.tag == 'w' else 'und')
             language = {'heb': 'he', 'ara': 'ar', 'lat': 'la'}.get(language, language)
             if not re.fullmatch(r'[a-z]{2,3}(?:-[A-Za-z0-9]+)*', language):
                 language = 'und'
-            result.append({'kind': 'language', 'text': '', 'language': language,
+            target = resolver(child.get('src', '')) if child.tag == 'w' else None
+            result.append({'kind': 'dictionary_reference' if target else 'language',
+                           'text': text(child) if target else '', 'language': language,
                            'direction': 'rtl' if language in ('he', 'ar', 'arc', 'syr') else 'auto',
-                           'children': blocks(child, language)})
+                           **({'lexical_id': target} if target else {}),
+                           'children': blocks(child, language, resolver)})
         elif child.tag not in ('status', 'page', 'script', 'style'):
-            result.extend(blocks(child, inherited_language))
+            result.extend(blocks(child, inherited_language, resolver))
         if child.tail:
             result.append({'kind': 'text', 'text': re.sub(r'\s+', ' ', child.tail)})
     return result
@@ -86,6 +89,22 @@ def build():
     bdb = {e.get('id'): e for e in trees['BrownDriverBriggs.xml'].iter('entry')}
     bdb_languages = {entry.get('id'): part.get('{http://www.w3.org/XML/1998/namespace}lang', 'heb')
                      for part in trees['BrownDriverBriggs.xml'].iter('part') for entry in part.iter('entry')}
+    # Only explicit references with exactly one available augmented identity
+    # become links. In particular H1254 must never choose between its homonyms.
+    mappings = [(re.sub(r'(?<=\d)([a-z])$', r' \1', m.get('aug')), text(m))
+                for m in trees['AugIndex.xml'].iter('w') if text(m) in lexical]
+    targets = {}
+    for identity, key in mappings:
+        xref = lexical[key].find('xref')
+        refs = [key, 'H' + identity.split()[0]]
+        if xref is not None and xref.get('bdb'):
+            refs.append(xref.get('bdb'))
+        for ref in refs:
+            targets.setdefault(ref, set()).add(identity)
+    def resolve(ref):
+        candidates = targets.get(ref, set())
+        return next(iter(candidates)) if len(candidates) == 1 else None
+
     def root_for(key, seen=None):
         seen = set() if seen is None else seen
         if key in seen or key not in lexical:
@@ -95,7 +114,7 @@ def build():
         if etym is None:
             return None
         if etym.get('root'):
-            return {'id': key, 'text': etym.get('root')}
+            return {'id': key, 'text': etym.get('root'), 'lexical_id': resolve(key)}
         target = text(etym)
         return root_for(target, seen) if etym.get('type') == 'sub' and target in lexical else None
     entries = {}
@@ -108,7 +127,10 @@ def build():
         detail = strong.get('H' + identity.split()[0])
         sw = detail.find('w') if detail is not None else None
         outline = bdb.get(xref.get('bdb')) if xref is not None else None
-        entries[identity] = {'lexical_id': identity, 'entry_id': key, 'lemma': text(word), 'transliteration': word.get('xlit', '') if word is not None else '', 'definition': text(entry.find('def')), 'root': root_for(key), 'pronunciation': sw.get('pron', '') if sw is not None else '', 'strong_definition': text(detail.find('meaning')) if detail is not None else '', 'strong_usage': text(detail.find('usage')) if detail is not None else '', 'strong_source': text(detail.find('source')) if detail is not None else '', 'bdb': blocks(outline, bdb_languages.get(outline.get('id'), 'heb')) if outline is not None else [], 'bdb_status': text(outline.find('status')) if outline is not None else 'missing'}
+        entries[identity] = {'lexical_id': identity, 'entry_id': key, 'lemma': text(word), 'transliteration': word.get('xlit', '') if word is not None else '', 'definition': text(entry.find('def')), 'root': root_for(key), 'pronunciation': sw.get('pron', '') if sw is not None else '', 'strong_definition': text(detail.find('meaning')) if detail is not None else '', 'strong_usage': text(detail.find('usage')) if detail is not None else '', 'strong_source': text(detail.find('source')) if detail is not None else '', 'bdb': blocks(outline, bdb_languages.get(outline.get('id'), 'heb'), resolve) if outline is not None else [], 'bdb_status': text(outline.find('status')) if outline is not None else 'missing'}
+        for field, tag in [('strong_definition_nodes', 'meaning'), ('strong_usage_nodes', 'usage'), ('strong_source_nodes', 'source')]:
+            source = detail.find(tag) if detail is not None else None
+            entries[identity][field] = blocks(source, resolver=resolve) if source is not None else []
     result = {'entries': entries, 'coverage': {'entries': len(entries), 'recorded_roots': sum(bool(e['root']) for e in entries.values())}}
     (DIRECTORY / 'lexicon.json').write_text(json.dumps(result, ensure_ascii=False, sort_keys=True, separators=(',', ':')) + '\n')
     print(result['coverage'])

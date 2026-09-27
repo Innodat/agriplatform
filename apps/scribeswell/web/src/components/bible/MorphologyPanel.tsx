@@ -1,128 +1,24 @@
-/**
- * MorphologyPanel — shows decoded morpheme breakdown for a selected word.
- */
-import { X } from "lucide-react";
-import type { WordWithMorphologyResponse, Morpheme } from "@/schemas/bible.schema";
+/** Readable morphology, with surface pieces only when source boundaries align. */
+import type { WordWithMorphologyResponse } from '@/schemas/bible.schema';
 
-interface MorphologyPanelProps {
-  word: WordWithMorphologyResponse;
-  context?: string;
-  hideHeader?: boolean;
-  onClose: () => void;
-}
+function readable(value:string|null|undefined) {return value?.replace(/_/g,' ')??'';}
+function title(value:string) {return value.charAt(0).toUpperCase()+value.slice(1);}
 
-function capitalize(s: string | null | undefined): string {
-  if (!s) return "—";
-  return s.charAt(0).toUpperCase() + s.slice(1).replace(/_/g, " ");
-}
-
-export function MorphologyPanel({ word, context, onClose, hideHeader }: MorphologyPanelProps) {
-  return (
-    <aside
-      className="bg-white border border-stone-200 rounded-xl shadow-md p-4"
-      aria-label="Word morphology"
-    >
-      {/* Header */}
-      {!hideHeader && <div className="sticky top-0 z-10 bg-white flex items-start justify-between mb-3">
-        <div>
-          {context && <p className="text-xs text-stone-500 mb-2">{context}</p>}
-          <p
-            className="text-3xl font-hebrew leading-none mb-1"
-            dir="rtl"
-            lang="he"
-            aria-label={`Hebrew word: ${word.display_he}`}
-          >
-            {word.display_he}
-          </p>
-          {word.lemma_strong && (
-            <p className="text-xs text-stone-400 font-mono">
-              {word.lemma_strong}
-            </p>
-          )}
-          {word.morph_code && (
-            <p className="text-xs text-stone-400 font-mono mt-0.5">
-              {word.morph_code}
-            </p>
-          )}
-        </div>
-        <button
-          onClick={onClose}
-          className="text-stone-400 hover:text-stone-600 transition-colors ml-2 shrink-0"
-          aria-label="Close morphology panel"
-        >
-          <X className="w-4 h-4" />
-        </button>
-      </div>
-
-      }
-      {/* Morphemes */}
-      {word.morphemes.length === 0 ? (
-        <p className="text-sm text-stone-400 italic">No morphology data.</p>
-      ) : (
-        <div className="space-y-3">
-          {word.morphemes.map((m: Morpheme) => (
-            <div
-              key={m.segment_index}
-              className="border border-stone-100 rounded-lg p-3 bg-stone-50"
-            >
-              <div className="flex items-center gap-2 mb-2">
-                <span className="text-xs font-mono bg-amber-100 text-amber-800 px-1.5 py-0.5 rounded">
-                  {m.pos_code}
-                </span>
-                <span className="text-sm font-semibold text-stone-700">
-                  {capitalize(m.part_of_speech)}
-                </span>
-                <span className="text-xs text-stone-400 capitalize">
-                  {m.language}
-                </span>
-              </div>
-
-              <dl className="grid grid-cols-2 gap-x-4 gap-y-1 text-xs">
-                {m.verb_stem && (
-                  <>
-                    <dt className="text-stone-400">Stem</dt>
-                    <dd className="text-stone-700 capitalize">
-                      {capitalize(m.verb_stem)}
-                    </dd>
-                  </>
-                )}
-                {m.verb_aspect && (
-                  <>
-                    <dt className="text-stone-400">Aspect</dt>
-                    <dd className="text-stone-700">
-                      {capitalize(m.verb_aspect)}
-                    </dd>
-                  </>
-                )}
-                {m.person && (
-                  <>
-                    <dt className="text-stone-400">Person</dt>
-                    <dd className="text-stone-700 capitalize">{m.person}</dd>
-                  </>
-                )}
-                {m.gender && (
-                  <>
-                    <dt className="text-stone-400">Gender</dt>
-                    <dd className="text-stone-700 capitalize">{m.gender}</dd>
-                  </>
-                )}
-                {m.number && (
-                  <>
-                    <dt className="text-stone-400">Number</dt>
-                    <dd className="text-stone-700 capitalize">{m.number}</dd>
-                  </>
-                )}
-                {m.state && (
-                  <>
-                    <dt className="text-stone-400">State</dt>
-                    <dd className="text-stone-700 capitalize">{m.state}</dd>
-                  </>
-                )}
-              </dl>
-            </div>
-          ))}
-        </div>
-      )}
-    </aside>
-  );
+export function MorphologyPanel({word}: {word:WordWithMorphologyResponse}) {
+  const parts=word.surface_he.split('/');
+  const codes=word.morph_code?.replace(/^[HA]/,'').split('/')??[];
+  const aligned=parts.length===word.morphemes.length&&codes.length===parts.length&&parts.every(Boolean)&&word.morphemes.every((m,i)=>m.segment_index===i&&m.pos_code===codes[i]);
+  return <aside aria-label="Word morphology" className="text-sm border-y border-stone-200 py-2 my-3">
+    {word.morphemes.length===0?<p className="text-stone-500">No morphology data.</p>:<ol className="space-y-2">
+      {word.morphemes.map(m=>{
+        const aspect=m.verb_aspect==='participle_active'?'active participle':m.verb_aspect==='participle_passive'?'passive participle':readable(m.verb_aspect);
+        const heading=title([readable(m.verb_stem),aspect].filter(Boolean).join(' ')||readable(m.part_of_speech));
+        const features=[m.person?`${m.person} person`:null,m.gender,m.number,m.state].filter(Boolean).map(readable).join(' · ');
+        return <li key={m.segment_index} className="flex flex-wrap items-baseline gap-x-2 min-w-0">
+          {aligned&&<bdi lang={m.language.toLowerCase()==='aramaic'?'arc':'he'} dir="rtl" className="font-hebrew text-xl">{parts[m.segment_index]}</bdi>}
+          <span className="font-medium">{heading}</span>{features&&<span className="text-stone-600">{features}</span>}
+        </li>;
+      })}
+    </ol>}
+  </aside>;
 }

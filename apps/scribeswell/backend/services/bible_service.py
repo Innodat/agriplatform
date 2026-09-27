@@ -228,7 +228,13 @@ def get_word_morphology(word_id: int) -> WordWithMorphologyResponse:
         expected = len(morph_code.split("/"))
         if [m["segment_index"] for m in m_resp.data] != list(range(expected)):
             raise DataIntegrityError(f"Incomplete Bible data: word {word_id} is missing morphology. Run the source audit/import.")
-    morphemes = [MorphemeResponse(**row) for row in m_resp.data]
+    # Preserve stored-row completeness checks, but derive presentation from the
+    # immutable source code so historical imported feature errors need no writes.
+    from dataclasses import asdict
+    from services.oshb_morph import parse_morph_code
+    morphemes = ([MorphemeResponse(segment_index=i, **asdict(segment))
+                  for i, segment in enumerate(parse_morph_code(morph_code))]
+                 if morph_code else [MorphemeResponse(**row) for row in m_resp.data])
     return WordWithMorphologyResponse(**w_resp.data, morphemes=morphemes, **match_metadata(w_resp.data.get('lemma_strong'), w_resp.data.get('morph_code')))
 
 

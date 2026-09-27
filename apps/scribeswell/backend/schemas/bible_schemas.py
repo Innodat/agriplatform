@@ -89,6 +89,7 @@ class VersesListResponse(BaseModel):
 
 
 class LexiconNode(BaseModel):
+    lexical_id: str | None = None
     language: str | None = None
     direction: str | None = None
     kind: str
@@ -100,6 +101,7 @@ class LexiconNode(BaseModel):
 
 
 class LexiconRoot(BaseModel):
+    lexical_id: str | None = None
     id: str
     text: str
 
@@ -116,6 +118,9 @@ class LexiconResponse(BaseModel):
     strong_definition: str = ''
     strong_usage: str = ''
     strong_source: str = ''
+    strong_definition_nodes: list[LexiconNode] = []
+    strong_usage_nodes: list[LexiconNode] = []
+    strong_source_nodes: list[LexiconNode] = []
     bdb: list[LexiconNode] = []
     bdb_status: str = 'missing'
 

@@ -142,3 +142,87 @@ def test_real_variants_and_canonical_order_independent_of_ids(monkeypatch):
     result = bible_service.get_occurrences('1254 a')
     assert result['total'] == 2
     assert [w['id'] for w in result['data']] == [2, 1]
+
+
+def test_explicit_dictionary_links_resolve_only_unique_available_targets():
+    sys.path.insert(0, str(Path(__file__).resolve().parents[1] / 'tools/py'))
+    import build_lexicon as builder
+    nodes = builder.blocks(builder.parse(b'<entry>123 <w src="H6">6</w> <w src="H1254">1254</w> <w src="missing">missing</w></entry>'), resolver=lambda value: {'H6': '6'}.get(value))
+    links = [n for n in nodes if n['kind'] == 'dictionary_reference']
+    assert len(links) == 1 and links[0]['lexical_id'] == '6'
+    assert get_entry('4428')['root']['lexical_id'] is None
+    assert get_entry('10')['root']['lexical_id'] == '6'
+    assert any(n['kind'] == 'dictionary_reference' for n in get_entry('10')['strong_source_nodes'])
+
+
+def test_all_emitted_links_target_available_unique_source_identities():
+    import json
+    from collections import defaultdict
+    sys.path.insert(0, str(Path(__file__).resolve().parents[1] / 'tools/py'))
+    import build_lexicon as builder
+    entries = json.loads((builder.DIRECTORY / 'lexicon.json').read_text())['entries']
+    lexical = {e.get('id'): e for e in builder.parse((builder.DIRECTORY / 'LexicalIndex.xml').read_bytes()).iter('entry')}
+    import re
+    targets = defaultdict(set)
+    for mapping in builder.parse((builder.DIRECTORY / 'AugIndex.xml').read_bytes()).iter('w'):
+        identity = re.sub(r'(?<=\d)([a-z])$', r' \1', mapping.get('aug'))
+        key = builder.text(mapping)
+        if identity not in entries or key not in lexical:
+            continue
+        targets[key].add(identity)
+        targets['H' + identity.split()[0]].add(identity)
+        xref = lexical[key].find('xref')
+        if xref is not None:
+            targets[xref.get('bdb')].add(identity)
+    def walk(nodes):
+        for n in nodes:
+            yield n
+            yield from walk(n.get('children', []))
+    strong = {e.get('id'): e for e in builder.parse((builder.DIRECTORY / 'HebrewStrong.xml').read_bytes()).iter('entry')}
+    bdb = {e.get('id'): e for e in builder.parse((builder.DIRECTORY / 'BrownDriverBriggs.xml').read_bytes()).iter('entry')}
+    for entry in entries.values():
+        source_entry = lexical[entry['entry_id']]
+        xref = source_entry.find('xref')
+        strong_entry = strong.get('H' + entry['lexical_id'].split()[0])
+        sources = {'bdb': bdb.get(xref.get('bdb')) if xref is not None else None}
+        sources.update({f'strong_{field}_nodes': strong_entry.find(tag) if strong_entry is not None else None
+                        for field, tag in [('definition', 'meaning'), ('usage', 'usage'), ('source', 'source')]})
+        for field, source in sources.items():
+            expected = [(builder.text(w), next(iter(targets[w.get('src')]))) for w in source.iter('w')
+                        if len(targets[w.get('src')]) == 1] if source is not None else []
+            emitted = [(n['text'], n['lexical_id']) for n in walk(entry[field]) if n['kind'] == 'dictionary_reference']
+            assert emitted == expected, (entry['lexical_id'], field)
+        if entry['root'] and entry['root']['lexical_id']:
+            assert targets[entry['root']['id']] == {entry['root']['lexical_id']}
+        for field in ['bdb', 'strong_definition_nodes', 'strong_usage_nodes', 'strong_source_nodes']:
+            for n in walk(entry[field]):
+                if n['kind'] == 'dictionary_reference':
+                    assert n['lexical_id'] in entries
+                    assert n['text'], 'Older clients must retain linked source text'
+    # Actual explicit Strong references: available H6, ambiguous H1254, missing H99999.
+    resolver = lambda ref: next(iter(targets[ref])) if len(targets[ref]) == 1 else None
+    nodes = builder.blocks(builder.parse(b'<entry><w src="H6">6</w> <w src="H1254">1254</w> <w src="H99999">99999</w> 4428</entry>'), resolver=resolver)
+    assert [n['lexical_id'] for n in nodes if n['kind'] == 'dictionary_reference'] == ['6']
+
+
+def test_http_preserves_linked_root_and_nested_structured_sources():
+    from test_reader_integrity import app, TestClient
+    from services.lexicon_service import artifact
+    def walk(nodes):
+        for n in nodes:
+            yield n
+            yield from walk(n.get('children', []))
+    entries = artifact()['entries']
+    nested_id = next(identity for identity, entry in entries.items()
+                     if any(any(n['kind'] == 'dictionary_reference' for n in walk(top.get('children', []))) for top in entry['bdb']))
+    with TestClient(app) as client:
+        ten = client.get('/api/bible/lexicon/10').json()
+        nested = client.get('/api/bible/lexicon/' + nested_id.replace(' ', '%20')).json()
+    assert ten['root']['lexical_id'] == '6'
+    assert [n['lexical_id'] for n in walk(ten['strong_source_nodes']) if n['kind'] == 'dictionary_reference'] == ['9', '11']
+    for field in ['strong_definition_nodes', 'strong_usage_nodes', 'strong_source_nodes', 'bdb']:
+        # HTTP adds nullable defaults but must preserve all populated source fields.
+        for actual, expected in zip(walk(ten[field]), walk(entries['10'][field]), strict=True):
+            assert actual['kind'] == expected['kind'] and actual['text'] == expected['text']
+            assert actual['lexical_id'] == expected.get('lexical_id')
+    assert any(n['lexical_id'] for n in walk(nested['bdb']) if n['kind'] == 'dictionary_reference')
