@@ -1,0 +1,2 @@
+const {defineConfig}=require('@playwright/test');
+module.exports=defineConfig({testDir:'tests',testMatch:'production-origin.release.cjs',projects:[{name:'assembled-artifact',use:{viewport:{width:1280,height:900}}}],use:{baseURL:'http://127.0.0.1:5183',headless:true},webServer:{command:'python3 ../../../platform/deployment/tests/serve_artifact.py',url:'http://127.0.0.1:5183/scribeswell/',reuseExistingServer:false}});

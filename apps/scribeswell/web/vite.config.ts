@@ -4,10 +4,10 @@ import tailwindcss from "@tailwindcss/vite";
 import react from "@vitejs/plugin-react";
 
 export default defineConfig(({mode}) => {
- const env=loadEnv(mode,__dirname,'VITE_');
+ const env=loadEnv(mode,process.env.RELEASE_ENV_DIR||__dirname,'VITE_');
  const base=env.VITE_APP_BASE||'/';
  const canonical=env.VITE_PLATFORM_ORIGIN?new URL(env.VITE_PLATFORM_ORIGIN):null;
- return {
+ return {envDir:process.env.RELEASE_ENV_DIR||__dirname,
   base,
   plugins: [react(), tailwindcss(), {
     name:'canonical-reader-origin',

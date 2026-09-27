@@ -62,7 +62,7 @@ async def validation_exception_handler(request: Request, exc: RequestValidationE
 
 @app.exception_handler(Exception)
 async def unhandled_exception_handler(request: Request, exc: Exception):
-    logging.getLogger(__name__).error("Unhandled API error on %s", request.url.path, exc_info=exc)
+    logging.getLogger(__name__).error('{"service":"scribeswell","action":"request","outcome":"failed","code":"unhandled_error"}')
     return JSONResponse(
         status_code=500,
         content={"error": "Internal server error"},

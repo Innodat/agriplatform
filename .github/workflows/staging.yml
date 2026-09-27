@@ -1,0 +1,86 @@
+name: Platform staging
+on:
+  push:
+    branches: [main]
+concurrency:
+  group: platform-staging
+  cancel-in-progress: false
+permissions:
+  contents: read
+  packages: write
+jobs:
+  release:
+    runs-on: ubuntu-24.04
+    environment: staging
+    env:
+      DEPLOY_ENV: staging
+      RELEASE_SHA: ${{ github.sha }}
+      PUBLIC_SITE_ORIGIN: ${{ vars.PUBLIC_SITE_ORIGIN }}
+      PUBLIC_API_ORIGIN: ${{ vars.PUBLIC_API_ORIGIN }}
+      VITE_SUPABASE_URL: ${{ vars.PUBLIC_SUPABASE_URL }}
+      VITE_SUPABASE_ANON_KEY: ${{ secrets.PUBLIC_SUPABASE_KEY }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Fail closed on missing target inputs
+        env:
+          DEPLOY_HOST: ${{ secrets.DEPLOY_HOST }}
+          DEPLOY_USER: ${{ secrets.DEPLOY_USER }}
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+          SSH_KNOWN_HOSTS: ${{ secrets.SSH_KNOWN_HOSTS }}
+          NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
+          NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
+        run: python3 platform/deployment/check-ci-inputs.py
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Validate contracts
+        run: |
+          python3 platform/deployment/release.py check
+          python3 -m unittest discover -s platform/deployment/tests -p 'test_*.py'
+          node --test platform/deployment/tests/release.test.mjs
+          python3 tools/py/run_compose_supabase.py --check-only
+      - name: Install frontends
+        run: |
+          python3 platform/deployment/install-frontends.py
+      - name: Build isolated staging static artifact
+        run: node platform/deployment/build-release.mjs
+      - name: Browser and gateway acceptance
+        run: |
+          npx --prefix apps/scribeswell/web playwright install --with-deps chromium
+          npm run test:browser --workspace=apps/scribeswell/web
+          npm run test:browser --prefix apps/pts/web
+          npm exec --workspace=apps/scribeswell/web -- playwright test --config playwright.session.config.cjs
+          npx --prefix apps/scribeswell/web playwright test --config apps/scribeswell/web/playwright.release.config.cjs
+          python3 platform/deployment/tests/gateway_smoke.py
+      - name: Registry authentication
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Build immutable silo images
+        run: python3 platform/deployment/ci-build.py --sha "$RELEASE_SHA" --repository "${GITHUB_REPOSITORY,,}" --output images.json --push
+      - name: Isolated API container health
+        run: python3 platform/deployment/tests/container_smoke.py --images images.json
+      - name: Migrate and activate staging APIs
+        env:
+          DEPLOY_HOST: ${{ secrets.DEPLOY_HOST }}
+          DEPLOY_USER: ${{ secrets.DEPLOY_USER }}
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+          SSH_KNOWN_HOSTS: ${{ secrets.SSH_KNOWN_HOSTS }}
+        run: bash platform/deployment/ci-deploy.sh
+      - name: Publish staging alias only
+        env:
+          NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
+          NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
+        run: |
+          test -n "$NETLIFY_AUTH_TOKEN" && test -n "$NETLIFY_SITE_ID"
+          npx --yes netlify-cli@23.6.0 deploy --dir=platform/deployment/public-release --alias=staging --no-build --json > netlify-deploy.json
+          python3 platform/deployment/record-staging.py
+      - uses: actions/upload-artifact@v4
+        with:
+          name: staged-${{ github.sha }}
+          path: |
+            images.json
+            staged.json
+          retention-days: 30

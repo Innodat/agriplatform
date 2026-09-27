@@ -1,0 +1,11 @@
+[build]
+  command = "node platform/deployment/build-release.mjs"
+  publish = "platform/deployment/public-release"
+[build.environment]
+  NODE_VERSION = "24"
+  NPM_FLAGS = "--ignore-scripts"
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "strict-origin-when-cross-origin"

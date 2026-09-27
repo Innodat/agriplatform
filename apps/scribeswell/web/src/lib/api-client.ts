@@ -18,7 +18,7 @@ import {
   type WordWithMorphologyResponse,
 } from "@/schemas/bible.schema";
 
-const BASE = import.meta.env.BASE_URL + "api/bible";
+const BASE = (import.meta.env.VITE_BIBLE_API_URL || import.meta.env.BASE_URL + "api/bible").replace(/\/$/, "");
 
 async function apiFetch<T>(
   url: string,

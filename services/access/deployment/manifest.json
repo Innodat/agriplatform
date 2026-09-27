@@ -1,0 +1,31 @@
+{
+  "id": "access",
+  "depends_on": [],
+  "dockerfile": "services/access/deployment/Dockerfile",
+  "env_file": "access.env",
+  "health_path": "/health",
+  "migration": {
+    "owner": "access",
+    "config": "services/access/alembic.ini",
+    "url_env": "ACCESS_MIGRATION_DATABASE_URL",
+    "role": "access_migrator"
+  },
+  "required_env": [
+    "ACCESS_DATABASE_URL",
+    "SUPABASE_URL",
+    "SUPABASE_ANON_KEY",
+    "PTS_SERVICE_KEY",
+    "CONTENT_SERVICE_KEY"
+  ],
+  "database_roles": {
+    "ACCESS_DATABASE_URL": "access_runtime"
+  },
+  "smoke_env": {
+    "ACCESS_DATABASE_URL": "postgresql+psycopg://fixture:fixture@localhost/fixture",
+    "SUPABASE_URL": "https://fixture.supabase.co",
+    "SUPABASE_ANON_KEY": "fixture-public",
+    "PTS_SERVICE_KEY": "fixture-pts",
+    "CONTENT_SERVICE_KEY": "fixture-content"
+  },
+  "smoke_artifacts": []
+}

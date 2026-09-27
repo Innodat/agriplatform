@@ -1,0 +1,9 @@
+**
+!apps/pts/requirements.txt
+!apps/pts/backend/**
+**/.env*
+**/__pycache__/**
+**/.pytest_cache/**
+**/tests/**
+**/*.pyc
+**/.local/**

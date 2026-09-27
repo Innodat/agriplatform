@@ -1,0 +1,36 @@
+#cloud-config
+# Secret-free host preparation only. Does not install applications or run migrations.
+package_update: true
+packages:
+  - docker.io
+  - python3
+  - openssl
+  - ca-certificates
+  - curl
+  - certbot
+write_files:
+  - path: /usr/local/sbin/install-platform-compose
+    permissions: '0755'
+    content: |
+      #!/bin/sh
+      set -eu
+      # Pinned upstream binaries; raw env_file values require Compose >=2.30.
+      case "$(uname -m)" in
+        x86_64) arch=x86_64; checksum=7af95166a730b87e172d4fc9aefea8725d3c6c7327d59149267b452114ddb7d4 ;;
+        aarch64) arch=aarch64; checksum=49082844b87f03cdcd5f5bbef1ba8c9c897b7a2dfb80cea18d61ec8ca6117e0c ;;
+        *) echo 'Unsupported Compose architecture' >&2; exit 1 ;;
+      esac
+      temporary=$(mktemp -d)
+      trap 'rm -rf "$temporary"' EXIT
+      curl --fail --location --retry 3 --connect-timeout 10 --max-time 300 \
+        "https://github.com/docker/compose/releases/download/v2.39.4/docker-compose-linux-$arch" \
+        -o "$temporary/docker-compose"
+      printf '%s  %s\n' "$checksum" "$temporary/docker-compose" | sha256sum --check --status
+      install -d -m 0755 /usr/local/lib/docker/cli-plugins
+      install -m 0755 "$temporary/docker-compose" /usr/local/lib/docker/cli-plugins/docker-compose
+      docker compose version
+runcmd:
+  - [/usr/local/sbin/install-platform-compose]
+  - [systemctl, enable, --now, docker]
+  - [install, -d, -m, '0750', /srv/agriplatform]
+  - [install, -d, -m, '0700', /etc/agriplatform]

@@ -1,0 +1,57 @@
+{
+  "id": "pts",
+  "depends_on": [
+    "access",
+    "content"
+  ],
+  "dockerfile": "apps/pts/deployment/Dockerfile",
+  "env_file": "pts.env",
+  "health_path": "/health",
+  "public": {
+    "prefix": "/pts",
+    "paths": [
+      "/api/poetry",
+      "/api/poetry/*",
+      "/api/sources",
+      "/api/exports",
+      "/api/documents/*"
+    ],
+    "methods": [
+      "GET",
+      "OPTIONS"
+    ]
+  },
+  "frontend": {
+    "path": "apps/pts/web",
+    "base": "/",
+    "api_variables": {
+      "VITE_PTS_API_URL": "/pts",
+      "VITE_APP_DIRECTORY_URL": "/directory"
+    },
+    "install": "prefix"
+  },
+  "migration": {
+    "owner": "pts",
+    "config": "apps/pts/alembic.ini",
+    "url_env": "PTS_MIGRATION_DATABASE_URL",
+    "role": "pts_migrator"
+  },
+  "required_env": [
+    "PTS_DATABASE_URL",
+    "ACCESS_URL",
+    "CONTENT_URL",
+    "PTS_SERVICE_KEY",
+    "PTS_CORS_ORIGINS"
+  ],
+  "database_roles": {
+    "PTS_DATABASE_URL": "pts_runtime"
+  },
+  "smoke_env": {
+    "PTS_DATABASE_URL": "postgresql+psycopg://fixture:fixture@localhost/fixture",
+    "ACCESS_URL": "http://access:8000",
+    "CONTENT_URL": "http://content:8000",
+    "PTS_SERVICE_KEY": "fixture-pts",
+    "PTS_CORS_ORIGINS": "https://fixture.test"
+  },
+  "smoke_artifacts": []
+}

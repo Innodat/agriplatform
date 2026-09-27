@@ -1,0 +1,89 @@
+name: Promote staged platform release
+on:
+  workflow_dispatch:
+    inputs:
+      sha:
+        description: Full SHA of a successful main staging release
+        required: true
+        type: string
+concurrency:
+  group: platform-production
+  cancel-in-progress: false
+permissions:
+  contents: read
+  actions: read
+jobs:
+  verify:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-24.04
+    outputs:
+      sha: ${{ steps.verified.outputs.sha }}
+    steps:
+      - uses: actions/checkout@v4
+      - id: verified
+        env:
+          REQUESTED_SHA: ${{ inputs.sha }}
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          python3 platform/deployment/verify-promotion.py --sha "$REQUESTED_SHA" --repository "$GITHUB_REPOSITORY" --output staged
+          printf 'sha=%s\n' "$REQUESTED_SHA" >> "$GITHUB_OUTPUT"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: promotion-input
+          path: staged/
+  promote:
+    needs: verify
+    environment: production
+    runs-on: ubuntu-24.04
+    env:
+      DEPLOY_ENV: production
+      RELEASE_SHA: ${{ needs.verify.outputs.sha }}
+      PUBLIC_SITE_ORIGIN: ${{ vars.PUBLIC_SITE_ORIGIN }}
+      PUBLIC_API_ORIGIN: ${{ vars.PUBLIC_API_ORIGIN }}
+      VITE_SUPABASE_URL: ${{ vars.PUBLIC_SUPABASE_URL }}
+      VITE_SUPABASE_ANON_KEY: ${{ secrets.PUBLIC_SUPABASE_KEY }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.verify.outputs.sha }}
+      - uses: actions/download-artifact@v4
+        with:
+          name: promotion-input
+      - name: Fail closed on missing target inputs
+        env:
+          DEPLOY_HOST: ${{ secrets.DEPLOY_HOST }}
+          DEPLOY_USER: ${{ secrets.DEPLOY_USER }}
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+          SSH_KNOWN_HOSTS: ${{ secrets.SSH_KNOWN_HOSTS }}
+          NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
+          NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
+        run: python3 platform/deployment/check-ci-inputs.py
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Rebuild frontend with production public configuration
+        run: |
+          python3 platform/deployment/install-frontends.py
+          node --test platform/deployment/tests/release.test.mjs
+          python3 -m unittest discover -s platform/deployment/tests -p 'test_*.py'
+          node platform/deployment/build-release.mjs
+      - name: Migrate and activate exact staged backend digests
+        env:
+          DEPLOY_HOST: ${{ secrets.DEPLOY_HOST }}
+          DEPLOY_USER: ${{ secrets.DEPLOY_USER }}
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+          SSH_KNOWN_HOSTS: ${{ secrets.SSH_KNOWN_HOSTS }}
+        run: bash platform/deployment/ci-deploy.sh
+      - name: Publish production frontend
+        env:
+          NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
+          NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
+        run: |
+          test -n "$NETLIFY_AUTH_TOKEN" && test -n "$NETLIFY_SITE_ID"
+          npx --yes netlify-cli@23.6.0 deploy --dir=platform/deployment/public-release --prod --no-build --json > netlify-deploy.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: production-${{ needs.verify.outputs.sha }}
+          path: |
+            images.json
+            netlify-deploy.json

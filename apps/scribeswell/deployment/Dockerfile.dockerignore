@@ -1,0 +1,11 @@
+**
+!apps/scribeswell/backend/requirements.txt
+!apps/scribeswell/backend/**
+!apps/scribeswell/data/hebrew-lexicon/**
+!apps/scribeswell/scripts/hebrew.json
+**/.env*
+**/__pycache__/**
+**/.pytest_cache/**
+**/tests/**
+**/*.pyc
+**/.local/**

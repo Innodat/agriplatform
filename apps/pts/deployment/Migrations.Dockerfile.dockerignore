@@ -1,0 +1,13 @@
+**
+!apps/pts/requirements.txt
+!tools/py/deploy_pts.py
+!apps/pts/alembic.ini
+!apps/pts/migrations/**
+!services/access/alembic.ini
+!services/access/migrations/**
+!services/content-service/alembic.ini
+!services/content-service/migrations/**
+!apps/pts/deployment/migrate.py
+**/__pycache__/**
+**/.env*
+!platform/deployment/target_contract.py

@@ -1,8 +1,15 @@
 # First PtS and Scribes’ Well production release
 
 Preparation only, 27 September 2026. No production connection, schema change,
-account creation, upload, DNS change or deployment has been performed. The target
-provider/server, domain and Supabase project are awaiting the owner's selection.
+account creation, upload, DNS change or deployment has been performed. The owner selected Supabase project `gjbsnxmbhxsvcblzgfts`
+(`https://gjbsnxmbhxsvcblzgfts.supabase.co`). The owner confirms Pro in West EU (Ireland); its existing schema and data have
+not been inspected. The owner confirmed `scribeswell.com`, prefers Netlify Free for the frontend
+(or hosting it on the backend server), and Hetzner for the APIs and future workers.
+APISIX is the requested gateway; DNS is managed at Dynadot. Server size/region
+and account access remain to be confirmed. No server has been provisioned.
+The owner requires platform-wide CI/CD: main deploys staging because Pro supports
+persistent staging branches; production promotes a verified release explicitly.
+Shared implementation and current scope: [platform deployment spec](../../../platform/deployment/SPEC.md).
 This checklist accompanies the existing owner tooling; it is not a new deployment
 system or an authorization to execute production writes.
 

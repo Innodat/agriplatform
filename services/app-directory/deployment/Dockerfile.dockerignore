@@ -1,0 +1,9 @@
+**
+!services/app-directory/requirements.txt
+!services/app-directory/**
+**/.env*
+**/__pycache__/**
+**/.pytest_cache/**
+**/tests/**
+**/*.pyc
+**/.local/**

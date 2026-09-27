@@ -1,0 +1,41 @@
+{
+  "id": "content",
+  "depends_on": [
+    "access"
+  ],
+  "dockerfile": "services/content-service/deployment/Dockerfile",
+  "env_file": "content.env",
+  "health_path": "/health",
+  "migration": {
+    "owner": "content",
+    "config": "services/content-service/alembic.ini",
+    "url_env": "CONTENT_MIGRATION_DATABASE_URL",
+    "role": "content_migrator"
+  },
+  "required_env": [
+    "CONTENT_DATABASE_URL",
+    "ACCESS_URL",
+    "PTS_SERVICE_KEY",
+    "CONTENT_SERVICE_KEY",
+    "CONTENT_BUCKET",
+    "CONTENT_S3_ENDPOINT",
+    "CONTENT_S3_REGION",
+    "CONTENT_S3_ACCESS_KEY",
+    "CONTENT_S3_SECRET_KEY"
+  ],
+  "database_roles": {
+    "CONTENT_DATABASE_URL": "content_runtime"
+  },
+  "smoke_env": {
+    "CONTENT_DATABASE_URL": "postgresql+psycopg://fixture:fixture@localhost/fixture",
+    "ACCESS_URL": "http://access:8000",
+    "PTS_SERVICE_KEY": "fixture-pts",
+    "CONTENT_SERVICE_KEY": "fixture-content",
+    "CONTENT_BUCKET": "fixture-private",
+    "CONTENT_S3_ENDPOINT": "https://fixture.supabase.co/storage/v1/s3",
+    "CONTENT_S3_REGION": "eu-west-1",
+    "CONTENT_S3_ACCESS_KEY": "fixture-s3",
+    "CONTENT_S3_SECRET_KEY": "fixture-secret"
+  },
+  "smoke_artifacts": []
+}

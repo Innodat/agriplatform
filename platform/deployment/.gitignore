@@ -1,0 +1,15 @@
+public-release/
+rendered/
+*.env
+!*.env.example
+release-input.json
+images.json
+*.pem
+*.key
+*.crt
+*.tar
+terraform/.terraform/
+terraform/*.tfstate*
+terraform/*.tfvars
+!terraform/example.tfvars
+terraform/crash.log

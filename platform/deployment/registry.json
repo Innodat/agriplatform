@@ -1,0 +1,25 @@
+{
+  "manifests": [
+    "apps/pts/deployment/manifest.json",
+    "apps/scribeswell/deployment/manifest.json",
+    "services/access/deployment/manifest.json",
+    "services/content-service/deployment/manifest.json",
+    "services/app-directory/deployment/manifest.json"
+  ],
+  "migration_groups": [
+    {
+      "id": "pts-owned",
+      "dockerfile": "apps/pts/deployment/Migrations.Dockerfile",
+      "env_file": "pts-migrations.env",
+      "owners": [
+        "access",
+        "content",
+        "pts"
+      ]
+    }
+  ],
+  "bootstrap_paths": [
+    "platform/supabase",
+    "apps/scribeswell/supabase"
+  ]
+}

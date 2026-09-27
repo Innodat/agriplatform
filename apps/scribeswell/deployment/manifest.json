@@ -1,0 +1,44 @@
+{
+  "id": "scribeswell",
+  "depends_on": [],
+  "dockerfile": "apps/scribeswell/deployment/Dockerfile",
+  "env_file": "scribeswell.env",
+  "health_path": "/health",
+  "public": {
+    "prefix": "/scribeswell",
+    "paths": [
+      "/api/bible/*"
+    ],
+    "methods": [
+      "GET",
+      "OPTIONS"
+    ]
+  },
+  "frontend": {
+    "path": "apps/scribeswell/web",
+    "base": "/scribeswell/",
+    "api_variables": {
+      "VITE_BIBLE_API_URL": "/scribeswell/api/bible",
+      "VITE_APP_DIRECTORY_URL": "/directory"
+    },
+    "install": "workspace"
+  },
+  "required_env": [
+    "SUPABASE_URL",
+    "SUPABASE_SECRET_KEY",
+    "SUPABASE_JWT_SECRET",
+    "APP_ENV",
+    "CORS_ORIGINS"
+  ],
+  "smoke_env": {
+    "SUPABASE_URL": "https://fixture.supabase.co",
+    "SUPABASE_SECRET_KEY": "fixture-server-only",
+    "SUPABASE_JWT_SECRET": "fixture-jwt",
+    "APP_ENV": "production",
+    "CORS_ORIGINS": "[\"https://fixture.test\"]"
+  },
+  "smoke_artifacts": [
+    "/app/apps/scribeswell/data/hebrew-lexicon",
+    "/app/apps/scribeswell/scripts/hebrew.json"
+  ]
+}

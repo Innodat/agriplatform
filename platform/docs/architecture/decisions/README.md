@@ -59,3 +59,4 @@ scaffolding, or more than one application.
 | [0040](./0040-shared-employment-core-and-application-settings.md) | Accepted | Common employment facts have one shared HTTP service owner; applications retain their own settings and workflows |
 | [0041](./0041-shared-supervisor-department-and-location.md) | Accepted | Shared employment owns optional manual supervisor, department and location; application approval policies and Leave work profiles remain separate; refines 0040 |
 | [0042](./0042-person-account-employment-and-legacy-adoption.md) | Accepted | Platform-wide person/account separation, accountless employment, one relationship per person/organization and deliberate legacy identity/Expense adoption |
+| [0043](./0043-staged-platform-deployment.md) | Proposed | Platform manifests, main-to-staging deployment and verified immutable production promotion |
