@@ -15,5 +15,8 @@ if (!supabaseUrl || !supabaseAnonKey) {
 
 export const supabase = createClient(
   supabaseUrl ?? "https://placeholder.supabase.co",
-  supabaseAnonKey ?? "placeholder"
+  supabaseAnonKey ?? "placeholder",
+  // Retain the existing PtS key so already signed-in users keep their session.
+  // Apps must use the same browser origin and Supabase project.
+  {auth:{storageKey:'pts-auth'}}
 );

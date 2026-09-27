@@ -5,7 +5,7 @@ const word=(id,text)=>({id,position:1,surface_he:text,display_he:text,lemma_stro
 const first=word(1,'בְּרֵאשִׁית'),second=word(2,'שֵׁמוֹת');
 const verses=(b,w)=>({data:[{id:b.id,verse_num:1,book_id:b.id,chapter_num:1,words:[w]}],total:1});
 async function setup(page){
- await page.route('http://127.0.0.1:8001/**',r=>r.fulfill({json:{apps:[],context:{org_id:null,member_id:null,roles:[]}}}));
+ await page.route('http://127.0.0.1:8001/**',r=>r.fulfill({json:r.request().url().endsWith('/api/apps')?[]:{apps:[],context:{org_id:null,member_id:null,roles:[]}}}));
  await page.route('**/api/bible/**',r=>{
   const path=new URL(r.request().url()).pathname;
   if(path==='/api/bible/books')return r.fulfill({json:{data:[gen,ex],total:2}});
@@ -45,7 +45,7 @@ test('late chapter responses cannot replace the chosen chapter',async({page})=>{
 
 test('shared launcher works in Scribeswell and private workspace files are denied',async({page})=>{
  await setup(page);
- await page.route('http://127.0.0.1:8001/**',r=>r.fulfill({json:{apps:[{id:'scribeswell',name:'Scribeswell',description:'Hebrew Bible reader',icon:'book-open',url:'http://localhost:5174',enabled:true},{id:'pts',name:'PtS',description:'Swahili Poetry',icon:'book-open',url:'http://localhost:5179',enabled:true}],context:{org_id:null,member_id:null,roles:[]}}}));
+ await page.route('http://127.0.0.1:8001/**',r=>r.fulfill({json:[{id:'scribeswell',name:'Scribeswell',description:'Hebrew Bible reader',icon:'book-open',url:'http://localhost:5174',enabled:true},{id:'pts',name:'PtS',description:'Swahili Poetry',icon:'book-open',url:'http://localhost:5179',enabled:true}]}));
  await page.goto('/');const trigger=page.getByRole('button',{name:'App launcher'});await trigger.click();
  const menu=page.getByRole('menu');await expect(menu.getByText('Current app')).toBeVisible();
  await expect(menu.getByRole('menuitem',{name:'Open Scribeswell'})).toHaveAttribute('aria-current','page');

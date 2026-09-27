@@ -18,7 +18,7 @@ import {
   type WordWithMorphologyResponse,
 } from "@/schemas/bible.schema";
 
-const BASE = "/api/bible";
+const BASE = import.meta.env.BASE_URL + "api/bible";
 
 async function apiFetch<T>(
   url: string,

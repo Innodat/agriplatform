@@ -2,7 +2,7 @@
  * Topbar — brand + AppLauncher (burger) + Sign In / user menu.
  */
 import { BookOpen, LogIn, LogOut, User } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useAuth } from "@/context/AuthContext";
 import { SignInDialog } from "@/components/auth/SignInDialog";
 import { AppLauncher } from "@/components/layout/AppLauncher";
@@ -10,19 +10,21 @@ import { useMyApps } from "@/hooks/useMyApps";
 
 export function Topbar() {
   const { user, signOut, loading } = useAuth();
+  const [signOutError,setSignOutError]=useState('');
   const [showSignIn, setShowSignIn] = useState(false);
   const { apps, loading: appsLoading } = useMyApps();
+  useEffect(()=>{if(user){setShowSignIn(false);setSignOutError('');}},[user?.id]);
 
   return (
     <header className="bg-white border-b border-stone-200 shadow-sm">
       <div className="container mx-auto px-4 max-w-5xl h-14 flex items-center justify-between">
         {/* Left: AppLauncher + Brand */}
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2">
           <AppLauncher apps={apps} isLoading={appsLoading} currentAppId="scribeswell" />
 
           <div className="flex items-center gap-2 text-stone-800">
-            <BookOpen className="w-5 h-5 text-amber-600" aria-hidden="true" />
-            <span className="font-semibold text-lg tracking-tight">
+            <BookOpen className="hidden sm:block w-5 h-5 text-amber-600" aria-hidden="true" />
+            <span className="font-semibold text-sm sm:text-lg tracking-tight">
               Scribes' Well
             </span>
           </div>
@@ -38,7 +40,7 @@ export function Topbar() {
                   {user.email}
                 </span>
                 <button
-                  onClick={() => void signOut()}
+                  onClick={async()=>{setSignOutError('');try{await signOut();}catch{setSignOutError('We could not sign you out. Please try again.');}}}
                   className="flex items-center gap-1 text-sm text-stone-600 hover:text-stone-900 px-3 py-1.5 rounded-md hover:bg-stone-100 transition-colors"
                   aria-label="Sign out"
                 >
@@ -60,7 +62,8 @@ export function Topbar() {
         )}
       </div>
 
-      {showSignIn && <SignInDialog onClose={() => setShowSignIn(false)} />}
+      {signOutError&&<p role="alert" className="px-4 py-2 text-red-700">{signOutError}</p>}
+      {showSignIn && !user && <SignInDialog onClose={() => setShowSignIn(false)} />}
     </header>
   );
 }

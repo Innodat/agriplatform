@@ -1,7 +1,7 @@
 /**
  * useMyApps — fetches the current user's available apps from the app-directory service.
  *
- * Returns an empty list when the user is not signed in (anonymous).
+ * Anonymous readers see enabled public catalogue links; links grant no access.
  * Silently swallows errors (service unavailable = no launcher shown).
  */
 import { useState, useEffect } from "react";
@@ -24,12 +24,12 @@ export function useMyApps(): UseMyAppsResult {
     if (authLoading) return;
 
     let cancelled = false;
+    setApps([]);
     setLoading(true);
 
-    appDirectoryClient
-      .getMyApps()
-      .then(({ apps: fetchedApps }) => {
-        if (!cancelled) setApps(fetchedApps);
+    const listing=user?appDirectoryClient.getMyApps().then(result=>result.apps):appDirectoryClient.getAllApps();
+    listing.then(fetchedApps => {
+        if (!cancelled) setApps(fetchedApps.filter(app=>app.enabled));
       })
       .catch(() => {
         // Service unavailable — silently show no launcher

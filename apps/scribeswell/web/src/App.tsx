@@ -5,7 +5,7 @@ import { ReaderPage } from "@/pages/ReaderPage";
 
 export default function App() {
   return (
-    <BrowserRouter>
+    <BrowserRouter basename={import.meta.env.BASE_URL}>
       <AuthProvider>
         <AppShell>
           <Routes>

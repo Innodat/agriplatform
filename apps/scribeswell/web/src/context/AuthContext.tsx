@@ -27,16 +27,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    supabase.auth.getSession().then(({ data }) => {
-      setSession(data.session);
-      setLoading(false);
+    let active=true,revision=0;
+    const {data:listener}=supabase.auth.onAuthStateChange((_event,next)=>{
+      revision++;
+      if(active){setSession(next);setLoading(false);}
     });
-
-    const { data: listener } = supabase.auth.onAuthStateChange((_event, s) => {
-      setSession(s);
+    const initialRevision=revision;
+    supabase.auth.getSession().then(({data})=>{
+      if(active&&initialRevision===revision){setSession(data.session);setLoading(false);}
+    }).catch(()=>{
+      if(active&&initialRevision===revision){setSession(null);setLoading(false);}
     });
-
-    return () => listener.subscription.unsubscribe();
+    return ()=>{active=false;listener.subscription.unsubscribe();};
   }, []);
 
   async function signIn(email: string, password: string) {
@@ -45,7 +47,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }
 
   async function signOut() {
-    await supabase.auth.signOut();
+    const {error}=await supabase.auth.signOut({scope:'local'});
+    if(error)throw new Error('We could not sign you out. Please try again.');
   }
 
   return (

@@ -124,3 +124,16 @@ The requested **PtS** organization (description **Psalms that Sings**) is separa
 from the original testing organization and holds its own imported collection.
 Its production creation is recorded in `deployment/organization.json` and the
 [release checklist](LOCAL_AUTH_CONNECTIVITY.md#requested-organization-and-production-release).
+
+## Shared Scribeswell session
+
+Open **http://localhost:5179/scribeswell/** or use Apps → Scribeswell. Both readers
+use the same Supabase project and existing `pts-auth` browser session on localhost
+port 5179, so sign-in/sign-out updates both tabs. Hebrew reading and morphology
+remain public, with an anonymous launchpad; PtS API permissions remain mandatory.
+
+The Scribeswell frontend must also be running on port 5174 behind PtS's development
+proxy. Its prepared starter is `python3 apps/scribeswell/.local/start.py`; the Bible
+API uses port 8000. Old browser visits to port 5174 redirect to the shared address.
+See `apps/scribeswell/web/README.md` for reproducible configuration and production
+routing requirements. No production routing or database changes have been made.
