@@ -39,3 +39,9 @@ Final verification:
 - `git diff --check`: passed.
 
 No database migrations, production changes or additional configuration required.
+
+## Full-width workspace header — 2026-09-27
+
+User-requested follow-up removes the header's centered maximum-width container. Launcher/brand and account actions now use the viewport width with 16px edge padding; header height and centered single-passage reading width stay unchanged. This is a local presentation adjustment: no shared UI, scaffold, agent-context or ADR impact; no auth/API/database changes.
+
+Acceptance evidence: extended the existing shared-launcher browser check to assert edge positions and 57px outer header height. Before the class change, `LD_LIBRARY_PATH=/tmp/pts-browser-libs/usr/lib/x86_64-linux-gnu npm run test:browser --workspace=apps/scribeswell/web -- --grep 'shared launcher'` failed on desktop alignment and passed on mobile. Afterward, the same command without `-- --grep 'shared launcher'` passed all 30 reader tests. `npm run build --workspace=apps/scribeswell/web` passed with the existing chunk-size warning; `git diff --check` passed.

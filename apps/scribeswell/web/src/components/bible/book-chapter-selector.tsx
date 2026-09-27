@@ -175,10 +175,15 @@ export function BookChapterSelector({
 
   const containerRef = useRef<HTMLDivElement>(null);
   const triggerRef = useRef<HTMLButtonElement>(null);
-  const [availableHeight, setAvailableHeight] = useState(320);
+  const [placement, setPlacement] = useState({ height: 320, left: 16, top: 0 });
   useLayoutEffect(() => {
     if (!isOpen) return;
-    const measure = () => setAvailableHeight(Math.max(80, window.innerHeight - (triggerRef.current?.getBoundingClientRect().bottom ?? 0) - 16));
+    const measure = () => {
+      const trigger = triggerRef.current?.getBoundingClientRect();
+      const width = Math.min(448, window.innerWidth - 32);
+      const top = (trigger?.bottom ?? 0) + 8;
+      setPlacement({ height: Math.max(80, window.innerHeight - top - 8), top, left: Math.max(16, Math.min((trigger?.right ?? width + 16) - width, window.innerWidth - width - 16)) });
+    };
     measure();
     window.addEventListener('resize', measure);
     return () => window.removeEventListener('resize', measure);
@@ -208,6 +213,7 @@ export function BookChapterSelector({
   const handleKeyDown = useCallback(
     (e: KeyboardEvent<HTMLDivElement>) => {
       if (e.key === "Escape" && isOpen) {
+        e.stopPropagation();
         setIsOpen(false);
         triggerRef.current?.focus();
       }
@@ -237,7 +243,9 @@ export function BookChapterSelector({
     selectedChapter !== null ? toHebrewOrdinal(selectedChapter) : null;
 
   return (
-    <div ref={containerRef} className="relative" onKeyDown={handleKeyDown}>
+    <div ref={containerRef} className="relative" onKeyDown={handleKeyDown} onBlur={(event) => {
+      if (!event.currentTarget.contains(event.relatedTarget as Node | null)) setIsOpen(false);
+    }}>
       {/* ── Trigger ──────────────────────────────────────────────────── */}
       <button
         ref={triggerRef}
@@ -290,9 +298,9 @@ export function BookChapterSelector({
         <div
           role="dialog"
           aria-label="Book and chapter selector"
-          style={{ maxHeight: availableHeight }}
+          style={{ maxHeight: placement.height, left: placement.left, top: placement.top }}
           className={[
-            "absolute right-0 top-full mt-2 z-50",
+            "fixed z-50",
             "bg-white border border-stone-200 rounded-xl shadow-xl",
             "flex overflow-hidden",
             "w-[28rem] max-w-[calc(100vw-2rem)]",
@@ -303,7 +311,7 @@ export function BookChapterSelector({
           <nav
             aria-label="Books of the Tanakh"
             className="w-40 sm:w-48 shrink-0 border-r border-stone-100 overflow-y-auto"
-            style={{ maxHeight: availableHeight }}
+            style={{ maxHeight: placement.height }}
           >
             {DIVISION_ORDER.map((division) => {
               const group = grouped[division];

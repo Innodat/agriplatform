@@ -1,11 +1,25 @@
 /** Public Hebrew reader with optional independent passage comparison. */
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
 import { useSearchParams } from "react-router-dom";
-import { Columns2, X } from "lucide-react";
+import { Columns2, Maximize2, Minimize2, X } from "lucide-react";
+import { useReaderLayout } from "@/components/layout/AppShell";
 import { PassagePane } from "@/components/bible/PassagePane";
 import { MorphologyPanel } from "@/components/bible/MorphologyPanel";
 import { useBooks, useWordMorphology } from "@/hooks/useBible";
 import type { WordResponse } from "@/schemas/bible.schema";
+
+type ScrollAnchor = { scroll: HTMLElement; word: HTMLElement; offset: number; focusedScrollTop?: number };
+function captureAnchors(root: HTMLElement | null): ScrollAnchor[] {
+  return Array.from(root?.querySelectorAll<HTMLElement>('[data-reader-scroll]') ?? []).flatMap(scroll => {
+    if (!scroll.clientHeight) return [];
+    const bounds = scroll.getBoundingClientRect();
+    const word = Array.from(scroll.querySelectorAll<HTMLElement>('.word-token')).find(node => {
+      const rect = node.getBoundingClientRect();
+      return rect.bottom > bounds.top && rect.top < bounds.bottom;
+    });
+    return word ? [{ scroll, word, offset: word.getBoundingClientRect().top - bounds.top }] : [];
+  });
+}
 
 type Pane = 1 | 2;
 type Selection = { pane: Pane; book: string; chapter: number; verse: number; word: WordResponse };
@@ -17,6 +31,37 @@ const control = "inline-flex items-center justify-center gap-2 rounded-lg border
 
 export function ReaderPage() {
   const [params, setParams] = useSearchParams();
+  const { focused, setFocused } = useReaderLayout();
+  const focusButton = useRef<HTMLButtonElement>(null);
+  const reader = useRef<HTMLDivElement>(null);
+  const anchors = useRef<ScrollAnchor[]>([]);
+  const changeFocus = useCallback((next: boolean) => {
+    if (next === focused) return;
+    anchors.current = captureAnchors(reader.current).map(current => {
+      const saved = anchors.current.find(item => item.scroll === current.scroll);
+      // An enlarged viewport may clamp the bottom position. If the user has
+      // not scrolled or navigated in focus, retain the original reading anchor.
+      return !next && saved?.word.isConnected && saved.focusedScrollTop === current.scroll.scrollTop ? saved : current;
+    });
+    setFocused(next);
+  }, [focused, setFocused]);
+  useLayoutEffect(() => {
+    for (const anchor of anchors.current) {
+      if (!anchor.word.isConnected || !anchor.scroll.clientHeight) continue;
+      anchor.scroll.scrollTop += anchor.word.getBoundingClientRect().top - anchor.scroll.getBoundingClientRect().top - anchor.offset;
+      if (focused) anchor.focusedScrollTop = anchor.scroll.scrollTop;
+    }
+  }, [focused]);
+  useEffect(() => {
+    if (!focused) return;
+    function escape(event: KeyboardEvent) {
+      if (event.key !== 'Escape' || event.defaultPrevented) return;
+      changeFocus(false);
+      focusButton.current?.focus({ preventScroll: true });
+    }
+    window.addEventListener('keydown', escape);
+    return () => window.removeEventListener('keydown', escape);
+  }, [focused, changeFocus]);
   const book = params.get('book') || 'Gen';
   const chapter = chapterNumber(params.get('chapter'));
   const compareBook = params.get('compareBook') || '';
@@ -58,7 +103,8 @@ export function ReaderPage() {
   }
   function chooseWord(pane: Pane, word: WordResponse, verse: number) {
     setMobilePane(pane);
-    setSelection(previous => previous?.pane === pane && previous.word.id === word.id ? null : {
+    changeFocus(false);
+    setSelection(previous => !focused && previous?.pane === pane && previous.word.id === word.id ? null : {
       pane, word, verse, book: pane === 1 ? book : compareBook, chapter: pane === 1 ? chapter : compareChapter,
     });
   }
@@ -69,11 +115,15 @@ export function ReaderPage() {
   }
 
   return (
-    <div className={`flex flex-col gap-3 h-full min-h-0 mx-auto ${comparing ? 'max-w-[100rem]' : 'max-w-5xl'}`}>
+    <div ref={reader} className={`flex flex-col gap-3 h-full min-h-0 mx-auto ${comparing ? 'max-w-[100rem]' : 'max-w-5xl'}`}>
       <div className="flex flex-wrap shrink-0 items-center gap-2">
-        <button type="button" className={control} onClick={toggleComparison} aria-pressed={comparing}>
+        <button hidden={focused} type="button" className={focused ? "hidden" : control} onClick={toggleComparison} aria-pressed={comparing}>
           {comparing ? <X size={16} aria-hidden="true" /> : <Columns2 size={16} aria-hidden="true" />}
           {comparing ? 'Close comparison' : 'Compare passages'}
+        </button>
+        <button ref={focusButton} type="button" className={control} aria-label={focused ? 'Exit focus mode' : 'Enter focus mode'} aria-pressed={focused} onClick={() => changeFocus(!focused)} title={focused ? 'Exit focus mode (Escape)' : 'Hide header and word analysis'}>
+          {focused ? <Minimize2 size={16} aria-hidden="true" /> : <Maximize2 size={16} aria-hidden="true" />}
+          {focused ? 'Exit focus' : 'Focus mode'}
         </button>
         {books.loading && <span className="text-sm text-stone-400">Loading books…</span>}
         {books.error && <p role="alert" className="text-sm text-red-700">Could not load books. <button className="underline" onClick={books.refetch}>Retry books</button></p>}
@@ -88,7 +138,7 @@ export function ReaderPage() {
           <PassagePane number={1} book={book} chapter={chapter} books={books.data?.data ?? []} comparing={comparing} visible={!comparing || mobilePane === 1} selectedWordId={selected?.pane === 1 ? selected.word.id : null} onNavigate={(b,c) => navigate(1,b,c)} onWord={(w,v) => chooseWord(1,w,v)} />
           {comparing && <PassagePane number={2} book={compareBook} chapter={compareChapter} books={books.data?.data ?? []} comparing visible={mobilePane === 2} selectedWordId={selected?.pane === 2 ? selected.word.id : null} onNavigate={(b,c) => navigate(2,b,c)} onWord={(w,v) => chooseWord(2,w,v)} />}
         </div>
-        {selected && <aside aria-label="Word analysis panel" className={`min-h-0 max-h-[45%] overflow-y-auto overscroll-contain shrink-0 ${comparing ? 'xl:max-h-full xl:h-full xl:w-72' : 'md:max-h-full md:h-full md:w-72'}`}>
+        {selected && !focused && <aside aria-label="Word analysis panel" className={`min-h-0 max-h-[45%] overflow-y-auto overscroll-contain shrink-0 ${comparing ? 'xl:max-h-full xl:h-full xl:w-72' : 'md:max-h-full md:h-full md:w-72'}`}>
           {morphology.loading && <p role="status" className="p-4 bg-white">Loading word analysis… <button className="underline" onClick={() => setSelection(null)}>Close</button></p>}
           {morphology.error && <p role="alert" className="bg-white p-4 text-sm text-red-700">Could not load word analysis. <button className="underline" onClick={morphology.refetch}>Retry word analysis</button><button className="ml-2 underline" onClick={() => setSelection(null)}>Close</button></p>}
           {morphology.data && morphology.data.id === selected.word.id && <MorphologyPanel word={morphology.data} context={context} onClose={() => setSelection(null)} />}

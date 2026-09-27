@@ -17,7 +17,7 @@ export function Topbar() {
 
   return (
     <header className="shrink-0 bg-white border-b border-stone-200 shadow-sm">
-      <div className="container mx-auto px-4 max-w-5xl h-14 flex items-center justify-between">
+      <div className="w-full px-4 h-14 flex items-center justify-between">
         {/* Left: AppLauncher + Brand */}
         <div className="flex items-center gap-2">
           <AppLauncher apps={apps} isLoading={appsLoading} currentAppId="scribeswell" iconOnly />

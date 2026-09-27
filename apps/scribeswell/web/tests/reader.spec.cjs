@@ -46,7 +46,10 @@ test('late chapter responses cannot replace the chosen chapter',async({page})=>{
 test('shared launcher works in Scribeswell and private workspace files are denied',async({page})=>{
  await setup(page);
  await page.route('http://127.0.0.1:8001/**',r=>r.fulfill({json:[{id:'scribeswell',name:'Scribeswell',description:'Hebrew Bible reader',icon:'book-open',url:'http://localhost:5174',enabled:true},{id:'pts',name:'PtS',description:'Swahili Poetry',icon:'book-open',url:'http://localhost:5179',enabled:true}]}));
- await page.goto('/');const trigger=page.getByRole('button',{name:'App launcher'});await expect(trigger).toHaveText('');await expect(trigger).toHaveAttribute('title','App launcher');await trigger.click();
+ await page.goto('/');
+ const header=page.getByRole('banner');const launcherBounds=await header.getByRole('button',{name:'App launcher'}).boundingBox();const authBounds=await header.getByRole('button',{name:'Sign in',exact:true}).boundingBox();
+ expect(launcherBounds.x).toBe(16);expect(authBounds.x+authBounds.width).toBe(await page.evaluate(()=>innerWidth-16));expect((await header.boundingBox()).height).toBe(57);
+ const trigger=page.getByRole('button',{name:'App launcher'});await expect(trigger).toHaveText('');await expect(trigger).toHaveAttribute('title','App launcher');await trigger.click();
  const menu=page.getByRole('menu');await expect(menu.getByText('Current app')).toBeVisible();
  await expect(menu.getByRole('menuitem',{name:'Open Scribeswell'})).toHaveAttribute('aria-current','page');
  await page.keyboard.press('ArrowDown');await expect(menu.getByRole('menuitem',{name:'Open PtS'})).toBeFocused();
@@ -209,4 +212,61 @@ test('comparison isolates a late chapter and supports keyboard reading at tablet
  await expect(two.getByRole('button',{name:/Word: שֵׁמוֹת/})).toHaveCount(0);await expect.poll(()=>text.evaluate(el=>el.scrollTop)).toBeGreaterThan(0);
  await two.getByRole('button',{name:/Word:/}).first().focus();await page.keyboard.press('Enter');await expect(page.getByText('Passage 2 · Genesis 1:1',{exact:true})).toBeVisible();
  const textBounds=await text.boundingBox(),panelBounds=await page.getByRole('complementary',{name:'Word analysis panel'}).boundingBox();expect(textBounds.y+textBounds.height).toBeLessThanOrEqual(panelBounds.y);expect(await page.evaluate(()=>scrollY)).toBe(0);
+});
+
+test('focus mode preserves the passage, restores analysis and handles Escape in order',async({page})=>{
+ await setup(page);await page.route('**/api/bible/books/Gen/chapters/1/verses',r=>r.fulfill({json:{data:Array.from({length:100},(_,i)=>({id:i+1,verse_num:i+1,book_id:1,chapter_num:1,words:[{...first,id:i+1}]})),total:100}}));
+ await page.goto('/');await page.getByRole('button',{name:/Word:/}).first().click();await expect(page.getByRole('complementary',{name:'Word morphology'})).toBeVisible();
+ const text=page.getByRole('region',{name:'Chapter text'});await text.evaluate(el=>el.scrollTop=300);
+ await page.getByRole('button',{name:'Enter focus mode',exact:true}).click();await expect(page.getByRole('banner')).toHaveCount(0);await expect(page.getByRole('complementary',{name:'Word analysis panel'})).toHaveCount(0);await expect.poll(()=>text.evaluate(el=>el.scrollTop)).toBe(300);
+ await page.getByRole('button',{name:/Navigate:/}).click();await page.keyboard.press('Escape');await expect(page.getByRole('dialog',{name:'Book and chapter selector'})).toHaveCount(0);await expect(page.getByRole('button',{name:'Exit focus mode',exact:true})).toBeVisible();
+ await page.keyboard.press('Escape');await expect(page.getByRole('banner')).toBeVisible();await expect(page.getByRole('complementary',{name:'Word morphology'})).toBeVisible();await expect(page.getByRole('button',{name:'Enter focus mode',exact:true})).toBeFocused();await expect.poll(()=>text.evaluate(el=>el.scrollTop)).toBe(300);
+ await page.getByRole('button',{name:'Enter focus mode',exact:true}).click();await text.evaluate(el=>el.scrollTop=0);await page.getByRole('button',{name:/Word:/}).first().click();await expect(page.getByRole('banner')).toBeVisible();await expect(page.getByRole('complementary',{name:'Word morphology'})).toBeVisible();
+});
+
+test('previous and next chapters cross book boundaries and preserve comparison state',async({page},info)=>{
+ await setup(page);await page.goto('/?book=Gen&chapter=1&compareBook=Exod&compareChapter=1');
+ const one=page.getByRole('region',{name:'Passage 1',exact:true}),two=page.getByRole('region',{name:'Passage 2',exact:true});
+ await expect(one.getByRole('button',{name:'Previous chapter',exact:true})).toBeDisabled();
+ await one.getByRole('button',{name:'Next chapter',exact:true}).click();await expect(page).toHaveURL(/book=Gen&chapter=2&compareBook=Exod&compareChapter=1/);
+ await one.getByRole('button',{name:'Next chapter',exact:true}).click();await expect(page).toHaveURL(/book=Exod&chapter=1&compareBook=Exod&compareChapter=1/);
+ await one.getByRole('button',{name:'Previous chapter',exact:true}).click();await expect(page).toHaveURL(/book=Gen&chapter=2&compareBook=Exod&compareChapter=1/);
+ await page.getByRole('button',{name:'Enter focus mode',exact:true}).click();
+ if(info.project.name==='mobile')await page.getByRole('button',{name:/Show passage 2:/}).click();
+ await two.getByRole('button',{name:'Next chapter',exact:true}).click();await expect(page).toHaveURL(/book=Gen&chapter=2&compareBook=Exod&compareChapter=2/);await expect(two.getByRole('button',{name:'Next chapter',exact:true})).toBeDisabled();await expect(page.getByRole('button',{name:'Exit focus mode',exact:true})).toBeVisible();
+ await page.goBack();await expect(page).toHaveURL(/compareChapter=1/);await expect(two.getByRole('button',{name:'Next chapter',exact:true})).toBeEnabled();
+});
+
+test('chapter navigation retries metadata and follows actual sorted chapters',async({page})=>{
+ await setup(page);let failCurrent=true,failNeighbor=true;
+ await page.route('**/api/bible/books/Gen',r=>failCurrent?r.fulfill({status:503,json:{error:'unavailable'}}):r.fulfill({json:{...gen,chapters:[{id:3,chapter_num:3},{id:1,chapter_num:1}]}}));
+ await page.route('**/api/bible/books/Exod',r=>failNeighbor?r.fulfill({status:503,json:{error:'unavailable'}}):r.fulfill({json:{...ex,chapters:[{id:2,chapter_num:2},{id:1,chapter_num:1}]}}));
+ await page.goto('/');const next=page.getByRole('button',{name:'Next chapter',exact:true});await expect(next).toBeDisabled();await expect(page.getByRole('button',{name:/Word:/})).toBeVisible();
+ failCurrent=false;await page.getByRole('button',{name:'Retry navigation',exact:true}).click();await expect(next).toBeEnabled();await next.focus();await page.keyboard.press('Enter');await expect(page).toHaveURL(/chapter=3/);
+ await expect(next).toBeDisabled();await expect(page.getByRole('button',{name:'Previous chapter',exact:true})).toBeEnabled();failNeighbor=false;await page.getByRole('button',{name:'Retry navigation',exact:true}).click();await next.click();await expect(page).toHaveURL(/book=Exod&chapter=1/);
+ await page.getByRole('button',{name:'Previous chapter',exact:true}).click();await expect(page).toHaveURL(/book=Gen&chapter=3/);
+});
+
+test('late navigation metadata cannot restore targets from the old book',async({page})=>{
+ await setup(page);let release;
+ await page.route('**/api/bible/books/Exod',async r=>{await new Promise(resolve=>release=resolve);await r.fulfill({json:{...ex,chapters:[{id:1,chapter_num:1},{id:2,chapter_num:2}]}});});
+ await page.goto('/?book=Exod&chapter=1');await expect.poll(()=>Boolean(release)).toBe(true);await expect(page.getByRole('button',{name:'Next chapter',exact:true})).toBeDisabled();
+ // A previously visited reference is another real way to change passage while metadata is pending.
+ await page.evaluate(()=>{history.pushState({},'', '?book=Gen&chapter=1');dispatchEvent(new PopStateEvent('popstate'));});
+ await expect(page.getByRole('button',{name:/Navigate: Genesis/})).toBeVisible();const late=page.waitForResponse('**/api/bible/books/Exod');release();await (await late).finished();
+ await expect(page.getByRole('button',{name:'Previous chapter',exact:true})).toBeDisabled();await page.getByRole('button',{name:'Next chapter',exact:true}).click();await expect(page).toHaveURL(/book=Gen&chapter=2/);
+});
+
+test('focus roundtrip preserves the final reading position and respects new scrolling',async({page})=>{
+ await setup(page);await page.route('**/api/bible/books/Gen/chapters/1/verses',r=>r.fulfill({json:{data:Array.from({length:30},(_,i)=>({id:i+1,verse_num:i+1,book_id:1,chapter_num:1,words:Array.from({length:20},(_,j)=>({...first,id:i*20+j+1,position:j+1}))})),total:30}}));
+ await page.goto('/');await page.getByRole('button',{name:/Word:/}).first().click();await expect(page.getByRole('complementary',{name:'Word morphology'})).toBeVisible();
+ const text=page.getByRole('region',{name:'Chapter text'});await text.evaluate(el=>el.scrollTop=el.scrollHeight);const before=await text.evaluate(el=>el.scrollTop);
+ await page.getByRole('button',{name:'Enter focus mode',exact:true}).click();await page.getByRole('button',{name:'Exit focus mode',exact:true}).click();await expect.poll(()=>text.evaluate(el=>el.scrollTop)).toBeCloseTo(before,0);
+ await page.getByRole('button',{name:'Enter focus mode',exact:true}).click();await text.evaluate(el=>el.scrollTop=0);await page.keyboard.press('Escape');await expect.poll(()=>text.evaluate(el=>el.scrollTop)).toBe(0);
+});
+
+test('selector closes when keyboard focus leaves in focus mode',async({page})=>{
+ await setup(page);await page.goto('/');await page.getByRole('button',{name:'Enter focus mode',exact:true}).click();
+ const selector=page.getByRole('button',{name:/Navigate:/});await selector.click();await page.keyboard.press('Shift+Tab');await expect(page.getByRole('dialog',{name:'Book and chapter selector'})).toHaveCount(0);
+ await expect(page.getByRole('button',{name:'Exit focus mode',exact:true})).toBeVisible();await page.keyboard.press('Escape');await expect(page.getByRole('banner')).toBeVisible();
 });
