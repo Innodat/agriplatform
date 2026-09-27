@@ -125,3 +125,88 @@ test('long morphology scrolls independently and text stays at a readable width',
  const textBefore=await text.evaluate(el=>el.scrollTop);await panel.evaluate(el=>el.scrollTop=el.scrollHeight);await expect.poll(()=>panel.evaluate(el=>el.scrollTop)).toBeGreaterThan(0);expect(await text.evaluate(el=>el.scrollTop)).toBe(textBefore);expect(await page.evaluate(()=>window.scrollY)).toBe(0);
  await expect(panel.getByText('Noun',{exact:true}).last()).toBeInViewport();await expect(panel.getByRole('button',{name:'Close morphology panel'})).toBeInViewport();await panel.getByRole('button',{name:'Close morphology panel'}).click();await expect(panel).toHaveCount(0);
 });
+
+test('compare passages independently, restore URL state and identify word origin',async({page},info)=>{
+ await setup(page);await page.goto('/');
+ await page.getByRole('button',{name:'Compare passages',exact:true}).click();
+ const one=page.getByRole('region',{name:'Passage 1',exact:true,includeHidden:true});const two=page.getByRole('region',{name:'Passage 2',exact:true,includeHidden:true});
+ if(info.project.name==='mobile')await page.getByRole('button',{name:/Show passage 2/}).click();
+ await two.getByRole('button',{name:/Navigate:/}).click();await two.getByRole('button',{name:/Exodus —/}).click();await two.getByRole('button',{name:'Chapter 1 of Exodus',exact:true}).click();
+ await expect(page).toHaveURL(/compareBook=Exod/);await expect(two.getByRole('button',{name:/Word: שֵׁמוֹת/})).toBeVisible();
+ await page.route('**/api/bible/words/2/morphology',r=>r.fulfill({json:{...second,morphemes:[]}}));
+ await two.getByRole('button',{name:/Word: שֵׁמוֹת/}).click();await expect(page.getByText('Passage 2 · Exodus 1:1',{exact:true})).toBeVisible();
+ await expect(page.getByLabel('Hebrew word: שֵׁמוֹת',{exact:true})).toBeVisible();
+ if(info.project.name==='mobile')await page.getByRole('button',{name:/Show passage 1/}).click();
+ await expect(one.getByRole('button',{name:/Word: בְּרֵאשִׁית/})).toBeVisible();
+ await one.getByRole('button',{name:/Word: בְּרֵאשִׁית/}).click();await expect(page.getByText('Passage 1 · Genesis 1:1',{exact:true})).toBeVisible();
+ expect(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth)).toBe(false);
+ await page.reload();await expect(one.getByRole('button',{name:/Word: בְּרֵאשִׁית/})).toBeVisible();
+ if(info.project.name==='mobile')await page.getByRole('button',{name:/Show passage 2/}).click();
+ await expect(two.getByRole('button',{name:/Word: שֵׁמוֹת/})).toBeVisible();
+ await page.getByRole('button',{name:'Close comparison',exact:true}).click();await expect(page).not.toHaveURL(/compareBook/);await expect(two).toHaveCount(0);
+ await page.goBack();if(info.project.name==='mobile')await page.getByRole('button',{name:/Show passage 2/}).click();await expect(two.getByRole('button',{name:/Word: שֵׁמוֹת/})).toBeVisible();
+});
+
+test('comparison preserves independent scroll and isolates identical-word selection',async({page},info)=>{
+ await setup(page);await page.route('**/api/bible/books/Gen/chapters/1/verses',r=>r.fulfill({json:{data:Array.from({length:100},(_,i)=>({id:i+1,verse_num:i+1,book_id:1,chapter_num:1,words:[{...first,id:i+1}]})),total:100}}));
+ await page.goto('/?book=Gen&chapter=1&compareBook=Gen&compareChapter=1');
+ const one=page.getByRole('region',{name:'Passage 1',exact:true,includeHidden:true}),two=page.getByRole('region',{name:'Passage 2',exact:true,includeHidden:true});
+ const firstText=one.getByRole('region',{name:'Passage 1 text',includeHidden:true}),secondText=two.getByRole('region',{name:'Passage 2 text',includeHidden:true});
+ await one.getByRole('button',{name:/Word:/}).first().click();await expect(page.getByText('Passage 1 · Genesis 1:1',{exact:true})).toBeVisible();
+ await expect(one.getByRole('button',{name:/Word:/}).first()).toHaveAttribute('aria-pressed','true');
+ if(info.project.name==='mobile')await page.getByRole('button',{name:/^Show passage 2:/}).click();
+ await two.getByRole('button',{name:/Word:/}).first().click();await expect(page.getByText('Passage 2 · Genesis 1:1',{exact:true})).toBeVisible();
+ await expect(one.locator('.word-token').first()).toHaveAttribute('aria-pressed','false');
+ await page.getByRole('button',{name:'Close morphology panel'}).click();
+ await secondText.evaluate(el=>el.scrollTop=250);await expect.poll(()=>secondText.evaluate(el=>el.scrollTop)).toBe(250);
+ if(info.project.name==='mobile')await page.getByRole('button',{name:/^Show passage 1:/}).click();
+ expect(await firstText.evaluate(el=>el.scrollTop)).toBe(0);await firstText.evaluate(el=>el.scrollTop=500);
+ if(info.project.name==='mobile')await page.getByRole('button',{name:/^Show passage 2:/}).click();
+ await expect.poll(()=>secondText.evaluate(el=>el.scrollTop)).toBe(250);
+ await two.getByRole('button',{name:/Navigate:/}).click();const dialog=two.getByRole('dialog');const bounds=await dialog.boundingBox();expect(bounds.x).toBeGreaterThanOrEqual(0);expect(bounds.x+bounds.width).toBeLessThanOrEqual(await page.evaluate(()=>innerWidth));
+ await two.getByRole('button',{name:/Exodus —/}).click();await two.getByRole('button',{name:'Chapter 1 of Exodus'}).click();await expect(two.getByRole('button',{name:/Word: שֵׁמוֹת/})).toBeVisible();
+ await expect.poll(()=>secondText.evaluate(el=>el.scrollTop)).toBe(0);
+ if(info.project.name==='mobile')await page.getByRole('button',{name:/^Show passage 1:/}).click();
+ await expect.poll(()=>firstText.evaluate(el=>el.scrollTop)).toBe(500);expect(await page.evaluate(()=>scrollY)).toBe(0);
+});
+
+test('comparison chapter failure and delayed response leave the other passage usable',async({page})=>{
+ await setup(page);let fail=true,release;
+ await page.route('**/api/bible/books/Exod/chapters/1/verses',r=>fail?r.fulfill({status:503,json:{error:'unavailable'}}):r.fallback());
+ await page.goto('/?book=Gen&chapter=1&compareBook=Exod&compareChapter=1');
+ const one=page.getByRole('region',{name:'Passage 1',exact:true,includeHidden:true}),two=page.getByRole('region',{name:'Passage 2',exact:true,includeHidden:true});
+ const switcher=page.getByRole('button',{name:/^Show passage 2:/});if(await switcher.isVisible())await switcher.click();
+ await expect(two.getByRole('button',{name:'Retry chapter'})).toBeVisible();fail=false;await two.getByRole('button',{name:'Retry chapter'}).click();await expect(two.getByRole('button',{name:/Word: שֵׁמוֹת/})).toBeVisible();
+ await page.route('**/api/bible/words/2/morphology',async r=>{await new Promise(resolve=>release=resolve);await r.fulfill({json:{...second,morphemes:[]}});});
+ await two.getByRole('button',{name:/Word: שֵׁמוֹת/}).click();await expect.poll(()=>Boolean(release)).toBe(true);
+ await page.getByRole('button',{name:'Close comparison',exact:true}).click();
+ await one.getByRole('button',{name:/Word: בְּרֵאשִׁית/}).click();await expect(page.getByLabel('Hebrew word: בְּרֵאשִׁית',{exact:true})).toBeVisible();
+ const late=page.waitForResponse('**/api/bible/words/2/morphology');release();await (await late).finished();await expect(page.getByLabel('Hebrew word: שֵׁמוֹת',{exact:true})).toHaveCount(0);
+});
+
+test('comparison bounds shared chapter numbers and keeps analysis with the visible mobile passage',async({page})=>{
+ await setup(page);await page.goto('/?book=Gen&chapter=9007199254740991&compareBook=Exod&compareChapter=-1');
+ const one=page.getByRole('region',{name:'Passage 1',exact:true});
+ await expect(one.getByRole('button',{name:/Navigate: Genesis, chapter 1/})).toBeVisible();
+ await page.getByRole('button',{name:'Close comparison',exact:true}).click();
+ await one.getByRole('button',{name:/Word:/}).click();await expect(page.getByRole('complementary',{name:'Word morphology'})).toBeVisible();
+ await page.getByRole('button',{name:'Compare passages',exact:true}).click();await expect(page.getByRole('complementary',{name:'Word morphology'})).toHaveCount(0);
+ await page.setViewportSize({width:1280,height:900});await one.getByRole('button',{name:/Word:/}).click();
+ await page.setViewportSize({width:390,height:844});await expect(one).toBeVisible();await expect(page.getByText('Passage 1 · Genesis 1:1',{exact:true})).toBeVisible();
+ const switcher=page.getByRole('button',{name:'Show passage 2: Genesis 1'});await expect(switcher).toHaveAttribute('aria-controls','passage-2');await switcher.focus();await page.keyboard.press('Enter');await expect(one).toHaveCount(0);await expect(page.getByRole('complementary',{name:'Word morphology'})).toHaveCount(0);
+});
+
+test('comparison isolates a late chapter and supports keyboard reading at tablet width',async({page})=>{
+ await setup(page);await page.setViewportSize({width:1100,height:768});let release;
+ await page.route('**/api/bible/books/Exod/chapters/1/verses',async r=>{await new Promise(resolve=>release=resolve);await r.fulfill({json:verses(ex,second)});});
+ await page.route('**/api/bible/books/Gen/chapters/1/verses',r=>r.fulfill({json:{data:Array.from({length:100},(_,i)=>({id:i+1,verse_num:i+1,book_id:1,chapter_num:1,words:[{...first,id:i+1}]})),total:100}}));
+ await page.goto('/?book=Gen&chapter=1&compareBook=Exod&compareChapter=1');await expect.poll(()=>Boolean(release)).toBe(true);
+ const one=page.getByRole('region',{name:'Passage 1',exact:true}),two=page.getByRole('region',{name:'Passage 2',exact:true});const text=one.getByRole('region',{name:'Passage 1 text'});
+ await text.focus();await page.keyboard.press('PageDown');await expect.poll(()=>text.evaluate(el=>el.scrollTop)).toBeGreaterThan(0);
+ await two.getByRole('button',{name:/Navigate:/}).focus();await page.keyboard.press('Enter');await two.getByRole('button',{name:/Genesis —/}).focus();await page.keyboard.press('Enter');await two.getByRole('button',{name:'Chapter 1 of Genesis',exact:true}).focus();await page.keyboard.press('Enter');
+ await expect(two.getByRole('button',{name:/Word: בְּרֵאשִׁית/}).first()).toBeVisible();
+ const late=page.waitForResponse('**/api/bible/books/Exod/chapters/1/verses');release();await (await late).finished();await page.evaluate(()=>new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r))));
+ await expect(two.getByRole('button',{name:/Word: שֵׁמוֹת/})).toHaveCount(0);await expect.poll(()=>text.evaluate(el=>el.scrollTop)).toBeGreaterThan(0);
+ await two.getByRole('button',{name:/Word:/}).first().focus();await page.keyboard.press('Enter');await expect(page.getByText('Passage 2 · Genesis 1:1',{exact:true})).toBeVisible();
+ const textBounds=await text.boundingBox(),panelBounds=await page.getByRole('complementary',{name:'Word analysis panel'}).boundingBox();expect(textBounds.y+textBounds.height).toBeLessThanOrEqual(panelBounds.y);expect(await page.evaluate(()=>scrollY)).toBe(0);
+});

@@ -17,7 +17,7 @@ import type {
 interface VerseReaderProps {
   verses: VerseWithWordsResponse[];
   selectedWordId: number | null;
-  onWordClick: (word: WordResponse) => void;
+  onWordClick: (word: WordResponse, verse: number) => void;
 }
 
 export function VerseReader({
@@ -61,7 +61,7 @@ export function VerseReader({
             {verse.words.map((word) => (
               <button
                 key={word.id}
-                onClick={() => onWordClick(word)}
+                onClick={() => onWordClick(word, verse.verse_num)}
                 className={`word-token inline-block mx-0.5 ${
                   selectedWordId === word.id ? "selected" : ""
                 }`}

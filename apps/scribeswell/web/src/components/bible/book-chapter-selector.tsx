@@ -19,6 +19,7 @@ import {
   useState,
   useRef,
   useEffect,
+  useLayoutEffect,
   useCallback,
   type KeyboardEvent,
 } from "react";
@@ -174,6 +175,14 @@ export function BookChapterSelector({
 
   const containerRef = useRef<HTMLDivElement>(null);
   const triggerRef = useRef<HTMLButtonElement>(null);
+  const [availableHeight, setAvailableHeight] = useState(320);
+  useLayoutEffect(() => {
+    if (!isOpen) return;
+    const measure = () => setAvailableHeight(Math.max(80, window.innerHeight - (triggerRef.current?.getBoundingClientRect().bottom ?? 0) - 16));
+    measure();
+    window.addEventListener('resize', measure);
+    return () => window.removeEventListener('resize', measure);
+  }, [isOpen]);
 
   // Sync hovered book to selected book when dropdown opens.
   useEffect(() => {
@@ -281,6 +290,7 @@ export function BookChapterSelector({
         <div
           role="dialog"
           aria-label="Book and chapter selector"
+          style={{ maxHeight: availableHeight }}
           className={[
             "absolute right-0 top-full mt-2 z-50",
             "bg-white border border-stone-200 rounded-xl shadow-xl",
@@ -293,7 +303,7 @@ export function BookChapterSelector({
           <nav
             aria-label="Books of the Tanakh"
             className="w-40 sm:w-48 shrink-0 border-r border-stone-100 overflow-y-auto"
-            style={{ maxHeight: "min(22rem, calc(100dvh - 8rem))" }}
+            style={{ maxHeight: availableHeight }}
           >
             {DIVISION_ORDER.map((division) => {
               const group = grouped[division];
@@ -348,7 +358,7 @@ export function BookChapterSelector({
           </nav>
 
           {/* Right: Chapter grid */}
-          <div className="flex-1 min-w-0">
+          <div className="flex-1 min-w-0 min-h-0">
             {hoveredBook.error?<p role="alert" className="p-3 text-sm text-red-700">Could not load chapters. <button type="button" className="underline" onClick={hoveredBook.refetch}>Retry</button></p>:<ChapterPanel
               bookData={hoveredBook.data}
               loading={hoveredBook.loading}
