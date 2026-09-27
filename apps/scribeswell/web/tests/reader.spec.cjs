@@ -70,7 +70,7 @@ test('word analysis remains visible near the viewport in a long chapter',async({
  await setup(page);await page.route('**/api/bible/books/Gen/chapters/1/verses',r=>r.fulfill({json:{data:Array.from({length:50},(_,i)=>({id:i+1,verse_num:i+1,book_id:1,chapter_num:1,words:[first]})),total:50}}));
  await page.goto('/');await page.getByRole('button',{name:/Word:/}).first().click();const panel=page.getByRole('complementary',{name:'Word morphology'});await expect(panel).toBeVisible();
  const b=await panel.boundingBox();expect(b.y).toBeLessThan(await page.evaluate(()=>innerHeight));expect(b.x+b.width).toBeLessThanOrEqual(await page.evaluate(()=>innerWidth));
- await panel.getByRole('button',{name:'Close morphology panel'}).click();await expect(panel).toHaveCount(0);
+ await page.getByRole('button',{name:'Close morphology panel'}).click();await expect(panel).toHaveCount(0);
 });
 test('late book details cannot restore a previously hovered book',async({page})=>{
  await setup(page);let release;
@@ -126,7 +126,7 @@ test('long morphology scrolls independently and text stays at a readable width',
  if(info.project.name==='desktop'){expect(bounds.width).toBeLessThanOrEqual(704);expect(Math.abs(bounds.x+bounds.width/2-640)).toBeLessThan(2);}
  await page.getByRole('button',{name:/Word:/}).click();const panel=page.getByRole('complementary',{name:'Word analysis panel'});await expect(page.getByRole('complementary',{name:'Word morphology'})).toBeVisible();
  const textBefore=await text.evaluate(el=>el.scrollTop);await panel.evaluate(el=>el.scrollTop=el.scrollHeight);await expect.poll(()=>panel.evaluate(el=>el.scrollTop)).toBeGreaterThan(0);expect(await text.evaluate(el=>el.scrollTop)).toBe(textBefore);expect(await page.evaluate(()=>window.scrollY)).toBe(0);
- await expect(panel.getByText('Noun',{exact:true}).last()).toBeInViewport();await expect(panel.getByRole('button',{name:'Close morphology panel'})).toBeInViewport();await panel.getByRole('button',{name:'Close morphology panel'}).click();await expect(panel).toHaveCount(0);
+ await expect(panel.getByText('Noun',{exact:true}).last()).toBeInViewport();await expect(panel.getByRole('button',{name:'Close morphology panel'})).toBeInViewport();await page.getByRole('button',{name:'Close morphology panel'}).click();await expect(panel).toHaveCount(0);
 });
 
 test('compare passages independently, restore URL state and identify word origin',async({page},info)=>{
@@ -137,11 +137,11 @@ test('compare passages independently, restore URL state and identify word origin
  await two.getByRole('button',{name:/Navigate:/}).click();await two.getByRole('button',{name:/Exodus —/}).click();await two.getByRole('button',{name:'Chapter 1 of Exodus',exact:true}).click();
  await expect(page).toHaveURL(/compareBook=Exod/);await expect(two.getByRole('button',{name:/Word: שֵׁמוֹת/})).toBeVisible();
  await page.route('**/api/bible/words/2/morphology',r=>r.fulfill({json:{...second,morphemes:[]}}));
- await two.getByRole('button',{name:/Word: שֵׁמוֹת/}).click();await expect(page.getByText('Passage 2 · Exodus 1:1',{exact:true})).toBeVisible();
+ await two.getByRole('button',{name:/Word: שֵׁמוֹת/}).click();await expect(page.getByText('Exodus 1:1',{exact:true})).toBeVisible();
  await expect(page.getByLabel('Hebrew word: שֵׁמוֹת',{exact:true})).toBeVisible();
  if(info.project.name==='mobile')await page.getByRole('button',{name:/Show passage 1/}).click();
  await expect(one.getByRole('button',{name:/Word: בְּרֵאשִׁית/})).toBeVisible();
- await one.getByRole('button',{name:/Word: בְּרֵאשִׁית/}).click();await expect(page.getByText('Passage 1 · Genesis 1:1',{exact:true})).toBeVisible();
+ await one.getByRole('button',{name:/Word: בְּרֵאשִׁית/}).click();await expect(page.getByText('Genesis 1:1',{exact:true})).toBeVisible();
  expect(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth)).toBe(false);
  await page.reload();await expect(one.getByRole('button',{name:/Word: בְּרֵאשִׁית/})).toBeVisible();
  if(info.project.name==='mobile')await page.getByRole('button',{name:/Show passage 2/}).click();
@@ -155,10 +155,10 @@ test('comparison preserves independent scroll and isolates identical-word select
  await page.goto('/?book=Gen&chapter=1&compareBook=Gen&compareChapter=1');
  const one=page.getByRole('region',{name:'Passage 1',exact:true,includeHidden:true}),two=page.getByRole('region',{name:'Passage 2',exact:true,includeHidden:true});
  const firstText=one.getByRole('region',{name:'Passage 1 text',includeHidden:true}),secondText=two.getByRole('region',{name:'Passage 2 text',includeHidden:true});
- await one.getByRole('button',{name:/Word:/}).first().click();await expect(page.getByText('Passage 1 · Genesis 1:1',{exact:true})).toBeVisible();
+ await one.getByRole('button',{name:/Word:/}).first().click();await expect(page.getByText('Genesis 1:1',{exact:true})).toBeVisible();
  await expect(one.getByRole('button',{name:/Word:/}).first()).toHaveAttribute('aria-pressed','true');
  if(info.project.name==='mobile')await page.getByRole('button',{name:/^Show passage 2:/}).click();
- await two.getByRole('button',{name:/Word:/}).first().click();await expect(page.getByText('Passage 2 · Genesis 1:1',{exact:true})).toBeVisible();
+ await two.getByRole('button',{name:/Word:/}).first().click();await expect(page.getByText('Genesis 1:1',{exact:true})).toBeVisible();
  await expect(one.locator('.word-token').first()).toHaveAttribute('aria-pressed','false');
  await page.getByRole('button',{name:'Close morphology panel'}).click();
  await secondText.evaluate(el=>el.scrollTop=250);await expect.poll(()=>secondText.evaluate(el=>el.scrollTop)).toBe(250);
@@ -195,7 +195,7 @@ test('comparison bounds shared chapter numbers and keeps analysis with the visib
  await one.getByRole('button',{name:/Word:/}).click();await expect(page.getByRole('complementary',{name:'Word morphology'})).toBeVisible();
  await page.getByRole('button',{name:'Compare passages',exact:true}).click();await expect(page.getByRole('complementary',{name:'Word morphology'})).toHaveCount(0);
  await page.setViewportSize({width:1280,height:900});await one.getByRole('button',{name:/Word:/}).click();
- await page.setViewportSize({width:390,height:844});await expect(one).toBeVisible();await expect(page.getByText('Passage 1 · Genesis 1:1',{exact:true})).toBeVisible();
+ await page.setViewportSize({width:390,height:844});await expect(one).toBeVisible();await expect(page.getByText('Genesis 1:1',{exact:true})).toBeVisible();
  const switcher=page.getByRole('button',{name:'Show passage 2: Genesis 1'});await expect(switcher).toHaveAttribute('aria-controls','passage-2');await switcher.focus();await page.keyboard.press('Enter');await expect(one).toHaveCount(0);await expect(page.getByRole('complementary',{name:'Word morphology'})).toHaveCount(0);
 });
 
@@ -210,7 +210,7 @@ test('comparison isolates a late chapter and supports keyboard reading at tablet
  await expect(two.getByRole('button',{name:/Word: בְּרֵאשִׁית/}).first()).toBeVisible();
  const late=page.waitForResponse('**/api/bible/books/Exod/chapters/1/verses');release();await (await late).finished();await page.evaluate(()=>new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r))));
  await expect(two.getByRole('button',{name:/Word: שֵׁמוֹת/})).toHaveCount(0);await expect.poll(()=>text.evaluate(el=>el.scrollTop)).toBeGreaterThan(0);
- await two.getByRole('button',{name:/Word:/}).first().focus();await page.keyboard.press('Enter');await expect(page.getByText('Passage 2 · Genesis 1:1',{exact:true})).toBeVisible();
+ await two.getByRole('button',{name:/Word:/}).first().focus();await page.keyboard.press('Enter');await expect(page.getByText('Genesis 1:1',{exact:true})).toBeVisible();
  const textBounds=await text.boundingBox(),panelBounds=await page.getByRole('complementary',{name:'Word analysis panel'}).boundingBox();expect(textBounds.y+textBounds.height).toBeLessThanOrEqual(panelBounds.y);expect(await page.evaluate(()=>scrollY)).toBe(0);
 });
 
@@ -269,4 +269,11 @@ test('selector closes when keyboard focus leaves in focus mode',async({page})=>{
  await setup(page);await page.goto('/');await page.getByRole('button',{name:'Enter focus mode',exact:true}).click();
  const selector=page.getByRole('button',{name:/Navigate:/});await selector.click();await page.keyboard.press('Shift+Tab');await expect(page.getByRole('dialog',{name:'Book and chapter selector'})).toHaveCount(0);
  await expect(page.getByRole('button',{name:'Exit focus mode',exact:true})).toBeVisible();await page.keyboard.press('Escape');await expect(page.getByRole('banner')).toBeVisible();
+});
+
+test('word study has persistent Word and Occurrences tabs',async({page})=>{
+ await setup(page);await page.goto('/');await page.getByRole('button',{name:/Word:/}).click();
+ await expect(page.getByRole('tab',{name:'Word',exact:true})).toBeVisible();
+ await expect(page.getByRole('tab',{name:'Occurrences',exact:true})).toBeVisible();
+ await expect(page.getByRole('tab',{name:'Notes',exact:true})).toHaveCount(0);
 });

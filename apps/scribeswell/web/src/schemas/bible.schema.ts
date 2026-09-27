@@ -53,6 +53,8 @@ export const WordResponseSchema = z.object({
   display_he: z.string().nullable(),
   lemma_strong: z.string().nullable(),
   morph_code: z.string().nullable(),
+  lexical_id: z.string().nullable().optional(),
+  match_key: z.string().nullable().optional(),
 });
 
 export type WordResponse = z.infer<typeof WordResponseSchema>;
@@ -114,7 +116,13 @@ export const WordWithMorphologyResponseSchema = z.object({
   display_he: z.string().nullable(),
   lemma_strong: z.string().nullable(),
   morph_code: z.string().nullable(),
+  lexical_id: z.string().nullable().optional(),
+  match_key: z.string().nullable().optional(),
   morphemes: z.array(MorphemeSchema),
 });
 
 export type WordWithMorphologyResponse = z.infer<typeof WordWithMorphologyResponseSchema>;
+export type LexiconNode = {language?:string|null; direction?:string|null; kind:string; text:string; children?:LexiconNode[]; book?:string|null; chapter?:number|null; verse?:number|null};
+const LexiconNodeSchema:z.ZodType<LexiconNode> = z.lazy(()=>z.object({language:z.string().nullable().optional(),direction:z.string().nullable().optional(),kind:z.string(),text:z.string(),children:z.array(LexiconNodeSchema).optional(),book:z.string().nullable().optional(),chapter:z.number().nullable().optional(),verse:z.number().nullable().optional()}));
+export const LexiconSchema = z.object({status:z.enum(['available','missing','unavailable']),lexical_id:z.string(),lemma:z.string().default(''),transliteration:z.string().default(''),definition:z.string().default(''),root:z.object({id:z.string(),text:z.string()}).nullable().optional(),pronunciation:z.string().default(''),strong_definition:z.string().default(''),strong_usage:z.string().default(''),strong_source:z.string().default(''),bdb:z.array(LexiconNodeSchema).default([]),bdb_status:z.string().default('missing')});
+export const OccurrencesSchema = z.object({data:z.array(z.object({id:z.number(),position:z.number(),surface_he:z.string(),display_he:z.string().nullable(),book:z.string(),book_name:z.string(),chapter:z.number(),verse:z.number()})),total:z.number(),verse_total:z.number(),offset:z.number(),limit:z.number()});

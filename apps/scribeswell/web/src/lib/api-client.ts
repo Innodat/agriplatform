@@ -102,3 +102,7 @@ export async function getWordMorphology(
     token
   );
 }
+
+import {LexiconSchema, OccurrencesSchema} from '@/schemas/bible.schema';
+export const getLexicon = (identity:string) => apiFetch(`${BASE}/lexicon/${encodeURIComponent(identity)}`,LexiconSchema);
+export const getOccurrences = (identity:string,book:string,offset:number) => apiFetch(`${BASE}/occurrences/${encodeURIComponent(identity)}?offset=${offset}&limit=25${book?`&book=${encodeURIComponent(book)}`:''}`,OccurrencesSchema);

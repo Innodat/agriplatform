@@ -4,7 +4,7 @@ import { useSearchParams } from "react-router-dom";
 import { Columns2, Maximize2, Minimize2, X } from "lucide-react";
 import { useReaderLayout } from "@/components/layout/AppShell";
 import { PassagePane } from "@/components/bible/PassagePane";
-import { MorphologyPanel } from "@/components/bible/MorphologyPanel";
+import { WordStudy } from "@/components/bible/WordStudy";
 import { useBooks, useWordMorphology } from "@/hooks/useBible";
 import type { WordResponse } from "@/schemas/bible.schema";
 
@@ -27,6 +27,7 @@ function chapterNumber(value: string | null) {
   const number = Number(value);
   return Number.isSafeInteger(number) && number > 0 && number <= 150 ? number : 1;
 }
+function verseNumber(value:string|null){const n=Number(value);return Number.isSafeInteger(n)&&n>0&&n<=176?n:null;}
 const control = "inline-flex items-center justify-center gap-2 rounded-lg border border-stone-200 px-3 py-1.5 text-sm text-stone-700 hover:bg-stone-100 focus-visible:outline-2 focus-visible:outline-amber-600";
 
 export function ReaderPage() {
@@ -67,7 +68,13 @@ export function ReaderPage() {
   const compareBook = params.get('compareBook') || '';
   const compareChapter = chapterNumber(params.get('compareChapter'));
   const comparing = Boolean(compareBook);
+  const [targetRevision,setTargetRevision] = useState({1:0,2:0});
   const [mobilePane, setMobilePane] = useState<Pane>(1);
+  const [previewWord, setPreviewWord] = useState<WordResponse | null>(null);
+  const dwell = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const cancelPreview = useCallback(() => {if(dwell.current)clearTimeout(dwell.current);dwell.current=null;setPreviewWord(null);},[]);
+  useLayoutEffect(()=>{cancelPreview();return ()=>{if(dwell.current)clearTimeout(dwell.current);};},[book,chapter,compareBook,compareChapter,focused,mobilePane,cancelPreview]);
+  function preview(word:WordResponse|null){cancelPreview();if(word)dwell.current=setTimeout(()=>setPreviewWord(word),1000);}
   const [selection, setSelection] = useState<Selection | null>(null);
   // Validate against URL on every render, including history navigation. Never
   // briefly attribute the old word to the newly selected passage.
@@ -79,14 +86,17 @@ export function ReaderPage() {
   const books = useBooks();
   const morphology = useWordMorphology(selected?.word.id ?? null);
   const bookName = (osis: string) => books.data?.data.find(b => b.osis_id === osis)?.name_en ?? osis;
-  const context = selected ? `${comparing ? `Passage ${selected.pane} · ` : ''}${bookName(selected.book)} ${selected.chapter}:${selected.verse}` : '';
+  const context = selected ? `${bookName(selected.book)} ${selected.chapter}:${selected.verse}` : '';
 
-  function navigate(pane: Pane, nextBook: string, nextChapter: number) {
+  function navigate(pane: Pane, nextBook: string, nextChapter: number, verse?: number) {
+    if(verse)setTargetRevision(previous=>({...previous,[pane]:previous[pane]+1}));
     if (selection?.pane === pane) setSelection(null);
     setParams(previous => {
       const next = new URLSearchParams(previous);
       next.set(pane === 1 ? 'book' : 'compareBook', nextBook);
       next.set(pane === 1 ? 'chapter' : 'compareChapter', String(nextChapter));
+      next.delete(pane === 1 ? 'verse' : 'compareVerse');
+      if (verse) next.set(pane === 1 ? 'verse' : 'compareVerse', String(verse));
       return next;
     });
   }
@@ -94,7 +104,7 @@ export function ReaderPage() {
     if (comparing) {
       if (selection?.pane === 2) setSelection(null);
       setMobilePane(1);
-      setParams(previous => { const next = new URLSearchParams(previous); next.delete('compareBook'); next.delete('compareChapter'); return next; });
+      setParams(previous => { const next = new URLSearchParams(previous); next.delete('compareBook'); next.delete('compareChapter'); next.delete('compareVerse'); return next; });
     } else {
       setSelection(null);
       navigate(2, book, chapter);
@@ -102,6 +112,7 @@ export function ReaderPage() {
     }
   }
   function chooseWord(pane: Pane, word: WordResponse, verse: number) {
+    cancelPreview();
     setMobilePane(pane);
     changeFocus(false);
     setSelection(previous => !focused && previous?.pane === pane && previous.word.id === word.id ? null : {
@@ -135,13 +146,13 @@ export function ReaderPage() {
       </div>}
       <div className={`flex flex-col gap-4 flex-1 min-h-0 ${comparing ? 'xl:flex-row' : 'md:flex-row md:justify-center'}`}>
         <div className={`flex gap-4 flex-1 min-w-0 min-h-0 ${comparing ? '' : 'md:max-w-[44rem]'}`}>
-          <PassagePane number={1} book={book} chapter={chapter} books={books.data?.data ?? []} comparing={comparing} visible={!comparing || mobilePane === 1} selectedWordId={selected?.pane === 1 ? selected.word.id : null} onNavigate={(b,c) => navigate(1,b,c)} onWord={(w,v) => chooseWord(1,w,v)} />
-          {comparing && <PassagePane number={2} book={compareBook} chapter={compareChapter} books={books.data?.data ?? []} comparing visible={mobilePane === 2} selectedWordId={selected?.pane === 2 ? selected.word.id : null} onNavigate={(b,c) => navigate(2,b,c)} onWord={(w,v) => chooseWord(2,w,v)} />}
+          <PassagePane number={1} targetRevision={targetRevision[1]} targetVerse={verseNumber(params.get("verse"))} book={book} chapter={chapter} books={books.data?.data ?? []} comparing={comparing} visible={!comparing || mobilePane === 1} selectedWordId={selected?.pane === 1 ? selected.word.id : null} matchKey={(previewWord??selected?.word)?.match_key??null} onPreview={preview} onNavigate={(b,c) => navigate(1,b,c)} onWord={(w,v) => chooseWord(1,w,v)} />
+          {comparing && <PassagePane number={2} targetRevision={targetRevision[2]} targetVerse={verseNumber(params.get("compareVerse"))} book={compareBook} chapter={compareChapter} books={books.data?.data ?? []} comparing visible={mobilePane === 2} selectedWordId={selected?.pane === 2 ? selected.word.id : null} matchKey={(previewWord??selected?.word)?.match_key??null} onPreview={preview} onNavigate={(b,c) => navigate(2,b,c)} onWord={(w,v) => chooseWord(2,w,v)} />}
         </div>
         {selected && !focused && <aside aria-label="Word analysis panel" className={`min-h-0 max-h-[45%] overflow-y-auto overscroll-contain shrink-0 ${comparing ? 'xl:max-h-full xl:h-full xl:w-72' : 'md:max-h-full md:h-full md:w-72'}`}>
           {morphology.loading && <p role="status" className="p-4 bg-white">Loading word analysis… <button className="underline" onClick={() => setSelection(null)}>Close</button></p>}
           {morphology.error && <p role="alert" className="bg-white p-4 text-sm text-red-700">Could not load word analysis. <button className="underline" onClick={morphology.refetch}>Retry word analysis</button><button className="ml-2 underline" onClick={() => setSelection(null)}>Close</button></p>}
-          {morphology.data && morphology.data.id === selected.word.id && <MorphologyPanel word={morphology.data} context={context} onClose={() => setSelection(null)} />}
+          {morphology.data && morphology.data.id === selected.word.id && <WordStudy currentPane={selected.pane} key={selected.word.id} word={morphology.data} context={context} books={books.data?.data ?? []} onClose={() => setSelection(null)} onOpen={(pane,b,c,v)=>{navigate(pane,b,c,v);setMobilePane(pane);}} />}
         </aside>}
       </div>
     </div>

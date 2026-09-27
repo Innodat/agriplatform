@@ -92,3 +92,20 @@ async def get_word_morphology(
     user: OptionalUser = None,
 ):
     return bible_service.get_word_morphology(word_id)
+
+
+from fastapi import Query
+from schemas.bible_schemas import LexiconResponse, OccurrencesResponse
+from services.lexicon_service import get_entry
+
+
+@router.get('/lexicon/{identity}', response_model=LexiconResponse)
+def lexical_entry(identity: str = Path(..., pattern=r'^[1-9][0-9]*(?: [a-z])?$')):
+    return get_entry(identity)
+
+
+@router.get('/occurrences/{identity}', response_model=OccurrencesResponse)
+def occurrences(identity: str = Path(..., pattern=r'^[1-9][0-9]*(?: [a-z])?$'),
+                book: str | None = Query(None, max_length=10, pattern=r'^[1-3]?[A-Za-z]+$'),
+                offset: int = Query(0, ge=0, le=1000000), limit: int = Query(25, ge=1, le=100)):
+    return bible_service.get_occurrences(identity, book, offset, limit)

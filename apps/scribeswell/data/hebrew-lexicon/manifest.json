@@ -1,0 +1,35 @@
+{
+  "repository": "https://github.com/openscriptures/HebrewLexicon",
+  "revision": "21c9add13bc727d3a951361778e97e3ff7afd1ce",
+  "license": "CC-BY-4.0",
+  "license_url": "https://creativecommons.org/licenses/by/4.0/",
+  "attribution": "Open Scriptures Hebrew Bible Project",
+  "notice": "See readme.md. The project describes BDB content as a work in progress. Historical BDB and Strong dictionary text remain public domain; this distributed dataset is released under CC BY 4.0.",
+  "files": {
+    "AugIndex.xml": {
+      "sha256": "e7217ca8ff8ff3f21f9cf1bbe87411adf55f6aa88bcf5ed9ddc886cc6b160c5d",
+      "bytes": 213975,
+      "url": "https://raw.githubusercontent.com/openscriptures/HebrewLexicon/21c9add13bc727d3a951361778e97e3ff7afd1ce/AugIndex.xml"
+    },
+    "LexicalIndex.xml": {
+      "sha256": "8f7a605c58899d2f44430149c143c00903976e1e91232476677972a69e5bc85f",
+      "bytes": 1782592,
+      "url": "https://raw.githubusercontent.com/openscriptures/HebrewLexicon/21c9add13bc727d3a951361778e97e3ff7afd1ce/LexicalIndex.xml"
+    },
+    "HebrewStrong.xml": {
+      "sha256": "a628f4f89f8bdaf2483fd3faf1abc8653cc6717758dfc9f24beb7571d9bdd0c4",
+      "bytes": 2749042,
+      "url": "https://raw.githubusercontent.com/openscriptures/HebrewLexicon/21c9add13bc727d3a951361778e97e3ff7afd1ce/HebrewStrong.xml"
+    },
+    "BrownDriverBriggs.xml": {
+      "sha256": "2b52658a4323d91674cda4090ab8b3ebddfff640f4f18143c28300e80b2c38f8",
+      "bytes": 2911253,
+      "url": "https://raw.githubusercontent.com/openscriptures/HebrewLexicon/21c9add13bc727d3a951361778e97e3ff7afd1ce/BrownDriverBriggs.xml"
+    },
+    "readme.md": {
+      "sha256": "9a129c25674387c494571c3828aa3a8eb78459c165e275c313ae26994ce8ff22",
+      "bytes": 2503,
+      "url": "https://raw.githubusercontent.com/openscriptures/HebrewLexicon/21c9add13bc727d3a951361778e97e3ff7afd1ce/readme.md"
+    }
+  }
+}

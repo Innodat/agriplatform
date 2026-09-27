@@ -7,6 +7,7 @@ import type { WordWithMorphologyResponse, Morpheme } from "@/schemas/bible.schem
 interface MorphologyPanelProps {
   word: WordWithMorphologyResponse;
   context?: string;
+  hideHeader?: boolean;
   onClose: () => void;
 }
 
@@ -15,14 +16,14 @@ function capitalize(s: string | null | undefined): string {
   return s.charAt(0).toUpperCase() + s.slice(1).replace(/_/g, " ");
 }
 
-export function MorphologyPanel({ word, context, onClose }: MorphologyPanelProps) {
+export function MorphologyPanel({ word, context, onClose, hideHeader }: MorphologyPanelProps) {
   return (
     <aside
       className="bg-white border border-stone-200 rounded-xl shadow-md p-4"
       aria-label="Word morphology"
     >
       {/* Header */}
-      <div className="sticky top-0 z-10 bg-white flex items-start justify-between mb-3">
+      {!hideHeader && <div className="sticky top-0 z-10 bg-white flex items-start justify-between mb-3">
         <div>
           {context && <p className="text-xs text-stone-500 mb-2">{context}</p>}
           <p
@@ -53,6 +54,7 @@ export function MorphologyPanel({ word, context, onClose }: MorphologyPanelProps
         </button>
       </div>
 
+      }
       {/* Morphemes */}
       {word.morphemes.length === 0 ? (
         <p className="text-sm text-stone-400 italic">No morphology data.</p>

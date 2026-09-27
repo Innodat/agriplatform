@@ -24,11 +24,11 @@ interface AsyncState<T> {
   error: string | null;
 }
 
-function useAsync<T>(
+export function useAsync<T>(
   fn: () => Promise<T>,
   deps: unknown[]
 ): AsyncState<T> & { refetch: () => void } {
-  const [state, setState] = useState<AsyncState<T>>({
+  const [state, setState] = useState<AsyncState<T> & {request?: () => Promise<T>}>({
     data: null,
     loading: true,
     error: null,
@@ -40,15 +40,15 @@ function useAsync<T>(
   const fetchData = useCallback(fn,deps);
   useEffect(() => {
     let active = true;
-    setState({data:null,loading:true,error:null});
+    setState({request:fetchData,data:null,loading:true,error:null});
     fetchData().then(data=>{
-      if(active)setState({data,loading:false,error:null});
+      if(active)setState({request:fetchData,data,loading:false,error:null});
     }).catch((err:unknown)=>{
-      if(active)setState({data:null,loading:false,error:err instanceof Error?err.message:'Unable to load the reader.'});
+      if(active)setState({request:fetchData,data:null,loading:false,error:err instanceof Error?err.message:'Unable to load the reader.'});
     });
     return ()=>{active=false;};
   },[fetchData,revision]);
-  return {...state,refetch:()=>setRevision(value=>value+1)};
+  return {...(state.request===fetchData?state:{data:null,loading:true,error:null}),refetch:()=>setRevision(value=>value+1)};
 }
 
 // ── Public hooks ──────────────────────────────────────────────────────────────

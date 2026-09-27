@@ -16,12 +16,14 @@ import type {
 
 interface VerseReaderProps {
   verses: VerseWithWordsResponse[];
+  matchKey?: string|null;
+  onPreview?: (word:WordResponse|null)=>void;
   selectedWordId: number | null;
   onWordClick: (word: WordResponse, verse: number) => void;
 }
 
 export function VerseReader({
-  verses,
+  verses, matchKey, onPreview,
   selectedWordId,
   onWordClick,
 }: VerseReaderProps) {
@@ -36,6 +38,7 @@ export function VerseReader({
       {verses.map((verse) => (
         <div
           key={verse.id}
+          data-verse={verse.verse_num}
           role="listitem"
           // dir="ltr" on the row so grid columns are always left=col1, right=col2.
           // The Hebrew <p> inside col2 overrides direction back to RTL.
@@ -61,9 +64,14 @@ export function VerseReader({
             {verse.words.map((word) => (
               <button
                 key={word.id}
+                onPointerEnter={event=>{if(event.pointerType!=='touch')onPreview?.(word);}}
+                onPointerLeave={()=>onPreview?.(null)}
+                onPointerCancel={()=>onPreview?.(null)}
+                onFocus={()=>onPreview?.(word)}
+                onBlur={()=>onPreview?.(null)}
                 onClick={() => onWordClick(word, verse.verse_num)}
                 className={`word-token inline-block mx-0.5 ${
-                  selectedWordId === word.id ? "selected" : ""
+                  selectedWordId === word.id ? "selected" : matchKey && word.match_key===matchKey ? "related bg-amber-100 rounded" : ""
                 }`}
                 aria-label={`Word: ${word.display_he}${word.lemma_strong ? ` (${word.lemma_strong})` : ""}`}
                 aria-pressed={selectedWordId === word.id}

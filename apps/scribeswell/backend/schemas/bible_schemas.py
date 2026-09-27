@@ -60,6 +60,8 @@ class WordResponse(BaseModel):
     display_he: Optional[str] = None
     lemma_strong: Optional[str] = None
     morph_code: Optional[str] = None
+    lexical_id: Optional[str] = None
+    match_key: Optional[str] = None
 
 
 class WordWithMorphologyResponse(WordResponse):
@@ -84,3 +86,54 @@ class BooksListResponse(BaseModel):
 class VersesListResponse(BaseModel):
     data: list[VerseWithWordsResponse]
     total: int
+
+
+class LexiconNode(BaseModel):
+    language: str | None = None
+    direction: str | None = None
+    kind: str
+    text: str
+    children: list['LexiconNode'] = []
+    book: str | None = None
+    chapter: int | None = None
+    verse: int | None = None
+
+
+class LexiconRoot(BaseModel):
+    id: str
+    text: str
+
+
+class LexiconResponse(BaseModel):
+    status: str
+    lexical_id: str
+    entry_id: str | None = None
+    lemma: str = ''
+    transliteration: str = ''
+    definition: str = ''
+    root: LexiconRoot | None = None
+    pronunciation: str = ''
+    strong_definition: str = ''
+    strong_usage: str = ''
+    strong_source: str = ''
+    bdb: list[LexiconNode] = []
+    bdb_status: str = 'missing'
+
+
+class OccurrenceResponse(BaseModel):
+    id: int
+    position: int
+    surface_he: str
+    display_he: str | None = None
+    book: str
+    book_name: str
+    chapter: int
+    verse: int
+
+
+class OccurrencesResponse(BaseModel):
+    data: list[OccurrenceResponse]
+    total: int
+    verse_total: int
+    offset: int
+    limit: int

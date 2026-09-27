@@ -7,6 +7,7 @@ Bible data is public read-only reference data — no auth required for reads.
 from __future__ import annotations
 
 from config import settings
+from services.lexicon_service import match_metadata
 from errors import DataIntegrityError, NotFoundError
 from pagination import fetch_all
 from schemas.bible_schemas import (
@@ -172,7 +173,7 @@ def get_verses(osis_id: str, chapter_num: int) -> VersesListResponse:
     for w in word_rows:
         vid = w["verse_id"]
         if vid in words_by_verse:
-            words_by_verse[vid].append(WordResponse(**w))
+            words_by_verse[vid].append(WordResponse(**w, **match_metadata(w.get('lemma_strong'), w.get('morph_code'))))
 
     for row in v_resp.data:
         words = words_by_verse[row["id"]]
@@ -228,4 +229,41 @@ def get_word_morphology(word_id: int) -> WordWithMorphologyResponse:
         if [m["segment_index"] for m in m_resp.data] != list(range(expected)):
             raise DataIntegrityError(f"Incomplete Bible data: word {word_id} is missing morphology. Run the source audit/import.")
     morphemes = [MorphemeResponse(**row) for row in m_resp.data]
-    return WordWithMorphologyResponse(**w_resp.data, morphemes=morphemes)
+    return WordWithMorphologyResponse(**w_resp.data, morphemes=morphemes, **match_metadata(w_resp.data.get('lemma_strong'), w_resp.data.get('morph_code')))
+
+
+def get_occurrences(identity: str, book: str | None = None, offset: int = 0, limit: int = 25):
+    """Exact content-lemma lookup over imported rows, stable canonical verse/word order.
+
+    Existing views lack a lexical index. Fetch matching raw variants in bounded
+    PostgREST pages, then join public verse metadata in bounded batches. This avoids
+    introducing a production migration or substituting source-file counts for DB data.
+    """
+    from services.lexicon_service import lemma_variants, lexical_id
+    if lexical_id(identity) != identity:
+        return {'data': [], 'total': 0, 'verse_total': 0, 'offset': offset, 'limit': limit}
+    variants = lemma_variants().get(identity, [identity])
+    sb = _get_client()
+    words = fetch_all(sb.schema('scribeswell').table('word_read')
+        .select('id,verse_id,position,surface_he,display_he,lemma_strong', count='exact')
+        .in_('lemma_strong', variants).order('verse_id').order('position').order('id'))
+    books = get_books().data
+    by_id = {b.id: b for b in books}
+    ids = sorted({w['verse_id'] for w in words})
+    verses = {}
+    for start in range(0, len(ids), 400):
+        query = sb.schema('scribeswell').table('verse_read').select('id,book_id,chapter_num,verse_num', count='exact').in_('id', ids[start:start + 400]).order('id')
+        if book:
+            match = next((b for b in books if b.osis_id == book), None)
+            if match is None:
+                return {'data': [], 'total': 0, 'verse_total': 0, 'offset': offset, 'limit': limit}
+            query = query.eq('book_id', match.id)
+        verses.update({v['id']: v for v in fetch_all(query)})
+    result = []
+    for word in words:
+        verse = verses.get(word['verse_id'])
+        if verse and verse['book_id'] in by_id:
+            result.append({**word, 'book': by_id[verse['book_id']].osis_id, 'book_name': by_id[verse['book_id']].name_en, 'book_id': verse['book_id'], 'chapter': verse['chapter_num'], 'verse': verse['verse_num']})
+    division_order = {'torah': 0, 'nevi_im': 1, 'ketuvim': 2}
+    result.sort(key=lambda w: (division_order.get(by_id[w['book_id']].division, 3), by_id[w['book_id']].book_order, by_id[w['book_id']].osis_id, w['chapter'], w['verse'], w['position'], w['id']))
+    return {'data': result[offset:offset + limit], 'total': len(result), 'verse_total': len({w['verse_id'] for w in result}), 'offset': offset, 'limit': limit}
