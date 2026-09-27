@@ -6,8 +6,8 @@ import type {BookResponse, LexiconNode, WordWithMorphologyResponse} from '@/sche
 
 type Reference = {book:string; chapter:number; verse:number};
 type Props = {currentPane:1|2; word:WordWithMorphologyResponse; context:string; books:BookResponse[]; onClose:()=>void; onOpen:(pane:1|2,book:string,chapter:number,verse:number)=>void};
-type View = {identity:string|null; linked:boolean; tab:'Word'|'Occurrences'; book:string; offset:number; requested:boolean; reference:Reference|null; strong:boolean; bdb:boolean; source:boolean; scroll:number; focusId?:string};
-function initialView(identity:string|null,linked=false):View {return {identity,linked,tab:'Word',book:'',offset:0,requested:false,reference:null,strong:false,bdb:false,source:false,scroll:0};}
+type View = {identity:string|null; linked:boolean; tab:'Word'|'Occurrences'; book:string; offset:number; requested:boolean; reference:Reference|null; strong:boolean; bdb:boolean; scroll:number; focusId?:string};
+function initialView(identity:string|null,linked=false):View {return {identity,linked,tab:'Word',book:'',offset:0,requested:false,reference:null,strong:false,bdb:false,scroll:0};}
 // Stop at a contiguous prefix; bound both text and nested block layout. Links
 // are atomic, and grapheme segmentation keeps Hebrew points with their letter.
 function previewNodes(items:LexiconNode[]) {
@@ -60,7 +60,6 @@ function StudyEntry({word,context,books,onClose,onOpen,currentPane,initial,canBa
   const [reference,setReference]=useState(initial.reference);
   const [strong,setStrong]=useState(initial.strong);
   const [bdb,setBdb]=useState(initial.bdb);
-  const [source,setSource]=useState(initial.source);
   const element=useRef<HTMLDivElement>(null);
   const restored=useRef(false);
   const identity=initial.identity;
@@ -93,11 +92,11 @@ function StudyEntry({word,context,books,onClose,onOpen,currentPane,initial,canBa
     }
   },[lexical.loading,lexical.error,lexical.data,occurrences.loading,occurrences.error,preview.loading,preview.error,tab,reference,initial]);
   function changeTab(next:'Word'|'Occurrences'){restored.current=true;setTab(next);}
-  function follow(next:string,origin:HTMLElement){onFollow(next,{...initial,tab,book,offset,requested,reference,strong,bdb,source,focusId:origin.dataset.dictionaryLink,scroll:inspector()?.scrollTop??0});}
+  function follow(next:string,origin:HTMLElement){onFollow(next,{...initial,tab,book,offset,requested,reference,strong,bdb,focusId:origin.dataset.dictionaryLink,scroll:inspector()?.scrollTop??0});}
   const outline=previewNodes(lexical.data?.bdb??[]);
   function nodes(items:LexiconNode[],path="bdb") {return items.map((node,index)=>{
     const key=`${path}.${index}`;
-    if(node.kind==='dictionary_reference'&&node.lexical_id&&node.lexical_id!==identity)return <button key={index} className="underline text-amber-800 break-words" aria-label={`Open dictionary entry ${node.lexical_id}`} data-dictionary-link={key} onClick={event=>follow(node.lexical_id!,event.currentTarget)}><bdi lang={node.language??undefined} dir={node.direction==='rtl'?'rtl':'auto'} className={node.language==='he'?'font-hebrew':undefined}>{node.children?.length?nodes(node.children,key):node.text}</bdi></button>;
+    if(node.kind==='dictionary_reference'&&node.lexical_id&&node.lexical_id!==identity)return <button key={index} className="cursor-pointer underline text-amber-800 break-words" aria-label={`Open dictionary entry ${node.lexical_id}`} data-dictionary-link={key} onClick={event=>follow(node.lexical_id!,event.currentTarget)}><bdi lang={node.language??undefined} dir={node.direction==='rtl'?'rtl':'auto'} className={node.language==='he'?'font-hebrew':undefined}>{node.children?.length?nodes(node.children,key):node.text}</bdi></button>;
     if(node.kind==='language'||node.kind==='dictionary_reference') return <bdi key={index} className={node.language==='he'?'font-hebrew':undefined} lang={node.language??undefined} dir={node.direction==='rtl'?'rtl':'auto'}>{node.children?.length?nodes(node.children,key):node.text}</bdi>;
     if(node.kind==='sense') return <div key={index} className="my-2 pl-3 border-l border-stone-200">{node.text&&<strong>{node.text}. </strong>}{nodes(node.children??[],key)}</div>;
     if(node.kind==='reference'&&node.book&&node.chapter&&node.verse&&books.some(b=>b.osis_id===node.book))return <button key={index} className="underline text-amber-800" onClick={()=>setReference({book:node.book!,chapter:node.chapter!,verse:node.verse!})}>{node.text}</button>;
@@ -120,7 +119,7 @@ function StudyEntry({word,context,books,onClose,onOpen,currentPane,initial,canBa
             <span className="text-stone-700">{lexical.data.definition||'Short definition not supplied'}</span>
           </div>
           <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1 text-xs text-stone-500">
-            <span>Strong’s {identity}</span><span>Root: {lexical.data.root?(lexical.data.root.lexical_id&&lexical.data.root.lexical_id!==identity?<button className="underline text-amber-800" aria-label={`Open dictionary entry ${lexical.data.root.lexical_id}`} data-dictionary-link="root" onClick={event=>follow(lexical.data!.root!.lexical_id!,event.currentTarget)}><bdi lang="he" dir="rtl" className="font-hebrew text-lg">{lexical.data.root.text}</bdi></button>:<bdi lang="he" dir="rtl" className="font-hebrew text-lg">{lexical.data.root.text}</bdi>):'Not recorded'}</span>
+            <span>Strong’s {identity}</span><span>Root: {lexical.data.root?(lexical.data.root.lexical_id&&lexical.data.root.lexical_id!==identity?<button className="cursor-pointer underline text-amber-800" aria-label={`Open dictionary entry ${lexical.data.root.lexical_id}`} data-dictionary-link="root" onClick={event=>follow(lexical.data!.root!.lexical_id!,event.currentTarget)}><bdi lang="he" dir="rtl" className="font-hebrew text-lg">{lexical.data.root.text}</bdi></button>:<bdi lang="he" dir="rtl" className="font-hebrew text-lg">{lexical.data.root.text}</bdi>):'Not recorded'}</span>
           </div>
         </>}
         {!initial.linked&&<MorphologyPanel word={word}/>}
@@ -139,7 +138,6 @@ function StudyEntry({word,context,books,onClose,onOpen,currentPane,initial,canBa
           {lexical.data.pronunciation&&<p className="text-xs text-stone-500">Pronunciation: {lexical.data.pronunciation} (written)</p>}
           <p className="text-xs text-stone-500"><a className="underline" href="https://github.com/openscriptures/HebrewLexicon">Open Scriptures Hebrew Bible Project</a> · <a className="underline" href="https://creativecommons.org/licenses/by/4.0/">CC BY 4.0</a> · BDB is incomplete.</p>
         </>}
-        {!initial.linked&&<details open={source} onToggle={event=>setSource(event.currentTarget.open)}><summary className="cursor-pointer text-xs text-stone-500">Source details</summary><div className="text-xs text-stone-500 space-y-1 mt-2"><p>{word.morph_code}</p><p>{word.lemma_strong}</p>{word.morphemes.map(m=><p key={m.segment_index}>{m.pos_code} · {m.language}</p>)}</div></details>}
         {reference&&<section aria-label="Scripture preview" className="border rounded p-2 space-y-2">
           <p>{reference.book} {reference.chapter}:{reference.verse}</p>
           {preview.loading&&<p role="status">Loading verse…</p>}
@@ -160,7 +158,6 @@ function StudyEntry({word,context,books,onClose,onOpen,currentPane,initial,canBa
         <ol className="space-y-3">{occurrences.data.data.map(row=><li key={row.id} className="border-b pb-2"><p>{row.book_name} {row.chapter}:{row.verse} · word {row.position}</p><p className="font-hebrew text-xl" dir="rtl" lang="he">{row.display_he??row.surface_he}</p><button className="underline mr-2" onClick={()=>onOpen(currentPane,row.book,row.chapter,row.verse)}>Open in current passage</button><button className="underline" onClick={()=>onOpen(currentPane===1?2:1,row.book,row.chapter,row.verse)}>Open in comparison</button></li>)}</ol>
         <div className="flex justify-between"><button disabled={offset===0} className="underline disabled:opacity-30" onClick={()=>setOffset(Math.max(0,offset-25))}>Previous results</button><button disabled={offset+25>=occurrences.data.total} className="underline disabled:opacity-30" onClick={()=>setOffset(offset+25)}>Next results</button></div>
       </>}
-      <button className="underline" onClick={onClose}>Close word study</button>
     </div>
   </div>;
 }
