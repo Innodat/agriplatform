@@ -38,3 +38,7 @@ pointer dismissal. `AppLauncherItem` is a menuitem link and uses the catalogue's
 `book-open`/`library` icon or a generic grid fallback. Consumer apps must not override
 its internal layout with broad menu/link selectors. Browser acceptance coverage
 lives in the PtS launcher suite and Scribeswell reader suite.
+
+Set `iconOnly` to render only the grid icon in the trigger (Scribeswell). The
+default is `false`, retaining the Apps text and chevron (PtS). The accessible
+label, hover title, keyboard interaction and touch target are preserved.

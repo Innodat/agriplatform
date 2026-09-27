@@ -16,11 +16,11 @@ export function Topbar() {
   useEffect(()=>{if(user){setShowSignIn(false);setSignOutError('');}},[user?.id]);
 
   return (
-    <header className="bg-white border-b border-stone-200 shadow-sm">
+    <header className="shrink-0 bg-white border-b border-stone-200 shadow-sm">
       <div className="container mx-auto px-4 max-w-5xl h-14 flex items-center justify-between">
         {/* Left: AppLauncher + Brand */}
         <div className="flex items-center gap-2">
-          <AppLauncher apps={apps} isLoading={appsLoading} currentAppId="scribeswell" />
+          <AppLauncher apps={apps} isLoading={appsLoading} currentAppId="scribeswell" iconOnly />
 
           <div className="flex items-center gap-2 text-stone-800">
             <BookOpen className="hidden sm:block w-5 h-5 text-amber-600" aria-hidden="true" />

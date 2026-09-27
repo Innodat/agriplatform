@@ -21,7 +21,7 @@ export function MorphologyPanel({ word, onClose }: MorphologyPanelProps) {
       aria-label="Word morphology"
     >
       {/* Header */}
-      <div className="flex items-start justify-between mb-3">
+      <div className="sticky top-0 z-10 bg-white flex items-start justify-between mb-3">
         <div>
           <p
             className="text-3xl font-hebrew leading-none mb-1"

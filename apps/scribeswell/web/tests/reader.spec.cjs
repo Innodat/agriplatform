@@ -46,7 +46,7 @@ test('late chapter responses cannot replace the chosen chapter',async({page})=>{
 test('shared launcher works in Scribeswell and private workspace files are denied',async({page})=>{
  await setup(page);
  await page.route('http://127.0.0.1:8001/**',r=>r.fulfill({json:[{id:'scribeswell',name:'Scribeswell',description:'Hebrew Bible reader',icon:'book-open',url:'http://localhost:5174',enabled:true},{id:'pts',name:'PtS',description:'Swahili Poetry',icon:'book-open',url:'http://localhost:5179',enabled:true}]}));
- await page.goto('/');const trigger=page.getByRole('button',{name:'App launcher'});await trigger.click();
+ await page.goto('/');const trigger=page.getByRole('button',{name:'App launcher'});await expect(trigger).toHaveText('');await expect(trigger).toHaveAttribute('title','App launcher');await trigger.click();
  const menu=page.getByRole('menu');await expect(menu.getByText('Current app')).toBeVisible();
  await expect(menu.getByRole('menuitem',{name:'Open Scribeswell'})).toHaveAttribute('aria-current','page');
  await page.keyboard.press('ArrowDown');await expect(menu.getByRole('menuitem',{name:'Open PtS'})).toBeFocused();
@@ -101,4 +101,27 @@ test('long bilingual names and 150 chapters fit narrow and short viewports',asyn
  const chapter=page.getByRole('button',{name:'Chapter 150 of Psalms',exact:true});await chapter.scrollIntoViewIfNeeded();await expect(chapter).toBeInViewport();
  const b=await page.getByRole('dialog').boundingBox();expect(b.x).toBeGreaterThanOrEqual(0);expect(b.x+b.width).toBeLessThanOrEqual(320);
  await page.setViewportSize({width:667,height:375});await chapter.scrollIntoViewIfNeeded();await expect(chapter).toBeInViewport();
+ const panelBounds=await page.getByRole('dialog').boundingBox();expect(panelBounds.y).toBeGreaterThanOrEqual(0);expect(panelBounds.y+panelBounds.height).toBeLessThanOrEqual(375);expect(await page.evaluate(()=>scrollY)).toBe(0);
+ await chapter.focus();await page.keyboard.press('Escape');await expect(page.getByRole('button',{name:/Navigate:/})).toBeFocused();
+});
+test('only chapter text scrolls while navigation and morphology remain in view',async({page},info)=>{
+ await setup(page);
+ await page.route('**/api/bible/books/Gen/chapters/1/verses',r=>r.fulfill({json:{data:Array.from({length:100},(_,i)=>({id:i+1,verse_num:i+1,book_id:1,chapter_num:1,words:[first]})),total:100}}));
+ await page.goto('/');const text=page.getByRole('region',{name:'Chapter text'});const navigation=page.getByRole('button',{name:/Navigate:/});
+ await page.getByRole('button',{name:/Word:/}).first().click();const analysis=page.getByRole('complementary',{name:'Word morphology'});await expect(analysis).toBeVisible();
+ const before=await analysis.boundingBox();const navBefore=await navigation.boundingBox();
+ await text.focus();await page.keyboard.press('PageDown');await expect.poll(()=>text.evaluate(el=>el.scrollTop)).toBeGreaterThan(0);
+ await text.evaluate(el=>el.scrollTop=el.scrollHeight);
+ await expect(page.getByLabel('Verse 100',{exact:true})).toBeInViewport();
+ const after=await analysis.boundingBox();const navAfter=await navigation.boundingBox();expect(Math.abs(after.y-before.y)).toBeLessThan(2);expect(Math.abs(navAfter.y-navBefore.y)).toBeLessThan(2);expect(await page.evaluate(()=>window.scrollY)).toBe(0);
+ if(info.project.name==='mobile'){const last=await page.getByLabel('Verse 100',{exact:true}).boundingBox();expect(last.y+last.height).toBeLessThanOrEqual(after.y);}
+ await navigation.click();await page.getByRole('button',{name:/Exodus —/}).click();await page.getByRole('button',{name:'Chapter 1 of Exodus'}).click();await expect(page.getByRole('button',{name:/Word: שֵׁמוֹת/})).toBeVisible();await expect.poll(()=>text.evaluate(el=>el.scrollTop)).toBe(0);
+});
+test('long morphology scrolls independently and text stays at a readable width',async({page},info)=>{
+ await setup(page);await page.route('**/api/bible/words/1/morphology',r=>r.fulfill({json:{...first,morphemes:Array.from({length:30},(_,i)=>({segment_index:i,language:'Hebrew',part_of_speech:'noun',pos_code:'N'}))}}));
+ await page.goto('/');const text=page.getByRole('region',{name:'Chapter text'});const bounds=await text.boundingBox();
+ if(info.project.name==='desktop'){expect(bounds.width).toBeLessThanOrEqual(704);expect(Math.abs(bounds.x+bounds.width/2-640)).toBeLessThan(2);}
+ await page.getByRole('button',{name:/Word:/}).click();const panel=page.getByRole('complementary',{name:'Word analysis panel'});await expect(page.getByRole('complementary',{name:'Word morphology'})).toBeVisible();
+ const textBefore=await text.evaluate(el=>el.scrollTop);await panel.evaluate(el=>el.scrollTop=el.scrollHeight);await expect.poll(()=>panel.evaluate(el=>el.scrollTop)).toBeGreaterThan(0);expect(await text.evaluate(el=>el.scrollTop)).toBe(textBefore);expect(await page.evaluate(()=>window.scrollY)).toBe(0);
+ await expect(panel.getByText('Noun',{exact:true}).last()).toBeInViewport();await expect(panel.getByRole('button',{name:'Close morphology panel'})).toBeInViewport();await panel.getByRole('button',{name:'Close morphology panel'}).click();await expect(panel).toHaveCount(0);
 });

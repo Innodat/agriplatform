@@ -10,9 +10,11 @@ interface AppLauncherProps {
   isLoading?: boolean;
   label?: string;
   currentAppId?: string;
+  /** Compact trigger; accessible name and touch target are retained. */
+  iconOnly?: boolean;
 }
 
-export function AppLauncher({apps, isLoading = false, label = 'App launcher', currentAppId}: AppLauncherProps) {
+export function AppLauncher({apps, isLoading = false, label = 'App launcher', currentAppId, iconOnly = false}: AppLauncherProps) {
   const [open, setOpen] = useState(false);
   const container = useRef<HTMLDivElement>(null);
   const trigger = useRef<HTMLButtonElement>(null);
@@ -32,11 +34,11 @@ export function AppLauncher({apps, isLoading = false, label = 'App launcher', cu
   return <div className="platform-app-launcher" ref={container}
     onBlur={e=>{if(!e.currentTarget.contains(e.relatedTarget as Node))setOpen(false);}}
     onKeyDown={e=>{if(e.key==='Escape'&&open){e.preventDefault();e.stopPropagation();closeAndFocus();}}}>
-    <button ref={trigger} type="button" className="platform-app-trigger" aria-label={label}
+    <button ref={trigger} type="button" className="platform-app-trigger" aria-label={label} title={iconOnly?label:undefined}
       aria-expanded={open} aria-haspopup="menu" aria-controls={open?menuId:undefined}
       onClick={()=>{initialFocus.current=0;setOpen(v=>!v);}}
       onKeyDown={e=>{if(e.key==='ArrowDown'||e.key==='ArrowUp'){e.preventDefault();initialFocus.current=e.key==='ArrowUp'?-1:0;setOpen(true);}}}>
-      <LayoutGrid aria-hidden="true"/><span>Apps</span><ChevronDown className="platform-app-chevron" aria-hidden="true"/>
+      <LayoutGrid aria-hidden="true"/>{!iconOnly&&<><span>Apps</span><ChevronDown className="platform-app-chevron" aria-hidden="true"/></>}
     </button>
     {open&&<div ref={menu} id={menuId} role="menu" aria-label="Available apps" className="platform-app-menu"
       onKeyDown={e=>{

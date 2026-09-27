@@ -121,7 +121,7 @@ function ChapterPanel({
       </div>
 
       {/* Chapter grid — dir="rtl" so auto-fill flows right-to-left (א top-right) */}
-      <div className="p-2 overflow-y-auto flex-1" style={{ maxHeight: "18rem" }}>
+      <div className="p-2 overflow-y-auto flex-1" style={{ maxHeight: "min(18rem, calc(100dvh - 11rem))" }}>
         <div
           className="grid gap-1"
           dir="rtl"
@@ -293,7 +293,7 @@ export function BookChapterSelector({
           <nav
             aria-label="Books of the Tanakh"
             className="w-40 sm:w-48 shrink-0 border-r border-stone-100 overflow-y-auto"
-            style={{ maxHeight: "22rem" }}
+            style={{ maxHeight: "min(22rem, calc(100dvh - 8rem))" }}
           >
             {DIVISION_ORDER.map((division) => {
               const group = grouped[division];

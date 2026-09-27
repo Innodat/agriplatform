@@ -10,7 +10,7 @@
  *
  * Navigation state lives in URL search params: ?book=Gen&chapter=1
  */
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import { BookChapterSelector } from "@/components/bible/book-chapter-selector";
 import { VerseReader } from "@/components/bible/VerseReader";
@@ -34,6 +34,8 @@ export function ReaderPage() {
     DEFAULT_CHAPTER;
 
   useEffect(()=>setSelectedWord(null),[selectedOsisId,selectedChapter]);
+  const chapterScroll=useRef<HTMLElement>(null);
+  useEffect(()=>{if(chapterScroll.current)chapterScroll.current.scrollTop=0;},[selectedOsisId,selectedChapter]);
   const books = useBooks();
   const verses = useVerses(selectedOsisId, selectedChapter);
   const morphology = useWordMorphology(selectedWord?.id ?? null);
@@ -50,10 +52,10 @@ export function ReaderPage() {
   }
 
   return (
-    <div className="flex flex-col gap-4 min-h-[calc(100vh-3.5rem-3rem)]">
+    <div className="flex flex-col gap-4 h-full min-h-0">
       {/* ── Navigation header ──────────────────────────────── */}
       {/* justify-end: selector sits at the right/RTL-start of the header */}
-      <div className="flex items-center justify-end gap-3">
+      <div className="flex shrink-0 items-center justify-end gap-3">
         {books.loading && (
           <span className="text-sm text-stone-400 animate-pulse">
             Loading…
@@ -73,9 +75,9 @@ export function ReaderPage() {
       </div>
 
       {/* ── Reader area ────────────────────────────────────── */}
-      <div className="flex flex-col md:flex-row gap-6 flex-1">
+      <div className="flex flex-col md:flex-row md:justify-center gap-4 md:gap-6 flex-1 min-h-0">
         {/* Main content */}
-        <section aria-label="Chapter text" className="flex-1 min-w-0">
+        <section ref={chapterScroll} tabIndex={0} aria-label="Chapter text" className="flex-1 min-w-0 min-h-0 w-full md:max-w-[44rem] overflow-y-auto overscroll-contain px-1 pb-4 focus-visible:outline-2 focus-visible:outline-amber-600">
           {verses.loading && (
             <div className="space-y-3 animate-pulse">
               {[...Array(5)].map((_, i) => (
@@ -97,7 +99,7 @@ export function ReaderPage() {
 
         {/* Morphology panel (conditional) */}
         {selectedWord && (
-          <aside className="fixed inset-x-3 bottom-3 z-40 max-h-[50dvh] overflow-y-auto md:static md:max-h-none md:overflow-visible md:w-72 shrink-0">
+          <aside aria-label="Word analysis panel" className="min-h-0 max-h-[45%] overflow-y-auto overscroll-contain md:max-h-full md:h-full md:w-72 shrink-0">
             {morphology.loading && (
               <div className="bg-white border border-stone-200 rounded-xl p-4 animate-pulse">
                 <div className="h-8 bg-stone-200 rounded w-24 mb-3" />
