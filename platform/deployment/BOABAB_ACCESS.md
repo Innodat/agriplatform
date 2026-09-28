@@ -188,3 +188,22 @@ The user applied the local persistent MTU update. Separate CI public keys are
 registered; nine CI inputs are prepared in an ignored mode0600 file, not uploaded.
 No Mac Mini/Tailscale change, server replacement, DNS change, Git push or public
 application activation occurred. Hosted CI verification must precede public SSH removal.
+
+
+## Hosted connectivity follow-up (2026-09-28)
+
+Nine inputs are now uploaded to the main-only Production environment. Only the
+connectivity workflow and helpers were published, with Netlify native builds paused.
+Initial run 36477990203 passed strict SSH but correctly refused cleanup because
+Ubuntu did not install the ownership alias supplied to link-add. A real isolated
+Ubuntu namespace reproduced the missing alias; the regression fixture was corrected
+and failed before implementation. Setup now explicitly sets ownership before keys
+or link activation. Existing unowned-interface refusal and failure cleanup remain.
+
+All 78 deployment Python tests passed; real namespace teardown verified interface
+and secret removal plus repeat cleanup. Hosted run
+[36480376365](https://github.com/Innodat/agriplatform/actions/runs/36480376365) passed
+setup and cleanup at `4cffad16ddf4dcb1bd658a0093c67431072dad7e`.
+This is a correction to the existing shared release helper: no scaffold, shared UI,
+agent-context or ADR change; deployment status/evidence updated in this item.
+Public SSH removal and application activation have not occurred.

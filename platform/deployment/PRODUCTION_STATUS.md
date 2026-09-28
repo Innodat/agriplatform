@@ -8,9 +8,9 @@ tunnel. Default SSH cryptography and the independently verified host key are
 retained. MTU1200 resolved the observed packet-size stall; 4 MiB transfers in each
 direction matched SHA256, and SSH reconnected after restarting the server tunnel.
 The user persisted the client MTU fix. UDP51820 is public; TCP22 remains restricted
-as a fallback pending the GitHub-hosted connectivity check. CI has separate VPN
+as a fallback; removing it remains a separate guarded infrastructure change. CI has separate VPN
 and SSH keys; its SSH public key is restricted to 10.77.80.3 with forwarding disabled.
-Nine CI inputs are uploaded to GitHub’s existing `Production` environment and their names verified; the environment now permits only branch `main`. No hosted test has run yet. No Mac Mini or Tailscale changes.
+Nine CI inputs are uploaded to GitHub’s existing `Production` environment and their names verified; the environment now permits only branch `main`. The hosted connectivity check passed, including cleanup (run 36480376365). No Mac Mini or Tailscale changes.
 
 The previously approved additive Supabase bootstrap **completed successfully**:
 seven restricted roles, access/content/pts owner migrations, Scribeswell schema
@@ -19,17 +19,19 @@ Heads: access_0001, content_0004, pts_0001. All seven role logins passed; none i
 superuser or bypasses RLS. Business table RLS checks passed (forced for owned
 access/content/pts tables). Existing legacy row counts/digests matched the rehearsal
 and were unchanged after migration. No poems, Bible corpus, accounts, invitations,
-PtS organization or memberships have been imported/created. No DNS, Netlify setting,
-Git push or public application activation occurred.
+PtS organization or memberships have been imported/created. No DNS or public
+application activation occurred. Netlify native builds are now paused and only
+the isolated connectivity workflow/helpers have been published to main.
 
 Evidence: ignored `production-bootstrap-apply.json`, `production-owner-migrations.json`,
 `wireguard-private-check.json` and protected bootstrap/recovery artifacts. Credentials
 remain in ignored protected files; do not attach them to issues or workflow artifacts.
 
-Next: configure GitHub production secrets and run the connectivity-only workflow
-under a controlled publication plan; only then remove public SSH. Imports, account
-provisioning, DNS and public release still need their concrete approved execution
-steps. Netlify native main builds remain enabled, so do not push the release yet.
+Next: prepare the remaining application release secrets/configuration and concrete
+activation plan. Imports, account provisioning, DNS, public SSH removal and public
+release still require their approved execution steps. Netlify native builds are
+paused; the currently served deployment remains unchanged. The frontend build
+filter is implemented and tested locally but is not yet published.
 
 ## Provisioning and earlier preparation history
 
@@ -263,23 +265,33 @@ owner-migrations-1.json, owner-migrations-2.json, migration-rehearsal-report.jso
 permission-check.json and baseline-digests.json (all ignored and protected).
 
 
-### GitHub configuration and pending connectivity publication
+### GitHub configuration and completed connectivity publication
 
-The supplied fine-grained PAT successfully configured the existing Production
-environment (ID9903880451). Its sole deployment branch policy is `main` (branch,
-not tag). Nine WireGuard/SSH inputs were encrypted with the environment public key,
-uploaded and verified by metadata. The PAT itself was not uploaded as a secret.
-No workflows currently exist on remote main at 619737d21a0eb371aeeab24229c1041089fc44c2.
+The supplied fine-grained PAT configured the existing Production environment
+(ID9903880451), restricted to branch `main`. Nine WireGuard/SSH inputs were encrypted
+with its public key, uploaded and verified by metadata. The PAT was not uploaded.
 
-Prepared isolated local commit `cf5b95e1a218ce1ca367bd7c2031a4f5fb26f3b3` on ops/wireguard-connectivity:
-only the manual connectivity workflow and its common.py/runner.py helpers. Files
-match the previously tested implementation and validate against the prepared CI
-inputs. Full application release changes are excluded. No push or dispatch occurred.
+User approval “Ok, next” authorized pausing native Netlify builds and publishing
+only the manual connectivity workflow plus common.py/runner.py. The initial commit
+`cf5b95e1a218ce1ca367bd7c2031a4f5fb26f3b3` passed hosted SSH but failed cleanup
+(run 36477990203): Ubuntu accepted link-add's alias argument without installing
+an ownership label. Reproduced in an isolated Ubuntu network namespace. Corrected
+setup explicitly sets the alias before installing tunnel keys/bringing up the link.
+The fixture now models that actual behavior; its regression failed before the fix.
 
-Netlify reinspection: native main builds still enabled, published deploy
-6aba06e3dac3132bd6edcc1a. Pending approval: stop native builds while preserving the
-served deploy, fast-forward only the connectivity commit, and dispatch/verify it.
-The exact guarded execution/recovery plan is in the ignored
-connectivity-publication-plan.json. Keep restricted public SSH until hosted evidence
-exists. Merge the published connectivity commit into local main before a later full
-release push; never force-push over it.
+The one-file fix `4cffad16ddf4dcb1bd658a0093c67431072dad7e` was published separately.
+[Hosted run 36480376365](https://github.com/Innodat/agriplatform/actions/runs/36480376365)
+passed connection, strict SSH and always-run cleanup. All 78 Python deployment tests
+passed; actual Ubuntu namespace teardown also verified interface removal, secret
+removal and repeat cleanup. Published history is merged into local main; no force push.
+
+Netlify native builds are stopped (`build_settings.stop_builds=true`), with build
+command/directory/repository settings preserved. Published deployment
+`6aba06e3dac3132bd6edcc1a` remains unchanged. Full application release changes and
+frontend build filtering are still local. No imports, accounts, DNS or application
+activation occurred during this connectivity publication. Restricted public SSH
+remains available pending its separately guarded removal.
+
+Protected evidence: connectivity-publication-plan-initial.json,
+connectivity-publication-plan.json, connectivity-netlify-pause.json,
+connectivity-dispatch.json and connectivity-runs.json. Do not publish secret files.
