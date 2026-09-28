@@ -29,7 +29,7 @@ remain in ignored protected files; do not attach them to issues or workflow arti
 
 Remaining CI variables/secrets are configured and verified (see preparation record
 below). Seven root-only configuration files are installed on boabab without starting
-services. Next: API DNS and TLS, registry pull authorization, then Auth/Storage/data
+services. API DNS and TLS are now prepared. Next: registry pull authorization, then Auth/Storage/data
 and account verification before approving first activation. Imports, account
 provisioning, DNS, public SSH removal and public release still require their approved
 execution steps. Netlify native builds are paused; its served deployment is unchanged.
@@ -332,3 +332,33 @@ SSH tunnel alone does not grant registry access.
 Protected evidence/tools: release-github-settings.json, release-settings-report.json,
 release-settings-installed.json, prepare-release-settings.py, check-release-settings.py,
 install-release-settings.py and release-settings/ (contains credentials; never publish).
+
+
+### DNS and HTTPS certificate prepared (2026-09-28)
+
+Both Dynadot authoritative nameservers now return `138.199.217.158` for
+`api.scribeswell.com`; the earlier missing-digit record was corrected by the owner.
+Both nameservers verified the owner's manual DNS-01 TXT challenge before submission.
+Let’s Encrypt issued the certificate after the approved account registration using
+`kristov.kok@gmail.com` as contact. Certificate expiry: **2026-12-27 20:00:35 UTC**.
+
+Verified hostname, trusted certificate chain, matching private key and more than
+30 days remaining. Root-only certificate/key copies installed at
+`/etc/agriplatform/tls/production/{fullchain.pem,privkey.pem}` (files0600,
+directory0700), matching the prepared target configuration. Original Certbot
+certificate lineage remains in `/etc/letsencrypt/live/api.scribeswell.com`.
+Certificate SHA256: `219b70015458f4b2228cea62e885548b131ab6030404e23393d8921699046840`.
+No certificate/private-key contents exported; no APIs or gateway started.
+
+**Renewal is manual, not automatic.** Operator must renew before expiry, with a
+recommended operational target of **2026-11-27**, using the documented Certbot
+DNS-01 command and a fresh temporary TXT challenge. After renewal, validate and
+replace the external certificate/key copies, rerender/reload the gateway and
+verify the publicly served certificate as documented in README. Certbot renewal
+alone does not refresh these copies or the generated APISIX configuration.
+No reminder or unattended DNS/renewal hook is configured. The completed challenge
+TXT can now be removed by the owner. Protected evidence: tls-challenge.json.
+
+Next: establish GHCR pull authorization, then complete the remaining approved
+Auth/data/content checks and first-release activation plan. Public HTTPS service
+availability is not claimed merely because certificate issuance succeeded.
