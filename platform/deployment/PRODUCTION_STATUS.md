@@ -39,12 +39,21 @@ Verified host results:
   capacity for the full stack or indicate application readiness.
 
 The existing website remains on Netlify (`boabab.netlify.app` / scribeswell.com).
-`api.scribeswell.com` has no DNS record yet. Netlify Git auto-build settings and
-provider site metadata still require inspection. No Git push has been performed.
+`api.scribeswell.com` has no DNS record yet. Netlify inspection confirmed site ID `e739718f-de86-4ad4-ab84-cf6249134558`, HTTPS
+forced, linked to `Innodat/agriplatform` main. Native automatic builds are currently
+**enabled**, publishing only `apps/scribeswell/web/dist` using
+`npm --workspace scribeswell-web run build`. Before pushing the combined release,
+stop native builds so the coordinated workflow is the sole deployment authority.
+No setting was changed and no Git push has been performed.
 The root SUPABASE_URL points to local development (localhost54321); the target guard
-stopped inspection before any production request. Separate PRODUCTION_SUPABASE_*
-keys and NETLIFY_AUTH_TOKEN have been requested for read-only target inspection.
-Existing local development credentials remain unchanged.
+stopped inspection before any production request. The separately supplied production publishable key works: Auth settings are readable,
+with public signup enabled and email autoconfirm disabled. Anonymous HEAD requests
+to the five expected Bible tables using the scribeswell schema return406, so record
+counts remain unverified; this does not prove the tables are absent. A privileged
+read-only inventory requires the missing production secret key/database connection.
+The owner created .env.prod with the production URL and publishable key; it is now
+explicitly ignored along with credential-file editor swaps. Existing local development
+credentials remain unchanged. NETLIFY_AUTH_TOKEN was used only for read-only inspection.
 
 Terraform state is currently local in the git-ignored, mode0700 directory
 `platform/deployment/.local/production-infrastructure`; state/log/plan files are
