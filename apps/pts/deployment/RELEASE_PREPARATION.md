@@ -5,11 +5,13 @@ account creation, upload, DNS change or deployment has been performed. The owner
 (`https://gjbsnxmbhxsvcblzgfts.supabase.co`). The owner confirms Pro in West EU (Ireland); its existing schema and data have
 not been inspected. The owner confirmed `scribeswell.com`, prefers Netlify Free for the frontend
 (or hosting it on the backend server), and Hetzner for the APIs and future workers.
-APISIX is the requested gateway; DNS is managed at Dynadot. Server size/region
-and account access remain to be confirmed. No server has been provisioned.
-The owner requires platform-wide CI/CD: main deploys staging because Pro supports
-persistent staging branches; production promotes a verified release explicitly.
-Shared implementation and current scope: [platform deployment spec](../../../platform/deployment/SPEC.md).
+APISIX is the requested gateway; DNS is managed at Dynadot. Netlify and Hetzner accounts are ready; the
+initial size is CPX12 (1 shared vCPU, 2 GB RAM), subject to actual capacity checks.
+Region and secure account configuration remain to be confirmed. No server has been provisioned.
+The owner requires platform-wide CI/CD and has chosen production only for the first
+release: main deploys production after all checks; no staging server or branch is needed.
+Shared implementation: [original deployment evidence](../../../platform/deployment/SPEC.md);
+current scope: [production-only adjustment](../../../platform/deployment/PRODUCTION_ONLY.md).
 This checklist accompanies the existing owner tooling; it is not a new deployment
 system or an authorization to execute production writes.
 

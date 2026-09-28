@@ -1,10 +1,11 @@
-# Platform deployment: staged Netlify + Hetzner releases
+# Platform deployment: production on Netlify + Hetzner
 
 This package is preparation, not evidence that an uninspected target is ready.
 Nothing here provisions accounts, DNS, Supabase branches, schemas or production data
 automatically. Obtain final approval for the concrete target plan before enabling
-these workflows or applying infrastructure. Main deploys **staging only**; production
-requires manual promotion of an exact SHA with successful staging evidence.
+the workflow or applying infrastructure. Main deploys **production directly** after
+all release checks pass. There is no active staging workflow or staging prerequisite.
+Manual dispatch also uses the exact main event SHA; other branches cannot release.
 
 ## Architecture and inputs
 
@@ -18,12 +19,16 @@ private Storage; no local database, etcd, workers, Temporal or Leave is deployed
 Production inputs already selected: `https://scribeswell.com`,
 `https://api.scribeswell.com`, Supabase Pro project
 `https://gjbsnxmbhxsvcblzgfts.supabase.co` in Ireland, Dynadot DNS.
-Create a distinct persistent Supabase staging branch/project only after approval.
-Persistent branching is available on Pro but billed separately; no production data
-or credentials are copied by this package. Confirm current pricing before approval.
+The owner chose one production environment for the initial release. Netlify and
+Hetzner accounts are ready; use the existing Supabase production project. Do not
+create a persistent Supabase staging branch or a second host for this setup.
 Prefer Germany (evaluate `nbg1`/`fsn1`) initially; measure database roundtrip and signed
-upload latency from the actual host before activation. The Terraform `cx33` estimate
-is configurable; confirm availability/capacity, backup and recovery expectations.
+upload latency from the actual host before activation. Terraform defaults to `cpx12`
+(1 shared vCPU, 2 GB RAM, 40 GB disk). This is a starting estimate, not a measured
+capacity guarantee. Measure total host/container memory and CPU during realistic
+reading, searches, exports, imports and release activation; check for OOM events and
+leave OS/deployment headroom. Increase the size if measurements warrant it. Images
+build in CI, not on this host; keep disk space for current and recovery images.
 
 Still required per environment: Hetzner account/token, explicit region/server size,
 SSH public key and restricted admin/runner CIDRs, trusted SSH host key, host account,
@@ -72,8 +77,8 @@ sets the publish directory and headers. Existing assets take precedence.
 
 ## Terraform and host preparation
 
-Use a separate directory/state backend per environment; never share state between
-staging and production. Copy Terraform files into each operational state workspace,
+Use one production state workspace now. If staging is added later, give it its own
+host, credentials and state. Copy Terraform files into the operational workspace,
 set encrypted/access-controlled remote state, locking and retention before apply.
 The checked-in example tfvars is illustrative and has no valid credentials. The
 provider reads `HCLOUD_TOKEN` from the operator environment only. Terraform contains
@@ -100,20 +105,20 @@ in Terraform or release source. CI authentication uses GitHub's packages token.
 
 ## External configuration and scoped authority
 
-Store target configuration as `/etc/agriplatform/staging.json` or `production.json`,
+Store target configuration as `/etc/agriplatform/production.json`,
 not in git. Its fields are:
 
 ```json
 {
-  "environment": "staging",
-  "site": "https://staging--YOUR_SITE.netlify.app",
-  "api": "https://YOUR_STAGING_API_HOST",
-  "supabase_url": "https://YOUR_STAGING_PROJECT.supabase.co",
-  "env_dir": "/etc/agriplatform/staging",
-  "state_dir": "/srv/agriplatform/state/staging",
-  "bootstrap_evidence": "/etc/agriplatform/staging-bootstrap.json",
-  "cert": "/etc/agriplatform/tls/staging/fullchain.pem",
-  "key": "/etc/agriplatform/tls/staging/privkey.pem"
+  "environment": "production",
+  "site": "https://scribeswell.com",
+  "api": "https://api.scribeswell.com",
+  "supabase_url": "https://gjbsnxmbhxsvcblzgfts.supabase.co",
+  "env_dir": "/etc/agriplatform/production",
+  "state_dir": "/srv/agriplatform/state/production",
+  "bootstrap_evidence": "/etc/agriplatform/production-bootstrap.json",
+  "cert": "/etc/agriplatform/tls/production/fullchain.pem",
+  "key": "/etc/agriplatform/tls/production/privkey.pem"
 }
 ```
 
@@ -164,7 +169,7 @@ until the changed owner steps have been explicitly reviewed, applied and verifie
 An owner Alembic change also invalidates the migration compatibility fingerprint;
 review prior-version compatibility and recovery evidence before approving that
 new fingerprint. The ordered adapter then applies those approved owner changes.
-Never copy a staging fingerprint approval to production without target verification.
+Bootstrap approval must describe this production target and actual verification.
 
 Before first activation, test supported prior schema/data on a disposable database,
 upgrade correctness, previous-image behavior against the new schema, partial failure
@@ -208,40 +213,42 @@ issuance/rendering/handshake; actual ACME/Dynadot renewal remains an operator re
 
 ## GitHub and Netlify setup
 
-Before enabling the workflows create separate `staging` and `production` GitHub
-environments. Private-repository environment secrets require an eligible GitHub
-plan; verify required-reviewer availability for the account/plan. Restrict production
-environment to protected main and require reviewers where available; manual dispatch
-and verified staging SHA are required regardless. Protect main/workflow changes and
-review deployment code. Environment secrets: `DEPLOY_HOST`, `DEPLOY_USER`,
-`SSH_PRIVATE_KEY`, `SSH_KNOWN_HOSTS`, `PUBLIC_SUPABASE_KEY`, `NETLIFY_AUTH_TOKEN`,
-`NETLIFY_SITE_ID`. Variables: `PUBLIC_SITE_ORIGIN`, `PUBLIC_API_ORIGIN`,
-`PUBLIC_SUPABASE_URL`. Use independent runtime/SSH credentials for each environment.
+Before enabling the workflow, create a `production` GitHub environment. Private-repository
+environment secrets require an eligible GitHub plan; verify required-reviewer
+availability for the account/plan. Restrict the environment to protected main and
+use protected-main review before merging. Do not require per-release environment
+reviewers when automatic main deployment is desired; first enablement still requires
+the concrete target approval. Protect workflow changes and review deployment code. Both main pushes and manual dispatch run the same checks against `github.sha`;
+manual dispatch from another branch is skipped. Environment secrets: `DEPLOY_HOST`,
+`DEPLOY_USER`, `SSH_PRIVATE_KEY`, `SSH_KNOWN_HOSTS`, `PUBLIC_SUPABASE_KEY`,
+`NETLIFY_AUTH_TOKEN`, `NETLIFY_SITE_ID`. Variables: `PUBLIC_SITE_ORIGIN`,
+`PUBLIC_API_ORIGIN`, `PUBLIC_SUPABASE_URL`.
 
-Use one Netlify site, production domain scribeswell.com, and the stable draft alias
-`https://staging--SITE.netlify.app`. Configure staging Auth/CORS against that exact
-origin. Disable Netlify native Git main auto-publishing; CI deploys built files with
-`--no-build`. Staging uses `--alias=staging` with **no --prod**. Disable Supabase GitHub
-automatic migrations so it cannot compete with this release authority. Configure
-Dynadot A/AAAA/CNAME and Netlify domain/TLS only after target plan approval; verify
-both IPv4/IPv6 or omit AAAA until validated.
+Use one Netlify site with production domain scribeswell.com. Configure production
+Auth/CORS against that exact origin. Disable Netlify native Git main auto-publishing;
+CI deploys built files with `--prod --no-build`. Disable Supabase GitHub automatic
+migrations so it cannot compete with this release authority. Configure Dynadot
+A/AAAA/CNAME and Netlify domain/TLS only after target plan approval; verify both
+IPv4/IPv6 or omit AAAA until validated.
 
-Main serializes checks, separate image builds, immutable registry digest recording,
-ordered host migrations and health-gated activation, then Netlify staging. A staging
-marker is uploaded only after all succeed. CLI23.6.0 returns the provider
-`deploy_ssl_url` as `deploy_url`, not a promise that it is the stable alias. The
-recorder verifies the site ID/name, ready alias branch and nonpublished deploy
-against Netlify's API, then checks the stable alias serves this exact SHA, workflow
-attempt and public configuration from `release-identity.json`. It does not confuse
-a per-deploy URL with the staging alias. Verified source: npm
-[netlify-cli23.6.0 package](https://registry.npmjs.org/netlify-cli/-/netlify-cli-23.6.0.tgz),
-`dist/commands/deploy/deploy.js` (alias branch405-406, URL475, JSON563-568);
-package SHA1 `7269c1df1a5c9b17f58a7d9f16d42c5c9a568e42`. Production workflow requires a40-character
-SHA and finds a successful main staging workflow and nonexpired matching artifact;
-it reuses those exact backend/migration digests. Frontend is rebuilt from that SHA
-with production public inputs. Expired staging evidence requires restaging; no tag
-or freeform-ref fallback. Concurrency never cancels running migrations; GitHub may
-coalesce pending main pushes. A later successful main contains skipped commits.
+Before any host or publishing effects, the workflow binds NETLIFY_SITE_ID to the
+intended production hostname using the provider site/domain metadata.
+Main serializes contract tests, frontend builds, browser/session/artifact tests,
+gateway acceptance, separate image builds, immutable registry digest recording and
+isolated API health tests before any host migrations. Ordered migrations and
+health-gated activation precede Netlify publishing. A production success artifact
+is written only after Netlify confirms the site has published this ready production
+deploy and the actual production origin serves the exact SHA, workflow attempt and
+public configuration in `release-identity.json`. A public HTTPS request from CI to
+`/directory/api/apps` must also pass DNS/TLS, status and exact-origin CORS checks.
+Failure messages identify safe verification codes without credentials or response bodies.
+No staging evidence or Supabase
+branch is required. Concurrency never cancels running migrations; GitHub may coalesce
+pending main pushes. A later successful main contains skipped commits.
+
+`record-staging.py` and `verify-promotion.py` remain optional, tested helpers for a
+future staging setup, but no active workflow invokes them. Reintroducing staging
+requires an explicit workflow/configuration decision, not merely creating a branch.
 
 ## Failure, rollback and operations
 
@@ -263,10 +270,66 @@ unobserved-shutdown warnings even if Compose activation fails. A health failure 
 some new services running; the failed report is not a rollback claim. Restore the
 previous digest Compose configuration only after verifying compatibility with the
 actual database state. Otherwise use a reviewed corrective migration or a planned
-maintenance/restore procedure. If APIs succeed but Netlify fails, there is no staged
-success marker; reconcile/retry the same exact images or restore the prior frontend
-via Netlify only after compatibility checks. Preserve successful prior deploy IDs
-and immutable artifacts. Never automatically reverse applied migrations.
+maintenance/restore procedure. If APIs succeed but Netlify fails, there is no production
+success marker. The always-run artifact step retains any available digest manifest,
+Netlify result, verified-success marker and built frontend even when publication or
+verification fails. A marker exists only after verification passes. Preserve successful
+prior deploy IDs and immutable artifacts. Never automatically reverse applied migrations.
+
+
+### Retry saved artifacts after a partial release
+
+A GitHub workflow rerun is a **new build candidate**: base images/dependencies may
+produce different digests for the same source SHA. Do not use it as an exact-artifact
+recovery. First inspect host `evidence.json`, actual migration revisions and Netlify
+published state. Obtain approval for the specific corrective action.
+
+Before any manual recovery, suspend new production workflow runs and wait for any
+active release to finish; drain or cancel queued runs before they start. Do not
+cancel an in-flight migration. For example, disable `production.yml` using GitHub's
+workflow controls, then verify there are no running, queued or waiting production
+runs. Keep this deployment hold through frontend/API verification. Direct operator
+commands do not share GitHub concurrency; the host lock alone does not serialize
+Netlify publication. Restore automatic delivery only after recording the recovered
+state and reconciling any main commits that arrived during the hold.
+
+Download the failed run's `production-<SHA>-<ATTEMPT>` artifact to an external operator
+directory using `gh run download <RUN_ID> --repo Innodat/agriplatform --name <ARTIFACT_NAME> --dir <RECOVERY_DIR>`.
+It contains `images.json`, the original `netlify.toml`, any `netlify-deploy.json`, and
+`platform/deployment/public-release/`. If backend activation already succeeded, leave
+it running. From that recovery directory, configure the original production public
+inputs, original `RELEASE_SHA`, `GITHUB_RUN_ID`, `GITHUB_RUN_ATTEMPT` and secure Netlify
+credentials. Using the recorder from a checkout of that exact SHA:
+
+```sh
+python3 <CHECKOUT>/platform/deployment/record-production.py --preflight
+npx --yes netlify-cli@23.6.0 deploy --dir=platform/deployment/public-release --prod --no-build --json > netlify-retry.json
+```
+
+Preserve the original result; use the new result as `netlify-deploy.json` in a separate
+verification working directory and run `record-production.py` there with the original
+release identity inputs. If publication succeeded and only verification failed, fix
+DNS/CORS/configuration as appropriate and rerun verification before republishing.
+
+If the backend itself needs retry after schema reconciliation, reuse the saved
+incoming source and **original images.json** on the host. For an approved exact SHA
+and a unique recovery directory, run the existing coordinator explicitly (no build):
+
+```sh
+python3 /srv/agriplatform/incoming/<SHA>/platform/deployment/host-release.py \
+  --environment production --sha <SHA> \
+  --images /srv/agriplatform/incoming/<SHA>/images.json \
+  --public-config /srv/agriplatform/incoming/<SHA>/public-config.json \
+  --config /etc/agriplatform/production.json \
+  --release-dir /srv/agriplatform/releases/<SHA>-recovery-<UNIQUE_ID>
+```
+
+Confirm the incoming manifest matches the failed-run artifact before this command;
+a later rerun of the same SHA may have replaced incoming files. Restore verified
+original inputs from the retained artifact if needed. The coordinator preserves
+all target, fingerprint, migration, health and lock gates and pulls exact digests.
+If required artifacts or registry digests are unavailable, stop exact recovery and
+plan a new verified release or a compatible rollback.
 
 APISIX selected JSON logs include status, duration and request ID only, excluding
 URI/query/body/headers/signed URLs. Raw gateway error logging is disabled because
@@ -294,7 +357,7 @@ before registration; this package does not pretend nonexistent workers are ready
 
 Scaffold impact: the builder CLI is not implemented; document this contract for its
 future templates without claiming generated support. Shared UI/agent context: none.
-ADR impact: new platform deployment decision; accepted predecessors unchanged.
+ADR impact: proposed ADR0043 updated for the user’s production-only decision; accepted predecessors unchanged.
 
 Official references: [APISIX deployment modes](https://apisix.apache.org/docs/apisix/deployment-modes/),
 [Netlify CLI deploy](https://cli.netlify.com/commands/deploy/),

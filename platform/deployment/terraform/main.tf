@@ -26,8 +26,8 @@ variable "location" {
 }
 variable "server_type" {
   type        = string
-  default     = "cx33"
-  description = "Initial 4 vCPU / 8 GiB estimate; confirm catalog availability and measured load before applying."
+  default     = "cpx12"
+  description = "Initial 1 shared vCPU / 2 GB estimate; verify full-stack memory and load before activation."
 }
 variable "ssh_public_key" {
   type = string

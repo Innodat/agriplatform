@@ -1,4 +1,4 @@
-# ADR-0043: Staged platform delivery on Netlify and Hetzner
+# ADR-0043: Platform delivery on Netlify and Hetzner
 
 **Status:** Proposed — implementation package prepared; target activation awaits approval
 **Date:** 2026-09-27
@@ -7,9 +7,11 @@
 ## Decision
 
 Use app/service-owned release manifests and separate images, assembled by
-platform/deployment. GitHub main deploys isolated staging; production is a manual
-promotion of an exact SHA with successful staging evidence and immutable backend
-image digests. Netlify hosts the combined static frontends; standalone file-driven
+platform/deployment. At the owner’s request, the first release uses one production
+environment. GitHub main deploys production after all build, browser, gateway and
+image checks, using the exact event SHA and immutable backend image digests.
+Manual dispatch is main-only and runs the same checks. There is no staging host,
+Supabase branch or successful-staging prerequisite. Netlify hosts the combined static frontends; standalone file-driven
 APISIX on Hetzner is the only public backend ingress. Supabase owns hosted database,
 Auth and private Storage. Terraform manages host/firewall/public-key resources only.
 
@@ -29,7 +31,9 @@ No worker or queue deployment is authorized by this decision.
 
 ## Consequences
 
-Separate staging incurs Supabase and host usage. One-host Compose activation is
+The initial CPX12 host reduces cost; its 1 shared vCPU and 2 GB RAM require measured
+load/memory and deployment headroom checks before activation. Staging may be added
+later with distinct credentials and state. One-host Compose activation is
 not atomic/high-availability; failure requires reconciliation and compatibility
 checks before restoring previous images. Public DNS, real TLS renewal, target
 permission/isolation and recovery tests remain activation gates. Provider native

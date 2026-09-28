@@ -11,6 +11,9 @@ context:
   - platform/docs/architecture/decisions/0023-structured-operational-logs-and-sensitive-data.md
 ---
 
+> Historical completed staged-delivery package. The owner subsequently chose production only;
+> see [the current adjustment](PRODUCTION_ONLY.md) and [runbook](README.md).
+
 <frozen-after-approval>
 ## Intent
 
