@@ -86,7 +86,10 @@ def setup(env, state=STATE):
         write_private(state / 'ssh_key', values['SSH_PRIVATE_KEY'] + '\n')
         write_private(state / 'known_hosts', values['SSH_KNOWN_HOSTS'] + '\n')
         marker = (state / 'owner').read_text()
-        command(['ip', 'link', 'add', 'name', INTERFACE, 'alias', 'agriplatform-' + marker, 'type', 'wireguard'])
+        command(['ip', 'link', 'add', 'name', INTERFACE, 'type', 'wireguard'])
+        # Ubuntu's iproute2 accepts but does not install an alias during link-add.
+        # Set ownership explicitly before configuring keys or bringing the link up.
+        command(['ip', 'link', 'set', 'dev', INTERFACE, 'alias', 'agriplatform-' + marker])
         command(['wg', 'setconf', INTERFACE, str(state / 'tunnel.conf')])
         command(['ip', 'address', 'add', values['WG_CLIENT_ADDRESS'], 'dev', INTERFACE])
         command(['ip', 'link', 'set', 'dev', INTERFACE, 'mtu', '1200'])
