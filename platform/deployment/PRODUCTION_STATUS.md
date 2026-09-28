@@ -20,14 +20,31 @@ No DNS, database, collection import or public application deployment was perform
 
 ## Verification and remaining work
 
-Strict SSH handshake reached the host and rejected its unknown host key as intended.
-Host fingerprint confirmation through Hetzner's trusted console is pending. Cloud-init
-completion, Docker/Compose versions, disk/memory and remote administration therefore
-remain unverified. The infrastructure being running is not application readiness.
+The owner independently confirmed the server's ED25519 fingerprint through the
+Hetzner web console: `SHA256:Pc22yqh+TKgCxmiz7CjpFN72GbaaByyxjzni9WLP9Wk`.
+The matching key was explicitly accepted into the protected local `known_hosts`;
+subsequent SSH uses strict checking and the configured Hetzner private key.
+
+Verified host results:
+- Cloud-init: done; errors and recoverable_errors empty.
+- Docker29.1.3 active; Compose2.39.4 installed.
+- Empty-host memory: 1914MiB total, 1589MiB available; no swap.
+- Root disk: 38GiB total, approximately34GiB available.
+- /srv/agriplatform mode0750; /etc/agriplatform mode0700.
+- Supabase Auth and GHCR HTTPS connections succeeded; unauthenticated endpoints
+  returned expected401. Direct Supabase PostgreSQL TCP5432 connects over IPv6;
+  no database login/query was performed.
+- SSH permits public-key authentication and prohibits root password authentication.
+- No application containers are running. Empty-host measurements do not establish
+  capacity for the full stack or indicate application readiness.
 
 The existing website remains on Netlify (`boabab.netlify.app` / scribeswell.com).
 `api.scribeswell.com` has no DNS record yet. Netlify Git auto-build settings and
 provider site metadata still require inspection. No Git push has been performed.
+The root SUPABASE_URL points to local development (localhost54321); the target guard
+stopped inspection before any production request. Separate PRODUCTION_SUPABASE_*
+keys and NETLIFY_AUTH_TOKEN have been requested for read-only target inspection.
+Existing local development credentials remain unchanged.
 
 Terraform state is currently local in the git-ignored, mode0700 directory
 `platform/deployment/.local/production-infrastructure`; state/log/plan files are
@@ -38,6 +55,6 @@ storage before another operator or automation changes infrastructure; preserve t
 current state and migrate it deliberately rather than initializing an empty state.
 The API key is loaded from ignored .env and passed only through HCLOUD_TOKEN.
 
-Next gates: trusted SSH identity, host bootstrap checks, durable Terraform state,
+Next gates: production provider inspection, durable Terraform state,
 CI SSH connectivity, TLS/domain configuration, scoped runtime/migration credentials,
 then separately approved production schema/import and public activation plans.

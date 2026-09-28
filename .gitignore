@@ -137,6 +137,8 @@ celerybeat.pid
 
 # Environments
 .env
+.env.swp
+.env.swo
 .env-prod
 .envrc
 .venv

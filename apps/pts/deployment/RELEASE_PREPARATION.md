@@ -9,8 +9,8 @@ not been inspected. The owner confirmed `scribeswell.com`, prefers Netlify Free 
 (or hosting it on the backend server), and Hetzner for the APIs and future workers.
 APISIX is the requested gateway; DNS is managed at Dynadot. Netlify and Hetzner accounts are ready; the
 initial size is CPX12 (1 shared vCPU, 2 GB RAM), subject to actual capacity checks.
-Host provisioned in Nuremberg; trusted SSH verification and runtime configuration
-remain pending. See [production status](../../../platform/deployment/PRODUCTION_STATUS.md).
+Host provisioned in Nuremberg; trusted SSH identity and host bootstrap are verified.
+Runtime configuration remains pending. See [production status](../../../platform/deployment/PRODUCTION_STATUS.md).
 The owner requires platform-wide CI/CD and has chosen production only for the first
 release: main deploys production after all checks; no staging server or branch is needed.
 Shared implementation: [original deployment evidence](../../../platform/deployment/SPEC.md);
