@@ -72,7 +72,7 @@ Defined in `catalog.py`. To add a new app:
 
 ```bash
 cd services/app-directory
-cp .env.example .env          # fill in SUPABASE_JWT_SECRET
+cp .env.example .env          # set Supabase URL and public key; legacy secret only for HS256
 pip install -r requirements.txt
 uvicorn main:app --reload --port 8001
 ```
@@ -117,8 +117,9 @@ This service lives in `services/` (not `apps/` or `platform/`). It is a **cross-
 
 ### Current Supabase session verification
 
-Configure `SUPABASE_URL` and `SUPABASE_ANON_KEY` (public Auth key) alongside
-`SUPABASE_JWT_SECRET` when supporting current Supabase ES256/RS256 sessions.
+Configure `SUPABASE_URL` and `SUPABASE_ANON_KEY` (public Auth key) for current
+Supabase ES256/RS256 sessions. Omit `SUPABASE_JWT_SECRET` unless the project
+issues legacy HS256 tokens; then supply the actual project signing secret.
 Environment variables and the service's `.env`/`.env.local` files are supported.
 Asymmetric sessions are verified through that project's `/auth/v1/user` endpoint;
 its user ID must match the token subject before directory context is read. Auth

@@ -29,6 +29,17 @@ class Host(unittest.TestCase):
   with tempfile.TemporaryDirectory() as d:
    root=Path(d);config,public,manifests=self.setup_target(root);host.preflight(config,'staging',manifests,public)
    file=root/'env/pts.env';file.write_text(file.read_text().replace('pts_runtime:','pts_runtime.stage:').replace('db.stage.supabase.co','aws-1-eu-west-1.pooler.supabase.com'));host.preflight(config,'staging',manifests,public)
+ def test_preflight_accepts_absent_legacy_jwt_without_dropping_other_inputs(self):
+  with tempfile.TemporaryDirectory() as d:
+   root=Path(d);config,public,manifests=self.setup_target(root)
+   for name in ('directory.env','scribeswell.env'):
+    file=root/'env'/name
+    file.write_text(''.join(line+'\n' for line in file.read_text().splitlines() if not line.startswith('SUPABASE_JWT_SECRET=')))
+   host.preflight(config,'staging',manifests,public)
+   file=root/'env/directory.env'
+   file.write_text(''.join(line+'\n' for line in file.read_text().splitlines() if not line.startswith('SUPABASE_ANON_KEY=')))
+   with self.assertRaisesRegex(ValueError,'missing runtime inputs'):
+    host.preflight(config,'staging',manifests,public)
  def test_mixed_projects_roles_missing_migration_and_flags_stop_before_effects(self):
   changes=[('pts.env','db.stage.supabase.co','db.production.supabase.co'),('pts.env','pts_runtime:','postgres:'),('pts.env','db.stage.supabase.co','aws-1-eu-west-1.pooler.supabase.com'),('content.env','https://stage.supabase.co/storage','https://production.supabase.co/storage'),('pts-migrations.env','content_migrator:','postgres:'),('pts-migrations.env','PTS_MIGRATION_DATABASE_URL=','WRONG_KEY=')]
   for filename,old,new in changes:

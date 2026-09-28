@@ -23,8 +23,10 @@ def asymmetric_token(algorithm="ES256"):
  key=key_object.private_bytes(serialization.Encoding.PEM,serialization.PrivateFormat.PKCS8,serialization.NoEncryption())
  return jwt.encode({'sub':'reader','org_id':'organization','exp':datetime.now(timezone.utc)+timedelta(minutes=5)},key,algorithm=algorithm)
 
+@pytest.mark.parametrize("legacy_secret",["", "local-test-secret"])
 @pytest.mark.parametrize("algorithm",["ES256","RS256"])
-def test_current_supabase_session(verifier,monkeypatch,algorithm):
+def test_current_supabase_session(verifier,monkeypatch,algorithm,legacy_secret):
+ monkeypatch.setattr(verifier.settings, "supabase_jwt_secret", legacy_secret)
  token=asymmetric_token(algorithm);calls=[]
  def get(url,**kw):
   calls.append((url,kw));return httpx.Response(200,json={'id':'reader'},request=httpx.Request('GET',url))
@@ -62,6 +64,7 @@ def test_file_based_configuration(monkeypatch,tmp_path):
  assert settings.supabase_anon_key=='local-public'
 
 def test_directory_endpoint_resolves_current_session(verifier,monkeypatch):
+ monkeypatch.setattr(verifier.settings, "supabase_jwt_secret", "")
  from fastapi import FastAPI
  from fastapi.testclient import TestClient
  from types import ModuleType
@@ -82,3 +85,9 @@ def test_directory_endpoint_resolves_current_session(verifier,monkeypatch):
   assert any(entry['id']=='pts' for entry in response.json()['apps'])
   rejected=client.get('/api/me/apps',headers={'Authorization':'Bearer malformed'})
   assert rejected.json()['apps']==[]
+
+
+def test_legacy_without_secret_fails_closed(verifier,monkeypatch):
+ monkeypatch.setattr(verifier.settings,"supabase_jwt_secret","")
+ token=jwt.encode({'sub':'legacy','exp':datetime.now(timezone.utc)+timedelta(minutes=1)},'local-test-secret',algorithm='HS256')
+ assert verifier._decode_token(token) is None

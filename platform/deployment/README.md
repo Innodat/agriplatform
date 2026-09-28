@@ -146,7 +146,11 @@ database authority and mixed-project Storage endpoints. No application receives
 another owner's database login. PtS gets its own service
 key; Content additionally gets its own access-check key and Storage credentials;
 Access recognizes only the required service keys. Directory has only public Auth
-key/JWT verification inputs, no database/service-role key. Scribeswell currently
+key/JWT verification inputs, no database/service-role key. Directory verifies ES256/RS256
+tokens with the configured Supabase Auth endpoint. Omit `SUPABASE_JWT_SECRET`
+for asymmetric signing; supply the actual project secret only for legacy HS256.
+Do not use a placeholder signing secret. Scribeswell's current Bible routes are
+public and do not require that optional legacy setting. Scribeswell currently
 requires its existing server-side Supabase key; review and restrict its actual
 provider permissions before activation. Runtime image contexts deny everything
 except required source/artifacts and exclude env/caches/tests.

@@ -27,11 +27,13 @@ Evidence: ignored `production-bootstrap-apply.json`, `production-owner-migration
 `wireguard-private-check.json` and protected bootstrap/recovery artifacts. Credentials
 remain in ignored protected files; do not attach them to issues or workflow artifacts.
 
-Next: prepare the remaining application release secrets/configuration and concrete
-activation plan. Imports, account provisioning, DNS, public SSH removal and public
-release still require their approved execution steps. Netlify native builds are
-paused; the currently served deployment remains unchanged. The frontend build
-filter is implemented and tested locally but is not yet published.
+Remaining CI variables/secrets are configured and verified (see preparation record
+below). Seven root-only configuration files are installed on boabab without starting
+services. Next: API DNS and TLS, registry pull authorization, then Auth/Storage/data
+and account verification before approving first activation. Imports, account
+provisioning, DNS, public SSH removal and public release still require their approved
+execution steps. Netlify native builds are paused; its served deployment is unchanged.
+The frontend build filter is tested locally but not yet published.
 
 ## Provisioning and earlier preparation history
 
@@ -295,3 +297,38 @@ remains available pending its separately guarded removal.
 Protected evidence: connectivity-publication-plan-initial.json,
 connectivity-publication-plan.json, connectivity-netlify-pause.json,
 connectivity-dispatch.json and connectivity-runs.json. Do not publish secret files.
+
+
+### Application configuration preparation (2026-09-28)
+
+User “next” authorized continuation with release settings. Added and verified GitHub
+Production secrets `PUBLIC_SUPABASE_KEY`, `NETLIFY_AUTH_TOKEN`, `NETLIFY_SITE_ID`;
+variables `PUBLIC_SITE_ORIGIN=https://scribeswell.com`,
+`PUBLIC_API_ORIGIN=https://api.scribeswell.com`,
+`PUBLIC_SUPABASE_URL=https://gjbsnxmbhxsvcblzgfts.supabase.co`. No workflow dispatched.
+
+Prepared six owner-specific environment files with existing restricted role URLs
+and separately generated service keys. Validated role/project binding, migration
+separation and exact-origin CORS using real host preflight. Installed them under
+`/etc/agriplatform/production` (0700, files0600) and installed root-only
+`/etc/agriplatform/production.json`, without overwriting different existing files.
+Secret values travel only in authenticated SSH stdin and remain ignored locally.
+No containers started, database changed, import performed or release published.
+No bootstrap approval assertion was created: actual Auth/Storage verification remains.
+
+Production public JWKS advertises ES256. Fixed manifests that incorrectly required
+legacy JWT signing secret; runtime verifier unchanged. 79 deployment tests, 14 Auth
+tests and five local real container health checks passed. See
+[optional JWT delivery record](OPTIONAL_JWT_CONFIGURATION.md).
+
+Read-only host check found no existing TLS certificate or registry credentials.
+API hostname was not resolvable. Next DNS record for operator setup:
+`api.scribeswell.com A 138.199.217.158` (TTL300 or provider default); keep apex/www
+Netlify records unchanged and omit AAAA until IPv6 service verification. Then prepare
+ACME DNS-01 challenge and certificate/renewal process under explicit authorization.
+GHCR pull authorization must also be configured before image activation; a working
+SSH tunnel alone does not grant registry access.
+
+Protected evidence/tools: release-github-settings.json, release-settings-report.json,
+release-settings-installed.json, prepare-release-settings.py, check-release-settings.py,
+install-release-settings.py and release-settings/ (contains credentials; never publish).
