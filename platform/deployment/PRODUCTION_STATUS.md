@@ -1,5 +1,41 @@
 # Production setup status — 28 September 2026
 
+## Current state
+
+The existing Hetzner host is now **boabab** (same server ID, disk and IPs).
+Operator `ssh boabab` works over WireGuard at 10.77.80.1; only that /32 uses the
+tunnel. Default SSH cryptography and the independently verified host key are
+retained. MTU1200 resolved the observed packet-size stall; 4 MiB transfers in each
+direction matched SHA256, and SSH reconnected after restarting the server tunnel.
+The user persisted the client MTU fix. UDP51820 is public; TCP22 remains restricted
+as a fallback pending the GitHub-hosted connectivity check. CI has separate VPN
+and SSH keys; its SSH public key is restricted to 10.77.80.3 with forwarding disabled.
+CI inputs are prepared locally, not uploaded. No Mac Mini or Tailscale changes.
+
+The previously approved additive Supabase bootstrap **completed successfully**:
+seven restricted roles, access/content/pts owner migrations, Scribeswell schema
+and migration history entry, and private `pts-private` bucket (128 MiB limit).
+Heads: access_0001, content_0004, pts_0001. All seven role logins passed; none is
+superuser or bypasses RLS. Business table RLS checks passed (forced for owned
+access/content/pts tables). Existing legacy row counts/digests matched the rehearsal
+and were unchanged after migration. No poems, Bible corpus, accounts, invitations,
+PtS organization or memberships have been imported/created. No DNS, Netlify setting,
+Git push or public application activation occurred.
+
+Evidence: ignored `production-bootstrap-apply.json`, `production-owner-migrations.json`,
+`wireguard-private-check.json` and protected bootstrap/recovery artifacts. Credentials
+remain in ignored protected files; do not attach them to issues or workflow artifacts.
+
+Next: configure GitHub production secrets and run the connectivity-only workflow
+under a controlled publication plan; only then remove public SSH. Imports, account
+provisioning, DNS and public release still need their concrete approved execution
+steps. Netlify native main builds remain enabled, so do not push the release yet.
+
+## Provisioning and earlier preparation history
+
+The following records describe the state at each earlier step; the current state
+above supersedes earlier absence/pending statements.
+
 The owner approved the saved EUR11.99/month Hetzner plan with “yes, I approve, next.”
 The exact saved plan was applied after rechecking the account prices and confirming
 that no server existed. Terraform reported 2 additions, 0 changes and 0 deletions.
@@ -33,7 +69,7 @@ Verified host results:
 - /srv/agriplatform mode0750; /etc/agriplatform mode0700.
 - Supabase Auth and GHCR HTTPS connections succeeded; unauthenticated endpoints
   returned expected401. Direct Supabase PostgreSQL TCP5432 connects over IPv6;
-  no database login/query was performed.
+  later authenticated inspection used an SSH tunnel and enforced read-only transactions.
 - SSH permits public-key authentication and prohibits root password authentication.
 - No application containers are running. Empty-host measurements do not establish
   capacity for the full stack or indicate application readiness.
@@ -48,12 +84,71 @@ No setting was changed and no Git push has been performed.
 The root SUPABASE_URL points to local development (localhost54321); the target guard
 stopped inspection before any production request. The separately supplied production publishable key works: Auth settings are readable,
 with public signup enabled and email autoconfirm disabled. Anonymous HEAD requests
-to the five expected Bible tables using the scribeswell schema return406, so record
-counts remain unverified; this does not prove the tables are absent. A privileged
-read-only inventory requires the missing production secret key/database connection.
-The owner created .env.prod with the production URL and publishable key; it is now
-explicitly ignored along with credential-file editor swaps. Existing local development
-credentials remain unchanged. NETLIFY_AUTH_TOKEN was used only for read-only inspection.
+to the five expected Bible tables using the scribeswell schema returned406;
+subsequent privileged inspection confirmed that the scribeswell schema is absent.
+The owner created ignored `.env.prod` with production `SUPABASE_URL`, public key,
+`SUPABASE_SECRET_KEY` and **`DATABASE_URL`** (not `PRODUCTION_DATABASE_URL`). Local
+development credentials remain unchanged. Netlify credentials were used read-only.
+
+### Authenticated database and storage inventory
+
+Verified against project `gjbsnxmbhxsvcblzgfts` on 28 September 2026, using a
+strictly verified SSH tunnel through the provisioned host because the direct local
+connection was unavailable. PostgreSQL confirmed `transaction_read_only=on`;
+queries had bounded statement/lock/connect timeouts. No mutations were executed.
+Selected metadata is saved in ignored `supabase-private-inventory.json` beside the
+protected infrastructure state; no credentials or business record bodies are recorded.
+
+- Existing application schemas: `identity`, `cs`, `finance`; preserve them and their data.
+- Identity counts: 2 organizations, 3 users, 1 membership, 1 member role,
+  46 role permissions and 49 audit entries. No organization named PtS exists.
+- Eleven Supabase migration versions are recorded, from `20250815110000` through
+  `20250815220000`. This inventory is not a full schema-drift comparison.
+- `access`, `content`, `pts` and `scribeswell` are absent; no matching service roles
+  or owner Alembic histories exist. Both application collections need initial import.
+- The identity bridge's required organization/member ID and deletion columns exist.
+  The custom Auth hook function exists; its activation remains unverified.
+- Identity business tables have RLS enabled. The legacy audit table does not;
+  `authenticated` has INSERT/UPDATE grants on it. Review effective exposure and
+  compatible hardening before first release; do not silently change historical grants.
+- Existing bucket `content_kok-home_dev` is private, limited to 52,428,800 bytes
+  (50 MiB), with no objects recorded. Preserve it. Create a separate `pts-private`
+  bucket with a 134,217,728-byte (128 MiB) limit after approval; the global limit
+  still needs verification. Content S3 credentials passed an authenticated ListBuckets
+  request against this project in eu-west-1; `pts-private` is absent. No S3 writes
+  were performed. Evidence: ignored `supabase-s3-inventory.json`.
+
+### Target-specific initial release sequence — pending approval and evidence
+
+1. Establish a recent production recovery point and verify restoration before writes.
+   Complete compatibility review against existing identity, cs and finance consumers.
+2. Add separate owner/runtime/import roles and restricted login credentials, adapting
+   `apps/pts/tools/bootstrap_roles.sql` to this existing hosted project: grant the
+   migrator roles to the provisioning administrator before assigning schema ownership.
+   Keep administrator and migrator connections out of runtime services.
+3. Apply the identity-owner access bridge and only the missing Scribeswell SQL
+   migration `20260614000000`. Do not replay the existing platform migrations or
+   run the composed Expense SQL/legacy deploy-and-seed scripts. Coordinate owner
+   migrations in the established access → content → PtS order with release evidence.
+4. Create PtS / Psalms that Sings from the committed organization manifest; resolve
+   the intended production account and add explicit membership and the three PtS
+   Reader permissions. Never copy local account IDs or passwords.
+5. Configure the new private bucket, Content-only S3 credentials, Auth callbacks for
+   scribeswell.com and the reviewed Auth hook/schema exposure. Public signup is
+   currently enabled; changing it requires accounting for existing consumers.
+6. Import the existing canonical poetry material and checked-in Hebrew corpus through
+   their owner tooling. Verify baseline counts, repeatability, protected source access,
+   signed transfers and prior identity behavior before accepting bootstrap evidence.
+7. Configure CI credentials, trusted SSH access and DNS/TLS for api.scribeswell.com.
+   Disable Netlify native builds before pushing; the coordinated production workflow
+   must be the sole activation path. Approve concrete provider changes and release
+   identity before any database writes, DNS changes or public activation.
+
+Production S3 access key/secret were supplied in ignored `.env.prod` as
+`CONTENT_S3_ACCESS_KEY` / `CONTENT_S3_SECRET_KEY` and verified read-only. Pending
+operator inputs were subsequently supplied; see the dated updates below.
+A backup's existence alone is not evidence of tested restoration. No approval for
+these production mutations is inferred from supplying credentials.
 
 Terraform state is currently local in the git-ignored, mode0700 directory
 `platform/deployment/.local/production-infrastructure`; state/log/plan files are
@@ -67,3 +162,102 @@ The API key is loaded from ignored .env and passed only through HCLOUD_TOKEN.
 Next gates: production provider inspection, durable Terraform state,
 CI SSH connectivity, TLS/domain configuration, scoped runtime/migration credentials,
 then separately approved production schema/import and public activation plans.
+
+### Local preparation recheck
+
+- `apps/pts/.local/venv/bin/python -m apps.pts.tools.verify_archive`: passed;
+  all 264 files (222,505,940 bytes) match the committed archive manifest. Counts:
+  312 poems, 190 with text, 33 assistant-checked, 275 witnesses, 19 sources and
+  19 rights records. No import performed.
+- `python3 tools/py/run_compose_supabase.py --check-only`: passed; no files changed.
+  Composition still includes Expense migrations and seeds; this does not authorize
+  applying that composition to production.
+
+### Owner-confirmed backup and upload ceiling
+
+The owner reports a successful Supabase backup at `2026-09-28T02:37:50.531Z`.
+Restoration has not been tested. The dashboard's global file-size limit is currently
+50 MB, restricted by the enabled spend cap; no billing or storage setting was changed.
+Measured source folder: 247 files / 212,816,529 bytes; its 9 PDFs total
+191,263,367 bytes, with the largest PDF 89,237,181 bytes (85.1 MiB).
+The owner requested cost clarification before changing the spend cap.
+
+### Connectivity and operator updates
+
+The owner confirmed updating the spend-cap/global-upload settings as recommended
+and authorized `kristov.kok@gmail.com` as the initial production PtS Reader account.
+Provider-side global-limit verification is still pending; the project API/S3 keys
+cannot read organization billing settings.
+
+The workstation public IPv4 changed. Under the existing authorization to allow this
+machine's current address, a saved Terraform plan replaced the SSH source /32 only.
+The plan had one in-place firewall update, no server changes/additions/deletions;
+HTTPS ingress remained unchanged. Apply succeeded and strict-host-key SSH passed.
+Protected plan, apply log and pre-change state are retained alongside the existing
+state. No infrastructure price change. Production database writes remain unapproved.
+
+### Restore and migration rehearsal completed
+
+A protected read-only snapshot of production `auth`, `identity`, `cs`, `finance`
+and `supabase_migrations` was captured (226,245 bytes, SHA256
+`e5a35e735d5321929e97a644f65ae34c60f6ae770f90d20b792fb715c7157bb6`).
+It was restored with original grants and constraints, but without restoring original
+object ownership, into `release_rehearsal_20260928` inside the existing local Supabase
+instance. Database CONNECT is revoked from PUBLIC. The normal local development
+`postgres` database and production data were not changed. Snapshot and rehearsal
+contain sensitive Auth/business data and remain in the protected ignored workspace.
+
+This is a selected-schema logical recovery rehearsal, not a full hosted-project,
+provider backup, Storage-object or original-owner restoration test. The provider's
+successful backup timestamp is separately recorded above. Original-owner restoration
+and full hosted recovery remain limitations; ordinary initial deployment recovery is
+stop activation, preserve applied additive schemas and correct forward. Never use
+this partial snapshot to overwrite a live hosted project or automatically downgrade.
+
+The existing owner coordinator succeeded twice against the restored copy, in
+access → content → PtS order: access_0001, content_0004, pts_0001. Scribeswell SQL and
+the identity bridge also applied successfully. Counts and row-content digests across
+all 42 restored tables matched before/after both migration runs. Anonymous,
+authenticated and Content runtime database roles were denied direct poem SELECT;
+PtS runtime/import roles had their intended access. Runtime/import roles are neither
+superusers nor RLS-bypass roles, and owned business tables force RLS. These empty-table
+role checks do not replace post-import organization-isolation/provider tests.
+
+The approved email `kristov.kok@gmail.com` has no production Auth account. Account
+creation/invitation and organization membership are still pending; no email sent.
+
+### Approved and completed: additive database bootstrap and private bucket only
+
+Target: production Supabase project `gjbsnxmbhxsvcblzgfts`.
+Code: `48e4b3c442f94fa53825fdb9387127d726ea21ba`; exact SQL/coordinator/migration
+hashes and private bucket request are recorded in the protected
+`recovery/bootstrap-approval-manifest.json` (approval recorded; execution succeeded).
+
+Approved mutations (now completed):
+1. Create seven restricted roles: pts_migrator, pts_runtime, pts_import,
+   access_migrator, access_runtime, content_migrator, content_runtime. Generate
+   separate credentials locally and store them only in protected deployment secrets.
+   Grant the three migration roles to the provisioning administrator so it can
+   assign their schema ownership; never grant migrator roles to runtime logins.
+2. Create the access/content/pts owned schemas, revoke PUBLIC schema access, apply
+   the narrow identity read bridge, and run the reviewed owner migrations through
+   the existing ordered coordinator. The hosted bootstrap SQL adds the administrator
+   role-membership grant before schema ownership assignment. The local rehearsal
+   reused existing local roles and did not mutate global local role definitions.
+3. Apply only Scribeswell's `20260614000000` schema migration and record its version
+   in the existing Supabase migration history. Preserve all existing migration rows.
+4. Create private bucket `pts-private`, limit 134,217,728 bytes. Preserve the existing
+   bucket and its limits. If the provider rejects the configured global limit, stop;
+   do not change billing/global settings or silently reduce the document requirement.
+
+Before writes, recheck the target, hashed input files, absence of conflicting
+roles/schemas/bucket, recovery artifacts and legacy baseline. Stop on any unexpected
+state. Record each owner result and actual migration heads. Afterward compare
+legacy data, inspect new grants/RLS and verify private bucket metadata. On failure,
+block activation and reconcile committed steps; never delete existing data or apply
+an automatic downgrade. No content imports, Auth changes/invitations, account grants,
+DNS changes, Netlify changes, Git push or public activation are included in this approval.
+
+Evidence files: recovery/snapshot-report.json, restore-report.json,
+owner-migrations-1.json, owner-migrations-2.json, migration-rehearsal-report.json,
+permission-check.json and baseline-digests.json (all ignored and protected).

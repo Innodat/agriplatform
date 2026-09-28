@@ -29,6 +29,36 @@ variable "server_type" {
   default     = "cpx12"
   description = "Initial 1 shared vCPU / 2 GB estimate; verify full-stack memory and load before activation."
 }
+variable "server_name" {
+  type        = string
+  default     = null
+  description = "Optional host name override. Renames the existing resource without changing its Terraform address or bootstrap data."
+  validation {
+    condition     = var.server_name == null || can(regex("^[a-z0-9]([a-z0-9-]{0,61}[a-z0-9])?$", var.server_name))
+    error_message = "Use a lowercase hostname of 1-63 characters."
+  }
+}
+variable "private_ssh_verified" {
+  type        = bool
+  default     = false
+  nullable    = false
+  description = "Operator assertion backed by strict-host-key private SSH and deployment-path evidence; not automatic verification."
+}
+variable "wireguard_enabled" {
+  type        = bool
+  default     = false
+  nullable    = false
+  description = "Expose the existing host's WireGuard UDP51820 endpoint; never provisions a VPN secret or changes cloud-init."
+}
+variable "public_ssh_enabled" {
+  type     = bool
+  default  = true
+  nullable = false
+  validation {
+    condition     = var.public_ssh_enabled || (var.private_ssh_verified && var.wireguard_enabled)
+    error_message = "Enable WireGuard and verify private administrator and deployment access before removing public SSH."
+  }
+}
 variable "ssh_public_key" {
   type    = string
   default = null
@@ -72,11 +102,23 @@ data "hcloud_ssh_key" "existing" {
 }
 resource "hcloud_firewall" "ingress" {
   name = "agriplatform-${var.environment}"
-  rule {
-    direction  = "in"
-    protocol   = "tcp"
-    port       = "22"
-    source_ips = var.admin_cidrs
+  dynamic "rule" {
+    for_each = var.wireguard_enabled ? [1] : []
+    content {
+      direction  = "in"
+      protocol   = "udp"
+      port       = "51820"
+      source_ips = ["0.0.0.0/0"]
+    }
+  }
+  dynamic "rule" {
+    for_each = var.public_ssh_enabled ? [1] : []
+    content {
+      direction  = "in"
+      protocol   = "tcp"
+      port       = "22"
+      source_ips = var.admin_cidrs
+    }
   }
   rule {
     direction  = "in"
@@ -86,7 +128,7 @@ resource "hcloud_firewall" "ingress" {
   }
 }
 resource "hcloud_server" "backend" {
-  name         = "agriplatform-${var.environment}"
+  name         = var.server_name != null ? var.server_name : "agriplatform-${var.environment}"
   server_type  = var.server_type
   location     = var.location
   image        = "ubuntu-24.04"

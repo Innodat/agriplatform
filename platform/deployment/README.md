@@ -31,7 +31,7 @@ leave OS/deployment headroom. Increase the size if measurements warrant it. Imag
 build in CI, not on this host; keep disk space for current and recovery images.
 
 Still required per environment: Hetzner account/token, explicit region/server size,
-SSH public key and restricted admin/runner CIDRs, trusted SSH host key, host account,
+SSH public key and restricted admin CIDRs, dedicated CI WireGuard peer, trusted SSH host key, host account,
 Supabase URL/public key, runtime roles, service credentials, TLS certificate/key,
 Netlify site/account/token, GHCR read credential for host, organization/account IDs,
 and verified schema/Auth/Storage/import/recovery evidence. No invented UUIDs.
@@ -99,9 +99,9 @@ firewall update. Publish an IPv6 AAAA record only after IPv6 routing is verified
 The existing Netlify site is `boabab.netlify.app`, serving `scribeswell.com`;
 reuse it and verify its Git integration settings before enabling release CI.
 
-SSH is limited to supplied administrator networks. Hosted GitHub runners do not
-have a single fixed egress IP: use a runner with controlled egress or a deliberately
-managed runner network range. Never solve this by opening SSH to the internet.
+Public SSH is limited to supplied administrator networks. Hosted GitHub runners
+use the dedicated WireGuard peer below because their egress addresses change.
+Never solve changing runner IPs by opening SSH to the internet.
 Port 443 is public; HTTP80 is closed. Cloud-init installs host tooling only. Confirm
 Docker Engine and **Compose>=2.30.0** (required for raw env files). Cloud-init installs
 Compose 2.39.4 from checksum-pinned upstream binaries for x86_64/aarch64;
@@ -234,7 +234,8 @@ reviewers when automatic main deployment is desired; first enablement still requ
 the concrete target approval. Protect workflow changes and review deployment code. Both main pushes and manual dispatch run the same checks against `github.sha`;
 manual dispatch from another branch is skipped. Environment secrets: `DEPLOY_HOST`,
 `DEPLOY_USER`, `SSH_PRIVATE_KEY`, `SSH_KNOWN_HOSTS`, `PUBLIC_SUPABASE_KEY`,
-`NETLIFY_AUTH_TOKEN`, `NETLIFY_SITE_ID`. Variables: `PUBLIC_SITE_ORIGIN`,
+`NETLIFY_AUTH_TOKEN`, `NETLIFY_SITE_ID`, `WG_CLIENT_PRIVATE_KEY`,
+`WG_SERVER_PUBLIC_KEY`, `WG_ENDPOINT`, `WG_SERVER_ADDRESS`, `WG_CLIENT_ADDRESS`. Variables: `PUBLIC_SITE_ORIGIN`,
 `PUBLIC_API_ORIGIN`, `PUBLIC_SUPABASE_URL`.
 
 Use one Netlify site with production domain scribeswell.com. Configure production
@@ -376,3 +377,24 @@ Official references: [APISIX deployment modes](https://apisix.apache.org/docs/ap
 [Netlify CLI deploy](https://cli.netlify.com/commands/deploy/),
 [Supabase deployment](https://supabase.com/docs/guides/deployment),
 [Hetzner provider](https://registry.terraform.io/providers/hetznercloud/hcloud/latest/docs).
+
+
+## Boabab private administrator access
+
+Use [the WireGuard operator guide](wireguard/README.md) for the in-place `boabab`
+rename, administrator onboarding/removal, dedicated CI credentials and console
+recovery. Terraform's `wireguard_enabled` defaults to false; enabling it adds only
+public IPv4 UDP51820. `server_name` changes only the existing resource name; retain
+its state, disks, IPs and unchanged cloud-init. Keep restricted public TCP22 until
+both private administrator and CI SSH are verified, then explicitly assert
+`private_ssh_verified=true` before setting `public_ssh_enabled=false`.
+
+Production CI requires `WG_CLIENT_PRIVATE_KEY`, `WG_SERVER_PUBLIC_KEY`, `WG_ENDPOINT`,
+`WG_SERVER_ADDRESS` and `WG_CLIENT_ADDRESS` in addition to its existing secrets.
+`DEPLOY_HOST` is the server's private IPv4 address and `SSH_KNOWN_HOSTS` binds that
+address to the independently verified existing host key. A temporary runner tunnel
+and strict SSH preflight precede the unchanged migration/activation coordinator;
+always-run teardown removes its owned interface and secret files. CI retains
+root-capable deployment authority. This is preparation, not evidence of a live
+private path or provider activation. The Mac Mini and its Tailscale network remain
+separate and unchanged.

@@ -1,11 +1,11 @@
 # First PtS and Scribes’ Well production release
 
 Application preparation only; infrastructure status updated 28 September 2026.
-The approved Hetzner host and firewall now exist; no production database connection,
-schema change, application-account creation, upload, DNS change or public app deployment
-has been performed. The owner selected Supabase project `gjbsnxmbhxsvcblzgfts`
-(`https://gjbsnxmbhxsvcblzgfts.supabase.co`). The owner confirms Pro in West EU (Ireland); its existing schema and data have
-not been inspected. The owner confirmed `scribeswell.com`, prefers Netlify Free for the frontend
+The approved Hetzner host and firewall now exist. Authenticated read-only production
+database and storage inspection is complete; no schema change, application-account
+creation, upload, DNS change or public app deployment has been performed. The owner selected Supabase project `gjbsnxmbhxsvcblzgfts`
+(`https://gjbsnxmbhxsvcblzgfts.supabase.co`). The owner confirms Pro in West EU (Ireland); the existing identity, cs and finance schemas must be preserved. The access, content,
+PtS and Scribeswell schemas are absent; see the linked production status for the inventory. The owner confirmed `scribeswell.com`, prefers Netlify Free for the frontend
 (or hosting it on the backend server), and Hetzner for the APIs and future workers.
 APISIX is the requested gateway; DNS is managed at Dynadot. Netlify and Hetzner accounts are ready; the
 initial size is CPX12 (1 shared vCPU, 2 GB RAM), subject to actual capacity checks.
@@ -102,3 +102,14 @@ release still needs the existing schemas, organization, content and infrastructu
 above. Final approval must identify the actual target, code revision, proposed
 mutations, verification evidence and recovery action before production writes or
 public activation, following the user's explicit instruction.
+
+
+## Hosted bootstrap update — 28 September 2026
+
+The approved production bootstrap has completed: restricted owner roles and
+schemas, access_0001/content_0004/pts_0001, Scribeswell schema, and private
+pts-private bucket with a 128 MiB limit. Legacy data remained unchanged and all
+seven restricted role logins passed. See the current state in
+[production status](../../../platform/deployment/PRODUCTION_STATUS.md).
+The host is boabab; operator WireGuard SSH is verified. Hosted CI verification,
+imports, PtS organization/account provisioning and public activation remain pending.

@@ -4,11 +4,15 @@ set -euo pipefail
 [[ "$DEPLOY_ENV" == staging || "$DEPLOY_ENV" == production ]]
 [[ "$RELEASE_SHA" =~ ^[0-9a-f]{40}$ ]]
 [[ "$DEPLOY_HOST" =~ ^[a-zA-Z0-9.-]+$ && "$DEPLOY_USER" =~ ^[a-z_][a-z0-9_-]*$ ]]
-install -d -m 700 "$HOME/.ssh"
-printf '%s\n' "$SSH_PRIVATE_KEY" > "$HOME/.ssh/deploy_key"
-chmod 600 "$HOME/.ssh/deploy_key"
-printf '%s\n' "$SSH_KNOWN_HOSTS" > "$HOME/.ssh/known_hosts"
-trap 'rm -f "$HOME/.ssh/deploy_key"' EXIT
+if [[ "$DEPLOY_ENV" == production ]]; then
+  python3 platform/deployment/wireguard/runner.py validate
+fi
+ssh_directory=$(mktemp -d)
+trap 'rm -f "$ssh_directory/deploy_key" "$ssh_directory/known_hosts"; rmdir "$ssh_directory"' EXIT
+printf '%s\n' "$SSH_PRIVATE_KEY" > "$ssh_directory/deploy_key"
+chmod 600 "$ssh_directory/deploy_key"
+printf '%s\n' "$SSH_KNOWN_HOSTS" > "$ssh_directory/known_hosts"
+chmod 600 "$ssh_directory/known_hosts"
 python3 - <<'PYCONFIG'
 import json,os
 from pathlib import Path
@@ -17,7 +21,8 @@ PYCONFIG
 # Tracked source only, no local environment, archives or ignored libraries.
 git archive --format=tar "$RELEASE_SHA" > /tmp/release-source.tar
 remote="${DEPLOY_USER}@${DEPLOY_HOST}"
-options=(-i "$HOME/.ssh/deploy_key" -o BatchMode=yes -o StrictHostKeyChecking=yes)
+options=(-i "$ssh_directory/deploy_key" -o IdentitiesOnly=yes -o BatchMode=yes -o StrictHostKeyChecking=yes -o GlobalKnownHostsFile=/dev/null -o "UserKnownHostsFile=$ssh_directory/known_hosts" -o ConnectTimeout=10 -o ConnectionAttempts=2 -o ServerAliveInterval=15 -o ServerAliveCountMax=3)
+ssh "${options[@]}" "$remote" true
 ssh "${options[@]}" "$remote" "mkdir -p /srv/agriplatform/incoming/$RELEASE_SHA"
 scp "${options[@]}" /tmp/release-source.tar images.json public-config.json "$remote:/srv/agriplatform/incoming/$RELEASE_SHA/"
 # Target account needs a narrowly reviewed root wrapper or root access; bootstrap and registry login are manual setup.
