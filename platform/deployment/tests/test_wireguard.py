@@ -98,6 +98,7 @@ class RunnerBehavior(unittest.TestCase):
         self.state = Path(self.temp.name) / 'state'
         self.calls = []
         self.live = False
+        self.interface_alias = None
         self.fail_ssh = False
         self.unowned = False
         self.fail_delete = False
@@ -112,6 +113,8 @@ class RunnerBehavior(unittest.TestCase):
         self.calls.append(argv)
         if argv[:3] == ['ip','link','add']:
             self.live = True
+        if argv[:5] == ['ip','link','set','dev',runner.INTERFACE] and argv[5] == 'alias':
+            self.interface_alias = argv[6]
         if argv[:3] == ['ip','link','delete']:
             if self.fail_delete: raise common.SafeError('Fixture command failed')
             self.live = False
@@ -121,7 +124,8 @@ class RunnerBehavior(unittest.TestCase):
             raise common.SafeError('Fixture host key mismatch')
         if argv[:3] == ['ip','-json','link']:
             marker = (self.state / 'owner').read_text()
-            alias = 'other-owner' if self.unowned else 'agriplatform-' + marker
+            # Ubuntu 24.04 ignores alias in link-add; only link-set installs it.
+            alias = 'other-owner' if self.unowned else self.interface_alias
             return SimpleNamespace(returncode=0, stdout=json.dumps([{'ifname':runner.INTERFACE,'ifalias':alias}] if self.live else []))
         return SimpleNamespace(returncode=0, stdout='')
     def test_valid_setup_and_teardown_have_single_route_and_strict_ssh(self):
