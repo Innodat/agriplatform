@@ -43,7 +43,7 @@ From repository root:
 ```sh
 python3 platform/deployment/release.py check
 python3 -m unittest discover -s platform/deployment/tests -p 'test_*.py'
-node --test platform/deployment/tests/release.test.mjs
+node --test platform/deployment/tests/*.test.mjs
 python3 tools/py/run_compose_supabase.py --check-only
 python3 platform/deployment/install-frontends.py
 # Supply explicit PUBLIC_SITE_ORIGIN, PUBLIC_API_ORIGIN, DEPLOY_ENV,
@@ -251,14 +251,73 @@ Main serializes contract tests, frontend builds, browser/session/artifact tests,
 gateway acceptance, separate image builds, immutable registry digest recording and
 isolated API health tests before any host migrations. Ordered migrations and
 health-gated activation precede Netlify publishing. A production success artifact
-is written only after Netlify confirms the site has published this ready production
-deploy and the actual production origin serves the exact SHA, workflow attempt and
-public configuration in `release-identity.json`. A public HTTPS request from CI to
+for a newly published frontend is written only after Netlify confirms the site has
+published this ready production deploy and the actual production origin serves the
+exact SHA, workflow attempt and public configuration in `release-identity.json`.
+Retained-frontend releases instead verify the selected existing frontend identity
+and record frontend and backend SHAs separately, as described below. A public HTTPS request from CI to
 `/directory/api/apps` must also pass DNS/TLS, status and exact-origin CORS checks.
 Failure messages identify safe verification codes without credentials or response bodies.
 No staging evidence or Supabase
 branch is required. Concurrency never cancels running migrations; GitHub may coalesce
 pending main pushes. A later successful main contains skipped commits.
+
+### Frontend input selection
+
+Production checks out full Git history and writes `frontend-plan.json` before
+frontend installation. `record-production.py --select` binds the configured Netlify
+site and hostname, its currently published ready production deploy, and identical
+release identities at the immutable deploy URL and public origin. It compares that
+published frontend SHA with the candidate SHA using `frontend-inputs.mjs`. It does
+not use `push.before`, the latest attempted build, or a failed publication as the
+production baseline. An unpublished frontend change therefore remains part of the
+next release even when its newest commit only changes a backend.
+
+Frontend inputs include registered frontend paths, any app `web`/`frontend` folder,
+shared platform JavaScript package roots, registry/manifests, root dependency and
+toolchain/configuration files, and frontend build/publish/detector tooling. Deleted
+paths and both sides of renames count. Backend code, migrations, server Terraform/
+WireGuard tooling and general documentation do not by themselves rebuild frontends.
+The manifest/registry policy is intentionally conservative: their changes rebuild
+even when a particular edit affects only backend metadata.
+
+The builder records a deterministic SHA-256 `public_build_fingerprint` over the
+explicit public environment, site/API/Supabase origins and public Supabase key.
+Selection requires that fingerprint to match the intended configuration; key
+rotations rebuild without source changes. Evidence contains the fingerprint,
+never the key or provider credentials. Missing/invalid/old identities, unavailable
+provider data, incomplete history, an unknown/nonancestor baseline, or identical
+baseline/candidate revisions rebuild conservatively. The first release builds.
+Choose **force_frontend_build** when manually dispatching main to deliberately
+rebuild unchanged inputs.
+
+For a verified backend-only release, installation, static build, browser tests and
+Netlify publication are skipped. Contract tests, gateway smoke, API image/container
+checks, strict private SSH, coordinated migrations and activation still run.
+`record-production.py --retained` rechecks the exact selected provider deploy,
+immutable/public identity and public configuration before and after the public
+API/CORS probe. A mismatch fails the release. `production.json` records backend
+`sha`/`backend_sha` separately from `frontend_sha`, `frontend_release_attempt` and
+`netlify_deploy_id`; retained assets are never labelled with the new backend SHA.
+The always-run upload preserves the non-secret decision plan even if a later stage
+fails. A failure before selection may have no plan to upload.
+
+The root Netlify ignore command uses the same dependency-free, Node 18 compatible
+path/history detector with provider `CACHED_COMMIT_REF` and `COMMIT_REF`: exit 0
+skips; exit 1 builds. Missing/unusable/equal refs build. Set
+`FORCE_FRONTEND_BUILD=true` to override this native ignore decision. Native ignore
+is a source-input optimization; production publication additionally verifies
+provider identity and public configuration. **Explicit Netlify build hooks bypass
+ignore by provider design.** The intended CI publication policy requires native Git
+publishing to be disabled. The live Netlify integration is still enabled pending
+separate approval; this change does not alter any live provider settings.
+
+If retained verification fails, reconcile the actual Netlify published deploy,
+public identity and API status before retrying. Do not publish the backend SHA over
+old assets or manufacture a success marker. A new run selects against the actual
+published baseline again; use force to request a fresh frontend candidate. Existing
+partial-release recovery and approval boundaries below continue to apply. No
+migration is reversed automatically.
 
 `record-staging.py` and `verify-promotion.py` remain optional, tested helpers for a
 future staging setup, but no active workflow invokes them. Reintroducing staging
@@ -309,11 +368,33 @@ state and reconciling any main commits that arrived during the hold.
 
 Download the failed run's `production-<SHA>-<ATTEMPT>` artifact to an external operator
 directory using `gh run download <RUN_ID> --repo Innodat/agriplatform --name <ARTIFACT_NAME> --dir <RECOVERY_DIR>`.
-It contains `images.json`, the original `netlify.toml`, any `netlify-deploy.json`, and
-`platform/deployment/public-release/`. If backend activation already succeeded, leave
-it running. From that recovery directory, configure the original production public
-inputs, original `RELEASE_SHA`, `GITHUB_RUN_ID`, `GITHUB_RUN_ATTEMPT` and secure Netlify
-credentials. Using the recorder from a checkout of that exact SHA:
+It contains `images.json`, the original `netlify.toml`, `frontend-plan.json` when
+selection ran, any `netlify-deploy.json`, and
+`platform/deployment/public-release/` only when a frontend artifact was built. If
+backend activation already succeeded, leave it running. Inspect the original
+`frontend-plan.json` to determine whether this release retained the frontend.
+Configure the original production public inputs (including the public Supabase
+key), original `RELEASE_SHA`, `GITHUB_RUN_ID`, `GITHUB_RUN_ATTEMPT` and secure Netlify
+credentials in the recovery directory.
+
+For a retained release (`build: false`), keep the original `frontend-plan.json`
+in that directory and use the recorder from a checkout of the exact original
+backend release SHA:
+
+```sh
+python3 <CHECKOUT>/platform/deployment/record-production.py --retained
+```
+
+This reloads the original selected frontend deploy/identity and verifies it with
+the public configuration and API. If it no longer matches, reconcile the actual
+provider state, identity and API before choosing an approved recovery action. Do
+not publish nonexistent artifacts or stale frontend assets from another release.
+Do not rewrite the retained plan to manufacture verification. A deliberate new
+frontend build requires a new verified release candidate.
+
+For a release that built a frontend (`build: true`), require its saved immutable
+`platform/deployment/public-release/` artifact before republishing. Using the
+recorder from a checkout of the exact original release SHA:
 
 ```sh
 python3 <CHECKOUT>/platform/deployment/record-production.py --preflight

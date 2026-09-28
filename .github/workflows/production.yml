@@ -3,6 +3,11 @@ on:
   push:
     branches: [main]
   workflow_dispatch:
+    inputs:
+      force_frontend_build:
+        description: Rebuild and publish the frontend even without input changes
+        type: boolean
+        default: false
 concurrency:
   group: platform-production
   cancel-in-progress: false
@@ -23,6 +28,8 @@ jobs:
       VITE_SUPABASE_ANON_KEY: ${{ secrets.PUBLIC_SUPABASE_KEY }}
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
       - name: Fail closed on missing target inputs
         env:
           WG_CLIENT_PRIVATE_KEY: ${{ secrets.WG_CLIENT_PRIVATE_KEY }}
@@ -46,14 +53,24 @@ jobs:
         run: |
           python3 platform/deployment/release.py check
           python3 -m unittest discover -s platform/deployment/tests -p 'test_*.py'
-          node --test platform/deployment/tests/release.test.mjs
+          node --test platform/deployment/tests/*.test.mjs
           python3 tools/py/run_compose_supabase.py --check-only
+      - name: Select frontend publication
+        id: frontend
+        env:
+          NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
+          NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
+          FORCE_FRONTEND_BUILD: ${{ inputs.force_frontend_build || false }}
+        run: python3 platform/deployment/record-production.py --select
       - name: Install frontends
+        if: steps.frontend.outputs.build == 'true'
         run: |
           python3 platform/deployment/install-frontends.py
       - name: Build isolated production static artifact
+        if: steps.frontend.outputs.build == 'true'
         run: node platform/deployment/build-release.mjs
-      - name: Browser and gateway acceptance
+      - name: Browser acceptance
+        if: steps.frontend.outputs.build == 'true'
         run: |
           npm exec --workspace=apps/scribeswell/web -- playwright install --with-deps chromium
           apps/pts/web/node_modules/.bin/playwright install --with-deps chromium
@@ -61,7 +78,8 @@ jobs:
           npm run test:browser --prefix apps/pts/web
           npm exec --workspace=apps/scribeswell/web -- playwright test --config playwright.session.config.cjs
           npx --prefix apps/scribeswell/web playwright test --config apps/scribeswell/web/playwright.release.config.cjs
-          python3 platform/deployment/tests/gateway_smoke.py
+      - name: Gateway acceptance
+        run: python3 platform/deployment/tests/gateway_smoke.py
       - name: Registry authentication
         uses: docker/login-action@v3
         with:
@@ -102,6 +120,7 @@ jobs:
         if: always()
         run: sudo python3 platform/deployment/wireguard/runner.py teardown
       - name: Publish and verify production frontend
+        if: steps.frontend.outputs.build == 'true'
         env:
           NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
           NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
@@ -109,6 +128,12 @@ jobs:
           test -n "$NETLIFY_AUTH_TOKEN" && test -n "$NETLIFY_SITE_ID"
           npx --yes netlify-cli@23.6.0 deploy --dir=platform/deployment/public-release --prod --no-build --json > netlify-deploy.json
           python3 platform/deployment/record-production.py
+      - name: Verify retained frontend and production API
+        if: steps.frontend.outputs.build == 'false'
+        env:
+          NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
+          NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
+        run: python3 platform/deployment/record-production.py --retained
       - uses: actions/upload-artifact@v4
         if: always()
         with:
@@ -116,6 +141,7 @@ jobs:
           path: |
             images.json
             production.json
+            frontend-plan.json
             netlify-deploy.json
             netlify.toml
             platform/deployment/public-release/

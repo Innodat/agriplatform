@@ -7,9 +7,9 @@ record=importlib.util.module_from_spec(spec)
 spec.loader.exec_module(record)
 class ProductionRecord(unittest.TestCase):
  def fixtures(self):
-  env={'NETLIFY_SITE_ID':'site-id','RELEASE_SHA':'a'*40,'PUBLIC_SITE_ORIGIN':'https://scribeswell.test','PUBLIC_API_ORIGIN':'https://api.scribeswell.test','VITE_SUPABASE_URL':'https://prod.supabase.co','GITHUB_RUN_ID':'42','GITHUB_RUN_ATTEMPT':'1'}
+  env={'NETLIFY_SITE_ID':'site-id','RELEASE_SHA':'a'*40,'PUBLIC_SITE_ORIGIN':'https://scribeswell.test','PUBLIC_API_ORIGIN':'https://api.scribeswell.test','VITE_SUPABASE_URL':'https://prod.supabase.co','GITHUB_RUN_ID':'42','GITHUB_RUN_ATTEMPT':'1','DEPLOY_ENV':'production','VITE_SUPABASE_ANON_KEY':'sb_publishable_fixture'}
   result={'site_id':'site-id','deploy_id':'deploy-id'}
-  data={'site':{'id':'site-id','custom_domain':'scribeswell.test','published_deploy':{'id':'deploy-id'}},'deploy':{'id':'deploy-id','site_id':'site-id','state':'ready','context':'production'},'identity':{'sha':'a'*40,'environment':'production','site':env['PUBLIC_SITE_ORIGIN'],'api':env['PUBLIC_API_ORIGIN'],'supabase_url':env['VITE_SUPABASE_URL'],'release_attempt':'42-1'}}
+  data={'site':{'id':'site-id','name':'fixture','custom_domain':'scribeswell.test','published_deploy':{'id':'deploy-id'}},'deploy':{'id':'deploy-id','site_id':'site-id','state':'ready','context':'production','deploy_ssl_url':'https://deploy-id--fixture.netlify.app'},'identity':{'sha':'a'*40,'environment':'production','site':env['PUBLIC_SITE_ORIGIN'],'api':env['PUBLIC_API_ORIGIN'],'supabase_url':env['VITE_SUPABASE_URL'],'release_attempt':'42-1','public_build_fingerprint':record.fingerprint(env)}}
   def fetch(url,authenticated):
    if url.endswith('/release-identity.json'):
     self.assertFalse(authenticated);return data['identity']

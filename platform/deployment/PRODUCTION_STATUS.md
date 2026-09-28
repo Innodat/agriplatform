@@ -10,7 +10,7 @@ direction matched SHA256, and SSH reconnected after restarting the server tunnel
 The user persisted the client MTU fix. UDP51820 is public; TCP22 remains restricted
 as a fallback pending the GitHub-hosted connectivity check. CI has separate VPN
 and SSH keys; its SSH public key is restricted to 10.77.80.3 with forwarding disabled.
-CI inputs are prepared locally, not uploaded. No Mac Mini or Tailscale changes.
+Nine CI inputs are uploaded to GitHub’s existing `Production` environment and their names verified; the environment now permits only branch `main`. No hosted test has run yet. No Mac Mini or Tailscale changes.
 
 The previously approved additive Supabase bootstrap **completed successfully**:
 seven restricted roles, access/content/pts owner migrations, Scribeswell schema
@@ -261,3 +261,25 @@ DNS changes, Netlify changes, Git push or public activation are included in this
 Evidence files: recovery/snapshot-report.json, restore-report.json,
 owner-migrations-1.json, owner-migrations-2.json, migration-rehearsal-report.json,
 permission-check.json and baseline-digests.json (all ignored and protected).
+
+
+### GitHub configuration and pending connectivity publication
+
+The supplied fine-grained PAT successfully configured the existing Production
+environment (ID9903880451). Its sole deployment branch policy is `main` (branch,
+not tag). Nine WireGuard/SSH inputs were encrypted with the environment public key,
+uploaded and verified by metadata. The PAT itself was not uploaded as a secret.
+No workflows currently exist on remote main at 619737d21a0eb371aeeab24229c1041089fc44c2.
+
+Prepared isolated local commit `cf5b95e1a218ce1ca367bd7c2031a4f5fb26f3b3` on ops/wireguard-connectivity:
+only the manual connectivity workflow and its common.py/runner.py helpers. Files
+match the previously tested implementation and validate against the prepared CI
+inputs. Full application release changes are excluded. No push or dispatch occurred.
+
+Netlify reinspection: native main builds still enabled, published deploy
+6aba06e3dac3132bd6edcc1a. Pending approval: stop native builds while preserving the
+served deploy, fast-forward only the connectivity commit, and dispatch/verify it.
+The exact guarded execution/recovery plan is in the ignored
+connectivity-publication-plan.json. Keep restricted public SSH until hosted evidence
+exists. Merge the published connectivity commit into local main before a later full
+release push; never force-push over it.

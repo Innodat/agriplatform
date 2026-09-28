@@ -1,6 +1,7 @@
 // Build only explicit frontend artifacts; never publish repository files.
 import {fileURLToPath} from 'node:url';
 import path from 'node:path';
+import {publicFingerprint} from './frontend-inputs.mjs';
 import {mkdtemp,rm,mkdir,cp,readdir,readFile,writeFile} from 'node:fs/promises';
 import {tmpdir} from 'node:os';
 import {spawnSync} from 'node:child_process';
@@ -52,7 +53,7 @@ export async function build(){
   }}
   await audit(output);
   await writeFile(path.join(output,'_redirects'),redirectsFor(apps));
-  await writeFile(path.join(output,'release-identity.json'),JSON.stringify({sha:process.env.RELEASE_SHA||null,environment:process.env.DEPLOY_ENV,site:process.env.PUBLIC_SITE_ORIGIN,api:process.env.PUBLIC_API_ORIGIN,supabase_url:process.env.VITE_SUPABASE_URL,release_attempt:process.env.GITHUB_RUN_ID&&process.env.GITHUB_RUN_ATTEMPT?process.env.GITHUB_RUN_ID+'-'+process.env.GITHUB_RUN_ATTEMPT:null})+'\n');
+  await writeFile(path.join(output,'release-identity.json'),JSON.stringify({public_build_fingerprint:publicFingerprint(process.env),sha:process.env.RELEASE_SHA||null,environment:process.env.DEPLOY_ENV,site:process.env.PUBLIC_SITE_ORIGIN,api:process.env.PUBLIC_API_ORIGIN,supabase_url:process.env.VITE_SUPABASE_URL,release_attempt:process.env.GITHUB_RUN_ID&&process.env.GITHUB_RUN_ATTEMPT?process.env.GITHUB_RUN_ID+'-'+process.env.GITHUB_RUN_ATTEMPT:null})+'\n');
   console.log('Static release ready: platform/deployment/public-release');
  }catch(error){await rm(output,{recursive:true,force:true});throw error;}finally{await rm(isolated,{recursive:true,force:true});}
 }

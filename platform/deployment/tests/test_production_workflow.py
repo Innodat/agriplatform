@@ -33,3 +33,19 @@ class ProductionWorkflow(unittest.TestCase):
   text=(ROOT/'platform/deployment/terraform/example.tfvars').read_text()
   self.assertRegex(text,r'environment\s*= "production"')
   self.assertRegex(text,r'server_type\s*= "cpx12"')
+
+ def test_frontend_filter_preserves_backend_gates_and_evidence(self):
+  text=(ROOT/'.github/workflows/production.yml').read_text()
+  self.assertIn('fetch-depth: 0',text)
+  self.assertIn('force_frontend_build:',text)
+  self.assertIn('record-production.py --select',text)
+  self.assertIn('record-production.py --retained',text)
+  self.assertIn('            frontend-plan.json',text)
+  steps=re.split(r'      - ',text)
+  for command in ['install-frontends.py','build-release.mjs','playwright.release.config.cjs','--prod --no-build']:
+   step=next(step for step in steps if command in step)
+   self.assertIn("if: steps.frontend.outputs.build == 'true'",step)
+  for command in ['gateway_smoke.py','ci-build.py','container_smoke.py','ci-deploy.sh']:
+   step=next(step for step in steps if command in step)
+   self.assertNotIn('if:',step)
+  self.assertLess(text.index('record-production.py --select'),text.index('install-frontends.py'))

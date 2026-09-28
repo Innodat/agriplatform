@@ -1,4 +1,5 @@
 [build]
+  ignore = "node ./platform/deployment/frontend-inputs.mjs ignore"
   command = "node platform/deployment/build-release.mjs"
   publish = "platform/deployment/public-release"
 [build.environment]
