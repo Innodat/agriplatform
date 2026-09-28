@@ -86,6 +86,18 @@ only host/firewall/public-key resources; it does not receive runtime secrets, cr
 DNS, generate credentials, run migrations or activate applications. Inspect and
 approve the saved plan before applying. No apply has been performed here.
 
+Supply exactly one SSH key input: `existing_ssh_key_id` references a registered
+Hetzner key without managing or renaming it; `ssh_public_key` creates a new key.
+The current owner has registered `hetzner-ck-wsl`; use its ID after verifying the
+public key against the local key. The ignored root `.env` uses
+`DEPLOY_SERVER_API_KEY`; the plan runner reads that value without printing it and
+passes it to Terraform only as `HCLOUD_TOKEN`, never as a Terraform variable.
+The host explicitly enables IPv4 and IPv6. Initial administrator SSH access uses
+the approved current public IPv4 /32; changing ISP addresses requires a reviewed
+firewall update. Publish an IPv6 AAAA record only after IPv6 routing is verified.
+The existing Netlify site is `boabab.netlify.app`, serving `scribeswell.com`;
+reuse it and verify its Git integration settings before enabling release CI.
+
 SSH is limited to supplied administrator networks. Hosted GitHub runners do not
 have a single fixed egress IP: use a runner with controlled egress or a deliberately
 managed runner network range. Never solve this by opening SSH to the internet.

@@ -1,4 +1,5 @@
 public-release/
+.local/
 rendered/
 *.env
 !*.env.example
