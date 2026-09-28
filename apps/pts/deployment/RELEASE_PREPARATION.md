@@ -1,13 +1,16 @@
 # First PtS and Scribes’ Well production release
 
-Preparation only, 27 September 2026. No production connection, schema change,
-account creation, upload, DNS change or deployment has been performed. The owner selected Supabase project `gjbsnxmbhxsvcblzgfts`
+Application preparation only; infrastructure status updated 28 September 2026.
+The approved Hetzner host and firewall now exist; no production database connection,
+schema change, application-account creation, upload, DNS change or public app deployment
+has been performed. The owner selected Supabase project `gjbsnxmbhxsvcblzgfts`
 (`https://gjbsnxmbhxsvcblzgfts.supabase.co`). The owner confirms Pro in West EU (Ireland); its existing schema and data have
 not been inspected. The owner confirmed `scribeswell.com`, prefers Netlify Free for the frontend
 (or hosting it on the backend server), and Hetzner for the APIs and future workers.
 APISIX is the requested gateway; DNS is managed at Dynadot. Netlify and Hetzner accounts are ready; the
 initial size is CPX12 (1 shared vCPU, 2 GB RAM), subject to actual capacity checks.
-Region and secure account configuration remain to be confirmed. No server has been provisioned.
+Host provisioned in Nuremberg; trusted SSH verification and runtime configuration
+remain pending. See [production status](../../../platform/deployment/PRODUCTION_STATUS.md).
 The owner requires platform-wide CI/CD and has chosen production only for the first
 release: main deploys production after all checks; no staging server or branch is needed.
 Shared implementation: [original deployment evidence](../../../platform/deployment/SPEC.md);

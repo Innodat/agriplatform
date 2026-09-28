@@ -84,7 +84,8 @@ The checked-in example tfvars is illustrative and has no valid credentials. The
 provider reads `HCLOUD_TOKEN` from the operator environment only. Terraform contains
 only host/firewall/public-key resources; it does not receive runtime secrets, create
 DNS, generate credentials, run migrations or activate applications. Inspect and
-approve the saved plan before applying. No apply has been performed here.
+approve the saved plan before applying. The first approved host/firewall apply is
+recorded in [production status](PRODUCTION_STATUS.md); application activation remains pending.
 
 Supply exactly one SSH key input: `existing_ssh_key_id` references a registered
 Hetzner key without managing or renaming it; `ssh_public_key` creates a new key.
