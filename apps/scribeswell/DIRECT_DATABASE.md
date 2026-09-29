@@ -224,3 +224,28 @@ function. The owning deployment README records the targeted correction required
 before live role installation, preserving existing authenticated callers. This is
 an unexecuted production gate, not a deferred local review finding. No production
 role, credential, configuration, corpus, schema exposure or deployment was changed.
+
+### Approved production transition guard correction
+
+The approved transition stopped at the role bootstrap: Supabase grants PUBLIC
+SELECT on extension statistics relations without PUBLIC USAGE on their schema.
+The table guard counted this unreachable authority. New actual-PostgreSQL acceptance
+reproduced the rejection (1 failed before correction). The guard now checks schema
+USAGE for effective PUBLIC table access while continuing to reject every explicit
+cross-owner role table grant, including grants on inaccessible schemas. The paired
+acceptance grants PUBLIC schema USAGE and confirms rejection. No global PUBLIC
+grants were changed to work around this issue. Role creation rolled back on failure;
+the separately approved targeted role-lookup function correction had committed.
+
+Post-correction full real-PostgreSQL Scribeswell suite: 48 passed in 12.38s.
+
+### Production outcome after explicit owner approval
+
+Restricted roles and protected runtime credentials installed; actual role isolation
+and the targeted legacy function permission correction verified. Canonical import,
+separate verify-only pass and complete repeat import all passed with zero errors:
+39 books,929 chapters,23213 verses,306785 words,471674 morphemes. Full-row digests
+including IDs stayed identical across all five tables. FastAPI anonymous reader,
+long chapter, morphology, lexicon, occurrence filter/pagination and404 checks passed
+against production with runtime authority. PtS/account/bucket counts/settings were
+rechecked and preserved. Public activation and schema unexposure remain separate.

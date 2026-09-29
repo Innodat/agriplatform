@@ -1,39 +1,34 @@
-# Production setup status — 28 September 2026
+# Production setup status — 29 September 2026
 
 ## Current state
 
-The existing Hetzner host is now **boabab** (same server ID, disk and IPs).
-Operator `ssh boabab` works over WireGuard at 10.77.80.1; only that /32 uses the
-tunnel. Default SSH cryptography and the independently verified host key are
-retained. MTU1200 resolved the observed packet-size stall; 4 MiB transfers in each
-direction matched SHA256, and SSH reconnected after restarting the server tunnel.
-The user persisted the client MTU fix. UDP51820 is public; TCP22 remains restricted
-as a fallback; removing it remains a separate guarded infrastructure change. CI has separate VPN
-and SSH keys; its SSH public key is restricted to 10.77.80.3 with forwarding disabled.
-Nine CI inputs are uploaded to GitHub’s existing `Production` environment and their names verified; the environment now permits only branch `main`. The hosted connectivity check passed, including cleanup (run 36480376365). No Mac Mini or Tailscale changes.
+As of 29 September 2026, boabab is provisioned on Hetzner and reachable through
+WireGuard. API DNS/TLS and automatic certificate renewal are verified. Native
+Netlify builds are paused; the existing served website is unchanged and the full
+platform release has not been pushed or activated. CI connectivity passed, but the
+first coordinated application release remains pending.
 
-The previously approved additive Supabase bootstrap **completed successfully**:
-seven restricted roles, access/content/pts owner migrations, Scribeswell schema
-and migration history entry, and private `pts-private` bucket (128 MiB limit).
-Heads: access_0001, content_0004, pts_0001. All seven role logins passed; none is
-superuser or bypasses RLS. Business table RLS checks passed (forced for owned
-access/content/pts tables). Existing legacy row counts/digests matched the rehearsal
-and were unchanged after migration. No poems, Bible corpus, accounts, invitations,
-PtS organization or memberships have been imported/created. No DNS or public
-application activation occurred. Netlify native builds are now paused and only
-the isolated connectivity workflow/helpers have been published to main.
+The Supabase owner migrations and private storage bucket are prepared. The PtS
+organization, confirmed reader account and three reader grants exist. The canonical
+poetry import and its replay passed (312 poems, 190 with text, 33 assistant-checked,
+19 sources, 275 witnesses); ten existing source documents were uploaded and reused
+on replay. Copyright and verification distinctions remain preserved.
 
-Evidence: ignored `production-bootstrap-apply.json`, `production-owner-migrations.json`,
-`wireguard-private-check.json` and protected bootstrap/recovery artifacts. Credentials
-remain in ignored protected files; do not attach them to issues or workflow artifacts.
+The approved Scribeswell direct PostgreSQL transition is complete: restricted
+runtime/import roles, targeted legacy function permission correction and protected
+server configuration are verified. The canonical Hebrew import, separate full audit
+and repeat import passed with zero errors and unchanged row/ID digests: 39 books,
+929 chapters, 23,213 verses, 306,785 words and 471,674 morphemes. Read-only FastAPI
+checks against production data passed. Temporary import containers and credential
+files are gone; the runtime configuration is mode0600 and contains no broad service
+key. Recovery configuration and ACL evidence remain protected.
 
-Remaining CI variables/secrets are configured and verified (see preparation record
-below). Seven root-only configuration files are installed on boabab without starting
-services. API DNS and TLS are now prepared. Next: registry pull authorization, then Auth/Storage/data
-and account verification before approving first activation. Imports, account
-provisioning, DNS, public SSH removal and public release still require their approved
-execution steps. Netlify native builds are paused; its served deployment is unchanged.
-The frontend build filter is tested locally but not yet published.
+Remaining gates are actual issued-session/Auth and signed-document acceptance,
+container runtime networking and coordinated release verification, then separately
+approved public API/frontend activation and removal of unnecessary Data API schema
+exposure. No schema exposure was changed during the database transition. Protected
+operation reports live in the ignored production-infrastructure directory; never
+attach secrets or raw configuration to workflow artifacts or issues.
 
 ## Provisioning and earlier preparation history
 
@@ -466,3 +461,57 @@ HTTP400, with no document download; private-document-access-check.json records
 statuses only. Signed-download expiry and live user revocation checks remain part
 of release acceptance. Recheck still returned PGRST106 for both schemas; asked
 owner to verify Exposed schemas (not Extra search path), correct project and Save.
+
+### Scribeswell direct PostgreSQL transition — 29 September 2026
+
+The owner explicitly approved the transition after local implementation/review
+(`163467a`). The targeted `public.get_user_roles()` correction is applied: PUBLIC
+execute revoked, authenticated/service_role execute preserved. Two new restricted
+roles are installed and actual login/RLS/owner-isolation checks passed. Runtime
+cannot write, importer cannot delete, neither can access identity/PtS/content or
+execute the legacy role-lookup function. Protected Scribeswell server configuration
+now uses its runtime PostgreSQL URL; the broad Supabase service key was removed.
+Prior configuration and function ACL evidence are retained in protected storage.
+
+The first bootstrap guard rejected unreachable PUBLIC SELECT grants on Supabase
+extension statistics. Role creation rolled back. A focused failing acceptance test
+reproduced this; the corrected guard requires schema USAGE for effective PUBLIC
+table access and continues to reject all explicit cross-owner role table grants.
+All 48 Scribeswell tests passed before retry; the approved role transition then
+succeeded. No extension grants were revoked to bypass the check.
+
+The canonical corpus import, separate read-only audit and full repeat import all
+completed with zero errors. Counts are 39 books, 929 chapters, 23,213 verses,
+306,785 words and 471,674 morphemes. All five table digests (including IDs and full
+row contents) were identical after verification and replay. A slow local import
+was stopped, with unfinished chapter rollback, and
+resumed through a one-off non-root, read-only container on boabab using only import
+credentials, no listener and no published ports. Transferred image rootfs layers,
+runtime configuration and architecture match the locally smoke-tested image;
+Docker omitted empty legacy fields on import, yielding a different image ID.
+No public application deployment, Git push or Data API schema unexposure occurred.
+
+
+Read-only FastAPI acceptance against production using the runtime role passed:
+anonymous book listing, Genesis chapter list, Psalm 119 (176 verses/1,067 words),
+morphology, lexicon, occurrence pagination/filtering and missing-book 404. This used
+an in-process test client, not a publicly activated API. PtS still has 312 poems,
+19 sources, 275 witnesses and 3 reader grants; the private 128 MiB bucket and confirmed
+reader account remain unchanged, and public signup remains disabled. Existing 20
+storage objects represent the previously uploaded 10 documents' staging/sealed copies.
+
+Evidence is protected under the production-infrastructure directory:
+`scribeswell-transition-applied.json`, `scribeswell-image-transfer.json`,
+`scribeswell-import-result.json`, `scribeswell-verify-result.json`,
+`scribeswell-replay-result.json`, and `scribeswell-http-check.log`.
+Source SHA256 remains `c2d8e9e565be4ee69f938b444e5e0dc37fdfd0d9ccb185d1a5f8d95fab91c498`.
+
+Remaining release gates: final actual Auth/Storage acceptance, host runtime-network
+and coordinated release checks, then separately approved public API/frontend
+activation and removal of unnecessary Data API schema exposure. Native Netlify
+builds remain paused. No public release or complete production-readiness claim is
+made by the successful database transition.
+
+Final host check passed: temporary job and import credential file absent; runtime
+configuration mode0600, correct restricted role, no broad service keys, protected
+prior configuration retained (`scribeswell-host-check.json`).

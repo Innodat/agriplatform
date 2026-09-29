@@ -27,7 +27,10 @@ BEGIN
           AND n.nspname NOT LIKE 'pg_toast%' AND n.nspname NOT LIKE 'pg_temp%'
           AND c.relkind IN ('r','p','v','m','f')
           AND (
-            (n.nspname <> 'scribeswell' AND has_table_privilege(role_name,c.oid,'SELECT,INSERT,UPDATE,DELETE,TRUNCATE,REFERENCES,TRIGGER'))
+            (n.nspname <> 'scribeswell' AND (
+              (has_schema_privilege(role_name,n.oid,'USAGE') AND has_table_privilege(role_name,c.oid,'SELECT,INSERT,UPDATE,DELETE,TRUNCATE,REFERENCES,TRIGGER'))
+              OR EXISTS (SELECT FROM aclexplode(c.relacl) a WHERE a.grantee=role_oid)
+            ))
             OR (n.nspname = 'scribeswell' AND has_table_privilege(role_name,c.oid,
               CASE WHEN role_name='scribeswell_runtime' THEN 'INSERT,UPDATE,DELETE,TRUNCATE,REFERENCES,TRIGGER'
                    ELSE 'DELETE,TRUNCATE,REFERENCES,TRIGGER' END))

@@ -1,4 +1,4 @@
-# Direct PostgreSQL transition — prepared, not executed
+# Direct PostgreSQL transition
 
 Production execution requires separate approval of the concrete target, grants,
 credentials, configuration, import/verification, activation and recovery plan. Local
@@ -15,6 +15,9 @@ Prepare:
    idempotent, transaction-wrapped operation with an advisory lock and finite waits.
    It preserves existing tables, IDs, views and old service-role grants. Existing
    elevated roles, memberships, ownership or unexpected table authority fail closed.
+   Effective PUBLIC table authority includes schema USAGE; explicit cross-owner role
+   grants fail even without it. Supabase statistics grants on inaccessible extension
+   schemas therefore do not prevent installing otherwise restricted roles.
    Review PUBLIC/default grants and callable security-definer functions on the actual
    target too: PostgreSQL cannot deny an individual role access granted to PUBLIC.
    Any unexpected target authority must be resolved in the approved target plan.
@@ -79,4 +82,5 @@ revoke PUBLIC execute on exactly `public.get_user_roles()`, preserve explicit
 other legitimate existing callers. Verify effective permission denial for both new
 roles and continued authenticated execution authority. Do not globally revoke
 PUBLIC function privileges or change the unrelated legacy functions. Retain prior
-ACL evidence for recovery. This is a pending production gate, not an applied change.
+ACL evidence for recovery. This target correction was subsequently approved and applied; see the production
+status record for verification and retained recovery evidence.

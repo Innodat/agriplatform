@@ -256,3 +256,19 @@ def test_bootstrap_rejects_hidden_authority(databases, grant, revoke):
 
 def test_role_url_preserves_escaped_credentials_and_database():
     assert role_url('postgresql://admin:p%40ss%3Aword@127.0.0.1:55439/test?sslmode=disable', 'scribeswell_runtime') == 'postgresql://scribeswell_runtime:p%40ss%3Aword@127.0.0.1:55439/test?sslmode=disable'
+
+
+def test_bootstrap_public_table_grants_require_schema_access(databases):
+    admin, runtime, importer = databases
+    bootstrap = (APP / 'deployment/bootstrap/001_direct_database_roles.sql').read_text()
+    admin.execute('CREATE SCHEMA isolated_stats; CREATE TABLE isolated_stats.sample(id int); GRANT SELECT ON isolated_stats.sample TO PUBLIC')
+    try:
+        # Supabase extensions expose statistics through PUBLIC table ACLs, but the
+        # dedicated roles have no schema USAGE and therefore cannot reach them.
+        admin.execute(bootstrap)
+        admin.execute('GRANT USAGE ON SCHEMA isolated_stats TO PUBLIC')
+        with pytest.raises(psycopg.errors.RaiseException, match='Unexpected existing'):
+            admin.execute(bootstrap)
+    finally:
+        admin.execute('ROLLBACK')
+        admin.execute('DROP SCHEMA isolated_stats CASCADE')
