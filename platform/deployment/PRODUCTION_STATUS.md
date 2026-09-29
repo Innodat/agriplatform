@@ -538,3 +538,33 @@ Dual-stack preparation completed local review: 110 deployment tests and actual
 local gateway smoke passed. Migration cleanup now proceeds despite evidence-save
 failures. Existing uncertain migration outcomes still require operator reconciliation;
 a durable retry gate is tracked as follow-up. Public release remains blocked.
+
+### Issued Auth and private document acceptance passed (2026-09-29)
+
+After the owner enabled identity.custom_access_token_hook, a newly issued temporary
+production session contained the expected organization and member claims without
+owner/admin privileges. The configured redirect remained https://scribeswell.com.
+The real Auth identity and shared app-directory session passed verification.
+Private loopback FastAPI processes used the production restricted database roles
+through the trusted boabab tunnel; no public application was activated.
+
+The acceptance probe verified 312 catalogue records,190 with text and33 checked
+transcriptions; title search and all available filter categories; poem citations;
+filtered JSON/text exports;19 sources and19 rights records. Anonymous and wrong-org
+requests were denied for poems, sources, exports and documents. The smallest existing
+source PDF downloaded twice within its300-second signed URL lifetime and matched
+the canonical file SHA256. After the real lifetime plus a10-second margin, Storage
+rejected the same URL with HTTP400. No URLs, tokens or protected content were logged.
+
+The temporary session was signed out locally and its refresh token was rejected;
+all private services and the SSH tunnel stopped. No password changes or emails.
+Safe evidence: ignored production-auth-document-acceptance.json; every recorded
+verification boolean is true. The probe's initial handling of nullable local_path
+was corrected before this successful run; no source material changed.
+
+This verifies issued claims, shared API session, protected collection access and
+read-link expiry/replay, not the entire first-release checklist. Live permission
+revocation, signed upload expiry/replay, password/recovery mail delivery and final
+browser/public-origin activation checks remain outstanding. The bootstrap assertion
+remains absent and the public release remains blocked until required evidence and
+concrete activation approval are complete.
