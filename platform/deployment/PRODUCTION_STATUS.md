@@ -608,3 +608,23 @@ were deleted and HEAD confirmed their absence. Safe evidence:
 storage-transfer-acceptance.json. Canonical source files/objects were not modified.
 All three explicitly approved acceptance operations are complete. Public activation
 and the production bootstrap assertion remain pending separate owner approval.
+
+### 2026-09-29 approved activation and frontend publication follow-up
+
+The owner approved public activation. Run 36555147676 activated revision
+ffb8b84a05bd57a1bec2d84db1b89e5bb556ae72 successfully: gateway and five APIs running,
+all APIs healthy with zero restarts, no direct API host ports, dual-stack network,
+no pending activation markers or supervisor warnings. Migration checks succeeded
+at existing access_0001/content_0004/pts_0001 heads with no schema version changes.
+
+Public API acceptance passed: Hebrew Bible and CORS; fresh authenticated organization
+claims and directory membership; PtS 312/190/33 counts, search/filter/citation/export,
+source/rights relationships and canonical PDF bytes. Anonymous and wrong-organization
+requests were denied. Temporary session signed out and refresh token rejected.
+Evidence: ignored public-production-acceptance.json and live-host-acceptance.json.
+
+Netlify publication failed before uploading because its CLI detected multiple
+workspace projects. Backend remains healthy. FRONTEND_PUBLICATION.md records the
+isolated-artifact publishing fix and verification. Public frontend replacement and
+real-browser verification remain pending the corrected CI run; no live user password
+sign-in or password change is claimed.

@@ -593,9 +593,12 @@ recorder from a checkout of the exact original release SHA:
 
 ```sh
 python3 <CHECKOUT>/platform/deployment/record-production.py --preflight
-npx --yes netlify-cli@23.6.0 deploy --dir=platform/deployment/public-release --prod --no-build --json > netlify-retry.json
+python3 <CHECKOUT>/platform/deployment/publish-frontend.py --output netlify-retry.json
+# Existing output files are never overwritten.
 ```
 
+The publisher copies the artifact and configuration to a temporary directory outside
+the monorepo, preventing Netlify from selecting a single workspace application.
 Preserve the original result; use the new result as `netlify-deploy.json` in a separate
 verification working directory and run `record-production.py` there with the original
 release identity inputs. If publication succeeded and only verification failed, fix

@@ -18,7 +18,7 @@ class ProductionWorkflow(unittest.TestCase):
   self.assertNotIn('needs.verify',text)
  def test_all_gates_precede_live_mutations(self):
   text=(ROOT/'.github/workflows/production.yml').read_text()
-  ordered=['check-ci-inputs.py','release.py check','install-frontends.py','build-release.mjs','playwright.release.config.cjs','gateway_smoke.py','ci-build.py','container_smoke.py','ci-deploy.sh','--prod --no-build','record-production.py']
+  ordered=['check-ci-inputs.py','release.py check','install-frontends.py','build-release.mjs','playwright.release.config.cjs','gateway_smoke.py','ci-build.py','container_smoke.py','ci-deploy.sh','publish-frontend.py','record-production.py']
   positions=[text.rindex(item) if item=='record-production.py' else text.index(item) for item in ordered]
   self.assertEqual(positions,sorted(positions))
   self.assertNotIn('continue-on-error:',text)
@@ -42,7 +42,7 @@ class ProductionWorkflow(unittest.TestCase):
   self.assertIn('record-production.py --retained',text)
   self.assertIn('            frontend-plan.json',text)
   steps=re.split(r'      - ',text)
-  for command in ['install-frontends.py','build-release.mjs','playwright.release.config.cjs','--prod --no-build']:
+  for command in ['install-frontends.py','build-release.mjs','playwright.release.config.cjs','publish-frontend.py']:
    step=next(step for step in steps if command in step)
    self.assertIn("if: steps.frontend.outputs.build == 'true'",step)
   for command in ['gateway_smoke.py','ci-build.py','container_smoke.py','ci-deploy.sh']:
