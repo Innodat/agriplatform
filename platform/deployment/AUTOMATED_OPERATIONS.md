@@ -300,3 +300,22 @@ The installed adoption/expiry service was started successfully (ExecMainStatus=0
 Certbot timer is also enabled/active, but lineage remains manual because reconfigure
 correctly refused to persist settings after the failed challenge. This is partial
 operational setup, not verified unattended issuance.
+
+### DNS restored; automatic renewal verified (2026-09-29 03:58 UTC)
+
+After the owner restored the API A record to 138.199.217.158, the approved
+`certbot reconfigure --cert-name api.scribeswell.com --authenticator standalone
+--preferred-challenges http --non-interactive` succeeded. Saved lineage settings
+now show `authenticator = standalone` and `pref_challs = http-01,`.
+`certbot renew --cert-name api.scribeswell.com --dry-run --run-deploy-hooks
+--non-interactive` passed. The deploy hook ran at 03:58:26 UTC with Result=success,
+ExecMainStatus=0 and expected `pending_gateway_activation` outcome. Both
+certbot.timer and agriplatform-tls.timer are enabled and active.
+
+Live certificate SHA256 remains
+`219b70015458f4b2228cea62e885548b131ab6030404e23393d8921699046840`,
+expiring 2026-12-27 20:00:35 UTC; staging material was not installed. No application
+containers are running. Automatic issuance and preactivation adoption are verified;
+production serving-gateway adoption remains to be checked after first activation
+(the actual gateway behavior already passed local container tests). The former
+manual DNS TXT challenge is no longer needed for this certificate's renewal.
