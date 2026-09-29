@@ -229,6 +229,22 @@ test('actual entry 10 Strong source link follows 9 and restores keyboard origin 
 });
 
 
+for(const expanded of [true,false])test('Back restores Strong details when navigation precedes the native toggle event: '+expanded,async({page})=>{
+ await setup(page);const fs=require('node:fs'),path=require('node:path');const entries=JSON.parse(fs.readFileSync(path.resolve(__dirname,'../../data/hebrew-lexicon/lexicon.json'),'utf8')).entries;
+ await page.route('**/api/bible/words/*/morphology',r=>r.fulfill({json:{...words[0],lexical_id:'10',morphemes:[]}}));
+ await page.route('**/api/bible/lexicon/**',r=>{const id=decodeURIComponent(new URL(r.request().url()).pathname.split('/').pop());return r.fulfill({json:{status:'available',...entries[id]}});});
+ await page.locator('.word-token').first().click();
+ const source=page.locator('details').filter({has:page.getByText('Strong’s definition and usage',{exact:true})});
+ await expect(source).toBeVisible();
+ if(!expanded)await source.locator('summary').click();
+ await source.evaluate((details,expanded)=>{details.querySelector('summary').click();const link=expanded?details.querySelector('[aria-label="Open dictionary entry 9"]'):document.querySelector('[data-dictionary-link="root"]');link.focus();link.click();},expanded);
+ const target=expanded?'9':'6';
+ await expect(page.getByRole('heading',{name:entries[target].lemma,exact:true})).toBeVisible();
+ await page.getByRole('button',{name:'Back to previous dictionary entry'}).click();
+ await expect(source).toHaveJSProperty('open',expanded);
+ await expect(page.getByRole('button',{name:'Open dictionary entry '+target,exact:true})).toBeFocused();
+});
+
 test('dictionary controls show hand cursors and header closes either tab without duplicate actions',async({page})=>{
  await setup(page);
  await page.route('**/api/bible/occurrences/*?**',r=>r.fulfill({json:{data:Array.from({length:25},(_,i)=>({id:100+i,position:i+1,surface_he:'מלך',display_he:null,book:'Gen',book_name:'Genesis',chapter:1,verse:i+1})),total:51,verse_total:40,offset:0,limit:25}}));

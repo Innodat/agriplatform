@@ -59,6 +59,7 @@ function StudyEntry({word,context,books,onClose,onOpen,currentPane,initial,canBa
   const [requested,setRequested]=useState(initial.requested);
   const [reference,setReference]=useState(initial.reference);
   const [strong,setStrong]=useState(initial.strong);
+  const strongDisclosure=useRef<HTMLDetailsElement>(null);
   const [bdb,setBdb]=useState(initial.bdb);
   const element=useRef<HTMLDivElement>(null);
   const restored=useRef(false);
@@ -92,7 +93,7 @@ function StudyEntry({word,context,books,onClose,onOpen,currentPane,initial,canBa
     }
   },[lexical.loading,lexical.error,lexical.data,occurrences.loading,occurrences.error,preview.loading,preview.error,tab,reference,initial]);
   function changeTab(next:'Word'|'Occurrences'){restored.current=true;setTab(next);}
-  function follow(next:string,origin:HTMLElement){onFollow(next,{...initial,tab,book,offset,requested,reference,strong,bdb,focusId:origin.dataset.dictionaryLink,scroll:inspector()?.scrollTop??0});}
+  function follow(next:string,origin:HTMLElement){onFollow(next,{...initial,tab,book,offset,requested,reference,strong:strongDisclosure.current?.open??strong,bdb,focusId:origin.dataset.dictionaryLink,scroll:inspector()?.scrollTop??0});}
   const outline=previewNodes(lexical.data?.bdb??[]);
   function nodes(items:LexiconNode[],path="bdb") {return items.map((node,index)=>{
     const key=`${path}.${index}`;
@@ -129,7 +130,7 @@ function StudyEntry({word,context,books,onClose,onOpen,currentPane,initial,canBa
             <div data-bdb-content className="leading-relaxed">{lexical.data.bdb.length?nodes(bdb?lexical.data.bdb:outline.nodes):<p>No outline supplied.</p>}</div>
             {outline.truncated&&<button className="underline text-amber-800 mt-1" aria-expanded={bdb} onClick={()=>setBdb(!bdb)}>{bdb?'Show less':'Show more'}</button>}
           </section>
-          <details open={strong} onToggle={event=>setStrong(event.currentTarget.open)}><summary className="cursor-pointer">Strong’s definition and usage</summary><div className="space-y-2 mt-2">
+          <details ref={strongDisclosure} open={strong} onToggle={event=>setStrong(event.currentTarget.open)}><summary className="cursor-pointer">Strong’s definition and usage</summary><div className="space-y-2 mt-2">
             <p>{lexical.data.strong_definition_nodes.length?nodes(lexical.data.strong_definition_nodes,"strong-definition"):lexical.data.strong_definition}</p>
             <p>{lexical.data.strong_usage_nodes.length?nodes(lexical.data.strong_usage_nodes,"strong-usage"):lexical.data.strong_usage}</p>
             <p className="text-stone-500">{lexical.data.strong_source_nodes.length?nodes(lexical.data.strong_source_nodes,"strong-source"):lexical.data.strong_source}</p>

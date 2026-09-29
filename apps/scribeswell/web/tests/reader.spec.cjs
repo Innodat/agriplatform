@@ -43,7 +43,7 @@ test('late chapter responses cannot replace the chosen chapter',async({page})=>{
  await expect(page.getByRole('button',{name:/Word: בְּרֵאשִׁית/})).toHaveCount(0);
 });
 
-test('shared launcher works in Scribeswell and private workspace files are denied',async({page})=>{
+test('shared launcher works in Scribeswell',async({page})=>{
  await setup(page);
  await page.route('http://127.0.0.1:8001/**',r=>r.fulfill({json:[{id:'scribeswell',name:'Scribeswell',description:'Hebrew Bible reader',icon:'book-open',url:'http://localhost:5174',enabled:true},{id:'pts',name:'PtS',description:'Swahili Poetry',icon:'book-open',url:'http://localhost:5179',enabled:true}]}));
  await page.goto('/');
@@ -55,8 +55,15 @@ test('shared launcher works in Scribeswell and private workspace files are denie
  await page.keyboard.press('ArrowDown');await expect(menu.getByRole('menuitem',{name:'Open PtS'})).toBeFocused();
  const b=await menu.boundingBox();expect(b.x).toBeGreaterThanOrEqual(0);expect(b.x+b.width).toBeLessThanOrEqual(await page.evaluate(()=>innerWidth));
  await page.keyboard.press('Escape');await expect(trigger).toBeFocused();
- const path=require('node:path').resolve(__dirname,'../../../pts/reference/poetry-library/library.json');
- expect((await page.request.get('/@fs'+path)).status()).toBe(403);
+});
+test('private workspace files are denied even without the collected library',async({page})=>{
+ const fs=require('node:fs'),path=require('node:path');
+ // CI intentionally has no private library. Test an actual, owned synthetic file.
+ const directory=fs.mkdtempSync(path.resolve(__dirname,'../../../pts/reference/.browser-privacy-'));
+ try{
+  const probe=path.join(directory,'private.txt');fs.writeFileSync(probe,'synthetic private file');
+  expect((await page.request.get('/@fs'+probe)).status()).toBe(403);
+ }finally{fs.rmSync(directory,{recursive:true});}
 });
 test('reader failures can be retried without losing the selected location',async({page})=>{
  await setup(page);let fail=true;
