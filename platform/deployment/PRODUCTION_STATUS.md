@@ -515,3 +515,26 @@ made by the successful database transition.
 Final host check passed: temporary job and import credential file absent; runtime
 configuration mode0600, correct restricted role, no broad service keys, protected
 prior configuration retained (`scribeswell-host-check.json`).
+
+### Container connectivity and issued Auth claims (2026-09-29)
+
+Read-only tests using the release-check Scribeswell image on boabab found direct
+PostgreSQL unreachable from the default IPv4-only Docker bridge, while Auth HTTPS
+was reachable. The identical probe on an owned disposable dual-stack bridge connected
+to PostgreSQL in0.31s and reached Auth; its container and network were removed.
+Generated runtime and migration network changes are under local review; no public
+application activation or push occurred.
+
+Owner corrected hosted Auth Site URL to https://scribeswell.com. A temporary
+no-email magic-link session verified that redirect and the existing confirmed user's
+identity, but issued tokens lacked org_id and member_id. The collection/PDF acceptance
+probe stopped before any private API access. Its own session was signed out and its
+refresh token rejected afterwards. The owner was asked to enable the existing
+identity.custom_access_token_hook in Authentication → Hooks. No passwords changed;
+no token or signed URL was retained in evidence. Mail delivery and full Auth/Storage
+release acceptance remain unverified.
+
+Dual-stack preparation completed local review: 110 deployment tests and actual
+local gateway smoke passed. Migration cleanup now proceeds despite evidence-save
+failures. Existing uncertain migration outcomes still require operator reconciliation;
+a durable retry gate is tracked as follow-up. Public release remains blocked.

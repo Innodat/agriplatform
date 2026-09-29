@@ -53,7 +53,7 @@ def render(output,env_dir,images,site,api,cert,key,environment):
  document={'routes':routes(host,site,manifests),'ssls':[{'id':'api','snis':[host],'cert':cert.read_text(),'key':key.read_text()}]}
  secret=output/'apisix.yaml';secret.write_text(json.dumps(document,indent=2)+'\n#END\n');secret.chmod(0o640)
  services['gateway']={'image':APISIX,'restart':'unless-stopped','ports':['443:9443'],'volumes':[str(output/'config.yaml')+':/usr/local/apisix/conf/config.yaml:ro',str(secret)+':/usr/local/apisix/conf/apisix.yaml:ro'],'stop_grace_period':'30s','logging':{'driver':'json-file','options':{'max-size':'10m','max-file':'3'}},'depends_on':{m['id']:{'condition':'service_healthy'} for m in manifests if 'public' in m}}
- (output/'compose.json').write_text(json.dumps({'name':'agriplatform-'+environment,'services':services},indent=2)+'\n')
+ (output/'compose.json').write_text(json.dumps({'name':'agriplatform-'+environment,'services':services,'networks':{'default':{'enable_ipv6':True}}},indent=2)+'\n')
  return services
 
 if __name__=='__main__':

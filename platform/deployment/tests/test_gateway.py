@@ -1,3 +1,4 @@
+import json
 import importlib.util
 import sys
 from pathlib import Path
@@ -38,3 +39,8 @@ class ComposeContract(unittest.TestCase):
    self.assertEqual(len(run.call_args_list)+len(capture.call_args_list),4)
    for call in [*run.call_args_list,*capture.call_args_list]:self.assertEqual(call.kwargs['timeout'],10)
    self.assertIn('/custom-health',services[manifests[0]['id']]['healthcheck']['test'][-1]);self.assertEqual(services[manifests[0]['id']]['env_file'][0]['format'],'raw')
+
+   compose=json.loads((root/'out/compose.json').read_text())
+   self.assertEqual(compose['networks'],{'default':{'enable_ipv6':True}})
+   self.assertEqual({name for name,service in services.items() if service.get('ports')},{'gateway'})
+   self.assertFalse(any(service.get('network_mode') for service in services.values()))

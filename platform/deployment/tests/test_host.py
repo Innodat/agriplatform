@@ -114,3 +114,81 @@ class Host(unittest.TestCase):
    with patch.object(host,'require_compose'),patch.object(host,'render',side_effect=render),patch.object(host.os,'chown'),patch.object(host,'execute',side_effect=execute),patch.object(host.subprocess,'check_output',return_value='old\n'),patch.object(host,'supervisor_events',return_value={}):
     self.deploy(root)
    self.assertFalse((root/'state/release-pending.json').exists());self.assertEqual(json.loads((root/'state/current.json').read_text())['sha'],'a'*40)
+
+ def test_migration_network_lifecycle_and_failure_gates(self):
+  for failure in (None,'create','create_timeout','run','timeout','stop','cleanup','cleanup_timeout','absent','detail'):
+   with self.subTest(failure=failure),tempfile.TemporaryDirectory() as d:
+    root=Path(d);self.setup_target(root);calls=[]
+    def execute(command,**kwargs):
+     calls.append(command)
+     if command[:3]==['docker','network','create']:
+      self.assertIn('--ipv6',command);self.assertLessEqual(kwargs['timeout'],30)
+      if failure=='create':raise RuntimeError('secret-db-password')
+      if failure=='create_timeout':raise host.subprocess.TimeoutExpired(command,30)
+     if command[:2]==['docker','run']:
+      self.assertTrue(any(c[:3]==['docker','network','create'] for c in calls))
+      self.assertEqual(command[command.index('--network')+1],next(c[-1] for c in calls if c[:3]==['docker','network','create']))
+      if failure!='absent':(root/'attempt/pts-owned/migrations.json').write_text('invalid' if failure=='detail' else json.dumps({'complete':True,'owners':{}}))
+      if failure=='run':raise RuntimeError('secret-db-password')
+      if failure in ('timeout','stop'):raise host.subprocess.TimeoutExpired(command,1500)
+     if command[:2]==['docker','stop']:
+      self.assertLessEqual(kwargs['timeout'],30)
+      if failure=='stop':raise RuntimeError('secret-db-password')
+     if command[:3]==['docker','network','rm']:
+      self.assertLessEqual(kwargs['timeout'],30)
+      if failure=='cleanup':raise RuntimeError('secret-db-password')
+      if failure=='cleanup_timeout':raise host.subprocess.TimeoutExpired(command,30)
+    def render(output,*args):output.mkdir();(output/'apisix.yaml').write_text('fake');return {}
+    with patch.object(host,'require_compose'),patch.object(host,'render',side_effect=render),patch.object(host.os,'chown'),patch.object(host,'execute',side_effect=execute),patch.object(host.subprocess,'check_output',return_value=''),patch.object(host,'supervisor_events',return_value={}):
+     if failure:
+      with self.assertRaises(Exception):self.deploy(root)
+     else:self.deploy(root)
+    report=json.loads((root/'attempt/evidence.json').read_text());entry=report['migrations']['pts-owned']
+    creates=[c for c in calls if c[:3]==['docker','network','create']];removes=[c for c in calls if c[:3]==['docker','network','rm']]
+    self.assertEqual(len(creates),1)
+    self.assertNotEqual(creates[0][-1],'bridge')
+    self.assertEqual(len(removes),0 if failure in ('create','create_timeout') else 1)
+    if removes:self.assertEqual(removes[0][-1],creates[0][-1])
+    self.assertEqual(report['activated'],failure is None)
+    self.assertEqual(entry['status'],'succeeded' if failure is None else 'failed')
+    self.assertEqual(entry['network']['cleanup'],'not_owned' if failure in ('create','create_timeout') else 'failed_or_uncertain' if failure in ('cleanup','cleanup_timeout') else 'removed')
+    if failure:self.assertFalse(any(c[:2]==['docker','compose'] for c in calls))
+    self.assertNotIn('secret-db-password',json.dumps(report))
+    if failure=='absent':self.assertIsNone(entry['detail'])
+    if failure in ('timeout','stop'):
+     self.assertEqual(entry['supervisor_warning'],'migration_timeout_outcome_requires_reconciliation')
+     self.assertEqual(entry['stop_command'],'failed_or_uncertain' if failure=='stop' else 'succeeded')
+     self.assertLess(next(i for i,c in enumerate(calls) if c[:2]==['docker','stop']),next(i for i,c in enumerate(calls) if c[:3]==['docker','network','rm']))
+
+    if failure=='create_timeout':
+     self.assertEqual(entry['supervisor_warning'],'network_creation_timeout_requires_reconciliation')
+     self.assertFalse(any(c[:2] in (['docker','run'],['docker','stop']) for c in calls))
+
+ def test_cleanup_removes_owned_network_when_evidence_save_fails(self):
+  for stage in ('cleanup','timeout'):
+   with self.subTest(stage=stage),tempfile.TemporaryDirectory() as d:
+    root=Path(d);self.setup_target(root);calls=[];failed=[]
+    write_text=Path.write_text
+    def save_failure(path,text,*args,**kwargs):
+     if path==root/'attempt/evidence.tmp' and not failed:
+      entry=json.loads(text).get('migrations',{}).get('pts-owned',{})
+      if (stage=='cleanup' and entry.get('network',{}).get('cleanup')=='failed_or_uncertain') or (stage=='timeout' and entry.get('supervisor_warning')):
+       failed.append(True);raise OSError('evidence persistence failed')
+     return write_text(path,text,*args,**kwargs)
+    def execute(command,**kwargs):
+     calls.append(command)
+     if command[:2]==['docker','run']:
+      (root/'attempt/pts-owned/migrations.json').write_text(json.dumps({'complete':True}))
+      if stage=='timeout':raise host.subprocess.TimeoutExpired(command,1500)
+     if command[:2]==['docker','stop']:self.assertLessEqual(kwargs['timeout'],30)
+    def render(output,*args):output.mkdir();(output/'apisix.yaml').write_text('fake');return {}
+    with patch.object(host,'require_compose'),patch.object(host,'render',side_effect=render),patch.object(host.os,'chown'),patch.object(host,'execute',side_effect=execute),patch.object(Path,'write_text',save_failure):
+     with self.assertRaisesRegex(OSError,'evidence persistence failed'):self.deploy(root)
+    self.assertEqual(failed,[True])
+    created=next(c[-1] for c in calls if c[:3]==['docker','network','create'])
+    self.assertIn(['docker','network','rm',created],calls)
+    self.assertFalse(any(c[:2]==['docker','compose'] for c in calls))
+    report=json.loads((root/'attempt/evidence.json').read_text())
+    self.assertFalse(report['activated']);self.assertEqual(report['code'],'release_failed_reconcile_before_retry')
+    if stage=='timeout':
+     self.assertLess(next(i for i,c in enumerate(calls) if c[:2]==['docker','stop']),next(i for i,c in enumerate(calls) if c[:3]==['docker','network','rm']))

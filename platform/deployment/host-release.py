@@ -9,6 +9,7 @@ import re
 import subprocess
 import sys
 import time
+import uuid
 from release import ROOT, load_manifests, safe_path
 from render_gateway import APISIX, render, origin, require_compose
 from target_contract import database_url
@@ -125,18 +126,40 @@ def deploy(environment,sha,images_path,config_path,release_dir,public_config_pat
     group_id=group['id'];entry=report['migrations'][group_id];entry['status']='running';save()
     migration_env=secrets/group['env_file'];env_values(migration_env)
     evidence=release_dir/group_id;evidence.mkdir(mode=0o700);os.chown(evidence,10001,10001)
-    migration_name='migration-'+group_id+'-'+str(time.time_ns())
+    migration_name='migration-'+group_id+'-'+uuid.uuid4().hex
+    network_name=migration_name+'-network';network_created=False;job_succeeded=False
+    entry['network']={'name':network_name,'creation':'pending','cleanup':'not_owned'};save()
     try:
-     execute(['docker','run','--rm','--name',migration_name,'--network','bridge','--env-file',str(migration_env),'-v',str(evidence)+':/evidence',images['images'][group_id]],timeout=1500)
+     # Docker rejects an existing name. Only a confirmed creation grants cleanup ownership.
+     entry['network']['creation']='failed_or_uncertain';save()
+     execute(['docker','network','create','--driver','bridge','--ipv6','--label','agriplatform.migration='+migration_name,network_name],timeout=30)
+     network_created=True;entry['network']['creation']='created';entry['network']['cleanup']='pending';save()
+     execute(['docker','run','--rm','--name',migration_name,'--network',network_name,'--env-file',str(migration_env),'-v',str(evidence)+':/evidence',images['images'][group_id]],timeout=1500)
+     job_succeeded=True
     except subprocess.TimeoutExpired:
-     entry['supervisor_warning']='migration_timeout_outcome_requires_reconciliation';save()
-     try:execute(['docker','stop','--time','20',migration_name],timeout=30);entry['stop_command']='succeeded'
-     except Exception:entry['stop_command']='failed_or_uncertain'
+     entry['supervisor_warning']='migration_timeout_outcome_requires_reconciliation' if network_created else 'network_creation_timeout_requires_reconciliation'
+     try:save()
+     finally:
+      if network_created:
+       try:execute(['docker','stop','--time','20',migration_name],timeout=30);entry['stop_command']='succeeded'
+       except Exception:entry['stop_command']='failed_or_uncertain'
      save();raise
     finally:
-     evidence_file=evidence/'migrations.json'
-     entry['detail']=json.loads(evidence_file.read_text()) if evidence_file.exists() else None
-     entry['status']='succeeded' if entry['detail'] and entry['detail'].get('complete') else 'failed';save()
+     entry['status']='failed'
+     try:
+      if network_created:
+       entry['network']['cleanup']='failed_or_uncertain'
+       try:save()
+       finally:
+        execute(['docker','network','rm',network_name],timeout=30)
+        entry['network']['cleanup']='removed'
+     finally:
+      # Cleanup must run even when the migration evidence is absent or malformed.
+      try:
+       evidence_file=evidence/'migrations.json'
+       entry['detail']=json.loads(evidence_file.read_text()) if evidence_file.exists() else None
+       if job_succeeded and entry['network']['cleanup']=='removed' and entry['detail'] and entry['detail'].get('complete'):entry['status']='succeeded'
+      finally:save()
     if entry['status']!='succeeded':raise ValueError('migration failed')
    command=['docker','compose','-f',str(generated/'compose.json')]
    previous_ids=subprocess.check_output(['docker','ps','-q','--no-trunc','--filter','label=com.docker.compose.project=agriplatform-'+environment],text=True,stderr=subprocess.DEVNULL,timeout=10).split()

@@ -51,6 +51,15 @@ HTTPServer(('0.0.0.0',8000),H).serve_forever()
   return subprocess.run(['curl','--silent','--show-error','--cacert',str(cert),'--resolve',f'api.scribeswell.test:{port}:127.0.0.1','--noproxy','*','-D',str(root/'headers'),'-o',str(root/'body'),'-w','%{http_code}','-X',method,'-H','Host: '+host,'-H','Origin: '+origin,'-H','Authorization: Bearer fixture-secret','-H','X-Org-ID: fixture-org',f'https://api.scribeswell.test:{port}'+path],capture_output=True,text=True)
  try:
   run(*cmd,'up','-d')
+  network=json.loads(subprocess.check_output(['docker','network','inspect',compose['name']+'_default'],text=True))[0]
+  assert network['Driver']=='bridge' and network['EnableIPv6']
+  assert {':' in pool['Subnet'] for pool in network['IPAM']['Config']}=={False,True}
+  for name in names:
+   identity=subprocess.check_output([*cmd,'ps','-q',name],text=True).strip()
+   container=json.loads(subprocess.check_output(['docker','inspect',identity],text=True))[0]
+   endpoint=container['NetworkSettings']['Networks'][compose['name']+'_default']
+   assert endpoint['IPAddress'] and endpoint['GlobalIPv6Address']
+   assert not any(container['NetworkSettings']['Ports'].values())
   for _ in range(60):
    response=request('/pts/api/poetry')
    if response.stdout=='200':break

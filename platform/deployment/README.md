@@ -481,6 +481,43 @@ migration is reversed automatically.
 future staging setup, but no active workflow invokes them. Reintroducing staging
 requires an explicit workflow/configuration decision, not merely creating a branch.
 
+## Dual-stack container networking
+
+The Linux deployment host requires [Docker Engine >=27](https://docs.docker.com/engine/release-notes/27/#ipv6-network-configuration-improvements)
+for automatic IPv6 subnet allocation, alongside Docker Compose >=2.30.0. It must
+have working outbound IPv4 and IPv6, including
+IPv6 access to the configured direct Supabase database endpoint. Host connectivity
+alone does not prove container connectivity: verify a read-only database connection
+from a disposable dual-stack bridge using the existing restricted role before
+release. Auth HTTPS succeeding is not proof that the database is reachable.
+
+Generated Compose declares `enable_ipv6: true` on its project-scoped default bridge;
+IPv4 remains enabled. Only gateway TCP443 is published. Docker allocates an IPv6
+ULA pool automatically when no pool is configured; no fixed global subnet, host
+networking, daemon restart or global daemon/firewall changes are part of this fix.
+See [Docker IPv6 networking](https://docs.docker.com/engine/daemon/ipv6/).
+
+Each migration job creates its own uniquely named, labelled dual-stack bridge before
+running, then removes it before activation. Creation and removal have 30-second
+bounds. A migration timeout retains the existing bounded stop attempt before network
+cleanup. Any creation, migration or cleanup failure blocks activation; inspect the
+migration's network name, creation/cleanup outcomes and stop warning in release
+`evidence.json`. An uncertain create may have left a network behind; inspect its
+ownership label and attached containers before an explicit recovery action. Cleanup
+never targets a network whose creation was not confirmed. Failed stop/removal may
+leave a container/network requiring reconciliation; do not infer rollback or safe
+retry from an error. Third-party command output remains suppressed.
+
+An existing IPv4-only Compose network needs a planned replacement. Do not silently
+recreate a network carrying a running release: arrange a maintenance/recovery window,
+record the current release and compatibility evidence, stop affected containers,
+replace only that project's unused network, and verify the candidate's dual-stack
+connectivity and gateway checks before resuming service. There is no live stack on
+boabab at the time of this preparation. No production activation is part of this fix.
+
+Impact: this is generic deployment tooling and documentation. No application
+scaffold, shared UI, agent-context or API changes; accepted ADRs remain unchanged.
+
 ## Failure, rollback and operations
 
 Host flock and the database migration lock prevent competing runs. All candidate
