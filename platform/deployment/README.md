@@ -112,9 +112,22 @@ Register the host key from an independent trusted console, store it as
 `SSH_KNOWN_HOSTS`; CI never calls `ssh-keyscan` or disables strict verification.
 The current host runner uses root for file ownership and Docker access; configure a
 dedicated, reviewed root SSH key or a narrowly scoped forced-command wrapper before
-enabling CI. Docker group membership is root-equivalent. Register a read-only GHCR
-credential on the host via `docker login --password-stdin`; no registry token goes
-in Terraform or release source. CI authentication uses GitHub's packages token.
+enabling CI. Docker group membership is root-equivalent. CI sends its temporary
+`GITHUB_TOKEN` to `registry-deploy.py` through strict SSH stdin. The wrapper logs
+into GHCR in a root-only temporary `/run` Docker config, bounds login to 45 seconds,
+passes that config to all release image pulls, and removes it on success or failure.
+The isolated config intentionally hides user-installed Docker CLI plugins. Install
+Compose >=2.30.0 system-wide (for example in `/usr/local/lib/docker/cli-plugins`);
+production boabab has system-wide 2.39.4. The wrapper checks Compose using its empty
+private config before login or deployment and fails closed if unavailable. Never
+copy a user's plugin directory or credentials into the temporary config.
+Existing host credentials are untouched; no permanent PAT is required. TERM/HUP/INT
+cancellation drains the detached release coordinator under its per-stage deadlines;
+it retains its lock and credentials until its final possible pull, then the wrapper
+returns failure and removes its temporary config. Do not force-kill the coordinator
+during a Docker migration. A hard host/process kill requires operational reconciliation;
+`/run` is volatile and temporary credentials remain root-only until cleanup/reboot. Registry
+package access must permit the workflow token; actual pulls require hosted evidence.
 
 ## External configuration and scoped authority
 
@@ -207,26 +220,162 @@ stop for review; never change expected counts to conceal unexplained discrepanci
 
 ## TLS and renewal
 
-Use ACME DNS-01 with Dynadot DNS under explicit operational authorization. A manual
-Certbot DNS challenge is supported without putting Dynadot credentials on the API
-host: `certbot certonly --manual --preferred-challenges dns -d <API_HOST>`; approve
-and publish only the requested TXT record, verify propagation, finish issuance,
-then remove the challenge record. No real certificate has been requested here.
-Manual DNS challenges do **not** renew unattended. Assign an operator and expiry
-alerts, rehearse renewal well before expiry, or separately review an automated
-DNS hook with scoped credentials. Never claim auto-renewal from this package.
+Use Certbot standalone HTTP-01 on TCP80; API traffic remains HTTPS443. Terraform
+`acme_http_enabled` defaults to false. Before live installation, review a saved plan
+that adds only TCP80 and preserves the host, cloud-init and existing firewall rules.
+Check A/AAAA records reach the host, port80 is free, and host firewall permits TCP80.
+Do not publish application containers as part of this preparation.
 
-Copy fullchain/key to the external configured paths. Rendering checks hostname,
-remaining validity (>24h) and key match. Generated `apisix.yaml` includes the TLS
-private key: external directory mode0750/group636, file0640/group636 for official
-APISIX uid636. Never upload that file as CI evidence or commit it. Mount secret files
-read-only. To rotate: obtain and validate the new cert/key, rerender a *new external*
-gateway directory using the current digest manifest and config, preserve old files,
-set group636 permissions, run `docker compose -f <new>/compose.json up -d --wait`,
-verify external TLS/SNI and routes and certificate expiry, then update operational
-current-pointer evidence. On failure restore previous gateway config/certificate
-while still valid; no database rollback. The local smoke validates self-signed
-issuance/rendering/handshake; actual ACME/Dynadot renewal remains an operator rehearsal.
+Under separately approved operational installation:
+
+1. Install `tls/renew.py` at `/opt/agriplatform-operations/tls/renew.py` owned by root,
+   and `tls/agriplatform-tls.{service,timer}` under `/etc/systemd/system/`. Keep the
+   external target JSON and TLS files private. Install `tls/deploy-hook.sh` executable
+   as `/etc/letsencrypt/renewal-hooks/deploy/agriplatform-tls`.
+2. With Certbot >=2.3, run `certbot reconfigure --cert-name api.scribeswell.com
+   --authenticator standalone --preferred-challenges http` (staging validation).
+   Then run `certbot renew --cert-name api.scribeswell.com --dry-run`.
+   A dry-run does not establish live gateway adoption; never install staging certs.
+3. Run `systemctl daemon-reload`, enable/start `certbot.timer` and
+   `agriplatform-tls.timer`, then start `agriplatform-tls.service`. The Certbot deploy
+   hook starts adoption immediately. The independent 15-minute timer retries even
+   after Certbot has successfully renewed the lineage, and starts after reboot.
+4. Inspect `systemctl status certbot.timer agriplatform-tls.timer
+   agriplatform-tls.service` and protected `state_dir/tls-*.json` evidence. Failed
+   validation, expiry <=24h, route/handshake failure, or a busy release lock returns
+   nonzero. Monitoring must observe failed units/evidence; no outbound alert delivery
+   is claimed without an explicitly configured destination. No paid service is added.
+
+The hook acquires the existing deployment lock, snapshots and validates hostname,
+>24h validity, private-key match and system-trusted chain. Before first activation it
+only installs verified copies and reports `pending_gateway_activation`. After
+activation it copies the current gateway config, replacing only TLS material and
+its bind-mount paths, then recreates **gateway only** with `--no-deps --pull never`.
+It verifies the served fingerprint and `/directory/api/apps` through trusted TLS
+before updating the current pointer. The leaf fingerprint is extracted from the
+first certificate with OpenSSL; full certificate/key comparison also adopts a changed
+chain with the same leaf. No API restarts, migrations, imports, image
+changes or route changes occur. Generated APISIX content contains the private key:
+keep it outside git/artifacts with mode0640/group636 and directory0750/group636.
+
+Before mutation the hook fsyncs protected recovery intent and backups of the
+installed cert/key pair. Those two paths are not claimed to update atomically: any
+second-write failure restores both prior copies. TERM/HUP/INT is cooperative: the
+current bounded command drains, then recovery runs. The primary operation has a
+180-second budget and reserves a separate 120 seconds for recovery; systemd allows
+600 seconds overall and a 240-second graceful stop margin.
+
+On failure the hook attempts the previous gateway configuration and certificate,
+verifies recovery and records stable nonsecret failure codes and interruption status.
+If process loss leaves `state_dir/tls-pending.json`, the next hook reconciles the prior
+gateway/copies/pointer before a later timer retries adoption. The release coordinator
+refuses all image pulls/migrations/activation while that intent remains, preventing
+a later recovery from overwriting a newer release. Never delete pending intent just
+to bypass that guard. Conversely, host-release writes `release-pending.json` before
+application activation and durably clears it only after route verification and the
+current-pointer update. TLS refuses to run while application activation is uncertain.
+Failed application activation can leave newer APIs running while `current.json` still
+names the previous release; never infer runtime identity from that pointer alone.
+
+Unchanged certificates still receive expiry/trust/served-route checks, but do not
+rewrite matching copies or create private-key backups. Completed transactions remove
+unneeded pair backups after durable intent removal. Keep the newest 96 routine
+polling records; failures, recovery records and evidence referenced by current/pending
+state are retained for operator review rather than automatic deletion.
+
+An expired/untrusted previous certificate makes automatic recovery fail closed.
+Not all failures automatically heal. A timed-out or externally interrupted Docker
+client does not prove the daemon stopped mutating containers. Timeout uncertainty
+retains pending intent even after a recovery probe; inspect daemon events/container
+state and require settled, verified state before operator reconciliation. Do not
+repeatedly force-kill clients or clear markers to bypass persistent uncertainty.
+
+For coordinated operator recovery:
+
+1. Pause deployment dispatch and stop `agriplatform-tls.timer`; let the service's
+   bounded stop/recovery finish. Inspect safe failure/recovery codes and retained
+   configuration. Confirm Docker has finished prior mutations. Keep both pending
+   files until their corresponding operations are reconciled.
+2. If `release-pending.json` exists, reconcile the application release first under
+   `release.lock`: its `candidate` and `previous` records identify the exact Compose
+   files/images/evidence. Reconcile migrations against actual database state; do not
+   reverse them. Select a compatible release, restore/complete its services using
+   its exact Compose file and `up -d --wait --wait-timeout 120 --pull never`, then
+   verify every service's health and immutable image identity. Also verify trusted
+   gateway TLS and the real API route. Durably save the verified selected record to
+   `current.json` using `tls.save`, then `tls.durable_unlink(release-pending)`.
+   If certificate expiry prevents that verification, keep the marker and perform
+   the TLS helper sequence below as part of the same locked reconciliation, taking
+   `known` from the selected application-release record instead of stale current
+   state; clear the release marker only after all application and TLS checks pass.
+   Do not use the TLS-only example unchanged while application identity is uncertain.
+3. For TLS-only recovery, the following example uses existing Python helpers and
+   holds the same lock across gateway, copies, current pointer and intent. Run as
+   root only after step 1, with no application pending marker. Leave `use_renewed`
+   false to restore a still-valid previous certificate. If previous TLS is expired,
+   set it true to validate the current renewed lineage and combine it with the
+   previous known routes, images and service configuration. This recreates gateway
+   only. A failure preserves pending intent and backups; inspect/reconcile before
+   retrying. Before first activation, the same sequence installs verified lineage
+   copies without starting containers.
+
+```python
+import fcntl, json, sys, tempfile, time
+from pathlib import Path
+sys.path.insert(0, '/opt/agriplatform-operations/tls')
+import renew as tls
+
+config = json.loads(Path('/etc/agriplatform/production.json').read_text())
+state = Path(config['state_dir'])
+use_renewed = False  # Set true only for the validated renewed-lineage recovery path.
+with (state/'release.lock').open('a') as lock:
+    fcntl.flock(lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
+    if (state/'release-pending.json').exists():
+        raise SystemExit('Reconcile application identity first; keep pending markers')
+    pending = json.loads((state/'tls-pending.json').read_text())
+    known = pending['previous']
+    evidence = state/('tls-operator-'+str(time.time_ns())+'.json')
+    report = {'operation': 'operator_tls_recovery', 'outcome': 'failed'}
+    tls.save(evidence, report)
+    try:
+        with tempfile.TemporaryDirectory(dir=state) as directory:
+            cert, key = Path(directory)/'cert.pem', Path(directory)/'key.pem'
+            if use_renewed or known is None:
+                lineage = Path('/etc/letsencrypt/live/api.scribeswell.com')
+                tls.atomic(cert, (lineage/'fullchain.pem').read_bytes())
+                tls.atomic(key, (lineage/'privkey.pem').read_bytes())
+            else:
+                old = json.loads((Path(known['compose']).parent/'apisix.yaml')
+                                 .read_text().removesuffix('\n#END\n'))['ssls'][0]
+                tls.atomic(cert, old['cert'].encode())
+                tls.atomic(key, old['key'].encode())
+            budget = tls.Budget(seconds=300)
+            fingerprint = tls.validate(cert, key, tls.urlsplit(config['api']).hostname, budget)
+            if known is not None:
+                compose = tls.prepare_gateway(known, cert, key, state) or Path(known['compose'])
+                pending['operator_compose'] = str(compose)
+                pending['operator_evidence'] = str(evidence)
+                tls.save(state/'tls-pending.json', pending)
+                tls.activate(compose, budget)
+                tls.verify_retry(config['api'], fingerprint, budget)
+            tls.install_pair(config, cert, key, budget)
+            if known is not None:
+                tls.save(state/'current.json', {**known, 'compose': str(compose),
+                                               'tls_evidence': str(evidence)})
+            report.update(outcome='verified', fingerprint=fingerprint)
+            tls.save(evidence, report)
+            tls.durable_unlink(state/'tls-pending.json')
+            tls.discard_backup(state, pending)
+    except Exception as error:
+        report.update(outcome='failed', code=tls.safe_code(error))
+        tls.diagnostic(evidence, report)
+        raise SystemExit('Operator recovery failed; retain intent and reconcile') from None
+```
+
+4. Inspect the verified current pointer, protected evidence, installed cert/key and
+   served certificate/route; resume the TLS timer and deployment dispatch only after
+   reconciliation. Retain previous gateway directories until operational recovery
+   retention is reviewed. This procedure does not roll back database state.
 
 ## GitHub and Netlify setup
 

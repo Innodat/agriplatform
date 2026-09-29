@@ -106,6 +106,8 @@ jobs:
         run: sudo --preserve-env=WG_CLIENT_PRIVATE_KEY,WG_SERVER_PUBLIC_KEY,WG_ENDPOINT,WG_SERVER_ADDRESS,WG_CLIENT_ADDRESS,DEPLOY_HOST,DEPLOY_USER,SSH_PRIVATE_KEY,SSH_KNOWN_HOSTS python3 platform/deployment/wireguard/runner.py setup
       - name: Migrate and activate production APIs
         env:
+          REGISTRY_ACTOR: ${{ github.actor }}
+          REGISTRY_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           WG_CLIENT_PRIVATE_KEY: ${{ secrets.WG_CLIENT_PRIVATE_KEY }}
           WG_SERVER_PUBLIC_KEY: ${{ secrets.WG_SERVER_PUBLIC_KEY }}
           WG_ENDPOINT: ${{ secrets.WG_ENDPOINT }}

@@ -10,7 +10,7 @@ from release import ROOT, load_manifests
 APISIX='apache/apisix:3.18.0-debian@sha256:84e6b5e787e9f889ebff88161cb9a16599bafcffa236c6b54c7f779a0655940d'
 
 def require_compose():
- version=subprocess.check_output(['docker','compose','version','--short'],text=True).strip().lstrip('v')
+ version=subprocess.check_output(['docker','compose','version','--short'],text=True,timeout=10).strip().lstrip('v')
  match=re.match(r'(\d+)\.(\d+)\.(\d+)',version)
  if not match or tuple(map(int,match.groups()))<(2,30,0):raise ValueError('Docker Compose >=2.30.0 required for literal raw env files')
  return version
@@ -33,10 +33,10 @@ def render(output,env_dir,images,site,api,cert,key,environment):
  if environment not in ('staging','production'):raise ValueError('invalid environment')
  if environment=='staging' and (site=='https://scribeswell.com' or host=='api.scribeswell.com'):raise ValueError('production staging target rejected')
  if not output.is_absolute() or not env_dir.is_absolute() or output.resolve().is_relative_to(ROOT) or env_dir.resolve().is_relative_to(ROOT):raise ValueError('external absolute paths outside repository required')
- subprocess.run(['openssl','x509','-in',str(cert),'-noout','-checkhost',host],check=True,stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL)
- subprocess.run(['openssl','x509','-in',str(cert),'-noout','-checkend','86400'],check=True,stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL)
- pubcert=subprocess.check_output(['openssl','x509','-in',str(cert),'-pubkey','-noout'])
- pubkey=subprocess.check_output(['openssl','pkey','-in',str(key),'-passin','pass:','-pubout'],stderr=subprocess.DEVNULL)
+ subprocess.run(['openssl','x509','-in',str(cert),'-noout','-checkhost',host],check=True,stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL,timeout=10)
+ subprocess.run(['openssl','x509','-in',str(cert),'-noout','-checkend','86400'],check=True,stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL,timeout=10)
+ pubcert=subprocess.check_output(['openssl','x509','-in',str(cert),'-pubkey','-noout'],timeout=10,stderr=subprocess.DEVNULL)
+ pubkey=subprocess.check_output(['openssl','pkey','-in',str(key),'-passin','pass:','-pubout'],stderr=subprocess.DEVNULL,timeout=10)
  if pubcert!=pubkey:raise ValueError('certificate key mismatch')
  manifests=load_manifests();services={}
  for m in manifests:

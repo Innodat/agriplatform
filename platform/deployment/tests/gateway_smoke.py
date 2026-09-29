@@ -1,4 +1,6 @@
 """Local disposable APISIX integration. No provider credentials/network data calls."""
+import hashlib
+from unittest.mock import patch
 import importlib.util
 import json
 import os
@@ -26,7 +28,13 @@ with tempfile.TemporaryDirectory(prefix='gateway-smoke-') as d:
  manifests=load_manifests();names=[m['id'] for m in manifests]
  for name in names:(env/(name+'.env')).write_text('FIXTURE=literal$dollar${UNSET_VALUE}$$\n')
  render(out,env,{name:'fixture@sha256:'+'0'*64 for name in names},'https://scribeswell.test','https://api.scribeswell.test',cert,key,'staging')
- out.chmod(0o755);(out/'apisix.yaml').chmod(0o644) # disposable fake certificate only
+ spec=importlib.util.spec_from_file_location('tls_renewal',Path(__file__).parents[1]/'tls/renew.py')
+ renewal=importlib.util.module_from_spec(spec);spec.loader.exec_module(renewal)
+ def fixture_chown(path,uid,gid):
+  # Actual production group/modes, using Docker root only on this owned fixture.
+  run('docker','run','--rm','-v',str(root)+':/fixture','python:3.12-slim-bookworm','python','-c','import os,sys;os.chown(sys.argv[1],int(sys.argv[2]),int(sys.argv[3]))','/fixture/'+str(Path(path).relative_to(root)),str(uid),str(gid),stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL)
+ with patch.object(renewal.os,'chown',fixture_chown):renewal.protect_gateway(out)
+ assert (out/'apisix.yaml').stat().st_gid==636 and (out/'apisix.yaml').stat().st_mode & 0o777==0o640
  compose=json.loads((out/'compose.json').read_text());compose['name']='smoke-'+root.name
  fixture=root/'fixture.py';fixture.write_text('''from http.server import BaseHTTPRequestHandler,HTTPServer
 import json
@@ -68,5 +76,45 @@ HTTPServer(('0.0.0.0',8000),H).serve_forever()
   assert 'fixture-secret' not in logs and 'fixture-query' not in logs
   gateway_id=subprocess.check_output([*cmd,'ps','-q','gateway'],text=True).strip()
   run('docker','run','--rm','--network','container:'+gateway_id,'python:3.12-slim-bookworm','python','-c',"import socket; ports=[9180,9090]; results=[]; [(results.append(s.connect_ex(('127.0.0.1',p))),s.close()) for p in ports for s in [socket.socket()]]; assert all(results), results",stdout=subprocess.DEVNULL)
-  print('Gateway smoke passed: TLS, allowlist, headers, CORS, private paths, logging, Admin/control closed')
+  # Actual production adoption + verifier; only root chown is delegated to a
+  # disposable helper to let an unprivileged test runner exercise real gid636.
+  from tls_fixture import certificates
+  lineage=root/'lineage';lineage.mkdir()
+  ca,newkey,leaf,newer,short=certificates(lineage,'api.scribeswell.test')
+  trust=root/'trust.pem';trust.write_bytes(cert.read_bytes()+ca.read_bytes())
+  state=root/'state';state.mkdir();(state/'current.json').write_text(json.dumps({'sha':'a'*40,'images':{},'compose':str(out/'compose.json'),'evidence':'fixture'}))
+  ids={name:subprocess.check_output([*cmd,'ps','-q',name],text=True).strip() for name in names}
+  config={'state_dir':str(state),'api':f'https://api.scribeswell.test:{port}','environment':'staging','cert':str(root/'installed.pem'),'key':str(root/'installed.key')}
+  with patch.dict(os.environ,{'SSL_CERT_FILE':str(trust)}),patch.object(renewal.os,'chown',fixture_chown):
+   assert renewal.install(config,newer,newkey)['outcome']=='activated'
+   assert renewal.install(config,newer,newkey)['outcome']=='already_active'
+   successful=json.loads((state/'current.json').read_text())
+   directory=Path(successful['compose']).parent
+   assert (directory/'apisix.yaml').stat().st_gid==636 and (directory/'apisix.yaml').stat().st_mode & 0o777==0o640
+   assert directory.stat().st_gid==636 and directory.stat().st_mode & 0o777==0o750
+   successful_id=subprocess.check_output([*cmd,'ps','-q','gateway'],text=True).strip()
+   changed_chain=root/'changed-chain.pem';changed_chain.write_bytes(newer.read_bytes()+ca.read_bytes())
+   assert renewal.install(config,changed_chain,newkey)['outcome']=='activated'
+   assert subprocess.check_output([*cmd,'ps','-q','gateway'],text=True).strip()!=successful_id
+   previous=json.loads((state/'current.json').read_text())
+   prepare=renewal.prepare_gateway
+   def broken_candidate(*args):
+    candidate=prepare(*args)
+    document=json.loads((candidate.parent/'apisix.yaml').read_text().removesuffix('\n#END\n'))
+    document['routes']=[] # Inject a real 404 after candidate activation.
+    (candidate.parent/'apisix.yaml').write_text(json.dumps(document)+'\n#END\n')
+    return candidate
+   with patch.object(renewal,'prepare_gateway',broken_candidate):
+    try:renewal.install(config,newer,newkey)
+    except renewal.Failure as failure:assert failure.code=='api_route_health'
+    else:raise AssertionError('broken candidate unexpectedly accepted')
+   assert json.loads((state/'current.json').read_text())==previous
+   evidence=json.loads(sorted(state.glob('tls-*.json'))[-1].read_text())
+   assert evidence['recovery']=='verified' and evidence['previous_compose']==previous['compose']
+   assert Path(config['cert']).read_bytes()==changed_chain.read_bytes()
+   renewal.verify_served(config['api'],renewal.leaf_fingerprint(changed_chain))
+  for name,identity in ids.items():assert subprocess.check_output([*cmd,'ps','-q',name],text=True).strip()==identity
+  assert subprocess.check_output([*cmd,'ps','-q','gateway'],text=True).strip()!=gateway_id
+  print('Gateway smoke passed: production TLS verifier, gid636/0640, multi-PEM adoption, chain-only rotation, idempotence, failed-candidate recovery, unchanged API containers, allowlist, headers, CORS, private paths, logging, Admin/control closed')
+
  finally:run(*cmd,'down','--remove-orphans',stdout=subprocess.DEVNULL)

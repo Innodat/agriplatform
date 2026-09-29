@@ -1,5 +1,12 @@
 #!/usr/bin/env bash
+set +x
 set -euo pipefail
+if [[ -z "${REGISTRY_ACTOR:-}" || -z "${REGISTRY_TOKEN:-}" ]]; then
+  echo "Missing temporary registry inputs" >&2; exit 1
+fi
+actor_pattern='^[A-Za-z0-9][A-Za-z0-9_-]{0,100}(\[bot\])?$'
+[[ "$REGISTRY_ACTOR" =~ $actor_pattern && "$REGISTRY_TOKEN" =~ ^[A-Za-z0-9_]{1,4096}$ ]]
+[[ "${GITHUB_RUN_ID:-}" =~ ^[0-9]+$ && "${GITHUB_RUN_ATTEMPT:-}" =~ ^[0-9]+$ ]]
 : "${DEPLOY_ENV:?}" "${RELEASE_SHA:?}" "${DEPLOY_HOST:?}" "${DEPLOY_USER:?}" "${SSH_PRIVATE_KEY:?}" "${SSH_KNOWN_HOSTS:?}"
 [[ "$DEPLOY_ENV" == staging || "$DEPLOY_ENV" == production ]]
 [[ "$RELEASE_SHA" =~ ^[0-9a-f]{40}$ ]]
@@ -25,5 +32,5 @@ options=(-i "$ssh_directory/deploy_key" -o IdentitiesOnly=yes -o BatchMode=yes -
 ssh "${options[@]}" "$remote" true
 ssh "${options[@]}" "$remote" "mkdir -p /srv/agriplatform/incoming/$RELEASE_SHA"
 scp "${options[@]}" /tmp/release-source.tar images.json public-config.json "$remote:/srv/agriplatform/incoming/$RELEASE_SHA/"
-# Target account needs a narrowly reviewed root wrapper or root access; bootstrap and registry login are manual setup.
-ssh "${options[@]}" "$remote" "tar -xf /srv/agriplatform/incoming/$RELEASE_SHA/release-source.tar -C /srv/agriplatform/incoming/$RELEASE_SHA && python3 /srv/agriplatform/incoming/$RELEASE_SHA/platform/deployment/host-release.py --public-config /srv/agriplatform/incoming/$RELEASE_SHA/public-config.json --environment $DEPLOY_ENV --sha $RELEASE_SHA --images /srv/agriplatform/incoming/$RELEASE_SHA/images.json --config /etc/agriplatform/$DEPLOY_ENV.json --release-dir /srv/agriplatform/releases/$RELEASE_SHA-${GITHUB_RUN_ID:?}-${GITHUB_RUN_ATTEMPT:?}"
+# Target account needs root access; temporary GHCR credentials travel only through strict SSH stdin.
+printf '%s\n%s\n' "$REGISTRY_ACTOR" "$REGISTRY_TOKEN" | ssh "${options[@]}" "$remote" "tar -xf /srv/agriplatform/incoming/$RELEASE_SHA/release-source.tar -C /srv/agriplatform/incoming/$RELEASE_SHA && python3 /srv/agriplatform/incoming/$RELEASE_SHA/platform/deployment/registry-deploy.py --public-config /srv/agriplatform/incoming/$RELEASE_SHA/public-config.json --environment $DEPLOY_ENV --sha $RELEASE_SHA --images /srv/agriplatform/incoming/$RELEASE_SHA/images.json --config /etc/agriplatform/$DEPLOY_ENV.json --release-dir /srv/agriplatform/releases/$RELEASE_SHA-${GITHUB_RUN_ID:?}-${GITHUB_RUN_ATTEMPT:?}"

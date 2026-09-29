@@ -12,6 +12,7 @@ import time
 from release import ROOT, load_manifests, safe_path
 from render_gateway import APISIX, render, origin, require_compose
 from target_contract import database_url
+from tls.renew import save as save_state, durable_unlink
 
 def execute(args,**kwargs):
  # Suppress third-party exception/stdout content: credentials may be in database errors.
@@ -100,6 +101,8 @@ def deploy(environment,sha,images_path,config_path,release_dir,public_config_pat
  state=Path(config['state_dir']);state.mkdir(parents=True,exist_ok=True,mode=0o750)
  with (state/'release.lock').open('a') as lock:
   fcntl.flock(lock,fcntl.LOCK_EX|fcntl.LOCK_NB)
+  if (state/'tls-pending.json').exists():raise ValueError('TLS recovery pending; reconcile before release')
+  if (state/'release-pending.json').exists():raise ValueError('Application activation pending; reconcile before release')
   release_dir.mkdir(parents=True,exist_ok=False,mode=0o750)
   report={'sha':sha,'environment':environment,'images':images['images'],'started_at':int(time.time()),'activated':False,'migrations':{},'previous':json.loads((state/'current.json').read_text()) if (state/'current.json').exists() else None}
   def save():
@@ -136,13 +139,16 @@ def deploy(environment,sha,images_path,config_path,release_dir,public_config_pat
     if entry['status']!='succeeded':raise ValueError('migration failed')
    command=['docker','compose','-f',str(generated/'compose.json')]
    previous_ids=subprocess.check_output(['docker','ps','-q','--no-trunc','--filter','label=com.docker.compose.project=agriplatform-'+environment],text=True,stderr=subprocess.DEVNULL,timeout=10).split()
+   candidate={'sha':sha,'images':images['images'],'compose':str(generated/'compose.json'),'evidence':str(release_dir/'evidence.json')}
+   save_state(state/'release-pending.json',{'candidate':candidate,'previous':report['previous'],'environment':environment})
    activation_started=int(time.time());report['supervisor']={'status':'observing','previous_container_ids':previous_ids};save()
    try:execute([*command,'up','-d','--wait','--wait-timeout','120','--remove-orphans'],timeout=240)
    finally:report['supervisor']=supervisor_events(environment,activation_started,previous_ids);save()
    # Gateway has no health endpoint: verify a real public route through TLS and CORS.
-   execute(['curl','--fail','--silent','--show-error','--retry','10','--retry-all-errors','--retry-delay','2','--connect-timeout','5','--max-time','45','--resolve',origin(config['api']).hostname+':443:127.0.0.1',config['api']+'/directory/api/apps'])
+   execute(['curl','--fail','--silent','--show-error','--retry','10','--retry-all-errors','--retry-delay','2','--connect-timeout','5','--max-time','45','--resolve',origin(config['api']).hostname+':443:127.0.0.1',config['api']+'/directory/api/apps'],timeout=600)
    report['activated']=True;report['finished_at']=int(time.time());save()
-   current=state/'current.tmp';current.write_text(json.dumps({'sha':sha,'images':images['images'],'compose':str(generated/'compose.json'),'evidence':str(release_dir/'evidence.json')}));current.replace(state/'current.json')
+   save_state(state/'current.json',candidate)
+   durable_unlink(state/'release-pending.json')
   except Exception:
    report['code']='release_failed_reconcile_before_retry';report['finished_at']=int(time.time());save();raise
 

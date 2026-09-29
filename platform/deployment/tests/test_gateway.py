@@ -33,6 +33,8 @@ class ComposeContract(unittest.TestCase):
   with tempfile.TemporaryDirectory() as d:
    root=Path(d);env=root/'env';env.mkdir();cert=root/'cert';cert.write_text('fixture');key=root/'key';key.write_text('fixture')
    for m in manifests:(env/m['env_file']).write_text('PASSWORD=literal$dollar${VALUE}$$\n')
-   with patch.object(gateway,'load_manifests',return_value=manifests),patch.object(gateway.subprocess,'run'),patch.object(gateway.subprocess,'check_output',return_value=b'publickey'):
+   with patch.object(gateway,'load_manifests',return_value=manifests),patch.object(gateway.subprocess,'run') as run,patch.object(gateway.subprocess,'check_output',return_value=b'publickey') as capture:
     services=gateway.render(root/'out',env,{m['id']:'fixture@sha256:'+'0'*64 for m in manifests},'https://stage.test','https://api.stage.test',cert,key,'staging')
+   self.assertEqual(len(run.call_args_list)+len(capture.call_args_list),4)
+   for call in [*run.call_args_list,*capture.call_args_list]:self.assertEqual(call.kwargs['timeout'],10)
    self.assertIn('/custom-health',services[manifests[0]['id']]['healthcheck']['test'][-1]);self.assertEqual(services[manifests[0]['id']]['env_file'][0]['format'],'raw')

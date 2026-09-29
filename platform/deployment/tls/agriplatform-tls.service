@@ -1,0 +1,14 @@
+[Unit]
+Description=Adopt renewed Agriplatform certificate and verify gateway
+After=network-online.target docker.service
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+User=root
+UMask=0077
+ExecStart=/usr/bin/python3 /opt/agriplatform-operations/tls/renew.py --config /etc/agriplatform/production.json --lineage /etc/letsencrypt/live/api.scribeswell.com
+TimeoutStartSec=600
+# TERM goes only to the coordinator; it drains a bounded command then recovers.
+KillMode=mixed
+TimeoutStopSec=240

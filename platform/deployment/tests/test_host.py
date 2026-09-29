@@ -84,3 +84,21 @@ class Host(unittest.TestCase):
    with patch.object(host,'require_compose'),patch.object(host,'render',side_effect=render),patch.object(host.os,'chown'),patch.object(host,'execute',side_effect=execute),patch.object(host.subprocess,'check_output',return_value='old\n'),patch.object(host,'supervisor_events',return_value=observed):
     with self.assertRaises(RuntimeError):self.deploy(root)
    report=json.loads((root/'attempt/evidence.json').read_text());self.assertFalse(report['activated']);self.assertEqual(report['supervisor'],observed)
+   pending=json.loads((root/'state/release-pending.json').read_text());self.assertEqual(pending['candidate']['sha'],'a'*40)
+ def test_pending_tls_recovery_blocks_all_release_effects(self):
+  with tempfile.TemporaryDirectory() as d:
+   root=Path(d);self.setup_target(root);state=root/'state';state.mkdir();(state/'tls-pending.json').write_text('{}')
+   with patch.object(host,'require_compose'),patch.object(host,'execute') as execute,patch.object(host,'render') as render:
+    with self.assertRaisesRegex(ValueError,'TLS recovery pending'):self.deploy(root)
+   execute.assert_not_called();render.assert_not_called();self.assertFalse((root/'attempt').exists())
+
+ def test_success_durably_records_current_then_clears_activation_intent(self):
+  with tempfile.TemporaryDirectory() as d:
+   root=Path(d);self.setup_target(root)
+   def execute(command,**kwargs):
+    if command[:2]==['docker','run']:(root/'attempt/pts-owned/migrations.json').write_text(json.dumps({'complete':True,'owners':{}}))
+    if command[:2]==['docker','compose']:self.assertTrue((root/'state/release-pending.json').exists())
+   def render(output,*args):output.mkdir();(output/'apisix.yaml').write_text('fake');return {}
+   with patch.object(host,'require_compose'),patch.object(host,'render',side_effect=render),patch.object(host.os,'chown'),patch.object(host,'execute',side_effect=execute),patch.object(host.subprocess,'check_output',return_value='old\n'),patch.object(host,'supervisor_events',return_value={}):
+    self.deploy(root)
+   self.assertFalse((root/'state/release-pending.json').exists());self.assertEqual(json.loads((root/'state/current.json').read_text())['sha'],'a'*40)

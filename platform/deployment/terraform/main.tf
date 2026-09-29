@@ -44,6 +44,12 @@ variable "private_ssh_verified" {
   nullable    = false
   description = "Operator assertion backed by strict-host-key private SSH and deployment-path evidence; not automatic verification."
 }
+variable "acme_http_enabled" {
+  type        = bool
+  default     = false
+  nullable    = false
+  description = "Allow standalone ACME HTTP-01 on TCP80; public API remains HTTPS-only."
+}
 variable "wireguard_enabled" {
   type        = bool
   default     = false
@@ -102,6 +108,15 @@ data "hcloud_ssh_key" "existing" {
 }
 resource "hcloud_firewall" "ingress" {
   name = "agriplatform-${var.environment}"
+  dynamic "rule" {
+    for_each = var.acme_http_enabled ? [1] : []
+    content {
+      direction  = "in"
+      protocol   = "tcp"
+      port       = "80"
+      source_ips = ["0.0.0.0/0", "::/0"]
+    }
+  }
   dynamic "rule" {
     for_each = var.wireguard_enabled ? [1] : []
     content {
