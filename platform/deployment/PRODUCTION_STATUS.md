@@ -350,7 +350,7 @@ certificate lineage remains in `/etc/letsencrypt/live/api.scribeswell.com`.
 Certificate SHA256: `219b70015458f4b2228cea62e885548b131ab6030404e23393d8921699046840`.
 No certificate/private-key contents exported; no APIs or gateway started.
 
-**Renewal is manual, not automatic.** Operator must renew before expiry, with a
+**Historical status, superseded by automatic renewal verification below.** The initial manual setup required renewal before expiry, with a
 recommended operational target of **2026-11-27**, using the documented Certbot
 DNS-01 command and a fresh temporary TXT challenge. After renewal, validate and
 replace the external certificate/key copies, rerender/reload the gateway and
@@ -362,3 +362,107 @@ TXT can now be removed by the owner. Protected evidence: tls-challenge.json.
 Next: establish GHCR pull authorization, then complete the remaining approved
 Auth/data/content checks and first-release activation plan. Public HTTPS service
 availability is not claimed merely because certificate issuance succeeded.
+
+
+### Automatic renewal and first-content preflight (2026-09-29)
+
+Automatic HTTP-01 renewal is now configured. Both Certbot and certificate adoption
+timers are enabled/active; staging reconfigure and renewal with deploy-hook dry-run
+passed. Existing certificate is unchanged and valid through 2026-12-27. The hook
+reported expected pending gateway activation; no application containers started.
+See [verified operational evidence](AUTOMATED_OPERATIONS.md). Temporary GHCR
+workflow-token transport is implemented/tested; actual hosted pull awaits release.
+
+Read-only production preflight found no PtS organization, intended reader account,
+poems, sources, witnesses, grants or private source objects. The pts-private bucket
+is private with limit 134217728 bytes. Email login is enabled; public signup is still
+enabled and needs disabling for the agreed administrator-provisioned setup. Asked
+the owner to create kristov.kok@gmail.com in production with a new private password
+and confirmed email; local credentials are not reused. Organization membership and
+PtS read/export/document grants remain a separate controlled provisioning step.
+Auth Site URL, redirect allowlist, custom token hook and mail delivery still need
+verification; no bootstrap authorization assertion has been created.
+
+Archive verification: `apps/pts/.local/venv/bin/python -m apps.pts.tools.verify_archive`
+passed: 264 files / 222505940 bytes; canonical 312 poems / 190 texts / 33 checked /
+275 witnesses / 19 sources / 19 rights. Hebrew validation: `apps/scribeswell/.local/venv/bin/python
+apps/scribeswell/scripts/seed.py --dry-run` passed with 39 books, 929 chapters, 23213 verses,
+306785 words, 471674 morphemes, zero errors. These commands made no production writes.
+No collection imports, account writes by the agent, or public app publication occurred.
+Protected read-only inventory: release-readiness.json; source validation output:
+/tmp/boabab-bible-dry-run.log.
+
+The read-only inventory also confirmed all five Scribeswell corpus tables are empty.
+
+
+### Production reader provisioned (2026-09-29)
+
+Owner created the production account; read-only check verified public signup is
+disabled and found email initially unconfirmed. The explicitly approved provisioning
+operation created organization PtS (slug pts, description Psalms that Sings), linked
+the existing active identity profile as a non-owner member and granted exactly
+pts.poetry.read, pts.poetry.export and pts.poetry.documents. No platform/legacy
+administrator role was granted. Supabase admin API confirmed the existing account
+and selected PtS via current_org_id while preserving other metadata and password.
+No confirmation email was sent. Production identifiers and operation evidence remain
+in ignored protected pts-reader-plan.json, pts-reader-apply.json and
+pts-reader-verify.json; credentials and session tokens are not included in reports.
+
+Independent read-only verification confirmed the membership, exact grants, email
+confirmation, and identity.custom_access_token_hook output for this user/organization
+(including member_id and absence of owner/admin claims). Calling the database
+function does not establish that hosted Auth has enabled it. Asked owner to verify
+Auth Site URL https://scribeswell.com, exact root redirect https://scribeswell.com/
+and enabled Custom Access Token hook identity.custom_access_token_hook; preserve
+redirects needed by other existing apps. Management API credentials are unavailable.
+
+No imports or application publication were performed in this step. Provisioning is
+additive and conflict-checked, with a short database transaction followed by an
+idempotent Auth update outside that transaction. On a partial failure, reconcile
+the protected report and rerun; do not reverse unrelated identity data.
+
+
+### Canonical poetry imported (2026-09-29)
+
+After owner confirmation of hosted Auth settings, an explicitly approved restricted
+pts_import operation imported the verified canonical library into the production
+PtS organization. All 663 catalogue/metadata rows were inserted without conflicts:
+312 poems, 190 with text, 33 assistant-checked complete transcriptions, 275 witnesses,
+19 sources and 19 rights records. Every stored payload equals the canonical source.
+A second import replay inserted zero rows and reported zero conflicts. No alternative
+SQLite/JSONL export was imported, and no collected text was changed. Protected
+evidence: collection-import-plan.json and poetry-import-result.json.
+
+The existing Bible importer cannot yet access hosted PostgREST: read-only preflight
+returned HTTP406/PGRST106, with exposed schemas limited to public and graphql_public.
+Asked owner to add identity and scribeswell while retaining existing exposed schemas;
+pts, access and content must remain unexposed. All five Bible tables remain empty.
+No public application release has been activated. Ten existing documents are being
+transferred through the private Content owner in a separately approved operation;
+do not claim upload completion until document-import-result.json is verified.
+
+
+### Private documents uploaded and verified (2026-09-29)
+
+Explicitly approved upload completed for all ten files already collected in the
+archive sources folder: 191609122 bytes total, largest 89237181 bytes. The existing
+Content service ran temporarily on loopback only, using content_runtime and an
+organization-bound ephemeral import key. Each storage copy was hash/size verified
+by the provider before readiness and catalogue association. All ten PtS attachments
+were verified; a repeat pass reused every content identity. Missing credentials and
+wrong-organization requests returned 403. The temporary service and tunnel stopped
+and the import key was not installed on the production server. Staging objects are
+retained according to the existing upload lifecycle; no cleanup was improvised.
+Evidence: document-import-plan.json and document-import-result.json (protected).
+
+Owner reports exposing identity and scribeswell in Data API. Explained existing
+backend database access: browser -> FastAPI -> Supabase Data API for Scribeswell
+and platform identity directory; browser business-data calls remain FastAPI only.
+PtS/access/content use direct PostgreSQL. Production API reachability verification
+is still in progress; no Hebrew import or public activation claimed.
+
+Unauthenticated public Storage requests for both a staging and sealed copy returned
+HTTP400, with no document download; private-document-access-check.json records
+statuses only. Signed-download expiry and live user revocation checks remain part
+of release acceptance. Recheck still returned PGRST106 for both schemas; asked
+owner to verify Exposed schemas (not Extra search path), correct project and Save.
