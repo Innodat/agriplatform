@@ -20,6 +20,7 @@
   ],
   "bootstrap_paths": [
     "platform/supabase",
-    "apps/scribeswell/supabase"
+    "apps/scribeswell/supabase",
+    "apps/scribeswell/deployment/bootstrap"
   ]
 }

@@ -163,9 +163,11 @@ key/JWT verification inputs, no database/service-role key. Directory verifies ES
 tokens with the configured Supabase Auth endpoint. Omit `SUPABASE_JWT_SECRET`
 for asymmetric signing; supply the actual project secret only for legacy HS256.
 Do not use a placeholder signing secret. Scribeswell's current Bible routes are
-public and do not require that optional legacy setting. Scribeswell currently
-requires its existing server-side Supabase key; review and restrict its actual
-provider permissions before activation. Runtime image contexts deny everything
+public and do not require that optional legacy setting. Scribeswell requires
+`SCRIBESWELL_DATABASE_URL` as `scribeswell_runtime`, with explicit TLS. Host
+preflight rejects obsolete Supabase service-key authority. Import uses the separate
+`SCRIBESWELL_IMPORT_DATABASE_URL` as `scribeswell_import`; never place it in runtime env.
+Follow the [Scribeswell transition](../../apps/scribeswell/deployment/README.md) before activation. Runtime image contexts deny everything
 except required source/artifacts and exclude env/caches/tests.
 
 `pts-migrations.env` contains the approved `SUPABASE_URL` and three migrator URLs from the PtS migration
@@ -183,8 +185,11 @@ lock and owner Alembic histories. It does not apply platform identity or Bible S
 Review/apply those histories in a separate approved initial bootstrap procedure,
 with owner-specific deployment authority and compatibility/recovery tests. The root
 composition currently includes Expense SQL; check-only is not approval to push that
-entire composition. Inspect and approve the target-specific owner set. Expose
-`identity` and `scribeswell` via hosted PostgREST only with the approved grants.
+entire composition. Inspect and approve the target-specific owner set. The app
+directory uses a static catalogue and verified Auth claims, with no PostgREST
+dependency on `identity`. Scribeswell uses restricted direct PostgreSQL. Neither
+requires Data API schema exposure. Retain any existing exposure until all affected
+consumers pass the separately approved transition; do not remove unrelated access.
 Enable and verify the existing custom Auth hook, organization membership and access
 bridge. Employment/account linking alone never grants application access.
 

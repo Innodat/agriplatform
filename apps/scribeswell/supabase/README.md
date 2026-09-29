@@ -1,25 +1,11 @@
-# Scribeswell — Supabase Migrations
+# Scribeswell schema history
 
-Migrations in this directory apply to the **shared Supabase project** (same instance as the rest of the monorepo).
+`migrations/20260614000000_scribeswell_create_schema.sql` owns the `scribeswell`
+book/chapter/verse/word/morpheme tables, legacy read views, RLS and existing grants
+in the shared Supabase project. Applied migration SQL is immutable.
 
-They are kept here (silo'd) so that if Scribeswell is extracted to its own repo, the migrations travel with it.
-
-## Current migrations
-
-| File | Description |
-|------|-------------|
-| `20260614000000_create_bible_schema.sql` | `bible` schema: book, chapter, verse, word, morpheme tables + `*_read` views + RLS |
-
-## Applying migrations
-
-```bash
-# Apply to local Supabase
-supabase db push --local
-
-# Apply to remote (staging/prod)
-supabase db push --db-url <connection-string>
-```
-
-## Note on DB isolation
-
-Currently Scribeswell shares the Supabase project with other apps. True isolation (separate Supabase project) is a future step when the app is extracted to its own repo.
+Restricted direct PostgreSQL roles are a separately reviewed operator bootstrap at
+`../deployment/bootstrap/001_direct_database_roles.sql`. They are not applied at API
+startup. Runtime reads use base tables under RLS; legacy views remain compatible.
+See [the explicit transition and recovery procedure](../deployment/README.md).
+Do not push the root composed schema or run remote migrations as a setup shortcut.

@@ -55,6 +55,7 @@ def preflight(config,environment,manifests,public_config):
  for m in manifests:
   values=env_values(secrets/m['env_file'])
   if not set(m['required_env'])<=values.keys():raise ValueError('missing runtime inputs')
+  if any(field in values for field in m.get('forbidden_env',[])):raise ValueError('obsolete runtime authority')
   if any('MIGRATION' in key or 'IMPORT' in key for key in values):raise ValueError('privileged runtime inputs')
   for field,role in m.get('database_roles',{}).items():database_url(values[field],project,role)
   if any(key.endswith('_DATABASE_URL') and key not in m.get('database_roles',{}) for key in values):raise ValueError('undeclared database authority')

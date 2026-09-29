@@ -32,7 +32,7 @@ router = APIRouter()
     summary="List all books",
     description="Returns all 39 Tanakh books ordered by canonical id.",
 )
-async def list_books(user: OptionalUser = None):
+def list_books(user: OptionalUser = None):
     return bible_service.get_books()
 
 
@@ -42,7 +42,7 @@ async def list_books(user: OptionalUser = None):
     summary="Get book with chapters",
     description="Returns a book and its chapter list by OSIS id (e.g. Gen, Exod).",
 )
-async def get_book(
+def get_book(
     osis_id: str = Path(..., description="OSIS book id, e.g. 'Gen'"),
     user: OptionalUser = None,
 ):
@@ -55,7 +55,7 @@ async def get_book(
     summary="Get chapter with verse list",
     description="Returns a chapter and its verse numbers.",
 )
-async def get_chapter(
+def get_chapter(
     osis_id: str = Path(..., description="OSIS book id"),
     chapter_num: int = Path(..., ge=1, description="Chapter number"),
     user: OptionalUser = None,
@@ -69,7 +69,7 @@ async def get_chapter(
     summary="Get verses with words",
     description="Returns all verses in a chapter, each with their Hebrew words.",
 )
-async def get_verses(
+def get_verses(
     osis_id: str = Path(..., description="OSIS book id"),
     chapter_num: int = Path(..., ge=1, description="Chapter number"),
     user: OptionalUser = None,
@@ -87,7 +87,7 @@ async def get_verses(
         "verb stem, verb aspect, and person where applicable."
     ),
 )
-async def get_word_morphology(
+def get_word_morphology(
     word_id: int = Path(..., ge=1, description="Word id"),
     user: OptionalUser = None,
 ):

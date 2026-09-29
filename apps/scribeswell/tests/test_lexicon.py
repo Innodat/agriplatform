@@ -59,7 +59,7 @@ def test_occurrences_count_words_and_verses_filter_and_page(monkeypatch):
     db.rows['book_read'] = [{'id': i, 'osis_id': osis, 'name_en': osis, 'name_he': 'א', 'testament': 'old', 'division': 'torah', 'book_order': i} for i, osis in [(1, 'Gen'), (2, 'Exod')]]
     db.rows['verse_read'] = [{'id': i, 'book_id': 1 if i < 3 else 2, 'chapter_num': 1, 'verse_num': i} for i in range(1, 4)]
     db.rows['word_read'] = [{'id': i, 'verse_id': verse, 'position': i, 'surface_he': 'אב', 'display_he': 'אב', 'lemma_strong': lemma} for i, verse, lemma in [(1, 1, '1'), (2, 1, 'c/1'), (3, 2, '1'), (4, 3, '1'), (5, 3, '1 a')]]
-    monkeypatch.setattr(bible_service, '_get_client', lambda: db)
+    monkeypatch.setattr(bible_service, 'get_database', lambda: db)
     monkeypatch.setattr(lexicon_service, 'lemma_variants', lambda: {'1': ['1', 'c/1']})
     result = bible_service.get_occurrences('1', offset=1, limit=2)
     assert result['total'] == 4 and result['verse_total'] == 3
@@ -120,7 +120,7 @@ def test_http_chapter_enriches_roots_homonyms_and_prefix_only(monkeypatch):
     from services import bible_service
     lemmas = ['4428', 'c/4467', '4427 b', 'c/l']
     db = database([{'id': i, 'verse_id': 1, 'position': i, 'surface_he': 'אב', 'display_he': 'אב', 'lemma_strong': lemma, 'morph_code': 'HNcmsa'} for i, lemma in enumerate(lemmas, 1)])
-    monkeypatch.setattr(bible_service, '_get_client', lambda: db)
+    monkeypatch.setattr(bible_service, 'get_database', lambda: db)
     with TestClient(app) as client:
         response = client.get('/api/bible/books/Ps/chapters/23/verses')
     assert response.status_code == 200
@@ -138,7 +138,7 @@ def test_real_variants_and_canonical_order_independent_of_ids(monkeypatch):
     db.rows['book_read'] = [{'id': i, 'osis_id': osis, 'name_en': osis, 'name_he': 'א', 'testament': 'old', 'division': 'torah', 'book_order': order} for i, osis, order in [(9, 'Gen', 1), (2, 'Exod', 2)]]
     db.rows['verse_read'] = [{'id': i, 'book_id': i, 'chapter_num': 1, 'verse_num': 1} for i in [9, 2]]
     db.rows['word_read'] = [{'id': i, 'verse_id': book, 'position': i, 'surface_he': 'ברא', 'display_he': 'ברא', 'lemma_strong': lemma} for i, book, lemma in [(1, 2, '1254 a'), (2, 9, 'c/1254 a'), (3, 9, '1254 b')]]
-    monkeypatch.setattr(bible_service, '_get_client', lambda: db)
+    monkeypatch.setattr(bible_service, 'get_database', lambda: db)
     result = bible_service.get_occurrences('1254 a')
     assert result['total'] == 2
     assert [w['id'] for w in result['data']] == [2, 1]

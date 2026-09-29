@@ -9,68 +9,38 @@ from import_bible import BibleImporter
 
 
 class Database:
+    """In-memory owner repository; transport behavior is exercised against PostgreSQL."""
     def __init__(self, cap=1000):
         self.rows = {t: [] for t in ('book', 'chapter', 'verse', 'word', 'morpheme')}
-        self.cap = cap
 
-    def schema(self, name):
-        return self
+    def read(self, table, *, columns='*', filters=None, in_filters=None, order=('id',)):
+        rows = [r.copy() for r in self.rows[table] if all(r[k] == v for k, v in (filters or {}).items()) and all(r[k] in v for k, v in (in_filters or {}).items())]
+        for key in reversed(order):
+            rows.sort(key=lambda r: r[key])
+        return rows
 
-    def table(self, name):
-        return Query(self, name)
+    def one(self, table, **kwargs):
+        rows = self.read(table, **kwargs)
+        return rows[0] if rows else None
 
+    def upsert(self, table, pending, conflict):
+        rows = self.rows[table]
+        keys = conflict.split(',')
+        for row in pending:
+            old = next((r for r in rows if all(r[k] == row[k] for k in keys)), None)
+            if old is None:
+                rows.append({'id': len(rows) + 1, **row})
+            else:
+                old.update(row)
 
-class Query:
-    def __init__(self, db, table):
-        self.db, self.table = db, table
-        self.filters = []
-        self.start, self.end = 0, db.cap - 1
-        self.pending = None
-        self.orders = []
-
-    def select(self, *args, **kwargs):
-        return self
-
-    def eq(self, key, value):
-        self.filters.append(lambda r: r[key] == value)
-        return self
-
-    def in_(self, key, values):
-        self.filters.append(lambda r: r[key] in values)
-        return self
-
-    def order(self, key, **kwargs):
-        self.orders.append(key)
-        return self
-
-    def range(self, start, end):
-        self.start, self.end = start, end
-        return self
-
-    def upsert(self, rows, on_conflict):
-        self.pending = rows, on_conflict.split(',')
-        return self
-
-    def execute(self):
-        rows = self.db.rows[self.table]
-        if self.pending:
-            pending, keys = self.pending
-            for row in pending:
-                old = next((r for r in rows if all(r[k] == row[k] for k in keys)), None)
-                if old is None:
-                    rows.append({'id': len(rows) + 1, **row})
-                else:
-                    old.update(row)
-            return SimpleNamespace(data=pending)
-        selected = [r.copy() for r in rows if all(f(r) for f in self.filters)]
-        for key in reversed(self.orders):
-            selected.sort(key=lambda r: r[key])
-        return SimpleNamespace(data=selected[self.start:min(self.end + 1, self.start + self.db.cap)], count=len(selected))
+    def transaction(self):
+        from contextlib import nullcontext
+        return nullcontext()
 
 
 def importer(db):
-    obj = BibleImporter('', '', dry_run=True)
-    obj.dry_run, obj.sb = False, db
+    obj = BibleImporter('', dry_run=True)
+    obj.dry_run, obj.db = False, db
     return obj
 
 
@@ -90,7 +60,7 @@ def test_invalid_word_fails_before_writes():
 
 
 def test_dry_run_accepts_actual_list_format():
-    obj = BibleImporter('', '', dry_run=True)
+    obj = BibleImporter('', dry_run=True)
     obj.import_book('Genesis', [[[['אָב', '1', 'HNcmsa']]]])
     assert obj.stats['words'] == 1
     assert obj.stats['morphemes'] == 1

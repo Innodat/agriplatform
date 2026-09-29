@@ -7,11 +7,10 @@ Usage:
     python tools/py/import_bible.py --source <path/to/hebrew.json> [--dry-run] [--book Gen]
 
 Requirements:
-    pip install supabase python-dotenv tqdm
+    pip install "psycopg[binary,pool]>=3.2,<4" python-dotenv
 
 Environment variables (from .env or environment):
-    SUPABASE_URL          — project URL
-    SUPABASE_SECRET_KEY  — service role key (bypasses RLS for import)
+    SCRIBESWELL_IMPORT_DATABASE_URL — restricted scribeswell_import PostgreSQL URL
 
 Source format: {"Genesis": [[[ ["Hebrew surface", "Strong code", "morphology"] ]]]}.
 Chapter, verse and word positions are one-based list positions. The first two word
@@ -38,15 +37,14 @@ sys.path.insert(0, str(Path(__file__).parent))
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "backend"))
 from oshb_morph import parse_morph_code
-from pagination import fetch_all
+from database import Database, DatabaseUnavailable
 
 # ── Load env ──────────────────────────────────────────────────────────────────
 load_dotenv(REPO_ROOT / ".env")
 load_dotenv(REPO_ROOT / ".env.local")
 load_dotenv(Path(__file__).resolve().parents[2] / "backend" / ".env")
 
-SUPABASE_URL = os.environ.get("SUPABASE_URL", "")
-SUPABASE_SECRET_KEY = os.environ.get("SUPABASE_SECRET_KEY", "")
+IMPORT_DATABASE_URL = os.environ.get("SCRIBESWELL_IMPORT_DATABASE_URL", "")
 
 # ── Book metadata ─────────────────────────────────────────────────────────────
 # Canonical Tanakh order: Torah (1-5), Nevi'im (6-24), Ketuvim (25-39)
@@ -124,22 +122,21 @@ def chunked(lst: list, size: int):
 # ── Importer ──────────────────────────────────────────────────────────────────
 
 class BibleImporter:
-    def __init__(self, supabase_url: str, secret_key: str, dry_run: bool = False):
+    def __init__(self, database_url: str, dry_run: bool = False):
         self.dry_run = dry_run
+        self.db = None
         if not dry_run:
-            try:
-                from supabase import create_client
-                self.sb = create_client(supabase_url, secret_key)
-            except ImportError:
-                print("❌ supabase package not installed. Run: pip install supabase")
-                sys.exit(1)
-        else:
-            self.sb = None
+            self.db = Database(database_url, 'scribeswell_import', production=os.environ.get('APP_ENV') == 'production', max_size=1)
+            self.db.open()
 
         self.stats = {
             "books": 0, "chapters": 0, "verses": 0,
             "words": 0, "morphemes": 0, "errors": 0,
         }
+
+    def close(self):
+        if self.db is not None:
+            self.db.close()
 
     # ── upsert helpers ────────────────────────────────────────────────────────
 
@@ -147,9 +144,7 @@ class BibleImporter:
         if self.dry_run or not rows:
             return
         for batch in chunked(rows, BATCH_SIZE):
-            self.sb.schema("scribeswell").table(table).upsert(
-                batch, on_conflict=on_conflict
-            ).execute()
+            self.db.upsert(table, batch, on_conflict)
 
     # ── seed books ────────────────────────────────────────────────────────────
 
@@ -161,10 +156,7 @@ class BibleImporter:
         print(f"   ✓ {len(BOOK_METADATA)} books")
 
     def _read(self, table, **filters):
-        query = self.sb.schema("scribeswell").table(table).select("*", count="exact")
-        for key, value in filters.items():
-            query = query.eq(key, value)
-        return fetch_all(query.order("id"))
+        return self.db.read(table, filters=filters)
 
     def validate_book(self, book_name, book_data):
         if book_name not in NAME_EN_TO_META:
@@ -225,48 +217,51 @@ class BibleImporter:
                         self.stats["words"] += 1
                         self.stats["morphemes"] += len(morphs)
             return
-        if not verify_only:
-            self._upsert("chapter", chapters, "book_id,chapter_num")
         actual = self._read("chapter", book_id=book_id)
-        self._compare(actual, chapters, ["chapter_num"], book_name + " chapters")
-        chapter_ids = {r["chapter_num"]: r["id"] for r in actual}
-        self.stats["chapters"] += len(chapters)
+        if verify_only:
+            self._compare(actual, chapters, ["chapter_num"], book_name + " chapters")
+        elif any(row["chapter_num"] not in range(1, len(chapters) + 1) for row in actual):
+            raise RuntimeError(f"{book_name} chapters: unexpected records")
         for c, verses in enumerate(book_data, 1):
-            ref = f"{book_name} {c}"
-            chapter_id = chapter_ids[c]
-            expected_verses = [{"chapter_id": chapter_id, "verse_num": v, "book_id": book_id, "chapter_num": c}
-                               for v in range(1, len(verses)+1)]
-            if not verify_only:
-                self._upsert("verse", expected_verses, "chapter_id,verse_num")
-            actual_verses = self._read("verse", chapter_id=chapter_id)
-            self._compare(actual_verses, expected_verses, ["verse_num"], ref + " verses")
-            verse_ids = {r["verse_num"]: r["id"] for r in actual_verses}
-            words, morphs_by_key = [], {}
-            for v, source_words in enumerate(verses, 1):
-                for pos, source_word in enumerate(source_words, 1):
-                    word, morphs = self.decode_word(source_word, f"{ref}:{v} word {pos}")
-                    key = (verse_ids[v], pos)
-                    words.append({"verse_id": key[0], "position": pos, **word})
-                    morphs_by_key[key] = morphs
-            if not verify_only:
-                self._upsert("word", words, "verse_id,position")
-            actual_words = fetch_all(self.sb.schema("scribeswell").table("word").select("*", count="exact")
-                                     .in_("verse_id", list(verse_ids.values())).order("id"))
-            self._compare(actual_words, words, ["verse_id", "position"], ref + " words")
-            morphemes = []
-            for word in actual_words:
-                for i, morph in enumerate(morphs_by_key[(word["verse_id"], word["position"]) ]):
-                    morphemes.append({"word_id": word["id"], "segment_index": i, **morph})
-            if not verify_only:
-                self._upsert("morpheme", morphemes, "word_id,segment_index")
-            actual_morphs = []
-            for batch in chunked([w["id"] for w in actual_words], 100):
-                actual_morphs.extend(fetch_all(self.sb.schema("scribeswell").table("morpheme")
-                    .select("*", count="exact").in_("word_id", batch).order("id")))
-            self._compare(actual_morphs, morphemes, ["word_id", "segment_index"], ref + " morphemes")
-            self.stats["verses"] += len(verses)
-            self.stats["words"] += len(words)
-            self.stats["morphemes"] += len(morphemes)
+            with self.db.transaction():
+                ref = f"{book_name} {c}"
+                if not verify_only:
+                    self._upsert("chapter", [chapters[c - 1]], "book_id,chapter_num")
+                chapter_rows = self._read("chapter", book_id=book_id, chapter_num=c)
+                self._compare(chapter_rows, [chapters[c - 1]], ["chapter_num"], ref + " chapter")
+                chapter_id = chapter_rows[0]["id"]
+                expected_verses = [{"chapter_id": chapter_id, "verse_num": v, "book_id": book_id, "chapter_num": c}
+                                   for v in range(1, len(verses)+1)]
+                if not verify_only:
+                    self._upsert("verse", expected_verses, "chapter_id,verse_num")
+                actual_verses = self._read("verse", chapter_id=chapter_id)
+                self._compare(actual_verses, expected_verses, ["verse_num"], ref + " verses")
+                verse_ids = {r["verse_num"]: r["id"] for r in actual_verses}
+                words, morphs_by_key = [], {}
+                for v, source_words in enumerate(verses, 1):
+                    for pos, source_word in enumerate(source_words, 1):
+                        word, morphs = self.decode_word(source_word, f"{ref}:{v} word {pos}")
+                        key = (verse_ids[v], pos)
+                        words.append({"verse_id": key[0], "position": pos, **word})
+                        morphs_by_key[key] = morphs
+                if not verify_only:
+                    self._upsert("word", words, "verse_id,position")
+                actual_words = self.db.read("word", in_filters={"verse_id": list(verse_ids.values())})
+                self._compare(actual_words, words, ["verse_id", "position"], ref + " words")
+                morphemes = []
+                for word in actual_words:
+                    for i, morph in enumerate(morphs_by_key[(word["verse_id"], word["position"]) ]):
+                        morphemes.append({"word_id": word["id"], "segment_index": i, **morph})
+                if not verify_only:
+                    self._upsert("morpheme", morphemes, "word_id,segment_index")
+                actual_morphs = []
+                for batch in chunked([w["id"] for w in actual_words], 100):
+                    actual_morphs.extend(self.db.read("morpheme", in_filters={"word_id": batch}))
+                self._compare(actual_morphs, morphemes, ["word_id", "segment_index"], ref + " morphemes")
+                self.stats["chapters"] += 1
+                self.stats["verses"] += len(verses)
+                self.stats["words"] += len(words)
+                self.stats["morphemes"] += len(morphemes)
         print(f"   Verified {book_name}: {len(chapters)} chapters", flush=True)
 
     def run(self, source_path: Path, only_book: str | None = None, verify_only=False) -> None:
@@ -323,20 +318,17 @@ def main() -> None:
         print(f"❌ Source file not found: {source}")
         sys.exit(1)
 
-    if not args.dry_run:
-        if not SUPABASE_URL:
-            print("❌ SUPABASE_URL not set in environment")
-            sys.exit(1)
-        if not SUPABASE_SECRET_KEY:
-            print("❌ SUPABASE_SECRET_KEY not set in environment")
-            sys.exit(1)
-
-    importer = BibleImporter(
-        supabase_url=SUPABASE_URL,
-        secret_key=SUPABASE_SECRET_KEY,
-        dry_run=args.dry_run,
-    )
-    importer.run(source_path=source, only_book=args.book, verify_only=args.verify_only)
+    if not args.dry_run and not IMPORT_DATABASE_URL:
+        parser.error("SCRIBESWELL_IMPORT_DATABASE_URL is required")
+    importer = None
+    try:
+        importer = BibleImporter(IMPORT_DATABASE_URL, dry_run=args.dry_run)
+        importer.run(source_path=source, only_book=args.book, verify_only=args.verify_only)
+    except DatabaseUnavailable:
+        raise SystemExit("Import failed: database unavailable; retry after recovery") from None
+    finally:
+        if importer is not None:
+            importer.close()
 
 
 if __name__ == "__main__":

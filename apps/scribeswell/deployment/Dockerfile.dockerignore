@@ -3,6 +3,9 @@
 !apps/scribeswell/backend/**
 !apps/scribeswell/data/hebrew-lexicon/**
 !apps/scribeswell/scripts/hebrew.json
+!apps/scribeswell/scripts/seed.py
+!apps/scribeswell/tools/py/import_bible.py
+!apps/scribeswell/tools/py/oshb_morph.py
 **/.env*
 **/__pycache__/**
 **/.pytest_cache/**

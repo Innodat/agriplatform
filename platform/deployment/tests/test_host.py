@@ -53,6 +53,18 @@ class Host(unittest.TestCase):
     root=Path(d);self.setup_target(root);p=root/'bootstrap.json';data=json.loads(p.read_text());data[key]=value;p.write_text(json.dumps(data))
     with self.assertRaises(ValueError):self.deploy(root)
     self.assertFalse((root/'state').exists())
+ def test_scribeswell_wrong_role_and_obsolete_service_key_block_activation(self):
+  for value in ['SUPABASE_SECRET_KEY=old-secret\n','SUPABASE_SERVICE_ROLE_KEY=old-secret\n']:
+   with tempfile.TemporaryDirectory() as d:
+    root=Path(d);self.setup_target(root);file=root/'env/scribeswell.env';file.write_text(file.read_text()+value)
+    with patch.object(host,'execute') as execute:
+     with self.assertRaisesRegex(ValueError,'obsolete runtime authority'):self.deploy(root)
+     execute.assert_not_called()
+  with tempfile.TemporaryDirectory() as d:
+   root=Path(d);self.setup_target(root);file=root/'env/scribeswell.env';file.write_text(file.read_text().replace('scribeswell_runtime:', 'scribeswell_import:'))
+   with patch.object(host,'execute') as execute:
+    with self.assertRaisesRegex(ValueError,'database project/role mismatch'):self.deploy(root)
+    execute.assert_not_called()
  def test_ci_public_configuration_mismatch_rejected(self):
   with tempfile.TemporaryDirectory() as d:
    root=Path(d);self.setup_target(root);p=root/'public.json';data=json.loads(p.read_text());data['site']='https://wrong.test';p.write_text(json.dumps(data))

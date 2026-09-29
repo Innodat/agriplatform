@@ -30,7 +30,7 @@ def test_existing_api_rows_derive_features_after_integrity_check(monkeypatch):
     db = database([word])
     db.rows['morpheme_read'] = [dict(word_id=99, segment_index=i, language='hebrew', part_of_speech='verb', pos_code=code, gender=None, number=None) for i, code in enumerate(['R', 'Vqrmpc', 'Sp3ms'])]
     original = deepcopy(db.rows)
-    monkeypatch.setattr(bible_service, '_get_client', lambda: db)
+    monkeypatch.setattr(bible_service, 'get_database', lambda: db)
     result = bible_service.get_word_morphology(99)
     assert result.morphemes[1].number == 'plural'
     assert result.morphemes[1].state == 'construct'
@@ -64,7 +64,7 @@ def test_real_aramaic_stems_and_api_presentation(monkeypatch):
             assert (parsed.gender, parsed.number, parsed.state) == ('masculine', 'singular', 'absolute')
         db = database([dict(id=99, verse_id=1, position=1, surface_he=surface, display_he=surface, lemma_strong=lemma, morph_code=actual)])
         db.rows['morpheme_read'] = [dict(word_id=99, segment_index=0, language='aramaic', part_of_speech='verb', pos_code=actual[1:])]
-        monkeypatch.setattr(bible_service, '_get_client', lambda: db)
+        monkeypatch.setattr(bible_service, 'get_database', lambda: db)
         result = bible_service.get_word_morphology(99).morphemes[0]
         assert (result.verb_stem, result.verb_aspect, result.person) == (stem, aspect, person)
     assert parse_morph_code('HVqp3ms')[0].verb_stem == 'qal'

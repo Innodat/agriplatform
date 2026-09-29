@@ -10,6 +10,8 @@ OpenAPI docs:
     http://localhost:8000/redoc
 """
 import logging
+from contextlib import asynccontextmanager
+from database import open_database, close_database, DatabaseUnavailable
 
 from config import settings
 from fastapi import FastAPI, Request
@@ -20,7 +22,17 @@ from starlette.exceptions import HTTPException as StarletteHTTPException
 
 # ── App ───────────────────────────────────────────────────────────────────────
 
+@asynccontextmanager
+async def lifespan(app):
+    open_database()
+    try:
+        yield
+    finally:
+        close_database()
+
+
 app = FastAPI(
+    lifespan=lifespan,
     title="Scribeswell API",
     description="Hebrew Bible study API",
     version="0.1.0",
@@ -58,6 +70,12 @@ async def validation_exception_handler(request: Request, exc: RequestValidationE
             "details": exc.errors(),
         },
     )
+
+
+@app.exception_handler(DatabaseUnavailable)
+async def database_exception_handler(request: Request, exc: DatabaseUnavailable):
+    logging.getLogger(__name__).error('{"service":"scribeswell","action":"database","outcome":"failed","code":"database_unavailable"}')
+    return JSONResponse(status_code=503, content={"error": "Database temporarily unavailable", "code": "database_unavailable"})
 
 
 @app.exception_handler(Exception)
