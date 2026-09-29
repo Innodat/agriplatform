@@ -16,7 +16,7 @@ class Control:
 def deploy(actor, token, command, control=None):
     control = control or Control()
     if (not re.fullmatch(r'[A-Za-z0-9][A-Za-z0-9_-]{0,100}(?:\[bot\])?', actor)
-            or not re.fullmatch(r'[A-Za-z0-9_]{1,4096}', token) or not command):
+            or not re.fullmatch(r'[A-Za-z0-9_.-]{1,4096}', token) or not command):
         raise ValueError('invalid registry inputs')
     if os.geteuid() != 0:
         raise ValueError('root wrapper required')

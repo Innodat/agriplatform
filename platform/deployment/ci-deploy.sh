@@ -5,8 +5,13 @@ if [[ -z "${REGISTRY_ACTOR:-}" || -z "${REGISTRY_TOKEN:-}" ]]; then
   echo "Missing temporary registry inputs" >&2; exit 1
 fi
 actor_pattern='^[A-Za-z0-9][A-Za-z0-9_-]{0,100}(\[bot\])?$'
-[[ "$REGISTRY_ACTOR" =~ $actor_pattern && "$REGISTRY_TOKEN" =~ ^[A-Za-z0-9_]{1,4096}$ ]]
-[[ "${GITHUB_RUN_ID:-}" =~ ^[0-9]+$ && "${GITHUB_RUN_ATTEMPT:-}" =~ ^[0-9]+$ ]]
+# GitHub stateless installation tokens contain JWT dots and base64url hyphens.
+if ! [[ "$REGISTRY_ACTOR" =~ $actor_pattern && "$REGISTRY_TOKEN" =~ ^[A-Za-z0-9_.-]{1,4096}$ ]]; then
+  echo "Invalid registry credentials" >&2; exit 1
+fi
+if ! [[ "${GITHUB_RUN_ID:-}" =~ ^[0-9]+$ && "${GITHUB_RUN_ATTEMPT:-}" =~ ^[0-9]+$ ]]; then
+  echo "Invalid GitHub run identifiers" >&2; exit 1
+fi
 : "${DEPLOY_ENV:?}" "${RELEASE_SHA:?}" "${DEPLOY_HOST:?}" "${DEPLOY_USER:?}" "${SSH_PRIVATE_KEY:?}" "${SSH_KNOWN_HOSTS:?}"
 [[ "$DEPLOY_ENV" == staging || "$DEPLOY_ENV" == production ]]
 [[ "$RELEASE_SHA" =~ ^[0-9a-f]{40}$ ]]

@@ -1,5 +1,6 @@
 import importlib.util
 import json
+import io
 import os
 from pathlib import Path
 import signal
@@ -46,6 +47,46 @@ class RegistryTests(unittest.TestCase):
   self.assertEqual(subprocess.run(['bash','-c',script],env=env,capture_output=True).returncode,0)
   for value in ('','bad actor','actor;cmd'):
    self.assertNotEqual(subprocess.run(['bash','-c',script],env={**env,'REGISTRY_ACTOR':value},capture_output=True).returncode,0)
+ def test_stateless_token_transport_validation(self):
+  script=(PATH.parent/'ci-deploy.sh').read_text().split(': "${DEPLOY_ENV:?}"')[0]
+  token='ghs_123_eyJhbGciOiJSUzI1NiJ9.eyJpYXQiOjEyM30.signature-with_dash'
+  env={**os.environ,'REGISTRY_ACTOR':'Blankyc','REGISTRY_TOKEN':token,'GITHUB_RUN_ID':'1','GITHUB_RUN_ATTEMPT':'1'}
+  result=subprocess.run(['bash','-c',script],env=env,capture_output=True,text=True)
+  self.assertEqual(result.returncode,0,result.stderr)
+  self.assertNotIn(token,result.stdout+result.stderr)
+  with patch.object(module.os,'geteuid',return_value=1000):
+   with self.assertRaisesRegex(ValueError,'root wrapper required'):module.deploy('Blankyc',token,['deploy'])
+ def test_unsafe_token_rejected_without_disclosure(self):
+  script=(PATH.parent/'ci-deploy.sh').read_text().split(': "${DEPLOY_ENV:?}"')[0]
+  for token in ('secret with space','secret\nsecond-line','secret;command','x'*4097):
+   env={**os.environ,'REGISTRY_ACTOR':'Blankyc','REGISTRY_TOKEN':token,'GITHUB_RUN_ID':'1','GITHUB_RUN_ATTEMPT':'1'}
+   result=subprocess.run(['bash','-c',script],env=env,capture_output=True,text=True)
+   self.assertNotEqual(result.returncode,0)
+   self.assertIn('Invalid registry credentials',result.stderr)
+   self.assertNotIn(token,result.stdout+result.stderr)
+   with patch.object(module.subprocess,'run') as run:
+    with self.assertRaises(ValueError):module.deploy('Blankyc',token,['deploy'])
+    run.assert_not_called()
+ def test_maximum_token_survives_shell_and_main_reader(self):
+  token='x'*4096
+  script=(PATH.parent/'ci-deploy.sh').read_text().split(': "${DEPLOY_ENV:?}"')[0]
+  env={**os.environ,'REGISTRY_ACTOR':'actor','REGISTRY_TOKEN':token,'GITHUB_RUN_ID':'1','GITHUB_RUN_ATTEMPT':'1'}
+  self.assertEqual(subprocess.run(['bash','-c',script],env=env,capture_output=True).returncode,0)
+  with patch.object(module.sys,'stdin',io.StringIO('actor\n'+token+'\n')),patch.object(module.signal,'signal'),patch.object(module,'deploy') as deploy:
+   module.main()
+   self.assertEqual(deploy.call_args.args[:2],('actor',token))
+ def test_run_identifiers_fail_with_safe_diagnostic(self):
+  script=(PATH.parent/'ci-deploy.sh').read_text().split(': "${DEPLOY_ENV:?}"')[0]
+  base={**os.environ,'REGISTRY_ACTOR':'actor','REGISTRY_TOKEN':'ghs_private_fixture','GITHUB_RUN_ID':'1','GITHUB_RUN_ATTEMPT':'1'}
+  for name in ('GITHUB_RUN_ID','GITHUB_RUN_ATTEMPT'):
+   for value in (None,'','not-a-number'):
+    env=base.copy()
+    if value is None:env.pop(name,None)
+    else:env[name]=value
+    result=subprocess.run(['bash','-c',script],env=env,capture_output=True,text=True)
+    self.assertNotEqual(result.returncode,0)
+    self.assertIn('Invalid GitHub run identifiers',result.stderr)
+    self.assertNotIn(base['REGISTRY_TOKEN'],result.stdout+result.stderr)
  def test_real_process_cancellation_drains_lock_owner_before_cleanup(self):
   with tempfile.TemporaryDirectory() as directory:
    root=Path(directory);fixture=root/'fixture.py';runner=root/'runner.py'
@@ -104,7 +145,7 @@ path=Path(os.environ['WRAPPER_PATH'])
 spec=importlib.util.spec_from_file_location('registry',path);module=importlib.util.module_from_spec(spec);spec.loader.exec_module(module)
 def deployment(actor,token,command,control):
  assert actor=='fixture-actor'
- assert token=='ghs_fixture_secret'
+ assert token=='ghs_123_fixture.payload.signature-with_dash'
  assert token not in str(command)
  Path(os.environ['CAPTURE']).write_text(json.dumps({'actor':actor,'token_hash':hashlib.sha256(token.encode()).hexdigest(),'command':command}))
 module.deploy=deployment
@@ -123,7 +164,7 @@ elif name=='ssh' and 'registry-deploy.py' in sys.argv[-1]:
 '''
    for name in ('git','ssh','scp'):
     path=binpath/name;path.write_text(transport);path.chmod(0o755)
-   env={**os.environ,'PATH':str(binpath)+os.pathsep+os.environ['PATH'],'REGISTRY_ACTOR':'fixture-actor','REGISTRY_TOKEN':'ghs_fixture_secret','GITHUB_RUN_ID':'123','GITHUB_RUN_ATTEMPT':'2','DEPLOY_ENV':'staging','RELEASE_SHA':'a'*40,'DEPLOY_HOST':'host.test','DEPLOY_USER':'root','SSH_PRIVATE_KEY':'fixture-key','SSH_KNOWN_HOSTS':'fixture-known-host','PUBLIC_SITE_ORIGIN':'https://site.test','PUBLIC_API_ORIGIN':'https://api.test','VITE_SUPABASE_URL':'https://project.test','WRAPPER_PATH':str(PATH),'PARSER_DRIVER':str(driver),'CAPTURE':str(root/'captured.json'),'TRANSPORT_LOG':str(root/'transport.jsonl')}
+   env={**os.environ,'PATH':str(binpath)+os.pathsep+os.environ['PATH'],'REGISTRY_ACTOR':'fixture-actor','REGISTRY_TOKEN':'ghs_123_fixture.payload.signature-with_dash','GITHUB_RUN_ID':'123','GITHUB_RUN_ATTEMPT':'2','DEPLOY_ENV':'staging','RELEASE_SHA':'a'*40,'DEPLOY_HOST':'host.test','DEPLOY_USER':'root','SSH_PRIVATE_KEY':'fixture-key','SSH_KNOWN_HOSTS':'fixture-known-host','PUBLIC_SITE_ORIGIN':'https://site.test','PUBLIC_API_ORIGIN':'https://api.test','VITE_SUPABASE_URL':'https://project.test','WRAPPER_PATH':str(PATH),'PARSER_DRIVER':str(driver),'CAPTURE':str(root/'captured.json'),'TRANSPORT_LOG':str(root/'transport.jsonl')}
    archive=Path('/tmp/release-source.tar');before=archive.read_bytes() if archive.exists() else None
    try:
     result=subprocess.run(['bash',str(PATH.parent/'ci-deploy.sh')],cwd=root,env=env,capture_output=True,text=True,timeout=10)
@@ -132,12 +173,12 @@ elif name=='ssh' and 'registry-deploy.py' in sys.argv[-1]:
     else:archive.write_bytes(before)
    self.assertEqual(result.returncode,0,result.stderr)
    import hashlib
-   capture=json.loads((root/'captured.json').read_text());self.assertEqual(capture['actor'],'fixture-actor');self.assertEqual(capture['token_hash'],hashlib.sha256(b'ghs_fixture_secret').hexdigest())
+   capture=json.loads((root/'captured.json').read_text());self.assertEqual(capture['actor'],'fixture-actor');self.assertEqual(capture['token_hash'],hashlib.sha256(b'ghs_123_fixture.payload.signature-with_dash').hexdigest())
    command=capture['command'];self.assertTrue(command[1].endswith('/host-release.py'))
    self.assertEqual(command[command.index('--environment')+1],'staging');self.assertEqual(command[command.index('--sha')+1],'a'*40)
    self.assertEqual(command[command.index('--release-dir')+1],'/srv/agriplatform/releases/'+'a'*40+'-123-2')
    transport_text=(root/'transport.jsonl').read_text()
-   for secret in ('ghs_fixture_secret','fixture-key'):
+   for secret in ('ghs_123_fixture.payload.signature-with_dash','fixture-key'):
     self.assertNotIn(secret,transport_text);self.assertNotIn(secret,result.stdout+result.stderr+str(command))
    for entry in map(json.loads,transport_text.splitlines()):
     if entry['tool']=='ssh':self.assertIn('StrictHostKeyChecking=yes',entry['argv'])
