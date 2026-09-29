@@ -552,7 +552,7 @@ The acceptance probe verified 312 catalogue records,190 with text and33 checked
 transcriptions; title search and all available filter categories; poem citations;
 filtered JSON/text exports;19 sources and19 rights records. Anonymous and wrong-org
 requests were denied for poems, sources, exports and documents. The smallest existing
-source PDF downloaded twice within its300-second signed URL lifetime and matched
+source PDF downloaded twice within its 300-second signed URL lifetime and matched
 the canonical file SHA256. After the real lifetime plus a10-second margin, Storage
 rejected the same URL with HTTP400. No URLs, tokens or protected content were logged.
 
@@ -568,3 +568,43 @@ revocation, signed upload expiry/replay, password/recovery mail delivery and fin
 browser/public-origin activation checks remain outstanding. The bootstrap assertion
 remains absent and the public release remains blocked until required evidence and
 concrete activation approval are complete.
+
+### Approved final acceptance checks (2026-09-29)
+
+The owner approved the temporary document-permission test, isolated storage
+canaries and one recovery email. The existing pts.poetry.documents grant was
+backed up with its identity and attribution, removed briefly, and restored exactly.
+New PDF issuance returned 403 while revoked; catalogue access remained 200. An
+already-issued PDF URL remained valid inside its 300-second lifetime and was denied
+after actual expiry. Restored PDF issuance succeeded. The temporary Auth session
+was signed out, its refresh token rejected, and private test services stopped.
+Safe evidence: document-permission-revocation.json and
+production-auth-document-acceptance.json under the ignored operational directory.
+
+Supabase accepted exactly one recovery request and the owner confirmed email
+delivery. The link was not consumed and the password was not changed. Actual
+live-origin password sign-in and user-driven password change are not claimed here.
+Recovery UI/browser behavior was separately verified with fixtures: 24 desktop/mobile
+login/recovery tests and 11 cross-application session tests passed. The assembled
+production-configured frontend browser test passed, including nested assets, direct
+reader navigation and the external API endpoint. All 13 deployment JavaScript tests,
+manifest contracts and dry-run Supabase composition passed. JavaScript tests needed
+an unrestricted subprocess environment; the initial sandbox invocation failed.
+
+Read-only production reinspection confirmed 312 poems, 19 sources, 275 witnesses,
+three access grants, 39 books, 929 chapters, 23,213 verses, 306,785 words and 471,674
+morphemes; the reader is confirmed, public signup disabled, and storage private
+with a 128 MiB limit. Its 22 objects during the test include exactly two isolated
+canaries beyond the previous 20; final canary cleanup is recorded separately below.
+
+See FIRST_PRODUCTION_ACTIVATION.md for the concrete pending publication plan and
+first-release recovery limits. No public activation or push occurred in this step.
+
+The isolated Storage-provider test completed successfully: repeated signed uploads
+worked within the 900-second lifetime; changing the disposable staging object could
+not replace the sealed PDF; after the actual expiry plus a 10-second margin, upload
+was rejected with HTTP400 and staged bytes remained unchanged. Both canary objects
+were deleted and HEAD confirmed their absence. Safe evidence:
+storage-transfer-acceptance.json. Canonical source files/objects were not modified.
+All three explicitly approved acceptance operations are complete. Public activation
+and the production bootstrap assertion remain pending separate owner approval.
