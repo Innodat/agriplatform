@@ -63,3 +63,15 @@ focused `--grep 'navigation precedes|actual entry 10|private workspace'` (8 pass
 after review additions). Isolated production build completed successfully;
 `git diff --check` passed. Release retries remain under the owner's active approval;
 no migration or production-authority change is introduced.
+
+Follow-up CI run36549910815 passed Scribeswell and then exposed the identical
+missing-source fixture assumption in PtS reader.spec.cjs. Applied the same owned
+synthetic-file pattern there, preserving403 and verifying the real sentinel never
+appears through the ordinary URL. Repository test search found no other @fs checks
+relying on private library.json. This is a test-only correction; no PtS runtime or
+collection files changed.
+
+Follow-up verification: `apps/pts/web/node_modules/.bin/playwright test --config
+apps/pts/web/playwright.config.cjs` passed48 tests. Follow-up review found no
+functional issue; its request for exact verification evidence is recorded here.
+`git diff --check` passed.

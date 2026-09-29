@@ -117,14 +117,21 @@ test('account replacement drops old context and late clipboard fallback',async({
  await expect(page.getByRole('dialog')).toHaveCount(0);expect(await page.evaluate(()=>window.copiedText)).toBeUndefined();
 });
 
-test('launcher works and development server denies private archive paths',async({page})=>{
+test('launcher works',async({page})=>{
  await setup(page);
  await page.route('http://127.0.0.1:8001/**',route=>route.fulfill({json:{apps:[{id:'pts',name:'PtS',url:'http://localhost:5179',icon:'book-open',description:'Swahili Poetry',enabled:true}],context:{org_id:org,member_id:1,roles:[]}}}));
  await page.goto('/');await expect(page.locator('.poem-text')).toBeVisible();
  await page.getByRole('button',{name:'App launcher',exact:true}).click();
  await expect(page.getByRole('menuitem',{name:'Open PtS',exact:true})).toHaveAttribute('href','http://localhost:5179');
  await page.keyboard.press('Escape');await expect(page.getByRole('menu')).toHaveCount(0);
- const path=require('node:path').resolve(__dirname,'../../reference/poetry-library/library.json');
- const blocked=await page.request.get('/@fs'+path);expect(blocked.status()).toBe(403);
- const shell=await page.request.get('/reference/poetry-library/library.json');expect(await shell.text()).not.toContain('SWA-001');
+ });
+test('development server denies existing private files without the collected library',async({page})=>{
+ const fs=require('node:fs'),path=require('node:path');
+ const directory=fs.mkdtempSync(path.resolve(__dirname,'../../reference/.browser-privacy-'));
+ const marker='synthetic private source sentinel';
+ try{
+  const probe=path.join(directory,'private.txt');fs.writeFileSync(probe,marker);
+  const blocked=await page.request.get('/@fs'+probe);expect(blocked.status()).toBe(403);
+  const shell=await page.request.get('/reference/'+path.basename(directory)+'/private.txt');expect(await shell.text()).not.toContain(marker);
+ }finally{fs.rmSync(directory,{recursive:true});}
 });
