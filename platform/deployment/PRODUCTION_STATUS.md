@@ -628,3 +628,25 @@ workspace projects. Backend remains healthy. FRONTEND_PUBLICATION.md records the
 isolated-artifact publishing fix and verification. Public frontend replacement and
 real-browser verification remain pending the corrected CI run; no live user password
 sign-in or password change is claimed.
+
+### 2026-09-29 first public release complete
+
+Production run https://github.com/Innodat/agriplatform/actions/runs/36557197420
+completed successfully for 498824d1d7c046874a50f17ddf9ea1970ea9b14b. Backend activation,
+Netlify production publication and public release identity/configuration/API
+verification all passed. The real pinned Netlify CLI successfully published from
+its isolated directory, confirming the workspace-discovery fix.
+
+Post-release browser checks against https://scribeswell.com passed: Hebrew text,
+word analysis, focus mode, next chapter, two-passage comparison, mobile layout,
+and root reachability. No requests targeted localhost, 127.0.0.1 or placeholder
+Supabase. Direct host verification confirmed this exact revision, all five APIs
+healthy, zero container restarts, no supervisor warnings and no exposed API ports.
+Safe evidence: public-browser-acceptance.json and live-host-acceptance.json in the
+ignored operations directory. Production CI retains its release evidence artifact.
+
+Open PtS at https://scribeswell.com/ and Scribeswell at
+https://scribeswell.com/scribeswell/. User-entered password login and any desired
+password change remain a manual user check; the production password was not copied
+or changed. Recovery email delivery was previously confirmed; request a fresh link
+from Forgot password if the earlier link has expired.

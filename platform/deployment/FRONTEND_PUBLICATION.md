@@ -33,3 +33,5 @@ Observed the original real CLI failure in production CI. The new acceptance test
 - Verification gap acknowledged: mocked acceptance does not establish actual provider behavior. The next real CI publication must pass before release success is claimed. Original CLI failure provides baseline evidence; five publisher tests now pass, with live verification still pending.
 
 Full deployment regression before review corrections: 117 passed. Subsequent focused publisher tests: 5 passed. No database or frontend artifact content edits.
+
+Live confirmation: production run 36557197420 successfully published with pinned CLI 23.6.0, verified provider identity and public API configuration, and passed real public-browser checks. Final deployment regression suite: 119 passed.
