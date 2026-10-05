@@ -186,6 +186,13 @@ does not grant cancellation or replacement rights over another employee's leave.
 ### 1. Identity, NGO context, and onboarding
 
 - Sign in with Microsoft Entra ID through Supabase Auth.
+- Require current platform app admission, organization Leave enablement, membership
+  and explicit user capabilities under [platform ADR-0046](../../../platform/docs/architecture/decisions/0046-application-availability-and-access-scopes.md).
+  Enabling an organization does not grant every member Leave access. Filter the app
+  launcher and enforce the same checks for direct API/URL access.
+- Disabling Leave suspends access without deleting drafts or configured grants.
+  Re-enabling restores only still-valid access; revoked memberships/grants remain
+  revoked. Protected discovery failure is retryable, not evidence of access removal.
 - Join NGOs only through an authorized invitation/provisioning process.
 - Switch between NGOs without creating separate platform identities.
 - Display the active NGO prominently in the application shell.
@@ -290,6 +297,8 @@ Each versioned leave type/policy supports:
 - Name, code, description, color, icon, and active dates
 - Paid or unpaid classification
 - Permitted units: full day, half day, hours
+  New leave types initially permit all three; managers may restrict them. Arbitrary
+  day fractions are not supported; use Half day or Hours for partial-day requests.
 - Annual entitlement available daily, upfront, or in monthly instalments; manual-only grants remain separate
 - Entitlement, proration, carry-over, cap, and expiry, with fixed whole-minute precision
 - Minimum/maximum duration and notice period
@@ -1491,6 +1500,11 @@ and explain invalid inputs. Passing the selected leave end date does not discard
 delete a draft. Reopening preserves entered details and rechecks current backdating
 rules and permissions; require date changes before submission only where those rules
 require them. Retention/cleanup is a separate explicit policy, not inferred from dates.
+Under [platform ADR-0044](../../../platform/docs/architecture/decisions/0044-bounded-shared-input-observations-for-draft-saves.md),
+an already-checked draft-preservation save may finish within E1's ten-second total
+execution limit if shared employment changes during execution. The next action checks
+current employment and access. This does not relax submission/approval checks or
+permit stale local revisions, closed-draft writes or unavailable-input fallback.
 
 On My Leave, **Apply for leave** resumes that draft, with a small unfinished-application
 note beside the action. Do not add a Drafts section or notification badge.
@@ -1500,6 +1514,16 @@ restore-discarded-draft UI. Keep minimal server-side lifecycle and operation evi
 to reject delayed writes/retries; do not retain notes or whole form snapshots in
 that evidence. E1 has no automatic expiry of active drafts or compact replay evidence.
 Backup retention and any future safe cleanup policy are separate owned contracts.
+Reconfirmed 2026-10-02: retain compact submitted/discarded draft rows for simple
+lifecycle/retry checks, clearing their form contents as part of successful closure.
+Submission preserves the permanent request and its required evidence. Defer automated
+closed-draft cleanup until age-based eligibility and safe retry/outcome expiry are
+specified together; no archive database or restore UI is required.
+Agreed 2026-10-02: creation/last-update actor and time are fields on the draft.
+Ordinary creation/autosaves do not require duplicate audit entries, and opening one's
+own draft does not require a separate read-audit event. Keep compact retry outcomes
+and minimal discard evidence; later third-party/designated sensitive access retains
+its applicable audit requirements. No full-content draft edit history is introduced.
 Submitted requests are separate and may be multiple. Drafts reserve no entitlement until
 submission. Submission rechecks all applicable rules; a saved draft is not a
 validated or approved request. A failed save must not be presented as successful.
@@ -1509,6 +1533,21 @@ save restores that input without silently filling defaults, swapping dates or er
 invalid text. Saved confirms persistence, not request validity. Calculate only when
 required inputs are valid; retain input-format context so locale changes cannot silently
 reinterpret entered dates/durations. Exact schemas and bounds remain contract work.
+Agreed 2026-10-01: employee notes allow up to 4,000 Unicode code points, with a clear
+limit and no silent truncation. Switching between full days, half days and hours
+retains each mode’s entered values; switching back restores them. Only the currently
+selected mode contributes to calculation and submission.
+Agreed 2026-10-04 under [ADR-0122](./architecture/decisions/0122-lightweight-draft-compatibility-and-setup.md):
+missing/invalid work timezone does not block authorized draft preservation. Validate
+configuration at its owning editor; dependent calculations/submission still require
+valid setup. A definitively obsolete type/mode selection may be cleared with a short
+notice and saved normally; retain independent dates, notes and usable input. Outages
+and merely incomplete typing are not reasons to erase values. No administrator-contact
+step is required merely to save a draft.
+Agreed 2026-10-04: when first selecting a leave type in a new request, initialize
+Full days if permitted; otherwise leave the mode unselected. Do not choose a leave
+type automatically. This initial UI default does not replace saved draft selections
+(including null), override an explicit mode choice or convert previously entered hours.
 
 Acceptance example: An employee enters a request and sees “Saved” after its draft
 is persisted. They can use Close and resume it through Apply for leave in My Leave in the same
@@ -1520,14 +1559,17 @@ earlier preview passed.
 See [ADR-0067](./architecture/decisions/0067-automatic-draft-saving.md), partially
 superseded by [ADR-0075](./architecture/decisions/0075-single-draft-and-safe-close.md).
 Close immediately when saved; finish an in-progress save before closing. If saving
-fails, offer Retry, Keep editing, or Discard unsaved changes, retaining previously
-saved content. Apply these rules to desktop Escape and mobile Back. Confirm before
+cannot be confirmed after bounded recovery, show Your latest changes may not be saved
+and offer Stay / Close anyway under ADR-0123/platform ADR-0050. While editing, show inline Changes not saved with Retry; typing continues without a Keep editing button. Leaving preserves the draft but
+does not promise rollback of an in-flight save. On return load current authorized saved
+state. Follow [ADR-0123](./architecture/decisions/0123-inline-draft-save-failure-and-exit-confirmation.md)
+and its linked platform ADR-0050. Apply these rules to desktop Escape and mobile Back. Confirm before
 discarding an approver’s unsent comment.
 
 When switching NGOs while editing a request, save the draft in its original NGO
 before switching, then open My Leave in the selected NGO. Never transfer the draft
 or its unsaved data into another NGO. If saving fails, keep the user on the request
-and offer **Retry**, **Stay**, or **Discard unsaved changes and switch**. Discarding
+and offer **Stay** or **Switch anyway**. Staying returns to the form with inline **Retry**. Discarding
 unsaved changes leaves any previously saved draft intact in its original NGO.
 
 Acceptance example: While editing a draft in NGO A, the employee selects NGO B.
@@ -2523,7 +2565,7 @@ queue handling in the restoration rehearsal under ADR-0119.
 | Secure document-link / signed-operation lifetime | Technical architect and security lead | Selected: 5-minute private reads, 15-minute uploads under [platform ADR-0036](../../../platform/docs/architecture/decisions/0036-private-content-signed-operation-lifetimes.md); adapter/renewal verification before pilot |
 | Backup recovery objectives | Technical lead and operations owner | Selected under [Leave ADR-0119](./architecture/decisions/0119-initial-production-backup-and-recovery-targets.md): one-hour recovery point, four hours from incident declaration to essential service, thirty-day backup retention; rehearse before pilot, quarterly and after major backup changes |
 | Critical alert conditions | Technical lead and operations owner | Selected under [Leave ADR-0120](./architecture/decisions/0120-initial-operational-alert-thresholds.md): API/heartbeat five minutes; overdue notifications warn at fifteen minutes and escalate at one hour; recovery-point age over one hour and confirmed integrity failure alert immediately. Verify before pilot |
-| Supported browsers and performance targets under representative workloads | Product owner and technical lead | Relevant story planning |
+| Supported browsers and performance targets under representative workloads | Product owner and technical lead | Browser policy approved 2026-10-01: current and previous major versions of Chrome, Edge, Firefox and Safari, including Chrome on Android and Safari on iPhone/iPad; record exact release/OS versions for verification. Representative workload/performance targets remain relevant-story planning work. |
 
 One person may hold several responsibilities. Record measurable targets and their
 verification criteria at these gates. Signed-operation defaults, backup targets (ADR-0119) and alert thresholds (ADR-0120)
@@ -2590,3 +2632,15 @@ The MVP is acceptable when:
 - [Platform ATDD/TDD decision](../../../platform/docs/architecture/decisions/0009-atdd-and-tdd-development-loop.md)
 - [`../../../docs/tech-spec.md`](../../../docs/tech-spec.md)
 - [`../../../services/app-directory/docs/app-directory.md`](../../../services/app-directory/docs/app-directory.md)
+
+
+## Saving conventions — accepted 2026-10-05
+
+Follow [the accepted saving convention](./architecture/decisions/0124-saving-conventions-by-workflow.md): autosave unfinished request input with
+Draft saved feedback and separate explicit submission; use whole-form Save / Cancel for
+business configuration; apply simple personal preferences immediately on separate surfaces.
+Do not directly autosave selected fields inside an explicit-Save form. Existing Review /
+Confirm and consequential action rules remain binding. E1 has no submission implementation.
+No additional administrative draft system or universal draft requirement is introduced.
+Prove behavior and promote reusable UI/scaffold patterns with the first consuming story.
+Draft failure UX follows platform ADR-0050: inline Retry, exit-only Stay / Close anyway.

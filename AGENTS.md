@@ -80,6 +80,14 @@ outbound intent atomically and deliver it after releasing locks. Document justif
 exceptions with bounded timeouts, consistency and failure/retry behavior in the owning
 design; no separate user approval flow is introduced.
 
+## Platform-wide draft input freshness
+
+Follow [ADR-0044](platform/docs/architecture/decisions/0044-bounded-shared-input-observations-for-draft-saves.md):
+fresh shared inputs may support one short, bounded executing draft-preservation save.
+Declare workflow scope, total deadline and observation evidence; new/restarted execution
+rechecks. This does not relax submission, approval, reservation or other consequential
+action consistency. Keep local revision/lifecycle checks and current authorization.
+
 ## Platform-wide operational logging
 
 Follow [platform ADR-0023](platform/docs/architecture/decisions/0023-structured-operational-logs-and-sensitive-data.md):
@@ -158,3 +166,52 @@ enforce structural invariants with appropriate database constraints alongside AP
 validation. Respect NGO scope and service ownership; complex business rules remain
 in protected application workflows. Verify concurrency, alternate write paths and
 safe constraint-error mapping rather than relying solely on frontend checks.
+
+
+## Application availability and access scopes
+
+Follow [ADR-0046](platform/docs/architecture/decisions/0046-application-availability-and-access-scopes.md):
+Access owns protected app admission and organization/user grants; Directory filters
+published apps using current access. Public and account-scoped apps need no synthetic
+organization. Leave requires organization enablement, current membership and explicit
+capabilities; direct APIs recheck even when a launcher listed the app. Disable suspends
+access without deleting drafts/grants; re-enable restores only still-valid authority.
+Public Scribeswell remains usable when protected discovery is unavailable.
+
+[ADR-0047](platform/docs/architecture/decisions/0047-public-access-and-launcher-visibility.md)
+separates public access from launcher visibility: Scribeswell is publicly readable at
+its own URL but appears in the shared app menu only with current PtS access. Do not
+show it as an anonymous or discovery-outage fallback. Public reading stays independent.
+
+
+## Platform-wide lightweight draft preservation
+
+Follow [ADR-0049](platform/docs/architecture/decisions/0049-lightweight-draft-preservation-and-compatibility.md):
+keep non-consequential draft preservation independent of business setup needed only for
+calculations/submission. Applications may clear explicitly identified obsolete choices
+with notice while preserving useful input; outages are not proof of obsolescence. Keep
+current access/ownership, structural safety and revision/lifecycle protections. Do not
+relax consequential actions or release safety. Use ADR-0048's simple failure exits;
+no forced administrator contact or technical recovery explanations merely to save input.
+
+
+Draft failure presentation update — accepted 2026-10-05: platform ADR-0050 partially
+supersedes ADR-0048; Leave ADR-0123 adopts it. Use inline Changes not saved with Retry
+while editing; no Keep editing button. Prompt Stay / Close anyway only on exit when
+bounded saving cannot be confirmed; switching uses Stay / Switch anyway. Confirmed saved
+input closes immediately. Existing revision/lifecycle/retry and access protections stay
+binding; no rollback or unsent-input survival promise. D2-B/D3 and shared scaffold/UI
+fixtures must prove these cases. Earlier three-choice wording is superseded. This does
+not decide whether a workflow needs a draft or change accepted draft scope.
+
+
+## Saving conventions — accepted 2026-10-05
+
+Follow [the accepted saving convention](platform/docs/architecture/decisions/0051-saving-conventions-by-workflow.md): autosave unfinished request input with
+Draft saved feedback and separate explicit submission; use whole-form Save / Cancel for
+business configuration; apply simple personal preferences immediately on separate surfaces.
+Do not directly autosave selected fields inside an explicit-Save form. Existing Review /
+Confirm and consequential action rules remain binding. E1 has no submission implementation.
+No additional administrative draft system or universal draft requirement is introduced.
+Prove behavior and promote reusable UI/scaffold patterns with the first consuming story.
+Draft failure UX follows platform ADR-0050: inline Retry, exit-only Stay / Close anyway.

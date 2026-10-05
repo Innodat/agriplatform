@@ -137,3 +137,7 @@ and are linked rather than duplicated here.
 | [0118](./0118-revision-safe-draft-autosaving.md) | Accepted | Revision-safe draft autosaves across tabs/devices, serialized saves and explicit conflict recovery |
 | [0119](./0119-initial-production-backup-and-recovery-targets.md) | Accepted | Leave targets: one-hour recovery point, four-hour recovery time, thirty-day backups and verified restore rehearsals |
 | [0120](./0120-initial-operational-alert-thresholds.md) | Accepted | Initial API, worker, notification-delay, recovery-point and integrity alert thresholds |
+| [0121](./0121-simple-draft-save-failure-navigation.md) | Accepted | Adopt platform ADR-0048 simple draft failure navigation; partially supersedes 0075 exit labels |
+| [0122](./0122-lightweight-draft-compatibility-and-setup.md) | Accepted | Missing timezone does not block draft preservation; obsolete selections may be cleared with notice and safe persistence |
+| [0123](./0123-inline-draft-save-failure-and-exit-confirmation.md) | Accepted | Adopt platform ADR-0050 inline failure and exit-only confirmation; partially supersedes 0121 |
+| [0124](./0124-saving-conventions-by-workflow.md) | Accepted | Adopt platform ADR-0051; retain request drafts, whole-form administrative Save and separate immediate preferences |

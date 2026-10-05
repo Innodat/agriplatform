@@ -60,3 +60,11 @@ scaffolding, or more than one application.
 | [0041](./0041-shared-supervisor-department-and-location.md) | Accepted | Shared employment owns optional manual supervisor, department and location; application approval policies and Leave work profiles remain separate; refines 0040 |
 | [0042](./0042-person-account-employment-and-legacy-adoption.md) | Accepted | Platform-wide person/account separation, accountless employment, one relationship per person/organization and deliberate legacy identity/Expense adoption |
 | [0043](./0043-staged-platform-deployment.md) | Proposed | Platform manifests and checked main-to-production delivery on Netlify/Hetzner |
+| [0044](./0044-bounded-shared-input-observations-for-draft-saves.md) | Accepted | Bounded fresh shared-input observations for non-consequential draft saves; applications own time limits and consequential actions retain stronger checks |
+| [0045](./0045-expense-preproduction-history-scope.md) | Accepted | No historical Expense receipt/purchase migration required; narrows 0042 while retaining shared-consumer compatibility and forward operation recovery |
+| [0046](./0046-application-availability-and-access-scopes.md) | Accepted | Separate global availability, organization-app enablement and user grants; account-scoped apps need no synthetic organization |
+| [0047](./0047-public-access-and-launcher-visibility.md) | Accepted | Scribeswell stays publicly readable but appears in the shared launcher only with current PtS access; narrows 0046 public-menu behavior |
+| [0048](./0048-simple-draft-save-failure-navigation.md) | Accepted | Simple draft save-failure exits; technical recovery stays internal and consequential actions remain distinct |
+| [0049](./0049-lightweight-draft-preservation-and-compatibility.md) | Accepted | Lightweight draft preservation despite missing business setup; application-defined obsolete selections may be cleared with notice and guarded persistence |
+| [0050](./0050-inline-draft-save-failure-and-exit-confirmation.md) | Accepted | Inline draft failure with Retry; Stay/Close anyway only on unconfirmed exit; partially supersedes 0048 |
+| [0051](./0051-saving-conventions-by-workflow.md) | Accepted | Autosave unfinished requests, explicitly save whole business forms, immediately apply separate simple preferences |

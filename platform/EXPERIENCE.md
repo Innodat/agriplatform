@@ -187,7 +187,7 @@ be necessary to understand or complete it.
 | Context | Treatment |
 |---|---|
 | Filter sheet open | Provisional selection; Apply commits, dismissal discards unapplied edits |
-| Save pending/failed | Wait for persistence on close; offer retry, stay, or explicit unsaved discard on failure |
+| Save pending/failed | Inline Retry while editing; bounded save on close, then Stay / Close anyway if still unconfirmed |
 | Related-record return | Restore originating context and refresh dependent counts/eligibility |
 | Access revoked | Recheck current permissions and suppress inaccessible retained data |
 | Role has assignees | Show authorized holder links and prevent deletion until assignments are removed |
@@ -287,6 +287,17 @@ available to copy while the view stays open. Do not promise saved persistence fo
 that comment. Access loss follows the no-access treatment without exposing fresh
 record details. Applications supply lifecycle wording and valid actions.
 
+### Lightweight draft preservation
+
+Follow [ADR-0049](./docs/architecture/decisions/0049-lightweight-draft-preservation-and-compatibility.md).
+Allow safe authorized draft saving despite business setup missing for later calculations
+or submission. Use a small relevant notice, not a mandatory administrator-contact step.
+An app may clear a definitively obsolete selection with a brief Choose again notice;
+preserve independent useful input and never treat an outage as proof of invalidity.
+Persist cleared selections through normal guarded saving, not a side effect of reading.
+Keep draft failure navigation simple under ADR-0050. Consequential actions and confirmed
+noneditable states retain their safeguards; Saved is not validation or approval.
+
 ### Autosaved draft conflicts
 
 Use explicit revisions for autosave as for other protected writes. Serialize saves
@@ -325,8 +336,14 @@ behavior discards changes and that meaning is intended.
 
 For an autosaved draft, label the closing action Close with Draft saved nearby
 after persistence succeeds. Avoid Cancel where it could imply deletion or a
-domain cancellation. Wait for outstanding saves; failed saves offer retry, stay,
-or explicit discard of unsaved changes. Preserve the last persisted draft.
+domain cancellation. Under [ADR-0050](./docs/architecture/decisions/0050-inline-draft-save-failure-and-exit-confirmation.md),
+show inline Changes not saved with Retry after bounded recovery while editing; typing
+continues without a Keep editing button. Close saved input immediately. On attempted
+exit with unconfirmed changes, finish bounded save/recovery, then ask Your latest changes
+may not be saved. Close anyway? Offer Stay / Close anyway (Stay / Switch anyway for
+context switching). Leaving retains saved state without promising rollback or unsent-input
+recovery. Keep technical safeguards internal.
+
 
 - Keep keyboard focus within an open modal drawer and its background inactive;
   return focus to the invoking control when closing back into the same page.
@@ -521,3 +538,25 @@ values, responsive thresholds, implementation of administrative persistence rule
 return fallbacks, API contracts, and role-administration limits need resolution
 before their delivery items. Prototype markup and static examples do not establish
 those contracts or demonstrate accessibility compliance.
+
+
+Sign-in recovery clarification — 2026-10-05: under platform ADR-0032, use supported
+authentication return navigation and fresh authorized saved-draft loading. Attempt normal
+renewal first. Do not require a bespoke browser recovery record or 30-minute navigation
+TTL for draft recovery. Preserve validated destinations and current account/access checks;
+fall back safely when return context is missing. Unsaved typing need not survive full-page
+sign-in; explain saved-only recovery honestly. Never automatically replay a lost write or
+confirm a consequential action. Shared shell/scaffold owns generic return safety; the
+application owns draft routes and revision/lifecycle handling, including delayed-save tests.
+
+
+## Saving conventions — accepted 2026-10-05
+
+Follow [the accepted saving convention](./docs/architecture/decisions/0051-saving-conventions-by-workflow.md): autosave unfinished request input with
+Draft saved feedback and separate explicit submission; use whole-form Save / Cancel for
+business configuration; apply simple personal preferences immediately on separate surfaces.
+Do not directly autosave selected fields inside an explicit-Save form. Existing Review /
+Confirm and consequential action rules remain binding. E1 has no submission implementation.
+No additional administrative draft system or universal draft requirement is introduced.
+Prove behavior and promote reusable UI/scaffold patterns with the first consuming story.
+Draft failure UX follows platform ADR-0050: inline Retry, exit-only Stay / Close anyway.

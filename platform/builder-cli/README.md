@@ -28,6 +28,31 @@ New application templates follow [platform ADR-0014](../docs/architecture/decisi
 
 Database introspection may assist persistence mapping but must not automatically expose table fields in API schemas. Frontend contracts derive from FastAPI OpenAPI. The historical command sketch below is not an implemented generator or authority to bypass this boundary.
 
+### Generation inputs and custom behavior
+
+For application APIs and shared HTTP services, the intended progression is an owned
+service scaffold, persistence mappings/helpers for the tables required by the consuming
+story, explicitly selected API inputs/outputs and routine operations, then custom domain
+behavior. Table structure assists generation; it cannot determine caller permissions,
+public fields or workflow rules. Use the owner's version-controlled schema/migration
+inputs or a disposable database built from them; production introspection is not a
+required generation step. The exact generation input format remains a delivery decision.
+
+Keep generated output and hand-maintained behavior in explicit separate extension
+modules. Regeneration must preserve custom behavior and fail safely on conflicts;
+verify this with a disposable sample that adds a custom command before regeneration.
+For example, a draft mapping can be generated, but save/discard commands must implement
+the approved revision, lifecycle, authorization and operation-outcome contracts. Do not
+expose a generic update route that bypasses those commands.
+
+Non-API workers and scheduled jobs can reuse configuration, owned dependency/test
+layout, safe logging and relevant persistence/client scaffolding. Their declared work
+and event contracts drive handler generation; tables alone do not define a worker, and
+some workers own no tables. Prove restricted worker identity, retry/event compatibility
+and bounded shutdown with the first consuming story before promoting templates. E1's
+service-only variant proves HTTP services; worker variants remain with later consumers.
+These are planned capabilities, not an implemented generator or a new generic engine.
+
 ## Database attribution and audit conventions
 
 Table/model generation must follow
@@ -282,3 +307,71 @@ Finalized content identity binds verified bytes through association and reading;
 outstanding upload capabilities cannot mutate that identity. Replacement uses a new
 identity and authorized audited association change. Prove provider behavior and races
 before promoting adapter scaffolding; no new UI pattern is required.
+
+For workflows adopting bounded shared-input observations during draft preservation,
+follow [ADR-0044](../docs/architecture/decisions/0044-bounded-shared-input-observations-for-draft-saves.md).
+Prove total execution deadlines, source-version/observation evidence, fresh checks on
+new execution and local revision/lifecycle protection in the first consumer before
+promoting templates and disposable-sample tests. Applications classify eligible actions
+and set their own time bounds; do not impose Leave's ten-second limit or draft rules
+on every app, or extend the pattern to consequential actions. No new runtime capability
+is implemented by this guidance.
+
+
+## Leave first-consumer scope — planning, 2026-10-02
+
+The [bounded E1 scaffold proposal](../../apps/leave/docs/implementation-plan.md#bounded-e1-scaffold-scope--proposal-2026-10-02)
+assigns a minimum generator/reference foundation and same-item promotion of proven
+shared mechanisms. Existing templates/examples are not a working CLI. Preserve the
+generated authenticated slice and disposable-app checks; keep employee/Leave policy
+out of generic output. Unused worker/provider features follow their first consumer.
+No generator or application implementation is authorized by this planning note.
+
+
+## Lightweight draft preservation
+
+[ADR-0049](../docs/architecture/decisions/0049-lightweight-draft-preservation-and-compatibility.md)
+separates bounded draft input persistence from later business validation. Do not make
+missing calculation/submission settings an automatic draft-save blocker in templates.
+Keep scope, authorization, structural input bounds, attribution, revisions and lifecycle
+checks. Support application-declared obsolete-field clearing with notice and guarded
+persistence; no generic destructive migration/reset policy or shared runtime draft engine.
+Promote proven handling and disposable acceptance fixtures with the first consumer;
+this guidance does not mean a generator or draft subsystem is already implemented.
+
+
+Sign-in recovery clarification — 2026-10-05: under platform ADR-0032, use supported
+authentication return navigation and fresh authorized saved-draft loading. Attempt normal
+renewal first. Do not require a bespoke browser recovery record or 30-minute navigation
+TTL for draft recovery. Preserve validated destinations and current account/access checks;
+fall back safely when return context is missing. Unsaved typing need not survive full-page
+sign-in; explain saved-only recovery honestly. Never automatically replay a lost write or
+confirm a consequential action. Shared shell/scaffold owns generic return safety; the
+application owns draft routes and revision/lifecycle handling, including delayed-save tests.
+
+
+## First-consumer dependency and test commands
+
+The [E1 dependency/command contract](../../apps/leave/docs/testing/e1-environment-and-dependencies.md#dependency-ownership-and-command-contract--2026-10-05) specifies standalone npm browser ownership and independent Python/uv service locks for the first consumer. Generated output must install without undeclared root tools, expose explicit build/test commands and preserve custom extensions on regeneration. Prove lock consistency and runtime/dev separation before promoting templates. Do not copy another application's requirements into a service image. Exact compatibility pins and runnable generator/bootstrap commands remain delivery prerequisites; no manifests or templates are implemented by this note.
+
+
+Draft failure presentation update — accepted 2026-10-05: platform ADR-0050 partially
+supersedes ADR-0048; Leave ADR-0123 adopts it. Use inline Changes not saved with Retry
+while editing; no Keep editing button. Prompt Stay / Close anyway only on exit when
+bounded saving cannot be confirmed; switching uses Stay / Switch anyway. Confirmed saved
+input closes immediately. Existing revision/lifecycle/retry and access protections stay
+binding; no rollback or unsent-input survival promise. D2-B/D3 and shared scaffold/UI
+fixtures must prove these cases. Earlier three-choice wording is superseded. This does
+not decide whether a workflow needs a draft or change accepted draft scope.
+
+
+## Saving conventions — accepted 2026-10-05
+
+Follow [the accepted saving convention](../docs/architecture/decisions/0051-saving-conventions-by-workflow.md): autosave unfinished request input with
+Draft saved feedback and separate explicit submission; use whole-form Save / Cancel for
+business configuration; apply simple personal preferences immediately on separate surfaces.
+Do not directly autosave selected fields inside an explicit-Save form. Existing Review /
+Confirm and consequential action rules remain binding. E1 has no submission implementation.
+No additional administrative draft system or universal draft requirement is introduced.
+Prove behavior and promote reusable UI/scaffold patterns with the first consuming story.
+Draft failure UX follows platform ADR-0050: inline Retry, exit-only Stay / Close anyway.

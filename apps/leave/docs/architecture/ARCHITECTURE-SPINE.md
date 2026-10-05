@@ -52,7 +52,14 @@ and **L** for the [Leave ADR collection](./decisions/README.md). Original ADR nu
 | P-0030–0038 | Attachment association, errors, session/draft recovery, constraints, signed lifetimes and grouped monitoring |
 | P-0039–0041 | Organization-neutral tenancy; shared employment, optional manual supervisor/department/location; domain settings remain application-owned |
 | P-0042 | Platform-wide person/account separation and accountless employment; one employment relationship per person/organization with periods; deliberate existing identity/Expense adoption |
+| P-0044 | Bounded fresh shared-input observations for draft preservation; Leave E1 uses a ten-second total execution limit, with new execution rechecking and no relaxation of consequential actions |
 | L-0001–0120 with recorded supersessions | Domain permissions, policy/workflow history, derived balances, protected reservations, UX and operational targets |
+
+Admission refinement, 2026-10-02: [P-0046](../../../../platform/docs/architecture/decisions/0046-application-availability-and-access-scopes.md)
+adds explicit organization-app enablement and current Directory filtering, retaining
+AD-2's checks on direct protected actions. Account/public apps need no synthetic
+organization. See the [owning admission contract](../../../../platform/docs/architecture/contracts/application-admission-and-discovery.md)
+for E1 wire/compatibility gates; this does not authorize implementation.
 
 ## Invariants & Rules
 
@@ -251,3 +258,15 @@ close/reopen draft, including multi-tab conflict, failed-save and session recove
 It proves shared access, persistence and UI contracts; it does not claim complete accrual or
 approval behavior. Observe relevant acceptance failures before implementation, then focused
 unit/integration tests and affected contract/browser suites; preserve requirement traceability.
+
+
+## Saving conventions — accepted 2026-10-05
+
+Follow [the accepted saving convention](./decisions/0124-saving-conventions-by-workflow.md): autosave unfinished request input with
+Draft saved feedback and separate explicit submission; use whole-form Save / Cancel for
+business configuration; apply simple personal preferences immediately on separate surfaces.
+Do not directly autosave selected fields inside an explicit-Save form. Existing Review /
+Confirm and consequential action rules remain binding. E1 has no submission implementation.
+No additional administrative draft system or universal draft requirement is introduced.
+Prove behavior and promote reusable UI/scaffold patterns with the first consuming story.
+Draft failure UX follows platform ADR-0050: inline Retry, exit-only Stay / Close anyway.

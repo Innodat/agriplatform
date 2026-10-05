@@ -4,6 +4,15 @@
 **Scope:** Current working-tree source, not a deployed database certification  
 **Workflow:** bmad-review; adversarial, edge-case and verification-gap lenses
 
+## Subsequent scope decision — 2026-10-01
+
+The user confirmed old Expense receipt data need not be supported because the app is
+not in production. [ADR-0045](../decisions/0045-expense-preproduction-history-scope.md)
+supersedes the historical receipt/purchase migration recommendations below. This review
+remains historical source evidence; its old-data conversion recommendations are no
+longer delivery requirements. Shared identity and other supported consumers remain
+subject to their own compatibility/adoption contracts.
+
 ## Conclusion
 
 Retain the existing organization, membership and account identifiers and useful

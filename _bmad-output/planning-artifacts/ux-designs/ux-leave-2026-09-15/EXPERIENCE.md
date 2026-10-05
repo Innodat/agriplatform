@@ -138,8 +138,11 @@ My Leave, without a Drafts section or badge. Within the form, Discard draft asks
 for confirmation before deletion. Submitted requests remain separate.
 
 Close, desktop Escape, and mobile Back close the form immediately when its changes
-are saved. If a save is in progress, wait for it to finish before closing. On save failure offer Retry, Keep editing,
-or Discard unsaved changes; the last option retains previously saved content.
+are saved. If a save is in progress, wait for it to finish before closing. After bounded recovery cannot confirm saving, show Your latest changes may not be saved
+and offer Stay / Close anyway under platform ADR-0050 and Leave ADR-0123. While editing, use an inline Changes not saved status with Retry; no Keep editing button. Leaving
+does not delete the draft or promise rollback; restore current authorized saved state
+on return. Switching uses Stay / Switch anyway. Keep technical recovery explanations
+internal.
 Confirm before discarding an approver’s unsent comment.
 
 Use the shared contextual task-surface direction: a sufficiently wide right-side
@@ -163,10 +166,17 @@ Agreed 2026-09-24: once acknowledged as saved, incomplete typed dates/durations 
 blank selections survive close/reopen. Preserve invalid/reversed input with appropriate
 field feedback; do not swap, fill or erase it. Saved describes preservation rather
 than validity. Locale changes must not silently reinterpret the stored input.
+Agreed 2026-10-01: preserve separate entries when switching between Full day(s),
+Half day and Hours, restoring them when switching back; only the active mode affects
+calculation/submission. Employee notes have a visible 4,000-character limit, counted
+as Unicode code points consistently by the client and server; never truncate silently.
 
 The first form choice is leave type. Use it to determine applicable duration
-options, policy guidance, and document requirements. No default type or duration
-selection has been chosen.
+options, policy guidance, and document requirements. No leave type is selected by
+default. Agreed 2026-10-04: first choosing a type in a new request initializes Full
+days when permitted; otherwise leave the mode unselected. Restoring a draft preserves
+its saved selection, including null. Later type changes retain independent input and clear a
+disallowed mode with a brief notice, without choosing a replacement. No arbitrary day fractions are offered.
 
 After leave type, show the permitted Full day(s), Half day, and Hours options.
 Full days use start/end dates. Half days use one date and exactly half the scheduled
@@ -1425,6 +1435,11 @@ persistence mechanism is invented here.
 
 ## Responsive & Platform
 
+Browser support approved 2026-10-01: current and previous major Chrome, Edge, Firefox
+and Safari, including Chrome on Android and Safari on iPhone/iPad. Record exact
+browser/OS versions in delivery evidence; engine tests or viewport emulation alone
+do not prove the full released-browser matrix.
+
 | Desktop | Phone / narrow viewport |
 |---|---|
 | Contextual right drawer with background context | Full page with the same required information and actions |
@@ -1674,3 +1689,36 @@ local edits while the person decides and checking current access. Do not auto-me
 or overwrite saved values. Same-tab saves serialize and preserve newer typing; saved
 status reflects acknowledged edits only. No durable local recovery is promised here.
 See [ADR-0118](../../../../apps/leave/docs/architecture/decisions/0118-revision-safe-draft-autosaving.md).
+
+
+### Draft setup and obsolete selections — agreed 2026-10-04
+
+Leave ADR-0122 permits saving/reopening unfinished input despite missing/invalid work
+timezone; use a small setup notice rather than forced administrator contact. Do not
+show dependent calculations as valid or enable submission until its setup is valid.
+Clear definitively obsolete selections with a brief Choose again message; retain
+independent dates/notes. Service outages and incomplete typing do not justify clearing.
+Persist any cleared selection through normal guarded autosave; no read-time database
+rewrite, automatic whole-draft deletion or misleading Saved status.
+
+
+Sign-in recovery clarification — 2026-10-05: under platform ADR-0032, use supported
+authentication return navigation and fresh authorized saved-draft loading. Attempt normal
+renewal first. Do not require a bespoke browser recovery record or 30-minute navigation
+TTL for draft recovery. Preserve validated destinations and current account/access checks;
+fall back safely when return context is missing. Unsaved typing need not survive full-page
+sign-in; explain saved-only recovery honestly. Never automatically replay a lost write or
+confirm a consequential action. Shared shell/scaffold owns generic return safety; the
+application owns draft routes and revision/lifecycle handling, including delayed-save tests.
+
+
+## Saving conventions — accepted 2026-10-05
+
+Follow [the accepted saving convention](../../../../apps/leave/docs/architecture/decisions/0124-saving-conventions-by-workflow.md): autosave unfinished request input with
+Draft saved feedback and separate explicit submission; use whole-form Save / Cancel for
+business configuration; apply simple personal preferences immediately on separate surfaces.
+Do not directly autosave selected fields inside an explicit-Save form. Existing Review /
+Confirm and consequential action rules remain binding. E1 has no submission implementation.
+No additional administrative draft system or universal draft requirement is introduced.
+Prove behavior and promote reusable UI/scaffold patterns with the first consuming story.
+Draft failure UX follows platform ADR-0050: inline Retry, exit-only Stay / Close anyway.

@@ -8,6 +8,28 @@
 
 ## Purpose
 
+Scope correction, 2026-10-01: [platform ADR-0045](../../../platform/docs/architecture/decisions/0045-expense-preproduction-history-scope.md)
+removes historical Expense receipt/purchase migration and old receipt-client compatibility
+from the Leave/shared-identity path. Expense is preproduction. Preserve compatibility
+for existing shared identities and PtS/Access/Content consumers. Internal operation
+outcome records are a separate forward recovery requirement, with no old Leave records
+to migrate.
+
+Technical planning refresh, 2026-10-01: the existing Access owner in `services/access`
+now implements current PtS checks; Leave must extend it compatibly, not create a
+parallel Identity/Access service. The owning contracts below reflect its v1 permission
+limits, existing PtS/Content consumers and differing legacy error formats. New Content
+and deployment packages are reuse candidates, not evidence of Leave readiness.
+The draft contract now supplies a concrete technical baseline (routes, input/counter
+representation, coordination and timing). The 4,000-character note limit and retention
+of each duration mode’s inputs were approved on 2026-10-01 and synchronized to features
+and UX. The identity contract specifies proposed person/account/actor mappings, v2
+responses and employment-date reads. Its bounded in-flight draft-only employment
+observation rule was approved on 2026-10-01 and generalized in
+[platform ADR-0044](../../../platform/docs/architecture/decisions/0044-bounded-shared-input-observations-for-draft-saves.md); existing identity and verification gates
+remain open. No live target was inspected or changed.
+
+
 Planning update, 2026-09-23: all eight epic groupings and their delivery sequence,
 including E5, are approved in the [epic planning artifact](../../../_bmad-output/planning-artifacts/epics.md).
 Individual stories and implementation readiness remain pending. Apply
@@ -26,7 +48,8 @@ business locks. Owners: Platform identity/people owner and Leave lead.
 The [E1 shared contract discussion](../../../platform/docs/architecture/contracts/identity-access-employment-e1.md)
 records current repository evidence and proposed ownership, identity and read behavior;
 its open wire, migration and eligibility decisions remain readiness blockers. The E1
-work breakdown is approved; individual stories are still pending. The
+work breakdown and revised 20-candidate delivery order are approved; final story
+contract validation, sizing and implementation readiness remain pending. The
 [draft persistence/recovery contract discussion](./architecture/contracts/e1-draft-persistence-and-recovery.md)
 records agreed current/future-employment preparation, ended-employment read-only access,
 rehire resumption and preservation after selected end dates pass. Compact replay evidence retention and
@@ -43,8 +66,8 @@ completed API contract/readiness gate.
 Bounded automatic uncertain-save recovery followed by truthful unresolved feedback
 and Retry was approved on 2026-09-24. The draft-input contract now proposes preserving
 incomplete typed values across acknowledged save/reopen, also approved on 2026-09-24;
-input format, bounds and
-payload details remain pre-story work, alongside exact recovery timing.
+input v1, bounds and execution/recovery timing are now specified in the draft contract;
+schema consistency and compatibility fixtures still need validation before readiness.
 The [E1 acceptance map](./testing/e1-acceptance-map.md) maps approved behavior to source
 requirements and planned browser/API/database/shared-scaffold evidence. This is test
 planning, not executed acceptance or a complete requirements coverage assessment.
@@ -123,7 +146,7 @@ documentation, and acceptance checks are complete.
 | Mobile workflows | Full employee request/upload/balance/history/required responses and approver review/decisions on phones; compact month calendar with history list retained |
 | Submission confirmation | Confirmed success returns to My Leave with brief confirmation and optional View request, updated dates/status and removed draft indicator; failed/uncertain submissions remain open with duplicate-safe recovery (ADR-0087) |
 | Submission summary | Show type/dates/duration/paid-unpaid split and Approval required where applicable, with workflow details on demand; NGO stays in header, switcher only for multiple active memberships; exact unpaid acknowledgement retained |
-| Switching while editing | Save in original NGO before opening selected NGO's My Leave; never transfer draft data; on failure offer retry/stay/discard-unsaved-and-switch, preserving saved draft |
+| Switching while editing | Save in original NGO before opening selected NGO's My Leave; never transfer draft data; on failure use exit-only Stay/Switch anyway under platform ADR-0050, with inline Retry when staying and the saved draft preserved |
 | Draft saving | One employee application draft per employee per NGO; Apply for leave resumes it; truthful autosave status and safe Close; confirmed Discard draft; no reservation; submission revalidates (ADR-0075) |
 | Role navigation | Start on My Leave; show Approvals/Manage Leave by permission; switch without sign-out or NGO change; section action badges remain separate from unread notifications |
 | Leave Manager scope and home | NGO-wide employee scope for MVP, with separate action permissions; prioritize escalations/deficits, affected requests, authorized corrections, organization overview, and configuration/report/audit shortcuts |
@@ -394,6 +417,96 @@ a pre-mortem, first-principles challenge, or red-team pass would materially redu
 risk. Each workflow should run in a fresh context window.
 
 ## Delivery plan and progress
+
+Current E1 readiness status is consolidated in
+[Remaining E1 gates by timing](#remaining-e1-gates-by-timing--2026-10-05).
+That checkpoint supersedes older discussion-status wording below where later accepted
+ADR-0049/Leave ADR-0122 or contract refinements resolved it. Historical notes remain
+traceable; no unchecked phase exit is silently marked complete.
+
+
+### E1 pre-story contract checkpoint — 2026-10-01
+
+This is a scoped status update to the existing spine gates, not an SP readiness run
+or a competing delivery process. Product agreement does not replace technical
+contract completion. Do not require completed Leave application tests as a condition
+for writing their implementation stories: define the contract and required evidence
+first, then observe acceptance failure and implement/test through authorized BMAD
+Build. Existing Phase 1 foundation and generated-slice exit gates remain binding.
+
+| Existing gate | Current design evidence | What remains before dependent story readiness | Owning delivery evidence |
+| --- | --- | --- | --- |
+| Shared identity/access | Existing Access owner identified; v1 compatibility, v2 fields, actor/person mapping and explicit grant bridge specified in the shared contract | Validate proposed v2 wire schemas and declare owning OpenAPI models in delivery; identity E1-ID and current-check E1-ACCESS boundaries approved; E1-DISCOVERY and E1-LAUNCHER boundaries approved (Scribeswell menu visibility follows ADR-0047); complete schema/baseline ownership inventory and bounded manual three-user PtS transition design; preserve explicit grant/consumer mappings; resolve [application admission scope](../../../platform/docs/architecture/decisions/0046-application-availability-and-access-scopes.md) and approved [Directory filtering/disable behavior](../../../platform/docs/architecture/contracts/application-admission-and-discovery.md) | Characterization, v1/v2 compatibility, restricted-role/revocation and migration tests; no automatic data conversion |
+| Shared employment read | One relationship with periods; inclusive dates, work-timezone interpretation, accountless support and ADR-0044 bounded draft observation settled | E1-PEOPLE boundary approved; no-period setup state approved; validate proposed discovery/effective schemas and fixtures, then finalize concrete period/key constraints and owner provisioning design | Same-/cross-organization, period/rehire, changed-input, deadline and unavailable-service tests |
+| Draft/API persistence | Routes, input v1, revisions, generation, lock order/timing/retention, structural key/RLS constraints and versioned SHA-256/JCS fingerprint lifecycle now specified | Mutation/read/context/error variants proposed; ordinary validated sign-in return and saved-draft reload agreed; custom recovery record removed; callback and delayed-save ordering evidence still required; validate schema completeness and compatibility fixtures; confirm schema/constraint mapping in the delivery contract; record fingerprint disclosure-risk disposition at the existing pilot security assessment | Concurrent start/save/discard/replay, no-resurrection, cancellation/commit uncertainty and safe log tests |
+| Dependency/environment topology | Existing Access/Content/deployment owners are reuse candidates; no Leave deployment exists in scope | Local-first [isolated local/CI topology](./testing/e1-environment-and-dependencies.md) approved 2026-10-02; E1-ENV isolated foundation boundary approved; verify/pin compatible toolchain, real Entra callback target and owner-controlled fixture/bootstrap configuration | Reproducible bootstrap, owned migration filtering and actual environment evidence |
+| Browser/performance targets | Current/previous Chrome, Edge, Firefox and Safari approved, including Android Chrome and iPhone/iPad Safari; E1 scenarios mapped | Select exact executable projects/device/OS checks for that policy; qualify the agreed [E1 workload and response targets](./testing/e1-environment-and-dependencies.md#e1-performance-targets--proposal-for-discussion-2026-10-02) at the approved 500/1,000 employee scales; concurrency/history remain declared test assumptions | Browser/keyboard/mobile evidence and measured performance; configured timeout is not a performance result |
+| Scaffold and shared UI | Platform-first-consumer work assigned to E1; reusable revision/error/recovery patterns identified | Bounded scaffold scope approved; app-generator E1-P1 boundary approved; authenticated E1-REF boundary approved with earlier Access/identity prerequisites; service-only E1-SERVICE scope approved with explicit API-contract and custom-extension boundaries; E1-WRITE safe owned-write boundary approved before E1-REF; promotion items and exact commands remain | Reference implementation, updated owning templates, generated disposable-app tests and shared control evidence |
+| Requirements/stories | Eight epics and E1 work boundaries approved; 18 E1 scenario groups source-mapped | Entry/draft coverage mapped; all five draft boundaries agreed; entry candidate formalized and six user-facing boundaries mapped; finish global FR/NFR/UX coverage, remaining contracts and bounded prerequisite stories, then run SP gate | Requirement-to-test IDs, failing acceptance evidence, exact verification commands/results per owning story |
+
+Contracts: [identity/access/employment](../../../platform/docs/architecture/contracts/identity-access-employment-e1.md),
+[shared API errors/recovery](../../../platform/docs/architecture/contracts/api-errors-and-operation-recovery.md),
+[Leave drafts](./architecture/contracts/e1-draft-persistence-and-recovery.md).
+The [E1 acceptance map](./testing/e1-acceptance-map.md) specifies the required evidence;
+no row above is a completed runtime verification claim. E4 byte-identity/provider
+and E5 consequential-input gates remain attached to those epics, not waived here.
+
+
+### Bounded E1 scaffold scope — proposal, 2026-10-02
+
+Scope approved on 2026-10-02, including standard identity/access integration and
+optional employment clients; shared owners retain their records/rules. No runtime
+implementation or readiness completion is implied.
+
+The builder is not implemented: existing web/backend templates and the owned-service
+transaction-context example are inputs, not a working generator. `ui-business` has a
+real AppLauncher; `ui-core` and most other shared components remain planned. Inspect
+source and tests rather than treating placeholder README lists as delivered features.
+
+Split E1 enabling work into the minimum foundation and promotion within each consuming
+item. This is a decomposition within the existing BMAD/Phase 1 gates, not a new phase
+or permission to hand-build Leave outside its scaffold requirement.
+
+| Work boundary | Minimum delivery and evidence |
+| --- | --- |
+| Generator foundation before generating the Leave silo | A supported app/service generation path, names/configuration validation, owner-specific web/API/test/migration layout, reproducible commands and dependencies, environment examples without secrets, linked agent/documentation context and a template version/change record. Generation refuses destructive overwrite. |
+| Generated reference acceptance | Generate a disposable domain-neutral app; exercise authenticated organization-scoped read/write with real restricted-role persistence and its service boundary. Observe the acceptance failure before implementing behavior. Verify install, type-check, tests, build, startup/health and local/CI execution. No employee master or Leave policy in this reference. |
+| First Leave identity/access consumer | Generate Leave from the verified foundation; extend current Access and add the minimum People read capability through authorized HTTP contracts. Prove real sign-in/org selection and synthetic fixtures. Promote proven typed clients, caller context, safe errors and session-return handling in the same delivery item. |
+| First draft persistence/recovery consumer | Implement the agreed Leave draft contract under failing acceptance evidence; promote reusable revision, operation-outcome, transaction/attribution and recovery mechanisms plus generated-sample fixtures. Keep one-active-draft scope optional and domain lifecycle rules application-owned. |
+| First shared UI consumer | Reuse existing AppLauncher where the approved shell requires it. Prove accessible organization selection, safe error/status and dialog/form primitives before promotion to the appropriate UI package. Application-specific form composition, leave types, dates/policy and wording remain in Leave. |
+
+A generic reference may use a simple editable example record. It exists only to prove
+framework boundaries and commands; do not add a sample HR application, configurable
+workflow engine, generic CRUD product or feature-complete template catalogue. Generate
+build-time code into its owner; do not import another app/service's server implementation.
+
+Each proven reusable change updates its owning template/package, generation/contract
+fixtures, validation, documentation, changelog and any needed existing-app adoption
+note together. Generated OpenAPI TypeScript output changes through its generator.
+No automatic rewrite of PtS/Scribeswell and no assertion that their existing browser
+fixtures prove Leave. Generated context links accepted ADRs and specifications rather
+than duplicating a competing product truth or lifecycle.
+
+Worker/outbox, provider/upload and calculation-specific patterns remain tracked in the
+existing initial scaffold targets and later consuming epics. E1 does not implement
+unused workers or attachment machinery merely to fill every template directory.
+Phase 1's generated authenticated vertical-slice exit gate remains binding. Planning
+readiness authorizes bounded implementation stories; it does not claim their runtime
+exit evidence already exists. Story sizing and dependency ordering still need the
+remaining contract/traceability work; these boundaries are not approved story IDs.
+
+Impacts: scaffold and shared UI as above; agent context via generated linked instructions
+and existing repository rules; documentation in this authoritative tracker and builder
+guidance. No accepted ADR changes. Tests here are required evidence, not executed tests.
+
+
+Audit gap, 2026-10-02: [E1 security/audit ownership proposal](../../../platform/docs/architecture/contracts/e1-security-audit-ownership.md)
+specifies owner events and proposed persistence/export failure behavior for entry,
+organization switching and draft lifecycle. Ownership/failure behavior approved;
+ordinary own-draft reads need no separate audit event after the user-approved
+simplification. Attribution stays on the draft; selection-event schemas remain proposed.
+Validate schema/fixture completeness before dependent story readiness; provider
+retention/investigation evidence remains an existing pre-pilot operations requirement.
 
 ### Phase 0 — Planning and architecture baseline
 
@@ -882,3 +995,329 @@ Update this section at each planning or delivery review.
 | Phase 8 — Notifications | Not started | 0/7 | Outbox-backed asynchronous delivery |
 | Phase 9 — Views and reports | Not started | 0/8 | Privacy-aware details |
 | Phase 10 — Release | Not started | 0/10 | Pilot before broad enablement |
+
+Fingerprint security follow-up, 2026-10-01: [keyed fingerprints are logged as a
+platform enhancement candidate](../../../platform/docs/architecture/contracts/operation-fingerprint-security-evolution.md).
+The E1 baseline uses SHA-256 without fingerprint keys or rotation. Sensitive applications
+may require HMAC from initial delivery; Leave’s health-related inputs and retained
+outcomes must be considered in the existing pilot security assessment. Deferral does
+not waive a finding that stronger protection is required.
+
+
+Draft navigation clarification, 2026-10-04: E1-D2/D3 adopt
+[platform ADR-0048](../../../platform/docs/architecture/decisions/0048-simple-draft-save-failure-navigation.md)
+through Leave ADR-0121. Simple warning and Close anyway / Switch anyway replace
+technical uncertainty explanations and prior failure-exit labels. Promote the proven
+shared UI/scaffold pattern with the first consumer; submission safeguards remain.
+Readiness, recovery-reference details and required acceptance evidence remain open.
+
+
+E1 sequencing checkpoint, 2026-10-04: 18 agreed candidate boundaries now have a
+[consolidated dependency order](../../../_bmad-output/planning-artifacts/epics.md#consolidated-e1-delivery-sequence--discussion-checkpoint-2026-10-04).
+This includes shared platform prerequisites and the six Leave entry/draft journeys.
+It is a discussion checkpoint; granular coverage, contract reconciliation, final story
+sizing/numbering and implementation readiness remain incomplete. Existing phase gates
+and E4/E5 pre-story contracts are not waived.
+
+
+### E1 technical contract closure — 2026-10-04
+
+The revised 20-candidate delivery order is approved (ID and D2 splits, 2026-10-05). The acceptance map covers the extracted
+12 entry and 20 draft requirements and 18 scenario groups with named story owners.
+This is scoped traceability, not completed global FR/NFR/UX extraction, executable
+validation or permission to bypass the existing spine/Phase 1 readiness gates.
+Product behavior already agreed is not reopened by the technical work below.
+
+| Contract to close | Owner / dependent stories | Required concrete planning output |
+| --- | --- | --- |
+| Reproducible generation/environment | Platform; ENV/P1/SERVICE then all consumers | Supported generation inputs, package/lock ownership and verified compatibility pins; safe target identity/reset checks; owner bootstrap/validation commands; feasible separate Entra callback target and browser/device evidence plan. No production setup or installs authorized here. |
+| Identity/migration/admission baseline | Identity/Access; ID/ACCESS/DISCOVERY/LAUNCHER | Actual object/history/role ownership inventory; bounded manual PtS account transition/recovery; exact capability/service registry and app-admission schema; complete v1/v2 wire compatibility and discovery failure/limit cases. |
+| Minimal shared employment | People; PEOPLE then CONTEXT/D1 | Concrete relationship/period keys, nonoverlap/attribution constraints and owner provisioning; discovery/effective response schema and absence/setup/outage fixtures. |
+| Minimum Leave settings and choices | Leave; CONTEXT/CHOICES then D1/D2 | Work-profile/default/override-compatible timezone source and revision; minimal versioned type metadata endpoint/schema, active-date selection, authorized retired-choice handling and controlled seed mapping. Do not invent a parallel employee/configuration master or imply submission eligibility. |
+| Owned writes and draft wire/schema consistency | Platform/Leave; WRITE/REF/D1/D2/D4 | Exact reference-command canonical input/outcome retention; reconcile declared draft constraints, SQL scope/grants and all request/response/error variants. Preserve atomic effects, revision/lifecycle guards, compact closed rows and no default form backfill. |
+| Supported authentication return | Platform shell + Leave; A1/D2/D3/D5/WRITE | Validated destination/account binding through supported auth flow, current access and saved-draft reload; safe fallback when context is missing. No bespoke sessionStorage record/TTL. Verify delayed-save ordering and no automatic lost-write replay. ADR-0050 inline failure and exit-only confirmation remain settled. |
+| Coverage, sizing and gate evidence | Planning owners; all 20 candidates | Finish scoped source-to-story cross-check and global inventory; validate independently completable story size/order; assign concrete acceptance/contract test IDs and exact commands as delivery is prepared. Run the established readiness workflow only when its required planning inputs are complete. |
+
+Technical contract outputs precede dependent readiness; implementation subsequently
+observes failing acceptance and produces passing runtime evidence. This does not require
+pre-implementing Leave to write its stories. Browser/performance policies and 500/1,000
+employee targets are agreed; results remain unmeasured. Pilot fingerprint-risk assessment
+and operational retention still belong to their existing security/release gates.
+E2's employment mutation/history contract, E4's finalized byte identity (platform
+ADR-0038), and E5's consequential-action consistency gates remain explicitly open for
+their consumers. No later gate is satisfied by this E1 mapping.
+
+
+Identity inventory progress, 2026-10-04: the
+[repository ownership inventory](../../../platform/docs/architecture/contracts/identity-migration-ownership-inventory.md)
+now identifies source objects, successor owners, Expense dependencies, both current
+migration paths and a proposed separate identity history under Access maintainers.
+Composition check-only passed; no SQL or live target inspection occurred. Actual
+baseline comparison, restricted grants, Auth hook compatibility and single-authority
+clean/adopt rehearsal remain prerequisites for E1-ID/ACCESS readiness. Receipt profiles
+are account profiles, not a shared employee master; no historical receipt conversion
+or PtS/Scribeswell document ownership migration is introduced.
+
+
+Access schema progress, 2026-10-04: the
+[owning admission contract](../../../platform/docs/architecture/contracts/application-admission-and-discovery.md#concrete-e1-access-persistence-design--2026-10-04)
+now proposes application/permission registries, organization enablement and compatible
+extension of existing grants, plus explicit service-policy configuration. Discovery
+privileges, membership retirement/rejoin binding, audit details and mixed-version
+activation remain concrete readiness gaps. No schema or account changed; existing
+v1 callers must not bypass new disable controls after activation.
+
+
+Membership lifecycle design, 2026-10-04: the
+[owning Identity contract](../../../platform/docs/architecture/contracts/identity-access-employment-e1.md#membership-retirement-and-rejoining--concrete-e1-design-2026-10-04)
+selects retained retired membership rows, new IDs on explicit rejoin and one-active-row
+uniqueness. Existing grant/member-role bindings cannot silently resume; deliberate
+regrant uses the new ID. App suspension and shared employment remain independent.
+E1-ID/ACCESS now have a concrete lifecycle choice; exact constraints, legacy lookup/
+writer changes, audit schema and migration/activation rehearsal remain before readiness.
+
+
+Restricted discovery progress, 2026-10-04: the
+[Access discovery contract](../../../platform/docs/architecture/contracts/application-admission-and-discovery.md#restricted-discovery-database-contract--2026-10-04)
+now defines the minimal membership projection, fully filtered pagination, exact verified
+account context and routine privilege boundary. E1-DISCOVERY/ACCESS still require actual
+RLS/grant/pool-reuse fixtures and compatible owner migrations. The trusted-backend limit
+is explicit; no claim that a database setting authenticates an end user independently.
+
+
+People schema progress, 2026-10-04: the
+[minimum persistence contract](../../../platform/docs/architecture/contracts/identity-access-employment-e1.md#minimum-people-persistence-contract--2026-10-04)
+now defines employment, scoped periods and immutable owner-change evidence, with one
+person/organization relationship, accountless support and database-enforced inclusive
+nonoverlap. Department/location/supervisor remain optional shared facts added with E2's
+consuming administration/history contracts; none becomes a Leave-owned duplicate.
+Exact provisioning/history payloads, date bounds, caller policy and restricted-role/
+extension verification remain before E1-PEOPLE readiness. No schema was implemented.
+
+
+Work-timezone design progress, 2026-10-04: the
+[minimum Leave configuration contract](./architecture/contracts/e1-work-timezone-configuration.md)
+records profile/default/override precedence, owned minimum records, setup semantics
+and E1 versus E2 responsibilities. Effective-version selection must avoid depending on
+an as-yet-unresolved timezone; exact applicability and local configuration/date guarding
+(including absent rows) remain pre-readiness design work. No new product choice, profile
+administration screen or settings change was introduced.
+
+
+Scope simplification, 2026-10-04: [Leave ADR-0122](./architecture/decisions/0122-lightweight-draft-compatibility-and-setup.md)
+removes missing/invalid timezone as a draft-save blocker and permits clearing definitively
+obsolete selections with notice and guarded autosave. Full effective timezone/version
+and configuration commit guards are not prerequisites merely for E1 preservation; retain
+them before dependent calculations/eligibility/consequential actions. E1-CONTEXT/CHOICES/
+D1/D2 need corresponding schema/criteria reconciliation; identity/access/ownership,
+revision/lifecycle, confirmed restrictions and runtime verification gates remain.
+
+Platform adoption, 2026-10-04: [ADR-0049](../../../platform/docs/architecture/decisions/0049-lightweight-draft-preservation-and-compatibility.md) now owns lightweight non-consequential draft preservation and application-defined obsolete-field handling. Leave ADR-0122 supplies its domain application. Scaffold/shared UX/agent guidance reference the platform rule; pending E1 criteria/schema reconciliation remains required.
+
+
+Draft reconciliation progress, 2026-10-04: active E1-CONTEXT/D1/CHOICES criteria and draft
+read/error contracts now distinguish nonblocking setup_notices from editability. Timezone-
+only mutation rejection is removed. Remaining consumer integration is explicit: undated
+People discovery must distinguish missing periods without guessing, operation evidence
+must allow genuinely undated observations, and obsolete choice reset requires definitive
+lookup rather than omission from a paginated list. Full calculation/profile-version
+machinery remains outside the simple preservation path. No runtime checks were executed.
+
+
+Consumer contract closure, 2026-10-05: People discovery now declares `has_periods`,
+with no invented effective date/status. Draft observation evidence has explicit discovery
+and effective variants. The [choice-resolution contract](./architecture/contracts/e1-draft-choice-resolution.md)
+checks a selected type independently of list pagination and defines minimal field-reset,
+read-only and stale-response behavior. These close the two identified interface choices;
+minimal published type/version schema and executable validation remain before readiness.
+No application code, stored input or database changed.
+
+
+Choice-schema progress, 2026-10-05: the
+[owned choice contract](./architecture/contracts/e1-draft-choice-resolution.md#minimum-owned-typeversion-schema--2026-10-05)
+now defines stable leave types, published metadata versions, scoped choice-version
+references, metadata bounds and keyset cursor contents. E1 provisions one published
+example version per type; the selector is not a submission policy/eligibility decision.
+E3 retains effective-date policy selection/snapshots and scheduled-publication gates.
+Actual migrations, owner-command/audit schemas and executable verification remain open.
+
+
+### Remaining E1 gates by timing — 2026-10-05
+
+**Status: agreed scope and sequence; contracts partly specified; not implementation-ready.**
+This classifies existing spine/Phase 1 gates, not a new workflow. The revised 20-candidate order
+and first delivery slice remain unchanged. Product approvals are not waiting for another
+round of confirmation merely because technical fields or verification commands need work.
+
+**Already settled in planning:** organization-neutral tenancy; identity/person/employment
+separation; accountless employment; access ownership and app-admission rules; new membership
+ID on rejoin; shared optional department/location/supervisor; draft input/retry/lifecycle
+behavior; platform-simple failure exits; lightweight preservation despite missing timezone;
+obsolete-field clearing; undated People has_periods; definitive choice lookup; minimum
+People/type structures; local-first tests, browser policy and initial performance targets.
+These still need consistent contracts and execution evidence, not rediscovery of user intent.
+
+#### Before the first affected story is ready
+
+| Remaining design/validation | Owning candidates | Concrete completion evidence |
+| --- | --- | --- |
+| Canonical schema and migration consistency | ID/ACCESS/DISCOVERY/PEOPLE/WRITE/CHOICES/D1 | One coherent set of actor/reference keys, grants, RLS/routine ownership, membership partial uniqueness and legacy writer adoption; complete required read/result/error variants; executable-design fixtures mapped to each invariant. Validate proposed source placement and clean/adopt order against real repository consumers. Target baseline equivalence is required before adopting that target, not assumed from source SQL. |
+| Minimal owner provisioning and consequential evidence | ID/ACCESS/PEOPLE/WRITE/REF/CHOICES | Exact controlled command inputs, required actor/reason, operation identity/canonical input/result, bounded safe errors, audit/change row shapes and atomic effects. Reference capability IDs and fixture manifest ownership explicit. No public administration UI or full HR mutation framework in E1. Ordinary draft saves/reads remain free of duplicate business audits. |
+| Authentication return and draft restart behavior | A1/D2/D3/D5/WRITE | Supported auth-adapter validated return and account binding; current access and saved-draft reload; safe fallback without context; no custom recovery record/TTL. Validate delayed-save ordering against reopened-editor revision/lifecycle checks; no automatic replay of lost writes. Existing execution/recovery budgets and consequential-action safeguards remain binding. |
+| Reproducible tools and configuration | ENV/P1/SERVICE and each dependent consumer | Exact verified compatibility set, lockfile/manifest ownership, generator input/extension rules, safe fixture/reset targets and named local/CI commands. Define actual Entra callback test target and required service credentials. Choose declared catalogue/metadata limits and relevant timeouts where still open. No copying unverified installed versions as proof. |
+| Coherent planning and BMAD checks | All E1 owners / technical lead | Finish full source-to-story FR/NFR/UX extraction, reconcile stale active wording and story dependencies/sizing, finalize numbering and explicit acceptance IDs. Complete required BMAD workflow customization and platform-prompt transition work, then use the existing CE/SP sequence and readiness gate. The scoped 12-entry/20-draft/18-scenario map is not a full-product completeness certificate. |
+
+Do not require working Leave code before writing its stories. Conversely, a detailed
+Markdown schema is not automatically a validated API/migration contract. Design review
+and bounded compatibility investigation close the relevant pre-story questions; BMAD
+Build then supplies failing-first implementation and evidence. No installation, live
+inspection, test-user provisioning or migration is authorized merely by this table.
+
+#### Evidence produced during the owning implementation
+
+- Observe the affected acceptance failure, implement through ATDD/focused TDD and record
+  exact commands and results. Generate actual OpenAPI/client output and run contract fixtures.
+- Prove database constraints, least-privilege roles/RLS, connection reuse, atomic writes,
+  concurrency and real committed-outcome recovery; mocked success is insufficient.
+- Prove clean setup and supported baseline adoption with synthetic rehearsals, migration
+  failure preventing activation and explicit recovery. Live cutover remains a separate
+  coordinated release action with target verification and permissions.
+- Generate fresh app/service output, preserve custom extensions, and exercise the authenticated
+  reference locally and in CI. That remains the binding Phase 1 exit gate before Leave
+  business consumers; a template-text check or startup health result cannot substitute.
+- Execute the Leave sign-in → organization → create/resume → autosave → close → reopen
+  journey and its agreed isolation/recovery branches. Add actual Entra, browser/device,
+  accessibility and representative-load evidence at their owning qualification points.
+- Promote proven shared clients/UI/templates and update docs/changelog/agent links in the
+  same item. Existing-app compatibility is tested where a shared contract changes.
+
+#### Explicitly later, before the first dependent consumer
+
+| Later boundary | Work retained there |
+| --- | --- |
+| E2 shared administration | Invitations/roles and administrative UI; employee mutations and change impacts; department/location/supervisor catalogues and effective history; work-profile/default/override editing and schedule/holiday setup. |
+| E2/E3 timezone-dependent behavior | Full effective-version applicability, timezone change boundaries and configuration consistency where calculations or dated decisions actually depend on them. E1 still needs a safe interpretation if it uses a dated restriction, but missing timezone alone cannot block preservation. |
+| E3 policy/calculation | Effective-date policy selection, scheduled publication, entitlement/balance rules and explanatory previews. The E1 choice-version pointer is not calculation authority. |
+| E4 attachments | Association/cleanup handshake, provider-enforced capability lifetime and platform ADR-0038 finalized byte identity. No E1 upload dependency. |
+| E5 consequential workflow | Submission/approval/reservation guards, routing/coverage/acknowledgements, required workers/events and stronger shared-input consistency. No relaxation from the draft-preservation rule. |
+| E6–E8 and pilot gates | Correction/report/import consumers, operational/privacy/security assessments, real backup/recovery, release qualification and human acceptance as already assigned. Fingerprint confidentiality-risk disposition remains before pilot. |
+
+#### Result and next technical work
+
+No additional user-facing requirement or new story is proposed by this consolidation.
+No implementation gate is passed. The next bounded technical pass is to complete the
+minimal owner-command/evidence shapes (especially Identity/Access/People provisioning)
+and verify their consistency with the already agreed schemas; then finalize supported authentication return
+integration and toolchain contracts. Surface only a genuine product tradeoff for discussion.
+Global requirements extraction, story-size validation and the Phase 1 BMAD/prompt tasks
+must remain visible while those technical items close; do not call E1 or CE complete early.
+
+
+Provisioning design progress, 2026-10-05: the [controlled owner-command contract](../../../platform/docs/architecture/contracts/e1-controlled-provisioning-and-evidence.md) specifies minimal Identity/Access/People setup payloads, expected-state guards, stable retries, compact outcomes and atomic transition evidence. No shared runtime provisioning engine or E1 administration screen is introduced. Operator authority adapter, exact typed schemas/bounds, migration grants and synthetic rehearsals remain readiness inputs.
+
+
+Sign-in recovery simplification — approved 2026-10-05: the
+[saved-draft return contract](./architecture/contracts/e1-draft-persistence-and-recovery.md#saved-draft-sign-in-return--agreed-2026-10-05)
+replaces the proposed bespoke recovery record, 4 KiB schema and 30-minute TTL with
+supported auth return navigation and fresh authorized saved-draft loading. Unsaved typing
+is not guaranteed through interactive sign-in. Generic callback/account safety and backend
+delayed-save ordering still need evidence; no automatic replay or consequential confirmation.
+Existing platform ADR-0032 applies unchanged. This closes the storage-design choice, not
+the runtime validation/readiness gate.
+
+
+Dependency/command ownership — 2026-10-05: the [E1 environment contract](./testing/e1-environment-and-dependencies.md#dependency-ownership-and-command-contract--2026-10-05) now specifies Leave's standalone npm lock, per-owner Python/uv locks, Access's same-item removal of its PtS dependency coupling, and the planned explicit local/CI command surface. Existing package/workspace files are unchanged. Exact compatibility pins, guarded bootstrap commands, provider callback target and runnable generated-reference evidence remain open; no readiness pass or installation is claimed.
+
+
+E1 scoped cross-check — 2026-10-05: [findings and proposed sizing](./testing/e1-acceptance-map.md#e1-source-and-sizing-cross-check--2026-10-05) retain the agreed first slice and all existing 12 entry/20 draft/18 acceptance-group mappings. Two splits are proposed, not yet approved: ID baseline then identity behavior; D2 guarded save API then browser autosave/close/reopen. Corrected D2's assumption that prior create/read reference work already proved mutable writes. ENV uses disposable base fixtures without future Identity/Access dependencies. Language, human accessibility/performance evidence and Phase 1 BMAD customization/prompt gates remain explicit. Full-product extraction, final sizing and readiness are still pending.
+
+
+Sizing approval — 2026-10-05: user approved ID-A/ID-B and D2-A/D2-B. The
+[revised sequence](../../../_bmad-output/planning-artifacts/epics.md#approved-revised-e1-delivery-sequence--2026-10-05)
+now has 20 candidates; parent IDs remain traceability groupings. The acceptance matrix
+is updated with each child's evidence responsibility. ID-A acceptance criteria are
+presented for discussion next; child-detail approval, remaining sizing/contracts and
+CE/SP readiness are not implied by approval of the splits. First delivery slice unchanged.
+
+
+ID-A acceptance approved — 2026-10-05. ID-B now has [detailed acceptance criteria](../../../_bmad-output/planning-artifacts/epics.md#candidate-story-e1-id-b-link-accounts-to-people-and-preserve-membership-history) for discussion. It owns verified person/account/actor mapping, membership transitions and controlled synthetic transition evidence. ACCESS retains grant-binding/admission integration; its proof is required before coordinated live activation of changed membership semantics. Independent ID-B completion does not imply production cutover or authorize an incompatible intermediate release. No application code or identity data changed.
+
+
+ID-B acceptance approved — 2026-10-05, including explicit clarification that membership
+replacement preserves the person/employment relationship and Leave history, subject to
+current access, and delayed removal targets only the old membership. The three-user
+transition is the existing PtS cohort, tested synthetically. No automatic access restoration
+or employment termination. D2-A is the next split-story detail; prior ACCESS and other
+unchanged scope approvals stand. Implementation/readiness gates remain open.
+
+
+D2-A detail — 2026-10-05: [save/read acceptance draft](../../../_bmad-output/planning-artifacts/epics.md#candidate-story-e1-d2-a-save-and-read-my-draft-input-safely) specifies exact input preservation, current authority, atomic revision/lifecycle/outcome writes, duplicate-safe recovery, both delayed-save commit orders and coherent authorized reads. It passes through API/database tests independently of D2-B's browser. Missing timezone remains nonblocking; no extra calculation engine, duplicate draft audit, custom sign-in record or discard/submission implementation. Acceptance detail awaits discussion; readiness and runtime evidence remain open.
+
+
+D2-A acceptance approved — 2026-10-05. [D2-B browser acceptance detail](../../../_bmad-output/planning-artifacts/epics.md#candidate-story-e1-d2-b-edit-autosave-close-and-reopen-my-draft) is now for discussion: exact-input form integration, serialized/coalesced autosave, truthful status, simple safe exits, conflict handling and real persisted reopen. This completes the first usable slice with applicable browser/accessibility/performance evidence; dedicated D3/D4/D5 branches remain next. Existing scope and readiness gates remain binding; no application code or tests run.
+
+
+Draft failure presentation update — accepted 2026-10-05: platform ADR-0050 partially
+supersedes ADR-0048; Leave ADR-0123 adopts it. Use inline Changes not saved with Retry
+while editing; no Keep editing button. Prompt Stay / Close anyway only on exit when
+bounded saving cannot be confirmed; switching uses Stay / Switch anyway. Confirmed saved
+input closes immediately. Existing revision/lifecycle/retry and access protections stay
+binding; no rollback or unsent-input survival promise. D2-B/D3 and shared scaffold/UI
+fixtures must prove these cases. Earlier three-choice wording is superseded. This does
+not decide whether a workflow needs a draft or change accepted draft scope.
+
+
+Saving convention — 2026-10-05: User accepted platform ADR-0051/Leave ADR-0124 saving conventions. D2-B reflects Draft saved, no redundant Save button and ADR-0050 inline/exit failure behavior. Business administration uses explicit whole-form saving; personal preferences apply immediately separately. Continue E1 source/contract/sizing closure; E2/E3 inherit the convention. No readiness gate passed.
+
+
+### Current E1 closure checkpoint — 2026-10-05
+
+Active D2/D3 criteria, feature text, draft contract and acceptance groups now use
+ADR-0050/0051 and Leave ADR-0123/0124. D3 switches only after saved source input or an
+explicit Switch anyway; D4 remains deliberate whole-draft discard; D5 restores current
+authorized saved state using ordinary auth return. D3/D4/D5 dependencies name both D2
+children. Earlier dated discussion notes are historical; accepted ADRs are unchanged.
+No new product approval is required for this reconciliation.
+
+| Remaining work | Concrete next result | Timing / owner |
+| --- | --- | --- |
+| Requirements completeness | Extract unmapped source FR/NFR/UX requirements, including general UX and operational safeguards, and link them to E1 or the appropriate later epic. Existing 12/20/18 ownership counts are not a completeness claim. | Continue CE; planning owner |
+| Remaining story sizing and dependency proof | Inspect P1/ACCESS/PEOPLE against concrete implementation boundaries; retain independently executable tests and avoid hidden future-story dependencies. Final numbering follows this check. | Before finalizing affected stories |
+| Identity/Access/People contract consistency | Resolve declared schema/actor/grant ownership, privileged operator adapter, typed command/result limits and supported legacy-writer transition against repository evidence. | Before affected story readiness; owning maintainers |
+| Draft/reference contracts | Validate draft/error/schema constraints and delayed-save commit-order fixtures; finish the sample write's own canonical input/retention contract and supported auth-return integration design. | Before affected writer/reference readiness |
+| Reproducible baseline | Select/verify exact compatible versions, guarded bootstrap/reset commands and feasible nonproduction Entra callback target. Planned scripts are not working commands. | ENV/P1/SERVICE/A1 readiness inputs |
+| BMAD repository integration | Complete existing BMAD customization and platform-prompts transition tasks, then complete CE and use SP at its established gate. | Existing Phase 1, not a competing checklist/workflow |
+
+Runtime tests, generated authenticated reference, migration rehearsals and measured
+browser/accessibility/performance evidence are produced during authorized delivery at
+their owning gates. Do not require working Leave to finish stories or count planning
+text as passing evidence. E4 retains finalized byte identity under platform ADR-0038;
+E5 retains consequential consistency. E1 behavior remains the approved first draft slice.
+
+
+Source coverage progress — 2026-10-05: extracted [22 supplemental permission/UX/NFR
+obligations](../../../_bmad-output/planning-artifacts/epics.md#supplemental-source-coverage-permissions-ux-and-operations--2026-10-05)
+with explicit E1 owners/evidence and later consumers. Encryption, backend tracing and
+visual/localization requirements now have explicit first-consumer or release evidence
+assignments. No new draft behavior, epic or product approval. E4 keeps ADR-0038 provider
+proof; E8 integrated restoration/alerts remains required. Detailed business catalogue
+extraction, remaining story sizing/contracts and CE/SP readiness remain open.
+
+
+Business/journey coverage — 2026-10-05: [BIZ-01–36](../../../_bmad-output/planning-artifacts/epics.md#business-feature-and-ux-journey-coverage--2026-10-05)
+assign concrete source outcomes and all numbered UX key flows to E1–E8. The first
+notification producer is E3; shared delivery must precede it. E5 must integrate actual
+pending-request impact guards with earlier E2/E3 writers before activation, not defer
+those checks to E6. E5 owns rejected resubmission; E6 approved cancellation/replacement.
+E4 retains ADR-0038 provider proof; E8 assembles operational release evidence. These are
+existing requirements, not additional product scope. §6 arithmetic/example extraction
+and detailed source-state coverage remain open; no story/readiness gate passed.
+
+
+Entitlement extraction — 2026-10-05: [CALC-01–36](../../../_bmad-output/planning-artifacts/epics.md#entitlement-rule-and-acceptance-example-ledger--2026-10-05)
+links earning/precision/calendar boundaries/caps/carry-over/funding/confirmation/correction
+rules to required examples and E3/E5/E6 owners. ADR-0105 precedence over partial-month
+wording in 0097 is explicit. On-demand earning remains authoritative under 0106; physical
+rollover/expiry evidence, allocation ties and historical bucket/fraction representation
+remain open technical contracts. No configurable rounding, daily accrual worker or new
+product defaults. Remaining workflow-state coverage, sizing and CE/SP readiness stay open.

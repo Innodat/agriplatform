@@ -23,7 +23,7 @@ Example (identifiers and exact HTTP mapping are proposed):
 {
   "error": "This draft changed elsewhere. Your latest changes haven’t been saved.",
   "error_id": "leave.draft_revision_conflict",
-  "details": { "current_revision": 8 }
+  "details": { "current_revision": "8" }
 }
 ```
 
@@ -110,3 +110,29 @@ disposable-sample tests together once proven. Shared UI: common recovery/error h
 with application-owned wording and domain transitions. Agent context: existing ADR-0031
 guidance suffices. Documentation: owning contract and first-consumer mapping. ADR:
 no accepted decision changed. No code, tests or migration implemented by this proposal.
+
+
+## Existing-service compatibility refresh — 2026-10-01
+
+There are now two existing response families to support: the older builder/directory
+`error` plus numeric `code` envelope, and PtS/Access/Content FastAPI responses shaped
+as `detail: {code: string}`. The latter appears in `services/access/main.py`,
+`services/content-service/main.py` and `apps/pts/backend/clients.py`. Neither may be
+silently relabelled as the other. Keep existing v1 consumers working while new
+versioned Access endpoints and new Leave endpoints adopt this contract. A typed
+boundary adapter maps known legacy identifiers/HTTP status to the new client model;
+unknown payloads take safe generic handling. Never parse English or forward raw
+upstream details. Add both legacy families to compatibility fixtures.
+
+For the E1 design baseline, use the proposed `error_id` envelope and typed
+`committed`/`unresolved` outcome responses above. This selects the design to test;
+it does not assert that adapters, OpenAPI models or consumer migrations exist.
+
+
+## Fingerprint security follow-up — 2026-10-01
+
+A retry fingerprint detects changed-content reuse; it is not a confidentiality control.
+Leave E1 selects versioned SHA-256/JCS. The [keyed fingerprint enhancement candidate](operation-fingerprint-security-evolution.md)
+records when HMAC may be warranted, including from an application's initial delivery,
+and the required secret/retry lifecycle. Choose through application threat assessment;
+do not impose either algorithm universally or expose a user-facing security toggle.
