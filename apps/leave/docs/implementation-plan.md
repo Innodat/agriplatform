@@ -1321,3 +1321,30 @@ wording in 0097 is explicit. On-demand earning remains authoritative under 0106;
 rollover/expiry evidence, allocation ties and historical bucket/fraction representation
 remain open technical contracts. No configurable rounding, daily accrual worker or new
 product defaults. Remaining workflow-state coverage, sizing and CE/SP readiness stay open.
+
+
+Workflow extraction — 2026-10-05: [FLOW-01–28 and finalization scenarios](../../../_bmad-output/planning-artifacts/epics.md#approval-and-request-state-coverage--2026-10-05)
+map route resolution, automatic decisions, exact unpaid responses, coverage/exception,
+temporary authority/return, directional fallback, reminders, resubmission and correction.
+Step approved does not imply request approved. Missing route blocks submission; applicant
+coverage can remain pending until final approval. Effective temporary Access contracts,
+interval/transfer concurrency, due-work timing and all finalization trigger contracts
+remain before dependent readiness. No new business defaults or runtime evidence.
+
+
+Privacy/state extraction — 2026-10-05: [PRIV-01–22](../../../_bmad-output/planning-artifacts/epics.md#privacy-notification-and-screen-state-coverage--2026-10-05)
+assign API/render/export disclosure, notification recipient/read/count boundaries,
+independent section recovery, stale review and overview/report states to their first
+owners. Read notifications never complete required employee actions; supporting-panel
+failure does not replace required business checks or imply a successful empty result.
+E3 remains the first notification consumer; E4 retains ADR-0038 protocol/race proof.
+No new product decision or implementation. Continue P1/ACCESS/PEOPLE sizing/dependency
+closure and explicit technical contracts; CE/SP and implementation readiness remain open.
+
+
+Foundation sizing proposal — 2026-10-05: [P1/ACCESS/PEOPLE assessment](../../../_bmad-output/planning-artifacts/epics.md#remaining-e1-foundation-sizing--2026-10-05)
+recommends retaining bounded P1, SERVICE and PEOPLE stories and splitting ACCESS into
+controlled configuration/provisioning followed by current checks/compatible activation.
+This is pending discussion: the approved twenty-item sequence and acceptance map have
+not been renumbered. New admission controls cannot be activated before enforcement
+works for supported v1/v2 callers. No new product scope or readiness approval.

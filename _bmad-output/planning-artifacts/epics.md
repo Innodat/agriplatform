@@ -3,7 +3,7 @@ project: Leave
 status: epic-structure-approved
 created: 2026-09-23
 stepsCompleted: []
-currentCheckpoint: Entitlement rule/example ledger extracted; remaining workflow-state extraction, sizing and technical contracts open
+currentCheckpoint: P1/ACCESS/PEOPLE sizing assessed; Access split proposed for discussion, technical contracts remain
 requirementsInventoryStatus: Source-indexed coverage proposal; granular extraction and confirmation pending
 epicApproval: Approved by user on 2026-09-23, including E5 and delivery sequence
 implementationReadiness: pending
@@ -3183,3 +3183,260 @@ it in protected request commands, and E6 owns corrective workflows. E1 only pres
 No new defaults, arithmetic policy or request scope were introduced. This ledger expands
 BIZ-07–18/23/25–26 and preserves source examples; full workflow-state extraction and final
 story decomposition remain pending. No application calculation tests were executed.
+
+
+## Approval and request-state coverage — 2026-10-05
+
+Sources: [features §7](../../apps/leave/docs/features.md#7-leave-application-experience),
+[§10](../../apps/leave/docs/features.md#10-configurable-approval-workflows),
+[§11](../../apps/leave/docs/features.md#11-request-lifecycle),
+[state models](../../apps/leave/docs/features.md#state-models),
+[UX approval review](ux-designs/ux-leave-2026-09-15/EXPERIENCE.md#approval-review) and
+[temporary assignment/escalation UX](ux-designs/ux-leave-2026-09-15/EXPERIENCE.md#leave-manager-escalated-approvals).
+FLOW identifiers trace existing obligations, not new workflow states or final stories.
+ADR numbers here refer to Leave decisions. E5 owns request execution and required
+appointment/due-work mechanisms; E2/E3 supply earlier configuration and E6 corrections.
+
+| ID | Required behavior / source | Acceptance boundary | Owner |
+| --- | --- | --- | --- |
+| FLOW-01 | §10/0007: one/two-step presets with at least one required approval. | No zero-step policy; two steps default to supervisor then explicitly selected eligible final approver, never inferred CEO. Self-approval disabled by default. | E3 configuration; E5 resolution |
+| FLOW-02 | §10: missing/invalid route blocks submission, preserving saved draft and directing to Leave Manager. | No unauthorized alternate or implicit skipped step. This is distinct from applicant coverage; saving incomplete draft itself remains allowed. | E5 with E1 preservation/E2 setup |
+| FLOW-03 | §10: starter one-supervisor setup, temporary appointments available, 3-day reminder/7-day escalation, optional second step/fallback off. | Client confirms schedules/entitlement/calendars/rules before starter policy activation; no universal statutory allowance. | E2 setup; E3 policy |
+| FLOW-04 | §10: submission snapshots the resolved route. | Later supervisor/directory/role changes do not silently rewrite outstanding assignees; explicit permissioned reroute preserves completed decisions. | E5; E2 writers participate |
+| FLOW-05 | 0007/0008: valid submitting approver may satisfy only their own authorized step; on-behalf and self-approval are separate permissions. | Without explicit self-approval no automatic own-request approval. On-behalf authority alone satisfies no approval step; another person's step remains pending. | E5 |
+| FLOW-06 | 0008: authorized later-step submission records that step immediately. | Step 2 approved with step 1 pending retains 480 reserved. Step 1 approval can finalize without repeating step 2; step 1 rejection releases reservation but retains the historical step-2 decision. | E5 |
+| FLOW-07 | §10: configurable handling of consecutive identical approvers. | Do not ask for an identical decision twice; do not collapse distinct people/authority requirements arbitrarily. Exact supported collapse rule/configuration must be bound before story readiness. | E3 contract; E5 |
+| FLOW-08 | 0069: own request with requested unpaid amount requires explicit acknowledgement of that exact current amount before submission. | Stale amount cannot satisfy current split; no acknowledgement needed for zero unpaid. Approval and override authority remain independent. | E5 with E3 allocation |
+| FLOW-09 | 0088: authorized on-behalf unpaid submission precedes employee response and does not alter the employee's draft. | Only employee acknowledges; manager cannot impersonate response. Sole submitting approver's step may be approved while overall request/reservation remain pending. Finalize once after response and all checks, without repeat approval. | E5 |
+| FLOW-10 | 0032/0088: explained increased unpaid amount invalidates stale acknowledgement. | Two→three unpaid days requires current three-day response; unchanged/decreased amount does not require renewed acknowledgement. Preserve actor/reason/previous amount, allow otherwise eligible withdrawal and intermediate steps. | E5; E2/E3/E6 impacts |
+| FLOW-11 | 0078: applicant's missing responsibility cover permits submission but gates final approval. | Check entire absence and potential new work; employees with no approval responsibilities have no coverage gate. Every automatic-finalization path checks it too. | E5 |
+| FLOW-12 | 0078: authorized coverage exception needs reason and leaves unresolved gap visible. | Exception does not create coverage, approval authority or satisfy unrelated gates. Do not change actual absence dates to conceal gap. Capability is part of Leave Manager default but custom role may omit it. | E2 capability model; E5 |
+| FLOW-13 | 0078/0076: loss of arranged cover after approval preserves employee leave. | Show Replacement approver needed to authorized managers; no automatic cancellation, substitute selection or authority extension. Flag known absence without waiting seven days. | E5 |
+| FLOW-14 | 0079: appointment grants bounded responsibility/date authority to an active same-organization member. | No permanent Approver role prerequisite; check known absence/self-conflict/membership. No medical-document permission, unrelated editing power or authority after expiry/inactive membership. | E5 consuming Access |
+| FLOW-15 | §10: temporary assignments for identical responsibility/date cannot overlap; sequential ones allowed. | Show conflicting appointment; require adjusted dates or explicit authorized replacement; no arbitrary winner under concurrency. | E5 |
+| FLOW-16 | 0076/0077: setup explicitly selects Include these pending approvals, with reason and disclosed conditional scheduled return. | Only selected outstanding work reroutes; completed approvals unchanged. Directory changes alone cannot transfer tasks. | E5 |
+| FLOW-17 | 0077: at expiry, preauthorized return rechecks original approver eligibility/absence, records transfer and notifies. | Ineligible original leaves work pending/flagged; authority does not extend. Authorized pre-expiry extension postpones return; retries cannot duplicate transfer or overwrite later reroute. | E5 due-work/transaction contract |
+| FLOW-18 | §10/UX: early termination ends authority on confirmation, with reason and destination preview. | May end without replacement: preserve decisions and pending flags, including coverage gap while no requests wait. Return only to eligible original or authorized replacement; preserve approved leave. | E5 |
+| FLOW-19 | §10: temporary appointment/change/early termination notifies appointee; no appointee acceptance step. | Manager confirms availability beforehand; authority starts on configured date. Minimal original-approver/date/Approvals-link content without sensitive request details. | E5 notification producer |
+| FLOW-20 | 0080/0081: optional directional absence fallback uses absence when approval is needed. | Eligible final approver may omit absent supervisor step; absent final approver cannot be replaced by supervisor alone. Do not use applicant's future dates or slow response as approver absence. | E3 policy; E5 execution |
+| FLOW-21 | 0080/0081: both absent may use temporary final approver alone only with explicitly granted supervisor-absence responsibility. | Fallback can satisfy that supervisor-responsibility coverage without duplicate substitute; other responsibilities still need cover/exception. Label omitted step Not required under absence policy; require at least one valid approval. | E5 |
+| FLOW-22 | 0081: request may wait for supervisor return without pausing reminders/escalation. | Before final decision, return restores outstanding supervisor step with evidence; completed valid final decision remains valid. Temporary appointments keep their separate expiry-return rule. | E5 |
+| FLOW-23 | §10/0057/0058: only currently required unanswered approvals get reminders/escalation. | Default 3/7 calendar days configurable; stop acted/withdrawn/cancelled work. Escalation notifies eligible manager but does not reroute, approve, reject or grant authority. Exact timer anchor/restart/due-work semantics remain design inputs. | E5 |
+| FLOW-24 | §10/15/16: actionable queue, review context and rejection reason. | Approver sees scoped type/note, balance/history/flags/team availability; document rights separate. Required rejection reason, comments preserved on stale review; email opens authenticated UI and never decides anonymously. | E5; E4 document boundary |
+| FLOW-25 | State model/§11: intermediate decisions retain reservation; final consumes once; reject/withdraw releases. | Overall request is not derived from a single step state. Concurrent finalizers/acknowledgement/config change cannot double-consume or bypass applicable gates. | E5 |
+| FLOW-26 | 0009: rejected request resubmits same ID, preserving previous detail/reason/decisions and starting fresh cycle. | 480 rejected releases old reservation; revised 240 reserves once; old decisions do not approve revision. Authorized automatic outcomes are freshly evaluated. | E5 |
+| FLOW-27 | 0010/0052–0054: approved cancellation/replacement distinct from rejected resubmission. | Cancel reverses applicable effects once; linked replacement new ID/new approval. On-behalf correction needs scoped capability/reason; invalid replacement leaves original intact, later replacement rejection leaves original cancelled with follow-up. | E6 |
+| FLOW-28 | 0087/0071: confirmed submission returns to My Leave with context and authoritative status. | Brief Request submitted, optional View request, no prominent reference/next-approver name. Lost response resolves existing operation before retry; no second request/reservation; remove submitted-draft indicator. | E5 |
+
+### Finalization scenario matrix
+
+This matrix distinguishes approval-step evidence from the request's overall lifecycle.
+It introduces no new waiting status: use accepted request/step states with explanatory
+UI messages. Each row also requires current authorization, valid funding/documents/
+employment, fresh reviewed inputs and duplicate-safe local effects.
+
+| Scenario | Permitted result |
+| --- | --- |
+| All required decisions satisfied; coverage valid or authorized exception; required employee acknowledgement current | Finalize once and convert reserved allocation to consumption. |
+| Submitting second approver authorized; earlier distinct approver still pending | Record second approval; overall request stays in approval with reservation. |
+| Sole on-behalf submitting approver valid; employee unpaid response missing | Step approved; overall request remains pending, no consumption. Employee response may trigger finalization once remaining checks pass. |
+| Decisions satisfied and acknowledgement current, but applicant coverage missing with no authorized exception | Do not finalize, including automatic paths; show unresolved coverage. |
+| Missing approval route before submission | Do not submit; preserve draft. This is not the same as a coverage gap. |
+| Later-step approval already recorded; earlier required approver rejects | Reject/release once and retain historical later-step decision; no consumption. |
+| Coverage later disappears after valid request approval | Keep request approved; flag replacement needed and arrange authorized coverage. |
+| Supervisor returns before final-approver absence fallback decides | Restore outstanding supervisor step under recorded policy; continue normal required-step checks. |
+
+### Remaining concrete design gates
+
+- Bind current effective appointment authority to the Access/Leave boundary without
+  granting permanent roles or sensitive-document rights. E1 Access checks alone do
+  not prove temporary E5 authority; extend contracts with the first consumer.
+- Specify responsibility identity, interval uniqueness, availability evidence and
+  explicit transfer/extension/termination command versions, locks and outcome shapes.
+  Recheck at execution; old timers/commands must not overwrite newer assignment state.
+- Define due-work identities, timezones, timer anchors and restart rules for reminder,
+  escalation and scheduled return, with fresh authorization and version compatibility.
+  Preserve privacy/outbox/worker recovery; generic notification retry is not a scheduler.
+- Specify all entry points that can complete finalization, including employee response,
+  final outstanding approval and resolution of a coverage gate after decisions already
+  exist. Sources require the same checks/one consumption; they do not yet establish all
+  exact command triggers. Do not infer background auto-finalization for unspecified paths.
+- Complete scoped withdrawal/visibility/error-state examples with their owning stories;
+  source says eligible pending withdrawal remains available, not an unrestricted API.
+
+Precedence: 0078 qualifies automatic finalization in 0007/0008; 0088 qualifies 0069's
+on-behalf acknowledgement timing; 0077/0079 refine 0076 temporary authority/return;
+0081 refines 0080 timing and return. Accepted originals remain immutable. No new
+product decision, workflow engine, runtime implementation or readiness pass here.
+
+
+## Privacy, notification and screen-state coverage — 2026-10-05
+
+Sources: [features](../../apps/leave/docs/features.md) §6 notification read/count rules,
+§12–13, §18–20; [Leave EXPERIENCE](ux-designs/ux-leave-2026-09-15/EXPERIENCE.md)
+Notification inbox, Organization leave overview, Reports, Leave Manager audit history
+and State Patterns; [platform EXPERIENCE](../../platform/EXPERIENCE.md) Notification
+panel, Collection views and filters, and Collections, refresh and export. These
+PRIV identifiers expand BIZ/FLOW/E1-X coverage without replacing authoritative sources
+or creating additional stories. Later-epic ownership is not completed story decomposition.
+
+| ID | Source obligation | Required acceptance evidence | First owner / consumers |
+| --- | --- | --- | --- |
+| PRIV-01 | §18: colleague absence privacy covers every leave type. | Annual and sick leave both show Unavailable or Part-day absence; authorized employee/interval only. API, export, filters, colours, icons, grouping and tooltips cannot expose type, note, comments or attachment metadata. | E5 team availability; E7 overview/export |
+| PRIV-02 | §18: assigned approver and manager can see scoped type/note/history. | Authorized sensitive type/note is visible; unrelated request and other organization are denied. Medical-document authority remains separate. | E5 review; E7 manager views |
+| PRIV-03 | §18: own request history includes decisions, named approvers, times and full comments. | Employee and assigned approver see permitted history; no private approver-only comment field. Colleagues and notifications do not receive it. | E5 history; E6 correction |
+| PRIV-04 | §12: medical-document permission controls metadata as well as bytes. | Approver/manager without permission gets only provided/verification status, with safe status text; direct API metadata/preview/read attempts expose no filename or URL. Permission alone cannot bypass resource scope/safety; own permitted document access works. | E4 Content/Leave contract; E5 review |
+| PRIV-05 | §13: email and in-app request information is limited to employee name, dates, status and secure link. | Assert allowed fields in API, subject, body, banner, preview, link text/parameters; exclude all types, notes, comments and document details. “Rejection with reason” event does not put the reason into notification content; read it in the authorized request. | E3 notification foundation; E4/E5/E6 producers |
+| PRIV-06 | §13: delivery/link possession grants no authority. | Current recipient/resource scope controls exposure; old link rechecks sign-in, membership and request access. Wrong organization or revoked access yields no request/document details. | E3 foundation; E5 request links |
+| PRIV-07 | §6: active-organization inbox and explicitly limited cross-organization counts. | A:2/B:3 shows active A bell/inbox only; selector counts only for active memberships, no B previews. Retiring B membership removes its count/access. | E3 shared notification integration |
+| PRIV-08 | §6: per-user read state is independent of business action. | Opening one A item reduces A count; Mark all as read clears only that user's A items, not B or another user. Neither approves a request nor satisfies unpaid acknowledgement. Required-action indicator remains until business response. | E3 read-state contract; E5 acknowledgement |
+| PRIV-09 | Shared/Leave notification panel UX. | Newest first, unread marker/time, desktop panel/mobile sheet with focus/return behavior. Failed load is not No notifications yet; retry respects active organization. | E3 shared shell/UI |
+| PRIV-10 | My Leave sections load/retry independently where contracts allow. | Failed balances show Retry, never zero balance; successful requests/history remain usable with context. Apply remains available; its own failed calculation blocks submission but not input preservation. Dashboard failure alone does not block successful form checks. | E1 shell/draft; E3 balances; E5 history/submission |
+| PRIV-11 | Shared collection empty, filtered-empty, loading and failure are distinct. | Preserve filters on retry; Clear filters for no matches. Failed refresh labels retained authorized data stale; lost access suppresses it; actions revalidate current state. | E1 applicable surfaces; E2–E7 collections |
+| PRIV-12 | Approval review supporting data failure does not imply availability. | Team availability failure says unavailable with retry; do not infer nobody away. Informational capacity does not block approval, while required coverage/funding/authorization checks still do. | E5 |
+| PRIV-13 | Stale review preserves input without executing it. | Withdrawn request loses Approve/Reject and offers Back to approvals; retained comment can be copied while open, without survival promise. Changed request requires latest review; lost access reveals no refreshed details. | E5; E6 applicable review |
+| PRIV-14 | Shared mobile filters are provisional until Apply. | Dismiss/Back discards unapplied changes; Reset changes provisional defaults only. Badge counts applied nondefault groups, not options/results; accessible focus and reachable controls. | First applicable E2/E3 collection; E5/E7 consumers |
+| PRIV-15 | Overview query/default/context rules. | Current month, approved and awaiting approval, employees with leave by default; explicit Show all employees stays within permission/filters. Search does not enable it. Persist per-user/per-organization filters; clear invalid/disallowed choices with safe notice. | E7 |
+| PRIV-16 | Overview navigation and permitted details. | Desktop timeline/mobile list, preserved filters/date/position on detail close and targeted refresh; no drag/resize date edits. Authorized change uses correction workflow. Empty period never claims Everyone is available. | E7 consuming E6 |
+| PRIV-17 | Timeline conveys dates separately from deducted duration. | Continuous date span and continuation markers; partial requests individually selectable without invented morning/hour placement. Friday–Monday example shows calendar span distinct from working-day deduction. Non-working shading uses individual schedule, not assumed weekends. | E7 consuming E2/E3 |
+| PRIV-18 | Holiday context respects location and schedule. | Multi-location holiday does not shade all employees as off; accessible date details and permitted holiday context. Existing resource/privacy restrictions still apply. | E7 consuming E2 |
+| PRIV-19 | Reports/export use matching authorized query and transformations. | All six MVP report definitions retain date/filter/scope rules in CSV; failed export keeps report with Retry export. No privacy bypass through export. | E7 |
+| PRIV-20 | Audit UI is a protected data surface. | Search/list/detail/linked records expose permitted before/after and actor/reason only; audit access is not medical-document permission. Producers capture required evidence at their owning write, before E7 UI exists. | E2 onward producers; E7 audit UI |
+| PRIV-21 | Shared admin saving and request autosave remain distinct. | Whole-form Save/Cancel and existing Review/Confirm where specified; uncertain outcome checked before retry, stale review refreshed. No extra admin draft system or direct autosave fields inside explicit-Save forms. | E1 D2-B/D3; E2/E3/E5/E6 admin consumers |
+| PRIV-22 | Disconnected/request draft states follow current adopted decisions. | Input retained in open form, saved indicator only after acknowledgement; inline Retry and exit-only Stay / Close anyway (Switch anyway for organization switch). Submission/approval never silently queued. | E1 D2-B/D3/D5; E5 actions |
+
+### Delivery checks and remaining contracts
+
+- Pair browser checks with API assertions for PRIV-01–08/19–20; hiding DOM fields
+  cannot prove disclosure control. Include allowed and denied roles, separate document
+  permission, wrong organization and revoked access. Real-browser/accessibility
+  qualification remains required under the accepted browser policy.
+- E3 owns the first notification integration because adjustment/entitlement producers
+  precede request submission. Bind shared envelope, recipient authorization, read/count
+  operations and deduplication/retention contracts before those stories are ready.
+  Request-specific payload limits do not invent dates for non-request events; use
+  their existing approved minimal event content. Reading remains a separate operation
+  from any acknowledgement, approval or correction command.
+- For partial loading, bind actual endpoint dependencies and current-access treatment;
+  this is not permission to keep sensitive cached data after revocation or to bypass a
+  required calculation/coverage check. Avoid adding an unrelated dashboard dependency
+  to the first draft slice.
+- E4 still requires the provider binding protocol and race/replay evidence in
+  [platform ADR-0038](../../platform/docs/architecture/decisions/0038-finalized-content-byte-identity.md)
+  before affected attachment story readiness. Metadata privacy tests do not prove
+  finalized-byte identity, safe association or signed-operation lifetime.
+- Impact: reuse/prove domain-neutral loading, filter, notification and saving controls
+  at the first real consumer, then update shared UI and scaffold examples in that
+  delivery item. Leave owns domain disclosure projections, query rules and messages.
+  No new runtime service, agent-context rule, product default or ADR is introduced;
+  this matrix and the authoritative tracker are the documentation impact. Accepted
+  platform 0050/0051 and Leave 0123/0124 govern current saving presentation.
+
+This pass assigns existing privacy/notification/state requirements; it is not a
+runtime test result or a claim that the complete inventory/readiness gates passed.
+Next: inspect P1/ACCESS/PEOPLE story size and dependency boundaries, then close the
+remaining explicit technical-contract inputs before final E1 numbering.
+
+
+## Remaining E1 foundation sizing — 2026-10-05
+
+**Discussion proposal; the approved twenty-item sequence remains authoritative until
+this decomposition is accepted.** No additional product capability is proposed.
+Existing E1-P1/ACCESS/PEOPLE criteria and traceability remain binding.
+
+### Repository evidence and recommendation
+
+| Candidate | Working-tree evidence / existing boundary | Recommendation |
+| --- | --- | --- |
+| E1-P1 | [Builder README](../../platform/builder-cli/README.md) is explicitly a placeholder; templates exist but are not a working CLI or generation-test suite. P1 already excludes protected business routes, feature generation, retrofit tooling and the service-only variant. | Keep one story: minimum deterministic generator plus runnable web/API output and generation-safety checks. One declared app configuration, no option matrix. ENV settles the supported toolchain first. |
+| E1-SERVICE | Existing service-only candidate reuses P1 core; includes owner configuration/migration hooks and preservation of custom extensions, not a table-to-public-API engine. | Keep the separate existing variant story. Do not fold it into P1 or add worker scaffolding before a consumer. |
+| E1-ACCESS | [Current handler](../../services/access/main.py) has one v1 check, three PtS permissions and two accepted service keys; [migration](../../services/access/migrations/versions/0001_initial.py) owns one grants table. [Container](../../services/access/deployment/Dockerfile) still installs PtS requirements. Planned registry, bound grants, operator writes, v2 checks and v1 adoption are substantial independent changes. | Split into ACCESS-A controlled admission configuration, then ACCESS-B current checks and compatible activation. Preserve all original acceptance obligations. |
+| E1-PEOPLE | No services/people implementation exists. Existing scope is two core entities, two controlled setup commands and one own-employment read with optional business-date interpretation. SERVICE and ID-B provide prior foundations. | Keep one end-to-end owner story: provision relationship/periods and prove authorized own-read. Do not split two tables away from their first useful consumer or introduce directory/HR administration. |
+
+These are scope-based planning judgments, not measured implementation-time estimates.
+Outstanding contracts must be resolved before declaring any item agent-sized and ready.
+
+### Proposed ACCESS-A — Controlled app and grant configuration
+
+Depends on ENV and ID-B, reusing the already established owner-command/evidence
+contract. Delivers the existing Access-owned registry, permission mapping, organization
+app enablement and exact membership-bound grants through restricted operator commands.
+No new public administration API or role editor.
+
+Independent acceptance boundary:
+
+- In a disposable environment, register explicit PtS/reference/Leave capabilities;
+  configure organization enablement; assign/revoke/regrant against exact current
+  membership IDs. App registration starts disabled and employment creates no grant.
+- Verify wrong owner/command/scope, stale revision, retired membership and conflicting
+  registration rejection; replay succeeds once with atomic minimal audit/outcome.
+  Concurrent updates and actual restricted database roles exercise the owning constraints.
+- Rehearse the selected legacy grant/actor mapping, supported old-writer compatibility
+  and migration failure/recovery. Expand-only schema changes must remain compatible
+  with the prior running version; defer incompatible enforcement to the coordinated
+  transition or use the existing explicit maintenance/recovery path.
+- Separate Access's package/container dependencies from PtS while preserving the
+  characterized current v1 behavior. Reuse rather than rebuild ID-B's common operator
+  adapter; Access supplies only its command authority and owner-local operations.
+
+**Activation boundary:** this proves configuration and mutation integrity, not effective
+new admission enforcement. Do not publish the new enable/disable controls as operational
+access controls, enable new consumers, or claim suspension effective while old checks
+ignore them. New operator commands are exercised in isolation; production activation
+of the admission feature waits for ACCESS-B's compatibility proof. This is a normal
+coordinated feature release, not a future dependency in ACCESS-A's acceptance tests.
+Do not activate stricter constraints that would break a supported existing writer.
+
+### Proposed ACCESS-B — Current checks and compatible admission activation
+
+Depends on ACCESS-A. Delivers complete v2 caller/user/capability authorization and the
+compatible v1 transition using one current admission evaluation. No discovery endpoint
+or launcher implementation; those retain their existing following stories.
+
+Independent acceptance boundary:
+
+- Verify registered app, global/org enablement, current account/membership and exact
+  nonrevoked membership-bound capability; v2 supplies verified person/actor context.
+  Test separate read/manage grants, rejoin without old grant restoration and re-enable
+  restoring only still-valid access.
+- Apply explicit service-to-app/endpoint policy; valid user credentials cannot let an
+  unrelated calling service request decisions. Preserve safe disclosure order and
+  typed expired/denied/setup/unavailable outcomes without positive-cache fallback.
+- Exercise v1 and v2 with current revocation/suspension and retained v1 wire semantics;
+  the old endpoint cannot bypass app admission. Characterization protects intended
+  existing PtS behavior, not historical lack of admission enforcement.
+- Rehearse coordinated migration/configuration/activation and supported callers with
+  synthetic identities. Keep failure-blocked activation and declared recovery evidence;
+  no live three-user transition or credential provisioning occurs during planning.
+
+### Dependency, traceability and impact reconciliation if accepted
+
+Replace the single ACCESS position with ACCESS-A → ACCESS-B. DISCOVERY and WRITE
+consume completed ACCESS-B; PEOPLE consumes SERVICE, ID-B and ACCESS-B. Existing
+DISCOVERY → LAUNCHER → WRITE → REF ordering and subsequent Leave sequence stay as
+approved. This would make **21 delivery items**, retaining ACCESS as the parent
+requirement grouping rather than an additional implementation item.
+
+ACCESS-A owns the original configuration/provisioning/concurrency/migration obligations;
+ACCESS-B owns direct authorization, caller policy, disclosure, revocation and v1/v2
+compatibility. Both retain E1-ENTRY-02/05/06/07/10/12 and E1-AC-13/15/17/18 as applicable;
+final acceptance-map rows must distinguish evidence rather than claim duplicate coverage.
+
+P1 must not depend on future authentication to prove shell generation; SERVICE must not
+expose permissive placeholder business routes; PEOPLE tests own-employment via real
+Access using explicit fixtures and dates without a future Leave work-profile service.
+Leave derives its date later. Nullable assignments remain nonblocking and their E2
+maintenance/history scope is unchanged. First delivery remains sign in → select
+organization → create/resume → autosave → close → reopen.
+
+Scaffold impact: P1/SERVICE own generator output; Access updates its typed client/error
+and command fixtures; People promotes only an opt-in employment adapter with proven
+contracts. Shared UI has no additional feature in this sizing pass. Existing generated
+agent guidance and ownership rules suffice. Documentation changes here and in the
+tracker record the recommendation; accepted ADRs and product requirements are unchanged.
+
+Remaining gates: exact generator inputs/pins/commands, owner operator authority adapter
+and typed command bounds, schema/legacy-writer transition and permission/caller mappings
+remain binding. In particular, a missing common operator adapter belongs to ID-B's
+readiness/delivery scope, not a hidden new framework inside both Access and People.
+No code, migration, runtime test or readiness completion is implied.
