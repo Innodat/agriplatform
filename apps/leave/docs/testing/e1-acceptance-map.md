@@ -135,7 +135,7 @@ each first consuming delivery item, under the existing ATDD/TDD rules.
 ## Consolidated story ownership — 2026-10-04
 
 The user approved the original 18-candidate dependency sequence and, on 2026-10-05,
-the ID and D2 splits producing 20 ordered candidates. The matrix covers every existing
+the ID, D2 and Access splits producing 21 ordered candidates. The matrix covers every existing
 E1-ENTRY-01–12 and E1-DRAFT-01–20 inventory entry and every E1-AC-01–18 scenario group.
 These are scoped planning references from
 [epics.md](../../../../_bmad-output/planning-artifacts/epics.md#e1-entry-requirement-traceability--2026-10-02),
@@ -151,7 +151,8 @@ cross-application runtime implementation is intended.
 | E1-SERVICE | E1-ENTRY-06, E1-ENTRY-12 | E1-DRAFT-20 | E1-AC-15, E1-AC-17, E1-AC-18 | Independent service output and preservation of custom extensions |
 | E1-ID-A | E1-ENTRY-01, E1-ENTRY-02, E1-ENTRY-07, E1-ENTRY-10 | E1-DRAFT-16 | E1-AC-12, E1-AC-13, E1-AC-15, E1-AC-17, E1-AC-18 | Owned legacy baseline, restricted roles, clean/adopt and failure recovery; contributes foundational evidence to inherited parent mappings |
 | E1-ID-B | E1-ENTRY-01, E1-ENTRY-02, E1-ENTRY-07, E1-ENTRY-10 | E1-DRAFT-16 | E1-AC-12, E1-AC-13, E1-AC-15, E1-AC-17, E1-AC-18 | Account/person/actor linking, manual adoption and attribution preservation |
-| E1-ACCESS | E1-ENTRY-02, E1-ENTRY-05, E1-ENTRY-06, E1-ENTRY-07, E1-ENTRY-10 | E1-DRAFT-17 | E1-AC-13, E1-AC-15, E1-AC-17, E1-AC-18 | Current service/user authority and compatible grants |
+| E1-ACCESS-A | E1-ENTRY-02, E1-ENTRY-05, E1-ENTRY-06, E1-ENTRY-07, E1-ENTRY-10, E1-ENTRY-12 | E1-DRAFT-17 | E1-AC-13, E1-AC-15, E1-AC-17, E1-AC-18 | Controlled registry/enablement/grant writes, replay/evidence, compatible schema and writer adoption; configuration foundation, not runtime enforcement |
+| E1-ACCESS-B | E1-ENTRY-02, E1-ENTRY-05, E1-ENTRY-06, E1-ENTRY-07, E1-ENTRY-10, E1-ENTRY-12 | E1-DRAFT-17 | E1-AC-13, E1-AC-15, E1-AC-17, E1-AC-18 | Current service/user/app authority, membership-bound revocation and compatible v1/v2 enforcement/activation |
 | E1-DISCOVERY | E1-ENTRY-03, E1-ENTRY-05, E1-ENTRY-06 | E1-DRAFT-13 | E1-AC-01, E1-AC-09, E1-AC-13, E1-AC-15, E1-AC-17, E1-AC-18 | Scoped pagination, admission and empty/unavailable distinctions |
 | E1-LAUNCHER | E1-ENTRY-03, E1-ENTRY-05, E1-ENTRY-11, E1-ENTRY-12 | — | E1-AC-13, E1-AC-15, E1-AC-16, E1-AC-17, E1-AC-18 | ADR-0047 visibility and usable failure/Retry state |
 | E1-WRITE | E1-ENTRY-05, E1-ENTRY-06, E1-ENTRY-10, E1-ENTRY-12 | E1-DRAFT-20 | E1-AC-15, E1-AC-17, E1-AC-18 | Atomic sample write/outcome, attribution and retry evidence |
@@ -291,9 +292,10 @@ an unsafe happy path with conflict/recovery deferred to a later item. D1 continu
 atomic create/resume before D2-A. D3/D4/D5 follow completed D2-B. Closed-state races before
 the discard UI exists use controlled owner fixtures, not a dependency on later D4.
 
-The approved splits produce 20 delivery candidates from the existing 18;
-no extra epic or feature is introduced. P1/ACCESS/PEOPLE remain sizing watch points,
-not certified single-session items. The remaining full source extraction, exact contracts,
+The approved ID/D2/Access splits produce 21 delivery candidates from the original 18;
+no extra epic or feature is introduced. P1/SERVICE/PEOPLE retain their bounded scopes;
+ACCESS-A configures admission and ACCESS-B enforces it. Technical readiness remains
+required before any item is certified for delivery. The remaining full source extraction, exact contracts,
 compatibility baseline and CE/SP gates are still open.
 
 
@@ -355,3 +357,12 @@ keeps minimal E1 entry/draft evidence separate from later policy, request, conte
 report evidence. E1 draft discard does not implement E5 request withdrawal. E1 must not
 claim later business coverage through synthetic choices or a saved draft. This mapping
 adds no E1 runtime test pass and does not change the 20-candidate delivery sequence.
+
+
+Access split approved — 2026-10-05: the ownership matrix now follows the
+[21-item sequence](../../../../_bmad-output/planning-artifacts/epics.md#access-split-agreement-and-current-e1-sequence--2026-10-05).
+ACCESS-A independently proves owner-controlled configuration and compatible adoption;
+ACCESS-B proves current decisions, caller isolation, revocation and v1/v2 enforcement.
+DISCOVERY/WRITE/PEOPLE consume completed ACCESS-B. Parent ACCESS is not a twenty-second
+item. New admission controls remain unactivated until supported checks enforce them.
+Detailed child criteria and remaining technical gates are not passed by this approval.

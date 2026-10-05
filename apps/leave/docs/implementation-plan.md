@@ -1036,7 +1036,7 @@ Product behavior already agreed is not reopened by the technical work below.
 | Minimum Leave settings and choices | Leave; CONTEXT/CHOICES then D1/D2 | Work-profile/default/override-compatible timezone source and revision; minimal versioned type metadata endpoint/schema, active-date selection, authorized retired-choice handling and controlled seed mapping. Do not invent a parallel employee/configuration master or imply submission eligibility. |
 | Owned writes and draft wire/schema consistency | Platform/Leave; WRITE/REF/D1/D2/D4 | Exact reference-command canonical input/outcome retention; reconcile declared draft constraints, SQL scope/grants and all request/response/error variants. Preserve atomic effects, revision/lifecycle guards, compact closed rows and no default form backfill. |
 | Supported authentication return | Platform shell + Leave; A1/D2/D3/D5/WRITE | Validated destination/account binding through supported auth flow, current access and saved-draft reload; safe fallback when context is missing. No bespoke sessionStorage record/TTL. Verify delayed-save ordering and no automatic lost-write replay. ADR-0050 inline failure and exit-only confirmation remain settled. |
-| Coverage, sizing and gate evidence | Planning owners; all 20 candidates | Finish scoped source-to-story cross-check and global inventory; validate independently completable story size/order; assign concrete acceptance/contract test IDs and exact commands as delivery is prepared. Run the established readiness workflow only when its required planning inputs are complete. |
+| Coverage, sizing and gate evidence | Planning owners; all 21 candidates | Finish scoped source-to-story cross-check and global inventory; validate independently completable story size/order; assign concrete acceptance/contract test IDs and exact commands as delivery is prepared. Run the established readiness workflow only when its required planning inputs are complete. |
 
 Technical contract outputs precede dependent readiness; implementation subsequently
 observes failing acceptance and produces passing runtime evidence. This does not require
@@ -1282,7 +1282,7 @@ No new product approval is required for this reconciliation.
 | Remaining work | Concrete next result | Timing / owner |
 | --- | --- | --- |
 | Requirements completeness | Extract unmapped source FR/NFR/UX requirements, including general UX and operational safeguards, and link them to E1 or the appropriate later epic. Existing 12/20/18 ownership counts are not a completeness claim. | Continue CE; planning owner |
-| Remaining story sizing and dependency proof | Inspect P1/ACCESS/PEOPLE against concrete implementation boundaries; retain independently executable tests and avoid hidden future-story dependencies. Final numbering follows this check. | Before finalizing affected stories |
+| Remaining story sizing and dependency proof | P1/SERVICE/PEOPLE scopes retained; ACCESS-A/B split approved. Finish child acceptance and concrete contract validation before final numbering; avoid hidden future-story dependencies. | Before finalizing affected stories |
 | Identity/Access/People contract consistency | Resolve declared schema/actor/grant ownership, privileged operator adapter, typed command/result limits and supported legacy-writer transition against repository evidence. | Before affected story readiness; owning maintainers |
 | Draft/reference contracts | Validate draft/error/schema constraints and delayed-save commit-order fixtures; finish the sample write's own canonical input/retention contract and supported auth-return integration design. | Before affected writer/reference readiness |
 | Reproducible baseline | Select/verify exact compatible versions, guarded bootstrap/reset commands and feasible nonproduction Entra callback target. Planned scripts are not working commands. | ENV/P1/SERVICE/A1 readiness inputs |
@@ -1348,3 +1348,12 @@ controlled configuration/provisioning followed by current checks/compatible acti
 This is pending discussion: the approved twenty-item sequence and acceptance map have
 not been renumbered. New admission controls cannot be activated before enforcement
 works for supported v1/v2 callers. No new product scope or readiness approval.
+
+
+Access split approved — 2026-10-05: [current E1 sequence](../../../_bmad-output/planning-artifacts/epics.md#access-split-agreement-and-current-e1-sequence--2026-10-05)
+now contains 21 delivery items; the acceptance ownership matrix separates ACCESS-A
+configuration/adoption evidence from ACCESS-B current-check/activation evidence.
+P1/SERVICE/PEOPLE remain bounded as agreed. Detailed ACCESS-A criteria are prepared
+for discussion; operator adapter, exact schemas/bounds and compatible-writer transition
+remain required inputs. This supersedes the pending status of the preceding sizing
+proposal, not readiness gates or the first Leave slice. No code or runtime test execution.

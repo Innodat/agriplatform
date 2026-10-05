@@ -3,7 +3,7 @@ project: Leave
 status: epic-structure-approved
 created: 2026-09-23
 stepsCompleted: []
-currentCheckpoint: P1/ACCESS/PEOPLE sizing assessed; Access split proposed for discussion, technical contracts remain
+currentCheckpoint: Access split approved; ACCESS-A detailed criteria prepared for discussion; technical contracts remain
 requirementsInventoryStatus: Source-indexed coverage proposal; granular extraction and confirmation pending
 epicApproval: Approved by user on 2026-09-23, including E5 and delivery sequence
 implementationReadiness: pending
@@ -3340,8 +3340,8 @@ remaining explicit technical-contract inputs before final E1 numbering.
 
 ## Remaining E1 foundation sizing — 2026-10-05
 
-**Discussion proposal; the approved twenty-item sequence remains authoritative until
-this decomposition is accepted.** No additional product capability is proposed.
+**Approved decomposition on 2026-10-05; the 21-item sequence below now applies.**
+The following assessment records the rationale. No additional product capability is proposed.
 Existing E1-P1/ACCESS/PEOPLE criteria and traceability remain binding.
 
 ### Repository evidence and recommendation
@@ -3440,3 +3440,123 @@ and typed command bounds, schema/legacy-writer transition and permission/caller 
 remain binding. In particular, a missing common operator adapter belongs to ID-B's
 readiness/delivery scope, not a hidden new framework inside both Access and People.
 No code, migration, runtime test or readiness completion is implied.
+
+
+## Access split agreement and current E1 sequence — 2026-10-05
+
+The user approved ACCESS-A → ACCESS-B, retaining P1/SERVICE/PEOPLE at their bounded
+existing scopes. This supersedes the earlier twenty-item delivery sequence, not its
+requirements. Parent ACCESS remains a traceability grouping. Detailed child criteria
+are discussed in sequence; decomposition approval is not implementation readiness.
+
+| Order | Candidate |
+| --- | --- |
+| 1 | E1-ENV |
+| 2 | E1-P1 |
+| 3 | E1-SERVICE |
+| 4 | E1-ID-A |
+| 5 | E1-ID-B |
+| 6 | E1-ACCESS-A |
+| 7 | E1-ACCESS-B |
+| 8 | E1-DISCOVERY |
+| 9 | E1-LAUNCHER |
+| 10 | E1-WRITE |
+| 11 | E1-REF |
+| 12 | E1-PEOPLE |
+| 13 | E1-A1 |
+| 14 | E1-CONTEXT |
+| 15 | E1-CHOICES |
+| 16 | E1-D1 |
+| 17 | E1-D2-A |
+| 18 | E1-D2-B |
+| 19 | E1-D3 |
+| 20 | E1-D4 |
+| 21 | E1-D5 |
+
+ACCESS-A follows ID-B and ENV; ACCESS-B follows ACCESS-A. References from DISCOVERY,
+WRITE, PEOPLE and Leave consumers to completed ACCESS mean completed ACCESS-B, not
+just new configuration tables. SERVICE remains a prerequisite for generating People.
+All other dependency and first-slice boundaries remain unchanged.
+
+### Candidate Story E1-ACCESS-A: Configure application admission and grants safely
+
+**Decomposition approved; detailed acceptance criteria for discussion. Not implementation-ready.**
+Owner: existing Access service. Depends on ENV and completed ID-B's verified identity,
+membership and controlled operator foundation. ACCESS-B supplies runtime enforcement.
+
+As a platform administrator,
+I want controlled setup of application availability and exact membership-bound grants,
+So that each organization and account receives only its intended application access.
+
+**Acceptance Criteria:**
+
+**Given** an authenticated operator authorized for the exact Access command and target,
+**When** explicit application and capability registrations are provisioned,
+**Then** immutable app/capability associations are recorded with required attribution,
+**And** new applications begin disabled, unknown/conflicting mappings fail, and no
+wildcard, implied read grant or user grant is created automatically.
+
+**Given** a verified organization and exact current account/membership,
+**When** the operator configures organization enablement or assigns/revokes/regrants a
+specific registered capability using expected absence or the current revision,
+**Then** the owner commits only that intended target's change,
+**And** grants bind the exact membership; retired membership, stale state and wrong
+organization fail safely. Rejoining never restores old grants, and an old revoke
+cannot retire a replacement grant. Disabling retains grants without deleting them.
+
+**Given** duplicate attempts, changed input under the same operation ID, or a lost response,
+**When** the command is executed or its outcome retrieved with current operator authority,
+**Then** identical retries produce one durable local effect and compact outcome; changed
+input fails and unknown outcomes remain unresolved rather than inviting a new duplicate,
+**And** changed-state evidence and revision commit atomically with the change; unchanged
+registration creates no fictitious change event. Receipts are not current-state queries.
+
+**Given** an ordinary runtime credential, a spoofed actor in input, an unapproved target
+or missing scope,
+**When** provisioning or receipt lookup is attempted,
+**Then** authority is rejected before protected changes or evidence are disclosed,
+**And** runtime cannot administer grants or perform DDL. Restricted owner writers,
+server-derived actors, external reference validation before local locks and pooled
+connection isolation are proved against a real disposable database.
+
+**Given** the declared supported legacy schema and synthetic PtS grant/actor data,
+**When** the Access-owned migration and adoption procedure run,
+**Then** known permission mappings and membership/actor bindings are verified explicitly,
+**And** unknown mappings block adoption; unmatched grants do not acquire invented access.
+Preserve existing account IDs and attribution meanings. Add stricter constraints only
+when supported writers are compatible, or through the declared maintenance procedure.
+Migration failure blocks dependent activation without automatic destructive rollback.
+
+**Given** the current Access service and supported v1 callers,
+**When** Access receives its own locked dependencies/container inputs and compatible
+schema expansion,
+**Then** characterized intended v1 behavior still passes independently of PtS's dependency
+file or a future ACCESS-B implementation,
+**And** no new admission control is advertised as effective or activated for consumers
+while existing checks ignore it. ACCESS-A's completion proves isolated configuration;
+ACCESS-B and coordinated rollout prove enforcement before operational use.
+
+**Given** this story's initially failing acceptance checks and its completed delivery,
+**When** verification evidence is recorded,
+**Then** controlled configuration, replay/concurrency, restricted-role, compatible-writer
+and migration-failure checks pass without future discovery, launcher or administration UI,
+**And** exact commands/results, owner templates/fixtures, client/error compatibility,
+runbook and changelog are updated. No production account mutation is an acceptance fixture.
+
+**Traceability:** Parent ACCESS; E1-ENTRY-02/05/06/07/10/12, E1-DRAFT-17 and
+E1-AC-13/15/17/18 as configuration foundations. ACCESS-B owns live decision/denial and
+revocation enforcement evidence; A alone does not pass those complete scenario groups.
+Sources: [admission contract](../../platform/docs/architecture/contracts/application-admission-and-discovery.md)
+and [controlled provisioning](../../platform/docs/architecture/contracts/e1-controlled-provisioning-and-evidence.md).
+
+**Scope/impacts/readiness:** Access-owned schema and commands only; no public setup API,
+role UI, generic provisioning service or employment mutation. Reuse ID-B's established
+operator adapter and shared error/evidence conventions, with Access-specific authority
+and transactions. Scaffold/fixtures/docs change with the owner; no new shared UI or
+agent rule; accepted ADRs unchanged. Exact operator authentication/target authority,
+typed command/result bounds, compatible writer handover, migration privileges and
+locked dependency resolution remain explicit pre-story inputs. Do not silently move
+an unfinished shared operator framework into this item.
+
+Next discussion: confirm this child scope, then detail ACCESS-B's current authorization
+and supported v1/v2 activation checks. No application code or runtime tests in this pass.
