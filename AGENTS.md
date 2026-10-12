@@ -215,3 +215,79 @@ Confirm and consequential action rules remain binding. E1 has no submission impl
 No additional administrative draft system or universal draft requirement is introduced.
 Prove behavior and promote reusable UI/scaffold patterns with the first consuming story.
 Draft failure UX follows platform ADR-0050: inline Retry, exit-only Stay / Close anyway.
+
+
+## PtS individual access
+
+Follow [ADR-0052](platform/docs/architecture/decisions/0052-pts-account-scoped-access-and-coordinated-adoption.md):
+Current PtS capabilities use account-scoped grants with no organization membership or employment requirement.
+Leave remains organization-scoped. Update PtS/Access consumers together; legacy PtS
+API compatibility is not a target requirement. Preserve current protection through a
+controlled transition and resolve corpus/Content storage boundaries before implementation.
+Scribeswell launcher visibility follows current PtS account access.
+
+Follow [ADR-0053](platform/docs/architecture/decisions/0053-capability-scoped-access-in-mixed-scope-applications.md):
+scope belongs to each capability, not exclusively to the application. PtS may add future
+organization capabilities; account and organization grants never imply each other.
+Scribeswell stays organization-independent. Validate typed scope at the action boundary;
+never fall back to account authority after organization denial.
+
+
+## Application-authorized Content access
+
+Follow [ADR-0054](platform/docs/architecture/decisions/0054-application-authorized-content-and-enforced-ownership.md):
+route browser content control-plane requests through the owning app API. The app checks
+current user/domain access; Content verifies calling service policy and stored single-app
+ownership plus application/organization/account resource scope. No default app callback
+or duplicate domain authorization service. Signed bytes still transfer directly. Preserve
+association/cleanup, sensitive metadata and finalized-byte safeguards.
+
+
+## Authenticated private downloads
+
+Follow [ADR-0055](platform/docs/architecture/decisions/0055-authenticated-private-downloads-by-default.md):
+private reads default to authenticated application routes streaming via Content. Recheck
+current access on each request; do not expose/redirect to browser bearer read URLs.
+ADR-0054 ownership/service enforcement remains. Direct signed uploads remain; future
+unauthenticated sharing needs a concrete separately designed feature. Use bounded
+streaming without DB locks and no private-byte cache bypass.
+
+
+## Durable actor attribution
+
+Follow [ADR-0056](platform/docs/architecture/decisions/0056-durable-actor-registry-separate-from-login-accounts.md):
+identity.users remains an Auth-account profile; a small Identity-owned actor registry
+represents account and System/Migrate/service attribution. Preserve verified legacy IDs
+and history, separate executor from initiator, and never derive permissions from actor
+existence. New service actors need no synthetic Auth or employee records. Adopt existing
+references deliberately; this is not authority to delete live system/Auth users.
+
+
+## Organization onboarding
+
+Follow [ADR-0057](platform/docs/architecture/decisions/0057-invitation-onboarding-and-trusted-tenant-enrollment.md):
+normal organization onboarding uses invitations until a trusted Entra tenant mapping
+is verified and automatic enrollment explicitly enabled, default off. Enrollment does
+not create employment or app grants; disabling it does not retire existing memberships.
+Retain verified account/tenant binding and explicit rejoin safeguards; restricted
+bootstrap/adoption provisioning is separate from normal onboarding. Provider trust and
+lifecycle contracts must be resolved before readiness; no arbitrary provider/Graph sync.
+
+
+## Access prepared before first sign-in
+
+Follow [ADR-0058](platform/docs/architecture/decisions/0058-administrator-prepared-access-before-first-sign-in.md):
+authorized explicit role approval may be prepared before account/membership onboarding,
+with no effective grant until verified target/admission and activation checks succeed.
+Keep Identity/Access/People ownership, staged recovery and audit; no synthetic Auth
+accounts, email-only linking, automatic tenant roles or revoked-grant resurrection.
+
+
+## Structured scaffold inputs
+
+Follow [ADR-0059](platform/docs/architecture/decisions/0059-schema-validated-scaffold-configuration.md):
+record approved proven pattern/owner/scope/saving/history choices in thin versioned JSON
+scaffold inputs, referencing authoritative specs/ADRs/contracts and actual tests. Keep
+BMAD as the workflow, avoid duplicated DB/API specifications or runtime app engines,
+and prove generator/shared-pattern behavior with first consumers rather than trusting
+configuration claims. Exact schema/generator implementation remains gated.

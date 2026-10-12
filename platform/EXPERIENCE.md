@@ -83,6 +83,23 @@ capability summaries, and custom-role editors rather than generating separate
 editor implementations into each application. Scaffolding registers the application
 catalog and connects shared controls when available.
 
+Role-assignment presentation approved 2026-10-11: open the shared assignment form in a
+right-side drawer on desktop and a full-screen sheet on mobile. Show the exact member
+account/membership, organization and application in the header. Role choices include
+short descriptions and expandable capabilities; summarize proposed additions/removals.
+Use Cancel and Review changes, followed by explicit confirmation. Opening from People,
+application settings or a role's holder list uses the same form and authorization.
+
+Support a validated direct link to the member/application context, with current access
+checks and no form values or credentials in the URL. Closing a changed assignment form
+uses the existing administrative Discard these changes? safeguard; confirmed results
+return focus to the invoking item and refresh its access summary. A supported related
+holder link opens the drawer without losing the originating role editor's unconfirmed
+values/position; returning refreshes holders and current eligibility before another
+review. Do not promise unfinished-edit recovery across browser refresh/closure. Custom
+role definition editing uses its own page for the catalogue and holder-impact review.
+Drawer presentation does not grant self-service role assignment from the user's Me page.
+
 The shared platform owns assignment/custom-role administration and access-change
 audit. Applications own business permission/default-role definitions and enforce
 resource-level authorization in their APIs. Shared runtime capabilities use HTTP
@@ -560,3 +577,63 @@ Confirm and consequential action rules remain binding. E1 has no submission impl
 No additional administrative draft system or universal draft requirement is introduced.
 Prove behavior and promote reusable UI/scaffold patterns with the first consuming story.
 Draft failure UX follows platform ADR-0050: inline Retry, exit-only Stay / Close anyway.
+
+
+### Focused supervisor replacement — MVP agreement, 2026-10-11
+
+Within authorized shared employment administration, offer Replace supervisor from a
+current supervisor's reporting-employee view. Select all or some employees, choose the
+replacement and effective date, review the affected set, then confirm. Keep organization
+scope, current actor authority, each employee's expected state and effective-dated history.
+Use reusable selection/review/result controls; this does not introduce a general bulk
+spreadsheet editor, recursive organization chart or directory synchronization requirement.
+
+People owns the relationship change. A consuming application assesses its own approval
+eligibility and offers authorized access/setup repair guidance where necessary; do not
+silently grant roles. Existing setup filters identify missing/invalid relationships or
+routes, while failed checks remain unavailable. Leave resolves new supervisor-based
+requests under its policy and retains submitted workflow snapshots. Selected pending
+approvals may be transferred separately through its authorized reasoned reroute; completed
+decisions remain. Shared-service mutation/batch/history and consequential impact contracts
+must be concrete before affected story readiness. No implementation or runtime proof.
+
+
+### Organization onboarding — agreement, 2026-10-11
+
+Follow [ADR-0057](./docs/architecture/decisions/0057-invitation-onboarding-and-trusted-tenant-enrollment.md):
+use invitations as the normal onboarding route until a trusted organization tenant is
+verified and automatic onboarding separately enabled. Show verified tenant/organization
+context, then explicitly offer Enable automatic onboarding for this tenant? with default
+off and eligible audience review. Saving tenant configuration alone grants no membership.
+Explain that auto-enrollment creates membership and application roles are assigned
+separately. Disabling enrollment stops new automatic joins, not existing membership.
+Keep restricted operator bootstrap/adoption outside normal onboarding UI. Exact trust,
+state and admission/lifecycle contracts remain pre-story inputs; no implementation.
+
+
+### Prepare access before first sign-in — agreement, 2026-10-11
+
+Follow [ADR-0058](./docs/architecture/decisions/0058-administrator-prepared-access-before-first-sign-in.md):
+the shared assignment drawer may prepare reviewed roles for an intended recipient before
+a platform account/membership is ready. Show member/person context where verified,
+organization, application, intended login identity and Pending onboarding clearly.
+Confirmed pending assignments grant no current access and are not unsaved form drafts.
+
+Activate only against the verified correct account/membership and current approved policy.
+Existing accounts/memberships use ordinary role assignment. Onboarding follows invitation
+or enabled trusted-tenant enrollment; account/person linkage stays independently verified.
+Show actual staged status and Needs review if target/role/approval state prevents activation;
+provide authorized retry/withdrawal. Reuse role summaries/review and retain separate manual
+versus automatic activation evidence. Exact wire/lifecycle/retention remains pre-story work.
+
+
+### Small reference forms — simplicity direction, 2026-10-11
+
+Use simple active/archived state for small reference catalogues where their domain allows,
+retaining attribution/history and resolvable references. For the employee department/
+location edit form, prefer one bounded form-load API response with current values/labels,
+permitted options and revision. Include an archived saved selection for display while
+excluding it from new assignments. A failed required load shows form-level Retry, not
+false Unassigned values or an incomplete editable form. Save still validates current
+scope/revision/selected references. Future large catalogues may need search/pagination
+when demonstrated; no extra scheduling or archive-management workflow is required here.

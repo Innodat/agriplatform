@@ -3,7 +3,7 @@ project: Leave
 status: epic-structure-approved
 created: 2026-09-23
 stepsCompleted: []
-currentCheckpoint: Access split approved; ACCESS-A detailed criteria prepared for discussion; technical contracts remain
+currentCheckpoint: Stories 2.1–2.19 approved; Story 2.20 employee work-profile assignment under discussion; readiness pending
 requirementsInventoryStatus: Source-indexed coverage proposal; granular extraction and confirmation pending
 epicApproval: Approved by user on 2026-09-23, including E5 and delivery sequence
 implementationReadiness: pending
@@ -1281,6 +1281,11 @@ Generator agreement, 2026-10-02: user approved E1-P1, explicitly reaffirming own
 migrations run through controlled deployment rather than API startup.
 
 ### Candidate Story E1-REF: Prove a generated authenticated application against real persistence
+
+**Boundary refinement approved 2026-10-08:** this is the maintained platform verification
+application, not a separate disposable product. REF owns its reusable journey and local/CI
+proof; VERIFY deploys the same source/tests to hosted environments. Freshly generated CI
+instances remain disposable generator-test artifacts. WRITE supplies the prior backend.
 
 **Planning draft for discussion — named prerequisite, final number assigned by dependency
 order; not implementation-ready.** Owner: platform builder/reference verification.
@@ -3480,19 +3485,19 @@ All other dependency and first-slice boundaries remain unchanged.
 
 ### Candidate Story E1-ACCESS-A: Configure application admission and grants safely
 
-**Decomposition approved; detailed acceptance criteria for discussion. Not implementation-ready.**
+**Acceptance scope approved 2026-10-06. Not implementation-ready.**
 Owner: existing Access service. Depends on ENV and completed ID-B's verified identity,
 membership and controlled operator foundation. ACCESS-B supplies runtime enforcement.
 
 As a platform administrator,
-I want controlled setup of application availability and exact membership-bound grants,
+I want controlled setup of application availability and exact account or organization grants,
 So that each organization and account receives only its intended application access.
 
 **Acceptance Criteria:**
 
 **Given** an authenticated operator authorized for the exact Access command and target,
 **When** explicit application and capability registrations are provisioned,
-**Then** immutable app/capability associations are recorded with required attribution,
+**Then** immutable app/capability associations and each capability's required scope are recorded with required attribution,
 **And** new applications begin disabled, unknown/conflicting mappings fail, and no
 wildcard, implied read grant or user grant is created automatically.
 
@@ -3503,6 +3508,14 @@ specific registered capability using expected absence or the current revision,
 **And** grants bind the exact membership; retired membership, stale state and wrong
 organization fail safely. Rejoining never restores old grants, and an old revoke
 cannot retire a replacement grant. Disabling retains grants without deleting them.
+
+**Given** a verified account and registered account-scoped capability,
+**When** the operator assigns, revokes or regrants that exact account capability,
+**Then** expected absence/revision, current operator authority and atomic evidence guard
+that account grant without organization, membership or employment requirements,
+**And** scope-mismatched commands fail. No account grant satisfies an organization action;
+no organization grant supplies account authority. Explicit entry-capability configuration
+uses the app's registered read capability; grants are never expanded implicitly.
 
 **Given** duplicate attempts, changed input under the same operation ID, or a lost response,
 **When** the command is executed or its outcome retrieved with current operator authority,
@@ -3527,14 +3540,14 @@ Preserve existing account IDs and attribution meanings. Add stricter constraints
 when supported writers are compatible, or through the declared maintenance procedure.
 Migration failure blocks dependent activation without automatic destructive rollback.
 
-**Given** the current Access service and supported v1 callers,
-**When** Access receives its own locked dependencies/container inputs and compatible
-schema expansion,
-**Then** characterized intended v1 behavior still passes independently of PtS's dependency
-file or a future ACCESS-B implementation,
-**And** no new admission control is advertised as effective or activated for consumers
-while existing checks ignore it. ACCESS-A's completion proves isolated configuration;
-ACCESS-B and coordinated rollout prove enforcement before operational use.
+**Given** the existing Access owner and declared consumer transition,
+**When** Access receives its own locked dependencies/container inputs and schema adoption,
+**Then** characterization protects intended current behavior before coordinated replacement,
+**And** new configuration is not claimed effective while old checks ignore it. Legacy PtS
+wire/membership semantics need not survive the planned transition under ADR-0052.
+Prove previous-version compatibility where applicable or use the declared maintenance
+path; no permissive intermediate endpoint. ACCESS-B supplies current scope enforcement,
+and PTS-ADOPT owns actual PtS consumer activation. A completes with isolated fixtures.
 
 **Given** this story's initially failing acceptance checks and its completed delivery,
 **When** verification evidence is recorded,
@@ -3560,3 +3573,3216 @@ an unfinished shared operator framework into this item.
 
 Next discussion: confirm this child scope, then detail ACCESS-B's current authorization
 and supported v1/v2 activation checks. No application code or runtime tests in this pass.
+
+
+ACCESS-A acceptance agreement — 2026-10-06: user approved its detailed controlled
+configuration/adoption criteria. Operator adapter, typed bounds, compatible writer
+handover and migration privileges remain readiness inputs. Approval does not activate
+new admission controls or authorize application implementation/live account changes.
+
+### Candidate Story E1-ACCESS-B: Enforce current application and user access
+
+**Detailed criteria reconciled 2026-10-07 to accepted ADR-0052–0055; decomposition approved. Technical readiness pending.**
+Owner: existing Access service. Depends on completed ACCESS-A and its Identity/ENV
+prerequisites. Subsequent DISCOVERY, WRITE and PEOPLE consume this completed boundary.
+
+As an application user,
+I want protected actions to respect my current organization and application permissions,
+So that sign-in or an old link cannot expose information I am no longer allowed to use.
+
+**Acceptance Criteria:**
+
+**Given** an authorized calling service and authenticated user,
+**When** `/v2/check` evaluates an exact capability and typed authorization_scope,
+**Then** the registered scope determines the check: account capabilities require current
+account/profile, global app admission and exact account grant; organization capabilities
+also require current organization/membership, organization enablement and exact bound grant,
+**And** mismatched scope fails without fallback. E1 Leave own-request checks add verified
+person/actor and resource_scope; account checks require verified actor but no employment,
+person link or membership. Read/manage/export/document grants do not imply one another.
+
+**Given** a valid user token but an invalid calling credential or a service configured
+for a different app/operation,
+**When** it requests a check,
+**Then** Access rejects the service without revealing protected identity/setup details,
+**And** a service credential alone cannot impersonate a user. Leave, PtS and the
+synthetic reference use their explicit allowed operations; no wildcard service authority
+or new credential-rotation subsystem is introduced.
+
+**Given** successful account and organization authorization observations,
+**When** a new check follows a relevant revocation or disable even with a valid token,
+**Then** it evaluates current state without cached-positive/JWT-role fallback: account or
+app disable affects applicable account and organization checks; membership/organization
+changes affect only corresponding organization authority; independent account access remains,
+**And** rejoin cannot restore old membership-bound grants; re-enable resumes only still-valid
+authority. No membership/employment/draft is created. Already-authorized bounded execution
+keeps ADR-0021 semantics, not instantaneous distributed cancellation.
+
+**Given** expired authentication, unavailable verification or missing person/actor setup,
+**When** the check is evaluated,
+**Then** it returns the owning contract's distinct safe authentication, unavailability
+or setup error; setup information is disclosed only after relevant access is established,
+**And** a missing grant remains denial even if person setup is also missing. The typed
+consumer adapter treats service-credential rejection as dependency/integration failure,
+not a false message that the employee lost permission. No outage becomes access denial.
+
+**Given** an allowed response or error,
+**When** the client consumes it,
+**Then** private/no-store behavior, exact UUID and decimal-string bigint serialization,
+matching capability/authorization_scope and the variant's identity/resource fields are verified,
+**And** decision ID/time are observation evidence, never reusable authorization tokens.
+Malformed/duplicate/unknown input fields fail safely. Logs/errors contain no tokens,
+service secrets or unnecessary personal fields; provider waits occur outside DB locks.
+
+**Given** explicit account and organization capabilities in the synthetic reference fixture,
+**When** either or both are granted and checked,
+**Then** each succeeds only through its registered scope and exact independent grant,
+**And** missing organization for an organization action or cross-scope authority fails.
+The fixture uses its own capabilities, not PtS grants. It proves mixed-scope platform
+behavior without delivering future PtS organization features. No mandatory legacy v1
+response parity remains; PTS-ADOPT owns the actual caller replacement under ADR-0052.
+
+**Given** restricted database roles, connection reuse and concurrent access changes,
+**When** direct contract/integration tests exercise allowed and denied checks,
+**Then** missing/wrong scope and unrelated account/organization requests expose no
+protected data, runtime cannot mutate grants or schemas, and declared in-flight ordering
+is demonstrated,
+**And** provider-authentication and real database tests complement fault-injection tests;
+mocked success alone cannot establish current authorization or isolation.
+
+**Given** the declared existing/new consumer compatibility matrix and synthetic cohort,
+**When** the controlled release transition is rehearsed,
+**Then** required migrations/provisioning precede activation and failure blocks dependent
+activation with explicit recovery,
+**And** mixed old binaries that ignore admission are never reported as enforcing the new
+controls. Prove the supported compatible rollout or use the existing planned-maintenance
+route. Coordinate later Directory/consumer activation before claiming end-to-end discovery
+and suspension; ACCESS-B acceptance itself needs no future launcher UI or People endpoint.
+
+**Given** the initially failing acceptance tests and completed implementation,
+**When** delivery evidence is recorded,
+**Then** current check, service isolation, typed disclosure, revoke/rejoin/re-enable,
+scope-variant/transition and restricted-role tests pass with exact commands/results,
+**And** updated OpenAPI/client adapters, fixtures, safe logging and rollout documentation
+are owned together. This does not claim the complete Leave browser journey has passed.
+
+**Traceability:** Parent ACCESS, E1-ENTRY-02/05/06/07/10/12, E1-DRAFT-17 and
+E1-AC-13/15/17/18. [Identity wire contract](../../platform/docs/architecture/contracts/identity-access-employment-e1.md)
+and [admission/transition contract](../../platform/docs/architecture/contracts/application-admission-and-discovery.md)
+remain authoritative. Platform ADR-0019/0020/0021/0023/0025/0031/0035/0042/0046 and 0052–0055 apply.
+Content trusts its authenticated owning API under 0054; no duplicate per-user Access
+check inside Content is required. PtS itself checks document permission before streaming.
+
+**Scope/impacts:** Current access checks and compatible transition, with no role editor,
+discovery API, People business rule, document permission expansion or copied app-local
+authorization authority. Shared scaffold receives proven typed clients/error adapters and
+contract fixtures; subsequent UI consumes existing safe states. Existing agent rules
+suffice; owner docs/runbook/changelog update together; accepted ADRs unchanged.
+
+**Remaining readiness inputs:** Final caller policy including People/reference mapping,
+exact reference capability IDs, request/response bounds, selected baseline/writer and
+consumer transition matrix, authentication provider evidence and executable verification
+commands. ACCESS-A controls are prerequisites, not proof these checks work. No code,
+credential, live grant, migration or runtime test was changed in this planning pass.
+
+
+## PtS individual-access correction — accepted 2026-10-06
+
+The user directs PtS to adopt the new platform with individual access and no organization.
+[Platform ADR-0052](../../platform/docs/architecture/decisions/0052-pts-account-scoped-access-and-coordinated-adoption.md)
+governs earlier contradictory PtS organization/v1-preservation criteria, including
+ACCESS-A's recently approved compatibility criterion and ACCESS-B's proposed v1 parity.
+Do not implement those superseded clauses as target product behavior.
+
+- ACCESS-A: retain controlled owner provisioning, add explicit account grants for PtS;
+  Leave grants remain membership-bound. Reconcile transition fixtures rather than
+  require unchanged old PtS behavior indefinitely. No automatic conversion of all
+  legacy organization grants into account authority.
+- ACCESS-B: check each declared scope: PtS account/app/capability; Leave organization
+  enablement/membership/capability plus employee identity context where applicable.
+  Replace mandatory v1/v2 parity with coordinated PtS/Access/Content caller adoption.
+  Existing protection continues until replacement activation, using planned maintenance
+  if necessary; no permissive intermediate endpoint.
+- DISCOVERY/LAUNCHER: a PtS-granted account with zero memberships sees PtS and the
+  permitted Scribeswell menu entry; Leave remains absent without its independent grants.
+  PtS has no organization selector. Public Scribeswell reading remains unchanged.
+- ID/transition: do not create memberships to restore PtS access. Small-cohort manual
+  account recreation remains allowed, with explicit individual grants and actor evidence.
+- Scaffold: prove explicit organization/account scope variants and optional selector;
+  People is not a PtS dependency. API clients must not assume every success has org_id
+  or membership_id. Existing organization-only Leave response remains its typed variant.
+
+The 21-item sequence remains the planning baseline, but ACCESS-A/B sizing must be
+rechecked after inventorying PtS corpus/read/export/Content consumers and settling
+account-grant/check contracts. This is material prerequisite scope, not a hidden task
+inside Leave. No new story split or concrete wire/storage design is silently approved.
+No application code, account/grant change, migration or implementation authorization.
+
+
+## Capability-level scope agreement — 2026-10-06
+
+User approved [ADR-0053](../../platform/docs/architecture/decisions/0053-capability-scoped-access-in-mixed-scope-applications.md):
+current PtS individual capabilities, future separately authorized PtS organization
+features, organization-independent Scribeswell and organization-scoped Leave. This
+qualifies ADR-0052's whole-app wording without reviving legacy PtS compatibility.
+
+ACCESS-A's registry binds exact capabilities to app and required scope; account and
+organization provisioning use separately constrained targets. ACCESS-B dispatches only
+to the registered scope and proves both through a synthetic mixed-scope fixture; no
+fallback after denial and no cross-scope implied grant. Global app disable affects both;
+organization disable preserves independent account access. These refinements govern
+older whole-app scope/membership-only criteria, which cannot be used as target acceptance.
+
+DISCOVERY/LAUNCHER list one eligible app entry, keep account paths free of mandatory
+organization selection and scope organization discovery to actual eligible contexts.
+Earlier single `scope_kind` per app response proposals need reconciliation before
+readiness. Current Scribeswell menu rule uses PtS account access; future organization
+features do not implicitly change it. Their product implementation is deferred.
+
+Scaffold capability/client and scope fixtures, agent context, owning PtS architecture
+and platform contracts now reference this decision. Leave's first slice and current
+21-item sequence remain the baseline; sizing is revisited after concrete PtS caller/
+corpus/Content transition design. Next work: reconcile typed account/organization check
+and discovery contracts, then inventory PtS resource boundaries. No code or readiness pass.
+
+
+## Capability check and discovery wire refinement — 2026-10-06
+
+Owning contracts now specify [typed authorization variants](../../platform/docs/architecture/contracts/identity-access-employment-e1.md#canonical-capability-check-wire--2026-10-06)
+and [one-row-per-app discovery](../../platform/docs/architecture/contracts/application-admission-and-discovery.md#canonical-discovery-refinement--2026-10-06).
+ACCESS-B's old required top-level org/membership/person for all responses is replaced by
+closed account and organization-own variants. Authorization scope and resource scope
+are distinct. Caller identity comes from the token; capability registration determines
+scope, and mismatch never falls back. Account checks require actor evidence, not employment.
+
+DISCOVERY returns eligible_scope_kinds, not an exclusive application scope. PtS zero-
+membership users work; mixed apps appear once. Entry uses explicit read capabilities
+(PtS poetry read, Leave own request read); manage/export never implies read. Scribeswell
+menu eligibility uses the account variant of PtS. LAUNCHER keeps AppEntry presentation;
+protected navigation/direct actions recheck current authority. No future PtS org UI.
+
+Update ACCESS-A registry entry configuration and ACCESS-B/DISCOVERY/LAUNCHER/client
+fixtures together during authorized delivery. No runtime implementation or API compatibility
+is claimed. Next concrete prerequisite: inventory PtS corpus/Content read boundaries and
+choose the storage/resource transition, then settle account grant/actor persistence.
+
+
+## PtS corpus transition proposal — 2026-10-06
+
+[Owning source inventory and proposed boundary](../../apps/pts/docs/architecture/contracts/account-access-and-corpus-transition.md)
+traces browser/org header, Access, repository RLS, Content read/import and source upload.
+Recommend an application-owned shared corpus with individual read/export/document
+capabilities. No fake membership, per-account corpus copies or blanket RLS relaxation.
+The read-only clarification excludes personal document migration, not preservation of
+existing corpus source assets. Internal storage locators do not determine user authority.
+
+This is a proposed resource boundary, not yet approved DDL or Content association protocol.
+PtS/Content adoption should have its own bounded delivery item rather than be hidden inside
+ACCESS-B. Set its concrete scope/dependencies after agreement; the current 21-item baseline
+is not silently renumbered. First Leave journey and all pre-story/provider gates remain.
+
+
+## Content authorization boundary agreement — 2026-10-06
+
+User accepted [platform ADR-0054](../../platform/docs/architecture/decisions/0054-application-authorized-content-and-enforced-ownership.md):
+application API checks the user/domain record; Content authenticates the service and
+enforces stored single-app ownership and typed resource scope before signed issuance.
+No callbacks or extra authorization service. No list of shared owning applications.
+Browser byte transfers remain direct; control-plane calls use the app API. This replaces
+the PtS proposal's duplicate user-permission check inside Content, not domain protection.
+
+PtS adoption and E4 attachment stories need both independent-layer and integrated tests,
+including wrong app/scope, sensitive-document denial and fixed bytes. Ownership scope
+is separate from permission scope: PtS individual document permission can release an
+application-owned corpus file. Content records service executor and asserted initiator
+accurately, without claiming independent end-user verification.
+
+Remaining concrete contracts: owned metadata/legacy mapping, service-policy/typed command
+and actor bounds, association/cleanup and provider evidence. Keep existing 21-item baseline
+until the separate PtS adoption boundary is sized; no implementation/readiness approval.
+
+
+## Authenticated private download agreement — 2026-10-06
+
+The user requires sign-in/current authorization for most file reads; future exceptions
+are handled when needed. [ADR-0055](../../platform/docs/architecture/decisions/0055-authenticated-private-downloads-by-default.md)
+sets private authenticated streaming through the owning API and Content as the default,
+superseding signed browser read URLs. P-0054 ownership enforcement remains; direct signed
+uploads remain. No public-share feature/switch is added now.
+
+PtS adoption must prove auth/preview/download/range, bounded streaming, proxy/cache and
+upstream/disconnect behavior before E4 reuses it. Each new request rechecks, without
+promising recall of downloaded bytes or instant termination of in-flight streams.
+Content metadata/legacy mapping and PtS adoption sizing remain open. No code/readiness pass.
+
+
+## Content and PtS adoption decomposition proposal — 2026-10-06
+
+[Content ownership/authenticated-read design](../../platform/docs/architecture/contracts/content-ownership-and-authenticated-read.md)
+now records minimum metadata, trust/streaming boundaries and the existing composite
+key/immutability/audit migration constraints. This is source-grounded design, not DDL
+or provider evidence. Each file has one app owner and one typed resource scope; uploader
+attribution is separate. No per-scope bucket requirement or optional sharing system.
+
+Propose CONTENT-READ (shared ownership/adoption/streaming proof with synthetic caller)
+then PTS-ADOPT (real account-based browser/API/corpus/Content/launcher integration), after
+LAUNCHER and before WRITE/REF. ACCESS-B stays focused on access decisions. This would
+produce 23 items; await discussion before changing the approved 21-item matrix.
+Contracts for storage mapping, auth preview/ranges, bounded streaming and proxy limits
+remain binding; no future Leave dependency or PtS organization features are introduced.
+
+
+## Content/PtS split approved and current sequence — 2026-10-06
+
+User approved CONTENT-READ then PTS-ADOPT after LAUNCHER, before WRITE/REF. This
+23-item sequence supersedes earlier 21-item ordering, not existing requirements.
+Decomposition is accepted; detailed child acceptance and technical readiness are separate.
+
+| Order | Candidate |
+| --- | --- |
+| 1 | E1-ENV |
+| 2 | E1-P1 |
+| 3 | E1-SERVICE |
+| 4 | E1-ID-A |
+| 5 | E1-ID-B |
+| 6 | E1-ACCESS-A |
+| 7 | E1-ACCESS-B |
+| 8 | E1-DISCOVERY |
+| 9 | E1-LAUNCHER |
+| 10 | E1-CONTENT-READ |
+| 11 | E1-PTS-ADOPT |
+| 12 | E1-WRITE |
+| 13 | E1-REF |
+| 14 | E1-PEOPLE |
+| 15 | E1-A1 |
+| 16 | E1-CONTEXT |
+| 17 | E1-CHOICES |
+| 18 | E1-D1 |
+| 19 | E1-D2-A |
+| 20 | E1-D2-B |
+| 21 | E1-D3 |
+| 22 | E1-D4 |
+| 23 | E1-D5 |
+
+CONTENT-READ proves its owner boundary with restricted synthetic service callers;
+placement after LAUNCHER does not make the launcher part of its isolated acceptance.
+PTS-ADOPT consumes ACCESS-B, CONTENT-READ and DISCOVERY/LAUNCHER for the integrated
+PtS transition. WRITE/REF still prove their own generated foundation; no Content
+requirement is added to every generated app. Existing subsequent dependencies remain.
+First Leave slice completes with D2-B; no attachment UI or future PtS organization
+feature moves into that journey.
+
+### Candidate Story E1-CONTENT-READ: Protect owned files and stream private reads
+
+**Acceptance scope approved 2026-10-06. Not implementation-ready.**
+Owner: existing Content service. Requires ENV, established Identity/service actor
+conventions and finalized owner schema/service-policy/streaming contracts. Synthetic
+caller fixtures prove this story without a future PtS UI or Leave attachment endpoint.
+
+As an application owner,
+I want Content to enforce file ownership and stream verified private bytes to my authorized API,
+So that my application can protect downloads without exposing reusable storage read links.
+
+**Acceptance Criteria:**
+
+**Given** controlled creation or verified legacy adoption,
+**When** Content records a file's owner,
+**Then** one application and one valid application/organization/account ownership variant
+are enforced structurally, with required identifiers and separate initiator attribution,
+**And** ordinary runtime operations cannot reassign ownership; equal hashes in different
+ownership scopes do not merge files or reveal another scope's content. No synthetic org
+or nullable-org bypass is introduced for application/account resources.
+
+**Given** a restricted authenticated application service and an exact content reference,
+**When** it requests a private read with expected ownership context,
+**Then** Content verifies the service's permitted app/operation, stored resource scope,
+readiness and applicable safety/lifecycle before opening its own provider locator,
+**And** wrong app, mismatched scope, unknown caller, unsupported operation or a bare browser
+bearer releases no bytes or protected metadata. Caller-supplied application names and
+provider URLs confer no authority. Organization/account checks compare recorded scope;
+Content does not claim independently to verify the application's end-user decision.
+
+**Given** a valid read of finalized content,
+**When** Content streams to the authenticated application server,
+**Then** it returns the exact verified byte identity using bounded buffers/backpressure,
+**And** no signed read URL, credential or provider redirect is exposed in the read response.
+Database transactions finish before transfer waits. File size/type and supported range
+responses follow the finalized contract, with no truncation silently reported as success.
+
+**Given** GET, HEAD or a supported range/resume request,
+**When** the Content boundary handles it,
+**Then** it repeats service/ownership/readiness checks and applies safe private no-store
+headers to authorized output; unsupported variants fail safely,
+**And** metadata requests cannot bypass authorization. The consuming app independently
+rechecks user/resource authority on each browser request; that integrated proof belongs
+to PTS-ADOPT and later E4, not a duplicated user-permission engine in Content.
+
+**Given** provider failure, slow transfer or downstream cancellation,
+**When** the declared bounds are reached or the client disconnects,
+**Then** streams/connections close and resources remain bounded; safe typed failures are
+returned before headers where possible, while failures after streaming starts terminate
+an incomplete transfer without appending JSON or silently retrying the entire file,
+**And** evidence distinguishes requested/started/completed/failed delivery observations
+without claiming the user saved the file. New requests recheck; no instantaneous recall
+of previously delivered bytes or universal mid-stream revocation guarantee is claimed.
+
+**Given** the supported synthetic legacy object/event/association baseline,
+**When** owned clean/adopt/mismatch and migration-failure rehearsals execute,
+**Then** IDs, verified bytes, associations and original attribution/history retain their
+meanings under an explicit mapping; unknown ownership, collisions and mismatches block
+adoption rather than guessing,
+**And** constraints, immutability triggers, event FKs and restricted runtime/import roles
+are migrated consistently. No all-org-to-PtS mapping, startup migration, destructive
+rollback or live production-data fixture. Use the approved maintenance/recovery path
+where previous-version compatibility cannot be maintained.
+
+**Given** the changed shared ownership schema and authenticated read adapter,
+**When** failing-first acceptance and affected regressions run,
+**Then** actual restricted-role scope/pool isolation, byte-identity, large-file streaming,
+service-policy and migration recovery tests pass with exact commands and results,
+**And** upload/finalization/retry/association behavior affected by the changes is protected.
+Direct signed uploads remain; ownership changes do not waive ADR-0038 race/replay proof
+or claim Leave E4's remaining attachment/cleanup/provider-lifetime gates are complete.
+
+**Traceability:** Platform ADR-0035/0038/0054/0055 and the
+[Content contract](../../platform/docs/architecture/contracts/content-ownership-and-authenticated-read.md).
+E1-ENTRY-06/10/12 and AC-15/17/18 receive shared-owner prerequisite evidence, not Leave
+attachment acceptance. PTS-ADOPT provides the end-user read/resource authorization proof.
+
+**Impacts/readiness:** Update owning migration/service/provider adapters, typed server
+client, synthetic fixtures and release runbook together; promote only proven streaming
+helpers to scaffold. Existing UI patterns suffice; no new preview/sharing product or
+agent rule. Accepted ADRs unchanged. Final DDL/mapping, service credentials/actor bounds,
+read/error/header contract, range support, transfer/concurrency budgets and proxy behavior
+must be fixed before implementation. Their size may require further technical decomposition;
+this planning approval cannot stand in for runtime evidence or close readiness.
+
+
+CONTENT-READ acceptance agreement — 2026-10-06: user approved the detailed service
+ownership/streaming/adoption criteria. Concrete metadata DDL, credentials, transport
+bounds, browser/proxy design and executable evidence remain required; no readiness pass.
+
+### Candidate Story E1-PTS-ADOPT: Use PtS through individual platform access
+
+**Acceptance scope approved 2026-10-07, including permission/download/preservation clarification. Not implementation-ready.**
+Owner: PtS, consuming completed ACCESS-B, CONTENT-READ and DISCOVERY/LAUNCHER.
+Identity/ENV and provider/owner migration contracts are prerequisites. No Leave API,
+employment record or future PtS organization feature is required to complete this story.
+
+As an individually authorized PtS reader,
+I want to open the existing poetry collection and permitted source documents without
+selecting or joining an organization,
+So that my individual access works consistently through the shared platform.
+
+**Acceptance Criteria:**
+
+**Given** a current account with explicit PtS read permission and no organization memberships,
+**When** I sign in and open PtS,
+**Then** the existing collection, filters, poem/source views and permitted navigation work
+without an organization selector, org header or employment prerequisite,
+**And** login/help/return and account-change states no longer ask me to choose an
+organization. Supported return restores authorized view/filter context, never prior-user
+data; stale organization parameters cannot select another corpus or confer authority.
+
+**Given** read, export and document capabilities are assigned independently,
+**When** a user calls the relevant API directly or through the UI,
+**Then** each action requires its exact current account capability and PtS availability,
+**And** missing/revoked grants deny, verification outages return unavailable, and changing
+organization membership does not affect independent PtS account grants. Organization
+or Leave authority never substitutes for a PtS account capability. No legacy endpoint
+may bypass the new checks during coordinated activation.
+
+**Given** a permitted source document associated with the selected PtS corpus,
+**When** the browser requests its private contents,
+**Then** PtS resolves the association server-side, checks current document authority and
+streams through the authenticated Content boundary without exposing a storage read URL,
+**And** each new GET/HEAD or supported range/resume request rechecks authorization. A copied
+application URL grants no access to an unauthorized user; arbitrary Content IDs and
+forged resource context cannot retrieve unrelated files. Existing external link-only
+source references remain explicitly external; PtS does not claim to control third-party
+access or turn external URLs into an unrestricted proxy.
+
+**Given** supported browser download/preview behavior and representative existing large files,
+**When** files are read, interrupted, retried or access changes before another request,
+**Then** the chosen authenticated transport preserves correct bytes and bounded server
+resources, with no shared-cache bypass, token-in-URL fallback or complete-file success
+for a failed transfer,
+**And** preview/range/HEAD, expired-session and account-change behavior are verified against
+the actual app/proxy path. Already delivered copies are not recalled; an in-flight stream
+is governed by its declared bounds. This adds no new preview product or public sharing.
+
+**Given** the inventoried legacy PtS corpus and Content mapping,
+**When** controlled owner migrations/import configuration adopt application-owned resources,
+**Then** poems, witnesses, source/rights metadata, original payloads, import/conflict history
+and source-document associations retain their intended meanings and verified bytes,
+**And** no per-account copy, implicit all-org corpus merge or personal-document migration
+is introduced. Reimport remains duplicate-safe and conflicting changes remain explicit.
+Restricted runtime/import/migrator roles and resource isolation are exercised on a real
+synthetic baseline; unknown partitions/identity mismatches stop adoption safely.
+
+**Given** the updated Directory/launcher contract,
+**When** current discovery succeeds for an account with PtS read access,
+**Then** published PtS and its permitted Scribeswell menu entry appear without membership,
+**And** Leave requires its own organization entry capability. Revocation removes current
+eligibility; unavailable discovery shows its agreed failure state without inferred access.
+Public Scribeswell reading stays independent and no account signup or new protected
+Scribeswell feature is added.
+
+**Given** the selected old/new caller inventory and small-cohort transition procedure,
+**When** coordinated PtS/Access/Content/Directory adoption is rehearsed,
+**Then** required configuration/migrations verify before activation; failure prevents
+partial unsafe activation and follows explicit recovery, using planned maintenance if needed,
+**And** old organization-based PtS responses need not be preserved permanently. Any manual
+account recreation provisions intended individual grants explicitly, without fake
+membership. Synthetic acceptance does not mutate the three production users or deploy.
+
+**Given** the initially failing acceptance scenario and subsequent focused implementation,
+**When** the story's verification is completed,
+**Then** actual account sign-in/current checks, corpus API/database, authenticated source
+streaming and browser journey evidence pass with exact commands/results,
+**And** characterization protects existing search/filter/citation/export and corpus semantics;
+no expected result is changed merely to conceal an unexplained regression. Tests also
+cover wrong account/capability/content, stale URL context, no memberships and interruptions.
+
+**Traceability:** Platform ADR-0052–0055, ADR-0020/0023/0025/0038 and the
+[PtS transition contract](../../apps/pts/docs/architecture/contracts/account-access-and-corpus-transition.md).
+E1-ENTRY-02/05/06/10/12 and AC-13/15/17/18 receive shared-platform adoption evidence;
+this is not the Leave draft journey, E4 medical-document acceptance or full pilot evidence.
+
+**Scope/impacts/readiness:** Modify PtS's owner API/web/corpus migrations/import adapters
+and consume proven shared contracts; no copied Access/Content server implementation.
+Promote proven account-route/download/client fixtures to scaffold with applicable shared
+UI fixes. Existing agent rules suffice; PtS owner docs and release runbook plus Leave
+traceability update together, preserving historical frozen specifications/accepted ADRs.
+Finalize corpus DDL/mapping and selected real-state inventory, browser authentication/
+preview transport, transfer/proxy limits and activation/recovery before readiness. This
+story does not absorb Content's provider implementation or new PtS organization features.
+The approved 23-item sequence remains; no code or runtime evidence from this planning pass.
+
+
+## PtS approval and Access reconciliation — 2026-10-07
+
+User approved PTS-ADOPT including the clarified meanings: read/export/document checks
+are separate capabilities that may be granted together; private source downloads use
+authenticated requests; preservation covers existing corpus relationships and import
+history, not new user-facing features. No new role editor or extra per-user setup flow.
+
+ACCESS-A/B current child text now reflects accepted ADR-0052–0055: account and organization
+capabilities, explicit entry mapping, typed scope/response variants, no automatic grant
+inheritance, no permanent PtS v1 parity requirement and no duplicated user check in Content.
+Earlier dated parent stories remain historical combined references; current child text
+and owning contracts govern. This reconciliation introduces no new product decision and
+requires no reapproval of the accepted scope. Exact schemas, operator adapter, current
+actor mapping and transport/release evidence remain readiness inputs.
+
+The approved 23-item sequence is unchanged. Next contract work: account-grant storage
+and controlled provisioning alongside membership-bound grants, then Content transport/
+legacy mapping and the remaining E1 readiness inputs. No runtime tests or implementation.
+
+
+## Individual grant contract progress — 2026-10-07
+
+[Access-owned individual grant design](../../platform/docs/architecture/contracts/application-admission-and-discovery.md#individual-grant-persistence-and-administration--2026-10-07)
+selects separate account_grants keyed by account/capability, with fixed scope constraints,
+revision/revocation/attribution and shared owner-command evidence. Organization grants
+retain membership binding. Controlled platform-operator account_grant.assign/revoke
+commands reuse the existing envelope; no new role UI or permissions-management service.
+
+ACCESS-A tests structural scope enforcement and write/replay/concurrency; ACCESS-B tests
+current account/org effects. Same-person accounts do not inherit each other's grants;
+new account IDs require explicit provisioning. App/account disable suspends current
+access, while explicit revocation is retained. No automatic legacy grant conversion.
+Existing 23-item sequence and Leave first slice unchanged. Next: ensure actor projection
+supports account-only users without forced employment/person setup, then remaining
+Content streaming/mapping and E1 readiness contracts. No code or runtime evidence.
+
+
+## Account-only actor contract refinement — 2026-10-07
+
+User confirmed multiple organization memberships plus independent individual grants.
+[Identity actor design](../../platform/docs/architecture/contracts/identity-access-employment-e1.md#account-only-actor-resolution--2026-10-07)
+now explicitly separates account attribution from optional person linking. ID-B provides
+account_actor.ensure with stable mapping and retained historical actors; no runtime
+read creates identity. PtS needs no employee/person setup; Leave still resolves its
+verified person for own-request scope. Two accounts for one person do not merge actors
+automatically or combine grants; recreation preserves earlier evidence, not access.
+
+This qualifies earlier ID-B wording that coupled all account actor creation to person
+linking. ID-B/ACCESS-B/CONTENT-READ/PTS-ADOPT own the declared tests at their respective
+boundaries. No new product screen, service or ADR; exact actor DDL/projection and operator
+bootstrap remain gates. Existing 23-item sequence and first Leave slice unchanged.
+Next: choose the minimal authenticated browser download/preview transport and bound
+streaming/proxy behavior, then settle Content legacy mapping and remaining E1 inputs.
+
+
+## Actor registry decision — accepted 2026-10-07
+
+The user selected the separate actor registry for clarity between human account profiles
+and attribution identities. [ADR-0056](../../platform/docs/architecture/decisions/0056-durable-actor-registry-separate-from-login-accounts.md)
+confirms Identity-owned account/system/service actors, including retained System/Migrate,
+without requiring new service Auth accounts. identity.users keeps its Auth-account meaning.
+Earlier discussion of retaining the old unified model was an alternative, not the decision.
+
+ID-B owns registry/mapping/bootstrap and writer/deletion-history evidence; Access consumes
+verified account actors; Content keeps executor/asserted initiator distinction. Existing
+UUIDs/history are preserved where verified, not overwritten by actor migration. No new
+actor per login provider/run or actor-management UI. The 23-item order stays unchanged;
+concrete DDL/operator/projection and streaming contracts still precede readiness. No code.
+
+
+## Actor schema contract progress — 2026-10-07
+
+[Minimum Identity actor persistence/lifecycle](../../platform/docs/architecture/contracts/identity-access-employment-e1.md#minimum-actor-persistence-and-lifecycle--2026-10-07)
+now specifies actor and immutable one-to-one account_actor mapping, constrained actor kind,
+retained historical account IDs and live-account verification. System/Migrate/service
+actors use controlled registration without new Auth accounts. Clean bootstrap records its
+trusted migrator provenance; ordinary writes cannot fall back to a generic system actor.
+
+ID-B owns new schema/projection/bootstrap and explicit old FK/text-writer adoption; later
+consumers reuse verified actor context. Historical preservation is not a promise that
+existing Auth/profile deletion dependencies are already migrated. No actor UI/relink,
+per-run actor creation or cross-owner FK engine. Exact DDL privilege/limit/compatibility
+work remains; 23-item ordering and implementation gate unchanged. Next: return to the
+Content browser/streaming contract with the attribution boundary settled in design.
+
+
+## Authenticated browser file transport proposal — 2026-10-07
+
+[Owning discussion](../../platform/docs/architecture/contracts/content-ownership-and-authenticated-read.md#browser-transport-proposal--2026-10-07)
+proposes an app-specific secure HttpOnly authentication cookie tied to existing sign-in,
+so normal file/preview requests can authenticate without token URLs. Every request still
+checks current access. No new sign-in, generic sharing ticket, full-app cookie conversion
+or refresh-token engine is selected. Logout/account-switch/viewer expiry behavior must
+be explicit. This direction awaits discussion; exact adapter remains pre-story design.
+
+Netlify's documented proxy timeout is a concrete large-source-file readiness concern.
+PTS-ADOPT must prove a suitable routed app API path; CONTENT-READ proves upstream bounded
+streaming. Do not bypass private-read policy to accommodate hosting limitations. Existing
+23-item order/approved scope remains; no code, deployment or runtime evidence added.
+
+
+## Download ingress direction and verification — 2026-10-07
+
+User approved resolving Netlify limits before release. The [direct application ingress
+contract](../../platform/docs/architecture/contracts/content-ownership-and-authenticated-read.md#direct-application-download-ingress--direction-accepted-2026-10-07)
+proposes per-app download origins to the existing gateway and owning API, avoiding Netlify
+for bytes while retaining frontend hosting. Exact hostnames remain proposed, not verified
+DNS or deployment. Current renderer's single host/origin and generic timeout settings need
+explicit owner changes, not handwritten generated config.
+
+PTS-ADOPT owns authenticated browser/gateway path and current-session lifecycle; CONTENT-READ
+owns upstream streaming. Plan a 128 MiB synthetic file throttled near 1 MiB/s to exceed
+26 seconds, plus bounded failure/range/disconnect/cache/isolation checks. Limits at each
+hop and auth binding must be concrete before readiness; deployed-path proof before release.
+The 23-item sequence remains. No provider changes, runtime tests or new download service.
+
+
+## File authentication lifecycle discussion — 2026-10-08
+
+[Owning proposal](../../platform/docs/architecture/contracts/content-ownership-and-authenticated-read.md#file-authentication-lifecycle-proposal--2026-10-08)
+reuses existing sign-in/refresh, binds file requests to current account/session, renews
+without a second refresh token, and requires logout/switch plus native-viewer isolation.
+This is behavior for discussion, not a selected opaque session store or token cookie.
+
+Provider JWT expiry does not by itself prove logout revocation. Exact current-session
+checks and late Set-Cookie/account-switch ordering must be tested; the app's existing
+JavaScript account epoch alone is insufficient for native file requests. PTS-ADOPT owns
+that proof; Content remains service/ownership enforcement. No duplicate auth framework,
+signed-URL fallback, new story or readiness pass is introduced.
+
+
+## File lifecycle approval and transfer behavior — 2026-10-08
+
+User approved the file-authentication lifecycle behavior: existing sign-in/refresh,
+expiry recovery, logout and account-switch isolation. This supersedes the earlier
+for-discussion status; the exact adapter and provider revocation proof remain open.
+
+[Download/preview behavior](../../platform/docs/architecture/contracts/content-ownership-and-authenticated-read.md#download-and-preview-behavior--proposed-2026-10-08)
+is the next proposal: native download/PDF viewing, single-range support, fixed finalized
+bytes and honest interrupted-transfer handling. CONTENT-READ owns shared transport;
+PTS-ADOPT owns browser/gateway proof; Leave E4 later consumes it. Existing E1 sequence
+and first draft slice remain unchanged. No implementation or readiness pass.
+
+
+Download acceptance clarification — 2026-10-08: user accepted browser-owned
+download/viewer/resume behavior enabled by application headers, partial reads and current
+authorization. Record these as technical criteria within CONTENT-READ/PTS-ADOPT; no custom
+viewer/download manager or separate browser-feature story.
+
+Next discussion: [concrete PtS adoption mapping](../../apps/pts/docs/architecture/contracts/account-access-and-corpus-transition.md#concrete-adoption-mapping--proposed-2026-10-08)
+proposes reviewed legacy-to-target object/association evidence, preserving bytes and
+verified IDs without copying per account or implicitly merging unrelated partitions.
+Physical schema, deployed inventory and readiness remain open. No application code changed.
+
+
+PtS concrete adoption mapping approved — 2026-10-08: reviewed selected-object mappings,
+application ownership, preserved bytes/associations and verified IDs; existing opaque
+provider paths may remain. Physical inventory/schema/rehearsal remain pending.
+
+Next discussion: [operator execution surface](../../platform/docs/architecture/contracts/e1-controlled-provisioning-and-evidence.md#operator-execution-surface--proposed-2026-10-08)
+proposes protected owner-local command-line entry points for E1 setup, with verified
+execution identity and restricted owner writers. This refines the existing command
+contract; it does not replace E2 administration or create another story. Concrete
+authentication/privileges, other technical contracts and readiness remain unresolved.
+
+
+Operator execution surface approved — 2026-10-08: protected owner-local CLI setup,
+verified execution identity and restricted owner writers; E2 administration remains.
+Concrete binding/privileges and technical readiness stay open. Next proposal:
+[setup verification boundary](../../platform/docs/architecture/contracts/e1-controlled-provisioning-and-evidence.md#setup-verification-boundary--proposed-2026-10-08),
+using existing acceptance suites/runbooks to distinguish local command completion from
+effective authorization and a working consumer. No new story, product status system,
+production mutation or runtime evidence.
+
+
+Setup verification boundary approved — 2026-10-08. User additionally proposed a test
+application in development, staging and production for release/support verification.
+[Platform verification app proposal](../../platform/docs/architecture/contracts/platform-verification-app.md) recommends extending E1-REF
+with an explicitly sized hosted scope, real shared-service paths and restricted synthetic
+production journeys; application-specific tests remain on their owning apps. Direction
+is under discussion; no new story count, production fixture permission, implementation
+or readiness pass. Current disposable reset safeguards remain binding.
+
+
+Platform verification direction approved — 2026-10-08: [approved responsibility split](../../platform/docs/architecture/contracts/platform-verification-app.md#approved-boundary).
+The verification app exercises shared platform features; app-specific synthetic journeys
+run in each actual application with dedicated accounts/test data and required org fixtures.
+Shared runners/reporting do not duplicate product workflows. Hosted scope still requires
+explicit sizing; 23-item sequence, first Leave slice and readiness gates remain unchanged.
+No implementation, deployment, production test execution or new schedule authorized.
+
+
+### Candidate Story E1-VERIFY: Exercise the shared reference journey in hosted environments
+
+**Scope and placement approved 2026-10-08; not implementation-ready.** Platform deployment/test
+owner. Depends on completed E1-REF and its prerequisites. Placement immediately
+after REF, before PEOPLE makes 24 E1 items. Earlier PtS adoption keeps
+its own release checks and does not depend on VERIFY.
+
+As a platform maintainer,
+I want the proven reference journey available in development, staging and production,
+So that I can check deployed shared functionality after releases and during support.
+
+**Acceptance Criteria:**
+
+**Given** the proven reference application and explicitly configured environment,
+**When** an authorized internal tester signs in and creates/reads its synthetic example,
+**Then** the real deployed shared Access and persistence path is exercised,
+**And** ordinary user and organization permissions apply with no test bypass.
+
+**Given** pre-provisioned synthetic identities with allowed and denied capabilities,
+**When** the existing Playwright runner executes the approved hosted suite,
+**Then** it verifies successful persistence and expected access refusal,
+**And** output identifies environment, scenario, deployed versions and safe trace references;
+incomplete or skipped tests cannot be reported as successful verification.
+
+**Given** a production target,
+**When** an authorized on-demand or post-release run executes,
+**Then** only the approved bounded synthetic journeys and owned records can be selected,
+**And** fixture cleanup cannot target customer data or invoke disposable-environment reset.
+No destructive failure injection, load testing or customer impersonation is included.
+
+**Given** the application is being published or updated,
+**When** staging verification fails or required target/credential/isolation evidence is absent,
+**Then** dependent production activation is blocked,
+**And** a production verification failure follows the existing release-recovery runbook
+without automatic destructive schema rollback.
+
+**Traceability:** User-approved platform/app verification split; existing E1-REF foundation,
+E1-AC-15/17/18, ADR-0020/0023/0046 and the
+[hosted verification contract](../../platform/docs/architecture/contracts/platform-verification-app.md#hosted-delivery-increment--proposed-2026-10-08).
+This story proves hosted reference integration, not Leave draft or PtS workflow acceptance.
+
+**Impacts/readiness:** Reuse scaffold output, deployment manifests and test reporting;
+no new shared UI beyond the reference surface, no new agent-context rule or ADR decision.
+Update owner runbook, fixture/release commands and traceability together. Exact hosted
+configuration, operator/run authority, production fixture restrictions and cleanup bounds
+must be settled before readiness. New platform scenarios join with their owning delivery;
+no assumption that this first increment tests all platform functionality.
+
+
+## Hosted verification approved and current sequence — 2026-10-08
+
+User approved VERIFY after REF, clarifying there is one maintained platform reference
+application. REF builds its reusable journey/tests; VERIFY adds hosted deployment and
+release operations using those same artifacts. This supersedes prior 23-item sequencing.
+
+| Order | Candidate |
+| --- | --- |
+| 1 | E1-ENV |
+| 2 | E1-P1 |
+| 3 | E1-SERVICE |
+| 4 | E1-ID-A |
+| 5 | E1-ID-B |
+| 6 | E1-ACCESS-A |
+| 7 | E1-ACCESS-B |
+| 8 | E1-DISCOVERY |
+| 9 | E1-LAUNCHER |
+| 10 | E1-CONTENT-READ |
+| 11 | E1-PTS-ADOPT |
+| 12 | E1-WRITE |
+| 13 | E1-REF |
+| 14 | E1-VERIFY |
+| 15 | E1-PEOPLE |
+| 16 | E1-A1 |
+| 17 | E1-CONTEXT |
+| 18 | E1-CHOICES |
+| 19 | E1-D1 |
+| 20 | E1-D2-A |
+| 21 | E1-D2-B |
+| 22 | E1-D3 |
+| 23 | E1-D4 |
+| 24 | E1-D5 |
+
+The first Leave draft slice and all pre-story/readiness gates remain binding. Hosted
+configuration, isolation/cleanup bounds and commands still require concrete design.
+No code, deployment, production test run or schedule is authorized by story approval.
+
+
+Hosted fixture proposal — 2026-10-08: [verification contract](../../platform/docs/architecture/contracts/platform-verification-app.md#hosted-fixture-boundary--proposed-2026-10-08)
+proposes stable per-environment synthetic accounts/two organizations, known allowed/denied
+permissions, bounded run records and exact owner-scoped cleanup. Ordinary production
+runners cannot administer accounts/grants or reset environments. Other applications use
+their own lifecycle rules for synthetic data. Refines VERIFY only; 24-item sequence and
+readiness gates stay unchanged. Concrete retention/limits and invocation remain open.
+
+
+Hosted fixture boundary approved — 2026-10-08. Stable dedicated identities, known
+allowed/denied access, bounded test records and exact ownership-checked cleanup stay
+within VERIFY; concrete limits remain to settle. Next discussion returns to ACCESS-B:
+[initial service caller matrix](../../platform/docs/architecture/contracts/application-admission-and-discovery.md#initial-service-caller-matrix--proposed-2026-10-08)
+proposes explicit per-service operations, including People's narrow Leave own-read
+consumer mapping and Content's already approved service/ownership boundary. No new
+story or implementation; 24-item sequence and readiness gates remain binding.
+
+
+People caller-policy correction — 2026-10-08: user accepts the other matrix boundaries
+but questions People querying Leave permissions. Withdraw that proposed coupling. Leave
+checks its own access; People enforces its independent authorized service/current user/
+person/organization own-employment boundary, as the existing identity contract requires.
+Exact verified-context wire remains open; no raw-header trust or employment-based access
+grant is introduced. Corrected recommendation remains for discussion; accepted ADRs,
+24-item sequence and readiness gates unchanged. Documentation only.
+
+
+People boundary approved — 2026-10-08: People does not check Leave capability names.
+Next [current-context wire proposal](../../platform/docs/architecture/contracts/identity-access-employment-e1.md#people-current-identity-context--proposed-2026-10-08)
+uses a restricted Access-owned identity/membership projection for People, alongside
+People's service/own-data policy and Leave's independent application authorization.
+ACCESS-B supplies the endpoint before PEOPLE; no new service/story or future dependency.
+Wire remains for discussion; 24-item sequence and readiness gates remain unchanged.
+
+
+People API boundary reaffirmed — 2026-10-08: user agrees to independent HTTP ownership;
+co-hosting is not a deciding factor. Retain existing API/no-cross-owner-table architecture,
+with no accepted ADR change. This does not claim the proposed identity-context endpoint
+or its provider verification has been implemented or independently approved in detail.
+
+Initial [reference capability names](../../platform/docs/architecture/contracts/platform-verification-app.md#initial-reference-capability-identifiers--2026-10-08)
+are now concrete: `reference.record.read` and `reference.record.create`, organization
+scope, entry by read. Existing setup/Access/WRITE/REF/VERIFY responsibilities share those
+identifiers; no extra story or expanded CRUD. Remaining technical contracts/readiness
+stay open; 24-item sequence unchanged.
+
+
+Reference example wire proposal — 2026-10-08: [owning contract](../../platform/docs/architecture/contracts/platform-verification-app.md#example-record-and-createread-wire--proposed-2026-10-08)
+uses one immutable labeled example, creation attribution, separate create/read permissions
+and an account/org-scoped compact operation receipt. Cleanup retains retry evidence so
+late retries cannot recreate deleted fixtures. This narrows WRITE's generic attribution
+wording to creation-only for this immutable example under ADR-0025; mutable consumer
+records still require update attribution. WRITE/REF/VERIFY share the same contract.
+Payload/routes remain for discussion; exact storage/retention/bounds and readiness remain
+open. No new story, runtime tests or application implementation; 24-item sequence remains.
+
+
+Reference growth discussion — 2026-10-08: initial create/read is a first increment,
+not the final reference scope. Proposed later editor, draft and immediate-preference
+examples must distinguish ADR-0051 saving patterns; autosaved drafts have no Save button.
+Recommend one internal verification/demo application, with real shared behavior and
+separate manual versus automated fixtures. Additional scope/placement remains under
+discussion; existing tests persist as regression coverage. No new story count or readiness
+claim; see the reference contract's saving examples and demonstration role section.
+
+
+Verification/demo role approved — 2026-10-08: one maintained app demonstrates the
+three saving conventions and provides automated platform coverage, with separate manual
+and automated fixtures. [Incremental placement proposal](../../platform/docs/architecture/contracts/platform-verification-app.md#incremental-example-placement--proposed-2026-10-08)
+assigns draft examples to D2-B/D3/D4/D5 shared-artifact promotion, explicit Save editing
+to the first E2 configuration writer, preference examples to their first real consumer,
+and finalization only with E5. Initial REF/VERIFY remains create/read and independently
+completable. Additional demo scope must be included in consuming-story sizing; no new
+standalone count or implementation authorization. First Leave slice/readiness unchanged.
+
+
+Reference example placement approved — 2026-10-08: incremental demonstrations join
+their first proven consumer as proposed, with explicit sizing and no future dependency
+for initial REF/VERIFY. Next [minimal draft example proposal](../../platform/docs/architecture/contracts/platform-verification-app.md#minimal-draft-demonstration--proposed-2026-10-08)
+uses optional title/note, its own account/org ownership and explicit single-active scope,
+plus existing autosave/close/discard protections. No Leave business fields or People
+dependency. New draft capability registration and hosted checks occur only with their
+consumer/cleanup readiness. 24-item sequence unchanged; no implementation or test runs.
+
+
+## Current E1 contract checkpoint — 2026-10-08
+
+The user approved the minimal reference draft demonstration. Reference scope is now
+settled at the behavior level: one maintained test/demo application, initial create/read
+then hosted verification, followed by shared-pattern examples with their first consumers.
+There are 24 currently ordered E1 items. Do not reopen those decisions or imply that
+reference checks replace actual Leave/PtS journeys. Preserve the first Leave draft slice.
+
+This is a navigation checkpoint within existing BMAD planning, not another readiness
+workflow, an exhaustive validation report or an implementation authorization.
+
+| Remaining planning input | Owning contract and delivery items | Concrete next work |
+| --- | --- | --- |
+| Reproducible toolchain and generator inputs | Leave testing environment contract; ENV/P1/SERVICE | Supported compatibility set, lockfile ownership, generator input shape and exact owner commands; verify existing packages before choosing pins. |
+| Identity/Access/People details | Identity, admission and controlled-provisioning contracts; ID-A/B, ACCESS-A/B, PEOPLE | Current identity-context endpoint proposal, provider/session verification, operator credential binding, owner projection privileges and exact migration/writer adoption. |
+| Content and PtS adoption | Content ownership/read and PtS transition contracts; CONTENT-READ/PTS-ADOPT | Ownership DDL/mapping, file-auth adapter and revocation/races, range/headers and bounded transfer policy; target inventory and release rehearsal evidence distinguished from design. |
+| Reference persistence and hosted operations | Platform verification contract; WRITE/REF/VERIFY | Final create/read wire, compact-outcome retention/retry policy, exact target/fixture/cleanup limits and deployment contracts. Minimal draft wire/lifecycle accompanies its approved later consuming increments. |
+| Leave draft contract consistency | Leave draft persistence/recovery contract; CONTEXT/CHOICES/D1–D5 | Validate typed models, physical constraints and chronology against the already approved lightweight preservation, recovery and saving decisions; do not invent new draft business requirements. |
+| Coverage and final sizing | Existing acceptance map and source-indexed inventory | Reconcile owner rows with reference demonstration work, finish granular requirements/UX traceability and ensure each story has only prior dependencies and bounded delivery scope. |
+
+Design inputs must be resolved at their stated pre-story/readiness gates. Runtime
+acceptance, deployed browser/provider behavior and migration/recovery proof are delivery
+or activation evidence where the owning gate requires them; do not report them passed
+from document inspection, or demand application implementation before authorization.
+Architecture consolidation/review stays complete. Later epic contracts retain their own
+gates rather than becoming speculative prerequisites for the first slice.
+
+Next planning focus: reproducible ENV/P1/SERVICE inputs, starting with the repository's
+actual package/configuration ownership. Make routine naming/document consistency choices
+within approved scope; surface substantive alternatives for collaborative discussion.
+
+
+Build ownership proposal — 2026-10-08: [working-tree inventory and PtS integration](../../apps/leave/docs/testing/e1-environment-and-dependencies.md#dependency-ownership-and-pts-integration--proposed-2026-10-08)
+recommends including PtS/reference/Leave web in root npm workspaces and one root lock,
+with coordinated deployment/test command adoption. User explicitly questioned retaining
+PtS's separate lock; no architectural need for that split was established. Python owners
+retain their own dependency locks; Access/Content stop depending on PtS requirements in
+their owning stories. Version differences require compatibility evidence, not blind
+alignment. Proposal only; 24-item sequence, first slice and readiness gates unchanged.
+
+
+Frontend hosting clarification — 2026-10-08: shared npm workspace/lock does not
+merge application deployments or authentication. User described the public Scribeswell
+domain/separate hosting rationale and reopened a possible Boabab alias. Recommendation
+remains public canonical scribeswell.com with PtS launcher access; optional alias would
+redirect one way to it from the same Scribeswell deployment. Alias and platform suffix
+remain discussion points, not accepted DNS changes. Existing combined-artifact manifests
+need per-app publication reconciliation during delivery; no live routing claim or change.
+
+
+Frontend build/hosting arrangement approved — 2026-10-08: shared npm workspace/root
+lock includes PtS and new Reference/Leave frontends, while Scribeswell is separately
+published publicly at scribeswell.com. No Boabab Scribeswell alias or redirect. Current
+PtS account access controls only launcher visibility; it does not gate public reading.
+[Publication target and owner mapping](../../apps/leave/docs/testing/e1-environment-and-dependencies.md#frontend-publication-target--approved-2026-10-08)
+assigns workspace tooling to ENV and coordinated current-app publication adoption to
+PTS-ADOPT/deployment, with affected Scribeswell checks. Final sizing/readiness remains
+binding; 24-item sequence unchanged. No code, lockfile, hosting or DNS changes executed.
+
+
+## E2 — Set up organization access, people and working arrangements
+
+**Story planning resumed, 2026-10-08.** Platform naming exploration is parked; existing
+identifiers/domains remain the planning baseline until a deliberate later decision.
+E1's 24 agreed candidate scopes and first draft slice remain recorded. Their open
+technical contracts, source-coverage reconciliation and final sizing remain binding;
+starting E2 discussion does not mark E1 or Phase 1 ready/complete.
+
+E2 goal: authorized administrators establish app access, shared employment and Leave
+working arrangements without duplicating employee identity or granting unrelated access.
+Sources: features Permissions, §1–3 and applicable §10/17; tracker Phases 2/3/5; spine
+AD-1/2/3/5/12; platform role/access UX and Leave application-access/setup UX. Existing
+scope includes invitations, roles, nullable shared assignments, profiles/schedules and
+holidays. Discuss bounded stories sequentially; do not implement or pre-create every
+entity. Preserve later employment/history/change-impact pre-story gates.
+
+### Story 2.1: Enable or suspend Leave for an organization
+
+**Scope approved by the user, 2026-10-11; not implementation-ready.** Owner: platform administration
+UI/API and Access. Consumes E1 Identity, ACCESS-A/B, current organization-reference and
+provisioning/evidence foundations. Ordinary organization administrators do not acquire
+this authority. Exact admin capability/controller contract must be resolved first.
+
+As a platform administrator authorized to manage application availability,
+I want to enable or suspend Leave for a specific organization,
+So that organizations use the applications assigned to them while retained data and
+individual permissions remain intact.
+
+**Acceptance Criteria:**
+
+**Given** an authorized administrator and a current organization,
+**When** they open that organization's application availability settings,
+**Then** Leave's saved organization enablement and separate global availability are shown,
+**And** permitted settings remain reachable even when that organization cannot enter
+Leave. This administrative route must not require Leave employee access or employment.
+
+**Given** Leave is globally available but disabled for this organization,
+**When** the administrator reviews and confirms enabling it,
+**Then** Access commits the organization enablement under current admin authority,
+expected revision and duplicate-safe operation identity,
+**And** no membership, employee, role or user grant is created. Only members with current
+explicit Leave capabilities become eligible; unrelated organizations are unchanged.
+
+**Given** Leave is enabled for this organization,
+**When** the administrator reviews the suspension consequence and confirms disabling it,
+**Then** new protected checks for that organization's Leave capabilities fail and current
+discovery no longer offers that organization for Leave,
+**And** drafts, employment and existing grants are retained. A short already-authorized
+operation follows ADR-0021; queued/restarted/new execution cannot reuse old authority.
+If the user has another eligible organization, their Leave launcher entry may remain.
+
+**Given** the organization is re-enabled later,
+**When** users enter Leave or reopen a saved draft,
+**Then** current account, membership, capability and resource rules are checked afresh,
+**And** revoked grants or retired memberships are not restored by re-enablement.
+Retained draft data is available only to its currently authorized owner.
+
+**Given** Leave is globally unavailable, the caller lacks platform management authority,
+or a request substitutes another organization/revision,
+**When** a UI or direct API request attempts a change,
+**Then** global unavailability is not overridden by the organization setting and missing
+management authority or stale expected state is rejected safely,
+**And** being an organization administrator, employee or infrastructure operator alone
+cannot grant this app-availability management authority or protected business-data access.
+
+**Given** an edited setting has not been confirmed, or verification/persistence fails,
+**When** the administrator cancels or receives a failed/uncertain result,
+**Then** Cancel abandons only uncommitted changes and failed input remains recoverable,
+**And** the UI never reports success from optimistic state alone. Resolve an uncertain
+original operation before retrying; commit enablement, required immutable change evidence
+and compact outcome together. Configuration uses whole-form Save/Cancel and the shared
+Review/Confirm behavior, not field autosave or an administrative draft system.
+
+**Given** the feature is delivered through ATDD/TDD,
+**When** the owner records acceptance evidence,
+**Then** tests prove current admin authority, wrong-org denial, revision/retry handling,
+atomic audit failure, disable/direct-access/discovery behavior and valid re-enablement,
+**And** actual restricted roles and real Access integration complement browser checks.
+No planned fixture is reported as runtime evidence here.
+
+**Traceability:** [features §1 and Permissions](../../apps/leave/docs/features.md),
+[tracker Phase 2](../../apps/leave/docs/implementation-plan.md), spine AD-1/2/3/12,
+platform ADR-0011/0012/0013/0019/0020/0021/0023/0025/0031/0035/0046/0053,
+[shared saving convention ADR-0051](../../platform/docs/architecture/decisions/0051-saving-conventions-by-workflow.md),
+[platform experience](../../platform/EXPERIENCE.md) and Leave application-access UX.
+ADR-0046 reserves organization app enablement for platform administration; organization
+role assignment is a following story. Global registry/availability administration,
+account grants, membership invitations, role editors and billing are outside this item.
+
+**Impacts and readiness:** Reuse Access-owned state/command/evidence semantics through
+an explicitly authorized platform-admin HTTP controller; the browser receives no operator
+or database credential. Keep migrations owner-local and API startup migration-free.
+Promote proven admin form/review/status components and typed clients; count the agreed
+minimal reference Save/Cancel demonstration in this first configuration consumer's sizing,
+using its own fixture model/permissions rather than production Access state. Split that
+increment explicitly before its consumer if concrete scope exceeds a single agent-sized
+item. Update generated agent guidance only where new reusable usage requires it; existing
+rules/accepted ADRs remain authoritative. Document admin authority, target scope, command
+wire, concurrent global-disable behavior, audit fields and verification commands before
+implementation readiness. No application code, grants, deployment or migration executed.
+
+
+### Story 2.2: Assign Leave roles to an existing organization member
+
+**Scope approved by the user, 2026-10-11, with supervisor-routing clarification; not implementation-ready.** Owner: shared
+platform access-management UI/API and Access; Leave supplies its maintained role/catalog
+metadata and resource rules. Depends on E1 Identity/Access/discovery/current member
+projections and Story 2.1's availability foundation, not a later invitation/custom-role
+editor. Existing members are provisioned by the approved earlier controlled commands.
+
+As an organization administrator authorized to manage Leave access,
+I want to review and change an existing member's Leave roles,
+So that they have appropriate access without requiring me to configure technical
+permission codes individually.
+
+**Acceptance Criteria:**
+
+**Given** current organization-scoped access-administration authority,
+**When** I open Organization settings → People → member → Application access → Leave,
+**Then** I see the exact target account/current membership, saved role assignments and
+combined effective access for that organization,
+**And** Leave settings can link to the same shared screen. Changing organization or
+account clears prior protected context; person identity alone cannot combine grants
+from separate accounts or memberships.
+
+**Given** globally available Leave enabled for this organization and a current member,
+**When** I choose from the maintained Employee, Approver and Leave Manager roles,
+**Then** each has a short description and expandable plain-language capability summary,
+**And** technical permission codes are not required in the normal flow. Multiple roles
+may be selected; any assignment must fall within my actual management authority.
+Leave Manager status alone does not grant general role administration.
+
+**Given** proposed additions/removals,
+**When** I save and review the change,
+**Then** the review identifies the member/account, organization, added/removed roles and
+resulting capability changes before confirmation,
+**And** Cancel abandons uncommitted edits. No field-level autosave, administrative draft
+system, role-name shortcut or client-supplied effective-grant list applies the change.
+A newly assigned role cannot authorize the operation that assigns it.
+
+**Given** current authorized confirmation and matching expected assignment/catalog state,
+**When** Access commits the change,
+**Then** role assignments, their effective permission consequences, required immutable
+change evidence and compact operation outcome commit consistently under the owner,
+**And** ordinary new authorization checks observe the result. Lost responses and matching
+retries resolve the same operation rather than duplicating assignments/evidence.
+Stale reviewed state must be refreshed and reviewed again, not silently overwritten.
+
+**Given** two roles or another still-valid source provide the same permission,
+**When** I remove one role,
+**Then** only that assignment's contribution is removed and remaining legitimate access
+is shown accurately,
+**And** preserved scopes, domain appointments and resource rules remain binding. E1 direct
+grants cannot disappear accidentally during adoption into role-backed administration;
+legacy direct-grant/role mapping must be declared and tested before readiness.
+
+**Given** Approver, Leave Manager or another role is assigned,
+**When** the user performs an application action,
+**Then** Leave still checks current capabilities, organization/resource scope and applicable
+workflow rules; an Approver role alone does not authorize decisions on unassigned requests,
+**And** separate sensitive-document/on-behalf permissions are not inferred from the role
+name. Role administration grants no implicit right to inspect employee business records.
+This story tests assignment effects using delivered protected paths/contract fixtures;
+it does not implement later approval, balance or document workflows.
+
+**Given** disabled Leave, retired membership, an accountless person, wrong organization,
+missing assignment authority or unavailable current verification,
+**When** I request or confirm an assignment,
+**Then** the command rejects safely with the appropriate unavailable/denied/setup outcome,
+**And** it cannot enable Leave, create accounts/memberships/employment, revive old grants or
+assign roles by matching a display name/email. A person without an account has no login
+membership to receive app access; their employment record remains independently valid.
+Administrative state/retained assignments may still be read under separate authorized
+management access when Leave is disabled; disabled app cannot be entered by this route.
+
+**Given** browser and real Access/restricted-role fixtures,
+**When** the story is implemented through the ATDD/TDD loop,
+**Then** evidence proves default-role descriptions, explicit confirmation, combined grants,
+removal with retained equivalent authority, stale-review/retry/audit handling and direct
+API denial for wrong authority/org/membership,
+**And** the actual target account is unambiguous even when multiple accounts share a person.
+No executed tests or effective production changes are claimed in this planning draft.
+
+**Traceability:** Features Permissions, Personas and §1; tracker Phase 2 role/capability
+integration; spine AD-1/2/3/12; platform ADR-0011/0012/0013/0019/0020/0021/0023/0025/
+0031/0035/0042/0046/0051/0053; Leave ADR-0012/0013/0082 resource/field boundaries;
+[shared role-assignment UX](../../platform/EXPERIENCE.md#roles-and-permissions) and
+[Leave access UX](ux-designs/ux-leave-2026-09-15/EXPERIENCE.md#application-access-and-custom-roles).
+Organization app enablement is Story 2.1. Invitations/membership retirement, account grants,
+custom role creation/editing/deletion and acting-approver workflows are later independent
+items, not dependencies for this default-role assignment boundary.
+
+**Impacts/readiness:** Shared access owner supplies the one administration implementation;
+Leave registers its catalog and links to it. Promote proven shared role picker, capability
+summary and review/error controls; scaffold generates catalog/client integration rather
+than copies of an access editor. Keep People employment facts outside authorization and
+use HTTP across runtime owners. Existing agent instructions/accepted ADRs suffice; update
+owner docs/runbooks and requirement-to-test mapping during delivery. Before readiness,
+settle exact role/capability definitions, metadata/version upgrade policy, per-app delegated
+assignment authority and escalation limits, current member/account projection, assignment
+DDL/operation/revision wire and E1 direct-grant adoption. Size the UI plus owner-local role
+persistence work explicitly; split prerequisite mechanisms before this consumer if needed.
+No application code, migration, grants or deployment authorized or performed here.
+
+
+## Supervisor replacement and approval-routing discussion — 2026-10-11
+
+User asks whether Approver role assignment should automatically assign work and whether
+supervisor replacement needs bulk editing or missing-route reporting. Story 2.2 remains
+under discussion; this recommendation does not approve a new role/routing policy.
+
+Existing authority: platform ADR-0041 and features §2/10 already make the shared supervisor
+relationship available to Leave's configured Employee's supervisor step. Resolve an
+eligible supervisor automatically on new submission and snapshot the assignment. The
+Approver role supplies capability; it does not choose which employees report to a person
+or assign every pending request. Other configured routes keep their own resolution rules.
+The setup checklist already flags missing/invalid routes. Existing pending-request and
+temporary-cover contracts require explicit authorized/audited reassignment and preserve
+completed approvals. No accepted ADR replacement is needed for those existing behaviors.
+
+### Recommended additional bounded convenience — for discussion
+
+- Retain independent role assignment and relationship/routing configuration. Clarify
+  Story 2.2's wording: an eligible configured supervisor is automatically resolved for
+  new requests using that policy; simply selecting Approver is not a supervisor change.
+- Propose a focused shared-employment Replace supervisor action: show employees whose
+  current supervisor is the selected person, select the affected employees, choose an
+  effective date and a replacement, review the exact set and confirm. Reuse authorized
+  organization/person selectors, Save/Review/Confirm and per-item change evidence.
+  No arbitrary bulk spreadsheet editor or generic cross-platform bulk-write engine.
+- Shared People owns relationship history; Leave separately shows whether the replacement
+  is eligible for the applicable routes and links authorized administrators to role/setup
+  repair when needed. Supervisor change must never silently grant app permissions.
+- Proposed E2 convenience scope covers changed relationships and future route resolution.
+  Existing pending work remains assigned. With E5's protected reassignment capability,
+  offer a separate review of selected outstanding steps to transfer with a reason; never
+  silently move completed decisions or all work by changing a role or relationship.
+- Use existing People/setup filters and status guidance for missing/invalid supervisor
+  routes. Do not add a standalone report or fail draft preservation for that issue;
+  unavailable checks remain unavailable, not confirmed missing configuration.
+
+Example for discussion: twelve employees report to Pat; an administrator replaces Pat
+with Sam effective 1 November. New supervisor-based routes resolve Sam when applicable
+and eligible; existing pending steps stay with Pat until an authorized explicit reroute.
+The employee count is illustrative, not a measured supervisor ratio or performance claim.
+
+Pre-story inputs if adopted: scoped batch request/preview, exact employee selection and
+expected revisions, effective-date/current-history rules, authorized actor/consumer and
+replacement-reference validation, result/partial-failure/retry policy, transaction bounds
+and E5 affected-request freshness/confirmation. All writes remain with their owner over
+HTTP; no distributed transaction or UI list treated as current authority. Determine
+single-owner atomic versus explicit per-item results with bounded batch size before
+readiness rather than assume bulk update always succeeds together.
+
+Scaffold/shared UI: promote proven selection/review/per-item feedback where domain-neutral;
+People owns the supervisor-change command and Leave owns approval consequences. No new
+agent-context rule or generic lifecycle. If approved, add the narrowly sized action to E2
+employment story decomposition and E5 pending-work criteria, updating authoritative
+feature/UX/contract references together. No new numbered story, implementation, readiness
+completion or permission to mutate employment is implied by this discussion.
+
+
+Supervisor convenience approved — 2026-10-11: user accepts the recommendation above.
+Features §2/10 and shared/Leave UX now record selected Replace supervisor with effective
+date/review, existing missing-route guidance and separately confirmed pending transfers.
+Story 2.2's role assignment remains independent; supervisor-based new routes resolve
+configured eligible supervisors automatically. Add the focused replacement action during
+E2 employment decomposition and E5 pending-work coverage, with scoped batch/history/
+impact contracts and concrete sizing. Accepted ADR-0041/0076 remain unchanged.
+
+### Story 2.3: Create or duplicate an application-specific custom role
+
+**Scope approved by the user, 2026-10-11; not implementation-ready.** Owner: shared access
+administration UI/API and Access; Leave owns capability/default-role definitions. Depends
+on completed Story 2.2's role catalogue/assignment and current authority foundations.
+No dependency on later editing/deleting assigned custom roles or membership invitations.
+
+As an organization administrator authorized to customize Leave access,
+I want to create a named Leave role from selected business capabilities or duplicate
+an existing role,
+So that access fits my organization's responsibilities while remaining understandable.
+
+**Acceptance Criteria:**
+
+**Given** current authority to create custom roles for Leave in this organization,
+**When** I open Advanced → Create custom role from Leave's access/settings context,
+**Then** the editor inherits Leave and organization and starts with name, description
+and unselected plain-language capabilities,
+**And** no mandatory template/Start from choice, technical-code entry, cross-app bundle
+or employment requirement is introduced.
+
+**Given** a readable built-in or existing custom Leave role in the same authorized context,
+**When** I choose Duplicate role,
+**Then** a new unsaved role editor is prefilled with its capabilities and an editable name,
+**And** the duplicate will be independent of its source. Its recorded source/version is
+provenance, not a live inheritance link or authority to assign its permissions.
+
+**Given** selected capabilities and a valid role name,
+**When** I review and confirm creation,
+**Then** the server verifies current create authority and assignable capability boundaries,
+locks a versioned reviewed definition to explicit registered Leave capabilities, and
+commits role identity/definition with required audit and operation outcome atomically,
+**And** the role is visible in the existing assignment picker. It assigns nobody and grants
+no permission until an independently authorized role assignment is confirmed through 2.2.
+Repeated matching creation resolves to the same role; changed-payload/stale-source review
+fails safely. Name uniqueness/normalization and typed field bounds are pre-story inputs.
+
+**Given** Cancel, failed validation, lost response or unavailable verification,
+**When** the editor handles that outcome,
+**Then** Cancel abandons uncommitted edits, failed input remains available and an uncertain
+command is resolved under its original identity before retry,
+**And** no autosaved role/draft or success-shaped failure is introduced. Shared explicit
+Save/Cancel and Review/Confirm apply with keyboard/focus/mobile behavior.
+
+**Given** future capability additions or a later change to a duplicated source role,
+**When** existing custom definitions are evaluated,
+**Then** their explicit reviewed capability set remains unchanged until an authorized edit,
+**And** no future-matching wildcard silently broadens access. The application remains owner
+of built-in definitions; duplicating one never changes or deletes that built-in.
+
+**Given** wrong app/organization, an unauthorized actor or a capability outside permitted
+authority,
+**When** direct API or UI creation is attempted,
+**Then** the request is refused without protected role/holder information,
+**And** a new role cannot bootstrap its creator's authority. Creating a role containing
+Approver capability still does not establish a supervisor relationship or pending request
+assignment; Leave resource/approval/document checks remain independent.
+
+**Given** implementation through ATDD/TDD,
+**When** acceptance evidence is recorded,
+**Then** blank creation, independent duplication, assignment through completed 2.2,
+capability boundaries, no silent future grants, concurrency/retry/audit atomicity and
+safe browser failure behavior are verified,
+**And** shared types, restricted-role tests and generated integration fixtures agree.
+Mocks or planning text alone do not establish protected assignment or persistence.
+
+**Traceability:** Features Permissions; tracker Phase 2 custom/default-role work; spine
+AD-1/2/3/12; platform ADR-0011/0012/0013/0019/0020/0023/0025/0031/0035/0046/0051;
+[shared role UX](../../platform/EXPERIENCE.md#roles-and-permissions) and
+[Leave access/custom-role UX](ux-designs/ux-leave-2026-09-15/EXPERIENCE.md#application-access-and-custom-roles).
+Editing assigned roles with holder-impact review and unassigned-only deletion are
+following bounded stories; they are not prerequisites for creating/assigning a custom
+role. Account-scoped PtS role management and cross-app bundles are outside this story.
+
+**Impacts/readiness:** Implement one shared role editor and typed Access contracts;
+scaffold registers app capability labels/catalogues and shared-control integration rather
+than copying role administration into Leave. Catalogue/authority/definition/assignment
+models introduced by 2.2 must already support the 2.3-created definitions; prove 2.2
+using registered fixtures without requiring this later UI. Separate custom definition
+history from effective grants and declare reference integrity, names/bounds, capability
+selection/review revisions and duplicate operation semantics before readiness. Update
+owner documentation/runbook and requirement-to-test evidence; existing agent rules and
+accepted ADRs remain sufficient. Scope/sizing remains subject to concrete contracts.
+No code, roles/grants, migrations, deployment or readiness pass performed.
+
+
+Role-assignment entry-point question — 2026-10-11: Story 2.3 approved. User asks about
+assignment on the “me view”; whether this means the target member detail or the signed-in
+user's own profile is not yet explicit. Existing shared UX uses Organization settings →
+People → member → Application access, with authorized links from application settings.
+Recommend that member view as the main administration entry; an own-profile access
+summary does not introduce self-service permission assignment. No UX/authority change
+is approved from the ambiguous term alone.
+
+
+Role-assignment drawer approved — 2026-10-11: shared desktop right-side drawer and mobile
+full-screen sheet, invoked from member/application settings or role-holder list, with
+explicit target context, review/confirm, unsaved-edit safeguards and return/focus behavior.
+Features, shared UX and Leave UX are synchronized. This supplements Story 2.2, preserving
+its current authority and account/membership boundary. It does not decide the earlier
+ambiguous Me-page question or introduce self-service role grants. Role definitions use
+a dedicated editor page. Shared drawer/form tests and scaffold integration are part of
+the same delivery item; accepted ADRs and E1 readiness gates stay binding.
+
+### Story 2.4: Review and apply changes to a custom role held by members
+
+**Scope approved by the user, 2026-10-11; not implementation-ready.** Owner: shared Access
+role administration and editor. Depends on completed 2.2 assignment and 2.3 role-creation
+foundations; no later deletion screen, bulk supervisor action or approval UI dependency.
+
+As an organization administrator authorized to edit a Leave custom role,
+I want to review the capability changes and affected holders before applying an edit,
+So that I understand how access will change for everyone holding that role.
+
+**Acceptance Criteria:**
+
+**Given** current role-edit authority for Leave in the organization,
+**When** I open a custom role's editor,
+**Then** its saved name, description, explicit capabilities and current holder information
+are available on the dedicated page,
+**And** built-in roles remain application-maintained. Editing a duplicate changes only
+that custom definition; it does not change its source role or another organization's role.
+
+**Given** proposed capability additions/removals,
+**When** I proceed to review,
+**Then** I see added/removed capabilities in plain business language, the number of current
+holders with authorized expandable names, and an explicit statement that the change
+applies to all holders,
+**And** the review explains that removing a contribution may leave equivalent access from
+another role or still-valid scoped appointment. Definition changes do not retire members,
+change employment/supervisors or automatically reroute pending approval requests.
+
+**Given** current holders shown during review,
+**When** I open one holder's application access,
+**Then** the shared assignment drawer opens with the exact account/membership, organization
+and Leave context while preserving the originating editor's local edits and position,
+**And** on return current holders/effective access are refreshed. No later role-deletion
+feature is needed to prove this contextual navigation. Browser refresh/closure need not
+preserve unconfirmed administration input.
+
+**Given** a reviewed definition and affected-holder state,
+**When** I explicitly confirm,
+**Then** Access verifies current edit authority and allowed capabilities plus expected
+role/catalog/holder-impact state before committing the versioned definition and its
+required audit/compact outcome consistently,
+**And** all applicable current holders receive the new role contribution on subsequent
+checks. Changed review state requires refreshed impact and a new review; the browser
+cannot silently adopt new revisions and confirm again. Retain historical role meaning.
+
+**Given** another role provides a retained capability or another holder receives a scoped
+appointment,
+**When** this custom role's contribution changes,
+**Then** independent authority is evaluated accurately without overwriting unrelated grant
+sources or treating absent capability as a deny rule,
+**And** existing application resource/self-approval/document constraints still apply.
+Already-authorized short execution follows ADR-0021; new action checks use current state.
+
+**Given** Cancel, validation failure, denied authority, unavailable required verification,
+or a lost response,
+**When** the editor handles the result,
+**Then** unconfirmed edits never grant permissions; Cancel abandons only those edits,
+failed input remains recoverable, and uncertain confirmation resolves the original
+operation before retry,
+**And** unchanged replay produces no duplicate role version/change event. Missing required
+local audit/outcome aborts the mutation; diagnostics contain no raw payloads or secrets.
+
+**Given** new application capabilities introduced later,
+**When** an existing custom role is evaluated or opened,
+**Then** its saved reviewed set is retained and new capabilities are visibly selectable
+only through a new authorized edit,
+**And** no wildcard or application role upgrade silently broadens a custom definition.
+No capability beyond the editor's management authority can be added through direct API.
+
+**Given** initially failing acceptance and real owner integration,
+**When** the story is built and verified,
+**Then** holder-impact review, retained equivalent grants, drawer return, stale/concurrent
+role or assignment changes, safe retry and cross-org/API refusal have evidence,
+**And** an assigned synthetic role proves the effective change through current Access,
+not just a saved editor value. Real Leave domain checks retain their own later acceptance.
+
+**Traceability:** Features Permissions; tracker Phase 2 shared custom-role lifecycle;
+spine AD-1/2/3/12; platform ADR-0011/0012/0013/0019/0020/0021/0023/0025/0031/0035/0051;
+[shared role lifecycle](../../platform/EXPERIENCE.md#roles-and-permissions), shared
+administrative Edit/Review/Confirm and Leave application-access/custom-role UX.
+Unassigned-only role deletion is the following independent item; member invitations and
+bulk supervisor replacement are separate E2 work. No cross-app role bundles or app
+capability definition editor is introduced.
+
+**Impacts/readiness:** Reuse the one shared role editor/review/assignment drawer and typed
+clients; promote proved holder/context/conflict controls through shared UI. Scaffold
+registers role metadata/client integration, never copied app-local role administration.
+Before readiness, declare role-version/holder-set observations and commit serialization,
+source-preserving effective-grant evaluation, per-app edit/escalation authority, event/
+outcome shape and name/bound constraints. If active application workflows can be affected,
+resolve their mandatory impact/freshness contracts before activating such edits against
+those workflows; do not assume removing eligibility silently transfers work. Define
+bounded commit/read timings without external waits under locks and compatible owner
+migrations. Record owner docs, commands and source-to-test evidence; update generated
+agent guidance only if proven usage requires it. Existing accepted ADRs remain unchanged.
+No role edits, code, migration, deployment or readiness pass performed.
+
+
+### Story 2.5: Delete an unassigned custom role while preserving its history
+
+**Scope approved by the user, 2026-10-11; not implementation-ready.** Owner: shared Access
+role administration. Depends on completed 2.2–2.4 role assignment/definition/holder review.
+No employee invitation, organization directory, supervisor replacement or later approval
+workflow UI is needed to prove this boundary.
+
+As an organization administrator authorized to delete a Leave custom role,
+I want to remove an unused role and resolve any assignments that block deletion,
+So that the role catalogue stays manageable without silently changing people's access
+or losing historical evidence.
+
+**Acceptance Criteria:**
+
+**Given** a custom role in my authorized organization/application,
+**When** I open its deletion action,
+**Then** current holders and deletion eligibility are checked and shown,
+**And** application-maintained built-in roles cannot be deleted through this UI or API.
+No implied authority follows from being able to read a role.
+
+**Given** a custom role has current assignments,
+**When** deletion is requested,
+**Then** it is blocked with an explanation and authorized links to the holders' application
+access drawers, already scoped to exact account/membership, organization and Leave,
+**And** removing/replacing those assignments uses the existing independently confirmed
+2.2 action. Do not offer a delete-and-revoke-everyone shortcut. Suspended app admission
+is not evidence that retained assignments are absent; historical retired assignments
+are distinguished under the owner lifecycle contract.
+
+**Given** I follow a holder link to resolve an assignment,
+**When** I return to the role page,
+**Then** invoking context/position and supported local unconfirmed role-editor input are
+preserved and holders/eligibility refresh,
+**And** a previously empty list is not reusable deletion authority. Assignment failure
+cannot be presented as completed cleanup. No cross-account or cross-org context leaks.
+
+**Given** a custom role is currently unassigned and deletion is permitted,
+**When** I confirm its clearly identified deletion with reviewed revision/operation identity,
+**Then** Access atomically verifies role/assignment state and current authority, retires
+the role from active selection and commits required immutable evidence/compact outcome,
+**And** its stable identity, historical definitions and past access-change references are
+retained. Delete removes the active custom-role choice; it does not erase historical
+attribution or reuse the identity for a new role.
+
+**Given** a concurrent assignment or role edit occurs after the deletion review,
+**When** deletion is confirmed,
+**Then** stale state is refused and requires a refreshed review,
+**And** shared database/transaction guards ensure that either the valid assignment wins
+and blocks deletion, or deletion wins and the assignment cannot attach the retired role.
+An old creation/edit/assignment retry cannot resurrect a deleted role or its authority.
+
+**Given** confirmation response loss, repeated delete, Cancel, denied authority or outage,
+**When** the client resolves that result,
+**Then** matching committed retries return the original compact result without repeated
+history/effects; Cancel changes nothing; uncertain outcome is checked before retry,
+**And** the interface never claims deletion from an empty screen or optimistic state.
+New read/actions recheck current authority before disclosing role/history information.
+
+**Given** initially failing acceptance and real restricted-role Access integration,
+**When** the story is delivered,
+**Then** tests prove assigned-role/built-in denial, drawer return and refreshed eligibility,
+concurrent assign/delete/edit ordering, retained history and duplicate-safe deletion,
+**And** wrong application/organization/actor cannot delete or enumerate protected holders.
+Planned test cases are not executed evidence here.
+
+**Traceability:** Features Permissions; tracker Phase 2 custom-role lifecycle; spine
+AD-1/2/3/12; platform ADR-0011/0012/0013/0019/0020/0023/0025/0031/0035/0046/0051;
+[shared role lifecycle UX](../../platform/EXPERIENCE.md#roles-and-permissions) and Leave
+application-access/custom-role UX. Current unassigned-only deletion is authoritative;
+history/retirement implements that UX without adding a restore screen or deletion of
+shared person/account/membership records.
+
+**Impacts/readiness:** Reuse shared confirmation, holder-link drawer and safe retry/status
+controls; scaffold promotes verified role lifecycle/client fixtures rather than copied
+administration. Before readiness, specify role retirement and assignment FK/write guards,
+which retained/suspended assignments block deletion, reviewed revision/holder state,
+command/outcome retention, immutable history privileges and compatible owned migrations.
+Resolve every supported alternate assignment/edit path, not just the visible drawer.
+Keep external verification outside locks and bounded local commit behavior. Update owner
+runbook/types/source-to-test mapping; existing agent context/accepted ADRs remain binding.
+No roles, grants, code, database or deployment changed by this story proposal.
+
+
+### Story 2.6: Invite a person to join an organization securely
+
+**Scope approved with ADR-0057 onboarding clarification, 2026-10-11; not implementation-ready.** Owner: shared
+Identity membership/invitation administration and its UI/API; provider/deployment owner
+supplies the selected invitation delivery/sign-in integration. Consumes E1 actor/person/
+account/membership/recovery and restricted authority foundations plus the earlier E2
+member/access navigation. Exact invitation transport and recipient-binding contract must
+precede readiness; do not assume an invitation endpoint is already implemented.
+
+As an organization administrator authorized to invite members,
+I want to invite a specific recipient and see the invitation's status,
+So that people join the correct organization through a deliberate verified process.
+
+**Acceptance Criteria:**
+
+**Given** current organization-scoped invitation authority,
+**When** I prepare an invitation for a recipient and review/confirm it,
+**Then** the invitation binds the exact organization, intended recipient and inviter,
+**And** its durable creation, required audit/operation result and required delivery intent
+are recorded under the owning contract. Recipient/account existence is not disclosed
+through an unauthenticated public lookup. No person/account merge is inferred from email.
+
+**Given** an issued invitation and supported provider delivery,
+**When** the invitation is presented or delivery fails,
+**Then** the administrator sees truthful pending/accepted/expired/cancelled and delivery
+failure information as applicable, with a supported retry/resend action,
+**And** a durable invitation is not called delivered or accepted merely because local
+creation succeeded. Resend/replacement and old-link validity have explicit bounded,
+duplicate-safe semantics; do not manufacture a fresh membership on an email retry.
+
+**Given** the intended recipient follows a valid invitation,
+**When** they sign in through the approved identity-provider flow and accept,
+**Then** the server verifies current invitation validity, recipient/account binding and
+organization admission before creating or recognizing the exact membership,
+**And** possession of a copied invitation URL or a matching unverified email alone does
+not authorize a different account. An account can already belong to other organizations.
+Show the invited organization clearly before acceptance; wrong-account recovery uses
+existing session/account-isolation handling, not automatic account/person relinking.
+
+**Given** acceptance is repeated/concurrent, the recipient is already a member, or they
+previously left,
+**When** membership creation is resolved,
+**Then** the current active membership is not duplicated or replaced, and a legitimate
+rejoin follows the earlier membership-history/predecessor guard with a new membership,
+**And** old invitation/create retries cannot retire or replace that new membership.
+Retain historical membership/employment references and do not restore old roles/grants.
+
+**Given** an expired/cancelled/superseded invitation, unavailable verification or changed
+organization/account state,
+**When** acceptance is attempted,
+**Then** the request fails safely with clear expired/invalid/denied/unavailable recovery,
+**And** no membership is acknowledged from optimistic UI or stale positive verification.
+Cancellation invalidates the invitation; after acceptance, ending membership is a
+separate authorized lifecycle action, not retroactive invitation cancellation.
+
+**Given** an invitation is accepted,
+**When** membership is confirmed,
+**Then** no employment record or Leave/PtS capability is created automatically,
+**And** authorized administrators can use completed 2.2 role assignment for the new member.
+The member receives an honest next-step/access state rather than an unauthorized Leave
+page. A new login account, if necessary, follows the configured provider/invitation
+onboarding policy; this feature does not enable general public signup for protected apps.
+Account-to-existing-person/employment linking remains separately verified, not inferred
+from invitation acceptance or an employee name.
+
+**Given** acceptance/creation response loss, a repeated admin command or audit failure,
+**When** the owner resolves the command,
+**Then** current authorized outcome lookup and same-operation replay prevent duplicate
+invitations/memberships and required local audit/outcome failure aborts its mutation,
+**And** provider delivery waits occur outside business write locks. No distributed
+transaction with email/provider/account creation is claimed; confirmed local stages
+remain recoverable and failure cannot be presented as overall completed onboarding.
+
+**Given** initially failing acceptance and actual supported provider/Identity integration,
+**When** implementation evidence is recorded,
+**Then** intended/wrong-account, expired/cancelled/duplicate/concurrent acceptance, existing
+member/rejoin, cross-org authority, provider failure and current permission checks pass,
+**And** token/recipient data remain out of logs and ordinary error payloads. Use isolated
+synthetic users/controlled recipients; no invitation is sent during planning.
+
+**Traceability:** Features §1 authorized invitations and Permissions; tracker Phase 2
+secure invitation/onboarding; spine AD-1/2/3/4/12; platform ADR-0002/0012/0013/0019/0020/
+0021/0022/0023/0025/0031/0032/0035/0042/0046/0056; Identity membership/account separation
+and shared administrative saving/account-switch UX. Shared employment creation/linking,
+initial role selection within an invitation and membership retirement screens are
+separate items; no later People directory or custom-role screen is needed to accept.
+
+**Impacts/readiness:** Define provider compatibility with Entra/Supabase, authenticated
+inviter authority, recipient verification, invitation token/lifetime/storage/reissue/
+revocation bounds, exact acceptance/membership state and actor setup, audit/outcome/
+outbound-intent schema, and controller/recovery wire before delivery. Select and size
+actual invitation delivery foundation now; do not assume a future E3 notification service
+or introduce a new general inbox merely to invite someone. Earlier E3-first business
+notification planning does not waive this required E2 provider/invitation dependency.
+Scaffold/shared UI promotes proven invite/status/identity-recovery components with the
+first consuming implementation; owner docs/configuration and test traceability update
+together. Existing agent rules/accepted ADRs remain sufficient; no generated server
+imports or cross-owner table access. No code, invite, account, migration or deployment
+executed; implementation readiness remains pending.
+
+
+Invitation versus provider sign-in clarification — 2026-10-11: user accepts the core
+invitation story but questions whether SSO users need invitations. Authentication via
+configured Entra/Supabase does not inherently require an application invitation; invited
+members still use that provider to authenticate. Organization membership remains a
+separate authorized admission under ADR-0002/0042 and features §1. Invitation is one
+admission path, not the mandatory login path or a replacement for authentication when
+no provider is configured. Earlier owner-controlled authorized membership provisioning
+continues to permit membership without an emailed invitation.
+
+Recommendation for discussion: retain ordinary Microsoft sign-in and explicit authorized
+membership/role provisioning; use an invitation when a recipient needs organization
+onboarding. A future trusted provider-tenant/group mapping could perform authorized
+automatic membership provisioning, but a generic Microsoft login or email domain cannot
+imply organization admission. Tenant-managed identity-provider configuration, trust/mapping,
+join/leave/rejoin and role synchronization require a separately scoped contract under
+ADR-0002's revisit clause. Do not silently add Graph/SCIM synchronization or auto-grants
+to Story 2.6. No broad automatic-admission policy is accepted from this question alone.
+
+
+## Organization onboarding policy refinement — proposed 2026-10-11
+
+User asks whether invitations should be the only normal onboarding option without a
+configured tenant provider, and whether tenant setup should offer automatic onboarding.
+Recommend yes for ordinary organization onboarding UI:
+
+- With no verified organization-to-provider tenant mapping, invite-and-accept is the
+  normal onboarding route. Do not add an ordinary Add verified account bypass screen.
+- After a trusted tenant mapping is saved and verified by an authorized administrator,
+  explicitly offer Enable automatic onboarding for this tenant? with the current default
+  remaining off. Review the exact organization, trusted tenant and permitted audience
+  before enabling. A provider configuration save must never enable it implicitly.
+- With automatic onboarding off, retain invitations. With it on, eligible authenticated
+  identities may acquire current organization membership under the declared policy;
+  membership still creates no employment or privileged app role by itself.
+- Disabling automatic onboarding stops new automatic joins; it does not retire existing
+  memberships. Provider authentication, current membership and app authorization remain
+  independently enforced. New access to other organizations is never implied.
+
+Existing restricted owner setup/migration/bootstrap commands remain necessary for the
+already approved E1 foundations and deliberate adoption. They are not a normal onboarding
+UI escape hatch or public API; preserve their operator authority/audit contracts. This
+narrows the earlier recommendation for routine admin provisioning rather than removing
+all administrative database setup authority.
+
+The refinement is for discussion, not an accepted tenant-configuration/automatic-join
+feature. If approved, settle explicit tenant trust verification, issuer/subject/tenant
+claim binding, guest/external account treatment, auto-join audience and join/rejoin/
+revocation lifecycle; do not rely on email-domain matching. Microsoft sign-in is already
+the MVP provider, but tenant-managed enrollment is additional scope under ADR-0002's
+revisit clause. Size provider mapping/auto-onboarding separately from the invitation
+story, record any accepted architecture change in a linked ADR, and update authoritative
+feature/UX contracts only once the direction is approved. No Graph/SCIM group-sync
+engine, implicit role import or automatic permission grant is added by this proposal.
+
+Scaffold/shared UI: explicit optional enrollment policy and reviewed setup prompt only
+when implemented; normal invitation/profile/access components remain. Agent-context/docs/
+ADR impact must be dispositioned with adoption; accepted ADRs are unchanged. E1 first
+slice and all pre-story/implementation-readiness gates remain binding. No application
+code, accounts, invitation, provider configuration or live deployment changed.
+
+
+Onboarding policy approved — 2026-10-11: [platform ADR-0057](../../platform/docs/architecture/decisions/0057-invitation-onboarding-and-trusted-tenant-enrollment.md)
+records invitation-only normal onboarding until trusted tenant verification and separate
+opt-in enrollment, without changing the Entra/Supabase provider or granting app roles.
+Features and shared UX/agent context reflect the bounded scope amendment. Invitation
+2.6 remains independently completable while automatic enrollment is off. Tenant setup
+and automatic join are split into separate increments to preserve bounded delivery.
+
+### Story 2.7: Verify a trusted Microsoft Entra tenant for an organization
+
+**Scope approved by the user, 2026-10-11; not implementation-ready.** Owner: shared
+Identity configuration/controller and existing Supabase/Entra integration. Consumes
+E1 identity/current authority and 2.6 invitation fallback. Automatic join is the following
+story; setup must work with enrollment remaining off and does not depend on that story.
+
+As an administrator authorized to configure an organization's identity connection,
+I want to verify the Microsoft Entra tenant trusted for that organization,
+So that tenant-based onboarding can later be enabled deliberately for the right users.
+
+**Acceptance Criteria:**
+
+**Given** current configuration authority for the exact organization,
+**When** I open identity-connection settings,
+**Then** I see the saved Entra tenant and its verification state plus that automatic
+onboarding is off in this increment,
+**And** the screen uses the retained shared Supabase/Entra integration, not a different
+provider broker or direct browser access to configuration secrets.
+
+**Given** proposed tenant details,
+**When** I save and complete the declared verification/control-proof flow,
+**Then** the server establishes the exact trusted tenant/issuer binding using supported
+provider evidence and current administrator authority,
+**And** an email suffix or tenant ID typed into a field alone cannot mark it verified.
+Configuration, actor/time and required local outcome/audit are recorded consistently.
+Actual proof protocol/provider feasibility must be selected before story readiness.
+
+**Given** verification is incomplete, fails or becomes unavailable,
+**When** the screen reports its state,
+**Then** it distinguishes not configured, verification pending/failed and couldn't check,
+with appropriate safe retry/guidance,
+**And** no automatic admission occurs. Existing authorized invitation onboarding remains
+available and failure never silently enables enrollment or maps an unrelated tenant.
+
+**Given** verification succeeds,
+**When** the saved connection is displayed,
+**Then** its organization and tenant identity are clear and enrollment stays off,
+**And** no membership, employment, role or app grant is created. The following opt-in
+story adds the approved Enable automatic onboarding prompt/confirmation; this setup
+story is accepted against verified configuration with no unfinished join dependency.
+
+**Given** tenant details are replaced, stale reviewed state is submitted, or a wrong-org
+caller attempts a change,
+**When** the configuration operation is resolved,
+**Then** current authority/revisions and verification provenance are protected and changed
+bindings require fresh verification,
+**And** current accepted memberships are not reassigned/deleted by this setting. Define
+mapping replacement/revocation and any later enrollment shutdown effects before exposing
+those transitions; saved verification cannot survive an unchecked tenant replacement.
+
+**Given** lost response, matching retry or required local audit failure,
+**When** setup confirms its result,
+**Then** the original operation is resolved without duplicate bindings/evidence, and a
+failed required local commit cannot be reported as saved,
+**And** provider waits occur outside database write locks. Failed/uncertain confirmation
+retains safe input and existing reviewed-change UX; no provider secrets/claim dumps in
+logs, browser state or return URLs.
+
+**Given** authorized delivery with isolated tenant/account fixtures,
+**When** tests exercise successful/failed verification and cross-organization authority,
+**Then** evidence proves actual issuer/tenant verification, stale/retry handling and no
+implicit joins or roles,
+**And** existing invitation/Entra sign-in and independent PtS account access regressions
+remain protected. No real provider configuration is changed during planning.
+
+**Traceability:** Features §1 and ADR-0057 scope amendment, tracker Phase 2 onboarding;
+spine AD-1/2/3/12; platform ADR-0002/0012/0013/0019/0020/0022/0023/0025/0031/0042/0057
+and shared organization-onboarding/admin UX. Supabase/Entra remain authoritative.
+Arbitrary providers, Graph/SCIM synchronization, automatic membership admission and
+role import are outside this item. Account/person/employment remain separate.
+
+**Impacts/readiness:** Define actor/admin authority, organization/provider configuration
+owner/schema, real proof flow, provider tenant/issuer/subject/audience validation and
+secret/credential handling, callback bounds, verification expiry/change policy and
+compatible configuration activation/recovery before readiness. Size actual provider
+setup separately if evidence shows multiple implementation items are needed. Shared
+UI/scaffold promotes proven connection/status/review/error contracts; no copied app
+identity-provider implementation. Owner docs/types/runbooks and acceptance links update
+with delivery; generated agent guidance follows ADR-0057. Accepted predecessors stay
+immutable. No application code, invitation, accounts, DNS, provider config or deployment.
+
+
+### Story 2.8: Explicitly enable automatic onboarding from a trusted tenant
+
+**Scope approved with advance-access clarification, 2026-10-11; not implementation-ready.** Owner: shared
+Identity admission policy/controller and existing provider integration. Depends on
+completed Story 2.7 verification, 2.6 invitation fallback, E1 account/actor/membership
+history and completed current Access/role-assignment boundaries. No role import,
+People employee administration or directory synchronization dependency.
+
+As an administrator authorized to manage organization onboarding,
+I want to explicitly enable automatic joining for an approved trusted-tenant audience,
+So that eligible users can join when signing in without individual invitations.
+
+**Acceptance Criteria:**
+
+**Given** a currently verified tenant mapping and current onboarding-management authority,
+**When** its setup completes or I open onboarding settings,
+**Then** I am offered Enable automatic onboarding for this tenant? with default off,
+**And** review names the exact organization, trusted tenant and eligible audience and
+explains that membership creates no employment or application roles. Cancel or saving
+provider details alone leaves enrollment off. Only supported verified audience policies
+can be selected; exact guest/group eligibility is a pre-story contract, not a permissive
+fallback or an implicit Graph/SCIM integration.
+
+**Given** I explicitly confirm enabling against current reviewed mapping/policy state,
+**When** Identity commits the policy change,
+**Then** current authority and tenant verification are rechecked under the declared bounds,
+with guarded revision, required local audit and compact operation outcome,
+**And** future eligible joins may use that exact policy. No existing accounts/memberships
+are created in bulk and no permissions are imported from tenant roles or JWT claims.
+
+**Given** a newly authenticated eligible account from the configured trusted tenant,
+**When** the explicit post-authentication admission workflow executes for this organization,
+**Then** it verifies current account/provider identity, issuer/tenant/subject/audience,
+current verified policy and membership history before creating a membership,
+**And** repeated/concurrent login callbacks produce at most one current membership.
+Plain context/list/read endpoints cannot provision membership as a side effect.
+Email/domain/name matching cannot merge person/accounts or choose another organization.
+
+**Given** an account already has a current membership,
+**When** automatic onboarding executes again,
+**Then** it recognizes the existing membership without replacing its ID or roles/grants,
+**And** no duplicate enrollment event or employment record is created. Separate accounts
+linked to one person remain separately admitted and permissioned; tenant identity does
+not imply admission to every organization with a similar domain.
+
+**Given** the account previously had membership retired/removed,
+**When** it signs in under an otherwise eligible automatic policy,
+**Then** this proposed initial behavior requires deliberate authorized rejoin rather than
+silently recreating membership,
+**And** rejoin uses a new membership and explicit predecessor/current-state guards, with
+no restoration of old grants. This closes the removal-bypass risk for discussion; exact
+retired/excluded-account rules must be approved and represented before readiness.
+
+**Given** wrong tenant, unsupported/ambiguous eligibility, unverified/changed mapping,
+disabled policy or unavailable current verification,
+**When** automatic admission is attempted,
+**Then** no new membership is granted and the existing invitation/recovery route is offered
+where permitted,
+**And** failure is distinct from denial. Mapping replacement cannot reuse old verified
+status/enrollment consent. Define verification-revocation and policy-off/in-flight commit
+ordering so stale callbacks cannot create memberships after the permitted boundary.
+
+**Given** onboarding is enabled,
+**When** an authorized administrator reviews/confirms turning it off,
+**Then** new automatic joins stop under the declared current-state execution boundary,
+**And** existing memberships, grants, employment and drafts are retained. Normal current
+access and provider authentication still govern those accounts; account/org access
+revocation remains its separate explicit action. Invitations remain usable as permitted.
+
+**Given** joining succeeds but no app role has been assigned,
+**When** the user returns from sign-in,
+**Then** the shared entry presents honest membership/access-pending next steps,
+**And** direct Leave APIs/discovery still enforce global/org enablement, current capability
+and resource rules. The user is not shown an authorized Leave page solely from membership.
+No fake employment or automatic Employee/Approver/Administrator role is created.
+
+**Given** retries, response loss or required audit/outcome failure,
+**When** policy changes or enrollment resolve,
+**Then** same-operation results prevent duplicate memberships/evidence, failed required
+local evidence prevents its mutation, and uncertain results use the existing lookup/retry
+contract,
+**And** provider waits occur outside short business locks. Verified human initiator and
+service executor attribution are recorded where applicable; no raw claims/credentials
+in outcomes, URLs or diagnostic logs. No distributed provider/database transaction.
+
+**Given** initially failing acceptance and real supported provider/Identity/Access fixtures,
+**When** the item is delivered,
+**Then** evidence proves default-off, explicit enable, valid/wrong-tenant eligibility,
+concurrent callback, current-member preservation, removed-member protection, policy-off/
+mapping-change races and no implicit app grants,
+**And** invocation tests are scoped to synthetic accounts/organizations and actual sign-in
+configuration, not an authentication bypass. No running checks are claimed here.
+
+**Traceability:** Features §1/ADR-0057 scope amendment; tracker Phase 2 invitation/
+onboarding; spine AD-1/2/3/4/12; platform ADR-0002/0012/0013/0019/0020/0021/0022/0023/
+0025/0031/0032/0035/0042/0046/0053/0056/0057; shared organization-onboarding and reviewed
+administration UX. Supabase/Entra remains the provider; arbitrary providers, group/directory
+sync, employment creation and automatic role grants are outside the item.
+
+**Impacts/readiness:** Define exact policy schema/controller/actor authority, verified
+identity evidence transport through Supabase, supported audience and guest/external
+rules, mapping uniqueness/organization selection, explicit admission invocation and
+provider observation validity. Complete removed/excluded account and deliberate rejoin
+rules, short commit/disable ordering, operation/audit/history retention and owner-local
+constraints before readiness. Resolve automatic account actor/profile setup through the
+existing Identity contract; no unauthorized read-side bootstrap. Promote proven typed
+admission client and setting/status/recovery UI with scoped fixtures; scaffold does not
+make auto-join the default for every app. Update owner docs/runbook and source-to-test
+links; agent guidance follows ADR-0057. Scope may split on concrete provider/policy work
+before declaring the item agent-sized. Accepted ADRs are unchanged. No accounts, policy,
+provider, app code, schema or deployment modified by planning.
+
+
+## Administrator-prepared access before first sign-in — proposed 2026-10-11
+
+User asks whether an administrator can establish membership/roles while preparing employee
+access instead of waiting for sign-in. Recommend supporting explicit advance preparation:
+existing current organization members already receive role assignments through 2.2;
+for a person not yet admitted, prepare the intended admission/role assignments and bind
+activation to verified identity and the approved onboarding route. Keep automatic tenant
+membership enrollment distinct from explicit administrator-approved app-role grants.
+
+For the unconfigured-tenant or enrollment-off case, normal onboarding remains a pending
+invitation with intended roles prepared by an authorized actor. Those intended grants
+are pending until the recipient/account binding and membership acceptance are verified;
+no Add member bypass or immediate email-based grants. For trusted enabled tenant enrollment,
+prepare access for a verified tenant principal, activating only against the correct current
+platform account/membership under the declared enrollment policy. A current verified
+account can use the earlier completed assignment mechanisms as its admission is resolved;
+a never-signed-in person must not require a fabricated Auth account or person/email merge.
+
+Pending intended access must name exact organization/application, reviewed roles/catalog
+state, verified target identity/recipient binding and approving actor/authority evidence.
+Activation rechecks pending approval validity, onboarding/tenant state, membership history,
+role definitions and assignment boundaries; role changes after review require the owning
+fresh-review policy. Revoked invitations/pending approvals or retired membership cannot
+silently reactivate old roles. Separate owner commits have honest partial status/recovery;
+no distributed Identity/Access/People transaction is claimed. Multiple accounts linked to
+one person cannot receive each other's intended grants implicitly.
+
+This is a proposal to add a bounded administrator-preparation/activation story following
+2.8, consuming invitation and assignment foundations; it is not an accepted amendment
+to ADR-0057 or an implemented feature. If accepted, link a refining ADR for pending explicit
+assignment and any admin-preenrollment allowance, update authoritative UX/requirements,
+and resolve provider-identity evidence, pending role storage/activation/review/history and
+recovery contracts before readiness. No Graph/SCIM directory sync assumed; a targeted
+provider lookup, if selected, is its own explicit prerequisite. No app roles arise from
+being a tenant user or employee alone. Story 2.8 remains under discussion.
+
+
+Advance-access direction approved — 2026-10-11: [platform ADR-0058](../../platform/docs/architecture/decisions/0058-administrator-prepared-access-before-first-sign-in.md)
+records explicit administrator-prepared roles before first sign-in, activated only against
+verified admission/current assignment state. This clarifies 2.8's no automatic roles:
+previously confirmed explicit preparation may activate, while tenant enrollment itself
+selects no role. Features/shared UX/agent context are synchronized; detailed activation
+contracts remain open and no accepted predecessor ADR was edited.
+
+### Story 2.9: Prepare and activate application access before first sign-in
+
+**Scope approved with automatic-activation clarification, 2026-10-11; not implementation-ready.** Owner: shared Access
+pending assignments/UI, with Identity admission/target verification HTTP integration.
+Depends on completed 2.2 role assignment, 2.3–2.5 role lifecycle and 2.6–2.8 onboarding.
+People employment does not need to exist; no later employee-management UI dependency.
+
+As an organization administrator authorized to assign Leave roles,
+I want to prepare a recipient's application access before their first sign-in,
+So that their reviewed roles can become active when verified onboarding completes.
+
+**Acceptance Criteria:**
+
+**Given** current assignment authority and an intended recipient identified under the
+approved target contract,
+**When** I open the shared member/application access drawer and select roles,
+**Then** I can review/confirm the exact organization, application, recipient/login identity
+and intended role definitions before platform account/membership completion,
+**And** the saved result is Pending onboarding with no effective grants. A person name,
+employee record or entered email alone cannot establish the activation identity.
+
+**Given** the recipient already has the verified account and current membership,
+**When** access is prepared,
+**Then** existing 2.2 assignment applies immediately under its current checks,
+**And** a redundant pending preparation or extra invitation is not required for an already
+admitted member. No rights are copied from another account linked to the same person.
+
+**Given** pending preparation and a valid invitation or enabled trusted-tenant admission,
+**When** the intended recipient completes verified onboarding,
+**Then** Identity establishes/recognizes the exact current membership and Access activates
+only the separately approved roles after validating target, approval/policy and reviewed
+role state,
+**And** the result becomes Active only after the actual assignment commit. No fake Auth
+account, automatic employment or unsolicited default role is created. Wrong-account/
+wrong-tenant acceptance cannot consume the intended assignment.
+
+**Given** revoked invitation/preparation, retired/replaced membership, disabled app or
+changed/deleted role definition,
+**When** pending activation is evaluated,
+**Then** stale approval cannot silently attach to a replacement account/membership or
+activate a different capability set; the status and authorized next steps are explicit,
+**And** changed review-dependent state requires renewed review under its owner contract.
+Onboarding success may stand while app access is still Pending/Needs review; do not roll
+back another owner's committed membership or claim full Leave access prematurely.
+
+**Given** a pending approval is no longer wanted,
+**When** an authorized administrator confirms withdrawal,
+**Then** future activation is prevented with required evidence/current-state guards,
+**And** active access is revoked only through the existing assignment action. Withdrawal
+versus activation concurrency cannot report successful prevention after grants committed.
+
+**Given** callback/delivery retry, repeated activation or a lost response between owners,
+**When** the same prepared action is resolved,
+**Then** each owner uses its scoped operation evidence to prevent duplicate membership,
+assignments and audit, and recovery reports the actual committed stages,
+**And** required dependency verification failures keep access pending without positive
+cache fallback or a broad service credential. Provider/external waits are outside locks.
+
+**Given** initially failing acceptance and real Identity/Access integration,
+**When** the item is delivered,
+**Then** evidence proves pre-sign-in preparation, correct/wrong recipient activation,
+review-state conflict, withdrawal/activation race, rejoin safeguards and cross-owner
+partial recovery,
+**And** both prior human approval and service execution are attributed without retaining
+credentials or invite-link payload dumps. Actual Leave entry after activation still
+checks current app/resource/employment rules in its own stories.
+
+**Traceability:** Features §1/Permissions and ADR-0058 amendment; tracker Phase 2 secure
+onboarding/role assignment; spine AD-1/2/3/4/12; platform ADR-0011/0012/0013/0019/0020/
+0021/0022/0023/0025/0031/0035/0042/0046/0056/0057/0058; shared assignment-drawer and
+advance-access UX. Normal invitation-only admission and default-off trusted enrollment
+remain. No account-scoped PtS grant preparation or identity-directory sync is included.
+
+**Impacts/readiness:** Specify owner-local pending assignment schema/target references,
+provider recipient evidence and account binding, expected membership predecessor/current
+state, role-version/authority approval and activation review policy, expiry/withdrawal,
+operation retention and restricted activation identity before readiness. Define each
+HTTP handoff and atomic local effect with safe per-stage outcomes and bounded retries;
+no distributed transaction or generic onboarding workflow engine. Reuse tested drawer/
+role review/status controls and typed activation clients; scaffold promotion occurs with
+the first proven implementation. Update owner docs/runbooks, agent guidance links and
+source-to-test fixtures. Include exact invocation/state/retention/provider feasibility in
+single-agent sizing; split a concrete prerequisite before this consumer if needed.
+Accepted ADRs remain unchanged. No actual roles, accounts, invitations, code or deployment.
+
+
+Advance-access activation clarified/approved — 2026-10-11: the user confirms automatic
+activation of previously explicitly approved roles once verified target/admission and
+current approval/role checks pass. No second routine administrator confirmation is
+needed in the unchanged valid case; relevant changed state remains Pending/Needs review.
+This implements ADR-0058, not automatic default roles for every tenant account.
+
+### Story 2.10: Remove a member's organization access without erasing history
+
+**Scope approved with membership clarification, 2026-10-11; not implementation-ready.** Owner: shared
+Identity membership administration UI/API with current Access/Directory consumers.
+Consumes E1 membership retirement guards, earlier E2 member/role/onboarding views and
+2.8–2.9 retired-member/pending-activation protections. No employee-termination command
+or future approval-management UI dependency.
+
+As an organization administrator authorized to manage membership,
+I want to remove a member's access to this organization,
+So that they cannot continue organization-scoped actions while existing business and
+employment history is preserved.
+
+**Acceptance Criteria:**
+
+**Given** current membership-management authority and an exact active account/membership,
+**When** I open Remove from organization,
+**Then** review clearly identifies the account, organization and affected organization-
+scoped access and explains that employment/history are retained,
+**And** this action is distinct from removing one app role, disabling the Auth account,
+ending employment or disabling an app for the whole organization. Another account linked
+to the same person is not silently removed by an account/membership-scoped operation.
+
+**Given** reviewed current membership state and authorized confirmation,
+**When** Identity commits removal with expected revision and operation identity,
+**Then** it retires that exact membership with required audit/compact outcome atomically,
+**And** new protected organization checks and discovery use the retired state immediately
+under the declared ADR-0021 boundary. Existing token claims/open forms cannot preserve
+new execution authority; short already-authorized execution retains its bounded rule.
+No cross-owner grant deletion is needed to make retirement effective.
+
+**Given** saved drafts, historical requests/decisions, actor attribution and employment
+belong to that organization,
+**When** the membership is retired,
+**Then** those records and stable references remain intact under their owner retention,
+**And** future reading still requires current resource permission. Retention does not
+promise the former member continuing access. Employment does not end automatically.
+Independent account-scoped PtS access and memberships in other organizations remain
+subject to their own unchanged authorization.
+
+**Given** an automatically enrolled or previously invited member is removed,
+**When** a later sign-in, stale invitation, pending-role activation or callback is replayed,
+**Then** it cannot silently recreate membership or reactivate the retired membership's
+grants under the completed 2.8/2.9 lifecycle rules,
+**And** deliberate authorized re-admission creates a new membership with new reviewed
+role assignments, never copies old roles simply because the person/account returned.
+
+**Given** a delayed removal retry and a newer replacement membership,
+**When** the original operation is resolved,
+**Then** it targets/returns its original membership result and cannot retire the replacement,
+**And** concurrent retirement/rejoin/assignment is guarded by owner constraints and current
+expected state. Required local audit/outcome failure aborts the removal; lost response
+uses current authorized recovery of the original operation without an extra retirement.
+
+**Given** a removed member has approval responsibilities when such workflows exist,
+**When** dependent current checks or required workflow-impact handling execute,
+**Then** the person cannot perform new decisions through the retired membership and
+outstanding requests retain their snapshots/completed decisions,
+**And** any transfer is an explicitly authorized application-owned reroute. Define and
+verify the existing missing/replacement-approver flags and affected-work contract before
+activating removal against those workflows. This story uses synthetic contract fixtures;
+E5 owns actual queue/notification/reroute integration, not a future dependency here.
+
+**Given** wrong organization/account/membership, stale review, missing authority or outage,
+**When** removal is attempted through the UI or direct API,
+**Then** it fails safely without exposing unrelated member/business records,
+**And** Cancel abandons uncommitted input, relevant current-state changes require review,
+and the interface cannot claim access removal from optimistic UI. Define last-owner/
+organization-administration continuity guards and supported self-removal before readiness;
+do not silently invent a universal administrator or lockout recovery permission.
+
+**Given** initially failing acceptance with actual Identity/Access/Directory integration,
+**When** the story is delivered,
+**Then** retirement/direct-action/discovery denial, retained history, independent account
+access, wrong-org API refusal and stale retry versus rejoin are verified,
+**And** actual restricted database roles and alternate writers preserve the membership
+lifecycle. No production user or membership is altered by this planning story.
+
+**Traceability:** Features §1 current/ended membership checks; tracker Phase 2 suspension/
+authorization; spine AD-1/2/3/4/12; platform ADR-0002/0012/0013/0019/0020/0021/0022/
+0023/0025/0031/0035/0042/0046/0052/0053/0057/0058; Identity membership-retirement/rejoin
+contract and shared reviewed-administration UX. Shared employment ending/correction,
+account-wide disabling, app-wide suspension and application pending-work rerouting remain
+separate owning actions with their existing contracts.
+
+**Impacts/readiness:** Reuse existing retirement command through explicitly authorized
+membership-admin HTTP; browser gets no operator/DB credentials. Promote proven exact-
+membership review/conflict/recovery controls and scoped Identity/Access fixtures; shared
+scaffold retains application/account versus organization separation. Complete current
+member/admin projections, continuity/self-removal policy, role/pending binding invalidation,
+retirement/rejoin ordering and protected dependent-work contracts before readiness.
+Keep owner-local short transactions, safe attribution and migration compatibility.
+Update owner docs/runbook, generated client and requirement-to-test evidence; existing
+agent rules/accepted ADRs remain sufficient. No implementation, membership, grants,
+accounts, schema or deployment changed.
+
+
+Membership re-admission clarification approved — 2026-10-11: a fresh membership is a
+new account-to-organization access record. Reuse verified login/person and preserve the
+enduring employment relationship, periods and domain history. Administrator-facing
+Re-admit does not require managing database IDs; old roles require deliberate new
+assignment, and delayed old commands cannot affect the replacement membership.
+
+### Story 2.11: Add an employee with an initial employment period
+
+**Scope approved with person/employment wording clarification, 2026-10-11; not implementation-ready.** Owner: shared People
+employment administration and Identity person references through HTTP contracts. Consumes
+E1 shared person/employment/provisioning/read foundations and established E2 administration
+surfaces/authority. No later work-profile/policy editor, department/location catalogue,
+supervisor replacement or login invitation is required to save this minimum employee.
+
+As an administrator authorized to maintain employment in this organization,
+I want to add a person as an employee with their initial employment dates,
+So that their employment is recorded once and can be used consistently by Leave and
+other authorized applications.
+
+**Acceptance Criteria:**
+
+**Given** current employment-administration authority for the selected organization,
+**When** I open Add employee,
+**Then** I can select a permitted verified existing person reference or create the required
+person identity through its owning contract, and enter the initial start date plus an
+optional end date,
+**And** the form shows organization/person context and does not require a login account,
+invitation, app role, work profile, department, location or supervisor to save employment.
+Name/contact/profile field bounds and permitted person lookup/create scope must be
+settled before readiness; no cross-organization people enumeration is introduced.
+
+**Given** an existing person/account/member is selected,
+**When** employment is created,
+**Then** the existing verified person ID is reused rather than creating a Leave employee
+identity copy,
+**And** account linkage remains verified. Equal name/email or a supplied employee ID alone
+cannot merge people or bind another person's account; ambiguous matches require explicit
+resolution under Identity's verified-linking contract.
+
+**Given** valid initial dates and reviewed confirmation,
+**When** People commits the organization/person relationship and initial period,
+**Then** one enduring employment relationship and one nonoverlapping inclusive period
+are saved with stable identities, relationship revision, server actor/UTC attribution,
+required change history and compact operation outcome under the owner,
+**And** optional end is null or at/after start; equal start/end is one valid day. Enforce
+organization/reference/date invariants at both API and database boundaries. No Auth
+account, membership, role or Leave draft is created by the employment write.
+
+**Given** the person already has employment in this organization or concurrent creates race,
+**When** creation is requested,
+**Then** database/API integrity prevents duplicate relationships and presents the existing
+permitted record or a safe conflict without overwriting it,
+**And** a return to employment uses a later period under the same employment ID, not a
+second employee record. Employment in another organization remains independent and is
+not disclosed to an unauthorized administrator.
+
+**Given** the employee has no login account or application access yet,
+**When** the record is viewed after saving,
+**Then** the employee record is valid and account/access status is shown truthfully,
+**And** authorized navigation may lead to completed invitation/advance-access flows.
+This is a next step, not automatic onboarding or proof of employee-only participation;
+no proxy unpaid acknowledgement or other employee-confirmed action is enabled.
+
+**Given** work/approval settings have not been configured,
+**When** Leave reads the new shared employee,
+**Then** its domain setup status may identify required remaining work without invalidating
+saved shared employment,
+**And** preserve the accepted lightweight draft rules. Shared location is not a work
+profile and saving employment cannot invent schedules, timezone, holiday or entitlement
+values. Domain effective-status interpretation uses the approved explicit date contract,
+not an assumed UTC today for missing input.
+
+**Given** new person creation commits but a later People save fails or a response is lost,
+**When** the UI recovers the operation,
+**Then** it reports/reuses the verified created person and actual employment stage without
+duplicating identity, deleting another owner's committed person or claiming full success,
+**And** matching employment retries resolve their original result. Required People local
+history/outcome failure aborts its local relationship/period change. External owner calls
+and validation occur outside write locks; there is no distributed Identity/People commit.
+
+**Given** Cancel, invalid dates, changed expected state, denied authority or outage,
+**When** confirmation is handled,
+**Then** shared whole-form Save/Cancel and Review/Confirm behavior preserves useful failed
+input and safe exact-target context, with no hidden field autosave,
+**And** a typed error cannot leak raw person data/credentials or silently become absence.
+No stale revision substitution or unverified person-header fallback is allowed.
+
+**Given** initially failing acceptance and actual Identity/People/restricted-role integration,
+**When** the item is delivered,
+**Then** linked/accountless creation, duplicate/concurrent relationship, inclusive dates,
+cross-org refusal, server attribution/history and staged recovery have evidence,
+**And** consumer HTTP fixtures prove no duplicate employee master and no access implied
+by employment. Real Leave work/profile/calculation features keep their own acceptance.
+
+**Traceability:** Features §2 shared employment/accountless support and §1 access separation;
+tracker Phases 2/3; spine AD-1/2/3/5/12; platform ADR-0012/0013/0014/0017/0018/0019/
+0020/0022/0023/0025/0031/0035/0040/0041/0042/0051/0056/0058; shared employment contract
+and Leave Employment & approval settings UX. Employment changes/end/rehire, optional
+assignment management and Leave-specific settings are following bounded stories.
+
+**Impacts/readiness:** Define minimum Identity profile/lookup/create authority and People
+employment-create API/transaction, stable references, date/bounds/operation/revision schemas
+and actual restricted read/write/RLS/migration privileges before readiness. Identity global
+profile fields and People organization facts keep separate owners; no app HTTP bypass or
+cross-owner table access. Resolve authorized initial historical/future date creation and
+any applicable consequential impact constraints before activating against existing data.
+Promote proven person/date/create/review/status controls and typed clients; scaffold adds
+opt-in employment integration, not a mandatory HR dependency for every app. Document
+creation recovery, authority and source-to-test commands; existing agent rules/accepted
+ADRs suffice. No employee/account/role, code, schema or deployment changed in planning.
+
+
+Employee wording clarified/approved — 2026-10-11: Select an existing person, or add the
+person and their employment in this organization. Identity owns the reusable person,
+People owns organization employment and Leave owns its domain settings. Organization
+settings → People can expose shared administration; no standalone HR app or new login
+record is implied. The person may have multiple organization employment relationships.
+
+### Story 2.12: Record an employment end date with reviewed consequences
+
+**Scope approved by the user, 2026-10-11; not implementation-ready.** Owner: shared People
+employment administration, with consuming Leave impact contracts. Depends on completed
+2.11/E1 employment/revision/history and earlier current access foundations. Scope is
+setting/revising the end of the identified current/future period; correcting unrelated
+historical periods and adding a rehire period are separate items.
+
+As an administrator authorized to maintain employment,
+I want to record the employee's last employment date and review applicable consequences,
+So that future application actions use the correct employment boundaries while history
+and organization-access decisions remain explicit.
+
+**Acceptance Criteria:**
+
+**Given** current employment-management authority for an exact organization/relationship/
+period,
+**When** I edit its last employment date,
+**Then** the start/current end date and applicable dates are clear,
+**And** the end is inclusive, not before start, and cannot overlap another retained period.
+Use date-only values and the owner relationship revision; do not confuse end of employment
+with organization membership removal or account disablement.
+
+**Given** a proposed end date and declared consumer-impact contracts,
+**When** I proceed to review,
+**Then** I see the exact dated change and consequences available for currently delivered
+consumers, with a required explanation for affected consequential Leave changes,
+**And** required impact verification unavailable/changed state prevents claiming complete
+review or silently confirming stale effects. Do not hold business locks while reviewing
+or waiting on external services. The end-date/consumer-freshness coordination contract is
+mandatory before this writer is ready against consequential consumers.
+
+**Given** current reviewed state and authorized confirmation,
+**When** People commits the period change,
+**Then** it preserves the enduring employment/period identities and dated history, advances
+the relationship revision and commits required audit/change evidence and operation outcome,
+**And** provider/consumer coordination uses bounded owner HTTP contracts without distributed
+transaction claims. Repeated original confirmation cannot duplicate history or dependent
+effects. Changed current/end/related impact state requires fresh review.
+
+**Given** a last employment date of 30 June,
+**When** Leave later evaluates submission/final approval dates,
+**Then** 30 June remains eligible under normal rules and any requested date after 30 June
+is rejected under Leave ADR-0049,
+**And** existing affected requests retain their dates/decisions and are flagged with the
+administrator explanation for authorized correction/cancellation. No automatic trimming,
+approval reroute or cancellation. Actual request/approval UI arrives in E5; this story
+uses explicit consuming-contract fixtures without depending on that later UI.
+
+**Given** grants/balances are present when the change becomes applicable,
+**When** Leave applies its approved entitlement impact rules,
+**Then** proration/no-proration and deficit/explanation behavior follow Leave ADR-0048,
+with immutable correction evidence and duplicate-safe dependent effects,
+**And** approved leave is not silently changed to unpaid. Calculations/correction workflows
+remain E3/E6; their first consuming writers must integrate/prove this employment-impact
+contract before activation. The E2 item does not fake those undeveloped calculations or
+claim completeness merely because the People date saved.
+
+**Given** employment is ended for Leave's effective employee-local date,
+**When** an otherwise authorized employee returns to a saved draft,
+**Then** the agreed ended-employment read-only behavior preserves input/history,
+**And** membership/roles and other app rights remain governed separately. Ending employment
+does not implicitly retire membership, remove independent PtS access or create a new
+person/employee. Authorized next steps can link to completed membership removal if desired.
+
+**Given** Cancel, invalid dates, missing authority, outage or lost response,
+**When** the form resolves its outcome,
+**Then** explicit Save/Cancel and Review/Confirm preserve uncommitted failed input; Cancel
+cannot reverse a committed change, and uncertain confirmation resolves its original
+operation before retry,
+**And** server-derived attribution and safe typed errors expose no private payload dumps.
+Missing local required history/outcome prevents the local change from committing.
+
+**Given** initially failing acceptance and actual People/restricted-role/HTTP fixtures,
+**When** this item is delivered,
+**Then** inclusive boundaries, scoped date constraints, concurrent revisions, history/retry,
+wrong-org authority and honest impact-outage handling have evidence,
+**And** E1 Leave draft read-only integration remains covered. Later consequential consumers
+supply their real request/balance/notification tests in their own stories; no mock output
+is claimed as those features working.
+
+**Traceability:** Features §2, employment/draft rules in §7 and entitlement departure rule;
+tracker Phases 2/3/6; spine AD-1/2/3/5/6/12; platform ADR-0012/0013/0019/0020/0022/0023/
+0025/0031/0035/0040/0042/0044/0051; Leave ADR-0023/0048/0049/0094/0112/0113 and employment
+settings/administrative-impact UX. App permissions, membership retirement, rehire and
+historical correction remain independent workflows; shared location/work profile stays
+separate from employment boundaries.
+
+**Impacts/readiness:** Define exact period mutation and relationship revision guards,
+current/future versus historical edit bounds, reason/impact schemas, authorized read/write
+scope, version/validity/affected-consumer handshake and bounded recovery/event delivery
+before readiness. Preserve already approved short transactions and owner-local migrations;
+no unbounded external waits or automatic cross-owner rollback. Shared UI/scaffold promotes
+proven dated review/conflict/history/client mechanisms; Leave eligibility/entitlement stays
+in Leave. Update owner docs/runbooks and exact source-to-test evidence; existing agent
+rules/accepted ADRs remain authoritative. Size dependent foundation work explicitly before
+this consumer; no incomplete impact contract is waived to make the story smaller. No
+employment, access, code, migration or deployment changed by planning.
+
+
+### Story 2.13: Record a return to employment without replacing the employee
+
+**Scope approved by the user, 2026-10-11; not implementation-ready.** Owner: shared People
+employment administration and consuming application clients. Depends on completed 2.11
+relationship/period setup, 2.12 period-end administration and E1 effective reads/history/
+current-access foundations. Reuse earlier membership/role onboarding when separately
+needed; adding an employment period does not depend on a new identity provider.
+
+As an administrator authorized to maintain employment,
+I want to record a returning employee's new employment period,
+So that employment continuity and prior history remain understandable without creating
+a duplicate person or employee.
+
+**Acceptance Criteria:**
+
+**Given** a permitted existing person/organization employment relationship,
+**When** I open Record return to employment,
+**Then** I see the retained periods and can enter a new start date and optional end date,
+**And** the form clearly reuses the person and employment identity. An open/overlapping
+existing period must be resolved through its authorized date-change action first;
+recording return cannot silently shorten or rewrite an old period.
+
+**Given** valid reviewed date-only values and current authority,
+**When** I confirm the new period,
+**Then** People adds one stable new period under the same employment ID, advances the
+relationship revision and commits required history/attribution and compact outcome,
+**And** inclusive nonoverlap is database-enforced across all periods. Starting the day
+after a prior end is valid; sharing the prior end date overlaps. A supplied end may be
+null or at/after the new start. No copied employee master or overwritten original period.
+
+**Given** concurrent returns, repeated confirmation or response loss,
+**When** the command is resolved,
+**Then** expected relationship revision and scoped operation identity prevent duplicate
+periods or competing overlapping writes,
+**And** a matching committed replay identifies its original period/result. Changed-input
+replay or changed periods require safe conflict/fresh review, not a new implicit create.
+
+**Given** the new period is future/current for the explicitly requested effective date,
+**When** an authorized application reads the shared relationship,
+**Then** it returns that date's correct effective period/state and retained revision,
+**And** a date in the intervening gap is not treated as continuous employment. Derived
+current/future/ended states remain date-based, not independently edited flags; consumer
+work timezone/entitlement rules stay with the application.
+
+**Given** prior Leave history, settings and an active preserved draft,
+**When** the returning employee has current required access and resumes Leave,
+**Then** Leave reuses the preserved records/draft with fresh shared and local context,
+**And** invalid obsolete selections follow the existing notice/preservation contract.
+Submitted/discarded drafts are not resurrected and a return does not fabricate balances,
+reset ledger history or silently replace work profiles/policies. Consequential date/
+entitlement impact follows the existing E3/E5/E6 contracts when those consumers exist.
+
+**Given** the person's organization membership remains active or was previously retired,
+**When** the employment return is recorded,
+**Then** no membership/login/role change is implied: still-valid access is checked normally,
+and retired membership requires the earlier deliberate re-admission with new reviewed grants,
+**And** accountless returning employees remain supported. Employment return is not proof
+of employee authentication or an employee-only acknowledgement.
+
+**Given** required impact checks are unavailable, review-dependent state changes, input
+is invalid, or the actor lacks authority,
+**When** Save/Review/Confirm is attempted,
+**Then** no stale/unauthorized period change is acknowledged and failed input is preserved
+under shared administrative conventions,
+**And** cancellation does not reverse an already committed result. Required local evidence
+failure aborts the local mutation; external waits remain outside write locks.
+
+**Given** initially failing acceptance and actual People/Access/restricted-role fixtures,
+**When** the item is implemented,
+**Then** same-employee rehire, gap/effective-date interpretation, inclusive constraints,
+concurrent revision/retry/history and separate admission behavior have evidence,
+**And** E1's real draft-resumption contract remains protected. Later entitlement/request
+features own their full domain regression tests and cannot claim continuity from mocked
+shared reads alone.
+
+**Traceability:** Features §2 enduring employment/period history and §7 rehire draft behavior;
+tracker shared employment and draft integration; spine AD-1/2/3/5/6/8/12; platform
+ADR-0012/0013/0019/0020/0022/0023/0025/0031/0033/0035/0040/0042/0049/0051/0057/0058;
+Leave ADR-0023/0094 and approved employment/settings UX. Membership re-admission,
+account linking and historical date corrections remain their separate owner actions.
+
+**Impacts/readiness:** Declare exact period-add request/result, date/bounds/revision guards,
+current/historical effect policy and applicable consumer impact/freshness coordination
+before readiness. Specify how explicit employment periods feed each application's tenure/
+anniversary/proration rules without guessing a universal restart of service; earning in
+a gap must not be inferred from one continuous start/end pair. Prove owner constraints,
+restricted roles and transactional history through the shared read/command fixtures.
+Promote reusable period/date/history/conflict/status controls and typed clients; scaffold
+retains opt-in employment and no cross-owner table access. Update owner docs/runbooks,
+agent usage guidance where needed and requirement-to-test links; accepted ADRs unchanged.
+No employee/login/membership/roles, code, migrations or deployment changed by planning.
+
+
+### Story 2.14: Maintain simple organization departments and locations
+
+**Scope approved with simple Create/Save/Cancel behavior, 2026-10-11; not implementation-ready.** Owner: shared People
+organization-reference administration. Consumes completed E1/2.11 shared employment and
+current organization/admin foundations. Employee assignment follows this catalogue story;
+fixture references can prove lifecycle behavior without a later assignment UI dependency.
+
+As an administrator authorized to maintain organization employment references,
+I want to create, rename and archive departments and locations,
+So that employees can use consistent optional organization records across applications.
+
+**Acceptance Criteria:**
+
+**Given** current authority for the organization,
+**When** I open its Departments or Locations settings,
+**Then** I see only authorized records and active/archived state, with create/edit actions
+when permitted,
+**And** a missing catalogue is an honest empty state while failed retrieval is unavailable.
+These settings use People-owned records, not a separate Leave employee master.
+
+**Given** a proposed department or location name and declared optional metadata,
+**When** I choose Create/Save,
+**Then** People stores a stable identity and exact organization/type with server attribution,
+required change evidence and duplicate-safe outcome,
+**And** the declared scoped naming/uniqueness rules apply in the database and API. The
+same label in another organization never selects that other organization's record.
+No default Unknown sentinel or mandatory catalogue entry is created.
+
+**Given** a permitted saved record,
+**When** I explicitly save a rename against its current revision,
+**Then** its stable identity and references remain while the new name and required history
+are recorded,
+**And** historical reference/label evidence is preserved under the declared version/read
+contract. Do not rewrite historical employee/workflow attribution to imply a different
+organizational placement; exact label/history representation precedes readiness.
+
+**Given** a department/location is no longer used for new placement,
+**When** I review and confirm archiving it,
+**Then** it is unavailable for new ordinary assignments while authorized existing references
+and history remain resolvable,
+**And** referenced employees are not silently moved or cleared. Show affected existing
+references where authorized, with normal future reassignment links when that UI exists.
+Archive is not cascading employee/period deletion or membership revocation.
+
+**Given** employee data or future Leave consumers refer to the record,
+**When** its name/state changes,
+**Then** nullable placement and current scope rules remain intact,
+**And** existing Leave work profiles, schedules, timezone, holidays, overrides and approval
+snapshots are not silently changed. A location reference is organizational placement;
+application settings remain application-owned under ADR-0041.
+
+**Given** wrong organization, missing authority, invalid input, stale revision, Cancel,
+response loss or dependency outage,
+**When** a mutation is attempted,
+**Then** whole-form Create/Save and Cancel apply for simple creation/rename, with a separate
+explicit confirmation for archive where its impact is shown; safe typed errors/current
+revision checks and same-operation recovery prevent duplicate records/change events,
+**And** required local evidence failure aborts the mutation. No hidden field autosave,
+raw payload logging, cross-owner writes or positive authorization fallback.
+
+**Given** initially failing acceptance and real restricted People persistence,
+**When** delivery records its evidence,
+**Then** scoped catalogue lookup, create/retry/concurrent uniqueness, rename/history,
+archive/reference preservation and direct API wrong-org/authority cases pass,
+**And** fixture employment references prove invariants without depending on later employee
+assignment UI or claiming full Leave policy/calendar integration.
+
+**Traceability:** Features §2 optional shared departments/locations; tracker Phase 2
+organization structure/shared employment; spine AD-1/2/3/5/12; platform ADR-0012/0013/
+0019/0020/0022/0023/0025/0031/0035/0040/0041/0051; shared reference/admin/date UX and
+Leave Employment & approval settings. Team management retains its separate existing
+scope; no tree hierarchy, chart builder, Graph import or generic HR suite is introduced.
+
+**Impacts/readiness:** Define catalogue fields/bounds/naming semantics, stable scoped
+keys/revisions, nullable assignment references and historical label/retirement contracts,
+restricted read/write API and current admin authority before readiness. Reuse focused
+create/edit drawer on desktop/full-page mobile and explicit shared saving/review controls;
+People owns the domain command, shared UI promotes proven generic catalogue presentation.
+Scaffold adds opt-in typed reference lookup/edit fixtures, not tables to every application.
+Update owner docs/runbook/source-to-test evidence; existing agent rules/accepted ADRs
+suffice. Bound supported reference reads/impact review and keep external waits outside
+transactions. No department/location, employee, code, schema or deployment changed.
+
+
+Department/location saving clarification — 2026-10-11: user asks whether direct autosave
+without drafts would be better. Recommendation retains accepted ADR-0051 whole-form
+explicit saving for shared business configuration. Simple catalogue create/rename needs
+one Create/Save action plus Cancel, not an added review screen. Archive retains explicit
+consequence confirmation. Unconfirmed text stays local while the form is open; no
+server-side administrative draft or typing-time committed rename is needed. This refines
+the unapproved Story 2.14's overbroad Review/Confirm wording without changing the accepted
+saving convention. Direct personal preferences and autosaved request drafts retain their
+separate patterns. The story remains under discussion; no implementation.
+
+
+### Story 2.15: Assign or clear an employee's department and location
+
+**Scope approved with immediate-save/bundled-load simplification, 2026-10-11; not implementation-ready.** Owner: shared People
+employment placement administration with authorized consuming UI. Depends on completed
+2.11 employment identity and 2.14 scoped catalogues/history, plus E1 current authority.
+No later supervisor/profile/holiday configuration or general bulk editor dependency.
+
+As an administrator authorized to maintain employment placement,
+I want to set or clear an employee's department and location when I save,
+So that organizational placement stays accurate and historically understandable across
+applications without forcing every employee into a department or location.
+
+**Acceptance Criteria:**
+
+**Given** an exact permitted employee relationship in the current organization,
+**When** I open its placement settings,
+**Then** a single form-load response supplies current employee placement with its labels,
+permitted department/location choices, expected employment revision and applicable edit
+authority; explicit Unassigned choices and retained change history are available where
+authorized,
+**And** selectors offer only permitted records from that organization. Accountless employees
+are supported; no login/member role is required merely to record employment placement.
+
+**Given** selected department/location or Unassigned values,
+**When** I explicitly Save against current reviewed relationship/assignment state,
+**Then** the change takes effect on save; People records server-controlled effective UTC
+time, preserves earlier references/history and advances
+the appropriate owner revision with actor/UTC attribution, required change evidence and
+compact operation outcome,
+**And** each field has one current value, including null. Record who changed what and
+when under the existing effective-history contract; no user-selected effective date,
+future schedule or retroactive placement-edit UI is included. Exact current/history
+schema and revision aggregate remain pre-story inputs.
+
+**Given** a saved placement change and later catalogue rename/archive,
+**When** permitted current/history views read it,
+**Then** the current assignment and recorded historical references remain interpretable,
+**And** current edits do not silently rewrite old history. Event/effective timestamps are
+server-managed evidence, not a scheduling form or independent mutable status.
+
+**Given** an existing archived department/location or an unavailable lookup,
+**When** the employee form is opened or another field saved,
+**Then** retained references remain visible/resolvable and unchanged values are not silently
+cleared; new assignments reject archived or wrong-org targets under the owner contract,
+**And** current archived selections remain included for display even when absent from new
+selectable choices. If required form data cannot load, show the form-level load failure
+and Retry instead of an editable incomplete form. Unassigned means verified null only;
+clearing is an explicit user choice confirmed by Save, not a load/cleanup side effect.
+
+**Given** either field is unassigned,
+**When** the employee or authorized application reads it,
+**Then** the employment record remains valid and authorized filters can select Unassigned,
+**And** no Unknown sentinel record or missing-setup blocker is invented for placement.
+Employee list/detail can show and filter the current department/location within allowed
+scope using the shared collection-filter conventions; no separate reporting module.
+
+**Given** department/location changes,
+**When** Leave consumes shared employment,
+**Then** its saved work profile, schedule, timezone, holiday calendar, policy overrides and
+historical calculations remain unchanged unless a separate authorized Leave action applies,
+**And** placement alone grants no business-data/app access and reroutes no pending approval.
+Any allowed initial-profile suggestion is presentation under Leave's explicit setup rules,
+not an automatic reassignment from this People write.
+
+**Given** stale assignment/catalogue state, wrong org, missing authority,
+Cancel, response loss or dependency outage,
+**When** the command is resolved,
+**Then** explicit whole-form Save/Cancel with appropriate current-impact confirmation
+prevents hidden field writes, and safe typed errors preserve useful local input,
+**And** uncertain commands use original scoped outcomes before retry. Same-input replay
+creates no duplicate assignment/history; changed reviewed state requires fresh review.
+Required local evidence failure aborts the local mutation; external waits are outside locks.
+
+**Given** initially failing acceptance and actual People/scoped restricted-role fixtures,
+**When** the item is delivered,
+**Then** null/accountless assignment, saved change history, concurrent updates, archived and
+wrong-org reference handling, history/retry and read/filter privacy have evidence,
+**And** existing Leave profiles/overrides are proven unchanged through the delivered
+integration contract. Real later work-profile/calendar domain behaviors retain their own
+acceptance; no mocked client result is claimed as their implementation.
+
+**Traceability:** Features §2 nullable department/location/history and independent work
+profiles; tracker Phase 2 shared employment/structure; spine AD-1/2/3/5/12; platform
+ADR-0012/0013/0019/0020/0022/0023/0025/0031/0035/0040/0041/0042/0051; shared collection/
+reference/date/admin UX and Leave Employment & approval settings. Team assignments,
+supervisor changes and Leave work-profile assignment are separate following work.
+
+**Impacts/readiness:** Complete current nullable assignment/read and server-recorded effective
+history, cross-org reference constraints, archived-retained-versus-new selection rules,
+exact field/name bounds,
+permission/projection, bounded composed form-load response and owner revision/operation
+contracts before readiness. Define
+actual consuming-impact constraints where shared location is used for policy eligibility;
+no user scheduling/backdating or automatic work-profile change is included. Future
+historical placement correction needs separate scope. Promote proven optional reference/filter/
+conflict/status controls and typed HTTP clients, using a focused drawer/full-page mobile
+form; the backend is People, not direct Leave table updates or imported service code.
+Scaffold adds opt-in integration/fixtures; owner docs/runbooks/source-to-test commands
+update together. Existing agent rules/ADRs remain binding. No assignment, employee, code,
+DDL or deployment modified by story planning.
+
+
+Placement simplicity clarification — 2026-10-11: user challenges user-entered effective
+dates, reference archiving and unavailable-versus-null handling. Recommend immediate
+application on Save with server-recorded who/what/when history, removing future-date/
+backdate UI from unapproved 2.15. Accepted ADR-0041's historical reference requirements
+remain; effective history does not require an administrator date picker. Department is
+used for organization calendar/list filters; features also include location eligibility
+and location-aware calendar applicability. Work profiles still own actual schedules,
+timezone and holiday assignments; define the shared-location policy mapping/impact with
+its first consumer rather than assume automatic calculation changes.
+
+Archive retains stable references in current/past employment and policy/configuration
+where applicable, not because every department drives a calculation. A referenced record
+must not disappear or silently clear employees; new selection stops while history resolves.
+No new purge engine or generalized time-travel interface is introduced. A minimal future
+hard-delete path for truly unreferenced records is not required for this story.
+
+Lookup example: Ana's saved location ID points to Maputo. If the location service call
+fails, show Location could not be loaded with Retry and preserve that ID. Rendering
+Unassigned and saving it would erase a valid assignment. If the server successfully
+returns location_id=null, Unassigned is correct. Failure to load replacement choices
+likewise must not reset saved selection or get persisted as null. This is ordinary
+error-safe form behavior, not an additional user workflow. Candidate remains discussed;
+no new accepted ADR or implementation.
+
+
+Small catalogue/form-loading preference — 2026-10-11: user prefers a simple active/
+archived flag where practical and asks whether department/location options should be
+included in the employee load. Recommend one form-specific browser API request returning
+current placement labels/IDs plus authorized small scoped option lists and record revision.
+Do not add separate per-field calls or a partial-load recovery workflow for this form.
+If required data fails, report the whole form-load error and Retry; only verified null
+means Unassigned. Include archived current choices for display, without making them
+selectable for a new assignment.
+
+The UI-owning API composes HTTP calls to owners when necessary; People bundles its own
+placement/catalogue reads and Identity retains person ownership. No direct browser business
+DB path, imported service runtime or cross-owner query is added. A composed response is
+not a distributed snapshot or reusable authorization grant. Save rechecks current actor,
+employment revision and selected reference scope/status; changed options cannot bypass
+validation. Declare a bounded catalogue response without silent truncation. Search/paged
+option loading is an explicit later need if actual catalogue size requires it, not a
+premature feature in this small form.
+
+Use a simple active/archived representation for these reference records with retained
+server attribution/change history; no archive engine or automatic employee clearing.
+This preference does not remove accepted historical/structural/audit protection or force
+all domain lifecycles into one boolean. Candidate 2.15 incorporates the recommendation;
+the remaining scope is still under discussion and no code/runtime evidence is produced.
+
+
+Placement form clarification approved — 2026-10-11: one successful initial form-load API
+response includes employee/current department-location labels and options. Loading, success
+or whole-form failure/Retry are ordinary request states; no extra retry after success or
+independent location lookup workflow. Changes take effect on Save with server-recorded
+history. Simple active/archived reference state remains; no user placement date picker.
+
+### Story 2.16: Assign or clear an employee's supervisor
+
+**Scope accepted with attribution/eligibility clarifications, 2026-10-12; not implementation-ready.** Owner: shared People
+supervisor relationship administration, with Leave-owned eligibility guidance. Consumes
+completed employee/period/optional-reference and shared role/access views from E1/earlier
+E2. Focus is one employee's current supervisor; selected bulk replacement is the following
+bounded item, not a dependency. No organization-chart/import/approval-queue UI dependency.
+
+As an administrator authorized to maintain supervisor relationships,
+I want to set or clear an employee's supervisor,
+So that reporting relationships are recorded once and applications can resolve their
+own approval routes from that shared relationship.
+
+**Acceptance Criteria:**
+
+**Given** the exact employee and current shared employment-management authority,
+**When** I open Employment & approval's supervisor edit,
+**Then** the form supplies current supervisor identity/label, Unassigned and permitted
+organization-scoped employee choices with the required revision/context,
+**And** loading/error follows the approved form-level behavior rather than empty-choice
+fallback. Candidate data is minimal and authorized; define bounded list/search behavior
+against actual organization size without silently truncating or exposing other organizations.
+
+**Given** a selected supervisor or explicit Unassigned,
+**When** I Save the single employee's current relationship,
+**Then** People validates exact same-organization employment identities and rejects a
+self-reference, then changes the assignment with stable references, server effective
+UTC time/actor, required history, revision and compact operation outcome,
+**And** prior relationship evidence remains. No user date picker or future schedule is
+required for this single-current-edit increment; the approved planned bulk replacement
+workflow defines its effective date separately. No inferred recursive manager hierarchy.
+
+**Given** no supervisor or an accountless/ineligible supervisor relationship,
+**When** shared employment is saved/read,
+**Then** Unassigned remains a valid optional fact and shared employment is not invalidated
+merely because a consuming application's approval needs are unmet,
+**And** Leave separately shows whether its configured supervisor route can resolve an
+eligible approver. A shared relationship alone grants no login/app role or approval power.
+Define departed/archived employee-reference retention and new selection rules before readiness.
+
+**Given** a valid configured Employee's supervisor approval route,
+**When** Leave later resolves a new submission,
+**Then** it checks current membership/capability/self-approval eligibility and snapshots the
+resolved supervisor under its own policy,
+**And** a relationship change affects new route resolution without silently moving pending
+steps or changing completed approvals. This story proves the shared/eligibility contract
+with delivered fixtures; E5 owns real request submission/reroute integration.
+
+**Given** the selected relationship needs Leave approval access/setup repair,
+**When** the permitted administrator inspects the guidance,
+**Then** it identifies the actual eligibility issue and links to the same completed role
+assignment drawer or relevant setup surface when that actor has authority,
+**And** role granting remains separately reviewed. Missing supervisor eligibility blocks
+only the applicable consequential route; useful draft input follows the already approved
+lightweight-preservation rules. Provider/Access outage is not confirmed missing permission.
+
+**Given** other apps consume the supervisor relationship,
+**When** People persists it,
+**Then** it stores shared organization employment facts and history without Leave permission
+names or workflow states,
+**And** apps retain independent authorization/routing. Existing work profile, department/
+location, entitlement and membership are not silently changed by the supervisor write.
+
+**Given** stale review/reference, wrong-org or self target, denied authority, Cancel,
+response loss or required dependency failure,
+**When** Save resolves,
+**Then** typed field/state errors and the existing explicit-save/current-revision contract
+preserve useful input and refuse unsafe changes,
+**And** matching retry/outcome resolution cannot duplicate history or revive a superseded
+assignment. Required local audit/outcome failure aborts the local mutation; independent
+HTTP verification stays outside business write locks.
+
+**Given** initially failing acceptance and real People/current-access/restricted-role fixtures,
+**When** delivery records evidence,
+**Then** same-org/self guards, null/accountless references, history, concurrent updates,
+selected eligibility guidance and safe retry/error cases pass,
+**And** pending/completed workflow snapshots stay unchanged in contract fixtures. No actual
+approval feature or cross-service atomicity is claimed from mocked responses.
+
+**Traceability:** Features §2 manual supervisor/shared employment and §10 supervisor routing;
+tracker Phase 2 shared optional assignment, Phase 7 workflow consumer; spine AD-1/2/3/5/8/12;
+platform ADR-0012/0013/0019/0020/0022/0023/0025/0031/0035/0040/0041/0042/0049/0051;
+Leave ADR-0076/0079/0082 and Employment & approval/settings UX. Supervisor replacement,
+temporary cover, deliberate pending reroute and organization chart/import remain their
+separate accepted/deferred scopes; no automatic role assignment is introduced.
+
+**Impacts/readiness:** Specify nullable employment-to-employment key/history, current
+assignment revision/operation, archived/ended reference rules and People write authority.
+Define scoped candidate/name projection and selected Leave eligibility observation without
+turning the ordinary `/v2/check` into an arbitrary-account lookup. Declare consumer freshness/
+change-impact contracts before activating this writer against consequential workflows.
+Promote proven optional-person selector, focused drawer/mobile form, Save/error/guidance
+controls and HTTP clients through shared UI/scaffold; keep Leave's route rules in Leave.
+Update owner docs/runbooks, source-to-test commands and generated usage guidance where
+needed. Exact provider/constraint/API/sizing contracts remain gates; accepted ADRs unchanged.
+No supervisor, app roles, employee, code, schema or deployment changed by planning.
+
+
+Supervisor attribution/eligibility clarification — 2026-10-12: Story 2.16 remains under
+discussion. Use ADR-0025's server-managed current-row updated_by/updated_at summary plus
+one compact People-owned immutable employment-change record for each supervisor change.
+Record organization/employment, old/new supervisor references, verified actor/time and
+operation identity atomically with the change. The existing employment_change pattern
+is the domain audit/history; do not add duplicate activity and audit tables or full-row
+payload snapshots. Last-change fields alone cannot preserve successive supervisor changes.
+Exact assignment/event schema remains a readiness contract, not implementation.
+
+Recommendation: shared supervisor selection validates organization/employee reference and
+self-reference, independent of Leave role eligibility. A real organizational supervisor
+may lack Leave approval access or be accountless; People must not encode Leave permission
+names. In Leave, assess the selected supervisor's approval eligibility and show guidance/
+access-management shortcut without silently granting a role or hiding the true reporting
+relationship. A Leave-specific direct approver picker (as distinct from shared supervisor)
+offers only currently eligible approvers under existing features §10. Submission rechecks
+current eligibility even if a form previously showed it as eligible.
+
+Replace ambiguous newly resolved wording in user explanation with: when a new leave
+request is submitted, its supervisor-based step is resolved and recorded. Example: Ana
+submits request A while Pat is supervisor; the administrator later changes supervisor to
+Sam. Request A stays assigned to Pat unless explicitly rerouted; a later submission B
+resolves Sam if eligible. A draft begun before the change but submitted afterward likewise
+uses the current valid route at submission. Completed decisions remain unchanged.
+No new activity service, role grant, request transfer or readiness completion introduced.
+
+
+## Change-history shape clarification — proposed 2026-10-12
+
+**Direction approved by the user, 2026-10-12; scaffold realization and owner schema remain pending.**
+
+User asks whether compact supervisor history belongs in a separate table and whether
+`table, record_id, prev_val, new_val, actor, timestamp` should be generic. Recommendation
+reuses the existing People-owned employment_change as one history table for meaningful
+employment changes (periods, supervisor, department/location), not one table per field.
+Common envelope includes scope/target, verified actor/initiator where applicable, UTC
+time, operation/revision and event type/version; specific event variants declare bounded
+before/after fields. A single confirmed command changing multiple relevant fields creates
+one coherent event rather than independent unaffiliated per-field rows.
+
+Share proven writer/types/scaffold/formatting conventions as build-time mechanisms while
+each owner keeps its own persistence and atomic mutation/history transaction. Preserve
+People's typed employment reference and constrained event payloads; arbitrary text table
+names/record IDs and unrestricted old/new blobs weaken reference integrity, meaning and
+sensitive-field control. No universal synchronous audit service, automatic whole-row
+capture or duplicate generic audit beside employment_change. A broader owner-local
+multi-entity event table can be assessed when real consumers need it; this is not a
+mandatory separate history table for every entity type.
+
+Performance is not the primary selection rationale here. Scope/target/time indexes and
+bounded records support the actual history queries; no measured claim that domain-specific
+storage is faster than a generic table has been made. Exact physical columns versus typed
+JSON, payload/version validation, immutable role privileges and indexes remain the owning
+readiness contract. Existing last-change attribution is retained on current records;
+immutable history provides prior changes. Direction remains for discussion; no new ADR
+or database implementation.
+
+
+Common history scaffold pattern approved — 2026-10-12: user explicitly approves generic
+mechanics with controlled domain events and owner-local persistence. The builder now
+records common envelope/writer/typed event and test/display conventions. First consumers
+promote proof and artifacts in the same delivery item; People shares employment-change
+history across its relevant changes, not duplicate activity/audit tables. This implements
+accepted ADR-0025/ownership/transaction rules without changing accepted decisions. Actor/
+scoped reference/payload/retention/index contracts and implementation readiness remain
+open. Story 2.16's broader supervisor scope remains in collaborative discussion; no
+code, generator, event/history table or runtime service was implemented.
+
+
+## Structured scaffold-input discussion — proposed 2026-10-12
+
+User approves common history scaffolding and asks whether JSON describing app capabilities,
+entities/views/history/saving should guide requirements and enforce reuse. Recommend a
+[thin application scaffold configuration](../../platform/builder-cli/README.md#thin-application-scaffold-configuration--proposal-2026-10-12)
+with versioned schema, approved pattern/owner/scope choices and source/test references.
+Requirements/ADRs/UX remain product authority and BMAD remains sole workflow. The config
+is derived engineering input maintained with stories, not another feature specification,
+user-grant store, field/table schema copy or universal runtime app engine.
+
+Separate saving semantics (draft/explicit form/preference) from inline/drawer/page layout;
+use owner/action-specific history decisions, proven pattern versions and explicit supported
+extension mechanisms. Generator/schema checks and actual acceptance/contract/scaffold tests
+provide enforcement; AI can propose/configure them but a declared pattern does not prove
+it is used correctly. Start with P1's actual inputs and WRITE/REF proof; later consumers
+add patterns incrementally. No new story/gate/ADR or implementation is accepted from this
+question yet. Existing pre-story and readiness requirements remain binding; 2.16 remains
+under discussion while this scaffold direction is considered.
+
+
+Scaffold-input direction approved — 2026-10-12: [platform ADR-0059](../../platform/docs/architecture/decisions/0059-schema-validated-scaffold-configuration.md)
+records the thin versioned JSON/pattern selection approach. Specs/ADRs/UX and BMAD remain
+sources/workflow; first consumers prove schema/generator/shared usage. Builder/agent
+context updated. Returning to E2 supervisor stories with compact owner history, independent
+People facts/Leave eligibility and new-submission snapshot terminology clarified.
+
+### Story 2.17: Replace a supervisor for selected employees
+
+**Scope approved by the user, 2026-10-12; not implementation-ready.** Owner: shared People
+supervisor administration, with Leave-owned route/eligibility guidance. Depends on 2.16
+single assignment, earlier employee/role/admin projection and established history/retry
+foundations. Builds the approved 2026-10-11 focused convenience; no general mass editor.
+
+As an administrator authorized to maintain supervisor relationships,
+I want to replace a supervisor for all or selected reporting employees in one reviewed action,
+So that staffing changes can be configured without opening each employee individually.
+
+**Acceptance Criteria:**
+
+**Given** a permitted current supervisor/organization and relationship-management authority,
+**When** I open Replace supervisor,
+**Then** I see the authorized affected employee set and can select all or some,
+**And** selection binds exact employment IDs, not a later re-evaluation of a name/filter.
+Only selected employees change; an employee joining that reporting list after review is
+not silently added. Use the shared bounded employee-list/selection conventions.
+
+**Given** selected employees and a replacement in the same organization,
+**When** I choose the effective date and review,
+**Then** I see the current/replacement supervisor, exact employees/count and effective date,
+**And** the default is an immediate/current change, with planned dates following the
+explicit approved replacement scope. Reject self/cross-org references and conflicting
+reviewed relationship state. Exact date/instant/consumer interpretation is a pre-story
+contract; do not invent a worker or silently apply planned relationships early.
+
+**Given** current authority and reviewed per-employee state,
+**When** I confirm,
+**Then** People records only the selected dated relationships with guarded revisions,
+server attribution and compact history/operation evidence using the approved pattern,
+**And** matching retries do not duplicate employee changes. Command/batch identity and
+per-item outcome/readiness contracts determine bounded execution, not one unbounded
+cross-service transaction or arbitrary table bulk updates.
+
+**Given** a stale employee assignment, denied item, interruption or partial execution,
+**When** the action reports/resolves its result,
+**Then** it states which selected employees were changed, unchanged or still failed/unresolved
+according to the declared commit model,
+**And** uncertain changes resolve their original item identities before retry. Do not claim
+all employees moved from a batch-start response or automatically overwrite an employee's
+newer relationship. Required local history/outcome failure aborts that local mutation.
+
+**Given** the replacement needs Leave approval access,
+**When** applicable eligibility guidance is shown,
+**Then** selected shared reporting changes grant no role automatically and authorized
+administrators can use the existing access drawer for explicit role repair,
+**And** actual new Leave submissions resolve the supervisor applicable under the current
+policy and recheck eligibility. Existing pending approvals/completed decisions keep their
+snapshots. Shared People stores employment relationships without Leave permission rules.
+
+**Given** outstanding approvals exist when E5 reassignment is available,
+**When** an administrator wants to transfer them,
+**Then** a separate authorized review selects the outstanding steps and records the reason,
+**And** the People replacement operation cannot silently transfer request assignments.
+E5 owns the actual protected transfer/notification integration; 2.17 uses contract fixtures
+and remains independently completable without that later UI.
+
+**Given** invalid input, Cancel, missing authority or required dependency outage,
+**When** review/confirmation resolves,
+**Then** the shared explicit-save/review/error conventions preserve useful local input and
+report unavailable versus denial accurately,
+**And** loading data is not mutation authority. Provider/consumer waits occur outside
+business write locks; server audit fields cannot be overwritten by the browser.
+
+**Given** initially failing acceptance and actual scoped People/restricted-role fixtures,
+**When** implementation is verified,
+**Then** selected-only/all selection, effective timing, self/cross-org guards, stale employee
+state, retry/partial recovery and compact immutable history have evidence,
+**And** old request assignments/profile/permissions are proven unchanged by the relationship
+write. No performance guarantee or completed provider/workflow integration is assumed.
+
+**Traceability:** Features §2 approved Replace supervisor and §10 snapshot/selected reroute;
+tracker shared employment/structure; spine AD-1/2/3/5/8/12; platform ADR-0012/0013/0019/
+0020/0022/0023/0025/0031/0035/0040/0041/0051/0059; Leave ADR-0076/0079/0082; shared
+focused supervisor replacement UX. No recursive chart, Graph import or general spreadsheet
+mass editor. Employment ending/membership removal/temporary cover retain separate actions.
+
+**Impacts/readiness:** Define bounded selection/preview and per-item expected revisions,
+future-date/current-history/reference rules, scalar relationship authority and batch/item
+operation/commit/partial-outcome contracts before readiness. Validate consumer freshness/
+impact handshakes before activating against consequential workflows. Reuse existing People
+single-relationship domain logic, typed HTTP clients and common history; promote proven
+selection/review/result controls only where generic. Update scaffold configuration source/
+pattern choices when its schema exists, with tests rather than unverified declarations.
+Owner docs/agent context/requirement evidence change together; accepted ADRs stay intact.
+Exact safe batch size/transaction budget and first-consumer sizing remain open; split
+concrete prerequisites before this consumer if needed. No supervisor, roles, accounts,
+code, schema or deployment changed through planning.
+
+
+Work-arrangement ordering — 2026-10-12: proceed to E2 Leave-owned configuration. Place
+holiday-calendar setup before work-profile creation because a profile references its
+calendar; then profile assignment/defaults and protected profile edits/lifecycle. This
+is story decomposition inside approved E2, not a new epic or a completed readiness gate.
+Shared People location remains distinct from Leave calendar/profile settings.
+
+### Story 2.18: Configure an organization holiday calendar
+
+**Scope approved by the user, 2026-10-12; not implementation-ready.** Owner: Leave calendar
+configuration API/UI/persistence. Depends on E1 generated/current-access/configuration
+foundations and established E2 administration. Calendar creation/entry tests need no later
+profile editor or entitlement/submission UI; working-time semantics are explicit contract
+inputs, with later consumers providing their own real calculations.
+
+As a Leave administrator authorized to manage calendars,
+I want to maintain named holiday calendars and their non-working dates,
+So that employees with different working arrangements can use the right calendar.
+
+**Acceptance Criteria:**
+
+**Given** current calendar read/manage authority in the organization,
+**When** I open Holiday calendars,
+**Then** I see permitted named calendars with the year being viewed and dated entries,
+**And** read-only access exposes no mutation controls. A legitimate empty calendar/year is
+not an outage or assumed missing statutory setup; application errors remain retryable.
+Stable calendar identity must not require replacing profile references each year.
+
+**Given** a reviewed named calendar,
+**When** I Create/Save it,
+**Then** Leave creates only its organization-owned calendar and version/attribution evidence,
+**And** no employees/work profiles are assigned automatically. Calendars may be empty;
+no country/location lookup silently adds statutory holidays. References to optional People
+location/jurisdiction metadata use authorized contracts, never another owner's tables.
+
+**Given** a calendar and current management authority,
+**When** I add/edit a named actual holiday or organization closure date,
+**Then** I can represent full-day or partial-day non-working time under the declared
+calendar-entry contract, including explicitly entered observed dates,
+**And** date/bounds/duplicate-overlap rules are validated by API and owner constraints.
+Partial-day representation, timezone interpretation, overlapping holidays and zero-work
+cases must be specified before readiness, not guessed from a global eight-hour day.
+
+**Given** existing calendar versions or requests refer to an entry,
+**When** an entry changes or is removed through reviewed confirmation,
+**Then** versioned calculation-relevant calendar meaning and required audit/actor/reason
+are retained under the declared historical contract,
+**And** recorded request dates/durations/decisions are not silently recalculated, trimmed
+or cancelled. Review applicable affected consumers before activation, with changed impact
+requiring fresh review. No historical rules reconstructed solely from an audit log.
+
+**Given** a profile/work schedule later uses this calendar,
+**When** Leave calculates a date's working time,
+**Then** its actual effective schedule, calendar version and employee work timezone govern
+full/partial non-working effects,
+**And** the calendar edit cannot silently change the employee's schedule, timezone, profile
+assignment or override. The later profile/calculation consumer owns end-to-end minutes/
+half-day/request tests; this item proves stored calendar/version contract fixtures.
+
+**Given** a proposed change and a stale revision, wrong-org target, missing authority,
+Cancel, outage or response loss,
+**When** it is saved/confirmed,
+**Then** shared explicit saving and review where impact requires it preserve useful input,
+with scoped guarded revisions and original-operation recovery,
+**And** required local evidence failure aborts its mutation. No typing-time committed
+calendar changes, sensitive payload dumps or positive authorization fallback.
+
+**Given** initially failing acceptance and actual restricted Leave persistence/API fixtures,
+**When** the item is delivered,
+**Then** named/year views, empty calendars, full/partial entry contract, date/overlap guards,
+version/history retention, current authority and duplicate-safe recovery have evidence,
+**And** cross-org/calendar edit requests cannot affect another organization's data. Do not
+claim legal compliance or live provider/holiday correctness from illustrative fixtures.
+
+**Traceability:** Features §3 jurisdiction/holiday calendars, §7 schedule snapshots and
+configuration principles; tracker Phase 5 calendars/schedules; spine AD-1/2/3/5/6/12;
+platform ADR-0012/0013/0014/0019/0020/0022/0023/0025/0031/0035/0041/0051/0059;
+Leave ADR-0003/0023/0086/0112/0113; Leave Holiday calendars/work-profile UX. Actual work
+profile assignment, entitlement/request calculation and organization reports remain their
+following story/epic owners; no holiday-provider import or statutory rule engine.
+
+**Impacts/readiness:** Define exact calendar/entry schemas, year/date range, partial-day
+units/local-time rules, overlap/observed-date treatment, stable identity/version/retirement
+and required impact/freshness/confirmation contracts. Actual later consequential consumers
+must integrate/prove these writer guards before activation against their records, without
+making this item depend on their future UI. Reuse proven list/year/date/explicit-save/
+review/status controls; leave calendar domain logic in Leave. Scaffold configuration records
+approved choices when its schema exists; promote only domain-neutral mechanisms with tests.
+Update owner docs/runbooks, generated API types/source-to-test evidence and usage guidance;
+accepted ADRs remain immutable. Bound transaction/dependency waits and versioned migration/
+recovery. Exact contract and single-agent sizing remain gates; no calendar/employee, code,
+DDL or deployment changed by planning.
+
+
+### Story 2.19: Create a reusable Leave work profile
+
+**Scope approved with net-hours default/advanced timetable clarification, 2026-10-12; not implementation-ready.** Owner: Leave schedule/
+profile configuration API/UI/persistence. Consumes completed 2.18 holiday calendars and
+E1 typed/current access/owned config foundations; no later profile-assignment/default/
+archive screen or entitlement/submission UI dependency. Only the initial profile/version
+is created; modifying an already consumed version is following protected work.
+
+As a Leave administrator authorized to manage schedules,
+I want to create a named reusable work profile,
+So that employees can share a clearly defined working arrangement without copying its
+settings into every employee record.
+
+**Acceptance Criteria:**
+
+**Given** current permitted profile read/manage scope in the organization,
+**When** I open Work profiles/Create profile,
+**Then** I see the profile name, working days and net daily working hours, with detailed
+working-time/break timetables available in Advanced settings,
+work timezone, permitted holiday calendar and explicit standard-day conversion duration,
+**And** the form uses the approved focused configuration/page/drawer conventions. Loaded
+choices and existing form state use declared bounded form APIs; failure is not an empty
+calendar selection or a silent country/schedule default.
+
+**Given** a named profile with valid required values and its initial version boundary,
+**When** I explicitly Save/confirm the new profile,
+**Then** Leave persists its stable organization-owned identity and initial effective
+calculation version, server attribution and required change/outcome evidence,
+**And** no employees are assigned and the organization default does not change. Current
+field/name/timezone/calendar/working-time validity is enforced at API/database boundaries;
+matching retries create only one profile/version. Profile ownership stays in Leave.
+
+**Given** working days with different scheduled lengths,
+**When** the profile is stored/read under its declared schedule contract,
+**Then** actual per-date working time is represented canonically in minutes and breaks
+are treated explicitly, with a separately configured standard-day duration for entitlement
+conversions,
+**And** standard-day duration is not silently substituted for Friday hours or a particular
+leave absence. No universal Monday–Friday/eight-hour/country arrangement is assumed.
+Complete rounding/odd-minute/partial-holiday/local-time rules before readiness.
+
+**Given** an explicit work timezone and completed same-organization holiday calendar,
+**When** the profile's calculation contract is evaluated,
+**Then** local leave-day boundaries and actual calendar/non-working time use those effective
+settings, independent of where an employee/approver is viewing the app,
+**And** another organization's calendar is rejected. An empty configured calendar is allowed;
+no external statutory-holiday import is required. Calendar-year/date/partial-time fixtures
+complement later real duration/entitlement consumer tests.
+
+**Given** the profile was created but not assigned,
+**When** its list/detail are opened,
+**Then** it is available to authorized later assignment/default actions with zero assigned
+employees and its working-week summary,
+**And** People department/location/supervisor or membership changes cannot assign it
+implicitly. Initial location/team suggestions do not establish an employee profile merge
+or automatic precedence; explicit assignment follows separately.
+
+**Given** a consumer later needs the initial schedule/calendar/version meaning,
+**When** it loads this profile,
+**Then** stable identity and immutable calculation version references are available under
+the declared effective-date contract,
+**And** mutable display metadata is distinguished from versioned calculation settings and
+consequential audit. Do not reconstruct old working-time rules from a generic change log.
+Initial effective version/name/date handling must be concrete before readiness.
+
+**Given** invalid time/units/calendar reference, wrong organization, missing authority,
+Cancel, response loss or dependency outage,
+**When** Create/Save resolves,
+**Then** explicit whole-form saving and safe field/current-state errors preserve useful
+uncommitted input, with no hidden field autosave or administrative server draft,
+**And** original scoped outcome recovery prevents duplicate profiles/version evidence.
+Required local audit/outcome failure aborts creation; unrelated owner calls remain outside
+business write locks. Creating unused profiles does not need a fictitious holder-impact report.
+
+**Given** initially failing acceptance and actual restricted Leave/Access/calendar fixtures,
+**When** this item is implemented,
+**Then** creation/version identity, required fields, variable-day/minute/timezone/calendar
+contracts, cross-org/API denial and retry/rollback behavior have evidence,
+**And** earlier E1 work-timezone/draft input preservation stays compatible. No profile
+creation test is claimed as full entitlement/request calculation or regulatory compliance.
+
+**Traceability:** Features §3 working arrangements/profile identity and §7 duration inputs;
+tracker Phase 5 effective schedules/profiles; spine AD-1/2/3/5/6/12; platform ADR-0012/0013/
+0014/0019/0020/0022/0023/0025/0031/0035/0041/0051/0059; Leave ADR-0003/0023/0040/0041/
+0086/0112/0113; approved Work profiles and employee schedule defaults UX. Assignment,
+organization-default changes, employee overrides, protected consumed-profile edits and
+archive lifecycle are following bounded stories, not prerequisites for initial creation.
+
+**Impacts/readiness:** Specify schedule shape and minute/break/day-length/rounding bounds,
+valid timezone/holiday references, standard-day conversion, initial effective boundary and
+immutable version identity/keys/read contract, current authority and actor/history/outcome
+schemas before readiness. Resolve E1 minimum timezone-setting adoption so later profile
+assignment preserves explicit employee overrides and saved input; no whole-silo reset.
+Preserve controlled owned migrations and compatible previous-version release behavior.
+Promote proven working-week/date/timezone/input/review/status controls and typed clients
+only where domain-neutral; Leave owns schedule interpretation, not a generic HR engine.
+Record scaffold configuration/reference examples when supported patterns are proven, with
+source/test evidence rather than config claims. Update owner docs/runbooks/generated
+usage guidance and actual verification commands; accepted ADRs stay immutable. Exact
+contract and single-agent sizing remain gated; no profile/employee, code, schema or deployment.
+
+
+Work-profile input/wording agreement — 2026-10-12: user approves net daily hours as the
+default and detailed working/break timetables as Advanced settings. Features/Leave UX
+updated. Say schedule versions: retained effective settings used by calculations, not
+versions of computed results. Audit/change history records who/what/when; calculation
+versions and submitted snapshots remain independently meaningful. Complete net-only vs
+clock-based partial-holiday/DST representation and avoid double-counted breaks before
+readiness; no new universal hour defaults or timetable implementation.
+
+### Story 2.20: Assign or change an employee's Leave work profile
+
+**Candidate for discussion — 2026-10-12; not implementation-ready.** Owner: Leave employee
+work-settings API/UI/persistence. Consumes completed E1 profile/default/timezone settings,
+shared People employment, 2.18 calendars and 2.19 profiles; no later override editor,
+default-change UI or request/entitlement UI dependency. E1/controlled fixtures prove
+existing overrides/fallback without depending on those later editors.
+
+As an authorized Leave administrator,
+I want to assign an employee's work profile and review what will change,
+So that their working arrangement is correct while explicit overrides and previous
+calculations remain protected.
+
+**Acceptance Criteria:**
+
+**Given** exact permitted employee/organization work-settings context,
+**When** I open Work schedule,
+**Then** I see the current explicit profile or organization-default source, effective
+schedule values and clearly marked existing employee overrides,
+**And** the form uses declared bounded complete load responses for current labels/choices
+and record revision. Profile choices are organization-scoped; a load failure is not an
+empty selection/default or permission to silently erase a configured reference.
+
+**Given** a valid active profile and intended effective date/reason,
+**When** I review an assignment or switch,
+**Then** I see the old/new profile, date and changed inherited values, with retained
+overrides listed separately and applicable affected requests/consumers identified,
+**And** future versions/assignment dates use the declared employee-local interpretation.
+Profile assignment affects calculations, so date/reason/impact review is deliberate
+rather than the simplified immediate-only department/location edit.
+
+**Given** current reviewed references/settings and authority,
+**When** I confirm,
+**Then** Leave records one applicable explicit profile assignment for the employee/date,
+with guarded revision, stable history, server attribution and required audit/outcome,
+**And** existing explicit overrides are not silently cleared. Net-hours/advanced schedule
+shape and incompatible override handling must be concrete before readiness; conflicting
+or invalid input needs explicit resolution under the approved review contract.
+
+**Given** the employee uses the organization default or I choose Use organization default,
+**When** the effective settings are resolved under a permitted saved configuration,
+**Then** no arbitrary location/team merge or first-profile fallback is inferred,
+**And** explicit employee overrides remain. A missing/invalid default is honest setup
+state, not an automatic assignment. Existing saved drafts keep the accepted lightweight
+preservation rules; missing calculation setup is not a false loss of permission.
+
+**Given** the explicit profile is missing, cross-org or archived,
+**When** new assignment/current effective settings are validated,
+**Then** the owner refuses invalid new use and identifies the exact setup/reference issue,
+**And** it cannot silently substitute another profile or erase the existing choice.
+Historical assignment/version references remain readable under appropriate access.
+
+**Given** a shared department/location or supervisor changes,
+**When** Leave work settings are read,
+**Then** explicit profile/override values remain unless changed through this action,
+**And** any initial suggestion is clearly a suggestion, not an automatic profile swap.
+People is consumed through current authorized HTTP references; no copied shared facts.
+
+**Given** prior submitted requests and consequential consumers exist,
+**When** assignment changes become applicable,
+**Then** prior schedule/calendar/timezone/version references and calculated results are
+retained and any needed attention follows the existing correction/acknowledgement rules,
+**And** no silent request-date rewrite, recalculation, cancellation or unpaid conversion.
+Required impact/freshness contracts gate this writer; E3/E5/E6 add real consumer evidence
+when delivered without making this E2 item depend on their future UI.
+
+**Given** stale review, invalid date/reference, missing authority, Cancel, outage or response loss,
+**When** Save/Review/Confirm resolves,
+**Then** useful local input is retained, changed reviewed state needs renewed review, and
+same-operation recovery prevents duplicate assignments/audit or a hidden new command,
+**And** required local audit/outcome failure aborts the local mutation. External owner/
+impact calls remain outside short coordination/write locks. No field autosave or admin draft.
+
+**Given** initially failing acceptance and actual Leave/Access/People fixtures,
+**When** delivery records evidence,
+**Then** explicit assignment/fallback, retained overrides, effective timing, cross-org/
+archive references, stale retry and protected prior versions have evidence,
+**And** existing E1 timezone/draft behavior remains compatible. Synthetic override fixtures
+prove preservation without a later override-edit UI, and actual request/calculation tests
+remain with their consuming stories.
+
+**Traceability:** Features §3 profile assignment/default/override and schedule review;
+tracker Phase 5 employee work settings; spine AD-1/2/3/5/6/8/12; platform ADR-0012/0013/
+0019/0020/0022/0023/0025/0031/0035/0040/0041/0049/0051/0059; Leave ADR-0003/0023/0041/
+0086/0112/0113 and Work profiles/employee schedule-default UX. Changing the organization
+default, editing employee override fields and consumed-profile versions are following
+bounded work; no new membership/permission or policy/entitlement configuration here.
+
+**Impacts/readiness:** Reconcile E1 minimum profile/timezone records with full schedule/
+calendar fields; define stable assignment/effective version scope, exact date/timezone/
+DST/net-vs-advanced semantics, override whitelist/validation, current revision/reason/impact
+and compatible owner migration contracts. Protected consequential freshness/affected-work
+coordination remains binding. Reuse proven reference/time/date/review/conflict/source-label
+controls and typed owner HTTP clients; Leave owns effective inheritance. Count reference
+configuration demo/scaffold history/input promotion where proven without importing app
+servers or claiming a generic HR engine. Update docs/runbooks/source-to-test commands and
+agent usage guidance where needed. Contract/sizing/readiness remain pending; no employee
+profile/settings, code, schema or deployment changed through planning.

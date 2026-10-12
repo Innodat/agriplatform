@@ -140,3 +140,15 @@ fixtures must be promoted where generic. Shared UI: no new component. Agent cont
 existing owner/ATDD/no-startup-migration instructions suffice. Documentation: this
 inventory, shared contract and Leave tracker. Existing ADRs govern; no new architectural
 policy or production execution is authorized by the proposed paths.
+
+
+## Actor registry adoption constraint — 2026-10-07
+
+[ADR-0056](../decisions/0056-durable-actor-registry-separate-from-login-accounts.md)
+selects the separate Identity actor registry. Preserve verified human/System/Migrate
+UUIDs and historical attribution; account profiles retain Auth identity semantics.
+Inventory dependent attribution FKs and deletion actions, JWT-based audit triggers,
+synthetic Auth seeds and service:pts-import text writers before migration. Existing
+System/Migrate Auth rows are not automatically deleted. ID-A preserves the baseline;
+ID-B owns new registry/mapping/bootstrap and affected consumer handover. No live schema
+or account state is inferred from these repository definitions.

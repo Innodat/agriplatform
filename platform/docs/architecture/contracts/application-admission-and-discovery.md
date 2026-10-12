@@ -1,5 +1,18 @@
 # Application admission and discovery contract proposal
 
+> **Capability-scope refinement — 2026-10-06:** [ADR-0053](../decisions/0053-capability-scoped-access-in-mixed-scope-applications.md)
+> makes account/organization scope a property of each capability. Current PtS
+> capabilities are account-scoped; future organization features do not change them.
+> Earlier exclusive application scope fields require the refinement below/in the
+> owning admission contract before readiness. No implicit cross-scope authority.
+
+> **Governing update — 2026-10-06:** [ADR-0052](../decisions/0052-pts-account-scoped-access-and-coordinated-adoption.md)
+> makes PtS account-scoped now, with individual grants and no organization/membership
+> requirement. Earlier organization-only E1/PtS and mandatory v1-preservation passages
+> below are superseded for PtS. Leave organization contracts remain binding. Account
+> grant/check/discovery/operator schemas and PtS corpus/Content transition are required
+> pre-story inputs, not implemented by this notice.
+
 **Status:** Admission/suspension/discovery behavior approved 2026-10-02; wire design pending validation
 **Date:** 2026-10-02
 **Authority:** [ADR-0047](../decisions/0047-public-access-and-launcher-visibility.md) refines launcher visibility; [ADR-0046](../decisions/0046-application-availability-and-access-scopes.md),
@@ -127,11 +140,11 @@ public registration, runtime configuration, migrations or application code added
 Select internal `GET /v2/applications` on Access. Require the end-user bearer and
 a separate Directory service credential restricted to discovery; no arbitrary user
 parameter, selected organization requirement or browser access to the private endpoint.
-For E1 it returns HTTP 200 `{applications: [{app_id, scope_kind}], checked_at}`.
-Application IDs are registered strings, `scope_kind` is `organization` or `account`,
-and `checked_at` is a UTC RFC 3339 timestamp. Return unique entries ordered by app ID.
-E1 protected apps use organization scope; account-scope evaluation is introduced only
-with an actual protected account capability. Public Scribeswell does not require a
+The current result is `{applications: [{app_id, eligible_scope_kinds}], checked_at}`
+as defined in the canonical discovery refinement below. Return unique apps ordered by
+app ID; checked_at is a UTC RFC3339 timestamp. The earlier scalar scope_kind is replaced.
+E1 includes organization-scoped Leave and account-scoped PtS; PtS is the first
+protected account-capability consumer under ADR-0052. Public Scribeswell does not require a
 synthetic Access grant or a call to this endpoint for anonymous discovery.
 
 For organization-scoped admission, Access uses current global/org enablement,
@@ -189,8 +202,8 @@ metadata, not a second admission authority.
 
 | Table | Key and required domain columns | Meaning / constraints |
 | --- | --- | --- |
-| `access.applications` (new) | `app_id text` PK, `scope_kind text`, `enabled boolean`, `revision bigint` | Stable registered ID, independent of display name/URL. E1 supports `organization` protected admission; reject unsupported account-scope configuration rather than half-implementing it. Global enablement defaults false. |
-| `access.permissions` (new) | `permission text` PK, `app_id text` FK to applications | Explicit immutable capability-to-app mapping. Preserve existing PtS identifiers; register exact Leave own-read/manage capabilities. No prefix matching, wildcard expansion or inferred manage-to-read implication. Do not reassign a used capability to another app. |
+| `access.applications` (new) | `app_id text` PK, `enabled boolean`, `revision bigint` | Stable registered ID, independent of display name/URL. Scope belongs to registered capabilities under ADR-0053; an app may contain both variants. Validate scope-specific contracts before activation. Global enablement defaults false. |
+| `access.permissions` (new) | `permission text` PK, `app_id text` FK to applications, required `scope_kind` (`account` or `organization`) | Explicit immutable capability-to-app mapping. Preserve existing PtS identifiers; register exact Leave own-read/manage capabilities. No prefix matching, wildcard expansion or inferred manage-to-read implication. Do not reassign a used capability to another app. |
 | `access.organization_applications` (new) | PK `(org_id uuid, app_id text)`, app FK, `enabled boolean`, `revision bigint` | Organization enablement defaults false. Organization ID is an owner-verified external reference, not a new cross-owner FK. Retain the row when disabled; no synthetic public organization. |
 | `access.grants` (existing, extended) | Preserve `(org_id,id)` PK, text `id`, UUID `user_id`, text `permission` and unique `(org_id,user_id,permission)`; add `membership_id bigint`, `revoked_at timestamptz` nullable, `revision bigint` | Existing `user_id` continues to mean Auth account, never person/employment. FK permission to registry. Effective grants require an exact current membership binding and `revoked_at IS NULL`. One row per account/org/capability; deliberate regrant updates it with revision/audit rather than inventing duplicate active grants. |
 
@@ -336,7 +349,8 @@ to the same person. No selected organization is required at this stage.
 Missing, empty or malformed account context is rejected by the discovery routine; it
 is never interpreted as “all accounts.” Set context for every transaction and reject
 connection/session defaults. Clear by commit/rollback and prove pool reuse. A valid
-account with no active memberships returns an empty list. A missing/deactivated account
+account with no active memberships has no organization results, but may still have
+account-scoped application results. A missing/deactivated account
 profile denies protected discovery under the shared error contract; no profile is
 created implicitly. Missing person/employment setup alone does not suppress membership.
 Provider verification occurs before the database transaction, not under database locks.
@@ -357,7 +371,7 @@ Proposed SQL interface names (internal, not browser APIs):
 | --- | --- | --- |
 | `identity.current_account_memberships()` | None; verified transaction account context only | `org_id uuid`, `org_name text`, `membership_id bigint`; active profile, nonretired organization and active membership belonging to that account. No email, role, person, employee or arbitrary account selector. |
 | `access.discover_organizations(app_id text, after_org_id uuid, page_size integer)` | Validated explicit registered app; nullable keyset position; size 1–100 | Same three columns for currently admitted organizations, ordered by org UUID. Evaluate global/org enablement, exact membership-bound nonrevoked grant and permission-to-app registry association before pagination. Determine next-page presence with an internal extra matching row; never paginate raw memberships then silently drop eligible results. |
-| `access.discover_applications()` | None; verified transaction account context only | Unique `app_id text`, `scope_kind text`, ordered by app ID, where at least one current membership-bound grant qualifies. No organization names or membership IDs in this response. |
+| `access.discover_applications()` | None; verified transaction account context only | Unique `app_id text`, `eligible_scope_kinds text[]`, ordered by app ID, from qualifying account or organization entry capabilities. Canonical refinement below defines the aggregate; no organization names or membership IDs. |
 
 The Identity projection supplies membership facts only; Access applies admission rules.
 Public HTTP wrappers still enforce service policy and validated cursor/selector schemas;
@@ -428,3 +442,247 @@ and concurrency fixtures still need implementation-readiness validation. Scaffol
 promote proven scoped-read/error fixtures with the owning service, not a universal
 cross-tenant query helper. Shared UI and agent instructions unchanged. Link E1-DISCOVERY,
 E1-ACCESS, E1-LAUNCHER and E1-AC-13/15/17/18. No runtime code, roles or migrations changed.
+
+
+## Account-scoped PtS refinement — 2026-10-06
+
+Account admission evaluates global app enablement, current account and exact account
+grant, with no organization join. Directory discovery unions independently evaluated
+account apps with eligible organization apps; zero memberships must not suppress PtS.
+The Scribeswell menu rule consumes this PtS result. `/v2/organizations` remains for
+organization apps and must not invent a PtS organization.
+
+Define a separately constrained Access-owned account-grant model and typed check scope;
+do not simply remove org_id from the existing organization check or allow ambiguous
+nullable fields. Identity/person/actor evidence is selected for actual consumer needs;
+PtS requires no employment or fake person setup merely to read. Service caller policy,
+revocation, safe errors and no-store/current-authority requirements apply to both scopes.
+
+Controlled provisioning must support exact account grant/revoke with revision, replay
+and audit safeguards, separate from membership-bound commands. Explicitly provision
+intended PtS users; do not union legacy org grants into global account authority.
+The legacy v1 response contract may be replaced through the coordinated transition.
+Inventory PtS and Content consumers and define corpus/resource scope before finalizing
+schemas, story size or activation steps. Runtime enforcement and safe release gates remain.
+
+
+## Capability-scope contract refinement — 2026-10-06
+
+ADR-0053 replaces exclusive per-app scope with a registered required scope on each
+capability. Earlier `{app_id, scope_kind}` discovery rows and the corresponding SQL
+routine result are provisional and insufficient for a mixed-scope application; revise
+them together before implementation rather than return duplicate app entries or label
+an entire app with whichever scope was found first. Final typed entry/context projection
+and explicit eligible entry-capability mapping remain required contracts.
+
+Account grant commands target exact account/capability, with no membership ID;
+organization commands retain exact organization/account/membership/capability. Reject
+scope/capability mismatch in provisioning and checks. A current user can have either
+or both without automatic inheritance. Registry association and scope changes require
+explicit adoption; do not reinterpret existing grants silently.
+
+ACCESS-B should prove one synthetic mixed-scope app through both typed variants, using
+real owner grants and current checks. This tests platform scope dispatch without adding
+future PtS organization features. PtS read/export/Content corpus scope remains a separate
+unresolved resource contract; account admission alone is not resource authorization.
+Global disable covers both variants; organization disable affects only its organization
+capabilities. Public Scribeswell has neither grant nor synthetic organization.
+
+
+## Canonical discovery refinement — 2026-10-06
+
+`GET /v2/applications` requires Directory's restricted service identity and the current
+user bearer. No selected org or arbitrary account selector. It returns:
+
+```json
+{"applications":[{"app_id":"pts","eligible_scope_kinds":["account"]}],"checked_at":"<UTC RFC3339>"}
+```
+
+`eligible_scope_kinds` is a nonempty unique array in canonical account, organization
+order, drawn only from currently eligible entry capabilities. One app row even when
+both scopes qualify. An eligible organization variant means at least one authorized
+organization, not all organizations. No org IDs/counts, permission lists, person data or
+grant evidence leak through this aggregate. The restricted SQL discovery routine returns
+the same projection; account eligibility must not depend on the membership query having
+rows. No result cap may silently truncate eligible apps; the deployment catalogue bound
+remains to set before readiness.
+
+Declare an explicit Access-owned set of entry capabilities for each app, validated
+against its capability registry; no inference that any internal/admin capability opens
+the app. E1 entry mappings: PtS `pts.poetry.read`; Leave `leave.request.own.read`.
+Exact reference-app entry IDs remain part of its fixture contract. Manage/export alone
+does not imply read or a launcher entry. Scoped direct actions still check their own
+capability even when the app is omitted from the launcher.
+
+Directory intersects eligible apps with published catalogue entries, keeping the
+existing public AppEntry presentation format. It adds Scribeswell only when PtS's
+eligible scopes include account, per ADR-0053; an organization-only synthetic PtS
+fixture must not trigger that rule. Public reading remains independent. No bearer,
+invalid bearer and unavailable Access retain the already agreed distinct outcomes.
+
+The app's canonical landing route rechecks current eligibility as needed: account
+features require no organization selection; organization features request only their
+eligible contexts at entry. Do not encode a grant or forced selected organization in
+catalogue links. This contract defines no future PtS organization landing screen.
+
+`GET /v2/organizations?application=leave` retains keyset pagination over organizations
+with a current eligible organization entry capability. A registered app with no
+organization entry capabilities yields an empty list to an allowed caller; it must not
+invent an organization for an account-only app. Unregistered/disallowed selectors retain
+safe validation/service-policy errors. Selection never authorizes the later action.
+
+Scaffold: generate both closed check variants and array discovery projection together;
+update server adapters, SQL routine models and frontend/client fixtures in their owners.
+Do not implement a generic policy expression engine. Tests cover zero memberships,
+either/both scopes, duplicate-free discovery, scope mismatch, no cross-scope inheritance,
+no unauthorized org details, missing entry capability, revocation and dependency failure.
+The existing 3-second Access/5-second Directory budgets remain unchanged.
+
+This is a concrete technical design under accepted decisions, not implemented wire
+compatibility. Actor projection, account-grant DDL/commands, bounded catalogue values
+and PtS corpus/Content resource transition still require closure before readiness.
+
+
+## Individual grant persistence and administration — 2026-10-07
+
+Concrete E1 technical design under ADR-0052/0053. Access owns both grant variants;
+this adds no second authorization service or account-administration UI.
+
+| Owner table | Purpose / required shape |
+| --- | --- |
+| `access.account_grants` (new) | One row per `(account_id UUID, permission text)`; stable `id UUID`, `revision bigint > 0`, nullable `revoked_at`, server-managed UTC creation/update times and verified actor references. No org_id, membership_id or employment reference. |
+| `access.grants` (existing organization model) | Retains non-null organization and exact account/membership binding, registered organization capability and existing legacy adoption/attribution mapping. No account-grant rows in this table. |
+| `access.permissions` | Registered application and immutable required scope. Enforce scope-correct references from both grant tables, not only API validation. |
+
+DDL direction: registry has an appropriate unique `(permission, scope_kind)` key.
+Each grant table carries a fixed constrained scope discriminator and a composite FK to
+that key (`account` in account_grants; `organization` in grants). Runtime cannot choose
+the other discriminator. This permits ordinary database constraints to reject a Leave
+organization capability in an account grant. Validate migration against existing rows
+before replacing legacy constraints; no silent capability scope reassignment.
+
+Account IDs are Identity/Auth external references, verified through the approved owner
+contract; do not add a cross-owner table FK or match by email. Stable account IDs, not
+person IDs, own individual grants. Linking two accounts to one person does not union
+their grants. Recreating an account with a new ID requires deliberate provisioning.
+Account deactivation makes retained grants ineffective; reactivation permits only those
+still nonrevoked and otherwise valid. App disable also suspends rather than deletes.
+
+### Commands and evidence
+
+Use Access-owned `account_grant.assign` and `account_grant.revoke`, distinct from the
+existing membership-bound `grant.assign/revoke`. They use the existing controlled
+operator envelope with **platform** scope and exact account/capability target; the scope
+here describes operator authority, not a new application capability. Restricted platform
+operators/automation must be authorized for that command/app/account target. Ordinary
+users, organization administrators and runtime service keys cannot administer account
+grants solely through their existing membership or reader authority.
+
+Assignment creates only on explicit expected absence, or deliberately regrants against
+the current row revision; it verifies a current valid target account and account-scoped
+registered capability. New grants start at revision 1. Revocation requires the exact
+grant ID/account/capability and revision, marks revoked_at and increments revision; it
+can revoke an existing grant for a now-inactive account. No row deletion or automatic
+regrant from employment, membership, app enablement or sign-in. Identical desired state
+may return unchanged after expected-state validation, with no fictitious change event.
+
+All commands bind immutable input/expected state and authenticated executor to the
+existing operation identity/fingerprint. Changed-input retry fails. A committed retry
+returns its original compact result after current operator authorization; it does not
+repeat the mutation. A delayed previously uncommitted revoke at revision 2 cannot erase
+a deliberate regrant at revision 4. Revision numbers on the wire are decimal strings.
+Change, revision, minimal immutable audit and compact outcome commit together; no new
+fingerprint/key-rotation policy or duplicated audit on ordinary permission reads.
+
+### Enforcement and fixtures
+
+Account-grant reads use verified account context and forced account-scoped RLS with
+restricted SELECT runtime privilege. Organization-grant checks retain org isolation and
+membership binding. Provider verification/external account validation occur outside local
+write locks. Operator writes use the explicitly restricted owner writer, not runtime or
+migrator credentials. Select actual grants/routine security paths and prove them against
+real restricted roles; a setting supplied by a trusted API is not independent end-user
+authentication by the database. Pool reuse, missing context and arbitrary HTTP account
+selectors cannot expose another account's rows. Discovery unions only eligible entry
+capabilities; no broad user-grant listing endpoint is introduced.
+
+Required fixtures: zero-membership PtS grant; independently granted read/export/documents;
+organization capability rejected by account table and vice versa; same person/two accounts;
+duplicate/concurrent assignment; revoke/regrant/stale revoke/replay; account deactivation
+and new-ID recreation; organization removal leaving account grant effective; app disable
+and re-enable with a separately revoked grant; runtime write denial and connection reuse.
+Use explicit PtS cohort grants, never an automatic union of legacy organization grants.
+
+ACCESS-A owns schema/operator evidence; ACCESS-B owns effective permission decisions;
+PTS-ADOPT supplies actual consumer transition. Exact column/constraint names, audited
+command models/bounds, operator adapter and baseline mapping remain migration/readiness
+inputs. Existing owner-local evidence layout is reused. No app code, DDL, grants or tests
+were executed. Scaffold fixtures/typed variants and owner docs change with delivery;
+no new shared UI or agent rule, and accepted ADRs remain unchanged.
+
+
+## Initial service caller matrix — proposed 2026-10-08
+
+Refines the closed service-policy configuration for ACCESS-B; separate from end-user
+grants. No service may request arbitrary checks merely because the user has a grant.
+All listed user checks also require the current user bearer; a service identity is not
+an account selector. Unknown caller/endpoint/application/capability combinations fail.
+
+| Authenticated service | Allowed Access operations in this increment |
+| --- | --- |
+| Leave API | `/v2/check` for `leave.request.own.read` and `leave.request.own.manage`; `/v2/organizations` for `leave`. |
+| PtS API | `/v2/check` for `pts.poetry.read`, `pts.poetry.export`, `pts.poetry.documents`, each account-scoped. No organization selector needed for current PtS. |
+| Directory | `/v2/applications` for the authenticated user's eligible app projection. No arbitrary `/v2/check` permission or provisioning rights. |
+| Reference API | `/v2/check` only for explicitly registered reference capabilities; `/v2/organizations` only for its own app. No Leave/PtS grant borrowing. |
+| People | No Leave capability check proposed. Enforce its own authorized calling-service, verified current user/person and organization-scoped own-employment boundary. Exact identity-context verification wire remains a pre-story contract. |
+| Content | No end-user Access call in the new private-read path. The application checks domain/user permission; Content enforces its own restricted calling-service and stored ownership policy under ADR-0054/0055. |
+
+**People correction — 2026-10-08:** the user challenged the proposed Leave-specific
+check. Withdraw that recommendation; it was not an accepted ADR. Leave calls Access to
+check its own application admission/capability. People authenticates the calling service
+and checks that it is allowed to perform this own-employment read, with verified current
+user/person and organization context. It returns only that person's permitted employment
+fields in that organization; no arbitrary person override or employee-directory access.
+People must not contain `leave.request.*` rules or gain new permission names whenever a
+consumer such as Travel is introduced. New consumers still need explicit service policy.
+
+This retains the existing identity contract's independent service/user/scope checks;
+it does not authorize trusting raw person/org headers, accepting a stale Access decision
+as a reusable token, or inferring authority from employment existence. Define the exact
+current identity/context verification and allowed service/scope wire before readiness;
+no new endpoint or universal service key is selected here. The application owns its
+business permission decision; People owns protection of shared employment data. The
+corrected boundary was approved by the user on 2026-10-08; its verification wire
+is proposed below/in the Identity contract, not an implemented security guarantee.
+
+The reference's exact capability IDs remain a registry contract to settle; the matrix
+does not authorize a prefix wildcard. Credentials are separately provisioned per service
+and environment, never browser-visible or copied into fixture manifests. The test runner
+signs in as test users and calls application routes; it receives no universal service key.
+
+Acceptance: unrelated valid service plus valid user is rejected; Leave cannot check PtS
+permissions; Directory cannot perform action checks; People rejects unauthorized service/scope and
+other-person requests without querying Leave permissions;
+Content's old duplicate end-user check is removed only with its coordinated consumer
+adoption. Safe integration errors must not falsely tell a user their grant was revoked.
+
+Impacts: ACCESS-B owns validated caller configuration and typed fixtures; each consuming
+story adopts its narrow policy. Shared scaffold promotes proven server-only credential
+wiring; shared UI/agent context need no new mechanism. Existing ADRs remain unchanged.
+Exact credential binding, reference identifiers, limits and rollout evidence remain
+readiness inputs. No credentials, grants, deployment or application code changed.
+
+
+People context wire proposal — 2026-10-08: [Identity contract](./identity-access-employment-e1.md#people-current-identity-context--proposed-2026-10-08)
+adds a proposed People-only `/v2/identity/organization-context` operation to this matrix.
+It verifies current account/person/organization membership and grants no application
+capability. People retains its own incoming-service/own-data policy; Leave retains its
+application checks. This wire is for discussion and is not implemented.
+
+
+Initial reference IDs selected — 2026-10-08: application `reference`, organization
+capabilities `reference.record.read` and `reference.record.create`; entry uses read only.
+Reference service caller policy lists these exact IDs and organization discovery for
+`reference`, without wildcard authority. See [owning reference contract](./platform-verification-app.md#initial-reference-capability-identifiers--2026-10-08).
+This resolves the initial create/read identifier gap in earlier passages; mixed-scope
+Access fixture identifiers and the remaining readiness contracts remain separate.

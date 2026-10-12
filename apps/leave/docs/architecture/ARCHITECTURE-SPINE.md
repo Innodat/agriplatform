@@ -67,7 +67,7 @@ for E1 wire/compatibility gates; this does not authorize implementation.
 
 - **Binds:** All Leave components and shared integrations.
 - **Prevents:** A second browser data path, cross-silo database access and shared domain implementations.
-- **Rule:** Browser business data goes through Leave FastAPI; use HTTP contracts for shared runtime capabilities. Only authentication and explicitly approved realtime use the browser Supabase client; Content Service control-plane calls and signed file transfer are explicit content exceptions, preserving domain authorization. Shared identity supplies the person; common employment identity, dates/status and optional manual supervisor/department/location assignments belong to the shared employment capability under P-0040–0041. Leave owns requests, policies, schedules, Leave-specific employee settings, approval routing, balance history and document associations. Applications consume shared facts through authorized HTTP contracts, never a second editable employee directory. Platform packages supply build-time clients/UI/scaffolding, not imported service servers. Inherits P-0001–0006, P-0014.
+- **Rule:** Browser business data goes through Leave FastAPI; use HTTP contracts for shared runtime capabilities. Only authentication and explicitly approved realtime use the browser Supabase client; Content control-plane requests pass through Leave under P-0054; signed upload bytes transfer directly to storage; private downloads stream via Leave and Content under P-0055. Shared identity supplies the person; common employment identity, dates/status and optional manual supervisor/department/location assignments belong to the shared employment capability under P-0040–0041. Leave owns requests, policies, schedules, Leave-specific employee settings, approval routing, balance history and document associations. Applications consume shared facts through authorized HTTP contracts, never a second editable employee directory. Platform packages supply build-time clients/UI/scaffolding, not imported service servers. Inherits P-0001–0006, P-0014.
 
 ```mermaid
 flowchart LR
@@ -81,9 +81,8 @@ flowchart LR
   Flow --> Content[Content Service HTTP]
   Worker[Leave worker] --> Flow
   Worker --> Notify[Shared Notification HTTP capability]
-  Web -->|Authorized content control plane| Content
   Web --> Auth[Supabase Auth with Entra federation]
-  Web -->|Authorized signed file bytes| Storage[Private storage provider]
+  Web -->|Authorized signed upload bytes| Storage[Private storage provider]
   Content --> Storage
 ```
 
@@ -133,7 +132,7 @@ flowchart LR
 
 - **Binds:** Uploads, attachment associations, read links and cleanup.
 - **Prevents:** Upload success mistaken for attached evidence, post-verification byte replacement and orphan cleanup deleting referenced files.
-- **Rule:** Content Service owns metadata, provider adapters, signed operations and retention; Leave owns document associations and domain permission. Signed transfer does not establish an association. Finalized content identity binds exact verified bytes, including across outstanding upload retries and verification/finalization races; replacement requires new content identity, verification and authorized audited association change under [P-0038](../../../../platform/docs/architecture/decisions/0038-finalized-content-byte-identity.md). Validate ownership/readiness and coordinate pending/confirmed association with cleanup; retries reuse content/operation identity. Required documents gate submission. Private read links default to five minutes and upload links to fifteen, with fresh authorization on renewal; expiration cannot recall downloaded bytes. Keep sensitive metadata behind its permission. Inherits P-0004–0005, P-0030, P-0036 and L-0006, L-0016–0017.
+- **Rule:** Content Service owns metadata, provider adapters, signed operations and retention; Leave owns document associations and domain permission. Signed transfer does not establish an association. Finalized content identity binds exact verified bytes, including across outstanding upload retries and verification/finalization races; replacement requires new content identity, verification and authorized audited association change under [P-0038](../../../../platform/docs/architecture/decisions/0038-finalized-content-byte-identity.md). Validate ownership/readiness and coordinate pending/confirmed association with cleanup; retries reuse content/operation identity. Required documents gate submission. Private downloads authenticate each request and stream through Leave/Content under P-0055; direct signed uploads default to fifteen minutes with fresh authorization on renewal. Access changes cannot recall downloaded bytes. Keep sensitive metadata behind its permission. Inherits P-0004–0005, P-0030, P-0036 and L-0006, L-0016–0017.
 
 ### AD-10 — Owned durable delivery, separate from domain success [ADOPTED]
 
@@ -270,3 +269,35 @@ Confirm and consequential action rules remain binding. E1 has no submission impl
 No additional administrative draft system or universal draft requirement is introduced.
 Prove behavior and promote reusable UI/scaffold patterns with the first consuming story.
 Draft failure UX follows platform ADR-0050: inline Retry, exit-only Stay / Close anyway.
+
+
+Content boundary refinement — 2026-10-06: [P-0054](../../../../platform/docs/architecture/decisions/0054-application-authorized-content-and-enforced-ownership.md)
+places current user/request/document authorization in Leave API; Content authenticates
+the calling service and enforces recorded application/organization ownership, readiness
+and lifecycle. No default callback or duplicate Leave policy in Content. Browser control
+plane uses Leave; signed bytes still go directly to storage. AD-9 association, cleanup,
+sensitive metadata, lifetimes and P-0038 byte identity remain binding. E4 must close the
+concrete handshake/service policy and association/provider contracts before readiness.
+
+
+Private download refinement — 2026-10-06: [P-0055](../../../../platform/docs/architecture/decisions/0055-authenticated-private-downloads-by-default.md)
+supersedes prior direct signed browser-read wording, including the P-0054 discussion
+above. Leave streams authorized private reads through Content; no bearer read URL to
+the browser. Uploads remain direct/signed. E4 must bind auth/preview/range/timeout/cache
+and deployment-streaming behavior with provider and byte-identity evidence.
+
+
+Organization enrollment refinement — 2026-10-11: [P-0057](../../../../platform/docs/architecture/decisions/0057-invitation-onboarding-and-trusted-tenant-enrollment.md)
+adds invitation-based normal onboarding until a verified trusted Entra tenant mapping and
+separate opt-in automatic membership admission. Supabase/Entra and AD-2's current
+membership/app/resource checks remain binding; enrollment creates no employment or app
+role. Tenant verification and auto-join lifecycle/eligibility contracts are additional
+pre-story inputs for their E2 consumers, not a waiver of first-slice readiness.
+
+
+Advance-access refinement — 2026-10-11: [P-0058](../../../../platform/docs/architecture/decisions/0058-administrator-prepared-access-before-first-sign-in.md)
+permits explicitly approved pending roles before sign-in, with effective activation only
+against verified target/admission and current assignment state. Identity, Access and
+People retain their owners and HTTP boundaries; no synthetic accounts or automatic
+employment/roles from tenant identity. Resolve pending lifecycle, role-version review,
+provider evidence and staged recovery before the affected E2 story readiness.

@@ -1,5 +1,11 @@
 # platform/builder-cli
 
+Capability-scope direction: [ADR-0053](../docs/architecture/decisions/0053-capability-scoped-access-in-mixed-scope-applications.md)
+requires scope per protected capability, including mixed-scope applications. Generate
+typed scope checks and optional organization navigation; never force every application
+through membership or infer public API authority from tables. Prove account and
+organization variants in first-consumer fixtures before promotion. Not implemented.
+
 **Status:** Placeholder — Phase 3
 
 CLI tool for scaffolding features and enforcing platform patterns.
@@ -27,6 +33,75 @@ client compatibility tests; do not generate a chart engine or Leave routing rule
 New application templates follow [platform ADR-0014](../docs/architecture/decisions/0014-python-database-access-and-api-models.md): SQLAlchemy/Psycopg database access and separate Pydantic API contracts. Prove the pattern before implementing generation. Opt-in routine CRUD must preserve permissions, tenant scope, revisions and caller-owned transactions; domain commands remain explicit.
 
 Database introspection may assist persistence mapping but must not automatically expose table fields in API schemas. Frontend contracts derive from FastAPI OpenAPI. The historical command sketch below is not an implemented generator or authority to bypass this boundary.
+
+### Thin application scaffold configuration — proposal, 2026-10-12
+
+**Direction accepted under [ADR-0059](../docs/architecture/decisions/0059-schema-validated-scaffold-configuration.md), 2026-10-12.** Exact schema/path/pattern versions and implementation remain readiness inputs.
+
+The user proposes structured app choices to connect requirements gathering, generation
+and enforcement. Recommend a small version-controlled `app.scaffold.json`, validated
+against a versioned JSON Schema, rather than a duplicate executable feature specification.
+This format/path is proposed, not an implemented generator input or new mandatory gate.
+Product specs/ADRs/UX remain authoritative; BMAD remains the delivery workflow.
+
+Populate it incrementally from approved requirements/design and update it with each
+consuming story. Record schema/app identity; selected proven pattern IDs/versions; explicit
+capability scope/owner contract references; surface presentation/saving conventions;
+record mutation/history policy where applicable; source requirement/story/test references;
+and bounded documented customization decisions. Do not encode every field/widget/business
+rule or implement a new runtime form/workflow engine. Unknown requirements stay unresolved
+until design, not silently turned into permissive generator defaults.
+
+Saving has three semantic choices from ADR-0051: request draft autosave, explicit whole-
+form save, and immediate simple preferences. Inline/drawer/page is presentation, not an
+additional saving mode. History choices remain per record/action: mutable attribution,
+required domain change events and draft consequential lifecycle evidence cannot be disabled
+by a convenience toggle. Capabilities here are static metadata, never actual user grants.
+Entity/table/API fields reference their owner-controlled schema/migration/OpenAPI inputs;
+do not maintain a second column definition or expose every table as public CRUD.
+
+The generator consumes supported validated choices, emits proven owner templates/client/
+UI integration and required contract fixtures, and preserves custom extension modules.
+Checks can reject unsupported combinations, missing mandatory declarations and documented
+regeneration mismatches. A config claim alone cannot prove actual authorization, revision,
+history or shared-component usage: owning ATDD/contract/browser/generated-output tests
+must verify behavior. Record legitimate customization with rationale/evidence; an accepted
+architecture change uses its linked superseding ADR, not an inferred approval for each
+routine extension. Keep supported/custom extension boundaries explicit and inspectable.
+
+Start with ENV/P1's actual shell/configuration inputs and WRITE/REF's first proven surface.
+Add history/saving patterns as their first consumers provide implementations and evidence;
+do not build a catalogue of hypothetical patterns up front or postpone the first slice
+for a whole application-description language. Reference app validates the configuration/
+pattern composition; actual Leave/PtS apps keep their own domain tests. Do not rewrite
+existing deployment manifests or other generated schemas into this file; share/reference
+stable IDs and validate alignment at the relevant delivery boundary.
+
+Illustrative shape only (not a selected complete schema or implemented pattern):
+
+```json
+{
+  "schema_version": 1,
+  "app_id": "reference",
+  "surfaces": [
+    {
+      "id": "example-editor",
+      "presentation": "drawer",
+      "saving": "explicit_save",
+      "change_history": "domain_events",
+      "source_refs": ["approved editor story"]
+    }
+  ]
+}
+```
+
+[Backstage templates](https://backstage.io/docs/features/software-templates/writing-templates/)
+provide a primary example of declarative inputs and JSON Schema validation;
+[JSON Schema](https://json-schema.org/learn/getting-started-step-by-step) supplies the
+standard schema vocabulary. These support the approach, not adopting Backstage or a
+second workflow in this repository. Exact input schema/catalogue/enforcement scope,
+ownership/compatibility and first-consumer sizing remain discussion/readiness inputs.
+No schema, generator, app code or runtime validation implemented by this proposal.
 
 ### Generation inputs and custom behavior
 
@@ -73,6 +148,41 @@ Table/model generation must follow
 
 These are required generator contracts, not implemented CLI capabilities. Do not modify
 Supabase-managed tables or invent a second person directory to satisfy the convention.
+
+### Reusable owner-local change history — approved 2026-10-12
+
+Under ADR-0025, scaffold a common immutable change-record envelope and transaction-aware
+writer, with explicit owner-defined event types and bounded before/after schemas. Common
+fields cover event ID/type/version, organization or declared scope, typed target reference,
+verified actor and optional initiator/executor distinction, UTC time, operation and reviewed
+revision where applicable. The owner selects required reason/evidence fields and meaningful
+changes; do not automatically capture arbitrary table/record payloads or sensitive fields.
+
+The owning business mutation and required history commit in the same owner transaction.
+The helper accepts that transaction and never commits independently or calls a central
+audit service. Matching operation replay creates no duplicate event; unchanged operations
+do not invent a changed-state event. Preserve current-row attribution separately. Domain
+history can also be its audit evidence; do not copy it into a second generic audit table.
+
+For People, reuse one employment_change table for period, supervisor and department/
+location event variants with structural employment/org references. Other owners retain
+their own history and may adopt the same envelope/writer/type conventions. No separate
+history table per field or universal dynamic table-name/record-ID access API is required.
+Broader owner-local target families follow proven consumers and declared constraints.
+
+Promote templates/helpers, explicit model/migration inputs, event validation, contract
+fixtures and authorized history-display conventions together with the first consuming
+story. Verify transaction rollback/evidence failure, actor spoofing, current scope,
+immutable persistence, bounded payloads and duplicate-safe retries. Display adapters use
+approved fields and owner access rules, not raw JSON dumps. Physical columns versus typed
+JSON and exact indexing remain owner design; no measured performance advantage is assumed.
+
+This is an approved build-time scaffold direction, not an implemented generator/library,
+new runtime audit service or authority to log every draft autosave. Existing draft attribution
+and compact outcomes remain sufficient unless their owner requires a consequential event.
+Apps/services retain HTTP runtime boundaries; copied/proven generic scaffold artifacts do
+not import another owner's server implementation. Record scaffold/UI/agent/doc/ADR impacts
+and proof with the first consumer; accepted ADRs are unchanged.
 
 ## Transaction and service-call direction
 
@@ -352,7 +462,7 @@ application owns draft routes and revision/lifecycle handling, including delayed
 
 ## First-consumer dependency and test commands
 
-The [E1 dependency/command contract](../../apps/leave/docs/testing/e1-environment-and-dependencies.md#dependency-ownership-and-command-contract--2026-10-05) specifies standalone npm browser ownership and independent Python/uv service locks for the first consumer. Generated output must install without undeclared root tools, expose explicit build/test commands and preserve custom extensions on regeneration. Prove lock consistency and runtime/dev separation before promoting templates. Do not copy another application's requirements into a service image. Exact compatibility pins and runnable generator/bootstrap commands remain delivery prerequisites; no manifests or templates are implemented by this note.
+The [current E1 dependency/command contract](../../apps/leave/docs/testing/e1-environment-and-dependencies.md#dependency-ownership-and-pts-integration--proposed-2026-10-08) records the approved shared npm workspace/root-lock direction for frontends, with independent Python/uv owner locks. This supersedes the older standalone-browser install direction; generated disposable verification must still declare its installation root and dependency inputs explicitly. Generated output must install without undeclared root tools, expose explicit build/test commands and preserve custom extensions on regeneration. Prove lock consistency and runtime/dev separation before promoting templates. Do not copy another application's requirements into a service image. Exact compatibility pins and runnable generator/bootstrap commands remain delivery prerequisites; no manifests or templates are implemented by this note.
 
 
 Draft failure presentation update — accepted 2026-10-05: platform ADR-0050 partially
@@ -375,3 +485,18 @@ Confirm and consequential action rules remain binding. E1 has no submission impl
 No additional administrative draft system or universal draft requirement is introduced.
 Prove behavior and promote reusable UI/scaffold patterns with the first consuming story.
 Draft failure UX follows platform ADR-0050: inline Retry, exit-only Stay / Close anyway.
+
+
+Content client direction — ADR-0054: browser control-plane adapters call the owning app
+API; server-side clients authenticate to Content with restricted app identity. The app
+checks user/domain authorization, Content enforces stored owner/resource scope and
+readiness. Signed bytes transfer directly. Prove wrong-app/scope/operation and domain
+denial fixtures with the first consumer before promotion; no callback engine or code
+generation implemented by this guidance.
+
+
+Private download direction — ADR-0055 supersedes earlier signed browser-read guidance:
+provide authenticated app-to-Content streaming adapters with bounded memory, per-request
+checks, safe headers and no cache bypass. Browser upload bytes remain direct/signed.
+Preview/download auth and range/disconnect tests belong to first-consumer delivery.
+No generated implementation or optional public-sharing mode exists yet.

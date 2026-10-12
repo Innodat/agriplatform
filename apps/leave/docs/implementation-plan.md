@@ -6,6 +6,11 @@
 **Status:** Phase 1 planning in progress — implementation readiness pending  
 **Owners:** Platform and Leave application teams
 
+Current planning checkpoint — 2026-10-08: [24-item E1 scope and remaining contracts](../../../_bmad-output/planning-artifacts/epics.md#current-e1-contract-checkpoint--2026-10-08).
+The reference test/demo role and minimal draft example are approved. Historical dated
+counts below are superseded by the current sequence; implementation readiness remains
+pending, and completed architecture consolidation/review is not reopened.
+
 ## Purpose
 
 Scope correction, 2026-10-01: [platform ADR-0045](../../../platform/docs/architecture/decisions/0045-expense-preproduction-history-scope.md)
@@ -1036,7 +1041,7 @@ Product behavior already agreed is not reopened by the technical work below.
 | Minimum Leave settings and choices | Leave; CONTEXT/CHOICES then D1/D2 | Work-profile/default/override-compatible timezone source and revision; minimal versioned type metadata endpoint/schema, active-date selection, authorized retired-choice handling and controlled seed mapping. Do not invent a parallel employee/configuration master or imply submission eligibility. |
 | Owned writes and draft wire/schema consistency | Platform/Leave; WRITE/REF/D1/D2/D4 | Exact reference-command canonical input/outcome retention; reconcile declared draft constraints, SQL scope/grants and all request/response/error variants. Preserve atomic effects, revision/lifecycle guards, compact closed rows and no default form backfill. |
 | Supported authentication return | Platform shell + Leave; A1/D2/D3/D5/WRITE | Validated destination/account binding through supported auth flow, current access and saved-draft reload; safe fallback when context is missing. No bespoke sessionStorage record/TTL. Verify delayed-save ordering and no automatic lost-write replay. ADR-0050 inline failure and exit-only confirmation remain settled. |
-| Coverage, sizing and gate evidence | Planning owners; all 21 candidates | Finish scoped source-to-story cross-check and global inventory; validate independently completable story size/order; assign concrete acceptance/contract test IDs and exact commands as delivery is prepared. Run the established readiness workflow only when its required planning inputs are complete. |
+| Coverage, sizing and gate evidence | Planning owners; all 23 candidates | Finish scoped source-to-story cross-check and global inventory; validate independently completable story size/order; assign concrete acceptance/contract test IDs and exact commands as delivery is prepared. Run the established readiness workflow only when its required planning inputs are complete. |
 
 Technical contract outputs precede dependent readiness; implementation subsequently
 observes failing acceptance and produces passing runtime evidence. This does not require
@@ -1357,3 +1362,613 @@ P1/SERVICE/PEOPLE remain bounded as agreed. Detailed ACCESS-A criteria are prepa
 for discussion; operator adapter, exact schemas/bounds and compatible-writer transition
 remain required inputs. This supersedes the pending status of the preceding sizing
 proposal, not readiness gates or the first Leave slice. No code or runtime test execution.
+
+
+ACCESS-A criteria approved — 2026-10-06. [ACCESS-B detailed criteria](../../../_bmad-output/planning-artifacts/epics.md#candidate-story-e1-access-b-enforce-current-application-and-user-access)
+now cover current admission, exact membership-bound grants, service/user separation,
+safe typed outcomes and supported v1/v2 transition for discussion. V1 does not acquire
+v2's employee person-link prerequisite; both enforce current admission. ACCESS-B tests
+are independent of later discovery/launcher/People implementation, while coordinated
+consumer activation remains required. The 21-item sequence is unchanged; technical
+contracts and CE/SP readiness remain open. No application or live configuration changes.
+
+
+PtS scope correction — accepted 2026-10-06: [platform ADR-0052](../../../platform/docs/architecture/decisions/0052-pts-account-scoped-access-and-coordinated-adoption.md)
+requires individual account access with no organization. Earlier mandatory legacy PtS
+response preservation and organization-admission assumptions are superseded. Reconcile
+ACCESS-A/B, DISCOVERY/LAUNCHER, Identity transition and reference/scaffold scope variants;
+retain Leave organization isolation. Account grant/check/operator contracts and PtS
+corpus/Content consumer inventory/transition are explicit readiness gaps. Recheck sizing
+after those are concrete; current 21-item sequence is not a new readiness approval.
+
+
+Capability-scope refinement — accepted 2026-10-06: [ADR-0053](../../../platform/docs/architecture/decisions/0053-capability-scoped-access-in-mixed-scope-applications.md)
+requires scope per capability, supporting current individual PtS and future organization
+features without implementing those features now. ACCESS-A/B and discovery/scaffold
+contracts must not classify an app as permanently single-scope. Update typed grant/check
+and discovery contracts, then resolve PtS corpus/Content transition and prerequisite
+sizing. Leave remains organization-scoped; the first draft slice and readiness gates stay.
+
+
+Scope-wire refinement — 2026-10-06: owning [check contract](../../../platform/docs/architecture/contracts/identity-access-employment-e1.md#canonical-capability-check-wire--2026-10-06)
+and [discovery contract](../../../platform/docs/architecture/contracts/application-admission-and-discovery.md#canonical-discovery-refinement--2026-10-06)
+now define typed account/organization requests, minimal variant responses and unique app
+rows with eligible scope kinds. Read entry capabilities are explicit; no cross-scope or
+manage-to-read implication. PtS corpus/Content transition, account grant/actor persistence
+and executable contract evidence remain readiness inputs. First Leave slice unchanged.
+
+
+PtS resource inventory — 2026-10-06: [owner proposal](../../pts/docs/architecture/contracts/account-access-and-corpus-transition.md)
+identifies organization coupling across browser, API, persistence, Content and import.
+Discuss application-owned corpus plus individual capability access; preserve source assets
+and finalized bytes. Account/corpus grants are not permission to access unrelated Content.
+Plan separate bounded PtS adoption work after sizing; do not hide it in ACCESS-B or bypass
+shared Content readiness. No change yet to the approved 21-item baseline or application code.
+
+
+Content boundary accepted — 2026-10-06: [ADR-0054](../../../platform/docs/architecture/decisions/0054-application-authorized-content-and-enforced-ownership.md)
+selects application-authorized control-plane calls and Content-enforced service ownership/
+resource scope. PtS adoption and Leave E4 inherit it; no callback or duplicate domain
+authorization engine. Signed transfers and ADR-0038/provider/association gates remain.
+Concrete Content schema/legacy mapping/service identity/attribution and PtS adoption
+sizing are next contract work; no application implementation authorized.
+
+
+Private download decision — 2026-10-06: [ADR-0055](../../../platform/docs/architecture/decisions/0055-authenticated-private-downloads-by-default.md)
+requires authenticated app/Content streaming by default; previous five-minute browser
+read-link defaults no longer govern private delivery. Signed upload lifetimes, Content
+ownership, association and byte identity remain. PtS first-consumer and Leave E4 need
+streaming auth/range/cache/resource/deployment contracts and evidence. Future share
+links await a concrete requirement; no optional sharing system or implementation added.
+
+
+Content/PtS decomposition proposal — 2026-10-06: [minimum Content contract](../../../platform/docs/architecture/contracts/content-ownership-and-authenticated-read.md)
+records enforced ownership variants, exact byte/provider identity, attribution, streamed
+read boundaries and legacy migration constraints. Propose CONTENT-READ then PTS-ADOPT
+after LAUNCHER and before WRITE/REF (23 items if accepted). Current 21-item baseline
+remains; actual DDL/proxy/browser/transfer contracts and final sizing remain readiness
+inputs. No code, runtime tests or production inspection in this planning pass.
+
+
+Content/PtS split approved — 2026-10-06: [current sequence and CONTENT-READ criteria](../../../_bmad-output/planning-artifacts/epics.md#contentpts-split-approved-and-current-sequence--2026-10-06)
+record 23 delivery items, with CONTENT-READ and PTS-ADOPT after LAUNCHER and before
+WRITE/REF. Acceptance-map rows now separate shared service proof from actual PtS
+user/resource integration. CONTENT-READ detailed criteria are for discussion; DDL,
+streaming/browser/proxy limits and remaining readiness inputs are not approved by this
+ordering decision. No code, live changes or runtime tests.
+
+
+CONTENT-READ criteria approved — 2026-10-06. [PTS-ADOPT detailed criteria](../../../_bmad-output/planning-artifacts/epics.md#candidate-story-e1-pts-adopt-use-pts-through-individual-platform-access)
+are prepared for discussion: zero-membership entry, independent current account
+capabilities, authenticated private source downloads, preserved corpus/import evidence,
+launcher integration and controlled transition. Existing external source references are
+not represented as protected private storage or proxied arbitrarily. No future PtS org
+features, real account recreation or runtime verification added. The 23-item sequence
+and all contract/readiness gates remain.
+
+
+PTS-ADOPT acceptance approved — 2026-10-07, including permission/download/preservation
+clarifications. Current [Access child criteria](../../../_bmad-output/planning-artifacts/epics.md#candidate-story-e1-access-a-configure-application-admission-and-grants-safely)
+are reconciled with ADR-0052–0055: independent account/organization grants, typed scope,
+coordinated PtS replacement and Content's service/ownership enforcement. Historical
+parent v1-preservation/membership-only passages do not override these updates. The
+23-item sequence stays unchanged; exact grant/operator/actor and Content transport/
+adoption contracts remain before readiness. No code or runtime tests changed.
+
+
+Individual grant design — 2026-10-07: [Access persistence/provisioning contract](../../../platform/docs/architecture/contracts/application-admission-and-discovery.md#individual-grant-persistence-and-administration--2026-10-07)
+now specifies separate account_grants, structurally correct capability scope, current
+account reference and revision-guarded operator assignment/revocation/regrant. Organization
+grants stay membership-bound. No nullable-org shortcut, account grant inheritance, public
+admin API or automatic PtS grant conversion. Actor projection, exact DDL/operator bounds,
+Content transport and CE/SP readiness remain open; no application code or tests executed.
+
+
+Account-only attribution refinement — 2026-10-07: [Identity actor contract](../../../platform/docs/architecture/contracts/identity-access-employment-e1.md#account-only-actor-resolution--2026-10-07)
+now separates durable account actor setup from optional person/employment/membership.
+ID-B controlled account_actor.ensure precedes optional linking; no read-side provisioning.
+ACCESS-B/PTS-ADOPT resolve account-only actors, while Leave retains person-required own
+scope. Actor preservation never restores grants to recreated accounts. Exact actor DDL/
+projection/operator bootstrap and Content transport/mapping remain readiness inputs.
+No application code, runtime tests or readiness approval.
+
+
+Actor registry selected — 2026-10-07: [ADR-0056](../../../platform/docs/architecture/decisions/0056-durable-actor-registry-separate-from-login-accounts.md)
+confirms separate durable attribution, while identity.users remains Auth-account profiles.
+Retain System/Migrate and service identities without requiring new synthetic Auth users;
+preserve old actors/history and transition existing references explicitly. ID-B owns the
+schema/bootstrap/projection/writer adoption; no new story/UI or live account removal.
+Model choice resolved; exact contracts and implementation readiness remain open.
+
+
+Actor persistence progress — 2026-10-07: [Identity schema/lifecycle design](../../../platform/docs/architecture/contracts/identity-access-employment-e1.md#minimum-actor-persistence-and-lifecycle--2026-10-07)
+selects a small actor registry and retained account association, current account checks,
+controlled System/Migrate/service registration and explicit bootstrap provenance. Missing
+write context never defaults to System. ID-B must still prove old FK/trigger/text-writer
+adoption and precise privileges/bounds; no code or deletion executed. Continue Content
+browser/streaming contracts; no additional story or readiness pass.
+
+
+Browser download proposal — 2026-10-07: [Content transport discussion](../../../platform/docs/architecture/contracts/content-ownership-and-authenticated-read.md#browser-transport-proposal--2026-10-07)
+recommends app-specific secure HttpOnly file authentication tied to existing sign-in,
+with current authorization per request; exact adapter/logout/renewal remains to choose.
+Current bearer fetch alone does not authenticate native file links/viewers. Netlify's
+published 26-second proxy timeout requires actual large-file routing feasibility proof;
+no proxy or auth changes made. Discuss direction before selecting a session mechanism.
+
+
+Download ingress direction accepted — 2026-10-07: [direct app gateway route](../../../platform/docs/architecture/contracts/content-ownership-and-authenticated-read.md#direct-application-download-ingress--direction-accepted-2026-10-07)
+bypasses Netlify for file bytes while retaining frontend hosting. Proposed per-app file
+hostnames/TLS and cookie-session binding require validation before implementation readiness;
+current gateway needs per-host/origin/method/stream configuration in its renderer. Synthetic
+long-transfer and browser tests must pass on the selected path before activation. No wait-
+for-production-failure approach, automatic signed URL fallback or live DNS change.
+
+
+File-auth lifecycle proposal — 2026-10-08: [Content browser contract](../../../platform/docs/architecture/contracts/content-ownership-and-authenticated-read.md#file-authentication-lifecycle-proposal--2026-10-08)
+proposes reuse of existing sign-in/refresh and per-request current permission checks,
+with explicit expiry/logout/account-switch and viewer behavior. Supabase JWT expiry and
+late cookie-response races prevent claiming revocation from UI clearing alone. Select
+and verify the minimal adapter before PTS-ADOPT readiness; no second refresh-token owner,
+new authentication schema or code implemented. Behavior remains for discussion.
+
+
+## File lifecycle approval and transfer behavior — 2026-10-08
+
+User approved the file-authentication lifecycle behavior: existing sign-in/refresh,
+expiry recovery, logout and account-switch isolation. This supersedes the earlier
+for-discussion status; the exact adapter and provider revocation proof remain open.
+
+[Download/preview behavior](../../../platform/docs/architecture/contracts/content-ownership-and-authenticated-read.md#download-and-preview-behavior--proposed-2026-10-08)
+is the next proposal: native download/PDF viewing, single-range support, fixed finalized
+bytes and honest interrupted-transfer handling. CONTENT-READ owns shared transport;
+PTS-ADOPT owns browser/gateway proof; Leave E4 later consumes it. Existing E1 sequence
+and first draft slice remain unchanged. No implementation or readiness pass.
+
+
+Download acceptance clarification — 2026-10-08: user accepted browser-owned
+download/viewer/resume behavior enabled by application headers, partial reads and current
+authorization. Record these as technical criteria within CONTENT-READ/PTS-ADOPT; no custom
+viewer/download manager or separate browser-feature story.
+
+Next discussion: [concrete PtS adoption mapping](../../pts/docs/architecture/contracts/account-access-and-corpus-transition.md#concrete-adoption-mapping--proposed-2026-10-08)
+proposes reviewed legacy-to-target object/association evidence, preserving bytes and
+verified IDs without copying per account or implicitly merging unrelated partitions.
+Physical schema, deployed inventory and readiness remain open. No application code changed.
+
+
+PtS concrete adoption mapping approved — 2026-10-08: reviewed selected-object mappings,
+application ownership, preserved bytes/associations and verified IDs; existing opaque
+provider paths may remain. Physical inventory/schema/rehearsal remain pending.
+
+Next discussion: [operator execution surface](../../../platform/docs/architecture/contracts/e1-controlled-provisioning-and-evidence.md#operator-execution-surface--proposed-2026-10-08)
+proposes protected owner-local command-line entry points for E1 setup, with verified
+execution identity and restricted owner writers. This refines the existing command
+contract; it does not replace E2 administration or create another story. Concrete
+authentication/privileges, other technical contracts and readiness remain unresolved.
+
+
+Operator execution surface approved — 2026-10-08: protected owner-local CLI setup,
+verified execution identity and restricted owner writers; E2 administration remains.
+Concrete binding/privileges and technical readiness stay open. Next proposal:
+[setup verification boundary](../../../platform/docs/architecture/contracts/e1-controlled-provisioning-and-evidence.md#setup-verification-boundary--proposed-2026-10-08),
+using existing acceptance suites/runbooks to distinguish local command completion from
+effective authorization and a working consumer. No new story, product status system,
+production mutation or runtime evidence.
+
+
+Setup verification boundary approved — 2026-10-08. User additionally proposed a test
+application in development, staging and production for release/support verification.
+[Platform verification app proposal](../../../platform/docs/architecture/contracts/platform-verification-app.md) recommends extending E1-REF
+with an explicitly sized hosted scope, real shared-service paths and restricted synthetic
+production journeys; application-specific tests remain on their owning apps. Direction
+is under discussion; no new story count, production fixture permission, implementation
+or readiness pass. Current disposable reset safeguards remain binding.
+
+
+Platform verification direction approved — 2026-10-08: [approved responsibility split](../../../platform/docs/architecture/contracts/platform-verification-app.md#approved-boundary).
+The verification app exercises shared platform features; app-specific synthetic journeys
+run in each actual application with dedicated accounts/test data and required org fixtures.
+Shared runners/reporting do not duplicate product workflows. Hosted scope still requires
+explicit sizing; 23-item sequence, first Leave slice and readiness gates remain unchanged.
+No implementation, deployment, production test execution or new schedule authorized.
+
+
+Hosted verification sizing proposal — 2026-10-08: add E1-VERIFY after REF and before
+PEOPLE for the existing reference journey in explicit dev/staging/production environments,
+using restricted synthetic fixtures and existing automated reports. This would make 24
+E1 items if approved; the current 23-item matrix is not changed yet. PtS retains its earlier
+independent adoption checks, and Leave synthetic journeys remain in Leave consumer stories.
+See [candidate criteria](../../../_bmad-output/planning-artifacts/epics.md#candidate-story-e1-verify-exercise-the-shared-reference-journey-in-hosted-environments).
+No implementation, environment publication or readiness pass.
+
+
+Hosted verification approved — 2026-10-08: E1 now has 24 delivery items, with VERIFY
+immediately after REF and before PEOPLE. One maintained platform reference application:
+REF owns the reusable journey and local/CI tests; VERIFY adds hosted configuration,
+restricted fixtures and release execution using the same source/scenarios. No duplicated
+UI/API implementation or per-environment test suite. Disposable generator checks remain
+CI artifacts. The acceptance ownership matrix includes VERIFY; first Leave slice and
+all readiness gates remain unchanged. No implementation or deployment executed.
+
+
+Hosted fixture proposal — 2026-10-08: [verification contract](../../../platform/docs/architecture/contracts/platform-verification-app.md#hosted-fixture-boundary--proposed-2026-10-08)
+proposes stable per-environment synthetic accounts/two organizations, known allowed/denied
+permissions, bounded run records and exact owner-scoped cleanup. Ordinary production
+runners cannot administer accounts/grants or reset environments. Other applications use
+their own lifecycle rules for synthetic data. Refines VERIFY only; 24-item sequence and
+readiness gates stay unchanged. Concrete retention/limits and invocation remain open.
+
+
+Hosted fixture boundary approved — 2026-10-08. Stable dedicated identities, known
+allowed/denied access, bounded test records and exact ownership-checked cleanup stay
+within VERIFY; concrete limits remain to settle. Next discussion returns to ACCESS-B:
+[initial service caller matrix](../../../platform/docs/architecture/contracts/application-admission-and-discovery.md#initial-service-caller-matrix--proposed-2026-10-08)
+proposes explicit per-service operations, including People's narrow Leave own-read
+consumer mapping and Content's already approved service/ownership boundary. No new
+story or implementation; 24-item sequence and readiness gates remain binding.
+
+
+People caller-policy correction — 2026-10-08: user accepts the other matrix boundaries
+but questions People querying Leave permissions. Withdraw that proposed coupling. Leave
+checks its own access; People enforces its independent authorized service/current user/
+person/organization own-employment boundary, as the existing identity contract requires.
+Exact verified-context wire remains open; no raw-header trust or employment-based access
+grant is introduced. Corrected recommendation remains for discussion; accepted ADRs,
+24-item sequence and readiness gates unchanged. Documentation only.
+
+
+People boundary approved — 2026-10-08: People does not check Leave capability names.
+Next [current-context wire proposal](../../../platform/docs/architecture/contracts/identity-access-employment-e1.md#people-current-identity-context--proposed-2026-10-08)
+uses a restricted Access-owned identity/membership projection for People, alongside
+People's service/own-data policy and Leave's independent application authorization.
+ACCESS-B supplies the endpoint before PEOPLE; no new service/story or future dependency.
+Wire remains for discussion; 24-item sequence and readiness gates remain unchanged.
+
+
+People API boundary reaffirmed — 2026-10-08: user agrees to independent HTTP ownership;
+co-hosting is not a deciding factor. Retain existing API/no-cross-owner-table architecture,
+with no accepted ADR change. This does not claim the proposed identity-context endpoint
+or its provider verification has been implemented or independently approved in detail.
+
+Initial [reference capability names](../../../platform/docs/architecture/contracts/platform-verification-app.md#initial-reference-capability-identifiers--2026-10-08)
+are now concrete: `reference.record.read` and `reference.record.create`, organization
+scope, entry by read. Existing setup/Access/WRITE/REF/VERIFY responsibilities share those
+identifiers; no extra story or expanded CRUD. Remaining technical contracts/readiness
+stay open; 24-item sequence unchanged.
+
+
+Reference example wire proposal — 2026-10-08: [owning contract](../../../platform/docs/architecture/contracts/platform-verification-app.md#example-record-and-createread-wire--proposed-2026-10-08)
+uses one immutable labeled example, creation attribution, separate create/read permissions
+and an account/org-scoped compact operation receipt. Cleanup retains retry evidence so
+late retries cannot recreate deleted fixtures. This narrows WRITE's generic attribution
+wording to creation-only for this immutable example under ADR-0025; mutable consumer
+records still require update attribution. WRITE/REF/VERIFY share the same contract.
+Payload/routes remain for discussion; exact storage/retention/bounds and readiness remain
+open. No new story, runtime tests or application implementation; 24-item sequence remains.
+
+
+Reference growth discussion — 2026-10-08: initial create/read is a first increment,
+not the final reference scope. Proposed later editor, draft and immediate-preference
+examples must distinguish ADR-0051 saving patterns; autosaved drafts have no Save button.
+Recommend one internal verification/demo application, with real shared behavior and
+separate manual versus automated fixtures. Additional scope/placement remains under
+discussion; existing tests persist as regression coverage. No new story count or readiness
+claim; see the reference contract's saving examples and demonstration role section.
+
+
+Verification/demo role approved — 2026-10-08: one maintained app demonstrates the
+three saving conventions and provides automated platform coverage, with separate manual
+and automated fixtures. [Incremental placement proposal](../../../platform/docs/architecture/contracts/platform-verification-app.md#incremental-example-placement--proposed-2026-10-08)
+assigns draft examples to D2-B/D3/D4/D5 shared-artifact promotion, explicit Save editing
+to the first E2 configuration writer, preference examples to their first real consumer,
+and finalization only with E5. Initial REF/VERIFY remains create/read and independently
+completable. Additional demo scope must be included in consuming-story sizing; no new
+standalone count or implementation authorization. First Leave slice/readiness unchanged.
+
+
+Reference example placement approved — 2026-10-08: incremental demonstrations join
+their first proven consumer as proposed, with explicit sizing and no future dependency
+for initial REF/VERIFY. Next [minimal draft example proposal](../../../platform/docs/architecture/contracts/platform-verification-app.md#minimal-draft-demonstration--proposed-2026-10-08)
+uses optional title/note, its own account/org ownership and explicit single-active scope,
+plus existing autosave/close/discard protections. No Leave business fields or People
+dependency. New draft capability registration and hosted checks occur only with their
+consumer/cleanup readiness. 24-item sequence unchanged; no implementation or test runs.
+
+
+Reference draft example approved — 2026-10-08. Consolidated the existing E1 contract
+gaps and owners in the linked current checkpoint, distinguishing planning inputs from
+future runtime/release evidence. Next focus is ENV/P1/SERVICE reproducibility inputs;
+no architecture restart, new epic, application code or readiness pass.
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    
+
+Build ownership proposal — 2026-10-08: [working-tree inventory and PtS integration](./testing/e1-environment-and-dependencies.md#dependency-ownership-and-pts-integration--proposed-2026-10-08)
+recommends including PtS/reference/Leave web in root npm workspaces and one root lock,
+with coordinated deployment/test command adoption. User explicitly questioned retaining
+PtS's separate lock; no architectural need for that split was established. Python owners
+retain their own dependency locks; Access/Content stop depending on PtS requirements in
+their owning stories. Version differences require compatibility evidence, not blind
+alignment. Proposal only; 24-item sequence, first slice and readiness gates unchanged.
+
+
+Frontend hosting clarification — 2026-10-08: shared npm workspace/lock does not
+merge application deployments or authentication. User described the public Scribeswell
+domain/separate hosting rationale and reopened a possible Boabab alias. Recommendation
+remains public canonical scribeswell.com with PtS launcher access; optional alias would
+redirect one way to it from the same Scribeswell deployment. Alias and platform suffix
+remain discussion points, not accepted DNS changes. Existing combined-artifact manifests
+need per-app publication reconciliation during delivery; no live routing claim or change.
+
+
+Frontend build/hosting arrangement approved — 2026-10-08: shared npm workspace/root
+lock includes PtS and new Reference/Leave frontends, while Scribeswell is separately
+published publicly at scribeswell.com. No Boabab Scribeswell alias or redirect. Current
+PtS account access controls only launcher visibility; it does not gate public reading.
+[Publication target and owner mapping](./testing/e1-environment-and-dependencies.md#frontend-publication-target--approved-2026-10-08)
+assigns workspace tooling to ENV and coordinated current-app publication adoption to
+PTS-ADOPT/deployment, with affected Scribeswell checks. Final sizing/readiness remains
+binding; 24-item sequence unchanged. No code, lockfile, hosting or DNS changes executed.
+
+
+User-story planning resumed — 2026-10-08: naming is parked. E2 discussion begins with
+[candidate Story 2.1](../../../_bmad-output/planning-artifacts/epics.md#story-21-enable-or-suspend-leave-for-an-organization):
+authorized platform administration enables/suspends organization Leave availability under
+ADR-0046; organization administrators later manage user roles within enabled apps. This
+uses completed E1 foundations but does not mark E1 contracts/coverage, Phase 1 or
+implementation readiness complete. No implementation or new runtime authority.
+
+
+E2 story progress — 2026-10-11: Story 2.1 organization Leave availability approved.
+[Story 2.2 candidate](../../../_bmad-output/planning-artifacts/epics.md#story-22-assign-leave-roles-to-an-existing-organization-member)
+covers shared default-role assignment for an existing exact account/membership, explicit
+review, combined capability effects and safe revocation/retries. Custom-role editing and
+invitations follow separately. Role/catalog/delegation/projection and grant-adoption
+contracts remain readiness inputs; E1 gates and first slice stay binding. Planning only.
+
+
+Supervisor replacement discussion — 2026-10-11: Story 2.2 remains under discussion.
+Existing supervisor-based policy resolves eligible supervisors automatically for new
+requests, while role assignment alone does not establish reporting relationships.
+[Convenience proposal](../../../_bmad-output/planning-artifacts/epics.md#supervisor-replacement-and-approval-routing-discussion--2026-10-11)
+recommends a narrow shared Replace supervisor action with selection/effective date/review,
+existing setup guidance and separately confirmed E5 transfer of outstanding approvals.
+No general bulk editor, silent pending reroute, new approved feature or ADR change.
+Batch/history/impact contracts remain binding before delivery; documentation only.
+
+
+E2 progress — 2026-10-11: Story 2.2 approved with supervisor-routing clarification.
+Focused Replace supervisor convenience is accepted and synchronized to features §2/10
+and shared/Leave UX; shared batch/history and E5 pending-transfer contracts remain gates.
+[Story 2.3 candidate](../../../_bmad-output/planning-artifacts/epics.md#story-23-create-or-duplicate-an-application-specific-custom-role)
+now covers blank creation/independent duplication of Leave custom roles, without granting
+access until separate role assignment. Assigned-role editing/deletion follow separately.
+All current E1/Phase 1 readiness checks remain open; planning only.
+
+
+E2 progress — 2026-10-11: Story 2.3 custom-role creation/duplication approved.
+Assignment entry point is being clarified: current shared UX is the target member's
+Application access page; the user's “me view” wording could instead mean their own profile.
+No self-service grant change inferred. Existing authorization/readiness gates remain.
+
+
+E2 UX/story progress — 2026-10-11: role assignment drawer approved, shared/Leave UX
+and features synchronized. Same member/app form is opened from People/settings/holders,
+with reviewed confirmation and safe return; dedicated pages edit role definitions.
+[Story 2.4 candidate](../../../_bmad-output/planning-artifacts/epics.md#story-24-review-and-apply-changes-to-a-custom-role-held-by-members)
+now covers holder-impact review and explicit custom-role edits, including stale review
+and retained equivalent authority. Role deletion follows separately. Actor/catalog/
+assignment-impact contracts and E1/Phase 1 readiness remain open; planning only.
+
+
+E2 progress — 2026-10-11: Story 2.4 custom-role impact editing approved.
+[Story 2.5 candidate](../../../_bmad-output/planning-artifacts/epics.md#story-25-delete-an-unassigned-custom-role-while-preserving-its-history)
+covers blocked deletion while assigned, holder-drawer resolution/return, atomic
+assignment-versus-deletion protection and historical role retention. Built-in roles
+remain protected. Exact lifecycle/retention/writer contracts and implementation readiness
+stay open; planning only, with no role or account changes executed.
+
+
+E2 progress — 2026-10-11: Story 2.5 unused custom-role deletion approved.
+[Story 2.6 candidate](../../../_bmad-output/planning-artifacts/epics.md#story-26-invite-a-person-to-join-an-organization-securely)
+covers authorized recipient-bound invitations, status/delivery recovery and verified
+membership acceptance with no automatic employment/roles. Provider/Entra integration,
+expiry/reissue and invitation-delivery foundation must be resolved/sized before readiness;
+no future E3 notification dependency or live invitation assumed. Planning only.
+
+
+Invitation clarification — 2026-10-11: core 2.6 scope accepted, admission-path detail
+under discussion. Entra sign-in itself needs no application invitation; membership must
+still come from authorized invitation/provisioning. The story is an onboarding option,
+not mandatory for every SSO user. No tenant-managed auto-provisioning/group sync or
+email-domain admission is added; those need a separate trust/lifecycle contract.
+
+
+Onboarding policy discussion — 2026-10-11: [refinement proposal](../../../_bmad-output/planning-artifacts/epics.md#organization-onboarding-policy-refinement--proposed-2026-10-11)
+recommends invitation-only normal UI when no trusted tenant mapping exists, then explicit
+opt-in automatic enrollment offered after verified tenant setup. Controlled E1 bootstrap/
+adoption provisioning remains separate. Direction/scope is not yet approved; tenant-managed
+onboarding needs its own contract/sizing and ADR-0002 disposition before implementation.
+
+
+Onboarding amendment approved — 2026-10-11: platform ADR-0057 narrows routine organization
+onboarding to invitations until trusted Entra tenant setup and separate explicit automatic
+onboarding opt-in. Features/shared UX/agent context are synchronized; arbitrary provider
+replacement and Graph/SCIM sync remain deferred. Restricted E1 bootstrap/adoption stays.
+Story 2.6 is approved with this policy. [Story 2.7 candidate](../../../_bmad-output/planning-artifacts/epics.md#story-27-verify-a-trusted-microsoft-entra-tenant-for-an-organization)
+verifies tenant setup with enrollment off; automatic-join execution is a following bounded
+story, not a hidden dependency. Exact provider feasibility/trust/lifecycle contracts and
+all E1/Phase 1 readiness gates remain pending. Planning only; no provider/account change.
+
+
+E2 progress — 2026-10-11: Story 2.7 verified organization Entra tenant setup approved.
+[Story 2.8 candidate](../../../_bmad-output/planning-artifacts/epics.md#story-28-explicitly-enable-automatic-onboarding-from-a-trusted-tenant)
+adds explicit default-off enrollment opt-in, current eligible admission and policy-off
+handling without auto-employment/app grants. Initial proposal prevents automatically
+recreating a removed membership, requiring deliberate authorized rejoin. Exact audience/
+guest/identity evidence and lifecycle/commit ordering remain pre-story decisions; no
+provider/role synchronization or runtime implementation. E1 readiness stays pending.
+
+
+Advance-access discussion — 2026-10-11: user requests administrator setup before first
+sign-in. [Proposal](../../../_bmad-output/planning-artifacts/epics.md#administrator-prepared-access-before-first-sign-in--proposed-2026-10-11)
+allows explicit intended roles prepared with onboarding, pending until verified account/
+membership binding. Invitations remain the normal route without enabled trusted tenant
+enrollment; role approval is separate from automatic membership. Exact pending-activation
+scope needs user confirmation and a linked policy refinement; no code/grants executed.
+
+
+E2 advance-access agreement — 2026-10-11: platform ADR-0058 records explicit prepared
+roles before first sign-in with pending verified-target activation. Features/shared UX/
+agent context updated; 2.8 automatic enrollment scope approved with this distinction.
+[Story 2.9 candidate](../../../_bmad-output/planning-artifacts/epics.md#story-29-prepare-and-activate-application-access-before-first-sign-in)
+covers preparation/activation/withdrawal and staged Identity/Access recovery. Exact
+identity/role-version/lifecycle contracts and E1/Phase 1 readiness remain pending.
+No application code, accounts, grants, invitation or provider setup changed.
+
+
+E2 progress — 2026-10-11: Story 2.9 approved with automatic activation of already
+explicitly reviewed roles in the unchanged valid case; relevant changes remain pending/
+Needs review. [Story 2.10 candidate](../../../_bmad-output/planning-artifacts/epics.md#story-210-remove-a-members-organization-access-without-erasing-history)
+adds normal membership removal using the earlier exact-membership retirement contract,
+preserving employment/history and independent account access. Automatic re-enrollment
+cannot undo removal. Admin continuity/self-removal and workflow-impact contracts remain
+pre-story gates; no actual accounts, memberships or application code changed.
+
+
+E2 progress — 2026-10-11: Story 2.10 membership removal approved, including fresh access
+membership on re-admission without replacing login/person/employment. [Story 2.11 candidate](../../../_bmad-output/planning-artifacts/epics.md#story-211-add-an-employee-with-an-initial-employment-period)
+now covers minimum shared employee/person and initial dates, with accountless support,
+scoped uniqueness/history and honest Identity/People recovery. Login/app roles and
+Leave-specific work settings remain independent. Authority/profile/create/impact contracts
+remain pre-story gates; E1 readiness still pending and no employee/code changes executed.
+
+
+E2 progress — 2026-10-11: Story 2.11 shared employee creation approved with clearer
+person/People employment wording. [Story 2.12 candidate](../../../_bmad-output/planning-artifacts/epics.md#story-212-record-an-employment-end-date-with-reviewed-consequences)
+covers inclusive employment end dates, retained history and reviewed consuming effects,
+separate from membership/account removal. Existing Leave end-date/proration/correction
+rules remain binding with their E3/E5/E6 consumers; no later UI dependency or simulated
+calculation success. Shared consequential impact handshake remains a pre-story gate.
+No application code, employee, access or provider configuration changed.
+
+
+E2 progress — 2026-10-11: Story 2.12 employment end-date review approved.
+[Story 2.13 candidate](../../../_bmad-output/planning-artifacts/epics.md#story-213-record-a-return-to-employment-without-replacing-the-employee)
+adds a nonoverlapping period under the same enduring employment identity, preserving
+person/history/settings/drafts subject to current access and revalidation. Organization
+re-admission is needed only if membership was retired, with no restored old roles.
+Period/tenure/consumer-impact contracts remain pre-story inputs; no record/code changes.
+
+
+E2 progress — 2026-10-11: Story 2.13 returning employment period approved.
+[Story 2.14 candidate](../../../_bmad-output/planning-artifacts/epics.md#story-214-maintain-simple-organization-departments-and-locations)
+adds People-owned simple scoped department/location catalogues with stable rename/history
+and archive semantics. Employee assignment follows separately; fixture references avoid
+that later UI dependency. Location does not change Leave work profiles. Exact catalogue/
+reference/history and authority contracts remain gates; planning only, no record/code changes.
+
+
+Catalogue saving clarification — 2026-10-11: retain ADR-0051 explicit saving for shared
+business configuration, with one Create/Save and Cancel for simple department/location
+forms. Refined candidate 2.14 to avoid a redundant review screen for simple create/rename;
+archive shows its consequences and requires confirmation. No backend administrative draft
+or direct typing-time autosave. Story still under discussion; accepted ADR unchanged.
+
+
+E2 progress — 2026-10-11: Story 2.14 scoped department/location catalogues approved
+with one Create/Save and Cancel for simple edits, consequence confirmation for archive.
+[Story 2.15 candidate](../../../_bmad-output/planning-artifacts/epics.md#story-215-assign-or-clear-an-employees-department-and-location)
+adds optional dated employee placement, Unassigned handling, history and authorized
+filters without automatically changing Leave profiles or access. Dated nullable-reference/
+retirement/revision contracts remain pre-story gates; no actual records/code changed.
+
+
+Placement simplicity refinement — 2026-10-11: candidate 2.15 now proposes changes on
+Save with server-recorded effective/change history, no user date picker or planned/
+backdated assignment UI. Preserve ADR-0041 references through catalogue retirement;
+shared location eligibility/calendar consumers remain explicit contracts while work
+profiles own schedules/holidays. Failed label/choice loading preserves saved IDs and
+shows Retry, not a false Unassigned value. Direction remains for discussion; no code.
+
+
+Placement form simplification — 2026-10-11: user prefers simple active/archived state;
+2.15 now recommends one form-load response bundling employee placement/current labels
+and scoped option lists, with form-level Retry if required data fails. Archived current
+references display correctly; Save revalidates actual choices/revision. Shared owner HTTP
+boundaries remain; no separate per-field recovery or scheduled placement UI. No code.
+
+
+E2 progress — 2026-10-11: Story 2.15 optional department/location assignment approved
+with immediate explicit saving, server history and one complete form-load response.
+[Story 2.16 candidate](../../../_bmad-output/planning-artifacts/epics.md#story-216-assign-or-clear-an-employees-supervisor)
+adds one current manual supervisor relationship, optional/organization-scoped with no
+self-reference, and Leave-owned eligibility guidance. Shared relationship changes grant
+no roles and silently reroute no pending work. Bulk replacement follows separately;
+reference/eligibility/impact and readiness contracts stay open. Planning only.
+
+
+Supervisor story clarification — 2026-10-12: 2.16 remains under discussion. Existing
+last-change actor/time fields plus compact People-owned immutable change history preserve
+who changed each supervisor relationship; no duplicate activity/audit engine. Shared
+supervisor facts stay independent of Leave approval roles, with selected eligibility
+warning/access-management guidance; direct Leave approver pickers remain eligible-only.
+New submission resolves/snapshots the current eligible supervisor; old pending requests
+retain assignment until explicit reroute. Exact event/reference/eligibility contracts
+stay open; no implementation or employee/access changes performed.
+
+
+Change-history clarification — 2026-10-12: recommend one People employment-change table
+for its related changes, with shared envelope/writer conventions and typed bounded event
+payloads. Retain current-row attribution and local atomic history. Avoid per-field history
+tables, arbitrary table-name/value dumps or a universal audit service; broader reuse follows
+proven consumers. Exact schema/index/payload and readiness remain open; no benchmark claim.
+
+
+Scaffold history agreement — 2026-10-12: common envelope, controlled event schemas and
+transaction-aware owner-local writer approved. [Builder direction](../../../platform/builder-cli/README.md#reusable-owner-local-change-history--approved-2026-10-12)
+requires first-consumer templates/types/fixtures/display promotion and proof, preserving
+current attribution and avoiding duplicate history/audit or universal runtime capture.
+People employment_change is one related-event family. No implementation/readiness pass.
+
+
+Scaffold-input proposal — 2026-10-12: user asks about structured app metadata for planning/
+reuse enforcement. Recommend a thin versioned/schema-validated configuration derived from
+approved requirements with selected patterns, owner/scope/saving/history/source/test refs.
+[Builder proposal](../../../platform/builder-cli/README.md#thin-application-scaffold-configuration--proposal-2026-10-12)
+keeps specs/ADRs/UX authoritative and avoids duplicating DB/API schemas or adding a new
+workflow/runtime engine. Initial generator input is P1 scope; patterns join with their
+proven first consumer. Direction/format/exact schema still for discussion, not implementation.
+
+
+E2/scaffold progress — 2026-10-12: thin schema-validated scaffold input direction approved
+under platform ADR-0059; exact format/schema/generator implementation remains gated.
+Supervisor 2.16 proceeds with the clarified common immutable history/People fact/Leave
+eligibility boundary. [Story 2.17 candidate](../../../_bmad-output/planning-artifacts/epics.md#story-217-replace-a-supervisor-for-selected-employees)
+formalizes the approved narrow selected replacement action with reviewed effective date,
+scoped per-item history/results and separate E5 pending transfer. No general bulk editor;
+batch/reference/impact contracts and E1/Phase 1 readiness remain pending. No code/data change.
+
+
+E2 progress — 2026-10-12: Story 2.17 focused supervisor replacement approved. Work
+arrangements now proceed with [Story 2.18 calendar setup candidate](../../../_bmad-output/planning-artifacts/epics.md#story-218-configure-an-organization-holiday-calendar)
+before profiles so calendar references have a completed owner foundation. Calendar version/
+partial-day/date/impact semantics are pre-story inputs; profile/calculation consumers own
+later end-to-end behavior. Shared People location stays separate. Readiness remains
+pending, with no calendar/code/data changes performed.
+
+
+E2 progress — 2026-10-12: Story 2.18 holiday calendar setup approved.
+[Story 2.19 candidate](../../../_bmad-output/planning-artifacts/epics.md#story-219-create-a-reusable-leave-work-profile)
+creates a named initial version with working days/minutes/breaks, work timezone/calendar
+and standard-day conversion, without assigning employees or changing defaults. Assignment,
+consumed-profile edits/overrides/archive follow separately. Schedule/version/calendar/
+rounding and E1-setting compatibility contracts remain pre-story gates; no code/data change.
+
+
+E2 progress — 2026-10-12: Story 2.19 approved, with net working hours as default and
+detailed working/break times advanced. Features/Leave UX synchronized; schedule versions
+retain effective settings independently of audit and computed snapshots.
+[Story 2.20 candidate](../../../_bmad-output/planning-artifacts/epics.md#story-220-assign-or-change-an-employees-leave-work-profile)
+adds explicit employee profile assignment with dated/reasoned impact review, retained
+overrides and default fallback. Net/timetable/partial-holiday and effective-date/override/
+impact contracts remain pre-story gates; no profiles/settings/code changed in planning.

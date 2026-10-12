@@ -948,6 +948,13 @@ employee overrides clearly marked with an option to use the profile value. Previ
 the effective-date change with a required reason and request impacts before
 confirmation. Standard-day conversion remains distinct from daily scheduled hours.
 
+Work-time input agreement — 2026-10-12: use net daily working hours as the default,
+with detailed working periods and excluded breaks in Advanced settings. Show the resulting
+net time clearly; advanced times derive it, rather than silently double-subtracting
+breaks or saving two contradictory totals. Whole-form explicit saving applies. Define
+partial-day holiday/clock-time and DST semantics in the owning contract before calculation
+readiness; do not infer an arbitrary shift time for a net-only profile.
+
 Use reusable work profiles with NGO default, location/team profile, and employee
 override layers. Profiles supply working days, daily hours, work timezone, holiday
 calendar, and standard-day conversion duration. These are organization-configured
@@ -1046,6 +1053,14 @@ owners through their contracts. No cross-silo imports or implemented shared dire
 are implied by the visual example. Generic tenant labels use Organization under
 [platform ADR-0039](../../../../platform/docs/architecture/decisions/0039-organization-neutral-tenancy.md).
 
+Supervisor replacement agreement — 2026-10-11: use the shared
+[focused supervisor-replacement flow](../../../../platform/EXPERIENCE.md#focused-supervisor-replacement--mvp-agreement-2026-10-11)
+from employee administration, with selection, effective date and reviewed confirmation.
+Keep Leave's route-eligibility/setup guidance distinct from the People-owned relationship
+write. Pending approvals retain snapshots and use a separate authorized selected transfer;
+no role grant or completed-decision rewrite occurs automatically. Existing setup filters
+suffice; no new report or general mass editor is required.
+
 ### Setup and migration
 
 Offer a non-sequential setup checklist linking to normal settings: work profiles
@@ -1132,6 +1147,20 @@ Organization Administrator normally manages NGO application roles; advanced
 per-application delegation does not give Leave Managers general role administration.
 Keep approval, on-behalf correction, balance adjustment and sensitive documents
 separately controlled. Review role additions/removals before applying them.
+
+Role-assignment drawer approved 2026-10-11: inherit the shared right-side drawer/full-
+screen mobile sheet for member/application access, including clear account/organization/
+application context, capability summaries, Review changes/confirmation, unsaved-change
+handling and invoking-item focus return. People, Leave settings and role-holder links
+open the same shared form. Keep custom-role definitions on their dedicated editor page;
+related holder navigation preserves that editor's local unconfirmed input and position.
+
+Advance access agreement — 2026-10-11: inherit the shared
+[prepare-access flow](../../../../platform/EXPERIENCE.md#prepare-access-before-first-sign-in--agreement-2026-10-11)
+and platform ADR-0058. Roles confirmed before account/membership completion remain
+Pending onboarding; show Active only after verified target/admission and assignment
+activation, or Needs review where changed state blocks it. This is confirmed pending
+access, not an autosaved administrative form. No email-only employee/account linking.
 
 Custom-role creation inherits the application from settings and starts with empty
 name, description and capability choices. No Start from selector. Duplicate role

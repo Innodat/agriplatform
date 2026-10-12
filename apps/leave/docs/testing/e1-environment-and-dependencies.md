@@ -289,3 +289,118 @@ Tool semantics checked against [npm ci](https://docs.npmjs.com/cli/commands/npm-
 [uv locking/syncing](https://docs.astral.sh/uv/concepts/projects/sync/) and
 [Playwright CI](https://playwright.dev/docs/ci). These sources support the command semantics,
 not a claim that this repository's proposed version combination has been verified.
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 
+
+## Dependency ownership and PtS integration — proposed 2026-10-08
+
+**Frontend workspace integration approved, 2026-10-08.** Exact compatibility pins and
+implementation evidence remain pending; hosting stays independently owned per app.
+
+Working-tree inspection found two npm install roots: the repository workspace includes
+platform packages, Scribeswell web and tools; PtS web has its own package-lock and is
+absent from root workspaces. Its deployment manifest explicitly selects `install: prefix`;
+install-frontends.py supports that path and production.yml invokes its local Playwright
+binary and prefix test command. This explains the current mechanism, not a demonstrated
+architectural requirement or a verified account of why the original author chose it.
+
+User challenged leaving PtS separate. Recommend integrating PtS into the root npm
+workspace alongside the new reference/Leave frontends, using one authoritative root
+package-lock for that workspace. Apps retain their own manifests, scripts, build outputs
+and independent runtime/deployment boundaries. A common install graph does not authorize
+cross-app source imports or require simultaneous application deployment.
+
+Do the change as one coherent tooling adoption item within ENV's affected-consumer work:
+add the workspace, reconcile/resolve the root lock, update PtS's manifest install mode,
+CI browser invocation and setup documentation, then remove the redundant PtS lock only
+once clean-install and affected build/browser checks prove the replacement. Shared
+package source references are versioned by the same repository revision. Avoid running
+a full root npm install repeatedly for each selected workspace in release tooling.
+Do not silently remove generic prefix support needed by other actual consumers; inventory
+all manifest install modes first. Retain the old source/lock/release revision for recovery.
+
+Observed lockfile differences include TypeScript 7.0.2 at the root versus 5.9.3 for PtS,
+and different resolved React versions. These are file contents, not registry availability,
+security or compatibility verification. One workspace lock does not require every app to
+use an identical dependency version. First preserve intended behavior; deliberately align
+shared React/peer/compiler/test tooling where the supported matrix requires it and prove
+that with clean installs and actual builds/tests. Do not call current lock contents a
+validated new baseline or introduce unrelated blanket upgrades.
+
+For Python, keep runtime dependency declarations and resolved locks owned by each
+backend/service. Recommend pyproject.toml plus uv.lock per owning project for new E1
+components and touched shared services; separate runtime and test groups. Access and
+Content currently install apps/pts/requirements.txt in their Dockerfiles: remove that
+packaging dependency in their owning delivery, replacing it with each service's verified
+own dependency set. Do not replace it with one universal runtime requirements file.
+Where pip-based packaging remains, a requirements export must be generated from the
+owning lock, not maintained as a competing source. Python dependencies cannot import
+another owner's server implementation merely because builds share tooling.
+
+Reproducibility direction: explicit pinned Node/npm and Python/uv versions, committed
+resolved dependencies, and locked installs that reject stale manifests. Existing Node 24
+CI and Python 3.12 container lines are compatibility candidates, not selected exact pins.
+Check actual supported releases/registries and choose the exact set before readiness;
+exercise fresh-install/type-check/build/API/browser paths during authorized delivery.
+[npm ci documentation](https://docs.npmjs.com/cli/v11/commands/npm-ci/) and
+[uv locked synchronization](https://docs.astral.sh/uv/concepts/projects/sync/) describe the
+install mechanisms; they are not repository test evidence. Pin browser builds and
+container/provider versions separately where required by the existing environment gate.
+
+Scaffold: P1/SERVICE emit the selected owner manifests and reproducible install guidance;
+ENV owns the common tooling/fixture foundation, with ACCESS/CONTENT package adoption in
+their own stories. Shared UI package compatibility is checked against affected consumers;
+no UI feature added. Agent context remains valid, including the stale root dev/build
+warning. Update owner docs, deployment tooling tests and requirement/evidence links during
+delivery; no accepted ADR change. Exact compatibility pins and commands remain open.
+This inspection changed documentation only: no dependency installation, lockfile update,
+manifest/code edit, registry validation, migration, build/test run or readiness pass.
+
+
+Hosting clarification — 2026-10-08: user explains the intended public Scribeswell domain
+and separate frontend hosting motivated the original split. Keep build dependency
+ownership distinct from deployment/domain ownership: one npm workspace/lock can still
+produce independently published Scribeswell, PtS and Leave frontends. Consolidation must
+not collapse their public/auth boundaries or require shared frontend releases.
+
+Current working-tree manifests/build tooling assemble PtS at `/` and Scribeswell at
+`/scribeswell/` in a combined static artifact. These files are not evidence of live DNS
+or current production routing. The accepted app-domain target therefore requires explicit
+per-app publication/base-path/API-origin design; changing DNS alone does not implement it.
+The user reopened whether a Boabab Scribeswell alias would be useful. Recommend keeping
+scribeswell.com canonical and public, with PtS's launcher linking there; if an alias is
+adopted, point its hosting configuration at the same Scribeswell deployment and redirect
+one way to the canonical domain. Exact Boabab .app/.com choice and optional alias remain
+for discussion; earlier no-alias scope is not silently replaced. Hosting must configure
+both requested domains/TLS and any redirect; DNS aliasing is not an HTTP redirect or SSO.
+No domain records, sites or deployment manifests were changed.
+
+
+## Frontend publication target — approved 2026-10-08
+
+User confirms public Scribeswell at `scribeswell.com`, without a Boabab Scribeswell alias
+or redirect. This resolves the alias discussion above. Retain the accepted PtS-account
+launcher rule under ADR-0047 as refined by ADR-0052/0053: the eligible menu entry links
+to `https://scribeswell.com`; direct public reading requires no sign-in and does not
+inherit a PtS admission requirement. No new registration or SSO behavior is implied.
+
+Use a separately published Scribeswell frontend with its own target/site configuration,
+while consolidating PtS and new Reference/Leave frontend dependencies into the shared
+npm workspace/root lock. App-specific build outputs, domains, API configuration and
+release targeting remain explicit. Dependency consolidation is not a combined hosting
+requirement. Do not duplicate Scribeswell source or deploy two copies for PtS users.
+
+Delivery reconciliation: ENV owns the npm workspace/install/test-tooling transition;
+PTS-ADOPT and the deployment owner coordinate removal of the combined PtS/Scribeswell
+static publication assumption. Preserve Scribeswell's public availability and correct
+app-directory target, base paths, deep links, assets, API routes and HTTPS behavior in
+that transition. P1 generates per-app deployment inputs; VERIFY later consumes that
+proven publication pattern. Include actual affected Scribeswell tests in the shared
+change. Explicitly size this deployment work before declaring PTS-ADOPT ready; no
+silent additional story or dependency on the later reference app is introduced.
+
+Validate independent artifact selection and per-app configuration, anonymous direct
+Scribeswell entry, PtS-authorized launcher navigation, denied/unavailable menu cases,
+and recovery to the previous publication. Exact hosting targets and existing live URL
+inventory must be established during authorized delivery before cutover; do not invent
+redirects for unknown legacy URLs. This records the agreed target, not DNS/site changes
+or permission to skip planning/readiness. No accepted ADR changed.

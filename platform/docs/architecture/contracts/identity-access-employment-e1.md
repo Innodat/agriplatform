@@ -1,5 +1,18 @@
 # E1 shared identity, access and employment contract discussion
 
+> **Capability-scope refinement — 2026-10-06:** [ADR-0053](../decisions/0053-capability-scoped-access-in-mixed-scope-applications.md)
+> makes account/organization scope a property of each capability. Current PtS
+> capabilities are account-scoped; future organization features do not change them.
+> Earlier exclusive application scope fields require the refinement below/in the
+> owning admission contract before readiness. No implicit cross-scope authority.
+
+> **Governing update — 2026-10-06:** [ADR-0052](../decisions/0052-pts-account-scoped-access-and-coordinated-adoption.md)
+> makes PtS account-scoped now, with individual grants and no organization/membership
+> requirement. Earlier organization-only E1/PtS and mandatory v1-preservation passages
+> below are superseded for PtS. Leave organization contracts remain binding. Account
+> grant/check/discovery/operator schemas and PtS corpus/Content transition are required
+> pre-story inputs, not implemented by this notice.
+
 **Status:** Platform direction accepted under ADR-0042; detailed wire contract and readiness pending  
 **Date:** 2026-09-23  
 **Owners:** Platform identity/people owner and Leave lead
@@ -934,3 +947,264 @@ Tests: no periods, first period added, period correction/relationship revision i
 snapshot, future-only and ended-only periods both returning true, accountless fixture,
 wrong organization and unavailable service. This closes the undated period-presence
 schema choice; executable evidence and provisioning/readiness gates remain open.
+
+
+## Canonical capability-check wire — 2026-10-06
+
+This technical design implements the accepted ADR-0053 scope distinction. It replaces
+prior two-field `/v2/check` proposals; none has been implemented. Do not maintain two
+ambiguous v2 inputs. ACCESS-B owns models, OpenAPI, consumer adapters and fixtures together.
+Legacy PtS adoption follows ADR-0052, not a permanent v1 compatibility requirement.
+
+`POST /v2/check` requires the end-user bearer and distinct service credential. Body:
+
+```json
+{"permission":"pts.poetry.read","authorization_scope":{"kind":"account"}}
+```
+
+```json
+{"permission":"leave.request.own.read","authorization_scope":{"kind":"organization","org_id":"<organization UUID>"}}
+```
+
+The authenticated bearer determines the account; no account/person/actor selector is
+accepted. Capability registration determines the required scope and application.
+Reject unknown fields, duplicate keys, malformed IDs and absent required organization
+with `validation_failed`. Reject a well-formed but registry-incompatible scope through
+the safe validation outcome after service policy validation; never try another scope.
+Service policy still limits exact capabilities/endpoints. No top-level optional org_id.
+
+Success common fields: `account_id`, `actor_id`, `permission`, `authorization_scope`,
+`decision_id`, `checked_at`. UUID strings and UTC RFC3339 apply. Variants:
+
+| Variant | Additional required fields | Meaning |
+| --- | --- | --- |
+| Account capability | No person, membership or organization fields | Exact account grant; actor is verified for attribution. Account does not require employment or a person link merely for PtS reading. Missing actor mapping is a safe setup outcome after authority checks, not invented identity. |
+| E1 Leave organization own capability | `person_id`, positive decimal-string `membership_id`, `resource_scope: {kind: own, person_id}` | Current organization authority plus verified person/actor setup. `authorization_scope.org_id` identifies the organization; resource scope identifies whose records, not an alternative access scope. |
+
+Do not include absent-variant fields as null placeholders. These are a closed typed
+union for current consumers; future organization capabilities need their own declared
+resource scope, not an assumed universal own-person restriction. Client verifies exact
+permission, authorization scope and identity/resource consistency. The previous generic
+`scope` own-person field is now `resource_scope`; no overloaded meaning of scope.
+No-store/private responses, no replayable decision token, current authorization and
+safe errors remain binding. Person-link errors apply only to capabilities that require
+that link. The actor/account mapping must not force employment or organization membership.
+
+E1 Access account checks cover current profile, global app enablement and exact account
+grant. Organization checks retain org enablement, current membership and exact bound
+grant, plus the applicable identity/resource requirements. Provider waits stay outside
+DB locks. Selected wire changes must propagate to Leave/People/reference consumers and
+all examples before executable contract generation; source schemas/tests do not yet exist.
+
+
+## Account-only actor resolution — 2026-10-07
+
+This refines earlier employee-focused actor/link wording for accepted ADR-0052/0053.
+An account can have multiple organization memberships and separate individual app grants;
+none requires employment merely to exist. Account-only PtS actions need stable attribution,
+not a fabricated person/employment or organization membership.
+
+Identity owns a durable actor registry and an account-to-actor association independent
+of account_person. Each account has one stable account actor; each service has a distinct
+service actor. A verified person link is additional identity evidence for workflows that
+need it, not the source of every account actor. Retain the actor and historical association
+after account removal/deactivation; do not cascade-delete attribution or reuse an old
+actor for a replacement account. Where verified legacy authorship used the account UUID,
+preserve that UUID as the actor ID through explicit adoption; unknown/service legacy
+profiles require classification, never assumed human backfill.
+
+Two accounts later linked to the same person keep distinct account actors and independent
+grants. The person link permits domain person resolution; it neither merges historical
+authorship nor unions permissions. A new account created after deletion receives its own
+actor/grants, even if the email or person matches. Linking to an existing enduring employee
+may restore historical domain context only after explicit current authorization.
+
+### Resolution and controlled setup
+
+1. Authenticate the bearer and establish current account/profile and capability authority.
+2. Resolve the verified account's stable actor through the Identity-owned restricted
+   projection. Missing actor returns the declared setup outcome after disclosure checks.
+3. For a capability requiring a person (Leave own requests), additionally resolve the
+   verified person link and resource scope. Account-only PtS omits person/employment fields.
+
+No login, permission read or Content request creates identity rows. E1 controlled setup
+adds Identity `account_actor.ensure`: exact verified account_id, explicit intended actor_id,
+expected absence, authorized executor and evidence reference. Absent mapping may be created;
+an identical verified mapping may return unchanged; a conflicting mapping fails rather
+than relinks. Validate actor kind and uniqueness, preserving legacy identity deliberately.
+Reuse existing operation/replay/attribution rules and owner-local transaction. The later
+account.link_person command consumes the same actor instead of allocating another one.
+Actor bootstrap uses the previously required trusted operator mapping; no self-grant endpoint.
+
+The authoritative current-account projection may expose account_id/actor_id to Access
+without organization selection or employee joins. It must still reject missing/deactivated
+accounts and arbitrary HTTP account selectors. Exact actor DDL/kind constraints, retained
+reference strategy on Auth deletion and projection grants remain ID-B readiness inputs;
+no extra identity runtime service is introduced. Account deletion disables access even
+though historical actor metadata remains.
+
+### Evidence and impacts
+
+ID-B proves account actor without person/membership/employment; later person linking keeps
+actor unchanged; same person/two accounts retain distinct grants/actors; account deletion
+preserves old attribution; recreation does not take it over; conflicting setup and spoofed
+actor fail; duplicate/concurrent ensure commits once. ACCESS-B consumes the actor without
+introducing person_link_required for PtS. CONTENT-READ records its verified service executor
+and application-asserted initiator distinctly under ADR-0054; forwarding an actor UUID is
+not independent user authentication. PTS-ADOPT covers actual account-only behavior.
+
+Scaffold typed identity fixtures, operator adapter and owner documentation update with
+ID-B. No new user-facing profile, HR form or shared UI; existing agent/ADR rules suffice.
+This is implementation design, not executed schema/provisioning or a readiness pass.
+
+
+## Actor registry choice — accepted 2026-10-07
+
+[ADR-0056](../decisions/0056-durable-actor-registry-separate-from-login-accounts.md)
+confirms the separate registry instead of broadening identity.users to optional-Auth
+system identities. Keep account profiles linked to Auth; actor lifetime is independent.
+Preserve named System/Migrate actors and verified existing UUIDs; classify service imports
+explicitly. The preceding account-only resolution design remains applicable. There is
+no actor per login method/run and no implicit merge for several accounts of one person.
+
+ID-B must bind actual table/kind/link constraints, deletion/history behavior and restricted
+projection alongside account_actor.ensure and controlled System/Migrate/service bootstrap.
+Inventory all supported writers, including legacy JWT-derived audit triggers and text
+service attribution; valid seed identities alone do not supply execution context. No new
+UI/service or live account deletion is authorized. This resolves the model choice, not
+schema/migration/runtime readiness.
+
+
+## Minimum actor persistence and lifecycle — 2026-10-07
+
+Technical design implementing ADR-0056, owned by ID-B. No actor-management product,
+new identity service, live account cleanup or executable migration is introduced.
+
+| Record | Minimum shape | Structural/lifecycle contract |
+| --- | --- | --- |
+| `identity.actor` | `id UUID` PK; `kind` account/system/service; `display_name`; optional stable `actor_key`; creation/update actor IDs and UTC times | IDs/kind/assigned non-null key are immutable; unique non-null actor_key for named operational identities. Display text is not authority. No Auth/person/org/employment FK on this record. Retain rows referenced by history; no cascading deletion of actors or business attribution. |
+| `identity.account_actor` | `account_id UUID` PK; `actor_id UUID` UNIQUE; fixed account-kind discriminator; creation attribution | One permanent account-to-account-actor mapping. Composite actor reference enforces account kind (actor registry supplies the corresponding unique id/kind key). No mapping to System/Migrate/service actors. Account and actor IDs may be equal where legacy evidence requires it; do not assume equality in consumers. |
+
+The account_id in account_actor is a retained historical Auth identifier, not a live FK
+whose deletion would erase it. This exception is deliberate: the controlled Identity
+writer verifies the live account/profile on creation, while resolution always checks
+current account/profile before using the mapping. No arbitrary account IDs may be
+inserted through runtime or a browser API. Account profiles themselves keep their Auth
+FK. Actual legacy profile/membership/attribution FKs may still prevent Auth deletion;
+this design does not authorize dropping those safeguards or promise deletion works today.
+
+Current account deactivation denies authentication-dependent operations without deleting
+actor/mapping. If a later controlled account-removal procedure removes the live account,
+its historical UUID remains in the mapping and cannot be reassigned. A recreated account
+with a different UUID receives a new actor. No actor relink/merge command in E1. Separate
+accounts for one person remain distinct; optional account_person linkage does not mutate
+account_actor. Provisioning must reject an attempted reuse of a retained mapping as a
+new account identity rather than silently inheriting history or grants.
+
+### System, Migrate and operational identities
+
+Controlled baseline/adoption registers named `system` and `migrate` actors and explicitly
+required service keys such as `pts-import`. Preserve verified existing System/Migrate
+UUIDs; service text such as service:pts-import maps explicitly to a stable registry UUID.
+Do not allocate new actors per deployment/run, copy platform-admin flags onto them, or
+require Auth records. Actor keys identify attribution; they contain no credential.
+
+Add an owner-controlled `actor.register_system` command for system/service variants:
+explicit actor ID, kind, stable key, display name and expected absence. Same verified
+registration may return unchanged; conflicting key/ID/kind mapping fails. Only trusted
+Identity setup authority may run it. Reuse owner outcomes/audit and supported writer
+privilege boundaries. Human account actors still use account_actor.ensure.
+
+The initial trusted migrator actor is established by the controlled migration bootstrap
+before ordinary actor-attributed commands run. A clean baseline may give that bootstrap
+actor self-referencing creation attribution with an explicit bootstrap release/command
+record. This describes trusted setup, not a runtime default or evidence of a human
+initiator. Adoption preserves actual legacy provenance instead of applying this rule
+retroactively to historical data. Subsequent registrations name the verified executor.
+
+Missing actor context on a normal write fails safely; never silently substitute System
+or Migrate. Support corrections identify the actual support account, or the executing
+job plus verified initiator if delegated. Only configured restricted execution identities
+may select their established system/service actor; a manifest cannot claim arbitrary
+actors. Keep database-login/service-credential authorization separate from actor lookup.
+
+### Read, write and adoption boundaries
+
+A restricted Identity projection resolves only the authenticated current account's actor
+for Access, independently of person/employment/org. Service actor resolution uses trusted
+service identity configuration, not a user-selectable actor parameter. Actor display
+resolution exposes only permitted labels; no general account directory is added.
+
+Within Identity, new actor references use non-cascading local constraints where applicable.
+Across owner schemas follow existing external-reference contracts: verify and retain actor
+IDs without adding cross-owner table dependencies. Legacy FK conversion, ON DELETE SET NULL
+behavior and old UUID/text writers require explicit mapping/migration tests; do not rewrite
+original authorship or silently interpret all old system profiles as human accounts.
+
+ID-B tests: constrained actor kinds and uniqueness; missing-context write denied; account
+mapping without employee; same account idempotent ensure; conflicting ensure rejected;
+System/Migrate without Auth accounts; verified service text adoption; historical mapping
+survives simulated live-account removal while current lookup denies; recreated account
+new identity; later person link unchanged; restricted runtime cannot register or relink.
+Characterize all affected writers/triggers first and retain explicit transaction/recovery
+checks. Physical DDL names, exact payload/display-name limits, restricted projection
+privileges and coordinated deletion/adoption matrices remain readiness work, not implied
+by this minimum design. Scaffold/fixtures/docs update in ID-B; no additional UI or ADR.
+
+
+## People current identity context — proposed 2026-10-08
+
+The user approved keeping application capability checks in Leave and keeping People
+independent of `leave.request.*`. This proposes the missing verified-context wire under
+the existing Access/Identity owner integration; no separate identity microservice.
+
+Add a restricted Access endpoint `POST /v2/identity/organization-context`, initially
+allowed only for the People service credential. Input is exactly `{org_id: UUID}` plus
+the current end-user bearer. No account/person/actor override, app ID or permission
+string. Verify the service before disclosing user/setup information, then current
+session/account profile, active organization and current account membership through
+Identity-owned projections. No provider wait while holding a database transaction.
+
+Success is private/no-store and includes `account_id`, `actor_id`, `org_id`, decimal-string
+`membership_id`, nullable `person_id`, `observation_id` and UTC `checked_at`. Resolve the
+account actor through the accepted registry; missing actor is a safe setup error after
+membership is established. A missing person is null, not an inferred employment or new
+person record. Responses are current identity observations, not reusable grants/tokens.
+This endpoint performs no application admission or capability decision and must never
+replace `/v2/check` for protected application actions. No implicit Access app grant is
+created by resolving identity or discovering employment.
+
+People's own-employment request proceeds as follows:
+
+1. Authenticate the incoming consumer service and its explicit permission to call the
+   organization-scoped own-employment route; reject unknown consumers. Any configured
+   organization restrictions remain binding. A user token alone cannot call People.
+2. Use People's own Access credential with the forwarded user bearer and requested org
+   to obtain current context. Never accept a caller-provided person as a substitute.
+3. Require the returned organization to match, and a verified person link. Enforce that
+   exact organization/person in People-owned persistence and restricted-role RLS; return
+   only the existing minimum employment response. No other employee selector or manager
+   directory capability is included. App admission was checked by the consuming API.
+4. On missing current membership, deny; on missing linked person, return the existing
+   setup error; on unavailable verification, return unavailable, not not_found or stale
+   success. Only an authorized People lookup can establish absent employment.
+
+This keeps ordinary end-user access and the narrow authorized service boundary distinct.
+An app service compromised within its permitted People own-read scope is a trusted-caller
+risk, not a reason to claim service policy verifies all application business decisions.
+Accountless employees remain supported in shared persistence but cannot use `/me` without
+an authenticated linked account. Future administrative/history access has separate
+contracts; this proposal does not infer it from own-read or organization membership.
+
+ACCESS-B supplies the context endpoint and fixtures before PEOPLE consumes it. ID-B owns
+the current projection and actor/person mapping. PEOPLE proves real consumer/context/
+scoped-query integration. Test spoofed IDs, wrong/revoked membership, wrong service,
+changed person link, missing mapping, provider outage and pooled connection reuse.
+No app permission names enter People; no cross-owner table access from People is added.
+
+Scaffold: reuse verified-context HTTP types and safe errors only after the first proven
+consumer. Shared UI: existing denied/setup/unavailable states; no new user action.
+Agent context/ADRs: existing ownership and authorization rules suffice. Docs: reconcile
+Access caller matrix, typed schema and owner projection/privileges with this contract.
+Exact bounds, provider revocation semantics and executable proof remain readiness gates;
+no endpoint, migration or runtime security evidence exists from this planning change.

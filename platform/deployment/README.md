@@ -677,3 +677,29 @@ always-run teardown removes its owned interface and secret files. CI retains
 root-capable deployment authority. This is preparation, not evidence of a live
 private path or provider activation. The Mac Mini and its Tailscale network remain
 separate and unchanged.
+
+
+## Planned authenticated download ingress — 2026-10-07
+
+[Content's direct application ingress design](../docs/architecture/contracts/content-ownership-and-authenticated-read.md#direct-application-download-ingress--direction-accepted-2026-10-07)
+requires private file streams to bypass Netlify's proxy through per-app origins on the
+existing gateway and owning APIs. Proposed origins are not deployed or verified. Extend
+owning manifests/renderer for explicit host/TLS/origin/session/file routes and streaming
+limits; do not modify generated configs. Verify long/slow transfers, auth/cache isolation,
+range/disconnect and release recovery before activation. Current single-origin renderer
+is not evidence this path already works. No standalone public Content endpoint is added.
+
+
+## Planned independent frontend publication — approved 2026-10-08
+
+Scribeswell's target is a separate frontend publication at `scribeswell.com`, public
+without sign-in, with no Boabab alias/redirect. Eligible PtS users navigate there through
+the shared launcher; this does not gate public reading. See the
+[owning delivery plan](../../apps/leave/docs/testing/e1-environment-and-dependencies.md#frontend-publication-target--approved-2026-10-08).
+Shared npm workspace/root-lock installation remains compatible with separate builds and
+publication targets; it does not require publishing all apps together.
+
+Current combined static artifact and manifest base paths must be reconciled through
+owned release tooling and tests before transition. Use explicit per-app site/domain/API
+configuration, preserve anonymous access and deep links, and verify recovery. This is a
+planning target; manifests, renderer, DNS, hosting sites and live releases are unchanged.

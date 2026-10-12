@@ -137,6 +137,11 @@ Approval-step assignment, self-approval rules, and sensitive-document checks rem
 independent requirements. Use shared platform access management and reusable role
 controls; Leave owns its catalog and enforces request-level checks in its API.
 Follow the shared [role lifecycle and return-navigation contract](../../../platform/EXPERIENCE.md): review holder impact, allow deletion only when unassigned, preserve audit history, and link holders to their application access with a contextual return to the role editor.
+Role assignment uses one shared right-side drawer on desktop and a full-screen sheet on
+mobile, opened from member details, application settings or a role's holder list. Show
+member/account, organization and application context, review changes before confirmation,
+and preserve the invoking view/focus and supported return to an unfinished role editor
+(agreed 2026-10-11). Custom-role definition editing uses a dedicated page.
 
 Recording a justified exception for missing temporary approvers is an underlying
 capability included in Leave Manager by default. No additional client setup is
@@ -194,6 +199,17 @@ does not grant cancellation or replacement rights over another employee's leave.
   Re-enabling restores only still-valid access; revoked memberships/grants remain
   revoked. Protected discovery failure is retryable, not evidence of access removal.
 - Join NGOs only through an authorized invitation/provisioning process.
+  Normal onboarding is invitation-based unless a trusted organization Entra tenant is
+  verified and automatic onboarding explicitly enabled under
+  [platform ADR-0057](../../../platform/docs/architecture/decisions/0057-invitation-onboarding-and-trusted-tenant-enrollment.md).
+  Offer that choice after tenant verification, default off. Enrollment grants membership,
+  not employment or app roles; disabling it stops new automatic joins without deleting
+  existing memberships. Restricted setup/adoption provisioning remains separate.
+- Authorized administrators may prepare and explicitly approve roles before first sign-in
+  under [platform ADR-0058](../../../platform/docs/architecture/decisions/0058-administrator-prepared-access-before-first-sign-in.md).
+  Show pending access until verified invitation acceptance or eligible tenant enrollment
+  establishes the correct account/membership and current activation checks pass. Create
+  no synthetic login account, email-based identity merge or employment-derived grant.
 - Switch between NGOs without creating separate platform identities.
 - Display the active NGO prominently in the application shell.
 - Load roles, permissions, employment record, policies, schedules, and reporting
@@ -225,6 +241,12 @@ is introduced. Normal authorized balance administration remains available.
 
 - Manage departments, teams, locations, and employee employment records.
 - Assign an effective-dated supervisor and other approval assignments.
+- Provide a focused **Replace supervisor** action through shared employment administration:
+  select all or some employees reporting to the current supervisor, choose the replacement
+  and effective date, review the exact affected set, and confirm (agreed 2026-10-11).
+  Preserve scoped history and verify each changed relationship; changing supervisors
+  does not grant application permissions. Use existing setup guidance and employee filters
+  for missing/invalid supervisor routes, distinguishing unavailable checks from missing data.
 - Configure acting/delegated approvers for an effective period.
 - Retain historical relationships so old requests retain their original context.
 - Use one shared employment relationship per person per organization, retaining
@@ -261,6 +283,11 @@ is introduced. Normal authorized balance administration remains available.
 - Configure holiday calendars by country, region, location, or employee assignment.
 - Support employees in multiple countries within the same NGO.
 - Configure standard and non-standard working weeks.
+  Default to entering each working day's hours net of excluded breaks. Offer detailed
+  working-time and break timetables under Advanced settings (agreed 2026-10-12).
+  Advanced intervals derive the same canonical working minutes; do not subtract breaks
+  twice or maintain conflicting independently editable net totals. Define clock-based
+  partial-holiday/DST treatment before affected calculation readiness.
 - Support observed holidays, special NGO holidays, and partial working days.
 - Apply timezone-aware, effective-dated employee schedules.
 - Preserve the calculated working-time snapshot on submitted applications.
@@ -1876,6 +1903,13 @@ an assignee when delegation dates or directory relationships change. Preserve
 completed approvals. A return transfer explicitly authorized during temporary
 assignment setup may execute at the agreed expiry as described below.
 
+For permanent supervisor replacement, newly resolved supervisor-based routes use the
+eligible supervisor effective for the applicable route resolution. Existing pending
+steps retain their snapshots. Offer a separate authorized review/transfer of selected
+outstanding approvals with a recorded reason when approval reassignment is available;
+completed decisions remain unchanged (agreed 2026-10-11). The shared employment change
+and Leave reassignment are separate owner operations, not an automatic combined write.
+
 During temporary-approver setup, show already-waiting requests and offer
 **Include these pending approvals**. Require authorized confirmation of the
 selected reassignment and record its reason. Completed approvals remain unchanged.
@@ -2036,6 +2070,10 @@ See [ADR-0010](./architecture/decisions/0010-cancel-and-replace-approved-leave.m
 - Show upload and verification status. Preserve an extensible content-safety state,
   but do not require malware scanning for MVP.
 - Permit download only after Leave-domain authorization and content safety checks.
+- Private downloads use authenticated Leave API requests streaming through Content
+  under [platform ADR-0055](../../../platform/docs/architecture/decisions/0055-authenticated-private-downloads-by-default.md).
+  Recheck current access on each file request; no browser bearer read URL. Direct
+  signed uploads remain. Unauthenticated share links are deferred to an explicit need.
 - Keep attachment names and medical details out of broad calendar/dashboard views.
 - Support configured retention and auditable disposal. The initial medical-document
   default is two years after request closure, but each NGO/jurisdiction must be able
@@ -2562,7 +2600,7 @@ queue handling in the restoration rehearsal under ADR-0119.
 
 | Decision | Responsible | Decision gate |
 |---|---|---|
-| Secure document-link / signed-operation lifetime | Technical architect and security lead | Selected: 5-minute private reads, 15-minute uploads under [platform ADR-0036](../../../platform/docs/architecture/decisions/0036-private-content-signed-operation-lifetimes.md); adapter/renewal verification before pilot |
+| Secure document-link / signed-operation lifetime | Technical architect and security lead | Private reads use authenticated streaming under [ADR-0055](../../../platform/docs/architecture/decisions/0055-authenticated-private-downloads-by-default.md); 15-minute signed uploads remain under [platform ADR-0036](../../../platform/docs/architecture/decisions/0036-private-content-signed-operation-lifetimes.md); adapter/renewal verification before pilot |
 | Backup recovery objectives | Technical lead and operations owner | Selected under [Leave ADR-0119](./architecture/decisions/0119-initial-production-backup-and-recovery-targets.md): one-hour recovery point, four hours from incident declaration to essential service, thirty-day backup retention; rehearse before pilot, quarterly and after major backup changes |
 | Critical alert conditions | Technical lead and operations owner | Selected under [Leave ADR-0120](./architecture/decisions/0120-initial-operational-alert-thresholds.md): API/heartbeat five minutes; overdue notifications warn at fifteen minutes and escalate at one hour; recovery-point age over one hour and confirmed integrity failure alert immediately. Verify before pilot |
 | Supported browsers and performance targets under representative workloads | Product owner and technical lead | Browser policy approved 2026-10-01: current and previous major versions of Chrome, Edge, Firefox and Safari, including Chrome on Android and Safari on iPhone/iPad; record exact release/OS versions for verification. Representative workload/performance targets remain relevant-story planning work. |
@@ -2593,7 +2631,9 @@ rehearsals, alert checks, browser coverage and representative performance tests.
 - Teams, Slack, and SMS delivery
 - Generic drag-and-drop workflow builder
 - Automated statutory compliance or legislative updates
-- Tenant-managed identity-provider configuration
+- Arbitrary tenant-managed identity-provider configuration/replacement; initial trusted
+  Microsoft Entra tenant mappings and opt-in organization enrollment are included under
+  platform ADR-0057 (scope amendment agreed 2026-10-11)
 - ZITADEL or Keycloak migration
 - Advanced staffing optimization and forecasting
 - Portuguese translation delivery and further locales beyond the English MVP (localization readiness is included)

@@ -135,7 +135,7 @@ each first consuming delivery item, under the existing ATDD/TDD rules.
 ## Consolidated story ownership — 2026-10-04
 
 The user approved the original 18-candidate dependency sequence and, on 2026-10-05,
-the ID, D2 and Access splits producing 21 ordered candidates. The matrix covers every existing
+the ID, D2 and Access splits, Content/PtS adoption and hosted verification producing 24 ordered candidates. The matrix covers every existing
 E1-ENTRY-01–12 and E1-DRAFT-01–20 inventory entry and every E1-AC-01–18 scenario group.
 These are scoped planning references from
 [epics.md](../../../../_bmad-output/planning-artifacts/epics.md#e1-entry-requirement-traceability--2026-10-02),
@@ -152,11 +152,14 @@ cross-application runtime implementation is intended.
 | E1-ID-A | E1-ENTRY-01, E1-ENTRY-02, E1-ENTRY-07, E1-ENTRY-10 | E1-DRAFT-16 | E1-AC-12, E1-AC-13, E1-AC-15, E1-AC-17, E1-AC-18 | Owned legacy baseline, restricted roles, clean/adopt and failure recovery; contributes foundational evidence to inherited parent mappings |
 | E1-ID-B | E1-ENTRY-01, E1-ENTRY-02, E1-ENTRY-07, E1-ENTRY-10 | E1-DRAFT-16 | E1-AC-12, E1-AC-13, E1-AC-15, E1-AC-17, E1-AC-18 | Account/person/actor linking, manual adoption and attribution preservation |
 | E1-ACCESS-A | E1-ENTRY-02, E1-ENTRY-05, E1-ENTRY-06, E1-ENTRY-07, E1-ENTRY-10, E1-ENTRY-12 | E1-DRAFT-17 | E1-AC-13, E1-AC-15, E1-AC-17, E1-AC-18 | Controlled registry/enablement/grant writes, replay/evidence, compatible schema and writer adoption; configuration foundation, not runtime enforcement |
-| E1-ACCESS-B | E1-ENTRY-02, E1-ENTRY-05, E1-ENTRY-06, E1-ENTRY-07, E1-ENTRY-10, E1-ENTRY-12 | E1-DRAFT-17 | E1-AC-13, E1-AC-15, E1-AC-17, E1-AC-18 | Current service/user/app authority, membership-bound revocation and compatible v1/v2 enforcement/activation |
+| E1-ACCESS-B | E1-ENTRY-02, E1-ENTRY-05, E1-ENTRY-06, E1-ENTRY-07, E1-ENTRY-10, E1-ENTRY-12 | E1-DRAFT-17 | E1-AC-13, E1-AC-15, E1-AC-17, E1-AC-18 | Typed account/organization authority and revocation; coordinated PtS consumer transition under ADR-0052/0053, not mandatory old v1 parity |
 | E1-DISCOVERY | E1-ENTRY-03, E1-ENTRY-05, E1-ENTRY-06 | E1-DRAFT-13 | E1-AC-01, E1-AC-09, E1-AC-13, E1-AC-15, E1-AC-17, E1-AC-18 | Scoped pagination, admission and empty/unavailable distinctions |
 | E1-LAUNCHER | E1-ENTRY-03, E1-ENTRY-05, E1-ENTRY-11, E1-ENTRY-12 | — | E1-AC-13, E1-AC-15, E1-AC-16, E1-AC-17, E1-AC-18 | ADR-0047 visibility and usable failure/Retry state |
+| E1-CONTENT-READ | E1-ENTRY-06, E1-ENTRY-10, E1-ENTRY-12 | — | E1-AC-15, E1-AC-17, E1-AC-18 | Content service/ownership isolation, immutable bytes, bounded private streaming and owned migration evidence; no Leave attachment acceptance |
+| E1-PTS-ADOPT | E1-ENTRY-02, E1-ENTRY-05, E1-ENTRY-06, E1-ENTRY-10, E1-ENTRY-12 | — | E1-AC-13, E1-AC-15, E1-AC-17, E1-AC-18 | Existing PtS account/corpus/client transition and real authenticated downloads; supports platform adoption, not Leave draft behavior |
 | E1-WRITE | E1-ENTRY-05, E1-ENTRY-06, E1-ENTRY-10, E1-ENTRY-12 | E1-DRAFT-20 | E1-AC-15, E1-AC-17, E1-AC-18 | Atomic sample write/outcome, attribution and retry evidence |
 | E1-REF | E1-ENTRY-01, E1-ENTRY-02, E1-ENTRY-03, E1-ENTRY-04, E1-ENTRY-05, E1-ENTRY-06, E1-ENTRY-11, E1-ENTRY-12 | E1-DRAFT-20 | E1-AC-15, E1-AC-16, E1-AC-17, E1-AC-18 | Generated real-stack browser reference; not Leave behavior evidence |
+| E1-VERIFY | E1-ENTRY-02, E1-ENTRY-05, E1-ENTRY-06, E1-ENTRY-10, E1-ENTRY-12 | — | E1-AC-15, E1-AC-17, E1-AC-18 | Same REF application/tests on explicit hosted targets; restricted synthetic fixtures, release reports and production-safe cleanup; not Leave behavior evidence |
 | E1-PEOPLE | E1-ENTRY-06, E1-ENTRY-07, E1-ENTRY-08 | E1-DRAFT-04, E1-DRAFT-17 | E1-AC-13, E1-AC-14, E1-AC-15, E1-AC-17, E1-AC-18 | Shared relationship/period read and null optional assignments |
 | E1-A1 | E1-ENTRY-01, E1-ENTRY-02, E1-ENTRY-03, E1-ENTRY-04, E1-ENTRY-05, E1-ENTRY-06, E1-ENTRY-07, E1-ENTRY-09, E1-ENTRY-10, E1-ENTRY-11, E1-ENTRY-12 | E1-DRAFT-16, E1-DRAFT-18, E1-DRAFT-20 | E1-AC-01, E1-AC-09, E1-AC-12, E1-AC-13, E1-AC-15, E1-AC-16, E1-AC-17, E1-AC-18 | Real Entra entry, context selection and protected shell |
 | E1-CONTEXT | E1-ENTRY-05, E1-ENTRY-06, E1-ENTRY-07, E1-ENTRY-08, E1-ENTRY-11 | E1-DRAFT-04, E1-DRAFT-17 | E1-AC-13, E1-AC-14, E1-AC-15, E1-AC-17, E1-AC-18 | Owned timezone, effective date and eligibility states |
@@ -366,3 +369,121 @@ ACCESS-B proves current decisions, caller isolation, revocation and v1/v2 enforc
 DISCOVERY/WRITE/PEOPLE consume completed ACCESS-B. Parent ACCESS is not a twenty-second
 item. New admission controls remain unactivated until supported checks enforce them.
 Detailed child criteria and remaining technical gates are not passed by this approval.
+
+
+ACCESS-A acceptance approved — 2026-10-06; ACCESS-B criteria are detailed for discussion.
+AC-13/15/17/18 Access evidence includes v1/v2 admission parity without adding the v2
+person-link requirement to v1, retired-membership rejoin without automatic regrant,
+re-enable after independent grant revocation, safe service-denied adaptation, no-store
+responses and consumer validation of returned organization/capability/person scope.
+These are planned fixtures, not implemented or passing tests.
+
+
+Governing PtS update — 2026-10-06: ADR-0052 supersedes preceding v1/v2 parity and
+organization-bound PtS fixtures. ACCESS-A/B and DISCOVERY/LAUNCHER must prove explicit
+PtS account access with zero memberships, no Leave access by implication, current
+account grant revocation/global disable, and Scribeswell menu visibility via PtS.
+Organization membership changes do not alter independent PtS account grants. Controlled
+consumer transition replaces mandatory unchanged v1 response evidence. PtS resource/
+Content authorization and typed scope contracts remain to define before test readiness.
+
+
+ADR-0053 fixture refinement — 2026-10-06: add a synthetic mixed-scope app for Access
+provisioning/check and discovery tests. Account authority cannot satisfy organization
+actions or vice versa; wrong/missing scope fails without fallback. Organization disable
+preserves independent account access; global disable blocks both. Discovery emits one
+eligible app entry without requiring organization selection for account routes. Current
+PtS tests remain individual-access tests; no future PtS organization feature is added.
+
+
+Scope-wire fixtures — 2026-10-06: ACCESS-B validates explicit authorization_scope against
+capability registration, closed response variants and separate Leave own resource_scope.
+DISCOVERY emits one app row with eligible_scope_kinds; zero memberships may still return
+PtS account access. Entry read capability is explicit, never implied by manage/export.
+LAUNCHER includes Scribeswell only through eligible PtS account scope, not a hypothetical
+organization-only grant. These replace earlier scalar app scope/all-responses-org-field
+fixtures. No tests implemented or executed.
+
+
+Content prerequisite clarification — 2026-10-06: ADR-0054 puts current domain permission
+tests in the owning app API and service/owner/resource-scope enforcement in Content,
+with integration evidence for both. PtS adoption supplies its current consumer proof;
+Leave attachment/medical/privacy/association/provider evidence stays E4, not E1 draft
+acceptance. No callback authorization service or passing runtime tests implied.
+
+
+Content/PtS split approved — 2026-10-06: the ordered ownership matrix now has 23 items.
+CONTENT-READ proves the shared service using restricted synthetic callers; PTS-ADOPT
+proves actual app authorization, browser/preview download authentication, zero-membership
+access and preserved corpus/source files. Their ENTRY/AC mappings are prerequisite
+contributions, not proof of the Leave draft journey or E4's domain attachment gates.
+
+
+CONTENT-READ scope approved — 2026-10-06. PTS-ADOPT detail now assigns actual zero-
+membership browser/API evidence, independent read/export/documents checks, per-request
+private-stream authorization, no provider URL exposure, same-account return/isolation,
+preserved corpus/links/imports and coordinated transition to the consumer story.
+Third-party link-only references remain external; tests must not imply PtS can enforce
+sign-in on external sites. This is source/fixture planning, not passing runtime evidence.
+
+
+Access reconciliation — 2026-10-07: ACCESS-A fixtures include independent account grants
+and entry-capability configuration; ACCESS-B uses typed account/organization decisions,
+no scope fallback, scope-specific revocation and mixed-scope reference fixtures. Mandatory
+old PtS wire parity is superseded by coordinated adoption. Content ownership enforcement
+and PtS user authorization are separate test layers; no Content-to-Access end-user check
+is required. PTS-ADOPT detailed acceptance and preservation clarification are approved;
+no scenario group is marked executed/passing by planning approval.
+
+
+Individual-grant fixtures — 2026-10-07: ACCESS-A/B cover zero-membership accounts,
+wrong-scope database writes, same-person separate accounts, explicit regrant with stale
+revoke/replay, inactive account/new-ID replacement, global app disable and retained
+revocation, restricted runtime writes and pool reuse. Account permission reads do not
+add a duplicate audit event. These supplement AC-13/15/17/18 owner evidence, not runtime
+results or new product capabilities.
+
+
+Actor-resolution fixtures — 2026-10-07: ID-B/ACCESS-B prove a current account actor with
+no person/membership/employment, later person linking without actor replacement, two
+accounts for one person without merged grants, and retained attribution after account
+removal. Conflicting/spoofed mapping and duplicate provisioning are covered. PtS browser
+proof belongs to PTS-ADOPT; Content distinguishes service executor/asserted initiator.
+No runtime tests have been executed by this contract refinement.
+
+
+ADR-0056 actor evidence — 2026-10-07: extend ID-B fixtures with named System/Migrate
+without new Auth accounts, verified service actors, legacy UUID/text writer mapping,
+trigger/execution-context behavior and retained attribution on account removal. Test
+support executor versus human initiator and prohibit spoofed actor fields. Registry
+existence grants no access. No runtime implementation or test execution in this decision.
+
+
+Setup verification proposal — 2026-10-08: [owning contract](../../../../platform/docs/architecture/contracts/e1-controlled-provisioning-and-evidence.md#setup-verification-boundary--proposed-2026-10-08)
+distinguishes committed owner commands from current authorization and consumer/browser
+evidence. Existing ACCESS-A/B, PTS-ADOPT and Leave consumer rows retain ownership;
+no later-UI dependency for earlier stories and no new coverage-group count. Synthetic
+fixtures prove missing-grant denial, explicit assignment and revocation; the completed
+Leave slice proves saved input after close/reopen. Proposal only; no tests executed.
+
+
+Reference registry refinement — 2026-10-08: initial app `reference` uses independent
+organization grants `reference.record.read` / `reference.record.create`; read is the
+entry capability. ACCESS-A/B prove exact registration/scope/independent grants, WRITE
+proves API persistence, REF proves the browser journey and VERIFY repeats the safe subset
+on hosted targets. Existing mixed-scope Access evidence remains separate; no runtime
+results or new acceptance-group count.
+
+
+Reference draft scope approved — 2026-10-08: D2-B/D3/D4/D5 include the corresponding
+minimal title/note demonstration through proven shared artifacts, with explicit own
+account/org scope and separate manual/automated fixtures. Reference tests supplement
+existing real Leave scenarios; they do not satisfy Leave business acceptance by proxy.
+Consuming-item sizing and exact demo lifecycle/wire remain gates. No executed evidence.
+
+
+Publication refinement — 2026-10-08: ENV proves PtS workspace/locked-install adoption;
+PTS-ADOPT/deployment proves separate current-app artifacts/configuration and Scribeswell
+public entry/deep links during transition. DISCOVERY/LAUNCHER tests link eligible PtS
+accounts to scribeswell.com while anonymous public reading remains independent. No
+Boabab alias is provisioned. These extend existing owner evidence, not runtime results.
