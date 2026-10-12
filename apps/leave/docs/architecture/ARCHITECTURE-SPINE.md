@@ -308,3 +308,12 @@ uses organization-scoped supervisor direct reports as Leave teams. People remain
 relationship fact/history owner; Leave owns current permitted availability/filter/report
 queries and temporal semantics. No new named-team master or team-profile precedence;
 existing permission/resource/privacy, snapshot and current-authorization contracts remain.
+
+Policy applicability refinement — 2026-10-12:
+[L-0126](./decisions/0126-explicit-policy-assignment-with-employee-filters.md) uses employee
+filters to review/select an exact explicit policy-assignment set for MVP. No automatic
+eligibility engine, dynamic group membership or inferred policy grant from employment
+changes. Leave owns assignment/history; People supplies shared facts over HTTP. Backend
+request checks enforce applicable assignment and existing domain/access rules. Bind
+version/date/conflict and consequential effect/notification contracts before affected
+writers; retain draft preservation and historical snapshots. No implementation permission.

@@ -338,7 +338,8 @@ Each versioned leave type/policy supports:
 - Current versus projected balance use
 - Negative balance, unpaid conversion, or split behavior
 - Supporting-document rules and duration threshold
-- Eligibility by employment type, location, tenure, or assignment
+- Explicit employee policy assignment; use employee filters to select the intended
+  employees. Filters do not define automatic eligibility rules for MVP.
 - Privacy classification used by calendars and notifications
 - Configured approval workflow
 - Cancellation and amendment rules
@@ -351,6 +352,18 @@ not require a document at exactly 2 days; a 3-day request requires it. This is a
 illustrative threshold, not a universal or jurisdictional default.
 
 Used leave types and policy versions are archived rather than hard-deleted.
+
+Policy applicability — agreed 2026-10-12 under
+[ADR-0126](./architecture/decisions/0126-explicit-policy-assignment-with-employee-filters.md):
+managers filter/select employees, review the exact selected set and explicitly assign
+the policy. Changing filters, adding employees or changing employment facts does not
+silently change assignments. Managers maintain assignments as circumstances change.
+The backend checks applicable assignment for consequential requests, alongside all
+existing access, employment/date, balance, document and approval rules. Automatic
+eligibility by employment type, location or tenure is deferred; filters may use those
+facts only where supported by their owning contracts. Assignment creates no application
+grant and does not bypass draft-preservation safeguards. Preserve effective/history
+and required calculation/review/notification protections on consequential mutations.
 
 ### 5. Employee entitlement overrides
 

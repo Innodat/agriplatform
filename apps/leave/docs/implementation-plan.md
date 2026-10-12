@@ -707,7 +707,7 @@ tests, telemetry, and replacement of the non-production prototype are verified.
 - [ ] Implement versioned leave-type CRUD and archive/restore
 - [ ] Design stable configuration identities, archive timestamps, effective-dated calculation versions and request snapshots (ADR-0086); preserve audit separately and enforce work-profile archive dependencies
 - [ ] Implement policy versions: units, accrual, carry-over, expiry, limits, notice,
-  eligibility, documentation, privacy, balance behavior, and workflow assignment
+  explicit policy assignment, documentation, privacy, balance behavior, and workflow assignment
 - [ ] Implement effective-dated employee entitlement overrides with reason and preview; one Edit employee entitlement action for policy/custom recurrence restricted to leave-period boundaries (ADR-0083), default next boundary, separate one-off adjustment
 - [ ] Implement Leave Manager configuration screens and audit history
 - [ ] Deliver approved work-profile list/edit/review: profile name, working week and employee count; effective-dated changes with separate inherited effects, retained overrides and existing-request attention; preserve recorded calculations
@@ -2057,3 +2057,126 @@ orders initial type/policy setup, employee applicability, calculations/projectio
 notification foundation, one-off adjustments, recurring overrides, balance explanation and
 used-policy change/lifecycle. Groups will split into bounded individual stories; no code,
 calculation/notification/migration execution or passed gate claimed. First Leave slice retained.
+
+
+Session handoff — 2026-10-12: [E3 handoff and copyable prompt](./planning-handoff-e3.md)
+prepared at user's request. E3 groups remain proposed; E1/E2 scopes are agreed but contracts,
+source/test sizing and readiness incomplete. First planned new implementation is shared
+ENV/scaffold/identity/access foundation after its required approval/gate, then Leave's
+first slice. Smaller independent app can follow its own bounded planning/readiness in
+parallel, coordinated shared ownership; no app scope, worktree or implementation authorized
+merely by the advice. Working-tree planning changes must be carried into a new worktree.
+
+E3 sequence approved — 2026-10-12: user approved the nine
+[delivery groups](../../../_bmad-output/planning-artifacts/epics.md#approved-delivery-groups).
+Group 2 covers policy applicability and assignment/settings; recurring override mutations
+belong to group 7. Every policy/entitlement mutation requiring notification follows the
+group 5 business-delivery foundation. Initial configuration must not hide later notified
+changes. Individual stories will be detailed collaboratively, starting at Story 3.1;
+final numbering/sizing, source/test coverage, pre-story inputs and readiness remain open.
+The first slice remains sign in → select organization → create/resume draft → autosave
+→ close → reopen. No Leave implementation, migrations or passed gate from this approval.
+
+Story 3.1 scope agreed — 2026-10-12: user approved
+[create/view organization leave types](../../../_bmad-output/planning-artifacts/epics.md#story-31-create-and-view-an-organizations-leave-types),
+including the clarified ability to select a new type and preserve draft input before
+policy/eligibility checks required for submission. Reuse E1 type/version/choice identity;
+do not infer policy activation or entitlement from metadata publication. Additional
+metadata/API/runtime-writer contracts, test mapping and final sizing remain open.
+Continue sequential collaborative E3 decomposition; no code or readiness change.
+
+Story 3.2 scope agreed — 2026-10-12: user approved
+[policy summary/version history](../../../_bmad-output/planning-artifacts/epics.md#story-32-view-a-leave-types-policy-and-version-history).
+Current/scheduled/previous policy reads use controlled owner fixtures and do not require
+a later editor/calculator. Exact version-selection/date/read/disclosure contracts, source
+test mapping and final sizing remain pre-story gates. Continue at Story 3.3 discussion;
+no readiness, implementation or workflow-completion claim.
+
+Story 3.3 scope agreed — 2026-10-12: user approved
+[first-policy configuration/publication](../../../_bmad-output/planning-artifacts/epics.md#story-33-configure-and-publish-a-leave-types-first-policy)
+for an unused type, with the four-section editor, review/explicit publication, current
+authority, immutable versions and duplicate-safe recovery. Contract terminology retained
+after clarification. Full field/ownership/validation/effective-date/publication contracts,
+source/test mapping and final agent sizing remain binding before implementation; split
+the scope if sizing requires it without future-story dependencies or partially active rules.
+No existing employee entitlement effects/required notifications hidden in initial setup.
+Continue at Story 3.4 discussion; no readiness or implementation change.
+
+Story 3.4 clarification — 2026-10-12: starter settings use a concise Starter example
+label and remain editable; no separate legal-warning panel or repeated disclaimer is
+required. User accepted confirmation by the Leave Manager with current policy-management
+permission during the existing publication review, covering entitlement, schedules,
+holidays and organization-specific rules. No separate client sign-off workflow or role;
+E8 import/email sign-off remains distinct. Full Story 3.4 approval, contract/test mapping,
+sizing and readiness remain pending.
+
+Story 3.4 scope agreed — 2026-10-12: user approved
+[reviewed starter examples](../../../_bmad-output/planning-artifacts/epics.md#story-34-review-starter-examples-before-activating-a-policy)
+with a concise Starter example label, editable settings and confirmation by the authorized
+Leave Manager in the existing publication review. E1 type identity, approved supervisor
+starter defaults and initial-publication protections are retained. No legal-warning panel,
+extra sign-off workflow, implicit employee assignment or grant. Continue to group 2 at
+Story 3.5 discussion; source/test contracts, final sizing and readiness remain open.
+
+Story 3.5 scope agreed — 2026-10-12: user approved
+[employee policy applicability explanations](../../../_bmad-output/planning-artifacts/epics.md#story-35-explain-which-policy-applies-to-an-employee).
+Conflicting applicability is rejected when saved, including concurrent writer paths;
+required-information outages show Couldn't check / Retry rather than employee ineligibility.
+Matching/precedence, employment-type ownership, tenure/period and date contracts remain
+open before readiness. No inferred assignment, balance effect or entitlement override.
+Continue at Story 3.6 discussion; final source/test mapping and sizing remain binding.
+
+Policy applicability simplification accepted — 2026-10-12:
+[ADR-0126](./architecture/decisions/0126-explicit-policy-assignment-with-employee-filters.md)
+narrows MVP policy eligibility to explicit assignment after filtered employee selection.
+No dynamic eligibility rules; changing filters/facts or adding employees does not silently
+alter the reviewed assigned set. Backend enforcement remains current and scoped, with
+all other request rules/draft protections retained. Story 3.3's eligibility fields and
+Story 3.5's automatic rule/matching wording follow this later decision: resolve explicit
+assignment/date/version and reject conflicts, not employment-type/location/tenure rules.
+Exact filter fact availability, assignment/version/effective-date/conflict and effect/
+notification contracts remain pre-story gates. Notifications/calculation foundations must
+precede affected assignment writers; no inferred exemption, implementation or readiness.
+
+Story 3.6 scope agreed — 2026-10-12: user approved
+[policy employee list/filter/selection](../../../_bmad-output/planning-artifacts/epics.md#story-36-view-and-select-employees-for-a-policy).
+Exact selections are provisional and never assignments; accountless employment and
+current organization/resource checks remain binding. Assignment confirmation is a
+separate remaining group 2 write obligation after required calculation and notification
+foundations. Continue to bounded working-time/calculation stories at 3.7; no claim group
+2's assignment mutations are complete. Exact read/filter/date/selection contracts,
+source/test coverage, final sizing and readiness remain open.
+
+Story 3.7 scope agreed — 2026-10-12: user approved
+[effective-schedule duration calculation](../../../_bmad-output/planning-artifacts/epics.md#story-37-calculate-leave-duration-from-the-employees-work-schedule).
+Backend full-day/date, exact-half and 30-minute hourly rules use actual versioned
+working time with holidays/breaks; standard-day conversion remains distinct. Bind
+partial-holiday/DST/fractional-minute and owner-version/API contracts before readiness.
+Preview presentation, funding/reservations and real aggregate concurrent-request guards
+retain later owners. Continue at Story 3.8 discussion; no code/tests/readiness claim.
+
+Story 3.8 scope agreed — 2026-10-12: user approved
+[daily earning component](../../../_bmad-output/planning-artifacts/epics.md#story-38-calculate-daily-earned-entitlement),
+with start-of-local-day inclusion, actual leave-year denominator, inclusive employment
+periods, cumulative precision and prospective policy-rate segmentation. No posted daily
+earning or snapshots on reads. Exact allowance conversion/period/version/precision inputs
+remain pre-story gates; caps/expiry/actual-event replay must be delivered before this
+component is presented as available balance. Continue at Story 3.9 discussion; all
+source/test/sizing/readiness gates remain open.
+
+Story 3.9 scope agreed — 2026-10-12: user approved
+[ordered immutable actual balance history](../../../_bmad-output/planning-artifacts/epics.md#story-39-preserve-an-ordered-history-of-actual-balance-changes).
+Internal atomic recording/authorized reads use controlled owner fixtures; effective dates,
+recorded times, durable actors, source/correction links and server order remain distinct.
+Retry reuses events/sequence; no generic event API, ledger editor or posted daily accrual.
+Actual mutation consumers prove domain effects/notification/snapshot obligations later.
+Continue at Story 3.10 discussion; event/source/amount/sequence/retry contracts, final
+source/test mapping, sizing and readiness remain open.
+
+Story 3.10 scope agreed — 2026-10-12: user approved
+[daily accumulated-cap calculation](../../../_bmad-output/planning-artifacts/epics.md#story-310-apply-accumulated-balance-caps-to-daily-earning),
+including precise cap-before-rounding, historical headroom/no catch-up, next-day resumption
+and earned/future reservation distinctions. Drafts reserve nothing; final approval consumes,
+pending release does not create headroom. Bind ordered precise state/event/reservation
+contracts and integrate actual expiry/rollover consumers before complete availability claims.
+Continue at Story 3.11 discussion; no code/tests/readiness claim, final sizing remains open.

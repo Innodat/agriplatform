@@ -7496,19 +7496,19 @@ User's next instruction continues sequential planning into the already approved 
 
 ## E3 — Configure entitlement and understand available leave
 
-**Grouping proposal for discussion — 2026-10-12; individual stories not yet detailed.**
+**Delivery sequence approved — 2026-10-12; Stories 3.1–3.10 scopes agreed, further stories pending.**
 Approved epic outcome: managers configure organization policies/employee entitlements;
 employees see explainable current/reserved/projected balances and request previews. Uses
 E2 employment/work-calendar/profile/current access. Owns first required shared business
 notification integration before manual adjustments; E5 remains submission/reservation/
 approval execution and E6 broader historical correction/deficit workflows.
 
-### Proposed delivery groups
+### Approved delivery groups
 
 | Order | Bounded work to decompose | Source/acceptance ownership |
 | --- | --- | --- |
 | 1 | Leave-type identity/metadata and initial versioned policy configuration, including request/eligibility/privacy/document/approval-rule fields and reviewed starter examples | Features §4, applicable §7/10; BIZ-05/06, FLOW policy-contract inputs. Reuse E1 type/mode identity; no complete approval engine or upload implementation. |
-| 2 | Policy applicability and employee policy/entitlement settings | Features §4/5 and approved grouped employee settings; BIZ-06/07. Resolve exact shared versus Leave input owners, matching/precedence and version references before readiness; no guessed employment-type source. |
+| 2 | Policy applicability and employee policy assignment/settings | Features §4/5 and approved grouped employee settings; BIZ-06/07. L-0126 uses filtered employee selection plus explicit assignment, not automatic eligibility. Bind owner/version/date/conflict/effect contracts before readiness; no guessed filter facts. Recurring override mutations belong to group 7. |
 | 3 | Authoritative working-time/earning/event/balance calculation foundation, decomposed by daily/upfront/monthly/proration/cap/carry-over/expiry rules | Features §3/6/8/9 and existing CALC inventory; BIZ-09/11. No daily worker-posted accrual, balance cache or direct ledger edits. Actual event/history inputs stay immutable and calculation order/precision explicit. |
 | 4 | Date-by-date future projection, earliest-expiry allocation and request preview | Features §7–9; BIZ-10/12/14 and applicable CALC rules. Future earning cannot fund an earlier shortfall. Preview reserves nothing and consequential E5 actions revalidate. |
 | 5 | First business-notification/outbox/worker delivery foundation for adjustment/entitlement events | Features §6 and notification §15/16; BIZ-08/24/25 plus worker/durable-event contracts. Restricted shared HTTP service/worker scope, exact payload/retry/deduplication and safe recipient content precede consuming mutations. E2 provider-owned invites do not prove this integration. |
@@ -7523,6 +7523,14 @@ may use declared synthetic actual events for calculation tests, while existing c
 consumer changes must satisfy their required impact contracts before activation. Group 9
 comes after actual calculators/review/notification support so used-policy effects are not
 faked. E3 policy setup/summary obligations previously linked from E2 now have explicit owners.
+
+Sequence approval — 2026-10-12: user approved these nine groups with two explicit
+boundaries: group 2 covers applicability/assignment/settings, while group 7 owns
+recurring override mutations; any policy/entitlement mutation requiring notification
+must follow group 5's actual delivery foundation. Group 1 covers initial configuration,
+not later notified changes hidden in an early story. Groups are not final story counts
+or sizing approval. Continue collaboratively with Story 3.1, one story at a time.
+Preserve the E1 first slice and all source/test, pre-story contract and readiness gates.
 
 ### Required contracts and impacts
 
@@ -7542,3 +7550,846 @@ facts over HTTP remain owner-controlled; no imported service servers/duplicated 
 Document requirement-to-test evidence and scaffold/UI/agent/doc/ADR impacts with every
 story; accepted decisions remain immutable. No automatic policy defaults claimed legal,
 application implementation, migration or readiness pass from this proposal.
+
+
+Fresh-session handoff prepared — 2026-10-12: user asks to continue E3 in a new Codex
+session and considers a smaller parallel app. [Handoff/prompt](../../apps/leave/docs/planning-handoff-e3.md)
+records the exact approved scope versus unapproved E3 grouping, authoritative source links,
+pre-story/readiness and first-code timing, plus isolated app/worktree/shared-owner guidance.
+Smaller-app purpose/scope not supplied; no plan/gate/worktree/code/deployment created for it.
+No E3 sequence approval, SP pass, workflow completion or implementation inferred.
+
+### Story 3.1: Create and view an organization's leave types
+
+**Scope approved by the user, 2026-10-12; not implementation-ready.** Owner: Leave
+API/web/persistence. Consumes E1 Identity/Access, owner-write/recovery/attribution,
+type/version/choice contracts and E2 organization configuration entry points.
+User approved the clarified draft-selection criterion below, then requested the next story.
+
+As a Leave Manager with current configuration permission,
+I want to create and view leave types for my organization,
+So that I can establish recognizable categories before configuring their policies.
+
+**Acceptance Criteria:**
+
+**Given** current policy-read authority in the selected organization,
+**When** I open leave-type configuration,
+**Then** I see its types, status and saved metadata, with current policy information
+where configured,
+**And** missing policy configuration is shown honestly; failed loading is distinguishable
+from an empty catalogue. Policy detail read/display is completed by its own consuming
+story; this story does not depend on a future policy editor or calculator to work.
+
+**Given** current policy-management authority,
+**When** I create a type,
+**Then** I can enter its name, code, description, color, icon and permitted request modes,
+with Full days, Half day and Hours initially permitted and a way to restrict that selection,
+**And** the form uses explicit whole-form Save / Cancel and preserves entered values
+after validation failure. Arbitrary day fractions are not offered.
+
+**Given** valid configuration,
+**When** I save,
+**Then** the server atomically creates one organization-scoped type and its initial
+published metadata version, with attribution and required change evidence,
+**And** a retry after a lost response creates no duplicate. Publication here concerns
+E1's offered type metadata, not activation of an entitlement policy.
+
+**Given** an existing code in this organization, including an archived type's code,
+**When** I attempt to reuse it,
+**Then** creation fails safely without repurposing the existing identity or losing my input.
+
+**Given** a newly created leave type,
+**When** an employee opens or refreshes their draft form,
+**Then** they can select that type and save their unfinished input,
+**And** selecting it does not bypass the policy and eligibility checks required before
+submission. E1's scoped published pointer/modes and safe choice-refresh behavior remain
+binding; no entitlement, request-date eligibility or readiness is inferred from selection.
+
+**Given** denied/revoked authority or another organization's identifier,
+**When** the API is called directly,
+**Then** it prevents unauthorized disclosure or mutation,
+**And** unavailable access verification produces retryable failure rather than an empty
+catalogue or assumed permission. Recovered operation outcomes also require current access.
+
+**Given** keyboard or mobile use,
+**When** I create, save or cancel,
+**Then** validation, focus, feedback and changed-form exit behavior follow approved shared UX.
+
+**Traceability / planned verification:** Features Permissions/§4/7; BIZ-05/06 (partial
+coverage); Leave ADR-0002/0086/0124; platform operation/revision/attribution/integrity
+and saving contracts; [E1 choices](../../apps/leave/docs/architecture/contracts/e1-draft-choice-resolution.md).
+Pair API/database scope, retained-code, default/restricted modes, immutable version/pointer,
+attribution and duplicate/lost-response checks with browser create/save/cancel and real
+draft select/save/reopen coverage. Preserve E1-AC-03/06/13/15/16/17 as applicable.
+Exact test paths/commands and source-to-test mapping are delivery inputs; no tests executed.
+
+**Pre-story inputs / sizing:** Bind additional metadata ownership/bounds and migration
+compatibility with E1's existing schema, capability/API/error/operation contracts and
+restricted runtime writer authority. Do not invent effective-policy selection from the
+draft-choice pointer. List/create/read only; policy configuration, reviewed starter policy
+activation, used-type edits/deactivation/restoration and employee assignments retain later
+owners. Final agent sizing and readiness remain pending.
+
+**Impacts:** Scaffold: prove/reuse generic scoped/versioned creation, attribution and
+operation recovery with schema-validated choices and reference tests where applicable;
+no generic Leave catalogue engine. Shared UI: reuse collection/form/selector/error and
+Save / Cancel patterns; promote only proven domain-neutral additions. Agent context:
+existing instructions suffice. Documentation: epics/tracker checkpoint and owning
+contract/test mapping updates. ADR: existing accepted decisions suffice; no amendment.
+
+### Story 3.2: View a leave type's policy and version history
+
+**Scope approved by the user, 2026-10-12; not implementation-ready.** Owner: Leave
+API/web/persistence. Consumes Story 3.1's type identity and E1 current-access/read
+foundations. Controlled owner fixtures supply the required versioned policy data;
+no later editor or calculator is a prerequisite for completing this read story.
+
+As a Leave Manager with current policy-read permission,
+I want to see a leave type's current policy, scheduled changes and previous versions,
+So that I understand its rules before configuring or changing them.
+
+**Acceptance Criteria:**
+
+**Given** an authorized manager viewing a leave type,
+**When** they open its configuration,
+**Then** the current policy appears as a readable summary grouped into Entitlement,
+Request rules, Approval, and Documents & privacy,
+**And** its effective date is prominent, with advanced details expandable.
+
+**Given** no policy has been configured,
+**When** the summary opens,
+**Then** it clearly states that policy configuration is missing,
+**And** it shows no invented allowance, approval route or Ready status.
+
+**Given** a scheduled future policy version,
+**When** the summary opens,
+**Then** the current policy remains the main summary, with a Scheduled change notice
+showing the effective date and a link to that version,
+**And** future settings are not presented as already applicable.
+
+**Given** retained previous versions,
+**When** I open policy history and select a version,
+**Then** I can read its recorded settings and effective dates,
+**And** viewing it changes no configuration or historical request evidence.
+
+**Given** automatic entitlement or manual-only grants,
+**When** I read the entitlement summary,
+**Then** it explains the configured choice in plain language, distinguishing annual
+allowance from current balance and leave-year boundaries from monthly instalments,
+**And** illustrative explanations are not presented as legal defaults or calculated
+employee balances.
+
+**Given** failed loading, denied access or an organization switch,
+**When** policy data is requested,
+**Then** loading failure is distinguishable from missing configuration, current
+authorization is enforced, and stale responses cannot display another organization's policy.
+
+**Traceability / planned verification:** Features §4; BIZ-05/06 (partial coverage);
+Leave ADR-0002/0086 and applicable entitlement-language decisions, especially 0090/0103;
+approved Leave EXPERIENCE policy summary/scheduled/history and DESIGN policy groups;
+platform loading/disclosure/navigation and current-access rules. Verify version/date
+boundaries and API isolation alongside browser navigation, keyboard/mobile disclosure,
+missing versus unavailable states and delayed-response organization-switch cases.
+Owner fixtures represent current/scheduled/previous versions without a future production
+editor. No runtime tests executed; exact test paths/commands and final source mapping pending.
+
+**Pre-story inputs / sizing:** Bind version-selection/effective-date interpretation,
+read schema and disclosure rules, immutable version representation and fixture ownership.
+Do not select policy via E1's draft-choice pointer or create calculation snapshots on reads.
+Fixtures/protocol must cover all display states, including no current policy; no implicit
+write, publishing worker, frontend accrual calculation or future-story dependency.
+Final agent sizing and readiness remain pending.
+
+**Impacts:** Scaffold: reuse/prove scoped read and retained-version reference patterns
+where domain-neutral, with actual reference tests before promotion. Shared UI: reuse
+summaries/disclosures, loading/error and contextual navigation; Leave owns policy content.
+Agent context: existing instructions suffice. Documentation: owning read/version contracts,
+test mapping and epics/tracker checkpoint. ADR: accepted decisions suffice; no amendment.
+
+### Story 3.3: Configure and publish a leave type's first policy
+
+**Scope approved by the user, 2026-10-12; not implementation-ready.** Owner: Leave
+API/web/persistence. Consumes Stories 3.1–3.2 and E1/E2 current authority, configuration,
+operation recovery and version/read foundations. Initial configuration/publication only;
+employee assignment, balance calculations and changes to used policies retain later owners.
+
+As a Leave Manager with current policy-management permission,
+I want to configure and review the first policy for an unused leave type,
+So that its rules are explicitly agreed before employees use it.
+
+**Acceptance Criteria:**
+
+**Given** a leave type without a policy,
+**When** I open policy configuration,
+**Then** a dedicated editor provides four directly accessible sections: Entitlement,
+Request rules, Approval, and Documents & privacy,
+**And** edits remain uncommitted until explicit publication; leaving changed input follows
+the shared discard confirmation. No separate persisted administrative draft system.
+
+**Given** the entitlement section,
+**When** I configure its rules,
+**Then** I can choose automatic annual entitlement with daily, upfront or monthly
+availability, or manual-only grants, and configure the applicable period, proration,
+carry-over, cap and expiry settings,
+**And** conditional fields and plain-language explanations follow the accepted rules.
+There is no rounding selector or implied current balance.
+
+**Given** the remaining sections,
+**When** I configure the policy,
+**Then** they cover paid/unpaid classification, permitted units, duration limits,
+notice/backdating/booking rules, balance-shortfall behavior, eligibility,
+cancellation/amendment rules, approval requirements, documents and privacy,
+**And** exact field ownership and supported combinations follow the authoritative contracts.
+
+**Given** approval configuration,
+**When** I choose one or two steps,
+**Then** at least one approval remains required; two steps require an explicitly selected
+eligible final approver,
+**And** no CEO is preselected and selecting an approver grants no permissions. Workflow
+execution remains E5's responsibility.
+
+**Given** valid completed input,
+**When** I select Review changes,
+**Then** the review shows the proposed rules and effective date, with Back to editing
+and Publish policy version,
+**And** reviewing publishes nothing. Missing or inconsistent required settings prevent publication.
+
+**Given** a reviewed configuration and current authority,
+**When** I confirm publication,
+**Then** the server atomically records the initial immutable policy version, attribution
+and required change evidence,
+**And** duplicate retries publish only once. Concurrent publication or changed reviewed
+inputs require safe conflict handling.
+
+**Given** future-dated publication,
+**When** publication succeeds,
+**Then** confirmation says Policy scheduled for [date] and the summary labels it Scheduled,
+**And** it does not imply a currently effective policy.
+
+**Given** validation, authorization or transport failure,
+**When** publication cannot be confirmed,
+**Then** input remains available for correction or recovery; an uncertain outcome is
+resolved before another attempt,
+**And** keyboard/mobile operation follows approved UX.
+
+**Traceability / planned verification:** Features §4/7/10; BIZ-06/19/20 (partial coverage);
+applicable CALC configuration and FLOW-01/03/07/20 inputs; Leave ADR-0002/0086/0090,
+0050/0036, 0085/0089, 0098–0105, 0124 and applicable approval decisions with supersessions;
+approved Leave EXPERIENCE policy editor/review and platform saving/recovery contracts.
+Configuration tests prove accepted conditional combinations and defaults, including zero
+notice, twelve-month horizon and monthly partial-employment adjustment, without executing
+future calculation/submission/approval behavior. Document threshold distinguishes above
+two days from exactly two; examples are illustrative, not statutory defaults. Pair real
+API/database permission, scoped publication, immutable version, concurrent first-publication,
+revision/operation and lost-response tests with browser edit/review/back/publish, future
+status, validation/error, mobile/keyboard and input-preservation checks. Final source-to-test
+mapping, exact paths/commands and sizing remain pending; no runtime tests executed.
+
+**Pre-story inputs / sizing:** Bind the complete field schema, valid combinations,
+data ownership, effective-date interpretation, scoped approver lookup, policy/choice
+metadata interaction, concurrency and publication API/error/operation contracts. Initial
+unused-state validation must exclude existing employee entitlement effects; do not hide
+required notification, recalculation or affected-request handling here. Group 5 precedes
+any mutation requiring notification. Full policy validation, interpretation and source
+examples remain authority; this scope does not replace the remaining calculation contracts.
+If final sizing requires splitting the editor/publication work, reconcile independently
+working dependencies collaboratively before implementation; no future-story prerequisite
+or unfinished policy exposed as active. All readiness gates remain open.
+
+Contract terminology clarified with the user — 2026-10-12: contracts are written technical
+agreements about behavior and information exchanged by components, not legal agreements.
+Field ownership means Leave owns policy settings while shared employee facts retain their
+service owner; supported combinations mean conditional/validation rules. Publication
+contracts bind permission, validation, immutable save/effective date, attribution,
+duplicate-safe retry and changed-review handling. The user preferred retaining the term;
+no settled business decision reopened.
+
+**Impacts:** Scaffold: reuse/prove generic version publication, review/revision/outcome
+and attribution mechanisms with thin schema-validated inputs and reference tests where
+applicable; no shared policy/calculation engine. Shared UI: reuse dedicated-form sections,
+conditional fields, review, navigation and recovery; promote proven domain-neutral
+patterns in the consuming delivery item. Agent context: existing instructions suffice.
+Documentation: policy/publication contracts, source/test mappings, epics/tracker checkpoint.
+ADR: accepted decisions suffice; no amendment. No implementation or readiness authorization.
+
+### Story 3.4 discussion: Starter-example presentation and confirmation
+
+Clarification agreed — 2026-10-12: identify editable starter settings as Starter example;
+the requirement not to claim universal legal/country allowances does not require a
+separate legal warning, explanatory panel or repeated disclaimer. Keep the example
+status clear and the settings editable under the existing plain-language UX.
+
+The user accepted that a Leave Manager with current policy-management permission
+provides the organization confirmation during the existing publication review. They
+confirm review of entitlement, work schedules, holiday calendars and organization-specific
+rules before publishing the starter policy. No separate client sign-off process,
+approval role or administrative workflow is introduced. Exact confirmation evidence
+uses the owning publication contract and required attribution, with current authority
+checked at execution. This is distinct from E8's consultant import/email sign-off.
+
+Story 3.4 remains under collaborative discussion; this records the two refinements,
+not approval of all its criteria, final sizing or readiness. Existing accepted decisions
+remain unchanged; shared form/review controls suffice and Leave owns example wording.
+Documentation impact: epics/tracker discussion checkpoint; existing scaffold/UI/agent
+impact rules and technical/test gates remain binding. No code or new ADR required.
+
+### Story 3.4: Review starter examples before activating a policy
+
+**Scope approved by the user, 2026-10-12, with the presentation/confirmation refinements
+above; not implementation-ready.** Owner: Leave. Consumes Stories 3.1–3.3, E1 scoped
+type identities and E2 saved work-profile/calendar facts. Uses the existing editor and
+publication review, without a separate organization sign-off process.
+
+As a Leave Manager configuring an organization,
+I want editable starter examples that require review before activation,
+So that setup is quicker while the organization explicitly confirms its own rules.
+
+**Acceptance Criteria:**
+
+**Given** initial policy setup,
+**When** I choose a starter example for Annual, Sick or Family Responsibility Leave,
+**Then** it prefills the existing policy editor without publishing anything,
+**And** it reuses the organization's type identities rather than creating duplicates.
+
+**Given** example settings,
+**When** I review them,
+**Then** they are clearly labelled Starter example and remain editable,
+**And** example content does not claim universal legal/country allowances. No separate
+legal warning, explanatory panel or repeated disclaimer is required in the interface.
+
+**Given** the starter approval configuration,
+**When** it is loaded,
+**Then** it uses one supervisor step, self-approval off, temporary cover supported,
+three-day reminders and seven-day escalation,
+**And** a second step and directional absence fallback remain optional and off initially.
+Actual workflow execution, appointments and due work belong to E5.
+
+**Given** a proposed starter policy,
+**When** activation is reviewed,
+**Then** the Leave Manager with current policy-management permission confirms they have
+reviewed entitlement, work schedules, holiday calendars and organization-specific rules
+during the existing publication review,
+**And** missing required configuration is explained without a false Ready result.
+No separate client approval role or sign-off workflow is introduced.
+
+**Given** confirmed valid settings,
+**When** I publish,
+**Then** Story 3.3's permission, versioning, effective-date and retry protections apply,
+**And** no employment, employee assignment or application grant is created automatically.
+
+**Traceability / planned verification:** Features §4/10; BIZ-06/19; FLOW-03;
+approved Leave EXPERIENCE starter-policy/editor and platform explicit-save/review UX.
+Verify prefill, unchanged stable type identities, approved defaults versus editable
+choices, explicit authorized confirmation, required-setting failures and duplicate-safe
+publication through the actual editor/API. Preserve E1's unconfigured draft-choice
+behavior and group 5's notification-before-consuming-mutation boundary.
+No runtime tests executed; final source/test paths/commands remain pending.
+
+**Pre-story inputs / sizing:** Bind reviewed example contents and owning provisioning,
+the confirmation/evidence shape within the existing publication contract, and required
+configuration predicates using actual E2 facts. No inferred statutory allowance, new
+policy assignment default, approval execution, stored manual readiness flag or dependency
+on group 8's later setup UI. This story proves its own required checks. Publication is
+initial unused-policy setup under Story 3.3; notified existing-entitlement changes remain
+later consumers. Exact technical/test contracts and final agent sizing/readiness remain open.
+
+**Impacts:** Scaffold: reuse existing configuration/example and version/review patterns;
+keep Leave example content out of generic generation. Shared UI: reuse editor/review and
+concise example labels; no new warning/sign-off component. Agent context: existing
+instructions suffice. Documentation: maintained starter examples, publication/test
+mapping and epics/tracker/handoff checkpoint. ADR: accepted decisions suffice; no amendment.
+
+### Story 3.5: Explain which policy applies to an employee
+
+**Scope approved by the user, 2026-10-12, with the ambiguity/unavailability refinement
+below; not implementation-ready.** Owner: Leave, consuming authorized shared employment
+facts over HTTP. Consumes initial policy/read foundations and E2 employee facts; group 2
+applicability read only, not entitlement override, adjustment or submission execution.
+
+As a Leave Manager with current permission to view an employee's Leave settings,
+I want to check which policy applies for a selected leave type and date,
+So that I can understand eligibility and identify configuration gaps.
+
+**Acceptance Criteria:**
+
+**Given** an authorized employee, leave type and selected date,
+**When** I check applicability,
+**Then** the backend identifies the applicable policy version and evaluates its configured
+eligibility rules,
+**And** the result names the policy and explains the relevant conditions in plain language.
+
+**Given** eligibility depends on employment type, location, tenure or assignment,
+**When** those conditions are evaluated,
+**Then** the check uses the applicable facts for that date from their owning services
+or Leave settings,
+**And** it does not duplicate shared employment information or infer eligibility from
+application roles.
+
+**Given** no applicable policy or unmet eligibility conditions,
+**When** the check completes,
+**Then** it explains the missing configuration or unmet condition,
+**And** it distinguishes that result from a failed check.
+
+**Given** a future policy version,
+**When** I select dates before and after its effective boundary,
+**Then** each check uses the version applicable to that date rather than today's policy.
+
+**Given** required employment or policy information cannot be retrieved,
+**When** applicability is checked,
+**Then** show Couldn't check with Retry,
+**And** do not treat the failure as employee ineligibility.
+
+**Given** conflicting policy applicability rules,
+**When** they are saved,
+**Then** reject them with an explanation of what needs correcting,
+**And** enforce this in the owning write path, including concurrent saves, rather than
+accepting ambiguity and expecting employees to resolve it. The matching contract defines
+what constitutes conflict; relevant existing policy writers integrate/prove this safeguard
+in the same delivery item. No new assignment writer depends on a future story here.
+
+**Given** an applicability check,
+**When** the result is displayed,
+**Then** it changes no employee settings, grants, balances or reservations,
+**And** draft preservation remains available under its existing protections.
+
+**Traceability / planned verification:** Features §4, BIZ-06/07 (partial coverage),
+Leave policy/versioning decisions and platform shared-employment ownership; approved
+employee-setting/access/error UX. Verify date-version matching, accepted eligibility
+combinations, missing versus unavailable facts, explained unmet conditions, protected
+employee scope, organization isolation and delayed response context. Pair conflict-save
+validation with real database/API concurrent-writer evidence; browser explanations alone
+cannot establish matching integrity. Applicable configuration writers must participate.
+No runtime tests executed; final source/test paths/commands remain pending.
+
+**Pre-story inputs / sizing:** Settle exact matching/precedence, employment-type ownership,
+tenure treatment across employment periods and date interpretation. These remain explicit
+open inputs; no guessed universal tenure restart, inferred policy assignment/role grant,
+cross-owner table access or silent new business rule. Define and test the write safeguards
+alongside the resolver, within completed dependencies; split if final sizing requires it.
+Unavailable dependency data is not invalid configuration. Accepted refinement prevents
+normal ambiguous saves instead of introducing routine employee ambiguity handling.
+Final agent sizing and readiness remain open.
+
+**Impacts:** Scaffold: prove/reuse generic current authorized service inputs, safe
+error/context and scoped constraint patterns, not a shared eligibility engine. Shared UI:
+reuse result/loading/retry controls and scoped employee/type/date selection; Leave owns
+matching and explanations. Agent context: existing instructions suffice. Documentation:
+matching/ownership contracts, source/test mapping and epics/tracker/handoff checkpoint.
+ADR: existing accepted decisions remain authority; raise a new business outcome for
+discussion if resolution requires one. No implementation or readiness authorization.
+
+### Explicit policy assignment decision — accepted 2026-10-12
+
+User approved filters plus explicit employee policy assignment for MVP, deferring
+automatic eligibility rules. [ADR-0126](../../apps/leave/docs/architecture/decisions/0126-explicit-policy-assignment-with-employee-filters.md)
+and features §4 are authoritative. Filter changes, new employees and changed employment
+facts do not dynamically add/remove assignments. Managers maintain the exact reviewed
+set; backend consequential checks enforce applicable assignment alongside existing rules.
+No access grant, recurring override, balance reset or weakened draft preservation.
+
+This later decision refines agreed Story 3.3's eligibility configuration and Story 3.5's
+rule evaluation: use explicit assignment plus effective policy versions, not automatic
+employment-type/location/tenure matching. Conflict-save rejection and Couldn't check /
+Retry for outages remain agreed. Exact assignment/version/date/conflict and supported
+filter-fact contracts stay open; there is no new universal tenure rule or missing-fact
+inference. Preserve historical evidence, actual effect review and required notifications.
+Finalize coherent story acceptance/test mapping before readiness; historical proposals
+above do not override this accepted amendment.
+
+Impacts: authority/spec/spine/UX/tracker/handoff updated; new additive Leave ADR, accepted
+predecessors unchanged. Reuse proven generic filters/selection/review/recovery in UI and
+scaffold first consumers; no generic eligibility engine, duplicated People facts or new
+agent-context rule. Assignment writers needing calculation/notification effects follow
+those foundations, with no hidden future-story dependency. Story 3.6 remains discussion.
+
+### Story 3.6: View and select employees for a policy
+
+**Scope approved by the user, 2026-10-12; not implementation-ready.** Owner: Leave
+API/web, consuming People facts over authorized HTTP. Consumes policy read/type identity,
+E2 employee read and current scoped authority. Existing assignment states are represented
+through controlled owner fixtures/contracts; this is independently usable read/selection
+work, not a dependency on a later assignment mutation UI.
+
+As an authorized Leave Manager,
+I want to view a policy's assigned employees and use filters to select employees,
+So that I can review exactly whom a proposed assignment would cover.
+
+**Acceptance Criteria:**
+
+**Given** an organization policy and current employee-view permission,
+**When** I open its employee list,
+**Then** I see the applicable saved assignments and employee identities within my
+authorized organization.
+
+**Given** available employee filters,
+**When** I filter the list,
+**Then** it shows matching employees using supported facts from their owners,
+**And** filtering changes no assignments.
+
+**Given** filtered results,
+**When** I select employees,
+**Then** I can inspect the exact selected people and remove selections,
+**And** selection remains distinct from assignment. Pagination or filter changes cannot
+silently expand the selected set.
+
+**Given** an employee without a login account,
+**When** they appear in the authorized employee list,
+**Then** they can be selected by their employment identity without creating an account
+or granting application access.
+
+**Given** unavailable employee or assignment information,
+**When** the list loads,
+**Then** it shows a retryable failure rather than an empty list or assumed unassigned state.
+
+**Given** changed filters, new employees or changed employment facts,
+**When** the list is refreshed,
+**Then** existing policy assignments remain unchanged.
+
+**Traceability / planned verification:** Features §4, BIZ-06/07 (partial), Leave ADR-0126;
+platform shared-employment/accountless/current-access decisions and collection/filter UX.
+Test exact selection across pages/filter changes, explicit deselection, accountless
+employees, organization/resource isolation, stale responses, failed versus empty data
+and no implicit assignment writes. Pair scoped API/owner fixtures with browser and
+keyboard/mobile filter/selection behavior. No runtime tests executed; exact paths/commands
+and final requirement/test reconciliation pending.
+
+**Pre-story inputs / sizing:** Bind supported filters without guessed employment-type/
+tenure facts, selection across pages, assignment-date interpretation and scoped read APIs.
+The backend is the source for saved assignments; selected UI rows are provisional and
+not new persisted administrative drafts or effective grants. Final agent sizing and
+readiness remain open.
+
+**Assignment confirmation dependency:** User approved committing assignments as a separate
+story after required calculation and notification foundations. Retain this group 2 write
+obligation for later decomposition; do not mistake the read/selection story for completed
+policy assignment delivery. Bound initial/reassignment/version/date semantics and actual
+effects, including existing overrides/requests/history, before the consuming writer.
+No missing foundation hidden behind a future story and no new notification exemption.
+
+**Impacts:** Scaffold: reuse/prove generic scoped employee read/selection/client patterns;
+Leave owns assignment semantics. Shared UI: reuse collection/filter/selection controls,
+exact selected-set review and accessible recovery; promote only proven domain-neutral
+additions. Agent context: existing instructions suffice. Documentation: contracts/test
+mapping and epics/tracker/handoff checkpoint. ADR: 0126 governs; no further amendment.
+
+### Story 3.7: Calculate leave duration from the employee's work schedule
+
+**Scope approved by the user, 2026-10-12; not implementation-ready.** Owner: Leave
+backend duration calculation/API, using E2 effective work-profile/calendar inputs and
+shared employment facts over authorized HTTP. Consumes existing E1 input/authority
+and E2 configuration foundations; no future balance/preview/submission prerequisite.
+
+As an employee preparing a leave request,
+I want its duration calculated from my applicable work schedule and holidays,
+So that it reflects the working time I would miss.
+
+**Acceptance Criteria:**
+
+**Given** a full-day date range,
+**When** duration is calculated,
+**Then** the backend totals the employee's scheduled working minutes for each date,
+using applicable schedule and holiday versions,
+**And** non-working dates consume no leave.
+
+**Given** different working hours across the week,
+**When** leave includes those dates,
+**Then** each date uses its actual scheduled hours rather than a standard eight-hour day.
+A six-hour Friday consumes 360 minutes.
+
+**Given** Half day on a working date,
+**When** duration is calculated,
+**Then** it consumes exactly half that date's working time.
+A 450-minute day gives 225 minutes, without forcing a 30-minute increment.
+
+**Given** Hours on a selected date,
+**When** the entered duration is checked,
+**Then** it must be a positive multiple of 30 minutes within that date's working time,
+**And** no start/end times or morning/afternoon selection are required.
+
+**Given** net working hours or an Advanced timetable with excluded breaks,
+**When** working time is resolved,
+**Then** breaks are excluded exactly once.
+
+**Given** incomplete/reversed dates, no working time or unavailable required configuration,
+**When** calculation is attempted,
+**Then** it returns an appropriate validation or retryable result without inventing
+schedule values,
+**And** useful draft input remains preservable.
+
+**Given** a viewer in another timezone,
+**When** the same request is calculated,
+**Then** employee work dates and applicable versions produce the same duration.
+
+**Traceability / planned verification:** Features §3/8; CALC-02/27; Leave ADR-0003/0023/
+0041/0074 and approved request-mode/date/no-working-time UX. Deterministic tests cover
+variable schedules, calendar/version boundaries, full/half/hour units, net/Advanced
+break equivalence, holidays/non-working dates, partial holidays, timezone/DST and
+malformed/incomplete input. Pair focused calculation tests with authorized API/input
+and actual owner-version resolution tests. No runtime tests executed; exact test paths/
+commands, source mapping and final sizing remain pending.
+
+**Pre-story inputs / sizing:** Bind effective schedule/calendar resolution, partial
+holiday and clock/DST treatment, fractional-minute schedule cases and API/result/version
+evidence. Do not invent rounding for exact halves or confuse standard-day entitlement
+conversion with date-specific consumption. Shared fact unavailability is not zero
+working time; current authority and fail-safe errors stay binding. Draft saves do not
+require successful duration calculation. No calculation snapshots or domain mutations
+on ordinary reads.
+
+**Remaining consumers:** This story establishes backend duration calculation. Group 4
+preview presents results in Apply; balance funding/reservation and concurrent combined-
+request limits retain their own stories. E5 must enforce the real aggregate daily limit
+across submitted/in-approval/approved requests and all writers before activation; no
+atomic concurrency proof claimed by this read calculation. Earlier E2 writers integrate
+their real calculation effects where required. Final readiness remains open.
+
+**Impacts:** Scaffold: reuse/prove generic authorized read/input/error/type clients;
+no shared working-time engine. Shared UI: existing date/mode/error controls may be reused
+by consuming previews; this backend story creates no parallel UI calculator. Agent
+context: existing instructions suffice. Documentation: time/version/API contracts, test
+mapping and epics/tracker/handoff checkpoint. ADR: accepted decisions suffice; resolve
+any new business outcome explicitly rather than guessing. No code/readiness authorization.
+
+### Story 3.8: Calculate daily earned entitlement
+
+**Scope approved by the user, 2026-10-12; not implementation-ready.** Owner: Leave
+backend calculation. Consumes current authorized assignment/version/history contracts,
+E2 employment/work-timezone/standard-day inputs and Story 3.7's time conventions.
+Controlled owner fixtures represent applicable explicit assignments and policy rates;
+no dependency on a future assignment editor or daily worker. This is the daily earning
+component, not an available-balance calculator ignoring caps, expiry or actual events.
+
+As an employee whose policy provides daily earning,
+I want entitlement calculated from my applicable annual allowance and employment dates,
+So that earning is accurate without waiting for a scheduled job.
+
+**Acceptance Criteria:**
+
+**Given** an eligible employment date under a daily-earning policy,
+**When** earning is calculated,
+**Then** that date's portion is included from the start of the day in the employee's
+work timezone,
+**And** no worker or daily ledger posting is required.
+
+**Given** an unchanged annual allowance,
+**When** earning is calculated,
+**Then** it uses eligible calendar days divided by the actual length of the applicable
+leave year, including leap years,
+**And** calendar-year and employment-anniversary periods follow their configured boundaries.
+
+**Given** employment starts or ends during the period,
+**When** earning is calculated,
+**Then** start and end dates count inclusively, with no earning outside employment periods,
+**And** late joining does not accelerate earning or apply proration twice.
+
+**Given** fractional daily earning,
+**When** portions are accumulated,
+**Then** precision is retained across dates and the usable total is rounded down to whole
+minutes only at the defined boundary. For 8,640 annual minutes, 100/365 gives 2,367 whole
+minutes; a complete eligible year gives 8,640, before other balance effects.
+
+**Given** a prospective annual-rate change,
+**When** earning spans its effective date,
+**Then** earlier dates retain their earlier rate and later dates use the new rate,
+**And** precise portions are combined without independently rounding each segment.
+
+**Given** unchanged inputs,
+**When** the calculation is repeated,
+**Then** it returns the same result without creating events, snapshots or duplicate entitlement,
+**And** unavailable required information produces a retryable failure rather than zero earning.
+
+**Traceability / planned verification:** Features §6 and existing CALC-01–04/06;
+Leave ADR-0090/0091/0092/0094/0096/0103, period/anniversary/standard-day decisions and
+ADR-0126 explicit assignment. Deterministic fixtures cover just-before/at employee-local
+midnight, current-day inclusion, leap/anniversary periods, one-date employment, joining/
+departure/gaps, full-year denominator, annual-amount-to-minute conversion, precise
+segmentation and unchanged repeated reads. Pair calculation tests with authorized
+input/owner-version resolution tests; no runtime tests executed. Exact test paths/commands,
+source mapping and final agent sizing remain pending.
+
+**Pre-story inputs / sizing:** Bind period boundaries, annual-allowance-to-minute conversion,
+dated assignment/version inputs and precision representation. Eligibility here follows
+explicit assignment and employment boundaries, not deferred automatic demographic rules.
+Do not invent cross-period fraction transfer, standard-day version applicability or
+tenure/anniversary restarts across rehire. Preserve exact portions for the later cap/replay
+consumer; the rounded output alone cannot be its input. Missing inputs are not zero earning.
+
+**Remaining consumers:** Caps, expiry and other balance effects are combined through
+separate independently bounded stories before presenting available balances. This story
+must complete and verify its earning component without a future available-balance UI;
+do not claim uncapped arithmetic is production availability under capped policies. Actual
+rate-changing writers retain reviewed consequences, original evidence and required
+notification contracts; synthetic rate fixtures do not prove those mutations.
+Final sizing and all readiness gates remain open.
+
+**Impacts:** Scaffold: existing authorized clients/error/version inputs suffice; no
+generic accrual engine, posted daily worker or balance cache. Shared UI: no new component
+in this backend story; later balance/preview consumers use approved disclosures. Agent
+context: existing instructions suffice. Documentation: calculation/precision/time-input
+contracts, test mapping and epics/tracker/handoff checkpoint. ADR: accepted decisions
+suffice; any new business outcome requires explicit resolution. No implementation permission.
+
+### Story 3.9: Preserve an ordered history of actual balance changes
+
+**Scope approved by the user, 2026-10-12; not implementation-ready.** Owner: Leave
+persistence/internal recording and authorized history reads. Consumes E1 restricted
+owner write, current authority, attribution, operation recovery and employee-scoped
+coordination conventions; E2 employment references and existing policy/type identity.
+Controlled owner fixtures verify the foundation without future production adjustment,
+approval or correction commands. No generic event-writing API or direct ledger editor.
+
+As an employee or authorized Leave Manager,
+I want actual balance changes retained with their dates, source and attribution,
+So that balances can be reproduced and changes explained without rewriting history.
+
+**Acceptance Criteria:**
+
+**Given** an authorized balance-changing operation,
+**When** its effects are committed,
+**Then** its actual balance events are recorded atomically with the operation's required evidence,
+**And** each event retains organization, employment, leave-type, amount and source references.
+
+**Given** a recorded event,
+**When** it is read later,
+**Then** its effective date, actual recorded time, actor and applicable reason remain available,
+**And** effective date and recorded time are distinct.
+
+**Given** multiple changes effective on the same date,
+**When** history is replayed,
+**Then** they follow a stable server-assigned sequence established within the serialized
+employee transaction,
+**And** client clocks or identical timestamps cannot change their order.
+
+**Given** a retry after a lost response,
+**When** the original operation is recovered,
+**Then** its events and sequence are reused without duplicating or reordering effects.
+
+**Given** a mistaken adjustment,
+**When** it is corrected through another authorized adjustment,
+**Then** the original remains intact and the new event retains the correction relationship
+and explanation,
+**And** no direct ledger-editing action is introduced. Consumer commands prove actual
+adjustment review/effects/notifications later; this foundation uses controlled fixtures.
+
+**Given** automatically calculated earning,
+**When** balances are read,
+**Then** reads create no daily earning events or decision snapshots,
+**And** derived earning is not counted again as a posted grant.
+
+**Given** unauthorized access or another organization's identifiers,
+**When** history is requested or written,
+**Then** the backend prevents disclosure or mutation.
+
+**Traceability / planned verification:** Features §6; BIZ-09/11; CALC-01/32/33;
+Leave ADR-0001 as refined by 0090/0106, plus 0110; platform operation/revision/attribution,
+structural integrity, runtime scope and short-transaction rules. Verify actual database
+atomicity, immutable rows/source links, server sequencing under concurrency/same timestamps,
+lost-response duplicate recovery, backdated effective versus recorded dates and scope
+denial under restricted roles. Read/history fixtures expose safe attribution/reason
+only under authorized business access; sensitive content never enters diagnostics.
+No runtime tests executed; exact paths/commands/source mapping remain pending.
+
+**Pre-story inputs / sizing:** Bind event/source identities and amount representation,
+immutable constraints, sequence allocation, scoped retry identity and history API/error
+contracts. Preserve relationships among atomic operation effects rather than an arbitrary
+signed-amount sum. Initiator/executor distinction and durable actors follow existing
+ownership. Implement only representation needed by the bounded foundation/fixture family;
+do not pre-create every future request/workflow entity. Request reservations/consumption/
+correction producers later extend and prove their actual protocol/effects in the same
+delivery item. Retain required calculation snapshots at consequential consumers; reads
+create none. Final agent sizing and all readiness gates remain open.
+
+**Remaining consumers:** Establish ordered actual-event inputs before historical cap/
+earning replay. Automatic earning/expiry/carry-over representation must not double-count
+derived effects; exact physical reconciliation is still a calculation contract. Real
+adjustment/request/correction workflows own their current authorization, atomic domain
+effects, review/confirmation, original decision evidence and required outbound intent.
+Fixture writes do not prove those production workflows or exempt required notifications.
+
+**Impacts:** Scaffold: reuse/prove domain-neutral atomic attribution/source/recovery
+patterns with first-consumer tests; no shared runtime ledger/audit engine. Shared UI:
+existing history/disclosure primitives suffice for later consumers; no new ledger editor.
+Agent context: existing instructions suffice. Documentation: event/sequence/retry/history
+contracts, test mapping and epics/tracker/handoff checkpoint. ADR: existing decisions
+suffice; no amendment. No implementation or readiness authorization.
+
+### Story 3.10: Apply accumulated-balance caps to daily earning
+
+**Scope approved by the user, 2026-10-12; not implementation-ready.** Owner: Leave
+backend calculation, consuming Story 3.8's precise daily portions and Story 3.9's ordered
+actual events. Explicit reservation and boundary-effect fixtures/protocol inputs avoid
+future request/rollover workflow dependencies; no complete available-balance claim yet.
+
+As an employee with a capped daily-earning policy,
+I want earning to respect the cap and explain excluded amounts,
+So that my entitlement is accurate when balances change.
+
+**Acceptance Criteria:**
+
+**Given** an optional accumulated-balance cap,
+**When** daily earning is calculated,
+**Then** only the portion fitting below the cap is earned,
+**And** an uncapped policy retains its otherwise eligible earning.
+
+**Given** entitlement already at or above the cap,
+**When** the next daily portion is evaluated,
+**Then** no additional earning is added,
+**And** existing entitlement is not removed merely because it exceeds the cap.
+
+**Given** fractional capacity,
+**When** a daily portion is evaluated,
+**Then** the cap is applied before whole-minute rounding.
+For 119.8 minutes plus 0.5, with a 120-minute cap, accept 0.2 and exclude 0.3.
+
+**Given** the employee is at the cap on Monday and a deduction later Monday creates room,
+**When** earning is recalculated,
+**Then** Monday's excluded earning stays excluded and normal earning resumes Tuesday,
+subject to capacity,
+**And** previously excluded amounts are not automatically restored.
+
+**Given** already-earned entitlement reserved for a pending request,
+**When** cap headroom is calculated,
+**Then** that entitlement still counts toward the cap. Releasing its reservation creates
+no headroom; actual consumption does,
+**And** reservations against future earning do not count as today's accumulated entitlement.
+
+**Given** dated balance changes,
+**When** earning is replayed,
+**Then** it follows historical order rather than simply limiting today's uncapped total,
+**And** automatic start-of-day effects precede same-day user changes.
+
+**Given** earning excluded by the cap,
+**When** calculation results are inspected,
+**Then** earned and excluded portions are reproducible and distinguishable,
+**And** repeated reads create no events or duplicate earning.
+
+Reservation explanation accepted with the story — 2026-10-12: submitted pending requests
+reserve entitlement; drafts reserve nothing. At 20 earned days/20-day cap, reserving five
+leaves 15 available for other requests but still 20 accumulated. Pending withdrawal restores
+availability to 20 without headroom. Final approval consumes five, leaving 15 accumulated
+and room for subsequent normal earning, not catch-up. Future-earned reservations are
+distinct from today's earned entitlement. This follows ADR-0037, not a new request lifecycle.
+
+**Traceability / planned verification:** Features §6; CALC-05/16; Leave ADR-0033/0034/
+0037/0093/0095/0109/0110. Test no/partial/exact/above-cap cases, preserved below-cap fractions,
+permanently excluded excess, Monday deduction/Tuesday resumption, no same-day regrant,
+earned versus future reservation state, consumption versus release and ordered historical
+replay across rate/event boundaries. Test supplied expiry/rollover boundary inputs before
+new earning. Pair deterministic and repeat-read/property checks with existing actual-event
+source/order integration; producer commands retain their own real transaction evidence.
+No runtime tests executed; exact source/test paths/commands and final sizing pending.
+
+**Pre-story inputs / sizing:** Bind precise cap-state representation and ordered actual-
+event/reservation/boundary-effect inputs. Synthetic protocol fixtures cannot claim E5
+reservations execute or erase its integration obligations. Integrate actual expiry/rollover
+calculations before claiming complete available balances. Reconstruct historical headroom;
+do not approximate with min(current cap, total uncapped earning), retain excluded excess
+as a hidden balance or truncate before cap evaluation. Manual adjustments/exceptions and
+historical corrections keep their separate safeguards; this does not add a universal
+manual-grant cap restriction. All readiness gates and final agent sizing remain open.
+
+**Impacts:** Scaffold: reuse proven generic input/version/error mechanisms, not a shared
+cap/accrual engine. Shared UI: later balance disclosures consume reproducible explanations;
+no extra administrative cap tool. Agent context: existing instructions suffice.
+Documentation: calculation/cap/replay contracts, test mapping and epics/tracker/handoff
+checkpoint. ADR: accepted decisions suffice; no amendment. No implementation permission.

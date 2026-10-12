@@ -1511,6 +1511,16 @@ separate from unresolved business actions.
 
 ## Key Flows
 
+Policy assignment refinement — agreed 2026-10-12:
+[Leave ADR-0126](../../../../apps/leave/docs/architecture/decisions/0126-explicit-policy-assignment-with-employee-filters.md)
+uses employee filters and explicit selected-set assignment for MVP. Show the exact
+employees in review; filters are selection aids, not automatic eligibility rules.
+Changes to filters/facts and new employees do not silently change assignments. Reuse
+shared collection/selection and explicit review/recovery patterns; no new eligibility-rule
+builder. Leave owns assignment/history; shared employment is not duplicated. Version/date
+and consequential impact/notification behavior remain owning pre-story contracts.
+This amends written behavior, not immutable historical previews or readiness status.
+
 Names and examples below come from the accepted wireframes: Ana Matola, Sofia
 Fernandes, João Pereira, Maria Santos and Joseph Chileshe Banda. They are illustrative
 participants, not new personas or additional grants. Where a management operation
