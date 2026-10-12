@@ -3,7 +3,7 @@ project: Leave
 status: epic-structure-approved
 created: 2026-09-23
 stepsCompleted: []
-currentCheckpoint: Stories 2.1–2.19 approved; Story 2.20 employee work-profile assignment under discussion; readiness pending
+currentCheckpoint: E2 has 26 agreed story scopes; E3 delivery grouping proposed for discussion; technical contracts/coverage/sizing/readiness pending
 requirementsInventoryStatus: Source-indexed coverage proposal; granular extraction and confirmation pending
 epicApproval: Approved by user on 2026-09-23, including E5 and delivery sequence
 implementationReadiness: pending
@@ -6690,7 +6690,7 @@ readiness; no new universal hour defaults or timetable implementation.
 
 ### Story 2.20: Assign or change an employee's Leave work profile
 
-**Candidate for discussion — 2026-10-12; not implementation-ready.** Owner: Leave employee
+**Scope approved with inheritance/schedule-history clarification, 2026-10-12; not implementation-ready.** Owner: Leave employee
 work-settings API/UI/persistence. Consumes completed E1 profile/default/timezone settings,
 shared People employment, 2.18 calendars and 2.19 profiles; no later override editor,
 default-change UI or request/entitlement UI dependency. E1/controlled fixtures prove
@@ -6786,3 +6786,759 @@ configuration demo/scaffold history/input promotion where proven without importi
 servers or claiming a generic HR engine. Update docs/runbooks/source-to-test commands and
 agent usage guidance where needed. Contract/sizing/readiness remain pending; no employee
 profile/settings, code, schema or deployment changed through planning.
+
+
+Profile inheritance/history clarified and approved — 2026-10-12: default fills inherited
+settings, preserving explicit profiles and employee overrides. Ben uses Standard office
+8-hour default; Ana uses explicit Part-time 6-hour profile. A new 7-hour default affects
+Ben from its effective boundary, not Ana's explicit choice. Retained schedule settings
+explain earlier dates and support backdated/correction calculations; confirmed request
+snapshots retain actual old outcomes. Use clear UI wording: keep working arrangements
+that applied to earlier dates and do not automatically change previously recorded leave.
+This is not a manual version-number workflow or duplicate full profile per employee/save.
+
+### Story 2.21: Set or change the organization's default Leave work profile
+
+**Scope approved by the user, 2026-10-12; not implementation-ready.** Owner: Leave settings/
+profile administration API/UI. Consumes completed 2.18–2.20 calendar/profile/assignment
+and E1 default/timezone foundations; no later override editor/archive UI or entitlement/
+request UI dependency. Earlier fixtures provide overridden/fallback cases without a
+future editor prerequisite.
+
+As a Leave administrator authorized to manage organization work settings,
+I want to set or change the default work profile and review who inherits it,
+So that employees using the default get the intended arrangement while explicit choices
+and earlier calculations remain protected.
+
+**Acceptance Criteria:**
+
+**Given** current default-management/read authority in the organization,
+**When** I open the default profile setting,
+**Then** I see the saved profile or Not configured and current same-organization choices,
+**And** the form explains that the default serves employees without an explicit profile
+choice. It does not assign/overwrite every employee or infer a location/team hierarchy.
+
+**Given** a permitted active configured profile and effective date/reason,
+**When** I review a new default or replacement,
+**Then** I see old/new profile, applicability date, employees using the fallback and relevant
+inherited-value/override effects, plus required existing-request attention where present,
+**And** explicitly assigned employees are shown as unaffected by the default selection.
+Required impact data unavailable/changed state prevents a false complete review or stale
+confirmation. Only authorized employee context is disclosed; no medical payloads.
+
+**Given** current reviewed state and confirmation,
+**When** Leave commits the default change,
+**Then** the organization setting/applicability and required history/audit/compact outcome
+commit with guarded revision under the owner,
+**And** employee explicit assignments/overrides are retained. Default lookup resolves the
+applicable profile/version at the declared effective boundary rather than copying its
+values into every employee or applying a future default early.
+
+**Given** a fallback-dependent employee has a six-hour Friday override,
+**When** a new default has different Friday hours,
+**Then** their explicit six-hour value remains while other inherited settings follow the
+applicable new default,
+**And** incompatible override state is surfaced under the existing validation/review contract,
+not silently discarded. An explicit-profile employee retains that profile regardless of
+the default. New app grants/membership/employment are never implied by a default choice.
+
+**Given** a proposed profile is wrong-org, archived, missing or otherwise invalid,
+**When** selection/confirmation is validated,
+**Then** it cannot become the new default and typed field/setup feedback preserves input,
+**And** existing invalid explicit assignments cannot be repaired by automatically falling
+back to this default. Missing required setup does not block authorized draft input
+preservation under the accepted E1 contract; dependent calculations/submission retain
+strict validity checks.
+
+**Given** earlier assignments/schedules and submitted requests exist,
+**When** current default changes,
+**Then** their relevant prior configuration/version references and recorded calculations
+remain interpretable and unchanged,
+**And** applicable consequences follow explicit correction/acknowledgement rules. Consumer
+E3/E5/E6 stories integrate actual impact calculations before activation against their
+records; E2 uses declared contract fixtures without depending on later UI.
+
+**Given** stale organization/holder/profile review, missing authority, Cancel, outage or
+lost response,
+**When** Save/Review/Confirm resolves,
+**Then** safe typed conflicts require renewed review, useful local input is retained and
+same-operation recovery prevents duplicate default history/audit,
+**And** required local evidence failure aborts mutation. External impact/reference calls
+stay outside coordination/write locks; timestamps cannot replace guarded revisions.
+
+**Given** initially failing acceptance and actual restricted Leave/Access fixtures,
+**When** the item is delivered,
+**Then** initial/default switch, correct effective date, fallback-only effects, overrides,
+explicit assignment preservation, wrong-org/archive refusal and retry/history pass,
+**And** E1 timezone and draft behavior remains compatible. No mock result is claimed as
+implemented request/entitlement correction or timezone transition proof.
+
+**Traceability:** Features §3 default fallback/preserved assignments and review; tracker
+Phase 5 profiles/default settings; spine AD-1/2/3/5/6/8/12; platform ADR-0012/0013/0019/
+0020/0022/0023/0025/0031/0035/0041/0049/0051/0059; Leave ADR-0003/0023/0041/0086/
+0112/0113 and work-profile/employee settings UX. Profile-version editing, employee
+Override/Reset and dependency-safe archiving are following bounded work, not this item.
+
+**Impacts/readiness:** Define organization-default applicability/revision schema and
+current scope/authority, employee fallback/override projection, net/timetable/calendar/
+timezone effective-boundary semantics and current affected-state/freshness handshake
+before readiness. Include E1 minimal-default adoption and possible timezone boundary
+changes without a parallel work-settings master. Complete defaults/reference/archive
+write guards and compatible owned migration/recovery. Promote proven profile selector,
+source/impact review and safe status/conflict helpers only where generic; Leave owns
+inheritance/calculation rules. Update scaffold config/pattern/test refs as supported,
+owner docs/runbooks, generated clients and agent usage guidance where needed. Actual
+single-agent sizing/contracts remain gated; accepted ADRs unchanged and no setting,
+employee/profile, code, schema or deployment changed by planning.
+
+
+### Story 2.22: Override an employee's work settings or restore profile inheritance
+
+**Scope approved by the user, 2026-10-12; not implementation-ready.** Owner: Leave employee
+work-settings API/UI/persistence. Consumes completed 2.18–2.21 calendars/profiles/assignment/
+default and E1 explicit-timezone settings. No later shared-profile editor or entitlement/
+request UI dependency; controlled fixtures supply existing request/impact contracts.
+
+As an authorized Leave administrator,
+I want to set specific employee work-setting overrides and return a field to its profile,
+So that individual working arrangements are supported without duplicating the profile
+or hiding how effective values are obtained.
+
+**Acceptance Criteria:**
+
+**Given** the employee's current applicable profile/default and permitted work settings,
+**When** I open Work schedule,
+**Then** I see effective values and their source, with explicit override fields clearly
+marked and a Use profile value/Reset to profile action for each supported field,
+**And** eligible fields are a declared typed set, including the approved working-day/time,
+work-timezone/calendar/standard-day settings as applicable. No arbitrary dictionary of
+new settings or full copied profile is accepted by the API.
+
+**Given** an employee-specific arrangement such as six hours on Friday,
+**When** I edit the relevant field,
+**Then** the proposed value is an explicit local override independent of inherited values,
+**And** other untouched fields continue to inherit. Net daily hours remain the normal form;
+advanced work/break times derive coherent net minutes under the completed schedule rules.
+A value equal to the current profile is still an explicit override if intentionally saved
+as such; equality alone cannot make it inherited.
+
+**Given** a saved employee override,
+**When** I choose Use profile value,
+**Then** the proposed reset removes that override and previews the effective inherited
+value for the chosen date,
+**And** it is committed only through explicit Save/Review/Confirm. Do not copy the current
+profile value into a new override: future valid profile changes should then be inherited.
+A missing/invalid inherited value needs honest setup/validation handling rather than
+silent substitute or loss of useful saved draft input.
+
+**Given** proposed overrides/resets and effective date/reason,
+**When** I review before confirming,
+**Then** I see changed effective values, sources, date and required affected-request/consumer
+attention with retained overrides distinguished from inherited changes,
+**And** current field/profile/default/calendar/settings observations must still match at
+confirmation. Future changes do not apply early, and historical arrangements/recorded
+request calculations are preserved under the existing version/impact contracts.
+
+**Given** current authority, valid coherent values and reviewed state,
+**When** Leave commits confirmation,
+**Then** it saves only this employee's applicable work settings/override history with
+server attribution, guarded revision and required audit/compact operation outcome,
+**And** the shared profile, organization default, People employment and other employees
+remain untouched. Meaningful override absence differs from zero/empty input according
+to the typed field contract; independent flags cannot contradict override values.
+
+**Given** a later profile/default change or explicit profile switch,
+**When** effective employee settings are resolved,
+**Then** still-valid explicit overrides remain and nonoverridden fields follow the
+applicable profile/default,
+**And** incompatibility is shown for explicit resolution under the approved review rules,
+not silently erased. Current access and consequential calculation validation remain;
+missing setup alone does not become a draft-preservation rejection.
+
+**Given** Cancel, invalid input, cross-org reference, stale review, unavailable impact
+verification or lost response,
+**When** the command resolves,
+**Then** explicit-save/conflict/error handling preserves useful local input, rechecks
+changed review state and uses original operation recovery before retry,
+**And** no duplicate override/version/event is created. Required local evidence failure
+aborts mutation; external reference/impact waits stay outside write locks. No field
+autosave or administrative server-draft lifecycle is introduced.
+
+**Given** initially failing acceptance and actual restricted Leave/Access/People fixtures,
+**When** implementation evidence is recorded,
+**Then** per-field override/reset, equal-valued explicit intent, retained unrelated settings,
+future profile inheritance, net/timetable consistency, date/retry/authority and historical
+references have evidence,
+**And** earlier E1 explicit-timezone and draft behavior remains compatible. Later real
+request/calculation/correction consumers prove their own consequences before activation;
+mocked impact does not establish their implementation.
+
+**Traceability:** Features §3 inherited work settings/employee overrides/reset and §7
+snapshot/draft preservation; tracker Phase 5 employee work schedules/profile defaults;
+spine AD-1/2/3/5/6/8/12; platform ADR-0012/0013/0014/0019/0020/0022/0023/0025/0031/
+0035/0040/0041/0049/0051/0059; Leave ADR-0003/0023/0041/0086/0112/0113/0122 and approved
+employee schedule wireframe/profile UX. These work-setting overrides are distinct from
+E3 recurring entitlement overrides and manual balance adjustments; no access-role changes.
+
+**Impacts/readiness:** Declare exact override fields/modes and inheritance/null/reset rules,
+per-day/coherent minute/advanced timetable constraints, effective-date/version scope,
+work-timezone/DST/partial-holiday interpretation and current revision/reason/impact handshake.
+Reuse E1 owned settings identities and migrate compatibly without a parallel override
+store; current domain/profile/calendar invariants need protected local commit checks.
+Promote proven source labels, field reset/date/review/conflict controls and typed clients
+through scaffold/shared UI with first-consumer reference examples as applicable; Leave
+owns effective resolution and effects. Update scaffold pattern/source/test links when
+schema supported, owner runbooks and exact commands; existing agent rules/ADRs bind.
+Contract/sizing/readiness remain pending. No employee setting, profile, code, DDL or deployment.
+
+
+### Story 2.23: Review and publish changes to a shared work profile
+
+**Scope approved by the user, 2026-10-12; not implementation-ready.** Owner: Leave work-
+profile configuration/version and impact API/UI. Consumes completed 2.18–2.22 calendar/
+profile/assignment/default/override foundations. No later archive UI or E3/E5/E6 domain
+UI dependency; their impact/freshness integration remains required when those consumers
+exist. Editing name-only metadata is distinguished from schedule-affecting changes.
+
+As a Leave administrator authorized to manage schedules,
+I want to review and publish a dated change to a shared work profile,
+So that inherited employee arrangements change intentionally while overrides and earlier
+working arrangements remain protected.
+
+**Acceptance Criteria:**
+
+**Given** current profile read/manage authority for the exact organization,
+**When** I open a saved profile from the list,
+**Then** I see its applicable schedule/version, working-week summary, assignment/default
+usage and declared editable settings,
+**And** net daily hours are the standard input with coherent detailed timetable/break
+settings under Advanced. Existing assignment/override references remain explicit.
+
+**Given** proposed calculation-relevant changes and effective date/reason,
+**When** I proceed to review,
+**Then** I see old/new settings, applicability, affected employees and the changed inherited
+values, with unchanged overridden values separately identified,
+**And** direct/default-dependent usage is assessed under current allowed scope. Review
+also lists existing requests needing attention where applicable; missing required impact
+verification is not a zero-impact result or permission to publish blindly.
+
+**Given** an 18-person profile changes Friday from eight to seven net working hours,
+**When** 17 employees inherit Friday and Ana has a six-hour override,
+**Then** review shows the 17 inherited changes and Ana's retained six hours,
+**And** this example is illustrative, not an imposed working week, country default or
+measured workload. A potential request issue is separate from ordinary inheritance.
+
+**Given** authorized confirmation against unchanged reviewed state,
+**When** Leave publishes the change,
+**Then** it retains the profile identity and creates one new immutable effective schedule
+version with required attribution/reason/audit and compact operation outcome,
+**And** old applicable settings/version references and submitted calculation snapshots
+remain meaningful. No overlapping applicable versions or silent historical overwrite;
+unchanged saves/replay do not create fictitious calculation versions/change events.
+
+**Given** a future applicability boundary,
+**When** current and future-date consumers resolve schedules,
+**Then** each uses the profile settings applicable to its requested employee-local date,
+**And** the future schedule does not become current early. Work-timezone transition,
+DST, advanced/net and partial-holiday semantics follow the completed typed domain contract;
+no arbitrary shift times or universal hours are inferred from net-only input.
+
+**Given** employee overrides, explicit assignments and organization-default dependencies,
+**When** the new schedule becomes applicable,
+**Then** valid overridden values remain, explicit profile identity stays assigned and
+nonoverridden settings follow that profile's applicable version,
+**And** this action does not choose another organization default/profile or alter People
+location/employment/membership. Incompatible overrides require explicit resolution under
+current-impact validation; never silently discard them to make the shared edit succeed.
+
+**Given** prior submitted requests or entitlement effects,
+**When** a shared profile change affects their context,
+**Then** prior recorded calculations/dates/decisions remain unchanged and required attention
+follows existing explicit correction/renewed-acknowledgement rules,
+**And** no automatic cancellation, unpaid conversion or approval transfer occurs. E3/E5/E6
+provide actual consuming calculation/request/notification evidence before activation against
+those records; the E2 item uses honest contract fixtures without those future UI dependencies.
+
+**Given** assignment/override/profile/calendar state changes after review, wrong organization,
+missing authority, invalid input, Cancel, outage or lost response,
+**When** confirmation resolves,
+**Then** guarded current-state validation requires renewed review where relevant and safe
+errors preserve useful local input; original-operation recovery prevents duplicated versions,
+**And** required local audit/outcome failure aborts the mutation. External current-access/
+impact/reference waits are outside short locks; no timestamp-only concurrency or typing-
+time published configuration. Actor fields are server-derived.
+
+**Given** initially failing acceptance and real Leave/current-access/restricted-role fixtures,
+**When** delivery records results,
+**Then** inherited-versus-overridden review, default/direct usage, version/effective-date
+queries, concurrent reviewed-state changes, safe retry and preserved old results pass,
+**And** earlier E1 timezone/draft preservation remains compatible. Illustrative mockups
+or impact fixtures do not prove measured performance or later entitlement workflows.
+
+**Traceability:** Features §3 reviewed effective schedule changes/version/snapshots; tracker
+Phase 5 profile list/edit/review; spine AD-1/2/3/5/6/8/12; platform ADR-0012/0013/0019/
+0020/0022/0023/0025/0031/0035/0041/0049/0051/0059; Leave ADR-0003/0023/0041/0086/
+0112/0113 and approved work-profile edit/review preview. Profile archive is the following
+bounded story. Name-only changes need ordinary explicit save/attribution rather than a
+fabricated new calculation version unless the owner contract declares a real meaning change.
+
+**Impacts/readiness:** Complete stable/version model and effective-boundary constraints,
+current usage/override/impact read schemas, reviewed aggregate references and protected
+writer/consumer coordination before readiness. Define timezone/DST/minute/break/calendar
+rules, clock-dependent versus net-only schedule capability, and compatible old-setting
+adoption. Version definitions remain stored business configuration, not generic audit
+reconstruction. Promote proven review/source/difference/conflict controls and typed clients;
+Leave owns inheritance/impact rules. Record supported scaffold config/pattern/history/source
+choices and actual reference/consumer tests with owner docs/runbook/agent usage guidance.
+Bound total lookup/transaction/impact work with no unsupported distributed atomicity.
+Exact contracts/sizing/readiness remain pending; no profile/employee, code, schema or deployment.
+
+
+### Story 2.24: Archive an unused work profile without losing its history
+
+**Scope approved with Active/Inactive/Deactivate presentation, 2026-10-12; not implementation-ready.** Owner: Leave work-
+profile lifecycle API/UI. Consumes completed 2.19–2.23 profile/assignment/default/version
+and current-authority foundations. No later report, approval or archive-management engine.
+
+As a Leave administrator authorized to manage schedules,
+I want to archive a profile once it is no longer needed for current or planned work,
+So that it disappears from new choices while earlier arrangements and recorded leave
+remain understandable.
+
+**Acceptance Criteria:**
+
+**Given** a permitted saved profile,
+**When** I open Archive,
+**Then** its current/scheduled assignment and organization-default dependencies are checked,
+**And** the action is blocked while any current/planned arrangement depends on it or it
+is the applicable default. Historical references alone do not require erasing the past
+or automatically rewriting employee settings. Exact dependency predicate is a pre-story input.
+
+**Given** assignment/default dependencies block archive,
+**When** I inspect why,
+**Then** authorized blocking employee/default references link to completed assignment/
+default settings with shared return-to-origin/focus behavior,
+**And** those changes retain their own review/date/reason/override safeguards. On return,
+eligibility is refreshed; a stale empty list cannot authorize archive. Do not offer
+archive-and-move-everyone or clear settings automatically.
+
+**Given** the profile is no longer required by current/scheduled/default settings,
+**When** I explicitly confirm archiving against current reviewed state,
+**Then** Leave records the archive marker/actor/time with guarded revision, required change
+history and compact operation result atomically,
+**And** the profile is unavailable for new ordinary assignments/default choices. Its stable
+identity, earlier/future version evidence and request/assignment references are retained.
+Use the accepted archive timestamp as simple Active/Archived presentation; no separate
+archive database or workflow is needed.
+
+**Given** prior schedule/version references and recorded leave,
+**When** an authorized historical view or correction resolves them,
+**Then** the archived identity and relevant preserved version remain interpretable,
+**And** recorded calculations/decisions are not changed, deleted or reconstructed from a
+generic audit log. Historical resolution is distinct from permission to newly select
+an archived profile, and never grants business-record access by possessing an ID.
+
+**Given** a concurrent employee assignment, default change or scheduled use after review,
+**When** archive and the competing command are confirmed,
+**Then** shared local write/constraint guards prevent a newly invalid active reference,
+**And** either valid use wins and blocks archive, or archive wins and new use is refused.
+Relevant changed state requires renewed review; no optimistic hidden fallback to another
+profile. Historical/default/ended-employment edge cases are defined and tested before readiness.
+
+**Given** wrong organization, missing authority, Cancel, outage or response loss,
+**When** Archive resolves,
+**Then** current authorized original-operation recovery prevents duplicate history and
+reports actual committed state, with safe typed error/current-review handling,
+**And** required local evidence failure aborts the mutation. External checks remain outside
+short locks; browser-supplied actor/status fields cannot archive a record directly.
+
+**Given** initially failing acceptance and actual restricted Leave/current-access fixtures,
+**When** delivery records evidence,
+**Then** current/scheduled/default blocking, related-setting return, historical retention,
+concurrent assignment/archive ordering, safe retry and cross-org/API denial pass,
+**And** earlier E1 current-versus-historical reference and draft-preservation rules remain
+compatible. Existing version/snapshot tests supplement the UI, not mocked success alone.
+
+**Traceability:** Features §3 archive profile dependencies/preserved versions; tracker
+Phase 5 configuration lifecycle; spine AD-1/2/3/5/6/8/12; platform ADR-0012/0013/0019/
+0020/0022/0023/0025/0031/0035/0049/0051/0059; Leave ADR-0003/0023/0086 and approved
+profile lifecycle/return-navigation UX. Reactivation/purge and employee/offboarding are
+outside this item; no hidden removal of employee overrides or organization membership.
+
+**Impacts/readiness:** Define current/future/default/ended-employee dependency queries and
+version/assignment history semantics, same-owner guard serialization for every supported
+assignment/default/archive write path, reviewed-state/retry/audit contract and exact
+historical-read authorization before readiness. Do not rely solely on a UI count or a
+profile revision without protecting independent assignment changes. Preserve controlled
+owner migrations/recovery and bounded transactions. Reuse shared confirmation/related-
+record return/status controls; domain dependency policy stays Leave-owned. Update scaffold
+config and proven fixtures/components in the first applicable consuming work, owner docs/
+runbook/source-to-test links and usage guidance; accepted ADRs unchanged. Contract/sizing/
+readiness remain pending. No profile/settings, employee, code, schema or deployment changed.
+
+
+Profile availability terminology approved — 2026-10-12: user agrees Active/Inactive and
+Deactivate as reusable reference-data presentation where appropriate. Features/shared/
+Leave UX updated. Story 2.24's archive action uses those visible labels but retains
+ADR-0086 timestamp/version/reference/dependency semantics; no accepted ADR modified.
+A profile used by current/planned/default settings cannot be deactivated through a
+label change. Other domain lifecycles retain their own states and safeguards.
+
+### Story 2.25: See actionable setup status from saved configuration
+
+**Scope approved with Leave-specific/derived-status clarification, 2026-10-12; not implementation-ready.** Owner: Leave setup
+assessment API/UI and authorized shared People/Access clients. E2 increment consumes the
+completed people/supervisor/work-profile/calendar configuration. The full approved design
+has three areas; E3 owns actual leave-type/policy assessment integration when that domain
+is delivered. Do not hide a future E3 implementation dependency inside E2 acceptance or
+claim full organization readiness before authoritative assessments are implemented.
+
+As an authorized Leave administrator,
+I want to see remaining setup issues and navigate to their settings,
+So that I can configure the organization in a useful order without manual completion flags.
+
+**Acceptance Criteria:**
+
+**Given** current authorized setup-read access in the organization,
+**When** I open Setup,
+**Then** the approved presentation groups People and supervisors, Work profiles and holidays,
+and Leave types and policies with links to available authorized settings,
+**And** there is no mandatory sequence, manual Mark complete, separate activation action,
+consultant email-approval tracker or standard opening-balances checklist row.
+
+**Given** an implemented authoritative section assessment,
+**When** its saved configuration is read,
+**Then** status is Not started for missing essentials, Needs review for known invalid/
+incomplete settings, Ready when its required checks pass, or Could not check with Retry
+when it cannot be assessed,
+**And** unknown/unsupported assessment is not Ready/empty/Not started merely from missing
+implementation. Actual E2 assessments use real delivered configuration/owner reads;
+E3 adds/proves its own policy results rather than E2 faking that domain's validation.
+
+**Given** there are no employees in the organization,
+**When** People/setup is assessed,
+**Then** People remains Not started and normal configuration tasks are offered,
+**And** there are no invented employee names/errors or demands to import opening balances.
+A legitimate zero balance or empty holiday year alone is not proof of missing setup.
+
+**Given** employees and delivered required configuration exist,
+**When** People/supervisor and work-arrangement assessment runs,
+**Then** applicable employment/work-profile/timezone/calendar/reference and supervisor
+eligibility issues are listed with permitted employee/setting links,
+**And** department/location nulls do not invalidate employment; missing approval route
+matters only under the applicable configured Leave policy. Define which current/future/
+ended employees/date/context participate before readiness, without guessing UTC today.
+
+**Given** a setup issue is selected,
+**When** its linked existing settings form is opened and saved or cancelled,
+**Then** shared related-record context/focus/return behavior brings the administrator back
+and the affected section re-assesses from saved state,
+**And** uncommitted local edits cannot mark a section complete. Refreshing one section does
+not erase other authorized results; relevant access loss hides protected details.
+
+**Given** required service/assessment reads fail,
+**When** setup loads or refreshes,
+**Then** the affected assessment shows Could not check and safe Retry rather than a false
+missing employee/location/profile or successful empty state,
+**And** current authority and other independent usable configuration sections remain intact.
+Results carry declared observation evidence/stale handling; they are not reusable
+permission grants or a stored independent ready flag.
+
+**Given** saved configuration changes or a consequential action is attempted,
+**When** its own application path validates inputs,
+**Then** it enforces current authoritative rules independently of checklist status,
+**And** a displayed Ready never authorizes submission or waives readiness/contracts.
+Keep lightweight draft preservation separate from business setup and employee admission.
+Actual policy/approval/calculation consumers own their full validity checks.
+
+**Given** initially failing acceptance and actual delivered E2 configuration/HTTP fixtures,
+**When** the E2 item is verified,
+**Then** implemented People/work-arrangement sections prove empty/known issue/ready/outage,
+permission-scoped links and save/return/reassessment with no manual status writes,
+**And** absent policy assessment cannot produce a false Ready. E3 later proves all policy
+predicates and end-to-end three-area results using its own real configuration. Bound/split
+assessment scope at final sizing rather than declaring future product tables now.
+
+**Traceability:** Features §1 approved derived setup checklist and §2/3 dependencies;
+tracker organization setup/configuration; spine AD-1/2/4/12; platform ADR-0019/0022/0023/
+0031/0040/0041/0042/0049/0051/0059; Leave approved Setup and migration UX. Consultant
+batch/email approval remains E8's separate process; E3 owns type/policy predicates.
+Team-specific grouping/other remaining E2 coverage still requires explicit decomposition;
+this story does not mark E2 complete or close global source coverage/readiness.
+
+**Impacts/readiness:** Declare section predicates/owner authority, scoped reads/observation
+bounds, employee effective-date interpretation, stable issue IDs and actionable field/
+route links plus stale/failure semantics before readiness. Preserve absence versus
+unavailable distinction and no remote waits under business locks. UI assessment is read-only
+configuration guidance; required audit stays with actual owning writers. Promote proven
+status/issue/link/return components and typed assessment clients, not a generic checklist
+workflow engine. Scaffold configuration records pattern/source/test choices when supported;
+owner docs/runbooks and real requirement-to-test evidence update together. Exact current
+scope, future E3 integration and agent-sized decomposition remain gated; accepted ADRs
+unchanged. No checklist/status database, employee/settings, code or deployment changed.
+
+
+## Setup ownership and derived-status clarification — 2026-10-12
+
+User asks whether 2.25 is Leave or cross-app setup, whether status is stored in a record,
+and why consequential validation was mentioned. Clarify the current authoritative scope:
+this is Leave setup for the selected organization, using Leave-owned configuration plus
+People/Access facts needed by Leave. It is not an organization-wide completion process
+for every app, public Scribeswell or account-scoped PtS. Recommend the visible title Leave
+setup to make that boundary clear. A later platform overview could link to/consume an
+explicit app summary but is not silently introduced in this story.
+
+A section status is derived API response data rendered as a badge/row in the UI. Saved
+configuration means actual employee/employment references, profile/default assignments,
+calendar and policy definitions in their owning stores; it is not one separate setup
+record with a manually saved status. Do not persist independent Not started/Ready flags
+that drift from those facts. Example: no employees => People Not started; an employee
+with neither usable explicit profile nor valid fallback => Needs review; all applicable
+implemented checks pass => Ready; a required owner read fails => Couldn't check. Read
+results are bounded observations, not a permanent capability or overall BMAD readiness.
+
+Recommend using the existing Leave forms/components inside the Leave setup flow, opening
+focused edits in approved drawers or navigating to the existing editor with return context.
+Use shared People/access administration controls/contracts where appropriate. Do not copy
+forms or import Leave-specific UI into another application's implementation, add iframe/
+microfrontend infrastructure or require a global platform setup engine. This keeps the
+approved HTTP/runtime and app-silo boundaries while preserving the user's existing views.
+
+The submission/approval sentence explains that a derived setup status is informational:
+configuration can change after the page is loaded, so consequential operations read their
+current actual inputs under existing rules. It introduces no extra checklist step or new
+validation policy. Example: setup was Ready, then a setting changes; the next submission
+cannot authorize itself from the earlier badge. Clarification only; 2.25 remains under
+discussion and no stored status, API/view implementation or cross-app architecture change.
+
+
+Leave setup clarification approved — 2026-10-12: 2.25 is Leave setup for the current
+organization. Status is derived API response/UI data from actual saved owner facts, not
+an independent stored ready field or a cross-app completion record. Existing Leave/shared
+forms open through approved drawers/navigation/return context; no duplicate editors or
+cross-app view embedding engine. Current action validation remains independent because
+configuration may change after an assessment. No implementation/readiness completion.
+
+## Remaining E2 team meaning — for discussion, 2026-10-12
+
+Coverage check found an explicit unresolved source item before E2 can be called complete:
+features §2 says manage teams, while §14 says the team calendar consolidates direct reports;
+§14/§19 also use team filters/report grouping and §3 permits initial team profile suggestions.
+Platform ADR-0041 explicitly does not add teams to the shared employment core. No team
+persistence/administration implementation was found in the inspected owner paths. This
+is not proof of all-repository absence, and not permission to drop existing requirements.
+
+Clarify whether MVP needs independently named employee groups (for example a cross-
+department project team) or whether supervisor direct-report groups plus the already
+specified departments/locations meet the user need. Recommendation for simplicity:
+use a supervisor's direct reports as the Leave team view/filter/report group initially,
+retaining departments/locations for other grouping, if independently maintained teams
+are not needed. This requires explicit user approval and source/UX alignment to defer
+independent team-management/profile-suggestion requirements; do not infer that decision
+from the shared-core exclusion alone.
+
+If named teams are needed, propose a bounded catalogue/assignment story and explicitly
+settle owner/cardinality/current history/profile-suggestion/privacy contracts before
+readiness. Do not assume People owns them or add a matrix hierarchy/import engine. In
+both variants, grouping itself grants no new team visibility or approval power; existing
+Leave capability/resource/colleague privacy rules remain binding. No new numbered story,
+team schema, requirement removal or accepted ADR change is made before this decision.
+Other remaining source/UX coverage and E2 sizing still require reconciliation; the 25
+approved scopes are discussion progress, not a complete global coverage/readiness pass.
+
+
+Supervisor-based MVP teams approved — 2026-10-12: [Leave ADR-0125](../../apps/leave/docs/architecture/decisions/0125-supervisor-based-teams-for-mvp.md)
+resolves the team question above. Features/shared owner context/Leave UX/spine/tracker now
+use supervisor direct-report grouping, preserving capability/colleague privacy and temporal
+contracts. Independent named/project team administration and team-specific default profiles
+are explicitly deferred, not silently assumed implemented. E2 2.11/2.16/2.17 establish
+employee/relationship facts; E5/E7 own real availability/filter/report semantics. No new
+E2 team-catalogue item or shared People team table is needed. This supersedes earlier
+active planning references to independently managed teams/profile layers; historical
+mockups/accepted predecessor ADRs are not rewritten. Remaining global coverage/readiness
+is pending and no app/service code, records or provider config changed.
+
+
+## E2 source-to-story checkpoint — 2026-10-12
+
+Compared existing features Permissions/§1–3, tracker Phase 2/5 and approved Leave employee/
+profile/setup UX against the 25 agreed scopes. This is bounded source reconciliation,
+not an independent review, complete global atomic FR inventory or SP readiness pass.
+
+| Source outcome | Planned owner/evidence |
+| --- | --- |
+| Protected organization app availability, user role administration | 2.1–2.5 plus E1 Access/discovery enforcement; exact delegated scope/catalog contracts still gate implementation. |
+| Invitation/trusted tenant enrollment/advance access/membership removal | 2.6–2.10 plus earlier Identity/Access lifecycle; ADR-0057/0058 explicitly add the bounded onboarding scope. |
+| Shared person/employment periods/optional placement/supervisor/replacement | 2.11–2.17 with People/Identity history/current scoped projections. |
+| Named teams versus direct-report scope | Leave ADR-0125 approved derived teams; named-team management and team-profile defaults deferred explicitly, no new team master. |
+| Calendar and work-profile/default/override/version/lifecycle setup | 2.18–2.24 with date/minute/partial-holiday/freshness and affected-record contracts still open. |
+| Derived setup guidance | 2.25 E2 sections; E3 type/policy assessment adds actual domain validation, no false E2 overall Ready. |
+| Approved grouped employee settings and focused form entry points | Individual writers above exist in scope; integrated real summary/permission/error navigation is the 2.26 candidate below. |
+| Starter approval/leave entitlement, temporary acting cover and effects | E3 policy/entitlement and E5 workflow stories remain their planned owners, even where the phase tracker groups them under Phase 2. No unimplemented E5 engine inside E2. |
+
+Complete per-story accepted-source/test mapping and final sizing for each required gate;
+no Phase 2 checklist is checked complete from this comparison. Retain the E1 first slice,
+shared-platform/scaffold impacts and all recorded pre-story contracts.
+
+### Story 2.26: View an employee's employment and Leave work settings together
+
+**Scope approved with Leave entry/navigation clarification, 2026-10-12; not implementation-ready.** Owner: Leave employee
+settings summary/read API/UI with authorized Identity/People/Access HTTP clients. Consumes
+completed E2 employment/access/profile/override writers and read contracts. E2 delivers
+Employment & approval and Work schedule; E3 adds the approved Leave entitlement section
+with its actual policy/balance/override semantics. No future E3/E5 UI prerequisite for the
+E2 summary's independent real-data acceptance.
+
+As an authorized Leave administrator,
+I want a readable employee summary with clear settings and focused edit entry points,
+So that I can understand and maintain their setup without searching across disconnected
+screens or duplicating shared employee data.
+
+**Acceptance Criteria:**
+
+**Given** the exact employee/current organization and permitted section read access,
+**When** I open the employee's Leave settings,
+**Then** Employment & approval shows permitted shared person/account-link status,
+employment periods/status, optional department/location and supervisor/Leave eligibility,
+**And** those fields are read through their current owner contracts with correct scope.
+Accountless/unassigned is a valid value where specified; person identity is not copied
+into a separate Leave employee master or inferred from email matching.
+
+**Given** permitted Work schedule read access,
+**When** the summary loads that section,
+**Then** I see explicit profile or default source, applicable net working days/hours,
+timezone, holiday calendar and standard-day conversion with overrides identified,
+**And** net daily hours are the normal summary while detailed timetables are available
+where configured. Inherited source and explicit override are distinct, including equal-
+valued overrides. No implicit team/location profile merge or arbitrary country defaults.
+
+**Given** an editable section and current matching management authority,
+**When** I choose its focused Edit/action,
+**Then** the existing approved writer form/drawer opens for the exact employee/organization,
+**And** completed saving/review/reason/date/current-impact safeguards apply without another
+implementation of the edit. Save/Cancel returns to the summary/focus and refreshes the
+actual affected state; unconfirmed edits do not change summary data or readiness.
+
+**Given** read authority without the relevant edit/role/impact authority,
+**When** the summary renders,
+**Then** permitted information remains readable while mutation actions are unavailable,
+**And** role-assignment shortcuts use the shared drawer with their own authority. No
+employee-summary permission grants access to medical documents, other employees beyond
+scope or a broader role-management function. Later request/balance/history controls stay
+with their own authorized consumers.
+
+**Given** a required owner read fails or configuration cannot be interpreted,
+**When** the summary is loaded/refreshed,
+**Then** affected section status is honest unavailable/Retry or known setup issue, not
+empty periods, Unassigned or zero balance substituted for a failure,
+**And** other independently authorized results may remain usable only under declared
+stale/access rules. The summary-load shape composes owners at the API boundary, without
+separate browser business-table access or a distributed snapshot promise.
+
+**Given** relevant employee/account/profile/permission state changes while a form is open,
+**When** its read/action is attempted,
+**Then** the exact target/current access and owner revision rules are enforced,
+**And** a stale summary does not authorize a write or wrong-account navigation. Earlier
+recorded work arrangements/employee history remain, with current versus historical date
+meaning displayed clearly. No unfinished form survival across browser closure is promised.
+
+**Given** E3 entitlement configuration/read features are later delivered,
+**When** their consuming stories extend this summary,
+**Then** the approved Leave entitlement group and separate balance actions use real current
+policy/override/calculation data and their own permissions,
+**And** E2 does not pre-create policy/ledger tables, invent balances or claim those features
+are ready. The group/layout remains a traced E3 obligation, not an E2 fake implementation.
+
+**Given** initially failing acceptance and real delivered E2 owner HTTP/persistence fixtures,
+**When** this item is verified,
+**Then** linked/accountless employees, periods/placement/supervisor status, inherited/overridden
+work values, section authority, owner failures and focused edit/return/refreshed state pass,
+**And** mobile/keyboard/focus behavior follows approved UX. E3/E5 add their real domain
+summary/history tests; a mockup or mocked successful response is not integrated proof.
+
+**Traceability:** Features §2 employee Leave settings groups and source ownership; tracker
+Phase 2 settings summary/focused edits and Phase 5 work configuration; spine AD-1/2/4/5/12;
+platform ADR-0019/0020/0022/0023/0025/0031/0040/0041/0042/0049/0051/0058/0059;
+Leave ADR-0023/0086/0122/0125 and approved Employee Leave settings preview/journey.
+Leave entitlement/balance actions/history are E3/E5/E6 consumers; no generic HR dashboard
+or duplicated approval/policy engine is introduced.
+
+**Impacts/readiness:** Define exact per-section read/field/edit authority and projected DTOs,
+People/Identity/Access target lookup versus `/me` constraints, minimal account/person data,
+current/date/version/source fields, bounded composed calls and null/unavailable/stale
+contracts before readiness. Match approved writers/return targets and require fresh actual
+checks on action. Promote proven read-summary/source/status/section/return patterns only
+where domain-neutral; Leave owns its grouped employee composition and no app-specific
+cross-silo UI import. Update scaffold config/source/test references when supported, owner
+docs/runbook/API types and generated agent usage guidance where needed. Count real cross-
+owner integration/UI in sizing; no E2/global coverage or implementation readiness pass.
+No employee settings, records, code, schema or deployment changed by planning.
+
+
+Employee summary entry approved — 2026-10-12: primary Leave → Manage Leave → Employees
+→ employee → Leave settings, with current organization/read/action permission. Leave
+setup deep-links there; Organization settings/People can link to the same permitted Leave
+page. Shared People is the employment API/admin owner, not another copy of the Leave
+summary. Existing employee/account/department/location/profile scopes and return contracts
+remain; no new standalone HR app or cross-app UI embedding architecture.
+
+## E2 discussion summary — 2026-10-12
+
+The user has agreed 26 E2 story scopes: app/role administration (2.1–2.5), organization
+onboarding/admission (2.6–2.10), shared employment/placement/supervisor work (2.11–2.17),
+Leave calendars/work profiles (2.18–2.24), Leave setup/employee summaries (2.25–2.26).
+MVP teams are explicitly supervisor-based under L-0125. Shared history/scaffold inputs,
+advanced schedule modes and tenant enrollment additions have recorded authority/impact.
+This summarizes agreed discussion scope, not full atomic FR coverage, agent-size validation,
+implementation authorization or a passed readiness gate. Earlier E1 contracts and first
+slice remain binding; source/UX/contract/sizing review must precede dependent delivery.
+User's next instruction continues sequential planning into the already approved E3 epic.
+
+## E3 — Configure entitlement and understand available leave
+
+**Grouping proposal for discussion — 2026-10-12; individual stories not yet detailed.**
+Approved epic outcome: managers configure organization policies/employee entitlements;
+employees see explainable current/reserved/projected balances and request previews. Uses
+E2 employment/work-calendar/profile/current access. Owns first required shared business
+notification integration before manual adjustments; E5 remains submission/reservation/
+approval execution and E6 broader historical correction/deficit workflows.
+
+### Proposed delivery groups
+
+| Order | Bounded work to decompose | Source/acceptance ownership |
+| --- | --- | --- |
+| 1 | Leave-type identity/metadata and initial versioned policy configuration, including request/eligibility/privacy/document/approval-rule fields and reviewed starter examples | Features §4, applicable §7/10; BIZ-05/06, FLOW policy-contract inputs. Reuse E1 type/mode identity; no complete approval engine or upload implementation. |
+| 2 | Policy applicability and employee policy/entitlement settings | Features §4/5 and approved grouped employee settings; BIZ-06/07. Resolve exact shared versus Leave input owners, matching/precedence and version references before readiness; no guessed employment-type source. |
+| 3 | Authoritative working-time/earning/event/balance calculation foundation, decomposed by daily/upfront/monthly/proration/cap/carry-over/expiry rules | Features §3/6/8/9 and existing CALC inventory; BIZ-09/11. No daily worker-posted accrual, balance cache or direct ledger edits. Actual event/history inputs stay immutable and calculation order/precision explicit. |
+| 4 | Date-by-date future projection, earliest-expiry allocation and request preview | Features §7–9; BIZ-10/12/14 and applicable CALC rules. Future earning cannot fund an earlier shortfall. Preview reserves nothing and consequential E5 actions revalidate. |
+| 5 | First business-notification/outbox/worker delivery foundation for adjustment/entitlement events | Features §6 and notification §15/16; BIZ-08/24/25 plus worker/durable-event contracts. Restricted shared HTTP service/worker scope, exact payload/retry/deduplication and safe recipient content precede consuming mutations. E2 provider-owned invites do not prove this integration. |
+| 6 | Authorized Add/Deduct one-off balance adjustment with effective date/reason, before/after review, immutable event and required employee notification | Features §6; BIZ-08 and effect/ordering/privacy contracts. No silent balance reset or existing-row edit; immediate adjustment action exists before recurring-override editor links to it. Actual requests consume impact contracts in E5/E6. |
+| 7 | Recurring employee entitlement override or return to policy allowance at the correct leave-period boundary | Features §5; BIZ-07. Preserve current balance/history, no automatic override end/reset. Monthly earning is not automatically a leave-period boundary. Links to completed one-off adjustment for immediate changes. |
+| 8 | Employee balance/entitlement explanations and E3 extension of employee/setup summaries | Features §6/13/17 and own-balance/privacy UX; BIZ-02/07/09/16. Real current/reserved/projected values and event explanations use the completed backend; no frontend independent calculator or fake readiness result. |
+| 9 | Reviewed changes/retirement of used policies/types with real affected-state and historical protection | Features §4–6 and accepted policy/version/archive/impact rules; BIZ-05/06/11. Keep identity/versions/old request meaning, source permissions and appropriate Active/Inactive presentation. No automatic consequence handling hidden in E2 metadata edits. |
+
+These are groups, not nine oversized implementation stories. Decompose sequentially into
+single-agent bounded stories with only completed prior dependencies. Initial configuration
+may use declared synthetic actual events for calculation tests, while existing consequential
+consumer changes must satisfy their required impact contracts before activation. Group 9
+comes after actual calculators/review/notification support so used-policy effects are not
+faked. E3 policy setup/summary obligations previously linked from E2 now have explicit owners.
+
+### Required contracts and impacts
+
+Keep the existing feature spec, calculation/flow/privacy inventories and ADRs authoritative;
+do not copy or simplify their rule ledger into new code guesses. Exact type/policy/runtime
+capability and data-owner fields, effective version/matching, minute/half-day/rounding,
+calendar/DST/local-date behavior, event same-day ordering/tie-break, projection/allocation,
+consistency/review/operation recovery and notification/worker payload/lifetime semantics
+are pre-story inputs. Model E5 reservation states through explicit fixtures/protocol,
+not a future approval UI dependency or claim that reservations already execute.
+
+Scaffold/shared UI: promote proved versioned configuration, actual event/change evidence,
+calculation-client/error/review and durable notification mechanisms where domain-neutral;
+Leave's earning/allocation/privacy/policy rules remain in Leave. Reference examples and
+schema-validated scaffold choices join first consumers with actual tests. Shared employee
+facts over HTTP remain owner-controlled; no imported service servers/duplicated masters.
+Document requirement-to-test evidence and scaffold/UI/agent/doc/ADR impacts with every
+story; accepted decisions remain immutable. No automatic policy defaults claimed legal,
+application implementation, migration or readiness pass from this proposal.

@@ -141,3 +141,4 @@ and are linked rather than duplicated here.
 | [0122](./0122-lightweight-draft-compatibility-and-setup.md) | Accepted | Missing timezone does not block draft preservation; obsolete selections may be cleared with notice and safe persistence |
 | [0123](./0123-inline-draft-save-failure-and-exit-confirmation.md) | Accepted | Adopt platform ADR-0050 inline failure and exit-only confirmation; partially supersedes 0121 |
 | [0124](./0124-saving-conventions-by-workflow.md) | Accepted | Adopt platform ADR-0051; retain request drafts, whole-form administrative Save and separate immediate preferences |
+| [0125](./0125-supervisor-based-teams-for-mvp.md) | Accepted | Leave MVP teams are supervisor direct reports; independent named teams/team profile configuration deferred, current scope/privacy/history preserved |

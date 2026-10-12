@@ -291,3 +291,12 @@ scaffold inputs, referencing authoritative specs/ADRs/contracts and actual tests
 BMAD as the workflow, avoid duplicated DB/API specifications or runtime app engines,
 and prove generator/shared-pattern behavior with first consumers rather than trusting
 configuration claims. Exact schema/generator implementation remains gated.
+
+
+## Leave MVP teams
+
+Follow [Leave ADR-0125](apps/leave/docs/architecture/decisions/0125-supervisor-based-teams-for-mvp.md):
+Leave teams derive from organization-scoped supervisor direct reports. Do not add an
+independent named-team catalogue/membership or team-profile default for MVP. People owns
+supervisor facts over HTTP; Leave owns authorized temporal grouping/views and workflow
+snapshots. Group membership itself grants no access or approval authority.

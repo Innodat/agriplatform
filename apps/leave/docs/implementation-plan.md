@@ -641,7 +641,7 @@ membership switching, authorization, or RLS.
 - [ ] Implement application-maintained default roles and advanced custom-role copies backed by explicit business permissions; review new grants for custom roles (platform ADR-0011). Include temporary-approver exception capability in Leave Manager by default without granting approval authority
 - [ ] Deliver shared custom-role lifecycle: blank creation, separate duplication, holder-impact review, unassigned-only deletion, preserved audit, clickable holders and return-to-origin (platform/EXPERIENCE.md)
 - [ ] Add Leave Manager and unified Approver role with relevant business permissions; enforce supervisor/final responsibilities through assigned workflow steps (ADR-0082)
-- [ ] Consume shared employment with nullable department/location and manual supervisor assignments under platform ADR-0041; establish authorized shared administration, scoped references and effective-dated history without duplicating an employee master. Preserve separately scoped team requirements; no organization-chart editor or Graph import dependency
+- [ ] Consume shared employment with nullable department/location and manual supervisor assignments under platform ADR-0041; establish authorized shared administration, scoped references and effective-dated history without duplicating an employee master. Use supervisor-based direct-report teams under ADR-0125, with no independent team catalogue; no organization-chart editor or Graph import dependency
 - [ ] Deliver approved employee Leave-settings summary and focused edits using shared person identity, visible inherited/overridden values and separate balance actions; enforce action permissions without hiding permitted read-only history
 - [ ] Model configured approvers and delegated/acting approvers
 - [ ] Provide editable one-supervisor starter approval policy (self-approval off, three-day reminders/seven-day escalation), with client-confirmed entitlement/schedules/holidays and approval-route setup checks
@@ -703,7 +703,7 @@ tests, telemetry, and replacement of the non-production prototype are verified.
 
 - [ ] Create the tenant-scoped `leave` schema
 - [ ] Implement jurisdictions, locations, holiday calendars, and observed holidays
-- [ ] Implement effective-dated employee work schedules including breaks and timezone; one explicit work profile with NGO fallback, team/location suggestions without silent reassignment, inherited values and overrides/reset, reason and impact review preserving history
+- [ ] Implement effective-dated employee work schedules including breaks and timezone; one explicit work profile with NGO fallback, location suggestions and supervisor-based team grouping without silent reassignment, inherited values and overrides/reset, reason and impact review preserving history
 - [ ] Implement versioned leave-type CRUD and archive/restore
 - [ ] Design stable configuration identities, archive timestamps, effective-dated calculation versions and request snapshots (ADR-0086); preserve audit separately and enforce work-profile archive dependencies
 - [ ] Implement policy versions: units, accrual, carry-over, expiry, limits, notice,
@@ -1972,3 +1972,88 @@ retain effective settings independently of audit and computed snapshots.
 adds explicit employee profile assignment with dated/reasoned impact review, retained
 overrides and default fallback. Net/timetable/partial-holiday and effective-date/override/
 impact contracts remain pre-story gates; no profiles/settings/code changed in planning.
+
+
+E2 progress — 2026-10-12: Story 2.20 employee work-profile assignment approved with
+clarified fallback and retained earlier schedule settings/request snapshots.
+[Story 2.21 candidate](../../../_bmad-output/planning-artifacts/epics.md#story-221-set-or-change-the-organizations-default-leave-work-profile)
+sets/changes the organization default with reviewed effective-date/fallback employee
+impacts, preserving explicit profiles/overrides and prior calculations. Exact default/
+timezone/override/reference/impact contracts remain gates; no settings/code changed.
+
+
+E2 progress — 2026-10-12: Story 2.21 organization default work-profile changes approved.
+[Story 2.22 candidate](../../../_bmad-output/planning-artifacts/epics.md#story-222-override-an-employees-work-settings-or-restore-profile-inheritance)
+adds explicit per-field employee work-setting overrides and Reset to profile, with dated
+impact review, preserved sources/history and no shared-profile rewrite. Net/timetable/
+inheritance/null/reset/current-effect contracts and E1 readiness stay pending. These are
+work settings, not E3 entitlement/balance overrides; no code or records changed.
+
+
+E2 progress — 2026-10-12: Story 2.22 per-employee work-setting override/reset approved.
+[Story 2.23 candidate](../../../_bmad-output/planning-artifacts/epics.md#story-223-review-and-publish-changes-to-a-shared-work-profile)
+adds shared-profile edit/impact review and one new effective schedule version while
+retaining overrides/old rules/submitted results. Name-only metadata saves do not need a
+fictitious calculation version. Current usage/review/freshness/net-timetable/partial-day
+and consumer impact contracts remain gates; no actual profile/settings/code changed.
+
+
+E2 progress — 2026-10-12: Story 2.23 shared-profile version/impact edits approved.
+[Story 2.24 candidate](../../../_bmad-output/planning-artifacts/epics.md#story-224-archive-an-unused-work-profile-without-losing-its-history)
+archives unused profiles only after current/scheduled/default dependencies are resolved,
+retaining version/request history with simple Active/Archived presentation. Assignment/
+archive concurrency and current-vs-historical/ended-employee dependency contracts remain
+pre-story gates; no employee/profile changes or application code implemented.
+
+
+E2 progress — 2026-10-12: Story 2.24 profile retirement approved with Active/Inactive
+and Deactivate presentation; features/shared/Leave UX synchronized while ADR-0086 storage/
+version/dependency rules remain. [Story 2.25 setup guidance candidate](../../../_bmad-output/planning-artifacts/epics.md#story-225-see-actionable-setup-status-from-saved-configuration)
+implements delivered E2 section assessments and approved three-area presentation, with
+real E3 type/policy predicates integrated by E3 before full readiness claims. No manual
+completion/email/opening-balance row; exact predicates/coverage/sizing remain open. No
+E2 completion, SP pass or code/status record change implied by this planning item.
+
+
+Setup clarification — 2026-10-12: 2.25 is Leave setup for the current organization,
+not a cross-app readiness record. API derives section status from actual saved owner
+configuration/reads and UI renders it; no independently edited status field. Recommend
+reusing existing Leave/shared administration forms in the setup navigation/drawers, with
+return context. The validation sentence explains that a displayed status can become stale,
+not a new workflow requirement. Global overview/embedding remains outside current scope.
+
+
+E2 progress — 2026-10-12: Story 2.25 Leave-specific setup/derived-status scope approved.
+Remaining source reconciliation identified [team meaning/ownership decision](../../../_bmad-output/planning-artifacts/epics.md#remaining-e2-team-meaning--for-discussion-2026-10-12):
+features require managed teams and team grouping but also define team calendar as direct
+reports; ADR-0041 does not place teams in shared core. Discuss independent named teams
+versus supervisor-derived groups before adding/defering any story. No existing team
+requirement removed or E2/global readiness/coverage completion claimed.
+
+
+E2 team scope resolved — 2026-10-12: [Leave ADR-0125](./architecture/decisions/0125-supervisor-based-teams-for-mvp.md)
+accepts supervisor-based direct-report teams for MVP. Features/UX reflect derived Team
+filters/grouping; independently named/project team administration and team-profile defaults
+are deferred. E2 employee/supervisor stories supply facts, E5 availability and E7 reports/
+calendar views own authorized temporal queries. No new team catalogue/story/entity;
+remaining source coverage/sizing/readiness still requires validation and no code/data changed.
+
+
+E2 source checkpoint — 2026-10-12: compared features Permissions/§1–3 and approved
+employee/profile/setup UX with the 25 agreed scopes; exact atomic source-to-test/sizing
+and all readiness gates remain open.
+[Story 2.26 summary candidate](../../../_bmad-output/planning-artifacts/epics.md#story-226-view-an-employees-employment-and-leave-work-settings-together)
+closes the integrated employee-summary/entry-point gap using real Employment & approval
+and Work schedule owner reads plus existing focused edit forms. E3 adds actual Leave
+entitlement/balance sections; E5 owns request history/approval consumers. No future UI
+prerequisite, fake balance, extra employee master or new code/table implemented.
+
+
+Planning progression — 2026-10-12: Story 2.26 employee summary/navigation approved.
+E2 has 26 agreed discussion scopes; atomic source/UX coverage, concrete technical inputs,
+agent sizing and all E1/Phase 1 readiness still pending.
+[E3 grouping proposal](../../../_bmad-output/planning-artifacts/epics.md#e3--configure-entitlement-and-understand-available-leave)
+orders initial type/policy setup, employee applicability, calculations/projection, required
+notification foundation, one-off adjustments, recurring overrides, balance explanation and
+used-policy change/lifecycle. Groups will split into bounded individual stories; no code,
+calculation/notification/migration execution or passed gate claimed. First Leave slice retained.

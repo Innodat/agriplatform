@@ -301,3 +301,10 @@ against verified target/admission and current assignment state. Identity, Access
 People retain their owners and HTTP boundaries; no synthetic accounts or automatic
 employment/roles from tenant identity. Resolve pending lifecycle, role-version review,
 provider evidence and staged recovery before the affected E2 story readiness.
+
+
+MVP team clarification — 2026-10-12: [L-0125](./decisions/0125-supervisor-based-teams-for-mvp.md)
+uses organization-scoped supervisor direct reports as Leave teams. People remains the
+relationship fact/history owner; Leave owns current permitted availability/filter/report
+queries and temporal semantics. No new named-team master or team-profile precedence;
+existing permission/resource/privacy, snapshot and current-authorization contracts remain.

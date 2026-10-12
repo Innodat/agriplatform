@@ -239,7 +239,10 @@ is introduced. Normal authorized balance administration remains available.
 
 ### 2. Organization and employment structure
 
-- Manage departments, teams, locations, and employee employment records.
+- Manage departments, locations, and employee employment records. For MVP, teams are
+  derived from each supervisor's direct reports under
+  [ADR-0125](./architecture/decisions/0125-supervisor-based-teams-for-mvp.md), with no
+  separate named-team catalogue or team-membership maintenance.
 - Assign an effective-dated supervisor and other approval assignments.
 - Provide a focused **Replace supervisor** action through shared employment administration:
   select all or some employees reporting to the current supervisor, choose the replacement
@@ -292,8 +295,9 @@ is introduced. Normal authorized balance administration remains available.
 - Apply timezone-aware, effective-dated employee schedules.
 - Preserve the calculated working-time snapshot on submitted applications.
 - Assign one explicit work profile per employee, with an NGO default fallback.
-  Team/location choices may suggest an initial profile; changing them must not
-  silently reassign a profile or merge several profiles.
+  Location may suggest an initial profile; changing location or supervisor must not
+  silently reassign a profile or merge profiles. Independently configured team-profile
+  defaults are deferred under ADR-0125.
 - Show inherited work-profile values and employee overrides, with a way to restore
   each overridden value to the profile. Preserve explicit overrides when changing
   the assigned profile.
@@ -305,8 +309,9 @@ The MVP does not claim to encode or maintain employment law. Configuration must 
 reviewed by each NGO for its operating jurisdictions.
 
 Preserve work-profile identity separately from its effective-dated schedule versions.
-Use an archive timestamp to retire a profile, retaining historical versions and
-request snapshots. Block archiving while current/scheduled assignments depend on
+Use Active/Inactive and Deactivate profile in the interface (agreed 2026-10-12).
+Retain the accepted archive timestamp to retire the stable profile, with historical
+versions/request snapshots. Block deactivation while current/scheduled assignments depend on
 it or it is the NGO default; provide affected-employee links to resolve assignments.
 Creating a profile does not assign employees automatically. Default changes preserve
 explicit assignments/overrides and review fallback-dependent employees.
@@ -2322,7 +2327,9 @@ See [ADR-0065](./architecture/decisions/0065-leave-manager-home-and-ngo-wide-sco
   corresponding authorized API. This does not grant access to unrelated requests,
   another NGO's data, or medical documents.
 - Personal calendar shows the employee's full permitted details.
-- Team calendar consolidates direct reports and capacity impact.
+- Team calendar consolidates the supervisor's direct reports and capacity impact under
+  ADR-0125. Team filters/report grouping use those organization-scoped supervisor groups;
+  they do not grant visibility or approval authority independently of current permissions.
 - Organization calendar supports department, team, location, status, and date filters;
   leave-type filters require permission to see the corresponding leave types.
 - Ordinary colleagues see **Unavailable** for full-day entries and **Part-day absence**
@@ -2622,6 +2629,8 @@ rehearsals, alert checks, browser coverage and representative performance tests.
   the report to an authorized client contact and records their email approval
   against the exact batch before applying it. Changed data requires a revised
   report and renewed approval. No client confirmation page is required in MVP.
+- Independently named/project teams, separate team-member administration and team-specific
+  default work-profile configuration; MVP uses supervisor-based teams (ADR-0125)
 - Microsoft Graph reporting-relationship synchronization: a future shared platform
   directory capability, separate from calendar integration. MVP supervisor assignments
   are maintained manually. Leave continues to own approval rules; future imports

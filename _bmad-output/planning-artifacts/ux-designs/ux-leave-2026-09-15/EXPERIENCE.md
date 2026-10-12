@@ -403,6 +403,14 @@ a coverage gap. Enforce the same condition for automatic finalization paths.
 
 ### Team availability during approval
 
+MVP team meaning approved 2026-10-12: inherit
+[ADR-0125](../../../../apps/leave/docs/architecture/decisions/0125-supervisor-based-teams-for-mvp.md).
+A team is the supervisor's organization-scoped direct reports. Existing Team selectors,
+calendar/report grouping and illustrative mockups refer to those derived groups, not
+independently named/project teams. Keep current permissions/colleague privacy and temporal
+reporting contracts; temporary approval delegation does not change reporting relationships.
+
+
 Within the review drawer, show Team availability for the selected request's dates
 with a brief summary such as 2 colleagues have leave during these dates. Desktop
 uses a compact timeline with employee rows and date columns; subtly emphasize the
@@ -955,8 +963,8 @@ breaks or saving two contradictory totals. Whole-form explicit saving applies. D
 partial-day holiday/clock-time and DST semantics in the owning contract before calculation
 readiness; do not infer an arbitrary shift time for a net-only profile.
 
-Use reusable work profiles with NGO default, location/team profile, and employee
-override layers. Profiles supply working days, daily hours, work timezone, holiday
+Use reusable work profiles with organization default, explicit employee assignment,
+location suggestions and employee overrides. Profiles supply working days, daily hours, work timezone, holiday
 calendar, and standard-day conversion duration. These are organization-configured
 values, not assumptions about statutory or universal country schedules.
 
@@ -964,10 +972,10 @@ Assigning a profile fills inherited values. Show the source (for example, Inheri
 from Maputo office), distinguish explicit employee overrides, and offer Reset to
 profile. Profile changes are effective-dated and preview affected employees.
 Preserve explicit employee overrides and historical request calculations.
-Each employee has one explicitly assigned work profile. Location or team may
-suggest the initial profile, but neither silently replaces it later. This resolves
-conflicting location/team defaults through assignment rather than an implicit
-precedence or field merge. Preserve employee overrides and the NGO default layer;
+Each employee has one explicitly assigned work profile. Location may suggest the initial
+profile but never silently replaces it later. There is no independently configured team-
+profile layer in MVP under ADR-0125; supervisor-based grouping does not choose or merge
+work profiles. Preserve employee overrides and the organization default layer;
 profile assignment changes use authorized effective-dated handling.
 
 Before publishing a profile change, show effective date, changed values, and
@@ -985,6 +993,11 @@ assessment unavailable. Confirmation is disabled. Creating/archiving profiles,
 changing the NGO default and actual impact calculations remain outside this study.
 The user approved the list/edit/review layout on 20 September 2026; numbers are
 not country defaults or real employee data.
+
+Profile availability terminology approved 2026-10-12: show Active/Inactive and
+Deactivate profile. Earlier archive wording below and in previews denotes this same
+retirement action; current/scheduled/default dependency guards and retained historical
+versions under ADR-0086 remain unchanged. No new restore/purge workflow is introduced.
 
 Approved profile lifecycle: Create profile uses the existing fields without
 automatically assigning employees. Setting the NGO default explicitly changes the

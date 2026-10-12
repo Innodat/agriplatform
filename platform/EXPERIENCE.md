@@ -637,3 +637,14 @@ excluding it from new assignments. A failed required load shows form-level Retry
 false Unassigned values or an incomplete editable form. Save still validates current
 scope/revision/selected references. Future large catalogues may need search/pagination
 when demonstrated; no extra scheduling or archive-management workflow is required here.
+
+
+### Reference availability terminology — approved 2026-10-12
+
+Prefer Active/Inactive and Deactivate for reference/profile availability where the domain
+allows that simple presentation. Active means available for new ordinary use; inactive
+retains authorized historical references while being excluded from new choices. Existing
+domain dependency checks, version history and actor/time evidence remain binding. This
+is presentation terminology, not a universal two-state model for requests/employment or
+permission to deactivate a currently required profile. Preserve accepted archive-time
+storage/history contracts such as Leave ADR-0086; no boolean alone erases provenance.
