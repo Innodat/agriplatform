@@ -1,5 +1,18 @@
 # PtS Swahili Poetry owner design
 
+> **Scope refinement:** [ADR-0053](../../../platform/docs/architecture/decisions/0053-capability-scoped-access-in-mixed-scope-applications.md)
+> assigns scope per capability. Current PtS features use individual access; future
+> organization features require separate scoped permissions and organization context
+> only on those paths. Their implementation is outside the current slice.
+
+> **Target architecture update — 2026-10-06:** [Platform ADR-0052](../../../platform/docs/architecture/decisions/0052-pts-account-scoped-access-and-coordinated-adoption.md)
+> establishes individual account access for PtS, without organization membership,
+> employment or an organization selector. Existing organization-based descriptions
+> below document the current implementation until coordinated adoption. PtS, Access
+> and Content callers may change together; legacy API responses need not be retained.
+> Corpus/storage authorization and migration remain explicit readiness inputs.
+
+
 The production target is the existing Supabase project: PostgreSQL, Supabase Auth
 (email/password, with optional Microsoft Entra federation), and a private Supabase Storage bucket. The disposable
 PostgreSQL container is only a verification fixture, never a new production database.
@@ -125,3 +138,11 @@ No frontend availability polling or global content-outage state is introduced.
 - Documentation: this design, README, environment examples and verification report
   own operating evidence. Historical source docs are data and remain unchanged.
 - ADR: follows existing accepted decisions; no new or changed decision required.
+
+
+## Planned individual access and shared corpus transition
+
+See the [source inventory and proposed corpus boundary](architecture/contracts/account-access-and-corpus-transition.md).
+Account permissions and application-owned corpus resources are separate; preserve source
+document associations and finalized bytes. This proposal requires discussion and concrete
+Content/storage contracts before delivery; the existing implementation is unchanged.

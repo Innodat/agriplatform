@@ -18,10 +18,11 @@ async function setup(page){
 test('sources include leads, rights and shared documents with protected downloads',async({page})=>{
  const state=await setup(page);await page.goto('/?org='+org+'&view=sources&search=absent');
  await expect(page.getByRole('heading',{name:'Uncollected lead',exact:true})).toBeVisible();
- await expect(page.getByText('Historical description').first()).toBeVisible();
- await expect(page.getByText('Conflicting licence notices')).toBeVisible();
+ await expect(page.getByText('Historical description').first()).not.toBeVisible();
+ await page.getByText('Source background',{exact:true}).first().click();await expect(page.getByText('Historical description').first()).toBeVisible();
+ await page.getByText('Licence and evidence',{exact:true}).first().click();await expect(page.getByText('Conflicting licence notices')).toBeVisible();
  await expect(page.getByText('Incomplete scan').first()).toBeVisible();
- await expect(page.getByText('Link only',{exact:true})).toBeVisible();
+ await page.getByText('Licence and evidence',{exact:true}).nth(1).click();await expect(page.getByText('Link only',{exact:true})).toBeVisible();
  await expect(page.getByRole('button',{name:'Download PDF',exact:true})).toHaveCount(2);
  await expect(page.getByRole('button',{name:'Download document (HTML)'})).toHaveCount(1);
  await expect(page.getByRole('link',{name:'Open online PDF'}).first()).toHaveAttribute('href','https://source.invalid/volume.pdf');
@@ -57,4 +58,19 @@ test('a late poem request cannot overwrite Sources with a stale error',async({pa
  await expect(page.getByRole('heading',{name:'Collected volume'})).toBeVisible();
  release();await page.waitForTimeout(150);
  await expect(page.getByRole('alert')).toHaveCount(0);
+});
+
+test('source priorities surface acquisition leads with contacts without implying AI permission',async({page},info)=>{
+ await setup(page);
+ await page.route('http://127.0.0.1:8010/api/sources',r=>r.fulfill({json:{sources:[{id:'S1',title:'Ordinary source',rights_id:'R1'}],rights:[{id:'R1'}],source_documents:[],acquisition_leads:[{id:'LEAD-1',title:'Zanzibar collection lead',priority:'high',reason:'Full collection with local poetic forms',access:'Permission and scan needed',next_step:'Request full Swahili text and project permission',origin:'Zanzibar; dialect unverified',rights_note:'AI permission not yet obtained',source_url:'https://source.invalid/lead',contact:{name:'Archive enquiries',email:'archive@example.invalid',url:'https://source.invalid/contact',verified_on:'2026-10-12'}}],acquisition:{}}}));
+ await page.goto('/?org='+org+'&view=sources');
+ await expect(page.getByRole('heading',{name:'Zanzibar collection lead'})).toBeVisible();
+ await expect(page.getByText('High priority',{exact:true})).toBeVisible();
+ await expect(page.getByText('AI permission not yet obtained',{exact:true})).toBeVisible();
+ await expect(page.getByRole('link',{name:'archive@example.invalid'})).toHaveAttribute('href','mailto:archive@example.invalid');
+ await page.getByRole('checkbox',{name:'Priority sources and access leads only'}).check();
+ await expect(page.getByRole('heading',{name:'Ordinary source'})).toHaveCount(0);
+ await expect(page.getByRole('heading',{name:'Zanzibar collection lead'})).toBeVisible();
+ await page.screenshot({path:'/tmp/pts-acquisition-'+info.project.name+'.png',fullPage:true});
+ expect(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth)).toBe(false);
 });

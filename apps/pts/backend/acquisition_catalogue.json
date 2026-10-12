@@ -1,0 +1,258 @@
+[
+  {
+    "id": "GHASSANI-NNA-KWETU",
+    "title": "N'na Kwetu: Sauti ya Mgeni Ugenini",
+    "priority": "high",
+    "origin": "Zanzibar; author biography confirms Zanzibar upbringing. Individual composition locations and dialect not established.",
+    "source_url": "https://mohammedghassani.wordpress.com/2019/04/20/nna-kwetu-a-stangers-voice-in-a-strange-land/",
+    "access": "Author points to book purchase. Full text not collected.",
+    "rights_note": "Permission needed; no open licence established",
+    "next_step": "Acquire a lawful full copy, confirm poem-level and edition rights for the private Psalm AI project, then compare duplicates and review the Swahili text.",
+    "reason": "High: contemporary Zanzibar collection",
+    "assessed_on": "2026-10-12",
+    "assessment_by": "Assistant research assessment",
+    "contact": {
+      "name": "Author website; direct email not found",
+      "url": "https://mohammedghassani.wordpress.com/2019/04/20/nna-kwetu-a-stangers-voice-in-a-strange-land/",
+      "verified_on": "2026-10-12"
+    }
+  },
+  {
+    "id": "GHASSANI-ANDAMO",
+    "title": "Andamo: Msafiri Safarini",
+    "priority": "high",
+    "origin": "Author from Zanzibar; individual composition locations/dialect unverified",
+    "source_url": "https://www.lulu.com/shop/mohammed-ghassani/andamo-msafiri-safarini/paperback/product-2gn28e.html",
+    "access": "Purchase available; no purchase made or full text acquired.",
+    "rights_note": "All Rights Reserved - Standard Copyright License, per publisher; permission needed for intended AI use",
+    "next_step": "Acquire a lawful full copy, confirm poem-level and edition rights for the private Psalm AI project, then compare duplicates and review the Swahili text.",
+    "reason": "High: contemporary Zanzibar collection",
+    "assessed_on": "2026-10-12",
+    "assessment_by": "Assistant research assessment",
+    "extent": "109 pages; poem count not established.",
+    "contact": {
+      "name": "Author website; direct email not found",
+      "url": "https://mohammedghassani.wordpress.com/2019/04/20/nna-kwetu-a-stangers-voice-in-a-strange-land/",
+      "verified_on": "2026-10-12"
+    }
+  },
+  {
+    "id": "SOAS-MS53499",
+    "title": "Diwani la Ujuzi wa Sawahili",
+    "priority": "high",
+    "origin": "Multiple authors/places; per-poem evidence required",
+    "source_url": "https://www.fihrist.org.uk/catalog/manuscript_8858",
+    "access": "Catalogue references digitised version. Current SOAS digital site returned user acknowledgement page. No manuscript acquired.",
+    "rights_note": "Unresolved: underlying poems, unpublished material, transcription/edition and archive access conditions require separate assessment; Hichens death in 1944 does not clear every contribution",
+    "next_step": "Acquire a lawful full copy, confirm poem-level and edition rights for the private Psalm AI project, then compare duplicates and review the Swahili text.",
+    "reason": "High potential volume, higher acquisition/review effort",
+    "assessed_on": "2026-10-12",
+    "assessment_by": "Assistant research assessment",
+    "extent": "625 folios; poem count not established.",
+    "contact": {
+      "name": "SOAS Archives and Special Collections",
+      "email": "special.collections@soas.ac.uk",
+      "url": "https://blogs.soas.ac.uk/archives/contact/",
+      "verified_on": "2026-10-12"
+    }
+  },
+  {
+    "id": "MUYAKA-DIWANI-1940",
+    "title": "Diwani ya Muyaka bin Haji al-Ghassaniy",
+    "priority": "high",
+    "origin": "Mombasa, Kenya; Kimvita literary context, not Zanzibar",
+    "source_url": "https://books.google.com/books/about/Diwani_ya_Muyaka_bin_Haji_al_Ghassaniy.html?id=UnYFAQAAIAAJ",
+    "access": "Bibliographic record and snippets only; full book not acquired. Compare existing Muyaka poems before counting additions.",
+    "rights_note": "Historical original poems promising; this edition/transcriptions and lawful copy need assessment before AI eligibility assigned",
+    "next_step": "Acquire a lawful full copy, confirm poem-level and edition rights for the private Psalm AI project, then compare duplicates and review the Swahili text.",
+    "reason": "High: primary older collection may improve/complete existing Muyaka excerpts",
+    "assessed_on": "2026-10-12",
+    "assessment_by": "Assistant research assessment",
+    "extent": "115 pages; poem count not established."
+  },
+  {
+    "id": "PROTECTION-INTERNATIONAL-2022",
+    "title": "Human Rights Defenders Poetry Book",
+    "priority": "promising",
+    "origin": "Multinational anthology including Kenya; no Zanzibar evidence yet",
+    "source_url": "https://www.protectioninternational.org/news/human-rights-defenders-poetry-book/",
+    "access": "Download link returned maintenance page through web reader; source page direct download returned 404. Full text not acquired.",
+    "rights_note": "Publisher says Creative Commons, attribution required, financial reuse needs consent; exact licence/version and PDF terms not verified, no automatic AI eligibility",
+    "next_step": "Acquire a lawful full copy, confirm poem-level and edition rights for the private Psalm AI project, then compare duplicates and review the Swahili text.",
+    "reason": "Secondary: likely smaller Swahili subset, author recordings advertised",
+    "assessed_on": "2026-10-12",
+    "assessment_by": "Assistant research assessment",
+    "contact": {
+      "name": "Publisher enquiry contact",
+      "email": "ao@protectioninternational.org",
+      "url": "https://www.protectioninternational.org/news/human-rights-defenders-poetry-book/",
+      "verified_on": "2026-10-12"
+    }
+  },
+  {
+    "id": "KHARUSI-MAMA-2020",
+    "title": "Mama Usihuzunike — Nassor Hilal Kharusi",
+    "priority": "high",
+    "reason": "Zanzibar poet with several published collections; promising contemporary local poetic patterns. Individual poem lengths and counts still need an inventory.",
+    "origin": "Zanzibar-born poet working in Stone Town; dialect not established for each poem.",
+    "source_url": "https://www.africamultiple.uni-bayreuth.de/en/news/2021/2021-03-12_Celebrating_African_poetry/Nassor-Hilal-Kharusi/index.html",
+    "access": "Collection identified; full text not held. Bibliographic sources differ on some edition years.",
+    "next_step": "Locate the author or publisher, confirm the edition and request full Swahili text plus private-project permission. No direct author contact found.",
+    "rights_note": "AI permission not yet obtained; online availability or purchase is not a project-use licence.",
+    "assessed_on": "2026-10-12",
+    "assessment_by": "Assistant research assessment",
+    "additional_evidence": "https://guides.library.columbia.edu/swahilibib/literature"
+  },
+  {
+    "id": "KHARUSI-BARSHEBA-2014",
+    "title": "Diwani ya Barsheba: Safari — Nassor Hilal Kharusi",
+    "priority": "high",
+    "reason": "Zanzibar poet with several published collections; promising contemporary local poetic patterns. Individual poem lengths and counts still need an inventory.",
+    "origin": "Zanzibar-born poet working in Stone Town; dialect not established for each poem.",
+    "source_url": "https://www.africamultiple.uni-bayreuth.de/en/news/2021/2021-03-12_Celebrating_African_poetry/Nassor-Hilal-Kharusi/index.html",
+    "access": "Collection identified; full text not held. Bibliographic sources differ on some edition years.",
+    "next_step": "Locate the author or publisher, confirm the edition and request full Swahili text plus private-project permission. No direct author contact found.",
+    "rights_note": "AI permission not yet obtained; online availability or purchase is not a project-use licence.",
+    "assessed_on": "2026-10-12",
+    "assessment_by": "Assistant research assessment",
+    "additional_evidence": "https://guides.library.columbia.edu/swahilibib/literature"
+  },
+  {
+    "id": "KHARUSI-HISIA",
+    "title": "Hisia Zangu — Nassor Hilal Kharusi",
+    "priority": "high",
+    "reason": "Zanzibar poet with several published collections; promising contemporary local poetic patterns. Individual poem lengths and counts still need an inventory.",
+    "origin": "Zanzibar-born poet working in Stone Town; dialect not established for each poem.",
+    "source_url": "https://www.africamultiple.uni-bayreuth.de/en/news/2021/2021-03-12_Celebrating_African_poetry/Nassor-Hilal-Kharusi/index.html",
+    "access": "Collection identified; full text not held. Bibliographic sources differ on some edition years.",
+    "next_step": "Locate the author or publisher, confirm the edition and request full Swahili text plus private-project permission. No direct author contact found.",
+    "rights_note": "AI permission not yet obtained; online availability or purchase is not a project-use licence.",
+    "assessed_on": "2026-10-12",
+    "assessment_by": "Assistant research assessment",
+    "additional_evidence": "https://guides.library.columbia.edu/swahilibib/literature"
+  },
+  {
+    "id": "KHARUSI-SIKU",
+    "title": "Siku Zapishana — Nassor Hilal Kharusi",
+    "priority": "high",
+    "reason": "Zanzibar poet with several published collections; promising contemporary local poetic patterns. Individual poem lengths and counts still need an inventory.",
+    "origin": "Zanzibar-born poet working in Stone Town; dialect not established for each poem.",
+    "source_url": "https://www.africamultiple.uni-bayreuth.de/en/news/2021/2021-03-12_Celebrating_African_poetry/Nassor-Hilal-Kharusi/index.html",
+    "access": "Collection identified; full text not held. Bibliographic sources differ on some edition years.",
+    "next_step": "Locate the author or publisher, confirm the edition and request full Swahili text plus private-project permission. No direct author contact found.",
+    "rights_note": "AI permission not yet obtained; online availability or purchase is not a project-use licence.",
+    "assessed_on": "2026-10-12",
+    "assessment_by": "Assistant research assessment",
+    "additional_evidence": "https://guides.library.columbia.edu/swahilibib/literature"
+  },
+  {
+    "id": "AHMED-HAILE",
+    "title": "Haile Ngoma ya Wana: Diwani ya Mwanamvita — Ahmed Hussein Ahmed",
+    "priority": "high",
+    "reason": "Publisher explicitly identifies Kimvita and varied forms including tathlitha, tarbia and dialogue verse. Useful formal diversity.",
+    "origin": "Mombasa / Kimvita, explicitly stated by publisher; not Zanzibar.",
+    "source_url": "https://mkukinanyota.com/product/haile-ngoma-ya-wana-diwani-ya-mwanamvita/",
+    "access": "Published paperback listed for sale; full text not held.",
+    "next_step": "Ask publisher about a lawful digital copy and permission covering the named poems and intended private AI use.",
+    "rights_note": "AI permission not yet obtained; online availability or purchase is not a project-use licence.",
+    "assessed_on": "2026-10-12",
+    "assessment_by": "Assistant research assessment",
+    "contact": {
+      "name": "Mkuki na Nyota publisher enquiries",
+      "url": "https://mkukinanyota.com/contact/",
+      "verified_on": "2026-10-12"
+    }
+  },
+  {
+    "id": "TUNU-MPYA",
+    "title": "Tunu Mpya: Diwani Kutoka kwa Washindi wa Kwanza",
+    "priority": "promising",
+    "reason": "Multi-author collection of Kiswahili prize winners, including Mohammed Ghassani; promising breadth, but inventory and availability need confirmation.",
+    "origin": "Multiple authors and origins; Zanzibar representation suggested by Ghassani contribution, not a dialect classification.",
+    "source_url": "https://mkukinanyota.com/product/tunu-mpya/",
+    "access": "Publisher search listing marks this forthcoming; current release and contents need confirmation.",
+    "next_step": "Ask publisher whether released, request contents and identify who can grant permission for each contribution.",
+    "rights_note": "AI permission not yet obtained; online availability or purchase is not a project-use licence.",
+    "assessed_on": "2026-10-12",
+    "assessment_by": "Assistant research assessment",
+    "contact": {
+      "name": "Mkuki na Nyota publisher enquiries",
+      "url": "https://mkukinanyota.com/contact/",
+      "verified_on": "2026-10-12"
+    }
+  },
+  {
+    "id": "ZANZIBAR-NYIMBO-1913",
+    "title": "Nyimbo za dini — Zanzibar, 1913",
+    "priority": "high",
+    "reason": "Catalogue lists 429 Swahili hymns. Religious language and collection size make this a strong acquisition lead; assess local versus translated poetic forms.",
+    "origin": "Published Zanzibar; language Swahili, individual dialects and translators unverified.",
+    "source_url": "https://www.singingfromthesamehymnsheet.org/explore/books/i?page=3",
+    "access": "Catalogue available; scans not held. User sent an acquisition enquiry manually. Response not recorded.",
+    "next_step": "Obtain lawful scans with credits; assess original and translation rights, duplicates and complete Swahili texts.",
+    "rights_note": "Rights review pending; 1913 date does not clear every translator or modern source-copy condition.",
+    "assessed_on": "2026-10-12",
+    "assessment_by": "Assistant research assessment",
+    "contact": {
+      "name": "Dr Philip Burnett, University of York",
+      "email": "philip.burnett@york.ac.uk",
+      "url": "https://www.york.ac.uk/arts-creative-technologies/people/philip-burnett/",
+      "verified_on": "2026-10-12"
+    },
+    "extent": "296 pages; 429 hymns listed in catalogue (428 indexed entries). No new usable poem count inferred."
+  },
+  {
+    "id": "SHUWARI-ACCESS",
+    "title": "Shuwari — Haji Gora Haji",
+    "priority": "high",
+    "reason": "Full Zanzibar collection can complete existing catalogue-only leads; local forms include mashairi and tenzi.",
+    "origin": "Tumbatu and Unguja / Zanzibar; individual poem dialects require evidence.",
+    "source_url": "https://shuwari.home.blog/about-the-project/",
+    "access": "Article and collection leads held; full book not acquired.",
+    "next_step": "Seek a full digital book and collection-level permission from the appropriate rights holders.",
+    "rights_note": "AI permission not yet obtained; online availability or purchase is not a project-use licence.",
+    "assessed_on": "2026-10-12",
+    "assessment_by": "Assistant research assessment",
+    "contact": {
+      "name": "Shuwari publishing project website; direct rights contact not confirmed",
+      "url": "https://shuwari.home.blog/about-the-project/",
+      "verified_on": "2026-10-12"
+    },
+    "source_id": "AIELLO-2020-SHUWARI"
+  },
+  {
+    "id": "SOAS-MS53491-ACCESS",
+    "title": "Diwan ya Malenga wa Sawahili — SOAS MS 53491",
+    "priority": "high",
+    "reason": "Typescript anthology of Swahili poetry; potentially efficient source of multiple full poems.",
+    "origin": "Multiple authors; origins and dialects need poem-level inventory.",
+    "source_url": "https://www.fihrist.org.uk/catalog/manuscript_8851",
+    "access": "Catalogue identified; manuscript not acquired.",
+    "next_step": "Request digital access, contents and publication/rights history. Compare MS 53499 to avoid duplicate counts.",
+    "rights_note": "AI permission not yet obtained; online availability or purchase is not a project-use licence.",
+    "assessed_on": "2026-10-12",
+    "assessment_by": "Assistant research assessment",
+    "contact": {
+      "name": "SOAS Archives and Special Collections",
+      "email": "special.collections@soas.ac.uk",
+      "url": "https://blogs.soas.ac.uk/archives/contact/",
+      "verified_on": "2026-10-12"
+    },
+    "source_id": "SOAS-MS53491",
+    "extent": "126, [23] folios; not a poem count."
+  },
+  {
+    "id": "MAU-REVIEW",
+    "title": "In This Fragile World — Ustadh Mau",
+    "priority": "high",
+    "reason": "20 substantial or medium collected texts; 8 complete candidates remain to source-check. Strong immediate review opportunity.",
+    "origin": "Lamu / Kiamu; not Zanzibar.",
+    "source_url": "https://doi.org/10.1163/9789004525726",
+    "access": "Full publisher PDF already held privately.",
+    "next_step": "Review the remaining complete Swahili poem texts against the PDF, preserving speaker labels and stanza boundaries.",
+    "rights_note": "Existing conditional private-project assessment applies; this priority rating changes no rights decision.",
+    "assessed_on": "2026-10-12",
+    "assessment_by": "Assistant research assessment",
+    "source_id": "MAU-2023"
+  }
+]

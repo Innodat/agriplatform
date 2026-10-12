@@ -74,6 +74,26 @@ def test_sources_include_uncollected_leads_and_exact_rights():
     response = client.get('/api/sources', headers=headers)
     assert response.status_code == 200
     library = Repo().read(None, None)
-    assert response.json() == {key:library[key] for key in ('sources','rights','source_documents')}
+    assert {key:response.json()[key] for key in ('sources','rights','source_documents')} == {key:library[key] for key in ('sources','rights','source_documents')}
+    assert set(response.json()['research_usage']) == {s['id'] for s in library['sources']}
+    assert 'Private team research' in response.json()['research_purpose']
     assert [len(response.json()[key]) for key in ('sources','rights','source_documents')] == [19,19,30]
     assert response.headers['cache-control'] == 'no-store'
+
+def test_private_research_selection_and_download_agree_and_remain_protected():
+    access=Access();client=TestClient(create_app(access=access,repository=Repo()))
+    headers={'Authorization':'Bearer authorized','X-Org-ID':'00000000-0000-0000-0000-000000000002'}
+    response=client.get('/api/poetry?availability=research',headers=headers)
+    assert response.status_code==200
+    data=response.json();assert data['poems']
+    assert all(p['quality']['text_status']=='checked_transcription' and p['quality']['complete_in_witness'] is True for p in data['poems'])
+    assert all(data['research_usage'][p['id']]['eligible_for_private_training'] for p in data['poems'])
+    assert all(not u['public_release_assessed'] for u in data['research_usage'].values())
+    exported=client.get('/api/exports?format=json&availability=research',headers=headers).json()
+    assert [p['id'] for p in exported['poems']]==[p['id'] for p in data['poems']]
+    assert exported['witnesses']==[]
+    text=client.get('/api/exports?format=text&availability=research',headers=headers).text
+    assert 'Project purpose: Private team research' in text
+    assert 'Alternate witness' not in text
+    access.status=403
+    assert client.get('/api/exports?format=json&availability=research',headers=headers).status_code==403

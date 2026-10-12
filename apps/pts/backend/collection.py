@@ -1,5 +1,6 @@
 """Canonical data stays intact; these projections never rewrite source metadata."""
 from datetime import datetime, timezone
+from .research_use import poem_usage, PURPOSE, FUTURE_USE
 
 KINDS = ('rights', 'sources', 'poems', 'witnesses', 'source_documents')
 
@@ -59,10 +60,14 @@ def select(library, search='', availability='text', **criteria):
         if availability == 'text' and not p.get('text'): return False
         if availability == 'checked' and not checked(p): return False
         if availability == 'review' and (not p.get('text') or checked(p)): return False
+        if availability == 'research' and (not checked(p) or not poem_usage(p,library)['eligible_for_private_training']): return False
         return True
     poems = [p for p in library['poems'] if matches(p)]
     ids = {p['id'] for p in poems}
     witnesses = [w for w in library['witnesses'] if w['poem_id'] in ids]
+    # A ready training selection contains only reviewed main versions. Preserve
+    # alternate evidence in normal browsing, never append unchecked witness text.
+    if availability == 'research':witnesses = []
     sids = {p['source_id'] for p in poems} | {w['source_id'] for w in witnesses}
     sources = [s for s in library['sources'] if s['id'] in sids]
     rids = {s['rights_id'] for s in sources}
@@ -70,6 +75,8 @@ def select(library, search='', availability='text', **criteria):
                 note='Filtered collection. Source checks do not establish human verification, rights clearance or training readiness.',
                 poems=poems, witnesses=witnesses, sources=sources,
                 rights=[r for r in library['rights'] if r['id'] in rids],
+                research_purpose=PURPOSE+' '+FUTURE_USE,
+                research_usage={p['id']:poem_usage(p,library) for p in poems},
                 source_documents=[d for d in library['source_documents'] if not d.get('source_id') or d.get('source_id') in sids])
 
 
@@ -86,6 +93,8 @@ def citation(poem, library):
                        ('Research use', 'research_use'), ('Publication / reuse', 'publication_and_commercial_use')]:
         lines.append(label + ': ' + (rights.get(key) or 'See source rights'))
     lines.append('Record: ' + poem['id'])
+    usage=poem_usage(poem,library)
+    lines.extend(['Project purpose: '+PURPOSE, 'Private training assessment: '+usage['label'],usage['summary'], 'Use conditions: '+' '.join(usage['conditions'])])
     return '\n\n'.join(str(line) for line in lines if line)
 
 

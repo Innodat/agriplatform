@@ -50,7 +50,7 @@ for(const type of ['invite','recovery'])test(type+' requires confirmed password 
  await page.getByLabel('Confirm password',{exact:true}).fill('first-password');await page.getByRole('button',{name:'Save password'}).click();
  await expect(page.getByRole('alert')).toContainText('stronger password');expect(reads()).toBe(0);
  await page.getByLabel('New password',{exact:true}).fill('better-password');await page.getByLabel('Confirm password',{exact:true}).fill('better-password');await page.getByRole('button',{name:'Save password'}).click();
- await expect(page.getByText('0 of 312 records')).toBeVisible();await expect(page.getByLabel('New password',{exact:true})).toHaveCount(0);
+ await expect(page.getByText('0 poems and excerpts shown')).toBeVisible();await expect(page.getByLabel('New password',{exact:true})).toHaveCount(0);
 });
 test('expired callback does not update an existing session',async({page})=>{
  await setup(page);await page.addInitScript(s=>localStorage.setItem('pts-auth',JSON.stringify({...s,expires_at:Date.now()/1000+3600})),session);
@@ -62,7 +62,7 @@ test('expired callback does not update an existing session',async({page})=>{
 
 test('tokenless callback cannot start password setup for an older session',async({page})=>{
  await setup(page);await page.addInitScript(s=>localStorage.setItem('pts-auth',JSON.stringify({...s,expires_at:Date.now()/1000+3600})),session);
- await page.goto('/#type=invite&access_token=');await expect(page.getByText('0 of 312 records')).toBeVisible();await expect(page.getByLabel('New password',{exact:true})).toHaveCount(0);
+ await page.goto('/#type=invite&access_token=');await expect(page.getByText('0 poems and excerpts shown')).toBeVisible();await expect(page.getByLabel('New password',{exact:true})).toHaveCount(0);
 });
 test('failed logout is visible during password setup',async({page})=>{
  await setup(page);await page.route('**/auth/v1/logout*',r=>r.fulfill({status:400,json:{error_code:'unexpected_failure',msg:'PRIVATE'}}));
@@ -77,7 +77,7 @@ test('password recovery restores same-user filters without including them in the
  expect(redirect).not.toContain('fixture');
  await page.goto(callback('recovery'));await expect(page.getByLabel('New password',{exact:true})).toBeVisible();
  await page.getByLabel('New password',{exact:true}).fill('new-password');await page.getByLabel('Confirm password',{exact:true}).fill('new-password');await page.getByRole('button',{name:'Save password'}).click();
- await expect(page.getByText('0 of 312 records')).toBeVisible();await expect(page).toHaveURL(/availability=checked/);await expect(page.getByLabel('Search title, poet, place, form or dialect')).toHaveValue('fixture');
+ await expect(page.getByText('0 poems and excerpts shown')).toBeVisible();await expect(page).toHaveURL(/availability=checked/);await expect(page.getByLabel('Search title, poet, place, form or dialect')).toHaveValue('fixture');
 });
 
 test('password recovery restores same-user Sources view without including them in the email URL',async({page})=>{

@@ -53,7 +53,10 @@ def create_app(access=None, repository=None, content=None):
 
     @app.get('/api/sources',response_model=SourcesResponse)
     def sources(ctx=Depends(authority('pts.poetry.read'))):
-        return repository.sources(ctx[0],ctx[1])
+        from .research_use import source_usage, PURPOSE, FUTURE_USE
+        result=repository.sources(ctx[0],ctx[1])
+        from .acquisition import acquisition_catalogue
+        return {**result,'research_purpose':PURPOSE+' '+FUTURE_USE,'research_usage':source_usage(result),**acquisition_catalogue(result['sources'])}
 
     @app.get('/api/poetry',response_model=CollectionResponse)
     def collection(query: FilterQuery = Depends(), ctx=Depends(authority('pts.poetry.read'))):
