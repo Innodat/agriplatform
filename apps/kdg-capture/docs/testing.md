@@ -130,6 +130,9 @@ acceptance. The subsequent
 [six-tool qualification evidence](../../../platform/deployment/ENV_TOOLCHAIN_EVIDENCE.md)
 records actual exact-version/compiler/GIL checks and focused safety regressions.
 It does not qualify owner dependency graphs, runtime images, Auth or KDG behavior.
+The [startup prerequisite gate](../../../platform/deployment/ENV_DOCKER_GATE_EVIDENCE.md)
+adds prepared-run/local-daemon/response/deadline refusal evidence. Actual Docker <28
+is refused before any runtime mutation; passing the gate still cannot start a stack.
 The following planning-era command inventory remains historical.
 
 Executed during planning: git status, read-only rg/source reads, BMAD configuration

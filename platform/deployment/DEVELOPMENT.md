@@ -58,8 +58,10 @@ lock removal. An interrupted preparation can leave protected partial
 evidence, which subsequent execution refuses to adopt. There is no automatic recovery,
 cleanup or permission repair in this increment; preserve and inspect partial evidence.
 
-`up`, `verify`, `stop`, and `reset` deliberately return nonzero
-`runtime_adapter_unqualified` after input validation. `reset` first requires
+`verify`, `stop`, and `reset` deliberately return nonzero
+`runtime_adapter_unqualified` after input validation. `up` additionally validates an
+existing preparation, ports and the local Docker prerequisite described below; a
+passing prerequisite still returns `runtime_adapter_unqualified`. `reset` first requires
 `--confirm-target` to match the supplied target ID. Confirmation never enables a reset.
 No lifecycle command executes owner commands or SQL. The current release registry is
 hashed **only as source evidence**: it contains other application/production migration
@@ -133,3 +135,19 @@ Neither this receipt nor the candidate builder templates prove those gates.
 
 [Toolchain evidence and impact decisions](ENV_TOOLCHAIN_EVIDENCE.md) record the
 executed checks and the remaining runtime blocker.
+
+## Local Docker prerequisite before startup
+
+`dev.py up --target <JSON> --run-id <prepared-UUID>` now validates the existing
+preparation without creating or repairing it, rechecks ports, then reads only
+`GET /version` from the fixed `/var/run/docker.sock`. Docker environment/context
+settings cannot redirect this check. Stable Linux Docker Engine >=28.0.0 is required;
+old daemons return `docker/docker_28_required`. Missing/denied sockets, malformed
+responses and deadlines return safe failures. The request is bounded to five seconds
+and 64KiB, with Content-Length framing; no custom/remote socket fallback is provided.
+
+Even a supported daemon returns `up/runtime_adapter_unqualified`: no runtime startup
+is implemented. Verify/stop/reset remain unqualified. These observations are not
+network isolation or readiness evidence. Existing source-bound preparations and tool
+receipts become stale after this dev.py change; use a fresh prepared/qualified UUID.
+See [gate evidence and impacts](ENV_DOCKER_GATE_EVIDENCE.md).

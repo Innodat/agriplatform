@@ -10,6 +10,7 @@ import re
 import socket
 import stat
 import sys
+import time
 import uuid
 
 ROOT = Path(os.path.abspath(__file__)).parents[2]
@@ -153,9 +154,9 @@ def check_private(fd):
         refuse('inventory', 'unprotected_directory')
 
 
-def prepare(target, raw, run_id, target_path, sources):
+def expected_inventory(target, raw, run_id, sources):
     project = target['project_id_prefix'] + '-' + run_id
-    expected = {
+    return {
         'schema_version': 1, 'stage': 'prepared', 'runtime_ready': False,
         'identities_state': 'reserved_only',
         'run_id': run_id, 'target_id': target['target_id'],
@@ -168,6 +169,10 @@ def prepare(target, raw, run_id, target_path, sources):
                        'volumes': {'database': project + '-database'},
                        'containers': {owner: project + '-' + owner for owner in target['owner_ids']}},
     }
+
+
+def prepare(target, raw, run_id, target_path, sources):
+    expected = expected_inventory(target, raw, run_id, sources)
     base = ROOT / 'platform/deployment/.local/kdg'
     with free_ports(target['ports']):
         # Validate all preexisting ancestors before mkdir can write anything.
@@ -223,6 +228,103 @@ def prepare(target, raw, run_id, target_path, sources):
     return {'ok': True, 'stage': 'prepared', 'code': 'prepared', 'run_id': run_id, 'runtime_ready': False}
 
 
+def validate_prepared(target, raw, run_id, target_path, sources):
+    """Read-only validation: never create, lock, repair or adopt a preparation."""
+    run_path = ROOT / 'platform/deployment/.local/kdg' / run_id
+    try:
+        for ancestor in [run_path.parent.parent, run_path.parent]:
+            with directory(ancestor) as parent:
+                info = os.fstat(parent)
+                if info.st_uid != os.getuid() or stat.S_IMODE(info.st_mode) & 0o022:
+                    refuse('preparation', 'unprotected_directory')
+        with directory(run_path) as run:
+            check_private(run)
+            if set(os.listdir(run)) != {'inventory.json'}:
+                refuse('preparation', 'unexpected_run_contents')
+            actual = decode(read_at(run, 'inventory.json', protected=True))
+    except FileNotFoundError:
+        refuse('preparation', 'prepared_run_required')
+    expected = expected_inventory(target, raw, run_id, sources)
+    if json.dumps(actual, sort_keys=True) != json.dumps(expected, sort_keys=True):
+        refuse('preparation', 'prepared_input_changed')
+    if source_evidence() != sources or read(target_path) != raw:
+        refuse('preparation', 'source_changed')
+
+
+def docker_prerequisite():
+    """Inspect one fixed local daemon. No CLI/context, redirects or write API."""
+    deadline = time.monotonic() + 5
+
+    def budget(stream):
+        remaining = deadline - time.monotonic()
+        if remaining <= 0:
+            refuse('docker', 'docker_timeout')
+        stream.settimeout(remaining)
+
+    def invalid():
+        refuse('docker', 'docker_response_invalid')
+
+    try:
+        with socket.socket(socket.AF_UNIX, socket.SOCK_STREAM) as stream:
+            budget(stream)
+            stream.connect('/var/run/docker.sock')
+            budget(stream)
+            stream.sendall(b'GET /version HTTP/1.1\r\nHost: localhost\r\nConnection: close\r\n\r\n')
+            data = b''
+            length = body_start = None
+            while True:
+                budget(stream)
+                chunk = stream.recv(4096)
+                if time.monotonic() >= deadline:
+                    refuse('docker', 'docker_timeout')
+                if not chunk:
+                    invalid()
+                data += chunk
+                if len(data) > 65536:
+                    invalid()
+                if body_start is None and b'\r\n\r\n' in data:
+                    header, _ = data.split(b'\r\n\r\n', 1)
+                    lines = header.split(b'\r\n')
+                    if not re.fullmatch(rb'HTTP/1\.[01] 200 [\x20-\x7e]*', lines[0]):
+                        invalid()
+                    fields = {}
+                    for line in lines[1:]:
+                        if b':' not in line:
+                            invalid()
+                        name, value = line.split(b':', 1)
+                        name = name.lower()
+                        if (name in fields or not re.fullmatch(rb'[a-z0-9-]+', name)
+                                or any(byte < 32 and byte != 9 or byte == 127 for byte in value)):
+                            invalid()
+                        fields[name] = value.strip()
+                    if (b'transfer-encoding' in fields or b'content-encoding' in fields
+                            or not re.fullmatch(rb'[0-9]{1,5}', fields.get(b'content-length', b''))):
+                        invalid()
+                    length, body_start = int(fields[b'content-length']), len(header) + 4
+                    if not 0 < length <= 65536 - body_start:
+                        invalid()
+                if body_start is not None and len(data) >= body_start + length:
+                    if len(data) != body_start + length:
+                        invalid()
+                    break
+        try:
+            response = decode(data[body_start:])
+        except (Refusal, ValueError, UnicodeError, RecursionError):
+            invalid()
+        if type(response) is not dict or response.get('Os') != 'linux':
+            invalid()
+        version = response.get('Version')
+        if type(version) is not str or not re.fullmatch(r'(0|[1-9][0-9]{0,3})\.(0|[1-9][0-9]{0,3})\.(0|[1-9][0-9]{0,3})', version):
+            invalid()
+        if tuple(map(int, version.split('.'))) < (28, 0, 0):
+            refuse('docker', 'docker_28_required')
+        return version
+    except TimeoutError:
+        refuse('docker', 'docker_timeout')
+    except OSError:
+        refuse('docker', 'docker_unavailable')
+
+
 class Parser(argparse.ArgumentParser):
     def error(self, message):
         refuse('arguments', 'invalid_arguments')
@@ -252,6 +354,11 @@ def main(argv=None):
         if args.command != 'reset' and args.confirm_target is not None:
             refuse('arguments', 'invalid_arguments')
         sources = source_evidence()
+        if args.command == 'up':
+            validate_prepared(target, raw, args.run_id, target_path, sources)
+            with free_ports(target['ports']):
+                docker_prerequisite()
+                refuse('up', 'runtime_adapter_unqualified')
         if args.command != 'prepare':
             refuse(args.command, 'runtime_adapter_unqualified')
         result = prepare(target, raw, args.run_id, target_path, sources)

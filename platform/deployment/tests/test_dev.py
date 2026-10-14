@@ -151,7 +151,8 @@ class PreparationAcceptance(unittest.TestCase):
             self.assertFalse(self.run.exists())
 
     def test_undelivered_commands_fail_without_mutation(self):
-        for command in ['up', 'verify', 'stop']:
+        # up now has dedicated read-only prerequisite acceptance in test_docker_gate.
+        for command in ['verify', 'stop']:
             self.refused(self.invoke(command), command, 'runtime_adapter_unqualified')
         self.refused(self.invoke('reset'), 'confirmation', 'target_confirmation_required')
         self.refused(self.invoke('reset', extra=['--confirm-target', 'foreign']),
@@ -161,7 +162,7 @@ class PreparationAcceptance(unittest.TestCase):
         self.assertFalse(self.run.exists())
         self.assertEqual(self.invoke().returncode, 0)
         original = (self.run / 'inventory.json').read_bytes()
-        for command in ['up', 'verify', 'stop', 'reset']:
+        for command in ['verify', 'stop', 'reset']:
             self.refused(self.invoke(command, extra=['--confirm-target', 'kdg-local'] if command == 'reset' else []),
                          command, 'runtime_adapter_unqualified')
             self.assertEqual((self.run / 'inventory.json').read_bytes(), original)
