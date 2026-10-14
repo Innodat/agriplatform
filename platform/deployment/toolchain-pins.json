@@ -1,0 +1,71 @@
+{
+  "schema_version": 1,
+  "platform": "linux-x86_64-gnu",
+  "baseline_ref": "platform/docs/architecture/contracts/scaffold-dependency-baseline-2026-10-14.md",
+  "versions": {
+    "node": "26.11.1",
+    "npm": "12.2.0",
+    "typescript": "7.0.2",
+    "python": "3.15.0",
+    "uv": "0.13.1",
+    "supabase": "2.120.0"
+  },
+  "archives": [
+    {
+      "id": "node",
+      "url": "https://nodejs.org/dist/v26.11.1/node-v26.11.1-linux-x64.tar.xz",
+      "integrity": "sha256-OIO/xz+aaAyk6rBLGWBoqqqxNz/6d9j8GkQIIiSVtlE=",
+      "format": "tar",
+      "strip_prefix": "node-v26.11.1-linux-x64/",
+      "destination": "node"
+    },
+    {
+      "id": "npm",
+      "url": "https://registry.npmjs.org/npm/-/npm-12.2.0.tgz",
+      "integrity": "sha512-ZsJjKpTnlmSXOLLXiU1xDCzC4Wlok4IwZmh/aw2KUuXytU7q6qMv/cUT7MoeSf95Slwuw/lRXYefGzGCspHPNQ==",
+      "format": "tar",
+      "strip_prefix": "package/",
+      "destination": "npm"
+    },
+    {
+      "id": "typescript",
+      "url": "https://registry.npmjs.org/typescript/-/typescript-7.0.2.tgz",
+      "integrity": "sha512-8FYau96o3NKOhbjKi/qNvG/W5jhzxkbdm5sj9AbZ/5T5sWqn3hJgLfGx27sRKZWTvyzCP8dLRBTf5tBTSRVUNA==",
+      "format": "tar",
+      "strip_prefix": "package/",
+      "destination": "packages/node_modules/typescript"
+    },
+    {
+      "id": "typescript_native",
+      "url": "https://registry.npmjs.org/@typescript/typescript-linux-x64/-/typescript-linux-x64-7.0.2.tgz",
+      "integrity": "sha512-EYdf2cNg7rgCWJnxCdJ+F3V39O8ihb37eHAu1LK8oAFizgTQbPOK7zHHXbPt8rX24COqODXeI3sIf0fCXG7H/A==",
+      "format": "tar",
+      "strip_prefix": "package/",
+      "destination": "packages/node_modules/@typescript/typescript-linux-x64"
+    },
+    {
+      "id": "python",
+      "url": "https://github.com/astral-sh/python-build-standalone/releases/download/20261013/cpython-3.15.0%2B20261013-x86_64-unknown-linux-gnu-install_only_stripped.tar.gz",
+      "integrity": "sha256-aXQNzZs0gLPVN2Dy07dVgq2xT6VENGKN6jJIDd7eVCo=",
+      "format": "tar",
+      "strip_prefix": "python/",
+      "destination": "python"
+    },
+    {
+      "id": "uv",
+      "url": "https://files.pythonhosted.org/packages/14/0b/6602a613533602e7a083e908c4375f9b0e78a94ba2e21c29b21c41a0a611/uv-0.13.1-py3-none-manylinux_2_17_x86_64.manylinux2014_x86_64.whl",
+      "integrity": "sha256-aW3PbYB9hdqXj024Ry2oHczBJUsYtSy9E2fE2SPEIeA=",
+      "format": "wheel",
+      "member": "uv-0.13.1.data/scripts/uv",
+      "destination": "uv"
+    },
+    {
+      "id": "supabase",
+      "url": "https://github.com/supabase/cli/releases/download/v2.120.0/supabase_2.120.0_linux_amd64.tar.gz",
+      "integrity": "sha256-cHRYQROqAElb7qxmHEH7CfHd0KSDzXMziUsNCACG3G4=",
+      "format": "tar",
+      "strip_prefix": "",
+      "destination": "supabase"
+    }
+  ]
+}

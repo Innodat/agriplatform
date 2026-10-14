@@ -5,7 +5,10 @@ implementation with synthetic local/CI verification. This supersedes the histori
 planning-only authorization statements below. bmad-help selected ENV before
 P1/SERVICE and Identity/Access/WRITE. The first Build increment is
 [guarded disposable target preparation](../../../_bmad-output/implementation-artifacts/spec-env-kdg-target-preparation.md),
-under the existing deployment owner. Preparation alone does not deliver the enclosing
+under the existing deployment owner. The next increment delivers
+[isolated qualification of the six pinned tools](../../../platform/deployment/ENV_TOOLCHAIN_EVIDENCE.md),
+including TypeScript 7.0.2. Docker >=28 and runtime adapters remain open gates.
+Preparation and tool qualification do not deliver the enclosing
 ENV runtime/bootstrap acceptance, generator or KDG Story 1.1 prerequisites. Production
 migrations, access/account changes, infrastructure, deployment and real-data pilot use
 remain outside approval. Leave implementation and the questionnaire editor remain out

@@ -16,6 +16,11 @@ Its guarded target-preparation increment is implemented; see
 [Build record](../../../_bmad-output/implementation-artifacts/spec-env-kdg-target-preparation.md).
 Preparation validates the target and records protected run/source identities only.
 `runtime_ready` remains false. `up/verify/stop/reset` refuse undelivered adapters.
+The next bounded increment also qualifies the six selected executable tools, including
+TypeScript 7.0.2, with an immutable run-bound receipt; see
+[toolchain evidence](../../../platform/deployment/ENV_TOOLCHAIN_EVIDENCE.md).
+This is Linux x86_64 GNU tooling proof only. Docker 27.0.3 fails the documented >=28
+loopback-isolation prerequisite; no shared-daemon upgrade or runtime startup occurred.
 The enclosing ENV runtime/bootstrap acceptance and P1/SERVICE generator remain open.
 Continue those existing owner items before dependent foundations or the server-backed
 KDG slice; do not confuse the completed preparation increment with a runnable stack.

@@ -77,3 +77,59 @@ Auth and provider/device qualification; P1/SERVICE generation remains subsequent
 
 [Preparation verification and impacts](ENV_PREPARATION_EVIDENCE.md) records exact scope,
 requirement/test traceability and red/green evidence.
+
+## Pinned toolchain qualification
+
+After preparing a fresh run, qualify its selected tools:
+
+```sh
+python3 platform/deployment/toolchain.py qualify --target platform/deployment/environments/kdg-local.json --run-id <the-prepared-UUID>
+```
+
+This command implements the next existing ENV increment on **Linux x86_64 GNU**.
+It verifies the unchanged prepared target before installation. It installs Node26.11.1,
+npm12.2.0, TypeScript7.0.2 with its Linux native compiler, ordinary GIL-enabled
+CPython3.15.0, uv0.13.1 and SupabaseCLI2.120.0 from
+[publisher archives and fixed integrity values](toolchain-pins.json).
+Node's bundled npm11.20.0 is not used as the selected npm12.2.0.
+
+Per-run tools and a mode0600 receipt live under ignored
+`platform/deployment/.local/kdg-toolchains/<UUID>/`, with mode0700 directories.
+The separate ignored `kdg-toolchain-downloads/` contains mode0600 archives named by
+tool and digest. These are executable-tool caches, not frontend installation roots;
+root npm and future independent Python owner locks retain their existing authority.
+Nothing installs globally, invokes npm lifecycle scripts or depends on existing
+repository `node_modules`. No HOME override is used. Child processes use explicit
+executables, empty private npm config files and private Supabase state.
+
+Before a receipt reports `toolchain_ready=true`, every actual tool version must match,
+CPython must pass GIL/platform/stdlib probes, and TypeScript must accept a valid fixture
+and reject a type mismatch with TS2322. TypeScript7.0.2 returns exit1 for that rejection.
+The immutable receipt binds the prepared inventory, target, source/pin hashes and a
+fingerprint of every installed payload path/type/mode/file content/link target.
+Repeating qualification verifies all of that before executing and preserves the receipt.
+Changed input, payload or receipt refuses; no silent repair or adoption occurs.
+An interrupted installation remains protected and incomplete; use a new prepared UUID.
+Concurrent qualification cannot replace an active install's lock or receipt.
+Linux `/proc` must expose the qualification process's retained directory descriptors
+so native compiler grandchildren use the same pinned directories. Archive downloads
+have a 120-second total deadline with bounded reads; per-archive cache locking waits
+at most 120 seconds. Changed output-directory identities refuse completion.
+
+Qualification always reports `runtime_ready=false`. The actual workstation Docker
+daemon checked during delivery was27.0.3. Docker documents that releases before28
+can expose localhost-published ports to hosts on the same L2 segment, so they do not
+qualify this target's loopback-only publishing requirement. Runtime delivery must
+enforce Docker>=28 and a verified run-owned loopback-default network **before** any
+container startup; printed localhost URLs are not binding evidence. The shared daemon
+was not upgraded and no container was started. See
+[Docker publishing guidance](https://docs.docker.com/engine/network/port-publishing/).
+
+Pinned Supabase2.120.0 also requires explicitly isolated legacy-backend state/network
+selection and disabled repository migrations/seeds/roles inputs for base startup.
+Its actual images, PostgreSQL compatibility, controlled synthetic fixture/role smoke,
+guarded lifecycle, Entra/device and consumer checks remain ENV runtime obligations.
+Neither this receipt nor the candidate builder templates prove those gates.
+
+[Toolchain evidence and impact decisions](ENV_TOOLCHAIN_EVIDENCE.md) record the
+executed checks and the remaining runtime blocker.

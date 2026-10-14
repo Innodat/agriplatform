@@ -126,7 +126,11 @@ Implementation began with the existing ENV owner's
 [guarded preparation increment and requirement-to-test evidence](../../../platform/deployment/ENV_PREPARATION_EVIDENCE.md).
 These public CLI tests prove target/run/source/path/port isolation only. They do not
 pass KDG A01/A03/A22, Story1.1, full ENV runtime/bootstrap, generator, provider or device
-acceptance. The following planning-era command inventory remains historical.
+acceptance. The subsequent
+[six-tool qualification evidence](../../../platform/deployment/ENV_TOOLCHAIN_EVIDENCE.md)
+records actual exact-version/compiler/GIL checks and focused safety regressions.
+It does not qualify owner dependency graphs, runtime images, Auth or KDG behavior.
+The following planning-era command inventory remains historical.
 
 Executed during planning: git status, read-only rg/source reads, BMAD configuration
 resolvers, memlog.py, architecture lint and document checks recorded in readiness.
