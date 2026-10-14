@@ -49,3 +49,8 @@ revision/conflict primitives, status, PWA updates and test utilities. No general
 history table/engine or new runtime offline service. KDG retains current observations,
 required questionnaire definitions, pending snapshots and conflicts; simple attribution
 uses existing server-managed fields. Shared changes require the pending Leave handoff.
+
+Surface split approved 2026-10-14: own-only offline PWA for either role; online
+organization-wide administrator read/edit/audit. Shared offline helpers need no
+all-record lease/cache support for KDG MVP. Enforce the split in backend response
+contracts, local persistence, UI routes and tests rather than relying on hidden buttons.

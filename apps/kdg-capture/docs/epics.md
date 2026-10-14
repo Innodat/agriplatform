@@ -94,7 +94,7 @@ baseline safeguards and later extension evidence are distinguished below.
 | FR-10 | E4 | Online bounded editor/Save/Cancel/Publish |
 | FR-11 | E4 | E1 immutable seed/version pinning; E2 original-version editing; E4 actual version update/publishing compatibility |
 | FR-12 | E5 | E1 controlled initial child/assignment; E5 responsive online management |
-| FR-13 | E1 | E2 own historical downloads; E3 permitted all-history downloads |
+| FR-13 | E1 | E2 own historical downloads; E3 online organization history |
 | FR-14 | E2 | E1 create queue, foreground/manual sync/idempotency; E2 ordered edit queue |
 | FR-15 | E1 | Local/synced/attention states everywhere |
 | FR-16 | E1 | Current server checks/seven-day local window; E5 changed assignment/child scenarios |
@@ -174,7 +174,8 @@ through controlled setup, so this outcome does not require E4 or E5.
 Reuse E2's revision comparison/resolution, adding facilitator-versus-administrator
 concurrency and role-loss cases. Preserve conflicting branches and pause descendants
 for explicit re-review. Own-only users never acquire organization-wide record access;
-administrator scope never crosses Khula. Use the same account/org-scoped download bounds.
+administrator scope never crosses Khula. Organization-wide history/edit/audit remain online in the portal; the PWA retains
+own-only observation history for both application roles.
 
 ### Epic 4: Evolve questionnaires without rewriting historical captures
 
@@ -225,15 +226,13 @@ for earlier epics. These are feedback/risk boundaries, not arbitrary technical l
 Step 1 requirements and step 2 five-epic structure: **approved**. Step 3 proceeds
 sequentially by epic; E1 is closed and E2 scope/criteria need review before formal append.
 
-### Current review — Epic 3
+### Current review — Epic 4
 
-E1 and E2 planning are closed with user confirmation. Epic 3 completes administrator
-organization-wide read/edit and audit while preserving original owners and current
-permissions. FR-2/8 and scoped FR-9/13–17, NFR-1–4 and UX-DR4/7/8/10–13 apply.
-
-[Candidate Story 3.1](story-candidates/3-1-administrator-history.md) adds authorized
-Khula history/details, compact online audit and bounded all-authorized PWA history.
-Administrator editing and cross-author conflicts follow; no E4/E5 dependency.
+E1–E3 planning are closed with user confirmation. Epic 4 delivers the small online
+questionnaire editor and immutable publishing/version compatibility. FR-10/11, editor
+FR-5 and scoped FR-2/8/9/12/14/16–18, NFR-1–5 and UX-DR5/7/10–13 apply.
+[Candidate Story 4.1](story-candidates/4-1-questionnaire-editor.md) adds explicit online
+draft preparation and whole-form Save/Cancel. Publishing follows; no E5 prerequisite.
 
 Presentation amendment approved 2026-10-14: routine capture/history shows observation
 date/answers and compact status, without audit names/timestamps or revision controls.
@@ -1763,3 +1762,246 @@ accepted shared ADR changes. Record device and automated evidence separately.
 
 **Review checkpoint:** Revised scope/criteria and conflict responsibility approved
 by the user with C. E2 coverage and separate epic-completion confirmation follow.
+
+## Epic 3: Review and correct captures across Khula
+
+Deliver online administrator organization-wide review/edit/audit. The capture PWA
+remains own-only for both roles; no offline all-record authority or download.
+
+### Story 3.1: View authorized Khula observations and administrator audit details
+
+As a questionnaire administrator,
+I want to view organization observations and who recorded or changed them,
+So that I can review facilitator captures without putting audit details in the capture form.
+
+**Scope:** Responsive administrator history/detail and a compact online audit section;
+current `capture.read.all` checks and online organization history. Reuse E2 record/history components with a distinct authority
+boundary. No administrator edit action until the next story, questionnaire/assignment
+management, exports, dashboards or general revision browser.
+
+**Requirements:** Administrator read portion FR-2/8, FR-11/13/15–17; NFR-1–4.
+UX-DR4/7/8/10–13; AD-2/3/4/7/8/9. Questionnaire administrator is an app role, not
+platform organization administration or employment.
+
+**Acceptance Criteria:**
+
+**AC-1 — Current all-record authorization**
+
+**Given** authenticated fixed-Khula membership, app admission and explicit read.all,
+**When** the administrator requests history or a record,
+**Then** the API checks current authority and returns only that organization's records,
+**And** capturer-only, membership-only and platform-admin-only accounts cannot use this
+all-record surface or enumerate another author's records by ID, query or pagination,
+**And** client owner/organization selectors never supply authority. Scope follows
+capability at the action boundary; no silent own-scope fallback after all-read denial.
+
+**AC-2 — Simple responsive review**
+
+**Given** permitted server-backed observations,
+**When** the administrator opens the portal on phone or computer,
+**Then** show observation date, child and original capturer with ordinary record details,
+**And** render answers under the exact original questionnaire, not the latest definition,
+**And** distinguish genuinely empty results from failed/partial downloads,
+**And** new facilitator captures appear only after their devices synchronize and an
+administrator refresh succeeds. No promise to see never-synchronized phone work.
+The ordinary capture interface retains its approved simple date/answers/status display.
+
+**AC-3 — Audit stays on the administrator surface**
+
+**Given** fresh read.all and a permitted record,
+**When** the administrator expands Audit details online,
+**Then** show original creator/creation time and latest committed modifier/modification
+time, with a bounded list of committed create/edit events and actual editor/server time,
+**And** original author is preserved, no-op/retry does not create a fictitious event,
+**And** operational logs, credentials, payload dumps and unrelated records are excluded.
+No snapshot-version picker, restore, export or audit download to phones. Audit list is
+read-only; answers already appear in record details and need not be duplicated in it.
+
+**AC-4 — Online administrator / own-observation PWA split**
+
+**Given** Louwnique holds questionnaire administrator and own-capture permissions,
+**When** using the PWA or the administration portal,
+**Then** the PWA offers capture and My observations under own scope, including offline,
+**And** organization-wide review/audit in the responsive portal requires internet and
+current read.all; no all-record download, persistent cache or offline authority is issued,
+**And** losing connectivity shows unavailable/reconnect feedback without a false empty
+list or deleting saved own observations. The portal does not promise offline launch.
+No all-record business response is cached by the service worker or IndexedDB.
+
+**AC-5 — Role loss, account changes and safe refresh**
+
+**Given** revoked all-read, membership/app disable, session expiry or another
+account signing in,
+**When** current verification or cached rendering is attempted,
+**Then** affected all-record access is locked and no prior-user or lost-role records render,
+**And** unavailable verification is distinct from explicit denial; organization-wide
+review never continues using a seven-day offline authorization observation,
+**And** retained data does not confer rights or overwrite/delete pending/conflicting work.
+Late responses and background refresh are bound to the original account/scope/session;
+no own-read check authorizes organization-wide portal data.
+
+**AC-6 — Accessible review and boundary evidence**
+
+**Given** keyboard, zoom, phone touch or assistive technology,
+**When** history, details and optional Audit details are used,
+**Then** labels, focus, pagination/loading/failure feedback and responsive layout are usable,
+**And** API/browser/real runtime-role tests prove foreign-owner allowed only under
+current all-read, cross-org denied, original labels/owner retained and role-loss locking.
+Automated scenarios and actual installed-device extension results are recorded separately.
+
+**Contracts:** Extend existing history/detail handlers with explicit own/all authorization
+modes and bounded queries, never permission inferred from a client role or actor ID.
+Check read.all on every portal request; provisioning exposes no offline read.all
+observation. No all-edit authority is minted here. Use existing Keyset pagination/private
+no-store responses, original-definition retrieval; own-only PWA caching remains separate.
+Audit events use a narrow record-owned online read such as
+`GET /api/v1/captures/{id}/audit`, protected by current read.all on every bounded page.
+Concrete DTO/cursor/actor-display contract and server evidence minimization gate Build.
+This is an app endpoint over app-owned evidence, not a new shared audit service. No
+external waits under business locks or cross-service table reads.
+
+**Dependencies:** Approved E1/E2 and existing shared Identity/Access prerequisites;
+read.all registry/caller/schema fixtures, online portal context, actor-display
+mapping and bounded audit DTO. These need owner closure before Build; E4 questionnaire
+editor and E5 assignments/onboarding UI are not prerequisites. Controlled setup may
+supply synthetic additional facilitators and children for acceptance proof.
+
+**ATDD:** KDG-A02.admin-read/own-denied, A14.admin-read-org/account,
+A15.admin-online-session, A16.admin-read-role-loss, A18.admin-history-partial,
+A12.admin-original-definition, A21.admin-audit-attribution and A19.admin-review-accessible.
+First observe missing A02.admin-read after approval, then focused authorization/read/
+portal/audit tests and affected API/browser/runtime-role suites. No implementation or
+physical-device execution occurs during planning.
+
+**Impacts:** Scaffold: prove scoped pagination/attribution-read and own-only persistence
+patterns with existing owners. Shared UI: responsive record list, optional audit section
+and scope-aware state only after proven reuse; KDG labels remain application-owned.
+Agent/docs: platform roles vs app capability, own vs all, portal vs offline PWA, no
+central intake of phone proposals. Contracts: exact read mode/audit DTO/errors/cache
+metadata and generated types together. ADR: inherit scoped Access, actor attribution,
+privacy and bounded offline policy; no accepted platform contracts/ADRs changed here.
+
+**Review checkpoint:** Revised split/scope approved when the user confirmed the split
+and requested Next.
+Administrator editing/conflict handling follows as an independently reviewed increment.
+
+### Story 3.2: Correct authorized observations online without overwriting another editor
+
+As a questionnaire administrator,
+I want to correct authorized Khula observations online with Save/Cancel and conflict review,
+So that corrections preserve original ownership and other facilitators' saved work.
+
+**Scope:** Online portal all-record edit context, whole-form Save/Cancel, conditional
+update/receipt recovery and explicit administrator conflict review. Reuse E2 validation,
+revision/idempotency and comparison patterns, adding distinct all-record authorization
+and editor attribution. No offline organization-wide editing or local record archive.
+
+**Requirements:** FR-2/8/9/11/15–17; NFR-1–5; UX-DR5/7/8/9/10/12/13; AD-2–10.
+No questionnaire editor, assignment management, supervisor or People dependency.
+
+**Acceptance Criteria:**
+
+**AC-1 — Current administrator authority and original form**
+
+**Given** current Khula membership/app admission and explicit read.all/edit.all,
+**When** the administrator opens Edit for a permitted observation,
+**Then** the backend returns editable date/answers under the original questionnaire,
+**And** child, questionnaire version, original owner and creation attribution stay fixed,
+**And** membership or organization-platform role alone grants no edit permission.
+No current child assignment/new-create eligibility is required for historical correction.
+The form pins the revision actually shown, not one later refreshed in the background.
+
+**AC-2 — Explicit online Save/Cancel and trusted attribution**
+
+**Given** a complete original-version form,
+**When** Save succeeds with current edit.all and matching revision,
+**Then** validate and conditionally update date/answers with actual administrator actor/
+server time, immutable business evidence and operation receipt in one short transaction,
+**And** preserve original capturer/creation facts and record exactly one effect per action,
+**And** no-op produces no fictitious update/history; Cancel causes no committed change.
+No autosave or extra administrative draft system. Offline/disconnected forms cannot
+claim a server save; visible unsaved typing stays in memory with clear feedback.
+
+**AC-3 — Facilitator-versus-administrator conflicts**
+
+**Given** administrator and facilitator edits based on the same server revision,
+**When** one commits and the other attempts Save/sync,
+**Then** the stale update is rejected without overwriting the committed record,
+**And** the editor holding the conflicting proposal explicitly compares and chooses
+Use current record or Save reviewed changes with a new operation ID and reviewed revision,
+**And** original author stays unchanged and actual successful editor appears in audit.
+A fresh change during review repeats the conflict; no first-reader priority or privileged
+force-overwrite. Capturer phone proposals stay in their own partition; administrators
+cannot retrieve never-synchronized work or resolve it by impersonating that capturer.
+
+**AC-4 — In-memory online conflict review**
+
+**Given** an administrator Save rejected for a stale revision,
+**When** the portal shows the current record beside the attempted answers,
+**Then** retain the attempted answers and reviewed base in memory while the form stays open,
+**And** let the administrator choose current or save a reviewed replacement after fresh
+current access checks; another intervening change returns to review,
+**And** closing/reloading may discard uncommitted input; no recovery promise is made.
+No server conflict-proposal table, resolution draft, autosave or proposal-retrieval API.
+No other-author record/proposal is written to IndexedDB or business-response caches.
+The capturer's explicitly saved offline pending edits/conflicts remain durable under E2.
+Normal operation receipts recover uncertain committed-save outcomes; they are not drafts
+and never report a rejected conflict as a committed edit.
+
+**AC-5 — Unknown outcomes, role loss and isolation**
+
+**Given** a lost response, revoked edit.all, expired session, outage or account change,
+**When** the administrator retries or reauthenticates,
+**Then** resolve the original immutable action through current authorized operation lookup
+before issuing a competing edit; never reuse its ID with changed answers,
+**And** denial prevents edits; unavailable checks do not imply permission or lost work,
+**And** no fallback uploads another user's pending edit or uses own authority on their record,
+**And** late responses cannot render into another account's portal/session.
+Read-only recovery can inspect its original receipt where allowed without re-executing
+an edit. No authorization or external wait occurs under business write locks.
+
+**AC-6 — Accessible end-to-end cross-author proof**
+
+**Given** synthetic capturer/administrator accounts and original-version fixtures,
+**When** API/concurrency/browser scenarios and applicable device checks run,
+**Then** verify online correction, preserved ownership/audit, both conflict orderings,
+repeated conflicts, lost response, own-only PWA caching and revoked/cross-org denials,
+**And** responsive Save/Cancel/comparison controls work with keyboard, touch and zoom,
+**And** distinguish automated results from actual installed-phone checks. A facilitator
+pending edit survives administrator correction and surfaces its conflict on sync.
+
+**Contract increment:** Extend edit context/PUT and operation lookup with current
+read.all/edit.all at the action boundary, retaining typed scope, immutable target/owner
+and original questionnaire validation. Use explicit portal command context, never
+mint offline all-edit observations. Administrator attempted answers/reviewed base stay
+in memory. Successful writes commit required audit/receipt atomically; conflict commits
+no primary capture update or input snapshot. Concrete success/conflict/outcome/error
+schemas must close before Build with existing platform write/error owners. No new
+conflict service, server proposal schema or draft lifecycle.
+
+**Dependencies:** Approved E1/E2 and 3.1; all-edit registration/consumer contracts,
+in-memory review/unknown-outcome fixtures, actor attribution and original-operation
+recovery fixtures. No E4 editor or E5 portal needed. Own-only PWA delivery remains
+unchanged; domain-neutral conditional-write/conflict fixtures may be promoted through
+existing platform owners after agreed shared handoff and first-consumer proof.
+
+**ATDD:** KDG-A02.admin-edit, A11.facilitator-admin-both-orders/repeated,
+A09.admin-lost-response/replay, A14.admin-edit-org/account,
+A15.admin-edit-session, A16.admin-edit-role-loss, A12.admin-edit-original,
+A21.admin-owner/editor, A17.no-all-record-offline-cache and A19.admin-edit-accessible.
+First observe missing A02.admin-edit after Build approval; focused conditional update/
+review/authorization tests then affected API/runtime-role/browser concurrency suites.
+No code, migration or physical execution occurs during planning.
+
+**Impacts:** Scaffold: bounded conditional-write/operation/conflict-review fixtures
+through existing owners, no generic draft/offline engine. Shared UI: proven explicit
+form, comparison and save-state patterns; KDG questions stay app-owned. Agent/docs:
+online all-record correction, original owner vs editor, durable phone edits vs
+in-memory online input. Contracts: all-edit/context/conflict/outcome
+DTOs and generated types together. ADR: inherit short transactions/current access,
+attribution/error/release rules; accepted shared decisions unchanged. No server
+conflict-input retention policy/schema is introduced.
+
+**Review checkpoint:** Revised in-memory conflict scope approved when the user said
+Thanks, next after the server-preservation proposal was withdrawn. No autosave/draft
+or close/reload recovery of uncommitted administrator input is promised.

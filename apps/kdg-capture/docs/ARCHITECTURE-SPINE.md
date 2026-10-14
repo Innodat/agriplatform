@@ -228,3 +228,15 @@ capturer details show observation date/answers and compact sync feedback. Offlin
 alone does not require storing every earlier state. Platform scaffold/UI owners own
 proven domain-neutral persistence/migration, partition, queue/retry, conditional-write,
 status/update and device fixtures; KDG owns observation rules and authorized APIs.
+
+Approved surface split, 2026-10-14: offline PWA read/edit is own-only for both roles.
+All-record administration/audit requires current online authorization; issue no offline
+all-read/all-edit observation, and persist no other-author records on phones. This
+supersedes earlier cached administrator-history wording; create-all eligibility for
+the administrator's own captures remains separately registered and checked.
+
+Administrator conflict scope, 2026-10-14: keep attempted online input/reviewed base
+in memory; no server conflict-input persistence, draft API/table or close/reload recovery.
+Successful mutation/audit/receipt remains atomic. Saved offline own-edit proposals retain
+E2 durability. Common conditional-write/error/operation-recovery helpers stay platform
+patterns, without a universal conflict-draft framework.

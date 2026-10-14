@@ -13,7 +13,7 @@ in review-resolution.md. Architecture deterministic lint reports zero findings.
 
 | Severity / gate | Evidence and required next action | Owning workflow/owner |
 | --- | --- | --- |
-| High — required BMAD epic checkpoint | epics.md contains 18 FR, 5 NFR, 14 UX items; requirements and five-epic structure approved; all seven E1 scopes/closure approved; all four E2 stories/closure approved; candidate 3.1 drafted; remaining story review/sizing and final completeness steps remain | bmad-create-epics-and-stories |
+| High — required BMAD epic checkpoint | epics.md contains 18 FR, 5 NFR, 14 UX items; requirements and five-epic structure approved; all seven E1 scopes/closure approved; all four E2 stories/closure approved; both E3 stories/closure approved; candidate 4.1 drafted; remaining story review/sizing and final completeness steps remain | bmad-create-epics-and-stories |
 | High — shared ownership agreement | User appointed KDG coordinator; Leave acknowledgement/handoff and component-first-consumer ownership not yet agreed. No shared files changed | Coordinator + Leave/platform session |
 | High — current Access / Identity variant | Current v1 does not support KDG; canonical v2, account-actor/membership evidence, exact KDG scope, registry/grant constraints and caller/consumer fixtures and narrow assignment target-verification path not implemented or finalized for this consumer | Existing Identity/Access owner; shared contract closure then bmad-build |
 | High — controlled setup / scaffold readiness | Operator trust binding/commands, generator/recipe schema and compatible package/environment foundation are pending; a README is not a runnable command | Platform builder/environment + Identity/Access owners |
@@ -52,16 +52,16 @@ approved at epic level in epics.md; story detailing remains in progress.
   approved uv escalation; no dependencies were installed.
 - Root `git diff --check`: reports pre-existing trailing whitespace in the unrelated
   `apps/pts/backend/acquisition_catalogue.json`. Do not fix that file in this task.
-- App-owned link/whitespace scan after E3 candidate 3.1 drafting: 41 Markdown files, zero
+- App-owned link/whitespace scan after E4 candidate 4.1 drafting: 44 Markdown files, zero
   findings. E1 planning closed with seven approved stories; all four E2 stories/closure approved; six
-  candidate 3.1 acceptance groups checked; 3.1 remains unapproved. Independent
+  candidate 4.1 acceptance groups checked; 4.1 remains unapproved. Independent
   rechecks resolve material document findings in review-resolution.md. No runtime tests
   or physical-device checks ran.
 
 ## Next installed workflow
 
-Continue bmad-create-epics-and-stories step 3 with E3 candidate 3.1 administrator-read review, then
-remaining E3 stories and subsequent epics before final validation. Rerun bmad-sprint-planning readiness after blockers
+Continue bmad-create-epics-and-stories step 3 with E4 candidate 4.1 questionnaire-editor review, then
+remaining E4 stories and E5 before final validation. Rerun bmad-sprint-planning readiness after blockers
 are addressed; generate KDG-only tracking only on PASS. Stop for user review before any
 Build. After approval and applicable prerequisite readiness, use installed bmad-build
 full flow with ATDD outer loop and focused TDD. No alternate delivery lifecycle is added.

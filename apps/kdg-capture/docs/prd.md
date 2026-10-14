@@ -249,8 +249,9 @@ or completion speed at the expense of required answers, access or truthful statu
   autosave/recovery as disproportionate for this MVP. Unsaved typing may be lost on
   close/restart. Existing capture edits retain Save/Cancel. See proposed KDG ADR-0001;
   revised Story 1.5 was approved when the user requested the next step.
-- **A-5 resolved by user:** Download recent 30 days by default, own scope for capturers/all
-  permitted scope for administrators; older history remains available online. Pending
+- **A-5 revised by user, 2026-10-14:** Download recent 30 days of own observations in the
+  PWA for either role. Organization-wide administrator review/edit/audit is online only;
+  no offline all-record cache or authority. Older own history remains available online. Pending
   work and referenced original versions are retained regardless of that window.
 - **A-6 resolved by user with Story 2.2:** Child deactivation stops new captures while
   retaining historical read/edit rights under current KDG permissions. Actual
@@ -258,3 +259,14 @@ or completion speed at the expense of required answers, access or truthful statu
 
 User resolutions are indexed above, including A-6 approved with C.
 None of these app policies is an accepted platform decision or runtime claim.
+
+Approved surface split, 2026-10-14: capture PWA = capture and My observations (own
+read/edit, offline); online responsive administration = all authorized Khula observations,
+editing and audit. Louwnique captures/edits her own observations offline like other
+capturers. This supersedes earlier administrator all-history offline wording.
+
+Approved administrator conflict simplification, 2026-10-14: online attempted answers
+remain in memory for immediate review; closing/reloading can lose uncommitted input.
+No server-stored conflict proposals or administrator resolution drafts. Existing
+operation receipts and immutable successful-change evidence remain. Capturer explicitly
+saved offline pending/conflicting edits retain their durable local behavior.

@@ -22,7 +22,7 @@ Seven-day offline local-use window is agreed, not authority for any server opera
 | --- | --- | --- |
 | Sign-in/setup | First launch or local-access expiry | Khula branding, retained platform sign-in, current admission, initial download; online |
 | Capture | Installed app open / New observation | Eligible child, date, pinned questionnaire, explicit Save; offline after setup |
-| History | Capture navigation | Own/all-permitted downloaded records; explicitly partial offline history |
+| History | Capture navigation | My observations only; downloaded/local saved records |
 | Record details/edit | History row or known same-day prompt | Original questions/observation date; compact status; local offline edit |
 | Sync status/attention | Status or Sync now | Pending operations, sign-in needed, rejected/conflicting changes; no answers in summary |
 | Conflict review | Attention item | Local vs current server comparison and explicit resolution; fresh server state needed |
@@ -31,8 +31,8 @@ Seven-day offline local-use window is agreed, not authority for any server opera
 
 Capture navigation contains capture/history/status, never questionnaire management.
 Administrator role exposes a separate Go to administration action; capturer does not
-see it. Local admin history is limited to downloaded permitted records, not a promise
-to have the entire organization corpus. No aggregate-results screen.
+see it. Both roles use own-only history in the PWA. Organization-wide history/edit/audit
+is online in the responsive administration portal. No aggregate-results screen.
 
 ## Voice and Tone
 
@@ -217,3 +217,8 @@ resolving conflicts. Original questionnaire definitions are selected internally.
 Approved conflict responsibility: the editor/device holding saved conflicting changes
 reviews its own proposal under existing permissions. Administrators handle their own
 conflicting edits; no first-reader priority or portal access to unsent phone proposals.
+
+Administrator online conflicts: compare attempted in-memory answers with current
+record and explicitly choose current or save reviewed changes. No later-resume conflict
+draft; closing/reloading can lose uncommitted input. Pending-save uncertainty uses the
+original operation receipt/retry flow. Saved capturer phone conflicts remain durable.

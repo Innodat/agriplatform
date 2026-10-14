@@ -142,7 +142,7 @@ TypeScript, do not derive client models from DB tables.
 
 Proposed 100 rows/page maximum and opaque scoped pagination cursor; page results are not
 server authorization for cached data. Initial default download: last 30 days (approved PRD A-5),
-own for capturer/all permitted for administrator. Retain all pending captures/conflicts/
+own observations for either role in the PWA; all-organization portal reads stay online. Retain all pending captures/conflicts/
 referenced versions regardless of history window. Fetch older history explicitly online;
 no requirement to download an entire organization. Downloads update server baselines, never overwrite pending
 local overlays, base snapshots or conflicts; status reflects the latest local sequence. Refresh every record's current revision
@@ -219,7 +219,9 @@ not inherit a refreshed lease from unrelated success. Use pinned account identit
 monotonic elapsed time within a process; clock rollback or implausible time locks until
 online verification. Across restarts browser clock is not tamperproof; this is managed
 application behavior, never trusted server evidence or protection against same-origin JS.
-Offline admin permits downloaded history/edit only, not configuration administration.
+Administrators use own-capture/read/edit offline in the PWA. Organization-wide reads,
+edits and audit require online portal access; do not issue offline all-read/all-edit
+observations or persist another author's records on the phone.
 
 Logout immediately cancels background attempts and closes visible partition. A response
 after logout may be recorded only in its original partition, never rendered elsewhere;
@@ -477,12 +479,34 @@ own/all permissions apply; no separate supervisor, impersonation or local partit
 access is granted. This approved presentation clarification supersedes earlier
 routine attribution-display wording; stored provenance and conditional writes remain.
 
-## Administrator read/audit increment
+## Administrator read/audit increment — approved surface split
 
-[Candidate Story 3.1](story-candidates/3-1-administrator-history.md) extends existing
-record/history reads with explicitly checked read.all and exact local all-read
-observations. Backend filtering and local rendering never infer all scope from
-membership, platform admin or own-read. Same 30-day default and safe-cache rules apply.
-Compact Audit details is an online administrator surface over record-owned committed
-evidence with current all-read, bounded pages and safe actor display. No revision
-archive download/restore or new audit service; no all-edit authority is minted.
+[Approved Story 3.1](epics.md#story-31-view-authorized-khula-observations-and-administrator-audit-details)
+extends online record/history reads with explicitly checked read.all. No offline
+read.all observation, organization-wide download or IndexedDB/service-worker cache.
+The PWA remains own-only for both roles. Compact Audit details is an online administrator
+surface over record-owned evidence with current all-read and safe actor display.
+No revision archive/restore or new audit service; no all-edit authority minted here.
+
+## Online administrator edit increment — approved
+
+[Approved Story 3.2](epics.md#story-32-correct-authorized-observations-online-without-overwriting-another-editor)
+adds online all-edit/context/operation recovery with preserved original owner and actual
+editor. No offline all-edit observation or other-author local cache. Reuse conditional
+writes and explicit comparison; keep administrator attempted answers/reviewed base in
+memory while the form remains open. No server conflict-input store, draft, autosave or
+proposal retrieval endpoint. Closing/reloading may discard uncommitted answers.
+Successful edits commit required audit and compact operation receipt; unknown outcomes
+resolve the original operation before competing writes. A rejected conflict is not a
+committed edit. Exact all-edit/context/conflict/outcome contracts gate Build. Capturer
+explicitly saved offline edits/conflicts remain durable under E2; no phone-input intake.
+
+## Questionnaire draft editor increment — proposed
+
+[Candidate Story 4.1](story-candidates/4-1-questionnaire-editor.md) adds app-owned
+working-draft start/read/whole-form Save/Cancel under current questionnaire.manage.
+Published definitions remain unchanged. Stable IDs survive compatible wording/order
+changes; new/incompatible question types get new IDs. One working draft per
+questionnaire is proposed with explicit atomic create/resume (ADR-0034 opt-in), not a
+general autosave mandate. Draft lifecycle/start/conditional-write/outcome DTOs and
+validation limits gate Build. Publish is the next independent increment.

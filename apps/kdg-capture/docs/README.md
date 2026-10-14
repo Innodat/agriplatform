@@ -44,5 +44,5 @@ not automatically persisted/recovered. Saved captures remain local and queue for
 earlier recovery proposals are withdrawn. Questionnaire draft/published versions remain.
 
 Current BMAD checkpoint: E1 planning is user-approved (seven stories); E2 planning is closed (four stories); current review is
-[administrator history candidate 3.1](story-candidates/3-1-administrator-history.md). Implementation readiness
+[questionnaire draft editor candidate 4.1](story-candidates/4-1-questionnaire-editor.md). Implementation readiness
 and runtime/physical proof remain pending.
