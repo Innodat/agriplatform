@@ -1,5 +1,24 @@
 # E1 controlled provisioning and evidence
 
+WRITE closure, 2026-10-14: [owner execution contract](owned-write-and-secret-execution.md)
+selects concrete outcome/event/linkage, transaction/role/error/recovery and KDG key-file
+inputs. This supersedes earlier unspecified physical WRITE passages for the bounded
+KDG/shared first consumers. Leave ordinary draft audit policy remains unchanged.
+No schema, secret, privilege or runtime execution is claimed.
+
+KDG execution closure, 2026-10-14: [Identity/Access substrate](identity-access-execution-substrate.md)
+selects KDG-relevant physical actor/member/registry/grant constraints, current/target
+projections, restricted role/command schema and owner CLI/adoption matrix. These refine
+earlier unspecified DDL/privilege/command passages below; no objects or grants are applied.
+Existing PtS/Leave scope and source-owned migration history remain. Actual target baseline/
+rehearsal is later delivery evidence, not presumed equivalence.
+
+KDG refinement, 2026-10-14: [shared readiness addendum](kdg-shared-readiness.md)
+selects per-owner authenticated database-login operator binding, separate restricted
+setup target verification and existing command sequence. ID-B retains adapter/projection
+ownership; owner command/receipt contracts below remain authority. Exact CLI/privilege/
+target execution evidence is still required; no command or data change has occurred.
+
 > **Capability-scope refinement — 2026-10-06:** [ADR-0053](../decisions/0053-capability-scoped-access-in-mixed-scope-applications.md)
 > makes account/organization scope a property of each capability. Current PtS
 > capabilities are account-scoped; future organization features do not change them.

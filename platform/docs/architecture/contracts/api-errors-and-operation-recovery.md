@@ -1,5 +1,17 @@
 # API errors and operation recovery — E1 contract proposal
 
+WRITE closure, 2026-10-14: [owner execution contract](owned-write-and-secret-execution.md)
+selects concrete outcome/event/linkage, transaction/role/error/recovery and KDG key-file
+inputs. This supersedes earlier unspecified physical WRITE passages for the bounded
+KDG/shared first consumers. Leave ordinary draft audit policy remains unchanged.
+No schema, secret, privilege or runtime execution is claimed.
+
+KDG refinement, 2026-10-14: [shared readiness](kdg-shared-readiness.md) uses this
+envelope and owner-local outcomes. KDG's [fingerprint disposition](operation-fingerprint-security-evolution.md#kdg-initial-fingerprint-disposition--2026-10-14)
+adds HTTP 503 `operation_verification_unavailable` for retained payload verification
+whose key is unavailable; preserve identity/outcome and never rerun as a fresh action.
+This does not change Leave's selected hash or existing legacy wire formats.
+
 **Status:** Bounded recovery behavior approved; detailed wire compatibility and implementation evidence pending  
 **Date:** 2026-09-24  
 **Owners:** Platform API owner and first consuming application lead

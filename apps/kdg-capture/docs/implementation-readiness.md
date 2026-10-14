@@ -1,71 +1,84 @@
-# KDG Capture — implementation readiness
+# KDG Capture — implementation planning readiness
 
-Date: 2026-10-13. Installed gate: bmad-sprint-planning, readiness-only intent.
-**Current verdict: FAIL — planning workflow and load-bearing prerequisites are incomplete.**
-This is a planning finding, not a failed runtime test. No implementation is authorized.
+2026-10-14 final successor checkpoint. Installed bmad-sprint-planning, readiness-only.
+**Verdict: PASS — planning supports ordered shared foundations and the 19 approved KDG stories.**
+A developer can implement this plan without inventing an unrecorded load-bearing design
+choice. This is planning readiness, not completed runtime prerequisites, production/pilot
+readiness or implementation permission. No sprint-status file is generated.
 
-## Inventory and gate findings
+## Planning authority and closure
 
-Focused PRD, both UX spines, architecture, proposed technical contracts, source-backed
-discovery and 22 acceptance groups exist. Independent PRD, UX, architecture rubric,
-adversarial, technology and editorial reviews were run; concrete findings are reconciled
-in review-resolution.md. Architecture deterministic lint reports zero findings.
+All five epics/19 stories remain approved (7/4/2/2/4); 18 FR, 5 NFR, 14 UX and
+22 acceptance groups retain owning story coverage. App PRD/UX/spine/contracts/epics/
+testing remain authority, with no parallel product specifications. The sole owner
+acknowledged shared ownership for all efforts; existing components retain delivery items.
 
-| Severity / gate | Evidence and required next action | Owning workflow/owner |
-| --- | --- | --- |
-| High — required BMAD epic checkpoint | epics.md contains 18 FR, 5 NFR, 14 UX items; requirements and five-epic structure approved; all seven E1 scopes/closure approved; all four E2 stories/closure approved; both E3 stories/closure approved; candidate 4.1 drafted; remaining story review/sizing and final completeness steps remain | bmad-create-epics-and-stories |
-| High — shared ownership agreement | User appointed KDG coordinator; Leave acknowledgement/handoff and component-first-consumer ownership not yet agreed. No shared files changed | Coordinator + Leave/platform session |
-| High — current Access / Identity variant | Current v1 does not support KDG; canonical v2, account-actor/membership evidence, exact KDG scope, registry/grant constraints and caller/consumer fixtures and narrow assignment target-verification path not implemented or finalized for this consumer | Existing Identity/Access owner; shared contract closure then bmad-build |
-| High — controlled setup / scaffold readiness | Operator trust binding/commands, generator/recipe schema and compatible package/environment foundation are pending; a README is not a runnable command | Platform builder/environment + Identity/Access owners |
-| Resolved — requested application policies | Administrator create-all, own history viewing/editing after unassignment, phone-local today, 30-day download and saving classification approved; child-deactivation historical editing approved with Story 2.2/A-6 | User agreement recorded in memlog/PRD |
-| Medium — Story 1.5 rework | User rejected unfinished recovery; explicit Save scope/rationale recorded, explicit-Save Story 1.5 approved; implementation/readiness still gated | KDG UX/PRD/story planning |
-| Medium — exact execution and sensitivity choices | Proposed limits/deadlines/fingerprint and local privacy/retention policy need review before affected story/pilot readiness | KDG contracts + platform owner |
-| Release gate — provider/host/recovery | Verify supported sign-in/callback, HTTPS phone target, runtime/migration owner registration and backup/recovery targets before pilot; no production mutations now | Environment/release owners |
+| Planning boundary | Selected contract / conclusion |
+| --- | --- |
+| Ownership, KDG capability/resource scope, membership renewal and targets | [Shared addendum](../../../platform/docs/architecture/contracts/kdg-shared-readiness.md) and [acknowledged handoff](shared-platform-handoff.md); exact nine organization capabilities/default bundles/read.own entry, own-account/all-org union, current target/setup policy, new membership ID on rejoin |
+| ENV/P1/SERVICE | [Environment/generation contract](../../../platform/docs/architecture/contracts/scaffold-environment-and-generation.md) and [exact pins](../../../platform/docs/architecture/contracts/scaffold-dependency-baseline-2026-10-14.md); newest stable TypeScript 7.0.2, explicit disposable commands/targets/schema/pattern/extension/seed ownership |
+| ID-A/B, ACCESS-A/B | [Execution substrate](../../../platform/docs/architecture/contracts/identity-access-execution-substrate.md); physical actor/member/registry/grant constraints, current/target projections, restricted user/setup/operator roles, pre-grant verification, entry/owner commands and source/adoption matrix |
+| WRITE/security | [Owned write and secret execution](../../../platform/docs/architecture/contracts/owned-write-and-secret-execution.md) plus [KDG fingerprint disposition](../../../platform/docs/architecture/contracts/operation-fingerprint-security-evolution.md#kdg-initial-fingerprint-disposition--2026-10-14); exact atomic outcome/evidence/FK/lock/role/error/recovery and HMAC/JCS/file/restore inputs |
+| Application behavior/contracts | [contracts.md](contracts.md); command/receipt/noop/unknown, prior-child eligibility, bounded pagination, own-only offline/online all-admin, immutable original versions and update-first behavior |
+| Dependency and impact ownership | [shared-prerequisites.md](shared-prerequisites.md), [delivery-impact.md](delivery-impact.md); existing shared items precede actual consumers, no duplicate generator/service or whole-Leave dependency |
 
-## Readiness scope and sequencing
+Architecture finalization and independent reviews close semantic findings. Story coverage,
+preceding dependencies and user-value increments remain valid. Existing packages/templates
+and accepted designs do not masquerade as implemented KDG APIs/scaffold/current Access.
 
-KDG may complete its own planning without all Leave planning. Its first domain slice
-requires only the bounded shared Identity/Access/scaffold/environment setup it consumes.
-Do not depend on People, Content, notifications, complete Leave E1, hosted verification
-application, a full questionnaire editor or automatic tenant enrollment.
+## Required delivery and release gates
 
-Unavailable runtime dependencies are not proof that planning itself cannot finish:
-owning prerequisite stories may be planned and approved first. Their concrete contracts
-and shared handoff must be resolved before their Build gate, and runtime prerequisites
-must be delivered/tested before the dependent server-backed KDG slice. No acceptance
-test must already pass before writing authorized implementation; ATDD first observes the
-expected failure in the owning story. Do not claim PASS merely because draft files exist.
+These remain obligations at their consuming items, not unknown architecture choices:
 
-Initial first slice is the user-requested sign-in → fixed Khula → published version/child
-provision → offline capture → close/reopen/history → reconnect/idempotent sync → server
-record, followed by early physical Android/iPhone proof. Detailed story sequencing is
-approved at epic level in epics.md; story detailing remains in progress.
+- Shared foundations: actual generator/guarded environment commands, owner/root locks,
+  compatible image/container/OS resolution and restricted-role query/constraint/actor/
+  operator/current-access tests. Characterize supported legacy writers before migration;
+  verify actual target equivalence and coordinated adoption before any live cutover.
+- First KDG slice: real app sign-in/fixed Khula/initial version/assigned child/explicit
+  offline Save/reopen/reconnect/sync/server record, followed by early installed Android/
+  iPhone proof. Local synthetic login is not Entra qualification; LAN HTTPS/DNS/CA/provider
+  assumptions must pass actual acceptance. PtS/shared stability is tested after version
+  selection and before affected activation.
+- Every affected write/update/release: ATDD failure first, focused TDD, actual role/RLS/
+  concurrency/rollback/lost-response/recovery and prior payload/schema compatibility.
+  KDG HMAC material never enters browser/DB/logs; prove active/old keys, nonroot mount,
+  rotation/rollback and matching data+key restore. Migration failure blocks activation;
+  no startup migration or automatic destructive downgrade.
+- Before affected UI/pilot: Afrikaans content and neutral-theme/contrast review; named
+  Khula child-data processing/device and business/audit/pending/locked retention/disposal
+  policies, actual backup/archive/decryption identities and release/restore evidence.
+  Seven-day access/30-day download are not retention. No real data or pilot is authorized.
 
-## Planning verification executed
+Actual generated OpenAPI/Pydantic/TypeScript become model authority during Build.
+Concrete changed-schema/payload pairs are supplied with their consuming releases,
+not speculative universal adapters. No People/Content/worker/launcher/all-Leave planning
+prerequisite is introduced. Leave first slice and own-person requirements remain intact.
 
-- `git status --short`: original Leave/global-epic/PtS changes preserved; new KDG docs only.
-- BMAD `resolve_config.py` and `resolve_customization.py` for applicable skills: read the
-  installed catalog/workflow; no activation prepend/append overrides configured.
-- BMAD `memlog.py init/append`: app-local audit created; no hand-edited memlog.
-- `uv run .agents/skills/bmad-architecture/scripts/lint_spine.py --workspace apps/kdg-capture/docs`:
-  PASS, zero findings. One cache-lock sandbox failure was rerun successfully through
-  approved uv escalation; no dependencies were installed.
-- Root `git diff --check`: reports pre-existing trailing whitespace in the unrelated
-  `apps/pts/backend/acquisition_catalogue.json`. Do not fix that file in this task.
-- App-owned link/whitespace scan after E4 candidate 4.1 drafting: 44 Markdown files, zero
-  findings. E1 planning closed with seven approved stories; all four E2 stories/closure approved; six
-  candidate 4.1 acceptance groups checked; 4.1 remains unapproved. Independent
-  rechecks resolve material document findings in review-resolution.md. No runtime tests
-  or physical-device checks ran.
+## Ordered delivery and authorization boundary
 
-## Next installed workflow
+ENV/minimum scaffold → Identity baseline/actor/membership → Access registry/current
+KDG checks → trusted owner setup → KDG 1.1 fixed-org entry. WRITE precedes owned domain
+persistence/sync, not the read-only context endpoint. Then initial version/child/assignment,
+PWA explicit Save/read/sync/device proof; E2 own edits/conflicts → E3 online all-admin →
+E4 editor/Publish → E5 children/assignments/update/pilot completion.
 
-Continue bmad-create-epics-and-stories step 3 with E4 candidate 4.1 questionnaire-editor review, then
-remaining E4 stories and E5 before final validation. Rerun bmad-sprint-planning readiness after blockers
-are addressed; generate KDG-only tracking only on PASS. Stop for user review before any
-Build. After approval and applicable prerequisite readiness, use installed bmad-build
-full flow with ATDD outer loop and focused TDD. No alternate delivery lifecycle is added.
+**Stop for review before code.** Separate implementation approval is still required.
+The next authorized delivery workflow would be bmad-build for the first bounded shared
+foundation, with ATDD/focused TDD; do not start a complete editor or implement Leave.
+A planning PASS never authorizes migration, grant, secret, infrastructure or deployment.
 
-Earlier independent reviews assessed the old saving scope. Reconcile explicit Save at
-final readiness; do not claim those reviews validate revised capture/queue criteria.
-No implementation or runtime evidence has been produced.
+## Verification evidence and limits
+
+Independent architecture rubric/adversary/technology checks and final readiness review
+are in reviews/ and summarized in [review-resolution.md](review-resolution.md).
+All applied findings preserve product scope, current authority and owner boundaries.
+Planning lint/Markdown/story/diff checks are recorded in the final validation/memlog.
+No application/SQL/device test or dependency installation was performed. Earlier FAIL
+checkpoints are historical; this report is the current readiness verdict.
+
+
+Final checks: `python3 .agents/skills/bmad-architecture/scripts/lint_spine.py --workspace apps/kdg-capture/docs`
+PASS/zero findings; `python3 /tmp/check-final-kdg-planning.py` 84 Markdown files with
+zero findings and all 19 approved story IDs; scoped `git diff --check` PASS. Independent
+final-readiness reviewer finds no critical/high design blocker; stale labels reconciled.
+Installed readiness question rerun: PASS, with recorded later delivery/pilot gates intact.

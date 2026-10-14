@@ -10,7 +10,13 @@ Khula Development Group; there is no organization switcher.
 | Authority | Document |
 | --- | --- |
 | Requirements / focused BMAD PRD | [prd.md](prd.md) |
-| Runtime evidence and shared dependency handoff | [discovery.md](discovery.md) |
+| Runtime evidence and dependency order | [discovery.md](discovery.md) |
+| User-approved shared ownership packet | [shared-platform-handoff.md](shared-platform-handoff.md) |
+| Owned WRITE and secret execution | [owner contract](../../../platform/docs/architecture/contracts/owned-write-and-secret-execution.md) |
+| Identity/Access execution substrate | [owner contract](../../../platform/docs/architecture/contracts/identity-access-execution-substrate.md) |
+| Minimum shared-owner prerequisite work | [shared-prerequisites.md](shared-prerequisites.md) |
+| ENV/scaffold selection and exact versions | [owner contract](../../../platform/docs/architecture/contracts/scaffold-environment-and-generation.md), [dependency baseline](../../../platform/docs/architecture/contracts/scaffold-dependency-baseline-2026-10-14.md) |
+| Fresh-session resume prompt | [next-session.md](next-session.md) |
 | Application decisions | [ADR index](architecture/decisions/README.md) |
 | Visual contract | [DESIGN.md](DESIGN.md) |
 | Interaction contract | [EXPERIENCE.md](EXPERIENCE.md) |
@@ -30,7 +36,8 @@ the global BMAD folders: those already contain Leave work.
 
 The KDG session is the user-appointed shared-platform coordinator. Existing
 Identity/Access, scaffold/environment and release owners retain their components.
-Leave handoff agreement remains required before modifying shared contracts or code.
+The sole owner explicitly acknowledged the handoff as all owners on 2026-10-14.
+Shared planning contracts may be reconciled; code remains unauthorized.
 
 BMAD route: focused existing-project discovery → PRD → UX → architecture →
 epics/stories → bmad-sprint-planning readiness → user review → bmad-build/ATDD.
@@ -43,6 +50,14 @@ not automatically persisted/recovered. Saved captures remain local and queue for
 [Story 1.5](epics.md#story-15-explicitly-save-an-observation-on-this-phone) is planning-approved;
 earlier recovery proposals are withdrawn. Questionnaire draft/published versions remain.
 
-Current BMAD checkpoint: E1 planning is user-approved (seven stories); E2 planning is closed (four stories); current review is
-[questionnaire draft editor candidate 4.1](story-candidates/4-1-questionnaire-editor.md). Implementation readiness
-and runtime/physical proof remain pending.
+Current BMAD checkpoint: all five epics and 19 stories are user-approved.
+[Final planning validation](final-planning-validation.md) confirms coverage/dependency
+checks; [implementation readiness](implementation-readiness.md) now PASS after shared/execution
+planning closure. Stop for plan review; no implementation is authorized.
+
+User approved shared-platform-handoff.md on 2026-10-14 and acknowledged all owners
+in the successor session. The shared readiness addendum fixes the selected KDG scope/
+target/operator baseline, with fingerprint lifecycle in its owning security contract.
+All bounded shared execution choices are recorded; actual delivery/adoption/runtime
+evidence and pre-pilot policies remain separate gates.
+[next-session.md](next-session.md) preserves planning-only scope and settled choices.

@@ -54,7 +54,7 @@ status/action examples; final copy requires Khula review.
 
 ## Component Patterns
 
-- Rating group uses radio semantics, six options 0–5; initially no rating. Endpoint
+- Rating group uses radio semantics, five options 1–5; initially no rating. Endpoint
   labels are Goed/Nie goed nie; intermediate options are numeric pending content.
 - Initial Ja/Nee groups start at Nee. Ja reveals optional details immediately below.
   Toggling Nee hides details, removes them from active capture answers, and retains a
@@ -95,11 +95,12 @@ status/action examples; final copy requires Khula review.
 | Confirmed local save, server unreachable | Close immediately; record remains Saved on this phone; no exit warning merely for unsynced work |
 | Changed explicit-Save form on departure | Ordinary unsaved-change confirmation on app-controlled navigation; no autosave flush/recovery promise on OS termination |
 | Known permission/membership loss | Lock affected content and stop synchronization; retain pending partition for same-user recovery, no cross-account exposure |
-| Assignment/child availability changed | Stop new creation for that child; preserve rejected local captures as attention items; no automatic author/child reassignment |
+| Assignment removed | Stop assigned new captures; retain saved rejected work under declared recovery/retention policy; no automatic author/child reassignment |
+| Child ordinarily inactive | Remove refreshed choices; accept previously provisioned pending observations under current access; preserve history |
 | Session expired, local window valid | Continue local use; online renew/re-auth needed to sync, same-account restore only |
 | Lost server response | Pending outcome; same operation/payload lookup/retry, no new operation |
-| Conflict | Preserve local/base/server versions; show comparison; explicit Use current record or Save reviewed changes with current revision |
-| Update available | Offer update when locally persisted and sync idle; do not force page reload or wipe queue |
+| Conflict | Saved own offline proposals remain durable; online admin input stays in memory. Explicit Use current record or Save reviewed changes with reviewed revision |
+| Update available | Update first then sync; wait for unsaved-form Save/Cancel and safe bounded active-write/request handling, not an empty queue. Preserve saved work |
 | Browser storage removed | Explain unavailable local work; re-provision online. Cannot recover unsynced bytes that no longer exist |
 
 Required loading and failure states: sign-in/setup has checking/denied/unavailable/incomplete states; failed
@@ -222,3 +223,16 @@ Administrator online conflicts: compare attempted in-memory answers with current
 record and explicitly choose current or save reviewed changes. No later-resume conflict
 draft; closing/reloading can lose uncommitted input. Pending-save uncertainty uses the
 original operation receipt/retry flow. Saved capturer phone conflicts remain durable.
+
+Questionnaire editor clarification approved 2026-10-14: one explicitly saved working
+copy, no autosave/recovery list. Save prepares changes; Publish makes an immutable
+version live for later downloads. Boolean editor type may be called Yes/No; capture
+retains large mutually exclusive Ja/Nee buttons with Nee initially selected.
+
+Ordinary child deactivation: refresh removes new-capture choices; pending offline
+observations synchronize normally if current access permits. No manual delete-all
+task. Genuine permission/privacy restrictions stay distinct from child availability.
+
+Update-first default: apply available updates after safe Save/Cancel/request handling,
+then synchronize. Pending saved work/conflicts do not prevent updates. No extra sync-
+before-update interaction, forced reload or unfinished-form autosave.

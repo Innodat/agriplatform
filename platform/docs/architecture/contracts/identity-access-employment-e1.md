@@ -1,5 +1,18 @@
 # E1 shared identity, access and employment contract discussion
 
+KDG execution closure, 2026-10-14: [Identity/Access substrate](identity-access-execution-substrate.md)
+selects KDG-relevant physical actor/member/registry/grant constraints, current/target
+projections, restricted role/command schema and owner CLI/adoption matrix. These refine
+earlier unspecified DDL/privilege/command passages below; no objects or grants are applied.
+Existing PtS/Leave scope and source-owned migration history remain. Actual target baseline/
+rehearsal is later delivery evidence, not presumed equivalence.
+
+KDG refinement, 2026-10-14: the acknowledged sole owner permits coordinated planning.
+[KDG shared readiness](kdg-shared-readiness.md) adds exact organization own-account/
+all-org check variants with stable actor/current membership and no person/employment
+requirement. ID-A/ID-B retain schema, lifecycle/projection/operator ownership; existing
+PtS account and Leave own-person designs remain. No runtime adoption is claimed.
+
 > **Capability-scope refinement — 2026-10-06:** [ADR-0053](../decisions/0053-capability-scoped-access-in-mixed-scope-applications.md)
 > makes account/organization scope a property of each capability. Current PtS
 > capabilities are account-scoped; future organization features do not change them.

@@ -1,5 +1,11 @@
 # E1 security and business audit ownership proposal
 
+WRITE closure, 2026-10-14: [owner execution contract](owned-write-and-secret-execution.md)
+selects concrete outcome/event/linkage, transaction/role/error/recovery and KDG key-file
+inputs. This supersedes earlier unspecified physical WRITE passages for the bounded
+KDG/shared first consumers. Leave ordinary draft audit policy remains unchanged.
+No schema, secret, privilege or runtime execution is claimed.
+
 **Status:** Ownership/failure policy approved; own-draft evidence simplified by user agreement 2026-10-02; no implementation
 **Date:** 2026-10-02
 **Sources:** [ADR-0023](../decisions/0023-structured-operational-logs-and-sensitive-data.md),

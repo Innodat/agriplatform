@@ -88,8 +88,8 @@ authorized children when more exist. Capturers use assigned children; administra
 may capture for every active Khula child. No eligible child is a setup state, not fake data.
 
 **FR-5 — Initial questionnaire.** Afrikaans wording below is exact. First question is
-required integer 0–5 with six large mutually exclusive options, initially unanswered;
-0 = Goed, 5 = Nie goed nie. No clinical meanings for 1–4. Questions 2–4 are required
+required integer 1–5 with five large mutually exclusive options, initially unanswered;
+1 = Goed, 5 = Nie goed nie. No clinical meanings for 2–4. Questions 2–4 are required
 Ja/Nee, with Nee initially selected (user clarification supersedes unanswered wording).
 Ja immediately reveals optional multiline Besonderhede below that question. Nee hides
 it; temporary editing text returns if toggled back to Ja but hidden details are absent
@@ -121,9 +121,9 @@ App-controlled exits use ordinary explicit-form unsaved-change handling, not dra
 
 ### History and questionnaire lifecycle
 
-**FR-8 — History and editing.** Browse downloaded/local history and record details
-offline. Capturers see own records; administrators can access permitted organization
-records. Preserve original author/time, editor, revision history and observation date.
+**FR-8 — History and editing.** Both roles browse/edit own downloaded/local observations
+in the offline PWA. Administrators access all permitted organization records only in
+the online portal. Preserve original author/time, editor, revision history and observation date.
 History presents observation dates and answers with compact sync feedback, without
 routine author/editor audit metadata or a revision browser. Preserve attribution
 internally; authorized administrator audit presentation is separate. No offline revision archive; retain necessary pending/conflict snapshots and
@@ -131,7 +131,8 @@ original questionnaire definitions internally. Immutable server change evidence 
 protected without requiring revision-list UI. Distinguish pending local work and
 observations unavailable offline.
 
-**FR-9 — Concurrent edits.** Detect stale revisions, retain local/base/server changes,
+**FR-9 — Concurrent edits.** Detect stale revisions; retain saved offline own changes/
+bases/conflicts durably, while online administrator attempted changes remain in memory,
 and require explicit review/resolution. No silent overwrite or auto-advanced revision.
 Repeated conflict re-enters review; account/organization restrictions apply to resolution.
 The editor/device holding the saved conflicting proposal resolves it: capturers handle
@@ -232,12 +233,14 @@ or completion speed at the expense of required answers, access or truthful statu
 - **O-1:** Shared handoff and exact KDG Access variant/schema/operator/generator contracts
   remain readiness gates; coordinator is this session, component owners retain authority.
 - **O-2:** Khula approves business history retention and device suitability before pilot
-  activation; the default 30-day offline history window is now approved. No automated deletion is proposed.
-- **O-3:** Afrikaans operational/status/action translations and 1–4 descriptions require
+  activation, including lawful processing of children's information, phone pending-data
+  retention and explicit privacy restriction handling; the 30-day own offline history
+  window is approved. No automatic deletion on ordinary deactivation.
+- **O-3:** Afrikaans operational/status/action translations and 2–4 descriptions require
   Khula content review; numeric intermediate options can ship without invented descriptions.
 - **O-4:** Identity/Access must declare trusted target-account eligibility evidence for
-  initial assignment setup (no user-check account selector). E5 must also resolve whether
-  old domain assignments require renewal after membership retirement/rejoin; missing
+  initial assignment setup (no user-check account selector). Membership-retirement/rejoin renewal is user-approved with Story 5.2; exact
+  authoritative membership-instance evidence remains a shared contract gate. Missing
   current app grants can never be restored by domain assignment alone.
 - **A-1 resolved by user:** Administrators create for every active Khula child;
   capturers create only for assigned children.
@@ -253,9 +256,10 @@ or completion speed at the expense of required answers, access or truthful statu
   PWA for either role. Organization-wide administrator review/edit/audit is online only;
   no offline all-record cache or authority. Older own history remains available online. Pending
   work and referenced original versions are retained regardless of that window.
-- **A-6 resolved by user with Story 2.2:** Child deactivation stops new captures while
-  retaining historical read/edit rights under current KDG permissions. Actual
-  child-deactivation administration remains E5.
+- **A-6 revised by user with Story 5.1:** Ordinary child deactivation removes refreshed
+  new-capture choices but accepts pending offline observations from previously provisioned
+  eligible-child setup under current access/assignment checks. It retains historical
+  read/edit rights. Privacy processing restriction/deletion is a separate policy.
 
 User resolutions are indexed above, including A-6 approved with C.
 None of these app policies is an accepted platform decision or runtime claim.

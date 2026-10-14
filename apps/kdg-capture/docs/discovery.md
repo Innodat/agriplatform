@@ -42,8 +42,10 @@ remain subject to concrete schemas, operator identity binding and validation.
 
 ## Minimum dependency register and ownership
 
-User-appointed coordinator: this KDG session. Component ownership below is the existing
-repository boundary, not a claim that another session accepted a handoff.
+User-appointed coordinator: this KDG session. The sole owner explicitly acknowledged
+all owner boundaries on 2026-10-14; component ownership/delivery items below are retained.
+Selected successor contracts are in the
+[shared addendum](../../../platform/docs/architecture/contracts/kdg-shared-readiness.md).
 
 | ID | Existing / remaining | Owner and reference | KDG independence / gate |
 | --- | --- | --- | --- |
@@ -56,17 +58,16 @@ repository boundary, not a claim that another session accepted a handoff.
 | P-DIRECTORY | Catalogue/listing exists; current Access-filtered listing not delivered | Directory/Access owner; ADR-0046/0053 | Direct KDG URL avoids a launcher dependency. Do not publish a protected launcher entry until its checks work |
 | P-OFFLINE | No reusable implementation; KDG first consumer must prove bounded storage/queue/update/status/test helpers | KDG delivers, platform coordinator promotes proven neutral mechanisms | Can plan independently; shared changes follow handoff agreement, not all Leave planning |
 
-Before any shared mutation, give Leave the register with exact proposed owner/story
-boundaries; record its acknowledgement and relinquished/retained first-consumer work.
-Agree ownership for schema/API/client fixtures and generator promotion. No shared
-contract is edited in this package. If handoff is unavailable, app planning continues
-and shared implementation stays gated. Do not copy Leave's requirements, rewrite its
-first slice, or treat its unfinished contracts as completed.
+The [acknowledged handoff](shared-platform-handoff.md) records retained schema/API/client/
+generator/test/runbook owners and KDG first-consumer integration. Shared planning
+contracts are reconciled; implementation stays gated. Do not copy Leave's requirements,
+rewrite its first slice, or treat its unfinished contracts as completed.
 
 ## Proposed shared delivery order for the first KDG slice
 
-This is a handoff proposal, not agreement with the concurrent Leave session. Existing
-owner story IDs remain authoritative; no shared implementation story is duplicated here.
+The sole owner acknowledged this handoff for all efforts. Existing owner story IDs
+remain authoritative; no shared implementation story is duplicated here. Minimum
+acceptance/timing is in [shared-prerequisites.md](shared-prerequisites.md).
 
 | Order | Existing owner work | Minimum consumer evidence / timing |
 | --- | --- | --- |
@@ -83,7 +84,7 @@ capture/sync proof. Shared offline pattern promotion follows KDG evidence throug
 agreed platform owner. P-INVITE is needed for normal added-facilitator onboarding later;
 P-DIRECTORY is optional until launcher publication. Neither blocks one-user direct entry.
 
-Handoff acknowledgement must identify retained/transferred work and who updates shared
+The acknowledged handoff identifies retained work and who updates shared
 schemas/clients/generator/tests/runbooks. Runtime delivery and migration prerequisites
 remain required before their consumer; no source design is marked operational by this order.
 
@@ -92,9 +93,9 @@ remain required before their consumer; no source design is marked operational by
 Story 1.3 requires current verified target account/Khula membership/capture-capability
 evidence from existing Identity/Access owners for its protected setup command. Canonical
 v2 user checks derive subject from bearer, so operator identity cannot act as a target
-selector. No supported narrow operator target-check wire has been established for KDG
-in this package. Resolve its policy/models/fixture evidence with shared owners before
-Build; do not query their tables, infer from names/emails or use People as a workaround.
+selector. The shared addendum now selects a narrow current target-check model and separate
+setup credential policy. Owners must deliver models/privilege/fixture evidence
+before Build consumes it; do not query their tables, infer from names/emails or use People as a workaround.
 KDG's assignment remains a non-authorizing local domain association.
 
 ## Working-tree preservation

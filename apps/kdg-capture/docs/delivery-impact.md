@@ -1,6 +1,6 @@
 # Shared pattern and stewardship impact decisions
 
-Proposal for coordinated delivery, not authorization to modify shared owners. This KDG
+Coordinated planning baseline, not implementation authorization. This KDG
 session coordinates; existing component owners retain implementation/contract authority.
 Scaffold inputs under ADR-0059 reference these proven choices only after a real versioned
 schema/generator exists. Do not invent a second config language or claim JSON metadata
@@ -48,7 +48,8 @@ local transaction/schema migration, account/org isolation, queue/idempotency/ret
 revision/conflict primitives, status, PWA updates and test utilities. No general local
 history table/engine or new runtime offline service. KDG retains current observations,
 required questionnaire definitions, pending snapshots and conflicts; simple attribution
-uses existing server-managed fields. Shared changes require the pending Leave handoff.
+uses existing server-managed fields. The sole owner acknowledged the Leave/platform
+handoff; shared planning reconciliation is authorized. Runtime changes remain gated.
 
 Surface split approved 2026-10-14: own-only offline PWA for either role; online
 organization-wide administrator read/edit/audit. Shared offline helpers need no

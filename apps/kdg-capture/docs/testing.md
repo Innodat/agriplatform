@@ -13,7 +13,7 @@ observe its expected missing-behavior failure; focused TDD then affected suites 
 | KDG-A02 | FR-2,8,12; NFR-1 | Capturer reads/edits own only, including after unassignment with current access; administrator creates for every active Khula child and reads/edits all within Khula; altered owner/org/role inputs rejected; admin preserves owner and records editor | API + actual runtime-role PostgreSQL/RLS |
 | KDG-A03 | FR-3,11; NFR-5 | Targeted synthetic bootstrap yields exact child/version/assignment; same replay no duplicate, wrong operator/target rejected; partial-owner recovery | Owner command integration |
 | KDG-A04 | FR-4,13,16 | Provision installed app online, disconnect, cold reopen offline within window; questionnaire/child available; missing initial setup blocks | Browser + Android/iPhone physical |
-| KDG-A05 | FR-5; NFR-3 | Rating 0/5 labels exact, integer six options; Nee initially selected; Ja shows details; toggles retain editing buffer, false saves no details; required rating/text validation | Component + API |
+| KDG-A05 | FR-5; NFR-3 | Rating 1/5 labels exact, integer five options, no initial selection, 0/6/fractions rejected; Nee initially selected; Ja shows details; toggles retain editing buffer, false saves no details; required rating/text validation | Component + API |
 | KDG-A06 | FR-6 | Editable observation date independent of timestamps; two child/date captures accepted; local known prompt Edit/Add, unavailable server duplicates not claimed | Domain/API + component |
 | KDG-A07 | FR-7,13,15; NFR-2 | Offline Save acknowledged only after local transaction; close/reopen shows same capture+pending operation; no unfinished-input recovery promised; hidden in-memory buffers excluded from saved answers | IndexedDB real-browser integration |
 | KDG-A08 | FR-7; NFR-2,3 | Explicit Save failure/unknown outcome keeps visible input with useful guidance; resolve original attempt; no false saved status or unfinished-entry persistence | Component + browser controlled storage |
@@ -34,7 +34,9 @@ observe its expected missing-behavior failure; focused TDD then affected suites 
 
 ## Requirement → story linkage in progress
 
-Epic structure, seven E1 stories/closure and all four E2 stories/closure are approved; both E3 stories/closure are approved; candidate 4.1 awaits review.
+All 19 stories are approved. E1–E4 planning closure is approved; E5 completion and
+final BMAD validation remain pending. Each requirement is allocated to explicit story
+scopes; pilot-wide evidence in 5.4 complements rather than replaces feature tests.
 Scenario detail and intended boundaries are in the linked draft; no tests have run.
 
 | Story | Requirements / UX | Acceptance tests | Status |
@@ -52,9 +54,14 @@ Scenario detail and intended boundaries are in the linked draft; no tests have r
 | [2.4 simple history and E2 proof](epics.md#story-24-prove-simple-offline-capture-history-and-editing) | FR-8/9/11; E2 FR-2/6/13–18; NFR-1–5; UX-DR4/7–9/11–14 | A21.detail-attribution/immutable-evidence, A14.detail-owner-scope, A18.current-record-cache, A12.detail-original-definition, A15.detail-read-window, A09/10/11/16/17/19 E2 integration; installed Android/iPhone extension | Approved simplified scope; no revision-browser/archive; existing record/queue contracts and device evidence gate delivery |
 | [3.1 administrator history/audit](epics.md#story-31-view-authorized-khula-observations-and-administrator-audit-details) | Admin FR-2/8, FR-11/13/15–17; NFR-1–4; UX-DR4/7/8/10–13 | A02.admin-read/own-denied, A14.admin-read-org/account, A15.admin-online-session, A16.admin-read-role-loss, A18.admin-history-partial, A12.admin-original-definition, A21.admin-audit-attribution, A19.admin-review-accessible | Approved online-only scope; current all-read/actor-display/audit DTO fixtures gate Build |
 | [3.2 online administrator editing](epics.md#story-32-correct-authorized-observations-online-without-overwriting-another-editor) | FR-2/8/9/11/15–17; NFR-1–5; UX-DR5/7/8/9/10/12/13 | A02.admin-edit, A11.facilitator-admin-both-orders/repeated, A09.admin-lost-response/replay, A14.admin-edit-org/account, A15.admin-edit-session, A16.admin-edit-role-loss, A12.admin-edit-original, A21.admin-owner/editor, A17.no-all-record-offline-cache, A19.admin-edit-accessible | Approved in-memory scope; all-edit/conflict/outcome fixtures gate Build; no conflict drafts |
-| [4.1 questionnaire draft editor](story-candidates/4-1-questionnaire-editor.md) | FR-10; draft/stable-ID FR-11; editor FR-5/2/12/16/17; NFR-1–5; UX-DR5/7/10/12/13 | A13.editor-role/Save-Cancel/reorder-retire-types, A12.editor-stable-IDs/published-unchanged, A09.editor-save-replay, A11.editor-concurrent-save, A14.editor-org/account, A15.editor-session, A21.editor-attribution, A19.editor-accessible-reorder | Proposed; working-draft lifecycle/limits/DTO fixtures gate Build |
+| [4.1 questionnaire draft editor](epics.md#story-41-edit-and-save-a-questionnaire-draft-online) | FR-10; draft/stable-ID FR-11; editor FR-5/2/12/16/17; NFR-1–5; UX-DR5/7/10/12/13 | A13.editor-role/Save-Cancel/reorder-retire-types, A12.editor-stable-IDs/published-unchanged, A09.editor-save-replay, A11.editor-concurrent-save, A14.editor-org/account, A15.editor-session, A21.editor-attribution, A19.editor-accessible-reorder | Approved scope; working-draft lifecycle/limits/DTO fixtures gate Build |
+| [4.2 publish/version compatibility](epics.md#story-42-publish-a-questionnaire-without-changing-older-observations) | FR-10/11; scoped FR-2/5/8/9/13/14/16–18; NFR-1–5; UX-DR5/7/10–14 | A13.publish-role/immutable/lifecycle, A12.actual-publish-offline-V1/open-pinned/new-V2/historical-edit, A09.publish-replay/lost-response, A11.publish-concurrency, A14.publish-org/account, A15.publish-session, A17.version-retention-upgrade, A21.publish-attribution, A19.published-controls-accessible; actual installed Android/iPhone | Approved scope; publication lifecycle/DTO and actual producer/consumer/device proof gate delivery |
+| [5.1 child management](epics.md#story-51-manage-children-online-without-losing-their-observations) | Child FR-12; scoped FR-2/4/8/13/16; NFR-1–5; UX-DR2/7/10–13 | A13.child-manage-role/Save-Cancel, A02.child-admin-create-all, A16.child-inactive-pending-accepted/historical-edit/reactivate, A09.child-replay/lost-response, A11.child-concurrent-save, A14.child-org/account, A21.child-attribution, A19.child-admin-accessible | Approved revised policy; child-management/prior-eligibility DTO and coordination fixtures gate Build |
+| [5.2 facilitator assignments](epics.md#story-52-assign-children-to-verified-facilitators-online) | FR-12; scoped FR-2/3/4/8/13/16/17; NFR-1–5; UX-DR2/7/10–13 | A13.assignment-manage-role/Save-Cancel, A03.assignment-target-verification, A16.assignment-added/removed/rejoin-renewal, A02.assignment-no-grant/admin-create-all, A09.assignment-replay/lost-response, A11.assignment-concurrent-save, A14.assignment-org/account, A21.assignment-attribution, A19.assignment-admin-accessible | Approved renewal policy; shared target/lifecycle contract closure gates Build |
+| [5.3 storage/update reliability](epics.md#story-53-protect-saved-observations-through-storage-failures-and-app-updates) | FR-18; reliability FR-7/8/13–17; NFR-1–5; UX-DR4/7/8/9/11–14 | A08.quota-transaction-recovery, A17.failed/interrupted-local-migration/deferred-update/pending-upgrade, A09/10 upgrade delivery, A12.original-definition, A14.partition, A15.session, A18.disposable-cache-only, A21.storage-log-safety, A22.release-payload-compatibility; installed Android/iPhone updates | Approved update-first scope; supported schema/build/payload pairs and fault/device fixtures gate delivery |
+| [5.4 controlled pilot readiness](epics.md#story-54-verify-the-complete-workflow-and-prepare-a-controlled-khula-pilot) | FR-1–18 integrated evidence; operating FR-16–18; NFR-1–5; UX-DR1–14 approved scope | A01–A22 story-linked evidence; emphasized A14/15/16/17/21/22; final installed Android/iPhone and release recovery | Approved scope; named Khula operating policies and real delivery/device/dependency evidence gate pilot |
 
-Other requirement-to-story links remain pending sequential detailing. Approved Story 1.1
+Full completeness/sizing/consistency validation remains pending. Approved Story 1.1
 covers online entry/return only, not complete offline expiry/account partition behavior.
 
 ## Shared tests, separately owned
@@ -130,3 +137,29 @@ checks must never be reported as automated passing evidence.
 Scope amendment, 2026-10-13: unfinished observation autosave/close/crash recovery and
 draft-specific flush/merge tests are removed. Explicit failed/uncertain Save and completed
 capture durability remain. Questionnaire configuration draft/version tests remain required.
+
+Engineering refinement fixtures: A05 rejects rating 0/6/fractions and U+0000 without
+normalizing input; A09 proves canonical key-order equality/changed-content mismatch,
+no-op receipts and concurrent duplicates; A14 operation command discriminator and
+foreign eligibility references; A16 verifies ordinary-inactivity pending sync; A18
+checks scoped cursors; A17 proves update-first and supported schema/payload migration.
+These remain planned tests, not executed software verification.
+
+
+## Successor shared-contract fixtures — 2026-10-14
+
+[Shared prerequisite acceptance](shared-prerequisites.md) references existing owner
+items, not runnable KDG tests. A01/A02 consume exact organization own_account/all-org
+checks with account actor/no person, explicit capabilities/read.own entry and fixed-org
+caller binding. A03 covers target membership replacement, restricted setup identity,
+wrong session_user/runtime credential and partial owner outcome recovery. A14/A16 cover
+retired/rejoined membership with no old assignment/eligibility resurrection; renewed
+current own-read/edit remains tied to the same original account. A09 adds full JCS/HMAC
+canonical retry, independent key identity, overlap/rotation/rollback/restore and fail-closed
+missing verification key. A17 update-first protection remains; unchanged formats need
+no adapters. See owning shared/fingerprint contracts for exact selected models.
+
+Owners run the smallest relevant failing acceptance before implementation, then focused
+unit/contract suites and affected browser/device checks. Exact commands/results and
+requirement-to-test cases land with existing owner/consuming delivery items; no new
+passing test or generated OpenAPI/client is inferred from these fixture declarations.

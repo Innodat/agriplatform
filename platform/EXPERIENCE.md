@@ -42,6 +42,15 @@ in its experience contract.
 
 ### Notification panel
 
+Organization-scoped first-consumer refinement — agreed 2026-10-14:
+[Leave ADR-0131](../apps/leave/docs/architecture/decisions/0131-other-organization-unread-indicator.md)
+keeps the bell/panel limited to the selected organization. Selector entries have permitted
+unread-count badges; the closed selector has a discreet accessible dot for unread messages
+in another accessible organization. One accessible organization shows its name and bell
+with no selector/dot. Counts contain no message previews, current access filters exposure
+and unread state is separate from business responses. Prove/promote this opt-in shared
+pattern with first consumers; account/public apps need no synthetic organization.
+
 The shell bell opens a compact desktop panel, newest first. Use a full-width
 sheet on mobile with the same content. Rows show a clear unread marker, a short
 event/status title, permitted record context, and a secondary time. Provide Mark

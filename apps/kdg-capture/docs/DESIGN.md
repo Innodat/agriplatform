@@ -3,7 +3,7 @@ name: KDG Capture
 description: Mobile observation capture and a small online administration portal, inheriting shadcn/ui.
 status: draft
 created: 2026-10-12
-updated: 2026-10-12
+updated: 2026-10-14
 sources: [prd.md]
 colors: {}
 typography:
@@ -53,8 +53,8 @@ retain Afrikaans punctuation, and scale at 200% without clipped choices.
 ## Layout & Spacing
 
 One vertical capture column, {spacing.gutter} horizontal mobile gutter and
-{spacing.question-gap} between question groups. Six rating options form a wrapping
-grid with all six available together; Ja/Nee pairs sit adjacent where width allows.
+{spacing.question-gap} between question groups. Five rating options form a wrapping
+grid with all five available together; Ja/Nee pairs sit adjacent where width allows.
 Each control meets {spacing.control-min}. Details sit directly below their Ja/Nee group.
 On larger screens constrain reading width rather than stretching the questionnaire.
 Admin forms use the same responsive controls with desktop room for ordered questions.
@@ -71,10 +71,11 @@ large labels and touch area are the important delta.
 
 ## Components
 
-Rating group: six integer radio choices, visible endpoint meanings. Boolean group:
+Rating group: five integer radio choices, visible endpoint meanings. Boolean group:
 two radios, Nee initially selected for the initial questionnaire. Details: labeled
 multiline input immediately below a Ja. Sync status: text and icon distinct from form
-validation. History row: child/date/owner where permitted/local or synced status.
+validation. My observations row: child/observation date and compact pending/attention state;
+portal rows additionally identify the capturer. Audit metadata stays on admin surfaces.
 Revision comparison: labeled local/current server values in stacked mobile sections.
 Admin question editor: bounded type selector, wording, required, move up/down, retire;
 drag is optional, never the only reorder control.
@@ -83,7 +84,7 @@ drag is optional, never the only reorder control.
 | Component | Visual contract | Behavioral contract |
 | --- | --- | --- |
 | Child/date controls | Visible label and inherited select/date styles | Sole child automatic; additional assigned options only; editable calendar date |
-| History row | Child/date/authorized author plus text status | Keyboard/touch activation; return retains scroll and initiating focus |
+| History row | Child/observation date plus compact status; capturer name on portal rows | Keyboard/touch activation; return retains scroll and initiating focus |
 | Revision comparison | Stacked labeled base/local/current sections | No automatic merge; fresh server read and explicit choices |
 | Admin question editor | Labeled bounded fields, visible move controls | Whole-form Save/Cancel, position announcement, immutable published view |
 | Assignment form | Named child/facilitator and inline eligibility/errors | Required online eligibility, explicit Save/Cancel, no implicit grants |

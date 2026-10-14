@@ -1,6 +1,7 @@
 # KDG technical contracts — proposal for readiness
 
-App-owned design only. Does not change the shared Access union, register capabilities,
+App-owned design, reconciled with the selected [shared readiness addendum](../../../platform/docs/architecture/contracts/kdg-shared-readiness.md).
+Does not implement the shared Access union, register capabilities,
 create DDL/OpenAPI models, or imply that provisioning commands exist. Shared owner
 agreement, concrete schema validation and story readiness precede implementation.
 
@@ -11,16 +12,16 @@ credential, one exact permission and `authorization_scope: {kind: organization, 
 Required success evidence: exact permission/scope/account/actor, positive membership ID,
 decision_id and checked_at. Proposed KDG resource_scope variants:
 `{kind: own_account, account_id}` or `{kind: organization, org_id}`. These are deliberately
-different from Leave's own-person variant. Access owner must define its closed union,
-caller allowlist, registry/schema constraints and consumers together; KDG cannot invent
+different from Leave's own-person variant. The shared addendum defines its closed union,
+caller allowlist and exact registry extension; owners deliver constraints/consumers together. KDG cannot invent
 that shape at runtime or read Identity/Access tables.
 
-Proposed exact capabilities (final registry IDs are an owner gate):
+Exact capability IDs selected in the shared owner planning baseline (registration not implemented):
 
 | Capability | Capturer | Questionnaire administrator | KDG domain check |
 | --- | --- | --- | --- |
-| kdg_capture.capture.create.assigned | Yes | Yes | Current child assignment and active child |
-| kdg_capture.capture.create.all | No | Yes | Any active child in the exact authorized Khula organization |
+| kdg_capture.capture.create.assigned | Yes | Yes | Current child assignment; active child for fresh choices, or verified prior eligibility for pending inactive-child sync |
+| kdg_capture.capture.create.all | No | Yes | Exact Khula scope; active child for fresh choices, or verified prior eligibility for pending inactive-child sync |
 | kdg_capture.capture.read.own | Yes | Yes | Original capture owner account equals caller |
 | kdg_capture.capture.edit.own | Yes | Yes | Original capture owner equals caller; original version validation |
 | kdg_capture.capture.read.all | No | Yes | Exact authorized Khula organization |
@@ -38,9 +39,10 @@ questionnaire-administrator. KDG facilitator screen can select eligible accounts
 child assignment and link shared onboarding/access screens when available; it does not
 create Auth accounts, employment or grants itself.
 
-Server uses current Access verification before the DB transaction. Proposed authorization
-request limit 5 seconds, total executing request 10 seconds, DB lock wait 2 seconds;
-if execution has not started promptly after authority check, recheck. No network wait
+Server uses current Access verification before the DB transaction. Selected authorization
+request limit 3 seconds, total executing request 10 seconds, DB lock wait 2 seconds,
+statement timeout 5 seconds; start local execution within 1 second of the observation
+or recheck. No network wait
 under business locks. Record decision/action timing safely. Local assignment/child state
 is checked under the same transaction serialization boundary as capture create. A queued
 command submitted after removal is refused; no old local observation authorizes sync.
@@ -48,8 +50,8 @@ command submitted after removal is refused; no old local observation authorizes 
 ### Entry capability and context proposal
 
 For the two maintained default KDG roles, use capture.read.own as the proposed entry
-capability: both roles explicitly hold `kdg_capture.capture.read.own`. Access owner
-must finalize that registration/caller binding; no new shared contract is changed here.
+capability: both roles explicitly hold `kdg_capture.capture.read.own`. The shared addendum
+selects registration/caller binding; runtime registration remains prerequisite delivery.
 Entry establishes current account/actor/Khula membership/admission only, grants no
 additional action, and does not renew cached create/admin/assignment authority.
 The selector-free `/context` endpoint is independently deliverable before `/provision`;
@@ -60,22 +62,23 @@ assignments are not an entry prerequisite; current capturers may retain own hist
 
 Definition `schema_version: 1`, `questions` ordered array. Each question has UUID `id`,
 type `rating | boolean | text`, label, required boolean and type-specific configuration.
-MVP rating uses integers 0–5 and explicit endpoint labels; intermediate descriptions
+MVP rating uses integers 1–5 (1 = Goed, 5 = Nie goed nie); reject 0, 6 and fractions.
+Intermediate descriptions
 remain absent until Khula supplies them. Boolean supports details_enabled and details_label;
 initial seed uses default false (Nee). Text has plain multiline content, no rich HTML.
 No executable expressions/markup, arbitrary branching or external form schema engine.
 
-Proposed validation bounds: 50 questions/version, label 500 characters, details/text
+Selected KDG bounds for delivery review: 50 questions/version, label 500 characters, details/text
 5000 characters, total command 128 KiB UTF-8. Empty required text fails after whitespace
 normalization; preserve original entered content when valid. UUID question keys must be
 unique in each version and stable across compatible edits. Reject unknown types, keys,
 duplicate JSON keys and answers outside the pinned definition; do not silently drop data.
-Bounds are architecture proposals to validate/approve before editor story readiness.
+Use identical bounds in editor/API fixtures; implementation proves enforcement.
 
 Answer map keys are question UUIDs. Rating answer `{value: integer}`; boolean
 `{value: boolean, details?: string}` (details permitted only for true when enabled);
 text `{value: string}`. False excludes details completely. Optional unanswered question
-may be absent; required rating cannot default to zero. Unsaved forms may be incomplete and hold temporary hidden-details buffers in memory
+may be absent; required rating starts unanswered rather than defaulting to 1. Unsaved forms may be incomplete and hold temporary hidden-details buffers in memory
 only; completion requires required answers. No observation draft store is used.
 
 Relational version identity `(org_id, questionnaire_id, version_id)` is referenced by
@@ -136,11 +139,11 @@ TypeScript, do not derive client models from DB tables.
 | GET /captures/{id}/edit-context | Current own-read/edit scope, record/revision/original definition and scoped observation; no new-create/assignment requirement |
 | PUT /captures/{id} | operation_id, command_version, expected_revision decimal string, editable date/answers; immutable child/version/owner |
 | GET /captures and /captures/{id} | Keyset page / full record with revision and source version, own/all-permitted filter |
-| GET /operations/{id} | Caller/command-scoped committed compact receipt or unresolved; current access required |
+| GET /operations/{id}?command_type={type} | Required closed command discriminator; caller/command-scoped committed compact receipt or unresolved; current access required |
 | Admin questionnaire draft/save/publish | Explicit expected revision + operation identity; publish stores immutable version atomically |
 | Admin child/assignment save | Exact account/child, expected revision/operation ID, current admin authority and scoped eligibility |
 
-Proposed 100 rows/page maximum and opaque scoped pagination cursor; page results are not
+Selected 100 rows/page maximum and opaque scoped pagination cursor; page results are not
 server authorization for cached data. Initial default download: last 30 days (approved PRD A-5),
 own observations for either role in the PWA; all-organization portal reads stay online. Retain all pending captures/conflicts/
 referenced versions regardless of history window. Fetch older history explicitly online;
@@ -501,12 +504,211 @@ resolve the original operation before competing writes. A rejected conflict is n
 committed edit. Exact all-edit/context/conflict/outcome contracts gate Build. Capturer
 explicitly saved offline edits/conflicts remain durable under E2; no phone-input intake.
 
-## Questionnaire draft editor increment — proposed
+## Questionnaire draft editor increment — approved scope
 
-[Candidate Story 4.1](story-candidates/4-1-questionnaire-editor.md) adds app-owned
+[Approved Story 4.1](epics.md#story-41-edit-and-save-a-questionnaire-draft-online) adds app-owned
 working-draft start/read/whole-form Save/Cancel under current questionnaire.manage.
 Published definitions remain unchanged. Stable IDs survive compatible wording/order
 changes; new/incompatible question types get new IDs. One working draft per
-questionnaire is proposed with explicit atomic create/resume (ADR-0034 opt-in), not a
+questionnaire is approved with explicit atomic create/resume (ADR-0034 opt-in), not a
 general autosave mandate. Draft lifecycle/start/conditional-write/outcome DTOs and
 validation limits gate Build. Publish is the next independent increment.
+
+## Questionnaire publication increment — approved scope
+
+[Approved Story 4.2](epics.md#story-42-publish-a-questionnaire-without-changing-older-observations) publishes
+the exact saved working copy with current manage authority and guarded draft/current
+publication state. Immutable version, live pointer, draft closure, evidence and receipt
+commit atomically. New working copy requires explicit start; stale saves cannot reopen
+a published draft. Old-version creates/edits remain valid; open entries stay pinned
+and only subsequent new captures adopt a successfully downloaded newer definition.
+Actual editor/publication plus installed Android/iPhone scenarios prove compatibility.
+
+## Child-management increment — approved scope
+
+[Approved Story 5.1](epics.md#story-51-manage-children-online-without-losing-their-observations)
+adds online child.manage list/create/update with explicit Save/Cancel, stable child UUID,
+display name and active status. Ordinary deactivation removes refreshed new choices but
+does not reject pending offline observations solely for inactive status: verify prior
+provisioned child eligibility and current membership/app/create/assignment authority.
+Retain historical own/all correction under current rights. Fresh inactive-child creation
+is not enabled. Client pending flags/dates cannot prove eligibility or pre-deactivation
+Save timing; concrete issued/stored eligibility reference and compatible create/provision
+DTOs gate Build. Do not relax current server access checks. Privacy restriction/deletion
+is separate from ordinary child availability and needs Khula retention/processing policy.
+
+Reactivation restores only valid assignment/create eligibility, never platform grants.
+No child deletion or People master. Name/status/revision/outcome and coordinated-create
+fixtures gate Build.
+
+## Facilitator-assignment increment — approved scope
+
+[Approved Story 5.2](epics.md#story-52-assign-children-to-verified-facilitators-online) adds explicit online
+assignment Save/Cancel using verified target account/Khula membership/current capture
+authority from existing shared-owner contracts. No account/grant/People generator or
+email-only target binding. Unassignment stops new assigned captures but preserves own
+historical access under current rights. User-approved membership-instance renewal prevents
+retirement/rejoin silently resurrecting old assignment eligibility; same-membership
+grant recovery alone does not require renewal. Trusted target-list/evidence and lifecycle
+contracts plus concrete bounded write/outcome fixtures remain shared-owner Build gates.
+
+## Storage/update reliability completion — approved scope
+
+[Approved Story 5.3](epics.md#story-53-protect-saved-observations-through-storage-failures-and-app-updates) proves bounded
+quota/transaction recovery, non-destructive supported local-schema upgrades, deferred
+shell activation and old queue/version compatibility. Protected saved/unknown/conflict
+work is never disposable cache. Existing platform owners provide proven neutral
+transaction/migration/claim/queue/update fixtures; KDG owns schemas/definitions. No
+autosave, universal history engine, forced reload/reset or browser-storage guarantee.
+Concrete schema/build/payload upgrade pairs and automated/physical evidence gate delivery.
+
+Update-first default approved: no preliminary sync requirement; protect pending edits/
+conflicts and sync after update. Settle executing local writes/requests safely with
+bounded handling and wait for unsaved-form Save/Cancel before reload. Unknown operation
+identities remain recoverable; updates do not wait indefinitely for successful sync.
+No mandatory adapter pattern: add migrations/version handlers only for concrete changed
+formats. Behavioral compatibility and prior-release supported payload tests are binding.
+
+[Approved Story 5.4](epics.md#story-54-verify-the-complete-workflow-and-prepare-a-controlled-khula-pilot) closes integrated
+session/device/release evidence and named Khula retention/device/processing policies
+before a real-data pilot. Seven-day access and 30-day own download windows are not
+retention policies. Genuinely denied saved work needs owner-approved bounded retention/
+disposal; no bypass upload, new export/intake or indefinite retention claim.
+
+## KDG request and recovery contract — engineering closure
+
+2026-10-14. These are app-owned build inputs within approved behavior, not generated
+OpenAPI or evidence of implemented handlers. Shared capability/actor/membership fields
+are selected in the shared addendum; physical owner schema/privilege inputs remain
+gates. This section defines no duplicate shared endpoint/service.
+
+### Wire values and validation
+
+UUIDs serialize as lowercase hyphenated strings. Reject malformed or nil domain IDs.
+Server revisions are decimal strings matching `[1-9][0-9]*`, bounded to positive signed
+64-bit integers; never send large revisions as JavaScript numbers. Command/definition
+versions are small positive integers, initially 1. Dates are validated `YYYY-MM-DD`
+calendar dates; observation date is explicit and not inferred from server receipt time.
+Device `captured_at` is an RFC3339 UTC string, preserved as untrusted device time.
+Server attribution/times come solely from verified execution.
+
+Reject unknown fields/duplicate JSON keys, non-finite numbers, invalid Unicode, U+0000 NUL anywhere in persisted text and
+caller-controlled owner/org/actor/audit fields. Initial rating is integer 1–5 and
+initially unanswered. Reject 0/6/fractions; boolean false is a valid required answer.
+False details must be absent, not retained secretly on the server. Required text needs
+non-whitespace content; optional unanswered text is omitted. Preserve entered Unicode/
+whitespace in valid text; do not silently normalize answer content.
+
+Definition bounds: 50 active questions; label/details-label/endpoint-label 500 Unicode
+code points, each answer/details text 5000 code points, command body 131072 UTF-8 bytes.
+Names for child display are nonblank, at most 200 code points; do not infer uniqueness
+or identity from spelling. These are resource bounds, not clinical/content rules.
+
+### Capture commands
+
+| Action | Exact submitted fields | Immutable server facts |
+| --- | --- | --- |
+| Create (`capture.create`, v1) | operation_id, command_version, capture_id, child_id, questionnaire_version_id, observation_date, answers, captured_at, child_eligibility_ref | Fixed configured org, verified original account/actor, created/updated server time, original child/version; server revision initially 1 |
+| Edit (`capture.edit`, v1) | operation_id, command_version, expected_revision, observation_date, answers; capture ID in path | Original owner/creation, child and questionnaire version unchanged; current editor/time recorded only on changed successful write |
+
+The initial published questionnaire identity is determined by its version reference,
+not a client-supplied name/position. Create requires current create.assigned + active
+app assignment, or current create.all for the author's own capture. Own/edit and online
+all/edit use their corresponding current read/edit capabilities, never a client role.
+Do not materialize edit expected_revision until that action's own predecessor resolves;
+then freeze it and the complete wire payload. Unrelated server changes require conflict
+review, not substitution of the downloaded latest revision.
+
+### Prior child eligibility
+
+Use an opaque KDG-owned eligibility reference per provisioned child, returned by the
+existing `/provision` path and retained with each saved create. Its authoritative
+record binds org, account, membership instance, child, observed active-child state,
+appropriate own-create/assignment context and server issuance time. It contains no
+answers and grants no rights. No token-secret/parallel authorization service is needed:
+resolve the opaque reference through the app's protected persistence.
+
+On sync check current admission/membership/create permission and applicable current
+assignment, then verify the reference belongs to this caller/child/context. A foreign/
+missing reference cannot claim inactive-child compatibility. Ordinary inactivity may
+accept the previously provisioned child; a fresh request for an inactive child does
+not receive new eligibility setup. A phone date/flag proves neither eligibility nor
+pre-deactivation Save. This deliberately supports stale offline setup, not a provable
+time cutoff. Explicit privacy restriction is a separate current processing boundary.
+
+The shared addendum binds membership instance to Identity's existing new membership
+ID on rejoin, and selects current target evidence. Reference retention must support delayed saved work; no arbitrary
+expiry/purge is introduced before Khula's retention decision. Define the owned reference
+table in 1.4, bind local/create DTOs in 1.5/1.6, and prove 5.1 inactivity behavior with
+that evidence. This is a refinement of the approved provisioning/create path, not a new
+user step or a proof that these contracts have passed shared owner review.
+
+### Compact successful receipt and unknown outcome
+
+Persist unique `(org_id, executor_account_id, command_type, operation_id)` and versioned
+command fingerprint with business effects, trusted attribution and compact result in
+one owner transaction. A successful create/edit receipt contains operation_id,
+command_type, command_version, status `committed` and result `{capture_id, revision}`.
+Revision is the string recorded for that operation, even if the capture later changes.
+No answer/child-name/definition dumps or fingerprint are exposed by receipt lookup.
+
+An authorized no-op edit records its receipt with unchanged revision and no fake audit
+event. Retry reads current authority and compares original fingerprint before returning
+that result; content changes require a new operation. Concurrent duplicates serialize
+through the unique operation constraint and cannot both commit effects.
+
+Unknown lookup returns status `unresolved` only when scoped verification/read succeeds
+and no committed receipt is observed. It is not proof a competing transaction cannot
+still commit. Bounded identical retry is allowed; deny/unavailable/authentication errors
+are separate HTTP/error outcomes. Foreign operation identity never reveals existence.
+Lookup requires the supported `command_type` query discriminator, since an operation UUID
+may exist under different command types. Resolve only the authenticated org/caller/type/
+ID key; never return an arbitrary first row. Reject unsupported types, recheck the
+permission for the stored resource/command, and do not infer that permission from the
+query discriminator. The first capture consumer supports capture.create/capture.edit;
+other app command recovery registers explicit handlers with its consuming DTOs.
+A stale edit returns 409 kdg_capture.capture_revision_conflict with safe current_revision metadata,
+not an answer snapshot. No server conflict-input draft is stored; current record is
+fetched through current authorized reads for in-memory portal review.
+
+### Canonical submitted meaning
+
+Fingerprint input format v1 is the canonical JSON object `{command_type, command_version,
+org_id, executor_account_id, payload}` after strict shape validation and normalization
+of typed UUID/date/revision representations. Payload contains the exact accepted command
+fields and target ID; arrays retain order, object key order is canonical, and answer
+strings are unchanged. The server computes it; clients do not supply trusted digests.
+[JCS/RFC8785](https://www.rfc-editor.org/rfc/rfc8785) supplies deterministic JSON encoding;
+use conformance fixtures rather than assuming Python key sorting alone implements JCS.
+
+The [KDG fingerprint disposition](../../../platform/docs/architecture/contracts/operation-fingerprint-security-evolution.md#kdg-initial-fingerprint-disposition--2026-10-14)
+selects HMAC-SHA-256/JCS v1, stored algorithm/version/key identity, independent secret
+storage and fail-closed retained-retry rotation/restore behavior. Canonicalization/HMAC
+is not encryption. Exact secret paths/permissions, library conformance and restore
+proof remain delivery inputs; no speculative framework or installed keyring is claimed.
+
+### Pagination and updates
+
+Page size defaults to 30, max 100. Cursors are opaque app-owned references scoped to
+account/org/read mode/query; validate scope/filter integrity, and always recheck current
+permission. Order capture history by immutable `(server_created_at,capture_id)`, not
+editable observation date; the 30-observation-day window is an explicit query filter.
+Pages are not snapshot-isolated across a long scan: updates/late sync may need refresh;
+absence is never evidence of deletion/revocation. Only own responses are persisted.
+
+Initial local schema/queue/definition versions are 1, declared independently. The first
+release has no existing KDG store to migrate; include a synthetic v1→next-version fixture
+when proving the shared migration/update helper. Do not invent an adapter per release.
+A changed local schema or payload adds its exact supported handler/migration and tests
+in that release; unchanged formats reuse current behavior. Activation settles active
+Save/request work under the existing bounded request handling, preserves unknown action
+IDs and waits for unsaved-form Save/Cancel; pending/attention queues do not block update.
+Sync follows activation. Unsupported bytes/commands stay protected, never reset/drop.
+
+### Enforcement evidence
+
+Extend A05 bounds/rating/false-details, A09 canonical/replay/no-op/concurrent receipt,
+A14 foreign operation/reference/cursor, A16 prior-eligibility/current-access, A18 page
+refresh and A17 schema/update fixtures. Actual OpenAPI/Pydantic and generated TypeScript
+become model authority during Build; this planning contract seeds rather than duplicates
+their future implementation. No runnable test command is invented before scaffold delivery.

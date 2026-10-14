@@ -1,5 +1,12 @@
 # E1 identity and migration ownership inventory
 
+KDG execution closure, 2026-10-14: [Identity/Access substrate](identity-access-execution-substrate.md)
+selects KDG-relevant physical actor/member/registry/grant constraints, current/target
+projections, restricted role/command schema and owner CLI/adoption matrix. These refine
+earlier unspecified DDL/privilege/command passages below; no objects or grants are applied.
+Existing PtS/Leave scope and source-owned migration history remain. Actual target baseline/
+rehearsal is later delivery evidence, not presumed equivalence.
+
 **Status:** Repository inventory and adoption design; target baseline verification open  
 **Date:** 2026-10-04  
 **Owners:** Identity/Access maintainers; consuming E1-ID, E1-ACCESS and E1-ENV

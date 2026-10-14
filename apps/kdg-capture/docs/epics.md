@@ -1,9 +1,9 @@
 ---
-stepsCompleted: [step-01-validate-prerequisites, step-02-design-epics]
+stepsCompleted: [step-01-validate-prerequisites, step-02-design-epics, step-03-create-stories]
 inputDocuments: [prd.md, DESIGN.md, EXPERIENCE.md, ARCHITECTURE-SPINE.md, contracts.md, discovery.md, testing.md]
-status: story-creation-epic-1-in-progress
+status: coverage-validated-readiness-blocked
 created: 2026-10-12
-updated: 2026-10-13
+updated: 2026-10-14
 ---
 
 # KDG Capture — BMAD epic planning
@@ -89,7 +89,7 @@ baseline safeguards and later extension evidence are distinguished below.
 | FR-5 | E1 | Initial questions/Nee/details; E4 editable definitions/types |
 | FR-6 | E2 | E1 editable date/multiple same-day records; E2 completes locally known Edit existing / Add another with actual editing |
 | FR-7 | E1 | Explicit local Save without unfinished-entry recovery; E2 whole-form existing edits |
-| FR-8 | E3 | E1 local reopening/details; E2 30-day own history/edit/revisions; E3 permitted organization history |
+| FR-8 | E3 | E1 local reopening/details; E2 30-day own observation history/edit and internal revision evidence; E3 permitted organization history |
 | FR-9 | E2 | Full explicit revision conflict recovery for own edits; E3 adds cross-author administrator scenarios |
 | FR-10 | E4 | Online bounded editor/Save/Cancel/Publish |
 | FR-11 | E4 | E1 immutable seed/version pinning; E2 original-version editing; E4 actual version update/publishing compatibility |
@@ -110,7 +110,7 @@ full pilot reliability evidence in E5.
 | UX items | Delivery ownership |
 | --- | --- |
 | UX-DR1–7 | E1 baseline; extend consistent controls/session policy in all later surfaces |
-| UX-DR8–9 | E2 own history/revisions/conflicts, E3 organization review |
+| UX-DR8–9 | E2 own observations/edits/conflicts, E3 organization review |
 | UX-DR10 | E4 questionnaire forms and E5 child/assignment forms |
 | UX-DR11 | E1 safe initial storage/update behavior; E5 full upgrade-recovery evidence |
 | UX-DR12–13 | Each epic's introduced surfaces; no deferred accessibility/error closure |
@@ -224,15 +224,16 @@ for earlier epics. These are feedback/risk boundaries, not arbitrary technical l
 ## Story creation checkpoint
 
 Step 1 requirements and step 2 five-epic structure: **approved**. Step 3 proceeds
-sequentially by epic; E1 is closed and E2 scope/criteria need review before formal append.
+sequentially by epic; all 19 stories are approved. all five epics and the step-3 final checkpoint are approved. Step-4
+coverage/dependency/architecture validation and separate readiness findings follow.
 
-### Current review — Epic 4
+### Final validation checkpoint
 
-E1–E3 planning are closed with user confirmation. Epic 4 delivers the small online
-questionnaire editor and immutable publishing/version compatibility. FR-10/11, editor
-FR-5 and scoped FR-2/8/9/12/14/16–18, NFR-1–5 and UX-DR5/7/10–13 apply.
-[Candidate Story 4.1](story-candidates/4-1-questionnaire-editor.md) adds explicit online
-draft preparation and whole-form Save/Cancel. Publishing follows; no E5 prerequisite.
+All five epics and 19 stories are user-approved. User C closed E5 and confirmed the
+step-3 final menu. [Final validation](final-planning-validation.md) checks coverage,
+quality, architecture, structure and dependency flow. Load-bearing shared design/owner
+and concrete execution contracts remain unresolved; the workflow is not marked ready
+for development and no final completion/PASS assertion is made.
 
 Presentation amendment approved 2026-10-14: routine capture/history shows observation
 date/answers and compact status, without audit names/timestamps or revision controls.
@@ -416,7 +417,7 @@ four stable question UUIDs, expected absence and verified KDG operator authority
 
 | Question | Definition |
 | --- | --- |
-| Hoe was haar algehele houding vandag? | Required integer rating 0–5, six choices, 0 = Goed, 5 = Nie goed nie; no default rating or invented descriptions for 1–4 |
+| Hoe was haar algehele houding vandag? | Required integer rating 1–5, five choices, 1 = Goed, 5 = Nie goed nie; no default rating or invented descriptions for 2–4 |
 | Het sy enige uitbarstings/gedragsprobleme gehad? | Required Ja/Nee, default Nee, optional Ja-only Besonderhede |
 | Het sy sonder toestemming uit die klas geloop vandag? | Required Ja/Nee, default Nee, optional Ja-only Besonderhede |
 | Het sy probeer huis toe hardloop? | Required Ja/Nee, default Nee, optional Ja-only Besonderhede |
@@ -709,7 +710,7 @@ current authenticated setup read, account/organization-scoped IndexedDB snapshot
 offline opening. Reuse approved entry/version/child boundaries. This delivers a read-only
 setup screen, not observation saving, synchronization or downloaded capture history.
 Only setup metadata, capability observations, child choices and version definitions need
-local stores here; later stories add draft/capture/queue stores when consumed.
+local stores here; later stories add saved capture/queue stores when consumed; no unfinished-entry store.
 
 **Requirements:** FR-4/13, setup portion of FR-16/17/18; FR-1/2 permission boundaries;
 NFR-1/2/3/4/5. UX-DR1/2/4/7/11–14; AD-1–4/7–10. The seven-day window is approved
@@ -811,7 +812,7 @@ This increment does not require capture tables or a history endpoint. Later hist
 downloads use the owning paginated read; absence of history from this setup response
 does not assert an empty server history. Store the exact immutable downloaded version;
 future refresh changes the new-entry version pointer without mutating existing definitions
-or pinned draft/capture references. The no-create case mints no creation observation.
+or pinned open-entry/saved-capture references. The no-create case mints no creation observation.
 
 **PWA/local boundary:** App-specific manifest with both names KDG Capture, configured
 canonical origin/start URL/scope, standalone presentation and required icons. Use the
@@ -884,7 +885,7 @@ AD-2–5/7–9 and proposed KDG ADR-0001.
 
 **Given** authorized phone setup,
 **When** the user starts an observation,
-**Then** the four exact Afrikaans questions use accessible large choices, rating 0–5
+**Then** the four exact Afrikaans questions use accessible large choices, rating 1–5
 initially unanswered, endpoint labels Goed/Nie goed nie and Ja/Nee default Nee,
 **And** Sinehgomso is automatic when sole eligible child; additional choices follow scope,
 **And** date defaults to the phone date, is editable and is separate from recording times,
@@ -894,7 +895,7 @@ initially unanswered, endpoint labels Goed/Nie goed nie and Ja/Nee default Nee,
 
 **Given** entered values,
 **When** Save observation is selected,
-**Then** all four primary answers are required; zero and false are valid answers,
+**Then** all four primary answers are required; 1 and false are valid answers; 0 is invalid for the initial scale,
 **And** Ja reveals optional multiline Besonderhede; Nee hides it and excludes details
 from the saved answer, while toggling Ja restores temporary text while this form is open,
 **And** invalid input shows accessible correction without recording an observation.
@@ -1032,7 +1033,8 @@ Receipt lookup is not a substitute for a fresh current-record read.
 
 **AC-5 — Rejection and unavailable checks**
 
-**Given** lost membership/grants, changed assignment, inactive child, invalid answers,
+**Given** lost membership/grants, changed assignment, a fresh inactive-child request
+without verified prior eligibility, invalid answers,
 wrong scope or unavailable verification,
 **When** queued creation is attempted,
 **Then** the API applies no unauthorized capture effects and returns the safe typed outcome,
@@ -1066,7 +1068,7 @@ are retained for investigation rather than silently deleted.
 command_version, child_id, questionnaire_version_id, observation_date, answers and
 untrusted local captured_at. Fixed Khula and author derive from service policy/bearer;
 reject client audit/owner/org selectors. Validate required answers against that exact
-version, including zero/false and rejection of hidden false details. Tenant-aware local
+version, including valid 1/false values and rejection of hidden false details. Tenant-aware local
 references/RLS and backend ownership checks accompany restricted runtime roles.
 
 Mutations store scoped operation identity/fingerprint and compact committed result in
@@ -1398,7 +1400,7 @@ KDG access/ownership/edit permission and record/version validation govern this e
 **Given** an open edit form,
 **When** the user types, toggles Ja/Nee, cancels or explicitly saves,
 **Then** unconfirmed typing stays in memory and Cancel changes no committed capture/queue,
-**And** Save validates the entire original-version form, including zero/false and hidden-
+**And** Save validates the entire original-version form, including valid 1/false values and hidden-
 detail exclusion, then commits local saved changes plus pending edit atomically,
 **And** Saved on this phone appears only after commit; no server/Synced claim is implied.
 Closing/restarting before Save can lose typing; ordinary unsaved-form handling applies.
@@ -2005,3 +2007,758 @@ conflict-input retention policy/schema is introduced.
 **Review checkpoint:** Revised in-memory conflict scope approved when the user said
 Thanks, next after the server-preservation proposal was withdrawn. No autosave/draft
 or close/reload recovery of uncommitted administrator input is promised.
+
+## Epic 4: Evolve questionnaires without rewriting historical captures
+
+Deliver a small online working-copy editor and explicit immutable publication.
+Capture controls remain Afrikaans and exact original definitions remain usable.
+
+### Story 4.1: Edit and save a questionnaire draft online
+
+As a questionnaire administrator,
+I want a small online editor for a saved questionnaire draft,
+So that I can prepare wording and question changes without changing live or historical observations.
+
+**Scope:** Responsive draft editor and authorized start/read/whole-form Save/Cancel.
+Initial published questionnaire remains live. Draft configuration is persisted only
+on explicit Save; this is the agreed questionnaire draft, not an observation autosave
+or administrator conflict-recovery draft. Publish follows in 4.2 and is not required
+for this editor to save/reopen prepared content.
+
+**Requirements:** FR-10; stable-ID/draft immutability portion FR-11; editor FR-5,
+FR-2/12/16/17; NFR-1–5. UX-DR5/7/10/12/13; AD-2/3/5/9/10.
+Afrikaans initial content remains exact; no clinical meaning for rating values 2–4.
+
+**Acceptance Criteria:**
+
+**AC-1 — Current authorized draft preparation**
+
+**Given** current fixed-Khula admission and explicit questionnaire.manage,
+**When** the administrator explicitly starts or opens the questionnaire working draft,
+**Then** the API checks current authority and returns a draft with stable identity/revision,
+**And** starting from the current published definition copies editable content without
+mutating its immutable version or historical capture references,
+**And** capturers, membership-only accounts and other organizations cannot access it.
+No Auth/Access grants, People facts or raw cross-owner table writes are introduced.
+
+**AC-2 — Limited question editor**
+
+**Given** an open working draft,
+**When** questions are added, reordered, retired or edited,
+**Then** support only rating integers 1–5 with endpoint labels, Ja/Nee with optional
+Ja details, and plain text; wording and required/optional status are editable,
+**And** wording/reorder/required-status changes retain stable question IDs,
+**And** new questions or incompatible type replacement get new IDs; retired questions
+leave future draft content without disappearing from old published definitions,
+**And** no arbitrary branching, formulas, analytics, rich HTML or scale interpretation
+is added. Retiring/replacing is explicit and clearly affects future publication only.
+
+**AC-3 — Whole-form Save/Cancel and reopen**
+
+**Given** local in-memory editor changes,
+**When** Save or Cancel is selected,
+**Then** Save validates and writes the complete draft atomically with current authority,
+expected revision, actor/time, operation identity and required compact change evidence,
+**And** report Draft saved only after server confirmation and reopen the saved definition,
+**And** Cancel discards current unsaved changes without changing the saved draft or live version.
+No selected-field autosave, offline draft queue, forced setup dependency or automatic
+publication. Closing/reloading before Save can lose current typing.
+
+**AC-4 — Safe concurrent editing and uncertain outcomes**
+
+**Given** two administrators or two tabs editing the same draft revision,
+**When** one saves and the other attempts a stale Save,
+**Then** reject the stale write, keep attempted changes in memory while the form stays
+open and offer review against the current draft without silent overwrite or auto-rebase,
+**And** a reviewed replacement uses a new operation ID and the actually reviewed revision,
+**And** normal operation receipts recover a lost Save response without a second effect.
+No server conflict-proposal store or resolution autosave; session/account loss prevents
+unauthorized rendering/retry. A new concurrent change requires review again.
+
+**AC-5 — Validation and isolation without changing the live questionnaire**
+
+**Given** a manipulated or invalid definition or unavailable server,
+**When** start/read/Save is attempted,
+**Then** reject unknown types/configuration, duplicate/invalid IDs and unsupported values
+with safe field errors while preserving visible input as appropriate,
+**And** enforce owned-organization structural references and actor attribution on every path,
+**And** denial/outage is distinct from a saved or published outcome,
+**And** published capture entry and old-version history continue using unchanged definitions.
+Concrete limits remain contract-readiness proposals (50 questions, 500-character labels,
+5000-character text/details, 128 KiB command), checked together in API/editor fixtures.
+
+**AC-6 — Accessible administrator editor and evidence**
+
+**Given** phone/computer touch, keyboard, zoom or assistive technology,
+**When** the administrator edits/reorders questions and saves/cancels,
+**Then** labeled fields, explicit move-up/down controls, focus and required/error feedback
+are usable without drag-only interactions,
+**And** automated API/component/browser tests prove role/org denial, stable-ID rules,
+Save/Cancel, concurrent save/replay and immutable-live-version protection,
+**And** actual responsive/assistive checks are recorded separately from emulation.
+
+**Contracts:** App-owned draft start/read/update endpoints with exact questionnaire ID,
+operation identity and expected revision. Current questionnaire.manage is checked on
+every request; reject caller audit/org selectors. For the small MVP editor, propose one
+editable working draft per questionnaire: explicit start creates/resumes atomically
+without resetting existing values (opt-in ADR-0034), and distinguish an old retry from
+an explicit new start (ADR-0033). No automatic start on entering another surface.
+Concrete draft lifecycle/start/outcome/validation DTO and uniqueness/error fixtures gate
+Build. Preserve current published version separately; create only draft persistence
+needed here. No generic survey builder or second definition engine.
+
+**Dependencies:** Approved E1–E3; questionnaire.manage registry/consumer schema, owned
+write/revision/attribution helpers and concrete draft validation/outcome contracts.
+No 4.2 Publish, E5 assignments or shared employment prerequisite. Existing version
+fixtures prove immutability without a live publication producer.
+
+**ATDD:** KDG-A13.editor-role/Save-Cancel/reorder-retire-types,
+A12.editor-stable-IDs/published-unchanged, A09.editor-save-replay,
+A11.editor-concurrent-save, A14.editor-org/account, A15.editor-session,
+A21.editor-attribution and A19.editor-accessible-reorder.
+First observe missing A13.editor-Save-Cancel after Build approval, then focused
+validation/lifecycle/conditional-write tests and affected API/runtime/browser suites.
+No dependencies, code, migration or device action is executed during planning.
+
+**Impacts:** Scaffold: prove explicit configuration/revision/start/replay fixtures with
+existing owners; no general draft runtime or generator. Shared UI: promote proven
+whole-form editor/reorder/error composition; question semantics stay KDG/Survey-owned.
+Agent/docs: configuration draft vs observation Save-only, stable IDs vs order/wording,
+saved draft vs published live version. Contracts: schema/lifecycle/errors/generated
+TS adapters together. ADR: inherit current auth/attribution, ADR-0033/0034 opt-in and
+ADR-0051 configuration Save/Cancel; accepted shared ADRs unchanged. Concrete working-
+draft lifecycle/limits must be closed before Build, with no universal draft mandate.
+
+**Review checkpoint:** Scope/criteria approved when the user said Happy, next,
+including explicit working-copy Save/Publish and large Ja/Nee choices in capture.
+Saving prepares a questionnaire; it never changes the published version used for capture.
+
+### Story 4.2: Publish a questionnaire without changing older observations
+
+As a questionnaire administrator,
+I want to publish my saved working copy as the next questionnaire,
+So that new captures use my changes while old and offline observations remain accurate.
+
+**Scope:** Explicit online Publish, immutable definition/current-published-pointer update,
+working-draft closure and actual producer/consumer version-compatibility proof. Reuse
+4.1 editor and E1–E3 capture/history/sync. No observation migration, administrator
+autosave, generic survey engine or automatic creation of another working draft.
+
+**Requirements:** FR-10/11; version-compatible FR-5/8/9/13/14/18 and scope FR-2/16/17;
+NFR-1–5; UX-DR5/7/10–14; AD-2–10. Capture remains Afrikaans; the editor may label
+the boolean type Yes/No, while initial capture controls remain large Ja/Nee choices.
+
+**Acceptance Criteria:**
+
+**AC-1 — Explicit publication of a saved working copy**
+
+**Given** current questionnaire.manage and a saved valid working draft,
+**When** the administrator reviews that saved content and explicitly selects Publish,
+**Then** the backend rechecks authority, draft revision/editability and current published
+state, validates the complete supported definition and publishes that exact saved content,
+**And** unsaved editor typing is not silently included; save it first before publication,
+**And** ordinary Save or opening the editor never publishes. Required labels/type
+configuration must be valid; no invented clinical descriptions for rating values 2–4.
+
+**AC-2 — Atomic immutable publication and guarded lifecycle**
+
+**Given** a matching open working-draft revision and publish operation identity,
+**When** publication commits,
+**Then** immutable definition/identity/hash, current-published pointer, draft closure,
+trusted actor/UTC attribution, required evidence and compact receipt commit together,
+**And** the same operation replay returns the same version without a duplicate publication,
+**And** concurrent publication/stale save cannot mutate the published version or resurrect
+the closed draft; any new working copy requires an explicit new Start action.
+Old retry IDs remain bound to their original draft/action. No external waits under locks.
+
+**AC-3 — Offline devices may continue using an older version**
+
+**Given** a phone provisioned with V1 while the administrator publishes V2 online,
+**When** the phone captures offline and later synchronizes,
+**Then** its V1 captures are accepted under current authority using exact V1 validation,
+**And** preserve their original version/questions/answers without migration to V2,
+**And** publication alone never rejects pending old-version creates/edits. Missing or
+foreign-organization versions are rejected safely, not replaced by the latest version.
+
+**AC-4 — New entries adopt downloaded content, open forms stay pinned**
+
+**Given** an in-memory entry or saved pending observation using V1,
+**When** V2 downloads successfully into the same authorized account/Khula setup,
+**Then** commit the definition and applicable latest-version selection atomically,
+**And** next new capture uses V2 while the open entry/pending observations remain V1,
+**And** interrupted or failed download leaves the previous usable selection intact.
+No version picker or silent remapping in capture. Definitions referenced by saved,
+pending/conflicting captures remain retained through cache cleanup and updates.
+
+**AC-5 — Historical editing keeps original semantics**
+
+**Given** V2 wording/order/required status changes, retired questions or new question IDs,
+**When** a V1 observation is viewed or edited by its owner or online administrator,
+**Then** render and validate exact V1 wording/order/required rules/scale/details behavior,
+**And** preserve stable ID semantics and existing owner/child/version attribution,
+**And** ordinary revision-conflict rules still apply; publishing is not authority to
+rewrite an old observation or bypass read/edit permissions.
+
+**AC-6 — Publication and actual installed-device compatibility evidence**
+
+**Given** isolated synthetic V1/V2 questionnaire and facilitator/admin fixtures,
+**When** API/browser/concurrency/upgrade and installed Android/iPhone checks execute,
+**Then** prove immutable publish/replay, stale save after publish, role/org denial,
+V1 capture while offline, V2 download/new-entry selection, pinned open entry and V1 edit,
+**And** verify large Afrikaans Ja/Nee controls, required/optional/new text and conditional
+Ja details follow each definition with accessible labels/focus/validation,
+**And** document exact automated commands/results and physical builds/devices separately.
+Use the actual 4.1/4.2 publishing producer for this evidence, not merely typed fixtures.
+No device or runtime work is executed in planning.
+
+**Contracts:** Publish takes questionnaire/draft identity, operation ID/command version,
+expected draft revision and reviewed current publication state; it never accepts client
+publication actors/audit fields. Server allocation of version identity and immutable
+content/current pointer update is structural and atomic. Draft save checks revision and
+open lifecycle together; late retries cannot reopen a published working copy. Read
+latest definition via existing setup/download paths, with old-version retrieval retained.
+Concrete lifecycle/publish/outcome/definition compatibility DTOs and constraint/error
+fixtures gate Build; generated frontend types and original validation evolve together.
+
+**Dependencies:** Approved E1–E3 and 4.1; current manage capability/owned write/outcome
+helpers, concrete publish lifecycle and supported definition/queue schemas. No E5 child
+management or whole Leave completion. Review first-consumer shared patterns with their
+existing retained owners under the acknowledged handoff; selected shared refinements
+are linked in shared-prerequisites.md and do not authorize implementation.
+
+**ATDD:** KDG-A13.publish-role/immutable/lifecycle,
+A12.actual-publish-offline-V1/open-pinned/new-V2/historical-edit,
+A09.publish-replay/lost-response, A11.publish-concurrency,
+A14.publish-org/account, A15.publish-session, A17.version-retention-upgrade,
+A21.publish-attribution and A19.published-controls-accessible.
+First observe missing A13.publish-immutable after Build approval; focused lifecycle/
+validation/transaction tests then affected API/runtime/browser/version suites. Extend
+installed-device protocol with actual publication while the phone is disconnected.
+
+**Impacts:** Scaffold: proven immutable snapshot/publication/lifecycle/operation fixtures
+through existing owners; no generic form runtime. Shared UI: explicit Save/Publish and
+accessible question controls only when proven reusable. Agent/docs: current published
+selection vs pinned capture definition, start after publication vs stale retry, no
+silent migrations. Contracts: publish/lifecycle/error/generated types and supported
+local/queue definitions together. ADR: inherit immutability/attribution/current auth,
+short transactions, late-save protection and queued-work/release compatibility; no
+accepted platform ADR changed. Record exact version/device evidence in delivery.
+
+**Review checkpoint:** Scope/criteria approved by the user with C.
+A new publication changes future downloaded capture forms, not historical observations.
+
+## Epic 5: Keep daily capture reliable as children and facilitators change
+
+Complete online children/assignments and remaining pilot reliability without duplicate
+Identity/Access/People infrastructure or unnecessary offline administrator features.
+
+### Story 5.1: Manage children online without losing their observations
+
+As a questionnaire administrator,
+I want to add children, correct their display names and mark them active or inactive,
+So that capture choices stay relevant while earlier observations remain intact.
+
+**Scope:** Small responsive online child list and explicit create/edit Save/Cancel,
+including active/inactive status. Reuse child ownership/UUIDs/bootstrap facts from E1.
+No child deletion, full profile, clinical/employment records or facilitator assignment
+editor; assignment management follows in 5.2. No offline administration queue.
+
+**Requirements:** Child-management FR-12; child eligibility FR-2/4 and historical
+FR-8/13/16; NFR-1–5. UX-DR2/7/10–13; AD-2/3/4/7/9/10.
+Sinehgomso remains the initial child, not a person account or respondent identity.
+
+**Acceptance Criteria:**
+
+**AC-1 — Current child-management permission and fixed organization**
+
+**Given** current Khula membership/app admission and explicit child.manage,
+**When** the administrator opens the child list or creates/updates a child,
+**Then** the backend checks exact action authority and returns/writes only Khula children,
+**And** capturer-only and membership/platform-role-only accounts cannot manage children,
+**And** organization/actor selectors cannot change scope or attribution.
+Child existence grants neither facilitator access nor questionnaire administration.
+
+**AC-2 — Minimal explicit form and stable identity**
+
+**Given** a new child or an existing permitted child,
+**When** the administrator enters a display name/status and selects Save or Cancel,
+**Then** Save validates and atomically commits the complete change with stable child ID,
+server actor/time, required compact evidence and operation receipt,
+**And** existing child identity/org never changes when correcting the name,
+**And** Cancel performs no mutation; no autosave, full child profile or offline setup.
+Do not silently merge children by display name; identical names are not identity proof.
+An idempotent create retry cannot create a second child.
+
+**AC-3 — Ordinary deactivation preserves pending and historical observations**
+
+**Given** a child with assignments and existing observations,
+**When** the administrator explicitly saves inactive status,
+**Then** preserve child identity, captures, original questionnaire references and attribution,
+**And** exclude the child from refreshed new-capture choices,
+**And** accept pending offline observations based on previously provisioned eligible-child
+setup if current membership, app/capture permission and applicable assignment still pass;
+ordinary inactive status alone does not reject or discard that work,
+**And** current authorized own/all historical reads/edits remain valid without requiring
+new-create eligibility. No cascade deletion or disguised record retirement.
+Offline phones cannot learn deactivation until online refresh/sync checks current state.
+
+**AC-4 — Reactivation and capture choices**
+
+**Given** an inactive child restored to active by an authorized explicit Save,
+**When** current eligible children are refreshed,
+**Then** the administrator may create their own captures for it under create.all,
+**And** capturers see it only with valid create.assigned and current active assignment,
+**And** one eligible child is displayed automatically; additional eligible children
+use selection, without an organization switcher or invented access grants.
+Reactivation alone does not reactivate a retired assignment or revoked platform grant.
+
+**AC-5 — Concurrent change and failure recovery**
+
+**Given** expected child revision, immutable operation identity and current child.manage,
+**When** another editor changed the child or the response is interrupted,
+**Then** stale Save is rejected without silent overwrite, with attempted input retained
+in memory for review while the form remains open,
+**And** lost outcomes use the original authorized operation receipt/retry without duplicate
+changes/evidence; reviewed changed content uses a new action identity,
+**And** outage/denial/session loss is distinct from saved/empty and another account cannot
+receive late responses. No server conflict-input store or restart-recovery promise.
+
+**AC-6 — Accessible management and actual permission-change proof**
+
+**Given** synthetic active/inactive children and own-capture/admin fixtures,
+**When** contract/browser/concurrency and applicable installed-phone scenarios run,
+**Then** prove add/name edit/inactivate/reactivate, role/org negatives, replay and stale save,
+**And** verify refreshed choices, pending observations synchronize after ordinary
+deactivation without a manual deletion task, and historical
+own/admin editing after inactivation under unchanged permissions,
+**And** responsive labeled Save/Cancel/status controls and focus/touch/keyboard work.
+Record automated and physical evidence separately; no tests are executed in planning.
+
+**Contracts:** App-owned online list/create/update under child.manage, using stable UUID,
+operation identity/command version, expected revision for updates, display name and
+active status only. Protect immutable org/ID and trusted attribution. Reuse existing
+child schema/read eligibility, operation recovery and backend structural/revision rules.
+Exact name bounds, status-change evidence/DTO/error fixtures gate Build; neither name
+uniqueness nor generic People/person adoption is introduced. Remote Access checks stay
+outside short writes; child state is protected with capture-create coordination.
+Concrete offline-create eligibility evidence must distinguish previously provisioned
+active-child setup from a fresh inactive-child request. Verify stored/issued scope and
+child identity; a client pending flag or phone date alone proves neither eligibility nor
+when Save occurred. Do not claim the server knows an offline Save predates deactivation.
+Define the compatible command/provision reference before Build; this is domain evidence,
+never cached authority replacing current server access. Ordinary inactivation is not a
+privacy processing restriction; explicit restriction/deletion/retention has its own policy.
+
+**Dependencies:** Approved E1–E4, child.manage registry/schema and owned write/error/
+operation helpers. No 5.2 assignment editor or People service prerequisite. Existing
+synthetic assignment setup supports boundary proof without normal onboarding first.
+
+**ATDD:** KDG-A13.child-manage-role/Save-Cancel,
+A02.child-admin-create-all, A16.child-inactive-pending-accepted/historical-edit/reactivate,
+A09.child-replay/lost-response, A11.child-concurrent-save,
+A14.child-org/account, A21.child-attribution and A19.child-admin-accessible.
+First observe missing A13.child-manage-Save-Cancel after Build approval; focused
+state/validation/transaction tests then affected API/runtime-role/browser suites.
+Actual phone protocol extends deactivation while a device has pending new work.
+
+**Impacts:** Scaffold: prove bounded configuration/conditional-write/receipt and scoped
+reference patterns through existing owners; no generator duplication. Shared UI:
+promote proven simple list/Save-Cancel/active status composition only; child semantics
+stay KDG-owned. Agent/docs: inactive child vs historical access, UUID vs display name,
+current server check vs unaware offline phone. Contracts: child management/error/type
+fixtures with capture eligibility together. ADR: inherit scoped access, structural
+integrity/attribution, release and explicit configuration saving; A-6 history policy
+is already approved. No accepted shared ADR changed or new child-master service.
+
+**Review checkpoint:** Revised deactivation policy/scope approved when the user said
+Yes, next. Privacy restriction/deletion is separate from ordinary availability.
+This manages availability, not accounts, employment or application grants.
+
+Deactivation amendment approved 2026-10-14: earlier E1 rejection references to inactive
+children apply to fresh ineligible requests, not previously provisioned queued offline
+observations denied solely by ordinary deactivation. Story 5.1/current A-6 supersedes
+that case; current membership/grant/assignment checks remain binding. Privacy
+restriction/deletion is separate and not silently inferred from inactive status.
+
+### Story 5.2: Assign children to verified facilitators online
+
+As a questionnaire administrator,
+I want to assign and unassign children for verified Khula facilitators,
+So that each capturer sees the children they are authorized to observe.
+
+**Scope:** Responsive online facilitator/child assignment list and explicit Save/Cancel.
+Facilitator means an existing account with current Khula membership and capture access,
+not an employee/person record. Identity onboarding and Access role approval remain with
+their shared owners. No new invitation/password/grant editor or offline administration.
+
+**Requirements:** FR-12; assignment FR-2/3/4/8/13/16/17; NFR-1–5.
+UX-DR2/7/10–13; AD-2/3/4/7/8/9/10. No supervisor role or People dependency.
+
+**Acceptance Criteria:**
+
+**AC-1 — Authorized management and verified targets**
+
+**Given** current Khula admission and explicit assignment.manage,
+**When** the administrator opens facilitator choices or saves an assignment,
+**Then** verify current target account/membership/capture eligibility through existing
+Identity/Access-owned authorized HTTP evidence, not direct tables or email/name matching,
+**And** only permitted minimal account display facts are returned,
+**And** capturer-only, membership/platform-role-only and foreign-org requests are denied.
+An operator/user bearer cannot impersonate a target by changing the account selector.
+Unavailable verification is not evidence of target eligibility or confirmed ineligibility.
+
+**AC-2 — Explicit assignment Save/Cancel and idempotency**
+
+**Given** verified target and a permitted active child,
+**When** the administrator explicitly saves assigned/unassigned status,
+**Then** atomically update the scoped child/account assignment with stable identity,
+expected revision, actor/time, required compact evidence and operation receipt,
+**And** enforce same-org child and unique effective child/account relationship without
+silently merging/resetting older values on replay,
+**And** Cancel changes no assignment; name/email is never the assignment key.
+Assigning does not create membership, employment or app grants; unassigning does not
+revoke shared account access. Published questionnaires/captures remain unchanged.
+
+**AC-3 — Choices and historical access**
+
+**Given** an assignment is added or removed,
+**When** a capturer refreshes eligible children or attempts new-capture sync,
+**Then** choices/new creates use current applicable assignment and capability checks,
+**And** unassignment stops new assigned captures but retains own historical read/edit
+while the user still has those KDG permissions,
+**And** one eligible child is automatic and additional children use selection,
+**And** administrator create.all remains independent of child assignments.
+Offline devices cannot learn assignment changes immediately; later server denial retains
+already saved phone work truthfully. Unassignment is not ordinary child deactivation.
+
+**AC-4 — Membership retirement/rejoin does not resurrect assignment authority**
+
+**Given** a facilitator's membership is retired and later a new membership is established,
+**When** old child assignments are evaluated,
+**Then** user-approved MVP policy requires administrator confirmation/renewal for the new
+membership instance before those assignments permit new assigned captures,
+**And** grants must independently be current; an assignment cannot revive revoked access,
+**And** account-linked original captures remain readable/editable only under current
+own-record authority, without duplicating the account or changing original ownership.
+Concrete membership lifecycle identifiers/evidence and renewal UX gate Build. This
+policy is approved with this story; simple grant expiry/reauthorization within
+the same continuing membership does not itself require assignment renewal.
+
+**AC-5 — Concurrent edits, failures and shared onboarding boundary**
+
+**Given** stale assignment revision, lost response, target verification outage or session change,
+**When** Save/retry occurs,
+**Then** reject stale writes and keep attempted changes in memory for explicit review,
+**And** recover original operation outcomes without duplicate assignment/evidence,
+**And** recheck current manager/target authority for restarted execution and prevent
+late cross-account responses; no server conflict draft or offline queue.
+If a target has not onboarded or lacks capture access, link the shared owner workflow
+when available or explain the prerequisite. No fake Auth account, automatic grant,
+arbitrary provider sync or completed-onboarding claim is created by this portal.
+
+**AC-6 — Accessible assignments and current-access proof**
+
+**Given** synthetic eligible/ineligible targets, children and membership generations,
+**When** contract/browser/runtime-role and applicable installed-phone checks run,
+**Then** prove assign/unassign, current target verification, rejoin renewal, same-org
+constraints, replay/concurrent-save safety and administrator create-all independence,
+**And** prove refresh/new-create denial versus historical own edit, account isolation
+and preserved pending observations; unavailable evidence is distinct from an empty list,
+**And** responsive labelled selectors/status/Save/Cancel are usable with touch/keyboard/zoom.
+Record automated and physical results separately; none execute during planning.
+
+**Contracts:** App-owned assignment list/create/update uses child/account/membership
+instance references, operation identity, expected revision and explicit active state.
+Trusted target eligibility comes from the existing shared owners' bounded authorized
+contract, which remains unimplemented/unfinalized for KDG; declare caller policy,
+verified target binding, exact allowed fields and outage behavior before Build. The
+ordinary user `/v2/check` target cannot be changed to another account. No substitute
+public endpoint/direct table queries/new Access service are specified here.
+
+Remote verification occurs outside business locks; bounded evidence supports only the
+executing assignment write. Recheck restarted execution and protected local child/
+assignment structural state. A membership generation change invalidates old assignment
+new-create eligibility until explicit renewal; use authoritative lifecycle evidence,
+not guessed dates/profile renames. Preserve attribution/history and current grants.
+Concrete lifecycle/target/list/write/outcome/error DTOs and freshness fixtures gate Build.
+
+**Dependencies:** Approved E1–E4/5.1; Identity/Access target-discovery/eligibility and
+membership-lifecycle contracts plus normal invitation/role administration where needed.
+These require owner/handoff closure, not all Leave planning. Existing synthetic owner
+setup supports tests. No People/shared employment, later reliability story or universal
+member directory dependency.
+
+**ATDD:** KDG-A13.assignment-manage-role/Save-Cancel,
+A03.assignment-target-verification, A16.assignment-added/removed/rejoin-renewal,
+A02.assignment-no-grant/admin-create-all, A09.assignment-replay/lost-response,
+A11.assignment-concurrent-save, A14.assignment-org/account,
+A21.assignment-attribution and A19.assignment-admin-accessible.
+First observe missing A13.assignment-Save-Cancel after Build approval; focused
+reference/lifecycle/freshness/transaction tests then affected API/contract/browser suites.
+Installed-phone proof changes assignments while the facilitator remains offline.
+
+**Impacts:** Scaffold: prove scoped account references/target-evidence and conditional
+configuration writes with existing owners; no new runtime Access/directory. Shared UI:
+verified-target selector, current status and whole-form controls only if reusable.
+Agent/docs: account vs membership vs grant vs assignment, no employment, membership
+renewal vs grant recovery and unavailable vs ineligible evidence. Contracts: target/
+lifecycle/write/error/generated types together. ADR: inherit Identity/Access ownership,
+invitation/prepared-grant safeguards, current auth and configuration saving; approved
+membership-instance renewal policy applies, no accepted ADR mutation.
+
+**Review checkpoint:** Scope/criteria and membership-rejoin renewal policy approved
+by the user with C. Assignment alone never grants application access.
+
+### Story 5.3: Protect saved observations through storage failures and app updates
+
+As a capturer using an installed phone PWA,
+I want saved observations and pending changes protected when storage or updates fail,
+So that I can continue with clear guidance instead of losing acknowledged work.
+
+**Scope:** Complete and prove E1/E2 storage/schema/update mechanisms against old/new
+payloads, quota/transaction failures and interrupted migrations. Reuse preceding
+implementation; no unfinished-form store, offline administrator content, universal
+sync framework or guaranteed recovery from browser/user deletion. Final pilot device/
+privacy/retention operating decisions follow separately, not a dependency for these tests.
+
+**Requirements:** FR-18 and reliability FR-7/8/13–17; NFR-1–5.
+UX-DR4/7/8/9/11–14; AD-4/6/7/8/9/10. App-managed saved state, not guaranteed backup.
+
+**Acceptance Criteria:**
+
+**AC-1 — Save failures and bounded useful recovery**
+
+**Given** full storage or an aborted/uncertain IndexedDB Save transaction,
+**When** Save cannot be confirmed,
+**Then** no saved/synced claim appears until the original atomic result is known,
+**And** keep visible in-memory input, reclaim only proven disposable acknowledged cache
+where possible and attempt at most one bounded recovery retry,
+**And** persistent failure gives plain guidance to free phone storage and try Save again
+while keeping this form open; no intentional crash, database reset or misleading restart.
+Never delete pending actions, saved conflict branches, locally authored observations or
+required definitions to make room. Closing/restarting may lose unsaved typing.
+
+**AC-2 — Safe local schema migration**
+
+**Given** a prior supported local schema with saved creates/edits/unknown operations/conflicts,
+**When** the app upgrades local schema or that upgrade is interrupted/fails,
+**Then** preserve original account/org IDs, immutable action payloads, predecessor links,
+required definitions, scoped authority observations and acknowledged captures,
+**And** migration succeeds atomically or leaves recoverable prior data without destructive
+reset; incompatible read/write code does not proceed on an unsupported schema,
+**And** retry resumes only through verified safe migration behavior, with truthful guidance.
+Use bounded versioned migration fixtures; schema metadata is not a recovery guarantee.
+
+**AC-3 — App update activation without forced reload**
+
+**Given** a new service-worker shell while an entry/edit or Save/request is active,
+**When** an update becomes available,
+**Then** default to update first, then synchronize; pending edits/conflicts are not
+a prerequisite to update and no preliminary sync stage is required,
+**And** defer reload while an unsaved form awaits Save/Cancel or an executing local Save/
+network request must settle safely under bounded handling, preserving uncertain action
+identity for later recovery rather than blocking updates indefinitely,
+**And** preserve saved queue/conflict state across activation and reopening,
+**And** old/new tabs cannot corrupt local data or run incompatible command interpretations.
+No autosave is introduced to make update activation convenient. No private API response
+or other-author administrator content enters shell caches.
+
+**AC-4 — Queue/version compatibility and interrupted delivery**
+
+**Given** supported older frozen operations and original questionnaire versions,
+**When** app/API updates and foreground synchronization resumes,
+**Then** old creates/edits/outcomes retain supported interpretation and stable identity,
+**And** lost responses/expired claims recover without duplicate effects or older acknowledgements
+replacing newer saved work; conflicts pause dependent edits for explicit review,
+**And** unsupported payloads stay protected with Needs attention instead of deletion
+or silent conversion. Do not remove old handlers solely because the ready queue is empty.
+Current server authority is rechecked; compatibility never bypasses revocation.
+
+**AC-5 — Browser limits and privacy-aware cache behavior**
+
+**Given** permission to request persistent storage/quota estimates or unsupported browser mode,
+**When** setup, cache maintenance or storage diagnostics occur,
+**Then** persistent-storage support is best effort and never described as backup,
+**And** only safe disposable re-downloadable cache is reclaimed; preserve protected work,
+**And** explain that uninstall/clear-site-data/OS eviction can remove phone data and private
+browsing is unsuitable for durable use. No promise to recover bytes already deleted.
+Expose safe operation/support references, not sensitive answer/log payloads. Use the
+own-only account/Khula partition and declared locked-data retention behavior.
+
+**AC-6 — Failure/update evidence on actual supported phones**
+
+**Given** synthetic supported schema/build pairs and pending/conflicting observations,
+**When** controlled quota/transaction/migration/queue/browser tests and installed phone
+upgrade/reopen/sync checks execute,
+**Then** prove no false Save, safe cache reclaim, failed migration protection, deferred
+shell activation and old payload/original-definition preservation,
+**And** record automated fault-injection results separately from physical Android/iPhone
+normal update/reopen behavior and any unsupported OS/browser combinations,
+**And** scope failure stops completion claims; existing release migration/activation
+failure/recovery rules remain binding. No actual device or runtime execution in planning.
+
+**Contracts:** Minimal platform-owned local persistence/migration/claim/update fixtures
+and app-owned schema/queue compatibility declarations. Coordinate local database version,
+service-worker/API build and supported payload versions before delivery; do not rely on
+frontend generation config as proof. Handle versionchange/blocked upgrades and tabs with
+bounded safe coordination, not silent forced close or in-place frozen-payload mutation.
+Server migration activation follows ADR-0020 and queued work ADR-0028. Concrete fixtures,
+versions, time bounds and exact supported upgrade pairs gate Build. Require behavioral
+compatibility, not a mandatory adapter architecture: unchanged schema/commands need
+no adapter; add a small migration/version handler only when a concrete change needs it.
+
+**Dependencies:** Approved E1–E4/5.1/5.2 and their delivered consumer baselines; existing
+platform scaffold/UI/release owners and required test utilities. No later pilot-policy
+story needed to run synthetic reliability fixtures. Pending shared pattern ownership
+handoff must close before modifying shared files; domain-neutral promotion accompanies
+first-consumer proof, not a second generator/runtime offline service.
+
+**ATDD:** KDG-A08.quota-transaction-recovery, A17.failed/interrupted-local-migration/
+deferred-update/pending-upgrade, A09.upgrade-lost-response, A10.upgrade-claims-order,
+A12.upgrade-original-definition, A14.upgrade-partition, A15.upgrade-session,
+A18.disposable-cache-only, A21.storage-log-safety and A22.release-payload-compatibility.
+First observe missing A17.interrupted-local-migration after Build approval; focused
+migration/claim/update tests then affected browser/contract/release suites. Expand existing
+installed proof with actual nonproduction update while observations are pending.
+
+**Impacts:** Scaffold: promote proven bounded local transaction/schema migration, claim/
+queue compatibility and update fixtures to existing platform owners. Shared UI: safe
+storage/update/status feedback with no recovery wizard. Agent/docs: phone Save vs server
+backup, supported upgrade pair, protected work vs disposable cache and no forced reload.
+Contracts: local schema/payload compatibility and generated app/update metadata together.
+ADR: inherit release/queued-work/privacy/isolation and Save-only behavior; accepted ADRs
+unchanged. Record exact first-consumer tests and physical limits in owning documentation.
+
+**Review checkpoint:** Revised update-first/no-mandatory-adapter scope approved when
+the user said happy, next.
+No new unfinished-form recovery or universal offline/history framework is introduced.
+
+### Story 5.4: Verify the complete workflow and prepare a controlled Khula pilot
+
+As the Khula application owner,
+I want verified device behavior and clear operating boundaries before real observations,
+So that facilitators can use KDG Capture simply and sensitive child data is handled deliberately.
+
+**Scope:** Integrated acceptance/device/release evidence, focused user guidance and
+closure of outstanding pilot operating decisions. Exercise earlier delivered slices;
+this story does not supply safety deliberately omitted from them or authorize deployment.
+No analytics/export/notification, user-facing recovery wizard or generic compliance engine.
+
+**Requirements:** Completion evidence for FR-1–18; operating FR-16/17/18 and NFR-1–5.
+UX-DR1–14 to their approved scope. Production/real-data execution requires separately
+authorized environment/release and Khula policy readiness; planning executes none.
+
+**Acceptance Criteria:**
+
+**AC-1 — Minimal policy decisions recorded before real child data**
+
+**Given** the planned isolated synthetic validation and proposed real-data pilot,
+**When** pilot readiness is assessed,
+**Then** name Khula's responsible business/privacy owner and record approved lawful
+child-data processing purpose/basis, business/audit retention, device suitability and
+local acknowledged/pending/conflict/locked-data retention/disposal policy,
+**And** distinguish the 30-day own download window from retention and seven-day offline
+access from authorization to keep data indefinitely,
+**And** distinguish ordinary child deactivation from explicit privacy processing restriction/
+deletion requests. No automatic deletion merely because a child is inactive or sync fails.
+Unresolved real-data policies block pilot activation, not synthetic feature development.
+No numerical legal retention period or shared-phone security guarantee is invented.
+
+**AC-2 — Session expiry, revocation and retained pending work**
+
+**Given** saved pending observations and valid/expired exact own-scope observations,
+**When** token expiry, seven-day expiry, logout/account switch or known revocation occurs,
+**Then** prove allowed local use only within the exact applicable window, current checks
+on server sync, and same-account reauthentication without automatic consequential action,
+**And** logout/expiry locks rather than silently deletes saved pending data, with no
+other account/admin uploading it; learned denial stops affected actions,
+**And** define the owner-approved path for genuinely unauthorized retained phone work,
+including bounded retention/disposal, without requiring the facilitator to diagnose
+technical errors or promising a server copy. Outage is not proof of revocation.
+The path must use permitted same-user recovery or authorized disposal, not a new public
+export/impersonation/central conflict-intake feature.
+
+**AC-3 — Actual installed-device complete workflow**
+
+**Given** the isolated HTTPS synthetic setup with delivered capture/editor/admin features,
+**When** final Android Chrome and iPhone Safari installed-PWA protocols execute,
+**Then** verify sign-in/fixed Khula, capture/close-reopen/edit/sync, multiple same-day
+observations, optional details, original-version history, assignments/deactivation,
+admin/facilitator concurrency, new questionnaire while offline and update-first behavior,
+**And** verify portal all-record work is online and PWA local content remains own-only,
+**And** record exact device/OS/browser/build/test IDs and supported/unsupported results.
+Physical tests do not claim to simulate all quota/clock/migration/OS-eviction cases;
+controlled automated faults provide their separate named evidence.
+
+**AC-4 — Requirement and release evidence complete**
+
+**Given** earlier stories' ATDD and focused-test evidence,
+**When** integrated readiness/release checks run,
+**Then** map each requirement/story to actual failing-then-passing acceptance evidence,
+affected regression/contract results and required physical outcomes,
+**And** verify controlled migrations, previous-version compatibility, activation-block
+on failure, recovery and queued-payload support using existing release owners,
+**And** unresolved critical failures block pilot completion; planned/skipped/manual checks
+are never reported as automated PASS. Root stale build/dev is not repository verification.
+Operational backups/recovery and supported sign-in/callback/HTTPS targets need evidence,
+not merely accepted designs or generated configuration assertions.
+
+**AC-5 — Simple localized guidance and safe diagnostics**
+
+**Given** the approved Afrikaans content and actual recovery behavior,
+**When** facilitators install, capture, Save, sync or encounter ordinary failure,
+**Then** short guidance explains Saved on this phone vs Synced, offline access expiry,
+reconnection/Sync now, update handling and storage limits without technical internals,
+**And** pending-work logout and privacy/disposal guidance matches approved policies,
+**And** safe support references contain no child answers, credentials or payload dumps.
+Khula reviews operational translations; rating values 2–4 may remain numeric without
+invented clinical descriptions. Capturer history stays My observations, not audit/version UI.
+
+**AC-6 — Ownership and handoff evidence**
+
+**Given** KDG's shared prerequisites and first-consumer platform patterns,
+**When** delivery/pilot readiness is signed off,
+**Then** record coordinator and existing Identity/Access/scaffold/UI/environment/release
+owners, agreed Leave handoff, delivered dependency checks and proven shared tests,
+**And** document scaffold/shared-UI/agent/docs/contracts/ADR impacts in their consuming items,
+**And** keep KDG rules application-owned and platform helpers domain-neutral.
+Readiness does not require all Leave planning, a People service, separate PWA deployment
+or complete general-purpose offline framework. Pilot activation remains a separately
+reviewable release action; this story's evidence is not implicit production approval.
+
+**Dependencies:** Approved E1–E4 and 5.1–5.3 delivered/tested to their own acceptance
+boundaries; actual supported phone test access, current shared owners and controlled
+synthetic environment. Real-data operating policies named in AC-1 are pilot gates.
+No downstream story required; exact initial failure/test commands depend on delivered
+packages and are recorded during approved Build, not invented in this plan.
+
+**ATDD:** KDG-A01–A22 allocated across preceding stories; emphasize A15.session/
+logout/expiry, A16.current-changes/pending-denial, A17.update/storage, A14.partition,
+A21.safe-diagnostics and A22.release-recovery. First observe the missing integrated
+A15.pending-session-recovery acceptance boundary after Build approval; focused fixes
+then the affected suites, without weakening established expectations. Complete the
+installed-device extensions and retention-policy fixtures under their named owners.
+
+**Impacts:** Scaffold/shared UI: promote only actually proven first-consumer neutral
+fixtures/patterns with existing owners. Agent/docs: exact support/operating/device limits,
+policy owner, tested commands and release evidence. Contracts: verify synchronized
+schema/types/errors/payload compatibility, not duplicate specs. ADR: inherit platform
+release/privacy/attribution/session/Access decisions; accepted ADRs unchanged. Any
+new material operating design is recorded in owning documentation before real-data use.
+No deployment, access change, migration or physical execution occurs in initial planning.
+
+**Review checkpoint:** Scope/criteria approved by the user with C.
+Policy closure and actual execution evidence remain pending until authorized delivery.
+
+Rating scope amendment — user-directed 2026-10-14: the initial scale is now 1–5,
+with 1 = Goed and 5 = Nie goed nie; intermediate 2–4 remain numeric unless Khula
+supplies descriptions. Five direct radio choices remain the recommended presentation;
+no rating is selected initially. This updates seed/form/editor/test wording above and
+supersedes historical 0–5 planning references. No runtime questionnaire exists to migrate.
+
+Engineering recovery refinement — 2026-10-14: operation lookup uses required
+command_type query discrimination together with authenticated org/caller/operation ID;
+current stored-resource permission remains enforced. Current contracts.md specifies
+compact receipt and typed command bounds; U+0000 is rejected rather than silently
+removed. Prior-child eligibility metadata is created with 1.4 provisioning and carried
+by 1.5/1.6; no new user-visible capture step or offline administrator scope.

@@ -5,12 +5,12 @@ purpose: build-substrate
 altitude: feature
 paradigm: Layered application silo with offline local command queue
 scope: KDG PWA, administration, API, persistence and shared integrations
-status: draft
+status: final
 created: 2026-10-12
-updated: 2026-10-13
+updated: 2026-10-14
 binds: [capture-web, admin-web, kdg-api, kdg-persistence, offline-sync]
 sources: [prd.md, discovery.md, EXPERIENCE.md, ../../../platform/docs/architecture/decisions/README.md]
-companions: [contracts.md, testing.md]
+companions: [contracts.md, testing.md, shared-prerequisites.md]
 ---
 
 # Architecture Spine — KDG Capture
@@ -66,6 +66,11 @@ flowchart LR
   data paths use restricted runtime DB roles, transaction-local verified context and RLS.
   Admin grant may authorize all Khula captures, never other organizations or platform
   role administration. Missing shared current checks block the slice.
+  The selected shared addendum fixes the closed own_account/organization resource
+  variants and exact registry/caller policy. Assignment/eligibility bind Identity's
+  membership ID; rejoin allocates a new ID and requires explicit renewal. Capture
+  ownership remains account-based; renewed current own-read/edit may access that
+  account's old records without reviving old create eligibility.
 
 ### AD-3 — Immutable versioned questionnaire JSON [ADOPTED]
 
@@ -97,7 +102,11 @@ flowchart LR
   local edit behind unresolved predecessors, and freeze its expected server revision only
   when predecessor outcome is known. Atomically commit capture, server revision, immutable
   domain history and compact operation receipt. Matching authorized replay returns original
-  receipt; changed-content reuse conflicts. Current access is required for outcome lookup.
+  receipt; changed-content reuse conflicts. Canonical submitted meaning follows the
+  app-owned JCS v1 envelope in contracts.md; KDG uses the selected HMAC-SHA-256 v1
+  disposition with stored key ID, retained verification and fail-closed loss/restore.
+  Missing verification keys never authorize fresh execution. Exact secret/library
+  evidence precedes affected delivery. Current access is required for outcome lookup.
   Cross-tab drainer claims and acknowledgements compare durable claim/local sequence;
   expired claims recover original outcomes, and late acknowledgements cannot replace edits.
 
@@ -106,7 +115,8 @@ flowchart LR
 - **Binds:** All capture/admin writes and conflict UI.
 - **Prevents:** Automatic last-write-wins or old offline edits erasing administrator changes.
 - **Rule:** Conditional server revision update is atomic. Conflict commits no capture change;
-  retain base/local/current server snapshots within authorized partition. A user explicitly
+  retain base/local/current snapshots for saved offline own edits in the authorized
+  partition; online administrator attempted answers/base remain in memory only. A user explicitly
   selects server state or reviewed replacement; replacement gets a new operation ID and
   expected current revision. Preserve the conflicted local proposal, mark its command
   superseded/resolved only after durable resolution; further conflict repeats review.
@@ -120,7 +130,8 @@ flowchart LR
 - **Rule:** Last successful online authorization provisions account/org/capabilities/
   assignment observations and local expiry after seven days. Only an exact successful
   capability/assignment refresh renews its corresponding validity; unrelated successful
-  requests cannot extend cached administrator/assignment authority. Expired login does not
+  requests cannot extend cached own-create/read/edit or assignment authority. No
+  offline all-read/all-edit authority is issued. Expired login does not
   invalidate that local window alone. Explicit logout, learned denial or window expiry
   locks the partition; offline local use cannot discover revocation. Every new server
   request checks current authority; queued user work cannot become service-authorized
@@ -143,9 +154,11 @@ flowchart LR
 - **Prevents:** App update deleting pending capture or making queued old work unreadable.
 - **Rule:** Version definition schema, command schema, local DB and API independently.
   Upgrade local stores transactionally with tested interruption/old-to-new fixtures;
-  close stale connections/tabs, never reset a failed migration. Preserve pending records,
-  conflicts and referenced versions. Prompt shell activation only after input commit and
-  sync idle; support old executing/queued payloads across ordinary releases. Unsupported
+  coordinate stale connections/tabs with bounded safe handling, never reset a failed migration. Preserve pending records,
+  conflicts and referenced versions. Default to update first then sync; prompt safe
+  activation after open-form Save/Cancel and bounded active write/request settlement,
+  not successful queue drainage. Add adapters only when changed formats require them;
+  support old executing/queued payloads across ordinary releases. Unsupported
   future versions are retained with actionable block, not erased.
 
 ### AD-10 — Safe operating envelope and proven shared promotion [ADOPTED]
@@ -161,6 +174,12 @@ flowchart LR
   update/test patterns through existing generator/UI owners with the consuming story.
   Safe diagnostics exclude questionnaire answers; domain revision history is protected
   business data, not diagnostic payload dumps.
+  The sole owner acknowledged all shared boundaries; existing owner items retain
+  contracts/clients/generator/tests/runbooks, KDG integrates first-consumer proof.
+  Operator executor derives from protected authenticated database-login mapping;
+  normal runtime credentials cannot provision or select target users. Private target
+  verification uses the shared addendum's bounded runtime/setup policies, not user
+  impersonation or shared-table reads. Recipe/client extension rules belong to P1/SERVICE.
 
 ## Consistency Conventions
 
@@ -176,15 +195,15 @@ flowchart LR
 
 ## Stack and Structural Seed
 
-Existing package evidence: PtS declares React ^19.1.1, Vite ^7.1.2, TypeScript ^5.9.2,
-Supabase JS ^2.76.1, Playwright ^1.55.1. These are ranges in existing source, not
-verified KDG pins. Technology review found the PtS lockfile resolves React 19.3.0,
-Vite 7.3.6, TypeScript 5.9.3, Supabase JS 2.117.1 and Playwright 1.63.0; their
-combined supported Node floor is 22.12. These are reuse evidence, not selected KDG
-dependencies. Do not copy Expense React 18/React 19 typings into this React 19
-consumer. Backend inherits FastAPI/Pydantic, SQLAlchemy/Psycopg and Alembic
-direction. Native IndexedDB and service workers provide storage/shell; Vite PWA is
-an optional unselected build adapter. No KDG lockfile/dependencies are created now.
+The user selected newest stable versions, with exact planning pins in the
+[scaffold dependency baseline](../../../platform/docs/architecture/contracts/scaffold-dependency-baseline-2026-10-14.md):
+TypeScript7.0.2, React/DOM19.3.0, Vite8.3.4/plugin-react6.1.2, Node26.11.1 Current,
+Python3.15.0 and uv0.13.1. Runtime/peer metadata and cp315 wheel availability are verified,
+not clean-install/runtime tests. Root frontend workspace lock and independent Python
+owner locks remain authority during Build. PtS/shared regression follows selection;
+no existing manifests change here. TS7 compiler CLI stays distinct from any explicitly
+needed legacy API tooling adapter. Native IndexedDB/service workers remain selected;
+no PWA build adapter, People/Content/worker dependency or package installation added.
 
 Proposed owned persistence: questionnaire/version, child, facilitator_assignment,
 capture/capture_revision, operation_outcome. Same-org local references enforce structural
@@ -207,12 +226,25 @@ operator trust binding and compatible old/new deployment rehearsal precede activ
 
 ## Deferred and Open Decisions
 
-No general offline workflow engine, reusable Survey runtime, analytics, attachment or
-worker foundation is needed. Exact package pins, generator recipe schema and shared
-KDG capability union remain pre-story contracts, with existing owners. Business retention/device suitability remain open pilot policies. Administrator
-create-all, own history after unassignment, phone-local today, 30-day download and
-saving classification was revised to explicit Save without unfinished recovery; child deactivation retains historical editing under user-approved A-6. Normal invitation/provider trust is required
-before additional facilitator onboarding; automatic enrollment is outside MVP.
+ENV/P1/SERVICE direct pins/command/recipe/extension boundaries now follow the
+[owning contract](../../../platform/docs/architecture/contracts/scaffold-environment-and-generation.md).
+Identity/Access physical projection/constraint/role/operator models follow the
+[owning execution substrate](../../../platform/docs/architecture/contracts/identity-access-execution-substrate.md).
+Final WRITE outcome/evidence/role/recovery/secret selections follow the
+[owning execution contract](../../../platform/docs/architecture/contracts/owned-write-and-secret-execution.md).
+No load-bearing planning decision remains open for the ordered synthetic delivery.
+Actual target/source adoption, owner locks/images/credentials, role/query/race/restore,
+provider/device and old/new upgrade qualification remain delivery/release evidence.
+Business processing/retention and device suitability remain pre-pilot policies. Normal
+invitation/provider trust precedes additional facilitator onboarding; automatic
+enrollment is outside MVP. No general offline runtime, Survey service, analytics,
+attachment or worker foundation is needed.
+
+Approved application policies: fixed Khula, 1–5 numbered choices, Nee defaults,
+explicit Save without unfinished recovery, own-only offline PWA/online organization
+admin, seven-day scoped local access, 30-day own download, historical editing after
+unassignment/deactivation, ordinary-inactivity pending sync, membership-rejoin renewal
+and update-first without mandatory adapters. These are decisions, not runtime evidence.
 
 Observation scope update, 2026-10-13: proposed [KDG ADR-0001](architecture/decisions/0001-explicit-observation-save.md)
 records the user-directed no-draft saving rationale. Questionnaire configuration drafts
@@ -240,3 +272,20 @@ in memory; no server conflict-input persistence, draft API/table or close/reload
 Successful mutation/audit/receipt remains atomic. Saved offline own-edit proposals retain
 E2 durability. Common conditional-write/error/operation-recovery helpers stay platform
 patterns, without a universal conflict-draft framework.
+
+Ordinary deactivation amendment: previously provisioned offline child observations may
+sync under current authority/assignment; inactive status alone is not rejection. Define
+verified prior-eligibility evidence in app create/provision contracts before Build; a
+phone date/pending flag cannot prove pre-deactivation Save. Current server access
+remains binding. Privacy restriction/retention is separate from active-child selection.
+
+Update-first default is approved: preserve pending state, activate safely, sync afterward.
+Compatibility is a required behavior, not a mandated adapter design. Unchanged formats
+need no adapter; changed formats use bounded tested migration/version handling as needed.
+
+Engineering closure, 2026-10-14: contracts.md fixes app command field sets/typed values,
+compact successful receipts/no-op/unknown outcomes, validation bounds, scoped history
+pagination, prior-child eligibility reference ownership and update/version behavior.
+Successor baseline selects shared membership/target/admission/operator and thin recipe
+representation plus fingerprint sensitivity/lifecycle for review. Actual environment/generator/adoption execution remains delivery proof, not inferred runtime APIs. Five numbered
+1–5 rating choices are user-approved; no new UI workflow is added by these refinements.
