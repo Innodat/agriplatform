@@ -6,6 +6,17 @@ resolve later changes from their owners rather than treating this snapshot as su
 
 ## Resume point
 
+**Shared ownership checkpoint — 2026-10-14:** The sole owner explicitly acknowledged
+the [KDG shared-platform handoff](../../kdg-capture/docs/shared-platform-handoff.md)
+as all component owners. Identity ID-A/ID-B, Access ACCESS-A/B and ENV/P1/SERVICE/WRITE/
+UI/release retain their shared contracts/clients/generator/tests/runbooks. KDG integrates
+its first-consumer offline proof and promotions; no work transfers or Leave scope
+changes. The [shared readiness addendum](../../../platform/docs/architecture/contracts/kdg-shared-readiness.md)
+records selected KDG account-own organization/target/operator contracts, with app-specific
+HMAC assessment in the security contract. Leave own-person/People/draft and first slice
+remain binding. Review/new exact execution inputs and runtime delivery remain gates;
+no readiness PASS, code or E3 approval is implied. Continue the current E3 checkpoint.
+
 **Later checkpoint — 2026-10-12:** The user has now approved the nine E3 delivery
 groups with two clarifications: group 2 covers policy applicability/assignment/settings,
 while group 7 owns recurring override mutations; every policy/entitlement mutation
@@ -72,6 +83,113 @@ event API, ledger editor, posted accrual or implementation/readiness permission.
 agreed, including the explained pending-request reservation/consumption distinction.
 Continue at Story 3.11 discussion. Ten E3 scopes agreed; actual expiry/rollover and
 request-producer integrations, exact contracts/test coverage/sizing/readiness remain open.
+
+**Story checkpoint — 2026-10-13:** Story 3.11 upfront annual entitlement calculation
+is agreed. Eleven E3 discussion scopes agreed. Resolve the user's new proposed default
+(upfront annual availability plus calendar-day proration) before continuing Story 3.12.
+Existing monthly proration default/current policies remain unchanged pending that decision;
+all technical/test/sizing/readiness gates remain open.
+
+**Default resolved — 2026-10-13:** User approved upfront annual availability plus
+calendar-day joining/leaving proration as editable defaults for new automatic policies
+under Leave ADR-0127. Preserve existing/explicit settings; daily/monthly alternatives
+and monthly adjustment default remain. Continue Story 3.12 discussion. Eleven E3
+scopes agreed; no implementation or passed readiness gate.
+
+**Story checkpoint — 2026-10-13:** Story 3.12 complete monthly entitlement instalments
+is agreed. Continue at Story 3.13 partial-employment/rate-change discussion. Twelve E3
+scopes agreed; upfront-plus-calendar-day-proration default stays accepted under ADR-0127.
+All technical/test/sizing/readiness gates remain open; no code/tests executed.
+
+**Story checkpoint — 2026-10-13:** Story 3.13 monthly partial employment/rate changes
+is agreed, with scheduled instalment amounts distinguished from remaining balance.
+Continue at Story 3.14 discussion. Thirteen E3 scopes agreed; ADR-0127 default retained,
+all contract/test/sizing/readiness gates remain open and no code/tests executed.
+
+**Story checkpoint — 2026-10-13:** Story 3.14 carry-over is agreed with clarified
+provenance/earliest-expiry consumption and predictable reservation funding. New accepted
+Leave ADR-0128 records administrator-owned visible consequences, human coordination
+through existing permissions/workflows, approved-request discretionary pre-change
+resolution and necessary factual correction/deficit review. No permission-transfer or
+referral engine. Continue at Story 3.15 expiry discussion; fourteen E3 scopes agreed.
+Same-expiry tie-break remains open; all contract/test/sizing/readiness gates remain open.
+
+**Story checkpoint — 2026-10-13:** Story 3.15 entitlement expiry calculation is agreed.
+Continue at Story 3.16 discussion. Fifteen E3 scopes agreed; accepted month-end/leap/
+inclusive-expiry and ordering rules remain authority. Same-expiry tie-break and all
+technical/test/sizing/readiness gates remain open; no code/tests executed.
+
+**Story checkpoint — 2026-10-14:** Story 3.16 automatic availability-method transitions
+is agreed. Continue at Story 3.17 discussion. Sixteen E3 scopes agreed; leave-period-basis
+and manual-only/untracked transitions remain separate decisions. All technical/test/
+sizing/readiness gates remain open; no code/tests or implementation authorization.
+
+**Story checkpoint — 2026-10-14:** Story 3.17 authoritative current balance is agreed,
+including explicit-grant manual-only zero and authorized corrections with immutable
+original evidence. Continue at Story 3.18 discussion. Seventeen E3 scopes agreed;
+same-expiry tie-break and all technical/test/sizing/readiness gates remain open.
+
+**Story checkpoint — 2026-10-14:** Story 3.18 date-by-date funding projection is agreed.
+New accepted ADR-0129 closes equal-expiry business ordering: oldest original source
+period first, stable portion identity last. Exact identity/reconstruction contracts stay
+open. Continue at Story 3.19 discussion. Eighteen E3 scopes agreed; all technical/test/
+sizing/readiness gates remain open; no code/tests executed.
+
+**Story checkpoint — 2026-10-14:** Story 3.19 Apply request preview is agreed.
+Continue at Story 3.20 discussion. Nineteen E3 scopes agreed; E5 still owns binding
+unpaid acknowledgement/submission/reservations, with all technical/test/sizing/readiness
+gates open. No code/tests executed.
+
+**Story checkpoint — 2026-10-14:** Story 3.20 Apply restrictions/required-input guidance
+is agreed, including clarified advance booking. Continue at Story 3.21 exceptional
+funding proposal discussion. Twenty E3 scopes agreed; remaining notification, assignment/
+adjustment/override mutations, balance/setup views and used-policy lifecycle still need
+decomposition. No final remaining count or source/test/sizing/readiness PASS established.
+
+**Story checkpoint — 2026-10-14:** Story 3.21 exceptional funding proposal calculation
+is agreed. Continue group 5 notification foundations at Story 3.22. Twenty-one E3 scopes
+agreed; E5 owns actual exception decisions/acknowledgement, with all technical/test/sizing/
+readiness gates open. No implementation/tests/notifications performed.
+
+**Story checkpoint — 2026-10-14:** Story 3.22 durable shared notification acceptance
+is agreed, including explicit rejection of changed retry content with the original intact
+and actionable failure diagnostics/alerts. Safe means protected data/truthful outcomes,
+not hidden defects. Continue at Story 3.23 Leave outbox discussion. Twenty-two E3 scopes
+agreed; all contract/test/sizing/readiness gates open, no code/tests/notifications performed.
+
+**Story checkpoint — 2026-10-14:** Story 3.26 scoped inbox/count/read-state APIs is
+agreed with ADR-0131's approved closed-selector other-org unread dot and single-org
+hidden selector. Continue at Story 3.27 panel/selector UI. Twenty-six E3 scopes agreed;
+all technical/test/sizing/readiness gates open, no code/tests/notifications performed.
+
+**Story checkpoint — 2026-10-14:** Story 3.23 atomic Leave notification intent is
+agreed, with shared receiver HTTP API plus internal transactional outbox helper/scaffold
+pattern. No independent arbitrary Leave notification-writing endpoint. Continue at Story
+3.24 worker handover. Twenty-three E3 scopes agreed; all technical/test/sizing/readiness
+gates open, no code/tests/notifications performed.
+
+**Story checkpoint — 2026-10-14:** Story 3.27 notification panel/selector UI is agreed.
+Continue deferred policy assignment confirmation at Story 3.28 after planned calculation/
+notification foundations. Twenty-seven E3 scopes agreed; all technical/test/sizing/
+readiness gates remain open, no code/tests/notifications performed.
+
+**Story checkpoint — 2026-10-14:** Story 3.24 Leave-owned recoverable handover worker
+is agreed, using reusable patterns plus restricted owner/per-item scope. Shared channel
+workers remain separate owners; accepted Temporal deferral retained. Expiry stops new
+attempts without recalling remote acceptance. Continue at Story 3.25 channel delivery.
+Twenty-four E3 scopes agreed; all contract/test/sizing/readiness gates remain open.
+
+**Rendering checkpoint — 2026-10-14:** Narrower Story 3.25 rendering approved under
+Leave ADR-0130: standard shared English templates with clear dates/org identification;
+custom branding/editable templates/Portuguese delivery deferred, localization readiness
+retained. Clarify technical-operations delivery-failure responsibility next; full Story
+3.25 approval and all technical/test/sizing/readiness gates remain open.
+
+**Story checkpoint — 2026-10-14:** Full Story 3.25 email/in-app delivery now agreed,
+with ADR-0130 English/shared-template scope and production-support ownership of technical
+delivery failures/recovery. Business administrators retain separate domain-impact duties,
+not a technical queue. Continue at Story 3.26 inbox/read-state APIs. Twenty-five E3 scopes
+agreed; all contract/test/sizing/readiness gates open, no code/tests/notifications performed.
 
 Continue the already invoked bmad-create-epics-and-stories collaboratively, in its current
 story-generation step. Eight epic groupings/delivery sequence were approved, including

@@ -332,6 +332,10 @@ Each versioned leave type/policy supports:
   New leave types initially permit all three; managers may restrict them. Arbitrary
   day fractions are not supported; use Half day or Hours for partial-day requests.
 - Annual entitlement available daily, upfront, or in monthly instalments; manual-only grants remain separate
+  For new automatic-entitlement policies, default to **Available at the start of the
+  leave year** and **Adjust for time employed**, using calendar-day proration. Both
+  selections remain editable before publication; existing policies/explicit choices
+  are preserved. See [ADR-0127](./architecture/decisions/0127-upfront-entitlement-with-calendar-day-proration-default.md).
 - Entitlement, proration, carry-over, cap, and expiry, with fixed whole-minute precision
 - Minimum/maximum duration and notice period
 - Backdated and future-request rules
@@ -409,6 +413,21 @@ ledger history or introduce a separate correction command. Notify the employee b
 minimal email and in-app notification linking to authorized details: amount, date,
 resulting balance, actor, and reason. Require renewed acknowledgement only where
 an existing request's unpaid amount increases, following the existing safeguards.
+
+Request-impact accountability — agreed 2026-10-13 under
+[ADR-0128](./architecture/decisions/0128-accountable-request-impacts-of-administrative-changes.md):
+the change authorizer reviews affected requests and exact consequences before confirming
+and remains responsible for arranging resolution. Pending impacts stay visible in
+existing manager attention and authorized request details with actor/reason. Human
+coordination and existing approval/adjustment/correction actions suffice for MVP; no
+temporary funding-permission transfer or referral workflow. Remedies require current
+scoped authority; increased unpaid amounts require exact employee acknowledgement
+before final approval, alongside all other gates. Discretionary administrative changes
+affecting already approved requests resolve impacts before commit while retaining original
+approval evidence. Necessary factual corrections may retain explicit unresolved deficit
+review/attention. Do not silently turn approved paid leave into unpaid leave or require
+an employee to negotiate an unexplained loss of funding. Predictable expiry/rollover is
+already included in original projections; ordinary passage of time is not a new shortfall.
 
 Supported transactions include:
 
@@ -1461,8 +1480,13 @@ eligible minutes remain in the selected balance, a 180-minute request has a
 60-minute shortfall even when another leave type has available entitlement; the
 system must not silently take that other balance without the agreed override.
 
-Tie-breaking between portions with the same expiry remains an implementation
-detail to make deterministic before the allocation story passes readiness.
+Equal-expiry ordering — agreed 2026-10-14 under
+[ADR-0129](./architecture/decisions/0129-oldest-source-period-for-equal-expiry-allocation.md):
+use the oldest original source leave period first, followed by a stable deterministic
+portion-identity tie-break. Apply this within equal expiry priority, including eligible
+non-expiring portions; carry-over preserves the original source period. Earliest expiry
+still takes priority over source age. Bind exact identity/reconstruction mechanics before
+the allocation story passes readiness.
 See [ADR-0020](./architecture/decisions/0020-earliest-expiry-entitlement-allocation.md).
 
 An entitlement's expiry date is its last usable leave date. It may fund leave
@@ -2137,6 +2161,15 @@ See [ADR-0017](./architecture/decisions/0017-leave-manager-medical-document-meta
 
 MVP channels are email and in-app notifications.
 
+Selector awareness — agreed 2026-10-14 under
+[ADR-0131](./architecture/decisions/0131-other-organization-unread-indicator.md):
+bell/panel details and unread count belong only to the selected organization. The selector
+menu shows permitted per-organization unread counts, and its closed control has a discreet
+accessible dot when another accessible organization has unread messages. With one accessible
+organization, hide the selector/dot and retain the visible organization name and bell.
+Counts reveal no previews and do not dismiss required approvals/responses. Switching retains
+existing draft protection; access loss removes related count exposure.
+
 Events include:
 
 - Submission received
@@ -2149,7 +2182,11 @@ Events include:
 - Reminder and escalation
 - Attachment rejected or action required
 
-Delivery is asynchronous, retryable, deduplicated, tenant-branded, and observable.
+Delivery is asynchronous, retryable, deduplicated, organization-identifiable, and observable.
+For MVP use standard shared English templates with clear dates and relevant organization
+identification. Defer custom logos/colors/editable templates and Portuguese delivery;
+retain translatable content, existing preferences and English fallback under
+[ADR-0130](./architecture/decisions/0130-standard-english-notification-templates-for-mvp.md).
 Messages reveal only the minimum necessary information for the leave type's privacy
 classification.
 

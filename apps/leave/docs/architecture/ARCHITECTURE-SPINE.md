@@ -317,3 +317,36 @@ changes. Leave owns assignment/history; People supplies shared facts over HTTP. 
 request checks enforce applicable assignment and existing domain/access rules. Bind
 version/date/conflict and consequential effect/notification contracts before affected
 writers; retain draft preservation and historical snapshots. No implementation permission.
+
+New-policy default — accepted 2026-10-13:
+[L-0127](./decisions/0127-upfront-entitlement-with-calendar-day-proration-default.md)
+preselects upfront annual availability plus calendar-day joining/leaving proration for
+new automatic policies. Retain editable alternatives, existing policy/explicit selections,
+monthly adjustment defaults and daily eligible-day calculation without double proration.
+No default annual amount/period basis or change to historical grant/departure safeguards;
+no implementation/readiness permission.
+
+Administrative request-impact refinement — accepted 2026-10-13:
+[L-0128](./decisions/0128-accountable-request-impacts-of-administrative-changes.md)
+places review and consequences with the change authorizer. Pending impacts stay visible
+in existing manager attention/request views and resolve through human coordination and
+existing current-scoped actions, not permission transfer or a referral engine. Final
+approval retains exact unpaid acknowledgement and all independent gates. Discretionary
+administrative impacts on approved requests are resolved before commit; necessary factual
+corrections retain explicit deficit review. Original decision evidence remains immutable.
+Bind actual writer/consumer effects and owner boundaries before activation; fixtures alone
+do not prove request-impact delivery. No implementation/readiness permission.
+
+Allocation tie refinement — accepted 2026-10-14:
+[L-0129](./decisions/0129-oldest-source-period-for-equal-expiry-allocation.md) orders
+equal-expiry portions by oldest original source period, then stable portion identity,
+including the non-expiring priority group. Earliest expiry remains primary; original
+source survives carry-over. Bind exact identity/reconstruction and producer compatibility
+before readiness; no invalid funding, reservation displacement or cross-type borrowing.
+
+Notification rendering scope — accepted 2026-10-14:
+[L-0130](./decisions/0130-standard-english-notification-templates-for-mvp.md) uses standard
+shared English templates with clear dates/relevant organization identification. Custom
+logos/colors/editable templates and Portuguese delivery are deferred; content remains
+translatable and existing preferences/English fallback/privacy remain binding. No new
+editor, delivery ownership change or implementation/readiness permission.

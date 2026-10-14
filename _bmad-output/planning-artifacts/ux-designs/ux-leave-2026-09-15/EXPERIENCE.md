@@ -190,6 +190,14 @@ duration. See the authoritative ADR-0074 in the Leave decision collection.
 
 ### Request balance explanation
 
+Allocation clarification — agreed 2026-10-14 under
+[ADR-0129](../../../../apps/leave/docs/architecture/decisions/0129-oldest-source-period-for-equal-expiry-allocation.md):
+backend funding uses eligible earliest-expiring portions first; equal-expiry portions
+use their oldest original source period and stable final tie-break, with non-expiring
+portions last. Calculation disclosures can explain carried/current source amounts;
+no employee allocation-order selector. Existing reservations stay protected and
+expiry validity is checked against each requested date.
+
 Show a compact summary inside the form: Requested, Available for these dates,
 and Remaining after this request. For example, 2 hours requested against 16
 available leaves 14 hours. Keep detailed accrual, carry-over, and reservation
@@ -825,6 +833,15 @@ Daily earning includes today's eligible portion from the start of the employee's
 local work date, calculated on demand under
 [ADR-0091](../../../../apps/leave/docs/architecture/decisions/0091-start-of-day-daily-entitlement.md).
 
+New automatic-policy defaults — agreed 2026-10-13 under
+[ADR-0127](../../../../apps/leave/docs/architecture/decisions/0127-upfront-entitlement-with-calendar-day-proration-default.md):
+preselect Available at the start of the leave year and Adjust for time employed using
+calendar days. Keep both editable and preserve explicit choices/current policies.
+Daily earning and monthly instalments remain alternatives; monthly adjustment keeps
+its accepted default, while daily earning hides the separate proration choice. This
+selects no annual amount or leave-year basis and adds no warning panel or automatic
+publication. Starter examples retain their review and explicit example choices.
+
 Daily earned entitlement is calculated cumulatively; usable entitlement is floored
 to whole minutes while fractional precision contributes to later calculations.
 Never round daily portions independently or derive accrual from yesterday's rounded
@@ -1137,6 +1154,15 @@ the migration runbook linked from the Leave application README; do not add clien
 these source-mapping tasks.
 
 ### Notification inbox
+
+Organization-awareness refinement — agreed 2026-10-14 under
+[ADR-0131](../../../../apps/leave/docs/architecture/decisions/0131-other-organization-unread-indicator.md):
+show only selected-organization details/count in the bell/panel. Selector entries show
+permitted unread counts; add a discreet accessible dot on the closed selector when another
+accessible organization has unread messages. Hide selector/dot with one accessible
+organization and keep its name/bell visible. Count failures are not zero unread; stale
+responses/access loss cannot reveal another organization's data. Retain draft-safe switching
+and separate required-action indicators; reading does not complete a business response.
 
 Inherit the approved [shared notification-panel layout](../../../../platform/EXPERIENCE.md#notification-panel):
 compact desktop panel and full-width mobile sheet, with event title, permitted
@@ -1510,6 +1536,28 @@ task inbox is deferred until another application needs it; notifications stay
 separate from unresolved business actions.
 
 ## Key Flows
+
+Notification rendering scope — agreed 2026-10-14:
+[Leave ADR-0130](../../../../apps/leave/docs/architecture/decisions/0130-standard-english-notification-templates-for-mvp.md)
+uses standard shared English templates, clear dates and relevant organization identification.
+Defer custom logos/colors/editable templates and Portuguese notification delivery;
+preserve translatable content, existing preferences and English fallback. Minimal content
+and authorized destination checks remain. No branding editor or new business-admin
+delivery-failure review screen.
+
+Request-impact accountability refinement — agreed 2026-10-13:
+[Leave ADR-0128](../../../../apps/leave/docs/architecture/decisions/0128-accountable-request-impacts-of-administrative-changes.md)
+requires the change authorizer to review affected requests and exact consequences before
+confirmation. Existing manager attention/request views retain visible unresolved impacts,
+actor/reason and permitted resolution links. Approvers coordinate with authorized managers
+through ordinary human interaction; existing actions/current capabilities control remedies.
+No funding-permission transfer, extra referral/task workflow or implied approver authority.
+Increased unpaid amounts still require exact employee acknowledgement before finalization.
+Discretionary administrative changes affecting approved requests resolve impacts before
+commit; necessary factual corrections retain explicit correction/deficit attention.
+Original approvals remain intact, with no silent paid-to-unpaid change. Use existing
+review, approval, adjustment and correction surfaces; sensitive details stay in authorized
+views, not notification payloads or diagnostics. Exact integration remains delivery work.
 
 Policy assignment refinement — agreed 2026-10-12:
 [Leave ADR-0126](../../../../apps/leave/docs/architecture/decisions/0126-explicit-policy-assignment-with-employee-filters.md)

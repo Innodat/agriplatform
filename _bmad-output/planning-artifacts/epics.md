@@ -7496,7 +7496,7 @@ User's next instruction continues sequential planning into the already approved 
 
 ## E3 — Configure entitlement and understand available leave
 
-**Delivery sequence approved — 2026-10-12; Stories 3.1–3.10 scopes agreed, further stories pending.**
+**Delivery sequence approved — 2026-10-14; Stories 3.1–3.27 scopes agreed, further stories pending.**
 Approved epic outcome: managers configure organization policies/employee entitlements;
 employees see explainable current/reserved/projected balances and request previews. Uses
 E2 employment/work-calendar/profile/current access. Owns first required shared business
@@ -8393,3 +8393,1468 @@ cap/accrual engine. Shared UI: later balance disclosures consume reproducible ex
 no extra administrative cap tool. Agent context: existing instructions suffice.
 Documentation: calculation/cap/replay contracts, test mapping and epics/tracker/handoff
 checkpoint. ADR: accepted decisions suffice; no amendment. No implementation permission.
+
+### Story 3.11: Calculate upfront annual entitlement
+
+**Scope approved by the user, 2026-10-13; not implementation-ready.** Owner: Leave
+backend calculation. Consumes explicit assignment/version/period/standard-day contracts,
+ordered actual event inputs and cap conventions from completed foundations. Synthetic
+owner-controlled inputs verify the component without future mutation/editor dependencies.
+
+As an employee with an upfront-entitlement policy,
+I want my allowance available at the correct leave-period boundary,
+So that joining, leaving and policy changes produce an explainable entitlement.
+
+**Acceptance Criteria:**
+
+**Given** an applicable upfront policy,
+**When** the employee's leave period starts,
+**Then** its allowance is available from that date, subject to applicable rules,
+**And** calendar-year policies use 1 January while anniversary policies use the employee's
+configured anniversary boundary.
+
+**Given** employment begins partway through a calendar-year period,
+**When** entitlement is calculated,
+**Then** the joining allowance is available from the employment start date,
+**And** its amount follows the policy's proration choice.
+
+**Given** calendar-day proration,
+**When** the allowance is calculated,
+**Then** it uses calendar days employed within the period, counting start and end dates
+inclusively, divided by the period's total calendar days,
+**And** the final amount is rounded down once to whole minutes. A no-proration policy
+retains the full otherwise eligible allowance.
+
+**Given** a later employment end date changes the applicable prorated amount,
+**When** consequences are calculated,
+**Then** the result explains the difference from the earlier allowance,
+**And** it does not silently edit history or turn approved leave into unpaid leave.
+Actual correction and deficit handling retain their owning workflows.
+
+**Given** an ordinary prospective annual-allowance change,
+**When** entitlement is calculated,
+**Then** the current period's allowance remains unchanged and the new amount starts
+at the employee's next leave-period boundary,
+**And** an immediate additional allocation requires a separate authorized adjustment.
+
+**Given** an accumulated-balance cap,
+**When** upfront entitlement becomes available,
+**Then** only the amount fitting below the cap is included and excluded entitlement
+remains explainable,
+**And** later consumption does not automatically restore the excluded portion.
+
+**Given** unchanged authoritative inputs,
+**When** calculations are repeated,
+**Then** they produce the same entitlement without duplicate grants, periodic posting
+jobs or snapshots on ordinary reads.
+
+**Traceability / planned verification:** Features §6; CALC-07–09/16/26; Leave
+ADR-0025/0042/0043/0044/0048/0102/0103/0106 and accumulated-cap rules. Verify leap/
+anniversary boundaries, inclusive joining/leaving, actual period denominators, proration
+versus full allowance, standalone final floor, unchanged current-period amount after
+prospective change, cap exclusion/no catch-up and unchanged repeat reads. Date/version/
+employment source and scope integration accompanies deterministic calculation tests.
+No runtime tests executed; exact source/test paths/commands and final sizing pending.
+
+**Pre-story inputs / sizing:** Bind period and joining/leaving boundaries, allowance
+conversion, assignment/version selection and precise cap integration. Do not treat
+upfront entitlement as monthly instalments or rewrite actual events/original decision
+evidence after a changed employment date. Real employment-change/policy-change/correction
+writers prove fresh review, immutable history, actual request effects, acknowledgement
+and required outbound intent in their consuming delivery. No notification exemption
+or future-story dependency for this independently calculated component. Available-balance
+assembly still needs actual expiry/rollover/allocation consumers. All readiness gates open.
+
+**Impacts:** Scaffold: reuse generic owned-input/version/error clients; no shared
+entitlement engine or grant-posting job. Shared UI: existing policy help/disclosures
+suffice for later consumers. Agent context: existing instructions suffice. Documentation:
+period/proration/cap contracts, test mapping and epics/tracker/handoff checkpoint.
+ADR: accepted decisions suffice for this story; the new default question is separate.
+No implementation or readiness permission.
+
+Default configuration discussion — 2026-10-13: user asks whether upfront annual
+availability plus calendar-day proration should be the default. Story 3.11 is approved;
+the requested recommendation/default scope still needs resolution. Existing monthly
+partial-employment default under ADR-0104 is retained; no current policy settings or
+starter amounts changed by this checkpoint.
+
+### Upfront-plus-proration default — accepted 2026-10-13
+
+User approved upfront annual availability with calendar-day joining/leaving proration
+as the editable initial configuration for new automatic-entitlement policies.
+[ADR-0127](../../apps/leave/docs/architecture/decisions/0127-upfront-entitlement-with-calendar-day-proration-default.md)
+and features §4 are authority; the preceding daily-versus-upfront discussion is resolved
+in favor of upfront availability, not daily earning. Preserve existing policies/explicit
+choices. Daily and monthly modes/full-period allowance remain alternatives; monthly
+adjustment default remains and daily mode adds no separate proration. Manual-only is
+not converted. Annual amount/period basis/cap/carry-over remain separate choices.
+
+Trace this initial-selection behavior into Stories 3.3/3.4 and retain Story 3.11's
+calculation formulas/safeguards. Acceptance: new automatic form preselection, editable
+alternative persisting through review/publication, existing-policy preservation,
+explicit example-setting preservation, monthly default, daily no-double-proration and
+separate manual-only behavior. Exact source/test mapping and commands remain pending.
+Upfront departure deficits keep existing review/history/request/notification protections.
+
+Impacts: authoritative requirements/spine/UX/tracker/handoff and new additive Leave ADR
+updated; immutable accepted predecessors unchanged. Leave owns defaults; generic scaffold
+gets no annual-policy defaults. Existing shared UI and agent instructions suffice.
+No code, runtime policy data, migration, deployment or readiness gate changed.
+Story 3.11 remains agreed; continue with Story 3.12 discussion.
+
+### Story 3.12: Calculate monthly entitlement instalments
+
+**Scope approved by the user, 2026-10-13; not implementation-ready.** Owner: Leave
+backend calculation. Consumes existing period/assignment/version/standard-day inputs,
+ordered events and precise cap conventions. Covers complete instalments with unchanged
+annual allowance; partial employment and rate-change integration retain the next bounded
+story. The component completes without those future cases or a production available-
+balance claim for unsupported inputs. Controlled owner fixtures verify existing inputs.
+
+As an employee with a monthly-entitlement policy,
+I want instalments calculated for my leave year and available on the configured dates,
+So that my entitlement is accurate across calendar and anniversary periods.
+
+**Acceptance Criteria:**
+
+**Given** a monthly policy,
+**When** instalment periods are calculated,
+**Then** twelve contiguous periods cover the employee's leave year without gaps or overlaps,
+**And** calendar-year policies use calendar months while anniversary policies align to the
+anniversary. For example, 15 July–14 August is one instalment period.
+
+**Given** an anniversary on the 29th, 30th or 31st,
+**When** monthly boundaries are calculated,
+**Then** missing dates use the destination month's last day while later boundaries retain
+the original anchor. For example: 31 January → 28 February → 31 March → 30 April,
+using 29 February in a leap year.
+
+**Given** start-of-period or end-of-period availability,
+**When** entitlement is calculated for a date,
+**Then** the instalment is available from the start of its configured availability date
+in the employee's work timezone,
+**And** an end-of-period instalment cannot fund earlier dates.
+
+**Given** an annual allowance that does not divide into twelve whole-minute portions,
+**When** instalments are calculated,
+**Then** cumulative precision preserves the annual total. For 8,550 annual minutes,
+the first portion is 712, the second 713, and twelve complete portions total 8,550,
+before balance effects.
+
+**Given** consumption or amounts excluded by a cap,
+**When** the next nominal instalment is calculated,
+**Then** its amount comes from the entitlement schedule, rather than the remaining balance,
+**And** it does not replenish consumed leave or restore capped-out earning.
+
+**Given** unchanged inputs,
+**When** the calculation is repeated,
+**Then** the result is identical without duplicate grants, worker posting or snapshots
+on ordinary reads.
+
+**Traceability / planned verification:** Features §6; CALC-10–12; Leave ADR-0047/0097/
+0099/0100 and existing on-demand precision/cap rules. Verify twelve contiguous intervals,
+calendar/anniversary alignment, original anchors 29/30/31, leap/non-leap February, no
+iterative clamp drift, final boundary equalling next annual start, local-day start/end
+availability and end-date eligibility. Verify cumulative nominal 712/713-minute portions,
+8,550 annual total and no replenishment after cap exclusions or consumption. Pair focused
+date/arithmetic/property tests with owner-version/input resolution and repeated-read
+checks. No runtime tests executed; exact source/test paths/commands and final sizing pending.
+
+**Pre-story inputs / sizing:** Bind anchored annual/monthly boundaries, timezone availability,
+precise nominal portions and ordered cap/event inputs. Keep cumulative nominal entitlement
+separate from actual granted/remaining/reserved amounts. ADR-0105 supersedes ADR-0097's
+old separate rounding for partial monthly portions; this story does not reintroduce it.
+Only complete unchanged-rate instalments are covered here; partial/rate cases cannot be
+silently treated as complete or exposed as verified available balances. Applicable expiry/
+rollover assembly and real mutation consumers retain their own integration obligations.
+Final agent sizing and all readiness gates remain open.
+
+**Impacts:** Scaffold: existing generic version/owner-input/error clients suffice; no
+generic monthly-entitlement engine or posting worker. Shared UI: approved instalment
+help/disclosure controls suffice for later consumers. Agent context: existing instructions
+suffice. Documentation: monthly boundary/precision/availability contracts, test mapping
+and epics/tracker/handoff checkpoint. ADR: accepted decisions suffice; no amendment.
+ADR-0127 upfront default remains; this story supports the editable monthly alternative.
+No code, migrations or implementation/readiness authorization.
+
+### Story 3.13: Calculate monthly entitlement across partial employment and rate changes
+
+**Scope approved by the user, 2026-10-13, with clearer scheduled-amount wording below;
+not implementation-ready.** Owner: Leave backend calculation. Consumes Story 3.12's
+anchored monthly periods/nominal portions and earlier precise earning/event/cap input
+contracts. Controlled effective-rate/employment fixtures avoid future mutation dependencies.
+
+As an employee with a monthly-entitlement policy,
+I want joining, leaving and policy-rate changes calculated accurately,
+So that my entitlement reflects the applicable rules without losing fractional amounts.
+
+**Acceptance Criteria:**
+
+**Given** employment covers part of an instalment period,
+**When** entitlement is calculated,
+**Then** calendar-day proration uses days employed within that actual period, counting
+start and end dates inclusively,
+**And** the full-period alternative retains the otherwise eligible instalment amount.
+For 18 days annually, 18 ÷ 12 × 15/30 gives 0.75 days, versus 1.5 days without proration.
+
+**Given** an employee joins after an instalment starts,
+**When** initial availability is calculated,
+**Then** a start-of-instalment policy makes the joining portion available on the employment
+start date; an end-of-instalment policy waits until that period's final date,
+**And** the initial portion is not counted twice.
+
+**Given** a prospective change to the policy's annual allowance,
+**When** monthly portions are calculated,
+**Then** the current instalment retains its earlier rate and the new rate starts with
+the next instalment period,
+**And** previous instalments remain unchanged.
+
+**Given** end-of-instalment availability,
+**When** a new rate becomes effective,
+**Then** its effective date is distinguished from its first usable date.
+A rate starting 15 August for 15 August–14 September becomes usable on 14 September.
+
+**Given** related partial portions or changed rates within a leave year,
+**When** entitlement is accumulated,
+**Then** fractional precision survives across those portions before whole-minute rounding.
+For 712.5 plus 952.5, there are 1,665 usable minutes; 240.5 plus 481 gives 721 usable
+minutes, with the remaining fraction preserved.
+
+**Given** caps or consumption,
+**When** later instalments are calculated,
+**Then** each instalment's scheduled amount is calculated from the applicable policy
+allowance, rather than the employee's remaining balance,
+**And** later instalments do not restore amounts previously excluded by a cap.
+Preserved eligible fractions cannot recover excluded earning.
+
+**Given** unchanged inputs,
+**When** calculations are repeated,
+**Then** results remain identical without duplicate events or rewritten historical evidence.
+
+Clarification accepted — 2026-10-13: nominal entitlement means the policy's scheduled
+instalment amount before balance effects. At 24 days/year, an instalment is two days
+even if consumption leaves three days remaining; an earlier two-day portion capped to
+one does not make the next portion three. The user approved the clearer wording above.
+
+**Traceability / planned verification:** Features §6; CALC-09–14/26; Leave
+ADR-0025/0046/0047/0101/0104/0105 with earlier monthly/precision/cap decisions.
+ADR-0105 supersedes separate partial-portion rounding in 0097; never implement old
+nearest/up selectors from superseded 0026. Verify calendar/anniversary-aligned partial
+periods, inclusive joining/departure/gaps, immediate joining versus end availability,
+no duplicate first portion, next-instalment rate transitions, retained current/earlier
+rates, cumulative exact examples and compound cap/consumption/fraction cases. Pair
+deterministic fixtures with authorized input/version resolution and unchanged repeated
+reads. No runtime tests executed; exact paths/commands and final source mapping pending.
+
+**Pre-story inputs / sizing:** Bind employment/assignment applicability within anchored
+periods, rate versus availability dates, precise portion/cap representation and changed
+input/error handling. Do not infer cross-year fractional carry-over or use consumed/
+reserved/granted balance to calculate nominal portions. Individual recurring overrides
+retain their separate leave-period-boundary rule, not the next monthly instalment rule.
+Continuing overrides must not be presented as policy-driven amount changes when the
+employee's actual rate stays unchanged. Unavailable required facts are not zero entitlement.
+
+**Remaining consumers:** Actual policy/employment-change writers prove reviewed
+consequences, current authority, original evidence, actual request-impact safeguards and
+required notifications, including updated notices for changed/cancelled notified future
+changes. This component does not depend on future editor/outbox workflows or prove them
+through synthetic fixtures. Final agent sizing and all readiness gates remain open.
+
+**Impacts:** Scaffold: existing authorized version/input/error clients suffice; no
+generic monthly/eligibility engine. Shared UI: existing policy help/disclosures suffice
+for consuming screens; no precision control or new warning panel. Agent context: existing
+instructions suffice. Documentation: monthly partial/rate/precision contracts, test
+mapping and epics/tracker/handoff checkpoint. ADR: accepted decisions suffice; no amendment.
+ADR-0127 upfront default retained. No implementation/readiness permission.
+
+### Story 3.14: Calculate carry-over at a leave-year boundary
+
+**Scope approved by the user, 2026-10-13, with allocation/request-impact clarifications
+below; not implementation-ready.** Owner: Leave backend calculation. Consumes precise
+earning/cap/ordered-event inputs and E2 effective standard-day/history references.
+Known request/reservation states use explicit protocol/owner fixtures; no dependency on
+a future approval UI or completed request mutation command.
+
+As an employee whose policy permits carry-over,
+I want unused entitlement carried into the next leave year according to that policy,
+So that carried and expired amounts are accurate and explainable.
+
+**Acceptance Criteria:**
+
+**Given** unused eligible entitlement at the leave-year boundary,
+**When** carry-over is calculated,
+**Then** the policy applies None, All unused entitlement, or Up to a limit.
+For 600 unused minutes with a 480-minute limit, carry 480 and expire 120.
+
+**Given** a carry-over limit expressed in days,
+**When** it is converted to minutes,
+**Then** it uses the employee's standard-day duration effective at rollover,
+**And** the conversion is retained as evidence. Five days means 2,400 minutes with
+an eight-hour standard day, or 1,800 with a six-hour standard day.
+
+**Given** previously carried entitlement,
+**When** another leave-year boundary is reached,
+**Then** a once-only policy prevents further transfer; a repeated-carry-over policy
+permits eligible amounts within its limit,
+**And** an existing expiry date is never extended.
+
+**Given** unused entitlement cannot carry over,
+**When** rollover is calculated,
+**Then** its expiry amount and reason remain explainable,
+**And** it is not automatically paid out or transferred to another leave type.
+
+**Given** a pending request whose funding was valid when reserved,
+**When** a subsequent authorized change creates a rollover or expiry shortfall,
+**Then** identify and explain the shortfall without automatically cancelling the request,
+**And** new reservations always check entitlement validity on every requested leave date.
+Known earning, carry-over limits and expiry are included in original projections;
+ordinary passage across the boundary alone must not unexpectedly increase unpaid amounts.
+
+**Given** new-period earning,
+**When** boundary effects are calculated,
+**Then** prior-period carry-over and expiry are resolved before new earning and cap evaluation.
+
+**Given** unchanged history,
+**When** rollover is recalculated,
+**Then** carried amounts are not duplicated,
+**And** later schedule changes do not rewrite an earlier rollover's conversion.
+
+**Allocation clarification:** Annual allowance, accumulated cap and carry-over limit
+are distinct settings. Track source-period/carried provenance and actual consumption
+allocations; a combined displayed balance is not a loss of its constituent history.
+Accepted ADR-0020 uses eligible earliest expiry first, not universally oldest period
+first; non-expiring portions come last. Usually carried portions expire first and are
+therefore consumed first. Expired/not-yet-earned/already-reserved portions remain
+unavailable. Same-expiry tie-breaking remains an explicit open contract: oldest source
+period first was recommended in discussion, not independently approved as a new rule.
+
+**Accountability clarification accepted:**
+[ADR-0128](../../apps/leave/docs/architecture/decisions/0128-accountable-request-impacts-of-administrative-changes.md)
+records the user's agreed approach. Change authorizers review and own consequences;
+pending impacts stay visible in manager attention/request details. Human coordination
+uses existing current-scoped approval/adjustment/correction actions; no temporary
+funding-permission transfer, extra referral workflow or implied authority. Increased
+unpaid amounts require exact employee acknowledgement before final approval alongside
+other gates. Discretionary administrative approved-request impacts resolve before commit;
+necessary factual corrections retain explicit deficit review/attention and original
+approval evidence. This calculation detects effects; owning E5/E6 consumers implement
+actual attention, review, domain resolution, notification and finalization protections.
+
+**Traceability / planned verification:** Features §6; CALC-17–20/23; Leave
+ADR-0028/0029/0030/0031/0032/0040/0106/0109, allocation ADR-0020 and accountability
+ADR-0128. Verify no/all/limited carry-over, 600→480/120, standard-day conversion at
+rollover with later schedule change, original versus previously carried provenance,
+once-only/repeated transfer, preserved earlier expiry, no payout/cross-type transfer,
+boundary ordering and repeat-read consistency. Date-by-date reservation fixtures must
+show known expiry respected initially and ordinary rollover creating no surprise
+shortfall; changed-history fixtures preserve prior reservation/decision evidence.
+Real request-impact writers/consumers separately prove authorization/concurrency/
+acknowledgement/notification/attention under 0128. No runtime tests executed; final
+source/test paths/commands and agent sizing pending.
+
+**Pre-story inputs / sizing:** Bind portion provenance, carry-limit selection/ties,
+period/version/standard-day evidence, reservation protocol and auditable automatic
+effect representation without duplicate actual/derived effects. Source wording about
+auditable rollover/expiry is not waived by on-demand computation; reconcile physical
+representation before readiness without daily posting jobs or snapshots on routine
+reads. New carried-entitlement month-window expiry arithmetic is a separate next story;
+this bounded transfer/amount component completes with supplied validity inputs, while
+full balance assembly later integrates actual expiry arithmetic. All readiness gates open.
+
+**Impacts:** Scaffold: reuse generic authorized version/provenance/error clients, not
+a shared rollover engine. Shared UI: existing balance/review/attention primitives
+suffice for consuming stories; Leave owns effects and disclosure. Agent context:
+existing instructions suffice. Documentation: calculation/effect/request-impact
+contracts, test mapping, requirements/spine/UX/tracker/handoff. ADR: new additive 0128
+records the agreed accountability refinement; accepted predecessors unchanged.
+No code, permissions, data or implementation/readiness authorization.
+
+### Story 3.15: Calculate entitlement expiry dates and effects
+
+**Scope approved by the user, 2026-10-13; not implementation-ready.** Owner: Leave
+backend calculation, consuming earlier portion/period/version/cap/rollover inputs and
+employee work timezone. Extends supplied validity inputs into actual deterministic expiry
+arithmetic/effects; no future request/worker workflow dependency for this component.
+
+As an employee with expiring entitlement,
+I want its last usable date and expired amounts calculated consistently,
+So that I can understand when leave remains available.
+
+**Acceptance Criteria:**
+
+**Given** carried entitlement configured to expire after a number of months,
+**When** its expiry is calculated,
+**Then** the window starts from the actual new leave-period start,
+**And** the result identifies the inclusive last usable date.
+
+**Given** month-end or leap-year boundaries,
+**When** expiry is calculated,
+**Then** it follows the accepted calendar arithmetic:
+1 January plus 3 months → 31 March; 15 January plus 1 month → 14 February;
+31 January 2026 plus 1 month → 28 February; 31 January 2028 plus 1 month → 29 February;
+29 February 2028 plus 12 months → 28 February 2029.
+
+**Given** entitlement with an expiry date,
+**When** availability is checked,
+**Then** it can fund eligible leave on that date, but not the following date,
+**And** early submission or reservation does not extend validity.
+
+**Given** repeated carry-over or a newly calculated expiry window,
+**When** a portion already has an earlier expiry,
+**Then** that earlier expiry remains. Selecting Does not expire imposes no new month-window
+expiry; it does not erase an existing expiry or bypass other carry-over rules.
+
+**Given** expiry and new earning occur at the same local-date boundary,
+**When** the balance is calculated,
+**Then** expiry is resolved before earning and cap evaluation.
+For 20 days at the cap with two expiring on 31 March, the balance becomes 18 before
+evaluating 1 April earning.
+
+**Given** expired unused entitlement,
+**When** results are inspected or recalculated,
+**Then** its amount, source and expiry reason remain explainable without duplicate effects,
+**And** historical evidence remains intact.
+
+**Traceability / planned verification:** Features §6; CALC-18–20; Leave
+ADR-0021/0023/0029/0085/0089/0106/0109. Verify all five accepted date examples, direct
+multi-month arithmetic, missing matching day using destination month end without an
+extra subtraction, inclusive last/first-ineligible dates, earlier expiry preservation,
+non-expiring choices and repeated carry-over. Pair timezone/viewer and boundary-effect
+checks with precise cap/earning integration and actual provenance/history inputs.
+New reservations use date-valid entitlement; deterministic rollover alone creates no
+surprise unpaid increase. No runtime tests executed; final source/test paths/commands pending.
+
+**Pre-story inputs / sizing:** Bind portion validity, boundary arithmetic, timezone
+interpretation and auditable effect representation. Calendar-month carry-over expiry
+differs from monthly-instalment boundary arithmetic in Story 3.12; do not reuse the
+wrong missing-date/subtraction behavior. Reconcile expiry explanations/evidence with
+derived calculation without write-on-read, daily posting jobs, duplicate actual/derived
+amounts or routine decision snapshots. Preserve original consequential evidence while
+authorized historical corrections use the owning review/request-impact contracts.
+Final agent sizing and all readiness gates remain open.
+
+**Impacts:** Scaffold: existing authorized input/version/error clients suffice; no shared
+expiry/accrual engine. Shared UI: existing date/help/disclosure controls suffice for
+later policy/balance/preview consumers. Agent context: existing instructions suffice.
+Documentation: validity/date/boundary/effect contracts, test mapping and epics/tracker/
+handoff checkpoint. ADR: accepted decisions suffice; no amendment. No implementation permission.
+
+### Story 3.16: Calculate changes between entitlement availability methods
+
+**Scope approved by the user, 2026-10-14; not implementation-ready.** Owner: Leave
+backend calculation. Consumes daily/upfront/monthly, period/version/assignment, ordered
+event, cap, carry-over and expiry components. Controlled transition/request fixtures
+avoid future editor/approval/outbox dependencies; production writers prove their effects later.
+
+As an employee whose policy changes its availability method,
+I want the change applied at the correct leave-year boundary,
+So that earlier entitlement is preserved and the transition does not duplicate or lose earning.
+
+**Acceptance Criteria:**
+
+**Given** a change between daily, monthly and upfront availability,
+**When** its effective boundary is calculated,
+**Then** the new method starts at the employee's next leave-period start,
+**And** the current period completes under its existing method.
+
+**Given** employees with different anniversary periods,
+**When** a shared policy changes method,
+**Then** each employee receives their applicable transition date,
+**And** the calculation does not assume everyone changes on 1 January.
+
+**Given** a transition boundary,
+**When** entitlement is calculated across it,
+**Then** prior-period carry-over and expiry are resolved before earning under the new method,
+**And** caps and retained portion validity continue to apply.
+
+**Given** entitlement already earned under the earlier method,
+**When** the new method takes effect,
+**Then** earlier earning and actual events retain their meaning,
+**And** there is no midperiod conversion, extra remainder grant or duplicate allowance.
+
+**Given** an existing future request,
+**When** the proposed method change affects its projected funding,
+**Then** the calculation identifies the before/after effect. The actual change writer
+must apply the agreed review, accountability and acknowledgement safeguards.
+
+**Given** unchanged history and transition inputs,
+**When** calculations are repeated,
+**Then** results remain identical without worker posting or rewritten decision evidence.
+
+**Traceability / planned verification:** Features §6; CALC-07; Leave ADR-0098 and
+existing period/carry-over/cap/expiry/history decisions, plus ADR-0128 actual impact
+accountability. Verify all six directed automatic-method transitions, calendar and
+different anniversary boundaries, retained current-period portions, no midperiod
+conversion/duplicate/remainder grant, prior-period effects before new earning, valid
+portion provenance and unchanged repeated reads. Explicit future-request fixtures
+verify calculated effects without claiming E5 workflows or policy-change writers exist.
+No runtime tests executed; final source/test paths/commands and sizing pending.
+
+**Pre-story inputs / sizing:** Bind exact employee transition-boundary/version selection,
+partial prior-period history, precise retained fractions and boundary/replay inputs.
+Different annual-rate timing and individual recurring override boundaries remain their
+accepted rules. Scope is only daily/monthly/upfront transitions; changes to leave-year
+basis or transitions involving manual-only/untracked balances require separate decisions.
+Real affected request/authority/notification/current-input protections are integrated by
+the consuming writer before activation; no synthetic fixture exemption or hidden future
+dependency for this bounded calculation component. All readiness gates remain open.
+
+**Impacts:** Scaffold: existing generic authorized version/input/error clients suffice;
+no shared availability-method engine. Shared UI: existing date/review/help controls
+suffice for consuming policy/impact screens. Agent context: existing instructions suffice.
+Documentation: transition/time/version/impact contracts, test mapping and epics/tracker/
+handoff checkpoint. ADR: accepted decisions suffice; no amendment. ADR-0127 default
+remains editable upfront plus proration. No implementation/readiness permission.
+
+### Story 3.17: Calculate an authoritative current leave balance
+
+**Scope approved by the user, 2026-10-14, with clearer manual-only/correction criteria
+below; not implementation-ready.** Owner: Leave backend calculation and result contract.
+Consumes earlier earning, event, cap, rollover, expiry and method-transition components;
+controlled owner request/event fixtures avoid future production writer dependencies.
+Balance screens remain later consumers, not a prerequisite for this independently tested API.
+
+As an employee or authorized Leave Manager,
+I want the current balance calculated from applicable rules and recorded history,
+So that every screen uses the same accurate, explainable result.
+
+**Acceptance Criteria:**
+
+**Given** an employee, leave type and current employee-local date,
+**When** the balance is requested,
+**Then** the backend combines applicable earning, actual balance events, caps, carry-over
+and expiry in their defined order,
+**And** it uses historical versions rather than applying today's settings to every past date.
+
+**Given** pending reservations and approved consumption,
+**When** the result is calculated,
+**Then** remaining entitlement, reserved amounts and available amounts are distinct and
+not deducted twice. For nine earned minus three consumed, six remain; six minus two
+reserved gives four available.
+
+**Given** commitments funded by future earning,
+**When** today's balance is calculated,
+**Then** future funding remains distinguishable from entitlement already earned today,
+**And** it is not counted as today's earned balance or cap headroom.
+
+**Given** a manual-only policy,
+**When** its balance is calculated,
+**Then** the balance comes from explicit authorized grants, deductions and other
+applicable effects,
+**And** it remains zero when no entitlement has been granted; the policy earns nothing
+automatically. Zero is a valid result, not assumed missing opening data.
+
+**Given** an authorized correction to calculation inputs or a new correcting balance event,
+**When** the current balance is recalculated,
+**Then** it includes the correction and its later consequences,
+**And** original events, approvals and decision evidence remain intact.
+
+**Given** unavailable required inputs or denied access,
+**When** the balance is requested,
+**Then** the API returns the appropriate retryable failure or denial,
+**And** unavailable information is never presented as zero balance.
+
+**Given** unchanged inputs,
+**When** reads are repeated,
+**Then** results are reproducible without changing history, posting earning or creating
+decision snapshots.
+
+Clarifications accepted — 2026-10-14: manual-only special paid leave has zero available
+before a grant; an authorized three-day grant gives three, and one consumed day leaves
+two, absent other effects. Corrected inputs may include wrong employment dates or
+historical schedule/holiday facts through their owning workflows; a mistaken adjustment
+is corrected by another explained event, and approved cancellation/replacement uses its
+authorized workflow. None permits editing immutable events or replacing original
+approval/calculation snapshots. Current balance incorporates corrected history and
+subsequent effects rather than substituting an old historical balance for today's result.
+
+**Traceability / planned verification:** Features §6; BIZ-09/11; CALC-01/16/32/35/36;
+Leave ADR-0106–0110 and existing calculation/actual-event/explicit-assignment rules.
+Verify combined daily/upfront/monthly/manual-only earning, actual adjustments/consumption,
+earned versus future reservations, cap/expiry/rollover/method transitions, no double
+deduction and corrected-input/evidence preservation. Pair focused compound/invariant
+tests with scoped API/owner-version resolution, denied/unavailable outcomes and real
+ordered-history fixtures. Define representative multi-year workload and measurable
+targets before readiness; verify direct indexed calculation before release without
+speculative caches/checkpoints. No runtime tests executed; exact paths/commands pending.
+
+**Pre-story inputs / sizing:** Bind consistent input observation, scoped employee-local
+date, result breakdown, future-funded commitment interpretation, precise portion/history
+queries and performance workload/targets. Do not guess future approval effects from one
+signed total or reuse historical snapshots as current authority. Synthetic request inputs
+are an explicit protocol obligation; E5 actual producers prove real reservation/consumption
+states and all consumers/writers integrate before activation. Corrections retain ADR-0128
+review/accountability and owner boundaries. Final source/test mapping, agent sizing and
+all readiness gates remain open.
+
+**Impacts:** Scaffold: reuse generic authorized result/version/error clients; no shared
+balance/eligibility runtime engine or authoritative cached total. Shared UI: existing
+disclosures/loading/retry controls suffice for later screens; no frontend parallel
+calculator. Agent context: existing instructions suffice. Documentation: input/result/
+historical/performance contracts, test mapping and epics/tracker/handoff checkpoint.
+ADR: accepted decisions suffice; no amendment. No implementation/readiness permission.
+
+### Story 3.18: Project funding for every requested leave date
+
+**Scope approved by the user, 2026-10-14, including oldest-source-period priority for
+equal expiry; not implementation-ready.** Owner: Leave backend projection/allocation.
+Consumes Story 3.7 duration and completed earning/event/cap/rollover/expiry/balance inputs.
+Explicit request/reservation fixtures avoid future E5 producer/approval UI dependencies.
+
+As an employee preparing a request,
+I want funding checked on every requested date,
+So that the preview explains which amounts can be paid and where shortfalls occur.
+
+**Acceptance Criteria:**
+
+**Given** requested dates and their calculated durations,
+**When** funding is projected,
+**Then** each date uses entitlement valid and available on that date, including permitted
+projected earning and carry-over,
+**And** excludes expired or not-yet-available amounts.
+
+**Given** a request spanning multiple dates,
+**When** dates are evaluated in order,
+**Then** earlier projected consumption reduces what remains for later dates,
+**And** the same entitlement cannot fund multiple dates twice.
+
+**Given** earning becomes available between requested dates,
+**When** funding is projected,
+**Then** it can fund the later date but cannot repair an earlier shortfall.
+For 240 minutes available now plus 240 earned between dates, fund 240 on each date,
+but not 480 on the first date.
+
+**Given** several eligible entitlement portions,
+**When** funding is allocated,
+**Then** the earliest-expiring portion is used first, with non-expiring portions last,
+**And** equal-expiry priority uses oldest original source period first, followed by a
+stable deterministic portion-identity tie-break under ADR-0129.
+
+**Given** existing valid reservations,
+**When** another request is projected,
+**Then** it uses only remaining eligible entitlement,
+**And** an earlier requested date does not displace an existing reservation.
+
+**Given** insufficient eligible funding,
+**When** results are calculated,
+**Then** they identify funded and shortfall amounts by date and in total,
+**And** apply the policy's permitted shortfall behavior without silently borrowing from
+another leave type.
+
+**Given** a projection,
+**When** it is requested or repeated,
+**Then** it creates no reservations, consumption or consequential decision,
+**And** submission must revalidate current inputs.
+
+**Traceability / planned verification:** Features §6/7/9; CALC-20–23/25; Leave
+ADR-0019/0020/0032/0035 and accepted ADR-0129 tie resolution. Test expiry between dates,
+effective/start-of-day earning, candidate consumption carried forward, permitted versus
+disallowed projected earning, competing reservations, earliest-expiry allocation,
+equal-expiry original-source age/stable final ties, non-expiring ordering and no silent
+cross-type funding. For 480 available/240 reserved, new 480 has 240 shortfall; later
+earning cannot fund an earlier deficit. Pair deterministic compound tests with scoped
+input/result/API and unchanged repeated/no-write checks. No runtime tests executed;
+final source/test paths/commands and agent sizing pending.
+
+**Pre-story inputs / sizing:** Bind precise portion allocation, original source-period
+provenance, stable portion identity, current-versus-projected policy interpretation,
+reservation/commitment inputs, consistent observation and date/total result evidence.
+ADR-0129 closes the business tie-order choice; exact physical identity/reconstruction
+is still a pre-story contract. E5 actual reservation writes and authorized exceptional
+allocations consume the same validated ordering with current-input/atomic protections.
+Draft projections reserve nothing; controlled fixtures do not prove real request producers.
+Booking/notice/employment/document/approval gates remain independently enforced by their
+owning consumers; funded preview is not submission authority. All readiness gates open.
+
+**Impacts:** Scaffold: existing scoped typed clients/version/error patterns suffice;
+no shared allocation/eligibility engine. Shared UI: later Apply disclosures use approved
+source/date/amount explanations; no parallel frontend calculator or allocation-order
+setting. Agent context: existing instructions suffice. Documentation: authority/spine/UX,
+allocation/provenance/reservation/result contracts, test mapping and tracker/handoff.
+ADR: additive 0129 resolves ties, predecessors unchanged. No implementation permission.
+
+### Story 3.19: Show a clear leave-request preview in Apply
+
+**Scope approved by the user, 2026-10-14; not implementation-ready.** Owner: Leave
+web/API integration. Consumes existing E1 draft/mode/date/context/recovery protections,
+Story 3.7 duration and Story 3.18 funding contract; current balance is supplied by its
+own authoritative read. No future submission/acknowledgement/approval UI dependency.
+
+As an employee preparing a request,
+I want its duration and funding consequences shown inside the form,
+So that I can understand the request before submitting it.
+
+**Acceptance Criteria:**
+
+**Given** sufficient valid input,
+**When** I select or change the leave type, dates or duration,
+**Then** Apply refreshes the backend-calculated duration and funding preview,
+**And** the frontend does not independently calculate policy entitlement.
+
+**Given** a successful preview,
+**When** the summary appears,
+**Then** it shows requested duration, paid amount, requested unpaid amount where applicable,
+and the projected remaining amount,
+**And** current availability is distinguishable from funding available on the selected dates.
+
+**Given** a funding shortfall,
+**When** the summary appears,
+**Then** it prominently shows the exact requested unpaid amount or the policy's applicable
+restriction,
+**And** date-specific shortfalls are explained rather than hidden by a positive total
+balance. Requested unpaid leave is not presented as approved.
+
+**Given** calculation details,
+**When** I expand them,
+**Then** I can understand relevant earning, carry-over, expiry, reservations and source
+allocations,
+**And** displayed day/hour equivalents explain their conversion without losing
+canonical-minute precision.
+
+**Given** incomplete dates or no working time,
+**When** a meaningful preview cannot be produced,
+**Then** the form explains what needs attention without displaying a misleading zero
+calculation,
+**And** entered input remains preservable.
+
+**Given** delayed responses or changed account, organization or form input,
+**When** an older preview response arrives,
+**Then** it cannot overwrite the preview for the current context.
+
+**Given** calculation failure,
+**When** the form remains open,
+**Then** it offers appropriate retry feedback and does not imply a current valid calculation,
+**And** draft autosave remains governed by its existing independent protections.
+
+**Traceability / planned verification:** Features §6–9; BIZ-10/15/16 (partial);
+CALC-21/36; Leave ADR-0084 and approved Apply balance-summary UX. Verify actual API/
+browser refresh after type/mode/date edits, Requested/Paid/Requested unpaid composition,
+date-specific deficits, source disclosures, standard-day/hour equivalence and precise
+minutes. Test delayed/out-of-order replies, account/organization changes, empty/incomplete/
+reversed/no-working-time inputs, retryable calculation failure and unaffected truthful
+autosave. Pair focused UI timing tests with real calculation/API browser journeys and
+keyboard/mobile/accessibility checks. No runtime tests executed; exact test paths/commands pending.
+
+**Pre-story inputs / sizing:** Bind preview/result freshness, source/date breakdown,
+display conversion and current versus projected remaining amounts. Context-bind replies
+to user/organization/type/modes/dates/form generation; calculation failure cannot claim
+valid current funding or saved state. Preserve E1 lightweight input semantics and
+separate calculation versus save errors. Full action admission, binding unpaid
+acknowledgement, reservation and submission remain E5; this story adds no fake approval
+or actionable submission result. Projections reserve nothing; no separate calculator/graph.
+Final source/test mapping, agent sizing and all readiness gates remain open.
+
+**Impacts:** Scaffold: reuse/prove generic typed service clients, scoped response freshness
+and error adapters; no generated Leave calculator. Shared UI: reuse disclosures/loading/
+retry/form status and promote proven neutral mechanisms with consumer tests; Leave owns
+balance-summary content and allocation meaning. Agent context: existing instructions
+suffice. Documentation: preview/display/freshness contracts, test mapping and epics/
+tracker/handoff checkpoint. ADR: accepted decisions suffice; no amendment.
+No code, data or implementation/readiness authorization.
+
+### Story 3.20: Explain request restrictions and required information in Apply
+
+**Scope approved by the user, 2026-10-14; not implementation-ready.** Owner: Leave
+backend typed guidance and web presentation. Consumes explicit assignment/version,
+employment/date, duration and preview foundations; controlled existing-request fixtures
+provide aggregate-duration inputs without future submission/approval dependencies.
+
+As an employee preparing a request,
+I want clear guidance about applicable request rules,
+So that I know what needs attention while my unfinished input remains saved.
+
+**Acceptance Criteria:**
+
+**Given** a selected leave type, employee and dates,
+**When** guidance is refreshed,
+**Then** it uses the applicable explicit policy assignment, policy version and employment
+context,
+**And** missing assignment/configuration is distinguished from an unavailable check.
+
+**Given** a configured advance-booking horizon,
+**When** dates are checked,
+**Then** every requested date must fit within it, including the last date and inclusive cutoff.
+The default remains twelve months; an acceptable start cannot excuse an out-of-window end.
+
+**Given** insufficient minimum notice,
+**When** the request is checked,
+**Then** it explains that a reason is required rather than treating short notice alone as
+prohibited. The zero-day default requires no short-notice reason for an otherwise eligible
+same-day request.
+
+**Given** backdated leave,
+**When** guidance is calculated,
+**Then** it requires a reason and identifies lateness using employee work dates,
+**And** it imposes no fixed age cutoff or special administrative route solely because
+the request is old.
+
+**Given** a known employment end date,
+**When** requested dates are checked,
+**Then** the final employment date remains potentially eligible, but later dates are
+identified as invalid,
+**And** the system does not silently trim entered dates.
+
+**Given** existing submitted, in-approval or approved leave on the same date,
+**When** duration is checked,
+**Then** it warns about the same-date request and identifies totals exceeding scheduled
+working time across leave types. Draft, rejected, withdrawn and cancelled requests do not count.
+
+**Given** configured duration limits or supporting-document requirements,
+**When** applicable guidance appears,
+**Then** it explains the specific requirement. A document required above two days is
+not required at exactly two days. E4 supplies actual attachment handling; E5 verifies
+requirements at submission.
+
+Advance-booking explanation accepted — 2026-10-14: this means how far ahead employees
+may request leave, not entitlement expiry. For submission on 14 October 2026, the
+twelve-month window includes 14 October 2027 but not 15 October; a range crossing
+the cutoff is outside the permitted request window. Drafts may still preserve those
+dates. Prefer plain-language label How far ahead can employees request leave? for
+the corresponding configuration help; per-policy configurability remains unchanged.
+
+**Traceability / planned verification:** Features §4/7/8/10; CALC-22/26/28/29; Leave
+ADR-0036/0049/0050/0051/0074, explicit assignment ADR-0126 and approved field-guidance
+UX. Verify inclusive cutoff/end-range and missing-date arithmetic, zero/positive notice,
+required short-notice/backdated reasons and lateness, historical applicability, final
+employment date, aggregate same-date active-state duration across types, excluded states,
+strictly-above document thresholds, min/max duration and no hidden date changes. Pair
+backend typed result tests with actual API/browser field feedback, stale replies and
+draft-save/reopen independence. No runtime tests executed; exact paths/commands pending.
+
+**Pre-story inputs / sizing:** Bind date arithmetic, combined reason requirements,
+duration/document threshold conversion, current observation and safe typed results.
+Do not infer automatic demographic eligibility or grant authority from filters. Guidance
+is provisional and neither submits nor restricts lightweight input preservation. E5
+rechecks all applicable current rules and enforces concurrent aggregate duration/funding
+and actual document readiness before consequential actions; E4's uploader/verification
+is not an early UI dependency or falsely implemented here. Final source/test mapping,
+agent sizing and all readiness gates remain open.
+
+**Impacts:** Scaffold: existing scoped generated clients/error/date-input mechanisms
+suffice, with proven neutral field-result patterns promoted alongside first consumer
+tests; Leave rules stay local. Shared UI: reuse field/error/help and responsive accessible
+feedback. Agent context: existing instructions suffice. Documentation: guidance/date/
+reason/threshold contracts, test mapping and epics/tracker/handoff checkpoint.
+ADR: accepted decisions suffice; no amendment. No implementation/readiness permission.
+
+### E3 discussion progress — 2026-10-14
+
+Twenty scopes agreed; this is not final story sizing/coverage or implementation progress.
+Most initial configuration, calculation and ordinary request-preview discussion scopes
+are recorded. Remaining decomposition includes exceptional funding proposal data/preview,
+business notification/outbox/worker/inbox foundations, deferred assignment confirmation,
+one-off adjustments, recurring overrides, actual balance/employee/setup views and used
+policy/type changes/lifecycle. Owning technical inputs, final requirement/test/UX coverage,
+dependencies and agent-size review remain necessary after discussion. No exact final
+remaining count established; continue one story at a time at Story 3.21.
+
+### Story 3.21: Calculate an exceptional funding proposal
+
+**Scope approved by the user, 2026-10-14; not implementation-ready.** Owner: Leave
+backend proposal calculation/result contract. Consumes ordinary date-by-date allocation,
+current authority and scoped source/history inputs. Controlled resource/request fixtures
+avoid a future E5 override-screen/approval dependency; no actual exceptional grant/decision.
+
+As an authorized reviewer considering a request shortfall,
+I want to compare permitted funding alternatives,
+So that I can understand their paid/unpaid consequences before authorizing an exception.
+
+**Acceptance Criteria:**
+
+**Given** a request with insufficient ordinary funding,
+**When** its default proposal is calculated,
+**Then** it shows the requested amount, available funding and exact unpaid shortfall.
+
+**Given** current authority and a policy permitting an exception,
+**When** alternative funding is proposed,
+**Then** it can contain explicit lines for permitted existing balances, a discretionary
+paid grant and unpaid leave,
+**And** each source is checked independently. Ordinary approval permission alone grants
+no exception authority.
+
+**Given** proposed funding lines,
+**When** the proposal is checked,
+**Then** amounts reconcile to the requested duration without duplicate funding,
+**And** existing balances respect date validity, expiry and protected reservations.
+
+**Given** an exceptional proposal,
+**When** its consequences are calculated,
+**Then** it identifies sources, amounts, the required reason and resulting paid/unpaid split,
+**And** does not change recurring entitlement.
+
+**Given** a revised unpaid amount,
+**When** the result is returned,
+**Then** it identifies the amount relevant to employee acknowledgement.
+E5 enforces binding acknowledgement and independent approval gates.
+
+**Given** a proposal or repeated preview,
+**When** calculation completes,
+**Then** it creates no grants, transfers, reservations or approval decisions.
+
+**Traceability / planned verification:** Features §9; BIZ-18; CALC-25; approved allocation-
+review UX and existing policy/override/source authorization, minute/allocation and
+exact unpaid acknowledgement decisions. Verify default unpaid versus permitted alternatives,
+single/mixed sources, exact line reconciliation, duplicate/over-allocated sources,
+expired/future/reserved portions, denied source permissions, policy denial, no implicit
+cross-type borrowing and no changes to recurring allowance. Pair calculation fixtures
+with current scoped API/result evidence and repeat/no-write tests. No runtime tests
+executed; final source/test paths/commands and sizing pending.
+
+**Pre-story inputs / sizing:** Bind resource/source authority, discretionary-grant validity,
+line identity/amount reconciliation, reason, safe typed results and exact before/after
+unpaid effect. Verified actor attribution is server-derived, not an arbitrary client
+authorizer field. Scope is backend proposal data/calculation; E5 owns actual override UI,
+confirmation/current revalidation, atomic effects, snapshots/audit/outbox and binding
+employee response. The approving actor does not gain exception authority through this
+preview; accepted human coordination/permission boundaries under ADR-0128 remain.
+Synthetic resource fixtures do not establish E5 appointment or assigned-request authority.
+All readiness gates and final agent sizing remain open.
+
+**Impacts:** Scaffold: existing authorized clients/typed errors/source references suffice;
+no generic allocation/approval engine. Shared UI: existing review/disclosure patterns
+suffice for later E5; no actionable fake grant or new permissions-transfer/referral UI.
+Agent context: existing instructions suffice. Documentation: proposal/source/validity/
+result contracts, test mapping and epics/tracker/handoff checkpoint. ADR: accepted
+decisions suffice; no amendment. No implementation/readiness permission.
+
+### Story 3.22: Durably accept notification events
+
+**Scope approved by the user, 2026-10-14, with explicit conflict/failure visibility below;
+not implementation-ready.** Owner: shared notification HTTP capability and receiver-owned
+persistence. Consumes E1 authenticated restricted service, scope, migration/runtime and
+safe-error foundations. Controlled producer events verify standalone durable acceptance;
+Leave outbox/worker and actual email/in-app delivery retain separate bounded stories.
+
+As an application handing over a required notification,
+I want the shared notification capability to accept it durably and recognize retries,
+So that delivery can continue without losing or duplicating the message.
+
+**Acceptance Criteria:**
+
+**Given** an authenticated, permitted application service,
+**When** it sends a supported notification event,
+**Then** the receiver validates application/organization scope, recipients, event type/
+version and permitted content,
+**And** durably records acceptance before returning success.
+
+**Given** the same event is retried,
+**When** its identity and content match,
+**Then** the receiver returns its existing acceptance without creating another notification,
+**And** changed content under the same identity is explicitly rejected, preserving the
+original event with no replacement/deletion/duplicate delivery. Trusted-producer contract
+mismatches are surfaced to operations; they are not silently accepted as updates.
+
+**Given** durable acceptance,
+**When** status is returned,
+**Then** it distinguishes accepted for delivery from actual channel delivery,
+**And** acceptance does not imply that an email was received or read.
+
+**Given** a notification payload,
+**When** it is validated and retained,
+**Then** it follows the event family's approved minimal content and destination rules,
+**And** links grant no authority. Sensitive details remain behind authorized application access.
+
+**Given** the original notification is ninety days old,
+**When** a new acceptance attempt occurs,
+**Then** it cannot become fresh delivery work, even after duplicate records have been cleaned up,
+**And** retries cannot reset its original creation time.
+
+**Given** invalid scope, unsupported versions or persistence failure,
+**When** handover is attempted,
+**Then** reject/fail the affected operation explicitly without claiming acceptance or
+guessing payload meaning,
+**And** unexpected defects protect transactional integrity and recoverable work and
+produce actionable structured diagnostics/alerts, never substituted success or silently
+skipped required work. Uncommitted writes roll back; already-committed business changes
+are not undone because notification handover failed.
+
+Clarification accepted — 2026-10-14: matching identity means the same immutable event,
+not an editable inbox item. Genuine business updates create new authorized event identities
+with appropriate original-event links; they do not replace/delete accepted messages on
+a conflict or reset expiry. Fail-safe behavior protects data and reports real failures,
+not hidden bugs. Stop affected processing, retain investigation/recovery evidence and
+stop futile automatic retries for correction-required defects. Whole-process termination
+is appropriate when its state cannot be trusted; rejecting one bad event does not require
+crashing unrelated application work. Verify protection and visibility, not merely a
+successful exception-handler response. Existing platform error/log/retry rules govern.
+
+**Traceability / planned verification:** Platform ADR-0006/0012/0023/0024/0028/0029/0031;
+Leave ADR-0114 and first business-notification/privacy requirements. Verify durable
+acknowledgement after commit, concurrent matching retries, changed-content conflicts,
+lost acceptance response/recovery, explicit stage status, denied service/scope/recipient,
+supported/unsupported event types/versions, strict event-family fields/destination rules,
+original age at ninety-day boundary and replay after dedup cleanup. Inject persistence/
+unexpected failures to prove no false success/partial acceptance, retained evidence,
+actionable safe logs/alerts and correction-required classification. No runtime tests
+executed; exact source/test paths/commands and final sizing pending.
+
+**Pre-story inputs / sizing:** Bind first event families, restricted producer/service and
+recipient authority, immutable envelope/origin timestamps, duplicate comparison and
+acceptance receipt/status/error contracts. Leave owns domain intent/content/recipient
+scope; receiver owns validation/render/channel mechanics within its service contract.
+Request payload limits do not invent absence dates for adjustment/entitlement events;
+each family has its own approved minimal schema. Retain dedup records at least ninety
+days after acceptance and longer while unresolved, enforcing origin expiry independently
+of cleanup. No universal platform credential, cross-owner table access or default domain
+authorization callback. Define operational alert grouping/classification/runbook and
+safe exception paths; normal explicit invalid-input/denial is distinguished from trusted
+producer defects. All readiness gates and final agent sizing remain open.
+
+**Impacts:** Scaffold: prove/promote generic receiver/client/version/dedup/error/diagnostic
+patterns with reference tests; no Leave templates in a universal runtime audit/workflow
+engine. Shared UI: no inbox/status screen required to complete receiver acceptance;
+later delivery/UI consumers reuse approved controls. Agent context: existing instructions
+suffice. Documentation: notification envelope/authority/status/retry/privacy/alert contracts,
+test mapping and epics/tracker/handoff checkpoint. ADR: accepted decisions suffice;
+explicit failure visibility clarifies them, no amendment. No implementation/notifications.
+
+### Story 3.23: Save notification intent atomically with Leave changes
+
+**Scope approved by the user, 2026-10-14, with the shared-API/internal-helper clarification
+below; not implementation-ready.** Owner: Leave internal outbox and persistence. Consumes
+current authority, restricted owner writes, operation/attribution/transaction foundations
+and Story 3.22's shared acceptance contract. Controlled owner operations prove atomic
+intent without depending on later adjustment/entitlement producer UI or worker handover.
+
+As an employee affected by a Leave change,
+I want its required notification saved alongside the change,
+So that a delivery outage cannot silently lose the notification.
+
+**Acceptance Criteria:**
+
+**Given** a Leave operation requiring notification,
+**When** its business transaction commits,
+**Then** the required outbound notification intent commits in the same transaction,
+**And** either both commit or neither does.
+
+**Given** a retry of the same committed operation,
+**When** its outcome is recovered,
+**Then** it reuses the original notification events without creating duplicate intent,
+**And** operation identity and notification-event identity remain distinct.
+
+**Given** saved outbound intent,
+**When** it is inspected for delivery,
+**Then** it retains its event type/version, original creation time, recipient intent
+and approved minimal content,
+**And** retries cannot alter its meaning or reset its expiry.
+
+**Given** the notification service is unavailable,
+**When** the Leave change is committed,
+**Then** the intent remains pending for later handover,
+**And** the successful business change is not rolled back merely because delivery is unavailable.
+
+**Given** an unexpected intent-recording failure,
+**When** the business transaction cannot commit completely,
+**Then** the operation fails explicitly and uncommitted effects roll back,
+**And** actionable diagnostics expose the defect without logging sensitive payloads.
+
+**Given** Leave's outbox,
+**When** runtime access is checked,
+**Then** it remains Leave-owned and organization-scoped; another service cannot read or
+modify its tables,
+**And** no remote notification call occurs while holding the business transaction's locks.
+
+Clarification accepted — 2026-10-14: reuse the shared notification HTTP API from Story
+3.22. Provide an internal transactional outbox helper for Leave's business operations;
+those operations control when notification intent is created. Prove/promote reusable
+helper/scaffold patterns with first consumers, without importing another service's
+server implementation or creating a central shared outbox. There is no separate Leave
+endpoint letting callers insert arbitrary notification intent independently of its
+business action. Confirm adjustment eventually saves adjustment/intent together, then
+the worker calls the shared API. This is planned foundation behavior, not a live API.
+
+**Traceability / planned verification:** Platform ADR-0006/0012/0022/0023/0028/0029;
+Leave ADR-0114/0116. Verify real owner transaction commit/rollback of domain fixture and
+intent, duplicate operation recovery preserving downstream identities, creation/expiry
+metadata, unpublished/partial effect denial, restricted role/scope/cross-owner isolation
+and no external calls under locks. Inject recording failure for explicit error, rollback
+and actionable safe diagnostics; remote unavailability preserves committed intent/domain
+state. Receiver handover and real producers separately prove their actual workflow.
+No runtime tests executed; exact source/test paths/commands and final sizing pending.
+
+**Pre-story inputs / sizing:** Bind atomic intent/helper, event identity, first-family
+envelope, owner scope/attribution, pending-state/error and safe diagnostic contracts.
+Immutable content and current pending/handover metadata are distinct. A changed business
+event needs a new identity, not mutation of an existing event; the helper cannot commit
+independently of its owning operation. Do not depend on later worker/delivery UI to verify
+atomic recording or invent universal runtime queue access. Real adjustment/entitlement/
+request producers integrate required intent/evidence with their first commands before
+activation; synthetic fixtures are not that proof. All readiness gates remain open.
+
+**Impacts:** Scaffold: prove/promote generic outbox helper/client/version/atomicity
+mechanisms in the same consumer item with disposable/reference tests; Leave owns recipient
+and message meaning. Shared UI: no extra notification-writing/queue screen; existing
+business review/status patterns suffice for later consumers. Agent context: existing
+instructions suffice. Documentation: owned intent/helper/envelope/transaction contracts,
+test mapping and epics/tracker/handoff checkpoint. ADR: accepted decisions suffice;
+clarified shared API/helper distinction introduces no new runtime owner or amendment.
+No code, data, notifications or implementation/readiness permission.
+
+### Story 3.24: Hand over Leave notifications through a recoverable worker
+
+**Scope approved by the user, 2026-10-14, with ownership/expiry clarifications below;
+not implementation-ready.** Owner: Leave-owned handover worker using reusable proven
+worker patterns. Consumes Story 3.23's owned outbox and Story 3.22's shared receiver;
+shared channel-delivery processing retains the next bounded story.
+
+As an employee awaiting a notification,
+I want saved notification intent processed reliably,
+So that temporary outages or worker restarts do not lose or duplicate it.
+
+**Acceptance Criteria:**
+
+**Given** pending outbox work,
+**When** the Leave-owned handover worker claims an item,
+**Then** it obtains a bounded durable claim and releases the claim transaction before
+calling the shared notification API.
+
+**Given** work for different organizations,
+**When** items are processed,
+**Then** the worker uses restricted Leave service authority and each item's verified
+organization scope,
+**And** scope cannot leak between pooled transactions or come from arbitrary payload fields.
+
+**Given** confirmed receiver acceptance,
+**When** handover is recorded,
+**Then** only the current claim holder can complete the item,
+**And** completion means handover succeeded, not that an email was received.
+
+**Given** receiver acceptance followed by a lost response or worker crash,
+**When** the claim expires and processing resumes,
+**Then** the same immutable event identity/content is retried and receiver deduplication
+prevents another notification.
+
+**Given** a temporary failure,
+**When** delivery is retried,
+**Then** retries follow a bounded increasing-delay policy without resetting original expiry.
+Contract defects stop futile retries; failures are retained and surfaced through
+actionable diagnostics/alerts. Failed older work does not block unrelated newer notifications.
+
+**Given** an obsolete action-request notification that has not been handed over,
+**When** relevance is checked,
+**Then** it may be skipped with a recorded reason, preserving its original evidence,
+**And** factual notices use their own relevance rules. Uncertain or accepted handover
+cannot be labelled definitely unsent or cancelled locally.
+
+**Given** shutdown or forced termination,
+**When** processing stops,
+**Then** new claims stop, bounded drain is attempted and unfinished claims remain recoverable,
+**And** supervisor reporting retains forced-stop evidence and claims resumed processing
+only after verification.
+
+**Given** the original notification reaches its ninety-day deadline,
+**When** another outbound attempt would start,
+**Then** no new attempt starts and unresolved work receives an explicit expired outcome.
+Expiry stops new attempts; it does not cancel delivery already accepted by another service.
+
+Ownership clarification accepted — 2026-10-14: Leave's handover worker reads its outbox,
+checks Leave relevance and calls the shared API. Shared notification workers process
+their own accepted events/channel records with their own service credentials, without
+Leave database access. Generic implementation/scaffold is reusable, runtime ownership/
+credentials remain separate; separate owners need not run on separate machines. Restricted
+Leave authority and per-item organization scope are both necessary, with narrow permitted
+cross-organization discovery and no per-organization credential requirement.
+
+Temporal discussion resolved — 2026-10-14: user accepted retaining ADR-0114's bounded
+PostgreSQL outbox/handover worker for MVP and promoting proven generic mechanics.
+Temporal can support simple durable jobs but adoption still needs reliable database-to-
+external-scheduler handoff and idempotent effects. Do not change accepted owners or add
+a workflow engine in this story. Revisit upon committed operational/orchestration need;
+no categorical claim that Temporal cannot handle this job or new infrastructure authorized.
+
+Remote-effect clarification accepted: a receiving service may accept delivery before
+a timeout/expiry is observed locally. Preserve accepted/uncertain outcomes and recover
+with the original event identity; local cancellation/expiry is not guaranteed remote
+recall or proof of definitely not sent. No remote cancellation contract introduced.
+
+**Traceability / planned verification:** Platform ADR-0024/0026–0029; Leave
+ADR-0114–0117. Verify real overlapping claims/stale completion denial, expired lease
+recovery, original-event handover after lost response/crash, scoped restricted-role
+discovery/processing and pool reuse, no HTTP wait under business/claim locks, bounded
+temporary retries, retained correction-required/exhausted failures and actionable
+diagnostics/alerts. Explicit relevance fixtures distinguish obsolete action intent,
+factual notice and uncertain/already-accepted handover. Test before/at original expiry,
+graceful drain, supervisor forced-stop evidence, actual replacement progress/healthy
+idle versus unconfirmed recovery. No runtime tests executed; exact paths/commands pending.
+
+**Pre-story inputs / sizing:** Bind claims/fencing/lease/HTTP/shutdown deadlines, retry
+classification/schedule/limits, current scope/relevance observations, worker state/report
+and supervisor evidence. Preserve origin/time/type/version across attempts and supported
+queued/in-flight/retryable payload compatibility. Terminal outbox/attempt retention is
+ninety days after terminal state; do not apply it to business histories. Shared channel
+delivery owns its own subsequent failure/recovery; don't blindly replay the business
+operation. Operational recovery uses existing scoped audited commands/runbooks, not a
+Leave Manager queue screen. Final source/test/sizing/readiness remain open.
+
+**Impacts:** Scaffold: prove/promote generic owner worker/outbox/client/retry/claim/context/
+shutdown/report patterns and reference tests; Leave owns relevance/payloads. Shared UI:
+no technical queue or new permissions screen. Agent context: existing rules suffice.
+Documentation: handover/claim/retry/scope/relevance/expiry/shutdown contracts, runbook/test
+mapping and epics/tracker/handoff. ADR: accepted decisions retained; clarified ownership
+and unchanged Temporal deferral need no amendment. No code/notifications/readiness permission.
+
+### Story 3.25 rendering refinement — accepted 2026-10-14
+
+User approved standard shared English templates with clear dates and relevant organization
+identification, deferring custom logos/colors/editable templates and Portuguese delivery.
+Keep content ready for localization and existing preferences/English fallback intact.
+New additive [ADR-0130](../../apps/leave/docs/architecture/decisions/0130-standard-english-notification-templates-for-mvp.md)
+records the first-consumer scope; immutable predecessors unchanged.
+
+Replace the proposed recipient-language/custom-branding criterion with:
+**Given** an accepted notification,
+**When** it is rendered,
+**Then** it uses the standard shared English template and identifies the relevant organization,
+**And** its content respects the event family's privacy limits and remains ready for future localization.
+
+Story 3.25 remains under discussion pending its failure/responsibility clarification.
+Retries/contract-defect recovery follow platform ADR-0024's technical operations
+command/runbook path, not a business-admin queue screen. Full approval and exact
+contracts/tests/sizing/readiness remain pending. Requirements/spine/UX/tracker/handoff
+updated; standard template hooks are proved by first consumers, no custom editor or
+new agent-context rule. No code/translations/provider/notification changes.
+
+### Story 3.25: Deliver accepted notifications through email and in-app channels
+
+**Scope approved by the user, 2026-10-14, with narrower rendering and production-support
+failure ownership below; not implementation-ready.** Owner: shared notification channel
+processing/adapters and receiver-owned delivery records. Consumes durable acceptance and
+restricted service/runtime foundations. Actual inbox/read APIs and UI remain later consumers.
+
+As a notification recipient,
+I want permitted messages delivered through the intended channels,
+So that I learn about relevant changes while private details remain protected.
+
+**Acceptance Criteria:**
+
+**Given** a durably accepted event,
+**When** channel delivery is processed,
+**Then** the shared notification capability uses its approved recipients, event-family
+template and permitted content,
+**And** it processes its own records without accessing Leave's tables.
+
+**Given** email and in-app delivery,
+**When** their outcomes differ,
+**Then** each channel retains its own state,
+**And** an email failure does not remove a successful in-app notification or repeat
+completed channel work.
+
+**Given** retries or worker recovery,
+**When** processing resumes,
+**Then** stable identities prevent duplicate in-app records and support duplicate-safe
+provider recovery,
+**And** uncertain email-provider acceptance is distinguished from definite failure.
+
+**Given** an accepted notification,
+**When** it is rendered,
+**Then** it uses the standard shared English template and identifies the relevant organization,
+**And** its content respects the event family's privacy limits and remains ready for future
+localization. ADR-0130 defers custom logos/colors/editable templates and Portuguese delivery.
+
+**Given** delayed or reversed delivery order,
+**When** notifications arrive,
+**Then** they describe dated events without claiming a superseded state is current,
+**And** their links open current authorized application state. Newer delivery need not
+wait behind failed older work.
+
+**Given** temporary failures, contract defects or retry exhaustion,
+**When** delivery cannot complete,
+**Then** temporary failures receive bounded automatic retries; defects or exhausted
+retries retain evidence and alert production support,
+**And** recovery uses controlled operational actions without repeating the business
+change. No successful business change is rolled back or failed delivery labelled successful.
+
+**Given** notification expiry,
+**When** another delivery attempt would start,
+**Then** it respects the original ninety-day deadline,
+**And** does not imply that already-accepted provider work was recalled.
+
+Failure ownership clarified and accepted: production support diagnoses contract/provider
+defects and exhausted delivery, then uses scoped audited operational recovery. Business
+administrators do not review technical queues or diagnose delivery failures; source-data
+correction may involve its authorized owner where necessary. This is separate from
+ADR-0128's business responsibility for request funding impacts. No extra business-admin
+queue screen or repeated originating adjustment/entitlement operation.
+
+**Traceability / planned verification:** Platform ADR-0006/0023/0024/0029; Leave
+privacy/language/event-time decisions and ADR-0130. Verify real supported provider
+acceptance/status/recovery semantics, per-channel identity/state, no duplicate in-app
+creation or replay of completed channel, uncertain acceptance, temporary retries and
+visible retained defect/exhaustion with production-support alerts. Verify standard English
+template/org binding, translatable structure, strict event-family minimal content in
+subject/body/preview/links, dated events and current authorized destinations. Original
+deadline/cleanup and failed-older/newer progress use boundary/recovery fixtures.
+No runtime tests or provider sends executed; final paths/commands and sizing pending.
+
+**Pre-story inputs / sizing:** Bind actual provider adapter/capability, acceptance/status
+recovery, per-channel identities, safe templates, sender/recipient authority and retention.
+Do not promise duplicate-free external email without provider evidence or turn uncertainty
+into definite failure followed by blind resend. Receiver dedup and provider effect recovery
+are distinct. In-app message retention needs its own explicit contract; operational terminal
+detail retention cannot be blindly applied to all business/inbox history. Runbook/operator
+credentials and failure classification are technical-owner work, with safe diagnostics
+and current scoped audited retry. Inbox API/UI is not required to prove durable in-app
+channel creation. All technical/test/sizing/readiness gates remain open.
+
+**Impacts:** Scaffold: prove/promote generic channel/template/retry/status/client patterns
+and reference tests; Leave owns business content. Shared UI: standard rendering/formatting
+hooks suffice; defer custom-branding editor, inbox UI follows. Agent context: existing
+instructions suffice. Documentation: provider/channel/privacy/retention/recovery contracts,
+runbook/test mapping and epics/tracker/handoff checkpoint. ADR: 0130 scope retained;
+failure ownership follows platform 0024, no further amendment. No implementation permission.
+
+### Story 3.26: Read a scoped notification inbox and manage read state
+
+**Scope approved by the user, 2026-10-14, including the closed-selector dot/single-org
+clarifications below; not implementation-ready.** Owner: shared notification read/count/
+read-state contracts and Leave's authorized HTTP integration. Consumes actual durable
+in-app records, current user/access/scope and safe API/error foundations; panel UI follows.
+
+As a signed-in notification recipient,
+I want to read my organization's notifications and mark them read,
+So that unread counts reflect what I have seen without changing business actions.
+
+**Acceptance Criteria:**
+
+**Given** current authorized access to an organization,
+**When** its inbox is requested,
+**Then** the API returns only my permitted notification details for that organization,
+newest first with stable pagination,
+**And** another user's or organization's details are not exposed.
+
+**Given** memberships in multiple organizations,
+**When** selector counts are requested,
+**Then** they include only permitted unread counts for current authorized memberships,
+**And** contain no message previews or business-record details. These are selector counts,
+not a merged inbox; the main bell/panel displays only the selected organization's count/details.
+
+**Given** one of my authorized notifications,
+**When** I open it,
+**Then** its read state and corresponding unread count are updated,
+**And** repeated marking does not distort counts or affect another recipient.
+
+**Given** Mark all as read for the active organization,
+**When** it completes,
+**Then** it updates only my notifications within that scope,
+**And** leaves other organizations and users unchanged.
+
+**Given** a read-state change,
+**When** it is recorded,
+**Then** it does not approve leave, acknowledge unpaid amounts or resolve a business issue.
+
+**Given** a notification destination,
+**When** it is opened,
+**Then** the owning application checks current authority and displays current permitted state,
+**And** possessing the link grants no additional access.
+
+**Given** denied access or failed inbox/count retrieval,
+**When** the API responds,
+**Then** it distinguishes denial, unavailability and genuinely empty results,
+**And** a failed count check is not represented as zero unread.
+
+UX clarification approved: the selector menu shows each accessible organization's unread
+count and the closed selector has a discreet accessible dot when another accessible
+organization has unread messages. A:2/B:3 with active A gives bell two, menu badges two/
+three and another-org dot; selecting B loads B's inbox/bell three. With one accessible
+organization, show its name/bell and hide selector/dot. Unread and required business
+actions remain separate. [ADR-0131](../../apps/leave/docs/architecture/decisions/0131-other-organization-unread-indicator.md)
+records the additive presentation detail; Story 3.27 proves the actual UI.
+
+**Traceability / planned verification:** PRIV-06–09; Leave ADR-0015/0055/0056/0071/0131
+and shared notification UX/current-access contracts. Verify two users/two organizations,
+current membership/app/resource authority, revoked access, recipient-only list/read,
+count-only cross-org summaries, minimal payloads and current authorized destinations.
+Test idempotent read marking, scoped bulk read, count consistency/concurrent arrivals,
+stable newest-first pagination, denied versus unavailable/empty and late context replies.
+No runtime tests executed; exact source/test paths/commands and final sizing pending.
+
+**Pre-story inputs / sizing:** Bind public API owner/Leave adapters, current recipient/
+resource checks, timestamp/pagination ordering, per-user count consistency, and the
+boundary of all during concurrent arrivals. Shared HTTP owner boundaries remain; no
+browser Supabase business path, cross-owner tables or guessed domain authority from
+link possession. Separate notification read evidence from approval/acknowledgement,
+and declare retention independently from operational attempt cleanup. First notification
+families complete without future E5 request UI; later producer/access semantics are
+integrated by their consumers before activation. All readiness gates remain open.
+
+**Impacts:** Scaffold: prove/promote generic scoped client/read-state/count/privacy
+patterns with owner API and reference fixtures; no synthetic organizations for account/
+public apps. Shared UI: bell/panel/selector integration follows Story 3.27; reuse/prove
+neutral controls and accessible dot, Leave owns destination/business indicators.
+Agent context: existing instructions suffice. Documentation: read/count/access/pagination/
+retention contracts, test mapping, authority/UX/tracker/handoff. ADR: new additive 0131,
+predecessors immutable. No implementation/readiness permission.
+
+### Story 3.27: Show the notification panel and organization unread indicators
+
+**Scope approved by the user, 2026-10-14; not implementation-ready.** Owner: shared
+shell/panel/selector UI with Leave's scoped HTTP adapters and authorized destinations.
+Consumes Story 3.26's inbox/count/read-state contract and E1 organization/draft switching.
+No future approval/acknowledgement UI prerequisite for notification browsing.
+
+As a signed-in user,
+I want to open my current organization's notifications and notice unread messages
+in other accessible organizations,
+So that I can find updates without losing organization context.
+
+**Acceptance Criteria:**
+
+**Given** the selected organization,
+**When** I open the notification bell,
+**Then** it shows only that organization's permitted notifications, newest first,
+**And** rows show an unread marker, event title, permitted context and event time.
+
+**Given** desktop or mobile use,
+**When** the panel opens,
+**Then** it uses the approved desktop panel/mobile sheet with accessible focus,
+dismissal and return behavior.
+
+**Given** multiple accessible organizations,
+**When** counts load,
+**Then** the bell shows the active organization's count, selector entries show their
+permitted counts, and the closed selector has a discreet accessible dot when another
+organization has unread notifications.
+
+**Given** exactly one accessible organization,
+**When** the header appears,
+**Then** its name and notification bell remain visible,
+**And** the organization selector and dot are hidden.
+
+**Given** opening a notification or selecting Mark all as read,
+**When** the scoped API confirms success,
+**Then** read markers/counts update,
+**And** no approval, unpaid acknowledgement or required business response is completed.
+
+**Given** loading, empty or failed retrieval,
+**When** the panel is displayed,
+**Then** it distinguishes those states, offers Retry on failure and never presents
+failure as No notifications yet or zero unread.
+
+**Given** organization/account changes or revoked access,
+**When** responses arrive,
+**Then** stale results cannot expose the previous context or restore inaccessible counts.
+Organization switching retains the existing draft-saving safeguards.
+
+**Traceability / planned verification:** PRIV-07–09; Leave ADR-0055/0056/0071/0131,
+current-access/scope and shared panel UX. Verify actual API/browser read/count/bulk-read,
+single/multi-org header, other-org versus current-only unread dot, current destinations,
+account/org switch and delayed response isolation, revocation and failed versus empty
+loads/read writes. Test focus trap/return, keyboard dismissal/mobile sheet, accessible
+non-color-only unread cues and independent required-action state. Existing E1 fixtures
+prove original-org draft save/switch remains unaffected. No runtime tests executed;
+exact source/test paths/commands and final sizing pending.
+
+**Pre-story inputs / sizing:** Bind panel/selector API integration, accessible count/dot
+labels and updates, event-time presentation, scoped read confirmation/error handling,
+pagination, route return and stale response suppression. Prove actual interaction before
+shared promotion; static prototypes/catalogue descriptions do not constitute rendered
+accessibility or access enforcement. Do not expose message content in cross-org badges,
+invent a combined inbox or make optional notification loads a prerequisite for the first
+draft-preservation slice. All source/test/sizing/readiness gates remain open.
+
+**Impacts:** Scaffold: prove/promote generic notification-client/shell/count integration
+with reference tests, opt-in organization behavior and no synthetic account/public
+organization. Shared UI: prove/promote panel/selector/mobile/focus/accessible dot controls;
+Leave owns destinations/business-response indicators. Agent context: existing rules
+suffice. Documentation: interaction/API/access contracts, catalogue/test mapping and
+epics/tracker/handoff checkpoint. ADR: 0131 retained; no amendment. No code/notifications.

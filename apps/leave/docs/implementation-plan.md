@@ -781,7 +781,9 @@ concurrency, audit, and reversal tests.
 - [ ] Apply platform ADR-0028 event type/version contracts and queued/failed-event compatibility tests across deployment; retain unsupported work and coordinate producer/consumer rollout and handler retirement; no MVP schema registry
 - [ ] Keep outbox schema application-owned and implement ADR-0116 notification relevance: skip obsolete unhanded action requests with reason, preserve audit/payload, distinguish factual notices and accepted/uncertain remote handover
 - [ ] Define versioned Leave domain events and transactional outbox with stable event IDs and originating operation links under platform ADR-0012; verify duplicate-safe acceptance and preserved tracing across retries
-- [ ] Implement notification templates with tenant branding
+- [ ] Implement standard shared English notification templates identifying the relevant
+  organization, with clear dates and localization-ready content; defer custom logos/colors,
+  editable templates and Portuguese delivery under Leave ADR-0130
 - [ ] Verify ADR-0117 delayed/reversed notifications: dated event wording, current authorized request links and independent progress of newer messages; no email-ordering mechanism
 - [ ] Implement asynchronous email delivery, retries, dead-letter handling, and deduplication
 - [ ] Apply notification-only platform ADR-0029: 90-day original-event retry expiry, 90-day terminal detail retention, acceptance-based receiver deduplication retention with unresolved-work protection, expired-event rejection after cleanup and audited new-notification recovery without repeating leave actions
@@ -2180,3 +2182,190 @@ and earned/future reservation distinctions. Drafts reserve nothing; final approv
 pending release does not create headroom. Bind ordered precise state/event/reservation
 contracts and integrate actual expiry/rollover consumers before complete availability claims.
 Continue at Story 3.11 discussion; no code/tests/readiness claim, final sizing remains open.
+
+Story 3.11 scope agreed — 2026-10-13: user approved
+[upfront annual entitlement calculation](../../../_bmad-output/planning-artifacts/epics.md#story-311-calculate-upfront-annual-entitlement),
+including period-start/joining availability, inclusive calendar-day proration versus full
+allowance, final whole-minute floor, departure consequences, preserved current-period
+allowance after prospective rate change and cap exclusion/no catch-up. Actual mutation
+writers retain review/history/request/notification safeguards. Technical inputs/source
+tests/final sizing/readiness remain open. User's new upfront-plus-proration default
+question is under discussion; existing policies/default decisions unchanged so far.
+
+New automatic-policy default accepted — 2026-10-13:
+[ADR-0127](./architecture/decisions/0127-upfront-entitlement-with-calendar-day-proration-default.md)
+records upfront annual availability plus calendar-day joining/leaving proration as
+editable initial selections. Preserve existing policies, explicit choices and reviewed
+example-specific settings. Daily/monthly alternatives and monthly adjustment default
+remain; daily mode has no second proration and manual-only remains separate. No annual
+amount/period-basis/cap/carry-over default selected. Stories 3.3/3.4 trace form defaults;
+3.11 retains existing upfront calculation/departure safeguards. Requirements/spine/UX/
+epics/handoff updated; no generic scaffold default, shared-UI or agent-context change.
+Continue Story 3.12 discussion; contracts/test coverage/sizing/readiness remain open.
+
+Story 3.12 scope agreed — 2026-10-13: user approved
+[complete monthly entitlement instalments](../../../_bmad-output/planning-artifacts/epics.md#story-312-calculate-monthly-entitlement-instalments),
+with twelve aligned anchored periods, local start/end availability, cumulative whole-minute
+precision and no replenishment of consumption/cap exclusions. Partial employment/rate
+changes follow in a separate bounded story using ADR-0105, not superseded standalone
+partial rounding. ADR-0127 upfront default unchanged; monthly remains selectable.
+Continue at Story 3.13 discussion; exact contracts/source tests/final sizing/readiness open.
+
+Story 3.13 scope agreed — 2026-10-13: user approved
+[monthly partial employment and rate changes](../../../_bmad-output/planning-artifacts/epics.md#story-313-calculate-monthly-entitlement-across-partial-employment-and-rate-changes),
+including inclusive aligned proration, joining availability, next-instalment policy-rate
+changes and cumulative fractions under ADR-0105. Clarified that scheduled instalment
+amount comes from policy allowance, not remaining balance; no restoration of capped-out
+earning. Recurring overrides keep their separate leave-period boundary. Actual change
+writers retain review/history/request/notification obligations. Continue at Story 3.14;
+exact contracts/source tests/final sizing/readiness remain open.
+
+Request-impact accountability accepted — 2026-10-13:
+[ADR-0128](./architecture/decisions/0128-accountable-request-impacts-of-administrative-changes.md)
+records change-authorizer ownership, mandatory impact review, visible pending issues
+and human coordination through existing scoped approval/adjustment/correction actions.
+No temporary funding-permission transfer or referral workflow. Discretionary administrative
+approved-request impacts resolve before commit; necessary factual corrections retain
+deficit review, original approval evidence and visible attention. E5/E6 first consumers
+integrate/prove real writer impacts, exact acknowledgement/finalization and attention
+before activation; earlier fixture stories do not establish this. Requirements/spine/UX/
+epics/handoff updated; generic scaffold/UI patterns follow first consumers, existing agent
+instructions suffice. No code/data/readiness change.
+
+Story 3.14 scope agreed — 2026-10-13: user approved
+[carry-over calculation](../../../_bmad-output/planning-artifacts/epics.md#story-314-calculate-carry-over-at-a-leave-year-boundary)
+with no/all/limited transfer, standard-day conversion evidence, carried provenance,
+once-only/repeated transfer, no expiry extension and boundary ordering. Preserve
+earliest-expiry consumption; annual allowance is not the carry-over limit. Known expiry/
+rollover is included in original reservation projections, not a surprise shortfall.
+Later changes follow ADR-0128 accountability through existing authorized workflows.
+Same-expiry tie-breaking remains open (oldest source period suggested, not separately
+accepted). Continue at Story 3.15 expiry discussion; contracts/source tests/sizing/readiness open.
+
+Story 3.15 scope agreed — 2026-10-13: user approved
+[entitlement expiry calculation](../../../_bmad-output/planning-artifacts/epics.md#story-315-calculate-entitlement-expiry-dates-and-effects),
+with accepted month-end/leap examples, inclusive last usable dates, preserved earlier
+expiry, no reservation-based validity extension and expiry-before-earning/cap ordering.
+Bind actual portion/date/timezone and auditable effect representation without duplicate
+derived/actual effects or write-on-read. Continue at Story 3.16 discussion; exact
+contracts/source tests/final sizing/readiness remain open.
+
+Story 3.16 scope agreed — 2026-10-14: user approved
+[automatic availability-method transitions](../../../_bmad-output/planning-artifacts/epics.md#story-316-calculate-changes-between-entitlement-availability-methods).
+Complete the current period under its existing method; apply the next method at each
+employee's next calendar/anniversary boundary, retaining carry-over/expiry/cap/history
+and actual request-impact safeguards. Leave-year-basis/manual-only/untracked transitions
+remain separate decisions. Continue at Story 3.17 discussion; exact contracts/source tests/
+final sizing/readiness remain open, with no code/tests or implementation authorization.
+
+Story 3.17 scope agreed — 2026-10-14: user approved
+[authoritative current balance](../../../_bmad-output/planning-artifacts/epics.md#story-317-calculate-an-authoritative-current-leave-balance)
+with earning/event/cap/rollover/expiry assembly, separate remaining/reserved/available
+and future-funded commitments. Manual-only earns nothing without explicit grants; zero
+is valid. Authorized corrected inputs/new correcting events affect current results while
+original events/approvals/snapshots remain intact. Bind consistent observations/result/
+performance contracts; direct indexed calculation first. Continue at Story 3.18 discussion;
+source/test mapping, final sizing and readiness remain open, no code/tests executed.
+
+Story 3.18 scope agreed — 2026-10-14: user approved
+[date-by-date funding projection](../../../_bmad-output/planning-artifacts/epics.md#story-318-project-funding-for-every-requested-leave-date),
+including candidate consumption carried forward, date-valid earning/expiry, protected
+existing reservations, exact shortfalls and no preview mutations/cross-type borrowing.
+[ADR-0129](./architecture/decisions/0129-oldest-source-period-for-equal-expiry-allocation.md)
+records agreed oldest original source period for equal expiry, with stable final identity
+tie-break; exact representation/reconstruction stays open. Requirements/spine/UX/test
+traceability updated; existing generic UI/scaffold/agent patterns suffice. Continue at
+Story 3.19 discussion; contracts/source tests/final sizing/readiness remain open.
+
+Story 3.19 scope agreed — 2026-10-14: user approved
+[Apply request preview](../../../_bmad-output/planning-artifacts/epics.md#story-319-show-a-clear-leave-request-preview-in-apply),
+using backend duration/funding with clear paid/requested-unpaid/remaining and current/
+selected-date distinctions, expandable source explanations and precise conversion.
+Ignore superseded context/input replies; missing/failed calculation is not zero/valid
+funding and does not block draft preservation. Binding acknowledgement/submission/
+reservations retain E5 ownership. Continue at Story 3.20 discussion; exact contracts/
+source tests/final sizing/readiness remain open, no code/tests executed.
+
+Story 3.20 scope agreed — 2026-10-14: user approved
+[Apply restrictions/required-input guidance](../../../_bmad-output/planning-artifacts/epics.md#story-320-explain-request-restrictions-and-required-information-in-apply)
+including explained twelve-month advance booking, inclusive full-range cutoff, notice/
+backdating reasons, employment end dates, active-state aggregate duration and conditional
+document guidance. Provisional checks do not block draft preservation; E4/E5 actual
+attachment/submission/concurrency checks retain their own proof. Twenty E3 scopes agreed;
+continue exceptional funding proposal and remaining notification/mutation/view/lifecycle
+decomposition at Story 3.21. Final contracts/source tests/dependencies/sizing/readiness open.
+
+Story 3.21 scope agreed — 2026-10-14: user approved
+[exceptional funding proposal calculation](../../../_bmad-output/planning-artifacts/epics.md#story-321-calculate-an-exceptional-funding-proposal),
+including default unpaid, separately authorized funding lines/grants, date-valid source
+capacity and exact reconciliation/reason/paid-unpaid results. No actual grants/transfers/
+reservation/approval or recurring allowance change; E5 owns binding decisions and
+acknowledgement. Continue group 5 notification foundations at Story 3.22; source/authority/
+grant-validity/result contracts, final tests/sizing/readiness remain open.
+
+Story 3.22 scope agreed — 2026-10-14: user approved
+[durable shared notification acceptance](../../../_bmad-output/planning-artifacts/epics.md#story-322-durably-accept-notification-events)
+with scope/version/privacy validation, durable receipts, immutable matching-event retries
+and ninety-day origin expiry/dedup retention. Changed retry content is explicitly rejected,
+not replaced/deleted/redelivered; trusted-producer defects surface to operations. Unexpected
+failures protect data/recoverable work and produce actionable logs/alerts, never false
+acceptance or hidden skipped work. No blanket process crash or rollback of an already
+committed business action for notification failure. Bind receiver/authority/envelope/
+error/alert contracts before readiness. Continue at Story 3.23 outbox discussion;
+source/test mapping, final sizing/readiness remain open, no notifications/code/tests.
+
+Story 3.23 scope agreed — 2026-10-14: user approved
+[atomic Leave notification intent](../../../_bmad-output/planning-artifacts/epics.md#story-323-save-notification-intent-atomically-with-leave-changes),
+including operation/event identity distinction, immutable envelope/origin, rollback on
+intent-recording failure and pending intent after remote outage. Use Story 3.22's shared
+HTTP API plus an internal transactional helper/scaffold pattern; no arbitrary standalone
+Leave notification-writing endpoint or cross-owner queue. Promote proven generic helper
+with first consumers and tests. Continue at Story 3.24 worker handover; exact contracts/
+source tests/final sizing/readiness remain open, no code/tests/notifications performed.
+
+Story 3.24 scope agreed — 2026-10-14: user approved
+[recoverable Leave handover worker](../../../_bmad-output/planning-artifacts/epics.md#story-324-hand-over-leave-notifications-through-a-recoverable-worker),
+with narrow restricted discovery, per-item verified organization scope, bounded fenced
+claims, unchanged-event crash recovery, visible failure classification and truthful
+shutdown/recovery evidence. Reuse worker/scaffold implementation with Leave-owned
+credentials; shared delivery workers use their own notification records/authority.
+Retain accepted PostgreSQL worker/Temporal deferral. Expiry stops new attempts, not
+accepted remote delivery. Continue Story 3.25 shared channel delivery; exact contracts/
+runbook/source tests/final sizing/readiness remain open, no code/notifications performed.
+
+Story 3.25 rendering scope narrowed — accepted 2026-10-14:
+[ADR-0130](./architecture/decisions/0130-standard-english-notification-templates-for-mvp.md)
+records standard shared English templates with clear dates/relevant organization identity.
+Custom branding/editable templates/Portuguese delivery deferred; localization readiness,
+existing preferences and English fallback retained. Retry/failure recovery remains technical
+operations under platform ADR-0024, not a business-admin queue review. Full Story 3.25
+approval/failure clarification and exact contracts/tests/sizing/readiness remain pending.
+
+Story 3.25 scope agreed — 2026-10-14: user approved
+[shared email/in-app delivery](../../../_bmad-output/planning-artifacts/epics.md#story-325-deliver-accepted-notifications-through-email-and-in-app-channels),
+with independent channel states, explicit uncertain provider acceptance, minimal standard
+English/org-bound templates under ADR-0130, dated events and original retry expiry.
+Bounded retries are automatic; contract/provider defects and exhaustion go to production
+support for controlled audited recovery, not business-admin technical queue review.
+Actual provider duplicate/status evidence and inbox retention contracts remain pre-story
+inputs. Continue at Story 3.26 inbox/read APIs; all contracts/tests/sizing/readiness open,
+no code/provider changes/notifications performed.
+
+Story 3.26 scope agreed — 2026-10-14: user approved
+[scoped inbox/count/read-state APIs](../../../_bmad-output/planning-artifacts/epics.md#story-326-read-a-scoped-notification-inbox-and-manage-read-state),
+with selected-org details/bell, count-only permitted selector badges, recipient/org-scoped
+read/bulk-read and no business acknowledgement effects. New
+[ADR-0131](./architecture/decisions/0131-other-organization-unread-indicator.md) records the
+approved discreet dot for another accessible organization's unread notifications and
+hidden selector with a single accessible organization. Shared/Leave written UX updated;
+actual panel/selector UI follows Story 3.27. Exact API/access/count/pagination/retention/
+test contracts, final sizing and readiness remain open; no code/notifications performed.
+
+Story 3.27 scope agreed — 2026-10-14: user approved
+[notification panel/selector UI](../../../_bmad-output/planning-artifacts/epics.md#story-327-show-the-notification-panel-and-organization-unread-indicators),
+with selected-org details/bell, permitted selector counts/other-org dot, hidden selector
+for one accessible organization, scoped confirmed read updates and separate business
+responses. Loading/empty/failure and context/revocation/focus/mobile checks remain explicit;
+optional notifications do not gate the first draft slice. Continue deferred assignment
+confirmation at Story 3.28 after calculation/notification foundations. Exact contracts/
+source tests/final sizing/readiness remain open, no code/tests/notifications performed.
