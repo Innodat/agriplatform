@@ -8,6 +8,8 @@ organization variants in first-consumer fixtures before promotion. Not implement
 
 **Status:** Placeholder — Phase 3
 
+The existing ENV owner now provides [guarded disposable KDG target preparation](../deployment/DEVELOPMENT.md) via `python3 platform/deployment/dev.py prepare --target <JSON> --run-id <UUID>`. Preparation reserves run identity/source evidence only; runtime readiness and this generator remain undelivered.
+
 CLI tool for scaffolding features and enforcing platform patterns.
 
 ## Purpose

@@ -1,5 +1,16 @@
 # KDG Capture planning
 
+Current authorization, 2026-10-14: the user approved beginning bounded shared-platform
+implementation with synthetic local/CI verification. This supersedes the historical
+planning-only authorization statements below. bmad-help selected ENV before
+P1/SERVICE and Identity/Access/WRITE. The first Build increment is
+[guarded disposable target preparation](../../../_bmad-output/implementation-artifacts/spec-env-kdg-target-preparation.md),
+under the existing deployment owner. Preparation alone does not deliver the enclosing
+ENV runtime/bootstrap acceptance, generator or KDG Story 1.1 prerequisites. Production
+migrations, access/account changes, infrastructure, deployment and real-data pilot use
+remain outside approval. Leave implementation and the questionnaire editor remain out
+of scope.
+
 Planning only, 2026-10-12. No application implementation, dependency installation,
 migration, access change or deployment is authorized by these files.
 

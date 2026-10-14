@@ -1,0 +1,129 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://agriplatform.invalid/development-target-v1.json",
+  "title": "KDG disposable preparation target v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "target_id",
+    "environment_kind",
+    "owner_ids",
+    "workspace_root",
+    "project_id_prefix",
+    "ports",
+    "origins",
+    "callback_urls",
+    "fixture_ref",
+    "secret_refs",
+    "release_registry_ref"
+  ],
+  "properties": {
+    "schema_version": {
+      "type": "integer",
+      "const": 1
+    },
+    "target_id": {
+      "type": "string",
+      "pattern": "^kdg-[a-z][a-z0-9-]{0,47}$"
+    },
+    "environment_kind": {
+      "enum": [
+        "local_disposable",
+        "ci_disposable"
+      ]
+    },
+    "owner_ids": {
+      "const": [
+        "identity",
+        "access",
+        "kdg_capture"
+      ]
+    },
+    "workspace_root": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 512
+    },
+    "project_id_prefix": {
+      "const": "agriplatform-kdg"
+    },
+    "ports": {
+      "type": "object",
+      "required": [
+        "web",
+        "api",
+        "supabase_api",
+        "database",
+        "shadow",
+        "studio",
+        "mail",
+        "device_tls"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "web": {
+          "type": "integer",
+          "const": 5188
+        },
+        "api": {
+          "type": "integer",
+          "const": 8188
+        },
+        "supabase_api": {
+          "type": "integer",
+          "const": 55481
+        },
+        "database": {
+          "type": "integer",
+          "const": 55482
+        },
+        "shadow": {
+          "type": "integer",
+          "const": 55480
+        },
+        "studio": {
+          "type": "integer",
+          "const": 55483
+        },
+        "mail": {
+          "type": "integer",
+          "const": 55484
+        },
+        "device_tls": {
+          "type": "integer",
+          "const": 8443
+        }
+      }
+    },
+    "origins": {
+      "const": [
+        "http://localhost:5188",
+        "http://localhost:55481",
+        "https://kdg-capture.test:8443",
+        "https://kdg-auth.test:8443"
+      ]
+    },
+    "callback_urls": {
+      "const": [
+        "http://localhost:55481/auth/v1/callback",
+        "http://localhost:5188/auth/callback",
+        "https://kdg-capture.test:8443/auth/callback",
+        "https://kdg-auth.test:8443/auth/v1/callback"
+      ]
+    },
+    "fixture_ref": {
+      "const": "platform/deployment/fixtures/kdg-synthetic-v1.json"
+    },
+    "secret_refs": {
+      "const": [
+        "platform/deployment/.local/kdg/{run_id}/secrets/identity.env",
+        "platform/deployment/.local/kdg/{run_id}/secrets/access.env",
+        "platform/deployment/.local/kdg/{run_id}/secrets/kdg_capture.env"
+      ]
+    },
+    "release_registry_ref": {
+      "const": "platform/deployment/registry.json"
+    }
+  }
+}

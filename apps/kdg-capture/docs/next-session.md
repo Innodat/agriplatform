@@ -1,11 +1,24 @@
-# Resume after KDG/shared planning readiness PASS
+# Resume shared ENV delivery after KDG planning PASS
 
 2026-10-14. Five epics/19 stories and shared owner boundaries are approved. The sole
 owner acknowledged all efforts; TypeScript 7.0.2/newest stable baseline is selected.
-Planning readiness now PASS; runtime prerequisites/pilot/release readiness are unproven.
-No implementation, installs, migrations, access, secrets, infrastructure or deployment
-is authorized by this handoff. Stop for review before code; implementation approval
-must be separate. Do not ask for owner acknowledgement or restart requirements.
+Planning readiness is PASS; runtime prerequisites/pilot/release readiness are unproven.
+The user separately approved beginning bounded shared-platform implementation through
+bmad-help/bmad-build with ATDD/focused TDD and isolated synthetic local/CI verification.
+Production migrations, access/account changes, infrastructure provisioning, deployment
+and real-data pilot use remain outside that approval. Do not repeat acknowledgement
+or requirements gathering, implement Leave, or begin with the questionnaire editor.
+
+First selected existing owner item: ENV, before P1/SERVICE and Identity/Access/WRITE.
+Its guarded target-preparation increment is implemented; see
+[delivery evidence](../../../platform/deployment/ENV_PREPARATION_EVIDENCE.md),
+[actual command/runbook](../../../platform/deployment/DEVELOPMENT.md) and
+[Build record](../../../_bmad-output/implementation-artifacts/spec-env-kdg-target-preparation.md).
+Preparation validates the target and records protected run/source identities only.
+`runtime_ready` remains false. `up/verify/stop/reset` refuse undelivered adapters.
+The enclosing ENV runtime/bootstrap acceptance and P1/SERVICE generator remain open.
+Continue those existing owner items before dependent foundations or the server-backed
+KDG slice; do not confuse the completed preparation increment with a runnable stack.
 
 Read current working-tree AGENTS.md and apps/kdg-capture/docs/README.md,
 implementation-readiness.md, shared-platform-handoff.md, shared-prerequisites.md,
@@ -15,10 +28,10 @@ scaffold-dependency-baseline-2026-10-14.md, identity-access-execution-substrate.
 owned-write-and-secret-execution.md and linked accepted ADRs. Preserve concurrent
 Leave/PtS changes and use uncommitted documents; no fresh-worktree assumptions.
 
-After explicit implementation approval, use bmad-help/bmad-build on the first bounded
-ENV/P1/SERVICE foundation, then Identity/Access/WRITE prerequisites before their KDG
-consumers. Do not wait for all Leave planning, claim runtime support from documents,
-apply live migrations/grants or implement Leave. Observe acceptance failure first,
+Continue bmad-build on bounded ENV/P1/SERVICE foundation increments, then
+Identity/Access/WRITE prerequisites before their KDG consumers. Do not wait for all
+Leave planning, claim runtime support from documents, apply live migrations/grants
+or implement Leave. Observe acceptance failure first,
 then focused TDD and affected owner/consumer suites. Existing owners retain common
 schema/client/generator/test/runbook work; KDG integrates first-consuming offline proof.
 

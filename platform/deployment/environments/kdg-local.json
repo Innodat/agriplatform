@@ -1,0 +1,41 @@
+{
+  "schema_version": 1,
+  "target_id": "kdg-local",
+  "environment_kind": "local_disposable",
+  "owner_ids": [
+    "identity",
+    "access",
+    "kdg_capture"
+  ],
+  "workspace_root": "/home/ck/repos/innodat/agriplatform",
+  "project_id_prefix": "agriplatform-kdg",
+  "ports": {
+    "web": 5188,
+    "api": 8188,
+    "supabase_api": 55481,
+    "database": 55482,
+    "shadow": 55480,
+    "studio": 55483,
+    "mail": 55484,
+    "device_tls": 8443
+  },
+  "origins": [
+    "http://localhost:5188",
+    "http://localhost:55481",
+    "https://kdg-capture.test:8443",
+    "https://kdg-auth.test:8443"
+  ],
+  "callback_urls": [
+    "http://localhost:55481/auth/v1/callback",
+    "http://localhost:5188/auth/callback",
+    "https://kdg-capture.test:8443/auth/callback",
+    "https://kdg-auth.test:8443/auth/v1/callback"
+  ],
+  "fixture_ref": "platform/deployment/fixtures/kdg-synthetic-v1.json",
+  "secret_refs": [
+    "platform/deployment/.local/kdg/{run_id}/secrets/identity.env",
+    "platform/deployment/.local/kdg/{run_id}/secrets/access.env",
+    "platform/deployment/.local/kdg/{run_id}/secrets/kdg_capture.env"
+  ],
+  "release_registry_ref": "platform/deployment/registry.json"
+}

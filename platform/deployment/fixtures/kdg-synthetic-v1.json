@@ -1,0 +1,14 @@
+{
+  "schema_version": 1,
+  "fixture_id": "kdg-synthetic-v1",
+  "synthetic_only": true,
+  "owner_ids": [
+    "identity",
+    "access",
+    "kdg_capture"
+  ],
+  "runtime_fixture_implemented": false,
+  "accounts": [],
+  "grants": [],
+  "domain_records": []
+}
