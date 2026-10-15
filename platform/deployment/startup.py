@@ -5,6 +5,7 @@ No public command starts containers or wires this adapter into dev.py up.
 """
 from contextlib import contextmanager
 import json
+import base64
 import os
 from pathlib import Path
 import re
@@ -58,6 +59,43 @@ def fail(code):
 def labels(target, run_id):
     return {LABEL_PREFIX + 'owner': 'platform/deployment', LABEL_PREFIX + 'target': target['target_id'],
             LABEL_PREFIX + 'run': run_id, LABEL_PREFIX + 'project': dev.project_identity(target, run_id)}
+
+
+def fixture_volume(target, run_id):
+    """Synthetic profile only; acquisition is required for a daemon observation."""
+    project = dev.project_identity(target, run_id)
+    return {'Name': 'supabase_db_' + project, 'Driver': 'local', 'Scope': 'local',
+            'Labels': dict(labels(target, run_id), **{'com.supabase.cli.project': project,
+                          'com.docker.compose.project': project}), 'Options': None}
+
+
+def volume_descriptor(actual, target, run_id):
+    """Select safety/continuity evidence; never expose or follow Mountpoint."""
+    expected = fixture_volume(target, run_id)
+    if type(actual) is not dict or 'ClusterVolume' in actual:
+        dev.refuse('volume', 'volume_not_run_owned')
+    for key in ['Name', 'Driver', 'Scope', 'Labels']:
+        if key not in actual or type(actual[key]) is not type(expected[key]) or actual[key] != expected[key]:
+            dev.refuse('volume', 'volume_not_run_owned')
+    if 'Options' not in actual or not (actual['Options'] is None or
+            (type(actual['Options']) is dict and not actual['Options'])):
+        dev.refuse('volume', 'volume_not_run_owned')
+    result = {key: actual[key] for key in expected}
+    if 'CreatedAt' in actual:
+        if type(actual['CreatedAt']) is not str or len(actual['CreatedAt']) > 128:
+            dev.refuse('volume', 'volume_not_run_owned')
+        result['CreatedAt'] = actual['CreatedAt']
+    return result
+
+
+def validate_fixture_volume(fixture):
+    project = fixture['project']
+    run_id = fixture['run_id']
+    suffix = '-' + base64.urlsafe_b64encode(uuid.UUID(run_id).bytes).decode().rstrip('=')
+    if not project.endswith(suffix):
+        dev.refuse('volume', 'volume_not_run_owned')
+    target = {'target_id': fixture['target_id'], 'project_id_prefix': project[:-len(suffix)]}
+    return volume_descriptor(fixture.get('volume'), target, run_id)
 
 
 def fixture_network(target, run_id):
@@ -310,6 +348,7 @@ def fixture_command(runtime, args, fixture, events):
         fail('unexpected_container_command')
     project = fixture['project']
     if args[:1] == ['create']:
+        validate_fixture_volume(fixture)
         original = list(args)
         index = create_facts(original, fixture, image_index=True)
         expected = original.copy()
@@ -335,10 +374,11 @@ def fixture_command(runtime, args, fixture, events):
         return 0, json.dumps([fixture['network']]), ''
     if args == ['volume', 'inspect', 'supabase_db_' + project]:
         events.append({'kind': 'volume_inspect'})
-        return 0, json.dumps([{'Name': args[-1], 'Labels': {'com.supabase.cli.project': project}}]), ''
+        return 0, json.dumps([validate_fixture_volume(fixture)]), ''
     volume = 'supabase_db_' + project
     if args == ['volume', 'create', '--label', 'com.supabase.cli.project=' + project,
                 '--label', 'com.docker.compose.project=' + project, volume]:
+        validate_fixture_volume(fixture)
         events.append({'kind': 'existing_volume_create_refused'})
         return 1, '', 'volume already exists'
     fail('unexpected_container_command')
@@ -465,11 +505,13 @@ def fixture_main(runtime, args, directory, stop_parent=False):
             os.close(parent_fd)
 
 
-def install_fixture(work, target, run_id, network, executable=None, guard_parent=True, *, selection_plan):
+def install_fixture(work, target, run_id, network, executable=None, guard_parent=True, *, selection_plan, volume=None):
+    volume = volume_descriptor(fixture_volume(target, run_id) if volume is None else volume, target, run_id)
     validate_selection_plan(selection_plan)
     pins = images.load_pins(dev.read(dev.ROOT / images.PINS))
     references = ['public.ecr.aws/' + item['repository'] + ':' + item['tag'] for item in pins['images']]
     fixture = {'project': dev.project_identity(target, run_id), 'workdir': str(work),
+               'target_id': target['target_id'], 'run_id': run_id, 'volume': volume,
                'executable': str(executable) if executable is not None else '',
                'database_port': target['ports']['database'], 'network': network,
                'images': references, 'postgres_image': references[0], 'selection_plan': selection_plan}
@@ -487,7 +529,7 @@ def install_fixture(work, target, run_id, network, executable=None, guard_parent
         (work / 'bin' / runtime).chmod(0o700)
 
 
-def synthetic_probe(executable, target, run_id, network=None, control='positive', *, selection_plan):
+def synthetic_probe(executable, target, run_id, network=None, control='positive', *, selection_plan, volume=None):
     if control not in ['positive', 'invalid-network', 'contaminated-workdir', 'reject-command', 'invalid-selection-plan']:
         fail('unknown_control')
     if control == 'invalid-selection-plan':
@@ -504,7 +546,7 @@ def synthetic_probe(executable, target, run_id, network=None, control='positive'
         if control == 'contaminated-workdir':
             write_private(work / '.env', b'ENV_SYNTHETIC_UNTRUSTED=1')
         command, env = invocation(executable, work, target, run_id, network)
-        install_fixture(work, target, run_id, network, executable, guard_parent=control != 'reject-command', selection_plan=selection_plan)
+        install_fixture(work, target, run_id, network, executable, guard_parent=control != 'reject-command', selection_plan=selection_plan, volume=volume)
         fixture_hash = dev.digest(dev.read(work / 'fixture.json'))
         wrappers = {name: dev.digest(dev.read(work / 'bin' / name)) for name in ['docker', 'podman']}
         env['PATH'] = str(work / 'bin')
@@ -583,7 +625,8 @@ def qualify(args):
     payload = dev.ROOT / 'platform/deployment/.local/kdg-toolchains' / args.run_id / 'payload'
     with toolchain.anchored_directory(payload) as (fd, pinned):
         result = synthetic_probe(pinned / 'supabase/supabase', target, args.run_id,
-                                 control=getattr(args, 'control', 'positive'), selection_plan=selection_plan)
+                                 control=getattr(args, 'control', 'positive'), selection_plan=selection_plan,
+                                 volume=getattr(args, '_volume', None))
         if not toolchain.anchor_current(payload, fd):
             fail('tool_payload_changed')
     # Repeat existing owner checks: no repair/registry fetch; evidence must remain unchanged.

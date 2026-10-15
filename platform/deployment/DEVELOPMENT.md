@@ -431,3 +431,58 @@ PostgreSQL request. Other services/helpers and real digest-bound execution remai
 unqualified. No real Docker mutation, layers, containers, SQL or migrations occur.
 The [immutable-create evidence](ENV_IMMUTABLE_CREATE_EVIDENCE.md) records verification
 and impact decisions; the earlier startup evidence remains historical.
+
+## Run-owned database volume qualification
+
+Preparation reserves `supabase_db_<project>`, matching the pinned CLI's PostgreSQL
+volume/mount name. The bounded `volumes.py` adapter inspects that exact name after
+current preparation/source checks and the Linux Docker28 prerequisite. Only a404
+allows one create POST, followed by independent reinspection. Existing volumes need
+no POST. A201 response can represent an existing volume, so output reports
+`post_attempted` and the verified profile; it never claims newly created storage.
+
+Run the public private-daemon proof with a fresh prepared run:
+
+```sh
+python3 platform/deployment/tests/qualify_volumes.py --target platform/deployment/environments/kdg-local.json --run-id <prepared-UUID>
+```
+
+`--control existing` and `--control racing-owned` are positive controls. Negative
+controls are `foreign`, `racing-foreign`, `unsafe-options`, `cluster`, `changed`,
+`lost-response`, `old-daemon`, `malformed`, `oversized`, `slow`, `daemon-error`, and
+`missing-preparation` (use an unprepared UUID). They return nonzero safe codes.
+There is no public daemon endpoint override; all qualifier traffic uses its own
+private synthetic Unix daemon. The actual adapter fixes `/var/run/docker.sock` and
+ignores ambient Docker endpoint variables. Transport adds only v1.48 volume
+inspection and creation routes to the existing bounded HTTP mechanism.
+
+The descriptor requires exact name, local driver/scope, the four ENV ownership
+labels plus both Supabase/Compose project labels, and explicit null or empty options.
+Cluster-volume metadata is refused. Optional CreatedAt is bounded and retained internally
+for observation continuity, but omitted from public diagnostics because it is daemon
+text; Mountpoint is never followed or published. Full selected
+observations must agree before handoff. Name-addressed volume inspection cannot
+establish immutable identity, empty/unused/unattached storage or kernel isolation.
+Foreign collisions and uncertain POST responses fail without retries, repair or
+delete; a later explicit attempt begins with inspection.
+
+Both resource adapters use the existing protected `.network-<UUID>.lock` in the run
+parent. This is intentionally the same bounded serialization lock, despite its
+historical network name. Preparation/source/run/lock evidence is checked before
+mutation and handoff. Old preparations and immutable receipts are preserved; source
+changes require a fresh run.
+
+The internal `_handoff` callback is only for trusted immediate nonblocking construction.
+The total acquisition deadline is checked around it; it cannot preempt arbitrary Python
+or safely bound runtime execution. Do not perform startup or external waits in it.
+
+The public pinned-CLI startup qualifier acquires a synthetic volume through this
+adapter and supplies its complete descriptor to the existing startup fixture. Volume
+acquisition releases its lock and closes the private daemon before this separate process
+proof: the qualifier proves descriptor transfer, not continuous locked observations
+through startup. Volume
+inspection and PostgreSQL creation validate that descriptor and exact mount identity;
+volume creation and the first container create remain refused. `dev.py up` stays
+gated, `runtime_ready=false`, and no real Docker mutation, pull, SQL or migration is
+part of these proofs. See [ENV_RUN_VOLUME_EVIDENCE.md](ENV_RUN_VOLUME_EVIDENCE.md)
+for results and impact decisions.

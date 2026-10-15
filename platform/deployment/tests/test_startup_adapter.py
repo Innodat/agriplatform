@@ -189,7 +189,8 @@ class BoundaryControls(unittest.TestCase):
         self.target = dev.decode(dev.read(ROOT / 'platform/deployment/environments/kdg-local.json'))
         self.project = dev.project_identity(self.target, RUN)
         self.network = startup.fixture_network(self.target, RUN)
-        self.fixture = {'project': self.project, 'workdir': '/private', 'network': self.network,
+        self.fixture = {'target_id': self.target['target_id'], 'run_id': RUN,
+                        'volume': startup.fixture_volume(self.target, RUN), 'project': self.project, 'workdir': '/private', 'network': self.network,
                         'executable': '/does-not-exist',
                         'database_port': 55482, 'postgres_image': 'public.ecr.aws/supabase/postgres:17.11.0.004',
                         'images': ['public.ecr.aws/supabase/postgres:17.11.0.004'], 'selection_plan': test_plan()}
@@ -199,6 +200,13 @@ class BoundaryControls(unittest.TestCase):
                      '--label', 'com.docker.compose.project=' + self.project,
                      '--label', 'com.supabase.cli.workdir=/private', '--entrypoint', 'sh',
                      self.fixture['postgres_image'], '-c', 'synthetic generated SQL never retained']
+
+    def test_create_refuses_missing_or_foreign_volume_before_event(self):
+        for volume in [None, dict(self.fixture['volume'], Name='foreign')]:
+            events = []
+            with self.subTest(volume=volume), self.assertRaises(dev.Refusal):
+                startup.fixture_command('docker', self.args, dict(self.fixture, volume=volume), events)
+            self.assertEqual(events, [])
 
     def test_first_create_selects_child_and_preserves_every_other_operand(self):
         plan = test_plan()
@@ -398,7 +406,11 @@ class ProcessGroupRecovery(unittest.TestCase):
             pid = int(pidfile.read_text())
             process = Path('/proc') / str(pid) / 'stat'
             for _ in range(50):
-                if not process.exists() or process.read_text().split()[2] == 'Z':
+                try:
+                    stopped = process.read_text().split()[2] == 'Z'
+                except (FileNotFoundError, ProcessLookupError):
+                    stopped = True
+                if stopped:
                     break
                 time.sleep(.01)
             else:
@@ -610,6 +622,57 @@ sys.exit(code)
 
 
 class IntegratedOwnerSelectionAcceptance(unittest.TestCase):
+    def test_public_acquired_volume_reaches_cli_and_refusal_stops_startup(self):
+        import io
+        import shutil
+        from contextlib import redirect_stdout
+        import test_images
+        import qualify_startup
+        import qualify_volumes
+        owner = test_images.PersistenceGuards(methodName='runTest')
+        owner.setUp()
+        try:
+            for name in startup.PROOF_SOURCES:
+                path = owner.root / name
+                path.parent.mkdir(parents=True, exist_ok=True)
+                shutil.copyfile(ROOT / name, path)
+            target = dev.decode(dev.read(Path(owner.args.target)))
+            expected = qualify_volumes.SyntheticDaemon(target, owner.args.run_id).volume
+            expected.pop('Mountpoint')
+            expected['CreatedAt'] = '2026-10-14T12:34:56Z'
+            original_daemon = qualify_volumes.SyntheticDaemon
+            def daemon(*args):
+                result = original_daemon(*args)
+                result.volume['CreatedAt'] = expected['CreatedAt']
+                return result
+            source = SYNTHETIC_CLI_SOURCE.replace(
+                "    subprocess.run(['docker',*command], start_new_session=True)",
+                "    observed = subprocess.run(['docker',*command], start_new_session=True, capture_output=True)\n"
+                "    if command[:2] == ['volume','inspect']:\n"
+                "        assert json.loads(observed.stdout) == " + repr([expected]))
+            self.assertNotEqual(source, SYNTHETIC_CLI_SOURCE)
+            executable = owner.payload / 'supabase/supabase'
+            executable.parent.mkdir(mode=0o700)
+            executable.write_text('#!' + sys.executable + '\n' + source)
+            executable.chmod(0o700)
+            owner.tool_receipt.write_bytes(test_images.encoded({'toolchain_ready': True,
+                'payload': startup.toolchain.payload_fingerprint(owner.payload)}))
+            argv = ['--target', owner.args.target, '--run-id', owner.args.run_id]
+            with patch.object(startup.images, 'existing_tools', return_value=(owner.payload,
+                              dev.digest(owner.tool_receipt.read_bytes()))):
+                owner.qualify()
+                output = io.StringIO()
+                with patch.object(qualify_volumes, 'SyntheticDaemon', side_effect=daemon), redirect_stdout(output):
+                    status = qualify_startup.main(argv)
+                self.assertEqual(status, 0, output.getvalue())
+                self.assertTrue(json.loads(output.getvalue())['facts']['create_refused'])
+                with patch.object(qualify_startup.volumes, 'acquire', side_effect=dev.Refusal('volume', 'volume_not_run_owned')), \
+                        patch.object(startup, 'qualify') as invoked, redirect_stdout(io.StringIO()):
+                    self.assertEqual(qualify_startup.main(argv), 2)
+                invoked.assert_not_called()
+        finally:
+            owner.doCleanups()
+
     def test_owner_plan_reaches_actual_synthetic_cli_with_retained_child_identity(self):
         import shutil
         import test_images
@@ -728,7 +791,11 @@ p = subprocess.Popen(['docker','container','inspect','supabase_db_''' + dev.proj
                 self.assertTrue(pidfile.exists())
                 process = Path('/proc') / pidfile.read_text() / 'stat'
                 for _ in range(100):
-                    if not process.exists() or process.read_text().split()[2] == 'Z':
+                    try:
+                        stopped = process.read_text().split()[2] == 'Z'
+                    except (FileNotFoundError, ProcessLookupError):
+                        stopped = True
+                    if stopped:
                         break
                     time.sleep(.01)
                 else:

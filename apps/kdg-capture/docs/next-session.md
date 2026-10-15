@@ -70,7 +70,7 @@ constructs startup arguments with its verified ID; real up remains blocked. See
 [network evidence](../../../platform/deployment/ENV_RUN_NETWORK_EVIDENCE.md).
 The shared transport/source binding changed: use a fresh preparation; earlier
 image/tool/startup run receipts are retained but stale, not repaired.
-The latest completed ENV Build is [immutable first-create selection](../../../_bmad-output/implementation-artifacts/spec-env-immutable-first-create.md).
+The preceding completed ENV Build is [immutable first-create selection](../../../_bmad-output/implementation-artifacts/spec-env-immutable-first-create.md).
 Final actual pinned CLI proof maps PostgreSQL to its qualified Linux/amd64 child digest
 and refuses create; all 278 deployment tests and four negative public controls pass.
 Independent review fixed seven findings, none deferred. This is construction/selection proof only: real digest
@@ -78,6 +78,16 @@ execution enforcement and full startup remain open. See
 [immutable-create evidence](../../../platform/deployment/ENV_IMMUTABLE_CREATE_EVIDENCE.md).
 The startup/image source changes require fresh owner qualification; retain earlier
 receipts unchanged rather than repairing them.
+The latest completed ENV Build is [run-owned database-volume acquisition](../../../_bmad-output/implementation-artifacts/spec-env-run-volume.md).
+It aligns the reserved volume name with the pinned CLI and verifies the exact ENV/CLI
+ownership labels and local-driver profile through the existing Docker transport.
+Final 299 deployment tests and 20 public controls pass; eight review instances fixed,
+none deferred. Two cleanup-test polling races were also corrected. No real volume was
+created and real up remains gated. See [volume evidence](../../../platform/deployment/ENV_RUN_VOLUME_EVIDENCE.md).
+Volume metadata does not prove immutable identity, emptiness or absence of attachments.
+Use the fresh final run in that evidence; preserve the interrupted run and older
+receipts unchanged. Continue bounded ENV execution-time enforcement/full startup and
+scaffold prerequisites before dependent Identity/Access/WRITE or KDG server delivery.
 The enclosing ENV runtime/bootstrap acceptance and P1/SERVICE generator remain open.
 Continue those existing owner items before dependent foundations or the server-backed
 KDG slice; do not confuse the completed preparation increment with a runnable stack.

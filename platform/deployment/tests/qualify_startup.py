@@ -7,6 +7,8 @@ import sys
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 import dev
 import startup
+import volumes
+import qualify_volumes
 
 
 def main(argv=None):
@@ -16,7 +18,16 @@ def main(argv=None):
         parser.add_argument('--run-id', required=True)
         parser.add_argument('--control', choices=['positive', 'invalid-network', 'contaminated-workdir', 'reject-command', 'invalid-selection-plan'],
                             default='positive')
-        result = startup.qualify(parser.parse_args(argv))
+        args = parser.parse_args(argv)
+        networks = volumes.networks
+        networks.validate_run_id(args.run_id)
+        target = dev.decode(dev.read(Path(args.target).absolute()))
+        daemon = qualify_volumes.SyntheticDaemon(target, args.run_id)
+        with daemon.serve() as endpoint:
+            acquired = volumes.acquire(args.target, args.run_id, _socket_path=endpoint)
+        daemon.validate_events()
+        args._volume = acquired['volume']
+        result = startup.qualify(args)
         print(json.dumps(result, sort_keys=True))
         return 0
     except dev.Refusal as error:

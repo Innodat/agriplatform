@@ -21,6 +21,8 @@ FILES = [
     'platform/deployment/registry.json',
     'platform/docs/architecture/contracts/scaffold-environment-and-generation.md',
     'platform/deployment/networks.py',
+    'platform/deployment/volumes.py',
+    'platform/deployment/tests/qualify_volumes.py',
     'platform/deployment/startup.py',
     'platform/deployment/tests/qualify_networks.py',
     'platform/docs/architecture/contracts/scaffold-dependency-baseline-2026-10-14.md',
@@ -281,7 +283,7 @@ class PreparationAcceptance(unittest.TestCase):
             token = base64.urlsafe_b64encode(uuid.UUID(run_id).bytes).decode().rstrip('=')
             project = 'agriplatform-kdg-' + token
             expected = {'project': project, 'network': project + '-network',
-                        'volumes': {'database': project + '-database'},
+                        'volumes': {'database': 'supabase_db_' + project},
                         'containers': {owner: project + '-' + owner for owner in self.target['owner_ids']}}
             self.assertEqual(data['identities'], expected)
             names.append({project, expected['network'], *expected['volumes'].values(),

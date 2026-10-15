@@ -19,7 +19,8 @@ SCHEMA = 'platform/deployment/schema/development-target-v1.json'
 BASELINE = 'platform/docs/architecture/contracts/scaffold-dependency-baseline-2026-10-14.md'
 CONTRACT = 'platform/docs/architecture/contracts/scaffold-environment-and-generation.md'
 SOURCES = ['platform/deployment/dev.py', 'platform/deployment/networks.py',
-           'platform/deployment/startup.py', 'platform/deployment/tests/qualify_networks.py', SCHEMA, BASELINE, CONTRACT,
+           'platform/deployment/startup.py', 'platform/deployment/volumes.py',
+           'platform/deployment/tests/qualify_volumes.py', 'platform/deployment/tests/qualify_networks.py', SCHEMA, BASELINE, CONTRACT,
            'platform/deployment/fixtures/kdg-synthetic-v1.json', 'platform/deployment/registry.json']
 LIMIT = 1024 * 1024
 
@@ -298,7 +299,7 @@ def expected_inventory(target, raw, run_id, sources):
         'schema_sha256': sources[SCHEMA], 'baseline_sha256': sources[BASELINE],
         'configuration_sha256': {'supabase/config.toml': digest(configuration(target, run_id))},
         'identities': {'project': project, 'network': project + '-network',
-                       'volumes': {'database': project + '-database'},
+                       'volumes': {'database': 'supabase_db_' + project},
                        'containers': {owner: project + '-' + owner for owner in target['owner_ids']}},
     }
 
@@ -392,8 +393,8 @@ def validate_prepared(target, raw, run_id, target_path, sources):
 
 def docker_exchange(method, path, body=None, *, _socket_path='/var/run/docker.sock', deadline=None):
     """Bounded fixed-route HTTP exchange. Private endpoint injection is for synthetic proof."""
-    if not ((method == 'GET' and body is None and (path == '/version' or re.fullmatch(r'/v1\.48/networks/[A-Za-z0-9_-]{1,128}', path)))
-            or (method == 'POST' and path == '/v1.48/networks/create' and type(body) is dict)):
+    if not ((method == 'GET' and body is None and (path == '/version' or re.fullmatch(r'/v1\.48/(?:networks|volumes)/[A-Za-z0-9_-]{1,128}', path)))
+            or (method == 'POST' and path in ['/v1.48/networks/create', '/v1.48/volumes/create'] and type(body) is dict)):
         refuse('docker', 'docker_request_invalid')
     payload = b'' if body is None else json.dumps(body, sort_keys=True, separators=(',', ':')).encode()
     request = (method + ' ' + path + ' HTTP/1.1\r\nHost: localhost\r\nConnection: close\r\n').encode()
