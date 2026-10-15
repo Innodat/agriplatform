@@ -195,3 +195,73 @@ provenance and affected-consumer checks. Never install it into the existing chec
 node_modules. Existing owner manifests and independent PtS locks retain ownership.
 See [evidence and limitations](ENV_WEB_BASELINE_EVIDENCE.md), including the explicitly
 reproduced Supabase/TS7 declaration conflict and separate browser/runtime gates.
+
+## Planned base-image manifest identities
+
+After an existing run has both protected preparation and a qualified tool receipt:
+
+```sh
+python3 platform/deployment/images.py qualify --target platform/deployment/environments/kdg-local.json --run-id <the-prepared-and-qualified-UUID>
+```
+
+The command verifies the unchanged preparation and calls the existing toolchain's
+repeat qualifier before executing the selected Supabase CLI2.120.0. Missing receipts
+or tools refuse; it never installs or repairs them. CLI `services --output json --agent no`
+runs in a disposable private workdir with the prepared config, isolated state/cache,
+no dotenv or `.temp` override and an explicit nonexistent Docker socket. The fresh
+workdir begins with no `.temp`; afterward only the CLI-generated bounded `cli-latest`
+marker is allowed there. Project links, service-version overrides, symlinks and config
+mutation refuse. Generated private CLI telemetry/state is discarded with the workdir.
+All remote
+service fields must be empty. It cross-checks PostgreSQL/Auth/PostgREST tag values;
+that CLI list omits Kong and is not a list of enabled or startup services.
+
+[The closed selection](image-pins.json) records the pinned release commit and upstream
+Dockerfile/start-gates/registry source URLs for PostgreSQL17.11.0.004, Kong2.8.1,
+GoTruev2.197.0 and PostgRESTv16.4. Kong is selected from the pinned release sources.
+The evidence policy selects legacy backend, slim off and no environment/temp overrides;
+this is not an implemented startup policy. Only `public.ecr.aws/supabase/<basename>`
+is admitted for evidence. Docker Hub and other mirrors cannot substitute for that
+registry or be presumed byte-equivalent.
+
+Collection reads manifest metadata only, over bounded direct HTTPS without redirects.
+An anonymous auth challenge must use ECR's exact HTTPS token realm, service and `aws`
+scope; the token request asks only for the selected repository's pull scope. Tokens
+remain in memory and never enter output or evidence. The exact raw SHA256 is checked
+against any supplied digest header and against every digest-addressed request. When
+ECR omits a root digest header, collection additionally rereads the root by its computed
+digest and requires identical bytes. Each selected index binds exactly one Linux/amd64
+child's media type, size and digest. Config and layer descriptors are validated but
+their blobs are never fetched. A tag resolving to a lone manifest refuses because its
+platform cannot be established without a forbidden config-blob read.
+
+Immutable evidence lives under ignored `.local/kdg-base-images/<UUID>/`: one raw
+`services.json`, eight raw index/child manifests and a last-published `receipt.json`.
+Directories are0700, files0600, owner-controlled, single-link and opened without
+following links. The receipt binds target/prepared/config/tool-receipt hashes, selection
+and local implementation/source hashes, manifest identities and explicit limits. The
+selection records upstream source identity/URLs; it does not claim a separate retained
+copy of upstream source bytes. Every network request has a20-second whole-process bound,
+including DNS/TLS/headers/body; collection has a180-second deadline, manifests are at
+most1MiB and token bodies64KiB. CLI capture has a30-second bound with1MiB total output;
+the existing owner repeat check has180seconds. No real Docker daemon is contacted.
+
+Repeating qualification rechecks retained raw bytes, index/child bindings and unchanged
+source/tool inputs without registry requests, CLI services capture or file replacement.
+Changed inputs, modes, links, extra files, concurrent writers and incomplete runs refuse.
+The exclusive lock and receipt-last publication prevent partial collection from being
+qualified. A failed fresh publication retains its lock, including failures after a
+receipt has been linked. Receipt presence alone is not qualification: a retained lock
+or pending file refuses every repeat. Failed lock-release synchronization restores
+only an absent blocker; foreign receipts, pending files and locks are preserved.
+An interruption can leave protected partial evidence; preserve it for
+inspection and use a deliberately new prepared/qualified UUID. There is no cleanup,
+adoption, automatic refresh or permission repair.
+
+Success reports `base_identities_ready=true` and `runtime_ready=false`. It establishes
+four planned base identities only. Actual enabled/startup/helper completeness, container
+execution/libc, deployed PostgreSQL compatibility, adapter registry enforcement and all
+runtime/provider/device gates remain unqualified. No image layers/config blobs, image
+pulls, container startup, migrations, SQL or infrastructure/account changes occur.
+See [base-image evidence and impact decisions](ENV_BASE_IMAGE_EVIDENCE.md) for exact
+requirement/test traceability, public collection/repeat results and remaining gates.

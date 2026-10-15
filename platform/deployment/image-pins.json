@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "cli_version": "2.120.0",
+  "upstream_commit": "753520fa7202ed5f8b25883a4c0aa7e5e9ad1fc4",
+  "source_urls": [
+    "https://github.com/supabase/cli/blob/753520fa7202ed5f8b25883a4c0aa7e5e9ad1fc4/apps/cli/src/shared/services/Dockerfile",
+    "https://github.com/supabase/cli/blob/753520fa7202ed5f8b25883a4c0aa7e5e9ad1fc4/apps/cli/src/commands/start/start.gates.ts",
+    "https://github.com/supabase/cli/blob/753520fa7202ed5f8b25883a4c0aa7e5e9ad1fc4/apps/cli/src/command-internal/docker-registry.ts"
+  ],
+  "policy": {"backend": "legacy", "slim": false, "dotenv_overrides": false, "temp_overrides": false},
+  "registry": "public.ecr.aws",
+  "platform": {"os": "linux", "architecture": "amd64"},
+  "images": [
+    {"id": "postgres", "publisher_reference": "supabase/postgres:17.11.0.004", "repository": "supabase/postgres", "tag": "17.11.0.004", "cli_service": "supabase/postgres"},
+    {"id": "kong", "publisher_reference": "library/kong:2.8.1", "repository": "supabase/kong", "tag": "2.8.1", "cli_service": null},
+    {"id": "gotrue", "publisher_reference": "supabase/gotrue:v2.197.0", "repository": "supabase/gotrue", "tag": "v2.197.0", "cli_service": "supabase/gotrue"},
+    {"id": "postgrest", "publisher_reference": "postgrest/postgrest:v16.4", "repository": "supabase/postgrest", "tag": "v16.4", "cli_service": "postgrest/postgrest"}
+  ]
+}

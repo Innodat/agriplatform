@@ -47,6 +47,12 @@ that diagnostic and excludes third-party declaration checking only. This is not 
 declaration coherence or KDG/Auth/runtime readiness. See the completed
 [Build record](../../../_bmad-output/implementation-artifacts/spec-env-web-baseline-qualification.md)
 for evidence before selecting the remaining ENV/scaffold work.
+The next ENV increment qualifies four planned base-image manifest identities through
+the existing pinned CLI and primary ECR metadata; see
+[base-image evidence](../../../platform/deployment/ENV_BASE_IMAGE_EVIDENCE.md).
+Public collection and immutable repeat pass after13 review fixes, none deferred. This
+retains index/Linux-amd64 digests only: no layers, startup, helper-set completeness,
+runtime image binding or live deployment PostgreSQL compatibility is qualified.
 The enclosing ENV runtime/bootstrap acceptance and P1/SERVICE generator remain open.
 Continue those existing owner items before dependent foundations or the server-backed
 KDG slice; do not confuse the completed preparation increment with a runnable stack.
