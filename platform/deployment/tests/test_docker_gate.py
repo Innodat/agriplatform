@@ -37,7 +37,7 @@ class StartupAcceptance(unittest.TestCase):
         self.assertEqual(transport.address, '/var/run/docker.sock')
         self.assertEqual(transport.request, b'GET /version HTTP/1.1\r\nHost: localhost\r\nConnection: close\r\n\r\n')
         self.assertEqual((self.run / 'inventory.json').read_bytes(), before)
-        self.assertEqual(set(p.name for p in self.run.iterdir()), {'inventory.json'})
+        self.assertEqual(set(p.name for p in self.run.iterdir()), {'inventory.json', 'supabase'})
 
     def test_tampered_preparation_refuses_before_daemon_contact(self):
         self.assertEqual(self.invoke().returncode, 0)

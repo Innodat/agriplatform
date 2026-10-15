@@ -1,5 +1,6 @@
 """Public CLI acceptance/guard tests; all writes use a copied synthetic workspace."""
 import copy
+import base64
 import json
 import os
 from pathlib import Path
@@ -215,7 +216,7 @@ class PreparationAcceptance(unittest.TestCase):
         for process, (out, err) in zip(processes, results):
             self.assertEqual(err, '')
             self.assertEqual(json.loads(out)['ok'], process.returncode == 0)
-        self.assertEqual(set(path.name for path in self.run.iterdir()), {'inventory.json'})
+        self.assertEqual(set(path.name for path in self.run.iterdir()), {'inventory.json', 'supabase'})
         before = (self.run / 'inventory.json').read_bytes()
         self.assertEqual(self.invoke().returncode, 0)
         self.assertEqual((self.run / 'inventory.json').read_bytes(), before)
@@ -274,7 +275,8 @@ class PreparationAcceptance(unittest.TestCase):
             self.assertEqual(self.invoke().returncode, 0)
             inventory = self.root / 'platform/deployment/.local/kdg' / run_id / 'inventory.json'
             data = json.loads(inventory.read_bytes())
-            project = 'agriplatform-kdg-' + run_id
+            token = base64.urlsafe_b64encode(uuid.UUID(run_id).bytes).decode().rstrip('=')
+            project = 'agriplatform-kdg-' + token
             expected = {'project': project, 'network': project + '-network',
                         'volumes': {'database': project + '-database'},
                         'containers': {owner: project + '-' + owner for owner in self.target['owner_ids']}}

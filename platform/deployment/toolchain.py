@@ -501,6 +501,8 @@ def qualify(args):
                                  PINS: dev.digest(pin_raw)}}
 
     def inputs_current():
+        # Preparation now includes a protected config observation, not inventory alone.
+        dev.validate_prepared(target, raw, args.run_id, target_path, sources)
         return (dev.read(target_path) == raw and dev.source_evidence() == sources
                 and dev.read(prepared / 'inventory.json') == inventory
                 and all(dev.digest(dev.read(dev.ROOT / name)) == value

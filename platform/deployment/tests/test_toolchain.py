@@ -200,6 +200,18 @@ class QualificationGuards(unittest.TestCase):
         self.executor.assert_not_called()
         self.assertEqual((self.run / 'receipt.json').read_bytes(), receipt)
 
+    def test_config_changed_during_execution_refuses_without_replacing_receipt(self):
+        self.unit_install()
+        receipt = (self.run / 'receipt.json').read_bytes()
+        def execute(*args, **kwargs):
+            path = self.root / 'platform/deployment/.local/kdg' / self.run_id / 'supabase/config.toml'
+            path.write_text('changed = true\n')
+            return toolchain.expected_checks()
+        self.executor.side_effect = execute
+        with self.assertRaises(dev.Refusal):
+            toolchain.qualify(self.args)
+        self.assertEqual((self.run / 'receipt.json').read_bytes(), receipt)
+
     def test_public_partial_install_and_concurrent_lock_refused_without_repair(self):
         self.prepare()
         self.run.mkdir(parents=True, mode=0o700)

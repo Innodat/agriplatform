@@ -133,6 +133,9 @@ It does not qualify owner dependency graphs, runtime images, Auth or KDG behavio
 The [startup prerequisite gate](../../../platform/deployment/ENV_DOCKER_GATE_EVIDENCE.md)
 adds prepared-run/local-daemon/response/deadline refusal evidence. Actual Docker <28
 is refused before any runtime mutation; passing the gate still cannot start a stack.
+The [run-local config evidence](../../../platform/deployment/ENV_CONFIGURATION_EVIDENCE.md)
+adds immutable config/SQL-input/path/interruption guards and actual pinned CLI parsing
+against a synthetic API. It does not prove runtime settings, image/DB compatibility or Auth.
 The following planning-era command inventory remains historical.
 
 Executed during planning: git status, read-only rg/source reads, BMAD configuration

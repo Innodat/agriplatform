@@ -27,6 +27,11 @@ validation of an existing preparation; see
 [Docker gate evidence](../../../platform/deployment/ENV_DOCKER_GATE_EVIDENCE.md).
 Even supported Docker still refuses the undelivered runtime adapter. Source-bound
 preparations/tool receipts need a fresh UUID after the dev.py change.
+Preparation now also materializes protected run-local Supabase config with immutable
+byte binding, disabled repository SQL inputs and unused services; see
+[configuration evidence](../../../platform/deployment/ENV_CONFIGURATION_EVIDENCE.md).
+The CLI project ID encodes the full UUID in39 characters to avoid actual CLI truncation;
+run directory/argument UUIDs remain canonical. This is config/parser proof only.
 The enclosing ENV runtime/bootstrap acceptance and P1/SERVICE generator remain open.
 Continue those existing owner items before dependent foundations or the server-backed
 KDG slice; do not confuse the completed preparation increment with a runnable stack.

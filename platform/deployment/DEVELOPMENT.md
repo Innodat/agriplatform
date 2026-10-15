@@ -28,7 +28,8 @@ requires a POSIX filesystem with directory descriptors, no-follow opens, hard-li
 installation and IPv4/IPv6 TCP port probes. A sandbox that denies sockets fails closed;
 run synthetic verification with the narrowly approved socket-capable test execution.
 
-Only `platform/deployment/.local/kdg/<UUID>/inventory.json` is installed for the run.
+Only `inventory.json` and `supabase/config.toml` are installed under
+`platform/deployment/.local/kdg/<UUID>/` for the run.
 The `.local/` owner ignore rule already excludes it. New directories are mode 0700;
 the inventory and transient exclusive lock/staging file are mode 0600. The inventory
 binds exact target bytes, implementation/schema/contract/baseline/fixture/registry
@@ -36,6 +37,10 @@ source hashes, target/run IDs and **reserved** project, owner-container, databas
 and network names. These names are planned identifiers, with `identities_state:
 reserved_only`; they are not observations that runtime resources exist. Raw target
 input, secret references and secret contents are not copied into the inventory.
+The project ID is the existing prefix plus unpadded URL-safe base64 of the full UUID
+bytes (39 characters), keeping the selected CLI's40-character truncation from discarding
+run identity. Canonical UUID command/path arguments are unchanged. Inventory also binds
+the exact generated configuration hash; old prepared runs are not migrated.
 
 All eight approved ports must be available over IPv4 and IPv6. Probes are held through
 preparation and released on exit. This proves availability only during preparation;
@@ -151,3 +156,22 @@ is implemented. Verify/stop/reset remain unqualified. These observations are not
 network isolation or readiness evidence. Existing source-bound preparations and tool
 receipts become stale after this dev.py change; use a fresh prepared/qualified UUID.
 See [gate evidence and impacts](ENV_DOCKER_GATE_EVIDENCE.md).
+
+## Run-local Supabase configuration
+
+Preparation now writes and fsyncs protected `supabase/config.toml` before publishing
+inventory. Repeat/up verify the exact config bytes, private modes and directory contents;
+missing, altered or extra config/SQL/roles files refuse without repair. Interrupted runs
+remain incomplete. Use a fresh UUID after this source change, then requalify tools.
+
+The generated config disables CLI migrations/seeds and unused services, selects only
+desktop callbacks and exposes no business schemas. It contains no secrets or provider
+configuration. PostgreSQL17 is the selected CLI's default, pending actual image and
+deployment-target qualification. Device TLS and run-owned loopback network delivery
+remain separate; a config file cannot prove runtime binding or readiness.
+
+Use the opt-in pinned CLI parser fixture command in
+[configuration evidence](ENV_CONFIGURATION_EVIDENCE.md) with an already verified binary.
+It uses a temporary synthetic Unix API, and never the real Docker daemon. Normal owner
+regression remains `python3 -m unittest discover -s platform/deployment/tests -p 'test_*.py'`.
+Run reserved-port suites and actual prepare/qualify sequentially.
