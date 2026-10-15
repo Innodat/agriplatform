@@ -136,6 +136,9 @@ is refused before any runtime mutation; passing the gate still cannot start a st
 The [run-local config evidence](../../../platform/deployment/ENV_CONFIGURATION_EVIDENCE.md)
 adds immutable config/SQL-input/path/interruption guards and actual pinned CLI parsing
 against a synthetic API. It does not prove runtime settings, image/DB compatibility or Auth.
+The [Python baseline fixture](../../../platform/deployment/ENV_PYTHON_BASELINE_EVIDENCE.md)
+adds actual wheel/native/library/loopback-HTTP compatibility proof under CPython3.15;
+it is not a KDG or shared-owner runtime/authorization/migration acceptance result.
 The following planning-era command inventory remains historical.
 
 Executed during planning: git status, read-only rg/source reads, BMAD configuration

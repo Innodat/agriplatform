@@ -175,3 +175,13 @@ Use the opt-in pinned CLI parser fixture command in
 It uses a temporary synthetic Unix API, and never the real Docker daemon. Normal owner
 regression remains `python3 -m unittest discover -s platform/deployment/tests -p 'test_*.py'`.
 Run reserved-port suites and actual prepare/qualify sequentially.
+
+## Python dependency qualification
+
+The [ENV Python fixture](qualification/python/README.md) now resolves and executes the
+approved Python package subset using the selected ordinary CPython3.15.0/uv0.13.1.
+Its generated uv.lock and synthetic tests qualify isolated clean wheel installation,
+native calls, loopback HTTP and offline SQL/library behavior. Use the fixture's explicit
+clean-environment commands; it never supplies application/service requirements or locks.
+Owner/runtime schemas, database/image compatibility and production readiness remain open.
+See [qualification evidence](ENV_PYTHON_BASELINE_EVIDENCE.md).

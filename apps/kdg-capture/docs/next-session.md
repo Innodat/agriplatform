@@ -32,6 +32,10 @@ byte binding, disabled repository SQL inputs and unused services; see
 [configuration evidence](../../../platform/deployment/ENV_CONFIGURATION_EVIDENCE.md).
 The CLI project ID encodes the full UUID in39 characters to avoid actual CLI truncation;
 run directory/argument UUIDs remain canonical. This is config/parser proof only.
+The [ENV Python baseline fixture](../../../platform/deployment/ENV_PYTHON_BASELINE_EVIDENCE.md)
+also resolves the approved Python subset into a generated hash lock and executes it
+in isolated wheel-only environments. This is dependency compatibility proof; each
+application/service still owns its own locks, and no Identity/Access/WRITE is implemented.
 The enclosing ENV runtime/bootstrap acceptance and P1/SERVICE generator remain open.
 Continue those existing owner items before dependent foundations or the server-backed
 KDG slice; do not confuse the completed preparation increment with a runnable stack.
