@@ -1,0 +1,597 @@
+"""Guarded invocation acceptance and hostile synthetic-boundary controls."""
+import copy
+import json
+import os
+from pathlib import Path
+import subprocess
+import sys
+import tempfile
+import unittest
+import uuid
+from unittest.mock import patch
+
+ROOT = Path(__file__).resolve().parents[3]
+sys.path.insert(0, str(ROOT / 'platform/deployment'))
+import dev
+import startup
+
+RUN = 'b3b805d5-adc6-4168-a79c-5945547d3320'
+
+
+class StartupAcceptance(unittest.TestCase):
+    def test_missing_preparation_fails_before_execution(self):
+        result = subprocess.run([sys.executable, str(ROOT / 'platform/deployment/tests/qualify_startup.py'),
+                                 '--target', str(ROOT / 'platform/deployment/environments/kdg-local.json'),
+                                 '--run-id', str(uuid.uuid4())],
+                                capture_output=True, text=True)
+        self.assertEqual(result.returncode, 2)
+        self.assertEqual(result.stderr, '')
+        self.assertEqual(json.loads(result.stdout)['code'], 'prepared_run_required')
+
+
+class InvocationGuards(unittest.TestCase):
+    def setUp(self):
+        self.target = dev.decode(dev.read(ROOT / 'platform/deployment/environments/kdg-local.json'))
+        self.network = startup.fixture_network(self.target, RUN)
+
+    def test_closed_network_contract(self):
+        self.assertEqual(startup.validate_network(self.network, self.target, RUN), self.network['Id'])
+        cases = [('Name', 'foreign'), ('Id', ''), ('Driver', 'overlay'), ('Scope', 'swarm'),
+                 ('Internal', True), ('Containers', {'foreign': {}}), ('Options', {}), ('Labels', {})]
+        for key, value in cases:
+            changed = copy.deepcopy(self.network)
+            changed[key] = value
+            with self.subTest(key=key), self.assertRaises(dev.Refusal):
+                startup.validate_network(changed, self.target, RUN)
+        changed = copy.deepcopy(self.network)
+        changed['Labels']['unexpected'] = 'sensitive'
+        with self.assertRaises(dev.Refusal):
+            startup.validate_network(changed, self.target, RUN)
+
+    def test_private_invocation_ignores_ambient_and_detects_contamination(self):
+        with tempfile.TemporaryDirectory() as directory:
+            work = Path(directory)
+            startup.initialize_workdir(work, self.target, RUN)
+            with patch.dict(os.environ, {'SUPABASE_DB_PASSWORD': 'sensitive', 'DOCKER_CONTEXT': 'foreign',
+                                         'SUPABASE_INTERNAL_IMAGE_REGISTRY': 'foreign'}):
+                command, env = startup.invocation(Path('/verified/supabase'), work, self.target, RUN, self.network)
+            self.assertEqual(env['PATH'], '/usr/bin:/bin')
+            self.assertEqual(env['DOCKER_HOST'], 'unix:///var/run/docker.sock')
+            self.assertNotIn('SUPABASE_DB_PASSWORD', env)
+            self.assertNotIn('DOCKER_CONTEXT', env)
+            self.assertEqual(env['SUPABASE_INTERNAL_IMAGE_REGISTRY'], 'public.ecr.aws')
+            self.assertEqual(command[-2:], ['--network-id', self.network['Id']])
+            self.assertEqual(env['SUPABASE_EXPERIMENTAL_STACK'], '0')
+            (work / '.env').write_text('sensitive')
+            with self.assertRaises(dev.Refusal):
+                startup.invocation(Path('/verified/supabase'), work, self.target, RUN, self.network)
+
+    def test_missing_image_receipt_never_qualifies_or_installs(self):
+        from types import SimpleNamespace
+        with tempfile.TemporaryDirectory() as directory, patch.object(dev, 'ROOT', Path(directory)), \
+                patch.object(startup.images, 'qualify') as qualify:
+            with self.assertRaises(dev.Refusal):
+                startup.existing_images(SimpleNamespace(target='unused', run_id=RUN))
+            qualify.assert_not_called()
+
+
+class EvidenceReceiptGuards(unittest.TestCase):
+    def test_changed_existing_receipt_refuses_without_starting_cli(self):
+        from types import SimpleNamespace
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            run = root / 'platform/deployment/.local/kdg-base-images' / RUN
+            run.mkdir(parents=True, mode=0o700)
+            receipt = run / 'receipt.json'
+            startup.write_private(receipt, b'{"base_identities_ready":true}')
+            def changed(_, **kwargs):
+                receipt.write_bytes(b'{"base_identities_ready":true,"changed":true}')
+                return {'base_identities_ready': True}
+            with patch.object(dev, 'ROOT', root), patch.object(startup.images, 'qualify', side_effect=changed), \
+                    patch.object(startup, 'synthetic_probe') as probe:
+                with self.assertRaises(dev.Refusal) as caught:
+                    startup.existing_images(SimpleNamespace(target='unused', run_id=RUN))
+                self.assertEqual(caught.exception.code, 'image_verification_refused')
+                probe.assert_not_called()
+
+    def test_incomplete_evidence_never_calls_owner(self):
+        from types import SimpleNamespace
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            run = root / 'platform/deployment/.local/kdg-base-images' / RUN
+            run.mkdir(parents=True, mode=0o700)
+            startup.write_private(run / 'receipt.json', b'{"base_identities_ready":true}')
+            startup.write_private(run / '.qualify.lock', b'')
+            with patch.object(dev, 'ROOT', root), patch.object(startup.images, 'qualify') as owner:
+                with self.assertRaises(dev.Refusal):
+                    startup.existing_images(SimpleNamespace(target='unused', run_id=RUN))
+                owner.assert_not_called()
+
+    def test_replaced_image_run_cannot_enter_fresh_collection(self):
+        import test_images
+        owner = test_images.PersistenceGuards(methodName='runTest')
+        owner.setUp()
+        try:
+            owner.qualify()
+            original = startup.images.qualify
+            def replace(args, *, existing_only=False):
+                self.assertTrue(existing_only)
+                owner.run.rename(owner.run.with_name('preserved-original'))
+                return original(args, existing_only=existing_only)
+            with patch.object(startup.images, 'qualify', side_effect=replace), \
+                    patch.object(startup.images, 'collect') as collect, \
+                    patch.object(startup.images, 'capture_services') as capture:
+                with self.assertRaises(dev.Refusal):
+                    startup.existing_images(owner.args)
+                collect.assert_not_called()
+                capture.assert_not_called()
+                self.assertFalse(owner.run.exists())
+        finally:
+            owner.doCleanups()
+
+
+class BoundaryControls(unittest.TestCase):
+    def setUp(self):
+        self.target = dev.decode(dev.read(ROOT / 'platform/deployment/environments/kdg-local.json'))
+        self.project = dev.project_identity(self.target, RUN)
+        self.network = startup.fixture_network(self.target, RUN)
+        self.fixture = {'project': self.project, 'workdir': '/private', 'network': self.network,
+                        'executable': '/does-not-exist',
+                        'database_port': 55482, 'postgres_image': 'public.ecr.aws/supabase/postgres:17.11.0.004',
+                        'images': ['public.ecr.aws/supabase/postgres:17.11.0.004']}
+        self.args = ['create', '--name', 'supabase_db_' + self.project, '-e', 'POSTGRES_PASSWORD',
+                     '-v', 'supabase_db_' + self.project + ':/var/lib/postgresql/data', '-p', '55482:5432',
+                     '--network', self.network['Id'], '--label', 'com.supabase.cli.project=' + self.project,
+                     '--label', 'com.docker.compose.project=' + self.project,
+                     '--label', 'com.supabase.cli.workdir=/private', '--entrypoint', 'sh',
+                     self.fixture['postgres_image'], '-c', 'synthetic generated SQL never retained']
+
+    def test_create_is_refused_with_only_selected_safe_facts(self):
+        events = []
+        code, output, error = startup.fixture_command('docker', self.args, self.fixture, events)
+        self.assertEqual(code, 125)
+        self.assertTrue(events[0]['facts']['create_refused'])
+        self.assertNotIn('SQL never retained', json.dumps(events))
+        self.assertNotIn('POSTGRES_PASSWORD', json.dumps(events))
+        self.assertFalse(events[0]['facts']['host_bind_mounts'])
+
+    def test_duplicate_volume_is_only_a_closed_nonzero_refusal(self):
+        args = ['volume', 'create', '--label', 'com.supabase.cli.project=' + self.project,
+                '--label', 'com.docker.compose.project=' + self.project, 'supabase_db_' + self.project]
+        events = []
+        code, _, error = startup.fixture_command('docker', args, self.fixture, events)
+        self.assertEqual(code, 1)
+        self.assertEqual(error, 'volume already exists')
+        self.assertEqual(events, [{'kind': 'existing_volume_create_refused'}])
+        for index in [3, 5, 6]:
+            changed = args.copy()
+            changed[index] = 'foreign'
+            with self.subTest(index=index), self.assertRaises(dev.Refusal):
+                startup.fixture_command('docker', changed, self.fixture, [])
+
+    def test_nonisolated_parent_cannot_be_signaled(self):
+        with self.assertRaises(dev.Refusal):
+            startup.parent_identity(self.fixture)
+
+    def test_unsafe_create_variants_refuse(self):
+        for old, new in [('55482:5432', '0.0.0.0:55482:5432'),
+                         (self.fixture['postgres_image'], 'docker.io/foreign:latest'),
+                         ('POSTGRES_PASSWORD', 'POSTGRES_PASSWORD=sensitive'),
+                         ('supabase_db_' + self.project + ':/var/lib/postgresql/data', '/repo:/sql'),
+                         (self.network['Id'], 'foreign')]:
+            args = [new if value == old else value for value in self.args]
+            with self.subTest(new=new), self.assertRaises(dev.Refusal):
+                startup.fixture_command('docker', args, self.fixture, [])
+
+    def test_every_unexpected_command_and_fallback_refuse(self):
+        for runtime, args in [('podman', ['container', 'inspect', 'anything']), ('docker', ['run', 'x']),
+                              ('docker', ['pull', self.fixture['postgres_image']]),
+                              ('docker', ['network', 'create', 'x']), ('docker', ['start', 'x']),
+                              ('docker', ['create', 'x' * (startup.LIMIT + 1)])]:
+            with self.subTest(runtime=runtime, command=args[0]), self.assertRaises(dev.Refusal):
+                startup.fixture_command(runtime, args, self.fixture, [])
+
+    def test_malformed_oversized_and_linked_fixture_input_refuse(self):
+        with tempfile.TemporaryDirectory() as directory:
+            work = Path(directory)
+            for raw in [b'{', b'x' * (startup.LIMIT + 1)]:
+                path = work / 'input'
+                startup.write_private(path, raw)
+                with self.assertRaises((ValueError, dev.Refusal)):
+                    startup.decode_fixture(path)
+                path.unlink()
+            (work / 'input').symlink_to('/etc/passwd')
+            with self.assertRaises((OSError, dev.Refusal)):
+                startup.decode_fixture(work / 'input')
+
+    def test_fixture_malformed_state_is_bounded_safe_failure(self):
+        for raw in [b'{', b'{}', b'x' * (startup.LIMIT + 1), b'[]' * 64]:
+            with self.subTest(size=len(raw)), tempfile.TemporaryDirectory() as directory:
+                work = Path(directory)
+                startup.write_private(work / 'fixture.json', json.dumps(self.fixture).encode())
+                startup.write_private(work / 'events.json', raw)
+                self.assertEqual(startup.fixture_main('docker', ['run', 'x'], work), 125)
+
+    def test_hang_and_output_flood_are_bounded_and_descendants_killed(self):
+        import time
+        for source, limit, expected in [('import time; time.sleep(60)', 1024, 'command_deadline'),
+                                        ('import os; os.write(1,b"x"*65536)', 128, 'command_output_too_large')]:
+            with tempfile.TemporaryDirectory() as directory:
+                before = time.monotonic()
+                with self.assertRaises(dev.Refusal) as caught:
+                    startup.images.bounded_command([sys.executable, '-c', source], Path(directory),
+                                                   {'PATH': '/nonexistent'}, .2, limit)
+                self.assertEqual(caught.exception.code, expected)
+                self.assertLess(time.monotonic() - before, 3)
+
+    def test_interruption_cleans_process_group(self):
+        with tempfile.TemporaryDirectory() as directory, \
+                patch.object(startup.images.selectors.DefaultSelector, 'select', side_effect=KeyboardInterrupt):
+            with self.assertRaises(KeyboardInterrupt):
+                startup.images.bounded_command([sys.executable, '-c', 'import time; time.sleep(60)'],
+                                               Path(directory), {}, 10, 1024)
+
+
+class SyntheticProbeAcceptance(unittest.TestCase):
+    def test_isolated_process_boundary_records_selected_facts_and_refuses_create(self):
+        target = dev.decode(dev.read(ROOT / 'platform/deployment/environments/kdg-local.json'))
+        with tempfile.TemporaryDirectory() as directory:
+            executable = Path(directory) / 'synthetic-cli'
+            source = '''import json, os, subprocess, sys
+from pathlib import Path
+work = Path(sys.argv[sys.argv.index('--workdir')+1])
+f = json.loads((work/'fixture.json').read_text())
+p = f['project']
+args = ['create','--name','supabase_db_'+p,'-e','POSTGRES_PASSWORD',
+        '-v','supabase_db_'+p+':/var/lib/postgresql/data','-p',str(f['database_port'])+':5432',
+        '--network',f['network']['Id'],'--label','com.supabase.cli.project='+p,
+        '--label','com.docker.compose.project='+p,'--label','com.supabase.cli.workdir='+str(work),
+        '--entrypoint','sh',f['postgres_image'],'-c','generated secret SQL never retained']
+assert os.environ['PATH'] == str(work/'bin')
+assert os.environ['DOCKER_HOST'] == 'unix://'+str(work/'no-daemon.sock')
+assert 'DOCKER_CONTEXT' not in os.environ
+assert 'SUPABASE_DB_PASSWORD' not in os.environ
+commands = [['container','inspect','supabase_db_'+p,'--format','{{json .State}}']]
+commands += [['image','inspect',image] for image in f['images']]
+commands += [['volume','inspect','supabase_db_'+p], ['network','inspect',f['network']['Id']],
+             ['volume','create','--label','com.supabase.cli.project='+p,'--label',
+              'com.docker.compose.project='+p,'supabase_db_'+p]]
+for command in commands:
+    subprocess.run(['docker',*command], start_new_session=True)
+code = subprocess.run(['docker',*args], start_new_session=True).returncode
+(work/'forbidden_after_create').write_text('cleanup must never run')
+sys.exit(code)
+'''
+            executable.write_text('#!' + sys.executable + '\n' + source)
+            executable.chmod(0o700)
+            with patch.dict(os.environ, {'DOCKER_CONTEXT': 'hostile', 'SUPABASE_DB_PASSWORD': 'sensitive'}):
+                result = startup.synthetic_probe(executable, target, RUN)
+            self.assertTrue(result['ok'])
+            self.assertFalse(result['runtime_ready'])
+            self.assertTrue(result['facts']['create_refused'])
+            self.assertNotIn('generated secret SQL', json.dumps(result))
+            self.assertNotIn('sensitive', json.dumps(result))
+
+    def test_negative_controls_never_start_cli_for_invalid_inputs(self):
+        target = dev.decode(dev.read(ROOT / 'platform/deployment/environments/kdg-local.json'))
+        for control in ['invalid-network', 'contaminated-workdir']:
+            with self.subTest(control=control), patch.object(startup.images, 'bounded_command') as command:
+                with self.assertRaises(dev.Refusal):
+                    startup.synthetic_probe(Path('/nonexistent'), target, RUN, control=control)
+                command.assert_not_called()
+        with self.assertRaises(dev.Refusal) as caught:
+            startup.synthetic_probe(Path('/nonexistent'), target, RUN, control='reject-command')
+        self.assertEqual(caught.exception.code, 'expected_command_rejected')
+
+
+class ProcessGroupRecovery(unittest.TestCase):
+    def test_timeout_leaves_no_running_grandchild(self):
+        import time
+        with tempfile.TemporaryDirectory() as directory:
+            work = Path(directory)
+            pidfile = work / 'child.pid'
+            source = ("import os,time; pid=os.fork(); "
+                      "open('child.pid','w').write(str(os.getpid())) if pid==0 else None; time.sleep(60)")
+            with self.assertRaises(dev.Refusal):
+                startup.images.bounded_command([sys.executable, '-c', source], work, {}, .3, 1024)
+            self.assertTrue(pidfile.exists())
+            pid = int(pidfile.read_text())
+            process = Path('/proc') / str(pid) / 'stat'
+            for _ in range(50):
+                if not process.exists() or process.read_text().split()[2] == 'Z':
+                    break
+                time.sleep(.01)
+            else:
+                self.fail('running descendant remains after bounded refusal')
+
+
+def target_fixture():
+    return dev.decode(dev.read(ROOT / 'platform/deployment/environments/kdg-local.json'))
+
+
+def proof_events(fixture):
+    return ([{'kind': 'container_inspect'}]
+            + [{'kind': 'image_inspect', 'image_index': index} for index in range(4)]
+            + [{'kind': 'volume_inspect'}, {'kind': 'network_inspect'},
+               {'kind': 'existing_volume_create_refused'},
+               {'kind': 'postgres_create', 'facts': startup.selected_facts(fixture)}])
+
+
+class WorkdirAndStateHardening(unittest.TestCase):
+    def test_root_mode_owner_symlink_and_replacement_refuse(self):
+        target = target_fixture()
+        with tempfile.TemporaryDirectory() as directory:
+            parent = Path(directory)
+            work = parent / 'work'
+            work.mkdir(mode=0o700)
+            startup.initialize_workdir(work, target, RUN)
+            work.chmod(0o777)
+            with self.assertRaises(dev.Refusal):
+                startup.invocation(Path('/verified'), work, target, RUN, startup.fixture_network(target, RUN))
+            work.chmod(0o700)
+            with patch.object(startup.os, 'getuid', return_value=os.getuid() + 1), self.assertRaises(dev.Refusal):
+                startup.check_workdir(work, target, RUN)
+            link = parent / 'link'
+            link.symlink_to(work)
+            with self.assertRaises((OSError, dev.Refusal)):
+                startup.check_workdir(link, target, RUN)
+            with self.assertRaises(dev.Refusal):
+                with startup.work_anchor(work):
+                    work.rename(parent / 'saved')
+                    work.mkdir(mode=0o700)
+
+    def test_mutation_during_probe_refuses(self):
+        for mutation in ['permissions', 'identity']:
+            def mutate(command, work, env, timeout, limit):
+                if mutation == 'permissions':
+                    work.chmod(0o777)
+                else:
+                    work.rename(work.with_name(work.name + '-saved'))
+                    work.mkdir(mode=0o700)
+                    # Restore the held directory before TemporaryDirectory cleanup, after check_root detects replacement.
+                    saved.append(work.with_name(work.name + '-saved'))
+                raise dev.Refusal('images_cli', 'command_refused')
+            saved = []
+            with self.subTest(mutation=mutation), patch.object(startup.images, 'bounded_command', side_effect=mutate):
+                try:
+                    with self.assertRaises(dev.Refusal):
+                        startup.synthetic_probe(Path('/unused'), target_fixture(), RUN)
+                finally:
+                    import shutil
+                    for path in saved:
+                        shutil.rmtree(path)
+
+    def test_state_hardlink_fifo_and_permissions_cannot_change_unrelated_bytes(self):
+        import time
+        for kind in ['hardlink', 'fifo', 'permissions']:
+            with self.subTest(kind=kind), tempfile.TemporaryDirectory() as directory:
+                work = Path(directory)
+                unrelated = work / 'unrelated'
+                startup.write_private(unrelated, b'[]')
+                state = work / 'events.json'
+                if kind == 'hardlink':
+                    os.link(unrelated, state)
+                elif kind == 'fifo':
+                    os.mkfifo(state, 0o600)
+                else:
+                    startup.write_private(state, b'[]')
+                    state.chmod(0o666)
+                startup.write_private(work / 'fixture.json', b'{}')
+                before = time.monotonic()
+                self.assertEqual(startup.fixture_main('docker', ['run', 'x'], work), 125)
+                self.assertLess(time.monotonic() - before, .2)
+                self.assertEqual(unrelated.read_bytes(), b'[]')
+
+    def test_state_lock_is_bounded_and_replacement_refuses_before_write(self):
+        import fcntl
+        import time
+        with tempfile.TemporaryDirectory() as directory:
+            work = Path(directory)
+            startup.write_private(work / 'fixture.json', b'{}')
+            startup.write_private(work / 'events.json', b'[]')
+            with open(work / 'events.json', 'r+b') as holder:
+                fcntl.flock(holder, fcntl.LOCK_EX)
+                before = time.monotonic()
+                self.assertEqual(startup.fixture_main('docker', ['run', 'x'], work), 125)
+                self.assertLess(time.monotonic() - before, 1)
+            def replace(*args):
+                (work / 'events.json').rename(work / 'saved')
+                startup.write_private(work / 'events.json', b'[]')
+                return 125, '', ''
+            with patch.object(startup, 'fixture_command', side_effect=replace):
+                self.assertEqual(startup.fixture_main('docker', ['run', 'x'], work), 125)
+            self.assertEqual((work / 'saved').read_bytes(), b'[]')
+            self.assertEqual((work / 'events.json').read_bytes(), b'[]')
+
+
+class ParentHandleHardening(unittest.TestCase):
+    def test_pidfd_precedes_observations_and_closes_on_death_or_mismatch(self):
+        from types import SimpleNamespace
+        from unittest.mock import mock_open
+        fixture = {'executable': '/verified-cli', 'workdir': '/private', 'network': {'Id': 'fixture'}}
+        expected = ['/verified-cli', 'start', '--agent', 'no', '--workdir', '/private', '--network-id', 'fixture']
+        for kind in ['success', 'identity', 'reparented', 'dead', 'disappeared']:
+            observations = []
+            def opened(parent):
+                observations.append('pidfd')
+                return 999
+            def metadata(path, **kwargs):
+                observations.append('metadata')
+                if kind == 'disappeared':
+                    raise FileNotFoundError
+                return SimpleNamespace(st_uid=os.getuid())
+            argv = expected if kind != 'identity' else ['wrong']
+            parents = [123, 124] if kind == 'reparented' else [123, 123]
+            with self.subTest(kind=kind), \
+                    patch.object(startup.os, 'getppid', side_effect=parents), \
+                    patch.object(startup.os, 'pidfd_open', side_effect=opened), \
+                    patch.object(startup.os, 'stat', side_effect=metadata), \
+                    patch.object(startup.os, 'getsid', return_value=123), \
+                    patch.object(startup.os, 'getpgid', return_value=123), \
+                    patch.object(startup.os, 'readlink', return_value='/verified-cli'), \
+                    patch('builtins.open', mock_open(read_data=b'\0'.join(a.encode() for a in argv) + b'\0')), \
+                    patch.object(startup.signal, 'pidfd_send_signal', side_effect=ProcessLookupError if kind == 'dead' else None) as signal_call, \
+                    patch.object(startup.os, 'close') as close:
+                if kind == 'success':
+                    self.assertEqual(startup.parent_identity(fixture), 999)
+                    close.assert_not_called()
+                    signal_call.assert_called_once_with(999, 0)
+                else:
+                    with self.assertRaises((OSError, dev.Refusal)):
+                        startup.parent_identity(fixture)
+                    close.assert_called_once_with(999)
+                self.assertEqual(observations[0], 'pidfd')
+
+
+class ObservationAndSourceHardening(unittest.TestCase):
+    def test_missing_duplicate_and_reordered_prerequisites_refuse(self):
+        fixture = {'project': 'safe', 'network': {'Id': 'network'}, 'database_port': 55482,
+                   'postgres_image': 'public.ecr.aws/supabase/postgres:17.11.0.004'}
+        valid = proof_events(fixture)
+        startup.validate_observations(valid, startup.selected_facts(fixture))
+        variants = [valid[-1:], valid[1:], valid + [valid[-1]], [valid[0], valid[1], valid[1], *valid[3:]]]
+        reordered = valid.copy()
+        reordered[5], reordered[6] = reordered[6], reordered[5]
+        variants.append(reordered)
+        for events in variants:
+            with self.subTest(count=len(events)), self.assertRaises(dev.Refusal):
+                startup.validate_observations(events, startup.selected_facts(fixture))
+        self.assertNotIn('repository_sql_inputs', startup.selected_facts(fixture))
+
+    def test_source_changed_during_probe_refuses_with_only_temporary_sources(self):
+        import shutil
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            for name in set(startup.PROOF_SOURCES + dev.SOURCES):
+                path = root / name
+                path.parent.mkdir(parents=True, exist_ok=True)
+                shutil.copyfile(ROOT / name, path)
+            target = target_fixture()
+            def mutate(command, work, env, timeout, limit):
+                (root / 'platform/deployment/dev.py').write_text('temporary mutation')
+                raise dev.Refusal('images_cli', 'command_refused')
+            with patch.object(dev, 'ROOT', root), patch.object(startup.images, 'bounded_command', side_effect=mutate):
+                with self.assertRaises(dev.Refusal) as caught:
+                    startup.synthetic_probe(Path('/unused'), target, RUN)
+                self.assertEqual(caught.exception.code, 'proof_source_changed')
+
+    def test_direct_control_requires_exact_rejection_event(self):
+        for expected in [True, False]:
+            def execute(command, work, env, timeout, limit):
+                events = [startup.rejected_event(['run', 'forbidden'], 'unexpected_container_command')] if expected else []
+                (work / 'events.json').write_bytes(json.dumps(events).encode())
+                raise dev.Refusal('images_cli', 'command_refused')
+            with self.subTest(expected=expected), patch.object(startup.images, 'bounded_command', side_effect=execute):
+                with self.assertRaises(dev.Refusal) as caught:
+                    startup.synthetic_probe(Path('/unused'), target_fixture(), RUN, control='reject-command')
+                self.assertEqual(caught.exception.code, 'expected_command_rejected' if expected else 'boundary_not_proven')
+
+    def test_synthetic_cli_unexpected_command_refuses_without_fallback(self):
+        with tempfile.TemporaryDirectory() as directory:
+            executable = Path(directory) / 'unexpected-cli'
+            executable.write_text('#!' + sys.executable + '\n' + '''import subprocess,sys
+# A started fixture returning nonzero must not trigger runtime fallback.
+code = subprocess.run(['docker','run','forbidden'], start_new_session=True).returncode
+sys.exit(code)
+''')
+            executable.chmod(0o700)
+            observed = []
+            original = startup.decode_fixture
+            def decode(path):
+                value = original(path)
+                if path.name == 'events.json':
+                    observed.extend(value)
+                return value
+            with patch.object(startup, 'decode_fixture', side_effect=decode):
+                with self.assertRaises(dev.Refusal) as caught:
+                    startup.synthetic_probe(executable, target_fixture(), RUN)
+            self.assertEqual(caught.exception.code, 'boundary_not_proven')
+            self.assertEqual(observed, [startup.rejected_event(['run', 'forbidden'], 'unexpected_container_command')])
+
+
+class FullQualificationMutationHardening(unittest.TestCase):
+    def test_unchanged_inputs_succeed_and_mid_probe_mutations_refuse(self):
+        import shutil
+        import test_images
+        for mutation in ['unchanged', 'receipt', 'tool-receipt', 'payload', 'preparation', 'inventory']:
+            with self.subTest(mutation=mutation):
+                owner = test_images.PersistenceGuards(methodName='runTest')
+                owner.setUp()
+                try:
+                    for name in startup.PROOF_SOURCES:
+                        path = owner.root / name
+                        path.parent.mkdir(parents=True, exist_ok=True)
+                        shutil.copyfile(ROOT / name, path)
+                    owner.qualify()
+                    def probe(*args, **kwargs):
+                        if mutation == 'receipt':
+                            (owner.run / 'receipt.json').write_bytes(b'{}')
+                        elif mutation == 'tool-receipt':
+                            owner.tool_receipt.write_bytes(b'{}')
+                        elif mutation == 'inventory':
+                            prepared = owner.root / 'platform/deployment/.local/kdg' / RUN / 'inventory.json'
+                            prepared.write_bytes(b'{}')
+                        elif mutation == 'payload':
+                            startup.write_private(owner.payload / 'injected', b'mutation')
+                        elif mutation == 'preparation':
+                            prepared = owner.root / 'platform/deployment/.local/kdg' / RUN / 'supabase/config.toml'
+                            prepared.write_bytes(b'mutation')
+                        return {'ok': True, 'runtime_ready': False}
+                    with patch.object(startup, 'synthetic_probe', side_effect=probe):
+                        if mutation == 'unchanged':
+                            self.assertTrue(startup.qualify(owner.args)['ok'])
+                        else:
+                            with self.assertRaises((OSError, ValueError, KeyError, dev.Refusal)):
+                                startup.qualify(owner.args)
+                finally:
+                    owner.doCleanups()
+
+
+class DetachedFixtureLifetimeHardening(unittest.TestCase):
+    def test_separate_session_fixture_dies_after_timeout_and_interruption(self):
+        import time
+        original_select = startup.images.selectors.DefaultSelector.select
+        for interrupted in [False, True]:
+            with self.subTest(interrupted=interrupted), tempfile.TemporaryDirectory() as directory:
+                base = Path(directory)
+                work = base / 'work'
+                work.mkdir(mode=0o700)
+                target = target_fixture()
+                startup.initialize_workdir(work, target, RUN)
+                executable = base / 'stalled-cli'
+                pidfile = base / 'fixture.pid'
+                executable.write_text('#!' + sys.executable + '\n' + '''import fcntl,subprocess,sys,time
+from pathlib import Path
+work = Path(sys.argv[sys.argv.index('--workdir')+1])
+lock = open(work/'events.json','r+b')
+fcntl.flock(lock,fcntl.LOCK_EX)
+p = subprocess.Popen(['docker','container','inspect','supabase_db_''' + dev.project_identity(target, RUN) + "''','--format','{{json .State}}'],start_new_session=True)\n" +
+                    'Path(' + repr(str(pidfile)) + ').write_text(str(p.pid))\ntime.sleep(60)\n')
+                executable.chmod(0o700)
+                command, env = startup.invocation(executable, work, target, RUN, startup.fixture_network(target, RUN))
+                startup.install_fixture(work, target, RUN, startup.fixture_network(target, RUN), executable)
+                env['PATH'] = str(work / 'bin')
+                def stop(selector, timeout=None):
+                    if not pidfile.exists():
+                        return original_select(selector, min(timeout or .02, .02))
+                    time.sleep(.1)
+                    raise KeyboardInterrupt
+                context = patch.object(startup.images.selectors.DefaultSelector, 'select', side_effect=stop, autospec=True)
+                if interrupted:
+                    with context, self.assertRaises(KeyboardInterrupt):
+                        startup.images.bounded_command(command, work, env, 2, 1024)
+                else:
+                    with self.assertRaises(dev.Refusal):
+                        startup.images.bounded_command(command, work, env, .3, 1024)
+                self.assertTrue(pidfile.exists())
+                process = Path('/proc') / pidfile.read_text() / 'stat'
+                for _ in range(100):
+                    if not process.exists() or process.read_text().split()[2] == 'Z':
+                        break
+                    time.sleep(.01)
+                else:
+                    self.fail('live detached fixture after CLI termination')
+
+
+if __name__ == '__main__':
+    unittest.main()

@@ -265,3 +265,87 @@ runtime/provider/device gates remain unqualified. No image layers/config blobs, 
 pulls, container startup, migrations, SQL or infrastructure/account changes occur.
 See [base-image evidence and impact decisions](ENV_BASE_IMAGE_EVIDENCE.md) for exact
 requirement/test traceability, public collection/repeat results and remaining gates.
+
+## Guarded startup invocation and synthetic Docker boundary
+
+`startup.py` constructs the next bounded ENV invocation from an already qualified
+run's configuration and a validated run-owned network descriptor. It does not activate
+`dev.py up`. The reusable constructor forces the legacy backend, non-slim images,
+`public.ecr.aws`, an explicit private workdir and explicit network ID; ambient Docker,
+Supabase, dotenv and linked-project settings cannot supply overrides.
+
+The closed network descriptor has exactly `Name`, `Id`, `Driver`, `Scope`, `Internal`,
+`Options`, `Labels` and `Containers`. It must use the prepared reserved network name,
+a nonempty bounded ID, local bridge driver, `Internal=false`, no attached containers
+and exactly `com.docker.network.bridge.host_binding_ipv4=127.0.0.1`. Its closed labels
+are `io.agriplatform.env.owner=platform/deployment`, `io.agriplatform.env.target=<target>`,
+`io.agriplatform.env.run=<UUID>` and `io.agriplatform.env.project=<reserved project>`.
+The current proof supplies this descriptor synthetically: it is no evidence that a real
+network exists or that Docker enforces its options. A future real adapter still needs
+the Docker prerequisite and actual network ownership/isolation verification.
+
+For the opt-in actual pinned CLI proof, use an existing unchanged preparation, tool
+qualification and base-image qualification; the command refuses missing evidence:
+
+```sh
+python3 platform/deployment/tests/qualify_startup.py --target platform/deployment/environments/kdg-local.json --run-id <already-qualified-UUID>
+```
+
+It invokes the existing image owner's repeat qualifier before and after the proof.
+That verification can take transient owner locks and run selected installed-tool
+probes; it is not read-only. Missing/changed receipts refuse without installation,
+registry refresh or repair. Preparation/tool sources remain unchanged. The image owner now exposes a repeat-only
+consumer seam that cannot create a replacement run or collect registry metadata if
+evidence disappears during verification. Its source hash changed; qualify a fresh
+prepared/tool-qualified run rather than adopting an old image receipt.
+
+The proof runs the selected Supabase binary in a new private workdir with generated
+configuration and separate state/config/cache/temp/Docker directories. The root must
+be owned by the current user with mode0700; a held directory descriptor binds its
+identity throughout execution and replacement or permission changes refuse proof. Its Docker
+endpoint does not exist and PATH contains only private `docker` and rejecting `podman`
+Python fixtures, using an absolute Python shebang. No fixture code can dispatch a
+real Docker executable. Only controlled inspect responses succeed. The exact run-owned
+named-volume create receives a synthetic nonzero `volume already exists` refusal,
+which the pinned CLI accepts as an existing-volume case; no volume is created. First
+PostgreSQL `create` is validated and refused, retaining only selected safe image,
+name, network, publishing and mount facts. After verifying the private CLI parent
+identity and isolated process group, a pidfd signal stops it before rollback commands.
+Child stdout/stderr, complete argv,
+environment values and generated SQL are discarded. The CLI process group has a
+30-second bound and 1MiB combined output limit. Each private fixture installs a Linux
+parent-death signal before importing the owner modules or doing fixture work, and has
+a five-second lifetime bound, including when the CLI creates a separate child session.
+Event state is opened nonblocking without following links, must be regular, owned,
+mode0600 and single-link, and retains its path identity through reads/writes. Exclusive
+nonblocking lock acquisition has a half-second deadline. Fixture input/state, command
+count and command argument sizes are bounded. Source identities bind startup, its
+opt-in entrypoint, imported owner implementations/pins and preparation sources before
+and after execution; source changes refuse proof. Temporary files are discarded on exit.
+
+Negative controls select `--control invalid-network`, `--control contaminated-workdir`
+or `--control reject-command`. The first two are adapter preflight controls and do not
+start the pinned CLI. The third invokes the private Docker fixture directly, requires
+the exact expected unexpected-command rejection event, and reports
+`expected_command_rejected`; another failure does not pass that control. Each returns
+nonzero safe JSON with `runtime_ready=false`. Synthetic unit coverage separately proves
+a CLI process issuing an unexpected Docker command receives refusal without a Podman
+fallback. These controls do not claim an actual pinned-CLI unexpected-command path.
+The private workdir never includes repository migrations, seeds, roles or dotenv.
+The pinned CLI still publishes PostgreSQL as `<host port>:5432`, so validated network
+default loopback publishing remains an essential future runtime guard.
+
+This synthetic proof follows the existing-volume path only. Positive evidence requires
+the pinned path’s nine observations: missing-container inspect, exactly one inspect
+for each of the four selected images (in any concurrent order), volume inspect, network
+inspect, duplicate-volume create refusal and the refused PostgreSQL create. Missing,
+duplicate or reordered prerequisites refuse proof. The selected PostgreSQL tag is
+checked at its create boundary. The retained facts cover the exact generated config
+bytes, the Supabase directory’s allowed files and absence of host bind mounts. The
+shell command’s SQL content is unqualified; it is neither logged nor hashed. These
+checks do not establish a broad runtime SQL-input policy. This does not enforce
+its manifest digest or execute its bytes; no container, secret-copy, SQL, migration,
+account or grant action occurs. Other startup/helper completeness, image/libc,
+deployment PostgreSQL compatibility and runtime/provider/device readiness remain open.
+The [startup evidence](ENV_STARTUP_INVOCATION_EVIDENCE.md) records actual proof results,
+requirement traceability and the five impact decisions.

@@ -492,7 +492,7 @@ def retained(fd, pins, binding):
     return receipt_raw
 
 
-def qualify(args):
+def qualify(args, *, existing_only=False):
     if str(uuid.UUID(args.run_id)) != args.run_id:
         fail('invalid_run_id', 'arguments')
     target_path = Path(args.target)
@@ -515,11 +515,11 @@ def qualify(args):
     payload, receipt_hash = existing_tools(args, target, raw, target_path, sources)
     with toolchain.anchored_directory(payload) as (payload_fd, pinned_payload):
         return qualify_evidence(args, target, raw, target_path, sources, pins, pin_raw,
-                                image_sources, inventory, payload, payload_fd, pinned_payload, receipt_hash)
+                                image_sources, inventory, payload, payload_fd, pinned_payload, receipt_hash, existing_only=existing_only)
 
 
 def qualify_evidence(args, target, raw, target_path, sources, pins, pin_raw,
-                     image_sources, inventory, payload, payload_fd, pinned_payload, receipt_hash):
+                     image_sources, inventory, payload, payload_fd, pinned_payload, receipt_hash, *, existing_only=False):
     binding = {'run_id': args.run_id, 'target_id': target['target_id'],
                'target_sha256': dev.digest(raw), 'preparation_sha256': dev.digest(inventory),
                'configuration_sha256': dev.digest(dev.configuration(target, args.run_id)),
@@ -547,14 +547,15 @@ def qualify_evidence(args, target, raw, target_path, sources, pins, pin_raw,
     inputs_current()
     base = dev.ROOT / 'platform/deployment/.local/kdg-base-images'
     run_path = base / args.run_id
-    with toolchain.anchored_directory(base, create=True) as (parent, _):
+    with toolchain.anchored_directory(base, create=not existing_only) as (parent, _):
         fresh = False
-        try:
-            os.mkdir(args.run_id, 0o700, dir_fd=parent)
-            os.fsync(parent)
-            fresh = True
-        except FileExistsError:
-            pass
+        if not existing_only:
+            try:
+                os.mkdir(args.run_id, 0o700, dir_fd=parent)
+                os.fsync(parent)
+                fresh = True
+            except FileExistsError:
+                pass
         fd = os.open(args.run_id, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW, dir_fd=parent)
         try:
             dev.check_private(fd)
