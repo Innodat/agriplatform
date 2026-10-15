@@ -36,6 +36,17 @@ The [ENV Python baseline fixture](../../../platform/deployment/ENV_PYTHON_BASELI
 also resolves the approved Python subset into a generated hash lock and executes it
 in isolated wheel-only environments. This is dependency compatibility proof; each
 application/service still owns its own locks, and no Identity/Access/WRITE is implemented.
+The [frontend baseline fixture](../../../platform/deployment/ENV_WEB_BASELINE_EVIDENCE.md)
+has passed compatibility checks through the canonical root lock with preserved owner
+manifests and disposable installs. Shared/client/Scribeswell builds, synthetic component/
+native tool checks,98 old/new browser fixtures and built Vite8 browser smoke pass.
+Independent review is complete, with32 proof guards passing and none deferred.
+UI-business retains identical preexisting standalone diagnostics. The selected Supabase
+WebAuthn declarations conflict with TS7 DOM types: the fixture explicitly reproduces
+that diagnostic and excludes third-party declaration checking only. This is not full
+declaration coherence or KDG/Auth/runtime readiness. See the completed
+[Build record](../../../_bmad-output/implementation-artifacts/spec-env-web-baseline-qualification.md)
+for evidence before selecting the remaining ENV/scaffold work.
 The enclosing ENV runtime/bootstrap acceptance and P1/SERVICE generator remain open.
 Continue those existing owner items before dependent foundations or the server-backed
 KDG slice; do not confuse the completed preparation increment with a runnable stack.

@@ -1,0 +1,15 @@
+import { createRequire } from 'node:module';
+import { spawnSync } from 'node:child_process';
+import { mkdtempSync, writeFileSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
+import assert from 'node:assert/strict';
+import { dirname, resolve } from 'node:path';
+const require = createRequire(import.meta.url);
+const root = mkdtempSync(join(tmpdir(), 'env-ts-negative-'));
+writeFileSync(join(root, 'invalid.ts'), 'const count: number = "invalid";\n');
+const result = spawnSync(process.execPath, [resolve(dirname(require.resolve('typescript/package.json')), 'bin/tsc'), '--ignoreConfig', '--noEmit', '--skipLibCheck', join(root, 'invalid.ts')], { encoding: 'utf8', timeout: 30000 });
+assert.ifError(result.error);
+assert.equal(result.status, 1, result.stdout + result.stderr);
+assert.match(result.stdout, /TS2322.*Type 'string' is not assignable to type 'number'/);
+console.log('TS7 negative assignment rejected with TS2322');

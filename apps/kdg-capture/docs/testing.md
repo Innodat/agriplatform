@@ -139,6 +139,14 @@ against a synthetic API. It does not prove runtime settings, image/DB compatibil
 The [Python baseline fixture](../../../platform/deployment/ENV_PYTHON_BASELINE_EVIDENCE.md)
 adds actual wheel/native/library/loopback-HTTP compatibility proof under CPython3.15;
 it is not a KDG or shared-owner runtime/authorization/migration acceptance result.
+The [frontend baseline fixture](../../../platform/deployment/ENV_WEB_BASELINE_EVIDENCE.md)
+records root-lock/clean-install compatibility and synthetic React/DOM/router/validation,
+native build and CLI checks, plus98 old/new Chromium browser fixtures and built Vite8
+smoke.32 proof guards and independent review pass, none deferred; UI-business's
+existing standalone diagnostics are identical. Its
+known Supabase WebAuthn declaration conflict remains explicitly reproduced; strict own
+source checking excludes third-party declaration checking. No KDG acceptance is passed
+by those library/fixture checks.
 The following planning-era command inventory remains historical.
 
 Executed during planning: git status, read-only rg/source reads, BMAD configuration

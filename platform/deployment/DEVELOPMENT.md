@@ -185,3 +185,13 @@ native calls, loopback HTTP and offline SQL/library behavior. Use the fixture's 
 clean-environment commands; it never supplies application/service requirements or locks.
 Owner/runtime schemas, database/image compatibility and production readiness remain open.
 See [qualification evidence](ENV_PYTHON_BASELINE_EVIDENCE.md).
+
+## Frontend dependency qualification
+
+The [ENV frontend fixture](../env-web-qualification/README.md) uses the approved exact
+pins and the canonical root lock. Use its [disposable proof runner](qualification/web/README.md)
+for explicit selected Node/npm, private configs/cache, clean installs, source/lock
+provenance and affected-consumer checks. Never install it into the existing checkout
+node_modules. Existing owner manifests and independent PtS locks retain ownership.
+See [evidence and limitations](ENV_WEB_BASELINE_EVIDENCE.md), including the explicitly
+reproduced Supabase/TS7 declaration conflict and separate browser/runtime gates.
