@@ -18,6 +18,41 @@ import startup
 RUN = 'b3b805d5-adc6-4168-a79c-5945547d3320'
 
 
+def test_plan():
+    # Independent child bytes: index and config digests are deliberately different.
+    import test_images
+    pins = startup.images.load_pins(dev.read(ROOT / startup.images.PINS))
+    return {'public.ecr.aws/' + item['repository'] + ':' + item['tag']:
+            'public.ecr.aws/' + item['repository'] + '@sha256:' + dev.digest(test_images.fixture(item['id'])[1])
+            for item in pins['images']}
+
+
+SYNTHETIC_CLI_SOURCE = '''import json, os, subprocess, sys
+from pathlib import Path
+work = Path(sys.argv[sys.argv.index('--workdir')+1])
+f = json.loads((work/'fixture.json').read_text())
+p = f['project']
+args = ['create','--name','supabase_db_'+p,'-e','POSTGRES_PASSWORD',
+        '-v','supabase_db_'+p+':/var/lib/postgresql/data','-p',str(f['database_port'])+':5432',
+        '--network',f['network']['Id'],'--label','com.supabase.cli.project='+p,
+        '--label','com.docker.compose.project='+p,'--label','com.supabase.cli.workdir='+str(work),
+        '--entrypoint','sh',f['postgres_image'],'-c','generated secret SQL never retained']
+assert os.environ['PATH'] == str(work/'bin')
+assert os.environ['DOCKER_HOST'] == 'unix://'+str(work/'no-daemon.sock')
+assert 'DOCKER_CONTEXT' not in os.environ
+assert 'SUPABASE_DB_PASSWORD' not in os.environ
+commands = [['container','inspect','supabase_db_'+p,'--format','{{json .State}}']]
+commands += [['image','inspect',image] for image in f['images']]
+commands += [['volume','inspect','supabase_db_'+p], ['network','inspect',f['network']['Id']],
+             ['volume','create','--label','com.supabase.cli.project='+p,'--label',
+              'com.docker.compose.project='+p,'supabase_db_'+p]]
+for command in commands:
+    subprocess.run(['docker',*command], start_new_session=True)
+code = subprocess.run(['docker',*args], start_new_session=True).returncode
+(work/'forbidden_after_create').write_text('cleanup must never run')
+sys.exit(code)
+'''
+
 class StartupAcceptance(unittest.TestCase):
     def test_missing_preparation_fails_before_execution(self):
         result = subprocess.run([sys.executable, str(ROOT / 'platform/deployment/tests/qualify_startup.py'),
@@ -76,6 +111,25 @@ class InvocationGuards(unittest.TestCase):
 
 
 class EvidenceReceiptGuards(unittest.TestCase):
+    def test_snapshot_replacement_during_read_refuses(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            startup.write_private(root / 'receipt.json', b'old')
+            original = startup.os.read
+            replaced = False
+            def replace(fd, count):
+                nonlocal replaced
+                raw = original(fd, count)
+                if not replaced:
+                    replaced = True
+                    (root / 'receipt.json').rename(root / 'preserved')
+                    startup.write_private(root / 'receipt.json', b'new')
+                return raw
+            with dev.directory(root) as fd, patch.object(startup.os, 'read', side_effect=replace):
+                with self.assertRaises(dev.Refusal) as caught:
+                    startup.evidence_snapshot(fd)
+            self.assertEqual(caught.exception.code, 'image_verification_refused')
+
     def test_changed_existing_receipt_refuses_without_starting_cli(self):
         from types import SimpleNamespace
         with tempfile.TemporaryDirectory() as directory:
@@ -138,13 +192,64 @@ class BoundaryControls(unittest.TestCase):
         self.fixture = {'project': self.project, 'workdir': '/private', 'network': self.network,
                         'executable': '/does-not-exist',
                         'database_port': 55482, 'postgres_image': 'public.ecr.aws/supabase/postgres:17.11.0.004',
-                        'images': ['public.ecr.aws/supabase/postgres:17.11.0.004']}
+                        'images': ['public.ecr.aws/supabase/postgres:17.11.0.004'], 'selection_plan': test_plan()}
         self.args = ['create', '--name', 'supabase_db_' + self.project, '-e', 'POSTGRES_PASSWORD',
                      '-v', 'supabase_db_' + self.project + ':/var/lib/postgresql/data', '-p', '55482:5432',
                      '--network', self.network['Id'], '--label', 'com.supabase.cli.project=' + self.project,
                      '--label', 'com.docker.compose.project=' + self.project,
                      '--label', 'com.supabase.cli.workdir=/private', '--entrypoint', 'sh',
                      self.fixture['postgres_image'], '-c', 'synthetic generated SQL never retained']
+
+    def test_first_create_selects_child_and_preserves_every_other_operand(self):
+        plan = test_plan()
+        original = self.args.copy()
+        transformed = startup.immutable_first_create(self.args, self.fixture, plan)
+        index = self.args.index(self.fixture['postgres_image'])
+        self.assertEqual(transformed[index], plan[self.fixture['postgres_image']])
+        self.assertEqual(transformed[:index], original[:index])
+        self.assertEqual(transformed[index + 1:], original[index + 1:])
+        self.assertEqual(self.args, original)
+        for change in [dict(list(plan.items())[1:]), {**plan, 'foreign:tag': 'foreign@sha256:' + '1' * 64},
+                       {**plan, self.fixture['postgres_image']: 'foreign@sha256:' + '1' * 64}]:
+            with self.assertRaises(dev.Refusal):
+                startup.immutable_first_create(self.args, self.fixture, change)
+
+    def test_ambiguous_create_is_rejected_before_selection(self):
+        index = self.args.index(self.fixture['postgres_image'])
+        variants = [['run', *self.args[1:]], [*self.args[:index], None, *self.args[index + 1:]],
+                    self.args[:index] + ['--entrypoint', 'sh'] + self.args[index:],
+                    self.args[:index] + ['--label', 'com.supabase.cli.project=' + self.project] + self.args[index:],
+                    self.args[:index] + ['--privileged', 'true'] + self.args[index:]]
+        for ref in ['public.ecr.aws/supabase/postgres:latest', test_plan()[self.fixture['postgres_image']],
+                    'public.ecr.aws/supabase/postgres@sha256:' + '0' * 64]:
+            variants.append(self.args[:index] + [ref] + self.args[index + 1:])
+        changed = dict(self.fixture, postgres_image=next(tag for tag in test_plan() if 'gotrue' in tag))
+        with self.assertRaises(dev.Refusal):
+            startup.immutable_first_create(self.args[:index] + [changed['postgres_image']] + self.args[index + 1:],
+                                           changed, test_plan())
+        for args in variants:
+            events = []
+            with self.assertRaises(dev.Refusal):
+                if all(type(arg) is str for arg in args):
+                    startup.fixture_command('docker', args, self.fixture, events)
+                else:
+                    startup.immutable_first_create(args, self.fixture, test_plan())
+            self.assertEqual(events, [])
+
+    def test_transformer_cannot_change_other_arguments_or_mutate_original(self):
+        original = startup.immutable_first_create
+        for inplace in [False, True]:
+            args = self.args[:1] + ['--health-timeout', '10s'] + self.args[1:]
+            def corrupt(argv, fixture, plan):
+                selected = original(argv, fixture, plan)
+                selected[selected.index('--health-timeout') + 1] = '999s'
+                if inplace:
+                    argv[argv.index('--health-timeout') + 1] = '999s'
+                return selected
+            events = []
+            with patch.object(startup, 'immutable_first_create', side_effect=corrupt), self.assertRaises(dev.Refusal):
+                startup.fixture_command('docker', args, self.fixture, events)
+            self.assertEqual(events, [])
 
     def test_create_is_refused_with_only_selected_safe_facts(self):
         events = []
@@ -237,50 +342,45 @@ class SyntheticProbeAcceptance(unittest.TestCase):
         target = dev.decode(dev.read(ROOT / 'platform/deployment/environments/kdg-local.json'))
         with tempfile.TemporaryDirectory() as directory:
             executable = Path(directory) / 'synthetic-cli'
-            source = '''import json, os, subprocess, sys
-from pathlib import Path
-work = Path(sys.argv[sys.argv.index('--workdir')+1])
-f = json.loads((work/'fixture.json').read_text())
-p = f['project']
-args = ['create','--name','supabase_db_'+p,'-e','POSTGRES_PASSWORD',
-        '-v','supabase_db_'+p+':/var/lib/postgresql/data','-p',str(f['database_port'])+':5432',
-        '--network',f['network']['Id'],'--label','com.supabase.cli.project='+p,
-        '--label','com.docker.compose.project='+p,'--label','com.supabase.cli.workdir='+str(work),
-        '--entrypoint','sh',f['postgres_image'],'-c','generated secret SQL never retained']
-assert os.environ['PATH'] == str(work/'bin')
-assert os.environ['DOCKER_HOST'] == 'unix://'+str(work/'no-daemon.sock')
-assert 'DOCKER_CONTEXT' not in os.environ
-assert 'SUPABASE_DB_PASSWORD' not in os.environ
-commands = [['container','inspect','supabase_db_'+p,'--format','{{json .State}}']]
-commands += [['image','inspect',image] for image in f['images']]
-commands += [['volume','inspect','supabase_db_'+p], ['network','inspect',f['network']['Id']],
-             ['volume','create','--label','com.supabase.cli.project='+p,'--label',
-              'com.docker.compose.project='+p,'supabase_db_'+p]]
-for command in commands:
-    subprocess.run(['docker',*command], start_new_session=True)
-code = subprocess.run(['docker',*args], start_new_session=True).returncode
-(work/'forbidden_after_create').write_text('cleanup must never run')
-sys.exit(code)
-'''
+            source = SYNTHETIC_CLI_SOURCE
             executable.write_text('#!' + sys.executable + '\n' + source)
             executable.chmod(0o700)
             with patch.dict(os.environ, {'DOCKER_CONTEXT': 'hostile', 'SUPABASE_DB_PASSWORD': 'sensitive'}):
-                result = startup.synthetic_probe(executable, target, RUN)
+                result = startup.synthetic_probe(executable, target, RUN, selection_plan=test_plan())
             self.assertTrue(result['ok'])
             self.assertFalse(result['runtime_ready'])
             self.assertTrue(result['facts']['create_refused'])
+            original = 'public.ecr.aws/supabase/postgres:17.11.0.004'
+            self.assertEqual(result['facts']['original_image'], original)
+            self.assertEqual(result['facts']['image'], test_plan()[original])
+            self.assertTrue(result['facts']['immutable_selection_proven'])
             self.assertNotIn('generated secret SQL', json.dumps(result))
             self.assertNotIn('sensitive', json.dumps(result))
 
+    def test_invalid_mapping_shapes_refuse_before_cli(self):
+        plan = test_plan()
+        tag, other = list(plan)[:2]
+        repository = plan[tag].split('@')[0]
+        for value in [repository + '@' + plan[other].split('@')[1], repository + '@sha256:bad', 17]:
+            with self.subTest(value=value), patch.object(startup.images, 'bounded_command') as command:
+                with self.assertRaises(dev.Refusal) as caught:
+                    startup.synthetic_probe(Path('/unused'), target_fixture(), RUN,
+                                            selection_plan={**plan, tag: value})
+                self.assertEqual(caught.exception.code, 'invalid_selection_plan')
+                command.assert_not_called()
+
     def test_negative_controls_never_start_cli_for_invalid_inputs(self):
         target = dev.decode(dev.read(ROOT / 'platform/deployment/environments/kdg-local.json'))
-        for control in ['invalid-network', 'contaminated-workdir']:
+        for control in ['invalid-network', 'contaminated-workdir', 'invalid-selection-plan']:
             with self.subTest(control=control), patch.object(startup.images, 'bounded_command') as command:
-                with self.assertRaises(dev.Refusal):
-                    startup.synthetic_probe(Path('/nonexistent'), target, RUN, control=control)
+                with self.assertRaises(dev.Refusal) as caught:
+                    startup.synthetic_probe(Path('/nonexistent'), target, RUN, control=control, selection_plan=test_plan())
+                self.assertEqual(caught.exception.code, {'invalid-network': 'network_not_run_owned',
+                                 'contaminated-workdir': 'workdir_contaminated',
+                                 'invalid-selection-plan': 'invalid_selection_plan'}[control])
                 command.assert_not_called()
         with self.assertRaises(dev.Refusal) as caught:
-            startup.synthetic_probe(Path('/nonexistent'), target, RUN, control='reject-command')
+            startup.synthetic_probe(Path('/nonexistent'), target, RUN, control='reject-command', selection_plan=test_plan())
         self.assertEqual(caught.exception.code, 'expected_command_rejected')
 
 
@@ -355,7 +455,7 @@ class WorkdirAndStateHardening(unittest.TestCase):
             with self.subTest(mutation=mutation), patch.object(startup.images, 'bounded_command', side_effect=mutate):
                 try:
                     with self.assertRaises(dev.Refusal):
-                        startup.synthetic_probe(Path('/unused'), target_fixture(), RUN)
+                        startup.synthetic_probe(Path('/unused'), target_fixture(), RUN, selection_plan=test_plan())
                 finally:
                     import shutil
                     for path in saved:
@@ -472,7 +572,7 @@ class ObservationAndSourceHardening(unittest.TestCase):
                 raise dev.Refusal('images_cli', 'command_refused')
             with patch.object(dev, 'ROOT', root), patch.object(startup.images, 'bounded_command', side_effect=mutate):
                 with self.assertRaises(dev.Refusal) as caught:
-                    startup.synthetic_probe(Path('/unused'), target, RUN)
+                    startup.synthetic_probe(Path('/unused'), target, RUN, selection_plan=test_plan())
                 self.assertEqual(caught.exception.code, 'proof_source_changed')
 
     def test_direct_control_requires_exact_rejection_event(self):
@@ -483,7 +583,7 @@ class ObservationAndSourceHardening(unittest.TestCase):
                 raise dev.Refusal('images_cli', 'command_refused')
             with self.subTest(expected=expected), patch.object(startup.images, 'bounded_command', side_effect=execute):
                 with self.assertRaises(dev.Refusal) as caught:
-                    startup.synthetic_probe(Path('/unused'), target_fixture(), RUN, control='reject-command')
+                    startup.synthetic_probe(Path('/unused'), target_fixture(), RUN, control='reject-command', selection_plan=test_plan())
                 self.assertEqual(caught.exception.code, 'expected_command_rejected' if expected else 'boundary_not_proven')
 
     def test_synthetic_cli_unexpected_command_refuses_without_fallback(self):
@@ -504,16 +604,49 @@ sys.exit(code)
                 return value
             with patch.object(startup, 'decode_fixture', side_effect=decode):
                 with self.assertRaises(dev.Refusal) as caught:
-                    startup.synthetic_probe(executable, target_fixture(), RUN)
+                    startup.synthetic_probe(executable, target_fixture(), RUN, selection_plan=test_plan())
             self.assertEqual(caught.exception.code, 'boundary_not_proven')
             self.assertEqual(observed, [startup.rejected_event(['run', 'forbidden'], 'unexpected_container_command')])
+
+
+class IntegratedOwnerSelectionAcceptance(unittest.TestCase):
+    def test_owner_plan_reaches_actual_synthetic_cli_with_retained_child_identity(self):
+        import shutil
+        import test_images
+        owner = test_images.PersistenceGuards(methodName='runTest')
+        owner.setUp()
+        try:
+            for name in startup.PROOF_SOURCES:
+                path = owner.root / name
+                path.parent.mkdir(parents=True, exist_ok=True)
+                shutil.copyfile(ROOT / name, path)
+            executable = owner.payload / 'supabase/supabase'
+            executable.parent.mkdir(mode=0o700)
+            executable.write_text('#!' + sys.executable + '\n' + SYNTHETIC_CLI_SOURCE)
+            executable.chmod(0o700)
+            owner.tool_receipt.write_bytes(test_images.encoded({'toolchain_ready': True,
+                'payload': startup.toolchain.payload_fingerprint(owner.payload)}))
+            with patch.object(startup.images, 'existing_tools', return_value=(owner.payload,
+                              dev.digest(owner.tool_receipt.read_bytes()))):
+                owner.qualify()
+                child = (owner.run / 'postgres-linux-amd64.json').read_bytes()
+                index = (owner.run / 'postgres-index.json').read_bytes()
+                expected = 'public.ecr.aws/supabase/postgres@sha256:' + dev.digest(child)
+                self.assertNotEqual(dev.digest(child), dev.digest(index))
+                self.assertNotEqual('sha256:' + dev.digest(child), json.loads(child)['config']['digest'])
+                result = startup.qualify(owner.args)
+                self.assertEqual(result['facts']['image'], expected)
+                self.assertTrue(result['facts']['immutable_selection_proven'])
+                self.assertFalse(result['container_executed'])
+        finally:
+            owner.doCleanups()
 
 
 class FullQualificationMutationHardening(unittest.TestCase):
     def test_unchanged_inputs_succeed_and_mid_probe_mutations_refuse(self):
         import shutil
         import test_images
-        for mutation in ['unchanged', 'receipt', 'tool-receipt', 'payload', 'preparation', 'inventory']:
+        for mutation in ['unchanged', 'receipt', 'manifest', 'manifest-identity', 'tool-receipt', 'payload', 'preparation', 'inventory']:
             with self.subTest(mutation=mutation):
                 owner = test_images.PersistenceGuards(methodName='runTest')
                 owner.setUp()
@@ -526,6 +659,15 @@ class FullQualificationMutationHardening(unittest.TestCase):
                     def probe(*args, **kwargs):
                         if mutation == 'receipt':
                             (owner.run / 'receipt.json').write_bytes(b'{}')
+                        elif mutation in ['manifest', 'manifest-identity']:
+                            path = owner.run / 'postgres-linux-amd64.json'
+                            raw = path.read_bytes()
+                            if mutation == 'manifest-identity':
+                                path.rename(owner.run / 'retained-original')
+                                startup.write_private(path, raw)
+                                (owner.run / 'retained-original').unlink()
+                            else:
+                                path.write_bytes(b'{}')
                         elif mutation == 'tool-receipt':
                             owner.tool_receipt.write_bytes(b'{}')
                         elif mutation == 'inventory':
@@ -569,7 +711,7 @@ p = subprocess.Popen(['docker','container','inspect','supabase_db_''' + dev.proj
                     'Path(' + repr(str(pidfile)) + ').write_text(str(p.pid))\ntime.sleep(60)\n')
                 executable.chmod(0o700)
                 command, env = startup.invocation(executable, work, target, RUN, startup.fixture_network(target, RUN))
-                startup.install_fixture(work, target, RUN, startup.fixture_network(target, RUN), executable)
+                startup.install_fixture(work, target, RUN, startup.fixture_network(target, RUN), executable, selection_plan=test_plan())
                 env['PATH'] = str(work / 'bin')
                 def stop(selector, timeout=None):
                     if not pidfile.exists():

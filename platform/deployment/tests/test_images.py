@@ -449,6 +449,19 @@ class PersistenceGuards(unittest.TestCase):
         if code:
             self.assertEqual(caught.exception.code, code)
 
+    def test_selection_plan_binds_exact_distinct_child_manifests(self):
+        result = self.qualify()
+        expected = {'public.ecr.aws/' + item['repository'] + ':' + item['tag']:
+                    'public.ecr.aws/' + item['repository'] + '@sha256:' + dev.digest(fixture(item['id'])[1])
+                    for item in self.pins['images']}
+        self.assertEqual(result['selection_plan'], expected)
+        self.assertEqual(len({ref.split('@')[1] for ref in expected.values()}), 4)
+        self.network.reset_mock()
+        self.capture.reset_mock()
+        self.assertEqual(images.qualify(self.args, existing_only=True)['selection_plan'], expected)
+        self.network.assert_not_called()
+        self.capture.assert_not_called()
+
     def test_protected_complete_repeat_never_fetches_or_changes_any_evidence(self):
         self.assertFalse(self.qualify()['runtime_ready'])
         self.assertEqual([call.args[0] for call in self.network.call_args_list], list(self.responses))
@@ -686,14 +699,14 @@ class PersistenceGuards(unittest.TestCase):
         self.assertFalse((self.run / 'receipt.json').exists())
 
     def test_anonymous_tokens_never_persist_in_completed_evidence(self):
-        index, child = fixture()
+        responses = manifest_responses(self.pins)
         def network(path, headers, limit, deadline):
             if path.startswith('/token/'):
                 return 200, {'content-type': 'application/json'}, b'{"token":"sensitive-marker"}'
             if not headers.get('Authorization'):
                 return 401, {'www-authenticate': 'Bearer realm="https://public.ecr.aws/token/",service="public.ecr.aws",scope="aws"'}, b''
             self.assertEqual(headers['Authorization'], 'Bearer sensitive-marker')
-            return response(child, MANIFEST) if 'sha256:' in path else response(index, INDEX)
+            return responses[path]
         with patch.object(images, 'https', side_effect=network):
             self.qualify()
         for path in self.run.iterdir():

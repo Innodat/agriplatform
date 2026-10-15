@@ -397,3 +397,37 @@ source changes require fresh preparation. Evidence and requirement-to-test links
 in [ENV_RUN_NETWORK_EVIDENCE.md](ENV_RUN_NETWORK_EVIDENCE.md). Scaffold impact is this
 ENV adapter only; shared UI has no impact; root agent rules suffice; this runbook and
 proof evidence are updated; accepted ADRs remain unchanged.
+
+
+## Immutable first-create selection
+
+The public startup proof now requires an image selection plan from the existing image
+owner's retained-evidence verification. Exactly four approved tagged references map
+to their own repository's distinct Linux/amd64 child manifest digests. The plan uses
+neither index nor config digests. No unqualified positive path exists. Prepare and
+qualify a fresh run after these source changes; missing or stale evidence cannot
+trigger collection, installation, adoption or repair through this proof.
+
+At the private executable boundary, `immutable_first_create` validates the original
+PostgreSQL create, constructs a new argument list by replacing only its image operand,
+and has no dispatch capability. This internal constructor accepts only selection plans
+already verified by the image owner; its structural checks do not establish manifest
+provenance. The full public qualification path owns that verification and its rechecks.
+The fixture independently validates the constructed
+request before refusing creation. Safe facts record `original_image`, selected `image`,
+`immutable_selection_proven=true` and `create_refused=true`; argv, environment values
+and SQL are never retained. Protected receipt/manifest bytes and filesystem identities,
+preparation, tools, source and workdir guards are checked around the proof.
+
+The existing public qualifier command remains unchanged. Its additional negative
+control `--control invalid-selection-plan` removes one approved mapping and must fail
+before CLI execution with `invalid_selection_plan`. Existing negative controls retain
+their exact refusal codes and bounded process cleanup.
+
+Selection proof is separate from execution enforcement: `runtime_ready=false`,
+`container_executed=false` and `limits.digest_enforcement=false` remain mandatory.
+The CLI still requests tags natively; the constructor transforms only its first
+PostgreSQL request. Other services/helpers and real digest-bound execution remain
+unqualified. No real Docker mutation, layers, containers, SQL or migrations occur.
+The [immutable-create evidence](ENV_IMMUTABLE_CREATE_EVIDENCE.md) records verification
+and impact decisions; the earlier startup evidence remains historical.

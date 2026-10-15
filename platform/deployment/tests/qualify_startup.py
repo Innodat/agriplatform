@@ -14,7 +14,7 @@ def main(argv=None):
         parser = dev.Parser(add_help=False)
         parser.add_argument('--target', required=True)
         parser.add_argument('--run-id', required=True)
-        parser.add_argument('--control', choices=['positive', 'invalid-network', 'contaminated-workdir', 'reject-command'],
+        parser.add_argument('--control', choices=['positive', 'invalid-network', 'contaminated-workdir', 'reject-command', 'invalid-selection-plan'],
                             default='positive')
         result = startup.qualify(parser.parse_args(argv))
         print(json.dumps(result, sort_keys=True))

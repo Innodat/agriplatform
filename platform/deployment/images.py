@@ -624,6 +624,11 @@ def qualify_evidence(args, target, raw, target_path, sources, pins, pin_raw,
                     retained(fd, pins, binding)
                 inputs_current()
                 evidence_current()
+                verified = dev.decode(retained(fd, pins, binding))
+                selection_plan = {record['registry_reference']: 'public.ecr.aws/' + item['repository'] + '@' + record['linux_amd64']['digest']
+                                  for item, record in zip(pins['images'], verified['images'])}
+                if len({reference.rsplit('@', 1)[1] for reference in selection_plan.values()}) != 4:
+                    fail('invalid_selection_plan')
                 os.fsync(fd)
                 complete = True
             finally:
@@ -637,7 +642,8 @@ def qualify_evidence(args, target, raw, target_path, sources, pins, pin_raw,
         finally:
             os.close(fd)
     return {'ok': True, 'stage': 'base_images_qualified', 'code': 'base_images_qualified',
-            'run_id': args.run_id, 'base_identities_ready': True, 'runtime_ready': False}
+            'run_id': args.run_id, 'base_identities_ready': True, 'runtime_ready': False,
+            'selection_plan': selection_plan}
 
 
 def release_lock(fd, identity):

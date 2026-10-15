@@ -174,15 +174,47 @@ def existing_images(args):
             if ('.qualify.lock' in os.listdir(fd) or '.receipt-pending' in os.listdir(fd)
                     or dev.decode(receipt).get('base_identities_ready') is not True):
                 fail('existing_images_required')
+            before = evidence_snapshot(fd)
             result = images.qualify(args, existing_only=True)
             current = os.stat('receipt.json', dir_fd=fd, follow_symlinks=False)
             if (not result.get('base_identities_ready') or dev.read_at(fd, 'receipt.json', protected=True) != receipt
                     or (current.st_dev, current.st_ino) != (identity.st_dev, identity.st_ino)
-                    or not toolchain.anchor_current(root, fd)):
+                    or not toolchain.anchor_current(root, fd) or evidence_snapshot(fd) != before):
                 fail('image_verification_refused')
     except FileNotFoundError:
         fail('existing_images_required')
-    return dev.digest(receipt)
+    plan = result['selection_plan']
+    validate_selection_plan(plan)
+    return dev.digest(receipt), plan, before
+
+
+def evidence_snapshot(fd):
+    result = {}
+    for name in os.listdir(fd):
+        held = os.open(name, os.O_RDONLY | os.O_NOFOLLOW | os.O_NONBLOCK, dir_fd=fd)
+        try:
+            info = os.fstat(held)
+            if (not stat.S_ISREG(info.st_mode) or info.st_nlink != 1
+                    or info.st_uid != os.getuid() or stat.S_IMODE(info.st_mode) != 0o600):
+                fail('image_verification_refused')
+            raw = b''
+            while len(raw) <= dev.LIMIT:
+                chunk = os.read(held, dev.LIMIT + 1 - len(raw))
+                if not chunk:
+                    break
+                raw += chunk
+            current = os.stat(name, dir_fd=fd, follow_symlinks=False)
+            after = os.fstat(held)
+            if (len(raw) > dev.LIMIT
+                    or (info.st_mode, info.st_uid, info.st_nlink, info.st_size)
+                    != (after.st_mode, after.st_uid, after.st_nlink, after.st_size)
+                    or info.st_mtime_ns != after.st_mtime_ns or info.st_ctime_ns != after.st_ctime_ns
+                    or (current.st_dev, current.st_ino) != (info.st_dev, info.st_ino)):
+                fail('image_verification_refused')
+            result[name] = (info.st_dev, info.st_ino, dev.digest(raw))
+        finally:
+            os.close(held)
+    return result
 
 
 def decode_fixture(path):
@@ -193,8 +225,12 @@ def decode_fixture(path):
     return dev.decode(raw)
 
 
-def create_facts(args, fixture):
+def create_facts(args, fixture, *, image_index=False):
     """Extract only explicitly safe selected fields; never retain command SQL/env values."""
+    if (type(args) not in (list, tuple) or not args or args[0] != 'create'
+            or len(args) > 256 or any(type(arg) is not str for arg in args)
+            or sum(len(arg) for arg in args) > LIMIT):
+        fail('unsafe_create')
     values = {}
     index = 1
     while index < len(args) and args[index].startswith('-'):
@@ -212,7 +248,11 @@ def create_facts(args, fixture):
                '--security-opt', '--add-host', '--network', '--network-alias', '--label', '--entrypoint', '--tmpfs'}
     expected_labels = {'com.supabase.cli.project=' + project, 'com.docker.compose.project=' + project,
                        'com.supabase.cli.workdir=' + fixture['workdir']}
-    safe = (set(values) <= allowed and values.get('--name') == ['supabase_db_' + project]
+    repeatable = {'-e', '--label', '--add-host', '--tmpfs', '--security-opt', '--network-alias'}
+    safe = (set(values) <= allowed
+            and all(len(items) == 1 for flag, items in values.items() if flag not in repeatable)
+            and all(len(items) == len(set(items)) for items in values.values())
+            and values.get('--name') == ['supabase_db_' + project]
             and values.get('--network') == [fixture['network']['Id']]
             and values.get('-p') == [str(fixture['database_port']) + ':5432']
             and values.get('-v') == ['supabase_db_' + project + ':/var/lib/postgresql/data']
@@ -223,7 +263,37 @@ def create_facts(args, fixture):
             and all(re.fullmatch(r'[A-Z][A-Z0-9_]*', value) for value in values.get('-e', [])))
     if not safe:
         fail('unsafe_create')
-    return selected_facts(fixture)
+    return index if image_index else selected_facts(fixture)
+
+
+def validate_selection_plan(plan):
+    pins = images.load_pins(dev.read(dev.ROOT / images.PINS))
+    expected = {'public.ecr.aws/' + item['repository'] + ':' + item['tag']:
+                'public.ecr.aws/' + item['repository'] for item in pins['images']}
+    if (type(plan) is not dict or set(plan) != set(expected)
+            or any(type(plan[tag]) is not str or not re.fullmatch(re.escape(repository) + r'@sha256:[0-9a-f]{64}', plan[tag])
+                   for tag, repository in expected.items())
+            or len({value.rsplit('@', 1)[1] for value in plan.values()}) != 4):
+        fail('invalid_selection_plan')
+
+
+def immutable_first_create(args, fixture, plan):
+    """Internal construction only; plan must already be verified by the image owner.
+
+    Structural validation here cannot establish manifest provenance. The public
+    qualify path obtains and rechecks owner evidence around the process proof.
+    No dispatch is available from this constructor.
+    """
+    validate_selection_plan(plan)
+    index = create_facts(args, fixture, image_index=True)
+    pins = images.load_pins(dev.read(dev.ROOT / images.PINS))
+    postgres = next(item for item in pins['images'] if item['id'] == 'postgres')
+    expected = 'public.ecr.aws/' + postgres['repository'] + ':' + postgres['tag']
+    if fixture['postgres_image'] != expected:
+        fail('invalid_selection_plan')
+    selected = list(args)
+    selected[index] = plan[args[index]]
+    return selected
 
 
 def selected_facts(fixture):
@@ -240,7 +310,17 @@ def fixture_command(runtime, args, fixture, events):
         fail('unexpected_container_command')
     project = fixture['project']
     if args[:1] == ['create']:
-        facts = create_facts(args, fixture)
+        original = list(args)
+        index = create_facts(original, fixture, image_index=True)
+        expected = original.copy()
+        expected[index] = fixture['selection_plan'][fixture['postgres_image']]
+        selected = immutable_first_create(args, fixture, fixture['selection_plan'])
+        if selected != expected or list(args) != original:
+            fail('unsafe_create')
+        selected_fixture = dict(fixture, postgres_image=fixture['selection_plan'][fixture['postgres_image']])
+        facts = create_facts(selected, selected_fixture)
+        facts['original_image'] = fixture['postgres_image']
+        facts['immutable_selection_proven'] = True
         events.append({'kind': 'postgres_create', 'facts': facts})
         return 125, '', 'ENV synthetic create refused'
     if args == ['container', 'inspect', 'supabase_db_' + project, '--format', '{{json .State}}']:
@@ -385,13 +465,14 @@ def fixture_main(runtime, args, directory, stop_parent=False):
             os.close(parent_fd)
 
 
-def install_fixture(work, target, run_id, network, executable=None, guard_parent=True):
+def install_fixture(work, target, run_id, network, executable=None, guard_parent=True, *, selection_plan):
+    validate_selection_plan(selection_plan)
     pins = images.load_pins(dev.read(dev.ROOT / images.PINS))
     references = ['public.ecr.aws/' + item['repository'] + ':' + item['tag'] for item in pins['images']]
     fixture = {'project': dev.project_identity(target, run_id), 'workdir': str(work),
                'executable': str(executable) if executable is not None else '',
                'database_port': target['ports']['database'], 'network': network,
-               'images': references, 'postgres_image': references[0]}
+               'images': references, 'postgres_image': references[0], 'selection_plan': selection_plan}
     write_private(work / 'fixture.json', images.canonical(fixture).encode())
     write_private(work / 'events.json', b'[]')
     for runtime in ['docker', 'podman']:
@@ -406,9 +487,13 @@ def install_fixture(work, target, run_id, network, executable=None, guard_parent
         (work / 'bin' / runtime).chmod(0o700)
 
 
-def synthetic_probe(executable, target, run_id, network=None, control='positive'):
-    if control not in ['positive', 'invalid-network', 'contaminated-workdir', 'reject-command']:
+def synthetic_probe(executable, target, run_id, network=None, control='positive', *, selection_plan):
+    if control not in ['positive', 'invalid-network', 'contaminated-workdir', 'reject-command', 'invalid-selection-plan']:
         fail('unknown_control')
+    if control == 'invalid-selection-plan':
+        selection_plan = dict(selection_plan)
+        selection_plan.pop(next(iter(selection_plan)))
+    validate_selection_plan(selection_plan)
     network = fixture_network(target, run_id) if network is None else network
     before_sources = source_snapshot()
     with tempfile.TemporaryDirectory(prefix='env-startup-') as temporary, work_anchor(Path(temporary)) as work_fd:
@@ -419,7 +504,7 @@ def synthetic_probe(executable, target, run_id, network=None, control='positive'
         if control == 'contaminated-workdir':
             write_private(work / '.env', b'ENV_SYNTHETIC_UNTRUSTED=1')
         command, env = invocation(executable, work, target, run_id, network)
-        install_fixture(work, target, run_id, network, executable, guard_parent=control != 'reject-command')
+        install_fixture(work, target, run_id, network, executable, guard_parent=control != 'reject-command', selection_plan=selection_plan)
         fixture_hash = dev.digest(dev.read(work / 'fixture.json'))
         wrappers = {name: dev.digest(dev.read(work / 'bin' / name)) for name in ['docker', 'podman']}
         env['PATH'] = str(work / 'bin')
@@ -446,7 +531,10 @@ def synthetic_probe(executable, target, run_id, network=None, control='positive'
             fail('fixture_invalid')
         check_workdir(work, target, run_id, after=True, fixture=True)
         fixture = decode_fixture(work / 'fixture.json')
-        expected_facts = selected_facts(fixture)
+        if fixture['selection_plan'] != selection_plan:
+            fail('invalid_selection_plan')
+        expected_facts = selected_facts(dict(fixture, postgres_image=selection_plan[fixture['postgres_image']]))
+        expected_facts.update(original_image=fixture['postgres_image'], immutable_selection_proven=True)
         if control == 'reject-command':
             if events != [rejected_event(['run', 'forbidden'], 'unexpected_container_command')]:
                 fail('boundary_not_proven')
@@ -459,6 +547,7 @@ def synthetic_probe(executable, target, run_id, network=None, control='positive'
                                   'supabase_files_config_and_optional_cli_latest_only': True},
                 'source_sha256': before_sources,
                 'limits': {'first_postgres_create_only': True, 'digest_enforcement': False,
+                           'immutable_selection': True,
                            'runtime_isolation': False, 'startup_helpers': False, 'shell_command_sql_qualified': False}}
 
 
@@ -489,15 +578,16 @@ def qualify(args):
     proof_sources = source_snapshot()
     sources = dev.source_evidence()
     dev.validate_prepared(target, raw, args.run_id, path, sources)
-    receipt_hash = existing_images(args)
+    evidence = existing_images(args)
+    receipt_hash, selection_plan, _ = evidence
     payload = dev.ROOT / 'platform/deployment/.local/kdg-toolchains' / args.run_id / 'payload'
     with toolchain.anchored_directory(payload) as (fd, pinned):
         result = synthetic_probe(pinned / 'supabase/supabase', target, args.run_id,
-                                 control=getattr(args, 'control', 'positive'))
+                                 control=getattr(args, 'control', 'positive'), selection_plan=selection_plan)
         if not toolchain.anchor_current(payload, fd):
             fail('tool_payload_changed')
     # Repeat existing owner checks: no repair/registry fetch; evidence must remain unchanged.
-    if existing_images(args) != receipt_hash:
+    if existing_images(args) != evidence:
         fail('image_verification_refused')
     dev.validate_prepared(target, raw, args.run_id, path, sources)
     if source_snapshot() != proof_sources:
