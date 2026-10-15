@@ -18,7 +18,8 @@ ROOT = Path(os.path.abspath(__file__)).parents[2]
 SCHEMA = 'platform/deployment/schema/development-target-v1.json'
 BASELINE = 'platform/docs/architecture/contracts/scaffold-dependency-baseline-2026-10-14.md'
 CONTRACT = 'platform/docs/architecture/contracts/scaffold-environment-and-generation.md'
-SOURCES = ['platform/deployment/dev.py', SCHEMA, BASELINE, CONTRACT,
+SOURCES = ['platform/deployment/dev.py', 'platform/deployment/networks.py',
+           'platform/deployment/startup.py', 'platform/deployment/tests/qualify_networks.py', SCHEMA, BASELINE, CONTRACT,
            'platform/deployment/fixtures/kdg-synthetic-v1.json', 'platform/deployment/registry.json']
 LIMIT = 1024 * 1024
 
@@ -389,9 +390,20 @@ def validate_prepared(target, raw, run_id, target_path, sources):
         refuse('preparation', 'source_changed')
 
 
-def docker_prerequisite():
-    """Inspect one fixed local daemon. No CLI/context, redirects or write API."""
-    deadline = time.monotonic() + 5
+def docker_exchange(method, path, body=None, *, _socket_path='/var/run/docker.sock', deadline=None):
+    """Bounded fixed-route HTTP exchange. Private endpoint injection is for synthetic proof."""
+    if not ((method == 'GET' and body is None and (path == '/version' or re.fullmatch(r'/v1\.48/networks/[A-Za-z0-9_-]{1,128}', path)))
+            or (method == 'POST' and path == '/v1.48/networks/create' and type(body) is dict)):
+        refuse('docker', 'docker_request_invalid')
+    payload = b'' if body is None else json.dumps(body, sort_keys=True, separators=(',', ':')).encode()
+    request = (method + ' ' + path + ' HTTP/1.1\r\nHost: localhost\r\nConnection: close\r\n').encode()
+    if body is not None:
+        request += b'Content-Type: application/json\r\nContent-Length: ' + str(len(payload)).encode() + b'\r\n'
+    request += b'\r\n' + payload
+    if len(request) > 16384:
+        refuse('docker', 'docker_request_invalid')
+    if deadline is None:
+        deadline = time.monotonic() + 5
 
     def budget(stream):
         remaining = deadline - time.monotonic()
@@ -405,9 +417,9 @@ def docker_prerequisite():
     try:
         with socket.socket(socket.AF_UNIX, socket.SOCK_STREAM) as stream:
             budget(stream)
-            stream.connect('/var/run/docker.sock')
+            stream.connect(_socket_path)
             budget(stream)
-            stream.sendall(b'GET /version HTTP/1.1\r\nHost: localhost\r\nConnection: close\r\n\r\n')
+            stream.sendall(request)
             data = b''
             length = body_start = None
             while True:
@@ -423,8 +435,9 @@ def docker_prerequisite():
                 if body_start is None and b'\r\n\r\n' in data:
                     header, _ = data.split(b'\r\n\r\n', 1)
                     lines = header.split(b'\r\n')
-                    if not re.fullmatch(rb'HTTP/1\.[01] 200 [\x20-\x7e]*', lines[0]):
+                    if not re.fullmatch(rb'HTTP/1\.[01] [1-5][0-9]{2} [\x20-\x7e]*', lines[0]):
                         invalid()
+                    status = int(lines[0].split(b' ')[1])
                     fields = {}
                     for line in lines[1:]:
                         if b':' not in line:
@@ -439,29 +452,38 @@ def docker_prerequisite():
                             or not re.fullmatch(rb'[0-9]{1,5}', fields.get(b'content-length', b''))):
                         invalid()
                     length, body_start = int(fields[b'content-length']), len(header) + 4
-                    if not 0 < length <= 65536 - body_start:
+                    if not 0 <= length <= 65536 - body_start:
                         invalid()
                 if body_start is not None and len(data) >= body_start + length:
                     if len(data) != body_start + length:
                         invalid()
                     break
+        if status not in (200, 201):
+            return status, None
         try:
             response = decode(data[body_start:])
         except (Refusal, ValueError, UnicodeError, RecursionError):
             invalid()
-        if type(response) is not dict or response.get('Os') != 'linux':
+        if type(response) is not dict:
             invalid()
-        version = response.get('Version')
-        if type(version) is not str or not re.fullmatch(r'(0|[1-9][0-9]{0,3})\.(0|[1-9][0-9]{0,3})\.(0|[1-9][0-9]{0,3})', version):
-            invalid()
-        if tuple(map(int, version.split('.'))) < (28, 0, 0):
-            refuse('docker', 'docker_28_required')
-        return version
+        return status, response
     except TimeoutError:
         refuse('docker', 'docker_timeout')
     except OSError:
         refuse('docker', 'docker_unavailable')
 
+
+def docker_prerequisite(*, _socket_path='/var/run/docker.sock', deadline=None):
+    """Inspect one fixed local daemon. No CLI/context, redirects or write API."""
+    status, response = docker_exchange('GET', '/version', _socket_path=_socket_path, deadline=deadline)
+    if status != 200 or response.get('Os') != 'linux':
+        refuse('docker', 'docker_response_invalid')
+    version = response.get('Version')
+    if type(version) is not str or not re.fullmatch(r'(0|[1-9][0-9]{0,3})\.(0|[1-9][0-9]{0,3})\.(0|[1-9][0-9]{0,3})', version):
+        refuse('docker', 'docker_response_invalid')
+    if tuple(map(int, version.split('.'))) < (28, 0, 0):
+        refuse('docker', 'docker_28_required')
+    return version
 
 class Parser(argparse.ArgumentParser):
     def error(self, message):

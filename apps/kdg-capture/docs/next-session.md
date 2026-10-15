@@ -53,7 +53,7 @@ the existing pinned CLI and primary ECR metadata; see
 Public collection and immutable repeat pass after13 review fixes, none deferred. This
 retains index/Linux-amd64 digests only: no layers, startup, helper-set completeness,
 runtime image binding or live deployment PostgreSQL compatibility is qualified.
-The latest completed ENV increment is the
+The preceding completed ENV increment is the
 [guarded startup invocation](../../../_bmad-output/implementation-artifacts/spec-env-startup-invocation.md):
 final positive/negative controls and245 deployment tests pass; independent review
 fixed11 findings, rejected one with evidence and deferred none. It constructs the
@@ -63,6 +63,13 @@ create. Actual startup/network/digest enforcement stays unqualified; see
 [scope and evidence](../../../platform/deployment/ENV_STARTUP_INVOCATION_EVIDENCE.md).
 Its necessary image-owner repeat-only fix changes that source binding; use the fresh
 qualified run recorded in startup evidence rather than earlier image receipts.
+The latest completed ENV Build is [run-network acquisition](../../../_bmad-output/implementation-artifacts/spec-env-run-network.md).
+Final 26 network tests, 271 deployment tests and 15 private-daemon public controls pass;
+all nine reviewer instances and one evidence correction are fixed, none deferred. The adapter acquires/verifies the reserved bridge and
+constructs startup arguments with its verified ID; real up remains blocked. See
+[network evidence](../../../platform/deployment/ENV_RUN_NETWORK_EVIDENCE.md).
+The shared transport/source binding changed: use a fresh preparation; earlier
+image/tool/startup run receipts are retained but stale, not repaired.
 The enclosing ENV runtime/bootstrap acceptance and P1/SERVICE generator remain open.
 Continue those existing owner items before dependent foundations or the server-backed
 KDG slice; do not confuse the completed preparation increment with a runnable stack.

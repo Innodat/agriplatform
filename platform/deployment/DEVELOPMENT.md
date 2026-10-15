@@ -349,3 +349,51 @@ account or grant action occurs. Other startup/helper completeness, image/libc,
 deployment PostgreSQL compatibility and runtime/provider/device readiness remain open.
 The [startup evidence](ENV_STARTUP_INVOCATION_EVIDENCE.md) records actual proof results,
 requirement traceability and the five impact decisions.
+
+### Run-owned network acquisition proof
+
+`networks.py` now acquires or verifies the prepared run's bridge through the fixed
+local Docker Unix socket, with a stable Linux Docker 28 prerequisite. This adapter
+is deliberately **not activated by `dev.py up`**. It constructs startup arguments
+only; successful synthetic proof reports `runtime_ready=false`. It neither starts
+the selected CLI nor establishes kernel isolation or application readiness.
+
+After a fresh protected `prepare` against the current sources, run:
+
+```bash
+python3 platform/deployment/tests/qualify_networks.py --target platform/deployment/environments/kdg-local.json --run-id <prepared UUID>
+```
+
+The opt-in qualifier injects its own private Unix socket internally. It has no
+socket/host/context command-line option and never contacts the real Docker daemon.
+Production acquisition ignores ambient Docker variables and uses only
+`/var/run/docker.sock`. The transport permits `GET /version`, versioned v1.48 network
+inspection and `POST /v1.48/networks/create`; request and response sizes, framing,
+per-operation total deadline and protected same-run lock wait are bounded.
+
+The create request selects the reserved name, exact owner/target/run/project labels,
+a local bridge, IPv4 enabled, IPv6/ingress/attachable/internal/config-only disabled
+and exactly `com.docker.network.bridge.host_binding_ipv4=127.0.0.1`. It omits
+`ConfigFrom`, because an empty reference still selects Docker's config-from branch.
+Actual inspection must additionally show an empty `ConfigFrom.Network`, no attached
+containers and a canonical full lowercase 64-hex network ID. Only validated fields
+enter the existing closed startup descriptor. The adapter verifies returned create
+IDs, conflict winners and immutable-ID/name continuity immediately before constructing
+startup arguments. It refuses foreign, unsafe or attached networks without repair.
+
+`--control existing` proves reuse with no POST; `--control conflict` proves verified
+winner adoption. Negative controls are `foreign`, `unsafe-options`, `ipv6`, `attached`,
+`lost-response`, `replacement`, `old-daemon`, `malformed`, `oversized`, `slow`,
+`daemon-error` and `missing-preparation`. Each must return nonzero with its documented
+safe code; use an unprepared UUID for `missing-preparation`. No daemon body appears
+in output. Synthetic source/path/lock replacement and competing-call controls live
+in `test_networks.py`. A lost or timed-out create is never blindly retried or deleted;
+a later explicit call inspects by the reserved name first. Persistent empty protected
+`.network-<UUID>.lock` files sit beside run directories to preserve flock inode
+identity; preparations and immutable image/tool receipts are never repaired.
+
+Source-bound preparations include `networks.py`, `startup.py` and the public qualifier;
+source changes require fresh preparation. Evidence and requirement-to-test links are
+in [ENV_RUN_NETWORK_EVIDENCE.md](ENV_RUN_NETWORK_EVIDENCE.md). Scaffold impact is this
+ENV adapter only; shared UI has no impact; root agent rules suffice; this runbook and
+proof evidence are updated; accepted ADRs remain unchanged.

@@ -20,6 +20,9 @@ FILES = [
     'platform/deployment/fixtures/kdg-synthetic-v1.json',
     'platform/deployment/registry.json',
     'platform/docs/architecture/contracts/scaffold-environment-and-generation.md',
+    'platform/deployment/networks.py',
+    'platform/deployment/startup.py',
+    'platform/deployment/tests/qualify_networks.py',
     'platform/docs/architecture/contracts/scaffold-dependency-baseline-2026-10-14.md',
 ]
 
