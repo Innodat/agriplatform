@@ -20,12 +20,18 @@ import volumes
 
 CONTROLS = ['positive', 'existing', 'racing-owned', 'foreign', 'racing-foreign',
             'unsafe-options', 'cluster', 'changed', 'lost-response', 'old-daemon',
-            'malformed', 'oversized', 'slow', 'daemon-error', 'missing-preparation']
+            'malformed', 'oversized', 'slow', 'daemon-error', 'missing-preparation', 'use-running', 'use-stopped', 'use-same-owner',
+            'use-object', 'use-null', 'use-scalar', 'use-error', 'use-oversized',
+            'use-truncated', 'use-eof', 'use-malformed']
 EXPECTED = {name: 'volume_not_run_owned' for name in ['foreign', 'racing-foreign', 'unsafe-options', 'cluster']}
 EXPECTED.update({'changed': 'volume_changed', 'lost-response': 'docker_response_invalid',
                  'old-daemon': 'docker_28_required', 'malformed': 'docker_response_invalid',
                  'oversized': 'docker_response_invalid', 'slow': 'docker_timeout',
                  'daemon-error': 'volume_inspection_failed', 'missing-preparation': 'prepared_run_required'})
+EXPECTED.update({name: 'volume_in_use' for name in ['use-running', 'use-stopped', 'use-same-owner']})
+EXPECTED.update({name: 'docker_response_invalid' for name in
+                 ['use-object', 'use-null', 'use-scalar', 'use-oversized', 'use-truncated', 'use-eof', 'use-malformed']})
+EXPECTED['use-error'] = 'volume_use_failed'
 API_PREFIX = '/v1.48/volumes/'
 
 
@@ -42,6 +48,11 @@ def expected_request(target, run_id):
                        'com.docker.compose.project': project}}
 
 
+def expected_use_path(name):
+    # Independent literal URL oracle; never call the production route/helper.
+    return '/v1.48/containers/json?all=true&filters=%7B%22volume%22%3A%5B%22' + name + '%22%5D%7D'
+
+
 class SyntheticDaemon:
     def __init__(self, target, run_id, control='positive'):
         self.target, self.run_id, self.control = target, run_id, control
@@ -56,6 +67,10 @@ class SyntheticDaemon:
         self.connections = 0
         self.disconnect_at = self.disconnect_after = self.truncated_at = None
         self.disconnected = threading.Event()
+        if control == 'use-truncated':
+            self.truncated_at = 4
+        if control == 'use-eof':
+            self.disconnect_at = 4
         if control == 'foreign':
             self.volume['Labels']['io.agriplatform.env.owner'] = 'foreign'
         if control == 'unsafe-options':
@@ -69,6 +84,20 @@ class SyntheticDaemon:
             self.hook(method, path)
         if (method, path) == ('GET', '/version'):
             return 200, {'Version': '27.9.9' if self.control == 'old-daemon' else '28.0.0', 'Os': 'linux'}
+        if (method, path, body) == ('GET', expected_use_path(self.name), None):
+            if self.control in ['use-running', 'use-stopped', 'use-same-owner']:
+                return 200, [{'Id': 'sensitive-container-marker',
+                              'State': 'exited' if self.control == 'use-stopped' else 'running',
+                              'Labels': self.volume['Labels'] if self.control == 'use-same-owner' else {}}]
+            if self.control == 'use-error':
+                return 500, {'message': 'sensitive-container-marker'}
+            if self.control == 'use-object':
+                return 200, {}
+            if self.control == 'use-null':
+                return 200, None
+            if self.control == 'use-scalar':
+                return 200, 'sensitive-container-marker'
+            return 200, []
         if (method, path) == ('POST', API_PREFIX + 'create'):
             if body != expected_request(self.target, self.run_id):
                 self.errors.append('create_input_mismatch')
@@ -102,8 +131,10 @@ class SyntheticDaemon:
         if self.control == 'old-daemon':
             expected = [version]
         elif self.control in ['positive', 'racing-owned']:
-            expected = [version, inspect, create, inspect]
-        elif self.control in ['existing', 'changed']:
+            expected = [version, inspect, create, inspect, ('GET', expected_use_path(self.name), None)]
+        elif self.control == 'existing' or self.control.startswith('use-'):
+            expected = [version, inspect, inspect, ('GET', expected_use_path(self.name), None)]
+        elif self.control == 'changed':
             expected = [version, inspect, inspect]
         elif self.control in ['lost-response', 'racing-foreign']:
             expected = [version, inspect, create]
@@ -155,6 +186,12 @@ class SyntheticDaemon:
                             if daemon.control == 'slow':
                                 daemon.stop.wait(volumes.SECONDS + .2)
                                 return
+                        if path.startswith('/v1.48/containers/json?') and daemon.control == 'use-malformed':
+                            self.request.sendall(b'HTTP/1.1 200 OK\r\nContent-Length: 1\r\n\r\n[')
+                            return
+                        if path.startswith('/v1.48/containers/json?') and daemon.control == 'use-oversized':
+                            self.request.sendall(b'HTTP/1.1 200 OK\r\nContent-Length: 999999\r\n\r\n')
+                            return
                         raw = json.dumps(response).encode()
                         wire = (f'HTTP/1.1 {status} Result\r\nContent-Length: {len(raw)}\r\n\r\n'.encode() + raw)
                         if len(daemon.events) == daemon.truncated_at:

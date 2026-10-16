@@ -52,6 +52,7 @@ def acquire(target_path, run_id, *, _socket_path='/var/run/docker.sock', _handof
                 volumes.fail('volume_inspection_failed')
             if startup.volume_descriptor(actual, target, run_id) != volume_result['volume']:
                 volumes.fail('volume_changed')
+            volumes.observe_unused(session, volume_result['volume']['Name'], current)
             current()
             # Observe currently available EOF/unsolicited bytes at the handoff boundary.
             session.idle()

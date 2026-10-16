@@ -75,6 +75,58 @@ class Peer:
 
 
 class DockerSessionTests(unittest.TestCase):
+    def use_path(self):
+        return ('/v1.48/containers/json?all=true&filters=%7B%22volume%22%3A%5B%22'
+                'supabase_db_agriplatform-kdg-AAAAAAAAAAAAAAAAAAAAAA%22%5D%7D')
+
+    def test_only_canonical_use_route_admits_array_response(self):
+        for path in ['/version', '/v1.48/volumes/owned', '/v1.48/networks/owned',
+                     '/v1.48/images/sha256:' + 'a' * 64 + '/json', self.use_path()]:
+            transport = test_docker_gate.ScriptedSocket(response([]))
+            with self.subTest(path=path), patch.object(dev.socket, 'socket', return_value=transport):
+                if path == self.use_path():
+                    self.assertEqual(dev.docker_exchange('GET', path), (200, []))
+                else:
+                    with self.assertRaises(dev.Refusal) as caught:
+                        dev.docker_exchange('GET', path)
+                    self.assertEqual(caught.exception.code, 'docker_response_invalid')
+
+    def test_use_route_rejects_object_null_scalar_and_bad_framing(self):
+        replies = [response({}), response('sensitive-container-marker'),
+                   response(1), response(True),
+                   b'HTTP/1.1 200 OK\r\nContent-Length: 4\r\n\r\nnull',
+                   b'HTTP/1.1 200 OK\r\nContent-Length: 1\r\n\r\n[',
+                   b'HTTP/1.1 200 OK\r\nContent-Length: 999999\r\n\r\n',
+                   response([]) + b'extra']
+        for wire in replies:
+            with self.subTest(wire=wire[:60]):
+                transport = test_docker_gate.ScriptedSocket(wire)
+                with patch.object(dev.socket, 'socket', return_value=transport), self.assertRaises(dev.Refusal) as caught:
+                    dev.docker_exchange('GET', self.use_path())
+                self.assertEqual(caught.exception.code, 'docker_response_invalid')
+
+    def test_changed_use_query_refuses_before_socket_access(self):
+        path = self.use_path()
+        variants = [path.replace('all=true&', ''), path.replace('all=true', 'all=false'),
+                    path + '&limit=1', path + '&all=true', path.replace('volume', 'name'),
+                    path.replace('%22%5D%7D', '%22,%22foreign%22%5D%7D'),
+                    path.replace('supabase_db_', 'foreign_'),
+                    path.replace('AAAAAAAAAAAAAAAAAAAAAA', 'bad%22%5D%7D'),
+                    '/v1.48/containers/json', '/v1.48/containers/json?all=true',
+                    path.replace('%7B', '%7b')]
+        for variant in variants:
+            with self.subTest(path=variant), patch.object(dev.socket, 'socket') as connect:
+                with dev.DockerSession() as session, self.assertRaises(dev.Refusal) as caught:
+                    session.exchange('GET', variant)
+                self.assertEqual(caught.exception.code, 'docker_request_invalid')
+                connect.assert_not_called()
+        for method, body in [('POST', None), ('GET', {}), ('DELETE', None)]:
+            with patch.object(dev.socket, 'socket') as connect:
+                with dev.DockerSession() as session, self.assertRaises(dev.Refusal) as caught:
+                    session.exchange(method, path, body)
+                self.assertEqual(caught.exception.code, 'docker_request_invalid')
+                connect.assert_not_called()
+
     def test_partial_request_body_eof_releases_peer_promptly(self):
         peer = Peer([])
         with peer.serve() as endpoint:

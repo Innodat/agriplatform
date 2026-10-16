@@ -1,5 +1,26 @@
 # Disposable KDG target preparation
 
+## Current ENV delivery status
+
+ENV is **partially implemented; the isolated KDG stack is not runnable yet**.
+Completed increments qualify selected inputs and refuse unsafe handoff; they do not
+close the enclosing ENV acceptance item. See individual evidence records below.
+
+| Boundary | Implemented evidence | Remaining acceptance |
+| --- | --- | --- |
+| Target/configuration | Protected disposable run preparation, exact source/config binding, deterministic owner names and Docker>=28 gate | Actual isolated stack startup and current readiness |
+| Dependency baseline | Six pinned executables including TypeScript7.0.2; Python wheel-lock and frontend compatibility fixtures | Generated consuming application/service proof; target/native compatibility; documented third-party declaration limitations |
+| Images/resources | Four immutable image identities, guarded owned bridge/database-volume acquisition, daemon observations, current volume-use refusal and joint same-session handoff | Execution-time enforcement, volume freshness/initialization/reuse and reservation/exclusivity |
+| PostgreSQL startup | Exact first-create profile and private synthetic create/file-transfer/refused-start proof | Bootstrap semantic/secret safety, actual create/start, health and bounded stop/reset/recovery |
+| Owner integration | Ordered ENV/P1/SERVICE/Identity/Access/WRITE contracts and retained ownership | Existing generator recipe/schema/templates, regeneration/custom preservation, generated install/type/build/start/current-Access proof, coordinated owner migrations/fixtures/recovery |
+| Provider/device | Explicit nonproduction origins/callback contracts | LAN HTTPS/DNS/testCA, actual Entra callbacks and installed Android/iPhone proof at consuming gates |
+
+The observed host Docker27.0.3 does not meet the >=28 isolation prerequisite. A
+supported daemon would still encounter `runtime_adapter_unqualified`. Upgrading the
+shared daemon, provisioning infrastructure and production/pilot actions are outside
+this delivery approval. Continue bounded ENV and scaffold work before dependent
+Identity/Access/WRITE or the server-backed KDG slice.
+
 ENV now implements the first bounded preparation increment of the
 [environment contract](../docs/architecture/contracts/scaffold-environment-and-generation.md).
 It validates the selected target and reserves deterministic names in a protected receipt.
@@ -671,3 +692,42 @@ adapter retains its existing contract and reuses the extracted owner algorithm.
 `dev.py up` stays gated and `runtime_ready=false`. This extends the existing ENV scaffold;
 shared UI and agent context need no change, owner documentation is updated, and accepted
 ADRs remain unchanged.
+
+## Run-volume current-use admission
+
+Standalone volume acquisition now checks container references after its final selected
+volume inspection. Joint acquisition repeats that check after its final joint volume
+inspection. Each check uses the existing guarded connection, run lock and total daemon
+deadline. The only admitted list route is Docker API1.48 `GET /containers/json` with
+`all=true` and exactly one `volume` filter containing the exact reserved run-volume
+name. This includes stopped containers; a destination-name match may conservatively
+refuse too. Only an empty JSON array admits handoff. Any reference, including one from
+a container with matching ownership labels, refuses with `volume_in_use`. A non200
+response refuses with `volume_use_failed`; invalid JSON types or framing retain
+`docker_response_invalid`. Container details never enter public output or errors.
+Other routes still require object responses. Standalone handoff also rechecks observable
+EOF/unsolicited bytes and the deadline immediately before and after construction.
+
+The existing private synthetic qualifiers expose `use-running`, `use-stopped`,
+`use-same-owner`, `use-object`, `use-null`, `use-scalar`, `use-error`, `use-oversized`,
+`use-truncated`, `use-eof` and `use-malformed`. The joint qualifier also exposes `use-late`: the first
+check returns no references, while the final joint check refuses before construction.
+Each negative control must return nonzero with safe stage/code output. Commands:
+
+```sh
+python3 platform/deployment/tests/qualify_volumes.py --target platform/deployment/environments/kdg-local.json --run-id <fresh-prepared-UUID> --control use-stopped
+python3 platform/deployment/tests/qualify_resources.py --target platform/deployment/environments/kdg-local.json --run-id <fresh-qualified-UUID> --control use-late
+python3 -m unittest discover -s platform/deployment/tests -p 'test_volumes.py'
+python3 -m unittest discover -s platform/deployment/tests -p 'test_resources.py'
+python3 -m unittest discover -s platform/deployment/tests -p 'test_docker_session.py'
+```
+
+These observations establish current metadata admission only. An existing matching
+unused volume remains admissible; storage contents and initialization are unproven.
+The checks do not reserve a volume, guarantee exclusive use, prove immutable identity,
+or qualify execution. A reference can appear after observation. No cleanup, replay,
+reconnect or real Docker operation is enabled; `runtime_ready=false` and the existing
+`up` refusal remain. Changed source bindings require fresh preparation and fresh
+owner tool/image qualification. Scaffold impact is this bounded ENV admission;
+shared UI and agent context need no change, documentation is this runbook and delivery
+evidence, and accepted ADRs remain unchanged.

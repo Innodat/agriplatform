@@ -41,7 +41,7 @@ class VolumeAcceptance(unittest.TestCase):
 
     def test_disconnect_at_every_exchange_never_reconnects_or_replays(self):
         self.prepare()
-        for control, count in [('positive', 4), ('existing', 3)]:
+        for control, count in [('positive', 5), ('existing', 4)]:
             for when in ['disconnect_at', 'truncated_at', 'disconnect_after']:
                 for request in range(1, count + 1):
                     with self.subTest(control=control, when=when, request=request):
@@ -105,6 +105,166 @@ class VolumeAcceptance(unittest.TestCase):
                         result = self.acquire(endpoint)
                         self.assertEqual(result['post_attempted'], control != 'existing')
                 daemon.validate_events()
+
+    def test_unused_new_and_existing_volume_construct_once_after_use_check(self):
+        self.prepare()
+        for control in ['positive', 'existing']:
+            with self.subTest(control=control):
+                daemon, called = proof.SyntheticDaemon(self.target, self.run_id, control), []
+                def construct(target, result):
+                    self.assertEqual(daemon.events[-1], ('GET', proof.expected_use_path(daemon.name), None))
+                    self.assertIs(result['runtime_ready'], False)
+                    called.append(result)
+                    return result
+                with daemon.serve() as endpoint:
+                    result = self.acquire(endpoint, _handoff=construct)
+                self.assertEqual(called, [result])
+                daemon.validate_events()
+
+    def test_referenced_volume_refuses_before_constructor(self):
+        self.prepare()
+        daemon = proof.SyntheticDaemon(self.target, self.run_id, 'existing')
+        original = daemon.dispatch
+        def dispatch(method, path, body):
+            if path.startswith('/v1.48/containers/json?'):
+                daemon.events.append((method, path, body))
+                return 200, [{'Id': 'sensitive-container-marker', 'State': 'exited'}]
+            return original(method, path, body)
+        daemon.dispatch = dispatch
+        called = []
+        with daemon.serve() as endpoint:
+            with self.assertRaises(dev.Refusal) as caught:
+                self.acquire(endpoint, _handoff=lambda *args: called.append(args))
+        self.assertEqual(caught.exception.code, 'volume_in_use')
+        self.assertEqual(called, [])
+        self.assertEqual(daemon.connections, 1)
+
+    def test_reference_after_create_and_destination_match_refuse_without_cleanup(self):
+        self.prepare()
+        for reference in ['created-volume', 'destination-match']:
+            with self.subTest(reference=reference):
+                daemon, called = proof.SyntheticDaemon(self.target, self.run_id), []
+                original = daemon.dispatch
+                def dispatch(method, path, body):
+                    status, response = original(method, path, body)
+                    if path == proof.expected_use_path(daemon.name):
+                        self.assertTrue(daemon.present)
+                        response = [{'Id': 'sensitive-container-marker'}] if reference == 'created-volume' else [
+                            {'Mounts': [{'Name': 'another-volume', 'Destination': daemon.name}]}]
+                    return status, response
+                daemon.dispatch = dispatch
+                with daemon.serve() as endpoint, self.assertRaises(dev.Refusal) as caught:
+                    self.acquire(endpoint, _handoff=lambda *args: called.append(args))
+                self.assertEqual((caught.exception.stage, caught.exception.code), ('volume', 'volume_in_use'))
+                self.assertEqual(called, [])
+                self.assertEqual(sum(event[0] == 'POST' for event in daemon.events), 1)
+                daemon.validate_events()  # Exact sequence excludes cleanup/replay.
+
+    def test_public_use_query_timeout_is_safe_and_suppresses_constructor(self):
+        import io
+        from contextlib import redirect_stdout, redirect_stderr
+        self.prepare()
+        daemon = proof.SyntheticDaemon(self.target, self.run_id, 'existing')
+        def delay(method, path):
+            if path == proof.expected_use_path(daemon.name):
+                daemon.stop.wait(.4)
+        daemon.hook = delay
+        output, errors = io.StringIO(), io.StringIO()
+        with patch.object(proof, 'SyntheticDaemon', return_value=daemon), patch.object(volumes, 'SECONDS', .15), \
+                patch.object(startup, 'fixture_command') as constructor, redirect_stdout(output), redirect_stderr(errors):
+            status = proof.main(['--target', str(self.input), '--run-id', self.run_id, '--control', 'existing'])
+        self.assertEqual(status, 2)
+        self.assertEqual(json.loads(output.getvalue()), {'ok': False, 'runtime_ready': False,
+                         'stage': 'docker', 'code': 'docker_timeout'})
+        self.assertEqual(errors.getvalue(), '')
+        self.assertNotIn('sensitive', output.getvalue())
+        self.assertEqual(daemon.connections, 1)
+        self.assertEqual(daemon.events, [('GET', '/version', None),
+                         ('GET', proof.API_PREFIX + daemon.name, None),
+                         ('GET', proof.API_PREFIX + daemon.name, None),
+                         ('GET', proof.expected_use_path(daemon.name), None)])
+        constructor.assert_not_called()
+
+    def test_observable_eof_during_final_evidence_refuses(self):
+        import select
+        import socket
+        self.prepare()
+        for boundary in ['before-constructor', 'after-constructor']:
+            with self.subTest(boundary=boundary):
+                daemon = proof.SyntheticDaemon(self.target, self.run_id, 'existing')
+                sessions, called, injected = [], [], []
+                session_type, validate = dev.DockerSession, dev.validate_prepared
+                def make_session(**kwargs):
+                    session = session_type(**kwargs)
+                    sessions.append(session)
+                    return session
+                def evidence(*args):
+                    validate(*args)
+                    at_boundary = bool(called) == (boundary == 'after-constructor')
+                    if (sessions and not injected and at_boundary and daemon.events
+                            and daemon.events[-1][1] == proof.expected_use_path(daemon.name)):
+                        sessions[0].stream.shutdown(socket.SHUT_RD)
+                        poller = select.poll()
+                        poller.register(sessions[0].stream, select.POLLIN)
+                        self.assertTrue(poller.poll(0))
+                        injected.append(True)
+                with daemon.serve() as endpoint, patch.object(dev, 'DockerSession', side_effect=make_session), \
+                        patch.object(dev, 'validate_prepared', side_effect=evidence):
+                    with self.assertRaises(dev.Refusal) as caught:
+                        self.acquire(endpoint, _handoff=lambda target, result: called.append(True) or result)
+                self.assertEqual((caught.exception.stage, caught.exception.code), ('docker', 'docker_response_invalid'))
+                self.assertEqual(injected, [True])
+                self.assertEqual(called, [] if boundary == 'before-constructor' else [True])
+                self.assertTrue(sessions[0].closed)
+                daemon.validate_events()
+
+    def test_use_observation_continuity_rechecks_custody_before_handoff(self):
+        self.prepare()
+        for kind in ['source', 'preparation', 'lock', 'deadline']:
+            with self.subTest(kind=kind):
+                daemon, called = proof.SyntheticDaemon(self.target, self.run_id, 'existing'), []
+                path = (self.root / 'platform/deployment/volumes.py' if kind == 'source' else
+                        self.run / 'inventory.json' if kind == 'preparation' else
+                        self.run.parent / ('.network-' + self.run_id + '.lock'))
+                original = path.read_bytes() if path.exists() else b''
+                def mutate(method, route):
+                    if route == proof.expected_use_path(daemon.name):
+                        if kind == 'deadline':
+                            time.sleep(.2)
+                        elif kind == 'preparation':
+                            value = json.loads(original)
+                            value['runtime_ready'] = True
+                            path.write_text(json.dumps(value))
+                        else:
+                            path.write_bytes(b'changed')
+                daemon.hook = mutate
+                try:
+                    with daemon.serve() as endpoint, patch.object(volumes, 'SECONDS', .15 if kind == 'deadline' else 5):
+                        with self.assertRaises(dev.Refusal):
+                            self.acquire(endpoint, _handoff=lambda *args: called.append(args))
+                    self.assertEqual(called, [])
+                    self.assertEqual(daemon.connections, 1)
+                    self.assertEqual(daemon.events[-1], ('GET', proof.expected_use_path(daemon.name), None))
+                finally:
+                    if kind != 'deadline':
+                        path.write_bytes(original)
+
+    def test_public_use_controls_suppress_constructor_and_safe_output(self):
+        import io
+        from contextlib import redirect_stdout, redirect_stderr
+        self.prepare()
+        for control in [name for name in proof.CONTROLS if name.startswith('use-')]:
+            output, errors = io.StringIO(), io.StringIO()
+            with self.subTest(control=control), redirect_stdout(output), redirect_stderr(errors), \
+                    patch.object(startup, 'fixture_command') as constructor:
+                status = proof.main(['--target', str(self.input), '--run-id', self.run_id, '--control', control])
+            self.assertEqual(status, 2)
+            code = proof.EXPECTED[control]
+            self.assertEqual(json.loads(output.getvalue()), {'ok': False, 'runtime_ready': False,
+                             'stage': 'docker' if code.startswith('docker_') else 'volume', 'code': code})
+            self.assertEqual(errors.getvalue(), '')
+            self.assertNotIn('sensitive', output.getvalue())
+            constructor.assert_not_called()
 
     def test_descriptor_requires_exact_safety_fields_and_types(self):
         self.prepare()

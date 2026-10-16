@@ -15,13 +15,16 @@ import qualify_volumes as volume_proof
 
 CONTROLS = ['positive', 'existing', 'image-missing', 'image-foreign', 'network-foreign',
             'network-replaced', 'volume-foreign', 'volume-changed', 'lost-network-response',
-            'lost-volume-response', 'old-daemon', 'malformed', 'slow']
+            'lost-volume-response', 'old-daemon', 'malformed', 'slow', 'use-late'] + [name for name in volume_proof.CONTROLS if name.startswith('use-')]
 EXPECTED = {'image-missing': 'image_missing', 'image-foreign': 'image_identity_mismatch',
             'network-foreign': 'network_not_run_owned', 'network-replaced': 'network_replaced',
             'volume-foreign': 'volume_not_run_owned', 'volume-changed': 'volume_changed',
             'lost-network-response': 'docker_response_invalid',
             'lost-volume-response': 'docker_response_invalid', 'old-daemon': 'docker_28_required',
             'malformed': 'docker_response_invalid', 'slow': 'docker_timeout'}
+
+EXPECTED.update({name: code for name, code in volume_proof.EXPECTED.items() if name.startswith('use-')})
+EXPECTED['use-late'] = 'volume_in_use'
 
 
 class SyntheticDaemon(images_proof.SyntheticDaemon):
@@ -32,9 +35,13 @@ class SyntheticDaemon(images_proof.SyntheticDaemon):
              'network-replaced': 'replacement'}.get(control, 'conflict' if _network_conflict else 'positive'))
         self.volume = volume_proof.SyntheticDaemon(target, run_id,
             {'existing': 'existing', 'volume-foreign': 'foreign',
-             'volume-changed': 'changed'}.get(control, 'positive'))
+             'volume-changed': 'changed'}.get(control, control if control.startswith('use-') and control != 'use-late' else 'positive'))
+        self.use_count = 0
         self.image_control = {'image-missing': 'missing', 'image-foreign': 'wrong-id'}.get(control, control)
         self.expected = self.expected_events()
+        if control in ['use-truncated', 'use-eof']:
+            at = next(i for i, event in enumerate(self.expected, 1) if event[1] == volume_proof.expected_use_path(self.volume.name))
+            setattr(self, 'truncated_at' if control == 'use-truncated' else 'disconnect_at', at)
         # Transport fault injection uses the existing private transport oracle.
         if control in ['lost-network-response', 'lost-volume-response']:
             route = '/v1.48/' + ('networks' if control == 'lost-network-response' else 'volumes') + '/create'
@@ -46,6 +53,11 @@ class SyntheticDaemon(images_proof.SyntheticDaemon):
             self.hook(method, path)
         if path.startswith('/v1.48/networks/'):
             return self.network.dispatch(method, path, body)
+        if path == volume_proof.expected_use_path(self.volume.name):
+            self.use_count += 1
+            if self.control == 'use-late' and self.use_count == 2:
+                return 200, [{'Id': 'sensitive-container-marker'}]
+            return self.volume.dispatch(method, path, body)
         if path.startswith('/v1.48/volumes/'):
             return self.volume.dispatch(method, path, body)
         # Reuse image oracle without duplicating its outer event/hook.
@@ -66,14 +78,18 @@ class SyntheticDaemon(images_proof.SyntheticDaemon):
         vol_create = ('POST', '/v1.48/volumes/create', volume_proof.expected_request(self.volume.target, self.volume.run_id))
         recovery = net_name if self.network.control == 'conflict' else net_id
         net = [net_name] + ([] if self.network.present else [net_create, recovery]) + [net_id, net_name, net_id]
-        vol = [vol_name] + ([] if self.volume.present else [vol_create]) + [vol_name]
-        return [('GET', '/version', None)] + child + config + net + vol + child + config + [net_id, net_name, net_id, vol_name]
+        vol = [vol_name] + ([] if self.volume.present else [vol_create]) + [vol_name, ('GET', volume_proof.expected_use_path(self.volume.name), None)]
+        return [('GET', '/version', None)] + child + config + net + vol + child + config + [net_id, net_name, net_id, vol_name, ('GET', volume_proof.expected_use_path(self.volume.name), None)]
 
     def validate_events(self, *, success=True):
         failures = {'old-daemon': 1, 'image-missing': 2, 'image-foreign': 2,
                     'network-foreign': 10, 'network-replaced': 11, 'volume-foreign': 16,
                     'volume-changed': 17, 'lost-network-response': 11,
                     'lost-volume-response': 17, 'malformed': 2, 'slow': 2}
+        if self.control.startswith('use-'):
+            failures[self.control] = (len(self.expected) if self.control == 'use-late' else
+                                      next(i for i, event in enumerate(self.expected, 1)
+                                           if event[1] == volume_proof.expected_use_path(self.volume.name)))
         count = len(self.expected) if success else failures.get(self.control)
         if (self.connections != 1 or self.errors or self.network.errors or self.volume.errors
                 or self.events != self.expected[:len(self.events)]

@@ -398,8 +398,14 @@ def validate_prepared(target, raw, run_id, target_path, sources):
         refuse('preparation', 'source_changed')
 
 
+def _docker_volume_use_route(path):
+    # One canonical route only: all containers, one exact ENV run-volume filter.
+    return re.fullmatch(r'/v1\.48/containers/json\?all=true&filters=%7B%22volume%22%3A%5B%22supabase_db_agriplatform-kdg-[A-Za-z0-9_-]{22}%22%5D%7D', path) is not None
+
+
 def _docker_request(method, path, body, persistent):
     if not ((method == 'GET' and body is None and (path == '/version'
+            or _docker_volume_use_route(path)
             or re.fullmatch(r'/v1\.48/(?:networks|volumes)/[A-Za-z0-9_-]{1,128}', path)
             or re.fullmatch(r'/v1\.48/images/(?:public\.ecr\.aws/supabase/(?:postgres|gotrue|postgrest|kong)@)?sha256:[0-9a-f]{64}/json', path)))
             or (method == 'POST' and path in ['/v1.48/networks/create', '/v1.48/volumes/create'] and type(body) is dict)):
@@ -414,7 +420,7 @@ def _docker_request(method, path, body, persistent):
     return request
 
 
-def _docker_response(stream, budget, deadline, persistent):
+def _docker_response(stream, budget, deadline, persistent, path):
     def invalid():
         refuse('docker', 'docker_response_invalid')
 
@@ -465,7 +471,7 @@ def _docker_response(stream, budget, deadline, persistent):
         response = decode(data[body_start:])
     except (Refusal, ValueError, UnicodeError, RecursionError):
         invalid()
-    if type(response) is not dict:
+    if type(response) is not (list if _docker_volume_use_route(path) else dict):
         invalid()
     return status, response
 
@@ -526,7 +532,7 @@ class DockerSession:
                 self.idle()
             self.budget()
             self.stream.sendall(request)
-            result = _docker_response(self.stream, self.budget, self.deadline, self.persistent)
+            result = _docker_response(self.stream, self.budget, self.deadline, self.persistent, path)
             if self.persistent:
                 self.idle()
             self.budget()

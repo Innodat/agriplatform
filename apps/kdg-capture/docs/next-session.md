@@ -118,7 +118,7 @@ public controls pass; eleven review findings fixed, one disproved, none deferred
 run `2037418f-ce7d-49b0-9c2b-65f5e65fc454` preserves thirteen evidence files and source
 bindings. Real up still refuses `docker_28_required`. This is per-operation continuity,
 not combined startup continuity, resource exclusivity or runtime readiness. See [session evidence](../../../platform/deployment/ENV_DAEMON_SESSION_EVIDENCE.md).
-The latest completed ENV Build is [combined run-resource acquisition](../../../_bmad-output/implementation-artifacts/spec-env-combined-resources.md).
+The preceding completed ENV Build is [combined run-resource acquisition](../../../_bmad-output/implementation-artifacts/spec-env-combined-resources.md).
 It composes existing image/network/volume owner checks under one run lock and connection,
 with final joint observations and a constructor-only handoff. All 374 deployment tests
 and 16 public checks pass; seven review findings fixed, one disproved, none deferred.
@@ -126,6 +126,21 @@ Fresh run `32ea0b48-b882-464a-b5ce-e5544af648b3` preserves thirteen evidence fil
 source bindings. Real up still refuses `docker_28_required`; no container/SQL ran.
 Joint acquisition is not resource reservation, volume freshness or execution readiness.
 See [combined evidence](../../../platform/deployment/ENV_COMBINED_RESOURCES_EVIDENCE.md).
+The latest completed ENV Build is [run-volume use admission](../../../_bmad-output/implementation-artifacts/spec-env-volume-use-admission.md).
+Standalone and combined acquisition now refuse any current container reference,
+including stopped/same-owner references, using a closed all-container volume query on
+their existing guarded connection. Final joint observation repeats it; standalone
+handoff also checks observable EOF/budget immediately around construction. ATDD RED
+and a review EOF regression were observed before fixes. All 386 deployment tests and 54
+public checks pass; seven review findings fixed, none deferred. Fresh qualified run
+`70727ea5-e47d-4753-8b41-33086f7ce76a` preserves thirteen retained evidence files/source
+snapshots. Earlier registry-refused run `c3173b72-8c5a-4e8b-ac3d-8132702ac262` is preserved
+unchanged. Real up remains `docker_28_required`/runtime_ready=false. No container/SQL ran.
+See [volume-use evidence](../../../platform/deployment/ENV_VOLUME_USE_EVIDENCE.md) and
+[consolidated ENV status](../../../platform/deployment/DEVELOPMENT.md#current-env-delivery-status).
+Empty references do not prove volume freshness, initialized-state/reuse policy,
+reservation/exclusivity or execution readiness. Continue existing ENV bootstrap/secret,
+volume reuse, runtime lifecycle and scaffold gates before dependent consumers.
 The enclosing ENV runtime/bootstrap acceptance and P1/SERVICE generator remain open.
 Continue those existing owner items before dependent foundations or the server-backed
 KDG slice; do not confuse the completed preparation increment with a runnable stack.

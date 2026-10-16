@@ -2,7 +2,7 @@
 
 Uses the existing .network-UUID.lock for both ENV resource adapters. Volumes are
 name-addressed: matching selected observations do not prove immutable identity,
-empty storage, lack of attachments, isolation or runtime readiness.
+empty storage, exclusive access, isolation or runtime readiness.
 """
 import os
 from pathlib import Path
@@ -63,10 +63,27 @@ def acquire(target_path, run_id, *, _socket_path='/var/run/docker.sock', _handof
         dev.docker_prerequisite(_session=session)
         evidence()
         result = acquire_session(target, run_id, session, evidence)
+        session.idle()
+        session.budget()
         if _handoff is not None:
             result = _handoff(target, result)
         evidence()
+        session.idle()
+        session.budget()
         return result
+
+
+def observe_unused(session, name, current):
+    """Refuse any current container reference; no reservation or freshness claim."""
+    path = ('/v1.48/containers/json?all=true&filters=%7B%22volume%22%3A%5B%22'
+            + name + '%22%5D%7D')
+    current()
+    status, references = session.exchange('GET', path)
+    current()
+    if status != 200:
+        fail('volume_use_failed')
+    if references:
+        fail('volume_in_use')
 
 
 def acquire_session(target, run_id, session, current):
@@ -94,5 +111,6 @@ def acquire_session(target, run_id, session, current):
     latest = inspect(expected['Name'])
     if latest is None or latest != volume:
         fail('volume_changed')
+    observe_unused(session, latest['Name'], current)
     current()
     return {'volume': latest, 'post_attempted': post_attempted, 'runtime_ready': False}

@@ -43,13 +43,66 @@ class Resources(unittest.TestCase):
         for control, code in proof.EXPECTED.items():
             with self.subTest(control=control):
                 daemon, called = self.daemon(control), []
-                with daemon.serve() as endpoint, patch.object(resources, 'SECONDS', .2):
+                with daemon.serve() as endpoint, patch.object(resources, 'SECONDS', .2 if control == 'slow' else 5):
                     with self.assertRaises(dev.Refusal) as caught:
                         self.acquire(endpoint, _handoff=lambda *args: called.append(args))
                 self.assertEqual(caught.exception.code, code)
                 self.assertEqual(called, [])
                 daemon.validate_events(success=False)
-                self.assertLess(len(daemon.events), len(daemon.expected))
+                if control == 'use-late':
+                    self.assertEqual(len(daemon.events), len(daemon.expected))
+                else:
+                    self.assertLess(len(daemon.events), len(daemon.expected))
+
+    def test_late_volume_reference_refuses_before_constructor(self):
+        import dev
+        daemon, called = self.daemon(), []
+        original = daemon.dispatch
+        observations = []
+        def dispatch(method, path, body):
+            if path.startswith('/v1.48/containers/json?'):
+                daemon.events.append((method, path, body))
+                observations.append(path)
+                return 200, [] if len(observations) == 1 else [{'Id': 'sensitive-container-marker'}]
+            return original(method, path, body)
+        daemon.dispatch = dispatch
+        with daemon.serve() as endpoint:
+            with self.assertRaises(dev.Refusal) as caught:
+                self.acquire(endpoint, _handoff=lambda *args: called.append(args))
+        self.assertEqual(caught.exception.code, 'volume_in_use')
+        self.assertEqual(len(observations), 2)
+        self.assertEqual(called, [])
+        self.assertEqual(daemon.connections, 1)
+
+    def test_final_use_query_invalid_outcomes_refuse_without_constructor(self):
+        import dev
+        cases = [('object', 200, {}, 'docker_response_invalid'),
+                 ('null', 200, None, 'docker_response_invalid'),
+                 ('scalar', 200, 'sensitive-container-marker', 'docker_response_invalid'),
+                 ('created-status', 201, [], 'volume_use_failed'),
+                 ('missing-status', 404, {}, 'volume_use_failed'),
+                 ('error-status', 500, {'message': 'sensitive-container-marker'}, 'volume_use_failed'),
+                 ('oversized', 200, [], 'docker_response_invalid')]
+        for defect, status, response, code in cases:
+            with self.subTest(defect=defect):
+                daemon, called = self.daemon(), []
+                original = daemon.dispatch
+                def dispatch(method, path, body):
+                    result = original(method, path, body)
+                    if path == proof.volume_proof.expected_use_path(daemon.volume.name) and daemon.use_count == 2:
+                        if defect == 'oversized':
+                            daemon.control = 'use-oversized'
+                        return status, response
+                    return result
+                daemon.dispatch = dispatch
+                with daemon.serve() as endpoint, self.assertRaises(dev.Refusal) as caught:
+                    self.acquire(endpoint, _handoff=lambda *args: called.append(args))
+                self.assertEqual((caught.exception.stage, caught.exception.code),
+                                 ('docker' if code.startswith('docker_') else 'volume', code))
+                self.assertEqual(called, [])
+                self.assertEqual(daemon.use_count, 2)
+                daemon.control = 'positive'
+                daemon.validate_events()
 
     def test_missing_owner_evidence_refuses_before_connection(self):
         import dev
@@ -100,11 +153,11 @@ class Resources(unittest.TestCase):
         import dev
         for resource in ['network', 'volume', 'child', 'config']:
             daemon, called = self.daemon(), []
-            final_start = len(daemon.expected) - 12
+            final_start = len(daemon.expected) - 13
             if resource == 'network':
-                at = len(daemon.expected) - 2
+                at = len(daemon.expected) - 3
             elif resource == 'volume':
-                at = len(daemon.expected)
+                at = len(daemon.expected) - 1
             else:
                 at = final_start + (1 if resource == 'child' else 5)
             def replace(method, route):
@@ -310,7 +363,7 @@ class Resources(unittest.TestCase):
                     self.assertEqual(status, 0)
                     self.assertTrue(result['ok'])
                     self.assertEqual((result['stage'], result['code']), ('resources', 'resources_synthetic_qualified'))
-                    self.assertEqual(len(result['api_events']), 30 if control == 'positive' else 27)
+                    self.assertEqual(len(result['api_events']), 32 if control == 'positive' else 29)
                     constructor.assert_called_once()
                     self.assertEqual(constructor.call_args.args[0], '/synthetic/not-executed/supabase')
                 else:
@@ -410,7 +463,7 @@ class Resources(unittest.TestCase):
 
     def test_final_network_and_volume_checks_reject_foreign_unsafe_missing_and_error(self):
         import dev
-        for resource, checks in [('network', [27, 28, 29]), ('volume', [30])]:
+        for resource, checks in [('network', [28, 29, 30]), ('volume', [31])]:
             for at in checks:
                 for defect in ['foreign', 'unsafe', 'missing', 'error']:
                     with self.subTest(resource=resource, request=at, defect=defect):

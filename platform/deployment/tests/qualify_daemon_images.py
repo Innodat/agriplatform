@@ -121,6 +121,12 @@ class SyntheticDaemon:
                             if daemon.control == 'slow':
                                 daemon.stop.wait(daemon_images.SECONDS + .2)
                                 return
+                        if path.startswith('/v1.48/containers/json?') and daemon.control == 'use-malformed':
+                            self.request.sendall(b'HTTP/1.1 200 OK\r\nContent-Length: 1\r\n\r\n[')
+                            return
+                        if path.startswith('/v1.48/containers/json?') and daemon.control == 'use-oversized':
+                            self.request.sendall(b'HTTP/1.1 200 OK\r\nContent-Length: 999999\r\n\r\n')
+                            return
                         raw = json.dumps(response).encode()
                         wire = (f'HTTP/1.1 {status} Result\r\nContent-Length: {len(raw)}\r\n\r\n'.encode() + raw)
                         if len(daemon.events) == daemon.truncated_at:
