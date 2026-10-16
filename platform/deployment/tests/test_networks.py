@@ -26,6 +26,44 @@ class NetworkAcceptance(unittest.TestCase):
     setUp = test_dev.PreparationAcceptance.setUp
     invoke = test_dev.PreparationAcceptance.invoke
 
+    def test_acquisition_retains_original_peer_when_socket_path_is_replaced(self):
+        import socket
+        self.prepare()
+        daemon = proof.SyntheticDaemon(self.target, self.run_id)
+        with daemon.serve() as endpoint, socket.socket(socket.AF_UNIX) as replacement:
+            def replace(method, path):
+                if path == '/version':
+                    Path(endpoint).unlink()
+                    replacement.bind(endpoint)
+                    replacement.listen()
+            daemon.hook = replace
+            self.acquire(endpoint)
+            replacement.settimeout(.03)
+            with self.assertRaises(TimeoutError):
+                replacement.accept()
+        daemon.validate_events()
+        self.assertEqual(daemon.connections, 1)
+
+    def test_disconnect_at_every_exchange_never_reconnects_or_replays(self):
+        self.prepare()
+        for control, count in [('positive', 7), ('existing', 5), ('conflict', 7)]:
+            for when in ['disconnect_at', 'truncated_at', 'disconnect_after']:
+                for request in range(1, count + 1):
+                    with self.subTest(control=control, when=when, request=request):
+                        daemon = proof.SyntheticDaemon(self.target, self.run_id, control)
+                        setattr(daemon, when, request)
+                        original_idle = dev.DockerSession.idle
+                        def synchronized_idle(session):
+                            if when == 'disconnect_after' and len(daemon.events) == request:
+                                self.assertTrue(daemon.disconnected.wait(1))
+                            return original_idle(session)
+                        with daemon.serve() as endpoint, patch.object(dev.DockerSession, 'idle', synchronized_idle):
+                            with self.assertRaises(dev.Refusal):
+                                self.acquire(endpoint)
+                        self.assertEqual(daemon.connections, 1)
+                        self.assertEqual(len(daemon.events), request)
+                        self.assertLessEqual(sum(event[0] == 'POST' for event in daemon.events), 1)
+
     def prepare(self):
         result = self.invoke()
         self.assertEqual(result.returncode, 0, result.stdout)

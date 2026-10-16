@@ -47,7 +47,8 @@ def acquire(target_path, run_id, *, _socket_path='/var/run/docker.sock', _handof
     sources = dev.source_evidence()
     dev.validate_prepared(target, raw, run_id, path, sources)
     run_path = dev.ROOT / 'platform/deployment/.local/kdg' / run_id
-    with dev.directory(run_path) as run, networks.run_lock(run_path, deadline) as check_lock:
+    with dev.directory(run_path) as run, networks.run_lock(run_path, deadline) as check_lock, \
+            dev.DockerSession(_socket_path=_socket_path, deadline=deadline) as session:
         identity = os.fstat(run)
         def evidence():
             check_lock()
@@ -59,8 +60,7 @@ def acquire(target_path, run_id, *, _socket_path='/var/run/docker.sock', _handof
             if time.monotonic() >= deadline:
                 dev.refuse('docker', 'docker_timeout')
         def exchange(method, suffix, body=None):
-            return dev.docker_exchange(method, PREFIX + suffix, body,
-                                       _socket_path=_socket_path, deadline=deadline)
+            return session.exchange(method, PREFIX + suffix, body)
         def inspect(reference):
             status, value = exchange('GET', reference)
             if status == 404:
@@ -69,7 +69,7 @@ def acquire(target_path, run_id, *, _socket_path='/var/run/docker.sock', _handof
                 fail('volume_inspection_failed')
             return startup.volume_descriptor(value, target, run_id)
         evidence()
-        dev.docker_prerequisite(_socket_path=_socket_path, deadline=deadline)
+        dev.docker_prerequisite(_session=session)
         evidence()
         expected = create_input(target, run_id)
         volume = inspect(expected['Name'])

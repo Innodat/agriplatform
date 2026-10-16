@@ -1,7 +1,7 @@
 """Read-only daemon image observations from current owner-qualified identities.
 
 No CLI dispatch. Private socket injection exists only for synthetic qualification.
-This checks reported identities, not daemon bytes or continuity across connections.
+This checks reported identities on one connection, not daemon bytes or runtime readiness.
 """
 import os
 from pathlib import Path
@@ -86,23 +86,23 @@ def acquire(target_path, run_id, *, _socket_path='/var/run/docker.sock'):
 
             current()
             deadline = time.monotonic() + SECONDS
-            dev.docker_prerequisite(_socket_path=_socket_path, deadline=deadline)
+            with dev.DockerSession(_socket_path=_socket_path, deadline=deadline) as session:
+                dev.docker_prerequisite(_session=session)
 
-            def inspect(reference, config):
-                status, actual = dev.docker_exchange('GET', '/v1.48/images/' + reference + '/json',
-                                                    _socket_path=_socket_path, deadline=deadline)
-                if status != 200:
-                    fail('image_missing' if status == 404 else 'image_inspection_failed')
-                return descriptor(actual, config)
+                def inspect(reference, config):
+                    status, actual = session.exchange('GET', '/v1.48/images/' + reference + '/json')
+                    if status != 200:
+                        fail('image_missing' if status == 404 else 'image_inspection_failed')
+                    return descriptor(actual, config)
 
-            observations = {reference: inspect(reference, config) for reference, config in config_plan.items()}
-            current()
-            for reference, config in config_plan.items():
-                if inspect(config, config) != observations[reference]:
-                    fail('image_identity_mismatch')
-            current()
-            if time.monotonic() >= deadline:
-                fail('image_deadline')
+                observations = {reference: inspect(reference, config) for reference, config in config_plan.items()}
+                current()
+                for reference, config in config_plan.items():
+                    if inspect(config, config) != observations[reference]:
+                        fail('image_identity_mismatch')
+                current()
+                if time.monotonic() >= deadline:
+                    fail('image_deadline')
             # Recheck owner receipts/payload after the bounded daemon observations.
             if startup.existing_images(args) != evidence:
                 fail('image_evidence_changed')

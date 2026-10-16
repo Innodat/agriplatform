@@ -22,6 +22,42 @@ import qualify_daemon_images as proof
 
 
 class DaemonImages(unittest.TestCase):
+    def test_acquisition_retains_original_peer_when_socket_path_is_replaced(self):
+        import socket
+        daemon = proof.SyntheticDaemon(self.expected)
+        with daemon.serve() as endpoint, socket.socket(socket.AF_UNIX) as replacement:
+            def replace(method, path):
+                if path == '/version':
+                    Path(endpoint).unlink()
+                    replacement.bind(endpoint)
+                    replacement.listen()
+            daemon.hook = replace
+            self.acquire(endpoint)
+            replacement.settimeout(.03)
+            with self.assertRaises(TimeoutError):
+                replacement.accept()
+        daemon.validate_events()
+        self.assertEqual(daemon.connections, 1)
+
+    def test_disconnect_at_every_exchange_never_reconnects_or_replays(self):
+        for control, count in [('positive', 9)]:
+            for when in ['disconnect_at', 'truncated_at', 'disconnect_after']:
+                for request in range(1, count + 1):
+                    with self.subTest(control=control, when=when, request=request):
+                        daemon = proof.SyntheticDaemon(self.expected, control)
+                        setattr(daemon, when, request)
+                        original_idle = dev.DockerSession.idle
+                        def synchronized_idle(session):
+                            if when == 'disconnect_after' and len(daemon.events) == request:
+                                self.assertTrue(daemon.disconnected.wait(1))
+                            return original_idle(session)
+                        with daemon.serve() as endpoint, patch.object(dev.DockerSession, 'idle', synchronized_idle):
+                            with self.assertRaises(dev.Refusal):
+                                self.acquire(endpoint)
+                        self.assertEqual(daemon.connections, 1)
+                        self.assertEqual(len(daemon.events), request)
+                        self.assertLessEqual(sum(event[0] == 'POST' for event in daemon.events), 1)
+
     def setUp(self):
         self.owner = test_images.PersistenceGuards(methodName='runTest')
         self.owner.setUp()
@@ -155,6 +191,9 @@ class DaemonImages(unittest.TestCase):
                 self.assertEqual(self.acquire(endpoint), self.expected)
                 daemon.validate_events()
                 daemon.events.clear()
+                # Count each acquisition independently; both must open exactly
+                # one fresh connection and repeat the full observation sequence.
+                daemon.connections = 0
                 self.assertEqual(self.acquire(endpoint), self.expected)
             daemon.validate_events()
             self.assertNotIn('sensitive-marker', json.dumps(self.expected))
@@ -170,15 +209,19 @@ class DaemonImages(unittest.TestCase):
                 daemon.validate_events()
 
     def test_missing_and_stale_evidence_refuse_before_daemon(self):
-        for path in [self.owner.run / 'receipt.json', self.owner.tool_receipt,
-                     self.owner.root / 'platform/deployment/daemon_images.py']:
+        for path, stage, code in [
+                (self.owner.run / 'receipt.json', 'startup', 'existing_images_required'),
+                # The owner fixture pins existing_tools; its retained hash catches this corruption.
+                (self.owner.tool_receipt, 'images', 'qualification_input_changed'),
+                (self.owner.root / 'platform/deployment/daemon_images.py', 'preparation', 'prepared_input_changed')]:
             original = path.read_bytes()
             try:
                 path.write_bytes(b'{}')
-                with patch.object(dev, 'docker_exchange') as exchange:
-                    with self.assertRaises((dev.Refusal, KeyError, OSError)):
+                with patch.object(dev.socket, 'socket') as connect:
+                    with self.assertRaises(dev.Refusal) as caught:
                         self.acquire('/not-used')
-                exchange.assert_not_called()
+                self.assertEqual((caught.exception.stage, caught.exception.code), (stage, code))
+                connect.assert_not_called()
             finally:
                 path.write_bytes(original)
 

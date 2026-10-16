@@ -10,6 +10,7 @@ import copy
 import hashlib
 import json
 from pathlib import Path
+import socket
 import socketserver
 import sys
 import tempfile
@@ -62,6 +63,9 @@ class SyntheticDaemon:
                                    'replacement', 'malformed', 'oversized', 'slow', 'daemon-error']
         self.events, self.errors, self.inspect_count = [], [], 0
         self.hook = None
+        self.connections = 0
+        self.disconnect_at = self.disconnect_after = self.truncated_at = None
+        self.disconnected = threading.Event()
         if control == 'foreign':
             self.network['Labels']['io.agriplatform.env.owner'] = 'foreign'
         elif control == 'unsafe-options':
@@ -97,6 +101,8 @@ class SyntheticDaemon:
         return 500, {}
 
     def validate_events(self):
+        if self.connections != 1:
+            dev.refuse("docker", "synthetic_connection_mismatch")
         if self.errors or not self.events:
             networks.fail('synthetic_event_mismatch')
         allowed = {('GET', '/version'), ('GET', API_PREFIX + self.name),
@@ -132,41 +138,52 @@ class SyntheticDaemon:
             def handle(self):
                 try:
                     self.request.settimeout(1)
-                    data = b''
-                    while b'\r\n\r\n' not in data:
-                        chunk = self.request.recv(4096)
-                        if not chunk or len(data) + len(chunk) > 16384:
+                    daemon.connections += 1
+                    while True:
+                        data = b''
+                        while b'\r\n\r\n' not in data:
+                            chunk = self.request.recv(4096)
+                            if not chunk or len(data) + len(chunk) > 16384:
+                                return
+                            data += chunk
+                        header, body = data.split(b'\r\n\r\n', 1)
+                        lines = header.split(b'\r\n')
+                        method, path, protocol = lines[0].decode('ascii').split(' ')
+                        fields = dict(line.lower().split(b':', 1) for line in lines[1:])
+                        length = int(fields.get(b'content-length', b'0'))
+                        if length > 16384:
                             return
-                        data += chunk
-                    header, body = data.split(b'\r\n\r\n', 1)
-                    lines = header.split(b'\r\n')
-                    method, path, protocol = lines[0].decode('ascii').split(' ')
-                    fields = dict(line.lower().split(b':', 1) for line in lines[1:])
-                    length = int(fields.get(b'content-length', b'0'))
-                    if length > 16384:
-                        return
-                    while len(body) < length:
-                        chunk = self.request.recv(4096)
-                        if not chunk:
+                        while len(body) < length:
+                            chunk = self.request.recv(4096)
+                            if not chunk:
+                                return
+                            body += chunk
+                        payload = dev.decode(body) if body else None
+                        status, response = daemon.dispatch(method, path, payload)
+                        if len(daemon.events) == daemon.disconnect_at:
                             return
-                        body += chunk
-                    payload = dev.decode(body) if body else None
-                    status, response = daemon.dispatch(method, path, payload)
-                    if method == 'POST' and daemon.control == 'lost-response':
-                        return
-                    if '/networks/' in path:
-                        if daemon.control == 'malformed':
-                            self.request.sendall(b'not-http-sensitive-marker')
+                        if method == 'POST' and daemon.control == 'lost-response':
                             return
-                        if daemon.control == 'oversized':
-                            self.request.sendall(b'HTTP/1.1 200 OK\r\nContent-Length: 999999\r\n\r\n')
+                        if '/networks/' in path:
+                            if daemon.control == 'malformed':
+                                self.request.sendall(b'not-http-sensitive-marker')
+                                return
+                            if daemon.control == 'oversized':
+                                self.request.sendall(b'HTTP/1.1 200 OK\r\nContent-Length: 999999\r\n\r\n')
+                                return
+                            if daemon.control == 'slow':
+                                daemon.stop.wait(networks.SECONDS + .2)
+                                return
+                        raw = json.dumps(response).encode()
+                        wire = (f'HTTP/1.1 {status} Result\r\nContent-Length: {len(raw)}\r\n\r\n'.encode() + raw)
+                        if len(daemon.events) == daemon.truncated_at:
+                            self.request.sendall(wire[:-1])
                             return
-                        if daemon.control == 'slow':
-                            daemon.stop.wait(networks.SECONDS + .2)
+                        self.request.sendall(wire)
+                        if len(daemon.events) == daemon.disconnect_after:
+                            self.request.shutdown(socket.SHUT_WR)
+                            daemon.disconnected.set()
                             return
-                    raw = json.dumps(response).encode()
-                    wire = (f'HTTP/1.1 {status} Result\r\nContent-Length: {len(raw)}\r\n\r\n'.encode() + raw)
-                    self.request.sendall(wire)
                 except (OSError, ValueError, dev.Refusal):
                     # Keep uncontrolled response/request content out of diagnostics.
                     daemon.errors.append('synthetic_transport_error')

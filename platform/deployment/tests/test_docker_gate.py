@@ -148,6 +148,9 @@ class ScriptedSocket:
     def __exit__(self, *args):
         return False
 
+    def close(self):
+        pass
+
     def settimeout(self, value):
         self.timeouts.append(value)
 

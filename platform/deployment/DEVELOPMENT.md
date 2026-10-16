@@ -518,6 +518,40 @@ gated, `runtime_ready=false`, and no real Docker mutation, pull, SQL or migratio
 part of these proofs. See [ENV_RUN_VOLUME_EVIDENCE.md](ENV_RUN_VOLUME_EVIDENCE.md)
 for results and impact decisions.
 
+## Bounded daemon connection continuity
+
+Each network, volume and image acquisition uses one Unix HTTP connection for its
+version check and all resource observations or create requests. The connection opens
+only after preparation validation. Replacing the socket pathname cannot redirect an
+already-connected acquisition. Failure closes the session permanently; there is no
+reconnect, replay, redirect, pipelining or chunked transfer support. An uncertain
+create result refuses without retry. Existing route/method allowlists, 16KiB request
+and 64KiB response bounds, strict Content-Length framing, resource ownership checks,
+run locks and source/evidence checks remain binding. HTTP/1.0, Connection: close,
+malformed framing and extra bytes observed during parsing or an idle check refuse
+a persistent session. Idle checks observe readiness without waiting: bytes or EOF
+arriving after the final check are not guaranteed to be detected. A fully framed
+success reports the completed exchange, not future peer liveness. Each session has
+one sequential caller; concurrent use is unsupported.
+
+The same total daemon deadline covers every exchange; it never resets per request.
+All exits close the descriptor, including evidence refusal and callback exceptions.
+Image-owner tool probes run before opening and after closing the daemon session,
+under their own bounds. The one-shot read-only Docker prerequisite retains its
+existing Connection: close behavior and uses the same parser and route checks.
+
+Private qualifier servers count accepted connections independently and retain their
+exact request-sequence oracles. Adapter and session tests cover socket replacement,
+disconnection before/after exchanges, uncertain mutation without replay, malformed
+second responses, total deadlines and descriptor cleanup. These are isolated
+synthetic proofs; they do not qualify a real daemon's behavior.
+
+Connection continuity is bounded to one acquisition. It does not combine adapters
+or startup into one session, reserve resources, establish volume freshness or
+exclusivity, prove bootstrap safety, or grant runtime readiness. Real `up` remains
+refused before activation. No Docker mutation, pull, container, SQL, deployment or
+application activation is enabled by this change.
+
 ## Daemon-local image identity qualification
 
 `daemon_images.py` verifies the four selected images using current protected preparation,
@@ -555,7 +589,7 @@ The separate public startup proof acquires these observations and forwards them 
 both the qualifier and fixture installation to the pinned CLI. Missing or foreign
 descriptors refuse before image/create events. First PostgreSQL create remains refused.
 The observation lock is released before this separate process proof; it does not prove
-execution enforcement, daemon continuity across connections, independently hashed daemon
+execution enforcement, connection continuity into that later startup process, independently hashed daemon
 bytes, complete startup helpers or runtime readiness. `runtime_ready=false`, no containers,
 SQL, migrations or dependent application activation remain binding. See
 [ENV_DAEMON_IMAGE_EVIDENCE.md](ENV_DAEMON_IMAGE_EVIDENCE.md) for results and impacts.

@@ -397,94 +397,158 @@ def validate_prepared(target, raw, run_id, target_path, sources):
         refuse('preparation', 'source_changed')
 
 
-def docker_exchange(method, path, body=None, *, _socket_path='/var/run/docker.sock', deadline=None):
-    """Bounded fixed-route HTTP exchange. Private endpoint injection is for synthetic proof."""
+def _docker_request(method, path, body, persistent):
     if not ((method == 'GET' and body is None and (path == '/version'
             or re.fullmatch(r'/v1\.48/(?:networks|volumes)/[A-Za-z0-9_-]{1,128}', path)
             or re.fullmatch(r'/v1\.48/images/(?:public\.ecr\.aws/supabase/(?:postgres|gotrue|postgrest|kong)@)?sha256:[0-9a-f]{64}/json', path)))
             or (method == 'POST' and path in ['/v1.48/networks/create', '/v1.48/volumes/create'] and type(body) is dict)):
         refuse('docker', 'docker_request_invalid')
     payload = b'' if body is None else json.dumps(body, sort_keys=True, separators=(',', ':')).encode()
-    request = (method + ' ' + path + ' HTTP/1.1\r\nHost: localhost\r\nConnection: close\r\n').encode()
+    request = (method + ' ' + path + ' HTTP/1.1\r\nHost: localhost\r\nConnection: ' + ('keep-alive' if persistent else 'close') + '\r\n').encode()
     if body is not None:
         request += b'Content-Type: application/json\r\nContent-Length: ' + str(len(payload)).encode() + b'\r\n'
     request += b'\r\n' + payload
     if len(request) > 16384:
         refuse('docker', 'docker_request_invalid')
-    if deadline is None:
-        deadline = time.monotonic() + 5
+    return request
 
-    def budget(stream):
-        remaining = deadline - time.monotonic()
-        if remaining <= 0:
-            refuse('docker', 'docker_timeout')
-        stream.settimeout(remaining)
 
+def _docker_response(stream, budget, deadline, persistent):
     def invalid():
         refuse('docker', 'docker_response_invalid')
 
+    data = b''
+    length = body_start = None
+    while True:
+        budget()
+        chunk = stream.recv(4096)
+        if time.monotonic() >= deadline:
+            refuse('docker', 'docker_timeout')
+        if not chunk:
+            invalid()
+        data += chunk
+        if len(data) > 65536:
+            invalid()
+        if body_start is None and b'\r\n\r\n' in data:
+            header, _ = data.split(b'\r\n\r\n', 1)
+            lines = header.split(b'\r\n')
+            if not re.fullmatch(rb'HTTP/1\.[01] [1-5][0-9]{2} [\x20-\x7e]*', lines[0]):
+                invalid()
+            status = int(lines[0].split(b' ')[1])
+            fields = {}
+            for line in lines[1:]:
+                if b':' not in line:
+                    invalid()
+                name, value = line.split(b':', 1)
+                name = name.lower()
+                if (name in fields or not re.fullmatch(rb'[a-z0-9-]+', name)
+                        or any(byte < 32 and byte != 9 or byte == 127 for byte in value)):
+                    invalid()
+                fields[name] = value.strip()
+            if (b'transfer-encoding' in fields or b'content-encoding' in fields
+                    or not re.fullmatch(rb'[0-9]{1,5}', fields.get(b'content-length', b''))):
+                invalid()
+            if persistent and (not lines[0].startswith(b'HTTP/1.1 ')
+                    or b'close' in [token.strip().lower() for token in fields.get(b'connection', b'').split(b',')]):
+                invalid()
+            length, body_start = int(fields[b'content-length']), len(header) + 4
+            if not 0 <= length <= 65536 - body_start:
+                invalid()
+        if body_start is not None and len(data) >= body_start + length:
+            if len(data) != body_start + length:
+                invalid()
+            break
+    if status not in (200, 201):
+        return status, None
     try:
-        with socket.socket(socket.AF_UNIX, socket.SOCK_STREAM) as stream:
-            budget(stream)
-            stream.connect(_socket_path)
-            budget(stream)
-            stream.sendall(request)
-            data = b''
-            length = body_start = None
-            while True:
-                budget(stream)
-                chunk = stream.recv(4096)
-                if time.monotonic() >= deadline:
-                    refuse('docker', 'docker_timeout')
-                if not chunk:
-                    invalid()
-                data += chunk
-                if len(data) > 65536:
-                    invalid()
-                if body_start is None and b'\r\n\r\n' in data:
-                    header, _ = data.split(b'\r\n\r\n', 1)
-                    lines = header.split(b'\r\n')
-                    if not re.fullmatch(rb'HTTP/1\.[01] [1-5][0-9]{2} [\x20-\x7e]*', lines[0]):
-                        invalid()
-                    status = int(lines[0].split(b' ')[1])
-                    fields = {}
-                    for line in lines[1:]:
-                        if b':' not in line:
-                            invalid()
-                        name, value = line.split(b':', 1)
-                        name = name.lower()
-                        if (name in fields or not re.fullmatch(rb'[a-z0-9-]+', name)
-                                or any(byte < 32 and byte != 9 or byte == 127 for byte in value)):
-                            invalid()
-                        fields[name] = value.strip()
-                    if (b'transfer-encoding' in fields or b'content-encoding' in fields
-                            or not re.fullmatch(rb'[0-9]{1,5}', fields.get(b'content-length', b''))):
-                        invalid()
-                    length, body_start = int(fields[b'content-length']), len(header) + 4
-                    if not 0 <= length <= 65536 - body_start:
-                        invalid()
-                if body_start is not None and len(data) >= body_start + length:
-                    if len(data) != body_start + length:
-                        invalid()
-                    break
-        if status not in (200, 201):
-            return status, None
+        response = decode(data[body_start:])
+    except (Refusal, ValueError, UnicodeError, RecursionError):
+        invalid()
+    if type(response) is not dict:
+        invalid()
+    return status, response
+
+
+class DockerSession:
+    """One bounded Unix connection. Failure permanently closes it; never replay.
+
+    Connect lazily after validating the first fixed-route request. The caller owns
+    preparation checks and the operation deadline. A session belongs to one
+    sequential caller; concurrent use and pipelining are unsupported.
+    """
+    def __init__(self, *, _socket_path='/var/run/docker.sock', deadline=None, _persistent=True):
+        self.endpoint = _socket_path
+        self.deadline = time.monotonic() + 5 if deadline is None else deadline
+        self.persistent = _persistent
+        self.stream = None
+        self.closed = False
+
+    def __enter__(self):
+        if self.closed:
+            refuse('docker', 'docker_session_closed')
+        return self
+
+    def close(self):
+        self.closed = True
+        if self.stream is not None:
+            self.stream.close()
+            self.stream = None
+
+    def __exit__(self, *args):
+        self.close()
+
+    def budget(self):
+        remaining = self.deadline - time.monotonic()
+        if remaining <= 0:
+            refuse('docker', 'docker_timeout')
+        self.stream.settimeout(remaining)
+
+    def idle(self):
+        # Bytes pending before a request are unsolicited, including late trailing
+        # response bytes. EOF also makes the session permanently unusable.
+        import select
+        poller = select.poll()
+        poller.register(self.stream, select.POLLIN)
+        if poller.poll(0):
+            refuse('docker', 'docker_response_invalid')
+
+    def exchange(self, method, path, body=None):
         try:
-            response = decode(data[body_start:])
-        except (Refusal, ValueError, UnicodeError, RecursionError):
-            invalid()
-        if type(response) is not dict:
-            invalid()
-        return status, response
-    except TimeoutError:
-        refuse('docker', 'docker_timeout')
-    except OSError:
-        refuse('docker', 'docker_unavailable')
+            if self.closed:
+                refuse('docker', 'docker_session_closed')
+            request = _docker_request(method, path, body, self.persistent)
+            if self.stream is None:
+                self.stream = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
+                self.budget()
+                self.stream.connect(self.endpoint)
+            elif self.persistent:
+                self.idle()
+            self.budget()
+            self.stream.sendall(request)
+            result = _docker_response(self.stream, self.budget, self.deadline, self.persistent)
+            if self.persistent:
+                self.idle()
+            self.budget()
+            return result
+        except BaseException as error:
+            self.close()
+            if isinstance(error, TimeoutError):
+                refuse('docker', 'docker_timeout')
+            if isinstance(error, OSError):
+                refuse('docker', 'docker_unavailable')
+            raise
 
 
-def docker_prerequisite(*, _socket_path='/var/run/docker.sock', deadline=None):
+def docker_exchange(method, path, body=None, *, _socket_path='/var/run/docker.sock', deadline=None):
+    """Compatible single exchange, using the same route and framing checks."""
+    with DockerSession(_socket_path=_socket_path, deadline=deadline, _persistent=False) as session:
+        return session.exchange(method, path, body)
+
+
+def docker_prerequisite(*, _socket_path='/var/run/docker.sock', deadline=None, _session=None):
     """Inspect one fixed local daemon. No CLI/context, redirects or write API."""
-    status, response = docker_exchange('GET', '/version', _socket_path=_socket_path, deadline=deadline)
+    status, response = (docker_exchange('GET', '/version', _socket_path=_socket_path, deadline=deadline)
+                        if _session is None else _session.exchange('GET', '/version'))
     if status != 200 or response.get('Os') != 'linux':
         refuse('docker', 'docker_response_invalid')
     version = response.get('Version')
