@@ -40,6 +40,91 @@ def prerequisites(f):
 
 
 class Lifecycle(unittest.TestCase):
+    def fresh_fixture(self):
+        f = self.fixture()
+        f['fresh'] = True
+        f['planned_volume'] = f.pop('volume')
+        return f
+
+    def volume_create(self, f):
+        return ['volume', 'create', '--label', 'com.supabase.cli.project=' + f['project'],
+                '--label', 'com.docker.compose.project=' + f['project'], 'supabase_db_' + f['project']]
+
+    def fresh_prefix(self, f):
+        events = prerequisites(f)[:5]
+        self.assertEqual(startup.fixture_command('docker', ['volume', 'inspect', 'supabase_db_' + f['project']], f, events)[0], 1)
+        self.assertEqual(events[-1], {'kind': 'volume_missing'})
+        startup.fixture_command('docker', ['network', 'inspect', f['network']['Id']], f, events)
+        return events
+
+    def test_fresh_exact_missing_create_copy_refused_start_sequence(self):
+        f = self.fresh_fixture()
+        events = self.fresh_prefix(f)
+        self.assertNotIn('volume', f)
+        code, output, _ = startup.fixture_command('docker', self.volume_create(f), f, events)
+        self.assertEqual((code, output.strip()), (0, 'supabase_db_' + f['project']))
+        self.assertEqual(events[-1], {'kind': 'fresh_volume_create_acknowledged'})
+        code, output, _ = startup.fixture_command('docker', expected_request(f), f, events, environment=expected_environment(f))
+        self.assertEqual((code, output.strip()), (0, ID))
+        self.assertEqual(startup.fixture_command('docker', ['cp', '-', ID + ':/'], f, events, archive=archive())[0], 0)
+        self.assertEqual(startup.fixture_command('docker', ['start', ID], f, events)[0], 125)
+        self.assertNotIn(KEY.decode(), json.dumps(events))
+
+    def test_fresh_wrong_duplicate_missing_and_reordered_volume_creation_refuses(self):
+        f = self.fresh_fixture()
+        before = self.fresh_prefix(f)
+        for events in [[], before[:-1], before[1:] + before[:1], before + [before[-1]]]:
+            with self.subTest(count=len(events)), self.assertRaises(dev.Refusal):
+                startup.fixture_command('docker', self.volume_create(f), f, events)
+        wrong = self.volume_create(f)
+        for args in [wrong[:-1] + ['foreign'], wrong + ['extra'], wrong[0:2] + wrong[4:6] + wrong[2:4] + wrong[6:]]:
+            with self.subTest(args=args), self.assertRaises(dev.Refusal):
+                startup.fixture_command('docker', args, f, list(before))
+        for args in [expected_request(f), ['cp', '-', ID + ':/'], ['start', ID]]:
+            with self.assertRaises(dev.Refusal):
+                startup.fixture_command('docker', args, f, list(before), environment=expected_environment(f), archive=archive())
+        startup.fixture_command('docker', self.volume_create(f), f, before)
+        with self.assertRaises(dev.Refusal):
+            startup.fixture_command('docker', self.volume_create(f), f, before)
+        startup.fixture_command('docker', expected_request(f), f, before, environment=expected_environment(f))
+        with self.assertRaises(dev.Refusal):
+            startup.fixture_command('docker', ['start', ID], f, before)
+        startup.fixture_command('docker', ['cp', '-', ID + ':/'], f, before, archive=archive())
+        with self.assertRaises(dev.Refusal):
+            startup.fixture_command('docker', ['cp', '-', ID + ':/'], f, before, archive=archive())
+
+    def test_fresh_existing_and_racing_volume_refuse_without_ack_or_pg_create(self):
+        for state in ['fresh_existing', 'fresh_racing']:
+            f = self.fresh_fixture()
+            events = prerequisites(f)[:5] if state == 'fresh_existing' else self.fresh_prefix(f)
+            f[state] = True
+            args = ['volume', 'inspect', 'supabase_db_' + f['project']] if state == 'fresh_existing' else self.volume_create(f)
+            with self.assertRaises(dev.Refusal) as caught:
+                startup.fixture_command('docker', args, f, events)
+            self.assertEqual(caught.exception.code, 'fresh_volume_required')
+            self.assertNotIn('fresh_volume_create_acknowledged', [e['kind'] for e in events])
+            self.assertNotIn('postgres_create', [e['kind'] for e in events])
+
+    def test_fresh_planned_metadata_and_boolean_states_are_closed(self):
+        for field, value in [('volume', {}), ('fresh', 1), ('fresh', 'true'), ('fresh_existing', 1), ('fresh_racing', 'false')]:
+            f = self.fresh_fixture()
+            f[field] = value
+            with self.assertRaises(dev.Refusal):
+                startup.fixture_command('docker', ['volume', 'inspect', 'supabase_db_' + f['project']], f, [])
+        f = self.fresh_fixture()
+        f['planned_volume']['CreatedAt'] = '2026-10-16T00:00:00Z'
+        with self.assertRaises(dev.Refusal):
+            startup.validate_fixture_volume(f)
+
+    def test_fresh_planned_volume_rejects_unknown_metadata(self):
+        for key, value in [('Mountpoint', '/sensitive'), ('Status', {}), ('unexpected', True)]:
+            f = self.fresh_fixture()
+            f['planned_volume'][key] = value
+            with self.subTest(key=key):
+                with self.assertRaises(dev.Refusal) as caught:
+                    startup.validate_fixture_volume(f)
+                self.assertEqual(caught.exception.code, 'fresh_volume_required')
+
     def fixture(self):
         f = boundary_fixture()
         f['images'] = list(test_plan())
@@ -140,27 +225,31 @@ sys.exit(result.returncode)
 
     def test_process_boundary_lifecycle_and_controls(self):
         source = self.process_source()
-        for control in ['lifecycle-positive', 'invalid-lifecycle-target', 'invalid-lifecycle-archive', 'invalid-lifecycle-order']:
+        for control in ['lifecycle-positive', 'invalid-lifecycle-target', 'invalid-lifecycle-archive', 'invalid-lifecycle-order',
+                        'fresh-lifecycle-positive', 'fresh-existing', 'fresh-racing', 'fresh-invalid-lifecycle-target',
+                        'fresh-invalid-lifecycle-archive', 'fresh-invalid-lifecycle-order']:
             with tempfile.TemporaryDirectory() as temporary:
                 executable = Path(temporary)/'synthetic-cli'
                 executable.write_text('#!'+sys.executable+'\n'+source)
                 executable.chmod(0o700)
-                if control == 'lifecycle-positive':
+                if control in ['lifecycle-positive', 'fresh-lifecycle-positive']:
                     result = startup.synthetic_probe(executable, target_fixture(), RUN, control=control,
                                                      selection_plan=test_plan(), image_observations=test_observations())
                     self.assertFalse(result['runtime_ready'])
                     self.assertTrue(result['synthetic_create_acknowledged'])
+                    self.assertEqual(result['fresh_branch_proven'], control.startswith('fresh-'))
                 else:
                     with self.assertRaises(dev.Refusal) as caught:
                         startup.synthetic_probe(executable, target_fixture(), RUN, control=control,
                                                 selection_plan=test_plan(), image_observations=test_observations())
-                    self.assertEqual(caught.exception.code, 'expected_lifecycle_rejected')
+                    self.assertEqual(caught.exception.code, 'expected_fresh_volume_rejected' if control in ['fresh-existing', 'fresh-racing'] else 'expected_lifecycle_rejected')
 
 
     def test_invalid_baseline_cannot_qualify_negative_controls(self):
         for mutation in ["input=b''", "input=b'sensitive-canary'", "input=archive(name='../sensitive-canary')"]:
             source = self.process_source().replace('input=archive()', mutation)
-            for control in ['invalid-lifecycle-target', 'invalid-lifecycle-archive', 'invalid-lifecycle-order']:
+            for control in ['invalid-lifecycle-target', 'invalid-lifecycle-archive', 'invalid-lifecycle-order',
+                            'fresh-invalid-lifecycle-target', 'fresh-invalid-lifecycle-archive', 'fresh-invalid-lifecycle-order']:
                 with self.subTest(mutation=mutation, control=control), tempfile.TemporaryDirectory() as temporary:
                     executable = Path(temporary)/'synthetic-cli'
                     executable.write_text('#!'+sys.executable+'\n'+source)
@@ -169,6 +258,19 @@ sys.exit(result.returncode)
                         startup.synthetic_probe(executable, target_fixture(), RUN, control=control,
                                                 selection_plan=test_plan(), image_observations=test_observations())
                     self.assertEqual(caught.exception.code, 'boundary_not_proven')
+
+    def test_fresh_expected_volume_refusal_requires_complete_original_prefix(self):
+        source = self.process_source().replace("for image in f['images']]", "for image in f['images'][:-1]]")
+        self.assertNotEqual(source, self.process_source())
+        for control in ['fresh-existing', 'fresh-racing']:
+            with tempfile.TemporaryDirectory() as temporary:
+                executable = Path(temporary) / 'synthetic-cli'
+                executable.write_text('#!' + sys.executable + '\n' + source)
+                executable.chmod(0o700)
+                with self.assertRaises(dev.Refusal) as caught:
+                    startup.synthetic_probe(executable, target_fixture(), RUN, control=control,
+                                            selection_plan=test_plan(), image_observations=test_observations())
+                self.assertEqual(caught.exception.code, 'boundary_not_proven')
 
     def test_socketpair_read_and_stalled_writer(self):
         import socket

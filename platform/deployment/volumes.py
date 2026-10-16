@@ -86,6 +86,17 @@ def observe_unused(session, name, current):
         fail('volume_in_use')
 
 
+def require_absent(target, run_id, session, current):
+    """Bounded fresh admission only; no metadata adoption, creation or reservation."""
+    current()
+    status, _ = session.exchange('GET', PREFIX + create_input(target, run_id)['Name'])
+    current()
+    if status == 200:
+        fail('volume_reuse_unsupported')
+    if status != 404:
+        fail('volume_inspection_failed')
+
+
 def acquire_session(target, run_id, session, current):
     """Validated owner algorithm on the caller's guarded connection and budget."""
     def exchange(method, suffix, body=None):

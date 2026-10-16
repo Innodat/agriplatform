@@ -21,6 +21,21 @@ class VolumeAcceptance(unittest.TestCase):
     setUp = test_dev.PreparationAcceptance.setUp
     invoke = test_dev.PreparationAcceptance.invoke
 
+    def test_require_absence_only_accepts_exact_missing_status_without_metadata_adoption(self):
+        from unittest.mock import Mock
+        for status in [200, 201, 204, 400, 403, 404, 409, 500]:
+            session, current = Mock(), Mock()
+            session.exchange.return_value = status, {'sensitive': 'untrusted'}
+            target = dev.decode(dev.read(dev.ROOT / 'platform/deployment/environments/kdg-local.json'))
+            if status == 404:
+                self.assertIsNone(volumes.require_absent(target, self.run_id, session, current))
+            else:
+                with self.assertRaises(dev.Refusal) as caught:
+                    volumes.require_absent(target, self.run_id, session, current)
+                self.assertEqual(caught.exception.code, 'volume_reuse_unsupported' if status == 200 else 'volume_inspection_failed')
+            session.exchange.assert_called_once_with('GET', '/v1.48/volumes/' + startup.fixture_volume(target, self.run_id)['Name'])
+            self.assertEqual(current.call_count, 2)
+
     def test_acquisition_retains_original_peer_when_socket_path_is_replaced(self):
         import socket
         self.prepare()

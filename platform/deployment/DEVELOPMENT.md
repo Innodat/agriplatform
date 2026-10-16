@@ -10,8 +10,8 @@ close the enclosing ENV acceptance item. See individual evidence records below.
 | --- | --- | --- |
 | Target/configuration | Protected disposable run preparation, exact source/config binding, deterministic owner names and Docker>=28 gate | Actual isolated stack startup and current readiness |
 | Dependency baseline | Six pinned executables including TypeScript7.0.2; Python wheel-lock and frontend compatibility fixtures | Generated consuming application/service proof; target/native compatibility; documented third-party declaration limitations |
-| Images/resources | Four immutable image identities, guarded owned bridge/database-volume acquisition, daemon observations, current volume-use refusal and joint same-session handoff | Execution-time enforcement, volume freshness/initialization/reuse and reservation/exclusivity |
-| PostgreSQL startup | Exact first-create profile, closed in-memory API request and private synthetic create/file-transfer/refused-start proof | Bootstrap semantic/secret safety, actual create/start, health and bounded stop/reset/recovery |
+| Images/resources | Four immutable image identities, guarded owned bridge/database-volume acquisition, daemon observations, current volume-use refusal, joint same-session acquisition and absent-volume startup construction | Execution-time enforcement, volume freshness/initialization/reuse and reservation/exclusivity |
+| PostgreSQL startup | Exact first-create profile, closed in-memory API request and private synthetic existing/fresh create/file-transfer/refused-start proof | Bootstrap semantic/secret safety, actual create/start, health and bounded stop/reset/recovery |
 | Owner integration | Ordered ENV/P1/SERVICE/Identity/Access/WRITE contracts and retained ownership | Existing generator recipe/schema/templates, regeneration/custom preservation, generated install/type/build/start/current-Access proof, coordinated owner migrations/fixtures/recovery |
 | Provider/device | Explicit nonproduction origins/callback contracts | LAN HTTPS/DNS/testCA, actual Entra callbacks and installed Android/iPhone proof at consuming gates |
 
@@ -665,8 +665,9 @@ config identities; bridge acquisition; volume acquisition; repeat child/config
 observations; bridge ID/name/ID; volume. Every request rechecks current protected
 evidence. Before each POST and the optional constructor, these checks still hold.
 The constructor receives joint `network`, `volume`, `images`, `post_attempted` (volume)
-and `runtime_ready=false`. The `resources.invocation` helper delegates argv construction
-to `startup.invocation`; neither operation executes startup. Final source/evidence and
+and `runtime_ready=false`. Fresh startup uses the distinct `resources.invocation`
+path described below; it leaves the volume absent for the CLI probe. Neither path
+executes startup. Final source/evidence and
 owner postchecks must succeed before returning a result. Callback failure closes the
 connection and releases the lock. The trusted callback must be immediate and nonblocking;
 budget checks cannot preempt arbitrary Python.
@@ -757,7 +758,42 @@ No container, SQL or secret provisioning is enabled; `runtime_ready=false`.
 
 This is execution-input construction, not bootstrap semantic/secret, freshness/reuse
 or runtime qualification. The pinned CLI checks volume existence before fresh setup;
-a pre-acquired volume may skip that setup. That integration boundary remains open.
+a pre-acquired volume may skip that setup. Fresh constructor ordering and the private
+CLI branch are now proved below; live creation/ownership and setup execution remain open.
 [Profile mapping](fixtures/supabase-pg17-profile.md#closed-postgresql-create-request)
 and [delivery evidence](ENV_POSTGRES_CREATE_REQUEST_EVIDENCE.md) record the authorities,
 limits, requirement/test traceability and all five impact decisions.
+
+## Fresh-start volume admission
+
+`resources.invocation` constructs the initial startup command under the existing run
+lock, qualified evidence, one daemon connection and five-second budget. It checks
+version/images and exact volume absence before bridge acquisition, then rechecks
+images, bridge identity and volume absence before construction. It never creates the
+volume. Any existing volume, including a foreign one, refuses
+`volume_reuse_unsupported`; ambiguous inspection refuses `volume_inspection_failed`.
+Late appearance preserves the acquired bridge and refuses handoff without cleanup or
+replay. Custody, idle-connection, budget and owner postchecks remain required.
+`resources.acquire` retains its metadata acquisition contract.
+
+The existing private startup qualifier's fresh mode skips volume pre-acquisition and
+keeps `planned_volume` separate from observed metadata. The pinned CLI receives a
+truthful synthetic missing-volume response, followed by exact volume-create
+acknowledgement, validated immutable PostgreSQL request, in-memory root-key copy and
+refused first start. The CLI's two labels do not establish the planned ENV six-label
+ownership profile. This proves branch/order only: no reservation, live creation,
+initialized contents, setup SQL, bootstrap-secret safety or runtime readiness.
+Execution-time absence checks and guarded volume ownership/creation remain open.
+
+```sh
+python3 platform/deployment/tests/qualify_resources.py --target platform/deployment/environments/kdg-local.json --run-id <fresh-qualified-UUID> --control fresh
+python3 platform/deployment/tests/qualify_startup.py --target platform/deployment/environments/kdg-local.json --run-id <fresh-qualified-UUID> --control fresh-lifecycle-positive
+```
+
+Resource controls `fresh-existing`, `fresh-foreign`, `fresh-error` and `fresh-late`
+prove bounded refusals. Startup controls `fresh-existing`, `fresh-racing` and
+`fresh-invalid-lifecycle-{target,archive,order}` prove refusal before later phases.
+Existing positive/acquisition controls remain available. All peers and acknowledgements
+are private synthetic fixtures; no real resource or container is created.
+See [fresh-start evidence](ENV_FRESH_START_EVIDENCE.md) for commands, results,
+requirement-to-test traceability and scaffold/UI/context/documentation/ADR impacts.

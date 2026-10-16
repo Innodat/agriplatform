@@ -20,17 +20,20 @@ def main(argv=None):
         parser.add_argument('--run-id', required=True)
         parser.add_argument('--control', choices=['positive', 'invalid-network', 'contaminated-workdir', 'reject-command', 'invalid-selection-plan',
                                                        'invalid-create-script', 'invalid-create-environment', 'invalid-create-routing', 'invalid-create-request',
-                                                       'lifecycle-positive', 'invalid-lifecycle-target', 'invalid-lifecycle-archive', 'invalid-lifecycle-order'],
+                                                       'lifecycle-positive', 'invalid-lifecycle-target', 'invalid-lifecycle-archive', 'invalid-lifecycle-order',
+                                                       'fresh-lifecycle-positive', 'fresh-existing', 'fresh-racing', 'fresh-invalid-lifecycle-target',
+                                                       'fresh-invalid-lifecycle-archive', 'fresh-invalid-lifecycle-order'],
                             default='positive')
         args = parser.parse_args(argv)
         networks = volumes.networks
         networks.validate_run_id(args.run_id)
         target = dev.decode(dev.read(Path(args.target).absolute()))
-        daemon = qualify_volumes.SyntheticDaemon(target, args.run_id)
-        with daemon.serve() as endpoint:
-            acquired = volumes.acquire(args.target, args.run_id, _socket_path=endpoint)
-        daemon.validate_events()
-        args._volume = acquired['volume']
+        if not args.control.startswith('fresh-'):
+            daemon = qualify_volumes.SyntheticDaemon(target, args.run_id)
+            with daemon.serve() as endpoint:
+                acquired = volumes.acquire(args.target, args.run_id, _socket_path=endpoint)
+            daemon.validate_events()
+            args._volume = acquired['volume']
         startup.existing_images(args)
         image_daemon = qualify_daemon_images.SyntheticDaemon(qualify_daemon_images.expected_images(args.run_id))
         with image_daemon.serve() as endpoint:

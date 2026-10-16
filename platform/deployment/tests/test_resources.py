@@ -7,6 +7,266 @@ import resources
 
 
 class Resources(unittest.TestCase):
+    def test_fresh_public_qualifier_rejects_changed_constructor_inputs(self):
+        import copy
+        import hashlib
+        from contextlib import redirect_stdout
+        import io
+        import json
+        import startup
+        from unittest.mock import patch
+        original = resources.invocation
+        for field in ['target', 'run', 'network']:
+            def changed_invocation(*args, **kwargs):
+                constructor = startup.invocation
+                def changed(*inputs):
+                    inputs = list(copy.deepcopy(inputs))
+                    if field == 'target':
+                        inputs[2]['target_id'] = 'foreign'
+                    elif field == 'run':
+                        inputs[3] = '00000000-0000-0000-0000-000000000000'
+                    else:
+                        inputs[4]['Labels'] = {}
+                    return constructor(*inputs)
+                with patch.object(startup, 'invocation', side_effect=changed):
+                    return original(*args, **kwargs)
+            output = io.StringIO()
+            # A plausible argv is not evidence that the constructor received the
+            # admitted inputs. This stub deliberately accepts all input variants.
+            plausible = (['--network-id', hashlib.sha256(self.owner.owner.args.run_id.encode()).hexdigest()],
+                         {'DOCKER_HOST': 'unix:///var/run/docker.sock'})
+            with self.subTest(field=field), patch.object(startup, 'invocation', return_value=plausible), \
+                    patch.object(resources, 'invocation', side_effect=changed_invocation), redirect_stdout(output):
+                status = proof.main(['--target', self.owner.owner.args.target, '--run-id', self.owner.owner.args.run_id, '--control', 'fresh'])
+            self.assertEqual(status, 2)
+            self.assertEqual(json.loads(output.getvalue())['code'], 'synthetic_outcome_mismatch')
+
+    def test_fresh_image_daemon_and_network_negatives_have_exact_terminal_events(self):
+        import dev
+        import startup
+        from unittest.mock import patch
+        cases = [('image-missing', 'image_missing', 2), ('image-foreign', 'image_identity_mismatch', 2),
+                 ('old-daemon', 'docker_28_required', 1), ('malformed', 'docker_response_invalid', 2),
+                 ('slow', 'docker_timeout', 2), ('network-foreign', 'network_not_run_owned', 11),
+                 ('network-replaced', 'network_replaced', 12), ('network-error', 'network_inspection_failed', 11),
+                 ('lost-network-response', 'docker_response_invalid', 12)]
+        for defect, code, count in cases:
+            with self.subTest(defect=defect):
+                daemon = self.daemon('fresh')
+                if defect.startswith('image-'):
+                    daemon.image_control = 'missing' if defect == 'image-missing' else 'wrong-id'
+                elif defect in ['old-daemon', 'malformed', 'slow']:
+                    daemon.image_control = defect
+                    if defect != 'old-daemon':
+                        daemon.control = defect
+                elif defect == 'lost-network-response':
+                    daemon.disconnect_at = count
+                else:
+                    daemon.network = proof.network_proof.SyntheticDaemon(
+                        self.owner.owner.target, self.owner.owner.args.run_id,
+                        {'network-foreign': 'foreign', 'network-replaced': 'replacement', 'network-error': 'daemon-error'}[defect])
+                    daemon.expected = daemon.expected_events()
+                with daemon.serve() as endpoint, patch.object(startup, 'invocation') as construct, \
+                        patch.object(resources, 'SECONDS', .2 if defect == 'slow' else 5):
+                    with self.assertRaises(dev.Refusal) as caught:
+                        self.fresh_invocation(endpoint)
+                    construct.assert_not_called()
+                self.assertEqual(caught.exception.code, code)
+                self.assertEqual(daemon.events, daemon.expected[:count])
+                self.assertEqual(daemon.connections, 1)
+                self.assertFalse(daemon.errors or daemon.network.errors or daemon.volume.errors)
+
+    def test_fresh_existing_bridge_and_conflict_winner_preserve_exact_constructor_inputs(self):
+        import startup
+        from unittest.mock import patch
+        for mode in ['existing', 'conflict']:
+            daemon = self.daemon('fresh', _network_conflict=mode == 'conflict')
+            if mode == 'existing':
+                daemon.network.present = True
+                daemon.expected = daemon.expected_events()
+            with daemon.serve() as endpoint, patch.object(startup, 'invocation', wraps=startup.invocation) as construct:
+                self.fresh_invocation(endpoint)
+                construct.assert_called_once()
+                _, _, target, run_id, network = construct.call_args.args
+                self.assertEqual(target, self.owner.owner.target)
+                self.assertEqual(run_id, self.owner.owner.args.run_id)
+                expected = proof.network_proof.expected_request(target, run_id)
+                self.assertEqual(network, {key: expected[key] for key in ['Name', 'Driver', 'Scope', 'Internal', 'Options', 'Labels']} |
+                                 {'Id': daemon.network.network_id, 'Containers': {}})
+            daemon.validate_events()
+            self.assertEqual(sum(method == 'POST' for method, _, _ in daemon.events), mode == 'conflict')
+            self.assertFalse(daemon.volume.present)
+
+    def test_fresh_late_image_and_each_final_bridge_replacement_refuse_before_constructor(self):
+        import dev
+        import startup
+        from unittest.mock import patch
+        for resource in ['child', 'config', 'bridge-id-first', 'bridge-name', 'bridge-id-last']:
+            daemon = self.daemon('fresh')
+            if resource in ['child', 'config']:
+                at = len(daemon.expected) - (11 if resource == 'child' else 7)
+            else:
+                at = len(daemon.expected) - {'bridge-id-first': 3, 'bridge-name': 2, 'bridge-id-last': 1}[resource]
+            def replace(*args):
+                if len(daemon.events) == at:
+                    if resource in ['child', 'config']:
+                        daemon.image_control = 'wrong-id'
+                    else:
+                        daemon.network.network['Id'] = 'f' * 64
+            daemon.hook = replace
+            with self.subTest(resource=resource), daemon.serve() as endpoint, patch.object(startup, 'invocation') as construct:
+                with self.assertRaises(dev.Refusal) as caught:
+                    self.fresh_invocation(endpoint)
+                construct.assert_not_called()
+            self.assertEqual(caught.exception.code, 'image_identity_mismatch' if resource in ['child', 'config'] else 'network_replaced')
+            self.assertEqual(daemon.events, daemon.expected[:at])
+            self.assertEqual(daemon.connections, 1)
+
+    def test_fresh_invalid_workdir_refuses_before_daemon_mutation(self):
+        from pathlib import Path
+        import tempfile
+        from unittest.mock import patch
+        import dev
+        import startup
+        for defect in ['missing', 'contaminated', 'configuration']:
+            daemon = self.daemon('fresh')
+            with tempfile.TemporaryDirectory() as directory, daemon.serve() as endpoint:
+                work = Path(directory)
+                if defect != 'missing':
+                    startup.initialize_workdir(work, self.owner.owner.target, self.owner.owner.args.run_id)
+                    path = work / '.env' if defect == 'contaminated' else work / 'supabase/config.toml'
+                    path.write_text('untrusted')
+                with self.assertRaises(dev.Refusal):
+                    resources.invocation(self.owner.owner.args.target, self.owner.owner.args.run_id,
+                                         '/synthetic/supabase', work, _socket_path=endpoint)
+            self.assertFalse(any(method == 'POST' for method, _, _ in daemon.events))
+            self.assertFalse(daemon.network.present)
+
+    def test_fresh_invocation_leaves_volume_absent(self):
+        from pathlib import Path
+        import tempfile
+        import startup
+        daemon = self.daemon('fresh')
+        with tempfile.TemporaryDirectory() as directory, daemon.serve() as endpoint:
+            work = Path(directory)
+            startup.initialize_workdir(work, self.owner.owner.target, self.owner.owner.args.run_id)
+            resources.invocation(self.owner.owner.args.target, self.owner.owner.args.run_id,
+                                 '/synthetic/supabase', work, _socket_path=endpoint)
+        self.assertFalse(daemon.volume.present)
+        self.assertFalse(any(method == 'POST' and '/volumes/' in path for method, path, _ in daemon.events))
+        daemon.validate_events()
+
+    def fresh_invocation(self, endpoint):
+        from pathlib import Path
+        import tempfile
+        import startup
+        with tempfile.TemporaryDirectory() as directory:
+            work = Path(directory)
+            startup.initialize_workdir(work, self.owner.owner.target, self.owner.owner.args.run_id)
+            return resources.invocation(self.owner.owner.args.target, self.owner.owner.args.run_id,
+                                        '/synthetic/supabase', work, _socket_path=endpoint)
+
+    def test_fresh_existing_ambiguous_and_late_refuse(self):
+        import dev
+        from unittest.mock import patch
+        import startup
+        for control in proof.FRESH_CONTROLS[1:]:
+            daemon = self.daemon(control)
+            with daemon.serve() as endpoint, patch.object(startup, 'invocation') as construct:
+                with self.assertRaises(dev.Refusal) as caught:
+                    self.fresh_invocation(endpoint)
+                construct.assert_not_called()
+            self.assertEqual(caught.exception.code, proof.EXPECTED[control])
+            daemon.validate_events(success=False)
+            self.assertFalse(any(method == 'POST' and '/volumes/' in path for method, path, _ in daemon.events))
+            if control != 'fresh-late':
+                self.assertFalse(any(method == 'POST' for method, _, _ in daemon.events))
+            else:
+                self.assertTrue(daemon.network.present)
+
+    def test_fresh_transport_loss_at_every_exchange_refuses_without_reconnect(self):
+        import dev
+        from unittest.mock import patch
+        import startup
+        for kind in ['disconnect_at', 'truncated_at', 'disconnect_after']:
+            for request in range(1, len(self.daemon('fresh').expected) + 1):
+                daemon = self.daemon('fresh')
+                setattr(daemon, kind, request)
+                original_idle = dev.DockerSession.idle
+                def idle(session):
+                    if kind == 'disconnect_after' and len(daemon.events) == request:
+                        self.assertTrue(daemon.disconnected.wait(1))
+                    return original_idle(session)
+                with daemon.serve() as endpoint, patch.object(startup, 'invocation') as construct, patch.object(dev.DockerSession, 'idle', idle):
+                    with self.assertRaises(dev.Refusal):
+                        self.fresh_invocation(endpoint)
+                    construct.assert_not_called()
+                self.assertEqual(daemon.connections, 1)
+                self.assertEqual(daemon.events, daemon.expected[:request])
+
+    def test_fresh_custody_changes_before_network_mutation_and_constructor_refuse(self):
+        import dev
+        from unittest.mock import patch
+        import startup
+        paths = [self.owner.owner.target_path, self.owner.owner.tool_receipt,
+                 self.owner.owner.run / 'receipt.json',
+                 self.owner.owner.root / 'platform/deployment/resources.py',
+                 self.owner.owner.root / 'platform/deployment/.local/kdg' / self.owner.owner.args.run_id / 'inventory.json',
+                 self.owner.owner.root / 'platform/deployment/.local/kdg' / ('.network-' + self.owner.owner.args.run_id + '.lock')]
+        for boundary in ['network', 'constructor']:
+            for path in paths:
+                daemon = self.daemon('fresh')
+                raw = path.read_bytes() if path.exists() else b''
+                at = (next(i for i, event in enumerate(daemon.expected, 1) if event[0] == 'POST') - 1
+                      if boundary == 'network' else len(daemon.expected))
+                def mutate(*args):
+                    if len(daemon.events) == at:
+                        path.write_bytes(b'changed')
+                daemon.hook = mutate
+                try:
+                    with daemon.serve() as endpoint, patch.object(startup, 'invocation') as construct:
+                        with self.assertRaises((dev.Refusal, OSError, ValueError)):
+                            self.fresh_invocation(endpoint)
+                        construct.assert_not_called()
+                    self.assertEqual(daemon.events, daemon.expected[:at])
+                finally:
+                    path.write_bytes(raw)
+
+    def test_fresh_total_budget_and_constructor_postchecks_refuse(self):
+        import dev
+        import startup
+        import time
+        from unittest.mock import patch
+        for defect in ['slow', 'constructor-custody', 'constructor-budget', 'post-owner']:
+            daemon = self.daemon('fresh')
+            if defect == 'slow':
+                daemon.hook = lambda *args: time.sleep(.03)
+            path = self.owner.owner.tool_receipt
+            raw = path.read_bytes()
+            original = startup.invocation
+            def construct(*args):
+                result = original(*args)
+                if defect == 'constructor-custody':
+                    path.write_bytes(b'changed')
+                if defect == 'constructor-budget':
+                    time.sleep(.3)
+                return result
+            probes = []
+            owner = startup.existing_images
+            def probe(*args):
+                probes.append(True)
+                if defect == 'post-owner' and len(probes) == 2:
+                    dev.refuse('daemon_images', 'image_evidence_changed')
+                return owner(*args)
+            try:
+                with daemon.serve() as endpoint, patch.object(resources, 'SECONDS', .2 if defect in ['slow', 'constructor-budget'] else 5), \
+                        patch.object(startup, 'invocation', side_effect=construct), patch.object(startup, 'existing_images', side_effect=probe):
+                    with self.assertRaises(dev.Refusal):
+                        self.fresh_invocation(endpoint)
+                self.assertEqual(daemon.connections, 1)
+            finally:
+                path.write_bytes(raw)
+
     def setUp(self):
         self.owner = test_daemon_images.DaemonImages(methodName='runTest')
         self.owner.setUp()
@@ -41,6 +301,8 @@ class Resources(unittest.TestCase):
         import dev
         from unittest.mock import patch
         for control, code in proof.EXPECTED.items():
+            if control in proof.FRESH_CONTROLS:
+                continue  # Invocation admission has its own exact negative matrix above.
             with self.subTest(control=control):
                 daemon, called = self.daemon(control), []
                 with daemon.serve() as endpoint, patch.object(resources, 'SECONDS', .2 if control == 'slow' else 5):
@@ -359,11 +621,11 @@ class Resources(unittest.TestCase):
                 self.assertEqual(errors.getvalue(), '')
                 self.assertNotIn('sensitive-marker', output.getvalue())
                 self.assertIs(result['runtime_ready'], False)
-                if control in ['positive', 'existing']:
+                if control in ['positive', 'existing', 'fresh']:
                     self.assertEqual(status, 0)
                     self.assertTrue(result['ok'])
                     self.assertEqual((result['stage'], result['code']), ('resources', 'resources_synthetic_qualified'))
-                    self.assertEqual(len(result['api_events']), 32 if control == 'positive' else 29)
+                    self.assertEqual(len(result['api_events']), {'positive': 32, 'existing': 29, 'fresh': 28}[control])
                     constructor.assert_called_once()
                     self.assertEqual(constructor.call_args.args[0], '/synthetic/not-executed/supabase')
                 else:

@@ -141,7 +141,7 @@ See [volume-use evidence](../../../platform/deployment/ENV_VOLUME_USE_EVIDENCE.m
 Empty references do not prove volume freshness, initialized-state/reuse policy,
 reservation/exclusivity or execution readiness. Continue existing ENV bootstrap/secret,
 volume reuse, runtime lifecycle and scaffold gates before dependent consumers.
-The latest completed ENV Build is [PostgreSQL create-request construction](../../../_bmad-output/implementation-artifacts/spec-env-postgres-create-request.md).
+The preceding completed ENV Build is [PostgreSQL create-request construction](../../../_bmad-output/implementation-artifacts/spec-env-postgres-create-request.md).
 The existing refused-create boundary constructs and strictly validates one detached
 in-memory API1.48 request using the selected child, exact run resources and four public
 synthetic env inputs. Explicit Linux/amd64 and loopback binding tighten the ENV profile;
@@ -184,3 +184,28 @@ assigned child → offline Save → reopen/read → reconnect/sync → server re
 by early installed Android/iPhone proof. Do not start with a complete questionnaire editor.
 Actual generator/target/operator/role/old-new/backup-key/device/PtS regression and
 pre-pilot policies remain their recorded delivery/release gates.
+
+
+## Latest continuation — fresh-start admission, 2026-10-16
+
+The latest completed ENV Build is [fresh-start volume admission and CLI branch proof](../../../_bmad-output/implementation-artifacts/spec-env-fresh-start-admission.md).
+The existing guarded invocation observes missing volume state before bridge mutation
+and again before construction, leaving volume creation to the CLI. Existing, foreign,
+ambiguous and late/racing volume states refuse. The private pinned CLI fresh proof
+now covers exact missing/create/copy/refused-start ordering, with planned volume
+metadata distinct from observation. Existing metadata acquisition remains supported.
+
+Final 416 deployment tests and fourteen public CLI checks pass; eight review finding
+instances fixed, two disproved, none deferred. Fresh run
+`d824e14c-5e70-408b-844d-490146e313c2` preserves thirteen retained evidence files and source
+snapshots. Real up still refuses `docker_28_required`/`runtime_ready=false`; no container
+or setup SQL ran. See [fresh-start evidence](../../../platform/deployment/ENV_FRESH_START_EVIDENCE.md)
+and [current ENV status](../../../platform/deployment/DEVELOPMENT.md#current-env-delivery-status).
+
+ENV remains partial. The CLI's two-label synthetic acknowledgement does not establish
+the planned six-label ENV ownership or fresh/initialized contents. Continue guarded
+live creation/ownership, execution-time continuity, bootstrap/secret and SQL semantics,
+initialized reuse, health/stop/reset/recovery and existing P1/SERVICE scaffold acceptance
+before dependent Identity/Access/WRITE or KDG server work. Retain the approved exact
+baseline including TypeScript7.0.2, current owners, synthetic-only verification and
+concurrent Leave/PtS documents. No questionnaire editor or Leave implementation.

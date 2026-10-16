@@ -18,6 +18,29 @@ from create_profile_fixtures import (expected_request, expected_environment, bou
                                      target_fixture, test_plan, test_observations, RUN, SYNTHETIC_CLI_SOURCE)
 
 class StartupAcceptance(unittest.TestCase):
+    def test_public_fresh_controls_bypass_volume_acquisition_and_observation(self):
+        from contextlib import nullcontext, redirect_stdout
+        import io
+        from unittest.mock import Mock
+        import qualify_startup
+        daemon = Mock()
+        daemon.serve.side_effect = lambda: nullcontext('/private-synthetic')
+        for control in ['fresh-lifecycle-positive', 'fresh-existing', 'fresh-racing', 'fresh-invalid-lifecycle-order']:
+            def qualified(args):
+                self.assertFalse(hasattr(args, '_volume'))
+                self.assertEqual(args.control, control)
+                return {'ok': True, 'runtime_ready': False}
+            with patch.object(qualify_startup.volumes, 'acquire') as acquire, \
+                    patch.object(qualify_startup.qualify_volumes, 'SyntheticDaemon') as volume_daemon, \
+                    patch.object(qualify_startup.startup, 'existing_images'), \
+                    patch.object(qualify_startup.qualify_daemon_images, 'SyntheticDaemon', return_value=daemon), \
+                    patch.object(qualify_startup.daemon_images, 'acquire', return_value=test_observations()), \
+                    patch.object(startup, 'qualify', side_effect=qualified), redirect_stdout(io.StringIO()):
+                self.assertEqual(qualify_startup.main(['--target', str(ROOT / 'platform/deployment/environments/kdg-local.json'),
+                                                     '--run-id', RUN, '--control', control]), 0)
+                acquire.assert_not_called()
+                volume_daemon.assert_not_called()
+
     def test_missing_preparation_fails_before_execution(self):
         result = subprocess.run([sys.executable, str(ROOT / 'platform/deployment/tests/qualify_startup.py'),
                                  '--target', str(ROOT / 'platform/deployment/environments/kdg-local.json'),
@@ -29,6 +52,16 @@ class StartupAcceptance(unittest.TestCase):
 
 
 class InvocationGuards(unittest.TestCase):
+    def test_fresh_fixture_rejects_preacquired_volume(self):
+        with tempfile.TemporaryDirectory() as directory:
+            work = Path(directory)
+            startup.initialize_workdir(work, self.target, RUN)
+            with self.assertRaises(dev.Refusal) as caught:
+                startup.install_fixture(work, self.target, RUN, self.network,
+                                        selection_plan=test_plan(), image_observations=test_observations(),
+                                        volume=startup.fixture_volume(self.target, RUN), profile_control='fresh-lifecycle-positive')
+        self.assertEqual(caught.exception.code, 'fresh_volume_required')
+
     def setUp(self):
         self.target = dev.decode(dev.read(ROOT / 'platform/deployment/environments/kdg-local.json'))
         self.network = startup.fixture_network(self.target, RUN)

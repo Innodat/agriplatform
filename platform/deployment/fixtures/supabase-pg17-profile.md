@@ -141,7 +141,10 @@ ENV profile; this is not a claim of byte-identical CLI serialization. Unknown
 fields, defaults, inherited env names and arbitrary overrides are forbidden.
 
 This construction does not qualify bootstrap semantics, secret provisioning,
-fresh-volume setup, real lifecycle continuity, runtime readiness or KDG fingerprint
-keys. The upstream fresh-setup branch may treat a pre-acquired volume as existing;
-that integration gate remains open. `runtime_ready` remains false and `dev.py up`
-remains guarded.
+fresh-volume setup execution, real lifecycle continuity, runtime readiness or KDG
+fingerprint keys. The guarded fresh invocation now observes volume absence without
+pre-acquisition; the [lifecycle authority](supabase-pg17-lifecycle.md#fresh-branch-admission-and-synthetic-acknowledgement)
+records its pinned source and separate synthetic missing/create/copy/refused-start
+proof. Its planned volume profile is not observed metadata, and synthetic volume
+acknowledgement proves no real ownership or freshness. `runtime_ready` remains false
+and `dev.py up` remains guarded.

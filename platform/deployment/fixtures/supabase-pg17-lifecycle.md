@@ -34,3 +34,34 @@ either all NULs or an explicit octal zero in that format. Only the observed ASCI
 `0` regular-file type is accepted; the legacy NUL type is refused. These rules
 avoid interpreting a field differently from standard tar readers. No header time
 value is used as authority; the entire supported octal range remains accepted.
+
+## Fresh branch admission and synthetic acknowledgement
+
+The same pinned commit's
+`apps/cli/src/command-internal/db-bootstrap/start-database.ts` records
+`volumeExists` before creation (line134) and selects fresh setup from that original
+observation (line189). `container-lifecycle.ts` orders ensure-volume, container
+create, root-key copy and start. Pre-acquiring the database volume selects the
+existing-volume branch even if acquisition just created it.
+
+The guarded `resources.invocation` therefore requires exact missing-volume404
+before bridge mutation and again after image/bridge reobservation. It never creates
+the volume. Existing or ambiguous metadata refuses; absence is a bounded observation,
+not a reservation. Metadata acquisition remains a separate supported operation.
+
+The private `fresh-lifecycle-positive` fixture stores `planned_volume` separately
+from observed metadata and refuses supplied pre-acquired volume input. Its initial
+probe truthfully returns missing. Only the exact project name and two pinned CLI
+labels, after the full missing/image/network prefix, receive a synthetic create
+acknowledgement. Immutable PostgreSQL request validation, in-memory root-key copy
+and refused first start follow in that strict order. Duplicate, wrong or reordered
+create/copy/start operations refuse. Existing and racing fixture volumes refuse
+before acknowledgement or PostgreSQL create. Negative lifecycle controls independently
+validate the original request and transfer before injecting their defect.
+
+The CLI's two-label volume-create command does not establish the planned ENV
+six-label ownership descriptor. The synthetic acknowledgement establishes sequence
+only, never real freshness, ownership, initialization or executed setup SQL. Live
+creation/ownership enforcement, execution-time rechecks, bootstrap/secret semantics,
+initialized reuse and real lifecycle readiness remain open. No runtime bytes, request
+body, environment or archive are saved or hashed; `runtime_ready=false` remains.

@@ -93,13 +93,25 @@ def volume_descriptor(actual, target, run_id):
 
 
 def validate_fixture_volume(fixture):
+    if type(fixture.get('fresh', False)) is not bool:
+        fail('fresh_volume_required')
+    if fixture.get('fresh'):
+        if ('volume' in fixture or 'planned_volume' not in fixture
+                or type(fixture.get('fresh_existing', False)) is not bool
+                or type(fixture.get('fresh_racing', False)) is not bool):
+            fail('fresh_volume_required')
+    elif 'planned_volume' in fixture:
+        fail('fresh_volume_required')
     project = fixture['project']
     run_id = fixture['run_id']
     suffix = '-' + base64.urlsafe_b64encode(uuid.UUID(run_id).bytes).decode().rstrip('=')
     if not project.endswith(suffix):
         dev.refuse('volume', 'volume_not_run_owned')
     target = {'target_id': fixture['target_id'], 'project_id_prefix': project[:-len(suffix)]}
-    return volume_descriptor(fixture.get('volume'), target, run_id)
+    if fixture.get('fresh') and not create_profile._exact_tree(fixture['planned_volume'], fixture_volume(target, run_id)):
+        fail('fresh_volume_required')
+    result = volume_descriptor(fixture.get('planned_volume') if fixture.get('fresh') else fixture.get('volume'), target, run_id)
+    return result
 
 
 def fixture_network(target, run_id):
@@ -332,9 +344,9 @@ def lifecycle_prefix(fixture, events, phase):
     facts.update(original_image=fixture['postgres_image'], immutable_selection_proven=True, create_request_proven=True)
     descriptors = [fixture['image_observations'][fixture['selection_plan'][tag]] for tag in fixture['images']]
     if phase == 'create':
-        validate_observations(events + [{'kind': 'postgres_create', 'facts': facts}], facts, descriptors)
+        validate_observations(events + [{'kind': 'postgres_create', 'facts': facts}], facts, descriptors, fresh=fixture.get('fresh', False))
     else:
-        validate_observations(events[:CREATE_BOUNDARY], facts, descriptors)
+        validate_observations(events[:CREATE_BOUNDARY], facts, descriptors, fresh=fixture.get('fresh', False))
         if phase == 'cp' and len(events) != CREATE_BOUNDARY:
             fail('unsafe_lifecycle')
         if phase == 'start' and (len(events) != CREATE_BOUNDARY + 1 or events[CREATE_BOUNDARY] != lifecycle.transfer_event()):
@@ -347,6 +359,8 @@ def fixture_command(runtime, args, fixture, events, *, environment=None, archive
             or runtime != 'docker'):
         fail('unexpected_container_command')
     project = fixture['project']
+    if 'fresh' in fixture or 'planned_volume' in fixture:
+        validate_fixture_volume(fixture)
     if fixture.get('lifecycle'):
         if args[:1] == ['cp']:
             lifecycle_prefix(fixture, events, 'cp')
@@ -426,12 +440,31 @@ def fixture_command(runtime, args, fixture, events, *, environment=None, archive
         events.append({'kind': 'network_inspect'})
         return 0, json.dumps([fixture['network']]), ''
     if args == ['volume', 'inspect', 'supabase_db_' + project]:
+        if fixture.get('fresh'):
+            if len(events) != 5 or fixture.get('fresh_existing'):
+                fail('fresh_volume_required')
+            # This probe truthfully reports the private fixture's absent state.
+            events.append({'kind': 'volume_missing'})
+            return 1, '', 'Error: No such volume'
         events.append({'kind': 'volume_inspect'})
         return 0, json.dumps([validate_fixture_volume(fixture)]), ''
     volume = 'supabase_db_' + project
     if args == ['volume', 'create', '--label', 'com.supabase.cli.project=' + project,
                 '--label', 'com.docker.compose.project=' + project, volume]:
         validate_fixture_volume(fixture)
+        if fixture.get('fresh'):
+            expected = [{'kind': 'volume_missing'}, {'kind': 'network_inspect'}]
+            if len(events) != 7 or events[5:] != expected:
+                fail('unsafe_lifecycle')
+            # Validate the whole baseline before acknowledging synthetic creation.
+            facts = selected_facts(dict(fixture, postgres_image=fixture['selection_plan'][fixture['postgres_image']]))
+            facts.update(original_image=fixture['postgres_image'], immutable_selection_proven=True, create_request_proven=True)
+            descriptors = [fixture['image_observations'][fixture['selection_plan'][tag]] for tag in fixture['images']]
+            validate_observations(events + [{'kind': 'fresh_volume_create_acknowledged'}, {'kind': 'postgres_create', 'facts': facts}], facts, descriptors, fresh=True)
+            if fixture.get('fresh_racing'):
+                fail('fresh_volume_required')
+            events.append({'kind': 'fresh_volume_create_acknowledged'})
+            return 0, volume + '\n', ''
         events.append({'kind': 'existing_volume_create_refused'})
         return 1, '', 'volume already exists'
     fail('unexpected_container_command')
@@ -517,6 +550,7 @@ def rejected_event(args, code):
 
 def fixture_main(runtime, args, directory, stop_parent=False, *, environment=None, profile_control='positive'):
     """Private docker/podman executable: no dispatch, subprocess or daemon code exists."""
+    lifecycle_control = profile_control.removeprefix('fresh-')
     parent_fd = None
     try:
         fixture = decode_fixture(directory / 'fixture.json')
@@ -556,17 +590,17 @@ def fixture_main(runtime, args, directory, stop_parent=False, *, environment=Non
                         archive = lifecycle.read_archive(sys.stdin.fileno())
                         lifecycle.validate_archive(archive)
                     except dev.Refusal:
-                        if profile_control.startswith('invalid-lifecycle-'):
+                        if lifecycle_control.startswith('invalid-lifecycle-'):
                             fail('invalid_control_baseline')
                         raise
-                    if profile_control.startswith('invalid-lifecycle-'):
+                    if lifecycle_control.startswith('invalid-lifecycle-'):
                         # Original transfer independently passed before injection.
                         args = list(args)
-                        if profile_control == 'invalid-lifecycle-target':
+                        if lifecycle_control == 'invalid-lifecycle-target':
                             args[-1] = 'f' * 64 + ':/'
-                        elif profile_control == 'invalid-lifecycle-archive':
+                        elif lifecycle_control == 'invalid-lifecycle-archive':
                             archive = b'ENV_SYNTHETIC_CANARY'
-                        elif profile_control == 'invalid-lifecycle-order':
+                        elif lifecycle_control == 'invalid-lifecycle-order':
                             args = ['start', lifecycle.CONTAINER_ID]
                         control_event = lifecycle_control_event(profile_control)
                 code, output, error = fixture_command(runtime, args, fixture, events, environment=environment, archive=archive,
@@ -616,18 +650,23 @@ def validate_image_observations(observations, selection_plan, config_plan=None):
 
 
 def install_fixture(work, target, run_id, network, executable=None, guard_parent=True, *, selection_plan, volume=None, image_observations=None, profile_control='positive'):
+    fresh = profile_control.startswith('fresh-')
+    if fresh and volume is not None:
+        fail('fresh_volume_required')
     volume = volume_descriptor(fixture_volume(target, run_id) if volume is None else volume, target, run_id)
     validate_selection_plan(selection_plan)
     validate_image_observations(image_observations, selection_plan)
     pins = images.load_pins(dev.read(dev.ROOT / images.PINS))
     references = ['public.ecr.aws/' + item['repository'] + ':' + item['tag'] for item in pins['images']]
     fixture = {'project': dev.project_identity(target, run_id), 'workdir': str(work),
-               'target_id': target['target_id'], 'run_id': run_id, 'volume': volume,
+               'target_id': target['target_id'], 'run_id': run_id,
+               **({'planned_volume': volume, 'fresh': True, 'fresh_existing': profile_control == 'fresh-existing',
+                   'fresh_racing': profile_control == 'fresh-racing'} if fresh else {'volume': volume}),
                'executable': str(executable) if executable is not None else '',
                'database_port': target['ports']['database'], 'network': network,
                'images': references, 'postgres_image': references[0], 'selection_plan': selection_plan,
                'image_observations': image_observations,
-               'lifecycle': profile_control == 'lifecycle-positive' or profile_control.startswith('invalid-lifecycle-')}
+               'lifecycle': fresh or profile_control == 'lifecycle-positive' or profile_control.startswith('invalid-lifecycle-')}
     write_private(work / 'fixture.json', images.canonical(fixture).encode())
     write_private(work / 'events.json', b'[]')
     for runtime in ['docker', 'podman']:
@@ -646,7 +685,9 @@ def install_fixture(work, target, run_id, network, executable=None, guard_parent
 def synthetic_probe(executable, target, run_id, network=None, control='positive', *, selection_plan, volume=None, image_observations=None):
     if control not in ['positive', 'invalid-network', 'contaminated-workdir', 'reject-command', 'invalid-selection-plan',
                        'invalid-create-script', 'invalid-create-environment', 'invalid-create-routing', 'invalid-create-request',
-                       'lifecycle-positive', 'invalid-lifecycle-target', 'invalid-lifecycle-archive', 'invalid-lifecycle-order']:
+                       'lifecycle-positive', 'invalid-lifecycle-target', 'invalid-lifecycle-archive', 'invalid-lifecycle-order',
+                       'fresh-lifecycle-positive', 'fresh-existing', 'fresh-racing', 'fresh-invalid-lifecycle-target',
+                       'fresh-invalid-lifecycle-archive', 'fresh-invalid-lifecycle-order']:
         fail('unknown_control')
     if control == 'invalid-selection-plan':
         selection_plan = dict(selection_plan)
@@ -706,29 +747,43 @@ def synthetic_probe(executable, target, run_id, network=None, control='positive'
             if not events or events[-1] != rejection:
                 fail('boundary_not_proven')
             validate_observations(events[:-1] + [{'kind': 'postgres_create', 'facts': expected_facts}],
-                                  expected_facts, list(image_observations[selection_plan[tag]] for tag in fixture['images']))
+                                  expected_facts, list(image_observations[selection_plan[tag]] for tag in fixture['images']), fresh=fixture.get('fresh', False))
             fail('expected_create_profile_rejected')
+        if control in ['fresh-existing', 'fresh-racing']:
+            command = ['volume', 'inspect', 'supabase_db_' + fixture['project']] if control == 'fresh-existing' else [
+                'volume', 'create', '--label', 'com.supabase.cli.project=' + fixture['project'], '--label',
+                'com.docker.compose.project=' + fixture['project'], 'supabase_db_' + fixture['project']]
+            rejection = rejected_event(command, 'fresh_volume_required')
+            boundary = 5 if control == 'fresh-existing' else 7
+            if len(events) != boundary + 1 or events[-1] != rejection:
+                fail('boundary_not_proven')
+            # Independently check all original prerequisites before expected refusal.
+            validate_observations(events[:boundary] + ([{'kind': 'volume_missing'}, {'kind': 'network_inspect'}] if boundary == 5 else []) + [
+                                  {'kind': 'fresh_volume_create_acknowledged'}, {'kind': 'postgres_create', 'facts': expected_facts}],
+                                  expected_facts, list(image_observations[selection_plan[tag]] for tag in fixture['images']), fresh=True)
+            fail('expected_fresh_volume_rejected')
         if fixture.get('lifecycle'):
-            if control.startswith('invalid-lifecycle-'):
-                command = ['start', 'other'] if control == 'invalid-lifecycle-order' else ['cp', 'other']
+            if control.removeprefix('fresh-').startswith('invalid-lifecycle-'):
+                command = ['start', 'other'] if control.removeprefix('fresh-') == 'invalid-lifecycle-order' else ['cp', 'other']
                 expected_rejection = {'kind': 'rejected', 'reason': 'unsafe_lifecycle', 'command': command, 'flags': []}
                 if (len(events) != CREATE_BOUNDARY + 2
                         or events[CREATE_BOUNDARY:] != [lifecycle_control_event(control), expected_rejection]):
                     fail('boundary_not_proven')
                 validate_observations(events[:CREATE_BOUNDARY], expected_facts,
-                                      list(image_observations[selection_plan[tag]] for tag in fixture['images']))
+                                      list(image_observations[selection_plan[tag]] for tag in fixture['images']), fresh=fixture.get('fresh', False))
                 fail('expected_lifecycle_rejected')
             if len(events) != CREATE_BOUNDARY + 2 or events[CREATE_BOUNDARY:] != [lifecycle.transfer_event(), {'kind': 'postgres_start_refused'}]:
                 fail('boundary_not_proven')
             validate_observations(events[:CREATE_BOUNDARY], expected_facts,
-                                  list(image_observations[selection_plan[tag]] for tag in fixture['images']))
+                                  list(image_observations[selection_plan[tag]] for tag in fixture['images']), fresh=fixture.get('fresh', False))
         else:
-            validate_observations(events, expected_facts, list(image_observations[selection_plan[tag]] for tag in fixture['images']))
+            validate_observations(events, expected_facts, list(image_observations[selection_plan[tag]] for tag in fixture['images']), fresh=fixture.get('fresh', False))
         return {'ok': True, 'stage': 'startup_invocation', 'code': 'synthetic_boundary_proven',
                 'runtime_ready': False, 'synthetic_network': True, 'container_executed': False,
                 'synthetic_create_acknowledged': fixture.get('lifecycle', False),
                 'secret_transfer_validated': fixture.get('lifecycle', False),
                 'first_start_refused': fixture.get('lifecycle', False),
+                'fresh_branch_proven': fixture.get('fresh', False),
                 'facts': expected_facts, 'event_count': len(events), 'image_observations': image_observations,
                 'configuration': {'exact_generated_bytes_verified': True,
                                   'supabase_files_config_and_optional_cli_latest_only': True},
@@ -739,7 +794,7 @@ def synthetic_probe(executable, target, run_id, network=None, control='positive'
                            'runtime_isolation': False, 'startup_helpers': False, 'shell_command_sql_qualified': False}}
 
 
-def validate_observations(events, facts, descriptors=None):
+def validate_observations(events, facts, descriptors=None, *, fresh=False):
     # Image preflight is concurrent: each of the four selected images appears once.
     if (type(events) is not list or len(events) != CREATE_BOUNDARY or any(type(event) is not dict for event in events)
             or any(type(event.get('image_index')) is not int for event in events[1:5])
@@ -748,8 +803,8 @@ def validate_observations(events, facts, descriptors=None):
             or any(event != dict({'kind': 'image_inspect', 'image_index': event.get('image_index')},
                                 **({'descriptor': descriptors[event['image_index']]} if descriptors is not None else {}))
                    for event in events[1:5])
-            or events[5:] != [{'kind': 'volume_inspect'}, {'kind': 'network_inspect'},
-                              {'kind': 'existing_volume_create_refused'}, {'kind': 'postgres_create', 'facts': facts}]):
+            or events[5:] != [{'kind': 'volume_missing' if fresh else 'volume_inspect'}, {'kind': 'network_inspect'},
+                              {'kind': 'fresh_volume_create_acknowledged' if fresh else 'existing_volume_create_refused'}, {'kind': 'postgres_create', 'facts': facts}]):
         fail('boundary_not_proven')
 
 
