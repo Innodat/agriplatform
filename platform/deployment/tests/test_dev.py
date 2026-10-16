@@ -26,6 +26,9 @@ FILES = [
     'platform/deployment/volumes.py',
     'platform/deployment/tests/qualify_volumes.py',
     'platform/deployment/startup.py',
+    'platform/deployment/create_profile.py',
+    'platform/deployment/fixtures/supabase-pg17-bootstrap.txt',
+    'platform/deployment/fixtures/supabase-pg17-profile.md',
     'platform/deployment/tests/qualify_networks.py',
     'platform/docs/architecture/contracts/scaffold-dependency-baseline-2026-10-14.md',
 ]

@@ -432,6 +432,37 @@ unqualified. No real Docker mutation, layers, containers, SQL or migrations occu
 The [immutable-create evidence](ENV_IMMUTABLE_CREATE_EVIDENCE.md) records verification
 and impact decisions; the earlier startup evidence remains historical.
 
+## Complete first-create profile
+
+The private wrapper now passes one explicit in-memory environment snapshot alongside
+argv. `create_profile.py` checks the complete ordered Linux/PG17 profile for CLI2.120.0:
+all flags/operands, exact public bootstrap bytes, four key-only container env names
+and their public synthetic values, and private Docker client routing. Missing, extra,
+duplicate, reordered or changed inputs refuse before a positive create event. Other
+inherited process variables do not become container inputs. Inputs are copied for
+transformation; caller/transform mutation and changes outside the image operand refuse.
+Both the original and transformed requests must match the complete profile.
+
+[Profile authority](fixtures/supabase-pg17-profile.md) identifies pinned upstream
+sources and the independently assembled public bootstrap fixture. It is source-bound
+with the validator in prepared evidence; new qualification requires a fresh run.
+No runtime argv, environment values, SQL, or hashes of rejected content are retained.
+Safe facts add `complete_create_profile_proven=true`.
+
+Public negative controls `invalid-create-script`, `invalid-create-environment` and
+`invalid-create-routing` mutate only synthetic input at the private executable boundary
+and must return `expected_create_profile_rejected` after exact prerequisite events and
+one redacted rejection. The pinned CLI is stopped at that refusal. Existing controls
+and positive qualification remain available through `tests/qualify_startup.py`.
+
+This proves source/profile conformity and custody through refused dispatch. It does
+not prove bootstrap semantic safety, secret-file delivery, image/resource continuity
+during execution, complete startup or runtime readiness. `dev.py up` remains gated.
+See [first-create profile evidence](ENV_FIRST_CREATE_PROFILE_EVIDENCE.md) for commands,
+results and requirement traceability. Scaffold impact: reusable ENV boundary only;
+shared UI and agent context: none; documentation: this runbook/authority and evidence;
+ADR: existing constraints apply, no new decision or accepted ADR change.
+
 ## Run-owned database volume qualification
 
 Preparation reserves `supabase_db_<project>`, matching the pinned CLI's PostgreSQL

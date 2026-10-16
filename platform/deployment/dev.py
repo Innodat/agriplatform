@@ -20,7 +20,10 @@ BASELINE = 'platform/docs/architecture/contracts/scaffold-dependency-baseline-20
 CONTRACT = 'platform/docs/architecture/contracts/scaffold-environment-and-generation.md'
 SOURCES = ['platform/deployment/dev.py', 'platform/deployment/networks.py',
            'platform/deployment/daemon_images.py', 'platform/deployment/tests/qualify_daemon_images.py',
-           'platform/deployment/startup.py', 'platform/deployment/volumes.py',
+           'platform/deployment/startup.py',
+           'platform/deployment/create_profile.py',
+           'platform/deployment/fixtures/supabase-pg17-bootstrap.txt',
+           'platform/deployment/fixtures/supabase-pg17-profile.md', 'platform/deployment/volumes.py',
            'platform/deployment/tests/qualify_volumes.py', 'platform/deployment/tests/qualify_networks.py', SCHEMA, BASELINE, CONTRACT,
            'platform/deployment/fixtures/kdg-synthetic-v1.json', 'platform/deployment/registry.json']
 LIMIT = 1024 * 1024

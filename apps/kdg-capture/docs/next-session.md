@@ -88,7 +88,7 @@ Volume metadata does not prove immutable identity, emptiness or absence of attac
 Use the fresh final run in that evidence; preserve the interrupted run and older
 receipts unchanged. Continue bounded ENV execution-time enforcement/full startup and
 scaffold prerequisites before dependent Identity/Access/WRITE or KDG server delivery.
-The latest completed ENV Build is [daemon-local image identity verification](../../../_bmad-output/implementation-artifacts/spec-env-daemon-image-identities.md).
+The preceding completed ENV Build is [daemon-local image identity verification](../../../_bmad-output/implementation-artifacts/spec-env-daemon-image-identities.md).
 It binds qualified child manifests to daemon-reported config identities and transfers
 those observations into guarded startup fixtures. Final 315 deployment tests and 17
 public controls pass; seven review instances fixed, two disproved, none deferred.
@@ -96,6 +96,14 @@ Fresh run 26946863-91af-4e92-b9bd-ceca8201bcf2 preserves all 13 evidence files a
 bindings. Real up still refuses docker_28_required; no container was executed. These
 are daemon-reported observations, not independent byte verification or execution-time
 continuity. See [image observation evidence](../../../platform/deployment/ENV_DAEMON_IMAGE_EVIDENCE.md).
+The latest completed ENV Build is [complete first-create invocation validation](../../../_bmad-output/implementation-artifacts/spec-env-first-create-profile.md).
+It validates the full pinned PostgreSQL command and container-input environment before
+immutable substitution and refused dispatch. Final 325 deployment tests and eight public
+controls pass; all ten review instances fixed, none deferred. Fresh run
+`dd2afb69-8065-4304-ba71-e244a1539bc9` preserves thirteen evidence files and source bindings.
+Real up still refuses `docker_28_required`; no container or bootstrap SQL was executed.
+This proves source/profile conformity and custody through refused dispatch, not execution
+continuity, bootstrap semantic safety or full runtime readiness. See [profile evidence](../../../platform/deployment/ENV_FIRST_CREATE_PROFILE_EVIDENCE.md).
 The enclosing ENV runtime/bootstrap acceptance and P1/SERVICE generator remain open.
 Continue those existing owner items before dependent foundations or the server-backed
 KDG slice; do not confuse the completed preparation increment with a runnable stack.

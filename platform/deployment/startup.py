@@ -17,6 +17,8 @@ import tempfile
 import uuid
 
 import dev
+import copy
+import create_profile
 import images
 import toolchain
 
@@ -269,44 +271,9 @@ def decode_fixture(path):
     return dev.decode(raw)
 
 
-def create_facts(args, fixture, *, image_index=False):
-    """Extract only explicitly safe selected fields; never retain command SQL/env values."""
-    if (type(args) not in (list, tuple) or not args or args[0] != 'create'
-            or len(args) > 256 or any(type(arg) is not str for arg in args)
-            or sum(len(arg) for arg in args) > LIMIT):
-        fail('unsafe_create')
-    values = {}
-    index = 1
-    while index < len(args) and args[index].startswith('-'):
-        flag = args[index]
-        if flag in ['--rm']:
-            fail('unsafe_create')
-        if index + 1 >= len(args):
-            fail('unsafe_create')
-        values.setdefault(flag, []).append(args[index + 1])
-        index += 2
-    project = fixture['project']
-    image = fixture['postgres_image']
-    allowed = {'--name', '--hostname', '-e', '-v', '-p', '--health-cmd', '--health-interval',
-               '--health-timeout', '--health-retries', '--health-start-period', '--restart',
-               '--security-opt', '--add-host', '--network', '--network-alias', '--label', '--entrypoint', '--tmpfs'}
-    expected_labels = {'com.supabase.cli.project=' + project, 'com.docker.compose.project=' + project,
-                       'com.supabase.cli.workdir=' + fixture['workdir']}
-    repeatable = {'-e', '--label', '--add-host', '--tmpfs', '--security-opt', '--network-alias'}
-    safe = (set(values) <= allowed
-            and all(len(items) == 1 for flag, items in values.items() if flag not in repeatable)
-            and all(len(items) == len(set(items)) for items in values.values())
-            and values.get('--name') == ['supabase_db_' + project]
-            and values.get('--network') == [fixture['network']['Id']]
-            and values.get('-p') == [str(fixture['database_port']) + ':5432']
-            and values.get('-v') == ['supabase_db_' + project + ':/var/lib/postgresql/data']
-            and set(values.get('--label', [])) == expected_labels
-            and values.get('--entrypoint') == ['sh']
-            and index < len(args) and args[index] == image
-            and len(args[index + 1:]) == 2 and args[index + 1] == '-c'
-            and all(re.fullmatch(r'[A-Z][A-Z0-9_]*', value) for value in values.get('-e', [])))
-    if not safe:
-        fail('unsafe_create')
+def create_facts(args, fixture, *, environment, image_index=False):
+    """Validate all inputs, then extract only safe selected facts."""
+    index = create_profile.validate(args, fixture, environment)
     return index if image_index else selected_facts(fixture)
 
 
@@ -321,7 +288,7 @@ def validate_selection_plan(plan):
         fail('invalid_selection_plan')
 
 
-def immutable_first_create(args, fixture, plan):
+def immutable_first_create(args, fixture, plan, *, environment):
     """Internal construction only; plan must already be verified by the image owner.
 
     Structural validation here cannot establish manifest provenance. The public
@@ -329,14 +296,20 @@ def immutable_first_create(args, fixture, plan):
     No dispatch is available from this constructor.
     """
     validate_selection_plan(plan)
-    index = create_facts(args, fixture, image_index=True)
+    original = tuple(args)
+    inherited = dict(environment)
+    index = create_facts(original, fixture, environment=inherited, image_index=True)
     pins = images.load_pins(dev.read(dev.ROOT / images.PINS))
     postgres = next(item for item in pins['images'] if item['id'] == 'postgres')
     expected = 'public.ecr.aws/' + postgres['repository'] + ':' + postgres['tag']
     if fixture['postgres_image'] != expected:
         fail('invalid_selection_plan')
-    selected = list(args)
-    selected[index] = plan[args[index]]
+    selected = list(original)
+    selected[index] = plan[original[index]]
+    selected_fixture = dict(fixture, postgres_image=selected[index])
+    create_facts(selected, selected_fixture, environment=inherited)
+    if tuple(args) != original or environment != inherited:
+        fail('unsafe_create')
     return selected
 
 
@@ -345,27 +318,35 @@ def selected_facts(fixture):
     return {'image': fixture['postgres_image'], 'name': 'supabase_db_' + project,
             'network': fixture['network']['Id'], 'publish': str(fixture['database_port']) + ':5432',
             'database_volume': 'supabase_db_' + project, 'host_bind_mounts': False,
-            'create_refused': True}
+            'create_refused': True, 'complete_create_profile_proven': True}
 
 
-def fixture_command(runtime, args, fixture, events):
-    if (len(args) > 256 or sum(len(a) for a in args) > LIMIT or len(events) >= 64
+def fixture_command(runtime, args, fixture, events, *, environment=None):
+    if (type(args) not in (list, tuple) or any(type(a) is not str for a in args)
+            or len(args) > 256 or sum(len(a) for a in args) > LIMIT or len(events) >= 64
             or runtime != 'docker'):
         fail('unexpected_container_command')
     project = fixture['project']
-    if args[:1] == ['create'] or args[:2] == ['image', 'inspect']:
+    if tuple(args[:1]) == ('create',) or tuple(args[:2]) == ('image', 'inspect'):
         validate_image_observations(fixture.get('image_observations'), fixture['selection_plan'])
-    if args[:1] == ['create']:
+    if tuple(args[:1]) == ('create',):
         validate_fixture_volume(fixture)
-        original = list(args)
-        index = create_facts(original, fixture, image_index=True)
-        expected = original.copy()
-        expected[index] = fixture['selection_plan'][fixture['postgres_image']]
-        selected = immutable_first_create(args, fixture, fixture['selection_plan'])
-        if selected != expected or list(args) != original:
+        if type(environment) is not dict:
             fail('unsafe_create')
-        selected_fixture = dict(fixture, postgres_image=fixture['selection_plan'][fixture['postgres_image']])
-        facts = create_facts(selected, selected_fixture)
+        original = tuple(args)
+        inherited = dict(environment)
+        held_fixture = copy.deepcopy(fixture)
+        index = create_facts(original, held_fixture, environment=inherited, image_index=True)
+        expected = list(original)
+        expected[index] = held_fixture['selection_plan'][held_fixture['postgres_image']]
+        transform_args, transform_env = list(original), dict(inherited)
+        selected = immutable_first_create(transform_args, held_fixture, held_fixture['selection_plan'],
+                                          environment=transform_env)
+        if (selected != expected or tuple(args) != original or tuple(transform_args) != original
+                or environment != inherited or transform_env != inherited or fixture != held_fixture):
+            fail('unsafe_create')
+        selected_fixture = dict(held_fixture, postgres_image=selected[index])
+        facts = create_facts(selected, selected_fixture, environment=inherited)
         facts['original_image'] = fixture['postgres_image']
         facts['immutable_selection_proven'] = True
         events.append({'kind': 'postgres_create', 'facts': facts})
@@ -471,7 +452,7 @@ def rejected_event(args, code):
             'flags': sorted({arg for arg in args if arg in flags})}
 
 
-def fixture_main(runtime, args, directory, stop_parent=False):
+def fixture_main(runtime, args, directory, stop_parent=False, *, environment=None, profile_control='positive'):
     """Private docker/podman executable: no dispatch, subprocess or daemon code exists."""
     parent_fd = None
     try:
@@ -487,7 +468,21 @@ def fixture_main(runtime, args, directory, stop_parent=False):
             if type(events) is not list or len(events) > 64:
                 fail('fixture_invalid')
             try:
-                code, output, error = fixture_command(runtime, args, fixture, events)
+                if tuple(args[:1]) == ('create',) and profile_control.startswith('invalid-create-'):
+                    # A negative control proves rejection only after the unchanged
+                    # pinned request has independently passed the same validator.
+                    try:
+                        create_facts(args, fixture, environment=environment)
+                    except dev.Refusal:
+                        fail('invalid_control_baseline')
+                    args, environment = list(args), dict(environment)
+                    if profile_control == 'invalid-create-script':
+                        args[-1] += 'ENV_SYNTHETIC_CANARY'
+                    elif profile_control == 'invalid-create-environment':
+                        environment['JWT_SECRET'] = 'ENV_SYNTHETIC_CANARY'
+                    elif profile_control == 'invalid-create-routing':
+                        environment['DOCKER_CONTEXT'] = 'ENV_SYNTHETIC_CANARY'
+                code, output, error = fixture_command(runtime, args, fixture, events, environment=environment)
             except dev.Refusal as refusal:
                 events.append(rejected_event(args, refusal.code))
                 code, output, error = 125, '', 'ENV synthetic command refused'
@@ -502,7 +497,7 @@ def fixture_main(runtime, args, directory, stop_parent=False):
             stream.flush()
             os.fsync(stream.fileno())
             check_event_file(root, stream.fileno())
-        if parent_fd is not None and events[-1]['kind'] == 'postgres_create':
+        if parent_fd is not None and args[:1] == ['create'] and events[-1]['kind'] in {'postgres_create', 'rejected'}:
             signal.pidfd_send_signal(parent_fd, signal.SIGKILL)
         sys.stdout.write(output)
         sys.stderr.write(error)
@@ -524,7 +519,7 @@ def validate_image_observations(observations, selection_plan, config_plan=None):
         fail('invalid_image_observations')
 
 
-def install_fixture(work, target, run_id, network, executable=None, guard_parent=True, *, selection_plan, volume=None, image_observations=None):
+def install_fixture(work, target, run_id, network, executable=None, guard_parent=True, *, selection_plan, volume=None, image_observations=None, profile_control='positive'):
     volume = volume_descriptor(fixture_volume(target, run_id) if volume is None else volume, target, run_id)
     validate_selection_plan(selection_plan)
     validate_image_observations(image_observations, selection_plan)
@@ -545,13 +540,15 @@ def install_fixture(work, target, run_id, network, executable=None, guard_parent
                    f'if os.getppid() != parent: os._exit(125)\n'
                    f'signal.alarm({FIXTURE_SECONDS})\nimport sys\nfrom pathlib import Path\n'
                    f'sys.path.insert(0, {str(Path(__file__).resolve().parent)!r})\nimport startup\n'
-                   f'sys.exit(startup.fixture_main({runtime!r}, sys.argv[1:], Path({str(work)!r}), stop_parent={guard_parent!r}))\n')
+                   f'args, env = sys.argv[1:], dict(os.environ)\n'
+                   f'sys.exit(startup.fixture_main({runtime!r}, args, Path({str(work)!r}), stop_parent={guard_parent!r}, environment=env, profile_control={profile_control!r}))\n')
         write_private(work / 'bin' / runtime, wrapper.encode())
         (work / 'bin' / runtime).chmod(0o700)
 
 
 def synthetic_probe(executable, target, run_id, network=None, control='positive', *, selection_plan, volume=None, image_observations=None):
-    if control not in ['positive', 'invalid-network', 'contaminated-workdir', 'reject-command', 'invalid-selection-plan']:
+    if control not in ['positive', 'invalid-network', 'contaminated-workdir', 'reject-command', 'invalid-selection-plan',
+                       'invalid-create-script', 'invalid-create-environment', 'invalid-create-routing']:
         fail('unknown_control')
     if control == 'invalid-selection-plan':
         selection_plan = dict(selection_plan)
@@ -568,7 +565,7 @@ def synthetic_probe(executable, target, run_id, network=None, control='positive'
         if control == 'contaminated-workdir':
             write_private(work / '.env', b'ENV_SYNTHETIC_UNTRUSTED=1')
         command, env = invocation(executable, work, target, run_id, network)
-        install_fixture(work, target, run_id, network, executable, guard_parent=control != 'reject-command', selection_plan=selection_plan, volume=volume, image_observations=image_observations)
+        install_fixture(work, target, run_id, network, executable, guard_parent=control != 'reject-command', selection_plan=selection_plan, volume=volume, image_observations=image_observations, profile_control=control)
         fixture_hash = dev.digest(dev.read(work / 'fixture.json'))
         wrappers = {name: dev.digest(dev.read(work / 'bin' / name)) for name in ['docker', 'podman']}
         env['PATH'] = str(work / 'bin')
@@ -603,6 +600,16 @@ def synthetic_probe(executable, target, run_id, network=None, control='positive'
             if events != [rejected_event(['run', 'forbidden'], 'unexpected_container_command')]:
                 fail('boundary_not_proven')
             fail('expected_command_rejected')
+        if control.startswith('invalid-create-'):
+            # Match every prerequisite and one exact redacted rejection. No positive
+            # create can survive the replacement used only for sequence checking.
+            rejection = {'kind': 'rejected', 'reason': 'unsafe_create', 'command': ['create', 'other'],
+                         'flags': ['--entrypoint', '--label', '--name', '--network', '-e', '-p', '-v']}
+            if not events or events[-1] != rejection:
+                fail('boundary_not_proven')
+            validate_observations(events[:-1] + [{'kind': 'postgres_create', 'facts': expected_facts}],
+                                  expected_facts, list(image_observations[selection_plan[tag]] for tag in fixture['images']))
+            fail('expected_create_profile_rejected')
         validate_observations(events, expected_facts, list(image_observations[selection_plan[tag]] for tag in fixture['images']))
         return {'ok': True, 'stage': 'startup_invocation', 'code': 'synthetic_boundary_proven',
                 'runtime_ready': False, 'synthetic_network': True, 'container_executed': False,

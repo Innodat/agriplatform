@@ -14,52 +14,8 @@ ROOT = Path(__file__).resolve().parents[3]
 sys.path.insert(0, str(ROOT / 'platform/deployment'))
 import dev
 import startup
-
-RUN = 'b3b805d5-adc6-4168-a79c-5945547d3320'
-
-
-def test_plan():
-    # Independent child bytes: index and config digests are deliberately different.
-    import test_images
-    pins = startup.images.load_pins(dev.read(ROOT / startup.images.PINS))
-    return {'public.ecr.aws/' + item['repository'] + ':' + item['tag']:
-            'public.ecr.aws/' + item['repository'] + '@sha256:' + dev.digest(test_images.fixture(item['id'])[1])
-            for item in pins['images']}
-
-
-def test_observations():
-    import test_images
-    pins = startup.images.load_pins(dev.read(ROOT / startup.images.PINS))
-    return {child: {'Id': json.loads(test_images.fixture(item['id'])[1])['config']['digest'],
-                    'Os': 'linux', 'Architecture': 'amd64'}
-            for item, child in zip(pins['images'], test_plan().values())}
-
-
-SYNTHETIC_CLI_SOURCE = '''import json, os, subprocess, sys
-from pathlib import Path
-work = Path(sys.argv[sys.argv.index('--workdir')+1])
-f = json.loads((work/'fixture.json').read_text())
-p = f['project']
-args = ['create','--name','supabase_db_'+p,'-e','POSTGRES_PASSWORD',
-        '-v','supabase_db_'+p+':/var/lib/postgresql/data','-p',str(f['database_port'])+':5432',
-        '--network',f['network']['Id'],'--label','com.supabase.cli.project='+p,
-        '--label','com.docker.compose.project='+p,'--label','com.supabase.cli.workdir='+str(work),
-        '--entrypoint','sh',f['postgres_image'],'-c','generated secret SQL never retained']
-assert os.environ['PATH'] == str(work/'bin')
-assert os.environ['DOCKER_HOST'] == 'unix://'+str(work/'no-daemon.sock')
-assert 'DOCKER_CONTEXT' not in os.environ
-assert 'SUPABASE_DB_PASSWORD' not in os.environ
-commands = [['container','inspect','supabase_db_'+p,'--format','{{json .State}}']]
-commands += [['image','inspect',image] for image in f['images']]
-commands += [['volume','inspect','supabase_db_'+p], ['network','inspect',f['network']['Id']],
-             ['volume','create','--label','com.supabase.cli.project='+p,'--label',
-              'com.docker.compose.project='+p,'supabase_db_'+p]]
-for command in commands:
-    subprocess.run(['docker',*command], start_new_session=True)
-code = subprocess.run(['docker',*args], start_new_session=True).returncode
-(work/'forbidden_after_create').write_text('cleanup must never run')
-sys.exit(code)
-'''
+from create_profile_fixtures import (expected_request, expected_environment, boundary_fixture,
+                                     target_fixture, test_plan, test_observations, RUN, SYNTHETIC_CLI_SOURCE)
 
 class StartupAcceptance(unittest.TestCase):
     def test_missing_preparation_fails_before_execution(self):
@@ -197,29 +153,21 @@ class BoundaryControls(unittest.TestCase):
         self.target = dev.decode(dev.read(ROOT / 'platform/deployment/environments/kdg-local.json'))
         self.project = dev.project_identity(self.target, RUN)
         self.network = startup.fixture_network(self.target, RUN)
-        self.fixture = {'target_id': self.target['target_id'], 'run_id': RUN,
-                        'volume': startup.fixture_volume(self.target, RUN), 'project': self.project, 'workdir': '/private', 'network': self.network,
-                        'executable': '/does-not-exist',
-                        'database_port': 55482, 'postgres_image': 'public.ecr.aws/supabase/postgres:17.11.0.004',
-                        'images': ['public.ecr.aws/supabase/postgres:17.11.0.004'], 'selection_plan': test_plan(), 'image_observations': test_observations()}
-        self.args = ['create', '--name', 'supabase_db_' + self.project, '-e', 'POSTGRES_PASSWORD',
-                     '-v', 'supabase_db_' + self.project + ':/var/lib/postgresql/data', '-p', '55482:5432',
-                     '--network', self.network['Id'], '--label', 'com.supabase.cli.project=' + self.project,
-                     '--label', 'com.docker.compose.project=' + self.project,
-                     '--label', 'com.supabase.cli.workdir=/private', '--entrypoint', 'sh',
-                     self.fixture['postgres_image'], '-c', 'synthetic generated SQL never retained']
+        self.fixture = boundary_fixture()
+        self.args = expected_request(self.fixture)
+        self.env = expected_environment(self.fixture)
 
     def test_create_refuses_missing_or_foreign_volume_before_event(self):
         for volume in [None, dict(self.fixture['volume'], Name='foreign')]:
             events = []
             with self.subTest(volume=volume), self.assertRaises(dev.Refusal):
-                startup.fixture_command('docker', self.args, dict(self.fixture, volume=volume), events)
+                startup.fixture_command('docker', self.args, dict(self.fixture, volume=volume), events, environment=self.env)
             self.assertEqual(events, [])
 
     def test_first_create_selects_child_and_preserves_every_other_operand(self):
         plan = test_plan()
         original = self.args.copy()
-        transformed = startup.immutable_first_create(self.args, self.fixture, plan)
+        transformed = startup.immutable_first_create(self.args, self.fixture, plan, environment=self.env)
         index = self.args.index(self.fixture['postgres_image'])
         self.assertEqual(transformed[index], plan[self.fixture['postgres_image']])
         self.assertEqual(transformed[:index], original[:index])
@@ -228,7 +176,7 @@ class BoundaryControls(unittest.TestCase):
         for change in [dict(list(plan.items())[1:]), {**plan, 'foreign:tag': 'foreign@sha256:' + '1' * 64},
                        {**plan, self.fixture['postgres_image']: 'foreign@sha256:' + '1' * 64}]:
             with self.assertRaises(dev.Refusal):
-                startup.immutable_first_create(self.args, self.fixture, change)
+                startup.immutable_first_create(self.args, self.fixture, change, environment=self.env)
 
     def test_ambiguous_create_is_rejected_before_selection(self):
         index = self.args.index(self.fixture['postgres_image'])
@@ -242,37 +190,40 @@ class BoundaryControls(unittest.TestCase):
         changed = dict(self.fixture, postgres_image=next(tag for tag in test_plan() if 'gotrue' in tag))
         with self.assertRaises(dev.Refusal):
             startup.immutable_first_create(self.args[:index] + [changed['postgres_image']] + self.args[index + 1:],
-                                           changed, test_plan())
+                                           changed, test_plan(), environment=self.env)
         for args in variants:
             events = []
             with self.assertRaises(dev.Refusal):
                 if all(type(arg) is str for arg in args):
-                    startup.fixture_command('docker', args, self.fixture, events)
+                    startup.fixture_command('docker', args, self.fixture, events, environment=self.env)
                 else:
-                    startup.immutable_first_create(args, self.fixture, test_plan())
+                    startup.immutable_first_create(args, self.fixture, test_plan(), environment=self.env)
             self.assertEqual(events, [])
 
     def test_transformer_cannot_change_other_arguments_or_mutate_original(self):
         original = startup.immutable_first_create
         for inplace in [False, True]:
-            args = self.args[:1] + ['--health-timeout', '10s'] + self.args[1:]
-            def corrupt(argv, fixture, plan):
-                selected = original(argv, fixture, plan)
+            args = self.args.copy()
+            def corrupt(argv, fixture, plan, *, environment):
+                selected = original(argv, fixture, plan, environment=environment)
                 selected[selected.index('--health-timeout') + 1] = '999s'
                 if inplace:
                     argv[argv.index('--health-timeout') + 1] = '999s'
                 return selected
             events = []
             with patch.object(startup, 'immutable_first_create', side_effect=corrupt), self.assertRaises(dev.Refusal):
-                startup.fixture_command('docker', args, self.fixture, events)
+                startup.fixture_command('docker', args, self.fixture, events, environment=self.env)
             self.assertEqual(events, [])
 
     def test_create_is_refused_with_only_selected_safe_facts(self):
         events = []
-        code, output, error = startup.fixture_command('docker', self.args, self.fixture, events)
+        code, output, error = startup.fixture_command('docker', self.args, self.fixture, events, environment=self.env)
         self.assertEqual(code, 125)
         self.assertTrue(events[0]['facts']['create_refused'])
-        self.assertNotIn('SQL never retained', json.dumps(events))
+        self.assertNotIn(self.args[-1], json.dumps(events))
+        self.assertEqual(set(events[0]['facts']), {'image', 'name', 'network', 'publish',
+                         'database_volume', 'host_bind_mounts', 'create_refused',
+                         'complete_create_profile_proven', 'original_image', 'immutable_selection_proven'})
         self.assertNotIn('POSTGRES_PASSWORD', json.dumps(events))
         self.assertFalse(events[0]['facts']['host_bind_mounts'])
 
@@ -280,7 +231,7 @@ class BoundaryControls(unittest.TestCase):
         args = ['volume', 'create', '--label', 'com.supabase.cli.project=' + self.project,
                 '--label', 'com.docker.compose.project=' + self.project, 'supabase_db_' + self.project]
         events = []
-        code, _, error = startup.fixture_command('docker', args, self.fixture, events)
+        code, _, error = startup.fixture_command('docker', args, self.fixture, events, environment=self.env)
         self.assertEqual(code, 1)
         self.assertEqual(error, 'volume already exists')
         self.assertEqual(events, [{'kind': 'existing_volume_create_refused'}])
@@ -288,7 +239,7 @@ class BoundaryControls(unittest.TestCase):
             changed = args.copy()
             changed[index] = 'foreign'
             with self.subTest(index=index), self.assertRaises(dev.Refusal):
-                startup.fixture_command('docker', changed, self.fixture, [])
+                startup.fixture_command('docker', changed, self.fixture, [], environment=self.env)
 
     def test_nonisolated_parent_cannot_be_signaled(self):
         with self.assertRaises(dev.Refusal):
@@ -302,7 +253,7 @@ class BoundaryControls(unittest.TestCase):
                          (self.network['Id'], 'foreign')]:
             args = [new if value == old else value for value in self.args]
             with self.subTest(new=new), self.assertRaises(dev.Refusal):
-                startup.fixture_command('docker', args, self.fixture, [])
+                startup.fixture_command('docker', args, self.fixture, [], environment=self.env)
 
     def test_every_unexpected_command_and_fallback_refuse(self):
         for runtime, args in [('podman', ['container', 'inspect', 'anything']), ('docker', ['run', 'x']),
@@ -310,7 +261,7 @@ class BoundaryControls(unittest.TestCase):
                               ('docker', ['network', 'create', 'x']), ('docker', ['start', 'x']),
                               ('docker', ['create', 'x' * (startup.LIMIT + 1)])]:
             with self.subTest(runtime=runtime, command=args[0]), self.assertRaises(dev.Refusal):
-                startup.fixture_command(runtime, args, self.fixture, [])
+                startup.fixture_command(runtime, args, self.fixture, [], environment=self.env)
 
     def test_malformed_oversized_and_linked_fixture_input_refuse(self):
         with tempfile.TemporaryDirectory() as directory:
@@ -425,10 +376,6 @@ class ProcessGroupRecovery(unittest.TestCase):
                 self.fail('running descendant remains after bounded refusal')
 
 
-def target_fixture():
-    return dev.decode(dev.read(ROOT / 'platform/deployment/environments/kdg-local.json'))
-
-
 def proof_events(fixture):
     return ([{'kind': 'container_inspect'}]
             + [{'kind': 'image_inspect', 'image_index': index} for index in range(4)]
@@ -514,7 +461,7 @@ class WorkdirAndStateHardening(unittest.TestCase):
                 before = time.monotonic()
                 self.assertEqual(startup.fixture_main('docker', ['run', 'x'], work), 125)
                 self.assertLess(time.monotonic() - before, 1)
-            def replace(*args):
+            def replace(*args, **kwargs):
                 (work / 'events.json').rename(work / 'saved')
                 startup.write_private(work / 'events.json', b'[]')
                 return 125, '', ''
@@ -613,7 +560,7 @@ class ObservationAndSourceHardening(unittest.TestCase):
 # A started fixture returning nonzero must not trigger runtime fallback.
 code = subprocess.run(['docker','run','forbidden'], start_new_session=True).returncode
 sys.exit(code)
-''')
+'''.replace('__PROFILE_TESTS__', repr(str(ROOT / 'platform/deployment/tests'))))
             executable.chmod(0o700)
             observed = []
             original = startup.decode_fixture

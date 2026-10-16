@@ -18,7 +18,8 @@ def main(argv=None):
         parser = dev.Parser(add_help=False)
         parser.add_argument('--target', required=True)
         parser.add_argument('--run-id', required=True)
-        parser.add_argument('--control', choices=['positive', 'invalid-network', 'contaminated-workdir', 'reject-command', 'invalid-selection-plan'],
+        parser.add_argument('--control', choices=['positive', 'invalid-network', 'contaminated-workdir', 'reject-command', 'invalid-selection-plan',
+                                                       'invalid-create-script', 'invalid-create-environment', 'invalid-create-routing'],
                             default='positive')
         args = parser.parse_args(argv)
         networks = volumes.networks
