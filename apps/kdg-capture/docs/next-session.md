@@ -78,7 +78,7 @@ execution enforcement and full startup remain open. See
 [immutable-create evidence](../../../platform/deployment/ENV_IMMUTABLE_CREATE_EVIDENCE.md).
 The startup/image source changes require fresh owner qualification; retain earlier
 receipts unchanged rather than repairing them.
-The latest completed ENV Build is [run-owned database-volume acquisition](../../../_bmad-output/implementation-artifacts/spec-env-run-volume.md).
+The preceding completed ENV Build is [run-owned database-volume acquisition](../../../_bmad-output/implementation-artifacts/spec-env-run-volume.md).
 It aligns the reserved volume name with the pinned CLI and verifies the exact ENV/CLI
 ownership labels and local-driver profile through the existing Docker transport.
 Final 299 deployment tests and 20 public controls pass; eight review instances fixed,
@@ -88,6 +88,14 @@ Volume metadata does not prove immutable identity, emptiness or absence of attac
 Use the fresh final run in that evidence; preserve the interrupted run and older
 receipts unchanged. Continue bounded ENV execution-time enforcement/full startup and
 scaffold prerequisites before dependent Identity/Access/WRITE or KDG server delivery.
+The latest completed ENV Build is [daemon-local image identity verification](../../../_bmad-output/implementation-artifacts/spec-env-daemon-image-identities.md).
+It binds qualified child manifests to daemon-reported config identities and transfers
+those observations into guarded startup fixtures. Final 315 deployment tests and 17
+public controls pass; seven review instances fixed, two disproved, none deferred.
+Fresh run 26946863-91af-4e92-b9bd-ceca8201bcf2 preserves all 13 evidence files and source
+bindings. Real up still refuses docker_28_required; no container was executed. These
+are daemon-reported observations, not independent byte verification or execution-time
+continuity. See [image observation evidence](../../../platform/deployment/ENV_DAEMON_IMAGE_EVIDENCE.md).
 The enclosing ENV runtime/bootstrap acceptance and P1/SERVICE generator remain open.
 Continue those existing owner items before dependent foundations or the server-backed
 KDG slice; do not confuse the completed preparation increment with a runnable stack.

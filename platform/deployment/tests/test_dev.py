@@ -21,6 +21,8 @@ FILES = [
     'platform/deployment/registry.json',
     'platform/docs/architecture/contracts/scaffold-environment-and-generation.md',
     'platform/deployment/networks.py',
+    'platform/deployment/daemon_images.py',
+    'platform/deployment/tests/qualify_daemon_images.py',
     'platform/deployment/volumes.py',
     'platform/deployment/tests/qualify_volumes.py',
     'platform/deployment/startup.py',

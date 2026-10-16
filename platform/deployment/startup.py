@@ -223,7 +223,12 @@ def existing_images(args):
         fail('existing_images_required')
     plan = result['selection_plan']
     validate_selection_plan(plan)
-    return dev.digest(receipt), plan, before
+    config_plan = result['config_plan']
+    if (type(config_plan) is not dict or set(config_plan) != set(plan.values())
+            or any(type(value) is not str or not re.fullmatch(r'sha256:[0-9a-f]{64}', value)
+                   for value in config_plan.values())):
+        fail('invalid_config_plan')
+    return dev.digest(receipt), plan, before, config_plan
 
 
 def evidence_snapshot(fd):
@@ -249,7 +254,8 @@ def evidence_snapshot(fd):
                     or info.st_mtime_ns != after.st_mtime_ns or info.st_ctime_ns != after.st_ctime_ns
                     or (current.st_dev, current.st_ino) != (info.st_dev, info.st_ino)):
                 fail('image_verification_refused')
-            result[name] = (info.st_dev, info.st_ino, dev.digest(raw))
+            result[name] = (info.st_dev, info.st_ino, info.st_mode, info.st_uid,
+                            info.st_mtime_ns, info.st_ctime_ns, dev.digest(raw))
         finally:
             os.close(held)
     return result
@@ -347,6 +353,8 @@ def fixture_command(runtime, args, fixture, events):
             or runtime != 'docker'):
         fail('unexpected_container_command')
     project = fixture['project']
+    if args[:1] == ['create'] or args[:2] == ['image', 'inspect']:
+        validate_image_observations(fixture.get('image_observations'), fixture['selection_plan'])
     if args[:1] == ['create']:
         validate_fixture_volume(fixture)
         original = list(args)
@@ -366,9 +374,10 @@ def fixture_command(runtime, args, fixture, events):
         events.append({'kind': 'container_inspect'})
         return 1, '', 'Error: No such container'
     if len(args) == 3 and args[:2] == ['image', 'inspect'] and args[-1] in fixture['images']:
-        events.append({'kind': 'image_inspect', 'image_index': fixture['images'].index(args[-1])})
-        return 0, json.dumps([{'Id': 'sha256:' + '1' * 64, 'RepoTags': [args[-1]],
-                               'Os': 'linux', 'Architecture': 'amd64'}]), ''
+        observed = fixture['image_observations'][fixture['selection_plan'][args[-1]]]
+        events.append({'kind': 'image_inspect', 'image_index': fixture['images'].index(args[-1]),
+                       'descriptor': observed})
+        return 0, json.dumps([observed]), ''
     if args == ['network', 'inspect', fixture['network']['Id']]:
         events.append({'kind': 'network_inspect'})
         return 0, json.dumps([fixture['network']]), ''
@@ -505,16 +514,28 @@ def fixture_main(runtime, args, directory, stop_parent=False):
             os.close(parent_fd)
 
 
-def install_fixture(work, target, run_id, network, executable=None, guard_parent=True, *, selection_plan, volume=None):
+def validate_image_observations(observations, selection_plan, config_plan=None):
+    if (type(observations) is not dict or set(observations) != set(selection_plan.values())
+            or any(type(value) is not dict or set(value) != {'Id', 'Os', 'Architecture'}
+                   or type(value['Id']) is not str or not re.fullmatch(r'sha256:[0-9a-f]{64}', value['Id'])
+                   or value['Os'] != 'linux' or value['Architecture'] != 'amd64'
+                   for value in observations.values())
+            or config_plan is not None and any(observations[key]['Id'] != value for key, value in config_plan.items())):
+        fail('invalid_image_observations')
+
+
+def install_fixture(work, target, run_id, network, executable=None, guard_parent=True, *, selection_plan, volume=None, image_observations=None):
     volume = volume_descriptor(fixture_volume(target, run_id) if volume is None else volume, target, run_id)
     validate_selection_plan(selection_plan)
+    validate_image_observations(image_observations, selection_plan)
     pins = images.load_pins(dev.read(dev.ROOT / images.PINS))
     references = ['public.ecr.aws/' + item['repository'] + ':' + item['tag'] for item in pins['images']]
     fixture = {'project': dev.project_identity(target, run_id), 'workdir': str(work),
                'target_id': target['target_id'], 'run_id': run_id, 'volume': volume,
                'executable': str(executable) if executable is not None else '',
                'database_port': target['ports']['database'], 'network': network,
-               'images': references, 'postgres_image': references[0], 'selection_plan': selection_plan}
+               'images': references, 'postgres_image': references[0], 'selection_plan': selection_plan,
+               'image_observations': image_observations}
     write_private(work / 'fixture.json', images.canonical(fixture).encode())
     write_private(work / 'events.json', b'[]')
     for runtime in ['docker', 'podman']:
@@ -529,13 +550,14 @@ def install_fixture(work, target, run_id, network, executable=None, guard_parent
         (work / 'bin' / runtime).chmod(0o700)
 
 
-def synthetic_probe(executable, target, run_id, network=None, control='positive', *, selection_plan, volume=None):
+def synthetic_probe(executable, target, run_id, network=None, control='positive', *, selection_plan, volume=None, image_observations=None):
     if control not in ['positive', 'invalid-network', 'contaminated-workdir', 'reject-command', 'invalid-selection-plan']:
         fail('unknown_control')
     if control == 'invalid-selection-plan':
         selection_plan = dict(selection_plan)
         selection_plan.pop(next(iter(selection_plan)))
     validate_selection_plan(selection_plan)
+    validate_image_observations(image_observations, selection_plan)
     network = fixture_network(target, run_id) if network is None else network
     before_sources = source_snapshot()
     with tempfile.TemporaryDirectory(prefix='env-startup-') as temporary, work_anchor(Path(temporary)) as work_fd:
@@ -546,7 +568,7 @@ def synthetic_probe(executable, target, run_id, network=None, control='positive'
         if control == 'contaminated-workdir':
             write_private(work / '.env', b'ENV_SYNTHETIC_UNTRUSTED=1')
         command, env = invocation(executable, work, target, run_id, network)
-        install_fixture(work, target, run_id, network, executable, guard_parent=control != 'reject-command', selection_plan=selection_plan, volume=volume)
+        install_fixture(work, target, run_id, network, executable, guard_parent=control != 'reject-command', selection_plan=selection_plan, volume=volume, image_observations=image_observations)
         fixture_hash = dev.digest(dev.read(work / 'fixture.json'))
         wrappers = {name: dev.digest(dev.read(work / 'bin' / name)) for name in ['docker', 'podman']}
         env['PATH'] = str(work / 'bin')
@@ -573,7 +595,7 @@ def synthetic_probe(executable, target, run_id, network=None, control='positive'
             fail('fixture_invalid')
         check_workdir(work, target, run_id, after=True, fixture=True)
         fixture = decode_fixture(work / 'fixture.json')
-        if fixture['selection_plan'] != selection_plan:
+        if fixture['selection_plan'] != selection_plan or fixture['image_observations'] != image_observations:
             fail('invalid_selection_plan')
         expected_facts = selected_facts(dict(fixture, postgres_image=selection_plan[fixture['postgres_image']]))
         expected_facts.update(original_image=fixture['postgres_image'], immutable_selection_proven=True)
@@ -581,10 +603,10 @@ def synthetic_probe(executable, target, run_id, network=None, control='positive'
             if events != [rejected_event(['run', 'forbidden'], 'unexpected_container_command')]:
                 fail('boundary_not_proven')
             fail('expected_command_rejected')
-        validate_observations(events, expected_facts)
+        validate_observations(events, expected_facts, list(image_observations[selection_plan[tag]] for tag in fixture['images']))
         return {'ok': True, 'stage': 'startup_invocation', 'code': 'synthetic_boundary_proven',
                 'runtime_ready': False, 'synthetic_network': True, 'container_executed': False,
-                'facts': expected_facts, 'event_count': len(events),
+                'facts': expected_facts, 'event_count': len(events), 'image_observations': image_observations,
                 'configuration': {'exact_generated_bytes_verified': True,
                                   'supabase_files_config_and_optional_cli_latest_only': True},
                 'source_sha256': before_sources,
@@ -593,13 +615,15 @@ def synthetic_probe(executable, target, run_id, network=None, control='positive'
                            'runtime_isolation': False, 'startup_helpers': False, 'shell_command_sql_qualified': False}}
 
 
-def validate_observations(events, facts):
+def validate_observations(events, facts, descriptors=None):
     # Image preflight is concurrent: each of the four selected images appears once.
     if (type(events) is not list or len(events) != 9 or any(type(event) is not dict for event in events)
             or any(type(event.get('image_index')) is not int for event in events[1:5])
             or events[0] != {'kind': 'container_inspect'}
             or sorted([event.get('image_index', -1) for event in events[1:5]]) != list(range(4))
-            or any(event != {'kind': 'image_inspect', 'image_index': event.get('image_index')} for event in events[1:5])
+            or any(event != dict({'kind': 'image_inspect', 'image_index': event.get('image_index')},
+                                **({'descriptor': descriptors[event['image_index']]} if descriptors is not None else {}))
+                   for event in events[1:5])
             or events[5:] != [{'kind': 'volume_inspect'}, {'kind': 'network_inspect'},
                               {'kind': 'existing_volume_create_refused'}, {'kind': 'postgres_create', 'facts': facts}]):
         fail('boundary_not_proven')
@@ -621,12 +645,14 @@ def qualify(args):
     sources = dev.source_evidence()
     dev.validate_prepared(target, raw, args.run_id, path, sources)
     evidence = existing_images(args)
-    receipt_hash, selection_plan, _ = evidence
+    receipt_hash, selection_plan, _, config_plan = evidence
+    observations = getattr(args, '_image_observations', None)
+    validate_image_observations(observations, selection_plan, config_plan)
     payload = dev.ROOT / 'platform/deployment/.local/kdg-toolchains' / args.run_id / 'payload'
     with toolchain.anchored_directory(payload) as (fd, pinned):
         result = synthetic_probe(pinned / 'supabase/supabase', target, args.run_id,
                                  control=getattr(args, 'control', 'positive'), selection_plan=selection_plan,
-                                 volume=getattr(args, '_volume', None))
+                                 volume=getattr(args, '_volume', None), image_observations=observations)
         if not toolchain.anchor_current(payload, fd):
             fail('tool_payload_changed')
     # Repeat existing owner checks: no repair/registry fetch; evidence must remain unchanged.

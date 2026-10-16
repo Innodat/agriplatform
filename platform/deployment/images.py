@@ -444,7 +444,7 @@ def write_at(fd, name, raw):
     os.fsync(fd)
 
 
-def retained(fd, pins, binding):
+def retained(fd, pins, binding, *, with_config=False):
     receipt_raw = dev.read_at(fd, 'receipt.json', protected=True)
     receipt = dev.decode(receipt_raw)
     expected_keys = {'schema_version', 'stage', 'runtime_ready', 'base_identities_ready',
@@ -467,6 +467,7 @@ def retained(fd, pins, binding):
     records = receipt['images']
     if type(records) is not list or len(records) != len(IMAGES):
         fail('evidence_binding_changed')
+    config_plan = {}
     for item, record in zip(pins['images'], records):
         if type(record) is not dict or set(record) != {'id', 'publisher_reference', 'registry_reference', 'index', 'linux_amd64'}:
             fail('evidence_binding_changed')
@@ -488,8 +489,9 @@ def retained(fd, pins, binding):
                 or child['digest'] != child_record['digest'] or child['size'] != child_record['size']
                 or child['mediaType'] != child_record['media_type']):
             fail('child_binding_mismatch')
-        document(artifacts[child_record['file']], child_record['media_type'])
-    return receipt_raw
+        manifest, _ = document(artifacts[child_record['file']], child_record['media_type'])
+        config_plan['public.ecr.aws/' + item['repository'] + '@' + child_record['digest']] = manifest['config']['digest']
+    return (receipt_raw, config_plan) if with_config else receipt_raw
 
 
 def qualify(args, *, existing_only=False):
@@ -624,7 +626,8 @@ def qualify_evidence(args, target, raw, target_path, sources, pins, pin_raw,
                     retained(fd, pins, binding)
                 inputs_current()
                 evidence_current()
-                verified = dev.decode(retained(fd, pins, binding))
+                verified_raw, config_plan = retained(fd, pins, binding, with_config=True)
+                verified = dev.decode(verified_raw)
                 selection_plan = {record['registry_reference']: 'public.ecr.aws/' + item['repository'] + '@' + record['linux_amd64']['digest']
                                   for item, record in zip(pins['images'], verified['images'])}
                 if len({reference.rsplit('@', 1)[1] for reference in selection_plan.values()}) != 4:
@@ -643,7 +646,7 @@ def qualify_evidence(args, target, raw, target_path, sources, pins, pin_raw,
             os.close(fd)
     return {'ok': True, 'stage': 'base_images_qualified', 'code': 'base_images_qualified',
             'run_id': args.run_id, 'base_identities_ready': True, 'runtime_ready': False,
-            'selection_plan': selection_plan}
+            'selection_plan': selection_plan, 'config_plan': config_plan}
 
 
 def release_lock(fd, identity):

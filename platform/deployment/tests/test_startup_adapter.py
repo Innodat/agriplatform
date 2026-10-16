@@ -27,6 +27,14 @@ def test_plan():
             for item in pins['images']}
 
 
+def test_observations():
+    import test_images
+    pins = startup.images.load_pins(dev.read(ROOT / startup.images.PINS))
+    return {child: {'Id': json.loads(test_images.fixture(item['id'])[1])['config']['digest'],
+                    'Os': 'linux', 'Architecture': 'amd64'}
+            for item, child in zip(pins['images'], test_plan().values())}
+
+
 SYNTHETIC_CLI_SOURCE = '''import json, os, subprocess, sys
 from pathlib import Path
 work = Path(sys.argv[sys.argv.index('--workdir')+1])
@@ -193,7 +201,7 @@ class BoundaryControls(unittest.TestCase):
                         'volume': startup.fixture_volume(self.target, RUN), 'project': self.project, 'workdir': '/private', 'network': self.network,
                         'executable': '/does-not-exist',
                         'database_port': 55482, 'postgres_image': 'public.ecr.aws/supabase/postgres:17.11.0.004',
-                        'images': ['public.ecr.aws/supabase/postgres:17.11.0.004'], 'selection_plan': test_plan()}
+                        'images': ['public.ecr.aws/supabase/postgres:17.11.0.004'], 'selection_plan': test_plan(), 'image_observations': test_observations()}
         self.args = ['create', '--name', 'supabase_db_' + self.project, '-e', 'POSTGRES_PASSWORD',
                      '-v', 'supabase_db_' + self.project + ':/var/lib/postgresql/data', '-p', '55482:5432',
                      '--network', self.network['Id'], '--label', 'com.supabase.cli.project=' + self.project,
@@ -354,7 +362,7 @@ class SyntheticProbeAcceptance(unittest.TestCase):
             executable.write_text('#!' + sys.executable + '\n' + source)
             executable.chmod(0o700)
             with patch.dict(os.environ, {'DOCKER_CONTEXT': 'hostile', 'SUPABASE_DB_PASSWORD': 'sensitive'}):
-                result = startup.synthetic_probe(executable, target, RUN, selection_plan=test_plan())
+                result = startup.synthetic_probe(executable, target, RUN, selection_plan=test_plan(), image_observations=test_observations())
             self.assertTrue(result['ok'])
             self.assertFalse(result['runtime_ready'])
             self.assertTrue(result['facts']['create_refused'])
@@ -382,13 +390,13 @@ class SyntheticProbeAcceptance(unittest.TestCase):
         for control in ['invalid-network', 'contaminated-workdir', 'invalid-selection-plan']:
             with self.subTest(control=control), patch.object(startup.images, 'bounded_command') as command:
                 with self.assertRaises(dev.Refusal) as caught:
-                    startup.synthetic_probe(Path('/nonexistent'), target, RUN, control=control, selection_plan=test_plan())
+                    startup.synthetic_probe(Path('/nonexistent'), target, RUN, control=control, selection_plan=test_plan(), image_observations=test_observations())
                 self.assertEqual(caught.exception.code, {'invalid-network': 'network_not_run_owned',
                                  'contaminated-workdir': 'workdir_contaminated',
                                  'invalid-selection-plan': 'invalid_selection_plan'}[control])
                 command.assert_not_called()
         with self.assertRaises(dev.Refusal) as caught:
-            startup.synthetic_probe(Path('/nonexistent'), target, RUN, control='reject-command', selection_plan=test_plan())
+            startup.synthetic_probe(Path('/nonexistent'), target, RUN, control='reject-command', selection_plan=test_plan(), image_observations=test_observations())
         self.assertEqual(caught.exception.code, 'expected_command_rejected')
 
 
@@ -467,7 +475,7 @@ class WorkdirAndStateHardening(unittest.TestCase):
             with self.subTest(mutation=mutation), patch.object(startup.images, 'bounded_command', side_effect=mutate):
                 try:
                     with self.assertRaises(dev.Refusal):
-                        startup.synthetic_probe(Path('/unused'), target_fixture(), RUN, selection_plan=test_plan())
+                        startup.synthetic_probe(Path('/unused'), target_fixture(), RUN, selection_plan=test_plan(), image_observations=test_observations())
                 finally:
                     import shutil
                     for path in saved:
@@ -584,7 +592,7 @@ class ObservationAndSourceHardening(unittest.TestCase):
                 raise dev.Refusal('images_cli', 'command_refused')
             with patch.object(dev, 'ROOT', root), patch.object(startup.images, 'bounded_command', side_effect=mutate):
                 with self.assertRaises(dev.Refusal) as caught:
-                    startup.synthetic_probe(Path('/unused'), target, RUN, selection_plan=test_plan())
+                    startup.synthetic_probe(Path('/unused'), target, RUN, selection_plan=test_plan(), image_observations=test_observations())
                 self.assertEqual(caught.exception.code, 'proof_source_changed')
 
     def test_direct_control_requires_exact_rejection_event(self):
@@ -595,7 +603,7 @@ class ObservationAndSourceHardening(unittest.TestCase):
                 raise dev.Refusal('images_cli', 'command_refused')
             with self.subTest(expected=expected), patch.object(startup.images, 'bounded_command', side_effect=execute):
                 with self.assertRaises(dev.Refusal) as caught:
-                    startup.synthetic_probe(Path('/unused'), target_fixture(), RUN, control='reject-command', selection_plan=test_plan())
+                    startup.synthetic_probe(Path('/unused'), target_fixture(), RUN, control='reject-command', selection_plan=test_plan(), image_observations=test_observations())
                 self.assertEqual(caught.exception.code, 'expected_command_rejected' if expected else 'boundary_not_proven')
 
     def test_synthetic_cli_unexpected_command_refuses_without_fallback(self):
@@ -616,7 +624,7 @@ sys.exit(code)
                 return value
             with patch.object(startup, 'decode_fixture', side_effect=decode):
                 with self.assertRaises(dev.Refusal) as caught:
-                    startup.synthetic_probe(executable, target_fixture(), RUN, selection_plan=test_plan())
+                    startup.synthetic_probe(executable, target_fixture(), RUN, selection_plan=test_plan(), image_observations=test_observations())
             self.assertEqual(caught.exception.code, 'boundary_not_proven')
             self.assertEqual(observed, [startup.rejected_event(['run', 'forbidden'], 'unexpected_container_command')])
 
@@ -649,7 +657,9 @@ class IntegratedOwnerSelectionAcceptance(unittest.TestCase):
                 "    subprocess.run(['docker',*command], start_new_session=True)",
                 "    observed = subprocess.run(['docker',*command], start_new_session=True, capture_output=True)\n"
                 "    if command[:2] == ['volume','inspect']:\n"
-                "        assert json.loads(observed.stdout) == " + repr([expected]))
+                "        assert json.loads(observed.stdout) == " + repr([expected]) + "\n"
+                "    if command[:2] == ['image','inspect']:\n"
+                "        assert json.loads(observed.stdout) == [" + repr(test_observations()) + "[" + repr(test_plan()) + "[command[-1]]]]")
             self.assertNotEqual(source, SYNTHETIC_CLI_SOURCE)
             executable = owner.payload / 'supabase/supabase'
             executable.parent.mkdir(mode=0o700)
@@ -666,6 +676,18 @@ class IntegratedOwnerSelectionAcceptance(unittest.TestCase):
                     status = qualify_startup.main(argv)
                 self.assertEqual(status, 0, output.getvalue())
                 self.assertTrue(json.loads(output.getvalue())['facts']['create_refused'])
+                self.assertEqual(json.loads(output.getvalue())['image_observations'], test_observations())
+                # Independently remove each forwarding hop. Neither may fall back
+                # to fixture-invented IDs while still claiming successful proof.
+                for name in ['synthetic_probe', 'install_fixture']:
+                    original = getattr(startup, name)
+                    def omit(*args, _original=original, **kwargs):
+                        kwargs.pop('image_observations', None)
+                        return _original(*args, **kwargs)
+                    omitted = io.StringIO()
+                    with patch.object(startup, name, side_effect=omit), redirect_stdout(omitted):
+                        self.assertEqual(qualify_startup.main(argv), 2)
+                    self.assertEqual(json.loads(omitted.getvalue())['code'], 'invalid_image_observations')
                 with patch.object(qualify_startup.volumes, 'acquire', side_effect=dev.Refusal('volume', 'volume_not_run_owned')), \
                         patch.object(startup, 'qualify') as invoked, redirect_stdout(io.StringIO()):
                     self.assertEqual(qualify_startup.main(argv), 2)
@@ -697,10 +719,21 @@ class IntegratedOwnerSelectionAcceptance(unittest.TestCase):
                 expected = 'public.ecr.aws/supabase/postgres@sha256:' + dev.digest(child)
                 self.assertNotEqual(dev.digest(child), dev.digest(index))
                 self.assertNotEqual('sha256:' + dev.digest(child), json.loads(child)['config']['digest'])
+                owner.args._image_observations = test_observations()
                 result = startup.qualify(owner.args)
                 self.assertEqual(result['facts']['image'], expected)
                 self.assertTrue(result['facts']['immutable_selection_proven'])
                 self.assertFalse(result['container_executed'])
+                # All keys and platform fields remain valid: only owner config
+                # provenance distinguishes this descriptor from the real one.
+                owner.args._image_observations[expected]['Id'] = 'sha256:' + 'f' * 64
+                with patch.object(startup, 'synthetic_probe') as probe, \
+                        patch.object(startup.images, 'bounded_command') as process:
+                    with self.assertRaises(dev.Refusal) as caught:
+                        startup.qualify(owner.args)
+                self.assertEqual(caught.exception.code, 'invalid_image_observations')
+                probe.assert_not_called()
+                process.assert_not_called()
         finally:
             owner.doCleanups()
 
@@ -742,6 +775,7 @@ class FullQualificationMutationHardening(unittest.TestCase):
                             prepared = owner.root / 'platform/deployment/.local/kdg' / RUN / 'supabase/config.toml'
                             prepared.write_bytes(b'mutation')
                         return {'ok': True, 'runtime_ready': False}
+                    owner.args._image_observations = test_observations()
                     with patch.object(startup, 'synthetic_probe', side_effect=probe):
                         if mutation == 'unchanged':
                             self.assertTrue(startup.qualify(owner.args)['ok'])
@@ -774,7 +808,7 @@ p = subprocess.Popen(['docker','container','inspect','supabase_db_''' + dev.proj
                     'Path(' + repr(str(pidfile)) + ').write_text(str(p.pid))\ntime.sleep(60)\n')
                 executable.chmod(0o700)
                 command, env = startup.invocation(executable, work, target, RUN, startup.fixture_network(target, RUN))
-                startup.install_fixture(work, target, RUN, startup.fixture_network(target, RUN), executable, selection_plan=test_plan())
+                startup.install_fixture(work, target, RUN, startup.fixture_network(target, RUN), executable, selection_plan=test_plan(), image_observations=test_observations())
                 env['PATH'] = str(work / 'bin')
                 def stop(selector, timeout=None):
                     if not pidfile.exists():

@@ -19,6 +19,7 @@ SCHEMA = 'platform/deployment/schema/development-target-v1.json'
 BASELINE = 'platform/docs/architecture/contracts/scaffold-dependency-baseline-2026-10-14.md'
 CONTRACT = 'platform/docs/architecture/contracts/scaffold-environment-and-generation.md'
 SOURCES = ['platform/deployment/dev.py', 'platform/deployment/networks.py',
+           'platform/deployment/daemon_images.py', 'platform/deployment/tests/qualify_daemon_images.py',
            'platform/deployment/startup.py', 'platform/deployment/volumes.py',
            'platform/deployment/tests/qualify_volumes.py', 'platform/deployment/tests/qualify_networks.py', SCHEMA, BASELINE, CONTRACT,
            'platform/deployment/fixtures/kdg-synthetic-v1.json', 'platform/deployment/registry.json']
@@ -393,7 +394,9 @@ def validate_prepared(target, raw, run_id, target_path, sources):
 
 def docker_exchange(method, path, body=None, *, _socket_path='/var/run/docker.sock', deadline=None):
     """Bounded fixed-route HTTP exchange. Private endpoint injection is for synthetic proof."""
-    if not ((method == 'GET' and body is None and (path == '/version' or re.fullmatch(r'/v1\.48/(?:networks|volumes)/[A-Za-z0-9_-]{1,128}', path)))
+    if not ((method == 'GET' and body is None and (path == '/version'
+            or re.fullmatch(r'/v1\.48/(?:networks|volumes)/[A-Za-z0-9_-]{1,128}', path)
+            or re.fullmatch(r'/v1\.48/images/(?:public\.ecr\.aws/supabase/(?:postgres|gotrue|postgrest|kong)@)?sha256:[0-9a-f]{64}/json', path)))
             or (method == 'POST' and path in ['/v1.48/networks/create', '/v1.48/volumes/create'] and type(body) is dict)):
         refuse('docker', 'docker_request_invalid')
     payload = b'' if body is None else json.dumps(body, sort_keys=True, separators=(',', ':')).encode()

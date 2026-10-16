@@ -486,3 +486,45 @@ volume creation and the first container create remain refused. `dev.py up` stays
 gated, `runtime_ready=false`, and no real Docker mutation, pull, SQL or migration is
 part of these proofs. See [ENV_RUN_VOLUME_EVIDENCE.md](ENV_RUN_VOLUME_EVIDENCE.md)
 for results and impact decisions.
+
+## Daemon-local image identity qualification
+
+`daemon_images.py` verifies the four selected images using current protected preparation,
+tool and image-owner evidence. The image owner derives a closed child-reference/config
+plan from retained manifest bytes; no config blob or layer download is needed. Existing
+receipts and the tag-to-child selection plan are unchanged. Source changes require a
+fresh run UUID and fresh qualification; never repair an old receipt.
+
+After owner repeat qualification, the adapter checks Linux Docker28 and inspects each
+exact child reference, then each exact config ID through the existing v1.48 transport.
+Every response must report the retained config digest as `Id`, `Os=linux`,
+`Architecture=amd64` and absent/empty `Variant`. RepoTags and RepoDigests have no authority;
+missing or index-only repository digests are accepted when identity/platform match.
+Only Id/Os/Architecture are transferred. Config, environment, paths, timestamps and
+daemon error text are discarded. Missing images refuse without pull, import, tagging,
+repair, retries or deletion.
+
+```sh
+python3 platform/deployment/tests/qualify_daemon_images.py --target platform/deployment/environments/kdg-local.json --run-id <qualified-UUID>
+```
+
+This command always starts a private synthetic Unix daemon. `--control index-only` is
+also positive. Negative controls: `missing`, `wrong-id`, `wrong-platform`, `variant`,
+`replacement`, `old-daemon`, `malformed`, `oversized`, `slow`, `daemon-error`. Every
+negative control returns a nonzero safe code. There is no public real-daemon command
+or endpoint override. The internal adapter defaults to the fixed local Docker socket.
+
+The daemon phase has one five-second total deadline and the existing 64KiB HTTP
+response bound. Oversized real image metadata remains a qualification failure. Owner
+tool revalidation runs outside that deadline with its own bounded probes. The existing
+same-run lock covers qualification and observations; evidence identity, bytes and
+selected observations are checked before successful return. Every call observes afresh.
+
+The separate public startup proof acquires these observations and forwards them through
+both the qualifier and fixture installation to the pinned CLI. Missing or foreign
+descriptors refuse before image/create events. First PostgreSQL create remains refused.
+The observation lock is released before this separate process proof; it does not prove
+execution enforcement, daemon continuity across connections, independently hashed daemon
+bytes, complete startup helpers or runtime readiness. `runtime_ready=false`, no containers,
+SQL, migrations or dependent application activation remain binding. See
+[ENV_DAEMON_IMAGE_EVIDENCE.md](ENV_DAEMON_IMAGE_EVIDENCE.md) for results and impacts.

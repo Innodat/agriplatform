@@ -9,6 +9,8 @@ import dev
 import startup
 import volumes
 import qualify_volumes
+import qualify_daemon_images
+import daemon_images
 
 
 def main(argv=None):
@@ -27,6 +29,11 @@ def main(argv=None):
             acquired = volumes.acquire(args.target, args.run_id, _socket_path=endpoint)
         daemon.validate_events()
         args._volume = acquired['volume']
+        startup.existing_images(args)
+        image_daemon = qualify_daemon_images.SyntheticDaemon(qualify_daemon_images.expected_images(args.run_id))
+        with image_daemon.serve() as endpoint:
+            args._image_observations = daemon_images.acquire(args.target, args.run_id, _socket_path=endpoint)
+        image_daemon.validate_events()
         result = startup.qualify(args)
         print(json.dumps(result, sort_keys=True))
         return 0

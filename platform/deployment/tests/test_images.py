@@ -455,6 +455,9 @@ class PersistenceGuards(unittest.TestCase):
                     'public.ecr.aws/' + item['repository'] + '@sha256:' + dev.digest(fixture(item['id'])[1])
                     for item in self.pins['images']}
         self.assertEqual(result['selection_plan'], expected)
+        self.assertEqual(result['config_plan'], {
+            reference: json.loads(fixture(item['id'])[1])['config']['digest']
+            for item, reference in zip(self.pins['images'], expected.values())})
         self.assertEqual(len({ref.split('@')[1] for ref in expected.values()}), 4)
         self.network.reset_mock()
         self.capture.reset_mock()
@@ -776,9 +779,9 @@ class PublicationBoundaries(unittest.TestCase):
                         if boundary == point and not fired:
                             fault()
                         fsync(fd)
-                    def retained_fault(fd, pins, binding):
+                    def retained_fault(fd, pins, binding, **kwargs):
                         nonlocal validated, fired
-                        result = retained(fd, pins, binding)
+                        result = retained(fd, pins, binding, **kwargs)
                         validated = True
                         if boundary == 'retained-after-link' and not fired:
                             fault()
