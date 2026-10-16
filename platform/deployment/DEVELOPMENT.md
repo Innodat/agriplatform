@@ -11,7 +11,7 @@ close the enclosing ENV acceptance item. See individual evidence records below.
 | Target/configuration | Protected disposable run preparation, exact source/config binding, deterministic owner names and Docker>=28 gate | Actual isolated stack startup and current readiness |
 | Dependency baseline | Six pinned executables including TypeScript7.0.2; Python wheel-lock and frontend compatibility fixtures | Generated consuming application/service proof; target/native compatibility; documented third-party declaration limitations |
 | Images/resources | Four immutable image identities, guarded owned bridge/database-volume acquisition, daemon observations, current volume-use refusal and joint same-session handoff | Execution-time enforcement, volume freshness/initialization/reuse and reservation/exclusivity |
-| PostgreSQL startup | Exact first-create profile and private synthetic create/file-transfer/refused-start proof | Bootstrap semantic/secret safety, actual create/start, health and bounded stop/reset/recovery |
+| PostgreSQL startup | Exact first-create profile, closed in-memory API request and private synthetic create/file-transfer/refused-start proof | Bootstrap semantic/secret safety, actual create/start, health and bounded stop/reset/recovery |
 | Owner integration | Ordered ENV/P1/SERVICE/Identity/Access/WRITE contracts and retained ownership | Existing generator recipe/schema/templates, regeneration/custom preservation, generated install/type/build/start/current-Access proof, coordinated owner migrations/fixtures/recovery |
 | Provider/device | Explicit nonproduction origins/callback contracts | LAN HTTPS/DNS/testCA, actual Entra callbacks and installed Android/iPhone proof at consuming gates |
 
@@ -731,3 +731,33 @@ reconnect or real Docker operation is enabled; `runtime_ready=false` and the exi
 owner tool/image qualification. Scaffold impact is this bounded ENV admission;
 shared UI and agent context need no change, documentation is this runbook and delivery
 evidence, and accepted ADRs remain unchanged.
+
+## Closed PostgreSQL create-request construction
+
+The existing refused-create boundary now constructs and validates a detached in-memory
+Docker API1.48 request from the exact pinned PostgreSQL profile and selected child
+image. It includes only the four approved public synthetic environment inputs, exact
+bootstrap command, run labels/volume/network, health/restart settings and aliases.
+The constrained ENV request explicitly selects Linux/amd64 and publishes PostgreSQL
+on127.0.0.1; these tighten the CLI profile rather than reproduce every CLI default.
+Every nested key, value and primitive type is checked before safe
+`create_request_proven: true` evidence is recorded. Ambient variables are excluded;
+request body/environment/bootstrap are never saved or hashed as runtime evidence.
+
+```sh
+python3 platform/deployment/tests/qualify_startup.py --target platform/deployment/environments/kdg-local.json --run-id <fresh-qualified-UUID> --control positive
+python3 platform/deployment/tests/qualify_startup.py --target platform/deployment/environments/kdg-local.json --run-id <fresh-qualified-UUID> --control invalid-create-request
+python3 -m unittest discover -s platform/deployment/tests -p 'test_create_profile.py'
+```
+
+The negative control validates the baseline, corrupts loopback binding and proves safe
+refusal. Existing source-profile and lifecycle controls remain available. The real
+Docker transport still rejects container-create requests before opening a socket.
+No container, SQL or secret provisioning is enabled; `runtime_ready=false`.
+
+This is execution-input construction, not bootstrap semantic/secret, freshness/reuse
+or runtime qualification. The pinned CLI checks volume existence before fresh setup;
+a pre-acquired volume may skip that setup. That integration boundary remains open.
+[Profile mapping](fixtures/supabase-pg17-profile.md#closed-postgresql-create-request)
+and [delivery evidence](ENV_POSTGRES_CREATE_REQUEST_EVIDENCE.md) record the authorities,
+limits, requirement/test traceability and all five impact decisions.

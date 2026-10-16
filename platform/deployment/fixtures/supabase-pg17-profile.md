@@ -104,3 +104,44 @@ between each SQL template, retains the exec line's trailing space, and adds no f
 newline. A mismatch stops the recipe; never replace authority with CLI-captured input.
 Docker TLS activation (`DOCKER_TLS`), default-platform selection and custom HTTP headers
 are also forbidden even when empty, alongside the routing overrides listed above.
+
+## Closed PostgreSQL create request
+
+After validating the original profile, image-owner child selection and current
+run network/volume descriptors, the refused-create boundary constructs one detached
+in-memory Docker API1.48 request. It independently checks every nested key, value
+and primitive type before retaining only `create_request_proven: true` beside the
+existing safe facts. The body, env and bootstrap are never retained or hashed as
+observed runtime evidence. There is no transport invocation and the real transport
+still rejects the container-create route before socket access.
+
+Primary mapping authorities are Docker CLI28.0.0
+[`cli/command/container/opts.go`](https://github.com/docker/cli/blob/v28.0.0/cli/command/container/opts.go),
+Moby28.0.0
+[`client/container_create.go`](https://github.com/moby/moby/blob/v28.0.0/client/container_create.go),
+and its
+[`docs/api/v1.48.yaml`](https://github.com/moby/moby/blob/v28.0.0/docs/api/v1.48.yaml).
+The CLI options map the four explicit `-e` names to ordered `Env` values, `sh`
+to `Entrypoint`, the unchanged `-c` operand/bootstrap to `Cmd`, and the three CLI
+labels to `Labels`. Named `-v` maps to `HostConfig.Binds`; it does not declare an
+anonymous `Volumes` destination. The published TCP port supplies `ExposedPorts`
+and `HostConfig.PortBindings`. Health shell command maps to `CMD-SHELL`, with
+interval 10000000000ns, timeout 2000000000ns and retries 3. Restart is
+`unless-stopped` with maximum retry count 0. Linux host-gateway maps to
+`HostConfig.ExtraHosts`; network ID maps to `HostConfig.NetworkMode` and the
+`NetworkingConfig.EndpointsConfig` key, with aliases `db` and
+`db.supabase.internal`.
+
+The request has method `POST` and path
+`/v1.48/containers/create?name=<run-database-name>&platform=linux%2Famd64`.
+API Config fields are flat beside `HostConfig` and `NetworkingConfig`, without
+an enclosing `Config` property. The selected child digest supplies `Image`.
+Explicit `linux/amd64` platform and `127.0.0.1` HostIp deliberately tighten the
+ENV profile; this is not a claim of byte-identical CLI serialization. Unknown
+fields, defaults, inherited env names and arbitrary overrides are forbidden.
+
+This construction does not qualify bootstrap semantics, secret provisioning,
+fresh-volume setup, real lifecycle continuity, runtime readiness or KDG fingerprint
+keys. The upstream fresh-setup branch may treat a pre-acquired volume as existing;
+that integration gate remains open. `runtime_ready` remains false and `dev.py up`
+remains guarded.

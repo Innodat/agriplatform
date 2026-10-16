@@ -223,7 +223,7 @@ class BoundaryControls(unittest.TestCase):
         self.assertNotIn(self.args[-1], json.dumps(events))
         self.assertEqual(set(events[0]['facts']), {'image', 'name', 'network', 'publish',
                          'database_volume', 'host_bind_mounts', 'create_refused',
-                         'complete_create_profile_proven', 'original_image', 'immutable_selection_proven'})
+                         'complete_create_profile_proven', 'original_image', 'immutable_selection_proven', 'create_request_proven'})
         self.assertNotIn('POSTGRES_PASSWORD', json.dumps(events))
         self.assertFalse(events[0]['facts']['host_bind_mounts'])
 

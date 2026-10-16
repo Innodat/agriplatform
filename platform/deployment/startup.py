@@ -299,7 +299,7 @@ def immutable_first_create(args, fixture, plan, *, environment):
     """
     validate_selection_plan(plan)
     original = tuple(args)
-    inherited = dict(environment)
+    inherited = copy.deepcopy(environment)
     index = create_facts(original, fixture, environment=inherited, image_index=True)
     pins = images.load_pins(dev.read(dev.ROOT / images.PINS))
     postgres = next(item for item in pins['images'] if item['id'] == 'postgres')
@@ -329,7 +329,7 @@ def lifecycle_control_event(control):
 
 def lifecycle_prefix(fixture, events, phase):
     facts = selected_facts(dict(fixture, postgres_image=fixture['selection_plan'][fixture['postgres_image']]))
-    facts.update(original_image=fixture['postgres_image'], immutable_selection_proven=True)
+    facts.update(original_image=fixture['postgres_image'], immutable_selection_proven=True, create_request_proven=True)
     descriptors = [fixture['image_observations'][fixture['selection_plan'][tag]] for tag in fixture['images']]
     if phase == 'create':
         validate_observations(events + [{'kind': 'postgres_create', 'facts': facts}], facts, descriptors)
@@ -341,7 +341,7 @@ def lifecycle_prefix(fixture, events, phase):
             fail('unsafe_lifecycle')
 
 
-def fixture_command(runtime, args, fixture, events, *, environment=None, archive=None):
+def fixture_command(runtime, args, fixture, events, *, environment=None, archive=None, corrupt_request=False):
     if (type(args) not in (list, tuple) or any(type(a) is not str for a in args)
             or len(args) > 256 or sum(len(a) for a in args) > LIMIT or len(events) >= 64
             or runtime != 'docker'):
@@ -367,22 +367,45 @@ def fixture_command(runtime, args, fixture, events, *, environment=None, archive
         validate_image_observations(fixture.get('image_observations'), fixture['selection_plan'])
     if tuple(args[:1]) == ('create',):
         validate_fixture_volume(fixture)
+        suffix = '-' + base64.urlsafe_b64encode(uuid.UUID(fixture['run_id']).bytes).decode().rstrip('=')
+        validate_network(fixture['network'], {'target_id': fixture['target_id'],
+                         'project_id_prefix': fixture['project'][:-len(suffix)]}, fixture['run_id'])
         if type(environment) is not dict:
             fail('unsafe_create')
         original = tuple(args)
-        inherited = dict(environment)
+        inherited = copy.deepcopy(environment)
         held_fixture = copy.deepcopy(fixture)
         index = create_facts(original, held_fixture, environment=inherited, image_index=True)
         expected = list(original)
         expected[index] = held_fixture['selection_plan'][held_fixture['postgres_image']]
-        transform_args, transform_env = list(original), dict(inherited)
+        transform_args, transform_env = list(original), copy.deepcopy(inherited)
         selected = immutable_first_create(transform_args, held_fixture, held_fixture['selection_plan'],
                                           environment=transform_env)
         if (selected != expected or tuple(args) != original or tuple(transform_args) != original
-                or environment != inherited or transform_env != inherited or fixture != held_fixture):
+                or not create_profile._exact_tree(environment, inherited)
+                or not create_profile._exact_tree(transform_env, inherited)
+                or not create_profile._exact_tree(fixture, held_fixture)):
             fail('unsafe_create')
         selected_fixture = dict(held_fixture, postgres_image=selected[index])
         facts = create_facts(selected, selected_fixture, environment=inherited)
+        request_args, request_fixture, request_env = copy.deepcopy((selected, selected_fixture, inherited))
+        try:
+            execution = create_profile.execution_request(request_args, request_fixture, request_env)
+            if (request_args != selected or not create_profile._exact_tree(request_fixture, selected_fixture)
+                    or not create_profile._exact_tree(request_env, inherited) or tuple(args) != original
+                    or not create_profile._exact_tree(environment, inherited)
+                    or not create_profile._exact_tree(fixture, held_fixture)):
+                fail('unsafe_create')
+            create_profile.validate_execution_request(execution, selected, selected_fixture, inherited)
+        except dev.Refusal:
+            if corrupt_request:
+                fail('invalid_control_baseline')
+            raise
+        if corrupt_request:
+            # Qualifier-only negative control: unchanged baseline passed first.
+            execution['body']['HostConfig']['PortBindings']['5432/tcp'][0]['HostIp'] = '0.0.0.0'
+            create_profile.validate_execution_request(execution, selected, selected_fixture, inherited)
+        facts['create_request_proven'] = True
         facts['original_image'] = fixture['postgres_image']
         facts['immutable_selection_proven'] = True
         if fixture.get('lifecycle'):
@@ -546,7 +569,8 @@ def fixture_main(runtime, args, directory, stop_parent=False, *, environment=Non
                         elif profile_control == 'invalid-lifecycle-order':
                             args = ['start', lifecycle.CONTAINER_ID]
                         control_event = lifecycle_control_event(profile_control)
-                code, output, error = fixture_command(runtime, args, fixture, events, environment=environment, archive=archive)
+                code, output, error = fixture_command(runtime, args, fixture, events, environment=environment, archive=archive,
+                                                     corrupt_request=profile_control == 'invalid-create-request')
             except dev.Refusal as refusal:
                 if control_event is not None:
                     events.append(control_event)
@@ -621,7 +645,7 @@ def install_fixture(work, target, run_id, network, executable=None, guard_parent
 
 def synthetic_probe(executable, target, run_id, network=None, control='positive', *, selection_plan, volume=None, image_observations=None):
     if control not in ['positive', 'invalid-network', 'contaminated-workdir', 'reject-command', 'invalid-selection-plan',
-                       'invalid-create-script', 'invalid-create-environment', 'invalid-create-routing',
+                       'invalid-create-script', 'invalid-create-environment', 'invalid-create-routing', 'invalid-create-request',
                        'lifecycle-positive', 'invalid-lifecycle-target', 'invalid-lifecycle-archive', 'invalid-lifecycle-order']:
         fail('unknown_control')
     if control == 'invalid-selection-plan':
@@ -669,7 +693,7 @@ def synthetic_probe(executable, target, run_id, network=None, control='positive'
         if fixture['selection_plan'] != selection_plan or fixture['image_observations'] != image_observations:
             fail('invalid_selection_plan')
         expected_facts = selected_facts(dict(fixture, postgres_image=selection_plan[fixture['postgres_image']]))
-        expected_facts.update(original_image=fixture['postgres_image'], immutable_selection_proven=True)
+        expected_facts.update(original_image=fixture['postgres_image'], immutable_selection_proven=True, create_request_proven=True)
         if control == 'reject-command':
             if events != [rejected_event(['run', 'forbidden'], 'unexpected_container_command')]:
                 fail('boundary_not_proven')

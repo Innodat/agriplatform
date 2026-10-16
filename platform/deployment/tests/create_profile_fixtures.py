@@ -87,3 +87,27 @@ def boundary_fixture():
             'postgres_image': 'public.ecr.aws/supabase/postgres:17.11.0.004',
             'images': ['public.ecr.aws/supabase/postgres:17.11.0.004'],
             'selection_plan': test_plan(), 'image_observations': test_observations()}
+
+
+def expected_execution_request(f):
+    """Full independent Docker API oracle; never calls the production builder."""
+    p = f['project']
+    network = f['network']['Id']
+    name = 'supabase_db_' + p
+    return {'method': 'POST',
+            'path': '/v1.48/containers/create?name=' + name + '&platform=linux%2Famd64',
+            'body': {'Image': f['postgres_image'],
+                     'Env': ['POSTGRES_PASSWORD=postgres', 'POSTGRES_HOST=/var/run/postgresql',
+                             'JWT_SECRET=super-secret-jwt-token-with-at-least-32-characters-long', 'JWT_EXP=3600'],
+                     'Entrypoint': ['sh'],
+                     'Cmd': ['-c', (ROOT / 'platform/deployment/fixtures/supabase-pg17-bootstrap.txt').read_text()],
+                     'Labels': {'com.supabase.cli.project': p, 'com.docker.compose.project': p,
+                                'com.supabase.cli.workdir': f['workdir']},
+                     'ExposedPorts': {'5432/tcp': {}},
+                     'Healthcheck': {'Test': ['CMD-SHELL', 'pg_isready -U postgres -h 127.0.0.1 -p 5432'],
+                                     'Interval': 10000000000, 'Timeout': 2000000000, 'Retries': 3},
+                     'HostConfig': {'Binds': [name + ':/var/lib/postgresql/data'],
+                                    'PortBindings': {'5432/tcp': [{'HostIp': '127.0.0.1', 'HostPort': str(f['database_port'])}]},
+                                    'RestartPolicy': {'Name': 'unless-stopped', 'MaximumRetryCount': 0},
+                                    'ExtraHosts': ['host.docker.internal:host-gateway'], 'NetworkMode': network},
+                     'NetworkingConfig': {'EndpointsConfig': {network: {'Aliases': ['db', 'db.supabase.internal']}}}}}

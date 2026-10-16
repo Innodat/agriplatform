@@ -126,7 +126,7 @@ Fresh run `32ea0b48-b882-464a-b5ce-e5544af648b3` preserves thirteen evidence fil
 source bindings. Real up still refuses `docker_28_required`; no container/SQL ran.
 Joint acquisition is not resource reservation, volume freshness or execution readiness.
 See [combined evidence](../../../platform/deployment/ENV_COMBINED_RESOURCES_EVIDENCE.md).
-The latest completed ENV Build is [run-volume use admission](../../../_bmad-output/implementation-artifacts/spec-env-volume-use-admission.md).
+The preceding completed ENV Build is [run-volume use admission](../../../_bmad-output/implementation-artifacts/spec-env-volume-use-admission.md).
 Standalone and combined acquisition now refuse any current container reference,
 including stopped/same-owner references, using a closed all-container volume query on
 their existing guarded connection. Final joint observation repeats it; standalone
@@ -141,6 +141,19 @@ See [volume-use evidence](../../../platform/deployment/ENV_VOLUME_USE_EVIDENCE.m
 Empty references do not prove volume freshness, initialized-state/reuse policy,
 reservation/exclusivity or execution readiness. Continue existing ENV bootstrap/secret,
 volume reuse, runtime lifecycle and scaffold gates before dependent consumers.
+The latest completed ENV Build is [PostgreSQL create-request construction](../../../_bmad-output/implementation-artifacts/spec-env-postgres-create-request.md).
+The existing refused-create boundary constructs and strictly validates one detached
+in-memory API1.48 request using the selected child, exact run resources and four public
+synthetic env inputs. Explicit Linux/amd64 and loopback binding tighten the ENV profile;
+no dispatch/body persistence is enabled. Only a post-validation proof fact is retained.
+Acceptance and review regressions were observed RED before fixes. Final 397 deployment
+tests and six focused public CLI checks pass; six review finding instances fixed,
+one disproved, none deferred. Fresh `43033cc0-d1af-4231-94db-25bd4b35e09c` preserves thirteen
+evidence files/source snapshots. Real up remains `docker_28_required`/runtime_ready=false;
+no container or SQL ran. See [request evidence](../../../platform/deployment/ENV_POSTGRES_CREATE_REQUEST_EVIDENCE.md).
+Bootstrap/secret safety remains open. The pinned CLI sees a pre-acquired volume as
+existing and may skip fresh setup; that integration must be resolved before startup,
+alongside volume initialization/reuse, execution/lifecycle and scaffold acceptance.
 The enclosing ENV runtime/bootstrap acceptance and P1/SERVICE generator remain open.
 Continue those existing owner items before dependent foundations or the server-backed
 KDG slice; do not confuse the completed preparation increment with a runnable stack.

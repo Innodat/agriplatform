@@ -15,7 +15,7 @@ sys.path.insert(0, str(ROOT / 'platform/deployment'))
 import dev
 import startup
 import create_profile
-from create_profile_fixtures import (expected_request, expected_environment, boundary_fixture,
+from create_profile_fixtures import (expected_request, expected_environment, expected_execution_request, boundary_fixture,
                                      target_fixture, test_plan, test_observations, RUN, SYNTHETIC_CLI_SOURCE)
 
 
@@ -28,6 +28,171 @@ class CompleteCreateProfile(unittest.TestCase):
     def setUp(self):
         self.f = boundary_fixture()
         self.args, self.env = expected_request(self.f), expected_environment(self.f)
+
+    def test_refused_create_proves_closed_execution_request(self):
+        events = []
+        code, _, _ = startup.fixture_command('docker', self.args, self.f, events, environment=self.env)
+        self.assertEqual(code, 125)
+        self.assertTrue(events[0]['facts']['create_request_proven'])
+
+    def selected_inputs(self):
+        f = copy.deepcopy(self.f)
+        f['postgres_image'] = f['selection_plan'][f['postgres_image']]
+        return expected_request(f), f, self.env.copy()
+
+    def test_review_host_port_requires_exact_valid_integer(self):
+        for port in [True, False, 0, -1, 65536, 'nonnumeric', '55482', 55482.0]:
+            args, f, env = self.selected_inputs()
+            f['database_port'] = port
+            with self.subTest(port=port), self.assertRaises(dev.Refusal):
+                create_profile.execution_request(expected_request(f), f, env)
+
+    def test_review_unconstructed_facts_have_no_request_attestation(self):
+        self.assertNotIn('create_request_proven', startup.selected_facts(self.f))
+        self.assertNotIn('create_request_proven', startup.create_facts(self.args, self.f, environment=self.env))
+
+    def test_review_nested_inherited_environment_custody(self):
+        for seam in ['transform', 'constructor']:
+            args, env, fixture = copy.deepcopy((self.args, self.env, self.f))
+            env['UNRELATED'] = {'values': ['original']}
+            transform = startup.immutable_first_create
+            constructor = create_profile.execution_request
+            def corrupt_transform(argv, f, plan, *, environment):
+                result = transform(argv, f, plan, environment=environment)
+                environment['UNRELATED']['values'].append('changed')
+                return result
+            def corrupt_constructor(argv, f, inherited):
+                result = constructor(argv, f, inherited)
+                inherited['UNRELATED']['values'].append('changed')
+                env['UNRELATED']['values'].append('changed')
+                return result
+            events = []
+            target, name, effect = ((startup, 'immutable_first_create', corrupt_transform) if seam == 'transform'
+                                    else (create_profile, 'execution_request', corrupt_constructor))
+            with self.subTest(seam=seam), patch.object(target, name, side_effect=effect):
+                with self.assertRaises(dev.Refusal):
+                    startup.fixture_command('docker', args, fixture, events, environment=env)
+                self.assertEqual(events, [])
+
+    def test_review_corrupt_request_control_requires_valid_construction_baseline(self):
+        for failure in ['constructor', 'validator']:
+            def execute(command, work, env, timeout, limit):
+                f = startup.decode_fixture(work / 'fixture.json')
+                events = ([{'kind': 'container_inspect'}]
+                          + [{'kind': 'image_inspect', 'image_index': i,
+                              'descriptor': f['image_observations'][f['selection_plan'][tag]]}
+                             for i, tag in enumerate(f['images'])]
+                          + [{'kind': 'volume_inspect'}, {'kind': 'network_inspect'},
+                             {'kind': 'existing_volume_create_refused'}])
+                (work / 'events.json').write_text(json.dumps(events))
+                function = 'execution_request' if failure == 'constructor' else 'validate_execution_request'
+                with patch.object(create_profile, function, side_effect=dev.Refusal('startup', 'unsafe_create')):
+                    startup.fixture_main('docker', expected_request(f), work,
+                                         environment=expected_environment(f), profile_control='invalid-create-request')
+                raise dev.Refusal('images_cli', 'command_refused')
+            with self.subTest(failure=failure), patch.object(startup.images, 'bounded_command', side_effect=execute):
+                with self.assertRaises(dev.Refusal) as caught:
+                    startup.synthetic_probe(Path('/unused'), target_fixture(), RUN, control='invalid-create-request',
+                                            selection_plan=test_plan(), image_observations=test_observations())
+            self.assertEqual(caught.exception.code, 'boundary_not_proven')
+
+    def test_execution_request_independent_full_oracle_and_detachment(self):
+        args, f, env = self.selected_inputs()
+        before = copy.deepcopy((args, f, env))
+        env['UNRELATED'] = 'sensitive-canary'
+        with patch.dict(os.environ, {'AMBIENT_SECRET': 'sensitive-canary'}):
+            actual = create_profile.execution_request(args, f, env)
+        self.assertEqual(actual, expected_execution_request(f))
+        self.assertNotIn('sensitive-canary', json.dumps(actual))
+        env.pop('UNRELATED')
+        self.assertEqual((args, f, env), before)
+        actual['body']['Env'].clear()
+        actual['body']['NetworkingConfig']['EndpointsConfig'].clear()
+        self.assertEqual(create_profile.execution_request(args, f, env), expected_execution_request(f))
+        self.assertEqual((args, f, env), before)
+
+    def test_every_execution_node_rejects_missing_extra_value_and_primitive_type(self):
+        args, f, env = self.selected_inputs()
+        expected = expected_execution_request(f)
+        paths = []
+        def visit(value, path=()):
+            paths.append(path)
+            if type(value) is dict:
+                for key, item in value.items(): visit(item, path + (key,))
+            elif type(value) is list:
+                for key, item in enumerate(value): visit(item, path + (key,))
+        visit(expected)
+        for path in paths:
+            node = expected
+            for key in path: node = node[key]
+            replacements = [None, True, 0.0, 'sensitive-canary', [], {}]
+            if type(node) is int: replacements += [float(node), bool(node)]
+            if type(node) is dict: replacements += [dict(node, unexpected=True)]
+            if type(node) is list: replacements += [node + ['sensitive-canary'], tuple(node)]
+            for replacement in replacements:
+                if type(replacement) is type(node) and replacement == node: continue
+                changed = copy.deepcopy(expected)
+                if not path: changed = replacement
+                else:
+                    parent = changed
+                    for key in path[:-1]: parent = parent[key]
+                    parent[path[-1]] = replacement
+                with self.subTest(path=path, replacement=type(replacement)), self.assertRaises(dev.Refusal):
+                    create_profile.validate_execution_request(changed, args, f, env)
+            if path:
+                changed = copy.deepcopy(expected)
+                parent = changed
+                for key in path[:-1]: parent = parent[key]
+                del parent[path[-1]]
+                with self.subTest(missing=path), self.assertRaises(dev.Refusal):
+                    create_profile.validate_execution_request(changed, args, f, env)
+
+    def test_boundary_rejects_constructor_corruption_and_custody_mutations(self):
+        original = create_profile.execution_request
+        for mutation in ['body', 'args', 'env', 'fixture', 'fixture-type', 'caller-args', 'caller-env', 'caller-fixture']:
+            args, env, f = copy.deepcopy((self.args, self.env, self.f))
+            def corrupt(argv, fixture, inherited):
+                actual = original(argv, fixture, inherited)
+                if mutation == 'body': actual['body']['HostConfig']['RestartPolicy']['MaximumRetryCount'] = False
+                if mutation == 'args': argv[-1] = 'sensitive-canary'
+                if mutation == 'env': inherited['JWT_EXP'] = '1'
+                if mutation == 'fixture': fixture['network']['Id'] = 'foreign'
+                if mutation == 'fixture-type': fixture['network']['Internal'] = 0
+                if mutation == 'caller-args': args[-1] = 'sensitive-canary'
+                if mutation == 'caller-env': env['JWT_EXP'] = '1'
+                if mutation == 'caller-fixture': f['network']['Id'] = 'foreign'
+                return actual
+            events = []
+            with self.subTest(mutation=mutation), patch.object(create_profile, 'execution_request', side_effect=corrupt):
+                with self.assertRaises(dev.Refusal):
+                    startup.fixture_command('docker', args, f, events, environment=env)
+            self.assertEqual(events, [])
+
+    def test_request_dispatch_refused_before_socket_access(self):
+        args, f, env = self.selected_inputs()
+        actual = create_profile.execution_request(args, f, env)
+        with patch.object(dev.socket, 'socket') as socket, self.assertRaises(dev.Refusal) as caught:
+            dev.docker_exchange(actual['method'], actual['path'], actual['body'])
+        self.assertEqual(caught.exception.code, 'docker_request_invalid')
+        socket.assert_not_called()
+
+    def test_execution_requires_selected_pinned_postgres_child(self):
+        for image in [self.f['postgres_image'], 'foreign/postgres@sha256:' + '1' * 64,
+                      'public.ecr.aws/supabase/postgres@sha256:' + '1' * 64,
+                      'public.ecr.aws/supabase/postgres@sha256:bad',
+                      next(value for value in test_plan().values() if '/gotrue@' in value)]:
+            f = dict(self.f, postgres_image=image)
+            with self.subTest(image=image), self.assertRaises(dev.Refusal):
+                create_profile.execution_request(expected_request(f), f, self.env)
+
+    def test_coherently_changed_network_is_refused_before_construction(self):
+        for key, value in [('Labels', {}), ('Options', {}), ('Name', 'foreign'), ('Containers', {'foreign': {}})]:
+            f = copy.deepcopy(self.f)
+            f['network'][key] = value
+            with self.subTest(key=key), patch.object(create_profile, 'execution_request') as constructor:
+                with self.assertRaises(dev.Refusal):
+                    startup.fixture_command('docker', expected_request(f), f, [], environment=self.env)
+                constructor.assert_not_called()
 
     def rejected(self, args=None, env=None):
         events = []
@@ -74,7 +239,7 @@ class CompleteCreateProfile(unittest.TestCase):
                 source = SYNTHETIC_CLI_SOURCE.replace('commands = ', baseline + '\ncommands = ', 1)
                 executable.write_text('#!' + sys.executable + '\n' + source)
                 executable.chmod(0o700)
-                for control in ['invalid-create-script', 'invalid-create-environment', 'invalid-create-routing']:
+                for control in ['invalid-create-script', 'invalid-create-environment', 'invalid-create-routing', 'invalid-create-request']:
                     with self.subTest(baseline=baseline, control=control), self.assertRaises(dev.Refusal) as caught:
                         startup.synthetic_probe(executable, target_fixture(), RUN, control=control,
                                                 selection_plan=test_plan(), image_observations=test_observations())
@@ -174,7 +339,7 @@ class CompleteCreateProfile(unittest.TestCase):
             executable = Path(directory) / 'synthetic-cli'
             executable.write_text('#!' + sys.executable + '\n' + SYNTHETIC_CLI_SOURCE)
             executable.chmod(0o700)
-            for control in ['invalid-create-script', 'invalid-create-environment', 'invalid-create-routing']:
+            for control in ['invalid-create-script', 'invalid-create-environment', 'invalid-create-routing', 'invalid-create-request']:
                 with self.subTest(control=control), self.assertRaises(dev.Refusal) as caught:
                     startup.synthetic_probe(executable, target_fixture(), RUN, control=control,
                                             selection_plan=test_plan(), image_observations=test_observations())
@@ -204,7 +369,8 @@ class CompleteCreateProfile(unittest.TestCase):
                         'network': network['Id'], 'publish': '55482:5432',
                         'database_volume': 'supabase_db_' + f['project'], 'host_bind_mounts': False,
                         'create_refused': True, 'complete_create_profile_proven': True,
-                        'original_image': f['postgres_image'], 'immutable_selection_proven': True}}])
+                        'original_image': f['postgres_image'], 'immutable_selection_proven': True,
+                        'create_request_proven': True}}])
                 else:
                     self.assertEqual(events, [profile_rejection()])
 
