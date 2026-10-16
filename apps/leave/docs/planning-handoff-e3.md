@@ -6,6 +6,23 @@ resolve later changes from their owners rather than treating this snapshot as su
 
 ## Resume point
 
+**E4 story checkpoint — 2026-10-16:** Story 4.11 retention-based disposal approved;
+Stories 4.1–4.11 agreed. Leave owns eligibility, Content physical disposal; preserve
+legitimate references, reconcile bounded pending protection, fence competing association,
+recover uncertain deletion, retain minimal audit and truthful authorized access outcomes.
+Provider versions/soft-delete/backups need explicit handling; no immediate all-copy-erasure
+promise or draft/history deletion. Continue Story 4.12 abandoned-upload cleanup in group
+6. All exact contracts/coverage/sizing/readiness gates remain open; no code authorized.
+
+**E4 story checkpoint — 2026-10-16:** Story 4.10 retention configuration approved,
+including selected organization → Leave settings → Documents → Retention, whole-form
+Save / Cancel, no autosave/admin drafts and exact Leave configuration authority rather
+than automatic organization-admin access. Retain two-year post-closure medical default,
+reviewed organization/jurisdiction override, clear existing-document applicability and
+no physical deletion on Save. Stories 4.1–4.10 agreed; continue Story 4.11 eligible
+document disposal in group 6. Closure/precedence/retroactivity/contracts/coverage/final
+sizing/readiness remain open; no code or implementation authorized.
+
 **E4 story checkpoint — 2026-10-16:** Story 4.9 attachment rejection/action-required
 notifications approved; Stories 4.1–4.9 agreed. Atomic local intent, E3 delivery/retry,
 minimal privacy-safe messages, current access and resolved-state links; ordinary active

@@ -90,3 +90,11 @@ code/tests; root retains final evidence/navigation/qualification/commit ownershi
 Behavioral RED, focused suites, matrix audit, independent review. Fresh prepare/toolchain/images; public integrated and existing controls, thirteen unchanged retained files/source snapshots; full deployment suite, AST/whitespace/links and read-only up refusal. Exact commands/results and remaining gates in evidence.
 
 Matrix audit: integrated5tests PASS40.069s, public wiring1 PASS4.083s, volumes31 PASS11.566s, lifecycle19 PASS52.183s. Root read complete scoped diff; five impact decisions and exact intermediate results recorded in ENV_GUARDED_CLI_VOLUME_EVIDENCE.md. Public pinned-CLI and final broad regression remain closure checks.
+
+Review correction: executable mutation RED (four failing subcases) observed before
+patch; focused GREEN1test6.217s. Five remaining review regression methods PASS57.392s;
+affected acceptance/public matrix5tests PASS46.933s. Root inspected all patches;
+code/test findings resolved, final evidence closure remains. Two fresh image collections
+refused; safe diagnostic identified registry HTTP429. Preserve incomplete runs and
+perform final fresh qualification after full synthetic regression. No bypass or
+new retry behavior.

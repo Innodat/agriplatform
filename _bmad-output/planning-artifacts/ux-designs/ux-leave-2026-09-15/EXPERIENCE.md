@@ -226,6 +226,13 @@ when applicable, preserving the existing explicit acknowledgement requirement.
 
 ### Notes and supporting documents
 
+Retention settings clarification agreed 2026-10-16: selected organization → Leave
+settings → Documents → Retention, in the existing configuration surface. Require
+appropriate Leave configuration authority, separate from sensitive-document read access.
+Use whole-form Save / Cancel; field changes are not persisted until Save, with no
+administrative draft or submission workflow. Explain applicable scope and existing-
+document impact before commitment; Save does not itself perform document disposal.
+
 Mobile capture scope confirmed 2026-10-16, superseding the earlier scanning amendment:
 offer Take photo alongside Choose a file where supported, with image review/retake
 before Leave's normal authorized upload flow. Cancellation, denied/unavailable camera

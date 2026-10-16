@@ -2262,6 +2262,11 @@ See [ADR-0010](./architecture/decisions/0010-cancel-and-replace-approved-leave.m
 - Support configured retention and auditable disposal. The initial medical-document
   default is two years after request closure, but each NGO/jurisdiction must be able
   to override it after legal/privacy review.
+  Settings clarification agreed 2026-10-16: selected organization → Leave settings →
+  Documents → Retention, using whole-form Save / Cancel with no autosave or administrative
+  drafts. Require the appropriate Leave configuration capability; organization admin
+  status alone does not confer it or document-read access. Explain applicability and
+  existing-document impact before commitment; saving settings does not itself delete files.
 - Never expose storage credentials or permanent provider URLs to clients.
 
 For medical documents, assigned approvers without

@@ -3,7 +3,7 @@ project: Leave
 status: epic-structure-approved
 created: 2026-09-23
 stepsCompleted: []
-currentCheckpoint: E4 Stories 4.1–4.9 approved; Story 4.5 photo/file scope retained; Expense retains React Native and priority; Story 4.10 discussion next; contracts/coverage/sizing/readiness pending
+currentCheckpoint: E4 Stories 4.1–4.11 approved; Story 4.12 abandoned-upload cleanup discussion next; contracts/coverage/sizing/readiness pending
 requirementsInventoryStatus: Source-indexed coverage proposal; granular extraction and confirmation pending
 epicApproval: Approved by user on 2026-09-23, including E5 and delivery sequence
 implementationReadiness: pending
@@ -12391,9 +12391,9 @@ tracker, handoff and release evidence in the same items. ADR: existing accepted 
 govern; meaningful changed business/security/ownership outcomes require discussion and
 any necessary superseding decision. No accepted ADR changed by this sequence approval.
 
-**Current checkpoint:** Stories 4.1–4.9 scopes approved; Story 4.5 uses Take photo/file
+**Current checkpoint:** Stories 4.1–4.11 scopes approved; Story 4.5 uses Take photo/file
 selection, with no scanner dependency. Expense retains React Native and implementation
-priority. Continue Story 4.10 retention configuration in group 6.
+priority. Continue Story 4.12 abandoned-upload cleanup in group 6.
 Malware scanning remains future
 hardening because current memory capacity is insufficient; MVP deferral unchanged.
 No final story count established, workflow step completed,
@@ -13108,3 +13108,157 @@ employees/admins. Agent context: existing privacy/ownership/durable-event guidan
 suffices. Documentation: event/recipient/template contracts, acceptance map, support
 runbook and tracker/handoff. ADR: existing decisions unchanged. No code, tests,
 notifications, provider changes or implementation authorization.
+
+### Story 4.10: Configure supporting-document retention
+
+**Scope approved — 2026-10-16, including settings/saving clarification; not
+implementation-ready.** Owners: Leave retention settings/applicability and Content
+disposal contract. Surface: selected organization → Leave settings → Documents →
+Retention, reusing existing settings surfaces rather than a separate administration
+area. Whole-form Save / Cancel, no autosave or administrative draft system. Exact
+Leave configuration capability controls editing; organization administration alone
+does not automatically grant authority or sensitive-document access.
+
+As an authorized Leave configuration administrator for the selected organization,
+I want to configure document retention for the applicable organization/jurisdiction,
+So that disposal follows the organization's reviewed requirements.
+
+**Acceptance Criteria:**
+
+**Given** no explicit medical-document override,
+**When** retention settings are viewed,
+**Then** the initial default is two years after request closure,
+**And** it is clearly distinguished from an organization/jurisdiction override.
+
+**Given** the required Leave configuration authority,
+**When** settings are edited,
+**Then** the existing organization-specific Leave settings form uses whole-form Save /
+Cancel, validates supported values and preserves input on failure,
+**And** selecting a value does not persist it or alter disposal eligibility immediately.
+
+**Given** unsaved settings,
+**When** Cancel is selected,
+**Then** saved configuration remains unchanged,
+**And** no autosaved administrative draft or separate submission workflow is created.
+
+**Given** a proposed change,
+**When** its effects are reviewed before commitment,
+**Then** the form clearly states which documents it applies to,
+**And** whether existing documents' disposal eligibility changes.
+
+**Given** a successful save,
+**When** changes commit,
+**Then** configuration, revision, attribution and required change history commit together,
+**And** conflicting/uncertain saves follow existing recovery rules.
+
+**Given** saved retention settings,
+**When** they change,
+**Then** saving does not itself delete files,
+**And** disposal independently checks current eligibility and protected associations.
+
+**Given** retention administration capability,
+**When** settings are managed,
+**Then** it does not grant permission to read sensitive documents or filenames.
+
+**Given** an unfinished draft,
+**When** request-closure retention is applied,
+**Then** the default does not silently become draft expiry.
+
+**Traceability / planned verification:** Features §12/NFRs; Leave ADR-0006; platform
+ADR-0025/0030/0051 and spine AD-9/12/13. Observe relevant failing acceptance before
+implementation. API/database/browser tests prove current configuration scope, default
+versus override, exact applicability and existing-document impact, valid bounded
+values, whole-form saving, Cancel, revision/uncertain outcome, atomic history and
+separate document visibility. Verify no saved policy mutation from a field change,
+no administrative draft and no physical disposal on Save. Exact test paths/commands/
+runtime results pending.
+
+**Pre-story inputs / sizing:** Bind exact capability and navigation, ownership/schema,
+supported durations and jurisdiction precedence, closure semantics, applicability to
+existing/future documents and protected references, version/operation/error contracts
+and privacy-safe impact projection. Meaningful unresolved treatment requires agreement;
+do not infer retroactive shortening or universal jurisdiction rules. Accepted two-year
+default remains subject to organization/jurisdiction legal/privacy review before
+production. No draft expiration or additional legal-hold product implied. Final atomic
+coverage, concrete contracts, single-agent sizing and readiness stay open.
+
+**Impacts:** Scaffold: prove explicit-Save/versioned setting/impact/recovery patterns
+with consuming tests. Shared UI: reuse organization-specific Leave settings, Save/Cancel,
+validation and existing review where applicable; no new draft system. Agent context:
+existing saving/access/history guidance suffices. Documentation: settings/applicability/
+disposal contract, UX, source/test traceability and tracker/handoff. ADR: accepted saving
+and retention decisions unchanged. No code, tests, migrations, disposal or implementation
+authorization.
+
+### Story 4.11: Dispose of documents safely when retention ends
+
+**Scope approved — 2026-10-16; not implementation-ready.** Owners: Leave domain
+eligibility and Content physical disposal/reference protection. Consume prior retention,
+association/recovery and restricted worker foundations. No draft expiry or request/
+approval-history deletion authorized.
+
+As an organization responsible for sensitive documents,
+I want eligible files disposed of through a recoverable, audited process,
+So that they are not retained unnecessarily or deleted prematurely.
+
+**Acceptance Criteria:**
+
+**Given** a document reaches its retention deadline,
+**When** disposal is considered,
+**Then** Leave establishes eligibility using applicable settings and lifecycle,
+**And** Content checks its reference/protection state.
+
+**Given** a saved draft, unresolved attachment operation or another legitimate protection,
+**When** disposal is considered,
+**Then** it cannot bypass that protection,
+**And** stalled temporary protection follows Story 4.4's bounded reconciliation.
+
+**Given** confirmed disposal eligibility,
+**When** the process runs,
+**Then** competing association/renewal cannot make the file active while deletion proceeds.
+
+**Given** provider deletion succeeds,
+**When** completion is recorded,
+**Then** content becomes unavailable and retains minimal permitted disposal evidence,
+**And** its identity can never resolve to replacement bytes.
+
+**Given** timeout, crash or uncertain provider outcome,
+**When** recovery executes,
+**Then** it checks/retries the same disposal without falsely reporting completion.
+
+**Given** disposal failure or unresolved protection,
+**When** intervention is required,
+**Then** operations receives actionable diagnostics and recovery responsibility,
+**And** other eligible items can continue.
+
+**Given** later document access,
+**When** an authorized caller requests the disposed content,
+**Then** the application accurately reports disposal without exposing sensitive metadata
+or offering a misleading retry.
+
+**Traceability / planned verification:** Features §12/NFRs, spine AD-9/13, Leave
+ADR-0006, platform ADR-0022/0023/0025/0026/0027/0030/0038 and existing Content owner
+contracts. Observe relevant failing acceptance before implementation. Verify actual
+policy/closure eligibility and protected references, alternate writers/association and
+renewal races, deletion fences, provider success/failure/uncertain response, crash/retry,
+restricted per-item worker scope, bounded shutdown and continued unrelated work. Verify
+minimal immutable disposal evidence and safe authorized post-disposal responses. Exact
+test paths/commands, resource budgets and runtime results remain pending.
+
+**Pre-story inputs / sizing:** Bind eligibility observations/version/freshness, domain
+release and Content disposal state machine, race protection, supported provider deletion
+semantics, operation identity/retry/reconciliation and actual success evidence. Select
+minimal lawful audit/tombstone fields and retention without keeping document content
+or filenames unnecessarily. Specify provider versions/soft deletion and backup-copy
+handling/recovery so completion does not imply immediate erasure from every backup.
+Coordinate restore/replay to prevent disposed content becoming readable again. No
+additional legal-hold product, general draft expiry or backup redesign implied. Final
+contracts, atomic coverage and single-agent sizing/readiness remain open.
+
+**Impacts:** Scaffold: prove/promote restricted disposal/reconciliation worker patterns
+and provider/association race fixtures with consuming delivery. Shared UI: existing
+safe disposed/unavailable feedback, no technical disposal queue for business admins.
+Agent context: existing privacy/worker/lifecycle guidance suffices. Documentation:
+eligibility/reference/provider/backup and audit contracts, tests, operational runbook,
+tracker/handoff. ADR: accepted decisions unchanged. No code, tests, deletion, provider
+configuration, migrations or implementation authorization.

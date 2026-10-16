@@ -423,6 +423,24 @@ risk. Each workflow should run in a fresh context window.
 
 ## Delivery plan and progress
 
+**Story 4.11 scope approved — 2026-10-16:**
+[retention-based disposal](../../../_bmad-output/planning-artifacts/epics.md#story-411-dispose-of-documents-safely-when-retention-ends)
+combines Leave eligibility with Content protection/deletion, race-safe reference release,
+recoverable provider outcomes, restricted worker evidence and minimal audit. Preserve
+legitimate saved/in-flight references; specify provider-version/backup handling and no
+read resurrection. No draft expiry/history deletion or immediate all-backup erasure.
+Continue Story 4.12 abandoned-upload cleanup; contracts/coverage/sizing/readiness open.
+No code, tests, deletion or implementation authorization.
+
+**Story 4.10 scope approved — 2026-10-16:**
+[retention configuration](../../../_bmad-output/planning-artifacts/epics.md#story-410-configure-supporting-document-retention)
+lives in selected organization → Leave settings → Documents → Retention; whole-form
+Save / Cancel, no autosave/admin drafts. Exact Leave configuration capability is separate
+from organization admin/document reading. Show default/override and existing-document
+impact; saving does not delete files. Bind closure/precedence/duration/retroactivity
+and owner contracts before readiness; legal/privacy review remains. Continue Story 4.11
+eligible document disposal in group 6; coverage/sizing/readiness open, no code authorized.
+
 **Story 4.9 scope approved — 2026-10-16:**
 [attachment action-required notices](../../../_bmad-output/planning-artifacts/epics.md#story-49-notify-me-when-a-document-needs-attention)
 use atomic Leave outcome/intent and E3 delivery, privacy-safe templates/current-access
