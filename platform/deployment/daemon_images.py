@@ -3,6 +3,7 @@
 No CLI dispatch. Private socket injection exists only for synthetic qualification.
 This checks reported identities on one connection, not daemon bytes or runtime readiness.
 """
+from contextlib import contextmanager
 import os
 from pathlib import Path
 import time
@@ -44,7 +45,9 @@ def file_snapshot(paths):
     return result
 
 
-def acquire(target_path, run_id, *, _socket_path='/var/run/docker.sock'):
+@contextmanager
+def qualified_evidence(target_path, run_id):
+    """Hold run/receipt custody; owner probes surround the caller's daemon scope."""
     networks.validate_run_id(run_id)
     path = Path(target_path)
     if '..' in path.parts:
@@ -65,7 +68,11 @@ def acquire(target_path, run_id, *, _socket_path='/var/run/docker.sock'):
         inputs = [path, run_path / 'inventory.json', run_path / 'supabase/config.toml',
                   dev.ROOT / 'platform/deployment/.local/kdg-toolchains' / run_id / 'receipt.json']
         inputs += [dev.ROOT / name for name in sources]
-        input_snapshot = file_snapshot(inputs)
+        # Missing owner receipts use the established safe pre-daemon refusal.
+        try:
+            input_snapshot = file_snapshot(inputs)
+        except FileNotFoundError:
+            startup.fail('existing_images_required')
         # Owner tool probes have their own bounds, outside the daemon phase.
         evidence = startup.existing_images(args)
         config_plan = evidence[3]
@@ -85,26 +92,36 @@ def acquire(target_path, run_id, *, _socket_path='/var/run/docker.sock'):
                     fail('image_evidence_changed')
 
             current()
-            deadline = time.monotonic() + SECONDS
-            with dev.DockerSession(_socket_path=_socket_path, deadline=deadline) as session:
-                dev.docker_prerequisite(_session=session)
-
-                def inspect(reference, config):
-                    status, actual = session.exchange('GET', '/v1.48/images/' + reference + '/json')
-                    if status != 200:
-                        fail('image_missing' if status == 404 else 'image_inspection_failed')
-                    return descriptor(actual, config)
-
-                observations = {reference: inspect(reference, config) for reference, config in config_plan.items()}
-                current()
-                for reference, config in config_plan.items():
-                    if inspect(config, config) != observations[reference]:
-                        fail('image_identity_mismatch')
-                current()
-                if time.monotonic() >= deadline:
-                    fail('image_deadline')
-            # Recheck owner receipts/payload after the bounded daemon observations.
+            yield target, config_plan, current
+            # Caller must close its daemon connection before owner tool probes.
             if startup.existing_images(args) != evidence:
                 fail('image_evidence_changed')
             current()
-            return observations
+
+
+def observe_session(session, config_plan, current):
+    """Inspect exact child references then exact config IDs on a guarded session."""
+    def inspect(reference, config):
+        current()
+        status, actual = session.exchange('GET', '/v1.48/images/' + reference + '/json')
+        if status != 200:
+            fail('image_missing' if status == 404 else 'image_inspection_failed')
+        return descriptor(actual, config)
+    observations = {reference: inspect(reference, config) for reference, config in config_plan.items()}
+    current()
+    for reference, config in config_plan.items():
+        if inspect(config, config) != observations[reference]:
+            fail('image_identity_mismatch')
+    current()
+    return observations
+
+
+def acquire(target_path, run_id, *, _socket_path='/var/run/docker.sock'):
+    with qualified_evidence(target_path, run_id) as (_, config_plan, current):
+        deadline = time.monotonic() + SECONDS
+        with dev.DockerSession(_socket_path=_socket_path, deadline=deadline) as session:
+            dev.docker_prerequisite(_session=session)
+            observations = observe_session(session, config_plan, current)
+            if time.monotonic() >= deadline:
+                fail('image_deadline')
+    return observations

@@ -18,7 +18,8 @@ ROOT = Path(os.path.abspath(__file__)).parents[2]
 SCHEMA = 'platform/deployment/schema/development-target-v1.json'
 BASELINE = 'platform/docs/architecture/contracts/scaffold-dependency-baseline-2026-10-14.md'
 CONTRACT = 'platform/docs/architecture/contracts/scaffold-environment-and-generation.md'
-SOURCES = ['platform/deployment/dev.py', 'platform/deployment/networks.py',
+SOURCES = ['platform/deployment/resources.py', 'platform/deployment/tests/qualify_resources.py',
+           'platform/deployment/dev.py', 'platform/deployment/networks.py',
            'platform/deployment/daemon_images.py', 'platform/deployment/tests/qualify_daemon_images.py',
            'platform/deployment/startup.py',
            'platform/deployment/create_profile.py',

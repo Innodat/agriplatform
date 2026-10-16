@@ -59,34 +59,40 @@ def acquire(target_path, run_id, *, _socket_path='/var/run/docker.sock', _handof
                     fail('prepared_run_changed')
             if time.monotonic() >= deadline:
                 dev.refuse('docker', 'docker_timeout')
-        def exchange(method, suffix, body=None):
-            return session.exchange(method, PREFIX + suffix, body)
-        def inspect(reference):
-            status, value = exchange('GET', reference)
-            if status == 404:
-                return None
-            if status != 200:
-                fail('volume_inspection_failed')
-            return startup.volume_descriptor(value, target, run_id)
         evidence()
         dev.docker_prerequisite(_session=session)
         evidence()
-        expected = create_input(target, run_id)
-        volume = inspect(expected['Name'])
-        post_attempted = volume is None
-        if post_attempted:
-            evidence()
-            status, response = exchange('POST', 'create', expected)
-            if status != 201:
-                fail('volume_create_failed')
-            volume = startup.volume_descriptor(response, target, run_id)
-        evidence()
-        latest = inspect(expected['Name'])
-        if latest is None or latest != volume:
-            fail('volume_changed')
-        evidence()
-        result = {'volume': latest, 'post_attempted': post_attempted, 'runtime_ready': False}
+        result = acquire_session(target, run_id, session, evidence)
         if _handoff is not None:
             result = _handoff(target, result)
         evidence()
         return result
+
+
+def acquire_session(target, run_id, session, current):
+    """Validated owner algorithm on the caller's guarded connection and budget."""
+    def exchange(method, suffix, body=None):
+        current()
+        return session.exchange(method, PREFIX + suffix, body)
+    def inspect(reference):
+        status, value = exchange('GET', reference)
+        if status == 404:
+            return None
+        if status != 200:
+            fail('volume_inspection_failed')
+        return startup.volume_descriptor(value, target, run_id)
+    expected = create_input(target, run_id)
+    volume = inspect(expected['Name'])
+    post_attempted = volume is None
+    if post_attempted:
+        current()
+        status, response = exchange('POST', 'create', expected)
+        if status != 201:
+            fail('volume_create_failed')
+        volume = startup.volume_descriptor(response, target, run_id)
+    current()
+    latest = inspect(expected['Name'])
+    if latest is None or latest != volume:
+        fail('volume_changed')
+    current()
+    return {'volume': latest, 'post_attempted': post_attempted, 'runtime_ready': False}

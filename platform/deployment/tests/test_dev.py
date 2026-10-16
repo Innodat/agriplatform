@@ -20,6 +20,8 @@ FILES = [
     'platform/deployment/fixtures/kdg-synthetic-v1.json',
     'platform/deployment/registry.json',
     'platform/docs/architecture/contracts/scaffold-environment-and-generation.md',
+    'platform/deployment/resources.py',
+    'platform/deployment/tests/qualify_resources.py',
     'platform/deployment/networks.py',
     'platform/deployment/daemon_images.py',
     'platform/deployment/tests/qualify_daemon_images.py',

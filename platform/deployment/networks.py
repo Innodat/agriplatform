@@ -148,51 +148,10 @@ def acquire(target_path, run_id, *, _socket_path='/var/run/docker.sock', _handof
                     fail('prepared_run_changed')
             if time.monotonic() >= deadline:
                 dev.refuse('docker', 'docker_timeout')
-        def exchange(method, suffix, body=None):
-            return session.exchange(method, PREFIX + suffix, body)
-        def inspect(reference):
-            status, value = exchange('GET', reference)
-            if status == 404:
-                return None
-            if status != 200:
-                fail('network_inspection_failed')
-            return descriptor(value, target, run_id)
         evidence()
         dev.docker_prerequisite(_session=session)
         evidence()
-        expected = create_input(target, run_id)
-        network = inspect(expected['Name'])
-        if network is None:
-            evidence()
-            status, response = exchange('POST', 'create', expected)
-            if status == 409:
-                network = inspect(expected['Name'])
-                if network is None:
-                    fail('network_create_conflict')
-            elif status == 201:
-                created_id = canonical_id(response.get('Id'))
-                # Do not emit warnings: they are uncontrolled daemon content.
-                if type(response.get('Warning')) is not str or response['Warning']:
-                    fail('network_create_uncertain')
-                network = inspect(created_id)
-                if network is None or network['Id'] != created_id:
-                    fail('network_replaced')
-            else:
-                fail('network_create_failed')
-        network_id = network['Id']
-        evidence()
-        latest = inspect(network_id)
-        if latest is None or latest['Id'] != network_id:
-            fail('network_replaced')
-        # A name lookup also detects replacement even if the old ID is retained.
-        named = inspect(expected['Name'])
-        if named is None or named['Id'] != network_id:
-            fail('network_replaced')
-        # Last daemon observation is by immutable ID, immediately before handoff.
-        latest = inspect(network_id)
-        if latest is None or latest['Id'] != network_id:
-            fail('network_replaced')
-        evidence()
+        latest = acquire_session(target, run_id, session, evidence)
         result = latest if _handoff is None else _handoff(target, latest)
         evidence()
         return result
@@ -202,3 +161,51 @@ def invocation(target_path, run_id, executable, work, *, _socket_path='/var/run/
     """Construct startup arguments under the acquisition lock; never execute them."""
     return acquire(target_path, run_id, _socket_path=_socket_path,
                    _handoff=lambda target, network: startup.invocation(executable, work, target, run_id, network))
+
+
+def acquire_session(target, run_id, session, current):
+    """Validated owner algorithm on the caller's guarded connection and budget."""
+    def exchange(method, suffix, body=None):
+        current()
+        return session.exchange(method, PREFIX + suffix, body)
+    def inspect(reference):
+        status, value = exchange('GET', reference)
+        if status == 404:
+            return None
+        if status != 200:
+            fail('network_inspection_failed')
+        return descriptor(value, target, run_id)
+    expected = create_input(target, run_id)
+    network = inspect(expected['Name'])
+    if network is None:
+        current()
+        status, response = exchange('POST', 'create', expected)
+        if status == 409:
+            network = inspect(expected['Name'])
+            if network is None:
+                fail('network_create_conflict')
+        elif status == 201:
+            created_id = canonical_id(response.get('Id'))
+            # Do not emit warnings: they are uncontrolled daemon content.
+            if type(response.get('Warning')) is not str or response['Warning']:
+                fail('network_create_uncertain')
+            network = inspect(created_id)
+            if network is None or network['Id'] != created_id:
+                fail('network_replaced')
+        else:
+            fail('network_create_failed')
+    network_id = network['Id']
+    current()
+    latest = inspect(network_id)
+    if latest is None or latest['Id'] != network_id:
+        fail('network_replaced')
+    # A name lookup also detects replacement even if the old ID is retained.
+    named = inspect(expected['Name'])
+    if named is None or named['Id'] != network_id:
+        fail('network_replaced')
+    # Last daemon observation is by immutable ID, immediately before handoff.
+    latest = inspect(network_id)
+    if latest is None or latest['Id'] != network_id:
+        fail('network_replaced')
+    current()
+    return latest

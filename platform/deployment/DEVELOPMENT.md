@@ -546,9 +546,10 @@ disconnection before/after exchanges, uncertain mutation without replay, malform
 second responses, total deadlines and descriptor cleanup. These are isolated
 synthetic proofs; they do not qualify a real daemon's behavior.
 
-Connection continuity is bounded to one acquisition. It does not combine adapters
-or startup into one session, reserve resources, establish volume freshness or
-exclusivity, prove bootstrap safety, or grant runtime readiness. Real `up` remains
+Standalone connection continuity is bounded to one adapter acquisition. The combined
+resource constructor below extends that scope without executing startup, reserving
+resources, establishing volume freshness/exclusivity, proving bootstrap safety or
+granting runtime readiness. Real `up` remains
 refused before activation. No Docker mutation, pull, container, SQL, deployment or
 application activation is enabled by this change.
 
@@ -628,3 +629,45 @@ session continuity, volume reuse, recovery/health, deployment PostgreSQL compati
 and later owner migrations remain real runtime gates. P1/SERVICE/provider/device
 proof is separate. See [ENV_CREATE_TO_START_EVIDENCE.md](ENV_CREATE_TO_START_EVIDENCE.md)
 for qualification results and the five impact decisions.
+
+## Combined run-resource acquisition
+
+`resources.acquire` composes the existing network, volume and daemon-image owners under
+one persistent run lock and one Docker connection/version check. Current protected
+preparation, tool receipt, image receipt, retained manifests and source identities are
+required before daemon work. Owner executable probes run before opening and after
+closing the connection, with their own bounds. The daemon phase has one total
+five-second deadline across every phase and the immediate constructor handoff.
+
+The ordered daemon checks are: version; four exact child image references and four
+config identities; bridge acquisition; volume acquisition; repeat child/config
+observations; bridge ID/name/ID; volume. Every request rechecks current protected
+evidence. Before each POST and the optional constructor, these checks still hold.
+The constructor receives joint `network`, `volume`, `images`, `post_attempted` (volume)
+and `runtime_ready=false`. The `resources.invocation` helper delegates argv construction
+to `startup.invocation`; neither operation executes startup. Final source/evidence and
+owner postchecks must succeed before returning a result. Callback failure closes the
+connection and releases the lock. The trusted callback must be immediate and nonblocking;
+budget checks cannot preempt arbitrary Python.
+
+```sh
+python3 platform/deployment/tests/qualify_resources.py --target platform/deployment/environments/kdg-local.json --run-id <fresh-qualified-UUID>
+python3 -m unittest discover -s platform/deployment/tests -p 'test_resources.py'
+```
+
+The public qualifier always uses an isolated private synthetic Unix daemon. `--control
+existing` is also positive. Negative controls are `image-missing`, `image-foreign`,
+`network-foreign`, `network-replaced`, `volume-foreign`, `volume-changed`,
+`lost-network-response`, `lost-volume-response`, `old-daemon`, `malformed` and `slow`.
+The independent oracle checks exact ordered bodies, one connection/version and the
+specific terminal request for each negative control. There is no configurable endpoint,
+real Docker mutation, image pull, container, SQL or owner migration. Changed sources
+require fresh preparation and fresh tool/image qualification on a new run UUID.
+
+A connected acquisition constructs a candidate startup handoff. It does not reserve
+resources, establish volume freshness or exclusivity, qualify bootstrap/secret policy,
+prove continuous container execution or promise future peer liveness. Each standalone
+adapter retains its existing contract and reuses the extracted owner algorithm.
+`dev.py up` stays gated and `runtime_ready=false`. This extends the existing ENV scaffold;
+shared UI and agent context need no change, owner documentation is updated, and accepted
+ADRs remain unchanged.
