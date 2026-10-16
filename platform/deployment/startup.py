@@ -19,6 +19,7 @@ import uuid
 import dev
 import copy
 import create_profile
+import startup_lifecycle as lifecycle
 import images
 import toolchain
 
@@ -28,6 +29,7 @@ LABEL_PREFIX = 'io.agriplatform.env.'
 BINDING = 'com.docker.network.bridge.host_binding_ipv4'
 FIXTURE_SECONDS = 5
 LOCK_SECONDS = .5
+CREATE_BOUNDARY = 9  # Eight exact prerequisites followed by the validated create.
 PROOF_SOURCES = [SOURCE, 'platform/deployment/tests/qualify_startup.py',
                  'platform/deployment/dev.py', 'platform/deployment/images.py', images.PINS,
                  'platform/deployment/toolchain.py', toolchain.PINS]
@@ -318,15 +320,49 @@ def selected_facts(fixture):
     return {'image': fixture['postgres_image'], 'name': 'supabase_db_' + project,
             'network': fixture['network']['Id'], 'publish': str(fixture['database_port']) + ':5432',
             'database_volume': 'supabase_db_' + project, 'host_bind_mounts': False,
-            'create_refused': True, 'complete_create_profile_proven': True}
+            'create_refused': not fixture.get('lifecycle', False), 'complete_create_profile_proven': True}
 
 
-def fixture_command(runtime, args, fixture, events, *, environment=None):
+def lifecycle_control_event(control):
+    return {'kind': 'lifecycle_control_injected', 'control': control, 'baseline_validated': True}
+
+
+def lifecycle_prefix(fixture, events, phase):
+    facts = selected_facts(dict(fixture, postgres_image=fixture['selection_plan'][fixture['postgres_image']]))
+    facts.update(original_image=fixture['postgres_image'], immutable_selection_proven=True)
+    descriptors = [fixture['image_observations'][fixture['selection_plan'][tag]] for tag in fixture['images']]
+    if phase == 'create':
+        validate_observations(events + [{'kind': 'postgres_create', 'facts': facts}], facts, descriptors)
+    else:
+        validate_observations(events[:CREATE_BOUNDARY], facts, descriptors)
+        if phase == 'cp' and len(events) != CREATE_BOUNDARY:
+            fail('unsafe_lifecycle')
+        if phase == 'start' and (len(events) != CREATE_BOUNDARY + 1 or events[CREATE_BOUNDARY] != lifecycle.transfer_event()):
+            fail('unsafe_lifecycle')
+
+
+def fixture_command(runtime, args, fixture, events, *, environment=None, archive=None):
     if (type(args) not in (list, tuple) or any(type(a) is not str for a in args)
             or len(args) > 256 or sum(len(a) for a in args) > LIMIT or len(events) >= 64
             or runtime != 'docker'):
         fail('unexpected_container_command')
     project = fixture['project']
+    if fixture.get('lifecycle'):
+        if args[:1] == ['cp']:
+            lifecycle_prefix(fixture, events, 'cp')
+            if args != ['cp', '-', lifecycle.CONTAINER_ID + ':/']:
+                fail('unsafe_lifecycle')
+            lifecycle.validate_archive(archive)
+            events.append(lifecycle.transfer_event())
+            return 0, '', ''
+        if args[:1] == ['start']:
+            lifecycle_prefix(fixture, events, 'start')
+            if args != ['start', lifecycle.CONTAINER_ID]:
+                fail('unsafe_lifecycle')
+            events.append({'kind': 'postgres_start_refused'})
+            return 125, '', 'ENV synthetic start refused'
+        if len(events) >= CREATE_BOUNDARY:
+            fail('unsafe_lifecycle')
     if tuple(args[:1]) == ('create',) or tuple(args[:2]) == ('image', 'inspect'):
         validate_image_observations(fixture.get('image_observations'), fixture['selection_plan'])
     if tuple(args[:1]) == ('create',):
@@ -349,7 +385,11 @@ def fixture_command(runtime, args, fixture, events, *, environment=None):
         facts = create_facts(selected, selected_fixture, environment=inherited)
         facts['original_image'] = fixture['postgres_image']
         facts['immutable_selection_proven'] = True
+        if fixture.get('lifecycle'):
+            lifecycle_prefix(fixture, events, 'create')
         events.append({'kind': 'postgres_create', 'facts': facts})
+        if fixture.get('lifecycle'):
+            return 0, lifecycle.CONTAINER_ID + '\n', ''
         return 125, '', 'ENV synthetic create refused'
     if args == ['container', 'inspect', 'supabase_db_' + project, '--format', '{{json .State}}']:
         events.append({'kind': 'container_inspect'})
@@ -444,10 +484,10 @@ def event_file(directory):
 
 def rejected_event(args, code):
     verbs = {'container', 'image', 'network', 'volume', 'inspect', 'version', 'info',
-             'ps', 'ls', 'create', 'pull', 'run', 'start', 'rm', 'stop', 'prune'}
+             'ps', 'ls', 'create', 'cp', 'pull', 'run', 'start', 'rm', 'stop', 'prune'}
     flags = {'--format', '--filter', '--quiet', '-q', '-a', '--all', '--type', '--name',
              '--network', '-p', '-v', '-e', '--label', '--entrypoint', '--rm'}
-    return {'kind': 'rejected', 'reason': code if code in {'unsafe_create', 'unexpected_container_command'}
+    return {'kind': 'rejected', 'reason': code if code in {'unsafe_create', 'unexpected_container_command', 'unsafe_lifecycle'}
             else 'fixture_refused', 'command': [arg if arg in verbs else 'other' for arg in args[:2]],
             'flags': sorted({arg for arg in args if arg in flags})}
 
@@ -467,6 +507,7 @@ def fixture_main(runtime, args, directory, stop_parent=False, *, environment=Non
             events = dev.decode(raw)
             if type(events) is not list or len(events) > 64:
                 fail('fixture_invalid')
+            control_event = None
             try:
                 if tuple(args[:1]) == ('create',) and profile_control.startswith('invalid-create-'):
                     # A negative control proves rejection only after the unchanged
@@ -482,8 +523,33 @@ def fixture_main(runtime, args, directory, stop_parent=False, *, environment=Non
                         environment['JWT_SECRET'] = 'ENV_SYNTHETIC_CANARY'
                     elif profile_control == 'invalid-create-routing':
                         environment['DOCKER_CONTEXT'] = 'ENV_SYNTHETIC_CANARY'
-                code, output, error = fixture_command(runtime, args, fixture, events, environment=environment)
+                archive = None
+                if fixture.get('lifecycle') and args[:1] == ['cp']:
+                    # Validate operands/order before consuming any stdin.
+                    try:
+                        lifecycle_prefix(fixture, events, 'cp')
+                        if runtime != 'docker' or args != ['cp', '-', lifecycle.CONTAINER_ID + ':/']:
+                            fail('unsafe_lifecycle')
+                        archive = lifecycle.read_archive(sys.stdin.fileno())
+                        lifecycle.validate_archive(archive)
+                    except dev.Refusal:
+                        if profile_control.startswith('invalid-lifecycle-'):
+                            fail('invalid_control_baseline')
+                        raise
+                    if profile_control.startswith('invalid-lifecycle-'):
+                        # Original transfer independently passed before injection.
+                        args = list(args)
+                        if profile_control == 'invalid-lifecycle-target':
+                            args[-1] = 'f' * 64 + ':/'
+                        elif profile_control == 'invalid-lifecycle-archive':
+                            archive = b'ENV_SYNTHETIC_CANARY'
+                        elif profile_control == 'invalid-lifecycle-order':
+                            args = ['start', lifecycle.CONTAINER_ID]
+                        control_event = lifecycle_control_event(profile_control)
+                code, output, error = fixture_command(runtime, args, fixture, events, environment=environment, archive=archive)
             except dev.Refusal as refusal:
+                if control_event is not None:
+                    events.append(control_event)
                 events.append(rejected_event(args, refusal.code))
                 code, output, error = 125, '', 'ENV synthetic command refused'
             check_root(directory, root)
@@ -497,12 +563,18 @@ def fixture_main(runtime, args, directory, stop_parent=False, *, environment=Non
             stream.flush()
             os.fsync(stream.fileno())
             check_event_file(root, stream.fileno())
-        if parent_fd is not None and args[:1] == ['create'] and events[-1]['kind'] in {'postgres_create', 'rejected'}:
+        if parent_fd is not None and (events[-1]['kind'] in {'rejected', 'postgres_start_refused'}
+                or not fixture.get('lifecycle') and args[:1] == ['create'] and events[-1]['kind'] == 'postgres_create'):
             signal.pidfd_send_signal(parent_fd, signal.SIGKILL)
         sys.stdout.write(output)
         sys.stderr.write(error)
         return code
     except (OSError, ValueError, KeyError, TypeError, dev.Refusal):
+        if parent_fd is not None:
+            try:
+                signal.pidfd_send_signal(parent_fd, signal.SIGKILL)
+            except OSError:
+                pass
         return 125
     finally:
         if parent_fd is not None:
@@ -530,7 +602,8 @@ def install_fixture(work, target, run_id, network, executable=None, guard_parent
                'executable': str(executable) if executable is not None else '',
                'database_port': target['ports']['database'], 'network': network,
                'images': references, 'postgres_image': references[0], 'selection_plan': selection_plan,
-               'image_observations': image_observations}
+               'image_observations': image_observations,
+               'lifecycle': profile_control == 'lifecycle-positive' or profile_control.startswith('invalid-lifecycle-')}
     write_private(work / 'fixture.json', images.canonical(fixture).encode())
     write_private(work / 'events.json', b'[]')
     for runtime in ['docker', 'podman']:
@@ -548,7 +621,8 @@ def install_fixture(work, target, run_id, network, executable=None, guard_parent
 
 def synthetic_probe(executable, target, run_id, network=None, control='positive', *, selection_plan, volume=None, image_observations=None):
     if control not in ['positive', 'invalid-network', 'contaminated-workdir', 'reject-command', 'invalid-selection-plan',
-                       'invalid-create-script', 'invalid-create-environment', 'invalid-create-routing']:
+                       'invalid-create-script', 'invalid-create-environment', 'invalid-create-routing',
+                       'lifecycle-positive', 'invalid-lifecycle-target', 'invalid-lifecycle-archive', 'invalid-lifecycle-order']:
         fail('unknown_control')
     if control == 'invalid-selection-plan':
         selection_plan = dict(selection_plan)
@@ -610,21 +684,40 @@ def synthetic_probe(executable, target, run_id, network=None, control='positive'
             validate_observations(events[:-1] + [{'kind': 'postgres_create', 'facts': expected_facts}],
                                   expected_facts, list(image_observations[selection_plan[tag]] for tag in fixture['images']))
             fail('expected_create_profile_rejected')
-        validate_observations(events, expected_facts, list(image_observations[selection_plan[tag]] for tag in fixture['images']))
+        if fixture.get('lifecycle'):
+            if control.startswith('invalid-lifecycle-'):
+                command = ['start', 'other'] if control == 'invalid-lifecycle-order' else ['cp', 'other']
+                expected_rejection = {'kind': 'rejected', 'reason': 'unsafe_lifecycle', 'command': command, 'flags': []}
+                if (len(events) != CREATE_BOUNDARY + 2
+                        or events[CREATE_BOUNDARY:] != [lifecycle_control_event(control), expected_rejection]):
+                    fail('boundary_not_proven')
+                validate_observations(events[:CREATE_BOUNDARY], expected_facts,
+                                      list(image_observations[selection_plan[tag]] for tag in fixture['images']))
+                fail('expected_lifecycle_rejected')
+            if len(events) != CREATE_BOUNDARY + 2 or events[CREATE_BOUNDARY:] != [lifecycle.transfer_event(), {'kind': 'postgres_start_refused'}]:
+                fail('boundary_not_proven')
+            validate_observations(events[:CREATE_BOUNDARY], expected_facts,
+                                  list(image_observations[selection_plan[tag]] for tag in fixture['images']))
+        else:
+            validate_observations(events, expected_facts, list(image_observations[selection_plan[tag]] for tag in fixture['images']))
         return {'ok': True, 'stage': 'startup_invocation', 'code': 'synthetic_boundary_proven',
                 'runtime_ready': False, 'synthetic_network': True, 'container_executed': False,
+                'synthetic_create_acknowledged': fixture.get('lifecycle', False),
+                'secret_transfer_validated': fixture.get('lifecycle', False),
+                'first_start_refused': fixture.get('lifecycle', False),
                 'facts': expected_facts, 'event_count': len(events), 'image_observations': image_observations,
                 'configuration': {'exact_generated_bytes_verified': True,
                                   'supabase_files_config_and_optional_cli_latest_only': True},
                 'source_sha256': before_sources,
-                'limits': {'first_postgres_create_only': True, 'digest_enforcement': False,
+                'limits': {'first_postgres_create_only': not fixture.get('lifecycle', False),
+                           'first_postgres_start_only': fixture.get('lifecycle', False), 'digest_enforcement': False,
                            'immutable_selection': True,
                            'runtime_isolation': False, 'startup_helpers': False, 'shell_command_sql_qualified': False}}
 
 
 def validate_observations(events, facts, descriptors=None):
     # Image preflight is concurrent: each of the four selected images appears once.
-    if (type(events) is not list or len(events) != 9 or any(type(event) is not dict for event in events)
+    if (type(events) is not list or len(events) != CREATE_BOUNDARY or any(type(event) is not dict for event in events)
             or any(type(event.get('image_index')) is not int for event in events[1:5])
             or events[0] != {'kind': 'container_inspect'}
             or sorted([event.get('image_index', -1) for event in events[1:5]]) != list(range(4))

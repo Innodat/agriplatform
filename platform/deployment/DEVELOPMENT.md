@@ -559,3 +559,38 @@ execution enforcement, daemon continuity across connections, independently hashe
 bytes, complete startup helpers or runtime readiness. `runtime_ready=false`, no containers,
 SQL, migrations or dependent application activation remain binding. See
 [ENV_DAEMON_IMAGE_EVIDENCE.md](ENV_DAEMON_IMAGE_EVIDENCE.md) for results and impacts.
+
+## Synthetic PostgreSQL create-to-start qualification
+
+The existing startup qualifier adds `--control lifecycle-positive`. It validates the
+complete pinned first-create profile, returns one fixed synthetic container identifier,
+validates the subsequent exact `docker cp - <identifier>:/` transfer in memory, then
+refuses the first `docker start <identifier>`. No container is created and no secret
+is installed. The default `positive` control still refuses create.
+
+```sh
+python3 platform/deployment/tests/qualify_startup.py --target platform/deployment/environments/kdg-local.json --run-id <fresh-qualified-UUID> --control lifecycle-positive
+```
+
+The new negative controls are `invalid-lifecycle-target`, `invalid-lifecycle-archive`
+and `invalid-lifecycle-order`. Each first validates the original pinned request and
+archive before injecting its defect. An invalid original cannot qualify a negative
+control. The prior eight controls retain their behavior. Run process qualification
+outside a restrictive execution sandbox: this pinned executable uses socketpair stdin,
+whose transfer may be denied inside that sandbox. Empty input always fails validation.
+
+The archive must match the observed plain USTAR format: exactly 10240 bytes, one regular
+member at the pinned root-key path, mode 0644, uid/gid 0, the public local default content,
+448 zero member-padding bytes, and 9216 zero bytes after the padded data block. Links, extra members, extended headers, compression, traversal,
+malformed fields, truncation and trailing data refuse. Reading is bounded to one second,
+inside the unchanged five-second wrapper deadline. Nothing extracts or persists the
+archive, logs its contents/member names, or hashes its secret input. Selected safe facts
+are the only events. Terminal refusal kills only the proven pinned parent to prevent
+cleanup execution. Changed sources/evidence require a fresh qualification.
+
+This proof establishes synthetic sequencing only. `dev.py up` remains gated and
+`runtime_ready=false`; bootstrap/secret policy, helper inventory, daemon/resource
+session continuity, volume reuse, recovery/health, deployment PostgreSQL compatibility
+and later owner migrations remain real runtime gates. P1/SERVICE/provider/device
+proof is separate. See [ENV_CREATE_TO_START_EVIDENCE.md](ENV_CREATE_TO_START_EVIDENCE.md)
+for qualification results and the five impact decisions.

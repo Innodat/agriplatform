@@ -537,10 +537,14 @@ class ObservationAndSourceHardening(unittest.TestCase):
             def mutate(command, work, env, timeout, limit):
                 (root / 'platform/deployment/dev.py').write_text('temporary mutation')
                 raise dev.Refusal('images_cli', 'command_refused')
-            with patch.object(dev, 'ROOT', root), patch.object(startup.images, 'bounded_command', side_effect=mutate):
-                with self.assertRaises(dev.Refusal) as caught:
-                    startup.synthetic_probe(Path('/unused'), target, RUN, selection_plan=test_plan(), image_observations=test_observations())
-                self.assertEqual(caught.exception.code, 'proof_source_changed')
+            for control in ['positive', 'lifecycle-positive']:
+                with patch.object(dev, 'ROOT', root), patch.object(startup.images, 'bounded_command', side_effect=mutate):
+                    # Restore only temporary source before each independent attempt.
+                    shutil.copyfile(ROOT / 'platform/deployment/dev.py', root / 'platform/deployment/dev.py')
+                    with self.assertRaises(dev.Refusal) as caught:
+                        startup.synthetic_probe(Path('/unused'), target, RUN, control=control,
+                                                selection_plan=test_plan(), image_observations=test_observations())
+                    self.assertEqual(caught.exception.code, 'proof_source_changed')
 
     def test_direct_control_requires_exact_rejection_event(self):
         for expected in [True, False]:

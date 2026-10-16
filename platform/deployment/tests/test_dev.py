@@ -27,6 +27,8 @@ FILES = [
     'platform/deployment/tests/qualify_volumes.py',
     'platform/deployment/startup.py',
     'platform/deployment/create_profile.py',
+    'platform/deployment/startup_lifecycle.py',
+    'platform/deployment/fixtures/supabase-pg17-lifecycle.md',
     'platform/deployment/fixtures/supabase-pg17-bootstrap.txt',
     'platform/deployment/fixtures/supabase-pg17-profile.md',
     'platform/deployment/tests/qualify_networks.py',
