@@ -813,7 +813,21 @@ integration may populate them without replacing Leave's approval rules. Preserve
 authorized overrides, flag missing/invalid assignments, and retain NGO/approver
 eligibility checks. Do not silently reroute pending requests on directory changes.
 
-Start with a leave-type list showing name, current policy, and active/archived
+Leave-type retirement — accepted 2026-10-15 under Leave ADR-0132: display Active/Inactive
+and Deactivate. Show current/scheduled dependencies and block while policy assignments
+depend on the type; link to separately reviewed assignment resolution. Review outstanding
+entitlement/request treatment explicitly, preserving balances, approved funding and
+historical access. Concurrent changes require fresh checks. Existing draft compatibility
+rules preserve useful input and explain cleared obsolete choices.
+
+Retirement resolution — accepted 2026-10-15 under Leave ADR-0138: retain one Deactivate
+action, with authorized links to resolve assignment, unexpired-entitlement, pending/
+unfinished-approved-request and unresolved funding/correction dependencies. Historical-only
+records do not block. Existing reviewed changes use clear employee-facing reasons in
+standard notifications/authorized details, preserving sensitive-notice privacy. No forced
+zeroing, separate Disable/Close control, combined retirement or custom message composer.
+
+Start with a leave-type list showing name, current policy, and Active/Inactive
 status. Selecting a type opens configuration grouped into Entitlement, Request
 rules, Approval, and Documents & privacy. Keep advanced settings in expandable
 sections rather than displaying every rule at once. Preserve existing configuration
@@ -891,6 +905,32 @@ It illustrates aligned calendar/anniversary dates; actual employee-specific impa
 and effective-date calculation remains unimplemented and publication stays disabled.
 The general page composition remains approved.
 
+No balance tracking — accepted 2026-10-15 under Leave ADR-0135: offer the explicit option
+separately from automatic and manual-only entitlement. Show Not balance-limited instead
+of zero/infinite available amounts, retaining actual requested duration and usage/history.
+Paid/unpaid classification stays explicit and independent; do not show balance-shortfall
+remedies or fictional funding. Normal policy/date/document/approval checks remain. Used
+tracked/untracked conversion is unavailable for MVP; detailed consumer UX/tests remain gated.
+
+In-use definition — accepted 2026-10-15 under Leave ADR-0140: confirmed employee assignment,
+including future-dated, locks used-policy basis/category choices. Unassigned unused
+publication or unfinished employee draft selection alone does not. Ending assignments
+or zero balance does not unlock a previously used policy. Published changes remain
+new versions; confirmation rechecks first-use concurrency.
+
+Entitlement source restriction — accepted 2026-10-15 under Leave ADR-0134: allow automatic
+or manual-only at initial setup, then show the category read-only once used for MVP with
+a concise explanation. Supported daily/monthly/upfront method changes retain their own
+rules. Adjust leave balance remains available under its separate authority and does not
+change entitlement source. Untracked/no-balance behavior follows separate Leave ADR-0135.
+
+Leave-year basis restriction — accepted 2026-10-15 under Leave ADR-0133: calendar-year
+or employment-anniversary selection remains available during initial setup; once used,
+show the basis read-only with a concise explanation. Reject attempted basis migration
+through replacement assignment as well. A new type can be configured independently,
+but creation/manual adjustments do not migrate existing balances or requests. Preserve
+accepted earning-method changes and necessary factual correction workflows.
+
 Open a leave type's current policy as a readable summary before entering edit mode.
 Group it into entitlement/accrual, request rules, approval requirements, and
 documents/privacy. Show its effective date prominently; offer Edit policy to
@@ -952,6 +992,12 @@ Before publishing, show changed settings with previous/new values, the effective
 date, covered employees with overrides distinguished, and any existing requests
 needing attention. Do not silently rewrite existing requests. Keep unchanged
 settings expandable. Offer Back to editing and Publish policy version.
+
+Scheduled amendment cutoff — accepted 2026-10-15 under Leave ADR-0139: offer Amend/Cancel
+only before any affected employee effect starts. Once partly effective, explain that a
+new prospective policy version is required; show actual employee-specific future effects
+without implying reversal of granted entitlement. Preserve original version/notices and
+existing correction/review safeguards. Backend rechecks the cutoff on confirmation.
 
 For future publication, retain the current policy as the main summary and show a
 Scheduled change notice with its effective date and a link to the scheduled version.
@@ -1057,6 +1103,45 @@ authorization and sensitive-field permissions to list, search, details, and link
 records; audit access must not bypass medical-document authorization.
 
 ### Employee Leave settings
+
+Already-available monthly portion — accepted 2026-10-15 under Leave ADR-0145: assignment
+review shows original/revised portion, balance difference and affected requests. Apply
+existing adjusted/full choice (April 1.5 to 0.75 for 15/30 adjusted coverage, or retain
+1.5 full). Do not require a separate manual deduction; preserve original evidence and
+request-impact safeguards. Annual-upfront retention remains separate.
+
+Monthly covered-portion availability — accepted 2026-10-15 under Leave ADR-0144: explain
+the covered amount and its original scheduled usable date even when assignment has ended.
+For 1–15 April/0.75 adjusted days/end timing, show 30 April availability without implying
+April 16–30 earning or current request eligibility. Preserve ordinary date/status guidance.
+
+Initial upfront coverage help — accepted 2026-10-15 under Leave ADR-0143: existing
+partial-period choice covers later employment/assignment start, giving the eligible
+remaining-year proportion or one full allowance. Explain first coverage separately from
+resumption, which does not repeat an annual grant. No additional policy switch.
+
+Monthly partial-coverage help — accepted 2026-10-15 under Leave ADR-0142: explain the
+existing partial-period choice using days both employed and assigned. Example: nominal
+1.5 days and 15/30 covered days gives 0.75 adjusted or 1.5 full once; no coverage gives
+none and repeated assignments do not multiply instalments. No additional policy switch.
+Default adjustment and exact timing/precision/correction contracts remain binding.
+
+Assignment resumption — accepted 2026-10-15 under Leave ADR-0141: review coverage gap,
+retained portions/expiry and resulting earning without implying gap catch-up or a fresh
+upfront annual grant. Additional grants use authorized adjustment; erroneous gaps use
+reviewed correction. Exact monthly/upfront gap examples remain pre-story contracts.
+
+Assignment ending review — accepted 2026-10-15 under Leave ADR-0137: show earning cutoff,
+coverage end, retained entitlement/expiry and affected requests. Explain that retained
+balance alone permits no new request outside policy coverage. Ending does not itself
+reclaim an upfront grant, erase balance or terminate employment. Existing request-impact
+review and original-history safeguards apply; exact cutoff and period contracts remain gated.
+
+Assignment replacement review — accepted 2026-10-15 under Leave ADR-0136: replacement
+stays within the same leave type, preserving earned entitlement, original expiry and
+carry-over history. Show permitted effective dates/new earning and request impacts,
+without implying balance reset or another annual grant. Assigning another type is
+separate and transfers no entitlement; basis/category migration restrictions remain.
 
 The [employee Leave-settings preview](./mockups/employee-leave-settings-preview.html)
 shows a readable employee summary grouped into Employment & approval, Work schedule

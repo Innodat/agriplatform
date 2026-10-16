@@ -331,7 +331,7 @@ Each versioned leave type/policy supports:
 - Permitted units: full day, half day, hours
   New leave types initially permit all three; managers may restrict them. Arbitrary
   day fractions are not supported; use Half day or Hours for partial-day requests.
-- Annual entitlement available daily, upfront, or in monthly instalments; manual-only grants remain separate
+- Annual entitlement available daily, upfront, or in monthly instalments; manual-only grants and explicit No balance tracking remain separate
   For new automatic-entitlement policies, default to **Available at the start of the
   leave year** and **Adjust for time employed**, using calendar-day proration. Both
   selections remain editable before publication; existing policies/explicit choices
@@ -357,6 +357,38 @@ illustrative threshold, not a universal or jurisdictional default.
 
 Used leave types and policy versions are archived rather than hard-deleted.
 
+Policy in-use definition — accepted 2026-10-15 under
+[ADR-0140](./architecture/decisions/0140-policy-in-use-from-confirmed-assignment.md):
+a confirmed employee assignment, including future-dated, makes the policy in use for
+the MVP basis/category restrictions. Historical use remains binding after assignment
+ending or zero balance. Creating/publishing an unassigned unused policy or selecting a
+type in an unfinished employee draft does not lock these choices. Published changes
+still require new immutable versions. Guard first assignment against concurrent changes.
+
+Scheduled-policy amendment cutoff — accepted 2026-10-15 under
+[ADR-0139](./architecture/decisions/0139-scheduled-policy-amendment-cutoff.md):
+amend/cancel only before any affected employee effect starts. Once any part is effective,
+use a new prospective policy version, preserving already-earned/granted entitlement and
+original evidence. Review employee-specific future outcomes and notify actual effects;
+do not imply partial rollback or instant cancellation. Authorized factual correction
+remains separate. Guard concurrent effective-boundary crossing on the backend.
+
+Leave-type retirement — accepted 2026-10-15 under
+[ADR-0132](./architecture/decisions/0132-leave-type-deactivation-dependency-guards.md):
+show Active/Inactive and Deactivate. Block deactivation while current/scheduled policy
+assignments depend on the type; link to separate reviewed assignment resolution.
+Review outstanding entitlement/request treatment without silently erasing balances,
+cancelling requests or changing approved funding. Preserve identity, versions, historical
+access and draft compatibility; guard concurrent assignment/deactivation on the backend.
+Under [ADR-0138](./architecture/decisions/0138-simple-leave-type-deactivation-and-employee-explanations.md),
+also block remaining unexpired entitlement, pending requests, approved leave not yet
+finished and unresolved funding/correction dependencies. Historical-only references do
+not block. Resolve through existing reviewed actions with clear employee-facing reasons
+in normal notifications/details; no automatic zeroing or request cancellation. Defer
+separate closure/disable, combined retirement and custom message-composer workflows.
+Preserve sensitive-notice privacy and unsupported-migration restrictions. Exact predicates,
+dates and all-writer coordination remain binding pre-story contracts.
+
 Policy applicability — agreed 2026-10-12 under
 [ADR-0126](./architecture/decisions/0126-explicit-policy-assignment-with-employee-filters.md):
 managers filter/select employees, review the exact selected set and explicitly assign
@@ -370,6 +402,77 @@ grant and does not bypass draft-preservation safeguards. Preserve effective/hist
 and required calculation/review/notification protections on consequential mutations.
 
 ### 5. Employee entitlement overrides
+
+Already-available monthly reconciliation — accepted 2026-10-15 under
+[ADR-0145](./architecture/decisions/0145-reconcile-start-available-monthly-coverage-changes.md):
+shortened assignment coverage recalculates a start-available monthly instalment under
+the existing adjusted/full choice. April 1.5 days with ending on 15 April becomes 0.75
+adjusted or remains 1.5 full. Review balance/request consequences as part of assignment
+change, preserving original evidence and ADR-0128 safeguards. No separate manual deduction,
+duplicate derived/posted effect, silent cancellation or paid-to-unpaid rewrite. Annual
+upfront retention remains separate; bind exact effect/evidence/coordination before readiness.
+
+Monthly availability after coverage ends — accepted 2026-10-15 under
+[ADR-0144](./architecture/decisions/0144-monthly-availability-after-assignment-coverage-ends.md):
+preserve the covered portion at its original scheduled availability date. For 1–15 April
+coverage giving 0.75 adjusted days under end-of-period timing, release remains 30 April;
+no earning for uncovered dates, early release or loss merely because coverage ended.
+Retained balance does not independently authorize requests outside coverage. Use actual
+aligned periods and existing expiry/funding/precision/current-authority rules.
+
+Initial upfront assignment — accepted 2026-10-15 under
+[ADR-0143](./architecture/decisions/0143-initial-upfront-grant-from-policy-coverage-start.md):
+start coverage at the later employment/assignment start and use the existing proration
+choice: remaining eligible calendar-day proportion or full annual amount once. First
+coverage 1 July 2026 at 18 annual days gives 18 × 184/365 before conversion/rounding with
+adjustment, assuming employment through year end. Known employment-end/other applicable
+rules remain. No new switch or duplicate grant on resumption/replacement; preserve
+assignment-ending versus employment-departure distinctions and initial-grant provenance.
+
+Monthly assignment coverage — accepted 2026-10-15 under
+[ADR-0142](./architecture/decisions/0142-monthly-instalments-for-partial-assignment-coverage.md):
+the existing partial-period choice applies to dates both employed and assigned. Adjusted
+instalments use eligible calendar days over all days in the aligned instalment; the
+full-period option gives at most one nominal instalment where coverage exists. No covered
+days means no instalment, and repeated assignments never multiply it. A 1.5-day nominal
+instalment with 15/30 covered days gives 0.75 adjusted or 1.5 full once. No additional
+setting; explain employment/assignment coverage in field help. Existing default/precision/
+rate/cap rules remain; exact availability/cutoff/correction examples remain contracts.
+
+Assignment gaps/resumption — accepted 2026-10-15 under
+[ADR-0141](./architecture/decisions/0141-assignment-gaps-and-resumption-without-duplicate-grants.md):
+retain earlier earned entitlement/original expiry, earn nothing for uncovered dates and
+resume under applicable rules without another upfront grant merely from reassignment.
+Additional intended amounts use authorized adjustments; erroneous gaps use reviewed
+history correction. Exact monthly/upfront gap calculations remain explicit pre-story
+examples, not an inferred restart grant, availability date or proration formula.
+
+Ending policy assignment — accepted 2026-10-15 under
+[ADR-0137](./architecture/decisions/0137-ending-policy-assignment-preserves-earned-entitlement.md):
+stop automatic earning from the effective end and reject new requests for dates outside
+coverage. Preserve earned entitlement/expiry/history, including an existing upfront grant;
+retained balance stays visible but grants no request authority without policy coverage.
+Review existing-request consequences and preserve original decisions under ADR-0128.
+Ending assignment is separate from employment departure and its factual proration rules.
+Bind exact cutoff/date, existing-request and subsequent period interpretation before readiness.
+
+Policy-assignment replacement — accepted 2026-10-15 under
+[ADR-0136](./architecture/decisions/0136-same-type-policy-replacement-and-earned-entitlement.md):
+replacement governs the same leave type. Preserve earned entitlement, original expiry
+and carry-over history; apply new earning rules only from permitted effective dates,
+without another annual grant or balance reset. Different-type assignment is separate
+and transfers no balance. Review requests and preserve basis/category migration restrictions.
+Exact assignment representation/effect contracts remain required; no new policy catalogue
+is inferred. Existing recurring overrides still require explicit change under ADR-0083.
+
+Entitlement-source changes — accepted 2026-10-15 under
+[ADR-0134](./architecture/decisions/0134-used-policy-entitlement-source-fixed-for-mvp.md):
+choose automatic entitlement or manual-only grants during initial setup; once used, keep
+that category fixed for MVP. Replacement/new-type routes do not migrate existing
+entitlement between categories. Supported daily/monthly/upfront changes and authorized
+one-off adjustments, including extra grants to automatic policies, remain available.
+No adjustment implicitly starts/stops automatic earning. No balance tracking is separately
+defined under ADR-0135 below.
 
 Distinguish one-off balance adjustments from recurring entitlement overrides.
 Recurring overrides persist until explicitly changed, rather than lasting only
@@ -391,6 +494,17 @@ recalculation on an override end date. One-off grant validity/expiry rules still
 - Audit every override and resulting adjustment.
 
 ### 6. Balance ledger and accrual
+
+No balance tracking — accepted 2026-10-15 under
+[ADR-0135](./architecture/decisions/0135-no-balance-tracking-for-mvp.md):
+support policies with no entitlement pot, distinct from manual-only grants with a valid
+zero balance before any grant. Calculate and record duration/usage; enforce normal access,
+assignment, dates, documents and approval requirements. Show **Not balance-limited**, not
+zero or a fictional infinite balance. Paid/unpaid classification remains independent.
+Do not invent grants, balance reservations/consumption or shortfall remedies for these
+policies. Request lifecycle/usage history remains required. Tracked versus untracked stays
+fixed once used for MVP; replacement/new-type routes do not migrate existing entitlement.
+Bind typed not-applicable results and detailed E3/E5/E6/E7 consumer contracts before readiness.
 
 Balances derive from immutable actual balance events and automatic entitlement
 calculated from effective-dated history, rather than a mutable total.
@@ -1404,6 +1518,17 @@ its configured schedule. Use these period boundaries for applicable proration an
 carry-over rules rather than inferring the period from accrual frequency.
 
 See [ADR-0042](./architecture/decisions/0042-entitlement-period-basis.md).
+
+Used-policy basis changes — accepted 2026-10-15 under
+[ADR-0133](./architecture/decisions/0133-used-policy-leave-year-basis-fixed-for-mvp.md):
+choose either basis at initial configuration; once the policy is in use its basis is
+fixed for MVP. Creating a new type with another basis is allowed, but does not migrate
+existing entitlement. Ordinary migration between bases, including through replacement
+assignments/new types, is unsupported; manual balance adjustments alone cannot resolve
+grant/period/carry-over/expiry/request transition rules. Existing balances remain with
+their original type. Independent types and fresh assignments remain possible; accepted
+earning-method changes within a fixed basis and necessary authorized factual employment
+corrections retain their own rules and safeguards.
 
 Annual upfront grants occur on the first day of the entitlement period: 1 January
 for calendar-year policies or the employee's anniversary for anniversary-year

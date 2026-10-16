@@ -2323,6 +2323,405 @@ Leave notification-writing endpoint or cross-owner queue. Promote proven generic
 with first consumers and tests. Continue at Story 3.24 worker handover; exact contracts/
 source tests/final sizing/readiness remain open, no code/tests/notifications performed.
 
+Story 3.28 scope agreed — 2026-10-14: user approved
+[initial employee policy assignment confirmation](../../../_bmad-output/planning-artifacts/epics.md#story-328-review-and-confirm-initial-employee-policy-assignments)
+after calculation/notification foundations, fulfilling the initial group 2 write obligation.
+Exact selected set/effective policy/initial consequences, current authority/review and
+atomic attribution/change/calculation evidence/outbound intent remain required. Bind
+date/version/initial earning/batch/accountless notification contracts before readiness;
+reassignment/ending used assignments remain separate. E5 actual request impacts integrate
+before activation against real requests. Continue Story 3.29 one-off adjustment; all
+contracts/source tests/final sizing/readiness open, no code/tests/notifications performed.
+
+Story 3.29 scope agreed by continuation — 2026-10-15:
+[one-off balance adjustment](../../../_bmad-output/planning-artifacts/epics.md#story-329-review-and-confirm-a-one-off-leave-balance-adjustment)
+uses Add/Deduct, mandatory reason/effective date, backend impact review, protected current
+confirmation and atomic event/calculation evidence/audit/intent. Minimal email/in-app
+notices link to its authorized detail view; correction is another explained adjustment,
+not history editing or an automatic undo. Bind validity/conversion/coordination/accountless
+notification contracts, actual integration and E5 request-impact activation guards.
+Continue Story 3.30 recurring entitlement; all source/test/sizing/readiness gates open.
+
+Story 3.30 scope agreed — 2026-10-15:
+[recurring entitlement or return to policy](../../../_bmad-output/planning-artifacts/epics.md#story-330-change-recurring-employee-entitlement-or-return-to-policy)
+uses the focused policy/custom editor, mandatory reason and consequential review, with
+leave-period-boundary effect defaulting to the next boundary. Overrides continue until
+explicitly changed; no automatic end date or balance reset. Confirm versioned change,
+required calculation evidence/audit/notification intent atomically and retain historical
+evidence. Story 3.29 remains the separate one-off adjustment. Exact allowance/version/
+overlap/return-policy/accountless notification contracts, tests, final sizing and readiness
+remain open. The user requested preservation of the
+[preliminary post-MVP interface discussion](./planning-handoff-e3.md#preliminary-post-mvp-discussion--natural-language-dynamic-ui-and-headless-access)
+for later exploration: natural language, constrained dynamic UI and headless access.
+No requirements/ADR/vendor decision or MVP scope change was approved. Resume collaborative
+planning with proposed Story 3.31 balance details/history; implementation gates remain binding.
+
+Story 3.31 scope agreed — 2026-10-15:
+[own balance details/history](../../../_bmad-output/planning-artifacts/epics.md#story-331-understand-my-leave-balance-and-history)
+shows remaining/reserved/available separately, authorized request links, expandable
+history and backend conversion explanations. History-year filtering leaves current
+balance unchanged; future earnings are excluded from today's available amount and
+failed reads are never zero. Bind history/read/privacy/date contracts and actual E5
+consumer integration before activation. Continue Story 3.32 employee-summary entitlement
+integration; exact tests, final sizing and readiness gates remain open. No code performed.
+
+Story 3.32 scope agreed — 2026-10-15:
+[employee entitlement summary](../../../_bmad-output/planning-artifacts/epics.md#story-332-view-an-employees-leave-entitlement-settings)
+completes Story 2.26's E3 section using actual policy/assignment/override data, current
+versus scheduled settings, separately authorized balance/history and existing edit/
+adjustment flows with refreshed return. Bind manager read/detail permissions explicitly;
+own-balance access does not grant employee administration. Continue Story 3.33 policy/
+entitlement setup assessment. Contracts, test mapping, sizing and readiness remain open;
+no implementation performed or authorized.
+
+Story 3.33 scope agreed — 2026-10-15:
+[policy and entitlement setup assessment](../../../_bmad-output/planning-artifacts/epics.md#story-333-see-policy-and-entitlement-setup-issues)
+fulfils Story 2.25's E3 obligation using actual saved policy/approval-rule/assignment
+inputs. Derive section status, link permitted issues and refresh after corrections;
+unavailable checks are not missing data or Ready. Zero/manual-only balances do not imply
+missing opening data. Consequential checks and lightweight draft preservation remain
+independent. Continue group 9 with proposed Story 3.34 used-policy version changes.
+Exact predicates/contracts/test mapping, final sizing and readiness remain open; no code.
+
+Story 3.34 scope agreed — 2026-10-15:
+[used-policy version changes](../../../_bmad-output/planning-artifacts/epics.md#story-334-review-and-publish-a-change-to-a-policy-already-in-use)
+reuse the editor with authoritative before/after/employee/request review, method-specific
+effective/usable dates, override-aware effects and protected publication. Version,
+required calculation evidence/audit/notification intent commit atomically; preserve
+historical requests and enforce ADR-0128. Future publication stays visibly Scheduled;
+actually affected employees receive privacy-appropriate notices. Continue proposed
+Story 3.35 amendment/cancellation of scheduled policy changes. Exact contracts/tests,
+final sizing and readiness remain open; no implementation authorized or performed.
+
+Story 3.35 scope agreed — 2026-10-15:
+[amend/cancel scheduled policy change](../../../_bmad-output/planning-artifacts/epics.md#story-335-amend-or-cancel-a-scheduled-policy-change)
+reviews prior/proposed or cancellation-resulting settings, dates and employee/request
+effects. Guard still-future state and current authority/review, commit evidence/audit/
+updated-notice intent atomically, retain original history and notices. Bind differing
+employee boundaries/partially effective changes explicitly; effective changes use the
+appropriate new-version/correction flow. Continue proposed Story 3.36 reassignment/ending
+of existing employee policy assignments before retirement. Exact contracts/tests/sizing/
+readiness remain open; no code or implementation permission.
+
+Story 3.36 scope agreed — 2026-10-15:
+[change/end employee policy assignment](../../../_bmad-output/planning-artifacts/epics.md#story-336-change-or-end-an-employees-policy-assignment)
+extends initial assignment with explicit date/reason and authoritative coverage/override/
+entitlement/request review. Guard conflicts/current authority and commit history/evidence/
+audit/intent atomically; preserve original evidence and no access side effects. Exact
+ending/replacement dates, retained entitlement, override and funding semantics remain
+binding unresolved contracts, not an assumed transfer/reset/recalculation. Continue
+proposed Story 3.37 leave-type retirement. All tests/sizing/readiness gates remain open;
+no code or implementation permission.
+
+Story 3.37 scope agreed — 2026-10-15: leave-type deactivation uses Active/Inactive,
+retained identity/version/history and accepted ADR-0132's current/scheduled assignment
+guard. Features/spine/written UX/ADR index aligned. Resolve assignments separately;
+explicit outstanding entitlement/request treatment remains a pre-story contract.
+Continue proposed Story 3.38 restoration of an inactive type. Exact tests/sizing/readiness
+remain open; no code, migrations or implementation permission.
+
+Story 3.38 scope agreed — 2026-10-15:
+[restore inactive leave type](../../../_bmad-output/planning-artifacts/epics.md#story-338-restore-an-inactive-leave-type)
+reuses the retained identity/code/settings/history, checks compatibility/current authority
+and records restoration/audit atomically. It reinstates no assignments, grants, cancelled
+requests or cleared draft selections. Active status does not waive setup or request
+validation. Continue proposed Story 3.39 existing type metadata/permitted-unit changes.
+Exact contracts/tests, final sizing and readiness remain open; no implementation.
+
+Story 3.39 scope agreed — 2026-10-15:
+[existing leave-type details/permitted units](../../../_bmad-output/planning-artifacts/epics.md#story-339-change-an-existing-leave-types-details-and-permitted-units)
+uses explicit whole-form saving and immutable metadata versions with guarded published
+choice-pointer/revision updates. Preserve stable identity/code and request evidence;
+drafts clear only definitively unavailable selections with notice and useful input kept.
+Date-aware policy checks remain separate. Thirty-nine E3 scopes agreed; final coverage,
+unresolved business/effect contracts, test mapping and agent sizing must be checked before
+claiming epic completeness or proceeding through readiness. No code or implementation
+permission; first draft slice unchanged.
+
+E3 coverage reconciliation started — 2026-10-15:
+[group ownership and open business decisions](./planning-handoff-e3.md#e3-coverage-reconciliation--started-2026-10-15)
+map the nine delivery groups to agreed candidate Stories 3.1–3.39. Atomic BIZ/CALC/FLOW/
+NFR/UX/test coverage, exact contracts and single-agent sizing are not yet validated.
+Used-policy basis restriction now accepted under
+[ADR-0133](./architecture/decisions/0133-used-policy-leave-year-basis-fixed-for-mvp.md):
+fixed once used for MVP; independent new-type creation does not migrate existing
+entitlement. No replacement-assignment/manual-adjustment bypass. Preserve supported
+method changes and necessary authorized factual correction. Features/spine/written UX/
+ADR index/story obligations aligned. Automatic/manual-only source restriction now accepted
+under [ADR-0134](./architecture/decisions/0134-used-policy-entitlement-source-fixed-for-mvp.md):
+fixed once used, retaining supported automatic-method changes and authorized adjustments.
+Source/UX/story obligations updated. Explicit No balance tracking now accepted under
+[ADR-0135](./architecture/decisions/0135-no-balance-tracking-for-mvp.md): retain ordinary
+request gates and duration/usage history, show Not balance-limited, independent paid/unpaid
+classification, no fictional balance funding effects and no used tracked/untracked migration.
+Requirements/spine/written UX/ADR index/epic consumer obligations aligned. Next detail
+bounded remaining configuration/read/UI scopes collaboratively; 39 story scopes remain
+approved, not a claim that new untracked coverage is complete. Other effect gaps stay open.
+No workflow completion, readiness PASS or implementation permission.
+
+Story 3.40 scope agreed — 2026-10-15:
+[configure no-balance policy](../../../_bmad-output/planning-artifacts/epics.md#story-340-configure-a-policy-with-no-balance-tracking)
+extends initial editor/publication and policy summaries with explicit untracked category,
+conditional field validation and independent paid/unpaid/request/approval settings. Retain
+guarded version publication; no used-policy tracked/untracked conversion. Forty E3 scopes
+agreed. Continue proposed Story 3.41 typed untracked balance/preview backend semantics,
+then employee presentation; exact contracts/tests/sizing/readiness remain open. No code.
+
+Story 3.41 scope agreed — 2026-10-15:
+[untracked balance/preview backend](../../../_bmad-output/planning-artifacts/epics.md#story-341-calculate-request-previews-without-an-entitlement-balance)
+returns explicit not-applicable balance, actual schedule-based duration, ordinary request
+guidance and independent paid/unpaid classification, with no fictional funding effects.
+Distinguish untracked from zero/missing/unavailable/denied; tracked policies retain normal
+funding. Forty-one E3 scopes agreed. Continue proposed Story 3.42 employee/manager/Apply
+presentation; E5 actual usage/lifecycle integration and all contracts/tests/sizing/readiness
+remain open. No application implementation authorized or performed.
+
+Story 3.42 scope agreed — 2026-10-15:
+[untracked employee/manager/Apply presentation](../../../_bmad-output/planning-artifacts/epics.md#story-342-show-untracked-leave-clearly-to-employees-and-managers)
+uses Not balance-limited, real duration/classification/guidance and authorized usage history;
+omit false funding/shortfall/allowance actions. Keep ordinary request gates and distinguish
+errors/missing states. Forty-two E3 scopes agreed; final sizing may split surface work.
+Return to unresolved replacement/ending assignment effects before declaring coverage or
+readiness. Exact contracts/tests and E5 actual usage integration remain required; no code.
+
+Assignment replacement boundary agreed — 2026-10-15 under
+[ADR-0136](./architecture/decisions/0136-same-type-policy-replacement-and-earned-entitlement.md):
+same type only, retain earned entitlement/expiry/carry-over and permitted future earning
+without duplicate annual grants or reset. Separate type assignments transfer no balance;
+category/basis restrictions stay binding. Features/spine/UX/epic obligations/index aligned.
+Existing override persistence remains settled; next discuss ending-assignment effects.
+Forty-two scopes agreed; exact contracts/tests/sizing/readiness remain open, no code.
+
+Assignment ending agreed — 2026-10-15 under
+[ADR-0137](./architecture/decisions/0137-ending-policy-assignment-preserves-earned-entitlement.md):
+stop future automatic earning/new out-of-coverage requests, retain earned entitlement/
+expiry/history and review existing requests. No upfront clawback or employment departure
+implied. Requirements/spine/written UX/Story 3.36 obligations/index aligned. Next discuss
+retirement resolution, now accepted under
+[ADR-0138](./architecture/decisions/0138-simple-leave-type-deactivation-and-employee-explanations.md):
+retain guards, normal reviewed resolution and clear employee-facing reasons in standard
+notices/details. Historical-only records do not block; no automatic zeroing or additional
+closure/combined retirement/message workflow. Sources/UX/epic obligations/index aligned.
+Exact contracts/tests/sizing/readiness remain open.
+
+Scheduled cutoff accepted — 2026-10-15 under
+[ADR-0139](./architecture/decisions/0139-scheduled-policy-amendment-cutoff.md):
+amend/cancel only before any affected employee effect starts; thereafter use a new
+prospective policy version with original entitlement/evidence preserved and actual
+employee/date impacts reviewed/notified. Sources/spine/UX/index/Stories 3.34–3.35 aligned.
+Protected in-use definition accepted under
+[ADR-0140](./architecture/decisions/0140-policy-in-use-from-confirmed-assignment.md):
+confirmed current/future employee assignment makes use persistent; unused publication/
+draft selection alone does not. Ending/zero balance cannot unlock; immutable versioning
+retained. Source/spine/UX/epic obligations/index aligned. Next discuss assignment resumption
+without gap earning or duplicate grants. Forty-two scopes agreed; all readiness gates open.
+
+Assignment-gap principles accepted — 2026-10-15 under
+[ADR-0141](./architecture/decisions/0141-assignment-gaps-and-resumption-without-duplicate-grants.md):
+no gap earning/duplicate upfront grant, preserve prior portions/expiry, authorized adjustment
+for extra intended entitlement and reviewed correction for mistaken gaps. Features/spine/
+UX/index/epic obligations aligned. Next discuss monthly instalment treatment of partial
+assignment coverage; exact formula/timing not approved by these principles. Forty-two
+scopes agreed; exact tests/sizing/readiness remain open, no code.
+
+Monthly assignment coverage agreed — 2026-10-15 under
+[ADR-0142](./architecture/decisions/0142-monthly-instalments-for-partial-assignment-coverage.md):
+reuse partial-period policy choice over employment/assignment intersection; eligible-day
+proration or one full nominal instalment, none with zero coverage and no duplicates on
+resumption. Requirements/spine/UX/index/epic obligations aligned. Exact availability/
+cutoff/correction cases remain contracts. Next discuss first upfront entitlement for
+midyear initial policy assignment; not approved by the no-duplicate resumption principle.
+Forty-two scopes agreed; no runtime tests/code or implementation/readiness permission.
+
+Initial upfront coverage agreed — 2026-10-15 under
+[ADR-0143](./architecture/decisions/0143-initial-upfront-grant-from-policy-coverage-start.md):
+existing proration choice uses later employment/assignment start for initial coverage,
+eligible remaining-year proportion or full allowance once, no repeated resumption grant.
+Sources/spine/UX/index/epic obligations aligned; exact initial-provenance/concurrency/
+known-employment-end/cap examples remain gates. Next discuss monthly end-availability
+when coverage ends before the instalment's scheduled availability date; not yet agreed.
+
+Monthly scheduled availability accepted — 2026-10-15 under
+[ADR-0144](./architecture/decisions/0144-monthly-availability-after-assignment-coverage-ends.md):
+covered portion retains original availability even after assignment ending; no early
+release, forfeiture solely from ending or uncovered earning. Sources/spine/UX/index/epic
+obligations aligned. Next discuss start-available monthly instalment already released
+before a new mid-period assignment end: proposed use of existing adjusted/full-period
+choice and reviewed consequences, not yet accepted. Forty-two scopes; readiness open.
+
+Already-available monthly reconciliation accepted — 2026-10-15 under
+[ADR-0145](./architecture/decisions/0145-reconcile-start-available-monthly-coverage-changes.md):
+assignment review applies existing adjusted/full choice, showing actual balance/request
+effects with original evidence/safeguards retained. No separate manual deduction or annual-
+upfront clawback. Sources/spine/UX/index/epic obligations aligned. Return to E3 atomic
+coverage/dependency/sizing reconciliation; 42 scopes agreed, no code or readiness PASS.
+
+E3 calculation/dependency check — 2026-10-15:
+[ownership and sizing findings](./planning-handoff-e3.md#e3-calculation-and-integration-ownership-check--2026-10-15)
+map CALC-01–36 and applicable BIZ/FLOW boundaries to candidate scopes/real later consumers.
+No extra top-level group found in this pass; exact atomic field/test/NFR coverage remains
+open. Broad scopes need single-agent decomposition assessment, starting with 3.3's complete
+initial-policy API/publication then its actual four-section web editor. Split now approved
+as **3.3-A** then **3.3-B**, retaining 3.3 as the agreed traceability parent. Detail each
+child collaboratively, starting with 3.3-A; unpresented criteria/final sizing are not
+approved. Both precede 3.4. No scope renumbering or implementation/readiness permission.
+
+Story 3.3-A child scope agreed — 2026-10-15:
+[initial policy API/review/publication](../../../_bmad-output/planning-artifacts/epics.md#story-33-a-review-and-publish-an-initial-policy-through-the-api)
+validates complete automatic/manual-only/untracked configuration, returns stable errors
+and effect-free review, atomically publishes immutable policy/evidence with current
+authority and protected retries, and reads truthful current/scheduled state. No employee
+assignment/access grant. Deliver after 3.2, then 3.3-B, then 3.4; appendix placement does
+not change order. Exact field/test contracts and sizing/readiness remain open. Continue
+proposed 3.3-B web editor. Forty-two parent scopes retained; no final delivery count/code.
+
+Story 3.3-B child scope agreed — 2026-10-15:
+[initial policy web editor](../../../_bmad-output/planning-artifacts/epics.md#story-33-b-configure-and-publish-an-initial-policy-in-the-web-editor)
+retains approved four-section/conditional form, field errors/input recovery, API-backed
+review/back/publication and confirmed current/scheduled results. Prove actual API/database
+browser journeys and accessible mobile/keyboard/exit/recovery behavior. Deliver 3.3-A then
+3.3-B before 3.4; no parent acceptance removed. Allocate overlap with 3.40 once at final
+decomposition. Split now approved: 3.25-A shared channel processing/in-app delivery then
+3.25-B email delivery/provider recovery, retaining parent acceptance. Detail 3.25-A next,
+then 3.25-B; unpresented child criteria and final sizing/readiness remain open. Both precede
+notice-producing Leave mutations; inbox APIs/UI remain later. No code or implementation.
+
+Story 3.25-A child scope agreed — 2026-10-15:
+[shared channel processing/in-app delivery](../../../_bmad-output/planning-artifacts/epics.md#story-325-a-process-channel-deliveries-and-create-in-app-notifications)
+uses restricted notification-service/per-item scope, durable deduplicated recipient records,
+independent channel outcomes, privacy-safe English/org/date templates, recoverable work
+and production-support diagnostics/expiry. Email stays pending until actually processed;
+no future inbox UI required for this child's persistence proof. Next detail 3.25-B email
+provider delivery/recovery. Exact contracts/tests/retention/sizing/readiness remain open.
+
+Story 3.25-B child scope agreed — 2026-10-16:
+[email delivery/provider recovery](../../../_bmad-output/planning-artifacts/epics.md#story-325-b-deliver-notification-emails-and-recover-uncertain-provider-outcomes)
+uses actual provider evidence for accepted/failed/uncertain outcomes and safe recovery,
+minimal English/org-bound content, independent in-app completion, original retry expiry
+and production-support ownership without replaying the Leave change. Both 3.25 children
+now have agreed scopes; exact provider contracts/tests/final sizing remain gates.
+Story 3.34 split approved — 2026-10-16: **3.34-A** authoritative used-policy impact/
+review/publication API, then **3.34-B** existing editor/review UI integration. Retain parent
+acceptance, atomic version/evidence/audit/intent, historical/request safeguards and actual-
+effect notices. Both precede 3.35. Next detail 3.34-A collaboratively; child criteria,
+exact contracts/tests/final sizing and readiness remain open. No code or implementation.
+
+Story 3.34-A child scope agreed — 2026-10-16:
+[used-policy impact/review/publication API](../../../_bmad-output/planning-artifacts/epics.md#story-334-a-review-and-publish-a-used-policy-change-through-the-api)
+enforces supported/in-use restrictions, effect-free actual impact/date/override review,
+request safeguards and protected atomic version/evidence/audit/notice intent. Preserve
+prior grants/versions/request evidence; actual E5/E6 integrations remain activation gates.
+Continue proposed 3.34-B web editor/review on the completed API. Exact contracts/tests,
+single-agent sizing and readiness remain open; no code/notifications/implementation.
+
+Story 3.34-B child scope agreed — 2026-10-16:
+[used-policy web editor/review](../../../_bmad-output/planning-artifacts/epics.md#story-334-b-review-and-publish-a-used-policy-change-in-the-web-editor)
+integrates complete 3.34-A API review/publication, showing restrictions, old/new/unchanged
+settings, overrides, employee dates and authorized request-resolution links/return.
+Preserve API blocking, confirmed current/scheduled outcomes and accessible recovery/exit.
+Both 3.34 children precede 3.35; exact contracts/tests/final sizing remain open. Next
+split now approved — 2026-10-16: 3.36-A assignment-change/ending API review/confirmation,
+then 3.36-B focused UI. Detail 3.36-A next; original parent guards/evidence/notice intent
+remain binding, both children precede 3.37. Unpresented child criteria, exact contracts/
+tests/final sizing/readiness remain open. No code or implementation permission.
+
+Story 3.36-A child scope agreed — 2026-10-16:
+[assignment-change/ending API](../../../_bmad-output/planning-artifacts/epics.md#story-336-a-review-and-confirm-assignment-changes-through-the-api)
+enforces current authority, coverage/replacement compatibility, authoritative effect-free
+review and protected atomic history/calculation evidence/audit/notice intent. Preserve
+settled gap/partial-period/provenance/no-duplicate/override/request rules and separate
+remedy authority; actual E5/E6 integration remains required before activation. Continue
+proposed 3.36-B focused UI, then 3.37; exact contracts/tests/sizing/readiness remain open.
+
+Story 3.36-B child scope agreed — 2026-10-16:
+[focused assignment-change editor](../../../_bmad-output/planning-artifacts/epics.md#story-336-b-review-assignment-changes-in-the-focused-editor)
+integrates completed 3.36-A review/confirmation with coverage/retained balance/expiry/
+override/date/request explanations, authorized resolution links and refreshed settings
+return. Preserve API blocking and accessible correction/recovery/exit behavior. Both
+3.36 children precede 3.37. Story 3.42 split approved — 2026-10-16: 3.42-A employee
+My Leave/Apply/usage presentation, then 3.42-B manager employee-summary/actions. Preserve
+parent acceptance and completed 3.41 backend dependency. Next detail 3.42-A; unpresented
+child criteria, all exact contracts/tests/final sizing/readiness remain open. No code
+or implementation permission.
+
+Story 3.42-A child scope agreed by clarified continuation — 2026-10-16:
+[employee untracked presentation](../../../_bmad-output/planning-artifacts/epics.md#story-342-a-understand-untracked-leave-in-my-leave-and-apply)
+uses confirmed Not balance-limited, actual duration/classification/guidance and authorized
+usage history, without fictional funding/shortfall controls. Clarified failure wording:
+show loading/missing/failure/denied states and Retry where applicable; untracked label
+requires an authorized successful read. Preserve context isolation/accessibility and
+independent draft saving. Continue proposed 3.42-B manager presentation; exact contracts/
+tests, E5 actual usage integration and final sizing/readiness remain open. No code.
+
+Story 3.42-B child scope agreed — 2026-10-16:
+[manager untracked presentation](../../../_bmad-output/planning-artifacts/epics.md#story-342-b-explain-untracked-leave-in-employee-administration)
+uses confirmed policy/coverage/classification and separately authorized usage details,
+omitting balance/allowance actions while retaining permitted policy/assignment controls.
+Verify refresh/return, failures versus confirmed untracked, context isolation and actual
+API/accessibility integration. All five approved split parents now have agreed child
+criteria; exact contracts/atomic coverage/final sizing remain open. Next proposed split:
+3.17 split now approved — 2026-10-16: 3.17-A calculation composition, then 3.17-B
+authorized current-balance API/history integration and representative workload checks.
+Both precede 3.18/3.19; UI stays later. Next detail 3.17-A; unpresented child criteria,
+exact contracts/tests/final sizing remain gates. No implementation/readiness permission.
+
+Story 3.17-A child scope agreed — 2026-10-16:
+[current-balance calculation composition](../../../_bmad-output/planning-artifacts/epics.md#story-317-a-compose-a-reproducible-current-leave-balance)
+combines prior earning/events/cap/carry-over/expiry using complete historical inputs,
+distinct earned/reserved/available/future commitments and exact provenance/precision.
+Preserve correction evidence, legitimate manual-only zero, reproducible effect-free
+reads and explicit invalid-input failure. Continue proposed 3.17-B authorized API/input/
+workload integration; exact contracts/tests/sizing/readiness remain open. No code.
+
+Story 3.17-B child scope agreed — 2026-10-16:
+[authorized current-balance API/history](../../../_bmad-output/planning-artifacts/epics.md#story-317-b-read-an-authorized-current-balance-from-authoritative-history)
+resolves complete scoped owner/version/history inputs and calls completed 3.17-A,
+returning typed authoritative results/failures with no read effects. Prove current own/
+manager authority, correction evidence and real multi-year workload/concurrency targets.
+Both children precede 3.18/3.19. Story 3.35 split now approved — 2026-10-16: 3.35-A
+scheduled amendment/cancellation API, then 3.35-B web review UI. Detail these two next;
+unpresented child criteria remain unapproved. Seven of 42 parent scopes are split, not
+all stories. No additional split currently proposed; then consolidate order/overlap/
+coverage and remaining contracts/sizing gates. Forty-nine provisional candidates before
+overlap consolidation is not a final validated delivery count. No implementation authority.
+
+Story 3.35-A child scope agreed — 2026-10-16:
+[scheduled amendment/cancellation API](../../../_bmad-output/planning-artifacts/epics.md#story-335-a-amend-or-cancel-a-scheduled-policy-change-through-the-api)
+enforces current authority/first-effect cutoff, accurate resulting policy/employee/request
+review and atomic history/evidence/audit/updated intent with retained original versions/
+notices. Prove boundary races, request safeguards and duplicate-safe recovery. Continue
+3.35-B web child, the final child remaining from seven approved splits; then consolidate
+order/overlap/coverage and remaining exact contracts/sizing. No code or readiness PASS.
+
+Story 3.35-B child scope agreed — 2026-10-16:
+[scheduled amendment/cancellation web UI](../../../_bmad-output/planning-artifacts/epics.md#story-335-b-review-scheduled-policy-amendments-and-cancellations-in-the-web-ui)
+shows authoritative previous/proposed/resulting schedule and employee/request impacts,
+permitted resolution/return and protected confirmation/recovery. Preserve first-effect
+cutoff/new-version route, original history and accessible discard/mobile/keyboard behavior.
+All fourteen children of seven approved splits are agreed. Consolidate order/overlap/
+coverage next; no new split proposed, no code/readiness/implementation authorization.
+
+E3 scope/decomposition consolidation prepared — 2026-10-16:
+[consolidated order and acceptance allocation](../../../_bmad-output/planning-artifacts/epics.md#consolidated-e3-candidate-delivery-order--2026-10-16)
+retain 42 agreed parent scopes and all fourteen agreed split children as 56 traceable
+records. Candidate delivery count is 48: seven parents deliver through their children,
+and 3.40's already-covered initial policy configuration/summary/used-category guards are
+allocated once to 3.3-A/B, 3.2 and 3.34-A/B. Move 3.41 before assignment mutations so
+untracked backend behavior is a completed prerequisite. Physical story order reconciled;
+no new split proposed or acceptance removed. User approved this consolidated scope/order
+checkpoint on 2026-10-16 and agreed to continue E4 planning. Exact atomic field/UX/privacy/test coverage, schemas,
+coordination/provider/retention contracts, measurable NFRs and final single-agent sizing
+remain gates; actual E5/E6 integration precedes activation. This is no readiness PASS,
+workflow completion or implementation authorization. Original E1 first slice unchanged.
+
+E4 handoff refreshed — 2026-10-16: resume with bmad-create-epics-and-stories using
+[the current checkpoint, E4 entry and copyable prompt](./planning-handoff-e3.md#resume-point).
+Start by proposing/confirming E4's delivery sequence, then detail one story at a time;
+no E4 sequence or individual scope is approved yet. Same current working tree, including
+uncommitted planning and unrelated platform/KDG work, remains authoritative. No new
+worktree, commit, implementation, migration or deployment requested/performed. Preserve
+Content/provider/byte/association/privacy contracts and all existing readiness gates.
+
 Story 3.24 scope agreed — 2026-10-14: user approved
 [recoverable Leave handover worker](../../../_bmad-output/planning-artifacts/epics.md#story-324-hand-over-leave-notifications-through-a-recoverable-worker),
 with narrow restricted discovery, per-item verified organization scope, bounded fenced

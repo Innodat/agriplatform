@@ -309,6 +309,92 @@ relationship fact/history owner; Leave owns current permitted availability/filte
 queries and temporal semantics. No new named-team master or team-profile precedence;
 existing permission/resource/privacy, snapshot and current-authorization contracts remain.
 
+Ending policy assignment — accepted 2026-10-15:
+[L-0137](./decisions/0137-ending-policy-assignment-preserves-earned-entitlement.md) stops
+future automatic earning and new out-of-coverage requests while retaining earned balance,
+expiry/history and reviewed existing requests. No automatic upfront clawback or employment
+departure implied. Exact cutoff/period/request coordination contracts remain gates.
+
+Same-type policy replacement — accepted 2026-10-15:
+[L-0136](./decisions/0136-same-type-policy-replacement-and-earned-entitlement.md) preserves
+earned entitlement/expiry/carry-over and applies new rules only from allowed dates. No
+cross-type migration, balance reset, duplicate annual grant or basis/category bypass.
+Bind representation and concurrency before readiness; do not infer a new policy catalogue.
+
+No balance tracking — accepted 2026-10-15:
+[L-0135](./decisions/0135-no-balance-tracking-for-mvp.md) supports explicit untracked
+policies, distinct from manual-only zero entitlement. Record duration/usage and retain
+normal request gates; no fictional balance/funding ledger. Paid/unpaid remains independent.
+Typed not-applicable results and actual consumers require contracts/tests; used-policy
+tracked/untracked conversion is deferred. No implementation authorization.
+
+Used-policy entitlement source — accepted 2026-10-15:
+[L-0134](./decisions/0134-used-policy-entitlement-source-fixed-for-mvp.md) fixes automatic
+versus manual-only once used for MVP, including replacement migration guards. Preserve
+supported automatic-method changes and normal one-off adjustments. Untracked behavior
+is separately defined by L-0135; exact in-use detection/coordination tests remain gates.
+
+Used-policy leave-year basis — accepted 2026-10-15:
+[L-0133](./decisions/0133-used-policy-leave-year-basis-fixed-for-mvp.md) fixes basis once
+used for MVP. New types may choose either basis; replacement/new-type/manual-adjustment
+routes cannot bypass deferred migration of existing entitlement. Preserve independent
+type configuration, accepted method changes and authorized factual correction workflows.
+
+Already-available monthly reconciliation — accepted 2026-10-15 under
+[L-0145](./decisions/0145-reconcile-start-available-monthly-coverage-changes.md): assignment
+review recalculates the existing monthly portion under adjusted/full coverage rules,
+retaining original evidence and request safeguards. No separate manual deduction or
+annual-upfront clawback implied; bind atomic effect/evidence/coordination before readiness.
+
+Monthly post-coverage availability — accepted 2026-10-15 under
+[L-0144](./decisions/0144-monthly-availability-after-assignment-coverage-ends.md): retain
+covered portions at scheduled availability after assignment ending, without acceleration,
+forfeiture solely from ending or uncovered earning. Bind policy/period/portion references
+and ordinary request-coverage/funding/expiry rules before readiness.
+
+Initial upfront coverage — accepted 2026-10-15 under
+[L-0143](./decisions/0143-initial-upfront-grant-from-policy-coverage-start.md): existing
+proration choice uses later employment/assignment start for first coverage. Preserve
+known-employment-end rules, exact calendar/conversion/cap evidence and no duplicate grant
+on resumption/replacement. Bind initial-grant provenance and concurrency before readiness.
+
+Monthly partial coverage — accepted 2026-10-15 under
+[L-0142](./decisions/0142-monthly-instalments-for-partial-assignment-coverage.md): reuse
+the partial-period choice over employment intersected with assignment coverage; prorate
+eligible calendar days or one full nominal instalment, none for zero coverage. Bind
+availability/cutoff/replay examples and deduplicate repeated coverage before readiness.
+
+Assignment gaps/resumption — accepted 2026-10-15 under
+[L-0141](./decisions/0141-assignment-gaps-and-resumption-without-duplicate-grants.md):
+preserve earlier portions/expiry, no gap earning or duplicate upfront grant from resumption.
+Bind exact monthly/upfront gap examples, interval/provenance and concurrency; erroneous
+gaps use authorized reviewed correction.
+
+Policy in use — accepted 2026-10-15 under
+[L-0140](./decisions/0140-policy-in-use-from-confirmed-assignment.md): confirmed assignment,
+including scheduled, establishes persistent in-use status for basis/category restrictions.
+Unused publication/draft selection alone does not. Bind retained history/version lineage
+and first-use concurrency; ending assignments or zero balance cannot unlock used policy.
+
+Scheduled-policy cutoff — accepted 2026-10-15:
+[L-0139](./decisions/0139-scheduled-policy-amendment-cutoff.md) allows scheduled amendment/
+cancellation only while every affected employee effect is future. After the first starts,
+use a new prospective version and preserve original effects/evidence. Bind complete-set
+effective-boundary coordination and resulting version/date interpretation before readiness.
+
+Leave-type retirement resolution — accepted 2026-10-15:
+[L-0138](./decisions/0138-simple-leave-type-deactivation-and-employee-explanations.md)
+retains existing guarded Deactivate and normal assignment/adjustment/request resolution,
+including unexpired entitlement, pending/future approved requests and unresolved correction
+dependencies. Historical-only records do not block. Use clear reasons in existing notices/
+details; no closure control, combined retirement or custom message workflow for MVP.
+
+Leave-type retirement — accepted 2026-10-15:
+[L-0132](./decisions/0132-leave-type-deactivation-dependency-guards.md) blocks deactivation
+while current/scheduled policy assignments depend on the type. Resolve coverage through
+separate reviewed assignment writes; guard concurrency and retain archive/version/request
+meaning. Exact outstanding entitlement/request handling remains a pre-story contract.
+
 Policy applicability refinement — 2026-10-12:
 [L-0126](./decisions/0126-explicit-policy-assignment-with-employee-filters.md) uses employee
 filters to review/select an exact explicit policy-assignment set for MVP. No automatic

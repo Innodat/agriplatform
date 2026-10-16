@@ -7496,7 +7496,11 @@ User's next instruction continues sequential planning into the already approved 
 
 ## E3 — Configure entitlement and understand available leave
 
-**Delivery sequence approved — 2026-10-14; Stories 3.1–3.27 scopes agreed, further stories pending.**
+**Scope checkpoint — 2026-10-16:** Stories 3.1–3.42 and all fourteen children of seven
+approved splits are agreed. Consolidation below preserves 42 scope records and yields
+48 delivery candidates after counting 3.40's overlapping work once. The nine delivery
+groups and consolidated candidate order are approved by the user on 2026-10-16. Exact atomic
+coverage, contracts, final agent sizing and implementation-readiness remain open.
 Approved epic outcome: managers configure organization policies/employee entitlements;
 employees see explainable current/reserved/projected balances and request previews. Uses
 E2 employment/work-calendar/profile/current access. Owns first required shared business
@@ -7532,7 +7536,127 @@ not later notified changes hidden in an early story. Groups are not final story 
 or sizing approval. Continue collaboratively with Story 3.1, one story at a time.
 Preserve the E1 first slice and all source/test, pre-story contract and readiness gates.
 
+### E3 basis-transition restriction — accepted 2026-10-15
+
+Entitlement-source restriction also accepted — ADR-0134: automatic versus manual-only
+is fixed once used for MVP, including replacement paths attempting existing-entitlement
+migration. Stories 3.3/3.16/3.28–3.30/3.34–3.36 bind this restriction where relevant.
+Preserve supported daily/monthly/upfront changes and normal one-off adjustments; extra
+grants to automatic policies do not change source category. Bind/prove in-use concurrency,
+direct/API/replacement denial and allowed independent setup/adjustments before readiness.
+Untracked/no-balance behavior is separately accepted under ADR-0135 below. No additional story count
+or implementation permission follows from this contract decision.
+
+Leave ADR-0133 resolves the previously open leave-year-basis migration question: choose
+calendar or employment-anniversary during initial setup; keep fixed once a policy is
+used for MVP. Stories 3.3/3.16/3.28/3.34–3.36/3.38–3.39 bind this guard wherever relevant.
+New-type creation is allowed, but replacement assignments/new types/manual adjustments
+cannot bypass unsupported migration of existing entitlement. Preserve independent types,
+fresh assignments, accepted method changes and necessary factual employment corrections.
+Define/protect in-use detection and concurrent first-use paths, test direct/API and
+replacement attempts, preserved original balances/requests and allowed setup/corrections.
+Features, spine, UX and ADR index updated. Generic scaffold/UI guards may be reused;
+Leave owns transition semantics. Exact tests/final sizing/readiness remain open.
+
 ### Required contracts and impacts
+
+Already-available monthly reconciliation — accepted 2026-10-15 under Leave ADR-0145:
+Stories 3.12–3.13/3.17–3.18/3.36 include adjusted/full recalculation in assignment review,
+with original/proposed portion, balance/request effects and retained immutable evidence.
+No separately calculated manual deduction or duplicate actual/derived effect. Bind amount/
+date/cap/precision/expiry/coordination and atomic evidence/audit/intent; test April 1.5 to
+0.75 versus full retention, consumed/reserved safeguards and retry. Annual upfront rule
+remains separate. Exact test mapping/final sizing/readiness remain open; no new scope count.
+
+Monthly availability after coverage — accepted 2026-10-15 under Leave ADR-0144: relevant
+Stories 3.12–3.13/3.17–3.20/3.31–3.32/3.36 preserve covered portions at original scheduled
+availability even when assignment ends first. No acceleration, forfeiture solely from
+ending, uncovered earning or request authority merely from retained balance. Bind/test
+aligned period/portion/version references, April 1–15/0.75/April 30 example, history/caps/
+expiry/precision and actual E5/E6 consumer integration. Exact tests/sizing/readiness open.
+
+Initial upfront coverage — accepted 2026-10-15 under Leave ADR-0143: Stories 3.11/3.17–
+3.18/3.28/3.36 use later employment/assignment start and existing adjusted/full-period
+choice for initial entitlement, with no duplicate grant from resumption/replacement.
+Preserve known employment-end rules, conversion/caps/rounding and assignment-ending
+distinctions. Test initial provenance, 18 ×184/365 July example, full choice, anniversary/
+leap dates and concurrent/repeated assignment. Exact contracts/tests/sizing/readiness open.
+
+Monthly coverage — accepted 2026-10-15 under Leave ADR-0142: Stories 3.12–3.13/3.17–3.18/
+3.28/3.34–3.36 use employment intersected with assignment coverage in the existing partial-
+period choice. Adjust by eligible/all calendar days or provide at most one nominal full
+instalment with coverage; zero coverage gives none. Repeated assignments cannot duplicate
+instalments. Extend policy help/contract examples without a new switch; retain default,
+aligned periods and cumulative precision. Exact start/end availability/cutoff/replay and
+actual writer-consumer tests remain required before sizing/readiness. No new story count.
+
+Assignment resumption — accepted 2026-10-15 under Leave ADR-0141: relevant earning/
+projection/assignment Stories 3.8/3.11–3.18/3.28/3.36 preserve earlier portions/expiry,
+earn nothing for coverage gaps and issue no duplicate upfront grant merely from new
+assignment. Additional amounts use authorized adjustment; erroneous gaps use reviewed
+history correction. Exact monthly/upfront gap examples, interval/provenance/duplicate
+detection and concurrency remain pre-story contracts. No invented restart grant,
+availability date or proration formula. Tests/sizing/readiness remain open; no code.
+
+In-use predicate — accepted 2026-10-15 under Leave ADR-0140: confirmed employee assignment,
+including future-dated, establishes persistent use for basis/category restrictions.
+Unassigned unused publication and unfinished draft selection do not. Historical assignment
+ending/zero balance cannot unlock it; published changes still create immutable versions.
+Bind/prove retained history/version lineage and first-use concurrency across relevant
+Stories 3.3/3.28/3.34–3.36/3.38–3.40. Adoption cannot infer unused from absent current
+balances. Exact tests/final sizing/readiness stay open; no new scope count or code.
+
+Partially effective schedules — accepted 2026-10-15 under Leave ADR-0139: Story 3.35
+amend/cancel is valid only before any affected employee effect starts. Otherwise Story
+3.34's new prospective version flow applies, retaining original grants/earning/evidence.
+Show actual future outcomes and notify actual effects; no partial rollback or assumed
+instant cancellation. Bind full affected-set boundary/timezone/non-allowance semantics,
+assignment changes and concurrent cutoff/version guards. Test all-future, Ana July/Ben
+October partially effective examples, boundary races, history and renewed review/recovery.
+Exact contracts/test mapping/sizing/readiness remain open; no new story count or code.
+
+Retirement resolution — accepted 2026-10-15 under Leave ADR-0138: Story 3.37 retains
+guarded Deactivate, with assignment/unexpired-entitlement/pending-request/unfinished-
+approved-request/unresolved funding/correction checks and authorized normal-resolution
+links. Historical-only references do not block. No forced balance zeroing or cancellation,
+separate closure control or combined retirement workflow. Stories 3.29/3.36 and actual
+E5/E6 consumers use existing reasons/standard notices/authorized details for clear employee
+explanations, preserving sensitive privacy and migration restrictions. Bind exact predicates,
+dates, observations/all-writer coordination and tests before readiness. No new message
+composer or notification bundling. Generic guards/review/return/notification patterns
+remain first-consumer scaffold/UI obligations; existing agent context suffices.
+
+Assignment ending — accepted 2026-10-15 under Leave ADR-0137: Story 3.36 stops automatic
+earning at the effective end and prevents new requests for out-of-coverage dates. Retain
+earned balance/original expiry/history; no upfront clawback merely from assignment ending.
+Retained amounts remain visible without independently authorizing new requests. Preserve
+and review existing requests under ADR-0128; employment departure/proration remains
+separate. Bind exact cutoff/employee-local dates, subsequent period interpretation,
+request-validity/funding coordination and safe later resumption before readiness. Test
+actual earning cutoff/retention/coverage, no implied termination, reviewed request effects,
+concurrency and operation recovery. No new story count or implementation authorization.
+
+Assignment replacement boundary — accepted 2026-10-15 under Leave ADR-0136: Story 3.36
+replaces policy within the same type, preserving already-earned portions/original expiry/
+carry-over history and applying new earning only from permitted dates. No second annual
+grant, balance reset or cross-type transfer. Separate different-type assignments and
+ADR-0133/0134/0135 restrictions remain. Bind actual policy/version/assignment representation
+without inventing a catalogue; prove scope, dates, preserved history, no duplication and
+reviewed actual request effects. Existing override persistence remains under ADR-0083.
+Ending-assignment treatment and exact tests/sizing/readiness still require resolution.
+
+No balance tracking — accepted 2026-10-15 under Leave ADR-0135. Include explicit untracked
+policies in MVP, distinct from manual-only zero entitlement. Record duration/usage and
+enforce ordinary assignment/access/date/document/approval rules. Show Not balance-limited;
+paid/unpaid remains independent. Do not invent numeric balances, entitlement funding
+reservations/consumption or balance-shortfall remedies. Tracked/untracked conversion once
+used is unsupported, including replacement migration paths. Existing Stories 3.3/3.5/
+3.17–3.21/3.28–3.34/3.36–3.39 need applicability checks in detailed contract/test coverage;
+unsupported balance actions must not fabricate effects. Detail remaining bounded E3
+configuration/read/UI scopes collaboratively; this decision is not approval of unpresented
+stories. E5 actual lifecycle/approval, E6 correction and E7 usage/report consumers must
+preserve typed not-applicable balance versus failed/zero readings. Exact DTOs, conditional
+fields, snapshots, action authority, tests and final sizing/readiness remain open.
 
 Keep the existing feature spec, calculation/flow/privacy inventories and ADRs authoritative;
 do not copy or simplify their rule ledger into new code guesses. Exact type/policy/runtime
@@ -7558,6 +7682,65 @@ records the exact approved scope versus unapproved E3 grouping, authoritative so
 pre-story/readiness and first-code timing, plus isolated app/worktree/shared-owner guidance.
 Smaller-app purpose/scope not supplied; no plan/gate/worktree/code/deployment created for it.
 No E3 sequence approval, SP pass, workflow completion or implementation inferred.
+
+### Consolidated E3 candidate delivery order — 2026-10-16
+
+**Scope/order checkpoint approved — 2026-10-16; not implementation-ready.**
+Prepared from agreed scopes/splits, retaining stable IDs and requirement/ADR links.
+The user approved continuing to E4 story planning; no E4 delivery sequence or individual
+story has yet been proposed/agreed. Resume the same collaborative step, not architecture
+consolidation or whole-workflow validation/completion.
+Parent records 3.3/3.17/3.25/3.34/3.35/3.36/3.42 retain acceptance but are delivered
+through their A/B children, not counted again. Story 3.40 is a coverage record allocated
+to existing policy items below, not a separate implementation item. No acceptance is
+removed and no new split is proposed. Physical story order now follows this sequence,
+with parent/coverage records beside their delivery owners.
+
+| Approved group / dependency point | Delivery candidates, in order | Count |
+| --- | --- | --- |
+| 1: Type/policy setup and examples | 3.1, 3.2, 3.3-A, 3.3-B, 3.4 | 5 |
+| 2: Applicability and employee selection | 3.5, 3.6 | 2 |
+| 3: Duration/earning/events/balance | 3.7–3.16, 3.17-A, 3.17-B | 12 |
+| 4: Projection/request guidance, including untracked API | 3.18–3.21, 3.41 | 5 |
+| 5: Actual notification foundations | 3.22–3.24, 3.25-A, 3.25-B, 3.26, 3.27 | 7 |
+| 2 deferred write after calculation/notifications | 3.28 | 1 |
+| 6: One-off adjustment | 3.29 | 1 |
+| 7: Recurring entitlement | 3.30 | 1 |
+| 8: Balances/employee/setup and untracked presentation | 3.31–3.33, 3.42-A, 3.42-B | 5 |
+| 9: Used-policy/type changes and lifecycle | 3.34-A, 3.34-B, 3.35-A, 3.35-B, 3.36-A, 3.36-B, 3.37–3.39 | 9 |
+| Total provisional delivery candidates | Scope preserved; final sizing remains gated | 48 |
+
+Dependency correction: 3.41 moves before assignment/adjustment/override consumers so
+explicit untracked results are available before those writers assess applicable actions.
+It consumes prior completed duration, balance/preview and 3.20 guidance. 3.40's initial
+configuration is incorporated into 3.3-A/B, with policy-summary acceptance in 3.2 and
+used-category guards in 3.34-A/B. Thus no early item depends on later untracked delivery.
+This refines ordering within the approved groups rather than changing product scope.
+
+Story 3.40 acceptance allocation: criteria 1–3 belong to 3.3-A/B's complete field/category
+matrix; criterion 4 to their review/publication; criterion 5 to 3.2 policy summaries;
+criterion 6 to 3.34-A/B used-policy guards (and initial unused-state checks in 3.3-A).
+3.2's untracked summary must explicitly say No balance tracking / Not balance-limited,
+with no numerical zero/infinite allowance. Preserve 3.40's own test/source references
+as coverage obligations against those owners. Do not implement a second policy editor.
+
+Unsplit receiver/outbox/handover scopes 3.22–3.24 each retain one bounded owner/transaction
+or worker responsibility using earlier platform foundations. Their required evidence is
+part of the same delivery item. No further split is justified solely by separating UI/API
+or tests; reassess size only against concrete contracts and actual first-consumer work.
+
+**Remaining binding gates:** Complete field/combination and owner/API schemas; policy/
+assignment/version/date/overlap and in-use/cutoff concurrency; exact portion/event/replay/
+snapshot representation and compound gap/rate/cap/expiry examples; review freshness/
+coordination/lock order/timeouts and operation recovery; provider acceptance/uncertainty,
+notification retention/recipient/service authority and worker runbook; actual test paths/
+commands and requirement/UX/privacy-to-test mapping; measurable multi-year/API/browser/
+accessibility targets and final single-agent size. Preserve required scaffold/shared-UI/
+agent/docs/ADR impacts and ADR-0020 release evidence. Actual E5/E6 integrations must
+prove these earlier writers/readers against real request states before activation.
+This checkpoint is not complete atomic coverage, executable evidence, a final sizing
+PASS, completion of all Phase 1 planning, or permission to implement Leave. The E1
+sign-in → organization → create/resume → autosave → close → reopen slice is unchanged.
 
 ### Story 3.1: Create and view an organization's leave types
 
@@ -7708,6 +7891,17 @@ test mapping and epics/tracker checkpoint. ADR: accepted decisions suffice; no a
 
 ### Story 3.3: Configure and publish a leave type's first policy
 
+**Delivery split approved — 2026-10-15:** Retain this agreed scope as the traceability
+parent and decompose into **3.3-A** (complete authorized initial-policy API/review/
+publication with actual persistence acceptance) followed by **3.3-B** (approved four-
+section web editor/review/publication integrated with that completed API). No original
+acceptance is removed, invalid partial policy activated or required evidence deferred.
+Detail the two children collaboratively in that order; split approval is not approval
+of unpresented child criteria or a final sizing/readiness PASS. Deliver both before
+dependent initial-policy editor consumers such as 3.4; appendix placement does not
+change dependency order. Published versions remain immutable; later accepted ADRs and
+untracked configuration scope apply where relevant. No application implementation.
+
 **Scope approved by the user, 2026-10-12; not implementation-ready.** Owner: Leave
 API/web/persistence. Consumes Stories 3.1–3.2 and E1/E2 current authority, configuration,
 operation recovery and version/read foundations. Initial configuration/publication only;
@@ -7832,6 +8026,227 @@ not approval of all its criteria, final sizing or readiness. Existing accepted d
 remain unchanged; shared form/review controls suffice and Leave owns example wording.
 Documentation impact: epics/tracker discussion checkpoint; existing scaffold/UI/agent
 impact rules and technical/test gates remain binding. No code or new ADR required.
+
+### Story 3.3-A: Review and publish an initial policy through the API
+
+
+**Child scope approved — 2026-10-15; not implementation-ready.** Parent: Story 3.3.
+Owner: Leave initial-policy validation/review/publication API and persistence. Delivery
+position: after 3.2, before 3.3-B and 3.4; this appendix position is not execution order.
+Consumes E1/E2 current authority, owned-write, version, operation/recovery foundations.
+Initial-policy fixtures do not depend on later assignment/calculation/request writers.
+
+As an authorized Leave Manager,
+I want policy configuration validated and published through a protected API,
+So that only complete, reviewed rules become effective.
+
+**Acceptance Criteria:**
+
+**Given** a leave type eligible for initial policy setup,
+**When** configuration is validated,
+**Then** the API checks supported fields, required values and permitted combinations,
+including automatic, manual-only and untracked policies.
+
+**Given** incomplete or incompatible configuration,
+**When** validation runs,
+**Then** stable field-specific errors identify what needs correction,
+**And** nothing is published.
+
+**Given** valid configuration,
+**When** review is requested,
+**Then** the API returns proposed settings, applicable defaults and effective-date
+information without creating business effects.
+
+**Given** current permission and unchanged consequential review inputs,
+**When** publication is confirmed,
+**Then** the immutable policy version, attribution and required change evidence commit
+atomically.
+
+**Given** concurrent publication, changed reviewed inputs or a lost response,
+**When** confirmation or recovery occurs,
+**Then** stale confirmation is rejected where necessary,
+**And** retries cannot publish duplicate versions.
+
+**Given** successful publication,
+**When** the policy is read,
+**Then** current or scheduled status and effective dates are represented accurately,
+**And** publication creates no employee assignment or access grant.
+
+**Traceability / planned verification:** Parent 3.3 backend acceptance and source links:
+Features §4/7/10; BIZ-06/19/20 configuration; FLOW-01/03/07/20 inputs; applicable accepted
+policy/default/version/conditional-field decisions, including ADR-0127/0133–0135/0140.
+This child supplies 3.40's explicit untracked backend configuration behavior when sized
+into delivery; do not implement or count it twice. Real API/database tests prove complete
+field validation, stable typed errors, no review effects, eligible unused-state guard,
+current scoped authority, immutable version/evidence atomicity/rollback, concurrency,
+changed-input review and lost-response deduplication. Read tests prove current/scheduled
+dates and no assignment/grant side effects. No runtime tests executed; exact paths/
+commands and atomic field-to-test mapping remain pre-story inputs.
+
+**Pre-story inputs / sizing:** Bind full field/combination schema, unused/in-use history,
+approver lookup/configuration contracts, effective-date/read DTOs, review evidence,
+operation/revision guards and owner write permissions. Later adopted rules do not create
+a dependency on their later app writers: prove this bounded initial configuration with
+declared owner fixtures. No partial invalid policy activation, extra admin draft system,
+approval execution, entitlement assignment or hidden notification producer. Final agent
+sizing/coverage/readiness remain open.
+
+**Impacts:** Scaffold: prove/promote owned validation/review/version/operation/error/
+attribution/client patterns and actual tests; Leave owns policy fields and rules. Shared
+UI: no editor in this child; generated typed errors/read contracts support 3.3-B. Agent
+context: existing instructions suffice. Documentation: API/field/publication/test contracts,
+parent-child acceptance mapping and tracker/handoff. ADR: accepted decisions suffice.
+No implementation/readiness permission.
+
+### Story 3.3-B: Configure and publish an initial policy in the web editor
+
+**Child scope approved — 2026-10-15; not implementation-ready.** Parent: Story 3.3.
+Owner: Leave initial-policy web editor and real API integration. Deliver after completed
+3.3-A and before 3.4; appendix position is not execution order. The parent retains all
+source/UX acceptance; untracked configuration UI from 3.40 must be allocated once during
+final decomposition, not implemented twice. This is initial policy setup, not later
+used-policy changes or request/approval execution.
+
+As an authorized Leave Manager,
+I want a clear policy editor with review before publication,
+So that I can configure complete rules and confirm them deliberately.
+
+**Acceptance Criteria:**
+
+**Given** a leave type eligible for initial setup,
+**When** I open policy configuration,
+**Then** the dedicated page provides four directly accessible sections: Entitlement,
+Request rules, Approval, and Documents & privacy.
+
+**Given** my configuration choices,
+**When** I edit settings,
+**Then** applicable fields and plain-language explanations appear, including automatic,
+manual-only and No balance tracking options,
+**And** approved defaults remain editable; incompatible hidden values cannot be published.
+
+**Given** incomplete or invalid input,
+**When** validation returns errors,
+**Then** they appear beside relevant fields, entered values remain available and I can
+navigate to each issue.
+
+**Given** valid input,
+**When** I select Review changes,
+**Then** the editor displays the API's proposed settings/effective-date information with
+Back to editing and Publish policy version,
+**And** reviewing alone publishes nothing.
+
+**Given** current reviewed input,
+**When** I confirm publication,
+**Then** the editor uses 3.3-A's protected API and displays the confirmed result,
+**And** future publication says Policy scheduled for [date].
+
+**Given** changed review inputs, denied access, failure or an uncertain outcome,
+**When** publication cannot be confirmed,
+**Then** the editor preserves recoverable input and offers appropriate correction,
+renewed review or original-operation recovery without duplicate publication.
+
+**Given** leaving with unconfirmed changes, keyboard navigation or mobile use,
+**When** I interact with the editor,
+**Then** discard confirmation, focus, validation and responsive behavior follow approved UX,
+**And** no separate persisted administrative draft is introduced.
+
+**Traceability / planned verification:** Parent 3.3 UI acceptance, Features §4/7/10;
+BIZ-06/19/20 configuration, applicable FLOW-01/03/07/20 inputs; Leave ADR-0124/0127/0135
+and existing policy/conditional-field decisions. Approved policy editor/review/current/
+scheduled UX remains binding. Browser journeys use actual 3.3-A API/persistence for
+four-section navigation, conditional/default choices, field errors and retained input,
+review/back/publication, current/scheduled result, access loss, stale review and uncertain
+outcome recovery. Verify keyboard/mobile/focus and changed-form exit, with no extra admin
+draft or premature effects. Exact source/test paths/commands remain pre-story inputs;
+no runtime tests executed.
+
+**Pre-story inputs / sizing:** Bind generated API/error/review types and field matrix,
+authorized approver lookup presentation, full-form state/recovery lifetime and exact
+accessible responsive interactions. API validation is authoritative; web does not add a
+second policy calculator or infer submission eligibility from publication. Final agent
+sizing/requirement/test coverage/readiness remain open despite approved child scope.
+
+**Impacts:** Scaffold: prove/promote typed configuration-client/error/review/operation
+patterns with actual browser/reference tests. Shared UI: prove/promote neutral section
+navigation/form/review/focus controls; Leave owns policy fields and explanatory content.
+Agent context: existing instructions suffice. Documentation: field/UI/API/test contracts,
+parent-child mapping and tracker/handoff. ADR: accepted decisions suffice. No code or
+implementation/readiness permission.
+
+### Story 3.40: Configure a policy with no balance tracking
+
+**Consolidated coverage record — 2026-10-16:** Scope remains approved; no separate delivery
+item. Allocate initial field/editor/review/publication criteria to 3.3-A/B, policy-summary
+criterion to 3.2 and used-category guards to 3.34-A/B as mapped above. Preserve every
+criterion and test/source link; this prevents duplicate implementation, not scope removal.
+
+**Scope approved — 2026-10-15; not implementation-ready.** Owner: Leave policy
+configuration/publication API, web editor and policy summaries. Extends prior configuration,
+version/review and read foundations under ADR-0135; independent of later untracked
+calculation/employee-preview consumers, which must prove their actual integration before
+activation. No submission or approval workflow implemented in this scope.
+
+As a Leave Manager with policy-management permission,
+I want to configure a policy without an entitlement balance,
+So that leave can be requested and approved without maintaining an allowance.
+
+**Acceptance Criteria:**
+
+**Given** initial policy configuration,
+**When** I choose how entitlement is managed,
+**Then** No balance tracking is available separately from automatic entitlement and
+manual-only grants.
+
+**Given** No balance tracking is selected,
+**When** I configure the policy,
+**Then** irrelevant allowance, earning, balance-cap, carry-over, entitlement-expiry and
+balance-shortfall controls are hidden,
+**And** the backend rejects incompatible settings rather than relying on hidden controls.
+
+**Given** an untracked policy,
+**When** I configure its remaining rules,
+**Then** paid/unpaid classification, permitted units, request restrictions, documents,
+privacy and approval requirements remain applicable.
+
+**Given** valid configuration,
+**When** I review and publish it,
+**Then** the summary clearly says No balance tracking and explains that request rules
+and approval still apply,
+**And** existing versioning, authorization, confirmation and duplicate-prevention
+safeguards remain binding.
+
+**Given** a published untracked policy,
+**When** an authorized user views its summary,
+**Then** it identifies leave as Not balance-limited,
+**And** it displays neither zero entitlement nor an invented unlimited balance.
+
+**Given** a policy already in use,
+**When** someone attempts to change between tracked and untracked,
+**Then** the backend rejects the unsupported conversion,
+**And** the editor explains the restriction.
+
+**Traceability / planned verification:** Features §4/6 and applicable request/approval
+configuration; BIZ-05/06/09/19/20; Leave ADR-0002/0090/0124/0135 and policy editor/summary
+UX. Real API/database/browser tests prove distinct categories, conditional controls and
+server validation of incompatible fields, independent paid/unpaid/request/approval rules,
+explicit review/publication, immutable scoped versions/evidence, summary wording, direct
+conversion denial and concurrency/current authority/retry protections. Exercise initial
+category changes before publication without leaking hidden incompatible values. No
+runtime tests executed; exact source/test paths and commands remain pre-story inputs.
+
+**Pre-story inputs / sizing:** Bind policy schema/conditional field matrix, representation
+of inapplicable settings, initial unused-state/in-use guards and all writer/replacement
+paths. Retain explicit publication and no persisted administrative draft requirement.
+Later consumers require explicit supported untracked semantics before activation; policy
+configuration alone is not proof of request correctness. Exact contracts, agent sizing,
+coverage and all readiness gates remain open.
+
+**Impacts:** Scaffold: prove/promote conditional typed configuration/review/version/error
+patterns with consuming tests; Leave owns entitlement applicability. Shared UI: reuse
+four-section editor and readable policy summary with No balance tracking/Not balance-limited
+wording; no generic policy engine. Agent context: existing instructions suffice.
+Documentation: policy field/combination/publication/test contracts and tracker/handoff.
+ADR: accepted ADR-0135 suffices. No implementation/readiness permission.
 
 ### Story 3.4: Review starter examples before activating a policy
 
@@ -8908,6 +9323,17 @@ remains editable upfront plus proration. No implementation/readiness permission.
 
 ### Story 3.17: Calculate an authoritative current leave balance
 
+**Delivery split approved — 2026-10-16:** Retain this scope as parent. **3.17-A**
+composes prior earning/event/cap/carry-over/expiry components from complete authoritative
+historical inputs into reproducible remaining/reserved/available results. **3.17-B**
+resolves scoped owner/history inputs and exposes the protected API, proving actual
+database/owner integration, typed outcomes and representative multi-year performance.
+Detail children collaboratively in that order. Both deliver within 3.17 before dependent
+3.18/3.19; balance UI remains later. Preserve historical corrections/evidence and actual
+E5 reservation integration gates; no cache/worker-posted earning/frontend calculator.
+Split approval does not approve unpresented child criteria or establish final sizing/
+readiness/implementation permission. Parent acceptance remains binding.
+
 **Scope approved by the user, 2026-10-14, with clearer manual-only/correction criteria
 below; not implementation-ready.** Owner: Leave backend calculation and result contract.
 Consumes earlier earning, event, cap, rollover, expiry and method-transition components;
@@ -8993,6 +9419,160 @@ disclosures/loading/retry controls suffice for later screens; no frontend parall
 calculator. Agent context: existing instructions suffice. Documentation: input/result/
 historical/performance contracts, test mapping and epics/tracker/handoff checkpoint.
 ADR: accepted decisions suffice; no amendment. No implementation/readiness permission.
+
+### Story 3.17-A: Compose a reproducible current leave balance
+
+**Child scope approved — 2026-10-16; not implementation-ready.** Parent: Story 3.17.
+Owner: Leave backend calculation composition/result contract. Consumes completed
+3.7–3.16 components and declared complete historical/request protocol inputs. Deliver
+before 3.17-B and dependent 3.18/3.19; no future balance UI or production E5 writer
+dependency. Actual E5 reservation/consumption integration remains an activation gate.
+
+As an employee or authorized Leave Manager,
+I want one consistent calculation of current entitlement and commitments,
+So that balance results remain accurate and explainable.
+
+**Acceptance Criteria:**
+
+**Given** complete historical inputs and an employee-local calculation date,
+**When** the balance is calculated,
+**Then** it combines completed earning, actual-event, cap, carry-over and expiry components
+in their agreed order.
+
+**Given** historical policy, assignment, employment and work-setting changes,
+**When** calculations cross them,
+**Then** each interval uses applicable inputs rather than today's settings for all history.
+
+**Given** consumption and reservations,
+**When** results are returned,
+**Then** remaining entitlement, reserved amounts and available amounts are distinct and
+not deducted twice,
+**And** future-funded commitments are distinguished from entitlement earned today.
+
+**Given** a manual-only policy,
+**When** its balance is calculated,
+**Then** applicable authorized grants/actual effects determine it without automatic earning,
+**And** having no grants may legitimately yield zero entitlement.
+
+**Given** coverage gaps, partial periods or changed earning rules,
+**When** components are combined,
+**Then** accepted precision, timing, provenance and no-duplicate-grant rules remain enforced.
+
+**Given** corrected authoritative inputs or new correcting events,
+**When** calculation repeats,
+**Then** it incorporates consequences while preserving original events/decision evidence.
+
+**Given** unchanged inputs,
+**When** calculation repeats,
+**Then** results are reproducible,
+**And** no earning events, snapshots or other business effects are created.
+
+**Given** missing or inconsistent required inputs,
+**When** calculation cannot complete correctly,
+**Then** it returns explicit failure rather than invented zero or partial authoritative
+balance.
+
+**Traceability / planned verification:** Parent 3.17 calculation acceptance; Features §6;
+BIZ-09/11; CALC-01/02–20/32–36 as applicable to composition, accepted precision/order/
+historical evidence decisions and assignment refinements ADR-0136/0137/0141–0145. Focused
+compound/invariant tests combine prior components across multiple periods, changes, actual
+consumption/reservations, caps/expiry/carry-over, protected future funding, manual-only zero,
+gap/partial-period cases and corrected inputs. Verify exact reproducibility, invalid-input
+failure and no mutation/write-on-read. Real input resolution/access is 3.17-B, not assumed
+from these deterministic tests; actual E5/E6 consumers integrate before activation.
+No runtime tests executed; exact source/test paths/commands remain pre-story inputs.
+
+**Pre-story inputs / sizing:** Bind complete input/portion/history types, version/date/
+sequence interpretation, exact rational/whole-minute boundaries, current versus historical
+date and future-commitment result breakdown. Do not reconstruct past rules from current
+settings or treat stored snapshots as current authority. No cached authoritative total,
+posted accrual worker, generic shared balance engine or frontend calculator. Final agent
+sizing, atomic requirement/test coverage and readiness remain open.
+
+**Impacts:** Scaffold: reuse generic typed result/error conventions where proven; Leave
+owns calculation composition and fixtures. Shared UI: none in this child; later consumers
+use typed breakdowns. Agent context: existing instructions suffice. Documentation: input/
+result/precision/history/test contracts, parent-child mapping and tracker/handoff.
+ADR: accepted decisions suffice. No code or implementation/readiness permission.
+
+### Story 3.17-B: Read an authorized current balance from authoritative history
+
+**Child scope approved — 2026-10-16; not implementation-ready.** Parent: Story 3.17.
+Owner: Leave current-balance API, owner-input/history resolution and actual database/
+workload integration. Deliver after completed 3.17-A, before dependent 3.18/3.19. Consume
+prior owner/version/read/event foundations; actual E5 reservation and E6 correction
+integration remain activation gates, not prerequisites hidden in synthetic protocol tests.
+
+As an employee or authorized Leave Manager,
+I want the API to calculate balances from correct historical records,
+So that displayed results reflect actual entitlement and current access.
+
+**Acceptance Criteria:**
+
+**Given** a balance request,
+**When** the API receives it,
+**Then** it checks current organization/employee-record authority,
+**And** own-balance access does not imply permission to read other employees.
+
+**Given** authorized access,
+**When** calculation inputs are resolved,
+**Then** the API obtains applicable policy, assignment, employment, work-setting and
+actual-event history through owning contracts with sufficient version/observation evidence.
+
+**Given** complete, consistently observed inputs,
+**When** 3.17-A calculation runs,
+**Then** the API returns authoritative breakdown and employee-local calculation date,
+**And** it substitutes neither a stored historical snapshot nor independently maintained total.
+
+**Given** changed or unavailable required inputs,
+**When** a consistent result cannot be established,
+**Then** the API returns appropriate typed failure rather than zero or partial authoritative
+balance.
+
+**Given** corrected history,
+**When** the balance is requested again,
+**Then** the result includes subsequent consequences,
+**And** original events/decision evidence remain intact.
+
+**Given** repeated reads,
+**When** inputs remain unchanged,
+**Then** results stay reproducible without earning events or decision snapshots.
+
+**Given** representative multi-year histories and expected concurrency,
+**When** real API/indexed persistence queries are measured,
+**Then** they meet agreed workload/performance targets,
+**And** measurable targets are defined before readiness.
+
+**Given** denied access, another organization's identifiers or unexpected defects,
+**When** processing fails,
+**Then** protected data remains undisclosed,
+**And** defects produce actionable privacy-safe diagnostics.
+
+**Traceability / planned verification:** Parent 3.17 API/history/performance acceptance;
+Features §6, applicable privacy/current authorization and NFRs; BIZ-09/11; CALC-01/16/
+32–36; Leave ADR-0106–0113 and historical/owner boundaries. Real restricted API/database/
+owner-client tests prove exact user/org/employee/date scope, complete historical versions,
+consistent observations, actual composition output, zero versus failed/denied states,
+corrected history without snapshot substitution and effect-free reproducibility. Verify
+own versus manager authority, cross-org identifiers, concurrent owner changes and safe
+diagnostics. Measure declared representative multi-year indexed workloads/concurrency
+against bound targets, including runtime release evidence rather than mock timing.
+Actual E5/E6 consumers integrate before affected activation. No runtime tests executed;
+exact paths/commands/targets remain pre-story inputs.
+
+**Pre-story inputs / sizing:** Bind owner history DTOs/authority, version/date/reference
+resolution and completeness, consistent observation/retry rules, indexed input queries,
+employee-local result date and typed errors. Keep external waits outside business locks;
+no distributed snapshot promise or weakened consequential-action freshness. No speculative
+checkpoint/cache, mutable authoritative total, accrual worker or frontend calculator.
+Final agent sizing, atomic coverage and readiness remain open.
+
+**Impacts:** Scaffold: prove/promote authorized typed owner-client/read/error/observation
+and query/workload evidence patterns with reference tests; Leave owns balance/history
+meaning. Shared UI: no balance screen in this child. Agent context: existing instructions
+suffice. Documentation: owner/input/read/performance/test contracts, parent-child mapping
+and tracker/handoff. ADR: accepted decisions suffice. No application code, runtime tests
+or implementation/readiness permission.
 
 ### Story 3.18: Project funding for every requested leave date
 
@@ -9317,6 +9897,80 @@ Agent context: existing instructions suffice. Documentation: proposal/source/val
 result contracts, test mapping and epics/tracker/handoff checkpoint. ADR: accepted
 decisions suffice; no amendment. No implementation/readiness permission.
 
+### Story 3.41: Calculate request previews without an entitlement balance
+
+**Scope approved — 2026-10-15; not implementation-ready.** Owner: Leave balance/read/
+preview backend and typed API contracts. Consumes Story 3.40's explicit policy category
+and prior assignment, work-duration, request-guidance and protected read foundations.
+Actual E5 submission/approval/usage effects remain E5-owned; protocol fixtures do not
+claim those workflows already exist.
+
+As an employee or authorized Leave Manager,
+I want untracked leave to return accurate duration and request guidance,
+So that it can be assessed without inventing an allowance or funding shortfall.
+
+**Acceptance Criteria:**
+
+**Given** an applicable No balance tracking policy,
+**When** the backend returns balance information,
+**Then** it explicitly identifies the balance as not applicable,
+**And** it returns neither zero, infinity nor a missing-data error for that valid state.
+
+**Given** requested dates and a permitted duration mode,
+**When** a preview is calculated,
+**Then** it uses effective employee work schedules and holidays to calculate duration
+under existing precision rules.
+
+**Given** an untracked request,
+**When** its rules are checked,
+**Then** assignment, employment dates, booking restrictions, duration limits, document
+guidance and applicable approval requirements still apply,
+**And** absence of an entitlement pot alone produces no insufficient-balance result.
+
+**Given** paid or unpaid classification,
+**When** the preview describes the request,
+**Then** it uses the configured classification,
+**And** absence of a balance does not automatically turn paid leave into unpaid leave.
+
+**Given** a preview or balance read,
+**When** it completes,
+**Then** it creates no grant, entitlement reservation, balance consumption or other
+business effect.
+
+**Given** missing policy configuration, unavailable required inputs or denied access,
+**When** the API responds,
+**Then** it distinguishes those outcomes from an explicitly untracked policy,
+**And** failure never defaults to Not balance-limited.
+
+**Given** a tracked automatic or manual-only policy,
+**When** it is calculated,
+**Then** existing balance and funding rules remain enforced.
+
+**Traceability / planned verification:** Features §4/6/7 and applicable work-duration/
+request rules; BIZ-06/09/14/15/16; relevant CALC duration/precision/guidance and Leave
+ADR-0090/0122/0135. API/contract tests prove explicit untracked versus tracked zero versus
+missing/unavailable/denied results, unchanged scoped duration/holiday/half-day/hour
+calculations, ordinary date/assignment/document/approval guidance, independent paid/unpaid
+classification and no funding-shortfall inference. Real database checks prove reads/
+previews create no business effects; exercise automatic/manual-only regression and
+current-access/cross-org boundaries. Actual E5 producers/consumers prove submission,
+approval and usage integration before activation. No runtime tests executed; exact
+source/test paths and commands remain pre-story inputs.
+
+**Pre-story inputs / sizing:** Bind discriminated balance applicability/result DTOs,
+preview date/version/authority evidence, classification and duration units, stable typed
+errors and generated clients. Explicit not-applicable is not an unavailable response or
+permission to omit ordinary validation. Define supported policy/date combinations and
+no hidden funding effects; no new lifecycle or approval engine. Final agent sizing,
+atomic requirement/test coverage and all readiness gates remain open.
+
+**Impacts:** Scaffold: prove/promote typed applicability/error/client conventions with
+consumer tests, preserving existing wire compatibility; Leave owns policy calculation.
+Shared UI: no new UI in this backend scope; later consumers must interpret typed states.
+Agent context: existing instructions suffice. Documentation: balance/preview/type/test
+contracts and tracker/handoff. ADR: accepted ADR-0135 suffices. No implementation or
+readiness permission.
+
 ### Story 3.22: Durably accept notification events
 
 **Scope approved by the user, 2026-10-14, with explicit conflict/failure visibility below;
@@ -9616,6 +10270,15 @@ new agent-context rule. No code/translations/provider/notification changes.
 
 ### Story 3.25: Deliver accepted notifications through email and in-app channels
 
+**Delivery split approved — 2026-10-15:** Retain this agreed scope as parent.
+**3.25-A** establishes restricted shared channel processing and durable in-app delivery;
+**3.25-B** adds actual email/provider acceptance/uncertainty recovery. Detail child
+acceptance collaboratively in that order. Preserve independent channel state, privacy,
+standard English/organization templates, original expiry, diagnostics and technical-support
+ownership across both; no replay of the originating Leave action. Inbox APIs/UI remain
+3.26/3.27. Both children precede the first mutation requiring both channels. Split approval
+is not approval of unpresented child criteria, exact sizing or implementation/readiness.
+
 **Scope approved by the user, 2026-10-14, with narrower rendering and production-support
 failure ownership below; not implementation-ready.** Owner: shared notification channel
 processing/adapters and receiver-owned delivery records. Consumes durable acceptance and
@@ -9702,6 +10365,158 @@ hooks suffice; defer custom-branding editor, inbox UI follows. Agent context: ex
 instructions suffice. Documentation: provider/channel/privacy/retention/recovery contracts,
 runbook/test mapping and epics/tracker/handoff checkpoint. ADR: 0130 scope retained;
 failure ownership follows platform 0024, no further amendment. No implementation permission.
+
+### Story 3.25-A: Process channel deliveries and create in-app notifications
+
+**Child scope approved — 2026-10-15; not implementation-ready.** Parent: Story 3.25.
+Owner: shared notification channel processor/worker and in-app persistence. Delivery
+position: within 3.25, before 3.25-B and later inbox APIs/UI; both delivery children precede
+the first Leave mutation requiring email/in-app notices. Consumes durable receiver and
+restricted service/worker foundations, without depending on later inbox UI or email adapter.
+
+As a notification recipient,
+I want accepted messages durably available in-app,
+So that relevant updates survive retries and processing interruptions without duplication.
+
+**Acceptance Criteria:**
+
+**Given** a durably accepted event,
+**When** shared channel processing claims its delivery work,
+**Then** it uses restricted notification-service authority and the item's verified
+organization scope,
+**And** it does not access Leave's tables.
+
+**Given** an event intended for in-app delivery,
+**When** processing succeeds,
+**Then** one durable notification is created for each approved recipient with recipient/
+organization scope and correct event identity.
+
+**Given** retries, duplicate processing or worker interruption,
+**When** processing resumes,
+**Then** completed in-app work is not repeated,
+**And** unfinished work remains recoverable.
+
+**Given** multiple intended channels,
+**When** in-app delivery completes,
+**Then** its outcome is recorded independently,
+**And** email stays separately pending until actually processed; in-app success does not
+imply email success.
+
+**Given** notification rendering,
+**When** content is prepared,
+**Then** it uses approved standard English templates, relevant organization identity,
+dated event information and permitted minimal content,
+**And** links lead to application routes that recheck current access.
+
+**Given** temporary failure, a defect or exhausted retries,
+**When** processing cannot complete,
+**Then** bounded retries or correction-required handling retain evidence and actionable
+production-support diagnostics,
+**And** no failure repeats the originating Leave change.
+
+**Given** expired work,
+**When** another attempt would start,
+**Then** the original retry deadline is enforced without deleting an already-delivered
+notification.
+
+**Traceability / planned verification:** Parent 3.25 processing/in-app and shared failure/
+privacy acceptance; BIZ-29/30; PRIV-07–09; platform ADR-0006/0023/0024/0026–0029 and Leave
+ADR-0130. Real restricted API/database/worker tests prove item org/recipient scope, narrow
+credentials, durable single notification/channel outcome, atomicity, crash/reclaim fencing
+and deduplication. Verify independently pending email, minimal standard English/org/date/
+link content, safe diagnostics, temporary versus defect/exhausted outcomes, original
+deadline and retained delivered records. No inbox UI/email-provider success needed to
+prove this child; actual later clients must integrate before activation. No runtime tests
+executed; exact source/test paths and commands remain pre-story inputs.
+
+**Pre-story inputs / sizing:** Bind per-channel states/identity, claims/deadlines/recovery,
+recipient/service authority, supported queued payload/template versions and scoped
+operational recovery. Define in-app content retention separately from operational detail/
+receiver dedup retention; expiry stops attempts, not lawful retention of delivered content.
+External waits stay outside short write locks. Preserve safe logging and worker shutdown/
+deployment evidence. Final agent sizing/coverage/readiness remain open.
+
+**Impacts:** Scaffold: prove/promote restricted channel processing, fenced recovery,
+idempotent persistence/template/operational patterns and reference tests; Leave owns event
+meaning. Shared UI: no inbox panel in this child; standard rendering hooks support later
+clients. Agent context: existing instructions suffice. Documentation: channel/privacy/
+retention/worker/recovery/test contracts and parent-child tracker/handoff. ADR: existing
+decisions suffice. No code/provider sends or implementation/readiness permission.
+
+### Story 3.25-B: Deliver notification emails and recover uncertain provider outcomes
+
+**Child scope approved — 2026-10-16; not implementation-ready.** Parent: Story 3.25.
+Owner: shared notification email adapter/channel processing and operational recovery.
+Deliver after 3.25-A; both children precede the first Leave mutation requiring email/
+in-app notices. Later inbox UI is not needed to prove actual email-provider behavior.
+
+As a notification recipient,
+I want permitted notification emails delivered reliably,
+So that relevant updates reach me without unnecessary duplicates or private-data exposure.
+
+**Acceptance Criteria:**
+
+**Given** accepted email delivery work,
+**When** processing begins,
+**Then** the worker uses approved recipient, sender and event-family template with standard
+English content and relevant organization identity.
+
+**Given** sensitive notification content,
+**When** email is rendered,
+**Then** subject, body, preview and links follow approved privacy limits,
+**And** business details remain behind application routes that recheck current access.
+
+**Given** a provider response,
+**When** the outcome is recorded,
+**Then** confirmed acceptance, definite failure and uncertain acceptance remain distinct,
+**And** provider acceptance is not described as confirmed employee receipt.
+
+**Given** uncertain acceptance or an interrupted attempt,
+**When** recovery runs,
+**Then** it uses verified provider identity/status capabilities where available,
+**And** it does not blindly resend or promise duplicate-free delivery without evidence.
+
+**Given** temporary failure, a contract defect or exhausted retries,
+**When** delivery cannot complete,
+**Then** bounded retries or correction-required handling retain evidence and alert
+production support,
+**And** controlled recovery does not repeat the originating Leave change.
+
+**Given** successful in-app delivery,
+**When** email fails or retries,
+**Then** the in-app notification remains intact,
+**And** completed channel work is not repeated.
+
+**Given** the original retry deadline has passed,
+**When** another attempt would start,
+**Then** no new send begins,
+**And** this does not imply previously accepted provider work has been recalled.
+
+**Traceability / planned verification:** Parent 3.25 email/provider/failure/privacy
+acceptance; BIZ-29/30; platform ADR-0006/0023/0024/0026–0029, Leave ADR-0130 and
+notification privacy/event-time rules. Verify the actual supported provider adapter's
+identity/acceptance/status behavior, worker crash before/after send/outcome persistence,
+uncertain versus definite failures, safe retry versus correction-required recovery,
+original expiry and independent completed in-app state. Exercise standard English/org/
+date rendering and minimal sensitive subject/body/preview/link content, current authorized
+destinations and safe diagnostics without credentials/payload dumps. Operational recovery
+is scoped/audited and never repeats domain mutation. No provider sends/runtime tests
+executed; exact source/test paths/commands remain pre-story inputs.
+
+**Pre-story inputs / sizing:** Bind real provider capability/evidence, stable channel/
+provider identities, bounded network timeouts, uncertainty/reconciliation/retry rules,
+sender/recipient authority, queued template/version compatibility and retention. External
+waits remain outside short database locks; local recorded expiry cannot recall remote
+effects. Verify actual provider limits rather than infer exactly-once email. Define
+technical owner runbook/credentials/alerts and safe recovery. Final sizing/coverage/
+readiness remain open.
+
+**Impacts:** Scaffold: prove/promote provider/channel adapter, typed outcome/recovery,
+privacy-safe templates/diagnostics and reference tests; Leave owns event meaning. Shared
+UI: standard email rendering/formatting hooks, no branding/message editor. Agent context:
+existing instructions suffice. Documentation: actual provider/channel/uncertainty/runbook/
+test contracts and parent-child tracker/handoff. ADR: accepted decisions suffice.
+No code, provider changes/sends or implementation/readiness permission.
 
 ### Story 3.26: Read a scoped notification inbox and manage read state
 
@@ -9858,3 +10673,1677 @@ organization. Shared UI: prove/promote panel/selector/mobile/focus/accessible do
 Leave owns destinations/business-response indicators. Agent context: existing rules
 suffice. Documentation: interaction/API/access contracts, catalogue/test mapping and
 epics/tracker/handoff checkpoint. ADR: 0131 retained; no amendment. No code/notifications.
+
+### Story 3.28: Review and confirm initial employee policy assignments
+
+**Scope approved by the user, 2026-10-14; not implementation-ready.** Owner: Leave
+assignment API/web/persistence, consuming shared employee facts through authorized HTTP.
+Fulfils the initial-write obligation deferred from group 2. Depends on completed selected-
+employee review, authoritative calculation and required notification foundation delivery;
+their agreed planning scopes alone are not runtime/readiness proof.
+
+As a Leave Manager with current policy-management permission,
+I want to assign a policy to an exact selected set of employees after reviewing its consequences,
+So that their Leave configuration is explicit and accountable.
+
+**Acceptance Criteria:**
+
+**Given** employees selected through the existing policy employee list,
+**When** I review an initial assignment,
+**Then** it shows the exact employees, selected policy and effective date,
+**And** filters or newly added employees cannot silently expand the set.
+
+**Given** a proposed assignment,
+**When** its consequences are calculated,
+**Then** the review explains the applicable allowance, availability dates and relevant
+balance/request effects,
+**And** assignment is distinguished from a recurring custom allowance or one-off adjustment.
+
+**Given** current authority and a valid reviewed assignment,
+**When** I confirm,
+**Then** the server records the assignment, required local effects, attribution, change
+evidence and notification intent under the owning transaction contracts,
+**And** it creates no account, employment, membership or application grant.
+
+**Given** an overlapping assignment or changed relevant inputs,
+**When** confirmation is attempted,
+**Then** conflicting assignments are rejected and consequentially changed results require
+renewed review,
+**And** entered selections remain recoverable.
+
+**Given** affected requests,
+**When** assignment consequences are confirmed,
+**Then** the agreed change-authorizer accountability, visible pending impacts and
+approved-request protections apply,
+**And** no request dates or original decision evidence are silently rewritten.
+
+**Given** a lost confirmation response,
+**When** the original operation is recovered or retried,
+**Then** assignments, effects and notification intent are not duplicated.
+
+**Given** later filter changes, new employees or changed employment facts,
+**When** those changes occur,
+**Then** this explicit assignment set remains unchanged until an authorized assignment action.
+
+**Traceability / planned verification:** Features §4; BIZ-06/07; Leave ADR-0126/0128,
+policy/version/history/calculation evidence/confirmation rules and platform current
+authority/revisions/operation/attribution/outbox rules. Verify exact selected employment
+set, accountless identities, effective/version binding, initial before/after results,
+no synthetic account/grant creation, protected current inputs and concurrent assignment
+overlap rejection under actual restricted roles. Test atomically required effects,
+snapshots/audit/intent and rollback; real notification handover/channel/inbox integration;
+lost response/retry preserving outcomes without duplicates. Existing request protocol
+fixtures are paired with E5 actual consumer/writer integration before activation against
+real requests. No runtime tests executed; exact source/test paths/commands and sizing pending.
+
+**Pre-story inputs / sizing:** Bind assignment start versus policy/employment dates,
+version references, initial entitlement effects (no guessed automatic grant/reset),
+selected-set bounds/atomicity, capability and accountless notification handling.
+Consequential evidence follows ADR-0111: owning immutable calculation snapshots record
+actual values or immutable input versions, distinct policy/calculation version and actor,
+atomically with the action; first consumer adds only needed owning storage. Keep external
+service waits outside business locks; bind consistent shared observations/local guarding
+and employee/batch lock/retry deadlines. No silently expanded set or partial success.
+
+**Remaining consumers:** Scope is initial assignments; reassignment/ending a used
+assignment needs its own reviewed-change scope. No future reassignment UI/command is
+required to complete initial assignments. Actual E5/E6 request-impact/finalization and
+attention mechanisms integrate with this writer before activation against those records;
+do not claim a fixture pass proves their workflow. All readiness gates remain open.
+
+**Impacts:** Scaffold: prove/promote generic selected-set/review/revision/transaction/
+attribution/client/outbox mechanisms and reference tests; Leave owns assignment/effect
+semantics and calculation snapshots. Shared UI: reuse selection/review/recovery and
+accessible focused edits; no automatic rule builder or new administrative draft system.
+Agent context: existing instructions suffice. Documentation: assignment/date/effect/
+evidence/notification contracts, test mapping and epics/tracker/handoff checkpoint.
+ADR: accepted decisions suffice; new unresolved business outcomes require discussion.
+No implementation/readiness permission.
+
+### Story 3.29: Review and confirm a one-off leave-balance adjustment
+
+**Scope approved by continuation, 2026-10-15; not implementation-ready.** Owner: Leave
+adjustment API/web/persistence and authorized detail view. Consumes calculation/event/
+snapshot/coordination foundations and actual outbox/channel/inbox delivery. No dependency
+on the later full balance-history UI; its own authorized adjustment details complete links.
+
+As a Leave Manager with current balance-adjustment permission,
+I want to add or deduct a one-off amount after reviewing its consequences,
+So that exceptional changes are explained, auditable and communicated to the employee.
+
+**Acceptance Criteria:**
+
+**Given** an employee and leave type within my authorized scope,
+**When** I open Adjust leave balance,
+**Then** I can choose Add or Deduct, enter an amount and effective date, and provide
+a mandatory reason.
+
+**Given** valid input,
+**When** I select Review adjustment,
+**Then** the backend shows current and resulting balances, the effective-date consequences
+and affected requests,
+**And** reviewing creates no balance event.
+
+**Given** current authority and unchanged consequential review inputs,
+**When** I select Confirm adjustment,
+**Then** the adjustment event, required calculation evidence, audit and notification
+intent commit atomically,
+**And** recurring entitlement remains unchanged.
+
+**Given** relevant inputs change during review,
+**When** confirmation is attempted,
+**Then** consequentially changed results require renewed review,
+**And** entered amount, date and reason remain recoverable.
+
+**Given** request funding or validity is affected,
+**When** consequences are reviewed and committed,
+**Then** the agreed accountability and pending/approved-request safeguards apply,
+**And** no request dates or approved paid allocation are silently rewritten.
+
+**Given** successful confirmation,
+**When** notifications are processed,
+**Then** the employee receives minimal email/in-app notices linking to authorized
+adjustment details: amount, effective date, resulting balance, actor and reason.
+
+**Given** a mistaken earlier adjustment,
+**When** another adjustment corrects it,
+**Then** both events remain with their explanation and relationship,
+**And** there is no ledger edit or consequence-free undo.
+
+**Given** a lost response, transaction failure or bounded coordination timeout,
+**When** recovery occurs,
+**Then** it preserves input, resolves uncertain outcomes and prevents duplicate effects
+or notifications. Unexpected defects are reported explicitly.
+
+**Traceability / planned verification:** Features §6; BIZ-08; CALC-25/32–34 and
+event/review/snapshot/accountability ADRs, notably Leave 0110–0113/0128 and platform
+0012/0013/0022/0023/0025/0031. Verify Add/Deduct/dates/mandatory reason, precise amount
+conversion and before/after impact, no effects on review, unchanged recurring allowance,
+current scope/input/coordination and consequential re-review. Real database tests prove
+atomic event/snapshot/audit/intent and rollback, durable initiator/executor attribution,
+lost-response recovery and no duplicate correction/effects. Real API/browser/outbox/
+receiver/channel/inbox/detail journeys prove minimal notices and current permitted
+detail access. Request-impact protocol fixtures pair with actual E5 consumer integration
+before activation. No runtime tests executed; exact source/test paths/commands pending.
+
+**Pre-story inputs / sizing:** Bind amount conversion, grant validity/expiry, effective-date
+history replay, current-input coordination/lock order/deadlines, capability/detail authority
+and accountless notification handling. Do not invent a universal manual-grant cap rule,
+reset current balance to recurring allowance or directly edit immutable events. Correcting
+an adjustment uses another normal authorized adjustment with current impact/review/reason,
+not a separate correction endpoint. Snapshot inputs preserve actual values/immutable
+versions and calculation version atomically, with no sensitive payload logs. Notifications
+can fail operationally after successful commit; intent recording cannot silently fail.
+
+**Remaining consumers:** E5 actual request-impact/acknowledgement/finalization integration
+and E6 historical deficit/correction consumers prove their real effects before activation
+against those records. ADR-0128 discretionary approved-request pre-change resolution and
+necessary factual correction handling remain binding; fixtures do not prove workflow UI.
+Final source/test mapping, agent sizing and all readiness gates remain open.
+
+**Impacts:** Scaffold: prove/promote generic review/revision/outcome/atomic evidence/
+outbox/client patterns with first-consumer/reference tests; Leave owns adjustment/replay
+and immutable snapshot meaning. Shared UI: reuse approved Add/Deduct focused form,
+Review/Confirm and authorized detail/recovery controls; no new admin draft or ledger editor.
+Agent context: existing instructions suffice. Documentation: adjustment/date/effect/
+coordination/detail/notification contracts, test mapping and epics/tracker/handoff.
+ADR: existing accepted decisions suffice; unresolved business outcomes require discussion.
+No code, notifications or implementation/readiness permission.
+
+### Story 3.30: Change recurring employee entitlement or return to policy
+
+**Scope approved — 2026-10-15; not implementation-ready.** Owner: Leave entitlement
+API/web/persistence and authorized change details. Consumes prior policy, calculation,
+review, attribution and notification foundations; Story 3.29 supplies the separate
+one-off adjustment action.
+
+As a Leave Manager with current entitlement-management authority,
+I want to set an employee-specific recurring allowance or restore policy entitlement,
+So that continuing exceptions are explicit, reviewed and retained in history.
+
+**Acceptance Criteria:**
+
+**Given** an employee and leave type within my authorized scope,
+**When** I open Edit employee entitlement,
+**Then** I see the policy allowance and current or scheduled override,
+**And** I can choose Use policy entitlement or Set employee-specific entitlement.
+
+**Given** a recurring change or return to policy,
+**When** I choose its effective date,
+**Then** it must be a valid leave-period boundary, defaulting to the next boundary,
+**And** monthly instalments do not make each month an override boundary.
+
+**Given** an employee-specific recurring allowance,
+**When** it becomes effective,
+**Then** it continues until explicitly changed,
+**And** the editor has no automatic override end-date field.
+
+**Given** valid input and a mandatory reason,
+**When** I review the change,
+**Then** the backend presents old and new allowances, effective and first usable dates,
+calculation effects and affected requests,
+**And** the change does not reset the current balance to the recurring allowance.
+
+**Given** an immediate one-off balance change is needed,
+**When** I follow Adjust leave balance,
+**Then** Story 3.29's separately authorized adjustment flow applies,
+**And** that adjustment does not change recurring entitlement.
+
+**Given** current authority and unchanged consequential review inputs,
+**When** I confirm,
+**Then** the versioned recurring change, required calculation evidence, audit and
+notification intent commit atomically,
+**And** existing grants, immutable events and original request evidence are preserved.
+
+**Given** changed review inputs or a lost confirmation response,
+**When** confirmation or recovery is attempted,
+**Then** changed consequences require renewed review and uncertain outcomes resolve
+against the original operation without duplicate effects.
+
+**Given** a confirmed change,
+**When** its notification is delivered,
+**Then** the employee receives the applicable amount/date information and authorized
+detail link under the approved notification privacy rules,
+**And** request-impact accountability and exact unpaid-amount acknowledgement safeguards
+remain binding.
+
+**Traceability / planned verification:** Features §5; BIZ-07; CALC-15; Leave ADR-0083
+and accepted review/history/notification/accountability decisions, including ADR-0128.
+Verify policy/custom selection, current/scheduled presentation, leave-period boundaries
+across policy calendars, monthly instalments, persistence without an automatic end date,
+return-to-policy calculation and no balance reset. API/database tests prove current
+scope, version/overlap handling, renewed consequential review, atomic evidence/audit/
+intent, rollback and lost-response deduplication. Browser and real delivery/detail tests
+prove the separate adjustment link, review/confirmation and authorized notices. E5
+request-impact consumers must prove actual integration before activation; fixtures alone
+do not prove those workflows. No runtime tests executed; exact source/test mapping pending.
+
+**Pre-story inputs / sizing:** Bind allowance ownership, boundary/version/overlap rules,
+scheduled-change replacement and return-to-policy semantics, precise calculation effects,
+coordination and recovery contracts, detail authority and accountless notification
+handling. Preserve immutable historical evidence and pending/approved-request protections.
+Final agent sizing, requirement/test coverage and implementation-readiness gates remain open.
+
+**Impacts:** Scaffold: prove/promote generic explicit-Save/review/version/atomic evidence/
+outbox/client patterns with first-consumer tests; Leave owns recurring allowance semantics.
+Shared UI: reuse the approved focused entitlement editor, reason, Review/Confirm and
+recovery patterns. Agent context: existing instructions suffice. Documentation: bind
+the recurring-change contracts, test mapping and epics/tracker/handoff checkpoint.
+ADR: accepted decisions suffice; unresolved business outcomes require discussion.
+No implementation/readiness permission.
+
+### Story 3.31: Understand my leave balance and history
+
+**Scope approved — 2026-10-15; not implementation-ready.** Owner: Leave own-balance/
+history read API and web presentation. Consumes prior authoritative balance/event/
+calculation foundations and current own-record access. E5 reservations/request links
+use explicit protocol fixtures until actual consumer integration before activation;
+this story does not implement submission, approval or a new future-balance calculator.
+
+As an employee,
+I want to see my available leave and understand how it was calculated,
+So that I can plan leave and understand changes.
+
+**Acceptance Criteria:**
+
+**Given** access to my own leave information,
+**When** I open balance details from My Leave,
+**Then** I see remaining entitlement, reservations against it and the available amount
+separately, for example 15 remaining minus 3 reserved equals 12 available,
+**And** future earnings are excluded from today's available amount.
+
+**Given** reservations against my entitlement,
+**When** I inspect them,
+**Then** I can follow links to requests I am authorized to view and return to balance
+details.
+
+**Given** entitlement history,
+**When** I expand an entry,
+**Then** I see its amount, date and explanation, with permitted request context or
+adjustment actor/reason,
+**And** reservations appear separately and are not deducted twice.
+
+**Given** a history-year filter,
+**When** I change the year,
+**Then** only the displayed history changes; the current balance remains unchanged.
+
+**Given** a balance expressed using working hours or standard-day conversion,
+**When** I expand its calculation explanation,
+**Then** I see the applicable conversion using authoritative backend values.
+
+**Given** loading, unavailable information or lost access,
+**When** details are requested,
+**Then** the screen distinguishes loading, empty history and failure,
+**And** a failed calculation is not presented as zero.
+
+**Traceability / planned verification:** Features §6 and applicable §8 calculation
+rules; BIZ-09/11; Stories 3.7–3.18 calculation/event contracts and approved My Leave
+balance-explanation UX (EXPERIENCE balance explanation preview, approved 2026-09-20).
+API/browser tests prove own-record/current-organization access, remaining/reserved/
+available reconciliation, future earning excluded, no duplicate deduction, authorized
+request return navigation, history-year isolation, permitted event details/conversion,
+loading/empty/failure and access loss. Real calculations/events feed the actual UI;
+synthetic E5 protocol fixtures do not prove future request workflow integration.
+No runtime tests executed; exact source/test paths and commands remain pre-story inputs.
+
+**Pre-story inputs / sizing:** Bind own-balance/history DTOs, observation/date/timezone
+meaning, event versus derived-history presentation, ordering/pagination/year boundaries,
+field privacy and linked-record authority, unavailable/stale handling and E5 request-link
+integration. Reuse backend amounts/conversions rather than a second frontend calculator.
+Final agent sizing, full requirement/test coverage and all readiness gates remain open.
+
+**Impacts:** Scaffold: prove/promote domain-neutral authorized read/error/client/return
+patterns with consuming tests; calculation/history semantics remain Leave-owned. Shared
+UI: reuse accessible amount breakdown, expandable details, year filtering and return/focus
+controls; promote only proven neutral patterns. Agent context: existing instructions
+suffice. Documentation: bind API/privacy/history/test contracts and update tracker/handoff.
+ADR: accepted decisions suffice; no new balance model or future calculator introduced.
+No implementation/readiness permission.
+
+### Story 3.32: View an employee's Leave entitlement settings
+
+**Scope approved — 2026-10-15; not implementation-ready.** Owner: Leave employee-
+summary entitlement read API/web integration. Extends Story 2.26 with actual prior E3
+assignment/policy/calculation/override data and existing focused writers. Authorized
+manager balance/history access must be bound and proved here using prior calculation/
+history foundations; own-balance access in Story 3.31 does not itself grant manager access.
+
+As an authorized Leave administrator,
+I want to see an employee's entitlement settings alongside employment and work schedule,
+So that I can understand their setup and reach the appropriate management action.
+
+**Acceptance Criteria:**
+
+**Given** permission to view the employee's entitlement settings,
+**When** I open their Leave settings,
+**Then** Leave entitlement shows applicable leave types, assigned policies and policy
+allowances.
+
+**Given** an employee-specific recurring allowance,
+**When** the section appears,
+**Then** it distinguishes the policy allowance from the employee override and identifies
+which applies,
+**And** scheduled changes show effective dates separately from current settings.
+
+**Given** permission to view balances,
+**When** I inspect an entitlement,
+**Then** I can open its authorized balance details and history,
+**And** recurring allowance and available balance remain clearly distinguished.
+
+**Given** the relevant management permission,
+**When** I choose Edit employee entitlement or Adjust leave balance,
+**Then** the existing focused flow opens for that employee and organization with its
+review and confirmation safeguards,
+**And** returning refreshes the affected summary and restores focus.
+
+**Given** read access without management permission,
+**When** the section appears,
+**Then** permitted information remains readable and unauthorized actions are unavailable.
+
+**Given** no policy assignment, unavailable information or changed access,
+**When** the section loads or refreshes,
+**Then** it distinguishes a known missing assignment from a failed read,
+**And** it protects information according to current access.
+
+**Traceability / planned verification:** Features §2/4/5/6; BIZ-06/07/09; Story 2.26's
+explicit E3 obligation; approved Employee Leave settings UX with Employment & approval,
+Work schedule and Leave entitlement groups. API/browser tests prove exact employee/org,
+current/scheduled policies and overrides, policy/custom source distinction, allowance
+versus available balance, independently authorized manager history access, existing
+writer target/review/return/refreshed state, read-only controls and missing versus failed
+reads. Include accountless employees, revoked access, cross-org denial and accessible
+mobile/keyboard/focus behavior. Real E3 data and writers must feed the summary, not mockup
+values. No runtime tests executed; exact source/test paths and commands pending.
+
+**Pre-story inputs / sizing:** Bind per-section/field/action authority, manager balance/
+history access and linked-record privacy, date/version/source DTOs, bounded owner-read
+composition, observation/failure handling and existing editor return contracts. No new
+employee master, independent calculation or duplicated writer. Final agent sizing and
+all requirement/test/readiness gates remain open.
+
+**Impacts:** Scaffold: prove/promote reusable scoped summary/read/client/error/return
+patterns with consumer tests. Shared UI: reuse Story 2.26's approved grouped summary and
+focused actions; Leave owns entitlement composition and meaning. Agent context: existing
+instructions suffice. Documentation: bind read/authority/navigation/test contracts and
+update tracker/handoff. ADR: existing accepted decisions suffice. No implementation or
+readiness permission.
+
+### Story 3.33: See policy and entitlement setup issues
+
+**Scope approved — 2026-10-15; not implementation-ready.** Owner: Leave setup assessment
+API/web integration. Completes Story 2.25's E3 obligation with actual prior E3 policy,
+assignment and entitlement inputs. Existing configuration readers/writers and approved
+approval-rule contracts precede this assessment; it does not implement the E5 approval
+workflow or replace consequential validation.
+
+As an authorized Leave administrator,
+I want the setup checklist to assess saved policy and entitlement configuration,
+So that I can find and resolve issues before employees need those settings.
+
+**Acceptance Criteria:**
+
+**Given** access to Setup,
+**When** its assessments run,
+**Then** Leave types and policies uses actual saved configuration, including required
+policy settings and approval rules,
+**And** applicable employee-assignment issues appear in the relevant setup section.
+
+**Given** the assessment completes,
+**When** a section's status appears,
+**Then** it shows Not started when essential configuration is absent, Needs review when
+existing configuration is incomplete or invalid, or Ready when its required checks pass.
+
+**Given** a detected issue,
+**When** I expand it,
+**Then** I see a clear explanation and a link to the relevant authorized setting or employee,
+**And** employee-specific issues appear only where relevant employees exist.
+
+**Given** I follow an issue and save a correction,
+**When** I return to Setup,
+**Then** the affected assessment refreshes from saved configuration and preserves my
+return context.
+
+**Given** required information cannot be checked,
+**When** the assessment runs,
+**Then** it shows Couldn't check with Retry rather than reporting missing configuration
+or Ready.
+
+**Given** a legitimate zero balance or manual-only policy without grants,
+**When** setup is assessed,
+**Then** that alone is not treated as missing opening data.
+
+**Given** a Ready status,
+**When** someone saves draft input, submits a request or approves leave,
+**Then** that action applies its own current checks,
+**And** checklist status neither grants authority nor blocks lightweight draft preservation.
+
+**Traceability / planned verification:** Features §1 setup and applicable §4/5/6/10;
+BIZ-02/06/07; Story 2.25's explicit E3 obligation; approved Setup and migration UX and
+platform ADR-0049/0051. Real API/browser tests prove saved-policy/approval-rule/assignment
+assessments, absent versus invalid versus passing versus unavailable results, zero/manual
+grant/no-employee cases, authorized issue links, refreshed return and independent sections.
+Verify no manual completion/activation flag, consultant correspondence tracker or standard
+opening-balance row. Draft saves remain independent of consequential setup; actual E5
+consumers must prove their own validation before activation. No runtime tests executed;
+exact source/test paths and commands remain pre-story inputs.
+
+**Pre-story inputs / sizing:** Bind exact checks and current/future/ended employee/date
+scope, enabled-type and assignment expectations, approval-rule/eligible-recipient reads,
+field authority, issue DTOs, bounded observation/failure handling and return targets.
+Do not invent policy defaults, mandatory holiday entries or new eligibility/approval
+rules. Ready is a current configuration assessment, not a durable authorization, runtime
+implementation-readiness PASS or distributed snapshot. Final sizing/coverage gates open.
+
+**Impacts:** Scaffold: prove/promote reusable authorized assessment/status/client/return
+patterns with consuming tests; Leave owns predicates. Shared UI: extend existing three-area
+checklist with approved issue/Retry/return controls. Agent context: existing instructions
+suffice. Documentation: bind assessment rules/API/test evidence and tracker/handoff.
+ADR: existing accepted decisions suffice. No implementation/readiness permission.
+
+### Story 3.42: Show untracked leave clearly to employees and managers
+
+**Delivery split approved — 2026-10-16:** Retain this scope as parent. **3.42-A**
+implements employee My Leave/Apply/authorized usage presentation; **3.42-B** implements
+manager employee-entitlement-summary/authorized action presentation. Both consume completed
+3.41 typed backend applicability/results and prior respective UI foundations. Preserve
+Not balance-limited versus missing/failed/zero state distinctions, accurate duration/
+classification/guidance, no fictional funding/shortfall/remedy controls and scoped history.
+Detail children collaboratively, employee first. Actual E5 submission/approval/usage
+integration remains an activation gate; split approval is not unpresented child acceptance,
+final sizing/readiness PASS or implementation permission. No parent acceptance removed.
+
+**Scope approved — 2026-10-15; not implementation-ready.** Owner: Leave My Leave,
+authorized employee settings, Apply preview and usage-history web/API integration.
+Consumes Story 3.41's typed backend states and prior summary/history/preview patterns.
+E5 owns actual submission/approval/usage recording; protocol fixtures do not claim those
+future workflows pass. Real E5 integration is required before affected activation.
+
+As an employee or authorized Leave Manager,
+I want untracked leave clearly distinguished from balance-limited leave,
+So that I understand what can be requested and what has been taken.
+
+**Acceptance Criteria:**
+
+**Given** an applicable untracked policy,
+**When** it appears in My Leave or authorized employee entitlement settings,
+**Then** it shows Not balance-limited,
+**And** it shows neither zero, infinity nor a numerical available balance.
+
+**Given** an untracked type selected in Apply,
+**When** its preview loads,
+**Then** I see calculated request duration, paid/unpaid classification and relevant
+request guidance,
+**And** remaining-balance and entitlement-funding breakdowns are omitted.
+
+**Given** no balance funding is required,
+**When** the request preview appears,
+**Then** it shows no insufficient-balance warning, borrowing option or balance-override
+action,
+**And** other request restrictions and required acknowledgements still appear where applicable.
+
+**Given** authorized recorded leave usage,
+**When** I inspect its history,
+**Then** I see leave taken and permitted request links, described as usage rather than
+entitlement deductions,
+**And** filtering history implies neither allowance nor remaining balance.
+
+**Given** an untracked policy in employee settings,
+**When** management actions are displayed,
+**Then** balance adjustment and recurring-allowance actions are unavailable for that policy,
+**And** separately authorized assignment and policy actions remain available.
+
+**Given** loading, missing configuration, unavailable information or lost access,
+**When** the screen updates,
+**Then** those states remain distinct from Not balance-limited,
+**And** switching tracked/untracked types leaves no stale balance figures or controls visible.
+
+**Traceability / planned verification:** Features §4/6/7, Leave ADR-0135 and approved
+My Leave/employee-summary/Apply/expandable-history UX; BIZ-06/09/14/15/16 and applicable
+CALC-36 presentation. Real backend/browser journeys prove explicit applicability wording,
+duration/classification/guidance, absence of false funding/shortfall controls, authorized
+usage history/request links and no balance mutation controls. Verify independent read/
+management authority, tracked/manual-only regression, organization/type switch response
+ordering, errors versus untracked, access loss and keyboard/mobile/focus behavior. Bind
+E5 usage protocol fixtures and prove actual producer/consumer integration before activation.
+No runtime tests executed; exact source/test paths and commands remain pre-story inputs.
+
+**Pre-story inputs / sizing:** Bind history usage lifecycle/date/status semantics and
+privacy, authorized request links/return, permitted untracked actions, typed DTO/client
+handling and stale response cancellation. Usage is not a finite allowance or a second
+entitlement ledger. No client-side duplicate calculator or new submission controls.
+Final agent sizing may split bounded surface work while preserving dependencies;
+requirement/test coverage and readiness remain open.
+
+**Impacts:** Scaffold: prove/promote typed applicability/conditional display/client/return
+patterns with consuming tests. Shared UI: reuse amount/status/preview/history patterns,
+accessible conditional controls and existing layout; Leave owns usage semantics. Agent
+context: existing instructions suffice. Documentation: bind DTO/usage/authority/UI/test
+contracts and tracker/handoff. ADR: accepted ADR-0135 suffices. No implementation or
+readiness permission.
+
+### Story 3.42-A: Understand untracked leave in My Leave and Apply
+
+**Child scope approved by clarified continuation — 2026-10-16; not implementation-ready.**
+Parent: Story 3.42. Owner: Leave employee My Leave/Apply/authorized usage presentation.
+Consumes completed 3.41 typed backend results and prior 3.19/3.20/3.31 UI foundations.
+E5 owns actual submission/approval/usage writers; protocol fixtures do not prove those
+workflows. Actual consumer integration remains required before affected activation.
+
+As an employee,
+I want untracked leave clearly explained,
+So that I can prepare requests and understand recorded usage without expecting an allowance
+balance.
+
+**Acceptance Criteria:**
+
+**Given** an applicable untracked policy,
+**When** it appears in My Leave,
+**Then** it shows Not balance-limited,
+**And** it shows neither zero, infinity nor a numerical available balance.
+
+**Given** an untracked type selected in Apply,
+**When** its preview loads,
+**Then** I see backend-calculated duration, paid/unpaid classification and relevant
+request guidance,
+**And** remaining-balance and entitlement-funding breakdowns are omitted.
+
+**Given** no entitlement funding is required,
+**When** guidance appears,
+**Then** there is no insufficient-balance warning, borrowing option or balance-override
+action,
+**And** other restrictions and required acknowledgements appear where applicable.
+
+**Given** authorized recorded usage,
+**When** I inspect history,
+**Then** I see leave taken and permitted request links, described as usage rather than
+entitlement deductions,
+**And** history filtering does not imply remaining allowance.
+
+**Given** loading, missing configuration, failed reads or lost access,
+**When** the screen updates,
+**Then** it shows the relevant loading, missing-configuration, failure or access-denied
+state, offering Retry where applicable,
+**And** it shows Not balance-limited only when an authorized successful read confirms
+that policy setting.
+
+**Given** a change of type, organization or account context,
+**When** responses arrive,
+**Then** stale figures, controls or private information cannot appear in the new context.
+
+**Given** mobile or keyboard use,
+**When** I navigate previews, history and linked requests,
+**Then** approved responsive, accessible and return-navigation behavior applies.
+
+**Traceability / planned verification:** Parent 3.42 employee acceptance; Features §4/6/7;
+Leave ADR-0135; BIZ-09/14/15/16/31 and relevant CALC-36 presentation; approved My Leave/
+Apply/usage-history UX. Real 3.41 API/browser journeys prove confirmed untracked wording,
+duration/classification/guidance, omitted fictional funding/remedy controls, independent
+ordinary restrictions and authorized usage history/links/filter/return. Verify tracked/
+manual-only regression, loading/missing/failed/denied handling with no false untracked
+label, stale response isolation on type/org/account switches, mobile/keyboard/focus.
+Actual E5 usage integration precedes activation; no fake submission or consumption writer.
+No runtime tests executed; exact source/test paths/commands remain inputs.
+
+**Pre-story inputs / sizing:** Bind applicability/error DTOs, authorized usage lifecycle/
+date/status fields, request-link authority/return, stale response suppression and recovery.
+Do not count pending requests as leave taken or invent usage from a finite balance ledger;
+bind exact state presentation through E5 protocol and actual producer integration. Preserve
+lightweight draft saving independently of preview/setup failure. Final agent sizing,
+atomic coverage and readiness remain open.
+
+**Impacts:** Scaffold: prove/promote typed applicability/client/error/context-isolation/
+return patterns and browser/reference tests. Shared UI: reuse status/preview/history/
+responsive disclosure controls; Leave owns usage semantics. Agent context: existing
+instructions suffice. Documentation: DTO/usage/privacy/UI/test contracts, parent-child
+mapping and tracker/handoff. ADR: accepted ADR-0135 suffices. No code or implementation/
+readiness permission.
+
+### Story 3.42-B: Explain untracked leave in employee administration
+
+**Child scope approved — 2026-10-16; not implementation-ready.** Parent: Story 3.42.
+Owner: Leave manager employee-summary/authorized usage/action presentation. Consumes
+completed 3.41 typed backend and prior 3.32 manager summary/read authority. E5 actual
+usage integration remains an activation gate; fixtures do not prove future request writers.
+
+As an authorized Leave Manager,
+I want untracked policies clearly represented in employee settings,
+So that I can understand coverage and usage without treating them as allowance balances.
+
+**Acceptance Criteria:**
+
+**Given** permission to view employee entitlement settings,
+**When** an applicable untracked policy appears,
+**Then** it shows Not balance-limited with policy identity/applicable coverage dates,
+**And** no numerical available balance appears.
+
+**Given** an untracked policy,
+**When** details appear,
+**Then** paid/unpaid classification stays clear and independent of balance tracking,
+**And** unrestricted requests or automatic approval are not implied.
+
+**Given** separately authorized usage-history access,
+**When** I open history,
+**Then** I see permitted leave-usage details/request links,
+**And** usage is not described as entitlement deductions or remaining allowance.
+
+**Given** an untracked policy,
+**When** management actions appear,
+**Then** balance-adjustment and recurring-allowance actions are unavailable,
+**And** permitted policy/assignment actions remain available under their own authority.
+
+**Given** a completed policy or assignment change,
+**When** I return to employee settings,
+**Then** affected information refreshes from the API and focus returns appropriately.
+
+**Given** loading, missing configuration, failed reads or lost access,
+**When** the section updates,
+**Then** it shows the relevant state and Retry where applicable,
+**And** Not balance-limited appears only after an authorized successful read confirms it.
+
+**Given** employee/organization switching, read-only access, mobile or keyboard use,
+**When** I navigate the section,
+**Then** stale information is excluded, permissions stay enforced and approved accessible
+behavior applies.
+
+**Traceability / planned verification:** Parent 3.42 manager acceptance; Features §4/6;
+BIZ-06/09/31; Leave ADR-0135, typed 3.41 results and approved employee-summary/history/
+focused-return UX. Real API/browser tests prove policy/coverage/classification/status,
+no fictional allowance, separately authorized usage/link access, unavailable balance
+actions and permitted assignment/policy actions. Verify completed-edit refresh/focus,
+loading/missing/failed/denied versus confirmed untracked, employee/org response isolation,
+read-only behavior and keyboard/mobile access. Real E5 producer integration precedes
+activation. No runtime tests executed; exact source/test paths/commands pending.
+
+**Pre-story inputs / sizing:** Bind per-field/history/action authority, usage state/date
+semantics and DTOs, related-action return, typed unavailable handling and stale response
+suppression. Existing manager summary access does not grant extra sensitive/history/edit
+authority. No fake balance or duplicate usage ledger. Final agent sizing/atomic coverage/
+readiness remain open.
+
+**Impacts:** Scaffold: prove/promote scoped typed summary/applicability/error/return
+clients with browser/reference tests. Shared UI: reuse employee-summary/status/history/
+action/accessible focus patterns; Leave owns usage meaning. Agent context: existing
+instructions suffice. Documentation: authority/usage/UI/API/test contracts, parent-child
+mapping and tracker/handoff. ADR: accepted decisions suffice. No implementation/readiness
+permission or code.
+
+### Story 3.34: Review and publish a change to a policy already in use
+
+**Delivery split approved — 2026-10-16:** Retain this agreed scope as parent.
+**3.34-A** calculates and reviews authoritative employee/date/allowance/request effects
+and publishes through the protected API, atomically committing version, calculation
+evidence, audit and notification intent. **3.34-B** integrates the approved editor/review
+UI with that completed API, showing previous/proposed settings, overrides and effective/
+usable dates. Detail child acceptance collaboratively in that order. API guards remain
+independent of UI; preserve original historical evidence, ADR-0128 approved-request
+pre-change resolution and privacy-appropriate notices for actual effects. Both children
+precede 3.35 scheduled amendment/cancellation. Split approval does not approve unpresented
+child criteria or establish final sizing/readiness/implementation permission.
+
+**Scope approved — 2026-10-15; not implementation-ready.** Owner: Leave policy
+version API/web/persistence. Consumes prior policy editor/read, calculation, impact
+review, atomic evidence and actual notification foundations. Actual E5/E6 request-impact
+consumers must prove integration before activation; controlled protocol fixtures do not
+claim those workflows already exist. Amendment/cancellation of a scheduled version is
+separate subsequent scope.
+
+As a Leave Manager with policy-management permission,
+I want to review and publish a new policy version,
+So that policy changes take effect deliberately while preserving historical meaning.
+
+**Acceptance Criteria:**
+
+**Given** an existing policy,
+**When** I select Edit policy,
+**Then** the editor prepares a new version using the current settings,
+**And** editing alone does not change the active policy.
+
+**Given** valid changes,
+**When** I select Review changes,
+**Then** I see previous/proposed values, effective dates, affected employees and existing
+requests needing attention,
+**And** overrides are distinguished so the review does not claim an allowance changes
+where an override preserves it.
+
+**Given** an entitlement change,
+**When** its timing is calculated,
+**Then** applicable earning-method rules determine its effective date and first usable
+date,
+**And** different employee anniversary dates are shown where relevant.
+
+**Given** affected requests,
+**When** I review the change,
+**Then** agreed accountability rules apply; discretionary changes affecting already
+approved requests require their impacts to be resolved before confirmation,
+**And** existing requests and recorded approvals are not silently rewritten.
+
+**Given** current authority and unchanged consequential review inputs,
+**When** I select Publish policy version,
+**Then** the new version, required calculation evidence, audit and notification intent
+commit atomically,
+**And** earlier versions and historical request evidence remain available.
+
+**Given** future-dated publication,
+**When** publication succeeds,
+**Then** confirmation says Policy scheduled for [date],
+**And** current and scheduled versions are clearly distinguished.
+
+**Given** a confirmed entitlement change,
+**When** employee notifications are delivered,
+**Then** actually affected employees receive applicable old/new allowance and timing
+information,
+**And** sensitive types use a generic notice linking to authorized details.
+
+**Given** changed review inputs or an uncertain confirmation outcome,
+**When** I retry,
+**Then** changed consequences require renewed review,
+**And** recovery prevents duplicate versions or notifications.
+
+**Traceability / planned verification:** Features §4–6 and entitlement-change notification
+requirements; BIZ-05/06/07/11; Leave ADR-0002/0083/0096/0098/0101/0102/0106/0111/0128;
+approved policy editor/review/scheduled/history UX. API/database/browser tests prove
+new-version editing without effects, before/after and override-aware impact review,
+daily/monthly/upfront and anniversary timing, first usable dates, current authorization,
+changed-input re-review, atomic version/evidence/audit/intent and rollback/retry recovery.
+Verify original request/version evidence, approved-request pre-change safeguards and
+minimal sensitive versus ordinary notices through actual delivery/detail access. Actual
+E5/E6 integration precedes affected workflow activation. No runtime tests executed;
+exact source/test paths and commands remain pre-story inputs.
+
+**Pre-story inputs / sizing:** Bind field ownership/supported combinations, version/date/
+overlap and existing-schedule conflict semantics, authoritative impact set/coordination,
+required evidence, detail/privacy authority and accountless notification handling. Ordinary
+prospective changes do not authorize retroactive corrections, leave-period-basis changes
+or transitions to/from manual-only/untracked modes whose business contracts remain
+unresolved. Do not silently broaden accepted automatic-method transition rules. Final
+agent sizing and requirement/test/readiness gates remain open.
+
+**Impacts:** Scaffold: prove/promote review/version/coordination/outcome/atomic evidence/
+outbox patterns with consuming tests; Leave owns timing and policy effects. Shared UI:
+reuse approved four-section editor, differences/review and current/scheduled/history
+presentation. Agent context: existing instructions suffice. Documentation: bind policy/
+impact/notification/test contracts and tracker/handoff. ADR: accepted decisions suffice
+for this scope; unresolved business outcomes require discussion. No implementation or
+readiness permission.
+
+### Story 3.34-A: Review and publish a used-policy change through the API
+
+**Child scope approved — 2026-10-16; not implementation-ready.** Parent: Story 3.34.
+Owner: Leave used-policy validation/impact review/publication API and persistence.
+Deliver within 3.34 after prior actual calculation/review/notification foundations, before
+3.34-B and 3.35. This appendix position is not delivery order. E5/E6 actual request
+integration must precede activation; protocol fixtures do not claim those workflows pass.
+
+As a Leave Manager with policy-management permission,
+I want authoritative review and protected publication of policy changes,
+So that employee consequences are understood and historical decisions remain intact.
+
+**Acceptance Criteria:**
+
+**Given** an existing policy and proposed changes,
+**When** the API validates them,
+**Then** it checks supported combinations and rejects changes prohibited once in use,
+including leave-year-basis and entitlement-category conversions.
+
+**Given** valid changes,
+**When** review is requested,
+**Then** the API returns previous/proposed settings, affected employees, applicable
+overrides and existing-request consequences,
+**And** review creates no business effects.
+
+**Given** employee-specific earning rules,
+**When** consequences are calculated,
+**Then** effective dates and first usable dates are distinguished, including different
+anniversary boundaries,
+**And** continuing overrides do not falsely imply an employee's allowance changed.
+
+**Given** consequences for existing requests,
+**When** publication is attempted,
+**Then** the API enforces agreed accountability, including resolving discretionary
+approved-request impacts before commit,
+**And** pending impacts retain required visibility and acknowledgement obligations.
+
+**Given** current authority and unchanged consequential review inputs,
+**When** publication is confirmed,
+**Then** new immutable version, required calculation evidence, audit and required
+notification intent commit atomically,
+**And** earlier versions, grants and original request evidence are preserved.
+
+**Given** future-dated publication,
+**When** its result is returned,
+**Then** current/scheduled settings and employee-specific dates are accurately represented,
+**And** immediate application is not implied.
+
+**Given** required employee notices,
+**When** notification intent is recorded,
+**Then** recipients/content reflect actual effects with appropriate dates/privacy-safe links,
+**And** later delivery failure does not undo publication.
+
+**Given** changed inputs, concurrent publication or uncertain confirmation outcome,
+**When** confirmation or recovery occurs,
+**Then** changed consequences require renewed review,
+**And** recovery prevents duplicate versions, effects or notification intent.
+
+**Traceability / planned verification:** Parent 3.34 backend acceptance; Features §4–6;
+BIZ-05/06/07/11/12/29/30/34; relevant CALC timing/evidence/coordination and accepted
+Leave ADR-0002/0083/0096/0098/0101/0102/0111–0113/0128/0133–0145 where applicable.
+Real API/database tests prove full field/category restrictions and in-use history guards,
+effect-free scoped before/after/override/date review, prospective timing and retained
+grants, existing-request validity/funding protocol, current authority/changed-input
+coordination, atomic version/evidence/audit/intent and rollback/retry recovery. Verify
+actually affected recipient/content privacy and real prior notification integration.
+Actual E5/E6 producer/consumer scenarios prove request safeguards before affected
+activation. No runtime tests executed; exact source/test paths/commands remain inputs.
+
+**Pre-story inputs / sizing:** Bind complete field matrix, policy/version/overlap and
+scheduled supersession, impact set completeness/authority, protected effective/usable
+dates, bounded observation/coordination/lock order, retained snapshot evidence and
+operation identities. Required request remedies retain separate permissions; publication
+does not grant funding authority or implement a correction engine. Reject unsupported
+migration; preserve all first-consumer scaffold/release/privacy obligations. Final agent
+sizing, atomic coverage and readiness remain open.
+
+**Impacts:** Scaffold: prove/promote guarded review/version/coordination/outcome/atomic
+evidence/outbox clients and reference tests; Leave owns policy/impact semantics. Shared
+UI: no editor in this child; typed review/errors support 3.34-B. Agent context: existing
+instructions suffice. Documentation: field/impact/evidence/notification/test contracts,
+parent-child mapping and tracker/handoff. ADR: accepted decisions suffice. No application
+code, notifications or implementation/readiness permission.
+
+### Story 3.34-B: Review and publish a used-policy change in the web editor
+
+**Child scope approved — 2026-10-16; not implementation-ready.** Parent: Story 3.34.
+Owner: Leave used-policy web editor/review and real API integration. Deliver after
+completed 3.34-A and before 3.35. Prior policy editor controls are reused; this child
+does not duplicate calculation, authorization or resolution logic in the browser.
+
+As a Leave Manager with policy-management permission,
+I want a clear review of policy changes and employee consequences,
+So that I can confirm changes deliberately.
+
+**Acceptance Criteria:**
+
+**Given** an existing policy,
+**When** I select Edit policy,
+**Then** the approved four-section editor opens with its settings,
+**And** editing alone does not change the active policy.
+
+**Given** a policy already in use,
+**When** restricted settings are displayed,
+**Then** fixed leave-year-basis and entitlement-category choices are explained and
+unavailable for unsupported changes.
+
+**Given** valid proposed changes,
+**When** I select Review changes,
+**Then** I see API previous/proposed values, affected employees, continuing overrides
+and request consequences,
+**And** unchanged settings remain expandable.
+
+**Given** different employee effective or usable dates,
+**When** the review appears,
+**Then** those dates are clearly distinguished,
+**And** no allowance change is claimed where an override preserves it.
+
+**Given** request consequences requiring resolution,
+**When** I review them,
+**Then** permitted details and existing resolution actions are reachable with return context,
+**And** publication stays blocked where the API requires resolution first.
+
+**Given** current reviewed input,
+**When** I select Publish policy version,
+**Then** the editor uses 3.34-A's protected API and shows the confirmed outcome,
+**And** future publication says Policy scheduled for [date], preserving current-policy
+summary.
+
+**Given** changed inputs, lost access, failure or uncertain publication,
+**When** the operation resolves,
+**Then** the editor preserves recoverable input and provides appropriate renewed review
+or original-operation recovery without duplicate publication.
+
+**Given** mobile, keyboard or changed-form exit interactions,
+**When** I use the editor,
+**Then** responsive layout, focus, validation and discard confirmation follow approved UX.
+
+**Traceability / planned verification:** Parent 3.34 UI acceptance; Features §4–6;
+BIZ-05/06/07/11/12; approved four-section editor/difference/employee-impact/current/
+scheduled UX; applicable accepted policy restrictions/timing/override/accountability
+ADRs. Real browser/API/database journeys prove effect-free editing/review, restricted
+settings, old/new/unchanged values, override-aware amounts and employee-specific effective/
+usable dates, authorized affected-request links/return, API-required blocking and
+current/scheduled confirmation. Verify access loss, stale review/uncertain recovery,
+mobile/keyboard/focus and discard handling without duplicate publication. Actual E5/E6
+request consumers integrate before affected activation; protocol fixtures do not prove
+their UI. No runtime tests executed; exact source/test paths/commands remain inputs.
+
+**Pre-story inputs / sizing:** Bind generated review/error/outcome DTOs, complete impact
+set display/pagination, field/detail authority, valid resolution return targets, stale
+response handling and input recovery lifetime. No implicit funding authority, automatic
+paid-to-unpaid conversion, generic referral workflow or new admin draft system. Preserve
+current authorization at each linked action. Final agent sizing/coverage/readiness open.
+
+**Impacts:** Scaffold: prove/promote typed review/operation/error/return clients and
+browser/reference tests. Shared UI: reuse approved section navigation/differences/
+affected-record/date/recovery controls; Leave owns policy-impact presentation. Agent
+context: existing instructions suffice. Documentation: field/review/link/privacy/UI/test
+contracts, parent-child mapping and tracker/handoff. ADR: accepted decisions suffice.
+No application code, notifications or implementation/readiness permission.
+
+### Story 3.35: Amend or cancel a scheduled policy change
+
+**Delivery split approved — 2026-10-16:** Retain parent scope. **3.35-A** provides
+scheduled amendment/cancellation API review/confirmation with first-effect cutoff,
+resulting settings/employee/request calculation, guarded atomic change/evidence/audit/
+updated notification intent and preserved original versions/notices. **3.35-B** provides
+web review/confirmation/recovery against that completed API. Detail the two children
+collaboratively; no unpresented child criteria/final sizing/readiness approved. Deliver
+after 3.34's completed children, within 3.35 before dependent consumers. Once any affected
+employee effect starts, use the normal prospective new-version flow, not partial rollback.
+No original parent acceptance removed or implementation authorization.
+
+**Scope approved — 2026-10-15; not implementation-ready.** Owner: Leave scheduled
+policy API/web/persistence. Consumes Story 3.34 publication/review and prior calculation,
+history, coordination and notification foundations. No destructive deletion of earlier
+versions, recall of delivered messages or reversal of already-effective changes.
+
+As a Leave Manager with policy-management permission,
+I want to amend or cancel a policy change before it takes effect,
+So that I can correct future plans while keeping affected employees informed.
+
+**Acceptance Criteria:**
+
+**Given** a scheduled policy change,
+**When** I open its details,
+**Then** I can inspect scheduled settings and effective dates, with authorized actions
+to amend or cancel.
+
+**Given** an amendment,
+**When** I review it,
+**Then** I see previously scheduled and proposed settings, revised effective/usable dates,
+affected employees and request consequences.
+
+**Given** cancellation,
+**When** I review it,
+**Then** I see which scheduled effects will be removed and which settings will apply
+instead, including employee and request consequences.
+
+**Given** consequences for existing requests,
+**When** amendment or cancellation is confirmed,
+**Then** publication's accountability and approved-request safeguards apply,
+**And** cancellation does not bypass impact review.
+
+**Given** current authority and unchanged reviewed inputs,
+**When** I confirm,
+**Then** the amendment or cancellation, required calculation evidence, audit and
+notification intent commit atomically,
+**And** the original scheduled change and subsequent history remain traceable.
+
+**Given** an already-notified change is amended or cancelled,
+**When** updated notifications are delivered,
+**Then** affected recipients receive a clear update using approved privacy rules,
+**And** the original notification is not silently rewritten or deleted.
+
+**Given** the change has taken effect or relevant state changes during review,
+**When** I attempt confirmation,
+**Then** stale confirmation is rejected and current consequences require renewed review,
+**And** an effective change requires the appropriate new-version or correction flow.
+
+**Given** an uncertain confirmation outcome,
+**When** I retry,
+**Then** recovery resolves the original operation without duplicate changes or notifications.
+
+**Traceability / planned verification:** Features §4–6 and entitlement-change communication;
+BIZ-05/06/07/11; Leave ADR-0002/0086/0098/0101/0102/0111/0128; approved scheduled-policy/
+review/history UX. Verify amendment versus previous schedule, cancellation versus resulting
+applicability, actual employee/request impact, updated privacy-safe notices, preserved
+original versions/messages, current authority/re-review, atomic evidence/audit/intent,
+rollback and operation recovery. Test boundary crossing during review, different employee
+anniversary/effective/usable dates and actual E5/E6 consumer integration before affected
+workflow activation. No runtime tests executed; exact source/test mapping pending.
+
+**Pre-story inputs / sizing:** Bind scheduled-version amendment/cancellation representation,
+date/conflict/revision guards and handling when any affected part has already taken effect.
+Do not treat a global Scheduled label as proof all employee effects are still future.
+Bind resulting policy/override/funding interpretation, prior-notice recipient relevance,
+accountless behavior and atomic evidence. Required business outcomes remain explicit
+contracts before readiness, not inferred rollback or retroactive recalculation. Final
+agent sizing and requirement/test/readiness gates remain open.
+
+**Impacts:** Scaffold: prove/promote guarded version/review/operation/atomic outbox patterns
+with consuming tests. Shared UI: reuse scheduled details, differences, consequential
+confirmation, history and recovery; no new administrative draft or generic rollback UI.
+Agent context: existing instructions suffice. Documentation: bind schedule/impact/notice/
+test contracts and tracker/handoff. ADR: existing decisions suffice within this scope;
+unresolved business outcomes require discussion. No implementation/readiness permission.
+
+### Story 3.35-A: Amend or cancel a scheduled policy change through the API
+
+**Child scope approved — 2026-10-16; not implementation-ready.** Parent: Story 3.35.
+Owner: Leave scheduled-policy amendment/cancellation review/confirmation API/persistence.
+Deliver after completed 3.34-A/B, before 3.35-B and later dependent consumers. Prior
+calculation/review/evidence/actual notification foundations apply; real E5/E6 request
+integration remains an activation gate rather than a hidden future dependency.
+
+As a Leave Manager with policy-management permission,
+I want protected review and confirmation of scheduled changes,
+So that future plans can be corrected without rewriting effective policy history.
+
+**Acceptance Criteria:**
+
+**Given** a scheduled policy change,
+**When** amendment or cancellation is requested,
+**Then** the API checks current authority and confirms no affected employee's change
+has taken effect.
+
+**Given** proposed amendment,
+**When** review is requested,
+**Then** the API returns previously scheduled/proposed settings, revised effective/usable
+dates, affected employees and request consequences.
+
+**Given** proposed cancellation,
+**When** review is requested,
+**Then** the API identifies which scheduled effects would be removed and which settings
+would apply instead, including employee/request consequences,
+**And** review changes nothing.
+
+**Given** affected requests,
+**When** confirmation is attempted,
+**Then** publication's accountability and pending/approved-request safeguards apply,
+**And** cancellation does not bypass impact resolution.
+
+**Given** current authority, unchanged reviewed inputs and still-valid cutoff,
+**When** I confirm,
+**Then** amendment/cancellation, required calculation evidence, audit and updated
+notification intent commit atomically,
+**And** original versions/change history stay traceable.
+
+**Given** an already-notified change,
+**When** it is amended or cancelled,
+**Then** required updated notices use approved recipient/privacy rules,
+**And** the original notification is preserved.
+
+**Given** an effective-date boundary is crossed or relevant inputs change during review,
+**When** confirmation is attempted,
+**Then** stale confirmation is rejected,
+**And** once any effect has started, the normal new-version flow applies.
+
+**Given** concurrent commands or uncertain confirmation,
+**When** recovery occurs,
+**Then** the original operation resolves without duplicate changes, evidence or
+notification intent.
+
+**Traceability / planned verification:** Parent 3.35 API acceptance; Features §4–6;
+BIZ-05/06/07/11/12/29/30/34; Leave ADR-0002/0086/0101/0102/0111–0113/0128/0139 and
+related restriction/notification decisions. Real API/database tests prove scoped current
+authority, full affected-set first-effect checks, effect-free amendment/cancellation
+reviews, accurate resulting dates/policy/override/request consequences, protected request
+resolution, atomic version/history/evidence/audit/updated intent and rollback. Verify
+Ana-July/Ben-October partly-effective case, boundary-crossing concurrency, changed-input
+review, retained original notices, privacy-safe updated events and operation recovery.
+Actual prior notification and later E5/E6 consumer integration precede affected activation.
+No runtime tests executed; exact source/test paths/commands remain pre-story inputs.
+
+**Pre-story inputs / sizing:** Bind immutable amendment/cancellation representation,
+version/supersession/overlap and resulting applicability, complete affected set and earliest
+effective boundary including non-allowance fields/assignment changes/timezones. Protect
+cutoff at confirmation; do not infer from global Scheduled, first usable date, worker run
+or notice delivery. Define review/coordination/evidence and prior-recipient relevance/
+accountless notification recovery. No partial rollback, retroactive rule rewrite or
+implicit funding-remedy authority. Final sizing/atomic coverage/readiness remain open.
+
+**Impacts:** Scaffold: prove/promote guarded version/dated review/operation/atomic evidence/
+outbox patterns and reference tests; Leave owns scheduled-effect meaning. Shared UI:
+none in API child; DTO/errors support 3.35-B. Agent context: existing instructions suffice.
+Documentation: schedule/impact/cutoff/notification/test contracts, parent-child mapping
+and tracker/handoff. ADR: accepted decisions suffice. No code or implementation/readiness
+permission.
+
+### Story 3.35-B: Review scheduled policy amendments and cancellations in the web UI
+
+**Child scope approved — 2026-10-16; not implementation-ready.** Parent: Story 3.35.
+Owner: Leave scheduled-change web review/confirmation and actual API integration.
+Deliver after completed 3.35-A within 3.35, using prior policy/related-action/recovery UI.
+Actual E5/E6 request consumer integration remains an activation gate.
+
+As a Leave Manager with policy-management permission,
+I want a clear review of a scheduled amendment or cancellation,
+So that I understand resulting settings and employee consequences before confirming.
+
+**Acceptance Criteria:**
+
+**Given** a scheduled policy change,
+**When** I open details,
+**Then** I see settings/effective dates with permitted Amend and Cancel actions.
+
+**Given** an amendment,
+**When** I select Review changes,
+**Then** I see previously scheduled/proposed values, revised effective/usable dates,
+affected employees and request consequences.
+
+**Given** cancellation,
+**When** I review it,
+**Then** I see effects removed and settings that would apply instead,
+**And** restoring/recalculating past entitlement is not implied.
+
+**Given** request consequences requiring resolution,
+**When** I inspect them,
+**Then** permitted details/existing resolution actions are reachable with return context,
+**And** confirmation stays blocked where the API requires resolution first.
+
+**Given** current reviewed input,
+**When** I confirm,
+**Then** the screen uses 3.35-A's protected API and shows confirmed resulting schedule
+or cancellation,
+**And** original history stays accessible under existing permissions.
+
+**Given** any affected employee's change has taken effect,
+**When** amendment/cancellation is attempted,
+**Then** the screen explains that a new prospective policy version is required,
+**And** it provides the permitted route to that flow.
+
+**Given** changed inputs, lost access, failure or uncertain confirmation,
+**When** the operation resolves,
+**Then** recoverable input is preserved with appropriate renewed review/original-operation
+recovery and no duplicate effects.
+
+**Given** cancellation of unconfirmed editing, mobile or keyboard use,
+**When** I interact with the screen,
+**Then** saved settings stay unchanged until confirmation,
+**And** approved discard/layout/validation/focus behavior applies.
+
+**Traceability / planned verification:** Parent 3.35 web acceptance; Features §4–6;
+BIZ-05/06/07/11/12; Leave ADR-0124/0128/0139 and approved policy/scheduled/differences/
+related-return UX. Real API/database/browser journeys prove amendment/cancellation
+differences and resulting dates/policy/employee/request state, authorized resolution
+links/return, API blocking, confirmed outcome and retained original history. Exercise
+boundary crossing while review is open, correct new-version route, stale review/access
+loss/uncertain recovery and no duplicate effects. Verify mobile/keyboard/focus/discard
+behavior. E5/E6 actual consumer integration precedes affected activation. No runtime tests
+executed; exact source/test paths/commands remain pre-story inputs.
+
+**Pre-story inputs / sizing:** Bind typed schedule/differences/outcome/errors, full impact
+set display, effective versus usable dates, field/history/link authority and exact return/
+recovery context. API remains authoritative; no generic rollback or new administrative
+draft/workflow engine. Preserve sensitive visibility and separate funding-remedy authority.
+Final agent sizing, atomic coverage and readiness remain open.
+
+**Impacts:** Scaffold: prove/promote typed review/operation/error/return clients with
+browser/reference tests. Shared UI: reuse scheduled details/differences/confirmation/
+history/current-state navigation and accessible focus; Leave owns policy-effect wording.
+Agent context: existing instructions suffice. Documentation: field/review/link/UI/test
+contracts, parent-child mapping and tracker/handoff. ADR: accepted decisions suffice.
+No code, notifications or implementation/readiness permission.
+
+### Story 3.36: Change or end an employee's policy assignment
+
+**Delivery split approved — 2026-10-16:** Retain this scope as parent. **3.36-A** is
+the protected assignment-change/ending API: coverage/replacement validation, authoritative
+entitlement/request review, current authority/concurrency and atomic assignment history/
+evidence/audit/notification intent. **3.36-B** is focused web edit/review/confirmation
+against that completed API. Detail children collaboratively in that order; both precede
+dependent retirement resolution in 3.37. Preserve same-type/migration restrictions, retained
+portions/overrides, gap/partial-period/no-duplicate rules and actual request safeguards.
+Split approval does not approve unpresented criteria, close exact contracts/final sizing
+or authorize implementation/readiness. Original parent acceptance remains binding.
+
+**Scope approved — 2026-10-15; not implementation-ready.** Owner: Leave assignment
+API/web/persistence. Extends Story 3.28's initial assignment using prior calculation,
+override, review/history and actual notification foundations. Actual E5/E6 request-impact
+integration must be proved before affected workflows activate; protocol fixtures are not
+proof of future request UI. This scope does not settle the outstanding effect contracts.
+
+As a Leave Manager with policy-assignment permission,
+I want to change or end an existing assignment after reviewing its consequences,
+So that policy coverage remains explicit as circumstances change.
+
+**Acceptance Criteria:**
+
+**Given** an existing employee policy assignment,
+**When** I choose to change or end it,
+**Then** I see current/scheduled details and can enter the proposed change, effective date
+and mandatory reason.
+
+**Given** a replacement assignment,
+**When** it is validated,
+**Then** the backend checks target policy and effective-date compatibility and rejects
+conflicting assignments,
+**And** employee filters do not automatically change assignments.
+
+**Given** valid input,
+**When** I review the change,
+**Then** I see previous/proposed coverage, entitlement/balance effects, treatment of any
+employee override and affected requests,
+**And** ending an assignment identifies any resulting period without policy coverage.
+
+**Given** existing entitlement or requests,
+**When** the assignment changes,
+**Then** agreed calculation and request-impact safeguards apply,
+**And** it does not silently reset balances, erase earned entitlement or rewrite
+historical requests.
+
+**Given** current authority and unchanged reviewed inputs,
+**When** I confirm,
+**Then** assignment history, required calculation evidence, audit and notification intent
+commit atomically,
+**And** assignment changes do not grant or revoke application access.
+
+**Given** a confirmed change,
+**When** employee notifications are delivered,
+**Then** affected employees receive privacy-appropriate change/timing information linking
+to authorized details.
+
+**Given** concurrent changes or an uncertain confirmation outcome,
+**When** I confirm or retry,
+**Then** changed consequences require renewed review, conflicting assignments remain
+prevented and recovery avoids duplicate effects.
+
+**Traceability / planned verification:** Features §4/5/6; BIZ-06/07/11; Leave ADR-0002/
+0083/0086/0106/0111/0126/0128 and applicable timing/notification decisions. API/database/
+browser tests prove exact employee/org and current authority, explicit change/end dates,
+policy compatibility/conflict concurrency, history and override-aware coverage/impact
+review, retained entitlement/request evidence and no access-grant side effects. Verify
+atomic change/evidence/audit/intent, rollback, changed-input review, uncertain-outcome
+deduplication, privacy-safe notices and authorized details. Include accountless employment
+and actual E5/E6 integration before affected workflow activation. No runtime tests executed;
+exact source/test paths and commands remain pending.
+
+**Pre-story inputs / sizing:** Settle replacement/ending effective dates, identity/version/
+overlap semantics, existing overrides, retained entitlement/provenance/expiry and request
+funding/validity before implementation. Do not assume automatic balance transfer, reset,
+retroactive recalculation or a new permission merely from assignment management. Bind
+review coordination, effect authority, accountless notifications and recovery. Meaningful
+unresolved business outcomes require collaborative decisions and authoritative updates;
+scope approval does not approve guessed effect rules. Final sizing/coverage/readiness open.
+
+**Impacts:** Scaffold: prove/promote scoped selection/review/revision/atomic evidence/
+outbox/recovery patterns with consuming tests; Leave owns assignment and effect meaning.
+Shared UI: reuse focused assignment/review, affected-record and return controls. Agent
+context: existing instructions suffice. Documentation: bind assignment/effect/override/
+notice/test contracts and tracker/handoff. ADR: preserve accepted decisions; new business
+outcomes need appropriate recorded authority. No implementation/readiness permission.
+
+### Story 3.36-A: Review and confirm assignment changes through the API
+
+**Child scope approved — 2026-10-16; not implementation-ready.** Parent: Story 3.36.
+Owner: Leave assignment replacement/ending validation, calculation review and protected
+confirmation API/persistence. Deliver within 3.36 after required prior calculation/actual
+notification foundations, before 3.36-B and dependent retirement resolution 3.37.
+Actual E5/E6 request-impact consumers integrate before affected activation; fixtures do
+not claim those workflows pass. Appendix position is not delivery order.
+
+As a Leave Manager with policy-assignment permission,
+I want authoritative review and protected confirmation of assignment changes,
+So that coverage and entitlement change without losing history or creating duplicate effects.
+
+**Acceptance Criteria:**
+
+**Given** an existing assignment and proposed replacement or ending,
+**When** the API validates the change,
+**Then** it requires an effective date/reason, checks current authority and rejects
+conflicting coverage.
+
+**Given** a replacement,
+**When** compatibility is checked,
+**Then** it remains within the same leave type and respects agreed basis/category
+restrictions,
+**And** another type's assignment does not transfer entitlement.
+
+**Given** valid input,
+**When** review is requested,
+**Then** the API returns previous/proposed coverage, overrides, earning/availability dates,
+balance differences and affected requests,
+**And** review creates no business effects.
+
+**Given** replacement, ending or resumption,
+**When** consequences are calculated,
+**Then** agreed rules preserve earlier entitlement/expiry, exclude uncovered earning and
+prevent duplicate grants,
+**And** monthly partial-period reconciliation follows the configured choice; assignment
+ending stays distinct from employment departure.
+
+**Given** affected requests,
+**When** confirmation is attempted,
+**Then** the API enforces agreed pending/approved-request safeguards,
+**And** it does not silently cancel requests, rewrite approvals or grant funding-remedy
+permissions.
+
+**Given** current authority and unchanged consequential review inputs,
+**When** I confirm,
+**Then** assignment history, required calculation evidence, audit and notification intent
+commit atomically,
+**And** no account, membership or application-access grant is created or revoked.
+
+**Given** required employee notices,
+**When** intent is recorded,
+**Then** it describes actual changes/timing using approved privacy rules and authorized
+detail links.
+
+**Given** concurrent changes, stale review or uncertain confirmation,
+**When** confirmation or recovery occurs,
+**Then** conflicts remain prevented, changed consequences require renewed review and
+retries cannot duplicate effects.
+
+**Traceability / planned verification:** Parent 3.36 backend acceptance; Features §4–6;
+BIZ-06/07/11/12/29/30/34; accepted calculation/review/history/notification decisions,
+notably Leave ADR-0083/0111–0113/0126/0128/0133–0145. Real API/database tests prove scoped
+target/date/reason/authority, same-type compatibility and forbidden migration rejection,
+coverage overlap/concurrency, effect-free review and actual formula/portion/provenance
+results. Exercise replacement/ending/resumption, retained expiry/no duplicate grants,
+monthly adjusted/full and effective/usable-date cases, original evidence, request-impact
+protocol and distinct employment departure. Verify atomic assignment/evidence/audit/intent,
+rollback/current review/retry, no access-grant effects and actual notice integration.
+E5/E6 real consumers prove safeguards before activation. No runtime tests executed;
+exact source/test paths/commands remain inputs.
+
+**Pre-story inputs / sizing:** Bind supported policy/assignment/version identities and
+representation, inclusive/exclusive dates and employee-local cutoffs, overlaps/coverage
+union, continuing override applicability, precise calculation/expiry/cap replay and
+future/changed request effects. Bound observation/coordination/lock order/review evidence
+and uncertain-outcome recovery. Ordinary assignment authority cannot perform separately
+restricted remedies; no generic transfer/referral or correction engine. Unsupported
+basis/category/cross-type migration remains rejected. Final agent sizing, atomic coverage
+and all readiness gates remain open.
+
+**Impacts:** Scaffold: prove/promote guarded dated writes, review/version/coordination,
+atomic evidence/outbox and typed clients with reference tests; Leave owns coverage and
+entitlement meaning. Shared UI: no focused editor here; DTO/errors support 3.36-B.
+Agent context: existing instructions suffice. Documentation: coverage/date/effect/privacy/
+operation/test contracts, parent-child mapping and tracker/handoff. ADR: accepted
+decisions suffice. No code, notifications or implementation/readiness permission.
+
+### Story 3.36-B: Review assignment changes in the focused editor
+
+**Child scope approved — 2026-10-16; not implementation-ready.** Parent: Story 3.36.
+Owner: Leave focused assignment replacement/ending web editor and real API integration.
+Deliver after completed 3.36-A, before dependent 3.37 retirement resolution. Reuse existing
+employee settings/related-action return and prior review controls; API owns calculation,
+authority, concurrency and resolution guards. Appendix position is not delivery order.
+
+As a Leave Manager with policy-assignment permission,
+I want a clear editor and consequence review,
+So that I can deliberately replace or end an employee's assignment.
+
+**Acceptance Criteria:**
+
+**Given** an employee's existing assignment,
+**When** I open the change action,
+**Then** I see current/scheduled coverage and can propose replacement or ending with
+effective date and mandatory reason.
+
+**Given** replacement,
+**When** I select a policy,
+**Then** choices/explanations reflect same-type compatibility and agreed migration
+restrictions,
+**And** the API remains authoritative.
+
+**Given** valid input,
+**When** I select Review changes,
+**Then** I see previous/proposed coverage, retained entitlement/expiry, continuing
+overrides, earning/availability dates, balance differences and affected requests.
+
+**Given** ending or a coverage gap,
+**When** its review appears,
+**Then** the explanation distinguishes retained balances from request permission,
+**And** it implies neither employment termination, gap catch-up nor fresh annual grant.
+
+**Given** monthly reconciliation or request consequences,
+**When** I inspect them,
+**Then** I see API-calculated changes and permitted links to existing resolution actions
+with return context,
+**And** confirmation stays blocked where the API requires resolution.
+
+**Given** current reviewed input,
+**When** I confirm,
+**Then** the editor uses 3.36-A's protected API and shows confirmed coverage/timing,
+**And** return to employee settings refreshes affected information and restores focus.
+
+**Given** validation failure, changed review inputs, lost access or uncertain confirmation,
+**When** the operation resolves,
+**Then** recoverable input is preserved and appropriate correction, renewed review or
+original-operation recovery is offered.
+
+**Given** cancellation, mobile use or keyboard navigation,
+**When** I interact with the editor,
+**Then** no unconfirmed changes take effect,
+**And** discard handling, layout, validation and focus follow approved UX.
+
+**Traceability / planned verification:** Parent 3.36 UI acceptance; Features §4–6;
+BIZ-06/07/11/12; approved grouped Employee Leave settings/focused edit/review/return UX;
+applicable Leave ADR-0083/0124/0126/0128/0133–0145. Real API/database/browser journeys
+prove exact target/org, current/scheduled source, policy compatibility, required date/
+reason, API review amounts/expiry/override/date/request consequences, permitted resolution
+links/return and protected confirmation/refreshed employee settings. Verify untracked
+not-applicable state rather than fake balances where relevant, read/edit authority,
+stale review/access loss/uncertain recovery, keyboard/mobile/focus and changed-form exit.
+Actual E5/E6 consumer integration precedes affected activation; fixtures alone do not
+prove those request workflows. No runtime tests executed; exact test paths/commands pending.
+
+**Pre-story inputs / sizing:** Bind typed coverage/impact/review/outcome/error contracts,
+source/field/linked-record authority, compatible selectors, whole-form input recovery,
+current versus historical dates and exact return targets. No new admin draft, balance
+calculator, implicit remedy authority, generic referral/task workflow or unsupported
+migration. Final agent sizing, atomic requirement/test coverage and readiness remain open.
+
+**Impacts:** Scaffold: prove/promote dated edit/review/typed-client/recovery/related-return
+patterns and browser/reference tests. Shared UI: reuse focused form, consequences,
+date/amount explanations and accessible return/focus; Leave owns assignment meaning.
+Agent context: existing instructions suffice. Documentation: field/review/link/privacy/
+UI/test contracts, parent-child mapping and tracker/handoff. ADR: accepted decisions
+suffice. No code, notifications or implementation/readiness permission.
+
+### Story 3.37: Deactivate a leave type while preserving its history
+
+**Scope approved — 2026-10-15; not implementation-ready.** Owner: Leave type lifecycle
+API/web/persistence. Consumes existing catalogue/version/history, Story 3.36 assignment
+resolution and prior review/coordination foundations. Assignment dependency guard accepted
+in ADR-0132; outstanding entitlement/request handling still requires explicit contracts.
+
+As a Leave Manager with configuration-management permission,
+I want to retire a leave type from new use,
+So that obsolete types stop being offered while existing records remain understandable.
+
+**Acceptance Criteria:**
+
+**Given** an active leave type,
+**When** I select Deactivate,
+**Then** I see current and scheduled dependencies before confirmation.
+
+**Given** current or scheduled policy assignments still depend on the type,
+**When** deactivation is checked,
+**Then** it is blocked with links to affected settings,
+**And** reassignment or ending coverage uses Story 3.36's separate reviewed flow.
+
+**Given** existing entitlement or requests,
+**When** retirement is reviewed,
+**Then** their treatment is explicit,
+**And** deactivation does not erase balances, cancel requests, change approved funding
+or remove historical access.
+
+**Given** dependencies have been resolved and current authority is confirmed,
+**When** I confirm deactivation,
+**Then** the type becomes Inactive with actor, time and required audit recorded atomically,
+**And** its identity, policy versions and historical references remain intact.
+
+**Given** an inactive type,
+**When** someone creates a new assignment or selects a type for a new request,
+**Then** it is unavailable for ordinary new use,
+**And** existing draft handling follows accepted compatibility rules, preserving useful
+input and explaining any cleared obsolete selection.
+
+**Given** historical records referencing the type,
+**When** an authorized user views them,
+**Then** recorded type, policy and calculation meaning remain available.
+
+**Given** a concurrent assignment or other relevant change,
+**When** deactivation is confirmed,
+**Then** backend guards prevent an invalid combination and require renewed review where
+necessary.
+
+**Traceability / planned verification:** Features §4; BIZ-05/06/11; Leave ADR-0002/0086/
+0126/0128/0132; platform structural integrity/current authority/draft compatibility and
+reference-availability UX. Real API/database/browser tests prove dependency discovery,
+assignment blocking and authorized return links, concurrency/alternate-write guards,
+atomic retirement/audit, retained identities/versions/request meaning, unavailable new
+choices, historical access and draft compatibility. Also verify revoked/cross-org access,
+failed dependency reads and duplicate-safe lost-response recovery. Actual request consumers
+prove integration before activation; fixtures do not claim their workflow exists.
+No runtime tests executed; exact source/test paths and commands pending.
+
+**Pre-story inputs / sizing:** Bind outstanding entitlement/request treatment, exact
+current/scheduled dependency predicates, date/observation/review coordination, all-writer
+guards, audit/recovery and retained historical/choice resolution. An unavailable check
+cannot authorize deactivation. No inferred balance expiry/transfer or automatic request
+resolution. Final sizing and requirement/test/readiness gates remain open.
+
+**Impacts:** Scaffold: prove/promote guarded retirement/attribution/operation/choice-refresh
+patterns with consumer tests. Shared UI: reuse Active/Inactive, dependency review and
+related-record return controls; Leave owns dependency semantics. Agent context: existing
+instructions suffice. Documentation: update features, spine, written UX, contracts/tests
+and tracker/handoff. ADR: additive accepted ADR-0132; predecessors unchanged.
+No implementation/readiness permission.
+
+### Story 3.38: Restore an inactive leave type
+
+**Scope approved — 2026-10-15; not implementation-ready.** Owner: Leave type lifecycle
+API/web/persistence. Consumes prior catalogue/version/choice and retirement foundations.
+Restores the stable type, not prior assignments, grants, requests or draft choices.
+
+As a Leave Manager with configuration-management permission,
+I want to restore an inactive leave type,
+So that it can be used again without creating a duplicate identity or losing history.
+
+**Acceptance Criteria:**
+
+**Given** permission to view leave-type configuration,
+**When** I include inactive types in the list,
+**Then** I can open retained details and policy history.
+
+**Given** an inactive type and restoration permission,
+**When** I select Restore,
+**Then** I see retained settings and compatibility issues requiring attention.
+
+**Given** restoration is valid,
+**When** I confirm,
+**Then** the same type identity becomes Active with actor, time and required audit
+recorded atomically,
+**And** earlier deactivation and policy history remain traceable.
+
+**Given** a restored type,
+**When** it becomes available for new selection,
+**Then** existing policy, assignment and request-validation rules still apply,
+**And** Active status alone does not establish complete policy setup.
+
+**Given** assignments previously ended or changed,
+**When** the type is restored,
+**Then** those assignments are not automatically reinstated,
+**And** restoration does not replay grants, reset balances or revive cancelled requests.
+
+**Given** a draft whose obsolete selection was previously cleared,
+**When** the type is restored,
+**Then** the cleared choice is not silently reinserted,
+**And** the employee can explicitly select the type again.
+
+**Given** concurrent changes, lost access or an uncertain confirmation outcome,
+**When** restoration is confirmed or retried,
+**Then** current authority and state are rechecked,
+**And** recovery prevents duplicate effects.
+
+**Traceability / planned verification:** Features §4 lifecycle; BIZ-05/06/11; Leave
+ADR-0002/0086/0122/0124/0132; E1 draft-choice contract and shared reference-availability/
+configuration saving UX. Real API/database/browser tests prove inactive discovery,
+authorized review and compatibility checks, same identity/code, atomic attribution/audit,
+preserved deactivation/version history, valid new choice resolution, independent setup/
+request validation and no assignment/grant/request/draft revival. Verify cross-org/access
+denial, concurrency, failed checks, rollback and lost-response recovery. No runtime tests
+executed; exact source/test paths and commands remain pre-story inputs.
+
+**Pre-story inputs / sizing:** Bind restoration permission, compatible retained metadata/
+published choice pointer, supported policy version/date resolution, review guards and
+audit/recovery contracts. Missing business setup is distinct from structural corruption
+or failed reads; define exact activation/choice behavior without inventing a policy or
+changing retained history. Final agent sizing/requirement coverage/readiness remain open.
+
+**Impacts:** Scaffold: prove/promote guarded restoration/operation/attribution/choice
+patterns with consuming tests. Shared UI: reuse inactive filtering, details, Restore,
+confirmation and return/focus controls. Agent context: existing instructions suffice.
+Documentation: bind lifecycle/compatibility/test contracts and tracker/handoff; Leave
+owns business compatibility. ADR: accepted archive/restore decisions suffice. No code or
+implementation/readiness permission.
+
+### Story 3.39: Change an existing leave type's details and permitted units
+
+**Scope approved — 2026-10-15; not implementation-ready.** Owner: Leave type metadata
+API/web/persistence. Extends Story 3.1 with versioned changes to used types, consuming
+prior review/impact/history and notification foundations where required. E1's published
+choice pointer and draft compatibility contracts remain binding.
+
+As a Leave Manager with configuration-management permission,
+I want to update a leave type's presentation and permitted request units,
+So that it remains useful without changing the meaning of historical records.
+
+**Acceptance Criteria:**
+
+**Given** an existing leave type,
+**When** I open Edit leave type,
+**Then** I can edit name, description, color, icon and permitted units using whole-form
+Save / Cancel,
+**And** its stable identity and code are preserved.
+
+**Given** a change to permitted units,
+**When** I review it,
+**Then** I see previous/proposed options, when the change applies and affected drafts or
+requests where relevant,
+**And** supported options remain Full days, Half day and Hours.
+
+**Given** an existing draft whose selected unit becomes unavailable,
+**When** its choices refresh,
+**Then** the unavailable unit selection is cleared with an explanation while useful
+input is preserved,
+**And** a failed lookup does not clear the selection.
+
+**Given** an existing submitted or approved request,
+**When** type details or permitted units change,
+**Then** its recorded unit, policy and calculation evidence remain intact,
+**And** the change does not silently convert or cancel the request.
+
+**Given** valid changes, current authority and unchanged reviewed inputs,
+**When** I save and complete any required consequential confirmation,
+**Then** a new published metadata version, required change evidence and audit commit
+atomically,
+**And** draft choices use the explicitly published version.
+
+**Given** policy rules effective on requested dates differ from units offered for draft
+entry,
+**When** the request is checked,
+**Then** authoritative date-aware validation applies,
+**And** draft selection alone does not establish submission eligibility.
+
+**Given** Cancel, validation failure, concurrent changes or an uncertain save outcome,
+**When** the operation resolves,
+**Then** cancellation leaves saved settings unchanged, validation preserves entered values
+and recovery prevents duplicate versions.
+
+**Traceability / planned verification:** Features §4/7; BIZ-05/06/11; Leave ADR-0002/
+0086/0122/0124; platform ADR-0049/0051 and E1 draft-choice resolution/guarded persistence
+contracts. Real API/database/browser tests prove immutable published versions, unchanged
+stable identity/code, atomic published pointer/revision/evidence/audit, full-form Save/
+Cancel, mode restrictions and unchanged historical request meaning. Verify explicit
+selected lookup, removed-mode notice/input preservation, unavailable lookup without
+destructive clearing, date-aware policy versus draft-choice distinction, current scope,
+concurrency/re-review and lost-response recovery. Impact notices, where required, use
+actual prior notification foundations; actual E5 consumers prove request validation
+before activation. No runtime tests executed; exact source/test paths/commands pending.
+
+**Pre-story inputs / sizing:** Bind metadata ownership/bounds, permitted-mode versus
+effective policy relationship, timing and choice-pointer publication, impact-set privacy
+and notification requirements, coordinated review/revision guards and operation recovery.
+Do not invent effective-policy selection from the draft pointer, expose unpublished edits
+or require complete setup merely to preserve input. Meaningful unresolved effect rules
+require agreement before implementation. Final requirement/test coverage, agent sizing
+and readiness remain open; this approval does not establish E3 completeness.
+
+**Impacts:** Scaffold: prove/promote versioned metadata/pointer/revision/operation and
+typed-choice patterns with consuming tests. Shared UI: reuse explicit-Save configuration,
+review and draft compatibility notices; Leave owns mode/date/history meaning. Agent
+context: existing instructions suffice. Documentation: bind metadata/impact/test contracts
+and tracker/handoff. ADR: accepted decisions suffice within the agreed scope; unresolved
+business outcomes require discussion. No implementation/readiness permission.

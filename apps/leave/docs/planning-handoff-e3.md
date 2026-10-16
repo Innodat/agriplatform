@@ -1,10 +1,55 @@
-# Leave planning handoff — E3
+# Leave planning handoff — E3 checkpoint, resume E4
 
-**Checkpoint:** 2026-10-12. This is a navigation/handoff note, not a new feature spec,
+**Current checkpoint:** 2026-10-16. This is a navigation/handoff note, not a new feature spec,
 architecture or implementation permission. Re-read current working-tree authority and
 resolve later changes from their owners rather than treating this snapshot as superior.
 
 ## Resume point
+
+**Current scope/decomposition checkpoint — 2026-10-16:** Story 3.35-B is approved;
+all fourteen children of seven approved splits are agreed. Consolidation preserves 42
+scope parents and yields **48 delivery candidates**, counting 3.40's overlapping policy
+configuration once. See the [consolidated E3 order](../../../_bmad-output/planning-artifacts/epics.md#consolidated-e3-candidate-delivery-order--2026-10-16).
+All 56 parent/child records and their acceptance remain; physical order is reconciled.
+3.41 untracked backend is before assignment mutations; 3.40 maps to 3.3-A/B, 3.2 and
+3.34-A/B. No new split proposed. User approved this consolidated scope/candidate order
+on 2026-10-16 and agreed to continue E4 planning. Resume E4 by confirming/refining its
+delivery sequence, then detailing stories collaboratively one at a time. No E4 individual
+scope or delivery grouping is yet proposed/approved. This is not atomic coverage/
+final sizing/readiness PASS: exact pre-story schemas/coordination/provider/retention/
+test mapping/NFR targets and actual E5/E6 activation integration remain binding. Preserve
+the original first draft slice. No application code, migrations, notifications or
+implementation authorization. Earlier dated checkpoints below are historical progression.
+
+### E4 entry for the next session
+
+Use bmad-create-epics-and-stories, continuing the current story-generation step. E4's
+approved epic outcome is **Attach and retrieve supporting documents safely** in epics.
+Follow the Read first sources below and current owner/ADR/UX references; do not create
+a duplicate feature specification or restart architecture consolidation.
+
+Focus on Features §12 and attachment portions of §7/13/document permissions; spine
+AD-2/AD-9 and Content/byte/provider gates; tracker Phase 4/relevant Phase 7; approved
+upload/verification/sensitive-document UX. Relevant accepted platform ADRs: 0004 Content
+service, 0030 association recovery, 0036 signed-operation lifetimes, 0038 finalized-byte
+identity, 0054 app-authorized Content ownership, 0055 authenticated private downloads.
+Leave ADR-0006/0016/0017 govern sensitive access/metadata. Read the actual decisions and
+owner contracts; this list does not replace their requirements.
+
+Content/provider enforcement proof, association/cleanup and verified-byte contracts remain
+pre-story/readiness gates. Preserve file limits/types, minimal status for document-
+unprivileged approvers/managers and current app/resource authority. Direct signed uploads
+and authenticated streaming downloads remain separate. Provider migration/parity belongs
+to E4. Do not assume working Content/scaffolding from its plan; runtime evidence belongs
+to authorized delivery rather than a demand for finished code before planning it.
+
+E3 notifications are planned prerequisites, not implemented services. E5 owns actual
+submission/approval and required-document consequential checks; E4 owns attachment
+lifecycle and authorized reads. Preserve requirement/test and scaffold/shared UI/agent/
+docs/ADR impact tracking, release gates and the original first draft slice. No application
+code, migrations, provider changes, notices, commits or deployments in this planning scope.
+Use the same workspace's current files including uncommitted changes; preserve unrelated
+KDG/platform work. Recorded natural-language/dynamic UI/headless exploration stays post-MVP.
 
 **Shared ownership checkpoint — 2026-10-14:** The sole owner explicitly acknowledged
 the [KDG shared-platform handoff](../../kdg-capture/docs/shared-platform-handoff.md)
@@ -173,6 +218,311 @@ Continue deferred policy assignment confirmation at Story 3.28 after planned cal
 notification foundations. Twenty-seven E3 scopes agreed; all technical/test/sizing/
 readiness gates remain open, no code/tests/notifications performed.
 
+**Story checkpoint — 2026-10-14:** Story 3.28 initial employee policy assignment
+confirmation is agreed after planned calculation/notification foundations. Continue
+Story 3.29 one-off adjustment. Twenty-eight E3 scopes agreed; reassignment/ending used
+assignments remain separate, exact initial/date/batch/effect contracts and all test/
+sizing/readiness gates open. No code/tests/notifications performed.
+
+**Story checkpoint — 2026-10-15:** User's continuation accepts Story 3.29 one-off
+balance adjustment. Continue at Story 3.30 recurring entitlement/return-to-policy
+discussion. Twenty-nine E3 scopes agreed; all exact contracts/test/sizing/readiness
+gates remain open, no code/tests/notifications performed.
+
+**Story checkpoint — 2026-10-15:** Story 3.30 recurring entitlement/return-to-policy
+is explicitly approved. Thirty E3 scopes agreed. The preliminary interface discussion
+is recorded below for later exploration; resume collaborative MVP planning at proposed
+Story 3.31, employee balance details/history. All exact contracts/test/sizing/readiness
+gates remain open; no implementation authorized or performed.
+
+**MVP continuation checkpoint — 2026-10-15:** Story 3.31 own balance details/history
+approved; thirty-one E3 scopes agreed. Continue at proposed Story 3.32 employee-summary
+entitlement integration, fulfilling Story 2.26's E3 obligation. Exact contracts/tests,
+final sizing and readiness remain open; no code or implementation permission.
+
+**MVP continuation checkpoint — 2026-10-15:** Story 3.32 employee entitlement summary
+approved; thirty-two E3 scopes agreed. Story 2.26's E3 section now has an agreed scope,
+including separately authorized manager balance/history reads. Continue at proposed
+Story 3.33 setup assessment with real policy/entitlement inputs, fulfilling Story 2.25's
+E3 obligation. Exact contracts/tests, final sizing and readiness remain open; no code.
+
+**MVP continuation checkpoint — 2026-10-15:** Story 3.33 setup assessment approved;
+thirty-three E3 scopes agreed. Story 2.25's E3 assessment now has an agreed scope.
+Continue group 9 at proposed Story 3.34 used-policy version changes. Exact contracts,
+tests, final sizing and readiness remain open; no implementation permission or code.
+
+**MVP continuation checkpoint — 2026-10-15:** Story 3.34 used-policy publication
+approved; thirty-four E3 scopes agreed. Continue proposed Story 3.35 amendment/cancellation
+of scheduled policy changes, retaining original evidence and updated notifications under
+ADR-0101/0102. Exact contracts/tests, final sizing and readiness remain open; no code.
+
+**MVP continuation checkpoint — 2026-10-15:** Story 3.35 scheduled policy amendment/
+cancellation approved; thirty-five E3 scopes agreed. Continue proposed Story 3.36 changing
+or ending an existing employee policy assignment before policy/type retirement. Exact
+assignment/effect contracts, tests, sizing and readiness remain open; no code or permission.
+
+**MVP continuation checkpoint — 2026-10-15:** Story 3.36 assignment change/ending
+approved; thirty-six E3 scopes agreed. Exact date/override/retained-entitlement/funding
+outcomes are still pre-story contracts requiring agreement, not inferred transfer/reset.
+Continue proposed Story 3.37 leave-type retirement. Tests/sizing/readiness remain open;
+no implementation permission or code.
+
+**MVP continuation checkpoint — 2026-10-15:** Story 3.37 deactivation approved;
+thirty-seven E3 scopes agreed. ADR-0132 records the accepted current/scheduled assignment
+guard, with requirements/spine/written UX aligned. Continue proposed Story 3.38 restoring
+an inactive type. Outstanding entitlement/request treatment, exact contracts/tests,
+final sizing and readiness remain open; no implementation or code.
+
+**MVP continuation checkpoint — 2026-10-15:** Story 3.38 restoration approved;
+thirty-eight E3 scopes agreed. Continue proposed Story 3.39 existing leave-type metadata/
+permitted-unit changes, preserving E1 choice-pointer/draft contracts and request history.
+Exact contracts/tests, final sizing and readiness remain open; no implementation.
+
+**MVP continuation checkpoint — 2026-10-15:** Story 3.39 existing type metadata/units
+approved; thirty-nine E3 scopes agreed. Next continuation should reconcile E3 requirement/
+UX/test coverage and unresolved business/effect contracts, then propose any necessary
+remaining scopes or decisions collaboratively. Do not infer completeness from the count.
+Final sizing and readiness remain open; no code or implementation permission. Preserve
+the first sign-in/organization/create-resume/autosave/close/reopen draft slice.
+
+### E3 coverage reconciliation — started 2026-10-15
+
+Thirty-nine scopes are approved. Initial comparison of the nine delivery groups, BIZ/
+CALC inventory and written UX identifies the following candidate scope ownership. This
+is navigation, not final atomic requirement coverage, executable test evidence or sizing.
+
+| Approved group | Agreed candidate scope owners |
+| --- | --- |
+| Type/policy configuration and examples | 3.1–3.4; metadata changes 3.39 |
+| Applicability and explicit assignment | 3.5–3.6, 3.28; later assignment changes 3.36 |
+| Duration/earning/events/current balance | 3.7–3.17 |
+| Projection/allocation/request guidance | 3.18–3.21 |
+| Shared notification acceptance/outbox/workers/channels/inbox | 3.22–3.27 |
+| One-off adjustment | 3.29 |
+| Recurring override/return to policy | 3.30 |
+| Balance explanation/employee summary/setup | 3.31–3.33, fulfilling E2 deferred consumers |
+| Used-policy/type changes and retirement | 3.34–3.39 |
+
+Do not declare the epic complete from this group mapping. Remaining checks include all
+applicable BIZ/CALC/FLOW/NFR/UX rows, exact source/test paths and executable commands,
+single-agent sizing and ordered dependency validation. E5/E6 integrations are activation
+obligations, not fixtures claiming those workflows already pass. Shared notification
+retention/provider/access contracts and required first-consumer scaffold/UI evidence stay
+open with their owning stories.
+
+Business decisions explicitly still open: replacement/ending assignment
+effects on retained entitlement/overrides/request funding; outstanding entitlement/request
+treatment on deactivation; partially effective scheduled changes with differing employee
+boundaries. Later ADR-0138/0139 checkpoints below resolve these retirement/schedule choices;
+exact predicate/coordination and remaining assignment contracts still require validation.
+
+Basis discussion resolved — accepted 2026-10-15 under ADR-0133: keep the basis fixed once
+used for MVP. A new type may use another basis, but does not migrate existing entitlement;
+existing balances remain against the original type. Replacement/new-type/manual adjustment
+routes cannot bypass deferred migration. Independent types/fresh assignments, accepted
+method changes and necessary factual employment corrections remain possible. Features,
+spine, written UX, ADR index and story contract obligations aligned; exact in-use detection/
+concurrency/test mapping remain required. No implementation permission.
+
+Automatic/manual-only discussion resolved — accepted 2026-10-15 under ADR-0134: keep
+the category fixed once used for MVP, preserving supported daily/monthly/upfront changes
+and authorized one-off adjustments, including extra grants to automatic policies.
+Replacement/new-type routes cannot migrate existing entitlement between categories.
+Features/spine/written UX/ADR index/story contract obligations aligned; exact in-use
+predicate/concurrency/test mapping and all sizing/readiness gates remain open.
+
+No balance tracking accepted — 2026-10-15 under ADR-0135: explicit MVP option distinct
+from manual-only zero entitlement. Record duration/usage and retain ordinary request
+gates; show Not balance-limited with independent paid/unpaid classification and no fictional
+allowance/funding ledger. Used-policy tracked/untracked conversion is unsupported, including
+replacement migration. Features/spine/written UX/ADR index and epic consumer obligations
+updated. Thirty-nine story scopes remain approved; no unpresented new stories approved.
+Stories 3.40 configuration/policy-summary, 3.41 backend untracked balance/preview and
+3.42 employee/manager/Apply presentation approved — 2026-10-15; forty-two E3 scopes
+agreed. Same-type replacement boundary accepted under ADR-0136: preserve earned entitlement,
+original expiry/carry-over, permitted new-earning dates, no duplicate annual grant/reset
+or cross-type migration. Requirements/spine/written UX/story contracts/index aligned.
+Existing override persistence is already settled by ADR-0083, not a new open choice.
+Assignment ending accepted under ADR-0137: stop future automatic earning/new requests
+outside coverage, retain earned balance/expiry/history without upfront clawback, review
+existing requests; employment departure remains separate. Source/UX/story obligations
+aligned. Retirement resolution now accepted under ADR-0138: retain Deactivate/dependency
+guards (including unexpired entitlement, pending/unfinished-approved requests and unresolved
+funding/correction issues), normal reviewed resolution actions and clear employee-facing
+reasons in existing notifications/details. Historical-only references do not block. No
+automatic zeroing, separate closure control, combined retirement or custom message composer.
+The intervening closure/combined-retirement proposals were discarded. Sources/UX/story
+obligations/index aligned. Scheduled cutoff now accepted under ADR-0139: amend/cancel
+only before any affected employee effect starts; afterward use new prospective versions,
+preserving original effects/evidence and reviewing actual future employee/date outcomes.
+Source/spine/UX/story obligations/index aligned. In-use definition now accepted under
+ADR-0140: confirmed employee assignment including future-dated locks basis/category
+choices persistently; historical ending/zero balance cannot unlock. Unassigned unused
+publication and unfinished draft selection alone do not count; published changes remain
+new versions. Assignment-gap principles now accepted under ADR-0141: no gap earning or
+duplicate upfront grant, preserve prior portions/expiry, separate authorized adjustments
+and reviewed correction of erroneous gaps. Sources/spine/UX/epic obligations/index aligned.
+Monthly partial coverage now accepted under ADR-0142: existing partial-period choice uses
+employment/assignment intersection, eligible-calendar-day proration or one full nominal
+instalment; none with zero coverage, no duplicates from resumption. Sources/spine/UX/index/
+epic obligations aligned. Exact availability/cutoff/fraction/replay examples remain gates.
+Initial upfront coverage now accepted under ADR-0143: later employment/assignment start,
+existing adjusted/full-period choice, no duplicate grant on resumption/replacement. Sources/
+spine/UX/index/epic obligations aligned. Monthly availability after coverage accepted under
+ADR-0144: retain covered portion at its original scheduled date, no early release/loss
+solely from ending/uncovered earning. Sources/UX/story obligations aligned. Next discuss
+already-available start-period monthly instalment now resolved under accepted ADR-0145:
+recalculate adjusted/full choice within assignment review, showing before/after/request
+effects and retaining original evidence. No separate manual deduction or annual-upfront
+clawback. Sources/spine/UX/index/epic obligations aligned. Next return to atomic E3 source/
+UX/test coverage, dependency order and sizing; exact contracts/readiness remain open.
+Forty-two scopes agreed; E5 actual consumers, exact contracts/tests, sizing/readiness
+remain open; no code or implementation permission.
+
+### E3 calculation and integration ownership check — 2026-10-15
+
+This pass compares the existing CALC/BIZ/FLOW inventory with agreed scope and later
+accepted ADRs. It records candidate acceptance ownership, not exact automated test paths,
+complete NFR qualification or completed implementation. No additional top-level delivery
+group was identified in this pass; final atomic field/contract coverage remains open.
+
+| Existing acceptance inventory | E3 scope owners and actual later consumers |
+| --- | --- |
+| CALC-01 | 3.8–3.13/3.17; manual-only 3.29; untracked distinction 3.40–3.42 |
+| CALC-02–03 | 3.7–3.8/3.11–3.15: standard-day conversion, calendar/anniversary and leap-day boundaries must be explicit contract cases |
+| CALC-04–06 | 3.8/3.10: daily eligibility, precision/caps and prospective rate segments |
+| CALC-07–09 | 3.11/3.13/3.16/3.34: method/rate/proration timing; later ADR-0133–0145 narrow/extend applicable contracts |
+| CALC-10–14 | 3.12–3.13/3.34–3.35: aligned instalments, cumulative portions, rate dates/notices; ADR-0142/0144/0145 coverage examples |
+| CALC-15 | 3.30 and summary 3.32: persistent recurring override and explicit return to policy |
+| CALC-16 | 3.10–3.12/3.17; real reservation/consumption producers in E5 |
+| CALC-17–20 | 3.9/3.14–3.15/3.18: provenance, carry-over, expiry/timezone/boundary order |
+| CALC-21–23 | 3.18–3.20: date-by-date allocation/protected reservations/horizon; real reservation writes E5 |
+| CALC-24–25 | 3.21/3.29/3.34–3.36: proposal/adjustment/impact; actual override/unpaid response workflows E5, corrective flows E6 |
+| CALC-26–29 | 3.7/3.20: employment dates, duration/aggregate overlap, notice/backdating; current transactional submission guard E5 |
+| CALC-30–31 | E5 state transitions/E6 approved cancellation; E3 3.9/3.17–3.18 provide actual-event/replay/funding inputs, not those future workflows |
+| CALC-32–35 | 3.9/3.17/3.23/3.28–3.30/3.34–3.39: immutable evidence/coordination, indexed workload; real E5/E6/E8 integration/qualification |
+| CALC-36 | 3.19/3.31–3.32/3.42; E5 request context and E7 reporting extend actual consumers |
+| BIZ-02/05–12/14–16/18–20 | 3.1–3.21/3.28–3.42 own applicable configuration/calculation/preview/setup outcomes; E1 draft preservation and E5 consequential gates stay separate |
+| BIZ-29–31/34 | 3.22–3.27 notification foundation; notice-producing writers, 3.31/3.42 history and every consequential writer's evidence. E5/E6/E7 extend domain history/audit UI |
+| FLOW-01/03/07/20 | 3.3–3.4/3.33–3.35 configure/assess permitted rules; E5 executes snapshots/decisions/fallback and proves actual integration |
+
+Sizing/dependency findings: several approved scopes bundle domain/API, real database,
+UI and shared first-consumer evidence; scope agreement is not single-agent sizing.
+Prioritize 3.3, 3.17, 3.22–3.25, 3.34–3.36 and 3.42 for decomposition assessment. Keep
+mutations after actual notification support; retain actual E5/E6 activation obligations.
+Do not split a writer from its required audit/evidence/intent or postpone guards to UI.
+Read/calculation sub-items must be independently verifiable before their consuming UI.
+
+Split approved — 2026-10-15: retain 3.3 as scope parent with **3.3-A**, complete authorized
+initial-policy configuration/publication API, then **3.3-B**, four-section editor/review UI.
+The API slice includes complete supported field validation, review evidence, immutable
+publication/retry/scope and real database acceptance; no partial invalid policy activation.
+The UI consumes that completed API with real integration and full original UX acceptance.
+Children 3.3-A and 3.3-B detailed criteria approved — 2026-10-15, recorded in epics
+with backend validation/review/publication/recovery and actual integrated four-section
+web-editor acceptance. Keep both before dependent 3.4; no future-story
+dependency arises from appendix placement. Forty-two scope parents remain agreed; do not
+renumber or claim final delivery count/parent completion/readiness PASS. Remaining schemas,
+combinations, overlap/timing, tests/commands and measurable NFR cases stay pre-story gates.
+
+Split approved — 2026-10-15: retain 3.25 as parent with **3.25-A**, shared channel-processing foundation
+and durable in-app delivery, followed by **3.25-B**, actual email delivery/provider
+acceptance/uncertainty recovery. Preserve independent channel states, privacy/English/
+organization templates, expiry, support ownership and no repeat business effects across
+both. Inbox/read APIs/UI remain later 3.26/3.27; in-app creation is independently verified
+without future UI. Both precede the first notice-producing mutation. Children 3.25-A
+(2026-10-15) and 3.25-B (2026-10-16) detailed scopes now approved/recorded, including
+actual provider uncertainty recovery and independent channels; exact contracts/final
+sizing remain open. Split approved — 2026-10-16: 3.34-A authoritative used-policy impact/
+review/publication API, then 3.34-B editor/review UI against that completed API. Preserve atomic
+version/calculation evidence/audit/intent and all request safeguards in the API child;
+UI cannot be the only guard. Both precede 3.35. Children 3.34-A and 3.34-B detailed
+scopes approved — 2026-10-16, recorded with API impact/review/publication and actual web
+integration safeguards. Split approved — 2026-10-16: 3.36-A protected assignment-change/ending
+API with calculation/request review and atomic evidence/notice intent, then 3.36-B
+focused editor/review UI with same-type/coverage/override/retained-balance explanations.
+Retain migration restrictions and existing request safeguards. Children 3.36-A and 3.36-B
+detailed scopes approved — 2026-10-16, recorded with protected API and actual focused UI
+review/confirmation acceptance. Both precede 3.37. Split approved — 2026-10-16: 3.42-A employee
+My Leave/Apply/usage presentation, then 3.42-B manager employee-summary/action presentation.
+Both consume completed 3.41 typed API and their prior UI foundations; no future request
+writer is required for protocol-fixture acceptance, but real E5 usage integration remains
+an activation gate. Child 3.42-A detailed scope approved by clarified continuation —
+2026-10-16; errors/loading/missing/denied show their actual state, and Not balance-limited
+requires an authorized successful read. Both 3.42-A and 3.42-B detailed scopes now
+approved/recorded — 2026-10-16, including manager authority/action/history/refresh coverage.
+Preserve parent traceability. Split approved — 2026-10-16: 3.17-A deterministic current-balance
+composition from complete authoritative input history, then 3.17-B scoped API/owner-input/
+indexed history integration and real workload checks. Prior earning/event/cap/expiry
+components precede composition; UI remains later 3.31. Both deliver within 3.17 before
+3.18/3.19. Children 3.17-A and 3.17-B detailed scopes approved — 2026-10-16, recorded
+with historical calculation composition and actual authorized owner/API/workload integration.
+Split approved — 2026-10-16: 3.35-A scheduled amendment/cancellation API, then 3.35-B web review/
+confirmation UI. Keep first-effect cutoff, actual resulting policy/employee/request effects,
+atomic evidence/audit/updated intent and original history/notices in API acceptance;
+the UI uses completed API and approved related return/recovery. Child 3.35-A detailed
+scope approved — 2026-10-16, recorded with API cutoff/review/confirmation/evidence guards.
+Child 3.35-B detailed scope now approved — 2026-10-16; all fourteen children of the seven
+approved splits are agreed and recorded. Continue consolidation, with no new split proposed. Exact
+contracts/tests/final sizing/readiness stay open; no implementation permission.
+Forty-two parent
+scopes retained; no final delivery count, readiness PASS or implementation permission.
+No parent criteria removed, final delivery count fixed or implementation permission.
+
+Sizing scope clarification — 2026-10-16: seven of 42 parent scopes have approved splits:
+3.3, 3.17, 3.25, 3.34, 3.35, 3.36 and 3.42. All seven pairs have agreed child criteria.
+Do not split every story mechanically. No additional split is currently proposed;
+consolidate ordering/overlap/coverage and
+record remaining contract/sizing gates. Further splits need a concrete size/dependency
+reason, not a default API/UI rule. The pre-consolidation arithmetic gave 49 candidates;
+counting 3.40's overlap once now gives 48. This is a candidate count, not validated final
+implementation sizing. All seven split pairs are now approved, including 3.35-B.
+
+### Preliminary post-MVP discussion — natural language, dynamic UI and headless access
+
+
+
+
+
+Recorded at the user's request, 2026-10-15. This preserves exploratory interests and
+recommendations, not approved requirements, an architecture decision, delivery commitment
+or vendor selection. Continue the existing MVP stories and first draft slice unchanged.
+
+The user would like to revisit a natural-language-first interface, potentially using
+Vercel json-render to compose UI, and headless access through other interfaces/agents
+after the MVP. These are separate capabilities: interpreting intent, selecting/rendering
+designed UI components, and exposing authorized business operations to another client.
+Headless access need not depend on dynamic UI or a conversational interface.
+
+Recommendation discussed: finish the MVP and prove its domain workflows first. Preserve
+backend-owned calculations, scoped authorization, explicit operations, review/confirmation,
+audit and recovery so later interfaces can reuse them. A model could prepare a leave
+draft from natural language; Leave would still calculate exact consequences and enforce
+submission/approval safeguards. Constrained UI composition would select approved real
+components/actions. Structured output alone does not establish correct business behavior
+or authority. Existing HTTP boundaries are useful preparation; full external/delegated
+access and agent tools need deliberate later design rather than assumed MVP support.
+
+Suggested exploration sequence, not approved delivery scope: read-only assistance and
+navigation; request-draft preparation using existing review screens; constrained dynamic
+UI where useful; selected external/headless workflows with scoped delegated authority.
+Headless pilots could precede dynamic UI if demand warrants. Keep conventional screens
+available. Do not add a general agent platform, runtime UI engine or AI dependencies to
+MVP planning on the strength of this discussion. Existing thin scaffold configuration
+under platform ADR-0059 is not a decision to adopt runtime AI-generated UI.
+
+Revisit after MVP evidence: useful user tasks and demand, usability/accessibility and
+fallback behavior, ambiguity/confirmation, sensitive context handling, delegated actor/
+organization scope, evaluation quality, latency/cost, framework maturity and maintenance.
+No evaluation or adoption of a particular vendor has been authorized.
+
+Discussion references (reviewed 2026-10-15; recheck current status when revisiting):
+
+- User's [Workday/Jev dynamic UI article](https://thenewstack.io/workday-is-using-typesafes-jev-to-build-user-interfaces-on-the-fly/): selecting predesigned components rather than generating arbitrary UI code.
+- User's [headless UX/context discussion](https://diginomica.com/workday-rising-hot-topics-enterprise-ai-come-head-its-about-pricing-context-and-giving-ux-control).
+- [json-render documentation](https://json-render.dev/docs) and [core README](https://github.com/vercel-labs/json-render/blob/main/packages/core/README.md): catalog/registry approach; the specific decision-model/Jev composition integration was experimental and unreleased when discussed, not a claim about all json-render functionality.
+- [Workday's headless platform announcement](https://investor.workday.com/news-and-events/press-releases/news-details/2026/Workdays-Trusted-Agent-Platform-Now-Delivers-Headless-Access-to-HR-and-Finance-Letting-Customers-Build-and-Run-Lawful-AI-Agents/default.aspx): external tools retain permissions, approvals and audit.
+
 **Story checkpoint — 2026-10-14:** Story 3.24 Leave-owned recoverable handover worker
 is agreed, using reusable patterns plus restricted owner/per-item scope. Shared channel
 workers remain separate owners; accepted Temporal deferral retained. Expiry stops new
@@ -211,7 +561,7 @@ finalize numbering/dependencies/sizing and pre-story inputs before affected impl
 2. apps/leave/docs/features.md — authoritative product requirements.
 3. apps/leave/docs/architecture/ARCHITECTURE-SPINE.md — consistency/contract gates.
 4. apps/leave/docs/implementation-plan.md — authoritative delivery tracker/gate timing.
-5. _bmad-output/planning-artifacts/epics.md — approved scope/discussion and E3 proposal.
+5. _bmad-output/planning-artifacts/epics.md — approved E1/E2/E3 scope and E4 epic outcome.
 6. Platform and Leave accepted ADR indexes, then referenced decisions/owner contracts.
 7. Platform DESIGN.md/EXPERIENCE.md and
    _bmad-output/planning-artifacts/ux-designs/ux-leave-2026-09-15/{DESIGN,EXPERIENCE,handoff-coverage}.md.
@@ -330,7 +680,7 @@ mutation was requested/performed in this handoff.
 ## Copyable new-session prompt
 
 ```text
-Use bmad-create-epics-and-stories to resume Leave story planning at E3.
+Use bmad-create-epics-and-stories to resume Leave story planning at E4.
 
 Read AGENTS.md, then apps/leave/docs/planning-handoff-e3.md, and follow its
 references to the current feature specification, architecture spine, delivery
@@ -338,8 +688,13 @@ tracker, epics, accepted platform/Leave ADRs and approved UX.
 Use current working-tree files, including uncommitted changes.
 
 E1 has 24 agreed candidate scopes and E2 has 26 agreed story scopes.
-E3's proposed nine delivery groups are not yet approved. Start by confirming
-or refining that sequence, then detail stories collaboratively one at a time.
+E3's scope and consolidated order are approved: 42 scope parents, seven splits
+with all fourteen children agreed, and 48 delivery candidates after overlap
+consolidation. Exact contracts, atomic coverage, final sizing and readiness
+remain open; no implementation is authorized.
+E4 is Attach and retrieve supporting documents safely. Start by proposing
+and confirming/refining its delivery sequence, then detail stories
+collaboratively one at a time. No E4 sequence or individual story is approved yet.
 Do not restart architecture consolidation or re-open settled decisions.
 
 Preserve authoritative documents and requirement/test traceability. Retain the
@@ -351,6 +706,8 @@ code, run migrations, change providers, or deploy during this planning scope.
 Record scaffold/shared UI/agent/docs/ADR impacts and updates with decisions.
 Make routine technical choices within approved constraints; raise meaningful
 business/security/ownership changes for discussion. Naming is parked.
-A smaller app may be planned separately; coordinate shared platform contracts
-rather than assuming unimplemented scaffolding/services exist.
+Coordinate shared platform/Content contracts rather than assuming planned
+scaffolding/services exist. Preserve unrelated working-tree changes.
+Natural-language/dynamic UI/headless ideas remain preliminary post-MVP
+exploration recorded in the handoff; do not add them to this planning scope.
 ```
