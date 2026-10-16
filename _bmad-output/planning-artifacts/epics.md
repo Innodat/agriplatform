@@ -3,7 +3,7 @@ project: Leave
 status: epic-structure-approved
 created: 2026-09-23
 stepsCompleted: []
-currentCheckpoint: E2 has 26 agreed story scopes; E3 delivery grouping proposed for discussion; technical contracts/coverage/sizing/readiness pending
+currentCheckpoint: E4 Stories 4.1–4.9 approved; Story 4.5 photo/file scope retained; Expense retains React Native and priority; Story 4.10 discussion next; contracts/coverage/sizing/readiness pending
 requirementsInventoryStatus: Source-indexed coverage proposal; granular extraction and confirmation pending
 epicApproval: Approved by user on 2026-09-23, including E5 and delivery sequence
 implementationReadiness: pending
@@ -12347,3 +12347,764 @@ review and draft compatibility notices; Leave owns mode/date/history meaning. Ag
 context: existing instructions suffice. Documentation: bind metadata/impact/test contracts
 and tracker/handoff. ADR: accepted decisions suffice within the agreed scope; unresolved
 business outcomes require discussion. No implementation/readiness permission.
+
+## Epic 4: Attach and retrieve supporting documents safely
+
+**Delivery sequence approved — 2026-10-16.** User approved the seven discussion
+groups below. These are not seven finalized stories; individual scopes, exact contracts,
+atomic source/test coverage, final single-agent sizing and readiness remain open.
+E3's approved 48 delivery candidates and the original E1 first draft slice are unchanged.
+
+| Order | Approved delivery group | Boundary |
+| --- | --- | --- |
+| 1 | Content migration and provider foundations | Reconcile actual existing Content and E1-CONTENT-READ/PTS-ADOPT work; cover remaining FastAPI/provider parity, restricted service authority, direct-upload lifetimes and immutable verified bytes without duplicating shared work. |
+| 2 | Recoverable attachment association | Authorized pending/confirmed associations, duplicate-safe retries and uncertain-outcome recovery; protect saved drafts and in-flight confirmation against cleanup from the outset. |
+| 3 | Attach documents to a draft | Upload/verification/attaching/retry/cancel/remove and close/reopen; enforce PDF/JPEG/PNG, 10 MB per file, three files and 20 MB total while preserving other draft input. |
+| 4 | Read documents with the right permissions | Safe status/metadata and authenticated Open/Download through Leave/Content; reuse shared browser/streaming work with medical-document permission, resource scope and current checks on each request. |
+| 5 | Attachment changes and action-required notices | Permitted removal/replacement and rejection recovery with original evidence and fixed-byte identity; required privacy-safe notices use E3 delivery foundations. |
+| 6 | Retention and auditable disposal | Organization/jurisdiction settings, initial two-year medical-document default after request closure, recoverable cleanup/disposal; age or local absence alone does not establish abandonment. |
+| 7 | Complete migration and prove E4 integration | Provider parity, security, recovery and release compatibility; retire non-production prototype only after replacement checks pass; explicit attachment-readiness contract into E5. |
+
+**Authority / traceability:** Features Permissions, §7/12/13, attachment state model,
+UX/NFRs; spine AD-2/9/12/13 and deferred Content gates; tracker Phase 4/relevant Phase 7;
+PRIV-04/05/06 and approved shared/Leave upload, association, failure and download UX.
+Platform ADR-0004/0030/0036/0038/0054/0055 and Leave ADR-0006/0016/0017 apply.
+Use the existing Content ownership/authenticated-read contract and E1 owner boundaries;
+repository code is evidence of what exists, not verified production/readiness evidence.
+
+**Gates and ownership:** Resolve association/cleanup, provider-enforced upload lifetime
+and fixed-byte contracts before affected story readiness; group 7 does not defer these
+safeguards. Record design/contract inputs separately from runtime proof produced during
+authorized delivery. E5 owns actual submission/approval checks; E6 owns consequential
+correction journeys. Earlier E4 items must be verifiable without future E5/E6 behavior.
+PtS limits may be revised deliberately to suit actual upload/retrieval needs; Leave's
+limits are not automatically shared defaults. See the clarification under Story 4.1.
+Do not restore browser signed read URLs from historical tracker wording. No
+service/provider implementation is assumed.
+
+**Impacts:** Scaffold: promote proven restricted Content clients, upload/recovery/stream
+patterns and generator/contract fixtures with first consuming delivery. Shared UI: prove
+accessible upload/status/retry and Open/Download patterns, retaining Leave-specific rules
+locally. Agent context: existing ownership/privacy/lifecycle guidance suffices unless a
+concrete gap emerges. Documentation: maintain owner contracts, requirements/tests,
+tracker, handoff and release evidence in the same items. ADR: existing accepted decisions
+govern; meaningful changed business/security/ownership outcomes require discussion and
+any necessary superseding decision. No accepted ADR changed by this sequence approval.
+
+**Current checkpoint:** Stories 4.1–4.9 scopes approved; Story 4.5 uses Take photo/file
+selection, with no scanner dependency. Expense retains React Native and implementation
+priority. Continue Story 4.10 retention configuration in group 6.
+Malware scanning remains future
+hardening because current memory capacity is insufficient; MVP deferral unchanged.
+No final story count established, workflow step completed,
+readiness PASS or implementation authorization. No code, migrations, provider changes,
+notifications, commits or deployments performed.
+
+### Story 4.1: Start or resume an authorized Content upload
+
+**Scope approved — 2026-10-16, with PtS-limit clarification below; not implementation-ready.**
+Owner: Content service. Reuse the actual existing FastAPI service, E1-CONTENT-READ
+ownership/service conventions and compatible shared foundations; reconcile legacy
+prototype/provider coverage rather than assuming a new service must be scaffolded.
+This is a bounded upload-session capability; finalization, Leave association and
+employee-facing upload controls follow separately.
+
+As an authorized application service,
+I want to create or recover a scoped direct-upload session,
+So that supporting files can transfer privately without duplicate content or broader storage access.
+
+**Acceptance Criteria:**
+
+**Given** a restricted application service with an authorized ownership context,
+**When** it requests an upload session,
+**Then** Content checks its permitted application, operation and scope, records attribution
+and returns an opaque content reference plus a bounded direct-upload capability,
+**And** browser-supplied owner fields confer no authority.
+
+**Given** unsupported file declarations or applicable size limits,
+**When** session creation is attempted,
+**Then** it rejects them safely,
+**And** declaration checks do not establish eventual byte validity; finalization
+independently verifies the uploaded content.
+
+**Given** a repeated or uncertain session-creation attempt,
+**When** the same operation is resolved or retried,
+**Then** it recovers the existing outcome without creating duplicate content,
+**And** reusing the operation identity with changed input is rejected.
+
+**Given** an expired upload capability,
+**When** renewal is requested,
+**Then** current authority and lifecycle are checked again, preserving content/workflow
+identity where recoverable,
+**And** the provider enforces the fifteen-minute default; a browser timer is insufficient.
+
+**Given** wrong application/scope, unsupported service authority or an unavailable dependency,
+**When** an attempt fails,
+**Then** no unauthorized capability or protected metadata escapes,
+**And** safe errors distinguish denial from temporary failure.
+
+**Given** a successful transfer,
+**When** session/upload success is reported,
+**Then** that success alone never means the file is verified, attached or ready for submission.
+
+**PtS-limit clarification — user agreement, 2026-10-16:** Existing PtS limits are not
+immutable. The user permits deliberate changes based on real needs and notes that PtS
+has large PDFs whose full size is generally unnecessary for retrieval. Resolve original
+source upload/storage needs separately from retrieval representation and transfer needs;
+do not infer a new numeric limit, a derived-document feature or authority to delete/
+truncate existing source files. Leave's attachment limits remain its own constraints.
+Earlier preservation wording means avoiding accidental cross-application breakage, not
+freezing PtS limits. Any selected change must update PtS/Content consumer contracts,
+compatibility/recovery and affected tests through their owning work.
+
+**Traceability / planned verification:** Features §12 and NFRs; tracker Phase 4;
+platform ADR-0004/0012/0023/0025/0036/0038/0054, spine AD-1/2/9/13 and existing Content
+ownership/authenticated-read contract. Restricted-caller/API/database/provider tests
+cover scope/operation denial, declaration limits, session replay/changed-input rejection,
+lost responses, renewal/current authority, actual expiry/in-flight behavior and safe
+diagnostics. Observe relevant failing acceptance before implementation, then affected
+contracts/regressions; exact test paths/commands and runtime results remain pending.
+
+**Pre-story inputs / sizing:** Reconcile existing FastAPI/legacy inventory and E1 owner
+work; bind session identity/state/expiry/renewal and retry wire contracts, service-policy
+and actor provisioning, provider resolution, application-specific limits and safe error
+fields. Define upload/finalization interaction and outstanding-capability behavior under
+ADR-0038; do not claim a staging upload is sealed. Select a supported provider-enforced
+expiry path rather than relabelling an incompatible capability. Design inputs and
+required feasibility evidence precede affected readiness; full delivery proof belongs
+to authorized implementation. No new provider selection, numeric PtS limit or runtime
+evidence is established here. Final atomic coverage, agent sizing and readiness stay open.
+
+**Impacts:** Scaffold: update/prove restricted server Content client/session/retry
+patterns and applicable generator fixtures with consuming delivery. Shared UI: none in
+this backend scope; later upload controls consume typed outcomes. Agent context: existing
+service ownership/privacy/operation rules suffice. Documentation: session/provider/limit
+contracts, source/test traceability, owner migration/recovery guidance, tracker/handoff.
+ADR: accepted decisions govern; changing PtS limits alone does not establish a new
+architecture decision. No code, migrations, provider changes or implementation permission.
+
+### Story 4.2: Verify and finalize uploaded content
+
+**Scope approved — 2026-10-16; not implementation-ready.** Owner: Content service,
+consuming Story 4.1 and established E1 Content ownership/service foundations. Reuse actual
+existing sealing/verification work; this does not establish provider parity or readiness.
+
+As an authorized application service,
+I want Content to verify uploaded files and finalize their exact bytes,
+So that later attachments and reads use the file that actually passed verification.
+
+**Acceptance Criteria:**
+
+**Given** an uploaded file,
+**When** finalization is requested,
+**Then** Content checks current service authority, ownership, lifecycle and actual uploaded
+bytes, including size, checksum and permitted type,
+**And** browser declarations alone are insufficient.
+
+**Given** valid content,
+**When** finalization succeeds,
+**Then** its identity binds permanently to those verified bytes and verification evidence,
+**And** later reads cannot silently resolve to different bytes.
+
+**Given** an outstanding upload capability or an upload completing during finalization,
+**When** it attempts to overwrite content,
+**Then** it cannot replace finalized bytes or invalidate the binding between verification
+and finalization.
+
+**Given** repeated or concurrent finalization attempts,
+**When** they resolve,
+**Then** they produce one consistent outcome without duplicate effects,
+**And** uncertain outcomes remain recoverable.
+
+**Given** invalid bytes, incomplete upload or a verification failure,
+**When** finalization cannot succeed,
+**Then** Content reports an accurate rejected, pending or failed outcome with safe retry
+guidance,
+**And** unchecked content is never marked ready.
+
+**Given** successful finalization,
+**When** Content returns readiness,
+**Then** that establishes Content readiness only,
+**And** Leave must still authorize and confirm the attachment association.
+
+**Given** verification performs provider reads or encounters failure/cancellation,
+**When** it executes or stops,
+**Then** resource use and execution are bounded with safe closure/recovery,
+**And** business database locks are not held during provider waits.
+
+**Traceability / planned verification:** Features §12, attachment state model and NFRs;
+spine AD-9/13; platform ADR-0004/0022/0038/0054 and existing Content contract. Observe
+failing acceptance for immutable verified identity, outstanding-capability replay and
+concurrent upload/verification/finalization before implementation. Exercise current
+service/scope denial, actual type/size/checksum checks, incomplete/rejected/error outcomes,
+duplicate/concurrent attempts, crash/uncertain-result recovery and bounded provider work;
+affected read/ownership/upload regressions follow. Exact source-to-test paths/commands
+and runtime evidence remain pending.
+
+**Pre-story inputs / sizing:** Bind provider-specific staging/sealing/version protocol,
+verification rules, authoritative type/size/digest evidence, operation/state/recovery
+contracts, applicable enabled safety rules, restricted service policy and resource bounds.
+Finalization must bind the bytes actually checked, not a mutable locator. Safety state
+remains extensible; malware scanning is still deferred for MVP. User asked about its
+cost/resource options after approving this scope; that inquiry does not itself enable
+scanning or select a vendor/engine. Exact contracts, final single-agent sizing, atomic
+coverage and readiness remain open.
+
+**Hardening follow-up confirmed — 2026-10-16:** User requests future malware scanning
+upgrade, deferring adoption because hosting currently lacks the required memory.
+Track in the authoritative tracker post-MVP roadmap and Features §12. Preserve the
+MVP safety-state extension; no scanner subscription, engine/vendor, provisioning or
+delivery date selected. This is not an MVP gate or an expansion of Story 4.2.
+
+**Impacts:** Scaffold: prove/promote reusable finalization client/state/recovery and
+provider contract fixtures with consuming delivery. Shared UI: no new controls in this
+backend item; later controls consume accurate states. Agent context: existing byte-
+identity/privacy/transaction instructions suffice. Documentation: provider/finalization/
+recovery contracts, acceptance mapping, tracker and handoff. ADR: accepted decisions
+unchanged; any change to the malware-scanning deferral requires explicit agreement and
+appropriate authoritative updates. No code, runtime tests, migrations or provider changes.
+
+### Story 4.3: Use the organization's configured storage provider consistently
+
+**Scope approved — 2026-10-16; not implementation-ready.** Owner: Content provider
+adapters and trusted provider resolution. Consume Stories 4.1–4.2 and completed shared
+Content ownership/read work; do not duplicate earlier owner delivery. Provider mechanisms,
+exact contracts, final sizing and readiness remain open.
+
+As an application owner,
+I want Content to use the configured storage provider through a common contract,
+So that uploads and retrieval remain secure and predictable across supported providers.
+
+**Acceptance Criteria:**
+
+**Given** an authorized organization-scoped operation,
+**When** Content resolves storage,
+**Then** it uses trusted organization configuration,
+**And** browser-supplied provider names, paths or URLs cannot override it.
+
+**Given** Azure Blob or Supabase Storage,
+**When** the same upload/finalization contract runs,
+**Then** both enforce the agreed scope, upload lifetime, actual-byte verification and
+immutable finalized identity.
+
+**Given** an existing finalized file,
+**When** the organization's default provider changes,
+**Then** its stored locator still resolves the original verified bytes,
+**And** changing configuration does not silently move or replace files.
+
+**Given** missing configuration or provider failure,
+**When** an operation runs,
+**Then** it returns a safe, accurate failure without silently falling back to another
+provider or ownership scope.
+
+**Given** authenticated reads through the existing shared Content contract,
+**When** either adapter supplies bytes,
+**Then** it preserves verified identity, bounded streaming and safe failure handling.
+
+**Given** provider-parity verification,
+**When** evidence is assessed,
+**Then** it covers expiry, upload replay/finalization races, retry recovery and private
+reads, rather than merely matching API response shapes.
+
+**Traceability / planned verification:** Features §12/NFRs, tracker Phase 4, spine AD-9
+and platform ADR-0004/0036/0038/0054/0055. Observe relevant failing provider acceptance
+before implementation; test trusted resolution, wrong-scope/browser override denial,
+actual expiry/in-flight behavior, immutable verified identity under race/replay,
+duplicate/uncertain recovery, existing-file reads after default changes and bounded
+stream/failure behavior against both supported providers. Use isolated fixtures;
+emulators alone do not establish real provider capability enforcement. Exact paths,
+commands, resource budgets and runtime results remain pending.
+
+**Pre-story inputs / sizing:** Reconcile actual existing adapters/consumers and previous
+shared work; bind trusted organization configuration, stable stored locator/version,
+credential/bootstrap policy, common operation/error/state contracts and provider-specific
+expiry/sealing/streaming mechanisms. Existing PtS application-scope needs stay with their
+owner contract; no synthetic organization is introduced by this organization-scoped
+Leave capability. Fix measurable bounds and parity/release evidence requirements before
+readiness. No existing-file provider migration or prototype retirement in this scope;
+those remain separate obligations. Final atomic coverage and agent sizing remain open.
+
+**Impacts:** Scaffold: reusable provider/client configuration and contract fixtures
+proved through consuming delivery. Shared UI: no provider picker or new control;
+technical provider details stay outside attachment flows. Agent context: existing
+ownership/privacy/release rules suffice. Documentation: provider configuration/parity,
+recovery/runbook, traceability and tracker/handoff. ADR: accepted decisions unchanged.
+No code, migrations, provider changes, runtime tests or implementation authorization.
+
+### Story 4.4: Reliably attach a verified file to my saved draft
+
+**Scope approved — 2026-10-16, including bounded protection clarification below;
+not implementation-ready.** Owners: Leave draft association and Content reference/
+cleanup handshake. Consumes E1 draft/access/revision/operation foundations and E4
+Stories 4.1–4.3. Backend association/recovery; employee upload controls follow separately.
+
+As an employee,
+I want a verified upload to become a confirmed attachment to my draft,
+So that I can resume it without uploading the same file again after a recoverable failure.
+
+**Acceptance Criteria:**
+
+**Given** an editable draft and finalized content,
+**When** attachment confirmation is requested,
+**Then** Leave checks current access, draft ownership, attachment permission, revision/
+lifecycle, policy allowance and verified content scope/readiness.
+
+**Given** concurrent attachment attempts,
+**When** they commit,
+**Then** the three-file and 20 MB total limits remain enforced using verified sizes,
+**And** every file also meets the 10 MB/type restrictions.
+
+**Given** successful upload but failed association,
+**When** confirmation is retried,
+**Then** it reuses the same content and operation identity without another upload or
+duplicate association.
+
+**Given** an uncertain confirmation outcome,
+**When** recovery runs,
+**Then** it resolves the existing outcome before creating further effects,
+**And** a file is confirmed only after Leave saves its association.
+
+**Given** a saved or in-flight association,
+**When** Content cleanup competes with confirmation,
+**Then** their coordinated lifecycle prevents deletion of protected content,
+**And** age or a missing local association alone cannot establish abandonment.
+
+**Given** interrupted confirmation, crashed execution or an abandoned pending operation,
+**When** its declared protection/recovery deadline is reached,
+**Then** bounded recovery reconciles the owning operation and reference state, completes
+valid confirmation or releases genuinely abandoned protection for eligible cleanup,
+**And** temporary protection cannot be renewed forever merely because of retries or
+silence. Saved associations remain protected under their domain lifecycle/retention.
+
+**Given** recovery cannot establish a safe outcome within its declared budget,
+**When** uncertainty remains,
+**Then** operational monitoring and a defined restricted, audited reconciliation path
+make the unresolved item visible and actionable rather than silently protecting it forever,
+**And** timeout alone never deletes a file that may already belong to a saved draft.
+
+**Given** a discarded, closed or concurrently changed draft,
+**When** a delayed confirmation arrives,
+**Then** it cannot resurrect the draft or overwrite newer state,
+**And** expired/released pending operations cannot later confirm against reclaimed content.
+
+**Given** a confirmed attachment,
+**When** the authorized employee reopens the saved draft,
+**Then** its association remains available,
+**And** permanently missing content produces an honest recovery outcome.
+
+**Bounded protection clarification — user agreement, 2026-10-16:** Temporary in-flight
+protection must not become an indefinite orphan after unintended failure. Bind actual
+deadlines, retry/renewal budgets, recovery ownership, cleanup eligibility and unresolved-
+item escalation/reconciliation before readiness. Preserve race safety: expiry triggers
+reconciliation, not blind deletion, and delayed confirmation cannot recreate released
+protection or attach reclaimed bytes. Confirmed saved drafts retain their legitimate
+protection until authorized release/retention; this is not automatic draft expiry.
+No exact time values or distributed protocol selected in this scope discussion.
+
+**Traceability / planned verification:** Features §7/12 and NFRs; spine AD-8/9/13;
+platform ADR-0012/0022/0030/0033/0035/0038/0054. Observe relevant acceptance failure
+before implementation. Real API/database/Content contracts prove current authority,
+verified scope/type/size, concurrent aggregate limits, duplicate/uncertain confirmation,
+cleanup races, crash recovery, bounded pending protection, abandonment/release, delayed
+confirmation after release, unavailable-owner escalation and retained saved attachments.
+Exact source/test paths, commands, workload targets and runtime results remain pending.
+
+**Pre-story inputs / sizing:** Bind pending/confirmed/reference/release protocol,
+coordination and local revision/lock order, operation retention/recovery, typed safe
+errors, worker discovery/identity/retry/deadline/alert bounds and race-safe cleanup
+eligibility. External waits stay outside business locks; no cross-owner table access.
+Clarify lifecycle/retention release and closed-draft effects with actual E5 integration
+before activation; E5 owns consequential submission checks. This backend story must
+prove draft attachment behavior without future UI/submission. Reassess single-agent
+size against the concrete handshake/recovery scope; no automatic split or readiness
+PASS inferred. Final atomic coverage/sizing/contracts remain open.
+
+**Impacts:** Scaffold: prove/promote recoverable association/reference clients and
+bounded recovery fixtures; domain associations stay Leave-owned. Shared UI: later
+controls consume accurate attaching/confirmed/retry states, no technical protection
+controls for employees. Agent context: existing association/cleanup/privacy rules
+suffice. Documentation: owner protocol, limits/deadlines, recovery runbook/alerts,
+source/test traceability, tracker/handoff. ADR: existing decisions suffice; no accepted
+ADR changed. No code, tests, migrations, cleanup execution or implementation permission.
+
+<a id="story-45-upload-supporting-documents-in-my-leave-draft"></a>
+
+### Story 4.5: Upload supporting documents in my leave draft
+
+**Scope approved — 2026-10-16; not implementation-ready.** Owner: Leave draft upload
+UI, consuming Stories 4.1–4.4. Latest user decision — 2026-10-16: restore Take photo
+alongside Choose a file, withdrawing the earlier shared scanner amendment/dependency.
+Expense retains its existing React Native app and implementation priority; no Expense
+scanner is required for Leave readiness. Prove neutral capture/upload behavior in Leave
+before promotion. Full scanning, OCR and native packaging are outside this story.
+
+As an employee,
+I want to photograph or upload documents with clear progress and recovery controls,
+So that I know whether my supporting documents are safely attached.
+
+**Acceptance Criteria:**
+
+**Given** a policy permits or requires supporting documents,
+**When** I edit the draft,
+**Then** Supporting document is labelled optional or required with accepted types/limits,
+**And** desktop Browse is keyboard-accessible and mobile offers Choose a file.
+
+**Given** mobile supporting-document entry on a supported device/browser,
+**When** I select Take photo,
+**Then** I can capture a document image, review it and retake or use it through the same
+authorized upload/verification/association flow,
+**And** Choose a file remains available. Cancelling capture, denied/unavailable camera
+or returning from the system camera preserves the draft and offers an appropriate
+fallback. Do not promise identical OS/browser camera interfaces.
+
+**Given** a camera image,
+**When** it enters the attachment workflow,
+**Then** the same supported-format/size/count limits and server verification apply,
+**And** unsupported formats or excessive size get actionable feedback without silent
+loss of useful document detail. Bind format handling/compression before readiness.
+
+**Given** an attachment is progressing,
+**When** its state changes,
+**Then** Uploading, Verifying, Attaching and Attached reflect actual outcomes,
+**And** Attached appears only after required checks and saved association succeed.
+
+**Given** a pending, failed or confirmed file,
+**When** I use an applicable Cancel, Retry or Remove action,
+**Then** the appropriate authorized operation runs,
+**And** association retry reuses a usable verified file without uploading again. Removal
+uses the authorized lifecycle/release mechanism rather than merely hiding a local row.
+
+**Given** a rejected file or recoverable failure,
+**When** feedback is shown,
+**Then** type/size errors appear beside the affected file,
+**And** dates, notes and other draft input remain intact.
+
+**Given** confirmed attachments or recoverable pending work,
+**When** I reopen the authorized saved draft,
+**Then** those states are restored accurately,
+**And** if bytes must be uploaded again the interface explains that honestly.
+
+**Given** closing, switching organizations or conflicting tabs,
+**When** attachment work is unfinished,
+**Then** existing draft safeguards remain effective,
+**And** a saved form does not imply an unfinished attachment is complete.
+
+**Given** keyboard or assistive-technology use,
+**When** progress/errors change,
+**Then** accessible feedback does not repeatedly interrupt typing or move focus.
+
+**Traceability / planned verification:** Features §7/12, attachment states and UX;
+platform EXPERIENCE Shared uploads/Recoverable Attachment Association; approved Leave
+EXPERIENCE Notes and supporting documents; platform ADR-0030/0033/0038/0050/0051/0054
+and spine AD-8/9/12. Observe relevant failing acceptance before implementation. Browser/
+API tests prove actual states, accessible controls/announcements, limits, retry/release,
+preserved input, close/switch/conflict behavior and authorized reload recovery. E5 owns
+actual submission blockers; this UI does not silently omit pending/failed optional files.
+Exact source/test paths, commands and runtime evidence remain pending.
+
+**Pre-story inputs / sizing:** Bind typed session/verification/association outcomes and
+recovery persistence, authorized Cancel/Remove/release and revision coordination, close/
+switch behavior for unfinished transfer, safe filenames/status errors and browser file
+type handling, including mobile camera outputs and supported JPEG/PNG conversion where
+selected. Verify Take photo in mobile browser and installed PWA on Android/iOS, image
+review/retake/cancel, denied/unavailable capture and camera-return draft continuity.
+No full document scanner, crop/straighten/perspective correction, OCR, multipage scanning
+or Expense proof is required by this story. No claim that a browser can restore untransferred local bytes after
+closure. Confirm final atomic coverage, measurable browser targets and single-agent
+scope before readiness; further split only for concrete size/dependency reasons.
+
+**Impacts:** Scaffold: proven upload/recovery client composition and fixtures. Shared UI:
+Leave proves/promotes neutral capture/review/upload/status/retry behavior with interaction,
+accessibility and catalogue documentation. Keep policy/lifecycle rules in Leave. Agent
+context: existing ownership/privacy/UX guidance suffices. Documentation: typed UI contract,
+acceptance mapping, tracker/handoff and applicable scaffold guidance. ADR: existing
+decisions govern. Take photo/file selection approved; no scanner library, native app,
+code, tests or implementation authorization. Expense retains React Native; no PWA
+migration is planned by this story. Leave's original first draft slice remains unchanged.
+
+### Story 4.6: Show document status without exposing protected details
+
+**Scope approved — 2026-10-16; not implementation-ready.** Owner: Leave document
+status/metadata API and existing draft presentation, consuming prior attachment and
+current access/Content contracts. E5 integrates actual approval/review screens later;
+authenticated file streaming remains separate.
+
+As an authorized employee, approver or Leave Manager,
+I want document information appropriate to my access,
+So that I can understand its status while sensitive details remain protected.
+
+**Acceptance Criteria:**
+
+**Given** an in-scope approver or Leave Manager without sensitive-document permission,
+**When** document information is requested,
+**Then** API and UI expose only provision and verification status,
+**And** no filename, preview, contents or download details are exposed.
+
+**Given** sensitive-document permission,
+**When** metadata is requested,
+**Then** current organization/resource authorization and applicable safety/lifecycle
+checks also pass,
+**And** permission alone grants no access to unrelated documents.
+
+**Given** an employee's own permitted document,
+**When** they view its information,
+**Then** ownership-based access works without requiring the approver's separate
+sensitive-read permission.
+
+**Given** pending, rejected, missing or temporarily unavailable content,
+**When** status is presented,
+**Then** it reflects the actual outcome using safe wording,
+**And** a failed check never becomes No document provided or Verified.
+
+**Given** revoked access, a different organization or a direct metadata request,
+**When** access is checked,
+**Then** protected details remain inaccessible through API as well as interface.
+
+**Traceability / planned verification:** Features Permissions/§12, PRIV-04, Leave
+ADR-0006/0016/0017, platform ADR-0054 and spine AD-2/9. Observe relevant failing
+acceptance before implementation; prove approver/manager/own-access combinations,
+current organization/resource checks, direct API denial, safe status/error fields
+and actual existing draft presentation without future E5 screens. No sensitive data
+in diagnostic/status text. Exact source/test paths, commands and runtime results pending.
+
+**Pre-story inputs / sizing:** Bind status/metadata projections and allowed safe fields,
+actual own-document and current role/resource authorization, typed denial/missing/
+unavailable outcomes, freshness and scope-safe frontend invalidation. Use owner-controlled
+request/approver fixtures for later-role contract tests without inventing a working
+approval workflow. Actual E5 integration before activation remains binding. Final atomic
+coverage, concrete contracts, agent sizing and readiness stay open.
+
+**Impacts:** Scaffold: prove safe typed metadata/status adapters and permission fixtures
+where reusable. Shared UI: reuse neutral status/failure controls; Leave visibility rules
+remain local. Agent context: existing privacy/access guidance suffices. Documentation:
+allowed projections, acceptance mapping, tracker/handoff and E5 integration obligations.
+ADR: accepted decisions unchanged. No code, tests or implementation authorization.
+
+### Story 4.7: Open and download an authorized supporting document
+
+**Scope approved — 2026-10-16; not implementation-ready.** Owners: Leave private-read
+API/browser integration, consuming E1-CONTENT-READ/PTS-ADOPT shared streaming/auth/gateway
+patterns, E4 providers/fixed bytes and Story 4.6 projections. No working shared runtime
+or actual deployment behavior is inferred from planned prerequisites.
+
+As an authorized user,
+I want to open or download a supporting document,
+So that I can read it while its contents remain protected.
+
+**Acceptance Criteria:**
+
+**Given** a permitted document,
+**When** Open or Download is requested,
+**Then** Leave checks current user, organization/resource and document permissions,
+**And** Content independently checks its calling service, stored ownership, readiness
+and safety.
+
+**Given** an authorized read,
+**When** bytes are returned,
+**Then** the exact finalized bytes stream through Leave and Content with bounded memory,
+**And** no storage credentials or bearer download URLs reach the browser.
+
+**Given** a PDF,
+**When** opened,
+**Then** the supported browser's native viewer is used, with Download available,
+**And** other formats download unless explicitly approved for inline viewing.
+
+**Given** a new GET, HEAD or supported range/resume request,
+**When** it is processed,
+**Then** authorization is checked again,
+**And** partial reads remain bound to the same finalized representation.
+
+**Given** expired authentication, revoked access or account switching,
+**When** a new read is attempted,
+**Then** it cannot use former authority,
+**And** recovery returns through the application without exposing a storage link.
+
+**Given** provider failure or cancellation,
+**When** a stream stops,
+**Then** resources close cleanly,
+**And** an interrupted stream is not reported as complete or silently restarted.
+
+**Given** private responses,
+**When** headers and bytes are sent,
+**Then** cache controls prevent public/shared-cache access,
+**And** filenames and response headers are handled safely.
+
+**Traceability / planned verification:** Features §12, PRIV-04, spine AD-2/9/13;
+platform ADR-0038/0054/0055 and Leave ADR-0006/0016/0017; Content ownership/authenticated-
+read contract and approved browser download/preview behavior. Observe relevant failing
+acceptance before implementation. Verify actual browser authentication, denied copied
+routes, own/permitted sensitive reads, revocation on new HEAD/range requests, account/
+session expiry/switch races, fixed byte representation, native PDF behavior and download
+fallback, privacy headers/cache, bounded memory/backpressure and disconnect/upstream
+failure through the actual supported gateway route. Exact paths/commands/results pending.
+
+**Pre-story inputs / sizing:** Reuse shared Content streaming and native-browser auth
+contracts rather than a second auth engine. Bind Leave download ingress/certificate/
+gateway/session setup/renewal/revocation, allowed origins/methods, viewer account binding,
+safe headers/filename/type, GET/HEAD/single-range/If-Range and 200/206/416 behavior,
+per-hop total/idle/time/resource/concurrency budgets and typed pre-header errors. No
+HTML login response disguised as successful file bytes, storage URL fallback or private
+cache bypass. No DB lock during streaming. Already delivered bytes cannot be recalled;
+declare bounded in-flight behavior. Actual E5/E6 integration before activation remains
+required. Final atomic coverage and single-agent sizing depend on actual shared delivery
+and integration scope; split only for concrete reasons. Readiness remains open.
+
+**Impacts:** Scaffold: reuse/prove authenticated stream/browser adapters, typed safe
+errors and generated gateway/contract fixtures in the owning tooling. Shared UI: reuse
+Open/Download and per-attempt safe retry; no custom viewer/download manager. Agent
+context: existing access/privacy/streaming guidance suffices. Documentation: Leave
+transport/gateway/session, acceptance mapping, provider/recovery runbooks and tracker/
+handoff. ADR: existing decisions unchanged. No code, runtime tests, provider/ingress
+configuration, migrations or implementation authorization.
+
+### Story 4.8: Remove or replace a document on my editable draft
+
+**Scope approved — 2026-10-16; not implementation-ready.** Owner: Leave editable-draft
+association API/UI and Content reference release/recovery. Consume existing E1 draft
+guards and Stories 4.1–4.7. Story 4.5 already supports authorized Remove through prior
+association/release contracts; this story completes replacement and lifecycle safeguards,
+not a future dependency required to make earlier Remove behavior work.
+
+As an employee,
+I want to remove an unwanted attachment or replace it with a better copy,
+So that my draft contains the documents I intend to submit.
+
+**Acceptance Criteria:**
+
+**Given** an editable draft,
+**When** I remove or replace an attachment,
+**Then** Leave checks current authority, ownership and draft revision/lifecycle.
+
+**Given** removal succeeds,
+**When** its saved outcome is recorded,
+**Then** the saved association is removed and Content protection is released through
+the coordinated lifecycle,
+**And** physical deletion follows cleanup/retention rules.
+
+**Given** replacement,
+**When** a new file is prepared,
+**Then** it receives a new content identity and fresh verification,
+**And** the original remains attached until the replacement is successfully confirmed.
+
+**Given** replacement succeeds,
+**When** Leave commits,
+**Then** the association change and required attribution/audit commit atomically locally,
+with recoverable Content reference updates,
+**And** resulting attachments meet file/count/total-size limits.
+
+**Given** upload, verification or replacement confirmation fails,
+**When** recovery feedback is shown,
+**Then** the original attachment and other draft input remain intact,
+**And** appropriate retry is available.
+
+**Given** duplicate retries, uncertain outcomes or competing tabs,
+**When** changes are attempted or resolved,
+**Then** recovery prevents duplicate replacements, stale removal or resurrection of
+released associations.
+
+**Given** a closed draft or submitted request,
+**When** this editable-draft operation is attempted,
+**Then** it cannot change documents,
+**And** later request workflows own permitted changes.
+
+**Traceability / planned verification:** Features §7/12; spine AD-4/8/9; platform
+ADR-0012/0022/0030/0033/0035/0038/0054. Observe failing acceptance before implementation.
+Verify authorized removal/replacement, new verified byte identity, original retained
+through failure, aggregate constraints, atomic local attribution/audit/operation outcome,
+cross-service reference recovery, duplicate/lost-response/concurrent-tab cases, closed
+draft denial, delayed release/confirmation and cleanup races. Existing Remove contract
+regressions remain mandatory. Exact source/test paths, commands/results remain pending.
+
+**Pre-story inputs / sizing:** Bind revision/operation/review semantics, association
+swap and release protocol, required minimal audit versus ordinary draft attribution,
+temporary replacement capacity and bounded abandonment recovery. A temporary staged
+replacement must not silently weaken confirmed attachment limits or release the original
+early. Keep external waits outside business locks; no cross-service atomicity claim.
+No exact temporary capacity or transport budget selected. Later submitted-request
+replacement/correction rules need actual E5/E6 integration before activation; this draft
+scope does not authorize them. Final contracts, atomic coverage and agent sizing open.
+
+**Impacts:** Scaffold: prove reusable guarded association swap/release/retry fixtures.
+Shared UI: reuse upload/recovery/Remove and replacement feedback; Leave owns editability.
+Agent context: existing lifecycle/privacy/byte identity instructions suffice.
+Documentation: replacement/reference/recovery contracts, acceptance map, tracker/handoff.
+ADR: accepted decisions unchanged. Ordinary draft editing sends no business notification;
+rejection/action-required notices follow separately. No code, tests, cleanup, migrations
+or implementation authorization.
+
+### Story 4.9: Notify me when a document needs attention
+
+**Scope approved — 2026-10-16; not implementation-ready.** Owner: Leave attachment
+outcome producer and draft recovery destination, using E3 outbox/shared delivery and
+prior E4 lifecycle/status APIs. E5 integrates submitted-request follow-up and consequential
+checks. No malware scanner introduced and no runtime notification service assumed.
+
+As an employee,
+I want notification of a saved attachment problem requiring follow-up,
+So that I can return to the application and resolve it.
+
+**Acceptance Criteria:**
+
+**Given** a persisted attachment rejection or action-required outcome,
+**When** Leave records it,
+**Then** required notification intent is saved atomically with Leave's outcome/evidence,
+**And** it is handed to E3's delivery foundation.
+
+**Given** duplicate events, retries or uncertain handover,
+**When** recovery or delivery runs,
+**Then** the same problem does not create duplicate notification intent or repeat the
+attachment mutation.
+
+**Given** email or in-app delivery,
+**When** the message is rendered,
+**Then** it uses approved minimal content and a secure application link,
+**And** no filename, document contents, medical details or revealing rejection diagnostics
+are exposed.
+
+**Given** the employee follows the link,
+**When** the affected draft/request is opened,
+**Then** current access is checked before the permitted explanation is shown,
+**And** the link itself grants no authority.
+
+**Given** a delayed notification after the problem was resolved,
+**When** it is opened,
+**Then** current state is shown without recreating the problem or requesting an
+unnecessary replacement.
+
+**Given** an invalid file selected during active upload,
+**When** validation feedback is needed,
+**Then** immediate inline feedback is sufficient,
+**And** ordinary validation, retries and draft editing do not generate repeated
+business notices.
+
+**Given** notification delivery failure,
+**When** it is recovered,
+**Then** the saved attachment outcome remains accurate and unrelated Leave actions
+remain usable,
+**And** technical delivery recovery stays with operations.
+
+**Traceability / planned verification:** Features §12/13, PRIV-05/06; spine AD-9/10/11;
+Leave ADR-0014/0015/0130 and E3 approved event/outbox/delivery contracts. Observe failing
+acceptance before implementation. Verify exact producer transitions and atomic local
+intent/evidence, replay identity, cross-service outcome recovery, privacy across subject/
+body/list/banner/link, current recipient/resource access, resolved/stale links, draft
+continuity, no ordinary-validation spam and delivery failure isolation. E5 integration
+must prove actual submitted-request follow-up before activation. Exact test paths/
+commands/runtime results pending.
+
+**Pre-story inputs / sizing:** Bind precise persisted triggering transitions, recipient
+selection/current authority, event type/version/identity, safe template/link fields,
+relevance/expiry and Content-to-Leave outcome observation/reconciliation. Do not infer
+distributed atomicity or hold business locks across external waits. Drafts may have
+incomplete dates/selections; omit unavailable allowed fields rather than invent values
+or require valid submission setup merely to preserve input. Choose exact safe action
+wording without exposing document details. Resolve required business notification
+semantics before affected producer readiness; final coverage/agent sizing/readiness open.
+
+**Impacts:** Scaffold: prove reusable producer/outbox/receiver recovery fixtures with
+consuming delivery; reuse E3 worker/client/template foundations. Shared UI: existing
+notification panel, safe links and document retry feedback, no technical queue for
+employees/admins. Agent context: existing privacy/ownership/durable-event guidance
+suffices. Documentation: event/recipient/template contracts, acceptance map, support
+runbook and tracker/handoff. ADR: existing decisions unchanged. No code, tests,
+notifications, provider changes or implementation authorization.

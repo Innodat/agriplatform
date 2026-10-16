@@ -423,6 +423,52 @@ risk. Each workflow should run in a fresh context window.
 
 ## Delivery plan and progress
 
+**Story 4.9 scope approved — 2026-10-16:**
+[attachment action-required notices](../../../_bmad-output/planning-artifacts/epics.md#story-49-notify-me-when-a-document-needs-attention)
+use atomic Leave outcome/intent and E3 delivery, privacy-safe templates/current-access
+links, deduplicated recovery and accurate resolved state; ordinary active-upload errors
+stay inline. Exact event transitions/recipients/relevance/expiry and submitted-request
+integration remain binding. Continue Story 4.10 retention configuration in group 6;
+all contracts/coverage/sizing/readiness remain open, no notifications or code performed.
+
+**Story 4.8 scope approved — 2026-10-16:**
+[editable-draft document removal/replacement](../../../_bmad-output/planning-artifacts/epics.md#story-48-remove-or-replace-a-document-on-my-editable-draft)
+preserves original until replacement confirms, new verified identity, guarded atomic local
+change/evidence, recoverable Content release, effective limits and retry/concurrency/
+cleanup safety. Existing earlier Remove remains functional; submitted-document changes
+stay with later domain workflows. Bind temporary capacity and exact protocols before
+readiness. Continue Story 4.9 rejection/action-required notices; no code authorized.
+
+**Story 4.7 scope approved — 2026-10-16:**
+[authenticated supporting-document reads](../../../_bmad-output/planning-artifacts/epics.md#story-47-open-and-download-an-authorized-supporting-document)
+consume shared Content streaming/browser authentication/gateway work with Leave-specific
+current user/resource/document checks. Fixed-byte full/partial reads, native PDF/Download,
+safe cache/headers, authentication recovery and bounded failure/disconnect apply; exact
+transport/wire/resource inputs and actual routed evidence remain gates. Continue Story
+4.8 editable-draft removal/replacement in group 5. No implementation authorization.
+
+**Story 4.6 scope approved — 2026-10-16:**
+[safe document status/metadata](../../../_bmad-output/planning-artifacts/epics.md#story-46-show-document-status-without-exposing-protected-details)
+enforces status-only projection for document-unprivileged approvers/managers, scoped
+permitted metadata and own-document access, accurate safe failures and API/UI denial.
+E5 integrates real approval/review screens; private streaming follows separately.
+Latest user decision retains Expense React Native and implementation priority.
+Contracts/coverage/sizing/readiness stay open.
+
+**Story 4.5 latest scope — user decision, 2026-10-16:** Take photo alongside Choose a
+file, with review/retake, ordinary attachment checks and retained draft input. Withdraw
+the earlier Scan document/shared Expense scanner amendment: no crop/straighten/perspective
+correction, OCR, native app or Expense scanner readiness dependency. Prove reusable
+capture/upload UI in Leave before promotion. Features/UX/epics/handoff aligned. Stories
+4.1–4.6 approved; continue Story 4.7 authenticated private reads. Exact contracts,
+source/test coverage, final sizing and readiness remain open; no code authorized.
+
+**Cross-application priority — latest user decision, 2026-10-16:** Retain the existing
+Expense React Native mobile application, withdrawing the earlier PWA migration direction.
+Finishing Expense still takes implementation priority over Leave. Preserve Leave's
+approved internal sequence and original first draft slice, with no readiness waiver.
+No Expense migration, implementation or retirement is performed by this note.
+
 Current E1 readiness status is consolidated in
 [Remaining E1 gates by timing](#remaining-e1-gates-by-timing--2026-10-05).
 That checkpoint supersedes older discussion-status wording below where later accepted
@@ -836,6 +882,17 @@ performance targets.
 support, backup, and rollback are operational.
 
 ### Post-MVP roadmap
+
+- [ ] Content-owned malware scanning hardening upgrade — confirmed 2026-10-16;
+  deferred because current hosting lacks memory for a self-hosted scanner. Reassess
+  provisioned capacity versus a suitable managed service; no engine/vendor/date selected.
+  Scan exact finalized bytes before exposing them when scanning is enabled, retaining
+  pending/no-threat-detected/rejected/unscannable outcomes, bounded retry/recovery,
+  signature/engine evidence, operational ownership and privacy-safe handling. Bind
+  treatment of encrypted/unsupported content, scanner outages and any existing-file
+  rollout before delivery. Prove detection/failure paths and no readiness bypass.
+  MVP retains extensible safety states and current type/size/checksum/authorization
+  protections; this upgrade is not an additional MVP or pilot-readiness gate.
 
 - [ ] Evaluate monitoring investigation usability and Loki/OpenSearch alternatives when operational experience justifies it; future AI diagnosis and approved regression-test/fix/draft-PR workflow follow the platform direction, outside Leave MVP
 
@@ -2721,6 +2778,69 @@ no E4 sequence or individual scope is approved yet. Same current working tree, i
 uncommitted planning and unrelated platform/KDG work, remains authoritative. No new
 worktree, commit, implementation, migration or deployment requested/performed. Preserve
 Content/provider/byte/association/privacy contracts and all existing readiness gates.
+
+E4 delivery sequence approved — 2026-10-16: user accepted the
+[seven delivery groups](../../../_bmad-output/planning-artifacts/epics.md#epic-4-attach-and-retrieve-supporting-documents-safely).
+Continue collaboratively with Story 4.1 in Content migration/provider foundations.
+No individual E4 scope or final story count approved. Reuse E1-CONTENT-READ/PTS-ADOPT
+without duplicating owner work; association/cleanup, fixed-byte and provider-lifetime
+contracts remain gates before affected story readiness, with runtime evidence produced
+during authorized delivery. Preserve E3's approved 48-candidate order and the original
+E1 draft slice. Source/test coverage, final sizing, release and BMAD readiness stay open;
+no code, migrations, provider changes, notifications, commits or deployments performed.
+
+Story 4.1 scope agreed — 2026-10-16:
+[authorized Content upload sessions](../../../_bmad-output/planning-artifacts/epics.md#story-41-start-or-resume-an-authorized-content-upload)
+cover restricted service/scope, declarations/limits, duplicate-safe operation recovery,
+reauthorized renewal and provider-enforced expiry, without claiming verification or
+association. PtS limits may be deliberately revised based on actual source/retrieval
+needs; no numeric replacement or existing-file deletion/truncation selected. Reconcile
+actual existing Content/E1 work and retain owner contracts/consumer compatibility.
+Continue Story 4.2 verification/finalization discussion. Source/test coverage, exact
+contracts, final sizing and readiness remain open; no code/tests/provider changes or
+implementation authorization.
+
+E4 Story 4.2 scope approved — 2026-10-16: see
+[verification/finalization](../../../_bmad-output/planning-artifacts/epics.md#story-42-verify-and-finalize-uploaded-content).
+Actual byte/type/size/digest verification, fixed identity, outstanding-upload/race safety,
+duplicate/uncertain recovery and bounded provider work precede attachment readiness.
+Malware scanning remains deferred; the user's subsequent cost/resource question opens
+discussion only. Exact contracts, final coverage/sizing and readiness remain pending;
+no code, runtime tests, provider changes or implementation permission.
+
+E4 Story 4.3 scope approved — 2026-10-16: see
+[configured provider consistency/parity](../../../_bmad-output/planning-artifacts/epics.md#story-43-use-the-organizations-configured-storage-provider-consistently).
+Reuse existing shared Content work; trusted provider resolution, Azure/Supabase expiry/
+fixed-byte/recovery/private-read parity and stable original locators after default changes
+remain binding. No existing-file provider migration or prototype retirement in this item.
+Continue Story 4.4 recoverable draft association discussion in group 2. Exact contracts,
+source/test coverage, final sizing and readiness remain open; no implementation permission.
+
+E4 Story 4.4 scope approved — 2026-10-16: see
+[recoverable draft association](../../../_bmad-output/planning-artifacts/epics.md#story-44-reliably-attach-a-verified-file-to-my-saved-draft).
+User requires bounded pending protection: deadlines/recovery reconcile stalled operations,
+release genuine abandonment and prevent indefinite retry renewal; unresolved uncertainty
+has monitored, restricted audited recovery. Expiry alone cannot delete possibly saved
+content; confirmed draft references retain protection and late confirmation cannot revive
+released operations. Bind exact protocol/time/retry/alert bounds before readiness; prove
+cleanup/confirmation/crash/expiry races during authorized delivery. Continue Story 4.5
+draft upload controls in group 3. Final coverage/sizing/readiness open; no code authorized.
+
+E4 Story 4.5 scope approved — 2026-10-16: see
+[draft upload controls](../../../_bmad-output/planning-artifacts/epics.md#story-45-upload-supporting-documents-in-my-leave-draft).
+Truthful per-file upload/verification/association states, accessible Cancel/Retry/Remove,
+preserved input, authorized reopen recovery and existing close/switch/revision safeguards
+consume Stories 4.1–4.4. Promote proven neutral UI/scaffold patterns with their tests/docs.
+Mobile camera/document scanning and external-app handoff are under discussion only;
+no extra capture control, native app or scanner selected. Contracts/coverage/final sizing/
+readiness stay open; no implementation permission.
+
+Story 4.5 mobile amendment approved — 2026-10-16: add Take photo beside Choose a file
+where supported, image review/retake, camera cancellation/failure/return draft continuity
+and existing format/size/count/server verification. Update neutral UI/scaffold patterns
+with proven first-consumer behavior. Bind image-format/conversion/compression and actual
+Android/iOS browser/installed-PWA evidence before readiness; no OCR, full document scanner,
+native app or Expense migration approved. Features and written Leave UX synchronized.
 
 Story 3.24 scope agreed — 2026-10-14: user approved
 [recoverable Leave handover worker](../../../_bmad-output/planning-artifacts/epics.md#story-324-hand-over-leave-notifications-through-a-recoverable-worker),

@@ -6,6 +6,150 @@ resolve later changes from their owners rather than treating this snapshot as su
 
 ## Resume point
 
+**E4 story checkpoint — 2026-10-16:** Story 4.9 attachment rejection/action-required
+notifications approved; Stories 4.1–4.9 agreed. Atomic local intent, E3 delivery/retry,
+minimal privacy-safe messages, current access and resolved-state links; ordinary active
+upload validation stays inline without notice spam. Bind exact transitions/recipients/
+version/relevance/expiry and E5 integration before activation. Continue Story 4.10
+retention configuration in group 6. Expense React Native/priority and Leave Take photo
+unchanged; contracts/coverage/final sizing/readiness remain open, no code authorized.
+
+**E4 story checkpoint — 2026-10-16:** Story 4.8 editable-draft removal/replacement
+approved; Stories 4.1–4.8 agreed. Preserve original until verified replacement confirms,
+new byte identity, atomic local change/evidence with recoverable Content reference release,
+limits/revision/retry/closed-state/cleanup protection. Ordinary draft editing sends no
+business notice. Continue Story 4.9 attachment rejection/action-required notices in group
+5. Story 4.5 photo/file scope, Expense React Native/priority and all readiness gates remain.
+No implementation authorized.
+
+**E4 story checkpoint — 2026-10-16:** Story 4.7 authenticated document reads approved;
+Stories 4.1–4.7 agreed. Reuse shared streaming/browser auth/gateway contracts with current
+Leave document authority, native PDF/Download, range identity, safe failure/cache and
+bounded resource evidence. Continue Story 4.8 editable-draft removal/replacement in
+group 5. Story 4.5 remains Take photo/file selection; Expense retains React Native and
+priority. Contracts/coverage/final sizing/readiness open; no implementation authorized.
+
+**Latest scope/priority checkpoint — 2026-10-16:** User explicitly retains Expense's
+existing React Native app and withdraws its PWA migration direction. Expense still
+finishes before Leave implementation. Story 4.5 reverts to Take photo alongside Choose
+a file, review/retake, input preservation and normal attachment checks; withdraw full
+scanner/crop/straighten/perspective correction and Expense shared-scanner dependency.
+Current features/UX/epics/tracker aligned; earlier scanner/PWA checkpoints below are
+historical and superseded by this decision. Stories 4.1–4.6 agreed; continue Story 4.7
+authenticated document reads in group 4. E3 order, first draft slice and exact contracts/
+coverage/sizing/readiness gates unchanged. No code, migrations or implementation permission.
+
+**E4 story checkpoint — 2026-10-16:** Story 4.6 safe document status/metadata scope
+approved; Stories 4.1–4.6 agreed. User revisits Expense PWA choice after external advice
+about native OCR speed, camera controls and mobile browser memory; considers three-second
+OCR delay significant. Reassess recommendation without treating PWA performance as
+proven or the question as approval to revert to React Native. Expense priority remains;
+scan-to-review latency, device coverage, accuracy and native/web sharing need evaluation.
+Leave scanner reuse remains the agreed intent, subject to actual shared web proof rather
+than importing native modules. After discussion continue group 4 authenticated reads.
+Exact contracts/coverage/sizing/readiness remain open; no implementation authorized.
+
+**E4 scanner amendment approved — 2026-10-16:** User accepted Story 4.5 as Scan or upload
+supporting documents: reuse Expense-first proven/promoted shared web capture/crop/
+straighten/review/retake, with file selection and supported Take photo fallback. Features,
+UX, epics and tracker aligned; no vendor selected, receipt OCR/multipage/native app added,
+or Expense migration implemented. Expense finishes before Leave implementation; Leave's
+first slice/internal sequence and all contracts/coverage/sizing/readiness gates remain.
+Stories 4.1–4.5 agreed; continue collaborative Story 4.6 safe document status/metadata
+in group 4. Actual E5 approver/review integration remains later; no code authorized.
+
+**Delivery priority / Expense direction — user decision, 2026-10-16:** User decided
+to move the Expense mobile experience from React Native to a PWA and explicitly gives
+Expense implementation priority: finish it before Leave implementation. This changes
+cross-application priority, not Leave's approved internal E1–E8 order or first draft
+slice. Expense needs its own current-state assessment, bounded migration requirements,
+offline/image/OCR/security/compatibility contracts and proportionate BMAD readiness;
+the decision is not a claim those gates or a migration implementation are complete.
+Preserve existing native behavior/data until an explicit transition/recovery is planned.
+No Expense code, scaffolding, deployment or retirement was requested/performed here.
+User asks whether Leave Story 4.5 should use document scanning instead of Take photo.
+Recommendation: Expense proves shared web capture/crop/straighten/review first; Leave
+can consume that neutral component with Take photo/file-selection fallback and its own
+attachment authorization. Full scanning amendment to Story 4.5 is not yet approved;
+receipt OCR/classification/offline financial workflows are not Leave scope. Shared
+ownership/promotion and current contracts/readiness remain binding.
+
+**Receipt/PWA discussion continuation — 2026-10-16:** User requires offline receipt
+capture and wants good OCR/extraction with low server cost. Initial thought was server
+OCR (possibly Azure/matching); client OCR is attractive if sufficiently accurate. OCR
+follows capture; bad scans should prompt recapture. Distinguish immediate local image
+quality feedback from deferred extraction, and capture quality failure from unreadable
+or unsupported extraction. Engine/vendor, local/cloud split, offline persistence/recovery
+guarantees, matching semantics and Expense migration remain unselected. Recommendation
+under discussion: assess local quality/local extraction with cloud fallback against real
+receipts/devices; no implementation or new Leave OCR scope. Leave Take photo amendment
+is approved independently; resume E4 after this discussion.
+
+**E4 mobile amendment — 2026-10-16:** User approved adding Take photo to Story 4.5,
+alongside Choose a file, with review/retake, draft continuity and normal attachment
+limits/verification. Features/Leave UX/epics/tracker updated. Full document scanning and
+Expense React Native-to-PWA direction are being discussed, not approved implementation
+or Leave scanning scope. Read-only inspection found Expense Add/EditReceipt using
+react-native-image-picker camera capture; scanner dependency installed but no scanner
+or OCR integration found in searched Expense source. Assess OCR accuracy/real devices
+before recommending replacement as proven. Potential neutral capture/scan UI should be
+proved in first consumer then promoted, preserving silo ownership. No migration, native
+app replacement or extra OCR service authorized. Leave planning remains active.
+
+**E4 story checkpoint — 2026-10-16:** Story 4.5 draft upload UI scope approved. Stories
+4.1–4.5 now agreed. User asks whether mobile document scanning/camera capture is useful
+and feasible in a PWA or through seamless external scanner handoff. Discuss before
+changing scope; no native app, scanner library/integration or extra capture control
+approved yet. Malware scanning is the separate deferred hardening item. Exact contracts,
+coverage/sizing/readiness remain open; no implementation permission.
+
+**E4 story checkpoint — 2026-10-16:** Story 4.4 recoverable draft association approved
+with bounded temporary protection: reconcile stalled operations by declared deadlines,
+release genuine abandonment, prevent endless renewal, and expose unresolved uncertainty
+to operational recovery. Timeout alone cannot delete a possibly saved attachment;
+confirmed saved drafts retain legitimate protection, and late confirmation cannot revive
+released operations. Exact protocol/deadlines remain pre-story inputs. Stories 4.1–4.4
+agreed; continue Story 4.5 draft upload controls in group 3. Final coverage/sizing/
+readiness open; no implementation authorized.
+
+**E4 story checkpoint — 2026-10-16:** Story 4.3 configured storage-provider/parity scope
+approved. Trusted organization resolution, Azure/Supabase common contract, fixed existing
+file locators despite default changes, honest failures and actual race/expiry/read parity
+are recorded in epics. No provider migration or prototype retirement included. Stories
+4.1–4.3 agreed; continue Story 4.4 recoverable draft attachment association in group 2,
+one at a time. Exact contracts/coverage/final sizing/readiness stay open; no code authorized.
+
+**E4 hardening checkpoint — 2026-10-16:** User confirmed malware scanning as a future
+Content-owned hardening upgrade, deferred for insufficient current hosting memory.
+Features §12 and the tracker post-MVP roadmap record it; no engine/vendor/date selected,
+no new MVP/pilot gate. Stories 4.1–4.2 remain approved. Continue collaborative Story 4.3
+discussion in group 1 (configured provider adapters/parity); exact contracts/coverage/
+sizing/readiness remain open. No implementation authorized.
+
+**E4 story checkpoint — 2026-10-16:** Story 4.2 verification/finalization scope approved,
+including actual byte checks, immutable identity, upload/finalization races, duplicate/
+uncertain recovery and bounded provider work. User asked what incorporating malware
+scanning would entail (subscription versus low-resource/Python option); discuss options
+without treating the question as approval to change the MVP deferral. Stories 4.1–4.2
+are agreed; continue group 1 afterward. Contracts/coverage/sizing/readiness remain open;
+no implementation authorized.
+
+**E4 story checkpoint — 2026-10-16:** Story 4.1 authorized Content upload-session scope
+is approved in epics. PtS limits may be changed deliberately to fit actual needs; large
+source upload/storage and retrieval needs must be distinguished. No new numeric limit,
+source deletion/truncation or derived-file feature selected. Continue with proposed
+Story 4.2 verification/finalization in group 1, one story at a time. Exact contracts,
+source/test coverage, final sizing and readiness remain open; no implementation permission.
+
+**E4 sequence checkpoint — 2026-10-16:** User approved the seven
+[E4 delivery groups](../../../_bmad-output/planning-artifacts/epics.md#epic-4-attach-and-retrieve-supporting-documents-safely):
+Content migration/provider foundations; recoverable association; draft attachment UX;
+authorized reads; attachment changes/action-required notices; retention/disposal; migration
+completion/integration proof. Continue collaboratively at Story 4.1 in group 1; no individual
+E4 story scope is approved yet. These groups are not a final story count. E3's 48-candidate
+order, first draft slice, exact contracts/coverage/sizing/readiness gates remain binding.
+No implementation authorization. Earlier checkpoint wording below is historical.
+
 **Current scope/decomposition checkpoint — 2026-10-16:** Story 3.35-B is approved;
 all fourteen children of seven approved splits are agreed. Consolidation preserves 42
 scope parents and yields **48 delivery candidates**, counting 3.40's overlapping policy

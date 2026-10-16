@@ -226,6 +226,14 @@ when applicable, preserving the existing explicit acknowledgement requirement.
 
 ### Notes and supporting documents
 
+Mobile capture scope confirmed 2026-10-16, superseding the earlier scanning amendment:
+offer Take photo alongside Choose a file where supported, with image review/retake
+before Leave's normal authorized upload flow. Cancellation, denied/unavailable camera
+and camera-return preserve draft input; file selection remains available. Same format/
+size/count limits apply; exact conversion/compression and Android/iOS browser/installed-
+PWA proof remain readiness inputs. No document scanner, crop/straighten/perspective
+correction, OCR, multipage scanning or native-app requirement. No Expense scanner dependency.
+
 Place these below the balance summary. Label the note Note to approver — optional
 unless an existing rule requires an explanation. Show Supporting document when
 the selected policy permits or requires it, clearly labelled optional or required.

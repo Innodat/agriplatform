@@ -2230,12 +2230,29 @@ See [ADR-0010](./architecture/decisions/0010-cancel-and-replace-approved-leave.m
 ### 12. Attachments
 
 - Attach files to drafts or requests according to policy.
+- Mobile capture scope confirmed 2026-10-16, superseding the earlier scanner amendment:
+  offer Take photo alongside Choose a file where supported, with image review/retake.
+  Preserve draft input on cancellation/failure; existing attachment checks/limits apply.
+  No document scanning, crop/straighten/perspective correction, OCR or native-app requirement
+  is added. No Expense scanner dependency remains. Exact format handling and supported-
+  device behavior remain contract/readiness work.
+- Pending attachment protection is bounded and recoverable (agreed 2026-10-16):
+  reconcile stalled confirmation, release genuinely abandoned references for eligible
+  cleanup, and prevent indefinite retry renewal. Unresolved uncertainty needs monitored
+  operational recovery; elapsed time alone cannot justify deleting a possibly saved
+  attachment. Confirmed draft/request protection follows its authorized lifecycle and
+  retention. Exact deadlines and race-safe protocol remain owned contract work.
 - Use the shared FastAPI Content Service and signed direct-to-provider uploads.
 - Limit files to 10 MB each, 3 files and 20 MB total per request.
 - Initially accept PDF, JPEG, and PNG only, using extension checks, MIME sniffing,
   and provider metadata rather than trusting browser-declared types.
 - Show upload and verification status. Preserve an extensible content-safety state,
   but do not require malware scanning for MVP.
+  Future hardening upgrade confirmed 2026-10-16: add Content-owned malware scanning
+  when hosting resources or an appropriate managed option permit it; current memory
+  capacity is insufficient for a self-hosted scanner. Keep the safety-state extension
+  point in MVP. No engine/vendor or delivery date is selected; track follow-up in the
+  [post-MVP roadmap](./implementation-plan.md#post-mvp-roadmap).
 - Permit download only after Leave-domain authorization and content safety checks.
 - Private downloads use authenticated Leave API requests streaming through Content
   under [platform ADR-0055](../../../platform/docs/architecture/decisions/0055-authenticated-private-downloads-by-default.md).
