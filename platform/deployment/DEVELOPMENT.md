@@ -11,7 +11,7 @@ close the enclosing ENV acceptance item. See individual evidence records below.
 | Target/configuration | Protected disposable run preparation, exact source/config binding, deterministic owner names and Docker>=28 gate | Actual isolated stack startup and current readiness |
 | Dependency baseline | Six pinned executables including TypeScript7.0.2; Python wheel-lock and frontend compatibility fixtures | Generated consuming application/service proof; target/native compatibility; documented third-party declaration limitations |
 | Images/resources | Four immutable image identities, guarded owned bridge/database-volume acquisition, daemon observations, current volume-use refusal, joint same-session acquisition and absent-volume startup construction | Execution-time enforcement, volume freshness/initialization/reuse and reservation/exclusivity |
-| PostgreSQL startup | Exact first-create profile, closed in-memory API request, private synthetic existing/fresh create/file-transfer/refused-start proof, pinned CLI volume creation through retained ENV owner checks | Bootstrap semantic/secret safety, actual create/start, health and bounded stop/reset/recovery |
+| PostgreSQL startup | Exact first-create profile, closed API construction, guarded CLI volume-owner proof; actual selected-image SQL/public-key qualification in a network-none tmpfs container | Full real CLI create/start continuity, durable-volume initialization/reuse, health and bounded stop/reset/recovery |
 | Owner integration | Ordered ENV/P1/SERVICE/Identity/Access/WRITE contracts and retained ownership | Existing generator recipe/schema/templates, regeneration/custom preservation, generated install/type/build/start/current-Access proof, coordinated owner migrations/fixtures/recovery |
 | Provider/device | Explicit nonproduction origins/callback contracts | LAN HTTPS/DNS/testCA, actual Entra callbacks and installed Android/iPhone proof at consuming gates |
 
@@ -35,10 +35,37 @@ Other infrastructure provisioning and production/pilot actions remain outside ap
 Continue bounded ENV and scaffold implementation before dependent Identity/Access/WRITE
 or KDG server work.
 
+The separate opt-in [PostgreSQL bootstrap qualification](ENV_POSTGRES_BOOTSTRAP_EVIDENCE.md)
+now demonstrates actual selected-image initialization and public synthetic key transfer
+in a disposable network-none container with no published ports or host binds. It checks
+all seven role password verifiers, JWT settings, SQL markers/internal schemas, actual
+key bytes/mode/owner and tmpfs storage, then verifies its owned container was removed.
+It caps memory at2GiB, CPU at two cores and PIDs at256, disables Docker logs, and
+verifies PostgreSQL's actual data directory. Current ownership checks enforce these
+settings before each copy/start/exec/removal.
+The pinned image trusts loopback; the proof records that fact separately from password
+installation and makes no authentication-enforcement claim. This does not admit `up`.
+
+Run after the existing preparation/toolchain/image qualifications for a fresh source-bound
+run, with the exact pinned PostgreSQL child image already downloaded:
+
+```bash
+python3 platform/deployment/tests/qualify_startup.py --target platform/deployment/environments/kdg-local.json --run-id <UUID> --control postgres-bootstrap
+```
+
+This explicitly executes disposable synthetic image initialization. Commands/output and
+initialization/cleanup have fixed bounds. An uncertain create or lost ownership refuses
+without adoption/replay/deletion; `cleanup_unresolved` requires inspection of the recorded
+run-labelled resource before recovery. Never use broad container/volume cleanup.
+For manual inspection, the exact deterministic name is `env-pg-bootstrap-<UUID>`;
+check its current ID, image and `io.agriplatform.env.run` / proof labels against the
+failed invocation. A matching name or labels alone does not authorize deletion or
+automatic adoption, and uncertain creation must not be retried into the same name.
+
 ENV now implements the first bounded preparation increment of the
 [environment contract](../docs/architecture/contracts/scaffold-environment-and-generation.md).
 It validates the selected target and reserves deterministic names in a protected receipt.
-`runtime_ready` is always false; no containers, database, Auth configuration, accounts,
+The preparation command keeps `runtime_ready` false; no containers, database, Auth configuration, accounts,
 grants, migrations, fixtures or generated application are provisioned.
 
 From the repository root:

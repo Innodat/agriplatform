@@ -44,8 +44,11 @@ unless requested with -e; the exact profile allows only its four key-only names.
 
 This qualifies source conformity and custody through refused create only. It does
 not qualify bootstrap semantic safety, secret-file delivery, execution continuity,
-complete startup, runtime readiness or repository migrations. Nothing executes these
-bytes and `dev.py up` remains gated.
+complete startup, runtime readiness or repository migrations. The refused-create path executes none of these
+bytes and `dev.py up` remains gated. The separate opt-in `postgres-bootstrap`
+qualification executes the exact public fixture in a disposable selected-image
+container; its selected SQL/key observations and limits are recorded separately
+in `../ENV_POSTGRES_BOOTSTRAP_EVIDENCE.md`.
 
 ## Reproduce the public bytes independently
 
@@ -148,3 +151,44 @@ records its pinned source and separate synthetic missing/create/copy/refused-sta
 proof. Its planned volume profile is not observed metadata, and synthetic volume
 acknowledgement proves no real ownership or freshness. `runtime_ready` remains false
 and `dev.py up` remains guarded.
+
+## Separate disposable bootstrap execution
+
+`tests/qualify_startup.py --control postgres-bootstrap` requires current prepared
+run evidence and repeat-qualified image-owner receipts before local Docker use.
+It selects the pinned Linux/amd64 child reference and verifies the local config
+identity, platform, repository digest, inherited labels and declared volumes.
+Its fresh run-labelled container uses network none, no published ports, no host
+binds and a 1GiB tmpfs database directory. Fixed limits set memory and total
+memory-plus-swap to 2GiB, CPU to two cores and PIDs to 256; Docker logging is
+disabled with log driver `none`. Exact corresponding HostConfig values are
+rechecked before ownership-dependent operations. It never shares the guarded create
+request transport or changes its route refusal. Bootstrap SQL remains exactly
+the source-backed bytes above; no repository SQL or seeds are executed.
+
+The public proof checks catalog password verifiers for all seven source-listed
+roles, JWT database settings, both exact `supabase_functions.migrations` versions
+and `_analytics`/`_supavisor` schemas in `_supabase`. Password installation is proved by comparing each catalog MD5/SCRAM verifier
+with the public synthetic password. Separate positive and deliberately wrong-password
+TCP queries characterize the pinned loopback trust policy; they both must succeed,
+with the current HBA file matching the inspected immutable image authority
+(SHA256 `a925911753f4975548eb4079177441c886aa22b6dd69f2b0cff98f779fb0b66a`).
+Only after these observations does the result report
+`loopback_password_required: false`; no password-enforcement claim is made.
+The image HBA uses `trust` for local `supabase_admin` and loopback hosts, and
+`scram-sha-256` for other configured hosts. The first actual run exposed this
+source-derived distinction: an attempted negative-password enforcement assertion
+failed despite correct installed verifiers; its owned cleanup completed. The
+qualifier retains the exact bootstrap/environment instead of changing HBA policy
+to make that assertion pass. Runtime network exposure remains outside this proof.
+Commands, output and total initialization time are bounded; only selected safe
+booleans/codes escape. Creation is attempted once. Cleanup requires the recorded
+ID plus current matching image/labels/isolation; uncertain creation or replaced
+resources are never adopted, replayed or deleted. This proves neither durable
+volume freshness/reuse nor complete runtime/scaffold readiness.
+
+The active PostgreSQL `SHOW data_directory` must return
+`/var/lib/postgresql/data` before its actual filesystem is checked as `tmpfs`
+after initialization.
+Docker inspection must continue to show only the `none` network, no published
+ports, no binds and the exact tmpfs declaration before every owned operation.

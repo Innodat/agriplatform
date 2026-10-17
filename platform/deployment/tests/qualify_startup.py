@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Opt-in guarded pinned Supabase first-create proof. No real Docker dispatch."""
+"""Guarded synthetic startup proofs and explicit real postgres-bootstrap control."""
 import json
 from pathlib import Path
 import sys
@@ -12,6 +12,8 @@ import qualify_volumes
 import qualify_daemon_images
 import daemon_images
 import qualify_resources
+
+BOOTSTRAP_CONTROLS = ['postgres-bootstrap']
 
 GUARDED_CONTROLS = ['guarded-fresh'] + ['guarded-' + name for name in qualify_resources.GUARDED_FAILURES]
 
@@ -49,9 +51,13 @@ def main(argv=None):
                                                        'invalid-create-script', 'invalid-create-environment', 'invalid-create-routing', 'invalid-create-request',
                                                        'lifecycle-positive', 'invalid-lifecycle-target', 'invalid-lifecycle-archive', 'invalid-lifecycle-order',
                                                        'fresh-lifecycle-positive', 'fresh-existing', 'fresh-racing', 'fresh-invalid-lifecycle-target',
-                                                       'fresh-invalid-lifecycle-archive', 'fresh-invalid-lifecycle-order'] + GUARDED_CONTROLS,
+                                                       'fresh-invalid-lifecycle-archive', 'fresh-invalid-lifecycle-order'] + GUARDED_CONTROLS + BOOTSTRAP_CONTROLS,
                             default='positive')
         args = parser.parse_args(argv)
+        if args.control in BOOTSTRAP_CONTROLS:
+            import startup_lifecycle
+            print(json.dumps(startup_lifecycle.qualify_bootstrap(args), sort_keys=True))
+            return 0
         networks = volumes.networks
         networks.validate_run_id(args.run_id)
         target = dev.decode(dev.read(Path(args.target).absolute()))

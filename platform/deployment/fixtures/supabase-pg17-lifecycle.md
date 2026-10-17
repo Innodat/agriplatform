@@ -102,6 +102,20 @@ Controls `guarded-existing`, `guarded-foreign`, `guarded-lost-response`,
 volumes are never adopted by this fresh operation; uncertain mutation has no replay,
 cleanup or later phase. A404,201 or matching labels still proves neither immutable
 identity, reservation, empty storage nor qualified initialization. All daemon changes
-and container acknowledgements remain private synthetic fixtures. Real Docker
+and container acknowledgements remain private synthetic fixtures. Within that guarded path, real Docker
 mutation, container execution/SQL, bootstrap/secret semantics, initialized reuse and
 runtime readiness remain unqualified; `up` stays gated and `runtime_ready=false`.
+
+## Separate disposable key and bootstrap proof
+
+The explicit `postgres-bootstrap` control transfers one independent in-memory
+USTAR archive after validating it with this same exact public key authority. It
+uses `docker cp - <recorded-id>:/` before start, then checks the actual regular
+non-symlink file path, exact public bytes, 0644 mode, root UID/GID and 64-byte
+size after initialization. The archive and observed credential-derived values
+are neither saved nor emitted. Every copy/start/exec/delete is preceded by an
+owned-ID/image/label/isolation check. Separate selected-image execution evidence
+is recorded in `../ENV_POSTGRES_BOOTSTRAP_EVIDENCE.md`; earlier synthetic
+acknowledgements remain synthetic. Tmpfs execution does not establish durable
+volume ownership/freshness, initialized reuse, recovery, full runtime admission
+or scaffold acceptance; `runtime_ready=false` and default `up` refusal remain.

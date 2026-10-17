@@ -278,9 +278,10 @@ def collect(pins):
         registry.tokens.clear()
 
 
-def bounded_command(command, cwd, env, timeout, limit):
+def bounded_command(command, cwd, env, timeout, limit, *, input_data=None):
     """Bound output and whole process group; child output is never printed."""
     process = subprocess.Popen([str(v) for v in command], cwd=cwd, env=env,
+                               stdin=subprocess.PIPE if input_data is not None else subprocess.DEVNULL,
                                stdout=subprocess.PIPE, stderr=subprocess.PIPE, start_new_session=True)
     deadline = time.monotonic() + timeout
     output, total = bytearray(), 0
@@ -289,11 +290,25 @@ def bounded_command(command, cwd, env, timeout, limit):
             for stream in [process.stdout, process.stderr]:
                 os.set_blocking(stream.fileno(), False)
                 selector.register(stream, selectors.EVENT_READ)
+            pending = memoryview(input_data) if input_data is not None else None
+            if pending is not None:
+                os.set_blocking(process.stdin.fileno(), False)
+                selector.register(process.stdin, selectors.EVENT_WRITE)
             while selector.get_map():
                 budget = deadline - time.monotonic()
                 if budget <= 0:
                     fail('command_deadline', 'images_cli')
                 for key, _ in selector.select(budget):
+                    if key.fileobj is process.stdin:
+                        try:
+                            written = os.write(key.fd, pending[:4096])
+                        except BrokenPipeError:
+                            fail("command_input_refused", "images_cli")
+                        pending = pending[written:]
+                        if not pending:
+                            selector.unregister(process.stdin)
+                            process.stdin.close()
+                        continue
                     # At most limit+1 bytes ever leave the kernel's bounded pipes.
                     chunk = os.read(key.fd, min(65536, limit - total + 1))
                     if not chunk:
@@ -319,6 +334,8 @@ def bounded_command(command, cwd, env, timeout, limit):
             os.killpg(process.pid, signal.SIGKILL)
         except ProcessLookupError:
             pass
+        if process.stdin is not None and not process.stdin.closed:
+            process.stdin.close()
         process.stdout.close()
         process.stderr.close()
         process.wait(timeout=2)

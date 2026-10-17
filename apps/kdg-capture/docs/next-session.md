@@ -252,3 +252,45 @@ execution continuity and health/stop/reset/recovery, plus existing P1/SERVICE sc
 acceptance, before dependent Identity/Access/WRITE or server-backed KDG delivery.
 Keep exact TypeScript7.0.2 baseline and current owners. No real daemon mutation,
 container/SQL execution, host upgrade, deployment or pilot was performed in this item.
+
+## Latest continuation — selected-image bootstrap qualification, 2026-10-17
+
+The bounded [PostgreSQL bootstrap Build](../../../_bmad-output/implementation-artifacts/spec-env-postgres-bootstrap.md)
+now has an explicit `postgres-bootstrap` control in the existing startup qualifier.
+Actual selected immutable PG17 image execution in a fresh network-none tmpfs container
+proves installed seven-role password verifiers, JWT settings, expected SQL migration
+markers, `_supabase` schemas and exact public root-key installation. It verifies its
+own container removal and keeps `runtime_ready=false`. No live Supabase/DB volume,
+repository owner migration/seed, app account/grant or real data was used.
+
+The initial real run exposed an incorrect authentication test assumption: the pinned
+image trusts loopback. Immutable HBA inspection explains it; the qualifier now records
+`loopback_password_required=false` separately from installed password verifiers.
+That correction kept its exact image/bootstrap/environment unchanged. This is an image semantic
+proof, not authentication enforcement or full runtime admission. All earlier attempts
+and receipts remain retained; see [requirement/test evidence](../../../platform/deployment/ENV_POSTGRES_BOOTSTRAP_EVIDENCE.md).
+
+Final reviewed run `46880d40-9483-4485-96c6-ca5b211d21f7` passes preparation/toolchain/
+images, actual bounded bootstrap proof and the existing pinned-CLI `guarded-fresh`
+control; all13 retained files remain unchanged. During fresh qualification the publisher
+moved the same approved PostgreSQL tag: the final run uses its newly qualified child
+digest, inspected separately, with identical entrypoint/migration/HBA files. It never
+substitutes the earlier cached image. The final running inventory is unchanged.
+
+During preceding run `c86b126e-45a9-4254-a339-82e94f52f145`, two unrelated Deals
+containers ceased running between snapshots; no qualification command targets them,
+their cause was not independently observed, and their current state is preserved.
+All other before entries retained name/ID/image/running state. No whole-host health
+or business-data comparison is claimed. Final verification:26 focused and455 deployment
+tests pass; actual bootstrap and pinned-CLI guarded proof pass. Three review layers and
+root verification produced eleven patched finding instances, one low suggestion rejected
+with reason, none deferred. A lost regression process result was not counted; the final
+pass has durable log/JSON evidence. This bounded Build is closed. Actual final `up`
+exits2 `runtime_adapter_unqualified` / `runtime_ready=false`.
+
+ENV remains partial and `up` remains gated. Continue real create-to-start execution
+continuity through current owners, durable fresh/initialized volume handling,
+health/stop/reset/recovery and existing P1/SERVICE scaffold acceptance before dependent
+Identity/Access/WRITE or server-backed KDG work. No questionnaire editor or Leave
+implementation. Preserve concurrent Leave/PtS documents and exact TypeScript7.0.2
+baseline. Scaffold/shared-UI/context/documentation/ADR impacts are in the evidence.
