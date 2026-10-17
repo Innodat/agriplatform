@@ -10,8 +10,8 @@ close the enclosing ENV acceptance item. See individual evidence records below.
 | --- | --- | --- |
 | Target/configuration | Protected disposable run preparation, exact source/config binding, deterministic owner names and Docker>=28 gate | Actual isolated stack startup and current readiness |
 | Dependency baseline | Six pinned executables including TypeScript7.0.2; Python wheel-lock and frontend compatibility fixtures | Generated consuming application/service proof; target/native compatibility; documented third-party declaration limitations |
-| Images/resources | Four immutable image identities, guarded owned bridge/database-volume acquisition, daemon observations, current volume-use refusal, joint same-session acquisition and absent-volume startup construction | Execution-time enforcement, volume freshness/initialization/reuse and reservation/exclusivity |
-| PostgreSQL startup | Exact first-create profile, closed API construction, guarded CLI volume-owner proof; actual selected-image SQL/public-key qualification in a network-none tmpfs container | Full real CLI create/start continuity, durable-volume initialization/reuse, health and bounded stop/reset/recovery |
+| Images/resources | Four immutable image identities, guarded owned bridge/database-volume acquisition, daemon observations, current volume-use refusal, joint same-session acquisition and absent-volume startup construction | Durable initialization/reuse/recovery, full-stack execution enforcement and reservation/exclusivity |
+| PostgreSQL startup | Exact first-create profile, guarded volume owner; selected-image SQL/key proof; opt-in real pinned-CLI create/copy/start on its fresh named volume with health, clean shutdown and owned removal | Durable initialized-volume restart/reuse/recovery, public lifecycle commands and complete stack/owner readiness |
 | Owner integration | Ordered ENV/P1/SERVICE/Identity/Access/WRITE contracts and retained ownership | Existing generator recipe/schema/templates, regeneration/custom preservation, generated install/type/build/start/current-Access proof, coordinated owner migrations/fixtures/recovery |
 | Provider/device | Explicit nonproduction origins/callback contracts | LAN HTTPS/DNS/testCA, actual Entra callbacks and installed Android/iPhone proof at consuming gates |
 
@@ -34,6 +34,29 @@ the selected localhost-isolation behavior; the runtime adapter remains unfinishe
 Other infrastructure provisioning and production/pilot actions remain outside approval.
 Continue bounded ENV and scaffold implementation before dependent Identity/Access/WRITE
 or KDG server work.
+
+The opt-in [pinned-CLI execution qualifier](ENV_PINNED_CLI_EXECUTION_EVIDENCE.md)
+uses the existing retained resource owner and private CLI wrapper through its first
+real PostgreSQL create/copy/start. It requires a fresh source-bound prepared run,
+qualified tool/image receipts and all four exact selected images present locally.
+It rechecks the database port, binds loopback only, caps memory/swap at2GiB, CPU at
+two cores and PIDs at256, disables restart/logging, and accepts no host-directory bind.
+The CLI group terminates at the first successful start; ENV observes health and the
+same instance's clean exit, then confirms removal of its container, fresh volume and
+only a bridge proven newly created by that acquisition. Existing matching bridges stay.
+
+```sh
+python3 platform/deployment/tests/qualify_startup.py --target platform/deployment/environments/kdg-local.json --run-id <UUID> --control pinned-cli-postgres
+```
+
+Acquisition retains its five-second budget. Execution/health has one120-second phase,
+shutdown15 seconds and cleanup10 seconds. Cleanup consumes one attempt; a failed or
+interrupted attempt cannot replay deletion or acquire a new budget. Requests/output are bounded; malformed or
+lost responses never authorize replay or adoption. Failed/ambiguous ownership can
+preserve resources for inspection; use only exact identities from that run's inventory,
+not broad cleanup. The qualifier is disposable execution proof, not public up/stop,
+SQL/domain readiness, initialized reuse/reset/recovery or full Supabase startup.
+The separate bootstrap control below remains the SQL/key semantic proof.
 
 The separate opt-in [PostgreSQL bootstrap qualification](ENV_POSTGRES_BOOTSTRAP_EVIDENCE.md)
 now demonstrates actual selected-image initialization and public synthetic key transfer

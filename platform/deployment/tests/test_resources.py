@@ -1267,3 +1267,201 @@ startup.owner_handoff = handoff
                         self.assertEqual(daemon.events, daemon.expected[:at])
                         self.assertEqual(daemon.connections, 1)
                         self.assertEqual(called, [])
+
+class ExecutionSupervisor(unittest.TestCase):
+    """Private socket/process integration; root runs these cases serially."""
+    setUp = Resources.setUp
+    assert_stopped = Resources.assert_stopped
+    source_with_descendant = Resources.source_with_descendant
+
+    def run_execution_case(self, scenario, *, runner=None):
+        import json
+        import sys
+        import tempfile
+        import time
+        from pathlib import Path
+        from unittest.mock import patch
+        import dev
+        import startup
+        from test_startup_lifecycle import Lifecycle
+        from test_pinned_execution import OwnerDaemon
+        import socketserver
+        import threading
+        import copy
+
+        # Existing independent in-memory descriptors back a real private Docker
+        # protocol peer; the production DockerSession owns all framing/closure.
+        engine = OwnerDaemon()
+        # Bind templates to this retained-owner harness's prepared UUID, which
+        # differs from the direct-owner fixture's independent default UUID.
+        target, run_id = self.owner.owner.target, self.owner.owner.args.run_id
+        network = {**proof.network_proof.expected_request(target, run_id),
+                   'Id': engine.network['Id'], 'Containers': {}, 'ConfigFrom': {'Network': ''}}
+        volume_request = proof.volume_proof.expected_request(target, run_id)
+        volume = {key: volume_request[key] for key in ['Name', 'Driver', 'Labels']}
+        volume.update(Scope='local', Options=None)
+        engine.network = engine.volume = None
+        connections, errors, injected, reached, created = [], [], [], [], []
+
+        def dispatch(method, path, body):
+            if path == '/version':
+                engine.events.append((method, path, body))
+                return 200, {'Os': 'linux', 'Version': '28.0.0'}
+            if method == 'POST' and path == '/v1.48/networks/create':
+                engine.events.append((method, path, body))
+                engine.network = copy.deepcopy(network)
+                return 201, {'Id': network['Id'], 'Warning': ''}
+            if method == 'POST' and path == '/v1.48/volumes/create':
+                engine.events.append((method, path, body))
+                engine.volume = copy.deepcopy(volume)
+                return 201, copy.deepcopy(volume)
+            result = engine.exchange(method, path, body)
+            if method == 'POST' and '/containers/create?' in path:
+                created.append(result[1]['Id'])
+            if '/archive?' in path and scenario.startswith('copy-') or path.endswith('/start') and not scenario.startswith('copy-'):
+                reached.append((method, path))
+            if scenario == 'post-start-health' and path.endswith('/start'):
+                engine.row['State']['Health']['Status'] = 'invalid'
+            return result
+
+        class Handler(socketserver.BaseRequestHandler):
+            def handle(peer):
+                connections.append(True)
+                peer.request.settimeout(5)
+                try:
+                    while True:
+                        data = b''
+                        while b'\r\n\r\n' not in data:
+                            piece = peer.request.recv(4096)
+                            if not piece:
+                                return
+                            data += piece
+                            if len(data) > 16384:
+                                raise ValueError()
+                        header, body = data.split(b'\r\n\r\n', 1)
+                        lines = header.split(b'\r\n')
+                        method, path, protocol = lines[0].decode().split(' ')
+                        fields = dict(line.lower().split(b':', 1) for line in lines[1:])
+                        size = int(fields.get(b'content-length', b'0'))
+                        if size > 16384 or protocol != 'HTTP/1.1':
+                            raise ValueError()
+                        while len(body) < size:
+                            piece = peer.request.recv(4096)
+                            if not piece:
+                                raise ValueError()
+                            body += piece
+                        if len(body) != size:
+                            raise ValueError()
+                        payload = body if b'application/x-tar' in fields.get(b'content-type', b'') else dev.decode(body) if body else None
+                        status, result = dispatch(method, path, payload)
+                        target = ('/archive?' in path if scenario.startswith('copy-') else
+                                  path.endswith('/start') if scenario.startswith('start-') else False)
+                        if target:
+                            injected.append((method, path))
+                            if scenario.endswith('-malformed'):
+                                peer.request.sendall(b'HTTP/1.1 200 Result\r\nContent-Length: 1\r\n\r\nx')
+                            return
+                        raw = b'' if result is None and status in (200, 204) else json.dumps(result).encode()
+                        peer.request.sendall((f'HTTP/1.1 {status} Result\r\nContent-Length: {len(raw)}\r\n\r\n').encode()+raw)
+                except (OSError, ValueError, dev.Refusal):
+                    errors.append('private_peer_failure')
+
+        selected_runner = runner or startup.guarded_fixture_command
+        cleanup = resources.FreshGuard.cleanup_execution
+        calls, guards, pids = [], [], []
+        def record_cleanup(guard, *args, **kwargs):
+            entry = {'at': time.monotonic(), 'closed': guard.session.closed}
+            calls.append(entry)
+            try:
+                return cleanup(guard, *args, **kwargs)
+            finally:
+                entry.update(deadline=guard.deadline, duration=time.monotonic()-entry['at'])
+        def observe(*args):
+            guards.append(args[-1])
+            try:
+                return selected_runner(*args)
+            finally:
+                pids.extend(json.loads((args[1] / 'tmp/processes.json').read_text()))
+                self.assertFalse((args[1] / 'forbidden_after_start').exists())
+
+        with tempfile.TemporaryDirectory(prefix='env-execution-process-') as directory:
+            root = Path(directory)
+            path = str(root / 'daemon.sock')
+            executable = root / 'supabase'
+            executable.write_text('#!'+sys.executable+'\n'+self.source_with_descendant(Lifecycle().process_source()))
+            executable.chmod(0o700)
+            with socketserver.UnixStreamServer(path, Handler) as server:
+                thread = threading.Thread(target=server.serve_forever, kwargs={'poll_interval': .01}, daemon=True)
+                thread.start()
+                try:
+                    with patch.object(startup, 'guarded_fixture_command', side_effect=observe), \
+                            patch.object(resources.FreshGuard, 'cleanup_execution', new=record_cleanup), \
+                            patch.object(dev, 'free_ports'):
+                        with self.assertRaises(dev.Refusal) as caught:
+                            startup.synthetic_probe(executable, self.owner.owner.target, self.owner.owner.args.run_id,
+                                    control='fresh-pinned-cli-postgres',
+                                    selection_plan=startup.existing_images(self.owner.owner.args)[1],
+                                    image_observations=self.owner.expected,
+                                    _guarded_target=(self.owner.owner.args.target, path))
+                finally:
+                    server.shutdown()
+                    thread.join(timeout=1)
+
+        diagnostic = {'scenario': scenario, 'code': caught.exception.code,
+                      'phase': guards[0].phase if guards else None,
+                      'events': [(m, p) for m, p, _ in engine.events]}
+        self.assertEqual(created, ['a'*64], diagnostic)
+        self.assertEqual(len(reached), 1, diagnostic)
+        self.assertEqual(caught.exception.code,
+                         'execution_invalid_health' if scenario == 'post-start-health' else 'execution_cleanup_unresolved',
+                         diagnostic)
+        self.assertEqual(len(guards), 1, diagnostic)
+        self.assertEqual(len(calls), 1, 'automatic owner cleanup was not invoked exactly once; '+str(diagnostic))
+        guard = guards[0]
+        self.assertTrue(guard.cleanup_attempted)
+        self.assertAlmostEqual(calls[0]['deadline'] - calls[0]['at'], 10, delta=.1)
+        self.assertLess(calls[0]['duration'], 10.1)
+        self.assertEqual(len(connections), 1)
+        self.assertEqual(errors, [])
+        self.assertEqual(len(pids), 2)
+        self.assert_stopped(pids)
+        self.assertEqual(sum('/archive?' in p for _, p, _ in engine.events), 1)
+        self.assertEqual(sum(p.endswith('/start') for _, p, _ in engine.events), 0 if scenario.startswith('copy-') else 1)
+        deletes = [(m, p) for m, p, _ in engine.events if m == 'DELETE']
+        if scenario == 'post-start-health':
+            self.assertEqual(caught.exception.code, 'execution_invalid_health')
+            self.assertTrue(guard.cleaned)
+            self.assertFalse(calls[0]['closed'])
+            self.assertEqual(len(deletes), 3)
+            self.assertTrue(deletes[0][1].endswith('?force=true'))
+            self.assertIsNone(engine.row)
+            self.assertIsNone(engine.volume)
+            self.assertIsNone(engine.network)
+        else:
+            self.assertEqual(caught.exception.code, 'execution_cleanup_unresolved')
+            self.assertEqual(len(injected), 1)
+            self.assertTrue(calls[0]['closed'])
+            self.assertFalse(guard.cleaned)
+            self.assertEqual(deletes, [])
+            self.assertIsNotNone(engine.row)
+            self.assertIsNotNone(engine.volume)
+            self.assertIsNotNone(engine.network)
+
+    def test_execution_post_start_failure_automatically_cleans_once_and_terminates_descendants(self):
+        self.run_execution_case('post-start-health')
+
+    def test_execution_uncertain_archive_start_preserves_closed_peer_without_replay(self):
+        for scenario in ['copy-lost', 'copy-malformed', 'start-lost', 'start-malformed']:
+            with self.subTest(scenario=scenario):
+                self.run_execution_case(scenario)
+
+    def test_execution_missing_supervisor_finally_cleanup_is_detected(self):
+        import inspect
+        import startup
+        source = inspect.getsource(startup.guarded_fixture_command)
+        self.assertEqual(source.count('                guard.cleanup_execution()'), 1)
+        namespace = {}
+        exec(compile(source.replace('                guard.cleanup_execution()', '                pass'),
+                     '<supervisor-cleanup-removal-mutation>', 'exec'), startup.__dict__, namespace)
+        with self.assertRaisesRegex(AssertionError, 'automatic owner cleanup was not invoked exactly once'):
+            self.run_execution_case('post-start-health', runner=namespace['guarded_fixture_command'])

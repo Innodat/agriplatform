@@ -326,3 +326,60 @@ coverage fixed. Two existing intermittent guard failures from earlier full attem
 remain separately deferred, with failed evidence retained; passing reruns do not
 explain them. Final actual `up` exits2 runtime_adapter_unqualified. This bounded
 shutdown Build is closed; enclosing ENV/P1/SERVICE readiness remains partial.
+
+## Latest continuation — guarded actual pinned-CLI PostgreSQL, 2026-10-17
+
+The [pinned-CLI execution Build](../../../_bmad-output/implementation-artifacts/spec-env-pinned-cli-postgres-execution.md)
+extends the existing retained ENV owners through the CLI's first actual PostgreSQL
+create/copy/start on its fresh run-owned named volume. The bounded profile uses the
+approved immutable image, loopback port and resource caps. It verifies health and the
+same instance's clean shutdown, then removes its container/volume and only a bridge
+proven newly created. Existing matching bridges are preserved. Ambiguous ownership
+or responses refuse; cleanup consumes one attempt without replay or budget reset.
+
+Pre-final source run `6254efd8-e0db-42c0-92e8-b506fb24eea4` passes preparation/toolchain/images
+and the real control (83.893s): container_executed, named_volume_verified,
+healthy_verified, shutdown_verified, cleanup_verified and first_start_only true;
+forced_shutdown=false, runtime_ready=false. The CLI group deliberately ends at its
+first executed start. Existing actual bootstrap (28.459s) and guarded-fresh (67.063s)
+controls also pass; all13 retained files and running inventory remain unchanged for
+each proof. Public `up` still exits2 runtime_adapter_unqualified. See
+[requirement-to-test evidence](../../../platform/deployment/ENV_PINNED_CLI_EXECUTION_EVIDENCE.md)
+for exact commands, retained earlier refusals, final regression and review disposition.
+
+Next ENV gates remain initialized-volume reuse/reset/recovery, whole-stack execution,
+owner migrations/fixtures/current authorization, public stop/verify and provider/device
+topology, plus existing P1/SERVICE scaffold acceptance. This proof establishes fresh
+disposable execution continuity; it does not establish durable reuse or full admission.
+Keep Identity/Access/WRITE and server-backed KDG gated. Preserve the exact approved
+baseline including TypeScript7.0.2, current schema/client/generator/test/runbook owners,
+and concurrent Leave/PtS documents. No Leave/editor, production migration, app account/
+grant, infrastructure provisioning, deployment or real-data pilot work was performed.
+
+Final transport correction preserves the older one-shot helper rejection: new
+execution routes require the retained owner session. Corrected source run
+`ce618f1e-95f2-4920-af03-afd9a2b973a4` passes fresh preparation/toolchain/images,
+actual pinned-CLI execution72.656s, existing bootstrap35.085s and guarded-fresh88.209s.
+Each preserves13 retained files and running inventory. Root25 focused tests and
+494-test full deployment regression pass; prior explained493-test transport failure
+is retained. The two older intermittent guard investigations remain deferred.
+Three independent BMAD review layers are next; full runtime remains gated.
+
+Independent three-layer review completed. Required endpoint-alias checks and automatic
+supervisor failure verification were patched; per-finding dispositions are in the Build
+spec. Root27 focused tests and3 integrated process tests pass, including detection of a
+removed cleanup invocation and closed-peer no-replay/preservation cases. Initial
+integration fixture UUID mismatch was corrected without production behavior changes.
+No new deferred item. Final reviewed-source run
+`2a794d89-260c-4b4c-a8dc-34c7650fc2dc` passes fresh preparation/toolchain/images,
+actual pinned-CLI execution63.366s, bootstrap31.555s and guarded-fresh68.506s;
+each preserves13 retained files and running inventory. All25 proof-bound source files
+and concurrent Leave/PtS document/index entries match their retained hashes. Public
+up remains exit2 runtime_adapter_unqualified; final regression closeout follows.
+
+Reviewed-source closeout: **499 deployment tests PASS342.433s**, with durable result
+and log hashes in the evidence. All three review layers and root patch verification
+are complete; no new deferred item. The two earlier intermittent guard investigations
+remain open. This bounded pinned-CLI execution Build is closed. Continue the remaining
+durable-volume/whole-stack/environment and P1/SERVICE scaffold gates listed above;
+no dependent application or service delivery starts from this result alone.

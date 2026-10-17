@@ -403,17 +403,35 @@ def _docker_volume_use_route(path):
     return re.fullmatch(r'/v1\.48/containers/json\?all=true&filters=%7B%22volume%22%3A%5B%22supabase_db_agriplatform-kdg-[A-Za-z0-9_-]{22}%22%5D%7D', path) is not None
 
 
+def _docker_disposable_create(body):
+    if type(body) is not dict or type(body.get('HostConfig')) is not dict:
+        return False
+    expected = {'Memory': 2147483648, 'MemorySwap': 2147483648, 'NanoCpus': 2000000000,
+                'PidsLimit': 256, 'Privileged': False,
+                'RestartPolicy': {'Name': 'no', 'MaximumRetryCount': 0},
+                'LogConfig': {'Type': 'none', 'Config': {}}}
+    host = body['HostConfig']
+    return all(type(host.get(k)) is type(v) and host[k] == v for k, v in expected.items())
+
+
 def _docker_request(method, path, body, persistent):
     if not ((method == 'GET' and body is None and (path == '/version'
             or _docker_volume_use_route(path)
+            or persistent and re.fullmatch(r'/v1\.48/containers/[0-9a-f]{64}/json', path)
+            or persistent and re.fullmatch(r'/v1\.48/containers/supabase_db_agriplatform-kdg-[A-Za-z0-9_-]{22}/json', path)
             or re.fullmatch(r'/v1\.48/(?:networks|volumes)/[A-Za-z0-9_-]{1,128}', path)
             or re.fullmatch(r'/v1\.48/images/(?:public\.ecr\.aws/supabase/(?:postgres|gotrue|postgrest|kong)@)?sha256:[0-9a-f]{64}/json', path)))
             or (method == 'POST' and path in ['/v1.48/networks/create', '/v1.48/volumes/create'] and type(body) is dict)):
-        refuse('docker', 'docker_request_invalid')
-    payload = b'' if body is None else json.dumps(body, sort_keys=True, separators=(',', ':')).encode()
+        if not persistent or not ((method == 'POST' and _docker_disposable_create(body) and re.fullmatch(r'/v1\.48/containers/create\?name=supabase_db_agriplatform-kdg-[A-Za-z0-9_-]{22}&platform=linux%2Famd64', path))
+                or (method == 'PUT' and type(body) is bytes and re.fullmatch(r'/v1\.48/containers/[0-9a-f]{64}/archive\?path=%2F', path))
+                or (method == 'POST' and body is None and re.fullmatch(r'/v1\.48/containers/[0-9a-f]{64}/(?:start|stop\?t=5)', path))
+                or (method == 'DELETE' and body is None and (re.fullmatch(r'/v1\.48/containers/[0-9a-f]{64}\?force=(?:true|false)', path)
+                    or re.fullmatch(r'/v1\.48/(?:networks/[0-9a-f]{64}|volumes/supabase_db_agriplatform-kdg-[A-Za-z0-9_-]{22})', path)))):
+            refuse('docker', 'docker_request_invalid')
+    payload = b'' if body is None else body if type(body) is bytes else json.dumps(body, sort_keys=True, separators=(',', ':')).encode()
     request = (method + ' ' + path + ' HTTP/1.1\r\nHost: localhost\r\nConnection: ' + ('keep-alive' if persistent else 'close') + '\r\n').encode()
     if body is not None:
-        request += b'Content-Type: application/json\r\nContent-Length: ' + str(len(payload)).encode() + b'\r\n'
+        request += (b'Content-Type: application/x-tar\r\n' if type(body) is bytes else b'Content-Type: application/json\r\n') + b'Content-Length: ' + str(len(payload)).encode() + b'\r\n'
     request += b'\r\n' + payload
     if len(request) > 16384:
         refuse('docker', 'docker_request_invalid')
@@ -423,6 +441,42 @@ def _docker_request(method, path, body, persistent):
 def _docker_response(stream, budget, deadline, persistent, path):
     def invalid():
         refuse('docker', 'docker_response_invalid')
+
+    def chunked(raw, header_size):
+        payload, consumed, chunks = bytearray(), 0, 0
+        def more():
+            nonlocal raw
+            budget()
+            piece = stream.recv(4096)
+            if time.monotonic() >= deadline:
+                refuse('docker', 'docker_timeout')
+            if not piece or header_size + consumed + len(raw) + len(piece) > 65536:
+                invalid()
+            raw += piece
+        while True:
+            while b'\r\n' not in raw:
+                if len(raw) > 5:
+                    invalid()
+                more()
+            line, raw = raw.split(b'\r\n', 1)
+            if not re.fullmatch(rb'[0-9a-fA-F]{1,5}', line):
+                invalid()
+            size = int(line, 16)
+            chunks += 1
+            consumed += len(line) + 2
+            if chunks > 4096 or size > 65536 - header_size - consumed:
+                invalid()
+            while len(raw) < size + 2:
+                more()
+            if raw[size:size+2] != b'\r\n':
+                invalid()
+            payload.extend(raw[:size])
+            raw = raw[size+2:]
+            consumed += size + 2
+            if size == 0:
+                if raw:
+                    invalid()
+                return bytes(payload)
 
     data = b''
     length = body_start = None
@@ -452,12 +506,22 @@ def _docker_response(stream, budget, deadline, persistent, path):
                         or any(byte < 32 and byte != 9 or byte == 127 for byte in value)):
                     invalid()
                 fields[name] = value.strip()
-            if (b'transfer-encoding' in fields or b'content-encoding' in fields
-                    or not re.fullmatch(rb'[0-9]{1,5}', fields.get(b'content-length', b''))):
+            is_chunked = b'transfer-encoding' in fields
+            if is_chunked and (fields[b'transfer-encoding'] != b'chunked' or b'content-length' in fields or status == 204):
+                invalid()
+            if status == 204 and b'content-length' not in fields:
+                fields[b'content-length'] = b'0'
+            if (b'content-encoding' in fields
+                    or not is_chunked and not re.fullmatch(rb'[0-9]{1,5}', fields.get(b'content-length', b''))):
                 invalid()
             if persistent and (not lines[0].startswith(b'HTTP/1.1 ')
                     or b'close' in [token.strip().lower() for token in fields.get(b'connection', b'').split(b',')]):
                 invalid()
+            if is_chunked:
+                body_start = len(header) + 4
+                payload = chunked(data[body_start:], body_start)
+                data, length = data[:body_start] + payload, len(payload)
+                break
             length, body_start = int(fields[b'content-length']), len(header) + 4
             if not 0 <= length <= 65536 - body_start:
                 invalid()
@@ -465,6 +529,10 @@ def _docker_response(stream, budget, deadline, persistent, path):
             if len(data) != body_start + length:
                 invalid()
             break
+    if status in (200, 204) and length == 0 and re.fullmatch(r'/v1\.48/(?:containers/[0-9a-f]{64}/(?:archive\?path=%2F|start|stop\?t=5)|containers/[0-9a-f]{64}\?force=(?:true|false)|networks/[0-9a-f]{64}|volumes/supabase_db_agriplatform-kdg-[A-Za-z0-9_-]{22})', path):
+        return status, None
+    if status == 204:
+        invalid()
     if status not in (200, 201):
         return status, None
     try:

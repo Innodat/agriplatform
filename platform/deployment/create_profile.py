@@ -131,3 +131,13 @@ def execution_request(args, fixture, inherited):
     """
     validate(args, fixture, inherited)
     return _execution_request(fixture)
+
+
+def disposable_execution_request(args, fixture, inherited):
+    """Validate original CLI inputs, then explicitly tighten disposable execution."""
+    body = execution_request(args, fixture, inherited)
+    host = body['body']['HostConfig']
+    host.update(RestartPolicy={'Name': 'no', 'MaximumRetryCount': 0},
+                Memory=2147483648, MemorySwap=2147483648, NanoCpus=2000000000,
+                PidsLimit=256, LogConfig={'Type': 'none', 'Config': {}}, Privileged=False)
+    return body

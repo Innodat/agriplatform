@@ -163,7 +163,7 @@ def invocation(target_path, run_id, executable, work, *, _socket_path='/var/run/
                    _handoff=lambda target, network: startup.invocation(executable, work, target, run_id, network))
 
 
-def acquire_session(target, run_id, session, current):
+def acquire_session(target, run_id, session, current, *, _created=None):
     """Validated owner algorithm on the caller's guarded connection and budget."""
     def exchange(method, suffix, body=None):
         current()
@@ -192,6 +192,8 @@ def acquire_session(target, run_id, session, current):
             network = inspect(created_id)
             if network is None or network['Id'] != created_id:
                 fail('network_replaced')
+            if _created is not None:
+                _created.append(created_id)
         else:
             fail('network_create_failed')
     network_id = network['Id']

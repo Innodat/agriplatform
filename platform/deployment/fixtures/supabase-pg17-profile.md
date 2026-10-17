@@ -222,3 +222,69 @@ latches refusal: even a later matching descriptor cannot authorize stop or delet
 in that execution. Uncertain ownership, failed removal or failed absence observation
 reports `cleanup_unresolved`. No container adoption/replay, durable storage or real
 CLI transport/runtime admission is added.
+
+
+## Explicit pinned CLI named-volume execution
+
+The `pinned-cli-postgres` startup qualifier alone extends the retained ENV owner
+through the actual CLI's first create/archive/start. Default controls retain the
+synthetic acknowledgements and refused start. Original ordered CLI operands and
+four public environment inputs pass the existing exact profile validator before
+immutable image selection and owner dispatch. The disposable API profile tightens
+CLI defaults deliberately: loopback-only selected database port, memory and swap
+2 GiB, two CPUs, 256 PIDs, logging `none`, restart `no`, no privileged mode. The
+approved bootstrap/key, run-owned bridge and freshly created named volume remain.
+The database port is checked again immediately before creation; Docker's selected
+loopback binding must succeed rather than falling back to another address/port.
+
+The five-second acquisition phase remains. One explicit transition grants at most
+120 seconds for CLI dispatch and same-instance running/healthy observations, then
+15 seconds for strict observed shutdown and an independent ten-second cleanup.
+Each phase uses one total deadline on the retained peer, never per-request resets.
+The first successful owner start terminates the CLI process group before any
+subsequent service command. Only the actual recorded container ID can receive the
+validated archive/start; phases are consumed before uncertain mutations. No retry,
+reconnect, adoption, owner SQL or full-stack activation is introduced.
+
+The owner rechecks source/executable/fixture/listener/run-lock custody, immutable
+image descriptors, current bridge/volume identity and sole container volume use.
+Container inspection checks effective image defaults plus approved overrides,
+mount/network/port/resource controls, including both requested database aliases on
+the recorded endpoint. Docker-added endpoint names may remain. Identity loss permanently revokes cleanup
+permission. Cleanup removes only the recorded container, confirmed newly created
+volume and, when its creation response was confirmed in this acquisition, bridge.
+An existing matching bridge is retained. Uncertain creation/ownership/transport
+preserves unresolved resources and refuses rather than fabricating success.
+
+Docker API 1.48 responses support bounded Content-Length or strict chunked framing
+on the existing closed transport: no ambiguous CL+TE, chunk extensions, trailers,
+content encodings, extra/trailing bytes, reconnect or replay. Empty lifecycle
+successes are route-specific. Running/healthy named-volume execution proves neither
+SQL semantics, durable reuse/recovery, Auth nor environment admission; every result
+keeps `runtime_ready=false`.
+
+
+Created-state network observations follow Docker's staged attachment: immediately
+after create, the verified network-name entry may have an empty `NetworkID` before
+network allocation at start. Only a never-started `created` container with Running,
+Dead and OOMKilled false, PID/exit/restart count zero, empty Error and both zero UTC
+start/finish timestamps may use this pending value, and only before this execution
+attempts start. The immutable `HostConfig.NetworkMode` ID and current run-owned
+bridge checks remain exact throughout. Foreign nonempty IDs always refuse; after
+start is attempted, running and stopped observations require the recorded network
+ID. An empty pending value does not prove an attached or running network.
+
+
+Private handoff envelopes preserve the CLI's phase-specific environment boundary:
+create alone carries and validates all four public container inputs plus exact
+Docker routing. Copy/start carry only exact `DOCKER_HOST`/`DOCKER_CONFIG` routing
+inputs; they do not inherit or retransmit create's command-specific container
+inputs. Unexpected Docker routing overrides refuse in every phase. Original
+create operands and inputs remain validated before any owner create dispatch.
+
+
+Cleanup consumes its single independent ten-second budget before any inspection
+or mutation. Success, uncertainty, timeout or interruption cannot authorize a
+second attempt, repeat a delete, or restart that deadline. The CLI supervisor's
+finally path starts owned cleanup only if that execution has not attempted it;
+a failed cleanup preserves its original failure and unresolved-resource evidence.
