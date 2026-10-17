@@ -425,3 +425,41 @@ def qualify_bootstrap(args):
         bootstrap_fail('source_changed')
     dev.validate_prepared(target, raw, args.run_id, path, sources)
     return result
+
+
+def persistence_exec(run_id, mode):
+    """Closed UUID-bound predicates: false/NULL is an SQL error, never a success row."""
+    import uuid
+    import create_profile
+    try:
+        valid = str(uuid.UUID(run_id)) == run_id
+    except (ValueError, TypeError, AttributeError):
+        valid = False
+    if not valid or mode not in ('write', 'verify', 'schemas'):
+        refuse()
+    predicate = ("(SELECT array_agg(version ORDER BY version) = ARRAY['20210809183423_update_grants','initial'] "
+                 "FROM supabase_functions.migrations) AND current_setting('app.settings.jwt_secret') = '"
+                 + create_profile.CONTAINER_ENV['JWT_SECRET'] + "' AND current_setting('app.settings.jwt_exp') = '3600'")
+    marker = ('env_persistence_probe')
+    if mode == 'schemas':
+        query = "DO $$ BEGIN IF (SELECT count(*) = 2 FROM pg_namespace WHERE nspname IN ('_analytics','_supavisor')) IS NOT TRUE THEN RAISE EXCEPTION 'initialization predicate failed'; END IF; END $$;"
+    else:
+        prefix = ("BEGIN; CREATE TABLE public." + marker + " (run_id uuid PRIMARY KEY, system_identifier text NOT NULL); "
+                  "INSERT INTO public." + marker + " SELECT '" + run_id + "'::uuid, system_identifier::text FROM pg_control_system(); ") if mode == 'write' else 'BEGIN; '
+        query = prefix + "DO $$ BEGIN IF (" + predicate + ") IS NOT TRUE OR (SELECT count(*) = 1 AND bool_and(run_id = '" + run_id + "'::uuid AND system_identifier = (SELECT system_identifier::text FROM pg_control_system())) FROM public." + marker + ") IS NOT TRUE THEN RAISE EXCEPTION 'persistence predicate failed'; END IF; END $$; COMMIT;"
+    return {'AttachStdin': False, 'AttachStdout': False, 'AttachStderr': False,
+            'Tty': False, 'Privileged': False, 'User': 'postgres', 'Env': ['PGPASSWORD=postgres'],
+            'Cmd': ['psql', '-X', '-A', '-t', '-v', 'ON_ERROR_STOP=1', '-h', '127.0.0.1',
+                    '-U', 'postgres', '-d', '_supabase' if mode == 'schemas' else 'postgres', '-c', query]}
+
+
+def valid_persistence_exec(body):
+    if type(body) is not dict or type(body.get('Cmd')) is not list or not body['Cmd']:
+        return False
+    # Rebuild from the only caller-controlled value, a canonical UUID in closed SQL.
+    candidates = re.findall(r"[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}", str(body['Cmd'][-1]))
+    for run_id in candidates or ['00000000-0000-0000-0000-000000000000']:
+        if any(body == persistence_exec(run_id, mode) and all(type(body.get(k)) is type(v) for k, v in persistence_exec(run_id, mode).items())
+               for mode in ('write', 'verify', 'schemas')):
+            return True
+    return False

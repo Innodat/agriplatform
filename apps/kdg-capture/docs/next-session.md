@@ -383,3 +383,46 @@ are complete; no new deferred item. The two earlier intermittent guard investiga
 remain open. This bounded pinned-CLI execution Build is closed. Continue the remaining
 durable-volume/whole-stack/environment and P1/SERVICE scaffold gates listed above;
 no dependent application or service delivery starts from this result alone.
+
+## Latest continuation — retained-volume replacement proof, 2026-10-17
+
+The [PostgreSQL persistence Build](../../../_bmad-output/implementation-artifacts/spec-env-postgres-volume-persistence.md)
+extends the existing ENV owner within one fresh guarded operation. After actual CLI
+first create/copy/start, fixed SQL commits the public run UUID and cluster identifier.
+ENV verifies clean shutdown/removal of that container, retains its unchanged unused
+volume/bridge, then creates a distinct replacement with the same immutable profile
+and reinstalls the public root-key archive. Persisted marker/cluster and initialization
+predicates must pass before the second clean shutdown and final owned disposal.
+CLI first-start proof and owner recreation have separate result fields. This does
+not adopt volumes from earlier executions or qualify the CLI initialized-volume branch.
+
+Corrected-source run `629d85cd-8b2f-4d89-be97-357f577df9b0` passes fresh qualification
+and actual persistence113.812s; both clean exits and final cleanup verified, all13
+retained files and running inventory unchanged, runtime_ready=false. First actual
+attempt exposed Docker null pre-start exec ExitCode semantics; primary-source
+characterization fixed it while retaining strict completed integer-zero checks.
+Root42 focused tests and5 process tests pass; earlier attempts remain retained.
+A separately qualified wrong-marker run `1f53baff-a153-488e-b755-9be00060f07d`
+returns expected execution_sql_failed56.569s after write/schemas/verify, with verified
+owned cleanup and no persistence claim. Registry-refused/interrupted preparations
+are preserved rather than repaired. See [requirement/test evidence](../../../platform/deployment/ENV_POSTGRES_PERSISTENCE_EVIDENCE.md).
+Existing pinned-CLI execution, bootstrap and guarded-fresh controls pass; public up
+still refuses runtime_adapter_unqualified. Full516 deployment tests PASS348.807s.
+Three-layer review completed; focused patches pass47 tests. Fresh707b9ed0 actual
+PostgreSQL check proves seven corrupt-state predicate rejections and rejects a
+persisted wrong cluster with correct UUID (execution_sql_failed51.934s), with owned
+cleanup and unchanged receipts/inventory. Final post-patch regression is pending.
+
+Keep cross-execution volume admission/reconciliation, full CLI/stack runtime, owner
+migrations/fixtures/current authorization, public lifecycle/recovery, provider/device
+and existing P1/SERVICE scaffold acceptance open. Identity/Access/WRITE/server KDG
+remain gated. Preserve TypeScript7.0.2, current owners and concurrent Leave/PtS work.
+No Leave/editor, product migration/account/grant, infrastructure provisioning,
+deployment, backup/recovery or real-data pilot claim follows from this bounded proof.
+
+Reviewed-source closeout: **521 deployment tests PASS320.764s**, including affected
+process fixtures and all six matrix rows. All three review layers and root patch
+verification are complete; no new deferred item. Production/profile source bindings
+and concurrent Leave/PtS document/index hashes remain unchanged. The two earlier
+intermittent guard investigations stay open. This bounded persistence Build is closed;
+continue the remaining environment and existing-owner P1/SERVICE gates above.

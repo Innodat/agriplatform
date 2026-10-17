@@ -629,3 +629,509 @@ class EndpointAliases(unittest.TestCase):
         self.assertEqual(endpoint['Aliases'][:2], ['db', 'db.supabase.internal'])
         self.assertEqual(len(endpoint['Aliases']), 4)
         daemon.guard.owned()
+
+class PersistenceAcceptance(unittest.TestCase):
+    def test_distinct_owner_recreation_proves_same_volume_marker_and_clean_disposal(self):
+        daemon = PersistenceDaemon()
+        daemon.dispatch_cli()
+        with patch.object(dev, 'free_ports'):
+            daemon.guard.finish_execution()
+        self.assertTrue(daemon.guard.persistence_verified)
+        self.assertEqual(daemon.creates, 2)
+        self.assertEqual(daemon.sql_modes, ['write', 'schemas', 'verify', 'schemas'])
+        self.assertTrue(daemon.guard.cleaned)
+        self.assertIsNone(daemon.volume)
+        deletes = [p for m, p, _ in daemon.events if m == 'DELETE' and '/containers/' in p]
+        self.assertEqual(deletes, ['/v1.48/containers/'+'a'*64+'?force=false',
+                                   '/v1.48/containers/'+'c'*64+'?force=false'])
+
+class PersistenceDaemon(OwnerDaemon):
+    def __init__(self):
+        super().__init__()
+        self.creates = 0
+        self.sql_modes = []
+        self.executed_sql_modes = []
+        self.exec_body = None
+        self.exec_id = None
+        self.exec_started = False
+        self.exec_exit = None
+        self.marker = None
+        self.cluster = 'synthetic-postgres-cluster-1'
+        self.initialization_markers = True
+        self.guard.enable_persistence()
+
+    def exchange(self, method, path, body=None):
+        if path.endswith('/exec'):
+            self.events.append((method, path, self.copy(body)))
+            self.exec_body = body
+            # Independent PostgreSQL model: writes commit only on exec-start;
+            # recreation preserves volume facts, while predicates can fail.
+            query = body['Cmd'][-1]
+            mode = ('schemas' if body['Cmd'][body['Cmd'].index('-d') + 1] == '_supabase'
+                    else 'write' if 'CREATE TABLE' in query else 'verify')
+            self.sql_modes.append(mode)
+            self.exec_started, self.exec_exit = False, None
+            self.exec_id = format(len(self.sql_modes) + 10, '064x')
+            return 201, {'Id': self.exec_id}
+        if path.startswith('/v1.48/exec/'):
+            self.events.append((method, path, self.copy(body)))
+            if path.endswith('/start'):
+                self.exec_started = True
+                mode = self.sql_modes[-1]
+                self.executed_sql_modes.append(mode)
+                expected = (self.fixture['run_id'], self.cluster)
+                write_valid = mode == 'write' and self.marker is None
+                self.exec_exit = 0 if self.initialization_markers and (write_valid or mode == 'schemas' or mode == 'verify' and self.marker == expected) else 1
+                if write_valid and self.exec_exit == 0:
+                    self.marker = expected
+                return 200, None
+            return 200, {'ID': self.exec_id, 'ContainerID': self.row['Id'], 'Running': False,
+                         'ExitCode': self.exec_exit, 'Pid': 321 if self.exec_started else 0,
+                         'ProcessConfig': {'entrypoint': 'psql', 'arguments': self.exec_body['Cmd'][1:],
+                                           'privileged': False, 'tty': False, 'user': 'postgres'}}
+        result = super().exchange(method, path, body)
+        if '/containers/create?' in path:
+            self.creates += 1
+            if self.creates == 2:
+                self.row['Id'] = 'c'*64
+                result = 201, {'Id': 'c'*64, 'Warnings': []}
+        if path.endswith('/json') and '/containers/' in path and self.row is not None:
+            reference = path.split('/containers/')[1][:-5]
+            if reference in ['a'*64, 'c'*64] and reference != self.row['Id']:
+                return 404, None
+        return result
+
+class PersistenceFailureMatrix(unittest.TestCase):
+    def run_owner(self, daemon):
+        daemon.dispatch_cli()
+        with patch.object(dev, 'free_ports'):
+            daemon.guard.finish_execution()
+
+    def test_closed_sql_and_detached_routes_refuse_every_changed_operand(self):
+        import startup_lifecycle as lifecycle
+        import copy
+        run = boundary_fixture()['run_id']
+        for mode in ['write', 'verify', 'schemas']:
+            body = lifecycle.persistence_exec(run, mode)
+            path = '/v1.48/containers/'+'a'*64+'/exec'
+            self.assertIn(b'keep-alive', dev._docker_request('POST', path, body, True))
+            self.assertIn('IS NOT TRUE', body['Cmd'][-1])
+            with self.assertRaises(dev.Refusal):
+                dev._docker_request('POST', path, body, False)
+            for key, value in [('AttachStdout', True), ('AttachStderr', True), ('AttachStdin', True),
+                               ('Tty', True), ('Privileged', True), ('User', 'root'), ('Env', []),
+                               ('Cmd', ['psql', '-c', 'SELECT true']), ('AttachStdout', 0)]:
+                changed = copy.deepcopy(body)
+                changed[key] = value
+                with self.subTest(mode=mode, key=key), self.assertRaises(dev.Refusal):
+                    dev._docker_request('POST', path, changed, True)
+        write = lifecycle.persistence_exec(run, 'write')['Cmd'][-1]
+        verify = lifecycle.persistence_exec(run, 'verify')['Cmd'][-1]
+        self.assertIn('COMMIT;', write)
+        self.assertIn('pg_control_system()', verify)
+        self.assertIn(run, verify)
+        self.assertNotIn('CREATE', verify)
+        for body in [{'Detach': False, 'Tty': False}, {'Detach': True, 'Tty': True},
+                     {'Detach': 1, 'Tty': False}, {'Detach': True, 'Tty': False, 'extra': False}]:
+            with self.assertRaises(dev.Refusal):
+                dev._docker_request('POST', '/v1.48/exec/'+'d'*64+'/start', body, True)
+
+    def test_sql_nonzero_and_malformed_exec_cannot_prove_persistence(self):
+        mutations = [lambda r: r.update(ExitCode=1), lambda r: r.update(ExitCode=True),
+                     lambda r: r.update(ID='f'*64), lambda r: r.update(ContainerID='f'*64),
+                     lambda r: r.update(Running=None), lambda r: r.update(Pid=True),
+                     lambda r: r['ProcessConfig'].update(user='root'),
+                     lambda r: r['ProcessConfig'].update(arguments=['-c', 'SELECT true'])]
+        for mutation in mutations:
+            daemon = PersistenceDaemon()
+            exchange = daemon.exchange
+            def changed(method, path, body=None):
+                status, row = exchange(method, path, body)
+                if path.startswith('/v1.48/exec/') and path.endswith('/json'):
+                    mutation(row)
+                return status, row
+            daemon.exchange = changed
+            with self.subTest(mutation=mutation), self.assertRaises(dev.Refusal):
+                self.run_owner(daemon)
+            self.assertFalse(daemon.guard.persistence_verified)
+            self.assertFalse(any('/exec/' in p and p.endswith('/start') for _, p, _ in daemon.events))
+            daemon.guard.cleanup_execution()
+            self.assertTrue(daemon.guard.cleaned)
+
+    def test_lost_marker_or_cluster_nonzero_after_replacement_fails_without_repair(self):
+        for defect in ['marker', 'cluster', 'initialization']:
+            daemon = PersistenceDaemon()
+            exchange = daemon.exchange
+            def missing(method, path, body=None):
+                result = exchange(method, path, body)
+                if '/containers/create?' in path and daemon.creates == 2:
+                    if defect == 'marker':
+                        daemon.marker = None
+                    elif defect == 'cluster':
+                        daemon.cluster = 'reinitialized-cluster'
+                    else:
+                        daemon.initialization_markers = False
+                return result
+            daemon.exchange = missing
+            with self.subTest(defect=defect), self.assertRaises(dev.Refusal) as caught:
+                self.run_owner(daemon)
+            self.assertEqual(caught.exception.code, 'execution_sql_failed')
+            self.assertEqual(daemon.sql_modes, ['write', 'schemas', 'verify'])
+            self.assertEqual(daemon.executed_sql_modes, ['write', 'schemas', 'verify'])
+            self.assertFalse(daemon.guard.persistence_verified)
+            daemon.guard.cleanup_execution()
+            self.assertTrue(daemon.guard.cleaned)
+
+    def test_uncertain_intermediate_remove_consumed_and_never_retried(self):
+        for failure in ['response', 'interruption']:
+            daemon = PersistenceDaemon()
+            exchange = daemon.exchange
+            def lost(method, path, body=None):
+                result = exchange(method, path, body)
+                if method == 'DELETE' and '/containers/' in path:
+                    if failure == 'interruption':
+                        raise KeyboardInterrupt()
+                    dev.refuse('docker', 'docker_response_invalid')
+                return result
+            daemon.exchange = lost
+            with self.subTest(failure=failure), self.assertRaises((dev.Refusal, KeyboardInterrupt)):
+                self.run_owner(daemon)
+            before, deadline = len(daemon.events), daemon.guard.deadline
+            with self.assertRaises(dev.Refusal):
+                daemon.guard.finish_execution()
+            with self.assertRaises(dev.Refusal):
+                daemon.guard.cleanup_execution()
+            self.assertEqual(len(daemon.events), before)
+            self.assertFalse(daemon.guard.cleaned)
+
+    def test_gap_foreign_reference_or_changed_volume_latches_custody_loss(self):
+        for defect in ['volume', 'network', 'reference']:
+            daemon = PersistenceDaemon()
+            exchange = daemon.exchange
+            def corrupt(method, path, body=None):
+                result = exchange(method, path, body)
+                if method == 'DELETE' and '/containers/' in path:
+                    if defect == 'volume':
+                        daemon.volume['Labels']['foreign'] = 'changed'
+                    elif defect == 'network':
+                        daemon.network['Containers'] = {'f'*64: {}}
+                if defect == 'reference' and daemon.guard.old_container_id and '/containers/json?' in path:
+                    return 200, [{'Id': 'f'*64}]
+                return result
+            daemon.exchange = corrupt
+            with self.subTest(defect=defect), self.assertRaises(dev.Refusal):
+                self.run_owner(daemon)
+            self.assertTrue(daemon.guard.ownership_lost)
+            self.assertEqual(daemon.creates, 1)
+            self.assertFalse(daemon.guard.cleaned)
+
+    def test_repeated_exec_and_finish_do_not_replay_or_reset_budget(self):
+        daemon = PersistenceDaemon()
+        daemon.dispatch_cli()
+        started = daemon.guard.healthy_instance()
+        daemon.guard.persistence_sql('write', started)
+        before, deadline = len(daemon.events), daemon.guard.deadline
+        with self.assertRaises(dev.Refusal):
+            daemon.guard.persistence_sql('write', started)
+        self.assertEqual(len(daemon.events), before)
+        self.assertEqual(daemon.guard.deadline, deadline)
+
+    def test_replacement_deadline_is_one_total_budget_and_failure_keeps_no_success(self):
+        clock = [0.0]
+        with patch.object(resources.time, 'monotonic', side_effect=lambda: clock[0]):
+            daemon = PersistenceDaemon()
+            exchange = daemon.exchange
+            def expire(method, path, body=None):
+                result = exchange(method, path, body)
+                if daemon.creates == 2 and path.endswith('/start') and '/containers/' in path:
+                    clock[0] = daemon.deadline + 1
+                return result
+            daemon.exchange = expire
+            with self.assertRaises(dev.Refusal) as caught:
+                self.run_owner(daemon)
+            self.assertEqual(caught.exception.code, 'docker_timeout')
+            self.assertFalse(daemon.guard.persistence_verified)
+            self.assertFalse(daemon.guard.cleaned)
+            daemon.guard.cleanup_execution()
+            self.assertTrue(daemon.guard.cleaned)
+
+class PersistenceUncertainty(unittest.TestCase):
+    def test_lost_or_malformed_replacement_create_never_adopts_or_replays(self):
+        for defect in ['lost', 'malformed', 'same-id']:
+            daemon = PersistenceDaemon()
+            exchange = daemon.exchange
+            def uncertain(method, path, body=None):
+                result = exchange(method, path, body)
+                if '/containers/create?' in path and daemon.creates == 2:
+                    if defect == 'lost':
+                        dev.refuse('docker', 'docker_response_invalid')
+                    return 201, {} if defect == 'malformed' else {'Id': 'a'*64, 'Warnings': []}
+                return result
+            daemon.exchange = uncertain
+            daemon.dispatch_cli()
+            with patch.object(dev, 'free_ports'), self.subTest(defect=defect), self.assertRaises(dev.Refusal):
+                daemon.guard.finish_execution()
+            self.assertIsNone(daemon.guard.container_id)
+            self.assertEqual(daemon.guard.phase, -1)
+            before = len(daemon.events)
+            with self.assertRaises(dev.Refusal):
+                daemon.guard.finish_execution()
+            with self.assertRaises(dev.Refusal):
+                daemon.guard.cleanup_execution()
+            self.assertEqual(len(daemon.events), before)
+            self.assertFalse(daemon.guard.persistence_verified)
+            self.assertFalse(daemon.guard.cleaned)
+            self.assertIsNotNone(daemon.volume)
+
+    def test_uncertain_exec_create_or_start_consumes_probe_before_dispatch(self):
+        for defect in ['create-lost', 'create-malformed', 'start-lost', 'start-malformed']:
+            daemon = PersistenceDaemon()
+            daemon.dispatch_cli()
+            started = daemon.guard.healthy_instance()
+            exchange = daemon.exchange
+            def uncertain(method, path, body=None):
+                result = exchange(method, path, body)
+                target = path.endswith('/exec') if defect.startswith('create') else '/exec/' in path and path.endswith('/start')
+                if target:
+                    if defect.endswith('lost'):
+                        dev.refuse('docker', 'docker_response_invalid')
+                    return (201, {}) if defect.startswith('create') else (500, None)
+                return result
+            daemon.exchange = uncertain
+            with self.subTest(defect=defect), self.assertRaises(dev.Refusal):
+                daemon.guard.persistence_sql('write', started)
+            before, deadline = len(daemon.events), daemon.guard.deadline
+            with self.assertRaises(dev.Refusal):
+                daemon.guard.persistence_sql('write', started)
+            self.assertEqual(len(daemon.events), before)
+            self.assertEqual(daemon.guard.deadline, deadline)
+            self.assertFalse(daemon.guard.persistence_verified)
+            daemon.guard.cleanup_execution()
+            self.assertTrue(daemon.guard.cleaned)
+
+    def test_exec_polling_rechecks_same_instance_and_never_restarts_budget(self):
+        for defect in ['restart', 'deadline', 'running-bool-exit']:
+            daemon = PersistenceDaemon()
+            daemon.dispatch_cli()
+            started = daemon.guard.healthy_instance()
+            exchange = daemon.exchange
+            inspections = [0]
+            def invalid(method, path, body=None):
+                result = exchange(method, path, body)
+                if '/exec/' in path and path.endswith('/json'):
+                    inspections[0] += 1
+                    if inspections[0] == 2:
+                        if defect == 'restart':
+                            daemon.row['State']['StartedAt'] = '2026-10-17T12:00:00.000000002Z'
+                        elif defect == 'deadline':
+                            daemon.deadline = 0
+                        else:
+                            result[1].update(Running=True, ExitCode=True)
+                return result
+            daemon.exchange = invalid
+            deadline = daemon.guard.deadline
+            with self.subTest(defect=defect), self.assertRaises(dev.Refusal):
+                daemon.guard.persistence_sql('write', started)
+            self.assertEqual(daemon.guard.deadline, deadline)
+            self.assertFalse(daemon.guard.persistence_verified)
+
+    def test_wrong_order_and_repeated_lifecycle_operands_refuse_without_dispatch(self):
+        daemon = PersistenceDaemon()
+        daemon.dispatch_cli()
+        started = daemon.guard.healthy_instance()
+        before, deadline = len(daemon.events), daemon.guard.deadline
+        with self.assertRaises(dev.Refusal):
+            daemon.guard.persistence_sql('verify', started)
+        with self.assertRaises(dev.Refusal):
+            daemon.guard.persistence_sql('schemas', started)
+        with self.assertRaises(dev.Refusal):
+            daemon.guard.recreate(started)
+        self.assertEqual(len(daemon.events), before)
+        self.assertEqual(daemon.guard.deadline, deadline)
+        daemon.guard.stop_instance(started)
+        before, deadline = len(daemon.events), daemon.guard.deadline
+        with self.assertRaises(dev.Refusal):
+            daemon.guard.stop_instance(started)
+        self.assertEqual(len(daemon.events), before)
+        self.assertEqual(daemon.guard.deadline, deadline)
+
+class DockerExecLifecycle(unittest.TestCase):
+    """Moby v28 inspect preserves null ExitCode until the started exec exits."""
+    def test_never_started_null_then_running_null_then_completed_zero_qualifies(self):
+        daemon = PersistenceDaemon()
+        daemon.dispatch_cli()
+        started = daemon.guard.healthy_instance()
+        exchange = daemon.exchange
+        running_observations = []
+        def observe(method, path, body=None):
+            status, row = exchange(method, path, body)
+            if '/exec/' in path and path.endswith('/json'):
+                if not daemon.exec_started:
+                    self.assertIsNone(row['ExitCode'])
+                    self.assertEqual(row['Pid'], 0)
+                elif not running_observations:
+                    row.update(Running=True, ExitCode=None, Pid=321)
+                    running_observations.append(True)
+            return status, row
+        daemon.exchange = observe
+        with patch.object(resources.time, 'sleep'):
+            daemon.guard.persistence_sql('write', started)
+        self.assertEqual(running_observations, [True])
+        self.assertEqual(daemon.executed_sql_modes, ['write'])
+        self.assertEqual(sum('/exec/' in p and p.endswith('/start') for _, p, _ in daemon.events), 1)
+
+    def test_missing_or_non_null_prestart_exit_or_nonzero_pid_never_starts_exec(self):
+        for defect in ['missing', 'zero', 'bool', 'nonzero', 'pid', 'running']:
+            daemon = PersistenceDaemon()
+            daemon.dispatch_cli()
+            started = daemon.guard.healthy_instance()
+            exchange = daemon.exchange
+            def invalid(method, path, body=None):
+                status, row = exchange(method, path, body)
+                if '/exec/' in path and path.endswith('/json'):
+                    if defect == 'missing':
+                        row.pop('ExitCode')
+                    elif defect == 'pid':
+                        row['Pid'] = 321
+                    elif defect == 'running':
+                        row['Running'] = True
+                    else:
+                        row['ExitCode'] = {'zero': 0, 'bool': False, 'nonzero': 1}[defect]
+                return status, row
+            daemon.exchange = invalid
+            with self.subTest(defect=defect), self.assertRaises(dev.Refusal) as caught:
+                daemon.guard.persistence_sql('write', started)
+            self.assertEqual(caught.exception.code, 'execution_invalid_exec')
+            self.assertEqual(daemon.executed_sql_modes, [])
+
+    def test_completed_missing_null_bool_and_nonzero_never_qualify(self):
+        for defect in ['missing', 'null', 'bool', 'nonzero']:
+            daemon = PersistenceDaemon()
+            daemon.dispatch_cli()
+            started = daemon.guard.healthy_instance()
+            exchange = daemon.exchange
+            def invalid(method, path, body=None):
+                status, row = exchange(method, path, body)
+                if '/exec/' in path and path.endswith('/json') and daemon.exec_started:
+                    if defect == 'missing':
+                        row.pop('ExitCode')
+                    else:
+                        row['ExitCode'] = {'null': None, 'bool': False, 'nonzero': 1}[defect]
+                return status, row
+            daemon.exchange = invalid
+            with self.subTest(defect=defect), self.assertRaises(dev.Refusal) as caught:
+                daemon.guard.persistence_sql('write', started)
+            self.assertEqual(caught.exception.code, 'execution_sql_failed' if defect == 'nonzero' else 'execution_invalid_exec')
+            self.assertEqual(daemon.executed_sql_modes, ['write'])
+            self.assertFalse(daemon.guard.persistence_verified)
+            daemon.guard.cleanup_execution()
+            self.assertTrue(daemon.guard.cleaned)
+
+class PersistenceReviewCoverage(unittest.TestCase):
+    def test_failed_write_does_not_commit_simulated_marker(self):
+        daemon = PersistenceDaemon()
+        daemon.initialization_markers = False
+        daemon.dispatch_cli()
+        with self.assertRaises(dev.Refusal) as caught:
+            daemon.guard.finish_execution()
+        self.assertEqual(caught.exception.code, 'execution_sql_failed')
+        self.assertIsNone(daemon.marker)
+        self.assertEqual(daemon.executed_sql_modes, ['write'])
+        self.assertEqual(daemon.creates, 1)
+        self.assertFalse(daemon.guard.persistence_verified)
+        daemon.guard.cleanup_execution()
+        self.assertTrue(daemon.guard.cleaned)
+
+    def test_final_schema_predicate_failure_cannot_qualify_and_cleanup_runs_once(self):
+        daemon = PersistenceDaemon()
+        exchange = daemon.exchange
+        def missing_schema(method, path, body=None):
+            if path.startswith('/v1.48/exec/') and path.endswith('/start') and daemon.sql_modes == ['write', 'schemas', 'verify', 'schemas']:
+                daemon.initialization_markers = False
+            return exchange(method, path, body)
+        daemon.exchange = missing_schema
+        daemon.dispatch_cli()
+        with patch.object(dev, 'free_ports'), self.assertRaises(dev.Refusal) as caught:
+            daemon.guard.finish_execution()
+        self.assertEqual(caught.exception.code, 'execution_sql_failed')
+        self.assertEqual(daemon.executed_sql_modes, ['write', 'schemas', 'verify', 'schemas'])
+        self.assertFalse(daemon.guard.persistence_verified)
+        self.assertFalse(daemon.guard.cleaned)
+        daemon.guard.cleanup_execution()
+        before = len(daemon.events)
+        with self.assertRaises(dev.Refusal):
+            daemon.guard.cleanup_execution()
+        self.assertEqual(len(daemon.events), before)
+        self.assertTrue(daemon.guard.cleaned)
+
+    def test_reused_exec_id_refuses_before_second_start_without_repair(self):
+        daemon = PersistenceDaemon()
+        exchange = daemon.exchange
+        first_id = []
+        def reused(method, path, body=None):
+            status, row = exchange(method, path, body)
+            if path.endswith('/exec'):
+                if first_id:
+                    row['Id'] = first_id[0]
+                else:
+                    first_id.append(row['Id'])
+            return status, row
+        daemon.exchange = reused
+        daemon.dispatch_cli()
+        with self.assertRaises(dev.Refusal) as caught:
+            daemon.guard.finish_execution()
+        self.assertEqual(caught.exception.code, 'execution_invalid_exec')
+        self.assertEqual(daemon.executed_sql_modes, ['write'])
+        self.assertEqual(sum('/exec/' in p and p.endswith('/start') for _, p, _ in daemon.events), 1)
+        self.assertFalse(daemon.guard.persistence_verified)
+        daemon.guard.cleanup_execution()
+        self.assertTrue(daemon.guard.cleaned)
+
+    def test_finish_replay_after_success_or_sql_failure_never_dispatches_or_resets_budget(self):
+        for successful in [False, True]:
+            daemon = PersistenceDaemon()
+            daemon.initialization_markers = successful
+            daemon.dispatch_cli()
+            with patch.object(dev, 'free_ports'):
+                if successful:
+                    daemon.guard.finish_execution()
+                else:
+                    with self.assertRaises(dev.Refusal):
+                        daemon.guard.finish_execution()
+            before, deadline = len(daemon.events), daemon.guard.deadline
+            with self.subTest(successful=successful), self.assertRaises(dev.Refusal):
+                daemon.guard.finish_execution()
+            self.assertEqual(len(daemon.events), before)
+            self.assertEqual(daemon.guard.deadline, deadline)
+            if not successful:
+                daemon.guard.cleanup_execution()
+
+    def test_uncertain_post_delete_inspection_preserves_gap_without_replay(self):
+        for defect in ['lost', 'malformed', 'non-404']:
+            daemon = PersistenceDaemon()
+            exchange = daemon.exchange
+            removed = []
+            def uncertain(method, path, body=None):
+                result = exchange(method, path, body)
+                if method == 'DELETE' and '/containers/' in path:
+                    removed.append(True)
+                elif removed and path == '/v1.48/containers/'+'a'*64+'/json':
+                    if defect in ('lost', 'malformed'):
+                        dev.refuse('docker', 'docker_response_invalid')
+                    return 200, {}
+                return result
+            daemon.exchange = uncertain
+            daemon.dispatch_cli()
+            with self.subTest(defect=defect), self.assertRaises(dev.Refusal):
+                daemon.guard.finish_execution()
+            self.assertEqual(daemon.creates, 1)
+            self.assertEqual(sum(m == 'DELETE' for m, _, _ in daemon.events), 1)
+            self.assertFalse(daemon.guard.persistence_verified)
+            self.assertFalse(daemon.guard.cleaned)
+            self.assertIsNotNone(daemon.volume)
+            before = len(daemon.events)
+            with self.assertRaises(dev.Refusal):
+                daemon.guard.finish_execution()
+            with self.assertRaises(dev.Refusal):
+                daemon.guard.cleanup_execution()
+            self.assertEqual(len(daemon.events), before)

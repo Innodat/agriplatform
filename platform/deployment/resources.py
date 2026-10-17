@@ -134,6 +134,12 @@ class FreshGuard:
         self.effective_config = None
         self.ownership_lost = self.cleaned = False
         self.cleanup_attempted = False
+        self.persistence = self.persistence_verified = False
+        self.exec_attempts = set()
+        self.exec_ids = set()
+        self.stopped_instances = set()
+        self._create_operands = None
+        self.old_container_id = None
 
     def bind_fixture(self, work, work_fd, sources, fixture_hash, wrappers):
         """Bind only the closed startup fixture's concrete private custody fields."""
@@ -149,10 +155,15 @@ class FreshGuard:
         self.current()
 
     def current(self):
-        self._current()
-        if self._fixture is not None:
-            startup.check_fixture_custody(*self._fixture, self.target, self.run_id,
-                                          listener_identity=self._listener_identity)
+        try:
+            self._current()
+            if self._fixture is not None:
+                startup.check_fixture_custody(*self._fixture, self.target, self.run_id,
+                                              listener_identity=self._listener_identity)
+        except dev.Refusal as error:
+            if error.code != 'docker_timeout':
+                self.ownership_lost = True
+            raise
 
     def check(self):
         self.current()
@@ -164,6 +175,16 @@ class FreshGuard:
         return self.deadline - time.monotonic()
 
     def joint(self):
+        if self.ownership_lost:
+            startup.fail('execution_ownership_changed')
+        try:
+            return self._joint()
+        except dev.Refusal as error:
+            if self.execution and error.code != 'docker_timeout':
+                self.ownership_lost = True
+            raise
+
+    def _joint(self):
         self.check()
         if daemon_images.observe_session(self.session, self.plan, self.current) != self.images:
             daemon_images.fail('image_identity_mismatch')
@@ -221,6 +242,11 @@ class FreshGuard:
         if self.execution or self.phase not in (0, 2):
             startup.fail('invalid_owner_handoff')
         self.execution = True
+
+    def enable_persistence(self):
+        if not self.execution or self.persistence or self.execution_started or self.phase not in (0, 2):
+            startup.fail('invalid_owner_handoff')
+        self.persistence = True
 
     def references(self):
         path = ('/v1.48/containers/json?all=true&filters=%7B%22volume%22%3A%5B%22'
@@ -284,10 +310,10 @@ class FreshGuard:
             self.ownership_lost = True
             startup.fail('execution_ownership_changed')
 
-    def container_create(self, args, fixture, environment):
+    def container_create(self, args, fixture, environment, *, _replacement=False):
         import create_profile
         import re
-        if not self.execution or self.phase != 2:
+        if not self.execution or self.phase != (9 if _replacement else 2):
             startup.fail('invalid_owner_handoff')
         create_profile.validate(args, fixture, environment)
         selected = dict(fixture, postgres_image=fixture['selection_plan'][fixture['postgres_image']])
@@ -295,10 +321,12 @@ class FreshGuard:
         operands[create_profile.validate(args, fixture, environment)] = selected['postgres_image']
         request = create_profile.disposable_execution_request(operands, selected, environment)
         self.check()
-        if self.execution_started:
+        if self.execution_started != _replacement:
             startup.fail('invalid_owner_handoff')
-        self.execution_started = True
-        self.deadline = self.session.deadline = time.monotonic() + 120
+        if not _replacement:
+            self.execution_started = True
+            self._create_operands = (list(args), dict(fixture), dict(environment))
+            self.deadline = self.session.deadline = time.monotonic() + 120
         self.phase = -1
         self.joint()
         self.current()
@@ -327,6 +355,9 @@ class FreshGuard:
         if (status != 201 or type(response) is not dict or set(response) != {'Id', 'Warnings'}
                 or type(response['Id']) is not str or not re.fullmatch('[0-9a-f]{64}', response['Id'])
                 or response['Warnings'] not in (None, [])):
+            startup.fail('execution_uncertain_creation')
+        if _replacement and response['Id'] == self.old_container_id:
+            self.ownership_lost = True
             startup.fail('execution_uncertain_creation')
         self.container_id, self.execution_input = response['Id'], request
         self.owned()
@@ -364,9 +395,62 @@ class FreshGuard:
             startup.fail('execution_start_failed')
         self.phase = 5
 
-    def finish_execution(self):
-        if self.phase != 5:
+    def persistence_sql(self, mode, started):
+        import re
+        if not self.persistence or self.phase != 5 or (self.old_container_id is None and mode not in ('write', 'schemas')) or (self.old_container_id is not None and mode not in ('verify', 'schemas')):
             startup.fail('invalid_owner_handoff')
+        expected = ('write', 'schemas', 'verify', 'schemas')
+        if len(self.exec_attempts) >= len(expected) or mode != expected[len(self.exec_attempts)]:
+            startup.fail('invalid_owner_handoff')
+        key = (self.container_id, mode)
+        if key in self.exec_attempts:
+            startup.fail('invalid_owner_handoff')
+        self.exec_attempts.add(key)
+        body = startup.lifecycle.persistence_exec(self.run_id, mode)
+        def stable():
+            if startup.lifecycle.shutdown_state(self.owned()) != started:
+                startup.fail('execution_instance_changed')
+        stable()
+        status, response = self.session.exchange('POST', '/v1.48/containers/' + self.container_id + '/exec', body)
+        if (status != 201 or type(response) is not dict or set(response) != {'Id'}
+                or type(response['Id']) is not str or not re.fullmatch('[0-9a-f]{64}', response['Id'])):
+            startup.fail('execution_uncertain_exec')
+        ident = response['Id']
+        if ident in self.exec_ids:
+            startup.fail('execution_invalid_exec')
+        self.exec_ids.add(ident)
+        def inspect_exec():
+            stable()
+            status, row = self.session.exchange('GET', '/v1.48/exec/' + ident + '/json')
+            config = row.get('ProcessConfig') if type(row) is dict else None
+            if (status != 200 or type(row) is not dict or row.get('ID') != ident
+                    or row.get('ContainerID') != self.container_id or type(row.get('Running')) is not bool
+                    or 'ExitCode' not in row or (row['ExitCode'] is not None and type(row['ExitCode']) is not int)
+                    or type(row.get('Pid')) is not int or row['Pid'] < 0
+                    or type(config) is not dict or config.get('entrypoint') != body['Cmd'][0]
+                    or config.get('arguments') != body['Cmd'][1:] or config.get('privileged') is not False
+                    or config.get('tty') is not False or config.get('user') != 'postgres'):
+                startup.fail('execution_invalid_exec')
+            return row
+        row = inspect_exec()
+        if row['Running'] is not False or row['Pid'] != 0 or row['ExitCode'] is not None:
+            startup.fail('execution_invalid_exec')
+        stable()
+        status, _ = self.session.exchange('POST', '/v1.48/exec/' + ident + '/start', {'Detach': True, 'Tty': False})
+        if status != 200:
+            startup.fail('execution_uncertain_exec')
+        while True:
+            row = inspect_exec()
+            if row['Running'] is False:
+                if type(row['ExitCode']) is not int:
+                    startup.fail('execution_invalid_exec')
+                if row['ExitCode'] != 0:
+                    startup.fail('execution_sql_failed')
+                break
+            time.sleep(min(.1, max(0, self.remaining())))
+        stable()
+
+    def healthy_instance(self):
         started = None
         while True:
             row = self.owned()
@@ -376,10 +460,15 @@ class FreshGuard:
             started = current
             health = row.get('State', {}).get('Health', {}).get('Status')
             if health == 'healthy':
-                break
+                return started
             if health not in ('starting', 'unhealthy'):
                 startup.fail('execution_invalid_health')
             time.sleep(min(.1, max(0, self.remaining())))
+
+    def stop_instance(self, started):
+        if self.phase != 5 or self.container_id in self.stopped_instances:
+            startup.fail('invalid_owner_handoff')
+        self.stopped_instances.add(self.container_id)
         self.check()
         self.deadline = self.session.deadline = time.monotonic() + 15
         if startup.lifecycle.shutdown_state(self.owned()) != started:
@@ -388,6 +477,51 @@ class FreshGuard:
         if status != 204:
             startup.fail('execution_stop_failed')
         startup.lifecycle.shutdown_state(self.owned(), started)
+
+    def recreate(self, started):
+        if (not self.persistence or self.phase != 5 or self.old_container_id is not None
+                or self.container_id not in self.stopped_instances):
+            startup.fail('invalid_owner_handoff')
+        # Intermediate removal never consumes final disposal authority/budget.
+        self.phase = 8
+        startup.lifecycle.shutdown_state(self.owned(), started)
+        old = self.container_id
+        status, _ = self.session.exchange('DELETE', '/v1.48/containers/' + old + '?force=false')
+        if status != 204:
+            startup.fail('execution_cleanup_unresolved')
+        self.current()
+        status, _ = self.session.exchange('GET', '/v1.48/containers/' + old + '/json')
+        if status != 404:
+            startup.fail('execution_cleanup_unresolved')
+        self.old_container_id, self.container_id = old, None
+        self.joint()  # Unused unchanged owned volume and empty bridge, before budget transition.
+        self.check()
+        self.deadline = self.session.deadline = time.monotonic() + 120
+        self.phase = 9
+        self.start_attempted = False
+        self.container_create(*self._create_operands, _replacement=True)
+        self.container_copy(['cp', '-', self.container_id + ':/'], startup.lifecycle.public_archive())
+        self.container_start(['start', self.container_id])
+
+    def finish_execution(self):
+        if self.phase != 5:
+            startup.fail('invalid_owner_handoff')
+        # Consume finish before any mutation; SQL/lifecycle helpers require phase5.
+        if getattr(self, '_finish_attempted', False):
+            startup.fail('invalid_owner_handoff')
+        self._finish_attempted = True
+        started = self.healthy_instance()
+        if self.persistence:
+            self.persistence_sql('write', started)
+            self.persistence_sql('schemas', started)
+        self.stop_instance(started)
+        if self.persistence:
+            self.recreate(started)
+            started = self.healthy_instance()
+            self.persistence_sql('verify', started)
+            self.persistence_sql('schemas', started)
+            self.stop_instance(started)
+            self.persistence_verified = True
         self.phase = 6
         self.cleanup_execution(clean=True, started=started)
 
@@ -397,7 +531,7 @@ class FreshGuard:
             startup.fail('execution_cleanup_unresolved')
         self.cleanup_attempted = True
         self.deadline = self.session.deadline = time.monotonic() + 10
-        if self.container_id is None or self.ownership_lost or self.session.closed:
+        if self.container_id is None or self.ownership_lost or self.session.closed or self.phase == 8:
             startup.fail('execution_cleanup_unresolved')
         row = self.owned()
         if clean:

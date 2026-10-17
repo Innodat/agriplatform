@@ -10,8 +10,8 @@ close the enclosing ENV acceptance item. See individual evidence records below.
 | --- | --- | --- |
 | Target/configuration | Protected disposable run preparation, exact source/config binding, deterministic owner names and Docker>=28 gate | Actual isolated stack startup and current readiness |
 | Dependency baseline | Six pinned executables including TypeScript7.0.2; Python wheel-lock and frontend compatibility fixtures | Generated consuming application/service proof; target/native compatibility; documented third-party declaration limitations |
-| Images/resources | Four immutable image identities, guarded owned bridge/database-volume acquisition, daemon observations, current volume-use refusal, joint same-session acquisition and absent-volume startup construction | Durable initialization/reuse/recovery, full-stack execution enforcement and reservation/exclusivity |
-| PostgreSQL startup | Exact first-create profile, guarded volume owner; selected-image SQL/key proof; opt-in real pinned-CLI create/copy/start on its fresh named volume with health, clean shutdown and owned removal | Durable initialized-volume restart/reuse/recovery, public lifecycle commands and complete stack/owner readiness |
+| Images/resources | Four immutable image identities, guarded owned bridge/database-volume acquisition, daemon observations, current volume-use refusal, joint same-session acquisition and absent-volume startup construction | Cross-execution initialized-volume admission/recovery, full-stack execution enforcement and reservation/exclusivity |
+| PostgreSQL startup | Exact first-create profile, guarded volume owner; selected-image SQL/key proof; opt-in real pinned-CLI create/copy/start on its fresh named volume with health, clean shutdown and owned removal; explicit retained-volume replacement/SQL persistence proof | Cross-execution reuse/reset/recovery, actual CLI initialized branch, public lifecycle commands and complete stack/owner readiness |
 | Owner integration | Ordered ENV/P1/SERVICE/Identity/Access/WRITE contracts and retained ownership | Existing generator recipe/schema/templates, regeneration/custom preservation, generated install/type/build/start/current-Access proof, coordinated owner migrations/fixtures/recovery |
 | Provider/device | Explicit nonproduction origins/callback contracts | LAN HTTPS/DNS/testCA, actual Entra callbacks and installed Android/iPhone proof at consuming gates |
 
@@ -57,6 +57,70 @@ preserve resources for inspection; use only exact identities from that run's inv
 not broad cleanup. The qualifier is disposable execution proof, not public up/stop,
 SQL/domain readiness, initialized reuse/reset/recovery or full Supabase startup.
 The separate bootstrap control below remains the SQL/key semantic proof.
+
+The separate [named-volume persistence qualifier](ENV_POSTGRES_PERSISTENCE_EVIDENCE.md)
+retains the fresh execution-owned volume across one confirmed container removal and
+distinct owner recreation on the same peer. Fixed detached SQL checks commit the run
+UUID/cluster identity and verify that data plus initialization markers after recreation.
+The public key archive is copied again to the replacement. Both instances must reach
+stable health and clean shutdown before final owned disposal. The CLI still ends at
+its first start; `cli_first_start_only=true` and `owner_start_count=2` distinguish the
+owner's second lifecycle from CLI initialized-branch support.
+
+```sh
+python3 platform/deployment/tests/qualify_startup.py --target platform/deployment/environments/kdg-local.json --run-id <UUID> --control pinned-cli-postgres-persistence
+```
+
+Use a fresh prepared/qualified synthetic target and exact selected cached images.
+The budgets are5s acquisition,120s first execution/probe,15s first shutdown/removal,
+120s recreation/verification,15s final shutdown and10s single-attempt cleanup.
+Missing marker/cluster/initialization refuses without repair; lost mutation responses
+cannot authorize replay/adoption. Container-free-gap or ambiguous ownership failures
+may preserve resources for exact-inventory inspection. This control does not admit
+volumes across executions, enable full up/stop/reset or qualify backups/recovery.
+
+For unresolved persistence resources, first read only the selected identity fields
+from the preserved inventory (replace `<UUID>` with that execution's canonical UUID):
+
+```sh
+jq '{run_id,target_id,project:.identities.project,network:.identities.network,database_volume:.identities.volumes.database}' platform/deployment/.local/kdg/<UUID>/inventory.json
+```
+
+The inventory reserves names; it does not prove resource creation or ownership.
+Its `identities.containers` lists planned application-owner containers, not this
+qualifier's PostgreSQL container. Both PostgreSQL instances use the name
+`supabase_db_<project>` (also the database-volume name), with distinct Docker IDs;
+the bridge is `<project>-network`. Copy the exact project, volume and network values
+from this inventory into the placeholders below. These commands only inspect the
+local daemon and print selected fields; an absent resource may return nonzero.
+
+```sh
+docker --host unix:///var/run/docker.sock container ls --all --no-trunc --filter 'name=^/supabase_db_<project>$' --format '{{.ID}} {{.Names}} {{.Status}}'
+docker --host unix:///var/run/docker.sock container ls --all --no-trunc --filter 'volume=<database-volume>' --format '{{.ID}} {{.Names}} {{.Status}}'
+docker --host unix:///var/run/docker.sock volume inspect '<database-volume>' --format 'Name={{.Name}} Driver={{.Driver}} Scope={{.Scope}} Labels={{json .Labels}} Options={{json .Options}}'
+docker --host unix:///var/run/docker.sock network inspect '<network>' --format 'Id={{.Id}} Name={{.Name}} Driver={{.Driver}} Scope={{.Scope}} Labels={{json .Labels}} Options={{json .Options}} Containers={{json .Containers}}'
+```
+
+For each exact container ID returned, inspect only these selected facts:
+
+```sh
+docker --host unix:///var/run/docker.sock container inspect '<container-id>' --format 'Id={{.Id}} Name={{.Name}} Image={{.Image}} Project={{index .Config.Labels "com.supabase.cli.project"}} ComposeProject={{index .Config.Labels "com.docker.compose.project"}} Status={{.State.Status}} Running={{.State.Running}} Pid={{.State.Pid}} ExitCode={{.State.ExitCode}} OOMKilled={{.State.OOMKilled}} Dead={{.State.Dead}} StartedAt={{.State.StartedAt}} FinishedAt={{.State.FinishedAt}} RestartCount={{.RestartCount}}'
+docker --host unix:///var/run/docker.sock container inspect '<container-id>' --format '{{range .Mounts}}Type={{.Type}} Name={{.Name}} Destination={{.Destination}} RW={{.RW}} {{end}}{{range $name, $value := .NetworkSettings.Networks}}Network={{$name}} NetworkID={{$value.NetworkID}} Aliases={{json $value.Aliases}} {{end}}'
+```
+
+Compare the bridge/volume labels `io.agriplatform.env.owner=platform/deployment`,
+`io.agriplatform.env.target=<target_id>`, `io.agriplatform.env.run=<UUID>` and
+`io.agriplatform.env.project=<project>` with the preserved inventory; the volume
+also carries `com.supabase.cli.project` and `com.docker.compose.project` equal to
+`<project>`. Check the container's two project labels, exact image config identity
+against the qualified image receipt, single named-volume mount at
+`/var/lib/postgresql/data`, expected bridge/aliases, and all volume references,
+including stopped containers. In a confirmed container-free gap, the volume-use list
+and bridge `Containers` must both be empty. A matching current observation does not
+restore lost custody or establish persistence, cleanup or recovery success. Preserve
+unresolved resources and receipts for investigation; these inspection steps authorize
+no removal, restart, SQL, adoption or replay. Avoid unformatted container inspection,
+logs and dumps of `Config.Env`, commands, payloads or credential files.
 
 The separate opt-in [PostgreSQL bootstrap qualification](ENV_POSTGRES_BOOTSTRAP_EVIDENCE.md)
 now demonstrates actual selected-image initialization and public synthetic key transfer

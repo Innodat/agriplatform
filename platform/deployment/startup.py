@@ -961,7 +961,7 @@ def install_fixture(work, target, run_id, network, executable=None, guard_parent
                'database_port': target['ports']['database'], 'network': network,
                'images': references, 'postgres_image': references[0], 'selection_plan': selection_plan,
                'image_observations': image_observations,
-               'execute': profile_control == 'fresh-pinned-cli-postgres',
+               'execute': profile_control in ('fresh-pinned-cli-postgres', 'fresh-pinned-cli-postgres-persistence'),
                'lifecycle': fresh or profile_control == 'lifecycle-positive' or profile_control.startswith('invalid-lifecycle-')}
     if guarded_owner:
         if not fresh:
@@ -986,7 +986,7 @@ def synthetic_probe(executable, target, run_id, network=None, control='positive'
     if control not in ['positive', 'invalid-network', 'contaminated-workdir', 'reject-command', 'invalid-selection-plan',
                        'invalid-create-script', 'invalid-create-environment', 'invalid-create-routing', 'invalid-create-request',
                        'lifecycle-positive', 'invalid-lifecycle-target', 'invalid-lifecycle-archive', 'invalid-lifecycle-order',
-                       'fresh-pinned-cli-postgres', 'fresh-lifecycle-positive', 'fresh-existing', 'fresh-racing', 'fresh-invalid-lifecycle-target',
+                       'fresh-pinned-cli-postgres', 'fresh-pinned-cli-postgres-persistence', 'fresh-lifecycle-positive', 'fresh-existing', 'fresh-racing', 'fresh-invalid-lifecycle-target',
                        'fresh-invalid-lifecycle-archive', 'fresh-invalid-lifecycle-order']:
         fail('unknown_control')
     if control == 'invalid-selection-plan':
@@ -1016,8 +1016,10 @@ def synthetic_probe(executable, target, run_id, network=None, control='positive'
                 fail('invalid_owner_handoff')
             network = guard.network
             command, env = guard.command
-            if control == 'fresh-pinned-cli-postgres':
+            if control in ('fresh-pinned-cli-postgres', 'fresh-pinned-cli-postgres-persistence'):
                 guard.enable_execution()
+                if control.endswith('-persistence'):
+                    guard.enable_persistence()
         else:
             command, env = invocation(executable, work, target, run_id, network)
         install_fixture(work, target, run_id, network, executable, guard_parent=control != 'reject-command', selection_plan=selection_plan, volume=volume, image_observations=image_observations, profile_control=control, guarded_owner=guard is not None)
@@ -1055,12 +1057,18 @@ def synthetic_probe(executable, target, run_id, network=None, control='positive'
         if fixture['selection_plan'] != selection_plan or fixture['image_observations'] != image_observations:
             fail('invalid_selection_plan')
         if guard is not None and guard.execution:
-            if guard.phase != 7 or not guard.cleaned:
+            if guard.phase != 7 or not guard.cleaned or (guard.persistence and not guard.persistence_verified):
                 fail('execution_cleanup_unresolved')
-            return {'ok': True, 'stage': 'pinned_cli_postgres', 'code': 'qualified',
+            return {'ok': True, 'stage': 'pinned_cli_postgres_persistence' if guard.persistence else 'pinned_cli_postgres', 'code': 'qualified',
                     'runtime_ready': False, 'container_executed': True, 'healthy_verified': True,
                     'shutdown_verified': True, 'forced_shutdown': False, 'cleanup_verified': True,
-                    'named_volume_verified': True, 'first_start_only': True,
+                    'named_volume_verified': True,
+                    **({'cli_first_start_only': True, 'owner_start_count': 2}
+                       if guard.persistence else {'first_start_only': True}),
+                    **({'owner_recreation_verified': True, 'distinct_container_verified': True,
+                        'persisted_run_marker_verified': True, 'same_cluster_verified': True,
+                        'initialization_markers_verified': True, 'both_shutdowns_verified': True}
+                       if guard.persistence and guard.persistence_verified else {}),
                     'source_sha256': before_sources}
         if guard is not None:
             if guard.phase != 2 or guard.volume is None:
@@ -1161,9 +1169,9 @@ def qualify(args):
     evidence = existing_images(args)
     receipt_hash, selection_plan, _, config_plan = evidence
     observations = getattr(args, '_image_observations', None)
-    if getattr(args, 'control', None) == 'pinned-cli-postgres':
+    if getattr(args, 'control', None) in ('pinned-cli-postgres', 'pinned-cli-postgres-persistence'):
         observations = {reference: {'Id': config, 'Os': 'linux', 'Architecture': 'amd64'} for reference, config in config_plan.items()}
-        args._profile_control = 'fresh-pinned-cli-postgres'
+        args._profile_control = 'fresh-' + args.control
         args._guarded_target = (args.target, '/var/run/docker.sock')
     validate_image_observations(observations, selection_plan, config_plan)
     payload = dev.ROOT / 'platform/deployment/.local/kdg-toolchains' / args.run_id / 'payload'

@@ -1284,17 +1284,20 @@ class ExecutionSupervisor(unittest.TestCase):
         import dev
         import startup
         from test_startup_lifecycle import Lifecycle
-        from test_pinned_execution import OwnerDaemon
+        from test_pinned_execution import OwnerDaemon, PersistenceDaemon
+        from contextlib import nullcontext
         import socketserver
         import threading
         import copy
 
         # Existing independent in-memory descriptors back a real private Docker
         # protocol peer; the production DockerSession owns all framing/closure.
-        engine = OwnerDaemon()
+        persistence = scenario.startswith('persistence-')
+        engine = PersistenceDaemon() if persistence else OwnerDaemon()
         # Bind templates to this retained-owner harness's prepared UUID, which
         # differs from the direct-owner fixture's independent default UUID.
         target, run_id = self.owner.owner.target, self.owner.owner.args.run_id
+        engine.fixture['run_id'] = run_id
         network = {**proof.network_proof.expected_request(target, run_id),
                    'Id': engine.network['Id'], 'Containers': {}, 'ConfigFrom': {'Network': ''}}
         volume_request = proof.volume_proof.expected_request(target, run_id)
@@ -1322,6 +1325,8 @@ class ExecutionSupervisor(unittest.TestCase):
                 reached.append((method, path))
             if scenario == 'post-start-health' and path.endswith('/start'):
                 engine.row['State']['Health']['Status'] = 'invalid'
+            if scenario == 'persistence-sql-failure' and '/containers/create?' in path and engine.creates == 2:
+                engine.marker = None
             return result
 
         class Handler(socketserver.BaseRequestHandler):
@@ -1397,15 +1402,43 @@ class ExecutionSupervisor(unittest.TestCase):
                     with patch.object(startup, 'guarded_fixture_command', side_effect=observe), \
                             patch.object(resources.FreshGuard, 'cleanup_execution', new=record_cleanup), \
                             patch.object(dev, 'free_ports'):
-                        with self.assertRaises(dev.Refusal) as caught:
-                            startup.synthetic_probe(executable, self.owner.owner.target, self.owner.owner.args.run_id,
-                                    control='fresh-pinned-cli-postgres',
+                        with (nullcontext() if scenario == 'persistence-positive' else self.assertRaises(dev.Refusal)) as caught:
+                            result = startup.synthetic_probe(executable, self.owner.owner.target, self.owner.owner.args.run_id,
+                                    control='fresh-pinned-cli-postgres-persistence' if persistence else 'fresh-pinned-cli-postgres',
                                     selection_plan=startup.existing_images(self.owner.owner.args)[1],
                                     image_observations=self.owner.expected,
                                     _guarded_target=(self.owner.owner.args.target, path))
                 finally:
                     server.shutdown()
                     thread.join(timeout=1)
+
+        if persistence:
+            self.assertEqual(created, ['a'*64, 'c'*64])
+            self.assertEqual(len(guards), 1)
+            self.assertEqual(len(calls), 1)
+            self.assertEqual(len(connections), 1)
+            self.assertEqual(errors, [])
+            self.assertEqual(len(pids), 2)
+            self.assert_stopped(pids)
+            self.assertTrue(guards[0].cleaned)
+            self.assertIsNone(engine.row)
+            self.assertIsNone(engine.volume)
+            self.assertIsNone(engine.network)
+            self.assertEqual(sum('/archive?' in p for _, p, _ in engine.events), 2)
+            if scenario == 'persistence-positive':
+                self.assertTrue(result['persisted_run_marker_verified'])
+                self.assertTrue(result['owner_recreation_verified'])
+                self.assertEqual(result['owner_start_count'], 2)
+                self.assertTrue(result['cli_first_start_only'])
+                self.assertNotIn('first_start_only', result)
+                self.assertFalse(result['runtime_ready'])
+                self.assertEqual(engine.sql_modes, ['write', 'schemas', 'verify', 'schemas'])
+            else:
+                self.assertEqual(caught.exception.code, 'execution_sql_failed')
+                self.assertEqual(engine.executed_sql_modes, ['write', 'schemas', 'verify'])
+                self.assertEqual(engine.sql_modes, ['write', 'schemas', 'verify'])
+                self.assertFalse(guards[0].persistence_verified)
+            return
 
         diagnostic = {'scenario': scenario, 'code': caught.exception.code,
                       'phase': guards[0].phase if guards else None,
@@ -1446,6 +1479,12 @@ class ExecutionSupervisor(unittest.TestCase):
             self.assertIsNotNone(engine.row)
             self.assertIsNotNone(engine.volume)
             self.assertIsNotNone(engine.network)
+
+    def test_persistence_recreation_keeps_one_peer_and_terminates_cli_descendants(self):
+        self.run_execution_case('persistence-positive')
+
+    def test_persistence_lost_marker_fails_without_repair_and_cleans_once(self):
+        self.run_execution_case('persistence-sql-failure')
 
     def test_execution_post_start_failure_automatically_cleans_once_and_terminates_descendants(self):
         self.run_execution_case('post-start-health')

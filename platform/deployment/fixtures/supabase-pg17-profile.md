@@ -288,3 +288,34 @@ or mutation. Success, uncertainty, timeout or interruption cannot authorize a
 second attempt, repeat a delete, or restart that deadline. The CLI supervisor's
 finally path starts owned cleanup only if that execution has not attempted it;
 a failed cleanup preserves its original failure and unresolved-resource evidence.
+
+
+## Explicit named-volume persistence qualification
+
+The separate `pinned-cli-postgres-persistence` control extends only its fresh,
+source-qualified execution-owned volume through one container replacement. Actual
+CLI first create/copy/start remains unchanged; the CLI is terminated at that boundary.
+ENV commits a public run/cluster probe, clean-stops and confirms removal of the first
+container, retains the unchanged unused volume/bridge, then creates a distinct
+container with the same immutable profile and reinstalls the public key archive.
+Final verification requires healthy stable execution, existing initialization markers
+and the committed run/cluster probe before clean shutdown and final owned disposal.
+There is no cross-run initialized-volume adoption, reset, backup or recovery claim.
+
+Fixed predicate SQL uses detached exec on the retained connection, with no attached
+stdin/stdout/stderr or TTY, no privileged mode, explicit postgres user and public
+synthetic password. Only closed probe commands are admitted; no arbitrary SQL/exec
+selector or response-payload report. Exec identity/configuration, completion and
+integer zero exit are required; a successful start response alone is insufficient.
+Before start, exec inspection must describe an unstarted process with explicit null
+ExitCode, Running=false and PID0. During execution null remains valid; only confirmed
+completion after successful start accepts integer exit zero. Missing/completed-null or
+boolean exit codes refuse. Docker may retain the completed exec PID. Each uncertain
+mutation is consumed once.
+
+Budgets remain acquisition5s, first execution/probe120s, first clean shutdown/removal15s,
+replacement/verification120s, final clean shutdown15s, final cleanup10s. Intermediate
+removal is not final cleanup and cannot consume/reset its single attempt. Loss of
+custody/reference/transport prevents continuation or unsafe disposal. Failures in a
+confirmed container-free gap may retain run resources with a refusal; they do not
+claim cleanup. Existing matching bridge preservation and default controls remain.

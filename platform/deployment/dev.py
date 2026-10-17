@@ -414,6 +414,16 @@ def _docker_disposable_create(body):
     return all(type(host.get(k)) is type(v) and host[k] == v for k, v in expected.items())
 
 
+def _docker_persistence_route(method, path, body):
+    import startup_lifecycle
+    return ((method == 'POST' and re.fullmatch(r'/v1\.48/containers/[0-9a-f]{64}/exec', path)
+             and startup_lifecycle.valid_persistence_exec(body))
+            or (method == 'POST' and re.fullmatch(r'/v1\.48/exec/[0-9a-f]{64}/start', path)
+                and type(body) is dict and set(body) == {'Detach', 'Tty'}
+                and body['Detach'] is True and body['Tty'] is False)
+            or (method == 'GET' and re.fullmatch(r'/v1\.48/exec/[0-9a-f]{64}/json', path) and body is None))
+
+
 def _docker_request(method, path, body, persistent):
     if not ((method == 'GET' and body is None and (path == '/version'
             or _docker_volume_use_route(path)
@@ -422,7 +432,7 @@ def _docker_request(method, path, body, persistent):
             or re.fullmatch(r'/v1\.48/(?:networks|volumes)/[A-Za-z0-9_-]{1,128}', path)
             or re.fullmatch(r'/v1\.48/images/(?:public\.ecr\.aws/supabase/(?:postgres|gotrue|postgrest|kong)@)?sha256:[0-9a-f]{64}/json', path)))
             or (method == 'POST' and path in ['/v1.48/networks/create', '/v1.48/volumes/create'] and type(body) is dict)):
-        if not persistent or not ((method == 'POST' and _docker_disposable_create(body) and re.fullmatch(r'/v1\.48/containers/create\?name=supabase_db_agriplatform-kdg-[A-Za-z0-9_-]{22}&platform=linux%2Famd64', path))
+        if not persistent or not (_docker_persistence_route(method, path, body) or (method == 'POST' and _docker_disposable_create(body) and re.fullmatch(r'/v1\.48/containers/create\?name=supabase_db_agriplatform-kdg-[A-Za-z0-9_-]{22}&platform=linux%2Famd64', path))
                 or (method == 'PUT' and type(body) is bytes and re.fullmatch(r'/v1\.48/containers/[0-9a-f]{64}/archive\?path=%2F', path))
                 or (method == 'POST' and body is None and re.fullmatch(r'/v1\.48/containers/[0-9a-f]{64}/(?:start|stop\?t=5)', path))
                 or (method == 'DELETE' and body is None and (re.fullmatch(r'/v1\.48/containers/[0-9a-f]{64}\?force=(?:true|false)', path)
@@ -529,7 +539,7 @@ def _docker_response(stream, budget, deadline, persistent, path):
             if len(data) != body_start + length:
                 invalid()
             break
-    if status in (200, 204) and length == 0 and re.fullmatch(r'/v1\.48/(?:containers/[0-9a-f]{64}/(?:archive\?path=%2F|start|stop\?t=5)|containers/[0-9a-f]{64}\?force=(?:true|false)|networks/[0-9a-f]{64}|volumes/supabase_db_agriplatform-kdg-[A-Za-z0-9_-]{22})', path):
+    if status in (200, 204) and length == 0 and re.fullmatch(r'/v1\.48/(?:exec/[0-9a-f]{64}/start|containers/[0-9a-f]{64}/(?:archive\?path=%2F|start|stop\?t=5)|containers/[0-9a-f]{64}\?force=(?:true|false)|networks/[0-9a-f]{64}|volumes/supabase_db_agriplatform-kdg-[A-Za-z0-9_-]{22})', path):
         return status, None
     if status == 204:
         invalid()
