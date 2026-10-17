@@ -228,12 +228,24 @@ earlier registry-refused runs remain unchanged. Runtime readiness remains false.
 Earlier deadline-refused public attempts are recorded separately; no expectation or
 deadline was relaxed. All13 retained files and source bindings remain unchanged.
 
-`up` is the repository's intended local-stack launcher. The shared Engine27.0.3
-(API1.46) fails the Docker>=28 localhost-isolation prerequisite. A Docker client or
-repository dependency update cannot upgrade that shared daemon. Host upgrade or new
-infrastructure remains outside approval; a supported engine would still encounter
-the unfinished `runtime_adapter_unqualified` gate. Do not equate either prerequisite
-with a runnable stack.
+`up` is the repository's intended local-stack launcher. Following the approved
+2026-10-17 maintenance interruption, the operator upgraded the shared host to
+Engine/CLI29.9.1 (API1.56, minimum1.40) with the exact selected six-package versions.
+Actual postchecks preserve overlay2, `/var/lib/docker`, and all ten original running
+container IDs/image IDs/status/health/restart policies; eight health checks are healthy
+and both databases accept connections. The additional `teacher-supply-db-1`, previously
+stopped, is now running; the agent preserved that operator/concurrent state. Backup/
+recovery execution was not independently observed; no restore-test or unchanged
+business-data claim is made. See [maintenance evidence](../../../platform/deployment/DOCKER_HOST_UPGRADE.md)
+and the [maintenance Build](../../../_bmad-output/implementation-artifacts/spec-env-docker-host-upgrade.md).
+
+The exact unchanged prepared run `05e169bc-8a00-4c7c-aca2-1ada8bd97454` now passes the
+Docker>=28 gate and exits2 with `runtime_adapter_unqualified`, `runtime_ready=false`.
+The runtime adapter remains unfinished. No KDG stack was started; new provisioning
+remains outside scope. Historical Docker27 refusals above remain evidence of earlier
+increments. Independent operational review is complete: six documentation findings
+corrected, none deferred; controlled shell-failure/readiness and evidence-integrity
+checks pass. Host maintenance is closed within the explicitly recorded verification limits.
 
 Continue bounded ENV bootstrap/secret/SQL semantics, initialized-volume reuse,
 execution continuity and health/stop/reset/recovery, plus existing P1/SERVICE scaffold

@@ -18,14 +18,22 @@ close the enclosing ENV acceptance item. See individual evidence records below.
 `up` means `python3 platform/deployment/dev.py up --target <JSON> --run-id <UUID>`:
 the repository's intended isolated-stack start command. Its current implementation
 validates preparation and ports, checks the Docker Engine and refuses startup.
-The observed shared Engine27.0.3 (API1.46) fails `docker_28_required`; Engine>=28 is
-required for the selected localhost-isolation behavior. Updating a repository package
-or Docker client does not upgrade that engine. A supported engine still encounters
-`runtime_adapter_unqualified`, because runtime startup remains unfinished. These are
-two distinct gates. The host version mismatch can be resolved by an engine upgrade or
-a supported isolated target, but changing the shared host/provisioning infrastructure
-and production/pilot actions are outside this delivery approval. Continue bounded
-ENV and scaffold implementation before dependent Identity/Access/WRITE or KDG server work.
+The shared host was upgraded by the operator after the user approved maintenance and
+Supabase/PostgreSQL interruption on2026-10-17. Actual postchecks show Engine/CLI29.9.1,
+API1.56 (minimum1.40), unchanged overlay2 and `/var/lib/docker`, and the exact six
+selected package versions. All ten originally running container identities/image IDs,
+status/health and restart policies match the protected inventory; eight health checks
+are healthy and both databases accept connections. An additional previously stopped
+`teacher-supply-db-1` is running; the agent preserved that operator/concurrent state.
+Backup/recovery execution was not independently observed; no restore-test or unchanged
+business-data claim is made. See [maintenance evidence](DOCKER_HOST_UPGRADE.md).
+
+The unchanged prepared KDG run now passes Docker admission and exits2 with
+`runtime_adapter_unqualified`, `runtime_ready=false`. Engine>=28 remains required for
+the selected localhost-isolation behavior; the runtime adapter remains unfinished.
+Other infrastructure provisioning and production/pilot actions remain outside approval.
+Continue bounded ENV and scaffold implementation before dependent Identity/Access/WRITE
+or KDG server work.
 
 ENV now implements the first bounded preparation increment of the
 [environment contract](../docs/architecture/contracts/scaffold-environment-and-generation.md).
