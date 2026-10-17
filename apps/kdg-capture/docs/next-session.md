@@ -294,3 +294,35 @@ health/stop/reset/recovery and existing P1/SERVICE scaffold acceptance before de
 Identity/Access/WRITE or server-backed KDG work. No questionnaire editor or Leave
 implementation. Preserve concurrent Leave/PtS documents and exact TypeScript7.0.2
 baseline. Scaffold/shared-UI/context/documentation/ADR impacts are in the evidence.
+
+## Latest continuation — bounded verified PostgreSQL shutdown, 2026-10-17
+
+The [shutdown Build](../../../_bmad-output/implementation-artifacts/spec-env-postgres-graceful-shutdown.md)
+extends the existing actual `postgres-bootstrap` control. Successful qualification
+now requests bounded normal stop, verifies the same started PostgreSQL instance has
+exited cleanly, rechecks stopped state and removes the owned container without force.
+Stop command success alone cannot qualify: OOM, exit137/nonzero, still running,
+invalid/stale timestamps, restart or changed ownership refuse. Earlier failures retain
+bounded owned cleanup without clean-shutdown or recovery claims.
+
+Final patched-source run `885056ba-e9dc-41a2-9e3e-f207d75bdeb2` passes prepare/toolchain/images
+and real bootstrap/shutdown/cleanup (35.832s), with shutdown_verified=true, forced_shutdown=false,
+runtime_ready=false. All13 retained files stay unchanged. No pre-existing running
+entry disappeared; three unrelated Deals containers appeared running between snapshots,
+without being targeted by qualification. Their cause is unobserved and state preserved. See [requirement-to-test evidence](../../../platform/deployment/ENV_POSTGRES_SHUTDOWN_EVIDENCE.md)
+for exact commands, source-bound image identity, budgets, result hashes and final
+regression/review status.
+
+This qualifies a shutdown primitive; public `dev.py stop`, real CLI create-to-start
+dispatch, durable volume initialization/reuse, complete lifecycle/recovery and existing
+P1/SERVICE scaffold acceptance remain open. `up` stays gated; no Identity/Access/WRITE,
+server KDG, Leave or editor work begins. Preserve the exact baseline including
+TypeScript7.0.2, current owners and concurrent Leave/PtS documents. No live-data,
+account/grant, owner migration, infrastructure provisioning, deployment or pilot action.
+
+Shutdown closeout:40 focused tests and final469-test deployment regression pass;
+three BMAD review layers completed, with two production guards and interruption
+coverage fixed. Two existing intermittent guard failures from earlier full attempts
+remain separately deferred, with failed evidence retained; passing reruns do not
+explain them. Final actual `up` exits2 runtime_adapter_unqualified. This bounded
+shutdown Build is closed; enclosing ENV/P1/SERVICE readiness remains partial.

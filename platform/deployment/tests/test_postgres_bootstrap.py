@@ -30,6 +30,7 @@ class BootstrapAcceptance(unittest.TestCase):
         self.assertEqual(lifecycle.bootstrap_success(), {
             'ok': True, 'stage': 'postgres_bootstrap', 'code': 'qualified',
             'initialized': True, 'runtime_ready': False, 'cleanup_verified': True,
+            'shutdown_verified': True, 'forced_shutdown': False,
             'role_passwords_verified': True, 'jwt_settings_verified': True,
             'migration_markers_verified': True, 'internal_schemas_verified': True,
             'root_key_verified': True})
@@ -48,6 +49,8 @@ class DockerDouble:
         self.fault = fault
         self.created = False
         self.removed = False
+        self.started = False
+        self.stopped = False
 
     def __call__(self, argv, **kwargs):
         import hashlib
@@ -71,11 +74,19 @@ class DockerDouble:
                                 Tmpfs={'/var/lib/postgresql/data': 'rw,noexec,nosuid,size=1073741824'}, Privileged=False,
                                 Memory=2147483648, MemorySwap=2147483648, NanoCpus=2000000000,
                                 PidsLimit=256, LogConfig={'Type': 'none', 'Config': {}}),
-                Mounts=[], NetworkSettings=dict(Networks={'none': {}}), State=dict(Running=True))]).encode()
+                Mounts=[], NetworkSettings=dict(Networks={'none': {}}), State=dict(Status='exited' if self.stopped else 'running',
+                    Running=not self.stopped, Dead=False, OOMKilled=False, Error='',
+                    Pid=0 if self.stopped else 42, ExitCode=0,
+                    StartedAt='2026-10-17T10:00:00.123456789Z',
+                    FinishedAt='2026-10-17T10:00:01.123456790Z' if self.stopped else '0001-01-01T00:00:00Z'))]).encode()
         if argv[0] == 'cp':
             lifecycle.validate_archive(kwargs['input_data'])
             return b''
+        if argv[0] == 'stop':
+            self.stopped = True
+            return ID.encode()
         if argv[0] == 'start':
+            self.started = True
             return ID.encode()
         if argv[0] == 'rm':
             if self.fault == 'cleanup':
@@ -112,6 +123,19 @@ class DockerDouble:
 
 
 class Matrix(unittest.TestCase):
+    def test_success_stops_and_observes_clean_exit_before_removal(self):
+        daemon = DockerDouble()
+        result = lifecycle.run_bootstrap(IMAGE, CONFIG, RUN, daemon)
+        stop_index = next(i for i, call in enumerate(daemon.calls) if call[0] == 'stop')
+        remove_index = next(i for i, call in enumerate(daemon.calls) if call[0] == 'rm')
+        self.assertEqual(daemon.calls[stop_index], ['stop', '--timeout', '5', ID])
+        self.assertTrue(any(call[:2] == ['container', 'inspect']
+                            for call in daemon.calls[stop_index + 1:remove_index]))
+        self.assertEqual(daemon.calls[remove_index], ['rm', ID])
+        self.assertTrue(result['shutdown_verified'])
+        self.assertFalse(result['forced_shutdown'])
+        self.assertFalse(result['runtime_ready'])
+
     def test_success_requires_sql_key_and_cleanup_and_closed_create(self):
         daemon = DockerDouble()
         result = lifecycle.run_bootstrap(IMAGE, CONFIG, RUN, daemon)
@@ -195,6 +219,286 @@ class Matrix(unittest.TestCase):
         self.assertTrue(lifecycle.password_matches('postgres', verifier))
         self.assertFalse(lifecycle.password_matches('postgres', verifier.replace('4096', '4097')))
         self.assertTrue(lifecycle.validate_archive(lifecycle.public_archive())['content_verified'])
+
+
+class ShutdownMatrix(unittest.TestCase):
+    def test_final_cleanup_observation_cannot_complete_after_cleanup_deadline(self):
+        from unittest.mock import patch
+        daemon = DockerDouble()
+        now = 0
+        def command(argv, **kwargs):
+            nonlocal now
+            raw = daemon(argv, **kwargs)
+            if daemon.removed and argv[:2] == ['container', 'ls']:
+                now = 11
+            return raw
+        with patch.object(lifecycle.time, 'monotonic', side_effect=lambda: now), self.assertRaises(dev.Refusal) as error:
+            lifecycle.run_bootstrap(IMAGE, CONFIG, RUN, command)
+        self.assertEqual(error.exception.code, 'cleanup_unresolved')
+        self.assertTrue(daemon.removed)
+        self.assertEqual(sum(c[0] == 'rm' for c in daemon.calls), 1)
+
+    def test_one_shot_malformed_ownership_cannot_be_restored_for_cleanup(self):
+        for malformed in [b'{', b'[{"Id":"first","Id":"second"}]', b'[{"Id":NaN}]']:
+            daemon = DockerDouble()
+            observations = 0
+            def command(argv, **kwargs):
+                nonlocal observations
+                raw = daemon(argv, **kwargs)
+                if argv[:2] == ['container', 'inspect']:
+                    observations += 1
+                    if observations == 1:
+                        return malformed
+                return raw
+            with self.subTest(malformed=malformed), self.assertRaises(dev.Refusal) as error:
+                lifecycle.run_bootstrap(IMAGE, CONFIG, RUN, command)
+            self.assertEqual(error.exception.code, 'cleanup_unresolved')
+            self.assertEqual(observations, 1)
+            self.assertFalse(any(c[0] in ('cp', 'start', 'exec', 'stop', 'rm') for c in daemon.calls))
+
+    def test_interruption_in_poststop_observation_or_cleanup_never_succeeds(self):
+        for interrupt_observation in [1, 2]:
+            daemon = DockerDouble()
+            stopped_observations = 0
+            def command(argv, **kwargs):
+                nonlocal stopped_observations
+                raw = daemon(argv, **kwargs)
+                if daemon.stopped and argv[:2] == ['container', 'inspect']:
+                    stopped_observations += 1
+                    if stopped_observations == interrupt_observation:
+                        raise KeyboardInterrupt()
+                return raw
+            with self.subTest(interrupt_observation=interrupt_observation), self.assertRaises(KeyboardInterrupt):
+                lifecycle.run_bootstrap(IMAGE, CONFIG, RUN, command)
+            self.assertEqual(stopped_observations, 2)
+            self.assertEqual(sum(c[0] == 'stop' for c in daemon.calls), 1)
+            if interrupt_observation == 1:
+                self.assertTrue(daemon.removed)
+                self.assertIn(['rm', '--force', ID], daemon.calls)
+            else:
+                self.assertFalse(daemon.removed)
+                self.assertFalse(any(c[0] == 'rm' for c in daemon.calls))
+
+    def test_unclean_or_incomplete_poststop_state_never_qualifies(self):
+        changes = [({'OOMKilled': True}, 'shutdown_oom'),
+                   ({'ExitCode': 137}, 'shutdown_forced_exit'),
+                   ({'ExitCode': 1}, 'shutdown_nonzero_exit'),
+                   ({'Running': True}, 'shutdown_still_running'),
+                   ({'Status': 'dead', 'Dead': True}, 'shutdown_invalid_state'),
+                   ({'Error': 'sensitive-canary'}, 'shutdown_invalid_state'),
+                   ({'Pid': 42}, 'shutdown_invalid_state'),
+                   ({'Pid': False}, 'shutdown_invalid_state'),
+                   ({'ExitCode': False}, 'shutdown_invalid_state'),
+                   ({'OOMKilled': 0}, 'shutdown_invalid_state'),
+                   ({'Running': 0}, 'shutdown_invalid_state'),
+                   ({'Dead': 0}, 'shutdown_invalid_state'),
+                   ({'Status': 'created'}, 'shutdown_invalid_state'),
+                   ({'StartedAt': '2026-10-17T10:00:00.123456788Z'}, 'shutdown_invalid_state'),
+                   ({'FinishedAt': '2026-10-17T10:00:00.123456789Z'}, 'shutdown_invalid_state'),
+                   ({'FinishedAt': '2026-10-17T10:00:00.123456788Z'}, 'shutdown_invalid_state'),
+                   ({'FinishedAt': '0001-01-01T00:00:00Z'}, 'shutdown_invalid_state'),
+                   ({'FinishedAt': '2026-02-30T10:00:00Z'}, 'shutdown_invalid_state'),
+                   ({'FinishedAt': '2026-10-17T12:00:00+02:00'}, 'shutdown_invalid_state'),
+                   ({'FinishedAt': None}, 'shutdown_invalid_state')]
+        for change, code in changes:
+            daemon = DockerDouble()
+            def command(argv, **kwargs):
+                raw = daemon(argv, **kwargs)
+                if daemon.stopped and argv[:2] == ['container', 'inspect']:
+                    rows = json.loads(raw)
+                    rows[0]['State'].update(change)
+                    return json.dumps(rows).encode()
+                return raw
+            with self.subTest(change=change), self.assertRaises(dev.Refusal) as error:
+                lifecycle.run_bootstrap(IMAGE, CONFIG, RUN, command)
+            self.assertEqual(error.exception.code, code)
+            self.assertTrue(daemon.removed)
+            self.assertIn(['rm', '--force', ID], daemon.calls)
+            self.assertNotIn('sensitive', error.exception.code)
+
+    def test_before_stop_requires_verified_running_state(self):
+        for change in [{'Status': 'exited'}, {'Pid': 0}, {'Pid': True},
+                       {'StartedAt': '0001-01-01T00:00:00Z'}, {'StartedAt': None}]:
+            daemon = DockerDouble()
+            def command(argv, **kwargs):
+                raw = daemon(argv, **kwargs)
+                if any(c[0] == 'exec' and 'sh' in c for c in daemon.calls) and argv[:2] == ['container', 'inspect']:
+                    rows = json.loads(raw)
+                    rows[0]['State'].update(change)
+                    return json.dumps(rows).encode()
+                return raw
+            with self.subTest(change=change), self.assertRaises(dev.Refusal) as error:
+                lifecycle.run_bootstrap(IMAGE, CONFIG, RUN, command)
+            self.assertEqual(error.exception.code, 'shutdown_invalid_state')
+            self.assertFalse(daemon.stopped)
+            self.assertTrue(daemon.removed)
+
+    def test_stop_command_failure_or_timeout_cleans_without_claiming_shutdown(self):
+        for code in ['command_deadline', 'command_refused', 'command_output_too_large']:
+            daemon = DockerDouble()
+            def command(argv, **kwargs):
+                raw = daemon(argv, **kwargs)
+                if argv[0] == 'stop':
+                    dev.refuse('images_cli', code)
+                return raw
+            with self.subTest(code=code), self.assertRaises(dev.Refusal) as error:
+                lifecycle.run_bootstrap(IMAGE, CONFIG, RUN, command)
+            self.assertEqual(error.exception.code, 'shutdown_failed')
+            self.assertIn(['rm', '--force', ID], daemon.calls)
+
+    def test_changed_owner_before_or_after_stop_never_deletes_even_if_restored(self):
+        for when in ['before', 'after']:
+            for field in ['Id', 'Image', 'Labels', 'Networks', 'Memory']:
+                daemon = DockerDouble()
+                changed = False
+                def command(argv, **kwargs):
+                    nonlocal changed
+                    raw = daemon(argv, **kwargs)
+                    ready = any(c[0] == 'exec' and 'sh' in c for c in daemon.calls)
+                    if not changed and ready and (when == 'before' or daemon.stopped) and argv[:2] == ['container', 'inspect']:
+                        changed = True
+                        rows = json.loads(raw)
+                        row = rows[0]
+                        if field in ('Id', 'Image'):
+                            row[field] = 'foreign'
+                        elif field == 'Labels':
+                            row['Config']['Labels'] = {}
+                        elif field == 'Networks':
+                            row['NetworkSettings']['Networks']['foreign'] = {}
+                        else:
+                            row['HostConfig'][field] = 0
+                        return json.dumps(rows).encode()
+                    return raw
+                with self.subTest(when=when, field=field), self.assertRaises(dev.Refusal) as error:
+                    lifecycle.run_bootstrap(IMAGE, CONFIG, RUN, command)
+                self.assertEqual(error.exception.code, 'cleanup_unresolved')
+                self.assertEqual(daemon.stopped, when == 'after')
+                self.assertFalse(daemon.removed)
+
+    def test_shutdown_can_finish_after_initialization_deadline_with_its_own_budget(self):
+        from unittest.mock import patch
+        daemon = DockerDouble()
+        now = 0
+        def command(argv, **kwargs):
+            nonlocal now
+            raw = daemon(argv, **kwargs)
+            if argv[0] == 'exec' and 'sh' in argv:
+                now = 119
+            if argv[0] == 'stop':
+                now = 122
+            if daemon.stopped and argv[:2] == ['container', 'inspect']:
+                now = 123
+            return raw
+        with patch.object(lifecycle.time, 'monotonic', side_effect=lambda: now):
+            result = lifecycle.run_bootstrap(IMAGE, CONFIG, RUN, command)
+        self.assertEqual(now, 123)
+        self.assertTrue(result['shutdown_verified'])
+        self.assertFalse(result['forced_shutdown'])
+        self.assertFalse(result['runtime_ready'])
+        self.assertTrue(daemon.removed)
+        self.assertIn(['stop', '--timeout', '5', ID], daemon.calls)
+        self.assertIn(['rm', ID], daemon.calls)
+        self.assertNotIn(['rm', '--force', ID], daemon.calls)
+
+    def test_shutdown_has_separate_total_budget_and_cleanup_is_independent(self):
+        from unittest.mock import patch
+        for expire_at in ['before-stop', 'after-stop', 'after-observation']:
+            daemon = DockerDouble()
+            now = 0
+            def command(argv, **kwargs):
+                nonlocal now
+                raw = daemon(argv, **kwargs)
+                if argv[0] == 'exec' and 'sh' in argv:
+                    now = 119
+                if expire_at == 'before-stop' and argv[:2] == ['container', 'inspect'] and now == 119:
+                    now = 135
+                if expire_at == 'after-stop' and argv[0] == 'stop':
+                    now = 135
+                if expire_at == 'after-observation' and daemon.stopped and argv[:2] == ['container', 'inspect']:
+                    now = 135
+                return raw
+            with self.subTest(expire_at=expire_at), patch.object(lifecycle.time, 'monotonic', side_effect=lambda: now), self.assertRaises(dev.Refusal) as error:
+                lifecycle.run_bootstrap(IMAGE, CONFIG, RUN, command)
+            self.assertEqual(error.exception.code, 'shutdown_deadline')
+            self.assertTrue(daemon.removed)
+            self.assertIn(['rm', '--force', ID], daemon.calls)
+
+    def test_restart_after_key_cannot_qualify_a_different_started_instance(self):
+        daemon = DockerDouble()
+        def command(argv, **kwargs):
+            raw = daemon(argv, **kwargs)
+            if any(c[0] == 'exec' and 'sh' in c for c in daemon.calls) and argv[:2] == ['container', 'inspect']:
+                rows = json.loads(raw)
+                rows[0]['State']['StartedAt'] = '2026-10-17T10:00:00.123456790Z'
+                return json.dumps(rows).encode()
+            return raw
+        with self.assertRaises(dev.Refusal) as error:
+            lifecycle.run_bootstrap(IMAGE, CONFIG, RUN, command)
+        self.assertEqual(error.exception.code, 'shutdown_instance_changed')
+        self.assertFalse(daemon.stopped)
+        self.assertIn(['rm', '--force', ID], daemon.calls)
+
+    def test_nanosecond_completion_and_cleanup_state_recheck(self):
+        daemon = DockerDouble()
+        def command(argv, **kwargs):
+            raw = daemon(argv, **kwargs)
+            if daemon.stopped and argv[:2] == ['container', 'inspect']:
+                rows = json.loads(raw)
+                rows[0]['State']['FinishedAt'] = '2026-10-17T10:00:00.123456790Z'
+                return json.dumps(rows).encode()
+            return raw
+        result = lifecycle.run_bootstrap(IMAGE, CONFIG, RUN, command)
+        self.assertTrue(result['shutdown_verified'])
+        self.assertIn(['rm', ID], daemon.calls)
+        daemon = DockerDouble()
+        stopped_observations = 0
+        def changed_after_proof(argv, **kwargs):
+            nonlocal stopped_observations
+            raw = daemon(argv, **kwargs)
+            if daemon.stopped and argv[:2] == ['container', 'inspect']:
+                stopped_observations += 1
+                if stopped_observations == 2:
+                    rows = json.loads(raw)
+                    rows[0]['State']['StartedAt'] = '2026-10-17T10:00:00.123456790Z'
+                    return json.dumps(rows).encode()
+            return raw
+        with self.assertRaises(dev.Refusal) as error:
+            lifecycle.run_bootstrap(IMAGE, CONFIG, RUN, changed_after_proof)
+        self.assertEqual(error.exception.code, 'cleanup_unresolved')
+        self.assertFalse(daemon.removed)
+
+    def test_final_key_overrun_cannot_reset_expired_initialization_budget(self):
+        from unittest.mock import patch
+        daemon = DockerDouble()
+        now = 0
+        def command(argv, **kwargs):
+            nonlocal now
+            raw = daemon(argv, **kwargs)
+            if argv[0] == 'exec' and 'sh' in argv:
+                now = 121
+            return raw
+        with patch.object(lifecycle.time, 'monotonic', side_effect=lambda: now), self.assertRaises(dev.Refusal) as error:
+            lifecycle.run_bootstrap(IMAGE, CONFIG, RUN, command)
+        self.assertEqual(error.exception.code, 'execution_failed_key')
+        self.assertFalse(daemon.stopped)
+        self.assertIn(['rm', '--force', ID], daemon.calls)
+
+    def test_initialization_failure_or_interruption_never_requests_success_stop(self):
+        for fault in ['key', 'sql']:
+            daemon = DockerDouble(fault)
+            with self.subTest(fault=fault), self.assertRaises(dev.Refusal):
+                lifecycle.run_bootstrap(IMAGE, CONFIG, RUN, daemon)
+            self.assertFalse(daemon.stopped)
+            self.assertIn(['rm', '--force', ID], daemon.calls)
+        daemon = DockerDouble()
+        def command(argv, **kwargs):
+            raw = daemon(argv, **kwargs)
+            if argv[0] == 'stop':
+                raise KeyboardInterrupt()
+            return raw
+        with self.assertRaises(KeyboardInterrupt):
+            lifecycle.run_bootstrap(IMAGE, CONFIG, RUN, command)
+        self.assertIn(['rm', '--force', ID], daemon.calls)
 
 
 class BoundedInput(unittest.TestCase):

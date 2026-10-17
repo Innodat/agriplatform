@@ -192,3 +192,33 @@ The active PostgreSQL `SHOW data_directory` must return
 after initialization.
 Docker inspection must continue to show only the `none` network, no published
 ports, no binds and the exact tmpfs declaration before every owned operation.
+
+
+## Bounded observed shutdown for the disposable proof
+
+After the SQL/key checks, the same lifecycle owner starts a separate fixed
+15-second shutdown phase, keeping the 120-second initialization budget unchanged.
+It records the nonzero UTC StartedAt of the first verified running instance before
+SQL/key checks and requires the same started instance immediately before stop,
+requests `docker stop --timeout 5` by the exact recorded ID, then rechecks both
+ownership and process state. Every command remains capped at ten seconds and
+65,536 combined output bytes. Stop command success alone does not qualify a
+shutdown: Docker may kill a process after the stop timeout.
+
+Successful qualification requires Status `exited`, Running and Dead false, PID
+zero, integer exit code zero, OOMKilled false, empty Error, unchanged StartedAt,
+and a completed nonzero UTC FinishedAt strictly later than StartedAt. UTC timestamp
+validation preserves nanosecond ordering. The successful result adds only
+`shutdown_verified: true` and `forced_shutdown: false`; `runtime_ready` stays false.
+Safe failure codes distinguish OOM, forced exit137, another nonzero exit, still
+running, changed started instance, invalid state, shutdown deadline and command failure without emitting
+Docker state, child output or business content.
+
+Cleanup retains an independent ten-second budget. It checks current ownership
+again, and after successful shutdown rechecks the same clean stopped state before
+normal `rm` and observed absence. Earlier failures/interruption retain owned force
+cleanup, never clean-shutdown evidence. An observed identity/configuration change
+latches refusal: even a later matching descriptor cannot authorize stop or deletion
+in that execution. Uncertain ownership, failed removal or failed absence observation
+reports `cleanup_unresolved`. No container adoption/replay, durable storage or real
+CLI transport/runtime admission is added.

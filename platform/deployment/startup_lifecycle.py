@@ -78,6 +78,7 @@ def transfer_event():
 
 # This separate opt-in proof never uses the guarded DockerSession container routes.
 BOOTSTRAP_SECONDS = 120
+SHUTDOWN_SECONDS = 15
 BOOTSTRAP_OUTPUT = 65536
 ROLES = ('postgres', 'authenticator', 'pgbouncer', 'supabase_auth_admin',
          'supabase_storage_admin', 'supabase_replication_admin', 'supabase_read_only_user')
@@ -89,7 +90,8 @@ def bootstrap_fail(code):
 
 def bootstrap_success():
     return dict(ok=True, stage='postgres_bootstrap', code='qualified', initialized=True,
-                runtime_ready=False, cleanup_verified=True, role_passwords_verified=True,
+                runtime_ready=False, cleanup_verified=True, shutdown_verified=True,
+                forced_shutdown=False, role_passwords_verified=True,
                 jwt_settings_verified=True, migration_markers_verified=True,
                 internal_schemas_verified=True, root_key_verified=True)
 
@@ -131,6 +133,50 @@ def password_matches(role, verifier):
         return False
 
 
+def shutdown_timestamp(value):
+    """Validate Docker UTC timestamps without losing nanosecond ordering."""
+    import datetime
+    if type(value) is not str:
+        bootstrap_fail('shutdown_invalid_state')
+    match = re.fullmatch(r'(\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2})(?:\.(\d{1,9}))?Z', value)
+    if not match:
+        bootstrap_fail('shutdown_invalid_state')
+    try:
+        instant = datetime.datetime.strptime(match[1], '%Y-%m-%dT%H:%M:%S')
+    except ValueError:
+        bootstrap_fail('shutdown_invalid_state')
+    if instant.year <= 1:
+        bootstrap_fail('shutdown_invalid_state')
+    return instant, int((match[2] or '').ljust(9, '0'))
+
+
+def shutdown_state(row, started_at=None):
+    """Only exact, observed normal exit of the verified started instance qualifies."""
+    state = row.get('State')
+    if type(state) is not dict:
+        bootstrap_fail('shutdown_invalid_state')
+    started = shutdown_timestamp(state.get('StartedAt'))
+    if state.get('OOMKilled') is True:
+        bootstrap_fail('shutdown_oom')
+    if started_at is not None and type(state.get('ExitCode')) is int and state['ExitCode'] != 0:
+        bootstrap_fail('shutdown_forced_exit' if state['ExitCode'] == 137 else 'shutdown_nonzero_exit')
+    if started_at is not None and state.get('Running') is True:
+        bootstrap_fail('shutdown_still_running')
+    if (state.get('Dead') is not False or state.get('OOMKilled') is not False
+            or state.get('Error') != ''):
+        bootstrap_fail('shutdown_invalid_state')
+    if started_at is None:
+        if (state.get('Status') != 'running' or state.get('Running') is not True
+                or type(state.get('Pid')) is not int or state['Pid'] <= 0):
+            bootstrap_fail('shutdown_invalid_state')
+        return state['StartedAt']
+    if (state.get('StartedAt') != started_at or state.get('Status') != 'exited'
+            or state.get('Running') is not False or type(state.get('Pid')) is not int
+            or state['Pid'] != 0 or type(state.get('ExitCode')) is not int
+            or state['ExitCode'] != 0 or shutdown_timestamp(state.get('FinishedAt')) <= started):
+        bootstrap_fail('shutdown_invalid_state')
+
+
 def run_bootstrap(image, config, run_id, command):
     """Closed commands through an injected bounded runner. No adoption or replay."""
     import json
@@ -145,17 +191,23 @@ def run_bootstrap(image, config, run_id, command):
     tmpfs = {'/var/lib/postgresql/data': 'rw,noexec,nosuid,size=1073741824'}
     container_id = None
     expected_labels = None
+    ownership_changed = False
+    phase = 'initialization'
+    shutdown_verified = False
     def call(argv, **kwargs):
         remaining = deadline - time.monotonic()
         if remaining <= 0:
-            bootstrap_fail('initialization_deadline')
-        return command(argv, timeout=min(10, remaining), limit=BOOTSTRAP_OUTPUT, **kwargs)
+            bootstrap_fail(phase + '_deadline')
+        result = command(argv, timeout=min(10, remaining), limit=BOOTSTRAP_OUTPUT, **kwargs)
+        if phase in ('shutdown', 'cleanup') and time.monotonic() >= deadline:
+            bootstrap_fail(phase + '_deadline')
+        return result
     def decoded(argv):
         try:
             return dev.decode(call(argv))
         except (ValueError, TypeError):
             bootstrap_fail('invalid_observation')
-    def owned():
+    def inspect_owned():
         rows = decoded(['container', 'inspect', container_id])
         if type(rows) is not list or len(rows) != 1:
             bootstrap_fail('ownership_changed')
@@ -173,6 +225,19 @@ def run_bootstrap(image, config, run_id, command):
                 or any(m.get('Type') != 'tmpfs' or m.get('Destination') not in tmpfs for m in row.get('Mounts', []))):
             bootstrap_fail('ownership_changed')
         return row
+    def owned():
+        nonlocal ownership_changed
+        if ownership_changed:
+            bootstrap_fail('ownership_changed')
+        try:
+            return inspect_owned()
+        except (ValueError, KeyError, TypeError, AttributeError):
+            ownership_changed = True
+            bootstrap_fail('ownership_changed')
+        except dev.Refusal as error:
+            if error.code in ('ownership_changed', 'invalid_observation', 'duplicate_key', 'invalid_json'):
+                ownership_changed = True
+            raise
     rows = decoded(['image', 'inspect', image])
     if (type(rows) is not list or len(rows) != 1 or rows[0].get('Id') != config
             or rows[0].get('Os') != 'linux' or rows[0].get('Architecture') != 'amd64'
@@ -211,10 +276,15 @@ def run_bootstrap(image, config, run_id, command):
         step = 'start'
         call(['start', container_id])
         step = 'bootstrap_wait'
+        verified_started_at = None
         while True:
             row = owned()
             if row.get('State', {}).get('Running') is not True:
                 bootstrap_fail('initialization_stopped')
+            if verified_started_at is None:
+                verified_started_at = shutdown_state(row)
+            elif row.get('State', {}).get('StartedAt') != verified_started_at:
+                bootstrap_fail('initialization_instance_changed')
             try:
                 call(['exec', container_id, 'pg_isready', '-U', 'postgres', '-h', '/var/run/postgresql', '-d', 'postgres'])
                 break
@@ -278,19 +348,37 @@ def run_bootstrap(image, config, run_id, command):
         key_check = "test -f /etc/postgresql-custom/pgsodium_root.key && test ! -L /etc/postgresql-custom/pgsodium_root.key && test \"$(stat -c '%a:%u:%g:%s' /etc/postgresql-custom/pgsodium_root.key)\" = '644:0:0:64' && test \"$(cat /etc/postgresql-custom/pgsodium_root.key)\" = '" + ROOT_KEY.decode() + "' && printf verified"
         if call(['exec', container_id, 'sh', '-c', key_check]) != b'verified':
             bootstrap_fail('key_check_failed')
+        # A late final initialization command cannot acquire a fresh shutdown budget.
+        if time.monotonic() >= deadline:
+            bootstrap_fail('initialization_deadline')
+        # Initialization and shutdown each have their own fixed total deadline.
+        phase = 'shutdown'
+        deadline = time.monotonic() + SHUTDOWN_SECONDS
+        step = 'shutdown'
+        started_at = shutdown_state(owned())
+        if started_at != verified_started_at:
+            bootstrap_fail('shutdown_instance_changed')
+        call(['stop', '--timeout', '5', container_id])
+        shutdown_state(owned(), started_at)
+        shutdown_verified = True
     except (dev.Refusal, OSError, ValueError, KeyError, TypeError, AttributeError) as error:
         failure = error
     finally:
         # Cleanup has its own short deadline, even if initialization exhausted its budget.
         deadline = time.monotonic() + 10
+        phase = 'cleanup'
         try:
-            owned()
-            call(['rm', '--force', container_id])
+            cleanup_row = owned()
+            if shutdown_verified:
+                shutdown_state(cleanup_row, started_at)
+            call(['rm', container_id] if shutdown_verified else ['rm', '--force', container_id])
             if call(['container', 'ls', '--all', '--quiet', '--filter', 'id=' + container_id]).strip():
                 bootstrap_fail('cleanup_unresolved')
         except (dev.Refusal, OSError, ValueError, KeyError, TypeError, AttributeError):
             bootstrap_fail('cleanup_unresolved')
     if failure is not None:
+        if step == 'shutdown':
+            bootstrap_fail(failure.code if isinstance(failure, dev.Refusal) and failure.code.startswith('shutdown_') else 'shutdown_failed')
         bootstrap_fail('execution_failed_' + step)
     result = bootstrap_success()
     result['loopback_password_required'] = False

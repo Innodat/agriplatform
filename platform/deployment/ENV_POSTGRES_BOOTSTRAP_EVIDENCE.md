@@ -1,5 +1,9 @@
 # Selected PostgreSQL bootstrap qualification
 
+Subsequent additive behavior: [bounded verified shutdown](ENV_POSTGRES_SHUTDOWN_EVIDENCE.md)
+now requires clean stopped-state evidence before successful qualification and normal
+removal. The original run results and scope below remain historical evidence.
+
 Delivery: [Build specification](../../_bmad-output/implementation-artifacts/spec-env-postgres-bootstrap.md).
 This is an isolated synthetic image/bootstrap proof. Full ENV/P1/SERVICE acceptance
 and `up` runtime admission remain unfinished; `runtime_ready=false` throughout.

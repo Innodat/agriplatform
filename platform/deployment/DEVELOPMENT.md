@@ -43,6 +43,11 @@ key bytes/mode/owner and tmpfs storage, then verifies its owned container was re
 It caps memory at2GiB, CPU at two cores and PIDs at256, disables Docker logs, and
 verifies PostgreSQL's actual data directory. Current ownership checks enforce these
 settings before each copy/start/exec/removal.
+The [bounded shutdown increment](ENV_POSTGRES_SHUTDOWN_EVIDENCE.md) now requests
+normal stop within a fixed phase, verifies the same started instance exited cleanly,
+and rechecks that stopped state before ordinary removal. Timeout, OOM, nonzero exit,
+restart or uncertain ownership cannot report clean shutdown. Failure cleanup remains
+bounded and confined to the verified disposable container; it is not recovery proof.
 The pinned image trusts loopback; the proof records that fact separately from password
 installation and makes no authentication-enforcement claim. This does not admit `up`.
 
@@ -54,7 +59,7 @@ python3 platform/deployment/tests/qualify_startup.py --target platform/deploymen
 ```
 
 This explicitly executes disposable synthetic image initialization. Commands/output and
-initialization/cleanup have fixed bounds. An uncertain create or lost ownership refuses
+initialization/shutdown/cleanup have separate fixed bounds. An uncertain create or lost ownership refuses
 without adoption/replay/deletion; `cleanup_unresolved` requires inspection of the recorded
 run-labelled resource before recovery. Never use broad container/volume cleanup.
 For manual inspection, the exact deterministic name is `env-pg-bootstrap-<UUID>`;
