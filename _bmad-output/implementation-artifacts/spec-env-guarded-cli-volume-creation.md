@@ -2,7 +2,7 @@
 title: 'ENV guarded CLI volume creation integration'
 type: 'feature'
 created: '2026-10-16'
-status: 'in-review'
+status: 'done'
 baseline_commit: 'd4bdd2fbfb1def85f3875f89970b6355909ba348'
 route: 'dispatch'
 review_loop_iteration: 0
@@ -98,3 +98,14 @@ code/test findings resolved, final evidence closure remains. Two fresh image col
 refused; safe diagnostic identified registry HTTP429. Preserve incomplete runs and
 perform final fresh qualification after full synthetic regression. No bypass or
 new retry behavior.
+
+Final closure2026-10-17:429 deployment tests PASS360.909s. Fresh run
+`05e169bc-8a00-4c7c-aca2-1ada8bd97454` passes preparation/toolchain/images and all15
+public controls' original expected results, with13 retained files/source snapshots
+unchanged. Earlier registry and deadline refusals remain recorded; no source,
+expectation or deadline was relaxed. Public record SHA256
+`00997dff9436a55ff2867e2467991c4bb0bcda3d5e2262ac50441b2e7cabcf71`.
+Real read-only up still refuses `docker_28_required`; runtime false. AST, scoped
+whitespace and local links pass. All eleven review instances resolved, none deferred;
+all five impact decisions documented. See ENV_GUARDED_CLI_VOLUME_EVIDENCE.md for exact
+commands/results, unsuccessful attempts and remaining ENV/scaffold gates.

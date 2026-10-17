@@ -11,15 +11,21 @@ close the enclosing ENV acceptance item. See individual evidence records below.
 | Target/configuration | Protected disposable run preparation, exact source/config binding, deterministic owner names and Docker>=28 gate | Actual isolated stack startup and current readiness |
 | Dependency baseline | Six pinned executables including TypeScript7.0.2; Python wheel-lock and frontend compatibility fixtures | Generated consuming application/service proof; target/native compatibility; documented third-party declaration limitations |
 | Images/resources | Four immutable image identities, guarded owned bridge/database-volume acquisition, daemon observations, current volume-use refusal, joint same-session acquisition and absent-volume startup construction | Execution-time enforcement, volume freshness/initialization/reuse and reservation/exclusivity |
-| PostgreSQL startup | Exact first-create profile, closed in-memory API request and private synthetic existing/fresh create/file-transfer/refused-start proof | Bootstrap semantic/secret safety, actual create/start, health and bounded stop/reset/recovery |
+| PostgreSQL startup | Exact first-create profile, closed in-memory API request, private synthetic existing/fresh create/file-transfer/refused-start proof, pinned CLI volume creation through retained ENV owner checks | Bootstrap semantic/secret safety, actual create/start, health and bounded stop/reset/recovery |
 | Owner integration | Ordered ENV/P1/SERVICE/Identity/Access/WRITE contracts and retained ownership | Existing generator recipe/schema/templates, regeneration/custom preservation, generated install/type/build/start/current-Access proof, coordinated owner migrations/fixtures/recovery |
 | Provider/device | Explicit nonproduction origins/callback contracts | LAN HTTPS/DNS/testCA, actual Entra callbacks and installed Android/iPhone proof at consuming gates |
 
-The observed host Docker27.0.3 does not meet the >=28 isolation prerequisite. A
-supported daemon would still encounter `runtime_adapter_unqualified`. Upgrading the
-shared daemon, provisioning infrastructure and production/pilot actions are outside
-this delivery approval. Continue bounded ENV and scaffold work before dependent
-Identity/Access/WRITE or the server-backed KDG slice.
+`up` means `python3 platform/deployment/dev.py up --target <JSON> --run-id <UUID>`:
+the repository's intended isolated-stack start command. Its current implementation
+validates preparation and ports, checks the Docker Engine and refuses startup.
+The observed shared Engine27.0.3 (API1.46) fails `docker_28_required`; Engine>=28 is
+required for the selected localhost-isolation behavior. Updating a repository package
+or Docker client does not upgrade that engine. A supported engine still encounters
+`runtime_adapter_unqualified`, because runtime startup remains unfinished. These are
+two distinct gates. The host version mismatch can be resolved by an engine upgrade or
+a supported isolated target, but changing the shared host/provisioning infrastructure
+and production/pilot actions are outside this delivery approval. Continue bounded
+ENV and scaffold implementation before dependent Identity/Access/WRITE or KDG server work.
 
 ENV now implements the first bounded preparation increment of the
 [environment contract](../docs/architecture/contracts/scaffold-environment-and-generation.md).
@@ -797,3 +803,43 @@ Existing positive/acquisition controls remain available. All peers and acknowled
 are private synthetic fixtures; no real resource or container is created.
 See [fresh-start evidence](ENV_FRESH_START_EVIDENCE.md) for commands, results,
 requirement-to-test traceability and scaffold/UI/context/documentation/ADR impacts.
+
+## Guarded CLI volume-owner integration
+
+The fresh pinned-CLI qualifier can now retain the existing resource guard through
+its volume probe/create boundary. `resources.fresh_session` retains the run lock,
+qualified evidence, one connection/version and total five-second daemon budget.
+Constructor-only `resources.invocation` retains its existing absence-only contract.
+The CLI's exact two-label create operands are admitted to the existing owner, which
+sends its six-label ENV request, validates acknowledgement and reinspection, refuses
+current container references and repeats image/network/volume/use observations before
+acknowledgement and after the CLI terminates. Existing metadata acquisition keeps its
+adoption behavior; fresh creation refuses an already-present volume.
+
+A closed private fixture handoff services only the missing probe and exact create
+phase. The generated private socket, peer PID/UID, in-memory capability, source/root,
+fixture/wrapper/config bytes and total deadline are checked. Per-request custody also
+covers changes between the outer handoff check and volume POST. Framing/output are
+bounded, partial requests use remaining total time, and terminal failure kills the
+proven process group. Capability bytes are never persisted or hashed. Only the
+private disposable workdir is removed after the guard's final checks.
+
+```sh
+python3 platform/deployment/tests/qualify_startup.py --target platform/deployment/environments/kdg-local.json --run-id <fresh-qualified-UUID> --control guarded-fresh
+```
+
+This public qualifier always creates a private synthetic Docker peer; it accepts no
+caller daemon endpoint. Its independent positive oracle contains70 requests on one
+connection. Negative controls use `guarded-` plus `existing`, `foreign`,
+`lost-response`, `truncated-response`, `bad-ack`, `bad-descriptor`, `changed`, `use`,
+`late-image`, `late-network`, `late-volume` or `late-use`, with exact terminal requests.
+They terminate without replay, adoption, cleanup or a returned readiness claim.
+
+The observed selected volume descriptor is separate from the planned profile and
+omits unsafe/nonessential metadata. These are synthetic daemon observations: Docker's
+idempotent create,201 or labels cannot prove immutable identity, exclusive reservation,
+empty contents or initialization. PostgreSQL create/copy remains synthetic and first
+start refuses; no actual container or setup SQL is executed. Bootstrap/secret safety,
+initialized reuse, live lifecycle/health/recovery, full `up` integration and P1/SERVICE
+consuming scaffold proof remain open. See [integration evidence](ENV_GUARDED_CLI_VOLUME_EVIDENCE.md)
+for exact results, traceability and all five impact decisions.

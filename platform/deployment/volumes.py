@@ -125,3 +125,32 @@ def acquire_session(target, run_id, session, current):
     observe_unused(session, latest['Name'], current)
     current()
     return {'volume': latest, 'post_attempted': post_attempted, 'runtime_ready': False}
+
+
+def create_fresh_session(target, run_id, session, current):
+    """Fresh-only owner boundary: never adopt, replay or clean up a volume.
+
+    Absence and a valid201 are observations, not immutable identity or proof of
+    empty storage. The caller retains the connection, evidence and total deadline.
+    """
+    require_absent(target, run_id, session, current)
+    expected = create_input(target, run_id)
+    current()
+    status, response = session.exchange('POST', PREFIX + 'create', expected)
+    current()
+    if status != 201:
+        fail('volume_create_failed')
+    volume = startup.volume_descriptor(response, target, run_id)
+    current()
+    status, response = session.exchange('GET', PREFIX + expected['Name'])
+    current()
+    if status == 404:
+        fail('volume_changed')
+    if status != 200:
+        fail('volume_inspection_failed')
+    latest = startup.volume_descriptor(response, target, run_id)
+    if latest != volume:
+        fail('volume_changed')
+    observe_unused(session, latest['Name'], current)
+    current()
+    return {'volume': latest, 'post_attempted': True, 'runtime_ready': False}

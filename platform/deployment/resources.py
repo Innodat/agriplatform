@@ -4,6 +4,7 @@ No public real-daemon selector, startup execution or runtime readiness. The priv
 handoff is a trusted immediate nonblocking constructor; arbitrary Python cannot be
 preempted. Owner tool probes remain outside the five-second daemon phase.
 """
+from contextlib import contextmanager
 import time
 
 import daemon_images
@@ -67,13 +68,18 @@ def acquire(target_path, run_id, *, _socket_path='/var/run/docker.sock', _handof
     return result
 
 
-def invocation(target_path, run_id, executable, work, *, _socket_path='/var/run/docker.sock'):
-    """Construct fresh-start argv leaving volume creation to the CLI; never execute."""
+@contextmanager
+def fresh_session(target_path, run_id, executable, work, *, _socket_path='/var/run/docker.sock', _executable_custody=None):
+    """Retain fresh custody across a bounded consumer; constructors stay immediate."""
+    if _executable_custody is not None:
+        _executable_custody.check()
     with daemon_images.qualified_evidence(target_path, run_id) as (target, plan, evidence):
         startup.check_workdir(work, target, run_id)
         deadline = time.monotonic() + SECONDS
         def current():
             evidence()
+            if _executable_custody is not None:
+                _executable_custody.check()
             if time.monotonic() >= deadline:
                 dev.refuse('docker', 'docker_timeout')
         with dev.DockerSession(_socket_path=_socket_path, deadline=deadline) as session:
@@ -100,8 +106,100 @@ def invocation(target_path, run_id, executable, work, *, _socket_path='/var/run/
             current()
             session.idle()
             session.budget()
-            result = startup.invocation(executable, work, target, run_id, latest)
-            current()
-            session.idle()
-            session.budget()
+            command = startup.invocation(executable, work, target, run_id, latest)
+            guard = FreshGuard(target, run_id, session, current, deadline, plan, images, latest, command)
+            guard.check()
+            yield guard
+            if guard.volume is not None:
+                guard.joint()
+            guard.check()
+
+
+class FreshGuard:
+    """One sequential fresh operation on the retained owner session, never a reservation."""
+    def __init__(self, target, run_id, session, current, deadline, plan, images, network, command):
+        self.target, self.run_id, self.session = target, run_id, session
+        self._current, self.deadline, self.plan = current, deadline, plan
+        self.images, self.network, self.command = images, network, command
+        self.volume, self.phase = None, 0
+        self._fixture, self._listener_identity = None, None
+
+    def bind_fixture(self, work, work_fd, sources, fixture_hash, wrappers):
+        """Bind only the closed startup fixture's concrete private custody fields."""
+        if self._fixture is not None or self.phase != 0:
+            startup.fail('invalid_owner_handoff')
+        self._fixture = (work, work_fd, dict(sources), fixture_hash, dict(wrappers))
+        self.current()
+
+    def bind_listener(self, identity):
+        if self._fixture is None or self._listener_identity is not None:
+            startup.fail('invalid_owner_handoff')
+        self._listener_identity = identity
+        self.current()
+
+    def current(self):
+        self._current()
+        if self._fixture is not None:
+            startup.check_fixture_custody(*self._fixture, self.target, self.run_id,
+                                          listener_identity=self._listener_identity)
+
+    def check(self):
+        self.current()
+        self.session.idle()
+        self.session.budget()
+
+    def remaining(self):
+        self.check()
+        return self.deadline - time.monotonic()
+
+    def joint(self):
+        self.check()
+        if daemon_images.observe_session(self.session, self.plan, self.current) != self.images:
+            daemon_images.fail('image_identity_mismatch')
+        network_id = self.network['Id']
+        for reference in [network_id, networks.create_input(self.target, self.run_id)['Name'], network_id]:
+            self.current()
+            status, actual = self.session.exchange('GET', networks.PREFIX + reference)
+            if status == 404:
+                networks.fail('network_replaced')
+            if status != 200:
+                networks.fail('network_inspection_failed')
+            if networks.descriptor(actual, self.target, self.run_id) != self.network:
+                networks.fail('network_replaced')
+        if self.volume is not None:
+            self.current()
+            status, actual = self.session.exchange('GET', volumes.PREFIX + self.volume['Name'])
+            if status == 404:
+                volumes.fail('volume_changed')
+            if status != 200:
+                volumes.fail('volume_inspection_failed')
+            if startup.volume_descriptor(actual, self.target, self.run_id) != self.volume:
+                volumes.fail('volume_changed')
+            volumes.observe_unused(self.session, self.volume['Name'], self.current)
+        self.check()
+
+    def probe(self):
+        if self.phase != 0:
+            startup.fail('invalid_owner_handoff')
+        self.check()
+        volumes.require_absent(self.target, self.run_id, self.session, self.current)
+        self.check()
+        self.phase = 1
+
+    def create(self):
+        if self.phase != 1:
+            startup.fail('invalid_owner_handoff')
+        # Consume before any uncertain mutation so this context cannot replay it.
+        self.phase = -1
+        self.joint()
+        result = volumes.create_fresh_session(self.target, self.run_id, self.session, self.current)
+        self.volume = result['volume']
+        self.joint()
+        self.phase = 2
+
+
+def invocation(target_path, run_id, executable, work, *, _socket_path='/var/run/docker.sock'):
+    """Immediate construction only; fresh execution uses the retained context."""
+    with fresh_session(target_path, run_id, executable, work, _socket_path=_socket_path) as guard:
+        result = guard.command
     return result

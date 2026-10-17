@@ -30,6 +30,14 @@ EXPECTED['use-late'] = 'volume_in_use'
 EXPECTED.update({name: 'volume_reuse_unsupported' for name in ['fresh-existing', 'fresh-foreign', 'fresh-late']})
 EXPECTED['fresh-error'] = 'volume_inspection_failed'
 
+GUARDED_FAILURES = {
+    'existing': ('volume_reuse_unsupported', 41), 'foreign': ('volume_reuse_unsupported', 41),
+    'lost-response': ('docker_response_invalid', 42), 'truncated-response': ('docker_response_invalid', 42),
+    'bad-ack': ('volume_create_failed', 42), 'bad-descriptor': ('volume_not_run_owned', 42),
+    'changed': ('volume_changed', 43), 'use': ('volume_in_use', 44),
+    'late-image': ('image_identity_mismatch', 58), 'late-network': ('network_replaced', 66),
+    'late-volume': ('volume_changed', 69), 'late-use': ('volume_in_use', 70)}
+
 
 class SyntheticDaemon(images_proof.SyntheticDaemon):
     def __init__(self, target, run_id, observations, control='positive', *, _network_conflict=False):
@@ -112,6 +120,55 @@ class SyntheticDaemon(images_proof.SyntheticDaemon):
         if (self.connections != 1 or self.errors or self.network.errors or self.volume.errors
                 or self.events != self.expected[:len(self.events)]
                 or count is not None and len(self.events) != count):
+            dev.refuse('resources', 'synthetic_event_mismatch')
+
+
+class GuardedDaemon(SyntheticDaemon):
+    """Independent complete retained-session oracle for the integrated CLI proof."""
+    def __init__(self, target, run_id, observations, scenario='positive'):
+        super().__init__(target, run_id, observations, 'fresh')
+        self.scenario = scenario
+        # The peer must stay alive while CLI wrappers run; the production guard
+        # still imposes the same single five-second total daemon deadline.
+        self.idle_seconds = 5.5
+        initial = list(self.expected)
+        volume = ('GET', '/v1.48/volumes/' + self.volume.name, None)
+        create = ('POST', '/v1.48/volumes/create', volume_proof.expected_request(target, run_id))
+        use = ('GET', volume_proof.expected_use_path(self.volume.name), None)
+        joint = ([('GET', '/v1.48/images/' + child + '/json', None) for child in observations] +
+                 [('GET', '/v1.48/images/' + value['Id'] + '/json', None) for value in observations.values()] +
+                 [('GET', '/v1.48/networks/' + ref, None) for ref in
+                  [self.network.network_id, self.network.name, self.network.network_id]])
+        self.expected = initial + [volume] + joint + [volume, create, volume, use] + (joint + [volume, use]) * 2
+        if scenario in ['lost-response', 'truncated-response']:
+            setattr(self, 'disconnect_at' if scenario == 'lost-response' else 'truncated_at', 42)
+
+    def dispatch(self, method, path, body):
+        count = len(self.events) + 1
+        if self.scenario in ['existing', 'foreign'] and count == 41:
+            self.volume.present = True
+            if self.scenario == 'foreign':
+                self.volume.volume['Labels'] = {}
+        if self.scenario in ['changed', 'late-volume'] and count == (43 if self.scenario == 'changed' else 69):
+            self.volume.volume['CreatedAt'] = '2026-10-16T00:00:00Z'
+        if self.scenario == 'late-image' and count == 58:
+            self.image_control = 'wrong-id'
+        if self.scenario == 'late-network' and count == 66:
+            self.network.network['Id'] = 'f' * 64
+        status, response = super().dispatch(method, path, body)
+        if count == 42:
+            if self.scenario == 'bad-ack':
+                return 200, response
+            if self.scenario == 'bad-descriptor':
+                response['Labels'] = {}
+        if (self.scenario == 'use' and count == 44 or self.scenario == 'late-use' and count == 70):
+            return 200, [{'Id': 'sensitive-container-marker'}]
+        return status, response
+
+    def validate_events(self, *, success=True):
+        count = len(self.expected) if success else GUARDED_FAILURES.get(self.scenario, (None, None))[1]
+        if (self.connections != 1 or self.errors or self.network.errors or self.volume.errors
+                or self.events != self.expected[:len(self.events)] or count is not None and len(self.events) != count):
             dev.refuse('resources', 'synthetic_event_mismatch')
 
 

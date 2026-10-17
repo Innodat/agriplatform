@@ -86,7 +86,7 @@ class SyntheticDaemon:
         class Handler(socketserver.BaseRequestHandler):
             def handle(self):
                 try:
-                    self.request.settimeout(1)
+                    self.request.settimeout(getattr(daemon, 'idle_seconds', 1))
                     daemon.connections += 1
                     while True:
                         data = b''

@@ -186,7 +186,7 @@ Actual generator/target/operator/role/old-new/backup-key/device/PtS regression a
 pre-pilot policies remain their recorded delivery/release gates.
 
 
-## Latest continuation — fresh-start admission, 2026-10-16
+## Preceding continuation — fresh-start admission, 2026-10-16
 
 The latest completed ENV Build is [fresh-start volume admission and CLI branch proof](../../../_bmad-output/implementation-artifacts/spec-env-fresh-start-admission.md).
 The existing guarded invocation observes missing volume state before bridge mutation
@@ -209,3 +209,34 @@ initialized reuse, health/stop/reset/recovery and existing P1/SERVICE scaffold a
 before dependent Identity/Access/WRITE or KDG server work. Retain the approved exact
 baseline including TypeScript7.0.2, current owners, synthetic-only verification and
 concurrent Leave/PtS documents. No questionnaire editor or Leave implementation.
+
+## Latest continuation — guarded CLI volume-owner integration, 2026-10-17
+
+The latest completed ENV Build is [guarded CLI volume creation integration](../../../_bmad-output/implementation-artifacts/spec-env-guarded-cli-volume-creation.md).
+The pinned CLI's truthful absent probe and two-label ensure-volume command now reach
+the existing ENV six-label volume owner on one retained guarded session. Owner
+creation/reinspection/use and joint resource checks precede acknowledgement; final
+joint/evidence checks precede proof return. Uncertain mutation has no replay/adoption/
+cleanup. Executable, private fixture, listener and evidence custody remain current.
+This closes the disconnected synthetic owner boundary, not real runtime startup.
+
+All429 deployment tests and15 public pinned-CLI expected results pass after review
+patches; eleven finding instances resolved, none deferred. Final qualification is in
+[integration evidence](../../../platform/deployment/ENV_GUARDED_CLI_VOLUME_EVIDENCE.md).
+Fresh run `05e169bc-8a00-4c7c-aca2-1ada8bd97454` passes preparation/toolchain/images;
+earlier registry-refused runs remain unchanged. Runtime readiness remains false.
+Earlier deadline-refused public attempts are recorded separately; no expectation or
+deadline was relaxed. All13 retained files and source bindings remain unchanged.
+
+`up` is the repository's intended local-stack launcher. The shared Engine27.0.3
+(API1.46) fails the Docker>=28 localhost-isolation prerequisite. A Docker client or
+repository dependency update cannot upgrade that shared daemon. Host upgrade or new
+infrastructure remains outside approval; a supported engine would still encounter
+the unfinished `runtime_adapter_unqualified` gate. Do not equate either prerequisite
+with a runnable stack.
+
+Continue bounded ENV bootstrap/secret/SQL semantics, initialized-volume reuse,
+execution continuity and health/stop/reset/recovery, plus existing P1/SERVICE scaffold
+acceptance, before dependent Identity/Access/WRITE or server-backed KDG delivery.
+Keep exact TypeScript7.0.2 baseline and current owners. No real daemon mutation,
+container/SQL execution, host upgrade, deployment or pilot was performed in this item.

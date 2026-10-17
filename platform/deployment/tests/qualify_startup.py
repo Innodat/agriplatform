@@ -11,23 +11,53 @@ import volumes
 import qualify_volumes
 import qualify_daemon_images
 import daemon_images
+import qualify_resources
+
+GUARDED_CONTROLS = ['guarded-fresh'] + ['guarded-' + name for name in qualify_resources.GUARDED_FAILURES]
+
+
+def guarded_qualify(args, target):
+    """One private peer connects the pinned CLI to the real retained ENV owner."""
+    startup.existing_images(args)
+    observations = qualify_daemon_images.expected_images(args.run_id)
+    scenario = 'positive' if args.control == 'guarded-fresh' else args.control.removeprefix('guarded-')
+    daemon = qualify_resources.GuardedDaemon(target, args.run_id, observations, scenario)
+    args._image_observations = observations
+    args._profile_control = 'fresh-lifecycle-positive'
+    with daemon.serve() as endpoint:
+        args._guarded_target = (args.target, endpoint)
+        try:
+            result = startup.qualify(args)
+        except dev.Refusal as error:
+            if qualify_resources.GUARDED_FAILURES.get(scenario, (None,))[0] != error.code:
+                raise
+            daemon.validate_events(success=False)
+            raise
+    daemon.validate_events()
+    if scenario != 'positive' or result.get('guarded_volume_owner_proven') is not True:
+        startup.fail('boundary_not_proven')
+    result['api_events'] = [{'method': method, 'path': path} for method, path, _ in daemon.events]
+    return result
 
 
 def main(argv=None):
     try:
-        parser = dev.Parser(add_help=False)
+        parser = dev.Parser(add_help=False, allow_abbrev=False)
         parser.add_argument('--target', required=True)
         parser.add_argument('--run-id', required=True)
         parser.add_argument('--control', choices=['positive', 'invalid-network', 'contaminated-workdir', 'reject-command', 'invalid-selection-plan',
                                                        'invalid-create-script', 'invalid-create-environment', 'invalid-create-routing', 'invalid-create-request',
                                                        'lifecycle-positive', 'invalid-lifecycle-target', 'invalid-lifecycle-archive', 'invalid-lifecycle-order',
                                                        'fresh-lifecycle-positive', 'fresh-existing', 'fresh-racing', 'fresh-invalid-lifecycle-target',
-                                                       'fresh-invalid-lifecycle-archive', 'fresh-invalid-lifecycle-order'],
+                                                       'fresh-invalid-lifecycle-archive', 'fresh-invalid-lifecycle-order'] + GUARDED_CONTROLS,
                             default='positive')
         args = parser.parse_args(argv)
         networks = volumes.networks
         networks.validate_run_id(args.run_id)
         target = dev.decode(dev.read(Path(args.target).absolute()))
+        if args.control in GUARDED_CONTROLS:
+            print(json.dumps(guarded_qualify(args, target), sort_keys=True))
+            return 0
         if not args.control.startswith('fresh-'):
             daemon = qualify_volumes.SyntheticDaemon(target, args.run_id)
             with daemon.serve() as endpoint:

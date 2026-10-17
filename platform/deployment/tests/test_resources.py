@@ -7,6 +7,519 @@ import resources
 
 
 class Resources(unittest.TestCase):
+    def assert_stopped(self, pids):
+        from pathlib import Path
+        import time
+        self.assertTrue(pids)
+        for pid in pids:
+            deadline = time.monotonic() + .5
+            while True:
+                try:
+                    text = Path('/proc/' + str(pid) + '/status').read_text()
+                except FileNotFoundError:
+                    break
+                state = next(line.split()[1] for line in text.splitlines() if line.startswith('State:'))
+                if state in ['Z', 'X']:
+                    break
+                self.assertLess(time.monotonic(), deadline, 'spawned process remains running')
+                time.sleep(.01)
+
+    def source_with_descendant(self, source, *, exit_parent=False):
+        witness = "extra = subprocess.Popen([sys.executable, '-c', 'import time; time.sleep(60)'])\n"
+        witness += "(work/'tmp/processes.json').write_text(json.dumps([os.getpid(), extra.pid]))\n"
+        if exit_parent:
+            witness += 'sys.exit(1)\n'
+        return source.replace("f = json.loads((work/'fixture.json').read_text())", witness + "f = json.loads((work/'fixture.json').read_text())")
+
+    def test_integrated_listener_custody_before_post_and_descendant_cleanup(self):
+        import dev
+        import startup
+        import json
+        import socket
+        from unittest.mock import patch
+        from test_startup_lifecycle import Lifecycle
+        for defect in ['removed', 'replaced', 'chmod']:
+            daemon = proof.GuardedDaemon(self.owner.owner.target, self.owner.owner.args.run_id, self.owner.expected)
+            runner, pids, replacements, recorded = startup.guarded_fixture_command, [], [], []
+            def observe(*args):
+                def mutate(*_):
+                    if len(daemon.events) == 41:
+                        path = args[1] / 'docker/owner.sock'
+                        if defect == 'chmod':
+                            path.chmod(0o644)
+                        else:
+                            path.unlink()
+                            if defect == 'replaced':
+                                replacement = socket.socket(socket.AF_UNIX)
+                                replacement.bind(str(path))
+                                path.chmod(0o600)
+                                replacements.append(replacement)
+                daemon.hook = mutate
+                try:
+                    return runner(*args)
+                finally:
+                    pids.extend(json.loads((args[1] / 'tmp/processes.json').read_text()))
+                    recorded.extend(startup.decode_fixture(args[1] / 'events.json'))
+            try:
+                with self.subTest(defect=defect), patch.object(startup, 'guarded_fixture_command', side_effect=observe):
+                    with self.assertRaises(dev.Refusal) as caught:
+                        self.integrated_probe(daemon, source=self.source_with_descendant(Lifecycle().process_source()))
+                self.assertEqual(caught.exception.code, 'invalid_owner_handoff')
+                self.assertEqual(daemon.events, daemon.expected[:41])
+                self.assertFalse(any(event['kind'] == 'fresh_volume_create_acknowledged' for event in recorded))
+                self.assert_stopped(pids)
+            finally:
+                for replacement in replacements:
+                    replacement.close()
+
+    def test_guarded_runner_output_bounds_and_terminal_descendant_cleanup(self):
+        import dev
+        import startup
+        import json
+        import os
+        import stat
+        import time
+        from unittest.mock import patch
+        from test_startup_lifecycle import Lifecycle
+        for scenario in ['stdout', 'stderr', 'combined', 'malformed', 'inherited-pipe']:
+            daemon = proof.GuardedDaemon(self.owner.owner.target, self.owner.owner.args.run_id, self.owner.expected)
+            source = self.source_with_descendant(Lifecycle().process_source(), exit_parent=scenario == 'inherited-pipe')
+            if scenario in ['stdout', 'stderr', 'combined']:
+                writes = ([(1, 600000), (2, 600000)] if scenario == 'combined' else
+                          [(1 if scenario == 'stdout' else 2, 2 * 1024 * 1024)])
+                output = 'for fd, remaining in ' + repr(writes) + ':\n'
+                output += "    while remaining:\n        remaining -= os.write(fd, b'x' * min(65536, remaining))\n"
+                source = source.replace("f = json.loads((work/'fixture.json').read_text())", output + "f = json.loads((work/'fixture.json').read_text())")
+            runner, consumed, pids = startup.guarded_fixture_command, [], []
+            read = os.read
+            def bounded_read(fd, size):
+                raw = read(fd, size)
+                if stat.S_ISFIFO(os.fstat(fd).st_mode):
+                    consumed.append(len(raw))
+                return raw
+            def observe(*args):
+                try:
+                    with patch.object(startup.os, 'read', side_effect=bounded_read):
+                        return runner(*args)
+                finally:
+                    pids.extend(json.loads((args[1] / 'tmp/processes.json').read_text()))
+            install = startup.install_fixture
+            def inject(work, *args, **kwargs):
+                install(work, *args, **kwargs)
+                if scenario != 'malformed':
+                    return
+                path = work / 'bin/docker'
+                code = '''original_handoff = startup.owner_handoff
+def handoff(fixture, phase, args, environment):
+    if phase == 'probe': return original_handoff(fixture, phase, args, environment)
+    import socket
+    with socket.socket(socket.AF_UNIX) as peer:
+        peer.connect(str(Path(fixture['workdir']) / 'docker/owner.sock'))
+        peer.sendall(b'{')
+        peer.shutdown(socket.SHUT_WR)
+        peer.recv(8)
+    startup.fail('invalid_owner_handoff')
+startup.owner_handoff = handoff
+'''
+                path.write_text(path.read_text().replace('args, env = sys.argv[1:], dict(os.environ)', code + 'args, env = sys.argv[1:], dict(os.environ)'))
+            started = time.monotonic()
+            with self.subTest(scenario=scenario), patch.object(startup, 'guarded_fixture_command', side_effect=observe), \
+                    patch.object(startup, 'install_fixture', side_effect=inject), \
+                    patch.object(resources, 'SECONDS', 2 if scenario == 'inherited-pipe' else 5):
+                with self.assertRaises(dev.Refusal) as caught:
+                    self.integrated_probe(daemon, source=source)
+            self.assertEqual(caught.exception.code, 'invalid_owner_handoff' if scenario == 'malformed' else
+                             'docker_timeout' if scenario == 'inherited-pipe' else 'command_output_too_large')
+            self.assertEqual(daemon.events, daemon.expected[:29 if scenario == 'malformed' else 28])
+            self.assertEqual(len(pids), 2)
+            self.assert_stopped(pids)
+            if scenario in ['stdout', 'stderr', 'combined']:
+                self.assertEqual(sum(consumed), 1024 * 1024 + 1)
+            self.assertLess(time.monotonic() - started, 4 if scenario == 'inherited-pipe' else 5)
+
+    def test_integrated_handoff_rejects_real_grandchild_and_wrong_parsed_uid(self):
+        import dev
+        import startup
+        import struct
+        from unittest.mock import patch
+        install, unpack = startup.install_fixture, struct.unpack
+        for defect in ['grandchild', 'uid']:
+            daemon = proof.GuardedDaemon(self.owner.owner.target, self.owner.owner.args.run_id, self.owner.expected)
+            pids = []
+            def inject(work, *args, **kwargs):
+                install(work, *args, **kwargs)
+                if defect != 'grandchild':
+                    return
+                path = work / 'bin/docker'
+                code = '''original_handoff = startup.owner_handoff
+def handoff(fixture, phase, args, environment):
+    if phase == 'probe': return original_handoff(fixture, phase, args, environment)
+    import socket, json
+    ready_read, ready_write = os.pipe()
+    child = os.fork()
+    if child == 0:
+        try:
+            os.close(ready_write)
+            os.read(ready_read, 1)
+            os.close(ready_read)
+            with socket.socket(socket.AF_UNIX) as peer:
+                peer.connect(str(Path(fixture['workdir']) / 'docker/owner.sock'))
+                peer.sendall(json.dumps({'token': environment['ENV_PRIVATE_OWNER_TOKEN'], 'phase': phase, 'args': args}).encode())
+                peer.shutdown(socket.SHUT_WR)
+                peer.recv(8)
+        finally: os._exit(0)
+    os.close(ready_read)
+    (Path(fixture['workdir']) / 'tmp/grandchild.pid').write_text(str(child))
+    os.write(ready_write, b'1')
+    os.close(ready_write)
+    os.waitpid(child, 0)
+    startup.fail('invalid_owner_handoff')
+startup.owner_handoff = handoff
+'''
+                path.write_text(path.read_text().replace('args, env = sys.argv[1:], dict(os.environ)', code + 'args, env = sys.argv[1:], dict(os.environ)'))
+            runner, credentials = startup.guarded_fixture_command, []
+            def observe(*args):
+                try:
+                    return runner(*args)
+                finally:
+                    witness = args[1] / 'tmp/grandchild.pid'
+                    if witness.exists():
+                        pids.append(int(witness.read_text()))
+            def parsed(format, raw):
+                result = unpack(format, raw)
+                if format == '3i' and len(raw) == 12:
+                    credentials.append(result)
+                    if defect == 'uid' and len(credentials) == 2:
+                        return result[0], result[1] + 1, result[2]
+                return result
+            with self.subTest(defect=defect), patch.object(startup, 'install_fixture', side_effect=inject), \
+                    patch.object(startup, 'guarded_fixture_command', side_effect=observe), patch.object(startup.struct, 'unpack', side_effect=parsed):
+                with self.assertRaises(dev.Refusal) as caught:
+                    self.integrated_probe(daemon)
+            self.assertEqual(caught.exception.code, 'invalid_owner_handoff')
+            self.assertEqual(daemon.events, daemon.expected[:29])
+            self.assertEqual(len(credentials), 2)
+            if defect == 'grandchild':
+                self.assert_stopped(pids)
+
+    def test_integrated_pre_ack_joint_and_post_mutation_custody_refuse(self):
+        import dev
+        import startup
+        from unittest.mock import patch
+        cases = [('image', 45), ('config-image', 49), ('network', 53), ('volume', 56), ('use', 57)]
+        cases += [(field, 42) for field in ['source', 'receipt', 'lock', 'config']]
+        for field, at in cases:
+            daemon = proof.GuardedDaemon(self.owner.owner.target, self.owner.owner.args.run_id, self.owner.expected)
+            paths = {'source': self.owner.owner.root / 'platform/deployment/resources.py',
+                     'receipt': self.owner.owner.tool_receipt,
+                     'lock': self.owner.owner.root / 'platform/deployment/.local/kdg' /
+                             ('.network-' + self.owner.owner.args.run_id + '.lock')}
+            path = paths.get(field)
+            saved = path.read_bytes() if path is not None and path.exists() else b''
+            runner, recorded = startup.guarded_fixture_command, []
+            def observe(*args):
+                def mutate(*_):
+                    if len(daemon.events) != at:
+                        return
+                    if field in ['image', 'config-image']:
+                        daemon.image_control = 'wrong-id'
+                    elif field == 'network':
+                        daemon.network.network['Id'] = 'f' * 64
+                    elif field == 'volume':
+                        daemon.volume.volume['CreatedAt'] = 'changed'
+                    elif field == 'use':
+                        daemon.volume.control = 'use-stopped'
+                    else:
+                        (args[1] / 'supabase/config.toml' if field == 'config' else path).write_bytes(b'changed')
+                daemon.hook = mutate
+                try:
+                    return runner(*args)
+                finally:
+                    recorded.extend(startup.decode_fixture(args[1] / 'events.json'))
+            try:
+                with self.subTest(field=field, request=at), patch.object(startup, 'guarded_fixture_command', side_effect=observe):
+                    with self.assertRaises(dev.Refusal):
+                        self.integrated_probe(daemon)
+                self.assertEqual(daemon.events, daemon.expected[:at])
+                self.assertEqual(daemon.connections, 1)
+                self.assertEqual(sum(method == 'POST' and '/volumes/' in route for method, route, _ in daemon.events), 1)
+                self.assertFalse(any(event['kind'] in ['fresh_volume_create_acknowledged', 'postgres_create',
+                    'secret_transfer', 'postgres_start_refused'] for event in recorded))
+            finally:
+                if path is not None:
+                    path.write_bytes(saved)
+
+    def test_integrated_executable_mutation_before_launch_and_post_refuses(self):
+        import dev
+        import startup
+        from pathlib import Path
+        from unittest.mock import patch
+        install = startup.install_fixture
+        for boundary in ['launch', 'post']:
+            for mutation in ['replace', 'in-place']:
+                daemon = proof.GuardedDaemon(self.owner.owner.target, self.owner.owner.args.run_id, self.owner.expected)
+                def bind(work, target, run_id, network, executable, *args, **kwargs):
+                    install(work, target, run_id, network, executable, *args, **kwargs)
+                    path = Path(executable)
+                    raw = path.read_bytes()
+                    def change():
+                        if mutation == 'replace':
+                            replacement = path.with_name('changed-cli')
+                            replacement.write_bytes(raw)
+                            replacement.chmod(0o700)
+                            replacement.replace(path)
+                        else:
+                            path.write_bytes(raw)
+                    if boundary == 'launch':
+                        change()
+                    else:
+                        def hook(*_):
+                            if len(daemon.events) == 41:
+                                change()
+                        daemon.hook = hook
+                with self.subTest(boundary=boundary, mutation=mutation), patch.object(startup, 'install_fixture', side_effect=bind):
+                    with self.assertRaises(dev.Refusal) as caught:
+                        self.integrated_probe(daemon)
+                    self.assertEqual(caught.exception.code, 'tool_payload_changed')
+                    self.assertEqual(daemon.events, daemon.expected[:28 if boundary == 'launch' else 41])
+                    self.assertFalse(any(method == 'POST' and '/volumes/' in path for method, path, _ in daemon.events))
+
+    def integrated_probe(self, daemon, *, source=None):
+        from pathlib import Path
+        import tempfile
+        import sys
+        import startup
+        from test_startup_lifecycle import Lifecycle
+        with tempfile.TemporaryDirectory() as directory, daemon.serve() as endpoint:
+            executable = Path(directory) / 'supabase'
+            executable.write_text('#!' + sys.executable + '\n' + (source or Lifecycle().process_source()))
+            executable.chmod(0o700)
+            return startup.synthetic_probe(
+                executable, self.owner.owner.target, self.owner.owner.args.run_id,
+                control='fresh-lifecycle-positive', selection_plan=startup.existing_images(self.owner.owner.args)[1],
+                image_observations=self.owner.expected,
+                _guarded_target=(self.owner.owner.args.target, endpoint))
+
+    def test_integrated_owner_negative_matrix_never_replays_or_returns_proof(self):
+        import dev
+        import startup
+        from unittest.mock import patch
+        command = startup.guarded_fixture_command
+        for scenario, (code, count) in proof.GUARDED_FAILURES.items():
+            daemon = proof.GuardedDaemon(self.owner.owner.target, self.owner.owner.args.run_id, self.owner.expected, scenario)
+            recorded = []
+            def observe(*args):
+                try:
+                    return command(*args)
+                finally:
+                    recorded.extend(startup.decode_fixture(args[1] / 'events.json'))
+            with self.subTest(scenario=scenario), patch.object(startup, 'guarded_fixture_command', side_effect=observe):
+                with self.assertRaises(dev.Refusal) as caught:
+                    self.integrated_probe(daemon)
+            self.assertEqual(caught.exception.code, code)
+            daemon.validate_events(success=False)
+            self.assertEqual(len(daemon.events), count)
+            self.assertLessEqual(sum(method == 'POST' and '/volumes/' in path for method, path, _ in daemon.events), 1)
+            if count <= 44:
+                self.assertFalse(any(event['kind'] in ['fresh_volume_create_acknowledged', 'postgres_create',
+                                                      'secret_transfer', 'postgres_start_refused'] for event in recorded))
+            self.assertNotIn('sensitive', str(caught.exception))
+
+    def test_integrated_handoff_custody_and_total_deadline_refuse_with_cleanup(self):
+        import dev
+        import startup
+        import time
+        from unittest.mock import patch
+        for defect in ['source', 'receipt', 'lock', 'deadline', 'post-owner']:
+            daemon = proof.GuardedDaemon(self.owner.owner.target, self.owner.owner.args.run_id, self.owner.expected)
+            path = {'source': self.owner.owner.root / 'platform/deployment/resources.py',
+                    'receipt': self.owner.owner.tool_receipt,
+                    'lock': self.owner.owner.root / 'platform/deployment/.local/kdg' /
+                            ('.network-' + self.owner.owner.args.run_id + '.lock')}.get(defect)
+            raw = path.read_bytes() if path is not None and path.exists() else b''
+            def mutate(*args):
+                # The truthful CLI missing probe passed. Fail during the next
+                # joint observation before the owner can send its volume POST.
+                if len(daemon.events) == 30:
+                    if path is not None:
+                        path.write_bytes(b'changed')
+                    if defect == 'deadline':
+                        time.sleep(.4)
+            daemon.hook = mutate
+            owner = startup.existing_images
+            calls = []
+            def owner_check(*args):
+                calls.append(True)
+                if defect == 'post-owner' and len(calls) == 3:
+                    dev.refuse('daemon_images', 'image_evidence_changed')
+                return owner(*args)
+            try:
+                with self.subTest(defect=defect), patch.object(startup, 'existing_images', side_effect=owner_check), \
+                        patch.object(resources, 'SECONDS', .8 if defect == 'deadline' else 5):
+                    with self.assertRaises(dev.Refusal):
+                        self.integrated_probe(daemon)
+                self.assertEqual(daemon.connections, 1)
+                if defect != 'post-owner':
+                    self.assertFalse(any(method == 'POST' and '/volumes/' in route for method, route, _ in daemon.events))
+            finally:
+                if path is not None:
+                    path.write_bytes(raw)
+
+    def test_integrated_private_handoff_adversaries_and_drip_deadline(self):
+        import dev
+        import startup
+        import time
+        from pathlib import Path
+        from unittest.mock import patch
+        install = startup.install_fixture
+        for defect in ['forged', 'malformed', 'duplicate', 'repeated', 'wrong-args', 'drip', 'empty', 'oversized', 'no-eof']:
+            daemon = proof.GuardedDaemon(self.owner.owner.target, self.owner.owner.args.run_id, self.owner.expected)
+            descendant = []
+            runner = startup.guarded_fixture_command
+            def observe(*args):
+                try:
+                    return runner(*args)
+                finally:
+                    witness = args[1] / 'tmp/request.pid'
+                    if witness.exists():
+                        descendant.append(int(witness.read_text()))
+            def inject(work, *args, **kwargs):
+                install(work, *args, **kwargs)
+                wrapper = work / 'bin/docker'
+                injected = '''original_handoff = startup.owner_handoff
+def handoff(fixture, phase, args, environment):
+    if phase == 'probe': return original_handoff(fixture, phase, args, environment)
+    import socket, json, time
+    token = environment['ENV_PRIVATE_OWNER_TOKEN']
+    message = {'token': token, 'phase': phase, 'args': args}
+    defect = __DEFECT__
+    if defect == 'forged': message['token'] = '0' * 32
+    if defect == 'repeated': message['phase'] = 'probe'
+    if defect == 'wrong-args': message['args'] = args + ['extra']
+    raw = json.dumps(message).encode()
+    if defect == 'malformed': raw = b'{'
+    if defect == 'duplicate': raw = raw[:-1] + b',"phase":"create"}'
+    if defect == 'empty': raw = b''
+    if defect == 'oversized': raw = b'x' * 2049
+    with socket.socket(socket.AF_UNIX) as peer:
+        peer.connect(str(Path(fixture['workdir']) / 'docker/owner.sock'))
+        (Path(fixture['workdir']) / 'tmp/request.pid').write_text(str(os.getpid()))
+        if defect == 'drip':
+            peer.sendall(raw[:1])
+            time.sleep(10)
+        peer.sendall(raw)
+        if defect == 'no-eof': time.sleep(10)
+        peer.shutdown(socket.SHUT_WR)
+        peer.recv(8)
+    startup.fail('invalid_owner_handoff')
+startup.owner_handoff = handoff
+'''.replace('__DEFECT__', repr(defect))
+                wrapper.write_text(wrapper.read_text().replace('args, env = sys.argv[1:], dict(os.environ)',
+                                   injected + 'args, env = sys.argv[1:], dict(os.environ)'))
+            started = time.monotonic()
+            with self.subTest(defect=defect), patch.object(startup, 'install_fixture', side_effect=inject), \
+                    patch.object(startup, 'guarded_fixture_command', side_effect=observe), \
+                    patch.object(resources, 'SECONDS', 2 if defect in ['drip', 'no-eof'] else 5):
+                with self.assertRaises(dev.Refusal) as caught:
+                    self.integrated_probe(daemon)
+            self.assertEqual(caught.exception.code, 'docker_timeout' if defect in ['drip', 'no-eof'] else 'invalid_owner_handoff')
+            self.assertEqual(daemon.events, daemon.expected[:29])
+            self.assertEqual(daemon.connections, 1)
+            self.assertLess(time.monotonic() - started, 4 if defect in ['drip', 'no-eof'] else 5)
+            self.assertEqual(len(descendant), 1)
+            self.assert_stopped(descendant)
+
+    def test_guarded_public_qualifier_wiring_and_safe_output(self):
+        from contextlib import redirect_stdout, redirect_stderr
+        import io
+        import json
+        from pathlib import Path
+        import tempfile
+        import sys
+        from unittest.mock import patch
+        import qualify_startup
+        import startup
+        from test_startup_lifecycle import Lifecycle
+        with tempfile.TemporaryDirectory() as directory:
+            executable = Path(directory) / 'supabase'
+            executable.write_text('#!' + sys.executable + '\n' + Lifecycle().process_source())
+            executable.chmod(0o700)
+            def selected_cli(args):
+                return startup.synthetic_probe(executable, self.owner.owner.target, args.run_id,
+                    control=args._profile_control, selection_plan=startup.existing_images(args)[1],
+                    image_observations=args._image_observations, _guarded_target=args._guarded_target)
+            for control in ['guarded-fresh', 'guarded-bad-ack', 'guarded-late-use']:
+                output, errors = io.StringIO(), io.StringIO()
+                with self.subTest(control=control), patch.object(startup, 'qualify', side_effect=selected_cli), \
+                        redirect_stdout(output), redirect_stderr(errors):
+                    status = qualify_startup.main(['--target', self.owner.owner.args.target,
+                        '--run-id', self.owner.owner.args.run_id, '--control', control])
+                result = json.loads(output.getvalue())
+                self.assertEqual(errors.getvalue(), '')
+                self.assertIs(result['runtime_ready'], False)
+                self.assertEqual(status, 0 if control == 'guarded-fresh' else 2)
+                for private in ['sensitive', 'ENV_PRIVATE_OWNER', 'Mountpoint', 'CreatedAt']:
+                    self.assertNotIn(private, output.getvalue())
+                if status == 0:
+                    self.assertEqual(len(result['api_events']), 70)
+                    self.assertTrue(result['guarded_volume_owner_proven'])
+                else:
+                    self.assertEqual(set(result), {'ok', 'runtime_ready', 'stage', 'code'})
+                    self.assertEqual(result['code'], 'volume_create_failed' if control == 'guarded-bad-ack' else 'volume_in_use')
+
+    def test_integrated_private_work_configuration_change_prevents_owner_ack(self):
+        import dev
+        import startup
+        from unittest.mock import patch
+        from test_startup_lifecycle import Lifecycle
+        for phase in ['inspect', 'create', 'pre-post']:
+            daemon = proof.GuardedDaemon(self.owner.owner.target, self.owner.owner.args.run_id, self.owner.expected)
+            source = Lifecycle().process_source().replace(
+                'for command in commands:\n    subprocess.run',
+                "for command in commands:\n    if command[:2] == ['volume', " + repr(phase) + "]:\n"
+                "        (work/'supabase/config.toml').write_text('untrusted')\n    subprocess.run")
+            command = startup.guarded_fixture_command
+            def observe(*args):
+                if phase == 'pre-post':
+                    def mutate(*_):
+                        if len(daemon.events) == 41:
+                            (args[1] / 'supabase/config.toml').write_text('untrusted')
+                    daemon.hook = mutate
+                return command(*args)
+            with self.subTest(phase=phase), patch('startup.guarded_fixture_command', side_effect=observe):
+                with self.assertRaises(dev.Refusal) as caught:
+                    self.integrated_probe(daemon, source=source)
+                self.assertEqual(caught.exception.code, 'configuration_changed')
+                self.assertFalse(any(method == 'POST' and '/volumes/' in path for method, path, _ in daemon.events))
+
+
+    def test_integrated_fresh_cli_creates_through_retained_volume_owner(self):
+        from pathlib import Path
+        import tempfile
+        import sys
+        import startup
+        from test_startup_lifecycle import Lifecycle
+        daemon = proof.GuardedDaemon(self.owner.owner.target, self.owner.owner.args.run_id, self.owner.expected)
+        with tempfile.TemporaryDirectory() as directory, daemon.serve() as endpoint:
+            executable = Path(directory) / 'supabase'
+            executable.write_text('#!' + sys.executable + '\n' + Lifecycle().process_source())
+            executable.chmod(0o700)
+            result = startup.synthetic_probe(
+                executable, self.owner.owner.target, self.owner.owner.args.run_id,
+                control='fresh-lifecycle-positive', selection_plan=startup.existing_images(self.owner.owner.args)[1],
+                image_observations=self.owner.expected,
+                _guarded_target=(self.owner.owner.args.target, endpoint))
+        posts = [event for event in daemon.events if event[0] == 'POST' and '/volumes/' in event[1]]
+        self.assertEqual(posts, [('POST', '/v1.48/volumes/create', proof.volume_proof.expected_request(
+            self.owner.owner.target, self.owner.owner.args.run_id))])
+        self.assertTrue(result['guarded_volume_owner_proven'])
+        self.assertTrue(result['first_start_refused'])
+        self.assertIs(result['runtime_ready'], False)
+        self.assertEqual(daemon.connections, 1)
+        daemon.validate_events()
+        self.assertEqual(result['observed_volume'], {key: daemon.volume.volume[key] for key in
+                         ['Name', 'Driver', 'Scope', 'Labels', 'Options']})
+
     def test_fresh_public_qualifier_rejects_changed_constructor_inputs(self):
         import copy
         import hashlib

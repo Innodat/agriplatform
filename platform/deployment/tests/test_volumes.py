@@ -21,6 +21,49 @@ class VolumeAcceptance(unittest.TestCase):
     setUp = test_dev.PreparationAcceptance.setUp
     invoke = test_dev.PreparationAcceptance.invoke
 
+    def test_fresh_owner_exact_request_and_current_use_before_handoff(self):
+        from unittest.mock import Mock, call
+        target = dev.decode(dev.read(dev.ROOT / 'platform/deployment/environments/kdg-local.json'))
+        peer = proof.SyntheticDaemon(target, self.run_id)
+        session, current = Mock(), Mock()
+        session.exchange.side_effect = [(404, {}), (201, copy.deepcopy(peer.volume)),
+                                        (200, copy.deepcopy(peer.volume)), (200, [])]
+        result = volumes.create_fresh_session(target, self.run_id, session, current)
+        self.assertEqual(session.exchange.call_args_list, [
+            call('GET', '/v1.48/volumes/' + peer.name),
+            call('POST', '/v1.48/volumes/create', proof.expected_request(target, self.run_id)),
+            call('GET', '/v1.48/volumes/' + peer.name), call('GET', proof.expected_use_path(peer.name))])
+        self.assertTrue(result['post_attempted'])
+        self.assertIs(result['runtime_ready'], False)
+        self.assertNotIn('Mountpoint', result['volume'])
+
+    def test_fresh_owner_refuses_existing_uncertain_and_changed_without_replay(self):
+        from unittest.mock import Mock
+        target = dev.decode(dev.read(dev.ROOT / 'platform/deployment/environments/kdg-local.json'))
+        peer = proof.SyntheticDaemon(target, self.run_id)
+        descriptor = copy.deepcopy(peer.volume)
+        changed = copy.deepcopy(descriptor)
+        changed['CreatedAt'] = '2026-10-16T00:00:00Z'
+        foreign = copy.deepcopy(descriptor)
+        foreign['Labels'] = {}
+        cases = [([(200, descriptor)], 'volume_reuse_unsupported'),
+                 ([(403, {})], 'volume_inspection_failed'),
+                 ([(404, {}), (200, descriptor)], 'volume_create_failed'),
+                 ([(404, {}), (201, foreign)], 'volume_not_run_owned'),
+                 ([(404, {}), (201, descriptor), (404, {})], 'volume_changed'),
+                 ([(404, {}), (201, descriptor), (500, {})], 'volume_inspection_failed'),
+                 ([(404, {}), (201, descriptor), (200, changed)], 'volume_changed'),
+                 ([(404, {}), (201, descriptor), (200, descriptor), (200, [{'Id': 'sensitive'}])], 'volume_in_use'),
+                 ([(404, {}), dev.Refusal('docker', 'docker_response_invalid')], 'docker_response_invalid')]
+        for responses, code in cases:
+            session = Mock()
+            session.exchange.side_effect = responses
+            with self.subTest(code=code), self.assertRaises(dev.Refusal) as caught:
+                volumes.create_fresh_session(target, self.run_id, session, Mock())
+            self.assertEqual(caught.exception.code, code)
+            self.assertEqual(session.exchange.call_count, len(responses))
+            self.assertLessEqual(sum(call.args[0] == 'POST' for call in session.exchange.call_args_list), 1)
+
     def test_require_absence_only_accepts_exact_missing_status_without_metadata_adoption(self):
         from unittest.mock import Mock
         for status in [200, 201, 204, 400, 403, 404, 409, 500]:

@@ -3,13 +3,17 @@
 Network descriptors in this proof are fixtures, never evidence of real isolation.
 No public command starts containers or wires this adapter into dev.py up.
 """
-from contextlib import contextmanager
+from contextlib import contextmanager, ExitStack
 import json
 import base64
 import os
 from pathlib import Path
 import re
 import signal
+import socket
+import selectors
+import struct
+import subprocess
 import stat
 import sys
 import time
@@ -58,6 +62,61 @@ def work_anchor(work):
 
 def fail(code):
     dev.refuse('startup', code)
+
+
+class ExecutableCustody:
+    """Retain one executable across owner byte verification; checks never rehash it."""
+    def __init__(self, path, parent, descriptor, execution_path):
+        self.path, self.parent, self.descriptor = path, parent, descriptor
+        self.execution_path = execution_path
+        self.parent_identity = os.fstat(parent)
+        self.identity = os.fstat(descriptor)
+        info = self.identity
+        if (not stat.S_ISREG(info.st_mode) or info.st_uid != os.getuid()
+                or info.st_nlink != 1 or stat.S_IMODE(info.st_mode) != 0o700):
+            fail('tool_payload_changed')
+        self.check()
+
+    @staticmethod
+    def signature(info):
+        return (info.st_dev, info.st_ino, info.st_mode, info.st_uid, info.st_nlink,
+                info.st_size, info.st_mtime_ns, info.st_ctime_ns)
+
+    def check(self):
+        try:
+            with dev.directory(self.path.parent) as current:
+                now = os.fstat(current)
+                dev.check_private(current)
+                if (now.st_dev, now.st_ino) != (self.parent_identity.st_dev, self.parent_identity.st_ino):
+                    fail('tool_payload_changed')
+            actual = os.stat(self.path.name, dir_fd=self.parent, follow_symlinks=False)
+            if (self.signature(actual) != self.signature(self.identity)
+                    or self.signature(os.stat(self.execution_path)) != self.signature(self.identity)
+                    or self.signature(os.fstat(self.descriptor)) != self.signature(self.identity)):
+                fail('tool_payload_changed')
+        except OSError:
+            fail('tool_payload_changed')
+
+
+@contextmanager
+def executable_custody(executable):
+    """Bind before existing owner preflight verifies payload bytes, then retain it.
+
+    That preflight remains the qualified-byte authority. Unchanged held/path
+    identity, size, mode, mtime and ctime bind its result without hashing the
+    large executable or entire payload again at each daemon exchange.
+    """
+    execution_path = Path(executable)
+    # The existing qualified caller deliberately uses its held /proc/PID/fd
+    # payload alias. Anchor the resolved directory while also rechecking that
+    # exact launch alias against the same held executable identity.
+    path = execution_path.resolve(strict=True)
+    with dev.directory(path.parent) as parent:
+        descriptor = os.open(path.name, os.O_RDONLY | os.O_NONBLOCK | os.O_NOFOLLOW, dir_fd=parent)
+        try:
+            yield ExecutableCustody(path, parent, descriptor, execution_path)
+        finally:
+            os.close(descriptor)
 
 
 def labels(target, run_id):
@@ -443,6 +502,8 @@ def fixture_command(runtime, args, fixture, events, *, environment=None, archive
         if fixture.get('fresh'):
             if len(events) != 5 or fixture.get('fresh_existing'):
                 fail('fresh_volume_required')
+            if fixture.get('guarded_owner'):
+                owner_handoff(fixture, 'probe', args, environment)
             # This probe truthfully reports the private fixture's absent state.
             events.append({'kind': 'volume_missing'})
             return 1, '', 'Error: No such volume'
@@ -463,6 +524,8 @@ def fixture_command(runtime, args, fixture, events, *, environment=None, archive
             validate_observations(events + [{'kind': 'fresh_volume_create_acknowledged'}, {'kind': 'postgres_create', 'facts': facts}], facts, descriptors, fresh=True)
             if fixture.get('fresh_racing'):
                 fail('fresh_volume_required')
+            if fixture.get('guarded_owner'):
+                owner_handoff(fixture, 'create', args, environment)
             events.append({'kind': 'fresh_volume_create_acknowledged'})
             return 0, volume + '\n', ''
         events.append({'kind': 'existing_volume_create_refused'})
@@ -649,7 +712,164 @@ def validate_image_observations(observations, selection_plan, config_plan=None):
         fail('invalid_image_observations')
 
 
-def install_fixture(work, target, run_id, network, executable=None, guard_parent=True, *, selection_plan, volume=None, image_observations=None, profile_control='positive'):
+def owner_handoff(fixture, phase, args, environment):
+    """Closed fixture-only request. No daemon address, route or payload selector."""
+    token = (environment or {}).get('ENV_PRIVATE_OWNER_TOKEN')
+    owner_pid = (environment or {}).get('ENV_PRIVATE_OWNER_PID')
+    if (type(token) is not str or not re.fullmatch('[0-9a-f]{32}', token)
+            or type(owner_pid) is not str or not re.fullmatch('[1-9][0-9]{0,9}', owner_pid)):
+        fail('invalid_owner_handoff')
+    request = images.canonical({'token': token, 'phase': phase, 'args': args}).encode()
+    if len(request) > 2048:
+        fail('invalid_owner_handoff')
+    with socket.socket(socket.AF_UNIX) as peer:
+        peer.settimeout(FIXTURE_SECONDS)
+        peer.connect(str(Path(fixture['workdir']) / 'docker/owner.sock'))
+        pid, uid, _ = struct.unpack('3i', peer.getsockopt(socket.SOL_SOCKET, socket.SO_PEERCRED, 12))
+        if pid != int(owner_pid) or uid != os.getuid():
+            fail('invalid_owner_handoff')
+        peer.sendall(request)
+        peer.shutdown(socket.SHUT_WR)
+        response = b''
+        while len(response) <= 3:
+            chunk = peer.recv(4 - len(response))
+            if not chunk:
+                break
+            response += chunk
+        if response != b'OK\n':
+            fail('invalid_owner_handoff')
+
+
+def check_fixture_custody(work, work_fd, sources, fixture_hash, wrappers, target, run_id, *, listener_identity=None):
+    """Check the concrete closed fixture, including before each owner exchange."""
+    check_root(work, work_fd)
+    check_workdir(work, target, run_id, after=True, fixture=True)
+    if (source_snapshot() != sources or dev.digest(dev.read(work / 'fixture.json')) != fixture_hash
+            or any(dev.digest(dev.read(work / 'bin' / name)) != value for name, value in wrappers.items())):
+        fail('fixture_changed')
+    if listener_identity is not None:
+        try:
+            current = (work / 'docker/owner.sock').lstat()
+        except OSError:
+            fail('invalid_owner_handoff')
+        if (not stat.S_ISSOCK(current.st_mode) or current.st_uid != os.getuid()
+                or stat.S_IMODE(current.st_mode) != 0o600 or current.st_nlink != 1
+                or (current.st_dev, current.st_ino) != (listener_identity.st_dev, listener_identity.st_ino)):
+            fail('invalid_owner_handoff')
+
+
+def validate_owner_request(raw, token, fixture, events, phase):
+    """Validate the exact original CLI baseline before any private owner action."""
+    try:
+        request = dev.decode(raw)
+    except (ValueError, dev.Refusal):
+        fail('invalid_owner_handoff')
+    project = fixture['project']
+    args = (['volume', 'inspect', 'supabase_db_' + project] if phase == 0 else
+            ['volume', 'create', '--label', 'com.supabase.cli.project=' + project, '--label',
+             'com.docker.compose.project=' + project, 'supabase_db_' + project])
+    if (phase not in [0, 1] or type(request) is not dict or request != {
+            'token': token, 'phase': 'probe' if phase == 0 else 'create', 'args': args}):
+        fail('invalid_owner_handoff')
+    validate_fixture_volume(fixture)
+    facts = selected_facts(dict(fixture, postgres_image=fixture['selection_plan'][fixture['postgres_image']]))
+    facts.update(original_image=fixture['postgres_image'], immutable_selection_proven=True, create_request_proven=True)
+    suffix = ([{'kind': 'volume_missing'}, {'kind': 'network_inspect'}] if phase == 0 else [])
+    validate_observations(events + suffix + [{'kind': 'fresh_volume_create_acknowledged'},
+                                           {'kind': 'postgres_create', 'facts': facts}], facts,
+                          [fixture['image_observations'][fixture['selection_plan'][tag]] for tag in fixture['images']], fresh=True)
+
+
+def guarded_fixture_command(command, work, env, guard):
+    """Service the private handoff on the owner thread while bounding the CLI group.
+
+    The capability lives only in process memory/environment and socket bytes; it
+    is never persisted or hashed. The listener address is generated from private
+    work custody, never accepted as a caller-selected daemon endpoint.
+    """
+    token = uuid.uuid4().hex
+    env = dict(env, ENV_PRIVATE_OWNER_TOKEN=token, ENV_PRIVATE_OWNER_PID=str(os.getpid()))
+    path = work / 'docker/owner.sock'
+    with socket.socket(socket.AF_UNIX) as listener:
+        listener.bind(str(path))
+        path.chmod(0o600)
+        identity = path.lstat()
+        listener.listen(1)
+        guard.bind_listener(identity)
+        def check():
+            guard.check()
+        check()
+        process = subprocess.Popen([str(arg) for arg in command], cwd=work, env=env,
+                                   stdout=subprocess.PIPE, stderr=subprocess.PIPE, start_new_session=True)
+        total = 0
+        try:
+            with selectors.DefaultSelector() as selector:
+                selector.register(listener, selectors.EVENT_READ)
+                for stream in [process.stdout, process.stderr]:
+                    os.set_blocking(stream.fileno(), False)
+                    selector.register(stream, selectors.EVENT_READ)
+                while len(selector.get_map()) > 1:
+                    check()
+                    for key, _ in selector.select(guard.remaining()):
+                        check()
+                        if key.fileobj is listener:
+                            peer, _ = listener.accept()
+                            with peer:
+                                peer.settimeout(guard.remaining())
+                                pid, uid, _ = struct.unpack('3i', peer.getsockopt(socket.SOL_SOCKET, socket.SO_PEERCRED, 12))
+                                # Only the exact CLI's direct fixture child may ask.
+                                status = Path('/proc/' + str(pid) + '/status').read_text()
+                                parent = next((line.split()[1] for line in status.splitlines() if line.startswith('PPid:')), '')
+                                if uid != os.getuid() or parent != str(process.pid):
+                                    fail('invalid_owner_handoff')
+                                raw = b''
+                                while len(raw) <= 2048:
+                                    check()
+                                    peer.settimeout(guard.remaining())
+                                    chunk = peer.recv(2049 - len(raw))
+                                    if not chunk:
+                                        break
+                                    raw += chunk
+                                if len(raw) > 2048:
+                                    fail('invalid_owner_handoff')
+                                check()
+                                fixture = decode_fixture(work / 'fixture.json')
+                                events = decode_fixture(work / 'events.json')
+                                validate_owner_request(raw, token, fixture, events, guard.phase)
+                                if guard.phase == 0:
+                                    guard.probe()
+                                else:
+                                    guard.create()
+                                check()
+                                peer.settimeout(guard.remaining())
+                                peer.sendall(b'OK\n')
+                        else:
+                            chunk = os.read(key.fd, min(65536, 1024 * 1024 - total + 1))
+                            if not chunk:
+                                selector.unregister(key.fileobj)
+                            total += len(chunk)
+                            if total > 1024 * 1024:
+                                fail('command_output_too_large')
+                process.wait(timeout=guard.remaining())
+                check()
+                if process.returncode == 0:
+                    fail('cli_unexpected_success')
+                dev.refuse('images_cli', 'command_refused')
+        except (TimeoutError, subprocess.TimeoutExpired):
+            dev.refuse('docker', 'docker_timeout')
+        finally:
+            try:
+                os.killpg(process.pid, signal.SIGKILL)
+            except ProcessLookupError:
+                pass
+            process.stdout.close()
+            process.stderr.close()
+            process.wait(timeout=2)
+            # Retain the closed private socket's path custody through the final
+            # owner observations; the private workdir context removes it on exit.
+
+
+def install_fixture(work, target, run_id, network, executable=None, guard_parent=True, *, selection_plan, volume=None, image_observations=None, profile_control='positive', guarded_owner=False):
     fresh = profile_control.startswith('fresh-')
     if fresh and volume is not None:
         fail('fresh_volume_required')
@@ -667,6 +887,10 @@ def install_fixture(work, target, run_id, network, executable=None, guard_parent
                'images': references, 'postgres_image': references[0], 'selection_plan': selection_plan,
                'image_observations': image_observations,
                'lifecycle': fresh or profile_control == 'lifecycle-positive' or profile_control.startswith('invalid-lifecycle-')}
+    if guarded_owner:
+        if not fresh:
+            fail('fresh_volume_required')
+        fixture['guarded_owner'] = True
     write_private(work / 'fixture.json', images.canonical(fixture).encode())
     write_private(work / 'events.json', b'[]')
     for runtime in ['docker', 'podman']:
@@ -682,7 +906,7 @@ def install_fixture(work, target, run_id, network, executable=None, guard_parent
         (work / 'bin' / runtime).chmod(0o700)
 
 
-def synthetic_probe(executable, target, run_id, network=None, control='positive', *, selection_plan, volume=None, image_observations=None):
+def synthetic_probe(executable, target, run_id, network=None, control='positive', *, selection_plan, volume=None, image_observations=None, _guarded_target=None):
     if control not in ['positive', 'invalid-network', 'contaminated-workdir', 'reject-command', 'invalid-selection-plan',
                        'invalid-create-script', 'invalid-create-environment', 'invalid-create-routing', 'invalid-create-request',
                        'lifecycle-positive', 'invalid-lifecycle-target', 'invalid-lifecycle-archive', 'invalid-lifecycle-order',
@@ -696,15 +920,29 @@ def synthetic_probe(executable, target, run_id, network=None, control='positive'
     validate_image_observations(image_observations, selection_plan)
     network = fixture_network(target, run_id) if network is None else network
     before_sources = source_snapshot()
-    with tempfile.TemporaryDirectory(prefix='env-startup-') as temporary, work_anchor(Path(temporary)) as work_fd:
+    with tempfile.TemporaryDirectory(prefix='env-startup-') as temporary, work_anchor(Path(temporary)) as work_fd, ExitStack() as retained:
         work = Path(temporary)
         initialize_workdir(work, target, run_id)
         if control == 'invalid-network':
             network['Options'] = {}
         if control == 'contaminated-workdir':
             write_private(work / '.env', b'ENV_SYNTHETIC_UNTRUSTED=1')
-        command, env = invocation(executable, work, target, run_id, network)
-        install_fixture(work, target, run_id, network, executable, guard_parent=control != 'reject-command', selection_plan=selection_plan, volume=volume, image_observations=image_observations, profile_control=control)
+        guard = None
+        if _guarded_target is not None:
+            import resources
+            if not control.startswith('fresh-') or volume is not None:
+                fail('fresh_volume_required')
+            executable_guard = retained.enter_context(executable_custody(executable))
+            guard = retained.enter_context(resources.fresh_session(
+                _guarded_target[0], run_id, executable, work, _socket_path=_guarded_target[1],
+                _executable_custody=executable_guard))
+            if guard.target != target or guard.images != image_observations:
+                fail('invalid_owner_handoff')
+            network = guard.network
+            command, env = guard.command
+        else:
+            command, env = invocation(executable, work, target, run_id, network)
+        install_fixture(work, target, run_id, network, executable, guard_parent=control != 'reject-command', selection_plan=selection_plan, volume=volume, image_observations=image_observations, profile_control=control, guarded_owner=guard is not None)
         fixture_hash = dev.digest(dev.read(work / 'fixture.json'))
         wrappers = {name: dev.digest(dev.read(work / 'bin' / name)) for name in ['docker', 'podman']}
         env['PATH'] = str(work / 'bin')
@@ -713,8 +951,13 @@ def synthetic_probe(executable, target, run_id, network=None, control='positive'
         if control == 'reject-command':
             # An unrecognized command proves that the executable boundary refuses.
             command = [work / 'bin/docker', 'run', 'forbidden']
+        if guard is not None:
+            guard.bind_fixture(work, work_fd, before_sources, fixture_hash, wrappers)
         try:
-            images.bounded_command(command, work, env, 30, 1024 * 1024)
+            if guard is None:
+                images.bounded_command(command, work, env, 30, 1024 * 1024)
+            else:
+                guarded_fixture_command(command, work, env, guard)
         except dev.Refusal as refused:
             if refused.code != 'command_refused':
                 raise
@@ -733,6 +976,9 @@ def synthetic_probe(executable, target, run_id, network=None, control='positive'
         fixture = decode_fixture(work / 'fixture.json')
         if fixture['selection_plan'] != selection_plan or fixture['image_observations'] != image_observations:
             fail('invalid_selection_plan')
+        if guard is not None:
+            if guard.phase != 2 or guard.volume is None:
+                fail('invalid_owner_handoff')
         expected_facts = selected_facts(dict(fixture, postgres_image=selection_plan[fixture['postgres_image']]))
         expected_facts.update(original_image=fixture['postgres_image'], immutable_selection_proven=True, create_request_proven=True)
         if control == 'reject-command':
@@ -784,6 +1030,9 @@ def synthetic_probe(executable, target, run_id, network=None, control='positive'
                 'secret_transfer_validated': fixture.get('lifecycle', False),
                 'first_start_refused': fixture.get('lifecycle', False),
                 'fresh_branch_proven': fixture.get('fresh', False),
+                **({'guarded_volume_owner_proven': True,
+                    'observed_volume': {key: guard.volume[key] for key in ['Name', 'Driver', 'Scope', 'Labels', 'Options']}}
+                   if guard is not None else {}),
                 'facts': expected_facts, 'event_count': len(events), 'image_observations': image_observations,
                 'configuration': {'exact_generated_bytes_verified': True,
                                   'supabase_files_config_and_optional_cli_latest_only': True},
@@ -830,8 +1079,9 @@ def qualify(args):
     payload = dev.ROOT / 'platform/deployment/.local/kdg-toolchains' / args.run_id / 'payload'
     with toolchain.anchored_directory(payload) as (fd, pinned):
         result = synthetic_probe(pinned / 'supabase/supabase', target, args.run_id,
-                                 control=getattr(args, 'control', 'positive'), selection_plan=selection_plan,
-                                 volume=getattr(args, '_volume', None), image_observations=observations)
+                                 control=getattr(args, '_profile_control', getattr(args, 'control', 'positive')), selection_plan=selection_plan,
+                                 volume=getattr(args, '_volume', None), image_observations=observations,
+                                 _guarded_target=getattr(args, '_guarded_target', None))
         if not toolchain.anchor_current(payload, fd):
             fail('tool_payload_changed')
     # Repeat existing owner checks: no repair/registry fetch; evidence must remain unchanged.

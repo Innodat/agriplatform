@@ -65,3 +65,43 @@ only, never real freshness, ownership, initialization or executed setup SQL. Liv
 creation/ownership enforcement, execution-time rechecks, bootstrap/secret semantics,
 initialized reuse and real lifecycle readiness remain open. No runtime bytes, request
 body, environment or archive are saved or hashed; `runtime_ready=false` remains.
+
+## Retained guarded CLI volume-owner integration
+
+The separate `guarded-fresh` startup qualifier connects the pinned CLI's actual
+missing probe and ensure-volume command to the ENV volume owner. It retains the
+qualified run lock/evidence and one Docker connection/version across acquisition,
+CLI execution and final joint observations, with the same five-second total daemon
+deadline. Standalone fresh and metadata-acquisition qualifiers retain their contracts.
+
+The generated private fixture accepts only the exact pinned two-label CLI command
+after independently validating the complete prerequisite sequence. A closed private
+handoff asks the parent owner to require absence and send its exact six-label local
+volume request once. The owner validates the201 descriptor, reinspects by name and
+requires no current container references. Current images and bridge are checked
+before that operation and again with the volume/use observations before the CLI
+receives acknowledgement. After the strict PostgreSQL create/copy/refused-start
+sequence, final joint observations and owner evidence postchecks must still pass
+before a proof can return. Subprocess waits run outside the immediate constructor.
+
+The handoff has no daemon endpoint or arbitrary route selector. Its socket is derived
+from the generated private workdir; filesystem custody, peer credentials, an in-memory
+capability and exact ordered requests are checked. The capability and request bytes
+are never saved, hashed or exposed. Malformed, duplicate, forged and repeated
+handoffs refuse. Every blocking read/send uses the remaining guard budget; child
+output remains bounded and discarded, and the proven process group is stopped on
+all exits. Observed ownership fields are reported separately from planned metadata;
+daemon timestamps, mountpoints and container details remain private.
+
+The independent synthetic peer requires exactly70 ordered API exchanges on one
+connection, including the owner POST and final image/network/volume/use checks.
+Controls `guarded-existing`, `guarded-foreign`, `guarded-lost-response`,
+`guarded-truncated-response`, `guarded-bad-ack`, `guarded-bad-descriptor`,
+`guarded-changed`, `guarded-use`, `guarded-late-image`, `guarded-late-network`,
+`guarded-late-volume` and `guarded-late-use` validate exact terminal refusals. Existing
+volumes are never adopted by this fresh operation; uncertain mutation has no replay,
+cleanup or later phase. A404,201 or matching labels still proves neither immutable
+identity, reservation, empty storage nor qualified initialization. All daemon changes
+and container acknowledgements remain private synthetic fixtures. Real Docker
+mutation, container execution/SQL, bootstrap/secret semantics, initialized reuse and
+runtime readiness remain unqualified; `up` stays gated and `runtime_ready=false`.
