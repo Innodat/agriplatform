@@ -476,3 +476,45 @@ verified, including secondary custody, uncertainty, deadline/interruption and si
 group termination. Evidence records failed fixture attempts and corrections. No new
 deferred item; prior two intermittent investigations stay open. This bounded Build
 is closed; the remaining ENV/P1/SERVICE and runtime gates above remain open.
+
+## Current continuation — CLI post-start boundary, 2026-10-18
+
+[Bounded Build](../../../_bmad-output/implementation-artifacts/spec-env-cli-poststart-auth-boundary.md)
+is in progress under standing implementation approval. It retains the actual fresh
+CLI through current owned PostgreSQL health observations and validates/refuses the
+first Auth migration-job request before dispatch. The pinned source and exact
+command/environment profile are traced; the host-facing connection precedes that
+request but is not independent session identity/authentication proof. Driver probes
+may issue SQL; no zero-SQL claim. Root owns serial actual process/Docker verification
+and [requirement evidence](../../../platform/deployment/ENV_CLI_POSTSTART_EVIDENCE.md).
+All earlier controls and concurrent document/index state remain protected. Actual
+Auth migration/whole-stack and remaining ENV/P1/SERVICE gates stay open; no dependent
+Identity/Access/WRITE/server KDG, Leave/editor or production/pilot work begins.
+
+Pre-review verification:608704a3 actual new control passes70.840s with real CLI health,
+validated refused Auth job, no dispatch/setup completion, clean shutdown/disposal and
+13 receipts/running inventory unchanged. Existing initialized/persistence/bootstrap/
+guarded controls pass; first-start passes a targeted safe diagnostic after an unexplained
+nested prerequisite refusal, both retained. Public up still refuses. Root68 focused,
+3 affected process and **553 full deployment tests PASS498.253s** cover all five matrix
+rows, including33 profile rejection mutations. Three-layer review is next. Keep the
+earlier prerequisite refusal and two older intermittent investigations open.
+
+
+Reviewed-source closeout: fresh run `1a572768-945a-4ba4-9ae8-2a2d71b046a4`
+passes actual post-start/Auth-request boundary68.083s, with real health, exact refused
+job, no dispatch/setup completion and same-instance clean shutdown/disposal. All13
+receipts and running inventory remain unchanged. Existing initialized89.418s,
+persistence83.794s, ordinary first-start71.340s, bootstrap31.379s and guarded-fresh89.361s
+pass; public up remains runtime_adapter_unqualified. Root73 focused,4 affected process
+and **559 full deployment tests PASS591.285s** complete all five requirement rows.
+Three independent review layers and patches are verified, including malformed health,
+first-observation continuity, current terminal health, replay/framing and repeated
+not-ready polling. Source/profile bindings and concurrent documents/index are preserved.
+One pre-existing nested prerequisite-diagnostic investigation is newly deferred; two
+older intermittent guard investigations remain open. Registry-refused prerequisites
+and an incomplete regression log with an unidentified failure marker remain separate
+retained evidence; final passes do not explain them. See current evidence for exact
+commands/results/hashes. This bounded Build is closed. Actual Auth job owner execution,
+independent session proof, later fresh/initialized setup and remaining ENV/P1/SERVICE/
+full-runtime gates remain open; dependent work stays gated under existing approval.

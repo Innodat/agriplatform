@@ -1293,6 +1293,7 @@ class ExecutionSupervisor(unittest.TestCase):
         # Existing independent in-memory descriptors back a real private Docker
         # protocol peer; the production DockerSession owns all framing/closure.
         initialized = scenario.startswith('initialized-')
+        poststart = scenario.startswith('auth-')
         persistence = scenario.startswith('persistence-') or initialized
         engine = PersistenceDaemon() if persistence else OwnerDaemon()
         # Bind templates to this retained-owner harness's prepared UUID, which
@@ -1340,7 +1341,7 @@ class ExecutionSupervisor(unittest.TestCase):
                 # between owner requests. Let the retained owner's 120s execution
                 # deadline bound that idle interval, rather than injecting a
                 # separate five-second daemon EOF into envelope-refusal controls.
-                peer.request.settimeout(120 if initialized else 5)
+                peer.request.settimeout(120 if initialized or poststart else 5)
                 try:
                     while True:
                         data = b''
@@ -1398,6 +1399,43 @@ class ExecutionSupervisor(unittest.TestCase):
             return initialize(work, *args)
         def install_secondary(work, *args, **kwargs):
             install(work, *args, **kwargs)
+            if poststart and scenario in ('auth-health-envelope', 'auth-job-envelope', 'auth-health-ack', 'auth-health-lost', 'auth-job-lost'):
+                path = work / 'bin/docker'
+                phase = 'auth_job' if scenario.startswith('auth-job-') else 'poststart_health'
+                code = ("original_handoff = startup.owner_handoff\n"
+                        "def handoff(fixture, phase, args, environment, **kwargs):\n"
+                        "    if phase == " + repr(phase) + ": args = args + ['extra']\n"
+                        "    return original_handoff(fixture, phase, args, environment, **kwargs)\n"
+                        "startup.owner_handoff = handoff\n")
+                if scenario in ('auth-health-ack', 'auth-health-lost'):
+                    code = ("original_handoff = startup.owner_handoff\n"
+                            "class AckPeer:\n"
+                            "    def __init__(self, peer): self.peer = peer\n"
+                            "    def __enter__(self): self.peer.__enter__(); return self\n"
+                            "    def __exit__(self, *args): return self.peer.__exit__(*args)\n"
+                            "    def __getattr__(self, name): return getattr(self.peer, name)\n"
+                            "    def recv(self, size):\n"
+                            "        data = self.peer.recv(size)\n"
+                            "        return " + ("b''" if scenario.endswith('lost') else "b'bad' if data else data") + "\n"
+                            "def handoff(fixture, phase, args, environment, **kwargs):\n"
+                            "    if phase != 'poststart_health': return original_handoff(fixture, phase, args, environment, **kwargs)\n"
+                            "    socket_type = startup.socket.socket\n"
+                            "    startup.socket.socket = lambda *args, **kwargs: AckPeer(socket_type(*args, **kwargs))\n"
+                            "    try: return original_handoff(fixture, phase, args, environment, **kwargs)\n"
+                            "    finally: startup.socket.socket = socket_type\n"
+                            "startup.owner_handoff = handoff\n")
+                if scenario == 'auth-job-lost':
+                    code = ("original_handoff = startup.owner_handoff\n"
+                            "def handoff(fixture, phase, args, environment, **kwargs):\n"
+                            "    if phase == 'auth_job':\n"
+                            "        with startup.socket.socket(startup.socket.AF_UNIX) as peer:\n"
+                            "            peer.connect(str(Path(fixture['workdir'])/'docker/owner.sock'))\n"
+                            "            peer.shutdown(startup.socket.SHUT_WR)\n"
+                            "            peer.recv(1)\n"
+                            "        startup.fail('invalid_owner_handoff')\n"
+                            "    return original_handoff(fixture, phase, args, environment, **kwargs)\n"
+                            "startup.owner_handoff = handoff\n")
+                path.write_text(path.read_text().replace('args, env = sys.argv[1:], dict(os.environ)', code + 'args, env = sys.argv[1:], dict(os.environ)'))
             if scenario not in ('initialized-probe-envelope', 'initialized-ensure-envelope', 'initialized-probe-ack', 'initialized-ensure-ack') or not guards:
                 return
             path = work / 'bin/docker'
@@ -1427,6 +1465,8 @@ class ExecutionSupervisor(unittest.TestCase):
             path.write_text(path.read_text().replace('args, env = sys.argv[1:], dict(os.environ)', code + 'args, env = sys.argv[1:], dict(os.environ)'))
         def create_with_fault(guard, *args, **kwargs):
             result = create_container(guard, *args, **kwargs)
+            if poststart:
+                execution_deadlines.append(guard.deadline)
             if kwargs.get('_replacement') and scenario in ('initialized-wrapper-mutation', 'initialized-listener-mutation',
                                                           'initialized-deadline', 'initialized-interrupt'):
                 fault_at.append((len(engine.events), guard.deadline))
@@ -1441,6 +1481,27 @@ class ExecutionSupervisor(unittest.TestCase):
                     raise KeyboardInterrupt()
             return result
         calls, guards, pids, fixture_workdirs = [], [], [], []
+        execution_deadlines, health_observations, health_deadlines = [], [], []
+        health = resources.FreshGuard.poststart_health
+        def health_with_fault(guard):
+            if scenario == 'auth-polling':
+                engine.row['State']['Health']['Status'] = ['starting', 'unhealthy', 'starting', 'healthy'][len(health_observations)]
+            before = guard.deadline
+            state = health(guard)
+            health_observations.append(state['Health']['Status'])
+            health_deadlines.append((before, guard.deadline))
+            if poststart and not fault_at:
+                fault_at.append((len(engine.events), guard.deadline))
+                if scenario == 'auth-instance':
+                    engine.row['State']['StartedAt'] = '2026-10-17T12:00:00.000000002Z'
+                elif scenario == 'auth-custody':
+                    changed = guard._fixture[0] / 'bin/docker'
+                    changed.write_text(changed.read_text() + '\n# changed custody\n')
+                elif scenario == 'auth-deadline':
+                    clock_shift[0] = 121
+                elif scenario == 'auth-interrupt':
+                    raise KeyboardInterrupt()
+            return state
         def record_cleanup(guard, *args, **kwargs):
             entry = {'at': time.monotonic(), 'closed': guard.session.closed, 'execution_deadline': guard.deadline}
             calls.append(entry)
@@ -1462,7 +1523,36 @@ class ExecutionSupervisor(unittest.TestCase):
             path = str(root / 'daemon.sock')
             executable = root / 'supabase'
             process_source = self.source_with_descendant(Lifecycle().process_source())
-            if scenario in ('initialized-probe-ack', 'initialized-ensure-ack'):
+            if poststart:
+                continuation = """if result.returncode: sys.exit(result.returncode)
+result = subprocess.run(['docker', 'container', 'inspect', 'supabase_db_'+p, '--format', '{{json .State}}'], capture_output=True, text=True)
+if result.returncode: sys.exit(result.returncode)
+assert json.loads(result.stdout)['Health']['Status'] == 'healthy'
+from test_pinned_execution import PoststartAuthBoundary
+job_args, job_env = PoststartAuthBoundary().job(f)
+os.environ.update(job_env)
+auth = next(tag for tag in f['images'] if '/gotrue:' in tag)
+result = subprocess.run(['docker', 'image', 'inspect', auth], capture_output=True)
+if result.returncode: sys.exit(result.returncode)
+result = subprocess.run(['docker', *job_args])
+"""
+                if scenario == 'auth-polling':
+                    single_poll = """result = subprocess.run(['docker', 'container', 'inspect', 'supabase_db_'+p, '--format', '{{json .State}}'], capture_output=True, text=True)
+if result.returncode: sys.exit(result.returncode)
+assert json.loads(result.stdout)['Health']['Status'] == 'healthy'
+"""
+                    repeated_polls = """for attempt in range(4):
+    result = subprocess.run(['docker', 'container', 'inspect', 'supabase_db_'+p, '--format', '{{json .State}}'], capture_output=True, text=True)
+    if result.returncode: sys.exit(result.returncode)
+    status = json.loads(result.stdout)['Health']['Status']
+    if status == 'healthy': break
+    assert status in ('starting', 'unhealthy')
+else: sys.exit(125)
+"""
+                    self.assertIn(single_poll, continuation)
+                    continuation = continuation.replace(single_poll, repeated_polls)
+                process_source = process_source.replace("(work/'forbidden_after_start').write_text", continuation + "(work/'forbidden_after_start').write_text")
+            if scenario in ('initialized-probe-ack', 'initialized-ensure-ack', 'auth-health-ack', 'auth-health-lost'):
                 # Keep the descendant alive in the CLI group, but let the owner's
                 # pipe EOF expose this ACK refusal immediately after the CLI exits.
                 # Inherited-pipe retention has a separate dedicated control.
@@ -1478,14 +1568,15 @@ class ExecutionSupervisor(unittest.TestCase):
                     with patch.object(startup, 'guarded_fixture_command', side_effect=observe), \
                             patch.object(resources.FreshGuard, 'cleanup_execution', new=record_cleanup), \
                             patch.object(resources.FreshGuard, 'container_create', new=create_with_fault), \
+                            patch.object(resources.FreshGuard, 'poststart_health', new=health_with_fault), \
                             patch.object(startup, 'initialize_workdir', side_effect=initialize_secondary), \
                             patch.object(startup, 'install_fixture', side_effect=install_secondary), \
                             patch.object(startup.os, 'killpg', side_effect=signal_group), \
                             patch.object(time, 'monotonic', side_effect=lambda: real_monotonic() + clock_shift[0]), \
                             patch.object(dev, 'free_ports'):
-                        with (nullcontext() if scenario in ('persistence-positive', 'initialized-positive') else self.assertRaises(KeyboardInterrupt if scenario == 'initialized-interrupt' else dev.Refusal)) as caught:
+                        with (nullcontext() if scenario in ('persistence-positive', 'initialized-positive', 'auth-positive', 'auth-polling') else self.assertRaises(KeyboardInterrupt if scenario in ('initialized-interrupt', 'auth-interrupt') else dev.Refusal)) as caught:
                             result = startup.synthetic_probe(executable, self.owner.owner.target, self.owner.owner.args.run_id,
-                                    control='fresh-pinned-cli-postgres-initialized' if initialized else ('fresh-pinned-cli-postgres-persistence' if persistence else 'fresh-pinned-cli-postgres'),
+                                    control='fresh-pinned-cli-postgres-auth-boundary' if poststart else ('fresh-pinned-cli-postgres-initialized' if initialized else ('fresh-pinned-cli-postgres-persistence' if persistence else 'fresh-pinned-cli-postgres')),
                                     selection_plan=startup.existing_images(self.owner.owner.args)[1],
                                     image_observations=self.owner.expected,
                                     _guarded_target=(self.owner.owner.args.target, path))
@@ -1493,6 +1584,41 @@ class ExecutionSupervisor(unittest.TestCase):
                     server.shutdown()
                     thread.join(timeout=1)
 
+        if poststart:
+            guard = guards[0]
+            self.assert_stopped(pids)
+            self.assertEqual(len(pids), 2)
+            self.assertEqual(len(group_signals), 1, 'signal the proven CLI group once')
+            self.assertEqual(created, ['a'*64])
+            self.assertEqual(len(connections), 1)
+            self.assertEqual(len(calls), 1)
+            self.assertTrue(guard.cleanup_attempted)
+            self.assertEqual(sum('/containers/create?' in p for _, p, _ in engine.events), 1)
+            self.assertEqual(sum(p.endswith('/start') for _, p, _ in engine.events), 1)
+            if scenario in ('auth-positive', 'auth-polling'):
+                self.assertTrue(result['auth_job_profile_validated'])
+                self.assertTrue(result['auth_job_refused'])
+                self.assertFalse(result['auth_job_dispatched'])
+                self.assertFalse(result['runtime_ready'])
+                self.assertTrue(guard.cleaned)
+                self.assertIsNone(engine.row)
+                if scenario == 'auth-polling':
+                    self.assertEqual(health_observations, ['starting', 'unhealthy', 'starting', 'healthy'])
+                    self.assertEqual(len(execution_deadlines), 1)
+                    self.assertEqual(health_deadlines, [(execution_deadlines[0], execution_deadlines[0])] * 4)
+            elif scenario == 'auth-custody':
+                self.assertTrue(guard.ownership_lost)
+                self.assertFalse(guard.cleaned)
+                self.assertIsNotNone(engine.row)
+            else:
+                self.assertFalse(guard.auth_job_refused)
+                self.assertTrue(guard.cleaned)
+                self.assertIsNone(engine.row)
+                if scenario == 'auth-deadline':
+                    self.assertEqual(caught.exception.code, 'docker_timeout')
+                    self.assertEqual(calls[0]['execution_deadline'], fault_at[0][1],
+                                     'post-start observations cannot reset the execution deadline')
+            return
         if initialized:
             self.assertEqual(len(group_signals), len(set(group_signals)), 'never signal a reaped numeric group twice')
             self.assert_stopped(pids)
@@ -1708,3 +1834,19 @@ class ExecutionSupervisor(unittest.TestCase):
                      '<supervisor-cleanup-removal-mutation>', 'exec'), startup.__dict__, namespace)
         with self.assertRaisesRegex(AssertionError, 'automatic owner cleanup was not invoked exactly once'):
             self.run_execution_case('post-start-health', runner=namespace['guarded_fixture_command'])
+
+    def test_auth_poststart_real_private_handoff_and_refused_job_dispose(self):
+        self.run_execution_case('auth-positive')
+
+    def test_auth_poststart_repeated_not_ready_polls_preserve_execution_deadline(self):
+        self.run_execution_case('auth-polling')
+
+    def test_auth_poststart_malformed_or_lost_health_and_job_exchanges_refuse(self):
+        for scenario in ['auth-health-envelope', 'auth-health-ack', 'auth-health-lost', 'auth-job-envelope', 'auth-job-lost']:
+            with self.subTest(scenario=scenario):
+                self.run_execution_case(scenario)
+
+    def test_auth_poststart_instance_custody_deadline_and_interrupt_preserve_limits(self):
+        for scenario in ['auth-instance', 'auth-custody', 'auth-deadline', 'auth-interrupt']:
+            with self.subTest(scenario=scenario):
+                self.run_execution_case(scenario)

@@ -141,3 +141,38 @@ def disposable_execution_request(args, fixture, inherited):
                 Memory=2147483648, MemorySwap=2147483648, NanoCpus=2000000000,
                 PidsLimit=256, LogConfig={'Type': 'none', 'Config': {}}, Privileged=False)
     return body
+
+
+def auth_environment(fixture):
+    """Six source-fixed public synthetic inputs, never observed-input authority."""
+    return {'API_EXTERNAL_URL': fixture['origins'][1] + '/auth/v1',
+            'GOTRUE_LOG_LEVEL': 'error', 'GOTRUE_DB_DRIVER': 'postgres',
+            'GOTRUE_DB_DATABASE_URL': 'postgresql://supabase_auth_admin:postgres@supabase_db_' + fixture['project'] + ':5432/postgres',
+            'GOTRUE_SITE_URL': fixture['origins'][0], 'GOTRUE_JWT_SECRET': CONTAINER_ENV['JWT_SECRET']}
+
+
+def validate_auth_job(args, fixture, inherited):
+    """Validate only; this owner has no Auth job dispatch adapter."""
+    if type(inherited) is not dict or type(args) is not list:
+        refuse()
+    pins = images.load_pins(dev.read(dev.ROOT / images.PINS))
+    auth = next(item for item in pins['images'] if item['id'] == 'gotrue')
+    tag = 'public.ecr.aws/' + auth['repository'] + ':' + auth['tag']
+    selected = fixture['selection_plan'].get(tag)
+    observation = fixture['image_observations'].get(selected)
+    if (type(selected) is not str or observation is None
+            or not re.fullmatch(re.escape('public.ecr.aws/' + auth['repository']) + r'@sha256:[0-9a-f]{64}', selected)):
+        refuse()
+    env = auth_environment(fixture)
+    expected = ['run', '--rm', '--network', fixture['network']['Id'],
+                '--add-host', 'host.docker.internal:host-gateway']
+    for key in env:
+        expected += ['-e', key]
+    expected += ['--label', 'com.supabase.cli.project=' + fixture['project'],
+                 '--label', 'com.docker.compose.project=' + fixture['project'], tag, 'gotrue', 'migrate']
+    routing = environment(fixture)
+    wanted = dict(env, **{key: routing[key] for key in ('DOCKER_HOST', 'DOCKER_CONFIG')})
+    if (not _exact_tree(args, expected)
+            or any(type(inherited.get(key)) is not str or inherited[key] != value for key, value in wanted.items())
+            or any(key in inherited for key in ROUTING_KEYS if key not in wanted)):
+        refuse()

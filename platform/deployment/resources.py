@@ -141,6 +141,9 @@ class FreshGuard:
         self._create_operands = None
         self.old_container_id = None
         self.initialized_cli = False
+        self.auth_boundary = self.auth_job_refused = self.auth_terminal_attempted = False
+        self.poststart_identity = None
+        self.poststart_healthy = False
         self._second_fixture = self._second_listener_identity = None
 
     def bind_fixture(self, work, work_fd, sources, fixture_hash, wrappers):
@@ -274,6 +277,46 @@ class FreshGuard:
         if not self.persistence or self.initialized_cli or self.execution_started:
             startup.fail('invalid_owner_handoff')
         self.initialized_cli = True
+
+    def enable_auth_boundary(self):
+        if not self.execution or self.auth_boundary or self.persistence or self.execution_started:
+            startup.fail('invalid_owner_handoff')
+        self.auth_boundary = True
+
+    def poststart_health(self):
+        if not self.auth_boundary or self.phase != 5 or self.auth_terminal_attempted:
+            startup.fail('invalid_owner_handoff')
+        row = self.owned()
+        started = startup.lifecycle.shutdown_state(row)
+        if self.poststart_identity is not None and started != self.poststart_identity:
+            startup.fail('execution_instance_changed')
+        self.poststart_identity = started
+        observed_health = row['State'].get('Health')
+        if type(observed_health) is not dict:
+            startup.fail('execution_invalid_health')
+        health = observed_health.get('Status')
+        if health not in ('starting', 'unhealthy', 'healthy'):
+            startup.fail('execution_invalid_health')
+        self.poststart_healthy = health == 'healthy'
+        # Selected current fields only; exclude logs, errors, PID and timestamps.
+        return {'Status': row['State']['Status'], 'Running': row['State']['Running'],
+                'Health': {'Status': health}}
+
+    def refuse_auth_job(self, args, environment, fixture):
+        import create_profile
+        if (not self.auth_boundary or self.phase != 5 or self.auth_terminal_attempted
+                or not self.poststart_healthy):
+            startup.fail('invalid_owner_handoff')
+        self.auth_terminal_attempted = True
+        create_profile.validate_auth_job(args, fixture, environment)
+        # The job can follow only the same currently healthy owned instance.
+        row = self.owned()
+        if startup.lifecycle.shutdown_state(row) != self.poststart_identity:
+            startup.fail('execution_instance_changed')
+        observed_health = row['State'].get('Health')
+        if type(observed_health) is not dict or observed_health.get('Status') != 'healthy':
+            startup.fail('execution_invalid_health')
+        self.auth_job_refused = True
 
     def initialized_probe(self):
         if not self.initialized_cli or self.phase != 10:
@@ -434,6 +477,8 @@ class FreshGuard:
         status, _ = self.session.exchange('POST', '/v1.48/containers/' + self.container_id + '/start')
         if status != 204:
             startup.fail('execution_start_failed')
+        if self.auth_boundary:
+            self.poststart_identity = startup.lifecycle.shutdown_state(self.owned())
         self.phase = 5
 
     def persistence_sql(self, mode, started):
@@ -564,11 +609,15 @@ class FreshGuard:
     def finish_execution(self):
         if self.phase != 5:
             startup.fail('invalid_owner_handoff')
+        if self.auth_boundary and not self.auth_job_refused:
+            startup.fail('invalid_owner_handoff')
         # Consume finish before any mutation; SQL/lifecycle helpers require phase5.
         if getattr(self, '_finish_attempted', False):
             startup.fail('invalid_owner_handoff')
         self._finish_attempted = True
         started = self.healthy_instance()
+        if self.auth_boundary and started != self.poststart_identity:
+            startup.fail('execution_instance_changed')
         if self.initialized_cli and self.old_container_id is None:
             startup.fail('invalid_owner_handoff')
         if self.persistence and not self.initialized_cli:

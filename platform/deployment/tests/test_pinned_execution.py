@@ -1429,3 +1429,324 @@ class PersistenceReviewCoverage(unittest.TestCase):
             with self.assertRaises(dev.Refusal):
                 daemon.guard.cleanup_execution()
             self.assertEqual(len(daemon.events), before)
+
+class PoststartAuthBoundary(unittest.TestCase):
+    def prepared(self):
+        daemon = OwnerDaemon()
+        daemon.fixture.update(origins=['http://localhost:5188', 'http://localhost:55481'])
+        daemon.guard.enable_auth_boundary()
+        daemon.dispatch_cli()
+        return daemon
+
+    def job(self, f):
+        auth = next(tag for tag in f['selection_plan'] if '/gotrue:' in tag)
+        env = {'API_EXTERNAL_URL': 'http://localhost:55481/auth/v1', 'GOTRUE_LOG_LEVEL': 'error',
+               'GOTRUE_DB_DRIVER': 'postgres',
+               'GOTRUE_DB_DATABASE_URL': 'postgresql://supabase_auth_admin:postgres@supabase_db_'+f['project']+':5432/postgres',
+               'GOTRUE_SITE_URL': 'http://localhost:5188',
+               'GOTRUE_JWT_SECRET': 'super-secret-jwt-token-with-at-least-32-characters-long',
+               'DOCKER_HOST': 'unix://'+f['workdir']+'/no-daemon.sock', 'DOCKER_CONFIG': f['workdir']+'/docker'}
+        args = ['run', '--rm', '--network', f['network']['Id'], '--add-host', 'host.docker.internal:host-gateway']
+        for key in list(env)[:6]:
+            args += ['-e', key]
+        args += ['--label', 'com.supabase.cli.project='+f['project'], '--label', 'com.docker.compose.project='+f['project'], auth, 'gotrue', 'migrate']
+        return args, env
+
+    def test_real_health_then_exact_refused_auth_without_job_dispatch(self):
+        daemon = self.prepared()
+        state = daemon.guard.poststart_health()
+        self.assertEqual(state, {'Status': 'running', 'Running': True, 'Health': {'Status': 'healthy'}})
+        daemon.guard.refuse_auth_job(*self.job(daemon.fixture), daemon.fixture)
+        daemon.guard.finish_execution()
+        self.assertTrue(daemon.guard.cleaned)
+        self.assertTrue(daemon.guard.auth_job_refused)
+        self.assertEqual(sum('/containers/create?' in path for _, path, _ in daemon.events), 1)
+
+    def test_health_only_selects_current_safe_fields_and_keeps_start_identity(self):
+        daemon = self.prepared()
+        daemon.row['State']['Health'].update(Status='starting', Log=[{'Output': 'private'}])
+        deadline = daemon.guard.deadline
+        self.assertEqual(daemon.guard.poststart_health()['Health'], {'Status': 'starting'})
+        daemon.row['State']['Health']['Status'] = 'healthy'
+        daemon.guard.poststart_health()
+        self.assertEqual(daemon.guard.deadline, deadline)
+        daemon.row['State']['StartedAt'] = '2026-10-17T12:00:00.000000002Z'
+        with self.assertRaises(dev.Refusal):
+            daemon.guard.poststart_health()
+
+    def test_changed_auth_profile_or_early_job_never_dispatches(self):
+        for defect in ['early', 'argv', 'env', 'routing', 'image', 'network']:
+            daemon = self.prepared()
+            if defect != 'early':
+                daemon.guard.poststart_health()
+            args, env = self.job(daemon.fixture)
+            if defect == 'argv': args += ['extra']
+            if defect == 'env': env['GOTRUE_SITE_URL'] = 'foreign'
+            if defect == 'routing': env['DOCKER_CONTEXT'] = 'foreign'
+            if defect == 'image': args[-3] = 'foreign'
+            if defect == 'network': args[3] = 'foreign'
+            before = len(daemon.events)
+            with self.subTest(defect=defect), self.assertRaises(dev.Refusal):
+                daemon.guard.refuse_auth_job(args, env, daemon.fixture)
+            self.assertFalse(daemon.guard.auth_job_refused)
+            self.assertFalse(any(m != 'GET' for m, _, _ in daemon.events[before:]))
+
+    def test_terminal_job_consumed_once_and_finish_needs_boundary(self):
+        daemon = self.prepared()
+        with self.assertRaises(dev.Refusal): daemon.guard.finish_execution()
+        daemon.guard.poststart_health()
+        daemon.guard.refuse_auth_job(*self.job(daemon.fixture), daemon.fixture)
+        before = len(daemon.events)
+        with self.assertRaises(dev.Refusal): daemon.guard.refuse_auth_job(*self.job(daemon.fixture), daemon.fixture)
+        self.assertEqual(len(daemon.events), before)
+
+    def test_auth_job_profile_rejection_matrix(self):
+        import copy
+        fixture = boundary_fixture()
+        fixture['origins'] = ['http://localhost:5188', 'http://localhost:55481']
+        original_args, original_env = self.job(fixture)
+        # The independent pinned-source oracle above must pass before any fault.
+        create_profile.validate_auth_job(original_args, fixture, original_env)
+        cases = []
+        public_keys = ['API_EXTERNAL_URL', 'GOTRUE_LOG_LEVEL', 'GOTRUE_DB_DRIVER',
+                       'GOTRUE_DB_DATABASE_URL', 'GOTRUE_SITE_URL', 'GOTRUE_JWT_SECRET']
+        for key in public_keys:
+            changed = dict(original_env, **{key: 'changed-public-input'})
+            cases.append(('changed-value-' + key, original_args, changed))
+            missing = dict(original_env)
+            missing.pop(key)
+            cases.append(('missing-value-' + key, original_args, missing))
+            index = original_args.index(key)
+            args = original_args[:index-1] + original_args[index+1:]
+            cases.append(('missing-env-option-' + key, args, original_env))
+            args = list(original_args)
+            args[index] += '=' + original_env[key]
+            cases.append(('inline-env-value-' + key, args, original_env))
+        first = original_args.index('API_EXTERNAL_URL') - 1
+        args = list(original_args)
+        args[first:first+4] = args[first+2:first+4] + args[first:first+2]
+        cases.append(('reordered-env-options', args, original_env))
+        cases.append(('extra-env-option', original_args[:first] + ['-e', 'EXTRA'] + original_args[first:],
+                      dict(original_env, EXTRA='public-extra')))
+        for label in ['com.supabase.cli.project=', 'com.docker.compose.project=']:
+            index = next(i for i, value in enumerate(original_args) if value.startswith(label))
+            args = list(original_args)
+            args[index] = label + 'foreign-project'
+            cases.append(('changed-label-' + label, args, original_env))
+            cases.append(('missing-label-' + label, original_args[:index-1] + original_args[index+1:], original_env))
+        for name, options in [('mount', ['-v', 'foreign:/data']), ('port', ['-p', '5432:5432']),
+                              ('entrypoint', ['--entrypoint', 'sh'])]:
+            cases.append(('forbidden-' + name, original_args[:-3] + options + original_args[-3:], original_env))
+        for name, args, env in cases:
+            before = copy.deepcopy((args, env, fixture))
+            with self.subTest(defect=name), self.assertRaises(dev.Refusal) as caught:
+                create_profile.validate_auth_job(args, fixture, env)
+            self.assertEqual(caught.exception.code, 'unsafe_create')
+            self.assertEqual((args, env, fixture), before)
+
+    def test_malformed_health_at_poll_and_terminal_refuses_safely(self):
+        for site in ['poll', 'terminal']:
+            for malformed in [None, [], 'healthy', {}, {'Status': None}]:
+                daemon = self.prepared()
+                guard = daemon.guard
+                if site == 'terminal':
+                    guard.poststart_health()
+                deadline = guard.deadline
+                daemon.row['State']['Health'] = malformed
+                before = len(daemon.events)
+                with self.subTest(site=site, malformed=malformed):
+                    with self.assertRaises(dev.Refusal) as caught:
+                        if site == 'poll':
+                            guard.poststart_health()
+                        else:
+                            guard.refuse_auth_job(*self.job(daemon.fixture), daemon.fixture)
+                    self.assertEqual(caught.exception.code, 'execution_invalid_health')
+                    self.assertEqual(guard.deadline, deadline)
+                    self.assertFalse(guard.auth_job_refused)
+                    self.assertFalse(any(method != 'GET' for method, _, _ in daemon.events[before:]))
+
+    def test_poststart_identity_and_state_regressions_at_poll_and_terminal(self):
+        changes = [('restart', {'StartedAt': '2026-10-17T12:00:00.000000002Z'}, 'execution_instance_changed'),
+                   ('exited', {'Status': 'exited', 'Running': False, 'Pid': 0}, 'shutdown_invalid_state'),
+                   ('dead', {'Dead': True}, 'shutdown_invalid_state'),
+                   ('oom', {'OOMKilled': True}, 'shutdown_oom')]
+        for site in ['first-poll', 'terminal']:
+            for defect, fields, code in changes:
+                daemon = self.prepared()
+                guard = daemon.guard
+                if site == 'terminal': guard.poststart_health()
+                deadline = guard.deadline
+                daemon.row['State'].update(fields)
+                before = len(daemon.events)
+                with self.subTest(site=site, defect=defect), self.assertRaises(dev.Refusal) as caught:
+                    if site == 'first-poll': guard.poststart_health()
+                    else: guard.refuse_auth_job(*self.job(daemon.fixture), daemon.fixture)
+                self.assertEqual(caught.exception.code, code)
+                self.assertEqual(guard.deadline, deadline)
+                self.assertFalse(guard.auth_job_refused)
+                self.assertFalse(any(method != 'GET' for method, _, _ in daemon.events[before:]))
+
+    def test_not_ready_poll_clears_admission_and_terminal_rechecks_last_healthy(self):
+        for reported in [True, False]:
+            for status in ['starting', 'unhealthy']:
+                daemon = self.prepared()
+                guard = daemon.guard
+                guard.poststart_health()
+                deadline = guard.deadline
+                daemon.row['State']['Health']['Status'] = status
+                if reported:
+                    self.assertEqual(guard.poststart_health()['Health']['Status'], status)
+                    self.assertFalse(guard.poststart_healthy)
+                before = len(daemon.events)
+                with self.subTest(reported=reported, status=status), self.assertRaises(dev.Refusal) as caught:
+                    guard.refuse_auth_job(*self.job(daemon.fixture), daemon.fixture)
+                self.assertEqual(caught.exception.code, 'invalid_owner_handoff' if reported else 'execution_invalid_health')
+                self.assertEqual(guard.deadline, deadline)
+                self.assertFalse(guard.auth_job_refused)
+                self.assertFalse(any(method != 'GET' for method, _, _ in daemon.events[before:]))
+
+    def test_failed_profile_consumes_terminal_before_valid_retry(self):
+        daemon = self.prepared()
+        guard = daemon.guard
+        guard.poststart_health()
+        deadline, before = guard.deadline, len(daemon.events)
+        args, env = self.job(daemon.fixture)
+        with self.assertRaises(dev.Refusal) as caught:
+            guard.refuse_auth_job(args + ['extra'], env, daemon.fixture)
+        self.assertEqual(caught.exception.code, 'unsafe_create')
+        self.assertTrue(guard.auth_terminal_attempted)
+        with self.assertRaises(dev.Refusal) as caught:
+            guard.refuse_auth_job(args, env, daemon.fixture)
+        self.assertEqual(caught.exception.code, 'invalid_owner_handoff')
+        self.assertEqual(guard.deadline, deadline)
+        self.assertEqual(len(daemon.events), before)
+        self.assertFalse(guard.auth_job_refused)
+
+class PoststartEnvelope(unittest.TestCase):
+    def inputs(self, phase):
+        import startup
+        fixture, events, _ = ExecutionEnvelope().inputs(4)
+        fixture.update(auth_boundary=True, origins=['http://localhost:5188', 'http://localhost:55481'])
+        events += [{'kind': 'postgres_start_acknowledged'}]
+        routing = {key: expected_environment(fixture)[key] for key in ('DOCKER_HOST', 'DOCKER_CONFIG')}
+        if phase == 'poststart_health':
+            args = ['container', 'inspect', 'supabase_db_'+fixture['project'], '--format', '{{json .State}}']
+        else:
+            events += [{'kind': 'postgres_health', 'health': 'healthy'}]
+            auth = next(tag for tag in fixture['images'] if '/gotrue:' in tag)
+            args = ['image', 'inspect', auth]
+            if phase == 'auth_job':
+                events += [{'kind': 'auth_image_inspect'}]
+                args, routing = PoststartAuthBoundary().job(fixture)
+        return fixture, events, {'token': 'a'*32, 'phase': phase, 'args': args, 'environment': routing}
+
+    def test_exact_phase_token_operands_environment_and_prefix_required(self):
+        import copy, json, startup
+        for phase in ['poststart_health', 'poststart_image', 'auth_job']:
+            fixture, events, request = self.inputs(phase)
+            self.assertEqual(startup.validate_poststart_handoff(json.dumps(request).encode(), 'a'*32, fixture, events), request)
+            for defect in ['token', 'phase', 'args', 'environment', 'extra', 'prefix', 'duplicate', 'malformed']:
+                changed = copy.deepcopy(request)
+                prefix = copy.deepcopy(events)
+                if defect in ['token', 'phase']: changed[defect] = 'foreign'
+                if defect == 'args': changed['args'].append('extra')
+                if defect == 'environment': changed['environment']['DOCKER_CONTEXT'] = 'foreign'
+                if defect == 'extra': changed['extra'] = True
+                if defect == 'prefix': prefix[0]['kind'] = 'foreign'
+                if defect == 'duplicate': prefix.append({'kind': 'auth_image_inspect'})
+                raw = b'{' if defect == 'malformed' else json.dumps(changed).encode()
+                with self.subTest(phase=phase, defect=defect), self.assertRaises(dev.Refusal):
+                    startup.validate_poststart_handoff(raw, 'a'*32, fixture, prefix)
+
+    def test_job_needs_healthy_then_single_current_auth_image_observation(self):
+        import json, startup
+        fixture, events, request = self.inputs('auth_job')
+        for prefix in [events[:-1], events[:-2], events + [{'kind': 'auth_image_inspect'}]]:
+            with self.assertRaises(dev.Refusal):
+                startup.validate_poststart_handoff(json.dumps(request).encode(), 'a'*32, fixture, prefix)
+        events[-2]['health'] = 'unhealthy'
+        with self.assertRaises(dev.Refusal):
+            startup.validate_poststart_handoff(json.dumps(request).encode(), 'a'*32, fixture, events)
+
+    def test_health_lost_malformed_and_oversized_replies_refuse(self):
+        import startup, struct, os, json
+        fixture, _, request = self.inputs('poststart_health')
+        env = dict(request['environment'], ENV_PRIVATE_OWNER_TOKEN='a'*32, ENV_PRIVATE_OWNER_PID='12345')
+        valid = json.dumps({'Status': 'running', 'Running': True, 'Health': {'Status': 'healthy'}}).encode()
+        for reply in [b'', b'OK\n', b'{}', b'x'*513, valid + b' '*(513-len(valid)),
+                      json.dumps({'Status': 'running', 'Running': True, 'Health': {'Status': 'healthy', 'Log': []}}).encode()]:
+            peer = Mock()
+            peer.getsockopt.return_value = struct.pack('3i', 12345, os.getuid(), 0)
+            peer.recv.side_effect = [reply, b'']
+            context = Mock()
+            context.__enter__ = Mock(return_value=peer)
+            context.__exit__ = Mock(return_value=False)
+            with self.subTest(reply=reply[:20]), patch.object(startup.socket, 'socket', return_value=context), self.assertRaises(dev.Refusal):
+                startup.owner_handoff(fixture, 'poststart_health', request['args'], env)
+
+class DepartedPrivatePeer(unittest.TestCase):
+    def test_peer_departure_during_proc_parent_check_is_safe_refusal(self):
+        import startup, struct, os
+        guard = Mock()
+        guard._second_fixture = None
+        guard.execution = False
+        guard.remaining.return_value = 1
+        listener, peer, selector, process = Mock(), Mock(), Mock(), Mock()
+        process.pid = 12345
+        listener.accept.return_value = (peer, None)
+        peer.getsockopt.return_value = struct.pack('3i', 23456, os.getuid(), 0)
+        peer.__enter__ = Mock(return_value=peer)
+        peer.__exit__ = Mock(return_value=False)
+        selector.get_map.return_value = {1: None, 2: None}
+        selector.select.return_value = [(Mock(fileobj=listener), None)]
+        socket_context = Mock()
+        socket_context.__enter__ = Mock(return_value=listener)
+        socket_context.__exit__ = Mock(return_value=False)
+        selector_context = Mock()
+        selector_context.__enter__ = Mock(return_value=selector)
+        selector_context.__exit__ = Mock(return_value=False)
+        with patch.object(startup.socket, 'socket', return_value=socket_context), \
+                patch.object(startup.selectors, 'DefaultSelector', return_value=selector_context), \
+                patch.object(startup.subprocess, 'Popen', return_value=process), \
+                patch.object(startup.os, 'set_blocking'), patch.object(startup.os, 'killpg') as kill, \
+                patch.object(Path, 'chmod'), patch.object(Path, 'lstat'), \
+                patch.object(Path, 'read_text', side_effect=FileNotFoundError()), self.assertRaises(dev.Refusal) as caught:
+            startup.guarded_fixture_command(['selected-cli'], Path('/private'), {}, guard)
+        self.assertEqual(caught.exception.code, 'invalid_owner_handoff')
+        kill.assert_called_once()
+        listener.accept.assert_called_once()
+
+
+class FragmentedHealthReply(unittest.TestCase):
+    def test_size_respecting_fragments_accept_exact_limit_and_reject_one_extra(self):
+        import json, os, struct, startup
+        fixture, _, request = PoststartEnvelope().inputs('poststart_health')
+        env = dict(request['environment'], ENV_PRIVATE_OWNER_TOKEN='a'*32, ENV_PRIVATE_OWNER_PID='12345')
+        state = {'Status': 'running', 'Running': True, 'Health': {'Status': 'healthy'}}
+        valid = json.dumps(state).encode()
+        for length in [512, 513]:
+            for fragment in [1, 17, 512]:
+                remaining = bytearray(valid + b' '*(length-len(valid)))
+                sizes = []
+                def recv(size):
+                    self.assertGreater(size, 0)
+                    sizes.append(size)
+                    take = min(size, fragment, len(remaining))
+                    chunk = bytes(remaining[:take])
+                    del remaining[:take]
+                    return chunk
+                peer = Mock()
+                peer.recv.side_effect = recv
+                peer.getsockopt.return_value = struct.pack('3i', 12345, os.getuid(), 0)
+                context = Mock()
+                context.__enter__ = Mock(return_value=peer)
+                context.__exit__ = Mock(return_value=False)
+                with self.subTest(length=length, fragment=fragment), patch.object(startup.socket, 'socket', return_value=context):
+                    if length == 512:
+                        self.assertEqual(startup.owner_handoff(fixture, 'poststart_health', request['args'], env), state)
+                    else:
+                        with self.assertRaises(dev.Refusal) as caught:
+                            startup.owner_handoff(fixture, 'poststart_health', request['args'], env)
+                        self.assertEqual(caught.exception.code, 'invalid_owner_handoff')
+                self.assertFalse(remaining)
+                self.assertLessEqual(max(sizes), 513)

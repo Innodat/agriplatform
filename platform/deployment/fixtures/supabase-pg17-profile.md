@@ -347,3 +347,42 @@ owner; it cannot dispose it before SQL verification. Failed/uncertain operations
 cannot reconnect, adopt, retry mutations or claim success. Public lifecycle, full
 post-health fresh/webhook/current-branch setup, cross-execution reuse and recovery
 remain unqualified; `runtime_ready=false`.
+
+## Post-start health and refused Auth migration-job authority
+
+The explicit `pinned-cli-postgres-auth-boundary` qualification retains the fresh
+actual CLI beyond start, through its health observations and first Auth job request.
+It refuses the job without dispatch. Immutable source commit remains
+`753520fa7202ed5f8b25883a4c0aa7e5e9ad1fc4`:
+
+- `docker-lifecycle.ts` / `db-bootstrap/health-check.ts` inspect exactly
+  `container inspect supabase_db_<project> --format {{json .State}}`. This is the
+  same argv as the initial missing-container probe; guarded phase distinguishes it.
+- `db-bootstrap/start-database.ts` invokes fresh setup after health. PG17 setup with
+  Realtime/Storage disabled and Auth enabled reaches the Auth migration job first.
+- `db-bootstrap/db-setup.ts` opens the host-facing database session before resolving
+  that job. Its later setup SQL follows successful job completion. Connection-driver
+  probes are possible; reaching the job is not a zero-SQL or independently verified
+  session-identity/authentication claim.
+- `db-bootstrap/internal-db-connection.ts` derives the job's container-network URI
+  using role `supabase_auth_admin`, internal port5432, database postgres and the public
+  synthetic password. This is distinct from the CLI's host-facing database port.
+- `docker-run.args.ts` and `docker-run.layer.ts` serialize `run --rm`, named network,
+  Linux `--add-host host.docker.internal:host-gateway`, key-only environment flags,
+  project labels, image and command. Environment values enter the child environment,
+  not argv. No mounts, ports, working-directory or entrypoint override apply here.
+
+Ordered Auth job environment names: API_EXTERNAL_URL, GOTRUE_LOG_LEVEL,
+GOTRUE_DB_DRIVER, GOTRUE_DB_DATABASE_URL, GOTRUE_SITE_URL, GOTRUE_JWT_SECRET.
+Values respectively use the configured Auth external URL, error, postgres, exact
+internal URI, configured app origin and existing public synthetic JWT secret.
+Both `com.supabase.cli.project` and `com.docker.compose.project` labels match the run.
+The image is the approved qualified GoTrue reference; command is `gotrue migrate`.
+Neither this profile nor a refused request authorizes executing that job.
+
+Health replies select only safe current owned state fields, excluding health logs.
+Current instance identity, resources and private fixture custody remain checked.
+Budgets stay acquisition5s, total execution120s, shutdown15s and one cleanup10s.
+Qualification requires the exact refused boundary and same-instance normal shutdown
+before owned disposal. Public lifecycle, actual Auth migrations, later setup and
+whole-stack readiness remain separate gates.

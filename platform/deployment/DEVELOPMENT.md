@@ -139,6 +139,23 @@ rules match the persistence control above. Source changes need a fresh prepared 
 qualified UUID; preserve previous receipts. Reviewed-source actual proof and541 deployment
 tests pass; exact results and requirement coverage are in the linked evidence.
 
+The bounded [post-start qualification](ENV_CLI_POSTSTART_EVIDENCE.md) retains the actual
+fresh CLI through current PostgreSQL health observations and validates/refuses the first
+Auth migration-job request. Reviewed-source actual proof and559 deployment tests pass;
+the job is never dispatched and later setup remains unqualified. Public up stays gated.
+
+```sh
+python3 platform/deployment/tests/qualify_startup.py --target platform/deployment/environments/kdg-local.json --run-id <fresh-qualified-UUID> --control pinned-cli-postgres-auth-boundary
+```
+
+The control requires the exact pinned job profile and selected safe current health
+fields from the same owned PostgreSQL instance. It then terminates the proven CLI group,
+verifies normal shutdown and performs bounded owned disposal. It does not independently
+prove the CLI database session identity/authentication. Preserve refused attempts and
+use a fresh prepared/qualified UUID after source/profile changes. The evidence records
+one unexplained nested prerequisite refusal and a targeted successful diagnostic;
+the passing diagnostic does not explain the preceding refusal.
+
 The separate opt-in [PostgreSQL bootstrap qualification](ENV_POSTGRES_BOOTSTRAP_EVIDENCE.md)
 now demonstrates actual selected-image initialization and public synthetic key transfer
 in a disposable network-none container with no published ports or host binds. It checks

@@ -419,6 +419,23 @@ def fixture_command(runtime, args, fixture, events, *, environment=None, archive
             or runtime != 'docker'):
         fail('unexpected_container_command')
     project = fixture['project']
+    if fixture.get('auth_boundary') and len(events) >= CREATE_BOUNDARY + 2:
+        poststart_prefix(fixture, events)
+        if args == ['container', 'inspect', 'supabase_db_' + project, '--format', '{{json .State}}']:
+            state = owner_handoff(fixture, 'poststart_health', args, environment)
+            events.append({'kind': 'postgres_health', 'health': state['Health']['Status']})
+            return 0, json.dumps(state), ''
+        auth = next(tag for tag in fixture['images'] if '/gotrue:' in tag)
+        if args == ['image', 'inspect', auth]:
+            owner_handoff(fixture, 'poststart_image', args, environment)
+            observed = fixture['image_observations'][fixture['selection_plan'][auth]]
+            events.append({'kind': 'auth_image_inspect'})
+            return 0, json.dumps([observed]), ''
+        if args[:1] == ['run']:
+            create_profile.validate_auth_job(args, fixture, environment)
+            owner_handoff(fixture, 'auth_job', args, environment)
+            fail('auth_job_refused')
+        fail('unexpected_container_command')
     if 'fresh' in fixture or 'planned_volume' in fixture:
         validate_fixture_volume(fixture)
     if fixture.get('lifecycle'):
@@ -695,7 +712,11 @@ def fixture_main(runtime, args, directory, stop_parent=False, *, environment=Non
                     if phase == 'container_create':
                         output = actual_id + '\n'
                     elif phase == 'container_start':
-                        code, output, error = 125, '', 'ENV first executed start boundary'
+                        if fixture.get('auth_boundary'):
+                            events[-1] = {'kind': 'postgres_start_acknowledged'}
+                            code, output, error = 0, '', ''
+                        else:
+                            code, output, error = 125, '', 'ENV first executed start boundary'
 
             except dev.Refusal as refusal:
                 if control_event is not None:
@@ -749,10 +770,11 @@ def owner_handoff(fixture, phase, args, environment, *, archive=None):
             or type(owner_pid) is not str or not re.fullmatch('[1-9][0-9]{0,9}', owner_pid)):
         fail('invalid_owner_handoff')
     data = {'token': token, 'phase': phase, 'args': args}
-    if phase.startswith('container_'):
+    if phase.startswith('container_') or phase in ('poststart_health', 'poststart_image', 'auth_job'):
         if any(key in environment for key in create_profile.ROUTING_KEYS if key not in ('DOCKER_HOST', 'DOCKER_CONFIG')):
             fail('unsafe_create')
-        public_inputs = tuple(create_profile.CONTAINER_ENV) if phase == 'container_create' else ()
+        public_inputs = (tuple(create_profile.CONTAINER_ENV) if phase == 'container_create' else
+                         tuple(create_profile.auth_environment(fixture)) if phase == 'auth_job' else ())
         data['environment'] = {key: environment[key] for key in (*public_inputs, 'DOCKER_HOST', 'DOCKER_CONFIG') if key in environment}
         if archive is not None:
             data['archive'] = base64.b64encode(archive).decode()
@@ -768,15 +790,29 @@ def owner_handoff(fixture, phase, args, environment, *, archive=None):
         peer.sendall(request)
         peer.shutdown(socket.SHUT_WR)
         response = b''
-        while len(response) <= 65:
-            chunk = peer.recv(66 - len(response))
+        response_limit = 512 if phase == 'poststart_health' else 65
+        while len(response) <= response_limit:
+            chunk = peer.recv(response_limit + 1 - len(response))
             if not chunk:
                 break
             response += chunk
+        if len(response) > response_limit:
+            fail('invalid_owner_handoff')
         if phase == 'container_create':
             if not re.fullmatch(rb'[0-9a-f]{64}\n', response):
                 fail('invalid_owner_handoff')
             return response.decode().strip()
+        if phase == 'poststart_health':
+            try:
+                state = dev.decode(response)
+            except ValueError:
+                fail('invalid_owner_handoff')
+            if (type(state) is not dict or set(state) != {'Status', 'Running', 'Health'}
+                    or state['Status'] != 'running' or state['Running'] is not True
+                    or type(state['Health']) is not dict or set(state['Health']) != {'Status'}
+                    or state['Health']['Status'] not in ('starting', 'unhealthy', 'healthy')):
+                fail('invalid_owner_handoff')
+            return state
         if response != b'OK\n':
             fail('invalid_owner_handoff')
 
@@ -822,6 +858,58 @@ def validate_owner_request(raw, token, fixture, events, phase):
     validate_observations(events + suffix + [{'kind': 'initialized_volume_ensure_acknowledged' if initialized else 'fresh_volume_create_acknowledged'},
                                            {'kind': 'postgres_create', 'facts': facts}], facts,
                           [fixture['image_observations'][fixture['selection_plan'][tag]] for tag in fixture['images']], fresh=not initialized, initialized=initialized)
+
+
+def poststart_prefix(fixture, events):
+    if not fixture.get('auth_boundary') or len(events) < CREATE_BOUNDARY + 2:
+        fail('unsafe_lifecycle')
+    lifecycle_prefix(fixture, events, 'poststart')
+    if events[CREATE_BOUNDARY:CREATE_BOUNDARY + 2] != [lifecycle.transfer_event(), {'kind': 'postgres_start_acknowledged'}]:
+        fail('unsafe_lifecycle')
+    tail = events[CREATE_BOUNDARY + 2:]
+    image_seen = False
+    healthy = False
+    for event in tail:
+        if event == {'kind': 'auth_image_inspect'} and healthy and not image_seen:
+            image_seen = True
+        elif (not image_seen and type(event) is dict and set(event) == {'kind', 'health'}
+              and event['kind'] == 'postgres_health' and event['health'] in ('starting', 'unhealthy', 'healthy')):
+            healthy = event['health'] == 'healthy'
+        else:
+            fail('unsafe_lifecycle')
+    return healthy, image_seen
+
+
+def validate_poststart_handoff(raw, token, fixture, events):
+    try:
+        request = dev.decode(raw)
+    except ValueError:
+        fail('invalid_owner_handoff')
+    if (type(request) is not dict or set(request) != {'token', 'phase', 'args', 'environment'}
+            or request.get('token') != token or type(request.get('args')) is not list
+            or type(request.get('environment')) is not dict):
+        fail('invalid_owner_handoff')
+    healthy, image_seen = poststart_prefix(fixture, events)
+    phase = request['phase']
+    auth = next(tag for tag in fixture['images'] if '/gotrue:' in tag)
+    routing = create_profile.environment(fixture)
+    wanted = {key: routing[key] for key in ('DOCKER_HOST', 'DOCKER_CONFIG')}
+    if phase == 'auth_job':
+        if not healthy or not image_seen:
+            fail('invalid_owner_handoff')
+        wanted.update(create_profile.auth_environment(fixture))
+        create_profile.validate_auth_job(request['args'], fixture, request['environment'])
+    elif phase == 'poststart_health':
+        if image_seen or request['args'] != ['container', 'inspect', 'supabase_db_' + fixture['project'], '--format', '{{json .State}}']:
+            fail('invalid_owner_handoff')
+    elif phase == 'poststart_image':
+        if not healthy or image_seen or request['args'] != ['image', 'inspect', auth]:
+            fail('invalid_owner_handoff')
+    else:
+        fail('invalid_owner_handoff')
+    if not create_profile._exact_tree(request['environment'], wanted):
+        fail('invalid_owner_handoff')
+    return request
 
 
 def validate_execution_handoff(raw, token, fixture, events, phase):
@@ -896,7 +984,10 @@ def guarded_fixture_command(command, work, env, guard):
                                 peer.settimeout(guard.remaining())
                                 pid, uid, _ = struct.unpack('3i', peer.getsockopt(socket.SOL_SOCKET, socket.SO_PEERCRED, 12))
                                 # Only the exact CLI's direct fixture child may ask.
-                                status = Path('/proc/' + str(pid) + '/status').read_text()
+                                try:
+                                    status = Path('/proc/' + str(pid) + '/status').read_text()
+                                except OSError:
+                                    fail('invalid_owner_handoff')
                                 parent = next((line.split()[1] for line in status.splitlines() if line.startswith('PPid:')), '')
                                 if uid != os.getuid() or parent != str(process.pid):
                                     fail('invalid_owner_handoff')
@@ -914,7 +1005,15 @@ def guarded_fixture_command(command, work, env, guard):
                                 fixture = decode_fixture(work / 'fixture.json')
                                 events = decode_fixture(work / 'events.json')
                                 response = b'OK\n'
-                                if guard.execution and guard.phase in (2, 3, 4, 9):
+                                if guard.auth_boundary and guard.phase == 5:
+                                    request = validate_poststart_handoff(raw, token, fixture, events)
+                                    if request['phase'] == 'poststart_health':
+                                        response = images.canonical(guard.poststart_health()).encode()
+                                    elif request['phase'] == 'poststart_image':
+                                        guard.joint()
+                                    else:
+                                        guard.refuse_auth_job(request['args'], request['environment'], fixture)
+                                elif guard.execution and guard.phase in (2, 3, 4, 9):
                                     request = validate_execution_handoff(raw, token, fixture, events, guard.phase)
                                     if guard.phase in (2, 9):
                                         actual_id = guard.container_create(request['args'], fixture, request['environment'], _replacement=guard.phase == 9)
@@ -935,7 +1034,7 @@ def guarded_fixture_command(command, work, env, guard):
                                         guard.initialized_ensure()
                                 check()
                                 peer.settimeout(guard.remaining())
-                                if guard.execution and guard.phase == 5:
+                                if guard.execution and guard.phase == 5 and (not guard.auth_boundary or guard.auth_job_refused):
                                     os.killpg(process.pid, signal.SIGKILL)
                                     process.wait(timeout=min(2, guard.remaining()))
                                     group_terminated = True
@@ -1012,10 +1111,12 @@ def install_fixture(work, target, run_id, network, executable=None, guard_parent
                    'fresh_racing': profile_control == 'fresh-racing'} if fresh else {'volume': volume}),
                'executable': str(executable) if executable is not None else '',
                'database_port': target['ports']['database'], 'network': network,
+               'origins': target['origins'],
+               'auth_boundary': profile_control == 'fresh-pinned-cli-postgres-auth-boundary',
                'images': references, 'postgres_image': references[0], 'selection_plan': selection_plan,
                'image_observations': image_observations,
                'initialized': initialized,
-               'execute': profile_control in ('fresh-pinned-cli-postgres', 'fresh-pinned-cli-postgres-persistence', 'fresh-pinned-cli-postgres-initialized', 'initialized-pinned-cli-postgres'),
+               'execute': profile_control in ('fresh-pinned-cli-postgres', 'fresh-pinned-cli-postgres-persistence', 'fresh-pinned-cli-postgres-initialized', 'fresh-pinned-cli-postgres-auth-boundary', 'initialized-pinned-cli-postgres'),
                'lifecycle': fresh or initialized or profile_control == 'lifecycle-positive' or profile_control.startswith('invalid-lifecycle-')}
     if guarded_owner:
         if not fresh and not initialized:
@@ -1040,7 +1141,7 @@ def synthetic_probe(executable, target, run_id, network=None, control='positive'
     if control not in ['positive', 'invalid-network', 'contaminated-workdir', 'reject-command', 'invalid-selection-plan',
                        'invalid-create-script', 'invalid-create-environment', 'invalid-create-routing', 'invalid-create-request',
                        'lifecycle-positive', 'invalid-lifecycle-target', 'invalid-lifecycle-archive', 'invalid-lifecycle-order',
-                       'fresh-pinned-cli-postgres', 'fresh-pinned-cli-postgres-persistence', 'fresh-pinned-cli-postgres-initialized', 'fresh-lifecycle-positive', 'fresh-existing', 'fresh-racing', 'fresh-invalid-lifecycle-target',
+                       'fresh-pinned-cli-postgres', 'fresh-pinned-cli-postgres-persistence', 'fresh-pinned-cli-postgres-initialized', 'fresh-pinned-cli-postgres-auth-boundary', 'fresh-lifecycle-positive', 'fresh-existing', 'fresh-racing', 'fresh-invalid-lifecycle-target',
                        'fresh-invalid-lifecycle-archive', 'fresh-invalid-lifecycle-order']:
         fail('unknown_control')
     if control == 'invalid-selection-plan':
@@ -1070,8 +1171,10 @@ def synthetic_probe(executable, target, run_id, network=None, control='positive'
                 fail('invalid_owner_handoff')
             network = guard.network
             command, env = guard.command
-            if control in ('fresh-pinned-cli-postgres', 'fresh-pinned-cli-postgres-persistence', 'fresh-pinned-cli-postgres-initialized'):
+            if control in ('fresh-pinned-cli-postgres', 'fresh-pinned-cli-postgres-persistence', 'fresh-pinned-cli-postgres-initialized', 'fresh-pinned-cli-postgres-auth-boundary'):
                 guard.enable_execution()
+                if control.endswith('-auth-boundary'):
+                    guard.enable_auth_boundary()
                 if control.endswith(('-persistence', '-initialized')):
                     guard.enable_persistence()
                 if control.endswith('-initialized'):
@@ -1116,6 +1219,16 @@ def synthetic_probe(executable, target, run_id, network=None, control='positive'
         if guard is not None and guard.execution:
             if guard.phase != 7 or not guard.cleaned or (guard.persistence and not guard.persistence_verified):
                 fail('execution_cleanup_unresolved')
+            if guard.auth_boundary:
+                poststart_prefix(fixture, events)
+                if not guard.auth_job_refused or not guard.poststart_healthy:
+                    fail('boundary_not_proven')
+                return {'ok': True, 'stage': 'pinned_cli_postgres_auth_boundary', 'code': 'qualified',
+                        'runtime_ready': False, 'container_executed': True, 'healthy_verified': True,
+                        'cli_health_observed': True, 'auth_job_profile_validated': True, 'auth_job_refused': True,
+                        'auth_job_dispatched': False, 'fresh_setup_completed': False,
+                        'shutdown_verified': True, 'forced_shutdown': False, 'cleanup_verified': True,
+                        'source_sha256': before_sources}
             return {'ok': True, 'stage': 'pinned_cli_postgres_initialized' if guard.initialized_cli else ('pinned_cli_postgres_persistence' if guard.persistence else 'pinned_cli_postgres'), 'code': 'qualified',
                     'runtime_ready': False, 'container_executed': True, 'healthy_verified': True,
                     'shutdown_verified': True, 'forced_shutdown': False, 'cleanup_verified': True,
@@ -1227,7 +1340,7 @@ def qualify(args):
     evidence = existing_images(args)
     receipt_hash, selection_plan, _, config_plan = evidence
     observations = getattr(args, '_image_observations', None)
-    if getattr(args, 'control', None) in ('pinned-cli-postgres', 'pinned-cli-postgres-persistence', 'pinned-cli-postgres-initialized'):
+    if getattr(args, 'control', None) in ('pinned-cli-postgres', 'pinned-cli-postgres-persistence', 'pinned-cli-postgres-initialized', 'pinned-cli-postgres-auth-boundary'):
         observations = {reference: {'Id': config, 'Os': 'linux', 'Architecture': 'amd64'} for reference, config in config_plan.items()}
         args._profile_control = 'fresh-' + args.control
         args._guarded_target = (args.target, '/var/run/docker.sock')
