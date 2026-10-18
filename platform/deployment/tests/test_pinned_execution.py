@@ -2333,3 +2333,315 @@ class AuthJobFinalReview(unittest.TestCase):
                 self.assertEqual(error.exception.code, 'execution_existing_container')
                 self.assertIsNone(d.guard.auth_job_id)
                 self.assertFalse(any(m != 'GET' and ('auth_migrate_' in p or 'c'*64 in p) for m, p, _ in d.events))
+
+class AuthCatalogDaemon(AuthJobDaemon):
+    def __init__(self):
+        super().__init__()
+        self.guard.auth_catalog = True
+        self.catalog_modes = []
+        self.exec_body = None
+        self.exec_exit = None
+        self.exec_started = False
+        self.catalog_valid = True
+
+    def exchange(self, method, path, body=None):
+        if path.endswith('/exec'):
+            self.events.append((method, path, self.copy(body)))
+            self.exec_body = body
+            self.catalog_modes.append('pre' if 'fresh auth precondition failed' in body['Cmd'][-1] else 'post')
+            self.exec_ident = format(len(self.catalog_modes) + 32, '064x')
+            self.exec_started, self.exec_exit = False, None
+            return 201, {'Id': self.exec_ident}
+        if path.startswith('/v1.48/exec/'):
+            self.events.append((method, path, self.copy(body)))
+            if path.endswith('/start'):
+                self.exec_started = True
+                self.exec_exit = 0 if self.catalog_valid else 1
+                return 200, None
+            return 200, {'ID': self.exec_ident, 'ContainerID': self.row['Id'], 'Running': False,
+                         'ExitCode': self.exec_exit, 'Pid': 321 if self.exec_started else 0,
+                         'ProcessConfig': {'entrypoint': 'psql', 'arguments': self.exec_body['Cmd'][1:],
+                                           'privileged': False, 'tty': False, 'user': 'postgres'}}
+        return super().exchange(method, path, body)
+
+class AuthCatalogExecutionMatrix(unittest.TestCase):
+    def run_catalog(self, d):
+        d.guard.auth_catalog_sql('pre')
+        d.guard.execute_auth_job()
+        d.guard.auth_catalog_sql('post')
+
+    def test_independent_pre_job_post_then_same_pg_cleanup(self):
+        d = AuthCatalogDaemon()
+        self.run_catalog(d)
+        self.assertTrue(d.guard.auth_catalog_precondition_verified)
+        self.assertTrue(d.guard.auth_catalog_verified)
+        self.assertEqual(d.catalog_modes, ['pre', 'post'])
+        with patch.object(dev, 'free_ports'): d.guard.finish_execution()
+        self.assertTrue(d.guard.cleaned)
+
+    def test_precondition_failure_never_dispatches_job_or_replays(self):
+        d = AuthCatalogDaemon()
+        d.catalog_valid = False
+        with self.assertRaises(dev.Refusal): d.guard.auth_catalog_sql('pre')
+        with self.assertRaises(dev.Refusal): d.guard.auth_catalog_sql('pre')
+        with self.assertRaises(dev.Refusal): d.guard.execute_auth_job()
+        self.assertEqual(d.catalog_modes, ['pre'])
+        self.assertFalse(d.guard.auth_job_dispatched)
+        self.assertFalse(d.guard.auth_catalog_verified)
+
+    def test_closed_read_only_sql_has_source_ledger_and_no_generic_route(self):
+        import startup_lifecycle as lifecycle
+        self.assertEqual(len(lifecycle.AUTH_MIGRATION_VERSIONS), 75)
+        self.assertEqual(lifecycle.AUTH_MIGRATION_VERSIONS[0], '00')
+        for mode in ['pre', 'post']:
+            body = lifecycle.auth_catalog_exec(mode)
+            query = body['Cmd'][-1]
+            self.assertIn('BEGIN READ ONLY;', query)
+            self.assertIn('IS NOT TRUE', query)
+            self.assertIn('statement_timeout', query)
+            self.assertTrue(lifecycle.valid_auth_catalog_exec(body))
+            dev._docker_request('POST', '/v1.48/containers/'+'a'*64+'/exec', body, True)
+            changed = __import__('copy').deepcopy(body)
+            changed['Cmd'][-1] += ' SELECT true;'
+            self.assertFalse(lifecycle.valid_auth_catalog_exec(changed))
+            with self.assertRaises(dev.Refusal): dev._docker_request('POST', '/v1.48/containers/'+'a'*64+'/exec', changed, True)
+
+    def test_postcondition_failure_cannot_finish_or_replay(self):
+        d = AuthCatalogDaemon()
+        d.guard.auth_catalog_sql('pre')
+        d.guard.execute_auth_job()
+        d.catalog_valid = False
+        with self.assertRaises(dev.Refusal): d.guard.auth_catalog_sql('post')
+        with self.assertRaises(dev.Refusal): d.guard.auth_catalog_sql('post')
+        with self.assertRaises(dev.Refusal): d.guard.finish_execution()
+        self.assertFalse(d.guard.auth_catalog_verified)
+        self.assertEqual(d.catalog_modes, ['pre', 'post'])
+
+    def test_exec_uncertainty_consumes_attempt_and_never_replays(self):
+        for mode in ['pre', 'post']:
+            for fault in ['create_lost', 'create_bad', 'create_id', 'inspect_bad', 'start_lost', 'start_bad', 'exit_bad', 'interrupt']:
+                with self.subTest(mode=mode, fault=fault):
+                    d = AuthCatalogDaemon()
+                    if mode == 'post':
+                        d.guard.auth_catalog_sql('pre')
+                        d.guard.execute_auth_job()
+                    exchange = d.exchange
+                    def broken(method, path, body=None):
+                        if path.endswith('/exec'):
+                            if fault == 'create_lost': raise dev.Refusal('startup', 'lost')
+                            if fault == 'create_bad': return 500, None
+                            if fault == 'create_id': return 201, {'Id': 'invalid'}
+                        result = exchange(method, path, body)
+                        if path.startswith('/v1.48/exec/'):
+                            if path.endswith('/start'):
+                                if fault == 'start_lost': raise dev.Refusal('startup', 'lost')
+                                if fault == 'interrupt': raise KeyboardInterrupt()
+                                if fault == 'start_bad': return 500, None
+                            elif path.endswith('/json'):
+                                if fault == 'inspect_bad': result[1]['ProcessConfig']['user'] = 'root'
+                                if fault == 'exit_bad' and d.exec_started: result[1]['ExitCode'] = 1
+                        return result
+                    d.exchange = broken
+                    with self.assertRaises((dev.Refusal, KeyboardInterrupt)): d.guard.auth_catalog_sql(mode)
+                    count = len(d.events)
+                    with self.assertRaises(dev.Refusal): d.guard.auth_catalog_sql(mode)
+                    self.assertEqual(len(d.events), count)
+                    self.assertFalse(d.guard.auth_catalog_verified)
+                    if mode == 'pre':
+                        with self.assertRaises(dev.Refusal): d.guard.execute_auth_job()
+                        self.assertFalse(d.guard.auth_job_dispatched)
+
+    def test_current_pg_checks_surround_each_exchange_before_next_mutation(self):
+        for mode in ['pre', 'post']:
+            for mutation in ['instance', 'health', 'image', 'fixture', 'network', 'volume']:
+                for boundary in ['create', 'inspect', 'start']:
+                    with self.subTest(mode=mode, mutation=mutation, boundary=boundary):
+                        d = AuthCatalogDaemon()
+                        if mode == 'post':
+                            d.guard.auth_catalog_sql('pre')
+                            d.guard.execute_auth_job()
+                        exchange = d.exchange
+                        changed = False
+                        mutation_event_count = None
+                        def mutate(method, path, body=None):
+                            nonlocal changed, mutation_event_count
+                            result = exchange(method, path, body)
+                            hit = (boundary == 'create' and path.endswith('/exec')
+                                   or boundary == 'inspect' and path.startswith('/v1.48/exec/') and path.endswith('/json')
+                                   or boundary == 'start' and path.startswith('/v1.48/exec/') and path.endswith('/start'))
+                            if hit and not changed:
+                                changed = True
+                                mutation_event_count = len(d.events)
+                                if mutation == 'instance': d.row['State']['StartedAt'] = '2026-10-18T00:00:00Z'
+                                elif mutation == 'health': d.row['State']['Health']['Status'] = 'unhealthy'
+                                elif mutation == 'image': d.row['Image'] = 'sha256:' + 'f'*64
+                                elif mutation == 'fixture': d.hook = lambda: dev.refuse('startup', 'fixture_changed')
+                                elif mutation == 'network': d.network['Id'] = 'f'*64
+                                elif mutation == 'volume': d.volume['Labels']['foreign'] = 'true'
+                            return result
+                        d.exchange = mutate
+                        with self.assertRaises(dev.Refusal): d.guard.auth_catalog_sql(mode)
+                        self.assertEqual(d.guard.auth_catalog_precondition_verified, mode == 'post')
+                        self.assertEqual(d.guard.auth_job_dispatched, mode == 'post')
+                        self.assertFalse(d.guard.auth_catalog_verified)
+                        self.assertIsNotNone(mutation_event_count)
+                        self.assertTrue(all(method == 'GET' for method, _, _ in d.events[mutation_event_count:]))
+
+    def test_invalid_order_disabled_early_cli_and_duplicate_exec_id_refuse(self):
+        d = AuthCatalogDaemon()
+        for change in ['disabled', 'cli', 'post']:
+            with self.subTest(change=change):
+                d.guard.auth_catalog = change != 'disabled'
+                d.guard.auth_cli_terminated = change != 'cli'
+                with self.assertRaises(dev.Refusal): d.guard.auth_catalog_sql('post' if change == 'post' else 'pre')
+        d.guard.auth_catalog = d.guard.auth_cli_terminated = True
+        d.guard.auth_catalog_sql('pre')
+        d.guard.execute_auth_job()
+        exchange = d.exchange
+        def duplicate(method, path, body=None):
+            result = exchange(method, path, body)
+            if path.endswith('/exec'): return 201, {'Id': next(iter(d.guard.exec_ids))}
+            return result
+        d.exchange = duplicate
+        with self.assertRaises(dev.Refusal): d.guard.auth_catalog_sql('post')
+        self.assertFalse(d.guard.auth_catalog_verified)
+
+    def test_running_exec_then_success_and_deadline_preserve_one_start(self):
+        for result in ['success', 'deadline']:
+            d = AuthCatalogDaemon()
+            exchange = d.exchange
+            running_observed = False
+            def running(method, path, body=None):
+                nonlocal running_observed
+                response = exchange(method, path, body)
+                if path.startswith('/v1.48/exec/') and path.endswith('/json') and d.exec_started and not running_observed:
+                    running_observed = True
+                    response[1].update(Running=True, ExitCode=None)
+                    if result == 'deadline': d.deadline = d.guard.deadline = 0
+                return response
+            d.exchange = running
+            with patch.object(resources.time, 'sleep'):
+                if result == 'success':
+                    d.guard.auth_catalog_sql('pre')
+                    self.assertTrue(d.guard.auth_catalog_precondition_verified)
+                else:
+                    with self.assertRaises(dev.Refusal): d.guard.auth_catalog_sql('pre')
+                    self.assertFalse(d.guard.auth_catalog_precondition_verified)
+            self.assertEqual(sum(p.startswith('/v1.48/exec/') and p.endswith('/start') for _, p, _ in d.events), 1)
+
+    def test_malformed_exec_lifecycle_and_config_never_start_or_qualify(self):
+        mutations = [lambda r: r.update(ID='f'*64), lambda r: r.update(ContainerID='f'*64),
+                     lambda r: r.update(Running=None), lambda r: r.update(ExitCode=True),
+                     lambda r: r.update(Pid=True), lambda r: r.update(Pid=-1),
+                     lambda r: r.update(ExitCode=0), lambda r: r.update(Running=True),
+                     lambda r: r.update(ProcessConfig=None),
+                     lambda r: r['ProcessConfig'].update(entrypoint='sh'),
+                     lambda r: r['ProcessConfig'].update(arguments=['-c', 'SELECT true']),
+                     lambda r: r['ProcessConfig'].update(privileged=True),
+                     lambda r: r['ProcessConfig'].update(tty=True),
+                     lambda r: r['ProcessConfig'].update(user='root')]
+        for mutation in mutations:
+            with self.subTest(mutation=mutation):
+                d = AuthCatalogDaemon()
+                exchange = d.exchange
+                def malformed(method, path, body=None):
+                    response = exchange(method, path, body)
+                    if path.startswith('/v1.48/exec/') and path.endswith('/json'): mutation(response[1])
+                    return response
+                d.exchange = malformed
+                with self.assertRaises(dev.Refusal): d.guard.auth_catalog_sql('pre')
+                self.assertFalse(any(p.startswith('/v1.48/exec/') and p.endswith('/start') for _, p, _ in d.events))
+                self.assertFalse(d.guard.auth_catalog_precondition_verified)
+
+    def test_closed_exec_rejects_type_confusion_extra_keys_and_changed_flags(self):
+        import startup_lifecycle as lifecycle
+        import copy
+        for mode in ['pre', 'post']:
+            for key, value in [('AttachStdout', True), ('AttachStderr', True), ('AttachStdin', 0),
+                               ('Tty', 0), ('Privileged', 0), ('User', 'root'), ('Env', []), ('extra', False)]:
+                with self.subTest(mode=mode, key=key):
+                    body = copy.deepcopy(lifecycle.auth_catalog_exec(mode))
+                    body[key] = value
+                    self.assertFalse(lifecycle.valid_auth_catalog_exec(body))
+        with self.assertRaises(dev.Refusal): lifecycle.auth_catalog_exec('arbitrary')
+
+    def test_terminal_exit_while_running_and_completed_zero_pid_refuse(self):
+        for defect in ['running_terminal', 'completed_zero_pid']:
+            d = AuthCatalogDaemon()
+            exchange = d.exchange
+            def malformed(method, path, body=None):
+                response = exchange(method, path, body)
+                if path.startswith('/v1.48/exec/') and path.endswith('/json') and d.exec_started:
+                    if defect == 'running_terminal':
+                        response[1].update(Running=True, ExitCode=0)
+                        d.exec_started = False  # One bad running observation, then eventual success.
+                    else: response[1]['Pid'] = 0
+                return response
+            d.exchange = malformed
+            with self.subTest(defect=defect), patch.object(resources.time, 'sleep'), self.assertRaises(dev.Refusal):
+                d.guard.auth_catalog_sql('pre')
+
+    def test_starting_zero_pid_then_running_then_completed_qualifies(self):
+        d = AuthCatalogDaemon()
+        exchange = d.exchange
+        states = iter([(True, 0, None), (True, 321, None), (False, 321, 0)])
+        def sequence(method, path, body=None):
+            response = exchange(method, path, body)
+            if path.startswith('/v1.48/exec/') and path.endswith('/json') and d.exec_started:
+                running, pid, exit_code = next(states)
+                response[1].update(Running=running, Pid=pid, ExitCode=exit_code)
+            return response
+        d.exchange = sequence
+        with patch.object(resources.time, 'sleep'): d.guard.auth_catalog_sql('pre')
+        self.assertTrue(d.guard.auth_catalog_precondition_verified)
+
+    def test_tracked_corruption_builder_is_closed_bounded_role_scoped_and_rollback_only(self):
+        import qualify_startup
+        import startup_lifecycle as lifecycle
+        for mode, count in [('pre', 14), ('post', 95)]:
+            body, actual_count = qualify_startup._auth_catalog_corruption_exec(mode)
+            self.assertEqual(actual_count, count)
+            self.assertEqual(body['Cmd'][body['Cmd'].index('-h') + 1], '/var/run/postgresql')
+            self.assertEqual(body['Cmd'][body['Cmd'].index('-U') + 1], 'supabase_admin')
+            query = body['Cmd'][-1]
+            self.assertTrue(query.startswith("BEGIN; SET LOCAL statement_timeout = '5s'; SET LOCAL lock_timeout = '1s'; SET LOCAL idle_in_transaction_session_timeout = '5s'; "))
+            self.assertTrue(query.endswith(' ROLLBACK;'))
+            self.assertNotIn('COMMIT;', query)
+            self.assertIn("EXECUTE 'SET LOCAL ROLE postgres'", query)
+            self.assertIn("EXECUTE 'RESET ROLE'", query)
+            self.assertIn("EXCEPTION WHEN raise_exception THEN rejected := true", query)
+            self.assertIn("EXCEPTION WHEN SQLSTATE 'ZX001' THEN NULL", query)
+            self.assertFalse(lifecycle.valid_auth_catalog_exec(body))
+            expected_body = lifecycle.auth_catalog_exec(mode)
+            expected_body['Cmd'][-1] = query
+            expected_body['Cmd'][expected_body['Cmd'].index('-h') + 1] = '/var/run/postgresql'
+            expected_body['Cmd'][expected_body['Cmd'].index('-U') + 1] = 'supabase_admin'
+            self.assertEqual(body, expected_body)
+            import re
+            array = query.split('FOREACH mutation IN ARRAY ARRAY[', 1)[1].split(']::text[] LOOP', 1)[0]
+            mutations = [value.replace("''", "'") for value in re.findall(r"'((?:[^']|'')*)'", array)]
+            self.assertEqual(len(mutations), count)
+            inventory = __import__('json').loads((Path(__file__).resolve().parents[1] / 'fixtures/supabase-auth-catalog-v2.197.0.json').read_text())
+            versions = inventory['postgres_baseline_versions' if mode == 'pre' else 'catalog_versions']
+            self.assertEqual([m for m in mutations if m.startswith('DELETE')],
+                             ["DELETE FROM auth.schema_migrations WHERE version='" + v + "'" for v in versions])
+            self.assertIn('INSERT INTO auth.schema_migrations(version) VALUES (NULL)', mutations[-1] if mode == 'pre' else mutations[len(versions) + 2])
+            with patch.object(lifecycle, 'auth_catalog_exec', side_effect=AssertionError('recursive builder')):
+                self.assertEqual(qualify_startup._auth_catalog_corruption_exec(mode), (body, count))
+        with self.assertRaises(dev.Refusal): qualify_startup._auth_catalog_corruption_exec('arbitrary')
+
+    def test_static_source_inventory_independently_matches_baseline_auth_and_exact_union(self):
+        import json
+        import startup_lifecycle as lifecycle
+        fixture = json.loads((Path(__file__).resolve().parents[1] / 'fixtures/supabase-auth-catalog-v2.197.0.json').read_text())
+        auth, baseline, catalog = (fixture[key] for key in ('auth_versions', 'postgres_baseline_versions', 'catalog_versions'))
+        self.assertEqual((len(auth), len(baseline), len(catalog)), (75, 7, 82))
+        self.assertEqual(auth[0], '00')
+        self.assertEqual(catalog, sorted(set(auth + baseline)))
+        self.assertEqual(tuple(auth), lifecycle.AUTH_MIGRATION_VERSIONS)
+        self.assertEqual(tuple(baseline), lifecycle.AUTH_POSTGRES_BASELINE_VERSIONS)
+        self.assertEqual(tuple(catalog), lifecycle.AUTH_CATALOG_VERSIONS)
+        for source in fixture['sources']:
+            self.assertRegex(source['commit'], '^[0-9a-f]{40}$')
+            self.assertRegex(source['sha256'], '^[0-9a-f]{64}$')
+            self.assertTrue(source['path'])

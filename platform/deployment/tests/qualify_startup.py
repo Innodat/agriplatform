@@ -6,6 +6,8 @@ import sys
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 import dev
+import startup_lifecycle
+from startup_lifecycle import auth_catalog_exec as _original_auth_catalog_exec
 import startup
 import volumes
 import qualify_volumes
@@ -14,10 +16,46 @@ import daemon_images
 import qualify_resources
 
 BOOTSTRAP_CONTROLS = ['postgres-bootstrap']
-EXECUTION_CONTROLS = ['pinned-cli-postgres', 'pinned-cli-postgres-persistence', 'pinned-cli-postgres-initialized', 'pinned-cli-postgres-auth-boundary', 'pinned-cli-postgres-auth-migration']
+EXECUTION_CONTROLS = ['pinned-cli-postgres', 'pinned-cli-postgres-persistence', 'pinned-cli-postgres-initialized', 'pinned-cli-postgres-auth-boundary', 'pinned-cli-postgres-auth-migration', 'pinned-cli-postgres-auth-catalog']
 
 GUARDED_CONTROLS = ['guarded-fresh'] + ['guarded-' + name for name in qualify_resources.GUARDED_FAILURES]
 
+
+def _auth_catalog_corruption_exec(mode):
+    """Internal rollback-only SQL fixture; never accepted by production routes."""
+    import copy
+    if mode not in ('pre', 'post'): startup_lifecycle.refuse()
+    def literal(value): return "'"+value.replace("'", "''")+"'"
+    body=copy.deepcopy(_original_auth_catalog_exec(mode));query=body['Cmd'][-1]
+    prefix="BEGIN READ ONLY; SET LOCAL statement_timeout = '5s'; SET LOCAL lock_timeout = '1s'; SET LOCAL idle_in_transaction_session_timeout = '5s'; "
+    assert query.startswith(prefix) and query.endswith(' COMMIT;')
+    predicate=query[len(prefix):-len(' COMMIT;')]
+    if mode=='pre':
+        mutations=["INSERT INTO auth.schema_migrations(version) VALUES ('20260831180000')",
+            'CREATE TABLE auth.mfa_recovery_code_sets(id uuid)','CREATE TABLE auth.mfa_recovery_codes(id uuid)',
+            'CREATE TABLE auth.one_time_tokens(expires_at timestamptz)']
+        mutations += ["DELETE FROM auth.schema_migrations WHERE version="+literal(v) for v in startup_lifecycle.AUTH_POSTGRES_BASELINE_VERSIONS]
+        mutations += ["INSERT INTO auth.schema_migrations(version) VALUES ('synthetic-extra')",
+            "ALTER TABLE auth.schema_migrations DROP CONSTRAINT schema_migrations_pkey; INSERT INTO auth.schema_migrations(version) VALUES ('20171026211738')",
+            "ALTER TABLE auth.schema_migrations DROP CONSTRAINT schema_migrations_pkey; ALTER TABLE auth.schema_migrations ALTER COLUMN version DROP NOT NULL; INSERT INTO auth.schema_migrations(version) VALUES (NULL)"]
+    else:
+        mutations=["DELETE FROM auth.schema_migrations WHERE version="+literal(v) for v in startup_lifecycle.AUTH_CATALOG_VERSIONS]
+        mutations += ["INSERT INTO auth.schema_migrations(version) VALUES ('synthetic-extra')",
+            "ALTER TABLE auth.schema_migrations DROP CONSTRAINT schema_migrations_pkey; INSERT INTO auth.schema_migrations(version) VALUES ('00')",
+            "ALTER TABLE auth.schema_migrations DROP CONSTRAINT schema_migrations_pkey; ALTER TABLE auth.schema_migrations ALTER COLUMN version DROP NOT NULL; INSERT INTO auth.schema_migrations(version) VALUES (NULL)"]
+        mutations += ['ALTER TABLE auth.'+name+' RENAME TO env_catalog_hidden_'+name for name in ('users','identities','sessions','one_time_tokens','mfa_recovery_code_sets','mfa_recovery_codes')]
+        mutations += ['ALTER TABLE auth.one_time_tokens DROP COLUMN expires_at',
+            'ALTER TABLE auth.one_time_tokens ALTER COLUMN expires_at TYPE text USING expires_at::text',
+            'ALTER TABLE auth.one_time_tokens ALTER COLUMN expires_at SET NOT NULL',
+            'ALTER TABLE auth.sessions RENAME TO env_catalog_sessions; CREATE VIEW auth.sessions AS SELECT * FROM auth.env_catalog_sessions']
+    # Every corruption and predicate is rolled back inside its own subtransaction.
+    # Only the original predicate's P0001 is accepted; other errors fail the exec.
+    checks=("DO $qualification$ DECLARE mutation text; rejected boolean; predicate text := "+literal(predicate)+"; BEGIN FOREACH mutation IN ARRAY ARRAY["+
+        ','.join(literal(m) for m in mutations)+"]::text[] LOOP BEGIN EXECUTE mutation; EXECUTE 'SET LOCAL ROLE postgres'; rejected := false; BEGIN EXECUTE predicate; EXCEPTION WHEN raise_exception THEN rejected := true; END; EXECUTE 'RESET ROLE'; IF NOT rejected THEN RAISE EXCEPTION USING ERRCODE='XX001', MESSAGE='predicate accepted corrupt state'; END IF; RAISE EXCEPTION USING ERRCODE='ZX001', MESSAGE='rollback synthetic case'; EXCEPTION WHEN SQLSTATE 'ZX001' THEN NULL; END; END LOOP; END $qualification$; ")
+    body['Cmd'][-1]=prefix.replace('BEGIN READ ONLY;','BEGIN;')+checks+'SET LOCAL ROLE postgres; '+predicate+' ROLLBACK;'
+    body['Cmd'][body['Cmd'].index('-h')+1]='/var/run/postgresql'
+    body['Cmd'][body['Cmd'].index('-U')+1]='supabase_admin'
+    return body, len(mutations)
 
 def guarded_qualify(args, target):
     """One private peer connects the pinned CLI to the real retained ENV owner."""

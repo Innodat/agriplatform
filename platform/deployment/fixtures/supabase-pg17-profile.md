@@ -461,3 +461,53 @@ Paused/Restarting must be typed false. Once observed, start and completed finish
 timestamps remain bound through subsequent ownership/removal checks. Deletion is
 consumed immediately before DELETE after prechecks; timeout before any delete does
 not consume the one final cleanup attempt. Lost/uncertain mutation remains unreplayed.
+
+## Independent Auth migration catalog verification
+
+The explicit `pinned-cli-postgres-auth-catalog` control extends the completed
+migration-job proof with read-only database pre/postconditions. Source authority is
+[Authv2.197.0](https://github.com/supabase/auth/tree/4eee58f296d9698a1c2c0ae14d7a0b379c7622d3/migrations),
+commit4eee58f296d9698a1c2c0ae14d7a0b379c7622d3. Its75 up migrations have literal
+versions `00` through `20260831180000`; the postgres-specific20220614074223 file
+is included. `main.go` embeds migrations/* and cmd/migrate_cmd.go uses Popv6.1.1
+MigrationBox/UpTo(0), with schema_migrations in the configured Auth namespace.
+Pop's ParseMigrationFilename preserves the numeric prefix as a string; its migrator
+inserts that exact Version. No observed database output defines the expected ledger.
+
+Selected structural evidence follows the publisher migrations: real auth.users,
+identities, sessions, one_time_tokens, mfa_recovery_code_sets and mfa_recovery_codes
+tables; the latest migration adds nullable timestamptz one_time_tokens.expires_at.
+Before migration the latest version, recovery tables and expires_at must be absent.
+The pinned PostgreSQL bootstrap contributes seven historical Auth markers, defined
+by commitcf90815413819eb057a9916c1598692c160ebeb4 auth-schema.sql. Require exactly
+those seven before the job. An already-current baseline cannot qualify this fresh
+transition. After the job exits0 and is removed, require the exact82-entry union
+of those seven and the75 current Auth migration versions, together with selected
+structure, not merely a count or maximum version. This is selected structural proof,
+not byte-for-byte/full schema equivalence or Auth service readiness.
+
+Both predicates run only through exact detached psql exec requests on the same
+currently healthy, owned PostgreSQL instance after proven CLI termination. Use a
+read-only transaction, bounded statement/lock waits and error on false/NULL. Consume
+each attempt/exec identity once; verify process configuration, running state and
+integer-zero completion. Recheck fixture/resource/image/start identity before and
+after exchanges; no replay, reconnect, adoption or generic SQL/exec route. No query
+output is attached or logged. Existing execution120s/shutdown15s/cleanup10s limits
+remain. Unknown ownership/closed transport preserves resources. The job is disposed
+before postcheck, and normal PG shutdown/disposal still precedes qualification.
+
+Existing execution-only and refusal controls retain their original meaning. New
+catalog success does not authenticate the earlier CLI host-facing session, acknowledge
+the job to that CLI, execute later setup SQL or apply repository owner migrations.
+No accounts/grants are created. `fresh_setup_completed=false`, `runtime_ready=false`;
+public lifecycle and dependent KDG work remain gated. Exact source hashes, ATDD/TDD,
+real predicate-negative controls and final regression are recorded in
+[Auth catalog evidence](../ENV_AUTH_CATALOG_EVIDENCE.md).
+
+
+Catalog exec state authority: Mobyv28 daemon/exec.go marks Running before Process
+assignment, and daemon/inspect.go reports Pid0 when Process is absent. Therefore a
+running starting-window Pid0 is permitted only with NULL ExitCode; it cannot itself
+qualify. Successful completed execution requires integer-zero ExitCode and a positive
+PID from its process. Pre-start remains not running/Pid0/NULL exit. No observation
+of an intermediate running state is mandatory for a fast valid completed process.

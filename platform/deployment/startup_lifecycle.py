@@ -463,3 +463,54 @@ def valid_persistence_exec(body):
                for mode in ('write', 'verify', 'schemas')):
             return True
     return False
+
+
+# Auth v2.197.0, commit 4eee58f296d9698a1c2c0ae14d7a0b379c7622d3.
+# Pop v6.1.1 uses literal filename versions, including the leading-zero "00".
+AUTH_MIGRATION_VERSIONS = ('00', '20210710035447', '20210722035447', '20210730183235', '20210909172000', '20210927181326', '20211122151130', '20211124214934', '20211202183645', '20220114185221', '20220114185340', '20220224000811', '20220323170000', '20220429102000', '20220531120530', '20220614074223', '20220811173540', '20221003041349', '20221003041400', '20221011041400', '20221020193600', '20221021073300', '20221021082433', '20221027105023', '20221114143122', '20221114143410', '20221125140132', '20221208132122', '20221215195500', '20221215195800', '20221215195900', '20230116124310', '20230116124412', '20230131181311', '20230322519590', '20230402418590', '20230411005111', '20230508135423', '20230523124323', '20230818113222', '20230914180801', '20231027141322', '20231114161723', '20231117164230', '20240115144230', '20240214120130', '20240306115329', '20240314092811', '20240427152123', '20240612123726', '20240729123726', '20240802193726', '20240806073726', '20241009103726', '20250717082212', '20250731150234', '20250804100000', '20250901200500', '20250903112500', '20250904133000', '20250925093508', '20251007112900', '20251104100000', '20251111201300', '20251201000000', '20260115000000', '20260121000000', '20260219120000', '20260302000000', '20260625000000', '20260821000000', '20260821010000', '20260824000000', '20260824000001', '20260831180000')
+
+
+# PostgreSQL 17.11.0.004 auth-schema bootstrap, commit cf90815413819eb057a9916c1598692c160ebeb4.
+AUTH_POSTGRES_BASELINE_VERSIONS = ('20171026211738', '20171026211808', '20171026211834', '20180103212743', '20180108183307', '20180119214651', '20180125194653')
+AUTH_CATALOG_VERSIONS = tuple(sorted(AUTH_POSTGRES_BASELINE_VERSIONS + AUTH_MIGRATION_VERSIONS))
+
+def auth_catalog_exec(mode):
+    """Two closed, read-only predicates; never returns catalog rows or logs."""
+    if mode not in ('pre', 'post'):
+        refuse()
+    tables = ('users', 'identities', 'sessions', 'one_time_tokens',
+              'mfa_recovery_code_sets', 'mfa_recovery_codes')
+    if mode == 'pre':
+        baseline = ','.join("'" + version + "'" for version in AUTH_POSTGRES_BASELINE_VERSIONS)
+        predicate = ("(SELECT count(*) = 7 AND count(version) = 7 AND count(DISTINCT version) = 7 "
+                     "AND array_agg(version::text ORDER BY version::text) = ARRAY[" + baseline + "]::text[] "
+                     "FROM auth.schema_migrations) "
+                     "AND to_regclass('auth.mfa_recovery_code_sets') IS NULL "
+                     "AND to_regclass('auth.mfa_recovery_codes') IS NULL "
+                     "AND NOT EXISTS (SELECT 1 FROM pg_attribute WHERE attrelid = to_regclass('auth.one_time_tokens') "
+                     "AND attname = 'expires_at' AND attnum > 0 AND NOT attisdropped)")
+        message = 'fresh auth precondition failed'
+    else:
+        ledger = ','.join("'" + version + "'" for version in AUTH_CATALOG_VERSIONS)
+        predicate = ("(SELECT count(*) = 82 AND count(version) = 82 AND count(DISTINCT version) = 82 "
+                     "AND array_agg(version::text ORDER BY version::text) = ARRAY[" + ledger + "]::text[] "
+                     "FROM auth.schema_migrations) AND "
+                     + ' AND '.join("EXISTS (SELECT 1 FROM pg_class c JOIN pg_namespace n ON n.oid=c.relnamespace "
+                                    "WHERE n.nspname='auth' AND c.relname='" + name + "' AND c.relkind='r')"
+                                    for name in tables)
+                     + " AND EXISTS (SELECT 1 FROM pg_attribute WHERE attrelid=to_regclass('auth.one_time_tokens') "
+                       "AND attname='expires_at' AND attnum > 0 AND NOT attisdropped "
+                       "AND atttypid='timestamp with time zone'::regtype AND NOT attnotnull)")
+        message = 'auth catalog predicate failed'
+    query = ("BEGIN READ ONLY; SET LOCAL statement_timeout = '5s'; SET LOCAL lock_timeout = '1s'; "
+             "SET LOCAL idle_in_transaction_session_timeout = '5s'; DO $$ BEGIN IF (" + predicate
+             + ") IS NOT TRUE THEN RAISE EXCEPTION '" + message + "'; END IF; END $$; COMMIT;")
+    return {'AttachStdin': False, 'AttachStdout': False, 'AttachStderr': False,
+            'Tty': False, 'Privileged': False, 'User': 'postgres', 'Env': ['PGPASSWORD=postgres'],
+            'Cmd': ['psql', '-X', '-A', '-t', '-v', 'ON_ERROR_STOP=1', '-h', '127.0.0.1',
+                    '-U', 'postgres', '-d', 'postgres', '-c', query]}
+
+
+def valid_auth_catalog_exec(body):
+    import create_profile
+    return any(create_profile._exact_tree(body, auth_catalog_exec(mode)) for mode in ('pre', 'post'))

@@ -567,3 +567,64 @@ must use bmad-help and existing ENV owners for the remaining bounded foundation 
 full setup/Auth service, independent CLI DB-session identity, public runtime lifecycle,
 P1/SERVICE scaffold acceptance and owner prerequisites are still open. Identity/Access/
 WRITE/server KDG, Leave/editor and production/pilot remain gated.
+
+## Current continuation — independent Auth catalog verification, 2026-10-18
+
+bmad-help selects the next bounded ENV Build:
+[Auth catalog verification](../../../_bmad-output/implementation-artifacts/spec-env-auth-migration-catalog-verification.md).
+The prior job's successful exit is supplemented by source-defined fresh precondition,
+exact75-version Auth migration ledger and selected table/latest-column postconditions
+on the same healthy owned PostgreSQL instance. CLI stays terminated without success
+ACK; existing job/PG disposal and bounds remain. No full schema equivalence, Auth service,
+CLI host-session identity or later setup claim. Root serially verifies process and actual
+SQL controls; child runs no-socket ATDD/TDD only. See
+[evidence](../../../platform/deployment/ENV_AUTH_CATALOG_EVIDENCE.md) for current results.
+All existing investigations/resources/concurrent documents remain protected. Public
+runtime, remaining ENV/P1/SERVICE, Identity/Access/WRITE/server KDG and production/pilot
+stay gated; no Leave/editor implementation.
+
+Auth catalog decision checkpoint: root114 focused tests and3 process tests pass.
+First actual run's pre/job passes, post refuses: pinned PostgreSQL seeds seven
+historical Auth versions absent current Auth's75-file inventory. Exact release source
+confirms them; separate source-defined exact7-before/exact82-after diagnostic passes
+64.305s, all13 receipts/running inventory unchanged and normal owned cleanup verified.
+The initial exact75 spec was too narrow. Concrete unapplied patch:
+`/tmp/kdg-auth-catalog-publisher-baseline.patch`; explicit frozen-spec correction
+approval is pending. Original frozen intent/code unchanged; failed receipts and all
+concurrent documents/resources preserved. Do not claim this item complete: expanded
+SQL negatives, fresh corrected-source qualification, legacy/full regression and
+three-layer review still required. Resume from this decision, not requirements.
+
+
+User approves the publisher-baseline correction after explanation. Reviewed patch
+is applied, preserving all historical markers; original snapshots/failures remain.
+Fresh53a254d6 actual catalog PASS69.336s, exact7→82 source-defined transition and
+selected schema/job/normal cleanup verified;109 rollback-isolated corruptions
+PASS85.800s under restricted predicate authority. Root114 focused/3 process tests
+pass. All13 receipts/running inventory unchanged and25 source bindings match.
+Initial negative fixtures needed missing-table and setup-role corrections, both
+identified without weakening production predicates; see evidence. Legacy/full
+regression and independent review remain in progress. The pending-decision paragraph
+above is historical. Runtime/dependent gates remain.
+
+
+## Latest completed ENV checkpoint — Auth catalog, 2026-10-18
+
+Auth catalog Build is done. Reviewed-source `2fc0da48-8839-410c-a06b-464e7722707b`
+actual catalog PASS67.145s and109 rollback-only corruption cases PASS67.636s:
+exact7 publisher markers before the Auth job, exact82 union and selected structures
+afterward, same-PG normal shutdown/cleanup. Historical markers are preserved.
+All seven prior controls pass;13 receipts/config files and running Docker inventory
+unchanged. Root118 focused,3 process and610 full deployment tests PASS508.504s,
+no skips. Three review layers complete; all six patch groups verified, two concurrent
+Leave findings rejected/preserved, none newly deferred. All25 source/target bindings,
+approved frozen intent and concurrent Leave/PtS/Expense files/index pass final audit.
+
+The pending-decision/in-progress paragraphs above are historical and superseded by
+this checkpoint. See [final evidence](../../../platform/deployment/ENV_AUTH_CATALOG_EVIDENCE.md#final-acceptance).
+Six prior investigations and original diagnostics/resources remain open/preserved.
+Use bmad-help to select the next bounded existing ENV owner prerequisite; full Auth
+service/setup, CLI DB-session identity, public runtime lifecycle, owner prerequisites
+and P1/SERVICE consuming scaffold acceptance remain open. Public up still refuses
+runtime_adapter_unqualified; setup/runtime false. Identity/Access/WRITE/server KDG,
+Leave/editor and production/pilot remain gated. No push/deployment is authorized.

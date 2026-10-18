@@ -1020,3 +1020,19 @@ start refuses; no actual container or setup SQL is executed. Bootstrap/secret sa
 initialized reuse, live lifecycle/health/recovery, full `up` integration and P1/SERVICE
 consuming scaffold proof remain open. See [integration evidence](ENV_GUARDED_CLI_VOLUME_EVIDENCE.md)
 for exact results, traceability and all five impact decisions.
+
+The bounded [Auth catalog qualifier](ENV_AUTH_CATALOG_EVIDENCE.md) adds independent
+source-defined pre/post SQL predicates around that migration job. Reviewed-source
+610 deployment tests and109 rollback-only corruption cases pass; all review patches
+are verified in the evidence. Public runtime remains unqualified. After fresh prerequisite qualification:
+
+```sh
+python3 platform/deployment/tests/qualify_startup.py --target platform/deployment/environments/kdg-local.json --run-id <fresh-qualified-UUID> --control pinned-cli-postgres-auth-catalog
+```
+
+It requires a fresh precondition, exact82-version Auth ledger (seven publisher bootstrap markers plus75 current versions) and selected real tables/
+latest column on the same healthy owned PG instance, then normal cleanup. Closed
+read-only queries have bounded waits and no attached output. Existing execution-only
+control semantics remain. This neither resumes CLI setup nor proves full Auth service,
+independent CLI session identity or application-owner readiness. Preserve refused
+attempts; use a fresh source-qualified UUID after source/profile changes.
