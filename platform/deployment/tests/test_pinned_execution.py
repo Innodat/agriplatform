@@ -1750,3 +1750,586 @@ class FragmentedHealthReply(unittest.TestCase):
                         self.assertEqual(caught.exception.code, 'invalid_owner_handoff')
                 self.assertFalse(remaining)
                 self.assertLessEqual(max(sizes), 513)
+
+class AuthMigrationExecution(unittest.TestCase):
+    def prepared(self):
+        daemon = PoststartAuthBoundary().prepared()
+        guard = daemon.guard
+        guard.auth_migration = True
+        guard.poststart_health()
+        return daemon
+
+    def test_actual_job_requires_admission_then_terminated_cli_and_preserves_budget(self):
+        daemon = self.prepared()
+        args, env = PoststartAuthBoundary().job(daemon.fixture)
+        deadline = daemon.guard.deadline
+        daemon.guard.admit_auth_job(args, env, daemon.fixture)
+        self.assertFalse(daemon.guard.auth_job_dispatched)
+        with self.assertRaises(dev.Refusal): daemon.guard.execute_auth_job()
+        self.assertEqual(daemon.guard.deadline, deadline)
+        self.assertEqual(sum('/containers/create?' in p for _, p, _ in daemon.events), 1)
+
+class AuthJobDaemon(OwnerDaemon):
+    """Independent detached job fixture; PG volume-use list never contains job."""
+    def __init__(self):
+        super().__init__()
+        self.fixture.update(origins=['http://localhost:5188', 'http://localhost:55481'])
+        self.guard.enable_auth_migration()
+        self.job_row = None
+        self.job_fault = None
+        self.auth_config = {'User': 'supabase', 'WorkingDir': '/', 'ArgsEscaped': True, 'Cmd': ['auth'],
+                'Env': ['PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin',
+                        'GOTRUE_DB_MIGRATIONS_PATH=/usr/local/etc/auth/migrations'],
+                'AttachStderr': False, 'AttachStdin': False, 'AttachStdout': False,
+                'Domainname': '', 'Entrypoint': None, 'Hostname': '', 'Image': '',
+                'Labels': None, 'OnBuild': None, 'OpenStdin': False, 'StdinOnce': False,
+                'Tty': False, 'Volumes': None}
+        self.dispatch_cli()
+        self.guard.poststart_health()
+        args, env = PoststartAuthBoundary().job(self.fixture)
+        self.guard.admit_auth_job(args, env, self.fixture)
+        self.guard.auth_cli_terminated = True
+
+    def exchange(self, method, path, body=None):
+        if '/images/public.ecr.aws/supabase/gotrue@' in path:
+            status, row = super().exchange(method, path, body)
+            row['Config'] = self.copy(self.auth_config)
+            return status, row
+        if ('supabase_auth_migrate_' in path or '/containers/' + 'c'*64 in path):
+            self.current()
+            self.events.append((method, path, self.copy(body)))
+            if self.job_fault:
+                result = self.job_fault(method, path, body)
+                if result is not None: return result
+            if '/create?' in path:
+                self.job_row = {'Id': 'c'*64, 'Name': '/supabase_auth_migrate_' + self.fixture['project'],
+                        'Image': self.images[body['Image']]['Id'], 'Path': 'gotrue', 'Args': ['migrate'], 'Config': {**self.copy(self.auth_config),
+                            'Image': body['Image'], 'Cmd': ['gotrue', 'migrate'], 'ArgsEscaped': False,
+                            'Env': body['Env'] + self.auth_config['Env'], 'Labels': self.copy(body['Labels'])},
+                        'HostConfig': {**self.copy(body['HostConfig']), 'IpcMode': 'private'}, 'Mounts': [], 'RestartCount': 0, 'Platform': 'linux',
+                        'NetworkSettings': {'Networks': {self.network['Name']: {'NetworkID': self.network['Id']}}},
+                        'State': {'Status': 'created', 'Running': False, 'Paused': False, 'Restarting': False, 'Pid': 0, 'ExitCode': 0,
+                                  'OOMKilled': False, 'Dead': False, 'Error': '',
+                                  'StartedAt': '0001-01-01T00:00:00Z', 'FinishedAt': '0001-01-01T00:00:00Z'}}
+                self.job_row['Config'].pop('ArgsEscaped')
+                return 201, {'Id': 'c'*64, 'Warnings': []}
+            if method == 'DELETE':
+                self.job_row = None
+                self.network['Containers'].pop('c'*64, None)
+                return 204, None
+            if path.endswith('/start'):
+                self.job_row['State'].update(Status='exited', ExitCode=0,
+                        StartedAt='2026-10-17T12:00:00.000000002Z', FinishedAt='2026-10-17T12:00:01.000000002Z')
+                return 204, None
+            return (200, self.copy(self.job_row)) if self.job_row else (404, None)
+        return super().exchange(method, path, body)
+
+
+class AuthJobExecutionMatrix(unittest.TestCase):
+    def test_fast_zero_exit_then_job_disposal_precedes_pg_shutdown_and_disposal(self):
+        d = AuthJobDaemon()
+        deadline = d.guard.deadline
+        d.guard.execute_auth_job()
+        self.assertEqual(d.guard.deadline, deadline)
+        self.assertTrue(d.guard.auth_job_exit_verified)
+        self.assertTrue(d.guard.auth_job_disposed)
+        d.guard.finish_execution()
+        self.assertTrue(d.guard.cleaned)
+        writes = [(m,p) for m,p,_ in d.events if m != 'GET']
+        self.assertLess(writes.index(('DELETE', '/v1.48/containers/'+'c'*64+'?force=false')),
+                        writes.index(('POST', '/v1.48/containers/'+'a'*64+'/stop?t=5')))
+        self.assertEqual(sum(m == 'POST' and 'supabase_auth_migrate_' in p for m,p in writes), 1)
+        with self.assertRaises(dev.Refusal): d.guard.execute_auth_job()
+
+    def test_changed_image_defaults_refuse_before_create(self):
+        for key, value in [('Entrypoint', ['sh']), ('Volumes', {'/data': {}}), ('User', 'root'),
+                           ('Env', ['PATH=/evil']), ('WorkingDir', '/tmp'), ('Healthcheck', {'Test':['CMD','evil']}), ('OnBuild', ['RUN evil'])]:
+            with self.subTest(key=key):
+                d = AuthJobDaemon()
+                d.auth_config[key] = value
+                with self.assertRaises(dev.Refusal): d.guard.execute_auth_job()
+                self.assertFalse(any(m=='POST' and 'auth_migrate_' in p for m,p,_ in d.events))
+                self.assertTrue(d.guard.auth_job_create_attempted)
+
+    def test_invalid_effective_configuration_or_state_permanently_revokes_cleanup(self):
+        defects = [lambda r: r['Config'].update(User='root'), lambda r: r['Config'].update(Entrypoint=['sh']),
+                lambda r: r['Config']['Env'].append('LD_PRELOAD=/evil'), lambda r: r.update(Mounts=[{'Type':'volume'}]),
+                lambda r: r['HostConfig'].update(PortBindings={'80/tcp':[]}), lambda r:r['HostConfig'].update(Privileged=True),
+                lambda r: r['State'].update(OOMKilled=True), lambda r:r['State'].update(Dead=True),
+                lambda r: r['State'].update(ExitCode=False), lambda r:r.update(RestartCount=1),
+                lambda r: r['State'].update(Status='dead'), lambda r:r['State'].update(Pid=-1),
+                lambda r:r['NetworkSettings']['Networks'].update(foreign={})]
+        for defect in defects:
+            with self.subTest(defect=defect):
+                d=AuthJobDaemon()
+                def fault(method,path,body):
+                    if method=='GET' and d.job_row is not None:
+                        defect(d.job_row)
+                    return None
+                d.job_fault=fault
+                with self.assertRaises(dev.Refusal): d.guard.execute_auth_job()
+                self.assertTrue(d.guard.ownership_lost)
+                count=len(d.events)
+                with self.assertRaises(dev.Refusal): d.guard.cleanup_execution()
+                self.assertEqual(len(d.events), count)
+
+    def test_nonzero_exit_does_not_claim_success_but_cleans_owned_job_first(self):
+        d=AuthJobDaemon()
+        def fault(method,path,body):
+            if method=='GET' and d.job_row and d.job_row['State']['Status']=='exited':
+                d.job_row['State']['ExitCode']=1
+        d.job_fault=fault
+        with self.assertRaises(dev.Refusal) as error: d.guard.execute_auth_job()
+        self.assertEqual(error.exception.code, 'execution_auth_job_failed')
+        self.assertFalse(d.guard.auth_job_exit_verified)
+        d.guard.cleanup_execution()
+        self.assertTrue(d.guard.cleaned)
+        deletes=[p for m,p,_ in d.events if m=='DELETE' and '/containers/' in p]
+        self.assertEqual(deletes, ['/v1.48/containers/'+'c'*64+'?force=true', '/v1.48/containers/'+'a'*64+'?force=true'])
+
+    def test_uncertain_create_start_delete_never_replays_and_preserves_unknowns(self):
+        for stage in ('create','start','delete'):
+            with self.subTest(stage=stage):
+                d=AuthJobDaemon()
+                def fault(method,path,body):
+                    if stage=='create' and method=='POST' and '/create?' in path: return 201, {}
+                    if stage=='start' and path.endswith('/start'): return 500,None
+                    if stage=='delete' and method=='DELETE': return 500,None
+                d.job_fault=fault
+                with self.assertRaises(dev.Refusal): d.guard.execute_auth_job()
+                count=len(d.events)
+                with self.assertRaises(dev.Refusal): d.guard.execute_auth_job()
+                self.assertEqual(len(d.events),count)
+                if stage in ('create','delete'):
+                    with self.assertRaises(dev.Refusal): d.guard.cleanup_execution()
+                    self.assertFalse(d.guard.cleaned)
+                else:
+                    d.job_fault=None
+                    d.guard.cleanup_execution()
+                    self.assertTrue(d.guard.cleaned)
+
+    def test_transport_is_exact_persistent_job_route_and_request(self):
+        d=AuthJobDaemon()
+        request=d.guard.auth_job_input
+        dev._docker_request(request['method'], request['path'], request['body'], True)
+        for mutation in ('mount','port','env','image','auto','name','platform','persist'):
+            r=d.copy(request)
+            persistent=True
+            if mutation=='mount':r['body']['HostConfig']['Binds']=['x:/data']
+            if mutation=='port':r['body']['HostConfig']['PortBindings']={'80/tcp':[]}
+            if mutation=='env':r['body']['Env'][1]='GOTRUE_LOG_LEVEL=debug'
+            if mutation=='image':r['body']['Image']='public.ecr.aws/supabase/gotrue:latest'
+            if mutation=='auto':r['body']['HostConfig']['AutoRemove']=True
+            if mutation=='name':r['path']=r['path'].replace('auth_migrate_', 'auth_')
+            if mutation=='platform':r['path']=r['path'].replace('amd64','arm64')
+            if mutation=='persist':persistent=False
+            with self.subTest(mutation=mutation), self.assertRaises(dev.Refusal):
+                dev._docker_request(r['method'],r['path'],r['body'],persistent)
+
+class AuthJobCustodyAndUncertainty(unittest.TestCase):
+    def test_changed_pg_instance_health_bridge_and_volume_reference_refuse_before_job_create(self):
+        for defect in ('instance', 'health', 'bridge', 'volume', 'custody'):
+            with self.subTest(defect=defect):
+                d=AuthJobDaemon()
+                if defect=='instance':d.row['State']['StartedAt']='2026-10-17T12:00:00.000000003Z'
+                if defect=='health':d.row['State']['Health']['Status']='unhealthy'
+                if defect=='bridge':d.network['Containers']['d'*64]={}
+                if defect=='volume':
+                    original=d.exchange
+                    def exchange(method,path,body=None):
+                        if '/containers/json?' in path:return 200,[{'Id':'a'*64},{'Id':'c'*64}]
+                        return original(method,path,body)
+                    d.exchange=exchange
+                if defect=='custody':d.guard._current=lambda: dev.refuse('startup','fixture_changed')
+                with self.assertRaises(dev.Refusal):d.guard.execute_auth_job()
+                self.assertFalse(any(m=='POST' and 'auth_migrate_' in p for m,p,_ in d.events))
+
+    def test_interrupted_create_preserves_ambiguity_without_pg_mutation(self):
+        for exception in (KeyboardInterrupt(), dev.Refusal('docker','docker_response_invalid')):
+            with self.subTest(exception=type(exception).__name__):
+                d=AuthJobDaemon()
+                def fault(method,path,body):
+                    if method=='POST' and '/create?' in path:raise exception
+                d.job_fault=fault
+                with self.assertRaises(type(exception)):d.guard.execute_auth_job()
+                self.assertTrue(d.guard.auth_job_creation_uncertain)
+                count=len(d.events)
+                with self.assertRaises(dev.Refusal):d.guard.cleanup_execution()
+                self.assertEqual(len(d.events),count)
+
+    def test_running_job_timeout_uses_only_one_final_cleanup_budget(self):
+        d=AuthJobDaemon()
+        original=d.exchange
+        def exchange(method,path,body=None):
+            result=original(method,path,body)
+            if path.endswith('/start') and 'c'*64 in path:
+                d.job_row['State'].update(Status='running',Running=True,Pid=456,FinishedAt='0001-01-01T00:00:00Z')
+            return result
+        d.exchange=exchange
+        with patch.object(d.guard,'remaining',side_effect=dev.Refusal('docker','docker_timeout')):
+            with self.assertRaises(dev.Refusal) as error:d.guard.execute_auth_job()
+        self.assertEqual(error.exception.code,'docker_timeout')
+        self.assertFalse(d.guard.auth_job_exit_verified)
+        d.guard.cleanup_execution()
+        self.assertTrue(d.guard.cleaned)
+        count=len(d.events)
+        with self.assertRaises(dev.Refusal):d.guard.cleanup_execution()
+        self.assertEqual(len(d.events),count)
+
+    def test_timestamp_change_malformed_state_and_restarted_instance_refuse(self):
+        for key,value in [('StartedAt','invalid'),('FinishedAt','invalid'),('Running',1),('OOMKilled',0)]:
+            with self.subTest(key=key):
+                d=AuthJobDaemon()
+                def fault(method,path,body):
+                    if method=='GET' and d.job_row and d.job_row['State']['Status']=='exited':
+                        d.job_row['State'][key]=value
+                d.job_fault=fault
+                with self.assertRaises(dev.Refusal):d.guard.execute_auth_job()
+                self.assertFalse(d.guard.auth_job_exit_verified)
+                self.assertTrue(d.guard.ownership_lost)
+
+class AuthJobReviewBoundaries(unittest.TestCase):
+    def test_malformed_pg_health_refuses_before_job_mutation(self):
+        for value in (None, [], 'healthy'):
+            with self.subTest(value=value):
+                d=AuthJobDaemon()
+                d.row['State']['Health']=value
+                with self.assertRaises(dev.Refusal):d.guard.execute_auth_job()
+                self.assertFalse(any(m=='POST' and 'auth_migrate_' in p for m,p,_ in d.events))
+
+    def test_started_job_needs_current_bridge_attachment(self):
+        d=AuthJobDaemon()
+        def fault(method,path,body):
+            if method=='GET' and d.job_row and d.job_row['State']['Status']=='exited':
+                d.job_row['NetworkSettings']['Networks'][d.network['Name']]['NetworkID']=''
+        d.job_fault=fault
+        with self.assertRaises(dev.Refusal):d.guard.execute_auth_job()
+        self.assertFalse(d.guard.auth_job_exit_verified)
+
+    def test_job_finish_timestamp_must_follow_start(self):
+        d=AuthJobDaemon()
+        def fault(method,path,body):
+            if method=='GET' and d.job_row and d.job_row['State']['Status']=='exited':
+                d.job_row['State']['FinishedAt']=d.job_row['State']['StartedAt']
+        d.job_fault=fault
+        with self.assertRaises(dev.Refusal):d.guard.execute_auth_job()
+        self.assertFalse(d.guard.auth_job_exit_verified)
+
+class AuthJobMalformedImageResponse(unittest.TestCase):
+    def test_nonobject_image_response_refuses_before_job_creation(self):
+        for image in (None, [], 'invalid', False):
+            with self.subTest(image=image):
+                d = AuthJobDaemon()
+                original = d.exchange
+                def exchange(method, path, body=None):
+                    if '/images/public.ecr.aws/supabase/gotrue@' in path:
+                        return 200, image
+                    return original(method, path, body)
+                d.exchange = exchange
+                with patch.object(resources.daemon_images, 'observe_session', return_value=d.images), self.assertRaises(dev.Refusal) as error:
+                    d.guard.execute_auth_job()
+                self.assertEqual(error.exception.code, 'execution_image_changed')
+                self.assertFalse(any(m == 'POST' and 'auth_migrate_' in p for m, p, _ in d.events))
+
+class AuthJobInspectDeleteUncertainty(unittest.TestCase):
+    def test_lost_or_malformed_job_inspect_never_replays_or_disposes_unproven_job(self):
+        for response in (None, [], {}, 'invalid', 'lost', 'closed'):
+            with self.subTest(response=response):
+                d = AuthJobDaemon()
+                def fault(method, path, body):
+                    if method == 'GET' and d.job_row is not None:
+                        if response in ('lost', 'closed'):
+                            d.closed = True
+                            dev.refuse('docker', 'docker_response_invalid')
+                        return 200, response
+                d.job_fault = fault
+                with self.assertRaises(dev.Refusal):
+                    d.guard.execute_auth_job()
+                self.assertFalse(d.guard.auth_job_exit_verified)
+                self.assertFalse(d.guard.auth_job_disposed)
+                count = len(d.events)
+                with self.assertRaises(dev.Refusal):
+                    d.guard.execute_auth_job()
+                with self.assertRaises(dev.Refusal):
+                    d.guard.cleanup_execution()
+                self.assertEqual(len(d.events), count)
+                self.assertFalse(any(method == 'DELETE' for method, _, _ in d.events))
+
+    def test_lost_delete_ack_or_missing_absence_proof_preserves_unresolved_resources(self):
+        for response in ('lost_ack', 'bad_ack', 'lost_absence', 'null_absence', 'present_absence'):
+            with self.subTest(response=response):
+                d = AuthJobDaemon()
+                attempted = False
+                def fault(method, path, body):
+                    nonlocal attempted
+                    if method == 'DELETE':
+                        attempted = True
+                        if response == 'lost_ack':
+                            d.closed = True
+                            dev.refuse('docker', 'docker_response_invalid')
+                        if response == 'bad_ack':
+                            return 200, {'unexpected': True}
+                    elif method == 'GET' and attempted:
+                        if response == 'lost_absence':
+                            d.closed = True
+                            dev.refuse('docker', 'docker_response_invalid')
+                        if response == 'null_absence':
+                            return 200, None
+                        if response == 'present_absence':
+                            return 200, {'Id': 'c' * 64}
+                d.job_fault = fault
+                with self.assertRaises(dev.Refusal):
+                    d.guard.execute_auth_job()
+                self.assertTrue(d.guard.auth_job_exit_verified)
+                self.assertFalse(d.guard.auth_job_disposed)
+                self.assertTrue(d.guard.auth_job_delete_attempted)
+                self.assertEqual(d.guard.auth_job_id, 'c' * 64)
+                count = len(d.events)
+                with self.assertRaises(dev.Refusal):
+                    d.guard.execute_auth_job()
+                with self.assertRaises(dev.Refusal):
+                    d.guard.cleanup_execution()
+                self.assertEqual(len(d.events), count)
+                self.assertEqual(sum(method == 'DELETE' for method, _, _ in d.events), 1)
+                self.assertIsNotNone(d.row)
+                self.assertIsNotNone(d.volume)
+                self.assertIsNotNone(d.network)
+
+class AuthJobActualImageApiDefaults(unittest.TestCase):
+    def test_exact_api_defaults_accepted_and_changed_or_missing_defaults_refused(self):
+        d = AuthJobDaemon()
+        create_profile.validate_auth_image_config(d.auth_config)
+        mutations = [('AttachStderr', True), ('AttachStdin', True), ('AttachStdout', True),
+                ('Domainname', 'foreign'), ('Entrypoint', ['sh']), ('Hostname', 'foreign'),
+                ('Image', 'foreign'), ('Labels', {}), ('OnBuild', []), ('OpenStdin', True),
+                ('StdinOnce', True), ('Tty', True), ('Volumes', {}),
+                ('AttachStderr', 0), ('Unknown', None)]
+        for key, value in mutations:
+            with self.subTest(key=key, value=value):
+                config = d.copy(d.auth_config)
+                config[key] = value
+                with self.assertRaises(dev.Refusal):
+                    create_profile.validate_auth_image_config(config)
+        for key in d.auth_config:
+            with self.subTest(missing=key):
+                config = d.copy(d.auth_config)
+                del config[key]
+                with self.assertRaises(dev.Refusal):
+                    create_profile.validate_auth_image_config(config)
+
+class AuthJobEffectiveDockerMerge(unittest.TestCase):
+    def test_effective_config_requires_false_argsescaped_and_supplied_first_env(self):
+        for mutation in ('args_true', 'args_int', 'args_null', 'args_string', 'env_image_first', 'env_reordered', 'env_missing', 'env_extra', 'user', 'workingdir'):
+            with self.subTest(mutation=mutation):
+                d = AuthJobDaemon()
+                def fault(method, path, body):
+                    if method == 'GET' and d.job_row is not None:
+                        config = d.job_row['Config']
+                        if mutation == 'args_true': config['ArgsEscaped'] = True
+                        if mutation == 'args_int': config['ArgsEscaped'] = 0
+                        if mutation == 'args_null': config['ArgsEscaped'] = None
+                        if mutation == 'args_string': config['ArgsEscaped'] = 'false'
+                        if mutation == 'env_image_first': config['Env'] = config['Env'][-2:] + config['Env'][:-2]
+                        if mutation == 'env_reordered': config['Env'] = list(reversed(config['Env']))
+                        if mutation == 'env_missing': config['Env'] = config['Env'][:-1]
+                        if mutation == 'env_extra': config['Env'] = config['Env'] + ['EXTRA=unexpected']
+                        if mutation == 'user': config['User'] = 'root'
+                        if mutation == 'workingdir': config['WorkingDir'] = '/tmp'
+                d.job_fault = fault
+                with self.assertRaises(dev.Refusal):
+                    d.guard.execute_auth_job()
+                self.assertTrue(d.guard.ownership_lost)
+                self.assertFalse(d.guard.auth_job_dispatched)
+                self.assertFalse(d.guard.auth_job_exit_verified)
+                self.assertFalse(any(path.endswith('/start') and 'c' * 64 in path for _, path, _ in d.events))
+
+
+class AuthJobArgsEscapedApiNormalization(unittest.TestCase):
+    def test_omitted_and_explicit_false_effective_argsescaped_are_valid(self):
+        for present in (False, True):
+            with self.subTest(present=present):
+                d = AuthJobDaemon()
+                def fault(method, path, body):
+                    if method == 'GET' and d.job_row is not None and present:
+                        d.job_row['Config']['ArgsEscaped'] = False
+                d.job_fault = fault
+                d.guard.execute_auth_job()
+                self.assertTrue(d.guard.auth_job_exit_verified)
+                self.assertTrue(d.guard.auth_job_disposed)
+                self.assertNotIn('ArgsEscaped', d.guard.auth_job_input['body'])
+                self.assertIs(d.auth_config['ArgsEscaped'], True)
+
+class AuthJobFinalReview(unittest.TestCase):
+    def assert_mutation_refused(self, mutate):
+        d = AuthJobDaemon()
+        def fault(method, path, body):
+            if method == 'GET' and d.job_row is not None:
+                mutate(d.job_row)
+        d.job_fault = fault
+        with self.assertRaises(dev.Refusal): d.guard.execute_auth_job()
+        self.assertTrue(d.guard.ownership_lost)
+        self.assertFalse(d.guard.auth_job_disposed)
+        self.assertFalse(any(m == 'DELETE' for m, _, _ in d.events))
+
+    def test_effective_interactive_flags_require_typed_default_false(self):
+        for key in ('Tty', 'OpenStdin', 'StdinOnce', 'AttachStdin', 'AttachStdout', 'AttachStderr'):
+            for value in (True, None, 0, 1, 'false', [], {}):
+                with self.subTest(key=key, value=value):
+                    self.assert_mutation_refused(lambda row: row['Config'].update({key: value}))
+
+    def test_effective_interactive_flags_allow_omitted_or_typed_false(self):
+        for omitted in (False, True):
+            with self.subTest(omitted=omitted):
+                d = AuthJobDaemon()
+                def fault(method, path, body):
+                    if method == 'GET' and d.job_row is not None:
+                        for key in ('Tty', 'OpenStdin', 'StdinOnce', 'AttachStdin', 'AttachStdout', 'AttachStderr'):
+                            if omitted: d.job_row['Config'].pop(key, None)
+                            else: d.job_row['Config'][key] = False
+                d.job_fault = fault
+                d.guard.execute_auth_job()
+                self.assertTrue(d.guard.auth_job_exit_verified)
+                self.assertTrue(d.guard.auth_job_disposed)
+
+    def test_cgroup_namespace_request_and_effective_private_are_required(self):
+        d = AuthJobDaemon()
+        self.assertEqual(d.guard.auth_job_input['body']['HostConfig'].get('CgroupnsMode'), 'private')
+        for value in ('host', None, False, 0, [], {}):
+            with self.subTest(value=value):
+                self.assert_mutation_refused(lambda row: row['HostConfig'].update(CgroupnsMode=value))
+        self.assert_mutation_refused(lambda row: row['HostConfig'].pop('CgroupnsMode', None))
+        for value in ('host', None, False):
+            request = d.copy(d.guard.auth_job_input)
+            request['body']['HostConfig']['CgroupnsMode'] = value
+            with self.subTest(transport=value), self.assertRaises(dev.Refusal):
+                dev._docker_request(request['method'], request['path'], request['body'], True)
+        request = d.copy(d.guard.auth_job_input)
+        del request['body']['HostConfig']['CgroupnsMode']
+        with self.assertRaises(dev.Refusal):
+            dev._docker_request(request['method'], request['path'], request['body'], True)
+
+    def test_top_level_command_must_match_exact_typed_gotrue_migrate(self):
+        for key, value in [('Path', 'sh'), ('Path', None), ('Path', ['gotrue']),
+                           ('Args', ['-c', 'false']), ('Args', 'migrate'), ('Args', [1]), ('Args', None)]:
+            with self.subTest(key=key, value=value):
+                self.assert_mutation_refused(lambda row: row.update({key: value}))
+        for key in ('Path', 'Args'):
+            self.assert_mutation_refused(lambda row: row.pop(key))
+
+    def test_paused_or_restarting_or_malformed_state_cannot_qualify(self):
+        for key in ('Paused', 'Restarting'):
+            for value in (True, None, 0, 1, 'false', []):
+                with self.subTest(key=key, value=value):
+                    def mutate(row):
+                        if row['State']['Status'] == 'exited': row['State'][key] = value
+                    self.assert_mutation_refused(mutate)
+            self.assert_mutation_refused(lambda row: row['State'].pop(key, None))
+
+    def test_predelete_ownership_timeout_leaves_delete_for_bounded_cleanup(self):
+        d = AuthJobDaemon()
+        def fault(method, path, body):
+            if method == 'GET' and d.job_row is not None and d.guard.auth_job_exit_verified:
+                dev.refuse('docker', 'docker_timeout')
+        d.job_fault = fault
+        with self.assertRaises(dev.Refusal) as error: d.guard.execute_auth_job()
+        self.assertEqual(error.exception.code, 'docker_timeout')
+        self.assertFalse(d.guard.auth_job_delete_attempted)
+        self.assertFalse(any(m == 'DELETE' for m, _, _ in d.events))
+        d.job_fault = None
+        d.guard.cleanup_execution()
+        self.assertTrue(d.guard.cleaned)
+        deletes = [p for m, p, _ in d.events if m == 'DELETE' and '/containers/' in p]
+        self.assertEqual(deletes, ['/v1.48/containers/' + 'c'*64 + '?force=true', '/v1.48/containers/' + 'a'*64 + '?force=true'])
+        count = len(d.events)
+        with self.assertRaises(dev.Refusal): d.guard.cleanup_execution()
+        with self.assertRaises(dev.Refusal): d.guard.execute_auth_job()
+        self.assertEqual(len(d.events), count)
+
+    def test_repeated_running_observations_keep_identity_deadline_and_order(self):
+        d = AuthJobDaemon()
+        deadline = d.guard.deadline
+        observations = []
+        def fault(method, path, body):
+            if method == 'GET' and d.job_row is not None and d.guard.auth_job_start_attempted:
+                state = d.job_row['State']
+                if len(observations) < 2:
+                    state.update(Status='running', Running=True, Pid=456, FinishedAt='0001-01-01T00:00:00Z')
+                else:
+                    state.update(Status='exited', Running=False, Pid=0, FinishedAt='2026-10-17T12:00:01.000000002Z')
+                observations.append(state['Status'])
+        d.job_fault = fault
+        with patch.object(resources.time, 'sleep') as sleep:
+            d.guard.execute_auth_job()
+        self.assertEqual(observations, ['running', 'running', 'exited', 'exited'])
+        self.assertEqual(sleep.call_count, 2)
+        self.assertEqual(d.guard.deadline, deadline)
+        self.assertTrue(d.guard.auth_job_exit_verified)
+        self.assertTrue(d.guard.auth_job_disposed)
+        d.guard.finish_execution()
+        deletes = [p for m, p, _ in d.events if m == 'DELETE' and '/containers/' in p]
+        self.assertEqual(deletes, ['/v1.48/containers/' + 'c'*64 + '?force=false', '/v1.48/containers/' + 'a'*64 + '?force=false'])
+
+    def test_daemon_started_then_lost_start_ack_never_replays_or_cleans_closed_peer(self):
+        d = AuthJobDaemon()
+        def fault(method, path, body):
+            if method == 'POST' and path.endswith('/start'):
+                d.job_row['State'].update(Status='running', Running=True, Pid=456,
+                        StartedAt='2026-10-17T12:00:00.000000002Z')
+                d.network['Containers']['c'*64] = {}
+                d.closed = True
+                dev.refuse('docker', 'docker_response_invalid')
+        d.job_fault = fault
+        with self.assertRaises(dev.Refusal): d.guard.execute_auth_job()
+        self.assertEqual(d.job_row['State']['Status'], 'running')
+        count = len(d.events)
+        with self.assertRaises(dev.Refusal): d.guard.execute_auth_job()
+        with self.assertRaises(dev.Refusal): d.guard.cleanup_execution()
+        self.assertEqual(len(d.events), count)
+        self.assertEqual(sum(p.endswith('/start') and 'c'*64 in p for _, p, _ in d.events), 1)
+        self.assertFalse(any(m == 'DELETE' for m, _, _ in d.events))
+        self.assertTrue(d.row and d.volume and d.network)
+
+    def test_valid_finished_timestamp_drift_revokes_completion_before_disposal(self):
+        d = AuthJobDaemon()
+        def fault(method, path, body):
+            if method == 'GET' and d.job_row is not None and d.guard.auth_job_exit_verified:
+                d.job_row['State']['FinishedAt'] = '2026-10-17T12:00:02.000000002Z'
+        d.job_fault = fault
+        with self.assertRaises(dev.Refusal): d.guard.execute_auth_job()
+        self.assertTrue(d.guard.ownership_lost)
+        self.assertFalse(d.guard.auth_job_exit_verified)
+        self.assertFalse(d.guard.auth_job_disposed)
+        self.assertFalse(any(m == 'DELETE' for m, _, _ in d.events))
+
+    def test_running_start_identity_drift_revokes_downstream_deletion(self):
+        d = AuthJobDaemon()
+        observations = 0
+        def fault(method, path, body):
+            nonlocal observations
+            if method == 'GET' and d.job_row is not None and d.guard.auth_job_start_attempted:
+                observations += 1
+                d.job_row['State'].update(Status='running', Running=True, Pid=456,
+                        FinishedAt='0001-01-01T00:00:00Z',
+                        StartedAt='2026-10-17T12:00:00.00000000' + str(min(observations + 1, 9)) + 'Z')
+        d.job_fault = fault
+        with patch.object(resources.time, 'sleep'), self.assertRaises(dev.Refusal): d.guard.execute_auth_job()
+        self.assertEqual(observations, 2)
+        self.assertTrue(d.guard.ownership_lost)
+        self.assertFalse(d.guard.auth_job_exit_verified)
+        count = len(d.events)
+        with self.assertRaises(dev.Refusal): d.guard.cleanup_execution()
+        self.assertEqual(len(d.events), count)
+        self.assertFalse(any(m == 'DELETE' for m, _, _ in d.events))
+
+    def test_existing_name_or_unexpected_status_refuses_without_auth_adoption(self):
+        for status in (200, 500):
+            with self.subTest(status=status):
+                d = AuthJobDaemon()
+                def fault(method, path, body):
+                    if method == 'GET' and 'supabase_auth_migrate_' in path:
+                        return status, {'Id': 'd'*64}
+                d.job_fault = fault
+                with self.assertRaises(dev.Refusal) as error: d.guard.execute_auth_job()
+                self.assertEqual(error.exception.code, 'execution_existing_container')
+                self.assertIsNone(d.guard.auth_job_id)
+                self.assertFalse(any(m != 'GET' and ('auth_migrate_' in p or 'c'*64 in p) for m, p, _ in d.events))

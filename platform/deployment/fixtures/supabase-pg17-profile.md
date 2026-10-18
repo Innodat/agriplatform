@@ -386,3 +386,78 @@ Budgets stay acquisition5s, total execution120s, shutdown15s and one cleanup10s.
 Qualification requires the exact refused boundary and same-instance normal shutdown
 before owned disposal. Public lifecycle, actual Auth migrations, later setup and
 whole-stack readiness remain separate gates.
+
+## Explicit disposable Auth migration-job execution
+
+The separate `pinned-cli-postgres-auth-migration` qualifier extends the existing
+retained ENV owners through this exact first job only. It first validates the actual
+pinned CLI request against the original profile above, consumes terminal admission
+and terminates/reaps the proven CLI group without a success acknowledgement. It then
+rechecks the same healthy owned PostgreSQL start identity and fixture/listener/source/
+resource custody before owner dispatch. This closes the CLI's earlier host session;
+the job's container-network connection is separate. Later direct-session CLI setup
+SQL cannot follow this boundary. Fixture5s and total execution120s remain unchanged.
+
+Use the qualified immutable GoTrue Linux/amd64 child/config pair. Authv2.197.0
+[Dockerfile](https://github.com/supabase/auth/blob/v2.197.0/Dockerfile) installs
+`/usr/local/bin/auth`, a gotrue symlink to it and migrations under
+`/usr/local/etc/auth/migrations`, then selects User=supabase and Cmd=[auth]. Root
+read the primary source and inspected the already cached selected image's Config:
+User=supabase, WorkingDir=/, Cmd=[auth], Env contains exactly the public PATH
+`/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin` and
+GOTRUE_DB_MIGRATIONS_PATH=/usr/local/etc/auth/migrations, ArgsEscaped=true.
+The Docker CLI normalizes away empty/default fields. Direct Docker API1.48 image
+inspection additionally returns exactly AttachStderr/AttachStdin/AttachStdout, OpenStdin,
+StdinOnce and Tty=false; Domainname/Hostname/Image=""; Entrypoint/Labels/OnBuild/Volumes=null.
+The image validator requires these exact API defaults alongside the five values above.
+Healthcheck, ExposedPorts and Shell are absent. Effective container checks retain the
+execution fields separately; generated container hostname is not an inherited image
+requirement. Moby28 merge preserves supplied six environment values first and appends
+the two unmatched image values; it does not inherit image ArgsEscaped. Linux effective
+ArgsEscaped is false, omitted by the API or explicit boolean false; true, null and
+non-boolean values refuse. Image inspection still requires ArgsEscaped=true.
+See [Moby merge](https://github.com/moby/moby/blob/v28.0.0/daemon/commit.go). The closed owner rejects additional or changed executable/volume/exposure
+behavior outside this approved image profile; current image config identity remains independently bound
+by the existing image owner. Observed caller input never becomes authority.
+
+The owner maps the original six exact environment values, gotrue migrate command,
+run bridge, Linux extra-host and two project labels to a detached Docker API1.48
+create/start/inspect/delete lifecycle. Its exact job name is
+`supabase_auth_migrate_<project>` and create path is
+`/v1.48/containers/create?name=<job-name>&platform=linux%2Famd64`.
+It explicitly selects Linux/amd64 and the immutable image, uses restart=no/logging=none,
+2GiB memory and total swap, two CPUs/PIDs256, and forbids mounts, published ports,
+privileged or host namespace behavior. AutoRemove=false deliberately replaces the
+CLI's --rm: retain the exited container to verify identity, effective configuration,
+strict non-OOM/non-dead integer-zero exit and valid start/finish evidence before
+normal deletion and observed absence. Fast exit before the first running poll is
+permitted; a start acknowledgement alone never qualifies completion. Unknown or
+uncertain creation is not adopted by name and cannot authorize unsafe cleanup.
+
+The existing bridge may contain only recorded PG/job identities while that job is
+owned; existing PG volume references must still contain PG alone. Job custody is
+rechecked independently through exit/removal. Dispose a proven job before PG/storage/
+network teardown, preserving ambiguity after lost transport/ownership. Every mutation
+is consumed once, including removal; the one cleanup10s deadline is not reset.
+Successful PG shutdown retains its separate15s phase and existing same-instance
+normal-exit proof. No reconnect/replay, attach/log/wait endpoint or generic forwarding.
+
+Selected result facts distinguish job dispatch/exit/disposal from PG shutdown and
+complete owned cleanup. Job exit0 is not full Auth schema/service readiness, CLI
+continuation, independent session authentication, full fresh setup or runtime
+admission. `fresh_setup_completed=false` and `runtime_ready=false` remain. Only
+publisher Auth migrations in the fresh operation-owned synthetic DB execute;
+repository owner migrations/accounts/grants, production/pilot and dependent app or
+service work remain outside this qualification. Accepted ADRs and legacy controls
+remain unchanged. See [job evidence](../ENV_AUTH_JOB_EVIDENCE.md).
+
+
+Review hardening of this same bounded profile explicitly requests and verifies private
+cgroup namespace (CgroupnsMode=private). Effective interactive/attachment flags must be
+omitted/default false or boolean false only. Top-level execution Path=gotrue and exact
+Args=[migrate] must agree with Config.Cmd, as defined by Moby28
+[newContainer/getEntrypointAndArgs](https://github.com/moby/moby/blob/v28.0.0/daemon/container.go).
+Paused/Restarting must be typed false. Once observed, start and completed finish
+timestamps remain bound through subsequent ownership/removal checks. Deletion is
+consumed immediately before DELETE after prechecks; timeout before any delete does
+not consume the one final cleanup attempt. Lost/uncertain mutation remains unreplayed.

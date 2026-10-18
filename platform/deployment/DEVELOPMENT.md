@@ -156,6 +156,22 @@ use a fresh prepared/qualified UUID after source/profile changes. The evidence r
 one unexplained nested prerequisite refusal and a targeted successful diagnostic;
 the passing diagnostic does not explain the preceding refusal.
 
+The bounded [Auth-job qualifier](ENV_AUTH_JOB_EVIDENCE.md) passes actual execution.
+Reviewed-source actual/legacy controls and593 deployment tests pass after three-layer
+review and patches. Three new investigations remain deferred; see the evidence.
+Disposable local mail uses the approved port15484.
+It validates the actual CLI request, terminates that CLI without success ACK and executes
+one immutable owner job before verified job/PG disposal. No later setup/full-runtime
+claim follows. Its explicit command, after fresh prepare/toolchain/images:
+
+```sh
+python3 platform/deployment/tests/qualify_startup.py --target platform/deployment/environments/kdg-local.json --run-id <fresh-qualified-UUID> --control pinned-cli-postgres-auth-migration
+```
+
+Do not use an earlier receipt after source/profile changes. This job only mutates the
+fresh disposable synthetic database; owner migrations/accounts/grants, provider/device
+and existing ENV/P1/SERVICE/public-lifecycle gates remain open.
+
 The separate opt-in [PostgreSQL bootstrap qualification](ENV_POSTGRES_BOOTSTRAP_EVIDENCE.md)
 now demonstrates actual selected-image initialization and public synthetic key transfer
 in a disposable network-none container with no published ports or host binds. It checks

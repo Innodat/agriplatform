@@ -48,7 +48,7 @@ class RunConfiguration(unittest.TestCase):
         self.assertEqual(value['db']['migrations'], {'enabled': False, 'schema_paths': []})
         self.assertEqual(value['db']['seed'], {'enabled': False, 'sql_paths': []})
         self.assertEqual(value['studio']['port'], 55483)
-        self.assertEqual(value['local_smtp']['port'], 55484)
+        self.assertEqual(value['local_smtp']['port'], 15484)
         for name in ['realtime', 'studio', 'local_smtp', 'storage', 'edge_runtime', 'analytics']:
             self.assertFalse(value[name]['enabled'])
         self.assertFalse(value['db']['pooler']['enabled'])

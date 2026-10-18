@@ -142,6 +142,14 @@ class FreshGuard:
         self.old_container_id = None
         self.initialized_cli = False
         self.auth_boundary = self.auth_job_refused = self.auth_terminal_attempted = False
+        self.auth_migration = False
+        self.auth_job_id = self.auth_job_input = self.auth_job_effective = None
+        self.auth_job_dispatched = self.auth_job_exit_verified = self.auth_job_disposed = False
+        self.auth_job_create_attempted = self.auth_job_start_attempted = self.auth_job_delete_attempted = False
+        self.auth_cli_terminated = False
+        self.auth_job_creation_uncertain = False
+        self.auth_job_started_at = None
+        self.auth_job_finished_at = None
         self.poststart_identity = None
         self.poststart_healthy = False
         self._second_fixture = self._second_listener_identity = None
@@ -223,7 +231,7 @@ class FreshGuard:
                 networks.fail('network_inspection_failed')
             if self.execution and self.container_id is not None:
                 members = actual.get('Containers') if type(actual) is dict else None
-                if type(members) is not dict or set(members) - {self.container_id}:
+                if type(members) is not dict or set(members) - {self.container_id, self.auth_job_id}:
                     startup.fail('execution_ownership_changed')
                 actual = dict(actual, Containers={})
             if networks.descriptor(actual, self.target, self.run_id) != self.network:
@@ -283,6 +291,10 @@ class FreshGuard:
             startup.fail('invalid_owner_handoff')
         self.auth_boundary = True
 
+    def enable_auth_migration(self):
+        self.enable_auth_boundary()
+        self.auth_migration = True
+
     def poststart_health(self):
         if not self.auth_boundary or self.phase != 5 or self.auth_terminal_attempted:
             startup.fail('invalid_owner_handoff')
@@ -317,6 +329,167 @@ class FreshGuard:
         if type(observed_health) is not dict or observed_health.get('Status') != 'healthy':
             startup.fail('execution_invalid_health')
         self.auth_job_refused = True
+
+    def admit_auth_job(self, args, environment, fixture):
+        import create_profile
+        if not self.auth_migration:
+            startup.fail('invalid_owner_handoff')
+        # Same single-use admission and current healthy PG identity as refusal.
+        self.refuse_auth_job(args, environment, fixture)
+        self.auth_job_refused = False
+        self.auth_job_input = create_profile.auth_execution_request(args, fixture, environment)
+
+    def auth_pg_current(self):
+        row = self.owned()
+        if startup.lifecycle.shutdown_state(row) != self.poststart_identity:
+            startup.fail('execution_instance_changed')
+        health = row['State'].get('Health')
+        if type(health) is not dict or health.get('Status') != 'healthy':
+            startup.fail('execution_invalid_health')
+
+    def auth_job_owned(self):
+        import create_profile
+        if self.ownership_lost or self.auth_job_id is None:
+            startup.fail('execution_ownership_changed')
+        try:
+            self.auth_pg_current()
+            self.current()
+            status, row = self.session.exchange('GET', '/v1.48/containers/' + self.auth_job_id + '/json')
+            body = self.auth_job_input['body']
+            config = row.get('Config', {}) if type(row) is dict else {}
+            host = row.get('HostConfig', {}) if type(row) is dict else {}
+            net = row.get('NetworkSettings', {}).get('Networks', {}) if type(row) is dict else {}
+            state = row.get('State', {}) if type(row) is dict else {}
+            if (status != 200 or row.get('Id') != self.auth_job_id
+                    or row.get('Name') != '/supabase_auth_migrate_' + self.auth_job_project
+                    or row.get('Image') != self.images[body['Image']]['Id']
+                    or any(not create_profile._exact_tree(config.get(k), v) for k, v in self.auth_job_effective.items() if k != 'ArgsEscaped')
+                    or any(config.get(k, False) is not False for k in ('ArgsEscaped', 'Tty', 'OpenStdin', 'StdinOnce', 'AttachStdin', 'AttachStdout', 'AttachStderr'))
+                    or row.get('Path') != 'gotrue' or not create_profile._exact_tree(row.get('Args'), ['migrate'])
+                    or any(config.get(k) not in (None, {}, []) for k in ('Entrypoint', 'Volumes', 'ExposedPorts', 'Healthcheck', 'OnBuild', 'Shell'))
+                    or row.get('Mounts') != []
+                    or any(not create_profile._exact_tree(host.get(k), v) for k, v in body['HostConfig'].items())
+                    or any(host.get(k) not in (None, [], {}) for k in ('Binds', 'Mounts', 'Tmpfs', 'VolumesFrom', 'PortBindings', 'CapAdd', 'Devices', 'DeviceRequests', 'SecurityOpt', 'Links'))
+                    or any(host.get(k, '') != '' for k in ('PidMode', 'UTSMode', 'UsernsMode'))
+                    or host.get('IpcMode') not in ('private', '')
+                    or set(net) != {self.network['Name']}
+                    or net[self.network['Name']].get('NetworkID') not in
+                        ((self.network['Id'], '') if state.get('Status') == 'created' and not self.auth_job_start_attempted else (self.network['Id'],))
+                    or row.get('Platform') != 'linux'
+                    or type(row.get('RestartCount')) is not int or row['RestartCount'] != 0
+                    or type(state) is not dict or type(state.get('Running')) is not bool
+                    or type(state.get('Pid')) is not int or type(state.get('ExitCode')) is not int
+                    or state.get('OOMKilled') is not False or state.get('Dead') is not False or state.get('Error') != ''
+                    or state.get('Paused') is not False or state.get('Restarting') is not False
+                    or state.get('Status') not in ('created', 'running', 'exited')
+                    or state['Running'] != (state['Status'] == 'running')
+                    or (state['Pid'] > 0) != state['Running'] or state['Pid'] < 0):
+                startup.fail('execution_ownership_changed')
+            if state['Status'] in ('created', 'running') and state['ExitCode'] != 0:
+                startup.fail('execution_invalid_job')
+            if state['Status'] == 'created':
+                if (state.get('StartedAt') != '0001-01-01T00:00:00Z'
+                        or state.get('FinishedAt') != '0001-01-01T00:00:00Z' or self.auth_job_started_at is not None):
+                    startup.fail('execution_invalid_job')
+            else:
+                started = state.get('StartedAt')
+                instant = startup.lifecycle.shutdown_timestamp(started)
+                if self.auth_job_started_at is not None and started != self.auth_job_started_at:
+                    startup.fail('execution_invalid_job')
+                self.auth_job_started_at = started
+                if state['Status'] == 'exited':
+                    finished = state.get('FinishedAt')
+                    if (startup.lifecycle.shutdown_timestamp(finished) <= instant
+                            or (self.auth_job_finished_at is not None and finished != self.auth_job_finished_at)):
+                        self.auth_job_exit_verified = False
+                        startup.fail('execution_invalid_job')
+                    self.auth_job_finished_at = finished
+                elif state.get('FinishedAt') != '0001-01-01T00:00:00Z':
+                    startup.fail('execution_invalid_job')
+            self.check()
+            return row
+        except dev.Refusal as error:
+            if error.code != 'docker_timeout':
+                self.ownership_lost = True
+            raise
+        except (KeyError, TypeError, AttributeError):
+            self.ownership_lost = True
+            startup.fail('execution_ownership_changed')
+
+    def execute_auth_job(self):
+        import create_profile
+        import re
+        if (not self.auth_migration or not self.auth_cli_terminated or self.auth_job_input is None
+                or self.auth_job_create_attempted or self.phase != 5):
+            startup.fail('invalid_owner_handoff')
+        self.auth_job_create_attempted = True
+        self.auth_pg_current()
+        request = self.auth_job_input
+        self.auth_job_project = request['body']['Labels']['com.supabase.cli.project']
+        self.current()
+        status, _ = self.session.exchange('GET', '/v1.48/containers/supabase_auth_migrate_' + self.auth_job_project + '/json')
+        if status != 404:
+            startup.fail('execution_existing_container')
+        self.auth_pg_current()
+        status, image = self.session.exchange('GET', '/v1.48/images/' + request['body']['Image'] + '/json')
+        if status != 200 or type(image) is not dict or image.get('Id') != self.images[request['body']['Image']]['Id']:
+            startup.fail('execution_image_changed')
+        create_profile.validate_auth_image_config(image.get('Config'))
+        self.auth_job_effective = {**create_profile.AUTH_IMAGE_CONFIG,
+                'Image': request['body']['Image'], 'Cmd': ['gotrue', 'migrate'], 'ArgsEscaped': False,
+                'Env': request['body']['Env'] + create_profile.AUTH_IMAGE_CONFIG['Env'],
+                'Labels': request['body']['Labels']}
+        self.auth_pg_current()
+        self.auth_job_creation_uncertain = True
+        status, response = self.session.exchange(request['method'], request['path'], request['body'])
+        if (status != 201 or type(response) is not dict or set(response) != {'Id', 'Warnings'}
+                or type(response['Id']) is not str or not re.fullmatch('[0-9a-f]{64}', response['Id'])
+                or response['Id'] == self.container_id or response['Warnings'] not in (None, [])):
+            # Unknown creation must not permit deleting bridge/storage underneath it.
+            self.ownership_lost = True
+            startup.fail('execution_uncertain_creation')
+        self.auth_job_id = response['Id']
+        self.auth_job_creation_uncertain = False
+        row = self.auth_job_owned()
+        if row['State']['Status'] != 'created' or row['State']['ExitCode'] != 0:
+            startup.fail('execution_invalid_job')
+        self.auth_pg_current()
+        self.auth_job_start_attempted = True
+        status, _ = self.session.exchange('POST', '/v1.48/containers/' + self.auth_job_id + '/start')
+        if status != 204:
+            startup.fail('execution_start_failed')
+        self.auth_job_dispatched = True
+        while True:
+            row = self.auth_job_owned()
+            state = row['State']
+            if state['Status'] == 'exited':
+                if state['ExitCode'] != 0:
+                    startup.fail('execution_auth_job_failed')
+                self.auth_job_exit_verified = True
+                break
+            if state['Status'] != 'running':
+                startup.fail('execution_invalid_job')
+            time.sleep(min(.1, max(0, self.remaining())))
+        self.remove_auth_job(clean=True)
+
+    def remove_auth_job(self, *, clean=False):
+        if self.auth_job_delete_attempted or self.auth_job_id is None:
+            startup.fail('execution_cleanup_unresolved')
+        row = self.auth_job_owned()
+        if clean and (not self.auth_job_exit_verified or row['State']['Status'] != 'exited' or row['State']['ExitCode'] != 0):
+            startup.fail('execution_cleanup_unresolved')
+        self.current()
+        self.auth_job_delete_attempted = True
+        status, _ = self.session.exchange('DELETE', '/v1.48/containers/' + self.auth_job_id + '?force=' + ('false' if clean else 'true'))
+        if status != 204:
+            startup.fail('execution_cleanup_unresolved')
+        self.current()
+        status, _ = self.session.exchange('GET', '/v1.48/containers/' + self.auth_job_id + '/json')
+        if status != 404:
+            startup.fail('execution_cleanup_unresolved')
+        self.auth_job_id = None
+        self.auth_job_disposed = True
+        self.auth_pg_current()
 
     def initialized_probe(self):
         if not self.initialized_cli or self.phase != 10:
@@ -609,7 +782,7 @@ class FreshGuard:
     def finish_execution(self):
         if self.phase != 5:
             startup.fail('invalid_owner_handoff')
-        if self.auth_boundary and not self.auth_job_refused:
+        if self.auth_boundary and not (self.auth_job_refused or (self.auth_migration and self.auth_job_exit_verified and self.auth_job_disposed)):
             startup.fail('invalid_owner_handoff')
         # Consume finish before any mutation; SQL/lifecycle helpers require phase5.
         if getattr(self, '_finish_attempted', False):
@@ -642,8 +815,10 @@ class FreshGuard:
             startup.fail('execution_cleanup_unresolved')
         self.cleanup_attempted = True
         self.deadline = self.session.deadline = time.monotonic() + 10
-        if self.container_id is None or self.ownership_lost or self.session.closed or self.phase == 8:
+        if self.container_id is None or self.ownership_lost or self.session.closed or self.phase == 8 or self.auth_job_creation_uncertain:
             startup.fail('execution_cleanup_unresolved')
+        if self.auth_job_id is not None:
+            self.remove_auth_job()
         row = self.owned()
         if clean:
             startup.lifecycle.shutdown_state(row, started)

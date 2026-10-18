@@ -47,7 +47,7 @@ Prepared target metadata records exact identities, config/source hashes and run 
 credentials stay in protected ignored secret files. owner_ids never confers authority.
 
 Selected local host ports: web5188, API8188, Supabase API55481, database55482,
-shadow55480, Studio55483, mail55484, device TLS8443. Refuse occupied ports; never attach
+shadow55480, Studio55483, mail15484, device TLS8443. Refuse occupied ports; never attach
 to an already-running PtS/Scribeswell database. Loopback endpoints stay loopback;
 private services have container-network endpoints and owner credentials, not browser
 access. Disable unused Studio/mail/Storage/realtime/analytics in the minimum fixture

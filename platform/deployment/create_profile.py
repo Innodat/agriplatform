@@ -152,7 +152,7 @@ def auth_environment(fixture):
 
 
 def validate_auth_job(args, fixture, inherited):
-    """Validate only; this owner has no Auth job dispatch adapter."""
+    """Validate original CLI Auth migration-job input before any admission."""
     if type(inherited) is not dict or type(args) is not list:
         refuse()
     pins = images.load_pins(dev.read(dev.ROOT / images.PINS))
@@ -175,4 +175,47 @@ def validate_auth_job(args, fixture, inherited):
     if (not _exact_tree(args, expected)
             or any(type(inherited.get(key)) is not str or inherited[key] != value for key, value in wanted.items())
             or any(key in inherited for key in ROUTING_KEYS if key not in wanted)):
+        refuse()
+
+
+AUTH_IMAGE_CONFIG = {
+    'User': 'supabase',
+    'Env': ['PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin',
+            'GOTRUE_DB_MIGRATIONS_PATH=/usr/local/etc/auth/migrations'],
+    'Cmd': ['auth'], 'WorkingDir': '/', 'ArgsEscaped': True,
+}
+
+
+def auth_execution_request(args, fixture, inherited):
+    """Admit original CLI profile, then construct the one detached bounded job."""
+    validate_auth_job(args, fixture, inherited)
+    tag = args[-3]
+    network = fixture['network']['Id']
+    return {'method': 'POST', 'path': '/v1.48/containers/create?name=supabase_auth_migrate_' + fixture['project'] + '&platform=linux%2Famd64',
+            'body': {'Image': fixture['selection_plan'][tag],
+                     'Env': [key + '=' + value for key, value in auth_environment(fixture).items()],
+                     'Cmd': ['gotrue', 'migrate'],
+                     'Labels': {'com.supabase.cli.project': fixture['project'],
+                                'com.docker.compose.project': fixture['project']},
+                     'HostConfig': {'AutoRemove': False, 'NetworkMode': network, 'CgroupnsMode': 'private',
+                                    'ExtraHosts': ['host.docker.internal:host-gateway'],
+                                    'RestartPolicy': {'Name': 'no', 'MaximumRetryCount': 0},
+                                    'Memory': 2147483648, 'MemorySwap': 2147483648,
+                                    'NanoCpus': 2000000000, 'PidsLimit': 256,
+                                    'LogConfig': {'Type': 'none', 'Config': {}}, 'Privileged': False},
+                     'NetworkingConfig': {'EndpointsConfig': {network: {}}}}}
+
+
+AUTH_IMAGE_API_CONFIG = {
+    **AUTH_IMAGE_CONFIG,
+    'AttachStderr': False, 'AttachStdin': False, 'AttachStdout': False,
+    'Domainname': '', 'Entrypoint': None, 'Hostname': '', 'Image': '',
+    'Labels': None, 'OnBuild': None, 'OpenStdin': False, 'StdinOnce': False,
+    'Tty': False, 'Volumes': None,
+}
+
+
+def validate_auth_image_config(config):
+    """Exact pinned image Config as returned by the selected Docker API 1.48."""
+    if not _exact_tree(config, AUTH_IMAGE_API_CONFIG):
         refuse()

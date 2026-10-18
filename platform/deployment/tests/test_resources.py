@@ -1284,7 +1284,7 @@ class ExecutionSupervisor(unittest.TestCase):
         import dev
         import startup
         from test_startup_lifecycle import Lifecycle
-        from test_pinned_execution import OwnerDaemon, PersistenceDaemon
+        from test_pinned_execution import OwnerDaemon, PersistenceDaemon, AuthJobDaemon
         from contextlib import nullcontext
         import socketserver
         import threading
@@ -1294,12 +1294,21 @@ class ExecutionSupervisor(unittest.TestCase):
         # protocol peer; the production DockerSession owns all framing/closure.
         initialized = scenario.startswith('initialized-')
         poststart = scenario.startswith('auth-')
+        migration = scenario.startswith('auth-migration-')
         persistence = scenario.startswith('persistence-') or initialized
-        engine = PersistenceDaemon() if persistence else OwnerDaemon()
+        engine = AuthJobDaemon() if migration else (PersistenceDaemon() if persistence else OwnerDaemon())
+        if migration:
+            # Discard direct-owner setup; the actual private process must replay it.
+            engine.row = None
+            engine.events.clear()
+            # The fresh real owner supplies the only execution deadline below.
+            engine.deadline = float('inf')
         # Bind templates to this retained-owner harness's prepared UUID, which
         # differs from the direct-owner fixture's independent default UUID.
         target, run_id = self.owner.owner.target, self.owner.owner.args.run_id
         engine.fixture['run_id'] = run_id
+        if migration:
+            engine.fixture['project'] = dev.project_identity(target, run_id)
         network = {**proof.network_proof.expected_request(target, run_id),
                    'Id': engine.network['Id'], 'Containers': {}, 'ConfigFrom': {'Network': ''}}
         volume_request = proof.volume_proof.expected_request(target, run_id)
@@ -1310,6 +1319,11 @@ class ExecutionSupervisor(unittest.TestCase):
         fault_at, group_signals = [], []
         real_monotonic = time.monotonic
         clock_shift = [0]
+        if migration and scenario == 'auth-migration-nonzero':
+            def job_failure(method, path, body):
+                if method == 'GET' and engine.job_row and engine.job_row['State']['Status'] == 'exited':
+                    engine.job_row['State']['ExitCode'] = 1
+            engine.job_fault = job_failure
 
         def dispatch(method, path, body):
             if path == '/version':
@@ -1324,6 +1338,9 @@ class ExecutionSupervisor(unittest.TestCase):
                 engine.volume = copy.deepcopy(volume)
                 return 201, copy.deepcopy(volume)
             result = engine.exchange(method, path, body)
+            if migration and path.endswith('/start') and 'c'*64 in path and scenario == 'auth-migration-response-deadline':
+                fault_at.append((len(engine.events), guards[0].deadline))
+                clock_shift[0] = 121
             if method == 'POST' and '/containers/create?' in path:
                 created.append(result[1]['Id'])
             if '/archive?' in path and scenario.startswith('copy-') or path.endswith('/start') and not scenario.startswith('copy-'):
@@ -1481,6 +1498,24 @@ class ExecutionSupervisor(unittest.TestCase):
                     raise KeyboardInterrupt()
             return result
         calls, guards, pids, fixture_workdirs = [], [], [], []
+        execute_job = resources.FreshGuard.execute_auth_job
+        job_owned = resources.FreshGuard.auth_job_owned
+        job_entry_deadlines = []
+        def execute_after_cli_exit(guard):
+            current_pids = json.loads((fixture_workdirs[-1] / 'tmp/processes.json').read_text())
+            self.assert_stopped(current_pids)
+            self.assertEqual(len(group_signals), 1)
+            self.assertTrue(guard.auth_cli_terminated)
+            job_entry_deadlines.append(guard.deadline)
+            return execute_job(guard)
+        def inspect_job_with_fault(guard):
+            if scenario == 'auth-migration-deadline' and guard.auth_job_start_attempted and not fault_at:
+                fault_at.append((len(engine.events), guard.deadline))
+                clock_shift[0] = 121
+            if scenario == 'auth-migration-interrupt' and guard.auth_job_start_attempted and not fault_at:
+                fault_at.append((len(engine.events), guard.deadline))
+                raise KeyboardInterrupt()
+            return job_owned(guard)
         execution_deadlines, health_observations, health_deadlines = [], [], []
         health = resources.FreshGuard.poststart_health
         def health_with_fault(guard):
@@ -1490,7 +1525,7 @@ class ExecutionSupervisor(unittest.TestCase):
             state = health(guard)
             health_observations.append(state['Health']['Status'])
             health_deadlines.append((before, guard.deadline))
-            if poststart and not fault_at:
+            if poststart and not migration and not fault_at:
                 fault_at.append((len(engine.events), guard.deadline))
                 if scenario == 'auth-instance':
                     engine.row['State']['StartedAt'] = '2026-10-17T12:00:00.000000002Z'
@@ -1569,14 +1604,16 @@ else: sys.exit(125)
                             patch.object(resources.FreshGuard, 'cleanup_execution', new=record_cleanup), \
                             patch.object(resources.FreshGuard, 'container_create', new=create_with_fault), \
                             patch.object(resources.FreshGuard, 'poststart_health', new=health_with_fault), \
+                            patch.object(resources.FreshGuard, 'execute_auth_job', new=execute_after_cli_exit), \
+                            patch.object(resources.FreshGuard, 'auth_job_owned', new=inspect_job_with_fault), \
                             patch.object(startup, 'initialize_workdir', side_effect=initialize_secondary), \
                             patch.object(startup, 'install_fixture', side_effect=install_secondary), \
                             patch.object(startup.os, 'killpg', side_effect=signal_group), \
                             patch.object(time, 'monotonic', side_effect=lambda: real_monotonic() + clock_shift[0]), \
                             patch.object(dev, 'free_ports'):
-                        with (nullcontext() if scenario in ('persistence-positive', 'initialized-positive', 'auth-positive', 'auth-polling') else self.assertRaises(KeyboardInterrupt if scenario in ('initialized-interrupt', 'auth-interrupt') else dev.Refusal)) as caught:
+                        with (nullcontext() if scenario in ('persistence-positive', 'initialized-positive', 'auth-positive', 'auth-polling', 'auth-migration-positive') else self.assertRaises(KeyboardInterrupt if scenario in ('initialized-interrupt', 'auth-interrupt', 'auth-migration-interrupt') else dev.Refusal)) as caught:
                             result = startup.synthetic_probe(executable, self.owner.owner.target, self.owner.owner.args.run_id,
-                                    control='fresh-pinned-cli-postgres-auth-boundary' if poststart else ('fresh-pinned-cli-postgres-initialized' if initialized else ('fresh-pinned-cli-postgres-persistence' if persistence else 'fresh-pinned-cli-postgres')),
+                                    control='fresh-pinned-cli-postgres-auth-migration' if migration else ('fresh-pinned-cli-postgres-auth-boundary' if poststart else ('fresh-pinned-cli-postgres-initialized' if initialized else ('fresh-pinned-cli-postgres-persistence' if persistence else 'fresh-pinned-cli-postgres'))),
                                     selection_plan=startup.existing_images(self.owner.owner.args)[1],
                                     image_observations=self.owner.expected,
                                     _guarded_target=(self.owner.owner.args.target, path))
@@ -1584,6 +1621,48 @@ else: sys.exit(125)
                     server.shutdown()
                     thread.join(timeout=1)
 
+        if migration:
+            guard = guards[0]
+            self.assert_stopped(pids)
+            self.assertEqual(len(pids), 2)
+            self.assertEqual(len(group_signals), 1)
+            self.assertEqual(created, ['a'*64, 'c'*64])
+            self.assertEqual(len(connections), 1)
+            self.assertEqual(len(calls), 1)
+            self.assertEqual(job_entry_deadlines, execution_deadlines)
+            if scenario == 'auth-migration-response-deadline':
+                # Expiry during the start exchange closes the retained transport:
+                # cleanup cannot reconnect or infer the uncertain job outcome.
+                self.assertTrue(guard.session.closed)
+                self.assertFalse(guard.cleaned)
+                self.assertIsNotNone(engine.row)
+                self.assertIsNotNone(engine.job_row)
+                self.assertFalse(guard.auth_job_exit_verified)
+                self.assertFalse(any(method == 'DELETE' for method, _, _ in engine.events))
+                self.assertEqual(caught.exception.code, 'execution_cleanup_unresolved')
+                self.assertEqual(calls[0]['execution_deadline'], execution_deadlines[0])
+                return
+            self.assertTrue(guard.cleaned)
+            self.assertIsNone(engine.row)
+            self.assertIsNone(engine.job_row)
+            writes = [(method, path) for method, path, _ in engine.events if method != 'GET']
+            job_deletes = [i for i, (method, path) in enumerate(writes) if method == 'DELETE' and 'c'*64 in path]
+            pg_disposal = [i for i, (method, path) in enumerate(writes) if method in ('DELETE', 'POST') and 'a'*64 in path and ('force=' in path or '/stop?' in path)]
+            self.assertEqual(len(job_deletes), 1)
+            self.assertLess(job_deletes[0], min(pg_disposal))
+            self.assertEqual(sum(method == 'POST' and path.endswith('/start') for method, path in writes), 2)
+            if scenario == 'auth-migration-positive':
+                for key in ['auth_job_dispatched', 'auth_job_exit_verified', 'auth_job_disposal_verified',
+                            'cli_terminated_before_dispatch', 'pg_shutdown_verified', 'cleanup_verified']:
+                    self.assertTrue(result[key])
+                for key in ['auth_job_refused', 'fresh_setup_completed', 'runtime_ready']:
+                    self.assertFalse(result[key])
+            else:
+                self.assertFalse(guard.auth_job_exit_verified)
+                self.assertEqual(calls[0]['execution_deadline'], execution_deadlines[0])
+                if scenario == 'auth-migration-nonzero': self.assertEqual(caught.exception.code, 'execution_auth_job_failed')
+                if scenario == 'auth-migration-deadline': self.assertEqual(caught.exception.code, 'docker_timeout')
+            return
         if poststart:
             guard = guards[0]
             self.assert_stopped(pids)
@@ -1850,3 +1929,23 @@ else: sys.exit(125)
         for scenario in ['auth-instance', 'auth-custody', 'auth-deadline', 'auth-interrupt']:
             with self.subTest(scenario=scenario):
                 self.run_execution_case(scenario)
+
+
+    def test_auth_migration_cli_terminated_before_dispatch_and_owned_disposal(self):
+        self.run_execution_case('auth-migration-positive')
+
+    def test_auth_migration_failures_keep_deadline_and_clean_job_before_pg(self):
+        for scenario in ['auth-migration-nonzero', 'auth-migration-deadline', 'auth-migration-response-deadline', 'auth-migration-interrupt']:
+            with self.subTest(scenario=scenario):
+                self.run_execution_case(scenario)
+
+    def test_auth_migration_process_oracle_detects_skipped_cli_termination(self):
+        import inspect
+        import startup
+        source = inspect.getsource(startup.guarded_fixture_command)
+        original = "                                    os.killpg(process.pid, signal.SIGKILL)\n                                    process.wait(timeout=min(2, guard.remaining()))\n                                    group_terminated = True\n"
+        self.assertIn(original, source)
+        namespace = {}
+        exec(compile(source.replace(original, ''), '<auth-job-skipped-cli-termination>', 'exec'), startup.__dict__, namespace)
+        with self.assertRaisesRegex(AssertionError, 'spawned process remains running'):
+            self.run_execution_case('auth-migration-positive', runner=namespace['guarded_fixture_command'])

@@ -88,7 +88,7 @@
         },
         "mail": {
           "type": "integer",
-          "const": 55484
+          "const": 15484
         },
         "device_tls": {
           "type": "integer",

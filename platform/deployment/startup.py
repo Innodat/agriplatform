@@ -1012,7 +1012,10 @@ def guarded_fixture_command(command, work, env, guard):
                                     elif request['phase'] == 'poststart_image':
                                         guard.joint()
                                     else:
-                                        guard.refuse_auth_job(request['args'], request['environment'], fixture)
+                                        if guard.auth_migration:
+                                            guard.admit_auth_job(request['args'], request['environment'], fixture)
+                                        else:
+                                            guard.refuse_auth_job(request['args'], request['environment'], fixture)
                                 elif guard.execution and guard.phase in (2, 3, 4, 9):
                                     request = validate_execution_handoff(raw, token, fixture, events, guard.phase)
                                     if guard.phase in (2, 9):
@@ -1034,10 +1037,13 @@ def guarded_fixture_command(command, work, env, guard):
                                         guard.initialized_ensure()
                                 check()
                                 peer.settimeout(guard.remaining())
-                                if guard.execution and guard.phase == 5 and (not guard.auth_boundary or guard.auth_job_refused):
+                                if guard.execution and guard.phase == 5 and (not guard.auth_boundary or guard.auth_job_refused or guard.auth_job_input is not None):
                                     os.killpg(process.pid, signal.SIGKILL)
                                     process.wait(timeout=min(2, guard.remaining()))
                                     group_terminated = True
+                                    guard.auth_cli_terminated = True
+                                    if guard.auth_migration:
+                                        guard.execute_auth_job()
                                     if guard.initialized_cli and guard.old_container_id is None:
                                         guard.prepare_initialized_cli()
                                         initialized_cli_command(guard, guard._secondary_retained)
@@ -1112,11 +1118,11 @@ def install_fixture(work, target, run_id, network, executable=None, guard_parent
                'executable': str(executable) if executable is not None else '',
                'database_port': target['ports']['database'], 'network': network,
                'origins': target['origins'],
-               'auth_boundary': profile_control == 'fresh-pinned-cli-postgres-auth-boundary',
+               'auth_boundary': profile_control in ('fresh-pinned-cli-postgres-auth-boundary', 'fresh-pinned-cli-postgres-auth-migration'),
                'images': references, 'postgres_image': references[0], 'selection_plan': selection_plan,
                'image_observations': image_observations,
                'initialized': initialized,
-               'execute': profile_control in ('fresh-pinned-cli-postgres', 'fresh-pinned-cli-postgres-persistence', 'fresh-pinned-cli-postgres-initialized', 'fresh-pinned-cli-postgres-auth-boundary', 'initialized-pinned-cli-postgres'),
+               'execute': profile_control in ('fresh-pinned-cli-postgres', 'fresh-pinned-cli-postgres-persistence', 'fresh-pinned-cli-postgres-initialized', 'fresh-pinned-cli-postgres-auth-boundary', 'fresh-pinned-cli-postgres-auth-migration', 'initialized-pinned-cli-postgres'),
                'lifecycle': fresh or initialized or profile_control == 'lifecycle-positive' or profile_control.startswith('invalid-lifecycle-')}
     if guarded_owner:
         if not fresh and not initialized:
@@ -1141,7 +1147,7 @@ def synthetic_probe(executable, target, run_id, network=None, control='positive'
     if control not in ['positive', 'invalid-network', 'contaminated-workdir', 'reject-command', 'invalid-selection-plan',
                        'invalid-create-script', 'invalid-create-environment', 'invalid-create-routing', 'invalid-create-request',
                        'lifecycle-positive', 'invalid-lifecycle-target', 'invalid-lifecycle-archive', 'invalid-lifecycle-order',
-                       'fresh-pinned-cli-postgres', 'fresh-pinned-cli-postgres-persistence', 'fresh-pinned-cli-postgres-initialized', 'fresh-pinned-cli-postgres-auth-boundary', 'fresh-lifecycle-positive', 'fresh-existing', 'fresh-racing', 'fresh-invalid-lifecycle-target',
+                       'fresh-pinned-cli-postgres', 'fresh-pinned-cli-postgres-persistence', 'fresh-pinned-cli-postgres-initialized', 'fresh-pinned-cli-postgres-auth-boundary', 'fresh-pinned-cli-postgres-auth-migration', 'fresh-lifecycle-positive', 'fresh-existing', 'fresh-racing', 'fresh-invalid-lifecycle-target',
                        'fresh-invalid-lifecycle-archive', 'fresh-invalid-lifecycle-order']:
         fail('unknown_control')
     if control == 'invalid-selection-plan':
@@ -1171,9 +1177,11 @@ def synthetic_probe(executable, target, run_id, network=None, control='positive'
                 fail('invalid_owner_handoff')
             network = guard.network
             command, env = guard.command
-            if control in ('fresh-pinned-cli-postgres', 'fresh-pinned-cli-postgres-persistence', 'fresh-pinned-cli-postgres-initialized', 'fresh-pinned-cli-postgres-auth-boundary'):
+            if control in ('fresh-pinned-cli-postgres', 'fresh-pinned-cli-postgres-persistence', 'fresh-pinned-cli-postgres-initialized', 'fresh-pinned-cli-postgres-auth-boundary', 'fresh-pinned-cli-postgres-auth-migration'):
                 guard.enable_execution()
-                if control.endswith('-auth-boundary'):
+                if control.endswith('-auth-migration'):
+                    guard.enable_auth_migration()
+                elif control.endswith('-auth-boundary'):
                     guard.enable_auth_boundary()
                 if control.endswith(('-persistence', '-initialized')):
                     guard.enable_persistence()
@@ -1221,12 +1229,13 @@ def synthetic_probe(executable, target, run_id, network=None, control='positive'
                 fail('execution_cleanup_unresolved')
             if guard.auth_boundary:
                 poststart_prefix(fixture, events)
-                if not guard.auth_job_refused or not guard.poststart_healthy:
+                if not (guard.auth_job_refused or (guard.auth_migration and guard.auth_job_exit_verified and guard.auth_job_disposed)) or not guard.poststart_healthy:
                     fail('boundary_not_proven')
-                return {'ok': True, 'stage': 'pinned_cli_postgres_auth_boundary', 'code': 'qualified',
+                return {'ok': True, 'stage': 'pinned_cli_postgres_auth_migration' if guard.auth_migration else 'pinned_cli_postgres_auth_boundary', 'code': 'qualified',
                         'runtime_ready': False, 'container_executed': True, 'healthy_verified': True,
-                        'cli_health_observed': True, 'auth_job_profile_validated': True, 'auth_job_refused': True,
-                        'auth_job_dispatched': False, 'fresh_setup_completed': False,
+                        'cli_health_observed': True, 'auth_job_profile_validated': True, 'auth_job_refused': guard.auth_job_refused,
+                        'auth_job_dispatched': guard.auth_job_dispatched,
+                        **({'auth_job_exit_verified': True, 'auth_job_disposal_verified': True, 'cli_terminated_before_dispatch': True, 'pg_shutdown_verified': True} if guard.auth_migration else {}), 'fresh_setup_completed': False,
                         'shutdown_verified': True, 'forced_shutdown': False, 'cleanup_verified': True,
                         'source_sha256': before_sources}
             return {'ok': True, 'stage': 'pinned_cli_postgres_initialized' if guard.initialized_cli else ('pinned_cli_postgres_persistence' if guard.persistence else 'pinned_cli_postgres'), 'code': 'qualified',
@@ -1340,7 +1349,7 @@ def qualify(args):
     evidence = existing_images(args)
     receipt_hash, selection_plan, _, config_plan = evidence
     observations = getattr(args, '_image_observations', None)
-    if getattr(args, 'control', None) in ('pinned-cli-postgres', 'pinned-cli-postgres-persistence', 'pinned-cli-postgres-initialized', 'pinned-cli-postgres-auth-boundary'):
+    if getattr(args, 'control', None) in ('pinned-cli-postgres', 'pinned-cli-postgres-persistence', 'pinned-cli-postgres-initialized', 'pinned-cli-postgres-auth-boundary', 'pinned-cli-postgres-auth-migration'):
         observations = {reference: {'Id': config, 'Os': 'linux', 'Architecture': 'amd64'} for reference, config in config_plan.items()}
         args._profile_control = 'fresh-' + args.control
         args._guarded_target = (args.target, '/var/run/docker.sock')

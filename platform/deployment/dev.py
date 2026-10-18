@@ -414,6 +414,36 @@ def _docker_disposable_create(body):
     return all(type(host.get(k)) is type(v) and host[k] == v for k, v in expected.items())
 
 
+def _docker_auth_create(path, body):
+    import create_profile
+    match = re.fullmatch(r'/v1\.48/containers/create\?name=supabase_auth_migrate_(agriplatform-kdg-[A-Za-z0-9_-]{22})&platform=linux%2Famd64', path)
+    if not match or type(body) is not dict:
+        return False
+    project = match[1]
+    host = body.get('HostConfig')
+    if type(host) is not dict or type(host.get('NetworkMode')) is not str or not re.fullmatch('[0-9a-f]{64}', host['NetworkMode']):
+        return False
+    network = host['NetworkMode']
+    expected_host = {'AutoRemove': False, 'NetworkMode': network, 'CgroupnsMode': 'private',
+                     'ExtraHosts': ['host.docker.internal:host-gateway'],
+                     'RestartPolicy': {'Name': 'no', 'MaximumRetryCount': 0},
+                     'Memory': 2147483648, 'MemorySwap': 2147483648,
+                     'NanoCpus': 2000000000, 'PidsLimit': 256,
+                     'LogConfig': {'Type': 'none', 'Config': {}}, 'Privileged': False}
+    env = body.get('Env')
+    return (set(body) == {'Image', 'Env', 'Cmd', 'Labels', 'HostConfig', 'NetworkingConfig'}
+            and type(body.get('Image')) is str and re.fullmatch(r'public\.ecr\.aws/supabase/gotrue@sha256:[0-9a-f]{64}', body['Image']) is not None
+            and create_profile._exact_tree(host, expected_host)
+            and create_profile._exact_tree(body.get('Cmd'), ['gotrue', 'migrate'])
+            and create_profile._exact_tree(body.get('Labels'), {'com.supabase.cli.project': project, 'com.docker.compose.project': project})
+            and create_profile._exact_tree(body.get('NetworkingConfig'), {'EndpointsConfig': {network: {}}})
+            and type(env) is list and len(env) == 6 and all(type(v) is str for v in env)
+            and env[0] == 'API_EXTERNAL_URL=http://localhost:55481/auth/v1'
+            and env[1:3] == ['GOTRUE_LOG_LEVEL=error', 'GOTRUE_DB_DRIVER=postgres']
+            and env[3] == 'GOTRUE_DB_DATABASE_URL=postgresql://supabase_auth_admin:postgres@supabase_db_' + project + ':5432/postgres'
+            and env[4:] == ['GOTRUE_SITE_URL=http://localhost:5188', 'GOTRUE_JWT_SECRET=super-secret-jwt-token-with-at-least-32-characters-long'])
+
+
 def _docker_persistence_route(method, path, body):
     import startup_lifecycle
     return ((method == 'POST' and re.fullmatch(r'/v1\.48/containers/[0-9a-f]{64}/exec', path)
@@ -428,11 +458,11 @@ def _docker_request(method, path, body, persistent):
     if not ((method == 'GET' and body is None and (path == '/version'
             or _docker_volume_use_route(path)
             or persistent and re.fullmatch(r'/v1\.48/containers/[0-9a-f]{64}/json', path)
-            or persistent and re.fullmatch(r'/v1\.48/containers/supabase_db_agriplatform-kdg-[A-Za-z0-9_-]{22}/json', path)
+            or persistent and re.fullmatch(r'/v1\.48/containers/supabase_(?:db|auth_migrate)_agriplatform-kdg-[A-Za-z0-9_-]{22}/json', path)
             or re.fullmatch(r'/v1\.48/(?:networks|volumes)/[A-Za-z0-9_-]{1,128}', path)
             or re.fullmatch(r'/v1\.48/images/(?:public\.ecr\.aws/supabase/(?:postgres|gotrue|postgrest|kong)@)?sha256:[0-9a-f]{64}/json', path)))
             or (method == 'POST' and path in ['/v1.48/networks/create', '/v1.48/volumes/create'] and type(body) is dict)):
-        if not persistent or not (_docker_persistence_route(method, path, body) or (method == 'POST' and _docker_disposable_create(body) and re.fullmatch(r'/v1\.48/containers/create\?name=supabase_db_agriplatform-kdg-[A-Za-z0-9_-]{22}&platform=linux%2Famd64', path))
+        if not persistent or not (_docker_persistence_route(method, path, body) or (method == 'POST' and _docker_auth_create(path, body)) or (method == 'POST' and _docker_disposable_create(body) and re.fullmatch(r'/v1\.48/containers/create\?name=supabase_db_agriplatform-kdg-[A-Za-z0-9_-]{22}&platform=linux%2Famd64', path))
                 or (method == 'PUT' and type(body) is bytes and re.fullmatch(r'/v1\.48/containers/[0-9a-f]{64}/archive\?path=%2F', path))
                 or (method == 'POST' and body is None and re.fullmatch(r'/v1\.48/containers/[0-9a-f]{64}/(?:start|stop\?t=5)', path))
                 or (method == 'DELETE' and body is None and (re.fullmatch(r'/v1\.48/containers/[0-9a-f]{64}\?force=(?:true|false)', path)

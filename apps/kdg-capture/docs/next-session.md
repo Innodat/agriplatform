@@ -518,3 +518,52 @@ retained evidence; final passes do not explain them. See current evidence for ex
 commands/results/hashes. This bounded Build is closed. Actual Auth job owner execution,
 independent session proof, later fresh/initialized setup and remaining ENV/P1/SERVICE/
 full-runtime gates remain open; dependent work stays gated under existing approval.
+
+## Current continuation — bounded Auth migration job, 2026-10-18
+
+The [Auth-job Build](../../../_bmad-output/implementation-artifacts/spec-env-auth-migration-job-execution.md)
+is in progress under standing synthetic implementation approval. It consumes the exact
+actual pinned CLI job request, terminates the proven CLI group without acknowledging
+success, rechecks current custody and executes the immutable first job through retained
+ENV owners. Job exit/disposal and same-PG normal shutdown/disposal are separate required
+facts; later CLI setup, full Auth/schema/runtime and independent host-session proof stay
+open. Existing fixture5s/execution120s/shutdown15s/cleanup10s budgets remain unchanged.
+Root owns serial actual verification and [requirement evidence](../../../platform/deployment/ENV_AUTH_JOB_EVIDENCE.md).
+ATDD/focused TDD implementation is dispatched. Concurrent Leave/PtS/Expense documents
+and index are protected; earlier approved storage cleanup and retained evidence remain.
+No dependent Identity/Access/WRITE/server KDG, Leave/editor or production/pilot action.
+
+
+Pre-review qualification: ead2be18 actual Auth migration job PASS105.475s, CLI killed
+before dispatch, exact job exit/disposal and same-PG normal shutdown/cleanup verified;
+13 receipts/running inventory unchanged, setup/runtime false. Poststart81.078s,
+initialized97.251s, persistence82.360s, ordinary first-start67.864s and guarded82.476s
+pass. Bootstrap passes42.137s on separate fresh5a192bdc after a retained original
+create-response timeout; original unstarted network-none/no-mount bootstrap container
+621adc552f9b181be107986dd6ad3199bb81db06062243c8585ca8bd9cf9bf82 remains diagnostic
+evidence, without adoption/removal or a recovery claim. Public up stays gated.
+Root93 focused,3 process and582 full deployment tests PASS681.384s, no skips.
+Two earlier Auth-job refusals are diagnosed via primary Moby image API/merge behavior;
+strict image/default/effective configuration corrections observe RED/GREEN. User-approved
+exact four-resource recovery for01bebf25 is separately verified, receipts unchanged.
+All five requirement rows/impacts and source/profile/concurrent preservation are recorded.
+Three independent review layers are next; dependent work remains gated.
+
+
+Final Auth-job closeout supersedes the pre-review checkpoint above. Reviewed-source
+`c12d7e47-27f5-457d-8459-57b5d23eca57` actual migration job PASS65.447s; CLI termination,
+job exit/disposal and same-PG normal shutdown/cleanup verified. All six legacy controls
+pass on the same run,13 receipts/running inventory unchanged. Root104 focused,
+3 process,8 config and593 full deployment tests PASS519.852s, no skips. All25 source
+bindings/current receipts match; three review layers and ten patch groups verified.
+User approved the coordinated four-line local mail55484→15484 correction; Auth inputs,
+other ports, production and refusal limits unchanged. Three investigations newly
+deferred (unverified descendant survival, existing bootstrap timeout and unknown drip
+case timing); prior three remain open. Failed runs and original unstarted bootstrap
+diagnostic remain preserved. Passing checks do not explain those failures.
+Build done with five requirement rows and scaffold/UI/context/documentation/ADR impacts
+in the evidence. Concurrent Leave/PtS/Expense documents/index preserved. Next selection
+must use bmad-help and existing ENV owners for the remaining bounded foundation gates;
+full setup/Auth service, independent CLI DB-session identity, public runtime lifecycle,
+P1/SERVICE scaffold acceptance and owner prerequisites are still open. Identity/Access/
+WRITE/server KDG, Leave/editor and production/pilot remain gated.
