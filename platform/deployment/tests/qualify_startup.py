@@ -14,7 +14,7 @@ import daemon_images
 import qualify_resources
 
 BOOTSTRAP_CONTROLS = ['postgres-bootstrap']
-EXECUTION_CONTROLS = ['pinned-cli-postgres', 'pinned-cli-postgres-persistence']
+EXECUTION_CONTROLS = ['pinned-cli-postgres', 'pinned-cli-postgres-persistence', 'pinned-cli-postgres-initialized']
 
 GUARDED_CONTROLS = ['guarded-fresh'] + ['guarded-' + name for name in qualify_resources.GUARDED_FAILURES]
 

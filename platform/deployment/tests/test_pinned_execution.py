@@ -645,6 +645,300 @@ class PersistenceAcceptance(unittest.TestCase):
         self.assertEqual(deletes, ['/v1.48/containers/'+'a'*64+'?force=false',
                                    '/v1.48/containers/'+'c'*64+'?force=false'])
 
+class InitializedCliAcceptance(unittest.TestCase):
+    def test_initialized_cli_has_separate_probe_ensure_and_replacement_authority(self):
+        daemon = PersistenceDaemon()
+        guard = daemon.guard
+        guard.enable_initialized_cli()
+        daemon.dispatch_cli()
+        guard.prepare_initialized_cli()
+        self.assertEqual(guard.phase, 10)
+        self.assertIsNone(daemon.row)
+        self.assertIsNotNone(daemon.volume)
+        guard.initialized_probe()
+        guard.initialized_ensure()
+        self.assertEqual(guard.phase, 9)
+        with patch.object(dev, 'free_ports'):
+            guard.container_create(expected_request(daemon.fixture), daemon.fixture,
+                                   expected_environment(daemon.fixture), _replacement=True)
+        import startup_lifecycle as lifecycle
+        guard.container_copy(['cp', '-', guard.container_id + ':/'], lifecycle.public_archive())
+        guard.container_start(['start', guard.container_id])
+        guard.finish_execution()
+        self.assertTrue(guard.persistence_verified)
+        self.assertTrue(guard.cleaned)
+        self.assertEqual(daemon.sql_modes, ['write', 'schemas', 'verify', 'schemas'])
+        self.assertEqual(daemon.creates, 2)
+
+    def prepared(self):
+        daemon = PersistenceDaemon()
+        daemon.guard.enable_initialized_cli()
+        daemon.dispatch_cli()
+        daemon.guard.prepare_initialized_cli()
+        return daemon
+
+    def test_wrong_phase_and_repeated_observations_never_dispatch_or_extend_budget(self):
+        daemon = self.prepared()
+        guard = daemon.guard
+        deadline = guard.deadline
+        before = len(daemon.events)
+        with self.assertRaises(dev.Refusal):
+            guard.initialized_ensure()
+        self.assertEqual(len(daemon.events), before)
+        guard.initialized_probe()
+        before = len(daemon.events)
+        with self.assertRaises(dev.Refusal):
+            guard.initialized_probe()
+        self.assertEqual(len(daemon.events), before)
+        guard.initialized_ensure()
+        before = len(daemon.events)
+        for action in [guard.initialized_probe, guard.initialized_ensure, guard.prepare_initialized_cli, guard.enable_initialized_cli]:
+            with self.assertRaises(dev.Refusal):
+                action()
+        self.assertEqual(len(daemon.events), before)
+        self.assertEqual(guard.deadline, deadline)
+
+    def test_missing_changed_used_volume_bridge_and_image_latch_loss_before_mutation(self):
+        for defect in ['missing', 'changed', 'used', 'bridge', 'image']:
+            daemon = self.prepared()
+            guard = daemon.guard
+            if defect == 'missing':
+                daemon.volume = None
+            elif defect == 'changed':
+                daemon.volume['CreatedAt'] = 'changed'
+            elif defect == 'used':
+                original = daemon.exchange
+                def foreign(method, path, body=None):
+                    if '/containers/json?' in path:
+                        return 200, [{'Id': 'f'*64}]
+                    return original(method, path, body)
+                daemon.exchange = foreign
+            elif defect == 'bridge':
+                daemon.network['Labels']['foreign'] = 'true'
+            else:
+                original = daemon.exchange
+                def foreign(method, path, body=None):
+                    result = original(method, path, body)
+                    if '/images/' in path:
+                        return 200, dict(result[1], Id='sha256:'+'f'*64)
+                    return result
+                daemon.exchange = foreign
+            before = len([e for e in daemon.events if e[0] != 'GET'])
+            with self.subTest(defect=defect), self.assertRaises(dev.Refusal):
+                guard.initialized_probe()
+            self.assertTrue(guard.ownership_lost)
+            self.assertEqual(guard.phase, -1)
+            self.assertEqual(len([e for e in daemon.events if e[0] != 'GET']), before)
+            with self.assertRaises(dev.Refusal):
+                guard.initialized_probe()
+            self.assertFalse(guard.persistence_verified)
+
+    def test_lost_probe_or_ensure_consumes_without_cleanup_adoption(self):
+        for phase in ['probe', 'ensure']:
+            daemon = self.prepared()
+            guard = daemon.guard
+            if phase == 'ensure':
+                guard.initialized_probe()
+            original = daemon.exchange
+            def lost(method, path, body=None):
+                if '/volumes/' in path:
+                    dev.refuse('docker', 'docker_timeout')
+                return original(method, path, body)
+            daemon.exchange = lost
+            action = guard.initialized_probe if phase == 'probe' else guard.initialized_ensure
+            with self.assertRaises(dev.Refusal):
+                action()
+            self.assertEqual(guard.phase, -1)
+            with self.assertRaises(dev.Refusal):
+                action()
+            with self.assertRaises(dev.Refusal):
+                guard.cleanup_execution()
+            self.assertIsNotNone(daemon.volume)
+            self.assertFalse(guard.persistence_verified)
+
+    def test_initialized_handoffs_require_exact_prefix_token_routing_and_archive(self):
+        import startup, json, copy
+        for phase in [2, 3, 4]:
+            fixture, events, request = ExecutionEnvelope().inputs(phase)
+            fixture['initialized'] = True
+            fixture.pop('fresh')
+            fixture['volume'] = fixture.pop('planned_volume')
+            events[5] = {'kind': 'volume_inspect'}
+            events[7] = {'kind': 'initialized_volume_ensure_acknowledged'}
+            owner_phase = 9 if phase == 2 else phase
+            startup.validate_execution_handoff(json.dumps(request).encode(), 'a'*32, fixture, events, owner_phase)
+            for defect in ['token', 'routing', 'prefix', 'profile', 'archive']:
+                if defect == 'archive' and phase != 3:
+                    continue
+                changed, observations = copy.deepcopy(request), copy.deepcopy(events)
+                if defect == 'token':
+                    changed['token'] = 'b'*32
+                elif defect == 'routing':
+                    changed['environment']['DOCKER_HOST'] = 'foreign'
+                elif defect == 'prefix':
+                    observations[7] = {'kind': 'existing_volume_create_refused'}
+                elif defect == 'profile':
+                    changed['args'] += ['extra']
+                else:
+                    changed['archive'] = 'bad'
+                # Copy/start IDs are additionally checked by the closed owner.
+                if defect == 'profile' and phase != 2:
+                    continue
+                with self.subTest(phase=phase, defect=defect), self.assertRaises(dev.Refusal):
+                    startup.validate_execution_handoff(json.dumps(changed).encode(), 'a'*32, fixture, observations, owner_phase)
+
+    def test_initialized_observation_handoffs_prove_both_exact_prefixes(self):
+        import startup, json
+        fixture, events, _ = ExecutionEnvelope().inputs(2)
+        fixture['initialized'] = True
+        fixture.pop('fresh')
+        fixture['volume'] = fixture.pop('planned_volume')
+        events[5] = {'kind': 'volume_inspect'}
+        events[7] = {'kind': 'initialized_volume_ensure_acknowledged'}
+        project = fixture['project']
+        for phase, verb, prefix, args in [
+                (10, 'initialized_probe', events[:5], ['volume', 'inspect', 'supabase_db_' + project]),
+                (11, 'initialized_ensure', events[:7], ['volume', 'create', '--label', 'com.supabase.cli.project=' + project,
+                    '--label', 'com.docker.compose.project=' + project, 'supabase_db_' + project])]:
+            request = {'token': 'a'*32, 'phase': verb, 'args': args}
+            startup.validate_owner_request(json.dumps(request).encode(), 'a'*32, fixture, prefix, phase)
+            for bad in [prefix[1:], prefix + prefix[:1], list(reversed(prefix))]:
+                with self.assertRaises(dev.Refusal):
+                    startup.validate_owner_request(json.dumps(request).encode(), 'a'*32, fixture, bad, phase)
+
+    def test_both_fixture_and_listener_custodies_are_checked_and_never_rebound(self):
+        import startup
+        guard = self.prepared().guard
+        first, second = Path('/private/first'), Path('/private/second')
+        with patch.object(startup, 'check_fixture_custody') as check:
+            # Bind through the same closed fields as the supervisor without sockets.
+            guard._fixture = (first, 11, {}, 'first-hash', {})
+            guard._listener_identity = 'first-listener'
+            guard.bind_second_fixture(second, 12, {}, 'second-hash', {})
+            guard.bind_second_listener('second-listener')
+            check.reset_mock()
+            guard.current()
+            self.assertEqual([call.args[0] for call in check.call_args_list], [first, second])
+            self.assertEqual([call.kwargs['listener_identity'] for call in check.call_args_list], ['first-listener', 'second-listener'])
+            for action in [lambda: guard.bind_fixture(first, 11, {}, '', {}),
+                           lambda: guard.bind_listener('replacement'),
+                           lambda: guard.bind_second_fixture(second, 12, {}, '', {}),
+                           lambda: guard.bind_second_listener('replacement')]:
+                with self.assertRaises(dev.Refusal):
+                    action()
+            check.side_effect = dev.Refusal('startup', 'fixture_changed')
+            with self.assertRaises(dev.Refusal):
+                guard.current()
+            self.assertTrue(guard.ownership_lost)
+
+    def test_uncertain_initialized_create_cannot_replay_or_adopt_container(self):
+        daemon = self.prepared()
+        guard = daemon.guard
+        guard.initialized_probe()
+        guard.initialized_ensure()
+        original = daemon.exchange
+        def lost(method, path, body=None):
+            result = original(method, path, body)
+            if '/containers/create?' in path:
+                return 201, {}
+            return result
+        daemon.exchange = lost
+        with patch.object(dev, 'free_ports'), self.assertRaises(dev.Refusal):
+            guard.container_create(expected_request(daemon.fixture), daemon.fixture,
+                                   expected_environment(daemon.fixture), _replacement=True)
+        self.assertEqual(guard.phase, -1)
+        self.assertIsNone(guard.container_id)
+        self.assertIsNotNone(daemon.row)
+        before = len(daemon.events)
+        with self.assertRaises(dev.Refusal):
+            guard.container_create(expected_request(daemon.fixture), daemon.fixture,
+                                   expected_environment(daemon.fixture), _replacement=True)
+        with self.assertRaises(dev.Refusal):
+            guard.cleanup_execution()
+        self.assertEqual(len(daemon.events), before)
+        self.assertFalse(guard.persistence_verified)
+
+    def test_initialized_deadline_and_interrupt_consume_phase_without_replay_or_reset(self):
+        for phase in ['probe', 'ensure']:
+            for failure in [dev.Refusal('docker', 'docker_timeout'), KeyboardInterrupt()]:
+                daemon = self.prepared()
+                guard = daemon.guard
+                if phase == 'ensure':
+                    guard.initialized_probe()
+                deadline = guard.deadline
+                action = guard.initialized_probe if phase == 'probe' else guard.initialized_ensure
+                with patch.object(guard, '_current', side_effect=failure):
+                    with self.subTest(phase=phase, failure=type(failure).__name__), self.assertRaises(type(failure)):
+                        action()
+                self.assertEqual(guard.phase, -1)
+                self.assertEqual(guard.deadline, deadline)
+                before = len(daemon.events)
+                with self.assertRaises(dev.Refusal):
+                    action()
+                self.assertEqual(len(daemon.events), before)
+                self.assertFalse(guard.persistence_verified)
+                self.assertFalse(guard.cleanup_attempted)
+                self.assertIsNone(daemon.row)
+                self.assertIsNotNone(daemon.volume)
+
+    def test_second_custody_failure_at_replacement_phases_is_not_hidden_by_first(self):
+        import startup
+        for phase in [3, 4, 5, 6, 7]:
+            guard = self.prepared().guard
+            first, second = Path('/private/first'), Path('/private/second')
+            guard._fixture = (first, 11, {}, 'first-hash', {})
+            guard._second_fixture = (second, 12, {}, 'second-hash', {})
+            guard._listener_identity, guard._second_listener_identity = 'one', 'two'
+            guard.phase = phase
+            seen = []
+            def check(work, *args, **kwargs):
+                seen.append(work)
+                if work == second:
+                    dev.refuse('startup', 'fixture_changed')
+            with patch.object(startup, 'check_fixture_custody', side_effect=check):
+                with self.subTest(phase=phase), self.assertRaises(dev.Refusal):
+                    guard.current()
+            self.assertEqual(seen, [first, second])
+            self.assertTrue(guard.ownership_lost)
+            self.assertFalse(guard.persistence_verified)
+
+    def test_initialized_private_envelope_parser_rejects_malformed_or_changed_fields(self):
+        import startup, json
+        fixture, events, _ = ExecutionEnvelope().inputs(2)
+        fixture['initialized'] = True
+        fixture.pop('fresh')
+        fixture['volume'] = fixture.pop('planned_volume')
+        events[5] = {'kind': 'volume_inspect'}
+        for phase in [10, 11]:
+            args = (['volume', 'inspect', 'supabase_db_' + fixture['project']] if phase == 10 else
+                    ['volume', 'create', '--label', 'com.supabase.cli.project=' + fixture['project'],
+                     '--label', 'com.docker.compose.project=' + fixture['project'], 'supabase_db_' + fixture['project']])
+            request = {'token': 'a'*32, 'phase': 'initialized_probe' if phase == 10 else 'initialized_ensure', 'args': args}
+            prefix = events[:5 if phase == 10 else 7]
+            invalid = [b'{', b'null', b'[]', json.dumps(dict(request, token='b'*32)).encode(),
+                       json.dumps(dict(request, phase='probe')).encode(),
+                       json.dumps(dict(request, args=args+['extra'])).encode(),
+                       json.dumps(dict(request, extra=True)).encode()]
+            for raw in invalid:
+                with self.subTest(phase=phase, raw=raw), self.assertRaises(dev.Refusal):
+                    startup.validate_owner_request(raw, 'a'*32, fixture, prefix, phase)
+
+    def test_initialized_private_probe_ensure_acknowledgements_are_exact(self):
+        import startup, struct, os
+        fixture = boundary_fixture()
+        environment = dict(expected_environment(fixture), ENV_PRIVATE_OWNER_TOKEN='a'*32, ENV_PRIVATE_OWNER_PID='12345')
+        for phase in ['initialized_probe', 'initialized_ensure']:
+            for response in [b'', b'OK', b'OK\nextra', b'bad\n']:
+                peer = Mock()
+                peer.getsockopt.return_value = struct.pack('3i', 12345, os.getuid(), 0)
+                peer.recv.side_effect = [response, b'']
+                context = Mock()
+                context.__enter__ = Mock(return_value=peer)
+                context.__exit__ = Mock(return_value=False)
+                with patch.object(startup.socket, 'socket', return_value=context), self.assertRaises(dev.Refusal):
+                    startup.owner_handoff(fixture, phase, ['volume', 'inspect', 'supabase_db_' + fixture['project']], environment)
+                self.assertEqual(peer.sendall.call_count, 1)
+
 class PersistenceDaemon(OwnerDaemon):
     def __init__(self):
         super().__init__()

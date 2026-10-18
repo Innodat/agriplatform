@@ -11,7 +11,7 @@ close the enclosing ENV acceptance item. See individual evidence records below.
 | Target/configuration | Protected disposable run preparation, exact source/config binding, deterministic owner names and Docker>=28 gate | Actual isolated stack startup and current readiness |
 | Dependency baseline | Six pinned executables including TypeScript7.0.2; Python wheel-lock and frontend compatibility fixtures | Generated consuming application/service proof; target/native compatibility; documented third-party declaration limitations |
 | Images/resources | Four immutable image identities, guarded owned bridge/database-volume acquisition, daemon observations, current volume-use refusal, joint same-session acquisition and absent-volume startup construction | Cross-execution initialized-volume admission/recovery, full-stack execution enforcement and reservation/exclusivity |
-| PostgreSQL startup | Exact first-create profile, guarded volume owner; selected-image SQL/key proof; opt-in real pinned-CLI create/copy/start on its fresh named volume with health, clean shutdown and owned removal; explicit retained-volume replacement/SQL persistence proof | Cross-execution reuse/reset/recovery, actual CLI initialized branch, public lifecycle commands and complete stack/owner readiness |
+| PostgreSQL startup | Exact first-create profile, guarded volume owner; selected-image SQL/key proof; opt-in real pinned-CLI create/copy/start on its fresh named volume with health, clean shutdown and owned removal; explicit retained-volume replacement/SQL persistence proof and actual CLI fresh/initialized start boundaries | Cross-execution reuse/reset/recovery, post-start CLI database setup, public lifecycle commands and complete stack/owner readiness |
 | Owner integration | Ordered ENV/P1/SERVICE/Identity/Access/WRITE contracts and retained ownership | Existing generator recipe/schema/templates, regeneration/custom preservation, generated install/type/build/start/current-Access proof, coordinated owner migrations/fixtures/recovery |
 | Provider/device | Explicit nonproduction origins/callback contracts | LAN HTTPS/DNS/testCA, actual Entra callbacks and installed Android/iPhone proof at consuming gates |
 
@@ -121,6 +121,23 @@ restore lost custody or establish persistence, cleanup or recovery success. Pres
 unresolved resources and receipts for investigation; these inspection steps authorize
 no removal, restart, SQL, adoption or replay. Avoid unformatted container inspection,
 logs and dumps of `Config.Env`, commands, payloads or credential files.
+
+The separate [initialized CLI qualifier](ENV_INITIALIZED_CLI_EVIDENCE.md) uses a second actual pinned CLI process for the initialized-volume
+create/copy/start boundary, within the same fresh operation. It preserves the existing
+profile/archive and two private fixture custodies through final SQL verification and
+disposal. Neither post-start CLI setup nor cross-execution reuse is qualified.
+
+```sh
+python3 platform/deployment/tests/qualify_startup.py --target platform/deployment/environments/kdg-local.json --run-id <fresh-qualified-UUID> --control pinned-cli-postgres-initialized
+```
+
+The exact existing volume must be current and unused before initialized inspect/ensure
+acknowledgements; ensure performs no duplicate volume POST. The second CLI group ends
+at its start boundary, then ENV verifies persisted marker/cluster/initialization and
+same-instance clean shutdown before final disposal. Budgets and uncertainty-preservation
+rules match the persistence control above. Source changes need a fresh prepared and
+qualified UUID; preserve previous receipts. Reviewed-source actual proof and541 deployment
+tests pass; exact results and requirement coverage are in the linked evidence.
 
 The separate opt-in [PostgreSQL bootstrap qualification](ENV_POSTGRES_BOOTSTRAP_EVIDENCE.md)
 now demonstrates actual selected-image initialization and public synthetic key transfer

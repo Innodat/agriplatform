@@ -140,6 +140,8 @@ class FreshGuard:
         self.stopped_instances = set()
         self._create_operands = None
         self.old_container_id = None
+        self.initialized_cli = False
+        self._second_fixture = self._second_listener_identity = None
 
     def bind_fixture(self, work, work_fd, sources, fixture_hash, wrappers):
         """Bind only the closed startup fixture's concrete private custody fields."""
@@ -154,16 +156,36 @@ class FreshGuard:
         self._listener_identity = identity
         self.current()
 
+    def bind_second_fixture(self, work, work_fd, sources, fixture_hash, wrappers):
+        if not self.initialized_cli or self.phase != 10 or self._second_fixture is not None:
+            startup.fail('invalid_owner_handoff')
+        if self._fixture is None or work == self._fixture[0]:
+            startup.fail('invalid_owner_handoff')
+        self._second_fixture = (work, work_fd, dict(sources), fixture_hash, dict(wrappers))
+        self.current()
+
+    def bind_second_listener(self, identity):
+        if self._second_fixture is None or self._second_listener_identity is not None:
+            startup.fail('invalid_owner_handoff')
+        self._second_listener_identity = identity
+        self.current()
+
     def current(self):
         try:
             self._current()
             if self._fixture is not None:
                 startup.check_fixture_custody(*self._fixture, self.target, self.run_id,
                                               listener_identity=self._listener_identity)
+            if self._second_fixture is not None:
+                startup.check_fixture_custody(*self._second_fixture, self.target, self.run_id,
+                                              listener_identity=self._second_listener_identity)
         except dev.Refusal as error:
             if error.code != 'docker_timeout':
                 self.ownership_lost = True
             raise
+        except (OSError, ValueError, KeyError, TypeError):
+            self.ownership_lost = True
+            startup.fail('execution_ownership_changed')
 
     def check(self):
         self.current()
@@ -247,6 +269,25 @@ class FreshGuard:
         if not self.execution or self.persistence or self.execution_started or self.phase not in (0, 2):
             startup.fail('invalid_owner_handoff')
         self.persistence = True
+
+    def enable_initialized_cli(self):
+        if not self.persistence or self.initialized_cli or self.execution_started:
+            startup.fail('invalid_owner_handoff')
+        self.initialized_cli = True
+
+    def initialized_probe(self):
+        if not self.initialized_cli or self.phase != 10:
+            startup.fail('invalid_owner_handoff')
+        self.phase = -1
+        self.joint()
+        self.phase = 11
+
+    def initialized_ensure(self):
+        if not self.initialized_cli or self.phase != 11:
+            startup.fail('invalid_owner_handoff')
+        self.phase = -1
+        self.joint()
+        self.phase = 9
 
     def references(self):
         path = ('/v1.48/containers/json?all=true&filters=%7B%22volume%22%3A%5B%22'
@@ -478,7 +519,7 @@ class FreshGuard:
             startup.fail('execution_stop_failed')
         startup.lifecycle.shutdown_state(self.owned(), started)
 
-    def recreate(self, started):
+    def remove_first(self, started):
         if (not self.persistence or self.phase != 5 or self.old_container_id is not None
                 or self.container_id not in self.stopped_instances):
             startup.fail('invalid_owner_handoff')
@@ -497,11 +538,28 @@ class FreshGuard:
         self.joint()  # Unused unchanged owned volume and empty bridge, before budget transition.
         self.check()
         self.deadline = self.session.deadline = time.monotonic() + 120
-        self.phase = 9
         self.start_attempted = False
+        self.phase = 10 if self.initialized_cli else 9
+
+    def recreate(self, started):
+        if self.initialized_cli:
+            startup.fail('invalid_owner_handoff')
+        self.remove_first(started)
         self.container_create(*self._create_operands, _replacement=True)
         self.container_copy(['cp', '-', self.container_id + ':/'], startup.lifecycle.public_archive())
         self.container_start(['start', self.container_id])
+
+    def prepare_initialized_cli(self):
+        if not self.initialized_cli or self.old_container_id is not None or self.phase != 5:
+            startup.fail('invalid_owner_handoff')
+        if getattr(self, '_initialized_prepare_attempted', False):
+            startup.fail('invalid_owner_handoff')
+        self._initialized_prepare_attempted = True
+        started = self.healthy_instance()
+        self.persistence_sql('write', started)
+        self.persistence_sql('schemas', started)
+        self.stop_instance(started)
+        self.remove_first(started)
 
     def finish_execution(self):
         if self.phase != 5:
@@ -511,12 +569,16 @@ class FreshGuard:
             startup.fail('invalid_owner_handoff')
         self._finish_attempted = True
         started = self.healthy_instance()
-        if self.persistence:
+        if self.initialized_cli and self.old_container_id is None:
+            startup.fail('invalid_owner_handoff')
+        if self.persistence and not self.initialized_cli:
             self.persistence_sql('write', started)
             self.persistence_sql('schemas', started)
-        self.stop_instance(started)
+        if not self.initialized_cli:
+            self.stop_instance(started)
         if self.persistence:
-            self.recreate(started)
+            if not self.initialized_cli:
+                self.recreate(started)
             started = self.healthy_instance()
             self.persistence_sql('verify', started)
             self.persistence_sql('schemas', started)

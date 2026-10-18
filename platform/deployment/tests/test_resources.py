@@ -1292,7 +1292,8 @@ class ExecutionSupervisor(unittest.TestCase):
 
         # Existing independent in-memory descriptors back a real private Docker
         # protocol peer; the production DockerSession owns all framing/closure.
-        persistence = scenario.startswith('persistence-')
+        initialized = scenario.startswith('initialized-')
+        persistence = scenario.startswith('persistence-') or initialized
         engine = PersistenceDaemon() if persistence else OwnerDaemon()
         # Bind templates to this retained-owner harness's prepared UUID, which
         # differs from the direct-owner fixture's independent default UUID.
@@ -1305,6 +1306,9 @@ class ExecutionSupervisor(unittest.TestCase):
         volume.update(Scope='local', Options=None)
         engine.network = engine.volume = None
         connections, errors, injected, reached, created = [], [], [], [], []
+        fault_at, group_signals = [], []
+        real_monotonic = time.monotonic
+        clock_shift = [0]
 
         def dispatch(method, path, body):
             if path == '/version':
@@ -1325,14 +1329,18 @@ class ExecutionSupervisor(unittest.TestCase):
                 reached.append((method, path))
             if scenario == 'post-start-health' and path.endswith('/start'):
                 engine.row['State']['Health']['Status'] = 'invalid'
-            if scenario == 'persistence-sql-failure' and '/containers/create?' in path and engine.creates == 2:
+            if scenario in ('persistence-sql-failure', 'initialized-sql-failure') and '/containers/create?' in path and engine.creates == 2:
                 engine.marker = None
             return result
 
         class Handler(socketserver.BaseRequestHandler):
             def handle(peer):
                 connections.append(True)
-                peer.request.settimeout(5)
+                # The initialized CLI launches its independent wrapper sequence
+                # between owner requests. Let the retained owner's 120s execution
+                # deadline bound that idle interval, rather than injecting a
+                # separate five-second daemon EOF into envelope-refusal controls.
+                peer.request.settimeout(120 if initialized else 5)
                 try:
                     while True:
                         data = b''
@@ -1361,6 +1369,10 @@ class ExecutionSupervisor(unittest.TestCase):
                         status, result = dispatch(method, path, payload)
                         target = ('/archive?' in path if scenario.startswith('copy-') else
                                   path.endswith('/start') if scenario.startswith('start-') else False)
+                        if initialized and engine.creates == 2:
+                            target = ('/archive?' in path if scenario.startswith('initialized-copy-') else
+                                      path.endswith('/start') if scenario.startswith('initialized-start-') else
+                                      '/containers/create?' in path if scenario.startswith('initialized-create-') else False)
                         if target:
                             injected.append((method, path))
                             if scenario.endswith('-malformed'):
@@ -1373,9 +1385,64 @@ class ExecutionSupervisor(unittest.TestCase):
 
         selected_runner = runner or startup.guarded_fixture_command
         cleanup = resources.FreshGuard.cleanup_execution
-        calls, guards, pids = [], [], []
+        create_container = resources.FreshGuard.container_create
+        initialize = startup.initialize_workdir
+        install = startup.install_fixture
+        killpg = startup.os.killpg
+        def signal_group(pid, selected_signal):
+            group_signals.append(pid)
+            return killpg(pid, selected_signal)
+        def initialize_secondary(work, *args):
+            if scenario == 'initialized-fixture-failure' and guards:
+                startup.fail('fixture_init_failed')
+            return initialize(work, *args)
+        def install_secondary(work, *args, **kwargs):
+            install(work, *args, **kwargs)
+            if scenario not in ('initialized-probe-envelope', 'initialized-ensure-envelope', 'initialized-probe-ack', 'initialized-ensure-ack') or not guards:
+                return
+            path = work / 'bin/docker'
+            selected_phase = 'initialized_probe' if scenario.startswith('initialized-probe-') else 'initialized_ensure'
+            code = ("original_handoff = startup.owner_handoff\n"
+                    "def handoff(fixture, phase, args, environment, **kwargs):\n"
+                    "    if phase == " + repr(selected_phase) + ": args = args + ['extra']\n"
+                    "    return original_handoff(fixture, phase, args, environment, **kwargs)\n"
+                    "startup.owner_handoff = handoff\n")
+            if scenario.endswith('-ack'):
+                code = ("original_handoff = startup.owner_handoff\n"
+                        "class AckPeer:\n"
+                        "    def __init__(self, peer): self.peer = peer\n"
+                        "    def __enter__(self): self.peer.__enter__(); return self\n"
+                        "    def __exit__(self, *args): return self.peer.__exit__(*args)\n"
+                        "    def __getattr__(self, name): return getattr(self.peer, name)\n"
+                        "    def recv(self, size):\n"
+                        "        data = self.peer.recv(size)\n"
+                        "        return b'bad\\n' if data == b'OK\\n' else data\n"
+                        "def handoff(fixture, phase, args, environment, **kwargs):\n"
+                        "    if phase != " + repr(selected_phase) + ": return original_handoff(fixture, phase, args, environment, **kwargs)\n"
+                        "    socket_type = startup.socket.socket\n"
+                        "    startup.socket.socket = lambda *args, **kwargs: AckPeer(socket_type(*args, **kwargs))\n"
+                        "    try: return original_handoff(fixture, phase, args, environment, **kwargs)\n"
+                        "    finally: startup.socket.socket = socket_type\n"
+                        "startup.owner_handoff = handoff\n")
+            path.write_text(path.read_text().replace('args, env = sys.argv[1:], dict(os.environ)', code + 'args, env = sys.argv[1:], dict(os.environ)'))
+        def create_with_fault(guard, *args, **kwargs):
+            result = create_container(guard, *args, **kwargs)
+            if kwargs.get('_replacement') and scenario in ('initialized-wrapper-mutation', 'initialized-listener-mutation',
+                                                          'initialized-deadline', 'initialized-interrupt'):
+                fault_at.append((len(engine.events), guard.deadline))
+                if scenario == 'initialized-wrapper-mutation':
+                    path = guard._second_fixture[0] / 'bin/docker'
+                    path.write_text(path.read_text() + '\n# changed after create\n')
+                elif scenario == 'initialized-listener-mutation':
+                    (guard._second_fixture[0] / 'docker/owner.sock').chmod(0o644)
+                elif scenario == 'initialized-deadline':
+                    clock_shift[0] = 121
+                else:
+                    raise KeyboardInterrupt()
+            return result
+        calls, guards, pids, fixture_workdirs = [], [], [], []
         def record_cleanup(guard, *args, **kwargs):
-            entry = {'at': time.monotonic(), 'closed': guard.session.closed}
+            entry = {'at': time.monotonic(), 'closed': guard.session.closed, 'execution_deadline': guard.deadline}
             calls.append(entry)
             try:
                 return cleanup(guard, *args, **kwargs)
@@ -1383,6 +1450,7 @@ class ExecutionSupervisor(unittest.TestCase):
                 entry.update(deadline=guard.deadline, duration=time.monotonic()-entry['at'])
         def observe(*args):
             guards.append(args[-1])
+            fixture_workdirs.append(args[1])
             try:
                 return selected_runner(*args)
             finally:
@@ -1393,7 +1461,15 @@ class ExecutionSupervisor(unittest.TestCase):
             root = Path(directory)
             path = str(root / 'daemon.sock')
             executable = root / 'supabase'
-            executable.write_text('#!'+sys.executable+'\n'+self.source_with_descendant(Lifecycle().process_source()))
+            process_source = self.source_with_descendant(Lifecycle().process_source())
+            if scenario in ('initialized-probe-ack', 'initialized-ensure-ack'):
+                # Keep the descendant alive in the CLI group, but let the owner's
+                # pipe EOF expose this ACK refusal immediately after the CLI exits.
+                # Inherited-pipe retention has a separate dedicated control.
+                process_source = process_source.replace(
+                    "extra = subprocess.Popen([sys.executable, '-c', 'import time; time.sleep(60)'])",
+                    "extra = subprocess.Popen([sys.executable, '-c', 'import time; time.sleep(60)'], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)")
+            executable.write_text('#!'+sys.executable+'\n'+process_source)
             executable.chmod(0o700)
             with socketserver.UnixStreamServer(path, Handler) as server:
                 thread = threading.Thread(target=server.serve_forever, kwargs={'poll_interval': .01}, daemon=True)
@@ -1401,10 +1477,15 @@ class ExecutionSupervisor(unittest.TestCase):
                 try:
                     with patch.object(startup, 'guarded_fixture_command', side_effect=observe), \
                             patch.object(resources.FreshGuard, 'cleanup_execution', new=record_cleanup), \
+                            patch.object(resources.FreshGuard, 'container_create', new=create_with_fault), \
+                            patch.object(startup, 'initialize_workdir', side_effect=initialize_secondary), \
+                            patch.object(startup, 'install_fixture', side_effect=install_secondary), \
+                            patch.object(startup.os, 'killpg', side_effect=signal_group), \
+                            patch.object(time, 'monotonic', side_effect=lambda: real_monotonic() + clock_shift[0]), \
                             patch.object(dev, 'free_ports'):
-                        with (nullcontext() if scenario == 'persistence-positive' else self.assertRaises(dev.Refusal)) as caught:
+                        with (nullcontext() if scenario in ('persistence-positive', 'initialized-positive') else self.assertRaises(KeyboardInterrupt if scenario == 'initialized-interrupt' else dev.Refusal)) as caught:
                             result = startup.synthetic_probe(executable, self.owner.owner.target, self.owner.owner.args.run_id,
-                                    control='fresh-pinned-cli-postgres-persistence' if persistence else 'fresh-pinned-cli-postgres',
+                                    control='fresh-pinned-cli-postgres-initialized' if initialized else ('fresh-pinned-cli-postgres-persistence' if persistence else 'fresh-pinned-cli-postgres'),
                                     selection_plan=startup.existing_images(self.owner.owner.args)[1],
                                     image_observations=self.owner.expected,
                                     _guarded_target=(self.owner.owner.args.target, path))
@@ -1412,24 +1493,112 @@ class ExecutionSupervisor(unittest.TestCase):
                     server.shutdown()
                     thread.join(timeout=1)
 
+        if initialized:
+            self.assertEqual(len(group_signals), len(set(group_signals)), 'never signal a reaped numeric group twice')
+            self.assert_stopped(pids)
+        if scenario in ('initialized-fixture-failure', 'initialized-probe-envelope', 'initialized-ensure-envelope', 'initialized-probe-ack', 'initialized-ensure-ack'):
+            self.assertEqual(created, ['a'*64])
+            self.assertEqual(len(calls), 0)
+            self.assertEqual(errors, [], 'private daemon must remain available for final owned checks')
+            self.assertIsNone(engine.row)
+            self.assertIsNotNone(engine.volume)
+            self.assertFalse(guards[0].persistence_verified)
+            self.assertEqual(len(pids), 2 if scenario == 'initialized-fixture-failure' else 4)
+            self.assertEqual(len(group_signals), 1 if scenario == 'initialized-fixture-failure' else 2)
+            self.assertEqual(caught.exception.code, 'fixture_init_failed' if scenario == 'initialized-fixture-failure' else
+                             'execution_cleanup_unresolved' if scenario.endswith('-ack') else 'invalid_owner_handoff')
+            if scenario.endswith('-ack'):
+                self.assertEqual(guards[0].phase, 11 if scenario == 'initialized-probe-ack' else 9)
+            return
+        if scenario in ('initialized-wrapper-mutation', 'initialized-listener-mutation', 'initialized-deadline', 'initialized-interrupt'):
+            guard = guards[0]
+            self.assertEqual(created, ['a'*64, 'c'*64])
+            self.assertEqual(len(pids), 4)
+            self.assertEqual(len(group_signals), 2)
+            self.assertEqual(len(calls), 1)
+            self.assertFalse(guard.persistence_verified)
+            self.assertEqual(engine.executed_sql_modes, ['write', 'schemas'])
+            if scenario.endswith('mutation'):
+                self.assertTrue(guard.ownership_lost)
+                self.assertEqual(len(engine.events), fault_at[0][0])
+                self.assertIsNotNone(engine.row)
+                self.assertIsNotNone(engine.volume)
+            else:
+                if scenario == 'initialized-deadline':
+                    self.assertEqual(caught.exception.code, 'docker_timeout')
+                self.assertTrue(guard.cleaned)
+                self.assertIsNone(engine.row)
+                self.assertIsNone(engine.volume)
+                self.assertEqual(calls[0]['execution_deadline'], fault_at[0][1])
+                self.assertEqual(calls[0]['deadline'], guard.deadline)
+                self.assertAlmostEqual(calls[0]['deadline'] - calls[0]['at'], 10, delta=.1)
+            return
+        if scenario in ('initialized-create-lost', 'initialized-create-malformed'):
+            guard = guards[0]
+            self.assertEqual(caught.exception.code, 'docker_response_invalid')
+            self.assertEqual(created, ['a'*64, 'c'*64])
+            self.assertEqual(len(injected), 1)
+            self.assertEqual(len(calls), 0)
+            self.assertTrue(guard.session.closed)
+            self.assertEqual(guard.phase, -1)
+            self.assertIsNone(guard.container_id)
+            self.assertFalse(guard.persistence_verified)
+            self.assertFalse(guard.cleaned)
+            self.assertEqual(engine.row['Id'], 'c'*64)
+            self.assertIsNotNone(engine.volume)
+            self.assertIsNotNone(engine.network)
+            self.assertEqual(engine.executed_sql_modes, ['write', 'schemas'])
+            mutations = [(m, p) for m, p, _ in engine.events if m != 'GET']
+            self.assertIn('/containers/create?', mutations[-1][1])
+            self.assertEqual(sum('/containers/create?' in p for _, p in mutations), 2)
+            deletes = [p for m, p in mutations if m == 'DELETE']
+            self.assertEqual(deletes, ['/v1.48/containers/' + 'a'*64 + '?force=false'])
+            self.assertEqual(len(pids), 4)
+            self.assertEqual(len(group_signals), 2)
+            return
         if persistence:
             self.assertEqual(created, ['a'*64, 'c'*64])
-            self.assertEqual(len(guards), 1)
+            self.assertEqual(len(guards), 2 if initialized else 1)
+            if initialized:
+                self.assertIs(guards[0], guards[1])
+                self.assertEqual(len(fixture_workdirs), 2)
+                self.assertNotEqual(fixture_workdirs[0], fixture_workdirs[1])
+                self.assertEqual(guards[0]._fixture[0], fixture_workdirs[0])
+                self.assertEqual(guards[0]._second_fixture[0], fixture_workdirs[1])
             self.assertEqual(len(calls), 1)
             self.assertEqual(len(connections), 1)
             self.assertEqual(errors, [])
-            self.assertEqual(len(pids), 2)
+            self.assertEqual(len(pids), 4 if initialized else 2)
             self.assert_stopped(pids)
+            if scenario.startswith(('initialized-copy-', 'initialized-start-')):
+                self.assertEqual(caught.exception.code, 'execution_cleanup_unresolved')
+                self.assertEqual(len(injected), 1)
+                self.assertTrue(calls[0]['closed'])
+                self.assertFalse(guards[0].cleaned)
+                self.assertFalse(guards[0].persistence_verified)
+                self.assertIsNotNone(engine.row)
+                self.assertIsNotNone(engine.volume)
+                self.assertIsNotNone(engine.network)
+                self.assertEqual(engine.executed_sql_modes, ['write', 'schemas'])
+                deletes = [p for m, p, _ in engine.events if m == 'DELETE' and '/containers/' in p]
+                self.assertEqual(deletes, ['/v1.48/containers/' + 'a'*64 + '?force=false'])
+                return
             self.assertTrue(guards[0].cleaned)
             self.assertIsNone(engine.row)
             self.assertIsNone(engine.volume)
             self.assertIsNone(engine.network)
             self.assertEqual(sum('/archive?' in p for _, p, _ in engine.events), 2)
-            if scenario == 'persistence-positive':
+            if scenario in ('persistence-positive', 'initialized-positive'):
                 self.assertTrue(result['persisted_run_marker_verified'])
                 self.assertTrue(result['owner_recreation_verified'])
-                self.assertEqual(result['owner_start_count'], 2)
-                self.assertTrue(result['cli_first_start_only'])
+                if initialized:
+                    self.assertEqual(result['cli_start_count'], 2)
+                    self.assertEqual(result['cli_start_boundaries'], ['fresh', 'initialized'])
+                    self.assertTrue(result['initialized_cli_recreation_verified'])
+                    self.assertNotIn('cli_first_start_only', result)
+                else:
+                    self.assertEqual(result['owner_start_count'], 2)
+                    self.assertTrue(result['cli_first_start_only'])
                 self.assertNotIn('first_start_only', result)
                 self.assertFalse(result['runtime_ready'])
                 self.assertEqual(engine.sql_modes, ['write', 'schemas', 'verify', 'schemas'])
@@ -1479,6 +1648,41 @@ class ExecutionSupervisor(unittest.TestCase):
             self.assertIsNotNone(engine.row)
             self.assertIsNotNone(engine.volume)
             self.assertIsNotNone(engine.network)
+
+    def test_initialized_second_custody_mutation_latches_before_any_further_mutation(self):
+        for scenario in ['initialized-wrapper-mutation', 'initialized-listener-mutation']:
+            with self.subTest(scenario=scenario):
+                self.run_execution_case(scenario)
+
+    def test_initialized_nested_deadline_and_interrupt_terminate_both_groups(self):
+        for scenario in ['initialized-deadline', 'initialized-interrupt']:
+            with self.subTest(scenario=scenario):
+                self.run_execution_case(scenario)
+
+    def test_initialized_private_probe_ensure_envelopes_refuse(self):
+        for scenario in ['initialized-probe-envelope', 'initialized-ensure-envelope', 'initialized-probe-ack', 'initialized-ensure-ack']:
+            with self.subTest(scenario=scenario):
+                self.run_execution_case(scenario)
+
+    def test_initialized_unknown_second_create_is_never_adopted(self):
+        for scenario in ['initialized-create-lost', 'initialized-create-malformed']:
+            with self.subTest(scenario=scenario):
+                self.run_execution_case(scenario)
+
+    def test_initialized_failure_before_secondary_launch_preserves_volume(self):
+        self.run_execution_case('initialized-fixture-failure')
+
+    def test_initialized_secondary_supervisor_uncertain_copy_start_preserves_without_replay(self):
+        for scenario in ['initialized-copy-lost', 'initialized-copy-malformed',
+                         'initialized-start-lost', 'initialized-start-malformed']:
+            with self.subTest(scenario=scenario):
+                self.run_execution_case(scenario)
+
+    def test_initialized_cli_recreation_keeps_both_groups_and_private_custodies(self):
+        self.run_execution_case('initialized-positive')
+
+    def test_initialized_cli_lost_marker_never_claims_persistence(self):
+        self.run_execution_case('initialized-sql-failure')
 
     def test_persistence_recreation_keeps_one_peer_and_terminates_cli_descendants(self):
         self.run_execution_case('persistence-positive')

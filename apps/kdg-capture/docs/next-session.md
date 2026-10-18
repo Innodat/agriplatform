@@ -426,3 +426,53 @@ verification are complete; no new deferred item. Production/profile source bindi
 and concurrent Leave/PtS document/index hashes remain unchanged. The two earlier
 intermittent guard investigations stay open. This bounded persistence Build is closed;
 continue the remaining environment and existing-owner P1/SERVICE gates above.
+
+## Latest continuation — actual initialized-volume CLI starts, 2026-10-17
+
+The [initialized CLI Build](../../../_bmad-output/implementation-artifacts/spec-env-initialized-cli-restart.md)
+uses a second actual pinned CLI process for initialized-volume create/copy/start,
+within the same fresh guarded persistence operation. Both independent private fixture
+workdirs/listeners remain under custody through final verification/disposal. Existing
+volume inspect/ensure acknowledges only the unchanged unused execution-owned volume,
+without a second volume POST; legacy controls retain their behavior. Both CLI groups
+terminate at executed start, before post-health database setup or other services.
+
+Fresh source-qualified run `18d3de94-7ff0-4464-bc99-3e7b5a813395` passes actual ordinary
+initialized proof113.594s: two CLI start boundaries, distinct replacement, original
+marker/cluster/init predicates, both clean exits and final owned disposal. All13
+receipts and running inventory remain unchanged, runtime_ready=false. Root56 focused
+tests and3 expanded process tests pass, including four second transport-failure cases.
+Earlier unintended private-helper fault injection and registry refusal are retained
+separately and not counted as positive proof. See [requirement/test evidence](../../../platform/deployment/ENV_INITIALIZED_CLI_EVIDENCE.md).
+Existing persistence/first-start/bootstrap/guarded controls pass; public up still
+refuses runtime_adapter_unqualified. All533 deployment tests PASS410.905s. At that
+checkpoint three-layer review was pending; final closeout follows below. A
+persistence-check inventory snapshot includes three unrelated
+Deals containers newly running, none disappeared; cause unobserved/state preserved.
+
+Keep cross-execution admission/reconciliation, post-start CLI setup and whole-stack
+Auth/runtime, owner migrations/fixtures/current authorization, public lifecycle/recovery,
+provider/device and existing P1/SERVICE scaffold acceptance open. Identity/Access/WRITE
+and server-backed KDG remain gated. Preserve exact TypeScript7.0.2, current owners and
+concurrent Leave/PtS work. No Leave/editor or production/pilot action follows.
+
+Historical review checkpoint: all three layers completed and findings individually
+triaged. A repeated signal to a reaped numeric CLI group is fixed; verification now
+covers physical secondary custody changes, nested expiry/interruption, private envelopes/
+acknowledgements, unknown replacement responses and pre-launch failure. Root reproduced
+original signal attempts RED4-for2 (physical repeats suppressed);59 focused tests pass.
+The source change invalidated preceding run qualification for current code. Fresh
+post-review qualification/process/full-regression closeout was required. No new
+deferred item; prior two intermittent guard investigations stay open.
+
+Reviewed-source closeout,2026-10-18: fresh run
+`0003c705-2298-46b1-9ad3-cae3650bae46` passes actual initialized CLI proof80.575s,
+including both start boundaries, preserved marker/cluster/init, both clean exits and
+owned disposal. All13 receipts and running inventory remain unchanged. Existing
+persistence/first-start/bootstrap/guarded controls pass; public up still refuses.
+Root59 focused tests,8 affected process tests and **541 full deployment tests
+PASS439.549s** complete all six requirement rows. Three-layer review patches are
+verified, including secondary custody, uncertainty, deadline/interruption and single
+group termination. Evidence records failed fixture attempts and corrections. No new
+deferred item; prior two intermittent investigations stay open. This bounded Build
+is closed; the remaining ENV/P1/SERVICE and runtime gates above remain open.

@@ -319,3 +319,31 @@ removal is not final cleanup and cannot consume/reset its single attempt. Loss o
 custody/reference/transport prevents continuation or unsafe disposal. Failures in a
 confirmed container-free gap may retain run resources with a refusal; they do not
 claim cleanup. Existing matching bridge preservation and default controls remain.
+
+## Explicit initialized-volume CLI start qualification
+
+The separate `pinned-cli-postgres-initialized` control replaces the persistence
+qualifier's ENV-created replacement with a second actual pinned CLI process. Both
+processes are terminated at their executed PostgreSQL start boundary. The replacement
+consumes only the same operation's confirmed-created volume after committed probe,
+clean first shutdown, old-container absence and unchanged unused volume/bridge checks.
+An initialized volume from a different execution is not admitted.
+
+Pinned `start-database.ts` probes the volume before network/create. Its container
+specification is shared with the fresh path in `postgres.service.ts`; the reviewed
+public bootstrap/archive remain unchanged. An independent second private workdir
+changes only workdir-derived labels/routing. Both fixture/listener custodies stay
+current through replacement verification and final disposal. Initialized inspect/ensure
+must verify the proven unused volume; ensure acknowledges it without another volume
+POST. The initialized event sequence uses its own ensure acknowledgement, preserving
+the legacy synthetic existing-volume refusal behavior.
+
+The two CLI start boundaries, distinct replacement, persisted run/cluster/init predicates,
+both clean shutdowns and final owned disposal are separate required proof facts.
+Budgets stay acquisition5s, first execution/probe120s, first shutdown/removal15s,
+second CLI/verification120s, final shutdown15s and single cleanup10s.
+The second supervisor hands a successfully started replacement to the same outer
+owner; it cannot dispose it before SQL verification. Failed/uncertain operations
+cannot reconnect, adopt, retry mutations or claim success. Public lifecycle, full
+post-health fresh/webhook/current-branch setup, cross-execution reuse and recovery
+remain unqualified; `runtime_ready=false`.

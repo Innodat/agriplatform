@@ -404,9 +404,9 @@ def lifecycle_prefix(fixture, events, phase):
     facts.update(original_image=fixture['postgres_image'], immutable_selection_proven=True, create_request_proven=True)
     descriptors = [fixture['image_observations'][fixture['selection_plan'][tag]] for tag in fixture['images']]
     if phase == 'create':
-        validate_observations(events + [{'kind': 'postgres_create', 'facts': facts}], facts, descriptors, fresh=fixture.get('fresh', False))
+        validate_observations(events + [{'kind': 'postgres_create', 'facts': facts}], facts, descriptors, fresh=fixture.get('fresh', False), initialized=fixture.get('initialized', False))
     else:
-        validate_observations(events[:CREATE_BOUNDARY], facts, descriptors, fresh=fixture.get('fresh', False))
+        validate_observations(events[:CREATE_BOUNDARY], facts, descriptors, fresh=fixture.get('fresh', False), initialized=fixture.get('initialized', False))
         if phase == 'cp' and len(events) != CREATE_BOUNDARY:
             fail('unsafe_lifecycle')
         if phase == 'start' and (len(events) != CREATE_BOUNDARY + 1 or events[CREATE_BOUNDARY] != lifecycle.transfer_event()):
@@ -500,6 +500,10 @@ def fixture_command(runtime, args, fixture, events, *, environment=None, archive
         events.append({'kind': 'network_inspect'})
         return 0, json.dumps([fixture['network']]), ''
     if args == ['volume', 'inspect', 'supabase_db_' + project]:
+        if fixture.get('initialized'):
+            if len(events) != 5:
+                fail('unsafe_lifecycle')
+            owner_handoff(fixture, 'initialized_probe', args, environment)
         if fixture.get('fresh'):
             if len(events) != 5 or fixture.get('fresh_existing'):
                 fail('fresh_volume_required')
@@ -528,6 +532,14 @@ def fixture_command(runtime, args, fixture, events, *, environment=None, archive
             if fixture.get('guarded_owner'):
                 owner_handoff(fixture, 'create', args, environment)
             events.append({'kind': 'fresh_volume_create_acknowledged'})
+            return 0, volume + '\n', ''
+        if fixture.get('initialized'):
+            facts = selected_facts(dict(fixture, postgres_image=fixture['selection_plan'][fixture['postgres_image']]))
+            facts.update(original_image=fixture['postgres_image'], immutable_selection_proven=True, create_request_proven=True)
+            validate_observations(events + [{'kind': 'initialized_volume_ensure_acknowledged'}, {'kind': 'postgres_create', 'facts': facts}], facts,
+                                  [fixture['image_observations'][fixture['selection_plan'][tag]] for tag in fixture['images']], initialized=True)
+            owner_handoff(fixture, 'initialized_ensure', args, environment)
+            events.append({'kind': 'initialized_volume_ensure_acknowledged'})
             return 0, volume + '\n', ''
         events.append({'kind': 'existing_volume_create_refused'})
         return 1, '', 'volume already exists'
@@ -794,24 +806,29 @@ def validate_owner_request(raw, token, fixture, events, phase):
     except (ValueError, dev.Refusal):
         fail('invalid_owner_handoff')
     project = fixture['project']
+    initialized = fixture.get('initialized', False)
+    if initialized:
+        phase = {10: 0, 11: 1}.get(phase, -1)
     args = (['volume', 'inspect', 'supabase_db_' + project] if phase == 0 else
             ['volume', 'create', '--label', 'com.supabase.cli.project=' + project, '--label',
              'com.docker.compose.project=' + project, 'supabase_db_' + project])
     if (phase not in [0, 1] or type(request) is not dict or request != {
-            'token': token, 'phase': 'probe' if phase == 0 else 'create', 'args': args}):
+            'token': token, 'phase': ('initialized_probe' if phase == 0 else 'initialized_ensure') if initialized else ('probe' if phase == 0 else 'create'), 'args': args}):
         fail('invalid_owner_handoff')
     validate_fixture_volume(fixture)
     facts = selected_facts(dict(fixture, postgres_image=fixture['selection_plan'][fixture['postgres_image']]))
     facts.update(original_image=fixture['postgres_image'], immutable_selection_proven=True, create_request_proven=True)
-    suffix = ([{'kind': 'volume_missing'}, {'kind': 'network_inspect'}] if phase == 0 else [])
-    validate_observations(events + suffix + [{'kind': 'fresh_volume_create_acknowledged'},
+    suffix = ([{'kind': 'volume_inspect' if initialized else 'volume_missing'}, {'kind': 'network_inspect'}] if phase == 0 else [])
+    validate_observations(events + suffix + [{'kind': 'initialized_volume_ensure_acknowledged' if initialized else 'fresh_volume_create_acknowledged'},
                                            {'kind': 'postgres_create', 'facts': facts}], facts,
-                          [fixture['image_observations'][fixture['selection_plan'][tag]] for tag in fixture['images']], fresh=True)
+                          [fixture['image_observations'][fixture['selection_plan'][tag]] for tag in fixture['images']], fresh=not initialized, initialized=initialized)
 
 
 def validate_execution_handoff(raw, token, fixture, events, phase):
     """Only original validated operands/public inputs can reach retained execution."""
     request = dev.decode(raw)
+    if fixture.get('initialized') and phase == 9:
+        phase = 2
     expected_phase = {2: 'container_create', 3: 'container_copy', 4: 'container_start'}.get(phase)
     keys = {'token', 'phase', 'args', 'environment'} | ({'archive'} if phase == 3 else set())
     expected_environment = create_profile.environment(fixture)
@@ -852,13 +869,17 @@ def guarded_fixture_command(command, work, env, guard):
         path.chmod(0o600)
         identity = path.lstat()
         listener.listen(1)
-        guard.bind_listener(identity)
+        if guard._second_fixture is not None:
+            guard.bind_second_listener(identity)
+        else:
+            guard.bind_listener(identity)
         def check():
             guard.check()
         check()
         process = subprocess.Popen([str(arg) for arg in command], cwd=work, env=env,
                                    stdout=subprocess.PIPE, stderr=subprocess.PIPE, start_new_session=True)
         total = 0
+        group_terminated = False
         try:
             with selectors.DefaultSelector() as selector:
                 selector.register(listener, selectors.EVENT_READ)
@@ -893,10 +914,10 @@ def guarded_fixture_command(command, work, env, guard):
                                 fixture = decode_fixture(work / 'fixture.json')
                                 events = decode_fixture(work / 'events.json')
                                 response = b'OK\n'
-                                if guard.execution and guard.phase >= 2:
+                                if guard.execution and guard.phase in (2, 3, 4, 9):
                                     request = validate_execution_handoff(raw, token, fixture, events, guard.phase)
-                                    if guard.phase == 2:
-                                        actual_id = guard.container_create(request['args'], fixture, request['environment'])
+                                    if guard.phase in (2, 9):
+                                        actual_id = guard.container_create(request['args'], fixture, request['environment'], _replacement=guard.phase == 9)
                                         response = (actual_id + '\n').encode()
                                     elif guard.phase == 3:
                                         guard.container_copy(request['args'], base64.b64decode(request['archive'], validate=True))
@@ -906,14 +927,23 @@ def guarded_fixture_command(command, work, env, guard):
                                     validate_owner_request(raw, token, fixture, events, guard.phase)
                                     if guard.phase == 0:
                                         guard.probe()
-                                    else:
+                                    elif guard.phase == 1:
                                         guard.create()
+                                    elif guard.phase == 10:
+                                        guard.initialized_probe()
+                                    else:
+                                        guard.initialized_ensure()
                                 check()
                                 peer.settimeout(guard.remaining())
                                 if guard.execution and guard.phase == 5:
                                     os.killpg(process.pid, signal.SIGKILL)
                                     process.wait(timeout=min(2, guard.remaining()))
-                                    guard.finish_execution()
+                                    group_terminated = True
+                                    if guard.initialized_cli and guard.old_container_id is None:
+                                        guard.prepare_initialized_cli()
+                                        initialized_cli_command(guard, guard._secondary_retained)
+                                    else:
+                                        guard.finish_execution()
                                     dev.refuse('images_cli', 'command_refused')
                                 peer.sendall(response)
                         else:
@@ -931,10 +961,11 @@ def guarded_fixture_command(command, work, env, guard):
         except (TimeoutError, subprocess.TimeoutExpired):
             dev.refuse('docker', 'docker_timeout')
         finally:
-            try:
-                os.killpg(process.pid, signal.SIGKILL)
-            except ProcessLookupError:
-                pass
+            if not group_terminated:
+                try:
+                    os.killpg(process.pid, signal.SIGKILL)
+                except ProcessLookupError:
+                    pass
             process.stdout.close()
             process.stderr.close()
             process.wait(timeout=2)
@@ -944,8 +975,30 @@ def guarded_fixture_command(command, work, env, guard):
             # owner observations; the private workdir context removes it on exit.
 
 
+def initialized_cli_command(guard, retained):
+    """Closed second CLI launch; both private fixtures survive final disposal."""
+    if not guard.initialized_cli or guard.phase != 10 or guard._second_fixture is not None:
+        fail('invalid_owner_handoff')
+    temporary = retained.enter_context(tempfile.TemporaryDirectory(prefix='env-initialized-startup-'))
+    work = Path(temporary)
+    work_fd = retained.enter_context(work_anchor(work))
+    initialize_workdir(work, guard.target, guard.run_id)
+    executable = guard.command[0][0]
+    command, env = invocation(executable, work, guard.target, guard.run_id, guard.network)
+    install_fixture(work, guard.target, guard.run_id, guard.network, executable,
+                    selection_plan=guard._create_operands[1]['selection_plan'], volume=guard.volume, image_observations=guard.images,
+                    profile_control='initialized-pinned-cli-postgres', guarded_owner=True)
+    fixture_hash = dev.digest(dev.read(work / 'fixture.json'))
+    wrappers = {name: dev.digest(dev.read(work / 'bin' / name)) for name in ['docker', 'podman']}
+    guard.bind_second_fixture(work, work_fd, source_snapshot(), fixture_hash, wrappers)
+    env['PATH'] = str(work / 'bin')
+    env['DOCKER_HOST'] = 'unix://' + str(work / 'no-daemon.sock')
+    guarded_fixture_command(command, work, env, guard)
+
+
 def install_fixture(work, target, run_id, network, executable=None, guard_parent=True, *, selection_plan, volume=None, image_observations=None, profile_control='positive', guarded_owner=False):
     fresh = profile_control.startswith('fresh-')
+    initialized = profile_control == 'initialized-pinned-cli-postgres'
     if fresh and volume is not None:
         fail('fresh_volume_required')
     volume = volume_descriptor(fixture_volume(target, run_id) if volume is None else volume, target, run_id)
@@ -961,10 +1014,11 @@ def install_fixture(work, target, run_id, network, executable=None, guard_parent
                'database_port': target['ports']['database'], 'network': network,
                'images': references, 'postgres_image': references[0], 'selection_plan': selection_plan,
                'image_observations': image_observations,
-               'execute': profile_control in ('fresh-pinned-cli-postgres', 'fresh-pinned-cli-postgres-persistence'),
-               'lifecycle': fresh or profile_control == 'lifecycle-positive' or profile_control.startswith('invalid-lifecycle-')}
+               'initialized': initialized,
+               'execute': profile_control in ('fresh-pinned-cli-postgres', 'fresh-pinned-cli-postgres-persistence', 'fresh-pinned-cli-postgres-initialized', 'initialized-pinned-cli-postgres'),
+               'lifecycle': fresh or initialized or profile_control == 'lifecycle-positive' or profile_control.startswith('invalid-lifecycle-')}
     if guarded_owner:
-        if not fresh:
+        if not fresh and not initialized:
             fail('fresh_volume_required')
         fixture['guarded_owner'] = True
     write_private(work / 'fixture.json', images.canonical(fixture).encode())
@@ -986,7 +1040,7 @@ def synthetic_probe(executable, target, run_id, network=None, control='positive'
     if control not in ['positive', 'invalid-network', 'contaminated-workdir', 'reject-command', 'invalid-selection-plan',
                        'invalid-create-script', 'invalid-create-environment', 'invalid-create-routing', 'invalid-create-request',
                        'lifecycle-positive', 'invalid-lifecycle-target', 'invalid-lifecycle-archive', 'invalid-lifecycle-order',
-                       'fresh-pinned-cli-postgres', 'fresh-pinned-cli-postgres-persistence', 'fresh-lifecycle-positive', 'fresh-existing', 'fresh-racing', 'fresh-invalid-lifecycle-target',
+                       'fresh-pinned-cli-postgres', 'fresh-pinned-cli-postgres-persistence', 'fresh-pinned-cli-postgres-initialized', 'fresh-lifecycle-positive', 'fresh-existing', 'fresh-racing', 'fresh-invalid-lifecycle-target',
                        'fresh-invalid-lifecycle-archive', 'fresh-invalid-lifecycle-order']:
         fail('unknown_control')
     if control == 'invalid-selection-plan':
@@ -996,7 +1050,7 @@ def synthetic_probe(executable, target, run_id, network=None, control='positive'
     validate_image_observations(image_observations, selection_plan)
     network = fixture_network(target, run_id) if network is None else network
     before_sources = source_snapshot()
-    with tempfile.TemporaryDirectory(prefix='env-startup-') as temporary, work_anchor(Path(temporary)) as work_fd, ExitStack() as retained:
+    with tempfile.TemporaryDirectory(prefix='env-startup-') as temporary, work_anchor(Path(temporary)) as work_fd, ExitStack() as second_retained, ExitStack() as retained:
         work = Path(temporary)
         initialize_workdir(work, target, run_id)
         if control == 'invalid-network':
@@ -1016,10 +1070,13 @@ def synthetic_probe(executable, target, run_id, network=None, control='positive'
                 fail('invalid_owner_handoff')
             network = guard.network
             command, env = guard.command
-            if control in ('fresh-pinned-cli-postgres', 'fresh-pinned-cli-postgres-persistence'):
+            if control in ('fresh-pinned-cli-postgres', 'fresh-pinned-cli-postgres-persistence', 'fresh-pinned-cli-postgres-initialized'):
                 guard.enable_execution()
-                if control.endswith('-persistence'):
+                if control.endswith(('-persistence', '-initialized')):
                     guard.enable_persistence()
+                if control.endswith('-initialized'):
+                    guard.enable_initialized_cli()
+                    guard._secondary_retained = second_retained
         else:
             command, env = invocation(executable, work, target, run_id, network)
         install_fixture(work, target, run_id, network, executable, guard_parent=control != 'reject-command', selection_plan=selection_plan, volume=volume, image_observations=image_observations, profile_control=control, guarded_owner=guard is not None)
@@ -1059,12 +1116,13 @@ def synthetic_probe(executable, target, run_id, network=None, control='positive'
         if guard is not None and guard.execution:
             if guard.phase != 7 or not guard.cleaned or (guard.persistence and not guard.persistence_verified):
                 fail('execution_cleanup_unresolved')
-            return {'ok': True, 'stage': 'pinned_cli_postgres_persistence' if guard.persistence else 'pinned_cli_postgres', 'code': 'qualified',
+            return {'ok': True, 'stage': 'pinned_cli_postgres_initialized' if guard.initialized_cli else ('pinned_cli_postgres_persistence' if guard.persistence else 'pinned_cli_postgres'), 'code': 'qualified',
                     'runtime_ready': False, 'container_executed': True, 'healthy_verified': True,
                     'shutdown_verified': True, 'forced_shutdown': False, 'cleanup_verified': True,
                     'named_volume_verified': True,
-                    **({'cli_first_start_only': True, 'owner_start_count': 2}
-                       if guard.persistence else {'first_start_only': True}),
+                    **({'cli_start_count': 2, 'cli_start_boundaries': ['fresh', 'initialized'], 'initialized_cli_recreation_verified': True}
+                       if guard.initialized_cli else ({'cli_first_start_only': True, 'owner_start_count': 2}
+                       if guard.persistence else {'first_start_only': True})),
                     **({'owner_recreation_verified': True, 'distinct_container_verified': True,
                         'persisted_run_marker_verified': True, 'same_cluster_verified': True,
                         'initialization_markers_verified': True, 'both_shutdowns_verified': True}
@@ -1087,7 +1145,7 @@ def synthetic_probe(executable, target, run_id, network=None, control='positive'
             if not events or events[-1] != rejection:
                 fail('boundary_not_proven')
             validate_observations(events[:-1] + [{'kind': 'postgres_create', 'facts': expected_facts}],
-                                  expected_facts, list(image_observations[selection_plan[tag]] for tag in fixture['images']), fresh=fixture.get('fresh', False))
+                                  expected_facts, list(image_observations[selection_plan[tag]] for tag in fixture['images']), fresh=fixture.get('fresh', False), initialized=fixture.get('initialized', False))
             fail('expected_create_profile_rejected')
         if control in ['fresh-existing', 'fresh-racing']:
             command = ['volume', 'inspect', 'supabase_db_' + fixture['project']] if control == 'fresh-existing' else [
@@ -1110,14 +1168,14 @@ def synthetic_probe(executable, target, run_id, network=None, control='positive'
                         or events[CREATE_BOUNDARY:] != [lifecycle_control_event(control), expected_rejection]):
                     fail('boundary_not_proven')
                 validate_observations(events[:CREATE_BOUNDARY], expected_facts,
-                                      list(image_observations[selection_plan[tag]] for tag in fixture['images']), fresh=fixture.get('fresh', False))
+                                      list(image_observations[selection_plan[tag]] for tag in fixture['images']), fresh=fixture.get('fresh', False), initialized=fixture.get('initialized', False))
                 fail('expected_lifecycle_rejected')
             if len(events) != CREATE_BOUNDARY + 2 or events[CREATE_BOUNDARY:] != [lifecycle.transfer_event(), {'kind': 'postgres_start_refused'}]:
                 fail('boundary_not_proven')
             validate_observations(events[:CREATE_BOUNDARY], expected_facts,
-                                  list(image_observations[selection_plan[tag]] for tag in fixture['images']), fresh=fixture.get('fresh', False))
+                                  list(image_observations[selection_plan[tag]] for tag in fixture['images']), fresh=fixture.get('fresh', False), initialized=fixture.get('initialized', False))
         else:
-            validate_observations(events, expected_facts, list(image_observations[selection_plan[tag]] for tag in fixture['images']), fresh=fixture.get('fresh', False))
+            validate_observations(events, expected_facts, list(image_observations[selection_plan[tag]] for tag in fixture['images']), fresh=fixture.get('fresh', False), initialized=fixture.get('initialized', False))
         return {'ok': True, 'stage': 'startup_invocation', 'code': 'synthetic_boundary_proven',
                 'runtime_ready': False, 'synthetic_network': True, 'container_executed': False,
                 'synthetic_create_acknowledged': fixture.get('lifecycle', False),
@@ -1137,7 +1195,7 @@ def synthetic_probe(executable, target, run_id, network=None, control='positive'
                            'runtime_isolation': False, 'startup_helpers': False, 'shell_command_sql_qualified': False}}
 
 
-def validate_observations(events, facts, descriptors=None, *, fresh=False):
+def validate_observations(events, facts, descriptors=None, *, fresh=False, initialized=False):
     # Image preflight is concurrent: each of the four selected images appears once.
     if (type(events) is not list or len(events) != CREATE_BOUNDARY or any(type(event) is not dict for event in events)
             or any(type(event.get('image_index')) is not int for event in events[1:5])
@@ -1147,7 +1205,7 @@ def validate_observations(events, facts, descriptors=None, *, fresh=False):
                                 **({'descriptor': descriptors[event['image_index']]} if descriptors is not None else {}))
                    for event in events[1:5])
             or events[5:] != [{'kind': 'volume_missing' if fresh else 'volume_inspect'}, {'kind': 'network_inspect'},
-                              {'kind': 'fresh_volume_create_acknowledged' if fresh else 'existing_volume_create_refused'}, {'kind': 'postgres_create', 'facts': facts}]):
+                              {'kind': 'fresh_volume_create_acknowledged' if fresh else ('initialized_volume_ensure_acknowledged' if initialized else 'existing_volume_create_refused')}, {'kind': 'postgres_create', 'facts': facts}]):
         fail('boundary_not_proven')
 
 
@@ -1169,7 +1227,7 @@ def qualify(args):
     evidence = existing_images(args)
     receipt_hash, selection_plan, _, config_plan = evidence
     observations = getattr(args, '_image_observations', None)
-    if getattr(args, 'control', None) in ('pinned-cli-postgres', 'pinned-cli-postgres-persistence'):
+    if getattr(args, 'control', None) in ('pinned-cli-postgres', 'pinned-cli-postgres-persistence', 'pinned-cli-postgres-initialized'):
         observations = {reference: {'Id': config, 'Os': 'linux', 'Architecture': 'amd64'} for reference, config in config_plan.items()}
         args._profile_control = 'fresh-' + args.control
         args._guarded_target = (args.target, '/var/run/docker.sock')
