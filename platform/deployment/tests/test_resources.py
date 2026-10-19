@@ -1538,7 +1538,11 @@ class ExecutionSupervisor(unittest.TestCase):
         import startup
         from test_startup_lifecycle import Lifecycle
         from test_pinned_execution import OwnerDaemon, PersistenceDaemon, AuthJobDaemon, AuthCatalogDaemon
-        from contextlib import nullcontext
+        from contextlib import nullcontext, redirect_stdout, ExitStack
+        import io
+        import os
+        import shutil
+        import qualify_startup
         import socketserver
         import threading
         import copy
@@ -1547,7 +1551,8 @@ class ExecutionSupervisor(unittest.TestCase):
         # protocol peer; the production DockerSession owns all framing/closure.
         initialized = scenario.startswith('initialized-')
         poststart = scenario.startswith('auth-')
-        api_privileges = scenario.startswith('auth-api-')
+        tail = scenario.startswith('auth-tail-')
+        api_privileges = scenario.startswith('auth-api-') or tail
         backend = scenario.startswith('auth-backend-') or api_privileges
         catalog = scenario.startswith('auth-catalog-') or backend
         migration = scenario.startswith('auth-migration-') or catalog
@@ -1800,6 +1805,24 @@ class ExecutionSupervisor(unittest.TestCase):
                 self.assertEqual(replay.exception.code, 'invalid_owner_handoff')
                 self.assertEqual(len(engine.events), before)
 
+        tail_action = resources.FreshGuard.complete_post_auth_setup_tail
+        def tail_at_owner_boundary(guard):
+            branch = fixture_workdirs[-1] / 'supabase/.branches'
+            if scenario == 'auth-tail-preexisting': branch.mkdir(mode=0o700)
+            sync = resources.os.fsync
+            def artifact_sync(fd):
+                sync(fd)
+                if scenario == 'auth-tail-expiry': clock_shift[0] = 121
+                elif scenario == 'auth-tail-interrupt': raise KeyboardInterrupt('owner artifact interrupted')
+            with patch.object(resources.os, 'fsync', side_effect=artifact_sync):
+                result = tail_action(guard)
+            if scenario == 'auth-tail-replaced':
+                marker = branch / '_current_branch'
+                marker.rename(fixture_workdirs[-1] / 'tmp/replaced')
+                marker.write_bytes(b'main')
+                marker.chmod(0o644)
+            return result
+
         def backend_at_cli_boundary(guard, mode, process=None):
             current_pids = json.loads((fixture_workdirs[-1] / 'tmp/processes.json').read_text())
             if mode == 'present':
@@ -1877,6 +1900,11 @@ class ExecutionSupervisor(unittest.TestCase):
                     raise KeyboardInterrupt()
             return state
         def record_cleanup(guard, *args, **kwargs):
+            if scenario == 'auth-tail-positive':
+                marker = fixture_workdirs[-1] / 'supabase/.branches/_current_branch'
+                self.assertEqual(marker.read_bytes(), b'main')
+                self.assertEqual(marker.stat().st_mode & 0o777, 0o644)
+                self.assertFalse(guard.owner_post_auth_setup_tail_verified)
             entry = {'at': time.monotonic(), 'closed': guard.session.closed, 'execution_deadline': guard.deadline}
             calls.append(entry)
             try:
@@ -1935,40 +1963,103 @@ else: sys.exit(125)
                     "extra = subprocess.Popen([sys.executable, '-c', 'import time; time.sleep(60)'], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)")
             executable.write_text('#!'+sys.executable+'\n'+process_source)
             executable.chmod(0o700)
+            verified_tools = nullcontext()
+            public_session = nullcontext()
+            if scenario == 'auth-tail-positive':
+                owner = self.owner.owner
+                selected = owner.payload / 'supabase/supabase'
+                selected.parent.mkdir(mode=0o700)
+                shutil.copyfile(executable, selected)
+                selected.chmod(0o700)
+                owner.tool_receipt.write_bytes(json.dumps({'toolchain_ready': True,
+                    'payload': startup.toolchain.payload_fingerprint(owner.payload)}, sort_keys=True).encode())
+                verified_tools = patch.object(startup.images, 'existing_tools',
+                    return_value=(owner.payload, dev.digest(owner.tool_receipt.read_bytes())))
+                # These are this test's disposable verified-fixture receipts.
+                shutil.rmtree(owner.run)
+                with verified_tools:
+                    owner.qualify()
+                real_session = dev.DockerSession
+                def private_peer(**kwargs):
+                    self.assertEqual(kwargs['_socket_path'], '/var/run/docker.sock')
+                    return real_session(**dict(kwargs, _socket_path=path))
+                public_session = patch.object(dev, 'DockerSession', side_effect=private_peer)
             with socketserver.UnixStreamServer(path, Handler) as server:
                 thread = threading.Thread(target=server.serve_forever, kwargs={'poll_interval': .01}, daemon=True)
                 thread.start()
                 try:
-                    with patch.object(startup, 'guarded_fixture_command', side_effect=observe), \
-                            patch.object(resources.FreshGuard, 'cleanup_execution', new=record_cleanup), \
-                            patch.object(resources.FreshGuard, 'container_create', new=create_with_fault), \
-                            patch.object(resources.FreshGuard, 'poststart_health', new=health_with_fault), \
-                            patch.object(resources.FreshGuard, 'execute_auth_job', new=execute_after_cli_exit), \
-                            patch.object(resources.FreshGuard, 'auth_catalog_sql', new=catalog_after_cli_exit), \
-                            patch.object(resources.FreshGuard, 'api_default_privileges_sql', new=api_after_auth_and_cli_exit, create=True), \
-                            patch.object(resources.FreshGuard, 'cli_db_backend_sql', new=backend_at_cli_boundary, create=True), \
-                            patch.object(resources.FreshGuard, 'auth_job_owned', new=inspect_job_with_fault), \
-                            patch.object(startup, 'initialize_workdir', side_effect=initialize_secondary), \
-                            patch.object(startup, 'install_fixture', side_effect=install_secondary), \
-                            patch.object(startup.os, 'killpg', side_effect=signal_group), \
-                            patch.object(time, 'monotonic', side_effect=lambda: real_monotonic() + clock_shift[0]), \
-                            patch.object(dev, 'free_ports'):
+                    with ExitStack() as patches:
+                        for context in (
+                            verified_tools, public_session, patch.object(startup, 'guarded_fixture_command', side_effect=observe),
+                            patch.object(resources.FreshGuard, 'cleanup_execution', new=record_cleanup),
+                            patch.object(resources.FreshGuard, 'container_create', new=create_with_fault),
+                            patch.object(resources.FreshGuard, 'poststart_health', new=health_with_fault),
+                            patch.object(resources.FreshGuard, 'execute_auth_job', new=execute_after_cli_exit),
+                            patch.object(resources.FreshGuard, 'auth_catalog_sql', new=catalog_after_cli_exit),
+                            patch.object(resources.FreshGuard, 'api_default_privileges_sql', new=api_after_auth_and_cli_exit, create=True),
+                            patch.object(resources.FreshGuard, 'cli_db_backend_sql', new=backend_at_cli_boundary, create=True),
+                            patch.object(resources.FreshGuard, 'complete_post_auth_setup_tail', new=tail_at_owner_boundary),
+                            patch.object(resources.FreshGuard, 'auth_job_owned', new=inspect_job_with_fault),
+                            patch.object(startup, 'initialize_workdir', side_effect=initialize_secondary),
+                            patch.object(startup, 'install_fixture', side_effect=install_secondary),
+                            patch.object(startup.os, 'killpg', side_effect=signal_group),
+                            patch.object(time, 'monotonic', side_effect=lambda: real_monotonic() + clock_shift[0]),
+                            patch.object(dev, 'free_ports')
+                        ):
+                            patches.enter_context(context)
                         result = None
-                        with (nullcontext() if scenario in ('persistence-positive', 'initialized-positive', 'auth-positive', 'auth-polling', 'auth-migration-positive', 'auth-catalog-positive', 'auth-backend-positive', 'auth-api-positive') else self.assertRaises(KeyboardInterrupt if scenario in ('initialized-interrupt', 'auth-interrupt', 'auth-migration-interrupt') else dev.Refusal)) as caught:
-                            result = startup.synthetic_probe(executable, self.owner.owner.target, self.owner.owner.args.run_id,
-                                    control='fresh-pinned-cli-postgres-api-default-privileges' if api_privileges else 'fresh-pinned-cli-postgres-cli-db-backend' if backend else ('fresh-pinned-cli-postgres-auth-catalog' if catalog else ('fresh-pinned-cli-postgres-auth-migration' if migration else ('fresh-pinned-cli-postgres-auth-boundary' if poststart else ('fresh-pinned-cli-postgres-initialized' if initialized else ('fresh-pinned-cli-postgres-persistence' if persistence else 'fresh-pinned-cli-postgres'))))),
-                                    selection_plan=startup.existing_images(self.owner.owner.args)[1],
-                                    image_observations=self.owner.expected,
-                                    _guarded_target=(self.owner.owner.args.target, path))
+                        with (nullcontext() if scenario in ('persistence-positive', 'initialized-positive', 'auth-positive', 'auth-polling', 'auth-migration-positive', 'auth-catalog-positive', 'auth-backend-positive', 'auth-api-positive', 'auth-tail-positive') else self.assertRaises(KeyboardInterrupt if scenario in ('initialized-interrupt', 'auth-interrupt', 'auth-migration-interrupt') else dev.Refusal)) as caught:
+                            if scenario == 'auth-tail-positive':
+                                output = io.StringIO()
+                                with redirect_stdout(output):
+                                    status = qualify_startup.main(['--target', self.owner.owner.args.target,
+                                        '--run-id', self.owner.owner.args.run_id,
+                                        '--control', 'pinned-cli-postgres-post-auth-setup-tail'])
+                                self.assertEqual(status, 0, output.getvalue())
+                                result = json.loads(output.getvalue())
+                            else:
+                                result = startup.synthetic_probe(executable, self.owner.owner.target, self.owner.owner.args.run_id,
+                                        control='fresh-pinned-cli-postgres-post-auth-setup-tail' if tail else 'fresh-pinned-cli-postgres-api-default-privileges' if api_privileges else 'fresh-pinned-cli-postgres-cli-db-backend' if backend else ('fresh-pinned-cli-postgres-auth-catalog' if catalog else ('fresh-pinned-cli-postgres-auth-migration' if migration else ('fresh-pinned-cli-postgres-auth-boundary' if poststart else ('fresh-pinned-cli-postgres-initialized' if initialized else ('fresh-pinned-cli-postgres-persistence' if persistence else 'fresh-pinned-cli-postgres'))))),
+                                        selection_plan=startup.existing_images(self.owner.owner.args)[1],
+                                        image_observations=self.owner.expected,
+                                        _guarded_target=(self.owner.owner.args.target, path))
                 finally:
                     server.shutdown()
                     thread.join(timeout=1)
 
         if result is not None and not api_privileges:
             self.assertNotIn('api_default_privileges_verified', result)
+        if tail and scenario != 'auth-tail-positive':
+            guard = guards[0]
+            self.assertIsNone(result)
+            self.assert_stopped(pids)
+            self.assertTrue(guard.api_default_privileges_verified)
+            self.assertTrue(guard.post_auth_setup_tail_attempted)
+            self.assertFalse(guard.owner_post_auth_setup_tail_verified or guard.cleaned)
+            self.assertIsNotNone(engine.row)
+            self.assertEqual(engine.catalog_modes, ['post', 'post', 'pre', 'post', 'apply', 'verify'])
+            self.assertEqual(caught.exception.code, 'execution_cleanup_unresolved')
+            if scenario in ('auth-tail-expiry', 'auth-tail-interrupt'):
+                self.assertTrue(guard.auth_cli_terminated and guard.ownership_lost)
+                self.assertEqual(len(group_signals), 1)
+                self.assertEqual(backend_phases, ['present', 'departed'])
+                self.assertEqual(api_deadlines, execution_deadlines)
+                self.assertEqual(calls[0]['execution_deadline'], execution_deadlines[0])
+                chain = []
+                error = caught.exception
+                while error is not None:
+                    chain.append(error)
+                    error = error.__context__
+                if scenario == 'auth-tail-interrupt': self.assertTrue(any(isinstance(error, KeyboardInterrupt) for error in chain))
+                else: self.assertTrue(any(getattr(error, 'code', None) == 'docker_timeout' for error in chain))
+            self.assertFalse(any(method == 'DELETE' and 'a'*64 in path for method, path, _ in engine.events))
+            before = len(engine.events)
+            with self.assertRaises(dev.Refusal): tail_action(guard)
+            self.assertEqual(len(engine.events), before)
+            return
         if api_privileges:
             guard = guards[0]
-            positive = scenario == 'auth-api-positive'
+            positive = scenario in ('auth-api-positive', 'auth-tail-positive')
             self.assert_stopped(pids)
             self.assertEqual((len(pids), len(group_signals), len(connections), len(calls)), (2, 1, 1, 1))
             self.assertEqual(backend_phases, ['present', 'departed'])
@@ -2007,7 +2098,9 @@ else: sys.exit(125)
                                      'execution_invalid_health' if scenario.endswith('-custody') else 'execution_sql_failed')
                     self.assertEqual(caught.exception.code, expected_code)
             if positive:
-                self.assertEqual(result['stage'], 'pinned_cli_postgres_api_default_privileges')
+                self.assertEqual(result['stage'], 'pinned_cli_postgres_post_auth_setup_tail' if tail else 'pinned_cli_postgres_api_default_privileges')
+                if tail:
+                    self.assertTrue(result['owner_post_auth_setup_tail_verified'])
                 self.assertTrue(result['api_default_privileges_verified'])
                 for key in ['cli_db_backend_present_verified', 'cli_db_backend_departure_verified',
                             'auth_catalog_precondition_verified', 'auth_catalog_verified',
@@ -2501,5 +2594,18 @@ else: sys.exit(125)
 
     def test_api_default_privileges_process_lost_response_deadline_and_custody_block_success(self):
         for scenario in ('auth-api-apply-lost', 'auth-api-apply-deadline', 'auth-api-verify-custody'):
+            with self.subTest(scenario=scenario):
+                self.run_execution_case(scenario)
+
+    def test_post_auth_setup_tail_process_exact_artifact_and_cleanup(self):
+        self.run_execution_case('auth-tail-positive')
+
+    def test_post_auth_setup_tail_process_preexisting_or_replaced_artifact_preserves_uncertain_resources(self):
+        for scenario in ('auth-tail-preexisting', 'auth-tail-replaced'):
+            with self.subTest(scenario=scenario):
+                self.run_execution_case(scenario)
+
+    def test_post_auth_setup_tail_process_expiry_and_interruption_during_artifact_creation(self):
+        for scenario in ('auth-tail-expiry', 'auth-tail-interrupt'):
             with self.subTest(scenario=scenario):
                 self.run_execution_case(scenario)

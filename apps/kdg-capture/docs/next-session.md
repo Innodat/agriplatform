@@ -1,6 +1,20 @@
 # Resume shared ENV delivery after KDG planning PASS
 
-Latest completed ENV increment: safe owner-check timeout observations through the
+Latest completed ENV increment: owner-completed post-Auth setup tail and private
+current-branch custody, after verified API default privileges. See
+[Build record](../../../_bmad-output/implementation-artifacts/spec-env-post-auth-setup-tail.md)
+and [evidence](../../../platform/deployment/ENV_POST_AUTH_SETUP_TAIL_EVIDENCE.md).
+Final282 selected tests pass, including public qualifier routing and process
+expiry/interruption. Three review layers and identity/path corrections complete;
+two unverified operational investigations are deferred with original evidence.
+No additional SQL or resumed CLI execution is admitted. Both runtime_ready and
+fresh_setup_completed remain false; no actual Docker/full-suite proof is claimed.
+All17 concurrent files/index,39 historical prerequisite files and uncertain Docker
+resources remain preserved. Next: remaining ENV setup/lifecycle and consuming
+scaffold proof, with fresh source-bound prerequisites before actual qualification.
+Identity/Access/WRITE and server-backed KDG remain gated.
+
+Previous completed ENV increment: safe owner-check timeout observations through the
 existing error/resource owners. See
 [Build record](../../../_bmad-output/implementation-artifacts/spec-env-owner-timeout-diagnostics.md)
 and [evidence](../../../platform/deployment/ENV_OWNER_TIMEOUT_DIAGNOSTICS_EVIDENCE.md).

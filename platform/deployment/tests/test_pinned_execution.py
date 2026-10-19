@@ -3489,3 +3489,389 @@ class ApiDefaultPrivilegesOwner(unittest.TestCase):
                          'preserved grantability lost', 'unrelated schema grant lost'):
             self.assertIn(required, query)
         self.assertEqual(query.count("EXCEPTION WHEN SQLSTATE 'P0001'"), 5)
+
+
+class PostAuthSetupTailOwner(unittest.TestCase):
+    """Real private filesystem plus existing independent owner/SQL daemon."""
+    def prepared(self):
+        import os
+        import tempfile
+        import startup
+        d = ApiDefaultPrivilegesOwner().prepared()
+        d.guard.api_default_privileges_sql()
+        d.guard.post_auth_setup_tail = True
+        temporary = tempfile.TemporaryDirectory(prefix='env-owner-tail-')
+        self.addCleanup(temporary.cleanup)
+        work = Path(temporary.name)
+        startup.initialize_workdir(work, d.target, d.fixture['run_id'])
+        (work / 'fixture.json').write_bytes(b'{}')
+        (work / 'events.json').write_bytes(b'[]')
+        for name in ('docker', 'podman'):
+            (work / 'bin' / name).write_bytes(b'fixture')
+            (work / 'bin' / name).chmod(0o700)
+        root = os.open(work, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW)
+        self.addCleanup(os.close, root)
+        d.guard._fixture = (work, root, startup.source_snapshot(), dev.digest(b'{}'),
+                            {name: dev.digest(b'fixture') for name in ('docker', 'podman')})
+        return d, work
+
+    def test_selected_tail_exact_bytes_no_sql_and_fact_only_after_cleanup(self):
+        import startup
+        d, work = self.prepared()
+        deadline = d.guard.deadline
+        modes = list(d.catalog_modes)
+        d.guard.complete_post_auth_setup_tail()
+        marker = work / 'supabase/.branches/_current_branch'
+        self.assertEqual(marker.read_bytes(), b'main')
+        self.assertEqual(marker.stat().st_mode & 0o777, 0o644)
+        self.assertEqual(marker.parent.stat().st_mode & 0o777, 0o700)
+        self.assertEqual(d.guard.deadline, deadline)
+        self.assertEqual(d.catalog_modes, modes)
+        self.assertFalse(d.guard.owner_post_auth_setup_tail_verified)
+        with self.assertRaises(dev.Refusal): startup.check_workdir(work, d.target, d.fixture['run_id'], after=True, fixture=True)
+        with self.assertRaises(dev.Refusal): d.guard.complete_post_auth_setup_tail()
+        with patch.object(dev, 'free_ports'): d.guard.finish_execution()
+        self.assertTrue(d.guard.cleaned and d.guard.owner_post_auth_setup_tail_verified)
+        with self.assertRaises(dev.Refusal): d.guard.finish_execution()
+
+    def test_missing_prerequisites_phase_and_terminal_finish_never_mutate(self):
+        for flag in ('post_auth_setup_tail', 'api_default_privileges', 'api_default_privileges_verified',
+                     'auth_cli_terminated', 'cli_db_backend', 'auth_catalog', 'cli_db_backend_present_verified', 'cli_db_backend_departure_verified',
+                     'auth_catalog_precondition_verified', 'auth_catalog_verified', 'api_default_privileges_request_refused',
+                     'auth_job_exit_verified', 'auth_job_disposed', '_fixture', 'phase', '_finish_attempted'):
+            with self.subTest(flag=flag):
+                d, work = self.prepared()
+                original = getattr(d.guard, flag, False)
+                setattr(d.guard, flag, True if flag == '_finish_attempted' else None if flag == '_fixture' else False)
+                with self.assertRaises(dev.Refusal): d.guard.complete_post_auth_setup_tail()
+                if flag != '_finish_attempted': setattr(d.guard, flag, original)
+                with self.assertRaises(dev.Refusal): d.guard.complete_post_auth_setup_tail()
+                self.assertFalse((work / 'supabase/.branches').exists())
+                self.assertFalse(d.guard.owner_post_auth_setup_tail_verified)
+
+    def test_preexisting_config_roles_and_branch_contamination_not_adopted(self):
+        for fault in ('config', 'roles', 'branch', 'branch-symlink'):
+            with self.subTest(fault=fault):
+                d, work = self.prepared()
+                if fault == 'config': (work / 'supabase/config.toml').write_bytes(b'changed')
+                elif fault == 'roles': (work / 'supabase/roles.sql').write_bytes(b'')
+                elif fault == 'branch': (work / 'supabase/.branches').mkdir(mode=0o700)
+                else: (work / 'supabase/.branches').symlink_to(work / 'tmp', target_is_directory=True)
+                with self.assertRaises(dev.Refusal): d.guard.complete_post_auth_setup_tail()
+                self.assertTrue(d.guard.post_auth_setup_tail_attempted)
+                with self.assertRaises(dev.Refusal): d.guard.complete_post_auth_setup_tail()
+                self.assertFalse(d.guard.owner_post_auth_setup_tail_verified)
+
+    def test_changed_replaced_unsafe_or_extra_artifacts_block_custody_and_cleanup(self):
+        import os
+        for fault in ('bytes', 'file-replace', 'directory-replace', 'parent-replace', 'file-mode',
+                      'directory-mode', 'extra', 'symlink', 'hardlink', 'config', 'roles'):
+            with self.subTest(fault=fault):
+                d, work = self.prepared()
+                d.guard.complete_post_auth_setup_tail()
+                branch = work / 'supabase/.branches'
+                marker = branch / '_current_branch'
+                if fault == 'bytes': marker.write_bytes(b'main\n')
+                elif fault == 'file-replace':
+                    marker.rename(work / 'tmp/old'); marker.write_bytes(b'main'); marker.chmod(0o644)
+                elif fault == 'directory-replace':
+                    branch.rename(work / 'tmp/old'); branch.mkdir(mode=0o700)
+                    marker.write_bytes(b'main'); marker.chmod(0o644)
+                elif fault == 'parent-replace':
+                    (work / 'supabase').rename(work / 'tmp/old')
+                    (work / 'supabase').mkdir(mode=0o700)
+                    (work / 'supabase/config.toml').write_bytes(dev.configuration(d.target, d.fixture['run_id']))
+                    (work / 'supabase/config.toml').chmod(0o600)
+                    (work / 'tmp/old/.branches').rename(branch)
+                elif fault == 'file-mode': marker.chmod(0o600)
+                elif fault == 'directory-mode': branch.chmod(0o755)
+                elif fault == 'extra': (branch / 'extra').write_bytes(b'')
+                elif fault == 'symlink':
+                    marker.rename(work / 'tmp/old'); marker.symlink_to(work / 'tmp/old')
+                elif fault == 'hardlink': os.link(marker, work / 'tmp/link')
+                elif fault == 'config': (work / 'supabase/config.toml').write_bytes(b'changed')
+                else: (work / 'supabase/roles.sql').write_bytes(b'')
+                with self.assertRaises((dev.Refusal, OSError)): d.guard.current()
+                before = len(d.events)
+                with self.assertRaises(dev.Refusal): d.guard.cleanup_execution()
+                self.assertEqual(len(d.events), before)
+                self.assertFalse(d.guard.owner_post_auth_setup_tail_verified)
+
+    def test_deadline_and_interrupted_write_consume_attempt_without_retry(self):
+        import os
+        for fault in ('expired', 'write-interrupt', 'late-write'):
+            with self.subTest(fault=fault):
+                d, work = self.prepared()
+                original = os.fsync
+                def fsync(fd):
+                    if fault == 'write-interrupt': raise KeyboardInterrupt()
+                    original(fd)
+                    d.deadline = d.guard.deadline = 0
+                if fault == 'expired': d.deadline = d.guard.deadline = 0
+                with patch.object(os, 'fsync', side_effect=fsync):
+                    with self.assertRaises((dev.Refusal, KeyboardInterrupt)): d.guard.complete_post_auth_setup_tail()
+                self.assertTrue(d.guard.post_auth_setup_tail_attempted)
+                self.assertFalse(d.guard.owner_post_auth_setup_tail_verified)
+                before = len(d.events)
+                with self.assertRaises(dev.Refusal): d.guard.complete_post_auth_setup_tail()
+                with self.assertRaises(dev.Refusal): d.guard.finish_execution()
+                self.assertEqual(len(d.events), before)
+                if fault == 'expired': self.assertFalse((work / 'supabase/.branches').exists())
+                else: self.assertTrue(d.guard.ownership_lost)
+
+    def test_missing_tail_completion_blocks_terminal_finish_and_replay(self):
+        d, work = self.prepared()
+        before = len(d.events)
+        with self.assertRaises(dev.Refusal): d.guard.finish_execution()
+        with self.assertRaises(dev.Refusal): d.guard.complete_post_auth_setup_tail()
+        self.assertEqual(len(d.events), before)
+        self.assertFalse((work / 'supabase/.branches').exists())
+
+    def test_final_cleanup_observation_cannot_publish_changed_artifact(self):
+        d, work = self.prepared()
+        d.guard.complete_post_auth_setup_tail()
+        exchange = d.exchange
+        def changed(method, path, body=None):
+            result = exchange(method, path, body)
+            if method == 'GET' and path == '/v1.48/networks/' + 'b'*64 and result[0] == 404:
+                (work / 'supabase/.branches/_current_branch').write_bytes(b'evil')
+            return result
+        d.exchange = changed
+        with patch.object(dev, 'free_ports'):
+            with self.assertRaises(dev.Refusal): d.guard.finish_execution()
+        self.assertTrue(d.guard.cleaned)
+        self.assertFalse(d.guard.owner_post_auth_setup_tail_verified)
+        with self.assertRaises(dev.Refusal): d.guard.finish_execution()
+
+    def test_artifact_owner_mismatch_refuses_custody(self):
+        import os
+        for component in ('.branches', '.branches/_current_branch'):
+            with self.subTest(component=component):
+                d, work = self.prepared()
+                d.guard.complete_post_auth_setup_tail()
+                original = os.fstat
+                inode = (work / 'supabase' / component).stat().st_ino
+                def wrong_owner(fd):
+                    info = original(fd)
+                    if info.st_ino != inode: return info
+                    values = list(info); values[4] = os.getuid() + 1
+                    return os.stat_result(values)
+                with patch.object(os, 'fstat', side_effect=wrong_owner):
+                    with self.assertRaises(dev.Refusal): d.guard.current()
+                self.assertTrue(d.guard.ownership_lost)
+                self.assertFalse(d.guard.owner_post_auth_setup_tail_verified)
+
+    def test_tail_refuses_directory_replacement_at_creation_boundary(self):
+        import os
+        d, work = self.prepared()
+        original = os.mkdir
+        raced = []
+        branch = work / 'supabase/.branches'
+        def replace(name, mode=0o777, *, dir_fd=None):
+            result = original(name, mode, dir_fd=dir_fd)
+            if str(name) == '.branches' or Path(name).name.startswith('.owner-tail-'):
+                if branch.exists(): branch.rename(work / 'tmp/displaced-branch')
+                original(branch, 0o700)
+                raced.append(branch.stat().st_ino)
+            return result
+        with patch.object(os, 'mkdir', side_effect=replace):
+            with self.assertRaises((dev.Refusal, OSError)): d.guard.complete_post_auth_setup_tail()
+        self.assertEqual(len(raced), 1)
+        self.assertEqual(branch.stat().st_ino, raced[0])
+        self.assertEqual(list(branch.iterdir()), [])
+        self.assertFalse(d.guard.owner_post_auth_setup_tail_verified)
+        with self.assertRaises(dev.Refusal): d.guard.complete_post_auth_setup_tail()
+
+    def test_tail_refuses_parent_replacement_after_final_validation(self):
+        d, work = self.prepared()
+        health, check = d.guard.auth_pg_current, d.guard.check
+        armed = [False]
+        raced = []
+        def observe_health():
+            result = health()
+            armed[0] = True
+            return result
+        def replace_after_check():
+            result = check()
+            if armed[0] and not raced:
+                parent = work / 'supabase'
+                parent.rename(work / 'tmp/displaced-parent')
+                parent.mkdir(mode=0o700)
+                config = parent / 'config.toml'
+                config.write_bytes(dev.configuration(d.target, d.fixture['run_id']))
+                config.chmod(0o600)
+                raced.append(parent.stat().st_ino)
+            return result
+        with patch.object(d.guard, 'check', side_effect=replace_after_check), \
+                patch.object(d.guard, 'auth_pg_current', side_effect=observe_health):
+            with self.assertRaises(dev.Refusal): d.guard.complete_post_auth_setup_tail()
+        self.assertEqual(len(raced), 1)
+        self.assertFalse((work / 'supabase/.branches').exists())
+        self.assertFalse((work / 'tmp/displaced-parent/.branches').exists())
+        self.assertFalse(d.guard.owner_post_auth_setup_tail_verified)
+        with self.assertRaises(dev.Refusal): d.guard.complete_post_auth_setup_tail()
+
+    def test_tail_publication_refuses_destination_created_at_atomic_publish(self):
+        import ctypes
+        import errno
+        from types import SimpleNamespace
+        for nonempty in (False, True):
+            with self.subTest(nonempty=nonempty):
+                d, work = self.prepared()
+                library = ctypes.CDLL(None, use_errno=True)
+                publish = library.renameat2
+                publish.argtypes = [ctypes.c_int, ctypes.c_char_p, ctypes.c_int, ctypes.c_char_p, ctypes.c_uint]
+                publish.restype = ctypes.c_int
+                branch = work / 'supabase/.branches'
+                rival = []
+                def race(*args):
+                    branch.mkdir(mode=0o700)
+                    if nonempty: (branch / 'unowned').write_bytes(b'preserve')
+                    rival.append(branch.stat().st_ino)
+                    return publish(*args)
+                with patch.object(resources.ctypes, 'CDLL', return_value=SimpleNamespace(renameat2=Mock(side_effect=race))):
+                    with self.assertRaises(OSError) as caught: d.guard.complete_post_auth_setup_tail()
+                self.assertEqual(caught.exception.errno, errno.EEXIST)
+                self.assertEqual(branch.stat().st_ino, rival[0])
+                self.assertEqual([entry.name for entry in branch.iterdir()], ['unowned'] if nonempty else [])
+                if nonempty: self.assertEqual((branch / 'unowned').read_bytes(), b'preserve')
+                self.assertTrue(d.guard.post_auth_setup_tail_attempted and d.guard.ownership_lost)
+                self.assertFalse(d.guard.owner_post_auth_setup_tail_verified)
+                before = len(d.events)
+                with self.assertRaises(dev.Refusal): d.guard.complete_post_auth_setup_tail()
+                with self.assertRaises(dev.Refusal): d.guard.cleanup_execution()
+                self.assertEqual(len(d.events), before)
+
+    def test_tail_oserrors_preserve_original_failure_and_uncertain_cleanup(self):
+        import errno
+        import os
+        for boundary in ('mkdir', 'directory-open', 'open', 'write', 'file-sync', 'directory-sync'):
+            with self.subTest(boundary=boundary):
+                d, work = self.prepared()
+                deadline = d.guard.deadline
+                failure = OSError(errno.EIO, 'injected owner artifact operation')
+                mkdir, open_file, fdopen, sync = os.mkdir, os.open, os.fdopen, os.fsync
+                def fail_mkdir(name, *args, **kwargs):
+                    if Path(name).name.startswith('.owner-tail-'): raise failure
+                    return mkdir(name, *args, **kwargs)
+                def fail_open(name, *args, **kwargs):
+                    if ((boundary == 'open' and name == '_current_branch')
+                            or (boundary == 'directory-open' and Path(name).name.startswith('.owner-tail-'))):
+                        raise failure
+                    return open_file(name, *args, **kwargs)
+                class FailingWrite:
+                    def __init__(self, stream): self.stream = stream
+                    def __enter__(self): self.stream.__enter__(); return self
+                    def __exit__(self, *args): return self.stream.__exit__(*args)
+                    def fileno(self): return self.stream.fileno()
+                    def write(self, raw): raise failure
+                def fail_fdopen(*args, **kwargs):
+                    stream = fdopen(*args, **kwargs)
+                    return FailingWrite(stream) if len(args) > 1 and args[1] == 'wb' else stream
+                calls = []
+                def fail_sync(fd):
+                    calls.append(fd)
+                    if len(calls) == (1 if boundary == 'file-sync' else 2): raise failure
+                    return sync(fd)
+                name, replacement = (('mkdir', fail_mkdir) if boundary == 'mkdir' else
+                                     ('open', fail_open) if boundary in ('open', 'directory-open') else
+                                     ('fdopen', fail_fdopen) if boundary == 'write' else ('fsync', fail_sync))
+                with patch.object(os, name, side_effect=replacement):
+                    with self.assertRaises(OSError) as caught: d.guard.complete_post_auth_setup_tail()
+                self.assertIs(caught.exception, failure)
+                self.assertEqual(d.guard.deadline, deadline)
+                self.assertTrue(d.guard.post_auth_setup_tail_attempted and d.guard.ownership_lost)
+                self.assertFalse(d.guard._tail_completed or d.guard.owner_post_auth_setup_tail_verified)
+                before = len(d.events)
+                with self.assertRaises(dev.Refusal): d.guard.complete_post_auth_setup_tail()
+                with self.assertRaises(dev.Refusal): d.guard.finish_execution()
+                with self.assertRaises(dev.Refusal): d.guard.cleanup_execution()
+                self.assertEqual(len(d.events), before)
+                self.assertIsNotNone(d.row)
+
+    def test_tail_tmp_substitution_after_validation_creates_no_foreign_artifact(self):
+        import tempfile
+        for symlink in (False, True):
+            with self.subTest(symlink=symlink):
+                d, work = self.prepared()
+                foreign = tempfile.TemporaryDirectory(prefix='env-tail-foreign-')
+                self.addCleanup(foreign.cleanup)
+                outside = Path(foreign.name)
+                destination = outside / 'destination'
+                destination.mkdir(mode=0o700)
+                health, check = d.guard.auth_pg_current, d.guard.check
+                armed, raced = [False], []
+                def observe_health():
+                    result = health()
+                    armed[0] = True
+                    return result
+                def replace_after_check():
+                    result = check()
+                    if armed[0] and not raced:
+                        (work / 'tmp').rename(outside / 'retained-tmp')
+                        if symlink: (work / 'tmp').symlink_to(destination, target_is_directory=True)
+                        else: (work / 'tmp').mkdir(mode=0o700)
+                        raced.append(True)
+                    return result
+                with patch.object(d.guard, 'check', side_effect=replace_after_check), \
+                        patch.object(d.guard, 'auth_pg_current', side_effect=observe_health):
+                    with self.assertRaises((dev.Refusal, OSError)): d.guard.complete_post_auth_setup_tail()
+                self.assertEqual(raced, [True])
+                self.assertEqual(list(destination.iterdir()), [])
+                self.assertEqual(list((outside / 'retained-tmp').iterdir()), [])
+                if not symlink: self.assertEqual(list((work / 'tmp').iterdir()), [])
+                self.assertFalse((work / 'supabase/.branches').exists())
+                self.assertTrue(d.guard.post_auth_setup_tail_attempted and d.guard.ownership_lost)
+                self.assertFalse(d.guard._tail_completed or d.guard.owner_post_auth_setup_tail_verified)
+                before = len(d.events)
+                with self.assertRaises(dev.Refusal): d.guard.complete_post_auth_setup_tail()
+                with self.assertRaises(dev.Refusal): d.guard.cleanup_execution()
+                self.assertEqual(len(d.events), before)
+                self.assertIsNotNone(d.row)
+
+    def test_tail_staging_mutation_and_publication_use_retained_tmp_descriptor(self):
+        import ctypes
+        import os
+        import tempfile
+        from types import SimpleNamespace
+        for boundary in ('mkdir', 'publish'):
+            with self.subTest(boundary=boundary):
+                d, work = self.prepared()
+                foreign = tempfile.TemporaryDirectory(prefix='env-tail-foreign-')
+                self.addCleanup(foreign.cleanup)
+                outside = Path(foreign.name)
+                destination = outside / 'destination'
+                destination.mkdir(mode=0o700)
+                raced = []
+                def substitute():
+                    (work / 'tmp').rename(outside / 'retained-tmp')
+                    (work / 'tmp').symlink_to(destination, target_is_directory=True)
+                    raced.append(True)
+                mkdir = os.mkdir
+                def race_mkdir(name, *args, **kwargs):
+                    if Path(name).name.startswith('.owner-tail-'):
+                        self.assertIn('dir_fd', kwargs)
+                        substitute()
+                    return mkdir(name, *args, **kwargs)
+                library = ctypes.CDLL(None, use_errno=True)
+                publish = library.renameat2
+                publish.argtypes = [ctypes.c_int, ctypes.c_char_p, ctypes.c_int, ctypes.c_char_p, ctypes.c_uint]
+                publish.restype = ctypes.c_int
+                def race_publish(source_fd, source, destination_fd, destination_name, flags):
+                    self.assertGreaterEqual(source_fd, 0)
+                    self.assertGreaterEqual(destination_fd, 0)
+                    substitute()
+                    return publish(source_fd, source, destination_fd, destination_name, flags)
+                context = (patch.object(os, 'mkdir', side_effect=race_mkdir) if boundary == 'mkdir' else
+                           patch.object(resources.ctypes, 'CDLL', return_value=SimpleNamespace(renameat2=Mock(side_effect=race_publish))))
+                with context:
+                    with self.assertRaises((dev.Refusal, OSError)): d.guard.complete_post_auth_setup_tail()
+                self.assertEqual(raced, [True])
+                self.assertEqual(list(destination.iterdir()), [])
+                self.assertTrue(d.guard.post_auth_setup_tail_attempted and d.guard.ownership_lost)
+                self.assertFalse(d.guard._tail_completed or d.guard.owner_post_auth_setup_tail_verified)
+                before = len(d.events)
+                with self.assertRaises(dev.Refusal): d.guard.complete_post_auth_setup_tail()
+                with self.assertRaises(dev.Refusal): d.guard.cleanup_execution()
+                self.assertEqual(len(d.events), before)
+                self.assertIsNotNone(d.row)

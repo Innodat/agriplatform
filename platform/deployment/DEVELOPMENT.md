@@ -1337,3 +1337,37 @@ The direct acquisition handoff idle/budget pairs and fresh-session pre-construct
 idle/budget pair remain outside this observation coverage. A timeout there may lack
 owner_failure; absence of metadata does not identify its cause. Follow-up coverage
 is recorded in deferred work.
+
+### Owner post-Auth setup tail
+
+The opt-in `pinned-cli-postgres-post-auth-setup-tail` qualification control extends
+verified API default privileges through the selected empty Vault, absent roles.sql,
+disabled nonexperimental migrations/seeds and private current-branch initialization.
+The existing owner publishes `supabase/.branches/_current_branch`, exactly `main`
+without a newline, with requested file mode0644. It retains artifact identity/content
+custody through normal cleanup. A preexisting marker is not adopted or overwritten;
+ordinary controls still reject this extra workspace artifact.
+
+This is owner execution after the CLI has been terminated. Its separate
+`owner_post_auth_setup_tail_verified` fact is published only after normal cleanup;
+`fresh_setup_completed` and `runtime_ready` remain false. No additional SQL profile,
+repository migration/seed, Vault write, grant repair or CLI continuation is admitted.
+The closed generated configuration and invocation are required; experimental schema
+execution would invalidate the disabled-migration no-op conclusion.
+
+Isolated process acceptance, using the existing private synthetic Docker daemon:
+
+```sh
+PYTHONPATH=platform/deployment/tests python3 -m unittest -v test_resources.ExecutionSupervisor.test_post_auth_setup_tail_process_exact_artifact_and_cleanup
+```
+
+See [tail evidence](ENV_POST_AUTH_SETUP_TAIL_EVIDENCE.md) for pinned upstream source,
+exact verification and remaining gates. No actual Docker proof is claimed for this
+increment. Future actual qualification requires fresh source-bound prerequisites;
+retain earlier receipts and uncertain resources unchanged.
+
+The marker is prepared in owner-private staging through retained directory descriptors
+and published with Linux no-replace rename semantics. An existing destination is
+refused even when empty; failed publication does not overwrite/adopt it. Staging and
+mutation parents retain identity across validation. Filesystem deadlines are checked
+around operations; hard preemption of a blocked filesystem call is not qualified.

@@ -78,3 +78,10 @@
 - source_spec: `_bmad-output/implementation-artifacts/spec-env-owner-timeout-diagnostics.md`
   summary: Investigate unverified medium CLI-liveness departure during the synthetic backend-positive process control.
   evidence: Initial selected process group's fourth test refused invalid_owner_handoff when CLI process.poll became non-None; original return code/signal timing was not captured. Exact unchanged current/baseline repeats pass. Retain initial-process-failure and capture process departure timing/return code to settle cause without relaxing liveness or cleanup checks.
+
+- source_spec: `_bmad-output/implementation-artifacts/spec-env-post-auth-setup-tail.md`
+  summary: Investigate unverified medium hard blocking of local filesystem synchronization within cooperative ENV deadlines.
+  evidence: Tail fsync and existing filesystem custody operations use deadline checks before/after, without a demonstrated selected-host indefinitely blocked syscall. Capture actual blocked-operation duration and cancellation/cleanup behavior before choosing any bounded execution change; no hard filesystem preemption proof is claimed.
+- source_spec: `_bmad-output/implementation-artifacts/spec-env-post-auth-setup-tail.md`
+  summary: Investigate unverified medium pre-tail acquisition/process timing failures from the first setup-tail synthetic process attempt.
+  evidence: process-tail-initial-failure.log retains positive docker_timeout before tail and a replaced-artifact case that never reached verified defaults; source/unit work overlapped, with no stable single-source binding. One unchanged serial repeat and root five-case group pass without altered limits. Capture stable source and phase/clock observations to identify cause; later passes are not explanation.

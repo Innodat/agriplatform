@@ -7,6 +7,9 @@ five-second acquisition phase, and no public daemon endpoint selector is exposed
 """
 from contextlib import contextmanager
 import time
+import os
+import ctypes
+import secrets
 
 import daemon_images
 import dev
@@ -148,6 +151,9 @@ class FreshGuard:
         self.auth_catalog = self.auth_catalog_precondition_verified = self.auth_catalog_verified = False
         self.api_default_privileges_request_refused = False
         self.api_default_privileges = self.api_default_privileges_attempted = self.api_default_privileges_verified = False
+        self.post_auth_setup_tail = self.post_auth_setup_tail_attempted = False
+        self._tail_completed = self.owner_post_auth_setup_tail_verified = False
+        self._tail_custody = None
         self.auth_catalog_attempts = set()
         self.cli_db_backend = self.cli_db_backend_present_verified = self.cli_db_backend_departure_verified = False
         self.cli_db_backend_attempts = set()
@@ -194,7 +200,7 @@ class FreshGuard:
             self._current()
             if self._fixture is not None:
                 startup.check_fixture_custody(*self._fixture, self.target, self.run_id,
-                                              listener_identity=self._listener_identity)
+                                              listener_identity=self._listener_identity, owner_tail=self._tail_custody)
             if self._second_fixture is not None:
                 startup.check_fixture_custody(*self._second_fixture, self.target, self.run_id,
                                               listener_identity=self._second_listener_identity)
@@ -299,6 +305,10 @@ class FreshGuard:
         if not self.execution or self.auth_boundary or self.persistence or self.execution_started:
             startup.fail('invalid_owner_handoff')
         self.auth_boundary = True
+
+    def enable_post_auth_setup_tail(self):
+        self.enable_api_default_privileges()
+        self.post_auth_setup_tail = True
 
     def enable_api_default_privileges(self):
         self.enable_cli_db_backend()
@@ -848,6 +858,92 @@ class FreshGuard:
             time.sleep(min(.1, max(0, self.remaining())))
         stable()
 
+    def complete_post_auth_setup_tail(self):
+        if self.post_auth_setup_tail_attempted or getattr(self, '_finish_attempted', False):
+            startup.fail('invalid_owner_handoff')
+        # Failed prerequisite checks also consume this invocation; no repaired replay.
+        self.post_auth_setup_tail_attempted = True
+        if (not self.post_auth_setup_tail or self.phase != 5 or self._fixture is None
+                or not self.api_default_privileges or not self.api_default_privileges_verified
+                or not self.auth_cli_terminated or not self.cli_db_backend or not self.auth_catalog
+                or not self.cli_db_backend_present_verified
+                or not self.cli_db_backend_departure_verified or not self.auth_catalog_precondition_verified
+                or not self.auth_catalog_verified or not self.api_default_privileges_request_refused
+                or not self.auth_job_exit_verified or not self.auth_job_disposed):
+            startup.fail('invalid_owner_handoff')
+        self.check()
+        self.auth_pg_current()
+        work = self._fixture[0]
+        mutated = False
+        try:
+            # Bind both mutation parents before the final closed-fixture check.
+            with dev.directory(work / 'supabase') as parent, dev.directory(work / 'tmp') as temporary:
+                dev.check_private(parent)
+                dev.check_private(temporary)
+                parent_info, tmp_info = os.fstat(parent), os.fstat(temporary)
+                parent_identity = (parent_info.st_dev, parent_info.st_ino)
+                tmp_identity = (tmp_info.st_dev, tmp_info.st_ino)
+                self.check()
+                try:
+                    for name, identity in (('supabase', parent_identity), ('tmp', tmp_identity)):
+                        with dev.directory(work / name) as current_parent:
+                            info = os.fstat(current_parent)
+                            if (info.st_dev, info.st_ino) != identity:
+                                startup.fail('fixture_changed')
+                except (dev.Refusal, OSError):
+                    self.ownership_lost = True
+                    raise
+                # Construct privately, retain its identity, then publish without
+                # replacing even an empty destination. Never adopt canonical mkdir.
+                mutated = True
+                staged = '.owner-tail-' + secrets.token_hex(16)
+                os.mkdir(staged, 0o700, dir_fd=temporary)
+                branch = os.open(staged, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW, dir_fd=temporary)
+                try:
+                    dev.check_private(branch)
+                    if os.listdir(branch):
+                        startup.fail('fixture_changed')
+                    fd = os.open('_current_branch', os.O_WRONLY | os.O_CREAT | os.O_EXCL | os.O_NOFOLLOW,
+                                 0o644, dir_fd=branch)
+                    with os.fdopen(fd, 'wb') as stream:
+                        os.fchmod(stream.fileno(), 0o644)
+                        stream.write(b'main')
+                        stream.flush()
+                        os.fsync(stream.fileno())
+                        custody = tuple((info.st_dev, info.st_ino) for info in
+                                        (parent_info, os.fstat(branch), os.fstat(stream.fileno())))
+                    os.fsync(branch)
+                    self.check()
+                    for name, identity in (('supabase', parent_identity), ('tmp', tmp_identity)):
+                        with dev.directory(work / name) as current_parent:
+                            info = os.fstat(current_parent)
+                            if (info.st_dev, info.st_ino) != identity:
+                                startup.fail('fixture_changed')
+                    # This owner already depends on Linux process/Unix-socket
+                    # primitives. RENAME_NOREPLACE is required for directory
+                    # publication; ordinary rename would overwrite an empty rival.
+                    publish = ctypes.CDLL(None, use_errno=True).renameat2
+                    publish.argtypes = [ctypes.c_int, ctypes.c_char_p, ctypes.c_int, ctypes.c_char_p, ctypes.c_uint]
+                    publish.restype = ctypes.c_int
+                    if publish(temporary, os.fsencode(staged), parent, b'.branches', 1) != 0:
+                        error = ctypes.get_errno()
+                        raise OSError(error, 'owner tail publication failed')
+                    self._tail_custody = custody
+                finally:
+                    os.close(branch)
+                self.check()
+                self.auth_pg_current()
+                self.check()
+                with dev.directory(work / 'tmp') as current_tmp:
+                    info = os.fstat(current_tmp)
+                    if (info.st_dev, info.st_ino) != tmp_identity:
+                        startup.fail('fixture_changed')
+        except BaseException:
+            if mutated:
+                self.ownership_lost = True
+            raise
+        self._tail_completed = True
+
     def api_default_privileges_sql(self):
         if (not self.api_default_privileges or self.api_default_privileges_attempted
                 or getattr(self, '_finish_attempted', False) or self.phase != 5
@@ -986,6 +1082,8 @@ class FreshGuard:
             startup.fail('invalid_owner_handoff')
         if self.api_default_privileges and not self.api_default_privileges_verified:
             startup.fail('invalid_owner_handoff')
+        if self.post_auth_setup_tail and not self._tail_completed:
+            startup.fail('invalid_owner_handoff')
         started = self.healthy_instance()
         if self.auth_boundary and started != self.poststart_identity:
             startup.fail('execution_instance_changed')
@@ -1006,6 +1104,9 @@ class FreshGuard:
             self.persistence_verified = True
         self.phase = 6
         self.cleanup_execution(clean=True, started=started)
+        if self.post_auth_setup_tail:
+            self.current()
+            self.owner_post_auth_setup_tail_verified = True
 
     def cleanup_execution(self, *, clean=False, started=None):
         """Consume one cleanup budget; never replay a mutation or recover lost ownership."""
