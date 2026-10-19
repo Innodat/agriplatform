@@ -2,6 +2,7 @@
 import sys
 from pathlib import Path
 import unittest
+import json
 from unittest.mock import Mock, patch
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 import resources
@@ -1777,6 +1778,7 @@ class AuthJobDaemon(OwnerDaemon):
         self.guard.enable_auth_migration()
         self.job_row = None
         self.job_fault = None
+        self.kong_config = json.loads((dev.ROOT / 'platform/deployment/fixtures/supabase-kong-image-api-config.json').read_text())
         self.auth_config = {'User': 'supabase', 'WorkingDir': '/', 'ArgsEscaped': True, 'Cmd': ['auth'],
                 'Env': ['PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin',
                         'GOTRUE_DB_MIGRATIONS_PATH=/usr/local/etc/auth/migrations'],
@@ -1791,6 +1793,10 @@ class AuthJobDaemon(OwnerDaemon):
         self.guard.auth_cli_terminated = True
 
     def exchange(self, method, path, body=None):
+        if '/images/public.ecr.aws/supabase/kong@' in path:
+            status, row = super().exchange(method, path, body)
+            row['Config'] = self.copy(self.kong_config)
+            return status, row
         if '/images/public.ecr.aws/supabase/gotrue@' in path:
             status, row = super().exchange(method, path, body)
             row['Config'] = self.copy(self.auth_config)
@@ -3900,6 +3906,136 @@ class KongBoundaryOwner(unittest.TestCase):
         self.assertEqual(len(d.events), before)
         with patch.object(dev, 'free_ports'): d.guard.finish_execution()
         self.assertTrue(d.guard.cleaned and d.guard.owner_kong_boundary_verified)
+
+    def test_current_image_and_both_closed_profiles_checked_without_exchange(self):
+        import create_profile
+        d, _ = self.prepared()
+        selected = next(ref for ref in d.images if '/kong@' in ref)
+        before = len(d.events)
+        with patch.object(create_profile, 'validate_kong_image_config', wraps=create_profile.validate_kong_image_config) as config_validator, patch.object(dev, '_docker_request', wraps=dev._docker_request) as classifier:
+            d.guard.verify_kong_boundary()
+        self.assertGreaterEqual(sum(path == '/v1.48/images/' + selected + '/json'
+                             for _, path, _ in d.events[before:]), 1)
+        self.assertEqual(config_validator.call_count, 1)
+        creates = [call.args for call in classifier.call_args_list
+                   if call.args[0] == 'POST' and '/containers/create?' in call.args[1]]
+        self.assertEqual(len(creates), 2)
+        self.assertEqual([item[2]['HostConfig']['RestartPolicy']['Name'] for item in creates],
+                         ['unless-stopped', 'no'])
+
+    def test_image_default_and_disposable_corruption_consume_attempt_without_disclosure(self):
+        import create_profile
+        for seam in ('env', 'label', 'health', 'shell', 'missing', 'profile'):
+            with self.subTest(seam=seam):
+                d, _ = self.prepared()
+                if seam == 'env': d.kong_config['Env'].append('private-input-sentinel')
+                elif seam == 'label': d.kong_config['Labels']['extra'] = 'private-input-sentinel'
+                elif seam == 'health': d.kong_config['Healthcheck']['Retries'] = True
+                elif seam == 'shell': d.kong_config['Shell'] = ['private-input-sentinel']
+                elif seam == 'missing': d.kong_config.pop('Volumes')
+                original = create_profile.kong_disposable_execution_request
+                def changed(*args):
+                    request = original(*args)
+                    if seam == 'profile': request['body']['HostConfig']['Privileged'] = True
+                    return request
+                with patch.object(create_profile, 'kong_disposable_execution_request', side_effect=changed), self.assertRaises(dev.Refusal) as refused:
+                    d.guard.verify_kong_boundary()
+                self.assertEqual(refused.exception.code, 'unsafe_create')
+                self.assertNotIn('private-input-sentinel', str(refused.exception))
+                self.assertTrue(d.guard.kong_boundary_attempted)
+                self.assertFalse(d.guard._kong_boundary_completed or d.guard.owner_kong_boundary_verified)
+                before = len(d.events)
+                with self.assertRaises(dev.Refusal): d.guard.verify_kong_boundary()
+                self.assertEqual(len(d.events), before)
+                self.assertFalse(any('supabase_kong_' in path for _, path, _ in d.events))
+
+    def test_pg_checks_surround_image_profile_and_classifier_validation(self):
+        import create_profile
+        d, _ = self.prepared()
+        order = []
+        pg, image, profile, classify = (d.guard.auth_pg_current, create_profile.validate_kong_image_config,
+                                      create_profile.validate_kong_disposable_execution_request, dev._docker_request)
+        def checked_pg(): order.append('pg'); return pg()
+        def checked_image(value): order.append('image'); return image(value)
+        def checked_profile(*args): order.append('profile'); return profile(*args)
+        def checked_classify(*args): order.append('classifier'); return classify(*args)
+        with patch.object(d.guard, 'auth_pg_current', side_effect=checked_pg), patch.object(create_profile, 'validate_kong_image_config', side_effect=checked_image), patch.object(create_profile, 'validate_kong_disposable_execution_request', side_effect=checked_profile), patch.object(dev, '_docker_request', side_effect=checked_classify):
+            d.guard.verify_kong_boundary()
+        self.assertEqual(order, ['pg', 'image', 'profile', 'pg', 'classifier', 'classifier', 'pg'])
+
+    def explicit_image_exchange(self, daemon, effect, reached):
+        # Direct caller identity isolates the new read from existing descriptor custody
+        # inspections, which must keep receiving their unmodified responses.
+        import sys
+        original = daemon.exchange
+        code = resources.FreshGuard.verify_kong_boundary.__code__
+        def exchange(method, path, body=None):
+            direct_boundary = sys._getframe(1).f_code is code
+            status, row = original(method, path, body)
+            if direct_boundary and method == 'GET' and '/images/' in path:
+                reached.append(True)
+                return effect(status, row)
+            return status, row
+        return patch.object(daemon, 'exchange', new=exchange)
+
+    def assert_terminal_kong_failure(self, daemon):
+        self.assertTrue(daemon.guard.kong_boundary_attempted)
+        self.assertFalse(daemon.guard._kong_boundary_completed or daemon.guard.owner_kong_boundary_verified)
+        before = len(daemon.events)
+        with self.assertRaises(dev.Refusal) as replay:
+            daemon.guard.verify_kong_boundary()
+        self.assertEqual(replay.exception.code, 'invalid_owner_handoff')
+        self.assertEqual(len(daemon.events), before)
+        self.assertFalse(any('supabase_kong_' in path for _, path, _ in daemon.events))
+
+    def test_explicit_image_response_refusals_preserve_prior_descriptor_custody(self):
+        for case in ('status', 'type', 'id', 'os', 'architecture', 'variant'):
+            with self.subTest(case=case):
+                d, _ = self.prepared()
+                reached = []
+                def changed(status, row):
+                    if case == 'status': return 404, row
+                    if case == 'type': return status, []
+                    key = {'id': 'Id', 'os': 'Os', 'architecture': 'Architecture', 'variant': 'Variant'}[case]
+                    row[key] = 'private-input-sentinel'
+                    return status, row
+                with self.explicit_image_exchange(d, changed, reached), self.assertRaises(dev.Refusal) as refused:
+                    d.guard.verify_kong_boundary()
+                self.assertEqual(reached, [True])
+                self.assertEqual((refused.exception.stage, refused.exception.code), ('startup', 'execution_image_changed'))
+                self.assertNotIn('private-input-sentinel', str(refused.exception))
+                self.assert_terminal_kong_failure(d)
+
+    def test_explicit_image_exchange_errors_propagate_and_consume_attempt(self):
+        for error in (KeyboardInterrupt(), dev.Refusal('docker', 'docker_timeout'),
+                      dev.Refusal('docker', 'docker_unavailable')):
+            with self.subTest(kind=type(error).__name__, code=getattr(error, 'code', None)):
+                d, _ = self.prepared()
+                reached = []
+                def failed(status, row): raise error
+                with self.explicit_image_exchange(d, failed, reached), self.assertRaises(type(error)) as caught:
+                    d.guard.verify_kong_boundary()
+                self.assertIs(caught.exception, error)
+                self.assertEqual(reached, [True])
+                self.assert_terminal_kong_failure(d)
+
+    def test_second_disposable_classifier_success_and_unexpected_refusal_are_terminal(self):
+        for unexpected in (None, dev.Refusal('docker', 'private-classifier-failure')):
+            with self.subTest(kind='success' if unexpected is None else 'refusal'):
+                d, _ = self.prepared()
+                original = dev._docker_request
+                calls = []
+                def classifier(*args):
+                    calls.append(args[2]['HostConfig']['RestartPolicy']['Name'])
+                    if len(calls) == 1: return original(*args)
+                    if unexpected is not None: raise unexpected
+                    return None
+                with patch.object(dev, '_docker_request', side_effect=classifier), self.assertRaises(dev.Refusal) as caught:
+                    d.guard.verify_kong_boundary()
+                self.assertEqual(calls, ['unless-stopped', 'no'])
+                if unexpected is not None: self.assertIs(caught.exception, unexpected)
+                else: self.assertEqual(caught.exception.code, 'invalid_owner_handoff')
+                self.assert_terminal_kong_failure(d)
 
     def test_missing_prerequisites_terminal_and_repaired_replay_refused(self):
         for flag in ('kong_boundary', 'post_auth_setup_tail', '_tail_completed', 'api_default_privileges_verified',

@@ -1835,6 +1835,16 @@ class ExecutionSupervisor(unittest.TestCase):
                 context = patch.object(create_profile, 'kong_request', side_effect=expire)
             elif scenario == 'auth-kong-interrupt':
                 context = patch.object(create_profile, 'kong_request', side_effect=KeyboardInterrupt('private-input-sentinel'))
+            elif scenario == 'auth-kong-image':
+                engine.kong_config['Shell'] = ['private-input-sentinel']
+                context = nullcontext()
+            elif scenario == 'auth-kong-profile':
+                original = create_profile.kong_disposable_execution_request
+                def changed_profile(*args):
+                    request = original(*args)
+                    request['body']['HostConfig']['Binds'] = ['private-input-sentinel:/data']
+                    return request
+                context = patch.object(create_profile, 'kong_disposable_execution_request', side_effect=changed_profile)
             elif scenario == 'auth-kong-transfer':
                 context = patch.object(startup.lifecycle, 'kong_archive', return_value=b'private-input-sentinel')
             else:
@@ -2082,6 +2092,8 @@ else: sys.exit(125)
                 self.assertTrue(any(getattr(error, 'code', None) == 'docker_timeout' for error in chain))
             elif scenario == 'auth-kong-interrupt':
                 self.assertTrue(any(isinstance(error, KeyboardInterrupt) for error in chain))
+            elif scenario in ('auth-kong-image', 'auth-kong-profile'):
+                self.assertTrue(any(getattr(error, 'code', None) == 'unsafe_create' for error in chain))
             elif scenario == 'auth-kong-cleanup':
                 self.assertEqual(caught.exception.code, 'execution_cleanup_unresolved')
                 self.assertIsNotNone(engine.row)
@@ -2673,6 +2685,10 @@ else: sys.exit(125)
 
     def test_kong_boundary_process_altered_transfer_and_cleanup_failure_no_fact(self):
         for scenario in ('auth-kong-transfer', 'auth-kong-cleanup'):
+            with self.subTest(scenario=scenario): self.run_execution_case(scenario)
+
+    def test_kong_boundary_process_image_and_disposable_profile_rejection_are_private(self):
+        for scenario in ('auth-kong-image', 'auth-kong-profile'):
             with self.subTest(scenario=scenario): self.run_execution_case(scenario)
 
     def test_post_auth_setup_tail_process_exact_artifact_and_cleanup(self):

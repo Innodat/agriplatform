@@ -978,23 +978,34 @@ class FreshGuard:
                    'workdir': str(self._fixture[0]), 'network': self.network,
                    'selection_plan': {repository + ':' + pin['tag']: selected[0]},
                    'image_observations': self.images}
+        self.check()
+        status, image = self.session.exchange('GET', '/v1.48/images/' + selected[0] + '/json')
+        if (status != 200 or type(image) is not dict
+                or image.get('Id') != self.images[selected[0]]['Id']
+                or image.get('Os') != 'linux' or image.get('Architecture') != 'amd64'
+                or image.get('Variant', '') != ''):
+            startup.fail('execution_image_changed')
+        create_profile.validate_kong_image_config(image.get('Config'))
         args = create_profile.kong_request(fixture)
         environment = dict(create_profile.KONG_ENV)
         request = create_profile.kong_execution_request(fixture)
         files = create_profile.kong_transfer_files(fixture)
         create_profile.validate_kong_intent(args, environment, request, files, fixture)
+        disposable = create_profile.kong_disposable_execution_request(args, environment, request, files, fixture)
+        create_profile.validate_kong_disposable_execution_request(disposable, fixture)
         archive = startup.lifecycle.kong_archive(files, fixture)
         startup.lifecycle.validate_kong_archive(archive, fixture)
         self.check()
         self.auth_pg_current()
         # Classifier only: never exchange, dispatch, create, copy or start Kong.
-        try:
-            dev._docker_request(request['method'], request['path'], request['body'], True)
-        except dev.Refusal as error:
-            if (error.stage, error.code) != ('docker', 'docker_request_invalid'):
-                raise
-        else:
-            startup.fail('invalid_owner_handoff')
+        for candidate in (request, disposable):
+            try:
+                dev._docker_request(candidate['method'], candidate['path'], candidate['body'], True)
+            except dev.Refusal as error:
+                if (error.stage, error.code) != ('docker', 'docker_request_invalid'):
+                    raise
+            else:
+                startup.fail('invalid_owner_handoff')
         self.check()
         self.auth_pg_current()
         self.check()

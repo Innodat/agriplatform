@@ -35,6 +35,8 @@ SOURCES += ['platform/deployment/fixtures/supabase-kong-source/' + name for name
              'docker-create-args.ts', 'functions-docker.ts', 'go-jwt.ts', 'kong-local-tls.ts',
              'kong.service.ts', 'kong.yml.ts', 'local-config-values.ts', 'service-catalog.ts',
              'start.gates.ts', 'template-render.ts', 'realtime-env.ts']]
+SOURCES += ['platform/deployment/fixtures/supabase-kong-image-api-config.json',
+            'platform/deployment/fixtures/supabase-kong-image-api-config.md']
 LIMIT = 1024 * 1024
 
 

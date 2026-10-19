@@ -548,5 +548,114 @@ class KongSourceIntent(unittest.TestCase):
                     create_profile.validate_kong_intent(*changed, self.f)
 
 
+class KongDisposableProfile(unittest.TestCase):
+    setUp = KongSourceIntent.setUp
+    source_oracle = KongSourceIntent.source_oracle
+
+    def image_oracle(self):
+        return {'AttachStderr': False, 'AttachStdin': False, 'AttachStdout': False,
+                'Cmd': ['kong', 'docker-start'], 'Domainname': '',
+                'Entrypoint': ['/docker-entrypoint.sh'],
+                'Env': ['PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin',
+                        'ASSET=ce', 'KONG_VERSION=2.8.1'],
+                'ExposedPorts': {'8000/tcp': {}, '8001/tcp': {}, '8443/tcp': {}, '8444/tcp': {}},
+                'Healthcheck': {'Interval': 10000000000, 'Retries': 10,
+                                'Test': ['CMD-SHELL', 'kong health'], 'Timeout': 10000000000},
+                'Hostname': '', 'Image': '', 'Labels': {'maintainer': 'Kong <support@konghq.com>'},
+                'OnBuild': None, 'OpenStdin': False, 'StdinOnce': False, 'StopSignal': 'SIGQUIT',
+                'Tty': False, 'User': 'kong', 'Volumes': None, 'WorkingDir': ''}
+
+    def disposable_oracle(self):
+        # Start from the independent upstream-text oracle, never a production builder.
+        request = copy.deepcopy(self.source_oracle()[2])
+        request['path'] = ('/v1.48/containers/create?name=supabase_kong_disposable_'
+                           + self.f['project'] + '&platform=linux%2Famd64')
+        body = request['body']
+        body.update(User='kong', WorkingDir='/', StopSignal='SIGQUIT',
+                    Healthcheck={'Test': ['CMD-SHELL', 'kong health'], 'Interval': 10000000000,
+                                 'Timeout': 10000000000, 'Retries': 10})
+        body['Env'] += ['PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin',
+                        'ASSET=ce', 'KONG_VERSION=2.8.1']
+        body['Labels']['maintainer'] = 'Kong <support@konghq.com>'
+        body['ExposedPorts'] = {'8000/tcp': {}, '8001/tcp': {}, '8088/tcp': {}, '8443/tcp': {}, '8444/tcp': {}}
+        body['HostConfig'].update(RestartPolicy={'Name': 'no', 'MaximumRetryCount': 0},
+            AutoRemove=False, CgroupnsMode='private', Privileged=False, Memory=2147483648,
+            MemorySwap=2147483648, NanoCpus=2000000000, PidsLimit=256,
+            LogConfig={'Type': 'none', 'Config': {}}, Mounts=[])
+        return request
+
+    def test_exact_independent_image_and_disposable_oracles(self):
+        image = json.loads((ROOT / 'platform/deployment/fixtures/supabase-kong-image-api-config.json').read_text())
+        self.assertEqual(image, self.image_oracle())
+        create_profile.validate_kong_image_config(image)
+        args, env, source, files = self.source_oracle()
+        before = copy.deepcopy((args, env, source, files, self.f))
+        request = create_profile.kong_disposable_execution_request(args, env, source, files, self.f)
+        self.assertTrue(create_profile._exact_tree(request, self.disposable_oracle()))
+        self.assertTrue((args, env, source, files, self.f) == before, 'source input changed during disposable construction')
+        create_profile.validate_kong_disposable_execution_request(request, self.f)
+        with self.assertRaises(dev.Refusal) as refused:
+            dev._docker_request(request['method'], request['path'], request['body'], True)
+        self.assertEqual((refused.exception.stage, refused.exception.code), ('docker', 'docker_request_invalid'))
+        request['body']['Env'].append('private-input-sentinel')
+        self.assertTrue(create_profile._exact_tree(
+            create_profile.kong_disposable_execution_request(args, env, source, files, self.f),
+            self.disposable_oracle()), 'disposable request was not detached')
+
+    def mutations(self, tree, path=()):
+        replacements = [True, False, 0, 1, 0.0, None, 'private-input-sentinel', (), [], {}]
+        if type(tree) is dict:
+            replacements += [{**tree, 'unknown': 'private-input-sentinel'}]
+            replacements += [{k: v for k, v in tree.items() if k != removed} for removed in tree]
+        elif type(tree) is list:
+            replacements += [tree + ['private-input-sentinel']]
+            replacements += [tree[:i] + tree[i+1:] for i in range(len(tree))]
+        for replacement in replacements:
+            if not create_profile._exact_tree(tree, replacement):
+                yield path, replacement
+        if type(tree) in (dict, list):
+            children = tree.items() if type(tree) is dict else enumerate(tree)
+            for key, child in children:
+                yield from self.mutations(child, path + (key,))
+
+    def test_recursive_image_and_disposable_mutations_are_closed_and_private(self):
+        for baseline, validator in [(self.image_oracle(), create_profile.validate_kong_image_config),
+                (self.disposable_oracle(), lambda value: create_profile.validate_kong_disposable_execution_request(value, self.f))]:
+            for path, replacement in self.mutations(baseline):
+                changed = copy.deepcopy(baseline)
+                if not path: changed = replacement
+                else:
+                    node = changed
+                    for key in path[:-1]: node = node[key]
+                    node[path[-1]] = replacement
+                with self.subTest(path=path, kind=type(replacement).__name__), self.assertRaises(dev.Refusal) as refused:
+                    validator(changed)
+                self.assertNotIn('private-input-sentinel', str(refused.exception))
+
+    def test_disposable_constructor_revalidates_every_source_input(self):
+        baseline = self.source_oracle()
+        for index in range(4):
+            for valid_shape in (False, True):
+                changed = copy.deepcopy(list(baseline))
+                if not valid_shape: changed[index] = None
+                elif index == 0: changed[0][-1] += 'private-input-sentinel'
+                elif index == 1: changed[1]['KONG_DATABASE'] = 'private-input-sentinel'
+                elif index == 2: changed[2]['body']['HostConfig']['RestartPolicy']['Name'] = 'no'
+                else: changed[3]['home/kong/kong.yml'] += b'private-input-sentinel'
+                with self.subTest(index=index, valid_shape=valid_shape), patch.object(create_profile, '_kong_disposable_request') as builder:
+                    with self.assertRaises(dev.Refusal) as refused:
+                        create_profile.kong_disposable_execution_request(*changed, self.f)
+                    self.assertEqual(builder.call_count, 0)
+                    self.assertNotIn('private-input-sentinel', str(refused.exception))
+
+    def test_fixture_byte_change_refused_without_recording_content(self):
+        original = dev.read
+        def changed(path):
+            return b'private-input-sentinel' if str(path).endswith('supabase-kong-image-api-config.json') else original(path)
+        with patch.object(dev, 'read', side_effect=changed), self.assertRaises(dev.Refusal) as refused:
+            create_profile.validate_kong_image_config(self.image_oracle())
+        self.assertNotIn('private-input-sentinel', str(refused.exception))
+
+
 if __name__ == '__main__':
     unittest.main()

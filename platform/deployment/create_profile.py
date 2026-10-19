@@ -222,6 +222,24 @@ def validate_auth_image_config(config):
 
 
 KONG_SOURCES = 'platform/deployment/fixtures/supabase-kong-source/'
+KONG_IMAGE_CONFIG = 'platform/deployment/fixtures/supabase-kong-image-api-config.json'
+
+
+def _kong_image_config():
+    """Public independently observed API projection; never caller/default authority."""
+    import json
+    raw = dev.read(dev.ROOT / KONG_IMAGE_CONFIG)
+    if dev.digest(raw) != '33f41b2a864c66de040bd8ad42dc637cb6565cfe251439b1acfadad9616c45a4':
+        refuse()
+    return json.loads(raw)
+
+
+def validate_kong_image_config(config):
+    """Reject all changed/missing/additional keys, types and inherited defaults."""
+    if not _exact_tree(config, _kong_image_config()):
+        refuse()
+
+
 # Deliberately public markers, never minted JWTs or caller-supplied credentials.
 KONG_KEYS = ('public-synthetic-secret-key', 'public-synthetic-service-role-key',
              'public-synthetic-publishable-key', 'public-synthetic-anon-key')
@@ -349,4 +367,51 @@ def validate_kong_intent(args, environment, execution, files, fixture):
     if (not _exact_tree(args, kong_request(fixture)) or not _exact_tree(environment, dict(KONG_ENV))
             or not _exact_tree(execution, kong_execution_request(fixture))
             or not _exact_tree(files, kong_transfer_files(fixture))):
+        refuse()
+
+
+def _kong_disposable_request(fixture):
+    """Closed disposable profile, separate from the unchanged source intent.
+
+    Docker is expected to append the pinned image Env defaults, merge its maintainer
+    label with the three source labels, and union image/source ExposedPorts. We make
+    that expected merge explicit here; no actual container-merge proof is claimed.
+    Entrypoint, command, user, workdir, health and stop signal are explicit overrides.
+    No arbitrary image/default fields can enter this request.
+    """
+    selected = _kong_selected(fixture)
+    project, network = fixture['project'], fixture['network']['Id']
+    return {'method': 'POST',
+            'path': '/v1.48/containers/create?name=supabase_kong_disposable_' + project + '&platform=linux%2Famd64',
+            'body': {'Image': selected,
+                     'Env': [k + '=' + v for k, v in KONG_ENV.items()] + [
+                         'PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin',
+                         'ASSET=ce', 'KONG_VERSION=2.8.1'],
+                     'Labels': {'com.supabase.cli.project': project, 'com.docker.compose.project': project,
+                                'com.supabase.cli.workdir': fixture['workdir'],
+                                'maintainer': 'Kong <support@konghq.com>'},
+                     'Entrypoint': ['sh'], 'Cmd': ['-c', kong_script()], 'User': 'kong', 'WorkingDir': '/',
+                     'Healthcheck': {'Test': ['CMD-SHELL', 'kong health'], 'Interval': 10000000000,
+                                     'Timeout': 10000000000, 'Retries': 10},
+                     'StopSignal': 'SIGQUIT',
+                     'ExposedPorts': {port + '/tcp': {} for port in ('8000', '8001', '8088', '8443', '8444')},
+                     'HostConfig': {'Binds': [], 'Mounts': [], 'AutoRemove': False, 'CgroupnsMode': 'private',
+                                    'PortBindings': {'8000/tcp': [{'HostIp': '127.0.0.1', 'HostPort': '55481'}]},
+                                    'RestartPolicy': {'Name': 'no', 'MaximumRetryCount': 0},
+                                    'ExtraHosts': ['host.docker.internal:host-gateway'], 'NetworkMode': network,
+                                    'Privileged': False, 'Memory': 2147483648, 'MemorySwap': 2147483648,
+                                    'NanoCpus': 2000000000, 'PidsLimit': 256,
+                                    'LogConfig': {'Type': 'none', 'Config': {}}},
+                     'NetworkingConfig': {'EndpointsConfig': {network: {'Aliases': ['kong', 'api.supabase.internal']}}}}}
+
+
+def kong_disposable_execution_request(args, environment, execution, files, fixture):
+    """Build a detached safe profile only after validating the complete source intent."""
+    validate_kong_intent(args, environment, execution, files, fixture)
+    return _kong_disposable_request(fixture)
+
+
+def validate_kong_disposable_execution_request(request, fixture):
+    """Closed complete comparison, including nested empty maps and scalar types."""
+    if not _exact_tree(request, _kong_disposable_request(fixture)):
         refuse()

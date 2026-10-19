@@ -1418,3 +1418,27 @@ response bounds, permanent failure invalidation and no replay remain binding.
 This adds no Docker route, qualifier control or gateway execution authority. The
 Kong create boundary still refuses creation; no copy/start/health/runtime readiness
 is claimed. See [archive transport evidence](ENV_ARCHIVE_TRANSPORT_EVIDENCE.md).
+
+
+### Closed disposable Kong profile before execution
+
+The existing `pinned-cli-postgres-kong-boundary` control now also inspects the
+selected Kong image's exact Docker API 1.48 Config. It requires the current image
+Id/platform and the closed public [Config authority](fixtures/supabase-kong-image-api-config.md).
+Changes to any inherited default, type, missing field or additional field refuse.
+Source intent and synthetic three-file input remain independently validated.
+
+A separate `supabase_kong_disposable_<project>` request has restart disabled,
+AutoRemove false, private cgroup namespace, no mounts, disabled logging, unprivileged
+execution, 2 GiB memory/swap, 2 CPU and 256 PID bounds. It publishes only
+127.0.0.1:55481 to 8000. User kong, root working directory, selected health check and
+SIGQUIT are explicit; image environment/label defaults and the source/image exposed
+port union are closed expectations. This is not an observed container-merge proof.
+
+Both source and disposable create requests must still be rejected by the Docker
+classifier. The owner sends neither request. The existing boundary fact is published
+only after normal cleanup; there is no new success field or qualifier control.
+The original CLI stays terminated; synthetic markers do not qualify Auth routing.
+No Kong copy/start/health/disposal or full runtime readiness is claimed. Existing
+receipts remain historical; later actual qualification needs fresh source-bound
+prerequisites. See [profile evidence](ENV_KONG_DISPOSABLE_PROFILE_EVIDENCE.md).

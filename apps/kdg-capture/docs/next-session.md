@@ -1,6 +1,21 @@
 # Resume shared ENV delivery after KDG planning PASS
 
-Latest bounded ENV continuation: binary archive transport now supports the existing
+Latest completed bounded ENV increment: the Kong boundary now checks the current
+selected image's exact API 1.48 Config and validates a separate disposable create
+profile with no restart/logging, resource bounds, no mounts and loopback-only publish.
+Both source and disposable creates stay refused; no Kong runtime action is admitted.
+166 final selected methods pass across retained calls (160 affected + 6 process),
+no skips. Three reviews complete: seven findings patched, no new deferrals. See
+[Build record](../../../_bmad-output/implementation-artifacts/spec-env-kong-disposable-profile.md)
+and [evidence](../../../platform/deployment/ENV_KONG_DISPOSABLE_PROFILE_EVIDENCE.md).
+The evidence explicitly records the corrected post-draft baseline comparison and
+missed initial acceptance-first ordering. Runtime/fresh setup stay false and the
+original CLI stays terminated. Next: owner Kong create/transfer/effective-container
+custody/health/disposal, then remaining ENV services and consuming scaffold proof.
+Native-key/functional Auth routing remains unproved; dependent Identity/Access/WRITE
+and server-backed KDG remain gated.
+
+Previous bounded ENV continuation: binary archive transport now supports the existing
 persistent canonical PUT archive route with 65536-byte body and 1024-byte header bounds.
 Other requests retain 16384 aggregate bytes. Private source-derived Kong transfer,
 PG compatibility, limits and failure/no-replay checks pass with 67 affected tests.
@@ -12,7 +27,7 @@ and runtime/fresh setup remain false. Next: safe Kong profile/image defaults/nat
 keys/custody/health/disposal, remaining ENV and consuming scaffold proof. Dependent
 Identity/Access/WRITE and server-backed KDG remain gated.
 
-Latest completed ENV increment: source-derived Kong pre-start profile/refusal boundary follows
+Previous completed ENV increment: source-derived Kong pre-start profile/refusal boundary follows
 the verified owner setup tail. Exact request and three-file in-memory transfer are
 validated; Kong create stays refused. A separate fact appears only after normal
 owned cleanup; the CLI stays terminated and runtime/fresh-setup readiness stay false.

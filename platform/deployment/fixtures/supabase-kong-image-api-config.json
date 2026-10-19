@@ -1,0 +1,46 @@
+{
+  "AttachStderr": false,
+  "AttachStdin": false,
+  "AttachStdout": false,
+  "Cmd": [
+    "kong",
+    "docker-start"
+  ],
+  "Domainname": "",
+  "Entrypoint": [
+    "/docker-entrypoint.sh"
+  ],
+  "Env": [
+    "PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin",
+    "ASSET=ce",
+    "KONG_VERSION=2.8.1"
+  ],
+  "ExposedPorts": {
+    "8000/tcp": {},
+    "8001/tcp": {},
+    "8443/tcp": {},
+    "8444/tcp": {}
+  },
+  "Healthcheck": {
+    "Interval": 10000000000,
+    "Retries": 10,
+    "Test": [
+      "CMD-SHELL",
+      "kong health"
+    ],
+    "Timeout": 10000000000
+  },
+  "Hostname": "",
+  "Image": "",
+  "Labels": {
+    "maintainer": "Kong <support@konghq.com>"
+  },
+  "OnBuild": null,
+  "OpenStdin": false,
+  "StdinOnce": false,
+  "StopSignal": "SIGQUIT",
+  "Tty": false,
+  "User": "kong",
+  "Volumes": null,
+  "WorkingDir": ""
+}
