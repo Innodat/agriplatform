@@ -3,7 +3,7 @@ project: Leave
 status: epic-structure-approved
 created: 2026-09-23
 stepsCompleted: []
-currentCheckpoint: E4 Stories 4.1–4.11 approved; Story 4.12 abandoned-upload cleanup discussion next; contracts/coverage/sizing/readiness pending
+currentCheckpoint: E5 Stories 5.1–5.2 scopes approved; discussing Story 5.3 applicant responsibility coverage in group 2/10; 1/10 groups completed and 2 E5 scopes agreed; contracts/final coverage/sizing/readiness pending
 requirementsInventoryStatus: Source-indexed coverage proposal; granular extraction and confirmation pending
 epicApproval: Approved by user on 2026-09-23, including E5 and delivery sequence
 implementationReadiness: pending
@@ -12391,14 +12391,62 @@ tracker, handoff and release evidence in the same items. ADR: existing accepted 
 govern; meaningful changed business/security/ownership outcomes require discussion and
 any necessary superseding decision. No accepted ADR changed by this sequence approval.
 
-**Current checkpoint:** Stories 4.1–4.11 scopes approved; Story 4.5 uses Take photo/file
+**Current checkpoint:** Stories 4.1–4.14 scopes approved; Story 4.5 uses Take photo/file
 selection, with no scanner dependency. Expense retains React Native and implementation
-priority. Continue Story 4.12 abandoned-upload cleanup in group 6.
+priority. E4 scope pass reached; reconcile shared ownership/dependencies, source coverage
+and final sizing before declaring E4 complete. Expense session coordinates required
+shared Content delivery under existing service ownership; Leave consumes proven results.
 Malware scanning remains future
 hardening because current memory capacity is insufficient; MVP deferral unchanged.
 No final story count established, workflow step completed,
 readiness PASS or implementation authorization. No code, migrations, provider changes,
 notifications, commits or deployments performed.
+
+### E4 owner and dependency consolidation proposal — 2026-10-18
+
+**Scope/owner/dependency consolidation approved — 2026-10-18; not a final sizing/
+coverage/readiness result.** Retain all fourteen
+approved scope records and criteria. They are not fourteen additional Leave-only
+implementation items. The Expense session coordinates shared delivery under existing
+Content/release/tooling owners; map it to E1-CONTENT-READ/PTS-ADOPT and actual current
+work before creating or counting implementation items. No new split is proposed.
+
+| Delivery point | Existing scope / acceptance allocation | Dependency and owner boundary |
+| --- | --- | --- |
+| Shared foundation | 4.1–4.3 plus completed E1 Content ownership/read contracts | Content-owned upload/finalization/provider behavior, coordinated with Expense. Reuse existing service, shared clients and PtS transition evidence. |
+| Shared lifecycle / read / disposal prerequisites | Shared portions of 4.4, 4.7, 4.11 and 4.12 | Content owns pending/reference/release/reconciliation, authenticated stream and disposal/abandonment machinery. Prove owner protocols with restricted synthetic/Expense consumers without future Leave UI, settings or approval implementations. Shared deletion must have owner-supplied eligibility/reference evidence; no inferred Leave eligibility. |
+| Shared replacement activation / retirement | 4.14 shared release and adoption proof | PtS production and needed nonproduction Expense adoption, shared provider/security/recovery proof and actual caller inventory precede retirement. No dependency on unfinished Leave 4.13. Any still-used old path remains until its actual consumer is safely handled. |
+| Leave association and upload experience | Leave portions of 4.4, then 4.5 | Consume completed shared protocols; implement Leave draft authority/revision/limits/association and Take photo/file/recovery UI. Basic Remove/release is complete here, without a future 4.8 dependency. |
+| Leave document information / private reads | 4.6, then Leave portions of 4.7 | Safe status/metadata and current resource permission, followed by real Leave browser/auth/gateway streaming integration. Do not duplicate E1 service streaming/adoption work. |
+| Leave draft changes and required notices | 4.8, then 4.9 | Extend existing Remove with guarded replacement; required notification producer follows E3 delivery foundations. No ordinary draft-edit notice. |
+| Leave retention and cleanup integration | 4.10, then Leave portions of 4.11/4.12 | Explicit-Save configuration and actual domain eligibility/release integrate with shared disposal/reconciliation. Bind closure/precedence/retroactivity before readiness. Existing draft protections remain; no universal expiry. |
+| Leave integrated proof | 4.13 | Demonstrate actual hosted Leave composition, privacy, devices, cleanup and independent ordinary draft saving. Does not postpone earlier story tests or require E5 submission code. |
+| Consequential consumers | Actual E5/E6 integrations, not additional E4 scopes | Prove request/approval/correction attachment rules and retained evidence against actual lifecycle states before activation. Scope fixture proof in E4 does not establish these integrations. |
+
+The earlier seven groups remain discussion groupings. Shared scope acceptance can be
+delivered earlier in Expense; the Leave column denotes later application consumption.
+Clarify Story 4.14's reference to integrated evidence: required actual consumers at that
+release must pass; future Leave 4.13 is not required to retire an unused prototype for
+PtS/Expense. Leave-specific 4.13 remains binding for Leave activation. No test obligation
+is removed and no existing E1 item is counted twice.
+
+**Source/acceptance coverage cross-check (not final atomic inventory):** Features §12
+upload/types/limits/fixed identity/status → 4.1–4.5; scope and medical metadata plus
+private reads/PRIV-04 → 4.6–4.7; draft changes and replacement → 4.4/4.5/4.8; §13
+action-required events and PRIV-05/06 → 4.9; retention/configuration/disposal →
+4.10–4.11; abandoned/staging content and bounded protection → 4.4/4.12; provider and
+release gates → 4.1–4.3/4.13/4.14. §7 close/reopen/revision/input safety → 4.4/4.5/
+4.8/4.13; submitted document gates → explicit E5 consumer obligation. Malware scanning
+stays future hardening; no shared web scanner or OCR dependency remains in Leave.
+
+**Remaining gates:** actual owner delivery/test allocation and dependency IDs; exact
+upload/finalized byte/provider enforcement and expiry contracts; reference/deadline/
+recovery/cleanup races; service/user authority and typed API errors; browser file-auth/
+range/stream/deployment budgets; retention applicability and lawful minimal evidence;
+notification recipient/transition/relevance rules; real source-to-test paths/commands,
+measurable workload/browser/device targets, impact updates and single-agent sizing.
+No final unique implementation count, E4 completeness, workflow completion, sprint
+readiness PASS or implementation permission is inferred from fourteen agreed scopes.
 
 ### Story 4.1: Start or resume an authorized Content upload
 
@@ -13262,3 +13310,459 @@ Agent context: existing privacy/worker/lifecycle guidance suffices. Documentatio
 eligibility/reference/provider/backup and audit contracts, tests, operational runbook,
 tracker/handoff. ADR: accepted decisions unchanged. No code, tests, deletion, provider
 configuration, migrations or implementation authorization.
+
+### Story 4.12: Reclaim abandoned uploads without losing attachments
+
+**Scope approved — 2026-10-16; not implementation-ready.** Owner: Content upload/
+staging cleanup, consuming prior association/reference/reconciliation and disposal
+mechanisms. Adds abandonment eligibility and staging cleanup, not a second cleanup
+engine, draft expiry or shortened document retention.
+
+As the Content service operator,
+I want abandoned upload data reclaimed safely,
+So that cancelled or interrupted uploads do not consume storage indefinitely.
+
+**Acceptance Criteria:**
+
+**Given** an expired, cancelled or failed upload, or finalized content never attached,
+**When** cleanup assesses it,
+**Then** eligibility follows the agreed upload/association lifecycle rather than age alone.
+
+**Given** uncertain attachment confirmation,
+**When** abandonment is assessed,
+**Then** cleanup uses Story 4.4's bounded reconciliation first.
+
+**Given** a confirmed saved attachment or valid in-flight protection,
+**When** cleanup executes,
+**Then** it preserves required bytes.
+
+**Given** cleanup races with upload completion, renewal or association confirmation,
+**When** operations resolve,
+**Then** one valid lifecycle outcome wins,
+**And** a late operation cannot attach reclaimed content or recreate an abandoned upload.
+
+**Given** finalized content with leftover staging data,
+**When** staging cleanup executes,
+**Then** it reclaims staging only when verified bytes and supported recovery remain safe.
+
+**Given** failed deletion or uncertain outcome,
+**When** cleanup retries,
+**Then** it resolves the same operation and records completion truthfully.
+
+**Given** stalled cleanup or unresolved protection,
+**When** declared bounds are exceeded,
+**Then** operations receives actionable alerts and a recovery path rather than silent
+indefinite storage growth.
+
+**Traceability / planned verification:** Features §12/NFRs, tracker Phase 4, spine AD-9/13;
+platform ADR-0030/0036/0038 plus restricted worker/disposal contracts. Observe relevant
+failing acceptance before implementation. Prove lifecycle-derived abandonment, bounded
+pending reconciliation, retained draft/request references, staging versus finalized
+identity, actual upload capability expiry/in-flight late completion, association/renewal/
+cleanup races and retry/crash/uncertain deletion on both providers. Delayed bytes or
+operations cannot resurrect abandoned state. Exact source/test paths/commands/runtime
+results remain pending.
+
+**Pre-story inputs / sizing:** Bind abandonment deadlines/renewal limits, authoritative
+reference/operation evidence, late provider upload handling and staging/sealed/version
+deletion boundaries with previous protocol. An upload URL may still complete after
+cleanup begins; specify detection/reclamation without reusable identity or unbounded
+storage leaks. Reuse owner-specific worker claims/retry/shutdown and operational alerts;
+select exact budgets/expiry evidence before readiness. Saved-draft retention and
+closed-operation evidence stay protected under their owner contracts. Final atomic
+coverage, concrete protocol and single-agent sizing/readiness remain open.
+
+**Impacts:** Scaffold: reuse/prove bounded cleanup/reconciliation worker fixtures and
+provider race contracts. Shared UI: existing accurate expired/missing/re-upload feedback;
+no operator controls for employees. Agent context: existing association/cleanup/byte-
+identity guidance suffices. Documentation: abandonment/staging lifecycle and deadline
+contracts, test traceability, operational recovery/runbook and tracker/handoff. ADR:
+accepted decisions unchanged. No code, tests, cleanup execution, provider changes or
+implementation authorization.
+
+### Story 4.13: Prove the complete Leave attachment journey
+
+**Scope approved — 2026-10-18; not implementation-ready.** Owners: Leave integrated
+attachment acceptance and Content/deployment evidence. Consume completed earlier E4
+mechanisms and shared owners' actual delivery; this assembles real composition proof,
+not a deferral of earlier tests or a claim those mechanisms currently work.
+
+As an employee or authorized document reader,
+I want the attachment workflow verified through the deployed application,
+So that capture, preservation and private retrieval work together reliably.
+
+**Acceptance Criteria:**
+
+**Given** the hosted Leave application,
+**When** an employee takes a photo or chooses a file, attaches it, closes and reopens
+the draft,
+**Then** the confirmed attachment and other saved input remain available.
+
+**Given** upload, verification or association failure,
+**When** recovery is attempted,
+**Then** the actual interface provides accurate recovery without duplicate attachments
+or lost draft input.
+
+**Given** an authorized reader,
+**When** Open/Download uses the deployed route,
+**Then** authentication, fixed-byte streaming and supported PDF/range behavior work,
+**And** no storage URL is exposed.
+
+**Given** missing document permission, another organization, revoked access or account
+switching,
+**When** direct API/browser access is attempted,
+**Then** metadata and bytes remain protected.
+
+**Given** cleanup or disposal runs,
+**When** reference/lifecycle eligibility is evaluated,
+**Then** saved/in-flight attachments survive, eligible abandoned/expired content is
+reclaimed and outcomes remain auditable.
+
+**Given** the supported mobile/browser matrix,
+**When** actual device journeys run,
+**Then** photo capture, file selection, review/retake, cancellation and return to the
+draft are verified.
+
+**Given** the existing first Leave draft slice,
+**When** attachments are added,
+**Then** document services and completed business setup do not become prerequisites
+for saving ordinary draft input.
+
+**Traceability / planned verification:** Features §7/12, Permissions, UX/NFRs; spine
+AD-2/8/9/12/13; tracker Phase 4/relevant Phase 7; prior E4 source/test obligations and
+Content ownership/authenticated-read, provider and association contracts. Use isolated
+scoped accounts/data, actual app journey and supported gateway/provider path with
+desktop/mobile devices. Connect API/database/provider assertions to browser results;
+refresh prior failing-first suites and relevant regressions without substituting this
+integration item for their original evidence. Record exact versions, commands/results,
+test IDs, traces and safe artifacts; no sensitive payload dumps. No runtime proof exists
+from this planning discussion.
+
+**Pre-story inputs / sizing:** Bind environment/fixture ownership, actual browser/device
+matrix and measurable workload/latency/resource targets, failure injection/recovery,
+provider parity and routing/auth contracts. Shared mechanisms must be completed before
+their integrated claims. E5 owns actual submission/approval integration and must verify
+consequential document checks before activation; use scoped owner fixtures here rather
+than future workflow dependency. Prototype retirement follows separately. Final source/
+test coverage, agent sizing and readiness remain open; no E4 completion/PASS inferred.
+
+**Impacts:** Scaffold/shared UI: complete applicable earlier promotions and prove actual
+generated client/UI/gateway integration; no speculative new pattern catalogue. Agent
+context: record concrete discovered gaps if any, existing rules otherwise suffice.
+Documentation: requirement-to-test evidence, deployment/recovery runbooks, tracker and
+handoff. ADR: accepted decisions unchanged. No code, tests, deployment, migrations,
+provider changes or implementation authorization.
+
+### Story 4.14: Retire the superseded Content prototype safely
+
+**Scope approved — 2026-10-18, with production/ownership clarification. Not
+implementation-ready.** Content/release owners retain authority; the Expense session
+coordinates required shared delivery. User confirms PtS and Scribeswell are the only
+production applications, and PtS the sole production Content consumer. Expense is
+nonproduction and retains React Native; no production Expense compatibility transition
+or blanket receipt-data migration is required. Preserve existing E1 owner scope/evidence
+and Leave-specific acceptance rather than implementing shared work twice.
+
+As the platform operator,
+I want the old Content implementation retired after replacement verification,
+So that applications use one supported service without broken callers or lost documents.
+
+**Acceptance Criteria:**
+
+**Given** the current repository and target environment,
+**When** retirement is planned,
+**Then** endpoints, clients, jobs, credentials and stored-content references are
+inventoried against actual use,
+**And** historical prototype wording alone does not establish absence of callers.
+
+**Given** PtS production consumption and nonproduction Expense adoption,
+**When** old paths are disabled,
+**Then** required PtS/Content coordinated adoption preserves production protection/data,
+**And** Expense may change its nonproduction contracts directly without a legacy
+compatibility requirement; actual reference adoption needs are determined by inventory.
+
+**Given** the replacement,
+**When** activation is considered,
+**Then** provider parity, ownership/privacy, fixed-byte identity, lifecycle recovery and
+required integrated acceptance evidence pass first.
+
+**Given** required schema changes,
+**When** release runs,
+**Then** controlled migrations precede activation, failure blocks activation and ordinary
+previous-version compatibility or explicitly planned maintenance/recovery is demonstrated.
+
+**Given** retirement proceeds,
+**When** obsolete routes/jobs/credentials are disabled,
+**Then** controlled ordering preserves valid content and associations.
+
+**Given** release failure,
+**When** documented recovery runs,
+**Then** data and current security protections are preserved,
+**And** migrations are not automatically reversed or insecure downloads restored.
+
+**Given** retirement completes,
+**When** supported consumers and documentation are checked,
+**Then** required consumers work and manifests, clients, scaffold guidance and runbooks
+identify the supported path.
+
+**Traceability / planned verification:** Tracker Phase 4 exit gate; platform ADR-0004/
+0020/0030/0038/0054/0055, existing Content/PTS-ADOPT contracts and E4 acceptance. Observe
+affected failing acceptance/characterization before implementation. Rehearse inventory,
+supported PtS/nonproduction caller adoption, provider/security/lifecycle parity, migration
+failure/blocked activation, previous-version or maintenance recovery, credential/route
+retirement and content/reference preservation on isolated fixtures before activation.
+Exact source/test paths/commands and production inventory/release evidence remain pending.
+
+**Pre-story inputs / sizing:** Bind actual consumer/reference mapping, release order,
+compatibility/maintenance choice, migration and credential ownership, recovery procedure
+and retained historical evidence. Shared runtime/provider proof belongs to authorized
+Content delivery coordinated with Expense; Leave's own integrated proof remains Leave's
+obligation, not a demand for unfinished Leave code before Expense delivery. Reconcile
+activation boundaries and acceptance allocation with E1/E4 owners before readiness.
+No new service, universal provider migration or Scribeswell Content adoption implied.
+Final coverage/dependency consolidation, agent sizing and readiness remain open.
+
+**Impacts:** Scaffold/deployment/client tooling and retirement fixtures update under
+their owners. Shared UI: consume proven current clients; no new UI required by retirement.
+Agent context: existing ownership/release/privacy instructions suffice. Documentation:
+supported paths, coordinated owner handoff, inventory/test evidence and runbooks.
+ADR: accepted decisions unchanged. No code, tests, migrations, credential changes,
+retirement, deployment or implementation authorization.
+
+## Epic 5: Submit leave and complete the right approval process
+
+**Delivery sequence approved — 2026-10-18.** The user confirmed the ten discussion
+groups below. Continue the existing story-generation step collaboratively, one story
+at a time. Stories 5.1–5.2 scopes are approved, including requester-availability
+and temporary-eligibility verification clarifications.
+Groups are not story boundaries, estimates or a final count. Group 1 scope discussion
+is complete. Current group: 2/10, discussing Story 5.3 applicant responsibility
+coverage; 1/10 groups completed and 2 agreed E5 story scopes. Contracts, final atomic coverage,
+sizing and readiness remain open; no implementation authorized.
+
+Employees submit valid requests and follow their progress; currently authorized
+actors make the required decisions with independent funding, employee-response,
+document, employment and approval-coverage safeguards. Preserve the accepted request
+and step states, historical evidence and first draft slice.
+
+### E5 delivery sequence
+
+| Order | Delivery group | Scope and dependency boundary |
+| --- | --- | --- |
+| 1 | Resolve and explain the approval route | Consume E2 supervisor/Access and E3 policy configuration; resolve eligible one/two-step routes, self-approval and supported identical-step rules. Distinguish missing route from handled approver absence and applicant coverage gaps. Define submission snapshot evidence without silently rerouting existing requests. |
+| 2 | Establish dated temporary authority and coverage rules | Scoped same-organization appointments, responsibility/date conflicts, known absence and membership checks, authority expiry, coverage throughout the applicant's absence including new work, and reasoned exceptions. Include directional fallback evaluation and supervisor-return rules. Existing-request transfers and scheduled execution integrate in group 8; no partial appointment UI may omit required pending-work/return review. |
+| 3 | Establish consequential validation and finalization guards | Compose actual E3 duration/date-by-date funding/protected-reservation inputs and E4 verified document associations with employment, policy, same-date/daily-duration and other request rules. Model override authority separately from approval, exact employee unpaid responses and all independent finalization gates. Untracked policies retain normal gates without fictional balance/reservation effects. |
+| 4 | Submit own and authorized on-behalf requests | Concise reviewed summary, own exact unpaid acknowledgement, on-behalf reason/attribution and employee handoff without changing their draft. Commit request/cycle snapshots, applicable reservations, draft closure, authorized automatic step decisions, evidence/audit/outcome and notification intent atomically. All guards apply to immediate completion, including later-step submitters; uncertain outcomes recover without duplicate requests/effects. |
+| 5 | Resolve exceptional allocation and employee responses | Authorized reasoned multi-source overrides, current allocation review, initial on-behalf unpaid response and explained increased-unpaid response in the same request. Preserve valid decisions, show My Leave response/approver waiting states, allow otherwise eligible intermediate decisions, and finalize once only when all gates pass. Bind actual E2/E3 writer impacts rather than relying on earlier fixtures. |
+| 6 | Review and decide assigned requests | Actionable Approvals queue/review, scoped direct-report availability, permitted documents/history and exception flags; ordinary/temporary/final responsibilities share the workspace. Approve/reject with required rejection reason, retain reservations for intermediate decisions, consume on valid finalization or release on rejection, and preserve comments during stale/uncertain recovery. |
+| 7 | Withdraw pending requests and resubmit rejected requests | Eligible pending withdrawal releases once; rejected editing/resubmission retains the same request ID and historical details while starting a fresh validated approval cycle/allocation. Keep E1 discard distinct and E6 approved cancellation/linked replacement outside this group. |
+| 8 | Transfer pending work and complete temporary-assignment lifecycle | Explicit selected pending-work inclusion/rerouting, permanent-supervisor-change transfer as a separate owner operation, extension/early termination, preauthorized scheduled return, failed-return attention and fallback supervisor return. Preserve completed decisions and approved leave; never extend authority implicitly. Deliver durable due-work recovery with these consumers. |
+| 9 | Remind, escalate and surface coverage attention | Extend E3 owned worker/notification delivery for currently required unanswered steps, default configurable three/seven-calendar-day reminders/escalation, manager attention and lost-cover cases even without waiting requests. Waiting does not pause timers; escalation grants no authority or implicit reroute. |
+| 10 | Complete employee history and integrated workflow proof | Own year calendar/accessible list, request timeline and My Leave integration; verify actual composition across E2/E3 configuration writers, E4 documents, all finalization entry points, temporal authority, notifications, privacy, concurrency and recovery. This assembles earlier evidence and fills integration gaps; it does not defer owning-story tests or permit unsafe earlier activation. |
+
+**Ordering controls:** Groups 1–3 establish rules needed by group 4's possible
+automatic completion. Group 4 includes the blocking unpaid-response state; group 5
+delivers the response/remedy journey without making missing acknowledgement optional.
+Group 6 includes team availability needed to decide, rather than postponing it to E7.
+Group 8 uses real submitted requests for transfers; group 2's scoped authority and
+expiry checks must already work without waiting for a transfer timer. Detailed story
+ordering must place each actual prerequisite first; no approved story may rely on a
+future story to satisfy its acceptance. Do not infer unspecified background
+auto-finalization triggers; settle exact entry points as pre-story inputs.
+
+Each first producer includes its required minimal email/in-app intent and actual E3
+delivery integration, not a deferred notification epic. Every affected E2/E3 writer
+must participate in current input/impact coordination before activation against actual
+requests. Group 10 cannot waive that requirement. Shared Content delivery remains
+coordinated in Expense under existing owners; Leave owns its domain integration.
+
+**Source traceability:** Features §7–11/13–16, applicable §17–18, Permissions and State
+models; spine AD-2–8/10–13; tracker approval portions of Phase 2, Phases 7–8 and relevant
+Phase 9; current approved shared/Leave DESIGN and EXPERIENCE. Existing BIZ-10–24/29–32/34,
+CALC request-consumer rows, FLOW-01–26/28 and applicable PRIV-01–14/21–22 guide story
+allocation. FLOW-27 remains E6. These references are not final atomic coverage.
+Carry accepted ADR precedence, especially 0007/0008, 0032, 0077–0082, 0088, 0112/0113,
+0125/0128/0130 and 0135; preserve stronger consequential consistency than E1 draft saves.
+
+**Open pre-story inputs:** Exact Access/People/Content/calculation and request wire
+contracts; responsibility identity, authority observation and interval semantics;
+supported identical-step collapse; shared-input protection and lock ordering;
+finalization triggers; timer anchors/timezones/restart/version semantics; withdrawal
+scope and rejected-edit persistence; actual writer-impact/activation boundaries;
+source-to-test allocation and final agent sizing/readiness. No readiness PASS inferred.
+
+**Impacts:** Scaffold/shared UI: consume existing proven operation/revision/review,
+drawer/mobile, collection, notification and recovery patterns; prove and promote any
+new domain-neutral patterns with their first consumer, updating thin scaffold references
+under platform ADR-0059 when applicable. Leave retains routing/funding/coverage semantics;
+no generic workflow engine. Agent context: existing instructions suffice for this
+proposal. Documentation: epics, tracker and handoff checkpoint updated. ADR: no new
+decision or change to accepted decisions. No application code, tests, migrations,
+provider changes, deployment or implementation authorization.
+
+
+### Story 5.1: Resolve my configured approval route and explain setup problems
+
+**Scope approved — 2026-10-18, with requester-availability clarification. Not
+implementation-ready.** Group 1/10; first agreed E5 scope. No final story count,
+atomic coverage or sizing/readiness PASS inferred.
+
+As an employee preparing a leave request,
+I want Leave to check my configured approval route and explain any setup problem,
+So that I know whether approval can proceed while my unfinished input remains saved.
+
+**Acceptance Criteria:**
+
+**Given** an applicable one-step policy,
+**When** Leave checks the configured route,
+**Then** it resolves the configured approver from current organization-scoped
+employment/access information,
+**And** a supervisor relationship alone grants no approval authority.
+
+**Given** an applicable two-step policy,
+**When** Leave checks the route,
+**Then** it resolves the supervisor step and explicitly configured eligible final
+approver without assuming the CEO or silently dropping a required step.
+
+**Given** a definitively missing or invalid configured route,
+**When** the check completes,
+**Then** show Your approval route needs to be set up and direct the employee to the
+Leave Manager, exposing the issue through authorized setup assessment,
+**And** preserve input and ordinary draft-saving availability; claim Draft saved
+only after confirmed persistence. Submission later consumes this blocking result.
+
+**Given** a required owner cannot supply a trustworthy observation,
+**When** route verification fails,
+**Then** return a safe retryable verification failure rather than missing-configuration
+or valid-route claims,
+**And** do not erase input or selections because of an outage.
+
+**Given** the requester occupies a configured approval position or the same person
+occupies consecutive positions,
+**When** the route is evaluated,
+**Then** enforce explicit self-approval and supported identical-step configuration,
+**And** never silently satisfy another person's required decision or infer authority
+from the reporting relationship. Exact supported collapse behavior remains a pre-story
+contract/configuration gate, not an implementation default.
+
+**Given** known approver absence or an applicant approval-responsibility coverage gap,
+**When** route observations are classified,
+**Then** distinguish those conditions from a missing configured route,
+**And** do not claim this story implements temporary authority, fallback or coverage
+execution; group 2 extends these rules before dependent submission behavior.
+
+**Given** requester-facing approval information,
+**When** the summary or optional workflow details are displayed,
+**Then** retain concise Approval required wording with permitted process/decision
+information on demand,
+**And** do not expose approver availability, absence reasons or internal cover
+arrangements, or assign the requester a task to find cover/chase an approver.
+A genuine missing-route blocker and actions actually required from the requester
+remain visible. The applicant's own approval-responsibility coverage is separate.
+Authorized decision history retains its existing visibility and attribution.
+
+**Given** a successful provisional route check,
+**When** editing continues or shared facts later change,
+**Then** the check grants no authority, reserves no entitlement and guarantees no
+later submission result,
+**And** it neither persists a submitted workflow nor silently changes existing request
+assignments. Group 4 rechecks and records the actual submission snapshot.
+
+**Traceability / planned verification:** Features §7/10, Permissions and current
+requester-detail clarification; Leave ADR-0007/0071/0082 and current shared authority
+rules; spine AD-2/4/7/8/12; BIZ-16/19, FLOW-01–04/07 and applicable PRIV-06/10/11/22.
+Observe failing acceptance before authorized implementation. Cover one/two steps,
+missing/ineligible supervisor/final approver, organization isolation/revoked access,
+self-approval/duplicate identities, unavailable-owner retry, preserved draft input and
+requester API/UI disclosure. Actual temporary-authority/absence execution and submission
+snapshot persistence belong to their later consumers. Test paths/commands remain open.
+
+**Pre-story inputs / sizing:** Bind actual E2 People/Access and E3 policy contracts,
+route-observation schema and freshness, safe error mapping, exact configured duplicate
+handling and authorized setup-assessment integration. Base configured-route read and
+feedback must work independently of future request writes. Reconcile detailed size
+before readiness; no new employee directory, policy editor or approval engine.
+
+**Impacts:** Scaffold/shared UI: reuse proven current-access clients, loading/error/
+retry and setup-feedback patterns; promote only a proven domain-neutral gap with this
+consumer. Routing remains Leave-owned. Agent context: existing rules suffice.
+Documentation: features/Leave EXPERIENCE clarify requester disclosure; epics, tracker
+and handoff record approval. ADR: interpretation of existing concise summary/privacy
+and role rules, no accepted decision amended or new ADR proposed. No application
+code, tests, migrations, provider changes, deployment or implementation authorization.
+
+
+### Story 5.2: Check temporary-approver eligibility and authority limits
+
+**Scope approved — 2026-10-18, including clarified verification failure wording. Not
+implementation-ready.** Group 2/10. This establishes checks, not a partially delivered
+appointment confirmation UI or a new permission grant from preview.
+
+As an authorized Leave Manager,
+I want Leave to check a proposed temporary approver against responsibilities and dates,
+So that cover is arranged with clear, limited authority.
+
+**Acceptance Criteria:**
+
+**Given** an authorized manager selecting a temporary approver,
+**When** eligibility is checked,
+**Then** permit an active member of the same organization without requiring a permanent
+Approver role,
+**And** Organization Administrator status alone does not authorize appointment.
+
+**Given** selected responsibilities and dates,
+**When** the proposal is checked,
+**Then** identify the original approver, responsibilities covered and exact period,
+including supervisor or final-step responsibilities where authorized.
+
+**Given** known absence, inactive membership or a self-approval conflict,
+**When** eligibility is evaluated,
+**Then** identify affected dates or decisions and do not treat that person as valid
+cover for those conflicts. Request-specific conflicts do not imply unrelated authority.
+
+**Given** another temporary assignment for the same responsibilities,
+**When** the proposed dates overlap,
+**Then** show the conflict and require adjusted dates or a separate authorized replacement,
+**And** permit sequential assignments rather than silently choosing between overlaps.
+
+**Given** a valid recorded appointment,
+**When** effective temporary authority is checked,
+**Then** allow only its specified responsibilities during its effective period, subject
+to current membership and request-level checks,
+**And** authority ends at expiry even if a return-processing job is delayed.
+
+**Given** temporary approval authority,
+**When** other permissions are evaluated,
+**Then** it grants no permanent role, unrelated approval powers, on-behalf editing or
+separate medical-document access.
+
+**Given** a required eligibility check fails temporarily,
+**When** Leave cannot confirm membership or check known absence,
+**Then** explain that verification could not finish and offer Retry,
+**And** do not confirm the appointment until those checks succeed. A successful check
+finding no recorded absence is a normal result, not unavailable information.
+
+**Traceability / planned verification:** Features §10/Permissions; Leave ADR-0077/0079/
+0082 and current shared access rules; spine AD-2/7/12; BIZ-21, FLOW-14/15/17 and applicable
+privacy/current-authority requirements. Observe failing acceptance before authorized
+implementation; verify same-organization active member without permanent role, denied
+appointment authority, scoped original/responsibility/date identity, sequential/overlap
+cases, known absence and self-conflict, exact start/expiry boundaries, membership loss,
+delayed timer without extended authority, no unrelated/document grants, dependency outage
+versus successful no-absence result. Exact test paths/commands remain open.
+
+**Pre-story inputs / sizing:** Bind restricted Access/People observations and authorized
+absence reads, responsibility identity, appointment evidence representation, organization
+and date/timezone boundaries, conflict mapping and current-action enforcement. Checks
+must execute against trustworthy owner inputs; unknown inputs do not become eligibility.
+No automatic appointment, transferred pending task, scheduled-return execution or temporary
+approver acceptance step is introduced here. Later full management/transfer consumers
+must integrate actual checks and their own concurrency/audit/outbox evidence before
+activation; fixtures here do not prove those writes. Final sizing/readiness remain open.
+
+**Impacts:** Scaffold/shared UI: reuse proven scoped member/date selection and safe
+verification/retry controls, promoting only proven domain-neutral gaps at first use.
+Leave owns temporary responsibility/eligibility semantics. Agent context: existing rules
+suffice. Documentation: epics, tracker and handoff approval/clarification; existing
+features/UX already supply these rules. ADR: accepted decisions unchanged. No code,
+tests, migration, active grant, deployment or implementation authorization.

@@ -121,6 +121,14 @@ calculator is introduced.
 
 ### Apply for leave
 
+Requester workflow-detail clarification — agreed 2026-10-18: optional process details
+and permitted decision history do not expose approver availability, absence reasons
+or internal cover arrangements. Routine approver unavailability belongs to authorized
+manager/approval operations, with no requester task to find cover or chase approvers.
+Show concise approval status, genuine requester actions and missing configured-route
+blockers. Preserve the separate rule for the applicant's own approval responsibilities
+and their coverage; this clarification does not waive any approval/finalization gate.
+
 When reopening an older draft, preserve entered details and refresh balances and
 applicable rules. Explain changes beside the affected field or balance, without
 a separate Review draft screen. An increased unpaid amount requires acknowledgement
