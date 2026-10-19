@@ -1,6 +1,20 @@
 # Resume shared ENV delivery after KDG planning PASS
 
-Latest actual qualification: fresh preparation/toolchain/image prerequisites pass on
+Latest correction: omitted null Config.OnBuild and reordered identical proc protections
+are accepted by the existing validator, with hostile shapes still refused. ATDD/focused
+TDD and154 distinct selected methods pass across retained source-bound calls. Fresh actual run b32e04df-ffb0-4a36-ab23-c66e5b1f29ba
+reaches running Kong but refuses post-start HostConfig.OomKillDisable=null; the OOM-field
+allowlist still expects false. No ordinary control or actual execution retry followed.
+See [correction evidence](../../../platform/deployment/ENV_KONG_PROJECTION_EVIDENCE.md)
+and [Build](../../../_bmad-output/implementation-artifacts/spec-env-kong-projection-correction.md).
+Next: characterize and correct only the newly observed null OOM default, retaining
+true/wrong-type rejection and unchanged create/transport/custody/deadlines, then use
+fresh receipts for actual qualification. Exact failed-run cleanup was separately
+approved and completed after rechecks, with both exits0/no force/four404 checks.
+A sanitized partial observation fixture reproduces the next OOM blocker offline.
+Runtime/ENV/scaffold/dependent gates stay open.
+
+Previous actual qualification: fresh preparation/toolchain/image prerequisites pass on
 491d7c685fd4c6e4294bf04f5a3373d59b895d33, but the actual Kong control refuses
 startup/unsafe_create. Read-only diagnosis identifies omitted null Config.OnBuild and
 identical masked-path members returned in a different order. Kong was created,

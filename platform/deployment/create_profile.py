@@ -422,6 +422,7 @@ def validate_kong_container(row, ident, fixture, *, started=False):
 
     Container Hostname defaults to the ID prefix. Health timing zeros and empty
     ArgsEscaped are API defaults; they cannot admit additional inherited content.
+    Omitted null OnBuild and protection-path ordering are observed API projections.
     HostConfig extras below are Docker's empty/default settings, never authority.
     """
     body = _kong_disposable_request(fixture)['body']
@@ -431,6 +432,8 @@ def validate_kong_container(row, ident, fixture, *, started=False):
     if type(config) is not dict:
         refuse()
     normalized = dict(config)
+    # API1.48 omits the pinned image's null container OnBuild field.
+    normalized.setdefault('OnBuild', None)
     if 'ArgsEscaped' in normalized:
         if normalized.pop('ArgsEscaped') is not False:
             refuse()
@@ -468,8 +471,11 @@ def validate_kong_container(row, ident, fixture, *, started=False):
             '/proc/keys', '/proc/latency_stats', '/proc/timer_list', '/proc/timer_stats',
             '/proc/sched_debug', '/proc/scsi', '/sys/firmware', '/sys/devices/virtual/powercap'],
         'ReadonlyPaths': ['/proc/bus', '/proc/fs', '/proc/irq', '/proc/sys', '/proc/sysrq-trigger']}
-    if any(not _exact_tree(host.get(key), value) for key, value in protections.items()):
-        refuse()
+    for key, value in protections.items():
+        observed = host.get(key)
+        if (type(observed) is not list or any(type(path) is not str for path in observed)
+                or len(observed) != len(set(observed)) or set(observed) != set(value)):
+            refuse()
     scalar_defaults = {**{key: False for key in ('PublishAllPorts', 'ReadonlyRootfs', 'OomKillDisable',
                          'Init')},
         **{key: 0 for key in ('CpuShares', 'CpuPeriod', 'CpuQuota', 'CpuRealtimePeriod',

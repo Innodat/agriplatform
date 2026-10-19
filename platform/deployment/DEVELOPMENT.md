@@ -1505,3 +1505,19 @@ preserved until separately approved exact-resource cleanup, now completed withou
 The exact failure/cleanup records are in [actual evidence](ENV_KONG_ACTUAL_EVIDENCE.md). A fresh source-bound run is
 required after acceptance-tested projection correction. Actual Kong lifecycle,
 ordinary compatibility, full ENV/scaffold and dependent runtime work remain gated.
+
+
+### Observed Kong projection correction — 2026-10-19
+
+The effective-container validator now accepts omitted null Config.OnBuild only and
+compares both identified protection lists by exact duplicate-free string membership.
+Non-null OnBuild, missing/extra protections and other missing Config keys still refuse.
+Pinned image validation/create/transport/deadline rules remain unchanged. Owner and
+private-process acceptance RED precede the correction;152 selected methods pass.
+A fresh actual control reaches running Kong, then refuses the separate post-start
+null OomKillDisable observation. Actual lifecycle acceptance remains open; no OOM
+policy change is included. Exact failed-run cleanup was separately approved and
+completed with both exits0/no force/four404 checks. Review adds late hostile and offline
+selected-projection coverage:154 distinct selected methods pass across retained frames,
+with three targeted methods rerun on final48 bindings. See
+[correction evidence](ENV_KONG_PROJECTION_EVIDENCE.md) for results, custody and next work.

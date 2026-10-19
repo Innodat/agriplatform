@@ -1,0 +1,36 @@
+{
+  "schema_version": 1,
+  "capture": {
+    "run_id": "b32e04df-ffb0-4a36-ab23-c66e5b1f29ba",
+    "api_version": "1.48",
+    "resource_phase": "running",
+    "kind": "selected-observation-not-full-response"
+  },
+  "omitted_config_keys": [
+    "OnBuild"
+  ],
+  "host_config": {
+    "MaskedPaths": [
+      "/proc/acpi",
+      "/proc/asound",
+      "/proc/interrupts",
+      "/proc/kcore",
+      "/proc/keys",
+      "/proc/latency_stats",
+      "/proc/sched_debug",
+      "/proc/scsi",
+      "/proc/timer_list",
+      "/proc/timer_stats",
+      "/sys/devices/virtual/powercap",
+      "/sys/firmware"
+    ],
+    "ReadonlyPaths": [
+      "/proc/bus",
+      "/proc/fs",
+      "/proc/irq",
+      "/proc/sys",
+      "/proc/sysrq-trigger"
+    ],
+    "OomKillDisable": null
+  }
+}

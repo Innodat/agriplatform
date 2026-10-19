@@ -1527,7 +1527,7 @@ class ExecutionSupervisor(unittest.TestCase):
     assert_stopped = Resources.assert_stopped
     source_with_descendant = Resources.source_with_descendant
 
-    def run_execution_case(self, scenario, *, runner=None):
+    def run_execution_case(self, scenario, *, runner=None, observed_kong_projection=False):
         import json
         import sys
         import tempfile
@@ -1620,6 +1620,9 @@ class ExecutionSupervisor(unittest.TestCase):
                 fault_at.append((len(engine.events), guards[0].deadline))
                 clock_shift[0] = 121
             if kong_execution and 'd'*64 in path and method == 'GET' and result[0] == 200:
+                if observed_kong_projection:
+                    result[1]['Config'].pop('OnBuild', None)
+                    result[1]['HostConfig']['MaskedPaths'] = sorted(result[1]['HostConfig']['MaskedPaths'])
                 if scenario == 'auth-kong-execution-custody':
                     result[1]['Config']['Env'].append('private-input-sentinel')
                 elif scenario == 'auth-kong-execution-exit' and result[1]['State']['Status'] == 'exited':
@@ -2793,6 +2796,9 @@ else: sys.exit(125)
 
     def test_kong_execution_process_ordered_lifecycle_and_post_cleanup_fact(self):
         self.run_execution_case('auth-kong-execution-positive')
+
+    def test_kong_execution_process_observed_container_projection(self):
+        self.run_execution_case('auth-kong-execution-positive', observed_kong_projection=True)
 
     def test_kong_execution_process_uncertain_create_and_custody_preserve_resources(self):
         for scenario in ('auth-kong-execution-lost', 'auth-kong-execution-custody', 'auth-kong-execution-exit'):

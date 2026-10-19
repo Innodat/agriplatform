@@ -4167,6 +4167,115 @@ class KongExecutionOwner(unittest.TestCase):
             d.guard.finish_execution()
         self.assertTrue(d.guard.owner_kong_execution_verified)
 
+    def test_observed_null_omission_and_protection_order_complete_owned_lifecycle(self):
+        for observation in ('onbuild', 'masked-order', 'readonly-order', 'combined'):
+            with self.subTest(observation=observation):
+                d, _ = self.prepared()
+                original, states = d.exchange, set()
+                def exchange(method, path, body=None, **kwargs):
+                    result = original(method, path, body, **kwargs)
+                    if method == 'GET' and path == '/v1.48/containers/'+'d'*64+'/json' and result[0] == 200:
+                        row = result[1]
+                        states.add(row['State']['Status'])
+                        if observation in ('onbuild', 'combined'): row['Config'].pop('OnBuild', None)
+                        if observation in ('masked-order', 'combined'):
+                            row['HostConfig']['MaskedPaths'] = sorted(row['HostConfig']['MaskedPaths'])
+                        if observation in ('readonly-order', 'combined'):
+                            row['HostConfig']['ReadonlyPaths'].reverse()
+                    return result
+                d.exchange = exchange
+                with patch.object(dev, 'free_ports'):
+                    d.guard.execute_kong()
+                    d.guard.finish_execution()
+                self.assertEqual(states, {'created', 'running', 'exited'})
+                self.assertTrue(d.guard.cleaned and d.guard.owner_kong_execution_verified)
+                self.assertIsNone(d.kong_row)
+
+    def test_projection_normalizations_keep_nonnull_and_invalid_protections_closed(self):
+        mutations = {}
+        for value in ([], ['RUN private-input-sentinel'], {}, '', False, 0):
+            mutations['onbuild-'+repr(value)] = lambda row, value=value: row['Config'].update(OnBuild=value)
+        mutations['other-null-absent'] = lambda row: row['Config'].pop('Volumes')
+        for key in ('MaskedPaths', 'ReadonlyPaths'):
+            mutations[key+'-missing'] = lambda row, key=key: row['HostConfig'][key].pop()
+            mutations[key+'-extra'] = lambda row, key=key: row['HostConfig'][key].append('/unexpected')
+            mutations[key+'-duplicate'] = lambda row, key=key: row['HostConfig'][key].append(row['HostConfig'][key][0])
+            mutations[key+'-replacement'] = lambda row, key=key: row['HostConfig'][key].__setitem__(0, '/unexpected')
+            for container in (tuple, set, dict.fromkeys):
+                mutations[key+'-full-'+str(container)] = lambda row, key=key, container=container: row['HostConfig'].update({key: container(row['HostConfig'][key])})
+            for value in (None, [], '', {}, (), [1], [[]]):
+                mutations[key+'-type-'+repr(value)] = lambda row, key=key, value=value: row['HostConfig'].update({key: value})
+        for fault, mutate in mutations.items():
+            with self.subTest(fault=fault):
+                d, _ = self.prepared()
+                original = d.exchange
+                def exchange(method, path, body=None, **kwargs):
+                    result = original(method, path, body, **kwargs)
+                    if method == 'GET' and path == '/v1.48/containers/'+'d'*64+'/json' and result[0] == 200:
+                        mutate(result[1])
+                    return result
+                d.exchange = exchange
+                with patch.object(dev, 'free_ports'), self.assertRaises(dev.Refusal): d.guard.execute_kong()
+                self.assertTrue(d.guard.ownership_lost)
+                before = len(d.events)
+                with self.assertRaises(dev.Refusal): d.guard.cleanup_execution()
+                self.assertEqual(before, len(d.events))
+                with self.assertRaises(dev.Refusal): d.guard.execute_kong()
+                self.assertEqual(before, len(d.events))
+                self.assertFalse(d.guard.owner_kong_execution_verified)
+
+    def test_normalized_projection_still_loses_custody_on_late_hostile_content(self):
+        for stage in ('running', 'exited'):
+            for fault in ('onbuild', 'masked', 'config', 'host'):
+                with self.subTest(stage=stage, fault=fault):
+                    d, _ = self.prepared()
+                    original, injected = d.exchange, []
+                    def exchange(method, path, body=None, **kwargs):
+                        result = original(method, path, body, **kwargs)
+                        if method == 'GET' and path == '/v1.48/containers/'+'d'*64+'/json' and result[0] == 200:
+                            row = result[1]
+                            row['Config'].pop('OnBuild', None)
+                            row['HostConfig']['MaskedPaths'] = sorted(row['HostConfig']['MaskedPaths'])
+                            if row['State']['Status'] == stage:
+                                injected.append(stage)
+                                if fault == 'onbuild': row['Config']['OnBuild'] = []
+                                elif fault == 'masked': row['HostConfig']['MaskedPaths'][0] = '/unexpected'
+                                elif fault == 'config': row['Config']['Unknown'] = None
+                                else: row['HostConfig']['Memory'] = 0
+                        return result
+                    d.exchange = exchange
+                    with patch.object(dev, 'free_ports'):
+                        if stage == 'exited': d.guard.execute_kong()
+                        with self.assertRaises(dev.Refusal):
+                            d.guard.execute_kong() if stage == 'running' else d.guard.finish_execution()
+                    self.assertTrue(injected and d.guard.ownership_lost)
+                    before = len(d.events)
+                    with self.assertRaises(dev.Refusal): d.guard.cleanup_execution()
+                    self.assertEqual(before, len(d.events))
+                    self.assertFalse(d.guard.owner_kong_execution_verified)
+                    self.assertIsNotNone(d.kong_row)
+                    later_mutations = [path for method, path, _ in d.events if method in ('POST', 'DELETE')]
+                    self.assertNotIn('/v1.48/containers/'+'d'*64+'?force=false', later_mutations)
+                    self.assertNotIn('/v1.48/containers/'+'a'*64+'/stop?t=5', later_mutations)
+
+    def test_recorded_poststart_null_oom_projection_refuses_offline(self):
+        fixture = json.loads((dev.ROOT / 'platform/deployment/fixtures/supabase-kong-observed-container-api-projection.json').read_text())
+        self.assertEqual(fixture['schema_version'], 1)
+        self.assertEqual(fixture['capture']['resource_phase'], 'running')
+        self.assertIsNone(fixture['host_config']['OomKillDisable'])
+        d, _ = self.prepared()
+        with patch.object(dev, 'free_ports'): d.guard.execute_kong()
+        row = d.copy(d.kong_row)
+        create_profile.validate_kong_container(row, 'd'*64, d.guard.kong_fixture, started=True)
+        for key in fixture['omitted_config_keys']: row['Config'].pop(key, None)
+        row['HostConfig'].update(d.copy(fixture['host_config']))
+        with self.assertRaises(dev.Refusal) as caught:
+            create_profile.validate_kong_container(row, 'd'*64, d.guard.kong_fixture, started=True)
+        self.assertEqual((caught.exception.stage, caught.exception.code), ('startup', 'unsafe_create'))
+        # This localizes the current blocker; it is not a future null-default policy.
+        row['HostConfig']['OomKillDisable'] = False
+        create_profile.validate_kong_container(row, 'd'*64, d.guard.kong_fixture, started=True)
+
     def test_premature_and_replayed_execution_consume_before_observation(self):
         d, _ = self.prepared()
         d.guard._kong_boundary_completed = False
