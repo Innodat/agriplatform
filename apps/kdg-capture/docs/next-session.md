@@ -1,5 +1,15 @@
 # Resume shared ENV delivery after KDG planning PASS
 
+Latest bounded continuation (2026-10-19): the existing ENV post-Auth owner now
+constructs/validates the next source-derived API default-privilege request and
+proves transport refusal without dispatch. See
+[evidence](../../../platform/deployment/ENV_API_DEFAULT_PRIVILEGES_REQUEST_EVIDENCE.md)
+and [Build record](../../../_bmad-output/implementation-artifacts/spec-env-api-default-privileges-request.md).
+The CLI remains terminated; no additional SQL executes. This is construction/refusal
+proof only. Actual ACL execution/semantics, subsequent setup/CLI continuation and
+runtime/scaffold acceptance remain open before dependent work. Prior actual/full
+receipts remain prior-source evidence; preserve them and uncertain resources.
+
 2026-10-14. Five epics/19 stories and shared owner boundaries are approved. The sole
 owner acknowledged all efforts; TypeScript 7.0.2/newest stable baseline is selected.
 Planning readiness is PASS; runtime prerequisites/pilot/release readiness are unproven.

@@ -1536,6 +1536,16 @@ class ExecutionSupervisor(unittest.TestCase):
             self.assertTrue(guard.auth_cli_terminated)
             catalog_entry_deadlines.append(guard.deadline)
             engine.catalog_valid = scenario != 'auth-catalog-' + mode + '-failure'
+            if mode == 'post' and scenario in ('auth-catalog-request-admitted', 'auth-catalog-request-wrong-refusal'):
+                serializer = dev._docker_request
+                def injected_serializer(method, path, body, persistent):
+                    if startup.lifecycle.valid_api_default_privileges_exec(body):
+                        if scenario == 'auth-catalog-request-admitted':
+                            return b'constructed only, never transmitted'
+                        dev.refuse('docker', 'docker_timeout')
+                    return serializer(method, path, body, persistent)
+                with patch.object(dev, '_docker_request', side_effect=injected_serializer):
+                    return catalog_sql(guard, mode)
             return catalog_sql(guard, mode)
         def execute_after_cli_exit(guard):
             current_pids = json.loads((fixture_workdirs[-1] / 'tmp/processes.json').read_text())
@@ -1649,6 +1659,7 @@ else: sys.exit(125)
                             patch.object(startup.os, 'killpg', side_effect=signal_group), \
                             patch.object(time, 'monotonic', side_effect=lambda: real_monotonic() + clock_shift[0]), \
                             patch.object(dev, 'free_ports'):
+                        result = None
                         with (nullcontext() if scenario in ('persistence-positive', 'initialized-positive', 'auth-positive', 'auth-polling', 'auth-migration-positive', 'auth-catalog-positive', 'auth-backend-positive') else self.assertRaises(KeyboardInterrupt if scenario in ('initialized-interrupt', 'auth-interrupt', 'auth-migration-interrupt') else dev.Refusal)) as caught:
                             result = startup.synthetic_probe(executable, self.owner.owner.target, self.owner.owner.args.run_id,
                                     control='fresh-pinned-cli-postgres-cli-db-backend' if backend else ('fresh-pinned-cli-postgres-auth-catalog' if catalog else ('fresh-pinned-cli-postgres-auth-migration' if migration else ('fresh-pinned-cli-postgres-auth-boundary' if poststart else ('fresh-pinned-cli-postgres-initialized' if initialized else ('fresh-pinned-cli-postgres-persistence' if persistence else 'fresh-pinned-cli-postgres'))))),
@@ -1691,6 +1702,7 @@ else: sys.exit(125)
             self.assertEqual(guard.auth_catalog_verified, positive)
             events = engine.events
             exec_creates = [i for i, (method, path, _) in enumerate(events) if method == 'POST' and path.endswith('/exec')]
+            self.assertFalse(any('alter default privileges' in str(body) for _, _, body in events))
             self.assertEqual(len(exec_creates), 4 if positive else len(backend_phases))
             pg_disposal = next(i for i, (method, path, _) in enumerate(events) if 'a'*64 in path and (method == 'DELETE' or (method == 'POST' and '/stop?' in path)))
             self.assertLess(exec_creates[-1], pg_disposal)
@@ -1699,7 +1711,7 @@ else: sys.exit(125)
                 job_delete = next(i for i, (method, path, _) in enumerate(events) if method == 'DELETE' and 'c'*64 in path)
                 self.assertLess(exec_creates[2], job_create)
                 self.assertLess(job_delete, exec_creates[3])
-                for key in ['cli_db_backend_present_verified', 'cli_db_backend_departure_verified', 'auth_catalog_precondition_verified', 'auth_catalog_verified', 'auth_job_exit_verified', 'auth_job_disposal_verified', 'cli_terminated_before_dispatch', 'pg_shutdown_verified', 'cleanup_verified']:
+                for key in ['cli_db_backend_present_verified', 'cli_db_backend_departure_verified', 'auth_catalog_precondition_verified', 'auth_catalog_verified', 'api_default_privileges_request_refused', 'auth_job_exit_verified', 'auth_job_disposal_verified', 'cli_terminated_before_dispatch', 'pg_shutdown_verified', 'cleanup_verified']:
                     self.assertTrue(result[key])
                 self.assertFalse(result['fresh_setup_completed'] or result['runtime_ready'])
             else:
@@ -1721,6 +1733,8 @@ else: sys.exit(125)
             self.assertEqual(guard.auth_catalog_verified, scenario == 'auth-catalog-positive')
             events = engine.events
             exec_creates = [i for i, (method, path, _) in enumerate(events) if method == 'POST' and path.endswith('/exec')]
+            self.assertFalse(any('alter default privileges' in str(body) for _, _, body in events))
+            self.assertEqual(len(exec_creates), 1 if pre_failed else 2)
             pg_disposal = next(i for i, (method, path, _) in enumerate(events) if 'a'*64 in path and (method == 'DELETE' or (method == 'POST' and '/stop?' in path)))
             self.assertLess(exec_creates[-1], pg_disposal)
             if not pre_failed:
@@ -1729,11 +1743,15 @@ else: sys.exit(125)
                 self.assertLess(exec_creates[0], job_create)
                 self.assertLess(job_delete, exec_creates[1])
             if scenario == 'auth-catalog-positive':
-                for key in ['auth_catalog_precondition_verified', 'auth_catalog_verified', 'auth_job_exit_verified', 'auth_job_disposal_verified', 'cli_terminated_before_dispatch', 'pg_shutdown_verified', 'cleanup_verified']:
+                for key in ['auth_catalog_precondition_verified', 'auth_catalog_verified', 'api_default_privileges_request_refused', 'auth_job_exit_verified', 'auth_job_disposal_verified', 'cli_terminated_before_dispatch', 'pg_shutdown_verified', 'cleanup_verified']:
                     self.assertTrue(result[key])
                 self.assertFalse(result['fresh_setup_completed'] or result['runtime_ready'])
             else:
-                self.assertEqual(caught.exception.code, 'execution_sql_failed')
+                expected_code = {'auth-catalog-request-admitted': 'invalid_owner_handoff',
+                                 'auth-catalog-request-wrong-refusal': 'docker_timeout'}.get(scenario, 'execution_sql_failed')
+                self.assertEqual(caught.exception.code, expected_code)
+                self.assertIsNone(result)
+                self.assertFalse(guard.api_default_privileges_request_refused)
             return
         if migration:
             guard = guards[0]
@@ -1766,6 +1784,7 @@ else: sys.exit(125)
             self.assertLess(job_deletes[0], min(pg_disposal))
             self.assertEqual(sum(method == 'POST' and path.endswith('/start') for method, path in writes), 2)
             if scenario == 'auth-migration-positive':
+                self.assertNotIn('api_default_privileges_request_refused', result)
                 for key in ['auth_job_dispatched', 'auth_job_exit_verified', 'auth_job_disposal_verified',
                             'cli_terminated_before_dispatch', 'pg_shutdown_verified', 'cleanup_verified']:
                     self.assertTrue(result[key])
@@ -1789,6 +1808,7 @@ else: sys.exit(125)
             self.assertEqual(sum('/containers/create?' in p for _, p, _ in engine.events), 1)
             self.assertEqual(sum(p.endswith('/start') for _, p, _ in engine.events), 1)
             if scenario in ('auth-positive', 'auth-polling'):
+                self.assertNotIn('api_default_privileges_request_refused', result)
                 self.assertTrue(result['auth_job_profile_validated'])
                 self.assertTrue(result['auth_job_refused'])
                 self.assertFalse(result['auth_job_dispatched'])
@@ -2080,6 +2100,11 @@ else: sys.exit(125)
 
     def test_auth_catalog_process_predicate_failures_do_not_qualify(self):
         for scenario in ['auth-catalog-pre-failure', 'auth-catalog-post-failure']:
+            with self.subTest(scenario=scenario):
+                self.run_execution_case(scenario)
+
+    def test_default_privileges_request_process_failures_cannot_return_success(self):
+        for scenario in ('auth-catalog-request-admitted', 'auth-catalog-request-wrong-refusal'):
             with self.subTest(scenario=scenario):
                 self.run_execution_case(scenario)
 

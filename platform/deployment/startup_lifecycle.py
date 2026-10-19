@@ -516,6 +516,36 @@ def valid_auth_catalog_exec(body):
     return any(create_profile._exact_tree(body, auth_catalog_exec(mode)) for mode in ('pre', 'post'))
 
 
+# Supabase CLI 2.120.0, commit 753520fa7202ed5f8b25883a4c0aa7e5e9ad1fc4,
+# db-setup.ts START_REVOKE_API_PRIVILEGES_SQL (including boundary newlines).
+# This profile is construction-only and deliberately absent from dev's allowlist.
+API_DEFAULT_PRIVILEGES_SQL = '''
+alter default privileges for role postgres in schema public
+  revoke select, insert, update, delete on tables from anon, authenticated, service_role;
+alter default privileges for role postgres in schema public
+  revoke usage, select on sequences from anon, authenticated, service_role;
+alter default privileges for role postgres in schema public
+  revoke execute on functions from anon, authenticated, service_role;
+'''
+
+
+def _api_default_privileges_profile():
+    return {'AttachStdin': False, 'AttachStdout': False, 'AttachStderr': False,
+            'Tty': False, 'Privileged': False, 'User': 'postgres', 'Env': ['PGPASSWORD=postgres'],
+            'Cmd': ['psql', '-X', '-A', '-t', '-v', 'ON_ERROR_STOP=1', '-h', '127.0.0.1',
+                    '-U', 'postgres', '-d', 'postgres', '-c', API_DEFAULT_PRIVILEGES_SQL]}
+
+
+def api_default_privileges_exec():
+    """Detached owner-derived request, never an observed CLI command or SQL dispatch."""
+    return _api_default_privileges_profile()
+
+
+def valid_api_default_privileges_exec(body):
+    import create_profile
+    return create_profile._exact_tree(body, _api_default_privileges_profile())
+
+
 def cli_db_backend_exec(mode):
     """Closed independent session observations; no backend rows leave PostgreSQL."""
     if mode not in ('present', 'departed'):

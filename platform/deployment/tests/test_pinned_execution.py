@@ -2379,6 +2379,142 @@ class AuthCatalogExecutionMatrix(unittest.TestCase):
         with patch.object(dev, 'free_ports'): d.guard.finish_execution()
         self.assertTrue(d.guard.cleaned)
 
+    def test_post_auth_default_privileges_request_acceptance_without_dispatch(self):
+        d = AuthCatalogDaemon()
+        self.run_catalog(d)
+        self.assertTrue(d.guard.api_default_privileges_request_refused)
+        self.assertEqual(d.catalog_modes, ['pre', 'post'])
+        self.assertFalse(any('alter default privileges' in str(body)
+                             for _, _, body in d.events))
+        with patch.object(dev, 'free_ports'): d.guard.finish_execution()
+        self.assertTrue(d.guard.cleaned)
+
+    def test_default_privileges_request_matches_pinned_sql_and_closed_envelope(self):
+        import startup_lifecycle as lifecycle
+        body = lifecycle.api_default_privileges_exec()
+        expected_sql = '''
+alter default privileges for role postgres in schema public
+  revoke select, insert, update, delete on tables from anon, authenticated, service_role;
+alter default privileges for role postgres in schema public
+  revoke usage, select on sequences from anon, authenticated, service_role;
+alter default privileges for role postgres in schema public
+  revoke execute on functions from anon, authenticated, service_role;
+'''
+        expected = {'AttachStdin': False, 'AttachStdout': False, 'AttachStderr': False,
+                    'Tty': False, 'Privileged': False, 'User': 'postgres', 'Env': ['PGPASSWORD=postgres'],
+                    'Cmd': ['psql', '-X', '-A', '-t', '-v', 'ON_ERROR_STOP=1', '-h', '127.0.0.1',
+                            '-U', 'postgres', '-d', 'postgres', '-c', expected_sql]}
+        self.assertEqual(body, expected)
+        self.assertTrue(lifecycle.valid_api_default_privileges_exec(body))
+        # Construction must not silently authorize either persistent or one-shot dispatch.
+        for persistent in (False, True):
+            with self.assertRaises(dev.Refusal) as error:
+                dev._docker_request('POST', '/v1.48/containers/'+'a'*64+'/exec', body, persistent)
+            self.assertEqual((error.exception.stage, error.exception.code), ('docker', 'docker_request_invalid'))
+
+    def test_default_privileges_request_rejects_envelope_and_sql_mutations(self):
+        import startup_lifecycle as lifecycle
+        import copy
+        original = lifecycle.api_default_privileges_exec()
+        candidates = [None, [], {}, dict(original, Unexpected=False)]
+        for key, value in original.items():
+            changed = copy.deepcopy(original)
+            del changed[key]
+            candidates.append(changed)
+            changed = copy.deepcopy(original)
+            changed[key] = 0 if type(value) is bool else None
+            candidates.append(changed)
+        for index, value in enumerate(original['Cmd']):
+            changed = copy.deepcopy(original)
+            changed['Cmd'][index] = value + ' unexpected'
+            candidates.append(changed)
+        candidates.append(dict(original, Env=['PGPASSWORD=other']))
+        candidates.append(dict(original, Cmd=tuple(original['Cmd'])))
+        for body in candidates:
+            with self.subTest(body=body):
+                self.assertFalse(lifecycle.valid_api_default_privileges_exec(body))
+        original['Cmd'][-1] = 'SELECT true;'
+        self.assertTrue(lifecycle.valid_api_default_privileges_exec(lifecycle.api_default_privileges_exec()))
+
+    def test_default_privileges_bad_construction_cannot_qualify_or_replay(self):
+        import startup_lifecycle as lifecycle
+        d = AuthCatalogDaemon()
+        d.guard.auth_catalog_sql('pre')
+        d.guard.execute_auth_job()
+        body = lifecycle.api_default_privileges_exec()
+        body['Cmd'][-1] += ' SELECT true;'
+        with patch.object(lifecycle, 'api_default_privileges_exec', return_value=body):
+            with self.assertRaises(dev.Refusal): d.guard.auth_catalog_sql('post')
+        self.assertFalse(d.guard.auth_catalog_verified or d.guard.api_default_privileges_request_refused)
+        with self.assertRaises(dev.Refusal): d.guard.auth_catalog_sql('post')
+        with self.assertRaises(dev.Refusal): d.guard.finish_execution()
+        self.assertEqual(d.catalog_modes, ['pre', 'post'])
+
+    def test_default_privileges_accidental_admission_cannot_qualify(self):
+        d = AuthCatalogDaemon()
+        d.guard.auth_catalog_sql('pre')
+        d.guard.execute_auth_job()
+        with patch.object(dev, '_docker_request', return_value=b'not transmitted'):
+            with self.assertRaises(dev.Refusal) as error: d.guard.auth_catalog_sql('post')
+        self.assertEqual(error.exception.code, 'invalid_owner_handoff')
+        self.assertFalse(d.guard.auth_catalog_verified or d.guard.api_default_privileges_request_refused)
+        self.assertEqual(d.catalog_modes, ['pre', 'post'])
+        before = list(d.events)
+        with self.assertRaises(dev.Refusal): d.guard.auth_catalog_sql('post')
+        with self.assertRaises(dev.Refusal): d.guard.finish_execution()
+        self.assertEqual(d.events, before)
+
+    def test_default_privileges_wrong_refusal_cannot_qualify(self):
+        d = AuthCatalogDaemon()
+        d.guard.auth_catalog_sql('pre')
+        d.guard.execute_auth_job()
+        original = dev.Refusal('docker', 'docker_timeout')
+        with patch.object(dev, '_docker_request', side_effect=original):
+            with self.assertRaises(dev.Refusal) as error: d.guard.auth_catalog_sql('post')
+        self.assertIs(error.exception, original)
+        self.assertFalse(d.guard.auth_catalog_verified or d.guard.api_default_privileges_request_refused)
+        before = list(d.events)
+        with self.assertRaises(dev.Refusal): d.guard.auth_catalog_sql('post')
+        with self.assertRaises(dev.Refusal): d.guard.finish_execution()
+        self.assertEqual(d.events, before)
+
+    def test_default_privileges_health_change_during_construction_blocks_success(self):
+        import startup_lifecycle as lifecycle
+        d = AuthCatalogDaemon()
+        d.guard.auth_catalog_sql('pre')
+        d.guard.execute_auth_job()
+        construct = lifecycle.api_default_privileges_exec
+        def changed():
+            d.row['State']['Health']['Status'] = 'unhealthy'
+            return construct()
+        with patch.object(lifecycle, 'api_default_privileges_exec', side_effect=changed):
+            with self.assertRaises(dev.Refusal) as error: d.guard.auth_catalog_sql('post')
+        self.assertEqual(error.exception.code, 'execution_invalid_health')
+        self.assertFalse(d.guard.auth_catalog_verified or d.guard.api_default_privileges_request_refused)
+        before = list(d.events)
+        with self.assertRaises(dev.Refusal): d.guard.auth_catalog_sql('post')
+        with self.assertRaises(dev.Refusal): d.guard.finish_execution()
+        self.assertEqual(d.events, before)
+
+    def test_default_privileges_failed_catalog_never_constructs_request(self):
+        import startup_lifecycle as lifecycle
+        d = AuthCatalogDaemon()
+        d.guard.auth_catalog_sql('pre')
+        d.guard.execute_auth_job()
+        d.catalog_valid = False
+        with patch.object(lifecycle, 'api_default_privileges_exec', side_effect=AssertionError('unreachable')):
+            with self.assertRaises(dev.Refusal) as error: d.guard.auth_catalog_sql('post')
+        self.assertEqual(error.exception.code, 'execution_sql_failed')
+        self.assertFalse(d.guard.auth_catalog_verified or d.guard.api_default_privileges_request_refused)
+
+    def test_default_privileges_missing_fact_blocks_finish(self):
+        d = AuthCatalogDaemon()
+        self.run_catalog(d)
+        d.guard.api_default_privileges_request_refused = False
+        before = len(d.events)
+        with self.assertRaises(dev.Refusal): d.guard.finish_execution()
+        self.assertEqual(len(d.events), before)
+
     def test_precondition_failure_never_dispatches_job_or_replays(self):
         d = AuthCatalogDaemon()
         d.catalog_valid = False

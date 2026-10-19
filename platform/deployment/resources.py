@@ -144,6 +144,7 @@ class FreshGuard:
         self.auth_boundary = self.auth_job_refused = self.auth_terminal_attempted = False
         self.auth_migration = False
         self.auth_catalog = self.auth_catalog_precondition_verified = self.auth_catalog_verified = False
+        self.api_default_privileges_request_refused = False
         self.auth_catalog_attempts = set()
         self.cli_db_backend = self.cli_db_backend_present_verified = self.cli_db_backend_departure_verified = False
         self.cli_db_backend_attempts = set()
@@ -846,11 +847,25 @@ class FreshGuard:
                     startup.fail('execution_sql_failed')
                 break
             time.sleep(min(.1, max(0, self.remaining())))
+        if mode == 'post':
+            # Construct the next source-derived setup request, but never exchange it.
+            # Treat accidental allowlist expansion as failure, not execution authority.
+            request = startup.lifecycle.api_default_privileges_exec()
+            if not startup.lifecycle.valid_api_default_privileges_exec(request):
+                startup.fail('invalid_owner_handoff')
+            try:
+                dev._docker_request('POST', '/v1.48/containers/' + self.container_id + '/exec', request, True)
+            except dev.Refusal as error:
+                if (error.stage, error.code) != ('docker', 'docker_request_invalid'):
+                    raise
+            else:
+                startup.fail('invalid_owner_handoff')
         stable()
 
         if mode == 'pre':
             self.auth_catalog_precondition_verified = True
         else:
+            self.api_default_privileges_request_refused = True
             self.auth_catalog_verified = True
 
     def healthy_instance(self):
@@ -930,7 +945,7 @@ class FreshGuard:
             startup.fail('invalid_owner_handoff')
         if self.cli_db_backend and not self.cli_db_backend_departure_verified:
             startup.fail('invalid_owner_handoff')
-        if self.auth_catalog and not self.auth_catalog_verified:
+        if self.auth_catalog and not (self.auth_catalog_verified and self.api_default_privileges_request_refused):
             startup.fail('invalid_owner_handoff')
         # Consume finish before any mutation; SQL/lifecycle helpers require phase5.
         if getattr(self, '_finish_attempted', False):

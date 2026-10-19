@@ -1250,7 +1250,8 @@ def synthetic_probe(executable, target, run_id, network=None, control='positive'
                         'cli_health_observed': True, 'auth_job_profile_validated': True, 'auth_job_refused': guard.auth_job_refused,
                         'auth_job_dispatched': guard.auth_job_dispatched,
                         **({'cli_db_backend_present_verified': True, 'cli_db_backend_departure_verified': True} if guard.cli_db_backend else {}),
-                        **({'auth_catalog_precondition_verified': True, 'auth_catalog_verified': True} if guard.auth_catalog else {}),
+                        **({'auth_catalog_precondition_verified': True, 'auth_catalog_verified': True,
+                            'api_default_privileges_request_refused': guard.api_default_privileges_request_refused} if guard.auth_catalog else {}),
                         **({'auth_job_exit_verified': True, 'auth_job_disposal_verified': True, 'cli_terminated_before_dispatch': True, 'pg_shutdown_verified': True} if guard.auth_migration else {}), 'fresh_setup_completed': False,
                         'shutdown_verified': True, 'forced_shutdown': False, 'cleanup_verified': True,
                         'source_sha256': before_sources}

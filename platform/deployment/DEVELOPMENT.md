@@ -1179,3 +1179,16 @@ A close error creates no cleanup/adoption authority and no successful lifecycle 
 Existing stage/code/diagnostic schema, privacy and deadlines stay unchanged. Fresh
 source-bound preparation/qualification is needed before future actual execution;
 previous receipts and uncertain resources remain preserved. Runtime stays gated.
+
+## Post-Auth default-privilege request boundary
+
+Existing auth-catalog and cli-db-backend qualification now construct the next
+source-derived API default-privilege request and prove the pure transport validator
+refuses it. Success includes api_default_privileges_request_refused=true. The
+request is never exchanged; the CLI stays terminated and no additional SQL runs.
+This is construction/refusal evidence, not observed CLI SQL, ACL semantics or setup
+completion. See [scope, tests and source identity](ENV_API_DEFAULT_PRIVILEGES_REQUEST_EVIDENCE.md).
+The current absent experimental.webhooks section correctly disables webhooks for
+the pinned CLI; adding an explicit false section would be invalid. Existing config,
+deadlines and Docker allowlist are unchanged. Fresh actual qualification is required
+before runtime claims; prior receipts and uncertain resources stay preserved.
