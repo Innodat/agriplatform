@@ -214,6 +214,43 @@ def directory(path, create=False):
         os.close(fd)
 
 
+
+@contextmanager
+def _snapshot_directories(changed=None):
+    """Retain parents for one fresh source observation, then rewalk their paths.
+
+    Files are still opened/read by each caller in its original order. Nothing is
+    retained across observations, including descriptors or content. A read or
+    cancellation error remains primary if releasing a parent also fails.
+    """
+    parents = {}
+    stack = ExitStack()
+    def parent(path):
+        path = Path(path)
+        if path not in parents:
+            fd = stack.enter_context(directory(path))
+            info = os.fstat(fd)
+            parents[path] = (fd, (info.st_dev, info.st_ino))
+        return parents[path][0]
+    try:
+        yield parent
+        for path, (held, identity) in parents.items():
+            with directory(path) as current:
+                held_info, current_info = os.fstat(held), os.fstat(current)
+                if (identity != (held_info.st_dev, held_info.st_ino)
+                        or identity != (current_info.st_dev, current_info.st_ino)):
+                    if changed is not None:
+                        changed()
+                    refuse('paths', 'unsafe_path')
+    except BaseException:
+        try:
+            stack.close()
+        except BaseException:
+            pass
+        raise
+    else:
+        stack.close()
+
 def read_at(fd, name, protected=False):
     file_fd = os.open(name, os.O_RDONLY | os.O_NOFOLLOW | os.O_NONBLOCK, dir_fd=fd)
     with os.fdopen(file_fd, 'rb') as source:
@@ -273,7 +310,9 @@ def digest(raw):
 
 
 def source_evidence():
-    return {name: digest(read(ROOT / name)) for name in SOURCES}
+    with _snapshot_directories() as parent:
+        return {name: digest(read_at(parent((ROOT / name).parent), (ROOT / name).name))
+                for name in SOURCES}
 
 
 @contextmanager
@@ -589,8 +628,23 @@ def _docker_persistence_route(method, path, body):
             or (method == 'GET' and re.fullmatch(r'/v1\.48/exec/[0-9a-f]{64}/json', path) and body is None))
 
 
-def _docker_request(method, path, body, persistent):
-    if not ((method == 'GET' and body is None and (path == '/version'
+def _docker_request(method, path, body, persistent, *, _kong_fixture=None):
+    kong_scoped = False
+    if _kong_fixture is not None:
+        # A per-exchange operand, never retained as ambient session authority.
+        import create_profile
+        try:
+            expected = create_profile._kong_disposable_request(_kong_fixture)
+            kong_scoped = (persistent is True and (
+                (method == 'POST' and path == expected['path']
+                 and create_profile._exact_tree(body, expected['body']))
+                or (method == 'GET' and body is None and path ==
+                    '/v1.48/containers/supabase_kong_disposable_' + _kong_fixture['project'] + '/json')))
+        except (Refusal, KeyError, TypeError, AttributeError, ValueError):
+            refuse('docker', 'docker_request_invalid')
+        if not kong_scoped:
+            refuse('docker', 'docker_request_invalid')
+    if not (kong_scoped or (method == 'GET' and body is None and (path == '/version'
             or _docker_volume_use_route(path)
             or persistent and re.fullmatch(r'/v1\.48/containers/[0-9a-f]{64}/json', path)
             or persistent and re.fullmatch(r'/v1\.48/containers/supabase_(?:db|auth_migrate)_agriplatform-kdg-[A-Za-z0-9_-]{22}/json', path)
@@ -775,14 +829,14 @@ class DockerSession:
         if poller.poll(0):
             refuse('docker', 'docker_response_invalid')
 
-    def exchange(self, method, path, body=None):
+    def exchange(self, method, path, body=None, *, _kong_fixture=None):
         started = None
         operation, phase = 'unvalidated', 'validate'
         try:
             if self.closed:
                 refuse('docker', 'docker_session_closed')
             started = time.monotonic()
-            request = _docker_request(method, path, body, self.persistent)
+            request = _docker_request(method, path, body, self.persistent, **({'_kong_fixture': _kong_fixture} if _kong_fixture is not None else {}))
             operation = _docker_operation(method, path)
             if self.stream is None:
                 phase = 'connect'

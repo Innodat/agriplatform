@@ -301,3 +301,212 @@ class PreparationAcceptance(unittest.TestCase):
             names.append({project, expected['network'], *expected['volumes'].values(),
                           *expected['containers'].values()})
         self.assertTrue(names[0].isdisjoint(names[1]))
+
+class SourceSnapshotCharacterization(unittest.TestCase):
+    """Fresh source reads and filesystem failure contracts, without daemon access."""
+    def setUp(self):
+        from contextlib import ExitStack
+        from unittest.mock import patch
+        import dev
+        import startup
+        self.dev, self.startup = dev, startup
+        self.stack = ExitStack()
+        self.addCleanup(self.stack.close)
+        temporary = self.stack.enter_context(tempfile.TemporaryDirectory(prefix='env-source-snapshot-'))
+        self.root = Path(temporary)
+        self.parent = self.root / 'sources'
+        self.parent.mkdir(mode=0o700)
+        self.names = ['sources/' + name for name in ('a', 'b', 'c', 'd', 'a')]
+        for name in set(self.names): (self.root / name).write_bytes(b'public-source')
+        self.stack.enter_context(patch.object(dev, 'ROOT', self.root))
+        self.stack.enter_context(patch.object(dev, 'SOURCES', self.names))
+        self.stack.enter_context(patch.object(startup, 'PROOF_SOURCES', []))
+
+    def calls(self):
+        import daemon_images
+        return [('source_evidence', self.dev.source_evidence),
+                ('source_snapshot', self.startup.source_snapshot),
+                ('file_snapshot', lambda: daemon_images.file_snapshot([self.root / name for name in self.names]))]
+
+    def test_every_invocation_freshly_reads_changed_content_and_file_signatures(self):
+        for label, call in self.calls():
+            with self.subTest(owner=label):
+                path = self.parent / 'a'
+                path.write_bytes(b'first-public-source')
+                first = call()
+                path.write_bytes(b'next-public-source')
+                changed = call()
+                self.assertNotEqual(first, changed)
+                path.chmod(0o640)
+                mode_changed = call()
+                path.rename(self.parent / 'previous')
+                path.write_bytes(b'next-public-source')
+                replaced = call()
+                if label == 'file_snapshot':
+                    self.assertNotEqual(changed, mode_changed)
+                    self.assertNotEqual(mode_changed, replaced)
+                else:
+                    self.assertEqual(changed, mode_changed)
+                    self.assertEqual(mode_changed, replaced)
+                (self.parent / 'previous').unlink()
+
+    def test_file_snapshot_rejects_content_inode_and_mode_changes_during_read(self):
+        import daemon_images
+        from unittest.mock import patch
+        for fault in ('content', 'inode', 'mode'):
+            with self.subTest(fault=fault):
+                path = self.parent / 'a'
+                path.write_bytes(b'public-source')
+                path.chmod(0o600)
+                original = self.dev.read_at
+                def changed(fd, name, *args, **kwargs):
+                    raw = original(fd, name, *args, **kwargs)
+                    if fault == 'content': path.write_bytes(b'changed-public-source')
+                    elif fault == 'mode': path.chmod(0o640)
+                    else:
+                        path.rename(self.parent / 'previous')
+                        path.write_bytes(b'public-source')
+                    return raw
+                with patch.object(self.dev, 'read_at', side_effect=changed), self.assertRaises(self.dev.Refusal) as error:
+                    daemon_images.file_snapshot([path])
+                self.assertEqual((error.exception.stage, error.exception.code), ('daemon_images', 'image_evidence_changed'))
+                if (self.parent / 'previous').exists(): (self.parent / 'previous').unlink()
+
+    def test_initial_symlink_and_nonregular_source_refuse_without_following(self):
+        for label, call in self.calls():
+            for fault in ('parent-symlink', 'file-symlink', 'directory'):
+                with self.subTest(owner=label, fault=fault):
+                    if fault == 'parent-symlink':
+                        self.parent.rename(self.root / 'held')
+                        self.parent.symlink_to(self.root / 'held', target_is_directory=True)
+                    else:
+                        (self.parent / 'a').unlink()
+                        if fault == 'file-symlink': (self.parent / 'a').symlink_to(self.parent / 'b')
+                        else: (self.parent / 'a').mkdir()
+                    try:
+                        with self.assertRaises((OSError, self.dev.Refusal)): call()
+                    finally:
+                        if fault == 'parent-symlink':
+                            self.parent.unlink()
+                            (self.root / 'held').rename(self.parent)
+                        else:
+                            if fault == 'directory': (self.parent / 'a').rmdir()
+                            else: (self.parent / 'a').unlink()
+                            (self.parent / 'a').write_bytes(b'public-source')
+
+    def test_failed_read_and_cancellation_close_descriptors_preserving_original_error(self):
+        from contextlib import contextmanager
+        from unittest.mock import patch
+        for label, call in self.calls():
+            for failure in (OSError('source read failed'), KeyboardInterrupt()):
+                with self.subTest(owner=label, failure=type(failure).__name__):
+                    descriptors = []
+                    directory = self.dev.directory
+                    @contextmanager
+                    def tracked(*args, **kwargs):
+                        with directory(*args, **kwargs) as fd:
+                            descriptors.append(fd)
+                            yield fd
+                    with patch.object(self.dev, 'directory', tracked), patch.object(self.dev, 'read_at', side_effect=failure):
+                        with self.assertRaises(type(failure)) as error: call()
+                    self.assertIs(error.exception, failure)
+                    self.assertTrue(descriptors)
+                    for fd in descriptors:
+                        with self.assertRaises(OSError): os.fstat(fd)
+
+
+class SnapshotParentReuseAcceptance(unittest.TestCase):
+    def fixture(self):
+        owner = SourceSnapshotCharacterization(methodName='runTest')
+        owner.setUp()
+        self.addCleanup(owner.doCleanups)
+        return owner
+
+    def test_parent_walks_reused_but_reads_order_duplicates_and_freshness_preserved(self):
+        from unittest.mock import patch
+        owner = self.fixture()
+        for label, call in owner.calls():
+            with self.subTest(owner=label):
+                with patch.object(owner.dev, 'directory', wraps=owner.dev.directory) as directories, \
+                        patch.object(owner.dev, 'read_at', wraps=owner.dev.read_at) as reads:
+                    first = call()
+                expected = ['a', 'b', 'c', 'd'] if label == 'source_snapshot' else ['a', 'b', 'c', 'd', 'a']
+                self.assertEqual([call.args[1] for call in reads.call_args_list], expected)
+                self.assertEqual(directories.call_count, 2, 'one initial parent walk and one final identity walk required')
+                (owner.parent / 'a').write_bytes(b'new-public-source')
+                with patch.object(owner.dev, 'read_at', wraps=owner.dev.read_at) as reads:
+                    second = call()
+                self.assertEqual(reads.call_count, len(expected))
+                self.assertNotEqual(first, second)
+                (owner.parent / 'a').write_bytes(b'public-source')
+
+    def test_post_read_parent_replacement_and_symlink_refuse_and_close_held_fds(self):
+        from contextlib import contextmanager
+        from unittest.mock import patch
+        owner = self.fixture()
+        for label, call in owner.calls():
+            for fault in ('replacement', 'symlink'):
+                with self.subTest(owner=label, fault=fault):
+                    descriptors, raced = [], []
+                    original_read, original_directory = owner.dev.read_at, owner.dev.directory
+                    @contextmanager
+                    def tracked(*args, **kwargs):
+                        with original_directory(*args, **kwargs) as fd:
+                            descriptors.append(fd)
+                            yield fd
+                    def replace(fd, name, *args, **kwargs):
+                        raw = original_read(fd, name, *args, **kwargs)
+                        if not raced:
+                            owner.parent.rename(owner.root / 'held')
+                            if fault == 'symlink': owner.parent.symlink_to(owner.root / 'held', target_is_directory=True)
+                            else:
+                                owner.parent.mkdir(mode=0o700)
+                                for filename in ('a', 'b', 'c', 'd'): (owner.parent / filename).write_bytes(b'public-source')
+                            raced.append(True)
+                        return raw
+                    try:
+                        with patch.object(owner.dev, 'directory', tracked), patch.object(owner.dev, 'read_at', side_effect=replace):
+                            with self.assertRaises((OSError, owner.dev.Refusal)) as error: call()
+                        if fault == 'replacement':
+                            self.assertIsInstance(error.exception, owner.dev.Refusal)
+                            self.assertEqual((error.exception.stage, error.exception.code),
+                                ('daemon_images', 'image_evidence_changed') if label == 'file_snapshot' else ('paths', 'unsafe_path'))
+                        for fd in descriptors:
+                            with self.assertRaises(OSError): os.fstat(fd)
+                    finally:
+                        if fault == 'symlink': owner.parent.unlink()
+                        else: shutil.rmtree(owner.parent)
+                        (owner.root / 'held').rename(owner.parent)
+
+    def test_multiple_parents_close_on_success_and_cleanup_fault_preserves_active_error(self):
+        from contextlib import contextmanager
+        from unittest.mock import patch
+        owner = self.fixture()
+        other = owner.root / 'other'
+        other.mkdir(mode=0o700)
+        (other / 'source').write_bytes(b'public-source')
+        owner.names = owner.dev.SOURCES = ['sources/a', 'other/source', 'sources/b']
+        for label, call in owner.calls():
+            for failure in (None, OSError('source read failed'), KeyboardInterrupt()):
+                with self.subTest(owner=label, failure=type(failure).__name__):
+                    descriptors, reads = [], []
+                    original_directory, original_read = owner.dev.directory, owner.dev.read_at
+                    @contextmanager
+                    def tracked(*args, **kwargs):
+                        with original_directory(*args, **kwargs) as fd:
+                            descriptors.append(fd)
+                            try:
+                                yield fd
+                            finally:
+                                if failure is not None: raise ValueError('parent cleanup failed')
+                    def read(fd, name, *args, **kwargs):
+                        reads.append(name)
+                        if failure is not None and len(reads) == 2: raise failure
+                        return original_read(fd, name, *args, **kwargs)
+                    with patch.object(owner.dev, 'directory', tracked), patch.object(owner.dev, 'read_at', side_effect=read):
+                        if failure is None: call()
+                        else:
+                            with self.assertRaises(type(failure)) as error: call()
+                            self.assertIs(error.exception, failure)
+                    for fd in descriptors:
+                        with self.assertRaises(OSError): os.fstat(fd)

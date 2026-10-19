@@ -31,8 +31,9 @@ def descriptor(actual, config):
 
 def file_snapshot(paths):
     result = {}
-    for path in paths:
-        with dev.directory(path.parent) as fd:
+    with dev._snapshot_directories(lambda: fail('image_evidence_changed')) as parent:
+        for path in paths:
+            fd = parent(path.parent)
             def signature():
                 info = os.stat(path.name, dir_fd=fd, follow_symlinks=False)
                 return (info.st_dev, info.st_ino, info.st_mode, info.st_uid, info.st_nlink,

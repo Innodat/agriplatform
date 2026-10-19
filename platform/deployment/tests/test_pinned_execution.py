@@ -4118,3 +4118,425 @@ class KongBoundaryOwner(unittest.TestCase):
             self.assertTrue(d.guard.kong_boundary_attempted)
             self.assertFalse(d.guard._kong_boundary_completed or d.guard.owner_kong_boundary_verified)
             with self.assertRaises(dev.Refusal): d.guard.verify_kong_boundary()
+
+class KongExecutionOwner(unittest.TestCase):
+    def prepared(self):
+        owner = KongBoundaryOwner()
+        d, work = owner.prepared()
+        self.addCleanup(owner.doCleanups)
+        d.guard.verify_kong_boundary()
+        d.guard.kong_execution = True
+        install_kong_peer(d)
+        return d, work
+
+    def test_owned_kong_lifecycle_normal_cleanup_precedes_separate_fact(self):
+        d, _ = self.prepared()
+        deadline = d.guard.deadline
+        with patch.object(dev, 'free_ports'):
+            d.guard.execute_kong()
+        self.assertEqual(d.guard.deadline, deadline)
+        self.assertFalse(d.guard.owner_kong_execution_verified)
+        self.assertTrue(d.guard.kong_healthy_verified)
+        with patch.object(dev, 'free_ports'): d.guard.finish_execution()
+        self.assertTrue(d.guard.cleaned and d.guard.owner_kong_execution_verified)
+        mutations = [(method, path) for method, path, _ in d.events
+                     if method in ('POST', 'PUT', 'DELETE') and ('supabase_kong_disposable_' in path or 'd'*64 in path)]
+        self.assertEqual([method for method, _ in mutations], ['POST', 'PUT', 'POST', 'POST', 'DELETE'])
+        self.assertTrue(mutations[-1][1].endswith('?force=false'))
+        deletes = [path for method, path, _ in d.events if method == 'DELETE']
+        self.assertLess(deletes.index('/v1.48/containers/'+'d'*64+'?force=false'),
+                        deletes.index('/v1.48/containers/'+'a'*64+'?force=false'))
+
+    def test_only_identified_empty_api_normalizations_are_accepted(self):
+        d, _ = self.prepared()
+        original = d.exchange
+        def exchange(method, path, body=None, **kwargs):
+            result = original(method, path, body, **kwargs)
+            if method == 'GET' and '/containers/'+'d'*64 in path and result[0] == 200:
+                row = result[1]
+                row['HostConfig'].pop('Mounts')
+                row['HostConfig']['Binds'] = None
+                row['HostConfig']['LogConfig']['Config'] = None
+                row['HostConfig']['Init'] = None
+                row['Config']['Healthcheck'].update(StartPeriod=0, StartInterval=0)
+                row['Config']['ArgsEscaped'] = False
+            return result
+        d.exchange = exchange
+        with patch.object(dev, 'free_ports'):
+            d.guard.execute_kong()
+            d.guard.finish_execution()
+        self.assertTrue(d.guard.owner_kong_execution_verified)
+
+    def test_premature_and_replayed_execution_consume_before_observation(self):
+        d, _ = self.prepared()
+        d.guard._kong_boundary_completed = False
+        before = len(d.events)
+        for _ in range(2):
+            with self.assertRaises(dev.Refusal): d.guard.execute_kong()
+        self.assertEqual(before, len(d.events))
+        self.assertTrue(d.guard.kong_create_attempted)
+        self.assertFalse(d.guard.owner_kong_execution_verified)
+
+    def test_existing_unknown_colliding_and_lost_create_preserve_all_resources(self):
+        for fault in ('existing', 'malformed', 'pg-collision', 'auth-collision', 'warning', 'lost'):
+            with self.subTest(fault=fault):
+                d, _ = self.prepared()
+                original = d.exchange
+                def exchange(method, path, body=None, **kwargs):
+                    if 'supabase_kong_disposable_' in path:
+                        if method == 'GET' and fault == 'existing': return 200, {}
+                        if method == 'POST':
+                            result = original(method, path, body, **kwargs)
+                            if fault == 'malformed': return 201, {'Id': 'private-input-sentinel', 'Warnings': []}
+                            if fault == 'pg-collision': return 201, {'Id': 'a'*64, 'Warnings': []}
+                            if fault == 'auth-collision': return 201, {'Id': 'c'*64, 'Warnings': []}
+                            if fault == 'warning': return 201, {'Id': 'd'*64, 'Warnings': ['private-input-sentinel']}
+                            if fault == 'lost':
+                                d.closed = True
+                                raise dev.Refusal('docker', 'docker_response_invalid')
+                            return result
+                    return original(method, path, body, **kwargs)
+                d.exchange = exchange
+                with patch.object(dev, 'free_ports'), self.assertRaises(dev.Refusal) as error:
+                    d.guard.execute_kong()
+                self.assertNotIn('private-input-sentinel', str(error.exception))
+                self.assertTrue(d.guard.kong_creation_uncertain)
+                before = len(d.events)
+                with self.assertRaises(dev.Refusal): d.guard.execute_kong()
+                with self.assertRaises(dev.Refusal): d.guard.cleanup_execution()
+                self.assertEqual(before, len(d.events))
+                self.assertIsNotNone(d.row)
+                self.assertIsNotNone(d.volume)
+                self.assertIsNotNone(d.network)
+
+    def test_effective_config_state_network_and_mount_faults_latch_custody_loss(self):
+        changes = {
+            'env': lambda row: row['Config']['Env'].append('private-input-sentinel'),
+            'extra-config': lambda row: row['Config'].update(Shell=['private-input-sentinel']),
+            'user': lambda row: row['Config'].update(User='root'),
+            'labels': lambda row: row['Config']['Labels'].update({'com.supabase.cli.project': 'foreign'}),
+            'compose-label': lambda row: row['Config']['Labels'].update({'com.docker.compose.project': 'foreign'}),
+            'workdir-label': lambda row: row['Config']['Labels'].update({'com.supabase.cli.workdir': '/foreign'}),
+            'maintainer-label': lambda row: row['Config']['Labels'].update(maintainer='foreign'),
+            'workdir': lambda row: row['Config'].update(WorkingDir='/tmp'),
+            'stop-signal': lambda row: row['Config'].update(StopSignal='SIGKILL'),
+            'restart-policy': lambda row: row['HostConfig']['RestartPolicy'].update(Name='always'),
+            'memory': lambda row: row['HostConfig'].update(Memory=0),
+            'memory-swap': lambda row: row['HostConfig'].update(MemorySwap=0),
+            'cpu': lambda row: row['HostConfig'].update(NanoCpus=0),
+            'pids': lambda row: row['HostConfig'].update(PidsLimit=0),
+            'host-port': lambda row: row['HostConfig']['PortBindings']['8000/tcp'][0].update(HostIp='0.0.0.0'),
+
+            'command': lambda row: row['Args'].append('private-input-sentinel'),
+            'ports': lambda row: row['Config']['ExposedPorts'].update({'9999/tcp': {}}),
+            'health': lambda row: row['Config']['Healthcheck'].update(Retries=True),
+            'mount': lambda row: row['Mounts'].append({'Type': 'bind'}),
+            'host': lambda row: row['HostConfig'].update(CapAdd=['SYS_ADMIN']),
+            'alias': lambda row: next(iter(row['NetworkSettings']['Networks'].values()))['Aliases'].append('foreign'),
+            'network': lambda row: next(iter(row['NetworkSettings']['Networks'].values())).update(NetworkID='f'*64),
+            'restart': lambda row: row.update(RestartCount=True),
+            'state': lambda row: row['State'].update(Pid=True),
+            'image': lambda row: row.update(Image='sha256:'+'f'*64),
+            'name': lambda row: row.update(Name='/foreign'),
+            'timestamp': lambda row: row['State'].update(StartedAt='private-input-sentinel'),
+        }
+        for fault, change in changes.items():
+            with self.subTest(fault=fault):
+                d, _ = self.prepared()
+                original = d.exchange
+                def exchange(method, path, body=None, **kwargs):
+                    result = original(method, path, body, **kwargs)
+                    if method == 'GET' and '/containers/'+'d'*64 in path and result[0] == 200:
+                        change(result[1])
+                    return result
+                d.exchange = exchange
+                with patch.object(dev, 'free_ports'), self.assertRaises(dev.Refusal) as error: d.guard.execute_kong()
+                self.assertNotIn('private-input-sentinel', str(error.exception))
+                self.assertTrue(d.guard.ownership_lost)
+                before = len(d.events)
+                with self.assertRaises(dev.Refusal): d.guard.cleanup_execution()
+                self.assertEqual(before, len(d.events))
+                self.assertFalse(d.guard.owner_kong_execution_verified)
+
+    def test_copy_start_health_expiry_and_cancellation_never_replay(self):
+        for fault in ('copy', 'start', 'health', 'instance', 'expiry', 'cancel'):
+            with self.subTest(fault=fault):
+                d, _ = self.prepared()
+                original = d.exchange
+                def exchange(method, path, body=None, **kwargs):
+                    result = original(method, path, body, **kwargs)
+                    if '/containers/'+'d'*64 in path:
+                        if '/archive?' in path:
+                            if fault == 'copy': return 500, None
+                            if fault == 'expiry': d.deadline = d.guard.deadline = 0
+                            if fault == 'cancel': raise KeyboardInterrupt()
+                        if path.endswith('/start') and fault == 'start': return 500, None
+                        if method == 'GET' and result[0] == 200 and result[1]['State']['Status'] == 'running':
+                            if fault == 'health': result[1]['State']['Health']['Status'] = 'private-input-sentinel'
+                            if fault == 'instance':
+                                d.kong_row['State']['Health']['Status'] = 'starting'
+                                result[1]['State']['Health']['Status'] = 'starting'
+                                if d.guard.kong_started_at:
+                                    result[1]['State']['StartedAt'] = '2026-10-19T12:00:00.000000002Z'
+                    return result
+                d.exchange = exchange
+                deadline = d.guard.deadline
+                with patch.object(dev, 'free_ports'), self.assertRaises((dev.Refusal, KeyboardInterrupt)): d.guard.execute_kong()
+                if fault != 'expiry': self.assertEqual(d.guard.deadline, deadline)
+                before = len(d.events)
+                with self.assertRaises(dev.Refusal): d.guard.execute_kong()
+                with self.assertRaises(dev.Refusal): d.guard.finish_execution()
+                self.assertEqual(before, len(d.events))
+                self.assertFalse(d.guard.owner_kong_execution_verified)
+
+    def test_unhealthy_is_terminal_before_later_same_instance_recovery(self):
+        d, _ = self.prepared()
+        original = d.exchange
+        observed = []
+        health_sequence = ('starting', 'unhealthy', 'healthy')
+        def exchange(method, path, body=None, **kwargs):
+            result = original(method, path, body, **kwargs)
+            if (method == 'GET' and path == '/v1.48/containers/'+'d'*64+'/json'
+                    and result[0] == 200 and result[1]['State']['Status'] == 'running'):
+                health = health_sequence[min(len(observed), len(health_sequence)-1)]
+                observed.append(health)
+                result[1]['State']['Health']['Status'] = health
+            return result
+        d.exchange = exchange
+        deadline = d.guard.deadline
+        with patch.object(dev, 'free_ports'), self.assertRaises(dev.Refusal) as error:
+            d.guard.execute_kong()
+        self.assertEqual((error.exception.stage, error.exception.code), ('startup', 'execution_invalid_health'))
+        self.assertEqual(observed, ['starting', 'unhealthy'])
+        self.assertEqual(d.guard.deadline, deadline)
+        self.assertFalse(d.guard.kong_healthy_verified or d.guard.owner_kong_execution_verified)
+        before = len(d.events)
+        with self.assertRaises(dev.Refusal): d.guard.execute_kong()
+        with self.assertRaises(dev.Refusal): d.guard.finish_execution()
+        self.assertEqual(len(d.events), before)
+        # Known current ownership still permits bounded failure disposal.
+        with patch.object(dev, 'free_ports'): d.guard.cleanup_execution()
+        self.assertTrue(d.guard.cleaned)
+        self.assertFalse(d.guard.owner_kong_execution_verified)
+
+    def test_shutdown_shares_budget_and_cleanup_has_single_ten_second_budget(self):
+        import time
+        d, _ = self.prepared()
+        with patch.object(dev, 'free_ports'): d.guard.execute_kong()
+        original = d.exchange
+        budgets = []
+        def exchange(method, path, body=None, **kwargs):
+            if method in ('POST', 'DELETE') and ('/stop?' in path or method == 'DELETE'):
+                budgets.append((method, path, d.guard.deadline, time.monotonic()))
+            return original(method, path, body, **kwargs)
+        d.exchange = exchange
+        with patch.object(dev, 'free_ports'): d.guard.finish_execution()
+        stops = [row for row in budgets if '/stop?' in row[1]]
+        deletes = [row for row in budgets if row[0] == 'DELETE']
+        self.assertEqual(len(stops), 2)
+        self.assertEqual(stops[0][2], stops[1][2])
+        self.assertLessEqual(stops[0][2] - stops[0][3], 15)
+        self.assertEqual(len(set(row[2] for row in deletes)), 1)
+        self.assertLessEqual(deletes[0][2] - deletes[0][3], 10)
+
+    def test_changed_stopped_pg_blocks_kong_disposal_and_final_fact(self):
+        d, _ = self.prepared()
+        with patch.object(dev, 'free_ports'): d.guard.execute_kong()
+        original = d.exchange
+        def exchange(method, path, body=None, **kwargs):
+            result = original(method, path, body, **kwargs)
+            if path == '/v1.48/containers/'+'a'*64+'/stop?t=5':
+                d.row['State']['StartedAt'] = '2026-10-17T12:00:00.000000002Z'
+            return result
+        d.exchange = exchange
+        with patch.object(dev, 'free_ports'), self.assertRaises(dev.Refusal): d.guard.finish_execution()
+        with self.assertRaises(dev.Refusal): d.guard.cleanup_execution()
+        self.assertIsNotNone(d.kong_row)
+        self.assertFalse(any(method == 'DELETE' and 'd'*64 in path for method, path, _ in d.events))
+        self.assertFalse(d.guard.owner_kong_execution_verified)
+
+    def test_effective_protections_ports_and_endpoint_options_are_closed(self):
+        def endpoint(row): return next(iter(row['NetworkSettings']['Networks'].values()))
+        mutations = {
+            'masked-absent': lambda r: r['HostConfig'].pop('MaskedPaths'),
+            'masked-empty': lambda r: r['HostConfig'].update(MaskedPaths=[]),
+            'masked-null': lambda r: r['HostConfig'].update(MaskedPaths=None),
+            'readonly-absent': lambda r: r['HostConfig'].pop('ReadonlyPaths'),
+            'readonly-empty': lambda r: r['HostConfig'].update(ReadonlyPaths=[]),
+            'readonly-null': lambda r: r['HostConfig'].update(ReadonlyPaths=None),
+            'readonly-changed': lambda r: r['HostConfig']['ReadonlyPaths'].pop(),
+            'ports-missing': lambda r: r['NetworkSettings'].pop('Ports'),
+            'ports-extra': lambda r: r['NetworkSettings']['Ports'].update({'9000/tcp': None}),
+            'ports-nonloopback': lambda r: r['NetworkSettings']['Ports']['8000/tcp'][0].update(HostIp='0.0.0.0'),
+            'ports-wrong': lambda r: r['NetworkSettings']['Ports']['8000/tcp'][0].update(HostPort='55482'),
+            'endpoint-links': lambda r: endpoint(r).update(Links=['foreign']),
+            'endpoint-ipam': lambda r: endpoint(r).update(IPAMConfig={'IPv4Address': '172.20.0.9'}),
+            'endpoint-driver': lambda r: endpoint(r).update(DriverOpts={'option': 'foreign'}),
+            'endpoint-priority': lambda r: endpoint(r).update(GwPriority=1),
+            'endpoint-extra': lambda r: endpoint(r).update(UnknownOption=True),
+        }
+        for fault, mutate in mutations.items():
+            with self.subTest(fault=fault):
+                d, _ = self.prepared()
+                original = d.exchange
+                def exchange(method, path, body=None, **kwargs):
+                    result = original(method, path, body, **kwargs)
+                    if (method == 'GET' and path == '/v1.48/containers/'+'d'*64+'/json'
+                            and result[0] == 200 and result[1]['State']['Status'] == 'running'):
+                        mutate(result[1])
+                    return result
+                d.exchange = exchange
+                with patch.object(dev, 'free_ports'), self.assertRaises(dev.Refusal): d.guard.execute_kong()
+                self.assertTrue(d.guard.ownership_lost)
+                before = len(d.events)
+                with self.assertRaises(dev.Refusal): d.guard.cleanup_execution()
+                self.assertEqual(before, len(d.events))
+                self.assertFalse(d.guard.owner_kong_execution_verified)
+
+    def test_safe_dynamic_endpoint_fields_and_inactive_port_normalizations(self):
+        d, _ = self.prepared()
+        original = d.exchange
+        def exchange(method, path, body=None, **kwargs):
+            result = original(method, path, body, **kwargs)
+            if method == 'GET' and path == '/v1.48/containers/'+'d'*64+'/json' and result[0] == 200:
+                row = result[1]
+                endpoint = next(iter(row['NetworkSettings']['Networks'].values()))
+                endpoint.update(Links=None, IPAMConfig=None, DriverOpts=None, GwPriority=0, Priority=0,
+                    EndpointID='e'*64, MacAddress='02:42:ac:14:00:02', Gateway='172.20.0.1',
+                    IPAddress='172.20.0.2', IPPrefixLen=16, IPv6Gateway='', GlobalIPv6Address='',
+                    GlobalIPv6PrefixLen=0, DNSNames=['kong', 'api.supabase.internal', 'd'*12])
+                if row['State']['Status'] == 'created': row['NetworkSettings'].pop('Ports')
+                elif row['State']['Status'] == 'exited':
+                    row['NetworkSettings']['Ports'] = {port: None for port in ('8000/tcp', '8001/tcp', '8088/tcp', '8443/tcp', '8444/tcp')}
+            return result
+        d.exchange = exchange
+        with patch.object(dev, 'free_ports'):
+            d.guard.execute_kong()
+            d.guard.finish_execution()
+        self.assertTrue(d.guard.owner_kong_execution_verified)
+
+    def test_shutdown_deadline_expires_during_kong_stop_and_between_service_stops(self):
+        for boundary in ('kong-stop', 'between-stops'):
+            with self.subTest(boundary=boundary):
+                d, _ = self.prepared()
+                with patch.object(dev, 'free_ports'): d.guard.execute_kong()
+                original_exchange, original_stop = d.exchange, d.guard.stop_instance
+                clock, deadline = [100.0], []
+                def exchange(method, path, body=None, **kwargs):
+                    result = original_exchange(method, path, body, **kwargs)
+                    if path == '/v1.48/containers/'+'d'*64+'/stop?t=5' and boundary == 'kong-stop':
+                        deadline.append(d.guard.deadline)
+                        clock[0] = d.guard.deadline
+                    return result
+                def stop(started):
+                    if boundary == 'between-stops':
+                        deadline.append(d.guard.deadline)
+                        clock[0] = d.guard.deadline
+                    return original_stop(started)
+                d.exchange = exchange
+                with patch.object(resources.time, 'monotonic', side_effect=lambda: clock[0]), \
+                        patch.object(d.guard, 'stop_instance', side_effect=stop), self.assertRaises(dev.Refusal) as error:
+                    d.guard.finish_execution()
+                self.assertEqual(error.exception.code, 'docker_timeout')
+                self.assertEqual(deadline, [115.0])
+                self.assertEqual(d.guard.deadline, 115.0)
+                self.assertFalse(any(method == 'POST' and path == '/v1.48/containers/'+'a'*64+'/stop?t=5'
+                                     or method == 'DELETE' for method, path, _ in d.events
+                                     if 'c'*64 not in path))
+                self.assertFalse(d.guard.owner_kong_execution_verified or d.guard.cleaned)
+
+    def test_health_deterioration_before_finish_refuses_without_normal_stop(self):
+        d, _ = self.prepared()
+        with patch.object(dev, 'free_ports'): d.guard.execute_kong()
+        d.kong_row['State']['Health']['Status'] = 'unhealthy'
+        before = len(d.events)
+        with self.assertRaises(dev.Refusal) as error: d.guard.finish_execution()
+        self.assertEqual(error.exception.code, 'execution_invalid_health')
+        self.assertFalse(any(method == 'POST' and '/stop?' in path for method, path, _ in d.events[before:]))
+        self.assertFalse(d.guard.owner_kong_execution_verified)
+
+    def test_cleanup_fault_and_final_custody_never_publish_success(self):
+        for fault in ('delete', 'absence', 'final-custody'):
+            with self.subTest(fault=fault):
+                d, work = self.prepared()
+                with patch.object(dev, 'free_ports'): d.guard.execute_kong()
+                original = d.exchange
+                def exchange(method, path, body=None, **kwargs):
+                    if 'd'*64 in path and method == 'DELETE' and fault == 'delete': return 500, None
+                    result = original(method, path, body, **kwargs)
+                    if path == '/v1.48/containers/'+'d'*64+'/json' and result[0] == 404 and fault == 'absence':
+                        return 200, {}
+                    if method == 'GET' and path == '/v1.48/networks/'+'b'*64 and result[0] == 404 and fault == 'final-custody':
+                        (work / 'supabase/.branches/_current_branch').write_bytes(b'private-input-sentinel')
+                    return result
+                d.exchange = exchange
+                with patch.object(dev, 'free_ports'), self.assertRaises(dev.Refusal): d.guard.finish_execution()
+                self.assertFalse(d.guard.owner_kong_execution_verified)
+                before = len(d.events)
+                with self.assertRaises(dev.Refusal): d.guard.cleanup_execution()
+                self.assertEqual(before, len(d.events))
+                if fault != 'final-custody': self.assertIsNotNone(d.row)
+
+
+def install_kong_peer(d):
+    d.kong_row = None
+    original = d.exchange
+    def exchange(method, path, body=None, *, _kong_fixture=None):
+        if 'supabase_kong_disposable_' not in path and '/containers/' + 'd'*64 not in path:
+            return original(method, path, body)
+        d.current()
+        # Run the real classifier even in the in-memory independent peer.
+        if _kong_fixture is not None:
+            dev._docker_request(method, path, body, True, _kong_fixture=_kong_fixture)
+        d.events.append((method, path, d.copy(body)))
+        if '/create?' in path:
+            d.kong_transfer_fixture = {**d.fixture, 'workdir': body['Labels']['com.supabase.cli.workdir'], 'network': d.guard.network if _kong_fixture else d.network}
+            config = {key: d.copy(value) for key, value in body.items()
+                      if key not in ('HostConfig', 'NetworkingConfig')}
+            config.update(Hostname='d'*12, Domainname='', AttachStdin=False, AttachStdout=False,
+                          AttachStderr=False, Tty=False, OpenStdin=False, StdinOnce=False,
+                          Volumes=None, OnBuild=None)
+            d.kong_row = {'Id': 'd'*64, 'Name': '/supabase_kong_disposable_' + d.fixture['project'],
+                'Image': d.images[body['Image']]['Id'], 'Config': config, 'Path': 'sh',
+                'Args': d.copy(body['Cmd']), 'HostConfig': {**d.copy(body['HostConfig']), 'IpcMode': 'private',
+                    'MaskedPaths': ['/proc/asound', '/proc/acpi', '/proc/interrupts', '/proc/kcore',
+                        '/proc/keys', '/proc/latency_stats', '/proc/timer_list', '/proc/timer_stats',
+                        '/proc/sched_debug', '/proc/scsi', '/sys/firmware', '/sys/devices/virtual/powercap'],
+                    'ReadonlyPaths': ['/proc/bus', '/proc/fs', '/proc/irq', '/proc/sys', '/proc/sysrq-trigger']},
+                'Mounts': [], 'RestartCount': 0, 'Platform': 'linux',
+                'NetworkSettings': {'Ports': {}, 'Networks': {d.network['Name']: {'NetworkID': '',
+                    'Aliases': ['kong', 'api.supabase.internal']}}},
+                'State': {'Status': 'created', 'Running': False, 'Paused': False, 'Restarting': False,
+                    'Pid': 0, 'ExitCode': 0, 'Dead': False, 'OOMKilled': False, 'Error': '',
+                    'StartedAt': '0001-01-01T00:00:00Z', 'FinishedAt': '0001-01-01T00:00:00Z'}}
+            return 201, {'Id': 'd'*64, 'Warnings': []}
+        if method == 'DELETE':
+            d.kong_row = None
+            d.network['Containers'].pop('d'*64, None)
+            return 204, None
+        if '/archive?' in path:
+            import startup_lifecycle
+            startup_lifecycle.validate_kong_archive(body, d.kong_transfer_fixture)
+            return 200, None
+        if path.endswith('/start'):
+            d.kong_row['State'].update(Status='running', Running=True, Pid=456,
+                StartedAt='2026-10-19T12:00:00.000000001Z', Health={'Status': 'healthy'})
+            d.kong_row['NetworkSettings']['Networks'][d.network['Name']]['NetworkID'] = d.network['Id']
+            d.kong_row['NetworkSettings']['Ports'] = {
+                '8000/tcp': [{'HostIp': '127.0.0.1', 'HostPort': '55481'}],
+                '8001/tcp': None, '8088/tcp': None, '8443/tcp': None, '8444/tcp': None}
+            d.network['Containers']['d'*64] = {}
+            return 204, None
+        if path.endswith('/stop?t=5'):
+            d.kong_row['NetworkSettings']['Ports'] = {}
+            d.kong_row['State'].update(Status='exited', Running=False, Pid=0,
+                FinishedAt='2026-10-19T12:00:01.000000001Z')
+            return 204, None
+        return (200, d.copy(d.kong_row)) if d.kong_row else (404, None)
+    d.exchange = exchange
+
+
+class KongDaemon(AuthCatalogDaemon):
+    def __init__(self):
+        super().__init__()
+        install_kong_peer(self)

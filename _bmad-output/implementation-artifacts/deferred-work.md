@@ -85,3 +85,7 @@
 - source_spec: `_bmad-output/implementation-artifacts/spec-env-post-auth-setup-tail.md`
   summary: Investigate unverified medium pre-tail acquisition/process timing failures from the first setup-tail synthetic process attempt.
   evidence: process-tail-initial-failure.log retains positive docker_timeout before tail and a replaced-artifact case that never reached verified defaults; source/unit work overlapped, with no stable single-source binding. One unchanged serial repeat and root five-case group pass without altered limits. Capture stable source and phase/clock observations to identify cause; later passes are not explanation.
+
+- source_spec: `_bmad-output/implementation-artifacts/spec-env-kong-owned-lifecycle.md`
+  summary: Medium-unverified pre-Kong Auth handoff timing failures remain unexplained despite unchanged isolated and serial process passes.
+  evidence: Retain .local/kong-owned-lifecycle/process-final.log and process-negative-final.log; safe diagnostic runs pass without capturing the original escaping invalid_owner_handoff. The existing5s wrapper alarm covers repeated backend/custody observations; measure safe elapsed/count data and capture an original failing stack before attributing cause or optimizing. Preserve every custody boundary/deadline; no caching across observations or timeout enlargement.

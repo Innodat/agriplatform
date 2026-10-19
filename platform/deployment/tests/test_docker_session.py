@@ -1019,5 +1019,56 @@ class DockerSessionTests(unittest.TestCase):
         self.assertEqual(len(peer.requests), 1)
 
 
+
+class KongScopedTransport(unittest.TestCase):
+    def fixture(self):
+        import create_profile
+        from create_profile_fixtures import boundary_fixture
+        fixture = boundary_fixture()
+        fixture['network']['Id'] = 'b'*64
+        return fixture, create_profile._kong_disposable_request(fixture)
+
+    def test_operand_is_exact_per_exchange_persistent_and_never_default_authority(self):
+        import copy
+        import create_profile
+        fixture, request = self.fixture()
+        name_path = '/v1.48/containers/supabase_kong_disposable_' + fixture['project'] + '/json'
+        for candidate in (request, create_profile.kong_execution_request(fixture)):
+            with self.assertRaises(dev.Refusal):
+                dev._docker_request(candidate['method'], candidate['path'], candidate['body'], True)
+        dev._docker_request('GET', name_path, None, True, _kong_fixture=fixture)
+        dev._docker_request(request['method'], request['path'], request['body'], True, _kong_fixture=fixture)
+        with self.assertRaises(dev.Refusal): dev._docker_request('GET', name_path, None, True)
+        for method, path, body, persistent in (
+                ('GET', name_path, None, False), ('POST', request['path'], request['body'], False),
+                ('POST', request['path']+'&extra=1', request['body'], True),
+                ('GET', name_path.replace('disposable_', ''), None, True),
+                ('GET', '/version', None, True),
+                ('POST', create_profile.kong_execution_request(fixture)['path'], request['body'], True)):
+            with self.subTest(method=method, path=path), self.assertRaises(dev.Refusal):
+                dev._docker_request(method, path, body, persistent, _kong_fixture=fixture)
+        for key, value in (('Privileged', True), ('Memory', True), ('Binds', ['foreign:/tmp']),
+                           ('RestartPolicy', {'Name': 'always', 'MaximumRetryCount': 0})):
+            changed = copy.deepcopy(request)
+            changed['body']['HostConfig'][key] = value
+            with self.subTest(key=key), self.assertRaises(dev.Refusal):
+                dev._docker_request('POST', changed['path'], changed['body'], True, _kong_fixture=fixture)
+
+    def test_scoped_create_and_absence_use_retained_private_wire_without_authority_carryover(self):
+        fixture, request = self.fixture()
+        peer = Peer([response(None, 404), response({'Id': 'd'*64, 'Warnings': []}, 201)])
+        name_path = '/v1.48/containers/supabase_kong_disposable_' + fixture['project'] + '/json'
+        with peer.serve() as endpoint, dev.DockerSession(_socket_path=endpoint) as session:
+            self.assertEqual(session.exchange('GET', name_path, _kong_fixture=fixture)[0], 404)
+            self.assertEqual(session.exchange('POST', request['path'], request['body'], _kong_fixture=fixture)[0], 201)
+            with self.assertRaises(dev.Refusal):
+                session.exchange('POST', request['path'], request['body'])
+        self.assertEqual(peer.connections, 1)
+        self.assertEqual(len(peer.requests), 2)
+        import create_profile
+        self.assertTrue(create_profile._exact_tree(dev.decode(peer.bodies[-1]), request['body']),
+                        'scoped wire body changed')
+
+
 if __name__ == '__main__':
     unittest.main()

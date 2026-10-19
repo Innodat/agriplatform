@@ -158,6 +158,13 @@ class FreshGuard:
         self._tail_custody = None
         self.kong_boundary = self.kong_boundary_attempted = self._kong_boundary_completed = False
         self.owner_kong_boundary_verified = False
+        self.kong_execution = self.kong_create_attempted = self.kong_creation_uncertain = False
+        self.kong_copy_attempted = self.kong_start_attempted = self.kong_stop_attempted = False
+        self.kong_delete_attempted = self.kong_healthy_verified = self.kong_shutdown_verified = False
+        self.kong_disposed = self.owner_kong_execution_verified = False
+        self.kong_id = self.kong_fixture = self.kong_started_at = None
+        self.auth_job_created_id = None
+        self._shutdown_deadline = None
         self.auth_catalog_attempts = set()
         self.cli_db_backend = self.cli_db_backend_present_verified = self.cli_db_backend_departure_verified = False
         self.cli_db_backend_attempts = set()
@@ -250,7 +257,7 @@ class FreshGuard:
                 networks.fail('network_inspection_failed')
             if self.execution and self.container_id is not None:
                 members = actual.get('Containers') if type(actual) is dict else None
-                if type(members) is not dict or set(members) - {self.container_id, self.auth_job_id}:
+                if type(members) is not dict or set(members) - {self.container_id, self.auth_job_id, self.kong_id}:
                     startup.fail('execution_ownership_changed')
                 actual = dict(actual, Containers={})
             if networks.descriptor(actual, self.target, self.run_id) != self.network:
@@ -309,6 +316,10 @@ class FreshGuard:
         if not self.execution or self.auth_boundary or self.persistence or self.execution_started:
             startup.fail('invalid_owner_handoff')
         self.auth_boundary = True
+
+    def enable_kong_execution(self):
+        self.enable_kong_boundary()
+        self.kong_execution = True
 
     def enable_kong_boundary(self):
         self.enable_post_auth_setup_tail()
@@ -489,7 +500,7 @@ class FreshGuard:
             # Unknown creation must not permit deleting bridge/storage underneath it.
             self.ownership_lost = True
             startup.fail('execution_uncertain_creation')
-        self.auth_job_id = response['Id']
+        self.auth_job_created_id = self.auth_job_id = response['Id']
         self.auth_job_creation_uncertain = False
         row = self.auth_job_owned()
         if row['State']['Status'] != 'created' or row['State']['ExitCode'] != 0:
@@ -1011,6 +1022,177 @@ class FreshGuard:
         self.check()
         self._kong_boundary_completed = True
 
+    def execute_kong(self):
+        """One retained-owner lifecycle, within the original PG execution budget."""
+        import re
+        if self.kong_create_attempted:
+            startup.fail('invalid_owner_handoff')
+        self.kong_create_attempted = True
+        if (not self.kong_execution or not self._kong_boundary_completed or not self._tail_completed
+                or self.phase != 5 or self._fixture is None or self._tail_custody is None
+                or getattr(self, '_finish_attempted', False) or not self.auth_cli_terminated
+                or not self.api_default_privileges_verified or not self.auth_job_exit_verified
+                or not self.auth_job_disposed or not self.cli_db_backend_present_verified
+                or not self.cli_db_backend_departure_verified or not self.auth_catalog_verified
+                or not self.auth_catalog_precondition_verified or not self.api_default_privileges_request_refused):
+            startup.fail('invalid_owner_handoff')
+        self.auth_pg_current()
+        pins = images.load_pins(dev.read(dev.ROOT / images.PINS))
+        pin = next(item for item in pins['images'] if item['id'] == 'kong')
+        repository = 'public.ecr.aws/' + pin['repository']
+        selected = [ref for ref in self.images if ref.startswith(repository + '@sha256:')]
+        if len(selected) != 1 or self.plan.get(selected[0]) != self.images[selected[0]]['Id']:
+            startup.fail('invalid_owner_handoff')
+        fixture = {'project': dev.project_identity(self.target, self.run_id),
+                   'workdir': str(self._fixture[0]), 'network': self.network,
+                   'selection_plan': {repository + ':' + pin['tag']: selected[0]},
+                   'image_observations': self.images}
+        self.kong_fixture = fixture
+        status, image = self.session.exchange('GET', '/v1.48/images/' + selected[0] + '/json')
+        if (status != 200 or type(image) is not dict or image.get('Id') != self.images[selected[0]]['Id']
+                or image.get('Os') != 'linux' or image.get('Architecture') != 'amd64'
+                or image.get('Variant', '') != ''):
+            startup.fail('execution_image_changed')
+        create_profile.validate_kong_image_config(image.get('Config'))
+        args, environment = create_profile.kong_request(fixture), dict(create_profile.KONG_ENV)
+        source, files = create_profile.kong_execution_request(fixture), create_profile.kong_transfer_files(fixture)
+        request = create_profile.kong_disposable_execution_request(args, environment, source, files, fixture)
+        create_profile.validate_kong_disposable_execution_request(request, fixture)
+        archive = startup.lifecycle.kong_archive(files, fixture)
+        startup.lifecycle.validate_kong_archive(archive, fixture)
+        self.auth_pg_current()
+        status, _ = self.session.exchange('GET', '/v1.48/containers/supabase_kong_disposable_' + fixture['project'] + '/json',
+                                           _kong_fixture=fixture)
+        if status != 404:
+            self.kong_creation_uncertain = True
+            startup.fail('execution_existing_container')
+        self.auth_pg_current()
+        with dev.free_ports({'api': 55481}):
+            self.check()
+        self.kong_creation_uncertain = True
+        status, response = self.session.exchange(request['method'], request['path'], request['body'], _kong_fixture=fixture)
+        if (status != 201 or type(response) is not dict or set(response) != {'Id', 'Warnings'}
+                or type(response['Id']) is not str or not re.fullmatch('[0-9a-f]{64}', response['Id'])
+                or response['Id'] in {self.container_id, self.old_container_id, self.auth_job_created_id}
+                or response['Warnings'] not in (None, [])):
+            startup.fail('execution_uncertain_creation')
+        self.kong_id = response['Id']
+        self.kong_creation_uncertain = False
+        self.kong_created()
+        self.kong_copy_attempted = True
+        status, _ = self.session.exchange('PUT', '/v1.48/containers/' + self.kong_id + '/archive?path=%2F', archive)
+        if status != 200:
+            startup.fail('execution_copy_failed')
+        self.kong_created()
+        self.kong_start_attempted = True
+        status, _ = self.session.exchange('POST', '/v1.48/containers/' + self.kong_id + '/start')
+        if status != 204:
+            startup.fail('execution_start_failed')
+        while True:
+            row = self.kong_owned()
+            current = startup.lifecycle.shutdown_state(row)
+            if self.kong_started_at is not None and current != self.kong_started_at:
+                startup.fail('execution_instance_changed')
+            self.kong_started_at = current
+            health = row['State'].get('Health')
+            if type(health) is not dict or health.get('Status') not in ('starting', 'healthy'):
+                startup.fail('execution_invalid_health')
+            if health['Status'] == 'healthy':
+                break
+            time.sleep(min(.1, max(0, self.remaining())))
+        self.auth_pg_current()
+        self.check()
+        self.kong_healthy_verified = True
+
+    def kong_owned(self):
+        if self.ownership_lost or self.kong_id is None or self.kong_creation_uncertain:
+            startup.fail('execution_ownership_changed')
+        try:
+            if self.container_id not in self.stopped_instances:
+                self.auth_pg_current()
+            else:
+                pg = self.owned()
+                if pg['State'].get('Running') is True:
+                    if startup.lifecycle.shutdown_state(pg) != self.poststart_identity:
+                        startup.fail('execution_instance_changed')
+                else:
+                    startup.lifecycle.shutdown_state(pg, self.poststart_identity)
+            self.current()
+            status, row = self.session.exchange('GET', '/v1.48/containers/' + self.kong_id + '/json')
+            if status != 200 or type(row) is not dict:
+                startup.fail('execution_ownership_changed')
+            create_profile.validate_kong_container(row, self.kong_id, self.kong_fixture,
+                                                  started=self.kong_started_at is not None)
+            state = row['State']
+            if state['Status'] == 'created':
+                if (self.kong_started_at is not None or state['ExitCode'] != 0
+                        or state.get('StartedAt') != '0001-01-01T00:00:00Z'
+                        or state.get('FinishedAt') != '0001-01-01T00:00:00Z'):
+                    startup.fail('execution_instance_changed')
+            else:
+                started = state.get('StartedAt')
+                instant = startup.lifecycle.shutdown_timestamp(started)
+                if self.kong_started_at is not None and started != self.kong_started_at:
+                    startup.fail('execution_instance_changed')
+                if state['Status'] == 'running':
+                    if state['ExitCode'] != 0 or state.get('FinishedAt') != '0001-01-01T00:00:00Z':
+                        startup.fail('execution_instance_changed')
+                elif startup.lifecycle.shutdown_timestamp(state.get('FinishedAt')) <= instant:
+                    startup.fail('execution_instance_changed')
+            self.check()
+            return row
+        except dev.Refusal as error:
+            if error.code != 'docker_timeout':
+                self.ownership_lost = True
+            raise
+        except (KeyError, TypeError, ValueError, AttributeError):
+            self.ownership_lost = True
+            startup.fail('execution_ownership_changed')
+
+    def kong_created(self):
+        row = self.kong_owned()
+        if row['State']['Status'] != 'created':
+            self.ownership_lost = True
+            startup.fail('execution_ownership_changed')
+        return row
+
+    def stop_kong(self):
+        if self.kong_stop_attempted:
+            startup.fail('invalid_owner_handoff')
+        self.kong_stop_attempted = True
+        if not self.kong_healthy_verified or self.kong_started_at is None:
+            startup.fail('invalid_owner_handoff')
+        row = self.kong_owned()
+        if startup.lifecycle.shutdown_state(row) != self.kong_started_at:
+            startup.fail('execution_instance_changed')
+        if row['State'].get('Health', {}).get('Status') != 'healthy':
+            startup.fail('execution_invalid_health')
+        status, _ = self.session.exchange('POST', '/v1.48/containers/' + self.kong_id + '/stop?t=5')
+        if status != 204:
+            startup.fail('execution_stop_failed')
+        startup.lifecycle.shutdown_state(self.kong_owned(), self.kong_started_at)
+        self.kong_shutdown_verified = True
+
+    def remove_kong(self, *, clean=False):
+        if self.kong_delete_attempted or self.kong_id is None:
+            startup.fail('execution_cleanup_unresolved')
+        self.kong_delete_attempted = True
+        row = self.kong_owned()
+        if clean:
+            if not self.kong_shutdown_verified:
+                startup.fail('execution_cleanup_unresolved')
+            startup.lifecycle.shutdown_state(row, self.kong_started_at)
+        status, _ = self.session.exchange('DELETE', '/v1.48/containers/' + self.kong_id + '?force=' + ('false' if clean else 'true'))
+        if status != 204:
+            startup.fail('execution_cleanup_unresolved')
+        self.current()
+        status, _ = self.session.exchange('GET', '/v1.48/containers/' + self.kong_id + '/json')
+        if status != 404:
+            startup.fail('execution_cleanup_unresolved')
+        self.kong_id = None
+        self.kong_disposed = True
+        self.joint()
+
     def api_default_privileges_sql(self):
         if (not self.api_default_privileges or self.api_default_privileges_attempted
                 or getattr(self, '_finish_attempted', False) or self.phase != 5
@@ -1084,7 +1266,10 @@ class FreshGuard:
             startup.fail('invalid_owner_handoff')
         self.stopped_instances.add(self.container_id)
         self.check()
-        self.deadline = self.session.deadline = time.monotonic() + 15
+        if not self.kong_execution:
+            self.deadline = self.session.deadline = time.monotonic() + 15
+        elif self._shutdown_deadline is None or self.deadline != self._shutdown_deadline:
+            startup.fail('invalid_owner_handoff')
         if startup.lifecycle.shutdown_state(self.owned()) != started:
             startup.fail('execution_instance_changed')
         status, _ = self.session.exchange('POST', '/v1.48/containers/' + self.container_id + '/stop?t=5')
@@ -1151,6 +1336,8 @@ class FreshGuard:
             startup.fail('invalid_owner_handoff')
         if self.kong_boundary and not self._kong_boundary_completed:
             startup.fail('invalid_owner_handoff')
+        if self.kong_execution and not self.kong_healthy_verified:
+            startup.fail('invalid_owner_handoff')
         if self.post_auth_setup_tail and not self._tail_completed:
             startup.fail('invalid_owner_handoff')
         started = self.healthy_instance()
@@ -1161,6 +1348,11 @@ class FreshGuard:
         if self.persistence and not self.initialized_cli:
             self.persistence_sql('write', started)
             self.persistence_sql('schemas', started)
+        if self.kong_execution:
+            self.check()
+            self._shutdown_deadline = time.monotonic() + 15
+            self.deadline = self.session.deadline = self._shutdown_deadline
+            self.stop_kong()
         if not self.initialized_cli:
             self.stop_instance(started)
         if self.persistence:
@@ -1179,6 +1371,11 @@ class FreshGuard:
         if self.kong_boundary:
             self.current()
             self.owner_kong_boundary_verified = True
+        if self.kong_execution:
+            self.current()
+            if not (self.kong_disposed and self.kong_shutdown_verified and self.cleaned):
+                startup.fail('execution_cleanup_unresolved')
+            self.owner_kong_execution_verified = True
 
     def cleanup_execution(self, *, clean=False, started=None):
         """Consume one cleanup budget; never replay a mutation or recover lost ownership."""
@@ -1186,8 +1383,10 @@ class FreshGuard:
             startup.fail('execution_cleanup_unresolved')
         self.cleanup_attempted = True
         self.deadline = self.session.deadline = time.monotonic() + 10
-        if self.container_id is None or self.ownership_lost or self.session.closed or self.phase == 8 or self.auth_job_creation_uncertain:
+        if self.container_id is None or self.ownership_lost or self.session.closed or self.phase == 8 or self.auth_job_creation_uncertain or self.kong_creation_uncertain:
             startup.fail('execution_cleanup_unresolved')
+        if self.kong_id is not None:
+            self.remove_kong(clean=clean)
         if self.auth_job_id is not None:
             self.remove_auth_job()
         row = self.owned()

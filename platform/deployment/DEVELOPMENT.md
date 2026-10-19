@@ -1442,3 +1442,53 @@ The original CLI stays terminated; synthetic markers do not qualify Auth routing
 No Kong copy/start/health/disposal or full runtime readiness is claimed. Existing
 receipts remain historical; later actual qualification needs fresh source-bound
 prerequisites. See [profile evidence](ENV_KONG_DISPOSABLE_PROFILE_EVIDENCE.md).
+
+
+### Owned disposable Kong lifecycle (synthetic verification)
+
+`pinned-cli-postgres-kong-execution` is the next explicit qualification control.
+It extends the existing post-Auth setup tail and Kong boundary, retaining the
+terminated original CLI. The existing owner alone supplies an exact per-exchange
+fixture operand for disposable Kong name absence/create. Ordinary transport calls
+still refuse both Kong profiles; there is no session-wide admission flag.
+
+The owner validates the selected image and effective container Config, safe host
+settings, empty mounts, exact network and same instance. It creates once, transfers
+the existing three-file in-memory archive once, starts once and observes health.
+Create/transfer/start/health share the original120s execution deadline; Kong then PG
+shutdown share one15s deadline; cleanup has one10s attempt. Normal cleanup deletes
+Kong before PG, database volume and owned bridge, using non-force deletion and404
+confirmation. Unknown creation, lost custody or closed transport preserves resources;
+labels alone never authorize recovery. An active lifecycle error remains primary if
+best-effort cleanup also fails. No reconnect, replay or adoption is admitted.
+
+Only complete normal cleanup/final custody publishes
+`owner_kong_execution_verified`, `kong_create_executed`,
+`kong_three_file_transfer_verified`, `kong_healthy_verified`,
+`kong_shutdown_verified` and `kong_disposal_verified`. This control omits
+`kong_create_refused`; the separate boundary control retains that fact.
+Both runtime_ready and fresh_setup_completed remain false. Public marker keys do
+not qualify native tokens, functional Auth routing or full service setup.
+
+This increment verifies private synthetic peers only. Actual Docker qualification
+requires fresh source-bound preparation/toolchain/image receipts and its own evidence;
+prior receipts remain historical. Do not treat synthetic health as actual gateway
+proof. See [lifecycle evidence](ENV_KONG_EXECUTION_EVIDENCE.md) for test commands,
+retained failures and remaining gates. Full ENV/consuming scaffold acceptance precedes
+Identity/Access/WRITE and server-backed KDG; production/pilot/deployment remain gated.
+
+Source custody snapshots now reuse securely opened parent directory descriptors
+within that one invocation. Every file is still freshly opened/read/checked/hashed;
+file evidence retains its before/after signatures. Before a snapshot returns, each
+parent pathname is walked again without following symlinks and must match the held
+device/inode. Descriptors close on every exit, including rejection/cancellation;
+no observations or authority are cached across calls. This reduces repeated path
+traversal without changing the existing acquisition/helper or lifecycle deadlines.
+
+The effective inspection also requires the identified nonempty proc masked/readonly
+paths. Running NetworkSettings.Ports must match the exact loopback publication and
+unbound exposed-port entries; inactive states admit only the explicit safe empty,
+unbound or same loopback forms. Endpoint options remain empty/default, with only
+known dynamic observation fields accepted. Unhealthy during startup is terminal;
+current health is rechecked before normal shutdown. These checks strengthen the
+existing inspection policy; the approved create request remains unchanged.

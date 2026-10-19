@@ -415,3 +415,143 @@ def validate_kong_disposable_execution_request(request, fixture):
     """Closed complete comparison, including nested empty maps and scalar types."""
     if not _exact_tree(request, _kong_disposable_request(fixture)):
         refuse()
+
+
+def validate_kong_container(row, ident, fixture, *, started=False):
+    """Closed effective Config and selected safe daemon normalizations only.
+
+    Container Hostname defaults to the ID prefix. Health timing zeros and empty
+    ArgsEscaped are API defaults; they cannot admit additional inherited content.
+    HostConfig extras below are Docker's empty/default settings, never authority.
+    """
+    body = _kong_disposable_request(fixture)['body']
+    expected = {**_kong_image_config(), **{k: v for k, v in body.items()
+                if k not in ('HostConfig', 'NetworkingConfig')}, 'Hostname': ident[:12]}
+    config = row.get('Config')
+    if type(config) is not dict:
+        refuse()
+    normalized = dict(config)
+    if 'ArgsEscaped' in normalized:
+        if normalized.pop('ArgsEscaped') is not False:
+            refuse()
+    health = normalized.get('Healthcheck')
+    if type(health) is dict:
+        health = dict(health)
+        for key in ('StartPeriod', 'StartInterval'):
+            if key in health and (type(health.pop(key)) is not int or config['Healthcheck'][key] != 0):
+                refuse()
+        normalized['Healthcheck'] = health
+    if not _exact_tree(normalized, expected):
+        refuse()
+    host = row.get('HostConfig')
+    if type(host) is not dict:
+        refuse()
+    host = dict(host)
+    # Docker may omit or return null for these explicitly empty request arrays.
+    for key in ('Binds', 'Mounts'):
+        if host.get(key) is None:
+            host[key] = []
+    if _exact_tree(host.get('LogConfig'), {'Type': 'none', 'Config': None}):
+        host['LogConfig'] = {'Type': 'none', 'Config': {}}
+    if host.get('Init') is None:
+        host.pop('Init', None)
+    defaults = {key: None for key in ('Tmpfs', 'VolumesFrom', 'CapAdd', 'CapDrop', 'Devices',
+                'DeviceRequests', 'SecurityOpt', 'Links', 'Dns', 'DnsOptions', 'DnsSearch',
+                'GroupAdd', 'Ulimits', 'BlkioWeightDevice', 'BlkioDeviceReadBps',
+                'BlkioDeviceWriteBps', 'BlkioDeviceReadIOps', 'BlkioDeviceWriteIOps',
+                'DeviceCgroupRules')}
+    for key in defaults:
+        if key in host and host[key] not in (None, [], {}):
+            refuse()
+    protections = {
+        'MaskedPaths': ['/proc/asound', '/proc/acpi', '/proc/interrupts', '/proc/kcore',
+            '/proc/keys', '/proc/latency_stats', '/proc/timer_list', '/proc/timer_stats',
+            '/proc/sched_debug', '/proc/scsi', '/sys/firmware', '/sys/devices/virtual/powercap'],
+        'ReadonlyPaths': ['/proc/bus', '/proc/fs', '/proc/irq', '/proc/sys', '/proc/sysrq-trigger']}
+    if any(not _exact_tree(host.get(key), value) for key, value in protections.items()):
+        refuse()
+    scalar_defaults = {**{key: False for key in ('PublishAllPorts', 'ReadonlyRootfs', 'OomKillDisable',
+                         'Init')},
+        **{key: 0 for key in ('CpuShares', 'CpuPeriod', 'CpuQuota', 'CpuRealtimePeriod',
+            'CpuRealtimeRuntime', 'BlkioWeight', 'MemoryReservation', 'KernelMemory',
+            'KernelMemoryTCP', 'CpuCount', 'CpuPercent', 'IOMaximumIOps', 'IOMaximumBandwidth')},
+        **{key: '' for key in ('ContainerIDFile', 'VolumeDriver', 'PidMode', 'UTSMode',
+            'UsernsMode', 'Cgroup', 'CgroupParent', 'CpusetCpus', 'CpusetMems', 'Isolation')},
+        'IpcMode': 'private', 'Runtime': 'runc', 'ShmSize': 67108864, 'OomScoreAdj': 0,
+        'MemorySwappiness': None, 'ConsoleSize': [0, 0]}
+    if (any(not _exact_tree(host.get(k), v) for k, v in body['HostConfig'].items())
+            or any(k not in body['HostConfig'] and k not in defaults and k not in protections
+                   and (k not in scalar_defaults or not _exact_tree(v, scalar_defaults[k]))
+                   for k, v in host.items())):
+        refuse()
+    networks = row.get('NetworkSettings', {}).get('Networks')
+    state = row.get('State')
+    if type(networks) is not dict or set(networks) != {fixture['network']['Name']} or type(state) is not dict:
+        refuse()
+    ports = row['NetworkSettings'].get('Ports')
+    expected_ports = {port: None for port in body['ExposedPorts']}
+    expected_ports.update(body['HostConfig']['PortBindings'])
+    if state.get('Status') == 'running':
+        if not _exact_tree(ports, expected_ports):
+            refuse()
+    elif not any(_exact_tree(ports, allowed) for allowed in (
+            None, {}, {port: None for port in body['ExposedPorts']}, expected_ports)):
+        refuse()
+    endpoint = networks[fixture['network']['Name']]
+    aliases = endpoint.get('Aliases') if type(endpoint) is dict else None
+    name = 'supabase_kong_disposable_' + fixture['project']
+    if (type(aliases) is not list or any(type(a) is not str for a in aliases)
+            or len(aliases) != len(set(aliases)) or not {'kong', 'api.supabase.internal'} <= set(aliases)
+            or set(aliases) - {'kong', 'api.supabase.internal', name, ident[:12]}
+            or endpoint.get('NetworkID') not in (('', fixture['network']['Id'])
+                if not started and state.get('Status') == 'created' else (fixture['network']['Id'],))):
+        refuse()
+    # Endpoint options are closed; addresses/IDs are observations, not options.
+    permitted = {'NetworkID', 'Aliases', 'Links', 'IPAMConfig', 'DriverOpts', 'GwPriority', 'Priority',
+                 'EndpointID', 'MacAddress', 'Gateway', 'IPAddress', 'IPPrefixLen', 'IPv6Gateway',
+                 'GlobalIPv6Address', 'GlobalIPv6PrefixLen', 'DNSNames'}
+    if set(endpoint) - permitted:
+        refuse()
+    for key, empty in (('Links', []), ('IPAMConfig', {}), ('DriverOpts', {})):
+        if key in endpoint and endpoint[key] is not None and not _exact_tree(endpoint[key], empty):
+            refuse()
+    for key in ('GwPriority', 'Priority'):
+        if key in endpoint and not _exact_tree(endpoint[key], 0):
+            refuse()
+    for key, maximum in (('IPPrefixLen', 32), ('GlobalIPv6PrefixLen', 128)):
+        if key in endpoint and (type(endpoint[key]) is not int or not 0 <= endpoint[key] <= maximum):
+            refuse()
+    import ipaddress
+    for key, version in (('Gateway', 4), ('IPAddress', 4), ('IPv6Gateway', 6), ('GlobalIPv6Address', 6)):
+        if key in endpoint:
+            value = endpoint[key]
+            if type(value) is not str:
+                refuse()
+            if value:
+                try:
+                    if ipaddress.ip_address(value).version != version:
+                        refuse()
+                except ValueError:
+                    refuse()
+    for key, pattern in (('EndpointID', '[0-9a-f]{64}'), ('MacAddress', '(?:[0-9a-f]{2}:){5}[0-9a-f]{2}')):
+        if key in endpoint and (type(endpoint[key]) is not str or endpoint[key] != ''
+                                and re.fullmatch(pattern, endpoint[key]) is None):
+            refuse()
+    if 'DNSNames' in endpoint and endpoint['DNSNames'] is not None:
+        dns = endpoint['DNSNames']
+        if (type(dns) is not list or any(type(item) is not str for item in dns)
+                or len(dns) != len(set(dns)) or set(dns) - {name, ident[:12], 'kong', 'api.supabase.internal'}):
+            refuse()
+    if (row.get('Id') != ident or row.get('Name') != '/' + name
+            or row.get('Image') != fixture['image_observations'][body['Image']]['Id']
+            or row.get('Path') != 'sh' or not _exact_tree(row.get('Args'), body['Cmd'])
+            or row.get('Platform') != 'linux' or not _exact_tree(row.get('Mounts'), [])
+            or type(row.get('RestartCount')) is not int or row['RestartCount'] != 0
+            or any(state.get(k) is not False for k in ('Paused', 'Restarting', 'OOMKilled', 'Dead'))
+            or state.get('Error') != '' or type(state.get('Running')) is not bool
+            or type(state.get('Pid')) is not int or state['Pid'] < 0
+            or type(state.get('ExitCode')) is not int
+            or state.get('Status') not in ('created', 'running', 'exited')
+            or state['Running'] != (state['Status'] == 'running')
+            or (state['Pid'] > 0) != state['Running']):
+        refuse()

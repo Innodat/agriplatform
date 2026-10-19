@@ -1,6 +1,23 @@
 # Resume shared ENV delivery after KDG planning PASS
 
-Latest completed bounded ENV increment: the Kong boundary now checks the current
+Current completed bounded increment: the existing owner now supports the explicit
+synthetic disposable Kong create/transfer/start/health/stop/disposal lifecycle after
+all existing setup/boundary proofs. Final reviewed verification passes190 selected
+methods;427 distinct methods pass across the retained source-bound calls, not all
+rerun on the final bytes. Three review layers complete:10 findings patched,1 rejected,
+no review deferrals. See [Build record](../../../_bmad-output/implementation-artifacts/spec-env-kong-owned-lifecycle.md)
+and [evidence](../../../platform/deployment/ENV_KONG_EXECUTION_EVIDENCE.md).
+Existing snapshot owners reuse parent traversal only within each fresh observation,
+retaining file reads/checks and final parent identity checks. Earlier pre-Kong timing
+failures remain unexplained; one medium-unverified investigation remains deferred.
+Next: fresh actual current-source Kong qualification through existing delivery tooling,
+then remaining ENV services/native-token/functional Auth routing and consuming scaffold
+proof before Identity/Access/WRITE/server-backed KDG. Runtime/fresh-setup readiness
+remain false. Preserve concurrent documents, receipts/resources, TS7.0.2/mail15484
+and existing approval boundaries. This increment used synthetic peers only.
+
+
+Previous completed bounded ENV increment: the Kong boundary now checks the current
 selected image's exact API 1.48 Config and validates a separate disposable create
 profile with no restart/logging, resource bounds, no mounts and loopback-only publish.
 Both source and disposable creates stay refused; no Kong runtime action is admitted.
@@ -527,7 +544,8 @@ still refuses runtime_adapter_unqualified. Full516 deployment tests PASS348.807s
 Three-layer review completed; focused patches pass47 tests. Fresh707b9ed0 actual
 PostgreSQL check proves seven corrupt-state predicate rejections and rejects a
 persisted wrong cluster with correct UUID (execution_sql_failed51.934s), with owned
-cleanup and unchanged receipts/inventory. Final post-patch regression is pending.
+cleanup and unchanged receipts/inventory. Historical checkpoint: final post-patch
+regression was pending then; retain the subsequent recorded results.
 
 Keep cross-execution volume admission/reconciliation, full CLI/stack runtime, owner
 migrations/fixtures/current authorization, public lifecycle/recovery, provider/device
