@@ -695,3 +695,27 @@ Auth service, public lifecycle/runtime, ENV/P1/SERVICE consuming scaffold and de
 Identity/Access/WRITE/server KDG remain gated. Preserve concurrent Leave/PtS/Expense/
 brainstorming files and index, TypeScript7.0.2/mail15484 and custody/deadline rules.
 No Leave/editor, production/pilot work, deployment or push.
+
+## Current continuation — socket-close error preservation complete, 2026-10-19
+
+bmad-help selects the existing ENV transport close-error investigation from the last
+review. The [small Build](../../../_bmad-output/implementation-artifacts/spec-env-docker-close-failure.md)
+uses the oneshot route under standing approval. Acceptance RED reproduces lost
+transport classification when socket close also fails; correction preserves active
+errors/cancellation and safe metadata, while explicit/normal-exit close errors still
+surface. Stream invalidation/detachment precedes one attempt; no reconnect/replay or
+kernel/resource-cleanup claim. Root33 session/92 affected owner/one four-case process
+test PASS (126 tests). One independent review addresses all five findings through
+test/evidence additions, none newly deferred; see
+[evidence](../../../platform/deployment/ENV_DOCKER_CLOSE_EVIDENCE.md).
+
+No actual Docker startup or full-suite result is claimed for this source. Previous
+638-test and runtime-control evidence stays tied to the prior source; receipts are
+preserved and future actual qualification needs fresh preparation. All existing
+ENV/P1/SERVICE/runtime/dependent gates, approved pins/ports, custody and concurrent
+work protections remain. No Leave/editor, production/pilot work or push.
+
+This bounded close-OSError investigation is resolved; earlier deferred-work entries are
+preserved as history. Remaining divergent-ancestry/older investigations stay open.
+Use bmad-help to select the next existing bounded ENV prerequisite; keep broader
+runtime/scaffold/dependent gates closed until their actual delivery evidence passes.

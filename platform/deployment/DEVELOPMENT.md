@@ -1163,3 +1163,19 @@ deadlines, no reconnect/replay, one-shot cleanup and lost-custody preservation r
 The two historical backend timeouts remain unexplained; a later pass or this code
 change does not establish their causes. Source changes require fresh qualification;
 preserve previous receipts and uncertain resources. Public runtime remains gated.
+
+## Socket-close error handling
+
+The [close-error preservation increment](ENV_DOCKER_CLOSE_EVIDENCE.md) uses the existing
+DockerSession owner. It detaches the stream and permanently invalidates the session
+before one close attempt. If close raises OSError while an exchange or context body
+is already failing, that active error and its original selected diagnostic remain
+authoritative. Active cancellation is preserved. Explicit close or ordinary exit
+without a prior error still raises its close error; non-OSError close exceptions
+retain propagation. Repeated close/exit does not retry, reconnect or replay.
+
+Invalidated means unusable, not confirmed kernel closure or Docker-resource cleanup.
+A close error creates no cleanup/adoption authority and no successful lifecycle claim.
+Existing stage/code/diagnostic schema, privacy and deadlines stay unchanged. Fresh
+source-bound preparation/qualification is needed before future actual execution;
+previous receipts and uncertain resources remain preserved. Runtime stays gated.

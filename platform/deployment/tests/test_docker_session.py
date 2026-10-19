@@ -77,6 +77,196 @@ class Peer:
 
 class DockerSessionTests(unittest.TestCase):
 
+    def test_close_failure_acceptance_keeps_qualifier_transport_refusal(self):
+        import qualify_startup
+        transport = test_docker_gate.ScriptedSocket(response())
+        session = dev.DockerSession(deadline=5)
+        output = io.StringIO()
+        def qualify(*args):
+            with session:
+                session.exchange('GET', '/version')
+        with patch.object(dev.time, 'monotonic', return_value=1), \
+                patch.object(dev.socket, 'socket', return_value=transport) as factory, \
+                patch.object(transport, 'connect', side_effect=TimeoutError('SECRET original')), \
+                patch.object(transport, 'close', side_effect=OSError('SECRET close')) as close, \
+                patch.object(qualify_startup.startup, 'qualify', side_effect=qualify), redirect_stdout(output):
+            code = qualify_startup.main(['--target', 'SECRET target', '--run-id', 'SECRET run',
+                                          '--control', 'pinned-cli-postgres'])
+            self.assertEqual(code, 2)
+            self.assertEqual(json.loads(output.getvalue()), {'ok': False, 'runtime_ready': False,
+                'stage': 'docker', 'code': 'docker_timeout', 'docker_failure': {
+                    'schema_version': 1, 'operation': 'daemon_version', 'phase': 'connect', 'elapsed_ms': 0}})
+            self.assertTrue(session.closed)
+            self.assertIsNone(session.stream)
+            close.assert_called_once()
+            for reuse in [session.__enter__, lambda: session.exchange('GET', '/version')]:
+                with self.assertRaises(dev.Refusal) as caught:
+                    reuse()
+                self.assertEqual(caught.exception.code, 'docker_session_closed')
+            factory.assert_called_once()
+        self.assertNotIn('SECRET', output.getvalue())
+
+    def test_close_failure_preserves_active_exchange_error_and_cancellation(self):
+        errors = [TimeoutError('SECRET timeout'), OSError('SECRET transport'),
+                  dev.Refusal('docker', 'docker_response_invalid'),
+                  KeyboardInterrupt('SECRET interrupt'), SystemExit(91)]
+        for original in errors:
+            transport = test_docker_gate.ScriptedSocket(response())
+            session = dev.DockerSession(deadline=5)
+            with self.subTest(error=type(original).__name__), \
+                    patch.object(dev.time, 'monotonic', return_value=1), \
+                    patch.object(dev.socket, 'socket', return_value=transport) as factory, \
+                    patch.object(transport, 'connect', side_effect=original), \
+                    patch.object(transport, 'close', side_effect=OSError('SECRET close')) as close:
+                expected = dev.Refusal if isinstance(original, OSError) else type(original)
+                with self.assertRaises(expected) as caught:
+                    with session:
+                        session.exchange('GET', '/version')
+                if isinstance(original, OSError):
+                    self.assertEqual(caught.exception.code,
+                                     'docker_timeout' if isinstance(original, TimeoutError) else 'docker_unavailable')
+                    self.assertIs(caught.exception.__cause__, original)
+                else:
+                    self.assertIs(caught.exception, original)
+                self.assertEqual(caught.exception.docker_failure,
+                                 {'schema_version': 1, 'operation': 'daemon_version', 'phase': 'connect', 'elapsed_ms': 0})
+                self.assertTrue(session.closed)
+                self.assertIsNone(session.stream)
+                session.close()
+                close.assert_called_once()
+                factory.assert_called_once()
+
+    def test_context_close_failure_preserves_active_body_error_only(self):
+        for original in [RuntimeError('SECRET body'), KeyboardInterrupt('SECRET interrupt')]:
+            transport = test_docker_gate.ScriptedSocket(response())
+            session = dev.DockerSession()
+            session.stream = transport
+            with self.subTest(error=type(original).__name__), \
+                    patch.object(transport, 'close', side_effect=OSError('SECRET close')) as close:
+                with self.assertRaises(type(original)) as caught:
+                    with session:
+                        raise original
+                self.assertIs(caught.exception, original)
+                self.assertTrue(session.closed)
+                self.assertIsNone(session.stream)
+                self.assertIsNone(session.docker_failure)
+                session.close()
+                close.assert_called_once()
+
+    def test_standalone_or_normal_exit_close_error_is_reported_once(self):
+        for normal_exit in [False, True]:
+            transport = test_docker_gate.ScriptedSocket(response())
+            session = dev.DockerSession()
+            session.stream = transport
+            failure = OSError('SECRET close')
+            with self.subTest(normal_exit=normal_exit), patch.object(transport, 'close', side_effect=failure) as close:
+                with self.assertRaises(OSError) as caught:
+                    if normal_exit:
+                        with session:
+                            pass
+                    else:
+                        session.close()
+                self.assertIs(caught.exception, failure)
+                self.assertTrue(session.closed)
+                self.assertIsNone(session.stream)
+                self.assertIsNone(session.docker_failure)
+                session.close()
+                session.__exit__(None, None, None)
+                close.assert_called_once()
+
+    def test_non_os_close_failure_propagates_and_does_not_repeat(self):
+        cases = [(mode, failure) for mode in ['exchange', 'explicit', 'body']
+                 for failure in [RuntimeError('SECRET close'), KeyboardInterrupt('SECRET close')]]
+        for mode, failure in cases:
+            transport = test_docker_gate.ScriptedSocket(response())
+            session = dev.DockerSession(deadline=5)
+            if mode != 'exchange':
+                session.stream = transport
+            with self.subTest(mode=mode, error=type(failure).__name__), \
+                    patch.object(dev.time, 'monotonic', return_value=1), \
+                    patch.object(dev.socket, 'socket', return_value=transport), \
+                    patch.object(transport, 'connect', side_effect=TimeoutError('SECRET transport')), \
+                    patch.object(transport, 'close', side_effect=failure) as close:
+                with self.assertRaises(type(failure)) as caught:
+                    if mode == 'explicit':
+                        session.close()
+                    else:
+                        with session:
+                            if mode == 'body':
+                                raise ValueError('SECRET body')
+                            session.exchange('GET', '/version')
+                self.assertIs(caught.exception, failure)
+                self.assertTrue(session.closed)
+                self.assertIsNone(session.stream)
+                session.close()
+                close.assert_called_once()
+
+    def test_close_failure_after_mutating_transmission_keeps_phase_and_no_replay(self):
+        for phase in ['send', 'receive', 'idle_after', 'budget_after']:
+            transport = test_docker_gate.ScriptedSocket(response())
+            session = dev.DockerSession(deadline=5)
+            current = [1]
+            def send(raw):
+                transport.request = raw[:16] if phase == 'send' else raw
+                if phase == 'send':
+                    raise TimeoutError('SECRET partial write')
+            def receive(size):
+                raise TimeoutError('SECRET lost response')
+            def idle():
+                if phase == 'idle_after':
+                    dev.refuse('docker', 'docker_response_invalid')
+                if phase == 'budget_after':
+                    current[0] = 6
+            with self.subTest(phase=phase), \
+                    patch.object(dev.time, 'monotonic', side_effect=lambda: current[0]), \
+                    patch.object(dev.socket, 'socket', return_value=transport) as factory, \
+                    patch.object(transport, 'sendall', side_effect=send) as sent, \
+                    patch.object(transport, 'recv', side_effect=receive if phase == 'receive' else transport.recv), \
+                    patch.object(session, 'idle', side_effect=idle), \
+                    patch.object(transport, 'close', side_effect=OSError('SECRET close')) as close:
+                with self.assertRaises(dev.Refusal) as caught:
+                    with session:
+                        session.exchange('POST', '/v1.48/volumes/create', {})
+                record = dev.refusal_result(caught.exception)
+                self.assertEqual(record['code'], 'docker_response_invalid' if phase == 'idle_after' else 'docker_timeout')
+                self.assertEqual(record['docker_failure'], {'schema_version': 1, 'operation': 'volume_create',
+                    'phase': phase, 'elapsed_ms': 5000 if phase == 'budget_after' else 0})
+                self.assertTrue(transport.request.startswith(b'POST '))
+                for reuse in [session.__enter__, lambda: session.exchange('GET', '/version')]:
+                    with self.assertRaises(dev.Refusal):
+                        reuse()
+                sent.assert_called_once()
+                factory.assert_called_once()
+                close.assert_called_once()
+                self.assertNotIn('SECRET', json.dumps(record))
+
+    def test_successful_exchange_then_close_failure_never_emits_qualifier_success(self):
+        import qualify_startup
+        transport = test_docker_gate.ScriptedSocket(response())
+        session = dev.DockerSession(deadline=5)
+        output = io.StringIO()
+        exchanged = []
+        def qualify(*args):
+            with session:
+                exchanged.append(session.exchange('GET', '/version'))
+                return {'ok': True, 'runtime_ready': True}
+        with patch.object(dev.time, 'monotonic', return_value=1), \
+                patch.object(dev.socket, 'socket', return_value=transport), \
+                patch.object(session, 'idle'), \
+                patch.object(transport, 'close', side_effect=OSError('SECRET close')) as close, \
+                patch.object(qualify_startup.startup, 'qualify', side_effect=qualify), redirect_stdout(output):
+            code = qualify_startup.main(['--target', 'SECRET target', '--run-id', 'SECRET run',
+                                          '--control', 'pinned-cli-postgres'])
+        self.assertEqual(exchanged, [(200, {})])
+        self.assertEqual(code, 2)
+        self.assertEqual(json.loads(output.getvalue()), {'ok': False, 'runtime_ready': False,
+                         'stage': 'startup', 'code': 'startup_proof_refused'})
+        self.assertIsNone(session.stream)
+        self.assertTrue(session.closed)
+        self.assertIsNone(session.docker_failure)
+        close.assert_called_once()
+        self.assertNotIn('SECRET', output.getvalue())
+
     def test_failure_diagnostics_acceptance_connect_and_qualifier_json(self):
         import qualify_startup
         with patch.object(dev.socket, 'socket', side_effect=TimeoutError('SECRET socket/path?token')), \

@@ -658,7 +658,7 @@ def _docker_response(stream, budget, deadline, persistent, path):
 
 
 class DockerSession:
-    """One bounded Unix connection. Failure permanently closes it; never replay.
+    """One bounded Unix connection. Failure permanently invalidates it; never replay.
 
     Connect lazily after validating the first fixed-route request. The caller owns
     preparation checks and the operation deadline. A session belongs to one
@@ -682,12 +682,16 @@ class DockerSession:
 
     def close(self):
         self.closed = True
-        if self.stream is not None:
-            self.stream.close()
-            self.stream = None
+        stream, self.stream = self.stream, None
+        if stream is not None:
+            stream.close()
 
     def __exit__(self, *args):
-        self.close()
+        try:
+            self.close()
+        except OSError:
+            if not args or args[0] is None:
+                raise
 
     def budget(self):
         remaining = self.deadline - time.monotonic()
@@ -744,7 +748,11 @@ class DockerSession:
                 # Optional observation must never replace the transport failure.
                 pass
             finally:
-                self.close()
+                try:
+                    self.close()
+                except OSError:
+                    # The active exchange failure remains authoritative.
+                    pass
             if isinstance(error, (TimeoutError, OSError)):
                 refusal = Refusal('docker', 'docker_timeout' if isinstance(error, TimeoutError) else 'docker_unavailable')
                 if _valid_docker_failure(self.docker_failure):
