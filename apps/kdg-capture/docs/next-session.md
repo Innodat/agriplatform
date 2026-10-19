@@ -1,6 +1,20 @@
 # Resume shared ENV delivery after KDG planning PASS
 
-Latest completed ENV item: actual disposable-Docker qualification of the owner
+Latest completed ENV increment: source-derived Kong pre-start profile/refusal boundary follows
+the verified owner setup tail. Exact request and three-file in-memory transfer are
+validated; Kong create stays refused. A separate fact appears only after normal
+owned cleanup; the CLI stays terminated and runtime/fresh-setup readiness stay false.
+See [Build record](../../../_bmad-output/implementation-artifacts/spec-env-kong-prestart-boundary.md)
+and [evidence](../../../platform/deployment/ENV_KONG_BOUNDARY_EVIDENCE.md).331 distinct
+selected tests pass across retained calls; reviewed profile/archive48 and process5
+checks pass on the final snapshot. Three-layer review is complete:8 findings patched,
+3 rejected with evidence, no new deferrals. No actual Docker/native publisher-conformance/full-suite claim.17 concurrent
+files/index and52 prior prerequisite files remain unchanged; Docker is untouched.
+Next: Kong owner execution lifecycle (image defaults, bounded three-file transport,
+custody, health and disposal), remaining ENV and consuming scaffold proof. Dependent
+Identity/Access/WRITE and server-backed KDG stay gated.
+
+Previous completed ENV item: actual disposable-Docker qualification of the owner
 post-Auth setup tail on source1bc9837. Fresh preparation/toolchain/image qualification
 and both tail/ordinary API-default controls pass with normal cleanup. See
 [Build record](../../../_bmad-output/implementation-artifacts/spec-env-post-auth-tail-actual.md)

@@ -1082,6 +1082,8 @@ def guarded_fixture_command(command, work, env, guard):
                                         guard.api_default_privileges_sql()
                                     if guard.post_auth_setup_tail:
                                         guard.complete_post_auth_setup_tail()
+                                    if guard.kong_boundary:
+                                        guard.verify_kong_boundary()
                                     if guard.initialized_cli and guard.old_container_id is None:
                                         guard.prepare_initialized_cli()
                                         initialized_cli_command(guard, guard._secondary_retained)
@@ -1156,11 +1158,11 @@ def install_fixture(work, target, run_id, network, executable=None, guard_parent
                'executable': str(executable) if executable is not None else '',
                'database_port': target['ports']['database'], 'network': network,
                'origins': target['origins'],
-               'auth_boundary': profile_control in ('fresh-pinned-cli-postgres-auth-boundary', 'fresh-pinned-cli-postgres-auth-migration', 'fresh-pinned-cli-postgres-auth-catalog', 'fresh-pinned-cli-postgres-cli-db-backend', 'fresh-pinned-cli-postgres-api-default-privileges', 'fresh-pinned-cli-postgres-post-auth-setup-tail'),
+               'auth_boundary': profile_control in ('fresh-pinned-cli-postgres-auth-boundary', 'fresh-pinned-cli-postgres-auth-migration', 'fresh-pinned-cli-postgres-auth-catalog', 'fresh-pinned-cli-postgres-cli-db-backend', 'fresh-pinned-cli-postgres-api-default-privileges', 'fresh-pinned-cli-postgres-post-auth-setup-tail', 'fresh-pinned-cli-postgres-kong-boundary'),
                'images': references, 'postgres_image': references[0], 'selection_plan': selection_plan,
                'image_observations': image_observations,
                'initialized': initialized,
-               'execute': profile_control in ('fresh-pinned-cli-postgres', 'fresh-pinned-cli-postgres-persistence', 'fresh-pinned-cli-postgres-initialized', 'fresh-pinned-cli-postgres-auth-boundary', 'fresh-pinned-cli-postgres-auth-migration', 'fresh-pinned-cli-postgres-auth-catalog', 'fresh-pinned-cli-postgres-cli-db-backend', 'fresh-pinned-cli-postgres-api-default-privileges', 'fresh-pinned-cli-postgres-post-auth-setup-tail', 'initialized-pinned-cli-postgres'),
+               'execute': profile_control in ('fresh-pinned-cli-postgres', 'fresh-pinned-cli-postgres-persistence', 'fresh-pinned-cli-postgres-initialized', 'fresh-pinned-cli-postgres-auth-boundary', 'fresh-pinned-cli-postgres-auth-migration', 'fresh-pinned-cli-postgres-auth-catalog', 'fresh-pinned-cli-postgres-cli-db-backend', 'fresh-pinned-cli-postgres-api-default-privileges', 'fresh-pinned-cli-postgres-post-auth-setup-tail', 'fresh-pinned-cli-postgres-kong-boundary', 'initialized-pinned-cli-postgres'),
                'lifecycle': fresh or initialized or profile_control == 'lifecycle-positive' or profile_control.startswith('invalid-lifecycle-')}
     if guarded_owner:
         if not fresh and not initialized:
@@ -1187,7 +1189,7 @@ def synthetic_probe(executable, target, run_id, network=None, control='positive'
     if control not in ['positive', 'invalid-network', 'contaminated-workdir', 'reject-command', 'invalid-selection-plan',
                        'invalid-create-script', 'invalid-create-environment', 'invalid-create-routing', 'invalid-create-request',
                        'lifecycle-positive', 'invalid-lifecycle-target', 'invalid-lifecycle-archive', 'invalid-lifecycle-order',
-                       'fresh-pinned-cli-postgres', 'fresh-pinned-cli-postgres-persistence', 'fresh-pinned-cli-postgres-initialized', 'fresh-pinned-cli-postgres-auth-boundary', 'fresh-pinned-cli-postgres-auth-migration', 'fresh-pinned-cli-postgres-auth-catalog', 'fresh-pinned-cli-postgres-cli-db-backend', 'fresh-pinned-cli-postgres-api-default-privileges', 'fresh-pinned-cli-postgres-post-auth-setup-tail', 'fresh-lifecycle-positive', 'fresh-existing', 'fresh-racing', 'fresh-invalid-lifecycle-target',
+                       'fresh-pinned-cli-postgres', 'fresh-pinned-cli-postgres-persistence', 'fresh-pinned-cli-postgres-initialized', 'fresh-pinned-cli-postgres-auth-boundary', 'fresh-pinned-cli-postgres-auth-migration', 'fresh-pinned-cli-postgres-auth-catalog', 'fresh-pinned-cli-postgres-cli-db-backend', 'fresh-pinned-cli-postgres-api-default-privileges', 'fresh-pinned-cli-postgres-post-auth-setup-tail', 'fresh-pinned-cli-postgres-kong-boundary', 'fresh-lifecycle-positive', 'fresh-existing', 'fresh-racing', 'fresh-invalid-lifecycle-target',
                        'fresh-invalid-lifecycle-archive', 'fresh-invalid-lifecycle-order']:
         fail('unknown_control')
     if control == 'invalid-selection-plan':
@@ -1217,9 +1219,11 @@ def synthetic_probe(executable, target, run_id, network=None, control='positive'
                 fail('invalid_owner_handoff')
             network = guard.network
             command, env = guard.command
-            if control in ('fresh-pinned-cli-postgres', 'fresh-pinned-cli-postgres-persistence', 'fresh-pinned-cli-postgres-initialized', 'fresh-pinned-cli-postgres-auth-boundary', 'fresh-pinned-cli-postgres-auth-migration', 'fresh-pinned-cli-postgres-auth-catalog', 'fresh-pinned-cli-postgres-cli-db-backend', 'fresh-pinned-cli-postgres-api-default-privileges', 'fresh-pinned-cli-postgres-post-auth-setup-tail'):
+            if control in ('fresh-pinned-cli-postgres', 'fresh-pinned-cli-postgres-persistence', 'fresh-pinned-cli-postgres-initialized', 'fresh-pinned-cli-postgres-auth-boundary', 'fresh-pinned-cli-postgres-auth-migration', 'fresh-pinned-cli-postgres-auth-catalog', 'fresh-pinned-cli-postgres-cli-db-backend', 'fresh-pinned-cli-postgres-api-default-privileges', 'fresh-pinned-cli-postgres-post-auth-setup-tail', 'fresh-pinned-cli-postgres-kong-boundary'):
                 guard.enable_execution()
-                if control.endswith('-post-auth-setup-tail'):
+                if control.endswith('-kong-boundary'):
+                    guard.enable_kong_boundary()
+                elif control.endswith('-post-auth-setup-tail'):
                     guard.enable_post_auth_setup_tail()
                 elif control.endswith('-api-default-privileges'):
                     guard.enable_api_default_privileges()
@@ -1280,10 +1284,12 @@ def synthetic_probe(executable, target, run_id, network=None, control='positive'
                 poststart_prefix(fixture, events)
                 if not (guard.auth_job_refused or (guard.auth_migration and guard.auth_job_exit_verified and guard.auth_job_disposed)) or not guard.poststart_healthy:
                     fail('boundary_not_proven')
-                return {'ok': True, 'stage': 'pinned_cli_postgres_post_auth_setup_tail' if guard.post_auth_setup_tail else 'pinned_cli_postgres_api_default_privileges' if guard.api_default_privileges else 'pinned_cli_postgres_cli_db_backend' if guard.cli_db_backend else 'pinned_cli_postgres_auth_catalog' if guard.auth_catalog else ('pinned_cli_postgres_auth_migration' if guard.auth_migration else 'pinned_cli_postgres_auth_boundary'), 'code': 'qualified',
+                return {'ok': True, 'stage': 'pinned_cli_postgres_kong_boundary' if guard.kong_boundary else 'pinned_cli_postgres_post_auth_setup_tail' if guard.post_auth_setup_tail else 'pinned_cli_postgres_api_default_privileges' if guard.api_default_privileges else 'pinned_cli_postgres_cli_db_backend' if guard.cli_db_backend else 'pinned_cli_postgres_auth_catalog' if guard.auth_catalog else ('pinned_cli_postgres_auth_migration' if guard.auth_migration else 'pinned_cli_postgres_auth_boundary'), 'code': 'qualified',
                         'runtime_ready': False, 'container_executed': True, 'healthy_verified': True,
                         'cli_health_observed': True, 'auth_job_profile_validated': True, 'auth_job_refused': guard.auth_job_refused,
                         'auth_job_dispatched': guard.auth_job_dispatched,
+                        **({'owner_kong_boundary_verified': guard.owner_kong_boundary_verified,
+                            'kong_create_refused': True, 'kong_three_file_transfer_verified': True} if guard.kong_boundary else {}),
                         **({'owner_post_auth_setup_tail_verified': guard.owner_post_auth_setup_tail_verified} if guard.post_auth_setup_tail else {}),
                         **({'api_default_privileges_verified': True} if guard.api_default_privileges else {}),
                         **({'cli_db_backend_present_verified': True, 'cli_db_backend_departure_verified': True} if guard.cli_db_backend else {}),
@@ -1403,7 +1409,7 @@ def qualify(args):
     evidence = existing_images(args)
     receipt_hash, selection_plan, _, config_plan = evidence
     observations = getattr(args, '_image_observations', None)
-    if getattr(args, 'control', None) in ('pinned-cli-postgres', 'pinned-cli-postgres-persistence', 'pinned-cli-postgres-initialized', 'pinned-cli-postgres-auth-boundary', 'pinned-cli-postgres-auth-migration', 'pinned-cli-postgres-auth-catalog', 'pinned-cli-postgres-cli-db-backend', 'pinned-cli-postgres-api-default-privileges', 'pinned-cli-postgres-post-auth-setup-tail'):
+    if getattr(args, 'control', None) in ('pinned-cli-postgres', 'pinned-cli-postgres-persistence', 'pinned-cli-postgres-initialized', 'pinned-cli-postgres-auth-boundary', 'pinned-cli-postgres-auth-migration', 'pinned-cli-postgres-auth-catalog', 'pinned-cli-postgres-cli-db-backend', 'pinned-cli-postgres-api-default-privileges', 'pinned-cli-postgres-post-auth-setup-tail', 'pinned-cli-postgres-kong-boundary'):
         observations = {reference: {'Id': config, 'Os': 'linux', 'Architecture': 'amd64'} for reference, config in config_plan.items()}
         args._profile_control = 'fresh-' + args.control
         args._guarded_target = (args.target, '/var/run/docker.sock')

@@ -1,0 +1,58 @@
+{
+  "command-internal/service-catalog.ts": {
+    "sha256": "3cae20338acd4e86e771ab80a887c09733cffb0124d363ae86822195ab669795",
+    "url": "https://raw.githubusercontent.com/supabase/cli/753520fa7202ed5f8b25883a4c0aa7e5e9ad1fc4/apps/cli/src/command-internal/service-catalog.ts"
+  },
+  "commands/start/start.gates.ts": {
+    "sha256": "210343ca104b0a8b89c381b71a0821407ad025ce270a58afba311bb218f03154",
+    "url": "https://raw.githubusercontent.com/supabase/cli/753520fa7202ed5f8b25883a4c0aa7e5e9ad1fc4/apps/cli/src/commands/start/start.gates.ts"
+  },
+  "commands/start/services/kong.service.ts": {
+    "sha256": "a382254b593aa9c914b31bdbfeabbadc353a702a2c4c1be2f8b129981ea4f7d2",
+    "url": "https://raw.githubusercontent.com/supabase/cli/753520fa7202ed5f8b25883a4c0aa7e5e9ad1fc4/apps/cli/src/commands/start/services/kong.service.ts"
+  },
+  "commands/start/lib/template-render.ts": {
+    "sha256": "64d5aa2ce2466c40d926760b0b253a11463a622fae24021562cf05a935aa487b",
+    "url": "https://raw.githubusercontent.com/supabase/cli/753520fa7202ed5f8b25883a4c0aa7e5e9ad1fc4/apps/cli/src/commands/start/lib/template-render.ts"
+  },
+  "commands/start/templates/custom_nginx.template.ts": {
+    "sha256": "5940d976c6fd82cb4040fcb2ab251f712c89efde5f7d0924f9fcbaf5b56f9218",
+    "url": "https://raw.githubusercontent.com/supabase/cli/753520fa7202ed5f8b25883a4c0aa7e5e9ad1fc4/apps/cli/src/commands/start/templates/custom_nginx.template.ts"
+  },
+  "commands/start/templates/kong-local-tls.ts": {
+    "sha256": "51020a47444b173cda4258ab17f6539eb0f48e4ef52b4034784bec9b5960d7be",
+    "url": "https://raw.githubusercontent.com/supabase/cli/753520fa7202ed5f8b25883a4c0aa7e5e9ad1fc4/apps/cli/src/commands/start/templates/kong-local-tls.ts"
+  },
+  "commands/start/templates/kong.yml.ts": {
+    "sha256": "9b47efb38e47ede7632f852deff7f890437fa1e42766fae86f1dbc903d63b724",
+    "url": "https://raw.githubusercontent.com/supabase/cli/753520fa7202ed5f8b25883a4c0aa7e5e9ad1fc4/apps/cli/src/commands/start/templates/kong.yml.ts"
+  },
+  "command-internal/db-bootstrap/docker-create-args.ts": {
+    "sha256": "6a8388718f3ea1daeead261a638dbf9a30b0c4788b2aad284f9bb4853feba267",
+    "url": "https://raw.githubusercontent.com/supabase/cli/753520fa7202ed5f8b25883a4c0aa7e5e9ad1fc4/apps/cli/src/command-internal/db-bootstrap/docker-create-args.ts"
+  },
+  "command-internal/db-bootstrap/container-lifecycle.ts": {
+    "sha256": "218cc62654945669ce9c9eedabb4f13eed607ab48bbcb6264745f7ff8820db45",
+    "url": "https://raw.githubusercontent.com/supabase/cli/753520fa7202ed5f8b25883a4c0aa7e5e9ad1fc4/apps/cli/src/command-internal/db-bootstrap/container-lifecycle.ts"
+  },
+  "apps/cli/src/command-internal/local-config-values.ts": {
+    "sha256": "3fcddbb09dd2367a5fa52adc4021785bc70bf778b507be6636a9fd74527ed867",
+    "url": "https://raw.githubusercontent.com/supabase/cli/753520fa7202ed5f8b25883a4c0aa7e5e9ad1fc4/apps/cli/src/command-internal/local-config-values.ts"
+  },
+  "apps/cli/src/shared/functions/functions-docker.ts": {
+    "sha256": "1c6273e0c1e6da115a47c5343964ef7fbfdb297e3f07f206e6627d7c1e9c59ac",
+    "url": "https://raw.githubusercontent.com/supabase/cli/753520fa7202ed5f8b25883a4c0aa7e5e9ad1fc4/apps/cli/src/shared/functions/functions-docker.ts"
+  },
+  "packages/stack/src/Defaults.ts": {
+    "sha256": "b61d23ca8f4fd21bca5c14be80aecc00f9f98a54227f2196e28de1b5c6654a25",
+    "url": "https://raw.githubusercontent.com/supabase/cli/753520fa7202ed5f8b25883a4c0aa7e5e9ad1fc4/packages/stack/src/Defaults.ts"
+  },
+  "apps/cli/src/command-internal/go-jwt.ts": {
+    "sha256": "464919e244e72019fc65b54c45b03339a6707fb95fbf4484fc4a1e94fa888e49",
+    "url": "https://raw.githubusercontent.com/supabase/cli/753520fa7202ed5f8b25883a4c0aa7e5e9ad1fc4/apps/cli/src/command-internal/go-jwt.ts"
+  },
+  "command-internal/db-bootstrap/realtime-env.ts": {
+    "sha256": "4a0f3ebc4533662db988e7f4ccd00a273acfd131b9accb8bef6deb8658a258dc",
+    "url": "https://raw.githubusercontent.com/supabase/cli/753520fa7202ed5f8b25883a4c0aa7e5e9ad1fc4/apps/cli/src/command-internal/db-bootstrap/realtime-env.ts"
+  }
+}

@@ -219,3 +219,134 @@ def validate_auth_image_config(config):
     """Exact pinned image Config as returned by the selected Docker API 1.48."""
     if not _exact_tree(config, AUTH_IMAGE_API_CONFIG):
         refuse()
+
+
+KONG_SOURCES = 'platform/deployment/fixtures/supabase-kong-source/'
+# Deliberately public markers, never minted JWTs or caller-supplied credentials.
+KONG_KEYS = ('public-synthetic-secret-key', 'public-synthetic-service-role-key',
+             'public-synthetic-publishable-key', 'public-synthetic-anon-key')
+KONG_ENV = {
+    'KONG_DATABASE': 'off', 'KONG_DECLARATIVE_CONFIG': '/home/kong/kong.yml',
+    'KONG_DNS_ORDER': 'LAST,A,CNAME', 'KONG_DNS_NOT_FOUND_TTL': '1',
+    'KONG_DNS_VALID_TTL': '5', 'KONG_PLUGINS': 'request-transformer,cors',
+    'KONG_PORT_MAPS': '55481:8000', 'KONG_NGINX_PROXY_PROXY_BUFFER_SIZE': '160k',
+    'KONG_NGINX_PROXY_PROXY_BUFFERS': '64 160k', 'KONG_NGINX_WORKER_PROCESSES': '1',
+    'KONG_SSL_CERT': '/home/kong/localhost.crt', 'KONG_SSL_CERT_KEY': '/home/kong/localhost.key',
+}
+
+
+def _kong_source(name):
+    # Hash only immutable public source authority, never rendered/transfer inputs.
+    import json
+    manifest = dev.read(dev.ROOT / (KONG_SOURCES + 'sources.json'))
+    if dev.digest(manifest) != '054cb89c47d19e55b46eeb5d0c9b4b81d04316ede0facb437c4628ff09b08da1':
+        refuse()
+    authority = [entry for path, entry in json.loads(manifest).items() if path.rsplit('/', 1)[-1] == name]
+    raw = dev.read(dev.ROOT / (KONG_SOURCES + name))
+    if len(authority) != 1 or dev.digest(raw) != authority[0]['sha256']:
+        refuse()
+    return raw.decode('utf-8')
+
+
+def _kong_literal(name, constant):
+    # Closed public upstream JS template literals contain only escaped dollar signs.
+    match = re.search(r'export const ' + constant + r' = `([\s\S]*)`;\s*$', _kong_source(name))
+    if match is None:
+        refuse()
+    return match[1].replace('\\$', '$')
+
+
+def kong_script():
+    return ("cat <<'EOF' > /home/kong/custom_nginx.template && \\\n"
+            "exec ./docker-entrypoint.sh kong docker-start --nginx-conf /home/kong/custom_nginx.template\n"
+            + _kong_literal('custom_nginx.template.ts', 'START_CUSTOM_NGINX_TEMPLATE') + '\nEOF\n')
+
+
+def _kong_selected(fixture):
+    pins = images.load_pins(dev.read(dev.ROOT / images.PINS))
+    pin = next(item for item in pins['images'] if item['id'] == 'kong')
+    repository = 'public.ecr.aws/' + pin['repository']
+    selected = fixture['selection_plan'].get(repository + ':' + pin['tag'])
+    observations = fixture['image_observations']
+    if (type(selected) is not str or not re.fullmatch(re.escape(repository) + r'@sha256:[0-9a-f]{64}', selected)
+            or selected not in observations or type(observations[selected]) is not dict
+            or set(observations[selected]) != {'Id', 'Os', 'Architecture'}
+            or not re.fullmatch(r'sha256:[0-9a-f]{64}', observations[selected].get('Id', ''))
+            or observations[selected]['Os'] != 'linux' or observations[selected]['Architecture'] != 'amd64'
+            or type(fixture.get('project')) is not str
+            or not re.fullmatch(r'agriplatform-kdg-[A-Za-z0-9_-]{22}', fixture['project'])
+            or type(fixture.get('workdir')) is not str or not fixture['workdir'].startswith('/')
+            or type(fixture.get('network')) is not dict
+            or type(fixture['network'].get('Id')) is not str
+            or not re.fullmatch(r'[0-9a-f]{64}', fixture['network']['Id'])):
+        refuse()
+    return selected
+
+
+def kong_request(fixture):
+    """One source-derived synthetic create intent. This is never execution authority."""
+    selected = _kong_selected(fixture)
+    project, network = fixture['project'], fixture['network']['Id']
+    args = ['create', '--name', 'supabase_kong_' + project]
+    for key in KONG_ENV:
+        args += ['-e', key]
+    args += ['-p', '55481:8000', '--expose', '8000', '--expose', '8443', '--expose', '8088',
+             '--restart', 'unless-stopped', '--add-host', 'host.docker.internal:host-gateway',
+             '--network', network, '--network-alias', 'kong', '--network-alias', 'api.supabase.internal',
+             '--label', 'com.supabase.cli.project=' + project,
+             '--label', 'com.docker.compose.project=' + project,
+             '--label', 'com.supabase.cli.workdir=' + fixture['workdir'],
+             '--entrypoint', 'sh', selected, '-c', kong_script()]
+    return args
+
+
+def kong_execution_request(fixture):
+    """Detached source intent; no inherited inputs, secrets or transport."""
+    selected = _kong_selected(fixture)
+    project, network = fixture['project'], fixture['network']['Id']
+    return {'method': 'POST',
+            'path': '/v1.48/containers/create?name=supabase_kong_' + project + '&platform=linux%2Famd64',
+            'body': {'Image': selected, 'Env': [k + '=' + v for k, v in KONG_ENV.items()],
+                     'Entrypoint': ['sh'], 'Cmd': ['-c', kong_script()],
+                     'Labels': {'com.supabase.cli.project': project, 'com.docker.compose.project': project,
+                                'com.supabase.cli.workdir': fixture['workdir']},
+                     'ExposedPorts': {'8000/tcp': {}, '8443/tcp': {}, '8088/tcp': {}},
+                     'HostConfig': {'Binds': [],
+                                    'PortBindings': {'8000/tcp': [{'HostIp': '127.0.0.1', 'HostPort': '55481'}]},
+                                    'RestartPolicy': {'Name': 'unless-stopped', 'MaximumRetryCount': 0},
+                                    'ExtraHosts': ['host.docker.internal:host-gateway'], 'NetworkMode': network},
+                     'NetworkingConfig': {'EndpointsConfig': {network: {'Aliases': ['kong', 'api.supabase.internal']}}}}}
+
+
+def kong_transfer_files(fixture):
+    """Three in-memory files, including public embedded TLS with API TLS disabled."""
+    import json
+    _kong_selected(fixture)
+    secret, service, publishable, anon = KONG_KEYS
+    bearer = ("$((headers.authorization ~= nil and headers.authorization:sub(1, 10) ~= 'Bearer sb_' and headers.authorization) "
+              + "or (headers.apikey == '" + secret + "' and 'Bearer " + service + "') "
+              + "or (headers.apikey == '" + publishable + "' and 'Bearer " + anon + "') or headers.apikey)")
+    query = ("$((query_params.apikey == '" + secret + "' and '" + service + "') "
+             + "or (query_params.apikey == '" + publishable + "' and '" + anon + "') or query_params.apikey)")
+    fields = {key: 'supabase_' + suffix + '_' + fixture['project'] for key, suffix in
+              [('GotrueId', 'auth'), ('RestId', 'rest'), ('StorageId', 'storage'), ('StudioId', 'studio'),
+               ('PgmetaId', 'pg_meta'), ('EdgeRuntimeId', 'edge_runtime'), ('LogflareId', 'analytics'), ('PoolerId', 'pooler')]}
+    fields.update(RealtimeId='realtime-dev', ApiHost='127.0.0.1', ApiPort='55481', BearerToken=bearer, QueryToken=query)
+    template = _kong_literal('kong.yml.ts', 'START_KONG_YML_TEMPLATE')
+    config = re.sub(r'\{\{\s*\.(\w+)\s*\}\}', lambda match: fields[match[1]], template).encode()
+    tls = _kong_source('kong-local-tls.ts')
+    def embedded(constant):
+        match = re.search(r'export const ' + constant + r' =\s*("(?:[^"\\]|\\.)*");', tls)
+        if match is None:
+            refuse()
+        return json.loads(match[1]).encode()
+    return {'home/kong/kong.yml': config, 'home/kong/localhost.crt': embedded('KONG_LOCAL_TLS_CERT'),
+            'home/kong/localhost.key': embedded('KONG_LOCAL_TLS_KEY')}
+
+
+def validate_kong_intent(args, environment, execution, files, fixture):
+    """Every key/type/byte is closed; rejected input is never formatted or hashed."""
+    if (not _exact_tree(args, kong_request(fixture)) or not _exact_tree(environment, dict(KONG_ENV))
+            or not _exact_tree(execution, kong_execution_request(fixture))
+            or not _exact_tree(files, kong_transfer_files(fixture))):
+        refuse()

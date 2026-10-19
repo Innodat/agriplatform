@@ -404,3 +404,111 @@ sys.exit(result.returncode)
                     startup.synthetic_probe(executable, target_fixture(), RUN, control=control,
                                             selection_plan=test_plan(), image_observations=test_observations())
                 self.assertEqual(caught.exception.code, 'expected_lifecycle_rejected')
+
+
+class KongTransferArchive(unittest.TestCase):
+    def setUp(self):
+        import create_profile
+        from create_profile_fixtures import boundary_fixture
+        self.fixture = boundary_fixture()
+        self.fixture['network']['Id'] = 'b' * 64
+        self.files = create_profile.kong_transfer_files(self.fixture)
+
+    def archive(self, *, change=None):
+        import io
+        import tarfile
+        stream = io.BytesIO()
+        with tarfile.open(fileobj=stream, mode='w', format=tarfile.USTAR_FORMAT) as archive:
+            for index, (name, content) in enumerate(self.files.items()):
+                entry = tarfile.TarInfo(name)
+                entry.size, entry.mode = len(content), 0o644
+                if change: entry, content = change(index, entry, content)
+                archive.addfile(entry, io.BytesIO(content))
+        return stream.getvalue()
+
+    def test_independent_three_member_archive_and_no_pg_contract_reuse(self):
+        import startup_lifecycle as lifecycle
+        raw = self.archive()
+        self.assertEqual(lifecycle.validate_kong_archive(raw, self.fixture),
+            {'member_count': 3, 'regular_files': True, 'mode': '0644', 'uid': 0, 'gid': 0, 'content_verified': True})
+        with self.assertRaises(dev.Refusal): lifecycle.validate_archive(raw)
+        with self.assertRaises(dev.Refusal): lifecycle.validate_kong_archive(lifecycle.public_archive(), self.fixture)
+
+    def test_each_header_path_type_link_ownership_padding_and_content_refused(self):
+        import startup_lifecycle as lifecycle
+        import tarfile
+        for member in range(3):
+            for field, value in [('name', '../home/kong/x'), ('name', '/home/kong/kong.yml'),
+                                 ('name', 'home/kong/kong.yml'), ('type', tarfile.SYMTYPE),
+                                 ('type', tarfile.LNKTYPE), ('type', tarfile.DIRTYPE),
+                                 ('mode', 0o600), ('uid', 1), ('gid', 1), ('mtime', 1),
+                                 ('linkname', 'private-input-sentinel')]:
+                if member == 0 and field == 'name' and value == 'home/kong/kong.yml': continue
+                def mutate(index, entry, content):
+                    if index == member: setattr(entry, field, value)
+                    return entry, content
+                with self.subTest(member=member, field=field, value=value), self.assertRaises(dev.Refusal) as refused:
+                    lifecycle.validate_kong_archive(self.archive(change=mutate), self.fixture)
+                self.assertNotIn('private-input-sentinel', str(refused.exception))
+            def corrupt(index, entry, content):
+                return entry, (b'X' + content[1:] if index == member else content)
+            with self.assertRaises(dev.Refusal): lifecycle.validate_kong_archive(self.archive(change=corrupt), self.fixture)
+        raw = self.archive()
+        for bad in [bytearray(raw), raw[:-1], raw[:1024], raw + b'X'*512, raw + b'\0'*65536]:
+            with self.assertRaises(dev.Refusal): lifecycle.validate_kong_archive(bad, self.fixture)
+        # Reject missing/extra member, checksum and trailing metadata, without extraction.
+        for offset in (148, 100, len(raw)-1):
+            bad = bytearray(raw); bad[offset] ^= 1
+            with self.assertRaises(dev.Refusal): lifecycle.validate_kong_archive(bytes(bad), self.fixture)
+
+    def test_missing_extra_and_reordered_regular_members_refused(self):
+        import io
+        import tarfile
+        import startup_lifecycle as lifecycle
+        members = list(self.files.items())
+        for selected in (members[:-1], members + [('home/kong/extra', b'extra')], list(reversed(members))):
+            stream = io.BytesIO()
+            with tarfile.open(fileobj=stream, mode='w', format=tarfile.USTAR_FORMAT) as archive:
+                for name, content in selected:
+                    entry = tarfile.TarInfo(name)
+                    entry.mode, entry.size = 0o644, len(content)
+                    archive.addfile(entry, io.BytesIO(content))
+            with self.assertRaises(dev.Refusal): lifecycle.validate_kong_archive(stream.getvalue(), self.fixture)
+
+    def test_checksum_correct_ustar_metadata_and_member_padding_refused(self):
+        import startup_lifecycle as lifecycle
+        raw = self.archive()
+        offset = 0
+        for member, content in self.files.items():
+            for field, start, stop, value in (
+                    ('magic', 257, 263, b'ustar '),
+                    ('version', 263, 265, b'01'),
+                    ('uname', 265, 297, b'private-input-sentinel'),
+                    ('gname', 297, 329, b'private-input-sentinel'),
+                    ('prefix', 345, 500, b'private-input-sentinel'),
+                    ('devmajor', 329, 337, b'0000001\0'),
+                    ('devminor', 337, 345, b'0000001\0'),
+                    ('devmajor-type', 329, 337, b'\x80\0\0\0\0\0\0\0'),
+                    ('devminor-type', 337, 345, b'invalid\0')):
+                changed = bytearray(raw)
+                header = bytearray(changed[offset:offset + 512])
+                header[start:stop] = value.ljust(stop-start, b'\0')
+                header[148:156] = b' ' * 8
+                header[148:156] = f'{sum(header):06o}\0 '.encode()
+                # The negative exercises metadata validation with a valid checksum.
+                self.assertEqual(int(header[148:156].rstrip(b'\0 '), 8),
+                                 sum(header[:148]) + 8*32 + sum(header[156:]))
+                changed[offset:offset + 512] = header
+                with self.subTest(member=member, field=field), self.assertRaises(dev.Refusal) as caught:
+                    lifecycle.validate_kong_archive(bytes(changed), self.fixture)
+                self.assertEqual((caught.exception.stage, caught.exception.code), ('startup', 'unsafe_lifecycle'))
+                self.assertNotIn('private-input-sentinel', str(caught.exception))
+            padded = ((len(content) + 511) // 512) * 512
+            self.assertGreater(padded, len(content))
+            changed = bytearray(raw)
+            changed[offset + 512 + len(content)] = 1
+            # Padding is outside the header; its original checksum is still valid.
+            with self.subTest(member=member, field='member-padding'), self.assertRaises(dev.Refusal) as caught:
+                lifecycle.validate_kong_archive(bytes(changed), self.fixture)
+            self.assertEqual((caught.exception.stage, caught.exception.code), ('startup', 'unsafe_lifecycle'))
+            offset += 512 + padded

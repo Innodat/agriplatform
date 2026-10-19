@@ -3875,3 +3875,110 @@ class PostAuthSetupTailOwner(unittest.TestCase):
                 with self.assertRaises(dev.Refusal): d.guard.cleanup_execution()
                 self.assertEqual(len(d.events), before)
                 self.assertIsNotNone(d.row)
+
+
+class KongBoundaryOwner(unittest.TestCase):
+    def prepared(self):
+        owner = PostAuthSetupTailOwner()
+        d, work = owner.prepared()
+        self.addCleanup(owner.doCleanups)
+        d.guard.complete_post_auth_setup_tail()
+        d.guard.kong_boundary = True
+        return d, work
+
+    def test_boundary_no_sql_no_kong_dispatch_fact_after_cleanup_only(self):
+        d, work = self.prepared()
+        deadline, modes = d.guard.deadline, list(d.catalog_modes)
+        d.guard.verify_kong_boundary()
+        self.assertEqual(d.guard.deadline, deadline)
+        self.assertEqual(d.catalog_modes, modes)
+        self.assertFalse(d.guard.owner_kong_boundary_verified)
+        self.assertTrue(d.guard._kong_boundary_completed)
+        self.assertFalse(any('supabase_kong_' in path for _, path, _ in d.events))
+        before = len(d.events)
+        with self.assertRaises(dev.Refusal): d.guard.verify_kong_boundary()
+        self.assertEqual(len(d.events), before)
+        with patch.object(dev, 'free_ports'): d.guard.finish_execution()
+        self.assertTrue(d.guard.cleaned and d.guard.owner_kong_boundary_verified)
+
+    def test_missing_prerequisites_terminal_and_repaired_replay_refused(self):
+        for flag in ('kong_boundary', 'post_auth_setup_tail', '_tail_completed', 'api_default_privileges_verified',
+                     'auth_cli_terminated', 'cli_db_backend_present_verified', 'cli_db_backend_departure_verified',
+                     'auth_catalog_precondition_verified', 'auth_catalog_verified',
+                     'api_default_privileges_request_refused', 'auth_job_exit_verified', 'auth_job_disposed'):
+            with self.subTest(flag=flag):
+                d, _ = self.prepared()
+                setattr(d.guard, flag, False)
+                before = len(d.events)
+                with self.assertRaises(dev.Refusal) as caught: d.guard.verify_kong_boundary()
+                self.assertEqual(caught.exception.code, 'invalid_owner_handoff')
+                setattr(d.guard, flag, True)
+                with self.assertRaises(dev.Refusal): d.guard.verify_kong_boundary()
+                self.assertEqual(len(d.events), before)
+                self.assertFalse(d.guard.owner_kong_boundary_verified or d.guard._kong_boundary_completed)
+        for field, value in [('phase', 7), ('_finish_attempted', True), ('_fixture', None), ('_tail_custody', None)]:
+            d, _ = self.prepared(); setattr(d.guard, field, value)
+            with self.assertRaises(dev.Refusal): d.guard.verify_kong_boundary()
+            self.assertTrue(d.guard.kong_boundary_attempted)
+
+    def test_altered_request_archive_allowlist_expansion_and_cleanup_failure_no_fact(self):
+        import create_profile
+        import startup_lifecycle
+        import copy
+        for seam in ('request', 'files', 'archive', 'allowlist', 'cleanup'):
+            d, _ = self.prepared()
+            if seam == 'cleanup':
+                d.guard.verify_kong_boundary()
+                with patch.object(d.guard, 'cleanup_execution', side_effect=dev.Refusal('startup', 'execution_cleanup_unresolved')):
+                    with self.assertRaises(dev.Refusal): d.guard.finish_execution()
+            else:
+                if seam == 'request':
+                    original = create_profile.kong_execution_request
+                    def changed(f):
+                        body = original(f); body['body']['HostConfig']['PortBindings']['8000/tcp'][0]['HostIp'] = '0.0.0.0'; return body
+                    context = patch.object(create_profile, 'kong_execution_request', side_effect=changed)
+                    # Validator has its own closed expected profile, so corrupt at owner handoff only.
+                    count = [0]
+                    def once(f):
+                        count[0] += 1
+                        return changed(f) if count[0] == 1 else original(f)
+                    context = patch.object(create_profile, 'kong_execution_request', side_effect=once)
+                elif seam == 'files':
+                    original = create_profile.kong_transfer_files; count = [0]
+                    def changed(f):
+                        count[0] += 1; files = original(f)
+                        if count[0] == 1: files['home/kong/localhost.key'] = b'private-input-sentinel'
+                        return files
+                    context = patch.object(create_profile, 'kong_transfer_files', side_effect=changed)
+                elif seam == 'archive': context = patch.object(startup_lifecycle, 'kong_archive', return_value=b'private-input-sentinel')
+                else: context = patch.object(dev, '_docker_request', return_value=None)
+                with context, self.assertRaises(dev.Refusal): d.guard.verify_kong_boundary()
+                self.assertFalse(d.guard._kong_boundary_completed)
+                with self.assertRaises(dev.Refusal): d.guard.verify_kong_boundary()
+                with self.assertRaises(dev.Refusal): d.guard.finish_execution()
+            self.assertFalse(d.guard.owner_kong_boundary_verified)
+            self.assertFalse(any('supabase_kong_' in path for _, path, _ in d.events))
+
+    def test_deadline_cancellation_custody_and_selected_image_change_consume_attempt(self):
+        import create_profile
+        import time
+        for seam in ('deadline', 'cancel', 'fixture', 'image', 'pg'):
+            d, work = self.prepared()
+            if seam == 'deadline':
+                d.deadline = d.guard.deadline = time.monotonic() - 1
+                context = patch.object(create_profile, 'kong_request', wraps=create_profile.kong_request)
+            elif seam == 'cancel': context = patch.object(create_profile, 'kong_request', side_effect=KeyboardInterrupt())
+            elif seam == 'fixture':
+                (work / 'bin/docker').write_bytes(b'changed')
+                context = patch.object(create_profile, 'kong_request', wraps=create_profile.kong_request)
+            elif seam == 'image':
+                selected = next(ref for ref in d.guard.plan if '/kong@' in ref)
+                d.guard.plan = dict(d.guard.plan, **{selected: 'sha256:' + '0'*64})
+                context = patch.object(create_profile, 'kong_request', wraps=create_profile.kong_request)
+            else:
+                d.row['State']['Health']['Status'] = 'unhealthy'
+                context = patch.object(create_profile, 'kong_request', wraps=create_profile.kong_request)
+            with context, self.assertRaises((dev.Refusal, KeyboardInterrupt)): d.guard.verify_kong_boundary()
+            self.assertTrue(d.guard.kong_boundary_attempted)
+            self.assertFalse(d.guard._kong_boundary_completed or d.guard.owner_kong_boundary_verified)
+            with self.assertRaises(dev.Refusal): d.guard.verify_kong_boundary()

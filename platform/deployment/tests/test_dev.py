@@ -36,6 +36,7 @@ FILES = [
     'platform/deployment/tests/qualify_networks.py',
     'platform/docs/architecture/contracts/scaffold-dependency-baseline-2026-10-14.md',
 ]
+FILES += [str(path.relative_to(ROOT)) for path in sorted((ROOT / 'platform/deployment/fixtures/supabase-kong-source').iterdir())]
 
 
 class PreparationAcceptance(unittest.TestCase):

@@ -30,6 +30,11 @@ SOURCES = ['platform/deployment/resources.py', 'platform/deployment/tests/qualif
            'platform/deployment/fixtures/supabase-pg17-profile.md', 'platform/deployment/volumes.py',
            'platform/deployment/tests/qualify_volumes.py', 'platform/deployment/tests/qualify_networks.py', SCHEMA, BASELINE, CONTRACT,
            'platform/deployment/fixtures/kdg-synthetic-v1.json', 'platform/deployment/registry.json']
+SOURCES += ['platform/deployment/fixtures/supabase-kong-source/' + name for name in
+            ['sources.json', 'Defaults.ts', 'container-lifecycle.ts', 'custom_nginx.template.ts',
+             'docker-create-args.ts', 'functions-docker.ts', 'go-jwt.ts', 'kong-local-tls.ts',
+             'kong.service.ts', 'kong.yml.ts', 'local-config-values.ts', 'service-catalog.ts',
+             'start.gates.ts', 'template-render.ts', 'realtime-env.ts']]
 LIMIT = 1024 * 1024
 
 

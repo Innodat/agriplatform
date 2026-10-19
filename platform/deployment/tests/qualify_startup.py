@@ -17,7 +17,7 @@ import daemon_images
 import qualify_resources
 
 BOOTSTRAP_CONTROLS = ['postgres-bootstrap']
-EXECUTION_CONTROLS = ['pinned-cli-postgres', 'pinned-cli-postgres-persistence', 'pinned-cli-postgres-initialized', 'pinned-cli-postgres-auth-boundary', 'pinned-cli-postgres-auth-migration', 'pinned-cli-postgres-auth-catalog', 'pinned-cli-postgres-cli-db-backend', 'pinned-cli-postgres-api-default-privileges', 'pinned-cli-postgres-post-auth-setup-tail']
+EXECUTION_CONTROLS = ['pinned-cli-postgres', 'pinned-cli-postgres-persistence', 'pinned-cli-postgres-initialized', 'pinned-cli-postgres-auth-boundary', 'pinned-cli-postgres-auth-migration', 'pinned-cli-postgres-auth-catalog', 'pinned-cli-postgres-cli-db-backend', 'pinned-cli-postgres-api-default-privileges', 'pinned-cli-postgres-post-auth-setup-tail', 'pinned-cli-postgres-kong-boundary']
 
 GUARDED_CONTROLS = ['guarded-fresh'] + ['guarded-' + name for name in qualify_resources.GUARDED_FAILURES]
 

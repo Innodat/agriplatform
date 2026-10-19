@@ -1382,3 +1382,21 @@ resume the CLI or qualify running Auth/API services, complete setup or runtime r
 Use fresh source-bound prerequisites after subsequent implementation changes; preserve
 older receipts and uncertain resources. No recovery cleanup is authorized by success
 of a separate fresh operation.
+
+### Source-bound Kong pre-start boundary
+
+The opt-in `pinned-cli-postgres-kong-boundary` control follows the verified owner
+post-Auth setup tail. It validates one fixed synthetic Kong create intent and a
+separate three-member in-memory transfer (kong.yml, localhost.crt, localhost.key).
+The original CLI stays terminated. Kong create must remain rejected by the existing
+Docker request classifier; no Kong container, copy, service health or HTTP response
+is qualified. The synthetic key markers are not native minted-token conformance.
+
+After normal owned PostgreSQL shutdown/cleanup the separate
+`owner_kong_boundary_verified` fact may be published, with `kong_create_refused`
+and `kong_three_file_transfer_verified`; runtime_ready/fresh_setup_completed remain
+false. Ordinary tail/default controls retain their original behavior. No public
+daemon endpoint, arbitrary key/config input or additional Docker route is admitted.
+See [boundary evidence](ENV_KONG_BOUNDARY_EVIDENCE.md) for exact tests, source and
+remaining lifecycle/scaffold gates. This item uses only isolated private process
+fixtures; actual qualification on later changed source needs fresh prerequisites.

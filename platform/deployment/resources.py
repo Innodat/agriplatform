@@ -12,6 +12,8 @@ import ctypes
 import secrets
 
 import daemon_images
+import images
+import create_profile
 import dev
 import networks
 import startup
@@ -154,6 +156,8 @@ class FreshGuard:
         self.post_auth_setup_tail = self.post_auth_setup_tail_attempted = False
         self._tail_completed = self.owner_post_auth_setup_tail_verified = False
         self._tail_custody = None
+        self.kong_boundary = self.kong_boundary_attempted = self._kong_boundary_completed = False
+        self.owner_kong_boundary_verified = False
         self.auth_catalog_attempts = set()
         self.cli_db_backend = self.cli_db_backend_present_verified = self.cli_db_backend_departure_verified = False
         self.cli_db_backend_attempts = set()
@@ -305,6 +309,10 @@ class FreshGuard:
         if not self.execution or self.auth_boundary or self.persistence or self.execution_started:
             startup.fail('invalid_owner_handoff')
         self.auth_boundary = True
+
+    def enable_kong_boundary(self):
+        self.enable_post_auth_setup_tail()
+        self.kong_boundary = True
 
     def enable_post_auth_setup_tail(self):
         self.enable_api_default_privileges()
@@ -944,6 +952,54 @@ class FreshGuard:
             raise
         self._tail_completed = True
 
+    def verify_kong_boundary(self):
+        # Consume before *all* prerequisite checks, including failed attempts.
+        if self.kong_boundary_attempted:
+            startup.fail('invalid_owner_handoff')
+        self.kong_boundary_attempted = True
+        if (not self.kong_boundary or not self.post_auth_setup_tail or not self._tail_completed
+                or self.phase != 5 or self._fixture is None or self._tail_custody is None
+                or getattr(self, '_finish_attempted', False)
+                or not self.api_default_privileges_verified or not self.auth_cli_terminated
+                or not self.cli_db_backend_present_verified or not self.cli_db_backend_departure_verified
+                or not self.auth_catalog_precondition_verified or not self.auth_catalog_verified
+                or not self.api_default_privileges_request_refused
+                or not self.auth_job_exit_verified or not self.auth_job_disposed):
+            startup.fail('invalid_owner_handoff')
+        self.check()
+        self.auth_pg_current()
+        pins = images.load_pins(dev.read(dev.ROOT / images.PINS))
+        pin = next(item for item in pins['images'] if item['id'] == 'kong')
+        repository = 'public.ecr.aws/' + pin['repository']
+        selected = [ref for ref in self.images if ref.startswith(repository + '@sha256:')]
+        if len(selected) != 1 or self.plan.get(selected[0]) != self.images[selected[0]]['Id']:
+            startup.fail('invalid_owner_handoff')
+        fixture = {'project': dev.project_identity(self.target, self.run_id),
+                   'workdir': str(self._fixture[0]), 'network': self.network,
+                   'selection_plan': {repository + ':' + pin['tag']: selected[0]},
+                   'image_observations': self.images}
+        args = create_profile.kong_request(fixture)
+        environment = dict(create_profile.KONG_ENV)
+        request = create_profile.kong_execution_request(fixture)
+        files = create_profile.kong_transfer_files(fixture)
+        create_profile.validate_kong_intent(args, environment, request, files, fixture)
+        archive = startup.lifecycle.kong_archive(files, fixture)
+        startup.lifecycle.validate_kong_archive(archive, fixture)
+        self.check()
+        self.auth_pg_current()
+        # Classifier only: never exchange, dispatch, create, copy or start Kong.
+        try:
+            dev._docker_request(request['method'], request['path'], request['body'], True)
+        except dev.Refusal as error:
+            if (error.stage, error.code) != ('docker', 'docker_request_invalid'):
+                raise
+        else:
+            startup.fail('invalid_owner_handoff')
+        self.check()
+        self.auth_pg_current()
+        self.check()
+        self._kong_boundary_completed = True
+
     def api_default_privileges_sql(self):
         if (not self.api_default_privileges or self.api_default_privileges_attempted
                 or getattr(self, '_finish_attempted', False) or self.phase != 5
@@ -1082,6 +1138,8 @@ class FreshGuard:
             startup.fail('invalid_owner_handoff')
         if self.api_default_privileges and not self.api_default_privileges_verified:
             startup.fail('invalid_owner_handoff')
+        if self.kong_boundary and not self._kong_boundary_completed:
+            startup.fail('invalid_owner_handoff')
         if self.post_auth_setup_tail and not self._tail_completed:
             startup.fail('invalid_owner_handoff')
         started = self.healthy_instance()
@@ -1107,6 +1165,9 @@ class FreshGuard:
         if self.post_auth_setup_tail:
             self.current()
             self.owner_post_auth_setup_tail_verified = True
+        if self.kong_boundary:
+            self.current()
+            self.owner_kong_boundary_verified = True
 
     def cleanup_execution(self, *, clean=False, started=None):
         """Consume one cleanup budget; never replay a mutation or recover lost ownership."""

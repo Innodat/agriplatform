@@ -375,5 +375,178 @@ class CompleteCreateProfile(unittest.TestCase):
                     self.assertEqual(events, [profile_rejection()])
 
 
+
+
+class KongSourceIntent(unittest.TestCase):
+    def setUp(self):
+        self.f = boundary_fixture()
+        self.f['network']['Id'] = 'b' * 64
+
+    def source_oracle(self):
+        """Decode immutable upstream text directly, without production profile helpers."""
+        import re
+        source = ROOT / 'platform/deployment/fixtures/supabase-kong-source'
+        builder = (source / 'kong.service.ts').read_text()
+        def literal(file, constant):
+            text = (source / file).read_text()
+            body = text.split('export const ' + constant + ' = `', 1)[1].rsplit('`;', 1)[0]
+            return body.replace(r'\$', '$')
+        head = builder.split('const KONG_ENTRYPOINT_HEAD =', 1)[1].split(';', 1)[0]
+        quoted = r'"(?:[^"\\]|\\.)*"'
+        script_head = ''.join(json.loads(token) for token in re.findall(quoted, head))
+        script_tail = builder.split('return KONG_ENTRYPOINT_HEAD + nginxTemplate + ', 1)[1].split(';', 1)[0]
+        script = (script_head + literal('custom_nginx.template.ts', 'START_CUSTOM_NGINX_TEMPLATE')
+                  + json.loads(script_tail))
+        # Each expression comes from its own pinned builder, with every key replaced.
+        keys = {'secretKey': 'public-synthetic-secret-key',
+                'serviceRoleKey': 'public-synthetic-service-role-key',
+                'publishableKey': 'public-synthetic-publishable-key',
+                'anonKey': 'public-synthetic-anon-key'}
+        expressions = {}
+        for field, function in [('BearerToken', 'buildKongBearerToken'), ('QueryToken', 'buildKongQueryToken')]:
+            function_body = builder.split('export function ' + function + '(', 1)[1].split('\n}', 1)[0]
+            expression = ''.join(re.findall(r'`([^`]*)`', function_body))
+            for key, value in keys.items():
+                expression = expression.replace('${apiKeys.' + key + '}', value)
+            self.assertTrue('${' not in expression, 'source expression substitution incomplete')
+            self.assertTrue(expression.startswith('$((') and expression.endswith(')'))
+            expressions[field] = expression
+        project = self.f['project']
+        fields = {'GotrueId': 'supabase_auth_' + project, 'RestId': 'supabase_rest_' + project,
+                  'RealtimeId': 'realtime-dev', 'StorageId': 'supabase_storage_' + project,
+                  'StudioId': 'supabase_studio_' + project, 'PgmetaId': 'supabase_pg_meta_' + project,
+                  'EdgeRuntimeId': 'supabase_edge_runtime_' + project,
+                  'LogflareId': 'supabase_analytics_' + project, 'PoolerId': 'supabase_pooler_' + project,
+                  'ApiHost': '127.0.0.1', 'ApiPort': '55481', **expressions}
+        renderer = (source / 'template-render.ts').read_text().split('return renderGoTemplate(START_KONG_YML_TEMPLATE, {', 1)[1].split('});', 1)[0]
+        self.assertEqual(set(re.findall(r'(\w+): fields\.', renderer)), set(fields))
+        self.assertIn('export const REALTIME_TENANT_ID = "realtime-dev";', (source / 'realtime-env.ts').read_text())
+        template = literal('kong.yml.ts', 'START_KONG_YML_TEMPLATE')
+        placeholders = set(re.findall(r'\{\{\s*\.(\w+)\s*\}\}', template))
+        self.assertEqual(placeholders, set(fields) - {'ApiHost', 'ApiPort'})
+        # Plain literal replacement is independent from the runtime regex renderer.
+        for field, value in fields.items():
+            template = template.replace('{{ .' + field + ' }}', value)
+        self.assertTrue('{{ .' not in template, 'source YAML substitution incomplete')
+        tls = (source / 'kong-local-tls.ts').read_text()
+        def tls_literal(constant):
+            declaration = tls.split('export const ' + constant + ' =', 1)[1].split(';', 1)[0]
+            return json.loads(declaration.strip()).encode()
+        files = {'home/kong/kong.yml': template.encode(),
+                 'home/kong/localhost.crt': tls_literal('KONG_LOCAL_TLS_CERT'),
+                 'home/kong/localhost.key': tls_literal('KONG_LOCAL_TLS_KEY')}
+        env = {'KONG_DATABASE': 'off', 'KONG_DECLARATIVE_CONFIG': '/home/kong/kong.yml',
+               'KONG_DNS_ORDER': 'LAST,A,CNAME', 'KONG_DNS_NOT_FOUND_TTL': '1', 'KONG_DNS_VALID_TTL': '5',
+               'KONG_PLUGINS': 'request-transformer,cors', 'KONG_PORT_MAPS': '55481:8000',
+               'KONG_NGINX_PROXY_PROXY_BUFFER_SIZE': '160k', 'KONG_NGINX_PROXY_PROXY_BUFFERS': '64 160k',
+               'KONG_NGINX_WORKER_PROCESSES': '1', 'KONG_SSL_CERT': '/home/kong/localhost.crt',
+               'KONG_SSL_CERT_KEY': '/home/kong/localhost.key'}
+        selected = self.f['selection_plan']['public.ecr.aws/supabase/kong:2.8.1']
+        labels = {'com.supabase.cli.project': project, 'com.docker.compose.project': project,
+                  'com.supabase.cli.workdir': self.f['workdir']}
+        args = ['create', '--name', 'supabase_kong_' + project]
+        for key in env: args += ['-e', key]
+        args += ['-p', '55481:8000', '--expose', '8000', '--expose', '8443', '--expose', '8088',
+                 '--restart', 'unless-stopped', '--add-host', 'host.docker.internal:host-gateway',
+                 '--network', 'b'*64, '--network-alias', 'kong', '--network-alias', 'api.supabase.internal']
+        for key, value in labels.items(): args += ['--label', key + '=' + value]
+        args += ['--entrypoint', 'sh', selected, '-c', script]
+        request = {'method': 'POST',
+            'path': '/v1.48/containers/create?name=supabase_kong_' + project + '&platform=linux%2Famd64',
+            'body': {'Image': selected, 'Env': [key + '=' + value for key, value in env.items()],
+                'Entrypoint': ['sh'], 'Cmd': ['-c', script], 'Labels': labels,
+                'ExposedPorts': {'8000/tcp': {}, '8443/tcp': {}, '8088/tcp': {}},
+                'HostConfig': {'Binds': [], 'PortBindings': {'8000/tcp': [
+                    {'HostIp': '127.0.0.1', 'HostPort': '55481'}]},
+                    'RestartPolicy': {'Name': 'unless-stopped', 'MaximumRetryCount': 0},
+                    'ExtraHosts': ['host.docker.internal:host-gateway'], 'NetworkMode': 'b'*64},
+                'NetworkingConfig': {'EndpointsConfig': {'b'*64: {'Aliases': ['kong', 'api.supabase.internal']}}}}}
+        return args, env, request, files
+
+    def assert_source_intent(self, args, env, request, files):
+        expected_args, expected_env, expected_request, expected_files = self.source_oracle()
+        self.assertEqual(args, expected_args)
+        self.assertEqual(env, expected_env)
+        self.assertEqual(request, expected_request)
+        self.assertTrue(files == expected_files, 'three-file transfer differs from pinned source oracle')
+
+    def test_source_profile_exact_twelve_environment_entries_and_closed_request(self):
+        import startup_lifecycle
+        args, env = create_profile.kong_request(self.f), dict(create_profile.KONG_ENV)
+        request, files = create_profile.kong_execution_request(self.f), create_profile.kong_transfer_files(self.f)
+        self.assert_source_intent(args, env, request, files)
+        for content in files.values():
+            self.assertTrue(content.decode() not in args[-1], 'transfer content present in create argv')
+        create_profile.validate_kong_intent(args, env, request, files, self.f)
+        startup_lifecycle.validate_kong_archive(startup_lifecycle.kong_archive(files, self.f), self.f)
+        with self.assertRaises(dev.Refusal) as refused:
+            dev._docker_request(request['method'], request['path'], request['body'], True)
+        self.assertEqual((refused.exception.stage, refused.exception.code), ('docker', 'docker_request_invalid'))
+
+    def test_persistent_in_memory_bad_script_is_detected_by_source_oracle(self):
+        # All constructor and validator calls see the same wrong script throughout.
+        # The retained witness proves self-consistency cannot satisfy the source oracle.
+        bad_script = 'public-bad-script-mutation-witness'
+        with patch.object(create_profile, 'kong_script', return_value=bad_script):
+            args, env = create_profile.kong_request(self.f), dict(create_profile.KONG_ENV)
+            request, files = create_profile.kong_execution_request(self.f), create_profile.kong_transfer_files(self.f)
+            create_profile.validate_kong_intent(args, env, request, files, self.f)
+            self.assertEqual(args[-1], bad_script)
+            self.assertEqual(request['body']['Cmd'][-1], bad_script)
+            with self.assertRaises(AssertionError): self.assert_source_intent(args, env, request, files)
+
+    def test_every_profile_leaf_type_value_missing_extra_and_file_bytes_refused(self):
+        baseline = [create_profile.kong_request(self.f), dict(create_profile.KONG_ENV),
+                    create_profile.kong_execution_request(self.f), create_profile.kong_transfer_files(self.f)]
+        def leaves(value, path=()):
+            if type(value) is dict:
+                for key, child in value.items(): yield from leaves(child, path + (key,))
+            elif type(value) is list:
+                for index, child in enumerate(value): yield from leaves(child, path + (index,))
+            else: yield path
+        for index, item in enumerate(baseline):
+            for path in leaves(item):
+                for replacement in (None, True, 'private-input-sentinel'):
+                    changed = copy.deepcopy(baseline)
+                    cursor = changed[index]
+                    for key in path[:-1]: cursor = cursor[key]
+                    cursor[path[-1]] = replacement
+                    with self.subTest(index=index, path=path), self.assertRaises(dev.Refusal) as refused:
+                        create_profile.validate_kong_intent(*changed, self.f)
+                    self.assertNotIn('private-input-sentinel', str(refused.exception))
+        for index in (1, 2, 3):
+            for extra in (False, True):
+                changed = copy.deepcopy(baseline)
+                if extra: changed[index]['extra'] = b'private-input-sentinel'
+                else: changed[index].pop(next(iter(changed[index])))
+                with self.assertRaises(dev.Refusal): create_profile.validate_kong_intent(*changed, self.f)
+
+    def test_nested_container_deletions_additions_and_types_refused(self):
+        baseline = list(self.source_oracle())
+        # Visit every nested dictionary/list, including the empty exposed-port objects.
+        def containers(value, path=()):
+            if type(value) in (dict, list):
+                yield path, value
+                children = value.items() if type(value) is dict else enumerate(value)
+                for key, child in children: yield from containers(child, path + (key,))
+        for path, container in containers(baseline[2]):
+            mutations = [None, True, ()]
+            if type(container) is dict:
+                mutations += [{**container, 'unexpected': {}}, []]
+                mutations += [{key: value for key, value in container.items() if key != removed}
+                              for removed in container]
+            else:
+                mutations += [container + [{}], {}, *[container[:i] + container[i+1:] for i in range(len(container))]]
+            for replacement in mutations:
+                changed = copy.deepcopy(baseline)
+                if not path: changed[2] = replacement
+                else:
+                    cursor = changed[2]
+                    for key in path[:-1]: cursor = cursor[key]
+                    cursor[path[-1]] = replacement
+                with self.subTest(path=path, replacement_type=type(replacement).__name__), self.assertRaises(dev.Refusal):
+                    create_profile.validate_kong_intent(*changed, self.f)
+
+
 if __name__ == '__main__':
     unittest.main()

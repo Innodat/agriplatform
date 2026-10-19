@@ -1538,7 +1538,7 @@ class ExecutionSupervisor(unittest.TestCase):
         import startup
         from test_startup_lifecycle import Lifecycle
         from test_pinned_execution import OwnerDaemon, PersistenceDaemon, AuthJobDaemon, AuthCatalogDaemon
-        from contextlib import nullcontext, redirect_stdout, ExitStack
+        from contextlib import nullcontext, redirect_stdout, redirect_stderr, ExitStack
         import io
         import os
         import shutil
@@ -1551,7 +1551,8 @@ class ExecutionSupervisor(unittest.TestCase):
         # protocol peer; the production DockerSession owns all framing/closure.
         initialized = scenario.startswith('initialized-')
         poststart = scenario.startswith('auth-')
-        tail = scenario.startswith('auth-tail-')
+        kong = scenario.startswith('auth-kong-')
+        tail = scenario.startswith('auth-tail-') or kong
         api_privileges = scenario.startswith('auth-api-') or tail
         backend = scenario.startswith('auth-backend-') or api_privileges
         catalog = scenario.startswith('auth-catalog-') or backend
@@ -1823,6 +1824,24 @@ class ExecutionSupervisor(unittest.TestCase):
                 marker.chmod(0o644)
             return result
 
+        kong_action = resources.FreshGuard.verify_kong_boundary
+        def kong_at_owner_boundary(guard):
+            import create_profile
+            if scenario == 'auth-kong-expiry':
+                original = create_profile.kong_request
+                def expire(fixture):
+                    clock_shift[0] = 121
+                    return original(fixture)
+                context = patch.object(create_profile, 'kong_request', side_effect=expire)
+            elif scenario == 'auth-kong-interrupt':
+                context = patch.object(create_profile, 'kong_request', side_effect=KeyboardInterrupt('private-input-sentinel'))
+            elif scenario == 'auth-kong-transfer':
+                context = patch.object(startup.lifecycle, 'kong_archive', return_value=b'private-input-sentinel')
+            else:
+                context = nullcontext()
+            with context:
+                return kong_action(guard)
+
         def backend_at_cli_boundary(guard, mode, process=None):
             current_pids = json.loads((fixture_workdirs[-1] / 'tmp/processes.json').read_text())
             if mode == 'present':
@@ -1900,7 +1919,7 @@ class ExecutionSupervisor(unittest.TestCase):
                     raise KeyboardInterrupt()
             return state
         def record_cleanup(guard, *args, **kwargs):
-            if scenario == 'auth-tail-positive':
+            if scenario in ('auth-tail-positive', 'auth-kong-positive'):
                 marker = fixture_workdirs[-1] / 'supabase/.branches/_current_branch'
                 self.assertEqual(marker.read_bytes(), b'main')
                 self.assertEqual(marker.stat().st_mode & 0o777, 0o644)
@@ -1908,6 +1927,8 @@ class ExecutionSupervisor(unittest.TestCase):
             entry = {'at': time.monotonic(), 'closed': guard.session.closed, 'execution_deadline': guard.deadline}
             calls.append(entry)
             try:
+                if scenario == 'auth-kong-cleanup':
+                    raise dev.Refusal('startup', 'execution_cleanup_unresolved') from ValueError('private-input-sentinel')
                 return cleanup(guard, *args, **kwargs)
             finally:
                 entry.update(deadline=guard.deadline, duration=time.monotonic()-entry['at'])
@@ -1965,7 +1986,7 @@ else: sys.exit(125)
             executable.chmod(0o700)
             verified_tools = nullcontext()
             public_session = nullcontext()
-            if scenario == 'auth-tail-positive':
+            if scenario in ('auth-tail-positive', 'auth-kong-positive'):
                 owner = self.owner.owner
                 selected = owner.payload / 'supabase/supabase'
                 selected.parent.mkdir(mode=0o700)
@@ -1989,6 +2010,10 @@ else: sys.exit(125)
                 thread.start()
                 try:
                     with ExitStack() as patches:
+                        rejected_stdout, rejected_stderr = io.StringIO(), io.StringIO()
+                        if kong and scenario != 'auth-kong-positive':
+                            patches.enter_context(redirect_stdout(rejected_stdout))
+                            patches.enter_context(redirect_stderr(rejected_stderr))
                         for context in (
                             verified_tools, public_session, patch.object(startup, 'guarded_fixture_command', side_effect=observe),
                             patch.object(resources.FreshGuard, 'cleanup_execution', new=record_cleanup),
@@ -1999,6 +2024,7 @@ else: sys.exit(125)
                             patch.object(resources.FreshGuard, 'api_default_privileges_sql', new=api_after_auth_and_cli_exit, create=True),
                             patch.object(resources.FreshGuard, 'cli_db_backend_sql', new=backend_at_cli_boundary, create=True),
                             patch.object(resources.FreshGuard, 'complete_post_auth_setup_tail', new=tail_at_owner_boundary),
+                            patch.object(resources.FreshGuard, 'verify_kong_boundary', new=kong_at_owner_boundary),
                             patch.object(resources.FreshGuard, 'auth_job_owned', new=inspect_job_with_fault),
                             patch.object(startup, 'initialize_workdir', side_effect=initialize_secondary),
                             patch.object(startup, 'install_fixture', side_effect=install_secondary),
@@ -2008,18 +2034,18 @@ else: sys.exit(125)
                         ):
                             patches.enter_context(context)
                         result = None
-                        with (nullcontext() if scenario in ('persistence-positive', 'initialized-positive', 'auth-positive', 'auth-polling', 'auth-migration-positive', 'auth-catalog-positive', 'auth-backend-positive', 'auth-api-positive', 'auth-tail-positive') else self.assertRaises(KeyboardInterrupt if scenario in ('initialized-interrupt', 'auth-interrupt', 'auth-migration-interrupt') else dev.Refusal)) as caught:
-                            if scenario == 'auth-tail-positive':
+                        with (nullcontext() if scenario in ('persistence-positive', 'initialized-positive', 'auth-positive', 'auth-polling', 'auth-migration-positive', 'auth-catalog-positive', 'auth-backend-positive', 'auth-api-positive', 'auth-tail-positive', 'auth-kong-positive') else self.assertRaises(KeyboardInterrupt if scenario in ('initialized-interrupt', 'auth-interrupt', 'auth-migration-interrupt', 'auth-kong-interrupt') else dev.Refusal)) as caught:
+                            if scenario in ('auth-tail-positive', 'auth-kong-positive'):
                                 output = io.StringIO()
                                 with redirect_stdout(output):
                                     status = qualify_startup.main(['--target', self.owner.owner.args.target,
                                         '--run-id', self.owner.owner.args.run_id,
-                                        '--control', 'pinned-cli-postgres-post-auth-setup-tail'])
+                                        '--control', 'pinned-cli-postgres-kong-boundary' if kong else 'pinned-cli-postgres-post-auth-setup-tail'])
                                 self.assertEqual(status, 0, output.getvalue())
                                 result = json.loads(output.getvalue())
                             else:
                                 result = startup.synthetic_probe(executable, self.owner.owner.target, self.owner.owner.args.run_id,
-                                        control='fresh-pinned-cli-postgres-post-auth-setup-tail' if tail else 'fresh-pinned-cli-postgres-api-default-privileges' if api_privileges else 'fresh-pinned-cli-postgres-cli-db-backend' if backend else ('fresh-pinned-cli-postgres-auth-catalog' if catalog else ('fresh-pinned-cli-postgres-auth-migration' if migration else ('fresh-pinned-cli-postgres-auth-boundary' if poststart else ('fresh-pinned-cli-postgres-initialized' if initialized else ('fresh-pinned-cli-postgres-persistence' if persistence else 'fresh-pinned-cli-postgres'))))),
+                                        control='fresh-pinned-cli-postgres-kong-boundary' if kong else 'fresh-pinned-cli-postgres-post-auth-setup-tail' if tail else 'fresh-pinned-cli-postgres-api-default-privileges' if api_privileges else 'fresh-pinned-cli-postgres-cli-db-backend' if backend else ('fresh-pinned-cli-postgres-auth-catalog' if catalog else ('fresh-pinned-cli-postgres-auth-migration' if migration else ('fresh-pinned-cli-postgres-auth-boundary' if poststart else ('fresh-pinned-cli-postgres-initialized' if initialized else ('fresh-pinned-cli-postgres-persistence' if persistence else 'fresh-pinned-cli-postgres'))))),
                                         selection_plan=startup.existing_images(self.owner.owner.args)[1],
                                         image_observations=self.owner.expected,
                                         _guarded_target=(self.owner.owner.args.target, path))
@@ -2027,9 +2053,45 @@ else: sys.exit(125)
                     server.shutdown()
                     thread.join(timeout=1)
 
+        if result is not None and not kong:
+            for key in ('owner_kong_boundary_verified', 'kong_create_refused', 'kong_three_file_transfer_verified'):
+                self.assertNotIn(key, result)
         if result is not None and not api_privileges:
             self.assertNotIn('api_default_privileges_verified', result)
-        if tail and scenario != 'auth-tail-positive':
+        if kong and scenario != 'auth-kong-positive':
+            for stream in (rejected_stdout, rejected_stderr):
+                emitted = stream.getvalue()
+                for marker in ('private-input-sentinel', 'invalid-transfer',
+                               'public-synthetic-secret-key', 'public-synthetic-service-role-key',
+                               'public-synthetic-publishable-key', 'public-synthetic-anon-key'):
+                    self.assertTrue(marker not in emitted, 'rejected process output exposed a protected marker')
+            guard = guards[0]
+            self.assertIsNone(result)
+            self.assert_stopped(pids)
+            self.assertEqual(len(group_signals), 1)
+            self.assertTrue(guard.auth_cli_terminated and guard._tail_completed)
+            self.assertTrue(guard.kong_boundary_attempted)
+            self.assertFalse(guard.owner_kong_boundary_verified)
+            self.assertFalse(any('supabase_kong_' in path for _, path, _ in engine.events))
+            self.assertEqual(guard._kong_boundary_completed, scenario == 'auth-kong-cleanup')
+            chain, error = [], caught.exception
+            while error is not None:
+                chain.append(error)
+                error = error.__context__
+            if scenario == 'auth-kong-expiry':
+                self.assertTrue(any(getattr(error, 'code', None) == 'docker_timeout' for error in chain))
+            elif scenario == 'auth-kong-interrupt':
+                self.assertTrue(any(isinstance(error, KeyboardInterrupt) for error in chain))
+            elif scenario == 'auth-kong-cleanup':
+                self.assertEqual(caught.exception.code, 'execution_cleanup_unresolved')
+                self.assertIsNotNone(engine.row)
+            else:
+                self.assertTrue(any(getattr(error, 'code', None) == 'unsafe_lifecycle' for error in chain))
+            before = len(engine.events)
+            with self.assertRaises(dev.Refusal): kong_action(guard)
+            self.assertEqual(len(engine.events), before)
+            return
+        if tail and scenario not in ('auth-tail-positive', 'auth-kong-positive'):
             guard = guards[0]
             self.assertIsNone(result)
             self.assert_stopped(pids)
@@ -2059,7 +2121,7 @@ else: sys.exit(125)
             return
         if api_privileges:
             guard = guards[0]
-            positive = scenario in ('auth-api-positive', 'auth-tail-positive')
+            positive = scenario in ('auth-api-positive', 'auth-tail-positive', 'auth-kong-positive')
             self.assert_stopped(pids)
             self.assertEqual((len(pids), len(group_signals), len(connections), len(calls)), (2, 1, 1, 1))
             self.assertEqual(backend_phases, ['present', 'departed'])
@@ -2098,9 +2160,14 @@ else: sys.exit(125)
                                      'execution_invalid_health' if scenario.endswith('-custody') else 'execution_sql_failed')
                     self.assertEqual(caught.exception.code, expected_code)
             if positive:
-                self.assertEqual(result['stage'], 'pinned_cli_postgres_post_auth_setup_tail' if tail else 'pinned_cli_postgres_api_default_privileges')
+                self.assertEqual(result['stage'], 'pinned_cli_postgres_kong_boundary' if kong else 'pinned_cli_postgres_post_auth_setup_tail' if tail else 'pinned_cli_postgres_api_default_privileges')
                 if tail:
                     self.assertTrue(result['owner_post_auth_setup_tail_verified'])
+                if kong:
+                    self.assertTrue(result['owner_kong_boundary_verified'])
+                    self.assertTrue(result['kong_create_refused'])
+                    self.assertTrue(result['kong_three_file_transfer_verified'])
+                    self.assertFalse(any('supabase_kong_' in path for _, path, _ in events))
                 self.assertTrue(result['api_default_privileges_verified'])
                 for key in ['cli_db_backend_present_verified', 'cli_db_backend_departure_verified',
                             'auth_catalog_precondition_verified', 'auth_catalog_verified',
@@ -2596,6 +2663,17 @@ else: sys.exit(125)
         for scenario in ('auth-api-apply-lost', 'auth-api-apply-deadline', 'auth-api-verify-custody'):
             with self.subTest(scenario=scenario):
                 self.run_execution_case(scenario)
+
+    def test_kong_boundary_process_source_intent_and_cleanup(self):
+        self.run_execution_case('auth-kong-positive')
+
+    def test_kong_boundary_process_deadline_and_interruption_never_qualify(self):
+        for scenario in ('auth-kong-expiry', 'auth-kong-interrupt'):
+            with self.subTest(scenario=scenario): self.run_execution_case(scenario)
+
+    def test_kong_boundary_process_altered_transfer_and_cleanup_failure_no_fact(self):
+        for scenario in ('auth-kong-transfer', 'auth-kong-cleanup'):
+            with self.subTest(scenario=scenario): self.run_execution_case(scenario)
 
     def test_post_auth_setup_tail_process_exact_artifact_and_cleanup(self):
         self.run_execution_case('auth-tail-positive')

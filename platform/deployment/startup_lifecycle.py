@@ -629,3 +629,55 @@ def cli_db_backend_exec(mode):
 def valid_cli_db_backend_exec(body):
     import create_profile
     return any(create_profile._exact_tree(body, cli_db_backend_exec(mode)) for mode in ('present', 'departed'))
+
+
+KONG_ARCHIVE_MAX_BYTES = 65536
+
+
+def kong_archive(files, fixture):
+    """Construct only the closed three-file synthetic transfer, entirely in memory."""
+    import io
+    import tarfile
+    import create_profile
+    if not create_profile._exact_tree(files, create_profile.kong_transfer_files(fixture)):
+        refuse()
+    stream = io.BytesIO()
+    with tarfile.open(fileobj=stream, mode='w', format=tarfile.USTAR_FORMAT) as archive:
+        for name, content in files.items():
+            entry = tarfile.TarInfo(name)
+            entry.mode, entry.size = 0o644, len(content)
+            archive.addfile(entry, io.BytesIO(content))
+    return stream.getvalue()
+
+
+def validate_kong_archive(raw, fixture):
+    """Separate bounded three-member parser; no extraction, logs or content digests."""
+    import create_profile
+    if type(raw) is not bytes or not 1024 <= len(raw) <= KONG_ARCHIVE_MAX_BYTES or len(raw) % 512:
+        refuse()
+    expected = create_profile.kong_transfer_files(fixture)
+    offset = 0
+    for name, content in expected.items():
+        header = raw[offset:offset + 512]
+        if len(header) != 512:
+            refuse()
+        if (header[:100] != name.encode().ljust(100, b'\0') or header[156:157] != b'0'
+                or any(header[157:257]) or header[257:265] != b'ustar\00000'
+                or any(header[265:329]) or any(header[345:512])
+                or number(header[100:108]) != 0o644 or number(header[108:116]) != 0
+                or number(header[116:124]) != 0 or number(header[124:136]) != len(content)
+                or number(header[136:148]) != 0
+                or number(header[148:156]) != sum(header[:148]) + 8 * 32 + sum(header[156:])):
+            refuse()
+        for field in (header[329:337], header[337:345]):
+            if field != b'\0' * len(field) and number(field) != 0:
+                refuse()
+        offset += 512
+        padded = ((len(content) + 511) // 512) * 512
+        if raw[offset:offset + len(content)] != content or any(raw[offset + len(content):offset + padded]):
+            refuse()
+        offset += padded
+    if len(raw) - offset < 1024 or any(raw[offset:]):
+        refuse()
+    return {'member_count': 3, 'regular_files': True, 'mode': '0644', 'uid': 0, 'gid': 0,
+            'content_verified': True}

@@ -78,6 +78,43 @@ class StartupAcceptance(unittest.TestCase):
                 self.assertEqual(qualify_startup.main(argv + [option, '/private/socket']), 2)
                 qualify.assert_not_called()
 
+    def test_kong_boundary_public_inventory_and_real_qualify_mapping(self):
+        from contextlib import redirect_stdout, redirect_stderr
+        import io
+        import qualify_startup
+        import test_daemon_images
+        owner = test_daemon_images.DaemonImages(methodName='runTest')
+        owner.setUp()
+        self.addCleanup(owner.doCleanups)
+        expected = {'ok': True, 'stage': 'pinned_cli_postgres_kong_boundary',
+                    'owner_kong_boundary_verified': True, 'cleanup_verified': True,
+                    'fresh_setup_completed': False, 'runtime_ready': False}
+        calls = []
+        def mapped(executable, target, run_id, **kwargs):
+            calls.append(kwargs)
+            self.assertEqual(kwargs['control'], 'fresh-pinned-cli-postgres-kong-boundary')
+            self.assertEqual(kwargs['_guarded_target'], (owner.owner.args.target, '/var/run/docker.sock'))
+            self.assertEqual(kwargs['image_observations'], owner.expected)
+            return dict(expected)
+        argv = ['--target', owner.owner.args.target, '--run-id', owner.owner.args.run_id,
+                '--control', 'pinned-cli-postgres-kong-boundary']
+        output, errors = io.StringIO(), io.StringIO()
+        with patch.object(startup, 'synthetic_probe', side_effect=mapped), \
+                patch.object(qualify_startup.volumes, 'acquire', side_effect=AssertionError('wrong dispatch')), \
+                patch.object(qualify_startup.qualify_daemon_images, 'SyntheticDaemon', side_effect=AssertionError('wrong dispatch')), \
+                redirect_stdout(output), redirect_stderr(errors):
+            self.assertEqual(qualify_startup.main(argv), 0, output.getvalue())
+        result = json.loads(output.getvalue())
+        self.assertEqual(errors.getvalue(), '')
+        self.assertEqual(len(calls), 1)
+        for key, value in expected.items(): self.assertEqual(result[key], value)
+        self.assertIn('image_receipt_sha256', result)
+        # This public command deliberately has no daemon endpoint selector.
+        for option in ('--socket-path', '--docker-host', '--daemon'):
+            with self.subTest(option=option), patch.object(startup, 'qualify') as qualify, redirect_stdout(io.StringIO()):
+                self.assertEqual(qualify_startup.main(argv + [option, '/private/socket']), 2)
+                qualify.assert_not_called()
+
     def test_missing_preparation_fails_before_execution(self):
         result = subprocess.run([sys.executable, str(ROOT / 'platform/deployment/tests/qualify_startup.py'),
                                  '--target', str(ROOT / 'platform/deployment/environments/kdg-local.json'),
