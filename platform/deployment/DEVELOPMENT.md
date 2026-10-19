@@ -1371,3 +1371,14 @@ and published with Linux no-replace rename semantics. An existing destination is
 refused even when empty; failed publication does not overwrite/adopt it. Staging and
 mutation parents retain identity across validation. Filesystem deadlines are checked
 around operations; hard preemption of a blocked filesystem call is not qualified.
+
+### Actual setup-tail qualification on current source
+
+The actual disposable-Docker control is now qualified on source1bc9837 with fresh
+prepare/toolchain/image receipts. See [actual qualification evidence](ENV_POST_AUTH_TAIL_ACTUAL_EVIDENCE.md)
+for exact commands, source bindings, results and preservation checks. The earlier
+tail implementation record remains historical synthetic evidence. This does not
+resume the CLI or qualify running Auth/API services, complete setup or runtime readiness.
+Use fresh source-bound prerequisites after subsequent implementation changes; preserve
+older receipts and uncertain resources. No recovery cleanup is authorized by success
+of a separate fresh operation.

@@ -1,6 +1,18 @@
 # Resume shared ENV delivery after KDG planning PASS
 
-Latest completed ENV increment: owner-completed post-Auth setup tail and private
+Latest completed ENV item: actual disposable-Docker qualification of the owner
+post-Auth setup tail on source1bc9837. Fresh preparation/toolchain/image qualification
+and both tail/ordinary API-default controls pass with normal cleanup. See
+[Build record](../../../_bmad-output/implementation-artifacts/spec-env-post-auth-tail-actual.md)
+and [actual evidence](../../../platform/deployment/ENV_POST_AUTH_TAIL_ACTUAL_EVIDENCE.md).
+Both controls retain runtime_ready=false/fresh_setup_completed=false and terminated
+CLI semantics.17 concurrent files/index,39 historical prerequisite files,74 source/test
+bindings and all preexisting Docker identities are preserved. No new runtime behavior
+or full-suite claim. Next: bounded ENV service lifecycle (check Kong/GoTrue selected
+ordering first) and consuming scaffold proof; dependent Identity/Access/WRITE and
+server-backed KDG remain gated.
+
+Previous completed ENV increment: owner-completed post-Auth setup tail and private
 current-branch custody, after verified API default privileges. See
 [Build record](../../../_bmad-output/implementation-artifacts/spec-env-post-auth-setup-tail.md)
 and [evidence](../../../platform/deployment/ENV_POST_AUTH_SETUP_TAIL_EVIDENCE.md).
