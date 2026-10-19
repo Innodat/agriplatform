@@ -5,6 +5,7 @@ import base64
 from contextlib import ExitStack, contextmanager
 import hashlib
 import json
+import math
 import os
 from pathlib import Path
 import re
@@ -62,10 +63,59 @@ def _valid_docker_failure(value):
             and type(value['elapsed_ms']) is int and 0 <= value['elapsed_ms'] <= DOCKER_ELAPSED_MAX)
 
 
+OWNER_CHECKS = {'acquisition': frozenset({'custody', 'already_expired'}),
+                'fresh': frozenset({'custody', 'already_expired'}),
+                'guard': frozenset({'budget', 'already_expired'})}
+
+
+def _valid_owner_failure(value):
+    return (type(value) is dict and len(value) == 4
+            and all(type(key) is str for key in value)
+            and set(value) == {'schema_version', 'scope', 'check', 'elapsed_ms'}
+            and type(value['schema_version']) is int and value['schema_version'] == 1
+            and type(value['scope']) is str and value['scope'] in OWNER_CHECKS
+            and type(value['check']) is str and value['check'] in OWNER_CHECKS[value['scope']]
+            and type(value['elapsed_ms']) is int and 0 <= value['elapsed_ms'] <= DOCKER_ELAPSED_MAX)
+
+
+@contextmanager
+def _owner_observation(scope, check, deadline):
+    """Observe an existing timeout boundary without changing its checks or error."""
+    started = None
+    try:
+        entry, limit = time.monotonic(), deadline()
+        if (type(entry) in (int, float) and math.isfinite(entry)
+                and type(limit) in (int, float) and math.isfinite(limit)):
+            started = entry
+            if entry >= limit:
+                check = 'already_expired'
+    except Exception:
+        pass
+    try:
+        yield
+    except BaseException as error:
+        try:
+            values = BaseException.__dict__['__dict__'].__get__(error)
+            if (started is not None and isinstance(error, Refusal)
+                    and dict.get(values, 'stage') == 'docker' and dict.get(values, 'code') == 'docker_timeout'
+                    and not _valid_owner_failure(dict.get(values, 'owner_failure'))
+                    and not _valid_docker_failure(dict.get(values, 'docker_failure'))):
+                ended = time.monotonic()
+                if type(ended) in (int, float) and math.isfinite(ended):
+                    observation = {'schema_version': 1, 'scope': scope, 'check': check,
+                        'elapsed_ms': int(min(max(0, ended - started) * 1000, DOCKER_ELAPSED_MAX))}
+                    if _valid_owner_failure(observation):
+                        values['owner_failure'] = observation
+        except BaseException:
+            # Clock, metadata and attribute failures cannot replace the outcome.
+            pass
+        raise
+
+
 def refusal_result(error):
     """Retain the oldest safe observation across bounded cleanup exception chains."""
     result = {'ok': False, 'stage': error.stage, 'code': error.code, 'runtime_ready': False}
-    pending, seen, selected = [error], set(), None
+    pending, seen, selected, owner_selected = [error], set(), None, None
     # Walk parents before children: deeper/original failures replace wrappers.
     # Both implicit cleanup context and explicit causes count; never stringify.
     for _ in range(32):
@@ -79,6 +129,9 @@ def refusal_result(error):
         diagnostic = dict.get(values, 'docker_failure')
         if _valid_docker_failure(diagnostic):
             selected = diagnostic.copy()
+        owner_diagnostic = dict.get(values, 'owner_failure')
+        if _valid_owner_failure(owner_diagnostic):
+            owner_selected = owner_diagnostic.copy()
         for name in ('__cause__', '__context__'):
             parent = BaseException.__dict__[name].__get__(current)
             if parent is not None:
@@ -86,6 +139,8 @@ def refusal_result(error):
     # A truncated ancestry cannot establish which observation was first.
     if selected is not None and not pending:
         result['docker_failure'] = selected
+    if owner_selected is not None and not pending:
+        result['owner_failure'] = owner_selected
     return result
 
 

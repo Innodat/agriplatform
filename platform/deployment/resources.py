@@ -22,9 +22,10 @@ def acquire(target_path, run_id, *, _socket_path='/var/run/docker.sock', _handof
     with daemon_images.qualified_evidence(target_path, run_id) as (target, plan, evidence):
         deadline = time.monotonic() + SECONDS
         def current():
-            evidence()
-            if time.monotonic() >= deadline:
-                dev.refuse('docker', 'docker_timeout')
+            with dev._owner_observation('acquisition', 'custody', lambda: deadline):
+                evidence()
+                if time.monotonic() >= deadline:
+                    dev.refuse('docker', 'docker_timeout')
         with dev.DockerSession(_socket_path=_socket_path, deadline=deadline) as session:
             current()
             dev.docker_prerequisite(_session=session)
@@ -78,11 +79,12 @@ def fresh_session(target_path, run_id, executable, work, *, _socket_path='/var/r
         startup.check_workdir(work, target, run_id)
         deadline = time.monotonic() + SECONDS
         def current():
-            evidence()
-            if _executable_custody is not None:
-                _executable_custody.check()
-            if time.monotonic() >= session.deadline:
-                dev.refuse('docker', 'docker_timeout')
+            with dev._owner_observation('fresh', 'custody', lambda: session.deadline):
+                evidence()
+                if _executable_custody is not None:
+                    _executable_custody.check()
+                if time.monotonic() >= session.deadline:
+                    dev.refuse('docker', 'docker_timeout')
         with dev.DockerSession(_socket_path=_socket_path, deadline=deadline) as session:
             current()
             dev.docker_prerequisite(_session=session)
@@ -205,9 +207,10 @@ class FreshGuard:
             startup.fail('execution_ownership_changed')
 
     def check(self):
-        self.current()
-        self.session.idle()
-        self.session.budget()
+        with dev._owner_observation('guard', 'budget', lambda: self.session.deadline):
+            self.current()
+            self.session.idle()
+            self.session.budget()
 
     def remaining(self):
         self.check()

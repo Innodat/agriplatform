@@ -76,6 +76,148 @@ class Peer:
 
 
 class DockerSessionTests(unittest.TestCase):
+    def test_owner_entry_observation_propagates_clock_and_deadline_cancellation(self):
+        for source in ['clock', 'deadline']:
+            for cancellation in [KeyboardInterrupt('SECRET'), SystemExit(91), GeneratorExit()]:
+                body = []
+                def deadline():
+                    if source == 'deadline':
+                        raise cancellation
+                    return 5
+                with self.subTest(source=source, cancellation=type(cancellation).__name__), \
+                        patch.object(dev.time, 'monotonic', side_effect=cancellation if source == 'clock' else None,
+                                     return_value=1):
+                    with self.assertRaises(type(cancellation)) as caught:
+                        with dev._owner_observation('fresh', 'custody', deadline):
+                            body.append(True)
+                    self.assertIs(caught.exception, cancellation)
+                    self.assertEqual(body, [])
+
+    def test_owner_exit_observation_cancellation_preserves_original_error(self):
+        for cancellation in [KeyboardInterrupt('SECRET'), SystemExit(91), GeneratorExit()]:
+            original = dev.Refusal('docker', 'docker_timeout')
+            with self.subTest(cancellation=type(cancellation).__name__), \
+                    patch.object(dev.time, 'monotonic', side_effect=[1, cancellation]):
+                with self.assertRaises(dev.Refusal) as caught:
+                    with dev._owner_observation('fresh', 'custody', lambda: 5):
+                        raise original
+            self.assertIs(caught.exception, original)
+            self.assertNotIn('owner_failure', dev.refusal_result(original))
+
+    def test_owner_deadline_observation_failure_preserves_success_and_original_error(self):
+        for value in [RuntimeError('SECRET'), ValueError('SECRET'), None, 'SECRET', True,
+                      [], {}, float('nan'), float('inf'), float('-inf')]:
+            for fail_body in [False, True]:
+                original, body = dev.Refusal('docker', 'docker_timeout'), []
+                def deadline():
+                    if isinstance(value, Exception):
+                        raise value
+                    return value
+                def execute():
+                    with dev._owner_observation('fresh', 'custody', deadline):
+                        body.append(True)
+                        if fail_body:
+                            raise original
+                with self.subTest(value=type(value).__name__, fail_body=fail_body), \
+                        patch.object(dev.time, 'monotonic', return_value=1):
+                    if fail_body:
+                        with self.assertRaises(dev.Refusal) as caught:
+                            execute()
+                        self.assertIs(caught.exception, original)
+                    else:
+                        execute()
+                self.assertEqual(body, [True])
+                self.assertNotIn('owner_failure', dev.refusal_result(original))
+
+    def test_owner_observation_preserves_outcomes_and_bounds_elapsed(self):
+        for scope, check in [('acquisition', 'custody'), ('fresh', 'custody'), ('guard', 'budget')]:
+            for entry, end, expected_check, elapsed in [(1, 2, check, 1000),
+                    (5, 6, 'already_expired', 1000), (1, -1, check, 0),
+                    (1, 1e20, check, dev.DOCKER_ELAPSED_MAX)]:
+                original = dev.Refusal('docker', 'docker_timeout')
+                with self.subTest(scope=scope, entry=entry, end=end), \
+                        patch.object(dev.time, 'monotonic', side_effect=[entry, end]):
+                    with self.assertRaises(dev.Refusal) as caught:
+                        with dev._owner_observation(scope, check, lambda: 5):
+                            raise original
+                self.assertIs(caught.exception, original)
+                self.assertEqual(dev.refusal_result(original)['owner_failure'], {
+                    'schema_version': 1, 'scope': scope, 'check': expected_check, 'elapsed_ms': elapsed})
+        for original in [dev.Refusal('custody', 'changed'), KeyboardInterrupt('SECRET'),
+                         TimeoutError('SECRET'), dev.Refusal('other', 'docker_timeout')]:
+            with self.subTest(error=type(original)), patch.object(dev.time, 'monotonic', return_value=10):
+                with self.assertRaises(type(original)) as caught:
+                    with dev._owner_observation('fresh', 'custody', lambda: 5):
+                        raise original
+                self.assertIs(caught.exception, original)
+                self.assertNotIn('owner_failure', vars(original))
+        with patch.object(dev.time, 'monotonic', return_value=10):
+            with dev._owner_observation('fresh', 'custody', lambda: 5):
+                pass  # Observation never introduces a refusal on success.
+
+    def test_owner_observation_optional_clock_attributes_and_request_metadata(self):
+        class Hostile(dev.Refusal):
+            def __getattribute__(self, name):
+                if name in ('owner_failure', 'docker_failure', '__dict__'):
+                    raise AssertionError('SECRET attribute')
+                return super().__getattribute__(name)
+            def __str__(self):
+                raise AssertionError('must never stringify')
+        for clocks in [[RuntimeError('SECRET')], [float('nan')], [float('inf')],
+                       [1, RuntimeError('SECRET')], [1, float('nan')], [1, float('inf')]]:
+            original = Hostile('docker', 'docker_timeout')
+            with self.subTest(clocks=clocks), patch.object(dev.time, 'monotonic', side_effect=clocks):
+                with self.assertRaises(Hostile) as caught:
+                    with dev._owner_observation('fresh', 'custody', lambda: 5):
+                        raise original
+            self.assertIs(caught.exception, original)
+            self.assertNotIn('owner_failure', dev.refusal_result(original))
+        original = Hostile('docker', 'docker_timeout')
+        original.docker_failure = {'schema_version': 1, 'operation': 'image_inspect',
+                                   'phase': 'receive', 'elapsed_ms': 4}
+        with patch.object(dev.time, 'monotonic', return_value=1), self.assertRaises(Hostile):
+            with dev._owner_observation('guard', 'budget', lambda: 5):
+                raise original
+        self.assertNotIn('owner_failure', dev.refusal_result(original))
+        self.assertEqual(dev.refusal_result(original)['docker_failure'],
+                         BaseException.__dict__['__dict__'].__get__(original)['docker_failure'])
+
+    def test_owner_formatter_closed_types_original_chain_and_truncation(self):
+        valid = {'schema_version': 1, 'scope': 'fresh', 'check': 'custody', 'elapsed_ms': 0}
+        malformed = [None, [], dict(valid, secret='SECRET'), dict(valid, schema_version=True),
+                     dict(valid, elapsed_ms=True), dict(valid, elapsed_ms=-1),
+                     dict(valid, elapsed_ms=2147483648), dict(valid, elapsed_ms=1.0),
+                     dict(valid, scope='SECRET'), dict(valid, check='budget'),
+                     dict(valid, scope='guard'), {k: v for k, v in valid.items() if k != 'scope'}]
+        class Hostile(dict):
+            def __iter__(self):
+                raise AssertionError('must not inspect untrusted containers')
+        class HostileKey(str):
+            def __hash__(self):
+                return super().__hash__()
+            def __eq__(self, other):
+                raise AssertionError('must not compare untrusted keys')
+        malformed += [Hostile(valid), {HostileKey('scope'): 'fresh', 'schema_version': 1,
+                                      'check': 'custody', 'elapsed_ms': 0}]
+        outer = dev.Refusal('execution', 'execution_cleanup_unresolved')
+        for value in malformed:
+            outer.owner_failure = value
+            self.assertNotIn('owner_failure', dev.refusal_result(outer))
+        original = dev.Refusal('docker', 'docker_timeout')
+        original.owner_failure = valid
+        outer.owner_failure = dict(valid, scope='acquisition')
+        outer.__cause__ = RuntimeError('SECRET cleanup')
+        outer.__cause__.__context__ = original
+        original.__context__ = outer
+        result = dev.refusal_result(outer)
+        self.assertEqual(result['owner_failure'], valid)
+        self.assertEqual((result['stage'], result['code']), ('execution', 'execution_cleanup_unresolved'))
+        cursor = outer
+        for _ in range(40):
+            cursor.__cause__ = RuntimeError('SECRET')
+            cursor = cursor.__cause__
+        self.assertNotIn('owner_failure', dev.refusal_result(outer))
+
 
     def test_close_failure_acceptance_keeps_qualifier_transport_refusal(self):
         import qualify_startup

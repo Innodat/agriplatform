@@ -1314,3 +1314,26 @@ print(json.dumps(result, sort_keys=True))
 raise SystemExit(code)
 PY
 ```
+
+### Owner-check timeout observations
+
+Optional `owner_failure` is separate from the Docker-request `docker_failure`.
+It contains only schema_version=1, scope, check and bounded integer elapsed_ms.
+Allowed pairs are acquisition/custody, fresh/custody and guard/budget; the last
+labels the complete outer current/idle/budget boundary. Each scope also permits
+already_expired when the budget was exhausted at observation entry.
+The value identifies where an existing timeout was detected, not which custody
+read or request caused it. It does not measure the whole operation's duration.
+
+Observation is best effort: existing checks, errors/cancellation, deadlines,
+connection and cleanup authority are unchanged. Invalid metadata or failed clock
+observation is omitted. Nested/original valid observations use the existing bounded
+error-chain formatter; no source/resource/credential/exception text is emitted.
+There is no new control, reconnect/replay, recovery deletion or grant repair.
+See [owner timeout evidence](ENV_OWNER_TIMEOUT_DIAGNOSTICS_EVIDENCE.md) for synthetic
+verification and the limits of earlier actual-Docker receipts on changed source.
+
+The direct acquisition handoff idle/budget pairs and fresh-session pre-constructor
+idle/budget pair remain outside this observation coverage. A timeout there may lack
+owner_failure; absence of metadata does not identify its cause. Follow-up coverage
+is recorded in deferred work.

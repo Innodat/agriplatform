@@ -7,6 +7,259 @@ import resources
 
 
 class Resources(unittest.TestCase):
+    def test_acquisition_already_expired_keeps_evidence_before_timeout_and_closes(self):
+        from contextlib import contextmanager
+        import daemon_images
+        import dev
+        from unittest.mock import patch
+        now, events, sessions, handoffs, closes = [1], [], [], [], []
+        qualified, real_session = daemon_images.qualified_evidence, dev.DockerSession
+        @contextmanager
+        def owner(*args):
+            with qualified(*args) as (target, plan, evidence):
+                def current():
+                    events.append('evidence')
+                    evidence()
+                    events.append('evidence_checked')
+                yield target, plan, current
+        def session_factory(**kwargs):
+            session = real_session(**kwargs)
+            sessions.append(session)
+            self.assertEqual(session.deadline, 6)
+            now[0] = 7
+            close = session.close
+            def close_once():
+                closes.append(True)
+                close()
+            session.close = close_once
+            return session
+        with patch.object(daemon_images, 'qualified_evidence', side_effect=owner), \
+                patch.object(dev, 'DockerSession', side_effect=session_factory), \
+                patch.object(real_session, 'exchange') as exchange, \
+                patch.object(dev.time, 'monotonic', side_effect=lambda: now[0]):
+            with self.assertRaises(dev.Refusal) as caught:
+                self.acquire('/synthetic/not-connected', _handoff=lambda *args: handoffs.append(True))
+        self.assertEqual(events, ['evidence', 'evidence_checked'])
+        self.assertEqual(dev.refusal_result(caught.exception), {
+            'ok': False, 'stage': 'docker', 'code': 'docker_timeout', 'runtime_ready': False,
+            'owner_failure': {'schema_version': 1, 'scope': 'acquisition',
+                              'check': 'already_expired', 'elapsed_ms': 0}})
+        exchange.assert_not_called()
+        self.assertEqual(handoffs, [])
+        self.assertEqual(closes, [True])
+        self.assertTrue(sessions[0].closed)
+        self.assertIsNone(sessions[0].stream)
+
+    def test_owner_context_cleanup_refusal_retains_observed_timeout_and_closes_once(self):
+        from contextlib import contextmanager
+        import time
+        import daemon_images
+        import dev
+        from unittest.mock import patch
+        daemon = self.daemon()
+        now, events, sessions, originals, handoffs = [time.monotonic()], [], [], [], []
+        qualified, real_session = daemon_images.qualified_evidence, dev.DockerSession
+        wrapper = dev.Refusal('owner', 'owner_cleanup_changed')
+        @contextmanager
+        def owner(*args):
+            with qualified(*args) as (target, plan, evidence):
+                def current():
+                    evidence()
+                    events.append('evidence')
+                    if daemon.events:
+                        now[0] += 6
+                try:
+                    yield target, plan, current
+                except dev.Refusal as original:
+                    originals.append(original)
+                    events.append('owner_exit')
+                    raise wrapper
+        def session_factory(**kwargs):
+            session = real_session(**kwargs)
+            sessions.append(session)
+            close = session.close
+            def close_once():
+                events.append('connection_close')
+                close()
+            session.close = close_once
+            return session
+        with daemon.serve() as endpoint, \
+                patch.object(daemon_images, 'qualified_evidence', side_effect=owner), \
+                patch.object(dev, 'DockerSession', side_effect=session_factory), \
+                patch.object(dev.time, 'monotonic', side_effect=lambda: now[0]):
+            with self.assertRaises(dev.Refusal) as caught:
+                self.acquire(endpoint, _handoff=lambda *args: handoffs.append(True))
+        self.assertIs(caught.exception, wrapper)
+        self.assertEqual(len(originals), 1)
+        self.assertIs(wrapper.__context__, originals[0])
+        self.assertEqual((originals[0].stage, originals[0].code), ('docker', 'docker_timeout'))
+        self.assertEqual(dev.refusal_result(wrapper), {'ok': False, 'runtime_ready': False,
+            'stage': 'owner', 'code': 'owner_cleanup_changed', 'owner_failure': {
+                'schema_version': 1, 'scope': 'acquisition', 'check': 'custody', 'elapsed_ms': 6000}})
+        self.assertEqual(events, ['evidence', 'evidence', 'connection_close', 'owner_exit'])
+        self.assertEqual(handoffs, [])
+        self.assertTrue(sessions[0].closed)
+        self.assertIsNone(sessions[0].stream)
+        self.assertEqual(daemon.connections, 1)
+        self.assertEqual(daemon.events, daemon.expected[:1])
+        self.assertFalse(daemon.errors or daemon.network.errors or daemon.volume.errors)
+
+    def test_guard_outer_boundary_preserves_order_and_nested_observation(self):
+        import dev
+        from types import SimpleNamespace
+        from unittest.mock import patch
+        for scenario in ['expiry', 'already-expired', 'nested', 'custody', 'idle', 'cancel', 'success']:
+            events, now = [], [6 if scenario == 'already-expired' else 1]
+            original = dev.Refusal('docker', 'docker_timeout')
+            def current():
+                events.append('current')
+                if scenario == 'nested':
+                    original.owner_failure = {'schema_version': 1, 'scope': 'fresh',
+                                              'check': 'custody', 'elapsed_ms': 7}
+                    raise original
+                if scenario == 'custody':
+                    raise dev.Refusal('custody', 'changed')
+                if scenario == 'cancel':
+                    raise KeyboardInterrupt()
+                if scenario == 'expiry':
+                    now[0] = 6
+            def idle():
+                events.append('idle')
+                if scenario == 'idle':
+                    raise dev.Refusal('docker', 'docker_response_invalid')
+            def budget():
+                events.append('budget')
+                if now[0] >= 5:
+                    raise original
+            session = SimpleNamespace(deadline=5, idle=idle, budget=budget)
+            guard = resources.FreshGuard(None, None, session, current, 5, None, None, None, None)
+            with self.subTest(scenario=scenario), patch.object(dev.time, 'monotonic', side_effect=lambda: now[0]):
+                if scenario == 'success':
+                    guard.check()
+                else:
+                    with self.assertRaises(KeyboardInterrupt if scenario == 'cancel' else dev.Refusal) as caught:
+                        guard.check()
+            expected = ['current'] if scenario in ['nested', 'custody', 'cancel'] else (
+                ['current', 'idle'] if scenario == 'idle' else ['current', 'idle', 'budget'])
+            self.assertEqual(events, expected)
+            self.assertEqual(guard.ownership_lost, scenario == 'custody')
+            if scenario in ['expiry', 'already-expired', 'nested']:
+                self.assertIs(caught.exception, original)
+                self.assertEqual(dev.refusal_result(original)['owner_failure'],
+                    {'schema_version': 1, 'scope': 'fresh' if scenario == 'nested' else 'guard',
+                     'check': {'expiry': 'budget', 'already-expired': 'already_expired',
+                               'nested': 'custody'}[scenario],
+                     'elapsed_ms': {'expiry': 5000, 'already-expired': 0, 'nested': 7}[scenario]})
+            elif scenario != 'success':
+                self.assertNotIn('owner_failure', vars(caught.exception))
+
+    def test_fresh_custody_timeout_and_already_expired_keep_executable_order(self):
+        from contextlib import contextmanager
+        from pathlib import Path
+        from types import SimpleNamespace
+        import tempfile
+        import startup
+        import daemon_images
+        import dev
+        from unittest.mock import patch
+        for scenario in ['expiry', 'already-expired', 'custody', 'cancel',
+                         'executable-expiry', 'executable-refusal', 'executable-cancel']:
+            now, events, sessions = [1], [], []
+            executable_error = (KeyboardInterrupt('SECRET') if scenario == 'executable-cancel'
+                                else dev.Refusal('custody', 'executable_changed'))
+            @contextmanager
+            def owner(*args):
+                def evidence():
+                    events.append('evidence')
+                    if scenario == 'expiry':
+                        now[0] = 7
+                    if scenario == 'custody':
+                        raise dev.Refusal('custody', 'changed')
+                    if scenario == 'cancel':
+                        raise KeyboardInterrupt()
+                yield self.owner.owner.target, None, evidence
+            def executable():
+                events.append('executable')
+                if events.count('executable') == 2:
+                    if scenario.startswith('executable-'):
+                        now[0] = 7
+                    if scenario in ['executable-refusal', 'executable-cancel']:
+                        raise executable_error
+            real_session = dev.DockerSession
+            def session_factory(**kwargs):
+                session = real_session(**kwargs)
+                sessions.append(session)
+                if scenario == 'already-expired':
+                    now[0] = 7
+                return session
+            with tempfile.TemporaryDirectory() as temporary:
+                work = Path(temporary)
+                startup.initialize_workdir(work, self.owner.owner.target, self.owner.owner.args.run_id)
+                with self.subTest(scenario=scenario), \
+                        patch.object(daemon_images, 'qualified_evidence', side_effect=owner), \
+                        patch.object(dev, 'DockerSession', side_effect=session_factory), \
+                        patch.object(dev.time, 'monotonic', side_effect=lambda: now[0]):
+                    with self.assertRaises(KeyboardInterrupt if scenario in ['cancel', 'executable-cancel']
+                                           else dev.Refusal) as caught:
+                        with resources.fresh_session(self.owner.owner.args.target, self.owner.owner.args.run_id,
+                                '/synthetic/not-executed', work,
+                                _executable_custody=SimpleNamespace(check=executable)):
+                            self.fail('no handoff after failure')
+            self.assertEqual(events, ['executable', 'evidence'] + (
+                ['executable'] if scenario not in ['custody', 'cancel'] else []))
+            self.assertTrue(sessions[0].closed)
+            self.assertIsNone(sessions[0].stream)
+            record = vars(caught.exception)
+            if scenario in ['expiry', 'already-expired', 'executable-expiry']:
+                self.assertEqual(dev.refusal_result(caught.exception)['owner_failure'], {
+                    'schema_version': 1, 'scope': 'fresh',
+                    'check': 'already_expired' if scenario == 'already-expired' else 'custody',
+                    'elapsed_ms': 0 if scenario == 'already-expired' else 6000})
+            else:
+                self.assertNotIn('owner_failure', record)
+                if scenario in ['executable-refusal', 'executable-cancel']:
+                    self.assertIs(caught.exception, executable_error)
+
+    def test_owner_timeout_public_qualifier_keeps_custody_boundary_without_request_metadata(self):
+        from contextlib import contextmanager, redirect_stdout
+        import io
+        import json
+        import time
+        from unittest.mock import patch
+        import daemon_images
+        import dev
+        import qualify_startup
+        daemon, called, checks = self.daemon(), [], []
+        qualified = daemon_images.qualified_evidence
+        now = [time.monotonic()]
+        @contextmanager
+        def evidence_owner(*args):
+            with qualified(*args) as (target, plan, evidence):
+                def current():
+                    evidence()
+                    checks.append(True)
+                    # The first request completed; custody consumes the budget.
+                    if daemon.events:
+                        now[0] += 6
+                yield target, plan, current
+        output = io.StringIO()
+        with daemon.serve() as endpoint:
+            def qualify(*args):
+                return self.acquire(endpoint, _handoff=lambda *args: called.append(True))
+            with patch.object(daemon_images, 'qualified_evidence', side_effect=evidence_owner), \
+                    patch.object(time, 'monotonic', side_effect=lambda: now[0]), \
+                    patch.object(qualify_startup.startup, 'qualify', side_effect=qualify), redirect_stdout(output):
+                status = qualify_startup.main(['--target', self.owner.owner.args.target,
+                    '--run-id', self.owner.owner.args.run_id, '--control', 'pinned-cli-postgres'])
+        self.assertEqual(status, 2)
+        self.assertEqual(json.loads(output.getvalue()), {'ok': False, 'runtime_ready': False,
+            'stage': 'docker', 'code': 'docker_timeout', 'owner_failure': {
+                'schema_version': 1, 'scope': 'acquisition', 'check': 'custody', 'elapsed_ms': 6000}})
+        self.assertEqual(checks, [True, True])
+        self.assertEqual(called, [])
+        self.assertEqual(daemon.connections, 1)
+        self.assertEqual(daemon.events, daemon.expected[:1])
+
     def assert_stopped(self, pids):
         from pathlib import Path
         import time

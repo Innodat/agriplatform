@@ -68,3 +68,13 @@
 - source_spec: `_bmad-output/implementation-artifacts/spec-env-api-default-privileges-owner.md`
   summary: Investigate the actual backend-control Docker timeout leaving an unused volume and empty bridge before qualification.
   evidence: Reviewed run2958e313-15c6-4ef6-b607-d9712333e7d7 backend exits2 docker/docker_timeout28.952s after owner/matrix positives; no containers remain, only its run-labelled unused database volume and bridgeb3386f7333f0b6d5d1566be3c96f7744cc5966323ab374fd4476516acc049dc7. Source27/receipt13 hashes unchanged; resource acquisition code unchanged. Exact results/references are retained under platform/deployment/.local/api-default-privileges-owner-qualification; no recovery mutation/adoption/replay. Safe request/phase/deadline observations or reproduction would settle the cause; fresh-run success would not explain it.
+
+- source_spec: `_bmad-output/implementation-artifacts/spec-env-owner-timeout-diagnostics.md`
+  summary: Cover the remaining direct acquisition handoff and fresh pre-constructor idle/budget timeout observations.
+  evidence: Existing resources.acquire final idle/budget pairs and fresh_session pre-constructor pair remain outside selected current/guard observation boundaries; expiry there can still omit owner_failure. Preserve original order and deadlines with integrated boundary tests.
+- source_spec: `_bmad-output/implementation-artifacts/spec-env-owner-timeout-diagnostics.md`
+  summary: Investigate unverified medium timing sensitivity in the unchanged two-request network deadline control.
+  evidence: Initial test_networks.NetworkAcceptance.test_one_operation_deadline_spans_version_and_network_requests observed one request instead of two; identical isolated current/baseline and complete network repeats pass. Initial failure retained under owner-timeout-diagnostics/initial-network-failure; cause/change contribution requires captured request/clock timing without weakening the expectation.
+- source_spec: `_bmad-output/implementation-artifacts/spec-env-owner-timeout-diagnostics.md`
+  summary: Investigate unverified medium CLI-liveness departure during the synthetic backend-positive process control.
+  evidence: Initial selected process group's fourth test refused invalid_owner_handoff when CLI process.poll became non-None; original return code/signal timing was not captured. Exact unchanged current/baseline repeats pass. Retain initial-process-failure and capture process departure timing/return code to settle cause without relaxing liveness or cleanup checks.
