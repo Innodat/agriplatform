@@ -660,3 +660,38 @@ Use bmad-help to select the next bounded existing ENV prerequisite. Full CLI set
 Auth service, public runtime lifecycle and remaining ENV/P1/SERVICE consuming-scaffold
 proof stay open before Identity/Access/WRITE/server KDG. No Leave/editor or production/
 pilot work; no push/deployment authorized.
+
+## Current continuation — safe Docker failure diagnostics complete, 2026-10-19
+
+bmad-help selected [ENV diagnostic capture](../../../_bmad-output/implementation-artifacts/spec-env-docker-failure-diagnostics.md)
+through existing DockerSession/error/qualification owners. ATDD/focused TDD, three
+review layers and reviewed-source full638 regression PASS638.108s, no skips. Root26
+session/15 gate tests and fresh aa31b4ab actual backend96.723s PASS; public up retains
+runtime_adapter_unqualified. See [evidence](../../../platform/deployment/ENV_DOCKER_FAILURE_DIAGNOSTICS_EVIDENCE.md)
+for exact commands/results, original failures, source bindings, triage and five impacts.
+
+Two minimal review patches protect the initial observation-clock failure and document
+direct tracked qualification commands. Two investigations are appended without changing
+prior entries: existing close-error masking and unverified divergent exception ancestry.
+The first reviewed full638 fails the existing no-eof witness assertion; the unchanged
+nine-case test passes10.422s, then unchanged full638 passes. Preserve both full logs and
+focused result; the cause/change attribution remain unverified. Earlier pre-review900s
+outer timeout and637-test partition verification also remain.
+
+Pre-review28a98246 persistence timeout44.997s remains unexplained, with its database
+volume/empty bridge preserved. Selected read-only inspection creates no cleanup or
+adoption authority. Pre-review A/B compatibility controls pass with13 receipts unchanged;
+reviewed aa31b4ab has fresh source-bound prerequisites/backend evidence. Concurrent
+Deals inventory deltas are recorded and left untouched. All original resources and
+receipts remain protected.
+
+Approval review earlier reports capacity/deadline failures before execution. Later
+standalone requests gain approval within2–5s; request size as the cause is unproven.
+Keep explicit small requests and distinguish review wait from test runtime. No new
+implementation permission is needed for the existing bounded scope.
+
+Use bmad-help to select the next bounded existing ENV prerequisite. Full CLI setup,
+Auth service, public lifecycle/runtime, ENV/P1/SERVICE consuming scaffold and dependent
+Identity/Access/WRITE/server KDG remain gated. Preserve concurrent Leave/PtS/Expense/
+brainstorming files and index, TypeScript7.0.2/mail15484 and custody/deadline rules.
+No Leave/editor, production/pilot work, deployment or push.

@@ -1,6 +1,7 @@
 """Connection continuity and fail-closed framing, using private Unix sockets only."""
-from contextlib import contextmanager
+from contextlib import contextmanager, redirect_stdout
 import json
+import io
 from pathlib import Path
 import socket
 import socketserver
@@ -75,6 +76,198 @@ class Peer:
 
 
 class DockerSessionTests(unittest.TestCase):
+
+    def test_failure_diagnostics_acceptance_connect_and_qualifier_json(self):
+        import qualify_startup
+        with patch.object(dev.socket, 'socket', side_effect=TimeoutError('SECRET socket/path?token')), \
+                patch.object(dev.time, 'monotonic', return_value=1):
+            with self.assertRaises(dev.Refusal) as caught:
+                dev.docker_exchange('GET', '/version')
+        expected = {'schema_version': 1, 'operation': 'daemon_version',
+                    'phase': 'connect', 'elapsed_ms': 0}
+        self.assertEqual(caught.exception.docker_failure, expected)
+        output = io.StringIO()
+        with patch.object(qualify_startup.startup, 'qualify', side_effect=caught.exception), redirect_stdout(output):
+            status = qualify_startup.main(['--target', 'SECRET target', '--run-id', 'SECRET id',
+                                          '--control', 'pinned-cli-postgres'])
+        self.assertEqual(status, 2)
+        self.assertEqual(json.loads(output.getvalue()), {'ok': False, 'runtime_ready': False,
+                         'stage': 'docker', 'code': 'docker_timeout', 'docker_failure': expected})
+        self.assertNotIn('SECRET', output.getvalue())
+
+    def test_failure_phases_elapsed_and_permanent_closure(self):
+        for operation, phase in [('connect', 'connect'), ('sendall', 'send'), ('recv', 'receive')]:
+            transport = test_docker_gate.ScriptedSocket(response())
+            current = [10.0]
+            def timeout(*args):
+                current[0] += .125
+                raise TimeoutError('SECRET environment password SQL signed-url')
+            with self.subTest(phase=phase), patch.object(dev.time, 'monotonic', side_effect=lambda: current[0]), \
+                    patch.object(dev.socket, 'socket', return_value=transport) as factory, \
+                    patch.object(transport, operation, side_effect=timeout), patch.object(transport, 'close') as close:
+                session = dev.DockerSession()
+                with self.assertRaises(dev.Refusal) as caught:
+                    session.exchange('POST', '/v1.48/volumes/create', {'SECRET': 'payload'})
+                expected = {'schema_version': 1, 'operation': 'volume_create', 'phase': phase, 'elapsed_ms': 125}
+                self.assertEqual(dev.refusal_result(caught.exception)['docker_failure'], expected)
+                self.assertTrue(session.closed)
+                close.assert_called_once()
+                for reuse in [lambda: session.exchange('GET', '/version'), session.__enter__]:
+                    with self.assertRaises(dev.Refusal) as reused:
+                        reuse()
+                    self.assertEqual(reused.exception.code, 'docker_session_closed')
+                    self.assertEqual(dev.refusal_result(reused.exception)['docker_failure'], expected)
+                factory.assert_called_once()
+                self.assertNotIn('SECRET', json.dumps(dev.refusal_result(caught.exception)))
+
+    def test_framing_idle_and_processing_budget_phases(self):
+        for expected_phase in ['receive', 'idle_before', 'idle_after', 'budget_after']:
+            current = [0.0]
+            transport = test_docker_gate.ScriptedSocket(b'SECRET framing' if expected_phase == 'receive' else response())
+            def idle(session):
+                if expected_phase in ['idle_before', 'idle_after']:
+                    dev.refuse('docker', 'docker_response_invalid')
+                current[0] = 2
+            with self.subTest(phase=expected_phase), patch.object(dev.socket, 'socket', return_value=transport), \
+                    patch.object(dev.time, 'monotonic', side_effect=lambda: current[0]), \
+                    patch.object(dev.DockerSession, 'idle', idle):
+                session = dev.DockerSession(deadline=1)
+                if expected_phase == 'idle_before':
+                    session.stream = transport
+                with self.assertRaises(dev.Refusal) as caught:
+                    session.exchange('GET', '/version')
+                diagnostic = dev.refusal_result(caught.exception)['docker_failure']
+                self.assertEqual(diagnostic['phase'], expected_phase)
+                self.assertEqual(diagnostic['operation'], 'daemon_version')
+
+    def test_invalid_sensitive_request_never_acquires_socket(self):
+        for method, path, body in [('GET', '/SECRET?token=SECRET', None),
+                                   ('POST', '/v1.48/volumes/create', {'key': 'SECRET' * 4000})]:
+            with self.subTest(method=method), patch.object(dev.socket, 'socket') as factory:
+                with dev.DockerSession() as session, self.assertRaises(dev.Refusal) as caught:
+                    session.exchange(method, path, body)
+                result = dev.refusal_result(caught.exception)
+                self.assertEqual(result['docker_failure']['operation'], 'unvalidated')
+                self.assertEqual(result['docker_failure']['phase'], 'validate')
+                self.assertNotIn('SECRET', json.dumps(result))
+                factory.assert_not_called()
+
+    def test_elapsed_observation_is_nonnegative_and_capped(self):
+        for end, expected in [(-1, 0), (10**20, 2147483647)]:
+            current = [0]
+            def timeout(*args):
+                current[0] = end
+                raise TimeoutError()
+            with self.subTest(end=end), patch.object(dev.time, 'monotonic', side_effect=lambda: current[0]), \
+                    patch.object(dev.socket, 'socket', side_effect=timeout):
+                with self.assertRaises(dev.Refusal) as caught:
+                    dev.docker_exchange('GET', '/version')
+                self.assertEqual(caught.exception.docker_failure['elapsed_ms'], expected)
+
+    def test_formatter_exact_validation_chain_cycles_and_ordinary_shape(self):
+        valid = {'schema_version': 1, 'operation': 'container_archive', 'phase': 'receive', 'elapsed_ms': 0}
+        outer = dev.Refusal('execution', 'execution_cleanup_unresolved')
+        ordinary = {'ok': False, 'runtime_ready': False, 'stage': outer.stage, 'code': outer.code}
+        self.assertEqual(dev.refusal_result(outer), ordinary)
+        malformed = [None, [], dict(valid, secret='SECRET'), dict(valid, schema_version=True),
+                     dict(valid, elapsed_ms=True), dict(valid, elapsed_ms=-1), dict(valid, elapsed_ms=2147483648),
+                     dict(valid, elapsed_ms=1.0), dict(valid, operation='SECRET /route'),
+                     dict(valid, phase='SECRET'), {k: v for k, v in valid.items() if k != 'phase'}]
+        class Hostile(dict):
+            def __iter__(self):
+                raise AssertionError('must not inspect untrusted containers')
+        malformed.append(Hostile(valid))
+        class HostileKey(str):
+            def __hash__(self):
+                return super().__hash__()
+            def __eq__(self, other):
+                raise AssertionError('must not compare untrusted keys')
+        malformed.append({HostileKey('schema_version'): 1, 'operation': 'daemon_version',
+                          'phase': 'receive', 'elapsed_ms': 0})
+        for value in malformed:
+            outer.docker_failure = value
+            self.assertEqual(dev.refusal_result(outer), ordinary)
+        original = dev.Refusal('docker', 'docker_timeout')
+        original.docker_failure = valid
+        middle = RuntimeError('SECRET exception text')
+        middle.__context__ = original
+        outer.__cause__ = middle
+        outer.docker_failure = dict(valid, operation='volume_remove')
+        original.__context__ = outer
+        self.assertEqual(dev.refusal_result(outer), dict(ordinary, docker_failure=valid))
+        # Oversized chains terminate without serializing any exception text.
+        top = dev.Refusal('startup', 'bounded')
+        top.docker_failure = valid
+        cursor = top
+        for _ in range(100):
+            cursor.__context__ = RuntimeError('SECRET')
+            cursor = cursor.__context__
+        self.assertNotIn('docker_failure', dev.refusal_result(top))
+
+    def test_initial_observation_clock_failure_closes_existing_connection(self):
+        transport = test_docker_gate.ScriptedSocket(response())
+        session = dev.DockerSession(deadline=5)
+        session.stream = transport
+        original = RuntimeError('SECRET initial observation failure')
+        with patch.object(dev.time, 'monotonic', side_effect=[original, 1]), \
+                patch.object(dev.socket, 'socket') as factory, \
+                patch.object(transport, 'sendall') as send, patch.object(transport, 'close') as close:
+            with self.assertRaises(RuntimeError) as caught:
+                session.exchange('GET', '/version')
+            self.assertIs(caught.exception, original)
+            self.assertTrue(session.closed)
+            self.assertIsNone(session.stream)
+            self.assertIsNone(session.docker_failure)
+            self.assertNotIn('docker_failure', vars(original))
+            close.assert_called_once()
+            send.assert_not_called()
+            factory.assert_not_called()
+        with patch.object(dev.time, 'monotonic', return_value=1), patch.object(dev.socket, 'socket') as factory:
+            with self.assertRaises(dev.Refusal) as reused:
+                session.exchange('GET', '/version')
+            self.assertEqual(reused.exception.code, 'docker_session_closed')
+            self.assertNotIn('docker_failure', dev.refusal_result(reused.exception))
+            factory.assert_not_called()
+
+    def test_observation_clock_failure_preserves_refusal_and_closes(self):
+        transport = test_docker_gate.ScriptedSocket(response())
+        current = [False]
+        def clock():
+            if current[0]:
+                raise RuntimeError('SECRET observation failure')
+            return 0
+        def timeout(*args):
+            current[0] = True
+            raise TimeoutError('SECRET original failure')
+        with patch.object(dev.time, 'monotonic', side_effect=clock), \
+                patch.object(dev.socket, 'socket', return_value=transport), \
+                patch.object(transport, 'connect', side_effect=timeout), patch.object(transport, 'close') as close:
+            session = dev.DockerSession()
+            with self.assertRaises(dev.Refusal) as caught:
+                session.exchange('GET', '/version')
+            self.assertEqual(caught.exception.code, 'docker_timeout')
+            self.assertTrue(session.closed)
+            close.assert_called_once()
+            self.assertNotIn('docker_failure', dev.refusal_result(caught.exception))
+
+    def test_closed_operation_vocabulary_covers_existing_route_families(self):
+        resource = 'a' * 64
+        routes = [('GET', '/version', 'daemon_version'),
+                  ('GET', '/v1.48/images/sha256:' + resource + '/json', 'image_inspect'),
+                  ('GET', self.use_path(), 'volume_use')]
+        for plural, kind in [('networks', 'network'), ('volumes', 'volume'), ('containers', 'container')]:
+            routes.extend([('GET', '/v1.48/' + plural + '/' + resource + ('/json' if kind == 'container' else ''), kind + '_inspect'),
+                           ('POST', '/v1.48/' + plural + '/create', kind + '_create'),
+                           ('DELETE', '/v1.48/' + plural + '/' + resource, kind + '_remove')])
+        for action in ['archive', 'start', 'stop', 'exec']:
+            routes.append(('PUT' if action == 'archive' else 'POST', '/v1.48/containers/' + resource + '/' + action,
+                           'exec_create' if action == 'exec' else 'container_' + action))
+        routes.extend([('POST', '/v1.48/exec/' + resource + '/start', 'exec_start'),
+                       ('GET', '/v1.48/exec/' + resource + '/json', 'exec_inspect')])
+        for method, path, expected in routes:
+            self.assertEqual(dev._docker_operation(method, path), expected)
+            self.assertIn(expected, dev.DOCKER_OPERATIONS)
+
     def use_path(self):
         return ('/v1.48/containers/json?all=true&filters=%7B%22volume%22%3A%5B%22'
                 'supabase_db_agriplatform-kdg-AAAAAAAAAAAAAAAAAAAAAA%22%5D%7D')

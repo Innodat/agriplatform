@@ -117,6 +117,9 @@ class StartupAcceptance(unittest.TestCase):
                 record = json.loads(output.getvalue())
                 self.assertEqual(record['stage'], 'docker')
                 self.assertFalse(record['runtime_ready'])
+                self.assertEqual(set(record['docker_failure']), {'schema_version', 'operation', 'phase', 'elapsed_ms'})
+                self.assertEqual(record['docker_failure']['operation'], 'daemon_version')
+                self.assertEqual(record['docker_failure']['phase'], 'connect')
                 self.assertNotIn('sensitive-marker', output.getvalue())
 
     def test_nested_json_is_reported_as_daemon_response_failure(self):
@@ -260,7 +263,13 @@ class DockerProtocol(unittest.TestCase):
         with patch.dict(os.environ, {'DOCKER_HOST': 'tcp://sensitive-marker:2375', 'DOCKER_CONTEXT': 'production'}), patch.object(dev.socket, 'socket', return_value=transport):
             self.assertEqual(dev.docker_prerequisite(), '28.0.0')
         self.assertEqual(transport.address, '/var/run/docker.sock')
-        with patch.object(dev.socket, 'socket', return_value=ScriptedSocket(b'')), patch.object(dev.time, 'monotonic', side_effect=[0, 0, 0, 6]), self.assertRaises(dev.Refusal) as result:
+        current = [0]
+        transport = ScriptedSocket(b'')
+        def expired_response(size):
+            current[0] = 6
+            return b''
+        transport.recv = expired_response
+        with patch.object(dev.socket, 'socket', return_value=transport), patch.object(dev.time, 'monotonic', side_effect=lambda: current[0]), self.assertRaises(dev.Refusal) as result:
             dev.docker_prerequisite()
         self.assertEqual(result.exception.code, 'docker_timeout')
 

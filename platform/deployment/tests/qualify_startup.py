@@ -247,7 +247,7 @@ def main(argv=None):
         print(json.dumps(result, sort_keys=True))
         return 0
     except dev.Refusal as error:
-        print(json.dumps({'ok': False, 'runtime_ready': False, 'stage': error.stage, 'code': error.code}))
+        print(json.dumps(dev.refusal_result(error)))
     except (OSError, ValueError, KeyError, TypeError, AttributeError):
         print(json.dumps({'ok': False, 'runtime_ready': False, 'stage': 'startup', 'code': 'startup_proof_refused'}))
     except KeyboardInterrupt:

@@ -46,3 +46,10 @@
 - source_spec: `_bmad-output/implementation-artifacts/spec-env-cli-db-backend-lifetime.md`
   summary: Investigate the existing private-handoff no-eof case timing out without its request witness (medium, unverified).
   evidence: Reviewed-source full629 fails Resources.test_integrated_private_handoff_adversaries_and_drip_deadline at defect no-eof: timeout code, daemon prefix29, one connection and under4s elapsed assertions pass, then descendant count0 instead of1. Full log SHA256655221e6d8c99bb110c2d67ad54a79cafe39b0413faf199bab2bdeb406e4e741; original scenario admission/child identity/timing and current-change attribution are unobserved. Unchanged focused nine-case diagnostic PASS15.692s, with phase1/witness present and2s deadline enforcement for the final declared no-eof case; safe record SHA2562f9649a6bf0859ea645aed182af69527eeab8791ac0c1b2dd1a0aead4f6f451d. This does not explain the original failure. Capture exact scenario admission and per-phase timestamps plus CLI/helper PID start/group/state on recurrence; retain the witness/stopped-state assertions, deadline2s, external4s bound and event prefix rather than weakening them on a passing repeat.
+
+- source_spec: `_bmad-output/implementation-artifacts/spec-env-docker-failure-diagnostics.md`
+  summary: Medium-unverified divergent Docker exception ancestry may select a later observation.
+  evidence: A forged wrapper with distinct valid context/cause observations selects the cause last; current owner search finds no such divergent distinct-observation sequence. Establish a reachable lifecycle caller producing that graph before changing attribution semantics.
+- source_spec: `_bmad-output/implementation-artifacts/spec-env-docker-failure-diagnostics.md`
+  summary: Existing DockerSession.close failure can replace the original transport refusal.
+  evidence: Baseline and current close invoke stream.close before timeout/OSError normalization; an OSError there can mask the original error while closed is already true. Characterize injected transport-plus-close failure before an owner-scoped change.

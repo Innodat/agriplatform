@@ -1128,3 +1128,38 @@ setting, discarded by rollback/exit. On rejection they carry only that ordinal i
 server-local exception detail so subtransaction rollback cannot erase the oracle.
 No role, table or business data changes. The normal qualifier above independently
 observes actual backend lifetime; synthetic SQL results are explicitly labelled.
+
+## Safe Docker failure diagnostics
+
+The bounded [diagnostic capture item](ENV_DOCKER_FAILURE_DIAGNOSTICS_EVIDENCE.md)
+is implemented and verified. Existing `dev.py` and startup qualification errors may add a
+`docker_failure` object to the original stage/code/runtime_ready=false result:
+
+```json
+{"schema_version":1,"operation":"container_create","phase":"receive","elapsed_ms":5000}
+```
+
+The object identifies the attempted operation category and transport phase at failure.
+elapsed_ms measures that exchange with a monotonic clock; it is a nonnegative integer,
+capped at2147483647. Phase is validate, connect, idle_before, send, receive, idle_after
+or budget_after. Categorization follows complete request validation; rejected requests
+use unvalidated. Only fixed operation categories appear, never routes, resource IDs/
+names, socket paths, payloads, credentials, hashes or exception messages.
+
+The formatter validates fields again and omits malformed metadata. When cleanup wraps
+an earlier exchange error, the bounded cycle-safe exception-chain walk retains its
+earliest valid diagnostic while preserving the outer stage/code. Reuse of a poisoned
+session retains its first observation. Ordinary errors without this metadata and
+successful output retain their existing shape.
+
+Only failures observed inside DockerSession.exchange carry a new observation.
+Owner checks and deadlines outside an exchange may have no docker_failure; no last
+successful request is presented as the cause of an unrelated later failure. Excessive
+exception ancestry is omitted when the bounded walk cannot establish attribution.
+
+This is selected diagnostic evidence, not proof that a request was sent/completed,
+that Docker cancelled a mutation, or that resources are safe to remove. Existing
+deadlines, no reconnect/replay, one-shot cleanup and lost-custody preservation remain.
+The two historical backend timeouts remain unexplained; a later pass or this code
+change does not establish their causes. Source changes require fresh qualification;
+preserve previous receipts and uncertain resources. Public runtime remains gated.

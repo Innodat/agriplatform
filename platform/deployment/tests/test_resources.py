@@ -1961,6 +1961,16 @@ else: sys.exit(125)
         else:
             self.assertEqual(caught.exception.code, 'execution_cleanup_unresolved')
             self.assertEqual(len(injected), 1)
+            # Existing finally cleanup remains authoritative; retain the original
+            # exchange observation through its implicit exception context.
+            import dev
+            record = dev.refusal_result(caught.exception)
+            self.assertEqual((record['stage'], record['code']),
+                             (caught.exception.stage, 'execution_cleanup_unresolved'))
+            observation = record['docker_failure']
+            self.assertEqual(observation['operation'], 'container_archive' if scenario.startswith('copy-') else 'container_start')
+            self.assertEqual(observation['phase'], 'receive')
+            self.assertEqual(set(observation), {'schema_version', 'operation', 'phase', 'elapsed_ms'})
             self.assertTrue(calls[0]['closed'])
             self.assertFalse(guard.cleaned)
             self.assertEqual(deletes, [])

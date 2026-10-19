@@ -41,6 +41,79 @@ def refuse(stage, code):
     raise Refusal(stage, code)
 
 
+# Closed observation vocabulary. No request or resource value is retained.
+DOCKER_OPERATIONS = frozenset({'unvalidated', 'daemon_version', 'image_inspect',
+    'network_create', 'network_inspect', 'network_remove',
+    'volume_create', 'volume_inspect', 'volume_remove', 'volume_use',
+    'container_create', 'container_inspect', 'container_archive', 'container_start',
+    'container_stop', 'container_remove', 'exec_create', 'exec_inspect', 'exec_start'})
+DOCKER_PHASES = frozenset({'validate', 'connect', 'idle_before', 'send', 'receive',
+                           'idle_after', 'budget_after'})
+DOCKER_ELAPSED_MAX = 2147483647
+
+
+def _valid_docker_failure(value):
+    return (type(value) is dict and len(value) == 4
+            and all(type(key) is str for key in value)
+            and set(value) == {'schema_version', 'operation', 'phase', 'elapsed_ms'}
+            and type(value['schema_version']) is int and value['schema_version'] == 1
+            and type(value['operation']) is str and value['operation'] in DOCKER_OPERATIONS
+            and type(value['phase']) is str and value['phase'] in DOCKER_PHASES
+            and type(value['elapsed_ms']) is int and 0 <= value['elapsed_ms'] <= DOCKER_ELAPSED_MAX)
+
+
+def refusal_result(error):
+    """Retain the oldest safe observation across bounded cleanup exception chains."""
+    result = {'ok': False, 'stage': error.stage, 'code': error.code, 'runtime_ready': False}
+    pending, seen, selected = [error], set(), None
+    # Walk parents before children: deeper/original failures replace wrappers.
+    # Both implicit cleanup context and explicit causes count; never stringify.
+    for _ in range(32):
+        if not pending:
+            break
+        current = pending.pop()
+        if not isinstance(current, BaseException) or id(current) in seen:
+            continue
+        seen.add(id(current))
+        values = BaseException.__dict__['__dict__'].__get__(current)
+        diagnostic = dict.get(values, 'docker_failure')
+        if _valid_docker_failure(diagnostic):
+            selected = diagnostic.copy()
+        for name in ('__cause__', '__context__'):
+            parent = BaseException.__dict__[name].__get__(current)
+            if parent is not None:
+                pending.append(parent)
+    # A truncated ancestry cannot establish which observation was first.
+    if selected is not None and not pending:
+        result['docker_failure'] = selected
+    return result
+
+
+def _docker_operation(method, path):
+    """Categorize only after _docker_request has accepted the complete request."""
+    if path == '/version':
+        return 'daemon_version'
+    if path.startswith('/v1.48/images/'):
+        return 'image_inspect'
+    if _docker_volume_use_route(path):
+        return 'volume_use'
+    owner = path.split('/')[2]
+    if owner == 'exec':
+        return 'exec_start' if method == 'POST' else 'exec_inspect'
+    kind = {'networks': 'network', 'volumes': 'volume', 'containers': 'container'}[owner]
+    if method == 'DELETE':
+        action = 'remove'
+    elif method == 'GET':
+        action = 'inspect'
+    elif method == 'PUT':
+        action = 'archive'
+    else:
+        action = path.rsplit('/', 1)[1].split('?')[0]
+        if action == 'exec':
+            return 'exec_create'
+    return kind + '_' + action
+
+
 def pairs(items):
     result = {}
     for key, value in items:
@@ -597,10 +670,14 @@ class DockerSession:
         self.persistent = _persistent
         self.stream = None
         self.closed = False
+        self.docker_failure = None
 
     def __enter__(self):
         if self.closed:
-            refuse('docker', 'docker_session_closed')
+            error = Refusal('docker', 'docker_session_closed')
+            if self.docker_failure is not None:
+                error.docker_failure = self.docker_failure.copy()
+            raise error
         return self
 
     def close(self):
@@ -628,29 +705,51 @@ class DockerSession:
             refuse('docker', 'docker_response_invalid')
 
     def exchange(self, method, path, body=None):
+        started = None
+        operation, phase = 'unvalidated', 'validate'
         try:
             if self.closed:
                 refuse('docker', 'docker_session_closed')
+            started = time.monotonic()
             request = _docker_request(method, path, body, self.persistent)
+            operation = _docker_operation(method, path)
             if self.stream is None:
+                phase = 'connect'
                 self.stream = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
                 self.budget()
                 self.stream.connect(self.endpoint)
             elif self.persistent:
+                phase = 'idle_before'
                 self.idle()
+            phase = 'send'
             self.budget()
             self.stream.sendall(request)
+            phase = 'receive'
             result = _docker_response(self.stream, self.budget, self.deadline, self.persistent, path)
             if self.persistent:
+                phase = 'idle_after'
                 self.idle()
+            phase = 'budget_after'
             self.budget()
             return result
         except BaseException as error:
-            self.close()
-            if isinstance(error, TimeoutError):
-                refuse('docker', 'docker_timeout')
-            if isinstance(error, OSError):
-                refuse('docker', 'docker_unavailable')
+            try:
+                if self.docker_failure is None and started is not None:
+                    elapsed = max(0, time.monotonic() - started)
+                    self.docker_failure = {'schema_version': 1, 'operation': operation,
+                        'phase': phase, 'elapsed_ms': int(min(elapsed * 1000, DOCKER_ELAPSED_MAX))}
+                if _valid_docker_failure(self.docker_failure):
+                    BaseException.__dict__['__dict__'].__get__(error)['docker_failure'] = self.docker_failure.copy()
+            except BaseException:
+                # Optional observation must never replace the transport failure.
+                pass
+            finally:
+                self.close()
+            if isinstance(error, (TimeoutError, OSError)):
+                refusal = Refusal('docker', 'docker_timeout' if isinstance(error, TimeoutError) else 'docker_unavailable')
+                if _valid_docker_failure(self.docker_failure):
+                    refusal.docker_failure = self.docker_failure.copy()
+                raise refusal from error
             raise
 
 
@@ -712,7 +811,7 @@ def main(argv=None):
         result = prepare(target, raw, args.run_id, target_path, sources)
         status = 0
     except Refusal as error:
-        result = {'ok': False, 'stage': error.stage, 'code': error.code, 'runtime_ready': False}
+        result = refusal_result(error)
         status = 2
     except (OSError, ValueError, TypeError, KeyError, RecursionError):
         # Never expose raw configuration, OS errors, JSON excerpts or exception messages.
