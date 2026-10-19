@@ -1294,7 +1294,8 @@ class ExecutionSupervisor(unittest.TestCase):
         # protocol peer; the production DockerSession owns all framing/closure.
         initialized = scenario.startswith('initialized-')
         poststart = scenario.startswith('auth-')
-        backend = scenario.startswith('auth-backend-')
+        api_privileges = scenario.startswith('auth-api-')
+        backend = scenario.startswith('auth-backend-') or api_privileges
         catalog = scenario.startswith('auth-catalog-') or backend
         migration = scenario.startswith('auth-migration-') or catalog
         persistence = scenario.startswith('persistence-') or initialized
@@ -1339,7 +1340,22 @@ class ExecutionSupervisor(unittest.TestCase):
                 engine.events.append((method, path, body))
                 engine.volume = copy.deepcopy(volume)
                 return 201, copy.deepcopy(volume)
+            if api_privileges and path.endswith('/exec'):
+                query = body['Cmd'][-1]
+                mode = ('apply' if 'api default privileges delta failed' in query else
+                        'verify' if 'api default privileges verification failed' in query else None)
+                engine.catalog_valid = scenario != 'auth-api-' + str(mode) + '-nonzero'
             result = engine.exchange(method, path, body)
+            if api_privileges and engine.catalog_modes and engine.catalog_modes[-1] in ('apply', 'verify'):
+                mode = engine.catalog_modes[-1]
+                if path.startswith('/v1.48/exec/') and path.endswith('/json') and engine.exec_started:
+                    if scenario == 'auth-api-verify-identity' and mode == 'verify':
+                        result[1]['ContainerID'] = 'f'*64
+                    if scenario == 'auth-api-verify-custody' and mode == 'verify':
+                        engine.row['State']['Health']['Status'] = 'unhealthy'
+                if path.startswith('/v1.48/exec/') and path.endswith('/start'):
+                    if scenario == 'auth-api-apply-deadline' and mode == 'apply':
+                        clock_shift[0] = 121
             if migration and path.endswith('/start') and 'c'*64 in path and scenario == 'auth-migration-response-deadline':
                 fault_at.append((len(engine.events), guards[0].deadline))
                 clock_shift[0] = 121
@@ -1393,6 +1409,10 @@ class ExecutionSupervisor(unittest.TestCase):
                             target = ('/archive?' in path if scenario.startswith('initialized-copy-') else
                                       path.endswith('/start') if scenario.startswith('initialized-start-') else
                                       '/containers/create?' in path if scenario.startswith('initialized-create-') else False)
+                        if (api_privileges and scenario == 'auth-api-apply-lost'
+                                and path.startswith('/v1.48/exec/') and path.endswith('/start')
+                                and engine.catalog_modes[-1] == 'apply'):
+                            target = True
                         if target:
                             injected.append((method, path))
                             if scenario.endswith('-malformed'):
@@ -1507,6 +1527,26 @@ class ExecutionSupervisor(unittest.TestCase):
         catalog_sql = resources.FreshGuard.auth_catalog_sql
         backend_sql = getattr(resources.FreshGuard, 'cli_db_backend_sql', None)
         backend_phases, backend_deadlines = [], []
+        api_deadlines = []
+        api_sql = getattr(resources.FreshGuard, 'api_default_privileges_sql', None)
+        def api_after_auth_and_cli_exit(guard):
+            self.assert_stopped(json.loads((fixture_workdirs[-1] / 'tmp/processes.json').read_text()))
+            self.assertEqual(len(group_signals), 1)
+            self.assertEqual(backend_phases, ['present', 'departed'])
+            self.assertTrue(guard.auth_cli_terminated)
+            self.assertTrue(guard.auth_catalog_precondition_verified and guard.auth_catalog_verified)
+            self.assertTrue(guard.auth_job_exit_verified and guard.auth_job_disposed)
+            self.assertEqual(engine.catalog_modes, ['post', 'post', 'pre', 'post'])
+            api_deadlines.append(guard.deadline)
+            try:
+                return api_sql(guard)
+            finally:
+                before = len(engine.events)
+                with self.assertRaises(dev.Refusal) as replay:
+                    api_sql(guard)
+                self.assertEqual(replay.exception.code, 'invalid_owner_handoff')
+                self.assertEqual(len(engine.events), before)
+
         def backend_at_cli_boundary(guard, mode, process=None):
             current_pids = json.loads((fixture_workdirs[-1] / 'tmp/processes.json').read_text())
             if mode == 'present':
@@ -1652,6 +1692,7 @@ else: sys.exit(125)
                             patch.object(resources.FreshGuard, 'poststart_health', new=health_with_fault), \
                             patch.object(resources.FreshGuard, 'execute_auth_job', new=execute_after_cli_exit), \
                             patch.object(resources.FreshGuard, 'auth_catalog_sql', new=catalog_after_cli_exit), \
+                            patch.object(resources.FreshGuard, 'api_default_privileges_sql', new=api_after_auth_and_cli_exit, create=True), \
                             patch.object(resources.FreshGuard, 'cli_db_backend_sql', new=backend_at_cli_boundary, create=True), \
                             patch.object(resources.FreshGuard, 'auth_job_owned', new=inspect_job_with_fault), \
                             patch.object(startup, 'initialize_workdir', side_effect=initialize_secondary), \
@@ -1660,9 +1701,9 @@ else: sys.exit(125)
                             patch.object(time, 'monotonic', side_effect=lambda: real_monotonic() + clock_shift[0]), \
                             patch.object(dev, 'free_ports'):
                         result = None
-                        with (nullcontext() if scenario in ('persistence-positive', 'initialized-positive', 'auth-positive', 'auth-polling', 'auth-migration-positive', 'auth-catalog-positive', 'auth-backend-positive') else self.assertRaises(KeyboardInterrupt if scenario in ('initialized-interrupt', 'auth-interrupt', 'auth-migration-interrupt') else dev.Refusal)) as caught:
+                        with (nullcontext() if scenario in ('persistence-positive', 'initialized-positive', 'auth-positive', 'auth-polling', 'auth-migration-positive', 'auth-catalog-positive', 'auth-backend-positive', 'auth-api-positive') else self.assertRaises(KeyboardInterrupt if scenario in ('initialized-interrupt', 'auth-interrupt', 'auth-migration-interrupt') else dev.Refusal)) as caught:
                             result = startup.synthetic_probe(executable, self.owner.owner.target, self.owner.owner.args.run_id,
-                                    control='fresh-pinned-cli-postgres-cli-db-backend' if backend else ('fresh-pinned-cli-postgres-auth-catalog' if catalog else ('fresh-pinned-cli-postgres-auth-migration' if migration else ('fresh-pinned-cli-postgres-auth-boundary' if poststart else ('fresh-pinned-cli-postgres-initialized' if initialized else ('fresh-pinned-cli-postgres-persistence' if persistence else 'fresh-pinned-cli-postgres'))))),
+                                    control='fresh-pinned-cli-postgres-api-default-privileges' if api_privileges else 'fresh-pinned-cli-postgres-cli-db-backend' if backend else ('fresh-pinned-cli-postgres-auth-catalog' if catalog else ('fresh-pinned-cli-postgres-auth-migration' if migration else ('fresh-pinned-cli-postgres-auth-boundary' if poststart else ('fresh-pinned-cli-postgres-initialized' if initialized else ('fresh-pinned-cli-postgres-persistence' if persistence else 'fresh-pinned-cli-postgres'))))),
                                     selection_plan=startup.existing_images(self.owner.owner.args)[1],
                                     image_observations=self.owner.expected,
                                     _guarded_target=(self.owner.owner.args.target, path))
@@ -1670,6 +1711,60 @@ else: sys.exit(125)
                     server.shutdown()
                     thread.join(timeout=1)
 
+        if result is not None and not api_privileges:
+            self.assertNotIn('api_default_privileges_verified', result)
+        if api_privileges:
+            guard = guards[0]
+            positive = scenario == 'auth-api-positive'
+            self.assert_stopped(pids)
+            self.assertEqual((len(pids), len(group_signals), len(connections), len(calls)), (2, 1, 1, 1))
+            self.assertEqual(backend_phases, ['present', 'departed'])
+            self.assertEqual(backend_deadlines, execution_deadlines * 2)
+            self.assertEqual(catalog_entry_deadlines, execution_deadlines * 2)
+            self.assertEqual(api_deadlines, execution_deadlines)
+            self.assertEqual(created, ['a'*64, 'c'*64])
+            self.assertTrue(guard.api_default_privileges_attempted)
+            self.assertEqual(guard.api_default_privileges_verified, positive)
+            expected_modes = ['post', 'post', 'pre', 'post', 'apply']
+            if positive or scenario.startswith('auth-api-verify-'):
+                expected_modes.append('verify')
+            self.assertEqual(engine.catalog_modes, expected_modes)
+            events = engine.events
+            exec_creates = [i for i, (method, path, _) in enumerate(events) if method == 'POST' and path.endswith('/exec')]
+            self.assertEqual(len(exec_creates), len(expected_modes))
+            self.assertEqual(sum(startup.lifecycle.API_DEFAULT_PRIVILEGES_SQL in body['Cmd'][-1]
+                                 for method, path, body in events if method == 'POST' and path.endswith('/exec')), 1)
+            job_delete = next(i for i, (method, path, _) in enumerate(events) if method == 'DELETE' and 'c'*64 in path)
+            self.assertLess(job_delete, exec_creates[3])
+            self.assertIsNone(engine.job_row)
+            if scenario in ('auth-api-apply-lost', 'auth-api-apply-deadline'):
+                self.assertTrue(guard.session.closed)
+                self.assertFalse(guard.cleaned)
+                self.assertIsNotNone(engine.row)
+                self.assertEqual(caught.exception.code, 'execution_cleanup_unresolved')
+                self.assertFalse(any(method == 'DELETE' and 'a'*64 in path for method, path, _ in events))
+            else:
+                self.assertTrue(guard.cleaned)
+                self.assertIsNone(engine.row)
+                pg_disposal = next(i for i, (method, path, _) in enumerate(events)
+                                   if 'a'*64 in path and (method == 'DELETE' or (method == 'POST' and '/stop?' in path)))
+                self.assertLess(exec_creates[-1], pg_disposal)
+                if not positive:
+                    expected_code = ('execution_invalid_exec' if scenario.endswith('-identity') else
+                                     'execution_invalid_health' if scenario.endswith('-custody') else 'execution_sql_failed')
+                    self.assertEqual(caught.exception.code, expected_code)
+            if positive:
+                self.assertEqual(result['stage'], 'pinned_cli_postgres_api_default_privileges')
+                self.assertTrue(result['api_default_privileges_verified'])
+                for key in ['cli_db_backend_present_verified', 'cli_db_backend_departure_verified',
+                            'auth_catalog_precondition_verified', 'auth_catalog_verified',
+                            'api_default_privileges_request_refused', 'cli_terminated_before_dispatch',
+                            'auth_job_exit_verified', 'auth_job_disposal_verified', 'pg_shutdown_verified', 'cleanup_verified']:
+                    self.assertTrue(result[key])
+                self.assertFalse(result['fresh_setup_completed'] or result['runtime_ready'])
+            else:
+                self.assertIsNone(result)
+            return
         if backend:
             guard = guards[0]
             if scenario == 'auth-backend-wrapper-alarm':
@@ -1714,6 +1809,7 @@ else: sys.exit(125)
                 for key in ['cli_db_backend_present_verified', 'cli_db_backend_departure_verified', 'auth_catalog_precondition_verified', 'auth_catalog_verified', 'api_default_privileges_request_refused', 'auth_job_exit_verified', 'auth_job_disposal_verified', 'cli_terminated_before_dispatch', 'pg_shutdown_verified', 'cleanup_verified']:
                     self.assertTrue(result[key])
                 self.assertFalse(result['fresh_setup_completed'] or result['runtime_ready'])
+                self.assertNotIn('api_default_privileges_verified', result)
             else:
                 self.assertEqual(caught.exception.code, 'execution_sql_failed')
             return
@@ -2141,3 +2237,16 @@ else: sys.exit(125)
         exec(compile(source.replace(original, ''), '<backend-skipped-cli-termination>', 'exec'), startup.__dict__, namespace)
         with self.assertRaisesRegex(AssertionError, 'spawned process remains running'):
             self.run_execution_case('auth-backend-positive', runner=namespace['guarded_fixture_command'])
+
+    def test_api_default_privileges_process_order_and_verified_cleanup(self):
+        self.run_execution_case('auth-api-positive')
+
+    def test_api_default_privileges_process_nonzero_and_identity_failures_never_qualify(self):
+        for scenario in ('auth-api-apply-nonzero', 'auth-api-verify-nonzero', 'auth-api-verify-identity'):
+            with self.subTest(scenario=scenario):
+                self.run_execution_case(scenario)
+
+    def test_api_default_privileges_process_lost_response_deadline_and_custody_block_success(self):
+        for scenario in ('auth-api-apply-lost', 'auth-api-apply-deadline', 'auth-api-verify-custody'):
+            with self.subTest(scenario=scenario):
+                self.run_execution_case(scenario)

@@ -2348,7 +2348,10 @@ class AuthCatalogDaemon(AuthJobDaemon):
         if path.endswith('/exec'):
             self.events.append((method, path, self.copy(body)))
             self.exec_body = body
-            self.catalog_modes.append('pre' if 'fresh auth precondition failed' in body['Cmd'][-1] else 'post')
+            query = body['Cmd'][-1]
+            self.catalog_modes.append('apply' if 'api default privileges delta failed' in query else
+                                      'verify' if 'api default privileges verification failed' in query else
+                                      'pre' if 'fresh auth precondition failed' in query else 'post')
             self.exec_ident = format(len(self.catalog_modes) + 32, '064x')
             self.exec_started, self.exec_exit = False, None
             return 201, {'Id': self.exec_ident}
@@ -3246,3 +3249,243 @@ class CliDbBackendExecutionMatrix(unittest.TestCase):
                 with patch.object(lifecycle, 'cli_db_backend_exec', side_effect=AssertionError('recursive builder')):
                     self.assertEqual(qualify_startup._cli_db_backend_transition_exec(late), body)
         with self.assertRaises(dev.Refusal): qualify_startup._cli_db_backend_transition_exec(1)
+
+class ApiDefaultPrivilegesOwner(unittest.TestCase):
+    def prepared(self):
+        d = CliDbBackendExecutionMatrix().daemon()
+        d.guard.api_default_privileges = True
+        process = Mock(); process.poll.return_value = None
+        d.guard.cli_db_backend_sql('present', process)
+        d.guard.auth_cli_terminated = True
+        d.guard.cli_db_backend_sql('departed')
+        AuthCatalogExecutionMatrix().run_catalog(d)
+        return d
+
+    def test_guarded_default_privileges_acceptance(self):
+        d = self.prepared()
+        d.guard.api_default_privileges_sql()
+        self.assertTrue(d.guard.api_default_privileges_verified)
+        self.assertEqual(d.catalog_modes[-2:], ['apply', 'verify'])
+        with self.assertRaises(dev.Refusal): d.guard.api_default_privileges_sql()
+        with patch.object(dev, 'free_ports'): d.guard.finish_execution()
+        self.assertTrue(d.guard.cleaned)
+
+    def test_closed_bounded_profiles_preserve_exact_source_and_all_other_tuples(self):
+        import copy
+        import startup_lifecycle as lifecycle
+        route = '/v1.48/containers/' + 'a'*64 + '/exec'
+        for mode in ('apply', 'verify'):
+            body = lifecycle.api_default_privileges_bounded_exec(mode)
+            self.assertTrue(lifecycle.valid_api_default_privileges_bounded_exec(body))
+            dev._docker_request('POST', route, body, True)
+            query = body['Cmd'][-1]
+            for required in ("statement_timeout = '5s'", "lock_timeout = '1s'",
+                             "idle_in_transaction_session_timeout = '5s'", 'aclexplode',
+                             "d.defaclrole = 'postgres'::regrole", "d.defaclnamespace = 'public'::regnamespace"):
+                self.assertIn(required, query)
+            if mode == 'apply':
+                self.assertEqual(query.count(lifecycle.API_DEFAULT_PRIVILEGES_SQL), 1)
+                self.assertIn('observed IS DISTINCT FROM expected', query)
+                self.assertLess(query.index('INTO expected'), query.index(lifecycle.API_DEFAULT_PRIVILEGES_SQL))
+                self.assertLess(query.index(lifecycle.API_DEFAULT_PRIVILEGES_SQL), query.index('INTO observed'))
+                for field in ('defaclrole', 'defaclnamespace', 'defaclobjtype', 'grantor', 'grantee', 'privilege_type', 'is_grantable'):
+                    self.assertIn(field, query)
+                self.assertIn('WHERE NOT (', query)
+            else:
+                self.assertTrue(query.startswith('BEGIN READ ONLY;'))
+                self.assertNotIn(lifecycle.API_DEFAULT_PRIVILEGES_SQL, query)
+                self.assertIn('IF EXISTS (SELECT 1', query)
+            for field, value in [('AttachStdin', 0), ('AttachStdout', True), ('AttachStderr', True),
+                                 ('Tty', 0), ('Privileged', 0), ('User', 'root'), ('Env', []),
+                                 ('Cmd', body['Cmd'] + ['SELECT true']), ('extra', False)]:
+                changed = copy.deepcopy(body); changed[field] = value
+                self.assertFalse(lifecycle.valid_api_default_privileges_bounded_exec(changed))
+                with self.assertRaises(dev.Refusal): dev._docker_request('POST', route, changed, True)
+            changed = copy.deepcopy(body); changed['Cmd'][-1] += ' '
+            self.assertFalse(lifecycle.valid_api_default_privileges_bounded_exec(changed))
+            with self.assertRaises(dev.Refusal): dev._docker_request('POST', route, changed, True)
+        with self.assertRaises(dev.Refusal): dev._docker_request('POST', route, lifecycle.api_default_privileges_exec(), True)
+        with self.assertRaises(dev.Refusal): lifecycle.api_default_privileges_bounded_exec('post')
+
+    def test_missing_prerequisite_and_ordinary_control_never_dispatch(self):
+        for flag in ('api_default_privileges', 'cli_db_backend', 'cli_db_backend_present_verified',
+                     'cli_db_backend_departure_verified', 'auth_cli_terminated', 'auth_catalog',
+                     'auth_catalog_precondition_verified', 'auth_catalog_verified',
+                     'api_default_privileges_request_refused', 'auth_job_exit_verified', 'auth_job_disposed'):
+            with self.subTest(flag=flag):
+                d = self.prepared(); setattr(d.guard, flag, False)
+                count = len(d.events)
+                with self.assertRaises(dev.Refusal): d.guard.api_default_privileges_sql()
+                self.assertEqual(len(d.events), count)
+                self.assertFalse(d.guard.api_default_privileges_verified)
+        d = self.prepared()
+        with self.assertRaises(dev.Refusal): d.guard.finish_execution()
+        self.assertFalse(d.guard.cleaned)
+
+    def test_failed_finish_blocks_all_auth_sql_even_while_phase_five(self):
+        d = self.prepared(); d.guard.api_default_privileges_sql()
+        with patch.object(d.guard, 'healthy_instance', side_effect=dev.Refusal('startup', 'lost')):
+            with self.assertRaises(dev.Refusal): d.guard.finish_execution()
+        self.assertEqual(d.guard.phase, 5)
+        d.guard.auth_catalog_attempts.clear(); d.guard.cli_db_backend_attempts.clear()
+        d.guard.api_default_privileges_attempted = False
+        for action in (d.guard.api_default_privileges_sql, lambda: d.guard.auth_catalog_sql('pre'),
+                       lambda: d.guard.cli_db_backend_sql('departed')):
+            count = len(d.events)
+            with self.assertRaises(dev.Refusal): action()
+            self.assertEqual(len(d.events), count)
+
+    def test_bad_internal_builder_cannot_dispatch_or_replay(self):
+        import startup_lifecycle as lifecycle
+        for mode in ('apply', 'verify'):
+            d = self.prepared(); original = lifecycle.api_default_privileges_bounded_exec
+            def changed(selected):
+                body = original(selected)
+                if selected == mode: body['Cmd'][-1] += ' '
+                return body
+            with patch.object(lifecycle, 'api_default_privileges_bounded_exec', side_effect=changed):
+                with self.assertRaises(dev.Refusal): d.guard.api_default_privileges_sql()
+            self.assertNotIn(mode, d.catalog_modes)
+            count = len(d.events)
+            with self.assertRaises(dev.Refusal): d.guard.api_default_privileges_sql()
+            with self.assertRaises(dev.Refusal): d.guard.finish_execution()
+            self.assertEqual(len(d.events), count)
+            self.assertFalse(d.guard.api_default_privileges_verified)
+
+    def test_exec_failures_consume_pair_without_fact_finish_or_replay(self):
+        for mode in ('apply', 'verify'):
+            for fault in ('create_lost', 'create_bad', 'create_id', 'inspect_bad', 'start_lost',
+                          'start_bad', 'exit_bad', 'interrupt', 'reused_id'):
+                with self.subTest(mode=mode, fault=fault):
+                    d = self.prepared(); exchange = d.exchange
+                    def broken(method, path, body=None):
+                        selected = (mode == 'apply' if path.endswith('/exec') else d.catalog_modes[-1] == mode)
+                        if path.endswith('/exec'):
+                            selected = ('delta failed' if mode == 'apply' else 'verification failed') in body['Cmd'][-1]
+                            if selected:
+                                if fault == 'create_lost': raise dev.Refusal('startup', 'lost')
+                                if fault == 'create_bad': return 500, None
+                                if fault == 'create_id': return 201, {'Id': 'invalid'}
+                                if fault == 'reused_id': return 201, {'Id': next(iter(d.guard.exec_ids))}
+                        result = exchange(method, path, body)
+                        if selected and path.startswith('/v1.48/exec/'):
+                            if path.endswith('/start'):
+                                if fault == 'start_lost': raise dev.Refusal('startup', 'lost')
+                                if fault == 'interrupt': raise KeyboardInterrupt()
+                                if fault == 'start_bad': return 500, None
+                            elif path.endswith('/json'):
+                                if fault == 'inspect_bad': result[1]['ProcessConfig']['user'] = 'root'
+                                if fault == 'exit_bad' and d.exec_started: result[1]['ExitCode'] = 1
+                        return result
+                    d.exchange = broken
+                    with self.assertRaises((dev.Refusal, KeyboardInterrupt)): d.guard.api_default_privileges_sql()
+                    count = len(d.events)
+                    with self.assertRaises(dev.Refusal): d.guard.api_default_privileges_sql()
+                    with self.assertRaises(dev.Refusal): d.guard.finish_execution()
+                    self.assertEqual(len(d.events), count)
+                    self.assertFalse(d.guard.api_default_privileges_verified)
+                    if mode == 'apply': self.assertNotIn('verify', d.catalog_modes)
+
+    def test_custody_change_at_each_new_exchange_cannot_publish_or_replay(self):
+        # Each proof uses create, pre-start inspect, detached start, final inspect.
+        for mode in ('apply', 'verify'):
+            for boundary in range(1, 5):
+                for defect in ('health', 'instance', 'deadline'):
+                    with self.subTest(mode=mode, boundary=boundary, defect=defect):
+                        d = self.prepared(); exchange = d.exchange; count = 0
+                        def changed(method, path, body=None):
+                            nonlocal count
+                            selected = (('delta failed' if mode == 'apply' else 'verification failed') in body['Cmd'][-1]
+                                        if path.endswith('/exec') else d.catalog_modes[-1] == mode)
+                            result = exchange(method, path, body)
+                            if selected and (path.endswith('/exec') or path.startswith('/v1.48/exec/')):
+                                count += 1
+                                if count == boundary:
+                                    if defect == 'health': d.row['State']['Health']['Status'] = 'unhealthy'
+                                    elif defect == 'instance': d.row['State']['StartedAt'] = '2026-10-19T00:00:00Z'
+                                    else: d.deadline = d.guard.deadline = 0
+                            return result
+                        d.exchange = changed
+                        with self.assertRaises(dev.Refusal): d.guard.api_default_privileges_sql()
+                        total = len(d.events)
+                        with self.assertRaises(dev.Refusal): d.guard.api_default_privileges_sql()
+                        with self.assertRaises(dev.Refusal): d.guard.finish_execution()
+                        self.assertEqual(len(d.events), total)
+                        self.assertFalse(d.guard.api_default_privileges_verified)
+
+    def test_new_owner_semantic_matrix_acceptance(self):
+        import qualify_startup
+        body, count = qualify_startup._api_default_privileges_owner_semantic_exec('post')
+        self.assertEqual(count, 11)
+        self.assertIn('owner ACL rollback failed', body['Cmd'][-1])
+
+    def test_new_owner_semantic_matrix_preserves_bounds_and_production_predicates(self):
+        import qualify_startup
+        import startup_lifecycle as lifecycle
+        body, count = qualify_startup._api_default_privileges_owner_semantic_exec('post')
+        query = body['Cmd'][-1]
+        self.assertEqual(count, 11)
+        self.assertTrue(query.startswith("BEGIN; SET LOCAL statement_timeout = '5s'; SET LOCAL lock_timeout = '1s'; SET LOCAL idle_in_transaction_session_timeout = '5s'; "))
+        original = qualify_startup._original_auth_catalog_exec('post')['Cmd'][-1]
+        predicate = original[original.index('DO $$'): -len(' COMMIT;')]
+        self.assertTrue(query.endswith(predicate + ' ROLLBACK;'))
+        self.assertIn('SET LOCAL ROLE postgres;', query)
+        self.assertIn('GRANT EXECUTE ON FUNCTIONS TO anon;', query)
+        self.assertIn('d.defaclnamespace=0', query)
+        self.assertIn("EXCEPTION WHEN SQLSTATE 'ZX001' THEN NULL", query)
+        self.assertEqual(query.count("EXCEPTION WHEN SQLSTATE 'P0001'"), 5)
+        self.assertNotIn('WHEN OTHERS', query)
+        unquoted = query.replace("''", "'")
+        for mode, copies in [('apply', 1), ('verify', 1)]:
+            command = lifecycle.api_default_privileges_bounded_exec(mode)['Cmd'][-1]
+            block = command[command.index('DO $api_defaults$'):-len(' COMMIT;')]
+            self.assertEqual(unquoted.count(block), copies)
+        self.assertIn('global target grant lost', query)
+        self.assertIn('owner ACL oracle insensitive', query)
+        self.assertEqual(qualify_startup._api_default_privileges_owner_semantic_exec('pre'),
+                         (qualify_startup._original_auth_catalog_exec('pre'), 0))
+        self.assertEqual(qualify_startup._api_default_privileges_owner_semantic_exec('post'), (body, count))
+        with self.assertRaises(dev.Refusal): qualify_startup._api_default_privileges_owner_semantic_exec('apply')
+
+    def test_new_owner_semantic_matrix_requires_exact_existing_qualifier_hook(self):
+        import qualify_startup
+        import startup_lifecycle as lifecycle
+        route = '/v1.48/containers/' + 'a'*64 + '/exec'
+        body, _ = qualify_startup._api_default_privileges_owner_semantic_exec('post')
+        with self.assertRaises(dev.Refusal): dev._docker_request('POST', route, body, True)
+        with patch.object(lifecycle, 'auth_catalog_exec', side_effect=lambda mode: qualify_startup._api_default_privileges_owner_semantic_exec(mode)[0]):
+            raw = dev._docker_request('POST', route, body, True)
+            self.assertLess(len(raw), 16384)
+            with self.assertRaises(dev.Refusal):
+                dev._docker_request('POST', route, lifecycle.api_default_privileges_exec(), True)
+        with self.assertRaises(dev.Refusal): dev._docker_request('POST', route, body, True)
+
+    def test_prerequisite_finish_is_terminal_for_each_auth_sql_method(self):
+        for selected in ('api', 'catalog', 'backend'):
+            with self.subTest(method=selected):
+                d = self.prepared(); d.guard.auth_job_disposed = False
+                count = len(d.events)
+                with self.assertRaises(dev.Refusal): d.guard.finish_execution()
+                self.assertEqual(len(d.events), count)
+                d.guard.auth_job_disposed = True
+                d.guard.auth_catalog_attempts.clear()
+                d.guard.cli_db_backend_attempts.clear()
+                d.guard.auth_job_create_attempted = False
+                action = {'api': d.guard.api_default_privileges_sql,
+                          'catalog': lambda: d.guard.auth_catalog_sql('post'),
+                          'backend': lambda: d.guard.cli_db_backend_sql('departed')}[selected]
+                with self.assertRaises(dev.Refusal): action()
+                self.assertEqual(len(d.events), count)
+                self.assertTrue(d.guard._finish_attempted)
+                self.assertFalse(d.guard.api_default_privileges_verified)
+
+    def test_owner_matrix_proves_grantability_and_unrelated_schema_preservation(self):
+        import qualify_startup
+        body, count = qualify_startup._api_default_privileges_owner_semantic_exec('post')
+        self.assertEqual(count, 11)
+        query = body['Cmd'][-1]
+        for required in ('WITH GRANT OPTION', 'REVOKE GRANT OPTION FOR EXECUTE',
+                         'FOR ROLE postgres IN SCHEMA env_owner_acl_other',
+                         'preserved grantability lost', 'unrelated schema grant lost'):
+            self.assertIn(required, query)
+        self.assertEqual(query.count("EXCEPTION WHEN SQLSTATE 'P0001'"), 5)

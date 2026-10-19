@@ -53,3 +53,18 @@
 - source_spec: `_bmad-output/implementation-artifacts/spec-env-docker-failure-diagnostics.md`
   summary: Existing DockerSession.close failure can replace the original transport refusal.
   evidence: Baseline and current close invoke stream.close before timeout/OSError normalization; an OSError there can mask the original error while closed is already true. Characterize injected transport-plus-close failure before an owner-scoped change.
+
+- source_spec: `_bmad-output/implementation-artifacts/spec-env-api-default-privileges-owner.md`
+  summary: Investigate the unchanged Auth-job cleanup path's actual catalog-control refusal and preserve its original diagnostic cause.
+  evidence: Run4ab63792-4fc4-41f2-b837-51415a6b695b catalog exits2 execution_cleanup_unresolved61.766s, retaining healthy PostgreSQL and exited-zero Auth job before new privilege dispatch; exact selected metadata/references and13 unchanged receipts are retained under platform/deployment/.local/api-default-privileges-owner-qualification. The removal path is unchanged from baseline. Separately approved cleanup does not explain the failure; settle through safe original-cause/phase diagnostics or a reproducible unchanged-path failure.
+- source_spec: `_bmad-output/implementation-artifacts/spec-env-api-default-privileges-owner.md`
+  summary: Determine the source of the full deployment discovery SIGTERM and whether accumulated process or order effects contributed (medium, unverified).
+  evidence: Original full command exits143 after440 passing markers without a summary; isolated interrupted test and remaining231 tests all pass in serial partitions. No sender/cause or assertion failure is recorded. Retained deployment-tests.log, partition-plan.json and regression-coverage.json bind all672 IDs to unchanged source. Signal provenance or a reproducible order/supervisor failure would settle the claim; partitioned coverage alone does not.
+
+- source_spec: `_bmad-output/implementation-artifacts/spec-env-api-default-privileges-owner.md`
+  summary: Investigate the initialized malformed-second-create process test's intermittent timeout-versus-invalid-response failure.
+  evidence: Final partition37 initially fails docker_timeout != docker_response_invalid in test_initialized_unknown_second_create_is_never_adopted; original artifacts retained under platform/deployment/.local/api-default-privileges-owner-qualification/post-review-tests-37-first-failure. Exact unchanged test then passes reviewed source10.761s and isolated baseline38.150s; eight initialized lifecycle methods are AST-identical to baseline, and the create refusal precedes finish/new SQL. No assertion/deadline/source change is made. Settle through request/phase/deadline observations reproducing the first failure; isolated passes do not explain it.
+
+- source_spec: `_bmad-output/implementation-artifacts/spec-env-api-default-privileges-owner.md`
+  summary: Investigate the actual backend-control Docker timeout leaving an unused volume and empty bridge before qualification.
+  evidence: Reviewed run2958e313-15c6-4ef6-b607-d9712333e7d7 backend exits2 docker/docker_timeout28.952s after owner/matrix positives; no containers remain, only its run-labelled unused database volume and bridgeb3386f7333f0b6d5d1566be3c96f7744cc5966323ab374fd4476516acc049dc7. Source27/receipt13 hashes unchanged; resource acquisition code unchanged. Exact results/references are retained under platform/deployment/.local/api-default-privileges-owner-qualification; no recovery mutation/adoption/replay. Safe request/phase/deadline observations or reproduction would settle the cause; fresh-run success would not explain it.

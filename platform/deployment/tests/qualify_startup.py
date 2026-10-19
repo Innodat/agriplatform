@@ -17,7 +17,7 @@ import daemon_images
 import qualify_resources
 
 BOOTSTRAP_CONTROLS = ['postgres-bootstrap']
-EXECUTION_CONTROLS = ['pinned-cli-postgres', 'pinned-cli-postgres-persistence', 'pinned-cli-postgres-initialized', 'pinned-cli-postgres-auth-boundary', 'pinned-cli-postgres-auth-migration', 'pinned-cli-postgres-auth-catalog', 'pinned-cli-postgres-cli-db-backend']
+EXECUTION_CONTROLS = ['pinned-cli-postgres', 'pinned-cli-postgres-persistence', 'pinned-cli-postgres-initialized', 'pinned-cli-postgres-auth-boundary', 'pinned-cli-postgres-auth-migration', 'pinned-cli-postgres-auth-catalog', 'pinned-cli-postgres-cli-db-backend', 'pinned-cli-postgres-api-default-privileges']
 
 GUARDED_CONTROLS = ['guarded-fresh'] + ['guarded-' + name for name in qualify_resources.GUARDED_FAILURES]
 
@@ -139,6 +139,87 @@ RESET ROLE;
     body['Cmd'][body['Cmd'].index('-h') + 1] = '/var/run/postgresql'
     body['Cmd'][body['Cmd'].index('-U') + 1] = 'supabase_admin'
     return body, 6
+
+
+def _api_default_privileges_owner_semantic_exec(mode):
+    """Fixed rollback matrix for the production owner's two DO predicates."""
+    if mode not in ('pre', 'post'):
+        startup_lifecycle.refuse()
+    body = _original_auth_catalog_exec(mode)
+    if mode == 'pre':
+        return body, 0
+    prefix = "BEGIN READ ONLY; SET LOCAL statement_timeout = '5s'; SET LOCAL lock_timeout = '1s'; SET LOCAL idle_in_transaction_session_timeout = '5s'; "
+    query = body['Cmd'][-1]
+    assert query.startswith(prefix) and query.endswith(' COMMIT;')
+    catalog_predicate = query[len(prefix):-len(' COMMIT;')]
+    def block(selected):
+        query = startup_lifecycle.api_default_privileges_bounded_exec(selected)['Cmd'][-1]
+        start = query.index('DO $api_defaults$')
+        assert query.endswith(' COMMIT;')
+        return query[start:-len(' COMMIT;')]
+    apply, verify = block('apply'), block('verify')
+    source = startup_lifecycle.API_DEFAULT_PRIVILEGES_SQL
+    assert apply.count(source) == 1
+    def literal(value):
+        return "'" + value.replace("'", "''") + "'"
+    def require(condition, message):
+        return ("IF (" + condition + ") IS NOT TRUE THEN RAISE EXCEPTION USING "
+                "ERRCODE='ZX002', MESSAGE='" + message + "'; END IF; ")
+    def execute(sql):
+        return 'EXECUTE ' + sql + '; '
+    def rejects(sql):
+        # Production predicates raise P0001. Unexpected syntax/permission failures
+        # propagate; this helper's own assertions use a separate SQLSTATE.
+        return ("rejected := false; BEGIN " + execute(sql)
+                + "EXCEPTION WHEN SQLSTATE 'P0001' THEN rejected := true; END; "
+                + require('rejected', 'owner ACL oracle insensitive'))
+    rows = ("SELECT d.defaclrole,d.defaclnamespace,d.defaclobjtype,a.* FROM pg_default_acl d "
+            "CROSS JOIN LATERAL aclexplode(d.defaclacl) a")
+    snapshot = ("(SELECT coalesce(jsonb_agg(to_jsonb(x) ORDER BY to_jsonb(x)::text), '[]'::jsonb) "
+                "FROM (" + rows + ") x)")
+    global_grant = ("EXISTS (SELECT 1 FROM pg_default_acl d CROSS JOIN LATERAL aclexplode(d.defaclacl) a "
+                    "WHERE d.defaclrole='postgres'::regrole AND d.defaclnamespace=0 "
+                    "AND d.defaclobjtype='f' AND a.grantee='anon'::regrole "
+                    "AND a.privilege_type='EXECUTE')")
+    grantability = ("EXISTS (SELECT 1 FROM (" + rows + ") x WHERE defaclrole='postgres'::regrole "
+                    "AND defaclnamespace='public'::regnamespace AND defaclobjtype='f' "
+                    "AND grantor='postgres'::regrole AND grantee='authenticator'::regrole "
+                    "AND privilege_type='EXECUTE' AND is_grantable)")
+    unrelated = ("EXISTS (SELECT 1 FROM (" + rows + ") x WHERE defaclrole='postgres'::regrole "
+                 "AND defaclnamespace='env_owner_acl_other'::regnamespace AND defaclobjtype='r' "
+                 "AND grantor='postgres'::regrole AND grantee='anon'::regrole "
+                 "AND privilege_type='SELECT' AND NOT is_grantable)")
+    setup = ("SET LOCAL ROLE postgres; "
+             "ALTER DEFAULT PRIVILEGES FOR ROLE postgres GRANT EXECUTE ON FUNCTIONS TO anon; "
+             "ALTER DEFAULT PRIVILEGES FOR ROLE postgres IN SCHEMA public GRANT ALL ON TABLES TO anon,authenticated,service_role; "
+             "ALTER DEFAULT PRIVILEGES FOR ROLE postgres IN SCHEMA public GRANT ALL ON SEQUENCES TO anon,authenticated,service_role; "
+             "ALTER DEFAULT PRIVILEGES FOR ROLE postgres IN SCHEMA public GRANT EXECUTE ON FUNCTIONS TO anon,authenticated,service_role; ")
+    setup += ("ALTER DEFAULT PRIVILEGES FOR ROLE postgres IN SCHEMA public GRANT EXECUTE ON FUNCTIONS TO authenticator WITH GRANT OPTION; "
+              "CREATE SCHEMA env_owner_acl_other AUTHORIZATION postgres; "
+              "ALTER DEFAULT PRIVILEGES FOR ROLE postgres IN SCHEMA env_owner_acl_other GRANT SELECT ON TABLES TO anon; ")
+    grantability_mutation = "ALTER DEFAULT PRIVILEGES FOR ROLE postgres IN SCHEMA public REVOKE GRANT OPTION FOR EXECUTE ON FUNCTIONS FROM authenticator;"
+    unrelated_mutation = "ALTER DEFAULT PRIVILEGES FOR ROLE postgres IN SCHEMA env_owner_acl_other REVOKE SELECT ON TABLES FROM anon;"
+    extra = "ALTER DEFAULT PRIVILEGES FOR ROLE postgres IN SCHEMA public REVOKE TRUNCATE ON TABLES FROM anon;"
+    checks = ("DO $owner_qualification$ DECLARE baseline jsonb; rejected boolean; "
+              "apply_sql text := " + literal(apply) + "; verify_sql text := " + literal(verify)
+              + "; source_sql text := " + literal(source) + "; BEGIN baseline := "
+              + snapshot + "; " + require("to_regnamespace('env_owner_acl_other') IS NULL", "owner ACL fixture collision")
+              + "BEGIN " + setup
+              + rejects("replace(apply_sql, source_sql, '')")
+              + rejects("replace(apply_sql, source_sql, source_sql || " + literal(extra) + ")")
+              + rejects("replace(apply_sql, source_sql, source_sql || " + literal(grantability_mutation) + ")")
+              + rejects("replace(apply_sql, source_sql, source_sql || " + literal(unrelated_mutation) + ")")
+              + execute('apply_sql') + execute('verify_sql')
+              + require(global_grant, 'global target grant lost')
+              + require(grantability, 'preserved grantability lost')
+              + require(unrelated, 'unrelated schema grant lost')
+              + "ALTER DEFAULT PRIVILEGES FOR ROLE postgres IN SCHEMA public GRANT SELECT ON TABLES TO anon; "
+              + rejects('verify_sql')
+              + "RAISE EXCEPTION USING ERRCODE='ZX001'; EXCEPTION WHEN SQLSTATE 'ZX001' THEN NULL; END; "
+              + require(snapshot + " IS NOT DISTINCT FROM baseline AND to_regnamespace('env_owner_acl_other') IS NULL", 'owner ACL rollback failed')
+              + "END $owner_qualification$; ")
+    body['Cmd'][-1] = prefix.replace('BEGIN READ ONLY;', 'BEGIN;') + checks + catalog_predicate + ' ROLLBACK;'
+    return body, 11
 
 
 def _auth_catalog_corruption_exec(mode):

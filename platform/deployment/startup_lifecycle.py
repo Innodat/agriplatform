@@ -546,6 +546,53 @@ def valid_api_default_privileges_exec(body):
     return create_profile._exact_tree(body, _api_default_privileges_profile())
 
 
+def _api_default_privileges_target():
+    return ("d.defaclrole = 'postgres'::regrole AND d.defaclnamespace = 'public'::regnamespace "
+            "AND a.grantee IN ('anon'::regrole, 'authenticated'::regrole, 'service_role'::regrole) "
+            "AND ((d.defaclobjtype = 'r' AND a.privilege_type IN ('SELECT','INSERT','UPDATE','DELETE')) "
+            "OR (d.defaclobjtype = 'S' AND a.privilege_type IN ('USAGE','SELECT')) "
+            "OR (d.defaclobjtype = 'f' AND a.privilege_type = 'EXECUTE'))")
+
+
+def _api_default_privileges_profile_bounded(mode):
+    if mode not in ('apply', 'verify'):
+        refuse()
+    catalog = (" FROM pg_default_acl d "
+               "CROSS JOIN LATERAL aclexplode(d.defaclacl) a")
+    # Compare normalized tuples, not catalog row existence or ACL array order.
+    tuples = ("SELECT COALESCE(jsonb_agg(v ORDER BY v), '[]'::jsonb) FROM (SELECT "
+              "jsonb_build_array(d.defaclrole,d.defaclnamespace,d.defaclobjtype,"
+              "a.grantor,a.grantee,a.privilege_type,a.is_grantable) v" + catalog)
+    if mode == 'apply':
+        block = ("DO $api_defaults$ DECLARE expected jsonb; observed jsonb; BEGIN "
+                 "SELECT x INTO expected FROM (" + tuples + " WHERE NOT (" + _api_default_privileges_target()
+                 + ")) normalized) snapshot(x); " + API_DEFAULT_PRIVILEGES_SQL
+                 + "SELECT x INTO observed FROM (" + tuples + ") normalized) snapshot(x); "
+                 "IF observed IS DISTINCT FROM expected THEN RAISE EXCEPTION 'api default privileges delta failed'; "
+                 "END IF; END $api_defaults$; ")
+    else:
+        block = ("DO $api_defaults$ BEGIN IF EXISTS (SELECT 1" + catalog + " WHERE "
+                 + _api_default_privileges_target() + ") THEN RAISE EXCEPTION "
+                 "'api default privileges verification failed'; END IF; END $api_defaults$; ")
+    query = ("BEGIN" + (" READ ONLY" if mode == 'verify' else "")
+             + "; SET LOCAL statement_timeout = '5s'; SET LOCAL lock_timeout = '1s'; "
+             "SET LOCAL idle_in_transaction_session_timeout = '5s'; " + block + "COMMIT;")
+    body = _api_default_privileges_profile()
+    body['Cmd'][-1] = query
+    return body
+
+
+def api_default_privileges_bounded_exec(mode):
+    """Two closed owner-only SQL proofs; raw source remains refused."""
+    return _api_default_privileges_profile_bounded(mode)
+
+
+def valid_api_default_privileges_bounded_exec(body):
+    import create_profile
+    return any(create_profile._exact_tree(body, _api_default_privileges_profile_bounded(mode))
+               for mode in ('apply', 'verify'))
+
+
 def cli_db_backend_exec(mode):
     """Closed independent session observations; no backend rows leave PostgreSQL."""
     if mode not in ('present', 'departed'):

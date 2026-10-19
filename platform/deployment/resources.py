@@ -145,6 +145,7 @@ class FreshGuard:
         self.auth_migration = False
         self.auth_catalog = self.auth_catalog_precondition_verified = self.auth_catalog_verified = False
         self.api_default_privileges_request_refused = False
+        self.api_default_privileges = self.api_default_privileges_attempted = self.api_default_privileges_verified = False
         self.auth_catalog_attempts = set()
         self.cli_db_backend = self.cli_db_backend_present_verified = self.cli_db_backend_departure_verified = False
         self.cli_db_backend_attempts = set()
@@ -295,6 +296,10 @@ class FreshGuard:
         if not self.execution or self.auth_boundary or self.persistence or self.execution_started:
             startup.fail('invalid_owner_handoff')
         self.auth_boundary = True
+
+    def enable_api_default_privileges(self):
+        self.enable_cli_db_backend()
+        self.api_default_privileges = True
 
     def enable_cli_db_backend(self):
         self.enable_auth_catalog()
@@ -726,7 +731,7 @@ class FreshGuard:
 
     def cli_db_backend_sql(self, mode, process=None):
         import re
-        if (not self.cli_db_backend or not self.auth_catalog or self.phase != 5
+        if (getattr(self, '_finish_attempted', False) or not self.cli_db_backend or not self.auth_catalog or self.phase != 5
                 or self.auth_job_input is None or not self.auth_terminal_attempted
                 or mode not in ('present', 'departed') or mode in self.cli_db_backend_attempts
                 or self.auth_job_create_attempted or self.auth_catalog_attempts
@@ -791,19 +796,10 @@ class FreshGuard:
         else:
             self.cli_db_backend_departure_verified = True
 
-    def auth_catalog_sql(self, mode):
+    def _auth_owned_sql(self, body, stable):
         import re
-        if (not self.auth_catalog or not self.auth_cli_terminated or self.phase != 5
-                or (self.cli_db_backend and not self.cli_db_backend_departure_verified)
-                or mode not in ('pre', 'post') or mode in self.auth_catalog_attempts
-                or (mode == 'pre' and (self.auth_catalog_attempts or self.auth_job_create_attempted))
-                or (mode == 'post' and (not self.auth_catalog_precondition_verified
-                    or not self.auth_job_exit_verified or not self.auth_job_disposed))):
+        if getattr(self, '_finish_attempted', False):
             startup.fail('invalid_owner_handoff')
-        self.auth_catalog_attempts.add(mode)
-        body = startup.lifecycle.auth_catalog_exec(mode)
-        def stable():
-            self.auth_pg_current()
         stable()
         status, response = self.session.exchange('POST', '/v1.48/containers/' + self.container_id + '/exec', body)
         if (status != 201 or type(response) is not dict or set(response) != {'Id'}
@@ -847,6 +843,40 @@ class FreshGuard:
                     startup.fail('execution_sql_failed')
                 break
             time.sleep(min(.1, max(0, self.remaining())))
+        stable()
+
+    def api_default_privileges_sql(self):
+        if (not self.api_default_privileges or self.api_default_privileges_attempted
+                or getattr(self, '_finish_attempted', False) or self.phase != 5
+                or not self.cli_db_backend or not self.cli_db_backend_present_verified
+                or not self.cli_db_backend_departure_verified or not self.auth_cli_terminated
+                or not self.auth_catalog or not self.auth_catalog_precondition_verified
+                or not self.auth_catalog_verified or not self.api_default_privileges_request_refused
+                or not self.auth_job_exit_verified or not self.auth_job_disposed):
+            startup.fail('invalid_owner_handoff')
+        self.api_default_privileges_attempted = True
+        for mode in ('apply', 'verify'):
+            body = startup.lifecycle.api_default_privileges_bounded_exec(mode)
+            import create_profile
+            if not create_profile._exact_tree(body, startup.lifecycle._api_default_privileges_profile_bounded(mode)):
+                startup.fail('invalid_owner_handoff')
+            self._auth_owned_sql(body, self.auth_pg_current)
+        self.auth_pg_current()
+        self.api_default_privileges_verified = True
+
+    def auth_catalog_sql(self, mode):
+        if (getattr(self, '_finish_attempted', False) or not self.auth_catalog or not self.auth_cli_terminated or self.phase != 5
+                or (self.cli_db_backend and not self.cli_db_backend_departure_verified)
+                or mode not in ('pre', 'post') or mode in self.auth_catalog_attempts
+                or (mode == 'pre' and (self.auth_catalog_attempts or self.auth_job_create_attempted))
+                or (mode == 'post' and (not self.auth_catalog_precondition_verified
+                    or not self.auth_job_exit_verified or not self.auth_job_disposed))):
+            startup.fail('invalid_owner_handoff')
+        self.auth_catalog_attempts.add(mode)
+        body = startup.lifecycle.auth_catalog_exec(mode)
+        def stable():
+            self.auth_pg_current()
+        self._auth_owned_sql(body, stable)
         if mode == 'post':
             # Construct the next source-derived setup request, but never exchange it.
             # Treat accidental allowlist expansion as failure, not execution authority.
@@ -939,6 +969,10 @@ class FreshGuard:
         self.remove_first(started)
 
     def finish_execution(self):
+        # Every finish attempt is terminal, including a failed prerequisite.
+        if getattr(self, '_finish_attempted', False):
+            startup.fail('invalid_owner_handoff')
+        self._finish_attempted = True
         if self.phase != 5:
             startup.fail('invalid_owner_handoff')
         if self.auth_boundary and not (self.auth_job_refused or (self.auth_migration and self.auth_job_exit_verified and self.auth_job_disposed)):
@@ -947,10 +981,8 @@ class FreshGuard:
             startup.fail('invalid_owner_handoff')
         if self.auth_catalog and not (self.auth_catalog_verified and self.api_default_privileges_request_refused):
             startup.fail('invalid_owner_handoff')
-        # Consume finish before any mutation; SQL/lifecycle helpers require phase5.
-        if getattr(self, '_finish_attempted', False):
+        if self.api_default_privileges and not self.api_default_privileges_verified:
             startup.fail('invalid_owner_handoff')
-        self._finish_attempted = True
         started = self.healthy_instance()
         if self.auth_boundary and started != self.poststart_identity:
             startup.fail('execution_instance_changed')

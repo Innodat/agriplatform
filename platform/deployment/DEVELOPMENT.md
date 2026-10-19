@@ -12,6 +12,7 @@ close the enclosing ENV acceptance item. See individual evidence records below.
 | Dependency baseline | Six pinned executables including TypeScript7.0.2; Python wheel-lock and frontend compatibility fixtures | Generated consuming application/service proof; target/native compatibility; documented third-party declaration limitations |
 | Images/resources | Four immutable image identities, guarded owned bridge/database-volume acquisition, daemon observations, current volume-use refusal, joint same-session acquisition and absent-volume startup construction | Cross-execution initialized-volume admission/recovery, full-stack execution enforcement and reservation/exclusivity |
 | PostgreSQL startup | Exact first-create profile, guarded volume owner; selected-image SQL/key proof; opt-in real pinned-CLI create/copy/start on its fresh named volume with health, clean shutdown and owned removal; explicit retained-volume replacement/SQL persistence proof and actual CLI fresh/initialized start boundaries | Cross-execution reuse/reset/recovery, post-start CLI database setup, public lifecycle commands and complete stack/owner readiness |
+| Post-Auth privilege setup | Opt-in retained owner applies exact source default-ACL SQL, independently verifies, then cleans owned synthetic resources; eleven-case actual predicate proof and ordinary-control compatibility | Remaining post-Auth setup/CLI continuation; retained operational failure investigations; full stack/scaffold readiness |
 | Owner integration | Ordered ENV/P1/SERVICE/Identity/Access/WRITE contracts and retained ownership | Existing generator recipe/schema/templates, regeneration/custom preservation, generated install/type/build/start/current-Access proof, coordinated owner migrations/fixtures/recovery |
 | Provider/device | Explicit nonproduction origins/callback contracts | LAN HTTPS/DNS/testCA, actual Entra callbacks and installed Android/iPhone proof at consuming gates |
 
@@ -1251,3 +1252,65 @@ bounded subtransaction. Only the existing test hook admits this fixed request;
 production routes/CLI termination are unchanged. Direct grant removal does not
 establish effective denial through PUBLIC, global defaults or role inheritance.
 See [semantic evidence](ENV_API_DEFAULT_PRIVILEGES_SEMANTICS_EVIDENCE.md).
+
+### Guarded owner API default-privilege execution
+
+The opt-in local control extends the existing retained owner after verified backend
+departure and Auth pre/job/disposal/post checks. It applies only the fixed source
+SQL in a bounded transaction, then independently checks direct default ACLs before
+normal cleanup. The CLI remains terminated. The source-only request remains refused;
+only the two bounded typed profiles are admitted. Existing controls retain behavior.
+After fresh prepare/toolchain/images qualification:
+
+```sh
+python3 platform/deployment/tests/qualify_startup.py --target platform/deployment/environments/kdg-local.json --run-id "$KDG_RUN_ID" --control pinned-cli-postgres-api-default-privileges
+```
+
+Successful qualification records api_default_privileges_verified=true only after
+both exec proofs and final custody. It leaves runtime_ready/fresh_setup_completed
+false. Do not treat direct grant removal as effective denial through PUBLIC/global/
+inherited privileges. Preserve failed/uncertain resources under the existing custody
+rules; no automatic grant repair or reversal of committed SQL. See
+[owner evidence](ENV_API_DEFAULT_PRIVILEGES_OWNER_EVIDENCE.md) for completion status,
+exact tests and remaining gates.
+
+The following fixed eleven-case rollback-only matrix exercises the new production
+apply/verify predicates: it preserves seeded global, grant-option and unrelated-schema
+grants, rejects omitted/extra SQL, grantability-only/unrelated-schema mutations and
+reintroduced direct grants, and verifies rollback restoration. It uses the
+existing catalog test hook, without adding a public SQL input or changing production
+profiles. Run after the same fresh prerequisites:
+
+```sh
+python3 - "$KDG_RUN_ID" <<'PY'
+import contextlib
+import io
+import json
+import sys
+from unittest.mock import patch
+sys.path.insert(0, 'platform/deployment')
+sys.path.insert(0, 'platform/deployment/tests')
+import startup_lifecycle
+import qualify_startup
+run_id = sys.argv[1]
+def fixed_fixture(mode):
+    return qualify_startup._api_default_privileges_owner_semantic_exec(mode)[0]
+output = io.StringIO()
+with patch.object(startup_lifecycle, 'auth_catalog_exec', side_effect=fixed_fixture):
+    with contextlib.redirect_stdout(output):
+        code = qualify_startup.main([
+            '--target', 'platform/deployment/environments/kdg-local.json',
+            '--run-id', run_id, '--control', 'pinned-cli-postgres-auth-catalog'])
+result = json.loads(output.getvalue())
+if code == 0:
+    expected = {'ok': True, 'code': 'qualified', 'stage': 'pinned_cli_postgres_auth_catalog',
+                'auth_catalog_verified': True, 'cleanup_verified': True,
+                'runtime_ready': False, 'fresh_setup_completed': False}
+    if any(type(result.get(k)) is not type(v) or result.get(k) != v for k, v in expected.items()):
+        raise SystemExit('Unexpected owner ACL semantic result')
+count = qualify_startup._api_default_privileges_owner_semantic_exec('post')[1]
+result.update(owner_acl_predicates_verified=count if code == 0 else 0)
+print(json.dumps(result, sort_keys=True))
+raise SystemExit(code)
+PY
+```

@@ -1,6 +1,19 @@
 # Resume shared ENV delivery after KDG planning PASS
 
-Latest completed continuation: rollback-only API default-privilege semantics
+Latest completed ENV increment: guarded post-Auth default-privilege owner execution.
+The existing retained owner applies the exact source SQL and independently checks
+its result before normal owned cleanup. Final 674 tests pass across 48 partitions;
+actual owner, eleven-case SQL matrix and ordinary backend/catalog controls pass on
+reviewed source. Three independent reviews complete; four operational investigations
+remain deferred with original failures retained. See
+[owner evidence](../../../platform/deployment/ENV_API_DEFAULT_PRIVILEGES_OWNER_EVIDENCE.md)
+and [Build record](../../../_bmad-output/implementation-artifacts/spec-env-api-default-privileges-owner.md).
+The approved exact four-resource cleanup is complete; a later failed backend run's
+unused volume/empty bridge remain preserved. No recovery adoption/replay occurs.
+Next: investigate retained failures and remaining post-Auth setup/CLI continuation,
+full ENV/scaffold proof. Runtime/fresh-setup and dependent readiness remain false.
+
+Previous completed continuation: rollback-only API default-privilege semantics
 through the existing ENV test owner:146 owner tests and final actual apply/omitted/
 extra controls pass, including five oracle-sensitivity corruptions. See
 [semantic evidence](../../../platform/deployment/ENV_API_DEFAULT_PRIVILEGES_SEMANTICS_EVIDENCE.md)
@@ -8,8 +21,8 @@ and [Build record](../../../_bmad-output/implementation-artifacts/spec-env-api-d
 for exact tests/results. All five review findings patched, none newly deferred.
 The13 retained files are unchanged; final run resources are absent and prior uncertain
 resources preserved. This fixture does not admit runtime-owner dispatch or resume
-CLI setup. Next: bounded owner execution integration, then remaining setup/runtime/
-scaffold proof. Dependent gates remain open.
+CLI setup. That checkpoint preceded the owner integration above. Remaining setup/runtime/
+scaffold proof and dependent gates remain open.
 
 Latest bounded continuation (2026-10-19): the existing ENV post-Auth owner now
 constructs/validates the next source-derived API default-privilege request and
