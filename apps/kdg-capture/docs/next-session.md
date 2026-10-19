@@ -1,12 +1,23 @@
 # Resume shared ENV delivery after KDG planning PASS
 
+Latest completed continuation: rollback-only API default-privilege semantics
+through the existing ENV test owner:146 owner tests and final actual apply/omitted/
+extra controls pass, including five oracle-sensitivity corruptions. See
+[semantic evidence](../../../platform/deployment/ENV_API_DEFAULT_PRIVILEGES_SEMANTICS_EVIDENCE.md)
+and [Build record](../../../_bmad-output/implementation-artifacts/spec-env-api-default-privileges-semantics.md)
+for exact tests/results. All five review findings patched, none newly deferred.
+The13 retained files are unchanged; final run resources are absent and prior uncertain
+resources preserved. This fixture does not admit runtime-owner dispatch or resume
+CLI setup. Next: bounded owner execution integration, then remaining setup/runtime/
+scaffold proof. Dependent gates remain open.
+
 Latest bounded continuation (2026-10-19): the existing ENV post-Auth owner now
 constructs/validates the next source-derived API default-privilege request and
 proves transport refusal without dispatch. See
 [evidence](../../../platform/deployment/ENV_API_DEFAULT_PRIVILEGES_REQUEST_EVIDENCE.md)
 and [Build record](../../../_bmad-output/implementation-artifacts/spec-env-api-default-privileges-request.md).
 The CLI remains terminated; no additional SQL executes. This is construction/refusal
-proof only. Actual ACL execution/semantics, subsequent setup/CLI continuation and
+proof only at that checkpoint. Subsequent setup/CLI continuation and
 runtime/scaffold acceptance remain open before dependent work. Prior actual/full
 receipts remain prior-source evidence; preserve them and uncertain resources.
 

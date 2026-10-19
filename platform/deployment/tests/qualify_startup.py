@@ -22,6 +22,125 @@ EXECUTION_CONTROLS = ['pinned-cli-postgres', 'pinned-cli-postgres-persistence', 
 GUARDED_CONTROLS = ['guarded-fresh'] + ['guarded-' + name for name in qualify_resources.GUARDED_FAILURES]
 
 
+def _api_default_privileges_semantic_exec(mode, case='apply'):
+    """Six rollback-only ACL invariants; three fixed cases, no production SQL route."""
+    if mode not in ('pre', 'post') or case not in ('apply', 'omitted', 'extra'):
+        startup_lifecycle.refuse()
+    body = _original_auth_catalog_exec(mode)
+    if mode == 'pre':
+        return body, 0
+    query = body['Cmd'][-1]
+    prefix = "BEGIN READ ONLY; SET LOCAL statement_timeout = '5s'; SET LOCAL lock_timeout = '1s'; SET LOCAL idle_in_transaction_session_timeout = '5s'; "
+    assert query.startswith(prefix) and query.endswith(' COMMIT;')
+    predicate = query[len(prefix):-len(' COMMIT;')]
+    roles = "grantee IN ('anon'::regrole, 'authenticated'::regrole, 'service_role'::regrole)"
+    rights = "((kind='r' AND privilege_type IN ('SELECT','INSERT','UPDATE','DELETE')) OR (kind='S' AND privilege_type IN ('USAGE','SELECT')) OR (kind='f' AND privilege_type='EXECUTE'))"
+    targeted = "role_id='postgres'::regrole AND namespace_id='public'::regnamespace AND " + roles + ' AND ' + rights
+    acl_rows = ("SELECT d.defaclrole AS role_id, d.defaclnamespace AS namespace_id, d.defaclobjtype::text AS kind, a.* "
+                "FROM pg_default_acl d CROSS JOIN LATERAL aclexplode(d.defaclacl) a")
+    def normalized(rows):
+        return "(SELECT coalesce(jsonb_agg(to_jsonb(x) ORDER BY to_jsonb(x)::text), '[]'::jsonb) FROM (" + rows + ') x)'
+    def snapshot(where='true'):
+        return normalized(acl_rows if where == 'true' else 'SELECT * FROM (' + acl_rows + ') a WHERE ' + where)
+    role_rows = "(VALUES ('anon'::regrole),('authenticated'::regrole),('service_role'::regrole)) r(grantee)"
+    def expected_objects(privileges):
+        return ("SELECT kind, 'postgres'::regrole::oid AS grantor, grantee::oid, privilege_type, false AS is_grantable "
+                "FROM (VALUES " + privileges + ') p(kind,privilege_type) CROSS JOIN ' + role_rows)
+    expected_targets = expected_objects("('r','SELECT'),('r','INSERT'),('r','UPDATE'),('r','DELETE'),('S','USAGE'),('S','SELECT'),('f','EXECUTE')")
+    expected_defaults = ("SELECT 'postgres'::regrole::oid AS role_id, 'public'::regnamespace::oid AS namespace_id, x.* FROM ("
+                         + expected_targets + ') x')
+    expected_retained = expected_objects("('r','TRUNCATE'),('r','REFERENCES'),('r','TRIGGER'),('r','MAINTAIN'),('S','UPDATE')")
+    existing = ("(SELECT jsonb_agg(to_jsonb(x) ORDER BY name) FROM ("
+                "SELECT relname AS name, relacl::text AS acl FROM pg_class WHERE oid IN "
+                "('public.env_acl_before_t'::regclass,'public.env_acl_before_s'::regclass) UNION ALL "
+                "SELECT proname, proacl::text FROM pg_proc WHERE oid='public.env_acl_before_f()'::regprocedure) x)")
+    new_rows = ("SELECT c.relkind::text AS kind, a.* FROM pg_class c CROSS JOIN LATERAL "
+                "aclexplode(coalesce(c.relacl,acldefault(CASE WHEN c.relkind='S' THEN 's'::\"char\" ELSE 'r'::\"char\" END,c.relowner))) a "
+                "WHERE c.oid IN ('public.env_acl_after_t'::regclass,'public.env_acl_after_s'::regclass) UNION ALL "
+                "SELECT 'f'::text, a.* FROM pg_proc p CROSS JOIN LATERAL aclexplode(coalesce(p.proacl,acldefault('f',p.proowner))) a "
+                "WHERE p.oid='public.env_acl_after_f()'::regprocedure")
+    absent = ("to_regnamespace('env_acl_other') IS NULL AND "
+              "to_regclass('public.env_acl_before_t') IS NULL AND to_regclass('public.env_acl_before_s') IS NULL AND "
+              "to_regprocedure('public.env_acl_before_f()') IS NULL AND to_regclass('public.env_acl_after_t') IS NULL AND "
+              "to_regclass('public.env_acl_after_s') IS NULL AND to_regprocedure('public.env_acl_after_f()') IS NULL")
+    source_sql = '' if case == 'omitted' else startup_lifecycle.API_DEFAULT_PRIVILEGES_SQL
+    if case == 'extra':
+        source_sql += "ALTER DEFAULT PRIVILEGES FOR ROLE postgres IN SCHEMA public REVOKE TRUNCATE ON TABLES FROM anon;"
+    setup = """
+CREATE SCHEMA env_acl_other AUTHORIZATION postgres;
+ALTER DEFAULT PRIVILEGES FOR ROLE postgres IN SCHEMA public GRANT ALL ON TABLES TO anon,authenticated,service_role;
+ALTER DEFAULT PRIVILEGES FOR ROLE postgres IN SCHEMA public GRANT ALL ON SEQUENCES TO anon,authenticated,service_role;
+ALTER DEFAULT PRIVILEGES FOR ROLE postgres IN SCHEMA public GRANT EXECUTE ON FUNCTIONS TO anon,authenticated,service_role;
+ALTER DEFAULT PRIVILEGES FOR ROLE postgres GRANT EXECUTE ON FUNCTIONS TO PUBLIC;
+ALTER DEFAULT PRIVILEGES FOR ROLE postgres IN SCHEMA public GRANT SELECT ON TABLES TO authenticator;
+ALTER DEFAULT PRIVILEGES FOR ROLE postgres IN SCHEMA public GRANT USAGE ON SEQUENCES TO authenticator;
+ALTER DEFAULT PRIVILEGES FOR ROLE postgres IN SCHEMA public GRANT EXECUTE ON FUNCTIONS TO authenticator WITH GRANT OPTION;
+ALTER DEFAULT PRIVILEGES FOR ROLE postgres IN SCHEMA env_acl_other GRANT SELECT ON TABLES TO anon;
+ALTER DEFAULT PRIVILEGES FOR ROLE postgres IN SCHEMA env_acl_other GRANT USAGE ON SEQUENCES TO anon;
+ALTER DEFAULT PRIVILEGES FOR ROLE postgres IN SCHEMA env_acl_other GRANT EXECUTE ON FUNCTIONS TO anon;
+ALTER DEFAULT PRIVILEGES FOR ROLE supabase_admin IN SCHEMA public GRANT SELECT ON TABLES TO anon;
+ALTER DEFAULT PRIVILEGES FOR ROLE supabase_admin IN SCHEMA public GRANT USAGE ON SEQUENCES TO anon;
+ALTER DEFAULT PRIVILEGES FOR ROLE supabase_admin IN SCHEMA public GRANT EXECUTE ON FUNCTIONS TO anon;
+SET LOCAL ROLE postgres;
+CREATE TABLE public.env_acl_before_t(id integer);
+CREATE SEQUENCE public.env_acl_before_s;
+CREATE FUNCTION public.env_acl_before_f() RETURNS integer LANGUAGE sql AS 'SELECT 1';
+RESET ROLE;
+"""
+    create_new = """
+SET LOCAL ROLE postgres;
+CREATE TABLE public.env_acl_after_t(id integer);
+CREATE SEQUENCE public.env_acl_after_s;
+CREATE FUNCTION public.env_acl_after_f() RETURNS integer LANGUAGE sql AS 'SELECT 1';
+RESET ROLE;
+"""
+    def require(condition, message):
+        return "IF (" + condition + ") IS NOT TRUE THEN RAISE EXCEPTION USING ERRCODE='ZX002', MESSAGE='" + message + "'; END IF; "
+    def literal(value):
+        return "'" + value.replace("'", "''") + "'"
+    def sensitive(mutation, oracle):
+        # Roll back each corruption; catch only this fixture's oracle SQLSTATE.
+        return ("BEGIN " + mutation + " rejected := false; BEGIN " + oracle +
+                "EXCEPTION WHEN SQLSTATE 'ZX002' THEN rejected := true; END; "
+                "IF NOT rejected THEN RAISE EXCEPTION 'insensitive ACL oracle'; END IF; "
+                "RAISE EXCEPTION USING ERRCODE='ZX003'; EXCEPTION WHEN SQLSTATE 'ZX003' THEN NULL; END; ")
+    existing_oracle = 'EXECUTE old_sql INTO oracle_ok USING old_acl; ' + require('oracle_ok', 'existing object ACL changed')
+    new_condition = (normalized('SELECT * FROM (' + new_rows + ') a WHERE ' + roles)
+                     + ' IS NOT DISTINCT FROM ' + normalized(expected_retained))
+    new_oracle = 'EXECUTE new_sql INTO oracle_ok; ' + require('oracle_ok', 'new object direct ACL failed')
+    public_condition = ("EXISTS (SELECT 1 FROM (" + new_rows + ") x WHERE kind='f' AND grantee=0 AND privilege_type='EXECUTE') "
+                        "AND has_function_privilege('anon','public.env_acl_after_f()','EXECUTE')")
+    public_oracle = 'EXECUTE public_sql INTO oracle_ok; ' + require('oracle_ok', 'PUBLIC function preservation failed')
+    rollback_condition = snapshot() + ' IS NOT DISTINCT FROM $1 AND (' + absent + ')'
+    rollback_oracle = 'EXECUTE rollback_sql INTO oracle_ok USING baseline; ' + require('oracle_ok', 'rollback witness failed')
+    toggle_default = ("IF EXISTS (SELECT 1 FROM (" + acl_rows + ") x WHERE role_id='postgres'::regrole AND namespace_id='public'::regnamespace "
+                      "AND kind='r' AND grantee='authenticator'::regrole AND privilege_type='TRUNCATE') THEN "
+                      "ALTER DEFAULT PRIVILEGES FOR ROLE postgres IN SCHEMA public REVOKE TRUNCATE ON TABLES FROM authenticator; ELSE "
+                      "ALTER DEFAULT PRIVILEGES FOR ROLE postgres IN SCHEMA public GRANT TRUNCATE ON TABLES TO authenticator; END IF; ")
+    checks = ("DO $qualification$ DECLARE baseline jsonb; expected jsonb; old_acl jsonb; rejected boolean; oracle_ok boolean; "
+              "old_sql text := " + literal('SELECT ' + existing + ' IS NOT DISTINCT FROM $1') + "; "
+              "new_sql text := " + literal('SELECT ' + new_condition) + "; "
+              "public_sql text := " + literal('SELECT ' + public_condition) + "; "
+              "rollback_sql text := " + literal('SELECT ' + rollback_condition) + "; BEGIN "
+              "IF (" + absent + ") IS NOT TRUE THEN RAISE EXCEPTION 'fixture collision'; END IF; "
+              "baseline := " + snapshot() + "; BEGIN " + setup +
+              require(snapshot(targeted) + ' IS NOT DISTINCT FROM ' + normalized(expected_defaults), 'seeded target ACL precondition failed') +
+              "expected := " + snapshot('NOT (' + targeted + ')') + "; old_acl := " + existing + "; "
+              "SET LOCAL ROLE postgres; " + source_sql + " RESET ROLE; "
+              "IF " + snapshot() + " IS DISTINCT FROM expected THEN RAISE EXCEPTION 'exact default ACL delta failed'; END IF; " +
+              existing_oracle + sensitive('REVOKE SELECT ON public.env_acl_before_t FROM anon; ', existing_oracle) + create_new +
+              new_oracle + sensitive('GRANT SELECT ON public.env_acl_after_t TO anon; ', new_oracle) +
+              public_oracle + sensitive('REVOKE EXECUTE ON FUNCTION public.env_acl_after_f() FROM PUBLIC; ', public_oracle) +
+              "RAISE EXCEPTION USING ERRCODE='ZX001', MESSAGE='rollback synthetic ACL fixture'; "
+              "EXCEPTION WHEN SQLSTATE 'ZX001' THEN NULL; END; " +
+              rollback_oracle + sensitive('CREATE TABLE public.env_acl_after_t(id integer); ', rollback_oracle) +
+              sensitive(toggle_default, rollback_oracle) + rollback_oracle + 'END $qualification$; ')
+    body['Cmd'][-1] = prefix.replace('BEGIN READ ONLY;', 'BEGIN;') + checks + 'SET LOCAL ROLE postgres; ' + predicate + ' ROLLBACK;'
+    body['Cmd'][body['Cmd'].index('-h') + 1] = '/var/run/postgresql'
+    body['Cmd'][body['Cmd'].index('-U') + 1] = 'supabase_admin'
+    return body, 6
+
+
 def _auth_catalog_corruption_exec(mode):
     """Internal rollback-only SQL fixture; never accepted by production routes."""
     import copy

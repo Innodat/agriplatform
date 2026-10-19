@@ -2365,6 +2365,87 @@ class AuthCatalogDaemon(AuthJobDaemon):
         return super().exchange(method, path, body)
 
 class AuthCatalogExecutionMatrix(unittest.TestCase):
+    def test_api_default_privileges_semantic_fixture_acceptance(self):
+        import qualify_startup
+        body, count = qualify_startup._api_default_privileges_semantic_exec('post')
+        self.assertEqual(count, 6)
+        self.assertEqual(body['Cmd'][body['Cmd'].index('-U') + 1], 'supabase_admin')
+        self.assertIn('exact default ACL delta failed', body['Cmd'][-1])
+        self.assertIn('rollback witness failed', body['Cmd'][-1])
+        self.assertIn('SET LOCAL ROLE postgres;', body['Cmd'][-1])
+
+    def test_api_default_privileges_semantic_fixture_preserves_bounds_and_closed_cases(self):
+        import qualify_startup
+        import startup_lifecycle as lifecycle
+        original = qualify_startup._original_auth_catalog_exec('post')
+        predicate = original['Cmd'][-1].split("SET LOCAL idle_in_transaction_session_timeout = '5s'; ", 1)[1][:-len(' COMMIT;')]
+        for case in ('apply', 'omitted', 'extra'):
+            with self.subTest(case=case):
+                body, count = qualify_startup._api_default_privileges_semantic_exec('post', case)
+                self.assertEqual(count, 6)
+                query = body['Cmd'][-1]
+                self.assertTrue(query.startswith("BEGIN; SET LOCAL statement_timeout = '5s'; SET LOCAL lock_timeout = '1s'; SET LOCAL idle_in_transaction_session_timeout = '5s'; "))
+                self.assertTrue(query.endswith('SET LOCAL ROLE postgres; ' + predicate + ' ROLLBACK;'))
+                self.assertEqual(lifecycle.API_DEFAULT_PRIVILEGES_SQL in query, case != 'omitted')
+                self.assertEqual('REVOKE TRUNCATE ON TABLES FROM anon;' in query, case == 'extra')
+                self.assertIn('EXCEPTION WHEN SQLSTATE \'ZX001\' THEN NULL;', query)
+                self.assertNotIn('WHEN OTHERS', query)
+                self.assertIn('seeded target ACL precondition failed', query)
+                self.assertIn("('r','SELECT'),('r','INSERT'),('r','UPDATE'),('r','DELETE'),('S','USAGE'),('S','SELECT'),('f','EXECUTE')", query)
+                self.assertIn('false AS is_grantable', query)
+                self.assertIn('WITH GRANT OPTION', query)
+                self.assertEqual(query.count('insensitive ACL oracle'), 5)
+                self.assertEqual(qualify_startup._api_default_privileges_semantic_exec('post', case), (body, count))
+        self.assertEqual(qualify_startup._api_default_privileges_semantic_exec('pre'), (qualify_startup._original_auth_catalog_exec('pre'), 0))
+        for mode, case in [('arbitrary', 'apply'), ('post', 'arbitrary'), (None, 'apply'), ('post', True)]:
+            with self.assertRaises(dev.Refusal): qualify_startup._api_default_privileges_semantic_exec(mode, case)
+
+    def test_api_default_privileges_semantic_fixture_only_admitted_inside_exact_test_hook(self):
+        import qualify_startup
+        import startup_lifecycle as lifecycle
+        import copy
+        route = '/v1.48/containers/' + 'a'*64 + '/exec'
+        for case in ('apply', 'omitted', 'extra'):
+            body, _ = qualify_startup._api_default_privileges_semantic_exec('post', case)
+            with self.assertRaises(dev.Refusal): dev._docker_request('POST', route, body, True)
+            with patch.object(lifecycle, 'auth_catalog_exec', side_effect=lambda mode: qualify_startup._api_default_privileges_semantic_exec(mode, case)[0]):
+                self.assertLess(len(dev._docker_request('POST', route, body, True)), 16384)
+                with self.assertRaises(dev.Refusal): dev._docker_request('POST', route, lifecycle.api_default_privileges_exec(), True)
+                for key, value in [('User', 'root'), ('AttachStdout', True), ('Cmd', body['Cmd'] + ['unexpected'])]:
+                    changed = copy.deepcopy(body)
+                    changed[key] = value
+                    with self.assertRaises(dev.Refusal): dev._docker_request('POST', route, changed, True)
+            with self.assertRaises(dev.Refusal): dev._docker_request('POST', route, body, True)
+
+    def test_api_default_privileges_runbook_annotation_requires_qualified_result(self):
+        import qualify_startup
+        import re, json, io, contextlib
+        text = (Path(__file__).resolve().parents[1] / 'DEVELOPMENT.md').read_text()
+        block = next(c for c in re.findall(r'```sh\n(.*?)```', text, re.S) if c.startswith('KDG_ACL_CASE=apply\n'))
+        program = block.split("<<'PY'\n", 1)[1].rsplit('\nPY', 1)[0]
+        good = {'ok': True, 'code': 'qualified', 'stage': 'pinned_cli_postgres_auth_catalog',
+                'auth_catalog_verified': True, 'api_default_privileges_request_refused': True,
+                'cli_terminated_before_dispatch': True, 'cleanup_verified': True,
+                'runtime_ready': False, 'fresh_setup_completed': False}
+        for case, payload, code, valid in [('apply', good, 0, True), ('extra', good, 0, False),
+                ('apply', dict(good, cleanup_verified=False), 0, False),
+                ('apply', dict(good, auth_catalog_verified=1), 0, False),
+                ('omitted', {'ok': False, 'code': 'execution_sql_failed'}, 2, True)]:
+            with self.subTest(case=case, code=code, valid=valid):
+                output = io.StringIO()
+                def qualify(*args):
+                    print(json.dumps(payload))
+                    return code
+                with patch.object(sys, 'argv', ['fixture', '00000000-0000-0000-0000-000000000000', case]), \
+                        patch.object(qualify_startup, 'main', side_effect=qualify), \
+                        patch.object(qualify_startup, '_api_default_privileges_semantic_exec', return_value=({}, 9)), \
+                        contextlib.redirect_stdout(output):
+                    with self.assertRaises(SystemExit) as error: exec(compile(program, '<tracked-acl-command>', 'exec'), {})
+                self.assertEqual(error.exception.code, code if valid else 'Unexpected successful ACL qualification result')
+                if valid:
+                    self.assertEqual(json.loads(output.getvalue())['semantic_invariants_verified'], 9 if code == 0 else 0)
+                else:
+                    self.assertEqual(output.getvalue(), '')
     def run_catalog(self, d):
         d.guard.auth_catalog_sql('pre')
         d.guard.execute_auth_job()

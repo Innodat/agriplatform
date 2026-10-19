@@ -1192,3 +1192,62 @@ The current absent experimental.webhooks section correctly disables webhooks for
 the pinned CLI; adding an explicit false section would be invalid. Existing config,
 deadlines and Docker allowlist are unchanged. Fresh actual qualification is required
 before runtime claims; prior receipts and uncertain resources stay preserved.
+
+### Rollback-only API default-privilege semantics
+
+After the existing prepare/toolchain/images sequence for a fresh qualified UUID,
+run this fixed fixture through the existing auth-catalog control. Use apply for
+the positive case, then omitted and extra for negative controls. Both negative
+cases must exit2 with execution_sql_failed and no qualified semantic result.
+Each invocation uses an independently fresh disposable database and the retained
+owner's normal cleanup; preserve failures/resources after lost custody.
+
+```sh
+KDG_ACL_CASE=apply
+python3 - "$KDG_RUN_ID" "$KDG_ACL_CASE" <<'PY'
+import contextlib
+import io
+import json
+import sys
+from unittest.mock import patch
+sys.path.insert(0, 'platform/deployment')
+sys.path.insert(0, 'platform/deployment/tests')
+import startup_lifecycle
+import qualify_startup
+run_id, case = sys.argv[1:]
+if case not in ('apply', 'omitted', 'extra'):
+    raise SystemExit('Choose one documented fixed ACL case')
+def fixed_fixture(mode):
+    return qualify_startup._api_default_privileges_semantic_exec(mode, case)[0]
+output = io.StringIO()
+with patch.object(startup_lifecycle, 'auth_catalog_exec', side_effect=fixed_fixture):
+    with contextlib.redirect_stdout(output):
+        code = qualify_startup.main([
+            '--target', 'platform/deployment/environments/kdg-local.json',
+            '--run-id', run_id, '--control', 'pinned-cli-postgres-auth-catalog'])
+result = json.loads(output.getvalue())
+invariant_count = qualify_startup._api_default_privileges_semantic_exec('post', case)[1]
+if code == 0:
+    expected = {'ok': True, 'code': 'qualified', 'stage': 'pinned_cli_postgres_auth_catalog',
+                'auth_catalog_verified': True, 'api_default_privileges_request_refused': True,
+                'cli_terminated_before_dispatch': True, 'cleanup_verified': True,
+                'runtime_ready': False, 'fresh_setup_completed': False}
+    if case != 'apply' or any(type(result.get(k)) is not type(v) or result.get(k) != v
+                              for k, v in expected.items()):
+        raise SystemExit('Unexpected successful ACL qualification result')
+result.update(synthetic_acl_fixture=True, semantic_case=case,
+              semantic_invariants_verified=invariant_count if code == 0 else 0)
+print(json.dumps(result, sort_keys=True))
+raise SystemExit(code)
+PY
+```
+
+The fixture seeds21 direct grants, executes the exact source SQL as postgres and
+checks the precise normalized ACL delta, unchanged existing objects, new-object
+direct grants, PUBLIC function execution preservation and an independent rollback
+witness. Five rollback-only corruptions also prove sensitivity of existing-object,
+new-object, PUBLIC and both rollback checks. All synthetic defaults, grants, schema and objects roll back inside a
+bounded subtransaction. Only the existing test hook admits this fixed request;
+production routes/CLI termination are unchanged. Direct grant removal does not
+establish effective denial through PUBLIC, global defaults or role inheritance.
+See [semantic evidence](ENV_API_DEFAULT_PRIVILEGES_SEMANTICS_EVIDENCE.md).
