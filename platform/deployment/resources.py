@@ -145,6 +145,8 @@ class FreshGuard:
         self.auth_migration = False
         self.auth_catalog = self.auth_catalog_precondition_verified = self.auth_catalog_verified = False
         self.auth_catalog_attempts = set()
+        self.cli_db_backend = self.cli_db_backend_present_verified = self.cli_db_backend_departure_verified = False
+        self.cli_db_backend_attempts = set()
         self.auth_job_id = self.auth_job_input = self.auth_job_effective = None
         self.auth_job_dispatched = self.auth_job_exit_verified = self.auth_job_disposed = False
         self.auth_job_create_attempted = self.auth_job_start_attempted = self.auth_job_delete_attempted = False
@@ -293,6 +295,10 @@ class FreshGuard:
             startup.fail('invalid_owner_handoff')
         self.auth_boundary = True
 
+    def enable_cli_db_backend(self):
+        self.enable_auth_catalog()
+        self.cli_db_backend = True
+
     def enable_auth_catalog(self):
         self.enable_auth_migration()
         self.auth_catalog = True
@@ -427,7 +433,8 @@ class FreshGuard:
         import re
         if (not self.auth_migration or not self.auth_cli_terminated or self.auth_job_input is None
                 or self.auth_job_create_attempted or self.phase != 5
-                or (self.auth_catalog and not self.auth_catalog_precondition_verified)):
+                or (self.auth_catalog and not self.auth_catalog_precondition_verified)
+                or (self.cli_db_backend and not self.cli_db_backend_departure_verified)):
             startup.fail('invalid_owner_handoff')
         self.auth_job_create_attempted = True
         self.auth_pg_current()
@@ -716,9 +723,77 @@ class FreshGuard:
             time.sleep(min(.1, max(0, self.remaining())))
         stable()
 
+    def cli_db_backend_sql(self, mode, process=None):
+        import re
+        if (not self.cli_db_backend or not self.auth_catalog or self.phase != 5
+                or self.auth_job_input is None or not self.auth_terminal_attempted
+                or mode not in ('present', 'departed') or mode in self.cli_db_backend_attempts
+                or self.auth_job_create_attempted or self.auth_catalog_attempts
+                or (mode == 'present' and (self.auth_cli_terminated or process is None
+                    or self.cli_db_backend_attempts or process.poll() is not None))
+                or (mode == 'departed' and (not self.auth_cli_terminated
+                    or not self.cli_db_backend_present_verified))):
+            startup.fail('invalid_owner_handoff')
+        self.cli_db_backend_attempts.add(mode)
+        body = startup.lifecycle.cli_db_backend_exec(mode)
+        def stable():
+            self.auth_pg_current()
+            if mode == 'present' and (self.auth_cli_terminated or process.poll() is not None):
+                startup.fail('invalid_owner_handoff')
+        stable()
+        status, response = self.session.exchange('POST', '/v1.48/containers/' + self.container_id + '/exec', body)
+        if (status != 201 or type(response) is not dict or set(response) != {'Id'}
+                or type(response['Id']) is not str or not re.fullmatch('[0-9a-f]{64}', response['Id'])):
+            startup.fail('execution_uncertain_exec')
+        ident = response['Id']
+        if ident in self.exec_ids:
+            startup.fail('execution_invalid_exec')
+        self.exec_ids.add(ident)
+        stable()
+        def inspect_exec():
+            stable()
+            status, row = self.session.exchange('GET', '/v1.48/exec/' + ident + '/json')
+            stable()
+            config = row.get('ProcessConfig') if type(row) is dict else None
+            if (status != 200 or type(row) is not dict or row.get('ID') != ident
+                    or row.get('ContainerID') != self.container_id or type(row.get('Running')) is not bool
+                    or 'ExitCode' not in row or (row['ExitCode'] is not None and type(row['ExitCode']) is not int)
+                    or type(row.get('Pid')) is not int or row['Pid'] < 0
+                    or type(config) is not dict or config.get('entrypoint') != body['Cmd'][0]
+                    or config.get('arguments') != body['Cmd'][1:] or config.get('privileged') is not False
+                    or config.get('tty') is not False or config.get('user') != 'postgres'):
+                startup.fail('execution_invalid_exec')
+            return row
+        row = inspect_exec()
+        if row['Running'] is not False or row['Pid'] != 0 or row['ExitCode'] is not None:
+            startup.fail('execution_invalid_exec')
+        stable()
+        status, _ = self.session.exchange('POST', '/v1.48/exec/' + ident + '/start', {'Detach': True, 'Tty': False})
+        stable()
+        if status != 200:
+            startup.fail('execution_uncertain_exec')
+        while True:
+            row = inspect_exec()
+            if row['Running'] and row['ExitCode'] is not None:
+                startup.fail('execution_invalid_exec')
+            if row['Running'] is False:
+                if type(row['ExitCode']) is not int or row['Pid'] <= 0:
+                    startup.fail('execution_invalid_exec')
+                if row['ExitCode'] != 0:
+                    startup.fail('execution_sql_failed')
+                break
+            time.sleep(min(.1, max(0, self.remaining())))
+        stable()
+
+        if mode == 'present':
+            self.cli_db_backend_present_verified = True
+        else:
+            self.cli_db_backend_departure_verified = True
+
     def auth_catalog_sql(self, mode):
         import re
         if (not self.auth_catalog or not self.auth_cli_terminated or self.phase != 5
+                or (self.cli_db_backend and not self.cli_db_backend_departure_verified)
                 or mode not in ('pre', 'post') or mode in self.auth_catalog_attempts
                 or (mode == 'pre' and (self.auth_catalog_attempts or self.auth_job_create_attempted))
                 or (mode == 'post' and (not self.auth_catalog_precondition_verified
@@ -852,6 +927,8 @@ class FreshGuard:
         if self.phase != 5:
             startup.fail('invalid_owner_handoff')
         if self.auth_boundary and not (self.auth_job_refused or (self.auth_migration and self.auth_job_exit_verified and self.auth_job_disposed)):
+            startup.fail('invalid_owner_handoff')
+        if self.cli_db_backend and not self.cli_db_backend_departure_verified:
             startup.fail('invalid_owner_handoff')
         if self.auth_catalog and not self.auth_catalog_verified:
             startup.fail('invalid_owner_handoff')

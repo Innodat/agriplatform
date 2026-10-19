@@ -628,3 +628,35 @@ service/setup, CLI DB-session identity, public runtime lifecycle, owner prerequi
 and P1/SERVICE consuming scaffold acceptance remain open. Public up still refuses
 runtime_adapter_unqualified; setup/runtime false. Identity/Access/WRITE/server KDG,
 Leave/editor and production/pilot remain gated. No push/deployment is authorized.
+
+## Latest completed ENV checkpoint — CLI database backend lifetime, 2026-10-19
+
+The [backend lifetime Build](../../../_bmad-output/implementation-artifacts/spec-env-cli-db-backend-lifetime.md)
+is done. It independently observes the expected external PostgreSQL backend before
+the proven CLI's single termination and departure afterward, then unchanged Auth
+catalog/job and normal cleanup. No exact process attribution, password-method or
+continuing CLI-session proof, success ACK or later setup SQL is claimed.
+
+Final133 focused tests,4 process cases,13 qualification controls and27 SQL cases PASS.
+All four documented SQL commands run exactly as tracked. Source-identical14cf6356
+and237696d7 have matching25 source hashes;13 receipts/config files unchanged. One
+unrelated Deals inventory addition is retained without interference. Final unchanged
+full629 PASS801.123s, no skips. Three independent reviews complete; four patch groups
+verified, two concurrent Leave findings rejected/preserved. See
+[final evidence](../../../platform/deployment/ENV_CLI_DB_BACKEND_EVIDENCE.md#final-acceptance).
+
+Four medium-unverified investigations remain: pre-handle alarm, backward-clock bound,
+uncaptured Docker timeout and missing no-eof request witness. The failed full629 and
+unchanged focused PASS remain; a passing rerun does not explain original timing or
+change attribution. All older investigations/entries remain intact. Preserve original
+failed/incomplete records and uncertain volume/bridges, including14cf's empty bridge;
+labels do not authorize cleanup. Publisher HTTP429 records remain;237696d7 qualifies
+with2s request spacing inside unchanged180s collection, no validator/pin/response bypass.
+
+Existing scaffold/test/runbook owners retain work; shared UI/context and accepted
+ADRs unchanged. Concurrent Leave/PtS/Expense files/index, TypeScript7.0.2/mail15484 and
+all original limits remain. Planning PASS does not deliver full runtime prerequisites.
+Use bmad-help to select the next bounded existing ENV prerequisite. Full CLI setup/
+Auth service, public runtime lifecycle and remaining ENV/P1/SERVICE consuming-scaffold
+proof stay open before Identity/Access/WRITE/server KDG. No Leave/editor or production/
+pilot work; no push/deployment authorized.

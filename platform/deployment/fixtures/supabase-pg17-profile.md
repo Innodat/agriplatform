@@ -511,3 +511,55 @@ running starting-window Pid0 is permitted only with NULL ExitCode; it cannot its
 qualify. Successful completed execution requires integer-zero ExitCode and a positive
 PID from its process. Pre-start remains not running/Pid0/NULL exit. No observation
 of an intermediate running state is mandatory for a fast valid completed process.
+
+
+## Host-facing database backend lifetime
+
+The explicit `pinned-cli-postgres-cli-db-backend` qualifier extends the retained Auth
+catalog control. Pinned CLI source runFreshDbSetup/connectLocalPostgres opens the
+host-facing postgres/postgres connection before the blocked Auth-job request. Before
+terminating that proven CLI group, ENV independently checks exactly one non-loopback
+TCP client backend besides its observer; it must have positive client port,
+postgres user/database and idle state. Count the complete external-client set before
+validating those fields: wrong roles/databases/states cannot disappear through a filter.
+Background workers, Unix-socket clients and loopback health probes do not qualify.
+
+After the existing single kill/reap, one read-only detached SQL invocation waits up to
+3s for zero external clients, with pg_stat_clear_snapshot before observations and
+bounded sleep. PostgreSQL17 [statistics authority](https://www.postgresql.org/docs/17/monitoring-stats.html)
+explains that activity remains cached within a transaction until the snapshot is
+cleared. This refreshes observer-local information, not persistent state or statistics
+counters. Existing statement5s/lock1s/idle5s and execution120s bounds remain.
+The departure deadline is checked after the count returns and before accepting zero;
+a late first or later empty observation refuses. A separate3.05s delayed-zero fixture
+proves this without extending the SQL or operation limits.
+
+Both observations require pg_read_all_stats privileges before querying activity, so
+restricted views cannot hide wrong-role external clients. Existing role privileges
+are checked, never granted or changed. Both use current healthy same-PG/resource/
+image/fixture custody and exact closed typed detached execs. Lost responses/attempts/IDs cannot be replayed. Selected
+presence/departure facts do not identify an OS process/backend pair or prove a password
+method or continuing CLI-session identity. No job acknowledgment is sent. After verified
+departure the existing Auth catalog/job and normal PG shutdown/disposal must pass.
+Later CLI setup/privilege/vault/seed/migration work stays gated; public setup/runtime
+remain false. See [backend lifetime evidence](../ENV_CLI_DB_BACKEND_EVIDENCE.md).
+
+
+The existing fixture helper's five-second alarm raises TimeoutError through its
+normal refusal path. Once fixture_main holds the verified CLI parent's pidfd, that
+path stops the parent before returning failure. Default SIGALRM termination must
+not bypass this protection while the owner checks backend presence. No alarm or
+operation limit is extended. The private process regression deliberately delays
+presence6s and requires no CLI continuation marker/job and owned cleanup; this is a
+failure-boundary fixture, not permission to keep a CLI alive after its deadline.
+
+
+Two additional closed SQL fixtures force occupied→timely-empty and occupied→late-empty
+observations. A transaction-local setting counts exactly two evaluations of fixed
+input rows; rollback/exec exit discards it. The rejection fixture carries only this
+ordinal in server-local exception detail, preserving the oracle across subtransaction
+rollback. Conditions, deadline checks, exits and rejection messages remain those of
+the production predicate; unit comparison removes only fixed relation substitution
+and this diagnostic detail. No role, table or business data changes. These fixtures
+prove polling branches, not live pg_stat_activity cache behavior; snapshot-refresh
+placement and normal real-backend observation retain their separate evidence.

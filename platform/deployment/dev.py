@@ -447,7 +447,7 @@ def _docker_auth_create(path, body):
 def _docker_persistence_route(method, path, body):
     import startup_lifecycle
     return ((method == 'POST' and re.fullmatch(r'/v1\.48/containers/[0-9a-f]{64}/exec', path)
-             and (startup_lifecycle.valid_persistence_exec(body) or startup_lifecycle.valid_auth_catalog_exec(body)))
+             and (startup_lifecycle.valid_persistence_exec(body) or startup_lifecycle.valid_auth_catalog_exec(body) or startup_lifecycle.valid_cli_db_backend_exec(body)))
             or (method == 'POST' and re.fullmatch(r'/v1\.48/exec/[0-9a-f]{64}/start', path)
                 and type(body) is dict and set(body) == {'Detach', 'Tty'}
                 and body['Detach'] is True and body['Tty'] is False)

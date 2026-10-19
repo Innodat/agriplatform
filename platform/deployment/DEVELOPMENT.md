@@ -1036,3 +1036,95 @@ read-only queries have bounded waits and no attached output. Existing execution-
 control semantics remain. This neither resumes CLI setup nor proves full Auth service,
 independent CLI session identity or application-owner readiness. Preserve refused
 attempts; use a fresh source-qualified UUID after source/profile changes.
+
+The bounded [CLI database backend qualifier](ENV_CLI_DB_BACKEND_EVIDENCE.md) adds
+independent presence/departure observations around the same CLI termination, before
+the existing Auth catalog/job checks. The bounded qualifier and27 SQL cases are
+verified; public runtime remains unqualified. After fresh source-bound prerequisite qualification:
+
+```sh
+python3 platform/deployment/tests/qualify_startup.py --target platform/deployment/environments/kdg-local.json --run-id <fresh-qualified-UUID> --control pinned-cli-postgres-cli-db-backend
+```
+
+It requires one expected external backend with the CLI alive, then zero after its
+single termination/reap. Observer visibility, same-PG custody and bounded read-only
+SQL checks are mandatory. Facts do not identify an OS process/backend pair or prove
+a password method or continuing CLI session; later CLI setup stays gated. Test-only
+synthetic activity fixtures are internal to existing qualification tooling and do not
+provide a public arbitrary-SQL command. All other runtime/owner/scaffold gates remain.
+
+### Reproduce backend qualification
+
+Use the existing [Linux Docker prerequisite](#local-docker-prerequisite-before-startup)
+and exact selected cached images; missing images refuse rather than being pulled by
+this qualifier. Replace the UUID below with a fresh canonical lowercase UUID. The
+target's approved workspace root must match this checkout. From the repository root,
+run the existing [preparation](#current-env-delivery-status),
+[toolchain](#pinned-toolchain-qualification) and
+[image-manifest](#planned-base-image-manifest-identities) owners in order:
+
+```sh
+KDG_RUN_ID='<fresh-canonical-lowercase-UUID>'
+python3 platform/deployment/dev.py prepare --target platform/deployment/environments/kdg-local.json --run-id "$KDG_RUN_ID"
+python3 platform/deployment/toolchain.py qualify --target platform/deployment/environments/kdg-local.json --run-id "$KDG_RUN_ID"
+python3 platform/deployment/images.py qualify --target platform/deployment/environments/kdg-local.json --run-id "$KDG_RUN_ID"
+python3 platform/deployment/tests/qualify_startup.py --target platform/deployment/environments/kdg-local.json --run-id "$KDG_RUN_ID" --control pinned-cli-postgres-cli-db-backend
+```
+
+The following self-contained invocation uses only tracked functions in the existing
+qualification owner; it does not require a private verifier script. Select `matrix`
+for the 24 fixed-row cases, `late-first` for late initial zero, `timely` for occupied
+then timely zero, or `late-next` for occupied then late zero. These four choices prove
+27 SQL cases. Each successful invocation disposes its own resources normally. On
+refusal preserve diagnostics/resources and follow the custody rules above; do not
+blindly retry an uncertain resource name. Source/profile changes require fresh
+preparation and qualification. No production target or real data is involved.
+
+```sh
+KDG_SQL_CASE=matrix
+python3 - "$KDG_RUN_ID" "$KDG_SQL_CASE" <<'PY'
+import contextlib
+import io
+import json
+import sys
+from unittest.mock import patch
+
+sys.path.insert(0, 'platform/deployment')
+sys.path.insert(0, 'platform/deployment/tests')
+import startup_lifecycle
+import qualify_startup
+
+run_id, case = sys.argv[1:]
+if case not in ('matrix', 'late-first', 'timely', 'late-next'):
+    raise SystemExit('Choose one documented fixed SQL case')
+original = startup_lifecycle.cli_db_backend_exec
+
+def fixed_fixture(mode):
+    if case == 'matrix':
+        return qualify_startup._cli_db_backend_semantic_exec(mode)[0]
+    if mode == 'present':
+        return original(mode)
+    if case == 'late-first':
+        return qualify_startup._cli_db_backend_late_zero_exec()
+    return qualify_startup._cli_db_backend_transition_exec(case == 'late-next')
+
+output = io.StringIO()
+with patch.object(startup_lifecycle, 'cli_db_backend_exec', side_effect=fixed_fixture):
+    with contextlib.redirect_stdout(output):
+        code = qualify_startup.main([
+            '--target', 'platform/deployment/environments/kdg-local.json',
+            '--run-id', run_id, '--control', 'pinned-cli-postgres-cli-db-backend'])
+result = json.loads(output.getvalue())
+result.update(synthetic_activity_rows=True, semantic_case=case,
+              semantic_cases_verified=(24 if case == 'matrix' else 1) if code == 0 else 0)
+print(json.dumps(result, sort_keys=True))
+raise SystemExit(code)
+PY
+```
+
+These fixtures preserve the production conditions, deadlines and exits. The two
+transition cases count exactly two fixed-input observations with a transaction-local
+setting, discarded by rollback/exit. On rejection they carry only that ordinal in
+server-local exception detail so subtransaction rollback cannot erase the oracle.
+No role, table or business data changes. The normal qualifier above independently
+observes actual backend lifetime; synthetic SQL results are explicitly labelled.

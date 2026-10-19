@@ -514,3 +514,41 @@ def auth_catalog_exec(mode):
 def valid_auth_catalog_exec(body):
     import create_profile
     return any(create_profile._exact_tree(body, auth_catalog_exec(mode)) for mode in ('pre', 'post'))
+
+
+def cli_db_backend_exec(mode):
+    """Closed independent session observations; no backend rows leave PostgreSQL."""
+    if mode not in ('present', 'departed'):
+        refuse()
+    external = ("FROM pg_stat_activity WHERE pid <> pg_backend_pid() "
+                "AND backend_type = 'client backend' AND client_addr IS NOT NULL "
+                "AND NOT (client_addr <<= '127.0.0.0/8'::inet OR client_addr = '::1'::inet)")
+    if mode == 'present':
+        predicate = ("SELECT count(*) = 1 AND bool_and((usename = 'postgres' "
+                     "AND datname = 'postgres' AND client_port > 0 AND state = 'idle') IS TRUE) " + external)
+        block = ("BEGIN IF (" + predicate + ") IS NOT TRUE THEN "
+                 "RAISE EXCEPTION 'cli db backend presence failed'; END IF; END")
+    else:
+        block = ("DECLARE deadline timestamptz := clock_timestamp() + interval '3 seconds'; "
+                 "BEGIN LOOP PERFORM pg_stat_clear_snapshot(); "
+                 "IF (SELECT count(*) = 0 " + external + ") IS TRUE THEN "
+                 "IF clock_timestamp() >= deadline THEN RAISE EXCEPTION 'cli db backend departure failed'; "
+                 "END IF; EXIT; END IF; "
+                 "IF clock_timestamp() >= deadline THEN RAISE EXCEPTION 'cli db backend departure failed'; "
+                 "END IF; PERFORM pg_sleep(LEAST(0.05, GREATEST(0, "
+                 "extract(epoch FROM deadline - clock_timestamp())))); END LOOP; END")
+    # Other-user session endpoints can be NULL without full statistics visibility.
+    # USAGE checks inherited privileges too; superusers satisfy pg_has_role.
+    visibility = ("IF pg_has_role(current_user, 'pg_read_all_stats', 'USAGE') IS NOT TRUE "
+                  "THEN RAISE EXCEPTION 'cli db backend visibility failed'; END IF; ")
+    block = block.replace('BEGIN ', 'BEGIN ' + visibility, 1)
+    query = ("BEGIN READ ONLY; SET LOCAL statement_timeout = '5s'; SET LOCAL lock_timeout = '1s'; "
+             "SET LOCAL idle_in_transaction_session_timeout = '5s'; DO $$ " + block + " $$; COMMIT;")
+    body = auth_catalog_exec('pre')
+    body['Cmd'][-1] = query
+    return body
+
+
+def valid_cli_db_backend_exec(body):
+    import create_profile
+    return any(create_profile._exact_tree(body, cli_db_backend_exec(mode)) for mode in ('present', 'departed'))

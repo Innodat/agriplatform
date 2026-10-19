@@ -8,6 +8,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 import dev
 import startup_lifecycle
 from startup_lifecycle import auth_catalog_exec as _original_auth_catalog_exec
+from startup_lifecycle import cli_db_backend_exec as _original_cli_db_backend_exec
 import startup
 import volumes
 import qualify_volumes
@@ -16,7 +17,7 @@ import daemon_images
 import qualify_resources
 
 BOOTSTRAP_CONTROLS = ['postgres-bootstrap']
-EXECUTION_CONTROLS = ['pinned-cli-postgres', 'pinned-cli-postgres-persistence', 'pinned-cli-postgres-initialized', 'pinned-cli-postgres-auth-boundary', 'pinned-cli-postgres-auth-migration', 'pinned-cli-postgres-auth-catalog']
+EXECUTION_CONTROLS = ['pinned-cli-postgres', 'pinned-cli-postgres-persistence', 'pinned-cli-postgres-initialized', 'pinned-cli-postgres-auth-boundary', 'pinned-cli-postgres-auth-migration', 'pinned-cli-postgres-auth-catalog', 'pinned-cli-postgres-cli-db-backend']
 
 GUARDED_CONTROLS = ['guarded-fresh'] + ['guarded-' + name for name in qualify_resources.GUARDED_FAILURES]
 
@@ -56,6 +57,131 @@ def _auth_catalog_corruption_exec(mode):
     body['Cmd'][body['Cmd'].index('-h')+1]='/var/run/postgresql'
     body['Cmd'][body['Cmd'].index('-U')+1]='supabase_admin'
     return body, len(mutations)
+
+def _cli_db_backend_semantic_exec(mode):
+    """Fixed typed session inputs exercise the unchanged production SQL predicates."""
+    import copy
+    if mode not in ('present', 'departed'): startup_lifecycle.refuse()
+    def literal(value): return "'" + value.replace("'", "''") + "'"
+    body = copy.deepcopy(_original_cli_db_backend_exec(mode))
+    query = body['Cmd'][-1]
+    prefix = "BEGIN READ ONLY; SET LOCAL statement_timeout = '5s'; SET LOCAL lock_timeout = '1s'; SET LOCAL idle_in_transaction_session_timeout = '5s'; "
+    assert query.startswith(prefix) and query.endswith(' COMMIT;')
+    predicate = query[len(prefix):-len(' COMMIT;')]
+    columns = ('pid', 'backend_type', 'client_addr', 'usename', 'datname', 'client_port', 'state')
+    types = ('integer', 'text', 'inet', 'text', 'text', 'integer', 'text')
+    valid = (-1, 'client backend', '192.0.2.1', 'postgres', 'postgres', 49152, 'idle')
+    def changed(index, value):
+        row = list(valid)
+        row[index] = value
+        return tuple(row)
+    def relation(rows):
+        def cell(value, kind):
+            if value == 'observer-pid': return 'pg_backend_pid()::integer'
+            return ('NULL' if value is None else str(value) if type(value) is int else literal(value)) + '::' + kind
+        if rows:
+            return '(VALUES ' + ','.join('(' + ','.join(cell(v, t) for v, t in zip(row, types)) + ')' for row in rows) + ') AS backend_fixture(' + ','.join(columns) + ')'
+        return '(SELECT ' + ','.join('NULL::' + t + ' AS ' + c for c, t in zip(columns, types)) + ' WHERE false) AS backend_fixture'
+    ignored = [changed(0, 'observer-pid'), changed(2, None), changed(1, 'autovacuum worker'),
+               changed(2, '127.0.0.1'), changed(2, '::1')]
+    if mode == 'present':
+        cases = [([valid], False), ([changed(2, '2001:db8::1')], False)]
+        cases += [([row], True) for row in ignored]
+        cases += [([], True), ([valid, valid], True)]
+        cases += [([changed(index, value)], True) for index, value in
+                  [(3, 'anon'), (4, 'other_database'), (6, 'active'), (3, None), (4, None),
+                   (6, None), (5, None), (5, 0), (5, -1)]]
+        cases += [([valid] + ignored, False)]
+    else:
+        # Exactly one real bounded departure timeout; all other cases exit immediately.
+        cases = [([], False), (ignored, False), ([changed(3, 'anon')[:-1] + ('active',)], True)]
+    checks = [(relation(rows), rejected, False) for rows, rejected in cases]
+    # Fixed anon role datum exercises visibility denial without changing roles/grants.
+    checks.append((relation([valid] if mode == 'present' else []), True, True))
+    checks_sql = ','.join('(' + literal(source) + ',' + ('true' if rejected else 'false') + ','
+                          + ('true' if anon else 'false') + ')' for source, rejected, anon in checks)
+    wrapper = ("DO $qualification$ DECLARE production_predicate text := " + literal(predicate) + "; "
+               "predicate text; source text; expected_rejected boolean; anon_observer boolean; rejected boolean; "
+               "BEGIN FOR source, expected_rejected, anon_observer IN SELECT * FROM (VALUES " + checks_sql +
+               ") AS cases(source, expected_rejected, anon_observer) LOOP rejected := false; "
+               "predicate := replace(production_predicate, 'pg_stat_activity', source); "
+               "IF anon_observer THEN predicate := replace(predicate, 'current_user', '''anon'''); END IF; "
+               "BEGIN EXECUTE predicate; EXCEPTION WHEN SQLSTATE 'P0001' THEN rejected := true; END; "
+               "IF rejected IS DISTINCT FROM expected_rejected THEN RAISE EXCEPTION USING ERRCODE='XX001', "
+               "MESSAGE='semantic predicate result mismatch'; END IF; END LOOP; END $qualification$;")
+    body['Cmd'][-1] = prefix + wrapper + ' ROLLBACK;'
+    return body, len(checks)
+
+
+def _cli_db_backend_late_zero_exec():
+    """One delayed-zero regression, separately bounded by the existing five seconds."""
+    import copy
+    def literal(value): return "'" + value.replace("'", "''") + "'"
+    body = copy.deepcopy(_original_cli_db_backend_exec('departed'))
+    query = body['Cmd'][-1]
+    prefix = "BEGIN READ ONLY; SET LOCAL statement_timeout = '5s'; SET LOCAL lock_timeout = '1s'; SET LOCAL idle_in_transaction_session_timeout = '5s'; "
+    assert query.startswith(prefix) and query.endswith(' COMMIT;')
+    predicate = query[len(prefix):-len(' COMMIT;')]
+    # Referencing slept in the endpoint predicate forces the materialized delay
+    # even though the eventual NULL endpoint yields no matching external backend.
+    relation = ("(WITH delay AS MATERIALIZED (SELECT pg_sleep(3.05) AS slept) "
+                "SELECT -1::integer AS pid, 'client backend'::text AS backend_type, "
+                "NULLIF(delay.slept::text,'')::inet AS client_addr, 'postgres'::text AS usename, "
+                "'postgres'::text AS datname, 49152::integer AS client_port, 'idle'::text AS state "
+                "FROM delay) AS backend_fixture")
+    predicate = predicate.replace('pg_stat_activity', relation)
+    wrapper = ("DO $qualification$ DECLARE rejected boolean := false; BEGIN "
+               "BEGIN EXECUTE " + literal(predicate) + "; "
+               "EXCEPTION WHEN SQLSTATE 'P0001' THEN rejected := true; END; "
+               "IF NOT rejected THEN RAISE EXCEPTION USING ERRCODE='XX001', "
+               "MESSAGE='late zero predicate accepted'; END IF; END $qualification$;")
+    body['Cmd'][-1] = prefix + wrapper + ' ROLLBACK;'
+    return body
+
+
+def _cli_db_backend_transition_exec(late=False):
+    """Two fixed observations: occupied, then timely or late empty; no DB writes."""
+    import copy
+    if type(late) is not bool: startup_lifecycle.refuse()
+    def literal(value): return "'" + value.replace("'", "''") + "'"
+    body = copy.deepcopy(_original_cli_db_backend_exec('departed'))
+    query = body['Cmd'][-1]
+    prefix = "BEGIN READ ONLY; SET LOCAL statement_timeout = '5s'; SET LOCAL lock_timeout = '1s'; SET LOCAL idle_in_transaction_session_timeout = '5s'; "
+    assert query.startswith(prefix) and query.endswith(' COMMIT;')
+    predicate = query[len(prefix):-len(' COMMIT;')]
+    # A transaction-local custom setting counts evaluations of the fixed input
+    # relation, so the first count cannot silently be empty under scheduling delay.
+    # ROLLBACK and process exit discard it; no role, table or business data changes.
+    relation = ("(WITH observation AS MATERIALIZED (SELECT "
+                "set_config('env.backend_observations', "
+                "(current_setting('env.backend_observations')::integer + 1)::text, true)::integer AS n), "
+                "delay AS MATERIALIZED (SELECT n, pg_sleep(CASE WHEN n = 2 THEN "
+                + ('3.05' if late else '0') + " ELSE 0 END) AS slept FROM observation) "
+                "SELECT -1::integer AS pid, 'client backend'::text AS backend_type, "
+                "CASE WHEN n = 1 THEN '192.0.2.1'::inet "
+                "ELSE NULLIF(delay.slept::text,'')::inet END AS client_addr, "
+                "'postgres'::text AS usename, 'postgres'::text AS datname, "
+                "49152::integer AS client_port, 'idle'::text AS state FROM delay) AS backend_fixture")
+    predicate = predicate.replace('pg_stat_activity', relation)
+    # The caught exception rolls back transaction-local settings. Carry only the
+    # fixed observation ordinal in exception DETAIL before that rollback; the
+    # original conditions, deadlines, exits and rejection messages stay intact.
+    rejection = "RAISE EXCEPTION 'cli db backend departure failed'"
+    assert predicate.count(rejection) == 2
+    predicate = predicate.replace(rejection, rejection + " USING DETAIL = current_setting('env.backend_observations')")
+    wrapper = ("DO $qualification$ DECLARE rejected boolean := false; observed_count text; BEGIN "
+               "PERFORM set_config('env.backend_observations', '0', true); "
+               "BEGIN EXECUTE " + literal(predicate) + "; "
+               "EXCEPTION WHEN SQLSTATE 'P0001' THEN rejected := true; "
+               "GET STACKED DIAGNOSTICS observed_count = PG_EXCEPTION_DETAIL; END; "
+               "IF NOT rejected THEN observed_count := current_setting('env.backend_observations'); END IF; "
+               "IF rejected IS DISTINCT FROM " + ('true' if late else 'false')
+               + " OR observed_count IS DISTINCT FROM '2' "
+               "THEN RAISE EXCEPTION USING ERRCODE='XX001', "
+               "MESSAGE='temporal predicate result mismatch'; END IF; END $qualification$;")
+    body['Cmd'][-1] = prefix + wrapper + ' ROLLBACK;'
+    return body
+
 
 def guarded_qualify(args, target):
     """One private peer connects the pinned CLI to the real retained ENV owner."""

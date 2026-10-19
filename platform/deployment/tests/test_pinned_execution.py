@@ -2645,3 +2645,387 @@ class AuthCatalogExecutionMatrix(unittest.TestCase):
             self.assertRegex(source['commit'], '^[0-9a-f]{40}$')
             self.assertRegex(source['sha256'], '^[0-9a-f]{64}$')
             self.assertTrue(source['path'])
+
+class CliDbBackendExecutionMatrix(unittest.TestCase):
+    def daemon(self):
+        d = AuthCatalogDaemon()
+        d.guard.cli_db_backend = True
+        d.guard.auth_cli_terminated = False
+        return d
+
+    def test_presence_departure_catalog_job_and_cleanup(self):
+        d = self.daemon()
+        process = Mock()
+        process.poll.return_value = None
+        d.guard.cli_db_backend_sql('present', process)
+        self.assertTrue(d.guard.cli_db_backend_present_verified)
+        d.guard.auth_cli_terminated = True
+        d.guard.cli_db_backend_sql('departed')
+        self.assertTrue(d.guard.cli_db_backend_departure_verified)
+        d.guard.auth_catalog_sql('pre')
+        d.guard.execute_auth_job()
+        d.guard.auth_catalog_sql('post')
+        with patch.object(dev, 'free_ports'): d.guard.finish_execution()
+        self.assertTrue(d.guard.cleaned)
+
+    def test_closed_predicates_and_exact_transport_allowlist(self):
+        import copy
+        import startup_lifecycle as lifecycle
+        for mode in ('present', 'departed'):
+            body = lifecycle.cli_db_backend_exec(mode)
+            self.assertTrue(lifecycle.valid_cli_db_backend_exec(body))
+            dev._docker_request('POST', '/v1.48/containers/'+'a'*64+'/exec', body, True)
+            query = body['Cmd'][-1]
+            for required in ('BEGIN READ ONLY', "statement_timeout = '5s'", "lock_timeout = '1s'",
+                             "idle_in_transaction_session_timeout = '5s'", "backend_type = 'client backend'",
+                             'pid <> pg_backend_pid()', 'client_addr IS NOT NULL', "'127.0.0.0/8'", "'::1'"):
+                self.assertIn(required, query)
+            if mode == 'present':
+                for required in ('count(*) = 1', 'bool_and', "usename = 'postgres'", "datname = 'postgres'",
+                                 'client_port > 0', "state = 'idle'", 'IS TRUE', 'IS NOT TRUE'):
+                    self.assertIn(required, query)
+                # Wrong user/database/state remain members of the counted external set.
+                self.assertNotIn('usename', query[query.index('FROM pg_stat_activity'):])
+            else:
+                self.assertIn('count(*) = 0', query)
+                self.assertIn("interval '3 seconds'", query)
+                self.assertEqual(query.count('pg_stat_clear_snapshot()'), 1)
+                self.assertLess(query.index('LOOP'), query.index('pg_stat_clear_snapshot()'))
+                self.assertLess(query.index('pg_stat_clear_snapshot()'), query.index('FROM pg_stat_activity'))
+                self.assertNotIn('pg_stat_reset', query)
+            for field, value in [('AttachStdout', True), ('Privileged', 1), ('User', 'root'), ('Env', []),
+                                 ('Cmd', body['Cmd'] + ['SELECT true'])]:
+                changed = copy.deepcopy(body)
+                changed[field] = value
+                self.assertFalse(lifecycle.valid_cli_db_backend_exec(changed))
+                with self.assertRaises(dev.Refusal):
+                    dev._docker_request('POST', '/v1.48/containers/'+'a'*64+'/exec', changed, True)
+        with self.assertRaises(dev.Refusal): lifecycle.cli_db_backend_exec('arbitrary')
+
+    def test_predicate_failures_consume_attempt_and_block_job_catalog_finish(self):
+        for mode in ('present', 'departed'):
+            with self.subTest(mode=mode):
+                d = self.daemon()
+                process = Mock(poll=Mock(return_value=None))
+                if mode == 'departed':
+                    d.guard.cli_db_backend_sql('present', process)
+                    d.guard.auth_cli_terminated = True
+                d.catalog_valid = False
+                with self.assertRaises(dev.Refusal): d.guard.cli_db_backend_sql(mode, process)
+                count = len(d.catalog_modes)
+                with self.assertRaises(dev.Refusal): d.guard.cli_db_backend_sql(mode, process)
+                self.assertEqual(len(d.catalog_modes), count)
+                with self.assertRaises(dev.Refusal): d.guard.auth_catalog_sql('pre')
+                with self.assertRaises(dev.Refusal): d.guard.execute_auth_job()
+                with self.assertRaises(dev.Refusal): d.guard.finish_execution()
+                self.assertFalse(d.guard.cli_db_backend_departure_verified)
+                self.assertFalse(d.guard.auth_job_dispatched)
+
+    def test_required_phase_job_input_live_cli_and_termination_gates(self):
+        for change in ('disabled', 'catalog', 'phase', 'job-input', 'admission', 'terminated', 'dead', 'absent', 'departed-first'):
+            with self.subTest(change=change):
+                d = self.daemon()
+                process = Mock(poll=Mock(return_value=None))
+                if change == 'disabled': d.guard.cli_db_backend = False
+                if change == 'catalog': d.guard.auth_catalog = False
+                if change == 'phase': d.guard.phase = 6
+                if change == 'job-input': d.guard.auth_job_input = None
+                if change == 'admission': d.guard.auth_terminal_attempted = False
+                if change == 'terminated': d.guard.auth_cli_terminated = True
+                if change == 'dead': process.poll.return_value = 0
+                if change == 'absent': process = None
+                with self.assertRaises(dev.Refusal):
+                    d.guard.cli_db_backend_sql('departed' if change == 'departed-first' else 'present', process)
+                self.assertFalse(d.catalog_modes)
+
+    def test_custody_and_exec_faults_never_replay_or_claim_observation(self):
+        for mode in ('present', 'departed'):
+            for fault in ('create-lost', 'create-malformed', 'start-lost', 'inspect-malformed', 'bool-exit',
+                          'running-exit', 'wrong-config', 'duplicate-id', 'custody', 'interrupted', 'dead-cli'):
+                with self.subTest(mode=mode, fault=fault):
+                    d = self.daemon()
+                    process = Mock(poll=Mock(return_value=None))
+                    if mode == 'departed':
+                        d.guard.cli_db_backend_sql('present', process)
+                        d.guard.auth_cli_terminated = True
+                    original = d.exchange
+                    def exchange(method, path, body=None):
+                        if path.endswith('/exec'):
+                            if fault == 'create-lost': raise dev.Refusal('docker', 'docker_timeout')
+                            if fault == 'create-malformed': return 201, {'Id': None}
+                            if fault == 'interrupted': raise KeyboardInterrupt()
+                        status, row = original(method, path, body)
+                        if path.endswith('/exec'):
+                            if fault == 'duplicate-id': d.guard.exec_ids.add(row['Id'])
+                            if fault == 'custody': d.row['State']['Health']['Status'] = 'unhealthy'
+                            if fault == 'dead-cli' and mode == 'present': process.poll.return_value = 0
+                        if '/exec/' in path and path.endswith('/start') and fault == 'start-lost':
+                            raise dev.Refusal('docker', 'docker_timeout')
+                        if '/exec/' in path and method == 'GET':
+                            if fault == 'inspect-malformed': return 200, None
+                            if fault == 'bool-exit': row['ExitCode'] = False
+                            if fault == 'running-exit': row['Running'], row['ExitCode'] = True, 0
+                            if fault == 'wrong-config': row['ProcessConfig']['user'] = 'root'
+                        return status, row
+                    if mode == 'departed' and fault == 'dead-cli': continue
+                    d.guard.session.exchange = exchange
+                    with self.assertRaises((dev.Refusal, KeyboardInterrupt)):
+                        d.guard.cli_db_backend_sql(mode, process)
+                    count = len(d.catalog_modes)
+                    with self.assertRaises(dev.Refusal): d.guard.cli_db_backend_sql(mode, process)
+                    self.assertEqual(count, len(d.catalog_modes))
+                    self.assertFalse(d.guard.cli_db_backend_departure_verified)
+                    if mode == 'present': self.assertFalse(d.guard.cli_db_backend_present_verified)
+                    self.assertFalse(d.guard.auth_job_dispatched)
+
+    def test_live_cli_rechecked_after_successful_exec_exit(self):
+        d = self.daemon()
+        process = Mock(poll=Mock(return_value=None))
+        original = d.exchange
+        def exchange(method, path, body=None):
+            response = original(method, path, body)
+            if '/exec/' in path and method == 'GET' and d.exec_started:
+                process.poll.return_value = 0
+            return response
+        d.guard.session.exchange = exchange
+        with self.assertRaises(dev.Refusal): d.guard.cli_db_backend_sql('present', process)
+        self.assertFalse(d.guard.cli_db_backend_present_verified)
+        self.assertIn('present', d.guard.cli_db_backend_attempts)
+
+    def test_observer_visibility_is_required_before_either_external_count(self):
+        import copy
+        import startup_lifecycle as lifecycle
+        for mode in ('present', 'departed'):
+            with self.subTest(mode=mode):
+                body = lifecycle.cli_db_backend_exec(mode)
+                query = body['Cmd'][-1]
+                guard = "IF pg_has_role(current_user, 'pg_read_all_stats', 'USAGE') IS NOT TRUE THEN RAISE EXCEPTION 'cli db backend visibility failed'; END IF; "
+                self.assertIn(guard, query)
+                self.assertLess(query.index(guard), query.index('FROM pg_stat_activity'))
+                changed = copy.deepcopy(body)
+                changed['Cmd'][-1] = query.replace(guard, '')
+                self.assertFalse(lifecycle.valid_cli_db_backend_exec(changed))
+                with self.assertRaises(dev.Refusal):
+                    dev._docker_request('POST', '/v1.48/containers/'+'a'*64+'/exec', changed, True)
+
+    def test_internal_semantic_fixture_preserves_predicates_and_is_not_public_exec(self):
+        import qualify_startup
+        import startup_lifecycle as lifecycle
+        for mode, expected_count in [('present', 20), ('departed', 4)]:
+            body, count = qualify_startup._cli_db_backend_semantic_exec(mode)
+            self.assertEqual(count, expected_count)
+            query = body['Cmd'][-1]
+            self.assertTrue(query.startswith("BEGIN READ ONLY; SET LOCAL statement_timeout = '5s';"))
+            self.assertTrue(query.endswith(' ROLLBACK;'))
+            self.assertEqual(query.count('FROM pg_stat_activity'), 1)
+            self.assertIn("replace(production_predicate, 'pg_stat_activity', source)", query)
+            self.assertIn("EXCEPTION WHEN SQLSTATE 'P0001'", query)
+            self.assertNotIn('WHEN OTHERS', query)
+            self.assertIn('semantic predicate result mismatch', query)
+            self.assertIn("replace(predicate, 'current_user', '''anon''')", query)
+            self.assertIn('::inet', query)
+            self.assertFalse(lifecycle.valid_cli_db_backend_exec(body))
+            with self.assertRaises(dev.Refusal):
+                dev._docker_request('POST', '/v1.48/containers/'+'a'*64+'/exec', body, True)
+            expected = lifecycle.cli_db_backend_exec(mode)
+            expected['Cmd'][-1] = query
+            self.assertEqual(expected, body)
+            with patch.object(lifecycle, 'cli_db_backend_exec', side_effect=AssertionError('recursive builder')):
+                self.assertEqual(qualify_startup._cli_db_backend_semantic_exec(mode), (body, count))
+        with self.assertRaises(dev.Refusal): qualify_startup._cli_db_backend_semantic_exec('arbitrary')
+
+    def test_backend_current_custody_surrounds_each_exchange(self):
+        for mode in ('present', 'departed'):
+            for mutation in ('instance', 'health', 'image', 'fixture', 'network', 'volume'):
+                for boundary in ('create', 'inspect', 'start'):
+                    with self.subTest(mode=mode, mutation=mutation, boundary=boundary):
+                        d = self.daemon()
+                        process = Mock(poll=Mock(return_value=None))
+                        if mode == 'departed':
+                            d.guard.cli_db_backend_sql('present', process)
+                            d.guard.auth_cli_terminated = True
+                        original = d.exchange
+                        detected_after = None
+                        def exchange(method, path, body=None):
+                            nonlocal detected_after
+                            response = original(method, path, body)
+                            hit = (boundary == 'create' and path.endswith('/exec')
+                                   or boundary == 'inspect' and path.startswith('/v1.48/exec/') and path.endswith('/json')
+                                   or boundary == 'start' and path.startswith('/v1.48/exec/') and path.endswith('/start'))
+                            if hit and detected_after is None:
+                                detected_after = len(d.events)
+                                if mutation == 'instance': d.row['State']['StartedAt'] = '2026-10-18T00:00:00Z'
+                                elif mutation == 'health': d.row['State']['Health']['Status'] = 'unhealthy'
+                                elif mutation == 'image': d.row['Image'] = 'sha256:' + 'f'*64
+                                elif mutation == 'fixture': d.hook = lambda: dev.refuse('startup', 'fixture_changed')
+                                elif mutation == 'network': d.network['Id'] = 'f'*64
+                                elif mutation == 'volume': d.volume['Labels']['foreign'] = 'true'
+                            return response
+                        d.guard.session.exchange = exchange
+                        with self.assertRaises(dev.Refusal): d.guard.cli_db_backend_sql(mode, process)
+                        self.assertIsNotNone(detected_after)
+                        self.assertTrue(all(method == 'GET' for method, _, _ in d.events[detected_after:]))
+                        self.assertEqual(d.guard.cli_db_backend_present_verified, mode == 'departed')
+                        self.assertFalse(d.guard.cli_db_backend_departure_verified)
+                        self.assertFalse(d.guard.auth_job_dispatched)
+
+    def test_backend_running_transitions_completed_zero_pid_and_deadline(self):
+        for mode in ('present', 'departed'):
+            for outcome in ('success', 'completed-zero-pid', 'deadline'):
+                with self.subTest(mode=mode, outcome=outcome):
+                    d = self.daemon()
+                    process = Mock(poll=Mock(return_value=None))
+                    if mode == 'departed':
+                        d.guard.cli_db_backend_sql('present', process)
+                        d.guard.auth_cli_terminated = True
+                    original = d.exchange
+                    states = iter([(True, 0, None), (True, 321, None),
+                                   (False, 0 if outcome == 'completed-zero-pid' else 321, 0)])
+                    observed = 0
+                    def exchange(method, path, body=None):
+                        nonlocal observed
+                        response = original(method, path, body)
+                        if path.startswith('/v1.48/exec/') and path.endswith('/json') and d.exec_started:
+                            running, pid, exit_code = next(states)
+                            observed += 1
+                            response[1].update(Running=running, Pid=pid, ExitCode=exit_code)
+                            if outcome == 'deadline': d.deadline = d.guard.deadline = 0
+                        return response
+                    d.guard.session.exchange = exchange
+                    count_before = sum(p.endswith('/start') and '/exec/' in p for _, p, _ in d.events)
+                    with patch.object(resources.time, 'sleep'):
+                        if outcome == 'success': d.guard.cli_db_backend_sql(mode, process)
+                        else:
+                            with self.assertRaises(dev.Refusal): d.guard.cli_db_backend_sql(mode, process)
+                    self.assertEqual(sum(p.endswith('/start') and '/exec/' in p for _, p, _ in d.events) - count_before, 1)
+                    self.assertEqual(observed, 1 if outcome == 'deadline' else 3)
+                    self.assertEqual(d.guard.cli_db_backend_departure_verified, mode == 'departed' and outcome == 'success')
+                    self.assertEqual(d.guard.cli_db_backend_present_verified, mode == 'departed' or outcome == 'success')
+
+    def test_semantic_fixture_fits_existing_encoded_docker_request_limit(self):
+        import qualify_startup
+        import startup_lifecycle as lifecycle
+        for mode in ('present', 'departed'):
+            with self.subTest(mode=mode):
+                body, _ = qualify_startup._cli_db_backend_semantic_exec(mode)
+                with patch.object(lifecycle, 'cli_db_backend_exec', return_value=body):
+                    encoded = dev._docker_request('POST', '/v1.48/containers/'+'a'*64+'/exec', body, True)
+                self.assertLessEqual(len(encoded), 16384)
+                self.assertIn(b'Content-Type: application/json', encoded)
+
+    def test_departure_checks_deadline_after_zero_observation_before_exit(self):
+        import startup_lifecycle as lifecycle
+        query = lifecycle.cli_db_backend_exec('departed')['Cmd'][-1]
+        zero_branch = query.split(') IS TRUE THEN ', 1)[1].split('EXIT;', 1)[0]
+        self.assertIn('IF clock_timestamp() >= deadline THEN', zero_branch)
+        self.assertIn("RAISE EXCEPTION 'cli db backend departure failed'", zero_branch)
+
+    def test_late_zero_fixture_preserves_original_predicate_and_transport_bound(self):
+        import qualify_startup
+        import startup_lifecycle as lifecycle
+        body = qualify_startup._cli_db_backend_late_zero_exec()
+        query = body['Cmd'][-1]
+        self.assertTrue(query.startswith("BEGIN READ ONLY; SET LOCAL statement_timeout = '5s';"))
+        self.assertTrue(query.endswith(' ROLLBACK;'))
+        self.assertIn('AS MATERIALIZED (SELECT pg_sleep(3.05) AS slept)', query)
+        self.assertIn("NULLIF(delay.slept::text,'''')::inet", query)
+        self.assertIn("EXCEPTION WHEN SQLSTATE 'P0001'", query)
+        self.assertIn('late zero predicate accepted', query)
+        self.assertNotIn('WHEN OTHERS', query)
+        self.assertFalse(lifecycle.valid_cli_db_backend_exec(body))
+        with self.assertRaises(dev.Refusal):
+            dev._docker_request('POST', '/v1.48/containers/'+'a'*64+'/exec', body, True)
+        expected = lifecycle.cli_db_backend_exec('departed')
+        import re
+        captured = re.search(r"BEGIN EXECUTE '((?:[^']|'')*)';", query).group(1).replace("''", "'")
+        source = captured.split('FROM ', 1)[1].split(' WHERE pid <> pg_backend_pid()', 1)[0]
+        prefix = "BEGIN READ ONLY; SET LOCAL statement_timeout = '5s'; SET LOCAL lock_timeout = '1s'; SET LOCAL idle_in_transaction_session_timeout = '5s'; "
+        original = expected['Cmd'][-1][len(prefix):-len(' COMMIT;')]
+        self.assertEqual(captured, original.replace('pg_stat_activity', source))
+        expected['Cmd'][-1] = query
+        self.assertEqual(body, expected)
+        with patch.object(lifecycle, 'cli_db_backend_exec', return_value=body):
+            self.assertLessEqual(len(dev._docker_request('POST', '/v1.48/containers/'+'a'*64+'/exec', body, True)), 16384)
+        with patch.object(lifecycle, 'cli_db_backend_exec', side_effect=AssertionError('recursive builder')):
+            self.assertEqual(qualify_startup._cli_db_backend_late_zero_exec(), body)
+
+    def test_generated_wrapper_alarm_raises_caught_timeout_and_stops_held_parent(self):
+        import ast
+        import os
+        import signal
+        import tempfile
+        import startup
+        from create_profile_fixtures import target_fixture, test_plan, test_observations, RUN
+        with tempfile.TemporaryDirectory() as directory:
+            work = Path(directory)
+            target = target_fixture()
+            startup.initialize_workdir(work, target, RUN)
+            startup.install_fixture(work, target, RUN, startup.fixture_network(target, RUN),
+                                    selection_plan=test_plan(), image_observations=test_observations(),
+                                    profile_control='lifecycle-positive')
+            self.assertEqual(startup.FIXTURE_SECONDS, 5)
+            for runtime in ('docker', 'podman'):
+                with self.subTest(runtime=runtime):
+                    tree = ast.parse((work / 'bin' / runtime).read_text())
+                    handlers = [node for node in tree.body if isinstance(node, ast.FunctionDef)
+                                and node.name == '_fixture_alarm']
+                    self.assertEqual(len(handlers), 1)
+                    functions = {}
+                    exec(compile(ast.Module(body=handlers, type_ignores=[]), '<fixture-alarm-handler>', 'exec'), functions)
+                    handler = functions['_fixture_alarm']
+                    with self.assertRaises(TimeoutError): handler(signal.SIGALRM, None)
+                    registration = next(node for node in tree.body if isinstance(node, ast.Expr)
+                                        and isinstance(node.value, ast.Call)
+                                        and ast.unparse(node.value.func) == 'signal.signal')
+                    alarm = next(node for node in tree.body if isinstance(node, ast.Expr)
+                                 and isinstance(node.value, ast.Call)
+                                 and ast.unparse(node.value.func) == 'signal.alarm')
+                    self.assertEqual(ast.unparse(registration.value), 'signal.signal(signal.SIGALRM, _fixture_alarm)')
+                    self.assertEqual(ast.unparse(alarm.value), 'signal.alarm(5)')
+                    self.assertLess(registration.lineno, alarm.lineno)
+                    parent_fd = os.open('/dev/null', os.O_RDONLY)
+                    def expire(*args, **kwargs): handler(signal.SIGALRM, None)
+                    with patch.object(startup, 'parent_identity', return_value=parent_fd), \
+                            patch.object(startup, 'fixture_command', side_effect=expire), \
+                            patch.object(startup.signal, 'pidfd_send_signal') as stop_parent:
+                        self.assertEqual(startup.fixture_main(runtime, ['version'], work, stop_parent=True), 125)
+                    stop_parent.assert_called_once_with(parent_fd, signal.SIGKILL)
+                    with self.assertRaises(OSError): os.fstat(parent_fd)
+
+    def test_temporal_fixture_forces_nonzero_then_timely_or_late_zero(self):
+        import re
+        import qualify_startup
+        import startup_lifecycle as lifecycle
+        for late in (False, True):
+            with self.subTest(late=late):
+                body = qualify_startup._cli_db_backend_transition_exec(late)
+                query = body['Cmd'][-1]
+                self.assertTrue(query.startswith("BEGIN READ ONLY; SET LOCAL statement_timeout = '5s';"))
+                self.assertTrue(query.endswith(' ROLLBACK;'))
+                self.assertIn("set_config('env.backend_observations', '0', true)", query)
+                self.assertIn("GET STACKED DIAGNOSTICS observed_count = PG_EXCEPTION_DETAIL", query)
+                self.assertIn("observed_count IS DISTINCT FROM '2'", query)
+                self.assertIn('EXCEPTION WHEN SQLSTATE \'P0001\'', query)
+                self.assertIn('temporal predicate result mismatch', query)
+                self.assertNotIn('WHEN OTHERS', query)
+                captured = re.search(r"BEGIN EXECUTE '((?:[^']|'')*)';", query).group(1).replace("''", "'")
+                source = captured.split('FROM ', 1)[1].split(' WHERE pid <> pg_backend_pid()', 1)[0]
+                self.assertIn('observation AS MATERIALIZED', source)
+                self.assertIn("CASE WHEN n = 1 THEN '192.0.2.1'::inet", source)
+                self.assertIn('pg_sleep(CASE WHEN n = 2 THEN ' + ('3.05' if late else '0') + ' ELSE 0 END)', source)
+                expected = lifecycle.cli_db_backend_exec('departed')
+                prefix = "BEGIN READ ONLY; SET LOCAL statement_timeout = '5s'; SET LOCAL lock_timeout = '1s'; SET LOCAL idle_in_transaction_session_timeout = '5s'; "
+                original = expected['Cmd'][-1][len(prefix):-len(' COMMIT;')]
+                detail = " USING DETAIL = current_setting('env.backend_observations')"
+                self.assertEqual(captured.count(detail), 2)
+                self.assertEqual(captured.replace(detail, ''), original.replace('pg_stat_activity', source))
+                expected['Cmd'][-1] = query
+                self.assertEqual(body, expected)
+                self.assertFalse(lifecycle.valid_cli_db_backend_exec(body))
+                with self.assertRaises(dev.Refusal):
+                    dev._docker_request('POST', '/v1.48/containers/'+'a'*64+'/exec', body, True)
+                with patch.object(lifecycle, 'cli_db_backend_exec', return_value=body):
+                    self.assertLessEqual(len(dev._docker_request('POST', '/v1.48/containers/'+'a'*64+'/exec', body, True)), 16384)
+                with patch.object(lifecycle, 'cli_db_backend_exec', side_effect=AssertionError('recursive builder')):
+                    self.assertEqual(qualify_startup._cli_db_backend_transition_exec(late), body)
+        with self.assertRaises(dev.Refusal): qualify_startup._cli_db_backend_transition_exec(1)
