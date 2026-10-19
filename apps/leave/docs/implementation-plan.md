@@ -423,6 +423,104 @@ risk. Each workflow should run in a fresh context window.
 
 ## Delivery plan and progress
 
+**Story 5.2 approved / Story 5.3 discussion — 2026-10-18:** User approved temporary-
+approver eligibility/authority scope including the clarified failure case: a failed
+required check offers Retry and cannot confirm eligibility/appointment; a successful
+check with no recorded absence may proceed. Two E5 scopes agreed. Continue group 2/10
+at Story 5.3, assessing coverage of the applicant's approval responsibilities throughout
+absence, including incoming work and valid policy fallback. Progress: 1/10 groups
+completed, 2 agreed scopes. Full appointment/transfer writes remain separately owned;
+contracts, final coverage, sizing and readiness stay open. No implementation authorized.
+This is the latest checkpoint; earlier Story 5.2 discussion notes are historical.
+
+**E5 group 2 / Story 5.2 discussion — 2026-10-18:** User accepted Story 5.1 with its
+requester-availability clarification and asked to continue. Group 1 scope discussion
+is complete, with configured route/snapshot consumer boundaries retained. Progress:
+group 2/10, 1/10 groups completed, 1 E5 scope agreed. Discuss Story 5.2, temporary-
+approver eligibility and scoped authority rules, before moving on. Keep this bounded
+rule/check scope distinct from later full appointment management and real pending-work
+transfer/return integration; no incomplete appointment UI or active grant is implied.
+Contracts, final atomic coverage, sizing and readiness remain open. No implementation.
+Earlier group-1 checkpoints below are historical.
+
+**Story 5.1 scope approved — 2026-10-18:** Configured approval-route resolution/setup
+feedback agreed with requester-facing process/history details excluding approver
+availability, absence reasons and internal cover arrangements. Managers handle routine
+cover; genuine setup blockers/requester actions and applicant responsibility-cover rules
+remain. Features/UX/epics aligned. E5 group 1/10; 0 groups completed, 1 agreed E5 scope.
+Contracts, final atomic coverage, sizing and readiness remain open; no implementation.
+
+**E5 sequence approved — 2026-10-18:** User confirmed the
+[ten discussion groups](../../../_bmad-output/planning-artifacts/epics.md#e5-delivery-sequence).
+Continue one story at a time: Story 5.1 in group 1/10 is under discussion; 0/10 groups
+completed and 0 E5 story scopes agreed. Group approval does not close contracts, final
+atomic coverage, sizing or readiness and grants no implementation authorization.
+Earlier sequence-proposal checkpoints below are historical.
+
+**E5 sequence discussion — 2026-10-18:** A
+[ten-group delivery-sequence proposal](../../../_bmad-output/planning-artifacts/epics.md#e5-delivery-sequence)
+is recorded for user confirmation before individual E5 story detailing. Route,
+temporary-authority/coverage and finalization rules precede submission; actual pending
+transfers follow submitted requests. Required notifications and E2/E3/E4 consumer/writer
+safeguards belong to their first affected delivery and precede activation; final proof
+does not postpone them. No sequence/story approval, contract closure, final coverage,
+sizing or readiness PASS is inferred; no implementation authorized.
+
+**E4 consolidation approved / E5 handoff — 2026-10-18:** User approved the
+[owner/dependency allocation](../../../_bmad-output/planning-artifacts/epics.md#e4-owner-and-dependency-consolidation-proposal--2026-10-18).
+Fourteen E4 scope records retained; shared work counted once with existing E1 owners,
+Expense-coordinated Content delivery and independent actual-consumer retirement proof.
+Final atomic coverage/contracts/sizing/readiness remain open, no implementation permission.
+Resume E5 delivery-sequence discussion in a fresh session using
+[the current handoff and copyable prompt](./planning-handoff-e3.md#copyable-new-session-prompt).
+No individual E5 scopes or detailed sequence approved yet; original first slice unchanged.
+
+**E4 consolidation proposed — 2026-10-18:**
+[owner/dependency allocation](../../../_bmad-output/planning-artifacts/epics.md#e4-owner-and-dependency-consolidation-proposal--2026-10-18)
+retains fourteen approved scope records with shared Content delivery coordinated in
+Expense and existing E1 owner acceptance counted once. Shared reference/read/disposal
+protocols can be proved before Leave domain code; PtS/Expense prototype retirement
+depends on actual affected consumer proof, not future Leave 4.13. Leave's own integration
+and E5/E6 consequential checks remain binding before their activation. Confirmation
+pending; final coverage/contracts/sizing/readiness not established. No implementation.
+
+**Story 4.14 and shared delivery ownership approved — 2026-10-18:**
+[prototype retirement](../../../_bmad-output/planning-artifacts/epics.md#story-414-retire-the-superseded-content-prototype-safely)
+uses actual consumer/reference inventory, PtS production protection, provider/lifecycle
+proof and controlled migration/activation/recovery. Expense is nonproduction and needs
+no legacy production parity. Its session coordinates needed shared Content delivery
+under existing owners; Leave consumes results and retains domain proof. E4 Stories
+4.1–4.14 scopes agreed, with ownership/dependency/coverage/final sizing and readiness
+consolidation still required. Saved Expense prompt at
+[next-session-prompt.txt](../../expense/docs/next-session-prompt.txt). No implementation,
+provider change, retirement or deployment performed/authorized by this planning approval.
+
+**Production consumer clarification — user statement, 2026-10-18:** Only PtS and
+Scribeswell are live; PtS alone consumes Content in production. Expense is nonproduction,
+so its changes need no production compatibility transition. Existing PtS protection,
+controlled migration/activation/recovery and Content ownership contracts remain binding.
+Proposed next ownership arrangement: Expense session delivers needed shared Content
+mechanisms under Content ownership; Leave consumes them with its domain-specific proof.
+Reconcile accepted E1/E4 scope/dependencies rather than duplicate or silently remove
+acceptance. User has asked for advice, not yet approved the exact work transfer; Story
+4.14 retirement scope remains proposed pending corrected consumer/ownership boundaries.
+
+**Story 4.13 scope approved — 2026-10-18:**
+[integrated attachment proof](../../../_bmad-output/planning-artifacts/epics.md#story-413-prove-the-complete-leave-attachment-journey)
+assembles actual hosted browser/API/Content/provider/device evidence for prior behavior,
+including privacy, failure recovery, cleanup/disposal and independent ordinary draft
+saving. No earlier test obligations postponed; E5 owns actual consequential integration.
+Continue Story 4.14 prototype retirement. Exact contracts/source-test coverage/NFR targets/
+final sizing/readiness open; no code, tests, deployment or implementation authorization.
+
+**Story 4.12 scope approved — 2026-10-16:**
+[abandoned upload cleanup](../../../_bmad-output/planning-artifacts/epics.md#story-412-reclaim-abandoned-uploads-without-losing-attachments)
+uses authoritative lifecycle/reference evidence and bounded recovery, protects saved/
+in-flight attachments, reclaims staging safely and fences late uploads/association/
+renewal without resurrection. Reuse existing disposal/worker mechanisms; no draft expiry
+or shortened retention. Continue Story 4.13 integrated attachment proof in group 7;
+exact protocols/deadlines/source tests/final sizing/readiness open, no code authorized.
+
 **Story 4.11 scope approved — 2026-10-16:**
 [retention-based disposal](../../../_bmad-output/planning-artifacts/epics.md#story-411-dispose-of-documents-safely-when-retention-ends)
 combines Leave eligibility with Content protection/deletion, race-safe reference release,

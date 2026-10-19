@@ -1776,7 +1776,14 @@ See [ADR-0068](./architecture/decisions/0068-ngo-switch-while-editing.md).
 
 Before submission, show a concise summary of leave type, dates, duration, and the
 paid/unpaid split, with “Approval required” where applicable rather than approver
-names. Keep workflow details available on demand. Show the active NGO in the
+names. Keep workflow details available on demand. Requester-facing workflow details
+describe the approval process and permitted decision history, not approver availability,
+absence reasons or internal cover arrangements. Routine approver unavailability is
+handled through authorized coverage/rerouting and manager attention; do not ask the
+requester to find cover or chase an approver. Still explain a missing configured route
+that blocks submission and any action genuinely required from the requester. The
+applicant's own approval-responsibility coverage remains its separate existing rule.
+Show the active NGO in the
 application header instead of repeating it in the summary; show an NGO switcher
 only for users with multiple active NGO memberships. Requests remain bound to
 their NGO regardless of presentation. If any amount is requested as

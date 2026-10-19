@@ -1,10 +1,137 @@
-# Leave planning handoff — E3 checkpoint, resume E4
+# Leave planning handoff — E4 checkpoint, resume E5
 
-**Current checkpoint:** 2026-10-16. This is a navigation/handoff note, not a new feature spec,
+**Current checkpoint:** 2026-10-18. This is a navigation/handoff note, not a new feature spec,
 architecture or implementation permission. Re-read current working-tree authority and
 resolve later changes from their owners rather than treating this snapshot as superior.
 
 ## Resume point
+
+**Story 5.2 approved / Story 5.3 discussion — 2026-10-18:** User approved temporary-
+approver eligibility/authority scope including the clarified failure case: a failed
+required check offers Retry and cannot confirm eligibility/appointment; a successful
+check with no recorded absence may proceed. Two E5 scopes agreed. Continue group 2/10
+at Story 5.3, assessing coverage of the applicant's approval responsibilities throughout
+absence, including incoming work and valid policy fallback. Progress: 1/10 groups
+completed, 2 agreed scopes. Full appointment/transfer writes remain separately owned;
+contracts, final coverage, sizing and readiness stay open. No implementation authorized.
+This is the latest checkpoint; earlier Story 5.2 discussion notes are historical.
+
+**E5 group 2 / Story 5.2 discussion — 2026-10-18:** User accepted Story 5.1 with its
+requester-availability clarification and asked to continue. Group 1 scope discussion
+is complete, with configured route/snapshot consumer boundaries retained. Progress:
+group 2/10, 1/10 groups completed, 1 E5 scope agreed. Discuss Story 5.2, temporary-
+approver eligibility and scoped authority rules, before moving on. Keep this bounded
+rule/check scope distinct from later full appointment management and real pending-work
+transfer/return integration; no incomplete appointment UI or active grant is implied.
+Contracts, final atomic coverage, sizing and readiness remain open. No implementation.
+Earlier group-1 checkpoints below are historical.
+
+**Story 5.1 scope approved — 2026-10-18:** Configured approval-route resolution and
+setup feedback agreed, with requester clarification: optional workflow details are
+process/permitted decision information, not approver availability, absence reasons
+or internal cover arrangements. Managers handle routine cover; do not ask requesters
+to chase approvers. Genuine setup blockers/requester actions and the applicant's own
+responsibility-cover rules remain. Features/UX/epics aligned. E5 group 1/10; 0 groups
+completed and 1 agreed E5 scope. Continue group 1 consolidation/next bounded story;
+contracts, final atomic coverage, sizing and readiness remain open. No implementation.
+This is the latest checkpoint; earlier 5.1 discussion notes below are historical.
+
+**E5 sequence approved / Story 5.1 discussion — 2026-10-18:** User confirmed the
+[ten-group E5 sequence](../../../_bmad-output/planning-artifacts/epics.md#e5-delivery-sequence).
+Now discussing Story 5.1, configured approval-route resolution and setup feedback,
+in group 1/10. Groups completed: 0/10; agreed E5 story scopes: 0. Present and refine
+this story before recording scope approval or moving to the next story. Temporary
+authority/fallback execution remains group 2 and actual submission snapshot persistence
+remains group 4; route observations here confer no authority or submission guarantee.
+Exact contracts, final atomic coverage, sizing and readiness remain open. No implementation
+authorized. This checkpoint supersedes earlier sequence-proposal/resume instructions.
+
+**Story-start progress updates — user preference, 2026-10-18:** When starting each
+new story, give a short overall planning update: current epic, named discussion group
+and its position in the agreed sequence (for example, E5 group 3/10), groups completed
+versus total, agreed story-scope count and the story now being discussed. Distinguish
+the current group position from completed groups; these indicators track scope
+discussion, not implementation or readiness. Until the sequence is confirmed, label
+its group total as proposed. Carry this convention into subsequent epic handoffs.
+
+**E5 sequence discussion — 2026-10-18:** Current working-tree authority read and a
+[ten-group E5 delivery-sequence proposal](../../../_bmad-output/planning-artifacts/epics.md#e5-delivery-sequence)
+recorded for collaborative confirmation. No E5 sequence or individual story approved.
+Confirm/refine the proposed order first, then detail Story 5.1 (eligible approval-route
+resolution) one at a time. E4 consolidation and E3 order remain approved; exact contracts,
+final atomic coverage, sizing and readiness remain open. No implementation authorized.
+This is the latest checkpoint; the earlier fresh-session instruction below is historical.
+
+**Latest checkpoint — 2026-10-18:** User approved E4 consolidation and wishes to start
+E5 in a fresh Codex session. E4 retains fourteen agreed scope records, shared Content
+delivery coordinated in Expense under existing owners, no duplicate E1 work, and PtS/
+Expense retirement independent of unfinished Leave integration. No final unique delivery
+count, atomic coverage, sizing or readiness PASS established. E3's 48-candidate order
+remains approved. Resume the same bmad-create-epics-and-stories story-generation step
+at E5: first propose/confirm/refine its delivery sequence, then detail stories one at a
+time. E5 epic grouping/outcome is already approved; no E5 individual decomposition or
+sequence approval is inferred. Earlier proposed/pending E4 notes below are historical.
+
+E5 authority: current Features §7–11/13–16, applicable §17–18 and lifecycle states;
+spine AD-2–8/10–13; tracker approval portions of Phase 2, Phases 7–8 and relevant Phase
+9; accepted approval/coverage/unpaid/submission/privacy ADRs and current UX. Read actual
+references and existing BIZ/CALC/FLOW/PRIV coverage records. Preserve independent approval
+gates, actual E3/E4 consumer integration, temporal coverage/rerouting and current authority;
+do not infer finished contracts/services from agreed scopes. Expense remains React Native
+and implementation priority; Leave Take photo/file selection, first draft slice and all
+technical/test/scaffold/UI/agent/docs/ADR/release/readiness gates stay binding.
+
+**E4 consolidation proposal — 2026-10-18:**
+[owner/dependency allocation](../../../_bmad-output/planning-artifacts/epics.md#e4-owner-and-dependency-consolidation-proposal--2026-10-18)
+prepared for user confirmation. Keep fourteen agreed scope records, not fourteen new
+Leave-only items. Shared E1/Content lifecycle/read/disposal and PtS/Expense release work
+deliver first under existing owners; Leave consumes and proves domain integration.
+4.14 retirement must not wait for future Leave 4.13; actual active consumers and shared
+proof gate that release, while 4.13 gates Leave integration. No criteria removed/new
+split proposed. Confirm/refine consolidation, then begin E5 delivery-sequence discussion.
+Final atomic coverage/implementation count/contracts/sizing/readiness remain open.
+
+**E4 scope/ownership checkpoint — 2026-10-18:** User approved Story 4.14 with the
+production clarification and agreed the Expense session coordinates needed shared
+Content delivery under existing owners. E4 Stories 4.1–4.14 scope pass is agreed;
+not a finalized delivery count or coverage/sizing/readiness PASS. Reconcile owner
+prerequisites, ordering/overlap, exact contracts and tests without losing criteria.
+PtS sole production Content consumer remains protected; Expense nonproduction may
+change directly and retains React Native/priority. Leave consumes shared results and
+keeps domain rules/proof. Saved Expense start prompt:
+[next-session-prompt.txt](../../expense/docs/next-session-prompt.txt), including Leave's
+BMAD/ATDD/TDD, first-consumer promotion and impact/readiness approach. Earlier pending
+ownership/4.14 wording below is superseded. No code or implementation authorized.
+
+**Production/ownership clarification — user statement, 2026-10-18:** Only PtS and
+Scribeswell are in production; PtS is the sole production Content consumer. Expense
+is not in production, so no production Expense compatibility/migration requirement is
+imposed. Repository implementation is not proof of live consumption. User asks about
+moving shared Content work into a separate Expense Codex session. Recommendation:
+Content remains the service owner; Expense session coordinates its required shared
+upload/finalization/provider/association/read/cleanup and tooling delivery, with PtS
+production compatibility/release recovery and existing E1-CONTENT-READ/PTS-ADOPT owner
+contracts preserved. Leave later consumes proven shared mechanisms and retains its own
+domain stories/tests/UX. No duplicate Content service or transfer of Leave domain rules.
+This is an ownership recommendation pending agreement, not code/readiness authorization.
+Story 4.14 prototype-retirement proposal is not approved; revise its consumer boundary
+using this production clarification before approval. E4 Stories 4.1–4.13 remain agreed;
+reconcile shared delivery ownership/dependencies without losing their acceptance.
+
+**E4 story checkpoint — 2026-10-18:** Story 4.13 integrated attachment proof approved;
+Stories 4.1–4.13 agreed. Actual hosted photo/file → attach → close/reopen → private
+read, failures/privacy, device/browser and cleanup/disposal composition need isolated
+runtime evidence during authorized delivery; first ordinary draft preservation stays
+independent. Earlier story tests are not deferred here; actual E5 integration remains
+later. Continue Story 4.14 prototype retirement in group 7. Final atomic coverage,
+contracts, sizing and readiness remain open; no code/tests/deployment authorized.
+
+**E4 story checkpoint — 2026-10-16:** Story 4.12 abandoned-upload/staging cleanup
+approved; Stories 4.1–4.12 agreed. Reuse bounded reference reconciliation/disposal;
+age alone insufficient, protect saved/in-flight references, prevent late operation/bytes
+resurrection and reclaim staging without harming sealed bytes/recovery. Provider races,
+deadlines/alerts and exact protocols remain gates. Continue Story 4.13 integrated
+attachment proof in group 7, before prototype retirement. No implementation authorized.
 
 **E4 story checkpoint — 2026-10-16:** Story 4.11 retention-based disposal approved;
 Stories 4.1–4.11 agreed. Leave owns eligibility, Content physical disposal; preserve
@@ -841,7 +968,7 @@ mutation was requested/performed in this handoff.
 ## Copyable new-session prompt
 
 ```text
-Use bmad-create-epics-and-stories to resume Leave story planning at E4.
+Use bmad-create-epics-and-stories to resume Leave story planning at E5.
 
 Read AGENTS.md, then apps/leave/docs/planning-handoff-e3.md, and follow its
 references to the current feature specification, architecture spine, delivery
@@ -849,13 +976,18 @@ tracker, epics, accepted platform/Leave ADRs and approved UX.
 Use current working-tree files, including uncommitted changes.
 
 E1 has 24 agreed candidate scopes and E2 has 26 agreed story scopes.
-E3's scope and consolidated order are approved: 42 scope parents, seven splits
-with all fourteen children agreed, and 48 delivery candidates after overlap
-consolidation. Exact contracts, atomic coverage, final sizing and readiness
-remain open; no implementation is authorized.
-E4 is Attach and retrieve supporting documents safely. Start by proposing
-and confirming/refining its delivery sequence, then detail stories
-collaboratively one at a time. No E4 sequence or individual story is approved yet.
+E3's scope and consolidated order are approved: 48 delivery candidates.
+E4 has fourteen agreed scope records and approved owner/dependency consolidation.
+Shared Content delivery is coordinated in the Expense session under existing owners;
+Leave consumes proven mechanisms without duplicating E1 work. Expense retains React
+Native and implementation priority. PtS alone uses Content in production; Scribeswell
+is also live. Leave uses Take photo/Choose a file, with no scanner or OCR dependency.
+Exact contracts, atomic coverage, final sizing and readiness remain open.
+
+E5 is Submit leave and complete the right approval process. Start by proposing
+and confirming/refining its delivery sequence, then detail stories collaboratively
+one at a time. Its epic outcome is approved; no individual E5 story decomposition
+or detailed delivery sequence is yet approved. Follow the latest E5 entry above.
 Do not restart architecture consolidation or re-open settled decisions.
 
 Preserve authoritative documents and requirement/test traceability. Retain the
