@@ -25,6 +25,8 @@ class Peer:
         self.replies = replies
         self.connections = 0
         self.requests = []
+        self.headers = []
+        self.bodies = []
         self.closed = threading.Event()
         self.hook = None
 
@@ -52,6 +54,8 @@ class Peer:
                                 return
                             body += chunk
                         peer.requests.append(header.split(b'\r\n')[0])
+                        peer.headers.append(header + b'\r\n\r\n')
+                        peer.bodies.append(body)
                         if peer.hook:
                             if peer.hook(self.request, len(peer.requests)):
                                 continue
@@ -76,6 +80,156 @@ class Peer:
 
 
 class DockerSessionTests(unittest.TestCase):
+    def test_source_kong_archive_and_next_request_share_exact_private_wire(self):
+        import create_profile
+        import startup_lifecycle
+        from create_profile_fixtures import boundary_fixture
+        fixture = boundary_fixture()
+        fixture['network']['Id'] = 'b' * 64
+        raw = startup_lifecycle.kong_archive(create_profile.kong_transfer_files(fixture), fixture)
+        self.assertTrue(startup_lifecycle.validate_kong_archive(raw, fixture)['content_verified'])
+        self.assertGreater(len(raw), 16384)
+        peer = Peer([b'HTTP/1.1 204 No Content\r\nContent-Length: 0\r\n\r\n', response()])
+        path = '/v1.48/containers/' + 'a' * 64 + '/archive?path=%2F'
+        with peer.serve() as endpoint, dev.DockerSession(_socket_path=endpoint) as session:
+            self.assertEqual(session.exchange('PUT', path, raw), (204, None))
+            self.assertEqual(session.exchange('GET', '/version'), (200, {}))
+        self.assertEqual(peer.connections, 1)
+        self.assertEqual(len(peer.requests), 2)
+        self.assertTrue(peer.bodies[0] == raw, 'archive bytes must match without disclosure')
+        expected = ('PUT ' + path + ' HTTP/1.1\r\nHost: localhost\r\n'
+                    'Connection: keep-alive\r\nContent-Type: application/x-tar\r\n'
+                    'Content-Length: ' + str(len(raw)) + '\r\n\r\n').encode()
+        self.assertEqual(peer.headers[0], expected)
+        self.assertLessEqual(len(peer.headers[0]), 1024)
+        self.assertEqual(peer.bodies[1], b'')
+
+    def test_archive_body_bounds_preserve_empty_small_and_pg_bytes(self):
+        import startup_lifecycle
+        pg = startup_lifecycle.public_archive()
+        self.assertEqual(len(pg), 10240)
+        bodies = [b'', b'\x00\xff', pg, bytes(range(256)) * 256]
+        path = '/v1.48/containers/' + 'a' * 64 + '/archive?path=%2F'
+        peer = Peer([b'HTTP/1.1 204 No Content\r\nContent-Length: 0\r\n\r\n'] * len(bodies))
+        with peer.serve() as endpoint, dev.DockerSession(_socket_path=endpoint) as session:
+            for body in bodies:
+                self.assertEqual(session.exchange('PUT', path, body), (204, None))
+        self.assertEqual(peer.connections, 1)
+        self.assertEqual(len(peer.bodies), len(bodies))
+        for received, expected, header in zip(peer.bodies, bodies, peer.headers):
+            self.assertTrue(received == expected, 'binary bytes must match without disclosure')
+            self.assertIn(b'Content-Length: ' + str(len(expected)).encode() + b'\r\n', header)
+            self.assertIn(b'Content-Type: application/x-tar\r\n', header)
+            self.assertLessEqual(len(header), 1024)
+
+    def test_archive_oversize_route_method_and_type_refuse_without_socket_or_reuse(self):
+        path = '/v1.48/containers/' + 'a' * 64 + '/archive?path=%2F'
+        class BytesSubclass(bytes):
+            pass
+        cases = [('PUT', path, b'x' * 65537, True),
+                 ('PUT', path, b'x', False), ('POST', path, b'x', True),
+                 ('PUT', path.replace('%2F', '%2f'), b'x', True),
+                 ('PUT', path.replace('a' * 64, 'A' * 64), b'x', True),
+                 ('PUT', path + '&x=1', b'x', True),
+                 ('PUT', path, {}, True), ('PUT', path, bytearray(b'x'), True),
+                 ('PUT', path, BytesSubclass(b'x'), True)]
+        for index, (method, route, body, persistent) in enumerate(cases):
+            with self.subTest(case=index), patch.object(dev.socket, 'socket') as factory:
+                session = dev.DockerSession(_persistent=persistent)
+                with self.assertRaises(dev.Refusal) as caught:
+                    session.exchange(method, route, body)
+                self.assertEqual(caught.exception.code, 'docker_request_invalid')
+                self.assertEqual(caught.exception.docker_failure['phase'], 'validate')
+                self.assertTrue(session.closed)
+                with self.assertRaises(dev.Refusal) as reuse:
+                    session.exchange('GET', '/version')
+                self.assertEqual(reuse.exception.code, 'docker_session_closed')
+                factory.assert_not_called()
+        # Refusal must also close a connection that carried a prior request,
+        # without sending any part of the rejected archive on that connection.
+        transport = test_docker_gate.ScriptedSocket(response())
+        with patch.object(dev.socket, 'socket') as factory, \
+                patch.object(transport, 'sendall') as sent, patch.object(transport, 'close') as close:
+            session = dev.DockerSession()
+            session.stream = transport
+            with self.assertRaises(dev.Refusal) as caught:
+                session.exchange('PUT', path, b'x' * 65537)
+            self.assertEqual(caught.exception.code, 'docker_request_invalid')
+            self.assertTrue(session.closed)
+            self.assertIsNone(session.stream)
+            self.assertEqual(sent.call_count, 0, 'rejected archive must never be sent')
+            factory.assert_not_called()
+            close.assert_called_once()
+
+    def test_json_aggregate_boundary_stays_16384_for_both_connection_modes(self):
+        for persistent in [False, True]:
+            payload = json.dumps({'x': 'x' * 16200}, separators=(',', ':')).encode()
+            header = ('POST /v1.48/volumes/create HTTP/1.1\r\nHost: localhost\r\nConnection: '
+                      + ('keep-alive' if persistent else 'close')
+                      + '\r\nContent-Type: application/json\r\nContent-Length: 16208\r\n\r\n').encode()
+            size = 16200 + 16384 - len(header) - len(payload)
+            with self.subTest(persistent=persistent):
+                request = dev._docker_request('POST', '/v1.48/volumes/create', {'x': 'x' * size}, persistent)
+                self.assertEqual(len(request), 16384)
+                with patch.object(dev.socket, 'socket') as factory:
+                    session = dev.DockerSession(_persistent=persistent)
+                    with self.assertRaises(dev.Refusal) as caught:
+                        session.exchange('POST', '/v1.48/volumes/create', {'x': 'x' * (size + 1)})
+                    self.assertEqual(caught.exception.code, 'docker_request_invalid')
+                    self.assertTrue(session.closed)
+                    factory.assert_not_called()
+
+    def test_archive_transfer_failures_permanently_close_without_replay(self):
+        path = '/v1.48/containers/' + 'a' * 64 + '/archive?path=%2F'
+        body = bytes(range(256)) * 256
+        for failure in ['short', 'eof', 'timeout', 'send', 'partial_send', 'cancel']:
+            wire = (b'HTTP/1.1 204 No Content\r\nContent-Length: 9\r\n\r\n{}'
+                    if failure == 'short' else b'')
+            transport = test_docker_gate.ScriptedSocket(wire)
+            original = KeyboardInterrupt('PRIVATE cancellation') if failure == 'cancel' else None
+            expected = KeyboardInterrupt if original else dev.Refusal
+            accepted_prefix = bytearray()
+            def send(raw):
+                self.assertTrue(raw.endswith(body), 'transfer bytes must match without disclosure')
+                if failure == 'partial_send':
+                    accepted_prefix.extend(raw[:len(raw) - len(body) + 64])
+                if failure in ['send', 'partial_send']:
+                    raise OSError('PRIVATE send')
+                if original:
+                    raise original
+            def receive(size):
+                if failure == 'timeout':
+                    raise TimeoutError('PRIVATE timeout')
+                return test_docker_gate.ScriptedSocket.recv(transport, size)
+            with self.subTest(failure=failure), patch.object(dev.socket, 'socket', return_value=transport) as factory, \
+                    patch.object(transport, 'sendall', side_effect=send) as sent, \
+                    patch.object(transport, 'recv', side_effect=receive), patch.object(transport, 'close') as close:
+                session = dev.DockerSession()
+                with self.assertRaises(expected) as caught:
+                    session.exchange('PUT', path, body)
+                if original:
+                    self.assertIs(caught.exception, original)
+                else:
+                    self.assertEqual(caught.exception.code, 'docker_timeout' if failure == 'timeout'
+                                     else 'docker_unavailable' if failure in ['send', 'partial_send'] else 'docker_response_invalid')
+                    self.assertNotIn('PRIVATE', json.dumps(dev.refusal_result(caught.exception)))
+                self.assertEqual(caught.exception.docker_failure['operation'], 'container_archive')
+                self.assertEqual(caught.exception.docker_failure['phase'],
+                                 'send' if failure in ['send', 'partial_send', 'cancel'] else 'receive')
+                self.assertTrue(session.closed)
+                self.assertIsNone(session.stream)
+                with self.assertRaises(dev.Refusal) as reused:
+                    session.exchange('PUT', path, body)
+                self.assertEqual(reused.exception.code, 'docker_session_closed')
+                factory.assert_called_once()
+                self.assertEqual(sent.call_count, 1, 'failed transfer must never be sent again')
+                if failure == 'partial_send':
+                    self.assertGreater(len(accepted_prefix), 64)
+                    self.assertLess(len(accepted_prefix), len(body))
+                    self.assertTrue(accepted_prefix.endswith(body[:64]),
+                                    'accepted prefix must include archive bytes without disclosure')
+                close.assert_called_once()
+
     def test_owner_entry_observation_propagates_clock_and_deadline_cancellation(self):
         for source in ['clock', 'deadline']:
             for cancellation in [KeyboardInterrupt('SECRET'), SystemExit(91), GeneratorExit()]:

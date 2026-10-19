@@ -730,8 +730,9 @@ version check and all resource observations or create requests. The connection o
 only after preparation validation. Replacing the socket pathname cannot redirect an
 already-connected acquisition. Failure closes the session permanently; there is no
 reconnect, replay, redirect, pipelining or chunked transfer support. An uncertain
-create result refuses without retry. Existing route/method allowlists, 16KiB request
-and 64KiB response bounds, strict Content-Length framing, resource ownership checks,
+create result refuses without retry. Existing route/method allowlists, 16KiB ordinary request
+and 64KiB response bounds (with the bounded binary archive exception below),
+strict Content-Length framing, resource ownership checks,
 run locks and source/evidence checks remain binding. HTTP/1.0, Connection: close,
 malformed framing and extra bytes observed during parsing or an idle check refuse
 a persistent session. Idle checks observe readiness without waiting: bytes or EOF
@@ -1400,3 +1401,20 @@ daemon endpoint, arbitrary key/config input or additional Docker route is admitt
 See [boundary evidence](ENV_KONG_BOUNDARY_EVIDENCE.md) for exact tests, source and
 remaining lifecycle/scaffold gates. This item uses only isolated private process
 fixtures; actual qualification on later changed source needs fresh prerequisites.
+
+
+### Bounded binary archive transport
+
+The existing persistent canonical PUT
+`/v1.48/containers/<64 lowercase hex>/archive?path=%2F` route supports an exact
+bytes body up to 65536 bytes, with a separate 1024-byte header limit including the
+header terminator. Other requests retain the 16384-byte aggregate limit. Limits
+are checked before final request construction and socket access. This resolves
+the transport mismatch for the source-derived three-file Kong archive; archive
+structure/content validation remains with the existing lifecycle owner.
+
+Connection continuity, exact Content-Length framing and Content-Type: application/x-tar, deadlines,
+response bounds, permanent failure invalidation and no replay remain binding.
+This adds no Docker route, qualifier control or gateway execution authority. The
+Kong create boundary still refuses creation; no copy/start/health/runtime readiness
+is claimed. See [archive transport evidence](ENV_ARCHIVE_TRANSPORT_EVIDENCE.md).

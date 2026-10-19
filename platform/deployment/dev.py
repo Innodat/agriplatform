@@ -601,14 +601,19 @@ def _docker_request(method, path, body, persistent):
                 or (method == 'DELETE' and body is None and (re.fullmatch(r'/v1\.48/containers/[0-9a-f]{64}\?force=(?:true|false)', path)
                     or re.fullmatch(r'/v1\.48/(?:networks/[0-9a-f]{64}|volumes/supabase_db_agriplatform-kdg-[A-Za-z0-9_-]{22})', path)))):
             refuse('docker', 'docker_request_invalid')
-    payload = b'' if body is None else body if type(body) is bytes else json.dumps(body, sort_keys=True, separators=(',', ':')).encode()
+    # Exact bytes are admitted only by the persistent canonical archive route.
+    # Bound them before constructing or copying the combined request.
+    binary = type(body) is bytes
+    if binary and len(body) > 65536:
+        refuse('docker', 'docker_request_invalid')
+    payload = b'' if body is None else body if binary else json.dumps(body, sort_keys=True, separators=(',', ':')).encode()
     request = (method + ' ' + path + ' HTTP/1.1\r\nHost: localhost\r\nConnection: ' + ('keep-alive' if persistent else 'close') + '\r\n').encode()
     if body is not None:
         request += (b'Content-Type: application/x-tar\r\n' if type(body) is bytes else b'Content-Type: application/json\r\n') + b'Content-Length: ' + str(len(payload)).encode() + b'\r\n'
-    request += b'\r\n' + payload
-    if len(request) > 16384:
+    request += b'\r\n'
+    if (binary and len(request) > 1024) or (not binary and len(request) + len(payload) > 16384):
         refuse('docker', 'docker_request_invalid')
-    return request
+    return request + payload
 
 
 def _docker_response(stream, budget, deadline, persistent, path):

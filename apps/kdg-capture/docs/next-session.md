@@ -1,5 +1,17 @@
 # Resume shared ENV delivery after KDG planning PASS
 
+Latest bounded ENV continuation: binary archive transport now supports the existing
+persistent canonical PUT archive route with 65536-byte body and 1024-byte header bounds.
+Other requests retain 16384 aggregate bytes. Private source-derived Kong transfer,
+PG compatibility, limits and failure/no-replay checks pass with 67 affected tests.
+Three reviews complete: five improvements patched, no new deferrals.
+See [Build record](../../../_bmad-output/implementation-artifacts/spec-env-bounded-archive-transport.md)
+and [evidence](../../../platform/deployment/ENV_ARCHIVE_TRANSPORT_EVIDENCE.md).
+This grants no Kong execution: creation stays refused, original CLI stays terminated,
+and runtime/fresh setup remain false. Next: safe Kong profile/image defaults/native
+keys/custody/health/disposal, remaining ENV and consuming scaffold proof. Dependent
+Identity/Access/WRITE and server-backed KDG remain gated.
+
 Latest completed ENV increment: source-derived Kong pre-start profile/refusal boundary follows
 the verified owner setup tail. Exact request and three-file in-memory transfer are
 validated; Kong create stays refused. A separate fact appears only after normal
