@@ -1,5 +1,17 @@
 # Resume shared ENV delivery after KDG planning PASS
 
+Latest actual qualification: fresh preparation/toolchain/image prerequisites pass on
+491d7c685fd4c6e4294bf04f5a3373d59b895d33, but the actual Kong control refuses
+startup/unsafe_create. Read-only diagnosis identifies omitted null Config.OnBuild and
+identical masked-path members returned in a different order. Kong was created,
+PG was running; all four retained resources were subsequently removed under separate
+exact cleanup approval after rechecks, with PG exit0 and no force. No execution retry
+or ordinary compatibility control was run. See [actual evidence](../../../platform/deployment/ENV_KONG_ACTUAL_EVIDENCE.md)
+and [verification Build](../../../_bmad-output/implementation-artifacts/spec-env-kong-actual-qualification.md).
+Next: characterize and correct these two effective-projection differences through the
+existing validator with ATDD/focused TDD, retaining hostile-field/path rejection; then
+qualify a new source-bound disposable run. The actual ENV gate remains failed/open.
+
 Current completed bounded increment: the existing owner now supports the explicit
 synthetic disposable Kong create/transfer/start/health/stop/disposal lifecycle after
 all existing setup/boundary proofs. Final reviewed verification passes190 selected
@@ -10,7 +22,7 @@ and [evidence](../../../platform/deployment/ENV_KONG_EXECUTION_EVIDENCE.md).
 Existing snapshot owners reuse parent traversal only within each fresh observation,
 retaining file reads/checks and final parent identity checks. Earlier pre-Kong timing
 failures remain unexplained; one medium-unverified investigation remains deferred.
-Next: fresh actual current-source Kong qualification through existing delivery tooling,
+The synthetic checkpoint previously selected fresh actual Kong qualification,
 then remaining ENV services/native-token/functional Auth routing and consuming scaffold
 proof before Identity/Access/WRITE/server-backed KDG. Runtime/fresh-setup readiness
 remain false. Preserve concurrent documents, receipts/resources, TS7.0.2/mail15484

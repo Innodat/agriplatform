@@ -1492,3 +1492,16 @@ unbound or same loopback forms. Endpoint options remain empty/default, with only
 known dynamic observation fields accepted. Unhealthy during startup is terminal;
 current health is rechecked before normal shutdown. These checks strengthen the
 existing inspection policy; the approved create request remains unchanged.
+
+
+### Actual Kong qualification checkpoint — 2026-10-19
+
+The current-source actual `pinned-cli-postgres-kong-execution` attempt refused
+startup/unsafe_create after successful fresh preparation/toolchain/image qualification.
+Read-only API1.48 diagnosis identifies omitted null Config.OnBuild and a permutation
+of identical MaskedPaths members at the initial created-container check. No policy
+was relaxed or execution retried. The running PG, created Kong, volume and bridge were
+preserved until separately approved exact-resource cleanup, now completed without force.
+The exact failure/cleanup records are in [actual evidence](ENV_KONG_ACTUAL_EVIDENCE.md). A fresh source-bound run is
+required after acceptance-tested projection correction. Actual Kong lifecycle,
+ordinary compatibility, full ENV/scaffold and dependent runtime work remain gated.
