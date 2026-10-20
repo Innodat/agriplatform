@@ -873,3 +873,119 @@ root setup must inspect the recorded exact target and current authority, restore
 recorded enabled value if needed using the bounded owner connection, verify current
 state, and retain its recovery evidence. A missing restored witness alone does not
 prove restoration failed; inspect current state. Prior business effects stay retained.
+
+## Restricted selected-organization targets (identity_0007)
+
+The additive owner revision provides two internal, fixed reads:
+`identity.organization_account_candidates(after_account_id uuid)` and
+`identity.organization_account_target(target_account_id uuid, expected_membership_id bigint)`.
+Both return only account_id, exact membership_id/current membership_revision, mapped
+account actor_id and its owner-verified display_name. An active selected organization,
+profile and membership plus account-kind mapping are required. Candidates are ordered
+by UUID; a nullable exclusive cursor starts the complete relation with no raw limit.
+Point reads require a positive exact membership ID and never substitute another member.
+No email, profile extras, role, person, employment or Access eligibility is exposed.
+
+Trusted Access context uses transaction-local app.context_kind, app.actor_id and
+app.org_id; user context additionally requires app.account_id. UUID context must be
+canonical-format, nonnil and valid (case-insensitive). Setup requires account absent
+or empty after pooled SET LOCAL cleanup. Invalid or missing context returns no rows.
+Candidates accept user context only; point accepts user or setup. UUID arguments are
+bound typed values: malformed UUID text fails PostgreSQL argument conversion with
+22P02 before routine execution; null/nil point IDs and nonpositive/missing membership
+IDs return no rows. Backend context is an assertion, never an authorization service.
+Access must implement its protected wrappers, capability checks and separate pools
+before these reads can be used by application callers.
+
+The STABLE SECURITY DEFINER owner is identity_target_projection_owner, restricted
+NOLOGIN/NOINHERIT, with fixed pg_catalog,pg_temp search_path and fully qualified owner
+objects. Exact column SELECT grants and paired permissive/restrictive selected-org
+profile/org/member policies prevent older PUBLIC policies broadening this owner.
+Profile policies join members; member policies use context only, avoiding recursion.
+Existing current-account functions and their callers remain unchanged.
+
+Controlled true-superuser preparation separately runs
+`tools/prepare_identity_target_roles.sql` under this directory. Existing names refuse;
+there is no silent repair. It stages identity_target_projection_owner,
+access_target_reader, access_setup_target_reader and access_command_owner, all
+restricted NOLOGIN/NOINHERIT. Only the Identity definer has a non-admin SET-only edge
+to identity_migrator. The Access roles have no membership, raw Identity reads or schema
+CREATE. Only access_target_reader receives candidates. Point additionally permits
+access_setup_target_reader and access_command_owner. No ordinary runtime, operator,
+browser or Supabase service principal receives these routines. Every inherited named
+function default grant and PUBLIC EXECUTE is revoked in the create transaction before
+exact grants. Temporary CREATE for ownership transfer is removed in that transaction.
+
+Head7 adds target-reference.json without rewriting the six historical references,
+revisions or source pins. Historical comparisons may normalize the new migrator edge
+only after verifying all four roles have exact flags/memberships, no current-database
+ACL/ownership dependencies and no effective excess privileges. Head7 checks exact
+current role dependencies and effective schema/table/column/function/sequence grants.
+An unexpected grant, role assumption, catalog change or history refuses activation.
+The reference recorder captures all seven revisions, all historical references and
+helper/source identities; it verifies each prior catalog, executes the known source
+chain rollback-only on target_reference, rechecks empty state, and exclusively publishes
+a private fixed reference. Root reviews the source-bound record and pins only the new
+TARGET_REFERENCE_SHA256. There is no arbitrary reference/target override or auto-pin.
+
+Use the already prepared canonical owner Python and private frame:
+
+```sh
+"$OWNER_PYTHON" -I -B services/access/tests/qualify_identity_baseline.py --record-target-reference
+"$OWNER_PYTHON" -I -B services/access/tests/qualify_organization_targets.py
+PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 "$OWNER_PYTHON" -I -B -m pytest services/access/tests apps/pts/tests/test_release.py -q -p no:cacheprovider
+```
+
+IDENTITY_QUALIFICATION_DIR uses the existing native fixture contract. Root alone
+prepares scratch databases/roles/secrets: target_reference, clean, legacy, previous,
+failure, unsafe, unknown and retained native. Previous/failure/unknown run the exact
+15 head6 owner files at 48b95c9bfc8a199a84d3746c431312439b1a93e9 before staging new roles,
+with source manifest and SHA-bound execution logs. No new LOGIN is introduced. The
+qualifier temporarily grants only the two fixed routines to actual access_runtime
+LOGIN credentials for synthetic invocation, restores original ACL bytes in finally,
+and explicitly records that fixture-only execution delivers no Access wrapper.
+No infrastructure, role or credential provisioning occurs in the qualifier. The new
+qualifier and target-reference recorder refuse optimized Python before fixture access
+or database effects, preserving their assertion-based custody and proof checks.
+
+Temporary fixed-function fixture grants use bounded SQL and SIGINT/TERM unwind handlers.
+Before granting, the qualifier durably writes a private target-acl-restoration-required
+witness with the exact case/routines/ACL bytes; after confirmed restoration it writes
+an independent private target-acl-restored witness. Grant and invocation both sit inside
+the restoration finally block. SIGKILL, host failure or restoration SQL failure can
+leave the synthetic invocation grant present or its restoration uncertain. Preserve
+the witnesses and retained target; controlled root recovery must inspect current ACLs
+on that exact prepared case, revoke only the recorded temporary access_runtime grants
+if needed, verify the original ACL bytes and retain recovery evidence. A missing restored
+witness alone does not prove a surviving grant. Do not blindly rerun qualification.
+
+Traceability: test_target_qualification.py covers current/historical head selection,
+full-chain source capture and mutation refusal, private exclusive reference publication
+without auto-pin, historical trust chaining and all four unsafe-role preparations.
+TargetQualification.permissions proves the exact caller matrix, actual ordinary-runtime
+execution/raw-read/owner-assumption/DDL denial. reads proves a complete 103-member
+ordered candidate relation, exclusive UUID boundaries, exact point/member identity,
+setup-only point context, malformed/missing/nil context and inputs, deleted/unmapped
+rows, wrong organizations, current revision/retirement, fixed search path, direct
+restrictive RLS and reused connections after commit/rollback/SQL failure.
+The additional rollback-only owner fixtures prove old/new replacement-member IDs,
+UUID org predicates appearing as actual index conditions under the restricted definer,
+and removal of an unexpected named function default grant plus PUBLIC before exact
+caller grants. Same-connection user/setup/missing transitions include rollback and SQL
+failure. Actual recipient-role excess membership, schema CREATE, column SELECT and
+external SECURITY DEFINER execution each refuse and reconcile after exact restoration.
+upgrades_and_failures proves source-bound head6 upgrade, legacy adoption, clean/repeat,
+preserved business/external rows, unsafe role refusal with restoration, unknown history,
+current catalog drift refusal and actual Alembic mid-revision rollback with unchanged
+head6 ledger/catalog/data before reconciliation. Root's actual transcripts establish
+PostgreSQL evidence; unit tests do not establish deployment or full ID-B readiness.
+
+Five impacts: scaffold extends only the established owner revision/reference/qualifier
+pattern; shared UI has no consuming surface; existing agent context already covers
+ownership/context/release requirements; this owner runbook and root-owned evidence and
+navigation document actual execution; accepted ownership, actor, structural and release
+ADRs apply without edits. No generator, frontend, client, service or dependency is added.
+Recovery retains the existing controlled migration-before-activation route, previous
+running-version compatibility and atomic rollback before activation on migration
+failure. Applied revisions are never automatically reversed. Access wrappers, eligible
+public pagination, commands/grants and the remaining ID-B work stay separately gated.

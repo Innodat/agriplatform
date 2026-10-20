@@ -434,6 +434,7 @@ def test_projection_old_comparison_normalizes_only_validated_membership(monkeypa
         def execute(self, *args): return Result()
     monkeypatch.setattr(baseline, 'normalize_staged_authority', lambda connection, snapshot: None)
     monkeypatch.setattr(baseline, 'normalize_staged_command', lambda connection, snapshot: None)
+    monkeypatch.setattr(baseline, 'normalize_staged_target', lambda connection, snapshot: None)
     monkeypatch.setattr(baseline, 'catalog_snapshot', lambda connection: snapshot)
     monkeypatch.setattr(baseline, 'verify_projection_role', lambda connection, staged: events.append(staged))
     monkeypatch.setattr(baseline, 'trusted_reference', lambda kind: baseline.catalog_fingerprints(

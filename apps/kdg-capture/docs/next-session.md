@@ -1,6 +1,27 @@
 # Resume shared ENV delivery after KDG planning PASS
 
-## Current ID-B increment — prepared operator target, 2026-10-20
+## Current ID-B increment — selected-organization target reads, 2026-10-20
+
+Identity revision7 implements the two restricted internal candidate/exact-member reads
+selected by the existing substrate contract. Complete UUID-keyset candidates are scoped
+to the current organization; point lookup binds the exact account/member/revision.
+Dedicated NOLOGIN owner/recipient roles and restrictive policies preserve ordinary
+runtime/browser isolation. See [Build](../../../_bmad-output/implementation-artifacts/spec-id-b-organization-target-projections.md)
+and [evidence](../../../services/access/ORGANIZATION_TARGETS_EVIDENCE.md) for actual
+migration/read/privilege/currentness/rollback proof, review and preservation receipts.
+Reviewed-source full matrix PASS48.563s;432 affected tests and both composers PASS.
+Three review layers complete with no deferrals. Native project is normally stopped
+with all data, failed frames and resources retained.
+
+These are Identity primitives. Access owns permission filtering before public pagination,
+user/setup protected wrappers and effective application access; none is delivered here.
+Account ensure still needs its supported live-account/classification verification adapter;
+membership lifecycle/hardening, other owner commands, Access/WRITE and server KDG remain
+gates. No real account/access/provider changes, production migration/provision/deploy/
+pilot, Leave/editor or push. Preserve all concurrent work, original references and all
+prior data/resources/receipts/failures. Use bmad-help for the next bounded prerequisite.
+
+## Previous ID-B increment — prepared operator target, 2026-10-20
 
 A thin Identity-local CLI now binds the existing actor.register_system execute/outcome
 to an explicitly prepared private native disposable target. It reuses ENV checks and

@@ -18,6 +18,10 @@ PROJECTION_REVISION = 'identity_0003'
 ORGANIZATION_REVISION = 'identity_0004'
 AUTHORITY_REVISION = 'identity_0005'
 COMMAND_REVISION = 'identity_0006'
+TARGET_REVISION = 'identity_0007'
+TARGET_REFERENCE_SHA256 = '7e7dea28f7d1659b8793b7286de4dbddd7a22b81947db5644595f37e2f1299ae'
+TARGET_OWNER = 'identity_target_projection_owner'
+TARGET_ROLES = (TARGET_OWNER, 'access_target_reader', 'access_setup_target_reader', 'access_command_owner')
 COMMAND_REFERENCE_SHA256 = 'ebe11f9cd4dbed35496488e6eb21b5c6af4c3c8f767447fd1e1ad7fb2c2c1188'
 COMMAND_OWNER = 'identity_command_owner'
 AUTHORITY_REFERENCE_SHA256 = '2f378cf2e9641bf60a84be4efda88c395a951c1032499d68c13fee878c13a81e'
@@ -70,6 +74,8 @@ def compare_catalog(actual, expected):
         raise BaselineError('identity_catalog_mismatch:' + ','.join(changed))
 
 def trusted_reference(kind):
+    if kind == 'target':
+        return trusted_target_reference()
     if kind == 'command':
         return trusted_command_reference()
     if kind == 'authority':
@@ -155,17 +161,27 @@ def catalog_fingerprints(snapshot):
 
 
 def verify_catalog(connection, kind):
+    if kind == 'target':
+        verify_projection_role(connection)
+        verify_authority_roles(connection)
+        verify_command_role(connection)
+        verify_target_roles(connection)
+        compare_catalog(catalog_fingerprints(target_catalog_snapshot(connection)), trusted_target_reference())
+        return
     if kind == 'command':
         verify_projection_role(connection)
         verify_authority_roles(connection)
         verify_command_role(connection)
-        compare_catalog(catalog_fingerprints(command_catalog_snapshot(connection)), trusted_reference(kind))
+        snapshot = command_catalog_snapshot(connection)
+        normalize_staged_target(connection, snapshot)
+        compare_catalog(catalog_fingerprints(snapshot), trusted_reference(kind))
         return
     if kind == 'authority':
         verify_projection_role(connection)
         verify_authority_roles(connection)
         snapshot = authority_catalog_snapshot(connection)
         normalize_staged_command(connection, snapshot)
+        normalize_staged_target(connection, snapshot)
         compare_catalog(catalog_fingerprints(snapshot), trusted_reference(kind))
         return
     if kind in ('projection', 'organization'):
@@ -183,6 +199,7 @@ def verify_catalog(connection, kind):
                                [PROJECTION_OWNER, 'identity_migrator', False, None, None])]
     normalize_staged_authority(connection, snapshot)
     normalize_staged_command(connection, snapshot)
+    normalize_staged_target(connection, snapshot)
     compare_catalog(catalog_fingerprints(snapshot), trusted_reference(kind))
 
 def preflight(connection, mode):
@@ -247,15 +264,15 @@ def verify_legacy_history(connection, clean=False):
 
 def verify_owned_postcondition(connection, require_head=False):
     revision = verify_owned_history(connection)
-    if require_head and revision != COMMAND_REVISION:
+    if require_head and revision != TARGET_REVISION:
         raise BaselineError('identity_unknown_history')
     verify_legacy_history(connection)
-    verify_catalog(connection, {REVISION: 'owned', ACTOR_REVISION: 'actor', PROJECTION_REVISION: 'projection', ORGANIZATION_REVISION: 'organization', AUTHORITY_REVISION: 'authority', COMMAND_REVISION: 'command'}[revision])
+    verify_catalog(connection, {REVISION: 'owned', ACTOR_REVISION: 'actor', PROJECTION_REVISION: 'projection', ORGANIZATION_REVISION: 'organization', AUTHORITY_REVISION: 'authority', COMMAND_REVISION: 'command', TARGET_REVISION: 'target'}[revision])
 
 
 def verify_owned_history(connection):
     revisions = list(connection.execute(text('SELECT version_num FROM identity.alembic_version')).scalars())
-    if revisions not in ([REVISION], [ACTOR_REVISION], [PROJECTION_REVISION], [ORGANIZATION_REVISION], [AUTHORITY_REVISION], [COMMAND_REVISION]):
+    if revisions not in ([REVISION], [ACTOR_REVISION], [PROJECTION_REVISION], [ORGANIZATION_REVISION], [AUTHORITY_REVISION], [COMMAND_REVISION], [TARGET_REVISION]):
         raise BaselineError('identity_unknown_history')
     columns = connection.execute(text("SELECT column_name,data_type,character_maximum_length,is_nullable,column_default FROM information_schema.columns WHERE table_schema='identity' AND table_name='alembic_version' ORDER BY ordinal_position")).all()
     if [tuple(row) for row in columns] != [('version_num','character varying',32,'NO',None)]:
@@ -530,3 +547,87 @@ def trusted_command_reference():
         or reference['migration_sha256']!=sha256((HERE/'versions/0006_actor_command.py').read_bytes()).hexdigest()):
         raise BaselineError('identity_reference_unavailable')
     return reference['command']
+
+
+TARGET_ROLE_QUERIES = {
+    role: {key.replace('projection', 'target'): sql.replace(PROJECTION_OWNER, role)
+           for key, sql in PROJECTION_ROLE_QUERIES.items()}
+    for role in TARGET_ROLES
+}
+
+
+def verify_target_roles(connection, staged=False):
+    """Validate separately staged roles; never repair or normalize arbitrary rights."""
+    for role, queries in TARGET_ROLE_QUERIES.items():
+        rows=connection.execute(text(queries['target_role'])).all()
+        if not rows:
+            raise BaselineError('identity_target_role_missing')
+        if [tuple(row) for row in rows] != [(role,False,False,False,False,False,False,False)]:
+            raise BaselineError('identity_target_role_unsafe')
+        members=connection.execute(text(queries['target_memberships'])).all()
+        expected=[(TARGET_OWNER,'identity_migrator',False,'false','true')] if role==TARGET_OWNER else []
+        if [tuple(row) for row in members] != expected:
+            raise BaselineError('identity_target_role_unsafe')
+        if staged and connection.execute(text(queries['target_dependencies'])).all():
+            raise BaselineError('identity_target_role_not_empty')
+        if connection.execute(text("""SELECT EXISTS (
+          SELECT 1 WHERE has_database_privilege(:role,current_database(),'CREATE')
+          UNION ALL SELECT 1 FROM pg_namespace n WHERE n.nspname !~ '^pg_' AND n.nspname<>'information_schema'
+           AND has_schema_privilege(:role,n.oid,'CREATE')
+          UNION ALL SELECT 1 FROM pg_class c JOIN pg_namespace n ON n.oid=c.relnamespace
+           WHERE n.nspname !~ '^pg_' AND n.nspname<>'information_schema' AND c.relkind IN ('r','p','v','m','f')
+           AND (has_table_privilege(:role,c.oid,'INSERT,UPDATE,DELETE,TRUNCATE,REFERENCES,TRIGGER')
+                OR has_any_column_privilege(:role,c.oid,'INSERT,UPDATE,REFERENCES')
+                OR ((:staged OR :role <> 'identity_target_projection_owner' OR n.nspname<>'identity')
+                    AND has_any_column_privilege(:role,c.oid,'SELECT')))
+          UNION ALL SELECT 1 FROM pg_class c JOIN pg_namespace n ON n.oid=c.relnamespace
+           WHERE n.nspname !~ '^pg_' AND c.relkind='S'
+           AND CASE WHEN c.relkind='S' THEN has_sequence_privilege(:role,c.oid,'USAGE,SELECT,UPDATE') ELSE false END
+          UNION ALL SELECT 1 FROM pg_proc p JOIN pg_namespace n ON n.oid=p.pronamespace
+           WHERE n.nspname NOT IN ('pg_catalog','information_schema','identity') AND p.prosecdef
+           AND has_function_privilege(:role,p.oid,'EXECUTE')
+           AND p.oid<>coalesce(to_regprocedure('public.get_user_roles()')::oid,0)
+        )"""),{'role':role,'staged':staged}).scalar_one():
+            raise BaselineError('identity_target_role_unsafe')
+
+
+def normalize_staged_target(connection, snapshot):
+    present=connection.execute(text("SELECT count(*) FROM pg_roles WHERE rolname IN ('identity_target_projection_owner','access_target_reader','access_setup_target_reader','access_command_owner')")).scalar_one()
+    if not present:return
+    verify_target_roles(connection,staged=True)
+    snapshot['role_memberships']=[row for row in snapshot['role_memberships'] if row not in (
+        [TARGET_OWNER,'identity_migrator',False,'false','true'],
+        [TARGET_OWNER,'identity_migrator',False,None,None])]
+
+
+def target_catalog_snapshot(connection):
+    result=command_catalog_snapshot(connection)
+    for role, queries in TARGET_ROLE_QUERIES.items():
+        for key, sql in queries.items():
+            rows=[list(row) for row in connection.execute(text(sql))]
+            if key.endswith('_dependencies'):
+                current=connection.execute(text('SELECT current_database()')).scalar_one()
+                for row in rows:
+                    if row[0]==current:row[0]='current_database'
+            result[role+'_'+key]=sorted(json.loads(json.dumps(rows,default=str)),key=lambda row:json.dumps(row,sort_keys=True))
+    selected=','.join("'"+role+"'" for role in TARGET_ROLES)
+    for category in ('effective_tables','effective_columns','effective_functions','effective_schemas','effective_sequences'):
+        sql=QUERIES[category].replace("'identity_migrator','access_runtime','authenticated','anon','service_role','supabase_auth_admin'",selected)
+        result['target_'+category]=sorted([list(row) for row in connection.execute(text(sql))],key=lambda row:json.dumps(row,sort_keys=True))
+    return result
+
+
+def trusted_target_reference():
+    """Head7 retains the complete six-head immutable evidence/source chain."""
+    trusted_command_reference()
+    path=HERE/'target-reference.json'
+    if TARGET_REFERENCE_SHA256 is None or not path.exists():
+        raise BaselineError('identity_reference_unavailable')
+    content=path.read_bytes()
+    if sha256(content).hexdigest()!=TARGET_REFERENCE_SHA256:
+        raise BaselineError('identity_reference_unavailable')
+    reference=json.loads(content)
+    if (reference['source_pins']!=json.loads((HERE/'source-pins.json').read_text())
+        or reference['migration_sha256']!=sha256((HERE/'versions/0007_organization_targets.py').read_bytes()).hexdigest()):
+        raise BaselineError('identity_reference_unavailable')
+    return reference['target']

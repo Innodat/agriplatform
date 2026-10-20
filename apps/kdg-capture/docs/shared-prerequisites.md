@@ -113,6 +113,13 @@ Controlled database/authority/secret preparation remains explicit and separate; 
 does not provision or reset. Account/membership commands and full ID-B/Access/WRITE/KDG
 readiness remain gates. No production or hosted-CI acceptance is implied.
 
+The next bounded ID-B increment adds restricted selected-organization candidate and
+exact-member target reads under revision7. Complete UUID-keyset candidates and current
+account/member binding use a separate read owner, narrow Access caller roles and
+restrictive organization policies. See [target-read evidence](../../../services/access/ORGANIZATION_TARGETS_EVIDENCE.md).
+This does not deliver Access eligibility/public paging/wrappers or account provisioning;
+full ID-B and dependent readiness remain open. Prior references/migrations remain intact.
+
 | Existing item / boundary | Minimum KDG-relevant outcome | Acceptance/evidence before consumer | Earliest consumer |
 | --- | --- | --- | --- |
 | ENV | Isolated synthetic Auth/PostgreSQL/Access/KDG target, root frontend lock and independent Python locks, compatible exact tool/container/package set; guarded bootstrap/stop/reset and reachable nonproduction HTTPS/provider callback | Record exact version/lock/source identities and actual command lines; target mismatch/missing config refuses writes; clean install/start with unchanged locks; genuine Entra callback qualification remains distinct from local password fixtures | 1.1 environment; real callback/device proof by 1.7 |

@@ -51,12 +51,12 @@ def test_command_reference_captures_full_chain_and_never_pins(tmp_path,monkeypat
     assert statements==['captured baseline','captured actor','captured projection','captured organization','captured authority','captured command']
 
 
-def test_only_command_is_current_head_and_authority_stays_supported(monkeypatch):
+def test_command_and_authority_historical_heads_stay_supported(monkeypatch):
     b=qualification.baseline
     monkeypatch.setattr(b,'verify_owned_history',lambda c:b.COMMAND_REVISION)
     monkeypatch.setattr(b,'verify_legacy_history',lambda c:None)
     kinds=[];monkeypatch.setattr(b,'verify_catalog',lambda c,k:kinds.append(k))
-    b.verify_owned_postcondition(object(),require_head=True)
+    b.verify_owned_postcondition(object())
     assert kinds==['command']
     monkeypatch.setattr(b,'verify_owned_history',lambda c:b.AUTHORITY_REVISION)
     b.verify_owned_postcondition(object())

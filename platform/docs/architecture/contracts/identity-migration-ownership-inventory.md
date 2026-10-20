@@ -261,3 +261,15 @@ See [target evidence](../../../../services/access/OPERATOR_TARGET_EVIDENCE.md) a
 existing Identity runbook for explicit setup, recovery, actual local proof and limits.
 No automated target/role/credential bootstrap, real account/adoption or hosted-CI proof;
 remaining Identity commands/hardening and full shared readiness stay gated.
+
+
+## Bounded ID-B organization target projections — 2026-10-20
+
+Revision7 adds only organization_account_candidates/organization_account_target, under
+the contract-selected restricted target definer and fixed Access NOLOGIN recipients.
+No ordinary runtime/browser/raw-table grants; existing current-account reads remain.
+New independent canonical target reference protects this additive head; all prior
+revision/reference/source pins are immutable. Actual synthetic read/role/upgrade/
+rollback evidence is in [target reads](../../../../services/access/ORGANIZATION_TARGETS_EVIDENCE.md).
+Future Access owner rights/wrappers and canonical ownership checks evolve together;
+no Access eligibility, account ensure, membership hardening or full readiness is claimed.
