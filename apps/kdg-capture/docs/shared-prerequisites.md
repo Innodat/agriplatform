@@ -75,7 +75,12 @@ actual structure/retention/private-role/upgrade/contention proof and 40 focused 
 pass. The next bounded increment adds the restricted current-account actor read;
 actual runtime isolation, clean/adopt/previous-code upgrade and rollback pass alongside
 90 focused tests and both composer checks. It does not complete controlled provisioning,
-membership projections, Access consumer adoption or activation. See
+membership lifecycle, Access consumer adoption or activation. The subsequent bounded
+selected-organization membership read and server revision also pass actual restricted-login,
+legacy writer/Auth-hook, upgrade/rollback proof plus 119 affected tests and both composer
+checks. It preserves current uniqueness/CASCADEs/unretire semantics and leaves hardening,
+new-ID rejoin, operator provisioning and full ID-B open. See
+[organization evidence](../../../services/access/CURRENT_ACCOUNT_ORGANIZATION_EVIDENCE.md),
 [actor evidence](../../../services/access/ACTOR_FOUNDATION_EVIDENCE.md) and
 [current-account evidence](../../../services/access/CURRENT_ACCOUNT_ACTOR_EVIDENCE.md).
 

@@ -200,3 +200,16 @@ Only isolated synthetic preparation was executed. Original migrations/references
 existing Access runtime stay unchanged; new catalog evidence is independently pinned.
 See [projection evidence](../../../../services/access/CURRENT_ACCOUNT_ACTOR_EVIDENCE.md).
 Provisioning, mapping adoption, membership/current Access and production remain separate.
+
+
+## Bounded ID-B selected-organization projection — 2026-10-20
+
+Revision4 adds the internal current-account organization/member/revision/nullable-actor
+read using the same NOLOGIN reader. Scoped restrictive/permissive policies and narrow
+columns keep ordinary runtime from raw expanded reads. The additive server revision
+covers retained legacy member changes/no-ops without changing IDs, uniqueness, CASCADEs
+or seed/unretire behavior. Actual prior-code/legacy writer/Access/Auth hooks and full
+rollback/refusal evidence pass. See [organization evidence](../../../../services/access/CURRENT_ACCOUNT_ORGANIZATION_EVIDENCE.md).
+Protected lifecycle/new-ID rejoin, FORCE-RLS/actor backfill, operator provisioning and
+current Access adoption remain coordinated later gates; this read grants no admission.
+Original migrations/references and writer sources remain unchanged. No live execution.

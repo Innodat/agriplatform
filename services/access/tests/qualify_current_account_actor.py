@@ -37,12 +37,12 @@ class ProjectionQualification(Qualification):
     def passed(self,label,**facts):
         self.records.append({'label':label,'status':'passed',**facts});self.persist();print(label,'PASS',flush=True)
 
-    def prior_evidence(self):
+    def prior_evidence(self, previous_commit=PREVIOUS_COMMIT, previous_files=PREVIOUS_FILES, previous_head="identity_0002"):
         manifest=json.loads((self.proof/'previous-source.json').read_text())
-        assert manifest['commit']==PREVIOUS_COMMIT
-        assert set(manifest['sha256'])==PREVIOUS_FILES
+        assert manifest['commit']==previous_commit
+        assert set(manifest['sha256'])==previous_files
         owner=self.proof/'previous-owner'
-        assert {str(path.relative_to(owner)) for path in owner.rglob('*') if path.is_file()}==PREVIOUS_FILES
+        assert {str(path.relative_to(owner)) for path in owner.rglob('*') if path.is_file()}==previous_files
         for name,digest in manifest['sha256'].items():
             data=(self.proof/'previous-owner'/name).read_bytes()
             assert hashlib.sha256(data).hexdigest()==digest
@@ -54,10 +54,11 @@ class ProjectionQualification(Qualification):
         for row in executions:
             assert row['command']==expected_command
             assert row['log_sha256']==hashlib.sha256((self.proof/('previous-'+row['case']+'.log')).read_bytes()).hexdigest()
-        assert all(row['exit_code']==0 and row['commit']==manifest['commit'] and row['head']=='identity_0002' for row in executions)
+        assert all(row['exit_code']==0 and row['commit']==manifest['commit'] and row['head']==previous_head for row in executions)
         for case in ['previous','failure','unknown']:
-            assert self.sql(case,'SELECT version_num FROM identity.alembic_version')==[('identity_0002',)]
-        self.passed('previous-head2-source-and-execution-evidence',commit=manifest['commit'])
+            assert self.sql(case,'SELECT version_num FROM identity.alembic_version')==[(previous_head,)]
+        label='previous-head2-source-and-execution-evidence' if previous_head=='identity_0002' else 'previous-'+previous_head+'-source-and-execution-evidence'
+        self.passed(label,commit=manifest['commit'])
 
     def snapshot(self,case):
         db=engine(self.private['owner_urls'][case])
@@ -164,14 +165,14 @@ class ProjectionQualification(Qualification):
         self.prior_evidence()
         self.command('projection-clean','clean');self.reads();self.command('projection-repeat','clean')
         self.legacy('legacy');self.original_ledger('legacy');ids=self.row_fixtures('legacy')
-        before,external=self.data_state('legacy'),self.external_state('legacy')
+        before,external=self.data_state('legacy',membership_without_revision=True),self.external_state('legacy')
         self.command('projection-legacy-adopt','legacy',mode='adopt')
-        after=self.data_state('legacy');assert all(after[key]==value for key,value in before.items() if key!='identity.alembic_version');assert self.external_state('legacy')==external;self.runtime('legacy',ids)
+        after=self.data_state('legacy',membership_without_revision=True);assert all(after[key]==value for key,value in before.items() if key!='identity.alembic_version');assert self.external_state('legacy')==external;self.runtime('legacy',ids)
         previous_ids=self.row_fixtures('previous')
         source=ast.parse((self.proof/'previous-owner/versions/0001_baseline.py').read_text())
         integration=next(ast.literal_eval(node.value) for node in source.body if isinstance(node,ast.Assign) and any(isinstance(target,ast.Name) and target.id=='LEGACY_INTEGRATION_SQL' for target in node.targets))
-        self.sql('previous',integration);before,external=self.data_state('previous'),self.external_state('previous')
-        self.command('projection-from-head2','previous');after=self.data_state('previous');assert all(after[key]==value for key,value in before.items() if key!='identity.alembic_version');assert self.external_state('previous')==external;self.runtime('previous',previous_ids)
+        self.sql('previous',integration);before,external=self.data_state('previous',membership_without_revision=True),self.external_state('previous')
+        self.command('projection-from-head2','previous');after=self.data_state('previous',membership_without_revision=True);assert all(after[key]==value for key,value in before.items() if key!='identity.alembic_version');assert self.external_state('previous')==external;self.runtime('previous',previous_ids)
         account=str(uuid.uuid4());self.sql('previous','INSERT INTO auth.users(id,email) VALUES (:id,:email)',{'id':account,'email':'synthetic-'+account+'@example.invalid'},role='databases');assert self.sql('previous','SELECT id::text FROM identity.users WHERE id=:id',{'id':account})==[(account,)]
         # Unsafe reader flags / runtime assumption are independently refused unchanged.
         admin=self.admin('unsafe')

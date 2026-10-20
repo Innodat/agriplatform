@@ -363,3 +363,101 @@ Scaffold: owner-local/unpromoted; no generator added. Shared UI: none. Agent con
 existing account/actor separation remains sufficient. Documentation: this runbook plus
 projection evidence, mutable inventory and KDG navigation. ADR: existing 0018/0020/0056
 and the selected substrate suffice; accepted decisions are unchanged.
+
+## Restricted selected-account organization projection (ID-B)
+
+The owner route now finishes at `identity_0004`. The existing reader preparation and
+Auth schema grant-option prerequisite remain in force; no new roles or operator
+commands are introduced. Exact revision3 catalogs continue to use the immutable
+`projection-reference.json`; only revision4 uses `organization-reference.json`.
+Preflight validates every earlier fixed fixture and migration digest before trusting
+this new fixture. The old reference files, migration sources and source pins remain
+unchanged. Clean/adopt execute all four steps transactionally; a verified head3
+receives only revision4. Final-head checks require revision4, and current-head retries
+compare the complete reader/catalog authority before doing any work.
+
+`identity.current_account_organization()` is an internal STABLE SECURITY DEFINER read
+with fixed `pg_catalog, pg_temp` search path and qualified owner objects. It requires
+`app.context_kind=user`, valid nonnil verified `app.account_id` and selected
+`app.org_id`. It returns exactly account_id UUID, org_id UUID, membership_id bigint,
+membership_revision bigint and nullable internal actor_id UUID. Only nondeleted
+profile, selected organization and matching membership qualify. An absent actor map
+returns the same tuple with null actor; no mapping, actor, person, membership or
+application grant is created. Actor assertions and JWT claims do not choose accounts.
+This read grants no application admission and does not change the old Access HTTP API.
+
+The existing nonowner reader receives SELECT only on required organization/member
+columns. Paired permissive and restrictive policies require user context, selected organization
+and a nondeleted row on `org`; `org_member` additionally requires the current account
+and nondeleted membership. The function validates account and organization context and
+joins the current nondeleted profile, organization and membership. Ordinary runtime
+cannot assume the reader role; legacy PUBLIC policies cannot broaden this reader. The
+reader remains RLS-bound; this item does not apply FORCE RLS or replace legacy
+membership uniqueness, CASCADEs, retirement/unretire or attribution semantics. Runtime
+receives only exact function EXECUTE. All inherited/default ACLs on the two new
+functions are cleared; no broad legacy table permissions are revoked or added.
+
+The additive member `revision bigint NOT NULL DEFAULT 1 CHECK > 0` is server managed.
+Existing rows receive 1. A BEFORE INSERT/UPDATE guard overrides insert revision to 1,
+compares every persisted nonrevision field and increments once on an actual change.
+No-op updates preserve revision, including attempts to supply another revision.
+The guard rejects a changed row at bigint maximum with SQLSTATE23514 and the safe
+`identity_membership_revision_exhausted` identifier; the write rolls back atomically.
+Supported seed `ON CONFLICT(org_id,user_id)` and unretire operations keep existing IDs
+and change revision only when persisted values change. This does not introduce new
+membership lifecycle rules or actor backfill.
+
+Root records the independent rollback-only fixture with the existing recorder:
+
+```sh
+OWNER_PYTHON -I -B services/access/tests/qualify_identity_baseline.py --record-organization-reference
+```
+
+The private validated frame must identify an empty `organization_reference` case.
+The recorder captures and executes all four migration sources, verifies prior
+catalogs, captures helper/source pins and all prior immutable fixtures, rolls back,
+rechecks empty eligibility and publishes exclusively. It leaves the helper unchanged
+and emits captured digests plus `pin_update_required`. Root reconciles the receipt
+against exact source/reference bytes before explicitly setting
+`ORGANIZATION_REFERENCE_SHA256`. Existing destination/temporary files are not
+replaced; interrupted recording follows the same retained-artifact reconciliation
+rules as the projection recorder. No target catalog may approve itself.
+
+Verification traceability:
+
+| Requirement | Evidence / command |
+| --- | --- |
+| Prior fixtures remain trusted, head4 required, source changes/exclusive recording refuse | `OWNER_PYTHON -m pytest -q services/access/tests/test_organization_qualification.py services/access/tests/test_projection_qualification.py` |
+| Actual restricted login, selected scope, nullable actor, no write side effects, RLS, search path and transaction cleanup | `OWNER_PYTHON -I -B services/access/tests/qualify_current_account_organization.py`, restricted-selected-organization-matrix |
+| Insert/change/no-op/forgery/overflow; all legacy fields; seed upsert and unretire | Same actual qualifier, membership-revision-and-legacy-upsert |
+| Clean/adopt/exact committed head3, old rows/external refs/Access queries/Auth profile hook, failure rollback, unsafe authority/history/catalog refusal | Same actual qualifier, organization-foundation-matrix and actual Auth-admin LOGIN token hook on the scratch database; vendor JWT pipeline remains separate |
+| Owner unit regressions and release coordination | `OWNER_PYTHON -m pytest -q services/access/tests apps/pts/tests/test_release.py` |
+
+Root retains actual command results, source/lock/reference hashes, exclusive receipts
+and normal environment stop in organization evidence. The first full owner unit run
+exposed an obsolete head3-as-final assertion (102 pass/1 fail); head3 now retains its
+prior catalog check while dedicated head4 tests enforce the new final boundary.
+After that explicit boundary update, `services/access/tests` passed 103 tests.
+Focused recorder/provenance tests passed 43 tests before actual recording. These
+checks do not substitute for actual PostgreSQL acceptance.
+
+A failed migration blocks activation and preserves the previous schema/history in
+its transaction. Reconcile actual owner history and retained evidence before retry;
+use an explicit forward repair or tested restore when required. Never downgrade or
+automatically undo applied migrations. Previous-version compatibility here covers
+retained legacy reads/writers/hooks, not unfinished operator/lifecycle hardening or
+HTTP adoption, and does not authorize deployment.
+
+Scaffold: owner-local/unpromoted, no new runner or generator. Shared UI: none. Agent
+context: existing instructions suffice. Documentation: this runbook and root-owned
+organization evidence/inventory/KDG navigation. ADR: existing 0018/0020/0056 and the
+selected substrate suffice; no accepted ADR edits or new decisions.
+
+
+Organization qualification also reads an advanced committed revision through actual
+`access_runtime` and verifies a committed no-op leaves it unchanged. Bounded competing
+connections prove two committed changes advance twice. Actual retained SQL-seed writer
+proof uses privileged vendor `postgres` LOGIN and records actual owner membership
+and inheritance separately; it makes no
+service_role or PostgREST endpoint claim and changes no grants. Overflow proof checks
+whole-statement rollback for both an exhausted and an eligible membership.

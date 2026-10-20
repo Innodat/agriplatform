@@ -1,6 +1,22 @@
 # Resume shared ENV delivery after KDG planning PASS
 
-## Current ID-B increment — restricted current-account actor read, 2026-10-20
+## Current ID-B increment — selected-organization membership read, 2026-10-20
+
+Identity revision4 adds the internal current-account organization projection and
+server-maintained membership revision, reusing the existing reader and owner chain.
+Actual selected-scope, nullable actor, revision/overflow, legacy upsert/Auth hooks,
+clean/adopt/previous-code upgrade, drift refusal and rollback pass. 119 affected tests
+and both composer checks pass. All three BMAD reviews are complete with no deferrals;
+the native project is normally stopped with data retained. See [Build](../../../_bmad-output/implementation-artifacts/spec-id-b-current-account-organization.md)
+and [evidence](../../../services/access/CURRENT_ACCOUNT_ORGANIZATION_EVIDENCE.md).
+
+This read grants no app admission. Existing uniqueness/CASCADEs/unretire behavior
+remain compatible; protected provisioning/outcomes, new-ID membership rejoin/history,
+FORCE-RLS/attribution hardening, Access/WRITE and server KDG remain later gates.
+No real account/access/provider changes, Leave/editor or deployment. Preserve original
+sources/references, concurrent documents, all receipts/state and retained resources.
+
+## Previous ID-B increment — restricted current-account actor read, 2026-10-20
 
 Identity revision3 adds the internal current-account actor projection through the existing
 migration owner. Actual restricted-login mapped/unmapped/invalid/deleted reads, cross-account

@@ -441,13 +441,13 @@ def test_projection_old_comparison_normalizes_only_validated_membership(monkeypa
     assert snapshot['role_memberships'] == [['unexpected', 'access_runtime', False, 'false', 'true']]
 
 
-def test_projection_head_uses_new_catalog(monkeypatch):
+def test_previous_projection_head_uses_its_immutable_catalog(monkeypatch):
     import identity_baseline as baseline
     checked = []
     monkeypatch.setattr(baseline, 'verify_owned_history', lambda connection: baseline.PROJECTION_REVISION)
     monkeypatch.setattr(baseline, 'verify_legacy_history', lambda connection: checked.append('legacy'))
     monkeypatch.setattr(baseline, 'verify_catalog', lambda connection, kind: checked.append(kind))
-    baseline.verify_owned_postcondition(object(), require_head=True)
+    baseline.verify_owned_postcondition(object(), require_head=False)
     assert checked == ['legacy', 'projection']
 
 

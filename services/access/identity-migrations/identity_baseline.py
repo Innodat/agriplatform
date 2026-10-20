@@ -14,6 +14,8 @@ ROOT = HERE.parents[2]
 REVISION = 'identity_0001'
 ACTOR_REVISION = 'identity_0002'
 PROJECTION_REVISION = 'identity_0003'
+ORGANIZATION_REVISION = 'identity_0004'
+ORGANIZATION_REFERENCE_SHA256 = '5eeed70cf624fc548e9fcbbe13f0adfb83d7e00081def9e71b69e644afd2e6ae'
 PROJECTION_REFERENCE_SHA256 = '6cc6467bef0ba9c744cb53f9c2bb8542412a660c1a161f2be76fd3fa1d0a85a9'
 PROJECTION_OWNER = 'identity_account_projection_owner'
 ACTOR_REFERENCE_SHA256 = 'c83985f3761cbac85666118fdbbd140d324a424a031baea69b6f174d4585cd1a'
@@ -60,6 +62,8 @@ def compare_catalog(actual, expected):
         raise BaselineError('identity_catalog_mismatch:' + ','.join(changed))
 
 def trusted_reference(kind):
+    if kind == 'organization':
+        return trusted_organization_reference()
     if kind == 'projection':
         return trusted_projection_reference()
     if kind == 'actor':
@@ -139,7 +143,7 @@ def catalog_fingerprints(snapshot):
 
 
 def verify_catalog(connection, kind):
-    if kind == 'projection':
+    if kind in ('projection', 'organization'):
         verify_projection_role(connection)
         snapshot = projection_catalog_snapshot(connection)
     else:
@@ -214,15 +218,15 @@ def verify_legacy_history(connection, clean=False):
 
 def verify_owned_postcondition(connection, require_head=False):
     revision = verify_owned_history(connection)
-    if require_head and revision != PROJECTION_REVISION:
+    if require_head and revision != ORGANIZATION_REVISION:
         raise BaselineError('identity_unknown_history')
     verify_legacy_history(connection)
-    verify_catalog(connection, {REVISION: 'owned', ACTOR_REVISION: 'actor', PROJECTION_REVISION: 'projection'}[revision])
+    verify_catalog(connection, {REVISION: 'owned', ACTOR_REVISION: 'actor', PROJECTION_REVISION: 'projection', ORGANIZATION_REVISION: 'organization'}[revision])
 
 
 def verify_owned_history(connection):
     revisions = list(connection.execute(text('SELECT version_num FROM identity.alembic_version')).scalars())
-    if revisions not in ([REVISION], [ACTOR_REVISION], [PROJECTION_REVISION]):
+    if revisions not in ([REVISION], [ACTOR_REVISION], [PROJECTION_REVISION], [ORGANIZATION_REVISION]):
         raise BaselineError('identity_unknown_history')
     columns = connection.execute(text("SELECT column_name,data_type,character_maximum_length,is_nullable,column_default FROM information_schema.columns WHERE table_schema='identity' AND table_name='alembic_version' ORDER BY ordinal_position")).all()
     if [tuple(row) for row in columns] != [('version_num','character varying',32,'NO',None)]:
@@ -310,3 +314,19 @@ def projection_catalog_snapshot(connection):
 
 def projection_catalog_fingerprints(snapshot):
     return catalog_fingerprints(snapshot)
+
+
+def trusted_organization_reference():
+    """Head4 retains all previous immutable references and source identities."""
+    trusted_projection_reference()
+    path = HERE/'organization-reference.json'
+    if ORGANIZATION_REFERENCE_SHA256 is None or not path.exists():
+        raise BaselineError('identity_reference_unavailable')
+    data = path.read_bytes()
+    if sha256(data).hexdigest() != ORGANIZATION_REFERENCE_SHA256:
+        raise BaselineError('identity_reference_unavailable')
+    reference = json.loads(data)
+    if (reference['source_pins'] != json.loads((HERE/'source-pins.json').read_text())
+            or reference['migration_sha256'] != sha256((HERE/'versions/0004_current_account_organization.py').read_bytes()).hexdigest()):
+        raise BaselineError('identity_reference_unavailable')
+    return reference['organization']
