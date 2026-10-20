@@ -1,6 +1,25 @@
 # Resume shared ENV delivery after KDG planning PASS
 
-## Current ID-B increment — protected profile columns, 2026-10-20
+## Current ID-B increment — current-membership legacy role lookup, 2026-10-20
+
+Identity revision9 fixes public.get_user_roles() and binds its existing role rows to the
+token's exact active profile/organization/membership. Stale role arrays and app GUCs
+supply no substitute authority. Existing function owner/ACLs and Expense wire shape stay;
+only that function's canonical definition changes. See [Build](../../../_bmad-output/implementation-artifacts/spec-id-b-legacy-role-lookup.md)
+and [evidence](../../../services/access/LEGACY_ROLE_LOOKUP_EVIDENCE.md) for actual old8
+characterization, restricted-role/migration proof, review and preservation receipts.
+Final native-parity matrix PASS59.688s;523 affected tests and both composers PASS.
+Three independent review layers complete, no deferrals. Native project normally stopped
+with all data, failed frames and concurrent work retained.
+
+Token-hook selected-organization behavior remains unchanged. Membership lifecycle and
+other owner commands, the live-account verification adapter, Access/WRITE and server KDG
+remain gates. Full shared readiness is not claimed. Preserve all historical sources,
+references, failed frames/data/resources and concurrent Leave/PtS/Expense/Scribeswell/
+brainstorming work. No real account/provider/access, production/provision/deploy/pilot,
+Leave/editor or push. Use bmad-help to select the next bounded existing prerequisite.
+
+## Previous ID-B increment — protected profile columns, 2026-10-20
 
 Identity revision8 limits authenticated profile INSERT to id/username and UPDATE to
 username/deleted_at. Protected security/actor/attribution fields refuse even in mixed

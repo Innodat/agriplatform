@@ -1097,3 +1097,123 @@ this owner runbook and root evidence/navigation/inventory document behavior and 
 existing accepted security/actor/structural/release ADRs apply unchanged. There is no new
 API/client/schema field/dependency. Controlled migration-before-activation and atomic
 failure rollback remain required; applied migrations are never automatically reversed.
+
+## Exact active legacy role lookup (identity_0009)
+
+Revision9 replaces only the body/search_path of the existing no-argument
+`public.get_user_roles()` compatibility RPC. It preserves `TABLE(role text)`, owner,
+ACL bytes, effective permissions, language, volatility and definer status. The query
+uses qualified owner objects with `pg_catalog,pg_temp` and joins the exact JWT `sub`
+through `auth.uid()`, `org_id` and positive bigint `member_id` to active profile,
+organization and membership rows. Only undeleted roles on that exact member return.
+Missing/empty/nil IDs, nonpositive member IDs, stale/retired or foreign bindings return
+no rows. Malformed UUID/bigint and bigint overflow retain typed PostgreSQL errors.
+App context and stale JWT role arrays cannot substitute identity or authority. No
+actor/person mapping is required. Expense retains its existing RPC and role rows;
+this compatibility helper does not become current Access authority.
+
+The eight previous revisions, eight references and source pins remain immutable.
+`legacy-role-reference.json` and its independent LEGACY_ROLES_REFERENCE_SHA256 bind
+revision9 to the full previous trust chain. The established rollback-only recorder
+captures the helper, source pins, all eight prior references and all nine revisions,
+executes captured source, checks every previous catalog and all staged-role recovery,
+then exclusively publishes a mode0600 reference. It refuses optimized Python before
+fixture access and never updates its own pin. Root reviews the independent source
+record before pinning only the new constant. The canonical head8/head9 fingerprint
+difference is solely the functions category. Source-default PUBLIC execution is
+preserved; a separate revoked-PUBLIC fixture proves CREATE OR REPLACE retains that
+target difference rollback-only, without normalizing or adopting it.
+
+Use the existing canonical owner Python and private fixture contract:
+
+```sh
+"$OWNER_PYTHON" -I -B services/access/tests/qualify_legacy_roles.py --characterize
+"$OWNER_PYTHON" -I -B services/access/tests/qualify_identity_baseline.py --record-legacy-role-reference
+"$OWNER_PYTHON" -I -B services/access/tests/qualify_legacy_roles.py
+PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 "$OWNER_PYTHON" -I -B -m pytest services/access/tests apps/pts/tests/test_release.py -q -p no:cacheprovider
+```
+
+Root alone prepares/runs all database/Docker operations. Exact cases in the existing
+IDENTITY_QUALIFICATION_DIR frame are characterization, legacy_roles_reference, clean,
+legacy, previous, failure, unsafe, unknown and retained native. Root supplies synthetic
+Auth/profile/org/member/role rows. `role-fixtures.json` contains characterization and
+clean objects, each with canonical account/other/org/other_org UUID strings and positive
+decimal-string member/other_member/other_org_member/role/deleted_role IDs. Active account
+has admin plus a deleted employee role; the other account in the first organization
+and the first account in the other organization have employee roles. No actor/person
+mapping is created. Characterization executes actual head8 before upgrade and records
+actual results, including preexisting 42702 ambiguous member_id errors, never invented
+old success. Previous/failure/unknown custody is all nineteen owner files from
+`f52352fc31337f5f15b1f249775e2dcebaf134b7`, with full source/execution digests and the
+current `sys.executable`.
+
+The qualifier reuses ProfileQualification's restricted access_runtime LOGIN fixture
+and temporarily grants authenticated/service_role SET-only, noninherited, non-admin
+edges. Private durable profile-role-restoration-required/profile-role-restored witnesses,
+exact restoration, bounded SQL and SIGINT/TERM unwind behavior remain as documented
+above. This models database execution, not provider/JWT/HTTP verification. Retirement
+fixtures use rollback-only service_role mutations followed by actual authenticated RPC
+execution in the same transaction; profile/org/member/role/audit data hashes stay unchanged.
+No normal lifecycle implementation, uniqueness change, seed replay or new role is added.
+
+The inspected native Auth helpers use legacy context precedence: `auth.uid()` first
+reads nonempty `request.jwt.claim.sub`, then plural `request.jwt.claims` sub;
+`auth.jwt()` first reads nonempty singular JSON `request.jwt.claim`, then plural JSON
+`request.jwt.claims`. Root copies those exact inspected native definitions into the
+scratch databases; the qualifier checks byte-equal definitions against the retained
+private `auth-helper-definitions.json` native source before characterization/reads.
+The fixture sets or clears all three forms transaction-locally on every invocation.
+Conflicting helper account/member bindings must return no rows; coherent legacy forms
+select the correct account even when lower-priority plural JSON disagrees. Pool reuse
+must clear all three settings. This proves the existing SQL helpers' binding semantics
+under controlled database context; it does not verify JWT signatures, provider trust,
+PostgREST context establishment or HTTP authentication. Migration SQL continues to use
+`auth.uid()` and `auth.jwt()` as its authority without introducing a login protocol.
+Missing or empty `auth.jwt()` sub is gated before calling `auth.uid()`, whose native
+plural-sub UUID conversion otherwise raises 22P02 for an empty string. Empty identity
+therefore returns no roles; nonempty malformed values still reach native typed conversion
+and retain their errors.
+
+The head8 characterization writes a private raw observation/function-row witness before
+acceptance checks, then requires the approved target's three known 42702 observations.
+Permission/missing-function or other unexpected errors refuse qualification while retaining
+the raw evidence. Head9 comparison requires actual per-function rows from that witness:
+only the public helper body/search_path may change; owner, ACL and the rest of its
+function declaration plus every other function must be identical. Recorder DDL/catalog
+transactions, including post-rollback verification, set local 60-second statement and
+five-second lock limits before their first database query.
+
+A bounded synthetic event trigger causes a real CREATE FUNCTION failure inside revision9.
+Before creation the qualifier verifies exact synthetic function/trigger names absent and
+writes private legacy-roles-event-restoration-required evidence. Its finally block drops
+only those recorded fixture objects, verifies the original state and writes separate
+legacy-roles-event-restored evidence. SIGKILL, host failure or restoration SQL failure
+can leave fixture edges/objects present or uncertain. Preserve all witnesses/resources;
+controlled root recovery inspects the exact target, restores only recorded temporary
+effects, verifies exact original state and retains evidence. A missing restored witness
+alone proves no particular database state. Do not blindly rerun. Migration failures
+retain the prior ledger/catalog/data and block activation; applied migrations are never
+automatically reversed.
+
+Traceability: `test_legacy_roles.py` covers exact SQL identity bindings, newest-head and
+historical-head selection, all source-custody mutations, private exclusive publication
+without pinning, historical reference trust, optimized refusal and event recovery.
+`LegacyRolesQualification.reads` proves exact active roles/deleted-role exclusion,
+foreign account/org/member and stale admin-array refusal, missing/empty/nil/nonpositive
+claims, typed malformed/overflow errors, profile/org/member/role retirement, current
+alternate legitimate bindings, fixed search path with a distinct rejected spoof sentinel, complete multiple-live-role
+rows, absent/empty/unrelated role arrays and pooled cleanup after rollback/error.
+`compatibility`, `revoked_public` and `upgrades_and_failures` prove only helper definition
+changes, canonical/default and separately revoked PUBLIC ACL preservation, clean/adopt/
+head8/repeat migrations, full old-row/external-reference preservation, drift/unknown
+refusal and real mid-revision rollback. Root retains actual execution, both composers,
+protected-file audit and normal native stop evidence. These establish this bounded
+increment, not full Identity/Access/WRITE/KDG readiness.
+
+Five impacts: scaffold extends the existing owner migration/reference/qualifier pattern;
+shared UI has no consuming surface or change; existing agent context already covers
+ownership/release/current identity limits; this owner runbook and root-owned evidence,
+navigation and inventory record behavior/verification; existing accepted ADRs apply
+unchanged. Auth token-hook selection/metadata, invalid-selected-org policy, profile
+hardening, seeds/upserts, mapping/audit and remaining membership/Access work stay separate.
+No application/client/types/dependency, runtime service or generator is added.

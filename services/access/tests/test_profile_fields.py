@@ -13,8 +13,10 @@ def test_profile_head_and_prior_target_supported(monkeypatch):
     monkeypatch.setattr(b,'verify_owned_history',lambda c:b.PROFILE_REVISION)
     monkeypatch.setattr(b,'verify_legacy_history',lambda c:None)
     seen=[];monkeypatch.setattr(b,'verify_catalog',lambda c,k:seen.append(k))
-    b.verify_owned_postcondition(object(),require_head=True)
+    b.verify_owned_postcondition(object())
     assert seen==['profile']
+    with pytest.raises(b.BaselineError,match='identity_unknown_history'):
+        b.verify_owned_postcondition(object(),require_head=True)
     monkeypatch.setattr(b,'verify_owned_history',lambda c:b.TARGET_REVISION)
     b.verify_owned_postcondition(object())
     assert seen==['profile','target']

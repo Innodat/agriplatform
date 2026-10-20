@@ -285,3 +285,16 @@ See [profile evidence](../../../../services/access/PROFILE_FIELDS_EVIDENCE.md) f
 rollback verification and review. This is no account provisioning or lifecycle redesign;
 remaining Identity/Access/WRITE and server KDG remain gated. No real account or production
 change, new dependency/service/generator or resource removal.
+
+
+## Bounded ID-B legacy role lookup — 2026-10-20
+
+Revision9 fixes the existing public.get_user_roles() ambiguity and requires its exact
+current account/org/member binding with active profile/organization/membership/role.
+Its existing no-argument role:string contract, owner and exact ACL remain; canonical
+source PUBLIC defaults are not normalized to uninspected deployment differences.
+See [role lookup evidence](../../../../services/access/LEGACY_ROLE_LOOKUP_EVIDENCE.md) for actual source-bound characterization/currentness/
+upgrade/rollback proof and review. Auth hook, membership lifecycle/uniqueness/CASCADEs,
+account verification adapter and Access/WRITE/KDG remain separate gates. No new role,
+credential, dependency, runtime service or generator; historical8 references/revisions
+and all concurrent documents/resources remain preserved.
