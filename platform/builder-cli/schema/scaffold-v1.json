@@ -1,0 +1,100 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "schema_version": {
+      "type": "number",
+      "const": 1
+    },
+    "owner_id": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9_]{1,63}$"
+    },
+    "owner_kind": {
+      "type": "string",
+      "enum": [
+        "application",
+        "service"
+      ]
+    },
+    "sources": {
+      "minItems": 1,
+      "maxItems": 100,
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 512
+      }
+    },
+    "contracts": {
+      "minItems": 1,
+      "maxItems": 100,
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 512
+      }
+    },
+    "patterns": {
+      "minItems": 1,
+      "maxItems": 100,
+      "type": "array",
+      "items": {
+        "type": "string",
+        "enum": [
+          "api.owner-http.v1",
+          "web.react-shell.v1",
+          "auth.organization-account.fixed.v1",
+          "auth.service-owner.v1",
+          "errors.safe-envelope.v1",
+          "saving.none.v1"
+        ]
+      }
+    },
+    "extensions": {
+      "maxItems": 100,
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "source": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 512
+          },
+          "destination": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 512
+          }
+        },
+        "required": [
+          "source",
+          "destination"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "deployment_manifest": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 512
+    }
+  },
+  "required": [
+    "schema_version",
+    "owner_id",
+    "owner_kind",
+    "sources",
+    "contracts",
+    "patterns",
+    "extensions",
+    "deployment_manifest"
+  ],
+  "additionalProperties": false,
+  "$id": "https://agriplatform.local/schema/scaffold-v1.json",
+  "title": "Scaffold recipe v1 (read-only candidate preflight)",
+  "description": "Zod refinements enforce pattern composition, distinct references, owner manifest scope and extension overlap; filesystem preflight additionally verifies paths. Validity never proves generation readiness."
+}

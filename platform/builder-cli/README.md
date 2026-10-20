@@ -6,9 +6,89 @@ typed scope checks and optional organization navigation; never force every appli
 through membership or infer public API authority from tables. Prove account and
 organization variants in first-consumer fixtures before promotion. Not implemented.
 
-**Status:** Placeholder — Phase 3
+**Status:** Read-only P1/SERVICE recipe preflight implemented; generation remains undelivered.
 
-The existing ENV owner now provides [guarded disposable KDG target preparation](../deployment/DEVELOPMENT.md) via `python3 platform/deployment/dev.py prepare --target <JSON> --run-id <UUID>`. Preparation reserves run identity/source evidence only; runtime readiness and this generator remain undelivered.
+## Supported recipe preflight
+
+Use Node **26.11.1**, npm **12.2.0**, TypeScript **7.0.2**, Zod **4.6.7** and
+@types/node **26.6.5**. Install through the root npm workspace/lock; no nested lock.
+Node runs the TypeScript source directly; no downloaded CLI is needed.
+
+```bash
+npm run validate:recipe --workspace platform/builder-cli -- --config <recipe.json>
+npm run test --workspace platform/builder-cli
+npm run type-check --workspace platform/builder-cli
+npm run schema:export --workspace platform/builder-cli
+npm run schema:check --workspace platform/builder-cli
+```
+
+`validate:recipe` accepts exactly `--config <path>`, absolute or relative to the caller.
+Recipe references resolve against the repository root. Success prints
+`{"recipe_valid":true,"generation_ready":false}`. Failure exits 1 with a safe JSON
+`error` identifier: `arguments_invalid`, `config_unreadable`, or `recipe_invalid`.
+Diagnostics never echo recipe content, paths or parser errors. Validation reads the
+config and inspects reference metadata; it does not read referenced authority content,
+write a manifest, grant authority or generate files.
+
+The [Zod source](src/recipe.ts) is the schema authority. The checked-in
+[scaffold-v1.json](schema/scaffold-v1.json) exports structural JSON Schema; Zod
+refinements and filesystem validation additionally enforce composition, distinct
+references, owner-local manifests, safe paths and non-overlapping extensions.
+Exported JSON Schema alone is insufficient for full validation. The
+[pattern catalogue](schema/patterns-v1.json) lists six explicitly unproven candidates;
+contract and preflight test references are not runtime/template proof.
+
+Recipes contain exactly `schema_version`, `owner_id`, `owner_kind`, `sources`,
+`contracts`, `patterns`, `extensions` and `deployment_manifest`, as specified in the
+[thin recipe contract](../docs/architecture/contracts/scaffold-environment-and-generation.md#thin-recipe-and-deterministic-generation).
+An application explicitly selects API, web shell, fixed account auth, safe errors and
+`saving.none`; a service selects API, service-owner auth, safe errors and `saving.none`.
+Other catalogue proposals remain unsupported. No defaults are inferred. Manifest paths
+must sit below `apps/<owner>/deployment/` or `services/<owner>/deployment/`;
+owner underscores may also be represented by hyphens. A first manifest may be absent.
+
+A complete service example, runnable from the repository root:
+
+```bash
+cat > /tmp/scaffold-recipe.json <<'JSON'
+{
+  "schema_version": 1,
+  "owner_id": "example_service",
+  "owner_kind": "service",
+  "sources": [
+    "platform/docs/architecture/decisions/0059-schema-validated-scaffold-configuration.md"
+  ],
+  "contracts": [
+    "platform/docs/architecture/contracts/scaffold-environment-and-generation.md"
+  ],
+  "patterns": [
+    "api.owner-http.v1",
+    "auth.service-owner.v1",
+    "errors.safe-envelope.v1",
+    "saving.none.v1"
+  ],
+  "extensions": [],
+  "deployment_manifest": "services/example-service/deployment/manifest.json"
+}
+JSON
+npm run validate:recipe --workspace platform/builder-cli -- --config /tmp/scaffold-recipe.json
+```
+
+The result is `{"recipe_valid":true,"generation_ready":false}`; the manifest and
+its missing parent directories remain absent. Preflight checks extension directory
+paths only; it does not scan or copy their contents.
+
+Impact decisions: scaffold preflight/schema/tests added; existing template behavior
+unchanged. Shared UI and agent context need no change for this build-time validator.
+Documentation is updated here; ADR-0059 applies without a new architecture decision.
+Generation, install/build/start qualification of generated owners, runtime Access,
+provider/device proof, Identity/Access/WRITE and Leave remain separate work. There is
+no `generate` stub or candidate bypass.
+
+The remaining guidance records historical plans and future requirements. Its planned
+commands and template claims do not describe delivered generator behavior.
+
+The existing ENV owner provides a [native disposable Supabase route](../deployment/DEVELOPMENT.md) via `python3 platform/deployment/dev.py prepare --supabase <CLI2.120.0 executable> --target <JSON> --run-id <UUID>`. Its service availability checks are separate from application readiness and scaffold generation.
 
 CLI tool for scaffolding features and enforcing platform patterns.
 

@@ -26,6 +26,12 @@ and [active runbook](../../../platform/deployment/DEVELOPMENT.md).
 
 ## Ordered owner work and acceptance
 
+P1/SERVICE's first bounded increment is recipe preflight in the existing builder:
+versioned input validation and repository references, with candidate patterns kept
+explicitly unproven. A valid recipe is not generation readiness. Full skeleton,
+regeneration/custom preservation and current Access proof remain separate delivery
+obligations. See the [Build record](../../../_bmad-output/implementation-artifacts/spec-scaffold-recipe-preflight.md).
+
 | Existing item / boundary | Minimum KDG-relevant outcome | Acceptance/evidence before consumer | Earliest consumer |
 | --- | --- | --- | --- |
 | ENV | Isolated synthetic Auth/PostgreSQL/Access/KDG target, root frontend lock and independent Python locks, compatible exact tool/container/package set; guarded bootstrap/stop/reset and reachable nonproduction HTTPS/provider callback | Record exact version/lock/source identities and actual command lines; target mismatch/missing config refuses writes; clean install/start with unchanged locks; genuine Entra callback qualification remains distinct from local password fixtures | 1.1 environment; real callback/device proof by 1.7 |
@@ -81,7 +87,7 @@ closes outcome/evidence/role/recovery and secret inputs; earlier checkpoint para
 below retain historical progression. Runtime target/adoption/qualification, actual
 locks/images/credentials/restore and real-data policies remain their consuming gates.
 
-Stop for plan review before code. Only after separate implementation approval use
+The user has separately approved bounded shared-foundation implementation. Continue
 bmad-build for ordered shared foundations, acceptance failure first then focused TDD.
 No whole-Leave planning wait, duplicate shared story, deployment or pilot permission.
 

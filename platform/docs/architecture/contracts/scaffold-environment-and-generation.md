@@ -120,6 +120,13 @@ release readiness. No production/account/provider provisioning is authorized.
 
 ## Thin recipe and deterministic generation
 
+The first bounded implementation is `validate:recipe` in the existing builder.
+It checks version1 input structure and safe repository references only. Candidate
+pattern validation reports `generation_ready:false`; it is not the normal generator
+or a bypass of consuming proof. Full generation behavior below remains a delivery
+contract until implemented and verified. Only patterns needed for the initial
+application/service input are catalogued; later choices enter with consumers.
+
 P1/SERVICE retain the version1 keys/paths in the shared addendum. Exact types:
 schema_version=1; owner_id matches `[a-z][a-z0-9_]{1,63}`; owner_kind is application/
 service; sources/contracts are unique nonempty arrays of repository-relative existing
@@ -132,11 +139,15 @@ Bound each array to100 and path/ID strings to512 characters. No arbitrary templa
 code, embedded DDL/OpenAPI/payloads, runtime grants or secret values.
 
 Pattern catalogue is `platform/builder-cli/schema/patterns-v1.json`, owned by builder,
-with exact ID, template version and contract/test references. Initial candidate IDs are
+with exact ID, template version and contract/test references. The full planned candidate set is
 `api.owner-http.v1`, `web.react-shell.v1`, `auth.organization-account.fixed.v1`,
 `auth.organization-person.selected.v1`, `auth.service-owner.v1`,
 `errors.safe-envelope.v1`, `db.owner-migrations.v1`, `db.scoped-write.v1`,
 `saving.none.v1`, `history.creation-attribution.v1`. They declare engineering candidates, not proven capabilities.
+The preflight currently implements only API, web shell, fixed-account/service-owner
+auth, safe errors and saving.none. Selected-person, database and history candidates
+remain proposals until their consuming implementation; they are not registered by
+the current command.
 KDG selects the literal account.fixed pattern; Leave selects person.selected;
 service-only output selects service-owner and has no browser navigation. Schema requires
 exactly one supported auth/navigation combination. The initial read-only context slice

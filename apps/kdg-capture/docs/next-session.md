@@ -1,5 +1,22 @@
 # Resume shared ENV delivery after KDG planning PASS
 
+## Current P1/SERVICE increment — recipe preflight, 2026-10-20
+
+The existing builder now has a read-only `validate:recipe` command, version1 input
+schema and candidate catalogue. It checks explicit application/service choices and
+safe repository references. Valid input reports `generation_ready:false`; this does
+not deliver or promote generated output. See [Build](../../../_bmad-output/implementation-artifacts/spec-scaffold-recipe-preflight.md),
+[runbook](../../../platform/builder-cli/README.md#supported-recipe-preflight) and
+[evidence](../../../platform/builder-cli/RECIPE_PREFLIGHT_EVIDENCE.md).
+
+Next is a bounded disposable output proof through the existing builder. Keep initial
+generation, regeneration/custom preservation and current narrow Access proof explicit;
+do not start a second generator, vendor interception qualifier, Leave implementation
+or KDG editor. Owner migrations and Identity/Access/WRITE remain their own work, with
+no premature full scaffold/application readiness claim. The approved dependency
+baseline including TS7.0.2 and the normal Supabase path below remain active. Preserve
+concurrent documents and historical receipts/state/resources. No production/pilot.
+
 ## Current direction — lean Supabase CLI, approved 2026-10-20
 
 The user explicitly approved trusting normal Supabase local lifecycle and keeping
@@ -29,8 +46,9 @@ inventory. TS7.0.2 and approved baseline/ports stay. No production/account/provi
 infrastructure/deployment or real-data pilot changes. Supabase reachability alone
 is not Identity/Access/WRITE/KDG/scaffold/device readiness.
 
-Next: use the normal stack for existing owner migrations/fixtures and application-
-facing Identity/Access/scaffold work. Full app/sign-in/provider/device acceptance
+Use the normal stack for later existing owner migrations/fixtures and application-
+facing work; continue the bounded scaffold increment above before dependent work.
+Full app/sign-in/provider/device acceptance
 remains separate. The synthetic run is stopped, its native state/data retained;
 follow the active runbook to resume it. Historical source/resource retirement needs
 a separate inventory/proposal, not broad deletion.

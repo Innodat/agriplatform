@@ -1,0 +1,50 @@
+{
+  "schema_version": 1,
+  "status": "candidate",
+  "generation_ready": false,
+  "description": "Engineering candidates only. References establish requirements and preflight tests; they do not prove templates or runtime capabilities. Existing templates are unproven and unchanged.",
+  "patterns": [
+    {
+      "id": "api.owner-http.v1",
+      "template_version": "1-candidate",
+      "status": "candidate",
+      "contracts": ["platform/docs/architecture/contracts/scaffold-environment-and-generation.md"],
+      "tests": ["platform/builder-cli/tests/recipe.test.mjs"]
+    },
+    {
+      "id": "web.react-shell.v1",
+      "template_version": "1-candidate",
+      "status": "candidate",
+      "contracts": ["platform/docs/architecture/contracts/scaffold-environment-and-generation.md"],
+      "tests": ["platform/builder-cli/tests/recipe.test.mjs"]
+    },
+    {
+      "id": "auth.organization-account.fixed.v1",
+      "template_version": "1-candidate",
+      "status": "candidate",
+      "contracts": ["platform/docs/architecture/contracts/scaffold-environment-and-generation.md", "platform/docs/architecture/decisions/0053-capability-scoped-access-in-mixed-scope-applications.md"],
+      "tests": ["platform/builder-cli/tests/recipe.test.mjs"]
+    },
+    {
+      "id": "auth.service-owner.v1",
+      "template_version": "1-candidate",
+      "status": "candidate",
+      "contracts": ["platform/docs/architecture/contracts/scaffold-environment-and-generation.md"],
+      "tests": ["platform/builder-cli/tests/recipe.test.mjs"]
+    },
+    {
+      "id": "errors.safe-envelope.v1",
+      "template_version": "1-candidate",
+      "status": "candidate",
+      "contracts": ["platform/docs/architecture/decisions/0031-machine-readable-api-errors-and-localized-presentation.md"],
+      "tests": ["platform/builder-cli/tests/recipe.test.mjs"]
+    },
+    {
+      "id": "saving.none.v1",
+      "template_version": "1-candidate",
+      "status": "candidate",
+      "contracts": ["platform/docs/architecture/contracts/scaffold-environment-and-generation.md", "platform/docs/architecture/decisions/0051-saving-conventions-by-workflow.md"],
+      "tests": ["platform/builder-cli/tests/recipe.test.mjs"]
+    }
+  ]
+}
