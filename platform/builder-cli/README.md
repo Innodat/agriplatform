@@ -6,7 +6,55 @@ typed scope checks and optional organization navigation; never force every appli
 through membership or infer public API authority from tables. Prove account and
 organization variants in first-consumer fixtures before promotion. Not implemented.
 
-**Status:** Read-only P1/SERVICE recipe preflight implemented; generation remains undelivered.
+**Status:** Read-only P1/SERVICE recipe preflight plus an internal disposable service
+bootstrap harness. Public generation remains undelivered; all patterns stay candidates.
+
+## Disposable service bootstrap
+
+`test:generation` is the only candidate-bootstrap entry. It accepts no arguments or
+write target, validates a synthetic service recipe through existing preflight, and
+creates a private fresh `platform/deployment/.local/scaffold-generation/proof-*/output`.
+Every previous output is preserved, including failures. Application recipes and
+nonempty extensions are refused by the internal renderer. Historical backend templates
+remain intact. No public generator, candidate flag, regeneration or installation journal
+is implemented. Health/error proof does not implement service authentication/current Access.
+
+From repository root with the selected Node26.11.1/npm12.2.0 on PATH:
+
+```bash
+export SCAFFOLD_UV="$PWD/platform/deployment/.local/kdg-toolchains/0cc4bc48-505e-41c1-8876-25b2d49b5694/payload/uv/uv"
+export SCAFFOLD_PYTHON="$PWD/platform/deployment/.local/kdg-toolchains/0cc4bc48-505e-41c1-8876-25b2d49b5694/payload/python/bin/python3"
+export UV_CACHE_DIR="$PWD/platform/deployment/.local/python-baseline-qualification/cache"
+npm run test:generation --workspace platform/builder-cli
+```
+
+Explicit absolute executable/cache paths are required. The harness checks uv0.13.1
+and ordinary CPython3.15.0 and never selects host Python or downloads a runtime.
+The current qualification scope is Linux x86_64; generated uv resolution is Linux-only.
+Output owns its minimal pinned pyproject and independently uv-resolved lock, with
+FastAPI/Uvicorn/Pydantic runtime dependencies and pytest/httpx only in the test group.
+No application requirements, baseline fixture lock, database packages, browser files,
+broad Supabase settings or repository server imports are used.
+
+The clean subprocess environment excludes ambient PYTHONPATH, plugins, credentials and
+proxy settings. Bounded commands resolve offline, check the lock, then install frozen,
+offline and wheel-only into **two absent virtualenvs**, each running isolated generated
+version and real-loopback HTTP tests. Socket refusal fails the proof. Tests check
+health200, unknown404, invalid422, unexpected500, protocol status/headers, numeric code
+compatibility and sentinel-free responses/diagnostics. Probe routes exist only in tests.
+Source and lock hashes must remain unchanged after each environment's verification.
+
+`proof.json` records recipe/source/template identities, generated-versus-seed hashes,
+uv-owned lock provenance, exact subprocess commands/environment/results and log hashes.
+It always declares `bootstrap_only:true` and `generation_ready:false`. Failure retains
+partial outcomes and safe stage diagnostics; no deletion or recovery is attempted.
+`main.py` is the create-once owner seed; adapters, test/guidance and pyproject are generated.
+
+Impact decisions: scaffold gains narrowly scoped service templates/renderer/harness;
+shared UI has no changes because this output has no browser; generated agent guidance
+lists actual commands and authority limits while root context stays unchanged;
+documentation records bounded bootstrap/qualification; existing ADR0059/0031/0023
+cover the change and accepted ADRs remain unchanged.
 
 ## Supported recipe preflight
 

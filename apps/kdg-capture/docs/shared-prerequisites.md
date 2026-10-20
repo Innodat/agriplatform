@@ -32,6 +32,11 @@ explicitly unproven. A valid recipe is not generation readiness. Full skeleton,
 regeneration/custom preservation and current Access proof remain separate delivery
 obligations. See the [Build record](../../../_bmad-output/implementation-artifacts/spec-scaffold-recipe-preflight.md).
 
+The next increment adds disposable service-only output via the existing builder's
+internal bootstrap harness: its own Python lock, clean offline installations and
+actual health/safe-error HTTP proof. This does not promote service authentication or
+complete the table's P1/SERVICE obligations. See [service bootstrap evidence](../../../platform/builder-cli/SERVICE_BOOTSTRAP_EVIDENCE.md).
+
 | Existing item / boundary | Minimum KDG-relevant outcome | Acceptance/evidence before consumer | Earliest consumer |
 | --- | --- | --- | --- |
 | ENV | Isolated synthetic Auth/PostgreSQL/Access/KDG target, root frontend lock and independent Python locks, compatible exact tool/container/package set; guarded bootstrap/stop/reset and reachable nonproduction HTTPS/provider callback | Record exact version/lock/source identities and actual command lines; target mismatch/missing config refuses writes; clean install/start with unchanged locks; genuine Entra callback qualification remains distinct from local password fixtures | 1.1 environment; real callback/device proof by 1.7 |

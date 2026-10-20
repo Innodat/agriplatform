@@ -127,6 +127,14 @@ or a bypass of consuming proof. Full generation behavior below remains a deliver
 contract until implemented and verified. Only patterns needed for the initial
 application/service input are catalogued; later choices enter with consumers.
 
+The next bounded bootstrap uses `test:generation` to render a service-only health/
+safe-error shell into fresh disposable output and qualify its own Python lock and
+independent installations. Its pure renderer has no write target; only the harness
+writes a fresh ENV proof directory. Applications and custom extensions are refused.
+No normal `generate` command, owner-root installation, regeneration or journal
+recovery is delivered by this bootstrap. Catalogue candidates remain unpromoted:
+service authentication/current Access and complete P1/SERVICE proof are still required.
+
 P1/SERVICE retain the version1 keys/paths in the shared addendum. Exact types:
 schema_version=1; owner_id matches `[a-z][a-z0-9_]{1,63}`; owner_kind is application/
 service; sources/contracts are unique nonempty arrays of repository-relative existing

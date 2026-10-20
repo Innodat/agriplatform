@@ -1,6 +1,22 @@
 # Resume shared ENV delivery after KDG planning PASS
 
-## Current P1/SERVICE increment — recipe preflight, 2026-10-20
+## Current P1/SERVICE increment — disposable service output, 2026-10-20
+
+The existing builder now renders a service-only health/safe-error shell through its
+internal `test:generation` harness. The output resolves its own pinned Python lock
+and runs real loopback HTTP tests in two fresh offline installations. See
+[Build](../../../_bmad-output/implementation-artifacts/spec-scaffold-service-bootstrap.md),
+[runbook](../../../platform/builder-cli/README.md) and
+[evidence](../../../platform/builder-cli/SERVICE_BOOTSTRAP_EVIDENCE.md).
+
+This proves bounded standalone output, not service authentication/current Access or
+complete P1/SERVICE. Candidates remain unpromoted, generation_ready:false. Next extend
+the existing builder's disposable proof to the application shell; normal generation,
+regeneration/custom preservation and current Access integration remain explicit work.
+Preserve historical output/receipts/resources and concurrent documents. No second
+generator, vendor interception prerequisites, Leave/editor or production/pilot work.
+
+## Previous P1/SERVICE increment — recipe preflight, 2026-10-20
 
 The existing builder now has a read-only `validate:recipe` command, version1 input
 schema and candidate catalogue. It checks explicit application/service choices and
@@ -9,7 +25,7 @@ not deliver or promote generated output. See [Build](../../../_bmad-output/imple
 [runbook](../../../platform/builder-cli/README.md#supported-recipe-preflight) and
 [evidence](../../../platform/builder-cli/RECIPE_PREFLIGHT_EVIDENCE.md).
 
-Next is a bounded disposable output proof through the existing builder. Keep initial
+The subsequent disposable service output proof is recorded above. Keep initial
 generation, regeneration/custom preservation and current narrow Access proof explicit;
 do not start a second generator, vendor interception qualifier, Leave implementation
 or KDG editor. Owner migrations and Identity/Access/WRITE remain their own work, with
