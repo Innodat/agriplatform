@@ -266,3 +266,13 @@ behavior remains. Retired seed upserts deliberately refuse. See
 PASS35.569s;766 affected tests/both composers PASS, three reviews complete, no deferrals.
 Uniqueness/rejoin/seed transition, authorized lifecycle commands/protected
 writers, live-account verification, Access/WRITE/server KDG remain gated.
+
+
+## Staged active-membership index —2026-10-20
+
+Revision14 adds the partial active-member unique index while retaining full uniqueness
+and legacy writers. See [evidence](../../../services/access/ACTIVE_MEMBERSHIP_INDEX_EVIDENCE.md).
+Reviewed actual matrix PASS46.265s;846 affected tests/both composers PASS, three reviews
+complete, no deferrals. Historical duplicates/rejoin remain unavailable on canonical14;
+owner commands/seeds/compatibility must be coordinated before full-constraint removal.
+Access/WRITE/server KDG and real-target activation remain gated.

@@ -1,6 +1,20 @@
 # Resume shared ENV delivery after KDG planning PASS
 
-## Current ID-B increment — one-way membership retirement,2026-10-20
+## Current ID-B increment — staged active-membership index,2026-10-20
+
+Revision14 stages a partial active-membership unique index while retaining the full
+unique constraint and all old writers. See [Build](../../../_bmad-output/implementation-artifacts/spec-id-b-active-membership-index.md)
+and [evidence](../../../services/access/ACTIVE_MEMBERSHIP_INDEX_EVIDENCE.md).
+Final actual matrix PASS46.265s;846 affected tests and both composers PASS. Three review
+layers complete, no deferrals; native project normally stopped with all data retained.
+Canonical14 still forbids historical
+duplicates; full-constraint removal requires coordinated owner commands/seeds and
+compatibility/recovery. No rejoin/Access/WRITE/server KDG activation is claimed. Preserve
+all prior source/history/receipts/data/resources and concurrent work; no real accounts,
+provider/access, production/provision/deploy/pilot, reset/prune, Leave/editor or push.
+
+
+## Previous ID-B increment — one-way membership retirement,2026-10-20
 
 Revision13 prevents retired membership from reactivation or retiming through ordinary
 updates/seeds/retries. See [Build](../../../_bmad-output/implementation-artifacts/spec-id-b-membership-retirement.md)

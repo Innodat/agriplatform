@@ -30,13 +30,14 @@ def test_retirement_migration_is_exact_function_only_extension():
     with pytest.raises(RuntimeError,match='Destructive'):revision.downgrade()
 
 
-def test_retirement_is_required_head_and_retention_stays_historical(monkeypatch):
+def test_retirement_and_retention_stay_historical(monkeypatch):
     b=qualification.baseline
     assert b.MEMBERSHIP_RETIREMENT_REVISION=='identity_0013'
     monkeypatch.setattr(b,'verify_legacy_history',lambda c:None)
     monkeypatch.setattr(b,'verify_owned_history',lambda c:b.MEMBERSHIP_RETIREMENT_REVISION)
     seen=[];monkeypatch.setattr(b,'verify_catalog',lambda c,k:seen.append(k))
-    b.verify_owned_postcondition(object(),require_head=True)
+    b.verify_owned_postcondition(object())
+    with pytest.raises(b.BaselineError,match='identity_unknown_history'):b.verify_owned_postcondition(object(),require_head=True)
     assert seen==['membership_retirement']
     monkeypatch.setattr(b,'verify_owned_history',lambda c:b.MEMBERSHIP_RETENTION_REVISION)
     b.verify_owned_postcondition(object())

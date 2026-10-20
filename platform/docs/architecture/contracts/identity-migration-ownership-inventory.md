@@ -335,3 +335,12 @@ constraints/triggers/ACLs or unique index. Active writers/readers remain; retire
 reactivation deliberately refuses. [Evidence](../../../../services/access/MEMBERSHIP_RETIREMENT_EVIDENCE.md)
 records actual proof and limits. Authorized lifecycle commands, partial active uniqueness,
 active seed/rejoin transition and real-target compatibility/activation remain gated.
+
+
+## Compatible active-membership index expansion —2026-10-20
+
+Identity14 adds org_member_active_org_user_uidx WHERE deleted_at IS NULL; the existing
+full unique constraint/index and all data/writers stay. Final replacement/rejoin requires
+coordinated owner-command/seed changes and release-recovery disposition; canonical14
+still forbids historical duplicates. [Evidence](../../../../services/access/ACTIVE_MEMBERSHIP_INDEX_EVIDENCE.md)
+records source-bound canonical versus isolated-index proof and remaining gates.

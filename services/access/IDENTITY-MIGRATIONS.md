@@ -1505,3 +1505,34 @@ migrator USAGE and all temporary event/function/sequence objects are fixture-onl
 restored with retained witnesses. Final evidence distinguishes this from rollback of
 ordinary sequence consumption. Retiming checks include backward and microsecond changes;
 equivalent-offset representations of the same instant remain noops.
+
+
+## Compatible active-uniqueness expansion (identity_0014)
+
+Revision14 creates org_member_active_org_user_uidx, a UNIQUE btree index on
+(org_id,user_id) WHERE deleted_at IS NULL. The original org_member_org_id_user_id_key
+and backing full unique index stay. No rows, guards, triggers, functions or ACLs change.
+Canonical14 therefore still forbids duplicate retired history: this is preparation,
+not rejoin activation. Retain existing Python/SQL seeds and their supported behavior.
+
+Full uniqueness removal requires coordinated owner commands/seed lookup/client changes,
+exact dependency inspection and ADR-0020 compatibility/recovery. The current PostgREST
+upsert has only a column-list conflict target; do not replace it with race-prone
+read/insert or add an unaudited membership RPC. Current SQL seed lookup/SELECT privileges
+also need explicit active-member transition. Real-target adoption remains unapproved.
+
+Root runs tests/qualify_active_membership_index.py --characterize against canonical13,
+then the full matrix. The private reference case is active_membership_index_reference;
+member-retention-fixtures.json and other cases stay as established. Record reference14
+once using qualify_identity_baseline.py --record-active-membership-index-reference and
+independently inspect/pin. See [index evidence](ACTIVE_MEMBERSHIP_INDEX_EVIDENCE.md).
+The rollback-only index-isolation lane temporarily drops the full constraint without
+CASCADE under owner administration and restores all catalog/data. Canonical concurrency
+retains both unique protections and one new synthetic winning membership; it is not
+isolated-index attribution or an authorized join. Preserve all history/receipts/resources;
+no resets, automatic downgrade or deployment. Five impacts remain in linked evidence.
+
+The complete active-index matrix is single-use after its committed concurrency fixture.
+Preserve the winner and precommit/result witnesses; use fresh synthetic cases for another
+proof. An initial zero-members refusal is intentional rather than authority to reset,
+delete, adopt or replay a prior winner. Failed/uncertain runs retain all diagnostics/data.
