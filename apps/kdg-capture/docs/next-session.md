@@ -1,6 +1,23 @@
 # Resume shared ENV delivery after KDG planning PASS
 
-## Current ID-B increment — active-organization token claims, 2026-10-20
+## Current ID-B increment — immutable membership binding, 2026-10-20
+
+Identity revision11 makes existing membership id/org_id/user_id immutable through the
+existing revision guard. Actual unchanged10 reassignment is characterized; new restricted-
+role write/migration/reader/seed final matrix PASS29.541s, source unchanged. See
+[Build](../../../_bmad-output/implementation-artifacts/spec-id-b-membership-binding.md) and
+[evidence](../../../services/access/MEMBERSHIP_BINDING_EVIDENCE.md). All649 affected tests
+and both composers PASS; three review layers complete with no deferrals. Native project
+is normally stopped with all data retained. Owner/ACL/trigger/revision and mutable seed
+behavior stay.
+
+Retirement/unretirement, uniqueness/rejoin/CASCADE retention, owner commands/live-account
+verification and Access/WRITE/server KDG remain gates. Preserve all historical revisions/
+references, failed frames, receipts/state/data/resources and concurrent work. No real
+accounts/provider/access, production/provision/deploy/pilot, Leave/editor or push.
+
+
+## Previous ID-B increment — active-organization token claims, 2026-10-20
 
 Identity revision10 filters the existing Auth hook's membership/role/owner claims,
 fallback and org_ids to active membership in a nonretired organization. Existing

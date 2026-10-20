@@ -1300,3 +1300,89 @@ runbook and root evidence/inventory/navigation record the actual result; accepte
 remain unchanged. No generator, service, API, grant, login, dependency, membership command,
 uniqueness/CASCADE change or application implementation is added. Existing coordinated
 migration-before-activation/recovery remains binding; no automatic downgrade is supported.
+
+## Stable membership instance binding (identity_0011)
+
+Revision11 replaces only `identity.guard_org_member_revision()` through CREATE OR
+REPLACE. Before any UPDATE revision logic, an IS DISTINCT FROM change to id, org_id
+or user_id raises SQLSTATE23514, message `identity_membership_binding_immutable`,
+constraint `org_member_binding_immutable`. This includes retired memberships and mixed
+binding/mutable updates. Identical bindings, caller-supplied INSERT IDs, server revision1,
+mutable fields, no-op revision preservation and atomic overflow refusal remain unchanged.
+The invoker function declaration, owner, ACL, search_path and existing trigger remain.
+No uniqueness, retirement/unretirement, hard-delete/CASCADE, lifecycle command, seed
+payload, actor mapping, application API or API error contract changes are included.
+
+Ten historical migration/reference chains, source pins, source SQL and composed outputs
+remain immutable. `membership-binding-reference.json` and the independent
+MEMBERSHIP_BINDING_REFERENCE_SHA256 extend the existing chain. The recorder requires
+the new pin to be None, executes captured source, verifies each prior catalog, rolls back,
+rechecks staged roles/clean target, checks complete source custody, then publishes only
+the reference exclusively with mode0600. It never edits the helper/pin. Root alone runs
+isolated database/Docker work and sets the pin only after recorder PASS.
+
+One-time reference generation requires the new, uncommitted
+`membership-binding-reference.json` to be absent and its independent pin to be None.
+Historical references and migration/source pins remain immutable. After root prepares
+the isolated reference target, use the frozen OWNER_PYTHON and private root frame selected
+by `/tmp/kdg-member-binding-proof`:
+
+```bash
+"$OWNER_PYTHON" -I -B services/access/tests/qualify_identity_baseline.py --record-membership-binding-reference
+```
+
+Only after recorder PASS does root record the new reference pin. Repeatable verification
+uses the retained unchanged10 characterization target and the prepared migration cases:
+
+```bash
+"$OWNER_PYTHON" -I -B services/access/tests/qualify_membership_binding.py --characterize
+"$OWNER_PYTHON" -I -B services/access/tests/qualify_membership_binding.py
+```
+
+Root alone executes these operations sequentially on the same isolated cluster, including
+temporary role edges and failure objects. No parallel qualification or live cutover is
+covered. The max-revision fixture is owner-only rollback DDL on that isolated target;
+it is not a restricted-runtime permission or a supported business write path.
+
+The exact IDENTITY_QUALIFICATION_DIR cases are characterization,
+membership_binding_reference, clean, legacy, previous, failure, unsafe, unknown and
+retained native. `member-binding-fixtures.json` supplies characterization/clean objects
+with account/other/spare/org/other_org/spare_org canonical UUIDs and positive decimal
+member/other_member/other_org_member/role/deleted_role strings. Spare profile/org exist
+without memberships. The three membership IDs must be distinct, the primary ID must
+leave bigint headroom for +1000000, and bounded prechecks must find the three exact
+account/organization bindings and no row at that derived ID. Root retains the exact23 old owner py/json files from
+`e8754cc9e53fc57cbc6b45d96725b5bc267b204a`; previous/failure/unknown execute that source.
+
+The qualifier records actual10 accepted binding mutations before11. The original
+member_role FK prevents changing a referenced membership ID; that characterization
+removes only synthetic dependent roles inside its rollback scope, preserving constraints.
+Actual restricted access_runtime sessions temporarily assume authenticated/service_role
+through SET-only noninherited non-admin edges. Private restoration-required/restored
+witnesses bind exact role edges and synthetic failure objects; SIGINT/TERM unwinds
+cleanup. Missing cleanup evidence, host failure or SIGKILL requires root inspection and
+verified exact restoration with all resources/evidence retained.
+
+The binding matrix proves active/retired, mixed and multirow refusal with unchanged
+membership/role/audit state, including NULL and combined binding assignments. A
+data-dependent modifying CTE updates the permitted other member before the rejected
+primary-member update, proving statement rollback beyond unordered multirow traversal.
+It also checks unchanged bindings/noops, ordinary mutable updates, INSERT
+revision ownership and overflow. The supported seed conflict(org_id,user_id) upsert still
+retains the ID/roles and un-retires a retained seed row; the SQL seed lookup deliberately
+keeps its original non-active-only predicate. This compatibility is not lifecycle safety.
+Restricted legacy roles, token and current-account readers retain their IDs/roles and
+directly deny the retired membership in rollback-only fixtures. Characterization evidence
+binds the current proof path/run ID and fixture SHA256 and must record exactly the three
+expected field transitions before its function-catalog evidence is accepted.
+Only the guard function body may differ in the catalog; exact declaration/owner/ACL and
+all other function rows are compared. Clean/adopt/head10/repeat, drift and injected-failure
+rollback remain real migration commands. Unknown history uses rollback-only direct
+owner preflight on the same connection; it makes no subprocess-migration claim.
+
+Five impacts: scaffold extends the existing owner migration/reference/qualification
+pattern; shared UI has no consumer; agent instructions remain sufficient; this runbook
+and root evidence/navigation/inventory record actual results; accepted ADRs remain
+unchanged. No new generator/service/framework, dependency, application implementation,
+provisioning or deployment is added. Root records actual verification and retained-data
+normal stop separately; this item does not complete ID-B or assert readiness.

@@ -307,3 +307,12 @@ org_ids. Original source/defaults are not replayed or normalized. See
 [token-hook evidence](../../../../services/access/TOKEN_HOOK_EVIDENCE.md) for verification
 and limits. This is synthetic owner delivery, not live target equivalence, provider
 verification or full membership lifecycle/Access activation.
+
+## Bounded immutable membership binding — 2026-10-20
+
+Identity revision11 replaces only the existing member revision guard body to reject
+changes to retained membership id/org_id/user_id. Owner/ACL/trigger and other mutable
+revision/seed behavior stay. See [binding evidence](../../../../services/access/MEMBERSHIP_BINDING_EVIDENCE.md)
+for source-bound synthetic proof and limits. Uniqueness, retirement/rejoin, cascade
+retention, account verification and Access/WRITE activation remain separate gates.
+This is not real-target adoption or full membership lifecycle readiness.

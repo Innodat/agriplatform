@@ -34,8 +34,9 @@ def test_token_hook_head_and_historical_head(monkeypatch):
     monkeypatch.setattr(b,'verify_owned_history',lambda c:b.TOKEN_HOOK_REVISION)
     monkeypatch.setattr(b,'verify_legacy_history',lambda c:None)
     seen=[];monkeypatch.setattr(b,'verify_catalog',lambda c,k:seen.append(k))
-    b.verify_owned_postcondition(object(),require_head=True)
+    b.verify_owned_postcondition(object())
     assert seen==['token_hook']
+    with pytest.raises(b.BaselineError,match='identity_unknown_history'):b.verify_owned_postcondition(object(),require_head=True)
     monkeypatch.setattr(b,'verify_owned_history',lambda c:b.LEGACY_ROLES_REVISION)
     b.verify_owned_postcondition(object())
     with pytest.raises(b.BaselineError,match='identity_unknown_history'):b.verify_owned_postcondition(object(),require_head=True)

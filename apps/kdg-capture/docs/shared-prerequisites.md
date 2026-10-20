@@ -237,3 +237,13 @@ migration matrix PASS30.111s;577 affected tests and both composers PASS. All thr
 layers complete, no deferrals. See [evidence](../../../services/access/TOKEN_HOOK_EVIDENCE.md). Membership
 lifecycle, seed/direct-writer compatibility, live-account adapter, Access/WRITE and server
 KDG remain delivery gates; no full ID-B or shared readiness claim.
+
+## Immutable retained membership binding — 2026-10-20
+
+Identity revision11 rejects changes to existing member id/org_id/user_id through the
+existing revision guard. Mutable revision/seed behavior and function owner/ACL stay.
+Final actual matrix PASS29.541s;649 affected tests and both composers PASS. Three
+review layers complete with no deferrals. See
+[evidence](../../../services/access/MEMBERSHIP_BINDING_EVIDENCE.md). This does not complete
+retirement/rejoin/uniqueness/CASCADE or owner-command work, live-account verification,
+Access/WRITE or server KDG. Historical sources/references and concurrent work stay.

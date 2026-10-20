@@ -22,6 +22,8 @@ TARGET_REVISION = 'identity_0007'
 PROFILE_REVISION = 'identity_0008'
 LEGACY_ROLES_REVISION = 'identity_0009'
 TOKEN_HOOK_REVISION = 'identity_0010'
+MEMBERSHIP_BINDING_REVISION = 'identity_0011'
+MEMBERSHIP_BINDING_REFERENCE_SHA256 = '43bf6d868efb7234ebd8199d884f7cafcca018a2fd274df6329187381a6827f3'
 TOKEN_HOOK_REFERENCE_SHA256 = 'f227a7839ba8e04fe1626254e91678c73cf3fc2aa5e38fdb0a5b1ec6a3633263'
 LEGACY_ROLES_REFERENCE_SHA256 = '983d00ac73bfc9d86188ce166cece3c246926f169b9993af0141a527d8bbd0aa'
 PROFILE_REFERENCE_SHA256 = '05ccb6afc5c546d18ea16747a59d4e63c6f8576718d885b43ecc03e676779868'
@@ -80,6 +82,8 @@ def compare_catalog(actual, expected):
         raise BaselineError('identity_catalog_mismatch:' + ','.join(changed))
 
 def trusted_reference(kind):
+    if kind == 'membership_binding':
+        return trusted_membership_binding_reference()
     if kind == 'token_hook':
         return trusted_token_hook_reference()
     if kind == 'legacy_roles':
@@ -173,6 +177,14 @@ def catalog_fingerprints(snapshot):
 
 
 def verify_catalog(connection, kind):
+    if kind == 'membership_binding':
+        verify_projection_role(connection)
+        verify_authority_roles(connection)
+        verify_command_role(connection)
+        verify_target_roles(connection)
+        verify_profile_privileges(connection)
+        compare_catalog(catalog_fingerprints(target_catalog_snapshot(connection)), trusted_membership_binding_reference())
+        return
     if kind == 'token_hook':
         verify_projection_role(connection)
         verify_authority_roles(connection)
@@ -300,15 +312,15 @@ def verify_legacy_history(connection, clean=False):
 
 def verify_owned_postcondition(connection, require_head=False):
     revision = verify_owned_history(connection)
-    if require_head and revision != TOKEN_HOOK_REVISION:
+    if require_head and revision != MEMBERSHIP_BINDING_REVISION:
         raise BaselineError('identity_unknown_history')
     verify_legacy_history(connection)
-    verify_catalog(connection, {REVISION: 'owned', ACTOR_REVISION: 'actor', PROJECTION_REVISION: 'projection', ORGANIZATION_REVISION: 'organization', AUTHORITY_REVISION: 'authority', COMMAND_REVISION: 'command', TARGET_REVISION: 'target', PROFILE_REVISION: 'profile', LEGACY_ROLES_REVISION: 'legacy_roles', TOKEN_HOOK_REVISION: 'token_hook'}[revision])
+    verify_catalog(connection, {REVISION: 'owned', ACTOR_REVISION: 'actor', PROJECTION_REVISION: 'projection', ORGANIZATION_REVISION: 'organization', AUTHORITY_REVISION: 'authority', COMMAND_REVISION: 'command', TARGET_REVISION: 'target', PROFILE_REVISION: 'profile', LEGACY_ROLES_REVISION: 'legacy_roles', TOKEN_HOOK_REVISION: 'token_hook', MEMBERSHIP_BINDING_REVISION: 'membership_binding'}[revision])
 
 
 def verify_owned_history(connection):
     revisions = list(connection.execute(text('SELECT version_num FROM identity.alembic_version')).scalars())
-    if revisions not in ([REVISION], [ACTOR_REVISION], [PROJECTION_REVISION], [ORGANIZATION_REVISION], [AUTHORITY_REVISION], [COMMAND_REVISION], [TARGET_REVISION], [PROFILE_REVISION], [LEGACY_ROLES_REVISION], [TOKEN_HOOK_REVISION]):
+    if revisions not in ([REVISION], [ACTOR_REVISION], [PROJECTION_REVISION], [ORGANIZATION_REVISION], [AUTHORITY_REVISION], [COMMAND_REVISION], [TARGET_REVISION], [PROFILE_REVISION], [LEGACY_ROLES_REVISION], [TOKEN_HOOK_REVISION], [MEMBERSHIP_BINDING_REVISION]):
         raise BaselineError('identity_unknown_history')
     columns = connection.execute(text("SELECT column_name,data_type,character_maximum_length,is_nullable,column_default FROM information_schema.columns WHERE table_schema='identity' AND table_name='alembic_version' ORDER BY ordinal_position")).all()
     if [tuple(row) for row in columns] != [('version_num','character varying',32,'NO',None)]:
@@ -730,3 +742,19 @@ def trusted_token_hook_reference():
         or reference['migration_sha256']!=sha256((HERE/'versions/0010_token_hook.py').read_bytes()).hexdigest()):
         raise BaselineError('identity_reference_unavailable')
     return reference['token_hook']
+
+
+def trusted_membership_binding_reference():
+    """Independent helper-only fixture, retaining the full historical trust chain."""
+    trusted_token_hook_reference()
+    path=HERE/'membership-binding-reference.json'
+    if MEMBERSHIP_BINDING_REFERENCE_SHA256 is None or not path.exists():
+        raise BaselineError('identity_reference_unavailable')
+    content=path.read_bytes()
+    if sha256(content).hexdigest()!=MEMBERSHIP_BINDING_REFERENCE_SHA256:
+        raise BaselineError('identity_reference_unavailable')
+    reference=json.loads(content)
+    if (reference['source_pins']!=json.loads((HERE/'source-pins.json').read_text())
+        or reference['migration_sha256']!=sha256((HERE/'versions/0011_membership_binding.py').read_bytes()).hexdigest()):
+        raise BaselineError('identity_reference_unavailable')
+    return reference['membership_binding']
