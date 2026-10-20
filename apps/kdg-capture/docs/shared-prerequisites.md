@@ -70,6 +70,12 @@ are complete. Exact live owner/
 ACL differences, ID-B hardening/actors, Access v2 and later readiness remain separate.
 See [Identity evidence](../../../services/access/IDENTITY_BASELINE_EVIDENCE.md).
 
+ID-B's additive actor persistence foundation is implemented and reviewed;
+actual structure/retention/private-role/upgrade/contention proof and 40 focused tests
+pass. It does not complete
+controlled provisioning, membership/current projections or activation. See
+[actor evidence](../../../services/access/ACTOR_FOUNDATION_EVIDENCE.md).
+
 | Existing item / boundary | Minimum KDG-relevant outcome | Acceptance/evidence before consumer | Earliest consumer |
 | --- | --- | --- | --- |
 | ENV | Isolated synthetic Auth/PostgreSQL/Access/KDG target, root frontend lock and independent Python locks, compatible exact tool/container/package set; guarded bootstrap/stop/reset and reachable nonproduction HTTPS/provider callback | Record exact version/lock/source identities and actual command lines; target mismatch/missing config refuses writes; clean install/start with unchanged locks; genuine Entra callback qualification remains distinct from local password fixtures | 1.1 environment; real callback/device proof by 1.7 |

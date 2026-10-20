@@ -176,3 +176,13 @@ PUBLIC privilege differences need separate explicit compatible disposition. Lega
 broad grants remain characterized pending ID-B, not newly accepted as safe. Actual
 provider sign-in, actors/membership/current Access and production activation remain
 separate gates. No startup migration, real-account change or accepted ADR edit.
+
+
+## Bounded ID-B persistence implementation — 2026-10-20
+
+Identity revision2 adds actor/account_actor without new Auth/person/employment/org
+requirements, implicit seeds or runtime authority. The original baseline/source pins
+remain intact; new revision-specific trusted evidence qualifies additive upgrade and
+rollback. See [actor evidence](../../../../services/access/ACTOR_FOUNDATION_EVIDENCE.md).
+Protected classification/provisioning/outcome commands and legacy writer/account
+adoption remain separate delivery work; no live migration or account deletion follows.

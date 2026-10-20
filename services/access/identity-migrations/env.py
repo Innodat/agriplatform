@@ -32,7 +32,7 @@ try:
         # Legacy broad table defaults apply on adoption; the owner ledger must
         # never inherit business-role write privileges.
         connection.exec_driver_sql("REVOKE ALL ON identity.alembic_version FROM PUBLIC, anon, authenticated, service_role, supabase_auth_admin, access_runtime")
-        verify_owned_postcondition(connection)
+        verify_owned_postcondition(connection, require_head=True)
 except BaselineError:
     raise
 except Exception:

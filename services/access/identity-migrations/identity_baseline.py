@@ -12,6 +12,8 @@ from sqlalchemy import text
 HERE = Path(__file__).resolve().parent
 ROOT = HERE.parents[2]
 REVISION = 'identity_0001'
+ACTOR_REVISION = 'identity_0002'
+ACTOR_REFERENCE_SHA256 = 'c83985f3761cbac85666118fdbbd140d324a424a031baea69b6f174d4585cd1a'
 SOURCE_NAMES = (
     '20250815110000_platform_create_identity_schema.sql',
     '20250815150000_platform_auth-hook.sql',
@@ -55,6 +57,8 @@ def compare_catalog(actual, expected):
         raise BaselineError('identity_catalog_mismatch:' + ','.join(changed))
 
 def trusted_reference(kind):
+    if kind == 'actor':
+        return trusted_actor_reference()
     path = HERE/'reference.json'
     if REFERENCE_SHA256 is None or not path.exists():
         raise BaselineError('identity_reference_unavailable')
@@ -65,6 +69,20 @@ def trusted_reference(kind):
     if reference['source_pins'] != json.loads((HERE/'source-pins.json').read_text()):
         raise BaselineError('identity_reference_unavailable')
     return reference[kind]
+
+def trusted_actor_reference():
+    """Additional fixed fixture; original ID-A evidence is never rewritten."""
+    path = HERE/'actor-reference.json'
+    if ACTOR_REFERENCE_SHA256 is None or not path.exists():
+        raise BaselineError('identity_reference_unavailable')
+    data = path.read_bytes()
+    if sha256(data).hexdigest() != ACTOR_REFERENCE_SHA256:
+        raise BaselineError('identity_reference_unavailable')
+    reference = json.loads(data)
+    if (reference['source_pins'] != json.loads((HERE/'source-pins.json').read_text())
+            or reference['migration_sha256'] != sha256((HERE/'versions/0002_actor_registry.py').read_bytes()).hexdigest()):
+        raise BaselineError('identity_reference_unavailable')
+    return reference['actor']
 
 # Object OIDs/physical storage IDs and sequence last values are volatile. Definitions,
 # owners, grants and all semantic seed tuples are retained. No target rows are exported.
@@ -175,15 +193,17 @@ def verify_legacy_history(connection, clean=False):
         raise BaselineError('identity_unknown_legacy_history')
 
 
-def verify_owned_postcondition(connection):
-    verify_owned_history(connection)
+def verify_owned_postcondition(connection, require_head=False):
+    revision = verify_owned_history(connection)
+    if require_head and revision != ACTOR_REVISION:
+        raise BaselineError('identity_unknown_history')
     verify_legacy_history(connection)
-    verify_catalog(connection, 'owned')
+    verify_catalog(connection, 'actor' if revision == ACTOR_REVISION else 'owned')
 
 
 def verify_owned_history(connection):
     revisions = list(connection.execute(text('SELECT version_num FROM identity.alembic_version')).scalars())
-    if revisions != [REVISION]:
+    if revisions not in ([REVISION], [ACTOR_REVISION]):
         raise BaselineError('identity_unknown_history')
     columns = connection.execute(text("SELECT column_name,data_type,character_maximum_length,is_nullable,column_default FROM information_schema.columns WHERE table_schema='identity' AND table_name='alembic_version' ORDER BY ordinal_position")).all()
     if [tuple(row) for row in columns] != [('version_num','character varying',32,'NO',None)]:
@@ -195,3 +215,5 @@ def verify_owned_history(connection):
     constraints = connection.execute(text("SELECT contype,pg_get_constraintdef(oid) FROM pg_constraint WHERE conrelid='identity.alembic_version'::regclass")).all()
     if owner != 'identity_migrator' or extras or column_extras or triggers or [tuple(row) for row in constraints] != [('p','PRIMARY KEY (version_num)')]:
         raise BaselineError('identity_unknown_history')
+
+    return revisions[0]

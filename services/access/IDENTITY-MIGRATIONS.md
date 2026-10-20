@@ -1,4 +1,4 @@
-# Identity baseline and source handover (ID-A)
+# Identity baseline and durable actor foundation (ID-A / ID-B)
 
 Identity retains its own migration history under the existing Access maintainer.
 `identity-alembic.ini` uses `identity-migrations/`, `identity.alembic_version`, the
@@ -77,7 +77,7 @@ privileged DDL, ACL changes or permission-seed editing. The advisory lock does n
 exclude noncooperating administrative sessions.
 
 After migrations and private ledger grant cleanup, the same transaction requires the
-exact known owned head, validates private ledger table and column ACLs, rechecks the
+exact known actor foundation head (`identity_0002`), validates private ledger table and column ACLs, rechecks the
 legacy source history and verifies the complete owned catalog fingerprint. This
 postcondition applies to clean setup, adoption and retries; an unknown/elevated profile
 or an upgrade target that leaves an empty ledger rolls back before commit. The trusted
@@ -87,7 +87,7 @@ or target self-approval is available.
 For equivalent legacy synthetic state, use the same upgrade command with
 `IDENTITY_MIGRATION_MODE=adopt`. Adoption first compares a read-only catalog against
 the pinned repository reference, applies only the existing Access bridge and records
-`identity_0001`. It never reruns source CREATEs or edits the original Supabase ledger.
+`identity_0001` before the additive `identity_0002` step in the same transaction. It never reruns source CREATEs or edits the original Supabase ledger.
 Any six historical source entries found must form the complete exact named source
 set. An absent ledger is supported for a manually established source-equivalent
 schema. Unknown Identity history refuses. Business rows, sequence values and external
@@ -157,8 +157,9 @@ retains account profile creation and existing claim behavior. The legacy create_
 helper remains defined but is not supported real-account provisioning; administrator
 Auth INSERT authority is deliberately not conferred on the migrator.
 
-Actor registry, revised membership lifecycle, account/grant migration and Access v2
-remain ID-B/ACCESS work. No readiness promotion, Leave implementation, runtime service,
+The additive actor persistence foundation is described below. Controlled actor/account
+provisioning, revised membership lifecycle, account/grant adoption and Access v2 remain
+later ID-B/ACCESS work. No readiness promotion, Leave implementation, runtime service,
 new release runner or deployment is introduced.
 
 ## Acceptance traceability and impacts
@@ -179,3 +180,88 @@ root-owned inventory/evidence/navigation handoff. ADR: existing 0016/0017/0020 a
 Identity decisions govern; accepted ADRs are unchanged. Exact execution commands,
 results, reference/lock/source hashes and normal environment stop are retained by
 root qualification; unit tests alone are not actual restricted-role/Auth proof.
+
+
+## Additive durable actor persistence (ID-B)
+
+The existing owner route now finishes at `identity_0002`. Preflight recognizes only
+an exact private `identity_0001` or `identity_0002` ledger and compares the catalog
+against the reference for that revision before running any upgrade. Revision1 still
+uses the original `reference.json` and original source pins byte for byte. Revision2
+uses the additional fixed `actor-reference.json`, whose own digest and revision2
+migration digest are pinned and checked. The final transaction requires revision2;
+requests leaving the old head, unknown history, modified catalogs or unavailable
+references roll back. Clean and verified adoption routes run both revisions in order;
+an existing qualified revision1 receives only the additive step. Current-head retries
+verify the full catalog and leave rows unchanged. Stamp and downgrade remain prohibited.
+
+`identity.actor` stores stable account/system/service attribution without any Auth,
+person, employment or organization dependency. `identity.account_actor` retains one
+unique immutable account-to-account-kind actor association with no external Auth FK.
+Neither table is an admission, membership, role or grant. Empty schema migrations seed
+no actors or mappings, and account mapping existence does not verify a real account.
+Later controlled provisioning must establish classification and live-account evidence.
+
+Actor IDs and kind, assigned keys, and creation actor/time cannot change. A null key
+may be assigned once; display labels may change. Local actor FKs use RESTRICT, including
+the account-kind composite mapping FK. Actor deletion and truncation are rejected;
+mapping update, deletion and truncation are rejected. Nil IDs, invalid kinds, blank or
+more-than-200-code-point labels, invalid ASCII keys and conflicting mappings fail at
+the database boundary. PostgreSQL rejects NUL text before the row can be stored.
+
+No runtime actor selector or operator command is introduced. Only the actual
+`identity_migrator` owner may exercise the new write triggers. Explicit synthetic owner
+fixtures supply `created_by`, including a self-reference for a first bootstrap actor;
+actor insertion derives `updated_by` from it. The server overrides insert timestamps
+with `statement_timestamp()` and updates the last-change time for label/key changes.
+No-op updates retain prior last-change fields. Fixture attribution is not a permission
+to adopt real identities; runtime executor derivation remains a later delivery gate.
+
+Legacy default privileges remain unchanged for existing consumers. The migration
+revokes inherited/default ACL entries from every nonowner grantee on both new tables
+and guard functions, including PUBLIC function execution. No new sequence exists.
+The migration owner retains raw authority; ordinary browser, runtime and Auth roles
+receive no new table or function privileges. Privileged database administrators,
+including the qualified vendor postgres with pg_read_all_data/owner memberships,
+retain their pre-existing administrative authority; this is not a sandbox against them. Functions have a fixed
+`pg_catalog, pg_temp` search path and enforce retention at the structural boundary.
+
+The synthetic qualification owner records the additional fixture through:
+
+```sh
+OWNER_PYTHON -I -B services/access/tests/qualify_identity_baseline.py --record-actor-reference
+```
+
+`OWNER_PYTHON` means the prepared fresh interpreter verified against the existing
+owner lock, not an arbitrary system interpreter. The private validated qualification
+fixture must include a genuinely empty `actor_reference` scratch case. The recorder
+executes the original pinned sources, bridge and fixed integration, verifies the old
+owned catalog, and applies the new revision SQL inside a transaction that always rolls
+back. It rechecks clean eligibility after rollback and atomically publishes the new
+fixture exclusively. It never approves an existing target catalog or alters the old
+reference. Recording is developer fixture work, not a migration bypass or release step.
+
+If fixture publication is interrupted, stop recording and preserve every partial
+output, the module pin, private receipt/log and any `.actor-reference-recording` file.
+An existing temporary file may belong to another recorder and must not be removed by
+a competing invocation. Inspect source/pin/file identities and reconcile which steps
+completed; a published file without its matching pin is not usable trusted evidence.
+Retain partial artifacts separately before an authorized retry. Re-record independently
+from the known pinned sources in a fresh empty synthetic case and compare the evidence;
+never fill a missing pin by approving a target's exported catalog. Original ID-A
+reference bytes and its pin remain unchanged. No automatic recovery or cleanup engine
+is introduced.
+
+Actual restricted-login tests and exact commands/results live in
+[ACTOR_FOUNDATION_EVIDENCE.md](ACTOR_FOUNDATION_EVIDENCE.md). The implementation retains
+legacy Auth hook/profile behavior, existing membership/role semantics, application
+references and old source history. Release activation remains blocked until the
+coordinated owner migration and relevant compatibility verification pass. Recovery
+uses reconciliation and explicit forward repair or tested restore; no automatic
+reverse migration is available.
+
+Scaffold: the recipe remains owner-local and unpromoted. Shared UI: none. Agent
+context: existing rules suffice; no update. Documentation: this runbook and root-owned
+evidence, inventory and KDG navigation. ADR: existing 0020/0025/0056 govern the change;
+accepted ADRs remain unchanged. Runtime projections, operator/outcome commands, account
+adoption and authorization are outside this persistence-only foundation.

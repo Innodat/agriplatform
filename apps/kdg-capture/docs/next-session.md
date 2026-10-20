@@ -1,6 +1,21 @@
 # Resume shared ENV delivery after KDG planning PASS
 
-## Current ID-A increment — verified Identity baseline, 2026-10-20
+## Current ID-B increment — durable actor persistence, 2026-10-20
+
+The first bounded ID-B increment adds actor/account mapping structures in the existing
+Identity chain, with revision-specific trusted verification preserving ID-A's fixture.
+Actual clean/adopt/previous-code upgrade, rollback, structural/retention and runtime
+privilege tests pass; 40 focused tests and both composer checks pass. Three-layer
+review corrections and a complete fresh qualification pass; no implementation deferred.
+The synthetic environment is normally stopped with data/resources retained. See [Build](../../../_bmad-output/implementation-artifacts/spec-id-b-actor-foundation.md)
+and [evidence](../../../services/access/ACTOR_FOUNDATION_EVIDENCE.md).
+
+This is persistence only. Protected provisioning/operator outcomes, legacy adoption,
+membership/current projections, Access/WRITE and server KDG remain later gates.
+No implicit actor seeds, real account/provider/access changes, Leave/editor or deployment.
+Preserve concurrent documents, original sources/references, receipts/state and resources.
+
+## Previous ID-A increment — verified Identity baseline, 2026-10-20
 
 The first bounded Identity delivery establishes a separate owner migration history,
 verified equivalent adoption and explicit composition/release handover. Clean/adopt,
