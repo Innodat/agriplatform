@@ -382,6 +382,75 @@ class KongSourceIntent(unittest.TestCase):
         self.f = boundary_fixture()
         self.f['network']['Id'] = 'b' * 64
 
+    def native_key_oracle(self):
+        """Independent HMAC oracle for the pinned no-signing-file public defaults."""
+        import base64
+        import hmac
+        import re
+        source = ROOT / 'platform/deployment/fixtures/supabase-kong-source'
+        defaults = (source / 'Defaults.ts').read_text()
+        def constant(name):
+            return json.loads(re.search(r'export const ' + name + r' = ("[^"\n]+");', defaults)[1])
+        secret = constant('DEFAULT_LOCAL_JWT_SECRET')
+        def encode(raw): return base64.urlsafe_b64encode(raw).rstrip(b'=')
+        def token(role):
+            header = encode(b'{"alg":"HS256","typ":"JWT"}')
+            payload = encode(json.dumps({'iss': 'supabase-demo', 'role': role, 'exp': 1983812996},
+                                        separators=(',', ':')).encode())
+            data = header + b'.' + payload
+            return (data + b'.' + encode(hmac.digest(secret.encode(), data, 'sha256'))).decode()
+        return (constant('DEFAULT_LOCAL_SECRET_KEY'), token('service_role'),
+                constant('DEFAULT_LOCAL_PUBLISHABLE_KEY'), token('anon'))
+
+    def test_public_native_defaults_match_independent_tokens_and_gateway_bytes(self):
+        expected = self.native_key_oracle()
+        self.assertTrue(create_profile.KONG_KEYS == expected, 'closed public key defaults differ from pinned signer')
+        config = create_profile.kong_transfer_files(self.f)['home/kong/kong.yml']
+        for index, key in enumerate(expected):
+            with self.subTest(key_index=index):
+                self.assertTrue(config.count(key.encode()) >= 2, 'native default missing from gateway substitutions')
+
+    def test_native_defaults_are_the_selected_no_override_branch(self):
+        import re
+        import tomllib
+        target = target_fixture()
+        config = tomllib.loads(dev.configuration(target, self.f['run_id']).decode())
+        for name in ('signing_keys_path', 'jwt_secret', 'anon_key', 'service_role_key', 'secret_key', 'publishable_key'):
+            self.assertNotIn(name, config['auth'])
+        defaults = (ROOT / 'platform/deployment/fixtures/supabase-kong-source/Defaults.ts').read_text()
+        secret = json.loads(re.search(r'export const DEFAULT_LOCAL_JWT_SECRET = ("[^"\n]+");', defaults)[1])
+        self.assertTrue(create_profile.auth_environment({**self.f, 'origins': target['origins']})['GOTRUE_JWT_SECRET'] == secret,
+                        'Auth and public token signing defaults differ')
+        baseline = create_profile.kong_transfer_files(self.f)
+        overrides = {name: 'private-input-sentinel' for name in (
+                'JWT_SECRET', 'SUPABASE_AUTH_JWT_SECRET', 'SUPABASE_AUTH_SIGNING_KEYS_PATH',
+                'SUPABASE_AUTH_ANON_KEY', 'SUPABASE_AUTH_SERVICE_ROLE_KEY',
+                'SUPABASE_AUTH_SECRET_KEY', 'SUPABASE_AUTH_PUBLISHABLE_KEY')}
+        for values in [{name: value} for name, value in overrides.items()] + [overrides]:
+            with self.subTest(overrides=tuple(values)), patch.dict(os.environ, values, clear=True):
+                self.assertTrue(create_profile.kong_transfer_files(self.f) == baseline,
+                                'ambient credentials entered closed public fixture')
+
+    def test_each_altered_native_key_transfer_is_refused_without_values(self):
+        import re
+        args, env = create_profile.kong_request(self.f), dict(create_profile.KONG_ENV)
+        request = create_profile.kong_execution_request(self.f)
+        for index, key in enumerate(self.native_key_oracle()):
+            baseline = create_profile.kong_transfer_files(self.f)
+            data = baseline['home/kong/kong.yml']
+            positions = list(re.finditer(re.escape(key.encode()), data))
+            self.assertGreaterEqual(len(positions), 2, 'key mutation positions absent')
+            for occurrence, match in enumerate(positions):
+                with self.subTest(key_index=index, occurrence=occurrence):
+                    files = dict(baseline)
+                    files['home/kong/kong.yml'] = data[:match.start()] + b'private-input-sentinel' + data[match.end():]
+                    with self.assertRaises(dev.Refusal) as caught:
+                        create_profile.validate_kong_intent(args, env, request, files, self.f)
+                    self.assertEqual((caught.exception.stage, caught.exception.code), ('startup', 'unsafe_create'))
+                    self.assertNotIn('private-input-sentinel', str(caught.exception))
+                    self.assertTrue(all(value not in str(caught.exception) for value in self.native_key_oracle()),
+                                    'refusal disclosed a key value')
+
     def source_oracle(self):
         """Decode immutable upstream text directly, without production profile helpers."""
         import re
@@ -398,10 +467,7 @@ class KongSourceIntent(unittest.TestCase):
         script = (script_head + literal('custom_nginx.template.ts', 'START_CUSTOM_NGINX_TEMPLATE')
                   + json.loads(script_tail))
         # Each expression comes from its own pinned builder, with every key replaced.
-        keys = {'secretKey': 'public-synthetic-secret-key',
-                'serviceRoleKey': 'public-synthetic-service-role-key',
-                'publishableKey': 'public-synthetic-publishable-key',
-                'anonKey': 'public-synthetic-anon-key'}
+        keys = dict(zip(('secretKey', 'serviceRoleKey', 'publishableKey', 'anonKey'), self.native_key_oracle()))
         expressions = {}
         for field, function in [('BearerToken', 'buildKongBearerToken'), ('QueryToken', 'buildKongQueryToken')]:
             function_body = builder.split('export function ' + function + '(', 1)[1].split('\n}', 1)[0]
@@ -549,6 +615,7 @@ class KongSourceIntent(unittest.TestCase):
 
 
 class KongDisposableProfile(unittest.TestCase):
+    native_key_oracle = KongSourceIntent.native_key_oracle
     setUp = KongSourceIntent.setUp
     source_oracle = KongSourceIntent.source_oracle
 

@@ -1545,3 +1545,27 @@ Independent one-shot review addresses all six findings, with no new review defer
 Three final targeted methods prove the expanded12-form/phase matrix, full-row
 preservation, unrelated hostile-field refusal and versioned process-fixture overlay.
 Broader selected tests and actual qualification retain their explicit source frames.
+
+
+### Fixed public Kong native defaults — 2026-10-20
+
+The existing closed Kong fixture now embeds the publisher's public local opaque
+keys and exact HS256 anon/service_role defaults. It has no runtime signer or caller
+credential input. The no-signing-file/no-override target, Auth secret agreement,
+independent HMAC oracle and exact pinned-source signer fragment under verified
+Node26.11.1 establish these fixed bytes; complete CLI resolution, custom/asymmetric
+keys and functional Auth remain unproved. See
+[native-key evidence](ENV_KONG_NATIVE_KEYS_EVIDENCE.md) for exact commands, source
+bindings, original test failures, reproduction and five impact decisions.
+
+The earlier actual Kong lifecycle qualification uses placeholder markers and remains
+historical on that source frame. This transfer change is tested with synthetic peers
+only; fresh source-bound prerequisites are required before future actual startup.
+Host Docker is not accessed by this increment. Existing transport/image/create/
+custody/deadline rules and all runtime/dependent gates remain unchanged.
+
+ATDD/focused TDD and one-shot review complete:80 distinct selected methods pass across
+recorded source frames; final9 targeted methods pass on48 unchanged bindings. All
+six review findings are addressed. Hardened standalone proof pins known artifact
+hashes, uses verified source buffers, compares the delivered tuple and rechecks bytes.
+Both stdout/stderr are tested, including contained positive-control key injection.

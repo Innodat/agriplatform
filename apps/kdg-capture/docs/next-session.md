@@ -1,5 +1,23 @@
 # Resume shared ENV delivery after KDG planning PASS
 
+Current continuation — 2026-10-20: bmad-help selects the remaining native-key fixture
+prerequisite after the actual Kong lifecycle checkpoint. The existing fixture now
+uses fixed public publisher opaque defaults and exact HS256 anon/service_role tokens.
+Acceptance RED, independent HMAC and exact pinned-source execution under verified
+Node26.11.1 establish the bytes; 80 distinct selected methods pass across recorded frames, with final9 methods on48
+unchanged bindings. Independent review addresses all six findings, none newly deferred. See
+[native-key evidence](../../../platform/deployment/ENV_KONG_NATIVE_KEYS_EVIDENCE.md) and
+[Build](../../../_bmad-output/implementation-artifacts/spec-env-kong-native-keys.md).
+No new runtime signer, credential input, generator or service is introduced.
+
+This increment does not access host Docker or qualify functional Auth/full native CLI
+resolution. The actual lifecycle checkpoint below is historical on the placeholder-
+key frame; changed-source startup requires fresh prerequisites. Next bounded owner
+work is the selected GoTrue service profile/setup/custody and functional routing,
+then remaining ENV services and consuming scaffold proof. All runtime/fresh-setup/
+Identity/Access/WRITE/server KDG gates remain. Preserve receipts/resources/concurrent
+work, TS7.0.2/mail15484, existing owners and all original authorization boundaries.
+
 Current checkpoint — 2026-10-20: the nullable OomKillDisable correction now passes
 actual disposable Kong create/transfer/health/shutdown/disposal with normal cleanup.
 True and wrong types still refuse; create/transport/custody/deadlines are unchanged.

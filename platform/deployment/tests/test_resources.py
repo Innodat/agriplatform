@@ -1528,6 +1528,7 @@ class ExecutionSupervisor(unittest.TestCase):
     source_with_descendant = Resources.source_with_descendant
 
     def run_execution_case(self, scenario, *, runner=None, observed_kong_projection=False):
+        import create_profile
         import json
         import sys
         import tempfile
@@ -2061,7 +2062,7 @@ else: sys.exit(125)
                 try:
                     with ExitStack() as patches:
                         rejected_stdout, rejected_stderr = io.StringIO(), io.StringIO()
-                        if kong and scenario != 'auth-kong-positive':
+                        if kong:
                             patches.enter_context(redirect_stdout(rejected_stdout))
                             patches.enter_context(redirect_stderr(rejected_stderr))
                         for context in (
@@ -2104,6 +2105,11 @@ else: sys.exit(125)
                     server.shutdown()
                     thread.join(timeout=1)
 
+        if kong:
+            emitted = rejected_stdout.getvalue() + rejected_stderr.getvalue()
+            if result is not None: emitted += output.getvalue()
+            for key in create_profile.KONG_KEYS:
+                self.assertTrue(key not in emitted, 'process output exposed a native public key')
         if kong_execution:
             guard = guards[0]
             self.assert_stopped(pids)
@@ -2175,8 +2181,7 @@ else: sys.exit(125)
             for stream in (rejected_stdout, rejected_stderr):
                 emitted = stream.getvalue()
                 for marker in ('private-input-sentinel', 'invalid-transfer',
-                               'public-synthetic-secret-key', 'public-synthetic-service-role-key',
-                               'public-synthetic-publishable-key', 'public-synthetic-anon-key'):
+                               *create_profile.KONG_KEYS):
                     self.assertTrue(marker not in emitted, 'rejected process output exposed a protected marker')
             guard = guards[0]
             self.assertIsNone(result)
@@ -2781,6 +2786,22 @@ else: sys.exit(125)
 
     def test_kong_boundary_process_source_intent_and_cleanup(self):
         self.run_execution_case('auth-kong-positive')
+
+    def test_kong_boundary_process_positive_stderr_is_checked_for_keys(self):
+        import io
+        import sys
+        import create_profile
+        import qualify_startup
+        from contextlib import redirect_stderr
+        from unittest.mock import patch
+        original = qualify_startup.main
+        def emit_public_fixture_key(*args, **kwargs):
+            print(create_profile.KONG_KEYS[0], file=sys.stderr)
+            return original(*args, **kwargs)
+        # Contain the injected public fixture even before the inner capture is fixed.
+        with redirect_stderr(io.StringIO()), patch.object(qualify_startup, 'main', side_effect=emit_public_fixture_key):
+            with self.assertRaisesRegex(AssertionError, 'process output exposed a native public key'):
+                self.run_execution_case('auth-kong-positive')
 
     def test_kong_boundary_process_deadline_and_interruption_never_qualify(self):
         for scenario in ('auth-kong-expiry', 'auth-kong-interrupt'):

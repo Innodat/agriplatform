@@ -240,9 +240,14 @@ def validate_kong_image_config(config):
         refuse()
 
 
-# Deliberately public markers, never minted JWTs or caller-supplied credentials.
-KONG_KEYS = ('public-synthetic-secret-key', 'public-synthetic-service-role-key',
-             'public-synthetic-publishable-key', 'public-synthetic-anon-key')
+# Fixed public publisher defaults for the closed synthetic no-signing-file target.
+# Public source/signature proof: ENV_KONG_NATIVE_KEYS_EVIDENCE.md; never caller credentials.
+KONG_KEYS = (
+    'sb_secret_N7UND0UgjKTVK-Uodkm0Hg_xSvEMPvz',
+    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImV4cCI6MTk4MzgxMjk5Nn0.EGIM96RAZx35lJzdJsyH-qQwv8Hdp7fsn3W0YpN81IU',
+    'sb_publishable_ACJWlzQHlZjBrEguHvfOxg_3BJgxAaH',
+    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6ImFub24iLCJleHAiOjE5ODM4MTI5OTZ9.CRXP1A7WOeoJeXxjNni43kdQwgnWNReilDMblYTn_I0',
+)
 KONG_ENV = {
     'KONG_DATABASE': 'off', 'KONG_DECLARATIVE_CONFIG': '/home/kong/kong.yml',
     'KONG_DNS_ORDER': 'LAST,A,CNAME', 'KONG_DNS_NOT_FOUND_TTL': '1',

@@ -2,7 +2,8 @@
 
 These fourteen TypeScript files are exact public source snapshots from Supabase
 CLI2.120.0 commit753520fa7202ed5f8b25883a4c0aa7e5e9ad1fc4. They are data fixtures,
-never imported or executed as TypeScript. sources.json records every original URL
+never imported or executed by runtime delivery code. The separate offline native-key
+proof executes only the exact retained HS256 signer fragment under pinned Node. sources.json records every original URL
 and SHA256. Preserve their bytes; make any future source change through a deliberately
 reviewed profile update. The owner source-evidence inventory binds all fourteen files
 and the manifest. This document records derivation, not another generator.
@@ -24,11 +25,15 @@ service names are run-derived and realtime-env.ts supplies realtime-dev. The pub
 embedded certificate/key are decoded from the named JSON string literals. No custom
 TLS, email mounts, ambient credentials or generic templates are accepted.
 
-KONG_KEYS deliberately contains four recognizable public synthetic markers rather
-than native minted tokens. Defaults/local-config/go-jwt snapshots establish source
-provenance and explain the native branch, but this item neither reproduces nor
-qualifies native minted JWTs. No publisher create/copy request is captured. Runtime
-configuration, real accounts, callbacks and full gateway behavior remain unqualified.
+KONG_KEYS now contains the fixed public publisher local opaque defaults and exact
+HS256 anon/service_role tokens for the selected no-signing-file/no-override target.
+Independent HMAC checks and execution of the exact retained go-jwt signer fragment
+under fingerprint-verified Node26.11.1 agree on both token byte sequences. See
+[native-key evidence](../../ENV_KONG_NATIVE_KEYS_EVIDENCE.md). There is no runtime
+signer or credential input. Custom/asymmetric keys, full CLI key resolution, a native
+publisher create/copy capture, functional Auth routing, real accounts and callbacks
+remain unqualified. The previous actual Kong lifecycle proof used placeholder markers;
+this changed transfer needs fresh source-bound prerequisites before actual startup.
 
 startup_lifecycle.py constructs a separate in-memory USTAR archive with exactly three
 ordered regular files, uid/gid0, mode0644 and synthetic mtime0: home/kong/kong.yml,
@@ -51,3 +56,8 @@ bytes with the retained fixture. The root investigation already performed that
 comparison for all fourteen files. No runtime input is used as authority or repaired
 into a receipt. The retained decoded-source digest record is under ignored
 platform/deployment/.local/kong-boundary/public-source-decoded-bindings.json.
+
+
+The earlier boundary-only execution descriptions above are historical derivation
+notes. Subsequent lifecycle acceptance is recorded in ENV_KONG_OOM_DEFAULT_EVIDENCE.md;
+its runtime/source frame predates this fixed-public-key transfer change.
