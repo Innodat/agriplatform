@@ -1468,3 +1468,40 @@ qualification pattern; shared UI has no consumer; agent context stays sufficient
 this owner runbook and root evidence/inventory/navigation record actual verification;
 accepted ADRs are unchanged. New12 is a structural prerequisite, not an ID-B completion
 or broader readiness claim.
+
+
+## One-way retirement (identity_0013)
+
+The existing membership guard additionally refuses changing a nonnull deleted_at through
+ordinary UPDATE, seed conflict update or retry:23514,
+identity_membership_retirement_immutable, org_member_retirement_immutable. Equal timestamps
+remain noops; active updates/seed and null-to-retired keep existing revision behavior.
+Initial legacy timestamps and all data remain intact. Only the guard body changes;
+function identity/owner/ACL/invoker/search_path, triggers, constraints and other functions
+remain unchanged. Historical revisions/references are immutable.
+
+Active legacy seed writes remain supported; retired-member reactivation now deliberately
+refuses atomically. Do not rerun legacy seeds as a membership recovery/rejoin procedure.
+The unconditional org/account unique constraint remains; partial uniqueness and active
+seed/provisioning lookups must change together in a later coordinated item. Server-time/
+audit/expected-revision owner retirement and explicit fresh-ID join commands, protected
+writer transition, live-account verification and Access/WRITE remain delivery gates.
+No authorized lifecycle/API or real-target activation is implied by a structural guard.
+
+Root prepares the existing private fixture protocol using membership_retirement_reference
+instead of the previous reference case and retains member-retention-fixtures.json keys.
+Run tests/qualify_membership_retirement.py --characterize against canonical12 first, then
+the normal matrix. Use tests/qualify_identity_baseline.py
+--record-membership-retirement-reference only once against its empty known-source case;
+root independently inspects/pins13. Preserve all prior pins and source. Follow
+[retirement evidence](MEMBERSHIP_RETIREMENT_EVIDENCE.md) for exact commands, receipts,
+limits and five impacts. Live adoption/cutover requires ADR-0020 compatibility/recovery;
+no automatic downgrade or source normalization, no reset/prune.
+
+The synthetic CREATE FUNCTION failure fixture records a nontransactional sequence marker
+only after the new guard is visible. Verify that witness before claiming rollback at the
+injection point; generic safe migration failure alone is insufficient. The marker's narrow
+migrator USAGE and all temporary event/function/sequence objects are fixture-only and
+restored with retained witnesses. Final evidence distinguishes this from rollback of
+ordinary sequence consumption. Retiming checks include backward and microsecond changes;
+equivalent-offset representations of the same instant remain noops.

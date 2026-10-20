@@ -23,10 +23,11 @@ FK_DEFINITIONS={
 
 
 class MembershipRetentionQualification(binding.MembershipBindingQualification):
+    required_cases=REQUIRED_CASES
     def validate_targets(self):
         # Reuse exact numeric/UUID/headroom validation without publishing another fixture.
         for group in ['owner_urls','runtime_urls','databases']:
-            assert set(self.private[group])==REQUIRED_CASES,'membership_retention_cases_invalid'
+            assert set(self.private[group])==self.required_cases,'membership_retention_cases_invalid'
         self.inputs=json.loads((self.proof/'member-retention-fixtures.json').read_text())
         assert set(self.inputs)=={'characterization','clean'}
         for row in self.inputs.values():

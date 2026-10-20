@@ -32,13 +32,13 @@ def test_retention_migration_preserves_guard_and_limits_constraint_replacement()
     with pytest.raises(RuntimeError,match='Destructive'):revision.downgrade()
 
 
-def test_retention_is_head_with_prior_history_available(monkeypatch):
+def test_retention_is_historical_with_prior_history_available(monkeypatch):
     b=qualification.baseline
     assert b.MEMBERSHIP_RETENTION_REVISION=='identity_0012'
     monkeypatch.setattr(b,'verify_legacy_history',lambda c:None)
     monkeypatch.setattr(b,'verify_owned_history',lambda c:b.MEMBERSHIP_RETENTION_REVISION)
     seen=[];monkeypatch.setattr(b,'verify_catalog',lambda c,k:seen.append(k))
-    b.verify_owned_postcondition(object(),require_head=True)
+    b.verify_owned_postcondition(object())
     assert seen==['membership_retention']
     monkeypatch.setattr(b,'verify_owned_history',lambda c:b.MEMBERSHIP_BINDING_REVISION)
     b.verify_owned_postcondition(object())

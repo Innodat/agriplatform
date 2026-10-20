@@ -325,3 +325,13 @@ Existing profile→Auth FK remains unchanged; physical account deletion is not p
 See [retention evidence](../../../../services/access/MEMBERSHIP_RETENTION_EVIDENCE.md) for
 source-bound verification and compatibility limits. Retirement/rejoin, seed transition,
 owner commands/live-account verification and Access/WRITE/server KDG remain gated.
+
+
+## Bounded one-way membership retirement —2026-10-20
+
+Identity revision13 extends the same guard to retain a retired member's timestamp and
+prevent ordinary update/seed/retry reactivation. It changes no rows, historical source,
+constraints/triggers/ACLs or unique index. Active writers/readers remain; retired seed
+reactivation deliberately refuses. [Evidence](../../../../services/access/MEMBERSHIP_RETIREMENT_EVIDENCE.md)
+records actual proof and limits. Authorized lifecycle commands, partial active uniqueness,
+active seed/rejoin transition and real-target compatibility/activation remain gated.

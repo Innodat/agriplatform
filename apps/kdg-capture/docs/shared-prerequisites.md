@@ -256,3 +256,13 @@ protects member DELETE/TRUNCATE without new grants. Reviewed actual matrix PASS4
 Original Auth FK and mutable/seed/read behavior stay. Retirement/rejoin/uniqueness, owner
 commands/live-account verification, Access/WRITE and server KDG remain delivery gates;
 no broader readiness or live-target activation claim. Historical/concurrent work stays.
+
+
+## One-way membership retirement —2026-10-20
+
+Revision13 adds a guard against retired-member reactivation/retiming; active seed/read
+behavior remains. Retired seed upserts deliberately refuse. See
+[evidence](../../../services/access/MEMBERSHIP_RETIREMENT_EVIDENCE.md). Reviewed actual matrix
+PASS35.569s;766 affected tests/both composers PASS, three reviews complete, no deferrals.
+Uniqueness/rejoin/seed transition, authorized lifecycle commands/protected
+writers, live-account verification, Access/WRITE/server KDG remain gated.

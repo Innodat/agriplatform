@@ -997,6 +997,98 @@ class Qualification:
         self.records.append({'label':'trusted-membership-retention-reference','status':'passed','sha256':sha(content),'migration_sha256':reference['migration_sha256'],'known_source_case':'membership_retention_reference','rolled_back':True,'helper_sha256':sha(captured[module]),'source_sha256':{str(path.relative_to(OWNER)):sha(data) for path,data in captured.items()},'pin_update_required':True})
         self.persist();print('trusted-membership-retention-reference PASS',sha(content),flush=True)
 
+    def record_membership_retirement_reference(self):
+        """Independent rollback-only fixture, verifying every historical catalog through12."""
+        if not __debug__:
+            raise RuntimeError('membership_retirement_reference_optimized_python_prohibited')
+        destination=OWNER/'membership-retirement-reference.json'
+        assert not destination.exists(), 'membership_retirement_reference_already_exists'
+        module=OWNER/'identity_baseline.py'
+        captured = {module: module.read_bytes(), OWNER/'source-pins.json': (OWNER/'source-pins.json').read_bytes()}
+        assert (Path(baseline.__file__).resolve()==module.resolve()
+                and sha(captured[module])==baseline.IMPORTED_SOURCE_SHA256), 'membership_retirement_reference_stale_imported_helper'
+        assert b'MEMBERSHIP_RETIREMENT_REFERENCE_SHA256 = None' in captured[module]
+        for name in ['reference.json','actor-reference.json','projection-reference.json','organization-reference.json','authority-reference.json','command-reference.json','target-reference.json','profile-reference.json','legacy-role-reference.json','token-hook-reference.json','membership-binding-reference.json','membership-retention-reference.json']:
+            path=OWNER/name; captured[path]=path.read_bytes()
+        baseline.trusted_membership_retention_reference()
+        revisions=[]
+        for name in ['0001_baseline.py','0002_actor_registry.py','0003_current_account_actor.py','0004_current_account_organization.py','0005_operator_authority.py','0006_actor_command.py','0007_organization_targets.py','0008_profile_fields.py','0009_legacy_roles.py','0010_token_hook.py','0011_membership_binding.py','0012_membership_retention.py','0013_membership_retirement.py']:
+            path = OWNER/'versions'/name
+            captured[path] = path.read_bytes()
+            # Execute the exact captured source that the fixture digest binds.
+            spec=importlib.util.spec_from_file_location('projection_source_'+name[:4],path)
+            revision=importlib.util.module_from_spec(spec)
+            exec(compile(captured[path], str(path), 'exec'), revision.__dict__)
+            revisions.append(revision)
+        db=engine(self.private['owner_urls']['membership_retirement_reference'])
+        try:
+            with db.connect() as connection:
+                transaction=connection.begin()
+                try:
+                    connection.execute(text("SET LOCAL statement_timeout='60s'; SET LOCAL lock_timeout='5s'"))
+                    assert baseline.preflight(connection,'clean')=='clean'
+                    baseline.verify_projection_role(connection,staged=True)
+                    baseline.verify_authority_roles(connection,staged=True)
+                    baseline.verify_command_role(connection,staged=True)
+                    baseline.verify_target_roles(connection,staged=True)
+                    for source in baseline.source_sql():connection.exec_driver_sql(source)
+                    connection.exec_driver_sql(revisions[0].LEGACY_INTEGRATION_SQL)
+                    baseline.verify_catalog(connection,'owned')
+                    connection.execute(text(revisions[1].ACTOR_SCHEMA_SQL))
+                    baseline.verify_catalog(connection,'actor')
+                    connection.execute(text(revisions[2].PROJECTION_SCHEMA_SQL))
+                    baseline.verify_catalog(connection,'projection')
+                    connection.execute(text(revisions[3].ORGANIZATION_SCHEMA_SQL))
+                    baseline.verify_projection_role(connection)
+                    baseline.verify_catalog(connection,'organization')
+                    connection.execute(text(revisions[4].AUTHORITY_SCHEMA_SQL))
+                    baseline.verify_catalog(connection,'authority')
+                    connection.exec_driver_sql(revisions[5].COMMAND_SCHEMA_SQL, execution_options={'no_parameters': True})
+                    baseline.verify_command_role(connection)
+                    baseline.verify_catalog(connection,'command')
+                    connection.exec_driver_sql(revisions[6].TARGET_SCHEMA_SQL, execution_options={'no_parameters': True})
+                    baseline.verify_target_roles(connection)
+                    baseline.verify_catalog(connection,'target')
+                    connection.exec_driver_sql(revisions[7].PROFILE_FIELDS_SQL, execution_options={'no_parameters': True})
+                    baseline.verify_profile_privileges(connection)
+                    baseline.verify_catalog(connection,'profile')
+                    connection.exec_driver_sql(revisions[8].LEGACY_ROLES_SQL, execution_options={'no_parameters': True})
+                    baseline.verify_catalog(connection,'legacy_roles')
+                    connection.exec_driver_sql(revisions[9].TOKEN_HOOK_SQL, execution_options={'no_parameters': True})
+                    baseline.verify_catalog(connection,'token_hook')
+                    connection.exec_driver_sql(revisions[10].MEMBERSHIP_BINDING_SQL, execution_options={'no_parameters': True})
+                    baseline.verify_catalog(connection,'membership_binding')
+                    connection.exec_driver_sql(revisions[11].MEMBERSHIP_RETENTION_SQL, execution_options={'no_parameters': True})
+                    baseline.verify_catalog(connection,'membership_retention')
+                    connection.exec_driver_sql(revisions[12].MEMBERSHIP_RETIREMENT_SQL, execution_options={'no_parameters': True})
+                    fingerprints=baseline.catalog_fingerprints(baseline.target_catalog_snapshot(connection))
+                finally:
+                    transaction.rollback()
+            with db.connect() as connection:
+                connection.execute(text("SET LOCAL statement_timeout='60s'; SET LOCAL lock_timeout='5s'"))
+                assert baseline.preflight(connection,'clean')=='clean'
+                baseline.verify_projection_role(connection,staged=True)
+                baseline.verify_authority_roles(connection,staged=True)
+                baseline.verify_command_role(connection,staged=True)
+                baseline.verify_target_roles(connection,staged=True)
+        finally:db.dispose()
+        reference={'_generated':'GENERATED by tests/qualify_identity_baseline.py --record-membership-retirement-reference; change owning fixture/code, never hand-edit',
+                   'source_pins':json.loads(captured[OWNER/'source-pins.json']),
+                   'migration_sha256':sha(captured[OWNER/'versions/0013_membership_retirement.py']),
+                   'membership_retirement':fingerprints}
+        content=(json.dumps(reference,sort_keys=True,indent=2)+'\n').encode()
+        temporary=OWNER/'.membership-retirement-reference-recording';created=False
+        try:
+            descriptor=os.open(temporary,os.O_WRONLY|os.O_CREAT|os.O_EXCL,0o600)
+            with os.fdopen(descriptor,'wb') as output:
+                created=True;output.write(content);output.flush();os.fsync(output.fileno())
+            assert all(path.read_bytes() == data for path,data in captured.items()), 'membership_retirement_reference_source_changed'
+            os.link(temporary,destination)
+        finally:
+            if created:temporary.unlink(missing_ok=True)
+        self.records.append({'label':'trusted-membership-retirement-reference','status':'passed','sha256':sha(content),'migration_sha256':reference['migration_sha256'],'known_source_case':'membership_retirement_reference','rolled_back':True,'helper_sha256':sha(captured[module]),'source_sha256':{str(path.relative_to(OWNER)):sha(data) for path,data in captured.items()},'pin_update_required':True})
+        self.persist();print('trusted-membership-retirement-reference PASS',sha(content),flush=True)
+
     def sql(self, case, statement, values=None, role='owner_urls'):
         db = engine(self.private[role][case])
         try:
@@ -1337,6 +1429,8 @@ class Qualification:
         self.persist()
 
 def main():
+    if sys.argv[1:] == ['--record-membership-retirement-reference'] and not __debug__:
+        raise RuntimeError('membership_retirement_reference_optimized_python_prohibited')
     if sys.argv[1:] == ['--record-membership-retention-reference'] and not __debug__:
         raise RuntimeError('membership_retention_reference_optimized_python_prohibited')
     if sys.argv[1:] == ['--record-membership-binding-reference'] and not __debug__:
@@ -1351,6 +1445,9 @@ def main():
         raise RuntimeError('target_reference_optimized_python_prohibited')
     proof, private = fixture()
     q = Qualification(proof, private)
+    if sys.argv[1:] == ['--record-membership-retirement-reference']:
+        q.record_membership_retirement_reference()
+        return
     if sys.argv[1:] == ['--record-membership-retention-reference']:
         q.record_membership_retention_reference()
         return

@@ -1,6 +1,20 @@
 # Resume shared ENV delivery after KDG planning PASS
 
-## Current ID-B increment — membership history retention, 2026-10-20
+## Current ID-B increment — one-way membership retirement,2026-10-20
+
+Revision13 prevents retired membership from reactivation or retiming through ordinary
+updates/seeds/retries. See [Build](../../../_bmad-output/implementation-artifacts/spec-id-b-membership-retirement.md)
+and [evidence](../../../services/access/MEMBERSHIP_RETIREMENT_EVIDENCE.md).
+Final actual matrix PASS35.569s;766 affected tests and both composers PASS. Three review
+layers complete, no deferrals. Native project normally stopped with all data retained.
+Active seed/noop/read behavior remains supported;
+retired seed reactivation deliberately refuses. Unique active/rejoin/seed transition,
+authorized retirement/join commands, protected writers/live-account verification,
+Access/WRITE/server KDG remain gates. Preserve all prior source/receipts/state/data/
+resources and concurrent work; no real-target activation, Leave/editor, deploy or push.
+
+
+## Previous ID-B increment — membership history retention, 2026-10-20
 
 Identity revision12 replaces three membership/role CASCADE references with RESTRICT,
 blocks membership DELETE and protects TRUNCATE through the existing guard. Source-bound
