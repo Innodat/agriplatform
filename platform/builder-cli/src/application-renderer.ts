@@ -4,7 +4,7 @@ import { renderHttpFiles, type ServiceFile } from './service-renderer.ts';
 const templates = [
  ['README.md','generated'], ['AGENTS.md','generated'], ['web/index.html','generated'],
  ['web/package.json','generated'], ['web/tsconfig.json','generated'], ['web/vite.config.ts','generated'],
- ['web/src/App.tsx','seed'], ['web/src/main.tsx','seed'], ['web/src/styles.css','seed'],
+ ['web/src/App.tsx','seed'], ['web/src/api/health.ts','seed'], ['web/scripts/test-health.mjs','generated'], ['web/src/main.tsx','seed'], ['web/src/styles.css','seed'],
  ['web/scripts/browser-smoke.mjs','generated'], ['web/scripts/proof-support.mjs','generated'],
 ] as const;
 // Internal, pure candidate renderer. No output target, template execution or bypass flag.

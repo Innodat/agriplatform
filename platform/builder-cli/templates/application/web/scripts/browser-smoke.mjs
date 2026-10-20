@@ -2,7 +2,7 @@
 import { preview } from 'vite';
 import { chromium, expect } from '@playwright/test';
 import { spawn } from 'node:child_process';
-import { stopOwnedApi, presentationRequestFailure, presentationResponseFailure } from './proof-support.mjs';
+import { stopOwnedApi, presentationRequestFailure, presentationResponseFailure, isOwnerHealth } from './proof-support.mjs';
 import { createHash } from 'node:crypto';
 import { readFileSync, writeFileSync, realpathSync } from 'node:fs';
 import { resolve, join } from 'node:path';
@@ -33,7 +33,7 @@ try {
   try { const response=await fetch(`${apiOrigin}/health`,{signal:AbortSignal.timeout(1000)}); assert.equal(response.status,200); assert.deepEqual(await response.json(),{status:'ok'}); ready=true; break; } catch { await new Promise(r=>setTimeout(r,50)); }
  }
  assert.ok(ready,'owner health must respond');
- server=await preview({configFile:false,preview:{host:'127.0.0.1',port:0,strictPort:true}});
+ server=await preview({configFile:false,preview:{host:'127.0.0.1',port:0,strictPort:true,proxy:{'^/api/health$':{target:apiOrigin,rewrite:()=>'/health'}}}});
  const address=server.httpServer.address(); assert.ok(address&&typeof address==='object');
  const origin=`http://127.0.0.1:${address.port}`;
  browserServer=await chromium.launchServer({headless:true,executablePath:executable,timeout:15000});
@@ -41,18 +41,19 @@ try {
  assert.equal(realpathSync(actual),realpathSync(executable));
  const identity={path:actual,sha256:createHash('sha256').update(readFileSync(actual)).digest('hex')};
  browser=await chromium.connect(browserServer.wsEndpoint(),{timeout:15000});
- const failures=[];
+ const failures=[];let healthResponses=0,outageResponses=0,outage=false;
+ function watch(page) {
+  page.on('pageerror',()=>failures.push('page_error'));
+  page.on('console',message=>{if(message.type()==='error'&&!(outage&&message.text()==='Failed to load resource: the server responded with a status of 502 (Bad Gateway)')) failures.push('console_error');});
+  page.on('requestfailed',request=>{if(!(isOwnerHealth(request,origin)&&request.failure()?.errorText==='net::ERR_ABORTED')) failures.push('request_failed');});
+  page.on('response',response=>{const failure=presentationResponseFailure(response,origin,outage);if(failure) failures.push(failure);if(isOwnerHealth(response.request(),origin)){if(response.status()===200)healthResponses++;if(outage&&response.status()===502)outageResponses++;}});
+  return page.route('**/*',async route=>{const failure=presentationRequestFailure(route.request(),origin);if(failure){failures.push(failure);await route.abort();}else await route.continue();});
+ }
  for(const [name,viewport] of [['desktop',{width:1280,height:800}],['mobile',{width:390,height:844}]]) {
   const page=await browser.newPage({viewport}); page.setDefaultTimeout(10000);
-  page.on('pageerror',()=>failures.push('page_error'));
-  page.on('console',message=>{if(message.type()==='error') failures.push('console_error');});
-  page.on('requestfailed',()=>failures.push('request_failed'));
-  page.on('response',response=>{const failure=presentationResponseFailure(response);if(failure) failures.push(failure);});
-  await page.route('**/*',async route=>{
-   const failure=presentationRequestFailure(route.request(),origin);
-   if(failure) {failures.push(failure); await route.abort();} else await route.continue();
-  });
+  await watch(page);
   await page.goto(origin,{timeout:15000});
+  await expect(page.getByRole('status')).toHaveText('API available');
   await expect(page.getByRole('banner')).toBeVisible();
   await expect(page.getByRole('navigation',{name:'Main'})).toBeVisible();
   await expect(page.getByRole('main')).toBeVisible();
@@ -62,7 +63,7 @@ try {
   await page.keyboard.press('Enter'); await expect(page.getByRole('main')).toBeFocused();
   await page.getByRole('link',{name:'Home',exact:true}).click();
   await expect(page).toHaveURL(`${origin}/`);
-  await page.reload({timeout:15000}); await expect(page.getByRole('heading',{name:'Welcome',exact:true})).toBeVisible();
+  await page.reload({timeout:15000}); await expect(page.getByRole('status')).toHaveText('API available'); await expect(page.getByRole('heading',{name:'Welcome',exact:true})).toBeVisible();
   if(expectedText!==undefined) await expect(page.getByText(expectedText,{exact:true})).toBeVisible();
   assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true);
   await page.screenshot({path:join(screenshots,`${name}.png`),fullPage:true});
@@ -70,7 +71,11 @@ try {
  }
  assert.deepEqual(failures,[]);
  assert.equal(apiExited,false);
- result={browser:identity,viewports:['desktop','mobile'],health:true,failures,expected_text_verified:expectedText!==undefined};
+ assert.ok(healthResponses>=4,'browser_health_responses_missing');
+ cleanup.api=await stopOwnedApi(api);assert.equal(cleanup.api.exit_confirmed,true);assert.equal(cleanup.api.forced,false);
+ outage=true;const unavailable=await browser.newPage();await watch(unavailable);await unavailable.goto(origin,{timeout:15000});
+ await expect(unavailable.getByRole('status')).toHaveText('API unavailable');assert.ok(outageResponses>0,'real_outage_response_missing');await unavailable.close();assert.deepEqual(failures,[]);
+ result={health_responses:healthResponses,outage_responses:outageResponses,unavailability_verified:true,browser:identity,viewports:['desktop','mobile'],health:true,failures,expected_text_verified:expectedText!==undefined};
 } finally {
  try {if(browser) {await bounded(browser.close());cleanup.browser_closed=true;}}
  finally {
@@ -79,11 +84,11 @@ try {
    try {if(server) {server.httpServer.closeAllConnections(); await bounded(new Promise((r,j)=>server.httpServer.close(e=>e?j(e):r())));cleanup.preview_closed=true;}}
    finally {
     try {
-     if(api&&api.pid) {cleanup.api=await stopOwnedApi(api);assert.equal(cleanup.api.exit_confirmed,true,'api_exit_unconfirmed');}
+     if(api&&api.pid&&!cleanup.api) {cleanup.api=await stopOwnedApi(api);assert.equal(cleanup.api.exit_confirmed,true,'api_exit_unconfirmed');}
     } finally {writeFileSync(join(screenshots,'browser-cleanup.json'),JSON.stringify(cleanup,null,2)+'\n',{mode:0o600});}
    }
   }
  }
 }
 writeFileSync(join(screenshots,'browser-result.json'),JSON.stringify({status:'passed',...result,cleanup},null,2)+'\n',{mode:0o600});
-console.log('Built presentation, keyboard navigation, responsive viewports and owner HTTP health passed');
+console.log('Built shell, typed owner HTTP success, real outage, keyboard and responsive journeys passed');

@@ -3,7 +3,7 @@ import { validateRecipe, recipeSchema } from './recipe.ts';
 
 export type ServiceFile = { classification: 'seed' | 'generated'; content: string };
 const templates = [
-  ['main.py', 'seed'], ['safe_errors.py', 'generated'], ['pyproject.toml', 'generated'],
+  ['main.py', 'seed'], ['export_openapi.py', 'seed'], ['safe_errors.py', 'generated'], ['pyproject.toml', 'generated'],
   ['tests/test_runtime.py', 'generated'], ['README.md', 'generated'], ['AGENTS.md', 'generated'],
 ] as const;
 // Internal candidate renderer only. Literal substitution, no template execution or writes.

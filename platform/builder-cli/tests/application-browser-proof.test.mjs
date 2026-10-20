@@ -6,13 +6,24 @@ import { stopOwnedApi, presentationRequestFailure, presentationResponseFailure }
 test('presentational guard rejects successful same-origin Auth fetch/XHR mutation',()=>{
  const origin='http://127.0.0.1:5188';
  for(const type of ['fetch','xhr']) {
-  const mutation={url:()=>`${origin}/auth/session`,resourceType:()=>type};
+  const mutation={url:()=>`${origin}/auth/session`,resourceType:()=>type,method:()=> 'POST'};
   assert.equal(presentationRequestFailure(mutation,origin),'business_request');
   assert.equal(presentationResponseFailure({status:()=>200}),null);
  }
  assert.equal(presentationRequestFailure({url:()=>`${origin}/assets/main.js`,resourceType:()=> 'script'},origin),null);
  assert.equal(presentationRequestFailure({url:()=> 'https://external.invalid/main.js',resourceType:()=> 'script'},origin),'external_request');
  for(const status of [400,404,500]) assert.equal(presentationResponseFailure({status:()=>status}),'http_failure');
+});
+test('client proof permits only exact same-origin GET health and named outage',()=>{
+ const origin='http://127.0.0.1:5188';
+ const request=(path='/api/health',method='GET')=>({url:()=>origin+path,method:()=>method,resourceType:()=> 'fetch'});
+ assert.equal(presentationRequestFailure(request(),origin),null);
+ for(const [path,method] of [['/api/health','POST'],['/api/health?token=x','GET'],['/api/other','GET']]) assert.equal(presentationRequestFailure(request(path,method),origin),'business_request');
+ const response={status:()=>502,request:()=>request()};
+ assert.equal(presentationResponseFailure(response,origin,false),'http_failure');
+ assert.equal(presentationResponseFailure(response,origin,true),null);
+ assert.equal(presentationResponseFailure({status:()=>500,request:()=>request()},origin,true),'http_failure');
+ assert.equal(presentationResponseFailure({status:()=>502,request:()=>request('/api/other')},origin,true),'http_failure');
 });
 async function child(code) {
  const processChild=spawn(process.execPath,['-e',code],{stdio:['ignore','pipe','ignore']});

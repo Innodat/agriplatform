@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtempSync, mkdirSync, writeFileSync, symlinkSync, readFileSync } from 'node:fs';
+import { mkdtempSync, mkdirSync, writeFileSync, symlinkSync, readFileSync, unlinkSync } from 'node:fs';
 import { join } from 'node:path';
 import { qualifyWebDependencies, recordInstallationManifests, verifyInstallationManifests } from '../scripts/application-dependency-proof.mjs';
 function fixture() {
@@ -54,4 +54,10 @@ test('proof binds actual copied installation manifests and refuses subsequent dr
  const updated=recordInstallationManifests(root,paths);
  writeFileSync(join(root,paths[1]),JSON.stringify({name:'mutated-workspace'}));
  assert.throws(()=>verifyInstallationManifests(root,updated),{message:'installation_manifest_drift'});
+});
+
+test('proof refuses a collided ambient npm compiler instead of using TS6',()=>{
+ const {root,web,pkg}=fixture();const other=pkg(root,'compiler-old','6.0.3','tsc');
+ unlinkSync(join(root,'node_modules/.bin/tsc'));symlinkSync(join(other,'cli.js'),join(root,'node_modules/.bin/tsc'));
+ assert.throws(()=>qualifyWebDependencies(web,root),{message:'dependency_provenance_invalid'});
 });

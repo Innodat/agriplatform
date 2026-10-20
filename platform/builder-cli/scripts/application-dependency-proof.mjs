@@ -25,7 +25,7 @@ export function qualifyWebDependencies(web, installationRoot) {
    if(pkg.name!==name||pkg.version!==pin) fail();
    result.packages[name]={version:pkg.version,metadata};
   }
-  for(const [command,name] of [['tsc','typescript'],['vite','vite'],['playwright','@playwright/test']]) {
+  for(const [command,name] of [['tsc','typescript'],['vite','vite'],['playwright','@playwright/test'],... (manifest.devDependencies?.['@platform/api-client'] ? [['platform-api-client','@platform/api-client']] : [])]) {
    const metadata=result.packages[name]?.metadata;if(!metadata) fail();
    const pkg=JSON.parse(readFileSync(metadata.path));
    const declared=typeof pkg.bin==='string'?pkg.bin:pkg.bin?.[command];if(!declared) fail();
@@ -39,6 +39,15 @@ export function qualifyWebDependencies(web, installationRoot) {
    }
    if(!bin||bin.path!==executable.path) fail();
    result.commands[command]={package:name,...executable};
+  }
+  if(manifest.devDependencies?.['@platform/api-client']) {
+   const owner=result.packages['@platform/api-client'].metadata.path,toolRequire=createRequire(owner);
+   for(const [key,name,expectedName,version] of [['codegen','@hey-api/openapi-ts','@hey-api/openapi-ts','0.99.0'],['compatibilityCompiler','typescript','typescript','6.0.3']]) {
+    const metadata=artifact(toolRequire.resolve(`${name}/package.json`)),pkg=JSON.parse(readFileSync(metadata.path));
+    if(pkg.name!==expectedName||pkg.version!==version) fail();
+    const payload=artifact(key==='codegen'?join(dirname(metadata.path),'dist/run.mjs'):toolRequire.resolve(name));
+    result[key]={name:pkg.name,version,metadata,payload};
+   }
   }
  } catch {fail();}
  return result;

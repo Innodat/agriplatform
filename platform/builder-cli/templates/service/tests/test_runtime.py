@@ -169,3 +169,80 @@ def test_completed_and_incomplete_response_failures(server):
                     chunks.append(chunk)
             assert b"".join(chunks) == b"x"
         assert client.get("/health").status_code == 200
+
+
+def test_owner_openapi_export(tmp_path):
+    # Export is offline and deterministic; the public schema endpoint stays disabled.
+    import shutil
+    for name in ("main.py", "safe_errors.py", "export_openapi.py"):
+        shutil.copyfile(ROOT / name, tmp_path / name)
+    command = [sys.executable, "-B", str(tmp_path / "export_openapi.py")]
+    environment = {"PATH": "/usr/bin:/bin", "LC_ALL": "C.UTF-8"}
+    stale = subprocess.run(command + ["--check"], capture_output=True, text=True, env=environment)
+    assert stale.returncode == 1
+    assert stale.stderr.strip() == "openapi_stale"
+    exported = subprocess.run(command, capture_output=True, text=True, env=environment)
+    assert exported.returncode == 0
+    before = (tmp_path / "openapi.json").read_bytes()
+    schema = json.loads(before)
+    assert schema["servers"] == [{"url": "/api"}]
+    assert schema["paths"]["/health"]["get"]["operationId"] == "health"
+    assert schema["components"]["schemas"]["HealthResponse"]["properties"]["status"]["const"] == "ok"
+    for status in ("422", "500", "503"):
+        assert schema["paths"]["/health"]["get"]["responses"][status]["content"]["application/json"]["schema"]["$ref"].endswith("/ErrorEnvelope")
+    current = subprocess.run(command + ["--check"], capture_output=True, text=True, env=environment)
+    assert current.returncode == 0
+    assert (tmp_path / "openapi.json").read_bytes() == before
+
+    owner = tmp_path / "main.py"
+    owner.write_text(owner.read_text().replace('    status: Literal["ok"]',
+                     '    status: Literal["ok"]\n    proof_note: str | None = None'))
+    stale_existing = subprocess.run(command + ["--check"], capture_output=True, text=True, env=environment)
+    assert stale_existing.returncode == 1
+    assert stale_existing.stderr.strip() == "openapi_stale"
+    assert (tmp_path / "openapi.json").read_bytes() == before
+    refreshed = subprocess.run(command, capture_output=True, text=True, env=environment)
+    assert refreshed.returncode == 0
+    after = (tmp_path / "openapi.json").read_bytes()
+    assert after != before
+    assert "proof_note" in json.loads(after)["components"]["schemas"]["HealthResponse"]["properties"]
+    current = subprocess.run(command + ["--check"], capture_output=True, text=True, env=environment)
+    assert current.returncode == 0
+    assert (tmp_path / "openapi.json").read_bytes() == after
+
+
+def test_owner_openapi_import_failure_is_safe(tmp_path):
+    import shutil
+    shutil.copyfile(ROOT / "export_openapi.py", tmp_path / "export_openapi.py")
+    (tmp_path / "main.py").write_text(f'raise RuntimeError("{SENTINEL}")\n')
+    destination = tmp_path / "openapi.json"
+    destination.write_bytes(b"previous export sentinel")
+    command = [sys.executable, "-B", str(tmp_path / "export_openapi.py")]
+    for flags in ([], ["--check"]):
+        result = subprocess.run(command + flags, capture_output=True, text=True,
+                                env={"PATH": "/usr/bin:/bin", "LC_ALL": "C.UTF-8"})
+        assert result.returncode == 1
+        assert result.stdout == ""
+        assert result.stderr.strip() == "openapi_export_failed"
+        assert SENTINEL not in result.stdout + result.stderr
+        assert "Traceback" not in result.stderr
+        assert destination.read_bytes() == b"previous export sentinel"
+
+
+def test_owner_openapi_symlink_refused_in_both_modes(tmp_path):
+    import shutil
+    for name in ("main.py", "safe_errors.py", "export_openapi.py"):
+        shutil.copyfile(ROOT / name, tmp_path / name)
+    linked = tmp_path / "linked.json"
+    linked.write_bytes(b"linked export sentinel")
+    destination = tmp_path / "openapi.json"
+    destination.symlink_to(linked)
+    command = [sys.executable, "-B", str(tmp_path / "export_openapi.py")]
+    for flags in ([], ["--check"]):
+        result = subprocess.run(command + flags, capture_output=True, text=True,
+                                env={"PATH": "/usr/bin:/bin", "LC_ALL": "C.UTF-8"})
+        assert result.returncode == 1
+        assert result.stdout == ""
+        assert result.stderr.strip() == "openapi_output_invalid"
+        assert destination.is_symlink()
+        assert linked.read_bytes() == b"linked export sentinel"

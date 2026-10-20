@@ -7,13 +7,19 @@ import { renderApplication } from '../src/application-renderer.ts';
 const root=fileURLToPath(new URL('../../../',import.meta.url));
 const service={schema_version:1,owner_id:'bootstrap_service',owner_kind:'service',sources:['platform/docs/architecture/decisions/0059-schema-validated-scaffold-configuration.md'],contracts:['platform/docs/architecture/contracts/scaffold-environment-and-generation.md'],patterns:['api.owner-http.v1','auth.service-owner.v1','errors.safe-envelope.v1','saving.none.v1'],extensions:[],deployment_manifest:'services/bootstrap-service/deployment/manifest.json'};
 const application=()=>({...service,owner_id:'bootstrap_application',owner_kind:'application',patterns:['api.owner-http.v1','web.react-shell.v1','auth.organization-account.fixed.v1','errors.safe-envelope.v1','saving.none.v1'],deployment_manifest:'apps/bootstrap-application/deployment/manifest.json'});
-test('characterization: service output bytes and classification remain unchanged',()=>{
- assert.equal(createHash('sha256').update(JSON.stringify(renderService(service,root))).digest('hex'),'edff8abcebe0bcf6b0bd103a0534a1d19f398cda58f13423d601586b93592900');
+// The historical whole-service hash covered untyped main.py. Typed HealthResponse,
+// declared error responses, relative servers and offline owner export intentionally
+// change those bytes; pin the unchanged HTTP adapter instead of obscuring that change.
+test('characterization: safe HTTP adapter survives typed OpenAPI boundary changes',()=>{
+ const files=renderService(service,root);
+ assert.equal(createHash('sha256').update(files['safe_errors.py'].content).digest('hex'),'18a1359b2b1f9bb8c79c91644582c9d320bf22ed56d53afac179ff3fce6901df');
+ assert.match(files['main.py'].content,/class HealthResponse/);
+ assert.equal(files['export_openapi.py'].classification,'seed');
 });
 test('acceptance: deterministic application file map, literal identity and explicit ownership',()=>{
  const input=application(), files=renderApplication(input,root);
  assert.deepEqual(files,renderApplication(input,root));
- assert.deepEqual(Object.keys(files).sort(),['AGENTS.md','README.md','api/AGENTS.md','api/README.md','api/main.py','api/pyproject.toml','api/safe_errors.py','api/tests/test_runtime.py','web/index.html','web/package.json','web/scripts/browser-smoke.mjs','web/scripts/proof-support.mjs','web/src/App.tsx','web/src/main.tsx','web/src/styles.css','web/tsconfig.json','web/vite.config.ts']);
+ assert.deepEqual(Object.keys(files).sort(),['AGENTS.md','README.md','api/AGENTS.md','api/README.md','api/export_openapi.py','api/main.py','api/pyproject.toml','api/safe_errors.py','api/tests/test_runtime.py','web/index.html','web/package.json','web/scripts/browser-smoke.mjs','web/scripts/proof-support.mjs','web/scripts/test-health.mjs','web/src/App.tsx','web/src/api/health.ts','web/src/main.tsx','web/src/styles.css','web/tsconfig.json','web/vite.config.ts']);
  for(const [path,file] of Object.entries(files)) {
   assert.ok(!path.includes('..')&&!path.startsWith('/')); assert.ok(['seed','generated'].includes(file.classification));
   assert.ok(!file.content.includes('{{')); assert.equal(file.classification==='generated',file.content.includes('GENERATED'));

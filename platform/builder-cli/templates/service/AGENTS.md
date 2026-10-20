@@ -6,3 +6,7 @@ routes until current owner authentication/authorization contracts are implemente
 Never log payloads, exception text, credentials or signed URLs. Preserve HTTP protocol
 headers and safe error/error_id envelopes; numeric code remains numeric when present.
 No migrations run on API startup. No database or Supabase credential settings exist.
+
+main.py DTOs/routes and export_openapi.py are create-once owner seeds. Export local
+OpenAPI offline and check it before generating app-owned browser contracts. Derived
+clients are generated separately; keep the public schema endpoint disabled.

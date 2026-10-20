@@ -159,6 +159,15 @@ remain supported; extension-bearing metadata is explicitly versioned. Binary ass
 later imports/upgrades/dependency inference and normal public generation remain pending.
 This is build-time copying, not a runtime plugin system or readiness promotion.
 
+The next P1 increment implements app-owned client generation from offline owner
+FastAPI OpenAPI using the existing platform/api-client build-tool owner and upstream
+CLI. Its isolated compiler compatibility alias is recorded in the dependency supplement;
+app type checks remain TS7.0.2. Generated contracts have their own subdirectory managed
+by the existing installer; owner DTO/routes and thin adapters remain create-once code.
+The disposable app proof must exercise real browser own-API HTTP, contract drift,
+regeneration/custom preservation and safe unavailable behavior. This does not promote
+Auth/Access, expose Supabase business reads, or open public scaffold generation.
+
 P1/SERVICE retain the version1 keys/paths in the shared addendum. Exact types:
 schema_version=1; owner_id matches `[a-z][a-z0-9_]{1,63}`; owner_kind is application/
 service; sources/contracts are unique nonempty arrays of repository-relative existing

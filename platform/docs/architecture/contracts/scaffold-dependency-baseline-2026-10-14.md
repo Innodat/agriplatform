@@ -90,3 +90,31 @@ CPython3.15 manylinux wheels for x86_64 and aarch64. Psycopg aarch64 requires gl
 is verified metadata, not execution. No free-threaded Python or custom source-build path
 is selected. Choose exact supported Linux/container identity and lock wheel hashes in ENV
 delivery before runtime activation.
+
+
+## App-owned client tool supplement — 2026-10-20
+
+The bounded P1 client item selects `@hey-api/openapi-ts`0.99.0 as build-time-only
+upstream OpenAPI tooling under `platform/api-client`, declared through generated web
+development dependencies. [Official CLI guide](https://heyapi.dev/docs/openapi/typescript/get-started)
+and [publisher metadata](https://registry.npmjs.org/@hey-api%2fopenapi-ts/0.99.0)
+identify the tool. Use only local owner-exported schemas and types output; no runtime
+SDK, dependency inference, remote schema/config or separate repository generator.
+
+Actual qualification in deployment/.local/scaffold-api-client/ts7-1ksu1i6h installs
+the pinned tool with TS7.0.2, then fails in its legacy SyntaxKind access. A separate
+fresh compat6-rmrh9tb3 run passes through Microsoft's compatibility shim6.0.2.
+Fresh workspace proof-kuDIrM then correctly refuses its transitive tsc-bin collision:
+the shim forwards to actual TypeScript6.0.3, hoisted under @typescript/old. The final
+selection pins that same compiler directly as tool-owner `typescript`6.0.3, avoiding
+the redundant shim and transitive range. Direct-layout qualification
+`direct6-layout-nm9xpv2e` verifies root/app TS7.0.2, nested tool6.0.3, exact root TS7
+bin and actual upstream CLI success. The existing compiler-API exception applies.
+
+A scoped Node26 resolve hook loaded only in the upstream CLI child maps that package's
+bare TypeScript import to the qualified tool-owner6.0.3, since npm hoists the CLI.
+App and builder checks remain TS7.0.2 with their ordinary compiler commands. No peer
+overrides or compiler-command wrappers. Qualification roots retain argv/results and
+log/lock hashes. The canonical root lock preserves every existing package identity;
+only npm-derived dev classifications change alongside the new tool dependency graph.
+Complete generated-output evidence is recorded in platform/api-client/EVIDENCE.md.

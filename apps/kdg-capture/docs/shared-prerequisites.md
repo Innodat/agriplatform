@@ -56,6 +56,13 @@ browser proof pass; no review deferrals. Normal
 public generation and Auth/Access are still delivery work. See
 [extension evidence](../../../platform/builder-cli/EXTENSION_EVIDENCE.md).
 
+The bounded P1 client increment implements owner OpenAPI contracts, a thin client
+and actual browser own-API proof through existing owners. Acceptance verification
+passes after three-layer BMAD review and seven patch groups; no deferrals. The isolated tool compiler6.0.3 leaves app
+TS7.0.2 and its ordinary tsc command intact. See
+[client evidence](../../../platform/api-client/EVIDENCE.md). Auth/Access/public generation
+remain separate delivery work.
+
 | Existing item / boundary | Minimum KDG-relevant outcome | Acceptance/evidence before consumer | Earliest consumer |
 | --- | --- | --- | --- |
 | ENV | Isolated synthetic Auth/PostgreSQL/Access/KDG target, root frontend lock and independent Python locks, compatible exact tool/container/package set; guarded bootstrap/stop/reset and reachable nonproduction HTTPS/provider callback | Record exact version/lock/source identities and actual command lines; target mismatch/missing config refuses writes; clean install/start with unchanged locks; genuine Entra callback qualification remains distinct from local password fixtures | 1.1 environment; real callback/device proof by 1.7 |

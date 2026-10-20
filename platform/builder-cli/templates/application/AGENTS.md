@@ -7,3 +7,8 @@ No migrations on startup. Never log payloads, credentials or sensitive exception
 Scaffold impact: candidate shell only. Shared UI: no promotion. Agent context: these
 actual commands. Documentation: generated guidance. ADR impact: existing ownership,
 0059, 0031 and 0023 suffice; accepted decisions remain immutable.
+
+Use the owner Python environment to export/check api/openapi.json before web api:generate,
+api:check, test:client and strict TS7 checks/build. DTO/export/health adapter sources are
+owner seeds. Derived web/src/api/generated clients use installer ownership and must not
+be hand-edited; no nested lock or undeclared code-generation tool.

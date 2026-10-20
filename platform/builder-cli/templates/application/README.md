@@ -10,6 +10,10 @@ Run from this generated application directory after its root-lock installation:
 
 ```sh
 cd web
+../api/.venv/bin/python ../api/export_openapi.py
+npm run api:generate
+npm run api:check
+npm run test:client
 npm run type-check
 npm run build
 SCAFFOLD_CHROMIUM=/absolute/chrome-headless-shell SCAFFOLD_API_PYTHON=/absolute/venv/bin/python SCAFFOLD_SCREENSHOTS=/absolute/proof npm run test:browser
@@ -21,5 +25,15 @@ See api/README.md for the independent offline Python lock/test commands. Browser
 business data belongs to this application's API; no browser Supabase client is added.
 Use the root npm workspace lock; never create a nested browser lock or borrow checkout
 node_modules. This fixture's workspace path is assigned by the disposable harness.
-Web source and api/main.py are create-once owner seeds; config, tests and guidance
-are generated. Change generated files at their templates. No regeneration is supported.
+Web source, api/main.py and api/export_openapi.py are create-once owner seeds; config, tests and guidance
+are generated. Change generated files at their templates. The dedicated web/src/api/generated
+subdirectory is generated from local owner OpenAPI by the declared build-time tooling;
+never edit its derived contracts. Re-export DTO/route changes, regenerate and check.
+The exporter --check detects stale schema; api:check detects stale or edited clients.
+The owner health adapter maps network/HTTP/invalid responses to safe identifiers and
+shows API available or API unavailable without raw diagnostic text.
+
+The same-origin `GET /api/health` → adjacent API `GET /health` proxy exists only in
+the disposable browser proof harness. A generated runtime still needs equivalent
+owner reverse-proxy routing before runtime generation readiness; this scaffold does
+not install a runtime proxy or server feature.

@@ -4,7 +4,7 @@ import { qualifyWebDependencies, recordInstallationManifests, verifyInstallation
 import { installScaffold, checkScaffold } from '../src/scaffold-install.ts';
 import { renderApplication } from '../src/application-renderer.ts';
 import { createHash } from 'node:crypto';
-import { accessSync, constants, chmodSync, existsSync, globSync, lstatSync, mkdirSync, mkdtempSync, readFileSync, realpathSync, renameSync, rmSync, writeFileSync } from 'node:fs';
+import { accessSync, constants, chmodSync, cpSync, existsSync, globSync, lstatSync, mkdirSync, mkdtempSync, readFileSync, realpathSync, renameSync, rmSync, writeFileSync } from 'node:fs';
 import { dirname, isAbsolute, join, relative, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 const root=fileURLToPath(new URL('../../../',import.meta.url));
@@ -32,12 +32,12 @@ function tool(name,executable=true) {
 }
 function cache(name) {const path=process.env[name];if(!path||!isAbsolute(path)||!existsSync(path)) fail('configured_cache_invalid');return safePath(path,'directory');}
 function persist() {if(manifest) writeFileSync(join(proof,'proof.json'),JSON.stringify(manifest,null,2)+'\n',{mode:0o600});}
-function run(label,executable,args,env=clean,cwd=builder,timeoutMs=120000) {
+function run(label,executable,args,env=clean,cwd=builder,timeoutMs=120000,expectedFailure) {
  const result=runBounded(executable,args,{cwd,env,timeoutMs});
  const log=(result.stdout??'')+(result.stderr??'');
  const record={label,command:[executable,...args],cwd,environment:env,exit_code:result.status,signal:result.signal,error_code:result.error?.code??null,group_termination:result.groupTermination,log_sha256:hash(log)};
  if(manifest) {manifest.commands.push(record);writeFileSync(join(proof,`${label}.log`),log,{mode:0o600});persist();} else preflight.push({record,log});
- if(result.error||result.status!==0) fail('bootstrap_stage_failed');return result.stdout.trim();
+ if(expectedFailure) {if(result.error||result.status===0||!log.includes(expectedFailure)) fail('expected_failure_missing');record.expected_failure=expectedFailure;persist();} else if(result.error||result.status!==0) fail('bootstrap_stage_failed');return log.trim();
 }
 try {
  if(process.argv.length!==2) fail('arguments_invalid');
@@ -74,6 +74,10 @@ try {
  // Copy canonical workspace manifests at their original relative paths. Local file
  // dependencies must target another copied workspace; no links back into checkout.
  for(const path of workspaces) copyManifest(path);
+ // Copy the existing build-time owners; never resolve their source from checkout.
+ for(const owner of ['api-client','builder-cli']) for(const path of globSync(`platform/${owner}/src/*`,{cwd:root})) {
+  const content=source(path);mkdirSync(dirname(join(copy,path)),{recursive:true,mode:0o700});writeFileSync(join(copy,path),content,{mode:0o600});
+ }
  for(const path of workspaces) {
   const pkg=JSON.parse(readFileSync(join(copy,path)));
   for(const group of ['dependencies','devDependencies','optionalDependencies']) for(const value of Object.values(pkg[group]??{})) {
@@ -131,7 +135,7 @@ try {
  if(digest(join(copy,'package-lock.json'))!==manifest.root_lock.extended_sha256) fail('source_or_lock_drift');
  manifest.web_dependencies=qualifyWebDependencies(web,copy);persist();
  checkScaffold(app);
- for(const script of ['type-check','build']) run(`web-${script}`,node,[npm,'run',script,'--workspace',webRelative],npmEnv,copy);
+
  const uvEnv={...clean,UV_CACHE_DIR:pythonCache};
  const common=['--project',api,'--python',python,'--offline','--no-config','--no-python-downloads','--default-index','https://pypi.org/simple'];
  run('api-lock',uv,['lock',...common],uvEnv,api);
@@ -143,9 +147,36 @@ try {
  const interpreter=join(environment,'bin/python');
  run('api-tests',interpreter,['-I','-B','-m','pytest','-q','-s','--tb=no','-p','no:cacheprovider','-c',join(api,'pyproject.toml'),'--confcutdir',api,'--basetemp',join(proof,'python','pytest-tmp'),join(api,'tests')],{...clean,PYTEST_DISABLE_PLUGIN_AUTOLOAD:'1'},api);
  manifest.python_environment={path:environment,frozen_offline_wheel_only:true,runtime_verified:true};persist();
+ // Owner export -> upstream types -> real owner client. Each command uses the fresh installation.
+ run('api-export',interpreter,['-I','-B','-c',"import sys;sys.path.insert(0,sys.argv.pop(1));import export_openapi;raise SystemExit(export_openapi.main())",api],clean,api);
+ run('api-export-check',interpreter,['-I','-B','-c',"import sys;sys.path.insert(0,sys.argv.pop(1));import export_openapi;raise SystemExit(export_openapi.main())",api,'--check'],clean,api);
+ run('client-generate',node,[npm,'run','api:generate','--workspace',webRelative],npmEnv,copy);
+ run('client-check',node,[npm,'run','api:check','--workspace',webRelative],npmEnv,copy);
+ run('client-tests',node,[npm,'run','test:client','--workspace',webRelative],npmEnv,copy);
+ run('web-type-check-initial',node,[npm,'run','type-check','--workspace',webRelative],npmEnv,copy);
+ const dtoPath=join(api,'main.py'),beforeDto=readFileSync(dtoPath,'utf8');
+ if(!beforeDto.includes('class HealthResponse(BaseModel):')) fail('client_proof_failed');
+ writeFileSync(dtoPath,beforeDto.replace('class HealthResponse(BaseModel):','class HealthResponse(BaseModel):\n    proof_note: str | None = None'),{mode:0o600});
+ const dtoUse=join(web,'src/api/owner-dto-proof.ts');
+ writeFileSync(dtoUse,"import type {HealthResponse} from './generated/types.gen';\nexport const proofNote: HealthResponse['proof_note'] = null;\n",{mode:0o600});
+ run('api-export-drift',interpreter,['-I','-B','-c',"import sys;sys.path.insert(0,sys.argv.pop(1));import export_openapi;raise SystemExit(export_openapi.main())",api],clean,api);
+ run('client-stale-check',node,[npm,'run','api:check','--workspace',webRelative],npmEnv,copy,120000,'api_client_stale');
+ run('web-stale-types',node,[npm,'run','type-check','--workspace',webRelative],npmEnv,copy,120000,'proof_note');
+ run('client-regenerate',node,[npm,'run','api:generate','--workspace',webRelative],npmEnv,copy);
+ run('client-regenerated-check',node,[npm,'run','api:check','--workspace',webRelative],npmEnv,copy);
+ for(const script of ['type-check','build']) run(`web-${script}`,node,[npm,'run',script,'--workspace',webRelative],npmEnv,copy);
+ // Keep a tampered synthetic copy and its failure; never repair the main proof output.
+ const clientRoot=join(web,'src/api/generated'),tampered=join(proof,'tampered-client');cpSync(clientRoot,tampered,{recursive:true});
+ writeFileSync(join(tampered,'types.gen.ts'),readFileSync(join(tampered,'types.gen.ts'),'utf8')+'\n// synthetic owner edit\n');
+ const tamperedBefore=digest(join(tampered,'types.gen.ts'));
+ run('client-tampered-refusal',node,[manifest.web_dependencies.commands['platform-api-client'].path,'--schema',join(api,'openapi.json'),'--output',tampered],npmEnv,copy,120000,'scaffold_conflict');
+ if(digest(join(tampered,'types.gen.ts'))!==tamperedBefore) fail('client_proof_failed');
+ for(const [path,before] of Object.entries(preserved)) if(digest(join(app,path))!==before) fail('preservation_proof_failed');
+ for(const path of ['api/main.py','api/openapi.json','web/src/api/owner-dto-proof.ts',...globSync('web/src/api/generated/*',{cwd:app}), 'web/src/api/generated/.generated-files.json']) manifest.files[`${appRelative}/${path}`]={classification:files[path]?.classification??'generated-client-proof',sha256:digest(join(app,path))};
+ manifest.client={status:'passed',owner_dto_changed:true,stale_check_failed:true,stale_types_failed:true,regeneration_passed:true,owner_files_preserved:true,tampered_output_refused:true,tampered_sha256:tamperedBefore};persist();
  run('web-browser',node,[npm,'run','test:browser','--workspace',webRelative],{...npmEnv,SCAFFOLD_CHROMIUM:chromium,SCAFFOLD_API_PYTHON:interpreter,SCAFFOLD_SCREENSHOTS:proof,SCAFFOLD_EXPECTED_TEXT:expectedText},copy);
  manifest.browser=JSON.parse(readFileSync(join(proof,'browser-result.json')));
- if(manifest.browser.expected_text_verified!==true||manifest.browser.status!=='passed'||manifest.browser.browser.sha256!==manifest.tools.chromium.sha256||realpathSync(manifest.browser.browser.path)!==realpathSync(chromium)) fail('browser_identity_invalid');
+ if(manifest.browser.unavailability_verified!==true||manifest.browser.health_responses<4||manifest.browser.expected_text_verified!==true||manifest.browser.status!=='passed'||manifest.browser.browser.sha256!==manifest.tools.chromium.sha256||realpathSync(manifest.browser.browser.path)!==realpathSync(chromium)) fail('browser_identity_invalid');
  manifest.evidence={};
  for(const name of ['desktop.png','mobile.png','browser-result.json','browser-cleanup.json']) manifest.evidence[name]={sha256:digest(join(proof,name))};
  for(const [path,digestBefore] of Object.entries(manifest.sources)) if(digest(join(root,path))!==digestBefore) fail('builder_source_drift');
@@ -156,7 +187,7 @@ try {
  manifest.status='passed';persist();
  process.stdout.write(JSON.stringify({bootstrap_only:true,generation_ready:false,status:'passed',proof})+'\n');
 } catch(error) {
- const known=new Set(['extension_proof_failed','preservation_proof_failed','scaffold_conflict','scaffold_busy','scaffold_recovery_required','configured_tool_invalid','configured_cache_invalid','configured_tool_version_invalid','configured_path_invalid','arguments_invalid','bootstrap_stage_failed','workspace_dependency_unsupported','source_or_lock_drift','builder_source_drift','browser_identity_invalid','nested_lock_invalid','dependency_provenance_invalid','installation_manifest_drift','application_bootstrap_unsupported']);
+ const known=new Set(['expected_failure_missing','client_proof_failed','extension_proof_failed','preservation_proof_failed','scaffold_conflict','scaffold_busy','scaffold_recovery_required','configured_tool_invalid','configured_cache_invalid','configured_tool_version_invalid','configured_path_invalid','arguments_invalid','bootstrap_stage_failed','workspace_dependency_unsupported','source_or_lock_drift','builder_source_drift','browser_identity_invalid','nested_lock_invalid','dependency_provenance_invalid','installation_manifest_drift','application_bootstrap_unsupported']);
  const identifier=known.has(error.message)?error.message:'bootstrap_failed';let failureRecordingFailed=false;
  if(manifest) {manifest.status='failed';manifest.error=identifier;try {persist();} catch {failureRecordingFailed=true;}}
  process.stdout.write(JSON.stringify({error:identifier,bootstrap_only:true,generation_ready:false,...(proof?{proof}:{}),...(failureRecordingFailed?{failure_recording_failed:true}:{})})+'\n');process.exitCode=1;

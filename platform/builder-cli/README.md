@@ -778,3 +778,19 @@ provide authenticated app-to-Content streaming adapters with bounded memory, per
 checks, safe headers and no cache bypass. Browser upload bytes remain direct/signed.
 Preview/download auth and range/disconnect tests belong to first-consumer delivery.
 No generated implementation or optional public-sharing mode exists yet.
+
+## App-owned API client boundary
+
+The application candidate now seeds typed health/error OpenAPI and an offline owner
+exporter, plus a thin owner health adapter importing generated contracts. The web
+declares @platform/api-client0.1.0 as development tooling; its pinned types-only upstream
+CLI/TS6 compatibility compiler stay in that build-tool owner. App/compiler commands remain
+TS7.0.2. See [the tool runbook](../api-client/README.md).
+
+The existing application proof copies actual tool/builder sources into its disposable
+root-lock workspace, exports before web type/build, observes stale DTO/type failure,
+regenerates and checks custom preservation/tamper refusal, then proves real own-API
+browser success and safe outage. No public generator or Auth/Access promotion follows.
+The historical whole-service characterization hash was intentionally replaced with an
+unchanged safe-adapter pin because typed main.py and the offline exporter are new owner
+seeds; real health JSON and error behavior remain covered by the service runtime suite.

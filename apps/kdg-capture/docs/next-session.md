@@ -1,6 +1,26 @@
 # Resume shared ENV delivery after KDG planning PASS
 
-## Current P1/SERVICE increment — explicit module import, 2026-10-20
+## Current P1/SERVICE increment — app-owned OpenAPI client, 2026-10-20
+
+Completed the bounded browser/API client boundary through the existing builder
+and platform/api-client owner: owner OpenAPI export, generated app-owned contracts,
+typed health client, real browser success/unavailability and regeneration after
+owner DTO edits. See
+[Build](../../../_bmad-output/implementation-artifacts/spec-scaffold-api-client.md)
+and [evidence](../../../platform/api-client/EVIDENCE.md).
+
+Implementation and acceptance verification pass:62 builder tests,7 CLI tests,2 health-client tests,
+TS7/schema checks and fresh service/application/browser proofs. DTO drift fails then
+regeneration succeeds; custom code survives and a real outage displays unavailable.
+The tool owns pinned compiler6.0.3; app/compiler commands stay7.0.2. All three
+BMAD review layers completed: seven patch groups, three low rejections, one false
+and no deferrals.2508 unrelated prior files remain unchanged.
+Public generation, current Auth/Access and full P1/SERVICE remain pending. Preserve
+all concurrent documents and historical receipts/state/resources. No Identity/Access/
+WRITE/KDG/Leave/editor, owner migration, account/provider, Docker/provision/deploy
+or real-data action follows from this item.
+
+## Previous P1/SERVICE increment — explicit module import, 2026-10-20
 
 Completed bounded initial extension import through the existing installer and
 application proof. Imported text modules become application-owned; reruns

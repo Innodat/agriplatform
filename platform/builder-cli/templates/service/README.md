@@ -20,3 +20,13 @@ uv sync --frozen --offline --no-build --no-install-project --group test --link-m
 Set `UV_CACHE_DIR` explicitly to the prepared wheel/metadata cache; use a clean
 process environment and `PYTEST_DISABLE_PLUGIN_AUTOLOAD=1`. Test socket failures fail
 the proof. Preserve proof output and logs; no regeneration or cleanup is provided.
+
+## Owner OpenAPI
+
+HealthResponse and routes in main.py are create-once owner authority; the safe
+ErrorEnvelope is declared for HTTP failures. The public OpenAPI endpoint remains off.
+Run `.venv/bin/python export_openapi.py` to export deterministic local openapi.json;
+add `--check` to detect stale schema without changing it. This needs no running API.
+The relative /api server is independent of the disposable path. Application webs use
+this local export through the declared build-time @platform/api-client tool; service
+owners do not depend on a shared runtime SDK.
