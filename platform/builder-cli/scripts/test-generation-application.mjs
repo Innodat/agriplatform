@@ -1,6 +1,7 @@
 // Internal candidate bootstrap only. No public generation command or supplied output.
 import { runBounded } from './process-runner.mjs';
 import { qualifyWebDependencies, recordInstallationManifests, verifyInstallationManifests } from './application-dependency-proof.mjs';
+import { installScaffold, checkScaffold } from '../src/scaffold-install.ts';
 import { renderApplication } from '../src/application-renderer.ts';
 import { createHash } from 'node:crypto';
 import { accessSync, constants, chmodSync, existsSync, globSync, lstatSync, mkdirSync, mkdtempSync, readFileSync, realpathSync, writeFileSync } from 'node:fs';
@@ -78,13 +79,26 @@ try {
  rootPackage.workspaces.push(webRelative);
  writeFileSync(join(copy,'package.json'),JSON.stringify(rootPackage,null,2)+'\n',{mode:0o600});
  manifest.root_lock={source:'package-lock.json',base_sha256:manifest.sources['package-lock.json'],workspaces,installation_workspace:webRelative,installation_scope:'selected generated web workspace only',extended_by:'npm 12.2.0 offline package-lock-only'};
+ const installIdentity={generator:'builder-v1',template:'application-v1-candidate',recipe:hash(JSON.stringify(recipe)),source:hash(JSON.stringify(files))};
+ installScaffold(app,files,installIdentity);
+ const customPath=join(app,'web/src/App.tsx');
+ const customShell=readFileSync(customPath,'utf8').replace('Your application starts here.', 'Your application starts here. Owner customization preserved.');
+ if(customShell===readFileSync(customPath,'utf8')) fail('preservation_proof_failed');
+ writeFileSync(customPath,customShell,{mode:0o600});
+ writeFileSync(join(app,'custom-owner.txt'),'Synthetic application-owned custom file.\n',{mode:0o600});
+ const preserved={'web/src/App.tsx':digest(customPath),'custom-owner.txt':digest(join(app,'custom-owner.txt'))};
+ installScaffold(app,renderApplication(recipe,root),installIdentity);
+ checkScaffold(app);
+ for(const [path,before] of Object.entries(preserved)) if(digest(join(app,path))!==before) fail('preservation_proof_failed');
+ manifest.preservation={status:'passed',identity:installIdentity,custom_files:preserved,manifest_sha256:digest(join(app,'.generated-files.json'))};
+ manifest.files[`${appRelative}/custom-owner.txt`]={classification:'custom',sha256:preserved['custom-owner.txt']};
+ manifest.files[`${appRelative}/.generated-files.json`]={classification:'ownership-manifest',sha256:manifest.preservation.manifest_sha256};
  for(const [path,file] of Object.entries(files)) {
-  const target=join(app,path);mkdirSync(dirname(target),{recursive:true,mode:0o700});writeFileSync(target,file.content,{mode:0o600});
-  manifest.files[`${appRelative}/${path}`]={classification:file.classification,sha256:hash(file.content)};
+  manifest.files[`${appRelative}/${path}`]={classification:file.classification,sha256:digest(join(app,path))};
   const template=path.startsWith('api/')?`templates/service/${path.slice(4)}`:`templates/application/${path}`;
   source(`platform/builder-cli/${template}`);
  }
- for(const path of ['src/recipe.ts','src/application-renderer.ts','src/service-renderer.ts','scripts/test-generation-application.mjs','scripts/process-runner.mjs','scripts/application-dependency-proof.mjs','package.json']) source(`platform/builder-cli/${path}`);
+ for(const path of ['src/scaffold-install.ts','tests/scaffold-preservation.test.mjs','src/recipe.ts','src/application-renderer.ts','src/service-renderer.ts','scripts/test-generation-application.mjs','scripts/process-runner.mjs','scripts/application-dependency-proof.mjs','package.json']) source(`platform/builder-cli/${path}`);
  for(const path of [...recipe.sources,...recipe.contracts]) source(path);
  manifest.installation_manifests=recordInstallationManifests(copy,['package.json',...workspaces,`${webRelative}/package.json`]);
  const config=join(proof,'config');mkdirSync(config,{mode:0o700});
@@ -96,6 +110,7 @@ try {
  run('npm-ci',node,[npm,'ci','--workspace',webRelative,'--include-workspace-root=false','--ignore-scripts','--offline','--allow-remote=all'],npmEnv,copy,300000);
  if(digest(join(copy,'package-lock.json'))!==manifest.root_lock.extended_sha256) fail('source_or_lock_drift');
  manifest.web_dependencies=qualifyWebDependencies(web,copy);persist();
+ checkScaffold(app);
  for(const script of ['type-check','build']) run(`web-${script}`,node,[npm,'run',script,'--workspace',webRelative],npmEnv,copy);
  const uvEnv={...clean,UV_CACHE_DIR:pythonCache};
  const common=['--project',api,'--python',python,'--offline','--no-config','--no-python-downloads','--default-index','https://pypi.org/simple'];
@@ -121,7 +136,7 @@ try {
  manifest.status='passed';persist();
  process.stdout.write(JSON.stringify({bootstrap_only:true,generation_ready:false,status:'passed',proof})+'\n');
 } catch(error) {
- const known=new Set(['configured_tool_invalid','configured_cache_invalid','configured_tool_version_invalid','configured_path_invalid','arguments_invalid','bootstrap_stage_failed','workspace_dependency_unsupported','source_or_lock_drift','builder_source_drift','browser_identity_invalid','nested_lock_invalid','dependency_provenance_invalid','installation_manifest_drift','application_bootstrap_unsupported']);
+ const known=new Set(['preservation_proof_failed','scaffold_conflict','scaffold_busy','scaffold_recovery_required','configured_tool_invalid','configured_cache_invalid','configured_tool_version_invalid','configured_path_invalid','arguments_invalid','bootstrap_stage_failed','workspace_dependency_unsupported','source_or_lock_drift','builder_source_drift','browser_identity_invalid','nested_lock_invalid','dependency_provenance_invalid','installation_manifest_drift','application_bootstrap_unsupported']);
  const identifier=known.has(error.message)?error.message:'bootstrap_failed';let failureRecordingFailed=false;
  if(manifest) {manifest.status='failed';manifest.error=identifier;try {persist();} catch {failureRecordingFailed=true;}}
  process.stdout.write(JSON.stringify({error:identifier,bootstrap_only:true,generation_ready:false,...(proof?{proof}:{}),...(failureRecordingFailed?{failure_recording_failed:true}:{})})+'\n');process.exitCode=1;

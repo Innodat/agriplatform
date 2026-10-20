@@ -42,6 +42,14 @@ owning HTTP shell, copied-root locked offline install, strict type/build and rea
 Chromium checks. It leaves Auth/current Access, normal generation and custom-code
 preservation unproven. See [application evidence](../../../platform/builder-cli/APPLICATION_BOOTSTRAP_EVIDENCE.md).
 
+The approved next increment proves safe reruns with seed/custom preservation and
+conflict/interruption handling through the existing builder and disposable proof.
+Completed:46 builder tests and actual reviewed shell proof pass; review has no
+deferrals. Journal-backed recovery, direct build admission and concurrent-writer
+refusal are covered; uncertain state remains safely blocked.
+Public generation/extensions and current Access remain
+pending. See [preservation evidence](../../../platform/builder-cli/PRESERVATION_EVIDENCE.md).
+
 | Existing item / boundary | Minimum KDG-relevant outcome | Acceptance/evidence before consumer | Earliest consumer |
 | --- | --- | --- | --- |
 | ENV | Isolated synthetic Auth/PostgreSQL/Access/KDG target, root frontend lock and independent Python locks, compatible exact tool/container/package set; guarded bootstrap/stop/reset and reachable nonproduction HTTPS/provider callback | Record exact version/lock/source identities and actual command lines; target mismatch/missing config refuses writes; clean install/start with unchanged locks; genuine Entra callback qualification remains distinct from local password fixtures | 1.1 environment; real callback/device proof by 1.7 |

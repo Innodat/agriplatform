@@ -142,6 +142,14 @@ extended root lock, and uses an explicit existing Chromium executable. The check
 root lock and historical web templates stay unchanged; no nested browser lock, real
 Auth/Access behavior, public generation or candidate promotion follows from this proof.
 
+The next bounded preservation increment uses the existing application proof and
+rendered ownership map. Its internal installer stages a complete plan, records a small
+ownership manifest/journal and preserves edited create-once seeds and unrelated files.
+Generated conflicts refuse before replacement; failed/interrupted installations must
+recover their previous complete generated set before reuse. This does not open normal
+owner generation, promote candidates or implement extension import. The public command
+and complete extension/release behavior below remain their own delivery gates.
+
 P1/SERVICE retain the version1 keys/paths in the shared addendum. Exact types:
 schema_version=1; owner_id matches `[a-z][a-z0-9_]{1,63}`; owner_kind is application/
 service; sources/contracts are unique nonempty arrays of repository-relative existing

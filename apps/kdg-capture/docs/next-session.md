@@ -1,6 +1,25 @@
 # Resume shared ENV delivery after KDG planning PASS
 
-## Current P1/SERVICE increment — application shell proof, 2026-10-20
+## Current P1/SERVICE increment — safe scaffold reruns, 2026-10-20
+
+The user approved the bounded preservation plan. Implementation uses the existing
+builder's seed/generated ownership map and disposable application proof. It preserves
+edited owner seeds/custom files, refuses generated conflicts before writes, and
+restores journal-backed interrupted installation before reuse. Uncertain recovery
+metadata refuses safely; see the documented limits. See
+[Build](../../../_bmad-output/implementation-artifacts/spec-scaffold-preservation.md)
+and [evidence](../../../platform/builder-cli/PRESERVATION_EVIDENCE.md).
+
+Completed:46 builder tests, type/schema checks and fresh application proof pass,
+including real Chromium with preserved custom shell text. Service regression remains
+source-current. Review addresses11 of12 findings, rejects one low with documented
+limits, and defers nothing.2521 protected prior files remain unchanged.
+Public generation,
+extension import, current Auth/Access and full P1/SERVICE remain pending. Preserve
+concurrent work and historical proofs/state/resources. No Leave/editor, migrations,
+account/provider changes, Docker cleanup, infrastructure, deployment or real-data use.
+
+## Previous P1/SERVICE increment — application shell proof, 2026-10-20
 
 The existing builder renders a presentational React/Vite shell plus owning HTTP
 health shell through `test:generation:application`. A fresh copied root workspace

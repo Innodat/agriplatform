@@ -103,7 +103,8 @@ and extended root-lock provenance, browser identity and safe partial failures.
 
 The shell is presentational banner/main/Welcome/Home only. No fake identity, grants,
 Directory, data editor, forms, domain routes, database, providers, deployment, Leave,
-normal generation, extensions, regeneration or recovery journal is implemented. HTTP
+normal generation or extensions is implemented. The internal preservation installer below
+qualifies reruns and recovery only for disposable output. HTTP
 health and presentation do not qualify current Access or full P1/SERVICE readiness.
 
 Impact decisions: scaffold gains application templates and a private proof harness;
@@ -111,6 +112,50 @@ shared UI has no promotion before consuming proof; generated agent guidance list
 actual commands and limits, with root context unchanged; documentation records commands,
 evidence and scope; existing ADR0059/0031/0023 and owner boundaries suffice, with no
 accepted ADR changes.
+
+## Internal scaffold preservation
+
+`src/scaffold-install.ts` exports `installScaffold(output, files, identity)`,
+`checkScaffold(output)` and explicit `recoverScaffold(output)` for disposable proof.
+There is no public generate/recovery CLI or candidate bypass. Renderers still reject
+extensions and unsupported recipes. Template upgrades, removal and ownership conversion
+are refused. The identity records generator/template versions plus recipe/source hashes.
+
+Initial installation preserves unrelated documentation and refuses planned collisions.
+`.generated-files.json` records each generated file and create-once owner seed. Reruns
+preflight every generated hash before replacement, preserve edited seeds and custom
+files, and refuse missing or edited generated files. The same file set, classifications,
+generator/template and recipe identity are required; source hashes may change. Owners
+change the source template rather than repair generated output by editing it.
+
+One local lock serializes installation. Complete old/new bytes are staged in an
+owner-local journal before replacement; replacement is per file, never multi-file atomic.
+A caught installation failure restores the previous complete set. Journal-backed recovery
+covers interrupted replacement. Pre-journal or cleanup-window interruption can leave
+uncertain state: preserve the tree and refuse automatic recovery. After interruption,
+installation and `checkScaffold` refuse with `scaffold_recovery_required`. Explicit
+`recoverScaffold` claims exclusive private recovery ownership with its PID, requires
+the recorded writer to be dead, validates all journal targets
+against recorded old/new bytes and ownership, then restores the previous set. Live
+writers and live recovery owners give `scaffold_busy`. An interrupted recovery claim
+is uncertain and cannot be stolen, even after its PID exits. Missing/invalid metadata or unknown edits fail closed with
+`scaffold_recovery_uncertain`; preserve that tree for investigation rather than deleting
+its lock or journal. Recovery preserves owner seeds/custom content; edits to an affected
+newly created seed after interruption prevent automatic rollback.
+
+This handles process failure in controlled synthetic trees with stable builder source;
+it is not an adversarial filesystem service or power-loss durability guarantee. PID
+reuse can conservatively block recovery; locks are never stolen automatically. Empty
+directories may remain after rollback. `checkScaffold` is the proof's build admission
+check, not a repository-wide build integration.
+
+`tests/scaffold-preservation.test.mjs` covers collisions, reruns, generated updates,
+later-file conflicts, unsafe paths/metadata/ownership, injected failure, actual killed
+child recovery and live-writer exclusion. The existing application proof now installs,
+visibly edits the owner shell, adds a custom file, reruns and checks byte preservation
+before its clean installation/type/build/API/browser qualification. Final evidence binds
+the installer and preserved output hashes. Run the normal builder tests; no extra proof
+command is required.
 
 ## Supported recipe preflight
 
