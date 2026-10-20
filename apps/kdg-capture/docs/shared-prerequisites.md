@@ -37,6 +37,11 @@ internal bootstrap harness: its own Python lock, clean offline installations and
 actual health/safe-error HTTP proof. This does not promote service authentication or
 complete the table's P1/SERVICE obligations. See [service bootstrap evidence](../../../platform/builder-cli/SERVICE_BOOTSTRAP_EVIDENCE.md).
 
+Application bootstrap now adds a minimal presentational React/Vite shell with the
+owning HTTP shell, copied-root locked offline install, strict type/build and real
+Chromium checks. It leaves Auth/current Access, normal generation and custom-code
+preservation unproven. See [application evidence](../../../platform/builder-cli/APPLICATION_BOOTSTRAP_EVIDENCE.md).
+
 | Existing item / boundary | Minimum KDG-relevant outcome | Acceptance/evidence before consumer | Earliest consumer |
 | --- | --- | --- | --- |
 | ENV | Isolated synthetic Auth/PostgreSQL/Access/KDG target, root frontend lock and independent Python locks, compatible exact tool/container/package set; guarded bootstrap/stop/reset and reachable nonproduction HTTPS/provider callback | Record exact version/lock/source identities and actual command lines; target mismatch/missing config refuses writes; clean install/start with unchanged locks; genuine Entra callback qualification remains distinct from local password fixtures | 1.1 environment; real callback/device proof by 1.7 |

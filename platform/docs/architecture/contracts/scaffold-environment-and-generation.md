@@ -135,6 +135,13 @@ No normal `generate` command, owner-root installation, regeneration or journal
 recovery is delivered by this bootstrap. Catalogue candidates remain unpromoted:
 service authentication/current Access and complete P1/SERVICE proof are still required.
 
+The application-shell bootstrap adds the focused internal test entry
+`test:generation:application`. It renders a presentational web shell and owning HTTP
+shell into fresh disposable output, qualifies a copied root workspace with an npm-
+extended root lock, and uses an explicit existing Chromium executable. The checkout
+root lock and historical web templates stay unchanged; no nested browser lock, real
+Auth/Access behavior, public generation or candidate promotion follows from this proof.
+
 P1/SERVICE retain the version1 keys/paths in the shared addendum. Exact types:
 schema_version=1; owner_id matches `[a-z][a-z0-9_]{1,63}`; owner_kind is application/
 service; sources/contracts are unique nonempty arrays of repository-relative existing

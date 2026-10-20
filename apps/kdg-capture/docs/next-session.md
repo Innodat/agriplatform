@@ -1,6 +1,23 @@
 # Resume shared ENV delivery after KDG planning PASS
 
-## Current P1/SERVICE increment — disposable service output, 2026-10-20
+## Current P1/SERVICE increment — application shell proof, 2026-10-20
+
+The existing builder renders a presentational React/Vite shell plus owning HTTP
+health shell through `test:generation:application`. A fresh copied root workspace
+uses an npm-extended root lock and selective offline installation; strict TS7/Vite,
+independent API tests and actual desktop/mobile Chromium checks pass. See
+[Build](../../../_bmad-output/implementation-artifacts/spec-scaffold-application-bootstrap.md),
+[runbook](../../../platform/builder-cli/README.md#disposable-application-bootstrap) and
+[evidence](../../../platform/builder-cli/APPLICATION_BOOTSTRAP_EVIDENCE.md).
+
+Next is bounded safe generation/custom-code preservation through this builder.
+Normal owner installation/regeneration, current Auth/Access and full P1/SERVICE
+remain unproven; candidates stay generation_ready:false. No KDG editor, Leave,
+duplicate generator or vendor interception work. Keep existing owner boundaries,
+approved pins, concurrent documents and all previous receipts/state/resources.
+Production, real-data use, account/provider changes and deployment remain excluded.
+
+## Previous P1/SERVICE increment — disposable service output, 2026-10-20
 
 The existing builder now renders a service-only health/safe-error shell through its
 internal `test:generation` harness. The output resolves its own pinned Python lock
@@ -10,8 +27,8 @@ and runs real loopback HTTP tests in two fresh offline installations. See
 [evidence](../../../platform/builder-cli/SERVICE_BOOTSTRAP_EVIDENCE.md).
 
 This proves bounded standalone output, not service authentication/current Access or
-complete P1/SERVICE. Candidates remain unpromoted, generation_ready:false. Next extend
-the existing builder's disposable proof to the application shell; normal generation,
+complete P1/SERVICE. Candidates remain unpromoted, generation_ready:false. The subsequent
+application-shell proof is recorded above; normal generation,
 regeneration/custom preservation and current Access integration remain explicit work.
 Preserve historical output/receipts/resources and concurrent documents. No second
 generator, vendor interception prerequisites, Leave/editor or production/pilot work.

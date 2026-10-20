@@ -11,10 +11,15 @@ export function renderService(input: unknown, root: string): Record<string, Serv
   if (!validateRecipe(input, root)) throw new Error('service_bootstrap_unsupported');
   const recipe = recipeSchema.parse(input);
   if (recipe.owner_kind !== 'service' || recipe.extensions.length !== 0) throw new Error('service_bootstrap_unsupported');
+  return renderHttpFiles(recipe.owner_id);
+}
+
+// Shared HTTP templates only; candidate callers validate their own complete recipes.
+export function renderHttpFiles(owner: string): Record<string, ServiceFile> {
   return Object.fromEntries(templates.map(([path, classification]) => [path, {
     classification,
     content: readFileSync(new URL(`../templates/service/${path}`, import.meta.url), 'utf8')
-      .replaceAll('{{OWNER}}', recipe.owner_id)
-      .replaceAll('{{PACKAGE_NAME}}', recipe.owner_id.replaceAll('_', '-').replace(/-+$/u, '')),
+      .replaceAll('{{OWNER}}', owner)
+      .replaceAll('{{PACKAGE_NAME}}', owner.replaceAll('_', '-').replace(/-+$/u, '')),
   }]));
 }

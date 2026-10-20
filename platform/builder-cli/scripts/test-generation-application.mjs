@@ -1,0 +1,128 @@
+// Internal candidate bootstrap only. No public generation command or supplied output.
+import { runBounded } from './process-runner.mjs';
+import { qualifyWebDependencies, recordInstallationManifests, verifyInstallationManifests } from './application-dependency-proof.mjs';
+import { renderApplication } from '../src/application-renderer.ts';
+import { createHash } from 'node:crypto';
+import { accessSync, constants, chmodSync, existsSync, globSync, lstatSync, mkdirSync, mkdtempSync, readFileSync, realpathSync, writeFileSync } from 'node:fs';
+import { dirname, isAbsolute, join, relative, resolve } from 'node:path';
+import { fileURLToPath } from 'node:url';
+const root=fileURLToPath(new URL('../../../',import.meta.url));
+const builder=join(root,'platform/builder-cli'), parent=join(root,'platform/deployment/.local/scaffold-application');
+const clean={PATH:'/usr/bin:/bin',LC_ALL:'C.UTF-8',CI:'1'};
+const hash=value=>createHash('sha256').update(value).digest('hex');
+const digest=path=>hash(readFileSync(path));
+const fail=identifier=>{throw new Error(identifier);};
+let proof,manifest;
+const preflight=[];
+function safePath(path,kind) {
+ if(!isAbsolute(path)) fail('configured_path_invalid');
+ let current='/';
+ for(const segment of path.split('/').filter(Boolean)) {
+  current=join(current,segment);
+  if(lstatSync(current).isSymbolicLink()) fail('configured_path_invalid');
+ }
+ const stat=lstatSync(path);
+ if(kind==='file'?!stat.isFile():!stat.isDirectory()) fail('configured_path_invalid');
+ return path;
+}
+function tool(name,executable=true) {
+ const path=process.env[name]; if(!path||!isAbsolute(path)||!existsSync(path)) fail('configured_tool_invalid');
+ const actual=realpathSync(path); safePath(actual,'file'); if(executable) accessSync(actual,constants.X_OK); return actual;
+}
+function cache(name) {const path=process.env[name];if(!path||!isAbsolute(path)||!existsSync(path)) fail('configured_cache_invalid');return safePath(path,'directory');}
+function persist() {if(manifest) writeFileSync(join(proof,'proof.json'),JSON.stringify(manifest,null,2)+'\n',{mode:0o600});}
+function run(label,executable,args,env=clean,cwd=builder,timeoutMs=120000) {
+ const result=runBounded(executable,args,{cwd,env,timeoutMs});
+ const log=(result.stdout??'')+(result.stderr??'');
+ const record={label,command:[executable,...args],cwd,environment:env,exit_code:result.status,signal:result.signal,error_code:result.error?.code??null,group_termination:result.groupTermination,log_sha256:hash(log)};
+ if(manifest) {manifest.commands.push(record);writeFileSync(join(proof,`${label}.log`),log,{mode:0o600});persist();} else preflight.push({record,log});
+ if(result.error||result.status!==0) fail('bootstrap_stage_failed');return result.stdout.trim();
+}
+try {
+ if(process.argv.length!==2) fail('arguments_invalid');
+ const npm=tool('SCAFFOLD_NPM',false),uv=tool('SCAFFOLD_UV'),python=tool('SCAFFOLD_PYTHON'),chromium=tool('SCAFFOLD_CHROMIUM');
+ const npmCache=cache('SCAFFOLD_NPM_CACHE'),pythonCache=cache('UV_CACHE_DIR');
+ const node=realpathSync(process.execPath);
+ const npmVersion=run('npm-version',node,[npm,'--version']);
+ const uvVersion=run('uv-version',uv,['--version']);
+ const pythonInfo=JSON.parse(run('python-version',python,['-I','-B','-c',"import json,platform,sys,sysconfig;print(json.dumps({'version':platform.python_version(),'implementation':platform.python_implementation(),'free_threaded':bool(sysconfig.get_config_var('Py_GIL_DISABLED')),'executable':sys.executable}))"]));
+ const browserVersion=run('chromium-version',chromium,['--version']);
+ if(process.version!=='v26.11.1'||npmVersion!=='12.2.0'||!/^uv 0\.13\.1(?:\s|$)/.test(uvVersion)||pythonInfo.version!=='3.15.0'||pythonInfo.implementation!=='CPython'||pythonInfo.free_threaded||realpathSync(pythonInfo.executable)!==realpathSync(python)||!/^(?:Chromium|Google Chrome for Testing) \d+\./.test(browserVersion)) fail('configured_tool_version_invalid');
+ const recipe={schema_version:1,owner_id:'bootstrap_application',owner_kind:'application',sources:['platform/docs/architecture/decisions/0059-schema-validated-scaffold-configuration.md'],contracts:['platform/docs/architecture/contracts/scaffold-environment-and-generation.md'],patterns:['api.owner-http.v1','web.react-shell.v1','auth.organization-account.fixed.v1','errors.safe-envelope.v1','saving.none.v1'],extensions:[],deployment_manifest:'apps/bootstrap-application/deployment/manifest.json'};
+ const files=renderApplication(recipe,root);
+ let current=root;
+ for(const segment of relative(root,parent).split('/')) {current=join(current,segment);if(!existsSync(current)) mkdirSync(current,{mode:0o700});safePath(current,'directory');}
+ proof=mkdtempSync(join(parent,'proof-'));chmodSync(proof,0o700);
+ const copy=join(proof,'root'),appRelative='apps/bootstrap-application',webRelative=`${appRelative}/web`,app=join(copy,appRelative),web=join(app,'web'),api=join(app,'api');
+ mkdirSync(copy,{mode:0o700});
+ manifest={schema_version:1,bootstrap_only:true,generation_ready:false,status:'incomplete',template_version:'application-v1-candidate',recipe,recipe_sha256:hash(JSON.stringify(recipe)),qualification_host:{platform:process.platform,architecture:process.arch},sources:{},files:{},commands:[],tools:{},tool_versions:{node:process.version,npm:npmVersion,uv:uvVersion,python:pythonInfo.version,chromium:browserVersion}};
+ for(const [name,path] of Object.entries({node,npm,uv,python,chromium})) manifest.tools[name]={path,realpath:realpathSync(path),sha256:digest(path)};
+ for(const {record,log} of preflight) {manifest.commands.push(record);writeFileSync(join(proof,`${record.label}.log`),log,{mode:0o600});}
+ persist();
+ function source(path) {safePath(join(root,path),'file');manifest.sources[path]=digest(join(root,path));return readFileSync(join(root,path));}
+ function copyManifest(path) {const content=source(path);mkdirSync(dirname(join(copy,path)),{recursive:true,mode:0o700});writeFileSync(join(copy,path),content,{mode:0o600});return JSON.parse(content);}
+ const rootPackage=copyManifest('package.json');copyManifest('package-lock.json');
+ const workspaces=[...new Set(rootPackage.workspaces.flatMap(pattern=>globSync(`${pattern}/package.json`,{cwd:root})))].sort();
+ // Copy canonical workspace manifests at their original relative paths. Local file
+ // dependencies must target another copied workspace; no links back into checkout.
+ for(const path of workspaces) copyManifest(path);
+ for(const path of workspaces) {
+  const pkg=JSON.parse(readFileSync(join(copy,path)));
+  for(const group of ['dependencies','devDependencies','optionalDependencies']) for(const value of Object.values(pkg[group]??{})) {
+   if(value.startsWith('file:')) {
+    const target=resolve(dirname(join(root,path)),value.slice(5));
+    if(!workspaces.some(candidate=>dirname(join(root,candidate))===target)) fail('workspace_dependency_unsupported');
+   }
+  }
+ }
+ rootPackage.workspaces.push(webRelative);
+ writeFileSync(join(copy,'package.json'),JSON.stringify(rootPackage,null,2)+'\n',{mode:0o600});
+ manifest.root_lock={source:'package-lock.json',base_sha256:manifest.sources['package-lock.json'],workspaces,installation_workspace:webRelative,installation_scope:'selected generated web workspace only',extended_by:'npm 12.2.0 offline package-lock-only'};
+ for(const [path,file] of Object.entries(files)) {
+  const target=join(app,path);mkdirSync(dirname(target),{recursive:true,mode:0o700});writeFileSync(target,file.content,{mode:0o600});
+  manifest.files[`${appRelative}/${path}`]={classification:file.classification,sha256:hash(file.content)};
+  const template=path.startsWith('api/')?`templates/service/${path.slice(4)}`:`templates/application/${path}`;
+  source(`platform/builder-cli/${template}`);
+ }
+ for(const path of ['src/recipe.ts','src/application-renderer.ts','src/service-renderer.ts','scripts/test-generation-application.mjs','scripts/process-runner.mjs','scripts/application-dependency-proof.mjs','package.json']) source(`platform/builder-cli/${path}`);
+ for(const path of [...recipe.sources,...recipe.contracts]) source(path);
+ manifest.installation_manifests=recordInstallationManifests(copy,['package.json',...workspaces,`${webRelative}/package.json`]);
+ const config=join(proof,'config');mkdirSync(config,{mode:0o700});
+ for(const kind of ['user','global']) writeFileSync(join(config,kind),'',{mode:0o600});
+ const npmEnv={...clean,PATH:`${dirname(node)}:/usr/bin:/bin`,NPM_CONFIG_USERCONFIG:join(config,'user'),NPM_CONFIG_GLOBALCONFIG:join(config,'global'),NPM_CONFIG_CACHE:npmCache,NPM_CONFIG_REGISTRY:'https://registry.npmjs.org/',NPM_CONFIG_AUDIT:'false',NPM_CONFIG_FUND:'false',NPM_CONFIG_FETCH_RETRIES:'0',NPM_CONFIG_FETCH_TIMEOUT:'30000',PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD:'1'};
+ persist();
+ run('npm-lock',node,[npm,'install','--package-lock-only','--ignore-scripts','--offline','--allow-remote=all'],npmEnv,copy,300000);
+ manifest.root_lock.extended_sha256=digest(join(copy,'package-lock.json'));persist();
+ run('npm-ci',node,[npm,'ci','--workspace',webRelative,'--include-workspace-root=false','--ignore-scripts','--offline','--allow-remote=all'],npmEnv,copy,300000);
+ if(digest(join(copy,'package-lock.json'))!==manifest.root_lock.extended_sha256) fail('source_or_lock_drift');
+ manifest.web_dependencies=qualifyWebDependencies(web,copy);persist();
+ for(const script of ['type-check','build']) run(`web-${script}`,node,[npm,'run',script,'--workspace',webRelative],npmEnv,copy);
+ const uvEnv={...clean,UV_CACHE_DIR:pythonCache};
+ const common=['--project',api,'--python',python,'--offline','--no-config','--no-python-downloads','--default-index','https://pypi.org/simple'];
+ run('api-lock',uv,['lock',...common],uvEnv,api);
+ manifest.files[`${appRelative}/api/uv.lock`]={classification:'generated',sha256:digest(join(api,'uv.lock'))};
+ manifest.python_lock={owner:'uv 0.13.1',independently_resolved:true,offline:true};persist();
+ run('api-lock-check',uv,['lock','--check',...common],uvEnv,api);
+ const environment=join(proof,'python','venv');
+ run('api-sync',uv,['sync','--frozen','--no-build','--no-install-project','--group','test','--link-mode','copy',...common],{...uvEnv,UV_PROJECT_ENVIRONMENT:environment},api);
+ const interpreter=join(environment,'bin/python');
+ run('api-tests',interpreter,['-I','-B','-m','pytest','-q','-s','--tb=no','-p','no:cacheprovider','-c',join(api,'pyproject.toml'),'--confcutdir',api,'--basetemp',join(proof,'python','pytest-tmp'),join(api,'tests')],{...clean,PYTEST_DISABLE_PLUGIN_AUTOLOAD:'1'},api);
+ manifest.python_environment={path:environment,frozen_offline_wheel_only:true,runtime_verified:true};persist();
+ run('web-browser',node,[npm,'run','test:browser','--workspace',webRelative],{...npmEnv,SCAFFOLD_CHROMIUM:chromium,SCAFFOLD_API_PYTHON:interpreter,SCAFFOLD_SCREENSHOTS:proof},copy);
+ manifest.browser=JSON.parse(readFileSync(join(proof,'browser-result.json')));
+ if(manifest.browser.status!=='passed'||manifest.browser.browser.sha256!==manifest.tools.chromium.sha256||realpathSync(manifest.browser.browser.path)!==realpathSync(chromium)) fail('browser_identity_invalid');
+ manifest.evidence={};
+ for(const name of ['desktop.png','mobile.png','browser-result.json','browser-cleanup.json']) manifest.evidence[name]={sha256:digest(join(proof,name))};
+ for(const [path,digestBefore] of Object.entries(manifest.sources)) if(digest(join(root,path))!==digestBefore) fail('builder_source_drift');
+ for(const [path,file] of Object.entries(manifest.files)) if(digest(join(copy,path))!==file.sha256) fail('source_or_lock_drift');
+ if(digest(join(copy,'package-lock.json'))!==manifest.root_lock.extended_sha256) fail('source_or_lock_drift');
+ verifyInstallationManifests(copy,manifest.installation_manifests);
+ if(existsSync(join(web,'package-lock.json'))) fail('nested_lock_invalid');
+ manifest.status='passed';persist();
+ process.stdout.write(JSON.stringify({bootstrap_only:true,generation_ready:false,status:'passed',proof})+'\n');
+} catch(error) {
+ const known=new Set(['configured_tool_invalid','configured_cache_invalid','configured_tool_version_invalid','configured_path_invalid','arguments_invalid','bootstrap_stage_failed','workspace_dependency_unsupported','source_or_lock_drift','builder_source_drift','browser_identity_invalid','nested_lock_invalid','dependency_provenance_invalid','installation_manifest_drift','application_bootstrap_unsupported']);
+ const identifier=known.has(error.message)?error.message:'bootstrap_failed';let failureRecordingFailed=false;
+ if(manifest) {manifest.status='failed';manifest.error=identifier;try {persist();} catch {failureRecordingFailed=true;}}
+ process.stdout.write(JSON.stringify({error:identifier,bootstrap_only:true,generation_ready:false,...(proof?{proof}:{}),...(failureRecordingFailed?{failure_recording_failed:true}:{})})+'\n');process.exitCode=1;
+}

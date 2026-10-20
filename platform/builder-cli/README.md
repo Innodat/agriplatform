@@ -7,11 +7,11 @@ through membership or infer public API authority from tables. Prove account and
 organization variants in first-consumer fixtures before promotion. Not implemented.
 
 **Status:** Read-only P1/SERVICE recipe preflight plus an internal disposable service
-bootstrap harness. Public generation remains undelivered; all patterns stay candidates.
+and application bootstrap harnesses. Public generation remains undelivered; all patterns stay candidates.
 
 ## Disposable service bootstrap
 
-`test:generation` is the only candidate-bootstrap entry. It accepts no arguments or
+`test:generation` is the service candidate-bootstrap entry. It accepts no arguments or
 write target, validates a synthetic service recipe through existing preflight, and
 creates a private fresh `platform/deployment/.local/scaffold-generation/proof-*/output`.
 Every previous output is preserved, including failures. Application recipes and
@@ -55,6 +55,62 @@ shared UI has no changes because this output has no browser; generated agent gui
 lists actual commands and authority limits while root context stays unchanged;
 documentation records bounded bootstrap/qualification; existing ADR0059/0031/0023
 cover the change and accepted ADRs remain unchanged.
+
+## Disposable application bootstrap
+
+`test:generation:application` is a separate internal proof with no arguments or output
+flag. Its pure renderer accepts validated application recipes without extensions and
+returns an explicit generated/owner-seed file map. The API reuses the service HTTP
+templates; service output and refusal behavior remain unchanged. Historical web
+templates are unchanged. Candidates remain `bootstrap_only:true/generation_ready:false`.
+
+From the repository root with the selected Node26.11.1 on PATH:
+
+```bash
+export SCAFFOLD_NPM="$PWD/platform/deployment/.local/kdg-toolchains/ad277eef-a10e-4aac-bb82-5743653fb2e0/payload/npm/bin/npm-cli.js"
+export SCAFFOLD_UV="$PWD/platform/deployment/.local/kdg-toolchains/0cc4bc48-505e-41c1-8876-25b2d49b5694/payload/uv/uv"
+export SCAFFOLD_PYTHON="$PWD/platform/deployment/.local/kdg-toolchains/0cc4bc48-505e-41c1-8876-25b2d49b5694/payload/python/bin/python3.15"
+export SCAFFOLD_NPM_CACHE="$PWD/platform/deployment/.local/web-baseline-qualification/network-cache"
+export UV_CACHE_DIR="$PWD/platform/deployment/.local/python-baseline-qualification/cache"
+export SCAFFOLD_CHROMIUM="$PWD/platform/deployment/.local/web-baseline-qualification/browsers/chromium_headless_shell-1248/chrome-headless-shell-linux64/chrome-headless-shell"
+node "$SCAFFOLD_NPM" run test:generation:application --workspace platform/builder-cli
+```
+
+All tools, caches and the existing Chromium must be explicitly selected. No runtime,
+browser or package download fallback is allowed. Versions and executable identities are
+recorded. Every attempt that reaches output creation receives a new private
+`platform/deployment/.local/scaffold-application/proof-*` directory; failures and all
+previous output remain. Missing tools/cache and wrong versions refuse before output.
+
+The proof copies canonical root package/lock and existing workspace manifests with
+local file-dependency paths preserved, adds the generated web workspace only in that
+copy, and extends the copied lock through offline npm package-lock-only resolution.
+One clean offline `ci --ignore-scripts --workspace apps/bootstrap-application/web
+--include-workspace-root=false` installs the selected generated workspace using the
+extended root lock. The checkout lock is never changed; no nested browser lock is used.
+The web pins React/DOM19.3.0, Vite8.3.4/plugin-react6.1.2, TS7.0.2, matching React types,
+Node types26.6.5 and development-only Playwright1.64.0. No shared UI or Auth packages.
+
+The independent API lock resolves offline, checks, and installs frozen wheel-only into
+one absent virtualenv. Generated API tests must pass. Explicit web type-check/build
+then real Chromium use built Vite preview and the real owning loopback API. Desktop
+and mobile screenshots, actual Chromium path/hash, semantic landmarks, keyboard skip
+focus, Home/reload, responsive width, health response and failure-free browser/network
+checks are retained. Child execution and browser/API teardown are bounded. Socket
+failure fails the proof. Logs contain only synthetic tool/test output in private files.
+`proof.json` records exact commands/results, source/output ownership and hashes, base
+and extended root-lock provenance, browser identity and safe partial failures.
+
+The shell is presentational banner/main/Welcome/Home only. No fake identity, grants,
+Directory, data editor, forms, domain routes, database, providers, deployment, Leave,
+normal generation, extensions, regeneration or recovery journal is implemented. HTTP
+health and presentation do not qualify current Access or full P1/SERVICE readiness.
+
+Impact decisions: scaffold gains application templates and a private proof harness;
+shared UI has no promotion before consuming proof; generated agent guidance lists
+actual commands and limits, with root context unchanged; documentation records commands,
+evidence and scope; existing ADR0059/0031/0023 and owner boundaries suffice, with no
+accepted ADR changes.
 
 ## Supported recipe preflight
 
