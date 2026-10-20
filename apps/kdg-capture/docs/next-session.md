@@ -1,6 +1,20 @@
 # Resume shared ENV delivery after KDG planning PASS
 
-## Current ID-B increment — selected-organization membership read, 2026-10-20
+## Current ID-B increment — operator input boundary, 2026-10-20
+
+The four selected Identity setup-command inputs now have an owner-local strict JSON
+parser. Validation returns immutable typed requests; it performs no authorization,
+account verification, expected-state lookup or writes. See [Build](../../../_bmad-output/implementation-artifacts/spec-id-b-operator-input.md)
+and [evidence](../../../services/access/OPERATOR_INPUT_EVIDENCE.md) for executed checks
+and review disposition. No database or Docker resources are needed for this increment.
+
+Next connect the selected protected operator execution boundary: verified executor/
+initiator, current per-command authority, target binding and durable outcomes before
+provisioning. Membership lifecycle/hardening, Access/WRITE and server KDG remain gates.
+Preserve all original sources, concurrent documents, historical receipts/state and Docker
+resources. No real account/access/provider changes, Leave/editor or deployment.
+
+## Previous ID-B increment — selected-organization membership read, 2026-10-20
 
 Identity revision4 adds the internal current-account organization projection and
 server-maintained membership revision, reusing the existing reader and owner chain.

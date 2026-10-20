@@ -461,3 +461,57 @@ proof uses privileged vendor `postgres` LOGIN and records actual owner membershi
 and inheritance separately; it makes no
 service_role or PostgREST endpoint claim and changes no grants. Overflow proof checks
 whole-statement rollback for both an exhausted and an eligible membership.
+
+## Strict operator input boundary (ID-B, parser only)
+
+`identity_operator_input.parse_command(body: bytes)` parses one version-1 Identity
+command and returns frozen command, scope and payload dataclasses. The four accepted
+commands are `actor.register_system`, `account_actor.ensure`, `membership.join` and
+`membership.retire`. This is a stdlib-only, owner-local parser: it performs no database
+access, target binding, executor authentication, authorization, account verification,
+receipt lookup or execution. No CLI is installed by this boundary. A parsed owner
+flag is only a request; later execution of `membership.join` with `is_owner=true`
+still requires the separate protected `membership.join_owner` authority.
+
+Call it from owner-local Python with UTF-8 JSON bytes; inspect the typed fields only
+in controlled application logic. `CommandValidationError` exposes only the fixed
+`identity_operator_input_invalid` code/message. Decoder exceptions are not chained,
+and command/scope/payload reprs omit their fields. Do not log submitted bytes or typed
+payload fields, or infer authorization from successful parsing.
+
+The input is limited to 65536 bytes, including whitespace, with strict UTF-8 and JSON:
+no BOM, duplicate keys (including escaped aliases), nonfinite numbers, NUL or lone
+surrogates anywhere. Excessive decoder/traversal nesting and oversized integers fail
+with the same safe error. Unknown fields at every level are rejected, including
+executor/authority overrides. Version is exactly integer 1; boolean flags require
+actual JSON booleans, and expected absence is exactly true.
+
+UUIDs use only the standard hyphenated spelling with upper/lower hex preserved; nil,
+compact, brace and URN forms fail. Membership IDs/revisions are canonical positive
+ASCII decimal strings bounded by signed bigint maximum `9223372036854775807`; numeric
+JSON IDs, zero and leading zeros fail. `expected_previous_membership_id` is required
+and may be null for first-ever join. Scope is exactly platform for actor commands or
+organization with nonnil `org_id` for membership commands. Omitted `is_owner` is false.
+
+Actor keys match `[a-z][a-z0-9_.:-]{0,127}`. Display labels retain Unicode unchanged,
+with 1–200 code points and at least one character outside the exact Unicode
+White_Space set used by revision2's database constraint. No Unicode normalization or
+Python `str.isspace()` substitution is used. Reason codes are limited to
+`initial_setup`, `synthetic_fixture`, `identity_adoption`, `access_change` and
+`setup_correction`. Optional evidence references match
+`[A-Za-z0-9][A-Za-z0-9_.:/-]{0,255}`, excluding `://`; null, query strings and URLs
+fail. `account_actor.ensure` requires the envelope reference, but parsing it does not
+verify that evidence or a live account.
+
+Parser acceptance and lexical/safety boundaries are covered by
+`tests/test_identity_operator_input.py`. From repository root, using the prepared
+canonical qualification interpreter:
+
+```sh
+PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 platform/deployment/.local/identity-baseline/qualification-im60qj1l/owner-env-djguxc78/offline-venv/bin/python -I -B -m pytest -p no:cacheprovider services/access/tests/test_identity_operator_input.py -q
+```
+
+Scaffold: this bounded parser remains owner-local; no generic framework or generator.
+Shared UI: none. Agent context: existing rules suffice. Documentation: this runbook
+and root-owned delivery evidence. ADR: no new decision or accepted ADR edit. Parser
+tests do not prove execution authority, runtime adoption, database changes or readiness.

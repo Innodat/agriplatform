@@ -213,3 +213,13 @@ rollback/refusal evidence pass. See [organization evidence](../../../../services
 Protected lifecycle/new-ID rejoin, FORCE-RLS/actor backfill, operator provisioning and
 current Access adoption remain coordinated later gates; this read grants no admission.
 Original migrations/references and writer sources remain unchanged. No live execution.
+
+
+## Bounded ID-B operator input boundary — 2026-10-20
+
+The Identity owner now validates only the four selected setup-command input shapes,
+returning immutable typed requests. No migration/schema/ACL/source pin, runtime login,
+provider/account/access state or Docker resource changes follow. Verification is CPU-only;
+see [input evidence](../../../../services/access/OPERATOR_INPUT_EVIDENCE.md).
+Input acceptance grants no execution authority. Target/current authority/expected-state
+checks and durable outcomes remain the protected operator adapter's next gate.
