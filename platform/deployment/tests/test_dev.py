@@ -39,6 +39,7 @@ FILES = [
 FILES += [str(path.relative_to(ROOT)) for path in sorted((ROOT / 'platform/deployment/fixtures/supabase-kong-source').iterdir())]
 FILES += ['platform/deployment/fixtures/supabase-kong-image-api-config.json',
           'platform/deployment/fixtures/supabase-kong-image-api-config.md']
+FILES += [str(path.relative_to(ROOT)) for path in sorted((ROOT / 'platform/deployment/fixtures/supabase-gotrue-source').iterdir())]
 
 
 class PreparationAcceptance(unittest.TestCase):

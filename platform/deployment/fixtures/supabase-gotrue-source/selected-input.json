@@ -1,0 +1,117 @@
+{
+  "dbHost": "supabase_db_agriplatform-kdg-s7gF1a3GQWinnFlFVH0zIA",
+  "dbPassword": "postgres",
+  "apiUrl": "http://localhost:55481",
+  "jwtSecret": "super-secret-jwt-token-with-at-least-32-characters-long",
+  "jwtExpiry": 3600,
+  "siteUrl": "http://localhost:5188",
+  "additionalRedirectUrls": [
+    "http://localhost:5188/auth/callback"
+  ],
+  "enableSignup": false,
+  "enableAnonymousSignIns": false,
+  "enableRefreshTokenRotation": true,
+  "refreshTokenReuseInterval": 10,
+  "enableManualLinking": false,
+  "minimumPasswordLength": 6,
+  "passwordRequirements": "",
+  "email": {
+    "enable_signup": false,
+    "double_confirm_changes": true,
+    "enable_confirmations": false,
+    "secure_password_change": false,
+    "max_frequency": "1s",
+    "otp_length": 6,
+    "otp_expiry": 3600,
+    "template": {},
+    "notification": {}
+  },
+  "kongContainerName": "supabase_kong_agriplatform-kdg-s7gF1a3GQWinnFlFVH0zIA",
+  "sms": {
+    "enable_signup": false,
+    "enable_confirmations": false,
+    "template": "Your code is {{ .Code }}",
+    "max_frequency": "5s",
+    "otp_length": 6,
+    "otp_expiry": 60,
+    "twilio": {
+      "enabled": false,
+      "account_sid": "",
+      "message_service_sid": ""
+    },
+    "twilio_verify": {
+      "enabled": false
+    },
+    "messagebird": {
+      "enabled": false
+    },
+    "textlocal": {
+      "enabled": false
+    },
+    "vonage": {
+      "enabled": false
+    }
+  },
+  "mfa": {
+    "totp": {
+      "enroll_enabled": false,
+      "verify_enabled": false
+    },
+    "phone": {
+      "enroll_enabled": false,
+      "verify_enabled": false,
+      "otp_length": 6,
+      "template": "Your code is {{ .Code }}",
+      "max_frequency": "5s"
+    },
+    "web_authn": {
+      "enroll_enabled": false,
+      "verify_enabled": false
+    },
+    "max_enrolled_factors": 10
+  },
+  "rateLimit": {
+    "anonymous_users": 30,
+    "token_refresh": 150,
+    "sign_in_sign_ups": 30,
+    "token_verifications": 30,
+    "email_sent": 2,
+    "sms_sent": 30,
+    "web3": 30
+  },
+  "web3": {
+    "solana": {
+      "enabled": false
+    },
+    "ethereum": {
+      "enabled": false
+    }
+  },
+  "oauthServer": {
+    "enabled": false,
+    "authorization_url_path": "/oauth/consent",
+    "allow_dynamic_registration": false
+  },
+  "hooks": {
+    "mfaVerificationAttempt": {
+      "enabled": false
+    },
+    "passwordVerificationAttempt": {
+      "enabled": false
+    },
+    "customAccessToken": {
+      "enabled": false
+    },
+    "sendSms": {
+      "enabled": false
+    },
+    "sendEmail": {
+      "enabled": false
+    },
+    "beforeUserCreated": {
+      "enabled": false
+    }
+  },
+  "externalProviders": {},
+  "authExternalUrl": "http://localhost:55481/auth/v1"
+}

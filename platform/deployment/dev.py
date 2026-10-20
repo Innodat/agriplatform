@@ -37,6 +37,10 @@ SOURCES += ['platform/deployment/fixtures/supabase-kong-source/' + name for name
              'start.gates.ts', 'template-render.ts', 'realtime-env.ts']]
 SOURCES += ['platform/deployment/fixtures/supabase-kong-image-api-config.json',
             'platform/deployment/fixtures/supabase-kong-image-api-config.md']
+SOURCES += ['platform/deployment/fixtures/supabase-gotrue-source/' + name for name in
+            ['sources.json', 'gotrue.service.ts', 'go-duration.ts', 'password-requirements.ts',
+             'internal-db-connection.ts', 'selected-input.json', 'public-environment.json',
+             'docker-ids.ts', 'slim-images.ts']]
 LIMIT = 1024 * 1024
 
 

@@ -1,0 +1,80 @@
+{
+  "gotrue.service.ts": {
+    "upstream_path": "apps/cli/src/commands/start/services/gotrue.service.ts",
+    "url": "https://raw.githubusercontent.com/supabase/cli/753520fa7202ed5f8b25883a4c0aa7e5e9ad1fc4/apps/cli/src/commands/start/services/gotrue.service.ts",
+    "sha256": "5505a718e0b3ac7269956b609aded8b8b01a40c607516a5ebb27814fa5f500a9"
+  },
+  "go-duration.ts": {
+    "upstream_path": "apps/cli/src/command-internal/go-duration.ts",
+    "url": "https://raw.githubusercontent.com/supabase/cli/753520fa7202ed5f8b25883a4c0aa7e5e9ad1fc4/apps/cli/src/command-internal/go-duration.ts",
+    "sha256": "e13890db5e4383f6595328a8af78ca2c45ccea6f58903235456590ef2725405b"
+  },
+  "password-requirements.ts": {
+    "upstream_path": "apps/cli/src/command-internal/password-requirements.ts",
+    "url": "https://raw.githubusercontent.com/supabase/cli/753520fa7202ed5f8b25883a4c0aa7e5e9ad1fc4/apps/cli/src/command-internal/password-requirements.ts",
+    "sha256": "a11de5910c830eabcfcdd87794808a7c71b30f61b0d5011aefd9664c466a6e55"
+  },
+  "internal-db-connection.ts": {
+    "upstream_path": "apps/cli/src/command-internal/db-bootstrap/internal-db-connection.ts",
+    "url": "https://raw.githubusercontent.com/supabase/cli/753520fa7202ed5f8b25883a4c0aa7e5e9ad1fc4/apps/cli/src/command-internal/db-bootstrap/internal-db-connection.ts",
+    "sha256": "cd7cdee734eee02b45b64ad3ad3318ae795e917203f0fe0efe390888aeb73fea"
+  },
+  "gotrue.service.unit.test.ts": {
+    "upstream_path": "apps/cli/src/commands/start/services/gotrue.service.unit.test.ts",
+    "url": "https://raw.githubusercontent.com/supabase/cli/753520fa7202ed5f8b25883a4c0aa7e5e9ad1fc4/apps/cli/src/commands/start/services/gotrue.service.unit.test.ts",
+    "sha256": "e377a424566deb41f8d519cb6ae3bc0869dc1747c5e07adc07c4fb002888390e",
+    "role": "default-input derivation; full fetched source retained in ignored evidence"
+  },
+  "config-auth-index.ts": {
+    "upstream_path": "packages/config/src/auth/index.ts",
+    "url": "https://raw.githubusercontent.com/supabase/cli/753520fa7202ed5f8b25883a4c0aa7e5e9ad1fc4/packages/config/src/auth/index.ts",
+    "sha256": "4823b72ddc2c83cf3ee8ce61211a00097d845106f59f7e71efb0829e0c801c56",
+    "role": "default-input derivation; full fetched source retained in ignored evidence"
+  },
+  "config-auth-email.ts": {
+    "upstream_path": "packages/config/src/auth/email.ts",
+    "url": "https://raw.githubusercontent.com/supabase/cli/753520fa7202ed5f8b25883a4c0aa7e5e9ad1fc4/packages/config/src/auth/email.ts",
+    "sha256": "1c626e0a9be27d4a133663f8613ef80da292aa72a638f4c8e7de7e1724d01072",
+    "role": "default-input derivation; full fetched source retained in ignored evidence"
+  },
+  "config-auth-sms.ts": {
+    "upstream_path": "packages/config/src/auth/sms.ts",
+    "url": "https://raw.githubusercontent.com/supabase/cli/753520fa7202ed5f8b25883a4c0aa7e5e9ad1fc4/packages/config/src/auth/sms.ts",
+    "sha256": "c18466167b17c6ef4b38bf12faf34c448cfcd119f2ed7349c5b837f740ae4ee2",
+    "role": "default-input derivation; full fetched source retained in ignored evidence"
+  },
+  "config-auth-mfa.ts": {
+    "upstream_path": "packages/config/src/auth/mfa.ts",
+    "url": "https://raw.githubusercontent.com/supabase/cli/753520fa7202ed5f8b25883a4c0aa7e5e9ad1fc4/packages/config/src/auth/mfa.ts",
+    "sha256": "3f846025a13931a50903ad8a24c1be5e70acc3d88adcf4e39779f3cd41708cc8",
+    "role": "default-input derivation; full fetched source retained in ignored evidence"
+  },
+  "config-auth-rate_limit.ts": {
+    "upstream_path": "packages/config/src/auth/rate_limit.ts",
+    "url": "https://raw.githubusercontent.com/supabase/cli/753520fa7202ed5f8b25883a4c0aa7e5e9ad1fc4/packages/config/src/auth/rate_limit.ts",
+    "sha256": "bddf77c9a448406957e933044391ca950f938980c2f38fa855a582b018d4e79d",
+    "role": "default-input derivation; full fetched source retained in ignored evidence"
+  },
+  "config-auth-sessions.ts": {
+    "upstream_path": "packages/config/src/auth/sessions.ts",
+    "url": "https://raw.githubusercontent.com/supabase/cli/753520fa7202ed5f8b25883a4c0aa7e5e9ad1fc4/packages/config/src/auth/sessions.ts",
+    "sha256": "b3cfb27b22d1392cbf2c859265c9651fc7b06163f1c78b5b0487730cad80088b",
+    "role": "default-input derivation; full fetched source retained in ignored evidence"
+  },
+  "config-auth-web3.ts": {
+    "upstream_path": "packages/config/src/auth/web3.ts",
+    "url": "https://raw.githubusercontent.com/supabase/cli/753520fa7202ed5f8b25883a4c0aa7e5e9ad1fc4/packages/config/src/auth/web3.ts",
+    "sha256": "8d6365934992450fcd1782170df8c852ba0f84abe605ddaf5f8ae949de7b3727",
+    "role": "default-input derivation; full fetched source retained in ignored evidence"
+  },
+  "docker-ids.ts": {
+    "upstream_path": "apps/cli/src/command-internal/docker-ids.ts",
+    "url": "https://raw.githubusercontent.com/supabase/cli/753520fa7202ed5f8b25883a4c0aa7e5e9ad1fc4/apps/cli/src/command-internal/docker-ids.ts",
+    "sha256": "945646e37d9923929d64f5df4a2551ffecdebf98e2c2c3ccaaf0ed196f64e055"
+  },
+  "slim-images.ts": {
+    "upstream_path": "apps/cli/src/shared/services/slim-images.ts",
+    "url": "https://raw.githubusercontent.com/supabase/cli/753520fa7202ed5f8b25883a4c0aa7e5e9ad1fc4/apps/cli/src/shared/services/slim-images.ts",
+    "sha256": "413671472c9f5687a4e0f6a601f4be9bfdaf2a4a44a726201a9d06d1321b9cba"
+  }
+}

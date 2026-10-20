@@ -1569,3 +1569,31 @@ recorded source frames; final9 targeted methods pass on48 unchanged bindings. Al
 six review findings are addressed. Hardened standalone proof pins known artifact
 hashes, uses verified source buffers, compares the delivered tuple and rechecks bytes.
 Both stdout/stderr are tested, including contained positive-control key injection.
+
+
+### GoTrue closed long-running service profile — 2026-10-20
+
+The existing create-profile owner now distinguishes the complete58-entry GoTrue
+service environment from its unchanged six-variable migration job. The selected
+public environment and full create argv agree with the exact pinned publisher's
+pure builders under verified Node26.11.1; explicit target input and relocated imports
+are documented. This is not a whole-CLI config-resolution or Docker API capture.
+The intent exposes9999 only on its network, auth alias, no mounts/host publish and
+source wget health. The source unless-stopped restart and inherited image command
+are not approved as a disposable execution profile. Ordinary classifier refusal is
+retained, no Docker admission or owner lifecycle is added. See
+[profile evidence](ENV_GOTRUE_PROFILE_EVIDENCE.md) for commands, source hashes,
+negative coverage and scaffold/UI/context/documentation/ADR impacts.
+
+Profile scope/shape checks do not prove real image identity/effective container
+settings/custody. Add those through retained owners before any actual service start;
+prove vendor migration/no-op behavior, safe disposal and functional routing before
+readiness. Host Docker, real accounts/access and production remain untouched. Future
+startup uses fresh source-bound prerequisites; all dependent gates remain closed.
+
+The repeatable checked-in publisher comparison and fresh-checkout tool prerequisites
+are in [the source README](fixtures/supabase-gotrue-source/README.md). Explicit tool
+selection is required; the default unittest skip does not count as conformance.
+Final81 affected plus2 process methods pass on one58-file frame. All ten review
+findings are patched; a prior combined-run timeout remains recorded/unexplained.
+No deadline, source inventory or custody protection was relaxed.

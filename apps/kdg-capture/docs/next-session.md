@@ -1,5 +1,25 @@
 # Resume shared ENV delivery after KDG planning PASS
 
+Current continuation — 2026-10-20: the separate long-running GoTrue create profile
+now contains the pinned builder's58-entry public environment, network-only9999,
+auth alias and source health settings. The migration job is unchanged. Acceptance
+RED, focused tests and independent pure publisher env/container/argv conformance
+pass. Final81 affected and2 process methods pass on the same58-file frame; all ten
+review findings are patched. The earlier combined-run timeout remains unexplained
+and preserved; later passes do not establish its cause. See
+[GoTrue profile evidence](../../../platform/deployment/ENV_GOTRUE_PROFILE_EVIDENCE.md) and
+[Build](../../../_bmad-output/implementation-artifacts/spec-env-gotrue-service-profile.md).
+No creation/admission/lifecycle is enabled; the ordinary classifier still refuses it.
+
+Next: retained-owner GoTrue pre-start boundary, current selected/effective image and
+PG/Kong custody, then a separately safe disposable service lifecycle/functional Auth
+proof. This profile does not prove complete native CLI resolution or actual image/
+container settings. No host Docker access, migrations/account changes or functional
+Auth claim in this item. Fresh prerequisites precede any changed-source actual
+startup; runtime/fresh setup, remaining ENV/scaffold and dependent Identity/Access/
+WRITE/server KDG stay gated. Preserve all concurrent work/receipts/resources, existing
+owners, TS7.0.2/mail15484 and production/real-data/Leave/editor approval boundaries.
+
 Current continuation — 2026-10-20: bmad-help selects the remaining native-key fixture
 prerequisite after the actual Kong lifecycle checkpoint. The existing fixture now
 uses fixed public publisher opaque defaults and exact HS256 anon/service_role tokens.

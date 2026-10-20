@@ -24,6 +24,190 @@ def profile_rejection():
             'flags': ['--entrypoint', '--label', '--name', '--network', '-e', '-p', '-v']}
 
 
+class GotrueServiceProfile(unittest.TestCase):
+    def setUp(self):
+        self.f = boundary_fixture()
+        self.f['network']['Id'] = 'b' * 64
+        self.f.update(origins=target_fixture()['origins'], callback_urls=target_fixture()['callback_urls'])
+        self.authority = json.loads((ROOT / 'platform/deployment/fixtures/supabase-gotrue-source/public-environment.json').read_text())
+
+    def test_long_running_environment_is_distinct_from_the_migration_job(self):
+        build = getattr(create_profile, 'gotrue_service_environment', create_profile.auth_environment)
+        self.assertTrue(build(self.f) == self.authority['environment'],
+                        'long-running GoTrue requires its complete source-derived environment')
+        self.assertEqual(len(create_profile.auth_environment(self.f)), 6)
+
+    def oracle(self):
+        env = dict(self.authority['environment'])
+        env['GOTRUE_DB_DATABASE_URL'] = ('postgresql://supabase_auth_admin:postgres@supabase_db_'
+                                        + self.f['project'] + ':5432/postgres')
+        ref = next(value for key, value in self.f['selection_plan'].items() if '/supabase/gotrue:' in key)
+        project, network = self.f['project'], self.f['network']['Id']
+        health = 'wget --no-verbose --tries=1 --spider http://127.0.0.1:9999/health'
+        args = ['create', '--name', 'supabase_auth_' + project]
+        for key in env: args += ['-e', key]
+        args += ['--expose', '9999', '--health-cmd', health, '--health-interval', '10s',
+                 '--health-timeout', '2s', '--health-retries', '3', '--restart', 'unless-stopped',
+                 '--add-host', 'host.docker.internal:host-gateway', '--network', network,
+                 '--network-alias', 'auth', '--label', 'com.supabase.cli.project=' + project,
+                 '--label', 'com.docker.compose.project=' + project,
+                 '--label', 'com.supabase.cli.workdir=' + self.f['workdir'], ref]
+        request = {'method': 'POST', 'path': '/v1.48/containers/create?name=supabase_auth_' + project + '&platform=linux%2Famd64',
+            'body': {'Image': ref, 'Env': [key+'='+value for key,value in env.items()],
+                'ExposedPorts': {'9999/tcp': {}},
+                'Healthcheck': {'Test': ['CMD-SHELL', health], 'Interval': 10000000000, 'Timeout': 2000000000, 'Retries': 3},
+                'Labels': {'com.supabase.cli.project':project, 'com.docker.compose.project':project,
+                           'com.supabase.cli.workdir':self.f['workdir']},
+                'HostConfig': {'Binds': [], 'NetworkMode':network,
+                    'ExtraHosts':['host.docker.internal:host-gateway'],
+                    'RestartPolicy':{'Name':'unless-stopped','MaximumRetryCount':0}},
+                'NetworkingConfig':{'EndpointsConfig':{network:{'Aliases':['auth']}}}}}
+        return [args, env, request]
+
+    def test_complete_source_profile_stays_network_only_and_classifier_refused(self):
+        before = copy.deepcopy(self.f)
+        actual = [create_profile.gotrue_service_request(self.f), create_profile.gotrue_service_environment(self.f),
+                  create_profile.gotrue_service_execution_request(self.f)]
+        self.assertTrue(actual == self.oracle(), 'GoTrue profile differs from independent source oracle')
+        create_profile.validate_gotrue_service_intent(*actual, self.f)
+        self.assertEqual(before, self.f)
+        self.assertNotIn('-p', actual[0])
+        self.assertNotIn('-v', actual[0])
+        self.assertNotIn('PortBindings', actual[2]['body']['HostConfig'])
+        self.assertNotIn('Cmd', actual[2]['body'])
+        self.assertNotIn('Entrypoint', actual[2]['body'])
+        for value in actual[1].values():
+            if len(value) > 50: self.assertTrue(value not in actual[0], 'value entered create argv')
+        with self.assertRaises(dev.Refusal) as caught:
+            dev._docker_request(actual[2]['method'], actual[2]['path'], actual[2]['body'], True)
+        self.assertEqual((caught.exception.stage, caught.exception.code), ('docker','docker_request_invalid'))
+
+    def test_all_intent_leaves_missing_extra_and_wrong_types_refuse_safely(self):
+        def leaves(value, path=()):
+            if type(value) is dict:
+                for key,child in value.items(): yield from leaves(child,path+(key,))
+            elif type(value) is list:
+                for index,child in enumerate(value): yield from leaves(child,path+(index,))
+            else: yield path
+        baseline = self.oracle()
+        for index, item in enumerate(baseline):
+            for path in leaves(item):
+                for replacement in (None, True, 'private-input-sentinel'):
+                    with self.subTest(index=index, path=path, replacement_type=type(replacement).__name__):
+                        changed = copy.deepcopy(baseline);cursor = changed[index]
+                        for key in path[:-1]: cursor = cursor[key]
+                        cursor[path[-1]] = replacement
+                        with self.assertRaises(dev.Refusal) as caught:
+                            create_profile.validate_gotrue_service_intent(*changed,self.f)
+                        self.assertEqual((caught.exception.stage,caught.exception.code),('startup','unsafe_create'))
+                        self.assertNotIn('private-input-sentinel',str(caught.exception))
+        for index in range(3):
+            for change in ('missing','extra'):
+                changed = copy.deepcopy(baseline)
+                if index == 0:
+                    changed[0].pop() if change == 'missing' else changed[0].append('private-input-sentinel')
+                elif change == 'missing': changed[index].pop(next(iter(changed[index])))
+                else: changed[index]['extra'] = 'private-input-sentinel'
+                with self.assertRaises(dev.Refusal): create_profile.validate_gotrue_service_intent(*changed,self.f)
+
+    def test_invalid_context_and_foreign_image_refuse(self):
+        cases = [('target_id','foreign'),('project','bad'),('workdir','relative'),('workdir','/a/../b'),
+                 ('origins',[]),('callback_urls',None),('selection_plan',None),('image_observations',[]),
+                 ('network',{'Id':'x'*64})]
+        for key,value in cases:
+            f = copy.deepcopy(self.f);f[key] = value
+            with self.subTest(key=key), self.assertRaises(dev.Refusal): create_profile.gotrue_service_request(f)
+        ref = next(value for key,value in self.f['selection_plan'].items() if '/supabase/gotrue:' in key)
+        for value in ({'Id':'sha256:'+'a'*64,'Os':'linux','Architecture':'arm64'},None):
+            f = copy.deepcopy(self.f);f['image_observations'][ref] = value
+            with self.assertRaises(dev.Refusal): create_profile.gotrue_service_request(f)
+
+    def test_validation_reads_one_authority_and_pin_frame(self):
+        baseline = self.oracle()
+        with patch.object(create_profile, '_gotrue_service_authority', wraps=create_profile._gotrue_service_authority) as authority, patch.object(create_profile.images, 'load_pins', wraps=create_profile.images.load_pins) as pins:
+            create_profile.validate_gotrue_service_intent(*baseline, self.f)
+        self.assertEqual(authority.call_count, 1)
+        self.assertEqual(pins.call_count, 1)
+
+    def test_nested_missing_extra_and_empty_containers_refuse(self):
+        baseline = self.oracle()
+        def nodes(value, path=()):
+            yield path, value
+            if type(value) is dict:
+                for key, child in value.items(): yield from nodes(child, path + (key,))
+            elif type(value) is list:
+                for key, child in enumerate(value): yield from nodes(child, path + (key,))
+        for index, item in enumerate(baseline):
+            for path, node in nodes(item):
+                replacements = []
+                if type(node) is dict: replacements += [dict(node, unexpected=True)]
+                if type(node) is list: replacements += [node + ['private-input-sentinel'], tuple(node)]
+                for replacement in replacements:
+                    changed = copy.deepcopy(baseline)
+                    if not path: changed[index] = replacement
+                    else:
+                        cursor = changed[index]
+                        for key in path[:-1]: cursor = cursor[key]
+                        cursor[path[-1]] = replacement
+                    with self.subTest(index=index, path=path), self.assertRaises(dev.Refusal):
+                        create_profile.validate_gotrue_service_intent(*changed, self.f)
+                if path:
+                    changed = copy.deepcopy(baseline); cursor = changed[index]
+                    for key in path[:-1]: cursor = cursor[key]
+                    del cursor[path[-1]]
+                    with self.subTest(missing=path), self.assertRaises(dev.Refusal):
+                        create_profile.validate_gotrue_service_intent(*changed, self.f)
+
+    def test_foreign_repository_digest_and_missing_selection_refuse(self):
+        tag = next(key for key in self.f['selection_plan'] if '/supabase/gotrue:' in key)
+        for selected in ('foreign/gotrue@sha256:' + 'c'*64,
+                         'public.ecr.aws/supabase/gotrue@sha256:bad', None):
+            f = copy.deepcopy(self.f); f['selection_plan'][tag] = selected
+            with self.subTest(selection_type=type(selected).__name__), self.assertRaises(dev.Refusal):
+                create_profile.gotrue_service_request(f)
+        for missing in ('selection', 'observation'):
+            f = copy.deepcopy(self.f)
+            if missing == 'selection': del f['selection_plan'][tag]
+            else: del f['image_observations'][f['selection_plan'][tag]]
+            with self.subTest(missing=missing), self.assertRaises(dev.Refusal):
+                create_profile.gotrue_service_request(f)
+
+    def test_second_valid_context_changes_only_run_operands(self):
+        self.f.update(project='agriplatform-kdg-' + 'z'*22, workdir='/another/private/run')
+        self.f['network']['Id'] = 'c'*64
+        actual = [create_profile.gotrue_service_request(self.f), create_profile.gotrue_service_environment(self.f),
+                  create_profile.gotrue_service_execution_request(self.f)]
+        self.assertTrue(actual == self.oracle(), 'second valid context differs from independent oracle')
+        create_profile.validate_gotrue_service_intent(*actual, self.f)
+        for key in ('GOTRUE_SITE_URL', 'API_EXTERNAL_URL', 'GOTRUE_URI_ALLOW_LIST'):
+            self.assertEqual(actual[1][key], self.authority['environment'][key])
+
+    def test_changed_authority_bytes_refuse_without_input_disclosure(self):
+        original = dev.read
+        def changed(path, *args, **kwargs):
+            if str(path).endswith('/supabase-gotrue-source/public-environment.json'):
+                return b'private-input-sentinel'
+            return original(path, *args, **kwargs)
+        baseline = self.oracle()
+        operations = [lambda: create_profile.gotrue_service_environment(self.f),
+                      lambda: create_profile.gotrue_service_request(self.f),
+                      lambda: create_profile.gotrue_service_execution_request(self.f),
+                      lambda: create_profile.validate_gotrue_service_intent(*baseline, self.f)]
+        with patch.object(dev, 'read', side_effect=changed):
+            for operation in operations:
+                with self.assertRaises(dev.Refusal) as caught: operation()
+                self.assertEqual((caught.exception.stage, caught.exception.code), ('startup', 'unsafe_create'))
+                self.assertNotIn('private-input-sentinel', str(caught.exception))
+
+    def test_ambient_values_and_returned_mutation_cannot_change_profile(self):
+        baseline = self.oracle()
+        for name in ('GOTRUE_JWT_SECRET','GOTRUE_DB_DATABASE_URL','SUPABASE_AUTH_SITE_URL','DOCKER_HOST'):
+            with patch.dict(os.environ,{name:'private-input-sentinel'},clear=True):
+                self.assertTrue(create_profile.gotrue_service_environment(self.f) == baseline[1], 'ambient input accepted')
+        env = create_profile.gotrue_service_environment(self.f);env['GOTRUE_JWT_SECRET'] = 'changed'
+        self.assertTrue(create_profile.gotrue_service_environment(self.f) == baseline[1], 'returned mutation changed authority')
+
+
 class CompleteCreateProfile(unittest.TestCase):
     def setUp(self):
         self.f = boundary_fixture()

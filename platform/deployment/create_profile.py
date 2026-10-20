@@ -151,6 +151,115 @@ def auth_environment(fixture):
             'GOTRUE_SITE_URL': fixture['origins'][0], 'GOTRUE_JWT_SECRET': CONTAINER_ENV['JWT_SECRET']}
 
 
+def _gotrue_service_authority():
+    """Fixed public source output, never observed runtime or caller input."""
+    import json
+    raw = dev.read(dev.ROOT / 'platform/deployment/fixtures/supabase-gotrue-source/public-environment.json')
+    if dev.digest(raw) != '29a7f4067b053c16525c5e8025eb0cb00b6e1fc42c4403ad51aeb9c8b7e7ef46':
+        refuse()
+    return json.loads(raw)
+
+
+def _gotrue_service_frame(fixture):
+    # Snapshot only known plain containers, never caller-defined deepcopy hooks.
+    if (type(fixture) is not dict
+            or any(type(fixture.get(key)) is not dict
+                   for key in ('network', 'selection_plan', 'image_observations'))):
+        refuse()
+    fixture = dict(fixture)
+    for key in ('network', 'selection_plan', 'image_observations'):
+        fixture[key] = dict(fixture[key])
+    fixture['image_observations'] = {
+        key: dict(value) if type(value) is dict else value
+        for key, value in fixture['image_observations'].items()}
+    authority = _gotrue_service_authority()
+    if (type(fixture) is not dict or fixture.get('target_id') != 'kdg-local'
+            or not _exact_tree(fixture.get('origins'), authority['origins'])
+            or not _exact_tree(fixture.get('callback_urls'), authority['callback_urls'])
+            or type(fixture.get('project')) is not str
+            or not re.fullmatch(r'agriplatform-kdg-[A-Za-z0-9_-]{22}', fixture['project'])
+            or type(fixture.get('workdir')) is not str or not fixture['workdir'].startswith('/')
+            or '\0' in fixture['workdir'] or '..' in Path(fixture['workdir']).parts
+            or type(fixture.get('network')) is not dict
+            or type(fixture['network'].get('Id')) is not str
+            or not re.fullmatch(r'[0-9a-f]{64}', fixture['network']['Id'])
+            or type(fixture.get('selection_plan')) is not dict
+            or type(fixture.get('image_observations')) is not dict):
+        refuse()
+    pins = images.load_pins(dev.read(dev.ROOT / images.PINS))
+    pin = next(item for item in pins['images'] if item['id'] == 'gotrue')
+    repository = 'public.ecr.aws/' + pin['repository']
+    selected = fixture['selection_plan'].get(repository + ':' + pin['tag'])
+    if type(selected) is not str or not re.fullmatch(re.escape(repository) + r'@sha256:[0-9a-f]{64}', selected):
+        refuse()
+    observed = fixture['image_observations'].get(selected)
+    if (type(observed) is not dict or set(observed) != {'Id', 'Os', 'Architecture'}
+            or type(observed.get('Id')) is not str or not re.fullmatch(r'sha256:[0-9a-f]{64}', observed['Id'])
+            or observed['Os'] != 'linux' or observed['Architecture'] != 'amd64'):
+        refuse()
+    env = authority['environment']
+    env['GOTRUE_DB_DATABASE_URL'] = ('postgresql://supabase_auth_admin:postgres@supabase_db_'
+                                    + fixture['project'] + ':5432/postgres')
+    # One operation owns one detached, validated frame; no global authority cache.
+    return (fixture['project'], fixture['workdir'], fixture['network']['Id'], selected, env)
+
+
+def gotrue_service_environment(fixture):
+    """Complete source-fixed service inputs, distinct from the migration job."""
+    return _gotrue_service_frame(fixture)[4]
+
+
+def gotrue_service_request(fixture):
+    """Pinned source create intent only; no service dispatch or execution admission."""
+    return _gotrue_service_args(_gotrue_service_frame(fixture))
+
+
+def _gotrue_service_args(frame):
+    project, workdir, network, selected, env = frame
+    args = ['create', '--name', 'supabase_auth_' + project]
+    for key in env: args += ['-e', key]
+    args += ['--expose', '9999', '--health-cmd',
+             'wget --no-verbose --tries=1 --spider http://127.0.0.1:9999/health',
+             '--health-interval', '10s', '--health-timeout', '2s', '--health-retries', '3',
+             '--restart', 'unless-stopped', '--add-host', 'host.docker.internal:host-gateway',
+             '--network', network, '--network-alias', 'auth',
+             '--label', 'com.supabase.cli.project=' + project,
+             '--label', 'com.docker.compose.project=' + project,
+             '--label', 'com.supabase.cli.workdir=' + workdir, selected]
+    return args
+
+
+def gotrue_service_execution_request(fixture):
+    """Closed API intent, deliberately refused by the ordinary request classifier."""
+    return _gotrue_service_api(_gotrue_service_frame(fixture))
+
+
+def _gotrue_service_api(frame):
+    project, workdir, network, selected, env = frame
+    return {'method': 'POST',
+            'path': '/v1.48/containers/create?name=supabase_auth_' + project + '&platform=linux%2Famd64',
+            'body': {'Image': selected,
+                     'Env': [key + '=' + value for key, value in env.items()],
+                     'ExposedPorts': {'9999/tcp': {}},
+                     'Healthcheck': {'Test': ['CMD-SHELL', 'wget --no-verbose --tries=1 --spider http://127.0.0.1:9999/health'],
+                                     'Interval': 10000000000, 'Timeout': 2000000000, 'Retries': 3},
+                     'Labels': {'com.supabase.cli.project': project,
+                                'com.docker.compose.project': project,
+                                'com.supabase.cli.workdir': workdir},
+                     'HostConfig': {'Binds': [], 'NetworkMode': network,
+                                    'ExtraHosts': ['host.docker.internal:host-gateway'],
+                                    'RestartPolicy': {'Name': 'unless-stopped', 'MaximumRetryCount': 0}},
+                     'NetworkingConfig': {'EndpointsConfig': {network: {'Aliases': ['auth']}}}}}
+
+
+def validate_gotrue_service_intent(args, environment, execution, fixture):
+    frame = _gotrue_service_frame(fixture)
+    if (not _exact_tree(args, _gotrue_service_args(frame))
+            or not _exact_tree(environment, frame[4])
+            or not _exact_tree(execution, _gotrue_service_api(frame))):
+        refuse()
+
+
 def validate_auth_job(args, fixture, inherited):
     """Validate original CLI Auth migration-job input before any admission."""
     if type(inherited) is not dict or type(args) is not list:
