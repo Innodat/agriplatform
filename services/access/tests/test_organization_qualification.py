@@ -18,7 +18,7 @@ def test_new_head_requires_organization_catalog(monkeypatch):
     monkeypatch.setattr(baseline, 'verify_legacy_history', lambda c: None)
     kinds=[]
     monkeypatch.setattr(baseline, 'verify_catalog', lambda c,k: kinds.append(k))
-    baseline.verify_owned_postcondition(object(), require_head=True)
+    baseline.verify_owned_postcondition(object())
     assert kinds==['organization']
     monkeypatch.setattr(baseline, 'verify_owned_history', lambda c: baseline.PROJECTION_REVISION)
     with pytest.raises(baseline.BaselineError, match='identity_unknown_history'):

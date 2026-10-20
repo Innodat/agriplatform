@@ -9,12 +9,17 @@ from pathlib import Path
 import re
 from sqlalchemy import text
 
+IMPORTED_SOURCE_SHA256 = sha256(Path(__file__).read_bytes()).hexdigest()
 HERE = Path(__file__).resolve().parent
 ROOT = HERE.parents[2]
 REVISION = 'identity_0001'
 ACTOR_REVISION = 'identity_0002'
 PROJECTION_REVISION = 'identity_0003'
 ORGANIZATION_REVISION = 'identity_0004'
+AUTHORITY_REVISION = 'identity_0005'
+AUTHORITY_REFERENCE_SHA256 = '2f378cf2e9641bf60a84be4efda88c395a951c1032499d68c13fee878c13a81e'
+AUTHORITY_OWNER = 'identity_operator_authority_owner'
+OPERATOR = 'identity_operator'
 ORGANIZATION_REFERENCE_SHA256 = '5eeed70cf624fc548e9fcbbe13f0adfb83d7e00081def9e71b69e644afd2e6ae'
 PROJECTION_REFERENCE_SHA256 = '6cc6467bef0ba9c744cb53f9c2bb8542412a660c1a161f2be76fd3fa1d0a85a9'
 PROJECTION_OWNER = 'identity_account_projection_owner'
@@ -62,6 +67,8 @@ def compare_catalog(actual, expected):
         raise BaselineError('identity_catalog_mismatch:' + ','.join(changed))
 
 def trusted_reference(kind):
+    if kind == 'authority':
+        return trusted_authority_reference()
     if kind == 'organization':
         return trusted_organization_reference()
     if kind == 'projection':
@@ -143,6 +150,11 @@ def catalog_fingerprints(snapshot):
 
 
 def verify_catalog(connection, kind):
+    if kind == 'authority':
+        verify_projection_role(connection)
+        verify_authority_roles(connection)
+        compare_catalog(catalog_fingerprints(authority_catalog_snapshot(connection)), trusted_reference(kind))
+        return
     if kind in ('projection', 'organization'):
         verify_projection_role(connection)
         snapshot = projection_catalog_snapshot(connection)
@@ -156,10 +168,13 @@ def verify_catalog(connection, kind):
             snapshot['role_memberships'] = [row for row in snapshot['role_memberships']
                 if row not in ([PROJECTION_OWNER, 'identity_migrator', False, 'false', 'true'],
                                [PROJECTION_OWNER, 'identity_migrator', False, None, None])]
+    normalize_staged_authority(connection, snapshot)
     compare_catalog(catalog_fingerprints(snapshot), trusted_reference(kind))
 
 def preflight(connection, mode):
     source_sql()  # verify immutable source pins even on no-op/adoption
+    if connection.execute(text("SELECT EXISTS (SELECT 1 FROM pg_roles WHERE rolname IN ('identity_operator','identity_operator_authority_owner'))")).scalar_one():
+        verify_authority_roles(connection)
     if mode not in ('clean','adopt'):
         raise BaselineError('identity_invalid_migration_mode')
     if connection.execute(text('SELECT session_user, current_user')).one() != ('identity_migrator','identity_migrator'):
@@ -218,15 +233,15 @@ def verify_legacy_history(connection, clean=False):
 
 def verify_owned_postcondition(connection, require_head=False):
     revision = verify_owned_history(connection)
-    if require_head and revision != ORGANIZATION_REVISION:
+    if require_head and revision != AUTHORITY_REVISION:
         raise BaselineError('identity_unknown_history')
     verify_legacy_history(connection)
-    verify_catalog(connection, {REVISION: 'owned', ACTOR_REVISION: 'actor', PROJECTION_REVISION: 'projection', ORGANIZATION_REVISION: 'organization'}[revision])
+    verify_catalog(connection, {REVISION: 'owned', ACTOR_REVISION: 'actor', PROJECTION_REVISION: 'projection', ORGANIZATION_REVISION: 'organization', AUTHORITY_REVISION: 'authority'}[revision])
 
 
 def verify_owned_history(connection):
     revisions = list(connection.execute(text('SELECT version_num FROM identity.alembic_version')).scalars())
-    if revisions not in ([REVISION], [ACTOR_REVISION], [PROJECTION_REVISION], [ORGANIZATION_REVISION]):
+    if revisions not in ([REVISION], [ACTOR_REVISION], [PROJECTION_REVISION], [ORGANIZATION_REVISION], [AUTHORITY_REVISION]):
         raise BaselineError('identity_unknown_history')
     columns = connection.execute(text("SELECT column_name,data_type,character_maximum_length,is_nullable,column_default FROM information_schema.columns WHERE table_schema='identity' AND table_name='alembic_version' ORDER BY ordinal_position")).all()
     if [tuple(row) for row in columns] != [('version_num','character varying',32,'NO',None)]:
@@ -330,3 +345,100 @@ def trusted_organization_reference():
             or reference['migration_sha256'] != sha256((HERE/'versions/0004_current_account_organization.py').read_bytes()).hexdigest()):
         raise BaselineError('identity_reference_unavailable')
     return reference['organization']
+
+
+# Separately prepared roles are never silently repaired by migration.
+AUTHORITY_ROLE_QUERIES = {
+    key.replace('projection','authority'): sql.replace(PROJECTION_OWNER, AUTHORITY_OWNER)
+    for key, sql in PROJECTION_ROLE_QUERIES.items()
+}
+AUTHORITY_ROLE_QUERIES.update({
+    'operator_role': PROJECTION_ROLE_QUERIES['projection_role'].replace(PROJECTION_OWNER, OPERATOR),
+    'operator_memberships': PROJECTION_ROLE_QUERIES['projection_memberships'].replace(PROJECTION_OWNER, OPERATOR),
+    'operator_dependencies': PROJECTION_ROLE_QUERIES['projection_dependencies'].replace(PROJECTION_OWNER, OPERATOR),
+})
+
+
+def verify_authority_roles(connection, staged=False):
+    for role, prefix, login in [(AUTHORITY_OWNER,'authority',False),(OPERATOR,'operator',True)]:
+        rows=connection.execute(text(AUTHORITY_ROLE_QUERIES[prefix+'_role'])).all()
+        if not rows:
+            raise BaselineError('identity_authority_role_missing')
+        if [tuple(row) for row in rows] != [(role,False,False,False,False,login,False,False)]:
+            raise BaselineError('identity_authority_role_unsafe')
+        members=connection.execute(text(AUTHORITY_ROLE_QUERIES[prefix+'_memberships'])).all()
+        expected=[(AUTHORITY_OWNER,'identity_migrator',False,'false','true')] if role==AUTHORITY_OWNER else []
+        if [tuple(row) for row in members] != expected:
+            raise BaselineError('identity_authority_role_unsafe')
+        if staged and connection.execute(text(AUTHORITY_ROLE_QUERIES[prefix+'_dependencies'])).all():
+            raise BaselineError('identity_authority_role_not_empty')
+        # External SECURITY DEFINER execution can confer privileges independently
+        # of direct ACLs. Only the fixed retained legacy read is allowed; its
+        # definition/ACL remains protected by every historical canonical catalog.
+        if connection.execute(text("""SELECT EXISTS (SELECT 1 FROM pg_proc p
+            JOIN pg_namespace n ON n.oid=p.pronamespace
+            WHERE n.nspname NOT IN ('pg_catalog','information_schema','identity')
+              AND p.prosecdef AND has_function_privilege(:role,p.oid,'EXECUTE')
+              AND p.oid <> coalesce(to_regprocedure('public.get_user_roles()')::oid,0))"""),{'role':role}).scalar_one():
+            raise BaselineError('identity_authority_role_unsafe')
+        if connection.execute(text("""SELECT EXISTS (SELECT 1 FROM pg_class c
+            JOIN pg_namespace n ON n.oid=c.relnamespace
+            WHERE n.nspname NOT IN ('pg_catalog','information_schema') AND c.relkind='S'
+              AND CASE WHEN c.relkind='S' THEN has_sequence_privilege(:role,c.oid,'USAGE,UPDATE') ELSE false END)"""),{'role':role}).scalar_one():
+            raise BaselineError('identity_authority_role_unsafe')
+        # Effective PUBLIC/inherited privileges need checking even for empty roles.
+        if connection.execute(text("""SELECT EXISTS (
+            SELECT 1 FROM pg_namespace n WHERE n.nspname !~ '^pg_' AND n.nspname <> 'information_schema'
+              AND has_schema_privilege(:role,n.oid,'CREATE')
+            UNION ALL SELECT 1 FROM pg_class c JOIN pg_namespace n ON n.oid=c.relnamespace
+              WHERE n.nspname !~ '^pg_' AND n.nspname <> 'information_schema' AND c.relkind IN ('r','p','v','m','f')
+              AND (has_table_privilege(:role,c.oid,'INSERT,UPDATE,DELETE,TRUNCATE,REFERENCES,TRIGGER')
+                   OR has_any_column_privilege(:role,c.oid,'INSERT,UPDATE,REFERENCES'))
+        )"""),{'role':role}).scalar_one():
+            raise BaselineError('identity_authority_role_unsafe')
+        if connection.execute(text("""SELECT EXISTS (SELECT 1 FROM pg_class c
+            JOIN pg_namespace n ON n.oid=c.relnamespace
+            WHERE n.nspname !~ '^pg_' AND n.nspname <> 'information_schema'
+              AND (:staged OR n.nspname <> 'identity') AND c.relkind IN ('r','p','v','m','f')
+              AND has_any_column_privilege(:role,c.oid,'SELECT'))"""),{'role':role,'staged':staged}).scalar_one():
+            raise BaselineError('identity_authority_role_unsafe')
+
+
+def normalize_staged_authority(connection,snapshot):
+    present=connection.execute(text("SELECT count(*) FROM pg_roles WHERE rolname IN ('identity_operator','identity_operator_authority_owner')")).scalar_one()
+    if not present:return
+    verify_authority_roles(connection,staged=True)
+    snapshot['role_memberships']=[row for row in snapshot['role_memberships'] if row not in (
+        [AUTHORITY_OWNER,'identity_migrator',False,'false','true'],
+        [AUTHORITY_OWNER,'identity_migrator',False,None,None])]
+
+
+def authority_catalog_snapshot(connection):
+    result=projection_catalog_snapshot(connection)
+    for key,sql in AUTHORITY_ROLE_QUERIES.items():
+        rows=[list(row) for row in connection.execute(text(sql))]
+        if key.endswith('_dependencies'):
+            current=connection.execute(text('SELECT current_database()')).scalar_one()
+            for row in rows:
+                if row[0]==current:row[0]='current_database'
+        result[key]=sorted(json.loads(json.dumps(rows,default=str)),key=lambda row:json.dumps(row,sort_keys=True))
+    for category in ('effective_tables','effective_columns','effective_functions','effective_schemas','effective_sequences'):
+        sql=QUERIES[category].replace("'identity_migrator','access_runtime','authenticated','anon','service_role','supabase_auth_admin'", "'identity_operator','identity_operator_authority_owner'")
+        result['authority_'+category]=sorted([list(row) for row in connection.execute(text(sql))],key=lambda row:json.dumps(row,sort_keys=True))
+    return result
+
+
+def trusted_authority_reference():
+    """Head5 supplements, and never replaces, the four historical reference chains."""
+    trusted_organization_reference()
+    path=HERE/'authority-reference.json'
+    if AUTHORITY_REFERENCE_SHA256 is None or not path.exists():
+        raise BaselineError('identity_reference_unavailable')
+    data=path.read_bytes()
+    if sha256(data).hexdigest()!=AUTHORITY_REFERENCE_SHA256:
+        raise BaselineError('identity_reference_unavailable')
+    reference=json.loads(data)
+    if (reference['source_pins']!=json.loads((HERE/'source-pins.json').read_text())
+        or reference['migration_sha256']!=sha256((HERE/'versions/0005_operator_authority.py').read_bytes()).hexdigest()):
+        raise BaselineError('identity_reference_unavailable')
+    return reference['authority']

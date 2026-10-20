@@ -1,6 +1,23 @@
 # Resume shared ENV delivery after KDG planning PASS
 
-## Current ID-B increment — operator input boundary, 2026-10-20
+## Current ID-B increment — protected operator authority, 2026-10-20
+
+The bounded authority foundation adds Identity-owned principal/authority records and
+an internal read deriving executor solely from the authenticated original database
+login. Exact command/platform/organization/target authority remains distinct; ordinary
+join never grants join_owner. See [Build](../../../_bmad-output/implementation-artifacts/spec-id-b-operator-authority.md)
+and [evidence](../../../services/access/OPERATOR_AUTHORITY_EVIDENCE.md) for executed checks
+and review disposition. Actual restricted-login/structural/upgrade/refusal/rollback checks
+pass across24 named stages;286 affected tests and both composers pass. Independent review
+is complete with no deferrals. The native project is normally stopped with data retained.
+
+This foundation performs no setup command effects or outcome retrieval. Next connect
+protected execution and durable outcomes/events, with current authority rechecked inside
+the short transaction and explicit prepared target binding. Membership lifecycle/hardening,
+Access/WRITE and server KDG remain gates. Preserve all concurrent work, original sources,
+trusted references and retained receipts/state/resources. No production or real-account use.
+
+## Previous ID-B increment — operator input boundary, 2026-10-20
 
 The four selected Identity setup-command inputs now have an owner-local strict JSON
 parser. Validation returns immutable typed requests; it performs no authorization,

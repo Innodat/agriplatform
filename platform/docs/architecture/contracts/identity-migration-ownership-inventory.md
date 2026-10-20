@@ -223,3 +223,14 @@ provider/account/access state or Docker resource changes follow. Verification is
 see [input evidence](../../../../services/access/OPERATOR_INPUT_EVIDENCE.md).
 Input acceptance grants no execution authority. Target/current authority/expected-state
 checks and durable outcomes remain the protected operator adapter's next gate.
+
+
+## Bounded ID-B protected operator authority — 2026-10-20
+
+Identity revision5 adds principal/authority records and a fixed private original-login
+selection routine. Only the controlled Identity owner changes configuration; the narrow
+NOLOGIN reader and separate operator login gain no business writes or other-owner rights.
+Existing actor/membership/projection behavior and original source/reference evidence stay
+intact. See [authority evidence](../../../../services/access/OPERATOR_AUTHORITY_EVIDENCE.md).
+Protected command effects, target binding, durable outcomes/events and coordinated
+membership/Access hardening remain later delivery; no live configuration is authorized.

@@ -515,3 +515,137 @@ Scaffold: this bounded parser remains owner-local; no generic framework or gener
 Shared UI: none. Agent context: existing rules suffice. Documentation: this runbook
 and root-owned delivery evidence. ADR: no new decision or accepted ADR edit. Parser
 tests do not prove execution authority, runtime adoption, database changes or readiness.
+
+## Protected operator authority foundation (ID-B, revision 5)
+
+`identity_0005` adds protected `operator_principals` and `operator_authorities` and
+`identity.current_operator_authority(text,text,uuid,uuid)`. It creates no actors,
+principal mappings or grants. A successful read selects current authority metadata;
+it does not provision anything or authorize a later command without a fresh check
+inside that command's short transaction. Operator effects, outcomes/events, CLI/target
+preparation, membership hardening and Access/WRITE remain separate increments.
+
+The deployment administrator separately runs
+`tools/prepare_identity_operator_roles.sql` on the authorized target. This creates
+`identity_operator` (LOGIN) and `identity_operator_authority_owner` (NOLOGIN), both
+NOINHERIT and without superuser, database/role creation, replication or RLS bypass.
+Preparation requires the controlled true-superuser administrator before creating
+anything (qualified local fixture login: `supabase_admin`). The nonsuperuser vendor
+`postgres` login is refused; PostgreSQL 16+ would otherwise add unwanted creator
+ADMIN memberships. No automatic creator-edge repair is attempted.
+Only `identity_migrator` receives SET-only, non-admin membership in the definer owner;
+operator receives no memberships. On PostgreSQL 15 the migrator must already be
+NOINHERIT, since per-membership INHERIT/SET options require PostgreSQL 16. Only the retained PostgreSQL 17 synthetic target is runtime-qualified by this
+delivery. PostgreSQL 15/16 compatibility branches are code paths, not execution or
+adoption acceptance for those versions. Existing
+role names fail preparation atomically; neither preparation nor migration repairs
+unsafe roles. Credentials are supplied separately through the existing protected
+local target mechanism, never checked into SQL or passed in argv/evidence.
+
+The migration verifies restricted role flags, membership edges, empty staged ownership/
+ACL dependencies and effective privileges. Effective non-system sequence USAGE/UPDATE
+is refused, including PUBLIC grants. Executable external SECURITY DEFINER routines
+are refused except the exact existing `public.get_user_roles()` legacy read boundary,
+whose definition and ACL remain canonically verified; this does not change its legacy
+grants. Ordinary invoker Auth/UUID helpers remain compatible. Historical catalog comparisons accept only
+the exact separately validated empty staged owner membership. After revision 5, the
+new independent canonical catalog protects role flags, memberships, dependencies,
+function ownership/definition/ACLs, table constraints/triggers/ACLs, and effective
+schema/table/column/function/sequence privileges. All old reference files and revision
+sources remain immutable. The head5 reference chains through the head4, head3, actor
+and original reference verification; it does not replace their pins.
+
+Only the migrator may perform controlled authority record changes, with explicit
+verified attribution and deployment change/recovery evidence. This is not an ordinary
+configuration API. Mapping keys/executor and authority tuple identity are immutable;
+enable/disable is revisioned, and deletion/truncation is refused. Insert revision is
+server-owned 1, changed enabled state increments it with overflow refusal, and no-op
+revision/time/attribution forgery is ignored. Creation and update instants are server
+statement timestamps. Actor references and principal linkage use local RESTRICT FKs;
+null application scope, selected command/scope shape, nonnil UUIDs and NULLS NOT DISTINCT
+full-tuple uniqueness are structural constraints. No unrelated actor/member behavior
+changes in this revision.
+
+The fixed STABLE SECURITY DEFINER read uses `session_user`, never the effective SET ROLE,
+JWT, caller GUC or payload actor. It returns only executor actor UUID, principal revision,
+authority UUID and authority revision, or no row. It supports:
+
+- `actor.register_system`: platform scope, null organization and null account target.
+- `account_actor.ensure`: platform scope, null organization and a nonnil account target.
+- `membership.join`, `membership.retire`, `membership.join_owner`: organization scope,
+  nonnil organization and account target. Join-owner is independent; a future owner join
+  must check both ordinary join and join-owner authority.
+
+Each row matches exact command/scope/organization and null application. A null authority
+target explicitly covers all targets in that command/scope; a nonnull target matches
+only that account. UUID ordering deterministically selects overlapping matching rows.
+Missing, nil, mixed or unsupported inputs return no row without revealing target
+existence. Every invocation rechecks enabled state and revisions; committed revocation
+applies on the next statement on a reused connection. Ordinary transaction snapshot
+semantics still apply: this read is not a durable authorization token.
+
+Only the operator has invocation rights. The definer has selected local map columns and
+schema USAGE, no map DML, actor DML, DDL or role authority. New objects revoke all default/
+inherited named ACL grants before exact grants; the function has fixed
+`pg_catalog, pg_temp` search path and qualified owner objects. The trusted body contains
+no dynamic SQL, writes, waits or external calls. Migration and qualifier ACL maintenance
+use catalog-selected quoted identities; that does not add dynamic runtime authorization.
+
+### Independent source recorder and qualification
+
+Root alone prepares and executes the isolated synthetic frame. The recorder consumes
+`owner_urls.authority_reference` from the validated existing fixture, verifies the
+historical references, captures helper/pin/reference/revision bytes before execution,
+checks that the imported helper path and import-time source SHA match the captured
+helper before execution (stale imports refuse), executes exact captured revisions 1–5 in a rollback-only transaction, verifies the
+empty target again, and refuses publication if captured bytes changed. It exclusively
+publishes `authority-reference.json` through an exclusive mode0600 temporary file
+and hard link, independent of process umask;
+prior evidence or temporary files are never overwritten. It never updates its trusted
+pin. Root independently reviews the known-source receipt and binds the resulting digest
+in `AUTHORITY_REFERENCE_SHA256`; no target catalog can approve itself.
+
+With `IDENTITY_QUALIFICATION_DIR` already bound to the authorized prepared frame, use
+the canonical prepared interpreter (`OWNER_PYTHON` below):
+
+```sh
+"$OWNER_PYTHON" -I -B services/access/tests/qualify_identity_baseline.py --record-authority-reference
+"$OWNER_PYTHON" -I -B services/access/tests/qualify_operator_authority.py
+PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 "$OWNER_PYTHON" -I -B -m pytest services/access/tests apps/pts/tests/test_release.py -q -p no:cacheprovider
+```
+
+The actual qualifier requires the existing core private URL groups plus `operator_urls`
+with actual `identity_operator` credentials for each case. It validates those URLs
+as an exact required group against every corresponding frame target and exact login
+before any qualification mutation. Required scratch cases are
+`authority_reference`, `clean`, `legacy`, `previous`, `failure`, `unsafe`, `unknown`
+and the retained `native` target used by existing fixture validation. It creates no
+Docker resources, roles or credentials. Exact prior-head4 preparation must retain
+`previous-source.json`, `previous-execution.json`, source copies and SHA-bound execution
+logs for `previous`, `failure`, `unknown` using commit
+`85b26f38dd66b5f1ac96854f82402c93f4a58700`, the existing canonical prior launcher, and
+exactly the eleven prior owner files. New roles must be staged only after those actual
+prior-source runs; old code must not be modified to understand the new staged roles.
+
+Requirement/test traceability:
+
+| Requirement | Executable evidence |
+| --- | --- |
+| Original-session identity, exact/wildcard selection, owner join independence, invalid input, immediate revocation, cross-principal isolation, spoof resistance, actual restricted-login permissions and browser/service map privilege removal | `AuthorityQualification.restricted_reads` |
+| Nonnil/scope/tuple/FK integrity, immutable identity, forged insert revision/time/updater, changed-update attribution, server revisions/timestamps, no-op, retention and overflow atomicity | `AuthorityQualification.structure` |
+| Clean/adopt/exact head4 upgrade, row/external-reference preservation, repeat, unsafe role/external definer/sequence/PUBLIC table/staged dependency, unknown history, canonical drift and injected mid-migration rollback | `AuthorityQualification.upgrades_and_failures` |
+| Fail-closed head selection, source capture/race refusal, exclusive private publication/manual pin, imported-helper custody, all-target validation, historical reference chain, unsafe role preparation | `test_operator_authority_qualification.py` |
+
+Focused tests were observed failing before implementation (6 failures: absent head5,
+recorder/role helper and revision source); the actual root RED on head4 must also be
+retained in the root-owned proof. Database qualification, source-bound root transcripts,
+composer checks and scoped release evidence are separately recorded by the root owner.
+The Python unit suite does not establish actual PostgreSQL qualification or readiness.
+
+Five impact decisions: scaffold reuses the existing owner migration/reference/qualifier
+pattern without a new generator; shared UI has no change because this is an internal
+SQL foundation; agent context remains sufficient with no new operator CLI; documentation
+updates this owner runbook and root-owned evidence/navigation; existing actor/access/
+structural/release ADRs apply unchanged, with no new or edited accepted ADR. Recovery
+uses the established coordinated migration procedure: failure rolls back the whole
+migration, activation is blocked, and an applied migration is never auto-downgraded.
