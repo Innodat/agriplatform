@@ -458,6 +458,9 @@ def validate_kong_container(row, ident, fixture, *, started=False):
         host['LogConfig'] = {'Type': 'none', 'Config': {}}
     if host.get('Init') is None:
         host.pop('Init', None)
+    # No OOM-disable override is requested; null is the daemon default/unavailable projection.
+    if host.get('OomKillDisable', False) is None:
+        host['OomKillDisable'] = False
     defaults = {key: None for key in ('Tmpfs', 'VolumesFrom', 'CapAdd', 'CapDrop', 'Devices',
                 'DeviceRequests', 'SecurityOpt', 'Links', 'Dns', 'DnsOptions', 'DnsSearch',
                 'GroupAdd', 'Ulimits', 'BlkioWeightDevice', 'BlkioDeviceReadBps',

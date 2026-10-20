@@ -3,6 +3,7 @@ import sys
 from pathlib import Path
 import unittest
 import json
+import itertools
 from unittest.mock import Mock, patch
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 import resources
@@ -4258,7 +4259,7 @@ class KongExecutionOwner(unittest.TestCase):
                     self.assertNotIn('/v1.48/containers/'+'d'*64+'?force=false', later_mutations)
                     self.assertNotIn('/v1.48/containers/'+'a'*64+'/stop?t=5', later_mutations)
 
-    def test_recorded_poststart_null_oom_projection_refuses_offline(self):
+    def test_recorded_poststart_null_oom_projection_accepts_offline(self):
         fixture = json.loads((dev.ROOT / 'platform/deployment/fixtures/supabase-kong-observed-container-api-projection.json').read_text())
         self.assertEqual(fixture['schema_version'], 1)
         self.assertEqual(fixture['capture']['resource_phase'], 'running')
@@ -4269,12 +4270,72 @@ class KongExecutionOwner(unittest.TestCase):
         create_profile.validate_kong_container(row, 'd'*64, d.guard.kong_fixture, started=True)
         for key in fixture['omitted_config_keys']: row['Config'].pop(key, None)
         row['HostConfig'].update(d.copy(fixture['host_config']))
-        with self.assertRaises(dev.Refusal) as caught:
-            create_profile.validate_kong_container(row, 'd'*64, d.guard.kong_fixture, started=True)
-        self.assertEqual((caught.exception.stage, caught.exception.code), ('startup', 'unsafe_create'))
-        # This localizes the current blocker; it is not a future null-default policy.
-        row['HostConfig']['OomKillDisable'] = False
-        create_profile.validate_kong_container(row, 'd'*64, d.guard.kong_fixture, started=True)
+        for form in ('null', 'false', 'absent'):
+            with self.subTest(form=form):
+                if form == 'absent': row['HostConfig'].pop('OomKillDisable')
+                else: row['HostConfig']['OomKillDisable'] = None if form == 'null' else False
+                before = d.copy(row)
+                create_profile.validate_kong_container(row, 'd'*64, d.guard.kong_fixture, started=True)
+                self.assertEqual(row, before)
+        row['HostConfig']['OomKillDisable'] = None
+        for fault in ('memory', 'config', 'protection'):
+            with self.subTest(fault=fault):
+                hostile = d.copy(row)
+                if fault == 'memory': hostile['HostConfig']['Memory'] //= 2
+                elif fault == 'config': hostile['Config']['Unexpected'] = True
+                else: hostile['HostConfig']['MaskedPaths'].pop()
+                with self.assertRaises(dev.Refusal) as caught:
+                    create_profile.validate_kong_container(hostile, 'd'*64, d.guard.kong_fixture, started=True)
+                self.assertEqual((caught.exception.stage, caught.exception.code), ('startup', 'unsafe_create'))
+
+    def test_null_oom_default_completes_all_lifecycle_observation_phases(self):
+        for form, phase in itertools.product(('null', 'false', 'absent'), ('all', 'created', 'running', 'exited')):
+            with self.subTest(form=form, phase=phase):
+                d, _ = self.prepared()
+                original, seen = d.exchange, set()
+                def exchange(method, path, body=None, **kwargs):
+                    result = original(method, path, body, **kwargs)
+                    if method == 'GET' and path == '/v1.48/containers/'+'d'*64+'/json' and result[0] == 200:
+                        row = result[1]
+                        if phase == 'all' or row['State']['Status'] == phase:
+                            if form == 'absent': row['HostConfig'].pop('OomKillDisable', None)
+                            else: row['HostConfig']['OomKillDisable'] = None if form == 'null' else False
+                            seen.add(row['State']['Status'])
+                    return result
+                d.exchange = exchange
+                with patch.object(dev, 'free_ports'):
+                    d.guard.execute_kong()
+                    d.guard.finish_execution()
+                self.assertEqual(seen, {'created', 'running', 'exited'} if phase == 'all' else {phase})
+                self.assertTrue(d.guard.cleaned and d.guard.owner_kong_execution_verified)
+
+    def test_oom_true_and_wrong_types_lose_custody_without_replay(self):
+        for phase in ('created', 'running', 'exited'):
+            for value in (True, 0, 1, 0.0, 'false', [], {}):
+                with self.subTest(phase=phase, value=value):
+                    d, _ = self.prepared()
+                    original, injected = d.exchange, []
+                    def exchange(method, path, body=None, **kwargs):
+                        result = original(method, path, body, **kwargs)
+                        if method == 'GET' and path == '/v1.48/containers/'+'d'*64+'/json' and result[0] == 200:
+                            row = result[1]
+                            row['Config'].pop('OnBuild', None)
+                            row['HostConfig']['MaskedPaths'] = sorted(row['HostConfig']['MaskedPaths'])
+                            if row['State']['Status'] == phase:
+                                row['HostConfig']['OomKillDisable'] = value
+                                injected.append(phase)
+                        return result
+                    d.exchange = exchange
+                    with patch.object(dev, 'free_ports'):
+                        if phase == 'exited': d.guard.execute_kong()
+                        with self.assertRaises(dev.Refusal):
+                            d.guard.finish_execution() if phase == 'exited' else d.guard.execute_kong()
+                    self.assertTrue(injected and d.guard.ownership_lost)
+                    before = len(d.events)
+                    with self.assertRaises(dev.Refusal): d.guard.cleanup_execution()
+                    with self.assertRaises(dev.Refusal): d.guard.execute_kong()
+                    self.assertEqual(before, len(d.events))
+                    self.assertFalse(d.guard.owner_kong_execution_verified)
 
     def test_premature_and_replayed_execution_consume_before_observation(self):
         d, _ = self.prepared()

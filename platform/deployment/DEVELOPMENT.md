@@ -1521,3 +1521,27 @@ completed with both exits0/no force/four404 checks. Review adds late hostile and
 selected-projection coverage:154 distinct selected methods pass across retained frames,
 with three targeted methods rerun on final48 bindings. See
 [correction evidence](ENV_KONG_PROJECTION_EVIDENCE.md) for results, custody and next work.
+
+
+### Nullable Kong OOM default — 2026-10-20
+
+The existing effective-container validator accepts explicit null OomKillDisable as
+the daemon default/unavailable projection in a copied HostConfig. It never requests
+disabled OOM killing; true and wrong-type observations still refuse and latch custody
+loss without execution/cleanup replay. Create/image/transport/deadlines are unchanged.
+Owner acceptance RED,20 owner/133 affected methods and3 process controls pass across
+retained source-bound calls. A fresh actual disposable Kong lifecycle now passes:
+create, three-file transfer, health, normal shutdown and disposal, with original
+Docker identities preserved. Ordinary API-default compatibility also passes with
+normal cleanup on the same unchanged receipts. See [OOM evidence](ENV_KONG_OOM_DEFAULT_EVIDENCE.md)
+for exact commands, initial harness/registry failures and source/preservation records.
+The first image collection's incomplete lock is retained; the successful fresh run
+uses two-second request spacing inside unchanged collection limits, without altering
+publisher pins or response validation. runtime_ready/fresh_setup_completed remain
+false. Native-key/functional Auth routing, remaining ENV services and consuming
+scaffold proof still precede dependent Identity/Access/WRITE/server-backed KDG.
+
+Independent one-shot review addresses all six findings, with no new review deferrals.
+Three final targeted methods prove the expanded12-form/phase matrix, full-row
+preservation, unrelated hostile-field refusal and versioned process-fixture overlay.
+Broader selected tests and actual qualification retain their explicit source frames.

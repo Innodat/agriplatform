@@ -1559,6 +1559,18 @@ class ExecutionSupervisor(unittest.TestCase):
         catalog = scenario.startswith('auth-catalog-') or backend
         migration = scenario.startswith('auth-migration-') or catalog
         persistence = scenario.startswith('persistence-') or initialized
+        recorded_kong_projection = (json.loads((Path(__file__).resolve().parents[3] /
+            'platform/deployment/fixtures/supabase-kong-observed-container-api-projection.json').read_text())
+            if observed_kong_projection else None)
+        if observed_kong_projection:
+            self.assertEqual(set(recorded_kong_projection), {'schema_version', 'capture', 'omitted_config_keys', 'host_config'})
+            self.assertIs(type(recorded_kong_projection['schema_version']), int)
+            self.assertEqual(recorded_kong_projection['schema_version'], 1)
+            self.assertEqual(recorded_kong_projection['capture']['api_version'], '1.48')
+            self.assertEqual(recorded_kong_projection['capture']['resource_phase'], 'running')
+            self.assertEqual(recorded_kong_projection['omitted_config_keys'], ['OnBuild'])
+            self.assertEqual(set(recorded_kong_projection['host_config']), {'MaskedPaths', 'ReadonlyPaths', 'OomKillDisable'})
+            self.assertIsNone(recorded_kong_projection['host_config']['OomKillDisable'])
         engine = KongDaemon() if kong_execution else AuthCatalogDaemon() if catalog else (AuthJobDaemon() if migration else (PersistenceDaemon() if persistence else OwnerDaemon()))
         if migration:
             # Discard direct-owner setup; the actual private process must replay it.
@@ -1621,8 +1633,9 @@ class ExecutionSupervisor(unittest.TestCase):
                 clock_shift[0] = 121
             if kong_execution and 'd'*64 in path and method == 'GET' and result[0] == 200:
                 if observed_kong_projection:
-                    result[1]['Config'].pop('OnBuild', None)
-                    result[1]['HostConfig']['MaskedPaths'] = sorted(result[1]['HostConfig']['MaskedPaths'])
+                    for key in recorded_kong_projection['omitted_config_keys']:
+                        result[1]['Config'].pop(key, None)
+                    result[1]['HostConfig'].update(copy.deepcopy(recorded_kong_projection['host_config']))
                 if scenario == 'auth-kong-execution-custody':
                     result[1]['Config']['Env'].append('private-input-sentinel')
                 elif scenario == 'auth-kong-execution-exit' and result[1]['State']['Status'] == 'exited':

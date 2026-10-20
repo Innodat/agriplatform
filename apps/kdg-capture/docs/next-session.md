@@ -1,5 +1,27 @@
 # Resume shared ENV delivery after KDG planning PASS
 
+Current checkpoint — 2026-10-20: the nullable OomKillDisable correction now passes
+actual disposable Kong create/transfer/health/shutdown/disposal with normal cleanup.
+True and wrong types still refuse; create/transport/custody/deadlines are unchanged.
+ATDD/focused TDD covers156 distinct selected methods across retained source frames;
+the failed fixture-loader and selector invocations are preserved explicitly. See
+[OOM evidence](../../../platform/deployment/ENV_KONG_OOM_DEFAULT_EVIDENCE.md) and
+[Build](../../../_bmad-output/implementation-artifacts/spec-env-kong-null-oom-default.md).
+The first new image qualification failed at the registry and retains its incomplete
+lock; a separate fresh run qualifies with two-second request spacing inside unchanged
+limits. That does not explain the original registry response. No runtime execution
+retry or recovery cleanup was needed. The original Docker identities are preserved.
+Ordinary API-default compatibility also passes with normal cleanup; independent
+review is complete with six findings addressed and no new review deferrals. Final
+three targeted methods pass on48 bindings; broader tests remain tied to recorded frames.
+Next: select the next bounded existing ENV service/native-key/functional Auth prerequisite and
+consuming scaffold proof. Full runtime/fresh setup remain false. Identity/Access/WRITE,
+server KDG, Leave/editor and production/pilot remain gated. Preserve all concurrent
+work, receipts/resources, TS7.0.2/mail15484 and original approval boundaries.
+
+Earlier checkpoints below are historical; the current checkpoint supersedes their
+null-OOM blocker and next-action wording.
+
 Latest correction: omitted null Config.OnBuild and reordered identical proc protections
 are accepted by the existing validator, with hostile shapes still refused. ATDD/focused
 TDD and154 distinct selected methods pass across retained source-bound calls. Fresh actual run b32e04df-ffb0-4a36-ab23-c66e5b1f29ba
