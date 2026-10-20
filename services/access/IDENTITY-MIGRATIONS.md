@@ -32,8 +32,8 @@ A restricted deployment administrator separately provisions the empty `identity`
 schema owned by `identity_migrator`. The login is NOSUPERUSER, NOCREATEDB,
 NOCREATEROLE, NOBYPASSRLS and has no inherited runtime authority. It needs CREATE/USAGE
 on `public` for the inventoried compatibility function and narrowly approved Auth
-integration privileges granted by their actual owners: auth schema USAGE via the
-schema owner (`supabase_admin` on the qualified native target), and TRIGGER,
+integration privileges granted by their actual owners: auth schema USAGE WITH GRANT
+OPTION via the schema owner (`supabase_admin` on the qualified native target), and TRIGGER,
 REFERENCES(id), SELECT(id) on auth.users via its table owner
 (`supabase_auth_admin` on that target). Inspect actual owners and verify effective
 privileges: a GRANT warning that skips a grant is not proof of authority. Supabase-managed
@@ -77,7 +77,7 @@ privileged DDL, ACL changes or permission-seed editing. The advisory lock does n
 exclude noncooperating administrative sessions.
 
 After migrations and private ledger grant cleanup, the same transaction requires the
-exact known actor foundation head (`identity_0002`), validates private ledger table and column ACLs, rechecks the
+exact known current-account projection head (`identity_0003`), validates private ledger table and column ACLs, rechecks the
 legacy source history and verifies the complete owned catalog fingerprint. This
 postcondition applies to clean setup, adoption and retries; an unknown/elevated profile
 or an upgrade target that leaves an empty ledger rolls back before commit. The trusted
@@ -184,8 +184,9 @@ root qualification; unit tests alone are not actual restricted-role/Auth proof.
 
 ## Additive durable actor persistence (ID-B)
 
-The existing owner route now finishes at `identity_0002`. Preflight recognizes only
-an exact private `identity_0001` or `identity_0002` ledger and compares the catalog
+The actor foundation was introduced at `identity_0002`; the current route finishes at
+`identity_0003` as described in the restricted projection section below. Preflight recognizes
+exact private revision1/revision2 ledgers and the current revision3 ledger, comparing the catalog
 against the reference for that revision before running any upgrade. Revision1 still
 uses the original `reference.json` and original source pins byte for byte. Revision2
 uses the additional fixed `actor-reference.json`, whose own digest and revision2
@@ -265,3 +266,100 @@ context: existing rules suffice; no update. Documentation: this runbook and root
 evidence, inventory and KDG navigation. ADR: existing 0020/0025/0056 govern the change;
 accepted ADRs remain unchanged. Runtime projections, operator/outcome commands, account
 adoption and authorization are outside this persistence-only foundation.
+
+
+## Restricted current-account actor projection (ID-B)
+
+The existing owner route now finishes at `identity_0003`. Before controlled migration,
+a deployment administrator prepares the dedicated NOLOGIN reader using
+`tools/prepare_identity_projection_role.sql`. This delivery executes preparation only
+on its isolated synthetic target. The script deliberately refuses an existing role;
+it does not repair or adopt unknown authority. The reader is NOSUPERUSER, NOINHERIT,
+NOCREATEDB, NOCREATEROLE, NOREPLICATION and NOBYPASSRLS. Its sole membership permits
+`identity_migrator` to SET ROLE, without inheritance or ADMIN OPTION. PostgreSQL 15
+uses the migration login's existing NOINHERIT flag; PostgreSQL 16+ uses explicit
+membership options. Operational qualification is PostgreSQL 17 only; the older
+membership syntax branches are unqualified compatibility paths, not delivered
+PostgreSQL 15/16 version proof. Runtime has no reader-role membership. Missing, unsafe or nonempty
+preparation refuses with a safe `identity_projection_role_*` identifier.
+
+The actual Auth schema owner must separately grant `identity_migrator` only Auth
+schema USAGE WITH GRANT OPTION. Preflight checks this effective grant option before
+source execution and refuses with `identity_projection_auth_grant_required` when
+absent. Ordinary pre-existing schema USAGE alone cannot delegate the reader's grant.
+This controlled prerequisite does not confer Auth ownership, table reads or writes,
+CREATE, or another owner's role. The prepared reader stays empty until revision3;
+there is no outside-transaction reader grant to normalize against old evidence.
+
+Revision3 grants the reader Identity and Auth schema USAGE, profile SELECT(id, deleted_at), mapping
+SELECT(account_id, actor_id, actor_kind), and actor SELECT(id, kind, display_name).
+Auth USAGE is needed by the unchanged legacy PUBLIC profile policy's `auth.role()`
+helper; no Auth table privilege or Auth CREATE is granted to the reader. The new-state
+fixture explicitly verifies Auth USAGE, CREATE and both grant-option outcomes in
+addition to Identity privileges. It adds both permissive and restrictive
+current-account profile read policies: the
+restrictive bound prevents legacy PUBLIC policies broadening this reader's access.
+Schema CREATE exists only during ownership transfer and is revoked before commit.
+No profile or actor writes, raw runtime reads, broad table privileges or owner-role
+assumption are granted. All default routine ACL entries are removed before granting
+only `access_runtime` EXECUTE on `identity.current_account_actor()`.
+
+The STABLE SECURITY DEFINER routine has fixed `pg_catalog, pg_temp` search_path and
+qualified objects. It requires `app.context_kind=user` and a valid nonnil verified
+`app.account_id`, set transaction-locally by the backend. Actor and organization
+settings do not select the account. It returns exactly account_id UUID, nullable
+actor_id UUID and nullable display_name text. An active unmapped profile returns its
+account with null actor/label; missing or deleted profiles and invalid contexts return
+no row. Mapping is never provisioned as a read side effect. No person, employment,
+organization, public RPC, service endpoint or application admission is introduced.
+These GUCs remain verified backend assertions, not authentication against a compromised
+database credential. The legacy Access API's actor GUC still means Auth account;
+`main.py` and its existing behavior remain unchanged.
+
+The old source files, revision1/revision2, `reference.json` and `actor-reference.json`
+remain byte for byte evidence. The new `projection-reference.json` is independently
+recorded from clean pinned source execution in a rollback-only transaction and pinned
+by its own digest plus revision3 migration digest. The original catalog queries stay
+unchanged. Old-state comparison removes only the exact newly staged membership, after
+independently verifying reader flags, sole membership and empty current-database/shared
+ACL and ownership dependencies. It never suppresses unrelated grants or catalog drift.
+Other databases keep independent migration histories. New-state comparison adds reader
+flags, memberships, effective schema/table/column/function/sequence privileges and
+ACL/ownership dependencies to the full original catalog evidence. Unknown history,
+old final heads, unsafe staging, changed references and failed postconditions roll back
+the complete migration transaction. No target export/approval bypass exists.
+
+Root qualification records the trusted reference with the existing owner helper:
+
+```sh
+OWNER_PYTHON -I -B services/access/tests/qualify_identity_baseline.py --record-projection-reference
+```
+
+The private fixture must identify the separate empty `projection_reference` case.
+The projection recorder does not edit `identity_baseline.py`. It emits and records the
+new reference digest and the captured helper/source digests. After successful independent
+recording, explicitly reconcile those bytes against the retained receipt, then update
+only `PROJECTION_REFERENCE_SHA256` to the recorded digest through a reviewed source edit.
+The fixture remains unusable until that explicit pin update. The recorder checks all
+three captured revision sources, source pins and helper bytes are unchanged immediately
+before exclusive publication. Publication and interruption recovery retain the same
+exclusive temporary-file and source/pin reconciliation rules as actor-reference recording. Never approve a target
+against its own exported catalog. Existing applied migrations are never reversed
+automatically. Recover by reconciling actual history and using reviewed forward repair
+or a tested restore under ADR-0020. Old application queries/profile hooks and retained
+memberships remain compatibility requirements. Neither role preparation nor passing
+synthetic acceptance permits live deployment or readiness promotion.
+
+Traceability: `tests/test_identity_baseline.py` records the initial missing-projection
+acceptance RED and tests revision linkage, read contract, exact final-head selection,
+fixed-reference corruption refusal and unsafe preparation. Root's actual restricted
+PostgreSQL qualification covers mapped/unmapped/missing/deleted accounts, spoofed
+actor/organization context, actual-login privilege denial, malicious search_path,
+transaction-local connection reuse, old-head/clean/adoption upgrades and failure
+preservation. Exact execution results and receipts are in the projection evidence;
+unit checks alone do not establish actual restricted-login acceptance.
+
+Scaffold: owner-local/unpromoted; no generator added. Shared UI: none. Agent context:
+existing account/actor separation remains sufficient. Documentation: this runbook plus
+projection evidence, mutable inventory and KDG navigation. ADR: existing 0018/0020/0056
+and the selected substrate suffice; accepted decisions are unchanged.

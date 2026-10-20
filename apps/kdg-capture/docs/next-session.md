@@ -1,6 +1,22 @@
 # Resume shared ENV delivery after KDG planning PASS
 
-## Current ID-B increment — durable actor persistence, 2026-10-20
+## Current ID-B increment — restricted current-account actor read, 2026-10-20
+
+Identity revision3 adds the internal current-account actor projection through the existing
+migration owner. Actual restricted-login mapped/unmapped/invalid/deleted reads, cross-account
+and legacy-policy isolation, pooled reuse, search-path spoofing, privilege denials,
+clean/adopt/previous-code upgrade and rollback all pass. The bounded increment has
+90 focused tests and both composer checks passing. BMAD review is complete with no
+deferrals; the native target is normally stopped with data retained. See [Build](../../../_bmad-output/implementation-artifacts/spec-id-b-current-account-actor.md)
+and [evidence](../../../services/access/CURRENT_ACCOUNT_ACTOR_EVIDENCE.md).
+
+This read requires verified backend account context and never provisions an actor or
+admits an application. Protected provisioning/outcomes, legacy adoption, membership,
+Access/WRITE and server-backed KDG remain later gates. No real account/access/provider
+changes, Leave/editor or deployment. Preserve concurrent files, original sources/references,
+all diagnostics/receipts/state and Docker resources.
+
+## Previous ID-B increment — durable actor persistence, 2026-10-20
 
 The first bounded ID-B increment adds actor/account mapping structures in the existing
 Identity chain, with revision-specific trusted verification preserving ID-A's fixture.

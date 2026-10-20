@@ -337,3 +337,147 @@ def test_actor_reference_recorder_preserves_foreign_temporary_file(tmp_path, mon
     assert temporary.read_bytes() == b'foreign invocation evidence'
     assert not (tmp_path/'actor-reference.json').exists()
     assert (tmp_path/'identity_baseline.py').read_text() == 'ACTOR_REFERENCE_SHA256 = None\n'
+
+
+def test_projection_revision_and_read_contract():
+    path = OWNER/'identity-migrations/versions/0003_current_account_actor.py'
+    assert path.exists(), 'restricted account projection is missing'
+    spec = importlib.util.spec_from_file_location('identity_projection', path)
+    revision = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(revision)
+    assert revision.revision == 'identity_0003'
+    assert revision.down_revision == 'identity_0002'
+    sql = revision.PROJECTION_SCHEMA_SQL
+    assert 'STABLE SECURITY DEFINER' in sql
+    assert 'SET search_path = pg_catalog, pg_temp' in sql
+    assert "current_setting('app.account_id', true)" in sql
+    assert "current_setting('app.context_kind', true)" in sql
+    assert 'app.actor_id' not in sql and 'app.org_id' not in sql
+    assert 'LEFT JOIN identity.account_actor' in sql
+    assert 'GRANT EXECUTE ON FUNCTION identity.current_account_actor() TO access_runtime' in sql
+    with pytest.raises(RuntimeError, match='Destructive'):
+        revision.downgrade()
+
+
+def test_projection_reference_fails_closed_before_recording(tmp_path, monkeypatch):
+    import identity_baseline as baseline
+    monkeypatch.setattr(baseline, 'HERE', tmp_path)
+    monkeypatch.setattr(baseline, 'PROJECTION_REFERENCE_SHA256', None)
+    with pytest.raises(baseline.BaselineError, match='identity_reference_unavailable'):
+        baseline.trusted_projection_reference()
+
+
+@pytest.mark.parametrize('corruption', ['digest', 'sources', 'migration', None])
+def test_projection_reference_checks_fixed_digest_sources_and_ddl(tmp_path, monkeypatch, corruption):
+    import hashlib
+    import json
+    import identity_baseline as baseline
+    monkeypatch.setattr(baseline, 'trusted_reference', lambda kind: {})
+    monkeypatch.setattr(baseline, 'trusted_actor_reference', lambda: {})
+    (tmp_path/'versions').mkdir()
+    ddl = b'fixed projection DDL'
+    (tmp_path/'versions/0003_current_account_actor.py').write_bytes(ddl)
+    (tmp_path/'source-pins.json').write_text('{"original":"pin"}')
+    reference = {'source_pins': {'original': 'pin'}, 'migration_sha256': hashlib.sha256(ddl).hexdigest(),
+                 'projection': {'columns': {'sha256': 'fixed', 'rows': 1}}}
+    if corruption == 'sources': reference['source_pins'] = {'unexpected': 'source'}
+    if corruption == 'migration': reference['migration_sha256'] = '0'*64
+    content = json.dumps(reference).encode()
+    (tmp_path/'projection-reference.json').write_bytes(content)
+    monkeypatch.setattr(baseline, 'HERE', tmp_path)
+    monkeypatch.setattr(baseline, 'PROJECTION_REFERENCE_SHA256',
+                        '0'*64 if corruption == 'digest' else hashlib.sha256(content).hexdigest())
+    if corruption:
+        with pytest.raises(baseline.BaselineError, match='identity_reference_unavailable'):
+            baseline.trusted_projection_reference()
+    else:
+        assert baseline.trusted_projection_reference() == reference['projection']
+
+
+@pytest.mark.parametrize('unsafe', ['missing', 'login', 'superuser', 'inherit', 'createdb',
+                                     'createrole', 'bypassrls', 'replication',
+                                     'extra_member', 'parent_role', 'admin', 'inherited', 'no_set', 'grant'])
+def test_projection_preparation_rejects_unsafe_roles(unsafe):
+    import identity_baseline as baseline
+    role = [baseline.PROJECTION_OWNER, False, False, False, False, False, False, False]
+    positions = {'superuser':1, 'inherit':2, 'createrole':3, 'createdb':4,
+                 'login':5, 'replication':6, 'bypassrls':7}
+    if unsafe in positions: role[positions[unsafe]] = True
+    members = [[baseline.PROJECTION_OWNER, 'identity_migrator', False, 'false', 'true']]
+    if unsafe == 'extra_member': members.append([baseline.PROJECTION_OWNER, 'access_runtime', False, 'false', 'true'])
+    if unsafe == 'parent_role': members.append(['service_role', baseline.PROJECTION_OWNER, False, 'false', 'true'])
+    if unsafe == 'admin': members[0][2] = True
+    if unsafe == 'inherited': members[0][3] = 'true'
+    if unsafe == 'no_set': members[0][4] = 'false'
+    class Result:
+        def __init__(self, rows): self.rows = rows
+        def all(self): return self.rows
+    class Connection:
+        def execute(self, sql):
+            if str(sql) == baseline.PROJECTION_ROLE_QUERIES['projection_role']:
+                return Result([] if unsafe == 'missing' else [role])
+            if str(sql) == baseline.PROJECTION_ROLE_QUERIES['projection_memberships']:
+                return Result(members)
+            return Result([['unexpected ACL']] if unsafe == 'grant' else [])
+    with pytest.raises(baseline.BaselineError, match='identity_projection_role_'):
+        baseline.verify_projection_role(Connection(), staged=True)
+
+
+def test_projection_old_comparison_normalizes_only_validated_membership(monkeypatch):
+    import identity_baseline as baseline
+    events = []
+    snapshot = {'role_memberships': [[baseline.PROJECTION_OWNER, 'identity_migrator', False, 'false', 'true'],
+                                     ['unexpected', 'access_runtime', False, 'false', 'true']]}
+    class Result:
+        def scalar_one(self): return True
+    class Connection:
+        def execute(self, *args): return Result()
+    monkeypatch.setattr(baseline, 'catalog_snapshot', lambda connection: snapshot)
+    monkeypatch.setattr(baseline, 'verify_projection_role', lambda connection, staged: events.append(staged))
+    monkeypatch.setattr(baseline, 'trusted_reference', lambda kind: baseline.catalog_fingerprints(
+        {'role_memberships': [['unexpected', 'access_runtime', False, 'false', 'true']]}))
+    baseline.verify_catalog(Connection(), 'actor')
+    assert events == [True]
+    assert snapshot['role_memberships'] == [['unexpected', 'access_runtime', False, 'false', 'true']]
+
+
+def test_projection_head_uses_new_catalog(monkeypatch):
+    import identity_baseline as baseline
+    checked = []
+    monkeypatch.setattr(baseline, 'verify_owned_history', lambda connection: baseline.PROJECTION_REVISION)
+    monkeypatch.setattr(baseline, 'verify_legacy_history', lambda connection: checked.append('legacy'))
+    monkeypatch.setattr(baseline, 'verify_catalog', lambda connection, kind: checked.append(kind))
+    baseline.verify_owned_postcondition(object(), require_head=True)
+    assert checked == ['legacy', 'projection']
+
+
+def test_projection_runtime_grant_precedes_owner_transfer():
+    spec = importlib.util.spec_from_file_location('identity_projection_order', OWNER/'identity-migrations/versions/0003_current_account_actor.py')
+    revision = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(revision)
+    sql = revision.PROJECTION_SCHEMA_SQL
+    assert sql.index('END;\n$projection_acl$;') < sql.index('GRANT EXECUTE ON FUNCTION identity.current_account_actor() TO access_runtime;')
+    assert sql.index('GRANT EXECUTE ON FUNCTION identity.current_account_actor() TO access_runtime;') < sql.index('ALTER FUNCTION identity.current_account_actor() OWNER TO identity_account_projection_owner;')
+
+
+def test_projection_legacy_policy_auth_usage_is_explicit_and_narrow():
+    spec = importlib.util.spec_from_file_location('identity_projection_auth', OWNER/'identity-migrations/versions/0003_current_account_actor.py')
+    revision = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(revision)
+    sql = revision.PROJECTION_SCHEMA_SQL
+    assert 'GRANT USAGE ON SCHEMA auth TO identity_account_projection_owner;' in sql
+    assert 'GRANT CREATE ON SCHEMA auth' not in sql
+    assert 'FROM auth.' not in sql and 'ON auth.users' not in sql
+    assert 'GRANT OPTION' not in sql
+
+
+def test_projection_auth_bootstrap_refuses_without_grant_option():
+    import identity_baseline as baseline
+    class Result:
+        def scalar_one(self): return False
+    class Connection:
+        def execute(self, sql):
+            assert 'USAGE WITH GRANT OPTION' in str(sql)
+            return Result()
+    with pytest.raises(baseline.BaselineError, match='identity_projection_auth_grant_required'):
+        baseline.verify_projection_prerequisites(Connection())

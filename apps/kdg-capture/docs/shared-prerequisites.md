@@ -72,9 +72,12 @@ See [Identity evidence](../../../services/access/IDENTITY_BASELINE_EVIDENCE.md).
 
 ID-B's additive actor persistence foundation is implemented and reviewed;
 actual structure/retention/private-role/upgrade/contention proof and 40 focused tests
-pass. It does not complete
-controlled provisioning, membership/current projections or activation. See
-[actor evidence](../../../services/access/ACTOR_FOUNDATION_EVIDENCE.md).
+pass. The next bounded increment adds the restricted current-account actor read;
+actual runtime isolation, clean/adopt/previous-code upgrade and rollback pass alongside
+90 focused tests and both composer checks. It does not complete controlled provisioning,
+membership projections, Access consumer adoption or activation. See
+[actor evidence](../../../services/access/ACTOR_FOUNDATION_EVIDENCE.md) and
+[current-account evidence](../../../services/access/CURRENT_ACCOUNT_ACTOR_EVIDENCE.md).
 
 | Existing item / boundary | Minimum KDG-relevant outcome | Acceptance/evidence before consumer | Earliest consumer |
 | --- | --- | --- | --- |

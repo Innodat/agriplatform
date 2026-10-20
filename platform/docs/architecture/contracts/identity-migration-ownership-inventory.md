@@ -186,3 +186,17 @@ remain intact; new revision-specific trusted evidence qualifies additive upgrade
 rollback. See [actor evidence](../../../../services/access/ACTOR_FOUNDATION_EVIDENCE.md).
 Protected classification/provisioning/outcome commands and legacy writer/account
 adoption remain separate delivery work; no live migration or account deletion follows.
+
+
+## Bounded ID-B current-account projection — 2026-10-20
+
+Identity revision3 adds only the restricted `identity.current_account_actor()` read.
+Verified user/account context resolves the nullable account actor without person/org
+setup; account selection ignores actor/org assertions. A dedicated NOLOGIN reader has
+narrow columns, account-bound profile RLS and fixed function search_path; access_runtime
+gets exact EXECUTE only. Controlled preparation requires an empty reader, sole SET-only
+migration-owner membership and Auth schema USAGE delegation for the legacy policy helper.
+Only isolated synthetic preparation was executed. Original migrations/references and
+existing Access runtime stay unchanged; new catalog evidence is independently pinned.
+See [projection evidence](../../../../services/access/CURRENT_ACCOUNT_ACTOR_EVIDENCE.md).
+Provisioning, mapping adoption, membership/current Access and production remain separate.

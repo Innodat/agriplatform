@@ -13,6 +13,9 @@ HERE = Path(__file__).resolve().parent
 ROOT = HERE.parents[2]
 REVISION = 'identity_0001'
 ACTOR_REVISION = 'identity_0002'
+PROJECTION_REVISION = 'identity_0003'
+PROJECTION_REFERENCE_SHA256 = '6cc6467bef0ba9c744cb53f9c2bb8542412a660c1a161f2be76fd3fa1d0a85a9'
+PROJECTION_OWNER = 'identity_account_projection_owner'
 ACTOR_REFERENCE_SHA256 = 'c83985f3761cbac85666118fdbbd140d324a424a031baea69b6f174d4585cd1a'
 SOURCE_NAMES = (
     '20250815110000_platform_create_identity_schema.sql',
@@ -57,6 +60,8 @@ def compare_catalog(actual, expected):
         raise BaselineError('identity_catalog_mismatch:' + ','.join(changed))
 
 def trusted_reference(kind):
+    if kind == 'projection':
+        return trusted_projection_reference()
     if kind == 'actor':
         return trusted_actor_reference()
     path = HERE/'reference.json'
@@ -134,7 +139,20 @@ def catalog_fingerprints(snapshot):
 
 
 def verify_catalog(connection, kind):
-    compare_catalog(catalog_fingerprints(catalog_snapshot(connection)), trusted_reference(kind))
+    if kind == 'projection':
+        verify_projection_role(connection)
+        snapshot = projection_catalog_snapshot(connection)
+    else:
+        snapshot = catalog_snapshot(connection)
+        # Only a separately validated, still empty staged owner may differ from
+        # old immutable references. No arbitrary membership/ACL is normalized.
+        present = connection.execute(text("SELECT EXISTS (SELECT 1 FROM pg_roles WHERE rolname=:role)"), {'role': PROJECTION_OWNER}).scalar_one()
+        if present:
+            verify_projection_role(connection, staged=True)
+            snapshot['role_memberships'] = [row for row in snapshot['role_memberships']
+                if row not in ([PROJECTION_OWNER, 'identity_migrator', False, 'false', 'true'],
+                               [PROJECTION_OWNER, 'identity_migrator', False, None, None])]
+    compare_catalog(catalog_fingerprints(snapshot), trusted_reference(kind))
 
 def preflight(connection, mode):
     source_sql()  # verify immutable source pins even on no-op/adoption
@@ -144,6 +162,7 @@ def preflight(connection, mode):
         raise BaselineError('identity_migration_login_required')
     if connection.execute(text("SELECT rolsuper OR rolcreatedb OR rolcreaterole OR rolbypassrls FROM pg_roles WHERE rolname=current_user")).scalar_one():
         raise BaselineError('identity_migration_role_excess_authority')
+    verify_projection_prerequisites(connection)
     if not connection.execute(text("SELECT pg_try_advisory_xact_lock(hashtextextended('identity-owned-migrations',0))")).scalar_one():
         raise BaselineError('identity_migration_busy')
     exists = connection.execute(text("SELECT to_regclass('identity.alembic_version')")).scalar_one()
@@ -195,15 +214,15 @@ def verify_legacy_history(connection, clean=False):
 
 def verify_owned_postcondition(connection, require_head=False):
     revision = verify_owned_history(connection)
-    if require_head and revision != ACTOR_REVISION:
+    if require_head and revision != PROJECTION_REVISION:
         raise BaselineError('identity_unknown_history')
     verify_legacy_history(connection)
-    verify_catalog(connection, 'actor' if revision == ACTOR_REVISION else 'owned')
+    verify_catalog(connection, {REVISION: 'owned', ACTOR_REVISION: 'actor', PROJECTION_REVISION: 'projection'}[revision])
 
 
 def verify_owned_history(connection):
     revisions = list(connection.execute(text('SELECT version_num FROM identity.alembic_version')).scalars())
-    if revisions not in ([REVISION], [ACTOR_REVISION]):
+    if revisions not in ([REVISION], [ACTOR_REVISION], [PROJECTION_REVISION]):
         raise BaselineError('identity_unknown_history')
     columns = connection.execute(text("SELECT column_name,data_type,character_maximum_length,is_nullable,column_default FROM information_schema.columns WHERE table_schema='identity' AND table_name='alembic_version' ORDER BY ordinal_position")).all()
     if [tuple(row) for row in columns] != [('version_num','character varying',32,'NO',None)]:
@@ -217,3 +236,77 @@ def verify_owned_history(connection):
         raise BaselineError('identity_unknown_history')
 
     return revisions[0]
+
+
+def trusted_projection_reference():
+    # A later head must not stop protecting earlier immutable source evidence.
+    trusted_reference('owned')
+    trusted_actor_reference()
+    path = HERE/'projection-reference.json'
+    if PROJECTION_REFERENCE_SHA256 is None or not path.exists():
+        raise BaselineError('identity_reference_unavailable')
+    data = path.read_bytes()
+    if sha256(data).hexdigest() != PROJECTION_REFERENCE_SHA256:
+        raise BaselineError('identity_reference_unavailable')
+    reference = json.loads(data)
+    if (reference['source_pins'] != json.loads((HERE/'source-pins.json').read_text())
+            or reference['migration_sha256'] != sha256((HERE/'versions/0003_current_account_actor.py').read_bytes()).hexdigest()):
+        raise BaselineError('identity_reference_unavailable')
+    return reference['projection']
+
+
+def verify_projection_prerequisites(connection):
+    # Existing Auth schema USAGE is insufficient to pass it to the NOLOGIN reader.
+    # Only the actual schema owner can prepare this controlled bootstrap grant.
+    if not connection.execute(text("SELECT has_schema_privilege(current_user, 'auth', 'USAGE WITH GRANT OPTION')")).scalar_one():
+        raise BaselineError('identity_projection_auth_grant_required')
+
+
+PROJECTION_ROLE_QUERIES = {
+    'projection_role': "SELECT rolname,rolsuper,rolinherit,rolcreaterole,rolcreatedb,rolcanlogin,rolreplication,rolbypassrls FROM pg_roles WHERE rolname='identity_account_projection_owner'",
+    'projection_memberships': "SELECT pg_get_userbyid(roleid),pg_get_userbyid(member),admin_option,coalesce(to_jsonb(pg_auth_members)->>'inherit_option',(SELECT rolinherit::text FROM pg_roles WHERE oid=member)),coalesce(to_jsonb(pg_auth_members)->>'set_option','true') FROM pg_auth_members WHERE roleid=(SELECT oid FROM pg_roles WHERE rolname='identity_account_projection_owner') OR member=(SELECT oid FROM pg_roles WHERE rolname='identity_account_projection_owner')",
+    # Current-database and shared ACL/ownership dependencies catch unlisted grants
+    # even outside Identity. Other databases have independent owner histories.
+    # OIDs are deliberately replaced by stable names.
+    'projection_dependencies': "SELECT coalesce(d.datname,''),s.classid::regclass::text,s.deptype,CASE WHEN s.dbid IN (0,(SELECT oid FROM pg_database WHERE datname=current_database())) THEN pg_describe_object(s.classid,s.objid,s.objsubid) ELSE 'other_database' END FROM pg_shdepend s LEFT JOIN pg_database d ON d.oid=s.dbid WHERE s.refclassid='pg_authid'::regclass AND s.refobjid=(SELECT oid FROM pg_roles WHERE rolname='identity_account_projection_owner') AND s.deptype IN ('a','o') AND s.dbid IN (0,(SELECT oid FROM pg_database WHERE datname=current_database()))",
+}
+
+
+def verify_projection_role(connection, staged=False):
+    rows = connection.execute(text(PROJECTION_ROLE_QUERIES['projection_role'])).all()
+    if not rows:
+        raise BaselineError('identity_projection_role_missing')
+    if [tuple(row) for row in rows] != [(PROJECTION_OWNER, False, False, False, False, False, False, False)]:
+        raise BaselineError('identity_projection_role_unsafe')
+    members = connection.execute(text(PROJECTION_ROLE_QUERIES['projection_memberships'])).all()
+    if [tuple(row) for row in members] != [(PROJECTION_OWNER, 'identity_migrator', False, 'false', 'true')]:
+        raise BaselineError('identity_projection_role_unsafe')
+    if staged and connection.execute(text(PROJECTION_ROLE_QUERIES['projection_dependencies'])).all():
+        raise BaselineError('identity_projection_role_not_empty')
+
+
+def projection_catalog_snapshot(connection):
+    result = catalog_snapshot(connection)
+    for key, sql in PROJECTION_ROLE_QUERIES.items():
+        rows = [list(row) for row in connection.execute(text(sql))]
+        # DB names are per-rehearsal identities, not privilege semantics.
+        if key == 'projection_dependencies':
+            for row in rows:
+                if row[0] == connection.execute(text('SELECT current_database()')).scalar_one():
+                    row[0] = 'current_database'
+        result[key] = sorted(json.loads(json.dumps(rows, default=str)), key=lambda row: json.dumps(row, sort_keys=True))
+    auth_sql = "SELECT r.rolname,p,has_schema_privilege(r.oid,n.oid,p) FROM pg_roles r CROSS JOIN pg_namespace n CROSS JOIN unnest(ARRAY['USAGE','CREATE','USAGE WITH GRANT OPTION','CREATE WITH GRANT OPTION']) p WHERE n.nspname='auth' AND r.rolname='identity_account_projection_owner'"
+    result['projection_auth_schema_privileges'] = sorted([list(row) for row in connection.execute(text(auth_sql))], key=lambda row: json.dumps(row, sort_keys=True))
+    for category in ('effective_tables', 'effective_columns', 'effective_functions', 'effective_schemas', 'effective_sequences'):
+        sql = QUERIES[category].replace("'identity_migrator','access_runtime','authenticated','anon','service_role','supabase_auth_admin'", "'identity_account_projection_owner'")
+        result['projection_' + category] = sorted([list(row) for row in connection.execute(text(sql))], key=lambda row: json.dumps(row, sort_keys=True))
+        if category in ('effective_tables', 'effective_columns'):
+            auth_sql = sql.replace("n.nspname='identity'", "n.nspname='auth'")
+            # Denied vendor tables/columns are not Identity contract shape. Keep
+            # only effective grants, including authority inherited through PUBLIC.
+            result['projection_auth_' + category] = sorted([list(row) for row in connection.execute(text(auth_sql)) if row[-1]], key=lambda row: json.dumps(row, sort_keys=True))
+    return result
+
+
+def projection_catalog_fingerprints(snapshot):
+    return catalog_fingerprints(snapshot)
