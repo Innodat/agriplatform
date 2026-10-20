@@ -4,7 +4,7 @@ import { qualifyWebDependencies, recordInstallationManifests, verifyInstallation
 import { installScaffold, checkScaffold } from '../src/scaffold-install.ts';
 import { renderApplication } from '../src/application-renderer.ts';
 import { createHash } from 'node:crypto';
-import { accessSync, constants, chmodSync, existsSync, globSync, lstatSync, mkdirSync, mkdtempSync, readFileSync, realpathSync, writeFileSync } from 'node:fs';
+import { accessSync, constants, chmodSync, existsSync, globSync, lstatSync, mkdirSync, mkdtempSync, readFileSync, realpathSync, renameSync, rmSync, writeFileSync } from 'node:fs';
 import { dirname, isAbsolute, join, relative, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 const root=fileURLToPath(new URL('../../../',import.meta.url));
@@ -56,6 +56,13 @@ try {
  proof=mkdtempSync(join(parent,'proof-'));chmodSync(proof,0o700);
  const copy=join(proof,'root'),appRelative='apps/bootstrap-application',webRelative=`${appRelative}/web`,app=join(copy,appRelative),web=join(app,'web'),api=join(app,'api');
  mkdirSync(copy,{mode:0o700});
+ const extensionSource=join(proof,'extension-source');mkdirSync(extensionSource,{mode:0o700});
+ const initialExtension={
+  'message.ts':"export const importedMessage = 'Initial extension import.';\n",
+  'obsolete.ts':"export const obsolete = 'Initial owner file.';\n",
+ };
+ for(const [path,content] of Object.entries(initialExtension)) writeFileSync(join(extensionSource,path),content,{mode:0o600});
+ recipe.extensions.push({source:relative(root,extensionSource),destination:'web/src/custom'});
  manifest={schema_version:1,bootstrap_only:true,generation_ready:false,status:'incomplete',template_version:'application-v1-candidate',recipe,recipe_sha256:hash(JSON.stringify(recipe)),qualification_host:{platform:process.platform,architecture:process.arch},sources:{},files:{},commands:[],tools:{},tool_versions:{node:process.version,npm:npmVersion,uv:uvVersion,python:pythonInfo.version,chromium:browserVersion}};
  for(const [name,path] of Object.entries({node,npm,uv,python,chromium})) manifest.tools[name]={path,realpath:realpathSync(path),sha256:digest(path)};
  for(const {record,log} of preflight) {manifest.commands.push(record);writeFileSync(join(proof,`${record.label}.log`),log,{mode:0o600});}
@@ -80,25 +87,38 @@ try {
  writeFileSync(join(copy,'package.json'),JSON.stringify(rootPackage,null,2)+'\n',{mode:0o600});
  manifest.root_lock={source:'package-lock.json',base_sha256:manifest.sources['package-lock.json'],workspaces,installation_workspace:webRelative,installation_scope:'selected generated web workspace only',extended_by:'npm 12.2.0 offline package-lock-only'};
  const installIdentity={generator:'builder-v1',template:'application-v1-candidate',recipe:hash(JSON.stringify(recipe)),source:hash(JSON.stringify(files))};
- installScaffold(app,files,installIdentity);
+ const importInput={repositoryRoot:root,declarations:recipe.extensions};
+ installScaffold(app,files,installIdentity,undefined,importInput);
  const customPath=join(app,'web/src/App.tsx');
- const customShell=readFileSync(customPath,'utf8').replace('Your application starts here.', 'Your application starts here. Owner customization preserved.');
- if(customShell===readFileSync(customPath,'utf8')) fail('preservation_proof_failed');
+ const customShell="import { importedMessage } from './custom/message';\n"+readFileSync(customPath,'utf8').replace('Your application starts here.', '{importedMessage}');
+ if(!customShell.includes('<p>{importedMessage}</p>')) fail('extension_proof_failed');
  writeFileSync(customPath,customShell,{mode:0o600});
+ const expectedText='Imported owner customization preserved.';
+ writeFileSync(join(app,'web/src/custom/message.ts'),`export const importedMessage = '${expectedText}';\n`,{mode:0o600});
+ // This new synthetic import is owner-maintained: edits, additions and deletion survive.
+ rmSync(join(app,'web/src/custom/obsolete.ts'));
+ writeFileSync(join(app,'web/src/custom/owner-added.ts'),"export const ownerAdded = 'Owner addition.';\n",{mode:0o600});
  writeFileSync(join(app,'custom-owner.txt'),'Synthetic application-owned custom file.\n',{mode:0o600});
- const preserved={'web/src/App.tsx':digest(customPath),'custom-owner.txt':digest(join(app,'custom-owner.txt'))};
- installScaffold(app,renderApplication(recipe,root),installIdentity);
+ const preserved=Object.fromEntries(['web/src/App.tsx','web/src/custom/message.ts','web/src/custom/owner-added.ts','custom-owner.txt'].map(path=>[path,digest(join(app,path))]));
+ // Keep the original synthetic artifact, but make its declared location unavailable.
+ writeFileSync(join(extensionSource,'message.ts'),"export const importedMessage = 'Changed upstream source.';\n",{mode:0o600});
+ writeFileSync(join(extensionSource,'upstream-added.ts'),"export const upstreamAdded = 'Do not recopy.';\n",{mode:0o600});
+ renameSync(extensionSource,join(proof,'extension-source-retained'));
+ installScaffold(app,renderApplication({...recipe,extensions:[]},root),installIdentity,undefined,importInput);
  checkScaffold(app);
- for(const [path,before] of Object.entries(preserved)) if(digest(join(app,path))!==before) fail('preservation_proof_failed');
+ for(const [path,before] of Object.entries(preserved)) if(digest(join(app,path))!==before) fail('extension_proof_failed');
+ const absent=['web/src/custom/obsolete.ts','web/src/custom/upstream-added.ts'];
+ if(existsSync(extensionSource)||absent.some(path=>existsSync(join(app,path)))) fail('extension_proof_failed');
  manifest.preservation={status:'passed',identity:installIdentity,custom_files:preserved,manifest_sha256:digest(join(app,'.generated-files.json'))};
- manifest.files[`${appRelative}/custom-owner.txt`]={classification:'custom',sha256:preserved['custom-owner.txt']};
+ manifest.extensions={status:'passed',initial_source_files:Object.fromEntries(Object.entries(initialExtension).map(([path,content])=>[path,hash(content)])),owner_files:preserved,absent,original_source_unavailable:true,ownership:JSON.parse(readFileSync(join(app,'.generated-files.json'))).extensions};
+ for(const [path,sha256] of Object.entries(preserved)) if(!files[path]) manifest.files[`${appRelative}/${path}`]={classification:'custom',sha256};
  manifest.files[`${appRelative}/.generated-files.json`]={classification:'ownership-manifest',sha256:manifest.preservation.manifest_sha256};
  for(const [path,file] of Object.entries(files)) {
   manifest.files[`${appRelative}/${path}`]={classification:file.classification,sha256:digest(join(app,path))};
   const template=path.startsWith('api/')?`templates/service/${path.slice(4)}`:`templates/application/${path}`;
   source(`platform/builder-cli/${template}`);
  }
- for(const path of ['src/scaffold-install.ts','tests/scaffold-preservation.test.mjs','src/recipe.ts','src/application-renderer.ts','src/service-renderer.ts','scripts/test-generation-application.mjs','scripts/process-runner.mjs','scripts/application-dependency-proof.mjs','package.json']) source(`platform/builder-cli/${path}`);
+ for(const path of ['src/scaffold-install.ts','tests/scaffold-extensions.test.mjs','tests/scaffold-preservation.test.mjs','src/recipe.ts','src/application-renderer.ts','src/service-renderer.ts','scripts/test-generation-application.mjs','scripts/process-runner.mjs','scripts/application-dependency-proof.mjs','package.json']) source(`platform/builder-cli/${path}`);
  for(const path of [...recipe.sources,...recipe.contracts]) source(path);
  manifest.installation_manifests=recordInstallationManifests(copy,['package.json',...workspaces,`${webRelative}/package.json`]);
  const config=join(proof,'config');mkdirSync(config,{mode:0o700});
@@ -123,9 +143,9 @@ try {
  const interpreter=join(environment,'bin/python');
  run('api-tests',interpreter,['-I','-B','-m','pytest','-q','-s','--tb=no','-p','no:cacheprovider','-c',join(api,'pyproject.toml'),'--confcutdir',api,'--basetemp',join(proof,'python','pytest-tmp'),join(api,'tests')],{...clean,PYTEST_DISABLE_PLUGIN_AUTOLOAD:'1'},api);
  manifest.python_environment={path:environment,frozen_offline_wheel_only:true,runtime_verified:true};persist();
- run('web-browser',node,[npm,'run','test:browser','--workspace',webRelative],{...npmEnv,SCAFFOLD_CHROMIUM:chromium,SCAFFOLD_API_PYTHON:interpreter,SCAFFOLD_SCREENSHOTS:proof},copy);
+ run('web-browser',node,[npm,'run','test:browser','--workspace',webRelative],{...npmEnv,SCAFFOLD_CHROMIUM:chromium,SCAFFOLD_API_PYTHON:interpreter,SCAFFOLD_SCREENSHOTS:proof,SCAFFOLD_EXPECTED_TEXT:expectedText},copy);
  manifest.browser=JSON.parse(readFileSync(join(proof,'browser-result.json')));
- if(manifest.browser.status!=='passed'||manifest.browser.browser.sha256!==manifest.tools.chromium.sha256||realpathSync(manifest.browser.browser.path)!==realpathSync(chromium)) fail('browser_identity_invalid');
+ if(manifest.browser.expected_text_verified!==true||manifest.browser.status!=='passed'||manifest.browser.browser.sha256!==manifest.tools.chromium.sha256||realpathSync(manifest.browser.browser.path)!==realpathSync(chromium)) fail('browser_identity_invalid');
  manifest.evidence={};
  for(const name of ['desktop.png','mobile.png','browser-result.json','browser-cleanup.json']) manifest.evidence[name]={sha256:digest(join(proof,name))};
  for(const [path,digestBefore] of Object.entries(manifest.sources)) if(digest(join(root,path))!==digestBefore) fail('builder_source_drift');
@@ -136,7 +156,7 @@ try {
  manifest.status='passed';persist();
  process.stdout.write(JSON.stringify({bootstrap_only:true,generation_ready:false,status:'passed',proof})+'\n');
 } catch(error) {
- const known=new Set(['preservation_proof_failed','scaffold_conflict','scaffold_busy','scaffold_recovery_required','configured_tool_invalid','configured_cache_invalid','configured_tool_version_invalid','configured_path_invalid','arguments_invalid','bootstrap_stage_failed','workspace_dependency_unsupported','source_or_lock_drift','builder_source_drift','browser_identity_invalid','nested_lock_invalid','dependency_provenance_invalid','installation_manifest_drift','application_bootstrap_unsupported']);
+ const known=new Set(['extension_proof_failed','preservation_proof_failed','scaffold_conflict','scaffold_busy','scaffold_recovery_required','configured_tool_invalid','configured_cache_invalid','configured_tool_version_invalid','configured_path_invalid','arguments_invalid','bootstrap_stage_failed','workspace_dependency_unsupported','source_or_lock_drift','builder_source_drift','browser_identity_invalid','nested_lock_invalid','dependency_provenance_invalid','installation_manifest_drift','application_bootstrap_unsupported']);
  const identifier=known.has(error.message)?error.message:'bootstrap_failed';let failureRecordingFailed=false;
  if(manifest) {manifest.status='failed';manifest.error=identifier;try {persist();} catch {failureRecordingFailed=true;}}
  process.stdout.write(JSON.stringify({error:identifier,bootstrap_only:true,generation_ready:false,...(proof?{proof}:{}),...(failureRecordingFailed?{failure_recording_failed:true}:{})})+'\n');process.exitCode=1;

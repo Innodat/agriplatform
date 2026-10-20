@@ -12,6 +12,8 @@ function bounded(promise,ms=5000) {
 }
 const python=process.env.SCAFFOLD_API_PYTHON, executable=process.env.SCAFFOLD_CHROMIUM, screenshots=process.env.SCAFFOLD_SCREENSHOTS;
 assert.ok(python&&executable&&screenshots,'explicit proof paths required');
+const expectedText=process.env.SCAFFOLD_EXPECTED_TEXT;
+if(expectedText!==undefined) assert.ok(expectedText.length>0&&expectedText.length<=200,'expected_text_invalid');
 let api,server,browserServer,browser,result;
 const cleanup={};
 writeFileSync(join(screenshots,'browser-result.json'),JSON.stringify({status:'incomplete'})+'\n',{mode:0o600});
@@ -55,18 +57,20 @@ try {
   await expect(page.getByRole('navigation',{name:'Main'})).toBeVisible();
   await expect(page.getByRole('main')).toBeVisible();
   await expect(page.getByRole('heading',{name:'Welcome',exact:true})).toBeVisible();
+  if(expectedText!==undefined) await expect(page.getByText(expectedText,{exact:true})).toBeVisible();
   await page.keyboard.press('Tab'); await expect(page.getByRole('link',{name:'Skip to content'})).toBeFocused();
   await page.keyboard.press('Enter'); await expect(page.getByRole('main')).toBeFocused();
   await page.getByRole('link',{name:'Home',exact:true}).click();
   await expect(page).toHaveURL(`${origin}/`);
   await page.reload({timeout:15000}); await expect(page.getByRole('heading',{name:'Welcome',exact:true})).toBeVisible();
+  if(expectedText!==undefined) await expect(page.getByText(expectedText,{exact:true})).toBeVisible();
   assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true);
   await page.screenshot({path:join(screenshots,`${name}.png`),fullPage:true});
   await page.close();
  }
  assert.deepEqual(failures,[]);
  assert.equal(apiExited,false);
- result={browser:identity,viewports:['desktop','mobile'],health:true,failures};
+ result={browser:identity,viewports:['desktop','mobile'],health:true,failures,expected_text_verified:expectedText!==undefined};
 } finally {
  try {if(browser) {await bounded(browser.close());cleanup.browser_closed=true;}}
  finally {

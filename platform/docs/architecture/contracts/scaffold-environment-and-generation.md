@@ -150,6 +150,15 @@ recover their previous complete generated set before reuse. This does not open n
 owner generation, promote candidates or implement extension import. The public command
 and complete extension/release behavior below remain their own delivery gates.
 
+The bounded extension increment imports explicitly declared UTF-8 source modules
+through the existing internal installer and application proof. Initial copying validates
+source entries and disjoint destinations before mutation; imported files then become
+application-owned, with initial provenance retained. Reruns preserve edits/additions/
+deletions without requiring original sources. Existing extension-free ownership manifests
+remain supported; extension-bearing metadata is explicitly versioned. Binary assets,
+later imports/upgrades/dependency inference and normal public generation remain pending.
+This is build-time copying, not a runtime plugin system or readiness promotion.
+
 P1/SERVICE retain the version1 keys/paths in the shared addendum. Exact types:
 schema_version=1; owner_id matches `[a-z][a-z0-9_]{1,63}`; owner_kind is application/
 service; sources/contracts are unique nonempty arrays of repository-relative existing

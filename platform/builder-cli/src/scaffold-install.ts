@@ -3,6 +3,9 @@ import { createHash } from "node:crypto";
 import {
   existsSync,
   lstatSync,
+  linkSync,
+  opendirSync,
+  unlinkSync,
   mkdirSync,
   readFileSync,
   readdirSync,
@@ -20,10 +23,17 @@ type Identity = {
   source: string;
 };
 type Entry = { classification: "seed" | "generated"; sha256: string };
+type ExtensionImport = { source: string; destination: string; files: Record<string, string> };
+type Extensions = { schema_version: 1; imports: ExtensionImport[] };
+export type ExtensionInput = {
+  repositoryRoot: string;
+  declarations: { source: string; destination: string }[];
+};
 type Manifest = {
   schema_version: 1;
   identity: Identity;
   files: Record<string, Entry>;
+  extensions?: Extensions;
 };
 type Change = { path: string; old: string | null; next: string };
 const manifestName = ".generated-files.json",
@@ -71,7 +81,7 @@ function pathValid(path: string) {
     !path
       .split("/")
       .some((p) =>
-        [manifestName, lockName, stateName, recoveryName].includes(p)
+        [manifestName, lockName, stateName, recoveryName, ".git"].includes(p)
       )
   );
 }
@@ -117,7 +127,7 @@ function decodeManifest(bytes: string): Manifest {
   }
   if (
     !plain(m) ||
-    !exact(m, ["schema_version", "identity", "files"]) ||
+    !exact(m, ["schema_version", "identity", "files", ...(Object.hasOwn(m, "extensions") ? ["extensions"] : [])]) ||
     m.schema_version !== 1 ||
     !identityValid(m.identity) ||
     !plain(m.files) ||
@@ -138,7 +148,116 @@ function decodeManifest(bytes: string): Manifest {
   const paths = Object.keys(m.files);
   if (paths.some((p) => paths.some((q) => q.startsWith(p + "/"))))
     fail("manifest_invalid");
+  if (Object.hasOwn(m, "extensions")) validateExtensions(m.extensions, paths);
   return m as Manifest;
+}
+// Imports are bounded text-only snapshots. Their hashes describe provenance, never
+// authority to refresh or validate owner-maintained custom content on later runs.
+const overlaps = (a: string, b: string) =>
+  a === b || a.startsWith(b + "/") || b.startsWith(a + "/");
+function importPath(path: unknown): path is string {
+  return typeof path === "string" && pathValid(path) &&
+    path.split("/").every(part => /^[a-zA-Z0-9_.-]+$/.test(part) &&
+      !part.endsWith(".") && !/^(con|prn|aux|nul|com[1-9]|lpt[1-9])(?:\.|$)/i.test(part));
+}
+function declarationsValid(value: unknown): value is ExtensionInput["declarations"] {
+  return Array.isArray(value) && value.length <= 100 && value.every((d, index) =>
+    plain(d) && exact(d, ["source", "destination"]) && importPath(d.source) && importPath(d.destination) &&
+    !value.slice(0, index).some(previous => overlaps(previous.source, d.source as string) || overlaps(previous.destination, d.destination as string)));
+}
+function validateExtensions(value: unknown, basePaths: string[]): asserts value is Extensions {
+  if (!plain(value) || !exact(value, ["schema_version", "imports"]) ||
+      value.schema_version !== 1 || !Array.isArray(value.imports) ||
+      !value.imports.length || value.imports.length > 100) fail("manifest_invalid");
+  const roots: string[] = [], sources: string[] = [];
+  let count = 0;
+  for (const entry of value.imports) {
+    if (!plain(entry) || !exact(entry, ["source", "destination", "files"]) ||
+        !importPath(entry.source) || !importPath(entry.destination) || !plain(entry.files) ||
+        roots.some(root => overlaps(root, entry.destination as string)) ||
+        sources.some(source => overlaps(source, entry.source as string)) ||
+        basePaths.some(path => overlaps(path, entry.destination as string))) fail("manifest_invalid");
+    roots.push(entry.destination);
+    sources.push(entry.source);
+    const paths = Object.keys(entry.files);
+    for (const path of paths) {
+      if (!importPath(path) || path.split("/").length > 16 ||
+          !importPath(entry.destination + "/" + path) ||
+          paths.some(other => other.startsWith(path + "/")) ||
+          typeof entry.files[path] !== "string" || !/^[a-f0-9]{64}$/.test(entry.files[path] as string) ||
+          ++count > 1000) fail("manifest_invalid");
+    }
+  }
+}
+function extensionPlan(root: string, basePaths: string[], input: ExtensionInput | undefined, previous: Manifest | null) {
+  if (input !== undefined && (!plain(input) || !exact(input, ["repositoryRoot", "declarations"]) ||
+      typeof input.repositoryRoot !== "string" || !isAbsolute(input.repositoryRoot) || !declarationsValid(input.declarations)))
+    fail("extension_invalid");
+  const declarations = input?.declarations ?? [];
+  if (previous) {
+    const installed = previous.extensions?.imports.map(({source, destination}) => ({source, destination})) ?? [];
+    if (installed.length !== declarations.length || installed.some((entry, index) =>
+      entry.source !== declarations[index]!.source || entry.destination !== declarations[index]!.destination))
+      fail("ownership_invalid");
+    // Deliberately no stat, enumeration or reads of either old source or custom output.
+    return { metadata: previous.extensions, changes: [] as Change[] };
+  }
+  if (!declarations.length) return { metadata: undefined, changes: [] as Change[] };
+  const repo = resolve(input!.repositoryRoot);
+  safe(repo, "directory");
+  if (!existsSync(repo)) fail("extension_invalid");
+  const roots: string[] = [], imports: ExtensionImport[] = [], changes: Change[] = [];
+  let total = 0, count = 0;
+  for (const declaration of declarations) {
+    const {source, destination} = declaration;
+    if (roots.some(other => overlaps(other, destination)) || basePaths.some(path => overlaps(path, destination)))
+      fail("extension_conflict");
+    roots.push(destination);
+    const sourceRoot = resolve(repo, source), destinationRoot = join(root, destination);
+    if (overlaps(sourceRoot, root)) fail("extension_invalid");
+    safe(sourceRoot, "directory"); safe(destinationRoot, "directory");
+    if (!existsSync(sourceRoot)) fail("extension_invalid");
+    if (existsSync(destinationRoot)) fail("extension_conflict");
+    const inventory: Record<string, string> = Object.create(null);
+    function walk(directory: string, relative: string, depth: number) {
+      if (depth > 16) fail("extension_limit");
+      const names: string[] = [], handle = opendirSync(directory);
+      try {
+        let entry;
+        while ((entry = handle.readSync()) !== null) {
+          if (++count > 1000) fail("extension_limit");
+          names.push(entry.name);
+        }
+      } finally { handle.closeSync(); }
+      for (const name of names.sort()) {
+        const path = relative ? relative + "/" + name : name;
+        if (!importPath(path) || !importPath(destination + "/" + path)) fail("extension_invalid");
+        const sourceFile = join(directory, name), stat = lstatSync(sourceFile);
+        if (stat.isSymbolicLink()) fail("extension_invalid");
+        if (stat.isDirectory()) { walk(sourceFile, path, depth + 1); continue; }
+        if (!stat.isFile()) fail("extension_invalid");
+        if (stat.size > 1024 * 1024 || (total += stat.size) > 8 * 1024 * 1024) fail("extension_limit");
+        const bytes = readFileSync(sourceFile);
+        // Recheck after read so concurrently growing input cannot evade byte limits.
+        if (bytes.length !== stat.size) fail("extension_invalid");
+        let text: string;
+        try { text = new TextDecoder("utf-8", {fatal: true, ignoreBOM: true}).decode(bytes); }
+        catch { fail("extension_invalid"); }
+        if (/[\x00-\x08\x0b\x0c\x0e-\x1f\x7f]/.test(text)) fail("extension_invalid");
+        inventory[path] = hash(bytes);
+        changes.push({path: destination + "/" + path, old: null, next: bytes.toString("base64")});
+      }
+    }
+    walk(sourceRoot, "", 1);
+    imports.push({source, destination, files: inventory});
+  }
+  const metadata: Extensions = {schema_version: 1, imports};
+  validateExtensions(metadata, basePaths);
+  return {metadata, changes};
+}
+function extensionFiles(manifest: Manifest) {
+  return Object.fromEntries((manifest.extensions?.imports ?? []).flatMap(entry =>
+    Object.entries(entry.files).map(([path, sha256]) => [entry.destination + "/" + path, sha256])));
 }
 function owner(root: string) {
   safe(join(root, lockName), "directory");
@@ -201,7 +320,7 @@ function available(root: string) {
     fail(owner(root) ? "busy" : "recovery_required");
   if (existsSync(join(root, stateName))) fail("recovery_required");
 }
-function write(root: string, path: string, base64: string) {
+function write(root: string, path: string, base64: string, exclusive = false) {
   const target = join(root, path);
   safe(target, "file");
   mkdirSync(dirname(target), { recursive: true, mode: 0o700 });
@@ -212,7 +331,12 @@ function write(root: string, path: string, base64: string) {
     flag: "w",
     flush: true,
   });
-  renameSync(staged, target);
+  if (exclusive) {
+    // Same-filesystem hard-link publication refuses a destination created after
+    // preflight, including dangling symlinks; rename would overwrite owner bytes.
+    linkSync(staged, target);
+    unlinkSync(staged);
+  } else renameSync(staged, target);
 }
 function restore(root: string) {
   const state = join(root, stateName);
@@ -275,6 +399,7 @@ function restore(root: string) {
     before &&
     (Object.keys(before.files).sort().join("\n") !==
       Object.keys(after.files).sort().join("\n") ||
+      JSON.stringify(before.extensions) !== JSON.stringify(after.extensions) ||
       ["generator", "template", "recipe"].some(
         (key) =>
           before!.identity[key as keyof Identity] !==
@@ -287,6 +412,7 @@ function restore(root: string) {
       ([path, e]) => e.classification === "generated" || !before?.files[path]
     )
     .map(([path]) => path)
+    .concat(before ? [] : Object.keys(extensionFiles(after)))
     .concat(manifestName)
     .sort();
   if (expected.join("\n") !== [...seen].sort().join("\n"))
@@ -294,7 +420,8 @@ function restore(root: string) {
   for (const c of changes) {
     if (c.path === manifestName) continue;
     const prior = before?.files[c.path],
-      next = after.files[c.path];
+      next = after.files[c.path] ?? (Object.hasOwn(extensionFiles(after), c.path) ?
+        {classification: "custom", sha256: extensionFiles(after)[c.path]} : undefined);
     if (
       !next ||
       hash(Buffer.from(c.next, "base64")) !== next.sha256 ||
@@ -308,11 +435,46 @@ function restore(root: string) {
       fail("recovery_uncertain");
   }
   safe(join(state, "replacement"), "file");
-  // Validate every target before restoring any. Never erase unknown bytes.
+  // Derive the only children/directories that this initial text-file snapshot
+  // could have created. Preflight the whole inventory before restoring any bytes.
+  const directories = new Map<string, Set<string>>();
+  if (!before) for (const entry of after.extensions?.imports ?? []) {
+    directories.set(entry.destination, new Set());
+    for (const path of Object.keys(entry.files)) {
+      const parts = path.split("/");
+      let directory = entry.destination;
+      for (let index = 0; index < parts.length; index++) {
+        directories.get(directory)!.add(parts[index]!);
+        if (index < parts.length - 1) {
+          directory += "/" + parts[index];
+          if (!directories.has(directory)) directories.set(directory, new Set());
+        }
+      }
+    }
+  }
+  try {
+    for (const [directory, children] of directories) {
+      const target = join(root, directory);
+      safe(target, "directory");
+      if (!existsSync(target)) continue;
+      const handle = opendirSync(target);
+      try {
+        let child;
+        while ((child = handle.readSync()) !== null)
+          if (!children.has(child.name)) fail("recovery_uncertain");
+      } finally { handle.closeSync(); }
+    }
+  } catch { fail("recovery_uncertain"); }
+  // Every affected file and import directory is now known. Never erase unknown bytes.
   for (const c of [...changes].reverse()) {
     if (c.old === null) {
       if (existsSync(join(root, c.path))) rmSync(join(root, c.path));
     } else if (read(join(root, c.path)) !== c.old) write(root, c.path, c.old);
+  }
+  for (const directory of [...directories.keys()].sort((a, b) => b.length - a.length)) {
+    const target = join(root, directory);
+    safe(target, "directory");
+    if (existsSync(target)) rmdirSync(target);
   }
 }
 function cleanup(root: string) {
@@ -374,7 +536,8 @@ function installInternal(
   output: string,
   files: Record<string, ServiceFile>,
   identity: Identity,
-  fault?: { afterWrite: (count: number) => void }
+  fault?: { afterWrite: (count: number) => void },
+  extensions?: ExtensionInput
 ) {
   const root = resolve(output);
   available(root);
@@ -425,10 +588,12 @@ function installInternal(
       )
         fail("ownership_invalid");
     }
+    const imported = extensionPlan(root, paths, extensions, previous);
     const next: Manifest = {
       schema_version: 1,
       identity,
       files: Object.create(null),
+      ...(imported.metadata ? {extensions: imported.metadata} : {}),
     };
     const changes: Change[] = [];
     for (const path of paths) {
@@ -456,6 +621,7 @@ function installInternal(
       if (!prior || file.classification === "generated")
         changes.push({ path, old, next: content });
     }
+    changes.push(...imported.changes);
     changes.push({
       path: manifestName,
       old: read(join(root, manifestName)),
@@ -474,7 +640,7 @@ function installInternal(
     journalReady = true;
     let count = 0;
     for (const change of changes) {
-      write(root, change.path, change.next);
+      write(root, change.path, change.next, change.old === null);
       fault?.afterWrite(++count);
     }
     cleanup(root);
@@ -530,7 +696,8 @@ export function installScaffold(
   output: string,
   files: Record<string, ServiceFile>,
   identity: Identity,
-  fault?: { afterWrite: (count: number) => void }
+  fault?: { afterWrite: (count: number) => void },
+  extensions?: ExtensionInput
 ) {
-  return safeCall(() => installInternal(output, files, identity, fault));
+  return safeCall(() => installInternal(output, files, identity, fault, extensions));
 }

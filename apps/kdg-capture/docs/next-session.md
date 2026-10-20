@@ -1,6 +1,25 @@
 # Resume shared ENV delivery after KDG planning PASS
 
-## Current P1/SERVICE increment — safe scaffold reruns, 2026-10-20
+## Current P1/SERVICE increment — explicit module import, 2026-10-20
+
+Completed bounded initial extension import through the existing installer and
+application proof. Imported text modules become application-owned; reruns
+preserve edits/additions/deletions without relying on original sources. See
+[Build](../../../_bmad-output/implementation-artifacts/spec-scaffold-extensions.md)
+and [evidence](../../../platform/builder-cli/EXTENSION_EVIDENCE.md).
+
+Completed:60 builder tests, type/schema checks and fresh reviewed application proof
+pass. Imported owner behavior is checked in real Chromium with the original source
+unavailable; wrong-text negative fails with teardown confirmed. Service regression
+remains source-current. Review: six patches, five low rejections, one false, no
+deferrals.2523 protected prior files unchanged.
+Public generation, dependency inference, later
+import changes, current Auth/Access and full P1/SERVICE remain pending. Preserve
+source, historical state/proofs/resources and concurrent work. No Leave/editor,
+owner migrations, account/provider changes, Docker cleanup, provisioning/deployment
+or real-data action.
+
+## Previous P1/SERVICE increment — safe scaffold reruns, 2026-10-20
 
 The user approved the bounded preservation plan. Implementation uses the existing
 builder's seed/generated ownership map and disposable application proof. It preserves

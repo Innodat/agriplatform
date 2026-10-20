@@ -103,7 +103,8 @@ and extended root-lock provenance, browser identity and safe partial failures.
 
 The shell is presentational banner/main/Welcome/Home only. No fake identity, grants,
 Directory, data editor, forms, domain routes, database, providers, deployment, Leave,
-normal generation or extensions is implemented. The internal preservation installer below
+normal generation is implemented. Explicit custom imports are qualified through the internal
+installer below; the renderer still rejects nonempty extensions. The internal preservation installer
 qualifies reruns and recovery only for disposable output. HTTP
 health and presentation do not qualify current Access or full P1/SERVICE readiness.
 
@@ -156,6 +157,52 @@ visibly edits the owner shell, adds a custom file, reruns and checks byte preser
 before its clean installation/type/build/API/browser qualification. Final evidence binds
 the installer and preserved output hashes. Run the normal builder tests; no extra proof
 command is required.
+
+## Explicit create-once extension imports
+
+The same private installer accepts an optional fifth argument
+`{ repositoryRoot, declarations: [{ source, destination }] }`, after its optional
+fourth fault-injection test seam. These are the existing version1 recipe declarations;
+`repositoryRoot` must be absolute and sources remain repository-relative directories.
+The application proof renders its extension-free base map, then passes the actual
+recipe declarations to this installer inside the existing writer/journal lifecycle.
+There is no new public generation command, candidate bypass or execution of imported code.
+
+Initial import plans every source entry and destination before staging business files.
+Destination roots must be absent, including empty directories, and disjoint from all
+generated/seed files and other import roots. Source/output overlap, symlinks (including
+nested/dangling links), special files, escapes, `.git` and installer metadata are refused.
+Names use portable ASCII letters/digits/underscore/dot/hyphen segments, without Windows
+reserved names or trailing dots. Relative paths are at most 512 characters. Imports
+accept valid UTF-8 text without binary control bytes, at most 1 MiB per file, 8 MiB
+combined, 1,000 total source entries (files and directories), 16 tree levels and 100
+explicit declarations. Binary assets and dependency discovery remain future needs. Text-file snapshots omit
+empty directories. Qualification is for Linux case-sensitive filesystems. Initial
+source and output trees must be quiescent except for the installer; hostile concurrent
+source mutation is unsupported.
+
+The optional manifest `extensions` object has explicit `schema_version: 1` and an
+`imports` array of `{ source, destination, files }`; `files` maps relative imported
+paths to their initial SHA-256 values. This inventory records create-once custom
+ownership/provenance separately from generated and seed authority. Reruns require
+identical declarations and recipe identity; they use installed metadata without
+reading, enumerating or requiring the original source or checking custom hashes.
+Owner edits, additions and deletions persist. An extension-free legacy manifest stays
+valid, but adding imports to installed output or converting ownership is refused.
+
+Import replacements share journal-backed rollback and live writer/recovery exclusion.
+Initial import recovery validates known unchanged bytes before removing them; unknown
+owner edits refuse recovery safely. Known newly created empty import directories are
+removed during rollback so retry can start cleanly. Existing uncertainty and durability
+limits above still apply.
+
+`tests/scaffold-extensions.test.mjs` exercises import provenance, no-source replay,
+owner maintenance, unsafe inputs, collision/ownership/version refusals, SIGKILL after
+imports and manifest, unknown edits, and real ENOSPC during import replacement. The
+registered application proof imports a typed module, changes its behavior, removes an
+imported file, adds an owner file, moves the original source away, and reruns before
+strict type/build/API/browser checks assert the imported owner-rendered text. Commands
+and exact tool baseline remain those above; all patterns remain unpromoted.
 
 ## Supported recipe preflight
 
