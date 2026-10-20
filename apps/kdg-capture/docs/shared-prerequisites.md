@@ -6,6 +6,24 @@ ownership boundaries. Selected engineering contracts are in the
 [shared readiness addendum](../../../platform/docs/architecture/contracts/kdg-shared-readiness.md).
 All five epics/19 KDG stories remain approved; no Leave decomposition is restarted.
 
+## Approved lean ENV correction — 2026-10-20
+
+The user approved normal pinned Supabase CLI lifecycle with a thin repository wrapper,
+building only present development needs. ENV acceptance now uses explicit disposable
+target/config/local-only guards, vendor start/status/stop and observable DB/Auth
+reachability. Historical individual-container interception qualifiers are preserved
+as diagnostics and no longer block this route. Fresh native runs do not adopt their
+receipts/resources. The approved dependency baseline, including TS7.0.2, is unchanged.
+
+Application owners retain migrations/fixtures and current authorization tests; a
+reachable local Supabase stack is not Identity/Access/KDG readiness. Synthetic sign-in,
+application integration and later provider/device evidence remain consuming work.
+The development reset command means explicitly confirmed local Supabase DB reset,
+not environment disposal or an alternate application migration authority. No PRD,
+epic/story scope, UX or accepted ADR changes. No Leave/editor or production/pilot.
+See [course correction](../../../_bmad-output/planning-artifacts/sprint-change-proposal-2026-10-20-lean-env.md)
+and [active runbook](../../../platform/deployment/DEVELOPMENT.md).
+
 ## Ordered owner work and acceptance
 
 | Existing item / boundary | Minimum KDG-relevant outcome | Acceptance/evidence before consumer | Earliest consumer |

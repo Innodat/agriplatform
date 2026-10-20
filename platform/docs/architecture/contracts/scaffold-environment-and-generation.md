@@ -23,11 +23,14 @@ inferred from tables. Choose a CLI interface rather than importing the old TS co
 API; any proven need for Microsoft's TS6 compatibility adapter is explicitly scoped.
 
 Supabase CLI2.120.0 supplies its supported Auth/database container set; preserve its
-publisher-selected image versions, freeze resolved image identities/digests during
-ENV delivery and verify the selected PostgreSQL major matches the supported deployment
-target. Do not replace its database with generic newest PostgreSQL or upgrade a live
-project merely to follow library preferences. Existing root config's PostgreSQL17 is
-reuse evidence, not authority over a newly qualified target. No image pull happens now.
+publisher-selected image versions, record the CLI version and verify the selected
+PostgreSQL major matches the supported deployment target. Normal local service lifecycle belongs to the pinned CLI. Exact
+vendor Docker request/config snapshots and historical custom qualifiers are diagnostic
+evidence, not prerequisites for this normal local route. Do not replace its database
+with generic newest PostgreSQL or upgrade a live project merely to follow library
+preferences. Existing root config's PostgreSQL17 is
+reuse evidence, not authority over a newly qualified target. Local CLI startup may
+retrieve its supported public images; it does not upgrade a live project.
 
 ## Explicit isolated environment input
 
@@ -43,8 +46,10 @@ The same schema can describe a Leave/reference disposable target with its actual
 workspace_root is the absolute repository root resolved by ENV; generated work lives
 under ignored `platform/deployment/.local/kdg/<run UUID>/`. project_id_prefix is
 `agriplatform-kdg`; run UUID determines project/container/volume/network identities.
-Prepared target metadata records exact identities, config/source hashes and run UUID;
-credentials stay in protected ignored secret files. owner_ids never confers authority.
+The thin native route records only target/config/run binding, allowing ordinary
+vendor-managed .temp state and compatible source changes without requalifying every
+repository file. It uses a fresh run; historical source-bound qualification runs are
+not adopted. Credentials stay in protected ignored secret files. owner_ids never confers authority.
 
 Selected local host ports: web5188, API8188, Supabase API55481, database55482,
 shadow55480, Studio55483, mail15484, device TLS8443. Refuse occupied ports; never attach
@@ -79,24 +84,39 @@ membership/grants; no automatic tenant enrollment is enabled.
 
 ## Guarded environment command contract
 
-Planned entry point is `python3 platform/deployment/dev.py`, from repository root:
+The supported thin route uses `python3 platform/deployment/dev.py` with explicit
+`--supabase <CLI2.120.0 executable>`, `--target <JSON>` and `--run-id <UUID>`.
+The explicit executable selects normal vendor lifecycle; old no-executable invocations
+remain compatibility paths for historical qualifiers. No new generic orchestrator.
 
-| Subcommand | Required arguments | Effect after implementation approval |
-| --- | --- | --- |
-| prepare | `--target <target JSON> --run-id <UUID>` | Validate schema/path/allowlist/config and materialize run-local config/identity inventory; no migrations or owner commands |
-| up | `--target <target JSON> --run-id <UUID>` | Verify prepared hashes/identities/ports, start only that isolated stack, run existing controlled owner migration coordinator then targeted owner fixture commands; report each stage |
-| verify | `--target <target JSON> --run-id <UUID>` | Current service/owner fixture/readiness checks, no implicit grant repair; missing stage is failed/unqualified |
-| stop | `--target <target JSON> --run-id <UUID>` | Stop only proven run-owned processes/containers, retain persistent volumes and evidence |
-| reset | `--target <target JSON> --run-id <UUID> --confirm-target <target ID>` | Dispose/recreate only verified disposable run-owned data through its owner coordinator; preserve safe run evidence |
+| Subcommand | Effect |
+| --- | --- |
+| prepare | Validate disposable target and create fixed config plus small native marker; refuse legacy/unmarked workdirs |
+| up | Check ports/local Docker/loopback bridge, invoke normal supabase start in the exact workdir/network |
+| verify | Invoke status, check local database TCP and Auth health; no application-readiness or authenticated-SQL claim |
+| stop | Invoke normal project-specific stop, preserving development data; no --all or --no-backup |
+| reset | Require --confirm-target equal target_id; invoke explicitly local db reset --no-seed; no remote reset or environment disposal |
 
-Every command refuses missing target/run, changed prepared target, symlink/path escape,
-unexpected project/volume, production URL/credential, foreign owner or unmatched run
-identity before mutation. No default target, root Supabase reset or guessed localhost
-fallback. Secrets are referenced, never copied into reports. Command failures are
-nonzero with safe stage/operation references; setup receipt is not consumer readiness.
-API startup does not migrate. Supabase project startup does not apply repository-owned
-SQL migrations/seeds; owned Alembic histories run through their explicit coordinator.
-No automatically reversed applied migrations after later failure.
+A project-specific bridge with host_binding_ipv4=127.0.0.1 supplies local-only port
+binding. Pass the same explicit network to start/status/stop/reset, including database
+recreation. Force the local Docker socket and private run-local CLI state/config;
+do not inherit remote Docker contexts, Supabase credentials or experimental routing.
+Capture vendor output because status/start may contain credentials; emit safe stage,
+exit and target/run summaries. Failures do not authorize automatic recovery/pruning.
+
+The native marker/config are checked before lifecycle commands. Refuse invalid or
+foreign targets, production settings, changed config, symlink/path escape, wrong CLI
+version and occupied startup ports. No Docker request interception or per-container
+vendor Config allowlist. Historical resources/receipts remain preserved and are not
+adopted through the new route. Retiring historical code/resources is separate work.
+
+Supabase local DB reset is destructive to this explicit synthetic database. It does
+not dispose an environment, run repository Alembic histories or prove owner recovery.
+Repository migrations/seeds stay disabled in generated Supabase configuration;
+existing owner migration/fixture coordinators run separately after service startup.
+No API-startup migration or automatic reversal of applied migrations. Supabase service
+availability is distinct from Identity/Access/KDG authorization, provider/device and
+release readiness. No production/account/provider provisioning is authorized.
 
 ## Thin recipe and deterministic generation
 

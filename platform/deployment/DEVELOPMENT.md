@@ -1,3 +1,129 @@
+# Local development through the Supabase CLI
+
+The active ENV direction is a thin wrapper around pinned Supabase CLI2.120.0.
+The CLI owns its supported PostgreSQL/Auth/gateway lifecycle. Historical Docker
+interception qualifiers below are retained evidence and are not prerequisites for
+this route. Full KDG/Identity/Access readiness still requires their owner work.
+
+## Daily commands
+
+Select a fresh canonical UUID, the explicit disposable target and a CLI2.120.0
+executable. Existing retained toolchain binaries can be used directly; a new
+source-bound toolchain/image qualification receipt is not required by this route.
+The approved wider baseline, including TypeScript7.0.2, is unchanged.
+
+```sh
+KDG_TARGET=platform/deployment/environments/kdg-local.json
+KDG_RUN_ID=$(python3 -c 'import uuid; print(uuid.uuid4())')
+KDG_SUPABASE=/absolute/path/to/supabase-2.120.0
+python3 platform/deployment/dev.py prepare --target "$KDG_TARGET" --run-id "$KDG_RUN_ID" --supabase "$KDG_SUPABASE"
+python3 platform/deployment/dev.py up --target "$KDG_TARGET" --run-id "$KDG_RUN_ID" --supabase "$KDG_SUPABASE"
+python3 platform/deployment/dev.py verify --target "$KDG_TARGET" --run-id "$KDG_RUN_ID" --supabase "$KDG_SUPABASE"
+python3 platform/deployment/dev.py stop --target "$KDG_TARGET" --run-id "$KDG_RUN_ID" --supabase "$KDG_SUPABASE"
+```
+
+Preparation reuses the existing config renderer and project naming with a small
+native target/config marker. Use a fresh run: historical unmarked/qualified runs
+are preserved and refused. Normal CLI .temp/state files are allowed. Routine source
+or documentation edits do not require rebuilding all toolchain/image receipts.
+
+Startup checks local Docker>=28 and occupied target ports. It uses a project-specific
+bridge configured for localhost binding and passes that network consistently to the
+CLI, including reset. Stop retains data. Vendor stdout/stderr are captured because
+they can contain keys; results expose safe stages/codes rather than payload dumps.
+Private CLI/Docker config and the local socket prevent ambient remote context use.
+A failed/timed-out command is not automatically retried or cleaned up; inspect state
+through the explicit target before further action. No Docker prune is provided.
+
+verify means vendor status, database TCP reachability and Auth health. It does not
+prove SQL authentication, synthetic sign-in, app permissions or owner migrations.
+Application runtime readiness remains false until those separate gates are delivered.
+The wrapper starts no application API/web and provisions no real accounts/provider.
+
+## Reset means local database reset
+
+For a disposable synthetic run whose data may be discarded:
+
+```sh
+python3 platform/deployment/dev.py reset --target "$KDG_TARGET" --run-id "$KDG_RUN_ID" --supabase "$KDG_SUPABASE" --confirm-target kdg-local
+```
+
+This delegates to `supabase db reset --local --no-seed --yes` in that exact
+workdir/network. It clears the local database; it is not full environment disposal.
+Repository Supabase migrations/seeds are disabled in generated configuration.
+Reapply application schemas/fixtures through existing owner coordinators when those
+are delivered. No remote reset, automatic grants or migration ownership transfer.
+Do not use this against historical or real-data environments.
+
+[Native route evidence](ENV_NATIVE_CLI_EVIDENCE.md) records actual verification and
+limits. [Approved course correction](../../_bmad-output/planning-artifacts/sprint-change-proposal-2026-10-20-lean-env.md)
+records the change in direction. Historical code/resource cleanup needs a separate
+reviewable inventory; nothing below is a mandate to resume interception work.
+
+## Safe inspection and incomplete preparation
+
+Start with the wrapper's `verify` command above. For container status metadata only:
+
+```sh
+KDG_WORKDIR="$PWD/platform/deployment/.local/kdg/$KDG_RUN_ID"
+KDG_PROJECT=$(python3 -c 'import json,sys; print(json.load(open(sys.argv[1]))["project"])' "$KDG_WORKDIR/native.json")
+env -i PATH=/usr/bin:/bin DOCKER_HOST=unix:///var/run/docker.sock DOCKER_CONFIG="$KDG_WORKDIR/docker" docker ps -a --filter "label=com.supabase.cli.project=$KDG_PROJECT" --format '{{.Names}} {{.Status}}'
+```
+
+Record the wrapper stage/code/exit, CLI version and this safe status summary for
+troubleshooting. Avoid dumping Docker Config/Env or vendor debug output. If initial
+prepare fails partway, preserve that directory and choose a fresh UUID; an incomplete
+run is deliberately refused. No automated repair/deletion is needed. Concurrent
+prepare of the same UUID can fail closed; retry after the first finishes. Repeating
+up for a running matching project uses normal vendor already-running behavior.
+
+## Private local credentials for owner setup
+
+Normal output hides credentials. When a consuming owner needs local bootstrap
+configuration, explicitly capture vendor status into a new private secret file while
+the run is started. This is secret configuration, not a diagnostic log or readiness
+receipt. Do not print/paste its contents. Owners retain restricted runtime-role and
+migration boundaries; this file does not authorize app grants or production access.
+
+```sh
+python3 - "$KDG_TARGET" "$KDG_RUN_ID" "$KDG_SUPABASE" <<'PYCODE'
+from pathlib import Path
+import os, subprocess, sys, uuid
+sys.path.insert(0, str(Path('platform/deployment').resolve()))
+import dev, native_cli
+source, run_id, cli = sys.argv[1:]
+assert str(uuid.UUID(run_id)) == run_id
+raw = dev.read(Path(source).absolute())
+target = dev.decode(raw)
+dev.validate(target, dev.decode(dev.read(dev.ROOT / dev.SCHEMA)))
+run = dev.ROOT / 'platform/deployment/.local/kdg' / run_id
+native_cli.check_run(run, target, raw, run_id)
+network = native_cli.network(target, run_id, False, run)
+secrets = run / 'secrets'
+secrets.mkdir(mode=0o700, exist_ok=True)
+with dev.directory(secrets) as parent:
+    dev.check_private(parent)
+    fd = os.open('supabase-local.env', os.O_WRONLY | os.O_CREAT | os.O_EXCL | os.O_NOFOLLOW, 0o600, dir_fd=parent)
+    with os.fdopen(fd, 'wb') as output:
+        subprocess.run([cli, '--workdir', str(run), '--network-id', network, 'status', '-o', 'env'],
+            env=native_cli.environment(run), cwd=run, stdin=subprocess.DEVNULL,
+            stdout=output, stderr=subprocess.DEVNULL, timeout=30, check=True)
+print('Private local credential file written; contents not displayed.')
+PYCODE
+```
+
+The exclusive file create protects an existing secret file from overwrite. If the
+command fails, preserve the partial private file for deliberate local handling;
+normal lifecycle commands do not consume it or change any application role.
+
+---
+
+# Historical qualification notes (retained)
+
+These notes describe earlier experimental delivery and its stronger custom-owner
+assurances. Their in-progress/next-action wording is historical. Use the normal CLI
+route above for current development; preserve their receipts and uncertain resources.
+
 # Disposable KDG target preparation
 
 ## Current ENV delivery status

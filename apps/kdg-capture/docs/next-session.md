@@ -1,5 +1,42 @@
 # Resume shared ENV delivery after KDG planning PASS
 
+## Current direction — lean Supabase CLI, approved 2026-10-20
+
+The user explicitly approved trusting normal Supabase local lifecycle and keeping
+repository code proportional to present development needs. Stop adding per-service
+Docker interception prerequisites. Use the thin CLI route in existing dev.py with
+explicit --supabase executable, target and run UUID. Supabase owns service startup/
+shutdown/local reset; repository guards select the disposable target/config, local
+Docker socket and localhost bridge. Existing owner migrations/fixtures and current
+application authorization remain separate. No new generator or generic service.
+
+[Course correction](../../../_bmad-output/planning-artifacts/sprint-change-proposal-2026-10-20-lean-env.md)
+and [Build](../../../_bmad-output/implementation-artifacts/spec-env-native-cli.md) record
+the approved scope. [Active runbook](../../../platform/deployment/DEVELOPMENT.md) gives
+normal commands; [evidence](../../../platform/deployment/ENV_NATIVE_CLI_EVIDENCE.md)
+records52 passing affected tests and actual native start/repeat-start, persistence
+across stop/restart, local reset of only new synthetic sentinel data, post-reset
+DB/Auth reachability, localhost exposure and final normal stop. Review is complete:
+8 findings patched,1 low rejected, none deferred. An integration metadata assertion
+mistook unrelated renamed containers for lost IDs; read-only reconciliation confirms
+all prior IDs remain. Original failure/delta is retained; cause of renames/additions
+was not observed.609 protected files/index pass audit.
+
+Preserve all historical qualifier source/receipts/state/resources and concurrent
+Leave/PtS/Expense/brainstorming work. Their old “next boundary” instructions below
+are historical, not the active plan. Cleanup/retirement is a separate reviewable
+inventory. TS7.0.2 and approved baseline/ports stay. No production/account/provider,
+infrastructure/deployment or real-data pilot changes. Supabase reachability alone
+is not Identity/Access/WRITE/KDG/scaffold/device readiness.
+
+Next: use the normal stack for existing owner migrations/fixtures and application-
+facing Identity/Access/scaffold work. Full app/sign-in/provider/device acceptance
+remains separate. The synthetic run is stopped, its native state/data retained;
+follow the active runbook to resume it. Historical source/resource retirement needs
+a separate inventory/proposal, not broad deletion.
+
+## Historical checkpoints
+
 Current continuation — 2026-10-20: the next bounded ENV item adds an internal GoTrue
 owner pre-start/refusal boundary after healthy owned Kong. Current image defaults,
 owner/PG/Kong custody and all three closed service intents are checked without

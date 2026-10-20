@@ -911,6 +911,10 @@ class Parser(argparse.ArgumentParser):
 
 
 def main(argv=None):
+    arguments = sys.argv[1:] if argv is None else list(argv)
+    if any(item == '--supabase' or item.startswith('--supabase=') for item in arguments):
+        import native_cli
+        return native_cli.main(arguments)
     try:
         parser = Parser(add_help=False, allow_abbrev=False)
         parser.add_argument('command', choices=['prepare', 'up', 'verify', 'stop', 'reset'])
