@@ -143,6 +143,9 @@ def parse_args() -> argparse.Namespace:
         description="Compose modular Supabase migrations, seeds, and functions into root supabase/."
     )
 
+    parser.add_argument("--identity-authority", choices=["legacy", "owned"], default="legacy",
+                        help="Select one Identity DDL authority; owned requires Identity migration before composed dependent SQL")
+
     parser.add_argument(
         "--apps",
         nargs="*",
@@ -297,6 +300,30 @@ def collect_migrations(modules: Iterable[Module]) -> list[MigrationFile]:
             )
 
     return sorted(migrations, key=lambda m: (m.version, m.file_name))
+
+
+IDENTITY_SOURCE_NAMES = frozenset({
+    "20250815110000_platform_create_identity_schema.sql",
+    "20250815150000_platform_auth-hook.sql",
+    "20250815160000_platform_create_audit_log_tbl.sql",
+    "20250815170000_platform_create_audit_triggers.sql",
+    "20250815180000_platform_add_get_user_roles_function.sql",
+    "20250815210000_platform_multitenancy_orgs.sql",
+})
+
+
+def select_identity_authority(migrations, authority="legacy"):
+    if authority == "legacy":
+        return migrations
+    if authority != "owned":
+        raise ValueError("Unknown Identity authority")
+    return [migration for migration in migrations
+            if not (migration.module.name == "platform" and migration.file_name in IDENTITY_SOURCE_NAMES)]
+
+
+def validate_identity_output(authority, no_clean, directory):
+    if authority == "owned" and no_clean and any((directory/name).exists() for name in IDENTITY_SOURCE_NAMES):
+        raise SystemExit("Refusing duplicate Identity authority: remove --no-clean for owned composition")
 
 
 def collect_seeds(modules: Iterable[Module], mode: SeedMode) -> list[SeedFile]:
@@ -529,6 +556,8 @@ def write_manifest(
         "repoRoot": str(REPO_ROOT),
         "rootSupabaseWorkdir": ROOT_SUPABASE_DIR.relative_to(REPO_ROOT).as_posix(),
         "options": {
+            "identityAuthority": args.identity_authority,
+            "requiredOwnedPrerequisites": ["identity"] if args.identity_authority == "owned" else [],
             "includeMigrations": not args.no_migrations,
             "includeSeeds": not args.no_seeds,
             "includeFunctions": not args.no_functions,
@@ -593,7 +622,8 @@ def main() -> None:
 
     modules = discover_modules(args)
 
-    migrations = collect_migrations(modules) if include_migrations else []
+    migrations = select_identity_authority(collect_migrations(modules), args.identity_authority) if include_migrations else []
+    validate_identity_output(args.identity_authority, args.no_clean or not include_migrations, OUTPUT_MIGRATIONS_DIR)
     seeds = collect_seeds(modules, args.seed_mode) if include_seeds else []
     functions = collect_functions(modules) if include_functions else []
 
@@ -607,6 +637,9 @@ def main() -> None:
     if not args.allow_empty and not migrations and not seeds and not functions:
         print("❌ No Supabase assets discovered. Use --allow-empty if this is intentional.")
         sys.exit(1)
+
+    if args.identity_authority == "owned":
+        print("Identity authority: owned; run controlled Identity migration BEFORE applying composed migrations/seeds.")
 
     print_plan(
         modules,

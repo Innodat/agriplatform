@@ -46,17 +46,22 @@ def revisions(owner):
         db.dispose()
 
 
-def migrate(run=subprocess.run, acquire_lock=deployment_lock, progress=None, inspect=revisions):
-    for owner, _ in OWNERS:
+def migration_owners(identity=False):
+    return ([('identity', 'services/access')] if identity else []) + OWNERS
+
+
+def migrate(run=subprocess.run, acquire_lock=deployment_lock, progress=None, inspect=revisions, identity=False):
+    owners = migration_owners(identity)
+    for owner, _ in owners:
         if not os.environ.get(owner.upper()+'_MIGRATION_DATABASE_URL'):
             raise RuntimeError(f'Missing {owner} migration configuration')
     with acquire_lock():
-        for owner, folder in OWNERS:
+        for owner, folder in owners:
             entry = progress[owner] if progress is not None else None
             try:
                 if entry is not None:
                     entry.update(status='running', started_at=now(), before=inspect(owner))
-                run([sys.executable, '-m', 'alembic', '-c', str(ROOT/folder/'alembic.ini'), 'upgrade', 'head'], check=True)
+                run([sys.executable, '-m', 'alembic', '-c', str(ROOT/folder/('identity-alembic.ini' if owner == 'identity' else 'alembic.ini')), 'upgrade', 'head'], check=True)
                 if entry is not None:
                     entry.update(status='succeeded', after=inspect(owner), finished_at=now())
             except Exception:
@@ -72,6 +77,7 @@ def migrate(run=subprocess.run, acquire_lock=deployment_lock, progress=None, ins
 
 def main():
     parser = argparse.ArgumentParser()
+    parser.add_argument('--identity', action='store_true', help='Run the separately owned Identity baseline before Access')
     parser.add_argument('--release-id', required=True)
     parser.add_argument('--evidence', type=Path, required=True)
     args = parser.parse_args()
@@ -84,9 +90,9 @@ def main():
     dirty = bool(subprocess.run(['git', 'status', '--porcelain'], cwd=ROOT, capture_output=True, text=True, check=True).stdout)
     report = {'release_id': args.release_id, 'code_revision': revision, 'working_tree_dirty': dirty,
               'started_at': now(), 'migrations_complete': False, 'activation_allowed': False,
-              'owners': {owner: {'status': 'not_attempted'} for owner, _ in OWNERS}}
+              'owners': {owner: {'status': 'not_attempted'} for owner, _ in migration_owners(args.identity)}}
     try:
-        migrate(progress=report['owners'])
+        migrate(progress=report['owners'], identity=args.identity)
         report['migrations_complete'] = True
         report['next_step'] = 'Verify configured auth/storage, compatibility and obtain deployment authorization.'
     except Exception:

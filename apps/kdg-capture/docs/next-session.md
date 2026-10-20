@@ -1,6 +1,23 @@
 # Resume shared ENV delivery after KDG planning PASS
 
-## Current P1/SERVICE increment — app-owned OpenAPI client, 2026-10-20
+## Current ID-A increment — verified Identity baseline, 2026-10-20
+
+The first bounded Identity delivery establishes a separate owner migration history,
+verified equivalent adoption and explicit composition/release handover. Clean/adopt,
+mismatch preservation, actual scoped reads, Auth profile/hook and failure blocking
+pass on synthetic PostgreSQL17. See [Build](../../../_bmad-output/implementation-artifacts/spec-id-a-baseline.md)
+and [evidence](../../../services/access/IDENTITY_BASELINE_EVIDENCE.md).
+
+BMAD review and corrections are complete: 23 focused tests, both composition checks,
+actual rollback/history/role/seed/populated-hook regressions pass. Synthetic environment
+is normally stopped with data retained. Legacy grants are characterized, not silently hardened.
+Exact legacy owner/ACL differences need explicit disposition; no production adoption
+or password/provider sign-in is qualified. Actors/membership hardening, Access v2,
+WRITE, public scaffold generation and server-backed KDG remain pending. Preserve all
+concurrent source/documents, receipts/state and resources. No Leave/editor, live-account/
+provider/access changes, infrastructure/deployment or real-data action.
+
+## Previous P1/SERVICE increment — app-owned OpenAPI client, 2026-10-20
 
 Completed the bounded browser/API client boundary through the existing builder
 and platform/api-client owner: owner OpenAPI export, generated app-owned contracts,

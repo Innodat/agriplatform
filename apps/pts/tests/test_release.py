@@ -48,3 +48,34 @@ def test_owner_evidence_identifies_partial_failure(monkeypatch):
     assert progress['content']['status']=='failed'
     assert progress['pts']['status']=='not_attempted'
     assert progress['content']['before']==progress['content']['after']==['content_test']
+
+
+def test_identity_route_precedes_access_and_failure_blocks_every_dependency(monkeypatch):
+    from tools.py import deploy_pts
+    for name in ('IDENTITY','ACCESS','CONTENT','PTS'):
+        monkeypatch.setenv(name+'_MIGRATION_DATABASE_URL','configured')
+    progress={name:{'status':'not_attempted'} for name in ('identity','access','content','pts')}
+    calls=[]
+    def run(command,check):
+        calls.append(command)
+        raise subprocess.CalledProcessError(1,command)
+    with pytest.raises(subprocess.CalledProcessError):
+        deploy_pts.migrate(run,acquire_lock=nullcontext,progress=progress,
+                           inspect=lambda owner:[], identity=True)
+    assert len(calls)==1
+    assert calls[0][-3].endswith('/services/access/identity-alembic.ini')
+    assert progress['identity']['status']=='failed'
+    assert all(progress[n]['status']=='not_attempted' for n in ('access','content','pts'))
+
+
+def test_identity_success_records_order_and_separate_configuration(monkeypatch):
+    from tools.py import deploy_pts
+    for name in ('IDENTITY','ACCESS','CONTENT','PTS'):
+        monkeypatch.setenv(name+'_MIGRATION_DATABASE_URL','configured')
+    calls=[]
+    deploy_pts.migrate(lambda command,check:calls.append(command),acquire_lock=nullcontext,
+                       identity=True)
+    assert ['identity-alembic.ini' in ' '.join(c) for c in calls]==[True,False,False,False]
+    monkeypatch.delenv('IDENTITY_MIGRATION_DATABASE_URL')
+    with pytest.raises(RuntimeError,match='Missing identity'):
+        deploy_pts.migrate(identity=True)

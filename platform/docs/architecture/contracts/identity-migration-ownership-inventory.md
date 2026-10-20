@@ -159,3 +159,20 @@ synthetic Auth seeds and service:pts-import text writers before migration. Exist
 System/Migrate Auth rows are not automatically deleted. ID-A preserves the baseline;
 ID-B owns new registry/mapping/bootstrap and affected consumer handover. No live schema
 or account state is inferred from these repository definitions.
+
+## Bounded ID-A implementation — 2026-10-20
+
+The selected separate history now exists at services/access/identity-migrations,
+with identity-alembic.ini and its own pinned Python lock. Explicit owned composition
+excludes the six Identity DDL sources and retains other owners; the existing coordinator
+has an opt-in Identity-first route. Exact equivalent synthetic adoption verifies a
+trusted compact catalog before recording the baseline, preserving business rows,
+external references and original applied history. Legacy source files remain evidence.
+
+See [owner runbook](../../../../services/access/IDENTITY-MIGRATIONS.md) and
+[executed evidence](../../../../services/access/IDENTITY_BASELINE_EVIDENCE.md).
+This qualifies the selected restricted-owner profile only; live postgres ownership/
+PUBLIC privilege differences need separate explicit compatible disposition. Legacy
+broad grants remain characterized pending ID-B, not newly accepted as safe. Actual
+provider sign-in, actors/membership/current Access and production activation remain
+separate gates. No startup migration, real-account change or accepted ADR edit.

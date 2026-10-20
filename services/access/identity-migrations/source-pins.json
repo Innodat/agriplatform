@@ -1,0 +1,9 @@
+{
+  "platform/supabase/migrations/20250815110000_platform_create_identity_schema.sql": "cad9d5f3e5be38efdcf39ab338c06ecc693758f965234b0e5782c00480a61992",
+  "platform/supabase/migrations/20250815150000_platform_auth-hook.sql": "3286922124a974349691fe88ede59a595409df86a94654b713bb82a68cbf828d",
+  "platform/supabase/migrations/20250815160000_platform_create_audit_log_tbl.sql": "32cc49339c0ec9029261528c71e65246fd430498c7b693f31794489235c67b35",
+  "platform/supabase/migrations/20250815170000_platform_create_audit_triggers.sql": "853882974e29bba54c40de0ccb47d17362fd33e2ce2c4b940353388f364c1e01",
+  "platform/supabase/migrations/20250815180000_platform_add_get_user_roles_function.sql": "d3683ac1cba6b78ba4cad7086a2f6868a44aa116b3c3f76de77572a3d1066ace",
+  "platform/supabase/migrations/20250815210000_platform_multitenancy_orgs.sql": "f7a1f2bf26f5f72807d1451de441f53291562b4c41e3ae75e03957c11b0c8d20",
+  "services/access/tools/identity_bridge.sql": "e4063529f1dd589a7269bdcff3ec5695ed599ab1e1df6ecfc3f9042765fa90fc"
+}
