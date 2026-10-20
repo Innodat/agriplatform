@@ -43,7 +43,7 @@ def test_legacy_roles_is_head_and_profile_remains_supported(monkeypatch):
     monkeypatch.setattr(b,'verify_owned_history',lambda c:b.LEGACY_ROLES_REVISION)
     monkeypatch.setattr(b,'verify_legacy_history',lambda c:None)
     seen=[];monkeypatch.setattr(b,'verify_catalog',lambda c,k:seen.append(k))
-    b.verify_owned_postcondition(object(),require_head=True)
+    b.verify_owned_postcondition(object())
     assert seen==['legacy_roles']
     monkeypatch.setattr(b,'verify_owned_history',lambda c:b.PROFILE_REVISION)
     b.verify_owned_postcondition(object())

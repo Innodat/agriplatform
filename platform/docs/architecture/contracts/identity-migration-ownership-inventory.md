@@ -298,3 +298,12 @@ upgrade/rollback proof and review. Auth hook, membership lifecycle/uniqueness/CA
 account verification adapter and Access/WRITE/KDG remain separate gates. No new role,
 credential, dependency, runtime service or generator; historical8 references/revisions
 and all concurrent documents/resources remain preserved.
+
+## Bounded token-hook organization correction — 2026-10-20
+
+Identity revision10 retains the existing hook owner/signature/ACL and metadata selection
+while excluding retired organizations from fallback, member/role/owner authority and
+org_ids. Original source/defaults are not replayed or normalized. See
+[token-hook evidence](../../../../services/access/TOKEN_HOOK_EVIDENCE.md) for verification
+and limits. This is synthetic owner delivery, not live target equivalence, provider
+verification or full membership lifecycle/Access activation.

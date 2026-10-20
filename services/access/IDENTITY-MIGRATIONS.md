@@ -1217,3 +1217,86 @@ navigation and inventory record behavior/verification; existing accepted ADRs ap
 unchanged. Auth token-hook selection/metadata, invalid-selected-org policy, profile
 hardening, seeds/upserts, mapping/audit and remaining membership/Access work stay separate.
 No application/client/types/dependency, runtime service or generator is added.
+
+## Active-organization token claims (identity_0010)
+
+Revision10 replaces only `identity.custom_access_token_hook(event jsonb)` body and
+search_path. All membership paths now join a nonretired organization: owners-first /
+created_at fallback, exact account/selected-organization lookup and org_ids enumeration.
+Explicit top-level user_metadata.current_org_id remains selected even when foreign,
+invalid or retired; it receives no member, roles or owner flag and never falls back.
+Missing/JSON-null selection keeps existing fallback ordering. The hook preserves slug
+resolution, soft-deleted profile behavior (no added active-profile check; the existing
+membership/profile foreign key is unchanged), typed UUID errors,
+deleted-role filtering, unrelated event/claim fields and existing JSON null/array/boolean
+shapes. It performs no writes and remains legacy Auth integration, not Access authority.
+Qualified owner names and pg_catalog,pg_temp prevent caller search-path substitution.
+Owner, signature, language, definer status, volatility, ACL and effective permissions
+are preserved, including a separately revoked-PUBLIC target difference tested rollback-only.
+
+The nine historical revisions/references, original SQL/composed files and source pins
+remain immutable. `token-hook-reference.json` and TOKEN_HOOK_REFERENCE_SHA256 extend
+independent historical trust. The established recorder executes captured source with
+bounded SQL, verifies every earlier catalog and staged-role rollback, checks full source
+custody, then exclusively publishes mode0600 evidence; it refuses optimized Python
+before fixture access and never sets its own pin. Root reviews evidence before pinning.
+
+One-time reference generation requires a new, uncommitted token-hook-reference.json
+that is absent and TOKEN_HOOK_REFERENCE_SHA256 set to None. Prior references and pins
+remain immutable. Preserve the exact source and every receipt before any correction;
+never delete or clear the committed reference/pin to rerun generation. On the separately
+prepared clean reference target, root runs once:
+
+```sh
+"$OWNER_PYTHON" -I -B services/access/tests/qualify_identity_baseline.py --record-token-hook-reference
+```
+
+Repeatable qualification uses the frozen owner Python and existing
+IDENTITY_QUALIFICATION_DIR private frame, with the committed reference/pin. Root prepares
+each required starting state; characterization requires unchanged9 and the migration
+matrix requires its documented source-bound fixtures:
+
+```sh
+"$OWNER_PYTHON" -I -B services/access/tests/qualify_token_hook.py --characterize
+"$OWNER_PYTHON" -I -B services/access/tests/qualify_token_hook.py
+```
+
+Root-only sequential execution is required for every qualification sharing a cluster:
+temporary role memberships are cluster-wide, so fixtures must not overlap even when
+their databases differ. Verify exact restoration before the next execution.
+
+Root alone prepares/runs databases, Docker, roles and credentials. Exact cases are
+characterization, token_hook_reference, clean, legacy, previous, failure, unsafe, unknown
+and retained native. `token-hook-fixtures.json` contains characterization/clean objects
+with canonical account/other/missing/org/other_org UUIDs and positive decimal-string
+member/other_member/other_org_member/role/deleted_role IDs. Root supplies synthetic rows
+with owned admin/deleted employee roles, another account's employee membership and an
+alternate employee organization. Root retains the exact21 owner py/json files from
+b790051bf93417640702ff450aff9d4e9b398575; previous/failure/unknown execute that source.
+Scratch auth.uid/auth.jwt definitions must equal native definitions exactly.
+
+`TokenHookQualification` records actual unchanged9 retired-selected and retired-owner
+fallback claims before10. Restricted access_runtime temporarily assumes
+supabase_auth_admin/service_role through SET-only, noninherited, non-admin fixture edges;
+all row mutations roll back. Private token-hook-role-restoration-required/restored
+witnesses bind exact edge restoration. Synthetic failure objects have separate private
+token-hook-event-restoration-required/restored witnesses. Bounded SQL and SIGINT/TERM
+unwind cleanup; host failure, SIGKILL or failed cleanup require root inspection of the
+recorded exact target/effects, preservation of all resources/evidence and verified exact
+restoration. Never infer database state from missing cleanup evidence or blindly rerun.
+
+Focused CPU tests cover SQL boundaries, head/history, full recorder source custody,
+independent trust, exclusive publication, no auto-pin and optimized/interruption refusal.
+Actual qualifier proves retirement/foreign selection/fallback, roles, profile compatibility,
+typed errors, spoof/pool reuse, unchanged data hashes and per-function declaration/ACL
+compatibility. Clean/adopt/head9/repeat, drift/unknown refusal and mid-revision rollback
+retain history/data and block activation on failure. Direct SQL proves no provider,
+JWT-signature or HTTP authentication behavior. Root records actual matrix, both composer
+routes and retained-data normal stop; this bounded item does not complete ID-B readiness.
+
+Five impacts: scaffold extends only existing owner migration/reference/qualification
+patterns; shared UI has no consumer/change; agent context remains sufficient; this owner
+runbook and root evidence/inventory/navigation record the actual result; accepted ADRs
+remain unchanged. No generator, service, API, grant, login, dependency, membership command,
+uniqueness/CASCADE change or application implementation is added. Existing coordinated
+migration-before-activation/recovery remains binding; no automatic downgrade is supported.

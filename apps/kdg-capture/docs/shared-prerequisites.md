@@ -227,3 +227,13 @@ upgrade/rollback proof and review. Auth hook, membership lifecycle/uniqueness/CA
 account verification adapter and Access/WRITE/KDG remain separate gates. No new role,
 credential, dependency, runtime service or generator; historical8 references/revisions
 and all concurrent documents/resources remain preserved.
+
+## Existing token-hook organization safety — 2026-10-20
+
+Identity revision10 excludes retired organizations from the legacy Auth hook's fallback,
+membership/role/owner authority and org_ids. Existing explicit selection and metadata
+sourcing remain; JWT claims are never current Access authority. Reviewed restricted-role/
+migration matrix PASS30.111s;577 affected tests and both composers PASS. All three review
+layers complete, no deferrals. See [evidence](../../../services/access/TOKEN_HOOK_EVIDENCE.md). Membership
+lifecycle, seed/direct-writer compatibility, live-account adapter, Access/WRITE and server
+KDG remain delivery gates; no full ID-B or shared readiness claim.

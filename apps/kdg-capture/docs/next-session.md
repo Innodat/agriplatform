@@ -1,6 +1,25 @@
 # Resume shared ENV delivery after KDG planning PASS
 
-## Current ID-B increment — current-membership legacy role lookup, 2026-10-20
+## Current ID-B increment — active-organization token claims, 2026-10-20
+
+Identity revision10 filters the existing Auth hook's membership/role/owner claims,
+fallback and org_ids to active membership in a nonretired organization. Existing
+explicit selected-org behavior and metadata sourcing remain; invalid selection never
+silently chooses another membership. Owner/signature/ACL and all other functions stay.
+See [Build](../../../_bmad-output/implementation-artifacts/spec-id-b-token-hook.md) and
+[evidence](../../../services/access/TOKEN_HOOK_EVIDENCE.md) for actual unchanged9 gap,
+restricted-role/migration proof and limits. Final actual matrix PASS30.111s;577 affected
+tests and both composers PASS. Three review layers complete with no deferrals; the native
+project is normally stopped with all data and earlier failures retained.
+
+Membership lifecycle/seed compatibility, other owner commands and the live-account
+verification adapter remain Identity gates. Access/WRITE and server KDG are still
+pending. Preserve all nine historical sources/references, receipts/state/data/resources,
+failed frames and concurrent work. No real accounts/provider/access, production,
+provision/deploy/pilot, Leave/editor or push. Use bmad-help for the next bounded item.
+
+
+## Previous ID-B increment — current-membership legacy role lookup, 2026-10-20
 
 Identity revision9 fixes public.get_user_roles() and binds its existing role rows to the
 token's exact active profile/organization/membership. Stale role arrays and app GUCs
