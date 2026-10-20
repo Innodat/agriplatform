@@ -19,6 +19,8 @@ ORGANIZATION_REVISION = 'identity_0004'
 AUTHORITY_REVISION = 'identity_0005'
 COMMAND_REVISION = 'identity_0006'
 TARGET_REVISION = 'identity_0007'
+PROFILE_REVISION = 'identity_0008'
+PROFILE_REFERENCE_SHA256 = '05ccb6afc5c546d18ea16747a59d4e63c6f8576718d885b43ecc03e676779868'
 TARGET_REFERENCE_SHA256 = '7e7dea28f7d1659b8793b7286de4dbddd7a22b81947db5644595f37e2f1299ae'
 TARGET_OWNER = 'identity_target_projection_owner'
 TARGET_ROLES = (TARGET_OWNER, 'access_target_reader', 'access_setup_target_reader', 'access_command_owner')
@@ -74,6 +76,8 @@ def compare_catalog(actual, expected):
         raise BaselineError('identity_catalog_mismatch:' + ','.join(changed))
 
 def trusted_reference(kind):
+    if kind == 'profile':
+        return trusted_profile_reference()
     if kind == 'target':
         return trusted_target_reference()
     if kind == 'command':
@@ -161,6 +165,14 @@ def catalog_fingerprints(snapshot):
 
 
 def verify_catalog(connection, kind):
+    if kind == 'profile':
+        verify_projection_role(connection)
+        verify_authority_roles(connection)
+        verify_command_role(connection)
+        verify_target_roles(connection)
+        verify_profile_privileges(connection)
+        compare_catalog(catalog_fingerprints(target_catalog_snapshot(connection)), trusted_profile_reference())
+        return
     if kind == 'target':
         verify_projection_role(connection)
         verify_authority_roles(connection)
@@ -264,15 +276,15 @@ def verify_legacy_history(connection, clean=False):
 
 def verify_owned_postcondition(connection, require_head=False):
     revision = verify_owned_history(connection)
-    if require_head and revision != TARGET_REVISION:
+    if require_head and revision != PROFILE_REVISION:
         raise BaselineError('identity_unknown_history')
     verify_legacy_history(connection)
-    verify_catalog(connection, {REVISION: 'owned', ACTOR_REVISION: 'actor', PROJECTION_REVISION: 'projection', ORGANIZATION_REVISION: 'organization', AUTHORITY_REVISION: 'authority', COMMAND_REVISION: 'command', TARGET_REVISION: 'target'}[revision])
+    verify_catalog(connection, {REVISION: 'owned', ACTOR_REVISION: 'actor', PROJECTION_REVISION: 'projection', ORGANIZATION_REVISION: 'organization', AUTHORITY_REVISION: 'authority', COMMAND_REVISION: 'command', TARGET_REVISION: 'target', PROFILE_REVISION: 'profile'}[revision])
 
 
 def verify_owned_history(connection):
     revisions = list(connection.execute(text('SELECT version_num FROM identity.alembic_version')).scalars())
-    if revisions not in ([REVISION], [ACTOR_REVISION], [PROJECTION_REVISION], [ORGANIZATION_REVISION], [AUTHORITY_REVISION], [COMMAND_REVISION], [TARGET_REVISION]):
+    if revisions not in ([REVISION], [ACTOR_REVISION], [PROJECTION_REVISION], [ORGANIZATION_REVISION], [AUTHORITY_REVISION], [COMMAND_REVISION], [TARGET_REVISION], [PROFILE_REVISION]):
         raise BaselineError('identity_unknown_history')
     columns = connection.execute(text("SELECT column_name,data_type,character_maximum_length,is_nullable,column_default FROM information_schema.columns WHERE table_schema='identity' AND table_name='alembic_version' ORDER BY ordinal_position")).all()
     if [tuple(row) for row in columns] != [('version_num','character varying',32,'NO',None)]:
@@ -631,3 +643,34 @@ def trusted_target_reference():
         or reference['migration_sha256']!=sha256((HERE/'versions/0007_organization_targets.py').read_bytes()).hexdigest()):
         raise BaselineError('identity_reference_unavailable')
     return reference['target']
+
+
+def verify_profile_privileges(connection):
+    """Exact effective write columns, including PUBLIC and inherited grants."""
+    if connection.execute(text("SELECT has_table_privilege('authenticated', 'identity.users', 'INSERT,UPDATE')")).scalar_one():
+        raise BaselineError('identity_profile_column_privileges_mismatch')
+    rows = connection.execute(text("""SELECT a.attname, p,
+        has_column_privilege('authenticated', a.attrelid, a.attnum, p)
+        FROM pg_attribute a CROSS JOIN unnest(ARRAY['INSERT','UPDATE']) p
+        WHERE a.attrelid='identity.users'::regclass AND a.attnum>0 AND NOT a.attisdropped""")).all()
+    allowed = {'INSERT': {'id', 'username'}, 'UPDATE': {'username', 'deleted_at'}}
+    if (not rows or any(bool(granted) != (column in allowed[permission]) for column,permission,granted in rows)
+            or {(column,permission) for column,permission,granted in rows if granted}
+               != {(column,permission) for permission,columns in allowed.items() for column in columns}):
+        raise BaselineError('identity_profile_column_privileges_mismatch')
+
+
+def trusted_profile_reference():
+    """Head8 extends, and independently rechecks, all seven historical heads."""
+    trusted_target_reference()
+    path=HERE/'profile-reference.json'
+    if PROFILE_REFERENCE_SHA256 is None or not path.exists():
+        raise BaselineError('identity_reference_unavailable')
+    content=path.read_bytes()
+    if sha256(content).hexdigest()!=PROFILE_REFERENCE_SHA256:
+        raise BaselineError('identity_reference_unavailable')
+    reference=json.loads(content)
+    if (reference['source_pins']!=json.loads((HERE/'source-pins.json').read_text())
+        or reference['migration_sha256']!=sha256((HERE/'versions/0008_profile_fields.py').read_bytes()).hexdigest()):
+        raise BaselineError('identity_reference_unavailable')
+    return reference['profile']

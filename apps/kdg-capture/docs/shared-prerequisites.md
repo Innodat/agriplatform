@@ -202,3 +202,15 @@ and secret configuration are the next planning closure; wider Leave/People work 
 
 Final WRITE checkpoint: independent fixes/rechecks complete, planning implementability
 PASS. Existing owner items retain all common work; no runtime or secret execution occurred.
+
+
+## Bounded ID-B profile protected columns — 2026-10-20
+
+Identity revision8 narrows authenticated profile writes through exact column ACLs:
+INSERT(id,username), UPDATE(username,deleted_at). Existing RLS/SELECT absence, Auth hook,
+shared audit routines, postgres seed authority and trusted service_role rights remain.
+The new independent profile reference preserves all seven prior revisions/references.
+See [profile evidence](../../../services/access/PROFILE_FIELDS_EVIDENCE.md) for actual head7 characterization, synthetic role/upgrade/
+rollback verification and review. This is no account provisioning or lifecycle redesign;
+remaining Identity/Access/WRITE and server KDG remain gated. No real account or production
+change, new dependency/service/generator or resource removal.

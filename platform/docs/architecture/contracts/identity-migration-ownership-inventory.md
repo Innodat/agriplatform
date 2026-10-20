@@ -273,3 +273,15 @@ revision/reference/source pins are immutable. Actual synthetic read/role/upgrade
 rollback evidence is in [target reads](../../../../services/access/ORGANIZATION_TARGETS_EVIDENCE.md).
 Future Access owner rights/wrappers and canonical ownership checks evolve together;
 no Access eligibility, account ensure, membership hardening or full readiness is claimed.
+
+
+## Bounded ID-B profile protected columns — 2026-10-20
+
+Identity revision8 narrows authenticated profile writes through exact column ACLs:
+INSERT(id,username), UPDATE(username,deleted_at). Existing RLS/SELECT absence, Auth hook,
+shared audit routines, postgres seed authority and trusted service_role rights remain.
+The new independent profile reference preserves all seven prior revisions/references.
+See [profile evidence](../../../../services/access/PROFILE_FIELDS_EVIDENCE.md) for actual head7 characterization, synthetic role/upgrade/
+rollback verification and review. This is no account provisioning or lifecycle redesign;
+remaining Identity/Access/WRITE and server KDG remain gated. No real account or production
+change, new dependency/service/generator or resource removal.

@@ -989,3 +989,111 @@ Recovery retains the existing controlled migration-before-activation route, prev
 running-version compatibility and atomic rollback before activation on migration
 failure. Applied revisions are never automatically reversed. Access wrappers, eligible
 public pagination, commands/grants and the remaining ID-B work stay separately gated.
+
+## Protected authenticated profile fields (identity_0008)
+
+Revision8 changes only INSERT/UPDATE ACLs for `authenticated` on `identity.users`.
+It revokes that role's table writes and all existing per-column INSERT/UPDATE grants,
+then grants INSERT(id,username) and UPDATE(username,deleted_at). Explicit protected
+fields are denied even when values are unchanged or mixed with supported input.
+UPDATE id/actor_key/is_system/is_platform_admin/created_by/created_at/updated_by/updated_at
+and INSERT columns other than id/username are protected. Existing defaults and audit
+triggers supply attribution. Security claims, trusted app context and legacy authorize
+results do not create column privileges.
+
+The migration checks effective privileges after changing ACLs, including PUBLIC and
+inherited rights. Surviving protected authority refuses the transaction; it never repairs
+another principal. The head8 catalog/reference also verifies exact effective writes and
+all previous object/role/history fingerprints. SELECT's existing absence, DELETE, RLS,
+defaults, shared audit functions, Auth hook, actor/account/member mappings, projections,
+other tables and trusted legacy service_role/seed/migrator grants remain unchanged.
+In particular, ordinary filtered UPDATE/upsert forms that require unsupported SELECT
+remain denied; no SELECT grant is added to enable them. Existing self soft-delete and
+unretire remain supported. The old legacy admin RLS policy still permits supported
+profile inputs for another account when its trusted admin claim is present; protected
+columns remain denied. Wrong-account INSERT proof uses an absent synthetic profile:
+an existing duplicate profile may produce 23505 before the RLS check, which cannot
+serve as evidence of 42501 denial. This is column hardening, not new lifecycle/provisioning.
+
+Head8 adds independent `profile-reference.json` and PROFILE_REFERENCE_SHA256. The seven
+prior references, source pins and revision sources are immutable. Existing rollback-only
+reference recording captures the helper, eight revisions and seven historical references,
+checks every prior catalog plus staged roles, verifies the scratch target empty again,
+then publishes the new mode0600 reference exclusively. It refuses optimized Python before
+fixture access and never updates its own pin. Controlled root reviews the source-bound
+record and pins only PROFILE_REFERENCE_SHA256.
+
+Use the existing canonical owner interpreter and root-prepared private frame:
+
+```sh
+"$OWNER_PYTHON" -I -B services/access/tests/qualify_profile_fields.py --characterize
+"$OWNER_PYTHON" -I -B services/access/tests/qualify_identity_baseline.py --record-profile-reference
+"$OWNER_PYTHON" -I -B services/access/tests/qualify_profile_fields.py
+PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 "$OWNER_PYTHON" -I -B -m pytest services/access/tests apps/pts/tests/test_release.py -q -p no:cacheprovider
+```
+
+Root owns all Docker/database/role/credential setup. Exact cases are characterization,
+profile_reference, clean, legacy, previous, failure, unsafe, unknown and retained native,
+using the existing IDENTITY_QUALIFICATION_DIR contract. Root prepares actual head7 before
+changing privileges and records its supported self writes, missing-profile defaults/audit
+and protected forgery behavior. `profile-fixtures.json` contains characterization/clean,
+each with canonical distinct account/other/missing UUIDs. Root supplies synthetic Auth
+stubs and self profiles; missing has Auth only. No real accounts are used. Qualifier
+creates no infrastructure/login/credential or Auth account. Prior head7 custody is the
+exact seventeen owner files at `630d1ae86db175c10806a3c3e3662962052aa978`, with manifests
+and SHA-bound executions on previous/failure/unknown. It uses current sys.executable.
+
+Actual restricted access_runtime LOGIN temporarily assumes authenticated/service_role
+through SET-only, noninherited, non-admin edges. This models PostgREST role execution,
+not provider/JWT verification or an HTTP consumer. Qualifier verifies the edges absent,
+durably records mode0600 profile-role-restoration-required witnesses, grants only these
+fixture edges via the existing restricted-frame administrator and restores exact prior
+membership rows in finally. SIGINT/TERM unwinds restoration; bounded statements apply.
+Confirmed restoration writes a separate private profile-role-restored witness. SIGKILL,
+host failure or failed restoration can leave a fixture edge present or uncertain. Retain
+frame and witnesses; controlled root must inspect the exact recorded target, remove only
+recorded temporary edges if present, verify original membership rows and retain recovery
+evidence. A missing restored witness alone proves no particular database state. Never
+blindly rerun or automatically clean up the retained fixture. A separate synthetic
+inheritance fixture temporarily grants anon UPDATE(is_system) and an INHERIT TRUE,
+SET FALSE anon-to-authenticated edge. Its profile-inheritance-restoration-required /
+profile-inheritance-restored witnesses record the prior column ACL and membership;
+recovery restores only these recorded temporary effects and verifies both exactly.
+Direct live verifier checks prove PUBLIC/inherited refusal. PUBLIC also reaches
+restricted owner roles, so existing authority-role safety can reject migration
+preflight before the profile/catalog guard; that earlier refusal is preserved.
+PUBLIC/broad authenticated ACL and synthetic failure-event mutations also record private
+profile-acl-restoration-required or profile-event-restoration-required witnesses before
+any mutation, followed by separate restored witnesses only after exact verification.
+ACL witnesses contain original table/column ACLs and literal temporary/cleanup grants;
+event witnesses contain the verified absent synthetic function/trigger state and exact
+create/drop statements. Existing synthetic names refuse. Recovery inspects those exact
+objects/ACLs and restores only recorded changes; broad INSERT revoke also requires
+restoring the recorded original INSERT(id,username) grants. All qualifier SQL mutations
+and cleanup use five-second statement and two-second lock limits.
+
+Traceability: `test_profile_fields.py` proves required/current and prior heads, effective
+privilege refusal, full source-chain mutation detection, private exclusive publication
+without auto-pin, historical trust chaining, optimized guards and exception-safe edge
+restoration. `ProfileQualification.writes` proves every protected INSERT/UPDATE field,
+same-value/mixed writes, existing upsert/SELECT refusals, claims spoofing, exact role/RLS,
+no partial profile/audit/map effects, allowed self writes/default/audit, soft-delete and
+unretire, trusted service compatibility and connection reuse after commit/rollback/error.
+`upgrades_and_failures` proves clean/adopt/head7/repeat preservation, PUBLIC drift refusal,
+actual mid-revision failure with original ledger/catalog/data, reconciliation and unknown
+history refusal. Root retains independent source-bound head7 characterization, the unchanged native
+run and both composer routes. Synthetic scratch Auth stubs exercise the existing profile
+hook; this is not native Supabase Auth HTTP/provider/JWT proof. The pinned head7/head8
+catalog difference contains only relation/column ACLs and their effective table/column
+privileges; all hook, audit, seed integration, defaults and current-account/target routine
+categories are identical. This preserves their existing source/privilege contracts,
+without claiming a newly executed native seed/projection sequence. These fixtures and
+root evidence establish bounded acceptance, not full ID-B/Access/WRITE/KDG readiness.
+
+Five impact decisions: scaffold extends the existing owner migration/reference/qualifier
+pattern without a new generator or runtime framework; shared UI has no consuming surface;
+existing agent context already covers the applicable ownership/release/attribution rules;
+this owner runbook and root evidence/navigation/inventory document behavior and limits;
+existing accepted security/actor/structural/release ADRs apply unchanged. There is no new
+API/client/schema field/dependency. Controlled migration-before-activation and atomic
+failure rollback remain required; applied migrations are never automatically reversed.

@@ -12,7 +12,9 @@ def test_target_head_is_required_and_prior_command_remains_supported(monkeypatch
     monkeypatch.setattr(b,'verify_legacy_history',lambda c:None)
     seen=[]
     monkeypatch.setattr(b,'verify_catalog',lambda c,k:seen.append(k))
-    b.verify_owned_postcondition(object(),require_head=True)
+    b.verify_owned_postcondition(object())
+    with pytest.raises(b.BaselineError,match='identity_unknown_history'):
+        b.verify_owned_postcondition(object(),require_head=True)
     assert seen==['target']
     monkeypatch.setattr(b,'verify_owned_history',lambda c:b.COMMAND_REVISION)
     b.verify_owned_postcondition(object())

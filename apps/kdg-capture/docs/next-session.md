@@ -1,6 +1,24 @@
 # Resume shared ENV delivery after KDG planning PASS
 
-## Current ID-B increment — selected-organization target reads, 2026-10-20
+## Current ID-B increment — protected profile columns, 2026-10-20
+
+Identity revision8 limits authenticated profile INSERT to id/username and UPDATE to
+username/deleted_at. Protected security/actor/attribution fields refuse even in mixed
+writes or legacy admin claims. Existing RLS, hooks, seeds and trusted service writers
+remain compatible. See [Build](../../../_bmad-output/implementation-artifacts/spec-id-b-profile-fields.md)
+and [evidence](../../../services/access/PROFILE_FIELDS_EVIDENCE.md) for characterization,
+actual role/migration proof, review and preservation receipts.
+Reviewed-source full22-stage matrix PASS43.923s;474 affected tests and both composers
+PASS. Three review layers complete, no deferrals. Native project normally stopped
+with all data and failed frames retained.
+
+Account ensure still needs its supported live-account/classification verification adapter;
+membership lifecycle and other owner commands, Access/WRITE and server KDG remain gates.
+Full ID-B readiness is not claimed. Preserve original sources/references, concurrent work,
+all failed frames and retained data/resources. No production or real-account/provider/
+access use, Leave/editor, deployment or push. Use bmad-help for the next bounded item.
+
+## Previous ID-B increment — selected-organization target reads, 2026-10-20
 
 Identity revision7 implements the two restricted internal candidate/exact-member reads
 selected by the existing substrate contract. Complete UUID-keyset candidates are scoped
