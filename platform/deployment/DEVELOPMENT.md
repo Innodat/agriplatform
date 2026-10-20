@@ -1597,3 +1597,20 @@ selection is required; the default unittest skip does not count as conformance.
 Final81 affected plus2 process methods pass on one58-file frame. All ten review
 findings are patched; a prior combined-run timeout remains recorded/unexplained.
 No deadline, source inventory or custody protection was relaxed.
+
+### Internal GoTrue owner pre-start boundary — 2026-10-20
+
+FreshGuard.verify_gotrue_service_boundary is a single-use internal prerequisite after
+healthy owned Kong. It checks current PG/Kong custody/health, selected GoTrue image
+identity and existing exact Auth image defaults, then validates complete service
+intent and requires ordinary classifier refusal. Only a private completion flag is
+set; it adds no public command/startup path, post-cleanup fact or service execution.
+See [evidence](ENV_GOTRUE_BOUNDARY_EVIDENCE.md). Source changes require fresh runtime
+prerequisites. Public control wiring, safe disposable GoTrue profile/effective Config,
+owned lifecycle and functional Auth remain subsequent work.
+
+ATDD and selected verification pass88 distinct methods across three unchanged-source
+calls (13 boundary,73 affected,2 process). Review/evidence and572-file preservation
+audit complete; original fixture errors and prior timing investigations remain recorded.
+No full-suite or actual Docker claim. The next item is public qualification/process
+wiring for this refusal boundary, before safe service execution.

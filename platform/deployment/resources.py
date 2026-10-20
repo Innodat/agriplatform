@@ -163,6 +163,7 @@ class FreshGuard:
         self.kong_delete_attempted = self.kong_healthy_verified = self.kong_shutdown_verified = False
         self.kong_disposed = self.owner_kong_execution_verified = False
         self.kong_id = self.kong_fixture = self.kong_started_at = None
+        self.gotrue_boundary_attempted = self._gotrue_boundary_completed = False
         self.auth_job_created_id = None
         self._shutdown_deadline = None
         self.auth_catalog_attempts = set()
@@ -1021,6 +1022,80 @@ class FreshGuard:
         self.auth_pg_current()
         self.check()
         self._kong_boundary_completed = True
+
+    def verify_gotrue_service_boundary(self):
+        """Single-use internal refusal proof; no GoTrue execution or public fact."""
+        import copy
+        if self.gotrue_boundary_attempted:
+            startup.fail('invalid_owner_handoff')
+        self.gotrue_boundary_attempted = True
+        if (not self.execution or not self.kong_execution or not self._kong_boundary_completed
+                or not self._tail_completed or self._tail_custody is None
+                or self.phase != 5 or self._fixture is None
+                or getattr(self, '_finish_attempted', False) or self.cleaned or self.ownership_lost
+                or not self.kong_healthy_verified or self.kong_started_at is None or self.kong_id is None
+                or self.kong_stop_attempted or self.kong_shutdown_verified or self.kong_disposed
+                or not self.auth_cli_terminated or not self.api_default_privileges_verified
+                or not self.auth_job_exit_verified or not self.auth_job_disposed
+                or not self.cli_db_backend_present_verified or not self.cli_db_backend_departure_verified
+                or not self.auth_catalog_precondition_verified or not self.auth_catalog_verified
+                or not self.api_default_privileges_request_refused):
+            startup.fail('invalid_owner_handoff')
+
+        def current_services():
+            self.check()
+            self.auth_pg_current()
+            row = self.kong_owned()
+            if (row['State']['Status'] != 'running'
+                    or startup.lifecycle.shutdown_state(row) != self.kong_started_at
+                    or type(row['State'].get('Health')) is not dict
+                    or row['State']['Health'].get('Status') != 'healthy'):
+                startup.fail('execution_invalid_health')
+            self.check()
+
+        current_services()
+        pins = images.load_pins(dev.read(dev.ROOT / images.PINS))
+        pin = next(item for item in pins['images'] if item['id'] == 'gotrue')
+        repository = 'public.ecr.aws/' + pin['repository']
+        selected = [ref for ref in self.images if ref.startswith(repository + '@sha256:')]
+        if len(selected) != 1 or self.plan.get(selected[0]) != self.images[selected[0]]['Id']:
+            startup.fail('invalid_owner_handoff')
+        selected = selected[0]
+        descriptor = copy.deepcopy(self.images[selected])
+        status, image = self.session.exchange('GET', '/v1.48/images/' + selected + '/json')
+        if (status != 200 or type(image) is not dict or image.get('Id') != descriptor['Id']
+                or image.get('Os') != 'linux' or image.get('Architecture') != 'amd64'
+                or image.get('Variant', '') != ''):
+            startup.fail('execution_image_changed')
+        create_profile.validate_auth_image_config(image.get('Config'))
+        fixture = {'target_id': self.target['target_id'],
+                   'project': dev.project_identity(self.target, self.run_id),
+                   'workdir': str(self._fixture[0]), 'network': copy.deepcopy(self.network),
+                   'origins': copy.deepcopy(self.target['origins']),
+                   'callback_urls': copy.deepcopy(self.target['callback_urls']),
+                   'selection_plan': {repository + ':' + pin['tag']: selected},
+                   'image_observations': {selected: copy.deepcopy(descriptor)}}
+        original = copy.deepcopy(fixture)
+        args = create_profile.gotrue_service_request(fixture)
+        environment = create_profile.gotrue_service_environment(fixture)
+        request = create_profile.gotrue_service_execution_request(fixture)
+        create_profile.validate_gotrue_service_intent(args, environment, request, fixture)
+        if not create_profile._exact_tree(fixture, original):
+            startup.fail('invalid_owner_handoff')
+        current_services()
+        try:
+            dev._docker_request(request['method'], request['path'], request['body'], True)
+        except dev.Refusal as error:
+            if (error.stage, error.code) != ('docker', 'docker_request_invalid'):
+                raise
+        else:
+            startup.fail('invalid_owner_handoff')
+        current_services()
+        if (not create_profile._exact_tree(self.images.get(selected), descriptor)
+                or self.plan.get(selected) != descriptor['Id']
+                or [ref for ref in self.images if ref.startswith(repository + '@sha256:')] != [selected]):
+            startup.fail('execution_image_changed')
+        self._gotrue_boundary_completed = True
 
     def execute_kong(self):
         """One retained-owner lifecycle, within the original PG execution budget."""

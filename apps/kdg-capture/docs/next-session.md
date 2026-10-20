@@ -1,5 +1,20 @@
 # Resume shared ENV delivery after KDG planning PASS
 
+Current continuation — 2026-10-20: the next bounded ENV item adds an internal GoTrue
+owner pre-start/refusal boundary after healthy owned Kong. Current image defaults,
+owner/PG/Kong custody and all three closed service intents are checked without
+GoTrue dispatch. ATDD/focused verification and review complete:88 selected methods
+pass across three calls on identical58-file bindings. Four review improvements are
+patched; six concurrent prototype findings are outside this item and preserved.
+All572 protected files/index pass audit; no new review deferrals.
+See [boundary evidence](../../../platform/deployment/ENV_GOTRUE_BOUNDARY_EVIDENCE.md)
+and [Build](../../../_bmad-output/implementation-artifacts/spec-env-gotrue-owner-boundary.md).
+This private prerequisite adds no public qualification/startup path or readiness fact.
+Next is public boundary control wiring, then safe disposable/effective-container and
+owned lifecycle/functional Auth proof. Preserve original receipts/resources/concurrent
+work; changed-source actual work needs fresh prerequisites. All ENV/scaffold/dependent
+and production/pilot gates remain. Earlier completed profile checkpoint follows.
+
 Current continuation — 2026-10-20: the separate long-running GoTrue create profile
 now contains the pinned builder's58-entry public environment, network-only9999,
 auth alias and source health settings. The migration job is unchanged. Acceptance

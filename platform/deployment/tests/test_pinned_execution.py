@@ -4710,3 +4710,230 @@ class KongDaemon(AuthCatalogDaemon):
     def __init__(self):
         super().__init__()
         install_kong_peer(self)
+
+
+class GotrueServiceBoundaryOwner(unittest.TestCase):
+    def prepared(self):
+        owner = KongExecutionOwner()
+        daemon, work = owner.prepared()
+        self.addCleanup(owner.doCleanups)
+        with patch.object(dev, 'free_ports'):
+            daemon.guard.execute_kong()
+        return daemon, work
+
+    def test_current_owner_boundary_refuses_create_without_dispatch(self):
+        d, _ = self.prepared()
+        before, deadline, modes = len(d.events), d.guard.deadline, list(d.catalog_modes)
+        action = getattr(d.guard, 'verify_gotrue_service_boundary', lambda: None)
+        action()
+        self.assertTrue(getattr(d.guard, '_gotrue_boundary_completed', False),
+                        'GoTrue needs a current owner pre-start refusal boundary')
+        self.assertEqual(deadline, d.guard.deadline)
+        self.assertEqual(modes, d.catalog_modes)
+        self.assertTrue(all(method == 'GET' for method, _, _ in d.events[before:]))
+        self.assertFalse(d.guard.cleaned or d.guard.owner_kong_execution_verified)
+
+    def refused_once(self, d, context=None, exception=dev.Refusal):
+        from contextlib import nullcontext
+        with context or nullcontext():
+            with self.assertRaises(exception) as caught:
+                d.guard.verify_gotrue_service_boundary()
+        self.assertTrue(d.guard.gotrue_boundary_attempted)
+        self.assertFalse(d.guard._gotrue_boundary_completed)
+        self.assertNotIn('private-input-sentinel', str(caught.exception))
+        before = len(d.events)
+        with self.assertRaises(dev.Refusal): d.guard.verify_gotrue_service_boundary()
+        self.assertEqual(len(d.events), before)
+
+    def test_attempt_consumed_before_every_prerequisite(self):
+        cases = [(name, False) for name in ('execution', 'kong_execution', '_kong_boundary_completed',
+            '_tail_completed', 'kong_healthy_verified', 'auth_cli_terminated', 'api_default_privileges_verified',
+            'auth_job_exit_verified', 'auth_job_disposed', 'cli_db_backend_present_verified',
+            'cli_db_backend_departure_verified', 'auth_catalog_precondition_verified', 'auth_catalog_verified',
+            'api_default_privileges_request_refused')]
+        cases += [(name, True) for name in ('_finish_attempted', 'cleaned', 'ownership_lost',
+                    'kong_stop_attempted', 'kong_shutdown_verified', 'kong_disposed')]
+        cases += [(name, None) for name in ('_fixture', '_tail_custody', 'kong_id', 'kong_started_at')]
+        cases += [('phase', 4)]
+        for name, value in cases:
+            with self.subTest(gate=name):
+                d, _ = self.prepared(); before = len(d.events)
+                setattr(d.guard, name, value)
+                self.refused_once(d)
+                self.assertEqual(len(d.events), before)
+
+    def test_selected_image_current_defaults_and_classifier_are_checked(self):
+        d, _ = self.prepared(); before = len(d.events)
+        with patch.object(create_profile, 'validate_auth_image_config', wraps=create_profile.validate_auth_image_config) as validator, patch.object(dev, '_docker_request', wraps=dev._docker_request) as classifier:
+            d.guard.verify_gotrue_service_boundary()
+        self.assertEqual(validator.call_count, 1)
+        selected = next(ref for ref in d.images if '/gotrue@' in ref)
+        self.assertTrue(any(path == '/v1.48/images/' + selected + '/json' for _, path, _ in d.events[before:]))
+        creates = [call.args for call in classifier.call_args_list if call.args[0] == 'POST']
+        self.assertEqual(len(creates), 1)
+        self.assertEqual(creates[0][2]['HostConfig']['RestartPolicy']['Name'], 'unless-stopped')
+        self.assertNotIn('PortBindings', creates[0][2]['HostConfig'])
+        self.assertFalse(any(method != 'GET' for method, _, _ in d.events[before:]))
+        before = len(d.events)
+        with self.assertRaises(dev.Refusal): d.guard.verify_gotrue_service_boundary()
+        self.assertEqual(before, len(d.events))
+
+    def test_current_image_identity_platform_and_config_refuse(self):
+        for fault in ('Id', 'Os', 'Architecture', 'Variant', 'missing', 'command', 'env', 'extra'):
+            with self.subTest(fault=fault):
+                d, _ = self.prepared(); original = d.exchange
+                def exchange(method, path, body=None, **kwargs):
+                    status, row = original(method, path, body, **kwargs)
+                    if '/images/public.ecr.aws/supabase/gotrue@' in path:
+                        if fault in ('Id', 'Os', 'Architecture', 'Variant'): row[fault] = 'private-input-sentinel'
+                        elif fault == 'missing': row['Config'].pop('Volumes')
+                        elif fault == 'command': row['Config']['Cmd'] = ['sh']
+                        elif fault == 'env': row['Config']['Env'].append('private-input-sentinel')
+                        else: row['Config']['Unexpected'] = True
+                    return status, row
+                d.exchange = exchange
+                self.refused_once(d)
+
+    def test_missing_ambiguous_and_changed_selection_refuse(self):
+        for fault in ('missing', 'ambiguous', 'plan'):
+            with self.subTest(fault=fault):
+                d, _ = self.prepared()
+                selected = next(ref for ref in d.images if '/gotrue@' in ref)
+                d.guard.images = d.copy(d.guard.images)
+                if fault == 'missing': del d.guard.images[selected]
+                elif fault == 'ambiguous': d.guard.images['public.ecr.aws/supabase/gotrue@sha256:'+'e'*64] = d.copy(d.images[selected])
+                else: d.guard.plan[selected] = 'sha256:'+'e'*64
+                self.refused_once(d)
+
+    def test_changed_intents_and_constructor_fixture_mutation_refuse(self):
+        for name in ('gotrue_service_request', 'gotrue_service_environment', 'gotrue_service_execution_request', 'fixture'):
+            with self.subTest(seam=name):
+                d, _ = self.prepared()
+                function = 'gotrue_service_request' if name == 'fixture' else name
+                original = getattr(create_profile, function)
+                def corrupt(fixture):
+                    value = original(fixture)
+                    if name == 'fixture': fixture['workdir'] = '/private-input-sentinel'
+                    elif name == 'gotrue_service_request': value.append('private-input-sentinel')
+                    elif name == 'gotrue_service_environment': value['GOTRUE_JWT_SECRET'] = 'private-input-sentinel'
+                    else: value['body']['HostConfig']['Privileged'] = True
+                    return value
+                self.refused_once(d, patch.object(create_profile, function, side_effect=corrupt))
+
+    def test_current_pg_and_kong_health_rechecked_after_profile_and_classifier(self):
+        for seam in ('profile', 'classifier'):
+            for service in ('pg', 'kong'):
+                with self.subTest(seam=seam, service=service):
+                    d, _ = self.prepared()
+                    def change():
+                        row = d.row if service == 'pg' else d.kong_row
+                        row['State']['Health']['Status'] = 'unhealthy'
+                    if seam == 'profile':
+                        original = create_profile.gotrue_service_execution_request
+                        def changed(*args):
+                            result = original(*args); change(); return result
+                        context = patch.object(create_profile, 'gotrue_service_execution_request', side_effect=changed)
+                    else:
+                        original = dev._docker_request
+                        def changed(*args, **kwargs):
+                            if args[0] == 'POST': change()
+                            return original(*args, **kwargs)
+                        context = patch.object(dev, '_docker_request', side_effect=changed)
+                    self.refused_once(d, context)
+
+    def test_expiry_cancellation_custody_and_unexpected_admission_never_complete(self):
+        import time
+        for fault in ('deadline', 'cancel', 'fixture', 'admission', 'classifier-error'):
+            with self.subTest(fault=fault):
+                d, work = self.prepared()
+                if fault == 'deadline':
+                    d.deadline = d.guard.deadline = time.monotonic() - 1
+                    context = None
+                elif fault == 'fixture':
+                    (work / 'bin/docker').write_bytes(b'changed')
+                    context = None
+                elif fault == 'cancel': context = patch.object(create_profile, 'gotrue_service_request', side_effect=KeyboardInterrupt())
+                elif fault == 'admission': context = patch.object(dev, '_docker_request', return_value={})
+                else: context = patch.object(dev, '_docker_request', side_effect=dev.Refusal('docker', 'other'))
+                self.refused_once(d, context, KeyboardInterrupt if fault == 'cancel' else dev.Refusal)
+
+    def test_owner_target_origin_and_callback_changes_refuse(self):
+        for key in ('target_id', 'origins', 'callback_urls'):
+            with self.subTest(key=key):
+                d, _ = self.prepared()
+                if key == 'target_id': d.guard.target[key] = 'foreign'
+                else:
+                    d.guard.target[key] = list(d.guard.target[key])
+                    d.guard.target[key][0] = 'https://foreign.invalid'
+                self.refused_once(d)
+
+    def test_boundary_adds_no_public_cleanup_fact(self):
+        d, _ = self.prepared()
+        d.guard.verify_gotrue_service_boundary()
+        with patch.object(dev, 'free_ports'): d.guard.finish_execution()
+        self.assertTrue(d.guard.cleaned and d.guard.owner_kong_execution_verified)
+        self.assertFalse(hasattr(d.guard, 'owner_gotrue_boundary_verified'))
+
+    def test_late_expiry_and_cancellation_cannot_complete(self):
+        import time
+        for seam in ('profile', 'classifier'):
+            for fault in ('deadline', 'cancel'):
+                with self.subTest(seam=seam, fault=fault):
+                    d, _ = self.prepared()
+                    def change():
+                        if fault == 'cancel': raise KeyboardInterrupt()
+                        d.deadline = d.guard.deadline = time.monotonic() - 1
+                    if seam == 'profile':
+                        original = create_profile.gotrue_service_execution_request
+                        def changed(*args):
+                            result = original(*args); change(); return result
+                        context = patch.object(create_profile, 'gotrue_service_execution_request', side_effect=changed)
+                    else:
+                        original = dev._docker_request
+                        def changed(*args, **kwargs):
+                            if args[0] == 'POST': change()
+                            return original(*args, **kwargs)
+                        context = patch.object(dev, '_docker_request', side_effect=changed)
+                    self.refused_once(d, context, KeyboardInterrupt if fault == 'cancel' else dev.Refusal)
+
+    def test_healthy_replacement_instances_refuse_after_profile_and_classifier(self):
+        for seam in ('profile', 'classifier'):
+            for service in ('pg', 'kong'):
+                with self.subTest(seam=seam, service=service):
+                    d, _ = self.prepared()
+                    def change():
+                        row = d.row if service == 'pg' else d.kong_row
+                        row['State']['StartedAt'] = '2026-10-20T12:00:00.000000001Z'
+                    if seam == 'profile':
+                        original = create_profile.gotrue_service_execution_request
+                        def changed(*args):
+                            result = original(*args); change(); return result
+                        context = patch.object(create_profile, 'gotrue_service_execution_request', side_effect=changed)
+                    else:
+                        original = dev._docker_request
+                        def changed(*args, **kwargs):
+                            if args[0] == 'POST': change()
+                            return original(*args, **kwargs)
+                        context = patch.object(dev, '_docker_request', side_effect=changed)
+                    self.refused_once(d, context)
+
+    def test_bad_current_image_observations_refuse_safely(self):
+        for fault in ('status', 'missing', 'list', 'config'):
+            with self.subTest(fault=fault):
+                d, _ = self.prepared(); original = d.exchange
+                # Earlier joint custody sees real image metadata; fault only the
+                # boundary's dedicated Config observation, not the independent peer.
+                def exchange(method, path, body=None, **kwargs):
+                    result = original(method, path, body, **kwargs)
+                    import inspect
+                    dedicated = any(frame.function == 'verify_gotrue_service_boundary'
+                                    and frame.filename == resources.__file__
+                                    for frame in inspect.stack()[:2])
+                    if dedicated and '/images/public.ecr.aws/supabase/gotrue@' in path:
+                        if fault == 'status': return 503, None
+                        if fault == 'missing': return 200, None
+                        if fault == 'list': return 200, []
+                        result[1].pop('Config')
+                    return result
+                d.exchange = exchange
+                self.refused_once(d)
