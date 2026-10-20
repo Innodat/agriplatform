@@ -649,3 +649,112 @@ updates this owner runbook and root-owned evidence/navigation; existing actor/ac
 structural/release ADRs apply unchanged, with no new or edited accepted ADR. Recovery
 uses the established coordinated migration procedure: failure rolls back the whole
 migration, activation is blocked, and an applied migration is never auto-downgraded.
+
+## Protected actor registration and recovery (identity_0006)
+
+`identity_operator.execute(connection, body: bytes)` accepts only the strict parser's
+`actor.register_system` variant. `identity_operator.outcome(connection, operation_id)`
+recovers its original receipt. The caller must supply an explicitly prepared target's
+idle SQLAlchemy Connection, using READ COMMITTED and actual `identity_operator` LOGIN
+credentials. There is no credential discovery, target selection, implicit checkout,
+CLI, account ensure or membership execution. Other parsed commands reject before SQL.
+`rfc8785==0.1.4` is required in the frozen owner environment; the root owns dependency
+manifest/lock preparation. Normalize UUIDs before JCS; absent evidence is included as
+`evidence_ref:null` in the complete typed fingerprint envelope.
+
+The fixed SQL entry points are
+`identity.register_system(uuid,uuid,text,text,text,text,text,bytea)` (operation, actor,
+kind, key, display name, reason, evidence and canonical UTF-8) and
+`identity.system_actor_outcome(uuid)`. Both return the original compact result,
+command/result versions and server commit timestamp. The server reconstructs this
+one command's exact JCS bytes and computes SHA-256 itself. No supplied digest, GUC,
+payload executor or assumed role establishes authority. Current original-session
+login authority is checked on execution, replay and recovery, serialized with
+configuration using the same per-login transaction advisory lock. Initiator is null.
+
+The frozen Python receipt has operation_id, status `committed`, typed result
+`{command,target:{actor_id},disposition,revision:null,event_id}`, command_version,
+result_version and committed_at. Created actors have one linked immutable event;
+an identical existing registration creates a new unchanged outcome with null event.
+Conflicting registration or changed replay payload has no effects. Later controlled
+label changes do not change a replay's original receipt. Unsupported stored versions
+or verification algorithms remain retained and return verification unavailable.
+
+Only a successfully returned commit acknowledges success. A missing lookup returns
+None, meaning unresolved. `OperatorError.code` contains only fixed safe identifiers.
+`execute` preserves the strict parser's existing `CommandValidationError` with fixed
+code `identity_operator_input_invalid` for malformed command bytes. Parsed unsupported
+commands and execution failures use `OperatorError`; invalid `outcome` identifiers use
+`OperatorError` with `command_invalid`. Both public exception types contain safe fixed
+messages without submitted input or SQL/driver chains; callers must handle both.
+Execution errors retain the original operation_id for recovery. `operation_busy` means precisely
+the bounded outcome advisory lock wait expired. Other lock/statement/deadline/transport
+or commit failures return `operation_unavailable`; they never establish rollback or
+justify a new operation identity. Recheck authority and recover with the original ID;
+retry only the identical immutable command. Driver SQL, values and exception chains
+are excluded. No cleanup/expiry or automatic retry/reconciliation is installed.
+
+The ten-second monotonic budget starts before parsing. Transaction-local SQL statement
+limits are at most five seconds and lock waits at most two seconds, capped by remaining
+budget. Busy connections and unsupported isolation reject. Commit/rollback clears local
+settings. No external calls occur while locks are held. The SQL wrapper is internal;
+callers use the bounded owner adapter and supply the trusted connection.
+The prepared caller also owns bounded driver/socket/transport configuration. The
+monotonic deadline and PostgreSQL statement/lock timeouts do not interrupt a stalled
+synchronous network or commit acknowledgement, so this adapter does not promise a
+ten-second wall-clock return. A lost or delayed commit response remains an uncertain
+outcome recoverable with the original operation identity.
+
+Controlled true-superuser preparation runs
+`services/access/tools/prepare_identity_command_role.sql` separately before upgrading.
+It refuses existing names and non-superusers before creating `identity_command_owner`,
+a restricted NOLOGIN/NOINHERIT role. Only the migrator has non-admin SET-only membership.
+The operator gets fixed EXECUTE, never raw tables, authority editing, schema CREATE or
+owner assumption. The command owner gets selected actor reads/inserts, append/read of
+outcomes/events and the existing fixed authority read. Existing account-map guards stay
+unchanged. Outcome/event tables have forced RLS for the current authorized executor,
+migrator inspection policies, retained immutable guards and local RESTRICT FKs.
+
+Root independently records the new reference in an empty synthetic `command_reference`
+database with all roles safely staged. The recorder captures exact source bytes and
+all five original references, executes revisions 1–6 rollback-only, proves the target
+empty again, and exclusively publishes a private `command-reference.json`. It never
+changes `COMMAND_REFERENCE_SHA256`; root reviews and manually pins the publication.
+All historical reference bytes/pins and revisions 1–5 remain unchanged. New-role
+normalization permits only the separately verified empty staged command role when
+checking historical catalogs.
+
+With `IDENTITY_QUALIFICATION_DIR` bound to the prepared frame and `OWNER_PYTHON` set to
+`platform/deployment/.local/identity-baseline/actor-command-zxycfmc4/owner-env/venv/bin/python`:
+
+```sh
+"$OWNER_PYTHON" -I -B services/access/tests/qualify_identity_baseline.py --record-command-reference
+"$OWNER_PYTHON" -I -B services/access/tests/qualify_actor_command.py
+PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 "$OWNER_PYTHON" -I -B -m pytest services/access/tests apps/pts/tests/test_release.py -q -p no:cacheprovider
+```
+
+Required exact case groups are `command_reference`, `clean`, `legacy`, `previous`,
+`failure`, `unsafe`, `unknown` and retained `native`; every core URL group and
+`operator_urls` must match the frame and actual expected login. Root prepares exact
+prior-head5 sources from commit `8472909ed59e7aa90f4784e50c2e1e717e68977e` for previous,
+failure and unknown, preserving the thirteen owner files, SHA-bound logs, manifests
+and original receipts. Observe missing-routine 42883 on the actual operator login
+before staging/upgrading revision6. Neither recorder nor qualifier provisions Docker,
+roles, credentials, trusted pins or deployment. Failed evidence remains retained.
+
+Traceability: `test_identity_operator.py` proves parser rejection before SQL, complete
+JCS/UUID lock fixtures, frozen receipts, budgets, safe exception codes/chains and commit
+uncertainty. `CommandQualification.command_matrix` proves actual LOGIN effects,
+replay/recovery/conflicts/no-op, current authority and concurrency;
+`isolation_and_forgery` proves privilege/search-path/GUC/SET ROLE isolation and reused
+connections; `timeouts_and_atomicity` proves distinct real lock waits and rollback on
+outcome/event failure; `structural_evidence` proves retained evidence protection and
+unsupported verification markers; `upgrades_and_failures` proves prior-source upgrade,
+adoption, repeat, drift/unsafe/unknown refusal and injected migration rollback. Root's
+actual transcripts and matrix mapping, not unit mocks, establish database acceptance.
+
+Five impact decisions: scaffold extends the existing migration/recorder/qualifier
+pattern with this first fixed command and no generic engine; shared UI has no consuming
+surface or change; existing repository agent context remains sufficient; this runbook
+and root-owned evidence/navigation document actual limits and recovery; existing actor,
+release, structural and WRITE decisions suffice, with no new or edited accepted ADR.

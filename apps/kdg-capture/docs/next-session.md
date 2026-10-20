@@ -1,6 +1,24 @@
 # Resume shared ENV delivery after KDG planning PASS
 
-## Current ID-B increment — protected operator authority, 2026-10-20
+## Current ID-B increment — protected system actor command, 2026-10-20
+
+Identity revision6 adds one protected actor.register_system command and original-receipt
+lookup through the existing owner. Actor/outcome/event commit atomically; retries,
+no-op/conflict, current authority/revocation and immutable evidence are qualified using
+actual restricted operator LOGIN. See [Build](../../../_bmad-output/implementation-artifacts/spec-id-b-actor-command.md)
+and [evidence](../../../services/access/ACTOR_COMMAND_EVIDENCE.md). Fresh full matrix:
+27 named stages PASS;330 affected tests and both composers PASS. Three-layer review
+and all patches are verified, with no deferrals. The native project is normally stopped
+with data retained.
+
+No operator CLI or target/credential factory is installed. Callers must supply a trusted
+prepared idle connection with bounded transport; SQL/lock/monotonic budgets alone do not
+bound stalled commit/network replies. Prepared-target integration, account mapping,
+membership lifecycle/hardening, Access/WRITE and server KDG remain gates. Preserve all
+original sources/references, concurrent work, failed frames and retained data/resources.
+No production or real-account/provider/access use, Leave/editor, deployment or push.
+
+## Previous ID-B increment — protected operator authority, 2026-10-20
 
 The bounded authority foundation adds Identity-owned principal/authority records and
 an internal read deriving executor solely from the authenticated original database

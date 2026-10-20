@@ -15,8 +15,10 @@ def test_authority_head_and_previous_history(monkeypatch):
     monkeypatch.setattr(b,'verify_owned_history',lambda c:'identity_0005')
     monkeypatch.setattr(b,'verify_legacy_history',lambda c:None)
     kinds=[];monkeypatch.setattr(b,'verify_catalog',lambda c,k:kinds.append(k))
-    b.verify_owned_postcondition(object(),require_head=True)
+    b.verify_owned_postcondition(object())
     assert kinds==['authority']
+    with pytest.raises(b.BaselineError,match='identity_unknown_history'):
+        b.verify_owned_postcondition(object(),require_head=True)
     monkeypatch.setattr(b,'verify_owned_history',lambda c:'identity_0004')
     b.verify_owned_postcondition(object())
     with pytest.raises(b.BaselineError,match='identity_unknown_history'):

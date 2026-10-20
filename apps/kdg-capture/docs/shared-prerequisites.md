@@ -95,6 +95,14 @@ qualifies this database authorization boundary only; command effects, target ada
 immutable outcomes/events and full ID-B remain open. See
 [authority evidence](../../../services/access/OPERATOR_AUTHORITY_EVIDENCE.md).
 
+The next bounded ID-B increment implements protected system/service actor registration
+with atomic actor/outcome/event and scoped original-receipt recovery. Fresh actual
+restricted-login/concurrency/revocation/structure/upgrade/rollback matrix passes27 named
+stages;330 affected tests and both composers pass. All three review layers and patches
+are complete with no deferrals.
+Prepared-target/CLI integration and other Identity commands/full ID-B remain open; only
+synthetic fixtures are qualified. See [command evidence](../../../services/access/ACTOR_COMMAND_EVIDENCE.md).
+
 | Existing item / boundary | Minimum KDG-relevant outcome | Acceptance/evidence before consumer | Earliest consumer |
 | --- | --- | --- | --- |
 | ENV | Isolated synthetic Auth/PostgreSQL/Access/KDG target, root frontend lock and independent Python locks, compatible exact tool/container/package set; guarded bootstrap/stop/reset and reachable nonproduction HTTPS/provider callback | Record exact version/lock/source identities and actual command lines; target mismatch/missing config refuses writes; clean install/start with unchanged locks; genuine Entra callback qualification remains distinct from local password fixtures | 1.1 environment; real callback/device proof by 1.7 |

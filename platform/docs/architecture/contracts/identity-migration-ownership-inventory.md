@@ -234,3 +234,18 @@ Existing actor/membership/projection behavior and original source/reference evid
 intact. See [authority evidence](../../../../services/access/OPERATOR_AUTHORITY_EVIDENCE.md).
 Protected command effects, target binding, durable outcomes/events and coordinated
 membership/Access hardening remain later delivery; no live configuration is authorized.
+
+
+## Bounded ID-B system actor command — 2026-10-20
+
+Identity revision6 adds only protected actor.register_system execution and original
+receipt recovery, a separate restricted command owner, and Identity-local immutable
+operation_outcome/business_event with forced executor-scoped RLS and RESTRICT links.
+Existing migrations1–5, source/reference pins, account map and membership semantics
+remain intact. Actual synthetic operator LOGIN/atomicity/retry/concurrency/authority/
+structural/prior-head5/rollback proof passes:27 reviewed-source stages and330 affected
+tests, with three-layer review/patches complete and no deferrals. See
+[command evidence](../../../../services/access/ACTOR_COMMAND_EVIDENCE.md).
+No operator CLI/target factory or account ensure/membership command is delivered.
+Callers supply explicit prepared idle connections and bounded transport configuration;
+full Identity/Access/WRITE/KDG readiness and live adoption remain separate gates.
