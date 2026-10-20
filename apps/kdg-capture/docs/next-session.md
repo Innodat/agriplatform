@@ -1,6 +1,27 @@
 # Resume shared ENV delivery after KDG planning PASS
 
-## Current ID-B increment — protected system actor command, 2026-10-20
+## Current ID-B increment — prepared operator target, 2026-10-20
+
+A thin Identity-local CLI now binds the existing actor.register_system execute/outcome
+to an explicitly prepared private native disposable target. It reuses ENV checks and
+the existing bounded process helper; no new schema, role, credential, dependency or
+runtime service. See [Build](../../../_bmad-output/implementation-artifacts/spec-id-b-operator-target.md)
+and [evidence](../../../services/access/OPERATOR_TARGET_EVIDENCE.md) for source-bound
+verification, review, preservation and exact invocation/recovery limits.
+Reviewed actual response-loss/replay/recovery/refusal matrix PASS;387 affected tests
+and both composers PASS. Three-layer review complete, no deferrals. Native project
+is normally stopped with all data retained.
+
+The wrapper requires controlled preparation of the existing synthetic database and
+private secret; it performs no provisioning/migration/reset. Timeout/interruption can
+follow commit: retain the original operation ID and recover through current-authorized
+outcome. No physical network or hosted-CI qualification is claimed. Account mapping,
+membership lifecycle/hardening, Access/WRITE and server KDG remain gates; full ID-B is
+not complete. Preserve concurrent work, original references and all prior diagnostics,
+receipts/state/data/resources. No production, real-account/provider/access, Leave/editor,
+deployment or push. Use bmad-help to select the next bounded existing prerequisite.
+
+## Previous ID-B increment — protected system actor command, 2026-10-20
 
 Identity revision6 adds one protected actor.register_system command and original-receipt
 lookup through the existing owner. Actor/outcome/event commit atomically; retries,

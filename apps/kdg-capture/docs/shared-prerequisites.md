@@ -100,8 +100,18 @@ with atomic actor/outcome/event and scoped original-receipt recovery. Fresh actu
 restricted-login/concurrency/revocation/structure/upgrade/rollback matrix passes27 named
 stages;330 affected tests and both composers pass. All three review layers and patches
 are complete with no deferrals.
-Prepared-target/CLI integration and other Identity commands/full ID-B remain open; only
-synthetic fixtures are qualified. See [command evidence](../../../services/access/ACTOR_COMMAND_EVIDENCE.md).
+At that increment, prepared-target/CLI integration remained open; only synthetic
+fixtures were qualified. Other Identity commands/full ID-B remain open. See [command evidence](../../../services/access/ACTOR_COMMAND_EVIDENCE.md).
+
+The following bounded increment supplies a private native disposable prepared-target
+Identity CLI for existing actor.register_system execute/outcome. It reuses the ENV
+configuration/private-file checks and bounded worker; no schema/role/credential/dependency
+or generic service is added. Actual local synthetic execution/recovery/refusal and
+focused boundary checks are recorded in
+[target evidence](../../../services/access/OPERATOR_TARGET_EVIDENCE.md).
+Controlled database/authority/secret preparation remains explicit and separate; the CLI
+does not provision or reset. Account/membership commands and full ID-B/Access/WRITE/KDG
+readiness remain gates. No production or hosted-CI acceptance is implied.
 
 | Existing item / boundary | Minimum KDG-relevant outcome | Acceptance/evidence before consumer | Earliest consumer |
 | --- | --- | --- | --- |

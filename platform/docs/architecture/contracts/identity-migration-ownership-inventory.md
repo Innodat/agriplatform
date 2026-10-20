@@ -249,3 +249,15 @@ tests, with three-layer review/patches complete and no deferrals. See
 No operator CLI/target factory or account ensure/membership command is delivered.
 Callers supply explicit prepared idle connections and bounded transport configuration;
 full Identity/Access/WRITE/KDG readiness and live adoption remain separate gates.
+
+
+## Bounded ID-B prepared operator target — 2026-10-20
+
+A private native-disposable descriptor binds the existing Identity actor command to
+one validated ENV/run/database/login/secret. A fixed isolated bounded worker verifies
+restricted session identity before calling the unchanged adapter. There are no new
+migrations/roles/credentials/dependencies; original owner chains/references remain intact.
+See [target evidence](../../../../services/access/OPERATOR_TARGET_EVIDENCE.md) and the
+existing Identity runbook for explicit setup, recovery, actual local proof and limits.
+No automated target/role/credential bootstrap, real account/adoption or hosted-CI proof;
+remaining Identity commands/hardening and full shared readiness stay gated.

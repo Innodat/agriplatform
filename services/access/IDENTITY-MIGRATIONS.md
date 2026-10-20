@@ -758,3 +758,118 @@ pattern with this first fixed command and no generic engine; shared UI has no co
 surface or change; existing repository agent context remains sufficient; this runbook
 and root-owned evidence/navigation document actual limits and recovery; existing actor,
 release, structural and WRITE decisions suffice, with no new or edited accepted ADR.
+
+## Explicit disposable Identity operator target
+
+`identity_operator_target.prepare_target(environment_target, run_id)` exclusively
+creates `platform/deployment/.local/kdg/<canonical UUID>/identity-operator.json`.
+Controlled setup must already have prepared the native ENV marker/configuration and
+an existing mode0600 `secrets/identity.env` in the mode0700 run/secrets directories.
+The sole literal line is `IDENTITY_OPERATOR_PASSWORD=<nonempty literal password>`;
+a final newline is optional. Files must be regular, owned by the current UID and
+single-link; directory traversal and symlink components refuse. Preparation creates
+no database, login, role, grant, migration, credential or environment lifecycle.
+It refuses an existing descriptor rather than overwriting or repairing it.
+
+From repository root with the canonical owner interpreter already selected:
+
+```sh
+"$OWNER_PYTHON" -I -B -c 'import sys;sys.path.insert(0,"services/access");from identity_operator_target import prepare_target;print(prepare_target("platform/deployment/environments/kdg-local.json",sys.argv[1]))' "$RUN_ID"
+"$OWNER_PYTHON" -I -B services/access/operator_cli.py execute --owner identity --target "$DESCRIPTOR" --command-file "$COMMAND_JSON"
+"$OWNER_PYTHON" -I -B services/access/operator_cli.py outcome --owner identity --target "$DESCRIPTOR" --command actor.register_system --operation-id "$ORIGINAL_OPERATION_ID"
+```
+
+Only the checked-in `kdg-local.json` native target is supported, with its validated
+workspace, disposable environment kind, owner, ports, marker and configuration hash.
+The database must be exactly `idop_<full run UUID hex>` on literal `127.0.0.1`,
+using the ENV database port and actual `identity_operator` login. The descriptor
+contains references and binding metadata, never a connection URL or password.
+Each invocation and the isolated worker revalidate the complete target/secret.
+Preparation proves configuration binding, not application readiness or protection
+against a compromised local UID. No production or hosted-CI qualification is claimed.
+
+The existing strict command parser runs before worker/network dispatch. Only
+`actor.register_system` is executable; no account, membership, Access, actor override,
+endpoint override or arbitrary SQL options exist. The fixed isolated interpreter
+worker receives bounded private stdin, a minimal environment and no argv secret.
+It uses SQLAlchemy NullPool, discrete URL fields, a three-second connection timeout,
+READ COMMITTED, startup statement/lock limits of five/two seconds, no libpq environment,
+service/password-file discovery, TLS or GSS negotiation. Before effects it verifies
+actual session/current login, database, restricted role flags and absence of memberships,
+then rolls the read transaction back to idle before invoking the unchanged adapter.
+No automatic migration, seed, grant, reset or retry occurs.
+
+The existing process supervisor enforces a twelve-second parent deadline with its
+two-second cleanup bound, caps combined output at 8192 bytes and hides child stderr.
+SIGINT/TERM triggers cleanup. Only a clean worker completion after commit and strict
+receipt validation produces exit 0. Unresolved lookup and safe errors exit 2. Output
+is a compact committed receipt including versions/time, unresolved plus original
+operation ID, or an allowlisted safe code and known operation ID. Driver/parser text,
+command contents and tracebacks never become CLI output.
+
+An interrupted, timed-out, unavailable or invalid response may follow committed effects.
+Preserve the immutable original command and operation ID; check `outcome` under current
+authority. Unresolved/unavailable never authorizes a new operation ID and never proves
+rollback. Retry only the identical command after recovery checks. The target wrapper
+adds no cross-owner readiness or consumer acceptance claim.
+
+Root qualification consumes an already prepared head6 database/authority and explicit
+private fixture, with no provisioning:
+
+```sh
+"$OWNER_PYTHON" -I -B services/access/tests/qualify_operator_target.py --target "$DESCRIPTOR" --fixture "$PRIVATE_TARGET_FIXTURE"
+PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 "$OWNER_PYTHON" -I -B -m pytest services/access/tests apps/pts/tests/test_release.py -q -p no:cacheprovider
+```
+
+The mode0600 fixture in a mode0700 directory has exactly `owner_url`, `run_id` and
+`database`; its `postgresql://` owner URL must name `identity_migrator`, literal
+127.0.0.1 and the same validated port/database. The URL is private setup input and is
+never printed. Qualification retains newly created private command files under the
+native run and proves one actor/event/outcome, identical replay/recovery, unresolved
+lookup, target/input refusal and unchanged state after replay/refusal. A temporary disable of
+the existing dedicated synthetic authority proves execute/lookup denial without
+effects; finally restores its original enabled value. Existing guards advance that
+authority row's revision/timestamps, while business state remains unchanged. It creates no
+roles, secrets or infrastructure and never repairs existing state.
+
+Traceability: `test_operator_target.py` proves exclusive preparation, binding/secret
+validation and unsafe private-file refusal; `test_operator_cli.py` proves closed
+arguments/responses, fixed worker/minimal environment and actual subprocess stall/
+output bounds. Actual restricted-login/commit evidence remains root-owned. ATDD RED
+was two missing-module failures before implementation; the first affected regression
+run passed 355 tests; the final affected run passed 372 tests. Real SIGINT/TERM
+checks exposed selectors swallowing InterruptedError as a syscall retry; the handler
+now uses a distinct exception and proves cleanup with no automatic command retry.
+Root records actual qualification and composers separately.
+
+Five impacts: scaffold reuses native preparation and the existing bounded process
+helper without a new generator or supervisor; shared UI has no surface/change; existing
+agent context remains sufficient; this runbook documents preparation/invocation/recovery
+and root owns delivery navigation/evidence; accepted ADRs and schemas are unchanged.
+
+The target qualifier now enforces its checks under optimized Python as well. It
+compares every pre-existing row and unaffected Identity table after registration,
+then verifies the exact new actor, outcome, event and their attribution/links.
+Its private launcher records the CLI return status with the safe JSON: committed
+responses require 0; unresolved/refused responses require 2. A fixed internal test
+runs the real worker to commit, privately records `post-commit-witness.json`, then
+suppresses its response and stalls. The bounded wrapper must return unavailable
+with the original operation ID; normal lookup/replay must recover the same receipt
+with exactly one effect. This is internal qualification, with no public fault flag.
+
+Qualification has a one-shot 120-second alarm and SIGINT/TERM handlers that unwind
+through authority restoration. Owner connections use a three-second connect timeout,
+five-second statement limit and two-second lock limit, including restoration. Before
+disabling the dedicated synthetic authority it durably writes mode0600
+`authority-restoration.json` in its private qualification directory, identifying the
+run/database/login/authority and original enabled value. After a confirmed restore
+commit it writes `authority-restored.json` with the observed revision. These are
+nonsecret recovery evidence, not authority or readiness claims.
+
+SIGKILL, a host/process failure or a restoration SQL failure can leave the synthetic
+authority disabled, or leave restoration uncertain. Preserve the directory, command,
+original operation ID and witnesses. Do not blindly rerun qualification. Controlled
+root setup must inspect the recorded exact target and current authority, restore the
+recorded enabled value if needed using the bounded owner connection, verify current
+state, and retain its recovery evidence. A missing restored witness alone does not
+prove restoration failed; inspect current state. Prior business effects stay retained.
