@@ -247,3 +247,12 @@ review layers complete with no deferrals. See
 [evidence](../../../services/access/MEMBERSHIP_BINDING_EVIDENCE.md). This does not complete
 retirement/rejoin/uniqueness/CASCADE or owner-command work, live-account verification,
 Access/WRITE or server KDG. Historical sources/references and concurrent work stay.
+
+## Membership history retention — 2026-10-20
+
+Identity revision12 restricts the three legacy member/org/profile/role cascade links and
+protects member DELETE/TRUNCATE without new grants. Reviewed actual matrix PASS42.081s;
+715 affected tests and both composers PASS, three review layers complete, no deferrals. See [evidence](../../../services/access/MEMBERSHIP_RETENTION_EVIDENCE.md).
+Original Auth FK and mutable/seed/read behavior stay. Retirement/rejoin/uniqueness, owner
+commands/live-account verification, Access/WRITE and server KDG remain delivery gates;
+no broader readiness or live-target activation claim. Historical/concurrent work stays.

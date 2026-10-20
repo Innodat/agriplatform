@@ -1,6 +1,24 @@
 # Resume shared ENV delivery after KDG planning PASS
 
-## Current ID-B increment — immutable membership binding, 2026-10-20
+## Current ID-B increment — membership history retention, 2026-10-20
+
+Identity revision12 replaces three membership/role CASCADE references with RESTRICT,
+blocks membership DELETE and protects TRUNCATE through the existing guard. Source-bound
+actual reviewed matrix PASS42.081s;715 affected tests and both composers PASS. Three
+review layers complete, no deferrals. Native project normally stopped retaining all data. See
+[Build](../../../_bmad-output/implementation-artifacts/spec-id-b-membership-retention.md) and
+[evidence](../../../services/access/MEMBERSHIP_RETENTION_EVIDENCE.md). Service role already
+lacks TRUNCATE; actual Auth-role truncation is verified in a separate prepared lane with
+no new grants. Original profile→Auth NO ACTION FK and supported mutable/seed/read behavior
+stay. Owner DDL is trusted administration; full role-audit/lifecycle safety is not claimed.
+
+One-way retirement, uniqueness/rejoin, owner commands/account verification, Access/WRITE
+and server KDG remain gates. Preserve all historical sources/references, failed frames,
+receipts/state/data/resources and concurrent work. No real accounts/provider/access,
+production/provision/deploy/pilot, reset/prune, Leave/editor or push.
+
+
+## Previous ID-B increment — immutable membership binding, 2026-10-20
 
 Identity revision11 makes existing membership id/org_id/user_id immutable through the
 existing revision guard. Actual unchanged10 reassignment is characterized; new restricted-

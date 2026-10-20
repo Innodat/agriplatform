@@ -1386,3 +1386,85 @@ and root evidence/navigation/inventory record actual results; accepted ADRs rema
 unchanged. No new generator/service/framework, dependency, application implementation,
 provisioning or deployment is added. Root records actual verification and retained-data
 normal stop separately; this item does not complete ID-B or assert readiness.
+
+## Retained membership history (identity_0012)
+
+`0012_membership_retention.py` closes existing direct deletion and Auth-role
+`TRUNCATE ... CASCADE` history loss. Before upgrade, the existing owner preflight
+compares the complete exact11 catalog to its independently pinned reference. The
+three canonical foreign keys must have their original names, columns, NO ACTION
+update action, validated/nondeferrable state and CASCADE delete action; no target
+normalization is allowed. New12 replaces only their delete action with RESTRICT:
+org_member_org_id_fkey, org_member_user_id_fkey and member_role_member_id_fkey.
+The profile→Auth users_id_fkey remains its original NO ACTION definition.
+
+The existing guard receives an initial DELETE/TRUNCATE refusal with SQLSTATE23514,
+message identity_membership_history_retained and constraint org_member_history_retained.
+Its row trigger additionally handles DELETE; a BEFORE TRUNCATE statement trigger
+uses that same function. Its function identity, signature, owner, invoker security,
+ACL, search_path and all binding/revision behavior remain. Retired, active and roleless
+memberships are retained. Owner DDL/trigger disabling remains trusted administration.
+Standalone trusted legacy member_role DML still works; this is not full role audit or
+membership lifecycle safety. Unique(org,user), seed upsert/unretirement and current
+readers remain supported; rejoin, one-way retirement, actor adoption and commands remain
+gated.
+
+Root alone prepares and sequentially executes synthetic DB/Docker work. The retained
+qualification frame supplies characterization, membership_retention_reference, clean,
+legacy, previous, failure, unsafe, unknown and native targets. Its private
+member-retention-fixtures.json uses the same characterization/clean key contract as
+membership binding above. Exact25 historical owner py/json files from
+`e124da80b9c0a3bbd3951d4ec1f248009502ac7d` are independently compared to Git and
+executed for previous/failure/unknown. Existing private durable role-edge and failure
+object restoration witnesses remain mandatory, including after interruption.
+
+With IDENTITY_QUALIFICATION_DIR set to that private frame, run the frozen owner Python
+with `-I -B services/access/tests/qualify_membership_retention.py --characterize` against
+actual unchanged11 first. This records real member/org/profile DELETE through the restricted login/service_role
+and membership TRUNCATE CASCADE through an owner-prepared supabase_auth_admin lane,
+inside rolled-back synthetic transactions. Existing source grants service_role DML
+but no TRUNCATE; a separate check proves its TRUNCATE remains42501. The administrator
+connection uses SET LOCAL ROLE supabase_auth_admin inside a savepoint, verifies actual
+current_user and existing effective TRUNCATE privileges, then rolls back the savepoint
+and compares full state under the restored administrator. No new role edge or privilege
+is granted. Old11 loses membership/role rows through that actual Auth-role truncate;
+new12 refuses it for active/retired/roleless fixtures and member/org cascades.
+Auth admin has no profile-table TRUNCATE privilege; its42501 denial is preserved,
+and full membership/role/audit state is read under the restored administrator. The
+source-bound witness binds the proof path, run ID, fixture digest and full old catalog.
+No old Auth cascade is invented. The original Auth NO ACTION refusal is separately
+checked through an administrator connection in a rollback-only transaction; it grants
+no Auth privilege to the restricted runtime.
+
+Run `tests/qualify_identity_baseline.py --record-membership-retention-reference` against
+the empty known-source reference case. It executes captured source through12, verifies
+every prior pinned catalog through11, sets bounded SQL deadlines before execution and
+rollback verification, checks all staged roles after rollback, then exclusively publishes
+membership-retention-reference.json mode0600 after rechecking source custody. The
+independent pin requires root inspection/update; the recorder never updates its own pin.
+Optimized Python is refused before fixture access. Historical files/references/pins
+remain intact. Run the retention qualifier without arguments for the complete matrix.
+
+The matrix checks only the intended three FK/function/trigger catalog changes, exact
+function declaration/ACL and body delta, stable refusal with unchanged rows/roles/audit,
+active/retired/roleless/multirow and modifying-CTE rollback, parent RESTRICT constraints,
+TRUNCATE CASCADE, runtime/browser denial, and existing insert/update/seed/read behavior.
+A conflicting owner reader lock proves bounded migration refusal with old catalog/data/
+history unchanged and lock release before recovery. Event-trigger failures after the
+first FK and after the new statement trigger prove early and late atomic DDL rollback.
+Actual old11 FK drift and unknown history use rollback-only same-connection owner
+preflight; neither claims subprocess migration execution. Explicit multi-target CONTINUE
+IDENTITY runs under existing Auth table privileges; RESTART IDENTITY runs separately
+under the administrator's sequence authority. Refused truncations preserve rows and
+sequence state. This does not promise reversal of sequence consumption by ordinary
+insert/seed fixtures. Role IDs must be numerically distinct and actual rows must prove
+live admin/deleted employee roles on the intended member. The inherited native alias is
+only the existing cluster/run custody anchor; all domain changes use eight scratch cases.
+SQL evidence does not verify HTTP/provider/JWT or live-target adoption. Recovery retains applied history and all evidence; no
+automatic downgrade, reset/prune, provision/deploy/pilot or production execution occurs.
+
+Five impacts: scaffold extends the proven existing owner migration/reference/rollback
+qualification pattern; shared UI has no consumer; agent context stays sufficient;
+this owner runbook and root evidence/inventory/navigation record actual verification;
+accepted ADRs are unchanged. New12 is a structural prerequisite, not an ID-B completion
+or broader readiness claim.

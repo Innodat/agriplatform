@@ -35,7 +35,7 @@ def test_membership_binding_head_and_historical_head(monkeypatch):
     monkeypatch.setattr(b,'verify_owned_history',lambda c:b.MEMBERSHIP_BINDING_REVISION)
     monkeypatch.setattr(b,'verify_legacy_history',lambda c:None)
     seen=[];monkeypatch.setattr(b,'verify_catalog',lambda c,k:seen.append(k))
-    b.verify_owned_postcondition(object(),require_head=True)
+    b.verify_owned_postcondition(object())
     assert seen==['membership_binding']
     monkeypatch.setattr(b,'verify_owned_history',lambda c:b.TOKEN_HOOK_REVISION)
     b.verify_owned_postcondition(object())

@@ -316,3 +316,12 @@ revision/seed behavior stay. See [binding evidence](../../../../services/access/
 for source-bound synthetic proof and limits. Uniqueness, retirement/rejoin, cascade
 retention, account verification and Access/WRITE activation remain separate gates.
 This is not real-target adoption or full membership lifecycle readiness.
+
+## Bounded membership retention — 2026-10-20
+
+Identity revision12 replaces the three declared membership/role cascade references with
+RESTRICT and protects membership DELETE/TRUNCATE through the existing revision guard.
+Existing profile→Auth FK remains unchanged; physical account deletion is not promised.
+See [retention evidence](../../../../services/access/MEMBERSHIP_RETENTION_EVIDENCE.md) for
+source-bound verification and compatibility limits. Retirement/rejoin, seed transition,
+owner commands/live-account verification and Access/WRITE/server KDG remain gated.
