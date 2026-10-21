@@ -1712,3 +1712,23 @@ Historical resources/data and concurrent work remain preserved. Existing private
 portability remains deferred; no new review deferral was introduced.
 
 The synthetic native run stopped normally with data retained; no reset/prune occurred.
+
+
+### Strict organization grant assignment input — 2026-10-21
+
+The existing Access parser now prepares `grant.assign` with exact organization/account/
+member binding, literal permission and exclusive expected absence/revision variants.
+Inputs are immutable and redacted; all execution/lookup/worker boundaries remain closed
+before target/connection/dispatch. Parsing grants no authority or access. See
+[evidence](../../../services/access/GRANT_ASSIGN_INPUT_EVIDENCE.md).
+
+Next stage the required grant revision/attribution/scope integrity and exact Identity
+pre-grant verification through existing owners before protected assignment execution.
+ACCESS-B, membership-bound effective checks and coordinated PtS/KDG activation remain
+gated. No native startup or real-target changes are included. Existing bootstrap
+portability stays deferred; preserve historical source/evidence and concurrent work.
+
+Final oneshot review complete: six documentation/verification findings patched, none
+deferred.234 focused and1434 affected regression tests plus both composition checks
+pass.109 current source bindings match;50 protected sources and all concurrent bytes
+remain preserved. No native startup or additional runtime readiness claim.

@@ -1,4 +1,4 @@
-"""Strict Access registry inputs only; parsed values convey no authority."""
+"""Strict Access owner inputs; parsed values convey no authority."""
 from dataclasses import dataclass, field
 import re
 from typing import Literal
@@ -62,6 +62,22 @@ class UpdateOrganizationApplicationPayload:
 
 
 @dataclass(frozen=True, repr=False)
+class CreateGrantAssignmentPayload:
+    account_id: str
+    membership_id: str
+    permission: str
+    expected_absent: Literal[True]
+
+
+@dataclass(frozen=True, repr=False)
+class UpdateGrantAssignmentPayload:
+    account_id: str
+    membership_id: str
+    permission: str
+    expected_revision: str
+
+
+@dataclass(frozen=True, repr=False)
 class RegisterApplicationCommand(_Envelope):
     scope: PlatformScope
     payload: RegisterApplicationPayload
@@ -96,7 +112,14 @@ class ConfigureOrganizationApplicationCommand(_Envelope):
     command: Literal['organization_application.configure'] = field(default='organization_application.configure', init=False)
 
 
-Command = RegisterApplicationCommand | RegisterPermissionCommand | RegisterEntryPermissionCommand | SetApplicationEnabledCommand | ConfigureOrganizationApplicationCommand
+@dataclass(frozen=True, repr=False)
+class AssignGrantCommand(_Envelope):
+    scope: OrganizationScope
+    payload: CreateGrantAssignmentPayload | UpdateGrantAssignmentPayload
+    command: Literal['grant.assign'] = field(default='grant.assign', init=False)
+
+
+Command = RegisterApplicationCommand | RegisterPermissionCommand | RegisterEntryPermissionCommand | SetApplicationEnabledCommand | ConfigureOrganizationApplicationCommand | AssignGrantCommand
 _APP_ID = re.compile(r'[a-z][a-z0-9_]{1,63}')
 
 
@@ -111,7 +134,23 @@ def _parse(body: bytes) -> Command:
         _require(type(evidence) is str and _EVIDENCE.fullmatch(evidence) is not None and '://' not in evidence)
     common = dict(schema_version=1, operation_id=operation_id, reason_code=reason, evidence_ref=evidence)
     name = doc['command']
-    _require(type(name) is str and name in ('application.register', 'permission.register', 'entry_permission.register', 'application.set_enabled', 'organization_application.configure'))
+    _require(type(name) is str and name in ('application.register', 'permission.register', 'entry_permission.register', 'application.set_enabled', 'organization_application.configure', 'grant.assign'))
+    if name == 'grant.assign':
+        scope = _object(doc['scope'], {'kind', 'org_id'})
+        _require(scope['kind'] == 'organization')
+        scope = OrganizationScope(_uuid(scope['org_id']))
+        payload = _object(doc['payload'], {'account_id', 'membership_id', 'permission'}, {'expected_absent', 'expected_revision'})
+        _require(('expected_absent' in payload) != ('expected_revision' in payload))
+        account_id = _uuid(payload['account_id'])
+        membership_id = _decimal(payload['membership_id'])
+        permission = payload['permission']
+        _require(type(permission) is str and permission.isascii() and 1 <= len(permission) <= 200)
+        if 'expected_absent' in payload:
+            _require(payload['expected_absent'] is True)
+            typed = CreateGrantAssignmentPayload(account_id, membership_id, permission, True)
+        else:
+            typed = UpdateGrantAssignmentPayload(account_id, membership_id, permission, _decimal(payload['expected_revision']))
+        return AssignGrantCommand(**common, scope=scope, payload=typed)
     if name == 'organization_application.configure':
         scope = _object(doc['scope'], {'kind', 'org_id'})
         _require(scope['kind'] == 'organization')
@@ -161,7 +200,7 @@ def _parse(body: bytes) -> Command:
 
 
 def parse_command(body: bytes) -> Command:
-    """Parse a closed version1 registry command without I/O or authority checks."""
+    """Parse a closed version1 owner command without I/O or authority checks."""
     try:
         return _parse(body)
     except _IdentityValidationError:

@@ -623,3 +623,53 @@ Identity's mutable verifier selects exact9 from installed routine metadata witho
 Access business reads. Existing four platform commands and previous adapter contracts
 remain. See [owner runbook](../../../../services/access/ORGANIZATION-APPLICATION-CONFIGURE.md)
 and [evidence](../../../../services/access/ORGANIZATION_APPLICATION_CONFIGURE_EVIDENCE.md).
+
+
+## Delivered strict organization grant assignment input — 2026-10-21
+
+The existing Access pure parser accepts `grant.assign` with exact organization scope,
+account UUID, positive decimal-string membership and literal ASCII permission. Exactly
+one expected_absent=true or expected_revision is required. It preserves UUID spelling,
+permission bytes and large integer strings in frozen redacted variants. Parsing does
+not verify identity, current membership, permission association or command authority.
+Access adapter/CLI execute remain command_unsupported before target/connection/dispatch;
+worker transport remains closed and outcome stays command_invalid. Identity refuses.
+No persistence, grants, admission or consumer activation is delivered by these inputs.
+
+Create example (synthetic identifiers only):
+
+```json
+{
+  "schema_version": 1,
+  "operation_id": "a1234567-1234-1234-1234-123456789abc",
+  "command": "grant.assign",
+  "scope": {
+    "kind": "organization",
+    "org_id": "b2345678-2345-4345-8345-23456789abcd"
+  },
+  "payload": {
+    "account_id": "c3456789-3456-4345-8345-3456789abcde",
+    "membership_id": "1",
+    "permission": "kdg_capture.read.own",
+    "expected_absent": true
+  },
+  "reason_code": "synthetic_fixture",
+  "evidence_ref": "setup:fixture/1"
+}
+```
+
+A later update/regrant requires a fresh operation_id, with the same envelope shape
+and organization/account/permission target and this payload instead:
+
+```json
+{
+  "account_id": "c3456789-3456-4345-8345-3456789abcde",
+  "membership_id": "2",
+  "permission": "kdg_capture.read.own",
+  "expected_revision": "7"
+}
+```
+
+The expected revision identifies the retained grant state; a new current membership may
+only be bound by a later explicit verified command. No parsed input enables this write.
+See [input evidence](../../../../services/access/GRANT_ASSIGN_INPUT_EVIDENCE.md).
