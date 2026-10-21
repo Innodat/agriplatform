@@ -21,6 +21,7 @@ ENTRY_FUNCTIONS = PERMISSION_FUNCTIONS + ('entry_permission_operator_authority',
 ENABLEMENT_FUNCTIONS = ENTRY_FUNCTIONS + ('application_enablement_authority','guard_application_update','require_application_change','set_application_enabled','application_enablement_outcome')
 
 def _sql(revision='access_0004'):
+    if revision == 'access_0008':revision = 'access_0007'
     path=Path(__file__).parent/'versions/0004_application_register.py'
     if sha256(path.read_bytes()).hexdigest() != '14d6e70b8142936700eb96d5e44cc6580be8c2e9bb06a00db841b529bf824807':
         raise BaselineError('access_original_source_mismatch')
@@ -52,6 +53,7 @@ def _sql(revision='access_0004'):
 
 
 def verify_registration(connection,revision='access_0004'):
+    if revision == 'access_0008':revision = 'access_0007'
     verify_operator_roles(connection)
     from access_registration_catalog import TABLE_CATALOG,FUNCTION_CATALOG
     if revision in ('access_0005','access_0006','access_0007'):

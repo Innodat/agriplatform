@@ -35,7 +35,7 @@ def test_exact_history_and_catalog_seven():
     sys.path.insert(0,str(Path(__file__).resolve().parents[1]/'migrations'))
     import access_baseline as b
     from access_registration_catalog import enablement_catalog,entry_catalog
-    assert b.HEAD=='access_0007'
+    assert b.validate_revision(['access_0007'])=='access_0007'
     for i in range(1,8):assert b.validate_revision([f'access_000{i}'])==f'access_000{i}'
     assert 'application.set_enabled' not in repr(entry_catalog())
     assert 'application.set_enabled' in repr(enablement_catalog())

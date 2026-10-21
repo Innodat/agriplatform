@@ -273,3 +273,13 @@ preserves registry associations and grants. This synthetic command proof does no
 activate consumer admission, organization enablement, grants, KDG or PtS. See the
 [owner runbook](../../../../services/access/APPLICATION-SET-ENABLED.md) and
 [source-bound evidence](../../../../services/access/APPLICATION_SET_ENABLED_EVIDENCE.md).
+
+Access organization admission storage checkpoint — 2026-10-21: Access0008 stages empty
+private organization application rows under owner-only forced org RLS and immutable
+statement guards. Owner helpers use SET LOCAL; RLS compares current org context without
+attesting session versus transaction setting lifetime. No runtime/auth guard is added.
+It preserves existing registries/grants/receipts and7 enablement;
+Identity18 recognizes exact8 using metadata alone. Synthetic external organization/actor
+identifiers are not verified by storage. See [owner evidence](../../../../services/access/ORGANIZATION_APPLICATION_STORAGE_EVIDENCE.md).
+External organization verification, protected configure execution, current admission and
+ACCESS-A/B plus coordinated PtS/KDG activation remain separate gated work.

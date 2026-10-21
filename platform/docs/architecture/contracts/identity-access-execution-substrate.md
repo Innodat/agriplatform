@@ -573,3 +573,19 @@ Complete synthetic update input (parsing only):
   "evidence_ref": "setup:fixture/2"
 }
 ```
+
+## Private organization application storage — 2026-10-21
+
+Access0008 stages empty `organization_applications` with the selected composite org/app
+key, local RESTRICT app reference, defaults and constrained external attribution. Only
+access_migrator has table privileges. Owner helpers set org context with SET LOCAL;
+ENABLE/FORCE RLS compares the current org setting and cannot attest its session versus
+transaction lifetime. No runtime/auth guard is added. The reused immutable statement guard blocks mutation,
+including empty/noop/UPSERT/MERGE
+update arms. Fixture organization/actor UUIDs are not verified by this increment.
+Exact clean/1–8 catalogs retain7 behavior and source pins. Identity18 selects8 through
+relation metadata and fixed Access verification, without business/history reads or new
+privileges. See [owner evidence](../../../../services/access/ORGANIZATION_APPLICATION_STORAGE_EVIDENCE.md).
+External organization verification, protected configure execution and effective admission
+remain undelivered. ACCESS-A/B and coordinated PtS/KDG consumer gates remain closed;
+historical runtime evidence stays source-bound.

@@ -1644,3 +1644,23 @@ Review fixes are verified; no new deferred issue. Next deliver organization stor
 protected execution through existing owner contracts. Grants, ACCESS-B, effective
 admission and PtS/KDG activation remain separately gated. No native startup was used;
 bootstrap portability remains deferred and historical runtime proof stays source-bound.
+
+
+### Private organization application storage — 2026-10-21
+
+Access0008 stages empty organization/application storage with composite identity,
+RESTRICT app reference, finite attribution, positive revision and owner-only forced
+organization RLS. Owner fixture helpers set transaction-local context; runtime/operator
+access and all updates/deletes/truncates remain closed. External identifiers are not
+verified by storage. No effective admission or grant is created.
+
+Three review lenses completed; confirmed findings were patched. Fresh15-stage native
+proof, separate retained inspection,1320 affected tests and both composition checks pass.
+All82 source bindings match. The native run stopped normally with data retained; both
+failed frames and all historical proof remain. See
+[evidence](../../../services/access/ORGANIZATION_APPLICATION_STORAGE_EVIDENCE.md) for
+exact commands, requirement traceability, custody and five impacts. Existing bootstrap
+portability remains deferred; concurrent work and historical migration/reference bytes
+are preserved. Next deliver external organization verification and protected configure
+execution. ACCESS-A/B, grants, effective authorization and coordinated PtS/KDG activation
+remain gated; no Leave/editor, production/pilot or deployment work is included.

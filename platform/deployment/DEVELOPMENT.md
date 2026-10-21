@@ -1864,3 +1864,23 @@ frames/resources and use fresh synthetic namespaces/custody for native qualifica
 [evidence](../../services/access/APPLICATION_SET_ENABLED_EVIDENCE.md) retain compatibility
 with actual previous6 clients and catalog-only Identity18 verification. Failure blocks
 activation; inspect and forward-reconcile without startup migration or automatic reverse.
+
+### Access private organization application storage — 2026-10-21
+
+Access0008 stages empty organization application admission storage with a composite
+org/app key and local RESTRICT application FK. Only access_migrator has table privileges;
+owner helpers set org context with SET LOCAL and forced RLS compares the current org
+setting. The policy cannot distinguish session-level from transaction-local settings;
+no runtime/auth guard is added. Private statement guards refuse every UPDATE/DELETE/
+TRUNCATE, including empty/noop/UPSERT/MERGE update arms.
+Synthetic fixture UUIDs establish no external organization/actor verification.
+
+Use the existing controlled Access owner upgrade; exact clean/1–8 verification refuses
+unknown catalog/history/ACL drift before normalization. Preserve failed evidence, resolve
+the cause and explicitly retry; no startup migration or automatic reverse. Existing7
+enablement remains; Identity18 recognizes8 through verified metadata without Access row
+reads. [Owner evidence](../../services/access/ORGANIZATION_APPLICATION_STORAGE_EVIDENCE.md)
+records source custody, qualification commands, recovery and limits. Private preparation
+and --all are single-use; --verify-retained is read-only and repeatable. Organization
+verification/configure execution, readers/grants and coordinated consumer activation
+remain gated. Preserve earlier native frames and retained resources.
