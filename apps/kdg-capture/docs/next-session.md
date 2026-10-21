@@ -1602,3 +1602,15 @@ checks passed. The disposable run stopped normally with data/resources preserved
 bootstrap portability remains deferred. See the linked entry evidence for source custody
 and exact commands. Select the next remaining Access enablement/grant or ACCESS-B gate
 through existing owner contracts; entry configuration itself grants no effective access.
+
+### Application enablement input — 2026-10-21
+
+The next bounded ACCESS-A prerequisite is complete: strict typed
+`application.set_enabled` input in the existing parser, with actual boolean enabled and
+positive canonical bigint revision. Execution remains closed before target/connection
+access. Three review lenses completed; test corrections,1259 affected tests and both
+composition dry runs pass. No native startup, account/configuration or Docker changes.
+See [evidence](../../../services/access/APPLICATION_ENABLE_INPUT_EVIDENCE.md).
+Next deliver mutable application revision/attribution/evidence guards through the existing
+controlled owner migration and operator route before enabling protected command execution.
+Enablement/grants, effective authorization and consumer activation remain separately gated.

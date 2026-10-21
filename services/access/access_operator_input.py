@@ -6,7 +6,7 @@ from typing import Literal
 from identity_operator_input import (
     CommandValidationError as _IdentityValidationError,
     PlatformScope, _Envelope, _EVIDENCE, _REASONS,
-    _decode, _object, _require, _uuid,
+    _decode, _decimal, _object, _require, _uuid,
 )
 
 
@@ -41,6 +41,13 @@ class RegisterEntryPermissionPayload:
 
 
 @dataclass(frozen=True, repr=False)
+class SetApplicationEnabledPayload:
+    app_id: str
+    enabled: bool
+    expected_revision: str
+
+
+@dataclass(frozen=True, repr=False)
 class RegisterApplicationCommand(_Envelope):
     scope: PlatformScope
     payload: RegisterApplicationPayload
@@ -61,7 +68,14 @@ class RegisterEntryPermissionCommand(_Envelope):
     command: Literal['entry_permission.register'] = field(default='entry_permission.register', init=False)
 
 
-Command = RegisterApplicationCommand | RegisterPermissionCommand | RegisterEntryPermissionCommand
+@dataclass(frozen=True, repr=False)
+class SetApplicationEnabledCommand(_Envelope):
+    scope: PlatformScope
+    payload: SetApplicationEnabledPayload
+    command: Literal['application.set_enabled'] = field(default='application.set_enabled', init=False)
+
+
+Command = RegisterApplicationCommand | RegisterPermissionCommand | RegisterEntryPermissionCommand | SetApplicationEnabledCommand
 _APP_ID = re.compile(r'[a-z][a-z0-9_]{1,63}')
 
 
@@ -76,10 +90,18 @@ def _parse(body: bytes) -> Command:
         _require(type(evidence) is str and _EVIDENCE.fullmatch(evidence) is not None and '://' not in evidence)
     common = dict(schema_version=1, operation_id=operation_id, reason_code=reason, evidence_ref=evidence)
     name = doc['command']
-    _require(type(name) is str and name in ('application.register', 'permission.register', 'entry_permission.register'))
+    _require(type(name) is str and name in ('application.register', 'permission.register', 'entry_permission.register', 'application.set_enabled'))
     scope = _object(doc['scope'], {'kind'})
     _require(scope['kind'] == 'platform')
     scope = PlatformScope()
+    if name == 'application.set_enabled':
+        payload = _object(doc['payload'], {'app_id', 'enabled', 'expected_revision'})
+        app_id = payload['app_id']
+        _require(type(app_id) is str and _APP_ID.fullmatch(app_id) is not None)
+        _require(type(payload['enabled']) is bool)
+        revision = _decimal(payload['expected_revision'])
+        typed = SetApplicationEnabledPayload(app_id, payload['enabled'], revision)
+        return SetApplicationEnabledCommand(**common, scope=scope, payload=typed)
     required = {'app_id', 'expected_absent'}
     if name != 'application.register':
         required.add('permission')

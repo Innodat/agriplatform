@@ -320,3 +320,14 @@ Source seeds/history and archived generated outputs remain preserved. Current Ac
 still matches org/account grants and is incompatible with rejoin activation: separate
 ACCESS-A/B membership binding/consumer proof is mandatory. Live account verification/
 account_actor.ensure, Access/WRITE and server KDG remain gated; no real-target activation.
+
+## ACCESS-A application enablement input only — 2026-10-21
+
+The existing Access parser now accepts strict typed `application.set_enabled` input
+with platform scope, actual boolean enabled and positive canonical bigint revision.
+[Input evidence](../../../services/access/APPLICATION_ENABLE_INPUT_EVIDENCE.md) records
+parser/registration compatibility and preconnection owner/adapter/CLI/worker/outcome
+refusals. Execution remains closed pending mutable application storage and protected
+revision/evidence guards. No application is enabled, grant issued or consumer activated;
+ACCESS-A/B and KDG delivery gates remain open requirements. Historical runtime proofs
+remain source-bound and do not qualify these new parser bytes.

@@ -473,3 +473,20 @@ Exact known Access4/5/6 metadata is selected by the mutable Identity helper, wit
 Access data/history reads. Historical migrations and references remain unchanged.
 See the [entry runbook](../../../../services/access/ENTRY-PERMISSION-REGISTER.md) and
 [evidence](../../../../services/access/ENTRY_PERMISSION_REGISTER_EVIDENCE.md).
+
+## Application enablement input only — 2026-10-21
+
+The existing Access parser also accepts `application.set_enabled` with exact platform
+scope and payload `{app_id, enabled, expected_revision}`. Enabled is an actual boolean;
+revision is a preserved positive canonical signed-bigint decimal string. Distinct frozen,
+repr-redacted records reuse Identity's unchanged strict decoder and decimal validator.
+The closed envelope, provenance, byte limits and safe validation errors remain binding.
+Parsing grants no authority and reads no registry state.
+
+Access adapter/CLI execute refuse this command as `command_unsupported` before effects;
+outcome remains `command_invalid`, and the worker retains its closed preconnection
+rejection. Identity consumers reject Access inputs. Mutable registry persistence,
+revision/evidence guards, protected enablement execution and runtime activation remain
+separate work. See [input evidence](../../../../services/access/APPLICATION_ENABLE_INPUT_EVIDENCE.md).
+Historical registration/runtime proofs remain bound to their original source bytes;
+ACCESS-A/B and coordinated PtS/KDG consumer gates remain closed.
