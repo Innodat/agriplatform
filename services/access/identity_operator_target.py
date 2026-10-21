@@ -28,6 +28,7 @@ class Target:
     database: str
     port: int
     password: str
+    owner_id: str = 'identity'
 
 
 def _require(condition):
@@ -41,7 +42,9 @@ def _path(value):
     return Path(os.path.abspath(path))
 
 
-def _binding(environment_target, run_id):
+def _binding(environment_target, run_id, owner='identity', namespace=None):
+    _require(namespace is None or (owner=='access' and type(namespace) is str and re.fullmatch('[0-9a-f]{8}',namespace) is not None))
+    _require(owner in ('identity','access'))
     _require(type(run_id) is str and str(UUID(run_id)) == run_id and UUID(run_id).int != 0)
     source = _path(environment_target)
     _require(source == ROOT / ENV_REF)
@@ -50,31 +53,33 @@ def _binding(environment_target, run_id):
     dev.validate(environment, dev.decode(dev.read(ROOT / dev.SCHEMA)))
     _require(environment['workspace_root'] == str(ROOT)
         and environment['environment_kind'] in ('local_disposable', 'ci_disposable')
-        and 'identity' in environment['owner_ids'])
+        and owner in environment['owner_ids'])
     run = ROOT / RUN_REF / run_id
     native_cli.check_run(run, environment, raw, run_id)
-    secret_ref = str(Path(RUN_REF) / run_id / 'secrets/identity.env')
+    secret_ref = str(Path(RUN_REF) / run_id / ('secrets/'+owner+'.env'))
     _require(secret_ref in [ref.replace('{run_id}', run_id) for ref in environment['secret_refs']])
     with dev.directory(run / 'secrets') as secrets:
         dev.check_private(secrets)
-        secret = dev.read_at(secrets, 'identity.env', protected=True)
+        secret = dev.read_at(secrets, owner+'.env', protected=True)
     _require(len(secret) <= 1024)
     # Literal bytes: no shell, dotenv, environment or interpolation semantics.
-    _require(re.fullmatch(rb'IDENTITY_OPERATOR_PASSWORD=[^\x00\r\n]+\n?', secret) is not None)
+    _require(re.fullmatch(owner.upper().encode()+rb'_OPERATOR_PASSWORD=[^\x00\r\n]+\n?', secret) is not None)
     password = secret.removesuffix(b'\n').split(b'=', 1)[1].decode('utf-8', errors='strict')
     _require('$' not in password and '`' not in password)
-    descriptor = dict(schema_version=1, owner_id='identity', environment_kind=environment['environment_kind'],
+    descriptor = dict(schema_version=1, owner_id=owner, environment_kind=environment['environment_kind'],
         run_id=run_id, environment_target_ref=ENV_REF, target_sha256=dev.digest(raw),
-        database='idop_' + UUID(run_id).hex, database_login='identity_operator', secret_ref=secret_ref)
-    return descriptor, Target(run / 'identity-operator.json', run_id, descriptor['database'],
-                              environment['ports']['database'], password)
+        database=('idop_' if owner=='identity' else 'acop_') + UUID(run_id).hex + ('_'+namespace if namespace is not None else ''), database_login=owner+'_operator', secret_ref=secret_ref)
+    if namespace is not None:
+        descriptor['namespace'] = namespace
+    return descriptor, Target(run / (owner+'-operator'+('-'+namespace if namespace is not None else '')+'.json'), run_id, descriptor['database'],
+                              environment['ports']['database'], password, owner)
 
 
-def prepare_target(environment_target, run_id):
+def prepare_target(environment_target, run_id, *, owner='identity', namespace=None):
     """Bind existing native configuration/secret, exclusively; creates no DB or role."""
     failed = False
     try:
-        descriptor, target = _binding(environment_target, run_id)
+        descriptor, target = _binding(environment_target, run_id, owner, namespace)
         with dev.directory(target.path.parent) as run:
             dev.check_private(run)
             native_cli.write_private(run, target.path.name,
@@ -86,12 +91,17 @@ def prepare_target(environment_target, run_id):
         raise TargetError()
 
 
-def load_target(path):
+def load_target(path, *, owner='identity'):
     failed = False
     try:
         path = _path(path)
-        _require(path.name == 'identity-operator.json' and path.parent.parent == ROOT / RUN_REF)
-        expected, target = _binding(ROOT / ENV_REF, path.parent.name)
+        namespace = None
+        if owner=='access' and path.name != 'access-operator.json':
+            match = re.fullmatch(r'access-operator-([0-9a-f]{8})\.json',path.name)
+            _require(match is not None)
+            namespace = match.group(1)
+        _require(path.name == owner+'-operator'+('-'+namespace if namespace is not None else '')+'.json' and path.parent.parent == ROOT / RUN_REF)
+        expected, target = _binding(ROOT / ENV_REF, path.parent.name, owner, namespace)
         with dev.directory(path.parent) as run:
             dev.check_private(run)
             actual = dev.decode(dev.read_at(run, path.name, protected=True))

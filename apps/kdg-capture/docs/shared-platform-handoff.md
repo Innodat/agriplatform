@@ -53,3 +53,14 @@ runtime prerequisites or readiness have passed.
 - [Platform Identity/Access contract](../../../platform/docs/architecture/contracts/identity-access-employment-e1.md)
 - [Admission contract](../../../platform/docs/architecture/contracts/application-admission-and-discovery.md)
 - [Controlled owner provisioning](../../../platform/docs/architecture/contracts/e1-controlled-provisioning-and-evidence.md)
+
+### Protected Access application registration — 2026-10-21
+
+The bounded protected `application.register` implementation now creates disabled
+applications with current operator authority and atomic immutable recovery evidence.
+See the [owner runbook](../../../services/access/APPLICATION-REGISTER.md) and
+[evidence](../../../services/access/APPLICATION_REGISTER_EVIDENCE.md). Registration is
+configuration evidence only. Permission/entry commands, enablement/grants, ACCESS-B
+checks, KDG consumers and ACCESS-A/B activation remain gated. Identity's mutable catalog
+helper accepts only the separately verified Access owner role extension; historical
+migrations/references and cross-owner isolation remain binding.

@@ -694,8 +694,46 @@ TARGET_ROLE_QUERIES = {
 }
 
 
+def verified_access_command_extension(connection):
+    """Recognize only the explicitly prepared Access0004 recipient bundle.
+
+    Metadata validation grants Identity no Access reads or role assumption. Existing
+    immutable Identity references continue describing Identity's own privileges.
+    """
+    members=connection.execute(text(TARGET_ROLE_QUERIES['access_command_owner']['target_memberships'])).all()
+    if not members:
+        return False,False
+    if [tuple(row) for row in members] != [('access_command_owner','access_migrator',False,'false','true')]:
+        raise BaselineError('identity_target_role_unsafe')
+    # Import only the colocated fixed catalog verifier; no Access business data.
+    import importlib.util
+    import sys
+    directory=HERE.parent/'migrations'
+    previous=list(sys.path)
+    try:
+        sys.path.insert(0,str(directory))
+        import access_baseline as access_catalog
+        access_catalog.verify_operator_roles(connection)
+        installed=bool(connection.execute(text("SELECT EXISTS(SELECT 1 FROM pg_proc p JOIN pg_namespace n ON n.oid=p.pronamespace WHERE n.nspname='access' AND p.proname='register_application')")).scalar_one())
+        if installed:
+            access_catalog.verify_catalog(connection,'access_0004')
+            access_catalog.require_equal(access_catalog.rows(connection,"SELECT pg_get_userbyid(nspowner) FROM pg_namespace WHERE nspname='access'"),[('access_migrator',)])
+            access_catalog.require_equal(access_catalog.acl(connection,"(SELECT oid FROM pg_namespace WHERE nspname='access')",'n'),
+                access_catalog.owner_acl(['USAGE','CREATE'])+ [('access_migrator',r,'USAGE',False) for r in ('access_runtime','access_operator','access_operator_authority_owner','access_command_owner')])
+        return True,installed
+    except access_catalog.BaselineError:
+        raise BaselineError('identity_target_role_unsafe') from None
+    finally:
+        sys.path[:]=previous
+
+
+def _identity_target_dependencies(rows):
+    return [row for row in rows if str(row[3])!='schema access' and not str(row[3]).startswith(('table access.','function access.'))]
+
+
 def verify_target_roles(connection, staged=False):
     """Validate separately staged roles; never repair or normalize arbitrary rights."""
+    access_edge,access_catalog = verified_access_command_extension(connection)
     for role, queries in TARGET_ROLE_QUERIES.items():
         rows=connection.execute(text(queries['target_role'])).all()
         if not rows:
@@ -703,17 +741,17 @@ def verify_target_roles(connection, staged=False):
         if [tuple(row) for row in rows] != [(role,False,False,False,False,False,False,False)]:
             raise BaselineError('identity_target_role_unsafe')
         members=connection.execute(text(queries['target_memberships'])).all()
-        expected=[(TARGET_OWNER,'identity_migrator',False,'false','true')] if role==TARGET_OWNER else []
+        expected=([(TARGET_OWNER,'identity_migrator',False,'false','true')] if role==TARGET_OWNER else [('access_command_owner','access_migrator',False,'false','true')] if role=='access_command_owner' and access_edge else [])
         if [tuple(row) for row in members] != expected:
             raise BaselineError('identity_target_role_unsafe')
-        if staged and connection.execute(text(queries['target_dependencies'])).all():
+        if staged and (_identity_target_dependencies(connection.execute(text(queries['target_dependencies'])).all()) if role=='access_command_owner' and access_catalog else connection.execute(text(queries['target_dependencies'])).all()):
             raise BaselineError('identity_target_role_not_empty')
         if connection.execute(text("""SELECT EXISTS (
           SELECT 1 WHERE has_database_privilege(:role,current_database(),'CREATE')
           UNION ALL SELECT 1 FROM pg_namespace n WHERE n.nspname !~ '^pg_' AND n.nspname<>'information_schema'
            AND has_schema_privilege(:role,n.oid,'CREATE')
           UNION ALL SELECT 1 FROM pg_class c JOIN pg_namespace n ON n.oid=c.relnamespace
-           WHERE n.nspname !~ '^pg_' AND n.nspname<>'information_schema' AND c.relkind IN ('r','p','v','m','f')
+           WHERE n.nspname !~ '^pg_' AND n.nspname<>'information_schema' AND NOT (:access_catalog AND :role='access_command_owner' AND n.nspname='access') AND c.relkind IN ('r','p','v','m','f')
            AND (has_table_privilege(:role,c.oid,'INSERT,UPDATE,DELETE,TRUNCATE,REFERENCES,TRIGGER')
                 OR has_any_column_privilege(:role,c.oid,'INSERT,UPDATE,REFERENCES')
                 OR ((:staged OR :role <> 'identity_target_projection_owner' OR n.nspname<>'identity')
@@ -722,10 +760,10 @@ def verify_target_roles(connection, staged=False):
            WHERE n.nspname !~ '^pg_' AND c.relkind='S'
            AND CASE WHEN c.relkind='S' THEN has_sequence_privilege(:role,c.oid,'USAGE,SELECT,UPDATE') ELSE false END
           UNION ALL SELECT 1 FROM pg_proc p JOIN pg_namespace n ON n.oid=p.pronamespace
-           WHERE n.nspname NOT IN ('pg_catalog','information_schema','identity') AND p.prosecdef
+           WHERE n.nspname NOT IN ('pg_catalog','information_schema','identity') AND NOT (:access_catalog AND :role='access_command_owner' AND n.nspname='access') AND p.prosecdef
            AND has_function_privilege(:role,p.oid,'EXECUTE')
            AND p.oid<>coalesce(to_regprocedure('public.get_user_roles()')::oid,0)
-        )"""),{'role':role,'staged':staged}).scalar_one():
+        )"""),{'role':role,'staged':staged,'access_catalog':access_catalog}).scalar_one():
             raise BaselineError('identity_target_role_unsafe')
 
 
@@ -752,6 +790,11 @@ def target_catalog_snapshot(connection):
     for category in ('effective_tables','effective_columns','effective_functions','effective_schemas','effective_sequences'):
         sql=QUERIES[category].replace("'identity_migrator','access_runtime','authenticated','anon','service_role','supabase_auth_admin'",selected)
         result['target_'+category]=sorted([list(row) for row in connection.execute(text(sql))],key=lambda row:json.dumps(row,sort_keys=True))
+    access_edge,access_catalog=verified_access_command_extension(connection)
+    if access_edge:
+        result['access_command_owner_target_memberships']=[]
+    if access_catalog:
+        result['access_command_owner_target_dependencies']=_identity_target_dependencies(result['access_command_owner_target_dependencies'])
     return result
 
 

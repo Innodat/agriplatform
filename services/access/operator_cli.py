@@ -12,13 +12,15 @@ from uuid import UUID
 OWNER = Path(__file__).resolve().parent
 sys.path.insert(0, str(OWNER))
 import identity_operator as adapter
+import access_operator
+import access_operator_input
 from identity_operator_input import parse_command, EnsureAccountActorCommand, RegisterSystemCommand, RetireMembershipCommand, JoinMembershipCommand, CommandValidationError
 from identity_operator_target import load_target, TargetError, ROOT
 import dev
 import images
 
 CODES = frozenset(('command_invalid', 'command_unsupported', 'identity_operator_input_invalid',
-    'identity_operator_target_invalid', 'operation_unavailable', 'operation_verification_unavailable',
+    'identity_operator_target_invalid', 'access_operator_input_invalid', 'operation_unavailable', 'operation_verification_unavailable',
     'operation_busy', 'access_denied', 'operation_conflict', 'connection_busy', 'isolation_unsupported'))
 
 
@@ -42,7 +44,7 @@ def _receipt(value, operation_id, command='actor.register_system'):
     if type(result) is not dict or set(result) != {'command','target','disposition','revision','event_id'} or result['command'] != command:
         raise ValueError()
     # Reuse the protected adapter's typed stored-result validator.
-    adapter._receipt(({k:v for k,v in result.items() if k != 'command'}, 1, 1, instant), operation_id, command)
+    (access_operator if command == 'application.register' else adapter)._receipt(({k:v for k,v in result.items() if k != 'command'}, 1, 1, instant), operation_id, command)
     return value
 
 
@@ -62,11 +64,11 @@ def _connection(target):
     from sqlalchemy import create_engine
     from sqlalchemy.engine import URL
     from sqlalchemy.pool import NullPool
-    return create_engine(URL.create('postgresql+psycopg', username='identity_operator', password=target.password,
+    return create_engine(URL.create('postgresql+psycopg', username=getattr(target,'owner_id','identity')+'_operator', password=target.password,
         host='127.0.0.1', port=target.port, database=target.database), poolclass=NullPool,
         isolation_level='READ COMMITTED', hide_parameters=True,
         connect_args=dict(connect_timeout=3, sslmode='disable', gssencmode='disable',
-            passfile='/dev/null', application_name='identity_operator',
+            passfile='/dev/null', application_name=getattr(target,'owner_id','identity')+'_operator',
             options='-c statement_timeout=5000 -c lock_timeout=2000'))
 
 
@@ -76,12 +78,15 @@ def verify_session(connection, target):
         'r.rolcanlogin,r.rolsuper,r.rolcreatedb,r.rolcreaterole,r.rolreplication,r.rolbypassrls,r.rolinherit, '
         'EXISTS(SELECT 1 FROM pg_catalog.pg_auth_members m WHERE m.member=r.oid) '
         'FROM pg_catalog.pg_roles r WHERE r.rolname=session_user')).one()
-    if tuple(row) != ('identity_operator','identity_operator',target.database,True,False,False,False,False,False,False,False):
+    login = getattr(target,'owner_id','identity')+'_operator'
+    if tuple(row) != (login,login,target.database,True,False,False,False,False,False,False,False):
         raise adapter.OperatorError('access_denied')
     connection.rollback()
 
 
 def worker(request):
+    if len(request) == 5:
+        return access_worker(request)
     # Revalidate both transport and filesystem before constructing a connection.
     action, path, value, operation_id = request
     operation_id = _uuid(operation_id)
@@ -137,7 +142,7 @@ def dispatch(request):
             signal.signal(name, handler)
 
 
-def main(argv=None):
+def _identity_main(argv=None):
     operation_id = None
     result = {'code':'command_invalid'}
     status = 2
@@ -196,7 +201,7 @@ def main(argv=None):
         except (Exception, KeyboardInterrupt):
             result = dict(code='operation_unavailable',operation_id=operation_id)
         status = 0 if result.get('status') == 'committed' else 2
-    except (TargetError,CommandValidationError,adapter.OperatorError) as error:
+    except (TargetError,CommandValidationError,access_operator_input.CommandValidationError,adapter.OperatorError) as error:
         result = {'code':error.code if error.code in CODES else 'operation_unavailable'}
         if operation_id is not None:
             result['operation_id'] = operation_id
@@ -208,6 +213,93 @@ def main(argv=None):
     return status
 
 
+def access_worker(request):
+    action,path,value,operation_id,owner = request
+    if owner != 'access':
+        raise ValueError()
+    operation_id = _uuid(operation_id)
+    if action == 'execute':
+        body = value.encode('utf-8')
+        command = access_operator_input.parse_command(body)
+        if not isinstance(command,access_operator_input.RegisterApplicationCommand) or _uuid(command.operation_id) != operation_id:
+            raise ValueError()
+        context = None
+    elif action == 'outcome' and type(value) is dict and set(value) == {'command','app_id'} and value['command'] == 'application.register':
+        if type(value['app_id']) is not str or access_operator_input._APP_ID.fullmatch(value['app_id']) is None:
+            raise ValueError()
+        context = value
+    else:
+        raise ValueError()
+    target = load_target(path,owner='access')
+    engine = _connection(target)
+    try:
+        with engine.connect() as connection:
+            verify_session(connection,target)
+            receipt = access_operator.execute(connection,body) if action == 'execute' else access_operator.outcome(connection,operation_id,**context)
+        if receipt is None:
+            return dict(operation_id=operation_id,status='unresolved')
+        result = asdict(receipt)
+        result['committed_at'] = receipt.committed_at.astimezone(timezone.utc).isoformat()
+        return _receipt(result,operation_id,'application.register')
+    finally:
+        engine.dispose()
+
+
+def _access_main(argv):
+    operation_id = None
+    result = {'code':'command_invalid'}
+    try:
+        parser = dev.Parser(add_help=False,allow_abbrev=False)
+        parser.add_argument('action',choices=['execute','outcome'])
+        parser.add_argument('--owner',required=True,choices=['access'])
+        parser.add_argument('--target',required=True)
+        parser.add_argument('--command-file')
+        parser.add_argument('--command')
+        parser.add_argument('--operation-id')
+        parser.add_argument('--app-id')
+        flags = [item for item in argv if item.startswith('--')]
+        if len(flags) != len(set(flags)) or any('=' in item for item in flags):
+            raise ValueError()
+        args = parser.parse_args(argv)
+        if args.action == 'execute':
+            if args.command_file is None or any(v is not None for v in (args.command,args.operation_id,args.app_id)):
+                raise ValueError()
+            body = dev.read(Path(os.path.abspath(args.command_file)))
+            command = access_operator_input.parse_command(body)
+            operation_id = _uuid(command.operation_id)
+            if not isinstance(command,access_operator_input.RegisterApplicationCommand):
+                raise adapter.OperatorError('command_unsupported',operation_id)
+            value = body.decode('utf-8')
+            expected = {'app_id':command.payload.app_id}
+        else:
+            if args.command_file is not None or args.command != 'application.register' or type(args.app_id) is not str or access_operator_input._APP_ID.fullmatch(args.app_id) is None:
+                raise ValueError()
+            operation_id = _uuid(args.operation_id)
+            value = dict(command=args.command,app_id=args.app_id)
+            expected = {'app_id':args.app_id}
+        target = load_target(args.target,owner='access')
+        request = [args.action,str(target.path),value,operation_id,'access']
+        try:
+            result = validate_response(dispatch(request),operation_id,'application.register',expected)
+        except (Exception,KeyboardInterrupt):
+            result = dict(code='operation_unavailable',operation_id=operation_id)
+    except (TargetError,access_operator_input.CommandValidationError,adapter.OperatorError) as error:
+        result = {'code':error.code if error.code in CODES else 'operation_unavailable'}
+        if operation_id is not None:
+            result['operation_id'] = operation_id
+    except (Exception,KeyboardInterrupt):
+        result = {'code':'command_invalid'}
+        if operation_id is not None:
+            result['operation_id'] = operation_id
+    print(json.dumps(result,separators=(',',':'),sort_keys=True))
+    return 0 if result.get('status') == 'committed' else 2
+
+
+def main(argv=None):
+    argv = sys.argv[1:] if argv is None else argv
+    return _access_main(argv) if '--owner' in argv and argv[argv.index('--owner')+1:argv.index('--owner')+2] == ['access'] else _identity_main(argv)
+
+
 def worker_main():
     operation_id = None
     os.environ.clear()  # No ambient libpq service, password, endpoint or config discovery.
@@ -216,11 +308,11 @@ def worker_main():
         if len(raw) > 131072:
             raise ValueError()
         request = dev.decode(raw)
-        if type(request) is not list or len(request) != 4:
+        if type(request) is not list or len(request) not in (4,5):
             raise ValueError()
         operation_id = _uuid(request[3])
         result = worker(request)
-    except (TargetError,CommandValidationError,adapter.OperatorError) as error:
+    except (TargetError,CommandValidationError,access_operator_input.CommandValidationError,adapter.OperatorError) as error:
         result = dict(code=error.code if error.code in CODES else 'operation_unavailable',operation_id=operation_id)
     except Exception:
         result = dict(code='operation_unavailable',operation_id=operation_id)

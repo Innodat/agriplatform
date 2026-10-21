@@ -419,3 +419,20 @@ fixtures; shared UI, agent context and accepted ADRs need no changes. Documentat
 the bounded delivery. Protected Access execution, receipts, mutable commands, database
 privileges and effective authorization remain later work. ACCESS-A/B and coordinated
 PtS/KDG activation gates stay closed; historical runtime proofs remain source-bound.
+
+## Protected application registration implementation — 2026-10-21
+
+The bounded `application.register` slice is implemented through Access0004 and the
+existing isolated operator CLI with explicit `--owner access`. New applications remain
+disabled; no permission/entry registration, enablement, grants or effective consumer
+checks are activated. [Owner runbook](../../../../services/access/APPLICATION-REGISTER.md)
+and [evidence](../../../../services/access/APPLICATION_REGISTER_EVIDENCE.md) record exact
+preparation, current authority, retry/lookup, immutable evidence and qualification.
+
+An Access-only bounded synthetic target namespace derives a fresh database/descriptor
+inside the actual prepared disposable run while preserving its private Access secret.
+No arbitrary database selection or second runtime lifecycle is introduced. The mutable
+Identity helper recognizes only the exact prepared Access role bundle and validates
+Access0004 metadata before excluding its owner-local dependencies from historical
+Identity comparisons. Identity migrations/references and Identity target behavior remain
+unchanged; no cross-owner business reads or role assumption is granted.

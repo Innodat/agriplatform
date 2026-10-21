@@ -1550,3 +1550,19 @@ This bounded close-OSError investigation is resolved; earlier deferred-work entr
 preserved as history. Remaining divergent-ancestry/older investigations stay open.
 Use bmad-help to select the next existing bounded ENV prerequisite; keep broader
 runtime/scaffold/dependent gates closed until their actual delivery evidence passes.
+
+### Application registration delivery — 2026-10-21
+
+Protected Access `application.register` has an owner-local implementation and native
+qualification route. It only registers disabled application identity and compact durable
+recovery evidence; it does not make KDG accessible. Continue with the remaining ACCESS-A
+commands and ACCESS-B/consumer gates using the existing specifications. Refer to
+[registration evidence](../../../services/access/APPLICATION_REGISTER_EVIDENCE.md) for
+fresh/retained proof and preserved prior attempts; do not replay historical preparation
+or reuse its synthetic CLI database as a fresh run.
+
+Final delivery verification passed: 1210 affected tests, 18 fresh native groups, separate
+retained inspection and real CLI lookup, both composition checks and three review lenses
+with confirmed findings patched and none deferred. The actual disposable run was stopped
+normally; all prior evidence, data and resources remain retained. Broader runtime readiness
+and ACCESS-A/B activation are not claimed.

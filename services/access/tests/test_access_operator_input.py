@@ -234,11 +234,13 @@ def test_identity_parser_adapter_cli_refuse_before_effects(command, tmp_path, mo
     monkeypatch.setattr(cli, '_connection', trap)
     monkeypatch.setattr(cli, 'dispatch', trap)
     path = tmp_path/'command.json'; path.write_bytes(raw)
-    for owner in ('identity', 'access'):
+    # Access application.register is now executable; other parsed registry commands remain closed.
+    for owner in (('identity',) if command == 'application.register' else ('identity','access')):
         assert cli.main(['execute', '--owner', owner, '--target', 'unused', '--command-file', str(path)]) == 2
         output = capsys.readouterr()
-        expected = 'identity_operator_input_invalid' if owner == 'identity' else 'command_invalid'
-        assert json.loads(output.out) == {'code': expected}
+        expected = ({'code':'identity_operator_input_invalid'} if owner=='identity' else
+                    {'code':'command_unsupported','operation_id':value['operation_id'].lower()})
+        assert json.loads(output.out) == expected
         for submitted in (SENTINEL, value['evidence_ref'], UUID, 'fixture_app', 'fixture.read:*'):
             assert submitted not in output.out + output.err
         assert not output.err
