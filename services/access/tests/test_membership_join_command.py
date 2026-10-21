@@ -29,7 +29,7 @@ def test_owned_seed_composition_requires_no_seeds_and_empty_generated_output(tmp
     m.validate_identity_seeds('legacy',False,stale)
 
 
-def test_head18_preserves_heads16_and17_trust_and_requires_current_head(monkeypatch):
+def test_historical_heads18_17_16_preserve_catalog_dispatch(monkeypatch):
     import qualify_identity_baseline as q
     b=q.baseline
     monkeypatch.setattr(b,'verify_legacy_history',lambda c:None)
@@ -40,7 +40,7 @@ def test_head18_preserves_heads16_and17_trust_and_requires_current_head(monkeypa
     with pytest.raises(b.BaselineError,match='identity_unknown_history'):
         b.verify_owned_postcondition(object(),require_head=True)
     monkeypatch.setattr(b,'verify_owned_history',lambda c:b.ACCOUNT_ACTOR_ENSURE_REVISION)
-    b.verify_owned_postcondition(object(),require_head=True)
+    b.verify_owned_postcondition(object())
     assert seen[-1]=='account_actor_ensure'
     monkeypatch.setattr(b,'verify_owned_history',lambda c:b.MEMBERSHIP_RETIRE_COMMAND_REVISION)
     b.verify_owned_postcondition(object())

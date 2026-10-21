@@ -81,6 +81,7 @@ Selected owner routine signatures (internal SQL, not browser RPC):
 | identity.current_account_organization() | account_id UUID, org_id UUID, membership_id bigint, membership_revision bigint, actor_id UUID nullable internally when mapping is absent; exact current account/org, nondeleted profile/org/member. Access first evaluates admission/grant, then maps absent actor to the safe setup outcome; HTTP success never has nullable actor. No person prerequisite for KDG. |
 | identity.organization_account_candidates(after_account_id UUID nullable) | account_id UUID, membership_id bigint, membership_revision bigint, actor_id UUID, display_name text; current org only, active profiles/members, valid account actors, ordered account UUID with no raw-candidate LIMIT. Private scoped candidate set only; no email/role/person fields. Access applies app/grant eligibility **before** public page limit. |
 | identity.organization_account_target(target_account_id UUID, expected_membership_id bigint) | Same columns for exact active org/account/member binding; missing/changed/ineligible identity produces no target. No latest-member substitution. |
+| identity.organization_target(p_org UUID) | Private setup-only point check: exact active organization UUID or no row, independent of accounts/memberships. Requires nonnil selected org and actor assertions, absent account context and exact typed org equality. EXECUTE only for staged access_command_owner; no metadata/list or effective grant. |
 
 Retain existing current_account_memberships()/Access discovery contracts unchanged;
 normal KDG does not require their broader pre-selection use. Leave person projection
@@ -136,7 +137,7 @@ NOLOGIN reader/command owners and explicit grants; never reuse table owner/migra
 | access_runtime | Own selected-context reads/check/discovery wrappers; no target-owner execution or cross-account grant scans. |
 | access_target_runtime | EXECUTE exact user-context Access list/point routines only; no raw table privileges, owner-role assumption or arbitrary app query. |
 | access_setup_target_runtime / access_setup_target_reader | Setup-only point wrapper with explicit setup context and current-org read predicates; no list/raw table privileges or user-role assumption. |
-| access_command_owner | NOLOGIN command definer with exact local DML/sequence/outcome grants and EXECUTE Identity exact target-account/member verification only. No arbitrary Identity table privileges, DDL, authority-map updates or implicit target grant. |
+| access_command_owner | NOLOGIN command definer with exact local DML/sequence/outcome grants and EXECUTE Identity exact target-account/member and private setup organization verification only. No arbitrary Identity table privileges, DDL, authority-map updates or implicit target grant. |
 | identity_operator / access_operator | Owner-local command EXECUTE and scoped compact outcome read only; no raw business DML, schema CREATE, authority-map editing or other-owner role membership. |
 
 Identity organization/member and Access org grant/admission tables enforce ENABLE+FORCE

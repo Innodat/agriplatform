@@ -285,6 +285,8 @@ def verify_operator_roles(connection):
 # Existing Identity/bootstrap routines remain separately owned. Only these exact
 # definitions/ACLs may confer foreign definer execution on a restricted Access role.
 _FOREIGN_FUNCTIONS = {
+ ('identity','organization_target','p_org uuid'):('identity_target_projection_owner',frozenset(('cfeb0eda750962feb7e914e388d8c566bb9ae5f0a492395b3e73a25cd14b65b0',)),
+  '{identity_target_projection_owner=X/identity_target_projection_owner,access_command_owner=X/identity_target_projection_owner}'),
  ('public','get_user_roles',''):('identity_migrator',frozenset((
   '70f79a2d8e0ea471156bc48db7adec34cbd5e490cfee72253bf691aaf3e62ef9',
   '92a975a5f5370f2e573597a99704cabea68500c1e2f040dddff390ddd01e3421')),

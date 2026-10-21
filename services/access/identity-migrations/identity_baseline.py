@@ -23,6 +23,8 @@ PROFILE_REVISION = 'identity_0008'
 LEGACY_ROLES_REVISION = 'identity_0009'
 TOKEN_HOOK_REVISION = 'identity_0010'
 MEMBERSHIP_ACTOR_ATTRIBUTION_REVISION = 'identity_0015'
+ORGANIZATION_TARGET_REVISION = 'identity_0019'
+ORGANIZATION_TARGET_REFERENCE_SHA256 = 'ac95baf560fd71eef4fa4867e45cc79fb22072c16ebb1dce80185bf524730235'
 ACCOUNT_ACTOR_ENSURE_REVISION = 'identity_0018'
 ACCOUNT_ACTOR_ENSURE_REFERENCE_SHA256 = '9502c7183ed38c6f81a3de6f578e04e6feb81059c56fdbbc44045b6f6054eb50'
 ACCOUNT_VERIFICATION_OWNER = 'identity_account_verification_owner'
@@ -97,6 +99,8 @@ def compare_catalog(actual, expected):
         raise BaselineError('identity_catalog_mismatch:' + ','.join(changed))
 
 def trusted_reference(kind):
+    if kind == 'organization_target':
+        return trusted_organization_target_reference()
     if kind == 'account_actor_ensure':
         return trusted_account_actor_ensure_reference()
     if kind == 'membership_join_command':
@@ -206,6 +210,15 @@ def catalog_fingerprints(snapshot):
 
 
 def verify_catalog(connection, kind):
+    if kind == 'organization_target':
+        verify_account_verification_role(connection)
+        verify_projection_role(connection)
+        verify_authority_roles(connection)
+        verify_command_role(connection)
+        verify_target_roles(connection)
+        verify_profile_privileges(connection)
+        compare_catalog(catalog_fingerprints(account_actor_catalog_snapshot(connection)), trusted_organization_target_reference())
+        return
     if kind == 'account_actor_ensure':
         verify_account_verification_role(connection)
         verify_projection_role(connection)
@@ -401,15 +414,15 @@ def verify_legacy_history(connection, clean=False):
 
 def verify_owned_postcondition(connection, require_head=False):
     revision = verify_owned_history(connection)
-    if require_head and revision != ACCOUNT_ACTOR_ENSURE_REVISION:
+    if require_head and revision != ORGANIZATION_TARGET_REVISION:
         raise BaselineError('identity_unknown_history')
     verify_legacy_history(connection)
-    verify_catalog(connection, {REVISION: 'owned', ACTOR_REVISION: 'actor', PROJECTION_REVISION: 'projection', ORGANIZATION_REVISION: 'organization', AUTHORITY_REVISION: 'authority', COMMAND_REVISION: 'command', TARGET_REVISION: 'target', PROFILE_REVISION: 'profile', LEGACY_ROLES_REVISION: 'legacy_roles', TOKEN_HOOK_REVISION: 'token_hook', MEMBERSHIP_BINDING_REVISION: 'membership_binding', MEMBERSHIP_RETENTION_REVISION: 'membership_retention', MEMBERSHIP_RETIREMENT_REVISION: 'membership_retirement', ACTIVE_MEMBERSHIP_INDEX_REVISION: 'active_membership_index', MEMBERSHIP_ACTOR_ATTRIBUTION_REVISION: 'membership_actor_attribution', MEMBERSHIP_RETIRE_COMMAND_REVISION: 'membership_retire_command', MEMBERSHIP_JOIN_COMMAND_REVISION: 'membership_join_command', ACCOUNT_ACTOR_ENSURE_REVISION: 'account_actor_ensure'}[revision])
+    verify_catalog(connection, {REVISION: 'owned', ACTOR_REVISION: 'actor', PROJECTION_REVISION: 'projection', ORGANIZATION_REVISION: 'organization', AUTHORITY_REVISION: 'authority', COMMAND_REVISION: 'command', TARGET_REVISION: 'target', PROFILE_REVISION: 'profile', LEGACY_ROLES_REVISION: 'legacy_roles', TOKEN_HOOK_REVISION: 'token_hook', MEMBERSHIP_BINDING_REVISION: 'membership_binding', MEMBERSHIP_RETENTION_REVISION: 'membership_retention', MEMBERSHIP_RETIREMENT_REVISION: 'membership_retirement', ACTIVE_MEMBERSHIP_INDEX_REVISION: 'active_membership_index', MEMBERSHIP_ACTOR_ATTRIBUTION_REVISION: 'membership_actor_attribution', MEMBERSHIP_RETIRE_COMMAND_REVISION: 'membership_retire_command', MEMBERSHIP_JOIN_COMMAND_REVISION: 'membership_join_command', ACCOUNT_ACTOR_ENSURE_REVISION: 'account_actor_ensure', ORGANIZATION_TARGET_REVISION: 'organization_target'}[revision])
 
 
 def verify_owned_history(connection):
     revisions = list(connection.execute(text('SELECT version_num FROM identity.alembic_version')).scalars())
-    if revisions not in ([REVISION], [ACTOR_REVISION], [PROJECTION_REVISION], [ORGANIZATION_REVISION], [AUTHORITY_REVISION], [COMMAND_REVISION], [TARGET_REVISION], [PROFILE_REVISION], [LEGACY_ROLES_REVISION], [TOKEN_HOOK_REVISION], [MEMBERSHIP_BINDING_REVISION], [MEMBERSHIP_RETENTION_REVISION], [MEMBERSHIP_RETIREMENT_REVISION], [ACTIVE_MEMBERSHIP_INDEX_REVISION], [MEMBERSHIP_ACTOR_ATTRIBUTION_REVISION], [MEMBERSHIP_RETIRE_COMMAND_REVISION], [MEMBERSHIP_JOIN_COMMAND_REVISION], [ACCOUNT_ACTOR_ENSURE_REVISION]):
+    if revisions not in ([REVISION], [ACTOR_REVISION], [PROJECTION_REVISION], [ORGANIZATION_REVISION], [AUTHORITY_REVISION], [COMMAND_REVISION], [TARGET_REVISION], [PROFILE_REVISION], [LEGACY_ROLES_REVISION], [TOKEN_HOOK_REVISION], [MEMBERSHIP_BINDING_REVISION], [MEMBERSHIP_RETENTION_REVISION], [MEMBERSHIP_RETIREMENT_REVISION], [ACTIVE_MEMBERSHIP_INDEX_REVISION], [MEMBERSHIP_ACTOR_ATTRIBUTION_REVISION], [MEMBERSHIP_RETIRE_COMMAND_REVISION], [MEMBERSHIP_JOIN_COMMAND_REVISION], [ACCOUNT_ACTOR_ENSURE_REVISION], [ORGANIZATION_TARGET_REVISION]):
         raise BaselineError('identity_unknown_history')
     columns = connection.execute(text("SELECT column_name,data_type,character_maximum_length,is_nullable,column_default FROM information_schema.columns WHERE table_schema='identity' AND table_name='alembic_version' ORDER BY ordinal_position")).all()
     if [tuple(row) for row in columns] != [('version_num','character varying',32,'NO',None)]:
@@ -1072,3 +1085,18 @@ def trusted_account_actor_ensure_reference():
         or reference['migration_sha256'] != sha256((HERE/'versions/0018_account_actor_ensure.py').read_bytes()).hexdigest()):
         raise BaselineError('identity_reference_unavailable')
     return reference['account_actor_ensure']
+
+
+def trusted_organization_target_reference():
+    trusted_account_actor_ensure_reference()
+    path = HERE/'organization-target-reference.json'
+    if ORGANIZATION_TARGET_REFERENCE_SHA256 is None or not path.exists():
+        raise BaselineError('identity_reference_unavailable')
+    content = path.read_bytes()
+    if sha256(content).hexdigest() != ORGANIZATION_TARGET_REFERENCE_SHA256:
+        raise BaselineError('identity_reference_unavailable')
+    reference = json.loads(content)
+    if (reference['source_pins'] != json.loads((HERE/'source-pins.json').read_text())
+        or reference['migration_sha256'] != sha256((HERE/'versions/0019_organization_target.py').read_bytes()).hexdigest()):
+        raise BaselineError('identity_reference_unavailable')
+    return reference['organization_target']

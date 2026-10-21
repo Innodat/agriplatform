@@ -374,3 +374,25 @@ portability remains deferred; concurrent work and historical migration/reference
 are preserved. Next deliver external organization verification and protected configure
 execution. ACCESS-A/B, grants, effective authorization and coordinated PtS/KDG activation
 remain gated; no Leave/editor, production/pilot or deployment work is included.
+
+
+### Private Identity organization verification — 2026-10-21
+
+Identity0019 adds a private account-free exact active-organization point check for
+staged Access setup. It reuses existing target ownership, RLS and table privileges;
+only access_command_owner gains EXECUTE. Invalid/mixed context returns no row. Context
+settings remain trusted backend assertions; no command authority or access is inferred.
+Access remains at8 and organization_application.configure execution stays closed.
+
+Three review lenses completed; confirmed verification/fixture findings were patched.
+Fresh15-stage native proof, independent retained inspection,1338 affected tests and
+both composition checks pass. All108 source bindings match; protected historical bytes
+and concurrent work remain preserved. The native run stopped normally with all data
+retained. See [evidence](../../../services/access/ORGANIZATION_TARGET_VERIFICATION_EVIDENCE.md)
+for commands, failed-frame disposition, requirements and five delivery impacts.
+
+Next implement protected organization configuration through existing Access owner tools,
+with exact current command/org/app authority, pre-lock Identity observation, revision,
+attribution and atomic evidence/retry safeguards. Grants, ACCESS-B, effective admission
+and coordinated PtS/KDG activation remain separate gates. No Leave/editor or real-target,
+production/deployment/pilot change is included. Existing bootstrap portability stays deferred.

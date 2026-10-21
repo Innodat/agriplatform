@@ -1884,3 +1884,21 @@ records source custody, qualification commands, recovery and limits. Private pre
 and --all are single-use; --verify-retained is read-only and repeatable. Organization
 verification/configure execution, readers/grants and coordinated consumer activation
 remain gated. Preserve earlier native frames and retained resources.
+
+
+### Private Identity organization verification — 2026-10-21
+
+Identity0019 adds only the private setup `organization_target(uuid)` point check for
+staged Access command execution. Existing target definer/RLS and table grants are reused;
+only access_command_owner gains EXECUTE. It returns the exact active organization UUID
+without requiring accounts/memberships or exposing metadata. Context settings are trusted
+backend assertions, not independent authentication. Access8 configure remains disabled.
+
+Use the existing controlled Identity owner migration route, never startup migration,
+stamping, downgrade or automatic reversal. Exact history/catalog/ACL drift refuses;
+preserve failed frames, reconcile the cause and explicitly retry. Generate its reference
+only through the existing rollback-only recorder on a fresh known-source fixture.
+[Owner evidence](../../services/access/ORGANIZATION_TARGET_VERIFICATION_EVIDENCE.md)
+records source custody, synthetic qualification commands and recovery. Private preparation
+and --all are single-use; --verify-retained is read-only. No real organization/account
+changes or deployment authorization follows from this synthetic prerequisite.
