@@ -7,13 +7,13 @@ sys.path.insert(0,str(Path(__file__).resolve().parent))
 import qualify_identity_baseline as qualification
 
 
-def test_new_head_preserves_previous_index_catalog(monkeypatch):
+def test_historical_actor_head_preserves_previous_index_catalog(monkeypatch):
     b=qualification.baseline
     assert b.MEMBERSHIP_ACTOR_ATTRIBUTION_REVISION=='identity_0015'
     monkeypatch.setattr(b,'verify_legacy_history',lambda c:None)
     monkeypatch.setattr(b,'verify_owned_history',lambda c:b.MEMBERSHIP_ACTOR_ATTRIBUTION_REVISION)
     seen=[];monkeypatch.setattr(b,'verify_catalog',lambda c,k:seen.append(k))
-    b.verify_owned_postcondition(object(),require_head=True)
+    b.verify_owned_postcondition(object())
     assert seen==['membership_actor_attribution']
     monkeypatch.setattr(b,'verify_owned_history',lambda c:b.ACTIVE_MEMBERSHIP_INDEX_REVISION)
     b.verify_owned_postcondition(object())

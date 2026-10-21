@@ -12,7 +12,7 @@ from uuid import UUID
 OWNER = Path(__file__).resolve().parent
 sys.path.insert(0, str(OWNER))
 import identity_operator as adapter
-from identity_operator_input import parse_command, RegisterSystemCommand, CommandValidationError
+from identity_operator_input import parse_command, RegisterSystemCommand, RetireMembershipCommand, CommandValidationError
 from identity_operator_target import load_target, TargetError, ROOT
 import dev
 import images
@@ -28,7 +28,7 @@ def _uuid(value):
     return str(UUID(value))
 
 
-def _receipt(value, operation_id):
+def _receipt(value, operation_id, command='actor.register_system'):
     if type(value) is not dict or set(value) != {'operation_id','status','result','command_version','result_version','committed_at'}:
         raise ValueError()
     if value['operation_id'] != operation_id or value['status'] != 'committed':
@@ -39,20 +39,23 @@ def _receipt(value, operation_id):
     if instant.tzinfo is None or instant.utcoffset() != timezone.utc.utcoffset(instant):
         raise ValueError()
     result = value['result']
-    if type(result) is not dict or set(result) != {'command','target','disposition','revision','event_id'} or result['command'] != 'actor.register_system':
+    if type(result) is not dict or set(result) != {'command','target','disposition','revision','event_id'} or result['command'] != command:
         raise ValueError()
     # Reuse the protected adapter's typed stored-result validator.
-    adapter._receipt(({k:v for k,v in result.items() if k != 'command'}, 1, 1, instant), operation_id)
+    adapter._receipt(({k:v for k,v in result.items() if k != 'command'}, 1, 1, instant), operation_id, command)
     return value
 
 
-def validate_response(raw, operation_id):
+def validate_response(raw, operation_id, command='actor.register_system', expected_target=None):
     value = dev.decode(raw)
     if type(value) is dict and set(value) == {'operation_id','status'} and value == {'operation_id':operation_id,'status':'unresolved'}:
         return value
     if type(value) is dict and set(value) == {'operation_id','code'} and value['operation_id'] == operation_id and type(value['code']) is str and value['code'] in CODES:
         return value
-    return _receipt(value, operation_id)
+    receipt = _receipt(value, operation_id, command)
+    if expected_target is not None and any(receipt['result']['target'].get(k) != v for k,v in expected_target.items()):
+        raise ValueError()
+    return receipt
 
 
 def _connection(target):
@@ -82,11 +85,17 @@ def worker(request):
     # Revalidate both transport and filesystem before constructing a connection.
     action, path, value, operation_id = request
     operation_id = _uuid(operation_id)
+    command_name = 'actor.register_system'
+    context = {}
     if action == 'execute':
         body = value.encode('utf-8')
         command = parse_command(body)
-        if not isinstance(command, RegisterSystemCommand) or _uuid(command.operation_id) != operation_id:
+        if not isinstance(command, (RegisterSystemCommand, RetireMembershipCommand)) or _uuid(command.operation_id) != operation_id:
             raise ValueError()
+        command_name = command.command
+    elif action == 'outcome' and type(value) is dict and set(value) == {'command','org_id','account_id'} and value['command'] == 'membership.retire':
+        context = {'command':'membership.retire','org_id':_uuid(value['org_id']),'account_id':_uuid(value['account_id'])}
+        command_name = 'membership.retire'
     elif action != 'outcome' or value is not None:
         raise ValueError()
     target = load_target(path)
@@ -94,12 +103,12 @@ def worker(request):
     try:
         with engine.connect() as connection:
             verify_session(connection, target)
-            receipt = adapter.execute(connection, body) if action == 'execute' else adapter.outcome(connection, operation_id)
+            receipt = adapter.execute(connection, body) if action == 'execute' else adapter.outcome(connection, operation_id, **context)
         if receipt is None:
             return dict(operation_id=operation_id,status='unresolved')
         result = asdict(receipt)
         result['committed_at'] = receipt.committed_at.astimezone(timezone.utc).isoformat()
-        return _receipt(result, operation_id)
+        return _receipt(result, operation_id, command_name)
     finally:
         engine.dispose()
 
@@ -137,29 +146,43 @@ def main(argv=None):
         parser.add_argument('--command-file')
         parser.add_argument('--command')
         parser.add_argument('--operation-id')
+        parser.add_argument('--org-id')
+        parser.add_argument('--account-id')
         actual_argv = sys.argv[1:] if argv is None else argv
         flags = [item for item in actual_argv if item.startswith('--')]
         if len(flags) != len(set(flags)) or any('=' in item for item in flags):
             raise ValueError()
         args = parser.parse_args(actual_argv)
         if args.action == 'execute':
-            if args.command_file is None or args.command is not None or args.operation_id is not None:
+            if args.command_file is None or args.command is not None or args.operation_id is not None or args.org_id is not None or args.account_id is not None:
                 raise ValueError()
             body = dev.read(Path(__import__('os').path.abspath(args.command_file)))
             command = parse_command(body)
             operation_id = _uuid(command.operation_id)
-            if not isinstance(command,RegisterSystemCommand):
+            if not isinstance(command,(RegisterSystemCommand,RetireMembershipCommand)):
                 raise adapter.OperatorError('command_unsupported',operation_id)
+            command_name = command.command
             value = body.decode('utf-8')
         else:
-            if args.command_file is not None or args.command != 'actor.register_system':
+            if args.command_file is not None or args.command not in ('actor.register_system','membership.retire'):
                 raise ValueError()
             operation_id = _uuid(args.operation_id)
-            value = None
+            command_name = args.command
+            if args.command == 'membership.retire':
+                value = dict(command=args.command,org_id=_uuid(args.org_id),account_id=_uuid(args.account_id))
+            else:
+                if args.org_id is not None or args.account_id is not None:
+                    raise ValueError()
+                value = None
+        expected_target = None
+        if command_name == 'membership.retire':
+            expected_target = ({'org_id':str(UUID(command.scope.org_id)), 'account_id':str(UUID(command.payload.account_id)),
+                'membership_id':command.payload.membership_id} if args.action == 'execute' else
+                {'org_id':value['org_id'],'account_id':value['account_id']})
         target = load_target(args.target)
         request = [args.action,str(target.path),value,operation_id]
         try:
-            result = validate_response(dispatch(request),operation_id)
+            result = validate_response(dispatch(request),operation_id,command_name,expected_target)
         except (Exception, KeyboardInterrupt):
             result = dict(code='operation_unavailable',operation_id=operation_id)
         status = 0 if result.get('status') == 'committed' else 2

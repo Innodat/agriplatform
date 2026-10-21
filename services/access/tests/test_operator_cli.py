@@ -168,7 +168,7 @@ def test_worker_unsafe_session_denies_before_adapter(action,monkeypatch):
     assert failure.value.code=='access_denied' and engine.disposed
 
 
-@pytest.mark.parametrize('kind', ['account_actor.ensure', 'membership.join', 'membership.retire'])
+@pytest.mark.parametrize('kind', ['account_actor.ensure', 'membership.join'])
 def test_prepared_retry_inputs_do_not_activate_cli_or_worker(kind, tmp_path, monkeypatch, capsys):
     import operator_cli as c
     import json

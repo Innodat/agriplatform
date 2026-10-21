@@ -23,6 +23,8 @@ PROFILE_REVISION = 'identity_0008'
 LEGACY_ROLES_REVISION = 'identity_0009'
 TOKEN_HOOK_REVISION = 'identity_0010'
 MEMBERSHIP_ACTOR_ATTRIBUTION_REVISION = 'identity_0015'
+MEMBERSHIP_RETIRE_COMMAND_REVISION = 'identity_0016'
+MEMBERSHIP_RETIRE_COMMAND_REFERENCE_SHA256 = '71bd766de85d53269c7f972851442eacdfea45f4d785589d42abb3d2a38ec488'
 MEMBERSHIP_ACTOR_ATTRIBUTION_REFERENCE_SHA256 = '2204a3ca4323bf9693aacc5f4202d2aab1516ac395e71516df2d8f702298a715'
 ACTIVE_MEMBERSHIP_INDEX_REVISION = 'identity_0014'
 ACTIVE_MEMBERSHIP_INDEX_REFERENCE_SHA256 = 'b710b943ecb95e4b7cbce9eb77debad8f1ad181c40a2532ff87cd85be317033b'
@@ -90,6 +92,8 @@ def compare_catalog(actual, expected):
         raise BaselineError('identity_catalog_mismatch:' + ','.join(changed))
 
 def trusted_reference(kind):
+    if kind == 'membership_retire_command':
+        return trusted_membership_retire_command_reference()
     if kind == 'membership_actor_attribution':
         return trusted_membership_actor_attribution_reference()
     if kind == 'active_membership_index':
@@ -193,6 +197,14 @@ def catalog_fingerprints(snapshot):
 
 
 def verify_catalog(connection, kind):
+    if kind == 'membership_retire_command':
+        verify_projection_role(connection)
+        verify_authority_roles(connection)
+        verify_command_role(connection)
+        verify_target_roles(connection)
+        verify_profile_privileges(connection)
+        compare_catalog(catalog_fingerprints(target_catalog_snapshot(connection)), trusted_membership_retire_command_reference())
+        return
     if kind == 'membership_actor_attribution':
         verify_projection_role(connection)
         verify_authority_roles(connection)
@@ -360,15 +372,15 @@ def verify_legacy_history(connection, clean=False):
 
 def verify_owned_postcondition(connection, require_head=False):
     revision = verify_owned_history(connection)
-    if require_head and revision != MEMBERSHIP_ACTOR_ATTRIBUTION_REVISION:
+    if require_head and revision != MEMBERSHIP_RETIRE_COMMAND_REVISION:
         raise BaselineError('identity_unknown_history')
     verify_legacy_history(connection)
-    verify_catalog(connection, {REVISION: 'owned', ACTOR_REVISION: 'actor', PROJECTION_REVISION: 'projection', ORGANIZATION_REVISION: 'organization', AUTHORITY_REVISION: 'authority', COMMAND_REVISION: 'command', TARGET_REVISION: 'target', PROFILE_REVISION: 'profile', LEGACY_ROLES_REVISION: 'legacy_roles', TOKEN_HOOK_REVISION: 'token_hook', MEMBERSHIP_BINDING_REVISION: 'membership_binding', MEMBERSHIP_RETENTION_REVISION: 'membership_retention', MEMBERSHIP_RETIREMENT_REVISION: 'membership_retirement', ACTIVE_MEMBERSHIP_INDEX_REVISION: 'active_membership_index', MEMBERSHIP_ACTOR_ATTRIBUTION_REVISION: 'membership_actor_attribution'}[revision])
+    verify_catalog(connection, {REVISION: 'owned', ACTOR_REVISION: 'actor', PROJECTION_REVISION: 'projection', ORGANIZATION_REVISION: 'organization', AUTHORITY_REVISION: 'authority', COMMAND_REVISION: 'command', TARGET_REVISION: 'target', PROFILE_REVISION: 'profile', LEGACY_ROLES_REVISION: 'legacy_roles', TOKEN_HOOK_REVISION: 'token_hook', MEMBERSHIP_BINDING_REVISION: 'membership_binding', MEMBERSHIP_RETENTION_REVISION: 'membership_retention', MEMBERSHIP_RETIREMENT_REVISION: 'membership_retirement', ACTIVE_MEMBERSHIP_INDEX_REVISION: 'active_membership_index', MEMBERSHIP_ACTOR_ATTRIBUTION_REVISION: 'membership_actor_attribution', MEMBERSHIP_RETIRE_COMMAND_REVISION: 'membership_retire_command'}[revision])
 
 
 def verify_owned_history(connection):
     revisions = list(connection.execute(text('SELECT version_num FROM identity.alembic_version')).scalars())
-    if revisions not in ([REVISION], [ACTOR_REVISION], [PROJECTION_REVISION], [ORGANIZATION_REVISION], [AUTHORITY_REVISION], [COMMAND_REVISION], [TARGET_REVISION], [PROFILE_REVISION], [LEGACY_ROLES_REVISION], [TOKEN_HOOK_REVISION], [MEMBERSHIP_BINDING_REVISION], [MEMBERSHIP_RETENTION_REVISION], [MEMBERSHIP_RETIREMENT_REVISION], [ACTIVE_MEMBERSHIP_INDEX_REVISION], [MEMBERSHIP_ACTOR_ATTRIBUTION_REVISION]):
+    if revisions not in ([REVISION], [ACTOR_REVISION], [PROJECTION_REVISION], [ORGANIZATION_REVISION], [AUTHORITY_REVISION], [COMMAND_REVISION], [TARGET_REVISION], [PROFILE_REVISION], [LEGACY_ROLES_REVISION], [TOKEN_HOOK_REVISION], [MEMBERSHIP_BINDING_REVISION], [MEMBERSHIP_RETENTION_REVISION], [MEMBERSHIP_RETIREMENT_REVISION], [ACTIVE_MEMBERSHIP_INDEX_REVISION], [MEMBERSHIP_ACTOR_ATTRIBUTION_REVISION], [MEMBERSHIP_RETIRE_COMMAND_REVISION]):
         raise BaselineError('identity_unknown_history')
     columns = connection.execute(text("SELECT column_name,data_type,character_maximum_length,is_nullable,column_default FROM information_schema.columns WHERE table_schema='identity' AND table_name='alembic_version' ORDER BY ordinal_position")).all()
     if [tuple(row) for row in columns] != [('version_num','character varying',32,'NO',None)]:
@@ -870,3 +882,19 @@ def trusted_membership_actor_attribution_reference():
         or reference['migration_sha256']!=sha256((HERE/'versions/0015_membership_actor_attribution.py').read_bytes()).hexdigest()):
         raise BaselineError('identity_reference_unavailable')
     return reference['membership_actor_attribution']
+
+
+def trusted_membership_retire_command_reference():
+    """Independent helper-only fixture, retaining the full historical trust chain."""
+    trusted_membership_actor_attribution_reference()
+    path=HERE/'membership-retire-command-reference.json'
+    if MEMBERSHIP_RETIRE_COMMAND_REFERENCE_SHA256 is None or not path.exists():
+        raise BaselineError('identity_reference_unavailable')
+    content=path.read_bytes()
+    if sha256(content).hexdigest()!=MEMBERSHIP_RETIRE_COMMAND_REFERENCE_SHA256:
+        raise BaselineError('identity_reference_unavailable')
+    reference=json.loads(content)
+    if (reference['source_pins']!=json.loads((HERE/'source-pins.json').read_text())
+        or reference['migration_sha256']!=sha256((HERE/'versions/0016_membership_retire_command.py').read_bytes()).hexdigest()):
+        raise BaselineError('identity_reference_unavailable')
+    return reference['membership_retire_command']

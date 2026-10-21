@@ -1,6 +1,24 @@
 # Resume shared ENV delivery after KDG planning PASS
 
-## Current ID-B increment — staged membership actor attribution, 2026-10-21
+## Current ID-B increment — protected membership retirement, 2026-10-21
+
+Revision16 implements exact organization/account/member/revision retirement with server
+actor/time and atomic immutable audit/outcome. Replay and scoped CLI outcome lookup
+require current authority. Ordinary retirement writes refuse; supported active seeds
+and noops remain. Full uniqueness and staged active index stay; joining is not enabled.
+See [Build and evidence](../../../_bmad-output/implementation-artifacts/spec-id-b-membership-retire-command.md).
+Actual restricted-login/concurrency/revocation/response-loss/upgrade/rollback checks pass;
+961 affected tests and both composers pass. All three independent reviews complete;
+nine surviving finding groups patched, one contract-inconsistent proposal rejected,
+no deferrals. Native Supabase normally stopped with all data/resources retained.
+Next is the bounded join/rejoin and coordinated seed/full-uniqueness transition, after
+checking its exact owner dependencies; live account verification remains separate.
+Fresh synthetic proof is member-retire-ggl0dn_m; preserve its committed fixtures and all
+old frames. Mutating qualification stages are single-use; --verify-retained is repeatable.
+No real-target/production/provider/access/deploy/pilot, reset/prune, Leave/editor or push.
+
+
+## Previous ID-B increment — staged membership actor attribution, 2026-10-21
 
 Revision15 adds nullable durable actor references, local RESTRICT FKs and guarded
 owner-only changes; populated creation actor is immutable. Legacy attribution/times,

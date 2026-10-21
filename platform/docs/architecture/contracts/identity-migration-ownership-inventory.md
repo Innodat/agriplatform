@@ -360,3 +360,17 @@ Reviewed actual revision15 matrix PASS47.815s;936 affected tests/both composers 
 All three independent reviews complete; findings resolved without deferrals. Retain
 all prior frames and the new synthetic attributed repeat fixture. Commands and real
 adoption/Access/WRITE/server KDG remain separate gates.
+
+
+## Protected ID-B membership retirement command — 2026-10-21
+
+Revision16 adds exact `membership.retire` execution and current-authority scoped outcome
+lookup through the existing owner adapter/CLI. Organization/account/member/revision,
+server retirement/update attribution, immutable event and outcome share one transaction.
+Ordinary retirement writes refuse at the owner boundary while active seeds/noops and
+controlled migrator maintenance remain. Full and partial uniqueness and historical
+migration/reference bytes remain. Synthetic clean/adopt/head15/repeat and failure proof
+are recorded in [Build/evidence](../../../../_bmad-output/implementation-artifacts/spec-id-b-membership-retire-command.md);
+independent review remains recorded there. See the
+[owner runbook](../../../../services/access/IDENTITY-MIGRATIONS.md#protected-exact-membership-retirement--revision16).
+Joining, account setup, real-target compatibility/activation and later owners remain gated.

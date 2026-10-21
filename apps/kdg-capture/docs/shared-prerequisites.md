@@ -293,3 +293,16 @@ Reviewed actual revision15 matrix PASS47.815s;936 affected tests/both composers 
 All three independent reviews complete; findings resolved without deferrals. Retain
 all prior frames and the new synthetic attributed repeat fixture. Commands and real
 adoption/Access/WRITE/server KDG remain separate gates.
+
+
+## Bounded ID-B protected retirement — 2026-10-21
+
+Revision16 implements the exact organization/account/member/revision retirement command,
+server actor/time, atomic immutable event/outcome, current-authority replay and scoped
+CLI recovery. Actual restricted-session, concurrency/revocation, event/DDL rollback,
+clean/adopt/head15 preservation and original actor-command regression proof pass.
+[Build/evidence](../../../_bmad-output/implementation-artifacts/spec-id-b-membership-retire-command.md)
+retains exact verification and independent review status. Full uniqueness remains;
+new-ID joining/rejoining, account verification/mapping, Access/WRITE and KDG server
+implementation/activation remain separate prerequisites. Synthetic receipts prove only
+their owner-local changes; they do not prove consumer readiness or authorize real data.

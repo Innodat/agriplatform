@@ -13,7 +13,7 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 
 
-@pytest.mark.parametrize('command', ['account_actor.ensure', 'membership.join', 'membership.retire'])
+@pytest.mark.parametrize('command', ['account_actor.ensure', 'membership.join'])
 def test_adapter_exists_and_rejects_unimplemented_command_before_sql(command):
     import identity_operator as operator
     from test_identity_operator_input import document, encode

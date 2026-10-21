@@ -1578,3 +1578,48 @@ Other adoption/default-ACL/current-guard drift lanes roll back. Preserve all rec
 original frames and new fixtures; use fresh cases rather than resetting/deleting them.
 The qualifier emits a fixed safe failure code instead of unhandled SQL diagnostics;
 unknown-history writes use local statement/lock bounds with an actual blocking proof.
+
+
+## Protected exact membership retirement — revision16
+
+`identity.retire_membership` retires one exact organization/account/member/revision
+through `identity_operator`; it derives the executor from the original database session
+and protected `membership.retire` authority. It serializes the outcome namespace and
+membership history, locks the exact row, then rechecks authority before mutation.
+The server sets retirement/update time and durable update actor; creation attribution,
+legacy history and roles are preserved. Membership, immutable event and outcome commit
+atomically. Ordinary retirement INSERT/UPDATE/upsert/multirow writes refuse; equal
+retired-value noops and active seeds remain supported. Migrator maintenance stays
+controlled. Full uniqueness and the partial active index both remain.
+
+Execute with the established prepared target and strict retirement command JSON:
+
+```sh
+OWNER_PYTHON -I -B services/access/operator_cli.py execute --owner identity --target PREPARED_TARGET --command-file COMMAND_JSON
+OWNER_PYTHON -I -B services/access/operator_cli.py outcome --owner identity --target PREPARED_TARGET --command membership.retire --operation-id OPERATION_UUID --org-id ORGANIZATION_UUID --account-id ACCOUNT_UUID
+```
+
+The outcome flags are required only for retirement; actor registration keeps its
+existing invocation/receipt. Missing or extraneous context fails before connection.
+A committed receipt describes the original operation, including decimal revision and
+event UUID; current authority is required for replay and lookup. Missing receipt is
+unresolved. After response loss, recover the same operation before any fresh action;
+changed input under the same operation conflicts. Busy/unavailable results never imply
+rollback or authorize a fresh duplicate. Unknown receipt versions fail verification.
+
+The existing rollback-only reference recorder adds
+`--record-membership-retire-command-reference`, private case
+`membership_retire_command_reference`, and verifies the historical chain through15.
+Use `tests/qualify_membership_retire_command.py` on fresh head15 fixtures, then its
+`--additional`, `--matrix`, `--recovery`, `--fresh-race` and `--review-fixes` stages.
+These mutating stages retain committed synthetic memberships/events/receipts and are single-use;
+never reset/reuse a committed frame. `--verify-retained` performs read-only database
+consistency checks, retains a new proof receipt, and is repeatable on the committed frame.
+Existing safe migration failure reconciliation
+still applies: blocked activation, retained history and explicit recovery, no downgrade.
+
+[Build/evidence](../../_bmad-output/implementation-artifacts/spec-id-b-membership-retire-command.md)
+records runtime proof and review status. This delivers the bounded retirement command;
+joining/rejoining, account verification/mapping, Access activation, WRITE and KDG server
+readiness remain separate gates. No production migration, deployment or real authority
+change is authorized by synthetic qualification.
