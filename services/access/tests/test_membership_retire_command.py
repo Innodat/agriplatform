@@ -62,7 +62,7 @@ def test_head16_retains_exact_historical_head15_verification(monkeypatch):
     monkeypatch.setattr(b,'verify_legacy_history',lambda c:None)
     seen=[];monkeypatch.setattr(b,'verify_catalog',lambda c,k:seen.append(k))
     monkeypatch.setattr(b,'verify_owned_history',lambda c:b.MEMBERSHIP_RETIRE_COMMAND_REVISION)
-    b.verify_owned_postcondition(object(),require_head=True)
+    b.verify_owned_postcondition(object())
     assert seen==['membership_retire_command']
     monkeypatch.setattr(b,'verify_owned_history',lambda c:b.MEMBERSHIP_ACTOR_ATTRIBUTION_REVISION)
     b.verify_owned_postcondition(object())

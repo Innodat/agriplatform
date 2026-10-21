@@ -241,3 +241,26 @@ open outcome/evidence/role/recovery and KDG secret-file/library planning choices
 Planning selections are complete for ordered shared foundations/KDG consumption;
 actual owner/consumer test, target adoption, provider/device, release/restore and
 pre-pilot policy evidence remain mandatory delivery gates. No code is authorized.
+
+Identity membership prerequisite — 2026-10-21: revision17 implements protected first
+join/explicit rejoin and scoped current-authority recovery, coordinated with ordinary
+writer and demo-seed cutover. Retired history/roles and original receipts remain retained;
+Identity copies no grant rows into a new membership. Current Access still matches grants
+by organization/user, so that is not proof that a rejoined account loses old capabilities:
+existing Access/consumers MUST NOT activate with rejoin until separate ACCESS-A/B
+membership-binding delivery and consumer checks pass. Local profile validation is distinct from
+live Auth/account mapping. See the [owner runbook](../../../../services/access/IDENTITY-MIGRATIONS.md#protected-membership-join-and-rejoin--revision17)
+and [source-bound Build evidence](../../../../_bmad-output/implementation-artifacts/spec-id-b-membership-join-command.md).
+ACCESS-A/B, WRITE and KDG delivery/activation remain gated by their own contracts and proof.
+
+Revision17 release is a planned maintenance cutover: stop/drain legacy demo and SQL-seed
+writers, old org/account-only membership writers, old Access and affected consumers;
+verify backup/restore point and retained evidence; migrate Identity; verify catalog/data,
+guards and recovery; complete separate coordinated Access grant binding and current
+consumer checks; then activate. `scripts/seed.py`, the member/role statements in
+`platform/supabase/seeds/001_identity.sql` and generated seed copies are incompatible
+writers, as are old full-unique upserts/owner updates. Preserve source/history, exclude
+seed execution, and keep incompatible consumers stopped. On failure, retain evidence
+and forward-reconcile while stopped (or use an explicitly planned verified restore);
+no automatic downgrade or unsafe previous-version restart. No Access implementation or
+production release execution is authorized by this Identity increment.

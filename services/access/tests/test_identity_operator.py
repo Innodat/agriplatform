@@ -13,7 +13,7 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 
 
-@pytest.mark.parametrize('command', ['account_actor.ensure', 'membership.join'])
+@pytest.mark.parametrize('command', ['account_actor.ensure'])
 def test_adapter_exists_and_rejects_unimplemented_command_before_sql(command):
     import identity_operator as operator
     from test_identity_operator_input import document, encode
@@ -272,3 +272,23 @@ def test_canonical_strings_preserve_distinct_unicode_normalization_forms(kind):
     assert json.loads(decomposed_bytes)['payload']['display_name'] == 'e\u0301'
     executor = 'c1234567-1234-1234-1234-123456789abc'
     assert o.command_outcome_lock_key(executor, composed) == o.command_outcome_lock_key(executor, decomposed)
+
+
+def test_join_dispatch_and_created_receipt():
+    import identity_operator as o
+    from test_identity_operator_input import document, encode
+    class JoinConnection(Connection):
+        def one_or_none(self):
+            return ({'target':{'org_id':'c1234567-1234-1234-1234-123456789abc',
+                'account_id':'b1234567-1234-1234-1234-123456789abc','membership_id':'91'},
+                'disposition':'created','revision':'1','event_id':'d1234567-1234-1234-1234-123456789abc'},
+                1,1,datetime.now(timezone.utc))
+    c=JoinConnection()
+    receipt=o.execute(c,encode(document('membership.join')))
+    assert receipt.result.command=='membership.join' and receipt.result.disposition=='created'
+    assert receipt.result.revision=='1' and c.committed
+    assert 'identity.join_membership' in c.calls[-1][0]
+    lookup=JoinConnection()
+    assert o.outcome(lookup,document('membership.join')['operation_id'],command='membership.join',
+        org_id='c1234567-1234-1234-1234-123456789abc',account_id='b1234567-1234-1234-1234-123456789abc').result==receipt.result
+    assert 'identity.membership_join_outcome' in lookup.calls[-1][0]

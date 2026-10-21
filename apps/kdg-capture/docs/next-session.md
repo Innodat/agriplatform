@@ -1,6 +1,29 @@
 # Resume shared ENV delivery after KDG planning PASS
 
-## Current ID-B increment — protected membership retirement, 2026-10-21
+## Current ID-B increment — protected join/rejoin and seed cutover, 2026-10-21
+
+Revision17 delivers protected first join and explicit rejoin with fresh membership IDs,
+empty roles/grants, immutable outcome/event and currently authorized scoped recovery.
+Ordinary membership inserts/owner changes refuse; full uniqueness is removed while
+active uniqueness/history guards stay. Demo seed execution refuses before side effects;
+owned composition requires --no-seeds and an output free of stale generated seed SQL.
+See [Build/evidence](../../../_bmad-output/implementation-artifacts/spec-id-b-membership-join-command.md).
+Actual restricted/native CLI/races/revocation/response-loss/migration checks and984 tests
+pass. Three independent reviews complete: ten patch groups resolved, one proposal
+rejected, and the existing ACCESS-A/B binding gap recorded as a blocked activation gate. Final proof: member-join-t1zthz6c-attempt4.
+Prior
+failed frames and byte-preserved generated-seed archive stay. Next bounded Identity
+work is live account verification/account_actor.ensure; do not infer live Auth eligibility
+from a retained mapping. Legacy Access can still match org/account grants after rejoin:
+Do not activate this cutover for real consumers before separate membership-bound
+Access delivery.
+Access/WRITE and KDG remain gated. Native project normally stopped; preserve all data/resources
+and
+concurrent Leave/PtS documents. No production/provider/real account/access/deploy/pilot,
+reset/prune, Leave/editor or push.
+
+
+## Previous ID-B increment — protected membership retirement, 2026-10-21
 
 Revision16 implements exact organization/account/member/revision retirement with server
 actor/time and atomic immutable audit/outcome. Replay and scoped CLI outcome lookup

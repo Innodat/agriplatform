@@ -9,7 +9,7 @@ from uuid import UUID
 import rfc8785
 from sqlalchemy import text
 
-from identity_operator_input import Command, RegisterSystemCommand, RetireMembershipCommand, parse_command, CommandValidationError
+from identity_operator_input import Command, RegisterSystemCommand, RetireMembershipCommand, JoinMembershipCommand, parse_command, CommandValidationError
 
 
 class OperatorError(RuntimeError):
@@ -50,9 +50,18 @@ class RetireMembershipResult:
 
 
 @dataclass(frozen=True)
+class JoinMembershipResult:
+    command: Literal['membership.join']
+    target: MembershipTarget
+    disposition: Literal['created']
+    revision: str
+    event_id: str
+
+
+@dataclass(frozen=True)
 class Receipt:
     operation_id: str
-    result: RegisterResult | RetireMembershipResult
+    result: RegisterResult | RetireMembershipResult | JoinMembershipResult
     command_version: int
     result_version: int
     committed_at: datetime
@@ -108,8 +117,8 @@ def _remaining(deadline):
 
 
 def _receipt(row, operation_id, command='actor.register_system'):
-    if command == 'membership.retire':
-        return _membership_receipt(row, operation_id)
+    if command in ('membership.retire', 'membership.join'):
+        return _membership_receipt(row, operation_id, command)
     if row is None:
         return None  # unresolved, never a proof of failure
     result, command_version, result_version, committed_at = row
@@ -134,7 +143,7 @@ def _receipt(row, operation_id, command='actor.register_system'):
                    result['disposition'], None, event), 1, 1, committed_at)
 
 
-def _membership_receipt(row, operation_id):
+def _membership_receipt(row, operation_id, command='membership.retire'):
     if row is None:
         return None
     valid = False
@@ -143,7 +152,7 @@ def _membership_receipt(row, operation_id):
         valid = (type(cv) is int and cv == 1 and type(rv) is int and rv == 1
             and type(result) is dict and set(result) == {'target','disposition','revision','event_id'}
             and type(result['target']) is dict and set(result['target']) == {'org_id','account_id','membership_id'}
-            and result['disposition'] == 'changed' and isinstance(instant, datetime) and instant.tzinfo is not None)
+            and result['disposition'] == ('created' if command == 'membership.join' else 'changed') and isinstance(instant, datetime) and instant.tzinfo is not None)
         if valid:
             target = result['target']
             for name in ('org_id','account_id'):
@@ -156,8 +165,11 @@ def _membership_receipt(row, operation_id):
         valid = False
     if not valid:
         raise OperatorError('operation_verification_unavailable', operation_id)
-    return Receipt(operation_id, RetireMembershipResult('membership.retire', MembershipTarget(**target),
-        'changed', result['revision'], event), 1, 1, instant)
+    if command == 'membership.join' and result['revision'] != '1':
+        raise OperatorError('operation_verification_unavailable', operation_id)
+    model = JoinMembershipResult if command == 'membership.join' else RetireMembershipResult
+    return Receipt(operation_id, model(command, MembershipTarget(**target),
+        result['disposition'], result['revision'], event), 1, 1, instant)
 
 
 def _run(connection, operation_id, statement, parameters, deadline, command='actor.register_system'):
@@ -203,6 +215,14 @@ def execute(connection, body: bytes):
     deadline = time.monotonic() + 10
     command = parse_command(body)
     operation_id = str(UUID(command.operation_id))
+    if isinstance(command, JoinMembershipCommand):
+        return _run(connection, operation_id,
+            'SELECT * FROM identity.join_membership(CAST(:operation AS uuid),CAST(:org AS uuid),'
+            'CAST(:account AS uuid),CAST(:previous AS bigint),:owner,:reason,:evidence,:canonical)',
+            dict(operation=operation_id, org=str(UUID(command.scope.org_id)),
+                 account=str(UUID(command.payload.account_id)), previous=command.payload.expected_previous_membership_id,
+                 owner=command.payload.is_owner, reason=command.reason_code,
+                 evidence=command.evidence_ref, canonical=canonical_command(command)), deadline, 'membership.join')
     if isinstance(command, RetireMembershipCommand):
         return _run(connection, operation_id,
             'SELECT * FROM identity.retire_membership(CAST(:operation AS uuid),CAST(:org AS uuid),'
@@ -232,7 +252,7 @@ def outcome(connection, operation_id, *, command='actor.register_system', org_id
             operation_id = str(UUID(operation_id))
     except (ValueError, TypeError, AttributeError):
         invalid = True
-    if command == 'membership.retire':
+    if command in ('membership.retire', 'membership.join'):
         try:
             for value in (org_id, account_id):
                 if type(value) is not str or str(UUID(value)) != value.lower() or not UUID(value).int:
@@ -244,9 +264,9 @@ def outcome(connection, operation_id, *, command='actor.register_system', org_id
         invalid = True
     if invalid:
         raise OperatorError('command_invalid')
-    if command == 'membership.retire':
+    if command in ('membership.retire', 'membership.join'):
         return _run(connection, operation_id,
-            'SELECT * FROM identity.membership_retirement_outcome(CAST(:operation AS uuid),CAST(:org AS uuid),CAST(:account AS uuid))',
+            ('SELECT * FROM identity.' + ('membership_join_outcome' if command == 'membership.join' else 'membership_retirement_outcome') + '(CAST(:operation AS uuid),CAST(:org AS uuid),CAST(:account AS uuid))'),
             dict(operation=operation_id, org=org_id, account=account_id), deadline, command)
     return _run(connection, operation_id,
         'SELECT * FROM identity.system_actor_outcome(CAST(:operation AS uuid))',

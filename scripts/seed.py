@@ -1,3 +1,8 @@
+"""Historical demo seed helpers, retained as source evidence only."""
+# This lane predates protected membership history and must stop before optional
+# imports, environment loading, client construction or Auth/network side effects.
+raise SystemExit('identity_legacy_demo_seed_retired: use controlled owner commands')
+
 import os
 import subprocess
 from datetime import datetime, timedelta

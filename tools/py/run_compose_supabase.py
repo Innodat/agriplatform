@@ -606,8 +606,21 @@ def write_manifest(
     MANIFEST_PATH.write_text(json.dumps(payload, indent=2) + "\n", encoding="utf-8")
 
 
+def validate_identity_seeds(authority: str, no_seeds: bool, output: Path) -> None:
+    """Owned Identity has no legacy demo seed writer; preserve stale output."""
+    if authority != "owned":
+        return
+    if not no_seeds:
+        print("identity_owned_requires_no_seeds: use --no-seeds")
+        raise SystemExit(1)
+    if output.exists() and any(output.rglob("*.sql")):
+        print("identity_owned_stale_seed_output: preserve and archive generated SQL before composition")
+        raise SystemExit(1)
+
+
 def main() -> None:
     args = parse_args()
+    validate_identity_seeds(args.identity_authority, args.no_seeds, OUTPUT_SEEDS_DIR)
     if args.check_only:
         args.dry_run = True
 

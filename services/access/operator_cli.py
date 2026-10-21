@@ -12,7 +12,7 @@ from uuid import UUID
 OWNER = Path(__file__).resolve().parent
 sys.path.insert(0, str(OWNER))
 import identity_operator as adapter
-from identity_operator_input import parse_command, RegisterSystemCommand, RetireMembershipCommand, CommandValidationError
+from identity_operator_input import parse_command, RegisterSystemCommand, RetireMembershipCommand, JoinMembershipCommand, CommandValidationError
 from identity_operator_target import load_target, TargetError, ROOT
 import dev
 import images
@@ -90,12 +90,12 @@ def worker(request):
     if action == 'execute':
         body = value.encode('utf-8')
         command = parse_command(body)
-        if not isinstance(command, (RegisterSystemCommand, RetireMembershipCommand)) or _uuid(command.operation_id) != operation_id:
+        if not isinstance(command, (RegisterSystemCommand, RetireMembershipCommand, JoinMembershipCommand)) or _uuid(command.operation_id) != operation_id:
             raise ValueError()
         command_name = command.command
-    elif action == 'outcome' and type(value) is dict and set(value) == {'command','org_id','account_id'} and value['command'] == 'membership.retire':
-        context = {'command':'membership.retire','org_id':_uuid(value['org_id']),'account_id':_uuid(value['account_id'])}
-        command_name = 'membership.retire'
+    elif action == 'outcome' and type(value) is dict and set(value) == {'command','org_id','account_id'} and value['command'] in ('membership.retire','membership.join'):
+        context = {'command':value['command'],'org_id':_uuid(value['org_id']),'account_id':_uuid(value['account_id'])}
+        command_name = value['command']
     elif action != 'outcome' or value is not None:
         raise ValueError()
     target = load_target(path)
@@ -159,25 +159,25 @@ def main(argv=None):
             body = dev.read(Path(__import__('os').path.abspath(args.command_file)))
             command = parse_command(body)
             operation_id = _uuid(command.operation_id)
-            if not isinstance(command,(RegisterSystemCommand,RetireMembershipCommand)):
+            if not isinstance(command,(RegisterSystemCommand,RetireMembershipCommand,JoinMembershipCommand)):
                 raise adapter.OperatorError('command_unsupported',operation_id)
             command_name = command.command
             value = body.decode('utf-8')
         else:
-            if args.command_file is not None or args.command not in ('actor.register_system','membership.retire'):
+            if args.command_file is not None or args.command not in ('actor.register_system','membership.retire','membership.join'):
                 raise ValueError()
             operation_id = _uuid(args.operation_id)
             command_name = args.command
-            if args.command == 'membership.retire':
+            if args.command in ('membership.retire','membership.join'):
                 value = dict(command=args.command,org_id=_uuid(args.org_id),account_id=_uuid(args.account_id))
             else:
                 if args.org_id is not None or args.account_id is not None:
                     raise ValueError()
                 value = None
         expected_target = None
-        if command_name == 'membership.retire':
+        if command_name in ('membership.retire','membership.join'):
             expected_target = ({'org_id':str(UUID(command.scope.org_id)), 'account_id':str(UUID(command.payload.account_id)),
-                'membership_id':command.payload.membership_id} if args.action == 'execute' else
+                **({'membership_id':command.payload.membership_id} if command_name == 'membership.retire' else {})} if args.action == 'execute' else
                 {'org_id':value['org_id'],'account_id':value['account_id']})
         target = load_target(args.target)
         request = [args.action,str(target.path),value,operation_id]

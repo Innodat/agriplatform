@@ -306,3 +306,17 @@ retains exact verification and independent review status. Full uniqueness remain
 new-ID joining/rejoining, account verification/mapping, Access/WRITE and KDG server
 implementation/activation remain separate prerequisites. Synthetic receipts prove only
 their owner-local changes; they do not prove consumer readiness or authorize real data.
+
+
+## Bounded ID-B join/rejoin and seed cutover — 2026-10-21
+
+Revision17 delivers protected first join/explicit rejoin and scoped recovery, fresh IDs,
+empty copied roles/grants and atomic owner evidence. Direct inserts/owner changes refuse;
+full uniqueness is removed, active uniqueness/history retained. Demo seeding refuses;
+owned composition uses --no-seeds and rejects stale output.984 tests, both composers and
+actual runtime proof pass; three reviews complete. See
+[Build/evidence](../../../_bmad-output/implementation-artifacts/spec-id-b-membership-join-command.md).
+Source seeds/history and archived generated outputs remain preserved. Current Access
+still matches org/account grants and is incompatible with rejoin activation: separate
+ACCESS-A/B membership binding/consumer proof is mandatory. Live account verification/
+account_actor.ensure, Access/WRITE and server KDG remain gated; no real-target activation.

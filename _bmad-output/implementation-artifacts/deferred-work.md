@@ -89,3 +89,7 @@
 - source_spec: `_bmad-output/implementation-artifacts/spec-env-kong-owned-lifecycle.md`
   summary: Medium-unverified pre-Kong Auth handoff timing failures remain unexplained despite unchanged isolated and serial process passes.
   evidence: Retain .local/kong-owned-lifecycle/process-final.log and process-negative-final.log; safe diagnostic runs pass without capturing the original escaping invalid_owner_handoff. The existing5s wrapper alarm covers repeated backend/custody observations; measure safe elapsed/count data and capture an original failing stack before attributing cause or optimizing. Preserve every custody boundary/deadline; no caching across observations or timeout enlargement.
+
+- source_spec: `_bmad-output/implementation-artifacts/spec-id-b-membership-join-command.md`
+  summary: Complete separately gated Access admission and exact membership-bound grants before activating join/rejoin with any real consumer.
+  evidence: Independent review B1 confirms services/access/main.py currently joins access.grants by org_id/user_id, so retained grants can match a replacement membership. This pre-existing ACCESS-A/B transition is explicitly outside the bounded Identity delivery; current Access is incompatible with cutover and must stay stopped until coordinated migration/consumer verification. New member role/grant rows are not copied, but that alone does not prevent legacy Access reuse.

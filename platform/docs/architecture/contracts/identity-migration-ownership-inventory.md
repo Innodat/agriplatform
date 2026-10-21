@@ -374,3 +374,19 @@ are recorded in [Build/evidence](../../../../_bmad-output/implementation-artifac
 independent review remains recorded there. See the
 [owner runbook](../../../../services/access/IDENTITY-MIGRATIONS.md#protected-exact-membership-retirement--revision16).
 Joining, account setup, real-target compatibility/activation and later owners remain gated.
+
+## Protected ID-B membership join and seed cutover — 2026-10-21
+
+Revision17 delivers first join and explicit rejoin through the existing protected
+Identity operator surface, with exact command/org/account authority and additional
+`membership.join_owner` authority for initial ownership. It shares retirement's history
+lock, creates a new revision1 member and atomic immutable outcome/event, and retains old
+members/roles/receipts. Local profile/org validation does not claim live Auth verification.
+Ordinary membership insertion/owner changes are blocked; full uniqueness is removed only
+with protected writers and seed cutover, retaining active uniqueness and history guards.
+Legacy demo execution stops before side effects; owned composition requires `--no-seeds`
+and refuses stale generated seed SQL. Historical migrations/references and SQL seeds stay
+unchanged. [Owner runbook](../../../../services/access/IDENTITY-MIGRATIONS.md#protected-membership-join-and-rejoin--revision17)
+and [Build/evidence](../../../../_bmad-output/implementation-artifacts/spec-id-b-membership-join-command.md)
+record actual restricted/native CLI/race and migration evidence. This bounded prerequisite
+does not authorize account mapping, Access activation or downstream application delivery.

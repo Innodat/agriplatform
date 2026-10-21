@@ -1623,3 +1623,106 @@ records runtime proof and review status. This delivers the bounded retirement co
 joining/rejoining, account verification/mapping, Access activation, WRITE and KDG server
 readiness remain separate gates. No production migration, deployment or real authority
 change is authorized by synthetic qualification.
+
+## Protected membership join and rejoin — revision17
+
+`identity.join_membership` derives its executor from the original operator session and
+current exact `membership.join` organization/account authority. An initial owner also
+requires `membership.join_owner`; that extra authority remains necessary for replay and
+recovery of an owned creation. Join and retirement share the existing membership-history
+lock and retain their command-specific retry namespaces. After serialization, join
+rechecks authority and validates nondeleted local profile/organization rows. The profile
+still references Auth, but this command makes no live Auth/provider verification claim
+and creates no account, actor mapping, employment, role or grant.
+
+First join names a null predecessor and requires no history. Rejoin names the latest
+retained retired membership ID and requires no active membership. It allocates a fresh
+bigint ID, revision1, server creation/update instants and durable executor actors; nullable
+legacy profile attribution stays null for a service executor. Retained members, roles,
+events and receipts survive. Old joins resolve their original member after retirement
+and rejoin; delayed retirement never targets the replacement. The new primary-key ID
+is greater than this organization/account's retained predecessor. This is no guarantee
+of global monotonic allocation and no global sequence audit: the command's reads remain
+RLS-scoped. An invisible primary-key collision fails safely as unavailable; recover the
+same operation under current authority and reconcile owner sequence state explicitly
+before any fresh action. The command never silently repairs the sequence. Membership,
+event and outcome commit together.
+
+Use the existing prepared target and strict version1 organization-scoped JSON with
+`command: membership.join` and payload `account_id`,
+`expected_previous_membership_id` (null or positive decimal string), and optional
+`is_owner` (default false). Execution uses the existing `execute --command-file` lane.
+Recovery requires explicit command/org/account context:
+
+```sh
+OWNER_PYTHON -I -B services/access/operator_cli.py outcome --owner identity --target PREPARED_TARGET --command membership.join --operation-id OPERATION_UUID --org-id ORGANIZATION_UUID --account-id ACCOUNT_UUID
+```
+
+The typed created receipt identifies the exact new member, revision1 and event UUID.
+Recover an uncertain response with that same operation and current authority. Missing
+outcome remains unresolved; a changed retry conflicts. A receipt describes the original
+commit, not current membership or effective application access.
+
+Revision17 drops only the full org/account unique constraint; the active unique index
+and history/binding/retirement guards remain. Ordinary membership insertion and owner
+flag changes now refuse atomically. Explicit migrator maintenance and unrelated supported
+updates remain available. `scripts/seed.py` is retired before imports, client creation or
+Auth side effects; its historical source helpers and all source SQL seeds are retained.
+Owned composition requires `--no-seeds` and refuses any stale generated seed SQL before
+writing. Preserve/archive generated output with exact hashes before using the clean
+owned lane. Do not use legacy demo scripts as a replacement provisioning path.
+
+This is an incompatible writer cutover requiring a planned maintenance release under
+ADR-0020. The affected inventory includes `scripts/seed.py` (`seed_org_member` upserts on
+`org_id,user_id` and writes owner flags), `platform/supabase/seeds/001_identity.sql`
+(direct member/role insertion and org/account-only member selection), generated copies
+of those seeds, and any old writer relying on that full unique constraint or ordinary
+owner-flag updates. Keep source seeds as historical input; do not execute them against17.
+The present `services/access/main.py` check joins grants by organization/user and its
+existing grant storage lacks the required membership binding. Identity copies no grant
+rows, but that alone does not stop old Access from matching a retained grant to a new
+membership. Existing Access and its consumers MUST NOT activate with rejoin until the
+separate ACCESS-A/B delivery supplies and qualifies exact membership-bound authorization.
+No Access change is delivered here.
+
+The target-specific release procedure must follow this order:
+
+1. Stop and drain affected legacy writers, seed execution, old Access and dependent
+   consumers. Keep them stopped throughout the maintenance window; do not overlap old
+   org/account-only provisioning or grant checks with rejoin.
+2. Capture and verify the backup/restore point, current schema/ledger and retained
+   membership/role/grant/outcome evidence, plus the writer/consumer version inventory.
+3. Run the controlled Identity migration before activation; never migrate on process
+   startup. Any migration failure blocks activation.
+4. Verify exact catalog/history, retained data, active uniqueness, writer guards,
+   attribution, scoped current-authority replay and required immutable evidence.
+5. Through the separate coordinated ACCESS-A/B release, bind grants to exact memberships
+   and verify current Access/consumer behavior for retirement, explicit rejoin, retained
+   grants and stale commands. This remains a prerequisite, not an action authorized by
+   the Identity synthetic proof or an implemented Access capability.
+6. Activate only after both owner migrations and those consumer checks pass with the
+   target-specific release evidence. Reconcile any failed check before activation.
+
+Recovery keeps affected services stopped. Preserve failed-attempt evidence and applied
+history, determine the durable migration/command outcome, and forward-reconcile through
+the owning migration/recovery procedure; use the verified restore procedure only when
+explicitly planned for the target. Do not automatically downgrade applied migrations or
+restart an unsafe previous writer/Access version against17. A successful Identity receipt
+or exact catalog check alone is insufficient to resume Access or enable rejoin.
+
+The independent rollback-only recorder adds
+`--record-membership-join-command-reference` and private case
+`membership_join_command_reference`, checking every historical reference through16.
+`tests/qualify_membership_join_command.py` uses fresh synthetic cases and the established
+restricted-session/witnessed-lock tooling; its `--additional`, `--boundaries`, `--matrix`
+and `--verify-retained` stages retain evidence. `--review-gaps` adds fresh explicit rejoin,
+shared-history revocation, reference-lock ordering, maintenance and lookup-scope proofs;
+`--review-gaps-remaining` resumes only the latter three proofs with fresh fixtures. Mutating stages are single-use; never
+reset a committed frame. Retained verification compares original receipt/event/member
+attribution and all catalog fingerprints without changing database state.
+
+[Build/evidence](../../_bmad-output/implementation-artifacts/spec-id-b-membership-join-command.md)
+records attempts, commands, source custody, composer archive and downstream limits.
+Account live verification/mapping, Access activation, WRITE, KDG delivery and production
+migration/provisioning remain separate gates. Migration failure blocks activation and
+requires explicit reconciliation; no automatic downgrade or startup migration is added.
