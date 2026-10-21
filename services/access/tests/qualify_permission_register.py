@@ -58,7 +58,7 @@ class Qualification(prior.Qualification):
         literal='NULL' if app is None else "'"+app+"'"
         self.execute_sql(case,f"INSERT INTO access.operator_authorities(id,database_login,command,scope_kind,application_id,enabled,created_by,updated_by) VALUES(gen_random_uuid(),'access_operator','permission.register','platform',{literal},true,'{ACTOR}','{ACTOR}')")
     def prepare_cases(self):
-        for case,head in (('exact1','access_0001'),('exact2','access_0002'),('exact3','access_0003'),('exact4','access_0004'),('exact5','head')):
+        for case,head in (('exact1','access_0001'),('exact2','access_0002'),('exact3','access_0003'),('exact4','access_0004'),('exact5','access_0005')):
             self.migrate(case,head)
             self.execute_sql(case,"SET LOCAL app.org_id='11111111-1111-4111-8111-111111111111'; SET LOCAL app.actor_id='historical'; INSERT INTO access.grants(org_id,id,user_id,permission) VALUES('11111111-1111-4111-8111-111111111111','preserved','22222222-2222-4222-8222-222222222222','pts.poetry.read')")
             if case=='exact3':self.execute_sql(case,f"INSERT INTO access.applications(app_id,revision,created_by,updated_by,created_at,updated_at) VALUES('exact_app',7,'{ACTOR}','{ACTOR}',statement_timestamp(),statement_timestamp())")
@@ -364,7 +364,7 @@ class Qualification(prior.Qualification):
         for mutation in (
             'DROP TRIGGER operation_outcome_guard ON access.operation_outcome; CREATE TRIGGER operation_outcome_guard BEFORE INSERT OR UPDATE OR DELETE ON access.operation_outcome FOR EACH ROW EXECUTE FUNCTION access.registry_storage_immutable()',
             'SET LOCAL ROLE access_command_owner; ALTER FUNCTION access.register_application(uuid,text,text,text,bytea) SECURITY INVOKER; RESET ROLE',
-            'GRANT SELECT ON access.entry_permissions TO access_command_owner',
+            'GRANT UPDATE ON access.entry_permissions TO access_command_owner',
         ):
             before=self.snapshot('clean');e=self.db('clean')
             try:

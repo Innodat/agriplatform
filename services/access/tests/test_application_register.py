@@ -39,11 +39,12 @@ def test_receipt_is_typed_and_closed():
     assert a._receipt(None,OP) is None
 
 
-def test_non_executable_access_commands_reject_before_connection():
+def test_entry_dispatch_uses_protected_adapter(monkeypatch):
     import access_operator as a
-    for command in ('entry_permission.register',):
-        with pytest.raises(a.OperatorError) as failure:a.execute(object(),json.dumps(document(command)).encode())
-        assert failure.value.code == 'command_unsupported'
+    seen=[]
+    monkeypatch.setattr(a,'_run',lambda *args:seen.append(args))
+    a.execute(object(),json.dumps(document('entry_permission.register')).encode())
+    assert 'access.register_entry_permission' in seen[0][2]
 
 
 def test_lookup_requires_explicit_app_before_connection():
@@ -69,8 +70,8 @@ def test_cli_access_closed_dispatch(tmp_path,monkeypatch,capsys):
     before=len(seen)
     path.write_text(json.dumps(document('entry_permission.register')))
     assert c.main(['execute','--owner','access','--target','synthetic','--command-file',str(path)]) == 2
-    assert json.loads(capsys.readouterr().out)['code'] == 'command_unsupported'
-    assert len(seen) == before
+    assert json.loads(capsys.readouterr().out)['status'] == 'unresolved'
+    assert len(seen) == before+1
 
 
 def test_revision4_is_known_and_roles_are_required():

@@ -9,7 +9,7 @@ from uuid import UUID
 import rfc8785
 from sqlalchemy import text
 from identity_operator import OperatorError
-from access_operator_input import parse_command, RegisterApplicationCommand, RegisterPermissionCommand
+from access_operator_input import parse_command, RegisterApplicationCommand, RegisterPermissionCommand, RegisterEntryPermissionCommand
 
 @dataclass(frozen=True)
 class ApplicationTarget:
@@ -37,13 +37,22 @@ class RegisterPermissionResult:
     event_id: str | None
 
 
+@dataclass(frozen=True)
+class RegisterEntryPermissionResult:
+    command: Literal['entry_permission.register']
+    target: PermissionTarget
+    disposition: Literal['created', 'unchanged']
+    revision: None
+    event_id: str | None
+
+
 def valid_permission(value):
     return type(value) is str and value.isascii() and 1 <= len(value) <= 200 and '\x00' not in value
 
 @dataclass(frozen=True)
 class Receipt:
     operation_id: str
-    result: RegisterApplicationResult | RegisterPermissionResult
+    result: RegisterApplicationResult | RegisterPermissionResult | RegisterEntryPermissionResult
     command_version: int
     result_version: int
     committed_at: datetime
@@ -70,8 +79,8 @@ def _receipt(row, operation_id, command='application.register'):
     valid = False
     try:
         result, cv, rv, instant = row
-        permission = command == 'permission.register'
-        valid = (command in ('application.register','permission.register') and type(cv) is int and cv == 1
+        permission = command in ('permission.register','entry_permission.register')
+        valid = (command in ('application.register','permission.register','entry_permission.register') and type(cv) is int and cv == 1
             and type(rv) is int and rv == 1 and type(result) is dict
             and set(result) == {'target','disposition','revision','event_id'}
             and type(result['target']) is dict
@@ -83,7 +92,7 @@ def _receipt(row, operation_id, command='application.register'):
         if permission:
             valid = (valid and set(result['target']) == {'app_id','permission'}
                 and revision is None and valid_permission(result['target']['permission']))
-            result_type, target_type = RegisterPermissionResult, PermissionTarget
+            result_type, target_type = (RegisterPermissionResult if command == 'permission.register' else RegisterEntryPermissionResult), PermissionTarget
             creation_revision_valid = True
         else:
             valid = (valid and set(result['target']) == {'app_id'} and type(revision) is str
@@ -158,6 +167,11 @@ def execute(connection, body: bytes):
     deadline = time.monotonic() + 10
     command = parse_command(body)
     operation_id = str(UUID(command.operation_id))
+    if isinstance(command,RegisterEntryPermissionCommand):
+        return _run(connection,operation_id,
+            'SELECT * FROM access.register_entry_permission(CAST(:operation AS uuid),:app,:permission,:reason,:evidence,:canonical)',
+            dict(operation=operation_id,app=command.payload.app_id,permission=command.payload.permission,
+                reason=command.reason_code,evidence=command.evidence_ref,canonical=canonical_command(command)),deadline,command.command)
     if isinstance(command,RegisterPermissionCommand):
         return _run(connection,operation_id,
             'SELECT * FROM access.register_permission(CAST(:operation AS uuid),:app,:permission,:scope,:reason,:evidence,:canonical)',
@@ -174,8 +188,8 @@ def execute(connection, body: bytes):
 def outcome(connection, operation_id, *, command='application.register', app_id=None, permission=None):
     invalid = False
     try:
-        invalid = (command not in ('application.register','permission.register')
-            or (not valid_permission(permission) if command == 'permission.register' else permission is not None) or type(operation_id) is not str
+        invalid = (command not in ('application.register','permission.register','entry_permission.register')
+            or (not valid_permission(permission) if command in ('permission.register','entry_permission.register') else permission is not None) or type(operation_id) is not str
             or UUID(operation_id).int == 0 or str(UUID(operation_id)) != operation_id.lower()
             or type(app_id) is not str or re.fullmatch(r'[a-z][a-z0-9_]{1,63}',app_id) is None)
     except (ValueError,TypeError,AttributeError):
@@ -183,6 +197,10 @@ def outcome(connection, operation_id, *, command='application.register', app_id=
     if invalid:
         raise OperatorError('command_invalid')
     operation_id = str(UUID(operation_id))
+    if command == 'entry_permission.register':
+        return _run(connection,operation_id,
+            'SELECT * FROM access.entry_permission_registration_outcome(CAST(:operation AS uuid),:app,:permission)',
+            dict(operation=operation_id,app=app_id,permission=permission),time.monotonic()+10,command)
     if command == 'permission.register':
         return _run(connection,operation_id,
             'SELECT * FROM access.permission_registration_outcome(CAST(:operation AS uuid),:app,:permission)',

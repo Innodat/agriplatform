@@ -523,3 +523,21 @@ def permission_catalog():
     functions['register_permission'] = [(row[0].replace('p_app text,', 'p_app text, p_permission text, p_scope text,'),*row[1:]) for row in functions['register_application']]
     functions['permission_registration_outcome'] = [(row[0]+', p_permission text',*row[1:]) for row in functions['application_registration_outcome']]
     return tables, functions
+
+
+# Revision6 extends the exact revision5 expectations without changing historical ones.
+def entry_catalog():
+    from copy import deepcopy
+    tables, functions = permission_catalog()
+    replacements = {
+        'operator_authorities_command_check': "CHECK ((command = ANY (ARRAY['application.register'::text, 'permission.register'::text, 'entry_permission.register'::text])))",
+        'operation_outcome_command_type_check': "CHECK ((command_type = ANY (ARRAY['application.register'::text, 'permission.register'::text, 'entry_permission.register'::text])))",
+        'business_event_event_type_check': "CHECK ((event_type = ANY (ARRAY['access.application_registered'::text, 'access.permission_registered'::text, 'access.entry_permission_registered'::text])))",
+    }
+    for table in tables.values():
+        table['constraints'] = [(n,t,replacements.get(n,d),a,b,c) for n,t,d,a,b,c in table['constraints']]
+    functions['entry_permission_operator_authority'] = deepcopy(functions['current_operator_authority'])
+    functions['require_entry_permission_registration'] = deepcopy(functions['require_application_registration'])
+    functions['register_entry_permission'] = [(row[0].replace('p_app text,', 'p_app text, p_permission text,'),*row[1:]) for row in functions['register_application']]
+    functions['entry_permission_registration_outcome'] = deepcopy(functions['permission_registration_outcome'])
+    return tables, functions

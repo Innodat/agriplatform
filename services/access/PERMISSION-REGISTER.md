@@ -2,15 +2,15 @@
 
 Access0005 extends the existing Access operator route with `permission.register`.
 It registers one immutable literal permission/application/scope association and grants
-no access. Applications may remain disabled. Entry registration, application enablement,
-grants and consumer activation remain separate gated work.
+no access. Applications may remain disabled. Entry registration is provided by the separate [entry command](ENTRY-PERMISSION-REGISTER.md).
+Application enablement, grants and consumer activation remain separately gated.
 
 Use the existing [application operator preparation and recovery runbook](APPLICATION-REGISTER.md).
 The same three restricted roles and private prepared Access target apply; no additional
 credential, role or lifecycle is required. Controlled Access `upgrade head` accepts only
-exact clean/1/2/3/4/5 histories. Populated Access4 rows and original receipts are preserved;
+exact clean/1/2/3/4/5/6 histories. Populated Access4 rows and original receipts are preserved;
 unknown metadata, default privileges or history refuse without normalization. Ordinary
-Identity verification selects exact Access4/5 metadata without reading its ledger or data.
+Identity verification selects exact Access4/5/6 metadata without reading its ledger or data.
 
 Controlled owner bootstrap must verify the external service actor and provision an enabled
 `access.operator_principals` mapping for the original session login plus an enabled

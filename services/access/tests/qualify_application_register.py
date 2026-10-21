@@ -361,7 +361,7 @@ class Qualification:
         for mutation in (
             'DROP TRIGGER operation_outcome_guard ON access.operation_outcome; CREATE TRIGGER operation_outcome_guard BEFORE INSERT OR UPDATE OR DELETE ON access.operation_outcome FOR EACH ROW EXECUTE FUNCTION access.registry_storage_immutable()',
             'SET LOCAL ROLE access_command_owner; ALTER FUNCTION access.register_application(uuid,text,text,text,bytea) SECURITY INVOKER; RESET ROLE',
-            'GRANT SELECT ON access.permissions TO access_command_owner',
+            'GRANT UPDATE ON access.permissions TO access_command_owner',
         ):
             before=self.snapshot('clean');e=self.db('clean')
             try:

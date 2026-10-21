@@ -74,3 +74,18 @@ command and scope. See the [permission runbook](../../../services/access/PERMISS
 and [evidence](../../../services/access/PERMISSION_REGISTER_EVIDENCE.md). This supplies
 configuration evidence only: entry registration, enablement/grants, ACCESS-B checks,
 coordinated PtS/KDG consumption and ACCESS-A/B activation remain separately gated.
+
+
+Protected Access entry registration (2026-10-21): Access0006 implements immutable
+`entry_permission.register` with exact app/permission authority, atomic creation evidence
+and command-isolated recovery. It requires an existing matching permission and grants no
+access. See [runbook](../../../services/access/ENTRY-PERMISSION-REGISTER.md) and
+[evidence](../../../services/access/ENTRY_PERMISSION_REGISTER_EVIDENCE.md). ACCESS-B,
+consumer activation, enablement and grants remain separately gated.
+
+Entry registration is reviewed and synthetically verified: fresh32 native groups,
+separate retained inspection, actual CLI recovery,1236 affected tests and both composition
+checks pass. The native run stopped normally; all data/resources remain retained. Exact
+commands/source custody and the preexisting bootstrap portability limit are in the entry
+evidence. Continue remaining enablement/grant, ACCESS-B and coordinated consumer gates
+through existing contracts without treating registry configuration as effective access.

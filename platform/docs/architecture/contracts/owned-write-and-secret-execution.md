@@ -234,3 +234,22 @@ docs/model/OpenAPI/runbooks stay authority during Build; ADRs are referenced, no
 No new worker/outbox, key service, audit server or generic offline runtime is required.
 Real-data processing/device/retention policies remain 5.4 pre-pilot gates. This planning
 selection does not authorize secrets, migrations, code, infrastructure or deployment.
+
+
+## Protected entry registration implementation — 2026-10-21
+
+Access0006 adds protected `entry_permission.register` through the existing operator
+route. It verifies the literal permission's exact registered app association and records
+an immutable entry binding, server attribution, compact outcome and creation event with
+empty transition atomically. Identical mappings return unchanged. Both permission scopes,
+disabled apps and multiple entries are supported. No access, permission creation,
+enablement, grants or consumer activation is implied. Command-specific authority and
+outcome keys isolate application/permission/entry commands even with a reused UUID;
+lookup requires current exact authority and explicit exact target. Existing bounded
+transaction, uncertainty and safe error contracts remain. This retains the delivered
+single-event registration subset; it makes no generic multi-event WRITE claim.
+
+Exact known Access4/5/6 metadata is selected by the mutable Identity helper, without
+Access data/history reads. Historical migrations and references remain unchanged.
+See the [entry runbook](../../../../services/access/ENTRY-PERMISSION-REGISTER.md) and
+[evidence](../../../../services/access/ENTRY_PERMISSION_REGISTER_EVIDENCE.md).

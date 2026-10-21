@@ -1,6 +1,6 @@
 # Protected Access application registration
 
-The current Access0005 head supports `application.register` and `permission.register`.
+The current Access0006 head supports `application.register`, `permission.register` and `entry_permission.register`.
 For permission-specific payload, exact command authority and target recovery, follow
 [permission registration](PERMISSION-REGISTER.md). `application.register` creates a disabled revision1
 application and atomic immutable event/outcome; matching existing applications return
@@ -9,7 +9,7 @@ application or grant effective access. ACCESS-A/B consumer activation remains cl
 
 Preparation is explicit controlled deployment work. Use
 `tools/prepare_access_operator_roles.sql` under the authorized true administrator before
-the current Access0005 head. It creates the restricted LOGIN operator and NOLOGIN authority owner, and
+the current Access0006 head. It creates the restricted LOGIN operator and NOLOGIN authority owner, and
 validates an already staged restricted command owner or creates it. The migrator receives
 only the two exact SET-only owner edges. Set the operator password through private
 preparation; this SQL contains no password, principal or authority seeds. The ordinary
@@ -44,8 +44,8 @@ The closed version1 envelope contains `schema_version`, `operation_id`,
 `payload={"app_id":"synthetic_app","expected_absent":true}`, an approved
 `reason_code`, and optional bounded `evidence_ref`. No executor, timestamp or owner
 payload override exists. `permission.register` has its own explicit command authority;
-application authority never implies it. `entry_permission.register` remains unsupported
-before target or connection access. Keep credentials and verification documents out of command files.
+application authority never implies it. `entry_permission.register` also requires its own
+exact authority. Keep credentials and verification documents out of command files.
 
 Only a durable committed compact receipt acknowledges completion. Its typed target is
 `{app_id}`, revision is a positive decimal string, and event UUID is present only for
@@ -63,7 +63,7 @@ applied migrations.
 
 See [executed evidence](APPLICATION_REGISTER_EVIDENCE.md) for source custody, requirement
 traceability, historical Access0004 native proof and remaining activation gates. Current
-Access0005 qualification is recorded in [permission evidence](PERMISSION_REGISTER_EVIDENCE.md).
+Access0006 qualification is recorded in [entry evidence](ENTRY_PERMISSION_REGISTER_EVIDENCE.md).
 
 ## Concrete controlled synthetic preparation
 
@@ -75,8 +75,8 @@ argv, a command envelope, a receipt or a diagnostic log. No runtime credential i
 provisioning credential.
 
 1. Inspect the actual run's native marker/configuration and the selected database/login
-   before connecting. The controlled route targets Access0005 and recognizes exact
-   clean/1/2/3/4/5 histories; unexpected state refuses. Before migration, under the
+   before connecting. The controlled route targets Access0006 and recognizes exact
+   clean/1/2/3/4/5/6 histories; unexpected state refuses. Before migration, under the
    authorized true administrator, execute the existing
    `tools/prepare_access_operator_roles.sql` once. Its transaction refuses unexpected
    existing roles/edges; do not work around that refusal with DROP, broad grants or
@@ -139,7 +139,7 @@ Identity-owned read/write; grant Access roles no Identity-table access. It creat
 Auth account, organization membership, employee or application grant.
 
 4. Run the ordinary Access controlled migration route with the explicit Access migrator
-   configuration. After exact Access0005 verification succeeds, use `access_migrator`
+   configuration. After exact Access0006 verification succeeds, use `access_migrator`
    to prepare the principal and narrowly app-bound command authority below. The actor
    UUID must be the externally verified one from step3; no mapping seeds are in the
    migration. The example app identifier is synthetic and grants no effective app access.
@@ -243,3 +243,6 @@ operation/input retry under current authority, not a fresh duplicate or broader 
 The adapter checks its deadline after COMMIT returns; an in-process clock cannot cancel
 network COMMIT. The unchanged isolated CLI process bound and durable lookup remain the
 recovery mechanism for a blocked/lost/late response.
+
+Entry registration uses the [entry runbook](ENTRY-PERMISSION-REGISTER.md) and
+[qualification evidence](ENTRY_PERMISSION_REGISTER_EVIDENCE.md). It grants no access.

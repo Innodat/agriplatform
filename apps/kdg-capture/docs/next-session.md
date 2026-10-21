@@ -1586,3 +1586,19 @@ patched; one preexisting fresh-checkout fixture-bootstrap prerequisite remains d
 The actual disposable run stopped normally; historical data/resources/receipts and all
 concurrent work remain preserved. Continue with bounded entry-permission registration;
 application access and broader runtime/scaffold/consumer activation remain gated.
+
+
+Protected Access entry registration (2026-10-21): Access0006 implements immutable
+`entry_permission.register` with exact app/permission authority, atomic creation evidence
+and command-isolated recovery. It requires an existing matching permission and grants no
+access. See [runbook](../../../services/access/ENTRY-PERMISSION-REGISTER.md) and
+[evidence](../../../services/access/ENTRY_PERMISSION_REGISTER_EVIDENCE.md). ACCESS-B,
+consumer activation, enablement and grants remain separately gated.
+
+Entry registration final verification: three independent review layers completed and
+bounded verification gaps were patched. Fresh32-group native proof, separate retained
+inspection, independent CLI receipt recovery,1236 affected tests and both composition
+checks passed. The disposable run stopped normally with data/resources preserved;
+bootstrap portability remains deferred. See the linked entry evidence for source custody
+and exact commands. Select the next remaining Access enablement/grant or ACCESS-B gate
+through existing owner contracts; entry configuration itself grants no effective access.
