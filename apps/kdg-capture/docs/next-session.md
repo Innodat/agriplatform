@@ -1,6 +1,35 @@
 # Resume shared ENV delivery after KDG planning PASS
 
-## Current ACCESS-A increment — staged grant membership storage,2026-10-21
+## Current ACCESS-A increment — private global registry storage,2026-10-21
+
+Access revision3 stages empty global applications, permissions and matching-application
+entry mappings through the existing controlled owner route. Required external actor UUIDs
+are non-nil; times finite; app IDs use the exact ASCII grammar and permissions literal
+ASCII1–200 bytes including controls/DEL. Both permission unique keys and RESTRICT FKs
+remain enforced. New objects are private to access_migrator; no roles/runtime privileges,
+Identity FKs, seeds, grants replacement/backfill or capability activation are added.
+Private statement guards refuse registry UPDATE/DELETE/TRUNCATE, including noop/empty
+and real changes; parent-only TRUNCATE also has ordinary PostgreSQL FK refusal. Commands,
+mutable registry behavior and readers require later explicit delivery.
+
+See [spec](../../../_bmad-output/implementation-artifacts/spec-access-a-registry-storage.md)
+and [owner evidence](../../../services/access/ACCESS_REGISTRY_STORAGE_EVIDENCE.md).
+Final reviewed frame: access-registry-reviewed-20261021. Root verification passed82
+aggregate checks, retained inspection and1075 affected tests; both composers passed.
+Preparation/aggregate bind132 unchanged sources; all40 historical pins match. Three
+review lenses completed and technical findings were patched. Native run normally stopped
+with all data/volumes/receipts retained. Restart the retained run before --verify-retained;
+private preparation and --all are single-use. Prior frames remain historical. Owner evidence
+records an ATDD ordering miss: actual baseline RED followed draft source edits. Existing
+portable CI bootstrap and historical subprocess timing follow-ups remain separate.
+
+The ACCESS-A/B activation gate stays closed. v1 remains incompatible/stopped for real
+consumers; staged storage creates no effective access. Next bounded work remains protected
+registry commands and exact organization/account/member consumer checks, with coordinated
+PtS adoption and release/recovery. Preserve all prior data/resources and concurrent work.
+No production/provider/real-account/access/deploy/pilot, reset/prune, Leave/editor or push.
+
+## Previous ACCESS-A increment — staged grant membership storage,2026-10-21
 
 Access revision2 adds nullable positive bigint grants.membership_id through the existing
 controlled owner route. It preserves opaque IDs, original text attribution/keys/permission

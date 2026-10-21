@@ -1825,3 +1825,28 @@ calls (13 boundary,73 affected,2 process). Review/evidence and572-file preservat
 audit complete; original fixture errors and prior timing investigations remain recorded.
 No full-suite or actual Docker claim. The next item is public qualification/process
 wiring for this refusal boundary, before safe service execution.
+
+### Access private registry storage —2026-10-21
+
+The Access owner route now supports exact clean/1/2/3 catalogs. Revision3 adds empty
+private applications, permissions and matching-application entry mappings; grants and
+Identity remain unchanged. New registry rows accept owner fixture INSERT only. Private
+statement guards refuse UPDATE/DELETE/TRUNCATE, including noop/empty statements; ordinary
+FK checks also refuse parent TRUNCATE without dependent tables. Runtime/browser roles
+receive no registry privileges. Later protected registration/mutation/readers require
+explicit delivery. No grants, application enablement or effective access is created.
+
+Use the existing coordinated owner migration/release path. Unknown history, object,
+constraint, routine, trigger, default or ACL drift refuses without normalization. Failed
+migration blocks release; rollback preserves previous state, then explicit controlled
+upgrade after disposition/releasing a held lock provides recovery. Do not downgrade or
+start migrations independently on service startup. Current v1 remains incompatible and
+stopped for real consumers. [Registry evidence](../../services/access/ACCESS_REGISTRY_STORAGE_EVIDENCE.md)
+records synthetic-only native preparation/acceptance and retained inspection commands.
+Private preparation and --all are single-use; preserve prior frames and resources.
+Existing portable bootstrap and historical timing follow-ups remain separate.
+
+Reviewed registry storage requires UTF8 server encoding before Access migration effects;
+unsupported source encodings refuse without normalization. Internal FK-trigger enablement
+is part of exact catalog verification. See registry evidence for the separate isolated
+SQL_ASCII refusal and fresh reviewed acceptance frame; prior frames remain historical.

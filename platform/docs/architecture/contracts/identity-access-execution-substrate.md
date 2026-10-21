@@ -374,3 +374,28 @@ and remains incompatible/stopped for real consumers until coordinated ACCESS-A/B
 delivery. Future effective organization access requires exact active org/account/member
 equality; NULL cannot match. Registry, commands, consumer/admission eligibility, PtS
 adoption and KDG activation remain independently gated.
+
+## Delivered Access private registry storage —2026-10-21
+
+Access revision3 stages empty global applications, permissions and entry_permissions
+through the existing controlled owner route. Exact known clean/1/2/3 catalogs retain
+revision2 membership storage and all original grants/history/ACL/RLS. Registry attribution
+uses required non-nil external actor UUIDs and finite timestamptz values without Identity
+FKs. Registry app IDs use the ASCII grammar above; permissions accept literal ASCII1–200
+bytes, including controls and DEL. Matching application association and both scope and
+association unique keys are enforced locally with RESTRICT foreign keys.
+
+Only access_migrator owns or can read/write the new tables and execute their private
+trigger routine. Statement guards refuse UPDATE, DELETE and TRUNCATE, including empty
+and noop statements; parent-table TRUNCATE without dependent tables also has PostgreSQL's
+ordinary FK refusal. Registration commands, mutable application commands and readers need
+later explicit migrations. Owner fixture inserts supply synthetic attribution, without
+claiming protected command verification. No registry or grant rows are seeded, runtime
+privileges added, retained organization grants reinterpreted or consumers activated.
+See [registry evidence](../../../../services/access/ACCESS_REGISTRY_STORAGE_EVIDENCE.md).
+Storage staging leaves the ACCESS-A/B and coordinated PtS/KDG gates closed.
+
+Reviewed registry storage requires UTF8 server encoding before Access migration effects;
+unsupported source encodings refuse without normalization. Internal FK-trigger enablement
+is part of exact catalog verification. See registry evidence for the separate isolated
+SQL_ASCII refusal and fresh reviewed acceptance frame; prior frames remain historical.

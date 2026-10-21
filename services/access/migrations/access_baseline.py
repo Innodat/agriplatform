@@ -1,4 +1,4 @@
-"""Fixed Access-local assertions for the empty, original and staged single table.
+"""Fixed Access-local assertions for known empty and revision1/2/3 catalogs.
 
 Unknown state is preserved for explicit disposition. This module never repairs ACLs,
 normalizes history, adopts tables or inspects Identity business data.
@@ -8,7 +8,7 @@ from pathlib import Path
 from sqlalchemy import text
 
 OWNER = 'access_migrator'
-HEAD = 'access_0002'
+HEAD = 'access_0003'
 LOCK_SQL = "SELECT pg_try_advisory_xact_lock(hashtextextended('access-owned-migrations',0))"
 
 
@@ -26,12 +26,14 @@ def require_equal(actual, expected, code='access_catalog_mismatch'):
 
 
 def validate_revision(revisions):
-    if revisions not in (['access_0001'], [HEAD]):
+    if revisions not in (['access_0001'], ['access_0002'], [HEAD]):
         raise BaselineError('access_unknown_history')
     return revisions[0]
 
 
 def acl(connection, oid_sql, kind, column=False):
+    if kind == 'f':
+        return rows(connection, f"SELECT pg_get_userbyid(a.grantor),CASE WHEN a.grantee=0 THEN 'PUBLIC' ELSE pg_get_userbyid(a.grantee) END,a.privilege_type,a.is_grantable FROM pg_proc o,LATERAL aclexplode(coalesce(o.proacl,acldefault('f',o.proowner))) a WHERE o.oid={oid_sql}")
     if column:
         return rows(connection, f"SELECT attname,pg_get_userbyid(a.grantor),CASE WHEN a.grantee=0 THEN 'PUBLIC' ELSE pg_get_userbyid(a.grantee) END,a.privilege_type,a.is_grantable FROM pg_attribute att,LATERAL aclexplode(att.attacl) a WHERE att.attrelid={oid_sql}")
     table, field, owner = ('pg_namespace','nspacl','nspowner') if kind == 'n' else ('pg_class','relacl','relowner')
@@ -90,7 +92,7 @@ def verify_table(connection, name, revision):
         ('user_id','uuid',True,'','',None,'-'),('permission','text',True,'','',None,'"default"'),
         ('created_at','timestamp with time zone',True,'','','clock_timestamp()','-'),
         ('created_by','text',True,'','',"current_setting('app.actor_id'::text)",'"default"')]
-    if not ledger and revision == HEAD:
+    if not ledger and revision in ('access_0002', HEAD):
         expected += [('membership_id','bigint',False,'','',None,'-')]
     if columns != expected:
         raise BaselineError(code)
@@ -98,7 +100,7 @@ def verify_table(connection, name, revision):
         ('grants_pkey','p','PRIMARY KEY (org_id, id)',True,False,False),
         ('grants_org_id_user_id_permission_key','u','UNIQUE (org_id, user_id, permission)',True,False,False),
         ('grants_permission_check','c',"CHECK ((permission = ANY (ARRAY['pts.poetry.read'::text, 'pts.poetry.export'::text, 'pts.poetry.documents'::text])))",True,False,False)]
-    if not ledger and revision == HEAD:
+    if not ledger and revision in ('access_0002', HEAD):
         constraints += [('grants_membership_id_positive','c','CHECK ((membership_id > 0))',True,False,False)]
     require_equal(rows(connection, f"SELECT conname,contype,pg_get_constraintdef(oid),convalidated,condeferrable,condeferred FROM pg_constraint WHERE conrelid={oid}"), constraints, code)
     indexes = ['CREATE UNIQUE INDEX alembic_version_pkc ON access.alembic_version USING btree (version_num)'] if ledger else [
@@ -122,17 +124,31 @@ def verify_table(connection, name, revision):
 
 def verify_catalog(connection, revision):
     names = [] if revision is None else ['grants','grants_pkey','grants_org_id_user_id_permission_key','alembic_version','alembic_version_pkc']
+    if revision == HEAD:
+        names += [*REGISTRY_TABLES, *[index for indexes in REGISTRY_INDEXES.values() for index,columns in indexes]]
     require_equal(rows(connection, "SELECT c.relname FROM pg_class c JOIN pg_namespace n ON n.oid=c.relnamespace WHERE n.nspname='access'"), [(n,) for n in names])
-    require_equal(rows(connection, "SELECT p.proname FROM pg_proc p JOIN pg_namespace n ON n.oid=p.pronamespace WHERE n.nspname='access'"), [])
+    require_equal(rows(connection, "SELECT p.proname FROM pg_proc p JOIN pg_namespace n ON n.oid=p.pronamespace WHERE n.nspname='access'"), [('registry_storage_immutable',)] if revision == HEAD else [])
     types = [] if revision is None else ['grants','_grants','alembic_version','_alembic_version']
+    if revision == HEAD:
+        types += [t for name in REGISTRY_TABLES for t in (name,'_'+name)]
     require_equal(rows(connection, "SELECT t.typname FROM pg_type t JOIN pg_namespace n ON n.oid=t.typnamespace WHERE n.nspname='access'"), [(n,) for n in types])
     if revision is not None:
         verify_table(connection, 'alembic_version', revision)
         verify_table(connection, 'grants', revision)
+    if revision == HEAD:
+        for name in REGISTRY_TABLES:verify_registry(connection,name)
+        verify_registry_guard(connection)
+
+
+def verify_encoding(connection):
+    require_equal(rows(connection, "SHOW server_encoding"), [('UTF8',)], 'access_utf8_encoding_required')
 
 
 def preflight(connection):
+    verify_encoding(connection)
     if sha256((Path(__file__).parent/'versions/0001_initial.py').read_bytes()).hexdigest() != '438611104dcb30e8e04d729c0047003487f93e889fa66093aca14a77612e409b':
+        raise BaselineError('access_original_source_mismatch')
+    if sha256((Path(__file__).parent/'versions/0002_membership_binding.py').read_bytes()).hexdigest() != '781e6e0c80700ab35b2f819891288fedde5137175547eb045651d8ef6c9d222d':
         raise BaselineError('access_original_source_mismatch')
     verify_prerequisites(connection)
     if not connection.execute(text(LOCK_SQL)).scalar_one():
@@ -148,6 +164,80 @@ def preflight(connection):
 
 
 def verify_postcondition(connection):
+    verify_encoding(connection)
     verify_prerequisites(connection)
     revision = validate_revision([row[0] for row in rows(connection, 'SELECT version_num FROM access.alembic_version')])
     verify_catalog(connection, revision)
+
+
+REGISTRY_TABLES = ('applications', 'permissions', 'entry_permissions')
+REGISTRY_INDEXES = {
+    'applications': [('applications_pkey','app_id')],
+    'permissions': [('permissions_pkey','permission'),('permissions_permission_scope_kind_key','permission, scope_kind'),('permissions_app_id_permission_key','app_id, permission')],
+    'entry_permissions': [('entry_permissions_pkey','app_id, permission')],
+}
+REGISTRY_GUARD_BODY = "\nBEGIN\n RAISE EXCEPTION USING ERRCODE = '55000', MESSAGE = 'access_registry_storage_immutable';\nEND\n"
+
+
+def verify_registry(connection, name):
+    oid = f"'access.{name}'::regclass"
+    require_equal(rows(connection, f"SELECT pg_get_userbyid(relowner),relkind,relrowsecurity,relforcerowsecurity,reloptions,relispartition,relreplident,relpersistence FROM pg_class WHERE oid={oid}"),
+                  [(OWNER,'r',False,False,None,False,'d','p')])
+    require_equal(rows(connection,f"SELECT 1 FROM pg_inherits WHERE inhrelid={oid} OR inhparent={oid}"),[])
+    fields = {
+        'applications':[('app_id','text',None),('enabled','boolean','false'),('revision','bigint','1'),('created_by','uuid',None),('updated_by','uuid',None),('created_at','timestamp with time zone',None),('updated_at','timestamp with time zone',None)],
+        'permissions':[('permission','text',None),('app_id','text',None),('scope_kind','text',None),('created_by','uuid',None),('created_at','timestamp with time zone',None)],
+        'entry_permissions':[('app_id','text',None),('permission','text',None),('created_by','uuid',None),('created_at','timestamp with time zone',None)],
+    }[name]
+    require_equal(rows(connection,f"SELECT attnum,attname,format_type(atttypid,atttypmod),attnotnull,attidentity,attgenerated,pg_get_expr(d.adbin,d.adrelid),attcollation::regcollation::text FROM pg_attribute a LEFT JOIN pg_attrdef d ON d.adrelid=a.attrelid AND d.adnum=a.attnum WHERE a.attrelid={oid} AND a.attnum>0 AND NOT a.attisdropped"),
+                  [(i,col,kind,True,'','',default,'"default"' if kind=='text' else '-') for i,(col,kind,default) in enumerate(fields,1)])
+    constraints = {
+        'applications':[
+            ('applications_pkey','p','PRIMARY KEY (app_id)'),
+            ('applications_app_id_valid','c','CHECK (((app_id COLLATE "C") ~ \'^[a-z][a-z0-9_]{1,63}$\'::text))'),
+            ('applications_revision_positive','c','CHECK ((revision > 0))'),
+        ],
+        'permissions':[
+            ('permissions_pkey','p','PRIMARY KEY (permission)'),
+            ('permissions_permission_valid','c',"CHECK ((((octet_length(convert_to(permission, 'UTF8'::name)) >= 1) AND (octet_length(convert_to(permission, 'UTF8'::name)) <= 200)) AND (length(permission) = octet_length(convert_to(permission, 'UTF8'::name)))))"),
+            ('permissions_scope_kind_valid','c',"CHECK ((scope_kind = ANY (ARRAY['account'::text, 'organization'::text])))"),
+            ('permissions_app_id_fkey','f','FOREIGN KEY (app_id) REFERENCES access.applications(app_id) ON DELETE RESTRICT'),
+            ('permissions_permission_scope_kind_key','u','UNIQUE (permission, scope_kind)'),
+            ('permissions_app_id_permission_key','u','UNIQUE (app_id, permission)'),
+        ],
+        'entry_permissions':[
+            ('entry_permissions_pkey','p','PRIMARY KEY (app_id, permission)'),
+            ('entry_permissions_app_id_permission_fkey','f','FOREIGN KEY (app_id, permission) REFERENCES access.permissions(app_id, permission) ON DELETE RESTRICT'),
+        ],
+    }[name]
+    for col in ('created_by','updated_by') if name=='applications' else ('created_by',):
+        constraints.append((name+'_'+col+'_non_nil','c',f"CHECK (({col} <> '00000000-0000-0000-0000-000000000000'::uuid))"))
+    for col in ('created_at','updated_at') if name=='applications' else ('created_at',):
+        constraints.append((name+'_'+col+'_finite','c',f'CHECK (isfinite({col}))'))
+    require_equal(rows(connection,f"SELECT conname,contype,pg_get_constraintdef(oid),convalidated,condeferrable,condeferred FROM pg_constraint WHERE conrelid={oid}"),
+                  [(n,t,d,True,False,False) for n,t,d in constraints])
+    require_equal(rows(connection,f"SELECT pg_get_indexdef(indexrelid),indisvalid,indisready,indislive FROM pg_index WHERE indrelid={oid}"),
+                  [(f'CREATE UNIQUE INDEX {index} ON access.{name} USING btree ({columns})',True,True,True) for index,columns in REGISTRY_INDEXES[name]])
+    privileges=['SELECT','INSERT','UPDATE','DELETE','TRUNCATE','REFERENCES','TRIGGER']
+    if connection.dialect.server_version_info >= (17,):privileges.append('MAINTAIN')
+    require_equal(acl(connection,oid,'r'),owner_acl(privileges))
+    require_equal(acl(connection,oid,'r',column=True),[])
+    for query in (f'SELECT 1 FROM pg_policy WHERE polrelid={oid}',f'SELECT 1 FROM pg_rewrite WHERE ev_class={oid}',f'SELECT 1 FROM pg_attribute WHERE attrelid={oid} AND attisdropped'):
+        require_equal(rows(connection,query),[])
+    # FK constraints can remain validated even when their internal triggers are disabled.
+    foreign_triggers = {
+        'applications': ['permissions_app_id_fkey'] * 2,
+        'permissions': ['permissions_app_id_fkey'] * 2 + ['entry_permissions_app_id_permission_fkey'] * 2,
+        'entry_permissions': ['entry_permissions_app_id_permission_fkey'] * 2,
+    }[name]
+    require_equal(rows(connection,f"SELECT k.conname,t.tgenabled FROM pg_trigger t LEFT JOIN pg_constraint k ON k.oid=t.tgconstraint WHERE t.tgrelid={oid} AND t.tgisinternal"),
+                  [(constraint,'O') for constraint in foreign_triggers])
+    require_equal(rows(connection,f"SELECT tgname,tgenabled,pg_get_triggerdef(oid) FROM pg_trigger WHERE tgrelid={oid} AND NOT tgisinternal"),
+                  [('registry_storage_immutable','O',f'CREATE TRIGGER registry_storage_immutable BEFORE DELETE OR UPDATE OR TRUNCATE ON access.{name} FOR EACH STATEMENT EXECUTE FUNCTION access.registry_storage_immutable()')])
+
+
+def verify_registry_guard(connection):
+    oid="'access.registry_storage_immutable()'::regprocedure"
+    require_equal(rows(connection,f"SELECT pg_get_userbyid(proowner),l.lanname,prokind,prosecdef,proleakproof,proisstrict,provolatile,proparallel,proretset,prorettype::regtype::text,pronargs,proargtypes::text,proallargtypes,proargmodes,proargnames,pronargdefaults,proconfig,prosrc,probin,procost,prorows,prosupport::text FROM pg_proc p JOIN pg_language l ON l.oid=p.prolang WHERE p.oid={oid}"),
+                  [(OWNER,'plpgsql','f',False,False,False,'v','u',False,'trigger',0,'',None,None,None,0,['search_path=pg_catalog, pg_temp'],REGISTRY_GUARD_BODY,None,100.0,0.0,'-')])
+    require_equal(acl(connection,oid,'f'),owner_acl(['EXECUTE']))
