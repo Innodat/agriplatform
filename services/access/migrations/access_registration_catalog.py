@@ -560,3 +560,20 @@ def enablement_catalog():
     functions['set_application_enabled'] = [(row[0].replace('p_app text,','p_app text, p_enabled boolean, p_revision text,'),*row[1:]) for row in functions['register_application']]
     functions['application_enablement_outcome'] = deepcopy(functions['application_registration_outcome'])
     return tables, functions
+
+
+def configure_catalog():
+    from copy import deepcopy
+    tables,functions=enablement_catalog()
+    for table in tables.values():
+        table['constraints']=[(n,t,d.replace("'application.set_enabled'::text]", "'application.set_enabled'::text, 'organization_application.configure'::text]").replace("'access.application_availability_changed'::text]", "'access.application_availability_changed'::text, 'access.organization_application_changed'::text]"),a,b,c) for n,t,d,a,b,c in table['constraints'] if n not in ('operator_authorities_org_id_check','operation_outcome_scope_id_check','business_event_scope_id_check')]
+    for table,command,scope in [('operator_authorities','command','org_id'),('operation_outcome','command_type','scope_id'),('business_event','event_type','scope_id')]:
+        literal='access.organization_application_changed' if table=='business_event' else 'organization_application.configure'
+        definition=f"CHECK (((({command} = '{literal}'::text) AND (scope_kind = 'organization'::text) AND ({scope} IS NOT NULL) AND ({scope} <> '00000000-0000-0000-0000-000000000000'::uuid)) OR (({command} <> '{literal}'::text) AND (scope_kind = 'platform'::text) AND ({scope} IS NULL))))"
+        tables[table]['constraints']=[(n,t,definition if n==table+'_scope_kind_check' else d,a,b,c) for n,t,d,a,b,c in tables[table]['constraints']]
+    functions['organization_application_authority']=[('p_org uuid, p_app text','uuid','f',False,0,100.0,0.0,'-')]
+    for name in ('guard_organization_application_write','guard_organization_application_statement','require_organization_application_change'):
+        functions[name]=deepcopy(functions['guard_command_evidence'])
+    functions['configure_organization_application']=[('p_operation uuid, p_org uuid, p_app text, p_enabled boolean, p_absent boolean, p_revision text, p_reason text, p_evidence text, p_canonical bytea',*functions['register_application'][0][1:])]
+    functions['organization_application_configuration_outcome']=[('p_operation uuid, p_org uuid, p_app text',*functions['application_registration_outcome'][0][1:])]
+    return tables,functions

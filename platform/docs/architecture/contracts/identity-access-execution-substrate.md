@@ -590,3 +590,36 @@ privileges. See [owner evidence](../../../../services/access/ORGANIZATION_APPLIC
 External organization verification, protected configure execution and effective admission
 remain undelivered. ACCESS-A/B and coordinated PtS/KDG consumer gates remain closed;
 historical runtime evidence stays source-bound.
+
+## Protected organization application configuration — 2026-10-21
+
+Access0009 extends the existing operator/CLI with organization_application.configure.
+The earlier input-only/storage checkpoints above are historical. Exact enabled principal
+and command/org/app authority precede Identity19 organization_target; explicitly all-app
+authority is allowed within its exact command/org, while platform authority is not.
+The original session login selects the executor; caller context cannot grant authority.
+Transaction-local setup context supports the private point observation. Every execution,
+including replay, reobserves; five seconds from verification start covers verification
+and subsequent waits. Expiry is unavailable, never evidence of ineligibility. Historical
+lookup rechecks exact current authority and org/app target without requiring current
+organization eligibility.
+
+Create requires expected absence and records revision1; update requires matching revision
+before changed/unchanged. Changed increments once with server attribution; unchanged
+preserves the row and has no event. A registered app may be configured while globally
+disabled; global availability and organization configuration remain independent inputs.
+Disable/re-enable preserves settings/grants. Atomic organization-scoped outcome/event
+uses target {org_id,app_id}, disposition created/changed/unchanged, decimal revision and
+nullable event_id. Event access.organization_application_changed carries before=null on
+create, otherwise prior enabled/revision, and after enabled/revision. Existing JCS/SHA256
+fingerprint, current-authorized scoped recovery and operation-lock-only busy rule remain.
+No admission/grant/reader or coordinated consumer activation follows from configuration.
+
+Existing forced Access organization RLS/constraints remain; only command owner gains
+narrow local DML, with current authority and deferred exact row/outcome/event proof.
+Raw/unsupported writes, missing evidence and unknown catalog/history refuse without
+normalization. Immutable historical Access1–8 and Identity1–19 sources/references remain.
+Identity's mutable verifier selects exact9 from installed routine metadata without new
+Access business reads. Existing four platform commands and previous adapter contracts
+remain. See [owner runbook](../../../../services/access/ORGANIZATION-APPLICATION-CONFIGURE.md)
+and [evidence](../../../../services/access/ORGANIZATION_APPLICATION_CONFIGURE_EVIDENCE.md).

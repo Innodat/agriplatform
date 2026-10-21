@@ -20,7 +20,14 @@ ENTRY_FUNCTIONS = PERMISSION_FUNCTIONS + ('entry_permission_operator_authority',
 
 ENABLEMENT_FUNCTIONS = ENTRY_FUNCTIONS + ('application_enablement_authority','guard_application_update','require_application_change','set_application_enabled','application_enablement_outcome')
 
+CONFIGURE_FUNCTIONS = ENABLEMENT_FUNCTIONS + ('organization_application_authority','guard_organization_application_write','guard_organization_application_statement','require_organization_application_change','configure_organization_application','organization_application_configuration_outcome')
+
 def _sql(revision='access_0004'):
+    if revision == 'access_0009':
+        path=Path(__file__).parent/'versions/0009_organization_application_configure.py'
+        spec=importlib.util.spec_from_file_location('_access_configure_ddl',path)
+        module=importlib.util.module_from_spec(spec);spec.loader.exec_module(module)
+        return _sql('access_0007')+'\n'+module.SQL
     if revision == 'access_0008':revision = 'access_0007'
     path=Path(__file__).parent/'versions/0004_application_register.py'
     if sha256(path.read_bytes()).hexdigest() != '14d6e70b8142936700eb96d5e44cc6580be8c2e9bb06a00db841b529bf824807':
@@ -65,7 +72,10 @@ def verify_registration(connection,revision='access_0004'):
     if revision == 'access_0007':
         from access_registration_catalog import enablement_catalog
         TABLE_CATALOG, FUNCTION_CATALOG = enablement_catalog()
-    functions = ENABLEMENT_FUNCTIONS if revision=='access_0007' else ENTRY_FUNCTIONS if revision in ('access_0006','access_0007') else PERMISSION_FUNCTIONS if revision == 'access_0005' else FUNCTIONS
+    if revision == 'access_0009':
+        from access_registration_catalog import configure_catalog
+        TABLE_CATALOG,FUNCTION_CATALOG=configure_catalog()
+    functions = CONFIGURE_FUNCTIONS if revision=='access_0009' else ENABLEMENT_FUNCTIONS if revision=='access_0007' else ENTRY_FUNCTIONS if revision in ('access_0006','access_0007') else PERMISSION_FUNCTIONS if revision == 'access_0005' else FUNCTIONS
     sql=_sql(revision)
     for name in TABLES:
         oid=f"(SELECT c.oid FROM pg_class c JOIN pg_namespace n ON n.oid=c.relnamespace WHERE n.nspname='access' AND c.relname='{name}')"
@@ -90,12 +100,15 @@ def verify_registration(connection,revision='access_0004'):
     for name in functions:
         declarations=list(re.finditer(r'CREATE (?:OR REPLACE )?FUNCTION access\.'+name+r'\((.*?)\).*?AS \$f\$(.*?)\$f\$;',sql,re.S))
         declaration=declarations[-1];signature,body=declaration.groups()
-        owner=('access_operator_authority_owner' if name in ('current_operator_authority','permission_operator_authority','entry_permission_operator_authority','application_enablement_authority') else 'access_command_owner' if name in ('require_command_event','require_application_registration','register_application','application_registration_outcome','require_permission_registration','register_permission','permission_registration_outcome','require_entry_permission_registration','register_entry_permission','entry_permission_registration_outcome','require_application_change','set_application_enabled','application_enablement_outcome') else OWNER)
-        language='sql' if name in ('command_lock','current_operator_authority','permission_operator_authority','entry_permission_operator_authority','application_enablement_authority') else 'plpgsql'
-        volatility='i' if name=='command_lock' else 's' if name in ('current_operator_authority','permission_operator_authority','entry_permission_operator_authority','application_enablement_authority') else 'v'
-        require_equal(rows(connection,f"SELECT pg_get_userbyid(proowner),l.lanname,prosecdef,provolatile,proconfig,prosrc,proleakproof,proisstrict,proparallel FROM pg_proc p JOIN pg_namespace n ON n.oid=p.pronamespace JOIN pg_language l ON l.oid=p.prolang WHERE n.nspname='access' AND p.proname='{name}'"),[(owner,language,name in ('application_enablement_authority','current_operator_authority','permission_operator_authority','entry_permission_operator_authority','require_command_event','require_application_registration','register_application','application_registration_outcome','require_permission_registration','register_permission','permission_registration_outcome','require_entry_permission_registration','register_entry_permission','entry_permission_registration_outcome','require_application_change','set_application_enabled','application_enablement_outcome'),volatility,['search_path=pg_catalog, pg_temp'],body,False,False,'u')])
+        owner=('access_operator_authority_owner' if name in ('current_operator_authority','permission_operator_authority','entry_permission_operator_authority','application_enablement_authority','organization_application_authority') else 'access_command_owner' if name in ('require_command_event','require_application_registration','register_application','application_registration_outcome','require_permission_registration','register_permission','permission_registration_outcome','require_entry_permission_registration','register_entry_permission','entry_permission_registration_outcome','require_application_change','set_application_enabled','application_enablement_outcome','require_organization_application_change','configure_organization_application','organization_application_configuration_outcome') else OWNER)
+        language='sql' if name in ('command_lock','current_operator_authority','permission_operator_authority','entry_permission_operator_authority','application_enablement_authority','organization_application_authority') else 'plpgsql'
+        volatility='i' if name=='command_lock' else 's' if name in ('current_operator_authority','permission_operator_authority','entry_permission_operator_authority','application_enablement_authority','organization_application_authority') else 'v'
+        require_equal(rows(connection,f"SELECT pg_get_userbyid(proowner),l.lanname,prosecdef,provolatile,proconfig,prosrc,proleakproof,proisstrict,proparallel FROM pg_proc p JOIN pg_namespace n ON n.oid=p.pronamespace JOIN pg_language l ON l.oid=p.prolang WHERE n.nspname='access' AND p.proname='{name}'"),[(owner,language,name in ('organization_application_authority','require_organization_application_change','configure_organization_application','organization_application_configuration_outcome','application_enablement_authority','current_operator_authority','permission_operator_authority','entry_permission_operator_authority','require_command_event','require_application_registration','register_application','application_registration_outcome','require_permission_registration','register_permission','permission_registration_outcome','require_entry_permission_registration','register_entry_permission','entry_permission_registration_outcome','require_application_change','set_application_enabled','application_enablement_outcome','require_organization_application_change','configure_organization_application','organization_application_configuration_outcome'),volatility,['search_path=pg_catalog, pg_temp'],body,False,False,'u')])
         require_equal(rows(connection,f"SELECT pg_get_function_identity_arguments(p.oid),pg_get_function_result(p.oid),prokind,proretset,pronargdefaults,procost,prorows,prosupport::text FROM pg_proc p JOIN pg_namespace n ON n.oid=p.pronamespace WHERE n.nspname='access' AND p.proname='{name}'"),FUNCTION_CATALOG[name])
         raw_arguments={
+            'organization_application_authority':(None,None,['p_org','p_app']),
+            'configure_organization_application':([2950,2950,25,16,16,25,25,25,17,3802,23,23,1184],['i']*9+['t']*4,['p_operation','p_org','p_app','p_enabled','p_absent','p_revision','p_reason','p_evidence','p_canonical','result','command_version','result_version','committed_at']),
+            'organization_application_configuration_outcome':([2950,2950,25,3802,23,23,1184],['i']*3+['t']*4,['p_operation','p_org','p_app','result','command_version','result_version','committed_at']),
             'command_lock':(None,None,['value']),
             'current_operator_authority':(None,None,['p_app']),
             'permission_operator_authority':(None,None,['p_app']),
@@ -120,6 +133,6 @@ def verify_registration(connection,revision='access_0004'):
         }.get(name,(None,None,None))
         require_equal(rows(connection,f"SELECT probin,proallargtypes,proargmodes,proargnames FROM pg_proc p JOIN pg_namespace n ON n.oid=p.pronamespace WHERE n.nspname='access' AND p.proname='{name}'"),[(None,*raw_arguments)])
         grants=[(owner,owner,'EXECUTE',False)]
-        if name in ('command_lock','current_operator_authority','permission_operator_authority','entry_permission_operator_authority','application_enablement_authority'):grants.append((owner,'access_command_owner','EXECUTE',False))
-        if name in ('register_application','application_registration_outcome','register_permission','permission_registration_outcome','register_entry_permission','entry_permission_registration_outcome','set_application_enabled','application_enablement_outcome'):grants=[(owner,'access_operator','EXECUTE',False),(owner,owner,'EXECUTE',False)]
+        if name in ('command_lock','current_operator_authority','permission_operator_authority','entry_permission_operator_authority','application_enablement_authority','organization_application_authority'):grants.append((owner,'access_command_owner','EXECUTE',False))
+        if name in ('register_application','application_registration_outcome','register_permission','permission_registration_outcome','register_entry_permission','entry_permission_registration_outcome','set_application_enabled','application_enablement_outcome','configure_organization_application','organization_application_configuration_outcome'):grants=[(owner,'access_operator','EXECUTE',False),(owner,owner,'EXECUTE',False)]
         require_equal(acl(connection,f"(SELECT p.oid FROM pg_proc p JOIN pg_namespace n ON n.oid=p.pronamespace WHERE n.nspname='access' AND p.proname='{name}')",'f'),grants)

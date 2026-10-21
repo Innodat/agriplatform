@@ -1902,3 +1902,23 @@ only through the existing rollback-only recorder on a fresh known-source fixture
 records source custody, synthetic qualification commands and recovery. Private preparation
 and --all are single-use; --verify-retained is read-only. No real organization/account
 changes or deployment authorization follows from this synthetic prerequisite.
+
+### Protected organization application configuration — 2026-10-21
+
+Access0009 delivers the existing owner command through the restricted Access operator
+and CLI. Exact command/org/app authority precedes Identity19 private verification;
+context is transaction-local and is no substitute for authority. Five-second observations
+expire across waits/replay; every execution reobserves. Scoped historical lookup requires
+current authority. Expected absence/revision, server attribution and deferred exact
+row/outcome/event evidence protect creation/change; unchanged preserves the row.
+
+Use the existing controlled Access owner upgrade. Unknown history/catalog/ACL refuses;
+migration failure blocks activation. Preserve diagnostics, reconcile the cause, and
+explicitly retry forward; no startup migration, stamping, downgrade or automatic reverse.
+[Owner runbook](../../services/access/ORGANIZATION-APPLICATION-CONFIGURE.md) and
+[evidence](../../services/access/ORGANIZATION_APPLICATION_CONFIGURE_EVIDENCE.md) record
+synthetic-only commands, retention, previous-client compatibility and verification.
+Private preparation/--all are single-use; --verify-retained is read-only. Use fresh
+namespaces after failure/source changes, preserving prior frames and data. This does not
+deliver grants, ACCESS-B, effective admission or PtS/KDG activation. No real target,
+production migration, provisioning, deployment, pilot, reset/prune or push is authorized.

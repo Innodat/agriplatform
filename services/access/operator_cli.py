@@ -44,7 +44,7 @@ def _receipt(value, operation_id, command='actor.register_system'):
     if type(result) is not dict or set(result) != {'command','target','disposition','revision','event_id'} or result['command'] != command:
         raise ValueError()
     # Reuse the protected adapter's typed stored-result validator.
-    (access_operator if command in ('application.register','permission.register','entry_permission.register','application.set_enabled') else adapter)._receipt(({k:v for k,v in result.items() if k != 'command'}, 1, 1, instant), operation_id, command)
+    (access_operator if command in ('application.register','permission.register','entry_permission.register','application.set_enabled','organization_application.configure') else adapter)._receipt(({k:v for k,v in result.items() if k != 'command'}, 1, 1, instant), operation_id, command)
     return value
 
 
@@ -221,14 +221,16 @@ def access_worker(request):
     if action == 'execute':
         body = value.encode('utf-8')
         command = access_operator_input.parse_command(body)
-        if not isinstance(command,(access_operator_input.RegisterApplicationCommand,access_operator_input.RegisterPermissionCommand,access_operator_input.RegisterEntryPermissionCommand,access_operator_input.SetApplicationEnabledCommand)) or _uuid(command.operation_id) != operation_id:
+        if not isinstance(command,(access_operator_input.RegisterApplicationCommand,access_operator_input.RegisterPermissionCommand,access_operator_input.RegisterEntryPermissionCommand,access_operator_input.SetApplicationEnabledCommand,access_operator_input.ConfigureOrganizationApplicationCommand)) or _uuid(command.operation_id) != operation_id:
             raise ValueError()
         context = None
-    elif action == 'outcome' and type(value) is dict and value.get('command') in ('application.register','permission.register','entry_permission.register','application.set_enabled') and set(value) == ({'command','app_id','permission'} if value['command'] in ('permission.register','entry_permission.register') else {'command','app_id'}):
+    elif action == 'outcome' and type(value) is dict and value.get('command') in ('application.register','permission.register','entry_permission.register','application.set_enabled','organization_application.configure') and set(value) == ({'command','app_id','permission'} if value['command'] in ('permission.register','entry_permission.register') else {'command','app_id','org_id'} if value['command']=='organization_application.configure' else {'command','app_id'}):
         if type(value['app_id']) is not str or access_operator_input._APP_ID.fullmatch(value['app_id']) is None:
             raise ValueError()
         if value['command'] in ('permission.register','entry_permission.register') and not access_operator.valid_permission(value['permission']):
             raise ValueError()
+        if value['command']=='organization_application.configure':
+            _uuid(value['org_id'])
         context = value
     else:
         raise ValueError()
@@ -260,31 +262,38 @@ def _access_main(argv):
         parser.add_argument('--operation-id')
         parser.add_argument('--app-id')
         parser.add_argument('--permission')
+        parser.add_argument('--org-id')
         flags = [item.split('=',1)[0] if item.startswith('--permission=') else item for item in argv if item.startswith('--')]
         if len(flags) != len(set(flags)) or any('=' in item for item in flags):
             raise ValueError()
         args = parser.parse_args(argv)
         if args.action == 'execute':
-            if args.command_file is None or any(v is not None for v in (args.command,args.operation_id,args.app_id,args.permission)):
+            if args.command_file is None or any(v is not None for v in (args.command,args.operation_id,args.app_id,args.permission,args.org_id)):
                 raise ValueError()
             body = dev.read(Path(os.path.abspath(args.command_file)))
             command = access_operator_input.parse_command(body)
             operation_id = _uuid(command.operation_id)
-            if not isinstance(command,(access_operator_input.RegisterApplicationCommand,access_operator_input.RegisterPermissionCommand,access_operator_input.RegisterEntryPermissionCommand,access_operator_input.SetApplicationEnabledCommand)):
+            if not isinstance(command,(access_operator_input.RegisterApplicationCommand,access_operator_input.RegisterPermissionCommand,access_operator_input.RegisterEntryPermissionCommand,access_operator_input.SetApplicationEnabledCommand,access_operator_input.ConfigureOrganizationApplicationCommand)):
                 raise adapter.OperatorError('command_unsupported',operation_id)
             value = body.decode('utf-8')
             expected = {'app_id':command.payload.app_id}
             if command.command in ('permission.register','entry_permission.register'):expected['permission']=command.payload.permission
+            if command.command=='organization_application.configure':expected['org_id']=_uuid(command.scope.org_id)
             command_name=command.command
         else:
-            if args.command_file is not None or args.command not in ('application.register','permission.register','entry_permission.register','application.set_enabled') or type(args.app_id) is not str or access_operator_input._APP_ID.fullmatch(args.app_id) is None:
+            if args.command_file is not None or args.command not in ('application.register','permission.register','entry_permission.register','application.set_enabled','organization_application.configure') or type(args.app_id) is not str or access_operator_input._APP_ID.fullmatch(args.app_id) is None:
                 raise ValueError()
             if (not access_operator.valid_permission(args.permission) if args.command in ('permission.register','entry_permission.register') else args.permission is not None):
+                raise ValueError()
+            if args.command=='organization_application.configure':
+                org_id=_uuid(args.org_id)
+            elif args.org_id is not None:
                 raise ValueError()
             operation_id = _uuid(args.operation_id)
             command_name=args.command
             value = dict(command=args.command,app_id=args.app_id)
             if args.command in ('permission.register','entry_permission.register'):value['permission']=args.permission
+            if args.command=='organization_application.configure':value['org_id']=org_id
             expected = {k:v for k,v in value.items() if k != 'command'}
         target = load_target(args.target,owner='access')
         request = [args.action,str(target.path),value,operation_id,'access']

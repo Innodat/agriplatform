@@ -396,3 +396,29 @@ with exact current command/org/app authority, pre-lock Identity observation, rev
 attribution and atomic evidence/retry safeguards. Grants, ACCESS-B, effective admission
 and coordinated PtS/KDG activation remain separate gates. No Leave/editor or real-target,
 production/deployment/pilot change is included. Existing bootstrap portability stays deferred.
+
+
+### Protected organization application configuration — 2026-10-21
+
+Access0009 implements `organization_application.configure` through the existing
+restricted owner adapter/CLI. Exact current command/org/app authority, Identity19
+active-organization verification, expected absence/revision, server attribution and
+atomic row/outcome/event evidence protect writes. Scoped retry and historical receipt
+recovery are implemented; configuration alone grants no effective application access.
+
+Three independent review lenses completed and all confirmed findings were patched.
+Fresh16-group native proof, independent retained inspection,1348 affected regression
+tests and both composition modes pass; all160 source bindings match. Previous8 clients
+and all four existing commands work across9, with populated receipts preserved. Seven
+late-wait cases prove bounded expiry and full rollback. See
+[evidence](../../../services/access/ORGANIZATION_APPLICATION_CONFIGURE_EVIDENCE.md) and
+[runbook](../../../services/access/ORGANIZATION-APPLICATION-CONFIGURE.md).
+
+Next select the remaining bounded Access grant/admission prerequisite from the current
+owner contract. ACCESS-B, effective admission, membership-binding/consumer gates and
+coordinated PtS/KDG activation remain separate; do not infer readiness from configuration.
+No real account/access, production, deployment, pilot, Leave or editor change is included.
+Historical resources/data and concurrent work remain preserved. Existing private-bootstrap
+portability remains deferred; no new review deferral was introduced.
+
+The synthetic native run stopped normally with data retained; no reset/prune occurred.

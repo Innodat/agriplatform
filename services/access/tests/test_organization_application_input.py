@@ -177,7 +177,16 @@ def test_identity_consumers_refuse_before_effects(variant, tmp_path, monkeypatch
     import identity_operator as adapter
     import operator_cli as cli
     monkeypatch.setattr(registration, 'document', lambda command=None: document(variant))
-    registration.test_identity_parser_adapter_cli_refuse_before_effects(NAME, tmp_path, monkeypatch, capsys)
+    # Access now executes the command; retain the Identity-only boundary here.
+    raw=encode(document(variant))
+    with pytest.raises(Exception):
+        __import__('identity_operator_input').parse_command(raw)
+    with pytest.raises(Exception):
+        adapter.execute(object(),raw)
+    monkeypatch.setattr(cli,'load_target',lambda *args,**kwargs:pytest.fail('Identity touched target'))
+    path=tmp_path/'command.json';path.write_bytes(raw)
+    assert cli.main(['execute','--owner','identity','--target','unused','--command-file',str(path)])==2
+    assert json.loads(capsys.readouterr().out)==dict(code='identity_operator_input_invalid')
     # Lookup remains closed as well; the shared execute helper already traps the
     # CLI target, connection and dispatcher for the remainder of this test.
     class Trap:
@@ -199,43 +208,15 @@ def test_identity_consumers_refuse_before_effects(variant, tmp_path, monkeypatch
 
 @pytest.mark.parametrize('variant', ['create', 'update'])
 @pytest.mark.parametrize('enabled', [True, False])
-def test_access_consumers_refuse_before_effects(variant, enabled, tmp_path, monkeypatch, capsys):
+def test_access_supported_dispatch_preserves_parsed_input(variant, enabled, monkeypatch):
+    # Protected execution supersedes the historical input-only refusal checkpoint.
     import access_operator as adapter
-    import operator_cli as cli
-    value = document(variant); value['payload']['enabled'] = enabled
-    raw = encode(value)
-    def trap(*args, **kwargs):
-        pytest.fail('unsupported command touched target, connection, dispatch or SQL')
-    class Trap:
-        def __getattr__(self, name):
-            trap()
-    for name in ('load_target', '_connection', 'dispatch'):
-        monkeypatch.setattr(cli, name, trap)
-    monkeypatch.setattr(adapter, '_run', trap)
+    value=document(variant);value['payload']['enabled']=enabled
+    seen=[]
+    monkeypatch.setattr(adapter,'_run',lambda *args:seen.append(args))
+    adapter.execute(object(),encode(value))
+    assert seen[-1][-1]==NAME and seen[-1][3]['enabled'] is enabled
+    assert seen[-1][3]['org']==ORG_UUID.lower()
     with pytest.raises(adapter.OperatorError) as caught:
-        adapter.execute(Trap(), raw)
-    registration.assert_safe_refusal(caught.value, 'command_unsupported')
-    assert caught.value.operation_id == UUID.lower()
-    with pytest.raises(adapter.OperatorError) as caught:
-        adapter.outcome(Trap(), UUID, command=NAME, app_id=value['payload']['app_id'])
-    registration.assert_safe_refusal(caught.value, 'command_invalid')
-    path = tmp_path/'command.json'; path.write_bytes(raw)
-    assert cli.main(['execute', '--owner', 'access', '--target', 'unused', '--command-file', str(path)]) == 2
-    output = capsys.readouterr()
-    assert json.loads(output.out) == dict(code='command_unsupported', operation_id=UUID.lower())
-    assert output.err == ''
-    assert cli.main(['outcome', '--owner', 'access', '--target', 'unused', '--command', NAME, '--operation-id', UUID, '--app-id', value['payload']['app_id']]) == 2
-    output = capsys.readouterr()
-    assert json.loads(output.out) == dict(code='command_invalid')
-    assert output.err == ''
-    lookup = dict(command=NAME, app_id=value['payload']['app_id'])
-    for request in (['execute', 'unused', raw.decode(), UUID, 'access'], ['outcome', 'unused', lookup, UUID, 'access']):
-        for worker in (cli.access_worker, cli.worker):
-            with pytest.raises(ValueError) as caught:
-                worker(request)
-            error = caught.value
-            assert type(error) is ValueError and error.args == ()
-            assert error.__context__ is None and error.__cause__ is None
-            rendered = str(error)+repr(error)+''.join(traceback.format_exception(error))
-            for submitted in (SENTINEL, UUID, ORG_UUID, value['payload']['app_id'], value['evidence_ref'], raw.decode()):
-                assert submitted not in rendered
+        adapter.outcome(object(),UUID,command=NAME,app_id=value['payload']['app_id'])
+    registration.assert_safe_refusal(caught.value,'command_invalid')
