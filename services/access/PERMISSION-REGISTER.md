@@ -3,7 +3,9 @@
 Access0005 extends the existing Access operator route with `permission.register`.
 It registers one immutable literal permission/application/scope association and grants
 no access. Applications may remain disabled. Entry registration is provided by the separate [entry command](ENTRY-PERMISSION-REGISTER.md).
-Application enablement, grants and consumer activation remain separately gated.
+Application enablement is separately authorized through the
+[Access0007 command](APPLICATION-SET-ENABLED.md); permission authority confers none.
+Grants and consumer activation remain separately gated.
 
 Use the existing [application operator preparation and recovery runbook](APPLICATION-REGISTER.md).
 The same three restricted roles and private prepared Access target apply; no additional

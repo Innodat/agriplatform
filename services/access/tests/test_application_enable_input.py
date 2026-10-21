@@ -119,36 +119,42 @@ def test_identity_consumers_refuse_before_effects(tmp_path, monkeypatch, capsys)
 
 
 @pytest.mark.parametrize('enabled', [True, False])
-def test_access_consumers_refuse_before_effects(enabled, tmp_path, monkeypatch, capsys):
+def test_access_consumers_dispatch_enablement(enabled, tmp_path, monkeypatch, capsys):
     import access_operator as adapter
     import operator_cli as cli
-    value = document()
-    value['payload']['enabled'] = enabled
-    raw = encode(value)
-    class Trap:
-        def __getattr__(self, name):
-            pytest.fail('Access touched connection before refusing enablement')
-    def trap(*args, **kwargs):
-        pytest.fail('Access touched target, connection or dispatch before refusing enablement')
-    monkeypatch.setattr(adapter, '_run', trap)
-    monkeypatch.setattr(cli, 'load_target', trap)
-    monkeypatch.setattr(cli, '_connection', trap)
-    monkeypatch.setattr(cli, 'dispatch', trap)
-    with pytest.raises(adapter.OperatorError) as caught:
-        adapter.execute(Trap(), raw)
-    registration.assert_safe_refusal(caught.value, 'command_unsupported')
-    app_id = document()['payload']['app_id']
-    with pytest.raises(adapter.OperatorError) as caught:
-        adapter.outcome(Trap(), UUID, command='application.set_enabled', app_id=app_id)
-    registration.assert_safe_refusal(caught.value, 'command_invalid')
-    path = tmp_path/'command.json'; path.write_bytes(raw)
-    assert cli.main(['execute', '--owner', 'access', '--target', 'unused', '--command-file', str(path)]) == 2
-    assert json.loads(capsys.readouterr().out) == dict(code='command_unsupported', operation_id=UUID.lower())
-    assert cli.main(['outcome', '--owner', 'access', '--target', 'unused', '--command', 'application.set_enabled', '--operation-id', UUID, '--app-id', 'fixture_app']) == 2
-    assert json.loads(capsys.readouterr().out) == dict(code='command_invalid')
-    for action, value in [('execute', raw.decode()), ('outcome', dict(command='application.set_enabled', app_id='fixture_app'))]:
-        with pytest.raises(ValueError) as caught:
-            cli.access_worker([action, 'unused', value, UUID, 'access'])
-        assert type(caught.value) is ValueError
-        assert caught.value.args == ()
-        assert caught.value.__context__ is None and caught.value.__cause__ is None
+    from types import SimpleNamespace
+    value=document();value['payload']['enabled']=enabled;raw=encode(value);seen=[]
+    monkeypatch.setattr(adapter,'_run',lambda *args:seen.append(args))
+    adapter.execute(object(),raw)
+    assert seen[-1][3]['enabled'] is enabled and seen[-1][-1]=='application.set_enabled'
+    adapter.outcome(object(),UUID,command='application.set_enabled',app_id='fixture_app')
+    assert 'application_enablement_outcome' in seen[-1][2]
+    monkeypatch.setattr(cli,'load_target',lambda *args,**kwargs:SimpleNamespace(path=Path('/synthetic/access-target.json')))
+    def dispatch(request):
+        seen.append(request)
+        return json.dumps(dict(operation_id=UUID.lower(),status='unresolved')).encode()
+    monkeypatch.setattr(cli,'dispatch',dispatch)
+    path=tmp_path/'command.json';path.write_bytes(raw)
+    assert cli.main(['execute','--owner','access','--target','unused','--command-file',str(path)])==2
+    assert json.loads(capsys.readouterr().out)==dict(operation_id=UUID.lower(),status='unresolved')
+    assert seen[-1][0]=='execute'
+    assert cli.main(['outcome','--owner','access','--target','unused','--command','application.set_enabled','--operation-id',UUID,'--app-id','fixture_app'])==2
+    assert json.loads(capsys.readouterr().out)==dict(operation_id=UUID.lower(),status='unresolved')
+    assert seen[-1][2]==dict(command='application.set_enabled',app_id='fixture_app')
+    # Worker remains closed to malformed/mixed owner requests before connection.
+    def trap(*args,**kwargs):pytest.fail('malformed worker request touched target')
+    monkeypatch.setattr(cli,'load_target',trap)
+    malformed_execute=raw.decode().replace('application.set_enabled','application.enable')
+    with pytest.raises(operator.CommandValidationError) as caught:
+        cli.access_worker(['execute','unused',malformed_execute,UUID,'access'])
+    registration.assert_safe_refusal(caught.value,'access_operator_input_invalid')
+    malformed_lookup=dict(command='application.set_enabled',app_id=value['payload']['app_id'],permission=SENTINEL)
+    with pytest.raises(ValueError) as caught:
+        cli.access_worker(['outcome','unused',malformed_lookup,UUID,'access'])
+    error=caught.value
+    assert type(error) is ValueError and error.args==() and str(error)=='' and repr(error)=='ValueError()'
+    assert error.__context__ is None and error.__cause__ is None
+    import traceback
+    rendered=''.join(traceback.format_exception(error))
+    for submitted in (SENTINEL,UUID,value['payload']['app_id'],value['evidence_ref'],raw.decode()):
+        assert submitted not in rendered

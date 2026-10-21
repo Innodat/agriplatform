@@ -9,7 +9,7 @@ from uuid import UUID
 import rfc8785
 from sqlalchemy import text
 from identity_operator import OperatorError
-from access_operator_input import parse_command, RegisterApplicationCommand, RegisterPermissionCommand, RegisterEntryPermissionCommand
+from access_operator_input import parse_command, RegisterApplicationCommand, RegisterPermissionCommand, RegisterEntryPermissionCommand, SetApplicationEnabledCommand
 
 @dataclass(frozen=True)
 class ApplicationTarget:
@@ -20,6 +20,14 @@ class RegisterApplicationResult:
     command: Literal['application.register']
     target: ApplicationTarget
     disposition: Literal['created', 'unchanged']
+    revision: str
+    event_id: str | None
+
+@dataclass(frozen=True)
+class SetApplicationEnabledResult:
+    command: Literal['application.set_enabled']
+    target: ApplicationTarget
+    disposition: Literal['changed', 'unchanged']
     revision: str
     event_id: str | None
 
@@ -52,7 +60,7 @@ def valid_permission(value):
 @dataclass(frozen=True)
 class Receipt:
     operation_id: str
-    result: RegisterApplicationResult | RegisterPermissionResult | RegisterEntryPermissionResult
+    result: SetApplicationEnabledResult | RegisterApplicationResult | RegisterPermissionResult | RegisterEntryPermissionResult
     command_version: int
     result_version: int
     committed_at: datetime
@@ -80,13 +88,13 @@ def _receipt(row, operation_id, command='application.register'):
     try:
         result, cv, rv, instant = row
         permission = command in ('permission.register','entry_permission.register')
-        valid = (command in ('application.register','permission.register','entry_permission.register') and type(cv) is int and cv == 1
+        valid = (command in ('application.register','permission.register','entry_permission.register','application.set_enabled') and type(cv) is int and cv == 1
             and type(rv) is int and rv == 1 and type(result) is dict
             and set(result) == {'target','disposition','revision','event_id'}
             and type(result['target']) is dict
             and type(result['target']['app_id']) is str
             and re.fullmatch(r'[a-z][a-z0-9_]{1,63}',result['target']['app_id']) is not None
-            and result['disposition'] in ('created','unchanged')
+            and result['disposition'] in (('changed','unchanged') if command=='application.set_enabled' else ('created','unchanged'))
             and isinstance(instant,datetime) and instant.tzinfo is not None)
         revision = result['revision']
         if permission:
@@ -98,10 +106,10 @@ def _receipt(row, operation_id, command='application.register'):
             valid = (valid and set(result['target']) == {'app_id'} and type(revision) is str
                 and re.fullmatch(r'[1-9][0-9]{0,18}',revision) is not None
                 and int(revision) <= 9223372036854775807)
-            result_type, target_type = RegisterApplicationResult, ApplicationTarget
-            creation_revision_valid = revision == '1'
+            result_type, target_type = (SetApplicationEnabledResult if command=='application.set_enabled' else RegisterApplicationResult), ApplicationTarget
+            creation_revision_valid = int(revision)>1 if command=='application.set_enabled' else revision == '1'
         event = result['event_id']
-        valid = valid and ((result['disposition'] == 'created' and creation_revision_valid
+        valid = valid and ((result['disposition'] == ('changed' if command=='application.set_enabled' else 'created') and creation_revision_valid
             and type(event) is str and UUID(event).int != 0 and str(UUID(event)) == event)
             or (result['disposition'] == 'unchanged' and event is None))
     except (ValueError,TypeError,AttributeError,KeyError):
@@ -167,6 +175,11 @@ def execute(connection, body: bytes):
     deadline = time.monotonic() + 10
     command = parse_command(body)
     operation_id = str(UUID(command.operation_id))
+    if isinstance(command,SetApplicationEnabledCommand):
+        return _run(connection,operation_id,
+            'SELECT * FROM access.set_application_enabled(CAST(:operation AS uuid),:app,:enabled,:revision,:reason,:evidence,:canonical)',
+            dict(operation=operation_id,app=command.payload.app_id,enabled=command.payload.enabled,revision=command.payload.expected_revision,
+                reason=command.reason_code,evidence=command.evidence_ref,canonical=canonical_command(command)),deadline,command.command)
     if isinstance(command,RegisterEntryPermissionCommand):
         return _run(connection,operation_id,
             'SELECT * FROM access.register_entry_permission(CAST(:operation AS uuid),:app,:permission,:reason,:evidence,:canonical)',
@@ -188,7 +201,7 @@ def execute(connection, body: bytes):
 def outcome(connection, operation_id, *, command='application.register', app_id=None, permission=None):
     invalid = False
     try:
-        invalid = (command not in ('application.register','permission.register','entry_permission.register')
+        invalid = (command not in ('application.register','permission.register','entry_permission.register','application.set_enabled')
             or (not valid_permission(permission) if command in ('permission.register','entry_permission.register') else permission is not None) or type(operation_id) is not str
             or UUID(operation_id).int == 0 or str(UUID(operation_id)) != operation_id.lower()
             or type(app_id) is not str or re.fullmatch(r'[a-z][a-z0-9_]{1,63}',app_id) is None)
@@ -197,6 +210,10 @@ def outcome(connection, operation_id, *, command='application.register', app_id=
     if invalid:
         raise OperatorError('command_invalid')
     operation_id = str(UUID(operation_id))
+    if command == 'application.set_enabled':
+        return _run(connection,operation_id,
+            'SELECT * FROM access.application_enablement_outcome(CAST(:operation AS uuid),:app)',
+            dict(operation=operation_id,app=app_id),time.monotonic()+10,command)
     if command == 'entry_permission.register':
         return _run(connection,operation_id,
             'SELECT * FROM access.entry_permission_registration_outcome(CAST(:operation AS uuid),:app,:permission)',

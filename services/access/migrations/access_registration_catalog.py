@@ -541,3 +541,22 @@ def entry_catalog():
     functions['register_entry_permission'] = [(row[0].replace('p_app text,', 'p_app text, p_permission text,'),*row[1:]) for row in functions['register_application']]
     functions['entry_permission_registration_outcome'] = deepcopy(functions['permission_registration_outcome'])
     return tables, functions
+
+
+# Revision7 preserves all registration metadata and adds mutable application commands.
+def enablement_catalog():
+    from copy import deepcopy
+    tables, functions = entry_catalog()
+    replacements = {
+        'operator_authorities_command_check': "CHECK ((command = ANY (ARRAY['application.register'::text, 'permission.register'::text, 'entry_permission.register'::text, 'application.set_enabled'::text])))",
+        'operation_outcome_command_type_check': "CHECK ((command_type = ANY (ARRAY['application.register'::text, 'permission.register'::text, 'entry_permission.register'::text, 'application.set_enabled'::text])))",
+        'business_event_event_type_check': "CHECK ((event_type = ANY (ARRAY['access.application_registered'::text, 'access.permission_registered'::text, 'access.entry_permission_registered'::text, 'access.application_availability_changed'::text])))",
+    }
+    for table in tables.values():
+        table['constraints'] = [(n,t,replacements.get(n,d),a,b,c) for n,t,d,a,b,c in table['constraints']]
+    functions['application_enablement_authority'] = deepcopy(functions['current_operator_authority'])
+    functions['guard_application_update'] = deepcopy(functions['guard_command_evidence'])
+    functions['require_application_change'] = deepcopy(functions['require_application_registration'])
+    functions['set_application_enabled'] = [(row[0].replace('p_app text,','p_app text, p_enabled boolean, p_revision text,'),*row[1:]) for row in functions['register_application']]
+    functions['application_enablement_outcome'] = deepcopy(functions['application_registration_outcome'])
+    return tables, functions

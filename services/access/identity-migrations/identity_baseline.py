@@ -695,7 +695,7 @@ TARGET_ROLE_QUERIES = {
 
 
 def verified_access_command_extension(connection):
-    """Recognize only the explicitly prepared Access0004/5 recipient bundle.
+    """Recognize only the explicitly prepared Access0004/5/6/7 recipient bundle.
 
     Metadata validation grants Identity no Access reads or role assumption. Existing
     immutable Identity references continue describing Identity's own privileges.
@@ -718,7 +718,8 @@ def verified_access_command_extension(connection):
         if installed:
             permission_installed=bool(connection.execute(text("SELECT EXISTS(SELECT 1 FROM pg_proc p JOIN pg_namespace n ON n.oid=p.pronamespace WHERE n.nspname='access' AND p.proname='register_permission')")).scalar_one())
             entry_installed=bool(connection.execute(text("SELECT EXISTS(SELECT 1 FROM pg_proc p JOIN pg_namespace n ON n.oid=p.pronamespace WHERE n.nspname='access' AND p.proname='register_entry_permission')")).scalar_one())
-            access_catalog.verify_catalog(connection,'access_0006' if entry_installed else 'access_0005' if permission_installed else 'access_0004')
+            enablement_installed=bool(connection.execute(text("SELECT EXISTS(SELECT 1 FROM pg_proc p JOIN pg_namespace n ON n.oid=p.pronamespace WHERE n.nspname='access' AND p.proname='set_application_enabled')")).scalar_one())
+            access_catalog.verify_catalog(connection,'access_0007' if enablement_installed else 'access_0006' if entry_installed else 'access_0005' if permission_installed else 'access_0004')
             access_catalog.require_equal(access_catalog.rows(connection,"SELECT pg_get_userbyid(nspowner) FROM pg_namespace WHERE nspname='access'"),[('access_migrator',)])
             access_catalog.require_equal(access_catalog.acl(connection,"(SELECT oid FROM pg_namespace WHERE nspname='access')",'n'),
                 access_catalog.owner_acl(['USAGE','CREATE'])+ [('access_migrator',r,'USAGE',False) for r in ('access_runtime','access_operator','access_operator_authority_owner','access_command_owner')])
@@ -730,7 +731,9 @@ def verified_access_command_extension(connection):
 
 
 def _identity_target_dependencies(rows):
-    return [row for row in rows if str(row[3])!='schema access' and not str(row[3]).startswith(('table access.','function access.'))]
+    # Called only after the complete installed Access catalog/ACL was verified.
+    # Access7's exact column UPDATE adds this one pg_shdepend description.
+    return [row for row in rows if str(row[3]) not in ('schema access','column enabled of table access.applications') and not str(row[3]).startswith(('table access.','function access.'))]
 
 
 def verify_target_roles(connection, staged=False):

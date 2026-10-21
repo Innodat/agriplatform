@@ -1,6 +1,7 @@
 # Protected Access application registration
 
-The current Access0006 head supports `application.register`, `permission.register` and `entry_permission.register`.
+The current Access0007 head supports `application.register`, `permission.register`, `entry_permission.register` and
+`application.set_enabled`. Availability mutation uses its [own authority and runbook](APPLICATION-SET-ENABLED.md).
 For permission-specific payload, exact command authority and target recovery, follow
 [permission registration](PERMISSION-REGISTER.md). `application.register` creates a disabled revision1
 application and atomic immutable event/outcome; matching existing applications return
@@ -9,7 +10,7 @@ application or grant effective access. ACCESS-A/B consumer activation remains cl
 
 Preparation is explicit controlled deployment work. Use
 `tools/prepare_access_operator_roles.sql` under the authorized true administrator before
-the current Access0006 head. It creates the restricted LOGIN operator and NOLOGIN authority owner, and
+the current Access0007 head. It creates the restricted LOGIN operator and NOLOGIN authority owner, and
 validates an already staged restricted command owner or creates it. The migrator receives
 only the two exact SET-only owner edges. Set the operator password through private
 preparation; this SQL contains no password, principal or authority seeds. The ordinary
@@ -62,8 +63,8 @@ operation/run references through the owning recovery route. Never automatically 
 applied migrations.
 
 See [executed evidence](APPLICATION_REGISTER_EVIDENCE.md) for source custody, requirement
-traceability, historical Access0004 native proof and remaining activation gates. Current
-Access0006 qualification is recorded in [entry evidence](ENTRY_PERMISSION_REGISTER_EVIDENCE.md).
+traceability, historical Access0004 native proof and remaining activation gates. Historical Access0006 qualification is recorded in [entry evidence](ENTRY_PERMISSION_REGISTER_EVIDENCE.md);
+current Access0007 qualification is in [enablement evidence](APPLICATION_SET_ENABLED_EVIDENCE.md).
 
 ## Concrete controlled synthetic preparation
 
@@ -75,8 +76,8 @@ argv, a command envelope, a receipt or a diagnostic log. No runtime credential i
 provisioning credential.
 
 1. Inspect the actual run's native marker/configuration and the selected database/login
-   before connecting. The controlled route targets Access0006 and recognizes exact
-   clean/1/2/3/4/5/6 histories; unexpected state refuses. Before migration, under the
+   before connecting. The controlled route targets Access0007 and recognizes exact
+   clean/1/2/3/4/5/6/7 histories; unexpected state refuses. Before migration, under the
    authorized true administrator, execute the existing
    `tools/prepare_access_operator_roles.sql` once. Its transaction refuses unexpected
    existing roles/edges; do not work around that refusal with DROP, broad grants or
@@ -139,7 +140,7 @@ Identity-owned read/write; grant Access roles no Identity-table access. It creat
 Auth account, organization membership, employee or application grant.
 
 4. Run the ordinary Access controlled migration route with the explicit Access migrator
-   configuration. After exact Access0006 verification succeeds, use `access_migrator`
+   configuration. After exact Access0007 verification succeeds, use `access_migrator`
    to prepare the principal and narrowly app-bound command authority below. The actor
    UUID must be the externally verified one from step3; no mapping seeds are in the
    migration. The example app identifier is synthetic and grants no effective app access.

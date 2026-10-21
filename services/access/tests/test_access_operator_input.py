@@ -234,8 +234,8 @@ def test_identity_parser_adapter_cli_refuse_before_effects(command, tmp_path, mo
     monkeypatch.setattr(cli, '_connection', trap)
     monkeypatch.setattr(cli, 'dispatch', trap)
     path = tmp_path/'command.json'; path.write_bytes(raw)
-    # Access application.register is now executable; other parsed registry commands remain closed.
-    for owner in (('identity',) if command in ('application.register','permission.register','entry_permission.register') else ('identity','access')):
+    # Protected Access commands execute through their own owner; Identity remains closed.
+    for owner in (('identity',) if command in ('application.register','permission.register','entry_permission.register','application.set_enabled') else ('identity','access')):
         assert cli.main(['execute', '--owner', owner, '--target', 'unused', '--command-file', str(path)]) == 2
         output = capsys.readouterr()
         expected = ({'code':'identity_operator_input_invalid'} if owner=='identity' else

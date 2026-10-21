@@ -39,7 +39,7 @@ def test_permission_dispatch_and_lookup(monkeypatch):
 def test_history_retains_four_and_adds_five():
     sys.path.insert(0,str(Path(__file__).resolve().parents[1]/'migrations'))
     import access_baseline as b
-    assert b.HEAD=='access_0006'
+    assert b.HEAD=='access_0007'
     assert b.validate_revision(['access_0004'])=='access_0004'
     assert b.validate_revision(['access_0005'])=='access_0005'
 

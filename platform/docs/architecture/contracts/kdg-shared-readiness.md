@@ -264,3 +264,12 @@ seed execution, and keep incompatible consumers stopped. On failure, retain evid
 and forward-reconcile while stopped (or use an explicitly planned verified restore);
 no automatic downgrade or unsafe previous-version restart. No Access implementation or
 production release execution is authorized by this Identity increment.
+
+
+Access application availability checkpoint — 2026-10-21: Access0007 delivers protected
+`application.set_enabled`, revision/attribution guards and atomic before/after evidence
+through the existing owner route. Registration authority does not confer it; disabling
+preserves registry associations and grants. This synthetic command proof does not
+activate consumer admission, organization enablement, grants, KDG or PtS. See the
+[owner runbook](../../../../services/access/APPLICATION-SET-ENABLED.md) and
+[source-bound evidence](../../../../services/access/APPLICATION_SET_ENABLED_EVIDENCE.md).

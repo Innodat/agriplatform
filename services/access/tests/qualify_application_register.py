@@ -323,7 +323,7 @@ class Qualification:
         for table in ('applications','permissions','entry_permissions','operation_outcome','business_event'):
             for action in ('UPDATE access.'+table+' SET created_at=created_at' if table!='operation_outcome' else 'UPDATE access.operation_outcome SET committed_at=committed_at','DELETE FROM access.'+table,'TRUNCATE access.'+table+' CASCADE'):
                 try:self.execute_sql(case,action)
-                except Exception as error:assert getattr(getattr(error,'orig',None),'sqlstate',None) in ('23514','55000','0A000'),'wrong_immutability_refusal'
+                except Exception as error:assert getattr(getattr(error,'orig',None),'sqlstate',None) in (('23514','55000','0A000','42501') if table=='applications' and action.startswith('UPDATE') else ('23514','55000','0A000')),'wrong_immutability_refusal'
                 else:raise AssertionError('immutability_attack_succeeded')
         try:self.execute_sql(case,f"INSERT INTO access.applications(app_id,created_by,updated_by,created_at,updated_at) VALUES('missing_evidence','{ACTOR}','{ACTOR}',statement_timestamp(),statement_timestamp())")
         except Exception as error:assert getattr(getattr(error,'orig',None),'sqlstate',None)=='23514'

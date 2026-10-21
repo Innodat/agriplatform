@@ -1726,3 +1726,13 @@ records attempts, commands, source custody, composer archive and downstream limi
 Account live verification/mapping, Access activation, WRITE, KDG delivery and production
 migration/provisioning remain separate gates. Migration failure blocks activation and
 requires explicit reconciliation; no automatic downgrade or startup migration is added.
+
+## Access7 metadata compatibility — 2026-10-21
+
+The mutable Identity18 verifier now recognizes installed application enablement routines
+and validates exact Access7 metadata before excluding the known owner-local dependencies
+from its historical checks. Its Access4/5/6 selections remain explicit. Selection and
+verification use catalogs only, without Access history/business reads or new cross-owner
+grants. Historical Identity migrations and references remain unchanged. See the
+[enablement runbook](APPLICATION-SET-ENABLED.md) and
+[evidence](APPLICATION_SET_ENABLED_EVIDENCE.md).

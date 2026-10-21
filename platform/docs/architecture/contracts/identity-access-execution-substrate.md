@@ -483,10 +483,32 @@ repr-redacted records reuse Identity's unchanged strict decoder and decimal vali
 The closed envelope, provenance, byte limits and safe validation errors remain binding.
 Parsing grants no authority and reads no registry state.
 
-Access adapter/CLI execute refuse this command as `command_unsupported` before effects;
-outcome remains `command_invalid`, and the worker retains its closed preconnection
+At the input-only checkpoint, Access adapter/CLI execute refused this command as `command_unsupported` before effects;
+outcome was `command_invalid`, and the worker retained its closed preconnection
 rejection. Identity consumers reject Access inputs. Mutable registry persistence,
 revision/evidence guards, protected enablement execution and runtime activation remain
 separate work. See [input evidence](../../../../services/access/APPLICATION_ENABLE_INPUT_EVIDENCE.md).
 Historical registration/runtime proofs remain bound to their original source bytes;
 ACCESS-A/B and coordinated PtS/KDG consumer gates remain closed.
+
+
+## Protected application enablement implementation — 2026-10-21
+
+Access0007 implements `application.set_enabled` through the existing bounded owner
+route. Its exact original-session command/platform/app authority is independent of
+registration. New operations require current expected revision even for matching state;
+changed input increments once with server actor/time and atomic compact outcome plus
+`access.application_availability_changed` before/after event. Unchanged preserves the
+entire application row and has no event. Guards protect identity/creation fields,
+OLD/NEW revision/attribution and required immutable evidence; only command owner gains
+UPDATE(enabled). Retry/authority/application locks, current-authorized replay/lookup,
+four-command namespace separation and controlled migration recovery remain binding.
+The single-event subset is retained. No digest inversion claim is made.
+
+The owner verifier retains explicit clean/1/2/3/4/5/6/7 catalogs; Identity18 selects exact7
+from installed-routine metadata without Access business/history reads. Historical
+migrations/references, populated rows and original receipts remain retained. See the
+[runbook](../../../../services/access/APPLICATION-SET-ENABLED.md) and
+[evidence](../../../../services/access/APPLICATION_SET_ENABLED_EVIDENCE.md). This command
+adds no grants, organization enablement or consumer activation. ACCESS-A/B and
+coordinated PtS/KDG delivery gates remain closed.

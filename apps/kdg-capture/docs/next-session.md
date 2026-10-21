@@ -1614,3 +1614,19 @@ See [evidence](../../../services/access/APPLICATION_ENABLE_INPUT_EVIDENCE.md).
 Next deliver mutable application revision/attribution/evidence guards through the existing
 controlled owner migration and operator route before enabling protected command execution.
 Enablement/grants, effective authorization and consumer activation remain separately gated.
+
+### Protected application enablement — 2026-10-21
+
+Access0007 now executes `application.set_enabled` with exact command/app authority,
+expected revision, server attribution and atomic before/after event plus recoverable
+outcome. Unchanged preserves the row; disable/re-enable preserves grants and mappings.
+Three review lenses completed, confirmed test/runbook findings were patched, and fresh
+39-stage native proof, separate retained inspection, independent CLI recovery,1264
+affected tests and both composition checks passed. The disposable run stopped normally;
+all historical data/resources and concurrent work remain preserved. See the
+[runbook](../../../services/access/APPLICATION-SET-ENABLED.md) and
+[evidence](../../../services/access/APPLICATION_SET_ENABLED_EVIDENCE.md).
+
+Continue the existing owner sequence with organization enablement/grant prerequisites
+and ACCESS-B/consumer gates. No real application was enabled; effective admission and
+KDG/PtS activation remain gated. Bootstrap portability remains deferred.

@@ -81,3 +81,8 @@ sanitized unavailable. Retain original input/operation after uncertain completio
 recover under current authority. Do not infer rollback, repair catalogs, widen authority,
 repeat migrations on process startup or automatically downgrade. Recovery follows the
 existing controlled owner route. See [evidence](ENTRY_PERMISSION_REGISTER_EVIDENCE.md).
+
+Current Access0007 additionally implements separately authorized
+[application availability changes](APPLICATION-SET-ENABLED.md). Entry registration
+retains its immutable mapping and original receipt contract; entry authority does not
+confer enablement authority. Historical Access6 evidence remains source-bound.

@@ -1850,3 +1850,17 @@ Reviewed registry storage requires UTF8 server encoding before Access migration 
 unsupported source encodings refuse without normalization. Internal FK-trigger enablement
 is part of exact catalog verification. See registry evidence for the separate isolated
 SQL_ASCII refusal and fresh reviewed acceptance frame; prior frames remain historical.
+
+
+### Protected Access application availability — 2026-10-21
+
+Access0007 adds bounded `application.set_enabled` with its own current authority, exact
+expected revision and atomic mutable-row/outcome/before-after evidence. The existing
+controlled migration route recognizes exact clean/1/2/3/4/5/6/7 without normalization.
+Only command owner gains UPDATE(enabled); raw writes and missing/forged evidence refuse.
+No consumer activation, grant or organization enablement is included. Preserve prior
+frames/resources and use fresh synthetic namespaces/custody for native qualification.
+[Owner preparation/recovery](../../services/access/APPLICATION-SET-ENABLED.md) and
+[evidence](../../services/access/APPLICATION_SET_ENABLED_EVIDENCE.md) retain compatibility
+with actual previous6 clients and catalog-only Identity18 verification. Failure blocks
+activation; inspect and forward-reconcile without startup migration or automatic reverse.

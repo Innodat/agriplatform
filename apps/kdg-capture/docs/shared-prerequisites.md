@@ -331,3 +331,14 @@ refusals. Execution remains closed pending mutable application storage and prote
 revision/evidence guards. No application is enabled, grant issued or consumer activated;
 ACCESS-A/B and KDG delivery gates remain open requirements. Historical runtime proofs
 remain source-bound and do not qualify these new parser bytes.
+
+## ACCESS-A protected application enablement — 2026-10-21
+
+Access0007 delivers the protected mutable command after the input-only checkpoint.
+Exact authority/revision and server attribution guard row/outcome/before-after evidence
+atomically; unchanged preserves the row and disable/re-enable retains grants/mappings.
+Reviewed synthetic verification passed:39 native stages, separate retained inspection,
+real CLI recovery,1264 affected tests and both composition checks. The native run stopped
+normally with all data/resources retained. See [evidence](../../../services/access/APPLICATION_SET_ENABLED_EVIDENCE.md).
+Organization enablement, grant commands, effective authorization and coordinated consumer
+activation remain separate gates; no real-target access/configuration change is claimed.

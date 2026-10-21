@@ -39,7 +39,8 @@ def test_permission_dispatch_and_lookup(monkeypatch):
 def test_history_retains_five_and_adds_six():
     sys.path.insert(0,str(Path(__file__).resolve().parents[1]/'migrations'))
     import access_baseline as b
-    assert b.HEAD=='access_0006'
+    assert b.HEAD=='access_0007'
+    assert b.validate_revision(['access_0006'])=='access_0006'
     assert b.validate_revision(['access_0005'])=='access_0005'
     from access_registration_catalog import entry_catalog,permission_catalog
     assert 'entry_permission.register' not in repr(permission_catalog())
