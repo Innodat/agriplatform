@@ -116,6 +116,39 @@ The exclusive file create protects an existing secret file from overwrite. If th
 command fails, preserve the partial private file for deliberate local handling;
 normal lifecycle commands do not consume it or change any application role.
 
+## Access staged membership storage (Access revision2)
+
+Prepare the Access schema separately under access_migrator, with runtime schema USAGE
+granted by that owner and no broad defaults. Use the existing Access Alembic route and
+actual restricted access_migrator URL; optional coordinated Identity migration remains
+first. The migration verifies the exact known catalog/history/ACLs before effects and
+before commit, serializes owner execution and bounds waits. Unknown schema/history or
+privileges refuse without repair. Both Access roles' restricted flags are checked, as
+are the exact existing native Supabase administrator profiles/incoming owner edges and
+effective callable Identity-definer authority (schema USAGE plus EXECUTE). Grants and ledger must be permanent with no ordinary
+inheritance links. No global role authority is changed for qualification. Offline/stamp/downgrade are prohibited; preserve the
+failed history/data and reconcile before an explicit controlled upgrade retry. Never
+auto-reverse applied migrations or activate on failure.
+
+Revision2 only stages nullable positive grants.membership_id. It performs no backfill,
+Identity FK, inference or activation. Current v1 ignores the field and remains stopped
+for real consumers until exact active org/account/member checks and coordinated owner/
+consumer delivery; NULL is never a match. Runtime SELECT intentionally covers the new
+column while writes and owner assumption remain denied.
+
+[Access owner evidence](../../services/access/ACCESS_MEMBERSHIP_BINDING_EVIDENCE.md)
+contains the preparation and aggregate commands, private fixture requirements, repeatable
+source-bound retained inspection and recovery results. Fresh preparation must have a
+successful unchanged before/after execution-custody witness before aggregate acceptance;
+post-preparation source capture alone is insufficient. Optimized Python is explicitly
+refused before parsing or fixture access so assertions cannot be bypassed. The current final frame is
+access-membership-final-optimized-20261021; final aggregate and retained inspection passed,
+and the native run is normally stopped. Restart the retained run through dev.py before
+retained inspection. Reuse the existing native fixture
+framework with separately validated access_owner_urls; do not substitute Access URLs
+for Identity owner_urls. The older PtS port55439/minimal-Identity bootstrap is unsuitable
+for the current native target and its guards remain unchanged.
+
 ## Protected account actor setup (Identity revision18)
 
 The existing Identity owner CLI now executes `account_actor.ensure`. Prepare the

@@ -23,7 +23,8 @@ except RuntimeError as error:
     print('closed')
 else:raise BaseException('unsafe acceptance')
 '''
-    result=subprocess.run([sys.executable,'-I','-B','-O','-c',script,str(tests),str(fixture)],capture_output=True,timeout=4)
+    # Allow cold interpreter/import startup before the protected fixture refusal.
+    result=subprocess.run([sys.executable,'-I','-B','-O','-c',script,str(tests),str(fixture)],capture_output=True,timeout=60)
     assert result.returncode==0 and result.stdout==b'closed\n' and not result.stderr
 
 

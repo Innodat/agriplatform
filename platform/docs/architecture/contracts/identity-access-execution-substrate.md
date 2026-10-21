@@ -352,3 +352,25 @@ repeatable retained inspection remain. Bounded Auth UUID observations do not res
 Auth allocations, and overlapping profile retirement gains no extra row locks or write
 privileges. Current application access remains independently checked. Exact reviewed
 command/results and preserved candidate reconciliation are in the owner evidence above.
+
+
+## Delivered Access staged membership storage —2026-10-21
+
+Access revision2 adds nullable bigint grants.membership_id with named positive CHECK,
+without default, backfill, cross-owner FK or activation. Opaque grant IDs, original keys,
+text attribution, permission CHECK, forced RLS and read-only runtime privileges remain.
+The existing owner route now checks exact known clean/1/2 catalogs and private history
+before effects and before commit, with bounded waits and serialized owner execution.
+Unknown state refuses without normalization; recovery uses the controlled upgrade.
+Both Access roles' restricted flags, incoming owner/bootstrap authority and effective
+callable Identity SECURITY DEFINER authority is checked. Grants and ledger must be permanent
+and have no ordinary inheritance links. See owner evidence for the exact existing
+Supabase bootstrap profile; no shared global role authority changes in qualification.
+
+[Owner evidence](../../../../services/access/ACCESS_MEMBERSHIP_BINDING_EVIDENCE.md)
+records actual restricted-role, rollback/contention and genuine Identity18 preservation
+proof. This is only the first ACCESS-A storage increment. Current v1 ignores this field
+and remains incompatible/stopped for real consumers until coordinated ACCESS-A/B
+delivery. Future effective organization access requires exact active org/account/member
+equality; NULL cannot match. Registry, commands, consumer/admission eligibility, PtS
+adoption and KDG activation remain independently gated.

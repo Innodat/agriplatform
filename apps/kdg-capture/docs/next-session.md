@@ -1,6 +1,37 @@
 # Resume shared ENV delivery after KDG planning PASS
 
-## Current ID-B increment — protected account actor ensure,2026-10-21
+## Current ACCESS-A increment — staged grant membership storage,2026-10-21
+
+Access revision2 adds nullable positive bigint grants.membership_id through the existing
+controlled owner route. It preserves opaque IDs, original text attribution/keys/permission
+CHECK, forced RLS and runtime read-only access; there is no backfill, Identity FK or grant
+activation. Fixed clean/1/2 catalog/history/ACL guards reject unknown state without repair.
+Actual synthetic matrix proves boundaries, preserved populated repeat, bounded rollback/
+contention/recovery, actual restricted runtime and unchanged genuine Identity18.
+
+See [spec](../../../_bmad-output/implementation-artifacts/spec-access-a-staged-membership-binding.md)
+and [owner evidence](../../../services/access/ACCESS_MEMBERSHIP_BINDING_EVIDENCE.md).
+Final proof: access-membership-final-optimized-20261021. Fresh preparation and the
+59-stage aggregate both bind130 unchanged executed sources; independent retained
+inspection also passed; final affected regression1050 passed and both composers exited0.
+Three review lenses completed; accepted findings and the final
+optimized-Python guard were patched and verified. All39 protected historical source/
+reference files remain unchanged. The native run is normally stopped with data and
+receipts retained; --verify-retained requires restarting that retained run through dev.py.
+--all and private preparation are single-use. Shared-UI and ADR impacts are unchanged;
+owner fixture/scaffold tooling, documentation and this handoff are updated. Existing
+portable CI bootstrap and intermittent legacy subprocess timing remain follow-ups in
+the owner evidence/deferred-work log.
+
+The ACCESS-A/B activation gate stays closed. Current v1 ignores membership identity and
+remains incompatible/stopped for real consumers; NULL cannot match. Next bounded work
+remains the existing owner registry/command and exact active organization/account/member
+consumer contracts, with coordinated compatibility/recovery. Storage alone does not
+authorize Access/WRITE/server KDG, PtS adoption, production/provider/real-account/access,
+deploy/pilot, reset/prune, Leave/editor or push. Preserve concurrent work and all historical
+source/reference/receipt bytes.
+
+## Previous ID-B increment — protected account actor ensure,2026-10-21
 
 Revision18 implements explicit live-account actor setup through the existing restricted
 Identity operator/CLI. Separate true-admin role and Auth-owner preparation precede the
