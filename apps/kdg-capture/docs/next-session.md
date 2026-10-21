@@ -1,6 +1,22 @@
 # Resume shared ENV delivery after KDG planning PASS
 
-## Current ID-B increment — typed command retry identity, 2026-10-21
+## Current ID-B increment — staged membership actor attribution, 2026-10-21
+
+Revision15 adds nullable durable actor references, local RESTRICT FKs and guarded
+owner-only changes; populated creation actor is immutable. Legacy attribution/times,
+full uniqueness, active index and seeds stay. No automatic real adoption or membership
+command activation. See [Build and evidence](../../../_bmad-output/implementation-artifacts/spec-id-b-membership-actor-attribution.md).
+Reviewed actual matrix PASS47.815s;936 affected tests and both composers PASS. All three
+external review layers complete; all13 findings resolved, no deferrals. The matrix
+retains one additional synthetic attributed member/actor for repeat-upgrade proof;
+all original rows and old frames stay. Use fresh cases for future full qualification.
+Next is scoped
+retirement command evidence/outcomes, authorization and protected writer transition;
+account_actor.ensure has a separate live Auth/profile verification requirement.
+Preserve all failed frames/receipts/data/resources and concurrent work; no real-target,
+production/provider/access/deploy/pilot, reset/prune, Leave/editor or push.
+
+## Previous ID-B increment — typed command retry identity, 2026-10-21
 
 The existing owner helper now canonicalizes all four already-parsed command variants
 and prepares scope/executor/command/operation-bound outcome lock keys. Actor registration

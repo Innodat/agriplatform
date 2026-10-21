@@ -276,3 +276,20 @@ Reviewed actual matrix PASS46.265s;846 affected tests/both composers PASS, three
 complete, no deferrals. Historical duplicates/rejoin remain unavailable on canonical14;
 owner commands/seeds/compatibility must be coordinated before full-constraint removal.
 Access/WRITE/server KDG and real-target activation remain gated.
+
+
+## ID-B membership actor-attribution staging — 2026-10-21
+
+Revision15 prepares the existing membership table with nullable durable actor references,
+RESTRICT FKs and guarded owner-only changes; populated creation actor is immutable.
+Legacy attribution/timestamps, uniqueness, seeds and existing runtime contracts stay.
+Unknown historical references remain null pending verified adoption, without inferred
+System actors. Changed owner backfill advances revision. This does not activate
+retirement/rejoin, Access/WRITE or server KDG; scoped owner commands/audit/outcomes and
+protected writers remain next. See
+[Build/evidence](../../../_bmad-output/implementation-artifacts/spec-id-b-membership-actor-attribution.md).
+
+Reviewed actual revision15 matrix PASS47.815s;936 affected tests/both composers PASS.
+All three independent reviews complete; findings resolved without deferrals. Retain
+all prior frames and the new synthetic attributed repeat fixture. Commands and real
+adoption/Access/WRITE/server KDG remain separate gates.

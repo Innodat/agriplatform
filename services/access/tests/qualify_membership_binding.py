@@ -134,7 +134,8 @@ class MembershipBindingQualification(ProfileQualification):
         except Exception as error:
             original=getattr(error,'orig',error)
             assert getattr(original,'sqlstate',None)==state
-            if message:assert original.diag.message_primary==message and original.diag.constraint_name==constraint
+            if message:assert original.diag.message_primary==message
+            if constraint:assert original.diag.constraint_name==constraint
         else:raise AssertionError('membership_binding_expected_refusal_missing')
         finally:savepoint.rollback()
         if before is not None:assert MembershipBindingQualification.state(c)==before,'membership_binding_partial_effects'

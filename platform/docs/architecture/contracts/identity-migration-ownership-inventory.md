@@ -344,3 +344,19 @@ full unique constraint/index and all data/writers stay. Final replacement/rejoin
 coordinated owner-command/seed changes and release-recovery disposition; canonical14
 still forbids historical duplicates. [Evidence](../../../../services/access/ACTIVE_MEMBERSHIP_INDEX_EVIDENCE.md)
 records source-bound canonical versus isolated-index proof and remaining gates.
+
+
+## Bounded ID-B actor-attribution expansion — 2026-10-21
+
+Revision15 stages nullable membership created_actor_id/updated_actor_id references to
+the durable actor registry, RESTRICT FKs and owner-only field changes with immutable
+populated creation actor. Legacy attribution/timestamps remain; no inferred/automatic
+backfill, identity classification, owner command, seed transition or production adoption
+is claimed. Owner-verified updates retain evidence and advance the existing revision.
+See [Build/evidence](../../../../_bmad-output/implementation-artifacts/spec-id-b-membership-actor-attribution.md)
+and [owner runbook](../../../../services/access/IDENTITY-MIGRATIONS.md#staged-membership-actor-attribution--revision15).
+
+Reviewed actual revision15 matrix PASS47.815s;936 affected tests/both composers PASS.
+All three independent reviews complete; findings resolved without deferrals. Retain
+all prior frames and the new synthetic attributed repeat fixture. Commands and real
+adoption/Access/WRITE/server KDG remain separate gates.

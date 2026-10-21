@@ -22,7 +22,9 @@ def test_active_index_required_head_preserves_historical13(monkeypatch):
     monkeypatch.setattr(b,'verify_legacy_history',lambda c:None)
     monkeypatch.setattr(b,'verify_owned_history',lambda c:b.ACTIVE_MEMBERSHIP_INDEX_REVISION)
     seen=[];monkeypatch.setattr(b,'verify_catalog',lambda c,k:seen.append(k))
-    b.verify_owned_postcondition(object(),require_head=True)
+    # Revision14 remains verifiable history; revision15 is now the required head.
+    b.verify_owned_postcondition(object())
+    with pytest.raises(b.BaselineError,match='identity_unknown_history'):b.verify_owned_postcondition(object(),require_head=True)
     assert seen==['active_membership_index']
     monkeypatch.setattr(b,'verify_owned_history',lambda c:b.MEMBERSHIP_RETIREMENT_REVISION)
     b.verify_owned_postcondition(object())

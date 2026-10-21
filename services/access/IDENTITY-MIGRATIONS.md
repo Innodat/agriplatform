@@ -1536,3 +1536,45 @@ The complete active-index matrix is single-use after its committed concurrency f
 Preserve the winner and precommit/result witnesses; use fresh synthetic cases for another
 proof. An initial zero-members refusal is intentional rather than authority to reset,
 delete, adopt or replay a prior winner. Failed/uncertain runs retain all diagnostics/data.
+
+
+## Staged membership actor attribution — revision15
+
+Revision15 adds nullable created_actor_id/updated_actor_id actor FKs with RESTRICT to
+org_member. A new invoker trigger denies setting/changing them through ordinary writers,
+including legacy table-wide writers; only identity_migrator may populate them in this
+stage. Once nonnull, creation actor cannot be cleared/replaced even by that owner.
+Existing table grants still cover new columns, so enforcement is the tested trigger,
+not a claim that column privileges alone protect these fields. Its function inherits
+no PUBLIC or default-grantee EXECUTE; no new command-owner privilege is granted.
+
+No automatic backfill occurs. Legacy created_by/updated_by/timestamps remain intact;
+unknown authors are not assigned to System and UUID equality is not mapping evidence.
+Real adoption requires explicit verified account/service classifications, exact row/
+revision preconditions, disposition of unknown references and retained mapping evidence.
+Owner backfill is a controlled migration operation, not an API/startup task. Changed
+actor fields advance the existing revision once per update; equal values do not.
+This increment executes only rollback-only synthetic adoption with verified fixture
+actors. Production/real-target adoption and membership commands remain unapproved gates.
+
+The independent existing reference recorder uses
+`--record-membership-actor-attribution-reference` with private case
+membership_actor_attribution_reference. Root prepares the established fixture protocol,
+runs `tests/qualify_membership_actor_attribution.py --characterize` against canonical14,
+then the full source-bound matrix. Preserve historical references and every failed frame;
+no reset, automatic downgrade, Docker removal or new generic qualification system.
+[Build/evidence](../../_bmad-output/implementation-artifacts/spec-id-b-membership-actor-attribution.md)
+records exact commands/results and limits. Full uniqueness and existing seed behavior
+remain. Retirement still needs scoped immutable evidence/outcomes, authorization,
+server attribution/time, protected writers and typed scoped CLI recovery.
+
+
+Reviewed revision15 proof passes the actual matrix in47.815s and936 affected tests;
+all three independent review layers complete with no deferrals. The matrix is now
+single-use: repeat-upgrade proof retains one additional synthetic service actor and
+attributed membership, with intent/result receipts and all original rows preserved.
+No Auth account, account mapping or app grant is created for this attribution fixture.
+Other adoption/default-ACL/current-guard drift lanes roll back. Preserve all receipts,
+original frames and new fixtures; use fresh cases rather than resetting/deleting them.
+The qualifier emits a fixed safe failure code instead of unhandled SQL diagnostics;
+unknown-history writes use local statement/lock bounds with an actual blocking proof.
