@@ -13,14 +13,15 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 
 
-def test_adapter_exists_and_rejects_unimplemented_command_before_sql():
+@pytest.mark.parametrize('command', ['account_actor.ensure', 'membership.join', 'membership.retire'])
+def test_adapter_exists_and_rejects_unimplemented_command_before_sql(command):
     import identity_operator as operator
     from test_identity_operator_input import document, encode
     class Connection:
         def execute(self, *args):
             raise AssertionError('SQL must not execute')
     with pytest.raises(operator.OperatorError) as error:
-        operator.execute(Connection(), encode(document('membership.join')))
+        operator.execute(Connection(), encode(document(command)))
     assert error.value.code == 'command_unsupported'
 
 
@@ -148,3 +149,126 @@ def test_receipt_strict_verification(mutate):
     row=list(Connection().one_or_none());mutate(row)
     with pytest.raises(o.OperatorError) as error:o._receipt(row,document()['operation_id'])
     assert error.value.code=='operation_verification_unavailable'
+
+
+@pytest.mark.parametrize('kind', ['actor.register_system', 'account_actor.ensure',
+                                 'membership.join', 'membership.retire'])
+def test_typed_retry_identity_matches_complete_normalized_wire_contract(kind):
+    import identity_operator as o
+    from test_identity_operator_input import document, encode
+    value = document(kind)
+    value['operation_id'] = value['operation_id'].upper()
+    for name in ('actor_id', 'account_id'):
+        if name in value['payload']:
+            value['payload'][name] = value['payload'][name].upper()
+    if kind.startswith('membership.'):
+        value['scope']['org_id'] = value['scope']['org_id'].upper()
+    if kind == 'membership.retire':
+        value['payload'].update(membership_id='9223372036854775807',
+                                expected_revision='9007199254740993')
+    if 'display_name' in value['payload']:
+        value['payload']['display_name'] = 'é\n\t🙂'
+    expected = json.loads(encode(value))
+    expected['operation_id'] = expected['operation_id'].lower()
+    for name in ('actor_id', 'account_id'):
+        if name in expected['payload']:
+            expected['payload'][name] = expected['payload'][name].lower()
+    if kind.startswith('membership.'):
+        expected['scope']['org_id'] = expected['scope']['org_id'].lower()
+    if kind == 'membership.join':
+        expected['payload']['is_owner'] = False
+    parsed = o.parse_command(encode(value))
+    raw = json.dumps(expected, ensure_ascii=False, sort_keys=True, separators=(',', ':')).encode()
+    assert o.canonical_command(parsed) == raw
+    # Frozen independent stdlib-JSON/SHA-256 vectors for these exact fixtures.
+    vectors = {
+        'actor.register_system': ('07314c3107f4e58cf72a7eae4d39ca1f96fbbb67674a24ae336fef975d4e0c71', 891613029337455570),
+        'account_actor.ensure': ('6a4279cdccc050b115d33c9c746522b4f3b7d8e1502c31770e9944fa4a74c729', 3663822995255640307),
+        'membership.join': ('46adf94682cc69ede6e3fe0634984a5adda58e2d70f74dc2bea152828fe7aaa7', -7083049822897689957),
+        'membership.retire': ('b51843604f3b66dea6805cfbba72537a8f865cee33eddbcf17277e7afb94fb67', 2367746705605816951),
+    }
+    assert hashlib.sha256(o.canonical_command(parsed)).hexdigest() == vectors[kind][0]
+    assert o.canonical_command(o.parse_command(encode(expected))) == raw
+    executor = 'B1234567-1234-1234-1234-123456789ABC'
+    lock = dict(lock_version=1, owner_schema='identity', scope_kind=expected['scope']['kind'],
+                scope_id=expected['scope'].get('org_id'), caller_kind='actor',
+                caller_id=executor.lower(), command_type=kind,
+                operation_id=expected['operation_id'])
+    lock_bytes = json.dumps(lock, sort_keys=True, separators=(',', ':')).encode()
+    assert o.command_outcome_lock_key(executor, parsed) == vectors[kind][1]
+    assert o.command_outcome_lock_key(executor, parsed) == int.from_bytes(
+        hashlib.sha256(lock_bytes).digest()[:8], 'big', signed=True)
+    assert o.command_outcome_lock_key(executor.lower(), o.parse_command(encode(expected))) == o.command_outcome_lock_key(executor, parsed)
+    if kind == 'actor.register_system':
+        assert o.command_outcome_lock_key(executor, parsed) == o.outcome_lock_key(executor, parsed.operation_id)
+
+
+def test_retry_key_binds_namespace_but_fingerprint_binds_payload():
+    import identity_operator as o
+    from test_identity_operator_input import document, encode
+    from copy import deepcopy
+    executor = 'b1234567-1234-1234-1234-123456789abc'
+    value = document('membership.join')
+    parsed = o.parse_command(encode(value))
+    key = o.command_outcome_lock_key(executor, parsed)
+    for field, replacement in [('account_id', executor),
+                               ('expected_previous_membership_id', '9223372036854775807'),
+                               ('is_owner', True)]:
+        changed = deepcopy(value)
+        changed['payload'][field] = replacement
+        other = o.parse_command(encode(changed))
+        assert o.canonical_command(other) != o.canonical_command(parsed)
+        assert o.command_outcome_lock_key(executor, other) == key
+    for field, replacement in [('reason_code', 'setup_correction'),
+                               ('evidence_ref', 'setup:fixture/2')]:
+        changed = deepcopy(value)
+        changed[field] = replacement
+        other = o.parse_command(encode(changed))
+        assert o.canonical_command(other) != o.canonical_command(parsed)
+        assert o.command_outcome_lock_key(executor, other) == key
+    changed_org = deepcopy(value)
+    changed_org['scope']['org_id'] = executor
+    changed_operation = deepcopy(value)
+    changed_operation['operation_id'] = executor
+    keys = [key, o.command_outcome_lock_key(value['operation_id'], parsed)]
+    keys += [o.command_outcome_lock_key(executor, o.parse_command(encode(v)))
+             for v in (changed_org, changed_operation, document('membership.retire'),
+                       document('account_actor.ensure'), document('actor.register_system'))]
+    assert len(set(keys)) == len(keys)
+
+
+@pytest.mark.parametrize('kind,field,replacement', [
+    ('account_actor.ensure', 'account_id', 'c1234567-1234-1234-1234-123456789abc'),
+    ('account_actor.ensure', 'actor_id', 'c1234567-1234-1234-1234-123456789abc'),
+    ('account_actor.ensure', 'display_name', 'Changed account'),
+    ('membership.retire', 'membership_id', '9223372036854775807'),
+    ('membership.retire', 'expected_revision', '9007199254740993'),
+])
+def test_other_typed_payload_conflicts_share_retry_key(kind, field, replacement):
+    import identity_operator as o
+    from test_identity_operator_input import document, encode
+    value = document(kind)
+    original = o.parse_command(encode(value))
+    value['payload'][field] = replacement
+    changed = o.parse_command(encode(value))
+    executor = 'c1234567-1234-1234-1234-123456789abc'
+    assert o.canonical_command(original) != o.canonical_command(changed)
+    assert o.command_outcome_lock_key(executor, original) == o.command_outcome_lock_key(executor, changed)
+
+
+@pytest.mark.parametrize('kind', ['actor.register_system', 'account_actor.ensure'])
+def test_canonical_strings_preserve_distinct_unicode_normalization_forms(kind):
+    import identity_operator as o
+    from test_identity_operator_input import document, encode
+    value = document(kind)
+    value['payload']['display_name'] = 'é'
+    composed = o.parse_command(encode(value))
+    value['payload']['display_name'] = 'e\u0301'
+    decomposed = o.parse_command(encode(value))
+    composed_bytes = o.canonical_command(composed)
+    decomposed_bytes = o.canonical_command(decomposed)
+    assert composed_bytes != decomposed_bytes
+    assert json.loads(composed_bytes)['payload']['display_name'] == 'é'
+    assert json.loads(decomposed_bytes)['payload']['display_name'] == 'e\u0301'
+    executor = 'c1234567-1234-1234-1234-123456789abc'
+    assert o.command_outcome_lock_key(executor, composed) == o.command_outcome_lock_key(executor, decomposed)

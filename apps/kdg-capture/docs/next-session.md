@@ -1,6 +1,20 @@
 # Resume shared ENV delivery after KDG planning PASS
 
-## Current ID-B increment — staged active-membership index,2026-10-20
+## Current ID-B increment — typed command retry identity, 2026-10-21
+
+The existing owner helper now canonicalizes all four already-parsed command variants
+and prepares scope/executor/command/operation-bound outcome lock keys. Actor registration
+bytes and its delivered lock tuple remain compatible. See
+[Build and requirement-to-test evidence](../../../_bmad-output/implementation-artifacts/spec-id-b-command-retry-identity.md).
+Final focused196 and affected863 tests PASS; one-shot blind review complete, no deferrals.
+This is pure Python preparation: account-actor/membership execution still refuses before
+SQL or target connection. Canonical database14, full uniqueness, seed behavior and all
+previous runtime evidence remain unchanged. Authorized owner commands, live-account
+verification, protected writers and coordinated seed/full-constraint transition remain
+gates before Access/WRITE/server KDG. Preserve all prior receipts/data/resources and
+concurrent work; standing real-target/production/Leave/editor/deploy/push exclusions stay.
+
+## Previous ID-B increment — staged active-membership index,2026-10-20
 
 Revision14 stages a partial active-membership unique index while retaining the full
 unique constraint and all old writers. See [Build](../../../_bmad-output/implementation-artifacts/spec-id-b-active-membership-index.md)

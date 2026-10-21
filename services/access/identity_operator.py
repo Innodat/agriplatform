@@ -9,7 +9,7 @@ from uuid import UUID
 import rfc8785
 from sqlalchemy import text
 
-from identity_operator_input import RegisterSystemCommand, parse_command, CommandValidationError
+from identity_operator_input import Command, RegisterSystemCommand, parse_command, CommandValidationError
 
 
 class OperatorError(RuntimeError):
@@ -43,20 +43,45 @@ class Receipt:
     status: Literal['committed'] = field(default='committed', init=False)
 
 
-def canonical_command(command):
-    """Complete typed envelope; UUID wire aliases have one fingerprint."""
+def canonical_command(command: Command):
+    """Complete parser-produced envelope; UUID wire aliases have one fingerprint.
+
+    Pure identity preparation, not validation or execution authority.
+    """
     value = asdict(command)
     value['operation_id'] = str(UUID(value['operation_id']))
-    value['payload']['actor_id'] = str(UUID(value['payload']['actor_id']))
+    for name in ('actor_id', 'account_id'):
+        if name in value['payload']:
+            value['payload'][name] = str(UUID(value['payload'][name]))
+    if value['scope']['kind'] == 'organization':
+        value['scope']['org_id'] = str(UUID(value['scope']['org_id']))
     return rfc8785.dumps(value)
 
 
-def outcome_lock_key(executor_actor_id, operation_id):
+def _outcome_lock_key(executor_actor_id, operation_id, command_type, scope_kind, scope_id):
     canonical = rfc8785.dumps(dict(lock_version=1, owner_schema='identity',
-        scope_kind='platform', scope_id=None, caller_kind='actor',
-        caller_id=str(UUID(executor_actor_id)), command_type='actor.register_system',
+        scope_kind=scope_kind, scope_id=scope_id, caller_kind='actor',
+        caller_id=str(UUID(executor_actor_id)), command_type=command_type,
         operation_id=str(UUID(operation_id))))
     return int.from_bytes(sha256(canonical).digest()[:8], 'big', signed=True)
+
+
+def outcome_lock_key(executor_actor_id, operation_id):
+    """Compatible actor.register_system/platform key used by the delivered SQL."""
+    return _outcome_lock_key(executor_actor_id, operation_id,
+                             'actor.register_system', 'platform', None)
+
+
+def command_outcome_lock_key(executor_actor_id, command: Command):
+    """Retry namespace for a parser-produced command; conveys no authority.
+
+    Payload belongs in the fingerprint, not the lock key: conflicting retries must
+    serialize together. Future SQL commands must independently prove this tuple.
+    """
+    scope = command.scope
+    scope_id = str(UUID(scope.org_id)) if scope.kind == 'organization' else None
+    return _outcome_lock_key(executor_actor_id, command.operation_id,
+                             command.command, scope.kind, scope_id)
 
 
 def _remaining(deadline):
