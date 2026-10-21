@@ -1,5 +1,28 @@
 # Resume shared ENV delivery after KDG planning PASS
 
+## Current ACCESS-A increment — strict registry command inputs,2026-10-21
+
+The pure Access input parser now prepares the three version1 platform registry commands
+as distinct frozen, representation-redacted records, using the unchanged Identity strict
+decoder/envelope helpers. Exact app IDs, literal ASCII permission values, expected absence,
+closed reasons and opaque optional evidence are validated without authority/association
+checks or I/O. Identity parser/adapter/worker/CLI refuse registry bodies before target,
+connection or dispatch. Missing-module acceptance RED preceded implementation; Identity
+characterization passed127 tests and focused combined checks passed277 tests.
+
+See [spec](../../../_bmad-output/implementation-artifacts/spec-access-a-registry-command-input.md)
+and [owner evidence](../../../services/access/ACCESS_OPERATOR_INPUT_EVIDENCE.md).
+Three independent reviews are complete; three test-strengthening groups are verified,
+none deferred. Root affected regression1152 PASS47.06s; both composers exit0. All41
+historical pins and13 concurrent tracked changes remain unchanged. See owner evidence
+for exact commands, log/source hashes and five impact decisions. This input-only Build
+is complete; the native stack remains stopped and its historical receipts are preserved.
+No SQL, migration, target/resource operation, grant or effective access was added. The
+ACCESS-A/B activation gates stay closed. Next work remains protected Access command
+execution and exact organization/account/member authorization with coordinated PtS/KDG
+adoption/release recovery. Preserve all historical source/evidence, data and concurrent
+work. Scaffold fixtures are reusable here; no shared UI, agent-context or ADR change.
+
 ## Current ACCESS-A increment — private global registry storage,2026-10-21
 
 Access revision3 stages empty global applications, permissions and matching-application

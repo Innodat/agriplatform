@@ -399,3 +399,23 @@ Reviewed registry storage requires UTF8 server encoding before Access migration 
 unsupported source encodings refuse without normalization. Internal FK-trigger enablement
 is part of exact catalog verification. See registry evidence for the separate isolated
 SQL_ASCII refusal and fresh reviewed acceptance frame; prior frames remain historical.
+
+## Delivered Access registry command inputs —2026-10-21
+
+The pure `services/access/access_operator_input.py:parse_command(body: bytes)` now
+accepts only version1 `application.register`, `permission.register` and
+`entry_permission.register` envelopes with platform scope and explicit expected absence.
+Distinct immutable records preserve accepted spelling and redact their representations.
+It reuses the unchanged Identity decoder, envelope, scope and validation primitives;
+Access failures expose only `access_operator_input_invalid`, without decoder context.
+Literal ASCII permission values retain whitespace, controls and DEL, except forbidden
+NUL. Parsing checks neither authority nor registered associations and performs no I/O.
+
+The Identity parser, adapter, worker and CLI still refuse these registry commands before
+target/connection/SQL dispatch. See [input evidence](../../../../services/access/ACCESS_OPERATOR_INPUT_EVIDENCE.md)
+for strict matrix coverage, initial missing-module RED, Identity characterization and
+focused passing checks. This input-only increment supplies reusable owner-local scaffold
+fixtures; shared UI, agent context and accepted ADRs need no changes. Documentation links
+the bounded delivery. Protected Access execution, receipts, mutable commands, database
+privileges and effective authorization remain later work. ACCESS-A/B and coordinated
+PtS/KDG activation gates stay closed; historical runtime proofs remain source-bound.
