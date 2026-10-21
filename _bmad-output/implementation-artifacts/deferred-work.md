@@ -101,3 +101,7 @@
 - source_spec: `_bmad-output/implementation-artifacts/spec-access-a-staged-membership-binding.md`
   summary: Investigate intermittent existing optimized-Python qualifier subprocess10s timeouts without weakening guard assertions or runtime deadlines.
   evidence: Earlier final regression attempts timed out in unchanged membership-retention, active-membership-index and token-hook subprocess imports/probes; later unchanged focused and final1050-test runs passed. Original failing child phase was not captured, so host-load causality is unproven. Capture bounded import/guard phase observations on an original failure before optimization. Separately, repeated operator-target4s outer-budget failures had a measured equivalent3.249s import and0.001s no-network guard; only that test process allowance became60s, preserving its assertions and all runtime/database deadlines. Final native59-stage/retained evidence remains independently passed.
+
+- source_spec: `_bmad-output/implementation-artifacts/spec-access-a-permission-register.md`
+  summary: Make the existing synthetic Identity/Access qualification bootstrap reproducible from a fresh checkout using the established environment owner tooling.
+  evidence: Both prior application and current permission qualifiers rely on private native/Auth/role preparation scripts and source witnesses. Current local proof is executed and source-bound, but the published qualification commands alone cannot recreate the fixture in a fresh checkout; bootstrap portability was already an explicit prerequisite before this item.

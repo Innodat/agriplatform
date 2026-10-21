@@ -1,13 +1,15 @@
 # Protected Access application registration
 
-Only `application.register` is executable in this slice. It creates a disabled revision1
+The current Access0005 head supports `application.register` and `permission.register`.
+For permission-specific payload, exact command authority and target recovery, follow
+[permission registration](PERMISSION-REGISTER.md). `application.register` creates a disabled revision1
 application and atomic immutable event/outcome; matching existing applications return
 unchanged with their current revision and no event. Registration does not enable an
 application or grant effective access. ACCESS-A/B consumer activation remains closed.
 
 Preparation is explicit controlled deployment work. Use
 `tools/prepare_access_operator_roles.sql` under the authorized true administrator before
-Access0004. It creates the restricted LOGIN operator and NOLOGIN authority owner, and
+the current Access0005 head. It creates the restricted LOGIN operator and NOLOGIN authority owner, and
 validates an already staged restricted command owner or creates it. The migrator receives
 only the two exact SET-only owner edges. Set the operator password through private
 preparation; this SQL contains no password, principal or authority seeds. The ordinary
@@ -41,8 +43,9 @@ The closed version1 envelope contains `schema_version`, `operation_id`,
 `command="application.register"`, `scope={"kind":"platform"}`,
 `payload={"app_id":"synthetic_app","expected_absent":true}`, an approved
 `reason_code`, and optional bounded `evidence_ref`. No executor, timestamp or owner
-payload override exists. Other parsed Access registry commands refuse before target or
-connection access. Keep credentials and verification documents out of command files.
+payload override exists. `permission.register` has its own explicit command authority;
+application authority never implies it. `entry_permission.register` remains unsupported
+before target or connection access. Keep credentials and verification documents out of command files.
 
 Only a durable committed compact receipt acknowledges completion. Its typed target is
 `{app_id}`, revision is a positive decimal string, and event UUID is present only for
@@ -59,7 +62,8 @@ operation/run references through the owning recovery route. Never automatically 
 applied migrations.
 
 See [executed evidence](APPLICATION_REGISTER_EVIDENCE.md) for source custody, requirement
-traceability, controlled native proof and remaining activation gates.
+traceability, historical Access0004 native proof and remaining activation gates. Current
+Access0005 qualification is recorded in [permission evidence](PERMISSION_REGISTER_EVIDENCE.md).
 
 ## Concrete controlled synthetic preparation
 
@@ -71,7 +75,9 @@ argv, a command envelope, a receipt or a diagnostic log. No runtime credential i
 provisioning credential.
 
 1. Inspect the actual run's native marker/configuration and the selected database/login
-   before connecting. Under the authorized true administrator, execute the existing
+   before connecting. The controlled route targets Access0005 and recognizes exact
+   clean/1/2/3/4/5 histories; unexpected state refuses. Before migration, under the
+   authorized true administrator, execute the existing
    `tools/prepare_access_operator_roles.sql` once. Its transaction refuses unexpected
    existing roles/edges; do not work around that refusal with DROP, broad grants or
    silently replacing a role. An already staged command owner is accepted only with
@@ -133,7 +139,7 @@ Identity-owned read/write; grant Access roles no Identity-table access. It creat
 Auth account, organization membership, employee or application grant.
 
 4. Run the ordinary Access controlled migration route with the explicit Access migrator
-   configuration. After exact Access0004 verification succeeds, use `access_migrator`
+   configuration. After exact Access0005 verification succeeds, use `access_migrator`
    to prepare the principal and narrowly app-bound command authority below. The actor
    UUID must be the externally verified one from step3; no mapping seeds are in the
    migration. The example app identifier is synthetic and grants no effective app access.
@@ -158,7 +164,10 @@ For existing mappings, inspect and verify the exact login/executor/command/platf
 current enabled state and revision before deliberately resuming. Do not replace or
 reactivate a conflicting/revoked mapping as an automatic retry. `application_id=NULL`
 is a separate explicit decision granting this command authority over all apps; the
-bounded example does not need it.
+bounded example does not need it. Permission registration additionally requires its
+separate `permission.register` authority for the intended app, prepared under the
+[permission-specific instructions](PERMISSION-REGISTER.md); the application row above
+confers none.
 
 5. Prepare a new target descriptor through the existing
    `identity_operator_target.prepare_target(approved_environment_target, actual_run_id,

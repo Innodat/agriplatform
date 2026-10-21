@@ -436,3 +436,21 @@ Identity helper recognizes only the exact prepared Access role bundle and valida
 Access0004 metadata before excluding its owner-local dependencies from historical
 Identity comparisons. Identity migrations/references and Identity target behavior remain
 unchanged; no cross-owner business reads or role assumption is granted.
+
+## Protected permission registration implementation — 2026-10-21
+
+Access0005 adds the bounded `permission.register` command through the existing Access
+operator/authority/command owners. It preserves immutable literal permission/app/scope
+associations, supports current-authorized retry/targeted lookup, and atomically records
+creation attribution, `access.permission_registered` evidence and the compact typed
+outcome. Application authority does not confer permission authority. Disabled applications
+may receive registrations; effective access and entry/enablement/grant commands remain gated.
+
+The owner outcome key now includes scope, executor, exact command and operation with
+NULLS NOT DISTINCT, preserving populated Access4 rows. Application execute/lookup selects
+its exact command/platform scope so shared operation UUIDs cannot cross receipt types.
+The mutable Identity helper verifies exact Access4 or Access5 metadata according to installed
+routines, without reading Access history or business rows. Historical migrations/references
+remain unchanged. See the [permission runbook](../../../../services/access/PERMISSION-REGISTER.md)
+and [evidence](../../../../services/access/PERMISSION_REGISTER_EVIDENCE.md) for controlled
+migration/recovery, synthetic qualification, source custody and delivery limits.

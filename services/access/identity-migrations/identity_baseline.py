@@ -695,7 +695,7 @@ TARGET_ROLE_QUERIES = {
 
 
 def verified_access_command_extension(connection):
-    """Recognize only the explicitly prepared Access0004 recipient bundle.
+    """Recognize only the explicitly prepared Access0004/5 recipient bundle.
 
     Metadata validation grants Identity no Access reads or role assumption. Existing
     immutable Identity references continue describing Identity's own privileges.
@@ -716,7 +716,8 @@ def verified_access_command_extension(connection):
         access_catalog.verify_operator_roles(connection)
         installed=bool(connection.execute(text("SELECT EXISTS(SELECT 1 FROM pg_proc p JOIN pg_namespace n ON n.oid=p.pronamespace WHERE n.nspname='access' AND p.proname='register_application')")).scalar_one())
         if installed:
-            access_catalog.verify_catalog(connection,'access_0004')
+            permission_installed=bool(connection.execute(text("SELECT EXISTS(SELECT 1 FROM pg_proc p JOIN pg_namespace n ON n.oid=p.pronamespace WHERE n.nspname='access' AND p.proname='register_permission')")).scalar_one())
+            access_catalog.verify_catalog(connection,'access_0005' if permission_installed else 'access_0004')
             access_catalog.require_equal(access_catalog.rows(connection,"SELECT pg_get_userbyid(nspowner) FROM pg_namespace WHERE nspname='access'"),[('access_migrator',)])
             access_catalog.require_equal(access_catalog.acl(connection,"(SELECT oid FROM pg_namespace WHERE nspname='access')",'n'),
                 access_catalog.owner_acl(['USAGE','CREATE'])+ [('access_migrator',r,'USAGE',False) for r in ('access_runtime','access_operator','access_operator_authority_owner','access_command_owner')])

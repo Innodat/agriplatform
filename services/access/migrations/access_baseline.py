@@ -8,7 +8,7 @@ from pathlib import Path
 from sqlalchemy import text
 
 OWNER = 'access_migrator'
-HEAD = 'access_0004'
+HEAD = 'access_0005'
 LOCK_SQL = "SELECT pg_try_advisory_xact_lock(hashtextextended('access-owned-migrations',0))"
 
 
@@ -26,7 +26,7 @@ def require_equal(actual, expected, code='access_catalog_mismatch'):
 
 
 def validate_revision(revisions):
-    if revisions not in (['access_0001'], ['access_0002'], ['access_0003'], [HEAD]):
+    if revisions not in (['access_0001'], ['access_0002'], ['access_0003'], ['access_0004'], [HEAD]):
         raise BaselineError('access_unknown_history')
     return revisions[0]
 
@@ -92,7 +92,7 @@ def verify_table(connection, name, revision):
         ('user_id','uuid',True,'','',None,'-'),('permission','text',True,'','',None,'"default"'),
         ('created_at','timestamp with time zone',True,'','','clock_timestamp()','-'),
         ('created_by','text',True,'','',"current_setting('app.actor_id'::text)",'"default"')]
-    if not ledger and revision in ('access_0002', 'access_0003', HEAD):
+    if not ledger and revision in ('access_0002', 'access_0003', 'access_0004', HEAD):
         expected += [('membership_id','bigint',False,'','',None,'-')]
     if columns != expected:
         raise BaselineError(code)
@@ -100,7 +100,7 @@ def verify_table(connection, name, revision):
         ('grants_pkey','p','PRIMARY KEY (org_id, id)',True,False,False),
         ('grants_org_id_user_id_permission_key','u','UNIQUE (org_id, user_id, permission)',True,False,False),
         ('grants_permission_check','c',"CHECK ((permission = ANY (ARRAY['pts.poetry.read'::text, 'pts.poetry.export'::text, 'pts.poetry.documents'::text])))",True,False,False)]
-    if not ledger and revision in ('access_0002', 'access_0003', HEAD):
+    if not ledger and revision in ('access_0002', 'access_0003', 'access_0004', HEAD):
         constraints += [('grants_membership_id_positive','c','CHECK ((membership_id > 0))',True,False,False)]
     require_equal(rows(connection, f"SELECT conname,contype,pg_get_constraintdef(oid),convalidated,condeferrable,condeferred FROM pg_constraint WHERE conrelid={oid}"), constraints, code)
     indexes = ['CREATE UNIQUE INDEX alembic_version_pkc ON access.alembic_version USING btree (version_num)'] if ledger else [
@@ -124,17 +124,19 @@ def verify_table(connection, name, revision):
 
 def verify_catalog(connection, revision):
     names = [] if revision is None else ['grants','grants_pkey','grants_org_id_user_id_permission_key','alembic_version','alembic_version_pkc']
-    if revision in ('access_0003', HEAD):
+    if revision in ('access_0003', 'access_0004', HEAD):
         names += [*REGISTRY_TABLES, *[index for indexes in REGISTRY_INDEXES.values() for index,columns in indexes]]
     types = [] if revision is None else ['grants','_grants','alembic_version','_alembic_version']
-    if revision in ('access_0003', HEAD):
+    if revision in ('access_0003', 'access_0004', HEAD):
         types += [t for name in REGISTRY_TABLES for t in (name,'_'+name)]
-    if revision == HEAD:
+    if revision in ('access_0004', HEAD):
         from access_registration_baseline import TABLES, INDEXES, FUNCTIONS
+        if revision == HEAD:
+            from access_registration_baseline import PERMISSION_INDEXES as INDEXES, PERMISSION_FUNCTIONS as FUNCTIONS
         names += list(TABLES) + list(INDEXES)
     require_equal(rows(connection, "SELECT c.relname FROM pg_class c JOIN pg_namespace n ON n.oid=c.relnamespace WHERE n.nspname='access'"), [(n,) for n in names])
-    expected_functions = ['registry_storage_immutable'] if revision in ('access_0003',HEAD) else []
-    if revision == HEAD:
+    expected_functions = ['registry_storage_immutable'] if revision in ('access_0003','access_0004',HEAD) else []
+    if revision in ('access_0004', HEAD):
         expected_functions += list(FUNCTIONS)
         types += [t for name in TABLES for t in (name,'_'+name)]
     require_equal(rows(connection, "SELECT p.proname FROM pg_proc p JOIN pg_namespace n ON n.oid=p.pronamespace WHERE n.nspname='access'"), [(n,) for n in expected_functions])
@@ -142,12 +144,12 @@ def verify_catalog(connection, revision):
     if revision is not None:
         verify_table(connection, 'alembic_version', revision)
         verify_table(connection, 'grants', revision)
-    if revision in ('access_0003', HEAD):
-        for name in REGISTRY_TABLES:verify_registry(connection,name)
+    if revision in ('access_0003', 'access_0004', HEAD):
+        for name in REGISTRY_TABLES:verify_registry(connection,name,revision)
         verify_registry_guard(connection)
-    if revision == HEAD:
+    if revision in ('access_0004', HEAD):
         from access_registration_baseline import verify_registration
-        verify_registration(connection)
+        verify_registration(connection,revision)
 
 
 def verify_encoding(connection):
@@ -191,7 +193,7 @@ REGISTRY_INDEXES = {
 REGISTRY_GUARD_BODY = "\nBEGIN\n RAISE EXCEPTION USING ERRCODE = '55000', MESSAGE = 'access_registry_storage_immutable';\nEND\n"
 
 
-def verify_registry(connection, name):
+def verify_registry(connection, name, revision=None):
     oid = f"(SELECT c.oid FROM pg_class c JOIN pg_namespace n ON n.oid=c.relnamespace WHERE n.nspname='access' AND c.relname='{name}')"
     require_equal(rows(connection, f"SELECT pg_get_userbyid(relowner),relkind,relrowsecurity,relforcerowsecurity,reloptions,relispartition,relreplident,relpersistence FROM pg_class WHERE oid={oid}"),
                   [(OWNER,'r',False,False,None,False,'d','p')])
@@ -227,12 +229,12 @@ def verify_registry(connection, name):
     for col in ('created_at','updated_at') if name=='applications' else ('created_at',):
         constraints.append((name+'_'+col+'_finite','c',f'CHECK (isfinite({col}))'))
     require_equal(rows(connection,f"SELECT conname,contype,pg_get_constraintdef(oid),convalidated,condeferrable,condeferred FROM pg_constraint WHERE conrelid={oid}"),
-                  [(n,t,d,True,False,False) for n,t,d in constraints]+([('application_required_registration','t','TRIGGER DEFERRABLE INITIALLY DEFERRED',True,True,True)] if name=='applications' and operator_installed(connection) else []))
+                  [(n,t,d,True,False,False) for n,t,d in constraints]+([('application_required_registration','t','TRIGGER DEFERRABLE INITIALLY DEFERRED',True,True,True)] if name=='applications' and operator_installed(connection) else [('permission_required_registration','t','TRIGGER DEFERRABLE INITIALLY DEFERRED',True,True,True)] if name=='permissions' and revision==HEAD else []))
     require_equal(rows(connection,f"SELECT pg_get_indexdef(indexrelid),indisvalid,indisready,indislive FROM pg_index WHERE indrelid={oid}"),
                   [(f'CREATE UNIQUE INDEX {index} ON access.{name} USING btree ({columns})',True,True,True) for index,columns in REGISTRY_INDEXES[name]])
     privileges=['SELECT','INSERT','UPDATE','DELETE','TRUNCATE','REFERENCES','TRIGGER']
     if connection.dialect.server_version_info >= (17,):privileges.append('MAINTAIN')
-    require_equal(acl(connection,oid,'r'),owner_acl(privileges)+([(OWNER,'access_command_owner',p,False) for p in ('SELECT','INSERT')] if name=='applications' and operator_installed(connection) else []))
+    require_equal(acl(connection,oid,'r'),owner_acl(privileges)+([(OWNER,'access_command_owner',p,False) for p in ('SELECT','INSERT')] if (name=='applications' and operator_installed(connection)) or (name=='permissions' and revision==HEAD) else []))
     require_equal(acl(connection,oid,'r',column=True),[])
     for query in (f'SELECT 1 FROM pg_policy WHERE polrelid={oid}',f'SELECT 1 FROM pg_rewrite WHERE ev_class={oid}',f'SELECT 1 FROM pg_attribute WHERE attrelid={oid} AND attisdropped'):
         require_equal(rows(connection,query),[])
@@ -245,7 +247,7 @@ def verify_registry(connection, name):
     require_equal(rows(connection,f"SELECT k.conname,t.tgenabled FROM pg_trigger t LEFT JOIN pg_constraint k ON k.oid=t.tgconstraint WHERE t.tgrelid={oid} AND t.tgisinternal"),
                   [(constraint,'O') for constraint in foreign_triggers])
     require_equal(rows(connection,f"SELECT tgname,tgenabled,pg_get_triggerdef(oid) FROM pg_trigger WHERE tgrelid={oid} AND NOT tgisinternal"),
-                  [('registry_storage_immutable','O',f'CREATE TRIGGER registry_storage_immutable BEFORE DELETE OR UPDATE OR TRUNCATE ON access.{name} FOR EACH STATEMENT EXECUTE FUNCTION access.registry_storage_immutable()')]+([('application_required_registration','O','CREATE CONSTRAINT TRIGGER application_required_registration AFTER INSERT ON access.applications DEFERRABLE INITIALLY DEFERRED FOR EACH ROW EXECUTE FUNCTION access.require_application_registration()')] if name=='applications' and operator_installed(connection) else []))
+                  [('registry_storage_immutable','O',f'CREATE TRIGGER registry_storage_immutable BEFORE DELETE OR UPDATE OR TRUNCATE ON access.{name} FOR EACH STATEMENT EXECUTE FUNCTION access.registry_storage_immutable()')]+([('application_required_registration','O','CREATE CONSTRAINT TRIGGER application_required_registration AFTER INSERT ON access.applications DEFERRABLE INITIALLY DEFERRED FOR EACH ROW EXECUTE FUNCTION access.require_application_registration()')] if name=='applications' and operator_installed(connection) else [('permission_required_registration','O','CREATE CONSTRAINT TRIGGER permission_required_registration AFTER INSERT ON access.permissions DEFERRABLE INITIALLY DEFERRED FOR EACH ROW EXECUTE FUNCTION access.require_permission_registration()')] if name=='permissions' and revision==HEAD else []))
 
 
 def verify_registry_guard(connection):

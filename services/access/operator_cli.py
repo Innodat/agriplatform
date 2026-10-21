@@ -44,7 +44,7 @@ def _receipt(value, operation_id, command='actor.register_system'):
     if type(result) is not dict or set(result) != {'command','target','disposition','revision','event_id'} or result['command'] != command:
         raise ValueError()
     # Reuse the protected adapter's typed stored-result validator.
-    (access_operator if command == 'application.register' else adapter)._receipt(({k:v for k,v in result.items() if k != 'command'}, 1, 1, instant), operation_id, command)
+    (access_operator if command in ('application.register','permission.register') else adapter)._receipt(({k:v for k,v in result.items() if k != 'command'}, 1, 1, instant), operation_id, command)
     return value
 
 
@@ -221,11 +221,13 @@ def access_worker(request):
     if action == 'execute':
         body = value.encode('utf-8')
         command = access_operator_input.parse_command(body)
-        if not isinstance(command,access_operator_input.RegisterApplicationCommand) or _uuid(command.operation_id) != operation_id:
+        if not isinstance(command,(access_operator_input.RegisterApplicationCommand,access_operator_input.RegisterPermissionCommand)) or _uuid(command.operation_id) != operation_id:
             raise ValueError()
         context = None
-    elif action == 'outcome' and type(value) is dict and set(value) == {'command','app_id'} and value['command'] == 'application.register':
+    elif action == 'outcome' and type(value) is dict and value.get('command') in ('application.register','permission.register') and set(value) == ({'command','app_id','permission'} if value['command'] == 'permission.register' else {'command','app_id'}):
         if type(value['app_id']) is not str or access_operator_input._APP_ID.fullmatch(value['app_id']) is None:
+            raise ValueError()
+        if value['command'] == 'permission.register' and not access_operator.valid_permission(value['permission']):
             raise ValueError()
         context = value
     else:
@@ -240,7 +242,7 @@ def access_worker(request):
             return dict(operation_id=operation_id,status='unresolved')
         result = asdict(receipt)
         result['committed_at'] = receipt.committed_at.astimezone(timezone.utc).isoformat()
-        return _receipt(result,operation_id,'application.register')
+        return _receipt(result,operation_id,command.command if action == 'execute' else context['command'])
     finally:
         engine.dispose()
 
@@ -257,30 +259,37 @@ def _access_main(argv):
         parser.add_argument('--command')
         parser.add_argument('--operation-id')
         parser.add_argument('--app-id')
-        flags = [item for item in argv if item.startswith('--')]
+        parser.add_argument('--permission')
+        flags = [item.split('=',1)[0] if item.startswith('--permission=') else item for item in argv if item.startswith('--')]
         if len(flags) != len(set(flags)) or any('=' in item for item in flags):
             raise ValueError()
         args = parser.parse_args(argv)
         if args.action == 'execute':
-            if args.command_file is None or any(v is not None for v in (args.command,args.operation_id,args.app_id)):
+            if args.command_file is None or any(v is not None for v in (args.command,args.operation_id,args.app_id,args.permission)):
                 raise ValueError()
             body = dev.read(Path(os.path.abspath(args.command_file)))
             command = access_operator_input.parse_command(body)
             operation_id = _uuid(command.operation_id)
-            if not isinstance(command,access_operator_input.RegisterApplicationCommand):
+            if not isinstance(command,(access_operator_input.RegisterApplicationCommand,access_operator_input.RegisterPermissionCommand)):
                 raise adapter.OperatorError('command_unsupported',operation_id)
             value = body.decode('utf-8')
             expected = {'app_id':command.payload.app_id}
+            if command.command == 'permission.register':expected['permission']=command.payload.permission
+            command_name=command.command
         else:
-            if args.command_file is not None or args.command != 'application.register' or type(args.app_id) is not str or access_operator_input._APP_ID.fullmatch(args.app_id) is None:
+            if args.command_file is not None or args.command not in ('application.register','permission.register') or type(args.app_id) is not str or access_operator_input._APP_ID.fullmatch(args.app_id) is None:
+                raise ValueError()
+            if (not access_operator.valid_permission(args.permission) if args.command == 'permission.register' else args.permission is not None):
                 raise ValueError()
             operation_id = _uuid(args.operation_id)
+            command_name=args.command
             value = dict(command=args.command,app_id=args.app_id)
-            expected = {'app_id':args.app_id}
+            if args.command == 'permission.register':value['permission']=args.permission
+            expected = {k:v for k,v in value.items() if k != 'command'}
         target = load_target(args.target,owner='access')
         request = [args.action,str(target.path),value,operation_id,'access']
         try:
-            result = validate_response(dispatch(request),operation_id,'application.register',expected)
+            result = validate_response(dispatch(request),operation_id,command_name,expected)
         except (Exception,KeyboardInterrupt):
             result = dict(code='operation_unavailable',operation_id=operation_id)
     except (TargetError,access_operator_input.CommandValidationError,adapter.OperatorError) as error:

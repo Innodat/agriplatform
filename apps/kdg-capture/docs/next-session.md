@@ -1566,3 +1566,23 @@ retained inspection and real CLI lookup, both composition checks and three revie
 with confirmed findings patched and none deferred. The actual disposable run was stopped
 normally; all prior evidence, data and resources remain retained. Broader runtime readiness
 and ACCESS-A/B activation are not claimed.
+
+### Permission registration delivery — 2026-10-21
+
+Protected Access `permission.register` now has an Access0005 implementation and fresh
+synthetic native qualification route, preserving literal ASCII values and immutable
+app/scope associations. Compact receipts require current exact authority and explicit
+app/permission recovery targets. Application receipts remain isolated when operation UUIDs
+are reused across commands. Refer to [permission evidence](../../../services/access/PERMISSION_REGISTER_EVIDENCE.md)
+for current source custody, populated4 preservation, Identity18 repeat and retained proof.
+Continue remaining entry/enablement/grant/ACCESS-B and consumer gates through existing specs;
+permission registration creates no effective KDG access. Historical proof frames remain
+source-bound and must not be relabeled as fresh proof.
+
+Final permission delivery verification passed: 1225 affected tests, 25 fresh native groups,
+separate retained inspection and real CLI recovery, actual previous application adapter
+compatibility, both composition checks and three review lenses. Confirmed findings were
+patched; one preexisting fresh-checkout fixture-bootstrap prerequisite remains deferred.
+The actual disposable run stopped normally; historical data/resources/receipts and all
+concurrent work remain preserved. Continue with bounded entry-permission registration;
+application access and broader runtime/scaffold/consumer activation remain gated.

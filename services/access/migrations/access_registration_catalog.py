@@ -501,3 +501,25 @@ FUNCTION_CATALOG = {'command_lock': [('value text', 'bigint', 'f', False, 0, 100
                                        100.0,
                                        1000.0,
                                        '-')]}
+
+
+# Access0005 preserves the Access0004 constants above for exact historical checks.
+def permission_catalog():
+    from copy import deepcopy
+    tables, functions = deepcopy(TABLE_CATALOG), deepcopy(FUNCTION_CATALOG)
+    replacements = {
+        'operator_authorities_command_check': "CHECK ((command = ANY (ARRAY['application.register'::text, 'permission.register'::text])))",
+        'operation_outcome_command_type_check': "CHECK ((command_type = ANY (ARRAY['application.register'::text, 'permission.register'::text])))",
+        'business_event_event_type_check': "CHECK ((event_type = ANY (ARRAY['access.application_registered'::text, 'access.permission_registered'::text])))",
+    }
+    for table in tables.values():
+        table['constraints'] = [(n,t,replacements.get(n,d),a,b,c) for n,t,d,a,b,c in table['constraints'] if n != 'operation_outcome_executor_actor_id_operation_id_key']
+    tables['operation_outcome']['constraints'].append(('operation_outcome_scope_executor_command_operation_key','u',
+        'UNIQUE NULLS NOT DISTINCT (scope_kind, scope_id, executor_actor_id, command_type, operation_id)',True,False,False))
+    tables['operation_outcome']['indexes'] = [row for row in tables['operation_outcome']['indexes'] if 'executor_actor_id_operation_id_key' not in row[0]] + [(
+        'CREATE UNIQUE INDEX operation_outcome_scope_executor_command_operation_key ON access.operation_outcome USING btree (scope_kind, scope_id, executor_actor_id, command_type, operation_id) NULLS NOT DISTINCT',True,True,True)]
+    functions['permission_operator_authority'] = deepcopy(functions['current_operator_authority'])
+    functions['require_permission_registration'] = deepcopy(functions['require_application_registration'])
+    functions['register_permission'] = [(row[0].replace('p_app text,', 'p_app text, p_permission text, p_scope text,'),*row[1:]) for row in functions['register_application']]
+    functions['permission_registration_outcome'] = [(row[0]+', p_permission text',*row[1:]) for row in functions['application_registration_outcome']]
+    return tables, functions

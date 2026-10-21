@@ -41,7 +41,7 @@ def test_receipt_is_typed_and_closed():
 
 def test_non_executable_access_commands_reject_before_connection():
     import access_operator as a
-    for command in ('permission.register','entry_permission.register'):
+    for command in ('entry_permission.register',):
         with pytest.raises(a.OperatorError) as failure:a.execute(object(),json.dumps(document(command)).encode())
         assert failure.value.code == 'command_unsupported'
 
@@ -67,7 +67,7 @@ def test_cli_access_closed_dispatch(tmp_path,monkeypatch,capsys):
     assert seen[-1][2] == dict(command='application.register',app_id='synthetic_app')
     capsys.readouterr()
     before=len(seen)
-    path.write_text(json.dumps(document('permission.register')))
+    path.write_text(json.dumps(document('entry_permission.register')))
     assert c.main(['execute','--owner','access','--target','synthetic','--command-file',str(path)]) == 2
     assert json.loads(capsys.readouterr().out)['code'] == 'command_unsupported'
     assert len(seen) == before

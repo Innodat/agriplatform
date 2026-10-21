@@ -64,3 +64,13 @@ configuration evidence only. Permission/entry commands, enablement/grants, ACCES
 checks, KDG consumers and ACCESS-A/B activation remain gated. Identity's mutable catalog
 helper accepts only the separately verified Access owner role extension; historical
 migrations/references and cross-owner isolation remain binding.
+
+### Protected Access permission registration — 2026-10-21
+
+Access0005 implements protected `permission.register` for literal immutable app/scope
+configuration with current authority and durable typed recovery. Populated4 upgrades
+preserve existing rows/receipts; the shared operation namespace now isolates each exact
+command and scope. See the [permission runbook](../../../services/access/PERMISSION-REGISTER.md)
+and [evidence](../../../services/access/PERMISSION_REGISTER_EVIDENCE.md). This supplies
+configuration evidence only: entry registration, enablement/grants, ACCESS-B checks,
+coordinated PtS/KDG consumption and ACCESS-A/B activation remain separately gated.
