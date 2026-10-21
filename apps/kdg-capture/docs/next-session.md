@@ -1,6 +1,28 @@
 # Resume shared ENV delivery after KDG planning PASS
 
-## Current ID-B increment — protected join/rejoin and seed cutover, 2026-10-21
+## Current ID-B increment — protected account actor ensure,2026-10-21
+
+Revision18 implements explicit live-account actor setup through the existing restricted
+Identity operator/CLI. Separate true-admin role and Auth-owner preparation precede the
+controlled migration. The command verifies live Auth and an ordinary profile, preserves
+eligible legacy UUIDs, and commits mapping/outcome/event together. Recovery is scoped to
+current account-targeted authority. Actor setup creates no person, employment, membership
+or grant and never turns login into setup.
+
+See [spec](../../../_bmad-output/implementation-artifacts/spec-id-b-account-actor-ensure.md)
+and [owner evidence](../../../services/access/ACCOUNT_ACTOR_ENSURE_EVIDENCE.md).
+Reviewed aggregate proof: account-ensure-j9ial0p1 (`--all`,26 PASS labels); previous
+handoff frame account-ensure-00zi4tlq and earlier candidate frame
+account-ensure-a1f6bk90 and all prior receipts/resources remain. Independent three-lens review,1012 regression tests, both composers, retained catalog/CLI
+recovery and preservation checks PASS. Native project normally stopped with all data/receipts
+retained. Existing owner-fixture bootstrap portability is deferred; no portable CI setup is claimed. The existing ACCESS-A/B
+membership-bound grant activation gate remains mandatory before real consumers; no broader
+Access/WRITE/server KDG readiness is implied. Preserve concurrent work and historical
+sources; no production/provider/real account/access/deploy/pilot, reset/prune, Leave/editor
+or push.
+
+
+## Previous ID-B increment — protected join/rejoin and seed cutover, 2026-10-21
 
 Revision17 delivers protected first join and explicit rejoin with fresh membership IDs,
 empty roles/grants, immutable outcome/event and currently authorized scoped recovery.

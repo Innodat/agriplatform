@@ -9,7 +9,7 @@ from uuid import UUID
 import rfc8785
 from sqlalchemy import text
 
-from identity_operator_input import Command, RegisterSystemCommand, RetireMembershipCommand, JoinMembershipCommand, parse_command, CommandValidationError
+from identity_operator_input import Command, EnsureAccountActorCommand, RegisterSystemCommand, RetireMembershipCommand, JoinMembershipCommand, parse_command, CommandValidationError
 
 
 class OperatorError(RuntimeError):
@@ -28,6 +28,21 @@ class ActorTarget:
 class RegisterResult:
     command: Literal['actor.register_system']
     target: ActorTarget
+    disposition: Literal['created', 'unchanged']
+    revision: None
+    event_id: str | None
+
+
+@dataclass(frozen=True)
+class AccountActorTarget:
+    account_id: str
+    actor_id: str
+
+
+@dataclass(frozen=True)
+class EnsureAccountActorResult:
+    command: Literal['account_actor.ensure']
+    target: AccountActorTarget
     disposition: Literal['created', 'unchanged']
     revision: None
     event_id: str | None
@@ -61,7 +76,7 @@ class JoinMembershipResult:
 @dataclass(frozen=True)
 class Receipt:
     operation_id: str
-    result: RegisterResult | RetireMembershipResult | JoinMembershipResult
+    result: EnsureAccountActorResult | RegisterResult | RetireMembershipResult | JoinMembershipResult
     command_version: int
     result_version: int
     committed_at: datetime
@@ -125,7 +140,7 @@ def _receipt(row, operation_id, command='actor.register_system'):
     valid = (type(command_version) is int and command_version == 1
         and type(result_version) is int and result_version == 1 and type(result) is dict
         and set(result) == {'target', 'disposition', 'revision', 'event_id'}
-        and type(result['target']) is dict and set(result['target']) == {'actor_id'}
+        and type(result['target']) is dict and set(result['target']) == ({'account_id','actor_id'} if command == 'account_actor.ensure' else {'actor_id'})
         and result['disposition'] in ('created', 'unchanged') and result['revision'] is None
         and ((result['disposition'] == 'created') == (result['event_id'] is not None))
         and isinstance(committed_at, datetime) and committed_at.tzinfo is not None)
@@ -134,11 +149,17 @@ def _receipt(row, operation_id, command='actor.register_system'):
     try:
         target = str(UUID(result['target']['actor_id']))
         event = str(UUID(result['event_id'])) if result['event_id'] is not None else None
-        valid = UUID(target).int != 0 and (event is None or UUID(event).int != 0)
+        valid = UUID(target).int != 0 and type(result['target']['actor_id']) is str and target == result['target']['actor_id'] and (event is None or (UUID(event).int != 0 and event == result['event_id']))
+        if command == 'account_actor.ensure':
+            account = result['target']['account_id']
+            valid = valid and type(account) is str and UUID(account).int != 0 and str(UUID(account)) == account
     except (ValueError, TypeError, AttributeError):
         valid = False
     if not valid:
         raise OperatorError('operation_verification_unavailable', operation_id)
+    if command == 'account_actor.ensure':
+        return Receipt(operation_id, EnsureAccountActorResult(command, AccountActorTarget(account, target),
+            result['disposition'], None, event), 1, 1, committed_at)
     return Receipt(operation_id, RegisterResult('actor.register_system', ActorTarget(target),
                    result['disposition'], None, event), 1, 1, committed_at)
 
@@ -215,6 +236,14 @@ def execute(connection, body: bytes):
     deadline = time.monotonic() + 10
     command = parse_command(body)
     operation_id = str(UUID(command.operation_id))
+    if isinstance(command, EnsureAccountActorCommand):
+        return _run(connection, operation_id,
+            'SELECT * FROM identity.ensure_account_actor(CAST(:operation AS uuid),CAST(:account AS uuid),'
+            'CAST(:actor AS uuid),:display,:reason,:evidence,:canonical)',
+            dict(operation=operation_id, account=str(UUID(command.payload.account_id)),
+                 actor=str(UUID(command.payload.actor_id)), display=command.payload.display_name,
+                 reason=command.reason_code, evidence=command.evidence_ref,
+                 canonical=canonical_command(command)), deadline, command.command)
     if isinstance(command, JoinMembershipCommand):
         return _run(connection, operation_id,
             'SELECT * FROM identity.join_membership(CAST(:operation AS uuid),CAST(:org AS uuid),'
@@ -260,6 +289,12 @@ def outcome(connection, operation_id, *, command='actor.register_system', org_id
             org_id, account_id = str(UUID(org_id)), str(UUID(account_id))
         except (ValueError, TypeError, AttributeError):
             invalid = True
+    elif command == 'account_actor.ensure':
+        try:
+            invalid = invalid or org_id is not None or type(account_id) is not str or not UUID(account_id).int or str(UUID(account_id)) != account_id.lower()
+            account_id = str(UUID(account_id))
+        except (ValueError, TypeError, AttributeError):
+            invalid = True
     elif command != 'actor.register_system' or org_id is not None or account_id is not None:
         invalid = True
     if invalid:
@@ -268,6 +303,10 @@ def outcome(connection, operation_id, *, command='actor.register_system', org_id
         return _run(connection, operation_id,
             ('SELECT * FROM identity.' + ('membership_join_outcome' if command == 'membership.join' else 'membership_retirement_outcome') + '(CAST(:operation AS uuid),CAST(:org AS uuid),CAST(:account AS uuid))'),
             dict(operation=operation_id, org=org_id, account=account_id), deadline, command)
+    if command == 'account_actor.ensure':
+        return _run(connection, operation_id,
+            'SELECT * FROM identity.account_actor_outcome(CAST(:operation AS uuid),CAST(:account AS uuid))',
+            dict(operation=operation_id, account=account_id), deadline, command)
     return _run(connection, operation_id,
         'SELECT * FROM identity.system_actor_outcome(CAST(:operation AS uuid))',
         {'operation': operation_id}, deadline)

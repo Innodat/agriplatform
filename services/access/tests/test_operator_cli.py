@@ -168,20 +168,24 @@ def test_worker_unsafe_session_denies_before_adapter(action,monkeypatch):
     assert failure.value.code=='access_denied' and engine.disposed
 
 
-@pytest.mark.parametrize('kind', ['account_actor.ensure'])
-def test_prepared_retry_inputs_do_not_activate_cli_or_worker(kind, tmp_path, monkeypatch, capsys):
-    import operator_cli as c
+def test_account_actor_cli_execute_and_scoped_lookup(tmp_path,monkeypatch,capsys):
     import json
-    from test_identity_operator_input import document, encode
-    value = document(kind)
-    path = tmp_path / 'command.json'
-    path.write_bytes(encode(value))
-    monkeypatch.setattr(c, 'load_target', lambda _: pytest.fail('unsupported target loaded'))
-    monkeypatch.setattr(c, 'dispatch', lambda _: pytest.fail('unsupported worker dispatched'))
-    monkeypatch.setattr(c, '_connection', lambda _: pytest.fail('unsupported connection opened'))
-    assert c.main(['execute', '--owner', 'identity', '--target', 'unused',
-                   '--command-file', str(path)]) == 2
-    assert json.loads(capsys.readouterr().out)['code'] == 'command_unsupported'
-    # The internal transport rejects unsupported variants as malformed requests.
-    with pytest.raises(ValueError):
-        c.worker(['execute', 'unused', encode(value).decode(), value['operation_id'].lower()])
+    import operator_cli as c
+    from types import SimpleNamespace
+    from test_identity_operator_input import document,encode
+    value=document('account_actor.ensure'); path=tmp_path/'command.json';path.write_bytes(encode(value))
+    seen=[]
+    monkeypatch.setattr(c,'load_target',lambda _:SimpleNamespace(path=Path('/synthetic/target')))
+    def dispatch(request):
+        seen.append(request)
+        return json.dumps({'operation_id':value['operation_id'].lower(),'status':'unresolved'}).encode()
+    monkeypatch.setattr(c,'dispatch',dispatch)
+    assert c.main(['execute','--owner','identity','--target','synthetic','--command-file',str(path)])==2
+    assert json.loads(capsys.readouterr().out)['status']=='unresolved'
+    assert c.main(['outcome','--owner','identity','--target','synthetic','--command','account_actor.ensure',
+        '--operation-id',value['operation_id'],'--account-id',value['payload']['account_id']])==2
+    assert seen[-1][2]==dict(command='account_actor.ensure',account_id=value['payload']['account_id'].lower())
+    capsys.readouterr()
+    assert c.main(['outcome','--owner','identity','--target','synthetic','--command','account_actor.ensure',
+        '--operation-id',value['operation_id']])==2
+    assert json.loads(capsys.readouterr().out)['code']=='command_invalid'

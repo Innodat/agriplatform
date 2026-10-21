@@ -116,6 +116,58 @@ The exclusive file create protects an existing secret file from overwrite. If th
 command fails, preserve the partial private file for deliberate local handling;
 normal lifecycle commands do not consume it or change any application role.
 
+## Protected account actor setup (Identity revision18)
+
+The existing Identity owner CLI now executes `account_actor.ensure`. Prepare the
+NOLOGIN verifier with `services/access/tools/prepare_identity_account_verification_role.sql`
+under the controlled true administrator, then apply the separate restricted Auth-owner
+preparation in `prepare_identity_account_verification_auth.sql` to the selected database.
+The exact role has only migrator SET membership; Auth preparation grants schema USAGE,
+SELECT(id,deleted_at), enabled Auth RLS and its exact SELECT policy. Unexpected verifier
+memberships refuse before Auth/profile observations. Identity migration adds scoped profile
+reads and fixed verifiers. Missing or unsafe preparation refuses; no role/ACL repair or
+Auth mutation runs in the migration or command.
+
+Run the existing controlled Identity `alembic upgrade head` before activating the CLI
+consumer. Clean and exact known historical catalogs are checked before effects; revision18
+has its own independently recorded reference and retains references1–17. Failure blocks
+activation. Preserve applied migrations, compact receipts and command files for explicit
+recovery; do not downgrade, reset, reverse applied migrations or invoke migration on startup.
+
+Use a version1 platform command with explicit `account_id`, `actor_id`, `display_name`,
+`expected_absent=true` and required classification `evidence_ref`. Current account-targeted
+`account_actor.ensure` authority is mandatory. The server independently checks live Auth
+and an ordinary nondeleted profile before retry/business locks. The observation supports
+only this bounded execution (five seconds from the start of verification); restarted execution observes
+again and rechecks current local profile/authority after waits. No person, employment,
+organization membership or application grant is created. System/keyed profiles and foreign
+UUID adoption refuse. Historical actors/mappings remain after account deletion.
+
+```sh
+# From services/access, using the existing frozen owner environment and prepared target:
+python -m operator_cli execute --owner identity --target <prepared-target> --command-file <command.json>
+python -m operator_cli outcome --owner identity --target <prepared-target> --command account_actor.ensure --operation-id <UUID> --account-id <UUID>
+```
+
+Lookup requires current exact target authority and returns the historical receipt even if
+that account later becomes ineligible. New execution/replay still verifies live eligibility.
+An unavailable response is not proof of rollback: recover with that operation/account,
+then retry only the identical command. Changed input under the same operation conflicts.
+Only retry-lock contention reports busy; other waits/dependencies report unavailable.
+No receipt is emitted before acknowledged commit. Credentials stay in the existing target
+secret; no verifier credential or caller-supplied verification flag is introduced.
+
+Synthetic acceptance uses `services/access/tests/qualify_account_actor_ensure.py --all`
+with fresh root-prepared cases and an explicit protected `cli_owner_fixture_path` in the
+private fixture input. Its closed owner fixture binds the exact existing run/database,
+loopback port and Identity migrator URL; no old private frame is discovered. General
+bootstrap portability remains a pre-existing deferred prerequisite. Named stages remain;
+`--all` is single-use, `--verify-retained` is repeatable. Bounded UUID/profile observations
+add no global reservation or profile retirement lock. Exact proof commands and limits are in
+[account actor evidence](../../services/access/ACCOUNT_ACTOR_ENSURE_EVIDENCE.md).
+Existing ACCESS-A/B membership-binding activation gates remain; this does not authorize
+real consumers, production deployment or broader KDG/Leave implementation.
+
 ---
 
 # Historical qualification notes (retained)

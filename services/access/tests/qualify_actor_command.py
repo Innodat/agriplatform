@@ -36,9 +36,9 @@ def encode(value):return json.dumps(value,ensure_ascii=False).encode()
 
 
 class CommandQualification(AuthorityQualification):
-    def validate_operator_urls(self):
+    def validate_operator_urls(self, required_cases=REQUIRED_CASES):
         for group,login in [('operator_urls','identity_operator'),('owner_urls','identity_migrator'),('databases','postgres'),('runtime_urls','access_runtime')]:
-            assert set(self.private.get(group,{}))==REQUIRED_CASES,'command_url_group_invalid'
+            assert set(self.private.get(group,{}))==required_cases,'command_url_group_invalid'
             for case,url in self.private[group].items():
                 parsed=urlsplit(url);owner=urlsplit(self.private['owner_urls'][case])
                 assert parsed.scheme=='postgresql' and parsed.username==login,'command_login_invalid'

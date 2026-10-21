@@ -93,3 +93,7 @@
 - source_spec: `_bmad-output/implementation-artifacts/spec-id-b-membership-join-command.md`
   summary: Complete separately gated Access admission and exact membership-bound grants before activating join/rejoin with any real consumer.
   evidence: Independent review B1 confirms services/access/main.py currently joins access.grants by org_id/user_id, so retained grants can match a replacement membership. This pre-existing ACCESS-A/B transition is explicitly outside the bounded Identity delivery; current Access is incompatible with cutover and must stay stopped until coordinated migration/consumer verification. New member role/grant rows are not copied, but that alone does not prevent legacy Access reuse.
+
+- source_spec: `_bmad-output/implementation-artifacts/spec-id-b-account-actor-ensure.md`
+  summary: Make the existing root-prepared Identity synthetic owner fixture provisioning reproducible for other checkouts/CI through its existing owner tooling.
+  evidence: Review B7 identified a pre-existing private bootstrap prerequisite shared by older qualifications; remove the new hardcoded frame dependency now, document explicit protected fixture input, and do not claim portable CI bootstrap is delivered.

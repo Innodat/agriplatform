@@ -23,6 +23,9 @@ PROFILE_REVISION = 'identity_0008'
 LEGACY_ROLES_REVISION = 'identity_0009'
 TOKEN_HOOK_REVISION = 'identity_0010'
 MEMBERSHIP_ACTOR_ATTRIBUTION_REVISION = 'identity_0015'
+ACCOUNT_ACTOR_ENSURE_REVISION = 'identity_0018'
+ACCOUNT_ACTOR_ENSURE_REFERENCE_SHA256 = '9502c7183ed38c6f81a3de6f578e04e6feb81059c56fdbbc44045b6f6054eb50'
+ACCOUNT_VERIFICATION_OWNER = 'identity_account_verification_owner'
 MEMBERSHIP_JOIN_COMMAND_REVISION = 'identity_0017'
 MEMBERSHIP_JOIN_COMMAND_REFERENCE_SHA256 = '8e6a0b7f61535e0c541b7e80836e1431331ddb37a5ad57432a800b02e4ebd5df'
 MEMBERSHIP_RETIRE_COMMAND_REVISION = 'identity_0016'
@@ -94,6 +97,8 @@ def compare_catalog(actual, expected):
         raise BaselineError('identity_catalog_mismatch:' + ','.join(changed))
 
 def trusted_reference(kind):
+    if kind == 'account_actor_ensure':
+        return trusted_account_actor_ensure_reference()
     if kind == 'membership_join_command':
         return trusted_membership_join_command_reference()
     if kind == 'membership_retire_command':
@@ -201,13 +206,22 @@ def catalog_fingerprints(snapshot):
 
 
 def verify_catalog(connection, kind):
+    if kind == 'account_actor_ensure':
+        verify_account_verification_role(connection)
+        verify_projection_role(connection)
+        verify_authority_roles(connection)
+        verify_command_role(connection)
+        verify_target_roles(connection)
+        verify_profile_privileges(connection)
+        compare_catalog(catalog_fingerprints(account_actor_catalog_snapshot(connection)), trusted_account_actor_ensure_reference())
+        return
     if kind == 'membership_join_command':
         verify_projection_role(connection)
         verify_authority_roles(connection)
         verify_command_role(connection)
         verify_target_roles(connection)
         verify_profile_privileges(connection)
-        compare_catalog(catalog_fingerprints(target_catalog_snapshot(connection)), trusted_membership_join_command_reference())
+        compare_catalog(historical_catalog_fingerprints(connection, target_catalog_snapshot(connection)), trusted_membership_join_command_reference())
         return
     if kind == 'membership_retire_command':
         verify_projection_role(connection)
@@ -215,7 +229,7 @@ def verify_catalog(connection, kind):
         verify_command_role(connection)
         verify_target_roles(connection)
         verify_profile_privileges(connection)
-        compare_catalog(catalog_fingerprints(target_catalog_snapshot(connection)), trusted_membership_retire_command_reference())
+        compare_catalog(historical_catalog_fingerprints(connection, target_catalog_snapshot(connection)), trusted_membership_retire_command_reference())
         return
     if kind == 'membership_actor_attribution':
         verify_projection_role(connection)
@@ -223,7 +237,7 @@ def verify_catalog(connection, kind):
         verify_command_role(connection)
         verify_target_roles(connection)
         verify_profile_privileges(connection)
-        compare_catalog(catalog_fingerprints(target_catalog_snapshot(connection)), trusted_membership_actor_attribution_reference())
+        compare_catalog(historical_catalog_fingerprints(connection, target_catalog_snapshot(connection)), trusted_membership_actor_attribution_reference())
         return
     if kind == 'active_membership_index':
         verify_projection_role(connection)
@@ -231,7 +245,7 @@ def verify_catalog(connection, kind):
         verify_command_role(connection)
         verify_target_roles(connection)
         verify_profile_privileges(connection)
-        compare_catalog(catalog_fingerprints(target_catalog_snapshot(connection)), trusted_active_membership_index_reference())
+        compare_catalog(historical_catalog_fingerprints(connection, target_catalog_snapshot(connection)), trusted_active_membership_index_reference())
         return
     if kind == 'membership_retirement':
         verify_projection_role(connection)
@@ -239,7 +253,7 @@ def verify_catalog(connection, kind):
         verify_command_role(connection)
         verify_target_roles(connection)
         verify_profile_privileges(connection)
-        compare_catalog(catalog_fingerprints(target_catalog_snapshot(connection)), trusted_membership_retirement_reference())
+        compare_catalog(historical_catalog_fingerprints(connection, target_catalog_snapshot(connection)), trusted_membership_retirement_reference())
         return
     if kind == 'membership_retention':
         verify_projection_role(connection)
@@ -247,7 +261,7 @@ def verify_catalog(connection, kind):
         verify_command_role(connection)
         verify_target_roles(connection)
         verify_profile_privileges(connection)
-        compare_catalog(catalog_fingerprints(target_catalog_snapshot(connection)), trusted_membership_retention_reference())
+        compare_catalog(historical_catalog_fingerprints(connection, target_catalog_snapshot(connection)), trusted_membership_retention_reference())
         return
     if kind == 'membership_binding':
         verify_projection_role(connection)
@@ -255,7 +269,7 @@ def verify_catalog(connection, kind):
         verify_command_role(connection)
         verify_target_roles(connection)
         verify_profile_privileges(connection)
-        compare_catalog(catalog_fingerprints(target_catalog_snapshot(connection)), trusted_membership_binding_reference())
+        compare_catalog(historical_catalog_fingerprints(connection, target_catalog_snapshot(connection)), trusted_membership_binding_reference())
         return
     if kind == 'token_hook':
         verify_projection_role(connection)
@@ -263,7 +277,7 @@ def verify_catalog(connection, kind):
         verify_command_role(connection)
         verify_target_roles(connection)
         verify_profile_privileges(connection)
-        compare_catalog(catalog_fingerprints(target_catalog_snapshot(connection)), trusted_token_hook_reference())
+        compare_catalog(historical_catalog_fingerprints(connection, target_catalog_snapshot(connection)), trusted_token_hook_reference())
         return
     if kind == 'legacy_roles':
         verify_projection_role(connection)
@@ -271,7 +285,7 @@ def verify_catalog(connection, kind):
         verify_command_role(connection)
         verify_target_roles(connection)
         verify_profile_privileges(connection)
-        compare_catalog(catalog_fingerprints(target_catalog_snapshot(connection)), trusted_legacy_roles_reference())
+        compare_catalog(historical_catalog_fingerprints(connection, target_catalog_snapshot(connection)), trusted_legacy_roles_reference())
         return
     if kind == 'profile':
         verify_projection_role(connection)
@@ -279,14 +293,14 @@ def verify_catalog(connection, kind):
         verify_command_role(connection)
         verify_target_roles(connection)
         verify_profile_privileges(connection)
-        compare_catalog(catalog_fingerprints(target_catalog_snapshot(connection)), trusted_profile_reference())
+        compare_catalog(historical_catalog_fingerprints(connection, target_catalog_snapshot(connection)), trusted_profile_reference())
         return
     if kind == 'target':
         verify_projection_role(connection)
         verify_authority_roles(connection)
         verify_command_role(connection)
         verify_target_roles(connection)
-        compare_catalog(catalog_fingerprints(target_catalog_snapshot(connection)), trusted_target_reference())
+        compare_catalog(historical_catalog_fingerprints(connection, target_catalog_snapshot(connection)), trusted_target_reference())
         return
     if kind == 'command':
         verify_projection_role(connection)
@@ -294,7 +308,7 @@ def verify_catalog(connection, kind):
         verify_command_role(connection)
         snapshot = command_catalog_snapshot(connection)
         normalize_staged_target(connection, snapshot)
-        compare_catalog(catalog_fingerprints(snapshot), trusted_reference(kind))
+        compare_catalog(historical_catalog_fingerprints(connection, snapshot), trusted_reference(kind))
         return
     if kind == 'authority':
         verify_projection_role(connection)
@@ -302,7 +316,7 @@ def verify_catalog(connection, kind):
         snapshot = authority_catalog_snapshot(connection)
         normalize_staged_command(connection, snapshot)
         normalize_staged_target(connection, snapshot)
-        compare_catalog(catalog_fingerprints(snapshot), trusted_reference(kind))
+        compare_catalog(historical_catalog_fingerprints(connection, snapshot), trusted_reference(kind))
         return
     if kind in ('projection', 'organization'):
         verify_projection_role(connection)
@@ -320,7 +334,7 @@ def verify_catalog(connection, kind):
     normalize_staged_authority(connection, snapshot)
     normalize_staged_command(connection, snapshot)
     normalize_staged_target(connection, snapshot)
-    compare_catalog(catalog_fingerprints(snapshot), trusted_reference(kind))
+    compare_catalog(historical_catalog_fingerprints(connection, snapshot), trusted_reference(kind))
 
 def preflight(connection, mode):
     source_sql()  # verify immutable source pins even on no-op/adoption
@@ -333,6 +347,9 @@ def preflight(connection, mode):
     if connection.execute(text("SELECT rolsuper OR rolcreatedb OR rolcreaterole OR rolbypassrls FROM pg_roles WHERE rolname=current_user")).scalar_one():
         raise BaselineError('identity_migration_role_excess_authority')
     verify_projection_prerequisites(connection)
+    if connection.execute(text("SELECT EXISTS(SELECT 1 FROM pg_roles WHERE rolname='identity_account_verification_owner')")).scalar_one():
+        deployed = connection.execute(text("SELECT to_regprocedure('identity.ensure_account_actor(uuid,uuid,uuid,text,text,text,bytea)') IS NOT NULL")).scalar_one()
+        verify_account_verification_role(connection, staged=not deployed)
     if not connection.execute(text("SELECT pg_try_advisory_xact_lock(hashtextextended('identity-owned-migrations',0))")).scalar_one():
         raise BaselineError('identity_migration_busy')
     exists = connection.execute(text("SELECT to_regclass('identity.alembic_version')")).scalar_one()
@@ -384,15 +401,15 @@ def verify_legacy_history(connection, clean=False):
 
 def verify_owned_postcondition(connection, require_head=False):
     revision = verify_owned_history(connection)
-    if require_head and revision != MEMBERSHIP_JOIN_COMMAND_REVISION:
+    if require_head and revision != ACCOUNT_ACTOR_ENSURE_REVISION:
         raise BaselineError('identity_unknown_history')
     verify_legacy_history(connection)
-    verify_catalog(connection, {REVISION: 'owned', ACTOR_REVISION: 'actor', PROJECTION_REVISION: 'projection', ORGANIZATION_REVISION: 'organization', AUTHORITY_REVISION: 'authority', COMMAND_REVISION: 'command', TARGET_REVISION: 'target', PROFILE_REVISION: 'profile', LEGACY_ROLES_REVISION: 'legacy_roles', TOKEN_HOOK_REVISION: 'token_hook', MEMBERSHIP_BINDING_REVISION: 'membership_binding', MEMBERSHIP_RETENTION_REVISION: 'membership_retention', MEMBERSHIP_RETIREMENT_REVISION: 'membership_retirement', ACTIVE_MEMBERSHIP_INDEX_REVISION: 'active_membership_index', MEMBERSHIP_ACTOR_ATTRIBUTION_REVISION: 'membership_actor_attribution', MEMBERSHIP_RETIRE_COMMAND_REVISION: 'membership_retire_command', MEMBERSHIP_JOIN_COMMAND_REVISION: 'membership_join_command'}[revision])
+    verify_catalog(connection, {REVISION: 'owned', ACTOR_REVISION: 'actor', PROJECTION_REVISION: 'projection', ORGANIZATION_REVISION: 'organization', AUTHORITY_REVISION: 'authority', COMMAND_REVISION: 'command', TARGET_REVISION: 'target', PROFILE_REVISION: 'profile', LEGACY_ROLES_REVISION: 'legacy_roles', TOKEN_HOOK_REVISION: 'token_hook', MEMBERSHIP_BINDING_REVISION: 'membership_binding', MEMBERSHIP_RETENTION_REVISION: 'membership_retention', MEMBERSHIP_RETIREMENT_REVISION: 'membership_retirement', ACTIVE_MEMBERSHIP_INDEX_REVISION: 'active_membership_index', MEMBERSHIP_ACTOR_ATTRIBUTION_REVISION: 'membership_actor_attribution', MEMBERSHIP_RETIRE_COMMAND_REVISION: 'membership_retire_command', MEMBERSHIP_JOIN_COMMAND_REVISION: 'membership_join_command', ACCOUNT_ACTOR_ENSURE_REVISION: 'account_actor_ensure'}[revision])
 
 
 def verify_owned_history(connection):
     revisions = list(connection.execute(text('SELECT version_num FROM identity.alembic_version')).scalars())
-    if revisions not in ([REVISION], [ACTOR_REVISION], [PROJECTION_REVISION], [ORGANIZATION_REVISION], [AUTHORITY_REVISION], [COMMAND_REVISION], [TARGET_REVISION], [PROFILE_REVISION], [LEGACY_ROLES_REVISION], [TOKEN_HOOK_REVISION], [MEMBERSHIP_BINDING_REVISION], [MEMBERSHIP_RETENTION_REVISION], [MEMBERSHIP_RETIREMENT_REVISION], [ACTIVE_MEMBERSHIP_INDEX_REVISION], [MEMBERSHIP_ACTOR_ATTRIBUTION_REVISION], [MEMBERSHIP_RETIRE_COMMAND_REVISION], [MEMBERSHIP_JOIN_COMMAND_REVISION]):
+    if revisions not in ([REVISION], [ACTOR_REVISION], [PROJECTION_REVISION], [ORGANIZATION_REVISION], [AUTHORITY_REVISION], [COMMAND_REVISION], [TARGET_REVISION], [PROFILE_REVISION], [LEGACY_ROLES_REVISION], [TOKEN_HOOK_REVISION], [MEMBERSHIP_BINDING_REVISION], [MEMBERSHIP_RETENTION_REVISION], [MEMBERSHIP_RETIREMENT_REVISION], [ACTIVE_MEMBERSHIP_INDEX_REVISION], [MEMBERSHIP_ACTOR_ATTRIBUTION_REVISION], [MEMBERSHIP_RETIRE_COMMAND_REVISION], [MEMBERSHIP_JOIN_COMMAND_REVISION], [ACCOUNT_ACTOR_ENSURE_REVISION]):
         raise BaselineError('identity_unknown_history')
     columns = connection.execute(text("SELECT column_name,data_type,character_maximum_length,is_nullable,column_default FROM information_schema.columns WHERE table_schema='identity' AND table_name='alembic_version' ORDER BY ordinal_position")).all()
     if [tuple(row) for row in columns] != [('version_num','character varying',32,'NO',None)]:
@@ -927,3 +944,82 @@ def trusted_membership_join_command_reference():
         or reference['migration_sha256']!=sha256((HERE/'versions/0017_membership_join_command.py').read_bytes()).hexdigest()):
         raise BaselineError('identity_reference_unavailable')
     return reference['membership_join_command']
+
+
+ACCOUNT_VERIFICATION_ROLE_QUERIES = {
+    key.replace('projection','account_verification'): sql.replace(PROJECTION_OWNER, ACCOUNT_VERIFICATION_OWNER)
+    for key, sql in PROJECTION_ROLE_QUERIES.items()
+}
+
+
+def verify_account_verification_role(connection, staged=False):
+    role = ACCOUNT_VERIFICATION_OWNER
+    queries = ACCOUNT_VERIFICATION_ROLE_QUERIES
+    if [tuple(r) for r in connection.execute(text(queries['account_verification_role']))] != [(role,False,False,False,False,False,False,False)]:
+        raise BaselineError('identity_account_verification_role_unsafe')
+    if [tuple(r) for r in connection.execute(text(queries['account_verification_memberships']))] != [(role,'identity_migrator',False,'false','true')]:
+        raise BaselineError('identity_account_verification_role_unsafe')
+    if not connection.execute(text("SELECT relrowsecurity FROM pg_class WHERE oid='auth.users'::regclass")).scalar_one():
+        raise BaselineError('identity_account_verification_auth_rls_required')
+    schemas = connection.execute(text("SELECT nspname,p FROM pg_namespace CROSS JOIN unnest(ARRAY['USAGE','CREATE','USAGE WITH GRANT OPTION','CREATE WITH GRANT OPTION']) p WHERE nspname !~ '^pg_' AND nspname<>'information_schema' AND has_schema_privilege(:role,oid,p)"), {'role':role}).all()
+    expected = {('auth','USAGE'),('public','USAGE')} | (set() if staged else {('identity','USAGE')})
+    if set(map(tuple,schemas)) != expected or connection.execute(text("SELECT has_database_privilege(:role,current_database(),'CREATE')"),{'role':role}).scalar_one():
+        raise BaselineError('identity_account_verification_privileges_unsafe')
+    columns = connection.execute(text("""SELECT n.nspname,c.relname,a.attname,p FROM pg_class c JOIN pg_namespace n ON n.oid=c.relnamespace JOIN pg_attribute a ON a.attrelid=c.oid CROSS JOIN unnest(ARRAY['SELECT','INSERT','UPDATE','REFERENCES']) p
+     WHERE n.nspname !~ '^pg_' AND n.nspname<>'information_schema' AND c.relkind IN ('r','p','v','m','f') AND a.attnum>0 AND NOT a.attisdropped
+     AND (:staged OR n.nspname<>'identity') AND has_column_privilege(:role,c.oid,a.attnum,p)"""),{'role':role,'staged':staged}).all()
+    if set(map(tuple,columns)) != {('auth','users','id','SELECT'),('auth','users','deleted_at','SELECT')}:
+        raise BaselineError('identity_account_verification_privileges_unsafe')
+    if connection.execute(text("""SELECT EXISTS(SELECT 1 FROM pg_class c JOIN pg_namespace n ON n.oid=c.relnamespace
+     WHERE n.nspname !~ '^pg_' AND n.nspname<>'information_schema' AND
+     ((c.relkind IN ('r','p','v','m','f') AND (:staged OR n.nspname<>'identity') AND has_table_privilege(:role,c.oid,'SELECT,INSERT,UPDATE,DELETE,TRUNCATE,REFERENCES,TRIGGER'))
+     OR (c.relkind='S' AND CASE WHEN c.relkind='S' THEN has_sequence_privilege(:role,c.oid,'USAGE,SELECT,UPDATE') ELSE false END)))"""),{'role':role,'staged':staged}).scalar_one():
+        raise BaselineError('identity_account_verification_privileges_unsafe')
+    policy = connection.execute(text("SELECT policyname,permissive,roles::text,cmd,qual,with_check FROM pg_policies WHERE schemaname='auth' AND tablename='users' AND roles::text[] && ARRAY[:role,'public']"),{'role':role}).all()
+    if list(map(tuple,policy)) != [('identity_account_actor_verification','PERMISSIVE','{identity_account_verification_owner}','SELECT','true',None)]:
+        raise BaselineError('identity_account_verification_policy_unsafe')
+    if staged:
+        dependencies = connection.execute(text(queries['account_verification_dependencies'])).all()
+        descriptions = {r[3] for r in dependencies}
+        if descriptions != {'schema auth','column id of table auth.users','column deleted_at of table auth.users'} or any(r[2]!='a' for r in dependencies):
+            raise BaselineError('identity_account_verification_role_not_staged')
+
+
+def historical_catalog_fingerprints(connection, snapshot):
+    # Validate the exact separately staged Auth preparation even on early returns.
+    present = connection.execute(text("SELECT EXISTS(SELECT 1 FROM pg_roles WHERE rolname='identity_account_verification_owner')")).scalar_one()
+    if present:
+        verify_account_verification_role(connection, staged=True)
+        snapshot['role_memberships'] = [row for row in snapshot['role_memberships']
+            if row != [ACCOUNT_VERIFICATION_OWNER,'identity_migrator',False,'false','true']]
+    return catalog_fingerprints(snapshot)
+
+
+def account_actor_catalog_snapshot(connection):
+    result = target_catalog_snapshot(connection)
+    for key, sql in ACCOUNT_VERIFICATION_ROLE_QUERIES.items():
+        rows = [list(r) for r in connection.execute(text(sql))]
+        if key.endswith('_dependencies'):
+            current = connection.execute(text('SELECT current_database()')).scalar_one()
+            for row in rows:
+                if row[0] == current: row[0] = 'current_database'
+        result[key] = sorted(rows,key=lambda row:json.dumps(row,sort_keys=True))
+    for category in ('effective_tables','effective_columns','effective_functions','effective_schemas','effective_sequences'):
+        sql = QUERIES[category].replace("'identity_migrator','access_runtime','authenticated','anon','service_role','supabase_auth_admin'", "'identity_account_verification_owner'")
+        result['account_verification_'+category] = sorted([list(r) for r in connection.execute(text(sql))],key=lambda row:json.dumps(row,sort_keys=True))
+    return result
+
+
+def trusted_account_actor_ensure_reference():
+    trusted_membership_join_command_reference()
+    path = HERE/'account-actor-ensure-reference.json'
+    if ACCOUNT_ACTOR_ENSURE_REFERENCE_SHA256 is None or not path.exists():
+        raise BaselineError('identity_reference_unavailable')
+    content = path.read_bytes()
+    if sha256(content).hexdigest() != ACCOUNT_ACTOR_ENSURE_REFERENCE_SHA256:
+        raise BaselineError('identity_reference_unavailable')
+    reference = json.loads(content)
+    if (reference['source_pins'] != json.loads((HERE/'source-pins.json').read_text())
+        or reference['migration_sha256'] != sha256((HERE/'versions/0018_account_actor_ensure.py').read_bytes()).hexdigest()):
+        raise BaselineError('identity_reference_unavailable')
+    return reference['account_actor_ensure']

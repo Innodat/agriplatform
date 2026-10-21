@@ -129,6 +129,7 @@ NOLOGIN reader/command owners and explicit grants; never reuse table owner/migra
 | identity_migrator | Identity-owned DDL/version/history plus explicitly inventoried legacy public/Auth-hook integration objects. No Access/KDG table authority; Supabase-managed Auth schema bootstrap grants are separate restricted deployment work. |
 | access_migrator | Access-owned DDL/version/history only; no Identity DDL. |
 | identity_account_projection_owner | Selected Identity profile/member/org columns under current-account RLS; actor/mapping read columns needed by fixed current-account routines. Runtime cannot assume this NOLOGIN role. |
+| identity_account_verification_owner | NOLOGIN/NOINHERIT/NOBYPASSRLS, exact migrator SET-only edge; separate Auth-owner USAGE and SELECT(id,deleted_at) under its exact SELECT policy; selected ordinary-profile reads under current account-targeted ensure authority; fixed private live-account/UUID-collision verifiers executable only by Identity command owner. No Auth writes, profile directory or runtime role assumption. Implements ADR-0056. |
 | identity_target_projection_owner | Selected profile/member/org columns under current-org RLS, actor/mapping columns for fixed target routines; no Access table read/write. No cross-org target result. |
 | access_check_reader | Read-only registry and selected account/org grant/admission columns under corresponding forced RLS; EXECUTE current Identity projections only. |
 | access_target_reader | Read-only registry plus grants/admission restricted to verified target-query org; EXECUTE target Identity projections only. Dedicated NOLOGIN definer owner, no role assumption by runtime. |
@@ -310,3 +311,44 @@ open outcome/evidence/role/recovery and KDG secret-file/library planning choices
 Planning selections are complete for ordered shared foundations/KDG consumption;
 actual owner/consumer test, target adoption, provider/device, release/restore and
 pre-pilot policy evidence remain mandatory delivery gates. No code is authorized.
+
+
+## Delivered account actor command —2026-10-21
+
+Identity revision18 implements the existing `account_actor.ensure` envelope and compact
+account/actor result through the protected operator CLI. Required classification provenance
+is an operator assertion; live Auth/profile eligibility comes from a separate pinned
+SECURITY DEFINER verifier, not the evidence string. Its dedicated NOLOGIN owner receives
+Auth schema USAGE and only SELECT(id,deleted_at) through separate Auth-owner preparation,
+plus selected Identity profile columns under current-account-target authority. Caller roles
+cannot assume either owner or provide verification through GUCs. Foreign legacy UUID
+collision detection uses a fixed exact-authorized boolean Auth-ID query; the retained
+profile→Auth FK protects that namespace without profile-directory access.
+
+Auth observation precedes retry/business locks and lasts at most five seconds from
+the start of verification, including both observations, for this executing command.
+Elapsed observation, including replay expiry, reports unavailable rather than ineligibility.
+Enabled Auth RLS is mandatory during preparation/head verification; unexpected verifier
+memberships refuse before Auth/profile reads, including inherited-policy effects. After waits the command rechecks local profile and protected
+authority. Missing/unsafe verification dependencies refuse as unavailable rather than
+absence. New executions/replays observe again; historical receipt lookup needs current
+exact account authority but does not assert current account eligibility. Mapping, creation
+attribution, compact outcome and created event commit together; verified identical mapping
+returns unchanged without a new event. Unbound account actors may be adopted only under
+the verified account UUID with null key and matching label. Other bindings, occupied
+foreign UUIDs, existing own legacy actors bypassed by another UUID, system/keyed profiles,
+and changed kind/label refuse. Historical mapping/actor retention is unchanged.
+
+See [owner evidence](../../../../services/access/ACCOUNT_ACTOR_ENSURE_EVIDENCE.md) for
+actual restricted-login tests, preparation/recovery and exclusions. This realizes ADR-0056;
+accepted ADRs and the ACCESS-A/B membership-binding activation gate remain unchanged.
+
+
+Reviewed account-actor qualification uses the existing synthetic root bootstrap and one
+`--all` invocation over fresh cases. The private input explicitly supplies a protected
+closed CLI owner fixture bound to the selected run/database and loopback Identity-migrator
+URL; general bootstrap portability is an existing deferred prerequisite. Named stages and
+repeatable retained inspection remain. Bounded Auth UUID observations do not reserve future
+Auth allocations, and overlapping profile retirement gains no extra row locks or write
+privileges. Current application access remains independently checked. Exact reviewed
+command/results and preserved candidate reconciliation are in the owner evidence above.

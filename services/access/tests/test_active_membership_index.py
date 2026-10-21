@@ -294,22 +294,31 @@ def test_full_unique_witness_serializes_actual_sqlalchemy_rows(tmp_path,administ
 
 @pytest.mark.parametrize('refusal',[None,'verify_projection_role','verify_authority_roles','verify_command_role','verify_target_roles','verify_profile_privileges'])
 def test_active_catalog_runs_each_guard_before_catalog_comparison(monkeypatch,refusal):
-    b=qualification.baseline;calls=[]
+    b=qualification.baseline;calls=[];connection=object()
+    snapshot={'synthetic':[]};normalized={'normalized':True}
     guards=['verify_projection_role','verify_authority_roles','verify_command_role','verify_target_roles','verify_profile_privileges']
     for name in guards:
         def guard(connection,name=name):
             calls.append(name)
             if name==refusal:raise b.BaselineError('synthetic_guard_refusal')
         monkeypatch.setattr(b,name,guard)
-    monkeypatch.setattr(b,'target_catalog_snapshot',lambda c:calls.append('snapshot') or {'synthetic':[]})
+    monkeypatch.setattr(b,'target_catalog_snapshot',lambda c:calls.append('snapshot') or snapshot)
+    def historical_normalization(actual_connection,actual_snapshot):
+        assert actual_connection is connection and actual_snapshot is snapshot
+        calls.append('historical_normalization')
+        return normalized
+    monkeypatch.setattr(b,'historical_catalog_fingerprints',historical_normalization)
     monkeypatch.setattr(b,'trusted_active_membership_index_reference',lambda:calls.append('trusted') or {})
-    monkeypatch.setattr(b,'compare_catalog',lambda *a:calls.append('compare'))
+    def compare(actual,expected):
+        assert actual is normalized and expected=={}
+        calls.append('compare')
+    monkeypatch.setattr(b,'compare_catalog',compare)
     if refusal:
-        with pytest.raises(b.BaselineError,match='synthetic_guard_refusal'):b.verify_catalog(object(),'active_membership_index')
+        with pytest.raises(b.BaselineError,match='synthetic_guard_refusal'):b.verify_catalog(connection,'active_membership_index')
         assert calls==guards[:guards.index(refusal)+1]
     else:
-        b.verify_catalog(object(),'active_membership_index')
-        assert calls==guards+['snapshot','trusted','compare']
+        b.verify_catalog(connection,'active_membership_index')
+        assert calls==guards+['snapshot','historical_normalization','trusted','compare']
 
 
 @pytest.mark.parametrize('failure',['loser_startup','no_block','commit'])

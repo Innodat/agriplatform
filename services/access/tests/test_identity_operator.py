@@ -13,16 +13,24 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 
 
-@pytest.mark.parametrize('command', ['account_actor.ensure'])
-def test_adapter_exists_and_rejects_unimplemented_command_before_sql(command):
-    import identity_operator as operator
+def test_account_actor_ensure_dispatch_and_scoped_recovery():
+    import identity_operator as o
     from test_identity_operator_input import document, encode
-    class Connection:
-        def execute(self, *args):
-            raise AssertionError('SQL must not execute')
-    with pytest.raises(operator.OperatorError) as error:
-        operator.execute(Connection(), encode(document(command)))
-    assert error.value.code == 'command_unsupported'
+    value = document('account_actor.ensure')
+    class AccountConnection(Connection):
+        def one_or_none(self):
+            return ({'target':{k:value['payload'][k].lower() for k in ('account_id','actor_id')},
+                'disposition':'created','revision':None,
+                'event_id':'d1234567-1234-1234-1234-123456789abc'},1,1,datetime.now(timezone.utc))
+    c=AccountConnection()
+    receipt=o.execute(c,encode(value))
+    assert c.committed and receipt.result.command=='account_actor.ensure'
+    assert receipt.result.target.account_id==value['payload']['account_id'].lower()
+    assert 'identity.ensure_account_actor' in c.calls[-1][0]
+    lookup=AccountConnection()
+    assert o.outcome(lookup,value['operation_id'],command='account_actor.ensure',
+        account_id=value['payload']['account_id']).result==receipt.result
+    assert 'identity.account_actor_outcome' in lookup.calls[-1][0]
 
 
 def document():
@@ -292,3 +300,31 @@ def test_join_dispatch_and_created_receipt():
     assert o.outcome(lookup,document('membership.join')['operation_id'],command='membership.join',
         org_id='c1234567-1234-1234-1234-123456789abc',account_id='b1234567-1234-1234-1234-123456789abc').result==receipt.result
     assert 'identity.membership_join_outcome' in lookup.calls[-1][0]
+
+@pytest.mark.parametrize('mutation', [
+    lambda r:r['target'].update(account_id='00000000-0000-0000-0000-000000000000'),
+    lambda r:r['target'].update(actor_id='B1234567-1234-1234-1234-123456789ABC'),
+    lambda r:r['target'].update(extra='PRIVATE'),
+    lambda r:r.update(revision='1'),
+    lambda r:r.update(event_id=None),
+    lambda r:r.update(disposition='changed'),
+])
+def test_account_actor_receipt_refuses_malformed_storage(mutation):
+    import identity_operator as o
+    result=dict(target=dict(account_id='a1234567-1234-1234-1234-123456789abc',
+        actor_id='b1234567-1234-1234-1234-123456789abc'),disposition='created',revision=None,
+        event_id='c1234567-1234-1234-1234-123456789abc')
+    mutation(result)
+    with pytest.raises(o.OperatorError,match='operation_verification_unavailable'):
+        o._receipt((result,1,1,datetime.now(timezone.utc)),'a1234567-1234-1234-1234-123456789abc','account_actor.ensure')
+
+
+@pytest.mark.parametrize('context', [dict(),dict(account_id=None),
+    dict(account_id='00000000-0000-0000-0000-000000000000'),
+    dict(account_id='b1234567-1234-1234-1234-123456789abc',org_id='c1234567-1234-1234-1234-123456789abc')])
+def test_account_actor_lookup_requires_exact_platform_account_context(context):
+    import identity_operator as o
+    c=Connection()
+    with pytest.raises(o.OperatorError,match='command_invalid'):
+        o.outcome(c,'a1234567-1234-1234-1234-123456789abc',command='account_actor.ensure',**context)
+    assert not c.calls

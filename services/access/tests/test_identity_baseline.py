@@ -439,6 +439,7 @@ def test_projection_old_comparison_normalizes_only_validated_membership(monkeypa
     monkeypatch.setattr(baseline, 'verify_projection_role', lambda connection, staged: events.append(staged))
     monkeypatch.setattr(baseline, 'trusted_reference', lambda kind: baseline.catalog_fingerprints(
         {'role_memberships': [['unexpected', 'access_runtime', False, 'false', 'true']]}))
+    monkeypatch.setattr(baseline, 'verify_account_verification_role', lambda connection, staged: None)
     baseline.verify_catalog(Connection(), 'actor')
     assert events == [True]
     assert snapshot['role_memberships'] == [['unexpected', 'access_runtime', False, 'false', 'true']]
@@ -484,3 +485,42 @@ def test_projection_auth_bootstrap_refuses_without_grant_option():
             return Result()
     with pytest.raises(baseline.BaselineError, match='identity_projection_auth_grant_required'):
         baseline.verify_projection_prerequisites(Connection())
+
+
+def test_account_actor_new_reference_retains_all_historical_source_chain():
+    import identity_baseline as b
+    assert b.trusted_account_actor_ensure_reference()['functions']['rows']>b.trusted_membership_join_command_reference()['functions']['rows']
+
+
+def test_account_actor_reference_rejects_new_migration_drift(tmp_path,monkeypatch):
+    import identity_baseline as b
+    import shutil
+    import json
+    source=b.HERE
+    shutil.copy(source/'account-actor-ensure-reference.json',tmp_path/'account-actor-ensure-reference.json')
+    shutil.copy(source/'source-pins.json',tmp_path/'source-pins.json')
+    (tmp_path/'versions').mkdir();(tmp_path/'versions/0018_account_actor_ensure.py').write_text('changed')
+    monkeypatch.setattr(b,'HERE',tmp_path)
+    monkeypatch.setattr(b,'trusted_membership_join_command_reference',lambda:None)
+    with pytest.raises(b.BaselineError,match='identity_reference_unavailable'):
+        b.trusted_account_actor_ensure_reference()
+
+
+@pytest.mark.parametrize('staged',[False,True])
+def test_account_verification_requires_auth_rls_before_further_catalog_reads(staged):
+    import identity_baseline as b
+    calls=[]
+    class Result:
+        def __init__(self,rows):self.rows=rows
+        def __iter__(self):return iter(self.rows)
+        def scalar_one(self):return False
+    class Connection:
+        def execute(self,sql,*args):
+            calls.append(str(sql))
+            if len(calls)==1:return Result([(b.ACCOUNT_VERIFICATION_OWNER,False,False,False,False,False,False,False)])
+            if len(calls)==2:return Result([(b.ACCOUNT_VERIFICATION_OWNER,'identity_migrator',False,'false','true')])
+            assert len(calls)==3 and 'relrowsecurity' in str(sql)
+            return Result([])
+    with pytest.raises(b.BaselineError,match='identity_account_verification_auth_rls_required'):
+        b.verify_account_verification_role(Connection(),staged=staged)
+    assert len(calls)==3
