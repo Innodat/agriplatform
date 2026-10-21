@@ -5,7 +5,7 @@ from typing import Literal
 
 from identity_operator_input import (
     CommandValidationError as _IdentityValidationError,
-    PlatformScope, _Envelope, _EVIDENCE, _REASONS,
+    OrganizationScope, PlatformScope, _Envelope, _EVIDENCE, _REASONS,
     _decode, _decimal, _object, _require, _uuid,
 )
 
@@ -48,6 +48,20 @@ class SetApplicationEnabledPayload:
 
 
 @dataclass(frozen=True, repr=False)
+class CreateOrganizationApplicationPayload:
+    app_id: str
+    enabled: bool
+    expected_absent: Literal[True]
+
+
+@dataclass(frozen=True, repr=False)
+class UpdateOrganizationApplicationPayload:
+    app_id: str
+    enabled: bool
+    expected_revision: str
+
+
+@dataclass(frozen=True, repr=False)
 class RegisterApplicationCommand(_Envelope):
     scope: PlatformScope
     payload: RegisterApplicationPayload
@@ -75,7 +89,14 @@ class SetApplicationEnabledCommand(_Envelope):
     command: Literal['application.set_enabled'] = field(default='application.set_enabled', init=False)
 
 
-Command = RegisterApplicationCommand | RegisterPermissionCommand | RegisterEntryPermissionCommand | SetApplicationEnabledCommand
+@dataclass(frozen=True, repr=False)
+class ConfigureOrganizationApplicationCommand(_Envelope):
+    scope: OrganizationScope
+    payload: CreateOrganizationApplicationPayload | UpdateOrganizationApplicationPayload
+    command: Literal['organization_application.configure'] = field(default='organization_application.configure', init=False)
+
+
+Command = RegisterApplicationCommand | RegisterPermissionCommand | RegisterEntryPermissionCommand | SetApplicationEnabledCommand | ConfigureOrganizationApplicationCommand
 _APP_ID = re.compile(r'[a-z][a-z0-9_]{1,63}')
 
 
@@ -90,7 +111,22 @@ def _parse(body: bytes) -> Command:
         _require(type(evidence) is str and _EVIDENCE.fullmatch(evidence) is not None and '://' not in evidence)
     common = dict(schema_version=1, operation_id=operation_id, reason_code=reason, evidence_ref=evidence)
     name = doc['command']
-    _require(type(name) is str and name in ('application.register', 'permission.register', 'entry_permission.register', 'application.set_enabled'))
+    _require(type(name) is str and name in ('application.register', 'permission.register', 'entry_permission.register', 'application.set_enabled', 'organization_application.configure'))
+    if name == 'organization_application.configure':
+        scope = _object(doc['scope'], {'kind', 'org_id'})
+        _require(scope['kind'] == 'organization')
+        scope = OrganizationScope(_uuid(scope['org_id']))
+        payload = _object(doc['payload'], {'app_id', 'enabled'}, {'expected_absent', 'expected_revision'})
+        _require(('expected_absent' in payload) != ('expected_revision' in payload))
+        app_id = payload['app_id']
+        _require(type(app_id) is str and _APP_ID.fullmatch(app_id) is not None)
+        _require(type(payload['enabled']) is bool)
+        if 'expected_absent' in payload:
+            _require(payload['expected_absent'] is True)
+            typed = CreateOrganizationApplicationPayload(app_id, payload['enabled'], True)
+        else:
+            typed = UpdateOrganizationApplicationPayload(app_id, payload['enabled'], _decimal(payload['expected_revision']))
+        return ConfigureOrganizationApplicationCommand(**common, scope=scope, payload=typed)
     scope = _object(doc['scope'], {'kind'})
     _require(scope['kind'] == 'platform')
     scope = PlatformScope()

@@ -512,3 +512,64 @@ migrations/references, populated rows and original receipts remain retained. See
 [evidence](../../../../services/access/APPLICATION_SET_ENABLED_EVIDENCE.md). This command
 adds no grants, organization enablement or consumer activation. ACCESS-A/B and
 coordinated PtS/KDG delivery gates remain closed.
+
+## Organization application configuration input only — 2026-10-21
+
+The existing Access parser accepts `organization_application.configure` with exact
+organization scope `{kind: organization, org_id}` and payload `app_id`, boolean
+`enabled`, and exactly one of `expected_absent: true` or a canonical positive bigint
+`expected_revision` string. Distinct frozen, repr-redacted create/update payload records
+contain only their selected fields. Existing Identity scope/decoder/validation helpers
+are reused without changing Identity bytes. UUID spelling and large revisions are
+preserved. Parsing performs no existence, authority or persistence checks.
+
+Access adapter/CLI execute refuses valid new input as `command_unsupported` before
+connection, target or dispatch; outcome remains `command_invalid`, and workers retain
+closed preconnection refusal. Identity consumers reject Access input. The existing four
+platform commands stay platform-scoped. See [input evidence](../../../../services/access/ORGANIZATION_APPLICATION_INPUT_EVIDENCE.md)
+for matrix coverage and exact commands. Organization storage, external organization
+verification and protected execution remain undelivered; grants, effective admission,
+ACCESS-A/B and coordinated PtS/KDG activation remain gated. Historical runtime proofs
+remain bound to their original source bytes.
+
+Complete synthetic create input (parsing only):
+
+```json
+{
+  "schema_version": 1,
+  "operation_id": "A1234567-1234-1234-1234-123456789ABC",
+  "command": "organization_application.configure",
+  "scope": {
+    "kind": "organization",
+    "org_id": "B2345678-2345-2345-2345-23456789ABCD"
+  },
+  "payload": {
+    "app_id": "fixture_app",
+    "enabled": true,
+    "expected_absent": true
+  },
+  "reason_code": "synthetic_fixture",
+  "evidence_ref": "setup:fixture/1"
+}
+```
+
+Complete synthetic update input (parsing only):
+
+```json
+{
+  "schema_version": 1,
+  "operation_id": "C3456789-3456-3456-3456-3456789ABCDE",
+  "command": "organization_application.configure",
+  "scope": {
+    "kind": "organization",
+    "org_id": "B2345678-2345-2345-2345-23456789ABCD"
+  },
+  "payload": {
+    "app_id": "fixture_app",
+    "enabled": false,
+    "expected_revision": "9007199254740993"
+  },
+  "reason_code": "synthetic_fixture",
+  "evidence_ref": "setup:fixture/2"
+}
+```

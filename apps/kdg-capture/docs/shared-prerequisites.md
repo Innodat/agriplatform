@@ -342,3 +342,15 @@ real CLI recovery,1264 affected tests and both composition checks. The native ru
 normally with all data/resources retained. See [evidence](../../../services/access/APPLICATION_SET_ENABLED_EVIDENCE.md).
 Organization enablement, grant commands, effective authorization and coordinated consumer
 activation remain separate gates; no real-target access/configuration change is claimed.
+
+## ACCESS-A organization application input only — 2026-10-21
+
+Strict `organization_application.configure` parsing now requires explicit organization
+scope and exclusive create (`expected_absent: true`) or update (`expected_revision`)
+payloads. Exact booleans, UUID spelling and bigint revision strings are preserved in
+frozen redacted records. Existing platform inputs remain platform-only. Three review
+lenses completed;1312 affected tests and both composition dry runs pass; [input evidence](../../../services/access/ORGANIZATION_APPLICATION_INPUT_EVIDENCE.md)
+records commands and pre-I/O refusal tests. Organization storage, external verification
+and execution remain undelivered; no organization is configured or consumer activated.
+ACCESS-A/B, grants and coordinated PtS/KDG gates stay closed. Historical runtime proofs
+remain source-bound; no native qualification or readiness claim is made.

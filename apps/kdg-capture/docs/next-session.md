@@ -1630,3 +1630,17 @@ all historical data/resources and concurrent work remain preserved. See the
 Continue the existing owner sequence with organization enablement/grant prerequisites
 and ACCESS-B/consumer gates. No real application was enabled; effective admission and
 KDG/PtS activation remain gated. Bootstrap portability remains deferred.
+
+### Organization application configuration input — 2026-10-21
+
+The bounded ACCESS-A input prerequisite is implemented in the existing Access parser:
+explicit organization scope, exact booleans and exclusive expected-absence/revision
+variants, with immutable redacted records and unchanged strict Identity decoding.
+1312 affected regression tests and both composition dry runs pass. Access execute and lookup,
+Identity consumers and workers refuse the new command before target/connection effects.
+See [evidence](../../../services/access/ORGANIZATION_APPLICATION_INPUT_EVIDENCE.md) for
+RED, characterization, final source custody and the completed three-lens review.
+Review fixes are verified; no new deferred issue. Next deliver organization storage, external verification and
+protected execution through existing owner contracts. Grants, ACCESS-B, effective
+admission and PtS/KDG activation remain separately gated. No native startup was used;
+bootstrap portability remains deferred and historical runtime proof stays source-bound.
