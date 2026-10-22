@@ -57,10 +57,11 @@ def test_identity_selects_nine_from_metadata_only(monkeypatch):
     identity=importlib.util.module_from_spec(spec);spec.loader.exec_module(identity)
     calls=[];selected=[]
     class Result:
+        def __init__(self,sql):self.sql=str(sql)
         def all(self):return [('access_command_owner','access_migrator',False,'false','true')]
-        def scalar_one(self):return True
+        def scalar_one(self):return 'pg_attribute' not in self.sql
     class Connection:
-        def execute(self,sql):calls.append(str(sql));return Result()
+        def execute(self,sql):calls.append(str(sql));return Result(sql)
     monkeypatch.setattr(baseline,'verify_operator_roles',lambda c:None)
     monkeypatch.setattr(baseline,'verify_catalog',lambda c,r:selected.append(r))
     monkeypatch.setattr(baseline,'require_equal',lambda *args:None)

@@ -23,6 +23,7 @@ ENABLEMENT_FUNCTIONS = ENTRY_FUNCTIONS + ('application_enablement_authority','gu
 CONFIGURE_FUNCTIONS = ENABLEMENT_FUNCTIONS + ('organization_application_authority','guard_organization_application_write','guard_organization_application_statement','require_organization_application_change','configure_organization_application','organization_application_configuration_outcome')
 
 def _sql(revision='access_0004'):
+    if revision == 'access_0010':revision = 'access_0009'
     if revision == 'access_0009':
         path=Path(__file__).parent/'versions/0009_organization_application_configure.py'
         spec=importlib.util.spec_from_file_location('_access_configure_ddl',path)
@@ -60,6 +61,7 @@ def _sql(revision='access_0004'):
 
 
 def verify_registration(connection,revision='access_0004'):
+    if revision == 'access_0010':revision = 'access_0009'
     if revision == 'access_0008':revision = 'access_0007'
     verify_operator_roles(connection)
     from access_registration_catalog import TABLE_CATALOG,FUNCTION_CATALOG

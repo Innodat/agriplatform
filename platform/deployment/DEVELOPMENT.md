@@ -1922,3 +1922,15 @@ Private preparation/--all are single-use; --verify-retained is read-only. Use fr
 namespaces after failure/source changes, preserving prior frames and data. This does not
 deliver grants, ACCESS-B, effective admission or PtS/KDG activation. No real target,
 production migration, provisioning, deployment, pilot, reset/prune or push is authorized.
+
+
+### Staged Access grant lifecycle storage — 2026-10-22
+
+Use the existing controlled Access migration owner to stage Access0010; no startup
+migration or runtime role elevation. Fresh private synthetic fixture preparation and
+qualification are single-use; source changes/failures require fresh namespaces, with
+prior frames preserved. Independent --verify-retained performs read-only inspection.
+The new fields do not authorize adoption, grants or effective consumer activation.
+See [owner evidence](../../services/access/GRANT_LIFECYCLE_STORAGE_EVIDENCE.md) for actual
+commands/results, previous9 preservation and source/log custody. Do not reset/prune
+resources or treat retained historical proof as qualification of changed source.

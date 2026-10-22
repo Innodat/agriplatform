@@ -673,3 +673,23 @@ and organization/account/permission target and this payload instead:
 The expected revision identifies the retained grant state; a new current membership may
 only be bound by a later explicit verified command. No parsed input enables this write.
 See [input evidence](../../../../services/access/GRANT_ASSIGN_INPUT_EVIDENCE.md).
+
+
+## Staged organization grant lifecycle storage — 2026-10-22
+
+Access0010 additively stages organization-only scope and positive revision (defaults
+organization/1), nullable revoked_at, created_actor_id, updated_actor_id and updated_at.
+New optional actors reject nil and new optional times reject infinity; null means
+unverified retained history. Original IDs/keys/creation values/defaults, membership
+binding, three-PtS permission CHECK, forced RLS and ACLs stay intact. No data adoption,
+actor verification, permission FK, effective-row CHECK, revision automation, protected
+command writer or effective access reader is delivered here. Existing legacy owner
+writes remain compatible. Scope/revision fields alone never establish current authority.
+
+Controlled migrations retain exact1–9 recognition and add exact10; current Identity19
+verification selects10 from fixed pg_attribute metadata then verifies its full catalog
+without Access business-table reads. Source/ACL/history drift blocks activation without
+normalization. Release recovery remains explicit and forward; no startup migration or
+automatic reversal. See [storage evidence](../../../../services/access/GRANT_LIFECYCLE_STORAGE_EVIDENCE.md).
+Remaining registry/adoption, verified member binding, command evidence and consumer gates
+must complete before removing old permission protections or activating KDG/PtS access.

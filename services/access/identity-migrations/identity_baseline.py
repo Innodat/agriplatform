@@ -708,7 +708,7 @@ TARGET_ROLE_QUERIES = {
 
 
 def verified_access_command_extension(connection):
-    """Recognize only the explicitly prepared Access0004/5/6/7/8 recipient bundle.
+    """Recognize only the explicitly prepared Access0004/5/6/7/8/9/10 recipient bundle.
 
     Metadata validation grants Identity no Access reads or role assumption. Existing
     immutable Identity references continue describing Identity's own privileges.
@@ -734,7 +734,8 @@ def verified_access_command_extension(connection):
             enablement_installed=bool(connection.execute(text("SELECT EXISTS(SELECT 1 FROM pg_proc p JOIN pg_namespace n ON n.oid=p.pronamespace WHERE n.nspname='access' AND p.proname='set_application_enabled')")).scalar_one())
             storage_installed=bool(connection.execute(text("SELECT EXISTS(SELECT 1 FROM pg_class c JOIN pg_namespace n ON n.oid=c.relnamespace WHERE n.nspname='access' AND c.relname='organization_applications')")).scalar_one())
             configure_installed=bool(connection.execute(text("SELECT EXISTS(SELECT 1 FROM pg_proc p JOIN pg_namespace n ON n.oid=p.pronamespace WHERE n.nspname='access' AND p.proname='configure_organization_application')")).scalar_one())
-            access_catalog.verify_catalog(connection,'access_0009' if configure_installed else 'access_0008' if storage_installed else 'access_0007' if enablement_installed else 'access_0006' if entry_installed else 'access_0005' if permission_installed else 'access_0004')
+            grant_storage_installed=bool(connection.execute(text("SELECT EXISTS(SELECT 1 FROM pg_attribute a WHERE a.attrelid=(SELECT c.oid FROM pg_class c JOIN pg_namespace n ON n.oid=c.relnamespace WHERE n.nspname='access' AND c.relname='grants') AND a.attname='revision' AND a.attnum>0 AND NOT a.attisdropped)")).scalar_one())
+            access_catalog.verify_catalog(connection,'access_0010' if grant_storage_installed else 'access_0009' if configure_installed else 'access_0008' if storage_installed else 'access_0007' if enablement_installed else 'access_0006' if entry_installed else 'access_0005' if permission_installed else 'access_0004')
             access_catalog.require_equal(access_catalog.rows(connection,"SELECT pg_get_userbyid(nspowner) FROM pg_namespace WHERE nspname='access'"),[('access_migrator',)])
             access_catalog.require_equal(access_catalog.acl(connection,"(SELECT oid FROM pg_namespace WHERE nspname='access')",'n'),
                 access_catalog.owner_acl(['USAGE','CREATE'])+ [('access_migrator',r,'USAGE',False) for r in ('access_runtime','access_operator','access_operator_authority_owner','access_command_owner')])

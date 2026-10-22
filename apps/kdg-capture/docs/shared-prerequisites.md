@@ -442,3 +442,29 @@ Final oneshot review complete: six documentation/verification findings patched, 
 deferred.234 focused and1434 affected regression tests plus both composition checks
 pass.109 current source bindings match;50 protected sources and all concurrent bytes
 remain preserved. No native startup or additional runtime readiness claim.
+
+
+### Staged organization grant lifecycle storage — 2026-10-22
+
+Access0010 adds organization scope, revision and nullable revocation/actor/update fields
+without backfill, preserving original grant IDs/values/creation attribution, membership,
+legacy permission CHECK, owner writers, forced RLS and ACLs. Null attribution remains
+unverified history. It does not verify targets, execute assignments or activate access.
+See [owner evidence](../../../services/access/GRANT_LIFECYCLE_STORAGE_EVIDENCE.md) and
+[runbook](../../../services/access/GRANT-LIFECYCLE-STORAGE.md).
+
+Three review lenses complete: eight confirmed findings patched, one disproved, no new
+deferral. Fresh23-group native proof, separate retained inspection, independent runtime
+reads,1446 affected tests and both composers pass.164 source bindings/32 generated-log
+digests match;79 baseline source files independently match Git. All historical resources,
+data/receipts,51 protected sources and concurrent work remain preserved. Private-bootstrap
+portability stays an existing follow-up, not portable CI readiness.
+
+Next deliver exact Identity pre-grant account/member verification and protected Access
+assignment through existing owner contracts. Registry adoption/permission FK/final
+active-row guards, membership-bound readers, ACCESS-B and coordinated PtS/KDG activation
+remain gates. Existing v1 does not become safe for real rejoin/grant activation merely
+because these fields exist. No real-target, production/deployment/pilot, Leave/editor,
+reset/prune or push follows from this synthetic item.
+
+The native run stopped normally with data/volumes/receipts retained; no reset/prune.
