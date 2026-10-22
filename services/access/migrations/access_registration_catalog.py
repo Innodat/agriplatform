@@ -577,3 +577,30 @@ def configure_catalog():
     functions['configure_organization_application']=[('p_operation uuid, p_org uuid, p_app text, p_enabled boolean, p_absent boolean, p_revision text, p_reason text, p_evidence text, p_canonical bytea',*functions['register_application'][0][1:])]
     functions['organization_application_configuration_outcome']=[('p_operation uuid, p_org uuid, p_app text',*functions['application_registration_outcome'][0][1:])]
     return tables,functions
+
+
+def grant_assignment_catalog():
+    """Revision13 only; historical configure expectations remain exact and independent."""
+    from copy import deepcopy
+    tables,functions=configure_catalog()
+    for table in tables.values():
+        table['constraints']=[(n,t,d.replace("'organization_application.configure'::text]", "'organization_application.configure'::text, 'grant.assign'::text]").replace("'access.organization_application_changed'::text]", "'access.organization_application_changed'::text, 'access.organization_grant_assigned'::text]"),a,b,c) for n,t,d,a,b,c in table['constraints']]
+    for table,command,scope,literals in (
+        ('operator_authorities','command','org_id',('organization_application.configure','grant.assign')),
+        ('operation_outcome','command_type','scope_id',('organization_application.configure','grant.assign')),
+        ('business_event','event_type','scope_id',('access.organization_application_changed','access.organization_grant_assigned'))):
+        values=', '.join("'"+v+"'::text" for v in literals)
+        definition=f"CHECK (((({command} = ANY (ARRAY[{values}])) AND (scope_kind = 'organization'::text) AND ({scope} IS NOT NULL) AND ({scope} <> '00000000-0000-0000-0000-000000000000'::uuid)) OR (({command} <> ALL (ARRAY[{values}])) AND (scope_kind = 'platform'::text) AND ({scope} IS NULL))))"
+        tables[table]['constraints']=[(n,t,definition if n==table+'_scope_kind_check' else d,a,b,c) for n,t,d,a,b,c in tables[table]['constraints']]
+    definition="CHECK (((target_account_id IS NULL) OR ((command = 'grant.assign'::text) AND (target_account_id <> '00000000-0000-0000-0000-000000000000'::uuid))))"
+    tables['operator_authorities']['constraints']=[(n,t,definition if n=='operator_authorities_target_account_id_check' else d,a,b,c) for n,t,d,a,b,c in tables['operator_authorities']['constraints']]
+    tables['operation_outcome']['columns'] += [
+        ('verified_membership_revision','bigint',False,'','',None,'-'),
+        ('verified_account_actor_id','uuid',False,'','',None,'-'),
+        ('target_observed_at','timestamp with time zone',False,'','',None,'-')]
+    functions['grant_assignment_authority']=[('p_org uuid, p_app text, p_account uuid','uuid','f',False,0,100.0,0.0,'-')]
+    for name in ('guard_grant_write','guard_grant_statement','require_grant_change'):
+        functions[name]=deepcopy(functions['guard_command_evidence'])
+    functions['assign_organization_grant']=[('p_operation uuid, p_org uuid, p_account uuid, p_member bigint, p_permission text, p_absent boolean, p_revision text, p_reason text, p_evidence text, p_canonical bytea',*functions['register_application'][0][1:])]
+    functions['organization_grant_assignment_outcome']=[('p_operation uuid, p_org uuid, p_account uuid, p_member bigint, p_permission text',*functions['application_registration_outcome'][0][1:])]
+    return tables,functions

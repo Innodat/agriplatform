@@ -1,4 +1,4 @@
-"""Organization grant assignment is typed input, with execution still closed."""
+"""Organization grant assignment input stays strict; Identity execution stays closed."""
 from dataclasses import FrozenInstanceError, fields
 import json
 from pathlib import Path
@@ -128,7 +128,7 @@ def test_shared_strict_decoder_envelope_and_provenance(variant, monkeypatch):
 
 
 @pytest.mark.parametrize('variant', ['create', 'update'])
-def test_execution_and_lookup_refuse_before_all_effects(variant, tmp_path, monkeypatch, capsys):
+def test_identity_execution_and_incomplete_access_lookup_refuse_before_effects(variant, tmp_path, monkeypatch, capsys):
     import access_operator as access
     import identity_operator as identity
     import operator_cli as cli
@@ -143,9 +143,6 @@ def test_execution_and_lookup_refuse_before_all_effects(variant, tmp_path, monke
     monkeypatch.setattr(cli, 'load_target', trap)
     monkeypatch.setattr(cli, '_connection', trap)
     monkeypatch.setattr(cli, 'dispatch', trap)
-    with pytest.raises(access.OperatorError) as caught:
-        access.execute(Trap(), raw)
-    shared.assert_safe_refusal(caught.value, 'command_unsupported')
     for adapter in (access, identity):
         outcome_kwargs = {'app_id':'fixture_app'} if adapter is access else {}
         with pytest.raises(adapter.OperatorError) as caught:
@@ -161,13 +158,12 @@ def test_execution_and_lookup_refuse_before_all_effects(variant, tmp_path, monke
     assert type(caught.value) is ValueError and caught.value.args == ()
     assert caught.value.__context__ is None and caught.value.__cause__ is None
     for worker in (cli.access_worker, cli.worker):
-        with pytest.raises(ValueError) as caught:
-            worker(['execute', 'unused', raw.decode(), shared.UUID, 'access'])
-        assert type(caught.value) is ValueError and caught.value.args == ()
-        assert caught.value.__context__ is None and caught.value.__cause__ is None
-        with pytest.raises(ValueError) as caught:
-            worker(['outcome', 'unused', dict(command=NAME, org_id=ORG, account_id=ACCOUNT, membership_id='1', permission='fixture.read:*'), shared.UUID, 'access'])
-        assert caught.value.args == () and caught.value.__context__ is None
+        for invalid in (dict(command=NAME, org_id=ORG, account_id=ACCOUNT, permission='p'),
+                        dict(command=NAME, org_id=ORG, account_id=ACCOUNT, membership_id='0', permission='p'),
+                        dict(command=NAME, org_id=ORG, account_id=ACCOUNT, membership_id='1', permission='p', app_id='fixture_app')):
+            with pytest.raises(ValueError) as caught:
+                worker(['outcome','unused',invalid,shared.UUID,'access'])
+            assert caught.value.args == () and caught.value.__context__ is None
     for owner in ('access', 'identity'):
         assert cli.main(['outcome', '--owner', owner, '--target', 'unused', '--command', NAME, '--operation-id', shared.UUID,
                          *(['--app-id', 'fixture_app'] if owner == 'access' else [])]) == 2

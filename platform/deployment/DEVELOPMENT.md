@@ -1992,3 +1992,23 @@ No protected grant execution, effective reader or PtS account cutover is deliver
 
 Final regression1484 PASS48.67s; both composition checks exit0. Native run stopped
 normally with data/volumes/receipts retained; concurrent work preserved. No reset/prune.
+
+
+### Protected organization assignment qualification —2026-10-22
+
+Access0013 adds protected `grant.assign` to the existing controlled migration/operator
+route. Use fresh single-use synthetic namespaces and exact account/member recovery
+selectors. Preserve failed frames; source changes require fresh custody, not replacement
+receipts. [Owner evidence](../../services/access/GRANT_ASSIGN_EVIDENCE.md) records exact
+commands/results and [runbook](../../services/access/GRANT-ASSIGN.md) describes bounded
+observation, authority, concurrency, rollback/forward recovery and previous-client checks.
+Preparation does not activate app access. No production migration, real access, deployment,
+reset/prune or resource cleanup follows. Private bootstrap portability and complete logical
+restore remain existing limitations. Protected revocation/readers are subsequent items.
+
+
+Final reviewed assignment evidence:1519 affected tests PASS,13 native stages and separate
+read-only retained inspection PASS; both composition checks exit0. Three review lenses
+completed with direct verification/doc corrections and no deferral. Root source/log/state
+custody audit passed; normal local stop retained data/volumes/receipts and older frames.
+Concurrent work and immutable history remain preserved. See owner evidence above.

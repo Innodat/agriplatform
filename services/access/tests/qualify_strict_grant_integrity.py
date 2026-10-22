@@ -39,7 +39,8 @@ def source_snapshot(proof):
 
 
 class Qualification(bridge.Qualification):
-    migrate=storage.Qualification.migrate
+    def migrate(self,case,head='access_0012',success=True):
+        return storage.Qualification.migrate(self,case,'access_0012' if head=='head' else head,success)
     def prepare_cases(self):
         for case in CASES:
             self.migrate(case,'access_0011' if case in ('upgrade','refusal','failure','locks') else 'head')

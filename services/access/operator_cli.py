@@ -44,7 +44,7 @@ def _receipt(value, operation_id, command='actor.register_system'):
     if type(result) is not dict or set(result) != {'command','target','disposition','revision','event_id'} or result['command'] != command:
         raise ValueError()
     # Reuse the protected adapter's typed stored-result validator.
-    (access_operator if command in ('application.register','permission.register','entry_permission.register','application.set_enabled','organization_application.configure') else adapter)._receipt(({k:v for k,v in result.items() if k != 'command'}, 1, 1, instant), operation_id, command)
+    (access_operator if command in ('application.register','permission.register','entry_permission.register','application.set_enabled','organization_application.configure','grant.assign') else adapter)._receipt(({k:v for k,v in result.items() if k != 'command'}, 1, 1, instant), operation_id, command)
     return value
 
 
@@ -213,6 +213,14 @@ def _identity_main(argv=None):
     return status
 
 
+def _grant_outcome_context(value):
+    if type(value) is not dict or set(value) != {'command','org_id','account_id','membership_id','permission'} or value['command'] != 'grant.assign':
+        raise ValueError()
+    if not access_operator._positive_decimal(value['membership_id']) or not access_operator.valid_permission(value['permission']):
+        raise ValueError()
+    return value | dict(org_id=_uuid(value['org_id']),account_id=_uuid(value['account_id']))
+
+
 def access_worker(request):
     action,path,value,operation_id,owner = request
     if owner != 'access':
@@ -221,9 +229,11 @@ def access_worker(request):
     if action == 'execute':
         body = value.encode('utf-8')
         command = access_operator_input.parse_command(body)
-        if not isinstance(command,(access_operator_input.RegisterApplicationCommand,access_operator_input.RegisterPermissionCommand,access_operator_input.RegisterEntryPermissionCommand,access_operator_input.SetApplicationEnabledCommand,access_operator_input.ConfigureOrganizationApplicationCommand)) or _uuid(command.operation_id) != operation_id:
+        if not isinstance(command,(access_operator_input.RegisterApplicationCommand,access_operator_input.RegisterPermissionCommand,access_operator_input.RegisterEntryPermissionCommand,access_operator_input.SetApplicationEnabledCommand,access_operator_input.ConfigureOrganizationApplicationCommand,access_operator_input.AssignGrantCommand)) or _uuid(command.operation_id) != operation_id:
             raise ValueError()
         context = None
+    elif action == 'outcome' and type(value) is dict and value.get('command') == 'grant.assign':
+        context = _grant_outcome_context(value)
     elif action == 'outcome' and type(value) is dict and value.get('command') in ('application.register','permission.register','entry_permission.register','application.set_enabled','organization_application.configure') and set(value) == ({'command','app_id','permission'} if value['command'] in ('permission.register','entry_permission.register') else {'command','app_id','org_id'} if value['command']=='organization_application.configure' else {'command','app_id'}):
         if type(value['app_id']) is not str or access_operator_input._APP_ID.fullmatch(value['app_id']) is None:
             raise ValueError()
@@ -263,38 +273,54 @@ def _access_main(argv):
         parser.add_argument('--app-id')
         parser.add_argument('--permission')
         parser.add_argument('--org-id')
+        parser.add_argument('--account-id')
+        parser.add_argument('--membership-id')
         flags = [item.split('=',1)[0] if item.startswith('--permission=') else item for item in argv if item.startswith('--')]
         if len(flags) != len(set(flags)) or any('=' in item for item in flags):
             raise ValueError()
         args = parser.parse_args(argv)
         if args.action == 'execute':
-            if args.command_file is None or any(v is not None for v in (args.command,args.operation_id,args.app_id,args.permission,args.org_id)):
+            if args.command_file is None or any(v is not None for v in (args.command,args.operation_id,args.app_id,args.permission,args.org_id,args.account_id,args.membership_id)):
                 raise ValueError()
             body = dev.read(Path(os.path.abspath(args.command_file)))
             command = access_operator_input.parse_command(body)
             operation_id = _uuid(command.operation_id)
-            if not isinstance(command,(access_operator_input.RegisterApplicationCommand,access_operator_input.RegisterPermissionCommand,access_operator_input.RegisterEntryPermissionCommand,access_operator_input.SetApplicationEnabledCommand,access_operator_input.ConfigureOrganizationApplicationCommand)):
+            if not isinstance(command,(access_operator_input.RegisterApplicationCommand,access_operator_input.RegisterPermissionCommand,access_operator_input.RegisterEntryPermissionCommand,access_operator_input.SetApplicationEnabledCommand,access_operator_input.ConfigureOrganizationApplicationCommand,access_operator_input.AssignGrantCommand)):
                 raise adapter.OperatorError('command_unsupported',operation_id)
             value = body.decode('utf-8')
-            expected = {'app_id':command.payload.app_id}
-            if command.command in ('permission.register','entry_permission.register'):expected['permission']=command.payload.permission
-            if command.command=='organization_application.configure':expected['org_id']=_uuid(command.scope.org_id)
+            if command.command == 'grant.assign':
+                expected = dict(org_id=_uuid(command.scope.org_id),account_id=_uuid(command.payload.account_id),
+                    membership_id=command.payload.membership_id,permission=command.payload.permission)
+            else:
+                expected = {'app_id':command.payload.app_id}
+                if command.command in ('permission.register','entry_permission.register'):expected['permission']=command.payload.permission
+                if command.command=='organization_application.configure':expected['org_id']=_uuid(command.scope.org_id)
             command_name=command.command
         else:
-            if args.command_file is not None or args.command not in ('application.register','permission.register','entry_permission.register','application.set_enabled','organization_application.configure') or type(args.app_id) is not str or access_operator_input._APP_ID.fullmatch(args.app_id) is None:
+            if args.command_file is not None:
                 raise ValueError()
-            if (not access_operator.valid_permission(args.permission) if args.command in ('permission.register','entry_permission.register') else args.permission is not None):
-                raise ValueError()
-            if args.command=='organization_application.configure':
-                org_id=_uuid(args.org_id)
-            elif args.org_id is not None:
-                raise ValueError()
-            operation_id = _uuid(args.operation_id)
-            command_name=args.command
-            value = dict(command=args.command,app_id=args.app_id)
-            if args.command in ('permission.register','entry_permission.register'):value['permission']=args.permission
-            if args.command=='organization_application.configure':value['org_id']=org_id
+            command_name = args.command
+            if args.command == 'grant.assign':
+                if args.app_id is not None:
+                    raise ValueError()
+                value = _grant_outcome_context(dict(command=args.command,org_id=args.org_id,
+                    account_id=args.account_id,membership_id=args.membership_id,permission=args.permission))
+            else:
+                if args.command not in ('application.register','permission.register','entry_permission.register','application.set_enabled','organization_application.configure') or type(args.app_id) is not str or access_operator_input._APP_ID.fullmatch(args.app_id) is None:
+                    raise ValueError()
+                if args.account_id is not None or args.membership_id is not None:
+                    raise ValueError()
+                if (not access_operator.valid_permission(args.permission) if args.command in ('permission.register','entry_permission.register') else args.permission is not None):
+                    raise ValueError()
+                if args.command=='organization_application.configure':
+                    org_id=_uuid(args.org_id)
+                elif args.org_id is not None:
+                    raise ValueError()
+                value = dict(command=args.command,app_id=args.app_id)
+                if args.command in ('permission.register','entry_permission.register'):value['permission']=args.permission
+                if args.command=='organization_application.configure':value['org_id']=org_id
             expected = {k:v for k,v in value.items() if k != 'command'}
+            operation_id = _uuid(args.operation_id)
         target = load_target(args.target,owner='access')
         request = [args.action,str(target.path),value,operation_id,'access']
         try:

@@ -9,7 +9,7 @@ from uuid import UUID
 import rfc8785
 from sqlalchemy import text
 from identity_operator import OperatorError
-from access_operator_input import parse_command, RegisterApplicationCommand, RegisterPermissionCommand, RegisterEntryPermissionCommand, SetApplicationEnabledCommand, ConfigureOrganizationApplicationCommand
+from access_operator_input import parse_command, RegisterApplicationCommand, RegisterPermissionCommand, RegisterEntryPermissionCommand, SetApplicationEnabledCommand, ConfigureOrganizationApplicationCommand, AssignGrantCommand
 
 @dataclass(frozen=True)
 class ApplicationTarget:
@@ -45,6 +45,22 @@ class ConfigureOrganizationApplicationResult:
     event_id: str | None
 
 @dataclass(frozen=True)
+class OrganizationGrantTarget:
+    grant_id: str
+    account_id: str
+    permission: str
+    org_id: str
+    membership_id: str
+
+@dataclass(frozen=True)
+class AssignGrantResult:
+    command: Literal['grant.assign']
+    target: OrganizationGrantTarget
+    disposition: Literal['created', 'changed', 'unchanged']
+    revision: str
+    event_id: str | None
+
+@dataclass(frozen=True)
 class PermissionTarget:
     app_id: str
     permission: str
@@ -73,7 +89,7 @@ def valid_permission(value):
 @dataclass(frozen=True)
 class Receipt:
     operation_id: str
-    result: ConfigureOrganizationApplicationResult | SetApplicationEnabledResult | RegisterApplicationResult | RegisterPermissionResult | RegisterEntryPermissionResult
+    result: AssignGrantResult | ConfigureOrganizationApplicationResult | SetApplicationEnabledResult | RegisterApplicationResult | RegisterPermissionResult | RegisterEntryPermissionResult
     command_version: int
     result_version: int
     committed_at: datetime
@@ -85,6 +101,8 @@ def canonical_command(command):
     value['operation_id'] = str(UUID(value['operation_id']))
     if value['scope']['kind'] == 'organization':
         value['scope']['org_id'] = str(UUID(value['scope']['org_id']))
+    if isinstance(command, AssignGrantCommand):
+        value['payload']['account_id'] = str(UUID(value['payload']['account_id']))
     return rfc8785.dumps(value)
 
 
@@ -96,9 +114,43 @@ def command_outcome_lock_key(executor_actor_id, command):
     return int.from_bytes(sha256(canonical).digest()[:8], 'big', signed=True)
 
 
+def _positive_decimal(value):
+    return (type(value) is str and re.fullmatch(r'[1-9][0-9]{0,18}',value) is not None
+        and int(value) <= 9223372036854775807)
+
+
+def _canonical_uuid(value):
+    return type(value) is str and UUID(value).int != 0 and str(UUID(value)) == value
+
+
+def _grant_receipt(row, operation_id):
+    valid = False
+    try:
+        result,cv,rv,instant = row
+        target = result['target']
+        valid = (type(cv) is int and cv == 1 and type(rv) is int and rv == 1
+            and type(result) is dict and set(result) == {'target','disposition','revision','event_id'}
+            and type(target) is dict and set(target) == {'grant_id','account_id','permission','org_id','membership_id'}
+            and type(target['grant_id']) is str and '\x00' not in target['grant_id']
+            and _canonical_uuid(target['account_id']) and _canonical_uuid(target['org_id'])
+            and _positive_decimal(target['membership_id']) and valid_permission(target['permission'])
+            and _positive_decimal(result['revision']) and isinstance(instant,datetime) and instant.tzinfo is not None)
+        disposition,event,revision = result['disposition'],result['event_id'],result['revision']
+        valid = valid and ((disposition == 'created' and revision == '1' and _canonical_uuid(target['grant_id']) and _canonical_uuid(event))
+            or (disposition == 'changed' and int(revision) > 1 and _canonical_uuid(event))
+            or (disposition == 'unchanged' and event is None))
+    except (ValueError,TypeError,AttributeError,KeyError):
+        valid = False
+    if not valid:
+        raise OperatorError('operation_verification_unavailable',operation_id)
+    return Receipt(operation_id,AssignGrantResult('grant.assign',OrganizationGrantTarget(**target),disposition,revision,event),1,1,instant)
+
+
 def _receipt(row, operation_id, command='application.register'):
     if row is None:
         return None
+    if command == 'grant.assign':
+        return _grant_receipt(row,operation_id)
     valid = False
     try:
         result, cv, rv, instant = row
@@ -194,6 +246,13 @@ def execute(connection, body: bytes):
     deadline = time.monotonic() + 10
     command = parse_command(body)
     operation_id = str(UUID(command.operation_id))
+    if isinstance(command,AssignGrantCommand):
+        return _run(connection,operation_id,
+            'SELECT * FROM access.assign_organization_grant(CAST(:operation AS uuid),CAST(:org AS uuid),CAST(:account AS uuid),CAST(:member AS bigint),:permission,:absent,:revision,:reason,:evidence,:canonical)',
+            dict(operation=operation_id,org=str(UUID(command.scope.org_id)),account=str(UUID(command.payload.account_id)),
+                member=command.payload.membership_id,permission=command.payload.permission,
+                absent=getattr(command.payload,'expected_absent',False),revision=getattr(command.payload,'expected_revision',None),
+                reason=command.reason_code,evidence=command.evidence_ref,canonical=canonical_command(command)),deadline,command.command)
     if isinstance(command,ConfigureOrganizationApplicationCommand):
         return _run(connection,operation_id,
             'SELECT * FROM access.configure_organization_application(CAST(:operation AS uuid),CAST(:org AS uuid),:app,:enabled,:absent,:revision,:reason,:evidence,:canonical)',
@@ -223,7 +282,25 @@ def execute(connection, body: bytes):
             evidence=command.evidence_ref,canonical=canonical_command(command)),deadline,'application.register')
 
 
-def outcome(connection, operation_id, *, command='application.register', app_id=None, permission=None, org_id=None):
+def outcome(connection, operation_id, *, command='application.register', app_id=None, permission=None, org_id=None, account_id=None, membership_id=None):
+    if command == 'grant.assign':
+        valid = False
+        try:
+            valid = (app_id is None and _canonical_uuid(str(UUID(operation_id))) and type(operation_id) is str
+                and str(UUID(operation_id)) == operation_id.lower() and type(org_id) is str and UUID(org_id).int != 0
+                and str(UUID(org_id)) == org_id.lower() and type(account_id) is str and UUID(account_id).int != 0
+                and str(UUID(account_id)) == account_id.lower() and _positive_decimal(membership_id) and valid_permission(permission))
+        except (ValueError,TypeError,AttributeError):
+            valid = False
+        if not valid:
+            raise OperatorError('command_invalid')
+        operation_id = str(UUID(operation_id))
+        return _run(connection,operation_id,
+            'SELECT * FROM access.organization_grant_assignment_outcome(CAST(:operation AS uuid),CAST(:org AS uuid),CAST(:account AS uuid),CAST(:member AS bigint),:permission)',
+            dict(operation=operation_id,org=str(UUID(org_id)),account=str(UUID(account_id)),member=membership_id,permission=permission),
+            time.monotonic()+10,command)
+    if account_id is not None or membership_id is not None:
+        raise OperatorError('command_invalid')
     invalid = False
     try:
         invalid = (command not in ('application.register','permission.register','entry_permission.register','application.set_enabled','organization_application.configure')

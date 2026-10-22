@@ -762,3 +762,26 @@ with current command/org/app/target authority, bounded Identity observation, exp
 state, server attribution/revision, atomic receipt/event and retry safeguards. PtS
 account access and coordinated reader/Content/corpus adoption remain gated; legacy
 writes are not a compatibility target. No real access or consumer activation follows.
+
+
+### Protected organization assignment increment —2026-10-22
+
+Access0013 delivers `grant.assign` via the existing owner command path: exact current
+command/org/app/account authority, Identity's existing bounded setup projection, expected
+absence/revision, membership-bound creation or deliberate regrant, server attribution,
+atomic receipt/event and exact recovery selectors. Preparation with disabled admission
+is supported; a receipt proves a historical binding, not current effective access.
+The deferred outcome guard rejects expired observations for changed and unchanged writes.
+Prior five-command clients and immutable migration history remain preserved.
+See [runbook](../../../../services/access/GRANT-ASSIGN.md) and
+[evidence](../../../../services/access/GRANT_ASSIGN_EVIDENCE.md). No new Identity privilege,
+generator, framework, shared UI or ADR is introduced. Protected revocation and effective
+readers/ACCESS-B remain subsequent work; PtS adopts account scope through coordinated
+consumer delivery. No consumer activation or real-account operation is implied.
+
+
+Final reviewed assignment evidence:1519 affected tests PASS,13 native stages and separate
+read-only retained inspection PASS; both composition checks exit0. Three review lenses
+completed with direct verification/doc corrections and no deferral. Root source/log/state
+custody audit passed; normal local stop retained data/volumes/receipts and older frames.
+Concurrent work and immutable history remain preserved. See owner evidence above.

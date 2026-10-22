@@ -1849,3 +1849,27 @@ remain separate. Final regression/normal stop and scoped commit are recorded in 
 
 Final regression1484 PASS48.67s; both composition checks exit0. Native run stopped
 normally with data/volumes/receipts retained; concurrent work preserved. No reset/prune.
+
+
+### Protected organization grant assignment —2026-10-22
+
+Access0013 implements `grant.assign` through the existing protected owner adapter/CLI.
+An authorized operator binds one registered organization capability to the exact verified
+account/membership, with expected state, server attribution, atomic receipt/event and
+bounded fresh Identity observation. Disabled admission permits preparation without
+activating access. Retirement/rejoin does not transfer the old binding automatically.
+See [runbook](../../../services/access/GRANT-ASSIGN.md) and
+[evidence](../../../services/access/GRANT_ASSIGN_EVIDENCE.md) for acceptance status.
+
+Next: protected organization grant revocation, then membership-safe effective readers
+and ACCESS-B/coordinated consumers. Account-scoped PtS storage/checks and Content/corpus
+adoption remain separate; legacy PtS writes impose no compatibility requirement.
+No real account/access, deployment, pilot, Leave/editor or resource cleanup is authorized.
+Existing owners, dependency baseline and concurrent planning work remain preserved.
+
+
+Final reviewed assignment evidence:1519 affected tests PASS,13 native stages and separate
+read-only retained inspection PASS; both composition checks exit0. Three review lenses
+completed with direct verification/doc corrections and no deferral. Root source/log/state
+custody audit passed; normal local stop retained data/volumes/receipts and older frames.
+Concurrent work and immutable history remain preserved. See owner evidence above.
