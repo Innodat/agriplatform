@@ -1,10 +1,11 @@
 # Owned corpus migration history
 
-Owned revision `scribeswell_0002` adds the
-[dormant writer-fence foundation](CORPUS_WRITER_FENCE.md). It retains the original
-adoption reference and verifies each supported starting revision before upgrading
-to the exact dormant head. Enforcement and ordinary binding-routine execution
-remain disabled; no production source/attempt rows are seeded. The baseline
+Owned head `scribeswell_0003` adds the
+[dormant transactional controller](CORPUS_CONTROLLER.md) after the
+[writer-fence foundation](CORPUS_WRITER_FENCE.md) in `scribeswell_0002`. It verifies
+the exact `scribeswell_0001`, `scribeswell_0002` or `scribeswell_0003` starting profile
+before upgrading to the dormant head. Enforcement stays
+false, routines remain owner-only and epoch/controller tables are empty. The baseline
 description below remains the prerequisite for initial adoption.
 
 Scribeswell's owned Alembic baseline adopts an existing, qualified corpus schema.
@@ -74,7 +75,11 @@ Native Alembic supplies the adapter's internal invocation and guarded local test
 production execution uses the bounded adapter through the host coordinator.
 Supported execution is upgrade to head, including replay validation.
 Stamp, downgrade, offline generation and unrelated commands are rejected. Replay
-checks the catalogue again rather than trusting a stored revision alone.
+checks the catalogue again rather than trusting a stored revision alone. Head
+replay deliberately requires false enforcement, empty epoch/bindings/controller
+tables and shipped owner-only ACLs. Fixture-only controller activity is not an
+approved active release profile; operational-state qualification and coordinated
+caller/importer transitions remain separate gates.
 
 ## Failure and recovery
 
@@ -118,13 +123,21 @@ to a fresh output path and compare it with the checked-in asset:
 reference_directory=$(mktemp -d)
 python apps/scribeswell/migrations/generate_reference.py --output "$reference_directory/reference.json"
 cmp apps/scribeswell/migrations/reference.json "$reference_directory/reference.json"
+python apps/scribeswell/migrations/generate_reference.py --head --output "$reference_directory/fence.json"
+cmp apps/scribeswell/migrations/reference-head.json "$reference_directory/fence.json"
+python apps/scribeswell/migrations/generate_reference.py --revision scribeswell_0003 --output "$reference_directory/controller.json"
+cmp apps/scribeswell/migrations/reference-controller.json "$reference_directory/controller.json"
 ```
 
 The default generator executes the pinned legacy SQL/bootstrap inputs in its new
 fixture, then performs test-only ownership preparation. With `--head`, it also
-applies the reviewed revision0002 DDL under the prepared owner; that source and
-its reference are covered by the release compatibility fingerprint. It accepts no existing target as the
-reference source and refuses existing output. A mismatch requires investigation
+applies the reviewed revision `scribeswell_0002` DDL under the prepared owner; that
+source and its reference are covered by the release compatibility fingerprint. Historical
+`--head` deliberately remains the `scribeswell_0002` reference selector. Explicit
+`--revision scribeswell_0003` applies `0002` then `0003` DDL and generates the separate
+controller reference; explicit `0001`/`0002` selectors are also supported. Original
+reference.json/reference-head.json are immutable revision profiles. It accepts no
+existing target as the reference source and refuses existing output. A mismatch requires investigation
 and explicit profile qualification; do not replace the reference to dismiss it.
 This baseline explicitly requires PostgreSQL 17 and rejects other server major
 versions before adoption. The migration

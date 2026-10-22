@@ -5,8 +5,10 @@ from pathlib import Path
 from catalogue import snapshot
 APP = Path(__file__).resolve().parents[1]
 LEGACY_REVISION = 'scribeswell_0001'
-REVISION = 'scribeswell_0002'
-SUPPORTED_REVISIONS = (LEGACY_REVISION, REVISION)
+FENCE_REVISION = 'scribeswell_0002'
+REVISION = 'scribeswell_0003'
+PROFILES = {LEGACY_REVISION: 'reference.json', FENCE_REVISION: 'reference-head.json', REVISION: 'reference-controller.json'}
+SUPPORTED_REVISIONS = tuple(PROFILES)
 PINS = {
  'supabase/migrations/20260614000000_scribeswell_create_schema.sql': 'b5140822e9655b933a98f17df8b7a7cb8424246991e168238ba736a319b511f0',
  'deployment/bootstrap/001_direct_database_roles.sql': 'd03e8e34227fe73d0572d74e9c799a76982ed6ec83a774fec86e2c757d54c66d',
@@ -86,8 +88,8 @@ def preflight(connection):
         raise BaselineError('scribeswell_cross_owner_authority')
     connection.exec_driver_sql("SELECT pg_advisory_xact_lock(hashtext('scribeswell-owned-migrations'))")
     state = ledger(connection)
-    head = state == REVISION
-    expected = json.loads((APP / ('migrations/reference-head.json' if head else 'migrations/reference.json')).read_text())
+    head = state in (FENCE_REVISION, REVISION)
+    expected = json.loads((APP / 'migrations' / PROFILES[state or LEGACY_REVISION]).read_text())
     if snapshot(connection, head=head) != expected:
         raise BaselineError('scribeswell_catalogue_mismatch')
     if head:
@@ -95,4 +97,8 @@ def preflight(connection):
             raise BaselineError('scribeswell_dormant_fence_required')
         if connection.exec_driver_sql('SELECT 1 FROM scribeswell.corpus_epoch UNION ALL SELECT 1 FROM scribeswell.corpus_write_binding').first():
             raise BaselineError('scribeswell_dormant_fence_required')
+    if state == REVISION:
+        for table in ('corpus_operator_principal','corpus_operator_authority','corpus_attempt','corpus_command_outcome'):
+            if connection.exec_driver_sql('SELECT 1 FROM scribeswell.' + table).first():
+                raise BaselineError('scribeswell_dormant_controller_required')
     return state

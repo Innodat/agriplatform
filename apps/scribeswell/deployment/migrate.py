@@ -33,7 +33,7 @@ def worker():
         result={'code':'scribeswell_migration_failed'}
         if config is not None and 'scribeswell_before' in config.attributes:
             before=config.attributes['scribeswell_before']
-            if before is None or before in ('scribeswell_0001','scribeswell_0002'):
+            if before is None or before in ('scribeswell_0001','scribeswell_0002','scribeswell_0003'):
                 result['before']=before
         sys.stdout.write(json.dumps(result))
         raise SystemExit(1) from None
@@ -76,10 +76,10 @@ def main(target=Path('/evidence/migrations.json'), *, environ=None, run=subproce
         if child.returncode:
             if (isinstance(result,dict) and set(result) <= {'code','before'}
                     and result.get('code')=='scribeswell_migration_failed' and 'before' in result
-                    and (result['before'] is None or result['before'] in ('scribeswell_0001','scribeswell_0002'))):
+                    and (result['before'] is None or result['before'] in ('scribeswell_0001','scribeswell_0002','scribeswell_0003'))):
                 entry['before']=result['before']
             raise RuntimeError
-        if set(result)!={'before','after'} or result['before'] not in (None,'scribeswell_0001','scribeswell_0002') or result['after']!='scribeswell_0002':
+        if set(result)!={'before','after'} or result['before'] not in (None,'scribeswell_0001','scribeswell_0002','scribeswell_0003') or result['after']!='scribeswell_0003':
             raise RuntimeError
         entry.update(status='succeeded',**result)
         report['complete']=True

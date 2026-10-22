@@ -352,7 +352,7 @@ def test_postvalidation_failure_rolls_back_created_ledger(prepared,monkeypatch):
     assert business_state(admin)==before
 
 
-@pytest.mark.parametrize('before',[None,'scribeswell_0001',REVISION])
+@pytest.mark.parametrize('before',[None,'scribeswell_0001','scribeswell_0002',REVISION])
 def test_failed_worker_preserves_valid_known_before(tmp_path,before):
     class Process:
         returncode=1
@@ -511,12 +511,76 @@ def test_post_ddl_failure_preserves_revision_one(prepared,monkeypatch):
     assert business_state(admin)==before
 
 
-@pytest.mark.parametrize('before',['scribeswell_0001','scribeswell_0002'])
-def test_adapter_supports_both_known_before_revisions(tmp_path,before):
+@pytest.mark.parametrize('before',['scribeswell_0001','scribeswell_0002',REVISION])
+def test_adapter_supports_all_known_before_revisions(tmp_path,before):
     class Process:
         returncode=0
         def __init__(self,*args,**kwargs):pass
-        def communicate(self,*args,**kwargs):return json.dumps({'before':before,'after':'scribeswell_0002'}),None
+        def communicate(self,*args,**kwargs):return json.dumps({'before':before,'after':REVISION}),None
         def poll(self):return 0
     result=load_adapter().main(tmp_path/'success.json',environ=VALID_ENV,run=Process)
-    assert result['owners']['scribeswell']=={'before':before,'after':'scribeswell_0002','status':'succeeded'}
+    assert result['owners']['scribeswell']=={'before':before,'after':REVISION,'status':'succeeded'}
+
+
+def establish_revision_two(admin):
+    establish_revision_one(admin)
+    spec = importlib.util.spec_from_file_location('old_fence', APP/'migrations/versions/0002_corpus_writer_fence.py')
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    with admin.transaction():
+        admin.execute('SET LOCAL ROLE scribeswell_migrator')
+        admin.execute(module.DDL)
+        admin.execute("UPDATE scribeswell.alembic_version SET version_num='scribeswell_0002'")
+
+
+def test_revision_two_profile_upgrade_and_rollback(prepared, monkeypatch):
+    from sqlalchemy import create_engine
+    from alembic import command
+    from alembic.config import Config
+    import baseline
+    admin,url=prepared
+    establish_revision_two(admin)
+    engine=create_engine(migration_url(url).replace('postgresql://','postgresql+psycopg://',1))
+    try:
+        with engine.begin() as connection:
+            connection.exec_driver_sql('SET LOCAL search_path=pg_catalog')
+            assert baseline.preflight(connection)=='scribeswell_0002'
+    finally: engine.dispose()
+    before=business_state(admin)
+    original=baseline.preflight
+    def injected(connection):
+        state=original(connection)
+        if state==REVISION:
+            assert connection.exec_driver_sql('SELECT count(*) FROM scribeswell.corpus_command_outcome').scalar()==0
+            raise baseline.BaselineError('controller_post_ddl_fault')
+        return state
+    with monkeypatch.context() as scoped:
+        scoped.setattr(baseline,'preflight',injected)
+        scoped.setenv('SCRIBESWELL_MIGRATION_DATABASE_URL',migration_url(url))
+        with pytest.raises(RuntimeError,match='controller_post_ddl_fault'):
+            command.upgrade(Config(str(APP/'alembic.ini')),'head')
+    assert admin.execute('SELECT * FROM scribeswell.alembic_version').fetchall()==[('scribeswell_0002',)]
+    assert admin.execute("SELECT to_regclass('scribeswell.corpus_command_outcome')").fetchone()==(None,)
+    assert business_state(admin)==before
+    assert invoke(url).returncode==0
+    assert invoke(url).returncode==0
+    assert business_state(admin)==before
+
+
+@pytest.mark.parametrize('change',[
+    'GRANT SELECT ON scribeswell.corpus_attempt TO scribeswell_runtime',
+    'GRANT EXECUTE ON FUNCTION scribeswell.execute_corpus_command(jsonb) TO scribeswell_import',
+    'ALTER FUNCTION scribeswell.lookup_corpus_command_outcome(jsonb) SECURITY INVOKER',
+    'ALTER FUNCTION scribeswell.validate_corpus_command(jsonb) SET search_path=public',
+    'ALTER TABLE scribeswell.corpus_attempt DISABLE TRIGGER corpus_record_protection',
+    'ALTER TABLE scribeswell.corpus_operator_authority DROP CONSTRAINT corpus_operator_authority_database_login_fkey',
+    "INSERT INTO scribeswell.corpus_operator_principal(database_login,enabled,revision,executor_actor_id,actor_kind,actor_key,preparation_evidence_ref,created_by_actor_id,updated_by_actor_id) VALUES('scribeswell_corpus_operator',false,1,'22222222-2222-4222-8222-222222222222','service','fixture.controller','fixture:identity','22222222-2222-4222-8222-222222222222','22222222-2222-4222-8222-222222222222')",
+])
+def test_controller_head_drift_blocks_replay(prepared,change):
+    admin,url=prepared
+    assert invoke(url).returncode==0
+    before=business_state(admin)
+    admin.execute(change)
+    assert invoke(url).returncode!=0
+    assert admin.execute('SELECT * FROM scribeswell.alembic_version').fetchall()==[(REVISION,)]
+    assert business_state(admin)==before

@@ -32,7 +32,7 @@ def prepared_fixture():
         identity=control.execute("SELECT current_user,session_user,current_setting('server_version_num')::int").fetchone()
         if identity[:2]!=('postgres','postgres') or not 170000<=identity[2]<180000:
             raise RuntimeError('fixture_postgres17_owner_required')
-        if control.execute('SELECT rolname FROM pg_roles WHERE rolname=ANY(%s)',(ROLES,)).fetchall():
+        if control.execute('SELECT rolname FROM pg_roles WHERE rolname=ANY(%s)',(ROLES + ['scribeswell_corpus_operator'],)).fetchall():
             raise RuntimeError('fixture_roles_must_be_absent')
         control.execute(sql.SQL('CREATE DATABASE {}').format(sql.Identifier(name)))
         try:
@@ -60,8 +60,13 @@ def prepared_fixture():
             for role in reversed(created):
                 control.execute(sql.SQL('DROP ROLE {}').format(sql.Identifier(role)))
 
-def generate(destination=None, *, head=False):
+def generate(destination=None, *, head=False, revision=None):
     import json
+    from baseline import LEGACY_REVISION,FENCE_REVISION,REVISION,PROFILES
+    selected = revision or (FENCE_REVISION if head else LEGACY_REVISION)
+    if selected not in PROFILES or (head and selected != FENCE_REVISION):
+        raise ValueError('scribeswell_reference_revision_invalid')
+    head = selected != LEGACY_REVISION
     with prepared_fixture() as (_,url):
         engine=create_engine(url.replace('postgresql://','postgresql+psycopg://',1))
         try:
@@ -69,15 +74,19 @@ def generate(destination=None, *, head=False):
                 connection.exec_driver_sql('SET LOCAL search_path=pg_catalog')
                 if head:
                     import importlib.util
-                    module_spec=importlib.util.spec_from_file_location('fence_revision',Path(__file__).with_name('versions')/'0002_corpus_writer_fence.py')
-                    module=importlib.util.module_from_spec(module_spec)
-                    module_spec.loader.exec_module(module)
                     connection.exec_driver_sql('SET LOCAL ROLE scribeswell_migrator')
-                    connection.exec_driver_sql(module.DDL)
+                    files = ['0002_corpus_writer_fence.py']
+                    if selected == REVISION:
+                        files.append('0003_corpus_controller.py')
+                    for filename in files:
+                        module_spec=importlib.util.spec_from_file_location('reference_revision',Path(__file__).with_name('versions')/filename)
+                        module=importlib.util.module_from_spec(module_spec)
+                        module_spec.loader.exec_module(module)
+                        connection.exec_driver_sql(module.DDL)
                 reference=snapshot(connection,head=head)
         finally:
             engine.dispose()
-    destination=Path(destination) if destination is not None else Path(__file__).with_name('reference-head.json' if head else 'reference.json')
+    destination=Path(destination) if destination is not None else Path(__file__).with_name(PROFILES[selected])
     with destination.open('x') as out:
         json.dump(reference,out,indent=2,ensure_ascii=False)
         out.write('\n')
@@ -87,5 +96,6 @@ if __name__=='__main__':
     parser=argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--output',type=Path)
     parser.add_argument('--head',action='store_true')
+    parser.add_argument('--revision',choices=('scribeswell_0001','scribeswell_0002','scribeswell_0003'))
     args=parser.parse_args()
-    generate(args.output,head=args.head)
+    generate(args.output,head=args.head,revision=args.revision)
