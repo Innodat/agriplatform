@@ -78,6 +78,15 @@ class UpdateGrantAssignmentPayload:
 
 
 @dataclass(frozen=True, repr=False)
+class GrantRevocationPayload:
+    grant_id: str
+    account_id: str
+    membership_id: str
+    permission: str
+    expected_revision: str
+
+
+@dataclass(frozen=True, repr=False)
 class RegisterApplicationCommand(_Envelope):
     scope: PlatformScope
     payload: RegisterApplicationPayload
@@ -119,7 +128,14 @@ class AssignGrantCommand(_Envelope):
     command: Literal['grant.assign'] = field(default='grant.assign', init=False)
 
 
-Command = RegisterApplicationCommand | RegisterPermissionCommand | RegisterEntryPermissionCommand | SetApplicationEnabledCommand | ConfigureOrganizationApplicationCommand | AssignGrantCommand
+@dataclass(frozen=True, repr=False)
+class RevokeGrantCommand(_Envelope):
+    scope: OrganizationScope
+    payload: GrantRevocationPayload
+    command: Literal['grant.revoke'] = field(default='grant.revoke', init=False)
+
+
+Command = RegisterApplicationCommand | RegisterPermissionCommand | RegisterEntryPermissionCommand | SetApplicationEnabledCommand | ConfigureOrganizationApplicationCommand | AssignGrantCommand | RevokeGrantCommand
 _APP_ID = re.compile(r'[a-z][a-z0-9_]{1,63}')
 
 
@@ -134,7 +150,20 @@ def _parse(body: bytes) -> Command:
         _require(type(evidence) is str and _EVIDENCE.fullmatch(evidence) is not None and '://' not in evidence)
     common = dict(schema_version=1, operation_id=operation_id, reason_code=reason, evidence_ref=evidence)
     name = doc['command']
-    _require(type(name) is str and name in ('application.register', 'permission.register', 'entry_permission.register', 'application.set_enabled', 'organization_application.configure', 'grant.assign'))
+    _require(type(name) is str and name in ('application.register', 'permission.register', 'entry_permission.register', 'application.set_enabled', 'organization_application.configure', 'grant.assign', 'grant.revoke'))
+    if name == 'grant.revoke':
+        scope = _object(doc['scope'], {'kind', 'org_id'})
+        _require(scope['kind'] == 'organization')
+        scope = OrganizationScope(_uuid(scope['org_id']))
+        payload = _object(doc['payload'], {'grant_id', 'account_id', 'membership_id', 'permission', 'expected_revision'})
+        grant_id = payload['grant_id']
+        _require(type(grant_id) is str)
+        account_id = _uuid(payload['account_id'])
+        membership_id = _decimal(payload['membership_id'])
+        permission = payload['permission']
+        _require(type(permission) is str and permission.isascii() and 1 <= len(permission) <= 200)
+        typed = GrantRevocationPayload(grant_id, account_id, membership_id, permission, _decimal(payload['expected_revision']))
+        return RevokeGrantCommand(**common, scope=scope, payload=typed)
     if name == 'grant.assign':
         scope = _object(doc['scope'], {'kind', 'org_id'})
         _require(scope['kind'] == 'organization')

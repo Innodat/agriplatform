@@ -1873,3 +1873,23 @@ read-only retained inspection PASS; both composition checks exit0. Three review 
 completed with direct verification/doc corrections and no deferral. Root source/log/state
 custody audit passed; normal local stop retained data/volumes/receipts and older frames.
 Concurrent work and immutable history remain preserved. See owner evidence above.
+
+
+### Strict organization grant revocation input —2026-10-22
+
+The next missing dependency after grant.assign is prepared: pure grant.revoke input
+with exact opaque grant ID, account, membership, permission and expected revision.
+Parsing is strict and representation-redacted; valid bodies remain unsupported before
+Access execution/CLI/worker target/connection/dispatch I/O, outcome invalid, Identity closed. No schema, runtime,
+resource, dependency or real-target change. See
+[evidence](../../../services/access/GRANT_REVOKE_INPUT_EVIDENCE.md).
+Next implement protected revocation against the exact original binding/revision,
+with current authority, server attribution and atomic receipt/event/retry safeguards;
+never select a replacement member. Readers, ACCESS-B and coordinated consumers remain
+gated. Existing approval limits, owner assignments and concurrent work are preserved.
+
+
+Revocation-input verification:130 focused and1649 affected tests PASS; both composition
+checks exit0. Configured oneshot review completed with direct test/evidence corrections,
+no deferral. All202 protected Access files and concurrent work remain preserved; durable
+receipts are in owner evidence. No native startup or runtime revocation is claimed.
