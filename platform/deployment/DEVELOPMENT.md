@@ -1934,3 +1934,19 @@ The new fields do not authorize adoption, grants or effective consumer activatio
 See [owner evidence](../../services/access/GRANT_LIFECYCLE_STORAGE_EVIDENCE.md) for actual
 commands/results, previous9 preservation and source/log custody. Do not reset/prune
 resources or treat retained historical proof as qualification of changed source.
+
+### Existing Identity pre-grant target proof — 2026-10-22
+
+The current-head qualification exercises the existing Identity point projection; it
+installs no production function, grant or migration. Prepare one fresh isolated database
+using the existing protected owner fixture tooling. Synthetic account mappings and
+membership lifecycle changes use existing Identity operator commands. Access point reads
+run in short read-only transactions with local trusted context; runtime/operator direct
+access stays denied. No real account/access operation is authorized by this proof.
+
+See [owner evidence](../../services/access/IDENTITY_PREGRANT_TARGET_EVIDENCE.md) and
+[runbook](../../services/access/IDENTITY-PREGRANT-TARGET.md). Preparation and --all are
+single-use; --verify-retained is read-only. Preserve failed/source-changed frames and
+use fresh namespaces, retain historical resources/data, and stop normally without reset
+or prune. Private bootstrap portability remains deferred. Protected grant execution and
+consumer activation require their own subsequent delivery evidence.

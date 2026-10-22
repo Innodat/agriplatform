@@ -693,3 +693,22 @@ normalization. Release recovery remains explicit and forward; no startup migrati
 automatic reversal. See [storage evidence](../../../../services/access/GRANT_LIFECYCLE_STORAGE_EVIDENCE.md).
 Remaining registry/adoption, verified member binding, command evidence and consumer gates
 must complete before removing old permission protections or activating KDG/PtS access.
+
+## Existing pre-grant account/member projection — 2026-10-22
+
+`identity.organization_account_target(uuid,bigint)` already exposes the exact five-value
+account/member/revision/actor/display-name projection to `access_command_owner`.
+Current consuming qualification targets Identity19/Access10; no new function, migration
+or privilege is required. Setup context permits an absent/empty caller account with
+trusted organization/service actor; existing valid user context remains supported.
+These settings are backend assertions, not command authority.
+
+The point read requires active organization/profile/membership and account-kind actor
+mapping. It requires no pre-existing grant, admission, person or employment, and does
+not perform live Auth verification. It never selects a replacement membership: after
+retirement/rejoin only the explicitly supplied new membership can match. Read observations
+do not lock membership or confer lasting authority. The later protected Access command
+must enforce its own current command authority, bounded observation and write safeguards.
+See [qualification evidence](../../../../services/access/IDENTITY_PREGRANT_TARGET_EVIDENCE.md).
+Registry adoption/final grant integrity, protected assignment, membership-bound effective
+readers, ACCESS-B and coordinated consumer activation remain separate gates.

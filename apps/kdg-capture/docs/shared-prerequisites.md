@@ -468,3 +468,32 @@ because these fields exist. No real-target, production/deployment/pilot, Leave/e
 reset/prune or push follows from this synthetic item.
 
 The native run stopped normally with data/volumes/receipts retained; no reset/prune.
+
+
+### Existing Identity pre-grant target dependency — 2026-10-22
+
+The existing `identity.organization_account_target(uuid,bigint)` already supplies exact
+account/member/revision/actor/display-name evidence to the Access command owner.
+Current-head consuming qualification adds no production function, migration or privilege.
+It exercises supported synthetic Identity ensure/join/retire/rejoin and actual restricted
+Access logins. Context remains a trusted backend assertion; the read grants no authority,
+checks no live Auth, and supplies no lasting membership guarantee.
+See [evidence](../../../services/access/IDENTITY_PREGRANT_TARGET_EVIDENCE.md) and
+[runbook](../../../services/access/IDENTITY-PREGRANT-TARGET.md).
+
+Next select the bounded protected assignment prerequisite from the owner contract.
+Registry adoption/permission FK/final active-row integrity, protected grant execution,
+membership-bound effective readers, ACCESS-B and coordinated PtS/KDG activation remain
+gates. Existing v1 is not safe for real rejoin/grant activation from this proof alone.
+No real account/access, production/deployment/pilot, Leave/editor, reset/prune or push.
+Private-bootstrap portability remains deferred; preserve historical frames/data and
+concurrent documents. The approved dependency baseline including TypeScript7.0.2 stays.
+
+
+Final reviewed proof passes all8 native groups and independent read-only retained
+inspection,13 focused safeguards,1459 affected regression tests and both composition
+modes. All123 source bindings and3 generated-log digests match. Three independent review
+lenses completed; seven findings patched, two low-value expansions rejected, no new
+deferral. All75 production sources and52 protected historical files remain unchanged.
+The native run stopped normally with data retained; concurrent work and earlier frames
+remain preserved. This completes consuming proof of the existing dependency only.
