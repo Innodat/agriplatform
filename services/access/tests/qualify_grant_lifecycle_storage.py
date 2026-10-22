@@ -113,6 +113,9 @@ def parameters(org=ORG1):
 
 
 class Qualification(prior.Qualification):
+    def migrate(self,case,head='access_0010',success=True):
+        # This historical proof retains its original target when current head advances.
+        return super().migrate(case,'access_0010' if head=='head' else head,success)
     def prepare_cases(self):
         for case in CASES:
             self.migrate(case,'access_0009' if case in ('upgrade','rollback') else 'head')

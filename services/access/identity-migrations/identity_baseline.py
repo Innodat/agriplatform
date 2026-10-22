@@ -708,7 +708,7 @@ TARGET_ROLE_QUERIES = {
 
 
 def verified_access_command_extension(connection):
-    """Recognize only the explicitly prepared Access0004/5/6/7/8/9/10/11 recipient bundle.
+    """Recognize only the explicitly prepared Access0004/5/6/7/8/9/10/11/12 recipient bundle.
 
     Metadata validation grants Identity no Access reads or role assumption. Existing
     immutable Identity references continue describing Identity's own privileges.
@@ -736,7 +736,8 @@ def verified_access_command_extension(connection):
             configure_installed=bool(connection.execute(text("SELECT EXISTS(SELECT 1 FROM pg_proc p JOIN pg_namespace n ON n.oid=p.pronamespace WHERE n.nspname='access' AND p.proname='configure_organization_application')")).scalar_one())
             grant_storage_installed=bool(connection.execute(text("SELECT EXISTS(SELECT 1 FROM pg_attribute a WHERE a.attrelid=(SELECT c.oid FROM pg_class c JOIN pg_namespace n ON n.oid=c.relnamespace WHERE n.nspname='access' AND c.relname='grants') AND a.attname='revision' AND a.attnum>0 AND NOT a.attisdropped)")).scalar_one())
             grant_bridge_installed=bool(connection.execute(text("SELECT EXISTS(SELECT 1 FROM pg_attribute a WHERE a.attrelid=(SELECT c.oid FROM pg_class c JOIN pg_namespace n ON n.oid=c.relnamespace WHERE n.nspname='access' AND c.relname='grants') AND a.attname='registry_permission' AND a.attgenerated='s' AND a.attnum>0 AND NOT a.attisdropped)")).scalar_one())
-            access_catalog.verify_catalog(connection,'access_0011' if grant_bridge_installed else 'access_0010' if grant_storage_installed else 'access_0009' if configure_installed else 'access_0008' if storage_installed else 'access_0007' if enablement_installed else 'access_0006' if entry_installed else 'access_0005' if permission_installed else 'access_0004')
+            grant_strict_installed=bool(connection.execute(text("SELECT EXISTS(SELECT 1 FROM pg_constraint k JOIN pg_class c ON c.oid=k.conrelid JOIN pg_namespace n ON n.oid=c.relnamespace JOIN pg_class p ON p.oid=k.confrelid JOIN pg_namespace pn ON pn.oid=p.relnamespace WHERE n.nspname='access' AND c.relname='grants' AND pn.nspname='access' AND p.relname='permissions' AND k.contype='f' AND k.conname='grants_permission_scope_fkey')")).scalar_one())
+            access_catalog.verify_catalog(connection,'access_0012' if grant_strict_installed else 'access_0011' if grant_bridge_installed else 'access_0010' if grant_storage_installed else 'access_0009' if configure_installed else 'access_0008' if storage_installed else 'access_0007' if enablement_installed else 'access_0006' if entry_installed else 'access_0005' if permission_installed else 'access_0004')
             access_catalog.require_equal(access_catalog.rows(connection,"SELECT pg_get_userbyid(nspowner) FROM pg_namespace WHERE nspname='access'"),[('access_migrator',)])
             access_catalog.require_equal(access_catalog.acl(connection,"(SELECT oid FROM pg_namespace WHERE nspname='access')",'n'),
                 access_catalog.owner_acl(['USAGE','CREATE'])+ [('access_migrator',r,'USAGE',False) for r in ('access_runtime','access_operator','access_operator_authority_owner','access_command_owner')])

@@ -1966,3 +1966,29 @@ See [owner evidence](../../services/access/GRANT_REGISTRY_BRIDGE_EVIDENCE.md) an
 changed frames and use fresh namespaces, retain historical data/resources, stop normally
 without reset/prune. Private bootstrap portability remains deferred. No real-target or
 deployment authorization follows from isolated qualification.
+
+
+### Strict organization grant integrity verified —2026-10-22
+
+PtS is unused and may upgrade to the target platform contract under ADR-0052. Legacy
+PtS organization writes are no longer a compatibility goal. Access0012 removes
+the temporary0011 discriminator and installs validated direct registry/global active-row
+integrity. Use the existing controlled owner route only; incompatible rows must refuse
+without adoption, deletion, startup migration or automatic reverse. Preserve exact11 on
+failure, inspect diagnostics and explicitly retry forward after authorized resolution.
+No production/real-target operation is authorized. Synthetic qualification uses fresh
+single-use namespaces and independent read-only retained inspection, keeping prior data,
+resources and receipts. Account/PtS/Content adoption remains coordinated subsequent work.
+
+
+Final reviewed synthetic proof passes15 recorded native stages and independent read-only
+retained inspection. See [owner evidence](../../services/access/STRICT_GRANT_INTEGRITY_EVIDENCE.md)
+and [runbook](../../services/access/STRICT-GRANT-INTEGRITY.md) for exact commands/custody.
+The physical slot14 fingerprint assumes the measured pinned native PostgreSQL catalog
+(including collation OID100). Full logical schema dump/recreate loses dropped slots and
+is not currently qualified/accepted; no manual catalog repair or backup/restore success
+is claimed. Only rollback/controlled forward retry recovery is proven by this item.
+No protected grant execution, effective reader or PtS account cutover is delivered.
+
+Final regression1484 PASS48.67s; both composition checks exit0. Native run stopped
+normally with data/volumes/receipts retained; concurrent work preserved. No reset/prune.

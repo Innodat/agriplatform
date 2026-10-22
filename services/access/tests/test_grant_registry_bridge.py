@@ -16,9 +16,9 @@ def migration():
 
 
 def test_exact_eleven_recognizes_all_retained_versions():
-    assert baseline.HEAD=='access_0011'
-    for i in range(1,12):assert baseline.validate_revision([f'access_{i:04}'])==f'access_{i:04}'
-    for values in ([],['access_0012'],['access_0010','access_0011']):
+    assert baseline.HEAD=='access_0012'
+    for i in range(1,13):assert baseline.validate_revision([f'access_{i:04}'])==f'access_{i:04}'
+    for values in ([],['access_0013'],['access_0010','access_0011']):
         with pytest.raises(baseline.BaselineError):baseline.validate_revision(values)
 
 
@@ -43,6 +43,7 @@ def test_identity_uses_schema_resolved_generated_metadata_then_full_catalog(monk
         def __init__(self,sql):self.sql=sql
         def all(self):return [('access_command_owner','access_migrator',False,'false','true')]
         def scalar_one(self):
+            if 'grants_permission_scope_fkey' in self.sql:return False
             if 'pg_attribute' in self.sql:return bridge if 'registry_permission' in self.sql else staged
             return True
     class Connection:

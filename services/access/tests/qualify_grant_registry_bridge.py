@@ -74,6 +74,9 @@ def canonical_trigger_rows(rows):
 
 
 class Qualification(storage.Qualification):
+    def migrate(self,case,head='access_0011',success=True):
+        # This historical proof retains its original target when current head advances.
+        return super().migrate(case,'access_0011' if head=='head' else head,success)
     admin=storage.Qualification.admin
     def snapshot(self,case):
         value=super().snapshot(case)

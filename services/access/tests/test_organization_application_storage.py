@@ -19,7 +19,7 @@ def migration():
 def test_eight_is_additive_and_prior_seven_remain_known():
     assert baseline.validate_revision(['access_0008'])=='access_0008'
     for i in range(1,9):assert baseline.validate_revision([f'access_000{i}'])==f'access_000{i}'
-    for values in ([],['access_0012'],['access_0007','access_0008']):
+    for values in ([],['access_0013'],['access_0007','access_0008']):
         with pytest.raises(baseline.BaselineError):baseline.validate_revision(values)
     assert registration._sql('access_0008')==registration._sql('access_0007')
 
@@ -43,7 +43,7 @@ def test_identity_selects_eight_using_only_metadata(monkeypatch):
     class Result:
         def __init__(self,sql):self.sql=sql
         def all(self):return [('access_command_owner','access_migrator',False,'false','true')]
-        def scalar_one(self):return 'configure_organization_application' not in self.sql and 'pg_attribute' not in self.sql
+        def scalar_one(self):return 'configure_organization_application' not in self.sql and 'pg_attribute' not in self.sql and 'grants_permission_scope_fkey' not in self.sql
     class Connection:
         def execute(self,sql):calls.append(str(sql));return Result(str(sql))
     monkeypatch.setattr(baseline,'verify_operator_roles',lambda c:None)

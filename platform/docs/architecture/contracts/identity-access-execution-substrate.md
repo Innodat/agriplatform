@@ -729,3 +729,36 @@ precede direct permission FK/global active-row integrity and removal of the deri
 Protected assignment stays unsupported; later assignment must exclude the legacy PtS
 literals while v1 readers ignore membership/revocation. No effective reader, ACCESS-B or
 KDG/PtS activation follows. See [evidence](../../../../services/access/GRANT_REGISTRY_BRIDGE_EVIDENCE.md).
+
+
+## Strict organization grant integrity — verified2026-10-22
+
+The user confirmed PtS is not yet used and should adopt the infrastructure being built.
+ADR-0052 already excludes legacy PtS API/organization-grant compatibility as a preservation
+requirement. Access0011 above is historical delivery, not a requirement to retain that
+bridge. Controlled Access0012 removes its generated discriminator:
+direct permission/scope registry FK and required active-row membership/actor/update fields
+apply uniformly. Incompatible rows refuse atomically without deletion, inferred account
+grants or permission registration. Preserve corpus assets and immutable migration history.
+
+Storage integrity does not finish PtS adoption. The caller inventory includes Access v1,
+PtS backend Access/Content clients and org dependencies, Content's PtS check, frontend org
+selection, corpus/import/source association and deployment fixtures. Upgrade these through
+existing ACCESS-B/CONTENT-READ/PTS-ADOPT owner work, using typed account checks and the
+[approved corpus/Content transition](../../../../apps/pts/docs/architecture/contracts/account-access-and-corpus-transition.md).
+Do not extend legacy writes to constrain the target architecture. Keep current denial
+until replacement activation; no unprotected interim reader or automatic org-to-account
+authority conversion. Protected organization assignment remains the next dependent owner
+command after strict storage verification; account storage/checks and coordinated consumer
+activation remain separate work. See [bounded spec](../../../../_bmad-output/implementation-artifacts/spec-access-a-strict-grant-integrity.md).
+
+
+Reviewed synthetic acceptance passes15 native stages and independent read-only retained
+inspection. See [evidence](../../../../services/access/STRICT_GRANT_INTEGRITY_EVIDENCE.md)
+and [runbook](../../../../services/access/STRICT-GRANT-INTEGRITY.md) for requirement mapping,
+exact source/log/state custody and recovery limits. This completes strict storage only;
+next deliver protected organization grant.assign through existing Access owner tools,
+with current command/org/app/target authority, bounded Identity observation, expected
+state, server attribution/revision, atomic receipt/event and retry safeguards. PtS
+account access and coordinated reader/Content/corpus adoption remain gated; legacy
+writes are not a compatibility target. No real access or consumer activation follows.

@@ -17,9 +17,9 @@ def migration():
 
 
 def test_exact_ten_retains_all_prior_versions_and_command_bytes():
-    assert baseline.HEAD=='access_0011'
+    assert baseline.HEAD=='access_0012'
     for i in range(1,11):assert baseline.validate_revision([f'access_{i:04}'])==f'access_{i:04}'
-    for values in ([],['access_0012'],['access_0009','access_0010']):
+    for values in ([],['access_0013'],['access_0009','access_0010']):
         with pytest.raises(baseline.BaselineError):baseline.validate_revision(values)
     assert registration._sql('access_0010')==registration._sql('access_0009')
 
@@ -45,7 +45,7 @@ def test_identity_selects_exact_bundle_from_schema_resolved_column_metadata(monk
     class Result:
         def __init__(self,sql):self.sql=sql
         def all(self):return [('access_command_owner','access_migrator',False,'false','true')]
-        def scalar_one(self):return (False if 'registry_permission' in self.sql else staged) if 'pg_attribute' in self.sql else True
+        def scalar_one(self):return False if 'grants_permission_scope_fkey' in self.sql else (False if 'registry_permission' in self.sql else staged) if 'pg_attribute' in self.sql else True
     class Connection:
         def execute(self,sql):calls.append(str(sql));return Result(str(sql))
     monkeypatch.setattr(baseline,'verify_operator_roles',lambda c:None)

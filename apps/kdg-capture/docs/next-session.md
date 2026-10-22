@@ -1816,3 +1816,36 @@ reference and client bytes remain preserved; only intended mutable verifiers and
 DDL change production source. The native run stopped normally with data retained.
 Historical frames/resources and concurrent work remain preserved. Private bootstrap
 portability remains an existing follow-up; no effective access or live activation claim.
+
+
+### Strict organization integrity verified —2026-10-22
+
+User clarification: unused PtS should upgrade to the new infrastructure; legacy PtS
+writes need no compatibility preservation. ADR-0052 already establishes account-scoped
+PtS and excludes preservation of old org-grant semantics. Access0012 now installs a direct permission/scope FK and global active-row requirements, removing0011's
+temporary discriminator. Unexpected incompatible rows refuse preserving11 and all data;
+no silent adoption, permission registration or deletion. Historical proofs stay historical.
+See [spec](../../../_bmad-output/implementation-artifacts/spec-access-a-strict-grant-integrity.md).
+
+This does not deliver account grants/checks, protected assignment, membership-safe readers,
+ACCESS-B or coordinated PtS/Content/corpus/KDG activation. Preserve corpus/assets and use
+existing owner contracts; do not build a permanent compatibility layer. No real account/
+access, production/deployment/pilot, Leave/editor, reset/prune or push. Concurrent work,
+older frames and the approved dependency baseline including TypeScript7.0.2 stay intact.
+
+
+Final reviewed synthetic matrix passes15 native stages and separate read-only retained
+inspection;120 sources/33 generated diagnostics and retained-state digest bind proof.
+Three independent review lenses completed;8 direct proof/doc corrections addressed,
+no new deferral. See [owner evidence](../../../services/access/STRICT_GRANT_INTEGRITY_EVIDENCE.md)
+and [runbook](../../../services/access/STRICT-GRANT-INTEGRITY.md). Full logical schema
+dump/recreate is not qualified/accepted by the current exact physical catalog check;
+tested recovery is transactional rollback and explicit controlled forward retry.
+
+Next: protected organization grant.assign execution through existing Access owner tools.
+Do not preserve old PtS writes to constrain it. Account-grant/check implementation,
+membership-safe effective readers, ACCESS-B and coordinated PtS/Content/KDG activation
+remain separate. Final regression/normal stop and scoped commit are recorded in evidence.
+
+Final regression1484 PASS48.67s; both composition checks exit0. Native run stopped
+normally with data/volumes/receipts retained; concurrent work preserved. No reset/prune.
