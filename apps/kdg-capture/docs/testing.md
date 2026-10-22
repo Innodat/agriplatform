@@ -1,5 +1,7 @@
 # Acceptance and device evidence plan
 
+Current KDG contract, 2026-10-22: [ADR-0061](../../../platform/docs/architecture/decisions/0061-kdg-first-committed-operation-wins.md) supersedes fingerprint/HMAC/key-lifecycle prerequisites for capture.create/edit. The following first-commit-wins scenarios are planned consuming acceptance, not executed runtime proof. Historical candidate tests/evidence remain unchanged.
+
 Planning evidence only: scenarios below are not executable tests and have not run.
 Story links are assigned during BMAD epic confirmation/detailing. Before authorized
 implementation, bmad-build must run the smallest relevant acceptance scenario and
@@ -17,7 +19,7 @@ observe its expected missing-behavior failure; focused TDD then affected suites 
 | KDG-A06 | FR-6 | Editable observation date independent of timestamps; two child/date captures accepted; local known prompt Edit/Add, unavailable server duplicates not claimed | Domain/API + component |
 | KDG-A07 | FR-7,13,15; NFR-2 | Offline Save acknowledged only after local transaction; close/reopen shows same capture+pending operation; no unfinished-input recovery promised; hidden in-memory buffers excluded from saved answers | IndexedDB real-browser integration |
 | KDG-A08 | FR-7; NFR-2,3 | Explicit Save failure/unknown outcome keeps visible input with useful guidance; resolve original attempt; no false saved status or unfinished-entry persistence | Component + browser controlled storage |
-| KDG-A09 | FR-14,15; NFR-2 | Server commits then connection drops; same operation lookup/retry returns one effect/history/receipt; changed payload ID reuse rejected; concurrent duplicate sends safe | API/DB + browser fault injection |
+| KDG-A09 | FR-14,15; NFR-2 | Server commits then connection drops; same operation lookup/retry returns one effect/history/receipt; changed body returns original authorized target/revision receipt; concurrent duplicate sends safe | API/DB + browser fault injection |
 | KDG-A10 | FR-8,14 | Offline create and successive edits queue in order; interrupted drainer recovered; two tabs cannot corrupt claims; old ack/download never overwrites later local edit | IndexedDB/browser + API |
 | KDG-A11 | FR-8,9; NFR-2 | Facilitator and administrator edit same base revision; one commits, other conflicts with local/base/server retained; explicit resolution, repeated conflict, descendants paused for re-review | Concurrent API/DB + browser review |
 | KDG-A12 | FR-10,11 | Publish V2 while phone offline on V1; V1 capture sync accepted; open form remains V1; next new capture after download V2; history edit uses V1 exact label/scale | API contract + browser version fixtures |
@@ -46,7 +48,7 @@ Scenario detail and intended boundaries are in the linked draft; no tests have r
 | [1.3 initial child/assignment](epics.md#story-13-provision-the-initial-child-and-facilitator-assignment) | Child/assignment FR-3/12, scope FR-1/2, eligible-choice FR-4; NFR-1/2/5 | KDG-A03.child-assignment-initial/replay, A02.child-eligibility, A14.assignment-target-scope, A16.assignment-authority, A21.assignment-attribution | Planning-approved; owner target-verification contract unresolved |
 | [1.4 installed offline setup](epics.md#story-14-install-kdg-capture-and-provision-authorized-setup-for-offline-opening) | FR-4/13, setup FR-16/17/18, scope FR-1/2; NFR-1–5; UX-DR1/2/4/7/11–14 | KDG-A04.setup-offline-open, A07.setup-local-commit, A15.setup-window, A14.setup-partition, A16.setup-scoped-renewal, A17.setup-storage-update, A19.setup-accessible | Planning-approved; setup DTO/PWA toolchain/device validation pending |
 | [1.5 explicit local Save](epics.md#story-15-explicitly-save-an-observation-on-this-phone) | FR-4–7/13/15, local FR-8/14/16–18; NFR-1–5; UX-DR2–8/11–13 | A05.form-answers, A06.same-day-captures, A07.saved-capture-reopen, A08.explicit-save-failure, A09.local-repeat-save, A14.capture-partition, A15.capture-window, A17.capture-storage-update, A19.capture-accessible | Planning-approved; local command/schema delivery gates remain |
-| [1.6 create synchronization](epics.md#story-16-synchronize-a-saved-capture-and-view-its-server-backed-record) | FR-1/2/11/14–17; initial server FR-8; NFR-1/2/4/5; UX-DR4/7/8/11/13 | A09.create-replay/lost-response, A20.foreground-sync, A10.create-claim-recovery, A02.create-authority, A14.server-capture-scope, A15.sync-reauth, A16.create-rejected, A12.create-original-version, A21.server-attribution/logs, A22.queue-release-compatibility | Planning-approved; create/outcome/read/fingerprint schema validation pending |
+| [1.6 create synchronization](epics.md#story-16-synchronize-a-saved-capture-and-view-its-server-backed-record) | FR-1/2/11/14–17; initial server FR-8; NFR-1/2/4/5; UX-DR4/7/8/11/13 | A09.create-replay/lost-response, A20.foreground-sync, A10.create-claim-recovery, A02.create-authority, A14.server-capture-scope, A15.sync-reauth, A16.create-rejected, A12.create-original-version, A21.server-attribution/logs, A22.queue-release-compatibility | Planning-approved; create/outcome/read schema validation pending; no fingerprint prerequisite |
 | [1.7 installed first-slice proof](epics.md#story-17-prove-the-first-capture-slice-on-installed-android-and-iphone-pwas) | UJ-1/E1 create-read scope; NFR-1–5; UX-DR12–14 | A01/02/04–09/14–17/19–22 in E1 scope; actual installed Android/iPhone protocol | Planning-approved; physical delivery/run evidence not executed |
 | [2.1 own history](epics.md#story-21-browse-my-capture-history-online-and-offline) | FR-2/8/11/13, history FR-15–18; NFR-1–4; UX-DR4/7/8/11–13 | A18.history-window/partial/reconcile, A08.history-storage-failure, A14.history-owner-scope, A15.history-read-window, A16.history-unassignment, A12.history-original-version, A19.history-accessible | Planning-approved; history/cursor/cache DTO validation pending |
 | [2.2 own editing](epics.md#story-22-edit-my-captures-offline-and-synchronize-explicit-changes-safely) | FR-2/6–9/11/14, scoped FR-13/15–18; NFR-1–5; UX-DR5/7/8/9/11–13 | A02.own-edit, A10.edit-order/reopen, A09.edit-replay/lost-response, A11.own-revision-conflict, A12.edit-original-version, A16.edit-after-unassignment, A14.edit-owner-scope, A15.edit-window, A21.edit-attribution, A19.edit-accessible | Approved scope/A-6; concrete edit DTO/schema/queue/permission fixtures gate Build |
@@ -166,8 +168,8 @@ draft-specific flush/merge tests are removed. Explicit failed/uncertain Save and
 capture durability remain. Questionnaire configuration draft/version tests remain required.
 
 Engineering refinement fixtures: A05 rejects rating 0/6/fractions and U+0000 without
-normalizing input; A09 proves canonical key-order equality/changed-content mismatch,
-no-op receipts and concurrent duplicates; A14 operation command discriminator and
+normalizing input; A09 proves identical/changed-body original-receipt replay after current stored-target
+authorization, no-op receipts and concurrent duplicates; A14 operation command discriminator and
 foreign eligibility references; A16 verifies ordinary-inactivity pending sync; A18
 checks scoped cursors; A17 proves update-first and supported schema/payload migration.
 These remain planned tests, not executed software verification.
@@ -181,9 +183,25 @@ checks with account actor/no person, explicit capabilities/read.own entry and fi
 caller binding. A03 covers target membership replacement, restricted setup identity,
 wrong session_user/runtime credential and partial owner outcome recovery. A14/A16 cover
 retired/rejoined membership with no old assignment/eligibility resurrection; renewed
-current own-read/edit remains tied to the same original account. A09 adds full JCS/HMAC
-canonical retry, independent key identity, overlap/rotation/rollback/restore and fail-closed
-missing verification key. A17 update-first protection remains; unchanged formats need
+current own-read/edit remains tied to the same original account. A09 now proves first
+committed outcome wins for identical/changed-body retries, original target/revision and
+current stored-resource authority without existence leaks, strict input/supported receipt
+validation, atomic effect/evidence/outcome rollback, no-op and concurrent duplicates.
+A09 races two different valid bodies under one scoped key: only the winner's complete
+effects/evidence/receipt commit, and both authorized attempts receive that original receipt.
+Replay an original edit after later revision/lifecycle changes: return its original
+authorized receipt before fresh-action validation. For changed-target replay, prove both
+directions: authorized stored target plus denied supplied target returns the stored receipt;
+denied stored target plus authorized supplied target discloses no stored receipt/existence.
+A09 also proves strict structural parsing/supported incoming versions before lookup and
+original supported command/receipt version on replay of a different supported version;
+unsupported incoming/stored versions fail safely. Edit target mismatch preserves local
+input, blocks descendants and never marks other content Synced; snapshot confirmation
+depends on the client's unique frozen operation binding, not server-attested body equality.
+A09/A10 also prove frozen submitted snapshot acknowledgement, pending predecessors
+blocking later sends and no automatic fresh operation for unknown outcomes. Earlier
+JCS/HMAC/key rotation/restore fixtures are historical, not current KDG prerequisites.
+Ordinary business-data recovery remains A22; child privacy remains a pilot gate. A17 update-first protection remains; unchanged formats need
 no adapters. See owning shared/fingerprint contracts for exact selected models.
 
 Owners run the smallest relevant failing acceptance before implementation, then focused

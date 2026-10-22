@@ -1,3 +1,30 @@
+## Current decision and next work — KDG first committed request wins, 2026-10-22
+
+Accepted [ADR-0061](../../../platform/docs/architecture/decisions/0061-kdg-first-committed-operation-wins.md) supersedes the earlier KDG capture.create/edit
+fingerprint/HMAC selection and fingerprint secret-file/key-backup/restore prerequisite.
+A committed duplicate returns its original authorized target/revision receipt even for
+changed incoming content, with current authority checked on the privately resolved stored
+resource. No payload comparison/fingerprint metadata or automatic algorithm fallback.
+
+Next: bounded first-commit-wins owner-local outcome/consumer proof using existing atomic
+tooling, current owner contracts and bounded consuming acceptance. Existing WRITE candidates need explicit future-consumer adaptation
+and proof of this selected model; their historical tests do not implement it. Preserve
+atomic effects/evidence/outcome, strict input/supported receipt validation, current access,
+revision/lifecycle, frozen submitted client snapshots, pending-predecessor blocking and
+bounded busy/unresolved recovery; unknown outcomes never allocate a fresh operation.
+New intended actions/input use new IDs; no automatic outcome expiry/deletion.
+
+Do not schedule fingerprint-secret archive or key-restore work merely for current KDG.
+Ordinary business-data backup/recovery, child privacy and remaining Access/consumer/device/
+pilot gates stay binding. Leave/PtS/Identity/Access behavior and all historical code,
+SQL/migrations/tests/evidence/synthetic resources remain unchanged. This item changes
+only documentation/decisions; no runtime conversion, provisioning, deployment or cleanup.
+
+The complete original handoff follows as historical checkpoints. Earlier “Current”/“Next”
+labels and fingerprint/secret prerequisites below are superseded by this current decision.
+
+---
+
 ## Current delivery — WRITE fingerprint secret-file candidate, 2026-10-22
 
 The existing builder now has a read-only KDG fingerprint secret-file candidate using

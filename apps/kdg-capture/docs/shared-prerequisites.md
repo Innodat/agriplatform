@@ -1,5 +1,7 @@
 # Minimum shared-owner prerequisite work for KDG
 
+Current KDG retry prerequisite, 2026-10-22: [ADR-0061](../../../platform/docs/architecture/decisions/0061-kdg-first-committed-operation-wins.md) selects first committed request wins with no command fingerprint/HMAC, fingerprint secret files or associated key backup/restore. Earlier 2026-10-14 secret checkpoints below are historical. Existing runtime/candidates/tests/evidence/resources and other owners remain unchanged; ordinary business-data recovery and child privacy gates still apply.
+
 2026-10-14. Planning work packet, referencing existing owner delivery items rather
 than duplicating their stories or authorizing Build. The sole owner acknowledged all
 ownership boundaries. Selected engineering contracts are in the
@@ -128,7 +130,7 @@ full ID-B and dependent readiness remain open. Prior references/migrations remai
 | ACCESS-A | Register kdg_capture, nine exact organization capabilities, read.own entry, explicit two-role bundles/global/Khula admission and membership-bound grants | Typed owner command input/result/expected-state fixtures; wrong-scope/target/membership rejection; compact atomic receipt/evidence and partial recovery; registry rows alone do not prove access | ACCESS-B and initial setup |
 | ACCESS-B | Closed KDG own_account/organization response, no person requirement, fixed-org caller policy, narrow target list/check and separate setup verifier | Full shared variant/negative matrix; real current-check path; KDG request binding, target retirement/race/unavailability; retained Leave/PtS/mixed-scope contract compatibility and coordinated activation | 1.1 entry; point check 1.3; runtime list 5.2 |
 | P1/SERVICE | Existing generator's one versioned recipe/schema and coherent web/API/service skeleton; explicit fixed-org vs selected-org options, safe errors/client and custom extensions | Generation/regeneration into disposable output; unsupported recipe refusal, custom code survives, declared dependencies only, type/build/start/API/browser checks with real narrow Access boundary; commands in shared addendum must actually exist | 1.1; no domain editor generated |
-| WRITE | Restricted owner DB context/RLS/constraints, safe errors and atomic conditional mutation/audit/outcome; KDG HMAC/JCS boundary | Actual runtime/operator/migrator roles; rollback/replay/no-op/concurrency/lost-response proof; safe error fixtures; JCS/rotation/missing-key/restore cases; controlled owner migrations/old-version evidence | Domain write substrate before 1.3/1.4 persistence and 1.6 sync |
+| WRITE | Restricted owner DB context/RLS/constraints, safe errors and atomic conditional mutation/audit/outcome; KDG first committed request wins | Actual runtime/operator/migrator roles; rollback/replay/no-op/concurrency/lost-response proof; safe error fixtures; changed-body replay/original-target authority/frozen-snapshot cases; business-data restore; controlled owner migrations/old-version evidence | Domain write substrate before 1.3/1.4 persistence and 1.6 sync |
 | Owner initial setup (ID-B, ACCESS-A, KDG 1.3) | Verified account/profile/actor/Khula membership/grants, then KDG initial questionnaire/child/assignment using current trusted point check | Explicit synthetic target and expected state; same-operation recovery after one owner commits/next fails; user effective entry plus own version/child reads; no name/email account matching | 1.1 shared entry then 1.3 app setup |
 
 WRITE's neutral proof can use the existing reference contract; KDG provides its
@@ -162,7 +164,7 @@ primitives only; KDG renderer/domain remains app-local. Agent context: no root r
 change needed; generated app instructions gain actual commands/selected pattern limits
 in their consuming item. Documentation: mutable shared contracts plus this navigation/
 acceptance packet; model/OpenAPI authority replaces seed shapes during Build. ADR:
-existing accepted decisions suffice, no accepted ADR edited. Every consuming delivery
+accepted ADR-0061 partially supersedes ADR-0012 for current KDG only; no existing accepted ADR edited. Every consuming delivery
 still records its own five required impact decisions.
 
 ## Readiness distinction and next work
@@ -171,7 +173,7 @@ still records its own five required impact decisions.
 Identity/Access and WRITE selections are now concrete in their owner contracts.
 The original acceptance/timing rows above remain delivery obligations, not unresolved
 planning choices. [Owned WRITE](../../../platform/docs/architecture/contracts/owned-write-and-secret-execution.md)
-closes outcome/evidence/role/recovery and secret inputs; earlier checkpoint paragraphs
+closes outcome/evidence/role/recovery inputs; ADR-0061 defers KDG fingerprint secrets. Earlier checkpoint paragraphs
 below retain historical progression. Runtime target/adoption/qualification, actual
 locks/images/credentials/restore and real-data policies remain their consuming gates.
 

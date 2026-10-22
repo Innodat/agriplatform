@@ -1,12 +1,14 @@
 # API errors and operation recovery — E1 contract proposal
 
+Current KDG amendment, 2026-10-22: [ADR-0061](../decisions/0061-kdg-first-committed-operation-wins.md) selects first committed request wins for capture.create/edit: original authorized target/revision receipt even for changed incoming content, with no payload comparison or fingerprint requirement. Privately resolve and reauthorize the stored resource; supplied target/action grants no authority. Frozen queued input, predecessor blocking, strict validation, supported receipt versions and bounded busy/unresolved/denial behavior remain. No automatic fresh operation or outcome expiry/deletion. Leave/operator mismatch behavior is unchanged.
+
 WRITE closure, 2026-10-14: [owner execution contract](owned-write-and-secret-execution.md)
-selects concrete outcome/event/linkage, transaction/role/error/recovery and KDG key-file
-inputs. This supersedes earlier unspecified physical WRITE passages for the bounded
+selects concrete outcome/event/linkage and transaction/role/error/recovery inputs.
+Its earlier KDG key-file selection is historical under ADR-0061. This supersedes earlier unspecified physical WRITE passages for the bounded
 KDG/shared first consumers. Leave ordinary draft audit policy remains unchanged.
 No schema, secret, privilege or runtime execution is claimed.
 
-KDG refinement, 2026-10-14: [shared readiness](kdg-shared-readiness.md) uses this
+Historical KDG refinement, 2026-10-14 (superseded by ADR-0061 for current KDG): [shared readiness](kdg-shared-readiness.md) uses this
 envelope and owner-local outcomes. KDG's [fingerprint disposition](operation-fingerprint-security-evolution.md#kdg-initial-fingerprint-disposition--2026-10-14)
 adds HTTP 503 `operation_verification_unavailable` for retained payload verification
 whose key is unavailable; preserve identity/outcome and never rerun as a fresh action.
@@ -54,7 +56,7 @@ adapters and declared OpenAPI response schemas must use the same contract.
 | 401 | `authentication_required` | Renew authentication or sign in; preserve only supported same-user recovery context. Recheck authority before retrying the original operation. |
 | 403 | `access_denied` | Explain confirmed loss/lack of authority without protected record details; no stale-grant fallback. |
 | 404 | `resource_not_found` | Missing or inaccessible resource under the endpoint's disclosure policy; do not reveal cross-organization existence. |
-| 409 | `operation_payload_mismatch` | The operation ID was reused with different canonical input; do not repeat or silently issue a new action. |
+| 409 | `operation_payload_mismatch` | For consumers retaining payload comparison (including Leave/operator commands), the operation ID was reused with different canonical input; do not repeat or silently issue a new action. Not used for current KDG capture.create/edit committed duplicates. |
 | 409 | `operation_busy` | A matching action is still being resolved; retain its operation ID and perform bounded recovery. A response alone does not prove whether another attempt will commit. |
 | 422 | `validation_failed` | Safe field paths and validation identifiers; preserve input and explain correction. Never include raw validation input, exception context or secret values. |
 | 503 | `authorization_unavailable` | Authority could not be checked; distinguish from denial and offer retry, not cached authorization. |

@@ -28,7 +28,7 @@ scaffolding, or more than one application.
 | [0009](./0009-atdd-and-tdd-development-loop.md) | Accepted | Use ATDD as the outer loop and TDD as the inner loop |
 | [0010](./0010-bmad-as-delivery-workflow.md) | Accepted | Use BMAD as the generic delivery workflow with project-owned quality gates |
 | [0011](./0011-application-roles-and-business-permissions.md) | Accepted | Application-maintained default roles, explicit business permissions, and advanced custom roles with reviewed grants |
-| [0012](./0012-operation-identity-idempotency-and-tracing.md) | Accepted | Stable operation IDs for safe retries, application-owned atomic records, downstream event identities and separate causal tracing |
+| [0012](./0012-operation-identity-idempotency-and-tracing.md) | Superseded in part by 0061 (KDG only) | Stable operation IDs for safe retries, application-owned atomic records, downstream event identities and separate causal tracing |
 | [0013](./0013-explicit-revisions-for-reviewed-changes.md) | Accepted | Explicit record revisions and atomic checks protect reviewed changes; stale confirmations require renewed review |
 | [0014](./0014-python-database-access-and-api-models.md) | Accepted | SQLAlchemy/Psycopg PostgreSQL access, separate Pydantic API schemas and proven opt-in CRUD scaffolding |
 | [0015](./0015-alembic-migration-authority.md) | Accepted | Alembic owns project schema migrations; reviewed drafts, explicit database security changes and deliberate adoption of existing SQL assets |
@@ -76,3 +76,4 @@ scaffolding, or more than one application.
 | [0057](./0057-invitation-onboarding-and-trusted-tenant-enrollment.md) | Accepted | Invitation-only normal organization onboarding unless verified tenant enrollment is explicitly enabled; Entra/Supabase retained, no implicit app grants |
 | [0058](./0058-administrator-prepared-access-before-first-sign-in.md) | Accepted | Explicitly approve pending application roles before first sign-in; activate only against verified account/admission and current role policy, without automatic tenant-derived grants |
 | [0059](./0059-schema-validated-scaffold-configuration.md) | Accepted | Thin validated JSON scaffold input records proven pattern/source choices; specs/ADRs remain authoritative and actual tests enforce behavior |
+| [0061](./0061-kdg-first-committed-operation-wins.md) | Accepted | KDG MVP returns the first committed scoped operation receipt without payload fingerprints; defers HMAC/key lifecycle while retaining atomicity, current authority and immutable queued commands; partially supersedes 0012 for KDG |

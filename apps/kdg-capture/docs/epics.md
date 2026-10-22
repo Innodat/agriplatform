@@ -8,6 +8,8 @@ updated: 2026-10-14
 
 # KDG Capture — BMAD epic planning
 
+Current retry amendment, 2026-10-22: [ADR-0061](../../../platform/docs/architecture/decisions/0061-kdg-first-committed-operation-wins.md) selects first committed request wins for current capture.create/edit. It supersedes earlier capture fingerprint/HMAC/key-recovery prerequisites; existing operator setup choices remain. The owning contracts define exact authority/receipt/queue safeguards; no runtime implementation or readiness is implied.
+
 Requirements extraction was approved by the user with C. The installed
 bmad-create-epics-and-stories step 3 is now in progress; the user approved
 the five-epic structure with C. The authoritative
@@ -488,7 +490,7 @@ Use one local transaction and the shared proven operation/evidence mechanism. Th
 bounded reference/configuration command follows the existing versioned SHA-256/JCS
 design; receipts omit the definition/fingerprint and carry compact target/disposition/
 revision/event evidence. Questionnaire content is not an observation payload, but remains
-outside diagnostic dumps. No capture-answer fingerprint choice is settled by this story.
+outside diagnostic dumps. Capture.create/edit use ADR-0061; this operator setup story does not change its own fingerprint choice.
 
 **Persistence/validation boundary:** KDG questionnaire identity plus immutable published
 version with relational org/version/actor/time fields and schema-validated JSONB definition.
@@ -1006,7 +1008,9 @@ Device observation/recording dates remain separate from trusted server creation 
 **Given** the same operation/capture IDs and frozen submitted content,
 **When** attempts race or the server commits but its response is lost,
 **Then** one capture/revision/receipt commits and authorized replay returns that outcome,
-**And** changed content under the same operation ID is rejected without overwrite,
+**And** a committed duplicate, even with changed incoming content, returns the original
+authorized target/revision receipt without another effect; privately resolve and recheck
+current authority on the stored target, never authority from the supplied target/action,
 **And** an unresolved outcome retains its original IDs and is looked up/retried safely;
 no fresh observation is created merely because an earlier response was uncertain.
 Distinct operations/capture IDs for the same child/date remain allowed.
@@ -1071,11 +1075,13 @@ reject client audit/owner/org selectors. Validate required answers against that 
 version, including valid 1/false values and rejection of hidden false details. Tenant-aware local
 references/RLS and backend ownership checks accompany restricted runtime roles.
 
-Mutations store scoped operation identity/fingerprint and compact committed result in
-the same transaction as capture/revision history. Shared setup receipts may reuse a
-proven owner mechanism, but retain separate command/caller authority. Capture-answer
-fingerprint algorithm/key lifecycle and canonical input must be declared before Build;
-the earlier configuration-command SHA-256 choice does not silently decide private answers.
+Mutations store scoped operation identity and compact committed result atomically with
+capture/revision history and required evidence. The server defines command type; uniqueness
+is org/executor account/command/operation. First committed request wins under ADR-0061:
+no payload comparison or fingerprint/HMAC/metadata/secret-file/key-backup prerequisite.
+Shared setup retains separate command/caller authority and its existing fingerprint choice.
+Strict validation, supported receipts, revision/lifecycle checks, bounded uncertainty and
+ordinary business-data recovery remain; no automatic outcome expiry/deletion.
 
 `GET /api/v1/operations/{id}` is scoped to original caller and capture-create command;
 current own-read authority may retrieve a receipt even if creation permission was later
@@ -1093,7 +1099,7 @@ Already explicitly saved durable intent may resume under fresh same-account auth
 this is replication, not automatic confirmation of unfinished form input.
 
 **Dependencies:** Approved 1.1–1.5 and existing owner-write/release/Access mechanisms;
-concrete create/outcome/read schemas, fingerprint/retention bounds, actor/schema/RLS and
+concrete create/outcome/read schemas, outcome retention, actor/schema/RLS and
 queue compatibility fixtures. No future KDG story is required for create/read sync.
 Normal release compatibility/activation gates remain; no migrations or deployment now.
 
@@ -1485,7 +1491,7 @@ metadata/queue support; no automatic unfinished edit store. Completed explicit c
 proposals are durable saved work, not autosaved drafts.
 
 **Dependencies:** Approved E1 and 2.1; concrete own-edit context/PUT/outcome/error DTOs,
-local edit/schema migration, revision/history/fingerprint fixtures and coordinated queue
+local edit/schema migration, revision/history/first-commit-wins fixtures and coordinated queue
 compatibility. No E3 all-record edit API, E4 producer or E5 management interface is required.
 Defining and retaining conflicts here does not claim the next story's resolution UI exists.
 

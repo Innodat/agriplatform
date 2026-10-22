@@ -1,5 +1,7 @@
 # Operation fingerprint security enhancement candidate
 
+Current KDG disposition, 2026-10-22: [ADR-0061](../decisions/0061-kdg-first-committed-operation-wins.md) selects first committed request wins for capture.create/edit. No command payload comparison, SHA/JCS digest, HMAC, fingerprint metadata, fingerprint secret files or associated key backup/restore is required. The 2026-10-14 KDG section below is superseded history, retained with completed candidate code/tests/evidence. Future opt-in requires a concrete need; no fallback is selected. Leave E1 and operator choices below are unchanged. Ordinary business-data backups/recovery and child privacy gates remain binding.
+
 **Status:** Logged future security enhancement; not an implementation commitment
 **Date:** 2026-10-01
 **Owners:** Platform security/API lead and consuming application lead
@@ -83,6 +85,9 @@ this candidate and the Leave tracker. ADR: no accepted decision mandated HMAC; u
 the mutable contract, leaving accepted ADRs unchanged. No implementation performed.
 
 ## KDG initial fingerprint disposition — 2026-10-14
+
+**Historical; superseded for current KDG by ADR-0061, 2026-10-22.** All selections
+and fixture/prerequisite wording in this section describe the earlier candidate only.
 
 Selected engineering baseline for review by the acknowledged sole platform/KDG owner.
 KDG observation answers concern identifiable children and small predictable rating/

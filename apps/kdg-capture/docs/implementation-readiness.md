@@ -1,5 +1,7 @@
 # KDG Capture — implementation planning readiness
 
+Current amendment, 2026-10-22: [ADR-0061](../../../platform/docs/architecture/decisions/0061-kdg-first-committed-operation-wins.md) selects first committed request wins for capture.create/edit. Earlier HMAC/secret-key planning selections are superseded; this documentation change implements no runtime behavior. Other owner choices and ordinary business-data backup/recovery/child privacy gates remain.
+
 2026-10-14 final successor checkpoint. Installed bmad-sprint-planning, readiness-only.
 **Verdict: PASS — planning supports ordered shared foundations and the 19 approved KDG stories.**
 A developer can implement this plan without inventing an unrecorded load-bearing design
@@ -18,7 +20,7 @@ acknowledged shared ownership for all efforts; existing components retain delive
 | Ownership, KDG capability/resource scope, membership renewal and targets | [Shared addendum](../../../platform/docs/architecture/contracts/kdg-shared-readiness.md) and [acknowledged handoff](shared-platform-handoff.md); exact nine organization capabilities/default bundles/read.own entry, own-account/all-org union, current target/setup policy, new membership ID on rejoin |
 | ENV/P1/SERVICE | [Environment/generation contract](../../../platform/docs/architecture/contracts/scaffold-environment-and-generation.md) and [exact pins](../../../platform/docs/architecture/contracts/scaffold-dependency-baseline-2026-10-14.md); newest stable TypeScript 7.0.2, explicit disposable commands/targets/schema/pattern/extension/seed ownership |
 | ID-A/B, ACCESS-A/B | [Execution substrate](../../../platform/docs/architecture/contracts/identity-access-execution-substrate.md); physical actor/member/registry/grant constraints, current/target projections, restricted user/setup/operator roles, pre-grant verification, entry/owner commands and source/adoption matrix |
-| WRITE/security | [Owned write and secret execution](../../../platform/docs/architecture/contracts/owned-write-and-secret-execution.md) plus [KDG fingerprint disposition](../../../platform/docs/architecture/contracts/operation-fingerprint-security-evolution.md#kdg-initial-fingerprint-disposition--2026-10-14); exact atomic outcome/evidence/FK/lock/role/error/recovery and HMAC/JCS/file/restore inputs |
+| WRITE/security | [Owned write and secret execution](../../../platform/docs/architecture/contracts/owned-write-and-secret-execution.md) with [ADR-0061](../../../platform/docs/architecture/decisions/0061-kdg-first-committed-operation-wins.md); atomic outcome/evidence/FK/lock/role/error/recovery and first-commit-wins KDG inputs, no fingerprint-secret prerequisite |
 | Application behavior/contracts | [contracts.md](contracts.md); command/receipt/noop/unknown, prior-child eligibility, bounded pagination, own-only offline/online all-admin, immutable original versions and update-first behavior |
 | Dependency and impact ownership | [shared-prerequisites.md](shared-prerequisites.md), [delivery-impact.md](delivery-impact.md); existing shared items precede actual consumers, no duplicate generator/service or whole-Leave dependency |
 
@@ -41,8 +43,9 @@ These remain obligations at their consuming items, not unknown architecture choi
   selection and before affected activation.
 - Every affected write/update/release: ATDD failure first, focused TDD, actual role/RLS/
   concurrency/rollback/lost-response/recovery and prior payload/schema compatibility.
-  KDG HMAC material never enters browser/DB/logs; prove active/old keys, nonroot mount,
-  rotation/rollback and matching data+key restore. Migration failure blocks activation;
+  Prove KDG changed-body original-receipt replay, stored-resource current authority,
+  frozen-snapshot acknowledgement and blocked pending predecessors; no HMAC/key-recovery gate.
+  Ordinary business-data backup/restore remains. Migration failure blocks activation;
   no startup migration or automatic destructive downgrade.
 - Before affected UI/pilot: Afrikaans content and neutral-theme/contrast review; named
   Khula child-data processing/device and business/audit/pending/locked retention/disposal

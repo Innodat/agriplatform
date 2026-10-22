@@ -1,5 +1,7 @@
 # KDG technical contracts — proposal for readiness
 
+Current KDG retry decision, 2026-10-22: [ADR-0061](../../../platform/docs/architecture/decisions/0061-kdg-first-committed-operation-wins.md) selects first committed request wins for capture.create/edit. It supersedes earlier fingerprint/HMAC prerequisites; other owner contracts retain their choices. No runtime conversion is implemented.
+
 App-owned design, reconciled with the selected [shared readiness addendum](../../../platform/docs/architecture/contracts/kdg-shared-readiness.md).
 Does not implement the shared Access union, register capabilities,
 create DDL/OpenAPI models, or imply that provisioning commands exist. Shared owner
@@ -107,9 +109,9 @@ identity. Exact DDL and privileges belong to the consuming story. Proposed recor
   server revision, original owner plus actual editor. Sensitive answers belong only
   here and capture, never generic operational logs. No separate duplicate audit table
   copying every snapshot; compact publish/assignment evidence uses owner-local events.
-- Operation outcome: unique org/caller/command/operation identity, fingerprint version,
-  compact committed result and executor/time. HMAC-vs-SHA fingerprint selection is an
-  explicit sensitivity review before schema readiness; no plain-text answer in receipt.
+- Operation outcome: unique org/caller/command/operation identity, supported command/result
+  versions, compact committed result and executor/time. No command fingerprint metadata
+  is required for current capture.create/edit; no plain-text answer in receipt.
 
 Tenant-aware local FKs prevent capture/version/child cross-org references; immutable
 history includes same-org capture reference and unique `(org_id,capture_id,revision)`.
@@ -153,7 +155,7 @@ from permitted server reads when processing conflict, not from a cached list.
 
 Use platform [error/outcome contract](../../../platform/docs/architecture/contracts/api-errors-and-operation-recovery.md).
 401 authentication_required; 403 access_denied; 404 resource_not_found (inaccessible
-records disclose no existence); 409 operation_payload_mismatch or
+records disclose no existence); 409 operation_busy or
 kdg_capture.capture_revision_conflict with current_revision; 422 validation_failed with
 safe paths/codes only; 503 authorization_unavailable/dependency_unavailable; 500 internal_error.
 Additional safe attention IDs: assignment_unavailable, child_inactive,
@@ -162,7 +164,7 @@ Server conflict returns no unauthorized answer snapshot; fetch current details u
 
 Success/outcome: `{operation_id,status: committed,result:{capture_id,revision}}`. A replay
 returns original receipt even if current record is newer. `status: unresolved` permits
-same-payload retry, not a claim of no commit. No synced feedback without a matching receipt
+retry of the frozen submitted snapshot, not a claim of no commit. No synced feedback without a matching receipt
 and current local sequence. Compatibility tests cover both legacy shared error families.
 
 ## Local persistence, queue and reconciliation
@@ -360,7 +362,7 @@ matching acknowledged snapshot becomes Synced; late/out-of-order callbacks retai
 local work. Known rejection keeps local capture/intent with scoped attention/lock states;
 verification unavailability differs from denial. Ordinary releases preserve queued versions.
 
-Concrete create/outcome/read DTOs, capture fingerprint/retention and restricted DB fixtures
+Concrete create/outcome/read DTOs, outcome retention and restricted DB fixtures
 remain before Build; no new universal sync service or worker is required. See
 [approved Story 1.6](epics.md#story-16-synchronize-a-saved-capture-and-view-its-server-backed-record). Server history pagination/editing and
 organization-wide administrative reads remain subsequent consuming epics.
@@ -645,17 +647,28 @@ user step or a proof that these contracts have passed shared owner review.
 
 ### Compact successful receipt and unknown outcome
 
-Persist unique `(org_id, executor_account_id, command_type, operation_id)` and versioned
-command fingerprint with business effects, trusted attribution and compact result in
-one owner transaction. A successful create/edit receipt contains operation_id,
+Persist unique `(org_id, executor_account_id, command_type, operation_id)` with business
+effects, required immutable evidence, trusted attribution and compact result in one owner
+transaction. The server derives capture.create/capture.edit from the handler, never an
+arbitrary action field. No command fingerprint metadata or payload comparison is required.
+A successful create/edit receipt contains operation_id,
 command_type, command_version, status `committed` and result `{capture_id, revision}`.
 Revision is the string recorded for that operation, even if the capture later changes.
-No answer/child-name/definition dumps or fingerprint are exposed by receipt lookup.
+No answer/child-name/definition dumps are exposed by receipt lookup.
 
 An authorized no-op edit records its receipt with unchanged revision and no fake audit
-event. Retry reads current authority and compares original fingerprint before returning
-that result; content changes require a new operation. Concurrent duplicates serialize
-through the unique operation constraint and cannot both commit effects.
+event. A committed duplicate returns the original receipt including its original target
+and revision even if incoming content differs. Privately resolve the stored target and
+recheck current authority on that actual stored resource/command; supplied target/action
+never authorizes replay. Before lookup, strictly parse structural shape, typed IDs/bounds
+and supported incoming command versions; unsupported versions fail safely. On committed
+replay return the original supported command/receipt version even when a different
+supported incoming version was supplied. Only after finding no committed outcome apply
+fresh-action domain/eligibility/expected-revision/lifecycle validation; later resource
+changes do not invalidate an otherwise currently authorized original receipt.
+New intended actions/changed input use a new operation ID. Concurrent duplicates serialize
+and cannot both commit effects; failed/uncommitted actions have no successful receipt.
+No automatic outcome expiry/deletion is introduced.
 
 Unknown lookup returns status `unresolved` only when scoped verification/read succeeds
 and no committed receipt is observed. It is not proof a competing transaction cannot
@@ -667,25 +680,26 @@ ID key; never return an arbitrary first row. Reject unsupported types, recheck t
 permission for the stored resource/command, and do not infer that permission from the
 query discriminator. The first capture consumer supports capture.create/capture.edit;
 other app command recovery registers explicit handlers with its consuming DTOs.
-A stale edit returns 409 kdg_capture.capture_revision_conflict with safe current_revision metadata,
+A fresh stale edit with no committed outcome returns 409 kdg_capture.capture_revision_conflict with safe current_revision metadata,
 not an answer snapshot. No server conflict-input draft is stored; current record is
 fetched through current authorized reads for in-memory portal review.
 
-### Canonical submitted meaning
+### Frozen submitted snapshot and first committed outcome
 
-Fingerprint input format v1 is the canonical JSON object `{command_type, command_version,
-org_id, executor_account_id, payload}` after strict shape validation and normalization
-of typed UUID/date/revision representations. Payload contains the exact accepted command
-fields and target ID; arrays retain order, object key order is canonical, and answer
-strings are unchanged. The server computes it; clients do not supply trusted digests.
-[JCS/RFC8785](https://www.rfc-editor.org/rfc/rfc8785) supplies deterministic JSON encoding;
-use conformance fixtures rather than assuming Python key sorting alone implements JCS.
-
-The [KDG fingerprint disposition](../../../platform/docs/architecture/contracts/operation-fingerprint-security-evolution.md#kdg-initial-fingerprint-disposition--2026-10-14)
-selects HMAC-SHA-256/JCS v1, stored algorithm/version/key identity, independent secret
-storage and fail-closed retained-retry rotation/restore behavior. Canonicalization/HMAC
-is not encryption. Exact secret paths/permissions, library conformance and restore
-proof remain delivery inputs; no speculative framework or installed keyring is claimed.
+The client freezes the complete queued command and expected revision when eligible to
+send. Snapshot confirmation relies on the client binding that frozen input uniquely to
+its operation; the server receipt does not attest equality with the incoming body. For
+edit acknowledgement, the receipt capture_id must match the queued capture target as
+well as its operation/command binding. On mismatch preserve local input, block descendants
+and require reconciliation; never mark other local content Synced. Late acknowledgements
+do not confirm newer local input. Pending predecessors block later sends, and unknown outcomes
+never automatically allocate a fresh operation. Strict typed shape/UUID/date/revision/
+answer validation remains; no canonical command envelope, SHA/JCS command digest, HMAC,
+fingerprint metadata, fingerprint secret files or associated key backup/restore is a
+current KDG delivery gate. This is the selected [ADR-0061](../../../platform/docs/architecture/decisions/0061-kdg-first-committed-operation-wins.md) model,
+not an algorithm fallback. Earlier HMAC selection is retained as superseded history in
+the [security candidate](../../../platform/docs/architecture/contracts/operation-fingerprint-security-evolution.md#kdg-initial-fingerprint-disposition--2026-10-14).
+Ordinary business-data backup/recovery and child privacy gates still apply.
 
 ### Pagination and updates
 
@@ -707,7 +721,7 @@ Sync follows activation. Unsupported bytes/commands stay protected, never reset/
 
 ### Enforcement evidence
 
-Extend A05 bounds/rating/false-details, A09 canonical/replay/no-op/concurrent receipt,
+Extend A05 bounds/rating/false-details, A09 first-commit-wins/changed-body replay/no-op/concurrent receipt,
 A14 foreign operation/reference/cursor, A16 prior-eligibility/current-access, A18 page
 refresh and A17 schema/update fixtures. Actual OpenAPI/Pydantic and generated TypeScript
 become model authority during Build; this planning contract seeds rather than duplicates

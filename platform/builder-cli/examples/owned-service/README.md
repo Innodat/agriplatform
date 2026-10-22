@@ -1,3 +1,17 @@
+## Current KDG status — 2026-10-22
+
+[ADR-0061](../../../docs/architecture/decisions/0061-kdg-first-committed-operation-wins.md) selects first committed
+request wins for current KDG capture.create/edit. Command fingerprints/HMAC, fingerprint
+secret files and associated key backup/restore are deferred until a concrete need.
+The candidates, evidence, tests and synthetic resources described below remain historical
+reusable work, byte-preserved; their prerequisite wording is superseded for current KDG.
+They do not implement or prove the new contract. Later consumers need explicit adaptation
+and acceptance proof; no runtime conversion or automatic fallback is introduced here.
+Identity/Access/operator and Leave choices remain unchanged. Ordinary business-data
+backup/recovery and child privacy gates remain binding. The full original README follows.
+
+---
+
 # Proven owner boundary examples
 
 PtS verifies the `transaction_context.py` pattern with actual non-owner PostgreSQL

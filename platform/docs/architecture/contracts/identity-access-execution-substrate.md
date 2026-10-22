@@ -252,8 +252,10 @@ expected-state conflict unless it is the same operation; it does not copy grants
 Per-owner outcomes unique(scope_kind,scope_id,executor_actor_id,command,operation_id),
 with scope_id null only platform and NULLS NOT DISTINCT uniqueness. Store versioned
 SHA-256/JCS input fingerprint for bounded identifier/setup commands as already selected,
-compact typed result and committed_at. Sensitive observation commands instead use KDG's
-separate HMAC disposition. Outcome/history table shape is finalized with WRITE.
+compact typed result and committed_at. Current KDG capture.create/edit instead follow
+[ADR-0061](../decisions/0061-kdg-first-committed-operation-wins.md): first committed
+request wins, with no fingerprint prerequisite. Operator SHA-256/JCS selection is unchanged.
+Outcome/history table shape is finalized with WRITE.
 
 Result target variants: actor→{actor_id}; account mapping→{account_id,actor_id}; member→
 {org_id,account_id,membership_id}; app/permission→{app_id,permission when applicable};

@@ -1,5 +1,7 @@
 # KDG shared-platform readiness addendum
 
+Current KDG amendment, 2026-10-22: [ADR-0061](../decisions/0061-kdg-first-committed-operation-wins.md) replaces KDG changed-content rejection with first committed request wins. Current capture commands need no fingerprint/HMAC, fingerprint secret files or associated key backup/restore. Earlier secret-selection checkpoints below are superseded history; operator/Leave/PtS/Identity/Access choices remain. Atomic effects/evidence/outcome, stored-resource current authority, frozen client snapshots, predecessor blocking and bounded uncertainty remain binding. Ordinary business-data backup/recovery and child privacy gates remain.
+
 2026-10-14. Selected engineering planning baseline for review; no implemented API,
 generator, privileges or secret provisioning is claimed. The sole owner explicitly
 acknowledged the KDG/Leave ownership handoff as all component owners. This addendum
@@ -203,8 +205,11 @@ provider/device qualification are delivery evidence; no floating “latest” is
 WRITE fixes restricted runtime tenant/actor context, owner-local structural constraints,
 safe framework errors and atomic outcome/revision/evidence. Access/user checks precede
 short business locks. KDG's existing [command/receipt/eligibility contracts](../../../../apps/kdg-capture/docs/contracts.md#kdg-request-and-recovery-contract--engineering-closure)
-remain domain authority, not copied into the generator. Compare operation fingerprint
-before executing effects; rollback business/evidence/receipt together on failure;
+remain domain authority, not copied into the generator. For KDG capture.create/edit,
+return the original authorized committed receipt even for a changed incoming body;
+privately resolve and authorize its stored target, never the supplied target/action.
+No payload comparison is required. Operator fingerprint contracts are unchanged.
+Rollback business/evidence/receipt together on failure;
 actual roles enforce same-org and owner isolation. Promote only the neutral mechanism.
 No outbox/worker/content requirement is added to KDG's first slice.
 
@@ -215,8 +220,9 @@ account actor, mismatched resource/account/org, stale JWT after revoke, app susp
 re-enable, retired/replaced membership, setup-vs-runtime caller denial, target replacement,
 spoofed actor, cross-org target and unavailable verification. Retain PtS account/Leave
 person/mixed-scope tests. ID-B proves session_user binding and real restricted privileges.
-KDG A01/A02/A14–16 consume these; A09 consumes WRITE and the
-[KDG fingerprint disposition](operation-fingerprint-security-evolution.md#kdg-initial-fingerprint-disposition--2026-10-14).
+KDG A01/A02/A14–16 consume these; A09 consumes WRITE with
+[first committed request wins](../decisions/0061-kdg-first-committed-operation-wins.md), including changed-body original-receipt
+replay, current stored-target authority and frozen-snapshot acknowledgement.
 
 Planning closure does not establish runtime prerequisites. ENV exact compatibility/
 bootstrap/callback evidence, generator implementation, owner DDL/adoption/privilege

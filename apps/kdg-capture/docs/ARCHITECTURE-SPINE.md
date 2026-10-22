@@ -96,17 +96,19 @@ flowchart LR
 ### AD-5 — Ordered immutable retries and atomic server effects [ADOPTED]
 
 - **Binds:** Queue, API and operation receipts.
-- **Prevents:** Lost-response duplicates, changed-payload replays and out-of-order edits.
+- **Prevents:** Lost-response duplicate effects and out-of-order edits.
 - **Rule:** Capture UUID and operation UUID are distinct. Freeze submitted command payload,
   version and expected revision; retry identically. Serialize per record, persist a later
   local edit behind unresolved predecessors, and freeze its expected server revision only
   when predecessor outcome is known. Atomically commit capture, server revision, immutable
-  domain history and compact operation receipt. Matching authorized replay returns original
-  receipt; changed-content reuse conflicts. Canonical submitted meaning follows the
-  app-owned JCS v1 envelope in contracts.md; KDG uses the selected HMAC-SHA-256 v1
-  disposition with stored key ID, retained verification and fail-closed loss/restore.
-  Missing verification keys never authorize fresh execution. Exact secret/library
-  evidence precedes affected delivery. Current access is required for outcome lookup.
+  domain history and compact operation receipt. Under [ADR-0061](../../../platform/docs/architecture/decisions/0061-kdg-first-committed-operation-wins.md),
+  a committed duplicate returns its original authorized target/revision receipt even if
+  incoming content differs. Resolve the stored target privately and recheck current
+  resource authority; supplied target/action grants no authority. Server defines command
+  type; uniqueness remains org/account/command/operation. No payload comparison, command
+  fingerprint/HMAC/secret-file/key-recovery prerequisite. New intended input uses a new
+  operation ID; unknown outcomes never create one automatically. Strict validation,
+  supported receipts and bounded recovery remain; no automatic outcome expiry/deletion.
   Cross-tab drainer claims and acknowledgements compare durable claim/local sequence;
   expired claims recover original outcomes, and late acknowledgements cannot replace edits.
 
@@ -230,7 +232,7 @@ ENV/P1/SERVICE direct pins/command/recipe/extension boundaries now follow the
 [owning contract](../../../platform/docs/architecture/contracts/scaffold-environment-and-generation.md).
 Identity/Access physical projection/constraint/role/operator models follow the
 [owning execution substrate](../../../platform/docs/architecture/contracts/identity-access-execution-substrate.md).
-Final WRITE outcome/evidence/role/recovery/secret selections follow the
+Final WRITE outcome/evidence/role/recovery selections, with the ADR-0061 KDG amendment, follow the
 [owning execution contract](../../../platform/docs/architecture/contracts/owned-write-and-secret-execution.md).
 No load-bearing planning decision remains open for the ordered synthetic delivery.
 Actual target/source adoption, owner locks/images/credentials, role/query/race/restore,
@@ -287,5 +289,6 @@ Engineering closure, 2026-10-14: contracts.md fixes app command field sets/typed
 compact successful receipts/no-op/unknown outcomes, validation bounds, scoped history
 pagination, prior-child eligibility reference ownership and update/version behavior.
 Successor baseline selects shared membership/target/admission/operator and thin recipe
-representation plus fingerprint sensitivity/lifecycle for review. Actual environment/generator/adoption execution remains delivery proof, not inferred runtime APIs. Five numbered
+representation; the earlier fingerprint sensitivity/lifecycle selection is superseded
+for current KDG by ADR-0061. Actual environment/generator/adoption execution remains delivery proof, not inferred runtime APIs. Five numbered
 1–5 rating choices are user-approved; no new UI workflow is added by these refinements.

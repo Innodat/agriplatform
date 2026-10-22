@@ -1,5 +1,7 @@
 # Owned WRITE, recovery evidence and KDG secret execution
 
+Current KDG amendment, 2026-10-22: [ADR-0061](../decisions/0061-kdg-first-committed-operation-wins.md) selects first committed request wins for capture.create/edit. KDG fingerprint/HMAC, secret files and associated key backup/restore are deferred; retained selections below are historical where marked. Identity/Access operator fingerprints and existing runtime behavior remain unchanged. This is documentation only.
+
 2026-10-14. Selected planning contract for existing WRITE/environment/security owners
 and first consuming KDG stories. No runtime helper, database, secret, migration or
 deployment is created. Inherits [Identity/Access substrate](identity-access-execution-substrate.md),
@@ -21,11 +23,12 @@ caller operation_id. All typed fields NOT NULL unless explicitly nullable below.
 | KDG user command: kdg_capture.operation_outcome | id UUID PK; org_id UUID; executor_account_id UUID; executor_actor_id UUID; command_type text; operation_id UUID. UNIQUE(org_id,executor_account_id,command_type,operation_id). No client-supplied owner/org/actor. |
 | Owner operator: identity.operation_outcome / access.operation_outcome | id UUID PK; scope_kind text CHECK platform/organization; scope_id UUID nullable only for platform; executor_actor_id UUID; command_type text; operation_id UUID. UNIQUE NULLS NOT DISTINCT(scope_kind,scope_id,executor_actor_id,command_type,operation_id). No fabricated operator account. |
 
-Shared columns: command_version integer>0; fingerprint_version integer>0;
+Shared non-fingerprint columns: command_version integer>0; result_version integer>0;
+result jsonb object ≤8192 UTF-8 serialized bytes; committed_at timestamptz server UTC;
+initiator_actor_id UUID nullable only when no verified initiator. KDG capture outcomes
+require no fingerprint fields. Operator-only fingerprint columns: fingerprint_version integer>0;
 fingerprint_algorithm text CHECK sha256/hmac-sha256; fingerprint_key_id text nullable;
-fingerprint bytea exactly32 bytes; result_version integer>0; result jsonb object ≤8192
-UTF-8 serialized bytes; committed_at timestamptz server UTC; initiator_actor_id UUID
-nullable only when no verified initiator. HMAC requires a valid non-null key ID;
+fingerprint bytea exactly32 bytes. For fingerprint-bearing operator outcomes, HMAC requires a valid non-null key ID;
 SHA requires key ID null. Unsupported versions/algorithms are retained and blocked,
 never interpreted as absent outcomes. All UUIDs nonnil, text excludes NUL, result is
 strictly validated command-specific compact acknowledgement, never an arbitrary dict.
@@ -94,10 +97,14 @@ rollback preserves atomicity.
 
 ## Short transaction and duplicate execution sequence
 
-1. Strictly validate shape, versions, typed IDs/bounds and caller/service identity.
-   Resolve target identifiers from path/payload or a private scoped preliminary outcome
-   read, then obtain current Access/operator/resource authority and required external
-   observations before business locks. Preliminary metadata is never released before
+1. Strictly parse structural shape, typed IDs/bounds, supported incoming command versions
+   and caller/service identity before outcome lookup; unsupported versions fail safely.
+   For KDG, privately look up the exact scoped outcome first. If it exists, resolve its
+   stored target and obtain current stored-resource/command authority before considering
+   the supplied target: that target must neither authorize nor deny a committed replay.
+   If no committed outcome is observed, obtain authority and required external observations
+   for the supplied fresh-action target before business locks. Operator contracts retain
+   their existing target/fingerprint rules. Preliminary metadata is never released before
    authority succeeds. One ten-second server-monotonic execution budget includes waits/
    rechecks; Access call ≤3 seconds, local-start observation gap ≤1 second, lock wait
    ≤2 seconds and SQL statement ≤5 seconds, each capped by remaining budget.
@@ -112,13 +119,20 @@ rollback preserves atomicity.
    unrelated commands only; the actual unique table key still decides identity.
 3. If a committed outcome exists, verify fresh pre-lock authority matches its actual
    stored resource/command and stays within the observation-start bound, then
-   compare the original version/algorithm/key-specific fingerprint. Match returns its
-   original receipt, mismatch conflicts. Missing verification material fails closed.
-   If stored target differs from the checked target, release/rollback without disclosing
+   for KDG capture.create/edit, return the original supported receipt (original target/
+   revision and original supported command/receipt version), even for a different supported
+   incoming version, without payload comparison or fresh domain/eligibility/revision/
+   lifecycle validation. Unsupported stored versions fail safely. Supplied
+   target/action never grants authority. For operator commands only, compare the original
+   version/algorithm/key-specific fingerprint: match returns its original receipt, mismatch
+   conflicts and missing verification material fails closed.
+   If raced discovery finds a stored outcome whose target differs from the checked target,
+   release/rollback without disclosing
    a receipt, perform its exact network check and restart within the original budget.
    No network recheck runs under locks.
-4. If absent, lock/update the actual local domain state in deterministic order, validate
-   current assignment/member-binding evidence/version/lifecycle and expected revision.
+4. Only if no committed outcome exists, lock/update the actual local domain state in
+   deterministic order and apply fresh domain/eligibility/assignment/member-binding
+   evidence/version/lifecycle and expected-revision validation.
    The outcome-key lock prevents competing identical operations; domain revision and
    structural constraints arbitrate different operations. Never substitute latest revision.
 5. Mutate local business state, attribution/revision, required immutable evidence and
@@ -172,6 +186,10 @@ later edits stay behind unresolved predecessors. No autosave/draft recovery is a
 
 ## Exact KDG fingerprint secret/configuration input
 
+**Historical selection — superseded for current KDG by ADR-0061 (2026-10-22).**
+The complete candidate configuration below is retained for possible future opt-in work;
+it is not an active KDG prerequisite, key-recovery gate or fallback algorithm.
+
 Use rfc8785==0.1.4 for JCS bytes; Python3.15 standard-library hmac/hashlib SHA-256 and
 compare_digest for keyed fingerprint/constant-time comparison. The selected library
 has no runtime dependencies; conformance checks use RFC8785 ordering/Unicode/number
@@ -220,9 +238,11 @@ release inputs, not an invented installed secret platform or automatic cloud bac
 WRITE proves actual role/RLS isolation, alternate-write UPDATE/DELETE/TRUNCATE refusal,
 local nonexistent-actor/wrong-outcome linkage rejection, conditional races,
 duplicate/new-command keys, no-op, receipt/audit failure rollback, commit/lost response,
-timeouts and pool reuse. KDG A09/A14/A16 consume these, plus HMAC/JCS key restart,
-overlap/rotation/rollback, missing/wrong-environment key, data+secret restore and log/
-artifact leak-exclusion fixtures. Schema/readiness checks cannot substitute for them.
+timeouts and pool reuse. KDG A09/A14/A16 consume these with first-commit-wins changed-body
+replay, original-target authorization, frozen-snapshot acknowledgement, predecessor blocking
+and no fresh operation on unknown outcome. HMAC/JCS/key lifecycle fixtures above remain
+historical candidate evidence, not current KDG gates. Ordinary business-data backup/restore
+and log/artifact leak-exclusion remain. Schema/readiness checks cannot substitute for proof.
 Controlled migrations preserve previous running version/queued payload interpretation,
 block activation on failure and provide explicit recovery with no automatic downgrade.
 

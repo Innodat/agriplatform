@@ -22,9 +22,13 @@ Current Leave foundations remain planned, not delivered.
 KDG-owned questionnaire/child/answer rules, opaque prior-child eligibility references,
 request shapes and local schemas are in contracts.md. They do not belong in shared
 Access. Initial 1–5 numbered scale and own-only PWA/online all-admin split are agreed.
-The selected fingerprint sensitivity/algorithm lifecycle is recorded in the
-[owning security contract](../../../platform/docs/architecture/contracts/operation-fingerprint-security-evolution.md#kdg-initial-fingerprint-disposition--2026-10-14)
-for review; no key infrastructure is presumed installed.
+[ADR-0061](../../../platform/docs/architecture/decisions/0061-kdg-first-committed-operation-wins.md) selects first committed request wins for current
+capture.create/edit, with original authorized target/revision receipts even for changed
+incoming content. Fingerprint/HMAC, fingerprint secret files and associated key backup/
+restore are deferred; the earlier security disposition is superseded history. Atomic
+effects/evidence/outcome, current stored-resource authorization, frozen queued input,
+predecessor blocking and bounded uncertainty remain. Ordinary business-data backups/
+recovery and child privacy gates remain; no existing runtime/candidate is converted.
 
 ## Acknowledged retained ownership and first-consumer integration
 
