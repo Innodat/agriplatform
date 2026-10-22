@@ -1,0 +1,836 @@
+{
+  "baseline_git": "fadbbcac915a161a67b5f9480f03d39db91bedf4",
+  "concurrent_external_changes_excluded": {
+    "_bmad-output/planning-artifacts/epics.md": {
+      "observed_sha256": "d23b7d672a464ad884a7be24859e0df57892ce5b5cefde982d2045beff2ff635",
+      "starting_sha256": "3725b744163b52a00d1fa6f0a25a911a1a25ab131d0b8eae673b5da545b2c83b"
+    },
+    "apps/leave/docs/implementation-plan.md": {
+      "observed_sha256": "40d53ec3dfb0d9869be5385eef57e2e204b023c2c4e1b491280e94af8d3a6e3c",
+      "starting_sha256": "e982ca2df8640afef33ff9e6904010b1b3d1cfab917c139176f6ecd6709bd4dc"
+    },
+    "apps/leave/docs/planning-handoff-e3.md": {
+      "observed_sha256": "3acc36377a8a6b4f5dbb004ecf182a794a3c5e2368ff214cffd77dbc4735cc87",
+      "starting_sha256": "e879a481215ca3682ae283f496eff2ed44be0cbd5fb17f8285026d6520313e01"
+    },
+    "apps/scribeswell/migrations/baseline.py": {
+      "observed_sha256": "f1c0721477b3bb17a1653bfe21f4c5b968e0adbaae271ef46b7be3134783641f",
+      "starting_sha256": "7b7aee65d70d517b3f56a1208023e8f8a4e29c2628357974126b113a486a42e3"
+    },
+    "apps/scribeswell/migrations/env.py": {
+      "observed_sha256": "3a6695f14c2455d4ba7eb60e29f295f8a0b4d9d57925617d199188ae50414db4",
+      "starting_sha256": "30dafb783aa8bf9513e7e007fb75b2b04d9be69f3f9d5198eb3cdca4411c1d19"
+    }
+  },
+  "current_tested_sources": {
+    "apps/kdg-capture/api/README.md": "2513ca898f02a4cb84f272b27404f89ade2736fcdc23d5fd518860503119f3b9",
+    "apps/kdg-capture/api/runtime.py": "c070ba130f327a01c9332c0b67cb35a7cf46a137bbc359e498bb75594cdb616e",
+    "apps/kdg-capture/tests/qualify_configured_context.py": "aac8fdf49bfd1c39260787e3b36476905da16e436960c0e10c7a55f0106354d1",
+    "apps/kdg-capture/tests/test_configured_context.py": "99d767b8903162c27a65614b6ba4f5988a46ad2c8e5b57ca9f0abcaeb755fbb4",
+    "services/access/tests/serve_kdg_context_fixture.py": "67c6ffd8938f1caaa3008af0e00e22f51033375a8c33ed9b684f94085ee351a4"
+  },
+  "final_frame": "native-3502e9ca55d24b1997df5414cb2b13a7",
+  "historical_owner_logs_verified": 15,
+  "historical_owner_sources_verified": 217,
+  "interruption_control_frame": "native-c52dac4237b5406ba8623f0cd49268bd",
+  "native_stop": {
+    "exit_code": 0,
+    "result": {
+      "code": "completed",
+      "ok": true,
+      "run_id": "99b7231c-0a5b-4bdb-98e8-3329564c526a",
+      "runtime_ready": false,
+      "stage": "stop"
+    },
+    "witness": "session tool transcript after final database inspection"
+  },
+  "observed_logs": {
+    "affected-pre-review": {
+      "output": "........................................................................ [ 51%]\n...................................................................      [100%]\n=============================== warnings summary ===============================\nplatform/deployment/.local/access-organization-check-20261022/owner-env/lib/python3.15/site-packages/fastapi/testclient.py:1\n  /home/ck/repos/innodat/agriplatform/platform/deployment/.local/access-organization-check-20261022/owner-env/lib/python3.15/site-packages/fastapi/testclient.py:1: StarletteDeprecationWarning: Using `httpx` with `starlette.testclient` is deprecated; install `httpx2` instead.\n    from starlette.testclient import TestClient as TestClient  # noqa\n\n-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html\n139 passed, 1 warning in 3.04s\n\n",
+      "sha256": "0bd2d64aa8ec6d5c12a99d94fe7a9569dc4f8f9866e379534a382380dcc299d3"
+    },
+    "behavioral-red": {
+      "output": "F                                                                        [100%]\n=================================== FAILURES ===================================\n_______________ test_configured_entry_calls_current_exact_access _______________\n\n    def test_configured_entry_calls_current_exact_access():\n        calls = []\n        def current(request):\n            calls.append(request)\n            return httpx.Response(200, json={\n                'account_id': ACCOUNT, 'actor_id': ACTOR, 'membership_id': '9007199254740993',\n                'permission': 'kdg_capture.capture.read.own',\n                'authorization_scope': {'kind': 'organization', 'org_id': ORG},\n                'resource_scope': {'kind': 'own_account', 'account_id': ACCOUNT},\n                'decision_id': '44444444-4444-4444-8444-444444444444',\n                'checked_at': datetime.now(timezone.utc).isoformat().replace('+00:00', 'Z')})\n        with TestClient(factory(POLICY, httpx.MockTransport(current))) as client:\n            response = client.get('/api/v1/context', headers={'Authorization': 'Bearer synthetic-caller'})\n>       assert response.status_code == 200, response.text\nE       AssertionError: {\"error\":\"The request could not be completed.\",\"error_id\":\"authorization_unavailable\"}\nE       assert 503 == 200\nE        +  where 503 = <Response [503 Service Unavailable]>.status_code\n\napps/kdg-capture/tests/test_configured_context.py:46: AssertionError\n=============================== warnings summary ===============================\nplatform/deployment/.local/kdg-context-20261022/owner-env/lib/python3.15/site-packages/fastapi/testclient.py:1\n  /home/ck/repos/innodat/agriplatform/platform/deployment/.local/kdg-context-20261022/owner-env/lib/python3.15/site-packages/fastapi/testclient.py:1: StarletteDeprecationWarning: Using `httpx` with `starlette.testclient` is deprecated; install `httpx2` instead.\n    from starlette.testclient import TestClient as TestClient  # noqa\n\n-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html\n=========================== short test summary info ============================\nFAILED apps/kdg-capture/tests/test_configured_context.py::test_configured_entry_calls_current_exact_access\n1 failed, 1 warning in 0.91s\n\n",
+      "sha256": "454c6b59890594c0343cedab9b97ad54db36fbea95d4fe23c5baa9a8e676a8b5"
+    },
+    "final-affected-tests": {
+      "output": "........................................................................ [ 51%]\n...................................................................      [100%]\n=============================== warnings summary ===============================\nplatform/deployment/.local/access-organization-check-20261022/owner-env/lib/python3.15/site-packages/fastapi/testclient.py:1\n  /home/ck/repos/innodat/agriplatform/platform/deployment/.local/access-organization-check-20261022/owner-env/lib/python3.15/site-packages/fastapi/testclient.py:1: StarletteDeprecationWarning: Using `httpx` with `starlette.testclient` is deprecated; install `httpx2` instead.\n    from starlette.testclient import TestClient as TestClient  # noqa\n\n-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html\n139 passed, 1 warning in 2.70s\n\n",
+      "sha256": "76fd24ec5eedd56b2217814727573cf7cc1a4ddcf5dbfbb572bf3439c122e6ce"
+    },
+    "final-kdg-tests": {
+      "output": "........................................................................ [ 91%]\n.......                                                                  [100%]\n=============================== warnings summary ===============================\nplatform/deployment/.local/kdg-context-20261022/owner-env/lib/python3.15/site-packages/fastapi/testclient.py:1\n  /home/ck/repos/innodat/agriplatform/platform/deployment/.local/kdg-context-20261022/owner-env/lib/python3.15/site-packages/fastapi/testclient.py:1: StarletteDeprecationWarning: Using `httpx` with `starlette.testclient` is deprecated; install `httpx2` instead.\n    from starlette.testclient import TestClient as TestClient  # noqa\n\n-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html\n79 passed, 1 warning in 1.26s\n\n",
+      "sha256": "db002997c36a1ffc71b7ed485f4c4c9f6100a00cb584e1ba0fb3c25919097eac"
+    },
+    "final-openapi-check": {
+      "output": "openapi_current\n\n",
+      "sha256": "44366057e2e63ddbd5a981f4ce8d02d15801068fb442f80dad657dfda8326f60"
+    },
+    "final-types": {
+      "output": "\n",
+      "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b"
+    },
+    "policy-green": {
+      "output": "........                                                                 [100%]\n=============================== warnings summary ===============================\nplatform/deployment/.local/kdg-context-20261022/owner-env/lib/python3.15/site-packages/fastapi/testclient.py:1\n  /home/ck/repos/innodat/agriplatform/platform/deployment/.local/kdg-context-20261022/owner-env/lib/python3.15/site-packages/fastapi/testclient.py:1: StarletteDeprecationWarning: Using `httpx` with `starlette.testclient` is deprecated; install `httpx2` instead.\n    from starlette.testclient import TestClient as TestClient  # noqa\n\n-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html\n8 passed, 1 warning in 0.64s\n\n",
+      "sha256": "4d7bde1c7ac951a66c88ea2cf29f2b1f820d82f9103c90b0473ea00e5d02a7f6"
+    },
+    "policy-red": {
+      "output": "FFFFFFFF                                                                 [100%]\n=================================== FAILURES ===================================\n_______________ test_configured_entry_calls_current_exact_access _______________\n\n    def test_configured_entry_calls_current_exact_access():\n        calls = []\n        def current(request):\n            calls.append(request)\n            return httpx.Response(200, json={\n                'account_id': ACCOUNT, 'actor_id': ACTOR, 'membership_id': '9007199254740993',\n                'permission': 'kdg_capture.capture.read.own',\n                'authorization_scope': {'kind': 'organization', 'org_id': ORG},\n                'resource_scope': {'kind': 'own_account', 'account_id': ACCOUNT},\n                'decision_id': '44444444-4444-4444-8444-444444444444',\n                'checked_at': datetime.now(timezone.utc).isoformat().replace('+00:00', 'Z')})\n        with TestClient(factory(POLICY, httpx.MockTransport(current))) as client:\n            response = client.get('/api/v1/context', headers={'Authorization': 'Bearer synthetic-caller'})\n>       assert response.status_code == 200, response.text\nE       AssertionError: {\"error\":\"The request could not be completed.\",\"error_id\":\"authorization_unavailable\"}\nE       assert 503 == 200\nE        +  where 503 = <Response [503 Service Unavailable]>.status_code\n\napps/kdg-capture/tests/test_configured_context.py:46: AssertionError\n______________ test_missing_policy_refuses_at_startup[KDG_ORG_ID] ______________\n\nmissing = 'KDG_ORG_ID'\n\n    @pytest.mark.parametrize('missing', list(POLICY))\n    def test_missing_policy_refuses_at_startup(missing):\n        policy = {key: value for key, value in POLICY.items() if key != missing}\n>       with pytest.raises(RuntimeError, match='^kdg_context_configuration_invalid$'):\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nE       Failed: DID NOT RAISE RuntimeError\n\napps/kdg-capture/tests/test_configured_context.py:58: Failed\n____________ test_missing_policy_refuses_at_startup[KDG_ACCESS_URL] ____________\n\nmissing = 'KDG_ACCESS_URL'\n\n    @pytest.mark.parametrize('missing', list(POLICY))\n    def test_missing_policy_refuses_at_startup(missing):\n        policy = {key: value for key, value in POLICY.items() if key != missing}\n>       with pytest.raises(RuntimeError, match='^kdg_context_configuration_invalid$'):\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nE       Failed: DID NOT RAISE RuntimeError\n\napps/kdg-capture/tests/test_configured_context.py:58: Failed\n___________ test_missing_policy_refuses_at_startup[KDG_SERVICE_KEY] ____________\n\nmissing = 'KDG_SERVICE_KEY'\n\n    @pytest.mark.parametrize('missing', list(POLICY))\n    def test_missing_policy_refuses_at_startup(missing):\n        policy = {key: value for key, value in POLICY.items() if key != missing}\n>       with pytest.raises(RuntimeError, match='^kdg_context_configuration_invalid$'):\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nE       Failed: DID NOT RAISE RuntimeError\n\napps/kdg-capture/tests/test_configured_context.py:58: Failed\n_____________ test_empty_explicit_policy_does_not_inherit_ambient ______________\n\nmonkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7e9a9939ed70>\n\n    def test_empty_explicit_policy_does_not_inherit_ambient(monkeypatch):\n        for key, value in POLICY.items():\n            monkeypatch.setenv(key, value)\n>       with pytest.raises(RuntimeError, match='^kdg_context_configuration_invalid$'):\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nE       Failed: DID NOT RAISE RuntimeError\n\napps/kdg-capture/tests/test_configured_context.py:65: Failed\n_ test_invalid_policy_has_fixed_safe_failure[KDG_SERVICE_KEY-sensitive-config-canary\\n] _\n\nkey = 'KDG_SERVICE_KEY', value = 'sensitive-config-canary\\n'\ncaplog = <_pytest.logging.LogCaptureFixture object at 0x7e9a99369be0>\n\n    @pytest.mark.parametrize('key,value', [('KDG_SERVICE_KEY','sensitive-config-canary\\n'),\n                                          ('KDG_ORG_ID','sensitive-config-canary'),\n                                          ('KDG_ACCESS_URL','https://user:sensitive-config-canary@access.synthetic')])\n    def test_invalid_policy_has_fixed_safe_failure(key, value, caplog):\n>       with pytest.raises(RuntimeError) as error:\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^^\nE       Failed: DID NOT RAISE RuntimeError\n\napps/kdg-capture/tests/test_configured_context.py:73: Failed\n_ test_invalid_policy_has_fixed_safe_failure[KDG_ORG_ID-sensitive-config-canary] _\n\nkey = 'KDG_ORG_ID', value = 'sensitive-config-canary'\ncaplog = <_pytest.logging.LogCaptureFixture object at 0x7e9a993bfc50>\n\n    @pytest.mark.parametrize('key,value', [('KDG_SERVICE_KEY','sensitive-config-canary\\n'),\n                                          ('KDG_ORG_ID','sensitive-config-canary'),\n                                          ('KDG_ACCESS_URL','https://user:sensitive-config-canary@access.synthetic')])\n    def test_invalid_policy_has_fixed_safe_failure(key, value, caplog):\n>       with pytest.raises(RuntimeError) as error:\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^^\nE       Failed: DID NOT RAISE RuntimeError\n\napps/kdg-capture/tests/test_configured_context.py:73: Failed\n_ test_invalid_policy_has_fixed_safe_failure[KDG_ACCESS_URL-https://user:sensitive-config-canary@access.synthetic] _\n\nkey = 'KDG_ACCESS_URL'\nvalue = 'https://user:sensitive-config-canary@access.synthetic'\ncaplog = <_pytest.logging.LogCaptureFixture object at 0x7e9a992d4050>\n\n    @pytest.mark.parametrize('key,value', [('KDG_SERVICE_KEY','sensitive-config-canary\\n'),\n                                          ('KDG_ORG_ID','sensitive-config-canary'),\n                                          ('KDG_ACCESS_URL','https://user:sensitive-config-canary@access.synthetic')])\n    def test_invalid_policy_has_fixed_safe_failure(key, value, caplog):\n>       with pytest.raises(RuntimeError) as error:\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^^\nE       Failed: DID NOT RAISE RuntimeError\n\napps/kdg-capture/tests/test_configured_context.py:73: Failed\n=============================== warnings summary ===============================\nplatform/deployment/.local/kdg-context-20261022/owner-env/lib/python3.15/site-packages/fastapi/testclient.py:1\n  /home/ck/repos/innodat/agriplatform/platform/deployment/.local/kdg-context-20261022/owner-env/lib/python3.15/site-packages/fastapi/testclient.py:1: StarletteDeprecationWarning: Using `httpx` with `starlette.testclient` is deprecated; install `httpx2` instead.\n    from starlette.testclient import TestClient as TestClient  # noqa\n\n-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html\n=========================== short test summary info ============================\nFAILED apps/kdg-capture/tests/test_configured_context.py::test_configured_entry_calls_current_exact_access\nFAILED apps/kdg-capture/tests/test_configured_context.py::test_missing_policy_refuses_at_startup[KDG_ORG_ID]\nFAILED apps/kdg-capture/tests/test_configured_context.py::test_missing_policy_refuses_at_startup[KDG_ACCESS_URL]\nFAILED apps/kdg-capture/tests/test_configured_context.py::test_missing_policy_refuses_at_startup[KDG_SERVICE_KEY]\nFAILED apps/kdg-capture/tests/test_configured_context.py::test_empty_explicit_policy_does_not_inherit_ambient\nFAILED apps/kdg-capture/tests/test_configured_context.py::test_invalid_policy_has_fixed_safe_failure[KDG_SERVICE_KEY-sensitive-config-canary\\n]\nFAILED apps/kdg-capture/tests/test_configured_context.py::test_invalid_policy_has_fixed_safe_failure[KDG_ORG_ID-sensitive-config-canary]\nFAILED apps/kdg-capture/tests/test_configured_context.py::test_invalid_policy_has_fixed_safe_failure[KDG_ACCESS_URL-https://user:sensitive-config-canary@access.synthetic]\n8 failed, 1 warning in 0.67s\n\n",
+      "sha256": "a74108dd3dbf82ef38f8c22f5ba90f2e3d4772991c8564f90ecfcd417cdf0274"
+    }
+  },
+  "observed_test_tls_tool": {
+    "path": "/usr/bin/openssl",
+    "sha256": "b4f547c0f16272d1cc7f870330a6f2c243710c335e7a99c734ff7a0c6fdb2503",
+    "version": "OpenSSL 3.0.13 30 Jan 2024 (Library: OpenSSL 3.0.13 30 Jan 2024)"
+  },
+  "prior_handoff_tail_sha256": "53930409053237d75998740bc256c6577041282140db7f8cee047ceefbaa960e",
+  "prior_readme_prefix_sha256": "29ded746c77ce3a843e14628f9028608e1a1ac767ad17fa5612d5fd1db35abb8",
+  "protected_starting_sources_verified": {
+    "apps/kdg-capture/api/.generated-files.json": "8ec43b88283244c01634fd26c0c42d6ed45134b91a337e87c5c928ecbfd045bf",
+    "apps/kdg-capture/api/context.py": "1c58d6432fa321252d5e4fd88d1e1b589bb989cf4243a2fb4a7104a7c9151a06",
+    "apps/kdg-capture/api/export_openapi.py": "564cdd231f1401ce2ed125e53f047b9e674fa16bbec08fb253ff38e67c51fe69",
+    "apps/kdg-capture/api/main.py": "a44bc61f1d8d8e93a28cf6e38da45da70feb4f8fe1b1da7791e99f0a1c697fe3",
+    "apps/kdg-capture/api/openapi.json": "d8bfa44f2637cb09328e19ddb4b36a63b2668df4e223cab8ce698c59c0a6b9c1",
+    "apps/kdg-capture/api/pyproject.toml": "75b87a5a99d7e6d39b3c74ba16a4016e51027f2352665bcb1276c1aa5de31241",
+    "apps/kdg-capture/api/safe_errors.py": "18a1359b2b1f9bb8c79c91644582c9d320bf22ed56d53afac179ff3fce6901df",
+    "apps/kdg-capture/api/uv.lock": "9b3164930e96657ff76be97ff992b8a5dd64b713b0dd09c3d9b08e56ab88ec2b",
+    "apps/kdg-capture/contracts/generated/.generated-files.json": "6083a578ffdfcadc8756a4dccbca5f1df706aab955776b23ca6e90d55795e5b7",
+    "apps/kdg-capture/contracts/generated/index.ts": "ce2d94c771b5e28f39defa7d411c47184b8e4b2c773d8477ffbcfcefac4f5411",
+    "apps/kdg-capture/contracts/generated/types.gen.ts": "0421fb817175c54083471772a42bcae6464fcbed29dae3cbfe4f22681c39675f",
+    "apps/kdg-capture/docs/.memlog.md": "091be00b12381f76efe5d8ad67e51dce797450870eac2405b125e8246f424f13",
+    "apps/kdg-capture/docs/ARCHITECTURE-SPINE.md": "e918c896d3e9cd472b4d8bdad61b1ef5edeee25e5fd9873e632e7da6b5212649",
+    "apps/kdg-capture/docs/CONTEXT_API_EVIDENCE.md": "bcd4bf232c1717b5262cebcf12b6f5fbff5e71b9a72a91d6c2066190c6cf78cf",
+    "apps/kdg-capture/docs/DESIGN.md": "c58fffe8d43dd087ae19234ceeffaf1ad97eb4638669c25745907cc5038c343c",
+    "apps/kdg-capture/docs/EXPERIENCE.md": "122ccdf3aa758cdf4a80bb25e99ae290143dad4d58ed895c469d55fbc9e739df",
+    "apps/kdg-capture/docs/README.md": "c26cf58c44d89a8dbfa133c3d2a60474e8aa7b5cf803ff11fb3516cedea485f2",
+    "apps/kdg-capture/docs/architecture/decisions/0001-explicit-observation-save.md": "0aded249419c90a37e261a4e86a471892502dae829f76ea6a009320f7fd9a80f",
+    "apps/kdg-capture/docs/architecture/decisions/README.md": "22c8b8515e2cc1a641c04675a64608835a54f63150b649b8dd5e0e8c075cb9d4",
+    "apps/kdg-capture/docs/contracts.md": "ce5c4147fecdce268b33d0c3c2fe4a17f75b456d50a0d65bfc4780a48b02bf25",
+    "apps/kdg-capture/docs/delivery-impact.md": "48b3801bb7f91dc84340e335316006a73c3c0722e9aa083eddf3073ca53523db",
+    "apps/kdg-capture/docs/discovery.md": "a057557e42e8a9c8336ebc00d314d8f93ec15ee6723298582674d15d4d9b6c44",
+    "apps/kdg-capture/docs/draft-simplification-proposal.md": "8d587d81116cf2ad238b65c2592bf7c7ba5c07ea1c5602f04996b8fa47f0ff32",
+    "apps/kdg-capture/docs/e1-planning-coverage.md": "44c43a7ac28c324c5f19ab048aa70b03a1e040bb6280967dce9e0160fce2ef59",
+    "apps/kdg-capture/docs/e2-planning-coverage.md": "208d04a089b991df404df5daca6b7e516202dd90e117472ce0d6ceb0e0025aaa",
+    "apps/kdg-capture/docs/e3-planning-coverage.md": "28c4fcb4ac4d0ba102e1a65c8196a926fbac17a1b61c27fe3537f24c15e46949",
+    "apps/kdg-capture/docs/e4-planning-coverage.md": "989eedc8bb6ba53d580a910715827178d719773d7b93082a0d26fc97e48dde27",
+    "apps/kdg-capture/docs/e5-planning-coverage.md": "a1d40a39dc2edbd0ac95f5e96b9326e1f7b224636b998b65978b49eeaf2dc38a",
+    "apps/kdg-capture/docs/epics.md": "97b830ea8aafaac68d7917c9ff612a5a25ff58117ba063a8917288e8d8c30287",
+    "apps/kdg-capture/docs/evidence/context-api-20261022.json": "1985f5dfd615fb3d8206b70a15a7f5a0734a3ea28e9e9e1126c4b9867813947b",
+    "apps/kdg-capture/docs/final-planning-validation.md": "fe60aca251c143beab29fcc248d720aa86344f0d45c76b24ff009d70ab60a5d9",
+    "apps/kdg-capture/docs/implementation-readiness.md": "e7348eb0e460ed2b8068709d5a2064b0af529387963fad05cf7caa2cbca197c7",
+    "apps/kdg-capture/docs/prd.md": "755f4494b655a7b9646c92ee1f02f164ca1325cfd1032790a3e87a3320aba6c7",
+    "apps/kdg-capture/docs/review-resolution.md": "3c0466d090230c2c125ebd398ed24a55f97bbd45e75a8509db46178626672710",
+    "apps/kdg-capture/docs/reviews/recheck-architecture.md": "a1d898eb86e5324a5d9534cd40914b59b6137263c72588729ac090de5856762a",
+    "apps/kdg-capture/docs/reviews/recheck-ux.md": "810a125c909c6489cbbcaf23eab6c8f8bd51b6a9ccda1952c3b0be8ee38a8509",
+    "apps/kdg-capture/docs/reviews/reconcile-explicit-save.md": "36e03b0ea034fb8740e29216c5f7271f1df0c09f327e35b7ed8f681cafbdf7ac",
+    "apps/kdg-capture/docs/reviews/review-architecture-adversary.md": "8d053607f38e9b97403d90f40c8f6120dac698dc972dd31c94dd727ac5d33798",
+    "apps/kdg-capture/docs/reviews/review-architecture-rubric.md": "0fde26610c097918fc31cf44d698077d23f2d9a613080298a2cb36872de23d5c",
+    "apps/kdg-capture/docs/reviews/review-editorial.md": "e043f81bf8acce80416550c0b6318e7d58cb89e52e70442b1763b76b42b0ce67",
+    "apps/kdg-capture/docs/reviews/review-env-scaffold-adversary.md": "48da1bb811872c82b8b3fe7b8351a86d17b4dafdcf6532a4e65c4387d01dbe2a",
+    "apps/kdg-capture/docs/reviews/review-env-scaffold-rubric.md": "cb5362f272d8707e27a2dac325512f603e61c9e9fae5031dab52f4aba262667a",
+    "apps/kdg-capture/docs/reviews/review-env-scaffold-technology.md": "86a3c2c5b3d231aa2cad90fae0b575a38d432a048dcb2989df7a590d6320e70c",
+    "apps/kdg-capture/docs/reviews/review-final-architecture-adversary.md": "596aee53751b91352e98568e9d8a77a90ea43746b1f74b767f529a667c3a65d4",
+    "apps/kdg-capture/docs/reviews/review-final-architecture-rubric.md": "bebcac2189b66141d0a8892d072a91e05f5d6e3c147614603a648d9b79f02863",
+    "apps/kdg-capture/docs/reviews/review-final-architecture-technology.md": "138e69130026fa1e957dce8fd8ae614f28771c249f2ff2a3e88043a7263f26dc",
+    "apps/kdg-capture/docs/reviews/review-final-readiness.md": "86b6d63c0d43273bb9d9a80b9b097951d9732f86b4b0959d914de7121523a238",
+    "apps/kdg-capture/docs/reviews/review-identity-access-adversary.md": "b4d9c567097a5e233d86c7f612bf0cd506ac141ff461aaae8f4cfb887ca2c83e",
+    "apps/kdg-capture/docs/reviews/review-identity-access-rubric.md": "98c63acf908f6b41c1e9ec4b947ccbd06606c1f8d6c3fe27b21065013099b680",
+    "apps/kdg-capture/docs/reviews/review-identity-access-technology.md": "12e16e825d97c1f683d04e6ff0618e7ce1ee720b1afef453ddc1310dd91f8b00",
+    "apps/kdg-capture/docs/reviews/review-prd.md": "0ee2aea5e8b417dcfd31e65b1808311ac8b0b277e5bd9a50348bec4758c4bee8",
+    "apps/kdg-capture/docs/reviews/review-shared-readiness-adversary.md": "241553fd44c76e53e6b47a345560f48300fe4dffefbcf5b9b9b39e530a000c1f",
+    "apps/kdg-capture/docs/reviews/review-shared-readiness-rubric.md": "e0b3007119fa5134f23a56bf5bc1b27541af3e658b2584c5f15977e8cc8c1805",
+    "apps/kdg-capture/docs/reviews/review-shared-readiness-technology.md": "18d6aaba6a3cdeb805ba41d2f23343833afb47fd5b73949dbf058fcab0ecdc52",
+    "apps/kdg-capture/docs/reviews/review-technology.md": "5c9fa38a1dd3c017d25489586350ec5684393d19b53bab9097cbe5dbc03937fe",
+    "apps/kdg-capture/docs/reviews/review-ux.md": "bf8f5b57bce8912fdd986950dce2a6fa3f7eda629ae1e66b055be008d5e85b05",
+    "apps/kdg-capture/docs/reviews/review-write-adversary.md": "012f04f56b6e7530fcb98c76bc2cbf1c6800dd89e6cff60764fbbdab7ae7641e",
+    "apps/kdg-capture/docs/reviews/review-write-rubric.md": "2e632652f4ed2c2b2135cf31593d4c3344acc183f16dbf0e19775d399c8cef6e",
+    "apps/kdg-capture/docs/reviews/review-write-technology.md": "1471c16dd797511d77f534ae6231e8ccef6bd583dbcf8329d9b8fa3f4b03dcb9",
+    "apps/kdg-capture/docs/shared-platform-handoff.md": "ab58a0753c6cbf36cd621c714d94b3e15d2b80df47b5d8fd3badc5cfdfe6fe25",
+    "apps/kdg-capture/docs/shared-prerequisites.md": "365ac72975feaafffdbc96f648c44a668c802fddff3a8f03c07358b763f816cb",
+    "apps/kdg-capture/docs/story-candidates/1-1-authorized-entry.md": "71e79ea18b674e5bb95e900c7ba1c40fbe7a8dddaa388594c459544fca3326af",
+    "apps/kdg-capture/docs/story-candidates/1-2-initial-questionnaire.md": "260b7c553148a88de90865c4bec31d2c95737a3a414e4377e9b2ae01b959546f",
+    "apps/kdg-capture/docs/story-candidates/1-3-initial-child-assignment.md": "290163d59ce9494d03659a587ac50b0dee2645b468883fe8871994c785d862c7",
+    "apps/kdg-capture/docs/story-candidates/1-4-phone-offline-setup.md": "ad0ac5a8504332052213c8cf77f9263dd448044d631a1a24d38094c4d646c74e",
+    "apps/kdg-capture/docs/story-candidates/1-5-recoverable-observation-input.md": "567ad401c96f635f16b9a4a39e83afa573a28182b71a6e962ff185f6dadfe482",
+    "apps/kdg-capture/docs/story-candidates/1-5-save-observation-on-phone.md": "341801a90c9d919d0d7acac5345c4361d78c61a090b62cbe9d409d5920b2d5ad",
+    "apps/kdg-capture/docs/story-candidates/1-6-create-sync.md": "269b2f3d2c62b67a069897fc9934af1635e1cbbb51fd480e1b4f8fe23fc6eeb4",
+    "apps/kdg-capture/docs/story-candidates/1-7-installed-first-slice-proof.md": "273ffe893f9f1366dd9064ad35d9ca008efc5cf2953166f59d1da8164c6acb58",
+    "apps/kdg-capture/docs/story-candidates/2-1-own-history.md": "184c0f7fb3e4d1d8567e38674871549ba8c5af7d8dd98555300815f61ffb2965",
+    "apps/kdg-capture/docs/story-candidates/2-2-own-capture-editing.md": "63734379f0a608373152e5579de12f488c20aa2e010f64ef39210fd290c19d36",
+    "apps/kdg-capture/docs/story-candidates/2-3-own-conflict-resolution.md": "725feff7891aa0b29c900a9ceea9a56a1155a0cd84401b312459be5cadf400b0",
+    "apps/kdg-capture/docs/story-candidates/2-4-own-revisions-and-proof.md": "2ee7243007a9f76c6bfecde580c7efc9be06d3b25096dd86ee45ed315058b557",
+    "apps/kdg-capture/docs/story-candidates/3-1-administrator-history.md": "7d34711fa1c728088cb7fed0ef84f23591bc2884d5ef58371aa6c95a263da96c",
+    "apps/kdg-capture/docs/story-candidates/3-2-administrator-editing.md": "98f9baac266d9346ac2529a3581374436ceac5730d2c27c0b5a894215a98fd61",
+    "apps/kdg-capture/docs/story-candidates/4-1-questionnaire-editor.md": "01f23974247ae294ff2cd3131455ecd53160e3f2ef2211d15c54461da232bff3",
+    "apps/kdg-capture/docs/story-candidates/4-2-publish-version-compatibility.md": "015ad8f7150b802a2b2a9a8937c413ea8984905dfa12272cff0af32af9be7468",
+    "apps/kdg-capture/docs/story-candidates/5-1-child-management.md": "028845f5d2a5dd7aa1bec3635d6ef45ab6a2c4580f8fe81bba8423b90178664b",
+    "apps/kdg-capture/docs/story-candidates/5-2-facilitator-assignments.md": "89d59ef2aec9c000469b7b5d8deb624b9f07432b4f302041b95422160186a105",
+    "apps/kdg-capture/docs/story-candidates/5-3-storage-update-reliability.md": "8453a4039557140f4e0d1455f3ec4b3ea5c994e80c69a1c5a69a7860bda395a0",
+    "apps/kdg-capture/docs/story-candidates/5-4-pilot-readiness.md": "fb6b175d8ce4468f52a2895f4ccf5d800138fa5854baf7d52107319338cef466",
+    "apps/kdg-capture/docs/testing.md": "91c726716971bfc385b6eb315968283051683e7d7fa35cc1e82854e652188857",
+    "apps/kdg-capture/docs/validation-report.md": "b33a1e7ec8a7ecd28a6c4a0d02333e389f5d1903a2b9e11df56e826843a02a86",
+    "apps/kdg-capture/tests/context-contract.ts": "2b30ad568e4d0511c9ef89d17d7198d842aca8f6a97e2442d0bf65ea2477f81c",
+    "apps/kdg-capture/tests/test_context_api.py": "ee50174d9ed44869f3910b358ee01defdfb734250f858f92dd5d948cf90174b4",
+    "apps/kdg-capture/tests/tsconfig.json": "754b67f6952c73c8b00010b28f368f3fcdb13aecb27b0e249c5944268c59e213",
+    "package-lock.json": "9a8128448ab80c4319e61fb325e0030eeb71e2e31966b65f3e11f5774a667fe4",
+    "package.json": "f353097548bbc53b737b88ee2c836af561aa805491405e3c0b6cd8c098e9f6da",
+    "platform/api-client/package.json": "1dda2dbf5c959911e5c12968005f5e91278927ded1490ac76431653388624c3b",
+    "platform/api-client/src/cli.mjs": "f3a36934bfb3e9c264b8e2fe4ddf0cafbac88c7aba4ebda0a6ffb52003059377",
+    "platform/api-client/src/compat.mjs": "8a7029ab9293627153844755cace2700cecc73086840ea22103e248ad822601c",
+    "platform/api-client/src/generate.mjs": "623fc8e5b873535f702aae495056baefa107f1d637d608d8a87d73f7f8c6dd0a",
+    "platform/api-client/src/tooling.mjs": "f1e848685392d110d11409abde9e605a0b1e996385a379ff29135126ff1a6a7e",
+    "platform/builder-cli/examples/owned-service/README.md": "d2661fbc294ee4625f9d5c885bb4314ea83ae0506823e0d3c45bdb191ea060ee",
+    "platform/builder-cli/examples/owned-service/atomic_write.py": "1c5db177b8ec5ad9e7aff831898c1cd1728567dad667f8efb644cdaf18032d20",
+    "platform/builder-cli/examples/owned-service/command_fingerprint.py": "0f4bd07fe69eb507c32acbddc2505a4830e724d819ea34ea296d710b39cb1713",
+    "platform/builder-cli/examples/owned-service/fingerprint_secret_files.py": "62f3716125e3856b6e092a70903eae89aeef94d644a8d79feb598ba3a0b040d0",
+    "platform/builder-cli/examples/owned-service/first_committed_write.py": "080b23d6e70777fc7e47611e32e81f6340d7cc66a967e059df6f986d939c2ff5",
+    "platform/builder-cli/examples/owned-service/transaction_context.py": "aae4c742ff5b5cb2e4d5720e37006ace498c4f278d30a04261c44e631285720f",
+    "platform/builder-cli/package.json": "1921614e192482707b6785a0948a409f8cfc4fa6e468da16f0dcd1fc30225a92",
+    "platform/docs/architecture/contracts/scaffold-dependency-baseline-2026-10-14.md": "25cb0be00bb902e34016ef76d99e8b0c2a753f4e9e4bc756a8f66a3b431a4a3b",
+    "platform/docs/architecture/decisions/0061-kdg-first-committed-operation-wins.md": "16f33bde28f984274e65f98d8d1eb70843d70e3ba28dfaa2c5f2d4c3be465486",
+    "services/access/ACCESS_MEMBERSHIP_BINDING_EVIDENCE.md": "cb7dc24126680f231d138c615a60a62b925f60b474c4ad4e4e5097d45efc2abe",
+    "services/access/ACCESS_OPERATOR_INPUT_EVIDENCE.md": "18ad4071604b946784a02095ba4b9f2652939a00fde01911b46c08a475555eda",
+    "services/access/ACCESS_REGISTRY_STORAGE_EVIDENCE.md": "4a26e66157a30d7ae911af9776a28da1ee53775877b684c5a4bef083dc67e54a",
+    "services/access/ACCOUNT_ACTOR_ENSURE_EVIDENCE.md": "8b36c0af88909dc602fbd78e1e8b2cffa11ca5ce62acbf675a782344a68bfc4d",
+    "services/access/ACTIVE_MEMBERSHIP_INDEX_EVIDENCE.md": "0760460284d92921c43b2311b5996054bd2f252617c35860755e895d390ae78f",
+    "services/access/ACTOR_COMMAND_EVIDENCE.md": "f56563fbf2c8f8943594be37eef029fd1c9100f6bea97c0b10d48ba5f19e3b8a",
+    "services/access/ACTOR_FOUNDATION_EVIDENCE.md": "03585094f1384679cb143ffb075e9ff03e0549643d5c15c58a9cacf5e10ec6bc",
+    "services/access/APPLICATION-REGISTER.md": "b5cccfb09012ffc0c572f445327d8111a046a7f324d1775cfa7c0bbc3e0b0474",
+    "services/access/APPLICATION-SET-ENABLED.md": "8cd3182e483cdd602bd38180293ee3d195e2636052ac72222a85bb5fddb7a9c3",
+    "services/access/APPLICATION_ENABLE_INPUT_EVIDENCE.md": "d28868ed8b4eadd0472fff183c23387747b7aa33637daceb8ee96b93fa04db35",
+    "services/access/APPLICATION_REGISTER_EVIDENCE.md": "66ea5c21aac61039f357f3cc7970cb0c1650d8974e1fcdd76c36ca4a8f3b1884",
+    "services/access/APPLICATION_SET_ENABLED_EVIDENCE.md": "207adcf743a0686d573d5fe5f5af52cd402253aef3543a260d8e046ee1852165",
+    "services/access/CHECK-READER-BRIDGE.md": "21d66f4dcacb0e3e89c7e2acd55e6cd258833d72caf1d8c79e5737a633021f59",
+    "services/access/CHECK_READER_BRIDGE_EVIDENCE.md": "c638254201740faad6958c863d3b846ea31cbb5c3fa4bfe58242feb44f23eb83",
+    "services/access/CURRENT_ACCOUNT_ACTOR_EVIDENCE.md": "1fcee1e589fe97e8f2c481be7b13a154c348a8b4e264a223ae6e1848aaa8250c",
+    "services/access/CURRENT_ACCOUNT_ORGANIZATION_EVIDENCE.md": "9a7e5918b29acd7fc9ee6b86148c1fbf104a832a213d2aab2b23ce0b71858dfc",
+    "services/access/ENTRY-PERMISSION-REGISTER.md": "dbfffbb690cc4a19098659d191aaf536a93665247095f7a6d2c4caab77c1bc77",
+    "services/access/ENTRY_PERMISSION_REGISTER_EVIDENCE.md": "9c70775fe958c7ae9b25cb2913ce54eadfbbe3bfd21e78ea1b032455ce33cf54",
+    "services/access/GRANT-ASSIGN.md": "2e098a3bebaa4f56768d129068cae993881836bea3576f688380044dd984c590",
+    "services/access/GRANT-LIFECYCLE-STORAGE.md": "e58031f74418579cf013cb89c06ef5f4a5d723ccf2eed29f1a94792c81e4e02d",
+    "services/access/GRANT-REGISTRY-BRIDGE.md": "c34f82f42ed02e82c1d7f7aef56b3b7f2b6bd16ecabfee47085246437354b907",
+    "services/access/GRANT-REVOKE.md": "7598283d5838b088ba0575d71c349fc44d800ad4e81967ae9c35eac97f17e80d",
+    "services/access/GRANT_ASSIGN_EVIDENCE.md": "335c169896beb1d9ae7ef836e98fe7774b79aaebe23eaa3a32ce96ab1ed072d7",
+    "services/access/GRANT_ASSIGN_INPUT_EVIDENCE.md": "a4df46a9c167fc6f57eaf9d77c3407d591396e67532687610005f879302044bb",
+    "services/access/GRANT_LIFECYCLE_STORAGE_EVIDENCE.md": "b6f33de5f2316dec430ae97ccc1ebc136f9b61bd3bd261d239a22ee3e6eef131",
+    "services/access/GRANT_REGISTRY_BRIDGE_EVIDENCE.md": "6e85365de32cb1c4286e009d70881c439c9010dc793fe7d1eb89d8b925f1c310",
+    "services/access/GRANT_REVOKE_EVIDENCE.md": "d599829c5166ba82e56555c859cea8e531c730ccb1b0c5f4115dcb6874650e65",
+    "services/access/GRANT_REVOKE_INPUT_EVIDENCE.md": "13b746c5772bd0b1c050073ff118abfd886646adbcf51e5d483de7ef640f0307",
+    "services/access/IDENTITY-MIGRATIONS.md": "5bb6e7edee19a3b282f60fab3338387ffe43a6a970d00df06e422f74c16844b7",
+    "services/access/IDENTITY-PREGRANT-TARGET.md": "634e6cabad04102286792ad99ec7223d225a3b5a87fb1e912f9dfce64796a5c6",
+    "services/access/IDENTITY_BASELINE_EVIDENCE.md": "637d056955fe6c0abb64fb38cf74caf0fec2018ee488c297268122a237f1d34e",
+    "services/access/IDENTITY_PREGRANT_TARGET_EVIDENCE.md": "2685ff8e6fe5ddfb9288dc94a5c88dc5da3d9a8160eb6c62d4f800c4a679ab25",
+    "services/access/LEGACY_ROLE_LOOKUP_EVIDENCE.md": "a959e7370eb468aaced6aef13081dfbb4c55006c73079b7589079e33faca21ce",
+    "services/access/MEMBERSHIP_BINDING_EVIDENCE.md": "a596f1cc709fd9c6cba6c563f0398b9a5e0c2bf49eee6304a990fbbb8aa634a0",
+    "services/access/MEMBERSHIP_RETENTION_EVIDENCE.md": "4868f04f0482822ac020b4f3212ba202d9622f7ca97248d5727ee1eb1295e799",
+    "services/access/MEMBERSHIP_RETIREMENT_EVIDENCE.md": "af280e7b3c932052443eaea7045ed112c6a7422abb72a68bcd149fe4dcafcf2f",
+    "services/access/OPERATOR_AUTHORITY_EVIDENCE.md": "cb821ce527bc5e461f4af90577a98177ffa6baab30b6e64c4712c0eb11bddc07",
+    "services/access/OPERATOR_INPUT_EVIDENCE.md": "c6e55710bc4b42bffa62cda8d09481f5f6cfd57451a61eac3ef79231c2ad6cda",
+    "services/access/OPERATOR_TARGET_EVIDENCE.md": "a3d3030ce33bac5f9a0ed50cf222f43a912aa1fedbbc318bca50bbbf3de8e0ea",
+    "services/access/ORGANIZATION-APPLICATION-CONFIGURE.md": "9e790423981f318fb07c346a7ba6a5d6ec6bcb33fd8db36a4c4061ee276def3a",
+    "services/access/ORGANIZATION-CHECK.md": "850689357d78139a7ab6357259e7f93f27373dd5566ab7b3ebb8943244eca3bf",
+    "services/access/ORGANIZATION_APPLICATION_CONFIGURE_EVIDENCE.md": "e59dd374ccb09d9e32cc4c9d8069de27e98554d5faf0f3577699595406043ab5",
+    "services/access/ORGANIZATION_APPLICATION_INPUT_EVIDENCE.md": "55f308e626bab47668efbef91eab3ab606ea3d76cea467e5e7238359ab8cb94f",
+    "services/access/ORGANIZATION_APPLICATION_STORAGE_EVIDENCE.md": "bbc59d37123add3c7f293a9fd0e4b2bf0246eddcaa798ee6db5f167aeca45530",
+    "services/access/ORGANIZATION_CHECK_EVIDENCE.md": "13aa62bf96d7b0010c3367f2dc109019a2f9fb44c75fa756b6e43af8cee3e79a",
+    "services/access/ORGANIZATION_TARGETS_EVIDENCE.md": "f38aa8cbda8062c5bcb085612e3cb2a238a146e7214ae534e1f6616efaf3cc31",
+    "services/access/ORGANIZATION_TARGET_VERIFICATION_EVIDENCE.md": "417fa7ba416c6d9178a9b139121841a35004371a813750fcbcabd86eacd3702c",
+    "services/access/PERMISSION-REGISTER.md": "65acba9ed98e4e7825216a6568d6c4978136823bcdc8d3e5035fb7e22ebe336d",
+    "services/access/PERMISSION_REGISTER_EVIDENCE.md": "76251009eedeb259428a0b2051d845e338ac1ddc363c262d4b1ca31aae8f147b",
+    "services/access/PROFILE_FIELDS_EVIDENCE.md": "835d7757eed9c07977329260b770b9de2f7d7bcb7b996186a2c56fbdea3a9057",
+    "services/access/STRICT-GRANT-INTEGRITY.md": "5235b3932d8dcdd9e0ccba67c784bea0bdc8c1565e6c540497284ca9a02ecd34",
+    "services/access/STRICT_GRANT_INTEGRITY_EVIDENCE.md": "045649892d5c6884b607586659017944451dc9fc096ea1d64991d5d62384a809",
+    "services/access/TOKEN_HOOK_EVIDENCE.md": "006a4a353d2343fa1d6d4d0d10cb7091b8269ca403ab3abe16f85ea2c134ffeb",
+    "services/access/access_operator.py": "c307b62540a8d3f230f2802222ddb30f2e268cc57ceef765d81e8e62ef03a85f",
+    "services/access/access_operator_input.py": "532a709b8a34bbb36c5b462bd9c30bc54727e3a2448c4d0f7ccc44c8f689b288",
+    "services/access/alembic.ini": "94292a8551c6dc649c7e6189b3f78a90fb3e53965c1a0bca2d4c9672315f877f",
+    "services/access/deployment/Dockerfile": "9f1006fb50fb7ae215dd3b13fe39f23d0321f3fffd17d94f125d4d5d28f6f150",
+    "services/access/deployment/Dockerfile.dockerignore": "450e52b8a403d699b7445d019a6b72122ea65e6d8256016124d7c72b45988486",
+    "services/access/deployment/manifest.json": "67c39c5f3ab6fd9d33939733268fd3a8ae3c93a120e062c31af2b815594ae388",
+    "services/access/deployment/runtime.env.example": "1098260f164c74e14a047f1375642d4ff7e5a74e4ca490625e96e198698f9f38",
+    "services/access/export_openapi.py": "564cdd231f1401ce2ed125e53f047b9e674fa16bbec08fb253ff38e67c51fe69",
+    "services/access/identity-alembic.ini": "65680e9d7c2699e90901cf4877c1ca2396aa282d51713178664afa3be08a10b2",
+    "services/access/identity-migrations/account-actor-ensure-reference.json": "9502c7183ed38c6f81a3de6f578e04e6feb81059c56fdbbc44045b6f6054eb50",
+    "services/access/identity-migrations/active-membership-index-reference.json": "b710b943ecb95e4b7cbce9eb77debad8f1ad181c40a2532ff87cd85be317033b",
+    "services/access/identity-migrations/actor-reference.json": "c83985f3761cbac85666118fdbbd140d324a424a031baea69b6f174d4585cd1a",
+    "services/access/identity-migrations/authority-reference.json": "2f378cf2e9641bf60a84be4efda88c395a951c1032499d68c13fee878c13a81e",
+    "services/access/identity-migrations/check-reader-bridge-reference.json": "154c165f0f5635d42f2ecca1a0b75033be0aa7ef344353042cbcfc3ed72770a7",
+    "services/access/identity-migrations/command-reference.json": "ebe11f9cd4dbed35496488e6eb21b5c6af4c3c8f767447fd1e1ad7fb2c2c1188",
+    "services/access/identity-migrations/env.py": "0ddde18b0594e24318afc857a52f6a503f84510c2556e8d0a10b5b70201198de",
+    "services/access/identity-migrations/identity_baseline.py": "00bef6e0a9c9a5aabd51f20638e676d2483c3a5c6472d79712e7c8fc8dc63cd3",
+    "services/access/identity-migrations/legacy-role-reference.json": "983d00ac73bfc9d86188ce166cece3c246926f169b9993af0141a527d8bbd0aa",
+    "services/access/identity-migrations/membership-actor-attribution-reference.json": "2204a3ca4323bf9693aacc5f4202d2aab1516ac395e71516df2d8f702298a715",
+    "services/access/identity-migrations/membership-binding-reference.json": "43bf6d868efb7234ebd8199d884f7cafcca018a2fd274df6329187381a6827f3",
+    "services/access/identity-migrations/membership-join-command-reference.json": "8e6a0b7f61535e0c541b7e80836e1431331ddb37a5ad57432a800b02e4ebd5df",
+    "services/access/identity-migrations/membership-retention-reference.json": "6476b2210402434fd4fa732a7ab882dc8ca02cdbc694c94955647f43d696cf81",
+    "services/access/identity-migrations/membership-retire-command-reference.json": "71bd766de85d53269c7f972851442eacdfea45f4d785589d42abb3d2a38ec488",
+    "services/access/identity-migrations/membership-retirement-reference.json": "63543e9abe478ddc277cb00f8f241b181dd3e88c8eb29be827fc17835c3cfab0",
+    "services/access/identity-migrations/organization-reference.json": "5eeed70cf624fc548e9fcbbe13f0adfb83d7e00081def9e71b69e644afd2e6ae",
+    "services/access/identity-migrations/organization-target-reference.json": "ac95baf560fd71eef4fa4867e45cc79fb22072c16ebb1dce80185bf524730235",
+    "services/access/identity-migrations/profile-reference.json": "05ccb6afc5c546d18ea16747a59d4e63c6f8576718d885b43ecc03e676779868",
+    "services/access/identity-migrations/projection-reference.json": "6cc6467bef0ba9c744cb53f9c2bb8542412a660c1a161f2be76fd3fa1d0a85a9",
+    "services/access/identity-migrations/pyproject.toml": "94f9ad951f5b918d284025821374d4aa4d777ee915811c0d32a411144faae434",
+    "services/access/identity-migrations/reference.json": "ae183b435b2659efbe1a9f2ffdf3eaf1b8d64b2f9256ea72927b6f78453beb00",
+    "services/access/identity-migrations/source-pins.json": "0f28f5840356dfb04a9209cf56e8f693028e1873d1ef18392cd7bb478713804f",
+    "services/access/identity-migrations/target-reference.json": "7e7dea28f7d1659b8793b7286de4dbddd7a22b81947db5644595f37e2f1299ae",
+    "services/access/identity-migrations/token-hook-reference.json": "f227a7839ba8e04fe1626254e91678c73cf3fc2aa5e38fdb0a5b1ec6a3633263",
+    "services/access/identity-migrations/uv.lock": "74d94dbb7b89d8f75d887dcab613c12fb4980ab90a5c0ad52e2b7ba9e88dbf4e",
+    "services/access/identity-migrations/versions/0001_baseline.py": "4b33bc6021e217fd96e5ef786ac2481e614932ee1c15a249c24bbfb55a40ef9f",
+    "services/access/identity-migrations/versions/0002_actor_registry.py": "77c77c8f5db450c48b5a667368254ee8d521e453950e8b5dd5d27c0efbc7c4d5",
+    "services/access/identity-migrations/versions/0003_current_account_actor.py": "31925c2e52ed62d48a4b2bea1b034b8146ecbe41f4e4b93b58db26a5c708b780",
+    "services/access/identity-migrations/versions/0004_current_account_organization.py": "fd016959f0fe2cdb733b0024b866ceeb96c123a87df18090ca1e1195ce859abf",
+    "services/access/identity-migrations/versions/0005_operator_authority.py": "be31c3d4e83837faf4e6f05c5a599e1e50e795ed94149da5180aa070d5dcac9b",
+    "services/access/identity-migrations/versions/0006_actor_command.py": "7da9c22b372729985df6614c2d7dd01555c1c2c2ac7ddd808ab2fdc6c2e75273",
+    "services/access/identity-migrations/versions/0007_organization_targets.py": "4b33697b0dc527c50cfa2d8b91d8d69e6f54af102b955b7384afa09842771727",
+    "services/access/identity-migrations/versions/0008_profile_fields.py": "25b1c51480aef40fad8a415d7dfd02f84a390e349bb38f1014fd3662e195a7c7",
+    "services/access/identity-migrations/versions/0009_legacy_roles.py": "50407446f35645e2a239ef7aa0b41f1d2668c30c6396a1cfd4bb9d0d719cab63",
+    "services/access/identity-migrations/versions/0010_token_hook.py": "6f748bb499f53ed72e03eb18982e086ab7603a57b27c2539bb8659a01c544595",
+    "services/access/identity-migrations/versions/0011_membership_binding.py": "44072efb27ac625f2452ded35be12514ffdbe4de3192bb7e1e6c94a49cbb61e3",
+    "services/access/identity-migrations/versions/0012_membership_retention.py": "d150cec639791529494cbb7857093358bd2243ec43533561046a56c2344c4dab",
+    "services/access/identity-migrations/versions/0013_membership_retirement.py": "4dbefed1d54829eaefcbd6f1f9f6bb27d4a41cdbde23f3ad771d6dea166385e0",
+    "services/access/identity-migrations/versions/0014_active_membership_index.py": "1df16b4b819b2bcff0145d6f1bada7779336b56101a06bfc325c272622c8e637",
+    "services/access/identity-migrations/versions/0015_membership_actor_attribution.py": "70be70971e7f06475e2fe365dfaed9c8e8e5d96d11edc0375e4b114696126742",
+    "services/access/identity-migrations/versions/0016_membership_retire_command.py": "3962b69ff0136d7cbae40c265f633b172a831a8958712d4c939a8365b5437ded",
+    "services/access/identity-migrations/versions/0017_membership_join_command.py": "4b600f96f3cfe7327eea09d7635f1aa9ab0e1d099c535d36e96786f72fd9117c",
+    "services/access/identity-migrations/versions/0018_account_actor_ensure.py": "909751f004f90dcee50a1408123c629ad5262a52158c9989ac2e8e197834935f",
+    "services/access/identity-migrations/versions/0019_organization_target.py": "beca1f2caacdf420cfa8d0dee8af00173beab8cc50fab02dd5bcae217d05dc9c",
+    "services/access/identity-migrations/versions/0020_check_reader_bridge.py": "c9563431b70ffe73edd57deb264fefee4e64a063647c9a8583c09dd2e8b0f0e7",
+    "services/access/identity_operator.py": "72fc62dc298608ec09ad42c939b3f30a9007cad559a9271bf146d06da0e21091",
+    "services/access/identity_operator_input.py": "2e1cfca4cf4d291c60d156aff84515a21593789bdc37ffcddcdd0ad2a3a2f71d",
+    "services/access/identity_operator_target.py": "0d3ba46d8f4eb3f56e6c3cb5b493c5922884a0ec10ea2e2c2ac6e9781d381fe3",
+    "services/access/main.py": "9af8e5d1f73e1f157b1802d541cba154e75c78b6a8b27874249c3bdf68d02faa",
+    "services/access/migrations/access_baseline.py": "e25757fb6ca6051109aaa29d735ce02236b715017af39d1decb8de59be691dd5",
+    "services/access/migrations/access_organization_check_catalog.py": "43f91de843858861baf342d02177956037c46c65294c9f227edff9c6eeccf692",
+    "services/access/migrations/access_registration_baseline.py": "80b79d8a3d82e8b9664fa8368b0f94c6f4785aca8c563536ed7b94a1b80f1c13",
+    "services/access/migrations/access_registration_catalog.py": "5d1ab64a191ea144351d368b924dd2e0d23b42cd455213cb6671231511f7c9bf",
+    "services/access/migrations/env.py": "bc554c1f7dd420a90e9224cee062cd4f0d85899bf8956fe2b093961a08348bbe",
+    "services/access/migrations/versions/0001_initial.py": "438611104dcb30e8e04d729c0047003487f93e889fa66093aca14a77612e409b",
+    "services/access/migrations/versions/0002_membership_binding.py": "781e6e0c80700ab35b2f819891288fedde5137175547eb045651d8ef6c9d222d",
+    "services/access/migrations/versions/0003_registry_storage.py": "889eec9bf64fd92f121987916441f56185aa613b069030869a74a1fde3cd1ae2",
+    "services/access/migrations/versions/0004_application_register.py": "14d6e70b8142936700eb96d5e44cc6580be8c2e9bb06a00db841b529bf824807",
+    "services/access/migrations/versions/0005_permission_register.py": "0841c8f32e8b0ec5cc887788c679f2bf06ffd21dc2208c3c2579b0e6c4502b30",
+    "services/access/migrations/versions/0006_entry_permission_register.py": "2afdc4af475f030be8ec29c1b86ee32fd6d8a8f65474aad522975cc62c8dc346",
+    "services/access/migrations/versions/0007_application_set_enabled.py": "ae0d5d993be92146fe19af2e335ce25fc440ea8b10c3689281bfde19c3ba8839",
+    "services/access/migrations/versions/0008_organization_application_storage.py": "f72b9c1f19fc4aa78475bcebdddb3f3a78fe7014c86e9af17f620541877a808a",
+    "services/access/migrations/versions/0009_organization_application_configure.py": "dbfabebe629ebef3048adbf86fa6a59d4422de8d60d1a6c597492babef71ac80",
+    "services/access/migrations/versions/0010_grant_lifecycle_storage.py": "4641eec984f7320f8c22a1c129201b61b929c1a502a79088fb37227cabf4e510",
+    "services/access/migrations/versions/0011_grant_registry_bridge.py": "ebe79ed6af35252e61a351bce5bc718e5ae8487a6ddbb961a01b54c9d9307152",
+    "services/access/migrations/versions/0012_strict_grant_integrity.py": "ec36e083ac2c02191086171dcecb8ecc63d2b748eedc120b67354ee161604354",
+    "services/access/migrations/versions/0013_grant_assign.py": "5d489e545e58d8b2887ad139875b5453c1ab62f408ae1cddd16beaa0f561cef3",
+    "services/access/migrations/versions/0014_grant_revoke.py": "8b080c399796598505c658e96c8e1a993089f7bd80c3ab4f7068c3dd86991206",
+    "services/access/migrations/versions/0015_organization_check.py": "8665495b7ee7ccffa9f684ca3fb57891704738e71a33dd76d6bd520cf30633f3",
+    "services/access/openapi.json": "fb653f8f02862b92c71f4516d680fc0dee41ec7934848fb1d8939b97cd20a067",
+    "services/access/operator_cli.py": "b21a4d507a72a45fba415fd256f7b9b51e1cb1bb0dd188b072c0adc57d4eb447",
+    "services/access/organization_check.py": "d35b96baa3f7b470fc49880a35684886341f2677888ef608c716268818ee53e3",
+    "services/access/pyproject.toml": "d838be6f8572ae04661a8e6e58f57e10a2db71bae3f909d54be5a9750736c022",
+    "services/access/tests/qualify_access_membership_binding.py": "c67d7c6a72ad8d0defee9ce361c1579755bb4cbc360703799beae7ad40927e05",
+    "services/access/tests/qualify_access_registry_storage.py": "7a1a9622784649ef60f88df3161d5f46eb181fa8c329222549ac5b1b11a3db19",
+    "services/access/tests/qualify_account_actor_ensure.py": "a9daacb8da9e207b215b0564979eac882332b4c20583129f809f1653eb93a418",
+    "services/access/tests/qualify_active_membership_index.py": "c3031e25f6bb15e6015d8d8cff87299b1bfc77d3aced7b74885a6a2d3dc8af1a",
+    "services/access/tests/qualify_actor_command.py": "ed5ebe242518113b70771b4b2048404b32eed9233f5f0cb83912443a98b2d43f",
+    "services/access/tests/qualify_actor_foundation.py": "82dad96e79ef706fe1286b63b01ca35002a6bddc00d8b6b1e2d8e35760961b9e",
+    "services/access/tests/qualify_application_register.py": "a4323a8401f6ef4309fb6068d72fbfb71edfb057694e66a398bef4d1dcfa9759",
+    "services/access/tests/qualify_application_set_enabled.py": "ff21f7fb23cfe7292bbf0be603e0b13a0573d847b3c680520f6e2c331140a8d6",
+    "services/access/tests/qualify_check_reader_bridge.py": "b9383938dbd6fe600d296fdeb4a5ba17a8392cfe5702cf58f9708ddb584d28ac",
+    "services/access/tests/qualify_current_account_actor.py": "90fa103cacddfaf684052b48a7a92c5af28595a32e9495c7e8a285a5643748d4",
+    "services/access/tests/qualify_current_account_organization.py": "e25a5f2e80af10cab6b624a38c6fb6303af1ed1edf25b5b218efa0439600cf35",
+    "services/access/tests/qualify_entry_permission_register.py": "793e4143c4dea499c6a632404c0b90e1d977611aed91c772cead26e699550b56",
+    "services/access/tests/qualify_grant_assign.py": "c0f1c0bffa6670d802fa1bcaf1311bd98f0bc6515478959c620b03f26cc608d4",
+    "services/access/tests/qualify_grant_lifecycle_storage.py": "abadbff5b4dffcd028ebcb6f2850da756985abff3c4827dabd5b488464c53d21",
+    "services/access/tests/qualify_grant_registry_bridge.py": "7df9f2a6ba78911240475a4603792b6cf136d820ce2e5095d4acb3676bc42308",
+    "services/access/tests/qualify_grant_revoke.py": "1abc3fbe3a8b691248414818dc002c2b2bfed82b31fe518bd93443cad021a542",
+    "services/access/tests/qualify_identity_baseline.py": "7cabf5836824131a842056c661e99886dfe505cb5b8b9ad141a8b1122a6347c4",
+    "services/access/tests/qualify_identity_organization_target.py": "d5b6598c1afcf335f8f35e4d39a8b6046436cada185d430ebf9a11bb269f406b",
+    "services/access/tests/qualify_identity_pregrant_target.py": "b579d4b3ca224a826dbfdbed11192d7248ce47956615a1bc80c16f07bbdd4b3e",
+    "services/access/tests/qualify_legacy_roles.py": "b643d504f08dbf5c4278e40f1f40c7f3cf075da57b0c522bea5af9ce863892ec",
+    "services/access/tests/qualify_membership_actor_attribution.py": "567845237befb01e095327e81906bca73e9a4ea18adf4c1d2334a950b6527f4c",
+    "services/access/tests/qualify_membership_binding.py": "84b1085ade95417ccafbc201b2ef4829aa1431255fa222af84dbc2d4f392ef15",
+    "services/access/tests/qualify_membership_join_command.py": "856be4fa2b942fc268e94339802edeb149a99cabdeb3cba0605c1ab9e042aff5",
+    "services/access/tests/qualify_membership_retention.py": "6288df6c8b1ab0bc243713efc886559a7a9e321591d6dc05bed15c644fcc4045",
+    "services/access/tests/qualify_membership_retire_command.py": "557fefb20e8e489dafe63c66dce095a181fe78fb339d6c88a3397a01194a5033",
+    "services/access/tests/qualify_membership_retirement.py": "02e540450f074100c6bc1612266ab8f181e61003a51bf90cbc2c7eee013011ae",
+    "services/access/tests/qualify_operator_authority.py": "8ee368855ed5629a84999cff366f4d7b07d38d162e7952fc69f40730eb0fa306",
+    "services/access/tests/qualify_operator_target.py": "1c80f9bed635931257261d695a2d0b7df4700f8a6f16ae784d296c7e4f0d9456",
+    "services/access/tests/qualify_organization_application_configure.py": "25a7ceb4b7dc74edf15ce375ba0e28a5c9772962635203b672fc2793e81c1fa7",
+    "services/access/tests/qualify_organization_application_storage.py": "e52829eeff461297243440f6316b258e322acf42942f61240262e42f195985eb",
+    "services/access/tests/qualify_organization_check.py": "bedfb0e4e9a486d7a67cdb2b786800d4f54d0415597f4148957611fc92239e96",
+    "services/access/tests/qualify_organization_targets.py": "dd4ef15f6fd3f27561ba64c89aaa6144da04abd51ac1e080ef91c8404f562476",
+    "services/access/tests/qualify_permission_register.py": "6de22a6707b9919d1dc791594824fcfaf346745f3b53f03b0952a8d70d34dc61",
+    "services/access/tests/qualify_profile_fields.py": "b96a44d39ecb0bc7ec24f644ed5bdef7d90aac61f01595f67b5cf3c30bcfd1ea",
+    "services/access/tests/qualify_strict_grant_integrity.py": "e4d72dce1fc3706e00d3eafc49dad1a5d82584b19fe7183f20110915b97603b1",
+    "services/access/tests/qualify_token_hook.py": "2c17685a31ab72224a6f9e6dafaf0c284f8a62374aeeb57dfa6b9a4cb9532776",
+    "services/access/tests/test_access_membership_binding.py": "3d4b47d9b1c2c281e729c36fe29f1404c40cc2c4cef7f9b34fd0a700dd7f0784",
+    "services/access/tests/test_access_operator_input.py": "e875702e900c7dd4636bc14cbbfd70cc59ae851cf2cf6746885ec0c12f8299ab",
+    "services/access/tests/test_access_registry_storage.py": "f03a18e122c9fff882d82ef3d823f544e758f484f9df353e52a4adbcbe8d552b",
+    "services/access/tests/test_account_actor_ensure.py": "71f8f6003cd23f49768023fde1d09e877137b3d450a787e9971c83566835e583",
+    "services/access/tests/test_active_membership_index.py": "f75d5d97a49209382cf5e3bc8ecd3d34143dd8a44ec15fa887efbae5199e2266",
+    "services/access/tests/test_actor_command_qualification.py": "884fa7d167a307dca335f37d60d2b3895401da4c4d4af0957d64c5920a8ffdab",
+    "services/access/tests/test_actor_foundation.py": "871277f4b63958cf2e78d7775acdc177e1221f562ae2b643fa6c0186ba761d22",
+    "services/access/tests/test_application_enable_input.py": "f1044abc69a3d689fef790da6830befb4991f228d5d27c69b53c2382dc34c32c",
+    "services/access/tests/test_application_register.py": "947f2a903f592cf49c5e1368847ff2252aac966c78eb541e4d86dc4f57a51de5",
+    "services/access/tests/test_application_set_enabled.py": "3d834296dbec50240fe789b8127fb09e8734b3409ca9e7ad2135114cac1d7f0a",
+    "services/access/tests/test_check_reader_bridge.py": "a9328ca40fbfbc443d79070542631f5f2d0b177180e6d59cc8fcb8e0ecc36cdd",
+    "services/access/tests/test_entry_permission_register.py": "380f1f5b5d72645d39b5245cd6d8c34785fbcdb0e4d6aeb51154063b99ad44d3",
+    "services/access/tests/test_grant_assign.py": "77b783ac6ffc59d0ad071dc6798930d5a38f250a0d13bd61cd0e364ab5c54c59",
+    "services/access/tests/test_grant_assign_adapter.py": "5b25c802cacb455765fe6cebb58bdbe67a37ae2c255742aeec702ebbb89922ee",
+    "services/access/tests/test_grant_assign_input.py": "57bf0ec85095fff042f1b59db439d3c8f9617485010142316b85cefd6afc2dd2",
+    "services/access/tests/test_grant_lifecycle_storage.py": "d0903de01c3dc8695761bfe48f6baf5383eadc886a61f53c38af7b5f2add9fc9",
+    "services/access/tests/test_grant_registry_bridge.py": "b97bef4ac99f169dab630f467101dbc860acff4569956a25bc7e4774a9ba49db",
+    "services/access/tests/test_grant_revoke.py": "5dea048d6c07a8e578d49dceb6044ebc61df4dc21bda99a73d4e5a5580651859",
+    "services/access/tests/test_grant_revoke_adapter.py": "7a441bf4dd9ffa9b9297f77c2147c4d085e58101805bb2e104b98bfb7aff3b44",
+    "services/access/tests/test_grant_revoke_input.py": "a113a8618fd09900e764d7aa13f8a949816875b093d94526cf9bfa4300f74a92",
+    "services/access/tests/test_identity_baseline.py": "c169b56affcd8c5e505fae1c1fd11b1a04e8b4e6c9d2943b57217f1ebe4fce77",
+    "services/access/tests/test_identity_composition.py": "a65698144f3a59409c6a9bdb6f8b525f6250c42ba50ed4c4fa8923f8a6fa67ae",
+    "services/access/tests/test_identity_operator.py": "e0f766c384b172374f0898c141124393271317e46ae750f5042806dbb8d16215",
+    "services/access/tests/test_identity_operator_input.py": "9e802e750365146ec3554a95603e4d4c506723b8d5f1410420920337c6b6b689",
+    "services/access/tests/test_identity_organization_target.py": "a885cf015474060957167f55214a48098f0a4aa93b9e8d0a143b2257821bbe8b",
+    "services/access/tests/test_identity_pregrant_target.py": "e3c7413034fa36df13b75eb40e97f63b179740f7d5bf4a59331e6578f8ee8500",
+    "services/access/tests/test_legacy_roles.py": "f677bedf573b061b0214d846621e582685721d49f234269a410bb8add71adc11",
+    "services/access/tests/test_membership_actor_attribution.py": "41f8f5a0557228124f884ea35c4aef8791913ce1e49e9adc2c0bec47c4b865de",
+    "services/access/tests/test_membership_binding.py": "e38905e2cdc6e9b409b88e582bfc1212da7361dc3168788958787d0e54e28540",
+    "services/access/tests/test_membership_join_command.py": "0897f2ed788a9bdc4b3ff8168b5e72d66fb077cba71a804f5634e19f76565a18",
+    "services/access/tests/test_membership_retention.py": "81257bc436f4a621cbc1de00f03678e35a31a233b499317893d45b95f788c80d",
+    "services/access/tests/test_membership_retire_command.py": "f251f608bc001cbddd82f703234d256e7f9d25457433472cbaf40e2ded7ac353",
+    "services/access/tests/test_membership_retirement.py": "4a44f15266c97d151412ad7049561c13f88afcd38e0c42efc7159589c343d6e6",
+    "services/access/tests/test_operator_authority_qualification.py": "f07046eb8519483c54000cc4de97e8c8a8d1ecaae9598e51bc052561ff07a82a",
+    "services/access/tests/test_operator_cli.py": "1aeef2ce988f2fc13b9bf8767d2d6220e8dd411a8d9b9910b0dc2b42002cb683",
+    "services/access/tests/test_operator_target.py": "817073739ed49e538d845ede98ac64e638badfffee8e27b9a54714ac4fdb8f9d",
+    "services/access/tests/test_operator_target_qualification.py": "c43b76c98a2498074b9b311eccba4fa8b0da9b64f1852203fe4f0065d3e35ace",
+    "services/access/tests/test_organization_application_configure.py": "b505e47c24a223810ddee76d19b203bea66438fdd45ac6a99c192e7e70c034d3",
+    "services/access/tests/test_organization_application_input.py": "cc1b0e3e10291ee843273b435aefc31b1ad0122bc84082ff884c65aba2d1642c",
+    "services/access/tests/test_organization_application_storage.py": "f97fb94d9350f2cfdd1f29d0ce5ad6677f39a2b3826869e420101352186b7783",
+    "services/access/tests/test_organization_check.py": "254f31bf05b0d57d3b25a40c7cb0a9e478ada443a870fc5e77a7df20a880d16c",
+    "services/access/tests/test_organization_qualification.py": "25c103dfb2690a1d5981ad2badb2a92b58e94e78dadc9f419b2bce6fde8dbc29",
+    "services/access/tests/test_permission_register.py": "f8b414ceb22801abf8bc1a1bcb81934bdbe63d9f6227a28b645f77d9e5f434a8",
+    "services/access/tests/test_profile_fields.py": "15a1b75f31497d458a9f2cb864e7f96e796af1bd09a2dc7976d43d66f42a2937",
+    "services/access/tests/test_projection_qualification.py": "3cb1c3076bbfc1af8e48d525b88627c21d214604300620431e2981f2b004ea8c",
+    "services/access/tests/test_strict_grant_integrity.py": "2fc0fb6ab34b5dab2391044b5a3981263f06c7a6dee0c3d70c6ee48c33cd5ebf",
+    "services/access/tests/test_target_qualification.py": "1d4994c4dbe9fe6fe529198d7818bd694b27fda5279379dc6deee91c394ac2dc",
+    "services/access/tests/test_token_hook.py": "02267405b154a38e4096d19fa39e432f461264b18d86492797cb4ec550623a89",
+    "services/access/tools/identity_bridge.sql": "e4063529f1dd589a7269bdcff3ec5695ed599ab1e1df6ecfc3f9042765fa90fc",
+    "services/access/tools/prepare_access_check_reader.sql": "c6edb6ee31bfced123d147ced96637a37c8b81d9fe3ef1fc9c5812e70fbe110a",
+    "services/access/tools/prepare_access_check_reader_execution.sql": "4846dea5bc9108de55cd8c128b63264071dc01444ca6f714b7b6092c9ace34ef",
+    "services/access/tools/prepare_access_operator_roles.sql": "50b1019557201bebe471b5042978965bc50a74aec8de8e9bd1e02aa22cff03a9",
+    "services/access/tools/prepare_identity_account_verification_auth.sql": "b666dcd035ac99711c1b10d75dfdbcfd0c3d4daf448c61478b3bae5e8b747fcb",
+    "services/access/tools/prepare_identity_account_verification_role.sql": "e1f012d94beb0746a8b7047d5047301d4809798e031a008fe649ef2ce3874290",
+    "services/access/tools/prepare_identity_command_role.sql": "b1feea6117a5c1ca36f779ddac126adbb041de3e48f59381e75e63c3d6aa88c2",
+    "services/access/tools/prepare_identity_operator_roles.sql": "ff8b6f620f0152f3f814dfb4b65cf086bc4ebe2e0c2baaf6f9cc8aa2f1f134b1",
+    "services/access/tools/prepare_identity_projection_role.sql": "20b056ad189e637894638491b76d5095b56317fa5fcdadfb61595483e8d4b11d",
+    "services/access/tools/prepare_identity_target_roles.sql": "eea2b7ebb522dee43c481c3ee1b9af76b1ad45faaf59772fd1b21854864f5e78",
+    "services/access/uv.lock": "540558d33bc0b88be8a5a5ee562ce39a2b411c5413aa19c151b560d9d6a1e468"
+  },
+  "retained_frames": {
+    "native-3502e9ca55d24b1997df5414cb2b13a7": {
+      "result": {
+        "access_shutdown_warning": true,
+        "cases": [
+          {
+            "case": "positive",
+            "error_id": null,
+            "status": 200
+          },
+          {
+            "case": "positive",
+            "error_id": null,
+            "status": 200
+          },
+          {
+            "case": "denied",
+            "error_id": "access_denied",
+            "status": 403
+          },
+          {
+            "case": "unmapped",
+            "error_id": "identity.actor_setup_required",
+            "status": 409
+          },
+          {
+            "case": "unknown",
+            "error_id": "authentication_required",
+            "status": 401
+          },
+          {
+            "case": "positive?org_id",
+            "error_id": "validation_failed",
+            "status": 422
+          },
+          {
+            "case": "positive",
+            "error_id": "authorization_unavailable",
+            "status": 503
+          },
+          {
+            "case": "uvicorn_factory_entrypoint",
+            "error_id": "authentication_required",
+            "status": 401
+          }
+        ],
+        "expected_interruption_probe": false,
+        "failure_identifier": null,
+        "failure_stage": null,
+        "interruption_signal": null,
+        "limitations": [
+          "synthetic bearer verification",
+          "no real provider/browser/device qualification",
+          "static retained grants; no lifecycle mutations"
+        ],
+        "logs": {
+          "access-server.log": "8926f975c594d461ff579a2122822cd1dcd0ae788729b958dd707f161f4ce2fe",
+          "entrypoint-server.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "kdg-server.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "retained-after.log": "1988ddd4de0158b925a47bca7d35ddbe14a332c94f2020bd0f5404b62bb7b0e9",
+          "retained-before.log": "1988ddd4de0158b925a47bca7d35ddbe14a332c94f2020bd0f5404b62bb7b0e9",
+          "tls-fixture.log": "5b5e66ddb888057200fb34427fa432861cadac023f453b2517886561580b82ef"
+        },
+        "passed": true,
+        "permission_reads": 4,
+        "proof": "platform/deployment/.local/kdg-configured-context-20261022/native-3502e9ca55d24b1997df5414cb2b13a7",
+        "retained_after": {
+          "status": "passed"
+        },
+        "retained_receipt_sha256": "2c341e184cc151eaa017a9c46e96028959165c867e02eed5528cfb43f1f2f48b",
+        "runtime": {
+          "executable": "/home/ck/repos/innodat/agriplatform/platform/deployment/.local/access-organization-check-20261022/owner-env/bin/python",
+          "executable_sha256": "610b28e9e2a4c0dc26e80c0f2b4f9601c379b955cce23755a75212fa984d36ce",
+          "locks": {
+            "apps/kdg-capture/api/uv.lock": "9b3164930e96657ff76be97ff992b8a5dd64b713b0dd09c3d9b08e56ab88ec2b",
+            "services/access/uv.lock": "540558d33bc0b88be8a5a5ee562ce39a2b411c5413aa19c151b560d9d6a1e468"
+          },
+          "openssl": "OpenSSL 3.5.9 29 Sep 2026",
+          "packages": {
+            "anyio": "4.15.1",
+            "fastapi": "0.143.0",
+            "httpx": "0.28.1",
+            "psycopg": "3.3.6",
+            "pydantic": "2.14.1",
+            "sqlalchemy": "2.1.4",
+            "starlette": "1.8.0",
+            "uvicorn": "0.54.0"
+          },
+          "python": "3.15.0 (main, Oct 14 2026, 01:05:07) [Clang 23.1.3 ]",
+          "resolved_executable": "/home/ck/repos/innodat/agriplatform/platform/deployment/.local/kdg-toolchains/0cc4bc48-505e-41c1-8876-25b2d49b5694/payload/python/bin/python3.15"
+        },
+        "schema_version": 1,
+        "sources": {
+          "apps/kdg-capture/api/context.py": "1c58d6432fa321252d5e4fd88d1e1b589bb989cf4243a2fb4a7104a7c9151a06",
+          "apps/kdg-capture/api/main.py": "a44bc61f1d8d8e93a28cf6e38da45da70feb4f8fe1b1da7791e99f0a1c697fe3",
+          "apps/kdg-capture/api/runtime.py": "c070ba130f327a01c9332c0b67cb35a7cf46a137bbc359e498bb75594cdb616e",
+          "apps/kdg-capture/api/safe_errors.py": "18a1359b2b1f9bb8c79c91644582c9d320bf22ed56d53afac179ff3fce6901df",
+          "apps/kdg-capture/tests/qualify_configured_context.py": "aac8fdf49bfd1c39260787e3b36476905da16e436960c0e10c7a55f0106354d1",
+          "services/access/main.py": "9af8e5d1f73e1f157b1802d541cba154e75c78b6a8b27874249c3bdf68d02faa",
+          "services/access/organization_check.py": "d35b96baa3f7b470fc49880a35684886341f2677888ef608c716268818ee53e3",
+          "services/access/tests/serve_kdg_context_fixture.py": "67c6ffd8938f1caaa3008af0e00e22f51033375a8c33ed9b684f94085ee351a4"
+        },
+        "teardown": [
+          {
+            "exit_code": 0,
+            "server": "entrypoint"
+          },
+          {
+            "exit_code": 0,
+            "server": "kdg"
+          },
+          {
+            "exit_code": 0,
+            "server": "access"
+          }
+        ]
+      },
+      "result_sha256": "bc6b32cb8c22b6e16d09cde3197ca85d274a0ded717a2f36cc6edee261f054fc"
+    },
+    "native-ae96a63f59a449e68d2217a0f3e69c9c": {
+      "result": {
+        "cases": [
+          {
+            "case": "positive",
+            "error_id": null,
+            "status": 200
+          },
+          {
+            "case": "positive",
+            "error_id": null,
+            "status": 200
+          },
+          {
+            "case": "denied",
+            "error_id": "access_denied",
+            "status": 403
+          },
+          {
+            "case": "unmapped",
+            "error_id": "identity.actor_setup_required",
+            "status": 409
+          },
+          {
+            "case": "unknown",
+            "error_id": "authentication_required",
+            "status": 401
+          },
+          {
+            "case": "positive?org_id",
+            "error_id": "validation_failed",
+            "status": 422
+          }
+        ],
+        "limitations": [
+          "synthetic bearer verification",
+          "no real provider/browser/device qualification",
+          "static retained grants; no lifecycle mutations"
+        ],
+        "logs": {
+          "access-server.log": "1988ddd4de0158b925a47bca7d35ddbe14a332c94f2020bd0f5404b62bb7b0e9",
+          "kdg-server.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "retained-before.log": "1988ddd4de0158b925a47bca7d35ddbe14a332c94f2020bd0f5404b62bb7b0e9",
+          "tls-fixture.log": "feaf2e7b96d9f9104fdd77606c7c4834a7fc9f3534cc219620ee9c679063abb0"
+        },
+        "passed": false,
+        "proof": "platform/deployment/.local/kdg-configured-context-20261022/native-ae96a63f59a449e68d2217a0f3e69c9c",
+        "retained_receipt_sha256": "2c341e184cc151eaa017a9c46e96028959165c867e02eed5528cfb43f1f2f48b",
+        "schema_version": 1,
+        "sources": {
+          "apps/kdg-capture/api/context.py": "1c58d6432fa321252d5e4fd88d1e1b589bb989cf4243a2fb4a7104a7c9151a06",
+          "apps/kdg-capture/api/main.py": "a44bc61f1d8d8e93a28cf6e38da45da70feb4f8fe1b1da7791e99f0a1c697fe3",
+          "apps/kdg-capture/api/runtime.py": "c070ba130f327a01c9332c0b67cb35a7cf46a137bbc359e498bb75594cdb616e",
+          "apps/kdg-capture/tests/qualify_configured_context.py": "73e2a88076f626592fcc0cafdef89164c8b286eea04997d87db3a1afd4964e61",
+          "services/access/main.py": "9af8e5d1f73e1f157b1802d541cba154e75c78b6a8b27874249c3bdf68d02faa",
+          "services/access/organization_check.py": "d35b96baa3f7b470fc49880a35684886341f2677888ef608c716268818ee53e3",
+          "services/access/tests/serve_kdg_context_fixture.py": "5444fc8a8520293f1ef6c8e6cc95c10a95ad2d9cfbf2d67e3e16b70de7244b78"
+        },
+        "teardown": [
+          {
+            "exit_code": 0,
+            "server": "kdg"
+          },
+          {
+            "exit_code": -9,
+            "server": "access"
+          }
+        ]
+      },
+      "result_sha256": "3a2a481bfa958439b1fb4467474b83091a39cf50697afa17e6b3cbe23699fa23"
+    },
+    "native-c52dac4237b5406ba8623f0cd49268bd": {
+      "result": {
+        "access_shutdown_warning": false,
+        "cases": [],
+        "expected_interruption_probe": true,
+        "failure_identifier": "supervisor_termination",
+        "failure_stage": "supervisor_interruption_probe",
+        "interruption_signal": 15,
+        "limitations": [
+          "synthetic bearer verification",
+          "no real provider/browser/device qualification",
+          "static retained grants; no lifecycle mutations"
+        ],
+        "logs": {
+          "access-server.log": "8265a7c48e6e9a7c8c752f7e054b35ae6656329bb3a7b534062f6fbdab633f6d",
+          "kdg-server.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "retained-after.log": "1988ddd4de0158b925a47bca7d35ddbe14a332c94f2020bd0f5404b62bb7b0e9",
+          "retained-before.log": "1988ddd4de0158b925a47bca7d35ddbe14a332c94f2020bd0f5404b62bb7b0e9",
+          "tls-fixture.log": "81cc323568001a68c8d55c58fec65da59e8989dc291e5be2873a20061a979d5c"
+        },
+        "passed": false,
+        "permission_reads": null,
+        "proof": "platform/deployment/.local/kdg-configured-context-20261022/native-c52dac4237b5406ba8623f0cd49268bd",
+        "retained_after": {
+          "status": "passed"
+        },
+        "retained_receipt_sha256": "2c341e184cc151eaa017a9c46e96028959165c867e02eed5528cfb43f1f2f48b",
+        "runtime": {
+          "executable": "/home/ck/repos/innodat/agriplatform/platform/deployment/.local/access-organization-check-20261022/owner-env/bin/python",
+          "executable_sha256": "610b28e9e2a4c0dc26e80c0f2b4f9601c379b955cce23755a75212fa984d36ce",
+          "locks": {
+            "apps/kdg-capture/api/uv.lock": "9b3164930e96657ff76be97ff992b8a5dd64b713b0dd09c3d9b08e56ab88ec2b",
+            "services/access/uv.lock": "540558d33bc0b88be8a5a5ee562ce39a2b411c5413aa19c151b560d9d6a1e468"
+          },
+          "openssl": "OpenSSL 3.5.9 29 Sep 2026",
+          "packages": {
+            "anyio": "4.15.1",
+            "fastapi": "0.143.0",
+            "httpx": "0.28.1",
+            "psycopg": "3.3.6",
+            "pydantic": "2.14.1",
+            "sqlalchemy": "2.1.4",
+            "starlette": "1.8.0",
+            "uvicorn": "0.54.0"
+          },
+          "python": "3.15.0 (main, Oct 14 2026, 01:05:07) [Clang 23.1.3 ]",
+          "resolved_executable": "/home/ck/repos/innodat/agriplatform/platform/deployment/.local/kdg-toolchains/0cc4bc48-505e-41c1-8876-25b2d49b5694/payload/python/bin/python3.15"
+        },
+        "schema_version": 1,
+        "sources": {
+          "apps/kdg-capture/api/context.py": "1c58d6432fa321252d5e4fd88d1e1b589bb989cf4243a2fb4a7104a7c9151a06",
+          "apps/kdg-capture/api/main.py": "a44bc61f1d8d8e93a28cf6e38da45da70feb4f8fe1b1da7791e99f0a1c697fe3",
+          "apps/kdg-capture/api/runtime.py": "c070ba130f327a01c9332c0b67cb35a7cf46a137bbc359e498bb75594cdb616e",
+          "apps/kdg-capture/api/safe_errors.py": "18a1359b2b1f9bb8c79c91644582c9d320bf22ed56d53afac179ff3fce6901df",
+          "apps/kdg-capture/tests/qualify_configured_context.py": "aac8fdf49bfd1c39260787e3b36476905da16e436960c0e10c7a55f0106354d1",
+          "services/access/main.py": "9af8e5d1f73e1f157b1802d541cba154e75c78b6a8b27874249c3bdf68d02faa",
+          "services/access/organization_check.py": "d35b96baa3f7b470fc49880a35684886341f2677888ef608c716268818ee53e3",
+          "services/access/tests/serve_kdg_context_fixture.py": "67c6ffd8938f1caaa3008af0e00e22f51033375a8c33ed9b684f94085ee351a4"
+        },
+        "teardown": [
+          {
+            "exit_code": 0,
+            "server": "kdg"
+          },
+          {
+            "exit_code": 0,
+            "server": "access"
+          }
+        ]
+      },
+      "result_sha256": "0d094f1877b5272850adedc1600cb2bf5812a6c1450fc3d3c9125244962b3345"
+    },
+    "native-e6d414108c554cd8aaf1ad41308c3e07": {
+      "result": {
+        "access_shutdown_warning": true,
+        "cases": [
+          {
+            "case": "positive",
+            "error_id": null,
+            "status": 200
+          },
+          {
+            "case": "positive",
+            "error_id": null,
+            "status": 200
+          },
+          {
+            "case": "denied",
+            "error_id": "access_denied",
+            "status": 403
+          },
+          {
+            "case": "unmapped",
+            "error_id": "identity.actor_setup_required",
+            "status": 409
+          },
+          {
+            "case": "unknown",
+            "error_id": "authentication_required",
+            "status": 401
+          },
+          {
+            "case": "positive?org_id",
+            "error_id": "validation_failed",
+            "status": 422
+          },
+          {
+            "case": "positive",
+            "error_id": "authorization_unavailable",
+            "status": 503
+          }
+        ],
+        "limitations": [
+          "synthetic bearer verification",
+          "no real provider/browser/device qualification",
+          "static retained grants; no lifecycle mutations"
+        ],
+        "logs": {
+          "access-server.log": "8926f975c594d461ff579a2122822cd1dcd0ae788729b958dd707f161f4ce2fe",
+          "kdg-server.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "retained-after.log": "1988ddd4de0158b925a47bca7d35ddbe14a332c94f2020bd0f5404b62bb7b0e9",
+          "retained-before.log": "1988ddd4de0158b925a47bca7d35ddbe14a332c94f2020bd0f5404b62bb7b0e9",
+          "tls-fixture.log": "9f7cd3cf19cc00c6d238641b775ce201681d7813d61bb36f6c986f379efc8751"
+        },
+        "passed": true,
+        "proof": "platform/deployment/.local/kdg-configured-context-20261022/native-e6d414108c554cd8aaf1ad41308c3e07",
+        "retained_receipt_sha256": "2c341e184cc151eaa017a9c46e96028959165c867e02eed5528cfb43f1f2f48b",
+        "schema_version": 1,
+        "sources": {
+          "apps/kdg-capture/api/context.py": "1c58d6432fa321252d5e4fd88d1e1b589bb989cf4243a2fb4a7104a7c9151a06",
+          "apps/kdg-capture/api/main.py": "a44bc61f1d8d8e93a28cf6e38da45da70feb4f8fe1b1da7791e99f0a1c697fe3",
+          "apps/kdg-capture/api/runtime.py": "c070ba130f327a01c9332c0b67cb35a7cf46a137bbc359e498bb75594cdb616e",
+          "apps/kdg-capture/tests/qualify_configured_context.py": "332504dba79a626d69f9280cda512d7b408712f3aa1741ce1ec3c0eba14769c4",
+          "services/access/main.py": "9af8e5d1f73e1f157b1802d541cba154e75c78b6a8b27874249c3bdf68d02faa",
+          "services/access/organization_check.py": "d35b96baa3f7b470fc49880a35684886341f2677888ef608c716268818ee53e3",
+          "services/access/tests/serve_kdg_context_fixture.py": "67c6ffd8938f1caaa3008af0e00e22f51033375a8c33ed9b684f94085ee351a4"
+        },
+        "teardown": [
+          {
+            "exit_code": 0,
+            "server": "kdg"
+          },
+          {
+            "exit_code": 0,
+            "server": "access"
+          }
+        ]
+      },
+      "result_sha256": "4123d267a67ea7b7dee6c08a9f59bbc88f188a0780cdd8e17526ecb0964514e3"
+    },
+    "native-fd9467b7f0d545afbb9c80b3ac894c77": {
+      "result": {
+        "cases": [
+          {
+            "case": "positive",
+            "error_id": null,
+            "status": 200
+          },
+          {
+            "case": "positive",
+            "error_id": null,
+            "status": 200
+          },
+          {
+            "case": "denied",
+            "error_id": "access_denied",
+            "status": 403
+          },
+          {
+            "case": "unmapped",
+            "error_id": "identity.actor_setup_required",
+            "status": 409
+          },
+          {
+            "case": "unknown",
+            "error_id": "authentication_required",
+            "status": 401
+          },
+          {
+            "case": "positive?org_id",
+            "error_id": "validation_failed",
+            "status": 422
+          }
+        ],
+        "limitations": [
+          "synthetic bearer verification",
+          "no real provider/browser/device qualification",
+          "static retained grants; no lifecycle mutations"
+        ],
+        "logs": {
+          "access-server.log": "27d3dd783c056b99f5e6f62da84fd76e9f1059cd6e99a23b449c4286ff2e1f7c",
+          "kdg-server.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "retained-before.log": "1988ddd4de0158b925a47bca7d35ddbe14a332c94f2020bd0f5404b62bb7b0e9",
+          "tls-fixture.log": "197739eac98d1b22e100435b85deb4619f626253b0d9e55df12c8f4c6dfd1c46"
+        },
+        "passed": false,
+        "proof": "platform/deployment/.local/kdg-configured-context-20261022/native-fd9467b7f0d545afbb9c80b3ac894c77",
+        "retained_receipt_sha256": "2c341e184cc151eaa017a9c46e96028959165c867e02eed5528cfb43f1f2f48b",
+        "schema_version": 1,
+        "sources": {
+          "apps/kdg-capture/api/context.py": "1c58d6432fa321252d5e4fd88d1e1b589bb989cf4243a2fb4a7104a7c9151a06",
+          "apps/kdg-capture/api/main.py": "a44bc61f1d8d8e93a28cf6e38da45da70feb4f8fe1b1da7791e99f0a1c697fe3",
+          "apps/kdg-capture/api/runtime.py": "c070ba130f327a01c9332c0b67cb35a7cf46a137bbc359e498bb75594cdb616e",
+          "apps/kdg-capture/tests/qualify_configured_context.py": "73e2a88076f626592fcc0cafdef89164c8b286eea04997d87db3a1afd4964e61",
+          "services/access/main.py": "9af8e5d1f73e1f157b1802d541cba154e75c78b6a8b27874249c3bdf68d02faa",
+          "services/access/organization_check.py": "d35b96baa3f7b470fc49880a35684886341f2677888ef608c716268818ee53e3",
+          "services/access/tests/serve_kdg_context_fixture.py": "dcd8d889d14150a2683aa48e4bbd89f18629aec758538735841737a2247b2f70"
+        },
+        "teardown": [
+          {
+            "exit_code": 0,
+            "server": "kdg"
+          },
+          {
+            "exit_code": -9,
+            "server": "access"
+          }
+        ]
+      },
+      "result_sha256": "c30db2b77bacf74fa29e8e09d2409f69ea1948d74ca86a36aaa47669688de129"
+    }
+  },
+  "schema_version": 1,
+  "scope": "Synthetic configured API/current-owner prerequisite, not complete browser/persistence/provider/release readiness"
+}

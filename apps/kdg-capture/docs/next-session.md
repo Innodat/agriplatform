@@ -1,3 +1,21 @@
+## Current delivery — configured KDG context and native owner proof, 2026-10-22
+
+The bounded explicit startup adapter and actual KDG→TLS Access→restricted PostgreSQL
+proof is complete for this bounded prerequisite:79 KDG/139 affected tests, native
+HTTP/SQL, Uvicorn factory smoke and interruption safeguards pass. See
+[owner evidence](CONFIGURED_CONTEXT_EVIDENCE.md). Uses unchanged retained synthetic
+reviewed3 state with no setup/grants/migrations; no browser or persistence readiness.
+The test server has bounded shutdown with an observed idle-TLS warning; earlier
+forced-termination proof remains retained. The local stack stopped normally with data
+retained. Next select the remaining Story1.1 browser-entry prerequisite. Capture writes and native
+provider/device/release readiness remain separate. Fingerprints/HMAC stay deferred.
+Preserve concurrent work, history/resources and TypeScript7.0.2; synthetic local/CI
+only, no Leave/editor, real access/accounts, provisioning/deployment/pilot or cleanup.
+
+The complete prior handoff follows as historical checkpoints.
+
+---
+
 ## Current delivery — KDG current-context API prerequisite, 2026-10-22
 
 The bounded read-only `GET /api/v1/context` consumer is complete for this bounded API prerequisite;

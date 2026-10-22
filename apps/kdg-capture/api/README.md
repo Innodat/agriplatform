@@ -59,3 +59,49 @@ no new generic pattern promoted. Shared UI: none in this API slice. Agent contex
 root instructions suffice; actual commands are here. Documentation: this guide, evidence,
 Build spec and appended handoff. ADRs: existing ownership/access/logging/API decisions;
 no new or modified accepted ADR. Fingerprints/HMAC remain deferred.
+
+## Explicit configured startup factory
+
+`runtime:create_app` is an owner-owned ASGI factory. It reads exactly KDG_ORG_ID,
+KDG_ACCESS_URL and KDG_SERVICE_KEY from the server environment at construction; all
+three are required. Invalid/missing policy raises only kdg_context_configuration_invalid.
+An explicitly supplied mapping overrides environment discovery, including an empty
+mapping; it never merges ambient authority. Existing main:app stays unconfigured and
+refuses503. No environment file, secret, grant, migration or deployment configuration
+is installed by adding this factory. The optional Python transport argument remains
+an explicit test seam, never a request option or automatic TLS bypass.
+
+The bounded native acceptance is separate from normal unit tests:
+
+```sh
+"$ACCESS_PYTHON" -I -B apps/kdg-capture/tests/qualify_configured_context.py --run
+```
+
+It requires the already resumed retained synthetic run and authoritative reviewed3
+Access fixture, approved Access environment, existing /usr/bin/openssl and loopback
+sockets. It never invokes preparation or modifies retained business data. New exclusive
+private proof directories retain certificates, logs and exact source capsules; no
+resource deletion or automatic historical-proof refresh. Test-only trust verifies its
+local certificate. Two isolated server processes communicate over actual HTTP/TLS;
+Access uses restricted runtime SQL plus an explicit synthetic bearer verifier.
+
+See [configured-context evidence](../docs/CONFIGURED_CONTEXT_EVIDENCE.md). Native Access
+test-server draining has an explicit3s bound; a TLS idle-connection timeout warning is
+retained. Process exit0 does not assert a fully graceful deployed drain. Earlier forced
+termination attempts remain. Real provider/browser/device, rolling release and deployed
+server timeout/pool behavior are separate gates.
+
+For an explicitly configured **local** factory start, after supplying the three
+server environment values through the approved local operator environment:
+
+```sh
+"$P" -I -B -m uvicorn --app-dir apps/kdg-capture/api runtime:create_app --factory --host 127.0.0.1 --port 8188 --no-access-log
+```
+
+This documents the entry point; it installs no target configuration and authorizes no
+real service use. The native qualification separately exercises this exact import/
+--factory resolution in a fresh process, with one unauthenticated401 then automatic
+exit. Its ordinary TLS consumer uses an explicit private local CA test transport.
+The optional `--interrupt-probe` qualification intentionally sends SIGTERM to its own
+runner after both test servers start. It must retain failed/interrupted evidence,
+bounded child exits and a successful independent after-inspection, then exit143.
