@@ -1,3 +1,20 @@
+## Current delivery — browser current-entry session boundary, 2026-10-22
+
+The typed browser client and current-session generation boundary are complete for this
+bounded slice:29 focused tests, strict TypeScript7.0.2 and seven synthetic Chromium
+checks pass after review. See
+[owner evidence](BROWSER_ENTRY_BOUNDARY_EVIDENCE.md). Browser entry means sign-in,
+current access checking and a landing screen; this increment supplies only the access/
+session boundary. The visible React sign-in page/provider callback remain next work.
+No complete Story1.1, provider, UI, persistence or device readiness is claimed.
+Preserve concurrent work/history/Docker resources and TypeScript7.0.2. Synthetic local/CI
+only; no real sign-in/accounts/access, provisioning, deployment/pilot, Leave/editor or
+cleanup. Fingerprints/HMAC remain deferred.
+
+The complete prior handoff follows as historical checkpoints.
+
+---
+
 ## Current delivery — configured KDG context and native owner proof, 2026-10-22
 
 The bounded explicit startup adapter and actual KDG→TLS Access→restricted PostgreSQL
