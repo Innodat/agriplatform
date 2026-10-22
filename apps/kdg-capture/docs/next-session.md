@@ -1,3 +1,15 @@
+## Current delivery — WRITE fingerprint prerequisite, 2026-10-22
+
+The existing builder now has a copyable JCS/HMAC command-fingerprint candidate, with
+KDG-shaped normalized input, recorded-key retry verification and actual scaffold-copy
+preservation tests. Focused63 and existing builder62 checks pass; three review lenses
+are complete with direct test/doc corrections and no new deferrals. See [owner evidence](../../../platform/builder-cli/WRITE_FINGERPRINT_EVIDENCE.md)
+for current verification/review status. This does not complete WRITE or activate KDG.
+Next select the remaining owner-local write/context/outcome and secret-file prerequisite
+from the existing contract before the first KDG business API. Additional Access variants
+still wait for their consumers. Preserve concurrent work and all historical resources;
+no Leave/editor, production, real-account/access, deployment, pilot or cleanup.
+
 ## Current delivery — KDG organization permission check,2026-10-22
 
 Access15 and POST /v2/check implement the KDG organization check through the existing
