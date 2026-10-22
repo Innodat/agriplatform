@@ -1,12 +1,15 @@
 """Build the pinned HebrewLexicon snapshot into safe deterministic reference JSON."""
 import argparse
-import ast
 from functools import lru_cache
 import hashlib
 import json
 from pathlib import Path
 import re
+import sys
 import xml.etree.ElementTree as ET
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[2] / 'backend'))
+from corpus_source import BOOK_METADATA
 
 DIRECTORY = Path(__file__).resolve().parents[2] / 'data/hebrew-lexicon'
 NS = '{http://openscriptures.github.com/morphhb/namespace}'
@@ -27,14 +30,10 @@ def text(node):
 
 @lru_cache(maxsize=1)
 def corpus_bounds():
-    """Reuse importer book metadata and canonical collection chapter/verse bounds."""
-    importer = ast.parse((Path(__file__).parent / 'import_bible.py').read_text())
-    metadata = next(ast.literal_eval(node.value) for node in importer.body
-                    if isinstance(node, ast.AnnAssign) and isinstance(node.target, ast.Name)
-                    and node.target.id == 'BOOK_METADATA')
+    """Reuse pure source metadata and canonical collection chapter/verse bounds."""
     corpus = json.loads((DIRECTORY.parents[1] / 'scripts/hebrew.json').read_text())
     return {book['osis_id']: [len(chapter) for chapter in corpus[book['name_en']]]
-            for book in metadata if book['name_en'] in corpus}
+            for book in BOOK_METADATA if book['name_en'] in corpus}
 
 
 def valid_reference(book, chapter, verse):

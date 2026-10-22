@@ -1,0 +1,66 @@
+{
+  "status": "proposed-digest-fixtures-only",
+  "synthetic": true,
+  "notice": "Not biblical text, a valid reference catalogue, source activation proof or application acceptance.",
+  "vectors": [
+    {
+      "name": "base",
+      "observed_word_ids": [
+        "101",
+        "102"
+      ],
+      "source_revision": "fixture-r1",
+      "canonical_payload_utf8": "[\"scribeswell.verse_tokens.v1\",\"fixture-source\",\"fixture-catalogue-v1\",\"fixture-versification\",\"fixture-tokenization-v1\",\"FixtureBook\",1,1,[[1,\"אָב\"],[2,\"בֵּן\"]]]",
+      "sha256": "c9f9c0ff11ee51e0ca0043ddd730856c576735f9a02458c4a05134c813105b21"
+    },
+    {
+      "name": "different_database_ids",
+      "observed_word_ids": [
+        "9001",
+        "9002"
+      ],
+      "source_revision": "fixture-r2",
+      "canonical_payload_utf8": "[\"scribeswell.verse_tokens.v1\",\"fixture-source\",\"fixture-catalogue-v1\",\"fixture-versification\",\"fixture-tokenization-v1\",\"FixtureBook\",1,1,[[1,\"אָב\"],[2,\"בֵּן\"]]]",
+      "sha256": "c9f9c0ff11ee51e0ca0043ddd730856c576735f9a02458c4a05134c813105b21"
+    },
+    {
+      "name": "changed_surface_same_ids",
+      "observed_word_ids": [
+        "101",
+        "102"
+      ],
+      "source_revision": "fixture-r2",
+      "canonical_payload_utf8": "[\"scribeswell.verse_tokens.v1\",\"fixture-source\",\"fixture-catalogue-v1\",\"fixture-versification\",\"fixture-tokenization-v1\",\"FixtureBook\",1,1,[[1,\"אֵם\"],[2,\"בֵּן\"]]]",
+      "sha256": "42e1ff5cebfab295aef79c6d46513a936eae2acd0b3b834d03a44b912db88413"
+    },
+    {
+      "name": "inserted_word",
+      "observed_word_ids": [
+        "101",
+        "102",
+        "103"
+      ],
+      "source_revision": "fixture-r2",
+      "canonical_payload_utf8": "[\"scribeswell.verse_tokens.v1\",\"fixture-source\",\"fixture-catalogue-v1\",\"fixture-versification\",\"fixture-tokenization-v1\",\"FixtureBook\",1,1,[[1,\"אָב\"],[2,\"אֵם\"],[3,\"בֵּן\"]]]",
+      "sha256": "f4dfffceed4daee320c645a6933c8adaeda7e9b778ed0f061b93238e8ee1dfee"
+    },
+    {
+      "name": "combining_marks_source_order",
+      "observed_word_ids": [
+        "101"
+      ],
+      "source_revision": "fixture-r1",
+      "canonical_payload_utf8": "[\"scribeswell.verse_tokens.v1\",\"fixture-source\",\"fixture-catalogue-v1\",\"fixture-versification\",\"fixture-tokenization-v1\",\"FixtureBook\",1,1,[[1,\"שָׁ\"]]]",
+      "sha256": "125ba2960b8d8318c745b71e3eabb80b8c85c86e7be22cb3511391286d79b65c"
+    },
+    {
+      "name": "combining_marks_reordered",
+      "observed_word_ids": [
+        "101"
+      ],
+      "source_revision": "fixture-r1",
+      "canonical_payload_utf8": "[\"scribeswell.verse_tokens.v1\",\"fixture-source\",\"fixture-catalogue-v1\",\"fixture-versification\",\"fixture-tokenization-v1\",\"FixtureBook\",1,1,[[1,\"שָׁ\"]]]",
+      "sha256": "57c5dc82a5e5982c2b4f50645f6e53b05b97aa28c04ea479ecb66b5a096dd722"
+    }
+  ]
+}

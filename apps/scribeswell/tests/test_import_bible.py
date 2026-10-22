@@ -103,3 +103,22 @@ def test_pagination_fails_on_incomplete_response():
 
     with pytest.raises(RuntimeError, match='Incomplete query'):
         fetch_all(Truncated())
+
+
+@pytest.mark.parametrize('swapped', [False, True])
+def test_decoder_preserves_exact_surface_and_slashes(swapped):
+    surface = 'שָׁ/אָב'
+    fields = [surface, '1', 'HNcmsa']
+    if swapped:
+        fields[:2] = reversed(fields[:2])
+    word, morphs = BibleImporter.decode_word(fields, 'fixture')
+    assert word == {'surface_he': surface, 'display_he': 'שָׁאָב',
+                    'lemma_strong': '1', 'morph_code': 'HNcmsa'}
+    assert morphs[0]['part_of_speech'] == 'noun'
+
+
+@pytest.mark.parametrize('morph,message', [('', 'missing or malformed'), ('H', 'missing or malformed'),
+                                          ('HNcmsa/', 'missing or malformed'), ('HZ', 'unrecognized')])
+def test_decoder_morphology_errors_are_compatible(morph, message):
+    with pytest.raises(ValueError, match=f'fixture: {message} morphology'):
+        BibleImporter.decode_word(['אָב', '1', morph], 'fixture')
