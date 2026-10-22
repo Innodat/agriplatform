@@ -66,7 +66,7 @@ q.run()
     assert result.stderr=='organization_target_qualification_failed:RuntimeError\n'
 
 
-def test_head19_dispatch_requires_current_head_and_retains18(monkeypatch):
+def test_historical_head19_dispatch_retains18_without_claiming_current_head(monkeypatch):
     import qualify_identity_baseline as q
     b=q.baseline;seen=[]
     monkeypatch.setattr(b,'verify_legacy_history',lambda c:None)
@@ -77,8 +77,10 @@ def test_head19_dispatch_requires_current_head_and_retains18(monkeypatch):
     with pytest.raises(b.BaselineError,match='identity_unknown_history'):
         b.verify_owned_postcondition(object(),require_head=True)
     monkeypatch.setattr(b,'verify_owned_history',lambda c:b.ORGANIZATION_TARGET_REVISION)
-    b.verify_owned_postcondition(object(),require_head=True)
+    b.verify_owned_postcondition(object())
     assert seen[-1]=='organization_target'
+    with pytest.raises(b.BaselineError,match='identity_unknown_history'):
+        b.verify_owned_postcondition(object(),require_head=True)
 
 
 @pytest.mark.parametrize('defect',[None,'migration','missing_reference','modified_reference','source_pins'])

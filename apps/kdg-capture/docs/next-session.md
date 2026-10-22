@@ -1908,3 +1908,33 @@ See [runbook](../../../services/access/GRANT-REVOKE.md) and
 Next: membership-aware effective Access readers under the existing ACCESS-B contract.
 Account-scoped PtS/Content/corpus adoption and consumer activation remain separate gates.
 No production/real access, deployment/pilot, Leave/editor or reset/prune/cleanup follows.
+
+
+### Check-reader bridge prerequisite discovered —2026-10-22
+
+After Access14 revoke, native rehearsal of the next private reader bridge refused
+legacy PUBLIC executable Identity routines. Granting schema USAGE would expose the
+SECURITY DEFINER token hook's caller-selected account membership reads. No bridge
+grants or trusted20 reference were committed. Identity19 and Access14 remain current;
+all active production sources were restored byte-for-byte. Candidate work is preserved
+under /tmp/check-reader-bridge-blocked-candidate. See
+[owner evidence](../../../services/access/CHECK_READER_BRIDGE_EVIDENCE.md) and the
+[bounded draft](../../../_bmad-output/implementation-artifacts/spec-access-b-check-reader-bridge.md).
+Next resolve the narrow six-routine execution-ACL prerequisite, preserve existing
+supported callers and prove compatibility, then retry the reader bridge. No effective
+reader/consumer readiness follows. Synthetic stack stopped normally; data, empty
+private role, receipts/resources and concurrent work preserved, no reset/prune.
+
+
+### Approved check-reader bridge delivery —2026-10-22
+
+The six-routine execution-ACL prerequisite and private Identity0020 bridge now pass
+synthetic controlled upgrade, compatibility, denial, rollback/retry and retained-state
+verification. This supersedes the blocked rehearsal status above. Schemas, function
+bodies/owners, historical migrations and Access14 remain preserved; PostgreSQL PUBLIC
+execution is restricted to the approved callers. The private role receives only Identity
+schema usage and current-account organization projection execution. See
+[owner evidence](../../../services/access/CHECK_READER_BRIDGE_EVIDENCE.md) for exact commands, source custody and review closure.
+Next: the membership-aware selected-organization effective Access SQL reader through
+existing owner tooling, then its HTTP/consumer gates. No account-reader, application
+grant, PtS/KDG activation, real access, deployment or cleanup follows from this bridge.

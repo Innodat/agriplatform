@@ -24,6 +24,9 @@ LEGACY_ROLES_REVISION = 'identity_0009'
 TOKEN_HOOK_REVISION = 'identity_0010'
 MEMBERSHIP_ACTOR_ATTRIBUTION_REVISION = 'identity_0015'
 ORGANIZATION_TARGET_REVISION = 'identity_0019'
+CHECK_READER_BRIDGE_REVISION = 'identity_0020'
+CHECK_READER_BRIDGE_REFERENCE_SHA256 = '154c165f0f5635d42f2ecca1a0b75033be0aa7ef344353042cbcfc3ed72770a7'
+CHECK_READER = 'access_check_reader'
 ORGANIZATION_TARGET_REFERENCE_SHA256 = 'ac95baf560fd71eef4fa4867e45cc79fb22072c16ebb1dce80185bf524730235'
 ACCOUNT_ACTOR_ENSURE_REVISION = 'identity_0018'
 ACCOUNT_ACTOR_ENSURE_REFERENCE_SHA256 = '9502c7183ed38c6f81a3de6f578e04e6feb81059c56fdbbc44045b6f6054eb50'
@@ -99,6 +102,8 @@ def compare_catalog(actual, expected):
         raise BaselineError('identity_catalog_mismatch:' + ','.join(changed))
 
 def trusted_reference(kind):
+    if kind == 'check_reader_bridge':
+        return trusted_check_reader_bridge_reference()
     if kind == 'organization_target':
         return trusted_organization_target_reference()
     if kind == 'account_actor_ensure':
@@ -210,6 +215,16 @@ def catalog_fingerprints(snapshot):
 
 
 def verify_catalog(connection, kind):
+    if kind == 'check_reader_bridge':
+        verify_account_verification_role(connection)
+        verify_projection_role(connection)
+        verify_authority_roles(connection)
+        verify_command_role(connection)
+        verify_target_roles(connection)
+        verify_profile_privileges(connection)
+        verify_check_reader_role(connection)
+        compare_catalog(catalog_fingerprints(check_reader_bridge_catalog_snapshot(connection)), trusted_check_reader_bridge_reference())
+        return
     if kind == 'organization_target':
         verify_account_verification_role(connection)
         verify_projection_role(connection)
@@ -414,15 +429,15 @@ def verify_legacy_history(connection, clean=False):
 
 def verify_owned_postcondition(connection, require_head=False):
     revision = verify_owned_history(connection)
-    if require_head and revision != ORGANIZATION_TARGET_REVISION:
+    if require_head and revision != CHECK_READER_BRIDGE_REVISION:
         raise BaselineError('identity_unknown_history')
     verify_legacy_history(connection)
-    verify_catalog(connection, {REVISION: 'owned', ACTOR_REVISION: 'actor', PROJECTION_REVISION: 'projection', ORGANIZATION_REVISION: 'organization', AUTHORITY_REVISION: 'authority', COMMAND_REVISION: 'command', TARGET_REVISION: 'target', PROFILE_REVISION: 'profile', LEGACY_ROLES_REVISION: 'legacy_roles', TOKEN_HOOK_REVISION: 'token_hook', MEMBERSHIP_BINDING_REVISION: 'membership_binding', MEMBERSHIP_RETENTION_REVISION: 'membership_retention', MEMBERSHIP_RETIREMENT_REVISION: 'membership_retirement', ACTIVE_MEMBERSHIP_INDEX_REVISION: 'active_membership_index', MEMBERSHIP_ACTOR_ATTRIBUTION_REVISION: 'membership_actor_attribution', MEMBERSHIP_RETIRE_COMMAND_REVISION: 'membership_retire_command', MEMBERSHIP_JOIN_COMMAND_REVISION: 'membership_join_command', ACCOUNT_ACTOR_ENSURE_REVISION: 'account_actor_ensure', ORGANIZATION_TARGET_REVISION: 'organization_target'}[revision])
+    verify_catalog(connection, {REVISION: 'owned', ACTOR_REVISION: 'actor', PROJECTION_REVISION: 'projection', ORGANIZATION_REVISION: 'organization', AUTHORITY_REVISION: 'authority', COMMAND_REVISION: 'command', TARGET_REVISION: 'target', PROFILE_REVISION: 'profile', LEGACY_ROLES_REVISION: 'legacy_roles', TOKEN_HOOK_REVISION: 'token_hook', MEMBERSHIP_BINDING_REVISION: 'membership_binding', MEMBERSHIP_RETENTION_REVISION: 'membership_retention', MEMBERSHIP_RETIREMENT_REVISION: 'membership_retirement', ACTIVE_MEMBERSHIP_INDEX_REVISION: 'active_membership_index', MEMBERSHIP_ACTOR_ATTRIBUTION_REVISION: 'membership_actor_attribution', MEMBERSHIP_RETIRE_COMMAND_REVISION: 'membership_retire_command', MEMBERSHIP_JOIN_COMMAND_REVISION: 'membership_join_command', ACCOUNT_ACTOR_ENSURE_REVISION: 'account_actor_ensure', ORGANIZATION_TARGET_REVISION: 'organization_target', CHECK_READER_BRIDGE_REVISION: 'check_reader_bridge'}[revision])
 
 
 def verify_owned_history(connection):
     revisions = list(connection.execute(text('SELECT version_num FROM identity.alembic_version')).scalars())
-    if revisions not in ([REVISION], [ACTOR_REVISION], [PROJECTION_REVISION], [ORGANIZATION_REVISION], [AUTHORITY_REVISION], [COMMAND_REVISION], [TARGET_REVISION], [PROFILE_REVISION], [LEGACY_ROLES_REVISION], [TOKEN_HOOK_REVISION], [MEMBERSHIP_BINDING_REVISION], [MEMBERSHIP_RETENTION_REVISION], [MEMBERSHIP_RETIREMENT_REVISION], [ACTIVE_MEMBERSHIP_INDEX_REVISION], [MEMBERSHIP_ACTOR_ATTRIBUTION_REVISION], [MEMBERSHIP_RETIRE_COMMAND_REVISION], [MEMBERSHIP_JOIN_COMMAND_REVISION], [ACCOUNT_ACTOR_ENSURE_REVISION], [ORGANIZATION_TARGET_REVISION]):
+    if revisions not in ([REVISION], [ACTOR_REVISION], [PROJECTION_REVISION], [ORGANIZATION_REVISION], [AUTHORITY_REVISION], [COMMAND_REVISION], [TARGET_REVISION], [PROFILE_REVISION], [LEGACY_ROLES_REVISION], [TOKEN_HOOK_REVISION], [MEMBERSHIP_BINDING_REVISION], [MEMBERSHIP_RETENTION_REVISION], [MEMBERSHIP_RETIREMENT_REVISION], [ACTIVE_MEMBERSHIP_INDEX_REVISION], [MEMBERSHIP_ACTOR_ATTRIBUTION_REVISION], [MEMBERSHIP_RETIRE_COMMAND_REVISION], [MEMBERSHIP_JOIN_COMMAND_REVISION], [ACCOUNT_ACTOR_ENSURE_REVISION], [ORGANIZATION_TARGET_REVISION], [CHECK_READER_BRIDGE_REVISION]):
         raise BaselineError('identity_unknown_history')
     columns = connection.execute(text("SELECT column_name,data_type,character_maximum_length,is_nullable,column_default FROM information_schema.columns WHERE table_schema='identity' AND table_name='alembic_version' ORDER BY ordinal_position")).all()
     if [tuple(row) for row in columns] != [('version_num','character varying',32,'NO',None)]:
@@ -1106,3 +1121,101 @@ def trusted_organization_target_reference():
         or reference['migration_sha256'] != sha256((HERE/'versions/0019_organization_target.py').read_bytes()).hexdigest()):
         raise BaselineError('identity_reference_unavailable')
     return reference['organization_target']
+
+
+CHECK_READER_ROLE_QUERIES = {
+    key.replace('projection', 'check_reader'): sql.replace(PROJECTION_OWNER, CHECK_READER)
+    for key, sql in PROJECTION_ROLE_QUERIES.items()
+}
+# Policy-role dependencies are authority-bearing even without an ACL grant.
+# Keep historical projection queries/reference semantics byte-for-byte unchanged.
+CHECK_READER_ROLE_QUERIES['check_reader_dependencies'] = CHECK_READER_ROLE_QUERIES['check_reader_dependencies'].replace(
+    "s.deptype IN ('a','o')", "s.deptype IN ('a','o','r')")
+
+
+def verify_check_reader_role(connection, staged=False, legacy=False):
+    """Refuse unknown effective authority, including PUBLIC and incoming SET edges."""
+    role = CHECK_READER
+    flags = [tuple(r) for r in connection.execute(text(CHECK_READER_ROLE_QUERIES['check_reader_role']))]
+    if not flags:
+        raise BaselineError('identity_check_reader_role_missing')
+    if flags != [(role, False, False, False, False, False, False, False)]:
+        raise BaselineError('identity_check_reader_role_unsafe')
+    if connection.execute(text(CHECK_READER_ROLE_QUERIES['check_reader_memberships'])).all():
+        raise BaselineError('identity_check_reader_role_unsafe')
+    dependencies = connection.execute(text(CHECK_READER_ROLE_QUERIES['check_reader_dependencies'])).all()
+    expected = set() if staged else {('pg_namespace', 'a', 'schema identity'),
+        ('pg_proc', 'a', 'function identity.current_account_organization()')}
+    if {(r[1], r[2], r[3]) for r in dependencies} != expected or len(dependencies) != len(expected):
+        raise BaselineError('identity_check_reader_role_not_empty' if staged else 'identity_check_reader_dependencies_unsafe')
+    schemas = connection.execute(text("""SELECT nspname,p FROM pg_namespace
+      CROSS JOIN unnest(ARRAY['USAGE','CREATE','USAGE WITH GRANT OPTION','CREATE WITH GRANT OPTION']) p
+      WHERE nspname !~ '^pg_' AND nspname<>'information_schema'
+      AND has_schema_privilege(:role,oid,p)"""), {'role': role}).all()
+    allowed_schemas = {('public','USAGE')} | (set() if staged else {('identity','USAGE')})
+    if set(map(tuple, schemas)) != allowed_schemas or connection.execute(text("SELECT has_database_privilege(:role,current_database(),'CREATE')"), {'role': role}).scalar_one():
+        raise BaselineError('identity_check_reader_privileges_unsafe')
+    if connection.execute(text("""SELECT EXISTS (
+      SELECT 1 FROM pg_class c JOIN pg_namespace n ON n.oid=c.relnamespace
+      WHERE n.nspname !~ '^pg_' AND n.nspname<>'information_schema' AND
+       ((c.relkind IN ('r','p','v','m','f') AND
+         (has_table_privilege(:role,c.oid,'SELECT,INSERT,UPDATE,DELETE,TRUNCATE,REFERENCES,TRIGGER')
+          OR has_any_column_privilege(:role,c.oid,'SELECT,INSERT,UPDATE,REFERENCES')))
+        OR (c.relkind='S' AND CASE WHEN c.relkind='S' THEN has_sequence_privilege(:role,c.oid,'USAGE,SELECT,UPDATE') ELSE false END))
+      UNION ALL
+      SELECT 1 FROM pg_proc p JOIN pg_namespace n ON n.oid=p.pronamespace
+      WHERE n.nspname NOT IN ('pg_catalog','information_schema')
+        AND (n.nspname='identity' OR p.prosecdef)
+        AND has_function_privilege(:role,p.oid,'EXECUTE')
+        -- Exact definitions/owners/ACLs are source-checked by the surrounding
+        -- catalog verifier. Trigger-only functions cannot be called as SQL data
+        -- routines; these two invokers only read the caller's own JWT context.
+        AND p.oid NOT IN ('identity.current_org_id()'::regprocedure,
+          'identity.current_member_id()'::regprocedure,
+          'identity.handle_new_user()'::regprocedure,
+          'identity.log_audit()'::regprocedure,'identity.set_audit_fields()'::regprocedure)
+        AND (NOT :legacy OR p.oid NOT IN (
+          'identity.authorize(identity.app_permission)'::regprocedure,
+          'identity.create_user(text)'::regprocedure,
+          'identity.custom_access_token_hook(jsonb)'::regprocedure,
+          'public.get_user_roles()'::regprocedure,
+          'identity.membership_join_profile_allowed(uuid)'::regprocedure,
+          'identity.membership_join_org_allowed(uuid)'::regprocedure))
+        AND (:staged OR p.oid<>to_regprocedure('identity.current_account_organization()')::oid
+             OR has_function_privilege(:role,p.oid,'EXECUTE WITH GRANT OPTION'))
+    )"""), {'role': role, 'staged': staged, 'legacy': legacy}).scalar_one():
+        raise BaselineError('identity_check_reader_privileges_unsafe')
+    if not staged and not connection.execute(text("SELECT has_function_privilege(:role,'identity.current_account_organization()','EXECUTE')"), {'role': role}).scalar_one():
+        raise BaselineError('identity_check_reader_privileges_unsafe')
+
+
+def check_reader_bridge_catalog_snapshot(connection):
+    result = account_actor_catalog_snapshot(connection)
+    current = connection.execute(text('SELECT current_database()')).scalar_one()
+    for key, sql in CHECK_READER_ROLE_QUERIES.items():
+        rows = [list(r) for r in connection.execute(text(sql))]
+        if key.endswith('_dependencies'):
+            for row in rows:
+                if row[0] == current: row[0] = 'current_database'
+        result[key] = sorted(rows, key=lambda row: json.dumps(row, sort_keys=True))
+    for category in ('effective_tables','effective_columns','effective_functions','effective_schemas','effective_sequences'):
+        # Unlike historical snapshots, include the private history ledger explicitly.
+        sql = QUERIES[category].replace("'identity_migrator','access_runtime','authenticated','anon','service_role','supabase_auth_admin'", "'access_check_reader'")
+        sql = sql.replace(" AND c.relname<>'alembic_version'", '')
+        result['check_reader_'+category] = sorted([list(r) for r in connection.execute(text(sql))], key=lambda row: json.dumps(row, sort_keys=True))
+    return result
+
+
+def trusted_check_reader_bridge_reference():
+    trusted_organization_target_reference()
+    path = HERE/'check-reader-bridge-reference.json'
+    if CHECK_READER_BRIDGE_REFERENCE_SHA256 is None or not path.exists():
+        raise BaselineError('identity_reference_unavailable')
+    content = path.read_bytes()
+    if sha256(content).hexdigest() != CHECK_READER_BRIDGE_REFERENCE_SHA256:
+        raise BaselineError('identity_reference_unavailable')
+    reference = json.loads(content)
+    if (reference['source_pins'] != json.loads((HERE/'source-pins.json').read_text())
+        or reference['migration_sha256'] != sha256((HERE/'versions/0020_check_reader_bridge.py').read_bytes()).hexdigest()):
+        raise BaselineError('identity_reference_unavailable')
+    return reference['check_reader_bridge']

@@ -2026,3 +2026,28 @@ Identity target observation is added to removal. Preserve old data/volumes/recei
 no reset/prune/recovery cleanup, startup migration or automatic reverse. Deployment,
 real access, consumers, portable bootstrap and complete logical restore remain outside
 this bounded synthetic proof.
+
+
+### Check-reader bridge rehearsal retained —2026-10-22
+
+Frame platform/deployment/.local/identity-baseline/check-reader-bridge-20261022 retains
+two fresh19 cases, missing-role RED, empty-role preparation and failed rollback-only
+reference rehearsal. No bridge ACL or20 reference was committed. Existing production
+sources/head were restored; pending candidate and exact ACL proposal are recorded in
+[owner evidence](../../services/access/CHECK_READER_BRIDGE_EVIDENCE.md). The isolated
+run stopped normally, retaining databases, empty NOLOGIN role and all Docker resources.
+Do not rerun single-use preparation, reset, prune or delete failed receipts/resources.
+
+
+### Approved check-reader bridge delivery —2026-10-22
+
+The six-routine execution-ACL prerequisite and private Identity0020 bridge now pass
+synthetic controlled upgrade, compatibility, denial, rollback/retry and retained-state
+verification. This supersedes the blocked rehearsal status above. Schemas, function
+bodies/owners, historical migrations and Access14 remain preserved; PostgreSQL PUBLIC
+execution is restricted to the approved callers. The private role receives only Identity
+schema usage and current-account organization projection execution. See
+[owner evidence](../../services/access/CHECK_READER_BRIDGE_EVIDENCE.md) for exact commands, source custody and review closure.
+Next: the membership-aware selected-organization effective Access SQL reader through
+existing owner tooling, then its HTTP/consumer gates. No account-reader, application
+grant, PtS/KDG activation, real access, deployment or cleanup follows from this bridge.

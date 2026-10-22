@@ -819,3 +819,29 @@ database receipt bound and CLI transport; previous command bounds remain unchang
 See [runbook](../../../../services/access/GRANT-REVOKE.md) and
 [evidence](../../../../services/access/GRANT_REVOKE_EVIDENCE.md). No Identity privilege,
 new service/generator/UI or ADR change; effective readers and consumers remain gated.
+
+
+### Check-reader bridge rehearsal gate —2026-10-22
+
+The new reader requires more than its planned schema/projection grants: native19
+contains PUBLIC execution on sensitive legacy callable routines, including the token
+hook. Independent rollback-only rehearsal refused before bridge activation. No20
+reference or bridge grant was committed; original19/Access14 sources remain intact.
+[Owner evidence](../../../../services/access/CHECK_READER_BRIDGE_EVIDENCE.md) records
+the exact inherited-ACL findings and unapplied bounded prerequisite proposal. Preserve
+supported Auth/Expense/Identity policy callers explicitly and verify negative reader
+access before retrying. No runtime/HTTP/consumer activation or contract relaxation.
+
+
+### Approved check-reader bridge delivery —2026-10-22
+
+The six-routine execution-ACL prerequisite and private Identity0020 bridge now pass
+synthetic controlled upgrade, compatibility, denial, rollback/retry and retained-state
+verification. This supersedes the blocked rehearsal status above. Schemas, function
+bodies/owners, historical migrations and Access14 remain preserved; PostgreSQL PUBLIC
+execution is restricted to the approved callers. The private role receives only Identity
+schema usage and current-account organization projection execution. See
+[owner evidence](../../../../services/access/CHECK_READER_BRIDGE_EVIDENCE.md) for exact commands, source custody and review closure.
+Next: the membership-aware selected-organization effective Access SQL reader through
+existing owner tooling, then its HTTP/consumer gates. No account-reader, application
+grant, PtS/KDG activation, real access, deployment or cleanup follows from this bridge.

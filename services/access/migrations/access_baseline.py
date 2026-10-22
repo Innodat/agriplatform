@@ -352,6 +352,24 @@ _FOREIGN_FUNCTIONS = {
 }
 
 
+# Identity20 narrows only these exact ACLs. Old Identity19 remains recognized;
+# definitions and owners still use the historical pins above. No ledger read or
+# recursive other-owner verifier is needed during the controlled20 transaction.
+_FOREIGN_20_ACLS = {
+ ('public','get_user_roles',''):
+  '{identity_migrator=X/identity_migrator,authenticated=X/identity_migrator}',
+ ('identity','authorize','requested_permission identity.app_permission'):
+  '{identity_migrator=X/identity_migrator,authenticated=X/identity_migrator,service_role=X/identity_migrator,postgres=X/identity_migrator,identity_account_projection_owner=X/identity_migrator,identity_target_projection_owner=X/identity_migrator,identity_account_verification_owner=X/identity_migrator,identity_command_owner=X/identity_migrator}',
+ ('identity','create_user','email text'): '{identity_migrator=X/identity_migrator}',
+ ('identity','custom_access_token_hook','event jsonb'):
+  '{identity_migrator=X/identity_migrator,supabase_auth_admin=X/identity_migrator}',
+ ('identity','membership_join_org_allowed','p_org uuid'):
+  '{identity_operator_authority_owner=X/identity_operator_authority_owner,identity_command_owner=X/identity_operator_authority_owner}',
+ ('identity','membership_join_profile_allowed','p_account uuid'):
+  '{identity_operator_authority_owner=X/identity_operator_authority_owner,identity_command_owner=X/identity_operator_authority_owner}',
+}
+
+
 def verify_operator_foreign_privileges(connection, role):
     """Reject effective foreign authority; preserve only the exact prior bootstrap.
 
@@ -369,7 +387,8 @@ def verify_operator_foreign_privileges(connection, role):
           AND has_function_privilege('{role}',p.oid,'EXECUTE')"""):
         expected=_FOREIGN_FUNCTIONS.get((schema,name,arguments))
         if (expected is None or (schema=='identity' and role!='access_command_owner')
-            or owner!=expected[0] or definition not in expected[1] or grants!=expected[2]):
+            or owner!=expected[0] or definition not in expected[1]
+            or grants not in (expected[2], _FOREIGN_20_ACLS.get((schema,name,arguments), expected[2]))):
             raise BaselineError('access_operator_roles_invalid')
         if schema=='identity' and name=='organization_account_target':permitted_identity=True
     for schema,usage,create in rows(connection,f"""
