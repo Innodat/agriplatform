@@ -131,7 +131,7 @@ def test_raw_utf8_opaque_id_exact_body_byte_boundary():
 
 
 @pytest.mark.parametrize('grant_id', ['', ' retained é🙂\t ', 'x'*10000, 'PRIVATE_REVOKE_GRANT_SENTINEL'])
-def test_valid_revocation_refuses_every_execution_boundary_before_io(grant_id, tmp_path, monkeypatch, capsys):
+def test_identity_remains_closed_and_malformed_access_lookup_refuses_before_io(grant_id, tmp_path, monkeypatch, capsys):
     import access_operator as access
     import identity_operator as identity
     import operator_cli as cli
@@ -152,9 +152,6 @@ def test_valid_revocation_refuses_every_execution_boundary_before_io(grant_id, t
     monkeypatch.setattr(cli, 'load_target', trap)
     monkeypatch.setattr(cli, '_connection', trap)
     monkeypatch.setattr(cli, 'dispatch', trap)
-    with pytest.raises(access.OperatorError) as caught:
-        access.execute(Trap(), raw)
-    safe(caught.value, 'command_unsupported')
     with pytest.raises(cli.CommandValidationError) as caught:
         identity.execute(Trap(), raw)
     safe(caught.value, 'identity_operator_input_invalid')
@@ -164,16 +161,15 @@ def test_valid_revocation_refuses_every_execution_boundary_before_io(grant_id, t
             adapter.outcome(Trap(), shared.UUID, command=NAME, **kwargs)
         safe(caught.value, 'command_invalid')
     for worker in (cli.access_worker, cli.worker):
-        for action, value in [('execute', raw.decode()), ('outcome', dict(command=NAME, org_id=ORG, account_id=ACCOUNT, membership_id='1', permission='fixture.read:*'))]:
+        for action, value in [('outcome', dict(command=NAME, org_id=ORG, account_id=ACCOUNT, membership_id='1', permission='fixture.read:*'))]:
             with pytest.raises(ValueError) as caught:
                 worker([action, 'unused', value, shared.UUID, 'access'])
             assert type(caught.value) is ValueError and caught.value.args == ()
             assert caught.value.__context__ is None and caught.value.__cause__ is None
             assert 'PRIVATE_REVOKE_GRANT_SENTINEL' not in ''.join(traceback.format_exception(caught.value))
     monkeypatch.setattr(shared, 'document', lambda command=None: json.loads(json.dumps(original)))
-    shared.test_identity_parser_adapter_cli_refuse_before_effects(NAME, tmp_path, monkeypatch, capsys)
     path = tmp_path/'revoke-sensitive.json'; path.write_bytes(raw)
-    for owner in ('access', 'identity'):
+    for owner in ('identity',):
         assert cli.main(['execute','--owner',owner,'--target','unused','--command-file',str(path)]) == 2
         output = capsys.readouterr()
         expected = (dict(code='command_unsupported',operation_id=shared.UUID.lower()) if owner == 'access' else dict(code='identity_operator_input_invalid'))

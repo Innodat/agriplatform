@@ -1893,3 +1893,18 @@ Revocation-input verification:130 focused and1649 affected tests PASS; both comp
 checks exit0. Configured oneshot review completed with direct test/evidence corrections,
 no deferral. All202 protected Access files and concurrent work remain preserved; durable
 receipts are in owner evidence. No native startup or runtime revocation is claimed.
+
+
+### Protected organization grant revocation —2026-10-22
+
+Access0014 implements grant.revoke through the existing owner adapter/CLI. It checks
+current independent revoke authority and exact original grant/account/member/permission/
+revision, preserves binding/creation fields, and commits server-attributed revocation
+with atomic receipt/event. Already-revoked matching state is unchanged without an event.
+Retired/rejoined/soft-deleted targets remain removable; no replacement lookup or Identity
+active-target requirement is added. Assignment's observation safeguards stay intact.
+See [runbook](../../../services/access/GRANT-REVOKE.md) and
+[evidence](../../../services/access/GRANT_REVOKE_EVIDENCE.md) for acceptance/review status.
+Next: membership-aware effective Access readers under the existing ACCESS-B contract.
+Account-scoped PtS/Content/corpus adoption and consumer activation remain separate gates.
+No production/real access, deployment/pilot, Leave/editor or reset/prune/cleanup follows.

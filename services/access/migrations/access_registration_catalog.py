@@ -604,3 +604,19 @@ def grant_assignment_catalog():
     functions['assign_organization_grant']=[('p_operation uuid, p_org uuid, p_account uuid, p_member bigint, p_permission text, p_absent boolean, p_revision text, p_reason text, p_evidence text, p_canonical bytea',*functions['register_application'][0][1:])]
     functions['organization_grant_assignment_outcome']=[('p_operation uuid, p_org uuid, p_account uuid, p_member bigint, p_permission text',*functions['application_registration_outcome'][0][1:])]
     return tables,functions
+
+
+def grant_revocation_catalog():
+    """Access14 extends exact13 metadata; historical branches remain fixed."""
+    from copy import deepcopy
+    tables,functions=grant_assignment_catalog()
+    for table in tables.values():
+        table['constraints']=[(n,t,d.replace("'grant.assign'::text]", "'grant.assign'::text, 'grant.revoke'::text]").replace("'access.organization_grant_assigned'::text]", "'access.organization_grant_assigned'::text, 'access.organization_grant_revoked'::text]"),a,b,c) for n,t,d,a,b,c in table['constraints']]
+    definition="CHECK (((target_account_id IS NULL) OR ((command = ANY (ARRAY['grant.assign'::text, 'grant.revoke'::text])) AND (target_account_id <> '00000000-0000-0000-0000-000000000000'::uuid))))"
+    tables['operator_authorities']['constraints']=[(n,t,definition if n=='operator_authorities_target_account_id_check' else d,a,b,c) for n,t,d,a,b,c in tables['operator_authorities']['constraints']]
+    result_definition="CHECK (((jsonb_typeof(result) = 'object'::text) AND (((command_type = 'grant.revoke'::text) AND (octet_length((result)::text) <= 65556)) OR ((command_type <> 'grant.revoke'::text) AND (octet_length((result)::text) <= 8192)))))"
+    tables['operation_outcome']['constraints']=[(n,t,result_definition if n=='operation_outcome_result_check' else d,a,b,c) for n,t,d,a,b,c in tables['operation_outcome']['constraints']]
+    functions['grant_revocation_authority']=deepcopy(functions['grant_assignment_authority'])
+    functions['revoke_organization_grant']=[('p_operation uuid, p_org uuid, p_grant text, p_account uuid, p_member bigint, p_permission text, p_revision text, p_reason text, p_evidence text, p_canonical bytea',*functions['register_application'][0][1:])]
+    functions['organization_grant_revocation_outcome']=[('p_operation uuid, p_org uuid, p_grant text, p_account uuid, p_member bigint, p_permission text',*functions['application_registration_outcome'][0][1:])]
+    return tables,functions

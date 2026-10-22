@@ -803,3 +803,19 @@ Revocation-input verification:130 focused and1649 affected tests PASS; both comp
 checks exit0. Configured oneshot review completed with direct test/evidence corrections,
 no deferral. All202 protected Access files and concurrent work remain preserved; durable
 receipts are in owner evidence. No native startup or runtime revocation is claimed.
+
+
+### Protected organization revocation increment —2026-10-22
+
+Access0014 adds grant.revoke through the existing protected owner path. Exact retained
+org/grant/account/member/permission/revision is checked before noop, with independent
+current command/app/account policy and shared grant serialization. Changed removal keeps
+original binding/creation, increments revision and writes server attribution/event/receipt
+atomically. Already-revoked matching state records receipt only. No current Identity
+eligibility is needed to remove historical authority. Assignment's verification remains.
+Exact six-selector recovery requires current revoke authority and returns past completion.
+The new command supports bounded large opaque IDs through canonical input, command-specific
+database receipt bound and CLI transport; previous command bounds remain unchanged.
+See [runbook](../../../../services/access/GRANT-REVOKE.md) and
+[evidence](../../../../services/access/GRANT_REVOKE_EVIDENCE.md). No Identity privilege,
+new service/generator/UI or ADR change; effective readers and consumers remain gated.

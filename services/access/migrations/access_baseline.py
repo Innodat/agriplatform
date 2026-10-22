@@ -1,4 +1,4 @@
-"""Fixed Access-local assertions for known empty and revision1–13 catalogs.
+"""Fixed Access-local assertions for known empty and revision1–14 catalogs.
 
 Unknown state is preserved for explicit disposition. This module never repairs ACLs,
 normalizes history, adopts tables or inspects Identity business data.
@@ -8,7 +8,7 @@ from pathlib import Path
 from sqlalchemy import text
 
 OWNER = 'access_migrator'
-HEAD = 'access_0013'
+HEAD = 'access_0014'
 LOCK_SQL = "SELECT pg_try_advisory_xact_lock(hashtextextended('access-owned-migrations',0))"
 
 
@@ -26,7 +26,7 @@ def require_equal(actual, expected, code='access_catalog_mismatch'):
 
 
 def validate_revision(revisions):
-    if revisions not in (['access_0001'], ['access_0002'], ['access_0003'], ['access_0004'], ['access_0005'], ['access_0006'], ['access_0007'], ['access_0008'], ['access_0009'], ['access_0010'], ['access_0011'], ['access_0012'], [HEAD]):
+    if revisions not in (['access_0001'], ['access_0002'], ['access_0003'], ['access_0004'], ['access_0005'], ['access_0006'], ['access_0007'], ['access_0008'], ['access_0009'], ['access_0010'], ['access_0011'], ['access_0012'], ['access_0013'], [HEAD]):
         raise BaselineError('access_unknown_history')
     return revisions[0]
 
@@ -92,9 +92,9 @@ def verify_table(connection, name, revision):
         ('user_id','uuid',True,'','',None,'-'),('permission','text',True,'','',None,'"default"'),
         ('created_at','timestamp with time zone',True,'','','clock_timestamp()','-'),
         ('created_by','text',True,'','',"current_setting('app.actor_id'::text)",'"default"')]
-    if not ledger and revision in ('access_0002', 'access_0003', 'access_0004', 'access_0005', 'access_0006', 'access_0007', 'access_0008', 'access_0009', 'access_0010', 'access_0011', 'access_0012', HEAD):
+    if not ledger and revision in ('access_0002', 'access_0003', 'access_0004', 'access_0005', 'access_0006', 'access_0007', 'access_0008', 'access_0009', 'access_0010', 'access_0011', 'access_0012', 'access_0013', HEAD):
         expected += [('membership_id','bigint',False,'','',None,'-')]
-    if not ledger and revision in ('access_0010', 'access_0011', 'access_0012', HEAD):
+    if not ledger and revision in ('access_0010', 'access_0011', 'access_0012', 'access_0013', HEAD):
         expected += [
             ('scope_kind','text',True,'','',"'organization'::text",'"default"'),
             ('revision','bigint',True,'','','1','-'),
@@ -110,9 +110,9 @@ def verify_table(connection, name, revision):
         ('grants_pkey','p','PRIMARY KEY (org_id, id)',True,False,False),
         ('grants_org_id_user_id_permission_key','u','UNIQUE (org_id, user_id, permission)',True,False,False),
         ('grants_permission_check','c',"CHECK ((permission = ANY (ARRAY['pts.poetry.read'::text, 'pts.poetry.export'::text, 'pts.poetry.documents'::text])))",True,False,False)]
-    if not ledger and revision in ('access_0002', 'access_0003', 'access_0004', 'access_0005', 'access_0006', 'access_0007', 'access_0008', 'access_0009', 'access_0010', 'access_0011', 'access_0012', HEAD):
+    if not ledger and revision in ('access_0002', 'access_0003', 'access_0004', 'access_0005', 'access_0006', 'access_0007', 'access_0008', 'access_0009', 'access_0010', 'access_0011', 'access_0012', 'access_0013', HEAD):
         constraints += [('grants_membership_id_positive','c','CHECK ((membership_id > 0))',True,False,False)]
-    if not ledger and revision in ('access_0010', 'access_0011', 'access_0012', HEAD):
+    if not ledger and revision in ('access_0010', 'access_0011', 'access_0012', 'access_0013', HEAD):
         constraints += [(n,'c',d,True,False,False) for n,d in [
             ('grants_scope_kind_organization',"CHECK ((scope_kind = 'organization'::text))"),
             ('grants_revision_positive','CHECK ((revision > 0))'),
@@ -120,20 +120,20 @@ def verify_table(connection, name, revision):
             ('grants_updated_actor_id_non_nil',"CHECK ((updated_actor_id <> '00000000-0000-0000-0000-000000000000'::uuid))"),
             ('grants_revoked_at_finite','CHECK (isfinite(revoked_at))'),
             ('grants_updated_at_finite','CHECK (isfinite(updated_at))')]]
-    if not ledger and revision in ('access_0011', 'access_0012', HEAD):
+    if not ledger and revision in ('access_0011', 'access_0012', 'access_0013', HEAD):
         constraints = [c for c in constraints if c[0] != 'grants_permission_check']
         constraints += [
             ('grants_registry_permission_scope_fkey','f','FOREIGN KEY (registry_permission, scope_kind) REFERENCES access.permissions(permission, scope_kind) ON DELETE RESTRICT',True,False,False),
             ('grants_nonlegacy_active_fields','c','CHECK (((registry_permission IS NULL) OR (revoked_at IS NOT NULL) OR ((membership_id IS NOT NULL) AND (created_actor_id IS NOT NULL) AND (updated_actor_id IS NOT NULL) AND (updated_at IS NOT NULL))))',True,False,False)]
-        if revision in ('access_0012', HEAD):
+        if revision in ('access_0012', 'access_0013', HEAD):
             constraints = [c for c in constraints if c[0] not in ('grants_registry_permission_scope_fkey','grants_nonlegacy_active_fields')]
             constraints += [
                 ('grants_permission_scope_fkey','f','FOREIGN KEY (permission, scope_kind) REFERENCES access.permissions(permission, scope_kind) ON DELETE RESTRICT',True,False,False),
                 ('grants_active_fields','c','CHECK (((revoked_at IS NOT NULL) OR ((membership_id IS NOT NULL) AND (created_actor_id IS NOT NULL) AND (updated_actor_id IS NOT NULL) AND (updated_at IS NOT NULL))))',True,False,False)]
-        verify_grant_registry_triggers(connection, oid, 'grants_permission_scope_fkey' if revision in ('access_0012', HEAD) else 'grants_registry_permission_scope_fkey')
+        verify_grant_registry_triggers(connection, oid, 'grants_permission_scope_fkey' if revision in ('access_0012', 'access_0013', HEAD) else 'grants_registry_permission_scope_fkey')
     else:
         require_equal(rows(connection, f"SELECT 1 FROM pg_trigger WHERE tgrelid={oid} AND tgisinternal"), [], code)
-    if not ledger and revision == HEAD:
+    if not ledger and revision in ('access_0013', HEAD):
         constraints.append(('grant_required_change','t','TRIGGER DEFERRABLE INITIALLY DEFERRED',True,True,True))
     require_equal(rows(connection, f"SELECT conname,contype,pg_get_constraintdef(oid),convalidated,condeferrable,condeferred FROM pg_constraint WHERE conrelid={oid}"), constraints, code)
     indexes = ['CREATE UNIQUE INDEX alembic_version_pkc ON access.alembic_version USING btree (version_num)'] if ledger else [
@@ -141,7 +141,7 @@ def verify_table(connection, name, revision):
         'CREATE UNIQUE INDEX grants_org_id_user_id_permission_key ON access.grants USING btree (org_id, user_id, permission)']
     require_equal(rows(connection, f"SELECT pg_get_indexdef(indexrelid),indisvalid,indisready,indislive FROM pg_index WHERE indrelid={oid}"), [(i,True,True,True) for i in indexes], code)
     policies = [] if ledger else [('org_scope','*',True,'{0}',"((org_id)::text = current_setting('app.org_id'::text, true))","((org_id)::text = current_setting('app.org_id'::text, true))")]
-    if not ledger and revision == HEAD:
+    if not ledger and revision in ('access_0013', HEAD):
         role=rows(connection,"SELECT oid::text FROM pg_roles WHERE rolname='access_command_owner'")[0][0]
         policies.append(('command_org_scope','*',True,'{'+role+'}',"((org_id)::text = current_setting('app.org_id'::text, true))","((org_id)::text = current_setting('app.org_id'::text, true))"))
     require_equal(rows(connection, f"SELECT polname,polcmd,polpermissive,polroles::text,pg_get_expr(polqual,polrelid),pg_get_expr(polwithcheck,polrelid) FROM pg_policy WHERE polrelid={oid}"), policies, code)
@@ -150,43 +150,45 @@ def verify_table(connection, name, revision):
     if connection.dialect.server_version_info < (17,): privileges.remove('MAINTAIN')
     expected_acl = owner_acl(privileges)
     if not ledger: expected_acl += [(OWNER,'access_runtime','SELECT',False)]
-    if not ledger and revision == HEAD: expected_acl += [(OWNER,'access_command_owner',p,False) for p in ('SELECT','INSERT')]
+    if not ledger and revision in ('access_0013', HEAD): expected_acl += [(OWNER,'access_command_owner',p,False) for p in ('SELECT','INSERT')]
     require_equal(acl(connection, oid, 'r'), expected_acl, code)
-    require_equal(acl(connection, oid, 'r', column=True), [(col,OWNER,'access_command_owner','UPDATE',False) for col in ('membership_id','revoked_at')] if not ledger and revision == HEAD else [], code)
-    require_equal(rows(connection,f"SELECT tgname,tgenabled,pg_get_triggerdef(oid) FROM pg_trigger WHERE tgrelid={oid} AND NOT tgisinternal"), grant_assignment_triggers() if not ledger and revision == HEAD else [], code)
+    require_equal(acl(connection, oid, 'r', column=True), [(col,OWNER,'access_command_owner','UPDATE',False) for col in ('membership_id','revoked_at')] if not ledger and revision in ('access_0013', HEAD) else [], code)
+    require_equal(rows(connection,f"SELECT tgname,tgenabled,pg_get_triggerdef(oid) FROM pg_trigger WHERE tgrelid={oid} AND NOT tgisinternal"), grant_assignment_triggers() if not ledger and revision in ('access_0013', HEAD) else [], code)
     require_equal(rows(connection,f"SELECT 1 FROM pg_rewrite WHERE ev_class={oid}"),[],code)
     # PostgreSQL retains this exact native slot after dropping the bridge column.
     # No other dropped slot, type, provenance or column ACL is waived.
     require_equal(rows(connection, f"SELECT attnum,attname,atttypid,atttypmod,attlen,attbyval,attalign,attstorage,attcompression,attnotnull,atthasdef,atthasmissing,attidentity,attgenerated,attisdropped,attcollation,attacl,attoptions,attfdwoptions,attmissingval FROM pg_attribute WHERE attrelid={oid} AND attisdropped"),
-                  [(14,'........pg.dropped.14........',0,-1,-1,False,'i','x','',False,False,False,'','',True,100,None,None,None,None)] if not ledger and revision in ('access_0012', HEAD) else [], code)
+                  [(14,'........pg.dropped.14........',0,-1,-1,False,'i','x','',False,False,False,'','',True,100,None,None,None,None)] if not ledger and revision in ('access_0012', 'access_0013', HEAD) else [], code)
 
 
 def verify_catalog(connection, revision):
     names = [] if revision is None else ['grants','grants_pkey','grants_org_id_user_id_permission_key','alembic_version','alembic_version_pkc']
-    if revision in ('access_0003', 'access_0004', 'access_0005', 'access_0006', 'access_0007', 'access_0008', 'access_0009', 'access_0010', 'access_0011', 'access_0012', HEAD):
+    if revision in ('access_0003', 'access_0004', 'access_0005', 'access_0006', 'access_0007', 'access_0008', 'access_0009', 'access_0010', 'access_0011', 'access_0012', 'access_0013', HEAD):
         names += [*REGISTRY_TABLES, *[index for indexes in REGISTRY_INDEXES.values() for index,columns in indexes]]
     types = [] if revision is None else ['grants','_grants','alembic_version','_alembic_version']
-    if revision in ('access_0003', 'access_0004', 'access_0005', 'access_0006', 'access_0007', 'access_0008', 'access_0009', 'access_0010', 'access_0011', 'access_0012', HEAD):
+    if revision in ('access_0003', 'access_0004', 'access_0005', 'access_0006', 'access_0007', 'access_0008', 'access_0009', 'access_0010', 'access_0011', 'access_0012', 'access_0013', HEAD):
         types += [t for name in REGISTRY_TABLES for t in (name,'_'+name)]
-    if revision in ('access_0004', 'access_0005', 'access_0006', 'access_0007', 'access_0008', 'access_0009', 'access_0010', 'access_0011', 'access_0012', HEAD):
+    if revision in ('access_0004', 'access_0005', 'access_0006', 'access_0007', 'access_0008', 'access_0009', 'access_0010', 'access_0011', 'access_0012', 'access_0013', HEAD):
         from access_registration_baseline import TABLES, INDEXES, FUNCTIONS
-        if revision in ('access_0005','access_0006','access_0007','access_0008','access_0009','access_0010','access_0011','access_0012',HEAD):
+        if revision in ('access_0005','access_0006','access_0007','access_0008','access_0009','access_0010','access_0011','access_0012','access_0013',HEAD):
             from access_registration_baseline import PERMISSION_INDEXES as INDEXES, PERMISSION_FUNCTIONS as FUNCTIONS
-        if revision in ('access_0006','access_0007','access_0008','access_0009','access_0010','access_0011','access_0012',HEAD):
+        if revision in ('access_0006','access_0007','access_0008','access_0009','access_0010','access_0011','access_0012','access_0013',HEAD):
             from access_registration_baseline import ENTRY_FUNCTIONS as FUNCTIONS
-        if revision in ('access_0007', 'access_0008', 'access_0009', 'access_0010', 'access_0011', 'access_0012', HEAD):
+        if revision in ('access_0007', 'access_0008', 'access_0009', 'access_0010', 'access_0011', 'access_0012', 'access_0013', HEAD):
             from access_registration_baseline import ENABLEMENT_FUNCTIONS as FUNCTIONS
-        if revision in ('access_0009', 'access_0010', 'access_0011', 'access_0012', HEAD):
+        if revision in ('access_0009', 'access_0010', 'access_0011', 'access_0012', 'access_0013', HEAD):
             from access_registration_baseline import CONFIGURE_FUNCTIONS as FUNCTIONS
-        if revision == HEAD:
+        if revision in ('access_0013', HEAD):
             from access_registration_baseline import GRANT_ASSIGNMENT_FUNCTIONS as FUNCTIONS
+        if revision == HEAD:
+            from access_registration_baseline import GRANT_REVOCATION_FUNCTIONS as FUNCTIONS
         names += list(TABLES) + list(INDEXES)
-    if revision in ('access_0008', 'access_0009', 'access_0010', 'access_0011', 'access_0012', HEAD):
+    if revision in ('access_0008', 'access_0009', 'access_0010', 'access_0011', 'access_0012', 'access_0013', HEAD):
         names += ['organization_applications', 'organization_applications_pkey']
         types += ['organization_applications', '_organization_applications']
     require_equal(rows(connection, "SELECT c.relname FROM pg_class c JOIN pg_namespace n ON n.oid=c.relnamespace WHERE n.nspname='access'"), [(n,) for n in names])
-    expected_functions = ['registry_storage_immutable'] if revision in ('access_0003','access_0004','access_0005','access_0006','access_0007','access_0008','access_0009','access_0010','access_0011','access_0012',HEAD) else []
-    if revision in ('access_0004', 'access_0005', 'access_0006', 'access_0007', 'access_0008', 'access_0009', 'access_0010', 'access_0011', 'access_0012', HEAD):
+    expected_functions = ['registry_storage_immutable'] if revision in ('access_0003','access_0004','access_0005','access_0006','access_0007','access_0008','access_0009','access_0010','access_0011','access_0012','access_0013',HEAD) else []
+    if revision in ('access_0004', 'access_0005', 'access_0006', 'access_0007', 'access_0008', 'access_0009', 'access_0010', 'access_0011', 'access_0012', 'access_0013', HEAD):
         expected_functions += list(FUNCTIONS)
         types += [t for name in TABLES for t in (name,'_'+name)]
     require_equal(rows(connection, "SELECT p.proname FROM pg_proc p JOIN pg_namespace n ON n.oid=p.pronamespace WHERE n.nspname='access'"), [(n,) for n in expected_functions])
@@ -194,13 +196,13 @@ def verify_catalog(connection, revision):
     if revision is not None:
         verify_table(connection, 'alembic_version', revision)
         verify_table(connection, 'grants', revision)
-    if revision in ('access_0003', 'access_0004', 'access_0005', 'access_0006', 'access_0007', 'access_0008', 'access_0009', 'access_0010', 'access_0011', 'access_0012', HEAD):
+    if revision in ('access_0003', 'access_0004', 'access_0005', 'access_0006', 'access_0007', 'access_0008', 'access_0009', 'access_0010', 'access_0011', 'access_0012', 'access_0013', HEAD):
         for name in REGISTRY_TABLES:verify_registry(connection,name,revision)
         verify_registry_guard(connection)
-    if revision in ('access_0004', 'access_0005', 'access_0006', 'access_0007', 'access_0008', 'access_0009', 'access_0010', 'access_0011', 'access_0012', HEAD):
+    if revision in ('access_0004', 'access_0005', 'access_0006', 'access_0007', 'access_0008', 'access_0009', 'access_0010', 'access_0011', 'access_0012', 'access_0013', HEAD):
         from access_registration_baseline import verify_registration
-        verify_registration(connection,HEAD if revision == HEAD else 'access_0010' if revision in ('access_0011','access_0012') else revision)
-    if revision in ('access_0008', 'access_0009', 'access_0010', 'access_0011', 'access_0012', HEAD):
+        verify_registration(connection,revision if revision in ('access_0013', HEAD) else 'access_0010' if revision in ('access_0011','access_0012') else revision)
+    if revision in ('access_0008', 'access_0009', 'access_0010', 'access_0011', 'access_0012', 'access_0013', HEAD):
         verify_organization_applications(connection,revision)
 
 
@@ -281,25 +283,25 @@ def verify_registry(connection, name, revision=None):
     for col in ('created_at','updated_at') if name=='applications' else ('created_at',):
         constraints.append((name+'_'+col+'_finite','c',f'CHECK (isfinite({col}))'))
     require_equal(rows(connection,f"SELECT conname,contype,pg_get_constraintdef(oid),convalidated,condeferrable,condeferred FROM pg_constraint WHERE conrelid={oid}"),
-                  [(n,t,d,True,False,False) for n,t,d in constraints]+([('application_required_change','t','TRIGGER DEFERRABLE INITIALLY DEFERRED',True,True,True)] if name=='applications' and revision in ('access_0007','access_0008','access_0009','access_0010','access_0011','access_0012',HEAD) else [])+([('application_required_registration','t','TRIGGER DEFERRABLE INITIALLY DEFERRED',True,True,True)] if name=='applications' and operator_installed(connection) else [('permission_required_registration','t','TRIGGER DEFERRABLE INITIALLY DEFERRED',True,True,True)] if name=='permissions' and revision in ('access_0005','access_0006','access_0007','access_0008','access_0009','access_0010','access_0011','access_0012',HEAD) else [('entry_permission_required_registration','t','TRIGGER DEFERRABLE INITIALLY DEFERRED',True,True,True)] if name=='entry_permissions' and revision in ('access_0006','access_0007','access_0008','access_0009','access_0010','access_0011','access_0012',HEAD) else []))
+                  [(n,t,d,True,False,False) for n,t,d in constraints]+([('application_required_change','t','TRIGGER DEFERRABLE INITIALLY DEFERRED',True,True,True)] if name=='applications' and revision in ('access_0007','access_0008','access_0009','access_0010','access_0011','access_0012','access_0013',HEAD) else [])+([('application_required_registration','t','TRIGGER DEFERRABLE INITIALLY DEFERRED',True,True,True)] if name=='applications' and operator_installed(connection) else [('permission_required_registration','t','TRIGGER DEFERRABLE INITIALLY DEFERRED',True,True,True)] if name=='permissions' and revision in ('access_0005','access_0006','access_0007','access_0008','access_0009','access_0010','access_0011','access_0012','access_0013',HEAD) else [('entry_permission_required_registration','t','TRIGGER DEFERRABLE INITIALLY DEFERRED',True,True,True)] if name=='entry_permissions' and revision in ('access_0006','access_0007','access_0008','access_0009','access_0010','access_0011','access_0012','access_0013',HEAD) else []))
     require_equal(rows(connection,f"SELECT pg_get_indexdef(indexrelid),indisvalid,indisready,indislive FROM pg_index WHERE indrelid={oid}"),
                   [(f'CREATE UNIQUE INDEX {index} ON access.{name} USING btree ({columns})',True,True,True) for index,columns in REGISTRY_INDEXES[name]])
     privileges=['SELECT','INSERT','UPDATE','DELETE','TRUNCATE','REFERENCES','TRIGGER']
     if connection.dialect.server_version_info >= (17,):privileges.append('MAINTAIN')
-    require_equal(acl(connection,oid,'r'),owner_acl(privileges)+([(OWNER,'access_command_owner',p,False) for p in ('SELECT','INSERT')] if (name=='applications' and operator_installed(connection)) or (name=='permissions' and revision in ('access_0005','access_0006','access_0007','access_0008','access_0009','access_0010','access_0011','access_0012',HEAD)) or (name=='entry_permissions' and revision in ('access_0006','access_0007','access_0008','access_0009','access_0010','access_0011','access_0012',HEAD)) else []))
-    require_equal(acl(connection,oid,'r',column=True),[('enabled',OWNER,'access_command_owner','UPDATE',False)] if name=='applications' and revision in ('access_0007','access_0008','access_0009','access_0010','access_0011','access_0012',HEAD) else [])
+    require_equal(acl(connection,oid,'r'),owner_acl(privileges)+([(OWNER,'access_command_owner',p,False) for p in ('SELECT','INSERT')] if (name=='applications' and operator_installed(connection)) or (name=='permissions' and revision in ('access_0005','access_0006','access_0007','access_0008','access_0009','access_0010','access_0011','access_0012','access_0013',HEAD)) or (name=='entry_permissions' and revision in ('access_0006','access_0007','access_0008','access_0009','access_0010','access_0011','access_0012','access_0013',HEAD)) else []))
+    require_equal(acl(connection,oid,'r',column=True),[('enabled',OWNER,'access_command_owner','UPDATE',False)] if name=='applications' and revision in ('access_0007','access_0008','access_0009','access_0010','access_0011','access_0012','access_0013',HEAD) else [])
     for query in (f'SELECT 1 FROM pg_policy WHERE polrelid={oid}',f'SELECT 1 FROM pg_rewrite WHERE ev_class={oid}',f'SELECT 1 FROM pg_attribute WHERE attrelid={oid} AND attisdropped'):
         require_equal(rows(connection,query),[])
     # FK constraints can remain validated even when their internal triggers are disabled.
     foreign_triggers = {
-        'applications': ['permissions_app_id_fkey'] * 2 + (['organization_applications_app_id_fkey'] * 2 if revision in ('access_0008', 'access_0009', 'access_0010', 'access_0011', 'access_0012', HEAD) else []),
-        'permissions': ['permissions_app_id_fkey'] * 2 + ['entry_permissions_app_id_permission_fkey'] * 2 + ([('grants_permission_scope_fkey' if revision in ('access_0012', HEAD) else 'grants_registry_permission_scope_fkey')] * 2 if revision in ('access_0011', 'access_0012', HEAD) else []),
+        'applications': ['permissions_app_id_fkey'] * 2 + (['organization_applications_app_id_fkey'] * 2 if revision in ('access_0008', 'access_0009', 'access_0010', 'access_0011', 'access_0012', 'access_0013', HEAD) else []),
+        'permissions': ['permissions_app_id_fkey'] * 2 + ['entry_permissions_app_id_permission_fkey'] * 2 + ([('grants_permission_scope_fkey' if revision in ('access_0012', 'access_0013', HEAD) else 'grants_registry_permission_scope_fkey')] * 2 if revision in ('access_0011', 'access_0012', 'access_0013', HEAD) else []),
         'entry_permissions': ['entry_permissions_app_id_permission_fkey'] * 2,
     }[name]
     require_equal(rows(connection,f"SELECT k.conname,t.tgenabled FROM pg_trigger t LEFT JOIN pg_constraint k ON k.oid=t.tgconstraint WHERE t.tgrelid={oid} AND t.tgisinternal"),
                   [(constraint,'O') for constraint in foreign_triggers])
     require_equal(rows(connection,f"SELECT tgname,tgenabled,pg_get_triggerdef(oid) FROM pg_trigger WHERE tgrelid={oid} AND NOT tgisinternal"),
-                  ([('application_update_statement','O','CREATE TRIGGER application_update_statement BEFORE UPDATE ON access.applications FOR EACH STATEMENT EXECUTE FUNCTION access.guard_application_update()'),('application_update_guard','O','CREATE TRIGGER application_update_guard BEFORE UPDATE ON access.applications FOR EACH ROW EXECUTE FUNCTION access.guard_application_update()'),('application_required_change','O','CREATE CONSTRAINT TRIGGER application_required_change AFTER UPDATE ON access.applications DEFERRABLE INITIALLY DEFERRED FOR EACH ROW EXECUTE FUNCTION access.require_application_change()')] if name=='applications' and revision in ('access_0007','access_0008','access_0009','access_0010','access_0011','access_0012',HEAD) else [])+[('registry_storage_immutable','O',f'CREATE TRIGGER registry_storage_immutable BEFORE DELETE OR '+('' if name=='applications' and revision in ('access_0007','access_0008','access_0009','access_0010','access_0011','access_0012',HEAD) else 'UPDATE OR ')+f'TRUNCATE ON access.{name} FOR EACH STATEMENT EXECUTE FUNCTION access.registry_storage_immutable()')]+([('application_required_registration','O','CREATE CONSTRAINT TRIGGER application_required_registration AFTER INSERT ON access.applications DEFERRABLE INITIALLY DEFERRED FOR EACH ROW EXECUTE FUNCTION access.require_application_registration()')] if name=='applications' and operator_installed(connection) else [('permission_required_registration','O','CREATE CONSTRAINT TRIGGER permission_required_registration AFTER INSERT ON access.permissions DEFERRABLE INITIALLY DEFERRED FOR EACH ROW EXECUTE FUNCTION access.require_permission_registration()')] if name=='permissions' and revision in ('access_0005','access_0006','access_0007','access_0008','access_0009','access_0010','access_0011','access_0012',HEAD) else [('entry_permission_required_registration','O','CREATE CONSTRAINT TRIGGER entry_permission_required_registration AFTER INSERT ON access.entry_permissions DEFERRABLE INITIALLY DEFERRED FOR EACH ROW EXECUTE FUNCTION access.require_entry_permission_registration()')] if name=='entry_permissions' and revision in ('access_0006','access_0007','access_0008','access_0009','access_0010','access_0011','access_0012',HEAD) else []))
+                  ([('application_update_statement','O','CREATE TRIGGER application_update_statement BEFORE UPDATE ON access.applications FOR EACH STATEMENT EXECUTE FUNCTION access.guard_application_update()'),('application_update_guard','O','CREATE TRIGGER application_update_guard BEFORE UPDATE ON access.applications FOR EACH ROW EXECUTE FUNCTION access.guard_application_update()'),('application_required_change','O','CREATE CONSTRAINT TRIGGER application_required_change AFTER UPDATE ON access.applications DEFERRABLE INITIALLY DEFERRED FOR EACH ROW EXECUTE FUNCTION access.require_application_change()')] if name=='applications' and revision in ('access_0007','access_0008','access_0009','access_0010','access_0011','access_0012','access_0013',HEAD) else [])+[('registry_storage_immutable','O',f'CREATE TRIGGER registry_storage_immutable BEFORE DELETE OR '+('' if name=='applications' and revision in ('access_0007','access_0008','access_0009','access_0010','access_0011','access_0012','access_0013',HEAD) else 'UPDATE OR ')+f'TRUNCATE ON access.{name} FOR EACH STATEMENT EXECUTE FUNCTION access.registry_storage_immutable()')]+([('application_required_registration','O','CREATE CONSTRAINT TRIGGER application_required_registration AFTER INSERT ON access.applications DEFERRABLE INITIALLY DEFERRED FOR EACH ROW EXECUTE FUNCTION access.require_application_registration()')] if name=='applications' and operator_installed(connection) else [('permission_required_registration','O','CREATE CONSTRAINT TRIGGER permission_required_registration AFTER INSERT ON access.permissions DEFERRABLE INITIALLY DEFERRED FOR EACH ROW EXECUTE FUNCTION access.require_permission_registration()')] if name=='permissions' and revision in ('access_0005','access_0006','access_0007','access_0008','access_0009','access_0010','access_0011','access_0012','access_0013',HEAD) else [('entry_permission_required_registration','O','CREATE CONSTRAINT TRIGGER entry_permission_required_registration AFTER INSERT ON access.entry_permissions DEFERRABLE INITIALLY DEFERRED FOR EACH ROW EXECUTE FUNCTION access.require_entry_permission_registration()')] if name=='entry_permissions' and revision in ('access_0006','access_0007','access_0008','access_0009','access_0010','access_0011','access_0012','access_0013',HEAD) else []))
 
 
 def verify_registry_guard(connection):
@@ -411,14 +413,14 @@ def verify_organization_applications(connection,revision='access_0008'):
     constraints=[('organization_applications_pkey','p','PRIMARY KEY (org_id, app_id)'),('organization_applications_app_id_fkey','f','FOREIGN KEY (app_id) REFERENCES access.applications(app_id) ON DELETE RESTRICT'),('organization_applications_revision_positive','c','CHECK ((revision > 0))')]
     constraints += [(name+'_'+col+'_non_nil','c',f"CHECK (({col} <> '00000000-0000-0000-0000-000000000000'::uuid))") for col in ('org_id','created_by','updated_by')]
     constraints += [(name+'_'+col+'_finite','c',f'CHECK (isfinite({col}))') for col in ('created_at','updated_at')]
-    require_equal(rows(connection,f"SELECT conname,contype,pg_get_constraintdef(oid),convalidated,condeferrable,condeferred FROM pg_constraint WHERE conrelid={oid}"),[(n,t,d,True,False,False) for n,t,d in constraints]+([('organization_application_required_change','t','TRIGGER DEFERRABLE INITIALLY DEFERRED',True,True,True)] if revision in ('access_0009','access_0010','access_0011','access_0012',HEAD) else []))
+    require_equal(rows(connection,f"SELECT conname,contype,pg_get_constraintdef(oid),convalidated,condeferrable,condeferred FROM pg_constraint WHERE conrelid={oid}"),[(n,t,d,True,False,False) for n,t,d in constraints]+([('organization_application_required_change','t','TRIGGER DEFERRABLE INITIALLY DEFERRED',True,True,True)] if revision in ('access_0009','access_0010','access_0011','access_0012','access_0013',HEAD) else []))
     require_equal(rows(connection,f"SELECT pg_get_indexdef(indexrelid),indisvalid,indisready,indislive FROM pg_index WHERE indrelid={oid}"), [('CREATE UNIQUE INDEX organization_applications_pkey ON access.organization_applications USING btree (org_id, app_id)',True,True,True)])
     privileges=['SELECT','INSERT','UPDATE','DELETE','TRUNCATE','REFERENCES','TRIGGER']+(['MAINTAIN'] if connection.dialect.server_version_info >= (17,) else [])
-    require_equal(acl(connection,oid,'r'),owner_acl(privileges)+([(OWNER,'access_command_owner',p,False) for p in ('SELECT','INSERT')] if revision in ('access_0009','access_0010','access_0011','access_0012',HEAD) else []))
-    require_equal(acl(connection,oid,'r',column=True),[('enabled',OWNER,'access_command_owner','UPDATE',False)] if revision in ('access_0009','access_0010','access_0011','access_0012',HEAD) else [])
+    require_equal(acl(connection,oid,'r'),owner_acl(privileges)+([(OWNER,'access_command_owner',p,False) for p in ('SELECT','INSERT')] if revision in ('access_0009','access_0010','access_0011','access_0012','access_0013',HEAD) else []))
+    require_equal(acl(connection,oid,'r',column=True),[('enabled',OWNER,'access_command_owner','UPDATE',False)] if revision in ('access_0009','access_0010','access_0011','access_0012','access_0013',HEAD) else [])
     require_equal(rows(connection,f"SELECT polname,polcmd,polpermissive,ARRAY(SELECT pg_get_userbyid(r) FROM unnest(polroles) r),pg_get_expr(polqual,polrelid),pg_get_expr(polwithcheck,polrelid) FROM pg_policy WHERE polrelid={oid}"),
-                  [(n,'*',True,[r],"((org_id)::text = current_setting('app.org_id'::text, true))","((org_id)::text = current_setting('app.org_id'::text, true))") for n,r in ([('org_scope',OWNER),('command_org_scope','access_command_owner')] if revision in ('access_0009','access_0010','access_0011','access_0012',HEAD) else [('org_scope',OWNER)])])
-    require_equal(rows(connection,f"SELECT tgname,tgenabled,pg_get_triggerdef(oid) FROM pg_trigger WHERE tgrelid={oid} AND NOT tgisinternal"), organization_application_triggers() if revision in ('access_0009','access_0010','access_0011','access_0012',HEAD) else [('registry_storage_immutable','O','CREATE TRIGGER registry_storage_immutable BEFORE DELETE OR UPDATE OR TRUNCATE ON access.organization_applications FOR EACH STATEMENT EXECUTE FUNCTION access.registry_storage_immutable()')])
+                  [(n,'*',True,[r],"((org_id)::text = current_setting('app.org_id'::text, true))","((org_id)::text = current_setting('app.org_id'::text, true))") for n,r in ([('org_scope',OWNER),('command_org_scope','access_command_owner')] if revision in ('access_0009','access_0010','access_0011','access_0012','access_0013',HEAD) else [('org_scope',OWNER)])])
+    require_equal(rows(connection,f"SELECT tgname,tgenabled,pg_get_triggerdef(oid) FROM pg_trigger WHERE tgrelid={oid} AND NOT tgisinternal"), organization_application_triggers() if revision in ('access_0009','access_0010','access_0011','access_0012','access_0013',HEAD) else [('registry_storage_immutable','O','CREATE TRIGGER registry_storage_immutable BEFORE DELETE OR UPDATE OR TRUNCATE ON access.organization_applications FOR EACH STATEMENT EXECUTE FUNCTION access.registry_storage_immutable()')])
     # Pin every internal FK trigger's association, function, firing scope and state,
     # on both ends; validated constraint text alone does not prove enforcement.
     require_equal(rows(connection,f"""SELECT t.tgrelid::regclass::text,t.tgconstrrelid::regclass::text,

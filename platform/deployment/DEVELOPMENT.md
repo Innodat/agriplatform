@@ -2012,3 +2012,17 @@ read-only retained inspection PASS; both composition checks exit0. Three review 
 completed with direct verification/doc corrections and no deferral. Root source/log/state
 custody audit passed; normal local stop retained data/volumes/receipts and older frames.
 Concurrent work and immutable history remain preserved. See owner evidence above.
+
+
+### Protected organization revocation qualification —2026-10-22
+
+Use existing controlled Access migration/operator tooling for Access0014 grant.revoke.
+Qualification uses fresh source-bound synthetic cases, retained previous13 client bytes,
+independent read-only retained inspection and explicit failed-frame preservation.
+[Owner evidence](../../services/access/GRANT_REVOKE_EVIDENCE.md) records exact commands,
+results and custody; [runbook](../../services/access/GRANT-REVOKE.md) describes exact
+binding/revision, current revoke authority and historical receipt recovery. No active
+Identity target observation is added to removal. Preserve old data/volumes/receipts;
+no reset/prune/recovery cleanup, startup migration or automatic reverse. Deployment,
+real access, consumers, portable bootstrap and complete logical restore remain outside
+this bounded synthetic proof.

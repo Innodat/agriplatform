@@ -67,7 +67,8 @@ def bound(value):
 
 
 class Qualification(strict.Qualification):
-    migrate=storage.Qualification.migrate
+    def migrate(self,case,head='access_0013',success=True):
+        return storage.Qualification.migrate(self,case,'access_0013' if head=='head' else head,success)
     wait_for_retry_lock=configure.Qualification.wait_for_retry_lock
     def parameter_sql(self,case,sql,parameters=None,role='owner_urls'):
         engine=self.db(case,role)
@@ -496,7 +497,7 @@ class Qualification(strict.Qualification):
         # migration transaction must retain exact12, then succeed by forward retry.
         before=self.snapshot(case)
         env=dict(PATH='/usr/bin:/bin',LANG='C.UTF-8',ACCESS_MIGRATION_DATABASE_URL=self.private['access_owner_urls'][case])
-        code="import sys;sys.path.insert(0,"+repr(str(ACCESS/'migrations'))+");import access_baseline as b;from alembic.config import Config;from alembic import command;b.verify_postcondition=lambda c:(_ for _ in ()).throw(b.BaselineError('access_test_postcondition_failure'));command.upgrade(Config("+repr(str(ACCESS/'alembic.ini'))+"),'head')"
+        code="import sys;sys.path.insert(0,"+repr(str(ACCESS/'migrations'))+");import access_baseline as b;from alembic.config import Config;from alembic import command;b.verify_postcondition=lambda c:(_ for _ in ()).throw(b.BaselineError('access_test_postcondition_failure'));command.upgrade(Config("+repr(str(ACCESS/'alembic.ini'))+"),'access_0013')"
         result=subprocess.run([sys.executable,'-I','-B','-c',code],cwd=ROOT,env=env,capture_output=True,timeout=40)
         path=self.proof/'injected-postcondition.log';path.write_bytes(result.stdout+result.stderr);path.chmod(0o600)
         assert result.returncode!=0 and b'access_test_postcondition_failure' in path.read_bytes()
@@ -552,7 +553,7 @@ class Qualification(strict.Qualification):
             engine=self.db(case)
             try:
                 with engine.begin() as c:
-                    c.exec_driver_sql('SET TRANSACTION READ ONLY');baseline.preflight(c);baseline.verify_postcondition(c)
+                    c.exec_driver_sql('SET TRANSACTION READ ONLY');baseline.preflight(c);baseline.verify_catalog(c,'access_0013')
                     assert c.exec_driver_sql('SELECT version_num FROM access.alembic_version').all()==[('access_0013',)]
             finally:engine.dispose()
         self.record('separate-read-only-all-nine-exact13-retained-inspection')

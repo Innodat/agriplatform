@@ -44,7 +44,7 @@ def _receipt(value, operation_id, command='actor.register_system'):
     if type(result) is not dict or set(result) != {'command','target','disposition','revision','event_id'} or result['command'] != command:
         raise ValueError()
     # Reuse the protected adapter's typed stored-result validator.
-    (access_operator if command in ('application.register','permission.register','entry_permission.register','application.set_enabled','organization_application.configure','grant.assign') else adapter)._receipt(({k:v for k,v in result.items() if k != 'command'}, 1, 1, instant), operation_id, command)
+    (access_operator if command in ('application.register','permission.register','entry_permission.register','application.set_enabled','organization_application.configure','grant.assign','grant.revoke') else adapter)._receipt(({k:v for k,v in result.items() if k != 'command'}, 1, 1, instant), operation_id, command)
     return value
 
 
@@ -130,12 +130,16 @@ def _interrupt(signum, frame):
 
 
 def dispatch(request):
+    revoke = (len(request)==5 and request[4]=='access' and (
+        type(request[2]) is dict and request[2].get('command')=='grant.revoke'
+        or request[0]=='execute' and type(request[2]) is str and access_operator_input.parse_command(request[2].encode()).command=='grant.revoke'))
+    output_limit = 4*65536 if revoke else 8192
     previous = {}
     try:
         for name in (signal.SIGINT, signal.SIGTERM):
             previous[name] = signal.signal(name, _interrupt)
         return images.bounded_command([sys.executable,'-I','-B',str(Path(__file__).resolve()),'_worker'],
-            ROOT, {'PATH':'/usr/bin:/bin','LANG':'C.UTF-8'},12,8192,
+            ROOT, {'PATH':'/usr/bin:/bin','LANG':'C.UTF-8'},12,output_limit,
             input_data=json.dumps(request,ensure_ascii=False).encode())
     finally:
         for name, handler in previous.items():
@@ -214,7 +218,9 @@ def _identity_main(argv=None):
 
 
 def _grant_outcome_context(value):
-    if type(value) is not dict or set(value) != {'command','org_id','account_id','membership_id','permission'} or value['command'] != 'grant.assign':
+    if type(value) is not dict or value.get('command') not in ('grant.assign','grant.revoke') or set(value) != ({'command','org_id','account_id','membership_id','permission','grant_id'} if value['command']=='grant.revoke' else {'command','org_id','account_id','membership_id','permission'}):
+        raise ValueError()
+    if value['command']=='grant.revoke' and not access_operator.valid_opaque_grant(value['grant_id'],65536):
         raise ValueError()
     if not access_operator._positive_decimal(value['membership_id']) or not access_operator.valid_permission(value['permission']):
         raise ValueError()
@@ -229,10 +235,10 @@ def access_worker(request):
     if action == 'execute':
         body = value.encode('utf-8')
         command = access_operator_input.parse_command(body)
-        if not isinstance(command,(access_operator_input.RegisterApplicationCommand,access_operator_input.RegisterPermissionCommand,access_operator_input.RegisterEntryPermissionCommand,access_operator_input.SetApplicationEnabledCommand,access_operator_input.ConfigureOrganizationApplicationCommand,access_operator_input.AssignGrantCommand)) or _uuid(command.operation_id) != operation_id:
+        if not isinstance(command,(access_operator_input.RegisterApplicationCommand,access_operator_input.RegisterPermissionCommand,access_operator_input.RegisterEntryPermissionCommand,access_operator_input.SetApplicationEnabledCommand,access_operator_input.ConfigureOrganizationApplicationCommand,access_operator_input.AssignGrantCommand,access_operator_input.RevokeGrantCommand)) or _uuid(command.operation_id) != operation_id:
             raise ValueError()
         context = None
-    elif action == 'outcome' and type(value) is dict and value.get('command') == 'grant.assign':
+    elif action == 'outcome' and type(value) is dict and value.get('command') in ('grant.assign','grant.revoke'):
         context = _grant_outcome_context(value)
     elif action == 'outcome' and type(value) is dict and value.get('command') in ('application.register','permission.register','entry_permission.register','application.set_enabled','organization_application.configure') and set(value) == ({'command','app_id','permission'} if value['command'] in ('permission.register','entry_permission.register') else {'command','app_id','org_id'} if value['command']=='organization_application.configure' else {'command','app_id'}):
         if type(value['app_id']) is not str or access_operator_input._APP_ID.fullmatch(value['app_id']) is None:
@@ -275,22 +281,24 @@ def _access_main(argv):
         parser.add_argument('--org-id')
         parser.add_argument('--account-id')
         parser.add_argument('--membership-id')
-        flags = [item.split('=',1)[0] if item.startswith('--permission=') else item for item in argv if item.startswith('--')]
+        parser.add_argument('--grant-id')
+        flags = [item.split('=',1)[0] if item.startswith(('--permission=','--grant-id=')) else item for item in argv if item.startswith('--')]
         if len(flags) != len(set(flags)) or any('=' in item for item in flags):
             raise ValueError()
         args = parser.parse_args(argv)
         if args.action == 'execute':
-            if args.command_file is None or any(v is not None for v in (args.command,args.operation_id,args.app_id,args.permission,args.org_id,args.account_id,args.membership_id)):
+            if args.command_file is None or any(v is not None for v in (args.command,args.operation_id,args.app_id,args.permission,args.org_id,args.account_id,args.membership_id,args.grant_id)):
                 raise ValueError()
             body = dev.read(Path(os.path.abspath(args.command_file)))
             command = access_operator_input.parse_command(body)
             operation_id = _uuid(command.operation_id)
-            if not isinstance(command,(access_operator_input.RegisterApplicationCommand,access_operator_input.RegisterPermissionCommand,access_operator_input.RegisterEntryPermissionCommand,access_operator_input.SetApplicationEnabledCommand,access_operator_input.ConfigureOrganizationApplicationCommand,access_operator_input.AssignGrantCommand)):
+            if not isinstance(command,(access_operator_input.RegisterApplicationCommand,access_operator_input.RegisterPermissionCommand,access_operator_input.RegisterEntryPermissionCommand,access_operator_input.SetApplicationEnabledCommand,access_operator_input.ConfigureOrganizationApplicationCommand,access_operator_input.AssignGrantCommand,access_operator_input.RevokeGrantCommand)):
                 raise adapter.OperatorError('command_unsupported',operation_id)
             value = body.decode('utf-8')
-            if command.command == 'grant.assign':
+            if command.command in ('grant.assign','grant.revoke'):
                 expected = dict(org_id=_uuid(command.scope.org_id),account_id=_uuid(command.payload.account_id),
                     membership_id=command.payload.membership_id,permission=command.payload.permission)
+                if command.command=='grant.revoke':expected['grant_id']=command.payload.grant_id
             else:
                 expected = {'app_id':command.payload.app_id}
                 if command.command in ('permission.register','entry_permission.register'):expected['permission']=command.payload.permission
@@ -300,15 +308,15 @@ def _access_main(argv):
             if args.command_file is not None:
                 raise ValueError()
             command_name = args.command
-            if args.command == 'grant.assign':
-                if args.app_id is not None:
+            if args.command in ('grant.assign','grant.revoke'):
+                if args.app_id is not None or (args.command=='grant.assign' and args.grant_id is not None):
                     raise ValueError()
                 value = _grant_outcome_context(dict(command=args.command,org_id=args.org_id,
-                    account_id=args.account_id,membership_id=args.membership_id,permission=args.permission))
+                    account_id=args.account_id,membership_id=args.membership_id,permission=args.permission,**({'grant_id':args.grant_id} if args.command=='grant.revoke' else {})))
             else:
                 if args.command not in ('application.register','permission.register','entry_permission.register','application.set_enabled','organization_application.configure') or type(args.app_id) is not str or access_operator_input._APP_ID.fullmatch(args.app_id) is None:
                     raise ValueError()
-                if args.account_id is not None or args.membership_id is not None:
+                if args.account_id is not None or args.membership_id is not None or args.grant_id is not None:
                     raise ValueError()
                 if (not access_operator.valid_permission(args.permission) if args.command in ('permission.register','entry_permission.register') else args.permission is not None):
                     raise ValueError()
