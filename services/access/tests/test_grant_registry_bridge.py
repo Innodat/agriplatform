@@ -16,9 +16,9 @@ def migration():
 
 
 def test_exact_eleven_recognizes_all_retained_versions():
-    assert baseline.HEAD=='access_0014'
+    assert baseline.HEAD=='access_0015'
     for i in range(1,13):assert baseline.validate_revision([f'access_{i:04}'])==f'access_{i:04}'
-    for values in ([],['access_0015'],['access_0010','access_0011']):
+    for values in ([],['access_0016'],['access_0010','access_0011']):
         with pytest.raises(baseline.BaselineError):baseline.validate_revision(values)
 
 
@@ -43,7 +43,7 @@ def test_identity_uses_schema_resolved_generated_metadata_then_full_catalog(monk
         def __init__(self,sql):self.sql=sql
         def all(self):return [('access_command_owner','access_migrator',False,'false','true')]
         def scalar_one(self):
-            if ('revoke_organization_grant' in self.sql or 'assign_organization_grant' in self.sql):return False
+            if ('check_organization_permission' in self.sql or 'revoke_organization_grant' in self.sql or 'assign_organization_grant' in self.sql):return False
             if 'grants_permission_scope_fkey' in self.sql:return False
             if 'pg_attribute' in self.sql:return bridge if 'registry_permission' in self.sql else staged
             return True

@@ -10,9 +10,9 @@ import access_baseline as baseline
 
 
 def test_exact_twelve_retains_all_historical_versions():
-    assert baseline.HEAD=='access_0014'
+    assert baseline.HEAD=='access_0015'
     for i in range(1,13):assert baseline.validate_revision([f'access_{i:04}'])==f'access_{i:04}'
-    for value in ([],['access_0015'],['access_0011','access_0012']):
+    for value in ([],['access_0016'],['access_0011','access_0012']):
         with pytest.raises(baseline.BaselineError):baseline.validate_revision(value)
 
 
@@ -38,7 +38,7 @@ def test_identity_selects_schema_resolved_direct_fk_before_full_verification(mon
         def __init__(self,sql):self.sql=sql
         def all(self):return [('access_command_owner','access_migrator',False,'false','true')]
         def scalar_one(self):
-            if ('revoke_organization_grant' in self.sql or 'assign_organization_grant' in self.sql):return False
+            if ('check_organization_permission' in self.sql or 'revoke_organization_grant' in self.sql or 'assign_organization_grant' in self.sql):return False
             if 'grants_permission_scope_fkey' in self.sql:return strict
             if 'pg_attribute' in self.sql:return bridge if 'registry_permission' in self.sql else True
             return True

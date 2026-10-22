@@ -247,3 +247,45 @@ def test_negative_migration_requires_exact_final_error_and_bounded_lock(tmp_path
         with pytest.raises(AssertionError, match='identity_lock_probe_exceeded_bound'):
             runner.identity(label, success=False)
     else: runner.identity(label, success=False)
+
+
+@pytest.mark.parametrize('legacy',[True,False])
+@pytest.mark.parametrize('defect',[None,'admin','inherit','no_set','wrong_member','extra_edge','dependency','schema','effective_right'])
+def test_staged_bridge_allows_only_known_global_set_edge_with_empty_local_rights(monkeypatch,legacy,defect):
+    import qualify_identity_baseline as q
+    b=q.baseline
+    edge=[b.CHECK_READER,'access_migrator',False,'false','true']
+    if defect=='admin':edge[2]=True
+    if defect=='inherit':edge[3]='true'
+    if defect=='no_set':edge[4]='false'
+    if defect=='wrong_member':edge[1]='access_runtime'
+    members=[tuple(edge)]
+    if defect=='extra_edge':members.append((b.CHECK_READER,'identity_migrator',False,'false','true'))
+    checked=[]
+    class Result(list):
+        def all(self):return self
+        def scalar_one(self):return bool(self[0])
+    class Connection:
+        def execute(self,sql,parameters=None):
+            sql=str(sql)
+            checked.append(sql)
+            if sql==b.CHECK_READER_ROLE_QUERIES['check_reader_role']:
+                return Result([(b.CHECK_READER,)+(False,)*7])
+            if sql==b.CHECK_READER_ROLE_QUERIES['check_reader_memberships']:return Result(members)
+            if sql==b.CHECK_READER_ROLE_QUERIES['check_reader_dependencies']:
+                return Result([('fixture','pg_namespace','a','schema identity')] if defect=='dependency' else [])
+            if 'SELECT nspname,p FROM pg_namespace' in sql:
+                return Result([('public','USAGE')]+([('identity','USAGE')] if defect=='schema' else []))
+            if 'has_database_privilege' in sql:return Result([False])
+            if 'SELECT EXISTS (' in sql:
+                assert parameters=={'role':b.CHECK_READER,'staged':True,'legacy':legacy}
+                return Result([defect=='effective_right'])
+            pytest.fail('unexpected staged query')
+    # Staged execution must not request already-installed per-database bridge rights.
+    monkeypatch.setattr(b,'verified_access_reader_extension',lambda *_:pytest.fail('installed extension invoked during staging'))
+    if defect:
+        with pytest.raises(b.BaselineError):b.verify_check_reader_role(Connection(),staged=True,legacy=legacy)
+    else:
+        b.verify_check_reader_role(Connection(),staged=True,legacy=legacy)
+        assert any('SELECT EXISTS (' in sql for sql in checked)
+        assert any('check_reader' not in sql and 'has_database_privilege' in sql for sql in checked)

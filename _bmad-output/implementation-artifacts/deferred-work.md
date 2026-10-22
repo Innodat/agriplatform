@@ -105,3 +105,10 @@
 - source_spec: `_bmad-output/implementation-artifacts/spec-access-a-permission-register.md`
   summary: Make the existing synthetic Identity/Access qualification bootstrap reproducible from a fresh checkout using the established environment owner tooling.
   evidence: Both prior application and current permission qualifiers rely on private native/Auth/role preparation scripts and source witnesses. Current local proof is executed and source-bound, but the published qualification commands alone cannot recreate the fixture in a fresh checkout; bootstrap portability was already an explicit prerequisite before this item.
+
+- source_spec: `_bmad-output/implementation-artifacts/spec-access-b-organization-check.md`
+  summary: Qualify and bound established PostgreSQL transport failure, including pool pre-ping, before deployed Access operation.
+  evidence: Existing main.py pool_pre_ping precedes transaction-local timeouts; connection establishment and pool acquisition bounds do not bound an already-established unresponsive transport. This synthetic delivery makes no total transport deadline claim.
+- source_spec: `_bmad-output/implementation-artifacts/spec-access-b-organization-check.md`
+  summary: Bound the existing authentication provider adapter's whole operation before deployed Access operation.
+  evidence: Existing httpx timeout bounds individual I/O waits; a slowly trickling provider can exceed a total operation deadline. Provider deployment qualification is not claimed by this synthetic check delivery.

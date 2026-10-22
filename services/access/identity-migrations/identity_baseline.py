@@ -754,10 +754,11 @@ def verified_access_command_extension(connection):
             grant_strict_installed=bool(connection.execute(text("SELECT EXISTS(SELECT 1 FROM pg_constraint k JOIN pg_class c ON c.oid=k.conrelid JOIN pg_namespace n ON n.oid=c.relnamespace JOIN pg_class p ON p.oid=k.confrelid JOIN pg_namespace pn ON pn.oid=p.relnamespace WHERE n.nspname='access' AND c.relname='grants' AND pn.nspname='access' AND p.relname='permissions' AND k.contype='f' AND k.conname='grants_permission_scope_fkey')")).scalar_one())
             grant_assign_installed=bool(connection.execute(text("SELECT EXISTS(SELECT 1 FROM pg_proc p JOIN pg_namespace n ON n.oid=p.pronamespace WHERE n.nspname='access' AND p.proname='assign_organization_grant')")).scalar_one())
             grant_revoke_installed=bool(connection.execute(text("SELECT EXISTS(SELECT 1 FROM pg_proc p JOIN pg_namespace n ON n.oid=p.pronamespace WHERE n.nspname='access' AND p.proname='revoke_organization_grant')")).scalar_one())
-            access_catalog.verify_catalog(connection,'access_0014' if grant_revoke_installed else 'access_0013' if grant_assign_installed else 'access_0012' if grant_strict_installed else 'access_0011' if grant_bridge_installed else 'access_0010' if grant_storage_installed else 'access_0009' if configure_installed else 'access_0008' if storage_installed else 'access_0007' if enablement_installed else 'access_0006' if entry_installed else 'access_0005' if permission_installed else 'access_0004')
+            reader_installed=bool(connection.execute(text("SELECT EXISTS(SELECT 1 FROM pg_proc p JOIN pg_namespace n ON n.oid=p.pronamespace WHERE n.nspname='access' AND p.proname='check_organization_permission')")).scalar_one())
+            access_catalog.verify_catalog(connection,'access_0015' if reader_installed else 'access_0014' if grant_revoke_installed else 'access_0013' if grant_assign_installed else 'access_0012' if grant_strict_installed else 'access_0011' if grant_bridge_installed else 'access_0010' if grant_storage_installed else 'access_0009' if configure_installed else 'access_0008' if storage_installed else 'access_0007' if enablement_installed else 'access_0006' if entry_installed else 'access_0005' if permission_installed else 'access_0004')
             access_catalog.require_equal(access_catalog.rows(connection,"SELECT pg_get_userbyid(nspowner) FROM pg_namespace WHERE nspname='access'"),[('access_migrator',)])
             access_catalog.require_equal(access_catalog.acl(connection,"(SELECT oid FROM pg_namespace WHERE nspname='access')",'n'),
-                access_catalog.owner_acl(['USAGE','CREATE'])+ [('access_migrator',r,'USAGE',False) for r in ('access_runtime','access_operator','access_operator_authority_owner','access_command_owner')])
+                access_catalog.owner_acl(['USAGE','CREATE'])+ [('access_migrator',r,'USAGE',False) for r in ('access_runtime','access_operator','access_operator_authority_owner','access_command_owner')]+([('access_migrator','access_check_reader','USAGE',False)] if reader_installed else []))
         return True,installed
     except access_catalog.BaselineError:
         raise BaselineError('identity_target_role_unsafe') from None
@@ -1133,6 +1134,31 @@ CHECK_READER_ROLE_QUERIES['check_reader_dependencies'] = CHECK_READER_ROLE_QUERI
     "s.deptype IN ('a','o')", "s.deptype IN ('a','o','r')")
 
 
+def verified_access_reader_extension(connection):
+    """Acyclic, metadata-only recognition of exactly staged/installed Access15."""
+    members=connection.execute(text(CHECK_READER_ROLE_QUERIES['check_reader_memberships'])).all()
+    if not members:
+        return None
+    import sys
+    directory=HERE.parent/'migrations'
+    previous=list(sys.path)
+    try:
+        sys.path.insert(0,str(directory))
+        import access_baseline as access_catalog
+        from access_organization_check_catalog import verify_reader_role
+        installed=access_catalog.organization_check_installed(connection)
+        verify_reader_role(connection,installed)
+        # Staged reader has precisely its Identity20 bridge rights plus this edge.
+        # Installed state must validate every Access object/ACL, not just a routine.
+        if installed:
+            access_catalog.verify_catalog(connection,'access_0015')
+        return installed
+    except access_catalog.BaselineError:
+        raise BaselineError('identity_check_reader_extension_unsafe') from None
+    finally:
+        sys.path[:]=previous
+
+
 def verify_check_reader_role(connection, staged=False, legacy=False):
     """Refuse unknown effective authority, including PUBLIC and incoming SET edges."""
     role = CHECK_READER
@@ -1141,8 +1167,19 @@ def verify_check_reader_role(connection, staged=False, legacy=False):
         raise BaselineError('identity_check_reader_role_missing')
     if flags != [(role, False, False, False, False, False, False, False)]:
         raise BaselineError('identity_check_reader_role_unsafe')
-    if connection.execute(text(CHECK_READER_ROLE_QUERIES['check_reader_memberships'])).all():
-        raise BaselineError('identity_check_reader_role_unsafe')
+    if staged:
+        # Membership is cluster-global, while the bridge dependencies are per DB.
+        # A separately prepared Access database may already retain this one edge.
+        # Continue every empty-catalog/effective-right check below before grants.
+        members = [tuple(row) for row in connection.execute(text(CHECK_READER_ROLE_QUERIES['check_reader_memberships'])).all()]
+        if members not in ([], [(CHECK_READER, 'access_migrator', False, 'false', 'true')]):
+            raise BaselineError('identity_check_reader_role_unsafe')
+    else:
+        extension = verified_access_reader_extension(connection)
+        if extension is not None:
+            return
+        if connection.execute(text(CHECK_READER_ROLE_QUERIES['check_reader_memberships'])).all():
+            raise BaselineError('identity_check_reader_role_unsafe')
     dependencies = connection.execute(text(CHECK_READER_ROLE_QUERIES['check_reader_dependencies'])).all()
     expected = set() if staged else {('pg_namespace', 'a', 'schema identity'),
         ('pg_proc', 'a', 'function identity.current_account_organization()')}
@@ -1160,7 +1197,9 @@ def verify_check_reader_role(connection, staged=False, legacy=False):
       WHERE n.nspname !~ '^pg_' AND n.nspname<>'information_schema' AND
        ((c.relkind IN ('r','p','v','m','f') AND
          (has_table_privilege(:role,c.oid,'SELECT,INSERT,UPDATE,DELETE,TRUNCATE,REFERENCES,TRIGGER')
-          OR has_any_column_privilege(:role,c.oid,'SELECT,INSERT,UPDATE,REFERENCES')))
+          OR has_any_column_privilege(:role,c.oid,'SELECT,INSERT,UPDATE,REFERENCES')
+          OR CASE WHEN current_setting('server_version_num')::integer>=170000
+            THEN has_table_privilege(:role,c.oid,'MAINTAIN') ELSE false END))
         OR (c.relkind='S' AND CASE WHEN c.relkind='S' THEN has_sequence_privilege(:role,c.oid,'USAGE,SELECT,UPDATE') ELSE false END))
       UNION ALL
       SELECT 1 FROM pg_proc p JOIN pg_namespace n ON n.oid=p.pronamespace
@@ -1190,10 +1229,15 @@ def verify_check_reader_role(connection, staged=False, legacy=False):
 
 
 def check_reader_bridge_catalog_snapshot(connection):
+    extension = verified_access_reader_extension(connection)
     result = account_actor_catalog_snapshot(connection)
     current = connection.execute(text('SELECT current_database()')).scalar_one()
     for key, sql in CHECK_READER_ROLE_QUERIES.items():
         rows = [list(r) for r in connection.execute(text(sql))]
+        if extension is not None and key.endswith('_memberships'):
+            rows = []
+        if extension is not None and key.endswith('_dependencies'):
+            rows = [row for row in rows if row[3] in ('schema identity','function identity.current_account_organization()')]
         if key.endswith('_dependencies'):
             for row in rows:
                 if row[0] == current: row[0] = 'current_database'

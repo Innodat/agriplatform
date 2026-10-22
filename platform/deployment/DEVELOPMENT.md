@@ -1,3 +1,17 @@
+## Current delivery — KDG organization permission check,2026-10-22
+
+Access15 and POST /v2/check implement the KDG organization check through the existing
+owner: nine exact service-policy capabilities, configured organization, current account/
+member, app enablement, nonrevoked exact-member grant and durable actor setup. Native
+SQL→HTTP lifecycle/isolation verification, independent review and final custody pass; see
+[owner evidence](../../services/access/ORGANIZATION_CHECK_EVIDENCE.md). No real grants or consumer activation were performed.
+Legacy v1 checks fail closed pending coordinated PtS account adoption. Other account/
+person/discovery/assignment-target variants are implemented when their consuming story
+needs them. Leave still requires its own capability and denial acceptance evidence.
+Next review remaining WRITE prerequisites for the first KDG business API operation;
+do not expand Access variants speculatively. Production/deployment/pilot, Leave/editor,
+reset/prune/cleanup and concurrent-document changes remain outside this delivery.
+
 # Local development through the Supabase CLI
 
 The active ENV direction is a thin wrapper around pinned Supabase CLI2.120.0.

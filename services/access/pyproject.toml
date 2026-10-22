@@ -1,0 +1,12 @@
+[project]
+name = "agriplatform-access"
+version = "0.1.0"
+requires-python = "==3.15.*"
+dependencies = ["fastapi==0.143.0", "uvicorn==0.54.0", "pydantic==2.14.1", "SQLAlchemy==2.1.4", "psycopg[binary]==3.3.6", "alembic==1.20.0", "rfc8785==0.1.4", "httpx==0.28.1"]
+
+[dependency-groups]
+dev = ["pytest==9.1.1"]
+
+[tool.uv]
+required-version = "==0.13.1"
+package = false

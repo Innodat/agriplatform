@@ -11,9 +11,9 @@ from access_registration_catalog import grant_assignment_catalog,grant_revocatio
 
 
 def test_fourteen_is_additive_and_historical_thirteen_fixed():
-    assert baseline.HEAD=='access_0014'
+    assert baseline.validate_revision(['access_0014'])=='access_0014'
     for i in range(1,15):assert baseline.validate_revision([f'access_{i:04}'])==f'access_{i:04}'
-    for bad in ([],['access_0015'],['access_0013','access_0014']):
+    for bad in ([],['access_0016'],['access_0013','access_0014']):
         with pytest.raises(baseline.BaselineError):baseline.validate_revision(bad)
     assert set(grant_assignment_catalog()[1])==set(GRANT_ASSIGNMENT_FUNCTIONS)
     assert set(grant_revocation_catalog()[1])==set(GRANT_REVOCATION_FUNCTIONS)
@@ -41,9 +41,10 @@ def test_identity_selects_fourteen_using_schema_metadata(monkeypatch):
     calls=[];selected=[]
     class Result:
         def all(self):return [('access_command_owner','access_migrator',False,'false','true')]
-        def scalar_one(self):return True
+        def __init__(self,sql):self.sql=sql
+        def scalar_one(self):return 'check_organization_permission' not in self.sql
     class Connection:
-        def execute(self,sql):calls.append(str(sql));return Result()
+        def execute(self,sql):calls.append(str(sql));return Result(str(sql))
     monkeypatch.setattr(baseline,'verify_operator_roles',lambda c:None);monkeypatch.setattr(baseline,'verify_catalog',lambda c,r:selected.append(r));monkeypatch.setattr(baseline,'require_equal',lambda *args:None);monkeypatch.setattr(baseline,'rows',lambda *args:[]);monkeypatch.setattr(baseline,'acl',lambda *args:[])
     assert identity.verified_access_command_extension(Connection())==(True,True)
     assert selected==['access_0014']

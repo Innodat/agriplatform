@@ -94,6 +94,7 @@ def role_guard_connection(monkeypatch, *, flags=None, incoming=None, administrat
         if sql=='SELECT session_user,current_user':return [('access_migrator','access_migrator')]
         if 'SELECT rolname,rolcanlogin' in sql and "'access_runtime'" in sql:return safe_flags if flags is None else flags
         if 'SELECT rolname,rolcanlogin' in sql and "'supabase_admin'" in sql:return administrator_flags
+        if 'pg_auth_members WHERE roleid' in sql and 'access_check_reader' in sql:return []
         if 'pg_auth_members WHERE member' in sql:return []
         if 'FROM pg_auth_members m WHERE roleid' in sql:return [] if incoming is None else incoming
         if 'p.prosecdef' in sql:return [(1,)] if definer else []
