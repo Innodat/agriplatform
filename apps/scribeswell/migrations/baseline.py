@@ -4,7 +4,9 @@ import json
 from pathlib import Path
 from catalogue import snapshot
 APP = Path(__file__).resolve().parents[1]
-REVISION = 'scribeswell_0001'
+LEGACY_REVISION = 'scribeswell_0001'
+REVISION = 'scribeswell_0002'
+SUPPORTED_REVISIONS = (LEGACY_REVISION, REVISION)
 PINS = {
  'supabase/migrations/20260614000000_scribeswell_create_schema.sql': 'b5140822e9655b933a98f17df8b7a7cb8424246991e168238ba736a319b511f0',
  'deployment/bootstrap/001_direct_database_roles.sql': 'd03e8e34227fe73d0572d74e9c799a76982ed6ec83a774fec86e2c757d54c66d',
@@ -27,7 +29,7 @@ def ledger(connection):
     if tuple(relation) != ('r','scribeswell_migrator',False,False,None,'p',False,0) or [tuple(x) for x in columns] != [('version_num','character varying(32)',True,'','',None)] or [tuple(x) for x in constraints] != [('alembic_version_pkc','PRIMARY KEY (version_num)')] or acl:
         raise BaselineError('scribeswell_ledger_invalid')
     rows = connection.exec_driver_sql('SELECT version_num FROM scribeswell.alembic_version').fetchall()
-    if [tuple(row) for row in rows] != [(REVISION,)]:
+    if len(rows) != 1 or rows[0][0] not in SUPPORTED_REVISIONS:
         raise BaselineError('scribeswell_ledger_invalid')
     extras = connection.exec_driver_sql("""SELECT 1 FROM pg_attrdef WHERE adrelid='scribeswell.alembic_version'::regclass
  UNION ALL SELECT 1 FROM pg_trigger WHERE tgrelid='scribeswell.alembic_version'::regclass
@@ -41,7 +43,7 @@ def ledger(connection):
         raise BaselineError('scribeswell_ledger_invalid')
     if extras:
         raise BaselineError('scribeswell_ledger_invalid')
-    return REVISION
+    return rows[0][0]
 
 def preflight(connection):
     verify_pins()
@@ -73,17 +75,24 @@ def preflight(connection):
  UNION ALL SELECT 1 FROM pg_proc p JOIN pg_namespace n ON n.oid=p.pronamespace WHERE n.nspname NOT IN ('scribeswell','pg_catalog','information_schema') AND left(n.nspname,3)<>'pg_' AND p.prosecdef AND has_schema_privilege(current_user,n.oid,'USAGE') AND has_function_privilege(current_user,p.oid,'EXECUTE')
  UNION ALL SELECT 1 FROM pg_database d WHERE has_database_privilege(current_user,d.oid,'CREATE')
  UNION ALL SELECT 1 FROM pg_default_acl d,LATERAL aclexplode(d.defaclacl) a,actor WHERE d.defaclrole<>actor.oid AND a.grantee=actor.oid
- UNION ALL SELECT 1 FROM pg_proc p,actor WHERE p.proowner=actor.oid
+ UNION ALL SELECT 1 FROM pg_proc p JOIN pg_namespace n ON n.oid=p.pronamespace,actor WHERE p.proowner=actor.oid AND n.nspname<>'scribeswell'
  UNION ALL SELECT 1 FROM pg_namespace n,LATERAL aclexplode(n.nspacl) a,actor WHERE n.nspname<>'scribeswell' AND a.grantee=actor.oid
  UNION ALL SELECT 1 FROM pg_class c JOIN pg_namespace n ON n.oid=c.relnamespace,LATERAL aclexplode(c.relacl) a,actor WHERE n.nspname<>'scribeswell' AND a.grantee=actor.oid
  UNION ALL SELECT 1 FROM pg_attribute col JOIN pg_class c ON c.oid=col.attrelid JOIN pg_namespace n ON n.oid=c.relnamespace,LATERAL aclexplode(col.attacl) a,actor WHERE n.nspname<>'scribeswell' AND a.grantee=actor.oid
- UNION ALL SELECT 1 FROM pg_proc p,LATERAL aclexplode(p.proacl) a,actor WHERE a.grantee=actor.oid
+ UNION ALL SELECT 1 FROM pg_proc p JOIN pg_namespace n ON n.oid=p.pronamespace,LATERAL aclexplode(p.proacl) a,actor WHERE a.grantee=actor.oid AND n.nspname<>'scribeswell'
  UNION ALL SELECT 1 FROM pg_default_acl d,actor WHERE d.defaclnamespace=0 AND d.defaclrole=actor.oid
  UNION ALL SELECT 1 FROM pg_database d,LATERAL aclexplode(d.datacl) a,actor WHERE a.grantee=actor.oid AND a.privilege_type='CREATE'
  """).first():
         raise BaselineError('scribeswell_cross_owner_authority')
     connection.exec_driver_sql("SELECT pg_advisory_xact_lock(hashtext('scribeswell-owned-migrations'))")
-    expected = json.loads((APP / 'migrations/reference.json').read_text())
-    if snapshot(connection) != expected:
+    state = ledger(connection)
+    head = state == REVISION
+    expected = json.loads((APP / ('migrations/reference-head.json' if head else 'migrations/reference.json')).read_text())
+    if snapshot(connection, head=head) != expected:
         raise BaselineError('scribeswell_catalogue_mismatch')
-    return ledger(connection)
+    if head:
+        if connection.exec_driver_sql('SELECT singleton,enforcement FROM scribeswell.corpus_fence_control').fetchall() != [(True,False)]:
+            raise BaselineError('scribeswell_dormant_fence_required')
+        if connection.exec_driver_sql('SELECT 1 FROM scribeswell.corpus_epoch UNION ALL SELECT 1 FROM scribeswell.corpus_write_binding').first():
+            raise BaselineError('scribeswell_dormant_fence_required')
+    return state

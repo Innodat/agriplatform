@@ -1,5 +1,12 @@
 # Owned corpus migration history
 
+Owned revision `scribeswell_0002` adds the
+[dormant writer-fence foundation](CORPUS_WRITER_FENCE.md). It retains the original
+adoption reference and verifies each supported starting revision before upgrading
+to the exact dormant head. Enforcement and ordinary binding-routine execution
+remain disabled; no production source/attempt rows are seeded. The baseline
+description below remains the prerequisite for initial adoption.
+
 Scribeswell's owned Alembic baseline adopts an existing, qualified corpus schema.
 It does not create or import the corpus. Initial installation still uses the
 reviewed legacy schema SQL and direct-role bootstrap; all subsequent Scribeswell
@@ -8,8 +15,8 @@ DDL belongs to the owned history. Never add forward changes to the legacy SQL.
 The baseline records `scribeswell_0001` only after checking its supported catalogue
 and restricted migration authority. The new `scribeswell.alembic_version` is a
 technical owner-only ledger. Adoption preserves corpus rows, IDs, sequence state,
-reader/importer grants and policies. It does not provide writer fencing, sealed
-source evidence or publication activation. Studies remains gated on those later
+reader/importer grants and policies. The adoption baseline itself enables neither
+writer enforcement, sealed source evidence nor publication activation. Studies remains gated on those later
 contracts and separate Access account enrollment.
 
 ## Target preparation and supported profile
@@ -113,8 +120,10 @@ python apps/scribeswell/migrations/generate_reference.py --output "$reference_di
 cmp apps/scribeswell/migrations/reference.json "$reference_directory/reference.json"
 ```
 
-The generator executes only pinned reference inputs in its new fixture, then
-performs test-only ownership preparation. It accepts no existing target as the
+The default generator executes the pinned legacy SQL/bootstrap inputs in its new
+fixture, then performs test-only ownership preparation. With `--head`, it also
+applies the reviewed revision0002 DDL under the prepared owner; that source and
+its reference are covered by the release compatibility fingerprint. It accepts no existing target as the
 reference source and refuses existing output. A mismatch requires investigation
 and explicit profile qualification; do not replace the reference to dismiss it.
 This baseline explicitly requires PostgreSQL 17 and rejects other server major

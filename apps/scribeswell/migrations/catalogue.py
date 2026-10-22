@@ -34,7 +34,13 @@ QUERIES = {
  'publications': "SELECT pubname,tablename FROM pg_publication_tables WHERE schemaname='scribeswell' ORDER BY 1,2",
 }
 
-def snapshot(connection):
+HEAD_FUNCTIONS = """SELECT p.proname,pg_get_function_identity_arguments(p.oid),
+ pg_get_functiondef(p.oid),pg_get_userbyid(p.proowner),p.prosecdef,p.proconfig,
+ p.proacl::text,p.provolatile,p.proparallel,p.proleakproof,p.proisstrict,
+ p.prokind,l.lanname FROM pg_proc p JOIN pg_namespace n ON n.oid=p.pronamespace
+ JOIN pg_language l ON l.oid=p.prolang WHERE n.nspname='scribeswell' ORDER BY 1,2"""
+
+def snapshot(connection, *, head=False):
     # JSON round-trip gives driver-independent array/list normalization.
     import json
-    return json.loads(json.dumps({key: [list(row) for row in connection.exec_driver_sql(query).fetchall()] for key,query in QUERIES.items()}, default=str))
+    return json.loads(json.dumps({key: [list(row) for row in connection.exec_driver_sql(query).fetchall()] for key,query in (QUERIES | ({'functions':HEAD_FUNCTIONS} if head else {})).items()}, default=str))

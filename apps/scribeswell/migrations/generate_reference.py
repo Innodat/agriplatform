@@ -60,17 +60,24 @@ def prepared_fixture():
             for role in reversed(created):
                 control.execute(sql.SQL('DROP ROLE {}').format(sql.Identifier(role)))
 
-def generate(destination=None):
+def generate(destination=None, *, head=False):
     import json
     with prepared_fixture() as (_,url):
         engine=create_engine(url.replace('postgresql://','postgresql+psycopg://',1))
         try:
             with engine.begin() as connection:
                 connection.exec_driver_sql('SET LOCAL search_path=pg_catalog')
-                reference=snapshot(connection)
+                if head:
+                    import importlib.util
+                    module_spec=importlib.util.spec_from_file_location('fence_revision',Path(__file__).with_name('versions')/'0002_corpus_writer_fence.py')
+                    module=importlib.util.module_from_spec(module_spec)
+                    module_spec.loader.exec_module(module)
+                    connection.exec_driver_sql('SET LOCAL ROLE scribeswell_migrator')
+                    connection.exec_driver_sql(module.DDL)
+                reference=snapshot(connection,head=head)
         finally:
             engine.dispose()
-    destination=Path(destination) if destination is not None else Path(__file__).with_name('reference.json')
+    destination=Path(destination) if destination is not None else Path(__file__).with_name('reference-head.json' if head else 'reference.json')
     with destination.open('x') as out:
         json.dump(reference,out,indent=2,ensure_ascii=False)
         out.write('\n')
@@ -79,4 +86,6 @@ if __name__=='__main__':
     import argparse
     parser=argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--output',type=Path)
-    generate(parser.parse_args().output)
+    parser.add_argument('--head',action='store_true')
+    args=parser.parse_args()
+    generate(args.output,head=args.head)

@@ -25,7 +25,7 @@ def migration_url(url):
     parsed=urlsplit(url)
     return parsed._replace(netloc='scribeswell_migrator:'+quote(unquote(parsed.password or ''),safe='')+'@'+parsed.hostname+':'+str(parsed.port)).geturl()
 
-@pytest.fixture(scope='module')
+@pytest.fixture
 def migration_database():
     if not os.environ.get('SCRIBESWELL_TEST_DATABASE_URL'):
         pytest.skip('Set SCRIBESWELL_TEST_DATABASE_URL to a disposable local cluster')
@@ -37,6 +37,15 @@ def prepared(migration_database):
     admin,url=migration_database
     admin.prepare_threshold=None
     admin.execute('DROP TABLE IF EXISTS scribeswell.alembic_version')
+    # Each isolated fixture has meaningful corpus and sequence state to protect.
+    admin.execute("""INSERT INTO scribeswell.book VALUES (1,'Gen','Genesis','א','old','torah',1);
+        INSERT INTO scribeswell.chapter VALUES (101,1,1);
+        INSERT INTO scribeswell.verse VALUES (201,101,1,1,1);
+        INSERT INTO scribeswell.word VALUES (301,201,1,'אָב','אָב','1','HNcmsa');
+        INSERT INTO scribeswell.morpheme(id,word_id,segment_index,language,part_of_speech,pos_code)
+        VALUES (401,301,0,'hebrew','noun','Ncmsa')""")
+    for offset,table in enumerate(('chapter','verse','word','morpheme')):
+        admin.execute("SELECT setval(%s::regclass,%s,true)",('scribeswell.'+table+'_id_seq',901+offset))
     yield admin,url
 
 def invoke(url,command='upgrade',revision='head',extra_env=None):
@@ -343,7 +352,7 @@ def test_postvalidation_failure_rolls_back_created_ledger(prepared,monkeypatch):
     assert business_state(admin)==before
 
 
-@pytest.mark.parametrize('before',[None,REVISION])
+@pytest.mark.parametrize('before',[None,'scribeswell_0001',REVISION])
 def test_failed_worker_preserves_valid_known_before(tmp_path,before):
     class Process:
         returncode=1
@@ -425,3 +434,89 @@ def test_actual_worker_timeout_reaps_and_releases_transaction(prepared,tmp_path,
     assert report['owners']['scribeswell']=={'status':'unknown','outcome_requires_reconciliation':True}
     assert business_state(admin)==before
     assert 'fixture' not in target.read_text() and 'postgresql' not in target.read_text()
+
+
+def establish_revision_one(admin):
+    # Exact previous owned ledger without altering the immutable revision module.
+    with admin.transaction():
+        admin.execute('SET LOCAL ROLE scribeswell_migrator')
+        admin.execute('CREATE TABLE scribeswell.alembic_version(version_num varchar(32) NOT NULL, CONSTRAINT alembic_version_pkc PRIMARY KEY(version_num))')
+        admin.execute("INSERT INTO scribeswell.alembic_version VALUES('scribeswell_0001')")
+
+
+def test_revision_one_catalogue_profile_is_unchanged_and_upgrades(prepared):
+    from sqlalchemy import create_engine
+    from catalogue import snapshot
+    from baseline import preflight
+    admin,url=prepared
+    establish_revision_one(admin)
+    engine=create_engine(migration_url(url).replace('postgresql://','postgresql+psycopg://',1))
+    try:
+        with engine.begin() as connection:
+            connection.exec_driver_sql('SET LOCAL search_path=pg_catalog')
+            assert snapshot(connection)==json.loads((APP/'migrations/reference.json').read_text())
+            assert preflight(connection)=='scribeswell_0001'
+    finally:engine.dispose()
+    before=business_state(admin)
+    result=invoke(url)
+    assert result.returncode==0,result.stderr
+    assert business_state(admin)==before
+    assert admin.execute('SELECT * FROM scribeswell.alembic_version').fetchall()==[(REVISION,)]
+    assert invoke(url).returncode==0
+
+
+@pytest.mark.parametrize('change',[
+    "ALTER FUNCTION scribeswell.guard_corpus_write() SET search_path=public",
+    'ALTER FUNCTION scribeswell.guard_corpus_write() SECURITY INVOKER',
+    'GRANT EXECUTE ON FUNCTION scribeswell.bind_corpus_write(text,bigint,uuid,text) TO scribeswell_import',
+    'ALTER TABLE scribeswell.corpus_write_binding DISABLE TRIGGER corpus_binding_cleanup',
+    'DROP TRIGGER corpus_binding_cleanup ON scribeswell.corpus_write_binding; CREATE CONSTRAINT TRIGGER corpus_binding_cleanup AFTER INSERT ON scribeswell.corpus_write_binding DEFERRABLE INITIALLY IMMEDIATE FOR EACH ROW EXECUTE FUNCTION scribeswell.cleanup_corpus_write_binding(); ALTER TABLE scribeswell.corpus_write_binding ENABLE ALWAYS TRIGGER corpus_binding_cleanup',
+    'ALTER TABLE scribeswell.word DISABLE TRIGGER corpus_write_fence',
+    'ALTER TABLE scribeswell.word ENABLE TRIGGER corpus_write_fence',
+    'GRANT SELECT ON scribeswell.corpus_write_binding TO scribeswell_runtime',
+    'UPDATE scribeswell.corpus_fence_control SET enforcement=true',
+    'DELETE FROM scribeswell.corpus_fence_control',
+    "INSERT INTO scribeswell.corpus_epoch VALUES(true,'fixture',1,'11111111-1111-4111-8111-111111111111','"+'a'*64+"','updating','22222222-2222-4222-8222-222222222222','22222222-2222-4222-8222-222222222222',now(),now())",
+])
+def test_head_replay_rejects_fence_drift_without_mutation(prepared,change):
+    admin,url=prepared
+    assert invoke(url).returncode==0
+    before=business_state(admin)
+    admin.execute(change)
+    assert invoke(url).returncode!=0
+    assert admin.execute('SELECT * FROM scribeswell.alembic_version').fetchall()==[(REVISION,)]
+    assert business_state(admin)==before
+
+
+def test_post_ddl_failure_preserves_revision_one(prepared,monkeypatch):
+    import baseline
+    from alembic import command
+    from alembic.config import Config
+    admin,url=prepared
+    establish_revision_one(admin)
+    before=business_state(admin)
+    original=baseline.preflight
+    def injected(connection):
+        state=original(connection)
+        if state==REVISION:
+            assert connection.exec_driver_sql('SELECT enforcement FROM scribeswell.corpus_fence_control').scalar() is False
+            raise baseline.BaselineError('injected_post_ddl_failure')
+        return state
+    monkeypatch.setattr(baseline,'preflight',injected)
+    monkeypatch.setenv('SCRIBESWELL_MIGRATION_DATABASE_URL',migration_url(url))
+    with pytest.raises(RuntimeError,match='injected_post_ddl_failure'):
+        command.upgrade(Config(str(APP/'alembic.ini')),'head')
+    assert admin.execute('SELECT * FROM scribeswell.alembic_version').fetchall()==[('scribeswell_0001',)]
+    assert admin.execute("SELECT to_regclass('scribeswell.corpus_fence_control')").fetchone()==(None,)
+    assert business_state(admin)==before
+
+
+@pytest.mark.parametrize('before',['scribeswell_0001','scribeswell_0002'])
+def test_adapter_supports_both_known_before_revisions(tmp_path,before):
+    class Process:
+        returncode=0
+        def __init__(self,*args,**kwargs):pass
+        def communicate(self,*args,**kwargs):return json.dumps({'before':before,'after':'scribeswell_0002'}),None
+        def poll(self):return 0
+    result=load_adapter().main(tmp_path/'success.json',environ=VALID_ENV,run=Process)
+    assert result['owners']['scribeswell']=={'before':before,'after':'scribeswell_0002','status':'succeeded'}
