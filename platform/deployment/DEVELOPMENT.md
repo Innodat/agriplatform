@@ -1950,3 +1950,19 @@ single-use; --verify-retained is read-only. Preserve failed/source-changed frame
 use fresh namespaces, retain historical resources/data, and stop normally without reset
 or prune. Private bootstrap portability remains deferred. Protected grant execution and
 consumer activation require their own subsequent delivery evidence.
+
+### Organization grant registry bridge — 2026-10-22
+
+Use the controlled Access owner upgrade for0011; no startup migration or automatic
+reversal. The generated discriminator preserves legacy PtS writes while nonlegacy
+organization grants gain registry/active-field integrity. It does not adopt historical
+rows or activate grant commands/readers. Final legacy cutover needs separate coordinated
+evidence. Exact catalog/history/ACL drift refuses without normalization; failed migrations
+roll back, require inspection and explicit forward retry.
+
+See [owner evidence](../../services/access/GRANT_REGISTRY_BRIDGE_EVIDENCE.md) and
+[runbook](../../services/access/GRANT-REGISTRY-BRIDGE.md). Fresh synthetic preparation and
+--all are single-use; independent --verify-retained is read-only. Preserve failed/source-
+changed frames and use fresh namespaces, retain historical data/resources, stop normally
+without reset/prune. Private bootstrap portability remains deferred. No real-target or
+deployment authorization follows from isolated qualification.

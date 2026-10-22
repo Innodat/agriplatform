@@ -19,7 +19,7 @@ def migration():
 def test_eight_is_additive_and_prior_seven_remain_known():
     assert baseline.validate_revision(['access_0008'])=='access_0008'
     for i in range(1,9):assert baseline.validate_revision([f'access_000{i}'])==f'access_000{i}'
-    for values in ([],['access_0011'],['access_0007','access_0008']):
+    for values in ([],['access_0012'],['access_0007','access_0008']):
         with pytest.raises(baseline.BaselineError):baseline.validate_revision(values)
     assert registration._sql('access_0008')==registration._sql('access_0007')
 

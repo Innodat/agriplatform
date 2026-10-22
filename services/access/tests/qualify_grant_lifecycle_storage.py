@@ -197,18 +197,18 @@ class Qualification(prior.Qualification):
                         assert actual==[row for row in before['grants'] if row[0]==org]
                         if org:assert actual,'runtime_org_fixture_empty'
                 with c.begin():assert not c.exec_driver_sql('SELECT * FROM access.grants').all()
-            for sql in ('INSERT INTO access.grants SELECT * FROM access.grants WHERE false','UPDATE access.grants SET revision=revision WHERE false','DELETE FROM access.grants WHERE false','TRUNCATE access.grants'):
+            for sql in ('INSERT INTO access.grants(org_id,id,user_id,permission) SELECT org_id,id,user_id,permission FROM access.grants WHERE false','UPDATE access.grants SET revision=revision WHERE false','DELETE FROM access.grants WHERE false','TRUNCATE access.grants'):
                 try:
                     with engine.begin() as c:c.exec_driver_sql(sql)
                 except Exception as error:assert getattr(getattr(error,'orig',None),'sqlstate',None)=='42501'
                 else:raise AssertionError('runtime_grant_write_accepted')
         finally:engine.dispose()
-        for sql in ('INSERT INTO access.grants SELECT * FROM access.grants WHERE false','SELECT * FROM access.grants','UPDATE access.grants SET revision=revision WHERE false','DELETE FROM access.grants WHERE false','TRUNCATE access.grants'):
+        for sql in ('INSERT INTO access.grants(org_id,id,user_id,permission) SELECT org_id,id,user_id,permission FROM access.grants WHERE false','SELECT * FROM access.grants','UPDATE access.grants SET revision=revision WHERE false','DELETE FROM access.grants WHERE false','TRUNCATE access.grants'):
             self.refused(case,sql,'42501',role='access_operator_urls')
         admin=self.admin(case)
         try:
             for role in ('access_command_owner','access_operator_authority_owner'):
-                for sql in ('INSERT INTO access.grants SELECT * FROM access.grants WHERE false','UPDATE access.grants SET revision=revision WHERE false','DELETE FROM access.grants WHERE false','TRUNCATE access.grants'):
+                for sql in ('INSERT INTO access.grants(org_id,id,user_id,permission) SELECT org_id,id,user_id,permission FROM access.grants WHERE false','UPDATE access.grants SET revision=revision WHERE false','DELETE FROM access.grants WHERE false','TRUNCATE access.grants'):
                     try:
                         with admin.begin() as c:c.exec_driver_sql('SET LOCAL ROLE '+role);c.exec_driver_sql(sql)
                     except Exception as error:assert getattr(getattr(error,'orig',None),'sqlstate',None)=='42501'

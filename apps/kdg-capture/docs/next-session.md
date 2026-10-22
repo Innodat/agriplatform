@@ -1787,3 +1787,32 @@ lenses completed; seven findings patched, two low-value expansions rejected, no 
 deferral. All75 production sources and52 protected historical files remain unchanged.
 The native run stopped normally with data retained; concurrent work and earlier frames
 remain preserved. This completes consuming proof of the existing dependency only.
+
+
+### Compatible organization grant registry integrity — 2026-10-22
+
+Access0011 replaces the legacy permission CHECK with a small derived registry bridge:
+exactly three legacy PtS permissions retain their original rows/writes without invented
+registry adoption; every other grant permission must be registered with organization
+scope. Active nonlegacy rows require membership and actor/update provenance. Original
+columns/values, RLS and ACLs remain; no grant-write privilege or execution is enabled.
+See [evidence](../../../services/access/GRANT_REGISTRY_BRIDGE_EVIDENCE.md) and
+[runbook](../../../services/access/GRANT-REGISTRY-BRIDGE.md).
+
+Next implement protected `grant.assign` through existing Access owner tools: exact current
+command/org/app/target authority, bounded pre-lock Identity observation, expected state,
+server revision/attribution, atomic receipt/event and retry safeguards. Exclude the three
+legacy PtS literals while v1 ignores membership/revocation. The temporary discriminator
+is removed only with coordinated legacy adoption and final direct-FK/global integrity.
+ACCESS-B, membership-safe effective readers and coordinated PtS/KDG activation remain
+gated. No real access, production/deployment/pilot, Leave/editor, reset/prune or push.
+
+
+Final reviewed acceptance: all8 native stages, independent read-only retained inspection,
+13 focused safeguards,1472 affected regression tests and both composition modes pass.
+All116 source bindings/21 generated diagnostic digests and retained-state digest match.
+Three review lenses complete;11 findings addressed, no new deferral. Original migration/
+reference and client bytes remain preserved; only intended mutable verifiers and new11
+DDL change production source. The native run stopped normally with data retained.
+Historical frames/resources and concurrent work remain preserved. Private bootstrap
+portability remains an existing follow-up; no effective access or live activation claim.

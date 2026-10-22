@@ -712,3 +712,20 @@ must enforce its own current command authority, bounded observation and write sa
 See [qualification evidence](../../../../services/access/IDENTITY_PREGRANT_TARGET_EVIDENCE.md).
 Registry adoption/final grant integrity, protected assignment, membership-bound effective
 readers, ACCESS-B and coordinated consumer activation remain separate gates.
+
+## Grant registry compatibility bridge — 2026-10-22
+
+Access0011 replaces the three-PtS-only grant CHECK with a temporary derived discriminator:
+`registry_permission` is stored/generated NULL for the exact legacy three PtS literals,
+otherwise equals `permission`. Its composite organization-scope FK requires a registered
+permission for every nonlegacy row, including revoked rows. Nonlegacy active rows require
+nonnull membership and actor/update provenance under the existing positive/nonnil/finite
+constraints. These fields remain external references, not independently verified authority.
+No original business values are adopted or changed; legacy PtS writes remain compatible without
+fabricated registry mappings. All existing owner/RLS/ACL boundaries remain.
+
+This is a compatibility bridge, not final adoption. Coordinated legacy disposition must
+precede direct permission FK/global active-row integrity and removal of the derived column.
+Protected assignment stays unsupported; later assignment must exclude the legacy PtS
+literals while v1 readers ignore membership/revocation. No effective reader, ACCESS-B or
+KDG/PtS activation follows. See [evidence](../../../../services/access/GRANT_REGISTRY_BRIDGE_EVIDENCE.md).
