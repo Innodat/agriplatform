@@ -50,6 +50,8 @@ def load_manifests(root=ROOT):
  for group in registry.get('migration_groups',[]):
   if not re.fullmatch('[a-z][a-z0-9-]*',group['id']) or group['id'] in groups or group['id'] in [m['id'] for m in manifests]:raise ValueError('invalid migration group')
   if not safe_path(root,group['dockerfile']).is_file() or not re.fullmatch(r'[a-z0-9-]+\.env',group['env_file']):raise ValueError('invalid migration artifact')
+  inputs=group.get('compatibility_inputs',[])
+  if not isinstance(inputs,list) or any(not isinstance(path,str) or not safe_path(root,path).is_file() for path in inputs):raise ValueError('invalid migration compatibility input')
   groups.append(group['id']);covered.extend(group['owners'])
  if sorted(owners)!=sorted(covered):raise ValueError('migration owners require exactly one group')
  for path in registry['bootstrap_paths']:

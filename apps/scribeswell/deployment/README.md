@@ -1,5 +1,11 @@
 # Direct PostgreSQL transition
 
+The controlled release now includes the separately credentialed
+`scribeswell-owned` adoption baseline. See [owned migration preparation and
+recovery](../docs/MIGRATIONS.md) before refreshing release evidence or deploying.
+The initial schema/bootstrap below remains an explicit prerequisite, not the
+forward migration mechanism. Registration alone does not qualify a live target.
+
 Production execution requires separate approval of the concrete target, grants,
 credentials, configuration, import/verification, activation and recovery plan. Local
 implementation does not authorize production SQL, source imports, deployment or

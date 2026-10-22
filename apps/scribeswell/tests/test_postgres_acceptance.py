@@ -34,7 +34,7 @@ def postgres():
     assert urlsplit(url).hostname in ('localhost', '127.0.0.1'), 'Local disposable database only'
     import uuid
     from psycopg import sql
-    roles = ['anon', 'authenticated', 'service_role', 'scribeswell_runtime', 'scribeswell_import']
+    roles = ['anon', 'authenticated', 'service_role', 'scribeswell_runtime', 'scribeswell_import', 'scribeswell_migrator']
     created_roles = []
     name = 'scribeswell_test_' + uuid.uuid4().hex
     with psycopg.connect(url, autocommit=True) as control:
@@ -61,12 +61,23 @@ def postgres():
                 before = legacy_rows()
                 bootstrap = (APP / 'deployment/bootstrap/001_direct_database_roles.sql').read_text()
                 admin.execute(bootstrap)
-                created_roles.extend(roles[3:])
+                created_roles.extend(roles[3:5])
+                admin.execute('CREATE ROLE scribeswell_migrator LOGIN NOINHERIT NOSUPERUSER NOBYPASSRLS NOCREATEDB NOCREATEROLE NOREPLICATION')
+                created_roles.append('scribeswell_migrator')
                 assert legacy_rows() == before
                 admin.execute(bootstrap)
                 assert legacy_rows() == before
                 for role in roles[3:]:
                     admin.execute(sql.SQL('ALTER ROLE {} PASSWORD {}').format(sql.Identifier(role), sql.Literal(unquote(urlsplit(url).password or ''))))
+                admin.execute('ALTER SCHEMA scribeswell OWNER TO scribeswell_migrator')
+                for (relation,) in admin.execute("SELECT c.relname FROM pg_class c JOIN pg_namespace n ON n.oid=c.relnamespace WHERE n.nspname='scribeswell' AND c.relkind IN ('r','v') ORDER BY c.relkind,c.relname").fetchall():
+                    admin.execute(sql.SQL('ALTER TABLE scribeswell.{} OWNER TO scribeswell_migrator').format(sql.Identifier(relation)))
+                import subprocess
+                migration_env={k:v for k,v in os.environ.items() if not k.startswith('PG')}
+                migration_env['SCRIBESWELL_MIGRATION_DATABASE_URL']=role_url(db_url,'scribeswell_migrator')
+                result=subprocess.run([sys.executable,'-m','alembic','-c',str(APP/'alembic.ini'),'upgrade','head'],env=migration_env,capture_output=True,text=True,timeout=20)
+                assert result.returncode==0,result.stderr
+                assert legacy_rows()==before
                 admin.execute('CREATE SCHEMA identity; CREATE TABLE identity.person(id int); INSERT INTO identity.person VALUES (1); CREATE SCHEMA pts; CREATE TABLE pts.note(id int); CREATE SCHEMA content; CREATE TABLE content.file(id int)')
                 yield admin, db_url
         finally:

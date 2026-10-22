@@ -31,8 +31,14 @@ def migration_fingerprint():
  digest=hashlib.sha256()
  for manifest in load_manifests():
   if 'migration' not in manifest:continue
-  config=safe_path(ROOT,manifest['migration']['config']);sources=[config,*sorted((config.parent/'migrations').rglob('*.py'))]
+  config=safe_path(ROOT,manifest['migration']['config'])
+  sources=[config,*sorted(path for path in (config.parent/'migrations').rglob('*') if path.is_file() and path.suffix in ('.py','.json'))]
   for source in sources:digest.update(str(source.relative_to(ROOT)).encode());digest.update(source.read_bytes())
+ registry=json.loads((ROOT/'platform/deployment/registry.json').read_text())
+ for group in registry.get('migration_groups',[]):
+  for item in [group['dockerfile'],*group.get('compatibility_inputs',[])]:
+   source=safe_path(ROOT,item)
+   digest.update(str(source.relative_to(ROOT)).encode());digest.update(source.read_bytes())
  return digest.hexdigest()
 
 def env_values(path):

@@ -16,6 +16,18 @@
         "content",
         "pts"
       ]
+    },
+    {
+      "id": "scribeswell-owned",
+      "dockerfile": "apps/scribeswell/deployment/Migrations.Dockerfile",
+      "env_file": "scribeswell-migrations.env",
+      "owners": ["scribeswell"],
+      "compatibility_inputs": [
+        "apps/scribeswell/deployment/migrate.py",
+        "apps/scribeswell/deployment/migration-requirements.txt",
+        "apps/scribeswell/backend/database.py",
+        "platform/deployment/target_contract.py"
+      ]
     }
   ],
   "bootstrap_paths": [

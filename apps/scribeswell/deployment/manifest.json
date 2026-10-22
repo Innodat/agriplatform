@@ -23,6 +23,12 @@
     },
     "install": "workspace"
   },
+  "migration": {
+    "owner": "scribeswell",
+    "config": "apps/scribeswell/alembic.ini",
+    "url_env": "SCRIBESWELL_MIGRATION_DATABASE_URL",
+    "role": "scribeswell_migrator"
+  },
   "required_env": [
     "SUPABASE_URL",
     "APP_ENV",
