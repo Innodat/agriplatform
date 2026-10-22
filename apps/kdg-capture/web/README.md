@@ -57,3 +57,29 @@ Shared UI: none; fixture markup is not a product component. Agent context: root 
 suffices; commands are above. Documentation: this guide, evidence and additive handoff.
 ADRs: existing current access/errors/session/logging/release decisions; no new decision.
 Fingerprints/HMAC, business writes, provider/real access and release/pilot stay outside.
+
+
+## Accessible entry presentation
+
+EntryScreen.tsx is the next bounded presentation component. Supply the current EntryState,
+an online observation and synchronous onSignIn/onRetry callbacks. Import entry-screen.css
+in its consuming entrypoint; mount one screen per page. It shows selected static copy,
+never raw context or error data. The caller owns current-session events, bounded Auth
+operations, renewal, clearing/rechecking after connectivity changes and disposal. A
+stale asynchronous Auth result must never be supplied as a newly current session.
+The disabled action remains focusable using aria-disabled; its handler suppresses
+activation while checking/offline. No provider, sign-out or return-navigation flow is
+implemented here. API admission is not domain setup or an offline lease.
+
+Run the copied-source proof with the selected Node N:
+
+```sh
+"$N" apps/kdg-capture/web/tests/screen-proof.mjs
+```
+
+It compiles strict TS7.0.2 and builds Vite8.3.4/React19.3.0 with retained approved
+packages in a fresh private capsule, then runs Chromium interactions and15 focused
+static-render tests. `--unit-only` runs strict types plus the15 tests; `--acceptance-only`
+runs the admitted-account/setup-state browser scenario. It never installs packages
+or edits root dependencies/locks. The fixture is synthetic and is not a public app
+entrypoint. See ../docs/ENTRY_SCREEN_EVIDENCE.md for source custody and proof limits.

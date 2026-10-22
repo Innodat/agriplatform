@@ -1,0 +1,38 @@
+/* KDG-owned entry composition. Neutral semantic values source-referenced from
+   the Expense shadcn lineage; no runtime import or new brand palette. */
+.kdg-entry {
+  --kdg-background: oklch(1 0 0);
+  --kdg-foreground: oklch(0.145 0 0);
+  --kdg-primary: oklch(0.205 0 0);
+  --kdg-primary-foreground: oklch(0.985 0 0);
+  --kdg-radius: 0.625rem;
+  background: var(--kdg-background);
+  color: var(--kdg-foreground);
+  font-family: system-ui, sans-serif;
+  font-size: 1rem;
+  line-height: 1.5;
+  min-height: 100svh;
+  overflow-wrap: anywhere;
+}
+.kdg-entry, .kdg-entry * { box-sizing: border-box; }
+.kdg-entry main { max-width: 42rem; margin-inline: auto; padding: 2rem max(16px, env(safe-area-inset-right)) 2rem max(16px, env(safe-area-inset-left)); }
+.kdg-entry h1 { font-size: 2rem; line-height: 1.2; margin-block: 0 0.5rem; }
+.kdg-entry h2 { font-size: 1.375rem; line-height: 1.3; }
+.kdg-entry-organization { margin-block: 0 2rem; }
+.kdg-entry button {
+  font: inherit;
+  color: var(--kdg-primary-foreground);
+  background: var(--kdg-primary);
+  border: 2px solid var(--kdg-primary);
+  border-radius: var(--kdg-radius);
+  min-height: 3rem;
+  min-width: 3rem;
+  max-width: 100%;
+  padding: 0.75rem 1rem;
+  cursor: pointer;
+  overflow-wrap: anywhere;
+}
+.kdg-entry button[aria-disabled="true"] { cursor: default; }
+.kdg-entry :focus-visible { outline: 3px solid var(--kdg-foreground); outline-offset: 3px; }
+.kdg-entry-skip { position: absolute; top: 0.5rem; left: 0.5rem; transform: translateY(-200%); padding: 0.75rem; background: var(--kdg-background); color: var(--kdg-foreground); z-index: 1; }
+.kdg-entry-skip:focus { transform: none; }

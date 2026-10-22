@@ -1,3 +1,20 @@
+## Current delivery — accessible React entry presentation, 2026-10-22
+
+The bounded React entry screen is complete after review:15 focused presentation
+tests,29 client regressions, strict TypeScript7.0.2 and13 synthetic React/Chromium
+proof checks pass. See [owner evidence](ENTRY_SCREEN_EVIDENCE.md). It displays
+sign-in, checking, denied, unavailable/Retry, account-setup, offline guidance and honest
+Setup not completed states, using the existing session boundary and injected actions.
+No configured product frontend/provider, callback/renewal/return flow or complete
+Story1.1 readiness is claimed. Next select the bounded Auth-owner integration/entrypoint
+prerequisite before domain persistence. Preserve concurrent work/history/Docker resources
+and TypeScript7.0.2. Synthetic local/CI only; no real sign-in/accounts/access,
+provisioning/deployment/pilot, Leave/editor or cleanup. Fingerprints/HMAC stay deferred.
+
+The complete prior handoff follows as historical checkpoints.
+
+---
+
 ## Current delivery — browser current-entry session boundary, 2026-10-22
 
 The typed browser client and current-session generation boundary are complete for this
