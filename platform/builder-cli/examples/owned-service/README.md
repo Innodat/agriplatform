@@ -70,3 +70,75 @@ Impact decisions: scaffold adds only this copyable example/import proof; shared 
 is unchanged; existing agent context suffices; documentation adds this guide and
 owner evidence/current handoff; ADRs are unchanged. No Access/Identity history,
 database, Docker, KDG API/editor or Leave implementation is involved.
+
+## Atomic owner-local write candidate
+
+`atomic_write.py` supplies account-command transaction primitives to copy beside
+`command_fingerprint.py`. It requires the owner's SQLAlchemy/psycopg dependencies,
+pinned RFC8785 helper and PostgreSQL17 or newer. It is a bounded prerequisite
+candidate. `tests/atomic_write_sample.py` demonstrates explicit owner orchestration;
+`tests/atomic_write_fixture.sql` is exclusively a synthetic fixture, never a production
+migration or application model. The older PtS context example remains independent.
+
+Create `Budget()` before validating authorization. Complete current exact-resource
+checks and external observations before entering `transaction`; cap the authority
+request at `min(3, budget.remaining())` seconds. Construct `VerifiedContext` from
+verified backend organization/account/actor/mode and server-monotonic observation
+time. Transaction start requires an observation within the current execution's budget
+and no older than one second. Context fields are trusted backend assertions; database
+settings do not authenticate someone holding compromised backend credentials.
+
+Use a fresh, idle, non-autocommit READ COMMITTED connection. The context manager
+sets all context transaction-locally and caps the total PostgreSQL transaction at the
+remaining ten-second execution budget. Server and monotonic checks cannot interrupt a
+blocked client socket or a delayed commit acknowledgement. Request/transport timeout
+bounds remain consuming owner work; a late acknowledgement is uncertain even when
+the server committed successfully. Every owner SQL operation uses `execute`,
+which caps statements at five seconds and lock waits at two seconds, also capped by
+remaining budget. It checks the deadline after the SQL response. No network or external
+delivery belongs inside this transaction. Keep one Budget across any rollback/recheck
+restart. A new request obtains new current authority.
+
+Build the exact `OutcomeKey(owner_schema, org_id, account_id, command_type,
+operation_id)` and acquire `outcome_lock` before reading outcome or business effects.
+Its stable v1 JCS/SHA256 signed64 advisory lock is transaction-scoped; a database
+unique constraint on the full outcome tuple remains essential. Only a lock timeout
+in this dedicated wait produces `operation_busy`; other SQL errors produce bounded
+`internal_error`. Framework adapters must preserve truthful uncertainty, safe trace
+references and operation identity, without exposing exception locals or SQL values.
+
+The owner reads its outcome, verifies the stored resource against the authority it
+checked, verifies original fingerprint/command/result versions with `verify_existing`,
+and validates its command-specific compact result. The sample conservatively refuses a changed stored target before disclosing a receipt.
+A full consumer must rollback, check that target's exact authority outside locks and
+restart within the original Budget; no receipt may be disclosed beforehand.
+Unsupported metadata or unavailable original key produces
+`operation_verification_unavailable`, and payload mismatch produces
+`operation_payload_mismatch`. Both preserve the original outcome. This candidate
+supports v1 commands/results only; the owner defines any later compatible evolution.
+It does not supply an unverified lookup API or a generic result dictionary contract.
+
+For a new operation, the owner locks its local records, checks current lifecycle and
+expected revision, and updates business state and attribution. Reserve the outcome
+UUID in memory, insert its compact outcome and required immutable revision/evidence
+with exact organization/executor/command/operation linkage in the same transaction.
+A no-op inserts the outcome without inventing a business revision. Evidence or outcome
+failure rolls back every local effect. Leave the context manager before returning the
+acknowledgement. A later retry checks current authority and returns the original
+receipt even if domain state has moved on. Domain models, SQL, validation, authority,
+receipt DTO, constraints and named domain error mapping stay with the owning service.
+
+The test fixture uses an exclusive fresh synthetic database and restricted runtime
+login separate from its migrator. FORCE RLS, immutable-write guards and scoped composite
+foreign keys protect records/outcomes/revisions. The preparation command accepts only
+the existing local native target and retains all roles, data and private configuration.
+It does not activate a public recipe, alter installer/templates/schema/catalogue or
+provision real users. For the exact prepared Python/Node commands, private fixture
+location, retained evidence and requirement mapping see
+[WRITE_ATOMIC_EVIDENCE.md](../../WRITE_ATOMIC_EVIDENCE.md).
+
+Impact decisions: scaffold adds the copied sibling candidate and actual installer
+import/replay proof only; shared UI and agent context remain unchanged; documentation
+adds this guide, evidence and the current KDG handoff; accepted ADRs remain unchanged.
+Full WRITE, secret-file lifecycle, release/data recovery and first KDG business API
+qualification remain separate work.

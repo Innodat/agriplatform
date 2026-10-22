@@ -1,3 +1,17 @@
+## Current delivery — bounded WRITE atomic outcome candidate, 2026-10-22
+
+The existing builder now has copyable transaction/context/lock/outcome primitives,
+with an explicit neutral owner sample and actual restricted PostgreSQL proof. Candidate
+acceptance37 plus fingerprint63 and builder62 checks pass. Three review lenses are
+complete; corrections, read-only retained inspection and final custody pass. Native
+stack stopped normally with all data/resources retained; no new review deferral.
+See [owner evidence](../../../platform/builder-cli/WRITE_ATOMIC_EVIDENCE.md).
+Access15 and fingerprint foundation remain complete. This does not activate KDG or
+complete WRITE: secret-file lifecycle/data+secret recovery and consuming business API
+contracts/evidence remain gates. Preserve all concurrent work, historical evidence,
+Docker resources and the approved baseline including TypeScript7.0.2. No Leave/editor,
+production, real-account/access, provisioning/deployment/pilot or cleanup.
+
 ## Current delivery — WRITE fingerprint prerequisite, 2026-10-22
 
 The existing builder now has a copyable JCS/HMAC command-fingerprint candidate, with
