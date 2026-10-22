@@ -1,3 +1,20 @@
+## Current delivery — KDG current-context API prerequisite, 2026-10-22
+
+The bounded read-only `GET /api/v1/context` consumer is complete for this bounded API prerequisite;
+see [owner evidence](CONTEXT_API_EVIDENCE.md). It consumes current Access over HTTP,
+validates exact fixed-org own-account entry evidence and exposes typed OpenAPI/TS.
+No domain persistence or complete Story1.1/browser entry readiness is claimed.
+Final review corrections pass70 KDG and130 affected tests, OpenAPI/generated-client
+checks and TypeScript7.0.2 checks. Next select the remaining browser/current-owner
+integration prerequisite before initial questionnaire persistence. Capture first-commit-wins
+consumer/queue proof remains later; fingerprints/HMAC remain deferred. Preserve concurrent
+work, historical proof, Docker resources and TypeScript7.0.2. Synthetic local/CI only;
+no Leave/editor, production, real access/accounts, provisioning/deployment/pilot or cleanup.
+
+The complete prior handoff follows as historical checkpoints.
+
+---
+
 ## Current delivery — first committed WRITE outcome candidate, 2026-10-22
 
 The existing builder now has an additive first-committed outcome candidate and explicit

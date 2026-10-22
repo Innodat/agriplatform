@@ -1,0 +1,23 @@
+{
+  "schema_version": 1,
+  "identity": {
+    "generator": "builder-service-candidate",
+    "template": "kdg-context-http-seeds-v1",
+    "recipe": "c1f5db4115a266ceee14171a4ab1b0d543fc607c19717c9cfe8a4ea4785a53bd",
+    "source": "5b18d6d80d162f0490b8e21a2b6097dd6dac98cd080109982e301c8829329411"
+  },
+  "files": {
+    "export_openapi.py": {
+      "classification": "seed",
+      "sha256": "564cdd231f1401ce2ed125e53f047b9e674fa16bbec08fb253ff38e67c51fe69"
+    },
+    "main.py": {
+      "classification": "seed",
+      "sha256": "99e7f7c573cd862c959ef18c6240283e8a67d5aa3376823097b082a448f365ec"
+    },
+    "safe_errors.py": {
+      "classification": "generated",
+      "sha256": "18a1359b2b1f9bb8c79c91644582c9d320bf22ed56d53afac179ff3fce6901df"
+    }
+  }
+}

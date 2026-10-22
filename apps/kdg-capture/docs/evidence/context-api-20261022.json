@@ -1,0 +1,161 @@
+{
+  "baseline_git": "0467248f45580dc640058e693ba9499ebca8d1e2",
+  "behavioral_red": {
+    "command": "timeout 60s env PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 platform/deployment/.local/access-organization-check-20261022/owner-env/bin/python -I -B -m pytest apps/kdg-capture/tests/test_context_api.py -q -p no:cacheprovider",
+    "error_id": "resource_not_found",
+    "expected": 200,
+    "initial_sandbox_attempt": "stalled and interrupted; not a complete RED log",
+    "observed": 404,
+    "summary": "1 failed, 1 warning in 0.56s",
+    "witness": "session tool transcript before implementation"
+  },
+  "concurrent_external_changes_observed_not_written": {
+    "_bmad-output/planning-artifacts/epics.md": {
+      "observed_sha256": "ec769e6c3db7c9deb35964fb1d4807c6d5deec20c2052eda059c8645a2b0d7ce",
+      "starting_sha256": "2fe14b4e57e0ae12b78a7ded81d75b8969ec05d6a31cdf7c6022067b1da1aab7"
+    },
+    "apps/leave/docs/implementation-plan.md": {
+      "observed_sha256": "ca3ea87a6d2ea3ea9be8d326c6bc27f45bd0b8049058fc0dbee4849bca3772b6",
+      "starting_sha256": "f2e4fb0295274419f519cc18987ce90f1fb73cbdb8014c30049ab7b5a3576f7a"
+    },
+    "apps/leave/docs/planning-handoff-e3.md": {
+      "observed_sha256": "d90f61b65227f6b3bdbed6d119367026afa756ee57acde8e10e1fa72e993f92a",
+      "starting_sha256": "e6cae21a16e2cec6870f94304b3c50431ecb37aa391d13a7c8c763aca9f9f893"
+    },
+    "apps/scribeswell/deployment/migrate.py": {
+      "observed_sha256": "c82f5116a35d9596b85654b3808b30b9d291a36ba6164bf6262d805ec62b4aec",
+      "starting_sha256": "6fd98a311a71ec5ad8179ca1c55c5b45b3bfd0209b92d65e385f9529f840f862"
+    },
+    "apps/scribeswell/docs/MIGRATIONS.md": {
+      "observed_sha256": "29781f5af04d3cd7b75c9e3af779d11fa0bec41712a36dde555f4a90cd6f2a58",
+      "starting_sha256": "0e56d54e9f53c71fd0363a9d41d1f8f1e27daeb96ff8086938cb46525653e87c"
+    },
+    "apps/scribeswell/migrations/baseline.py": {
+      "observed_sha256": "7b7aee65d70d517b3f56a1208023e8f8a4e29c2628357974126b113a486a42e3",
+      "starting_sha256": "52ccc00b61331298c6aa1ba0eece3c7bfa742f75740cdbd1037930d74933b841"
+    },
+    "apps/scribeswell/migrations/generate_reference.py": {
+      "observed_sha256": "2af503f06d4b35de7692bf8546156c24b9ae98c34d2ef0e207b354ce494c461a",
+      "starting_sha256": "1d521f83f53006b7c30fa8b8e4f111144feef335e7f6f9c4746546726a097bde"
+    },
+    "apps/scribeswell/tests/test_owned_migrations.py": {
+      "observed_sha256": "2b7313dcb3447b1d7827efe0b1f367cc571a2c94b09937c3ab446a0c6c9d20a5",
+      "starting_sha256": "e40358303829bae8a1b642c006dcd791fb86e6863b5e802c63ac5c7efc44e5e1"
+    }
+  },
+  "current_git_at_custody": "65eaff51e57df6f993608649d758ef8fdbb5f44c",
+  "prior_handoff_tail_sha256": "44b5ac98d4f9c49a42691219a8806ab771d41eb45bdfc3a9395ddca42a31b2f4",
+  "protected_starting_sources_verified": {
+    "package-lock.json": "9a8128448ab80c4319e61fb325e0030eeb71e2e31966b65f3e11f5774a667fe4",
+    "package.json": "f353097548bbc53b737b88ee2c836af561aa805491405e3c0b6cd8c098e9f6da",
+    "platform/api-client/package.json": "1dda2dbf5c959911e5c12968005f5e91278927ded1490ac76431653388624c3b",
+    "platform/api-client/src/cli.mjs": "f3a36934bfb3e9c264b8e2fe4ddf0cafbac88c7aba4ebda0a6ffb52003059377",
+    "platform/api-client/src/compat.mjs": "8a7029ab9293627153844755cace2700cecc73086840ea22103e248ad822601c",
+    "platform/api-client/src/generate.mjs": "623fc8e5b873535f702aae495056baefa107f1d637d608d8a87d73f7f8c6dd0a",
+    "platform/api-client/src/tooling.mjs": "f1e848685392d110d11409abde9e605a0b1e996385a379ff29135126ff1a6a7e",
+    "platform/builder-cli/WRITE_ATOMIC_EVIDENCE.md": "9b5f662fdb065abd0673f27723d707a7ca43396b95bf0f83240289f73dd47b9d",
+    "platform/builder-cli/WRITE_FINGERPRINT_EVIDENCE.md": "d10a70740f9e2adda6a79591afcfaa505b8b3b551982e74a97785bd421d897bd",
+    "platform/builder-cli/WRITE_FIRST_COMMITTED_EVIDENCE.md": "6e1d71a3e13a2512a3352ce1600a9f175cccfff7f96ad9a9dd7a5508424c8241",
+    "platform/builder-cli/WRITE_SECRET_FILES_EVIDENCE.md": "028b0e77a76502a352a12f3162028c3abb64c66cd9237811dde33e5f6d0d9432",
+    "platform/builder-cli/examples/owned-service/README.md": "d2661fbc294ee4625f9d5c885bb4314ea83ae0506823e0d3c45bdb191ea060ee",
+    "platform/builder-cli/examples/owned-service/atomic_write.py": "1c5db177b8ec5ad9e7aff831898c1cd1728567dad667f8efb644cdaf18032d20",
+    "platform/builder-cli/examples/owned-service/command_fingerprint.py": "0f4bd07fe69eb507c32acbddc2505a4830e724d819ea34ea296d710b39cb1713",
+    "platform/builder-cli/examples/owned-service/fingerprint_secret_files.py": "62f3716125e3856b6e092a70903eae89aeef94d644a8d79feb598ba3a0b040d0",
+    "platform/builder-cli/examples/owned-service/first_committed_write.py": "080b23d6e70777fc7e47611e32e81f6340d7cc66a967e059df6f986d939c2ff5",
+    "platform/builder-cli/examples/owned-service/transaction_context.py": "aae4c742ff5b5cb2e4d5720e37006ace498c4f278d30a04261c44e631285720f",
+    "platform/builder-cli/package.json": "1921614e192482707b6785a0948a409f8cfc4fa6e468da16f0dcd1fc30225a92",
+    "platform/builder-cli/src/scaffold-install.ts": "b0c5a41d0fa0738cde40d5b8c0b00be3fdc972d7329cd615fb27cb33c0ab7671",
+    "platform/builder-cli/src/service-renderer.ts": "a6aeea956d420c27e1335887468e103b35b88ed8929aca16c690272a039ce619",
+    "platform/builder-cli/templates/service/AGENTS.md": "d5f6bcd97b5099ffdcb376ea7e3e74bf0eb36a33bc0b82420d2fc47996cbe4cd",
+    "platform/builder-cli/templates/service/README.md": "9d47aa3f918333bfbaaeab7a12ce85567148b2c5becd2feabd99a7d2ce19b349",
+    "platform/builder-cli/templates/service/export_openapi.py": "564cdd231f1401ce2ed125e53f047b9e674fa16bbec08fb253ff38e67c51fe69",
+    "platform/builder-cli/templates/service/main.py": "4580a96b7e5fd1311b876f98d8cdc35bed04d57438c39c35e5b476755c6cb4c3",
+    "platform/builder-cli/templates/service/pyproject.toml": "08116d57762e5e742862b047e9c4a4e2194530cbd2bec948a58e8e818a705b6c",
+    "platform/builder-cli/templates/service/safe_errors.py": "18a1359b2b1f9bb8c79c91644582c9d320bf22ed56d53afac179ff3fce6901df",
+    "platform/builder-cli/templates/service/tests/test_runtime.py": "507a8fe535f6a4dbf8f1485a8327faf26c9039b38308255d7475b2ee480c862f",
+    "platform/docs/architecture/contracts/scaffold-dependency-baseline-2026-10-14.md": "25cb0be00bb902e34016ef76d99e8b0c2a753f4e9e4bc756a8f66a3b431a4a3b",
+    "platform/docs/architecture/decisions/0061-kdg-first-committed-operation-wins.md": "16f33bde28f984274e65f98d8d1eb70843d70e3ba28dfaa2c5f2d4c3be465486",
+    "services/access/ORGANIZATION_CHECK_EVIDENCE.md": "13aa62bf96d7b0010c3367f2dc109019a2f9fb44c75fa756b6e43af8cee3e79a",
+    "services/access/main.py": "9af8e5d1f73e1f157b1802d541cba154e75c78b6a8b27874249c3bdf68d02faa",
+    "services/access/openapi.json": "fb653f8f02862b92c71f4516d680fc0dee41ec7934848fb1d8939b97cd20a067",
+    "services/access/organization_check.py": "d35b96baa3f7b470fc49880a35684886341f2677888ef608c716268818ee53e3",
+    "services/access/pyproject.toml": "d838be6f8572ae04661a8e6e58f57e10a2db71bae3f909d54be5a9750736c022",
+    "services/access/uv.lock": "540558d33bc0b88be8a5a5ee562ce39a2b411c5413aa19c151b560d9d6a1e468"
+  },
+  "results": {
+    "final-affected-tests": {
+      "output": "........................................................................ [ 55%]\n..........................................................               [100%]\n=============================== warnings summary ===============================\nplatform/deployment/.local/access-organization-check-20261022/owner-env/lib/python3.15/site-packages/fastapi/testclient.py:1\n  /home/ck/repos/innodat/agriplatform/platform/deployment/.local/access-organization-check-20261022/owner-env/lib/python3.15/site-packages/fastapi/testclient.py:1: StarletteDeprecationWarning: Using `httpx` with `starlette.testclient` is deprecated; install `httpx2` instead.\n    from starlette.testclient import TestClient as TestClient  # noqa\n\n-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html\n130 passed, 1 warning in 3.05s\n\n",
+      "sha256": "a5a9c45eeb6f29a271a557a83bd8bbee365ef68b744bcf9e57e59e34d67bba71"
+    },
+    "final-client-check": {
+      "output": "api_client_current\n\n",
+      "sha256": "c393419c92608bd3105cda34f8e04b7361aef4d5cab4dc63afc06eb18d18fa2d"
+    },
+    "final-export": {
+      "output": "openapi_current\n\n",
+      "sha256": "44366057e2e63ddbd5a981f4ce8d02d15801068fb442f80dad657dfda8326f60"
+    },
+    "final-kdg-tests": {
+      "output": "......................................................................   [100%]\n=============================== warnings summary ===============================\nplatform/deployment/.local/kdg-context-20261022/owner-env/lib/python3.15/site-packages/fastapi/testclient.py:1\n  /home/ck/repos/innodat/agriplatform/platform/deployment/.local/kdg-context-20261022/owner-env/lib/python3.15/site-packages/fastapi/testclient.py:1: StarletteDeprecationWarning: Using `httpx` with `starlette.testclient` is deprecated; install `httpx2` instead.\n    from starlette.testclient import TestClient as TestClient  # noqa\n\n-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html\n70 passed, 1 warning in 1.51s\n\n",
+      "sha256": "6da8f90ec428b8536658b6cb103ec1468329d6ee71b7de01348a8a42effa8334"
+    },
+    "final-types": {
+      "output": "\n",
+      "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b"
+    },
+    "review-corrections-green": {
+      "output": "......................................................................   [100%]\n=============================== warnings summary ===============================\nplatform/deployment/.local/kdg-context-20261022/owner-env/lib/python3.15/site-packages/fastapi/testclient.py:1\n  /home/ck/repos/innodat/agriplatform/platform/deployment/.local/kdg-context-20261022/owner-env/lib/python3.15/site-packages/fastapi/testclient.py:1: StarletteDeprecationWarning: Using `httpx` with `starlette.testclient` is deprecated; install `httpx2` instead.\n    from starlette.testclient import TestClient as TestClient  # noqa\n\n-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html\n70 passed, 1 warning in 1.23s\n\n",
+      "sha256": "e730c81a851e7ab07aed4c0050b22bfd61f974f904e3f87f3b440c9ef102c317"
+    },
+    "review-corrections-red": {
+      "output": ".......................................................FFFFFFFFF......   [100%]\n=================================== FAILURES ===================================\n________ test_bearer_scheme_is_case_insensitive_and_normalized[bearer] _________\n\nboundary = (<starlette.testclient.TestClient object at 0x79fac63dcd10>, {'status': 200, 'body': {'account_id': '11111111-1111-411...4740993', 'authorization_scope': {'kind': 'organization', 'org_id': '33333333-3333-4333-8333-333333333333'}, ...}}, [])\nscheme = 'bearer'\n\n    @pytest.mark.parametrize('scheme', ['bearer', 'BEARER'])\n    def test_bearer_scheme_is_case_insensitive_and_normalized(boundary, scheme):\n        client, _, calls = boundary\n        response = client.get('/api/v1/context', headers={'Authorization': scheme+' synthetic-user'})\n>       assert response.status_code == 200\nE       assert 401 == 200\nE        +  where 401 = <Response [401 Unauthorized]>.status_code\n\napps/kdg-capture/tests/test_context_api.py:228: AssertionError\n________ test_bearer_scheme_is_case_insensitive_and_normalized[BEARER] _________\n\nboundary = (<starlette.testclient.TestClient object at 0x79fac63dd480>, {'status': 200, 'body': {'account_id': '11111111-1111-411...4740993', 'authorization_scope': {'kind': 'organization', 'org_id': '33333333-3333-4333-8333-333333333333'}, ...}}, [])\nscheme = 'BEARER'\n\n    @pytest.mark.parametrize('scheme', ['bearer', 'BEARER'])\n    def test_bearer_scheme_is_case_insensitive_and_normalized(boundary, scheme):\n        client, _, calls = boundary\n        response = client.get('/api/v1/context', headers={'Authorization': scheme+' synthetic-user'})\n>       assert response.status_code == 200\nE       assert 401 == 200\nE        +  where 401 = <Response [401 Unauthorized]>.status_code\n\napps/kdg-capture/tests/test_context_api.py:228: AssertionError\n_ test_invalid_origin_ports_refuse_at_construction[https://access.synthetic:notaport] _\n\norigin = 'https://access.synthetic:notaport'\n\n    @pytest.mark.parametrize('origin', ['https://access.synthetic:notaport', 'https://access.synthetic:99999',\n                                        'https://access.synthetic:'])\n    def test_invalid_origin_ports_refuse_at_construction(origin):\n>       with pytest.raises(RuntimeError, match='^kdg_context_configuration_invalid$'):\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nE       Failed: DID NOT RAISE RuntimeError\n\napps/kdg-capture/tests/test_context_api.py:235: Failed\n_ test_invalid_origin_ports_refuse_at_construction[https://access.synthetic:99999] _\n\norigin = 'https://access.synthetic:99999'\n\n    @pytest.mark.parametrize('origin', ['https://access.synthetic:notaport', 'https://access.synthetic:99999',\n                                        'https://access.synthetic:'])\n    def test_invalid_origin_ports_refuse_at_construction(origin):\n>       with pytest.raises(RuntimeError, match='^kdg_context_configuration_invalid$'):\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nE       Failed: DID NOT RAISE RuntimeError\n\napps/kdg-capture/tests/test_context_api.py:235: Failed\n_ test_invalid_origin_ports_refuse_at_construction[https://access.synthetic:] __\n\norigin = 'https://access.synthetic:'\n\n    @pytest.mark.parametrize('origin', ['https://access.synthetic:notaport', 'https://access.synthetic:99999',\n                                        'https://access.synthetic:'])\n    def test_invalid_origin_ports_refuse_at_construction(origin):\n>       with pytest.raises(RuntimeError, match='^kdg_context_configuration_invalid$'):\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nE       Failed: DID NOT RAISE RuntimeError\n\napps/kdg-capture/tests/test_context_api.py:235: Failed\n__________ test_encoded_access_response_refuses_before_reading_bytes ___________\n\n    def test_encoded_access_response_refuses_before_reading_bytes():\n        read = []\n        class Encoded(httpx.AsyncByteStream):\n            async def __aiter__(self):\n                read.append(True)\n                yield b'not-even-valid-gzip'\n        app = main.create_app(org_id=ORG, access_url='https://access.synthetic',\n                              service_key='synthetic-service-key', transport=httpx.MockTransport(\n                                  lambda request: httpx.Response(200, headers={'Content-Encoding': 'gzip'}, stream=Encoded())))\n        with TestClient(app) as client:\n            response = client.get('/api/v1/context', headers=HEADERS)\n        assert response.status_code == 503\n>       assert not read\nE       assert not [True]\n\napps/kdg-capture/tests/test_context_api.py:251: AssertionError\n_____ test_non_rfc3339_current_timestamp_is_not_authority[%Y%m%dT%H%M%SZ] ______\n\nboundary = (<starlette.testclient.TestClient object at 0x79fac62e8160>, {'status': 200, 'body': {'account_id': '11111111-1111-411...n', 'org_id': '33333333-3333-4333-8333-333333333333'}, ...}}, [<Request('POST', 'https://access.synthetic/v2/check')>])\nformatted = '%Y%m%dT%H%M%SZ'\n\n    @pytest.mark.parametrize('formatted', ['%Y%m%dT%H%M%SZ', '%Y-%m-%dT%HZ'])\n    def test_non_rfc3339_current_timestamp_is_not_authority(boundary, formatted):\n        client, state, _ = boundary\n        # Minute/hour boundaries keep this near current even in implementations truncating.\n        fixed = datetime.now(timezone.utc).replace(minute=0, second=0, microsecond=0)\n        class Clock(datetime):\n            @classmethod\n            def now(cls, tz=None):\n                return fixed\n        from unittest.mock import patch\n        state['body']['checked_at'] = fixed.strftime(formatted)\n        with patch.object(main, 'datetime', Clock):\n            response = client.get('/api/v1/context', headers=HEADERS)\n>       assert response.status_code == 503\nE       assert 200 == 503\nE        +  where 200 = <Response [200 OK]>.status_code\n\napps/kdg-capture/tests/test_context_api.py:267: AssertionError\n______ test_non_rfc3339_current_timestamp_is_not_authority[%Y-%m-%dT%HZ] _______\n\nboundary = (<starlette.testclient.TestClient object at 0x79fac62ea9c0>, {'status': 200, 'body': {'account_id': '11111111-1111-411...n', 'org_id': '33333333-3333-4333-8333-333333333333'}, ...}}, [<Request('POST', 'https://access.synthetic/v2/check')>])\nformatted = '%Y-%m-%dT%HZ'\n\n    @pytest.mark.parametrize('formatted', ['%Y%m%dT%H%M%SZ', '%Y-%m-%dT%HZ'])\n    def test_non_rfc3339_current_timestamp_is_not_authority(boundary, formatted):\n        client, state, _ = boundary\n        # Minute/hour boundaries keep this near current even in implementations truncating.\n        fixed = datetime.now(timezone.utc).replace(minute=0, second=0, microsecond=0)\n        class Clock(datetime):\n            @classmethod\n            def now(cls, tz=None):\n                return fixed\n        from unittest.mock import patch\n        state['body']['checked_at'] = fixed.strftime(formatted)\n        with patch.object(main, 'datetime', Clock):\n            response = client.get('/api/v1/context', headers=HEADERS)\n>       assert response.status_code == 503\nE       assert 200 == 503\nE        +  where 200 = <Response [200 OK]>.status_code\n\napps/kdg-capture/tests/test_context_api.py:267: AssertionError\n_____________ test_schema_publishes_nonnil_and_bigint_constraints ______________\n\n    def test_schema_publishes_nonnil_and_bigint_constraints():\n        import re\n        schema = main.create_app().openapi()['components']['schemas']['Context']['properties']\n>       assert schema['account_id']['not'] == {'const': '00000000-0000-0000-0000-000000000000'}\n               ^^^^^^^^^^^^^^^^^^^^^^^^^^^\nE       KeyError: 'not'\n\napps/kdg-capture/tests/test_context_api.py:273: KeyError\n=============================== warnings summary ===============================\nplatform/deployment/.local/kdg-context-20261022/owner-env/lib/python3.15/site-packages/fastapi/testclient.py:1\n  /home/ck/repos/innodat/agriplatform/platform/deployment/.local/kdg-context-20261022/owner-env/lib/python3.15/site-packages/fastapi/testclient.py:1: StarletteDeprecationWarning: Using `httpx` with `starlette.testclient` is deprecated; install `httpx2` instead.\n    from starlette.testclient import TestClient as TestClient  # noqa\n\n-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html\n=========================== short test summary info ============================\nFAILED apps/kdg-capture/tests/test_context_api.py::test_bearer_scheme_is_case_insensitive_and_normalized[bearer]\nFAILED apps/kdg-capture/tests/test_context_api.py::test_bearer_scheme_is_case_insensitive_and_normalized[BEARER]\nFAILED apps/kdg-capture/tests/test_context_api.py::test_invalid_origin_ports_refuse_at_construction[https://access.synthetic:notaport]\nFAILED apps/kdg-capture/tests/test_context_api.py::test_invalid_origin_ports_refuse_at_construction[https://access.synthetic:99999]\nFAILED apps/kdg-capture/tests/test_context_api.py::test_invalid_origin_ports_refuse_at_construction[https://access.synthetic:]\nFAILED apps/kdg-capture/tests/test_context_api.py::test_encoded_access_response_refuses_before_reading_bytes\nFAILED apps/kdg-capture/tests/test_context_api.py::test_non_rfc3339_current_timestamp_is_not_authority[%Y%m%dT%H%M%SZ]\nFAILED apps/kdg-capture/tests/test_context_api.py::test_non_rfc3339_current_timestamp_is_not_authority[%Y-%m-%dT%HZ]\nFAILED apps/kdg-capture/tests/test_context_api.py::test_schema_publishes_nonnil_and_bigint_constraints\n9 failed, 61 passed, 1 warning in 1.27s\n\n",
+      "sha256": "c73a1addd6325ac852a6d77e489a445bfe3163c266419c96121bb8d9882e69ba"
+    }
+  },
+  "schema_version": 1,
+  "scope": "Synthetic read-only KDG context API prerequisite; not whole Story1.1/persistence/provider readiness",
+  "seed_manifest": {
+    "files": {
+      "export_openapi.py": {
+        "classification": "seed",
+        "sha256": "564cdd231f1401ce2ed125e53f047b9e674fa16bbec08fb253ff38e67c51fe69"
+      },
+      "main.py": {
+        "classification": "seed",
+        "sha256": "99e7f7c573cd862c959ef18c6240283e8a67d5aa3376823097b082a448f365ec"
+      },
+      "safe_errors.py": {
+        "classification": "generated",
+        "sha256": "18a1359b2b1f9bb8c79c91644582c9d320bf22ed56d53afac179ff3fce6901df"
+      }
+    },
+    "identity": {
+      "generator": "builder-service-candidate",
+      "recipe": "c1f5db4115a266ceee14171a4ab1b0d543fc607c19717c9cfe8a4ea4785a53bd",
+      "source": "5b18d6d80d162f0490b8e21a2b6097dd6dac98cd080109982e301c8829329411",
+      "template": "kdg-context-http-seeds-v1"
+    },
+    "schema_version": 1
+  },
+  "tested_sources_sha256": {
+    "apps/kdg-capture/api/.generated-files.json": "8ec43b88283244c01634fd26c0c42d6ed45134b91a337e87c5c928ecbfd045bf",
+    "apps/kdg-capture/api/README.md": "29ded746c77ce3a843e14628f9028608e1a1ac767ad17fa5612d5fd1db35abb8",
+    "apps/kdg-capture/api/context.py": "1c58d6432fa321252d5e4fd88d1e1b589bb989cf4243a2fb4a7104a7c9151a06",
+    "apps/kdg-capture/api/export_openapi.py": "564cdd231f1401ce2ed125e53f047b9e674fa16bbec08fb253ff38e67c51fe69",
+    "apps/kdg-capture/api/main.py": "a44bc61f1d8d8e93a28cf6e38da45da70feb4f8fe1b1da7791e99f0a1c697fe3",
+    "apps/kdg-capture/api/openapi.json": "d8bfa44f2637cb09328e19ddb4b36a63b2668df4e223cab8ce698c59c0a6b9c1",
+    "apps/kdg-capture/api/pyproject.toml": "75b87a5a99d7e6d39b3c74ba16a4016e51027f2352665bcb1276c1aa5de31241",
+    "apps/kdg-capture/api/safe_errors.py": "18a1359b2b1f9bb8c79c91644582c9d320bf22ed56d53afac179ff3fce6901df",
+    "apps/kdg-capture/api/uv.lock": "9b3164930e96657ff76be97ff992b8a5dd64b713b0dd09c3d9b08e56ab88ec2b",
+    "apps/kdg-capture/contracts/generated/.generated-files.json": "6083a578ffdfcadc8756a4dccbca5f1df706aab955776b23ca6e90d55795e5b7",
+    "apps/kdg-capture/contracts/generated/index.ts": "ce2d94c771b5e28f39defa7d411c47184b8e4b2c773d8477ffbcfcefac4f5411",
+    "apps/kdg-capture/contracts/generated/types.gen.ts": "0421fb817175c54083471772a42bcae6464fcbed29dae3cbfe4f22681c39675f",
+    "apps/kdg-capture/tests/context-contract.ts": "2b30ad568e4d0511c9ef89d17d7198d842aca8f6a97e2442d0bf65ea2477f81c",
+    "apps/kdg-capture/tests/test_context_api.py": "ee50174d9ed44869f3910b358ee01defdfb734250f858f92dd5d948cf90174b4",
+    "apps/kdg-capture/tests/tsconfig.json": "754b67f6952c73c8b00010b28f368f3fcdb13aecb27b0e249c5944268c59e213"
+  },
+  "typescript": {
+    "package_sha256": "3722b30210616a13a3213ded11575ba6b2dbab10c32a5ef67afca8513e27017e",
+    "version": "7.0.2"
+  }
+}
