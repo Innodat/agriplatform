@@ -1,3 +1,17 @@
+## Current delivery — WRITE fingerprint secret-file candidate, 2026-10-22
+
+The existing builder now has a read-only KDG fingerprint secret-file candidate using
+strict protected files, namespace binding and recorded-key loading. Focused65 plus
+fingerprint63 and builder62 checks pass. Three review lenses completed; corrections,
+read-only retained inspection and final source/leak custody pass, no new deferral.
+See [owner evidence](../../../platform/builder-cli/WRITE_SECRET_FILES_EVIDENCE.md).
+Local proof uses actual kernel UID/GID10001 mapped from host1002, without Docker or
+account/ownership changes. This does not prove deployed host ownership/read-only mounts,
+independently encrypted archive or matching data restore; those and consuming KDG APIs
+remain gated. Preserve concurrent work, historical proof, Docker resources and the
+approved dependency baseline including TypeScript7.0.2. No Leave/editor, production,
+real-account/access, provisioning/deployment/pilot or cleanup.
+
 ## Current delivery — bounded WRITE atomic outcome candidate, 2026-10-22
 
 The existing builder now has copyable transaction/context/lock/outcome primitives,

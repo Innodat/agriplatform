@@ -142,3 +142,66 @@ import/replay proof only; shared UI and agent context remain unchanged; document
 adds this guide, evidence and the current KDG handoff; accepted ADRs remain unchanged.
 Full WRITE, secret-file lifecycle, release/data recovery and first KDG business API
 qualification remain separate work.
+
+## KDG fingerprint secret-file candidate
+
+`fingerprint_secret_files.py` is a read-only, KDG-specific prerequisite copied beside
+`command_fingerprint.py`. It imports that sibling, with the owner's already approved
+Python3.15 and `rfc8785==0.1.4` dependency; it adds no package or dependency baseline.
+Construct `SecretFileConfig(active_key_id, secret_dir, environment_id, owner_id)`
+from explicit public-safe `KDG_FINGERPRINT_ACTIVE_KEY_ID`,
+`KDG_FINGERPRINT_SECRET_DIR`, `DEPLOY_ENV` and `KDG_OWNER_ID=kdg_capture` inputs.
+No implicit environment lookup or environment adoption occurs. The path is absolute
+and component-validated; environment IDs are 1–128 ASCII letters/digits/underscore/
+hyphen/period, compared exactly. Existing key IDs retain the 1–64 ASCII grammar.
+
+Call `load_active(config)` before accepting new writes; pass the returned `key_id`
+and `key` to the existing `create_fingerprint`. For an original retained outcome,
+call `load_verification(config, stored.key_id)` and pass only that returned ID/key
+in the existing helper's `keys` dict. Rotation changes explicit active configuration;
+old retries always request their original key. Missing or invalid active material
+refuses write readiness. Missing or invalid referenced material raises the same safe
+`FingerprintError('operation_verification_unavailable')`, preserving the outcome and
+blocking re-execution. An unavailable active key does not prevent loading a different
+explicit recorded verification key. There is no generated key, fallback or digest rewrite.
+
+Runtime effective UID and GID must both actually be10001. The leaf directory must be
+UID/GID10001 mode0700 and its requested regular `<key_id>.json` file UID/GID10001
+mode0400. The loader opens each directory component without following symlinks,
+uses nonblocking/no-follow file opens, validates descriptors and checks file identity/
+metadata again after its bounded read. Maximum file input is4096 bytes. It reads no
+unrequested key and never repairs permissions. Exact JSON fields are
+`schema_version` (integer1), `owner_id`, `environment_id`, `key_id` and `key_b64`.
+Duplicate/unknown fields, malformed UTF-8/JSON, wrong namespace or filename binding,
+noncanonical Base64 and decoded lengths other than32 bytes refuse safely.
+Material/configuration representations are redacted; exceptions contain only the safe
+identifier without an underlying exception chain. Consumers must never log object
+fields, traceback locals, file content, key/digest or canonical command bytes.
+
+Run the focused proof from repository root with a fresh retained ignored ENV root:
+
+```sh
+SECRET_TEST_RUN_ROOT="$PWD/platform/deployment/.local/write-secret-files-20261022/your-unique-run" \
+FINGERPRINT_TEST_NODE="$PWD/platform/deployment/.local/kdg-toolchains/ad277eef-a10e-4aac-bb82-5743653fb2e0/payload/node/bin/node" \
+  unshare --user --map-user=10001 --map-group=10001 \
+  platform/deployment/.local/access-organization-check-20261022/owner-env/bin/python \
+  -I -B -m pytest platform/builder-cli/tests/test_fingerprint_secret_files.py \
+  -q -p no:cacheprovider
+```
+
+The proof requires these explicit tool/root inputs and actual mapped kernel ownership;
+it has no silent skips. It retains synthetic random secret files and explicit UID/GID
+maps, executes restart/rotation/old-active configuration overlap retry in separate processes, checks safe
+refusals, and copies both siblings through the real installer. Provenance and owner
+edits/additions survive replay after removal of the import source. Private retained-
+outcome files serve only as synthetic persistence surrogates, never diagnostics.
+See [WRITE_SECRET_FILES_EVIDENCE.md](../../WRITE_SECRET_FILES_EVIDENCE.md) for exact
+commands, results, traceability and limits.
+
+This proves local mapped identity, not deployed host ownership or read-only mount
+protection. Independent encrypted secret archives, matching data restore and release
+activation readiness remain explicit later owner inputs. No provisioning, backup
+service, KDG business API or public scaffold pattern is introduced. Scaffold impact:
+copy/import candidate only; shared UI unchanged; existing agent context sufficient;
+documentation adds this guide/evidence/handoff; accepted ADRs unchanged. First-consumer
+and production ownership/mount/archive/recovery gates remain open.
