@@ -1,3 +1,27 @@
+## Current delivery — first committed WRITE outcome candidate, 2026-10-22
+
+The existing builder now has an additive first-committed outcome candidate and explicit
+neutral create/edit consumer proof under ADR-0061. Changed-body/target duplicates return
+the original currently authorized receipt without fingerprint fields, HMAC or keys.
+Existing bounded transaction/context/lock tooling and actual installer copying are reused;
+historical candidate code/tests/evidence remain unchanged. See [owner evidence](../../../platform/builder-cli/WRITE_FIRST_COMMITTED_EVIDENCE.md)
+for acceptance, review, source custody and exact limitations.
+Final reviewed candidate49, historical100 and builder62 tests pass; independent retained
+inspection and preservation checks pass. Native stack stopped normally with data retained.
+
+Next: select the first consuming KDG business persistence/API slice from current owner
+contracts, with actual DTO/current Access/domain authority and consuming acceptance.
+Do not infer KDG activation, complete WRITE, browser queue/device or backup/release readiness
+from this neutral proof. Frozen submitted snapshots, receipt-target reconciliation,
+pending predecessors and original-operation uncertainty remain consumer obligations.
+Fingerprints/HMAC/key-recovery work stays deferred until a concrete need. Preserve
+concurrent work, historical proof, Docker resources and TypeScript7.0.2. No Leave/editor,
+production, real-account/access, provisioning/deployment/pilot or cleanup.
+
+The complete prior handoff follows; its next-neutral-proof instruction is now historical.
+
+---
+
 ## Current decision and next work — KDG first committed request wins, 2026-10-22
 
 Accepted [ADR-0061](../../../platform/docs/architecture/decisions/0061-kdg-first-committed-operation-wins.md) supersedes the earlier KDG capture.create/edit

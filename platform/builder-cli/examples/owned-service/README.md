@@ -1,3 +1,20 @@
+## First committed WRITE candidate — 2026-10-22
+
+`first_committed_write.py` and the explicit neutral `tests/first_committed_sample.py`
+prove ADR-0061's first-committed capture-style outcome model with no command fingerprint
+fields, HMAC calls or keys. The sample uses record.create/edit, preserving domain ownership;
+this is not KDG API or offline-client implementation. It reuses `atomic_write.py` budget,
+context/transaction/lock primitives; copy its existing `command_fingerprint.py` import
+dependency too, without invoking fingerprint functions. Existing installer proof executes
+the copied siblings and preserves owner edits/provenance. See [evidence](../../WRITE_FIRST_COMMITTED_EVIDENCE.md).
+
+Historical candidates and their source/test/proof bytes remain unchanged. Their earlier
+claims about not proving ADR-0061 describe those historical candidates only. Consuming
+Access/domain/DTO, queue/device, ordinary backup and release proof remain separate.
+The complete previous README follows unchanged.
+
+---
+
 ## Current KDG status — 2026-10-22
 
 [ADR-0061](../../../docs/architecture/decisions/0061-kdg-first-committed-operation-wins.md) selects first committed
