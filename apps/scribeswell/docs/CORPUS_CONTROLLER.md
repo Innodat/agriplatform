@@ -88,15 +88,20 @@ invalid `22023`, conflict `P0001` and unavailable `55000`. Never branch on local
 On a lost/uncertain COMMIT response, retain the same operation and original input and
 perform current-authorized lookup. Missing receipt stays unresolved; do not infer
 rollback, create a fresh blind operation or reopen prior state. SQL wait bounds do not
-bound client transport or COMMIT. A supervised operator invocation remains a separate
-activation prerequisite; no general command runner is exposed by this adapter.
+bound client transport or COMMIT. The app-local
+[supervised invocation API](CORPUS_OPERATOR.md) now bounds source qualification,
+connection, transport and COMMIT in an isolated child and qualifies
+explicit same-operation reconciliation. This connection adapter still exposes no
+general command runner.
 
 [Migration verification](MIGRATIONS.md) preserves independently pinned `0001`/`0002`
 references and adds a separately generated `0003` reference. Replay remains deliberately
 dormant-only. Enabling fixture authority makes that profile inapplicable until fixture
 cleanup; this is not active-state release qualification. Real actor/caller preparation,
-least-privilege operational release profile, target adoption, writer/importer transition
-and outer supervisor are still gates. Closed writes are not a sealed full audit,
+least-privilege operational release profile, target adoption and writer/importer
+transition remain gates. The [outer supervisor](CORPUS_OPERATOR.md) is fixture-qualified;
+its existence does not prepare a live caller or qualify an active release. Closed
+writes are not a sealed full audit,
 ready manifest, reader proof or private Studies implementation. Access remains with
 its separate owner session. No production action or image build is implied.
 
