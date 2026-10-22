@@ -95,9 +95,12 @@ explicit same-operation reconciliation. This connection adapter still exposes no
 general command runner.
 
 [Migration verification](MIGRATIONS.md) preserves independently pinned `0001`/`0002`
-references and adds a separately generated `0003` reference. Replay remains deliberately
-dormant-only. Enabling fixture authority makes that profile inapplicable until fixture
-cleanup; this is not active-state release qualification. Real actor/caller preparation,
+references and adds a separately generated `0003` reference. Default and host replay remain deliberately dormant-only. The explicit native
+[prepared-controller profile](PREPARED_CONTROLLER_PROFILE.md) additionally checks a
+prepared operator while enforcement stays false and history empty, matching local
+custody without claiming Identity verification. It changes no grants or state.
+Enabling enforcement or recording history remains outside either replay profile;
+this is not active-state release qualification. Real actor/caller preparation,
 least-privilege operational release profile, target adoption and writer/importer
 transition remain gates. The [outer supervisor](CORPUS_OPERATOR.md) is fixture-qualified;
 its existence does not prepare a live caller or qualify an active release. Closed

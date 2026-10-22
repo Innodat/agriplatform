@@ -2,12 +2,25 @@
 import os
 from alembic import context
 from sqlalchemy import create_engine, pool
-from baseline import BaselineError, preflight, ledger
+from baseline import BaselineError, preflight, preflight_prepared, ledger
 config = context.config
+config.attributes.pop('scribeswell_validated_profile',None)
 if context.is_offline_mode():
     raise BaselineError('scribeswell_offline_prohibited')
 engine = None
 try:
+    profile = config.attributes.get('scribeswell_validation_profile','dormant')
+    if profile not in ('dormant','prepared-controller-v1'):
+        raise BaselineError('scribeswell_validation_profile_invalid')
+    supplied = 'scribeswell_prepared_actor' in config.attributes
+    if (profile == 'dormant' and supplied) or (profile == 'prepared-controller-v1' and not supplied):
+        raise BaselineError('scribeswell_validation_profile_invalid')
+    if profile == 'prepared-controller-v1':
+        from prepared_controller import custody
+        expected_actor = custody(config.attributes['scribeswell_prepared_actor'])
+        validate = lambda connection: preflight_prepared(connection,expected_actor)
+    else:
+        validate = preflight
     command = getattr(getattr(config, 'cmd_opts', None), 'cmd', None)
     if command and command[0].__name__ != 'upgrade':
         raise BaselineError('scribeswell_upgrade_only')
@@ -34,12 +47,13 @@ try:
             raise BaselineError('scribeswell_upgrade_only')
         if context.get_context().opts.get('destination_rev') != 'head':
             raise BaselineError('scribeswell_upgrade_head_only')
-        state = preflight(connection)
+        state = validate(connection)
         config.attributes['scribeswell_before'] = state
         context.run_migrations()
         connection.exec_driver_sql('REVOKE ALL ON scribeswell.alembic_version FROM PUBLIC, anon, authenticated, service_role, scribeswell_runtime, scribeswell_import')
-        preflight(connection)
+        validate(connection)
         config.attributes['scribeswell_after'] = ledger(connection)
+    config.attributes['scribeswell_validated_profile'] = profile
 except BaselineError:
     raise
 except Exception:

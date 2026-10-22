@@ -81,6 +81,18 @@ tables and shipped owner-only ACLs. Fixture-only controller activity is not an
 approved active release profile; operational-state qualification and coordinated
 caller/importer transitions remain separate gates.
 
+## Controlled prepared replay
+
+The separate [prepared-controller profile](PREPARED_CONTROLLER_PROFILE.md) qualifies
+an already prepared, false-enforcement, empty-history `0003` only through explicit
+native Alembic Config attributes or the direct owner checker. It permits exactly the
+operator schema USAGE and two entry EXECUTE grants against the original reference,
+and matches independently supplied custody against protected local records. It does
+not verify Identity, provision callers, adopt earlier revisions or enable enforcement.
+The host adapter and ordinary CLI remain dormant-only and reject prepared targets;
+there is no ambient environment selector. Native profile evidence is published only
+after both checks and commit. Active/history release support remains a later gate.
+
 ## Failure and recovery
 
 Any failed or uncertain migration blocks activation. Preserve the host report,
@@ -112,6 +124,7 @@ a uniquely named database, and removes only its own database and roles. Run
 database suites sequentially against that cluster.
 
 ```sh
+python -m pytest apps/scribeswell/tests/test_prepared_controller_profile.py -q
 python -m pytest apps/scribeswell/tests/test_owned_migrations.py -q
 python -m pytest apps/scribeswell/tests -q
 ```

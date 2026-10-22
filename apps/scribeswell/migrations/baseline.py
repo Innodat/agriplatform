@@ -47,7 +47,7 @@ def ledger(connection):
         raise BaselineError('scribeswell_ledger_invalid')
     return rows[0][0]
 
-def preflight(connection):
+def _checked_authority_ledger(connection):
     verify_pins()
     version = int(connection.exec_driver_sql('SHOW server_version_num').scalar())
     if not 170000 <= version < 180000:
@@ -88,6 +88,10 @@ def preflight(connection):
         raise BaselineError('scribeswell_cross_owner_authority')
     connection.exec_driver_sql("SELECT pg_advisory_xact_lock(hashtext('scribeswell-owned-migrations'))")
     state = ledger(connection)
+    return state
+
+def preflight(connection):
+    state = _checked_authority_ledger(connection)
     head = state in (FENCE_REVISION, REVISION)
     expected = json.loads((APP / 'migrations' / PROFILES[state or LEGACY_REVISION]).read_text())
     if snapshot(connection, head=head) != expected:
@@ -102,3 +106,9 @@ def preflight(connection):
             if connection.exec_driver_sql('SELECT 1 FROM scribeswell.' + table).first():
                 raise BaselineError('scribeswell_dormant_controller_required')
     return state
+
+
+def preflight_prepared(connection, expected_actor):
+    """Validate explicit prepared custody without preparing or activating anything."""
+    from prepared_controller import preflight_prepared as validate
+    return validate(connection, expected_actor)
