@@ -83,3 +83,13 @@ test('failed refresh leaves Bible reading public and clears expired PtS content'
  await page.goto('/?view=sources&org='+org);await page.evaluate(s=>localStorage.setItem('pts-auth',JSON.stringify(s)),{...session,expires_at:1});await page.reload();
  const bible=await context.newPage();await bible.goto('/scribeswell/');await expect(bible.getByRole('list',{name:'Verses'})).toBeVisible();await expect(bible.getByRole('button',{name:'Sign in',exact:true})).toBeVisible();await expect(page.getByRole('heading',{name:'Protected source'})).toHaveCount(0);await expect(page.getByRole('heading',{name:'Sign in to read'})).toBeVisible();
 });
+
+test('nested standalone registration returns to public passage and synchronizes its session',async({context,page})=>{
+ await setup(context);let redirect;
+ await context.route('**/auth/v1/signup*',r=>{redirect=new URL(r.request().url()).searchParams.get('redirect_to');return r.fulfill({json:session});});
+ await page.goto('/?view=sources&org='+org);
+ const bible=await context.newPage();await bible.goto('/scribeswell/?book=Gen&chapter=1&verse=1&compareBook=Gen&compareChapter=1&compareVerse=1&return=https://evil.invalid#access_token=ignored');
+ await bible.getByRole('banner').getByRole('button',{name:'Create account',exact:true}).click();await bible.getByLabel('Email',{exact:true}).fill(user.email);await bible.getByLabel('Password',{exact:true}).fill('fixture-password');await bible.getByRole('dialog').getByRole('button',{name:'Create account',exact:true}).click();
+ await expect(bible.getByRole('button',{name:'Sign out',exact:true})).toBeVisible();await expect(page.getByRole('heading',{name:'Protected source'})).toBeVisible();
+ expect(redirect).toBe('http://localhost:5183/scribeswell/?book=Gen&chapter=1&verse=1&compareBook=Gen&compareChapter=1&compareVerse=1');await expect(bible.getByRole('list',{name:'Verses'}).first()).toBeVisible();
+});

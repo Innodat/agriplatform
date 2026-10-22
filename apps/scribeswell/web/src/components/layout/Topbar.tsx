@@ -4,14 +4,17 @@
 import { BookOpen, LogIn, LogOut, User } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useAuth } from "@/context/AuthContext";
-import { SignInDialog } from "@/components/auth/SignInDialog";
+import { SignInDialog, type AccountMode } from "@/components/auth/SignInDialog";
 import { AppLauncher } from "@/components/layout/AppLauncher";
 import { useMyApps } from "@/hooks/useMyApps";
 
 export function Topbar() {
-  const { user, signOut, loading } = useAuth();
+  const { user, signOut, loading, callbackFailed } = useAuth();
   const [signOutError,setSignOutError]=useState('');
   const [showSignIn, setShowSignIn] = useState(false);
+  const [entryMode,setEntryMode]=useState<AccountMode>('signin');
+  const [callbackNotice,setCallbackNotice]=useState(callbackFailed);
+  useEffect(() => {if(callbackFailed)setCallbackNotice(true);}, [callbackFailed]);
   const { apps, loading: appsLoading } = useMyApps();
   useEffect(()=>{if(user){setShowSignIn(false);setSignOutError('');}},[user?.id]);
 
@@ -49,21 +52,25 @@ export function Topbar() {
                 </button>
               </>
             ) : (
+              <>
+              <button onClick={() => {setEntryMode('signup');setShowSignIn(true);}} className="text-sm text-stone-600 hover:text-stone-900 rounded-md px-2 py-1.5">Create account</button>
               <button
-                onClick={() => setShowSignIn(true)}
+                onClick={() => {setEntryMode('signin');setShowSignIn(true);}}
                 className="flex items-center gap-1 text-sm text-stone-600 hover:text-stone-900 px-3 py-1.5 rounded-md hover:bg-stone-100 transition-colors"
                 aria-label="Sign in"
               >
                 <LogIn className="w-4 h-4" aria-hidden="true" />
                 Sign in
               </button>
+              </>
             )}
           </div>
         )}
       </div>
 
+      {callbackNotice && <div role="alert" className="px-4 py-2 text-sm text-stone-700">This confirmation link is invalid or has expired. You can continue reading. {!user && <button className="underline mx-2" onClick={() => {setEntryMode('signin');setShowSignIn(true);}}>Sign in</button>}<button className="underline" onClick={() => setCallbackNotice(false)}>Dismiss</button></div>}
       {signOutError&&<p role="alert" className="px-4 py-2 text-red-700">{signOutError}</p>}
-      {showSignIn && !user && <SignInDialog onClose={() => setShowSignIn(false)} />}
+      {showSignIn && !user && <SignInDialog initialMode={entryMode} onClose={() => setShowSignIn(false)} />}
     </header>
   );
 }
