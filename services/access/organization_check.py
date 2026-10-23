@@ -10,6 +10,7 @@ from starlette.concurrency import run_in_threadpool
 from fastapi import APIRouter, Header, HTTPException, Request, Security
 from fastapi.security import APIKeyHeader, HTTPBearer
 from pydantic import BaseModel, ConfigDict, Field, ValidationError
+from studies_contract import AccountCheck, AccountDecision, StudiesError, inline_schema
 from sqlalchemy import text
 from sqlalchemy.exc import SQLAlchemyError
 
@@ -61,7 +62,7 @@ def _closed_object(pairs):
     return result
 
 
-def router(db, authenticate, environment):
+def router(db, authenticate, environment, studies=None):
     routes = APIRouter()
     key, org = environment.get('KDG_SERVICE_KEY', ''), environment.get('KDG_ORG_ID', '')
     configured_org = None
@@ -75,11 +76,13 @@ def router(db, authenticate, environment):
         if key in (environment.get('PTS_SERVICE_KEY'), environment.get('CONTENT_SERVICE_KEY')):
             raise RuntimeError('kdg_check_configuration_invalid')
 
-    @routes.post('/v2/check', response_model=OrganizationDecision,
+    @routes.post('/v2/check', response_model=OrganizationDecision | AccountDecision,
         dependencies=[Security(HTTPBearer(scheme_name='KdgBearer', auto_error=False)),
                       Security(APIKeyHeader(name='X-Service-Key', scheme_name='KdgServiceKey', auto_error=False))],
-        responses={status: {'model': CheckError} for status in (401, 403, 409, 422, 503)})
+        responses={status: {'model': CheckError | StudiesError} for status in (401, 403, 409, 422, 503)})
     async def check(request: Request, authorization: str = Header(default=''), x_service_key: str = Header(default='')):
+        if studies is not None and studies.matches(x_service_key):
+            return await studies.handle(request, authorization, x_service_key)
         if not key or not x_service_key or not secrets.compare_digest(key.encode('utf-8'), x_service_key.encode('utf-8')):
             raise HTTPException(403, {'code': 'service_access_denied'})
         try:
@@ -143,5 +146,8 @@ def router(db, authenticate, environment):
         if isinstance(value, list):
             return [inline(item) for item in value]
         return value
-    routes.routes[0].openapi_extra = {'requestBody': {'required': True, 'content': {'application/json': {'schema': inline(schema)}}}}
+    request_schema=inline(schema)
+    if studies is not None:
+        request_schema={'oneOf':[request_schema,inline_schema(AccountCheck)]}
+    routes.routes[0].openapi_extra = {'requestBody': {'required': True, 'content': {'application/json': {'schema': request_schema}}}}
     return routes

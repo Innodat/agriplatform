@@ -1,6 +1,6 @@
 # Personal study notes: first wire contract
 
-This app-owned contract supports the first create/write/reopen milestone. **Implemented now:** strict request/response DTOs, bounded command decoding, generated OpenAPI and pure contract tests. **Not implemented:** HTTP routes, current authorization, storage, migrations, browser editor/autosave or account enrollment. The generated paths are unmounted. This document specifies obligations for those future consumers; passing wire tests does not prove them.
+This app-owned contract supports the first create/write/reopen milestone. **Implemented now:** strict request/response DTOs, bounded command decoding, generated OpenAPI and pure contract tests. **Not implemented:** HTTP routes, current authorization, storage, migrations, browser editor/autosave or a Scribeswell browser enrollment adapter. The separate Access owner now implements the internal personal enrollment/check handoff below. The generated paths are unmounted. This document specifies obligations for those future consumers; passing wire tests does not prove them.
 
 The canonical Studies SPEC, UX and accepted platform ADRs retain authority. This milestone is ordinary owner-only studies and notes. Sharing, private responses, study metadata editing, introduction/source metadata, passage lists, deliberate passage links, highlights, conflict copies, deletion and search retain their agreed requirements for later consuming slices. No product requirement is removed. This is partial D2 contract readiness, not D1–D5 closure.
 
@@ -89,11 +89,11 @@ Autosave debounce is 500 ms, with a 2-second maximum while typing when no prior 
 | Dependency | Repository evidence / required closure |
 | --- | --- |
 | Current verified account and durable actor | Owner-qualified identity/session HTTP evidence, expiry/failure/error semantics and execution bounds; no JWT role/email/locally invented actor shortcut. |
-| Account-scoped Studies admission | Implement and test the proposed `scribeswell.studies.use` check with typed account authorization scope and restricted Scribeswell caller. Current `services/access/organization_check.py` accepts **organization-scoped KDG checks only**. Returned `own_account` resource scope is not account authority. |
-| Enrollment | Separate owner implements the agreed open eligibility for every verified signed-in reader without org/employment/PtS/admin prerequisites, with current suspension and no revoked-grant resurrection. Registration alone grants nothing and creates no study. |
+| Account-scoped Studies admission | Access implements `scribeswell.studies.use` with typed account scope and a restricted Scribeswell caller on the canonical check route. Its six-field account response has no organization/person/member placeholders. Scribeswell must add its own bounded HTTP adapter and resource checks; existing KDG `own_account` resource scope never supplies account authority. |
+| Enrollment | Separate Access/Identity owner implements explicit open eligibility for every verified signed-in reader without org/employment/PtS/admin prerequisites, with current suspension and no revoked-grant resurrection. Registration alone grants nothing and creates no study. |
 | Standalone signup | Existing Scribeswell Auth consumer remains; live provider/account-creation activation and verified-account contracts require owner evidence. No competing Auth or Access implementation here. |
 
-[The owner enrollment contract](../../../platform/docs/architecture/contracts/scribeswell-study-enrollment.md) remains a draft, not implemented Access behavior. This document is the app-side handoff, not an instruction to modify that owner. No notification/invitation dependency is required for ordinary own notes; those broader features remain gated separately.
+[The owner enrollment contract](../../../platform/docs/architecture/contracts/scribeswell-study-enrollment.md) now documents the implemented enrollment/check slice; its recipient/invitation sections remain a draft. The [owner runbook](../../../services/access/STUDIES-ENROLLMENT.md) records the actual caller, errors, deadlines, readiness and recovery. This document is the app-side consuming handoff; it does not mount a Scribeswell browser adapter or note route. No notification/invitation dependency is required for ordinary own notes; those broader features remain gated separately.
 
 ## Activation, recovery and traceability
 

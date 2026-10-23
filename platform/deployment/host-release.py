@@ -12,7 +12,7 @@ import sys
 import tempfile
 import time
 import uuid
-from release import ROOT, load_manifests, safe_path
+from release import ROOT, load_manifests, safe_path, runtime_contract
 from render_gateway import APISIX, render, origin, require_compose
 from target_contract import database_url
 from tls.renew import save as save_state, durable_unlink
@@ -70,11 +70,12 @@ def preflight(config,environment,manifests,public_config,*,migration_inputs=None
  if environment=='staging' and project.rstrip('/')=='https://gjbsnxmbhxsvcblzgfts.supabase.co':raise ValueError('production staging database rejected')
  for m in manifests:
   values=env_values(secrets/m['env_file'])
-  if not set(m['required_env'])<=values.keys():raise ValueError('missing runtime inputs')
+  required,runtime_roles=runtime_contract(m,values,ROOT)
+  if not required<=values.keys():raise ValueError('missing runtime inputs')
   if any(field in values for field in m.get('forbidden_env',[])):raise ValueError('obsolete runtime authority')
   if any('MIGRATION' in key or 'IMPORT' in key for key in values):raise ValueError('privileged runtime inputs')
-  for field,role in m.get('database_roles',{}).items():database_url(values[field],project,role)
-  if any(key.endswith('_DATABASE_URL') and key not in m.get('database_roles',{}) for key in values):raise ValueError('undeclared database authority')
+  for field,role in runtime_roles.items():database_url(values[field],project,role)
+  if any(key.endswith('_DATABASE_URL') and key not in runtime_roles for key in values):raise ValueError('undeclared database authority')
   if 'CONTENT_S3_ENDPOINT' in values and values['CONTENT_S3_ENDPOINT']!=project+'/storage/v1/s3':raise ValueError('Storage project mismatch')
   if 'SUPABASE_URL' in values and values['SUPABASE_URL']!=project:raise ValueError('runtime project mismatch')
   if 'CORS_ORIGINS' in values and json.loads(values['CORS_ORIGINS'])!=[site]:raise ValueError('CORS mismatch')

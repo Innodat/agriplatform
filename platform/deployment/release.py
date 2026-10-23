@@ -24,6 +24,11 @@ def validate_manifests(docs,root):
   if not re.fullmatch(r'/[a-zA-Z0-9/_-]+',m.get('health_path','')):raise ValueError('invalid health path')
   if any(not re.fullmatch('[A-Z][A-Z0-9_]*_DATABASE_URL',field) or not re.fullmatch('[a-z][a-z0-9_]*_runtime',role) for field,role in m.get('database_roles',{}).items()):raise ValueError('invalid runtime database authority')
   if 'migration' in m and not re.fullmatch('[a-z][a-z0-9_]*_migrator',m['migration'].get('role','')):raise ValueError('invalid migration database authority')
+  feature=m.get('studies_enrollment')
+  if feature is not None:
+   if m['id']!='access' or feature.get('enabled_env')!='SCRIBESWELL_SERVICE_KEY' or set(feature)!= {'enabled_env','required_env','database_roles'}:raise ValueError('invalid Studies feature contract')
+   expected={'STUDIES_ACCESS_DATABASE_URL':'access_studies_runtime','STUDIES_IDENTITY_DATABASE_URL':'identity_studies_reader_runtime','STUDIES_IDENTITY_SETUP_DATABASE_URL':'identity_studies_setup_runtime'}
+   if feature['database_roles']!=expected or set(feature['required_env'])!= {*expected,'SCRIBESWELL_SERVICE_KEY','STUDIES_READINESS_JSON'}:raise ValueError('invalid Studies runtime authority')
   front=m.get('frontend')
   if front:
    if front.get('install') not in ['prefix','workspace']:raise ValueError('invalid frontend install mode')
@@ -41,6 +46,27 @@ def validate_manifests(docs,root):
  prefixes=[m['public']['prefix'] for m in docs if 'public' in m]
  if len(set(bases))!=len(bases) or len(set(prefixes))!=len(prefixes):raise ValueError('duplicate public route')
  return result
+
+def runtime_contract(manifest,values,root=ROOT):
+ # First consuming opt-in owner contract. Ordinary services keep their current
+ # required inputs; runtime credentials never imply migration authority.
+ required=set(manifest.get('required_env',[]));roles=dict(manifest.get('database_roles',{}))
+ feature=manifest.get('studies_enrollment')
+ if feature is None:return required,roles
+ if manifest['id']!='access':raise ValueError('unsupported Studies owner')
+ active=bool(values.get(feature['enabled_env']))
+ if not active:
+  if any(field in values for field in feature['required_env']):raise ValueError('partial Studies configuration')
+  return required,roles
+ required.update(feature['required_env'])
+ if not required<=values.keys():raise ValueError('missing Studies runtime inputs')
+ import importlib.util
+ path=safe_path(root,'services/access/studies_readiness.py')
+ spec=importlib.util.spec_from_file_location('access_studies_release_contract',path)
+ module=importlib.util.module_from_spec(spec);spec.loader.exec_module(module)
+ module.validate_artifact(values['STUDIES_READINESS_JSON'])
+ roles.update(feature['database_roles'])
+ return required,roles
 
 def load_manifests(root=ROOT):
  registry=json.loads((root/'platform/deployment/registry.json').read_text())

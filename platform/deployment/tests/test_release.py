@@ -47,3 +47,30 @@ class Release(unittest.TestCase):
   for docs in [[{'id':'a','depends_on':['a'],'dockerfile':'apps/a/Dockerfile'}],[{'id':'a','depends_on':[],'dockerfile':'../Dockerfile'}]]:
    with self.assertRaises(ValueError):release.validate_manifests(docs,ROOT)
 if __name__=='__main__':unittest.main()
+
+class StudiesReadiness(unittest.TestCase):
+ def manifest(self):
+  return next(m for m in release.load_manifests(ROOT) if m['id']=='access')
+ def artifact(self):
+  path=ROOT/'services/access/studies_readiness.py'
+  spec=importlib.util.spec_from_file_location('studies_readiness_test',path)
+  module=importlib.util.module_from_spec(spec);spec.loader.exec_module(module)
+  return {'schema_version':1,'release_id':'synthetic-release','identity_revision':'identity_0021','access_revision':'access_0016','service_actor_id':'11111111-1111-4111-8111-111111111111','runtime_sources':module.runtime_hashes(),'qualification_sha256':'a'*64,'profile_hook_qualified':True,'live_provider_qualified':True}
+ def test_previous_consumers_need_no_studies_inputs(self):
+  manifest=self.manifest();required,roles=release.runtime_contract(manifest,manifest['smoke_env'],ROOT)
+  self.assertEqual(required,set(manifest['required_env']));self.assertEqual(roles,manifest['database_roles'])
+ def test_opt_in_requires_closed_current_owner_readiness(self):
+  manifest=self.manifest();values=dict(manifest['smoke_env'])
+  values['SCRIBESWELL_SERVICE_KEY']='synthetic-studies'
+  with self.assertRaises(ValueError):release.runtime_contract(manifest,values,ROOT)
+  for field,role in manifest['studies_enrollment']['database_roles'].items():values[field]='postgresql://'+role+'@localhost/synthetic'
+  values['STUDIES_READINESS_JSON']=json.dumps(self.artifact())
+  required,roles=release.runtime_contract(manifest,values,ROOT)
+  self.assertTrue(set(manifest['studies_enrollment']['required_env'])<=required)
+  self.assertEqual(roles['STUDIES_IDENTITY_SETUP_DATABASE_URL'],'identity_studies_setup_runtime')
+  for field,bad in [('identity_revision','identity_0020'),('access_revision','access_0015'),('profile_hook_qualified',False),('live_provider_qualified',False),('runtime_sources',{})]:
+   artifact=self.artifact();artifact[field]=bad;values['STUDIES_READINESS_JSON']=json.dumps(artifact)
+   with self.subTest(field=field),self.assertRaises(ValueError):release.runtime_contract(manifest,values,ROOT)
+ def test_partial_studies_inputs_without_caller_key_fail(self):
+  manifest=self.manifest();values=dict(manifest['smoke_env'],STUDIES_ACCESS_DATABASE_URL='postgresql://access_studies_runtime@localhost/synthetic')
+  with self.assertRaises(ValueError):release.runtime_contract(manifest,values,ROOT)

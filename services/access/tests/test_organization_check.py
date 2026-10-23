@@ -131,7 +131,7 @@ def test_absent_config_disables_and_openapi_refs_resolve(monkeypatch):
         elif isinstance(value,list):
             for item in value:visit(item)
     visit(schema)
-    request=schema['paths']['/v2/check']['post']['requestBody']['content']['application/json']['schema']
+    request=schema['paths']['/v2/check']['post']['requestBody']['content']['application/json']['schema']['oneOf'][0]
     assert request['additionalProperties'] is False
     assert request['properties']['authorization_scope']['additionalProperties'] is False
     assert schema['paths']['/v2/check']['post']['security']==[{'KdgBearer':[],'KdgServiceKey':[]}]

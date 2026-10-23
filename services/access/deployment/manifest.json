@@ -27,5 +27,20 @@
     "PTS_SERVICE_KEY": "fixture-pts",
     "CONTENT_SERVICE_KEY": "fixture-content"
   },
-  "smoke_artifacts": []
+  "smoke_artifacts": [],
+  "studies_enrollment": {
+    "enabled_env": "SCRIBESWELL_SERVICE_KEY",
+    "required_env": [
+      "SCRIBESWELL_SERVICE_KEY",
+      "STUDIES_ACCESS_DATABASE_URL",
+      "STUDIES_IDENTITY_DATABASE_URL",
+      "STUDIES_IDENTITY_SETUP_DATABASE_URL",
+      "STUDIES_READINESS_JSON"
+    ],
+    "database_roles": {
+      "STUDIES_ACCESS_DATABASE_URL": "access_studies_runtime",
+      "STUDIES_IDENTITY_DATABASE_URL": "identity_studies_reader_runtime",
+      "STUDIES_IDENTITY_SETUP_DATABASE_URL": "identity_studies_setup_runtime"
+    }
+  }
 }

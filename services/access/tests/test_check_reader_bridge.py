@@ -56,8 +56,13 @@ def test_head20_dispatch_retains_exact19(monkeypatch):
     with pytest.raises(b.BaselineError, match='identity_unknown_history'):
         b.verify_owned_postcondition(object(), require_head=True)
     monkeypatch.setattr(b, 'verify_owned_history', lambda c: b.CHECK_READER_BRIDGE_REVISION)
-    b.verify_owned_postcondition(object(), require_head=True)
+    b.verify_owned_postcondition(object())
     assert seen[-1] == 'check_reader_bridge'
+    with pytest.raises(b.BaselineError,match='identity_unknown_history'):
+        b.verify_owned_postcondition(object(),require_head=True)
+    monkeypatch.setattr(b,'verify_owned_history',lambda c:b.STUDIES_SETUP_REVISION)
+    b.verify_owned_postcondition(object(),require_head=True)
+    assert seen[-1]=='studies_setup'
 
 
 @pytest.mark.parametrize('defect', [None, 'migration', 'missing_reference', 'modified_reference', 'source_pins'])

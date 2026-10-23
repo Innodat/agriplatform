@@ -1,6 +1,65 @@
 {
   "components": {
     "schemas": {
+      "AccountDecision": {
+        "additionalProperties": false,
+        "properties": {
+          "account_id": {
+            "format": "uuid",
+            "title": "Account Id",
+            "type": "string"
+          },
+          "actor_id": {
+            "format": "uuid",
+            "title": "Actor Id",
+            "type": "string"
+          },
+          "authorization_scope": {
+            "$ref": "#/components/schemas/AccountScope"
+          },
+          "checked_at": {
+            "format": "date-time",
+            "title": "Checked At",
+            "type": "string"
+          },
+          "decision_id": {
+            "format": "uuid",
+            "title": "Decision Id",
+            "type": "string"
+          },
+          "permission": {
+            "const": "scribeswell.studies.use",
+            "default": "scribeswell.studies.use",
+            "title": "Permission",
+            "type": "string"
+          }
+        },
+        "required": [
+          "account_id",
+          "actor_id",
+          "permission",
+          "authorization_scope",
+          "decision_id",
+          "checked_at"
+        ],
+        "title": "AccountDecision",
+        "type": "object"
+      },
+      "AccountScope": {
+        "additionalProperties": false,
+        "properties": {
+          "kind": {
+            "const": "account",
+            "title": "Kind",
+            "type": "string"
+          }
+        },
+        "required": [
+          "kind"
+        ],
+        "title": "AccountScope",
+        "type": "object"
+      },
       "Check": {
         "properties": {
           "org_id": {
@@ -51,6 +110,69 @@
           "actor_id"
         ],
         "title": "Decision",
+        "type": "object"
+      },
+      "EnrollmentAck": {
+        "additionalProperties": false,
+        "properties": {
+          "operation_id": {
+            "format": "uuid",
+            "title": "Operation Id",
+            "type": "string"
+          },
+          "result": {
+            "$ref": "#/components/schemas/EnrollmentResult"
+          },
+          "status": {
+            "const": "committed",
+            "default": "committed",
+            "title": "Status",
+            "type": "string"
+          }
+        },
+        "required": [
+          "operation_id",
+          "status",
+          "result"
+        ],
+        "title": "EnrollmentAck",
+        "type": "object"
+      },
+      "EnrollmentResult": {
+        "additionalProperties": false,
+        "properties": {
+          "account_id": {
+            "format": "uuid",
+            "title": "Account Id",
+            "type": "string"
+          },
+          "actor_id": {
+            "format": "uuid",
+            "title": "Actor Id",
+            "type": "string"
+          },
+          "disposition": {
+            "enum": [
+              "created",
+              "unchanged"
+            ],
+            "title": "Disposition",
+            "type": "string"
+          },
+          "permission": {
+            "const": "scribeswell.studies.use",
+            "default": "scribeswell.studies.use",
+            "title": "Permission",
+            "type": "string"
+          }
+        },
+        "required": [
+          "disposition",
+          "account_id",
+          "actor_id",
+          "permission"
+        ],
+        "title": "EnrollmentResult",
         "type": "object"
       },
       "ErrorDetails": {
@@ -187,6 +309,42 @@
           "account_id"
         ],
         "title": "OwnAccountScope",
+        "type": "object"
+      },
+      "StudiesError": {
+        "additionalProperties": false,
+        "properties": {
+          "details": {
+            "title": "Details",
+            "type": "null"
+          },
+          "error": {
+            "const": "Request could not be completed",
+            "default": "Request could not be completed",
+            "title": "Error",
+            "type": "string"
+          },
+          "error_id": {
+            "enum": [
+              "authentication_required",
+              "service_access_denied",
+              "access_denied",
+              "identity.verification_required",
+              "validation_failed",
+              "authorization_unavailable",
+              "identity.setup_unavailable",
+              "dependency_unavailable"
+            ],
+            "title": "Error Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "error_id",
+          "error",
+          "details"
+        ],
+        "title": "StudiesError",
         "type": "object"
       },
       "ValidationError": {
@@ -353,42 +511,77 @@
           "content": {
             "application/json": {
               "schema": {
-                "additionalProperties": false,
-                "properties": {
-                  "authorization_scope": {
+                "oneOf": [
+                  {
                     "additionalProperties": false,
                     "properties": {
-                      "kind": {
-                        "const": "organization",
-                        "title": "Kind",
-                        "type": "string"
+                      "authorization_scope": {
+                        "additionalProperties": false,
+                        "properties": {
+                          "kind": {
+                            "const": "organization",
+                            "title": "Kind",
+                            "type": "string"
+                          },
+                          "org_id": {
+                            "format": "uuid",
+                            "title": "Org Id",
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "kind",
+                          "org_id"
+                        ],
+                        "title": "OrganizationScope",
+                        "type": "object"
                       },
-                      "org_id": {
-                        "format": "uuid",
-                        "title": "Org Id",
+                      "permission": {
+                        "maxLength": 200,
+                        "minLength": 1,
+                        "title": "Permission",
                         "type": "string"
                       }
                     },
                     "required": [
-                      "kind",
-                      "org_id"
+                      "permission",
+                      "authorization_scope"
                     ],
-                    "title": "OrganizationScope",
+                    "title": "OrganizationCheck",
                     "type": "object"
                   },
-                  "permission": {
-                    "maxLength": 200,
-                    "minLength": 1,
-                    "title": "Permission",
-                    "type": "string"
+                  {
+                    "additionalProperties": false,
+                    "properties": {
+                      "authorization_scope": {
+                        "additionalProperties": false,
+                        "properties": {
+                          "kind": {
+                            "const": "account",
+                            "title": "Kind",
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "kind"
+                        ],
+                        "title": "AccountScope",
+                        "type": "object"
+                      },
+                      "permission": {
+                        "const": "scribeswell.studies.use",
+                        "title": "Permission",
+                        "type": "string"
+                      }
+                    },
+                    "required": [
+                      "permission",
+                      "authorization_scope"
+                    ],
+                    "title": "AccountCheck",
+                    "type": "object"
                   }
-                },
-                "required": [
-                  "permission",
-                  "authorization_scope"
-                ],
-                "title": "OrganizationCheck",
-                "type": "object"
+                ]
               }
             }
           },
@@ -399,7 +592,15 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/OrganizationDecision"
+                  "anyOf": [
+                    {
+                      "$ref": "#/components/schemas/OrganizationDecision"
+                    },
+                    {
+                      "$ref": "#/components/schemas/AccountDecision"
+                    }
+                  ],
+                  "title": "Response Check V2 Check Post"
                 }
               }
             },
@@ -409,7 +610,15 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/CheckError"
+                  "anyOf": [
+                    {
+                      "$ref": "#/components/schemas/CheckError"
+                    },
+                    {
+                      "$ref": "#/components/schemas/StudiesError"
+                    }
+                  ],
+                  "title": "Response 401 Check V2 Check Post"
                 }
               }
             },
@@ -419,7 +628,15 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/CheckError"
+                  "anyOf": [
+                    {
+                      "$ref": "#/components/schemas/CheckError"
+                    },
+                    {
+                      "$ref": "#/components/schemas/StudiesError"
+                    }
+                  ],
+                  "title": "Response 403 Check V2 Check Post"
                 }
               }
             },
@@ -429,7 +646,15 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/CheckError"
+                  "anyOf": [
+                    {
+                      "$ref": "#/components/schemas/CheckError"
+                    },
+                    {
+                      "$ref": "#/components/schemas/StudiesError"
+                    }
+                  ],
+                  "title": "Response 409 Check V2 Check Post"
                 }
               }
             },
@@ -439,7 +664,15 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/CheckError"
+                  "anyOf": [
+                    {
+                      "$ref": "#/components/schemas/CheckError"
+                    },
+                    {
+                      "$ref": "#/components/schemas/StudiesError"
+                    }
+                  ],
+                  "title": "Response 422 Check V2 Check Post"
                 }
               }
             },
@@ -449,7 +682,15 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/CheckError"
+                  "anyOf": [
+                    {
+                      "$ref": "#/components/schemas/CheckError"
+                    },
+                    {
+                      "$ref": "#/components/schemas/StudiesError"
+                    }
+                  ],
+                  "title": "Response 503 Check V2 Check Post"
                 }
               }
             },
@@ -463,6 +704,114 @@
           }
         ],
         "summary": "Check"
+      }
+    },
+    "/v2/enrollments/scribeswell-studies": {
+      "post": {
+        "operationId": "enroll_v2_enrollments_scribeswell_studies_post",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "default": "",
+              "title": "Authorization",
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "x-service-key",
+            "required": false,
+            "schema": {
+              "default": "",
+              "title": "X-Service-Key",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "additionalProperties": false,
+                "properties": {
+                  "operation_id": {
+                    "format": "uuid",
+                    "title": "Operation Id",
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "operation_id"
+                ],
+                "title": "Operation",
+                "type": "object"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnrollmentAck"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StudiesError"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StudiesError"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StudiesError"
+                }
+              }
+            },
+            "description": "Unprocessable Content"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StudiesError"
+                }
+              }
+            },
+            "description": "Service Unavailable"
+          }
+        },
+        "security": [
+          {
+            "KdgBearer": [],
+            "KdgServiceKey": []
+          }
+        ],
+        "summary": "Enroll"
       }
     }
   }

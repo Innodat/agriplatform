@@ -9,6 +9,7 @@ from sqlalchemy import text
 
 OWNER = 'access_migrator'
 HEAD = 'access_0015'
+STUDIES_HEAD = 'access_0016'
 LOCK_SQL = "SELECT pg_try_advisory_xact_lock(hashtextextended('access-owned-migrations',0))"
 
 
@@ -26,7 +27,7 @@ def require_equal(actual, expected, code='access_catalog_mismatch'):
 
 
 def validate_revision(revisions):
-    if revisions not in (['access_0001'], ['access_0002'], ['access_0003'], ['access_0004'], ['access_0005'], ['access_0006'], ['access_0007'], ['access_0008'], ['access_0009'], ['access_0010'], ['access_0011'], ['access_0012'], ['access_0013'], ['access_0014'], [HEAD]):
+    if revisions not in (['access_0001'], ['access_0002'], ['access_0003'], ['access_0004'], ['access_0005'], ['access_0006'], ['access_0007'], ['access_0008'], ['access_0009'], ['access_0010'], ['access_0011'], ['access_0012'], ['access_0013'], ['access_0014'], [HEAD], [STUDIES_HEAD]):
         raise BaselineError('access_unknown_history')
     return revisions[0]
 
@@ -52,7 +53,7 @@ def verify_prerequisites(connection):
     if connection.execute(text("SELECT has_database_privilege(current_user,current_database(),'CREATE')")).scalar_one():
         raise BaselineError('access_migration_role_excess_authority')
     # No owner assumption, inherited writer or runtime owner path is permitted.
-    if rows(connection, "SELECT 1 FROM pg_auth_members WHERE member IN (SELECT oid FROM pg_roles WHERE rolname IN ('access_migrator','access_runtime')) AND roleid NOT IN (SELECT oid FROM pg_roles WHERE rolname IN ('access_operator_authority_owner','access_command_owner','access_check_reader'))"):
+    if rows(connection, "SELECT 1 FROM pg_auth_members WHERE member IN (SELECT oid FROM pg_roles WHERE rolname IN ('access_migrator','access_runtime')) AND roleid NOT IN (SELECT oid FROM pg_roles WHERE rolname IN ('access_operator_authority_owner','access_command_owner','access_check_reader','access_studies_owner'))"):
         raise BaselineError('access_migration_role_excess_authority')
     if rows(connection,"SELECT 1 FROM pg_auth_members WHERE roleid=(SELECT oid FROM pg_roles WHERE rolname='access_check_reader') OR member=(SELECT oid FROM pg_roles WHERE rolname='access_check_reader')"):
         from access_organization_check_catalog import reader_edges, EDGE
@@ -73,7 +74,7 @@ def verify_prerequisites(connection):
     if rows(connection, "SELECT pg_get_userbyid(nspowner) FROM pg_namespace WHERE nspname='access'") != [(OWNER,)]:
         raise BaselineError('access_schema_owner_mismatch')
     require_equal(acl(connection, "'access'::regnamespace", 'n'),
-                  owner_acl(['USAGE','CREATE']) + [(OWNER,'access_runtime','USAGE',False)] + ([(OWNER,r,'USAGE',False) for r in ('access_operator','access_operator_authority_owner','access_command_owner')] if operator_installed(connection) else []) + ([(OWNER,'access_check_reader','USAGE',False)] if organization_check_installed(connection) else []))
+                  owner_acl(['USAGE','CREATE']) + [(OWNER,'access_runtime','USAGE',False)] + ([(OWNER,r,'USAGE',False) for r in ('access_operator','access_operator_authority_owner','access_command_owner')] if operator_installed(connection) else []) + ([(OWNER,'access_check_reader','USAGE',False)] if organization_check_installed(connection) else []) + ([(OWNER,r,'USAGE',False) for r in ('access_studies_owner','access_studies_runtime')] if connection.execute(text("SELECT to_regprocedure('access.enroll_studies_account(uuid,uuid)') IS NOT NULL")).scalar_one() else []))
     if rows(connection, "SELECT 1 FROM pg_default_acl d LEFT JOIN pg_namespace n ON n.oid=d.defaclnamespace WHERE n.nspname='access' OR d.defaclrole=(SELECT oid FROM pg_roles WHERE rolname='access_migrator')"):
         raise BaselineError('access_default_privileges_mismatch')
     if rows(connection, "SELECT 1 FROM pg_namespace WHERE nspname='identity' AND has_schema_privilege(current_user,oid,'CREATE')"):
@@ -170,6 +171,8 @@ def verify_table(connection, name, revision):
 
 
 def verify_catalog(connection, revision):
+    studies = revision == STUDIES_HEAD
+    if studies: revision=HEAD
     names = [] if revision is None else ['grants','grants_pkey','grants_org_id_user_id_permission_key','alembic_version','alembic_version_pkc']
     if revision in ('access_0003', 'access_0004', 'access_0005', 'access_0006', 'access_0007', 'access_0008', 'access_0009', 'access_0010', 'access_0011', 'access_0012', 'access_0013', 'access_0014', HEAD):
         names += [*REGISTRY_TABLES, *[index for indexes in REGISTRY_INDEXES.values() for index,columns in indexes]]
@@ -194,6 +197,10 @@ def verify_catalog(connection, revision):
     if revision in ('access_0008', 'access_0009', 'access_0010', 'access_0011', 'access_0012', 'access_0013', 'access_0014', HEAD):
         names += ['organization_applications', 'organization_applications_pkey']
         types += ['organization_applications', '_organization_applications']
+    if studies:
+        from access_studies_catalog import TABLE_NAMES,FUNCTION_NAMES,verify_extension
+        names += list(TABLE_NAMES)
+        verify_extension(connection)
     require_equal(rows(connection, "SELECT c.relname FROM pg_class c JOIN pg_namespace n ON n.oid=c.relnamespace WHERE n.nspname='access'"), [(n,) for n in names])
     expected_functions = ['registry_storage_immutable'] if revision in ('access_0003','access_0004','access_0005','access_0006','access_0007','access_0008','access_0009','access_0010','access_0011','access_0012','access_0013','access_0014',HEAD) else []
     if revision in ('access_0004', 'access_0005', 'access_0006', 'access_0007', 'access_0008', 'access_0009', 'access_0010', 'access_0011', 'access_0012', 'access_0013', 'access_0014', HEAD):
@@ -204,6 +211,9 @@ def verify_catalog(connection, revision):
         from access_organization_check_catalog import verify_reader_role, verify_reader_function
         verify_reader_role(connection, installed=True)
         verify_reader_function(connection)
+    if studies:
+        expected_functions += list(FUNCTION_NAMES)
+        types += [t for name in ('studies_runtime_principal','studies_account_grant','studies_enrollment_outcome','studies_assignment_event') for t in (name,'_'+name)]
     require_equal(rows(connection, "SELECT p.proname FROM pg_proc p JOIN pg_namespace n ON n.oid=p.pronamespace WHERE n.nspname='access'"), [(n,) for n in expected_functions])
     require_equal(rows(connection, "SELECT t.typname FROM pg_type t JOIN pg_namespace n ON n.oid=t.typnamespace WHERE n.nspname='access'"), [(n,) for n in types])
     if revision is not None:

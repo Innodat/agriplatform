@@ -7,6 +7,8 @@ from fastapi.responses import JSONResponse
 from organization_check import router as organization_router
 from pydantic import BaseModel
 from sqlalchemy import create_engine
+from studies_identity import AsyncDatabase
+from studies_access import StudiesAccess
 from sqlalchemy.exc import SQLAlchemyError
 
 class Check(BaseModel):
@@ -18,9 +20,31 @@ class Decision(BaseModel):
     actor_id: UUID
 
 
-def create_app(db=None, authenticate=None):
+def create_app(db=None, authenticate=None, *, studies_provider=None, studies_identity_db=None, studies_setup_db=None, studies_db=None):
     app=FastAPI(title='Shared current access',version='1.0.0')
     db=db or create_engine(os.environ.get('ACCESS_DATABASE_URL','postgresql+psycopg://access_runtime@localhost/pts'),pool_pre_ping=True,pool_timeout=5,hide_parameters=True,connect_args={'connect_timeout':5})
+
+    def optional_pool(name,role):
+        url=os.environ.get(name)
+        if not url:return None
+        from sqlalchemy.engine import make_url
+        try:
+            parsed=make_url(url)
+            if parsed.username!=role or parsed.drivername not in ('postgresql','postgresql+psycopg'):raise ValueError('role')
+        except (ValueError,TypeError,SQLAlchemyError):raise RuntimeError('studies_configuration_invalid') from None
+        return AsyncDatabase(url)
+    studies=StudiesAccess(studies_db if studies_db is not None else optional_pool('STUDIES_ACCESS_DATABASE_URL','access_studies_runtime'),
+        studies_identity_db if studies_identity_db is not None else optional_pool('STUDIES_IDENTITY_DATABASE_URL','identity_studies_reader_runtime'),
+        studies_setup_db if studies_setup_db is not None else optional_pool('STUDIES_IDENTITY_SETUP_DATABASE_URL','identity_studies_setup_runtime'),
+        os.environ,studies_provider)
+    if any(name in os.environ for name in ('SCRIBESWELL_SERVICE_KEY','STUDIES_ACCESS_DATABASE_URL','STUDIES_IDENTITY_DATABASE_URL','STUDIES_IDENTITY_SETUP_DATABASE_URL','STUDIES_READINESS_JSON')):
+        if not studies.key:raise RuntimeError('studies_configuration_invalid')
+        if any(value is None for value in (studies.db,studies.identity_db,studies.setup_db)):
+            raise RuntimeError('studies_configuration_invalid')
+        if studies_db is None or studies_identity_db is None or studies_setup_db is None:
+            from studies_readiness import validate_artifact
+            try:validate_artifact(os.environ.get('STUDIES_READINESS_JSON',''))
+            except ValueError:raise RuntimeError('studies_configuration_invalid') from None
 
     def auth(token):
         if not token.startswith('Bearer '): raise HTTPException(401,{'code':'authentication_required'})
@@ -37,18 +61,23 @@ def create_app(db=None, authenticate=None):
     @app.middleware('http')
     async def no_store(request, call_next):
         response = await call_next(request)
-        if request.url.path == '/v2/check':
+        if request.url.path == '/v2/enrollments/scribeswell-studies' or (request.url.path == '/v2/check' and studies.matches(request.headers.get('x-service-key',''))):
+            response.headers['Cache-Control'] = 'private, no-store'
+        elif request.url.path == '/v2/check':
             response.headers['Cache-Control'] = 'no-store'
         return response
 
-    app.include_router(organization_router(db, authenticate or auth, os.environ))
+    app.include_router(organization_router(db, authenticate or auth, os.environ, studies))
+
+    app.include_router(studies.router())
 
     # FastAPI gathers separate security dependencies as alternatives; this operation
     # requires their conjunction. Keep its ordinary security scheme definitions.
     original_openapi = app.openapi
     def openapi():
         schema = original_openapi()
-        schema['paths']['/v2/check']['post']['security'] = [{'KdgBearer': [], 'KdgServiceKey': []}]
+        for path in ('/v2/check','/v2/enrollments/scribeswell-studies'):
+            schema['paths'][path]['post']['security'] = [{'KdgBearer': [], 'KdgServiceKey': []}]
         return schema
     app.openapi = openapi
 

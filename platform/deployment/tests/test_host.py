@@ -30,6 +30,37 @@ class Host(unittest.TestCase):
   (root/'config.json').write_text(json.dumps(config));public={key:config[key] for key in ['environment','site','api','supabase_url']};(root/'public.json').write_text(json.dumps(public))
   (root/'images.json').write_text(json.dumps({'sha':'a'*40,'images':{id:'fixture@sha256:'+'0'*64 for id in [m['id'] for m in manifests]+[g['id'] for g in registry['migration_groups']]}}))
   return config,public,manifests
+ def studies_target(self,root):
+  config,public,manifests=self.setup_target(root)
+  access=next(m for m in manifests if m['id']=='access')
+  path=host.ROOT/'services/access/studies_readiness.py'
+  spec=importlib.util.spec_from_file_location('host_studies_readiness_test',path)
+  module=importlib.util.module_from_spec(spec);spec.loader.exec_module(module)
+  artifact={'schema_version':1,'release_id':'synthetic-host-release','identity_revision':'identity_0021','access_revision':'access_0016','service_actor_id':'11111111-1111-4111-8111-111111111111','runtime_sources':module.runtime_hashes(),'qualification_sha256':'a'*64,'profile_hook_qualified':True,'live_provider_qualified':True}
+  values=host.env_values(root/'env/access.env')
+  values.update(SCRIBESWELL_SERVICE_KEY='synthetic-studies',STUDIES_READINESS_JSON=json.dumps(artifact))
+  for field,role in access['studies_enrollment']['database_roles'].items():values[field]=f'postgresql+psycopg://{role}:fixture@db.stage.supabase.co/postgres?sslmode=require'
+  return config,public,manifests,values
+ def test_studies_enabled_actual_preflight_accepts_prepared_inputs(self):
+  with tempfile.TemporaryDirectory() as d:
+   root=Path(d);config,public,manifests,values=self.studies_target(root)
+   (root/'env/access.env').write_text(''.join(k+'='+v+'\n' for k,v in values.items()))
+   host.preflight(config,'staging',manifests,public)
+ def test_studies_preflight_refuses_before_release_effects(self):
+  fields=('STUDIES_ACCESS_DATABASE_URL','STUDIES_IDENTITY_DATABASE_URL','STUDIES_IDENTITY_SETUP_DATABASE_URL')
+  changes=[('missing',name) for name in (*fields,'SCRIBESWELL_SERVICE_KEY','STUDIES_READINESS_JSON')]+[('role',name) for name in fields]+[('project',name) for name in fields]+[('stale','STUDIES_READINESS_JSON')]
+  for change,name in changes:
+   with self.subTest(change=change,name=name),tempfile.TemporaryDirectory() as d:
+    root=Path(d);config,public,manifests,values=self.studies_target(root)
+    if change=='missing':values.pop(name)
+    elif change=='role':values[name]=values[name].replace(values[name].split('//')[1].split(':')[0],'wrong_runtime')
+    elif change=='project':values[name]=values[name].replace('db.stage.supabase.co','db.other.supabase.co')
+    else:
+     artifact=json.loads(values[name]);artifact['runtime_sources']={};values[name]=json.dumps(artifact)
+    (root/'env/access.env').write_text(''.join(k+'='+v+'\n' for k,v in values.items()))
+    with patch.object(host,'execute') as execute,patch.object(host,'render') as render,patch.object(host,'require_compose') as compose:
+     with self.assertRaises(ValueError):self.deploy(root)
+     execute.assert_not_called();render.assert_not_called();compose.assert_not_called()
  def migration_report(self,command,report):
   evidence=Path(command[command.index('-v')+1].removesuffix(':/evidence'))
   (evidence/'migrations.json').write_text(report if isinstance(report,str) else json.dumps(report))
