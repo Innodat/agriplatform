@@ -109,3 +109,16 @@ The app-owned inert outcome storage candidate adds a separate optional synthetic
 WRITE environment above. See [candidate evidence](../docs/OUTCOME_STORAGE_CANDIDATE_EVIDENCE.md).
 This introduces no migration/table, connection or public recovery route; native capture/
 revision/outcome linkage and atomicity still require a coordinated consuming delivery.
+
+## Unapplied linked storage candidate
+
+`candidates/0002_capture_storage.py` is deliberately outside active `versions` discovery;
+head remains0001_kdg_foundation. Do not copy/promote it until the consuming native/writer/
+release gates pass. It declares complete supporting parents and linked capture/history/
+outcome, not an outcome-only migration. Optional offline smoke command from repo root:
+`"$P" -I -B apps/kdg-capture/write-tests/test_capture_schema.py` with the retained WRITE env.
+It calls Alembic offline Operations directly without changing env.py's --sql refusal or
+connecting. See [schema evidence](../docs/LINKED_STORAGE_SCHEMA_EVIDENCE.md). No creation
+of a database/schema/role, seed rows, native target operation or cleanup occurs.
+Historical0001 native qualification remains tied to its old source/head; a consuming
+suite must qualify the new schema/current authority without rewriting that evidence.

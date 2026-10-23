@@ -773,3 +773,16 @@ reference stays opaque nonblank text; it proves no authority. Supplied blank tex
 invalid; optional unanswered text is omitted. Safe failures expose validation_failed or
 unsupported_command_version only. Public OpenAPI/client exports remain unchanged until
 an actual consuming HTTP slice mounts these contracts.
+
+## Linked storage schema candidate — 2026-10-23
+
+The unapplied [owner revision](../migrations/candidates/0002_capture_storage.py) declares
+supporting questionnaire/version/child/assignment/eligibility and linked capture/outcome/
+revision storage together. Read [offline evidence](LINKED_STORAGE_SCHEMA_EVIDENCE.md).
+It remains outside active Alembic versions. Composite same-org/owner/executor/operation
+links, deferred snapshot completeness, server capture attribution and FORCE RLS are
+DDL candidates, not actual PostgreSQL or authorized writer qualification. Generated
+outcome target/revision columns preserve the existing private adapter interface. Issued
+opaque eligibility references are nonblank text <=200 codepoints; retained observations
+do not confer current authority. Parent mutation commands/grants remain gated. Native
+constraint/RLS/atomicity/current authority and release recovery precede promotion.

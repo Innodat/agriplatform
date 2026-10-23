@@ -1,0 +1,86 @@
+{
+  "schema_version": 1,
+  "scope": "unapplied linked KDG storage Alembic candidate; offline PostgreSQL DDL rendering only",
+  "base_commit": "dab8db749c49a29c5a59dc5de60e8df91d82a95c",
+  "database_io": false,
+  "docker_lifecycle": false,
+  "active_head": "0001_kdg_foundation",
+  "candidate_revision": "0002_kdg_capture_storage",
+  "candidate_active": false,
+  "fingerprints_hmac": "deferred",
+  "review": {
+    "completed": true,
+    "findings": 7,
+    "addressed": 7,
+    "deferred": 0
+  },
+  "results": {
+    "offline_schema_checks": 13,
+    "existing_outcome_tests": 16,
+    "existing_foundation_tests": 9,
+    "typescript": "7.0.2 preserved"
+  },
+  "interpreter": "platform/deployment/.local/access-organization-check-20261022/owner-env/bin/python",
+  "commands": [
+    [
+      "P",
+      "-I",
+      "-B",
+      "apps/kdg-capture/write-tests/test_capture_schema.py"
+    ],
+    [
+      "P",
+      "-I",
+      "-B",
+      "apps/kdg-capture/write-tests/test_operation_outcomes.py"
+    ],
+    [
+      "P",
+      "-I",
+      "-B",
+      "apps/kdg-capture/migrations/tests/test_foundation.py"
+    ]
+  ],
+  "sources": {
+    "_bmad-output/implementation-artifacts/spec-kdg-linked-storage-schema.md": "6e41bc2aade4745416a8186c94b39f3362f0804abb527fdfed8228c24ffe95c7",
+    "apps/kdg-capture/migrations/candidates/0002_capture_storage.py": "94c8839b22255dd7d6d2ec3aa13a5a793f14f5937cf54b4bfac6ed058b0d06e8",
+    "apps/kdg-capture/write-tests/test_capture_schema.py": "5fe8da84131bb4f3f62cc8ed447f813fec0a85463860ee929e14b6dc2f188ad8",
+    "apps/kdg-capture/docs/LINKED_STORAGE_SCHEMA_EVIDENCE.md": "790479b2b73b8d897f2dfb93a57b0f762879fab0ad8572e821c226b8fb8079e9",
+    "apps/kdg-capture/docs/next-session.md": "ea2f90b94ea72f5e174ac985264920da7305c1158428d55870aa196fc2e367c2",
+    "apps/kdg-capture/docs/contracts.md": "9b9aea5e459733324616eedd2ba54af7c2c3b1ad7d5638dc5a9d681714844961",
+    "apps/kdg-capture/migrations/README.md": "4c70e9349ac65c14a8033d24dc43621e63a7ccfc8567e5cbeec5f282017cea9a"
+  },
+  "logs": {
+    "/tmp/kdg-linked-schema-atdd-red.log": "aa574647074527718e65bdf67d32034a04da886842fc5a69614347286c4dff9b",
+    "/tmp/kdg-linked-schema-focused-red.log": "f9fd18c2ebf5e2773c85a44e0579782772d783972ae699a51703364ca2a5e6e1",
+    "/tmp/kdg-linked-schema-focused-green.log": "434d706ab9f7284e039ba604faa1b5ee081555a7c89ca10a8ab97bdaa757b2e1",
+    "/tmp/kdg-linked-schema-outcome-regression.log": "b05156def03dabbff9e1eff6cbf994fdfac2fdcd87bc2f4103d9541de8bebeb2",
+    "/tmp/kdg-linked-schema-foundation-regression.log": "6cd7f3e2863cca21ef2882ef1524c6ff43350a7433ab5726cd884f9b7f81b151",
+    "/tmp/kdg-linked-schema-render.sql": "1f1046d5f76b6f6b76e16832a35b829ddeb2d286fae7a2c75dfa0ad43a23c06d",
+    "/tmp/kdg-linked-schema-review-red.log": "a28e75082fe1521b48334ecd89f6ae0f9e4a4f22ad025a83b67734bdb35464f9",
+    "/tmp/kdg-linked-schema-review-green.log": "e70dce3c1dbce36074b00e16b1a2c409428a2a8f0e6854a0dffe741a73a625ca",
+    "/tmp/kdg-linked-schema-final.log": "21aad045fc31df627006df46ad7de11f34ce352de67ae5302c8856bdf8856e08"
+  },
+  "preservation": {
+    "preexisting_paths": 150,
+    "missing": [],
+    "unchanged_tracked_kdg_template_dependency_files_before_docs": 227,
+    "typescript": "7.0.2",
+    "final_unchanged_tracked_outside_scope": 224,
+    "handoff_exact_historical_suffix": true
+  },
+  "limits": [
+    "offline Alembic rendering does not execute or validate PostgreSQL trigger/policy/constraint semantics",
+    "candidate outside active history; no existing database/role/schema/table/data migration or provisioning",
+    "no current-authority API, atomic owner writer, replay or release qualification"
+  ],
+  "render_command": {
+    "argv": [
+      "P",
+      "-I",
+      "-B",
+      "-"
+    ],
+    "stdin": "from pathlib import Path\nimport importlib.util\nsource=Path('apps/kdg-capture/write-tests/test_capture_schema.py')\nspec=importlib.util.spec_from_file_location('kdg_schema_render_final',source)\nmodule=importlib.util.module_from_spec(spec);spec.loader.exec_module(module)\nPath('/tmp/kdg-linked-schema-render.sql').write_text(module.render())\n"
+  }
+}

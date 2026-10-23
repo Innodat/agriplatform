@@ -1,3 +1,31 @@
+## Current delivery — linked storage schema candidate, 2026-10-23
+
+KDG now has an unapplied Alembic candidate for supporting questionnaire/version/child/
+assignment/eligibility tables and linked capture/outcome/revision storage. Read
+[linked schema evidence](LINKED_STORAGE_SCHEMA_EVIDENCE.md). Source is in
+migrations/candidates/0002_capture_storage.py; active versions/head remain unchanged.
+No database/Docker/role/schema/data operation occurred. This is not native qualification,
+a mounted write API or release activation. Existing input/outcome adapters stay unchanged.
+
+Composite links preserve org/owner/executor/operation/version/revision identity; generated
+outcome columns derive target/revision without changing the private adapter interface.
+A deferred history FK and snapshot guard require complete changed-revision evidence.
+Exact device time remains untrusted text; server attribution is separate. FORCE RLS and
+narrow runtime grants remain subject to native restricted-role proof. Parent write/issuance
+workflows have no new runtime/operator grants. No partial outcome-only migration.
+
+Next qualify the candidate with concrete current-authorized atomic capture writes and
+actual PostgreSQL constraint/RLS/concurrency/rollback tests before promoting it into active
+versions. Resume only a verified retained synthetic fixture; preserve historical0001
+reports/inspector and resources. Current Access, original target replay, eligibility and
+member/assignment checks remain binding. ADR-0020 previous-code/migration coordination,
+activation-blocking and recovery evidence precede any release. Fingerprints/HMAC deferred;
+Story1.2 bootstrap contract unchanged. Preserve concurrent work/history/resources and
+TS7.0.2. No Leave/editor, real accounts/access, production, provisioning/deployment/pilot
+or cleanup.
+
+Earlier handoffs follow unchanged as historical checkpoints.
+
 ## Current delivery — strict capture input validation, 2026-10-23
 
 KDG now has create/edit v1 command parsers and original-questionnaire answer validation.
