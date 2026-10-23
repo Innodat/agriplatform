@@ -242,3 +242,48 @@ No owner API, live registration, login/grant installation, image qualification,
 enforcement transition or production rehearsal is implemented by this document.
 Public reading, standalone account creation and the separate Access/KDG/Leave/factory
 work retain their existing requirements and owners.
+
+## Isolated local mapping rehearsal
+
+`tests/test_caller_preparation_rehearsal.py` exercises the local initial-mapping
+protocol through a **test-only** helper, `tests/caller_preparation_rehearsal.py`.
+It uses actual restricted `scribeswell_migrator` sessions in a newly created,
+guarded PostgreSQL17 database. Owner setup creates the operator role and grants
+separately. The four mapping rows are written by the migrator together under the
+migration lock followed by principal/authority SHARE ROW EXCLUSIVE locks, with
+READ COMMITTED, statement/lock/idle-transaction bounds and explicit revision1.
+Existing immutable migrations and prepared replay perform their normal checks.
+
+| Local requirement | Executable rehearsal evidence |
+|---|---|
+| Initial disabled state, server timestamps, explicit distinct preparer, native committed profile and preserved corpus/fence/history | `test_initial_mapping_commits_disabled_and_native_replay_preserves`, `test_mapping_transaction_holds_expected_locks_and_server_timestamps` |
+| Exact reuse preserves all row values; real login observations and restricted operator denials | `test_exact_reuse_is_noop_and_records_actual_synthetic_session`, `test_actual_owner_session_required_not_set_role_impersonation` |
+| Every insertion failure and postcheck failure rolls back all four rows; separate role/grants remain | `test_failed_insert_rolls_back_whole_bundle`, `test_failed_postcheck_rolls_back` |
+| Partial/extra/conflicting rows refuse without repair | `test_unexpected_before_state_refused_without_repair` |
+| Actual competing backends block, then reuse the winner or reject a conflict; advisory/principal/authority waits fail bounded | `test_concurrent_preparers_serialize_before_observation`, `test_mapping_lock_timeout_is_bounded_and_no_writes` |
+| Real commit followed by injected acknowledgement loss; ended-session committed/unchanged/partial/extra/conflicting observations versus active-session unknown; no retries | `test_lost_acknowledgement_requires_ended_session_and_exact_observation` |
+| Unsupported transaction shape including DBAPI autocommit refuses | `test_unsupported_transaction_shape_refused`, `test_dbapi_autocommit_with_logical_transaction_is_refused` |
+
+The run record's actor/session binding is **synthetic and fixture-owned**. It is
+not independent Identity verification, an authenticated owner evidence channel or
+proof that an arbitrary supplied actor performed a live preparation. There is no
+external receipt consumer or production preparation runner. The lost-response
+case deliberately throws after an actual successful driver COMMIT; it is not an
+induced network outage. Lock/statement/idle bounds are not a proved total execution
+or COMMIT acknowledgement deadline. Actual image/host preparation, provenance
+retrieval, live target pairing and the complete handoff acceptance matrix above
+remain required. The rehearsal does not close live readiness or authorize enablement.
+
+To repeat, use a fresh dedicated local PostgreSQL17 **cluster with all fixture
+roles absent**, never a shared development/production database. Set
+`SCRIBESWELL_TEST_DATABASE_URL` to that cluster's control database and run with a
+Python environment containing the application's migration/backend/test dependencies:
+
+```sh
+python -m pytest apps/scribeswell/tests/test_caller_preparation_rehearsal.py -q
+```
+
+The existing guarded fixture checks the local host, PostgreSQL17 owner login and
+absent roles before creating its random database. It drops that owned database
+and its fixture roles afterwards. The harness that creates the cluster must also
+remove its exact owned container; the tests do not discover or stop other containers.
