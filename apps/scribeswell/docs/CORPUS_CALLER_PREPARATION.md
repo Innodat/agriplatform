@@ -287,3 +287,12 @@ The existing guarded fixture checks the local host, PostgreSQL17 owner login and
 absent roles before creating its random database. It drops that owned database
 and its fixture roles afterwards. The harness that creates the cluster must also
 remove its exact owned container; the tests do not discover or stop other containers.
+
+
+## Preparation tool design
+
+The [preparation tool contract](CORPUS_PREPARATION_TOOL.md) specifies a closed
+request, separate trusted owner admission and private target, proposed total/COMMIT
+deadlines and original-session reconciliation. It is a written design, not an
+implemented parser or runner. The first implementation boundary is pure parsing;
+owner evidence verification, supervised SQL execution and live readiness remain open.
