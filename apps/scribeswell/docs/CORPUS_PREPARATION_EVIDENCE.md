@@ -6,7 +6,7 @@ not production crash-qualified**. The
 and app-owned standard-library-only
 [codec](../backend/caller_preparation_evidence.py) are implemented. The local
 [fixture store](../backend/caller_preparation_storage.py) is qualified only by
-the local fault/process-death tests below. The worker, live storage integration
+the local fault/process-death tests below. The preparation worker, live storage integration
 and admission mechanism below are not implemented. Historical 207/394 parser
 tests do not qualify those execution gates. Consume the existing
 [owner handoff](CORPUS_CALLER_PREPARATION.md) and
@@ -386,7 +386,7 @@ The codec cases above are exercised by
 [`test_caller_preparation_evidence.py`](../tests/test_caller_preparation_evidence.py).
 The physical capture, recovery, supervisor and owner-proof cases remain future
 acceptance requirements for production consumption. The fixture writer described
-above is implemented; no supervisor, target/admission verifier, schema/migration
+above is implemented; no preparation execution supervisor, target/admission verifier, schema/migration
 or production operation is implemented. Scaffold/shared UI,
 agent-context and accepted ADRs require no changes for this app-local codec;
 no generic pattern is promoted. Agreed Studies UX, standalone signup and
@@ -514,3 +514,21 @@ Result: **678 passed, 11 native database cases deliberately deselected** (20.15s
 72 new storage/606 retained pure checks. No new skips. The earlier54/660 counts are
 pre-review evidence only. The pure codec's no-I/O contract remains unchanged;
 explicit file effects belong only to the separately imported fixture store.
+
+
+### Synthetic worker communication boundary
+
+The [fixture supervisor contract/evidence](CORPUS_PREPARATION_TOOL.md#fixture-communication-and-supervisor-contract)
+now supplies bounded stdin/stdout, a fixed isolated pure worker and truthful
+termination observations. It receives an already supplied synthetic terminal
+prefix; it never opens the fixture store or acknowledges a new persistence event.
+Parent validation against independently supplied original inputs yields only
+`fixture_reply_validated`. The terminal outcome inside that fixture reply remains
+a declaration, including `committed`/`reused`; it is not a new execution result.
+Pre-review 63 tests passed (4.51s); final reviewed fixture tests passed 83 cases
+(6.76s), with 761 affected cases passed and 11 native database cases excluded
+(15.01s). All seven findings addressed, including observed red/green fixes for
+post-cleanup deadline and kill/natural-exit race evidence. These are separate from
+the historical 72 storage/678 affected counts above. Exact commands and actual final review/regression results belong to
+the owning tool contract and delivery record. Real storage/owner/deadline/SQL
+integration, machine-crash durability and actual preparation readiness remain gated.

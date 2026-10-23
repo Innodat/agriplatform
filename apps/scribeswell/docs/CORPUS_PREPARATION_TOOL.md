@@ -127,8 +127,9 @@ and a caller-supplied actor cannot supply this proof. Retain the actual observat
 through the trusted execution channel. PID alone risks reuse; actor-to-session
 provenance still comes from that channel, not PostgreSQL actor fields.
 
-The first executable scope is **pure parsing only**. A later supervised disposable
-executor may use explicitly synthetic fixture admission from an independently owned
+The first executable scope was **pure parsing only**; pure codecs and synthetic
+storage/communication fixtures followed. A later disposable preparation executor
+may use explicitly synthetic fixture admission from an independently owned
 guarded cluster, labelled synthetic in its evidence, with live kinds disabled.
 Production execution stays blocked until its concrete owner evidence channel,
 authentication/current-authority checks, server identity method and qualified
@@ -187,12 +188,67 @@ success is not release qualification: run the existing prepared host validation
 separately after locks release; its failure blocks readiness without reversing
 committed preparation.
 
+## Fixture communication and supervisor contract
+
+Status: implemented as a repository-qualified synthetic fixture. This is a Linux
+synthetic communication fixture, not the preparation executor. It receives an
+already supplied terminal prefix and never writes mappings or journal files,
+opens a target connection, resolves owner evidence or verifies historical storage
+acknowledgement. Parent-side storage/owner reads are deliberately excluded because
+they could block outside supervision. Real executor/storage integration stays gated.
+
+`supervise_fixture(request_raw=..., target=..., records=...)` accepts exact original
+request bytes, a validated descriptor and an exact tuple of original record bytes.
+Both parent and fixed child require a complete terminal codec-valid prefix,
+`local_disposable` target and `synthetic_fixture` admission. A successful exchange
+returns immutable `FixtureObservation` with status/code `fixture_reply_validated`,
+termination `child_exited` and its eight-field fixture reply. It confirms only
+communication and declaration bindings; even an embedded `committed` fixture label
+is not a new preparation/storage/admission outcome.
+
+The private stdin envelope has exactly `schema_version` (integer 1), `request_b64`,
+`target` (the existing six-field credential-free descriptor), `records_b64` (array
+of 1–4 original canonical record encodings). Base64 is canonical padded standard
+RFC4648. Raw envelope <= 65536 bytes, JSON container depth <= 4; reject BOM/duplicates/
+extra/missing keys, floats/nonfinite/wrong types/trailing values. Decoded request
+and record bounds remain the existing 8192/32768/131072 bounds. An otherwise valid
+prefix exceeding encoded transport capacity refuses before spawn; never widen
+limits. Child reads at most capacity+one detection byte, validates independently,
+and derives its reply only from that supplied prefix. It creates no descendants.
+
+Invalid inputs raise only `PreparationFixtureError`, safe code/message
+`scribeswell_preparation_fixture_invalid`, no decoder or caller chain. Runtime
+failures return status `unknown`, reply null, safe code selected from
+`fixture_deadline_exceeded`, `fixture_spawn_failed`, `fixture_transport_invalid`,
+`fixture_reply_invalid`, `fixture_child_failed`, `fixture_cleanup_unverified`.
+Forced termination requires observed SIGKILL after a kill request; a natural exit
+in the poll/kill race remains `child_exited`. Total elapsed time is checked again
+after cleanup before accepting the final observation. Termination is
+`not_started`, `child_exited`, `forced_termination_reaped` or
+`termination_unverified`; the last two remain distinguishable supervisor evidence,
+not rollback/recovery claims. No credentials/payload/exception strings enter it.
+
+Monotonic time starts at public entry, before input validation and encoding. Work
+ends at start + 58 seconds; total ends at start + 60 seconds. Same budget covers spawn,
+nonblocking input/output multiplex, stdout EOF, zero child exit and independent
+parent reply validation. Use only fixed trusted repository-qualified `-I -S`
+Python child/empty environment, private stdin/stdout, stderr null device and closed
+unrelated descriptors; no shell, caller command/env/callback/time override. Read
+stdout at most remaining 4096 bytes + one overflow detection byte; no communicate or
+unbounded pipe accumulation. Close pipes without draining after failure. Kill only
+the trusted direct child and reap at most min(2 seconds, remaining total); if total
+is exhausted, do not introduce a minimum positive wait. Preserve unverified
+termination when kill/reap cannot be established. No restart/retry. Synchronous
+Popen/OS scheduling can overrun while control is away; charge elapsed time, return
+unknown, never claim a hard realtime preemption guarantee. No real database/libpq
+or storage syscall deadline qualification follows from this transport fixture.
+
 ## Outcomes and recovery
 
 The [worker result and attempt-evidence contract](CORPUS_PREPARATION_EVIDENCE.md)
 now specifies the closed wire, two persistence checkpoints and finite recovery
 records. Its pure codecs and Linux synthetic local fixture store are implemented
-and tested; worker supervision, production storage/crash qualification and owner
+and tested; preparation execution supervision, production storage/crash qualification and owner
 admission remain gated. The existing request parser remains independent of that
 result format. See the owning contract for exact scope and actual test evidence.
 
@@ -261,8 +317,8 @@ The first two rows are implemented by the pure app-owned parser and its acceptan
 tests; the remaining rows are future executor/admission qualification. Parsing
 consumes the existing pure custody validator without authenticating owner records.
 Subsequent
-supervisor work must prove the specified result wire/durable-attempt capture and
-close actual fixture admission and applicable atomic audit before SQL effects; live owner integration remains
+executor integration must prove the specified result wire/durable-attempt capture
+under supervision and close actual fixture admission and applicable atomic audit before SQL effects; live owner integration remains
 separate. No scaffold/shared UI/agent context or accepted ADR change is required by
 this documentation slice. Studies UX, standalone account creation and separate
 Access/KDG/Leave/factory ownership remain unchanged.
@@ -306,4 +362,57 @@ were resolved, none deferred. No database/native execution was run for this pars
 This is internal/repository-qualified availability: existing runtime images do not
 include the required pure migration module, and consuming runner packaging must
 prove its own clean imports. No runtime endpoint, deployment/image, private target
-parser, owner admission, deadline supervisor or preparation SQL is provided.
+parser, owner admission, preparation execution supervisor or preparation SQL is provided.
+The separate synthetic communication fixture below now exercises its own supervisor.
+
+
+## Fixture supervisor implementation evidence
+
+The fixture-only contract above was written before implementation. The app-local
+[`caller_preparation_fixture.py`](../backend/caller_preparation_fixture.py) exposes
+`supervise_fixture`; its trusted child imports the same module with `-I -S` and
+fixed repository root. Existing pure codecs/request parser and fixture store are
+unchanged. No DB/storage/platform runtime module is imported. There is no public
+command/env/callback/timeout override or new HTTP/CLI endpoint.
+
+Observed ATDD red: the literal real-child acceptance test failed on the missing
+module (1failed,1.86s), before implementation. With the pytest-only Python3.12 setup
+in [codec evidence](CORPUS_PREPARATION_EVIDENCE.md#codec-api-and-verification-boundary):
+
+```sh
+/tmp/scribeswell-codec-repro/bin/python -m pytest -q apps/scribeswell/tests/test_caller_preparation_fixture.py
+```
+
+Pre-review result: **63 passed** (4.51s). Real isolated child tests cover exact
+immutable declaration replies, launch privacy, live/malformed input refusal,
+empty/forged/nonzero/unclosed/oversized replies, stderr flood, blocked pipes,
+short operations/backpressure and descriptor cleanup. Fake clock/process tests
+charge validation/spawn/parent reply validation to the same deadline, prove
+remaining-only cleanup (including sub-millisecond/no-positive-floor cases), and
+preserve kill/reap/close failures without payload diagnostics. Real failure probes
+shorten private test-local constants; the public API retains fixed58/60/2 bounds.
+These prove fixture communication/cleanup only, not a successful database
+preparation, original persistence acknowledgement, live authority, blocked
+filesystem deadlines, production image availability or D1–D5 readiness.
+
+
+Final reviewed result: **83 passed** (6.76s), all seven review findings addressed,
+none deferred. Two actual behavior regressions were observed failing before fixes
+(2failed,1.81s), then passing (2passed,1.81s): total cleanup overrun now prevents
+fixture acceptance, and kill/exit races use the reaped SIGKILL result before
+claiming forced termination. Additional tests enforce generous real elapsed
+bounds, shape-valid alternate reply bindings, real isolated-child malformed/
+oversized/live transport refusal without stdout/stderr diagnostics, repeated
+forced-stop descriptor stability and actual reaping, and zero-exit empty replies.
+
+Final affected command (backend/migration environment setup in codec evidence):
+
+```sh
+/tmp/scribeswell-host-tests-312/bin/python -m pytest apps/scribeswell/tests/test_caller_preparation_fixture.py apps/scribeswell/tests/test_caller_preparation_storage.py apps/scribeswell/tests/test_caller_preparation_evidence.py apps/scribeswell/tests/test_caller_preparation_input.py apps/scribeswell/tests/test_corpus_publication_input.py apps/scribeswell/tests/test_host_validation_profiles.py -q -k 'not real_supervised_replay and not history_supervisor_timeout and not history_never_selects_profile and not actual_commit_ack_loss and not real_host_coordinator'
+```
+
+Result: **761 passed, 11 native database cases deliberately deselected** (15.01s),
+83 new fixture/678 retained pure checks, no new skips. Earlier63/741 counts are
+pre-review evidence. No physical persistence/SQL/live owner/provider/container/
+image operations were performed. This is repository-qualified fixture availability;
+production image packaging and real execution/admission integration remain open.
