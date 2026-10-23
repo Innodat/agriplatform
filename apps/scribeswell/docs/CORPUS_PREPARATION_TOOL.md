@@ -416,3 +416,18 @@ Result: **761 passed, 11 native database cases deliberately deselected** (15.01s
 pre-review evidence. No physical persistence/SQL/live owner/provider/container/
 image operations were performed. This is repository-qualified fixture availability;
 production image packaging and real execution/admission integration remain open.
+
+## Integrated fixture capture milestone
+
+The [supervised capture contract](CORPUS_PREPARATION_EVIDENCE.md#supervised-fixture-capture-contract)
+defines the implemented integrated local fixture: a fixed worker writes and
+independently reads back the supplied records under the existing supervisor.
+Its acknowledgement is distinct from version1 declaration exchange and from real
+preparation/SQL success. See the owning contract for exact fields, custody and
+failure evidence. No second Access path or live execution is authorized.
+
+
+Final integration evidence is retained in that owning document:152 capture+legacy
+supervisor checks and830 affected pure checks passed,11 native DB cases excluded;
+all six review findings addressed. Capture reuses the existing supervision and
+store; it adds no second deadline/pipe engine or live preparation permission.

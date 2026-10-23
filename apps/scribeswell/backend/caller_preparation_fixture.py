@@ -1,10 +1,12 @@
 """Bounded Linux synthetic IPC only; no preparation, custody or durability claim.
 
-The fixed trusted child creates no descendants and performs only pure codec work.
-Parent inputs are independently supplied bytes, never blocking storage/owner reads.
+Fixed trusted children create no descendants. Version1 does pure codec work;
+version2 captures only explicit synthetic local files. Parent inputs are supplied
+bytes and an optional trusted root fd, never blocking storage/owner reads.
 Synchronous spawn/OS scheduling are charged on return, not hard-preemptible.
 """
 import base64
+import fcntl
 from dataclasses import dataclass, fields
 from functools import wraps
 import hashlib
@@ -254,18 +256,18 @@ def _finish(process, total_deadline):
         return 'termination_unverified', close_failed
 
 
-@_safe
-def supervise_fixture(*, request_raw: bytes, target, records: tuple[bytes, ...]) -> FixtureObservation:
-    """Validate a synthetic exchange, never report preparation execution success."""
-    started = time.monotonic()
+def _observe(payload, *, request_raw, target, records, started, root_fd=None):
+    """One lifecycle for the two fixed trusted workers; no caller callback API."""
     work_deadline, total_deadline = started+_WORK_SECONDS, started+_TOTAL_SECONDS
-    payload = _encode_envelope(request_raw, target, records)
     process, reply, code = None, None, 'fixture_transport_invalid'
     try:
         _check(work_deadline)
         try:
-            process = subprocess.Popen(_worker_command(), stdin=subprocess.PIPE, stdout=subprocess.PIPE,
-                                       stderr=subprocess.DEVNULL, env={}, close_fds=True, bufsize=0, cwd=_ROOT)
+            command = _worker_command() if root_fd is None else _capture_command(root_fd)
+            resources = {} if root_fd is None else {'pass_fds': (root_fd,)}
+            process = subprocess.Popen(command, stdin=subprocess.PIPE, stdout=subprocess.PIPE,
+                                       stderr=subprocess.DEVNULL, env={}, close_fds=True, bufsize=0, cwd=_ROOT,
+                                       **resources)
         except OSError:
             code = 'fixture_spawn_failed'
         if process is not None:
@@ -292,3 +294,90 @@ def supervise_fixture(*, request_raw: bytes, target, records: tuple[bytes, ...])
     if reply is not None:
         return FixtureObservation('fixture_reply_validated', 'fixture_reply_validated', termination, reply)
     return FixtureObservation('unknown', code, termination, None)
+
+
+@_safe
+def supervise_fixture(*, request_raw: bytes, target, records: tuple[bytes, ...]) -> FixtureObservation:
+    """Validate declarations only; retains version1 behavior and no store import."""
+    started = time.monotonic()
+    payload = _encode_envelope(request_raw, target, records)
+    return _observe(payload, request_raw=request_raw, target=target, records=records, started=started)
+
+
+@_safe
+def _encode_capture(request_raw, target, records):
+    value = json.loads(_encode_envelope(request_raw, target, records))
+    value.update(schema_version=2, operation='fixture.capture')
+    raw = _canonical(value)
+    _require(len(raw) <= _MAX_REQUEST)
+    return raw
+
+
+@_safe
+def _decode_capture(raw):
+    _require(type(raw) is bytes and len(raw) <= _MAX_REQUEST)
+    text = raw.decode('utf-8', errors='strict')
+    _require(not text.startswith('\ufeff'))
+    value = json.loads(text, object_pairs_hook=_pairs, parse_float=_reject_number, parse_constant=_reject_number)
+    _require(type(value) is dict and value.keys() == {'schema_version','operation','request_b64','target','records_b64'})
+    _require(type(value['schema_version']) is int and value['schema_version'] == 2
+             and value['operation'] == 'fixture.capture')
+    del value['operation']
+    value['schema_version'] = 1
+    return _decode_envelope(_canonical(value))
+
+
+def _capture_command(root_fd):
+    bootstrap = ('import sys; sys.path.insert(0,sys.argv[1]); '
+                 'from apps.scribeswell.backend.caller_preparation_fixture import _capture_main; '
+                 'raise SystemExit(_capture_main(int(sys.argv[2])))')
+    return [sys.executable, '-I', '-S', '-c', bootstrap, _ROOT, str(root_fd)]
+
+
+def _capture_main(root_fd):
+    """Only this fixed worker imports storage; every filesystem wait is supervised."""
+    from apps.scribeswell.backend.caller_preparation_storage import create_fixture_attempt, read_fixture_prefix
+    try:
+        request, target, records = _decode_capture(_read_request(sys.stdin.buffer))
+        end = _fixture(request, target, records)
+        with create_fixture_attempt(root_fd, request_raw=request, target=target) as writer:
+            for raw in records:
+                acknowledged = writer.append(raw)
+        _require(read_fixture_prefix(root_fd, request_raw=request, target=target) == records)
+        _require(acknowledged.sequence == end.sequence
+                 and acknowledged.record_sha256 == hashlib.sha256(records[-1]).hexdigest())
+        reply = WorkerResult(1, end.run_id, end.request_sha256, end.target_sha256, acknowledged.sequence,
+                             acknowledged.record_sha256, end.payload.outcome, end.payload.code)
+        sys.stdout.buffer.write(encode_worker_result(reply))
+        sys.stdout.buffer.flush()
+        return 0
+    except (PreparationFixtureError, OSError, ValueError):
+        return 2
+
+
+@_safe
+def capture_fixture(root_fd: int, *, request_raw: bytes, target, records: tuple[bytes, ...]) -> FixtureObservation:
+    """Acknowledge supervised synthetic local capture only; never preparation SQL."""
+    started = time.monotonic()
+    payload = _encode_capture(request_raw, target, records)
+    _require(type(root_fd) is int and root_fd >= 0)
+    try:
+        pinned = fcntl.fcntl(root_fd, fcntl.F_DUPFD_CLOEXEC, 3)
+    except OSError:
+        _require(False)
+    close_failed = False
+    try:
+        result = _observe(payload, request_raw=request_raw, target=target, records=records,
+                          started=started, root_fd=pinned)
+    finally:
+        try:
+            os.close(pinned)
+        except OSError:
+            close_failed = True
+    if close_failed:
+        return FixtureObservation('unknown', 'fixture_cleanup_unverified', result.termination, None)
+    if time.monotonic() >= started+_TOTAL_SECONDS:
+        return FixtureObservation('unknown', 'fixture_deadline_exceeded', result.termination, None)
+    if result.status == 'fixture_reply_validated':
+        return FixtureObservation('fixture_records_acknowledged', 'fixture_records_acknowledged', result.termination, result.reply)
+    return result

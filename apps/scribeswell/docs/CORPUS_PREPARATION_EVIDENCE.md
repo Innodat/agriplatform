@@ -532,3 +532,93 @@ post-cleanup deadline and kill/natural-exit race evidence. These are separate fr
 the historical 72 storage/678 affected counts above. Exact commands and actual final review/regression results belong to
 the owning tool contract and delivery record. Real storage/owner/deadline/SQL
 integration, machine-crash durability and actual preparation readiness remain gated.
+
+## Supervised fixture capture contract
+
+Status: integrated fixture implemented; evidence below.
+`capture_fixture(root_fd, request_raw=...,
+target=..., records=...)` integrates the existing store with the existing bounded
+supervisor in one synthetic local milestone. Version1 declaration exchange remains
+unchanged. Only `local_disposable` and `synthetic_fixture` terminal prefixes qualify.
+
+The caller supplies the independently trusted root fd. Parent validates exact int
+(excluding bool), duplicates it with `F_DUPFD_CLOEXEC` at minimum3 and passes only
+that duplicate through `pass_fds` to a fixed `-I -S` capture worker. The fd number
+is an internal resource identifier, never a request path or credential. Parent
+performs no filesystem metadata/record reads; actual owner0700/root/run/0600/file
+checks remain inside the supervised child. Caller fd is never closed, reflagged or
+selected from the environment. Close the duplicate on all paths and charge that
+close to the original entry deadline before returning an accepted observation.
+
+The closed capture stdin envelope has exactly `schema_version` integer2,
+`operation` literal `fixture.capture`, `request_b64`, `target`, `records_b64`.
+The last three reuse version1 types/closed field rules. Both versions retain
+65536raw byte/depth4 limits, canonical padded base64 and existing decoded limits;
+unknown versions/operations/duplicates/extras/type/BOM/overflow refuse. No public
+callback, arbitrary command, retry or timeout option is added.
+
+The child validates the entire expected terminal prefix before reserving a run.
+It creates a new attempt through the existing store, receives a real acknowledged
+append for every original record, closes the writer, then independently reloads
+and compares every original byte inside the same supervised work budget. Only
+then may it emit the existing eight-field terminal reply and exit0. Parent binds
+that reply against its independently supplied inputs, EOF/exit and same58/60/2
+budget. Shared selector/cleanup logic must be reused rather than duplicated.
+
+`FixtureObservation` status/code `fixture_records_acknowledged` is returned only
+for this complete capture/close/readback/reply sequence. It is not a preparation
+SQL result even when supplied synthetic terminal labels say committed/reused.
+`unknown` retains the existing safe failure codes/termination evidence, null reply,
+original request/run and files. Lost reply after successful capture remains unknown.
+A reloaded complete prefix never retroactively acknowledges the failed invocation.
+After termination_unverified, a child may still be pending termination: no new
+write, replay, repair or stable-state conclusion without independent termination
+proof. Do not delete reservations/pending files, truncate a prefix or automatically
+retry with the same or a new run. No physical power-loss, production image, real
+owner/current authority/atomic-audit/SQL readiness gate is closed by this fixture.
+
+
+### Integrated capture verification and delivery focus
+
+The capture contract was written before implementation. Literal acceptance red:
+missing `capture_fixture` produced1failed1.85s. First integrated+existing supervisor
+run had116passed/1failed10.95s: the test's close fault was accidentally disarmed
+after the first append. Corrected its phase selection without changing the
+required unknown outcome. Then **123 passed** (12.60s):40 new integration cases
+plus83 retained supervisor cases, using the pytest-only environment documented
+above. Final reviewed evidence follows below.
+
+```sh
+/tmp/scribeswell-codec-repro/bin/python -m pytest -q apps/scribeswell/tests/test_caller_preparation_capture.py apps/scribeswell/tests/test_caller_preparation_fixture.py
+```
+
+This is concrete reuse: capture and declaration workers share one `_observe`,
+selector, pipe bounds, parent binding and cleanup implementation. The storage
+module and codec stay unchanged. Integrated tests use actual local temporary files
+and the delivered supervisor, injecting process death at temporary creation,
+partial write/file sync/link/unlink/directory sync on first and later records,
+and stalled write/sync/readback. Earlier acknowledged bytes survive; complete
+readable records after reply/readback/close loss remain unknown. Descriptor pinning,
+caller fd close/reuse, no parent storage calls, root/input/live restrictions,
+reservation refusal and original entry/duplicate-close timing are exercised.
+
+Final reviewed capture+legacy supervisor result: **152 passed** (12.98s),69 new
+capture cases and83 retained supervisor cases. All six review findings addressed,
+none deferred. Additional cases prove pre-effect filesystem errors, reservation
+creation/open/lock/sync interruptions, unresolved termination with parent pin
+release/no retry, direct+real-child malformed version2 refusal before reservation,
+and parent filesystem/metadata reads blocked by instrumentation. No production
+implementation change was needed after review.
+
+Final affected command, using the existing backend/migration test environment:
+
+```sh
+/tmp/scribeswell-host-tests-312/bin/python -m pytest apps/scribeswell/tests/test_caller_preparation_capture.py apps/scribeswell/tests/test_caller_preparation_fixture.py apps/scribeswell/tests/test_caller_preparation_storage.py apps/scribeswell/tests/test_caller_preparation_evidence.py apps/scribeswell/tests/test_caller_preparation_input.py apps/scribeswell/tests/test_corpus_publication_input.py apps/scribeswell/tests/test_host_validation_profiles.py -q -k 'not real_supervised_replay and not history_supervisor_timeout and not history_never_selects_profile and not actual_commit_ack_loss and not real_host_coordinator'
+```
+
+Result: **830 passed, 11 native database cases deliberately excluded** (20.87s),
+69 new capture/761 retained pure checks, no new skips. Earlier123/801 counts are
+pre-review evidence. Actual local temporary files and supervised child process
+faults were exercised; no SQL, provider, owner, database, container or image
+operations were performed. Machine power-loss, production filesystem/current
+owner/source/image/atomic-audit and real preparation integration remain gated.
