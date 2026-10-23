@@ -1,10 +1,13 @@
 # Preparation worker result and attempt evidence
 
-Status: **pure codecs implemented; execution/storage not crash-qualified**. The
+Status: **pure codecs and local fixture storage implemented; execution/storage
+not production crash-qualified**. The
 [request parser](CORPUS_PREPARATION_TOOL.md#implemented-parser-and-qualification)
 and app-owned standard-library-only
-[codec](../backend/caller_preparation_evidence.py) are implemented. The worker,
-storage writer and admission mechanism below are not. Historical 207/394 parser
+[codec](../backend/caller_preparation_evidence.py) are implemented. The local
+[fixture store](../backend/caller_preparation_storage.py) is qualified only by
+the local fault/process-death tests below. The worker, live storage integration
+and admission mechanism below are not implemented. Historical 207/394 parser
 tests do not qualify those execution gates. Consume the existing
 [owner handoff](CORPUS_CALLER_PREPARATION.md) and
 [tool policy](CORPUS_PREPARATION_TOOL.md) without changing their request/custody,
@@ -307,6 +310,57 @@ atomic audit design/forward-migration compatibility proof under
 before SQL effects; this document supplies neither that audit nor permission to edit
 applied revisions. No live execution readiness is inferred from the journal design.
 
+## Fixture storage contract — bounded consuming slice
+
+Status: implemented as a local fixture library; actual evidence follows below.
+This first storage consumer is Linux-only and restricted to `local_disposable`
+targets and `synthetic_fixture` admissions. It has no CLI, credentials, SQL or live
+admission path. These checks label a fixture; they do not establish owner authority.
+
+The caller supplies an already-open, independently trusted custody-root directory
+fd, expected original request bytes and target descriptor. Validate exact current
+process effective ownership and mode0700 on root and run directories; duplicate
+and pin the root fd without closing the caller's copy. Reserve the canonical run
+UUID with create-only mkdir and fsync the root. Existing runs always refuse,
+including empty or failed reservations. Open run nofollow and pin its device/inode;
+nonblocking exclusive directory flock lasts for the writer lifetime. Never unlock
+an independently running writer through a duplicated open-file-description reader.
+Root/run metadata and root entry binding are rechecked before/after operations.
+No chmod of preexisting material or implicit root creation is provided.
+
+`create_fixture_attempt(root_fd, request_raw=..., target=...)` creates one writer.
+`append(raw_record_bytes)` validates the complete candidate prefix with the existing
+codec before mutation and verifies all already-retained bytes. Names are fixed
+`000001.json` through `000004.json`; one fresh create-only `.pending.json` is the
+only temporary name. Require owner0600 regular files, nofollow/nonblocking opens,
+bounded positive-progress writes and bounded reads/entry iteration. File fsync
+precedes no-clobber hardlink publication. Verify pending/final inode identity and
+linkcount2, remove only that temporary alias, verify final linkcount1, then fsync
+the run directory. Only after these checks return immutable sequence/digest
+acknowledgement. Every append failure poisons the writer, including failed input
+validation; no same-writer retry or reopen-for-append API exists. Close releases
+resources without deleting any reservation, record or failed pending file.
+
+`read_fixture_prefix(root_fd, request_raw=..., target=...)` independently opens and
+nonblock-locks the run for read, verifies every generated name/regular file/mode/
+owner/linkcount/size/inode and the whole contiguous codec-valid prefix, and returns
+only an immutable tuple of original bytes. Reject unknown entries, gaps, partial
+pending files, symlinks, FIFOs, oversized/corrupt records and alternate hardlinks;
+never silently truncate, normalize or repair them. An empty reserved directory
+returns an empty tuple, without inventing admission or claiming no external effect.
+
+A valid file discovered after reopen does **not** prove the original writer received
+fsync acknowledgement. This reader cannot resolve that uncertainty or authorize
+SQL/retry/recovery. In particular, a failure after publication/unlink can leave a
+complete-looking prefix; retain it without converting the failed append to success.
+Same-owner malicious mutation and an untrusted root are outside permission-based
+custody; hashes and cooperative flock are not authentication. Synchronous storage
+syscalls can block. This fixture provides no execution deadline or power-loss
+qualification; future parent supervision and actual filesystem qualification must
+close those gates before consequential effects. Tests may inject failing/stalled
+calls and terminate a fixture process, but must label those as process-crash/fault
+injection evidence rather than physical machine-crash or production readiness.
+
 ## First consuming delivery and evidence
 
 The app-owned codec implements immutable values for these closed
@@ -331,8 +385,9 @@ bindings; trusted custody, database observations and persistence require later p
 The codec cases above are exercised by
 [`test_caller_preparation_evidence.py`](../tests/test_caller_preparation_evidence.py).
 The physical capture, recovery, supervisor and owner-proof cases remain future
-acceptance requirements. No file writer, supervisor, target/admission verifier,
-schema/migration or production operation is implemented. Scaffold/shared UI,
+acceptance requirements for production consumption. The fixture writer described
+above is implemented; no supervisor, target/admission verifier, schema/migration
+or production operation is implemented. Scaffold/shared UI,
 agent-context and accepted ADRs require no changes for this app-local codec;
 no generic pattern is promoted. Agreed Studies UX, standalone signup and
 separate Access/KDG/Leave/factory ownership remain binding.
@@ -404,4 +459,58 @@ reply/descriptor malformed transport and manual session/snapshot/proof/result
 encoder validation. No production-code changes were needed after review. Record
 schema/field/canonical limits make some oversized/overdeep probes invalid for more
 than one reason; those probes establish safe rejection, not independent proof of
-each redundant guard. Physical storage and execution evidence remains future work.
+each redundant guard. Production storage and execution qualification remains future work.
+
+
+### Local fixture storage qualification
+
+The storage contract above was recorded before implementation. Observed acceptance
+red: the literal create/append/reload test failed on the missing storage module
+(1 failed,1.75s). With the same pytest-only setup above, run:
+
+```sh
+/tmp/scribeswell-codec-repro/bin/python -m pytest -q apps/scribeswell/tests/test_caller_preparation_storage.py
+```
+
+Result before review: **54 passed** (3.93s). These tests use real temporary local
+directories and independent Python processes. They check exact prefix bytes,
+permissions, file-sync→link→unlink→directory-sync→ack ordering, unchanged previous
+records, all finite phase examples, no overwrite/reopen, poisoned writes, short/zero
+write handling, restrictive umask, ownership/mode checks, symlinks/FIFOs/directories/
+alternate links, pending/gap/corrupt/oversized entries, run replacement and live
+admission refusal. Injected syscall failures preserve residue; process death after
+create/write/file-sync/link/unlink/directory-sync never produces a false original
+acknowledgement. Complete-looking files after unlink/sync remain structurally
+readable without proving that lost acknowledgement. A deliberately stalled sync
+is killed/reaped by the **test harness**, not a delivered production supervisor.
+
+The library requires a single sequential writer; its context manager closes fds
+and releases locks but never removes evidence. Directory flock coordinates trusted
+cooperating processes only. The store does not read environment variables, resolve
+owner records or authenticate the trusted root. Linux filesystem semantics and the
+local fixture syscall/process tests do not prove physical machine-crash durability,
+remote/filesystem compatibility, bounded kernel I/O, the58/60/2 execution budget,
+actual owner custody, atomic business audit or any database outcome. Those remain
+explicit consuming gates. No runtime image packaging or live preparation is supplied.
+
+Reviewed final storage result: **72 passed** (7.80s), with all seven review findings
+addressed and no deferrals. The later-record process-death tests preserve two
+previously acknowledged records at every publication checkpoint. Short/failing
+reads, independently expected request/target mismatches, same-process lock safety,
+root descriptor pinning, descriptor counts on failure and custody changes after
+creation are exercised. Stalled-sync measurement starts after a bounded readiness
+handshake, separating interpreter startup from the simulated I/O stall. No storage
+implementation change was needed after review. Tests ran on this host's `/tmp`
+filesystem, reported by `stat -f -c '%T' /tmp` as `ext2/ext3`; no claim of other
+filesystem or physical crash qualification follows.
+
+Final affected command, using the backend/migration environment setup above:
+
+```sh
+/tmp/scribeswell-host-tests-312/bin/python -m pytest apps/scribeswell/tests/test_caller_preparation_storage.py apps/scribeswell/tests/test_caller_preparation_evidence.py apps/scribeswell/tests/test_caller_preparation_input.py apps/scribeswell/tests/test_corpus_publication_input.py apps/scribeswell/tests/test_host_validation_profiles.py -q -k 'not real_supervised_replay and not history_supervisor_timeout and not history_never_selects_profile and not actual_commit_ack_loss and not real_host_coordinator'
+```
+
+Result: **678 passed, 11 native database cases deliberately deselected** (20.15s),
+72 new storage/606 retained pure checks. No new skips. The earlier54/660 counts are
+pre-review evidence only. The pure codec's no-I/O contract remains unchanged;
+explicit file effects belong only to the separately imported fixture store.

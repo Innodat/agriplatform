@@ -191,8 +191,10 @@ committed preparation.
 
 The [worker result and attempt-evidence contract](CORPUS_PREPARATION_EVIDENCE.md)
 now specifies the closed wire, two persistence checkpoints and finite recovery
-records. It is a design, not implemented codecs or storage. The existing request
-parser remains independent of that later result format.
+records. Its pure codecs and Linux synthetic local fixture store are implemented
+and tested; worker supervision, production storage/crash qualification and owner
+admission remain gated. The existing request parser remains independent of that
+result format. See the owning contract for exact scope and actual test evidence.
 
 | Outcome | Evidence required | Further action |
 |---|---|---|
