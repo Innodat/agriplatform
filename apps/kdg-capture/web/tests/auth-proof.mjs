@@ -98,8 +98,34 @@ try{
   mode='success';await page.evaluate(()=>window.fixture.replaceOrg('66666666-6666-4666-8666-666666666666'));await page.getByRole('heading',{name:'Could not verify access',exact:true}).waitFor();await page.waitForTimeout(250);
   assert.equal(await page.getByRole('heading',{name:'Setup not completed',exact:true}).count(),0);
   await page.evaluate(org=>window.fixture.replaceOrg(org),ORG);await page.getByRole('heading',{name:'Setup not completed',exact:true}).waitFor();checks.push('configured_org_replacement_clears_admission');
+  assert.deepEqual(await page.evaluate(()=>window.fixture.oauthLaunch()),{kind:'launched'});
+  await page.getByText('Entry unmounted',{exact:true}).waitFor();assert.equal(await page.evaluate(()=>window.fixture.snapshot().active),0);
+  assert.equal(await page.evaluate(()=>window.fixture.oauthCallback('?code=synthetic-code')),'authorized');
+  await page.getByRole('heading',{name:'Setup not completed',exact:true}).waitFor();assert.equal(new URL(page.url()).pathname,'/');assert.equal(new URL(page.url()).search,'');checks.push('pkce_launch_callback_scrubs_and_rechecks');
+  await page.evaluate(()=>window.fixture.oauthLaunch());mode='denied';assert.equal(await page.evaluate(()=>window.fixture.oauthCallback('?code=synthetic-denied')),'access_denied');
+  await page.getByText('Entry unmounted',{exact:true}).waitFor();assert.equal(new URL(page.url()).search,'');assert.equal(await page.evaluate(()=>window.fixture.snapshot().oauthPending),false);mode='success';
+  await page.evaluate(()=>window.fixture.mount(true));await page.getByRole('heading',{name:'Setup not completed',exact:true}).waitFor();checks.push('pkce_callback_current_denial_no_admission');
+  const oauthChecks=await page.evaluate(()=>window.fixture.snapshot().oauthChecks);assert.deepEqual(oauthChecks,['validated_launch','scrubbed','scrubbed_before_exchange','validated_launch','scrubbed','scrubbed_before_exchange']);
+  for(const query of ['?code=one&code=two','?error=access_denied&error_description=PRIVATE','#access_token=PRIVATE']){
+   await page.evaluate(()=>window.fixture.oauthLaunch());const before=await page.evaluate(()=>window.fixture.snapshot().oauthChecks.filter(v=>v==='scrubbed_before_exchange').length);
+   assert.equal(await page.evaluate(query=>window.fixture.oauthCallback(query),query),'invalid_callback');
+   assert.equal(new URL(page.url()).search,'');assert.equal(new URL(page.url()).hash,'');assert.equal(await page.evaluate(()=>window.fixture.snapshot().oauthPending),false);
+   assert.equal(await page.evaluate(()=>window.fixture.snapshot().oauthChecks.filter(v=>v==='scrubbed_before_exchange').length),before);await page.getByText('Entry unmounted',{exact:true}).waitFor();
+  }checks.push('malformed_callback_scrubs_without_exchange');
+  await page.evaluate(()=>window.fixture.oauthLaunch());await page.evaluate(account=>window.fixture.replaceOwner(account),A);
+  assert.equal(await page.evaluate(()=>window.fixture.oauthCallback('?code=old-owner')),'invalid_callback');assert.equal(await page.evaluate(()=>window.fixture.snapshot().oauthPending),false);checks.push('pending_launch_owner_replacement_clears_attempt');
+  for(const replacement of ['owner','org']){
+   await page.evaluate(()=>window.fixture.oauthLaunch());await page.evaluate(()=>window.fixture.holdOAuth());const pending=page.evaluate(()=>window.fixture.oauthCallback('?code=synthetic-delayed'));
+   await page.waitForFunction(()=>window.fixture.snapshot().oauthInFlight===1);
+   if(replacement==='owner')await page.evaluate(account=>window.fixture.replaceOwner(account),B);else await page.evaluate(()=>window.fixture.replaceOrg('66666666-6666-4666-8666-666666666666'));
+   assert.equal(await pending,'cancelled');await page.evaluate(()=>window.fixture.releaseOAuth());await page.waitForFunction(()=>window.fixture.snapshot().oauthInFlight===0);await page.waitForTimeout(30);
+   await page.getByText('Entry unmounted',{exact:true}).waitFor();assert.equal(await page.getByRole('heading',{name:'Setup not completed',exact:true}).count(),0);
+   if(replacement==='org')await page.evaluate(org=>window.fixture.replaceOrg(org),ORG);
+   await page.evaluate(()=>window.fixture.mount(true));await page.getByRole('heading',{name:'Setup not completed',exact:true}).waitFor();checks.push('pending_exchange_'+replacement+'_replacement_stays_closed');
+  }
+
   assert.deepEqual(await page.evaluate(()=>[localStorage.length,sessionStorage.length]),[0,0]);assert.ok(!(await page.locator('body').textContent()).includes('SENSITIVE'));
-  assert.deepEqual(failedResponses,[{path:'/api/v1/context',status:403},{path:'/api/v1/context',status:403},{path:'/api/v1/context',status:403},{path:'/api/v1/context',status:401}]);assert.ok(issues.length===4&&issues.every(e=>e.event==='console_error'&&e.path==='/api/v1/context'),'unexpected_browser_error');
+  assert.deepEqual(failedResponses,[{path:'/api/v1/context',status:403},{path:'/api/v1/context',status:403},{path:'/api/v1/context',status:403},{path:'/api/v1/context',status:401},{path:'/api/v1/context',status:403}]);assert.ok(issues.length===5&&issues.every(e=>e.event==='console_error'&&e.path==='/api/v1/context'),'unexpected_browser_error');
   const snapshot=await page.evaluate(()=>window.fixture.snapshot());assert.ok(snapshot.paths.every(path=>['/auth/v1/user','/auth/v1/token','/auth/v1/logout'].includes(path)));checks.push('synthetic_auth_fetch_no_storage_or_raw_errors');
   writeFileSync(join(proof,'sdk-browser.json'),JSON.stringify(snapshot,null,2)+'\n');await page.screenshot({path:join(proof,'auth-entry.png'),fullPage:true});
  }

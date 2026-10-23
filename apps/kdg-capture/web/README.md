@@ -142,3 +142,11 @@ context before selecting restoration. Callers clear/dispose on lifecycle changes
 provider callback and React navigation wiring remain separate. No URL payload, storage
 or automatic confirmation is introduced. See [current evidence](../docs/AUTH_RETURN_EVIDENCE.md)
 for test commands, caller obligations and the distinction from complete callback flow.
+
+## PKCE launch/callback candidate — 2026-10-23
+
+`createEntryOAuth` adapts the scaffold controller to the supplied PKCE-configured
+Supabase client and current fixed-organization context API. Provider/scopes, exact URLs,
+transaction storage and navigation remain explicit owner inputs. Callback success never
+bypasses current KDG access. See [evidence](../docs/OAUTH_CONTROLLER_EVIDENCE.md) for
+SDK/browser tests and limits. No public Auth client configuration or storage is activated.

@@ -1,7 +1,7 @@
 // KDG-owned adapter: shared generated lifecycle, application-owned current admission.
 import type {SupabaseClient} from '@supabase/supabase-js';
 import {createEntryBoundary, type EntryState, type EntryContext, type Session, getCurrentContext} from './entry.js';
-import {createSessionLifecycle,createReturnSelection} from './auth/lifecycle.js';
+import {createSessionLifecycle,createReturnSelection,createOAuthController,type OAuthStore} from './auth/lifecycle.js';
 export type EntryAuth = Pick<SupabaseClient['auth'], 'getSession' | 'onAuthStateChange' | 'refreshSession' | 'signOut'>;
 export type AuthEntryOptions = Readonly<{
  org:string;auth:EntryAuth;publish:(state:EntryState)=>void;beginSignIn:()=>Promise<void>;
@@ -30,4 +30,20 @@ export function createEntryReturn(options:Readonly<{org:string;request?:typeof f
   },
   clear:guard.clear,dispose:guard.dispose,
  };
+}
+
+export type EntryOAuthAuth=Pick<SupabaseClient['auth'],'signInWithOAuth'|'exchangeCodeForSession'>;
+/** The supplied SDK must explicitly use PKCE and detectSessionInUrl:false. */
+export function createEntryOAuth(configuration:Readonly<{
+ org:string;auth:EntryOAuthAuth;authorizeUrl:string;callbackUrl:string;
+ provider:Parameters<EntryOAuthAuth['signInWithOAuth']>[0]['provider'];scopes:string;
+ store:OAuthStore;pause():void;navigate(url:string):void;scrub(url:string):void;
+ request?:typeof fetch;timeoutMs?:number;now?:()=>number;
+}>) {
+ const options=Object.freeze({...configuration});
+ return createOAuthController<EntryContext>({...options,
+  begin:async()=>{const result=await options.auth.signInWithOAuth({provider:options.provider,options:{redirectTo:options.callbackUrl,scopes:options.scopes,skipBrowserRedirect:true}});return{url:result.data.url,flowId:result.data.flowId??null,error:result.error};},
+  exchange:async(code,flowId)=>{const result=await options.auth.exchangeCodeForSession(code,{flowId});return{session:result.data.session,error:result.error};},
+  admit:(session,signal)=>getCurrentContext(session,options.org,{request:options.request,signal,timeoutMs:options.timeoutMs}),
+ });
 }

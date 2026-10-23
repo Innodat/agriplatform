@@ -812,3 +812,8 @@ explicit canonical route/safe-page configuration and fresh route-specific author
 no default domain routes, durable storage or navigation are generated. KDG consumes
 this via the existing managed Auth parity group. See
 [KDG consuming evidence](../../apps/kdg-capture/docs/AUTH_RETURN_EVIDENCE.md).
+
+The managed Auth candidate also supplies the injected PKCE launch/callback coordinator
+and its emitted acceptance/edge-case tests. Applications adapt their Auth SDK and fresh
+route authority; no provider credentials or storage default is generated. See
+[KDG consuming evidence](../../apps/kdg-capture/docs/OAUTH_CONTROLLER_EVIDENCE.md).

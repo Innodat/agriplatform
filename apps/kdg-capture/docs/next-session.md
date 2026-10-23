@@ -1,3 +1,30 @@
+## Current delivery — synthetic PKCE launch/callback controller, 2026-10-23
+
+The injected scaffold controller and KDG SDK/current-context adapter now coordinate
+explicit PKCE launches and one-use callbacks. Scaffold68 +43 KDG tests (111 total),
+27 compiler/build/SDK/React/Chromium checks, builder68 and strict TypeScript7.0.2 pass;
+final full offline generation proof is recorded in the owner receipt. All eight review
+findings patched, none deferred. See [owner evidence](OAUTH_CONTROLLER_EVIDENCE.md).
+Completed callbacks cannot replay cached authority; malformed/error URLs scrub and fail
+closed. Pending transactions are exact-config-bound and at most10 minutes old; explicit
+flow IDs prevent latest-verifier fallback. Fresh current KDG access follows SDK exchange.
+Timeout/disposal cannot undo SDK side effects, including late saved sessions; old callbacks
+remain unable to invoke admission. Current proof includes delayed SDK writes and owner/org
+replacement. Neutral code/tests/guidance and managed KDG copies remain synchronized.
+
+No public frontend/provider activation, storage default, real callback/device or complete
+Story1.1 readiness is claimed. Next select the explicit local/CI Auth transaction/session
+storage and entry-route wiring prerequisite from owner contracts. Current controller
+requires injected PKCE/manual-URL Auth, isolated synchronous metadata store and navigation/
+pause ports. Do not infer real Entra readiness from synthetic Azure/email fixtures.
+Preserve concurrent work/history/Docker resources and TS7.0.2. Synthetic local/CI only;
+no Leave/editor, production, real account/access, provisioning, deployment/pilot or cleanup.
+Fingerprints/HMAC remain deferred.
+
+The complete prior handoff follows as historical checkpoints.
+
+---
+
 ## Current delivery — identity-safe return selection, 2026-10-23
 
 The bounded in-memory return selector and KDG current-context adapter are complete:

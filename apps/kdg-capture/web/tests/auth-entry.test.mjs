@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import {test} from 'node:test';
-import {createAuthEntry,createEntryReturn} from '../../../../compiled/web/src/auth-entry.js';
+import {createAuthEntry,createEntryReturn,createEntryOAuth} from '../../../../compiled/web/src/auth-entry.js';
 const A='11111111-1111-4111-8111-111111111111',B='22222222-2222-4222-8222-222222222222',ORG='33333333-3333-4333-8333-333333333333';
 const session=(id=A,token='synthetic-'+id)=>({user:{id},access_token:token});
 const context=id=>({account_id:id,actor_id:'44444444-4444-4444-8444-444444444444',membership_id:'1',authorization_scope:{kind:'organization',org_id:ORG},resource_scope:{kind:'own_account',account_id:id},permission:'kdg_capture.capture.read.own',decision_id:'55555555-5555-4555-8555-555555555555',checked_at:'2026-10-23T10:00:00Z'});
@@ -210,4 +210,64 @@ for(const stage of ['headers','body'])test(`KDG return deadline aborts stalled $
  assert.deepEqual(result,{kind:'safe',path:'/'});assert.equal(signal.aborted,true);
  if(stage==='headers')pending.resolve(response);await tick();assert.equal(cancelled,1);
  assert.deepEqual(await guard.restore({account_id:A,access_token:'synthetic'}),{kind:'safe',path:'/'});guard.dispose();
+});
+
+test('KDG OAuth callback consumes explicit SDK flow and requires current private context',async()=>{
+ let stored=null;const calls=[],callbackUrl='https://app.invalid/auth/callback',authorizeUrl='https://auth.invalid/auth/v1/authorize';
+ const flow=createEntryOAuth({org:ORG,authorizeUrl,callbackUrl,provider:'azure',scopes:'email',store:{read:()=>stored,write:value=>{stored=value;},take:()=>{const old=stored;stored=null;return old;}},pause:()=>calls.push('pause'),navigate:()=>calls.push('navigate'),scrub:()=>calls.push('scrub'),
+ auth:{signInWithOAuth:async input=>{calls.push(input);return{data:{url:authorizeUrl+'?'+new URLSearchParams({provider:'azure',redirect_to:callbackUrl,scopes:'email',code_challenge:'a'.repeat(43),code_challenge_method:'s256'}),flowId:'syntheticFlow123'},error:null};},exchangeCodeForSession:async(code,options)=>{calls.push([code,options]);return{data:{session:session()},error:null};}},request:async()=>{calls.push('context');return reply(A);}});
+ assert.deepEqual(await flow.launch(),{kind:'launched'});assert.equal((await flow.callback(callbackUrl+'?code=synthetic-code')).kind,'authorized');
+ assert.ok(calls.includes('context'));assert.deepEqual(calls[1],{provider:'azure',options:{redirectTo:callbackUrl,scopes:'email',skipBrowserRedirect:true}});flow.dispose();
+});
+
+async function sdkOAuthFixture({failure=false,denied=false,delay}={}){
+ const {createClient}=await import('@supabase/supabase-js');const {randomUUID}=await import('node:crypto');
+ const values=new Map(),calls=[],key='synthetic-pkce-'+randomUUID(),now=Math.floor(Date.now()/1000);
+ const access=Buffer.from(JSON.stringify({alg:'HS256',typ:'JWT'})).toString('base64url')+'.'+Buffer.from(JSON.stringify({sub:A,exp:now+3600,aud:'authenticated'})).toString('base64url')+'.c3ludGhldGlj';
+ const client=createClient('https://synthetic-auth.invalid','synthetic-public-key',{
+  auth:{flowType:'pkce',detectSessionInUrl:false,autoRefreshToken:false,debug:false,storageKey:key,storage:{getItem:k=>values.get(k)??null,setItem:(k,v)=>{values.set(k,v);},removeItem:k=>{values.delete(k);}}},
+  global:{fetch:async(input,init)=>{
+   const url=new URL(String(input));assert.equal(url.origin,'https://synthetic-auth.invalid');assert.equal(url.pathname,'/auth/v1/token');assert.equal(url.searchParams.get('grant_type'),'pkce');
+   const body=JSON.parse(init.body);assert.deepEqual(Object.keys(body).sort(),['auth_code','code_verifier']);calls.push({kind:'exchange',body});if(delay)await delay;
+   if(failure)return new Response(JSON.stringify({error_code:'bad_code',message:'PRIVATE'}),{status:400,headers:{'content-type':'application/json'}});
+   return new Response(JSON.stringify({access_token:access,refresh_token:'synthetic-refresh',expires_in:3600,token_type:'bearer',user:{id:A,aud:'authenticated',role:'authenticated',app_metadata:{},user_metadata:{},created_at:'2026-10-23T10:00:00Z'}}),{headers:{'content-type':'application/json'}});
+  }},
+ });
+ let stored=null;const options={org:ORG,auth:client.auth,authorizeUrl:'https://synthetic-auth.invalid/auth/v1/authorize',callbackUrl:'https://app.invalid/auth/callback',provider:'azure',scopes:'email',
+  store:{read:()=>stored,write:value=>{stored=value;},take:()=>{const prior=stored;stored=null;return prior;}},pause:()=>calls.push({kind:'pause'}),navigate:url=>calls.push({kind:'navigate',url}),scrub:url=>calls.push({kind:'scrub',url}),
+  request:async(_path,init)=>{calls.push({kind:'context'});assert.equal(init.headers.Authorization,'Bearer '+access);return denied?new Response(JSON.stringify({error_id:'access_denied'}),{status:403}):reply(A);}};
+ return{client,values,calls,key,options,flow:createEntryOAuth(options),stored:()=>stored};
+}
+test('actual SDK PKCE launch/exchange binds its stored verifier, scrubs callback and rechecks KDG authority',async()=>{
+ const f=await sdkOAuthFixture();assert.equal((await f.flow.launch()).kind,'launched');const record=f.stored(),slot=f.key+'-flow-'+record.flow_id+'-code-verifier';
+ const verifier=JSON.parse(f.values.get(slot));const {createHash}=await import('node:crypto');
+ const launched=f.calls.find(c=>c.kind==='navigate');assert.equal(new URL(launched.url).searchParams.get('code_challenge'),createHash('sha256').update(verifier).digest('base64url'));
+ f.flow.dispose();const callback=createEntryOAuth(f.options);const result=await callback.callback(f.options.callbackUrl+'?code=synthetic-code');
+ assert.equal(result.kind,'authorized');assert.equal(result.context.account_id,A);assert.equal(f.calls.find(c=>c.kind==='exchange').body.code_verifier,verifier);
+ assert.ok(f.calls.findIndex(c=>c.kind==='scrub')<f.calls.findIndex(c=>c.kind==='exchange'));assert.equal(f.values.has(slot),false);assert.equal(f.calls.filter(c=>c.kind==='context').length,1);
+ assert.equal((await callback.callback(f.options.callbackUrl+'?code=synthetic-code')).kind,'invalid_callback');assert.equal(f.calls.filter(c=>c.kind==='exchange').length,1);callback.dispose();f.client.auth.stopAutoRefresh();
+});
+for(const mode of ['failure','denied'])test('actual SDK callback '+mode+' cannot grant KDG admission or replay code',async()=>{
+ const f=await sdkOAuthFixture({[mode]:true});await f.flow.launch();const result=await f.flow.callback(f.options.callbackUrl+'?code=synthetic-code');
+ assert.equal(result.kind,mode==='failure'?'authentication_required':'access_denied');assert.ok(!JSON.stringify(result).includes('PRIVATE'));
+ await f.flow.callback(f.options.callbackUrl+'?code=synthetic-code');assert.equal(f.calls.filter(c=>c.kind==='exchange').length,1);f.flow.dispose();f.client.auth.stopAutoRefresh();
+});
+test('actual SDK callback with absent explicit flow slot never borrows the latest verifier',async()=>{
+ const f=await sdkOAuthFixture();await f.flow.launch();const record=f.stored();f.options.store.write({...record,flow_id:'absentFlow123'});
+ assert.equal((await f.flow.callback(f.options.callbackUrl+'?code=synthetic-code')).kind,'authentication_required');assert.equal(f.calls.filter(c=>c.kind==='exchange').length,0);
+ assert.equal(f.values.has(f.key+'-flow-'+record.flow_id+'-code-verifier'),true);f.flow.dispose();f.client.auth.stopAutoRefresh();
+});
+
+for(const action of ['timeout','dispose'])test('actual SDK late session write after callback '+action+' never invokes owner admission',async()=>{
+ const pending=deferred(),f=await sdkOAuthFixture({delay:pending.promise});await f.flow.launch();f.flow.dispose();
+ const callback=createEntryOAuth({...f.options,timeoutMs:action==='timeout'?5:50});const work=callback.callback(f.options.callbackUrl+'?code=synthetic-late');await tick();
+ assert.equal(f.calls.filter(c=>c.kind==='exchange').length,1);if(action==='dispose')callback.dispose();
+ assert.equal((await work).kind,action==='timeout'?'authorization_unavailable':'cancelled');pending.resolve();await tick();await tick();
+ const current=await f.client.auth.getSession();assert.equal(current.data.session.user.id,A);assert.equal(f.values.has(f.key),true);assert.equal(f.calls.filter(c=>c.kind==='context').length,0);
+ assert.notEqual((await work).kind,'authorized');callback.dispose();f.client.auth.stopAutoRefresh();
+});
+
+test('KDG OAuth pins owner configuration before asynchronous launch/callback work',async()=>{
+ const f=await sdkOAuthFixture(),options={...f.options},flow=createEntryOAuth(options);await flow.launch();options.org=B;
+ assert.equal((await flow.callback(f.options.callbackUrl+'?code=synthetic-config')).kind,'authorized');flow.dispose();f.flow.dispose();f.client.auth.stopAutoRefresh();
 });

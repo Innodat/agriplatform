@@ -97,3 +97,33 @@ action. Its default context has no routes until the application explicitly suppl
 them. Queries, fragments, escapes, dot segments and unapproved routes are refused.
 Provider/PKCE storage, callback processing, durable recovery and actual lifecycle wiring
 remain consumer work requiring their own acceptance; this candidate claims none of them.
+
+## Explicit PKCE launch/callback candidate
+
+`createOAuthController` in the generated Auth lifecycle module coordinates injected
+PKCE launch/exchange ports. Supply the exact public Auth authorization endpoint and app
+callback URL, provider/scopes, an owner-isolated synchronous transaction store, navigation,
+address replacement, admission pause and current route-authority verification. No SDK
+or browser storage default is generated. The supplied client must use PKCE with manual
+URL processing (`detectSessionInUrl:false`); its begin adapter must suppress automatic
+redirects. The controller validates S256 and binds the explicit returned SDK flow ID;
+exchange must use that ID, never a latest-verifier fallback. Auth owns session/verifier
+storage; transaction metadata must contain no token, verifier, form value or arbitrary URL.
+
+Read/write/take storage operates on one pending attempt; take removes it synchronously
+before exchange. The exact endpoint/callback/provider/scopes binding and creation time
+must survive the authorized redirect through an explicitly selected owner storage policy.
+There is one pending attempt, at most10 minutes old. Overlapping launches and identical pending callbacks on
+one controller share work; completed/new callback invocations are scrubbed and refused; failures require explicit recovery, never automatic code replay.
+Instantiate a callback controller after navigation, pause admission, replace the callback
+address before exchange, then check current app access before mounting the protected view.
+Root admission cannot establish access to future record routes. An expired/foreign or
+malformed callback consumes the pending attempt and stays closed. The current callback
+handler accepts only one query `code`; provider error/fragment callbacks fail closed.
+
+Dispose on view replacement/unmount to settle local work, but retain the pending launch
+record for the new callback view. Explicit invalidate consumes it. Neither cancellation
+nor timeout can undo SDK/network side effects, including a late saved session; do not
+mount/resume admission from an obsolete result. A new current lifecycle must recheck.
+Public provider configuration, storage policy, redirect/callback routing, real Entra and
+device qualification remain consumer delivery gates; synthetic proof is not activation.

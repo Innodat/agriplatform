@@ -187,3 +187,120 @@ export function createReturnSelection(options:Readonly<{routes:readonly string[]
   dispose(){disposed=true;clear();},
  };
 }
+
+export type OAuthFlow = Readonly<{version:1;flow_id:string;created_at:number;binding:string}>;
+export type OAuthStore = {read():unknown;write(flow:OAuthFlow):void;take():unknown};
+export type OAuthResult<T> = EntryState<T>|Readonly<{kind:'launched'|'invalid_callback'}>;
+export type OAuthOptions<T> = Readonly<{
+ authorizeUrl:string;callbackUrl:string;provider:string;scopes:string;store:OAuthStore;
+ begin():Promise<{url:string|null;flowId:string|null;error:unknown}>;
+ exchange(code:string,flowId:string):Promise<{session:ProviderSession|null;error:unknown}>;
+ pause():void;navigate(url:string):void;scrub(url:string):void;
+ admit(session:Session,signal:AbortSignal):Promise<EntryState<T>>;now?:()=>number;timeoutMs?:number;
+}>;
+/** Explicit PKCE ports and owner-isolated synchronous transaction storage are required. */
+export function createOAuthController<T>(options:OAuthOptions<T>) {
+ const {authorizeUrl,callbackUrl,provider,scopes,store,begin,exchange,pause,navigate,scrub,admit}=options;
+ const duration=options.timeoutMs??10000,now=options.now??Date.now;
+ function endpoint(raw:string):URL {
+  const url=new URL(raw);
+  if(url.href!==raw||url.username||url.password||url.search||url.hash||
+    !(url.protocol==='https:'||(url.protocol==='http:'&&['localhost','127.0.0.1','[::1]'].includes(url.hostname))))throw new Error('oauth_configuration_invalid');
+  return url;
+ }
+ let authorization:URL,callback:URL;
+ try{authorization=endpoint(authorizeUrl);callback=endpoint(callbackUrl);}
+ catch{throw new Error('oauth_configuration_invalid');}
+ if(!provider||!scopes||!Number.isFinite(duration)||duration<=0||duration>10000)throw new Error('oauth_configuration_invalid');
+ const binding=JSON.stringify([authorizeUrl,callbackUrl,provider,scopes]);
+ const flowId=(value:unknown):value is string=>typeof value==='string'&&/^[A-Za-z0-9_-]{8,64}$/.test(value)&&value.trim()===value;
+ const validFlow=(raw:unknown):raw is OAuthFlow=>{
+  if(!raw||typeof raw!=='object'||Array.isArray(raw))return false;
+  const value=raw as Record<string,unknown>,time=now();
+  return Object.keys(value).sort().join(',')==='binding,created_at,flow_id,version'&&value.version===1&&value.binding===binding&&flowId(value.flow_id)&&
+   Number.isSafeInteger(value.created_at)&&Number.isSafeInteger(time)&&Number(value.created_at)<=time&&time-Number(value.created_at)<=600000;
+ };
+ function launchUrl(raw:unknown):string|null {
+  if(typeof raw!=='string'||raw.length>8192)return null;
+  const url=new URL(raw),params=url.searchParams;
+  const fields=['provider','redirect_to','scopes','code_challenge','code_challenge_method'];
+  if(url.origin!==authorization.origin||url.pathname!==authorization.pathname||url.username||url.password||url.hash||
+   [...params.keys()].sort().join(',')!==fields.sort().join(',')||params.get('provider')!==provider||params.get('redirect_to')!==callbackUrl||params.get('scopes')!==scopes||
+   params.get('code_challenge_method')!=='s256'||(params.get('code_challenge')??'').length!==43||!/^[A-Za-z0-9_-]{43}$/.test(params.get('code_challenge')??''))return null;
+  return url.href;
+ }
+ function callbackCode(raw:unknown):string|null {
+  if(typeof raw!=='string'||raw.length>8192||!raw.startsWith(callbackUrl+'?'))return null;
+  const url=new URL(raw),params=url.searchParams,code=params.get('code');
+  if(url.origin!==callback.origin||url.pathname!==callback.pathname||url.username||url.password||url.hash||
+    [...params.keys()].join(',')!=='code'||typeof code!=='string'||!/^[A-Za-z0-9._~-]{1,2048}$/.test(code)||code.trim()!==code)return null;
+  return code;
+ }
+ let epoch=0,disposed=false,active:Promise<OAuthResult<T>>|null=null,phase:'launch'|'callback'|null=null;
+ let cancel:((result:OAuthResult<T>)=>void)|undefined,callbackWork:Promise<OAuthResult<T>>|undefined;
+ let callbackSeen=false,callbackCodeActive:string|null=null;
+ function invalidateWork(){epoch++;active=null;phase=null;const previous=cancel;cancel=undefined;previous?.({kind:'cancelled'});}
+ function run(kind:'launch'|'callback',work:(valid:()=>boolean,signal:AbortSignal)=>Promise<OAuthResult<T>>):Promise<OAuthResult<T>> {
+  const execution=++epoch,controller=new AbortController();let interrupted:OAuthResult<T>|undefined,finish!:(result:OAuthResult<T>)=>void;
+  const stopped=new Promise<OAuthResult<T>>(resolve=>{finish=resolve;});
+  const stop=(result:OAuthResult<T>)=>{interrupted=result;controller.abort();finish(result);};cancel=stop;phase=kind;
+  const valid=()=>!disposed&&epoch===execution&&!interrupted;
+  const timer=setTimeout(()=>stop({kind:'authorization_unavailable'}),duration);
+  active=(async()=>{
+   let result:OAuthResult<T>={kind:'authorization_unavailable'};
+   try{result=await Promise.race([Promise.resolve().then(()=>valid()?work(valid,controller.signal):{kind:'cancelled'} as const).catch(()=>({kind:'authorization_unavailable'} as const)),stopped]);}
+   finally{clearTimeout(timer);if(cancel===stop)cancel=undefined;controller.abort();}
+   if(epoch===execution){active=null;phase=null;if(kind==='callback'){callbackWork=undefined;callbackCodeActive=null;}}
+   return valid()?result:interrupted??{kind:'cancelled'};
+  })();
+  return active;
+ }
+ return {
+  launch():Promise<OAuthResult<T>> {
+   if(disposed)return Promise.resolve({kind:'cancelled'});
+   if(active)return phase==='launch'?active:Promise.resolve({kind:'checking'});
+   callbackWork=undefined;callbackSeen=false;
+   return run('launch',async valid=>{
+    pause();if(!valid())return{kind:'cancelled'};
+    const pending=store.read();if(!valid())return{kind:'cancelled'};
+    if(pending!=null)return{kind:'authentication_required'};
+    const result=await begin();if(!valid())return{kind:'cancelled'};
+    if(result.error||!flowId(result.flowId))return{kind:'authentication_required'};
+    const url=launchUrl(result.url);if(!url)return{kind:'invalid_response'};
+    const created_at=now();if(!Number.isSafeInteger(created_at))return{kind:'invalid_response'};
+    const pendingAfter=store.read();if(!valid())return{kind:'cancelled'};if(pendingAfter!=null)return{kind:'authentication_required'};
+    store.write(Object.freeze({version:1,flow_id:result.flowId,created_at,binding}));if(!valid())return{kind:'cancelled'};
+    try{navigate(url);}catch{
+     if(valid()){const current=store.read();if(validFlow(current)&&current.flow_id===result.flowId)store.take();}
+     return{kind:'authorization_unavailable'};
+    }
+    return valid()?{kind:'launched'}:{kind:'cancelled'};
+   });
+  },
+  callback(rawUrl:unknown):Promise<OAuthResult<T>> {
+   if(disposed)return Promise.resolve({kind:'cancelled'});
+   const code=callbackCode(rawUrl);
+   if(callbackSeen){
+    try{scrub(callbackUrl);}catch{return Promise.resolve({kind:'authorization_unavailable'});}
+    if(disposed)return Promise.resolve({kind:'cancelled'});
+    return active&&phase==='callback'&&code!==null&&code===callbackCodeActive&&callbackWork?callbackWork:Promise.resolve({kind:'invalid_callback'});
+   }
+   if(active)invalidateWork();callbackSeen=true;callbackCodeActive=code;
+   callbackWork=run('callback',async(valid,signal)=>{
+    let record:unknown,expected:string|undefined;
+    try{expected=JSON.stringify(store.read());if(valid())pause();}
+    finally{try{scrub(callbackUrl);}finally{
+     if(valid()){const observed=JSON.stringify(store.read());if(valid()&&observed===expected)record=store.take();}
+    }}
+    if(!valid())return{kind:'cancelled'};
+    if(!code||!validFlow(record))return{kind:'invalid_callback'};
+    const result=await exchange(code,record.flow_id);if(!valid())return{kind:'cancelled'};
+    if(result.error||!result.session)return{kind:'authentication_required'};
+    const session=pin(result.session);if(!session)return{kind:'authentication_required'};
+    const current=await admit(session,signal);return valid()?current:{kind:'cancelled'};
+   });return callbackWork;
+  },
+  invalidate(){invalidateWork();callbackWork=undefined;callbackSeen=false;callbackCodeActive=null;try{store.take();}catch{/* Closed locally; broken owner storage cannot establish authority. */}},
+  dispose(){disposed=true;invalidateWork();},
+ };
+}
