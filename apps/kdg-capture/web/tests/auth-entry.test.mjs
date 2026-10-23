@@ -1,6 +1,8 @@
 import assert from 'node:assert/strict';
 import {test} from 'node:test';
 import {createAuthEntry,createEntryReturn,createEntryOAuth} from '../../../../compiled/web/src/auth-entry.js';
+import {createKdgEmailAuth} from '../../../../compiled/web/src/email-auth.js';
+import {createEmailCodeController} from '../../../../compiled/web/src/auth/lifecycle.js';
 const A='11111111-1111-4111-8111-111111111111',B='22222222-2222-4222-8222-222222222222',ORG='33333333-3333-4333-8333-333333333333';
 const session=(id=A,token='synthetic-'+id)=>({user:{id},access_token:token});
 const context=id=>({account_id:id,actor_id:'44444444-4444-4444-8444-444444444444',membership_id:'1',authorization_scope:{kind:'organization',org_id:ORG},resource_scope:{kind:'own_account',account_id:id},permission:'kdg_capture.capture.read.own',decision_id:'55555555-5555-4555-8555-555555555555',checked_at:'2026-10-23T10:00:00Z'});
@@ -270,4 +272,37 @@ for(const action of ['timeout','dispose'])test('actual SDK late session write af
 test('KDG OAuth pins owner configuration before asynchronous launch/callback work',async()=>{
  const f=await sdkOAuthFixture(),options={...f.options},flow=createEntryOAuth(options);await flow.launch();options.org=B;
  assert.equal((await flow.callback(f.options.callbackUrl+'?code=synthetic-config')).kind,'authorized');flow.dispose();f.flow.dispose();f.client.auth.stopAutoRefresh();
+});
+
+test('actual SDK email-code flow disables account creation and verifies email before current KDG admission',async()=>{
+ const values=new Map(),calls=[],now=Math.floor(Date.now()/1000),token=Buffer.from(JSON.stringify({alg:'HS256',typ:'JWT'})).toString('base64url')+'.'+Buffer.from(JSON.stringify({sub:A,exp:now+3600,aud:'authenticated'})).toString('base64url')+'.c3ludGhldGlj';
+ const auth=createKdgEmailAuth({url:'https://synthetic-auth.invalid',publicKey:'sb_publishable_synthetic_public_123456',storage:{getItem:k=>values.get(k)??null,setItem:(k,v)=>{values.set(k,v);},removeItem:k=>{values.delete(k);}},request:async(input,init)=>{
+  const path=new URL(String(input)).pathname,body=JSON.parse(init.body);calls.push({path,body});
+  if(path==='/auth/v1/otp')return new Response('{}',{headers:{'content-type':'application/json'}});
+  assert.equal(path,'/auth/v1/verify');return new Response(JSON.stringify({access_token:token,refresh_token:'synthetic-refresh',expires_in:3600,token_type:'bearer',user:{id:A,aud:'authenticated',app_metadata:{},user_metadata:{},created_at:'2026-10-23T10:00:00Z'}}),{headers:{'content-type':'application/json'}});
+ }});
+ const controller=createEmailCodeController({auth,publish:()=>{}});await controller.send('facilitator@example.invalid');assert.equal(controller.state().kind,'code');
+ assert.equal(calls[0].body.create_user,false);await controller.verify('123456');assert.equal(controller.state().kind,'verified');
+ assert.equal(calls[1].body.type,'email');assert.equal(calls[1].body.token,'123456');assert.ok(values.has('kdg-capture-auth'));
+ controller.dispose();auth.stopAutoRefresh();
+});
+
+test('KDG email client refuses private keys, unsafe endpoints and unavailable storage before Auth I/O',()=>{
+ let requests=0;const storage={getItem(){throw new Error('PRIVATE');},setItem(){},removeItem(){}},request=async()=>{requests++;throw new Error('must not request');};
+ for(const [url,publicKey] of [['https://synthetic-auth.invalid','sb_secret_not_public'],['http://auth.example.invalid','sb_publishable_synthetic_public_123456'],['https://user:PRIVATE@auth.invalid','sb_publishable_synthetic_public_123456']])assert.throws(()=>createKdgEmailAuth({url,publicKey,storage,request}),{message:'auth_configuration_invalid'});
+ assert.throws(()=>createKdgEmailAuth({url:'https://synthetic-auth.invalid',publicKey:'sb_publishable_synthetic_public_123456',storage,request}),{message:'auth_storage_unavailable'});assert.equal(requests,0);
+});
+
+for(const failure of ['setItem','getItem','removeItem'])test('actual SDK runtime '+failure+' failure closes the client without claiming persistence or logout',async()=>{
+ const values=new Map();let broken=null;const storage={getItem:k=>{if(broken==='getItem')throw Error('PRIVATE');return values.get(k)??null;},setItem:(k,v)=>{if(broken==='setItem')throw Error('PRIVATE');values.set(k,v);},removeItem:k=>{if(broken==='removeItem')throw Error('PRIVATE');values.delete(k);}};
+ const token=Buffer.from(JSON.stringify({alg:'HS256',typ:'JWT'})).toString('base64url')+'.'+Buffer.from(JSON.stringify({sub:A,exp:Math.floor(Date.now()/1000)+3600,aud:'authenticated'})).toString('base64url')+'.c3ludGhldGlj';
+ const auth=createKdgEmailAuth({url:'https://synthetic-auth.invalid',publicKey:'sb_publishable_synthetic_public_123456',storage,request:async input=>new URL(String(input)).pathname.endsWith('/logout')?new Response(null,{status:204}):new Response(JSON.stringify({access_token:token,refresh_token:'synthetic-refresh',expires_in:3600,token_type:'bearer',user:{id:A,aud:'authenticated',app_metadata:{},user_metadata:{},created_at:'2026-10-23T10:00:00Z'}}),{headers:{'content-type':'application/json'}})});
+ await auth.getSession();
+ if(failure==='setItem'){
+  broken=failure;const controller=createEmailCodeController({auth,publish:()=>{}});await controller.send('facilitator@example.invalid');await controller.verify('123456');assert.notEqual(controller.state().kind,'verified');assert.equal(controller.state().notice,'unavailable');assert.equal(values.has('kdg-capture-auth'),false);controller.dispose();
+ }else{
+  await auth.verifyOtp({email:'facilitator@example.invalid',token:'123456',type:'email'});broken=failure;
+  await assert.rejects(failure==='getItem'?auth.getSession():auth.signOut({scope:'local'}),{message:'auth_storage_unavailable'});
+ }
+ broken=null;await assert.rejects(auth.getSession(),{message:'auth_storage_unavailable'});auth.stopAutoRefresh();
 });

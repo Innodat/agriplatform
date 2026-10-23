@@ -304,3 +304,82 @@ export function createOAuthController<T>(options:OAuthOptions<T>) {
   dispose(){disposed=true;invalidateWork();},
  };
 }
+
+export type EmailCodeState=Readonly<{kind:'email'|'sending'|'code'|'verifying'|'verified';notice:'none'|'check_email'|'invalid_email'|'invalid_code'|'code_rejected'|'rate_limited'|'unavailable';resendAt:number;account_id?:string}>;
+export type EmailCodeAuth={
+ signInWithOtp(input:{email:string;options:{shouldCreateUser:false}}):Promise<{error:unknown}>;
+ verifyOtp(input:{email:string;token:string;type:'email'}):Promise<{data:{session:ProviderSession|null};error:unknown}>;
+};
+export type EmailCodeOptions=Readonly<{auth:EmailCodeAuth;publish(state:EmailCodeState):void;timeoutMs?:number;now?:()=>number;online?:boolean}>;
+export function createEmailCodeController(options:EmailCodeOptions){
+ const {auth,publish}=options,now=options.now??Date.now,duration=options.timeoutMs??10000;
+ if(!Number.isFinite(duration)||duration<=0||duration>10000)throw new Error('email_code_configuration_invalid');
+ let state:EmailCodeState=Object.freeze({kind:'email',notice:'none',resendAt:0}),email:string|null=null,epoch=0,disposed=false;
+ let timer:ReturnType<typeof setTimeout>|undefined,finish:(()=>void)|undefined,active:Promise<void>|null=null;
+ const set=(kind:EmailCodeState['kind'],notice:EmailCodeState['notice'],account_id?:string)=>{
+  if(!disposed){state=Object.freeze({kind,notice,resendAt:state.resendAt,...(account_id?{account_id}:{})});publish(state);}
+ };
+ function reset(){epoch++;if(timer!==undefined)clearTimeout(timer);timer=undefined;const prior=finish;finish=undefined;active=null;prior?.();}
+ function run(kind:'sending'|'verifying',fallback:'email'|'code',work:(valid:()=>boolean)=>Promise<void>):Promise<void>{
+  reset();const execution=epoch;active=new Promise(resolve=>{finish=resolve;});const result=active,current=()=>!disposed&&epoch===execution,valid=()=>current()&&options.online!==false;
+  const fail=()=>{if(current()){reset();if(fallback==='email')email=null;set(fallback,'unavailable');}};
+  timer=setTimeout(fail,duration);set(kind,'none');
+  void Promise.resolve().then(()=>valid()?work(valid):undefined).catch(fail).finally(()=>{
+   if(current()){if(options.online===false){if(fallback==='email')email=null;set(fallback,'unavailable');}if(timer!==undefined)clearTimeout(timer);timer=undefined;const complete=finish;finish=undefined;active=null;complete?.();}
+  });return result;
+ }
+ function notice(error:unknown):EmailCodeState['notice']{
+  const code=error&&typeof error==='object'?(error as {code?:unknown}).code:undefined;
+  if(code==='otp_expired'||code==='invalid_credentials'||code==='user_not_found')return'code_rejected';
+  if(code==='over_email_send_rate_limit'||code==='over_request_rate_limit'||code==='rate_limit_exceeded')return'rate_limited';
+  if(code==='email_address_invalid'||code==='validation_failed')return'invalid_email';
+  return'unavailable';
+ }
+ return {
+  state:()=>state,
+  send(value:unknown):Promise<void>{
+   if(disposed)return Promise.resolve();if(active)return active;
+   if(options.online===false){set(email?'code':'email','unavailable');return Promise.resolve();}
+   const address=typeof value==='string'?value.trim():'';
+   if(address.length>254||!/^([^@\s]+)@([^@\s]+)\.([^@\s]+)$/u.test(address)||/[\x00-\x20\x7f]/.test(address)){set(email?'code':'email','invalid_email');return Promise.resolve();}
+   const time=now();if(!Number.isSafeInteger(time)||!Number.isSafeInteger(time+60000)){set(email?'code':'email','unavailable');return Promise.resolve();}
+   if(time<state.resendAt){set(email?'code':'email','rate_limited');return Promise.resolve();}
+   email=address;state=Object.freeze({...state,resendAt:time+60000});
+   return run('sending','email',async valid=>{
+    const result=await auth.signInWithOtp({email:address,options:{shouldCreateUser:false}});if(!valid())return;
+    const code=result.error&&typeof result.error==='object'?(result.error as {code?:unknown}).code:undefined;
+    if(result.error&& !['user_not_found','signup_disabled','otp_disabled','signups_not_allowed','user_banned'].includes(String(code))){email=null;set('email',notice(result.error));return;}
+    set('code','check_email');
+   });
+  },
+  verify(value:unknown):Promise<void>{
+   if(disposed)return Promise.resolve();if(active)return active;if(!email||state.kind!=='code')return Promise.resolve();
+   if(options.online===false){set('code','unavailable');return Promise.resolve();}
+   if(typeof value!=='string'||value.length!==6||!/^[0-9]{6}$/.test(value)){set('code','invalid_code');return Promise.resolve();}
+   const address=email;
+   return run('verifying','code',async valid=>{
+    const result=await auth.verifyOtp({email:address,token:value,type:'email'});if(!valid())return;
+    if(result.error){set('code',notice(result.error));return;}
+    const account=result.data.session?.user?.id,token=result.data.session?.access_token;
+    if(typeof account!=='string'||!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/.test(account)||account==='00000000-0000-0000-0000-000000000000'||typeof token!=='string'||!/^[\x21-\x7e]+$/.test(token)){set('code','unavailable');return;}
+    email=null;set('verified','none',account);
+   });
+  },
+  restart(){if(disposed)return;reset();email=null;set('email','none');},
+  dispose(){disposed=true;reset();email=null;state=Object.freeze({kind:'email',notice:'none',resendAt:state.resendAt});},
+ };
+}
+export type SessionStoragePort={getItem(key:string):string|null;setItem(key:string,value:string):void;removeItem(key:string):void};
+/** Explicit persistent owner store; storage errors never degrade to a memory session. */
+export function protectSessionStorage(storage:SessionStoragePort,namespace:string):SessionStoragePort {
+ if(!/^[a-z][a-z0-9-]{0,63}$/.test(namespace))throw new Error('auth_storage_scope_invalid');
+ const check=(key:string)=>{if(key!==namespace&&!key.startsWith(namespace+'-'))throw new Error('auth_storage_scope_invalid');};
+ let broken=false;
+ const safe=<T>(work:()=>T):T=>{if(broken)throw new Error('auth_storage_unavailable');try{return work();}catch{broken=true;throw new Error('auth_storage_unavailable');}};
+ const result:SessionStoragePort={
+  getItem(key){check(key);return safe(()=>storage.getItem(key));},
+  setItem(key,value){check(key);safe(()=>{storage.setItem(key,value);if(storage.getItem(key)!==value)throw new Error();});},
+  removeItem(key){check(key);safe(()=>{storage.removeItem(key);if(storage.getItem(key)!==null)throw new Error();});},
+ };
+ const probe=namespace+'-probe-'+crypto.randomUUID();result.getItem(probe);result.setItem(probe,'probe');result.removeItem(probe);return result;
+}

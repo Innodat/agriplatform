@@ -1,4 +1,5 @@
 // Synthetic SDK transport/storage only; no real provider, account or token.
+import {mountEmailCode} from './email-code';
 import {StrictMode} from 'react';
 import {createRoot} from 'react-dom/client';
 import {flushSync} from 'react-dom';
@@ -68,4 +69,4 @@ Object.assign(window,{fixture:{
  replaceOwner:(account:string)=>{oauth?.invalidate();oauth?.dispose();oauth=null;pendingOAuth=null;returnGuard.clear();previous.push(owner);owner=makeOwner(account);render();},replaceOrg:(value:string)=>{oauth?.invalidate();oauth?.dispose();oauth=null;pendingOAuth=null;returnGuard.dispose();org=value;returnGuard=createEntryReturn({org});render();},
  oldRefresh:()=>previous.at(-1)?.client.auth.refreshSession(),
  snapshot:()=>({oauthInFlight,oauthChecks:[...oauthChecks],oauthPending:pendingOAuth!==null,events:[...events],paths:[...paths],interactive,active:owner.active(),oldActive:previous.map(p=>p.active())}),
-}});render();
+}});if(new URLSearchParams(location.search).has('email-code'))mountEmailCode(root);else render();

@@ -127,3 +127,30 @@ nor timeout can undo SDK/network side effects, including a late saved session; d
 mount/resume admission from an obsolete result. A new current lifecycle must recheck.
 Public provider configuration, storage policy, redirect/callback routing, real Entra and
 device qualification remain consumer delivery gates; synthetic proof is not activation.
+
+## Numeric email-code candidate
+
+The generated Auth module includes `createEmailCodeController`, `useEmailCode` and
+`protectSessionStorage`. Send uses shouldCreateUser:false; verify uses the pinned
+email, six ASCII digits and type email. Sending acknowledges no identity, membership
+or app grant. The controller publishes only safe state/notice/account identity, never
+email/code/token content. Explicit resend is locally throttled for60 seconds; Auth
+remains authoritative for rate limits and expiry. Restart/disposal/deadline invalidates
+old publication; the SDK can still save a late session, so keep admission closed until
+a current successful attempt and always recheck through the owner API.
+
+Use a stable Auth object for the hook. Suspend the previous admission view during code
+entry and bind the resumed view to its accepted account; a stale SDK account event must
+clear admission. Unfinished email/code input stays in component memory, is cleared on
+cancel/submission, and is not a recoverable draft. Browser reload may recover the SDK's
+own persisted session/profile but must refresh current app access.
+
+An email-code client needs detectSessionInUrl:false and no PKCE challenge for numeric
+verification. Auth must use an email template containing the
+<code>&#123;&#123; .Token &#125;&#125;</code> variable; the SDK request alone does not select codes
+over links. Actual delivery/template and account policy need qualification before use.
+No real email or Auth configuration is activated by generated tests. Browser session
+persistence is an explicit consumer choice; the protection helper restricts SDK keys to
+an app namespace and fails safely on unavailable/dropped writes, without memory fallback.
+Never put an administrative/service key in a browser client. The default generated health
+shell still does not activate Auth; owners supply their own admission and presentation.

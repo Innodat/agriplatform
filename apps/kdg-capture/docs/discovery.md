@@ -118,6 +118,8 @@ values. [W3C manifest](https://www.w3.org/TR/appmanifest/).
 Vite PWA is a candidate build adapter; its automatic reload can interrupt forms, so the
 proposal uses deferred prompt updates. No package/version is approved or installed.
 [Vite PWA update guidance](https://vite-pwa-org.netlify.app/guide/auto-update).
-Retained Supabase Azure sign-in needs verified provider and redirect configuration;
-provider authentication does not establish Khula membership.
-[Supabase Azure](https://supabase.com/docs/guides/auth/social-login/auth-azure).
+User clarification (2026-10-23): KDG uses Supabase Auth without Microsoft Entra ID.
+The selected method is an emailed six-digit code for existing Supabase Auth accounts,
+with automatic account creation disabled.
+Authentication never establishes Khula membership or application grants. Earlier Azure
+research is historical platform reuse evidence, not a KDG provider prerequisite.

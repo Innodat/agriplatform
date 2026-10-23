@@ -36,7 +36,10 @@ Offline local use is a new explicit KDG policy; it never relaxes ADR-0019 server
 
 - **Binds:** All KDG components.
 - **Prevents:** Duplicate Auth/Access/People/generators and a hardcoded authorization bypass.
-- **Rule:** Retain React/Vite/shadcn, Supabase Auth/Entra and existing shared owners.
+- **Rule:** Retain React/Vite/shadcn, Supabase Auth and existing shared owners.
+  User clarification (2026-10-23): KDG does not use Microsoft Entra ID; its
+  selected method is an emailed six-digit code for existing Supabase Auth accounts,
+  with automatic account creation disabled.
   Configure Khula's stable org_id in environment-controlled app policy, resolve/recheck it
   server-side, keep org_id non-null on domain data, and expose no organization switcher.
   No People/employment dependency. One KDG deployment may host capture/admin routes.
@@ -46,7 +49,7 @@ flowchart LR
   Phone[Capture PWA] --> Local[(Scoped IndexedDB)]
   Phone -->|foreground sync| API[KDG FastAPI]
   Admin[Online admin route] --> API
-  Phone --> Auth[Supabase Auth / Entra]
+  Phone --> Auth[Supabase Auth]
   Admin --> Auth
   API -->|current checks| Access[Existing Access HTTP owner]
   Access --> Identity[Identity-owned current account / membership]

@@ -38,8 +38,9 @@ These remain obligations at their consuming items, not unknown architecture choi
   verify actual target equivalence and coordinated adoption before any live cutover.
 - First KDG slice: real app sign-in/fixed Khula/initial version/assigned child/explicit
   offline Save/reopen/reconnect/sync/server record, followed by early installed Android/
-  iPhone proof. Local synthetic login is not Entra qualification; LAN HTTPS/DNS/CA/provider
-  assumptions must pass actual acceptance. PtS/shared stability is tested after version
+  iPhone proof. User clarification (2026-10-23): KDG does not use Entra. Prove its selected
+  Supabase Auth email-code sign-in for existing accounts (automatic creation disabled); LAN HTTPS/DNS/CA and any selected
+  method-specific return path must pass actual acceptance. PtS/shared stability is tested after version
   selection and before affected activation.
 - Every affected write/update/release: ATDD failure first, focused TDD, actual role/RLS/
   concurrency/rollback/lost-response/recovery and prior payload/schema compatibility.

@@ -1,3 +1,50 @@
+## Current delivery — existing-account email codes, 2026-10-23
+
+KDG's approved sign-in method is a six-digit Supabase Auth email code for existing
+accounts, with automatic account creation disabled. The local/CI candidate now connects
+that labeled entry form to fixed-key SDK session persistence and fresh KDG API admission.
+KDG has no Microsoft Entra ID requirement. Shared controller/hook/storage behavior and
+emitted tests are updated in the scaffold in the same delivery item.
+
+Read [email-code evidence](EMAIL_CODE_ENTRY_EVIDENCE.md) and its receipt for exact
+source/test/command bindings. Reconnect preserves the pinned attempt and cooldown;
+restart explains waiting; cancelled/replaced attempts cannot reopen old admission.
+Storage failures close the current client without claiming a saved/removed session.
+Unfinished email/code input stays in memory. No actual email or account/grant setup ran.
+
+Next bounded candidate: inspect current contracts and qualify the numeric-code Auth
+email template and delivery/recovery contract with synthetic local/CI fixtures, then
+select any remaining entry-route integration through bmad-help/bmad-build. Actual
+outbound mail, real accounts/access, deployment and pilot require separate authorization;
+do not infer them from this handoff. No public bootstrap is activated by this slice.
+Preserve concurrent work, historical evidence, Docker resources and TS7.0.2. Leave/editor,
+production, provisioning, cleanup and fingerprints/HMAC remain outside scope.
+
+Earlier handoffs follow unchanged as historical checkpoints. Their pending-method and
+KDG Entra assumptions are superseded by the approved selection above.
+
+## Current user clarification — KDG without Entra, 2026-10-23
+
+KDG does not use Microsoft Entra ID. The next local Auth storage/entry-route slice
+must use the user's selected non-Entra Supabase Auth method; selection is pending.
+Do not infer email/password, an email link or email code from historical synthetic
+fixtures. Current architecture/discovery/readiness and ENV contract are corrected.
+Earlier OAuth/Azure proofs remain historical injected platform capability evidence;
+no source/test/proof is deleted or rewritten and no KDG provider is activated.
+
+Entra is needed later for Leave, for two separate clients with their own Microsoft
+Entra accounts. Exact tenant trust/registration/storage and delivery belong to Leave's
+approved planning/readiness; no Leave implementation or client setup is authorized here.
+Keep the generic scaffold/session/current-access/return patterns reusable and synchronize
+neutral code/tests with KDG when applicable. Preserve concurrent changes, historical
+resources and TypeScript7.0.2. Synthetic local/CI only; no real account/access, production,
+provisioning/deployment/pilot or cleanup. Fingerprints/HMAC remain deferred.
+
+The complete prior handoff follows as historical checkpoints. Its KDG Entra/provider
+assumptions are superseded by the clarification above.
+
+---
+
 ## Current delivery — synthetic PKCE launch/callback controller, 2026-10-23
 
 The injected scaffold controller and KDG SDK/current-context adapter now coordinate

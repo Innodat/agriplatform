@@ -150,3 +150,16 @@ Supabase client and current fixed-organization context API. Provider/scopes, exa
 transaction storage and navigation remain explicit owner inputs. Callback success never
 bypasses current KDG access. See [evidence](../docs/OAUTH_CONTROLLER_EVIDENCE.md) for
 SDK/browser tests and limits. No public Auth client configuration or storage is activated.
+
+## Existing-account email-code entry — 2026-10-23
+
+KDG's selected sign-in uses emailed six-digit codes; no Entra provider, password form,
+signup or OAuth redirect is required. `EmailCodeEntry` composes the generated controller/
+hook with existing AuthEntry/current-context checks. `createKdgEmailAuth` uses explicit
+public Auth configuration and persistent browser storage under `kdg-capture-auth`.
+Storage failure refuses the client; there is no silent memory fallback. Unfinished
+email/code input stays in memory; the SDK's verified session/profile is persisted and
+rechecked on reload. The app source is qualified in an isolated synthetic browser harness;
+public startup/configuration and actual mail delivery are not activated. Configure Auth's
+email template to use `{{ .Token }}` and qualify delivery before real use.
+See [owner evidence](../docs/EMAIL_CODE_ENTRY_EVIDENCE.md).

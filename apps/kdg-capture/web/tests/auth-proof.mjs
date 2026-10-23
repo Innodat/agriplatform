@@ -16,7 +16,7 @@ const directory=join(root,'platform/deployment/.local/kdg-auth-entry-20261023');
 const proof=join(directory,'auth-'+randomUUID());mkdirSync(proof,{mode:0o700});const capsule=join(proof,'capsule');mkdirSync(capsule);
 writeFileSync(join(capsule,'package.json'),JSON.stringify({private:true,type:'module'}));symlinkSync(join(retained,'node_modules'),join(capsule,'node_modules'),'dir');
 const owner='apps/kdg-capture/web';
-const sources=[owner+'/.generated-files.json',owner+'/src/auth/lifecycle.ts',owner+'/src/auth/use-lifecycle.ts',owner+'/scripts/test-auth-lifecycle.mjs',owner+'/src/auth-entry.ts',owner+'/src/AuthEntry.tsx',owner+'/src/EntryScreen.tsx',owner+'/src/entry-screen.css',owner+'/src/styles.d.ts',owner+'/tests/auth-fixture/main.tsx',owner+'/tests/auth-fixture/index.html',owner+'/src/entry.ts',owner+'/package.json',owner+'/tsconfig.auth.json',owner+'/tests/auth-entry.test.mjs',owner+'/tests/auth-proof.mjs','apps/kdg-capture/contracts/generated/types.gen.ts'];
+const sources=[owner+'/.generated-files.json',owner+'/src/auth/lifecycle.ts',owner+'/src/auth/use-lifecycle.ts',owner+'/scripts/test-auth-lifecycle.mjs',owner+'/src/auth-entry.ts',owner+'/src/email-auth.ts',owner+'/src/EmailCodeEntry.tsx',owner+'/tests/auth-fixture/email-code.tsx',owner+'/src/AuthEntry.tsx',owner+'/src/EntryScreen.tsx',owner+'/src/entry-screen.css',owner+'/src/styles.d.ts',owner+'/tests/auth-fixture/main.tsx',owner+'/tests/auth-fixture/index.html',owner+'/src/entry.ts',owner+'/package.json',owner+'/tsconfig.auth.json',owner+'/tests/auth-entry.test.mjs',owner+'/tests/auth-proof.mjs','apps/kdg-capture/contracts/generated/types.gen.ts'];
 const captured=Object.fromEntries(sources.map(path=>{const data=readFileSync(join(root,path)),destination=join(capsule,path);mkdirSync(resolve(destination,'..'),{recursive:true});writeFileSync(destination,data);return[path,hash(data)];}));
 let passed=false,browser,server;const sockets=new Set(),checks=[],requests=[],issues=[],failedResponses=[];let stopped=true;
 try{
@@ -127,7 +127,62 @@ try{
   assert.deepEqual(await page.evaluate(()=>[localStorage.length,sessionStorage.length]),[0,0]);assert.ok(!(await page.locator('body').textContent()).includes('SENSITIVE'));
   assert.deepEqual(failedResponses,[{path:'/api/v1/context',status:403},{path:'/api/v1/context',status:403},{path:'/api/v1/context',status:403},{path:'/api/v1/context',status:401},{path:'/api/v1/context',status:403}]);assert.ok(issues.length===5&&issues.every(e=>e.event==='console_error'&&e.path==='/api/v1/context'),'unexpected_browser_error');
   const snapshot=await page.evaluate(()=>window.fixture.snapshot());assert.ok(snapshot.paths.every(path=>['/auth/v1/user','/auth/v1/token','/auth/v1/logout'].includes(path)));checks.push('synthetic_auth_fetch_no_storage_or_raw_errors');
-  writeFileSync(join(proof,'sdk-browser.json'),JSON.stringify(snapshot,null,2)+'\n');await page.screenshot({path:join(proof,'auth-entry.png'),fullPage:true});
+  writeFileSync(join(proof,'sdk-browser.json'),JSON.stringify(snapshot,null,2)+'\n');
+  await page.goto(origin+'/?email-code=1');await page.getByRole('button',{name:'Sign in',exact:true}).waitFor();await page.getByRole('button',{name:'Sign in',exact:true}).click();
+  assert.equal(await page.getByLabel('Email address',{exact:true}).count(),1,'email_form_missing');
+  async function emailLayout(){
+   assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true);
+   for(const field of await page.locator('input').all())assert.ok(await field.getAttribute('id'));
+   for(const button of await page.getByRole('button').all())assert.ok((await button.boundingBox()).height>=44);
+  }
+  await page.getByLabel('Email address',{exact:true}).focus();assert.equal(await page.getByLabel('Email address',{exact:true}).evaluate(e=>document.activeElement===e),true);
+  await page.setViewportSize({width:320,height:844});await page.addStyleTag({content:'html{font-size:200%}'});await emailLayout();
+  await page.getByLabel('Email address',{exact:true}).fill('facilitator@example.invalid');await page.getByLabel('Email address',{exact:true}).press('Enter');await page.getByLabel('One-time code',{exact:true}).waitFor();await emailLayout();checks.push('email_keyboard_labels_narrow_200_percent');
+
+  await page.getByText('If this account can sign in, a code has been sent. Check your email.',{exact:true}).waitFor();
+  assert.equal(await page.getByRole('button',{name:'Resend code',exact:true}).getAttribute('aria-disabled'),'true');assert.deepEqual(await page.evaluate(()=>window.emailFixture.snapshot().storageKeys),[]);checks.push('email_existing_account_send_no_persisted_input');
+  await page.evaluate(()=>window.emailFixture.online(false));await page.getByRole('heading',{name:'Connect to the internet',exact:true}).waitFor();
+  await page.evaluate(()=>window.emailFixture.online(true));await page.getByLabel('One-time code',{exact:true}).waitFor({timeout:1000});
+  assert.equal(await page.getByRole('button',{name:'Resend code',exact:true}).getAttribute('aria-disabled'),'true');checks.push('email_reconnect_preserves_attempt_and_cooldown');
+  assert.equal(await page.getByLabel('One-time code',{exact:true}).evaluate(e=>document.activeElement===e),true);
+  const beforeResend=await page.evaluate(()=>window.emailFixture.snapshot().paths.length);await page.getByRole('button',{name:'Resend code',exact:true}).focus();await page.getByRole('button',{name:'Resend code',exact:true}).press('Enter');assert.equal(await page.evaluate(()=>window.emailFixture.snapshot().paths.length),beforeResend);
+  await page.getByRole('button',{name:'Use another email',exact:true}).click();await page.getByText('Please wait before requesting another code.',{exact:true}).waitFor();
+  await page.getByLabel('Email address',{exact:true}).fill('facilitator@example.invalid');await page.getByLabel('Email address',{exact:true}).press('Enter');assert.equal(await page.evaluate(()=>window.emailFixture.snapshot().paths.length),beforeResend);checks.push('email_restart_explains_cooldown_disabled_keyboard');
+  await page.reload();await page.getByRole('button',{name:'Sign in',exact:true}).click();await page.getByLabel('Email address',{exact:true}).fill('facilitator@example.invalid');await page.getByLabel('Email address',{exact:true}).press('Enter');await page.getByLabel('One-time code',{exact:true}).waitFor();
+  await page.getByLabel('One-time code',{exact:true}).fill('000000');await page.getByRole('button',{name:'Verify code',exact:true}).click();await page.getByText('That code is invalid or has expired. Try again.',{exact:true}).waitFor();
+  assert.equal(await page.getByLabel('One-time code',{exact:true}).inputValue(),'');assert.equal(await page.getByLabel('One-time code',{exact:true}).evaluate(e=>document.activeElement===e),true);assert.ok(!(await page.locator('body').textContent()).includes('PRIVATE'));checks.push('email_invalid_code_safe_retry');
+  await page.getByLabel('One-time code',{exact:true}).fill('123456');await page.getByRole('button',{name:'Verify code',exact:true}).click();await page.getByRole('heading',{name:'Setup not completed',exact:true}).waitFor();
+  assert.deepEqual(await page.evaluate(()=>window.emailFixture.snapshot().storageKeys),['kdg-capture-auth']);assert.ok(!page.url().includes('123456'));checks.push('email_verify_then_current_admission');
+  await page.reload();await page.getByRole('heading',{name:'Setup not completed',exact:true}).waitFor();checks.push('email_persisted_session_reload_rechecks');
+  mode='denied';await page.reload();await page.getByRole('heading',{name:'Access denied',exact:true}).waitFor();mode='success';await page.getByRole('button',{name:'Check access again',exact:true}).click();await page.getByRole('heading',{name:'Setup not completed',exact:true}).waitFor();checks.push('email_persistence_never_caches_grants');
+  await page.evaluate(()=>window.emailFixture.logout());await page.getByRole('button',{name:'Sign in',exact:true}).waitFor();assert.deepEqual(await page.evaluate(()=>window.emailFixture.snapshot().storageKeys),[]);
+  await page.reload();await page.getByRole('button',{name:'Sign in',exact:true}).waitFor();checks.push('email_local_logout_removes_persisted_session');
+  await page.getByRole('button',{name:'Sign in',exact:true}).click();await page.getByLabel('Email address',{exact:true}).fill('facilitator@example.invalid');await page.getByRole('button',{name:'Send code',exact:true}).click();await page.getByLabel('One-time code',{exact:true}).waitFor();
+  await page.reload();await page.getByRole('button',{name:'Sign in',exact:true}).waitFor();await page.getByRole('button',{name:'Sign in',exact:true}).click();assert.equal(await page.getByLabel('Email address',{exact:true}).inputValue(),'');checks.push('email_unfinished_entry_resets_on_reload');
+  await page.getByRole('button',{name:'Cancel',exact:true}).click();await page.getByRole('button',{name:'Sign in',exact:true}).waitFor();checks.push('email_cancel_returns_closed_entry');
+  await page.getByRole('button',{name:'Sign in',exact:true}).click();await page.getByLabel('Email address',{exact:true}).fill('facilitator@example.invalid');await page.getByRole('button',{name:'Send code',exact:true}).click();await page.getByLabel('One-time code',{exact:true}).waitFor();
+  await page.evaluate(()=>window.emailFixture.holdVerify());await page.getByLabel('One-time code',{exact:true}).fill('123456');await page.getByRole('button',{name:'Verify code',exact:true}).click();await page.waitForFunction(()=>window.emailFixture.snapshot().inFlight===1);
+  await page.getByRole('button',{name:'Cancel',exact:true}).click();await page.getByRole('button',{name:'Sign in',exact:true}).waitFor();await page.evaluate(()=>window.emailFixture.releaseVerify());await page.waitForFunction(async()=>await window.emailFixture.session()!==null);
+  await page.getByRole('button',{name:'Sign in',exact:true}).waitFor();assert.equal(await page.getByRole('heading',{name:'Setup not completed',exact:true}).count(),0);checks.push('email_cancel_late_sdk_session_cannot_admit');
+
+  for(const replacement of ['org','owner']){
+   await page.evaluate(()=>localStorage.removeItem('kdg-capture-auth'));await page.reload();await page.getByRole('button',{name:'Sign in',exact:true}).click();await page.getByLabel('Email address',{exact:true}).fill('facilitator@example.invalid');await page.getByLabel('Email address',{exact:true}).press('Enter');await page.getByLabel('One-time code',{exact:true}).waitFor();
+   await page.evaluate(()=>window.emailFixture.holdVerify());await page.getByLabel('One-time code',{exact:true}).fill('123456');await page.getByLabel('One-time code',{exact:true}).press('Enter');await page.waitForFunction(()=>window.emailFixture.snapshot().inFlight===1);
+   if(replacement==='owner')await page.evaluate(()=>window.emailFixture.replaceOwner());else await page.evaluate(()=>window.emailFixture.replaceOrg('66666666-6666-4666-8666-666666666666'));
+   await page.getByRole('button',{name:'Sign in',exact:true}).waitFor();
+   if(replacement==='owner'){
+    await page.getByRole('button',{name:'Sign in',exact:true}).click();await page.getByLabel('Email address',{exact:true}).fill('facilitator@example.invalid');await page.getByLabel('Email address',{exact:true}).press('Enter');await page.getByLabel('One-time code',{exact:true}).waitFor();await page.getByLabel('One-time code',{exact:true}).fill('123456');await page.getByLabel('One-time code',{exact:true}).press('Enter');await page.getByRole('heading',{name:'Setup not completed',exact:true}).waitFor();assert.equal(requests.at(-1).account,B);
+   }
+   const before=requests.length;await page.evaluate(()=>window.emailFixture.releaseVerify());await page.waitForFunction(()=>window.emailFixture.snapshot().inFlight===0);await page.waitForTimeout(50);assert.equal(requests.length,before);
+   await page.getByRole('button',{name:'Sign in',exact:true}).waitFor();assert.equal(await page.getByRole('heading',{name:'Setup not completed',exact:true}).count(),0);if(replacement==='owner')assert.equal(await page.evaluate(()=>window.emailFixture.session()),B);
+   checks.push('email_pending_'+replacement+'_replacement_blocks_old_A');
+  }
+  assert.ok(!(await page.locator('body').textContent()).includes('PRIVATE'));
+  assert.deepEqual(failedResponses,[{path:'/api/v1/context',status:403},{path:'/api/v1/context',status:403},{path:'/api/v1/context',status:403},{path:'/api/v1/context',status:401},{path:'/api/v1/context',status:403},{path:'/api/v1/context',status:403}]);
+  assert.ok(issues.length===6&&issues.every(e=>e.event==='console_error'&&e.path==='/api/v1/context'),'unexpected_complete_browser_error');checks.push('email_complete_journey_browser_errors_checked');
+  writeFileSync(join(proof,'email-browser.json'),JSON.stringify(await page.evaluate(()=>window.emailFixture.snapshot()),null,2)+'\n');await page.screenshot({path:join(proof,'email-entry.png'),fullPage:true});
+
+await page.screenshot({path:join(proof,'auth-entry.png'),fullPage:true});
  }
  passed=true;
 }finally{

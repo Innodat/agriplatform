@@ -61,25 +61,37 @@ when supported; no business schemas exposed through browser PostgREST.
 Synthetic desktop origins are `http://localhost:5188` and Supabase
 `http://localhost:55481`. The provider callback is
 `http://localhost:55481/auth/v1/callback`; the app return is
-`http://localhost:5188/auth/callback`. Those exact endpoints require separate
-nonproduction Entra registration/configuration during authorized ENV delivery.
-Local synthetic-password acceptance does not qualify Entra login.
+`http://localhost:5188/auth/callback` for a selected redirect-based Auth flow.
+User clarification (2026-10-23): KDG does not use Microsoft Entra ID. Its selected
+method is emailed six-digit codes for existing Supabase Auth accounts, with automatic
+account creation disabled;
+these reserved callback addresses do not force KDG to use OAuth or a redirect flow.
+Numeric-code sign-in uses an Auth email template containing `{{ .Token }}`, then
+`verifyOtp` with type email. Configure and qualify actual delivery before activation;
+this synthetic slice sends no real mail and changes no running Auth service.
+Entra is a future Leave requirement for two separate clients with their own Microsoft
+Entra accounts. Their exact tenant trust, registrations and callback configuration
+belong to authorized Leave planning/delivery, not this KDG slice. Local synthetic
+password or OAuth tests do not qualify any real provider or client tenant.
 
 Device proof selects LAN-only HTTPS aliases `kdg-capture.test` and `kdg-auth.test` on
 8443, with app return `https://kdg-capture.test:8443/auth/callback` and provider
 callback `https://kdg-auth.test:8443/auth/v1/callback`. ENV must provide explicit LAN
 DNS/address routing, trusted test CA/device trust and exact host/path allowlists on
 the existing gateway; no browser certificate-error bypass. Device and Auth backend
-must reach Entra for online setup, then installed PWA capture can be tested disconnected.
+must reach the selected Auth service for online setup, then installed PWA capture can
+be tested disconnected. No KDG Entra connectivity or registration is required.
 The `.test` names select isolated local routing, not public hosting or production DNS.
 If the actual provider/device refuses this target, record a replacement nonproduction
 target and rerun its qualification; no automatic production or paid-service fallback.
 
-Provider URI scheme/path rules and the two distinct callbacks are source-backed by
+For future Entra consumers, provider URI scheme/path rules and the two distinct
+callbacks are source-backed by
 [Supabase Azure setup](https://supabase.com/docs/guides/auth/social-login/auth-azure)
 and [Entra redirect rules](https://learn.microsoft.com/en-us/entra/identity-platform/reply-url).
-LAN DNS/CA/provider registration is an execution assumption to qualify by 1.7, not
-proof that phones or Entra were configured. Tenant/provider trust is separate from
+KDG LAN DNS/CA and its selected Auth method remain execution assumptions to qualify
+by 1.7, not proof that phones or real accounts were configured. Entra registration
+is not a KDG gate. Tenant/provider trust is separate from
 membership/grants; no automatic tenant enrollment is enabled.
 
 ## Guarded environment command contract

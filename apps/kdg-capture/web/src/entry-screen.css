@@ -36,3 +36,6 @@
 .kdg-entry :focus-visible { outline: 3px solid var(--kdg-foreground); outline-offset: 3px; }
 .kdg-entry-skip { position: absolute; top: 0.5rem; left: 0.5rem; transform: translateY(-200%); padding: 0.75rem; background: var(--kdg-background); color: var(--kdg-foreground); z-index: 1; }
 .kdg-entry-skip:focus { transform: none; }
+.kdg-entry form { display: flex; flex-direction: column; align-items: flex-start; gap: 1rem; }
+.kdg-entry label { font-weight: 600; }
+.kdg-entry input { font: inherit; padding: 0.75rem; min-height: 3rem; width: min(100%, 24rem); border: 2px solid var(--kdg-foreground); border-radius: var(--kdg-radius); }
