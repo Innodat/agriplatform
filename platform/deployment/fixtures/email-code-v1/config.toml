@@ -1,0 +1,19 @@
+# Unactivated numeric-code candidate; not a complete Supabase configuration.
+# Merge deliberately into a separately qualified disposable target, never by default.
+[auth]
+enable_signup = false
+enable_anonymous_sign_ins = false
+enable_manual_linking = false
+
+[auth.email]
+# CLI 2.120 maps this to GOTRUE_EXTERNAL_EMAIL_ENABLED (email sign-in).
+# Global auth.enable_signup=false and client shouldCreateUser:false prevent signup.
+enable_signup = true
+otp_length = 6
+otp_expiry = 3600
+max_frequency = "60s"
+
+[auth.email.template.magic_link]
+subject = "Your sign-in code"
+# Relative to the future disposable project root, after deliberate copying.
+content_path = "./supabase/templates/sign-in.html"

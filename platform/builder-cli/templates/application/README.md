@@ -154,3 +154,11 @@ persistence is an explicit consumer choice; the protection helper restricts SDK 
 an app namespace and fails safely on unavailable/dropped writes, without memory fallback.
 Never put an administrative/service key in a browser client. The default generated health
 shell still does not activate Auth; owners supply their own admission and presentation.
+
+For a deliberately selected numeric email-code method, the shared opt-in template and
+configuration candidate lives at repository-root
+`platform/deployment/fixtures/email-code-v1/`. Reference its platform-owned
+`test_email_code_contract` suite rather than duplicating template/configuration tests in
+each application. The fixture is not automatically emitted, merged or activated.
+Its README distinguishes email-provider enablement from global signup prevention and
+records the remaining Auth rendering, SMTP, expiry/reuse and device qualification.

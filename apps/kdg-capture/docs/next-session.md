@@ -1,3 +1,29 @@
+## Current delivery — numeric-code template/configuration candidate, 2026-10-23
+
+The shared opt-in email template and TOML fragment now have offline code-only/content
+and pinned CLI 2.120.0 GoTrue/Kong mapping checks. Read
+[email template contract evidence](EMAIL_TEMPLATE_CONTRACT_EVIDENCE.md) and its receipt.
+The fragment is not copied, merged, mounted or activated; native preparation and all
+historical closed profiles remain unchanged. It is configuration intent, not mail or
+Auth runtime evidence. KDG remains existing-account email codes with no automatic signup.
+
+Important distinction: candidate email.enable_signup=true enables the email provider;
+global auth.enable_signup=false prevents signup, alongside client shouldCreateUser:false.
+Anonymous/manual linking remain off. Six digits / 3600s expiry / 60s resend intent and the
+matching magic_link template URL/mount are checked with existing pinned publisher code.
+Scaffold guidance references these shared platform artifacts/tests instead of duplicating
+per-app tests or choosing email codes by default.
+
+Next use bmad-help/bmad-build to select the remaining local/CI entry-route composition
+prerequisite from current owner contracts. KDG still has no public frontend bootstrap;
+only the synthetic harness mounts the email entry. Do not count template acceptance as
+actual SMTP rendering/delivery, server expiry/single-use, resend invalidation or device
+qualification. Those need separately scoped runtime evidence, not more mock claims.
+No real mail/accounts/access, provisioning, deployment/pilot, production, Leave/editor,
+cleanup or fingerprints/HMAC. Preserve concurrent work, history, Docker and TS 7.0.2.
+
+Earlier handoffs follow unchanged as historical checkpoints.
+
 ## Current delivery — existing-account email codes, 2026-10-23
 
 KDG's approved sign-in method is a six-digit Supabase Auth email code for existing
