@@ -829,3 +829,27 @@ The managed Auth candidate also supplies the injected PKCE launch/callback coord
 and its emitted acceptance/edge-case tests. Applications adapt their Auth SDK and fresh
 route authority; no provider credentials or storage default is generated. See
 [KDG consuming evidence](../../apps/kdg-capture/docs/OAUTH_CONTROLLER_EVIDENCE.md).
+
+
+### Bounded transaction context candidate
+
+Application candidates also emit `write-tools/transaction_context.py` and its synthetic
+behavioral tests. This opt-in owner-copy prerequisite uses SQLAlchemy in the consuming
+owner's separately approved environment and PostgreSQL17+ when actually executed.
+It is not imported by generated API startup and adds no API dependency. Shape-validated
+backend org/account/actor/mode is not authorization. The owner checks current access
+before entry and retains its original ten-second budget through rechecks; local entry
+requires an observation within one second, statement/lock waits cap at five/two seconds.
+No fingerprint, receipt, domain SQL or shared runtime imports are supplied.
+
+KDG consumes a separate managed root without changing historical migration inventories.
+Use selected Node26.11.1 from repository root:
+`node platform/builder-cli/scripts/sync-kdg-write.mjs --write` / `--check`.
+Update the templates and generated tests together. Installer replay preserves owner
+files and refuses manual managed edits. Synthetic tests prove adapter control flow;
+actual database timeout/rollback/privilege/pool behavior needs consuming native proof.
+
+The focused Node test accepts `SCAFFOLD_WRITE_TEST_PYTHON` as an explicit interpreter
+path; supply the approved Python/SQLAlchemy environment used by the consuming owner.
+When omitted it uses this repository's retained migration environment. It never installs
+dependencies or prepares a database. Other historical suites keep their own prerequisites.

@@ -1,3 +1,33 @@
+## Current delivery — bounded WRITE transaction context promotion, 2026-10-23
+
+KDG now consumes the scaffold-owned bounded transaction-context code and its generated
+behavioral tests in a separate managed write-tools root. Read
+[WRITE context evidence](WRITE_CONTEXT_EVIDENCE.md). Existing database/native/Auth
+inventories and historical owner examples remain unchanged. Update canonical templates,
+then use selected Node26.11.1 with `platform/builder-cli/scripts/sync-kdg-write.mjs`
+`--write` / `--check`; never hand-edit the managed copies or manifest.
+
+The copied primitives validate backend context shape and bound transaction-local
+org/account/actor/mode, observation freshness and execution/SQL waits. They import no
+fingerprint/receipt/lock-key or cross-owner runtime implementation. Authority and domain
+rules remain KDG-owned; entry read authority never becomes write authority. No API
+startup or dependency change. Use the retained migration Python for these optional tests.
+
+Synthetic adapter and actual rendered/installed tests prove control flow/copy/parity,
+not actual PostgreSQL deadlines, RLS, rollback, pool isolation or KDG business writes.
+Earlier native WRITE evidence stays historical. No database or Docker operation occurred.
+
+Next select the remaining first-committed owner-write/outcome prerequisite or first
+KDG persistence slice from current contracts. Verify actual dependencies before copying
+older first_committed_write.py, which still imports fingerprint-bearing atomic_write.py.
+Story1.2 bootstrap retains its own identical-replay/different-input conflict contract;
+its fingerprint gate stays deferred, not silently replaced by capture semantics.
+No full WRITE, Story1.2 publication/read API or release readiness is implied. Preserve
+concurrent work, history/resources and TS7.0.2; no Leave/editor, real accounts/access,
+production, provisioning/deployment/pilot/cleanup or fingerprints/HMAC.
+
+Earlier handoffs follow unchanged as historical checkpoints.
+
 ## Current delivery — typed questionnaire definition prerequisite, 2026-10-23
 
 KDG now owns an inert Pydantic schema-version1 questionnaire definition and exact initial

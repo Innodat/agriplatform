@@ -3,6 +3,7 @@ import {renderAuthPattern} from './auth-pattern.ts';
 import { validateRecipe, recipeSchema } from './recipe.ts';
 import { renderHttpFiles, type ServiceFile } from './service-renderer.ts';
 const templates = [
+ ['write-tools/transaction_context.py','generated'], ['write-tools/test_transaction_context.py','generated'],
  ['database-tools/owned_migration.py','generated'], ['database-tools/test_owned_migration.py','generated'],
  ['native-database-tools/native_migration_checks.py','generated'], ['native-database-tools/test_native_migration_checks.py','generated'],
  ['README.md','generated'], ['AGENTS.md','generated'], ['web/index.html','generated'],

@@ -255,3 +255,17 @@ first consuming native proof. The fixture adapter stays app-owned; credentials a
 never generated or selected by the scaffold. Emitted test_native_migration_checks.py
 checks denial/rollback-oracle false positives offline (three tests), without database I/O:
 `P -I -B native-database-tools/test_native_migration_checks.py`.
+# Bounded transaction context prerequisite
+
+`write-tools/transaction_context.py` and `write-tools/test_transaction_context.py`
+are generated owner-copy prerequisites, separate from API startup. Run
+`P -I -B write-tools/test_transaction_context.py` from this application directory,
+using an explicitly approved Python environment with SQLAlchemy installed. The
+API requirements intentionally do not install optional database tools. Actual use
+requires PostgreSQL17+ for transaction_timeout, owner-qualified current authority,
+the exact org/account/actor/action mode and domain-specific SQL/roles. Context shape
+validation does not establish authority. Perform external checks before entry and
+retain the original execution budget through rechecks. Synthetic tests prove adapter
+control flow only; actual rollback, RLS, deadlines, privileges and pool isolation
+require consuming native qualification. Update the owning scaffold template/test,
+then regenerate with the preservation installer; do not hand-edit generated copies.

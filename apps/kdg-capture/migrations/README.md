@@ -83,3 +83,17 @@ anything; KDG owns its explicit fixture adapter and fixed target/role/history po
 See [native evidence](../docs/NATIVE_SCHEMA_FOUNDATION_EVIDENCE.md) for exact retained
 fixture references, proof commands, review and limitations. Only rerun native acceptance
 against that retained new fixture after verifying its custody and resuming the known run.
+
+
+## Separate bounded WRITE prerequisite
+
+`../write-tools` is a separate scaffold-managed source/test inventory; it does not
+change this migration or native-check inventory. See
+[WRITE context evidence](../docs/WRITE_CONTEXT_EVIDENCE.md). Run optional synthetic
+checks with the retained migration environment P, not the dependency-minimal API env:
+`P -I -B apps/kdg-capture/write-tools/test_transaction_context.py` and
+`P -I -B apps/kdg-capture/write-tests/test_owner_context.py` from repository root.
+No database connection or API startup integration follows from these tests. Update
+canonical write-tools templates, then selected Node26.11.1
+`platform/builder-cli/scripts/sync-kdg-write.mjs --write` / `--check`; do not edit managed
+copies. KDG remains responsible for current authority, exact target/mode and domain SQL.
