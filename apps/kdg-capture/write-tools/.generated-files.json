@@ -4,16 +4,16 @@
     "generator": "builder-v1",
     "template": "write-context-v1-candidate",
     "recipe": "228376455d7386499c2548fbd2c0c0b1371de0ebee3eee1afa95b2a846228200",
-    "source": "2da890011bd45e5b2d0e2873e17bdc05b03b959292bb240f81ab46755a5b0aa3"
+    "source": "d59ff56985da5d127473268ebfd1bb40221c5b8ce2522ad478b4b3f7cf663e39"
   },
   "files": {
     "test_transaction_context.py": {
       "classification": "generated",
-      "sha256": "791d342c5b5403b0945f43724a7914e1074c813c1817f501df1d88c192d87e5e"
+      "sha256": "122acf521fa53b39b876d94c14588f19188074ef4176a24fb0b01ce514e25a47"
     },
     "transaction_context.py": {
       "classification": "generated",
-      "sha256": "b447deb0da447446bfec6aa142dc653c07674705be72ae844e10c43e1c23d1fa"
+      "sha256": "e46244916563bb8111e65675cb1d992778a6c076dc247c4b1fa12b7d9cc47ce7"
     }
   }
 }

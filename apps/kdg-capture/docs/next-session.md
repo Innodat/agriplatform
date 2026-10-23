@@ -1,3 +1,35 @@
+## Current delivery — scoped WRITE operation locking, 2026-10-23
+
+The scaffold/KDG managed transaction helper now includes OutcomeKey and bounded
+transaction advisory locking for exact owner schema/org/account/handler command/
+operation identity. Read [operation-lock evidence](OPERATION_LOCK_EVIDENCE.md).
+Existing seven context primitives, historical examples and database/native/Auth
+inventories remain unchanged. Update canonical helper/tests, then selected Node26.11.1
+`platform/builder-cli/scripts/sync-kdg-write.mjs --write` / `--check`; no manual edits.
+
+The lock-v1 historical signed value is preserved using standard JSON for the fixed
+validated ASCII tuple. This is neither a general canonical-JSON serializer nor a
+payload fingerprint; no new dependency, fingerprint or HMAC work. Invalid scope/context
+refuses before SQL; only acquisition55P03 is operation_busy. Limit-setup/other SQL
+errors remain safe internal_error, and expired/late requests do not claim timely success.
+The owning transaction and original monotonic budget remain required.
+
+Generated/rendered/installed and KDG-owned synthetic tests prove encoding/adapter flow,
+not actual PostgreSQL lock timing/release, RLS, unique outcome or atomic business writes.
+No native/Docker/provisioning operation occurred. Prior source-bound context and native
+proof remain historical, not relabeled evidence of this extended copy.
+
+Next select the remaining first-committed outcome/owner orchestration prerequisite or
+first domain slice from current contracts. Locking alone is not an outcome store or
+replay policy. Current stored-resource authority, supported original receipts, atomic
+business/evidence/outcome and actual restricted-role concurrency remain consuming gates.
+Story1.2 bootstrap keeps its distinct identical-replay/different-input contract and
+fingerprint gate; do not replace it with capture retry semantics. Preserve concurrent
+work/history/resources and TS7.0.2. No Leave/editor, real accounts/access, production,
+provisioning/deployment/pilot/cleanup or fingerprints/HMAC.
+
+Earlier handoffs follow unchanged as historical checkpoints.
+
 ## Current delivery — bounded WRITE transaction context promotion, 2026-10-23
 
 KDG now consumes the scaffold-owned bounded transaction-context code and its generated

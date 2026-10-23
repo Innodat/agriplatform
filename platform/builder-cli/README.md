@@ -853,3 +853,17 @@ The focused Node test accepts `SCAFFOLD_WRITE_TEST_PYTHON` as an explicit interp
 path; supply the approved Python/SQLAlchemy environment used by the consuming owner.
 When omitted it uses this repository's retained migration environment. It never installs
 dependencies or prepares a database. Other historical suites keep their own prerequisites.
+
+The candidate also includes the stable organization/account operation lock primitive.
+OutcomeKey binds owner schema, org, account, server-defined command and operation UUID.
+Invoke outcome_lock within the verified transaction; its lock settings retain the
+original budget and only acquisition55P03 is operation_busy. Fixed ASCII tuple encoding
+matches the historical lock-v1 value using standard JSON; no new dependency, command
+fingerprint or HMAC is introduced. Lock collisions merely serialize unrelated work;
+actual outcome uniqueness and atomicity remain consuming database responsibilities.
+The caller must pass the context installed on that same active non-autocommit
+transaction; input matching is not an independent connection-scope/authority check.
+The deterministic optional compatibility program is
+`P -I -B platform/builder-cli/tests/check_operation_lock_compatibility.py`, using the
+approved WRITE-test environment's existing rfc8785 oracle. The emitted helper has no
+runtime dependency on that serializer.

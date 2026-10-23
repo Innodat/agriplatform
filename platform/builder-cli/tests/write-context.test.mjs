@@ -14,6 +14,7 @@ test('rendered application supplies bounded context and executable behavioral te
  const files=renderApplication(recipe,root);
  assert.ok(files['write-tools/transaction_context.py'],'application must emit bounded transaction context');
  assert.ok(files['write-tools/test_transaction_context.py'],'application must emit its behavioral tests');
+ assert.match(files['write-tools/transaction_context.py'].content,/def outcome_lock\(/,'application must emit scoped transaction operation locking');
  const parent=join(root,'platform/deployment/.local/write-context');mkdirSync(parent,{recursive:true});
  const output=mkdtempSync(join(parent,'proof-')),hash=value=>createHash('sha256').update(value).digest('hex');
  installScaffold(output,files,{generator:'builder-v1',template:'application-v1-candidate',recipe:hash(JSON.stringify(recipe)),source:hash(JSON.stringify(files))});

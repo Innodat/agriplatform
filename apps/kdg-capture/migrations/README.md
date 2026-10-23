@@ -97,3 +97,9 @@ No database connection or API startup integration follows from these tests. Upda
 canonical write-tools templates, then selected Node26.11.1
 `platform/builder-cli/scripts/sync-kdg-write.mjs --write` / `--check`; do not edit managed
 copies. KDG remains responsible for current authority, exact target/mode and domain SQL.
+
+The managed WRITE helper now also supplies OutcomeKey/outcome_lock for exact org/account/
+handler-command/operation serialization. Use only inside the verified owner transaction.
+This synthetic extension does not apply a migration, create an outcome table, prove native
+lock timing/release or supply stored-resource authorization/replay. KDG business unique
+constraints and atomic outcome/evidence/domain writes remain a separate consuming gate.

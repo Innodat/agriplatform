@@ -12,6 +12,22 @@ support=importlib.util.module_from_spec(spec);spec.loader.exec_module(support)
 context=support.context
 
 class OwnerConsumption(unittest.TestCase):
+    def test_kdg_handler_operation_is_scoped_without_payload_fingerprints(self):
+        # Future handlers supply command names and freshly qualified write authority.
+        # This fixture neither consumes entry read authority nor creates a capture.
+        operation='dddddddd-dddd-4ddd-8ddd-dddddddddddd'
+        with patch.object(context.time,'monotonic',return_value=100):
+            budget=context.Budget();verified=context.VerifiedContext(support.ORG,support.ACCOUNT,support.ACTOR,'own_write',100)
+            key=context.OutcomeKey('kdg_capture',support.ORG,support.ACCOUNT,'capture.create',operation)
+            db=support.Connection()
+            with context.transaction(db,budget,verified):context.outcome_lock(db,budget,key,verified)
+        bound=[args['key'] for sql,args in db.calls if 'pg_advisory_xact_lock' in sql]
+        self.assertEqual(bound,[context.outcome_lock_key(key)])
+        installed=next(args for sql,args in db.calls if "set_config('app.org_id'" in sql)
+        self.assertEqual((key.org_id,key.account_id),(installed['org'],installed['account']))
+        other=context.OutcomeKey('kdg_capture',support.ORG,support.ACCOUNT,'capture.edit',operation)
+        self.assertNotEqual(context.outcome_lock_key(other),bound[0])
+        self.assertEqual(db.calls[-1][0],'COMMIT')
     def test_owner_binds_fixed_scope_and_read_mode_on_managed_copy(self):
         # These are synthetic already-qualified backend assertions, never browser input.
         with patch.object(context.time,'monotonic',return_value=100):

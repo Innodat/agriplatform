@@ -1,0 +1,105 @@
+{
+  "schema_version": 1,
+  "scope": "scoped operation lock prerequisite and generated/KDG synthetic proof",
+  "base_commit": "a0436ea675145f2449645eeb2849d90c837e8882",
+  "fingerprints_hmac": "deferred",
+  "database_io": false,
+  "docker_lifecycle": false,
+  "api_runtime_changed": false,
+  "historical_lock_v1": -5169148205731144946,
+  "results": {
+    "canonical_tests": 26,
+    "emitted_tests": 26,
+    "owner_tests": 4,
+    "builder_tests": 75,
+    "compatibility_cases": 100,
+    "typescript": "7.0.2 PASS",
+    "parity": "PASS",
+    "review_findings_deferred": 0
+  },
+  "interpreters": {
+    "P": "platform/deployment/.local/access-organization-check-20261022/owner-env/bin/python",
+    "N": "platform/deployment/.local/kdg-toolchains/ad277eef-a10e-4aac-bb82-5743653fb2e0/payload/node/bin/node"
+  },
+  "commands": [
+    [
+      "P",
+      "-I",
+      "-B",
+      "platform/builder-cli/templates/application/write-tools/test_transaction_context.py"
+    ],
+    [
+      "P",
+      "-I",
+      "-B",
+      "apps/kdg-capture/write-tools/test_transaction_context.py"
+    ],
+    [
+      "P",
+      "-I",
+      "-B",
+      "apps/kdg-capture/write-tests/test_owner_context.py"
+    ],
+    [
+      "P",
+      "-I",
+      "-B",
+      "platform/builder-cli/tests/check_operation_lock_compatibility.py"
+    ],
+    [
+      "N",
+      "--test",
+      "platform/builder-cli/tests/*.test.mjs"
+    ],
+    [
+      "N",
+      "node_modules/typescript/bin/tsc",
+      "-p",
+      "platform/builder-cli/tsconfig.json"
+    ],
+    [
+      "N",
+      "platform/builder-cli/scripts/sync-kdg-write.mjs",
+      "--write"
+    ],
+    [
+      "N",
+      "platform/builder-cli/scripts/sync-kdg-write.mjs",
+      "--check"
+    ]
+  ],
+  "sources": {
+    "apps/kdg-capture/docs/next-session.md": "86093cf59556b69e433d686552ea629a3b1e777b28b9248fcc6a7926ab256ce6",
+    "apps/kdg-capture/migrations/README.md": "500f17e93432002e8966e0d0d43ba03fa162391691e7dc71a9114236613c7c4c",
+    "apps/kdg-capture/write-tests/test_owner_context.py": "49c4924b61b7a0ff5c1df988cf74364d60bd156a4d86d57856dffab0823a4a35",
+    "apps/kdg-capture/write-tools/.generated-files.json": "e054a0386a44ff3993adebbee17fc15895be2af12b60700bb08688d7bc7355c5",
+    "apps/kdg-capture/write-tools/test_transaction_context.py": "122acf521fa53b39b876d94c14588f19188074ef4176a24fb0b01ce514e25a47",
+    "apps/kdg-capture/write-tools/transaction_context.py": "e46244916563bb8111e65675cb1d992778a6c076dc247c4b1fa12b7d9cc47ce7",
+    "platform/builder-cli/README.md": "6cdb1602331d86b447a900657bf0c3d6cf4ef7c4baeed8ec62e81e2b09e34e78",
+    "platform/builder-cli/templates/application/README.md": "a4ed828d6ce0263c6a406ec20eb16d41ce63f756804f967d84a45426b6266a8c",
+    "platform/builder-cli/templates/application/write-tools/test_transaction_context.py": "122acf521fa53b39b876d94c14588f19188074ef4176a24fb0b01ce514e25a47",
+    "platform/builder-cli/templates/application/write-tools/transaction_context.py": "e46244916563bb8111e65675cb1d992778a6c076dc247c4b1fa12b7d9cc47ce7",
+    "platform/builder-cli/tests/check_operation_lock_compatibility.py": "64a4ace4ac61bc9029c4f29cf6d002dab20b5f20d7bc6a6bc8d4de689d297a73",
+    "platform/builder-cli/tests/write-context.test.mjs": "ca8838c03ae1d10db8db83a855c1153e4a866f5092d4394cef3f97e124e74f47"
+  },
+  "logs": {
+    "/tmp/kdg-operation-lock-atdd-red.log": "5c44f09e86a972634008b2ba67d349b94ead49de47f4b9b94344c0e62909f04b",
+    "/tmp/kdg-operation-lock-focused-red.log": "071490fc94ac12594e28c1915c2b3d3048a7e0c2608837483371ab16be1c6450",
+    "/tmp/kdg-operation-lock-focused-green.log": "35ca44b72f2036f11f388272afcc96c8b05cd32d318e135feb1ba51c7a7c65be",
+    "/tmp/kdg-operation-lock-review-red.log": "8bcdeaee051a263626993cb17c96ae8e326279a9a4167cf25d1e983e0809aafb",
+    "/tmp/kdg-operation-lock-review-green.log": "7572abc7d861764a9862975208af7dc23f57e457e748975758db1a3893c9fbbd",
+    "/tmp/kdg-operation-lock-emitted-final.log": "d23d96c924c37a648bc6287f8392678d17683e13339bc83ac8ea851b1049dbe3",
+    "/tmp/kdg-operation-lock-owner-final.log": "80144f3bf12d071a1497821467ab02765712cb11da3f547a5e2b5cf79f938e9a",
+    "/tmp/kdg-operation-lock-builder-final.log": "cb4d5b54ae3eb13eacdaab67f4b3c83c3def841244e8dc0827acaefae52219f5",
+    "/tmp/kdg-operation-lock-typescript-final.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "/tmp/kdg-operation-lock-parity-final.log": "8f30b74c18ce5092fd85528d63efc0a3cb932d95dbb3adb62e42c717e8e054f8",
+    "/tmp/kdg-operation-lock-compatibility-final.log": "ce41e8c8873954cdc1589c467c9c994df245309afce4fe88e2cd0f32190a93f4",
+    "/tmp/kdg-operation-lock-preservation.json": "b8267ec2e246f2394d7f7ebffccfcf9319f91a951037546805ea2bfc20059a9f"
+  },
+  "limits": [
+    "synthetic adapter/copy proof only",
+    "no native lock timing/release or unique-outcome/atomicity proof",
+    "caller must reuse the installed verified transaction context",
+    "no outcome store/replay/API/Story1.2/release activation"
+  ]
+}

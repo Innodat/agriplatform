@@ -8,6 +8,9 @@ Do external checks before entry. Shape validation does not establish authority.
 from contextlib import contextmanager
 from dataclasses import dataclass
 import math
+import json
+import re
+from hashlib import sha256
 import time
 from uuid import UUID
 from sqlalchemy import text
@@ -138,3 +141,62 @@ def transaction(conn, budget, context):
         budget.remaining()
     except SQLAlchemyError:
         raise WriteError('internal_error') from None
+
+
+@dataclass(frozen=True, repr=False)
+class OutcomeKey:
+    owner_schema: str
+    org_id: str
+    account_id: str
+    command_type: str
+    operation_id: str
+
+    def __post_init__(self):
+        for value in (self.org_id, self.account_id, self.operation_id):
+            _uuid(value)
+        if (type(self.owner_schema) is not str
+                or re.fullmatch('[a-z][a-z0-9_]{0,62}', self.owner_schema) is None
+                or type(self.command_type) is not str
+                or re.fullmatch('[a-z][a-z0-9_.]{0,199}', self.command_type) is None):
+            raise WriteError('invalid_write_context')
+
+    def __repr__(self):
+        return '<OutcomeKey redacted>'
+
+
+
+def outcome_lock_key(key):
+    """Stable lock v1: fixed ASCII tuple only, not general JCS or a payload digest."""
+    if type(key) is not OutcomeKey:
+        raise WriteError('invalid_write_context')
+    canonical=json.dumps(dict(lock_version=1,owner_schema=key.owner_schema,
+        scope_kind='organization',scope_id=key.org_id,caller_kind='account',
+        caller_id=key.account_id,command_type=key.command_type,
+        operation_id=key.operation_id),sort_keys=True,separators=(',',':')).encode('utf-8')
+    return int.from_bytes(sha256(canonical).digest()[:8],'big',signed=True)
+
+
+def outcome_lock(conn, budget, key, context):
+    """Inside the owner's transaction, serialize the exact scoped operation key.
+
+    Context/key shape and matching scope are checked; neither establishes authority.
+    Only acquisition contention is operation_busy. Keep the owner's original budget.
+    Caller must reuse the context installed by transaction() on this connection;
+    this adapter does not independently authenticate or read back connection GUCs.
+    """
+    if (type(key) is not OutcomeKey or type(context) is not VerifiedContext
+            or (key.org_id, key.account_id) != (context.org_id, context.account_id)):
+        raise WriteError('invalid_write_context')
+    if not conn.in_transaction() or conn.connection.driver_connection.autocommit:
+        raise WriteError('invalid_write_context')
+    try:
+        _limits(conn, budget)
+    except SQLAlchemyError:
+        raise WriteError('internal_error') from None
+    budget.remaining()
+    try:
+        conn.execute(text('SELECT pg_advisory_xact_lock(:key)'), {'key': outcome_lock_key(key)})
+        budget.remaining()
+    except SQLAlchemyError as error:
+        code = getattr(getattr(error, 'orig', None), 'sqlstate', None)
+        raise WriteError('operation_busy' if code == '55P03' else 'internal_error') from None

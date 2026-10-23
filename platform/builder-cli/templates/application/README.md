@@ -269,3 +269,14 @@ retain the original execution budget through rechecks. Synthetic tests prove ada
 control flow only; actual rollback, RLS, deadlines, privileges and pool isolation
 require consuming native qualification. Update the owning scaffold template/test,
 then regenerate with the preservation installer; do not hand-edit generated copies.
+
+The same helper supplies organization/account-scoped OutcomeKey and outcome_lock.
+Call the latter inside the verified transaction before outcome/effect work; retain
+the original budget. Its stable lock-v1 SHA256 hash selects an advisory lock from a
+closed ASCII scope/operation tuple; it is not a payload fingerprint or a general
+canonical-JSON serializer. Only acquisition SQLSTATE55P03 is operation_busy. The owner
+still supplies current authority, handler-defined command, local unique constraints,
+atomic effects/evidence/receipt and first-committed recovery; the helper does not.
+Reuse the exact context installed by transaction() on the same connection. The helper
+checks active/non-autocommit state and input matching, but does not read back GUCs or
+establish that a backend assertion is true. Keep key scope derived from that context.

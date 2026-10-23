@@ -6,6 +6,7 @@ import unittest
 from unittest.mock import patch
 from types import SimpleNamespace
 from contextlib import contextmanager
+from dataclasses import replace
 from sqlalchemy.exc import SQLAlchemyError
 
 spec=importlib.util.spec_from_file_location('generated_transaction_context',Path(__file__).with_name('transaction_context.py'))
@@ -147,5 +148,108 @@ class BoundedContext(unittest.TestCase):
         with self.assertRaisesRegex(context.WriteError,'execution_timeout'):
             with context.transaction(db,context.Budget(),self.verified()):pass
         self.assertEqual(db.calls[-1][0],'COMMIT')
+
+    def key(self,**changes):
+        values=dict(owner_schema='sample',org_id=ORG,account_id=ACCOUNT,command_type='record.edit',operation_id=ACTOR)
+        values.update(changes);return context.OutcomeKey(**values)
+    def test_lock_v1_matches_historical_literal(self):
+        key=context.OutcomeKey('sample','11111111-1111-4111-8111-111111111111',
+            '22222222-2222-4222-8222-222222222222','record.edit','33333333-3333-4333-8333-333333333333')
+        self.assertEqual(context.outcome_lock_key(key),-5169148205731144946)
+        self.assertEqual(repr(key),'<OutcomeKey redacted>')
+    def test_lock_tuple_serialization_matches_independent_bytes(self):
+        from hashlib import sha256
+        key=self.key()
+        canonical=('{'+'"caller_id":"'+ACCOUNT+'","caller_kind":"account","command_type":"record.edit",'
+            '"lock_version":1,"operation_id":"'+ACTOR+'","owner_schema":"sample",'
+            '"scope_id":"'+ORG+'","scope_kind":"organization"}').encode()
+        self.assertEqual(context.outcome_lock_key(key),int.from_bytes(sha256(canonical).digest()[:8],'big',signed=True))
+    def test_each_operation_identity_dimension_changes_lock(self):
+        key=self.key();original=context.outcome_lock_key(key)
+        for field,value in [('owner_schema','another'),('org_id',ACTOR),('account_id',ACTOR),('command_type','record.create'),('operation_id',ORG)]:
+            with self.subTest(field=field):self.assertNotEqual(context.outcome_lock_key(replace(key,**{field:value})),original)
+    def test_lock_identity_is_closed_ascii_and_strict(self):
+        invalid=[('org_id',True),('account_id',ACCOUNT.upper()),('operation_id','00000000-0000-0000-0000-000000000000'),('owner_schema','a'*64),('owner_schema','unsafe.schema'),('owner_schema','é'),('owner_schema',b'sample'),('command_type','record.edit\n'),('command_type','record.é'),('command_type','a'*201),('command_type',None)]
+        for field,value in invalid:
+            with self.subTest(field=field),self.assertRaisesRegex(context.WriteError,'^invalid_write_context$'):self.key(**{field:value})
+        for field,value in [('owner_schema','a'*63),('command_type','a'*200)]:
+            with self.subTest(field=field):self.assertIsInstance(context.outcome_lock_key(self.key(**{field:value})),int)
+        with self.assertRaises(context.WriteError):context.outcome_lock_key(object())
+    def test_invalid_or_mismatched_lock_context_refuses_before_sql(self):
+        for key,verified in [(object(),self.verified()),(self.key(),None),(self.key(org_id=ACTOR),self.verified()),(self.key(account_id=ACTOR),self.verified())]:
+            db=Connection()
+            with self.subTest(key=type(key),verified=type(verified)),self.assertRaisesRegex(context.WriteError,'^invalid_write_context$'):
+                context.outcome_lock(db,context.Budget(),key,verified)
+            self.assertEqual(db.calls,[])
+    def test_lock_sql_is_transaction_scoped_bound_and_budgeted(self):
+        db=Connection();budget=context.Budget();verified=self.verified()
+        with context.transaction(db,budget,verified):
+            self.now=109.5;context.outcome_lock(db,budget,self.key(),verified)
+        index=next(i for i,(sql,_) in enumerate(db.calls) if 'pg_advisory_xact_lock' in sql)
+        self.assertEqual(db.calls[index],('SELECT pg_advisory_xact_lock(:key)',{'key':context.outcome_lock_key(self.key())}))
+        self.assertEqual(db.calls[index-1][1],{'statement':'500','lock':'500'})
+    def test_only_lock_acquisition_55p03_is_busy(self):
+        for stage,state,expected in [('limits','55P03','internal_error'),('lock','55P03','operation_busy'),('lock','57014','internal_error'),('lock','42501','internal_error'),('lock',None,'internal_error')]:
+            class FailedSql(Connection):
+                armed=False
+                def execute(self,sql,parameters):
+                    is_lock='pg_advisory_xact_lock' in str(sql)
+                    if self.armed and is_lock==(stage=='lock'):
+                        error=SQLAlchemyError('secret SQL/password');error.orig=SimpleNamespace(sqlstate=state);raise error
+                    return super().execute(sql,parameters)
+            db=FailedSql();budget=context.Budget();verified=self.verified()
+            with self.subTest(stage=stage,state=state),self.assertRaisesRegex(context.WriteError,'^'+expected+'$') as failed:
+                with context.transaction(db,budget,verified):
+                    db.armed=True
+                    context.outcome_lock(db,budget,self.key(),verified)
+                    context.execute(db,budget,'SELECT forbidden_after_failure')
+            self.assertTrue(failed.exception.__suppress_context__)
+            self.assertNotIn('COMMIT',[sql for sql,_ in db.calls])
+            self.assertNotIn('SELECT forbidden_after_failure',[sql for sql,_ in db.calls])
+    def test_ordinary_sql_lock_timeout_is_not_operation_busy(self):
+        class FailedSql(Connection):
+            def execute(self,sql,parameters):
+                error=SQLAlchemyError('secret SQL');error.orig=SimpleNamespace(sqlstate='55P03');raise error
+        with self.assertRaisesRegex(context.WriteError,'^internal_error$'):
+            context.execute(FailedSql(),context.Budget(),'SELECT owner_work')
+    def test_expired_lock_does_not_send_any_sql(self):
+        budget=context.Budget();db=Connection();verified=self.verified();before=0
+        with self.assertRaisesRegex(context.WriteError,'execution_timeout'):
+            with context.transaction(db,budget,verified):
+                self.now=110;before=len(db.calls)
+                context.outcome_lock(db,budget,self.key(),verified)
+        self.assertFalse(any(sql.startswith('SELECT') for sql,_ in db.calls[before:]))
+        self.assertNotIn('COMMIT',[sql for sql,_ in db.calls])
+    def test_late_lock_acknowledgement_prevents_commit(self):
+        owner=self
+        class LateLock(Connection):
+            def execute(self,sql,parameters):
+                result=super().execute(sql,parameters)
+                if 'pg_advisory_xact_lock' in str(sql):owner.now=111
+                return result
+        db=LateLock();budget=context.Budget();verified=self.verified()
+        with self.assertRaisesRegex(context.WriteError,'execution_timeout'):
+            with context.transaction(db,budget,verified):context.outcome_lock(db,budget,self.key(),verified)
+        self.assertNotIn('COMMIT',[sql for sql,_ in db.calls])
+    def test_expiry_during_limit_setup_prevents_lock_dispatch(self):
+        owner=self
+        class LateSetup(Connection):
+            armed=False
+            def execute(self,sql,parameters):
+                result=super().execute(sql,parameters)
+                if self.armed and "set_config('lock_timeout'" in str(sql):owner.now=111
+                return result
+        db=LateSetup();budget=context.Budget();verified=self.verified()
+        with self.assertRaisesRegex(context.WriteError,'execution_timeout'):
+            with context.transaction(db,budget,verified):
+                db.armed=True;context.outcome_lock(db,budget,self.key(),verified)
+        self.assertFalse(any('pg_advisory_xact_lock' in sql for sql,_ in db.calls))
+        self.assertNotIn('COMMIT',[sql for sql,_ in db.calls])
+    def test_lock_requires_active_non_autocommit_transaction_before_sql(self):
+        for active,autocommit in [(False,False),(True,True)]:
+            db=Connection();db.active=active;db.autocommit=autocommit
+            with self.subTest(active=active,autocommit=autocommit),self.assertRaisesRegex(context.WriteError,'^invalid_write_context$'):
+                context.outcome_lock(db,context.Budget(),self.key(),self.verified())
+            self.assertEqual(db.calls,[])
 
 if __name__=='__main__':unittest.main()
