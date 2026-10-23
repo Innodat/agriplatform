@@ -1,9 +1,11 @@
 # Preparation worker result and attempt evidence
 
-Status: **specified contract, not implemented or crash-qualified**. The
+Status: **pure codecs implemented; execution/storage not crash-qualified**. The
 [request parser](CORPUS_PREPARATION_TOOL.md#implemented-parser-and-qualification)
-is implemented; the worker, codecs, storage writer and admission mechanism below
-are not. Historical 207/394 parser tests do not qualify them. Consume the existing
+and app-owned standard-library-only
+[codec](../backend/caller_preparation_evidence.py) are implemented. The worker,
+storage writer and admission mechanism below are not. Historical 207/394 parser
+tests do not qualify those execution gates. Consume the existing
 [owner handoff](CORPUS_CALLER_PREPARATION.md) and
 [tool policy](CORPUS_PREPARATION_TOOL.md) without changing their request/custody,
 60-second total/58-second work/2-second cleanup, direct-connection or owner rules.
@@ -307,15 +309,15 @@ applied revisions. No live execution readiness is inferred from the journal desi
 
 ## First consuming delivery and evidence
 
-The next bounded implementation is a pure app-owned codec/immutable value model for
-these closed result/record/snapshot formats, deterministic serialization/hashing and
-finite-prefix validation. It must use the existing request parser and have no
+The app-owned codec implements immutable values for these closed
+result/record/snapshot formats, deterministic serialization/hashing and finite-prefix
+validation using the existing request parser. It performs no
 file/environment/network/database/admission/storage effects. Its single safe local
 error code/message is `scribeswell_preparation_evidence_invalid`, with no submitted
 payload or chained decoder/caller context. The codec validates declarations and
 bindings; trusted custody, database observations and persistence require later proof.
 
-| Given | When | Required future evidence |
+| Given | When | Required evidence (codec cases implemented below; execution cases future) |
 |---|---|---|
 | Literal valid create/reuse prefix and reply | Codec parses/encodes/hashes them | Exact immutable fields, independent known digest oracle, exact parent binding and ordered snapshot equality |
 | Wrong fields/types/raw-versus-canonical bytes/depth/UUID/time/base64/digest/code/proof, different create timestamps across rows, reordered/missing/extra phase or row | Codec validates | Fixed safe failure, zero effects; no disconnected success |
@@ -326,8 +328,80 @@ bindings; trusted custody, database observations and persistence require later p
 | COMMIT succeeds but terminal/reply/publication fails | Executor/recovery is qualified | Retain original candidate; verify backend end and whole state; no rollback assumption or blind retry |
 | Consequential atomic audit or real owner/server evidence is absent | Execution readiness is evaluated | Keep the relevant gate open; a valid codec/journal is insufficient |
 
-These are future acceptance cases, not tests run here. No codecs, file writer,
-supervisor, target/admission verifier, schema/migration or production operation is
-implemented. Scaffold/shared UI/agent-context/accepted ADR impacts are documentation
-only; no generic pattern is promoted. Agreed Studies UX, standalone signup and
+The codec cases above are exercised by
+[`test_caller_preparation_evidence.py`](../tests/test_caller_preparation_evidence.py).
+The physical capture, recovery, supervisor and owner-proof cases remain future
+acceptance requirements. No file writer, supervisor, target/admission verifier,
+schema/migration or production operation is implemented. Scaffold/shared UI,
+agent-context and accepted ADRs require no changes for this app-local codec;
+no generic pattern is promoted. Agreed Studies UX, standalone signup and
 separate Access/KDG/Leave/factory ownership remain binding.
+
+
+### Codec API and verification boundary
+
+Import through the repository-qualified `apps.scribeswell.backend` namespace;
+this delivery does not package the existing migrations-helper dependency into an
+API image or claim deployed availability. All models are frozen, slotted and
+repr-suppressed; nested authorities are tuples. Encoders reject invalid manually
+constructed values as well as malformed wire input.
+
+- `parse_record`, `encode_record`, `record_digest` validate one canonical record
+  and its local phase semantics. They cannot prove a prefix without its admission.
+- `parse_attempt(records, request_raw=..., target=...)` accepts an exact tuple of
+  original record bytes and independently expected original request bytes/validated
+  descriptor. It checks all bindings, original request byte identity, hash links,
+  permitted partial/terminal phases, ordered snapshots and create/reuse equality.
+- `parse_worker_result(raw, request_raw=..., target=..., records=...)` additionally
+  requires a terminal prefix and exact reply binding. `encode_worker_result` checks
+  reply shape only; encoding never replaces parent acceptance.
+- `parse_target_descriptor`, `target_digest` and `request_digest` validate public
+  projection identity; no credentials, references or owner evidence are resolved.
+
+Observed ATDD red: the literal create acceptance test failed on the missing codec
+before implementation. Focused verification command:
+`/tmp/scribeswell-host-tests-312/bin/python -m pytest -q apps/scribeswell/tests/test_caller_preparation_evidence.py`
+→ **212 passed** (2.41s after review additions). Fixed literal digest oracles, all closed nested shapes,
+allowed/forbidden phase paths, server timestamps, canonical base64, mismatched
+expected request/target, safe failures under an active caller exception, hostile
+encoder objects and an isolated `-I -S` interpreter are covered. The isolated test
+uses empty environment/unrelated working directory, allows only stdlib and the
+three app codec/request/custody modules, and blocks runtime environment access and
+I/O. This is pure-library proof; trusted custody, acknowledged persistence, worker
+exit/deadline handling, real database observations and all live readiness gates
+remain unqualified.
+
+
+Reproduce the focused suite from the repository root with CPython 3.12 and `uv`:
+
+```sh
+uv venv --python 3.12 /tmp/scribeswell-codec-repro
+uv pip install --python /tmp/scribeswell-codec-repro/bin/python pytest==9.1.1
+/tmp/scribeswell-codec-repro/bin/python -m pytest -q apps/scribeswell/tests/test_caller_preparation_evidence.py
+```
+
+This fresh environment contains only pytest and its dependencies; the command
+passed **212 tests** (2.20s). Installation was actually performed with `--offline`
+using the local package cache; omit that flag to obtain packages normally.
+The wider affected suite also needs the existing backend and migration test
+collection dependencies. Its environment was recreated using `uv venv --python
+3.12 /tmp/scribeswell-host-tests-312`, then `uv pip install --python
+/tmp/scribeswell-host-tests-312/bin/python pytest==9.1.1 -r
+apps/scribeswell/backend/requirements.txt -r
+apps/scribeswell/deployment/migration-requirements.txt` (again offline from cache).
+Actual final affected command:
+
+```sh
+/tmp/scribeswell-host-tests-312/bin/python -m pytest apps/scribeswell/tests/test_caller_preparation_evidence.py apps/scribeswell/tests/test_caller_preparation_input.py apps/scribeswell/tests/test_corpus_publication_input.py apps/scribeswell/tests/test_host_validation_profiles.py -q -k 'not real_supervised_replay and not history_supervisor_timeout and not history_never_selects_profile and not actual_commit_ack_loss and not real_host_coordinator'
+```
+
+Result: **606 passed, 11 deliberately deselected** (8.57s); no new test skips.
+The blind review's eight findings were addressed with additional coverage and
+reproducible setup: alternate prewrite codes/rollback proofs, complete IPv6 and
+Supabase attempts/replies, eight distinct unchanged reuse timestamps, valid
+Gregorian boundaries, independently effective descriptor transport bounds, direct
+reply/descriptor malformed transport and manual session/snapshot/proof/result
+encoder validation. No production-code changes were needed after review. Record
+schema/field/canonical limits make some oversized/overdeep probes invalid for more
+than one reason; those probes establish safe rejection, not independent proof of
+each redundant guard. Physical storage and execution evidence remains future work.
