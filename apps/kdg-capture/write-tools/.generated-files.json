@@ -4,7 +4,7 @@
     "generator": "builder-v1",
     "template": "write-context-v1-candidate",
     "recipe": "228376455d7386499c2548fbd2c0c0b1371de0ebee3eee1afa95b2a846228200",
-    "source": "7c95eebef321ac97877304d1f9ca6ff8e8bd1b03b38ccb0ad13b7b78cf6fc272"
+    "source": "2da890011bd45e5b2d0e2873e17bdc05b03b959292bb240f81ab46755a5b0aa3"
   },
   "files": {
     "test_transaction_context.py": {
@@ -13,7 +13,7 @@
     },
     "transaction_context.py": {
       "classification": "generated",
-      "sha256": "bdfb3d0d1ed1c3f5422448cd879f239274c7aa7a95acd5ba345d20a2af279203"
+      "sha256": "b447deb0da447446bfec6aa142dc653c07674705be72ae844e10c43e1c23d1fa"
     }
   }
 }

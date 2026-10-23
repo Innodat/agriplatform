@@ -67,16 +67,16 @@
     "apps/kdg-capture/docs/next-session.md": "d7a830e4046c9783cd48eb35c4925e79ebc7377153e26dde2486d4ef0bd88e2a",
     "apps/kdg-capture/migrations/README.md": "5e9813566fb64a2852fabb6eda43a2c683fba9dfb95388c098fd076400393a35",
     "apps/kdg-capture/write-tests/test_owner_context.py": "739d78b09340687001d3b9a1e40ce1467ad6d785a97b156c09855146739daedf",
-    "apps/kdg-capture/write-tools/.generated-files.json": "3d128589d7119c9190c3a27e9326495b30266dc588eb5121794e8136ee71f871",
+    "apps/kdg-capture/write-tools/.generated-files.json": "6969574456c3ef4595377ffdeadd2889364777a85c1e175b44bc38b2c7f33280",
     "apps/kdg-capture/write-tools/test_transaction_context.py": "791d342c5b5403b0945f43724a7914e1074c813c1817f501df1d88c192d87e5e",
-    "apps/kdg-capture/write-tools/transaction_context.py": "bdfb3d0d1ed1c3f5422448cd879f239274c7aa7a95acd5ba345d20a2af279203",
+    "apps/kdg-capture/write-tools/transaction_context.py": "b447deb0da447446bfec6aa142dc653c07674705be72ae844e10c43e1c23d1fa",
     "platform/builder-cli/README.md": "13f14023257baf72a77bbfe86c7d7659586712f353cc0e4c2a2555f47d8379dd",
     "platform/builder-cli/scripts/sync-kdg-write.mjs": "2d61a06b498363fdc8472fa202646f95b4b23a64ebdb3dc6b1da231cd197e225",
     "platform/builder-cli/src/application-renderer.ts": "a648543586ac7b771089ab28f27cf627593a60ce67dd3ff90bbb0e6c821c003d",
     "platform/builder-cli/src/kdg-write-pattern.ts": "09c70a2e1dec92dc7af1dd57ca034244d615010618368cd30eca5dab1260d67f",
     "platform/builder-cli/templates/application/README.md": "9eb7dcbe48802fa9618071df50f42f889113b400f8476118ca02f6cc45db2df9",
     "platform/builder-cli/templates/application/write-tools/test_transaction_context.py": "791d342c5b5403b0945f43724a7914e1074c813c1817f501df1d88c192d87e5e",
-    "platform/builder-cli/templates/application/write-tools/transaction_context.py": "bdfb3d0d1ed1c3f5422448cd879f239274c7aa7a95acd5ba345d20a2af279203",
+    "platform/builder-cli/templates/application/write-tools/transaction_context.py": "b447deb0da447446bfec6aa142dc653c07674705be72ae844e10c43e1c23d1fa",
     "platform/builder-cli/tests/application-renderer.test.mjs": "b9bb162f87002621ce858c90d1567568df3471df78147c4aca25701a9a47763d",
     "platform/builder-cli/tests/write-context.test.mjs": "1c0df32ab0cbf175bef93d41dfa66f6d473f6895f913f8e1061420126a7f0775"
   },
@@ -88,12 +88,21 @@
     "/tmp/kdg-write-context-builder-reviewed.log": "f55692ea999da0f811ec2f06160d6fb5083407b8ce70d8924911f4fd430d908a",
     "/tmp/kdg-write-context-explicit-python.log": "95389d2215764932ae8045996c4a308ff547d7ec24862fcdb832197b742eb523",
     "/tmp/kdg-write-context-typescript.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-    "/tmp/kdg-write-context-parity.log": "8f30b74c18ce5092fd85528d63efc0a3cb932d95dbb3adb62e42c717e8e054f8"
+    "/tmp/kdg-write-context-parity.log": "8f30b74c18ce5092fd85528d63efc0a3cb932d95dbb3adb62e42c717e8e054f8",
+    "/tmp/kdg-write-context-whitespace-focused.log": "97e0c7fd73abbb310ad165bd5780a7721a83fed17ce735b9e0383699c0884a74",
+    "/tmp/kdg-write-context-whitespace-owner.log": "199ba496f288116d36c62f29346d4fbf0bd75745a1c893abfcbdaa4c6d5b1033"
   },
   "review_findings_deferred": 0,
   "limits": [
     "synthetic adapter proof only",
     "no PostgreSQL rollback/RLS/deadline/pool qualification",
     "no KDG domain table/API or full WRITE/Story1.2 closure"
-  ]
+  ],
+  "whitespace_followup": {
+    "behavior_changed": false,
+    "rendered_parity_tests": 2,
+    "emitted_tests_executed_by_rendered_acceptance": 14,
+    "kdg_owner_tests": 3,
+    "source_inventory_refreshed": true
+  }
 }

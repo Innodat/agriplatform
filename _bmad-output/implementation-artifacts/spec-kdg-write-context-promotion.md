@@ -85,3 +85,9 @@ results and source/log bindings. All7 extracted symbol ASTs match the historical
 qualified example;11 protected source/manifest files unchanged;100 preexisting paths
 preserved. Current proof is synthetic only. No review finding deferred. Scoped local
 commit only; no push, external operation or native resource change.
+
+
+Post-commit whitespace correction: canonical trailing blank line removed, KDG regenerated,
+source receipt refreshed. No runtime semantic change; focused rendered/parity2 (including
+14 emitted cases), owner3 and baseline-scoped whitespace checks pass. Separate local
+follow-up preserves the original local commit and all concurrent work.

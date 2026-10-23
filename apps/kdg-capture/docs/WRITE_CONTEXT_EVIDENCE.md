@@ -100,3 +100,12 @@ untracked paths remain present; concurrent Scribeswell planning updates remain e
 The [receipt](evidence/write-context-20261023.json) records final commands/results and
 source/log bindings, without credentials or runtime authority. This mutable evidence
 chronology and its receipt are excluded from their own source inventory.
+
+
+A final staged whitespace check found one trailing blank line in the canonical helper
+and its emitted copy. The first local commit already existed; a separate local follow-up
+removes it in the owning template, regenerates KDG and refreshes receipt bindings.
+Runtime symbol ASTs are unchanged. Actual rendered/installed behavior and parity reran:
+2 PASS, including14 emitted tests; KDG owner3 PASS. Logs:
+`/tmp/kdg-write-context-whitespace-focused.log` and
+`/tmp/kdg-write-context-whitespace-owner.log`. The scoped diff whitespace check now passes.

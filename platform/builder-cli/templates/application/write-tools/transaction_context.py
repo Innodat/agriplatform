@@ -138,4 +138,3 @@ def transaction(conn, budget, context):
         budget.remaining()
     except SQLAlchemyError:
         raise WriteError('internal_error') from None
-
