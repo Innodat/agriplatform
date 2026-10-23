@@ -1,7 +1,7 @@
 # Caller preparation tool contract
 
-Status: **specified design; no parser, admission verifier or preparation executor
-implemented by this delivery**. The [owner handoff](CORPUS_CALLER_PREPARATION.md)
+Status: **pure parser implemented locally; admission verifier and preparation
+executor remain specified designs**. The [owner handoff](CORPUS_CALLER_PREPARATION.md)
 remains authoritative for provenance, scope, atomic mapping and recovery. Its
 29-case isolated rehearsal proves a local protocol with synthetic actor evidence;
 it does not prove this proposed supervision or live admission. The earlier 228-test
@@ -15,7 +15,7 @@ These distinctions determine the first bounded implementation slice below.
 
 ## Closed request version 1
 
-The future pure `parse_preparation_request(raw)` accepts exactly Python `bytes`
+The pure `parse_preparation_request(raw)` accepts exactly Python `bytes`
 (not text/bytearray/other types) containing one UTF-8 JSON object, at most 8192 bytes before
 decoding, nesting depth at most 4 (root object depth 1). Reject a UTF-8 byte-order
 mark, empty/whitespace-only input and invalid UTF-8,
@@ -43,7 +43,7 @@ credentials, request payloads or bearer URLs. They identify owner records; the
 parser never opens a path/URL, queries a service, imports Identity server code,
 resolves authorization or reads environment variables. A parsed value must be
 immutable, including its nested custody; it is an untrusted declaration.
-The proposed `PreparationRequest` and nested custody value expose the table's named
+The `PreparationRequest` and nested `PreparationCustody` value expose the table's named
 fields, contain no mutable dictionaries/lists and suppress payload repr. Use
 `backend/caller_preparation_input.py` and
 `tests/test_caller_preparation_input.py` for the first consuming delivery.
@@ -238,7 +238,7 @@ credentials, raw requests/receipts, full mapping snapshots or driver/traceback t
 Complete sensitive provenance belongs in protected evidence under
 [ADR-0023](../../../platform/docs/architecture/decisions/0023-structured-operational-logs-and-sensitive-data.md).
 
-## Future acceptance and delivery boundary
+## Acceptance and delivery boundary
 
 | Given | When | Required evidence |
 |---|---|---|
@@ -254,11 +254,53 @@ Complete sensitive provenance belongs in protected evidence under
 | Child reaped but backend end unverified | Recovery is attempted | Unknown/no new writes; never infer rollback from reap |
 | Missing/extra/mixed state, changed revisions or ambiguous no-op | Original session ended and owner observes state under locks | Conflict/unchanged/reuse/committed remain distinct; no repair; fresh profile required |
 
-Next delivery is a pure app-owned parser/value object with ATDD/TDD for the first
-two rows, consuming this closed request and existing pure custody validator. It
-must not add a runner or pretend to authenticate owner records. Subsequent
+The first two rows are implemented by the pure app-owned parser and its acceptance
+tests; the remaining rows are future executor/admission qualification. Parsing
+consumes the existing pure custody validator without authenticating owner records.
+Subsequent
 supervisor work must close its result wire, durable-attempt capture and actual
 fixture admission before implementing SQL effects; live owner integration remains
 separate. No scaffold/shared UI/agent context or accepted ADR change is required by
 this documentation slice. Studies UX, standalone account creation and separate
 Access/KDG/Leave/factory ownership remain unchanged.
+
+
+## Implemented parser and qualification
+
+From a trusted repository Python import root:
+
+```python
+from apps.scribeswell.backend.caller_preparation_input import parse_preparation_request
+
+request = parse_preparation_request(request_bytes)
+```
+
+The result is a frozen slotted `PreparationRequest` containing a frozen slotted
+`PreparationCustody`. Both suppress payload repr. Preparer and corpus actor are
+separate responsibilities; equal UUID declarations are valid syntax, never evidence
+of authorization. The existing `migrations/release_profile.py` custody validator
+is imported directly through this app's namespace and remains unchanged. The module
+uses only the standard library plus that pure contract, and does not modify import
+paths. Normal Python code loading is separate from parsing; calls perform no
+explicit file/environment/network/database/owner effects.
+
+`tests/test_caller_preparation_input.py` supplies an independent literal wire
+fixture; exact success/immutable/error checks; encoding/framing/size/type/object/UUID/
+reference/number/duplicate/depth cases; custody-validator/digest agreement; and a
+fresh isolated `-I -S` interpreter with explicit trusted repository root, unrelated
+working directory and empty environment. Error tests also cover invocation while
+the caller handles another exception: the safe error retains no decoder/caller
+exception chain. The isolated test blocks runtime-owner
+imports, environment reads and explicit I/O after normal module loading.
+
+Run `python -m pytest apps/scribeswell/tests/test_caller_preparation_input.py -q`
+with the repository root available. The
+[parser delivery record](../../../_bmad-output/implementation-artifacts/spec-scribeswell-preparation-request-parser.md)
+records exact observed red/green commands, regression results and review triage.
+Final focused qualification passed 207 cases; the affected pure suite passed 394
+cases with 11 retained native cases deliberately excluded. Six review findings
+were resolved, none deferred. No database/native execution was run for this parser.
+This is internal/repository-qualified availability: existing runtime images do not
+include the required pure migration module, and consuming runner packaging must
+prove its own clean imports. No runtime endpoint, deployment/image, private target
+parser, owner admission, deadline supervisor or preparation SQL is provided.
