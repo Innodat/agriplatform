@@ -1,3 +1,25 @@
+## Current delivery — identity-safe return selection, 2026-10-23
+
+The bounded in-memory return selector and KDG current-context adapter are complete:
+scaffold36 generated +35 KDG owner tests (71 total),21 SDK/React/Chromium checks,
+builder68, strict TypeScript7.0.2 and the final offline generated-application proof pass.
+All six configured review findings patched; no deferral. See
+[owner evidence](AUTH_RETURN_EVIDENCE.md) and its durable receipt.
+Only implemented KDG `/` may be captured. Restoration consumes once and requires fresh
+matching account/fixed-org authority; invalid targets, denial, timeout or supersession
+select the safe entry page. Shared code/tests remain synchronized through the existing
+preserving installer. No provider launch, PKCE storage, callback exchange, navigation
+or complete Story1.1 readiness is claimed. Callback/lifecycle wiring remains explicit
+future consumer work. Next select the bounded Auth launch/callback policy/integration
+prerequisite from current owner contracts before domain persistence. Preserve concurrent
+changes/history/Docker resources and TS7.0.2. Synthetic local/CI only; no Leave/editor,
+production, real account/access, provisioning, deployment/pilot or cleanup.
+Fingerprints/HMAC remain deferred.
+
+The complete prior handoff follows as historical checkpoints.
+
+---
+
 ## Current delivery — scaffold/KDG Auth code and test parity, 2026-10-23
 
 Neutral Auth lifecycle, React hook and behavioral tests now have one scaffold owner;

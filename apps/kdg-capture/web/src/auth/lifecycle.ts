@@ -146,3 +146,44 @@ export function createSessionLifecycle<T>(options: LifecycleOptions<T>) {
     },
   };
 }
+
+export type ReturnIdentity = Readonly<{account_id:string;scope_id:string}>;
+export type ReturnSelection = Readonly<{kind:'restored'|'safe';path:string}>;
+/** In-memory selection, not navigation or admission. Owner observation must verify this route now. */
+export function createReturnSelection(options:Readonly<{routes:readonly string[];safePath:string;timeoutMs?:number}>) {
+ const pathPattern=/^\/(?:[A-Za-z0-9_-]+(?:\/[A-Za-z0-9_-]+)*)?$/;
+ const routes=new Set(options.routes),duration=options.timeoutMs??10000;
+ if(!routes.has(options.safePath)||[...routes].some(path=>typeof path!=='string'||path.trim()!==path||!pathPattern.test(path))||
+    !Number.isFinite(duration)||duration<=0||duration>10000)throw new Error('return_configuration_invalid');
+ const safe:ReturnSelection=Object.freeze({kind:'safe',path:options.safePath});
+ const identityValid=(value:ReturnIdentity|null):value is ReturnIdentity=>!!value&&
+  typeof value.account_id==='string'&&value.account_id.trim()===value.account_id&&/^[A-Za-z0-9_-]{1,128}$/.test(value.account_id)&&
+  typeof value.scope_id==='string'&&value.scope_id.trim()===value.scope_id&&/^[A-Za-z0-9_-]{1,128}$/.test(value.scope_id);
+ let intent:Readonly<{path:string;identity:ReturnIdentity}>|null=null,epoch=0,disposed=false;
+ let cancel:(()=>void)|undefined;
+ function clear(){epoch++;intent=null;const previous=cancel;cancel=undefined;previous?.();}
+ return {
+  capture(path:unknown,identity:ReturnIdentity):boolean {
+   const execution=epoch+1;clear();
+   if(disposed||epoch!==execution||typeof path!=='string'||!routes.has(path)||!identityValid(identity))return false;
+   intent=Object.freeze({path,identity:Object.freeze({account_id:identity.account_id,scope_id:identity.scope_id})});return true;
+  },
+  async restore(observe:(path:string,signal:AbortSignal)=>Promise<ReturnIdentity|null>):Promise<ReturnSelection> {
+   const captured=intent,execution=epoch+1;clear();
+   if(disposed||epoch!==execution||!captured)return safe;
+   const controller=new AbortController();let cancelled=false,selected:ReturnSelection=safe;let stop!:(value:ReturnSelection)=>void;
+   const stopped=new Promise<ReturnSelection>(resolve=>{stop=resolve;});
+   const cancelThis=()=>{cancelled=true;controller.abort();stop(safe);};cancel=cancelThis;
+   const timer=setTimeout(cancelThis,duration);
+   try {
+    const observation=Promise.resolve().then(()=>disposed||epoch!==execution||controller.signal.aborted?null:observe(captured.path,controller.signal))
+     .then(authority=>identityValid(authority)&&authority.account_id===captured.identity.account_id&&authority.scope_id===captured.identity.scope_id?
+      Object.freeze({kind:'restored' as const,path:captured.path}):safe).catch(()=>safe);
+    selected=await Promise.race([observation,stopped]);
+   }finally{clearTimeout(timer);if(cancel===cancelThis)cancel=undefined;controller.abort();}
+   return !disposed&&epoch===execution&&!cancelled?selected:safe;
+  },
+  clear,
+  dispose(){disposed=true;clear();},
+ };
+}

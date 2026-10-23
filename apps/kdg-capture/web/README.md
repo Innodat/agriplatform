@@ -133,3 +133,12 @@ refuses manually edited managed files. Never edit generated Auth code/tests or
 .generated-files.json by hand. Builder tests compare current templates as well as
 installed hashes, so stale generated tests fail too. See platform/builder-cli/AUTH_PATTERN_EVIDENCE.md
 from repository root for the ownership inventory, same-item maintenance rule and proof limits.
+
+## Return selection candidate — 2026-10-23
+
+The scaffold-managed Auth module now includes an in-memory return selector; KDG's
+`createEntryReturn` in auth-entry.ts allows only `/` and rechecks the current private
+context before selecting restoration. Callers clear/dispose on lifecycle changes;
+provider callback and React navigation wiring remain separate. No URL payload, storage
+or automatic confirmation is introduced. See [current evidence](../docs/AUTH_RETURN_EVIDENCE.md)
+for test commands, caller obligations and the distinction from complete callback flow.

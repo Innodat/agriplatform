@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import {test} from 'node:test';
-import {createAuthEntry} from '../../../../compiled/web/src/auth-entry.js';
+import {createAuthEntry,createEntryReturn} from '../../../../compiled/web/src/auth-entry.js';
 const A='11111111-1111-4111-8111-111111111111',B='22222222-2222-4222-8222-222222222222',ORG='33333333-3333-4333-8333-333333333333';
 const session=(id=A,token='synthetic-'+id)=>({user:{id},access_token:token});
 const context=id=>({account_id:id,actor_id:'44444444-4444-4444-8444-444444444444',membership_id:'1',authorization_scope:{kind:'organization',org_id:ORG},resource_scope:{kind:'own_account',account_id:id},permission:'kdg_capture.capture.read.own',decision_id:'55555555-5555-4555-8555-555555555555',checked_at:'2026-10-23T10:00:00Z'});
@@ -164,4 +164,50 @@ for(const expired of [false,true])test('actual SDK rejected refresh; expired='+e
  if(expired){assert.equal(gate.state().kind,'signed_out');assert.ok(events.includes('SIGNED_OUT'));assert.equal(launches,0);await gate.signIn();assert.equal(launches,1);}
  else{assert.equal(gate.state().kind,'authentication_required');assert.ok(!events.includes('SIGNED_OUT'));assert.equal(launches,1);}
  assert.equal(gate.state().kind,'authentication_required');gate.dispose();listener.unsubscribe();client.auth.stopAutoRefresh();
+});
+
+test('KDG return selection rechecks the current private context before restoring entry',async()=>{
+ const calls=[],guard=createEntryReturn({org:ORG,request:async(path,init)=>{calls.push({path,init});return reply(A);}});
+ assert.equal(guard.capture('/',context(A)),true);
+ assert.deepEqual(await guard.restore({account_id:A,access_token:'synthetic-current'}),{kind:'restored',path:'/'});
+ assert.equal(calls.length,1);assert.equal(calls[0].path,'/api/v1/context');assert.equal(calls[0].init.headers.Authorization,'Bearer synthetic-current');
+ assert.equal(calls[0].init.cache,'no-store');assert.equal(calls[0].init.redirect,'error');guard.dispose();
+});
+
+test('KDG return target is limited to entry; invalid capture clears earlier intent without HTTP',async()=>{
+ let requests=0;const guard=createEntryReturn({org:ORG,request:async()=>{requests++;return reply(A);}});
+ for(const path of ['/captures','/auth/callback','/?account='+B,'https://evil.invalid/','//evil.invalid','/%2f','/#PRIVATE']){
+  guard.capture('/',context(A));assert.equal(guard.capture(path,context(A)),false);assert.deepEqual(await guard.restore({account_id:A,access_token:'synthetic'}),{kind:'safe',path:'/'});
+ }
+ assert.equal(requests,0);guard.dispose();
+});
+test('KDG return selection protects changed account, organization, revoked access, outage and malformed evidence',async()=>{
+ for(const [account,response] of [[B,()=>reply(B)],[A,()=>new Response(JSON.stringify(context(A)),{status:403})],[A,()=>new Response('PRIVATE',{status:503})],[A,()=>new Response('{}')],[A,()=>new Response(JSON.stringify({...context(A),authorization_scope:{kind:'organization',org_id:B}}))]]){
+  const guard=createEntryReturn({org:ORG,request:async()=>response()});guard.capture('/',context(A));
+  assert.deepEqual(await guard.restore({account_id:account,access_token:'synthetic'}),{kind:'safe',path:'/'});guard.dispose();
+ }
+ const guard=createEntryReturn({org:ORG,request:async()=>{throw new Error('must not call');}});
+ assert.equal(guard.capture('/',{...context(A),authorization_scope:{kind:'organization',org_id:B}}),false);
+ guard.capture('/',context(A));assert.deepEqual(await guard.restore(null),{kind:'safe',path:'/'});guard.dispose();
+});
+test('KDG return cancellation aborts in-flight current-context work and prevents late restoration',async()=>{
+ const pending=deferred();let signal;const guard=createEntryReturn({org:ORG,request:async(_path,init)=>{signal=init.signal;return pending.promise;}});
+ guard.capture('/',context(A));const result=guard.restore({account_id:A,access_token:'synthetic'});await tick();guard.clear();
+ assert.deepEqual(await result,{kind:'safe',path:'/'});assert.equal(signal.aborted,true);pending.resolve(reply(A));await tick();guard.dispose();
+});
+
+test('KDG return pins the supplied account and bearer before deferred verification',async()=>{
+ const tokens=[],guard=createEntryReturn({org:ORG,request:async(_path,init)=>{tokens.push(init.headers.Authorization);return reply(init.headers.Authorization.includes(B)?B:A);}});
+ guard.capture('/',context(A));const current={account_id:A,access_token:'synthetic-'+A};const result=guard.restore(current);
+ current.account_id=B;current.access_token='synthetic-'+B;
+ assert.deepEqual(await result,{kind:'restored',path:'/'});assert.deepEqual(tokens,['Bearer synthetic-'+A]);guard.dispose();
+});
+for(const stage of ['headers','body'])test(`KDG return deadline aborts stalled ${stage} and late success cannot restore`,async()=>{
+ const pending=deferred();let signal,cancelled=0;
+ const response=new Response(new ReadableStream({cancel(){cancelled++;}}));
+ const guard=createEntryReturn({org:ORG,timeoutMs:5,request:async(_path,init)=>{signal=init.signal;return stage==='headers'?pending.promise:response;}});
+ guard.capture('/',context(A));const result=await guard.restore({account_id:A,access_token:'synthetic'});
+ assert.deepEqual(result,{kind:'safe',path:'/'});assert.equal(signal.aborted,true);
+ if(stage==='headers')pending.resolve(response);await tick();assert.equal(cancelled,1);
+ assert.deepEqual(await guard.restore({account_id:A,access_token:'synthetic'}),{kind:'safe',path:'/'});guard.dispose();
 });

@@ -61,6 +61,23 @@ try{
   page.on('pageerror',()=>issues.push({event:'page_error'}));page.on('console',message=>{if(message.type()==='error'){let path='<unknown>';try{path=new URL(message.location().url).pathname;}catch{}issues.push({event:'console_error',path});}});
   page.on('response',response=>{if(!response.ok())failedResponses.push({path:new URL(response.url()).pathname,status:response.status()});});
   await page.goto(origin);await page.getByRole('heading',{name:'Setup not completed',exact:true}).waitFor();checks.push('sdk_bootstrap_strict_react');
+  assert.equal(await page.evaluate(()=>window.fixture.captureReturn('/')),true);
+  assert.deepEqual(await page.evaluate(()=>window.fixture.restoreReturn()),{kind:'restored',path:'/'});
+  assert.deepEqual(await page.evaluate(()=>window.fixture.restoreReturn()),{kind:'safe',path:'/'});checks.push('return_same_account_fresh_context_once');
+  assert.equal(await page.evaluate(()=>window.fixture.captureReturn('https://evil.invalid/')),false);
+  assert.deepEqual(await page.evaluate(()=>window.fixture.restoreReturn()),{kind:'safe',path:'/'});checks.push('return_external_target_refused');
+  await page.evaluate(()=>window.fixture.captureReturn('/'));await page.evaluate(account=>window.fixture.switchAccount(account),B);
+  assert.deepEqual(await page.evaluate(()=>window.fixture.restoreReturn()),{kind:'safe',path:'/'});
+  await page.evaluate(account=>window.fixture.switchAccount(account),A);await page.getByRole('heading',{name:'Setup not completed',exact:true}).waitFor();checks.push('return_different_sdk_account_safe');
+  await page.evaluate(()=>window.fixture.captureReturn('/'));mode='denied';
+  assert.deepEqual(await page.evaluate(()=>window.fixture.restoreReturn()),{kind:'safe',path:'/'});mode='success';checks.push('return_current_denial_safe');
+  await page.evaluate(()=>window.fixture.captureReturn('/'));mode='denied';
+  assert.equal(await page.evaluate(()=>window.fixture.captureReturn('/')),false);mode='success';
+  assert.deepEqual(await page.evaluate(()=>window.fixture.restoreReturn()),{kind:'safe',path:'/'});checks.push('failed_capture_discards_prior_return');
+  await page.evaluate(()=>window.fixture.captureReturn('/'));await page.evaluate(()=>window.fixture.replaceOrg('66666666-6666-4666-8666-666666666666'));
+  assert.deepEqual(await page.evaluate(()=>window.fixture.restoreReturn()),{kind:'safe',path:'/'});
+  await page.getByRole('heading',{name:'Could not verify access',exact:true}).waitFor();
+  await page.evaluate(org=>window.fixture.replaceOrg(org),ORG);await page.getByRole('heading',{name:'Setup not completed',exact:true}).waitFor();checks.push('return_owner_org_replacement_discards_intent');
   mode='delay';const refreshed=page.evaluate(()=>window.fixture.refresh());await page.getByRole('heading',{name:'Checking access',exact:true}).waitFor();await refreshed;
   await page.getByRole('heading',{name:'Setup not completed',exact:true}).waitFor();checks.push('sdk_token_refresh');
   mode='denied';await page.getByRole('button').click();await page.getByRole('heading',{name:'Access denied',exact:true}).waitFor();mode='success';await page.getByRole('button').click();await page.getByRole('heading',{name:'Setup not completed',exact:true}).waitFor();checks.push('current_access_recheck');
@@ -82,7 +99,7 @@ try{
   assert.equal(await page.getByRole('heading',{name:'Setup not completed',exact:true}).count(),0);
   await page.evaluate(org=>window.fixture.replaceOrg(org),ORG);await page.getByRole('heading',{name:'Setup not completed',exact:true}).waitFor();checks.push('configured_org_replacement_clears_admission');
   assert.deepEqual(await page.evaluate(()=>[localStorage.length,sessionStorage.length]),[0,0]);assert.ok(!(await page.locator('body').textContent()).includes('SENSITIVE'));
-  assert.deepEqual(failedResponses,[{path:'/api/v1/context',status:403},{path:'/api/v1/context',status:401}]);assert.ok(issues.length===2&&issues.every(e=>e.event==='console_error'&&e.path==='/api/v1/context'),'unexpected_browser_error');
+  assert.deepEqual(failedResponses,[{path:'/api/v1/context',status:403},{path:'/api/v1/context',status:403},{path:'/api/v1/context',status:403},{path:'/api/v1/context',status:401}]);assert.ok(issues.length===4&&issues.every(e=>e.event==='console_error'&&e.path==='/api/v1/context'),'unexpected_browser_error');
   const snapshot=await page.evaluate(()=>window.fixture.snapshot());assert.ok(snapshot.paths.every(path=>['/auth/v1/user','/auth/v1/token','/auth/v1/logout'].includes(path)));checks.push('synthetic_auth_fetch_no_storage_or_raw_errors');
   writeFileSync(join(proof,'sdk-browser.json'),JSON.stringify(snapshot,null,2)+'\n');await page.screenshot({path:join(proof,'auth-entry.png'),fullPage:true});
  }

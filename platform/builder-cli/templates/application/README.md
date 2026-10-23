@@ -78,3 +78,22 @@ through existing preservation/extension mechanisms, then rerun consuming accepta
 The public generation/adoption route remains gated. KDG's scoped three-file adoption
 uses a new web-root pattern manifest, not an overwrite of an earlier full-app manifest.
 Do not delete manifests or use force to bypass a prior output's ownership protection.
+
+## Return selection candidate
+
+The same Auth lifecycle module exports `createReturnSelection`. Configure explicit
+canonical internal routes and a safe public entry path. Keep one selector per mounted
+owner/session view. Capture only approved path plus prior account/scope identity before
+leaving for sign-in; `restore(observe)` consumes that intent once and invokes the owner
+observer with the path and an AbortSignal. Return identity only after freshly verifying
+current account, scope AND access to that particular route/resource. Return null for
+denial or unavailability; the selector returns the safe entry path. A root admission
+check cannot authorize arbitrary record pages. Clear on logout/owner changes; dispose
+on unmount; use the current Auth session for each restore. A newer capture, clear,
+disposal or restoration cancels older selection work; the deadline is at most10 seconds.
+
+The helper selects a path and does not navigate, persist, restore form values or confirm
+action. Its default context has no routes until the application explicitly supplies
+them. Queries, fragments, escapes, dot segments and unapproved routes are refused.
+Provider/PKCE storage, callback processing, durable recovery and actual lifecycle wiring
+remain consumer work requiring their own acceptance; this candidate claims none of them.

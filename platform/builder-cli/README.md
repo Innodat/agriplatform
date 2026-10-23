@@ -803,3 +803,12 @@ browser success and safe outage. No public generator or Auth/Access promotion fo
 The historical whole-service characterization hash was intentionally replaced with an
 unchanged safe-adapter pin because typed main.py and the offline exporter are new owner
 seeds; real health JSON and error behavior remain covered by the service runtime suite.
+
+### Return selection candidate
+
+The adopted Auth lifecycle template includes `createReturnSelection` and generated
+behavioral tests for identity-safe, single-consumption return selection. Owners provide
+explicit canonical route/safe-page configuration and fresh route-specific authorization;
+no default domain routes, durable storage or navigation are generated. KDG consumes
+this via the existing managed Auth parity group. See
+[KDG consuming evidence](../../apps/kdg-capture/docs/AUTH_RETURN_EVIDENCE.md).

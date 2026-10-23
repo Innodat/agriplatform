@@ -3,7 +3,8 @@ import {StrictMode} from 'react';
 import {createRoot} from 'react-dom/client';
 import {createClient} from '@supabase/supabase-js';
 import {AuthEntry} from '../../src/AuthEntry';
-import type {EntryAuth} from '../../src/auth-entry';
+import {createEntryReturn,type EntryAuth} from '../../src/auth-entry';
+import {getCurrentContext} from '../../src/entry';
 import '../../src/entry-screen.css';
 const A='11111111-1111-4111-8111-111111111111',ORG='33333333-3333-4333-8333-333333333333';
 const events:string[]=[],paths:string[]=[];let online=true,mounted=true,interactive=0,org=ORG,sequence=0;
@@ -32,13 +33,21 @@ function makeOwner(account:string){
  };
  return{client,auth,active:()=>active,switchAccount:async(account:string)=>{current=account;const result=await client.auth.setSession({access_token:token(account),refresh_token:'synthetic-refresh'});if(result.error)throw new Error('synthetic_set_session_failed');}};
 }
+let returnGuard=createEntryReturn({org:ORG});
 let owner=makeOwner(A);const previous:ReturnType<typeof makeOwner>[]=[];
 const beginSignIn=async()=>{interactive++;};const root=createRoot(document.getElementById('root')!);
 function render(){root.render(<StrictMode>{mounted?<AuthEntry org={org} auth={owner.auth} beginSignIn={beginSignIn} online={online}/>:<p>Entry unmounted</p>}</StrictMode>);}
 Object.assign(window,{fixture:{
- refresh:()=>owner.client.auth.refreshSession(),switchAccount:(account:string)=>owner.switchAccount(account),logout:()=>owner.client.auth.signOut({scope:'local'}),
+ captureReturn:async(path:unknown)=>{
+  const guard=returnGuard,currentOwner=owner,currentOrg=org;guard.clear();
+  const result=await currentOwner.client.auth.getSession(),session=result.data.session;if(!session||currentOwner!==owner||currentOrg!==org)return false;
+  const observation=await getCurrentContext({account_id:session.user.id,access_token:session.access_token},currentOrg);
+  return currentOwner===owner&&currentOrg===org&&observation.kind==='authorized'&&guard.capture(path,observation.context);
+ },
+ restoreReturn:async()=>{const result=await owner.client.auth.getSession(),session=result.data.session;return returnGuard.restore(session?{account_id:session.user.id,access_token:session.access_token}:null);},
+ refresh:()=>owner.client.auth.refreshSession(),switchAccount:(account:string)=>owner.switchAccount(account),logout:()=>{returnGuard.clear();return owner.client.auth.signOut({scope:'local'});},
  online:(value:boolean)=>{online=value;render();},mount:(value:boolean)=>{mounted=value;render();},
- replaceOwner:(account:string)=>{previous.push(owner);owner=makeOwner(account);render();},replaceOrg:(value:string)=>{org=value;render();},
+ replaceOwner:(account:string)=>{returnGuard.clear();previous.push(owner);owner=makeOwner(account);render();},replaceOrg:(value:string)=>{returnGuard.dispose();org=value;returnGuard=createEntryReturn({org});render();},
  oldRefresh:()=>previous.at(-1)?.client.auth.refreshSession(),
  snapshot:()=>({events:[...events],paths:[...paths],interactive,active:owner.active(),oldActive:previous.map(p=>p.active())}),
 }});render();
