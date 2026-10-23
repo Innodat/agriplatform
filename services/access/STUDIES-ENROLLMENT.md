@@ -1,8 +1,8 @@
 # Personal Studies enrollment and current authorization
 
 The Access owner implements explicit personal enrollment and the account variant of
-`POST /v2/check`. Scribeswell routes, editors, invitations, recipient resolution and
-notification delivery remain separate work. Public Bible reading has no dependency
+`POST /v2/check`. Scribeswell owns its separately delivered opt-in routes/editor; invitations, recipient
+resolution and notification delivery remain later work. Public Bible reading has no dependency
 on these routes. No environment, real account, production grant or deployment was
 activated by this delivery.
 
@@ -154,3 +154,14 @@ Scaffold: existing async owner and generated-type patterns only; no generator en
 Shared UI and agent context: unchanged. Documentation: this runbook and owner/Scribeswell
 handoff. ADRs: unchanged. Recipient/invitation delivery, note/editor CRUD, Leave/PtS
 migration, real account/access changes and deployment remain outside this item.
+
+
+## Scribeswell consumer status — 2026-10-23
+
+The app now supplies its own bounded server HTTP adapter and explicit browser enrollment
+proxy under a development/test opt-in. See
+[personal-notes runtime](../../apps/scribeswell/docs/PERSONAL_NOTES_V1.md#opt-in-runtime-and-qualification--2026-10-23).
+Its synthetic Access HTTP fixtures verify consuming bindings and SQL/browser behavior;
+they do not replace this owner's retained authorization/provider qualification.
+Production consumer activation remains refused pending coordinated integration/release
+qualification. Enrollment remains explicit and signup/public reading grants nothing.

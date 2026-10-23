@@ -62,7 +62,8 @@
               {
                 "allOf": [
                   {
-                    "pattern": "\\S"
+                    "pattern": "\\S",
+                    "type": "string"
                   }
                 ],
                 "description": "Nonblank scalar Unicode title, no Unicode Cc controls; whitespace is preserved.",
@@ -125,6 +126,102 @@
           "blocks"
         ],
         "title": "DocumentV1",
+        "type": "object"
+      },
+      "EnrollStudies": {
+        "additionalProperties": false,
+        "properties": {
+          "operation_id": {
+            "maxLength": 36,
+            "minLength": 36,
+            "not": {
+              "const": "00000000-0000-0000-0000-000000000000"
+            },
+            "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+            "title": "Operation Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "operation_id"
+        ],
+        "title": "EnrollStudies",
+        "type": "object"
+      },
+      "EnrollmentAck": {
+        "additionalProperties": false,
+        "properties": {
+          "operation_id": {
+            "maxLength": 36,
+            "minLength": 36,
+            "not": {
+              "const": "00000000-0000-0000-0000-000000000000"
+            },
+            "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+            "title": "Operation Id",
+            "type": "string"
+          },
+          "result": {
+            "$ref": "#/components/schemas/EnrollmentResult"
+          },
+          "status": {
+            "const": "committed",
+            "title": "Status",
+            "type": "string"
+          }
+        },
+        "required": [
+          "operation_id",
+          "status",
+          "result"
+        ],
+        "title": "EnrollmentAck",
+        "type": "object"
+      },
+      "EnrollmentResult": {
+        "additionalProperties": false,
+        "properties": {
+          "account_id": {
+            "maxLength": 36,
+            "minLength": 36,
+            "not": {
+              "const": "00000000-0000-0000-0000-000000000000"
+            },
+            "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+            "title": "Account Id",
+            "type": "string"
+          },
+          "actor_id": {
+            "maxLength": 36,
+            "minLength": 36,
+            "not": {
+              "const": "00000000-0000-0000-0000-000000000000"
+            },
+            "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+            "title": "Actor Id",
+            "type": "string"
+          },
+          "disposition": {
+            "enum": [
+              "created",
+              "unchanged"
+            ],
+            "title": "Disposition",
+            "type": "string"
+          },
+          "permission": {
+            "const": "scribeswell.studies.use",
+            "title": "Permission",
+            "type": "string"
+          }
+        },
+        "required": [
+          "disposition",
+          "account_id",
+          "actor_id",
+          "permission"
+        ],
+        "title": "EnrollmentResult",
         "type": "object"
       },
       "ErrorResponse": {
@@ -759,7 +856,8 @@
           "title": {
             "allOf": [
               {
-                "pattern": "\\S"
+                "pattern": "\\S",
+                "type": "string"
               }
             ],
             "description": "Nonblank scalar Unicode title, no Unicode Cc controls; whitespace is preserved.",
@@ -877,7 +975,7 @@
     }
   },
   "info": {
-    "title": "Scribeswell personal notes — planned contract",
+    "title": "Scribeswell personal notes — v1",
     "version": "1.0.0"
   },
   "openapi": "3.1.0",
@@ -1394,6 +1492,237 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/OperationAck"
+                }
+              }
+            },
+            "description": "Acknowledged or current authorized result",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "private, no-store",
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/ErrorResponse"
+                    },
+                    {
+                      "properties": {
+                        "code": {
+                          "enum": [
+                            "scribeswell_personal_notes_input_invalid"
+                          ]
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            },
+            "description": "Invalid input",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "private, no-store",
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/ErrorResponse"
+                    },
+                    {
+                      "properties": {
+                        "code": {
+                          "enum": [
+                            "authentication_required"
+                          ]
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            },
+            "description": "Authentication required",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "private, no-store",
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/ErrorResponse"
+                    },
+                    {
+                      "properties": {
+                        "code": {
+                          "enum": [
+                            "studies_access_denied"
+                          ]
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            },
+            "description": "Current Studies access denied",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "private, no-store",
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/ErrorResponse"
+                    },
+                    {
+                      "properties": {
+                        "code": {
+                          "enum": [
+                            "resource_unavailable"
+                          ]
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            },
+            "description": "Unavailable resource; does not reveal another owner",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "private, no-store",
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/ErrorResponse"
+                    },
+                    {
+                      "properties": {
+                        "code": {
+                          "enum": [
+                            "note_revision_conflict",
+                            "operation_payload_mismatch",
+                            "operation_unresolved"
+                          ]
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            },
+            "description": "Revision, operation payload or unresolved conflict",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "private, no-store",
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/ErrorResponse"
+                    },
+                    {
+                      "properties": {
+                        "code": {
+                          "enum": [
+                            "studies_access_unavailable",
+                            "studies_storage_unavailable",
+                            "request_deadline_exceeded"
+                          ]
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            },
+            "description": "Access, storage or deadline unavailable",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "private, no-store",
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "accountSession": []
+          }
+        ]
+      }
+    },
+    "/api/studies/enrollment": {
+      "post": {
+        "operationId": "enrollStudies",
+        "parameters": [],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EnrollStudies"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnrollmentAck"
                 }
               }
             },
@@ -2869,5 +3198,5 @@
   },
   "x-generated-file-warning": "Generated by tools/py/export_personal_notes_contract.py; do not edit.",
   "x-normative-contract": "../docs/PERSONAL_NOTES_V1.md",
-  "x-runtime-status": "contract-only-unmounted"
+  "x-runtime-status": "opt-in-development-production-disabled"
 }

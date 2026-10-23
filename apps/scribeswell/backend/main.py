@@ -103,3 +103,27 @@ async def root():
 from routers import bible as bible_router
 
 app.include_router(bible_router.router, prefix="/api/bible", tags=["bible"])
+
+# Private routes are absent by default; no schema work runs at startup.
+if settings.scribeswell_studies_enabled:
+    from personal_notes_access import StudiesAccess
+    from personal_notes_storage import PersonalNotesStorage
+    from personal_notes_router import build_router
+    app.include_router(build_router(
+        StudiesAccess(settings.scribeswell_studies_access_url, settings.scribeswell_studies_service_key.get_secret_value()),
+        PersonalNotesStorage(settings.scribeswell_studies_database_url.get_secret_value())))
+
+    @app.middleware("http")
+    async def contain_private_errors(request: Request, call_next):
+        private = request.url.path == '/api/studies' or request.url.path.startswith(('/api/studies/', '/api/operations/'))
+        try:
+            response = await call_next(request)
+        except Exception:
+            if not private:
+                raise
+            return JSONResponse({'error':'Request could not be completed','code':'studies_storage_unavailable','details':None},status_code=503,headers={'Cache-Control':'private, no-store'})
+        if private:
+            if response.status_code in (404,405,422):
+                return JSONResponse({'error':'Request could not be completed','code':'resource_unavailable' if response.status_code in (404,405) else 'scribeswell_personal_notes_input_invalid','details':None},status_code=404 if response.status_code in (404,405) else 400,headers={'Cache-Control':'private, no-store'})
+            response.headers['Cache-Control']='private, no-store'
+        return response

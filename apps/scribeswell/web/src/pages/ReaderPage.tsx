@@ -8,6 +8,10 @@ import { WordStudy } from "@/components/bible/WordStudy";
 import { useBooks, useWordMorphology } from "@/hooks/useBible";
 import type { WordResponse } from "@/schemas/bible.schema";
 
+import {useStudies} from "@/context/StudiesContext";
+import {StudiesPanel} from "@/components/studies/StudiesPanel";
+import {NoteEditor} from "@/components/studies/NoteEditor";
+
 type ScrollAnchor = { scroll: HTMLElement; word: HTMLElement; offset: number; focusedScrollTop?: number };
 function captureAnchors(root: HTMLElement | null): ScrollAnchor[] {
   return Array.from(root?.querySelectorAll<HTMLElement>('[data-reader-scroll]') ?? []).flatMap(scroll => {
@@ -31,6 +35,7 @@ function verseNumber(value:string|null){const n=Number(value);return Number.isSa
 const control = "inline-flex items-center justify-center gap-2 rounded-lg border border-stone-200 px-3 py-1.5 text-sm text-stone-700 hover:bg-stone-100 focus-visible:outline-2 focus-visible:outline-amber-600";
 
 export function ReaderPage() {
+  const studies=useStudies();
   const [params, setParams] = useSearchParams();
   const { focused, setFocused } = useReaderLayout();
   const focusButton = useRef<HTMLButtonElement>(null);
@@ -113,6 +118,7 @@ export function ReaderPage() {
   }
   function chooseWord(pane: Pane, word: WordResponse, verse: number) {
     cancelPreview();
+    if(studies.enabled&&studies.current){studies.setTool('analysis');studies.setAnalysisTab('Word');}
     setMobilePane(pane);
     changeFocus(false);
     setSelection(previous => !focused && previous?.pane === pane && previous.word.id === word.id ? null : {
@@ -139,17 +145,20 @@ export function ReaderPage() {
         {books.loading && <span className="text-sm text-stone-400">Loading books…</span>}
         {books.error && <p role="alert" className="text-sm text-red-700">Could not load books. <button className="underline" onClick={books.refetch}>Retry books</button></p>}
       </div>
+      {studies.enabled&&<nav aria-label="Reader tools" className="flex shrink-0 gap-2"><button className={control} aria-pressed={studies.tool==='studies'} onClick={studies.openStudies}>Studies</button><button className={control} aria-pressed={studies.tool==='analysis'} onClick={()=>studies.setTool(studies.tool==='analysis'?null:'analysis')}>Analysis</button>{studies.study&&<span className="truncate self-center">{studies.study.title}</span>}</nav>}
+      {studies.enabled&&studies.error&&studies.tool==='analysis'&&<p role="alert">{studies.error} <button className="underline" onClick={()=>void studies.loadStudies()}>Retry Studies</button></p>}
       {comparing && <div role="group" aria-label="Visible passage" className="flex gap-2 shrink-0 lg:hidden">
         {([1, 2] as const).map(pane => <button key={pane} className={`${control} flex-1 min-w-0 ${mobilePane === pane ? 'bg-amber-100 border-amber-300' : ''}`} aria-controls={`passage-${pane}`} aria-label={`Show passage ${pane}: ${bookName(pane === 1 ? book : compareBook)} ${pane === 1 ? chapter : compareChapter}`} aria-pressed={mobilePane === pane} onClick={() => showPane(pane)}>
           <span className="truncate">{pane}: {bookName(pane === 1 ? book : compareBook)} {pane === 1 ? chapter : compareChapter}</span>
         </button>)}
       </div>}
       <div className={`flex flex-col gap-4 flex-1 min-h-0 ${comparing ? 'xl:flex-row' : 'md:flex-row md:justify-center'}`}>
-        <div className={`flex gap-4 flex-1 min-w-0 min-h-0 ${comparing ? '' : 'md:max-w-[44rem]'}`}>
+        <div className={`${studies.enabled&&studies.tool?'hidden md:flex':'flex'} gap-4 flex-1 min-w-0 min-h-0 ${comparing ? '' : 'md:max-w-[44rem]'}`}>
           <PassagePane number={1} targetRevision={targetRevision[1]} targetVerse={verseNumber(params.get("verse"))} book={book} chapter={chapter} books={books.data?.data ?? []} comparing={comparing} visible={!comparing || mobilePane === 1} selectedWordId={selected?.pane === 1 ? selected.word.id : null} matchKey={(previewWord??selected?.word)?.match_key??null} onPreview={preview} onNavigate={(b,c) => navigate(1,b,c)} onWord={(w,v) => chooseWord(1,w,v)} />
           {comparing && <PassagePane number={2} targetRevision={targetRevision[2]} targetVerse={verseNumber(params.get("compareVerse"))} book={compareBook} chapter={compareChapter} books={books.data?.data ?? []} comparing visible={mobilePane === 2} selectedWordId={selected?.pane === 2 ? selected.word.id : null} matchKey={(previewWord??selected?.word)?.match_key??null} onPreview={preview} onNavigate={(b,c) => navigate(2,b,c)} onWord={(w,v) => chooseWord(2,w,v)} />}
         </div>
-        {selected && !focused && <aside data-inspector-scroll aria-label="Word analysis panel" className={`min-h-0 max-h-[45%] overflow-y-auto overscroll-contain shrink-0 ${comparing ? 'xl:max-h-full xl:h-full xl:w-72' : 'md:max-h-full md:h-full md:w-72'}`}>
+        {studies.enabled&&<aside key={studies.accountKey} hidden={!studies.tool} aria-label="Study tools" className="min-h-0 overflow-y-auto bg-white border border-stone-200 rounded-xl shrink-0 w-full md:w-80 max-h-full flex-1 md:flex-none"><button className="underline m-3 md:hidden" onClick={()=>studies.setTool(null)}>Return to reader</button><div hidden={studies.tool!=='studies'}><StudiesPanel/></div><div hidden={studies.tool!=='analysis'}><div role="tablist" aria-label="Analysis" className="flex border-b">{(['Word','Occurrences','Notes'] as const).map(tab=><button key={tab} role="tab" aria-selected={studies.analysisTab===tab} disabled={tab!=='Notes'&&!selected} className="flex-1 p-2 disabled:opacity-40" onClick={()=>studies.setAnalysisTab(tab)}>{tab}</button>)}</div><div hidden={studies.analysisTab!=='Notes'}><NoteEditor/></div><div hidden={studies.analysisTab==='Notes'}>{studies.tool==='analysis'&&morphology.loading&&<p role="status">Loading word analysis…</p>}{studies.tool==='analysis'&&morphology.data&&selected&&<WordStudy hideTabs controlledTab={studies.analysisTab==='Occurrences'?'Occurrences':'Word'} currentPane={selected.pane} key={`${selected.pane}:${selected.word.id}`} word={morphology.data} context={context} books={books.data?.data??[]} onClose={()=>{setSelection(null);studies.setAnalysisTab('Notes');}} onOpen={(pane,b,c,v)=>{navigate(pane,b,c,v);setMobilePane(pane);}} />}</div></div></aside>}
+        {selected && !focused && (!studies.enabled||!studies.tool) && <aside data-inspector-scroll aria-label="Word analysis panel" className={`min-h-0 max-h-[45%] overflow-y-auto overscroll-contain shrink-0 ${comparing ? 'xl:max-h-full xl:h-full xl:w-72' : 'md:max-h-full md:h-full md:w-72'}`}>
           {morphology.loading && <p role="status" className="p-4 bg-white">Loading word analysis… <button className="underline" onClick={() => setSelection(null)}>Close</button></p>}
           {morphology.error && <p role="alert" className="bg-white p-4 text-sm text-red-700">Could not load word analysis. <button className="underline" onClick={morphology.refetch}>Retry word analysis</button><button className="ml-2 underline" onClick={() => setSelection(null)}>Close</button></p>}
           {morphology.data && morphology.data.id === selected.word.id && <WordStudy currentPane={selected.pane} key={`${selected.pane}:${selected.word.id}`} word={morphology.data} context={context} books={books.data?.data ?? []} onClose={() => setSelection(null)} onOpen={(pane,b,c,v)=>{navigate(pane,b,c,v);setMobilePane(pane);}} />}

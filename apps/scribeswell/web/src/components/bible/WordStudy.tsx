@@ -5,7 +5,7 @@ import {getLexicon, getOccurrences} from '@/lib/api-client';
 import type {BookResponse, LexiconNode, WordWithMorphologyResponse} from '@/schemas/bible.schema';
 
 type Reference = {book:string; chapter:number; verse:number};
-type Props = {currentPane:1|2; word:WordWithMorphologyResponse; context:string; books:BookResponse[]; onClose:()=>void; onOpen:(pane:1|2,book:string,chapter:number,verse:number)=>void};
+type Props = {controlledTab?:'Word'|'Occurrences';hideTabs?:boolean;currentPane:1|2; word:WordWithMorphologyResponse; context:string; books:BookResponse[]; onClose:()=>void; onOpen:(pane:1|2,book:string,chapter:number,verse:number)=>void};
 type View = {identity:string|null; linked:boolean; tab:'Word'|'Occurrences'; book:string; offset:number; requested:boolean; reference:Reference|null; strong:boolean; bdb:boolean; scroll:number; focusId?:string};
 function initialView(identity:string|null,linked=false):View {return {identity,linked,tab:'Word',book:'',offset:0,requested:false,reference:null,strong:false,bdb:false,scroll:0};}
 // Stop at a contiguous prefix; bound both text and nested block layout. Links
@@ -52,8 +52,9 @@ export function WordStudy(props:Props) {
   function back(){const previous=history[history.length-1];if(!previous)return;setHistory(old=>old.slice(0,-1));setView(previous);setRevision(n=>n+1);}
   return <StudyEntry key={revision} {...props} initial={view} canBack={history.length>0} onBack={back} onFollow={follow}/>;
 }
-function StudyEntry({word,context,books,onClose,onOpen,currentPane,initial,canBack,onBack,onFollow}:Props&{initial:View;canBack:boolean;onBack:()=>void;onFollow:(identity:string,view:View)=>void}) {
-  const [tab,setTab]=useState(initial.tab);
+function StudyEntry({word,context,books,onClose,onOpen,currentPane,initial,canBack,onBack,onFollow,controlledTab,hideTabs}:Props&{initial:View;canBack:boolean;onBack:()=>void;onFollow:(identity:string,view:View)=>void}) {
+  const [localTab,setTab]=useState(initial.tab);
+  const tab=controlledTab??localTab;
   const [book,setBook]=useState(initial.book);
   const [offset,setOffset]=useState(initial.offset);
   const [requested,setRequested]=useState(initial.requested);
@@ -65,7 +66,7 @@ function StudyEntry({word,context,books,onClose,onOpen,currentPane,initial,canBa
   const restored=useRef(false);
   const identity=initial.identity;
   const lexical = useAsync(()=>identity?getLexicon(identity):Promise.resolve(null),[identity]);
-  const occurrences = useAsync(()=>identity&&requested?getOccurrences(identity,book,offset):Promise.resolve(null),[identity,requested,book,offset]);
+  const occurrences = useAsync(()=>identity&&(requested||controlledTab==='Occurrences')?getOccurrences(identity,book,offset):Promise.resolve(null),[identity,requested,book,offset,controlledTab]);
   const preview = useVerses(reference?.book??null,reference?.chapter??null);
   const previewVerse = preview.data?.data.find(v=>v.verse_num===reference?.verse);
   const inspector=()=>element.current?.closest<HTMLElement>('[data-inspector-scroll]');
@@ -105,7 +106,7 @@ function StudyEntry({word,context,books,onClose,onOpen,currentPane,initial,canBa
   });}
   return <div ref={element} tabIndex={-1} aria-label="Dictionary inspector" className="bg-white rounded-xl border border-stone-200 min-w-0 break-words">
     <div className="sticky top-0 z-20 bg-white rounded-t-xl"><div className="p-3 flex justify-between items-start gap-2"><div className="min-w-0">{canBack&&<button className="underline text-sm mb-1" aria-label="Back to previous dictionary entry" onClick={onBack}>← Back</button>}<p className="text-xs text-stone-500">Selected word · <span>{context}</span></p><bdi aria-label={`Hebrew word: ${word.display_he}`} className="font-hebrew text-lg" dir="rtl" lang="he">{word.display_he??word.surface_he}</bdi>{initial.linked&&<p className="text-xs text-stone-500">Dictionary entry · Strong’s {identity}</p>}</div><button aria-label="Close morphology panel" className="p-2 text-stone-500" onClick={onClose}>×</button></div>
-    <div role="tablist" aria-label="Word study" className="flex bg-white border-b border-stone-200 rounded-t-xl">
+    <div hidden={hideTabs} role="tablist" aria-label="Word study" className="flex bg-white border-b border-stone-200 rounded-t-xl">
       {(['Word','Occurrences'] as const).map(name=><button key={name} id={`study-tab-${name}`} role="tab" aria-controls={`study-${name}`} aria-selected={tab===name} tabIndex={tab===name?0:-1} onKeyDown={event=>{if(['ArrowLeft','ArrowRight','Home','End'].includes(event.key)){event.preventDefault();const next=event.key==='Home'?'Word':event.key==='End'?'Occurrences':name==='Word'?'Occurrences':'Word';changeTab(next);setRequested(true);document.getElementById(`study-tab-${next}`)?.focus();}}} onClick={()=>{changeTab(name);if(name==='Occurrences')setRequested(true);}} className={`flex-1 p-3 text-sm ${tab===name?'border-b-2 border-amber-600 font-semibold':''}`}>{name}</button>)}
     </div></div>
     <div role="tabpanel" id="study-Word" aria-labelledby="study-tab-Word" hidden={tab!=='Word'}>

@@ -136,9 +136,9 @@ def test_exact_field_limits():
     assert command('study.create', {'operation_id': OP, 'title': 'x' * 200}).title == 'x' * 200
 
 
-def test_generation_is_reproducible_and_explicitly_unmounted():
+def test_generation_is_reproducible_and_explicitly_opt_in():
     schema = contract.openapi_contract()
-    assert schema['x-runtime-status'] == 'contract-only-unmounted'
+    assert schema['x-runtime-status'] == 'opt-in-development-production-disabled'
     assert schema['paths']['/api/studies/{study_id}/notes/{note_id}']['put']['requestBody']
     assert 'owner_account_id' not in schema['components']['schemas']['CreateStudy']['properties']
     app = Path(__file__).resolve().parents[1]

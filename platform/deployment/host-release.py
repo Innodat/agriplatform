@@ -88,7 +88,10 @@ def preflight(config,environment,manifests,public_config,*,migration_inputs=None
   expected={owner_map[owner]['url_env']:owner_map[owner]['role'] for owner in group['owners']}
   options=set()
   if group['id']=='scribeswell-owned':
-   contract=scribeswell_contract();contract.from_environ(values);options=contract.OPTION_KEYS
+   contract=scribeswell_contract();contract.from_environ(values);options=contract.OPTION_KEYS|{'SCRIBESWELL_STUDIES_MIGRATION_ENABLED','SCRIBESWELL_STUDIES_MIGRATION_DATABASE_URL'}
+   private_enabled=values.get('SCRIBESWELL_STUDIES_MIGRATION_ENABLED','false')
+   if private_enabled not in ('true','false') or (private_enabled=='true')!=('SCRIBESWELL_STUDIES_MIGRATION_DATABASE_URL' in values):raise ValueError('partial private migration configuration')
+   if private_enabled=='true':database_url(values['SCRIBESWELL_STUDIES_MIGRATION_DATABASE_URL'],project,'scribeswell_studies_migrator')
   if not {*expected,'SUPABASE_URL'}<=set(values) or set(values)-{*expected,'SUPABASE_URL'}-options:raise ValueError('migration authority mismatch')
   for field,role in expected.items():database_url(values[field],project,role)
   if migration_inputs is not None:migration_inputs[group['id']]=dict(values)
@@ -197,6 +200,10 @@ def deploy(environment,sha,images_path,config_path,release_dir,public_config_pat
           try:detail=contract.strict_json(stream.read(4097),4096)
           except ValueError:pass
         qualified=contract.successful_report(detail,expected_validation)
+        if migration_values.get('SCRIBESWELL_STUDIES_MIGRATION_ENABLED')=='true':
+         private_file=evidence/'studies-migrations.json'
+         private_detail=json.loads(private_file.read_text()) if private_file.exists() else None
+         qualified=qualified and private_detail=={'complete':True,'owner':'scribeswell_studies','after':'scribeswell_studies_0001','recovery':'forward-only'}
         entry['detail']=detail if qualified else contract.safe_failure(detail,expected_validation)
        else:
         entry['detail']=json.loads(evidence_file.read_text()) if evidence_file.exists() else None

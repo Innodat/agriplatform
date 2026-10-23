@@ -1,6 +1,6 @@
 # Personal study notes: first wire contract
 
-This app-owned contract supports the first create/write/reopen milestone. **Implemented now:** strict request/response DTOs, bounded command decoding, generated OpenAPI and pure contract tests. **Not implemented:** HTTP routes, current authorization, storage, migrations, browser editor/autosave or a Scribeswell browser enrollment adapter. The separate Access owner now implements the internal personal enrollment/check handoff below. The generated paths are unmounted. This document specifies obligations for those future consumers; passing wire tests does not prove them.
+This app-owned contract supports the first create/write/reopen milestone. **Implemented:** strict DTOs, generated OpenAPI/TypeScript, bounded same-origin private API, explicit Access enrollment/check adapters, app-owned PostgreSQL persistence and receipt recovery, controlled private Alembic history, and Studies/Analysis note editing with autosave. **Activation remains disabled in production.** The runtime is an explicit development/test opt-in pending coordinated owner/migration/integration qualification; public reading and standalone signup remain independent. Native SQL and browser proof are recorded below; synthetic Access responses do not establish live Identity/Access authorization.
 
 The canonical Studies SPEC, UX and accepted platform ADRs retain authority. This milestone is ordinary owner-only studies and notes. Sharing, private responses, study metadata editing, introduction/source metadata, passage lists, deliberate passage links, highlights, conflict copies, deletion and search retain their agreed requirements for later consuming slices. No product requirement is removed. This is partial D2 contract readiness, not D1–D5 closure.
 
@@ -15,14 +15,15 @@ python3 apps/scribeswell/tools/py/export_personal_notes_contract.py --check
 python3 -m pytest apps/scribeswell/tests/test_personal_notes_contract.py -q
 ```
 
-Backend requirements already include Pydantic 2; test requirements additionally declare pytest and JSON Schema validation for schema/DTO parity. No framework upgrade or shared runtime dependency is introduced. The OpenAPI extension `x-runtime-status: contract-only-unmounted` is intentional. Importing the module performs no network, database, environment, migration or registration action. Do not mount the DTOs through existing generic exception handlers: the current public API validation handler exposes validation input. A private adapter must translate errors to the safe error union below without raw exception/input logging before mounting.
+Backend requirements already include Pydantic 2; test requirements additionally declare pytest and JSON Schema validation for schema/DTO parity. No framework upgrade or shared runtime dependency is introduced. The OpenAPI extension `x-runtime-status: opt-in-development-production-disabled` records the activation boundary. Importing the module performs no network, database, environment, migration or registration action. The private router contains its own safe errors because the current public API validation handler exposes validation input. The private router translates errors to the safe error union below without raw exception/input logging; the opt-in main boundary also contains framework-default private errors.
 
 ## Create, read and preserve
 
 All paths are relative to the Scribeswell origin. Browser account sessions go to Scribeswell, never an Access service credential. Each protected request requires fresh owner-qualified account/actor/current Studies authority, then local resource ownership and active lifecycle checks. No account/org/actor field is accepted in a command. An owner UUID returned in a resource is attribution, never authority.
 
-| Path | Planned behavior |
+| Path | Behavior |
 | --- | --- |
+| `POST /api/studies/enrollment` | Explicit same-operation enrollment proxy; accepts only operation ID. No enrollment on registration or reading. |
 | `POST /api/studies` | Explicit `study.create`; required nullable title. Null allocates a default. Supplied title is preserved exactly, including surrounding spaces; empty/all-whitespace/control characters are invalid. Returns compact `OperationAck`. |
 | `GET /api/studies` | Current owner's active studies, bounded page. |
 | `GET /api/studies/{study_id}` | Current authorized study metadata and its independent revision. |
@@ -36,7 +37,7 @@ Create and replace acknowledge with HTTP 200, matching retry outcomes. IDs are c
 
 Default title allocation is atomic per current owner: select the first unused `Untitled study`, then `Untitled study 1`, `Untitled study 2`, etc. Serialize allocation using an owner-scoped local transaction lock and inspect existing active titles; ordinary supplied duplicate titles remain permitted. No global title uniqueness constraint. Allocation must finish within the total request deadline or commit nothing. No automatic creation on signup, opening Studies, refresh or retry of a different action.
 
-Lists use `(created_at DESC, id DESC)` keyset order, default 20/max 50, after owner/lifecycle filtering. Cursor is unpadded base64url of UTF-8 compact JSON `["scribeswell.list.v1", resource, account_id, study_id_or_null, last_created_at, last_id]`; `resource` is `studies` or `notes`. Decoder must reject unknown versions, extra fields, invalid timestamps/IDs, wrong owner/resource/parent and over-512-character cursors with safe 400. A cursor is position, never authority or a snapshot guarantee. Newly created rows may appear only on a restarted page; concurrent changes must never leak inaccessible rows. Cursor codec/SQL are not implemented by these DTOs. Full-value note pages are a first-milestone choice, max 50; future summary projections must preserve filtering and privacy.
+Lists use `(created_at DESC, id DESC)` keyset order, default 20/max 50, after owner/lifecycle filtering. Cursor is unpadded base64url of UTF-8 compact JSON `["scribeswell.list.v1", resource, account_id, study_id_or_null, last_created_at, last_id]`; `resource` is `studies` or `notes`. Decoder must reject unknown versions, extra fields, invalid timestamps/IDs, wrong owner/resource/parent and over-512-character cursors with safe 400. A cursor is position, never authority or a snapshot guarantee. Newly created rows may appear only on a restarted page; concurrent changes must never leak inaccessible rows. `personal_notes_cursor.py` and the private repository implement these positions independently of authority. Full-value note pages are a first-milestone choice, max 50; future summary projections must preserve filtering and privacy.
 
 ## Complete note value and limits
 
@@ -68,11 +69,11 @@ The closed error DTOs carry `error: "Request could not be completed"`, a stable 
 | 409 | `note_revision_conflict`, `operation_payload_mismatch`, `operation_unresolved` |
 | 503 | `studies_access_unavailable`, `studies_storage_unavailable`, `request_deadline_exceeded` |
 
-Storage failures use `operation_unresolved`/409 if commit outcome is uncertain, `studies_storage_unavailable`/503 for definite non-deadline failure, or `request_deadline_exceeded`/503 only when the deadline actually expired. The generated error union defines possible bodies; a future adapter must enforce this status mapping and safe cache headers on success/exception/streaming paths. No private framework-default 422 input echoes.
+Storage failures use `operation_unresolved`/409 if commit outcome is uncertain, `studies_storage_unavailable`/503 for definite non-deadline failure, or `request_deadline_exceeded`/503 only when the deadline actually expired. The generated error union defines possible bodies; the private adapter enforces this status mapping and safe cache headers on success/exception/streaming paths. No private framework-default 422 input echoes.
 
 Operation identity is `(current account, command, command version 1, operation_id)`. Fingerprint canonical validated JSON (sorted keys, compact UTF-8, preserved Unicode, no normalization), including command/version, path study/note IDs and complete typed payload. Store only server-side digest; exclude digest/body from logs and lookup. Same operation plus same payload returns the compact original outcome after current authority/resource lifecycle checks; a changed payload/path is 409 mismatch. An unresolved operation is never proof of rollback. Receipts have no automatic expiry in this milestone; require a compatible explicit retention plan before pruning. Replay cannot recreate a closed resource or override current authority.
 
-## Required persistence and saving behavior — not implemented
+## Persistence and saving behavior
 
 Scribeswell owns private study, note and receipt tables. Identity/Access are HTTP owners: no cross-owner table reads or foreign keys. Local study/note scope uses structural composite owner/study relationships and constraints; note visibility is immutable. Server-owned actor/time/revision fields and consequential audit follow ADR-0025/0056. SQL roles must prevent browser/Data API writes, use restricted runtime roles and force RLS with transaction-local verified scope; connection reset/pooling isolation and alternate write paths need actual database proof. An actor row never grants permission.
 
@@ -80,20 +81,20 @@ Current Access/identity waits occur **before** local write locks. One short tran
 
 Use one serialized save lane per note across workspace tabs. Coalesce later input, freeze operation/payload for an in-flight attempt, and block later snapshots while its outcome is unknown. Current acknowledged local generation alone may show **Draft saved**. Delayed success for older text cannot mark newer input saved. Recheck authority on every new request/retry; lookup/retry uses the original operation and payload. Revision conflict pauses saving and preserves input without automatic merge or a fabricated copy endpoint.
 
-For the consuming implementation, a request has a 5-second total budget starting before Access, with at most 3 seconds for external checking and at most remaining time for local work; lock waits at most 1 second, statements at most 2 seconds, shortened to remaining time. Positive DB timeout settings only; zero must never disable the bound. Stop issuing work when the budget expires. Client request timeout is 15 seconds; uncertain response uses at most two lookup requests within a 10-second recovery window, each with fresh authority. Unresolved recovery remains unsaved with explicit Retry, not automatic issuance of a new operation. These are planned execution bounds, not measured guarantees.
+For the consuming implementation, a request has a 5-second total budget starting before Access, with at most 3 seconds for external checking and at most remaining time for local work; lock waits at most 1 second, statements at most 2 seconds, shortened to remaining time. Positive DB timeout settings only; zero must never disable the bound. Stop issuing work when the budget expires. Client request timeout is 15 seconds; uncertain response uses at most two lookup requests within a 10-second recovery window, each with fresh authority. Unresolved recovery remains unsaved with explicit Retry, not automatic issuance of a new operation. The native qualifier exercises shortened actual lock/total deadlines. These are bounded execution settings, not a promise of upstream availability or physical-device timing.
 
-Autosave debounce is 500 ms, with a 2-second maximum while typing when no prior save is unresolved. Inline **Changes not saved / Retry** while editing; exit-only **Stay / Close anyway**, switching **Stay / Switch anyway**. Confirmed current input closes immediately. Never automatically submit another consequential action after authentication recovery or promise offline/unsent input survival. The UI/editor adapter and real network failure tests remain outstanding.
+Autosave debounce is 500 ms, with a 2-second maximum while typing when no prior save is unresolved. Inline **Changes not saved / Retry** while editing; exit-only **Stay / Close anyway**, switching **Stay / Switch anyway**. Confirmed current input closes immediately. Never automatically submit another consequential action after authentication recovery or promise offline/unsent input survival. The UI/editor adapter and synthetic lost-response/late-acknowledgement browser tests now exercise this behavior. Live provider and physical-device qualification remain outstanding.
 
 ## Exact Access-owner handoff
 
 | Dependency | Repository evidence / required closure |
 | --- | --- |
 | Current verified account and durable actor | Owner-qualified identity/session HTTP evidence, expiry/failure/error semantics and execution bounds; no JWT role/email/locally invented actor shortcut. |
-| Account-scoped Studies admission | Access implements `scribeswell.studies.use` with typed account scope and a restricted Scribeswell caller on the canonical check route. Its six-field account response has no organization/person/member placeholders. Scribeswell must add its own bounded HTTP adapter and resource checks; existing KDG `own_account` resource scope never supplies account authority. |
+| Account-scoped Studies admission | Access implements `scribeswell.studies.use` with typed account scope and a restricted Scribeswell caller on the canonical check route. Its six-field account response has no organization/person/member placeholders. Scribeswell consumes this through its bounded HTTP adapter and local resource checks; existing KDG `own_account` resource scope never supplies account authority. |
 | Enrollment | Separate Access/Identity owner implements explicit open eligibility for every verified signed-in reader without org/employment/PtS/admin prerequisites, with current suspension and no revoked-grant resurrection. Registration alone grants nothing and creates no study. |
 | Standalone signup | Existing Scribeswell Auth consumer remains; live provider/account-creation activation and verified-account contracts require owner evidence. No competing Auth or Access implementation here. |
 
-[The owner enrollment contract](../../../platform/docs/architecture/contracts/scribeswell-study-enrollment.md) now documents the implemented enrollment/check slice; its recipient/invitation sections remain a draft. The [owner runbook](../../../services/access/STUDIES-ENROLLMENT.md) records the actual caller, errors, deadlines, readiness and recovery. This document is the app-side consuming handoff; it does not mount a Scribeswell browser adapter or note route. No notification/invitation dependency is required for ordinary own notes; those broader features remain gated separately.
+[The owner enrollment contract](../../../platform/docs/architecture/contracts/scribeswell-study-enrollment.md) now documents the implemented enrollment/check slice; its recipient/invitation sections remain a draft. The [owner runbook](../../../services/access/STUDIES-ENROLLMENT.md) records the actual caller, errors, deadlines, readiness and recovery. This document is the app-side consuming contract; private routes mount only under the explicit development/test opt-in. No notification/invitation dependency is required for ordinary own notes; those broader features remain gated separately.
 
 ## Activation, recovery and traceability
 
@@ -101,10 +102,77 @@ ADR-0020 requires a controlled additive migration and qualified roles **before**
 
 | Existing acceptance scope | Evidence now | Remaining proof |
 | --- | --- | --- |
-| CAP-1/CAP-3 create/write/reopen | Executable create/read/replace DTO round trip, Unicode and rich-text restrictions | Access, SQL persistence and real UI journey |
-| CAP-9 saving and lifecycle | Strict revisions, closed outcomes/errors and malformed/forged input tests | Atomicity, authorization, no-op/replay/concurrency and delayed UI acknowledgement |
-| D1 identity/access | Precise app-owned dependency above | Separate owner account contract/implementation/qualification |
-| D2 data/save | Versioned first wire and normative transaction obligations | Schema, native DB proofs, catalogue anchors, private responses/copy/delete and richer content contracts |
+| CAP-1/CAP-3 create/write/reopen | Native SQL + browser create/write/reopen and actual formatting toolbar/reload | Live owner/provider/integration qualification |
+| CAP-9 saving and lifecycle | Strict revisions, native no-op/replay/concurrency/lifecycle and browser delayed/unknown outcomes | Wider deferred copy/delete/richer-content workflows |
+| D1 identity/access | Bounded exact app HTTP binding consumes delivered owner contract | Coordinated current owner/provider and activation qualification |
+| D2 data/save | Versioned first wire, private schema and native permission/transaction proof | Catalogue anchors, private responses/copy/delete and richer content contracts |
 | D3/D4/D5 | Existing requirements preserved | Existing owner/release/browser evidence gates remain open |
 
-No scaffold, shared UI, agent-context or ADR change is justified by this pure contract. Promote proven saving/editor patterns with a real consuming story. The next productive runtime milestone remains the same complete create/write/reopen flow once the Access-owner handoff is executable; do not queue more operational fixture tooling as a substitute.
+The bounded runtime below consumes the shared migration helper through its existing installer. Wider reusable editor/saving promotion needs further consuming evidence; no accepted ADR or agent-context change is introduced.
+
+
+## Opt-in runtime and qualification — 2026-10-23
+
+`SCRIBESWELL_STUDIES_ENABLED=true` requires separate
+`SCRIBESWELL_STUDIES_DATABASE_URL` (restricted `scribeswell_studies_runtime`),
+`SCRIBESWELL_STUDIES_ACCESS_URL` and server-only `SCRIBESWELL_STUDIES_SERVICE_KEY`.
+The browser build uses `VITE_STUDIES_ENABLED=true` to expose the thin Studies/Analysis
+surface. Defaults leave private routes/tools absent. Production settings and host
+preflight refuse private activation; no real environment was activated. Credentials
+never enter a Vite variable or browser request to Access.
+
+The administrator-owned role preparation SQL refuses existing roles and inherited
+database CREATE/TEMP authority; the database owner must prepare those global grants
+separately. It does not change other consumers' database permissions. The private
+schema/history and three tables are separate from the corpus. Runtime roles have
+only scoped reads/inserts and selected mutable-column updates; receipts and creation
+attribution are immutable to runtime. FORCE RLS applies to the schema owner too.
+Dedicated async connections carry transaction-local account scope and close after
+use, with a synchronous socket-close timer at the total deadline. No pool or cross-owner
+foreign keys are added.
+
+Generate/check the migration helper through the existing builder installer:
+
+```sh
+node --experimental-strip-types apps/scribeswell/tools/sync_personal_notes_database.mjs
+node --experimental-strip-types apps/scribeswell/tools/sync_personal_notes_database.mjs --check
+```
+
+Controlled release execution optionally selects
+`SCRIBESWELL_STUDIES_MIGRATION_ENABLED=true` plus its separate
+`SCRIBESWELL_STUDIES_MIGRATION_DATABASE_URL`. The existing supervised Scribeswell
+migration entry runs corpus first, private history second, before setting complete.
+Both must succeed; failed/unknown migration blocks activation. Retain the separate
+`studies-migrations.json` and ordinary migration evidence. Recovery disables private
+opt-in or rolls forward; it never downgrades/reverses acknowledged notes/receipts.
+This delivery supplies release preparation, not permission to activate production.
+
+The editor uses explicit structured DOM construction and a closed serializer, preserving
+Hebrew and combining marks, paragraph direction, bold/italic, ordinary lists and safe
+external links. Clipboard HTML and dropped markup are not accepted. Notes remain in
+one in-memory account/note lane across Studies/Analysis and word inspection. No private
+body, title, cursor or edit buffer is persisted to browser storage. Same-account 401
+recovery masks private surfaces while retaining recoverable input, then requires fresh
+authorized loading and explicit Retry; sign-out/account replacement clears old state.
+The native modal supplies Stay / Close anyway or Stay / Switch anyway on unresolved
+exit. Unsupported current DOM input is truthfully unsaved and exit-guarded.
+
+Native qualification uses only a newly owned isolated PostgreSQL17 cluster. It covers
+upgrade/repeat, failed-DDL rollback/retry with acknowledged data retained, restricted
+DDL/TEMP/ledger/foreign-owner/receipt/attribution denials, forced RLS and composite
+scope, owner isolation, title/operation/revision races, no-op attribution, closed-resource
+replay refusal, revision overflow and commit-response loss. A browser reload over the
+real app HTTP adapter and native SQL is separately run with a synthetic Access HTTP
+owner and intercepted public corpus. Desktop/mobile intercepted tests cover formatting
+actions/reload, unknown operations, delayed acknowledgements, IME, same-account recovery,
+account replacement, conflicts, tool continuity and exit guards. These do not establish
+live Access/Identity/provider readiness, physical iOS/Android selection/keyboard behavior,
+production integration, backup/restore or deployment qualification. Wider D1–D5 scope
+and all deferred features above remain open.
+
+Exact commands, results, log locations and matrix traceability are retained in the
+[runtime delivery spec](../../../_bmad-output/implementation-artifacts/spec-scribeswell-personal-notes-runtime.md).
+Scaffold impact: installer-owned shared migration helper is consumed unchanged. Shared
+UI: no promotion is justified yet for this app-specific editor/lane; no generic engine
+was added. Agent context and accepted ADRs: unchanged. Documentation: this contract and
+canonical companions now distinguish runtime evidence from activation/readiness.

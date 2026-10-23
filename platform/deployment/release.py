@@ -24,6 +24,10 @@ def validate_manifests(docs,root):
   if not re.fullmatch(r'/[a-zA-Z0-9/_-]+',m.get('health_path','')):raise ValueError('invalid health path')
   if any(not re.fullmatch('[A-Z][A-Z0-9_]*_DATABASE_URL',field) or not re.fullmatch('[a-z][a-z0-9_]*_runtime',role) for field,role in m.get('database_roles',{}).items()):raise ValueError('invalid runtime database authority')
   if 'migration' in m and not re.fullmatch('[a-z][a-z0-9_]*_migrator',m['migration'].get('role','')):raise ValueError('invalid migration database authority')
+  private=m.get('personal_studies')
+  if private is not None:
+   if m['id']!='scribeswell' or private.get('production_enabled') is not False or private.get('enabled_env')!='SCRIBESWELL_STUDIES_ENABLED':raise ValueError('invalid personal Studies feature contract')
+   if private.get('database_roles')!={'SCRIBESWELL_STUDIES_DATABASE_URL':'scribeswell_studies_runtime'}:raise ValueError('invalid personal Studies authority')
   feature=m.get('studies_enrollment')
   if feature is not None:
    if m['id']!='access' or feature.get('enabled_env')!='SCRIBESWELL_SERVICE_KEY' or set(feature)!= {'enabled_env','required_env','database_roles'}:raise ValueError('invalid Studies feature contract')
@@ -51,6 +55,12 @@ def runtime_contract(manifest,values,root=ROOT):
  # First consuming opt-in owner contract. Ordinary services keep their current
  # required inputs; runtime credentials never imply migration authority.
  required=set(manifest.get('required_env',[]));roles=dict(manifest.get('database_roles',{}))
+ private=manifest.get('personal_studies')
+ if private is not None:
+  enabled=values.get(private['enabled_env'],'false')
+  if enabled not in ('true','false'):raise ValueError('invalid personal Studies opt-in')
+  if enabled=='true':raise ValueError('personal Studies production activation awaits qualification')
+  if any(field in values for field in private['required_env']):raise ValueError('partial personal Studies configuration')
  feature=manifest.get('studies_enrollment')
  if feature is None:return required,roles
  if manifest['id']!='access':raise ValueError('unsupported Studies owner')

@@ -9,6 +9,7 @@ APP = Path(__file__).resolve().parents[1]
 ROOT = APP.parents[1]
 BUDGET_SECONDS = 180
 sys.path.insert(0,str(APP / 'migrations'))
+sys.path.insert(0,str(APP / 'deployment'))
 from release_profile import from_environ, selection, evidence as profile_evidence, strict_json, valid_result, OPTION_KEYS
 
 def validate_url(environ):
@@ -70,12 +71,15 @@ def main(target=Path('/evidence/migrations.json'), *, environ=None, run=subproce
     child=None
     try:
         save()
+        from studies_migrate import selected
+        private_selected=selected(environ)
+        if private_selected and Path(target).with_name('studies-migrations.json').exists():raise ValueError
         expected=from_environ(environ)
         entry['requested_validation']=profile_evidence(expected)
         url=validate_url(environ)
         if not 0 < timeout <= BUDGET_SECONDS:
             raise ValueError
-        clean={key:value for key,value in environ.items() if not key.startswith('PG') and key not in OPTION_KEYS|{'SCRIBESWELL_MIGRATION_DATABASE_URL'}}
+        clean={key:value for key,value in environ.items() if not key.startswith('PG') and key not in OPTION_KEYS|{'SCRIBESWELL_MIGRATION_DATABASE_URL','SCRIBESWELL_STUDIES_MIGRATION_DATABASE_URL'}}
         entry['status']='running';save()
         child=run([sys.executable,str(Path(__file__).resolve()),'--worker'],stdin=subprocess.PIPE,stdout=subprocess.PIPE,stderr=subprocess.DEVNULL,env=clean,text=True)
         try:
@@ -97,6 +101,20 @@ def main(target=Path('/evidence/migrations.json'), *, environ=None, run=subproce
         if not valid_result(result,expected):
             raise RuntimeError
         entry.update(status='succeeded',**result)
+        from studies_migrate import selected
+        if selected(environ):
+            # Corpus precedes private history. The same supervised process budget applies.
+            child=run([sys.executable,str(APP/'deployment/studies_migrate.py')],stdin=subprocess.PIPE,stdout=subprocess.PIPE,stderr=subprocess.DEVNULL,env=clean,text=True)
+            try:
+                private_output,_=child.communicate(json.dumps({'url':environ['SCRIBESWELL_STUDIES_MIGRATION_DATABASE_URL']}),timeout=max(.001,timeout-(time.monotonic()-started)-min(5,timeout/10)))
+            except subprocess.TimeoutExpired:
+                child.kill();child.communicate(timeout=5)
+                entry.update(status='unknown',outcome_requires_reconciliation=True)
+                raise RuntimeError from None
+            expected_private={'complete':True,'owner':'scribeswell_studies','after':'scribeswell_studies_0001','recovery':'forward-only'}
+            if child.returncode or len(private_output)>4096 or strict_json(private_output,4096)!=expected_private:raise RuntimeError
+            with Path(target).with_name('studies-migrations.json').open('x',encoding='utf8') as private_evidence:
+                private_evidence.write(json.dumps(expected_private)+'\n');private_evidence.flush();os.fsync(private_evidence.fileno())
         report['complete']=True
         save()
     except BaseException:

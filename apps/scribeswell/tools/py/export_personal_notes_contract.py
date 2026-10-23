@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Reproduce the unmounted personal-notes contract; --check never writes."""
+"""Reproduce the opt-in personal-notes contract; --check never writes."""
 import argparse
 import json
 import sys

@@ -21,13 +21,21 @@
       "id": "scribeswell-owned",
       "dockerfile": "apps/scribeswell/deployment/Migrations.Dockerfile",
       "env_file": "scribeswell-migrations.env",
-      "owners": ["scribeswell"],
+      "owners": [
+        "scribeswell"
+      ],
       "compatibility_inputs": [
         "apps/scribeswell/deployment/migrate.py",
         "apps/scribeswell/deployment/migration-requirements.txt",
         "apps/scribeswell/backend/database.py",
         "platform/deployment/host-release.py",
-        "platform/deployment/target_contract.py"
+        "platform/deployment/target_contract.py",
+        "apps/scribeswell/deployment/studies_migrate.py",
+        "apps/scribeswell/studies-alembic.ini",
+        "apps/scribeswell/studies-migrations/env.py",
+        "apps/scribeswell/studies-migrations/versions/0001_personal_notes.py",
+        "apps/scribeswell/studies-database-tools/owned_migration.py",
+        "apps/scribeswell/tools/sql/prepare_personal_notes_roles.sql"
       ]
     }
   ],

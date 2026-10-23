@@ -8,7 +8,10 @@ import { SignInDialog, type AccountMode } from "@/components/auth/SignInDialog";
 import { AppLauncher } from "@/components/layout/AppLauncher";
 import { useMyApps } from "@/hooks/useMyApps";
 
+import {useStudies} from "@/context/StudiesContext";
+
 export function Topbar() {
+  const studies=useStudies();
   const { user, signOut, loading, callbackFailed } = useAuth();
   const [signOutError,setSignOutError]=useState('');
   const [showSignIn, setShowSignIn] = useState(false);
@@ -43,7 +46,7 @@ export function Topbar() {
                   {user.email}
                 </span>
                 <button
-                  onClick={async()=>{setSignOutError('');try{await signOut();}catch{setSignOutError('We could not sign you out. Please try again.');}}}
+                  onClick={async()=>{setSignOutError('');try{await studies.exit(async()=>{try{await signOut();}catch{setSignOutError('We could not sign you out. Please try again.');}});}catch{setSignOutError('We could not sign you out. Please try again.');}}}
                   className="flex items-center gap-1 text-sm text-stone-600 hover:text-stone-900 px-3 py-1.5 rounded-md hover:bg-stone-100 transition-colors"
                   aria-label="Sign out"
                 >
