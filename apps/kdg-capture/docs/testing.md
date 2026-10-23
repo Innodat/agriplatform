@@ -208,3 +208,13 @@ Owners run the smallest relevant failing acceptance before implementation, then 
 unit/contract suites and affected browser/device checks. Exact commands/results and
 requirement-to-test cases land with existing owner/consuming delivery items; no new
 passing test or generated OpenAPI/client is inferred from these fixture declarations.
+
+## Executed definition prerequisite — 2026-10-23
+
+56 CPU-only cases in tests/test_questionnaire_definition.py cover the Story1.2 AC1
+initial wording/order/IDs/defaults, A05 definition-side strict scale/type/bounds and A12
+stable question identity. They do not prove answers, rendered toggling, published DB
+immutability or full Story1.2. Initial duplicate-ID acceptance failed before validation;
+focused coercion/JSON Schema failures were observed and corrected. Public parser tests
+reject unknown/malformed/duplicate/nonfinite/oversized content without diagnostic echo.
+See [evidence](QUESTIONNAIRE_DEFINITION_EVIDENCE.md) for commands/results, review and limits.

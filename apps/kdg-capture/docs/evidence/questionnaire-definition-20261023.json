@@ -1,0 +1,152 @@
+{
+  "schema_version": 1,
+  "scope": "pure KDG-owned questionnaire definition-validation prerequisite",
+  "base_commit": "ba7609970a8f73008deb2c8d784554c847bdf2ca",
+  "story_1_2_complete": false,
+  "database_io": false,
+  "docker_lifecycle": false,
+  "http_contract_changed": false,
+  "fingerprints_hmac": "deferred",
+  "implementation": {
+    "model": "Pydantic2.14.1 discriminated rating/boolean/text union",
+    "json": "standard json with duplicate/nonfinite rejection; UTF8 raw bound128KiB",
+    "initial_content": "four explicit caller-supplied UUIDs; exact approved Afrikaans definition; no allocation/persistence",
+    "failure_id": "kdg_capture.invalid_questionnaire_definition"
+  },
+  "atdd": {
+    "acceptance_red": "duplicate question IDs accepted; expected DefinitionError not raised",
+    "focused_red": [
+      "byte ID coerced into string",
+      "boolean false constant missing from JSON Schema"
+    ],
+    "fixture_correction": "uppercase-ID negative case initially contained digits only; corrected to actual uppercase hex, no expected behavior relaxed"
+  },
+  "results": {
+    "focused_tests": 56,
+    "api_definition_regression_tests": 135,
+    "focused_included_in_regression": true,
+    "regression_seconds": 1.41,
+    "existing_warning": "Starlette/httpx TestClient deprecation; approved dependency baseline preserved",
+    "http_openapi_check": "PASS unchanged",
+    "typescript": "7.0.2 PASS"
+  },
+  "commands": [
+    {
+      "argv": [
+        "/home/ck/repos/innodat/agriplatform/platform/deployment/.local/kdg-context-20261022/owner-env/bin/python",
+        "-I",
+        "-B",
+        "-m",
+        "pytest",
+        "apps/kdg-capture/tests/test_questionnaire_definition.py",
+        "-q",
+        "-p",
+        "no:cacheprovider"
+      ],
+      "environment": {
+        "PYTEST_DISABLE_PLUGIN_AUTOLOAD": "1"
+      },
+      "exit": 0
+    },
+    {
+      "argv": [
+        "timeout",
+        "60s",
+        "env",
+        "PYTEST_DISABLE_PLUGIN_AUTOLOAD=1",
+        "/home/ck/repos/innodat/agriplatform/platform/deployment/.local/kdg-context-20261022/owner-env/bin/python",
+        "-I",
+        "-B",
+        "-m",
+        "pytest",
+        "apps/kdg-capture/tests",
+        "-q",
+        "-p",
+        "no:cacheprovider"
+      ],
+      "execution": "outside restricted process sandbox",
+      "exit": 0
+    },
+    {
+      "argv": [
+        "/home/ck/repos/innodat/agriplatform/platform/deployment/.local/kdg-context-20261022/owner-env/bin/python",
+        "-B",
+        "apps/kdg-capture/api/export_openapi.py",
+        "--check"
+      ],
+      "exit": 0
+    },
+    {
+      "argv": [
+        "/home/ck/repos/innodat/agriplatform/platform/deployment/.local/kdg-toolchains/ad277eef-a10e-4aac-bb82-5743653fb2e0/payload/node/bin/node",
+        "node_modules/typescript/bin/tsc",
+        "--project",
+        "apps/kdg-capture/tests/tsconfig.json"
+      ],
+      "exit": 0
+    }
+  ],
+  "incomplete_attempt": {
+    "command": "in-sandbox KDG API regression",
+    "exit": 130,
+    "reason": "stalled in existing async TestClient tests; interrupted and rerun with explicit60s bound outside sandbox"
+  },
+  "review": {
+    "reviewer": "/root/review_kdg_definition",
+    "confirmed_findings": 0,
+    "new_deferred_defects": 0,
+    "isolated_cases": 56,
+    "triage": "_bmad-output/implementation-artifacts/spec-kdg-questionnaire-definition.md"
+  },
+  "impacts": {
+    "scaffold": "unchanged; app-domain schema/content not promoted as generic form engine",
+    "shared_ui": "none",
+    "agent_context": "existing sufficient",
+    "documentation": "owner guide/contracts/testing/evidence/handoff",
+    "adrs": "unchanged"
+  },
+  "limits": [
+    "No Story1.2 completion, published storage, operator write/replay or read route",
+    "Full owner-write/operator/release gates remain; setup fingerprint contract not silently changed",
+    "No answer validation or actual form/toggle proof",
+    "In-memory immutability is not a DB guarantee",
+    "Future API consumes this model and owns safe field paths/full transport bounds"
+  ],
+  "sources": {
+    "_bmad-output/implementation-artifacts/spec-kdg-questionnaire-definition.md": "519419518b85245b88bc59221765dce57ad385962c051f95e88c1161b101c71d",
+    "apps/kdg-capture/api/questionnaire.py": "7aac78d320f1181fc074c4b6950f5e142ce284c148407c28cce825a2ef63e90a",
+    "apps/kdg-capture/tests/test_questionnaire_definition.py": "08839c6df372828eb4e487eb7a3b9c0c8cf99c4f596cc2ca080b2d104cecbaf1",
+    "apps/kdg-capture/api/README.md": "4deec2bb4d8bf2af6f4b8edbab327cbf278fad63524e1bab20e2baafe42640d6",
+    "apps/kdg-capture/docs/contracts.md": "49184046fcf8b81402c414d495ebdd3f861ef9218ce4972fefc7bd8cdf6560ba",
+    "apps/kdg-capture/docs/testing.md": "b43fb8dc076bf8ab9c0e51dc17c1a7a9bbd15a821c80ee2827e99cffa16d20c1",
+    "apps/kdg-capture/docs/next-session.md": "45aeff0e75aa6238d53cbad37e80406666f93c9c7058bb6ada20919de588709e",
+    "apps/kdg-capture/docs/QUESTIONNAIRE_DEFINITION_EVIDENCE.md": "72384dce7c35a3f125116734235d1cf4d4029a9163404aef2a4004b9956330bd"
+  },
+  "preserved_sources": {
+    "package.json": "f353097548bbc53b737b88ee2c836af561aa805491405e3c0b6cd8c098e9f6da",
+    "package-lock.json": "9a8128448ab80c4319e61fb325e0030eeb71e2e31966b65f3e11f5774a667fe4",
+    "apps/kdg-capture/api/pyproject.toml": "75b87a5a99d7e6d39b3c74ba16a4016e51027f2352665bcb1276c1aa5de31241",
+    "apps/kdg-capture/api/uv.lock": "9b3164930e96657ff76be97ff992b8a5dd64b713b0dd09c3d9b08e56ab88ec2b",
+    "apps/kdg-capture/api/main.py": "a44bc61f1d8d8e93a28cf6e38da45da70feb4f8fe1b1da7791e99f0a1c697fe3",
+    "apps/kdg-capture/api/runtime.py": "c070ba130f327a01c9332c0b67cb35a7cf46a137bbc359e498bb75594cdb616e",
+    "apps/kdg-capture/api/context.py": "1c58d6432fa321252d5e4fd88d1e1b589bb989cf4243a2fb4a7104a7c9151a06",
+    "apps/kdg-capture/api/openapi.json": "d8bfa44f2637cb09328e19ddb4b36a63b2668df4e223cab8ce698c59c0a6b9c1",
+    "apps/kdg-capture/migrations/env.py": "3f5daa4ccee098e8a5795514800051e11de46114b04dbe815d7f9acb152bbda6",
+    "apps/kdg-capture/migrations/policy.py": "0c53c251cc3f15446499a828ea8ab73d7d829044c67550f9612ddeb6c03e387d",
+    "apps/kdg-capture/migrations/versions/0001_foundation.py": "1fc0de88b1a4c363bc73c59079a8c29258a1698d7b13c001da5e45d82d5c6745",
+    "apps/kdg-capture/docs/NATIVE_SCHEMA_FOUNDATION_EVIDENCE.md": "51a3a05c68fb33bbe557266e6139742aed6a8461da05b066192e14fb31edaacc",
+    "apps/kdg-capture/docs/evidence/native-schema-foundation-20261023.json": "ca6f422f491aa155099d8c169e81c8e6cd4ca49e1f57372c86bf55bd4cd501fc"
+  },
+  "preserved_failed_fixture_sha256": "7b8f44cd7e6458579e9b1c565bce69adc6a818af4626bf59e8708b150c555b1b",
+  "logs": {
+    "/tmp/kdg-definition-acceptance-red.log": "0499459eac12881f8425a60c8bcf5e7f61d424e75a54def470a192c8cccaa103",
+    "/tmp/kdg-definition-first-green.log": "fa8e3e1f0a4b084326a7027307e5cc3a94f799f9733ea598c3b878fa3c70f37c",
+    "/tmp/kdg-definition-focused-first.log": "7f84dbbc5629d1eceffbf83e41270dd5e2cb1ea5c7d94906755630dba8aca9ff",
+    "/tmp/kdg-definition-focused-red.log": "39443a0104a78d3a36a39883efbc22a0fafb4bfa9b1bbfd2c09c49313f91cc8d",
+    "/tmp/kdg-definition-focused-green.log": "b0dad9bc17fad5cd9f6927ef1a3225293fadf02b805c83f59de2585047866a2d",
+    "/tmp/kdg-definition-api-regression.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "/tmp/kdg-definition-api-regression-final.log": "47378714ccc3a5c60009f57ec5404348900a393305ddaaed5e5f6aa2942ad5e6",
+    "/tmp/kdg-definition-openapi.log": "384af00257decfaeaf969ad2d6cb5ab64004834d84f2a00eb7eb251bbac9e8e7",
+    "/tmp/kdg-definition-ts.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  }
+}

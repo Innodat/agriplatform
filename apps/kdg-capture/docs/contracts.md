@@ -726,3 +726,26 @@ A14 foreign operation/reference/cursor, A16 prior-eligibility/current-access, A1
 refresh and A17 schema/update fixtures. Actual OpenAPI/Pydantic and generated TypeScript
 become model authority during Build; this planning contract seeds rather than duplicates
 their future implementation. No runnable test command is invented before scaffold delivery.
+
+## Implemented definition candidate — 2026-10-23
+
+The inert [Pydantic definition model](../api/questionnaire.py) now closes this small
+Story1.2 prerequisite; its database, operator command and read API remain undelivered.
+This is not a new HTTP wire contract or permission to bypass the story's shared gates.
+
+Definition fields: schema_version=1 and ordered questions (1–50 unique canonical,
+nonzero UUID IDs). Common question fields are id, type, label and strict required.
+Rating configuration explicitly carries minimum=1, maximum=5, minimum_label=Goed and
+maximum_label=Nie goed nie; no default or intermediate descriptions. Boolean carries
+strict default=false, details_enabled and details_label (required when enabled, absent/
+null when disabled). Text has only the common fields. Extra/answer/expression fields
+are refused. Nonblank labels keep their exact content/order, max500 Unicode code points;
+NUL and invalid Unicode are refused. These are definition checks, not answer validation.
+
+parse_definition bounds raw UTF-8 JSON to the existing128KiB command ceiling and rejects
+duplicate JSON keys, nonfinite constants, duplicate question IDs and coercion. Complete
+future command/HTTP envelopes need their own total-byte enforcement. Public domain
+failure is the fixed identifier kdg_capture.invalid_questionnaire_definition; raw input/
+validation context is never returned by that boundary. Field-path presentation belongs
+to the consuming API. initial_definition requires four supplied IDs and creates only
+inert exact initial content, no version/organization/actor identity or stored publication.

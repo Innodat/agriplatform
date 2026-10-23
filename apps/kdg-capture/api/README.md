@@ -105,3 +105,30 @@ exit. Its ordinary TLS consumer uses an explicit private local CA test transport
 The optional `--interrupt-probe` qualification intentionally sends SIGTERM to its own
 runner after both test servers start. It must retain failed/interrupted evidence,
 bounded child exits and a successful independent after-inspection, then exit143.
+
+## Inert questionnaire definition candidate
+
+questionnaire.py owns the schema-version1 definition model needed before Story1.2's
+first persistence/read slice. parse_definition accepts bounded UTF-8 JSON, rejects
+unknown shapes/duplicate keys or IDs/coerced scalars, and raises only
+kdg_capture.invalid_questionnaire_definition at its public domain boundary. Raw model
+validation diagnostics are internal; the later HTTP boundary owns safe field paths.
+Rating/boolean/text are ordinary Pydantic discriminated models, not a form engine.
+
+initial_definition requires four explicit stable canonical question UUIDs. It returns
+only the approved Afrikaans definition with exact order/defaults; it allocates no IDs,
+creates no published record, reads no target/configuration and performs no I/O. The
+immutable Python model is not a database immutability guarantee or a rendered form.
+Use model_dump(mode='json', exclude_none=True) for plain definition serialization.
+
+No new HTTP route/OpenAPI/client schema is exposed yet. The future version endpoint and
+write adapter must reuse this owner model after their remaining readiness gates pass.
+This does not implement answer validation, scoped persistence, publication/replay,
+operator authority or provisioning. Fingerprints/HMAC remain deferred.
+
+```sh
+PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 "$P" -I -B -m pytest apps/kdg-capture/tests/test_questionnaire_definition.py -q -p no:cacheprovider
+```
+
+P is the existing approved platform/deployment/.local/kdg-context-20261022/owner-env/bin/python.
+No install or dependency/lock change. See ../docs/QUESTIONNAIRE_DEFINITION_EVIDENCE.md.

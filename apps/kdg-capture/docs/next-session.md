@@ -1,3 +1,33 @@
+## Current delivery — typed questionnaire definition prerequisite, 2026-10-23
+
+KDG now owns an inert Pydantic schema-version1 questionnaire definition and exact initial
+Afrikaans content factory. Read [definition evidence](QUESTIONNAIRE_DEFINITION_EVIDENCE.md),
+the receipt and [owner contract](contracts.md#implemented-definition-candidate--2026-10-23).
+56 focused cases prove closed types/bounds, strict IDs/scalars, initial wording/order/
+defaults, duplicate rejection and safe bounded JSON failures. Behavioral acceptance RED
+and focused coercion/schema REDs were observed before fixes. No generic form engine.
+
+No business table, read endpoint, operator command or stored publication was delivered.
+The factory requires four explicit question IDs; it allocates nothing and performs no
+I/O. HTTP OpenAPI/generated clients stay unchanged. Pydantic/model immutability does not
+prove DB immutability, answer validation, rendered behavior or complete Story1.2.
+
+Story1.2's existing WRITE/operator/release gates remain open, including its fingerprint-
+based setup contract; fingerprints/HMAC are still deferred. Next use bmad-help/build to
+select and prove a remaining shared WRITE prerequisite without taking over another owner
+or silently changing setup retry semantics. Existing transaction-context/first-committed
+examples may supply a proven starting point; verify actual code/evidence before promotion.
+Reuse ordinary PostgreSQL/Alembic/Pydantic behavior and focused tests. The first domain
+table/API must reuse this definition model when its prerequisites are ready.
+
+The native initial-ledger proof below remains source-bound and preserved; no Docker,
+SQL, role/database preparation or provider work occurred here. Preserve concurrent work,
+all historical evidence/resources and approved dependency baseline including TS7.0.2.
+No Leave/editor, production, real accounts/access, general provisioning, deployment/pilot,
+cleanup or fingerprint/HMAC work. KDG has no Entra requirement.
+
+Earlier handoffs follow unchanged as historical checkpoints.
+
 ## Current delivery — native initial-ledger acceptance, 2026-10-23
 
 The focused platform migration approach now passes actual KDG PostgreSQL acceptance.
