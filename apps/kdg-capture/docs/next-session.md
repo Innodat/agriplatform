@@ -1,3 +1,39 @@
+## Current delivery — KDG schema foundation candidate, 2026-10-23
+
+The first KDG database candidate now has a separate owner Alembic history/policy and
+reusable neutral migration guards/tests emitted by the platform scaffold. KDG consumes
+managed database-tools in a separate fixed root; Auth/host inventories remain unchanged.
+Read [candidate evidence](SCHEMA_FOUNDATION_CANDIDATE_EVIDENCE.md) and its receipt, plus
+[migration target requirements](../migrations/README.md).
+
+This delivery prepares code only: no schema, role, database, business table, API write,
+production registry entry or release activation was created. An eventual controlled
+upgrade initializes only the private ledger in a separately prepared dedicated schema.
+The empty-schema candidate does not establish organization/RLS or business-write safety.
+Platform mechanisms are reusable; each app owns and proves its policy/tables/history.
+No other application is migrated. Native acceptance is explicitly false.
+
+Offline checks pass:10 neutral emitted unit tests,8 KDG policy/history/env wiring tests,
+5 real CLI refusal checks,72 builder tests, strict TS7 and full offline generation
+proof-IWqNGL (bootstrap-only,generation_ready=false). Seven review findings addressed;
+final follow-up finds no substantive issue. Test doubles are never native SQL evidence.
+Optional migration tests use the approved retained migration environment; no API/root
+manifest, lock or dependency change. Existing resources/proofs remain unchanged.
+
+Next complete native PostgreSQL acceptance only after an explicitly authorized compatible
+disposable target exists. Known native endpoint55482 is stopped; unknown54322 stays
+untouched. Resuming the retained synthetic stack and preparing isolated KDG DB/roles
+needs an explicit exception to the current no-provisioning boundary. Do not rerun old
+fixture preparers, adopt DB-owning atomic migrator credentials or claim native readiness.
+See migration README for exact target roles and required upgrade/denial/rollback matrix.
+
+Preserve concurrent work, historical handoffs/evidence/Docker resources and approved
+TypeScript7.0.2. No Leave/editor, production, real accounts/access, provisioning,
+deployment/pilot or cleanup. Fingerprints/HMAC stay deferred. Actual Auth/SMTP/device
+qualification remains separate; KDG has no Entra requirement.
+
+Earlier handoffs follow unchanged as historical checkpoints.
+
 ## Current delivery — explicit local web host, 2026-10-23
 
 An opt-in owner Vite config now serves the actual KDG frontend and bridges same-origin

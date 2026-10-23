@@ -3,6 +3,7 @@ import {renderAuthPattern} from './auth-pattern.ts';
 import { validateRecipe, recipeSchema } from './recipe.ts';
 import { renderHttpFiles, type ServiceFile } from './service-renderer.ts';
 const templates = [
+ ['database-tools/owned_migration.py','generated'], ['database-tools/test_owned_migration.py','generated'],
  ['README.md','generated'], ['AGENTS.md','generated'], ['web/index.html','generated'],
  ['web/package.json','generated'], ['web/tsconfig.json','generated'], ['web/vite.config.ts','generated'],
  ['web/src/App.tsx','seed'], ['web/src/api/health.ts','seed'], ['web/scripts/test-health.mjs','generated'], ['web/src/main.tsx','seed'], ['web/src/styles.css','seed'],

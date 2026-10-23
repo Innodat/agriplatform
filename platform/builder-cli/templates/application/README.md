@@ -208,3 +208,21 @@ Applications still own authorization and exact safe DTO contracts. Restrict serv
 and config files in the owner wrapper. This development helper does not qualify production
 hosting, installed-workspace integration, LAN HTTPS, provider delivery or device behavior.
 Run `node --test web/local-host-tools/test-local-entry-host.mjs` from an emitted app root.
+
+## Inert schema-foundation candidate
+
+Generated database-tools/owned_migration.py and test_owned_migration.py are opt-in
+migration-environment candidates. They create no roles, database, schema, migration
+configuration or domain tables and are never imported by the HTTP API. The owner
+supplies exact prepared schema/role/revision policy and retains its Alembic history.
+They currently guard an empty schema/initial private ledger only; do not reuse this
+catalog contract unchanged after adding business tables.
+
+Unit tests use the existing pinned migration environment (SQLAlchemy2.1.4/Alembic1.20.0/
+psycopg3.3.6/Python3.15), not the generated HTTP-only API environment. No dependency or
+lock update is implied. Run P -I -B database-tools/test_owned_migration.py with that
+explicit environment. KDG proves rendered/installed tests and managed parity; native
+PostgreSQL qualification is still pending a compatible authorized disposable target.
+These emitted tests do not establish role/ACL/RLS or release readiness for any app.
+Existing ADR0015–0020 remain mandatory across owners. No startup migrations, shared
+business table store, cross-app imports or automatic adoption are introduced.

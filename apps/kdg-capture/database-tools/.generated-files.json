@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "identity": {
+    "generator": "builder-v1",
+    "template": "schema-foundation-v1-candidate",
+    "recipe": "13151600e7ec6366ad1cc374bd4b9174b4289fd11079b768183407e5302de102",
+    "source": "390ce93342ad9d8b52d23fefe54e2b93c575496f162246e68697a51049f51d72"
+  },
+  "files": {
+    "owned_migration.py": {
+      "classification": "generated",
+      "sha256": "369c2e8e6282352227bf2328a644af6cce4181473d1c52f3e4233d89ae8251e6"
+    },
+    "test_owned_migration.py": {
+      "classification": "generated",
+      "sha256": "658ff64a3ad4c389eaa7d930aa458dc1427a76651710012a19047e12e4964cb0"
+    }
+  }
+}
