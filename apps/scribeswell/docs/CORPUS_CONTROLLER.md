@@ -70,8 +70,10 @@ thereafter. No transaction spans source parsing, Identity/network waits or full 
 Epoch, attempt history and outcome commit together or roll back together.
 
 Preparation must externally verify a stable classified service actor through Identity
-ownership before deliberately mapping the actual operator login. The local UUID/key/
-evidence reference is custody, not verification. No new Identity projection, table read,
+ownership before deliberately mapping the actual operator login. The
+[caller preparation handoff](CORPUS_CALLER_PREPARATION.md) specifies required evidence
+and owner ordering. Local UUID/key/evidence-reference matching is custody, not
+Identity verification. No new Identity projection, table read,
 Auth account or Access grant exists here. Human initiator attribution is absent unless
 a later trusted integration supplies its separately verified contract; current payloads
 accept no override. Protected local tables enforce key, scope, identity, lifecycle and

@@ -28,6 +28,9 @@ Identity owns durable service actors under ADR-0056 and its controlled
 `actor.register_system` contract; this application does not query its tables or
 provision a competing actor/access path. No general live verification API is
 presumed to exist. Live owner evidence remains an activation prerequisite.
+The [caller preparation handoff](CORPUS_CALLER_PREPARATION.md) specifies the owner
+evidence, target pairing and ordered local preparation required to close that gate;
+it documents requirements, not executed live verification or a new verifier.
 
 The [prepared profile](PREPARED_CONTROLLER_PROFILE.md) requires exact existing0003,
 false enforcement and empty history. The [history profile](CONTROLLER_HISTORY_PROFILE.md)

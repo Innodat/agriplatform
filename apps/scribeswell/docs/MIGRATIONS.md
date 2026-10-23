@@ -26,6 +26,11 @@ Production preparation requires a concrete reviewed target plan under platform
 ADR-0016, ADR-0017 and ADR-0020. Local verification does not authorize production
 SQL or deployment. Before controlled adoption:
 
+The [caller preparation handoff](CORPUS_CALLER_PREPARATION.md) specifies the separate
+Identity-owner evidence and restricted corpus-operator mapping needed for later
+prepared/history replay. It creates no live actor, role or authority and does not
+replace the initial dormant migration prerequisites below.
+
 1. Qualify the existing schema against the independently pinned legacy SQL and
    direct-role bootstrap reference. Missing, partial, extra or drifted objects,
    unsupported ACL/default-ACL profiles and malformed/unknown ledger state stop
