@@ -1,3 +1,19 @@
+## Current delivery — Auth session integration, 2026-10-23
+
+The bounded SDK session bridge and React binding are complete after review:28 focused
+tests,15 SDK/React/Chromium proof checks,29 client and15 screen regressions pass. See [owner evidence](AUTH_ENTRY_EVIDENCE.md).
+They consume current sessions, refresh/logout/account events and the existing entry
+client/screen. Interactive sign-in launch remains injected; no provider configuration,
+redirect/callback/PKCE persistence/return navigation or public frontend activation is
+claimed. Select the next bounded Auth-owner launch/callback prerequisite before domain
+persistence. Preserve concurrent changes/history/Docker resources and TypeScript7.0.2.
+Synthetic local/CI only; no real accounts/access, provisioning/deployment/pilot,
+Leave/editor or cleanup. Fingerprints/HMAC remain deferred.
+
+The complete prior handoff follows as historical checkpoints.
+
+---
+
 ## Current delivery — accessible React entry presentation, 2026-10-22
 
 The bounded React entry screen is complete after review:15 focused presentation

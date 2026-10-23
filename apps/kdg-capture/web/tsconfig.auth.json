@@ -1,0 +1,4 @@
+{
+ "compilerOptions":{"strict":true,"noEmit":true,"target":"ES2022","module":"ESNext","moduleResolution":"Bundler","jsx":"react-jsx","lib":["ES2022","DOM","DOM.Iterable"],"types":["react","react-dom"],"skipLibCheck":true},
+ "files":["src/auth-entry.ts","src/AuthEntry.tsx","src/styles.d.ts","tests/auth-fixture/main.tsx"]
+}

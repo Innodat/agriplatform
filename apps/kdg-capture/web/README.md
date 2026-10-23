@@ -83,3 +83,37 @@ static-render tests. `--unit-only` runs strict types plus the15 tests; `--accept
 runs the admitted-account/setup-state browser scenario. It never installs packages
 or edits root dependencies/locks. The fixture is synthetic and is not a public app
 entrypoint. See ../docs/ENTRY_SCREEN_EVIDENCE.md for source custody and proof limits.
+
+
+## Auth session integration
+
+AuthEntry.tsx binds the screen to an injected stable Supabase Auth client and stable
+beginSignIn callback. Import the existing entry-screen.css in its owner entrypoint.
+Pass the configured org, online observation and optional own-context request adapter.
+The component owns bridge setup/disposal, including strict replay and online/client
+replacement. Keep Auth session/storage/provider configuration with the Auth owner;
+there is no automatic client creation, redirect, PKCE or callback parsing here.
+
+createAuthEntry is also available for another framework host. Call start once, feed
+state through publish, and dispose on unmount. retry reads current SDK session;
+signIn attempts known-session refresh before the injected owner launch; signOut clears
+local admission then requests SDK scope local. The screen does not yet expose sign-out;
+its future host must apply pending-work rules when that feature exists. Sign-out/timeout
+latch against late events; explicit retry/sign-in reacquires authority. A launch resolving
+alone is not authenticated entry. No prior-user state or tokens are exposed by state().
+
+Run `N apps/kdg-capture/web/tests/auth-proof.mjs` using the retained Node above; add
+--unit-only for focused SDK tests or --acceptance-only for the initial behavioral case.
+The private capsule reuses pinned SDK2.117.3/React19.3/TS7.0.2 and Vite8/Chromium; it
+never installs or changes dependencies. Auth-specific skipLibCheck follows the known
+upstream WebAuthn exception, with strict own-source checking. Read ../docs/AUTH_ENTRY_EVIDENCE.md
+for exact proof limits. Real provider/callback/return integration remains separate.
+
+
+Every SIGNED_OUT cancels recovery, including one emitted by refresh rejection; another
+explicit Sign in is then required. A bare logout event cannot be treated as permission
+to relaunch sign-in. Mismatched refresh accounts, errors and timeouts latch closed;
+only an explicit fresh observation can re-enter. The28 focused tests cover actual SDK
+proactive/expired rejection, every operation deadline and replacement/disposal races.
+The Auth proof records15 checks, including an own-source TS2322 negative control;
+upstream declarations remain excluded under the previously documented SDK exception.
