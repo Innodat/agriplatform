@@ -132,3 +132,22 @@ PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 "$P" -I -B -m pytest apps/kdg-capture/tests/tes
 
 P is the existing approved platform/deployment/.local/kdg-context-20261022/owner-env/bin/python.
 No install or dependency/lock change. See ../docs/QUESTIONNAIRE_DEFINITION_EVIDENCE.md.
+
+## Capture command input boundary
+
+`capture_commands.py` is app-owned pure validation for future create/edit persistence.
+Use parse_create/parse_edit before outcome lookup, then validate_answers with the exact
+original QuestionnaireDefinition only for a fresh action. Do not validate retry answer
+semantics before recovering a currently authorized committed outcome. Opaque eligibility
+reference is not a grant. No handler/router, authorization or database writes are added.
+Safe CommandError identifiers are validation_failed and unsupported_command_version;
+never expose raw validation dictionaries or exception locals. Default model serialization
+preserves omitted boolean details and exact entered text/device time. See
+[capture evidence](../docs/CAPTURE_COMMAND_VALIDATION_EVIDENCE.md). Run optional unit tests:
+`env PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 "$P" -I -B -m pytest -q -p no:cacheprovider apps/kdg-capture/tests/test_capture_commands.py`
+using the retained owner environment above.
+
+Pydantic field freezing does not freeze the nested answers dictionary. Keep parsed
+commands private and revalidate with validate_answers immediately before consuming a
+fresh write; its instance revalidation protects modified/constructed nested models.
+These models are not an immutable queued-command envelope or authority evidence.

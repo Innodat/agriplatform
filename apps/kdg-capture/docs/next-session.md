@@ -1,3 +1,27 @@
+## Current delivery — strict capture input validation, 2026-10-23
+
+KDG now has create/edit v1 command parsers and original-questionnaire answer validation.
+Read [capture input evidence](CAPTURE_COMMAND_VALIDATION_EVIDENCE.md) for contracts/tests.
+This is the concrete missing input boundary before capture/history persistence, not a
+mounted write API or schema. Reuse api/capture_commands.py rather than another validator.
+
+Parse structural shape before outcome lookup; validate fresh answers against the exact
+original definition only after confirmed outcome absence. This preserves first-committed
+changed-body replay. Required false/rating1 are valid; hidden false/disabled details,
+missing/foreign answers, coercion and invalid bounds fail safely. Valid content stays
+exact, omitted details stay absent. Eligibility reference is opaque, not authority.
+Existing receipt adapter, questionnaire model and all shared managed copies stay intact.
+
+Next deliver supporting version/child/eligibility records with linked capture/revision/
+outcome schema and concrete current-authorized writes. Actual restricted-role/native
+atomicity, concurrency and migration/recovery are consuming activation gates. No partial
+outcome-only schema, duplicate orchestration framework or persistence claim. Story1.2's
+operator bootstrap retains its distinct fingerprint gate; fingerprints/HMAC deferred.
+Preserve concurrent work/history/resources and TypeScript7.0.2. Synthetic local/CI only;
+no Leave/editor, real accounts/access, production, provisioning/deployment/pilot/cleanup.
+
+Earlier handoffs follow unchanged as historical checkpoints.
+
 ## Current delivery — inert outcome storage candidate, 2026-10-23
 
 KDG now has an app-owned private outcome lookup/append adapter and closed v1 capture

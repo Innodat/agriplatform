@@ -1,0 +1,141 @@
+{
+  "schema_version": 1,
+  "scope": "pure KDG capture.create/edit input parsing and fresh pinned-definition answer validation",
+  "base_commit": "ddaea64ba4393c3b97e1959ee54649fe9d89d717",
+  "fingerprints_hmac": "deferred",
+  "database_io": false,
+  "docker_lifecycle": false,
+  "http_contract_changed": false,
+  "persistence_implemented": false,
+  "review": {
+    "completed": true,
+    "findings": 7,
+    "addressed": 7,
+    "deferred": 0
+  },
+  "results": {
+    "capture_cases": 128,
+    "api_regression_cases": 263,
+    "api_existing_warnings": 1,
+    "typescript": "7.0.2 PASS",
+    "http_openapi": "PASS unchanged",
+    "initial_capture_and_definition_cases": 165
+  },
+  "commands": [
+    {
+      "argv": [
+        "P",
+        "-I",
+        "-B",
+        "-m",
+        "pytest",
+        "-q",
+        "-p",
+        "no:cacheprovider",
+        "apps/kdg-capture/tests/test_capture_commands.py",
+        "apps/kdg-capture/tests/test_questionnaire_definition.py"
+      ],
+      "environment": {
+        "PYTEST_DISABLE_PLUGIN_AUTOLOAD": "1"
+      },
+      "exit": 0
+    },
+    {
+      "argv": [
+        "timeout",
+        "60s",
+        "env",
+        "PYTEST_DISABLE_PLUGIN_AUTOLOAD=1",
+        "P",
+        "-I",
+        "-B",
+        "-m",
+        "pytest",
+        "-q",
+        "-p",
+        "no:cacheprovider",
+        "apps/kdg-capture/tests"
+      ],
+      "execution": "outside restricted process sandbox; synthetic HTTP transports",
+      "exit": 0
+    },
+    {
+      "argv": [
+        "N",
+        "node_modules/typescript/bin/tsc",
+        "-p",
+        "apps/kdg-capture/tests/tsconfig.json"
+      ],
+      "exit": 0
+    },
+    {
+      "argv": [
+        "P",
+        "-I",
+        "-B",
+        "-"
+      ],
+      "stdin": "import sys\nsys.path.insert(0,'apps/kdg-capture/api')\nimport export_openapi\nsys.argv=['export_openapi.py','--check']\nraise SystemExit(export_openapi.main())\n",
+      "exit": 0
+    }
+  ],
+  "interpreters": {
+    "P": "platform/deployment/.local/kdg-context-20261022/owner-env/bin/python",
+    "N": "platform/deployment/.local/kdg-toolchains/ad277eef-a10e-4aac-bb82-5743653fb2e0/payload/node/bin/node"
+  },
+  "preservation": {
+    "preexisting_paths": 148,
+    "missing": [],
+    "concurrently_changed_outside_scope": [
+      "_bmad-output/planning-artifacts/epics.md",
+      "apps/leave/docs/architecture/ARCHITECTURE-SPINE.md",
+      "apps/leave/docs/architecture/decisions/README.md",
+      "apps/leave/docs/features.md",
+      "apps/leave/docs/implementation-plan.md",
+      "apps/leave/docs/planning-handoff-e3.md",
+      "apps/scribeswell/backend/main.py",
+      "_bmad-output/implementation-artifacts/spec-scribeswell-personal-notes-runtime.md",
+      "_bmad-output/specs/spec-scribeswell-studies/.memlog.md",
+      "_bmad-output/specs/spec-scribeswell-studies/SPEC.md",
+      "_bmad-output/specs/spec-scribeswell-studies/acceptance.md",
+      "_bmad-output/specs/spec-scribeswell-studies/account-access.md",
+      "_bmad-output/specs/spec-scribeswell-studies/brownfield.md",
+      "_bmad-output/specs/spec-scribeswell-studies/data-and-saving.md",
+      "_bmad-output/specs/spec-scribeswell-studies/ux-behaviour.md",
+      "apps/leave/docs/architecture/contracts/e5-capabilities-and-commands.md",
+      "apps/leave/docs/architecture/contracts/e5-request-command-and-finalization.md",
+      "apps/scribeswell/tests/test_personal_notes_api.py",
+      "apps/scribeswell/web/src/components/studies/NoteEditor.tsx",
+      "apps/scribeswell/web/src/context/StudiesContext.tsx",
+      "apps/scribeswell/web/tests/personal-notes.spec.cjs"
+    ],
+    "unchanged_tracked_kdg_template_dependency_files": 220,
+    "handoff_exact_historical_suffix": true,
+    "typescript": "7.0.2"
+  },
+  "sources": {
+    "_bmad-output/implementation-artifacts/spec-kdg-capture-command-validation.md": "51047c7614ab6dcba2df3fc16e279b46d0254bd2e58c58d438e3519404782834",
+    "apps/kdg-capture/api/capture_commands.py": "378197903cd973f7807ecad879fc737077071e644be8f44716ea2e3f23727a07",
+    "apps/kdg-capture/tests/test_capture_commands.py": "f95276993fa29198457c42e64cb6c8765ed828f70e073d79b88114bd69819312",
+    "apps/kdg-capture/docs/CAPTURE_COMMAND_VALIDATION_EVIDENCE.md": "101cc8c6dd6fb00b74b286a28ca64203c2e36ceed697a1e2f70dc03970d4707c",
+    "apps/kdg-capture/docs/next-session.md": "f50afbdb25df4e4c6388929af98dcab10a34783341934f6bfea7f88c87b77598",
+    "apps/kdg-capture/docs/contracts.md": "df704f5311e5e66ffb7857dd23abf4e5eb851dd369e6ee40e25c0cf8a5410d12",
+    "apps/kdg-capture/api/README.md": "a85c2ef75d7b0aceaceafabdaddcecd316ce0b3eb4a446a316b4619156e444d2"
+  },
+  "logs": {
+    "/tmp/kdg-command-atdd-red.log": "39af42f04f423cf4191eda0324d4864ff30c7f1e9aec55ee1f4b1c1f58aab50f",
+    "/tmp/kdg-command-focused-red.log": "bc56b384f7259aca3a0a3ad97169d713270e8b026580eda0ef855ee735277b5e",
+    "/tmp/kdg-command-initial-green.log": "ed12499504fb433a657b31ced875e7369343bf9696d2544d97d223e4f49c7d34",
+    "/tmp/kdg-command-focused-matrix.log": "2eb7c96ca0009c25a530c74cb23727026fdc674db003c058313b33c6e3f4d993",
+    "/tmp/kdg-command-definition-green.log": "64319ceb49e4ec036f7633aa79560d154f52618903e085f4f138fef62e78f9f8",
+    "/tmp/kdg-command-api-regression.log": "81b9909277ed1aac080fcd073e63e1abc0c9c9081229df3373cabb74dc175633",
+    "/tmp/kdg-command-typescript.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "/tmp/kdg-command-review-tests.log": "ce2b0176cc91bfe3986c651d0a3bdf79ec1544d94f7ce63e842eb0d70bb2307e",
+    "/tmp/kdg-command-api-final.log": "0be61f9b3a553deef19e202d5ecf23b6b12006adf601205e537e663178773b4e"
+  },
+  "limits": [
+    "pure domain qualification only; no API route/client or persistence activation",
+    "no current authority/eligibility, pinned stored-version binding, outcome replay or orchestration implementation",
+    "schema/RLS/atomicity/concurrency/native and migration/recovery remain consuming gates"
+  ]
+}

@@ -760,3 +760,16 @@ No mounted API, migration or persisted capture/history/outcome implementation fo
 Current stored-resource authority, atomic linked writes and native/release qualification
 remain consuming gates. GET recovery and POST retry retain their different authority
 requirements above. Private None is not public unresolved or rollback proof.
+
+## Implemented capture input boundary — 2026-10-23
+
+The [app-owned models/parsers](../api/capture_commands.py) implement the exact create/edit
+v1 shapes above, strict envelope/scalar/bounds checks and fresh-action answer validation
+against an explicitly supplied original QuestionnaireDefinition. Read [evidence](CAPTURE_COMMAND_VALIDATION_EVIDENCE.md).
+parse_create/parse_edit precede outcome lookup; validate_answers belongs only after
+confirmed outcome absence. No current authority, pinned-version persistence/lookup,
+replay, HTTP route or atomic write is implemented by these pure functions. Eligibility
+reference stays opaque nonblank text; it proves no authority. Supplied blank text is
+invalid; optional unanswered text is omitted. Safe failures expose validation_failed or
+unsupported_command_version only. Public OpenAPI/client exports remain unchanged until
+an actual consuming HTTP slice mounts these contracts.
