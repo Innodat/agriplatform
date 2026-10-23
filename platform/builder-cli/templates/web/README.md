@@ -1,52 +1,16 @@
-# Web App Scaffold Template
+# Retired legacy web template
 
-Stampable Vite + React + TypeScript + Tailwind + ShadCN-ready web app template.
+Do not copy this directory into an application. It predates the pinned application
+candidate, safe Auth lifecycle and generated behavioral tests. Its AuthContext exports
+now refuse execution with legacy_auth_template_retired; existing copied applications
+are not automatically migrated by this source change.
 
-## Placeholders
+Use the internal application renderer at ../../src/application-renderer.ts and the
+managed src/auth/lifecycle.ts, src/auth/use-lifecycle.ts and scripts/test-auth-lifecycle.mjs
+under ../application/web. Those files accept an owner Auth client, interactive action
+and current application admission boundary. They never create grants, select an
+organization or configure a provider. Public generation remains gated.
 
-| Placeholder | Example |
-|-------------|---------|
-| `{{APP_NAME}}` | `system-engineering` |
-| `{{APP_DISPLAY_NAME}}` | `System Engineering` |
-| `{{DEV_PORT}}` | `5175` |
-| `{{BACKEND_PORT}}` | `8002` |
-
-## Usage
-
-```bash
-# From repo root — copy and replace placeholders
-cp -r platform/builder-cli/templates/web apps/<app-name>/web
-cd apps/<app-name>/web
-# Replace all {{PLACEHOLDER}} tokens
-# npm install
-# npm run dev
-```
-
-## What's included
-
-```
-src/
-├── vite-env.d.ts           # Vite env types
-├── main.tsx                # Entry point
-├── App.tsx                 # Router setup
-├── index.css               # Tailwind base
-├── lib/
-│   ├── supabase.ts         # Supabase Auth client
-│   └── app-directory.ts    # App Directory service client
-├── context/
-│   └── AuthContext.tsx     # Auth state provider
-├── hooks/
-│   └── useMyApps.ts        # Fetches apps from app-directory
-├── components/
-│   └── layout/
-│       ├── AppShell.tsx    # Topbar + main layout
-│       ├── Topbar.tsx      # Brand + AppLauncher + auth
-│       └── AppLauncher.tsx # Burger menu (vendored from platform/ui-business)
-└── schemas/                # App-specific Zod schemas go here
-```
-
-## Notes
-
-- `AppLauncher.tsx` is vendored from `platform/ui-business` — per silo rules, no runtime import from `platform/*`.
-- `@platform/app-directory-client` is resolved via tsconfig paths + vite alias (no npm install needed in monorepo).
-- `tsconfig.json` in this directory excludes all files from type-checking (template files are not compiled in-place).
+See ../../AUTH_PATTERN_EVIDENCE.md and ../../README.md for generation, consuming KDG
+parity, preservation checks and the exact synthetic qualification limits. Legacy
+manifests remain historical; they are not the approved dependency baseline.

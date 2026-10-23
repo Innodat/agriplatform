@@ -1,3 +1,23 @@
+## Current delivery — scaffold/KDG Auth code and test parity, 2026-10-23
+
+Neutral Auth lifecycle, React hook and behavioral tests now have one scaffold owner;
+KDG consumes managed copies with owner admission/UI adapters. Generated23 and KDG28
+tests pass (51 total), along with15 SDK/React checks; all9 review findings patched.
+Builder68 and final focused6 checks pass, plus final full offline application proof. See
+[scaffold evidence](../../../platform/builder-cli/AUTH_PATTERN_EVIDENCE.md).
+Future proven neutral fixes update templates and generated tests in the same delivery;
+builder tests and sync-kdg-auth --check detect stale KDG code/hooks/tests. Existing
+preservation installer handles updates and refuses manual generated edits. Legacy copied
+AuthContext is explicitly retired; existing copied apps are not migrated. No public
+generator/provider readiness or dependency-baseline change. Next continue the bounded
+Auth launch/callback prerequisite after this parity item closes. Preserve history,
+concurrent work, Docker resources and TS7.0.2; synthetic only, no real account/access,
+Leave/editor, provisioning/deployment/pilot, cleanup or fingerprints/HMAC.
+
+The complete prior handoff follows as historical checkpoints.
+
+---
+
 ## Current delivery — Auth session integration, 2026-10-23
 
 The bounded SDK session bridge and React binding are complete after review:28 focused

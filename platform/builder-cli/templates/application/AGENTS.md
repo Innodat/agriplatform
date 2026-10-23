@@ -12,3 +12,10 @@ Use the owner Python environment to export/check api/openapi.json before web api
 api:check, test:client and strict TS7 checks/build. DTO/export/health adapter sources are
 owner seeds. Derived web/src/api/generated clients use installer ownership and must not
 be hand-edited; no nested lock or undeclared code-generation tool.
+
+Managed web/src/auth/lifecycle.ts, web/src/auth/use-lifecycle.ts and
+web/scripts/test-auth-lifecycle.mjs share one builder-owned source. Run npm run test:auth.
+The neutral Auth port requires an injected current admission boundary; Auth session
+existence never grants app access. Owner adapters/branding/DTO validation remain seeds.
+Fix reusable code and generated tests in the same consuming delivery, then regenerate
+managed files and run consuming regressions. Never hand-edit generated code/tests.

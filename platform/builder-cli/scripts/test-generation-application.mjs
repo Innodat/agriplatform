@@ -152,6 +152,7 @@ try {
  run('api-export-check',interpreter,['-I','-B','-c',"import sys;sys.path.insert(0,sys.argv.pop(1));import export_openapi;raise SystemExit(export_openapi.main())",api,'--check'],clean,api);
  run('client-generate',node,[npm,'run','api:generate','--workspace',webRelative],npmEnv,copy);
  run('client-check',node,[npm,'run','api:check','--workspace',webRelative],npmEnv,copy);
+ run('auth-tests',node,[npm,'run','test:auth','--workspace',webRelative],npmEnv,copy);
  run('client-tests',node,[npm,'run','test:client','--workspace',webRelative],npmEnv,copy);
  run('web-type-check-initial',node,[npm,'run','type-check','--workspace',webRelative],npmEnv,copy);
  const dtoPath=join(api,'main.py'),beforeDto=readFileSync(dtoPath,'utf8');

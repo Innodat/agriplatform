@@ -1,4 +1,5 @@
 import { readFileSync } from 'node:fs';
+import {renderAuthPattern} from './auth-pattern.ts';
 import { validateRecipe, recipeSchema } from './recipe.ts';
 import { renderHttpFiles, type ServiceFile } from './service-renderer.ts';
 const templates = [
@@ -15,6 +16,7 @@ export function renderApplication(input: unknown, root: string): Record<string, 
  const files: Record<string,ServiceFile>=Object.fromEntries(templates.map(([path,classification])=>[path,{
   classification,content:readFileSync(new URL(`../templates/application/${path}`,import.meta.url),'utf8').replaceAll('{{OWNER}}',recipe.owner_id),
  }]));
+ Object.assign(files,renderAuthPattern());
  for(const [path,file] of Object.entries(renderHttpFiles(recipe.owner_id))) files[`api/${path}`]=file;
  return files;
 }

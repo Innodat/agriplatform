@@ -117,3 +117,19 @@ only an explicit fresh observation can re-enter. The28 focused tests cover actua
 proactive/expired rejection, every operation deadline and replacement/disposal races.
 The Auth proof records15 checks, including an own-source TS2322 negative control;
 upstream declarations remain excluded under the previously documented SDK exception.
+
+
+## Scaffold-owned Auth code and tests
+
+The neutral Auth lifecycle and React hook are now managed copies in src/auth; their
+behavioral suite is scripts/test-auth-lifecycle.mjs. auth-entry.ts and AuthEntry.tsx
+remain KDG-owned boundary/UI adapters. `npm run test:auth` runs the generated23 cases;
+the full auth-proof also runs those alongside the existing28 owner/SDK tests (51 total).
+
+From repository root, with selected N, run
+`N platform/builder-cli/scripts/sync-kdg-auth.mjs --check` before delivery. After template
+changes, use --write through the same owning generator; it preserves owner files and
+refuses manually edited managed files. Never edit generated Auth code/tests or
+.generated-files.json by hand. Builder tests compare current templates as well as
+installed hashes, so stale generated tests fail too. See platform/builder-cli/AUTH_PATTERN_EVIDENCE.md
+from repository root for the ownership inventory, same-item maintenance rule and proof limits.

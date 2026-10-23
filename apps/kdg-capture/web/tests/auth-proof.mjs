@@ -16,7 +16,7 @@ const directory=join(root,'platform/deployment/.local/kdg-auth-entry-20261023');
 const proof=join(directory,'auth-'+randomUUID());mkdirSync(proof,{mode:0o700});const capsule=join(proof,'capsule');mkdirSync(capsule);
 writeFileSync(join(capsule,'package.json'),JSON.stringify({private:true,type:'module'}));symlinkSync(join(retained,'node_modules'),join(capsule,'node_modules'),'dir');
 const owner='apps/kdg-capture/web';
-const sources=[owner+'/src/auth-entry.ts',owner+'/src/AuthEntry.tsx',owner+'/src/EntryScreen.tsx',owner+'/src/entry-screen.css',owner+'/src/styles.d.ts',owner+'/tests/auth-fixture/main.tsx',owner+'/tests/auth-fixture/index.html',owner+'/src/entry.ts',owner+'/package.json',owner+'/tsconfig.auth.json',owner+'/tests/auth-entry.test.mjs',owner+'/tests/auth-proof.mjs','apps/kdg-capture/contracts/generated/types.gen.ts'];
+const sources=[owner+'/.generated-files.json',owner+'/src/auth/lifecycle.ts',owner+'/src/auth/use-lifecycle.ts',owner+'/scripts/test-auth-lifecycle.mjs',owner+'/src/auth-entry.ts',owner+'/src/AuthEntry.tsx',owner+'/src/EntryScreen.tsx',owner+'/src/entry-screen.css',owner+'/src/styles.d.ts',owner+'/tests/auth-fixture/main.tsx',owner+'/tests/auth-fixture/index.html',owner+'/src/entry.ts',owner+'/package.json',owner+'/tsconfig.auth.json',owner+'/tests/auth-entry.test.mjs',owner+'/tests/auth-proof.mjs','apps/kdg-capture/contracts/generated/types.gen.ts'];
 const captured=Object.fromEntries(sources.map(path=>{const data=readFileSync(join(root,path)),destination=join(capsule,path);mkdirSync(resolve(destination,'..'),{recursive:true});writeFileSync(destination,data);return[path,hash(data)];}));
 let passed=false,browser,server;const sockets=new Set(),checks=[],requests=[],issues=[],failedResponses=[];let stopped=true;
 try{
@@ -26,7 +26,7 @@ try{
  const negativeConfig=join(capsule,'negative-types.json');writeFileSync(negativeConfig,JSON.stringify({extends:join(capsule,owner,'tsconfig.auth.json'),files:[invalid]}));
  const negative=spawnSync(process.execPath,[join(retained,'node_modules/typescript/bin/tsc'),'--project',negativeConfig,'--noEmit'],{encoding:'utf8',timeout:30000});
  writeFileSync(join(proof,'types-negative.log'),negative.stdout+negative.stderr);assert.ok(negative.status!==0&&negative.stdout.includes('TS2322'),'own_source_negative_control_failed');checks.push('strict_own_source_negative_control');
- const args=['--test'];if(process.argv.includes('--acceptance-only'))args.push('--test-name-pattern','current SDK session admits');args.push(join(capsule,owner,'tests/auth-entry.test.mjs'));
+ const args=['--test'];if(process.argv.includes('--acceptance-only'))args.push('--test-name-pattern','current SDK session admits');args.push(join(capsule,owner,'tests/auth-entry.test.mjs'),join(capsule,owner,'scripts/test-auth-lifecycle.mjs'));
  const unit=spawnSync(process.execPath,args,{encoding:'utf8',timeout:30000});writeFileSync(join(proof,'unit.log'),unit.stdout+unit.stderr);assert.equal(unit.status,0,'unit_failed');checks.push('sdk_session_tests');
  if(!process.argv.includes('--unit-only')&&!process.argv.includes('--acceptance-only')){
   const scaffold=join(root,'platform/deployment/.local/scaffold-application/proof-dI2Gy9/root');

@@ -1,3 +1,12 @@
+Current Auth maintenance, 2026-10-23: [the Auth parity record](AUTH_PATTERN_EVIDENCE.md)
+adds a neutral lifecycle/React hook and generated behavioral tests to the active application
+renderer. KDG uses managed copies checked against the current templates, including tests.
+Use selected Node with `scripts/sync-kdg-auth.mjs --check` from this directory; use --write
+through that script after template updates. Builder tests enforce parity. Reusable consumer
+fixes update scaffold code/tests alongside the consuming delivery, not after app completion.
+The separate legacy templates/web AuthContext is now explicitly retired; it is not a safe
+copy path. Older proof descriptions below are historical within their original scopes.
+
 # platform/builder-cli
 
 Capability-scope direction: [ADR-0053](../docs/architecture/decisions/0053-capability-scoped-access-in-mixed-scope-applications.md)

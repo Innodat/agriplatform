@@ -37,3 +37,44 @@ The same-origin `GET /api/health` → adjacent API `GET /health` proxy exists on
 the disposable browser proof harness. A generated runtime still needs equivalent
 owner reverse-proxy routing before runtime generation readiness; this scaffold does
 not install a runtime proxy or server feature.
+
+## Managed Auth lifecycle candidate
+
+`npm run test:auth` executes the generated neutral behavioral suite against
+src/auth/lifecycle.ts. src/auth/use-lifecycle.ts supplies the tested React effect
+setup/disposal pattern. Inject the owning Auth client's structural port and an
+application-owned boundary factory; no SDK dependency, provider config, credentials,
+permission, organization or implicit admission is generated. The default health shell
+remains public presentation and does not activate Auth. An application-owned adapter
+must verify current admission through its API and validate its own typed contracts.
+
+Treat these files and their behavioral tests together as generated. Reusable consumer
+fixes go back to the owning template in the same delivery, with consuming regressions;
+retain local owner adapters and customization. Current KDG parity is checked by the
+builder's scoped check/sync command; it does not claim all existing apps were upgraded.
+
+Memoize createBoundary and beginSignIn before calling useSessionLifecycle; keep the
+Auth client stable. A factory created inline on every render restarts the lifecycle
+on every hook state update. For example, in the owner component:
+
+```tsx
+const createBoundary = useCallback(publish => createOwnerBoundary(org, publish), [org]);
+const beginSignIn = useCallback(() => ownerAuthLaunch(), []);
+const entry = useSessionLifecycle({auth, createBoundary, beginSignIn, online});
+```
+
+The owner boundary returns its validated final outcome from check(session). The
+coordinator ignores callback publications and publishes only returned outcomes after
+checking its current execution, so late owner callbacks cannot restore earlier admission.
+The factory's callback argument supports existing owner boundary APIs, not authority
+publication. Owner cancellation is attempted; local closure and SDK detachment still
+complete if owner cleanup throws. SDK/network side effects cannot be undone by this.
+
+Older application candidate outputs have a smaller installed inventory. Passing their
+new renderer map to installScaffold refuses ownership_invalid; no in-place inventory
+migration is implemented or implied. Preserve that output, render/install a fresh
+candidate in another absent path, explicitly port reviewed owner seed/customizations
+through existing preservation/extension mechanisms, then rerun consuming acceptance.
+The public generation/adoption route remains gated. KDG's scoped three-file adoption
+uses a new web-root pattern manifest, not an overwrite of an earlier full-app manifest.
+Do not delete manifests or use force to bypass a prior output's ownership protection.
