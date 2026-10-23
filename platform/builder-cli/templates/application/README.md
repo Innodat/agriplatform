@@ -176,3 +176,16 @@ presentation and actual navigation application-owned. History pushState/replaceS
 not emit popstate automatically; an application router must explicitly notify its own
 route observation when it uses them. Do not treat URL scrubbing as erasing network or
 browser history outside the current entry. No generic public startup/router is activated.
+
+## Inert public startup configuration
+
+The generated `readEmbeddedPublicConfig` reads exactly one declared application/json
+script with no src, at most 8192 UTF-8 bytes, and returns unknown data or an opaque
+unavailable result. It performs no requests, storage access or environment lookup.
+Validate owner-specific fields and allowed hosts before starting clients. Keep pure
+validation outside SDK imports: the selected Auth SDK has an import-time storage probe.
+Load client modules only after configuration/route/connectivity preflight; already
+started module loading cannot be undone by subsequent cancellation. Do not embed
+credentials, service keys or tokens. The owner must serialize HTML-embedded JSON safely
+(e.g. escape less-than characters) and define document/cache restoration lifecycle.
+This helper does not activate a default config schema, Auth method or app startup.

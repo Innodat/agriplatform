@@ -1,9 +1,10 @@
-import {StrictMode,useLayoutEffect,useRef} from 'react';
+import {ClosedEntry} from './ClosedEntry';
+import {StrictMode} from 'react';
 import {flushSync} from 'react-dom';
 import type {Root} from 'react-dom/client';
 import {EmailCodeEntry} from './EmailCodeEntry';
 import {createKdgEmailAuth} from './email-auth';
-import {observeBrowserEntry,type BrowserEntryPort,type BrowserEntryState,type SessionStoragePort} from './auth/lifecycle';
+import {observeBrowserEntry,type BrowserEntryPort,type SessionStoragePort} from './auth/lifecycle';
 import './entry-screen.css';
 
 type LocalEntryBrowser=BrowserEntryPort&{readonly localStorage:SessionStoragePort};
@@ -11,16 +12,6 @@ export type LocalEntryOptions=Readonly<{
  org:string;url:string;publicKey:string;browser?:LocalEntryBrowser;storage?:SessionStoragePort;
  authRequest?:typeof fetch;request?:typeof fetch;
 }>;
-function ClosedEntry({state,failed}:{state:BrowserEntryState;failed:boolean}){
- const main=useRef<HTMLElement>(null);
- useLayoutEffect(()=>{main.current?.focus();},[state.route,failed]);
- const title=state.route!=='entry'?'Page unavailable':failed?'Could not open KDG Capture':'Connect to the internet';
- return <div className="kdg-entry" lang="en"><a className="kdg-entry-skip" href="#kdg-entry-content">Skip to content</a>
-  <main ref={main} id="kdg-entry-content" tabIndex={-1}><h1>KDG Capture</h1><p className="kdg-entry-organization">Khula Development Group</p>
-   <div role="status" aria-live="polite"><h2>{title}</h2><p>{state.route!=='entry'?'Open the start page to continue.':failed?'Please try opening the app again.':'Online sign-in is required.'}</p></div>
-   <a className="kdg-entry-start" href="/">Go to start</a>
-  </main></div>;
-}
 /** Explicit local/CI host, no automatic startup or environment/provider selection. */
 export function mountKdgLocalEntry(root:Root,options:LocalEntryOptions){
  const {org,url,publicKey,storage,authRequest,request}=options,browser=options.browser??window;

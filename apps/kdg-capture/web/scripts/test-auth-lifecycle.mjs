@@ -375,3 +375,22 @@ test('browser entry refuses the paired hashchange after a popstate already scrub
 test('browser entry scrubs a second unsafe fragment while already refused without reopening',()=>{
  const f=browserFixture(),states=[];f.onPublish(s=>states.push(s));const guard=observeBrowserEntry(f.options());guard.start();f.browser.location.hash='#access_token=PRIVATE';f.emit('hashchange');assert.equal(states.at(-1).route,'unsupported');f.browser.location.hash='#code=PRIVATE2';f.emit('hashchange');assert.deepEqual(f.scrubbed,['/','/']);assert.equal(f.browser.location.hash,'');assert.equal(states.at(-1).route,'unsupported');guard.dispose();
 });
+
+const {readEmbeddedPublicConfig}=await import('../src/auth/lifecycle.ts');
+function embeddedFixture(text='{"schema_version":1}'){
+ const node={tagName:'SCRIPT',textContent:text,getAttribute:name=>name==='type'?'application/json':null};return{node,document:{querySelectorAll:selector=>{assert.equal(selector,'#public-config');return[node];}}};
+}
+test('embedded public configuration reads exactly one bounded inert JSON script without storage or requests',()=>{
+ assert.equal(typeof readEmbeddedPublicConfig,'function','embedded reader missing');const f=embeddedFixture();assert.deepEqual(readEmbeddedPublicConfig(f.document,'public-config'),{kind:'value',value:{schema_version:1}});
+});
+for(const fault of ['missing','duplicate','element','type','src','json','size','read'])test('embedded configuration '+fault+' fails opaquely',()=>{
+ const f=embeddedFixture();if(fault==='missing')f.document.querySelectorAll=()=>[];if(fault==='duplicate')f.document.querySelectorAll=()=>[f.node,f.node];if(fault==='element')f.node.tagName='DIV';
+ if(fault==='type')f.node.getAttribute=()=>null;if(fault==='src')f.node.getAttribute=name=>name==='src'?'https://PRIVATE.invalid':name==='type'?'application/json':null;
+ if(fault==='json')f.node.textContent='PRIVATE';if(fault==='size')f.node.textContent=JSON.stringify('x'.repeat(8192));if(fault==='read')f.document.querySelectorAll=()=>{throw Error('PRIVATE');};
+ assert.deepEqual(readEmbeddedPublicConfig(f.document,'public-config'),{kind:'unavailable'});
+});
+test('embedded configuration enforces UTF-8 bytes and validates selector before DOM access',()=>{
+ const f=embeddedFixture(JSON.stringify('é'.repeat(4096)));assert.deepEqual(readEmbeddedPublicConfig(f.document,'public-config'),{kind:'unavailable'});
+ f.node.textContent=JSON.stringify('x'.repeat(8190));assert.equal(readEmbeddedPublicConfig(f.document,'public-config').kind,'value');
+ assert.deepEqual(readEmbeddedPublicConfig({querySelectorAll(){throw Error('must not read');}},'x,script'),{kind:'unavailable'});
+});

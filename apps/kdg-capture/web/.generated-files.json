@@ -4,16 +4,16 @@
     "generator": "builder-v1",
     "template": "auth-lifecycle-v1-candidate",
     "recipe": "f055d51b717312db6a1736d9ce94c57297de81d5f7160cca96dbce00d7461a33",
-    "source": "cb1c0f6f4f1e6619e9a3336c1da8e671ae4d692574d9b6f4ebf7dd3cb9175c21"
+    "source": "3969bc156c11607a23a2117c8f44dc90dc0e14ecb61cf063daebc5b6fcae5471"
   },
   "files": {
     "scripts/test-auth-lifecycle.mjs": {
       "classification": "generated",
-      "sha256": "086491943b8278943e98a6582eef84357f478ac3a0144e78f4daa77fc5e82dc4"
+      "sha256": "d1be80746c1e5ce75bdb379bab805339ec2a558e1137c3033d276de79019d1c2"
     },
     "src/auth/lifecycle.ts": {
       "classification": "generated",
-      "sha256": "f6e515bf379922722d60f8437bfdd0d89478a4a86568279713130879d61edc81"
+      "sha256": "943271f5c0ed164140f8c996c8e07fcbccd3ca7732b7cad558a1fc9102e895dc"
     },
     "src/auth/use-lifecycle.ts": {
       "classification": "generated",

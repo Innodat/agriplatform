@@ -1,3 +1,35 @@
+## Current delivery — actual local frontend startup, 2026-10-23
+
+KDG's actual index/main now reads explicit inert local/CI public configuration and
+mounts the selected existing-account email-code entry. Checked-in null config stays
+closed with zero Auth/API/storage work. Loopback page/Auth origins, exact versioned
+fields and fixed org are required; no URL, browser-store or environment fallback.
+Read [startup evidence](LOCAL_FRONTEND_STARTUP_EVIDENCE.md) and its durable receipt.
+
+Scaffold owns the bounded inert JSON reader and emitted tests; KDG owns schema,
+method, host/org policy, lifecycle and branding. Managed copies remain synchronized.
+Pure validation and route/connectivity preflight precede SDK import. Pending import
+cannot mount after disposal or route/offline refusal; late import side effects cannot
+be undone. Pagehide clears the root; persisted pageshow rechecks current access.
+
+Final proof: 108 emitted + 48 owner + 14 config tests (170), 71 compiler/SDK/React/browser
+checks, builder 68, strict TS 7.0.2 and managed parity pass. Fresh offline generation
+remains bootstrap-only, generation_ready=false. Review findings and follow-up timing
+gap resolved. Real Back reload and simulated persisted restoration prove current denial;
+actual BFCache is unqualified because retained headless shell disables it explicitly.
+
+Next use bmad-help/build against current owner contracts to select the remaining
+synthetic local/CI runtime prerequisite. This internal actual-build proof does not
+qualify a normal installed dev-server command, host API routing, actual Auth/SMTP
+rendering/delivery, server expiry/single-use/resend invalidation, device behavior or
+full Story1.1 readiness. Prefer concrete local runtime evidence over more mock claims;
+keep any real Auth/mail/account provisioning separately gated and outside this scope.
+No Microsoft Entra for KDG. Fingerprints/HMAC remain deferred; preserve concurrent
+changes/history/Docker/dependency baseline. No Leave/editor, production, real accounts/
+access, provisioning, deployment/pilot or cleanup.
+
+Earlier handoffs follow unchanged as historical checkpoints.
+
 ## Current delivery — explicit local entry-route mount, 2026-10-23
 
 KDG now has an explicitly invoked local/CI React-root mount connecting configured

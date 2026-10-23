@@ -16,7 +16,7 @@ const directory=join(root,'platform/deployment/.local/kdg-auth-entry-20261023');
 const proof=join(directory,'auth-'+randomUUID());mkdirSync(proof,{mode:0o700});const capsule=join(proof,'capsule');mkdirSync(capsule);
 writeFileSync(join(capsule,'package.json'),JSON.stringify({private:true,type:'module'}));symlinkSync(join(retained,'node_modules'),join(capsule,'node_modules'),'dir');
 const owner='apps/kdg-capture/web';
-const sources=[owner+'/.generated-files.json',owner+'/src/auth/lifecycle.ts',owner+'/src/auth/use-lifecycle.ts',owner+'/scripts/test-auth-lifecycle.mjs',owner+'/src/auth-entry.ts',owner+'/src/email-auth.ts',owner+'/src/EmailCodeEntry.tsx',owner+'/src/LocalEntryRoute.tsx',owner+'/tests/auth-fixture/email-code.tsx',owner+'/tests/auth-fixture/local-entry.tsx',owner+'/tests/auth-fixture/legacy-entry.tsx',owner+'/src/AuthEntry.tsx',owner+'/src/EntryScreen.tsx',owner+'/src/entry-screen.css',owner+'/src/styles.d.ts',owner+'/tests/auth-fixture/main.tsx',owner+'/tests/auth-fixture/index.html',owner+'/src/entry.ts',owner+'/package.json',owner+'/tsconfig.auth.json',owner+'/tests/auth-entry.test.mjs',owner+'/tests/auth-proof.mjs','apps/kdg-capture/contracts/generated/types.gen.ts'];
+const sources=[owner+'/index.html',owner+'/src/main.ts',owner+'/src/startup.tsx',owner+'/src/ClosedEntry.tsx',owner+'/src/auth-public-input.ts',owner+'/src/local-public-config.ts',owner+'/.generated-files.json',owner+'/src/auth/lifecycle.ts',owner+'/src/auth/use-lifecycle.ts',owner+'/scripts/test-auth-lifecycle.mjs',owner+'/src/auth-entry.ts',owner+'/src/email-auth.ts',owner+'/src/EmailCodeEntry.tsx',owner+'/src/LocalEntryRoute.tsx',owner+'/tests/auth-fixture/email-code.tsx',owner+'/tests/auth-fixture/local-entry.tsx',owner+'/tests/auth-fixture/legacy-entry.tsx',owner+'/src/AuthEntry.tsx',owner+'/src/EntryScreen.tsx',owner+'/src/entry-screen.css',owner+'/src/styles.d.ts',owner+'/tests/auth-fixture/main.tsx',owner+'/tests/auth-fixture/index.html',owner+'/src/entry.ts',owner+'/package.json',owner+'/tsconfig.auth.json',owner+'/tests/auth-entry.test.mjs',owner+'/tests/local-public-config.test.mjs',owner+'/tests/auth-proof.mjs','apps/kdg-capture/contracts/generated/types.gen.ts'];
 const captured=Object.fromEntries(sources.map(path=>{const data=readFileSync(join(root,path)),destination=join(capsule,path);mkdirSync(resolve(destination,'..'),{recursive:true});writeFileSync(destination,data);return[path,hash(data)];}));
 let passed=false,browser,server;const sockets=new Set(),checks=[],requests=[],issues=[],failedResponses=[];let stopped=true;
 try{
@@ -26,7 +26,7 @@ try{
  const negativeConfig=join(capsule,'negative-types.json');writeFileSync(negativeConfig,JSON.stringify({extends:join(capsule,owner,'tsconfig.auth.json'),files:[invalid]}));
  const negative=spawnSync(process.execPath,[join(retained,'node_modules/typescript/bin/tsc'),'--project',negativeConfig,'--noEmit'],{encoding:'utf8',timeout:30000});
  writeFileSync(join(proof,'types-negative.log'),negative.stdout+negative.stderr);assert.ok(negative.status!==0&&negative.stdout.includes('TS2322'),'own_source_negative_control_failed');checks.push('strict_own_source_negative_control');
- const args=['--test'];if(process.argv.includes('--acceptance-only'))args.push('--test-name-pattern','current SDK session admits');args.push(join(capsule,owner,'tests/auth-entry.test.mjs'),join(capsule,owner,'scripts/test-auth-lifecycle.mjs'));
+ const args=['--test'];if(process.argv.includes('--acceptance-only'))args.push('--test-name-pattern','current SDK session admits');args.push(join(capsule,owner,'tests/local-public-config.test.mjs'),join(capsule,owner,'tests/auth-entry.test.mjs'),join(capsule,owner,'scripts/test-auth-lifecycle.mjs'));
  const unit=spawnSync(process.execPath,args,{encoding:'utf8',timeout:30000});writeFileSync(join(proof,'unit.log'),unit.stdout+unit.stderr);assert.equal(unit.status,0,'unit_failed');checks.push('sdk_session_tests');
  if(!process.argv.includes('--unit-only')&&!process.argv.includes('--acceptance-only')){
   const scaffold=join(root,'platform/deployment/.local/scaffold-application/proof-dI2Gy9/root');
@@ -35,10 +35,39 @@ try{
   const config={configFile:false,tsconfig:join(capsule,owner,'tsconfig.auth.json'),root:join(capsule,owner,'tests/auth-fixture'),logLevel:'warn',build:{outDir:join(proof,'dist'),emptyOutDir:false}};
   writeFileSync(join(proof,'build.mjs'),`import {build} from ${JSON.stringify(pathToFileURL(join(modules,'vite/dist/node/index.js')).href)};import react from ${JSON.stringify(pathToFileURL(join(modules,'@vitejs/plugin-react/dist/index.js')).href)};await build({...${JSON.stringify(config)},plugins:[react()]});`);
   const built=spawnSync(process.execPath,[join(proof,'build.mjs')],{cwd:config.root,encoding:'utf8',timeout:30000});writeFileSync(join(proof,'build.log'),built.stdout+built.stderr);assert.equal(built.status,0,'vite_build_failed');checks.push('vite8_react19');
+  const startupConfig={...config,root:join(capsule,owner),build:{outDir:join(proof,'dist-startup'),emptyOutDir:false}};
+  writeFileSync(join(proof,'build-startup.mjs'),`import {build} from ${JSON.stringify(pathToFileURL(join(modules,'vite/dist/node/index.js')).href)};import react from ${JSON.stringify(pathToFileURL(join(modules,'@vitejs/plugin-react/dist/index.js')).href)};await build({...${JSON.stringify(startupConfig)},plugins:[react()]});`);
+  const startupBuilt=spawnSync(process.execPath,[join(proof,'build-startup.mjs')],{cwd:startupConfig.root,encoding:'utf8',timeout:30000});writeFileSync(join(proof,'build-startup.log'),startupBuilt.stdout+startupBuilt.stderr);assert.equal(startupBuilt.status,0,'actual_app_build_failed');checks.push('actual_app_index_main_build');
   const require=createRequire(join(scaffold,'package.json'));assert.equal(require('@playwright/test/package.json').version,'1.64.0');const {chromium}=require('@playwright/test');
-  const A='11111111-1111-4111-8111-111111111111',B='22222222-2222-4222-8222-222222222222',ORG='33333333-3333-4333-8333-333333333333';let mode='success',contextArrived=()=>{};const heldContexts=[];
+  const A='11111111-1111-4111-8111-111111111111',B='22222222-2222-4222-8222-222222222222',ORG='33333333-3333-4333-8333-333333333333';let mode='success',contextArrived=()=>{};const heldContexts=[];let servingStartup=false,startupScenario='default';const startupAuthPaths=[];
+  function startupHtml(raw){
+   if(startupScenario==='default')return raw;
+   const value={schema_version:1,environment_kind:'local_disposable',org_id:ORG,auth_url:origin,auth_public_key:'sb_publishable_synthetic_public_123456'};
+   if(startupScenario==='bad-org')value.org_id='PRIVATE';if(startupScenario==='remote-auth')value.auth_url='https://remote-auth.invalid';if(startupScenario==='private-key')value.auth_public_key='sb_secret_PRIVATE';if(startupScenario==='extra')value.service_key='PRIVATE';
+   let content=startupScenario==='malformed'?'PRIVATE':startupScenario==='oversized'?JSON.stringify('x'.repeat(8193)):JSON.stringify(value).replace(/</g,'\\u003c');
+   const expression=/(<script\b[^>]*\bid="kdg-local-config"[^>]*>)[\s\S]*?(<\/script>)/;
+   assert.ok(expression.test(raw),'actual_config_element_missing');let html=raw.replace(expression,(_all,start,end)=>start+content+end);
+   if(startupScenario==='missing')html=html.replace(expression,'');
+   if(startupScenario==='duplicate')html=html.replace(expression,match=>match+match);
+   if(startupScenario==='wrong-type')html=html.replace('type="application/json"','type="text/plain"');
+   if(startupScenario==='src')html=html.replace('id="kdg-local-config"','id="kdg-local-config" src="https://PRIVATE.invalid/config"');
+   if(startupScenario.startsWith('missing-root'))html=html.replace('id="root"','id="not-root"');
+   if(startupScenario.startsWith('duplicate-root'))html=html.replace('id="root"','id="root"').replace('</body>','<div id="root"></div></body>');
+   return html;
+  }
   server=createServer((request,response)=>{
    response.setHeader('Cache-Control','private, no-store');
+   if(servingStartup&&['/auth/v1/otp','/auth/v1/verify'].includes(request.url)){
+    assert.equal(request.method,'POST');startupAuthPaths.push(request.url);let raw='';
+    request.on('data',chunk=>{raw+=chunk;assert.ok(raw.length<=2048,'synthetic_auth_body_limit');});request.on('end',()=>{
+     const body=JSON.parse(raw);assert.equal(request.headers.apikey,'sb_publishable_synthetic_public_123456');response.setHeader('Content-Type','application/json');
+     if(request.url==='/auth/v1/otp'){assert.equal(body.create_user,false);response.end('{}');return;}
+     assert.equal(body.type,'email');assert.equal(body.email,'facilitator@example.invalid');assert.equal(body.token,'123456');
+     const token=Buffer.from(JSON.stringify({alg:'HS256',typ:'JWT'})).toString('base64url')+'.'+Buffer.from(JSON.stringify({sub:A,exp:Math.floor(Date.now()/1000)+3600,aud:'authenticated'})).toString('base64url')+'.c3ludGhldGlj';
+     response.end(JSON.stringify({access_token:token,refresh_token:'synthetic-refresh',expires_in:3600,token_type:'bearer',user:{id:A,aud:'authenticated',app_metadata:{},user_metadata:{},created_at:'2026-10-23T10:00:00Z'}}));
+    });return;
+   }
+   if(servingStartup&&request.url==='/__parked'){response.setHeader('Content-Type','text/html');response.end('<!doctype html><html><body><h1>Paused</h1></body></html>');return;}
    if(request.url==='/api/v1/context'){
     assert.equal(request.method,'GET');assert.equal(request.headers['x-service-key'],undefined);
     const payload=JSON.parse(Buffer.from(request.headers.authorization.split('.')[1],'base64url').toString());const account=payload.sub,selected=mode;
@@ -50,13 +79,14 @@ try{
     if(selected==='hold'){heldContexts.push(send);contextArrived();}else if(selected==='delay')setTimeout(send,200);else send();return;
    }
    if(request.url==='/favicon.ico'){response.writeHead(204).end();return;}
-   const path=resolve(proof,'dist','.'+new URL(request.url,'http://local').pathname),file=path===join(proof,'dist')?join(path,'index.html'):path;
-   if((!file.startsWith(join(proof,'dist')+sep))||!existsSync(file)||!statSync(file).isFile()){response.writeHead(404).end();return;}
-   response.setHeader('Content-Type',({'.html':'text/html','.js':'text/javascript','.css':'text/css'})[extname(file)]??'application/octet-stream');response.end(readFileSync(file));
+   const staticRoot=join(proof,servingStartup?'dist-startup':'dist');const path=resolve(staticRoot,'.'+new URL(request.url,'http://local').pathname);let file=path===staticRoot?join(path,'index.html'):path;
+   if(servingStartup&&path.startsWith(staticRoot+sep)&&!existsSync(file)&&!extname(file)&&request.headers.accept?.includes('text/html'))file=join(staticRoot,'index.html');
+   if((!file.startsWith(staticRoot+sep))||!existsSync(file)||!statSync(file).isFile()){response.writeHead(404).end();return;}
+   response.setHeader('Content-Type',({'.html':'text/html','.js':'text/javascript','.css':'text/css'})[extname(file)]??'application/octet-stream');if(servingStartup&&extname(file)==='.html')response.setHeader('Cache-Control','private, max-age=0, must-revalidate');response.end(servingStartup&&extname(file)==='.html'?startupHtml(readFileSync(file,'utf8')):readFileSync(file));
   });
   server.on('connection',socket=>{sockets.add(socket);socket.once('close',()=>sockets.delete(socket));});server.listen(0,'127.0.0.1');await once(server,'listening');stopped=false;
   const executable=join(root,'platform/deployment/.local/web-baseline-qualification/browsers/chromium_headless_shell-1248/chrome-headless-shell-linux64/chrome-headless-shell');
-  browser=await chromium.launch({executablePath:executable,headless:true});const page=await browser.newPage({viewport:{width:390,height:844}}),origin='http://127.0.0.1:'+server.address().port;
+  browser=await chromium.launch({executablePath:executable,headless:true,ignoreDefaultArgs:['--disable-back-forward-cache']});const page=await browser.newPage({viewport:{width:390,height:844}}),origin='http://127.0.0.1:'+server.address().port;
   await page.route('**/*',route=>new URL(route.request().url()).origin===origin?route.continue():route.abort());
   page.on('pageerror',()=>issues.push({event:'page_error'}));page.on('console',message=>{if(message.type()==='error'){let path='<unknown>';try{path=new URL(message.location().url).pathname;}catch{}issues.push({event:'console_error',path});}});
   page.on('response',response=>{if(!response.ok())failedResponses.push({path:new URL(response.url()).pathname,status:response.status()});});
@@ -224,6 +254,71 @@ try{
   await page.goto(origin+'/?email-code=1');await page.waitForFunction(()=>!!window.emailFixture);assert.equal(await page.evaluate(()=>typeof window.localEntryFixture),'undefined');checks.push('explicit_email_selector_overrides_local_reload_fallback');await page.getByRole('heading',{name:'Setup not completed',exact:true}).waitFor();
   assert.deepEqual(failedResponses,[{path:'/api/v1/context',status:403},{path:'/api/v1/context',status:403},{path:'/api/v1/context',status:403},{path:'/api/v1/context',status:401},{path:'/api/v1/context',status:403},{path:'/api/v1/context',status:403},{path:'/api/v1/context',status:403}]);assert.ok(issues.length===7&&issues.every(e=>e.event==='console_error'&&e.path==='/api/v1/context'),'unexpected_local_entry_browser_error');checks.push('complete_local_route_browser_errors_checked');
 
+
+  servingStartup=true;
+  const pendingChunks=new Map();let rejectedChunks=0;
+  async function actualPage(scenario,routeTraffic=true){
+   startupScenario=scenario;const actual=await browser.newPage({viewport:{width:390,height:844}});
+   await actual.addInitScript(({scenario})=>{
+    const probe={reads:0,writes:0,removes:0,ownerCalls:0,restores:[],admittedAfterRestore:0};Object.assign(window,{startupProbe:probe});
+    for(const method of ['getItem','setItem','removeItem']){const original=Storage.prototype[method];Storage.prototype[method]=function(...args){probe[method==='getItem'?'reads':method==='setItem'?'writes':'removes']++;if(String(args[0]).startsWith('kdg-capture-auth'))probe.ownerCalls++;if(scenario==='storage')throw Error('PRIVATE');return original.apply(this,args);};}
+    let restored=false;addEventListener('pageshow',event=>{if(event.persisted){restored=true;probe.restores.push({persisted:event.persisted,trusted:event.isTrusted,admitted:!!document.querySelector('h2')?.textContent?.includes('Setup not completed')});}});new MutationObserver(()=>{if(restored&&document.querySelector('h2')?.textContent?.includes('Setup not completed'))probe.admittedAfterRestore++;}).observe(document,{childList:true,subtree:true});
+    if(scenario==='offline')Object.defineProperty(navigator,'onLine',{configurable:true,get:()=>false});
+   },{scenario});
+   let intercepted=false;
+   if(routeTraffic)await actual.route('**/*',async route=>{
+    const url=new URL(route.request().url());
+    if(url.origin===origin){
+     if(url.pathname.includes('/assets/LocalEntryRoute-')&&!intercepted&&(scenario.startsWith('hold-')||scenario==='reject-import')){intercepted=true;if(scenario==='reject-import'){rejectedChunks++;return route.fulfill({status:503,contentType:'text/javascript',body:'Unavailable'});}return new Promise(resolve=>pendingChunks.set(scenario,{url:url.href,release:()=>{void route.continue().then(resolve);}}));}
+     return route.continue();
+    }
+    if(scenario==='remote-host'&&url.origin==='http://remote.invalid'){
+     if(url.pathname==='/favicon.ico')return route.fulfill({status:204});
+     const base=join(proof,'dist-startup'),file=url.pathname==='/'?join(base,'index.html'):resolve(base,'.'+url.pathname);assert.ok(file.startsWith(base+sep)&&existsSync(file));
+     return route.fulfill({status:200,contentType:extname(file)==='.html'?'text/html':extname(file)==='.js'?'text/javascript':'text/css',body:extname(file)==='.html'?startupHtml(readFileSync(file,'utf8')):readFileSync(file)});
+    }
+    throw Error('startup_external_network_refused');
+   });
+   if(!routeTraffic)actual.on('request',request=>assert.equal(new URL(request.url()).origin,origin,'startup_external_request_refused'));
+   actual.on('pageerror',()=>issues.push({event:'page_error'}));actual.on('console',message=>{if(message.type()==='error'){let path='<unknown>';try{path=new URL(message.location().url).pathname;}catch{}issues.push({event:'console_error',path});}});actual.on('response',response=>{if(!response.ok())failedResponses.push({path:new URL(response.url()).pathname,status:response.status()});});
+   return actual;
+  }
+  for(const scenario of ['default','missing','malformed','oversized','duplicate','wrong-type','src','extra','bad-org','remote-auth','private-key','remote-host','storage','callback','query','fragment','missing-root','duplicate-root','missing-root-callback','duplicate-root-callback','offline']){
+   const actual=await actualPage(scenario),beforeAuth=startupAuthPaths.length,beforeApi=requests.length;
+   const route=scenario.endsWith('callback')?'/auth/callback?code=PRIVATE#access_token=PRIVATE':scenario==='query'?'/?org_id=PRIVATE':scenario==='fragment'?'/#access_token=PRIVATE':'/';
+   await actual.goto((scenario==='remote-host'?'http://remote.invalid':origin)+route);
+   if(!scenario.startsWith('missing-root')&&!scenario.startsWith('duplicate-root'))await actual.getByRole('heading',{name:['callback','query','fragment'].includes(scenario)?'Page unavailable':scenario==='offline'?'Connect to the internet':'Could not open KDG Capture',exact:true}).waitFor();
+   const snapshot=await actual.evaluate(()=>window.startupProbe);if(scenario!=='storage')assert.deepEqual(snapshot,{reads:0,writes:0,removes:0,ownerCalls:0,restores:[],admittedAfterRestore:0});assert.equal(startupAuthPaths.length,beforeAuth);assert.equal(requests.length,beforeApi);
+   if(scenario.endsWith('callback')||['query','fragment'].includes(scenario)){assert.equal(new URL(actual.url()).pathname,'/');assert.equal(new URL(actual.url()).search,'');assert.equal(new URL(actual.url()).hash,'');}
+   assert.ok(!(await actual.locator('body').innerText()).includes('PRIVATE'));
+   if(scenario==='offline'){await actual.evaluate(()=>{delete navigator.onLine;dispatchEvent(new Event('online'));});await actual.getByRole('button',{name:'Sign in',exact:true}).waitFor();assert.ok((await actual.evaluate(()=>window.startupProbe)).reads>0);}
+   await actual.close();
+  }checks.push('actual_startup_invalid_config_origin_route_zero_io','actual_startup_cold_offline_reconnect','actual_startup_unconfigured_closed');
+  const actual=await actualPage('valid',false);await actual.goto(origin);await actual.getByRole('button',{name:'Sign in',exact:true}).click();await actual.getByLabel('Email address',{exact:true}).fill('facilitator@example.invalid');await actual.getByLabel('Email address',{exact:true}).press('Enter');await actual.getByLabel('One-time code',{exact:true}).waitFor();await actual.getByLabel('One-time code',{exact:true}).fill('123456');await actual.getByLabel('One-time code',{exact:true}).press('Enter');await actual.getByRole('heading',{name:'Setup not completed',exact:true}).waitFor();assert.deepEqual(startupAuthPaths,['/auth/v1/otp','/auth/v1/verify']);checks.push('actual_index_main_config_sdk_http_sign_in');
+  const beforeActualReload=requests.length;await actual.reload();await actual.getByRole('heading',{name:'Setup not completed',exact:true}).waitFor();assert.ok(requests.length>beforeActualReload);checks.push('actual_startup_reload_fresh_context');
+  mode='denied';await actual.reload();await actual.getByRole('heading',{name:'Access denied',exact:true}).waitFor();mode='success';await actual.getByRole('button',{name:'Check access again',exact:true}).click();await actual.getByRole('heading',{name:'Setup not completed',exact:true}).waitFor();checks.push('actual_startup_current_denial');
+  const cdp=await actual.context().newCDPSession(actual);await cdp.send('Page.enable');cdp.on('Page.backForwardCacheNotUsed',event=>writeFileSync(join(proof,'bfcache-diagnostic.json'),JSON.stringify(event,null,2)));await actual.goto(origin+'/__parked');await actual.getByRole('heading',{name:'Paused',exact:true}).waitFor();mode='denied';const beforeRestore=requests.length;await actual.goBack();await actual.getByRole('heading',{name:'Access denied',exact:true}).waitFor();assert.ok(requests.length>beforeRestore);const restored=await actual.evaluate(()=>window.startupProbe);writeFileSync(join(proof,'restore-diagnostic.json'),JSON.stringify(await actual.evaluate(()=>performance.getEntriesByType('navigation').map(x=>x.toJSON())),null,2));assert.deepEqual(restored.restores,[]);const cacheDiagnostic=JSON.parse(readFileSync(join(proof,'bfcache-diagnostic.json')));assert.ok(cacheDiagnostic.notRestoredExplanations.some(item=>item.reason==='BackForwardCacheDisabledForDelegate'));checks.push('actual_back_reload_current_denial_cache_unavailable');
+  mode='success';await actual.getByRole('button',{name:'Check access again',exact:true}).click();await actual.getByRole('heading',{name:'Setup not completed',exact:true}).waitFor();mode='denied';const beforePersisted=requests.length;
+  await actual.evaluate(()=>{dispatchEvent(new PageTransitionEvent('pagehide',{persisted:true}));if(document.querySelector('#root').textContent!=='')throw Error('old_admission_retained');dispatchEvent(new PageTransitionEvent('pageshow',{persisted:true}));});await actual.getByRole('heading',{name:'Access denied',exact:true}).waitFor();assert.ok(requests.length>beforePersisted);const simulated=await actual.evaluate(()=>window.startupProbe);assert.deepEqual(simulated.restores,[{persisted:true,trusted:false,admitted:false}]);assert.equal(simulated.admittedAfterRestore,0);mode='success';checks.push('simulated_persisted_restore_current_denial_no_old_admission');
+  await actual.screenshot({path:join(proof,'actual-startup.png'),fullPage:true});writeFileSync(join(proof,'actual-startup-browser.json'),JSON.stringify({auth_paths:startupAuthPaths,storage:await actual.evaluate(()=>window.startupProbe)},null,2)+'\n');await actual.close();
+  async function waitChunk(scenario){for(let i=0;i<300&&!pendingChunks.has(scenario);i++)await new Promise(resolve=>setTimeout(resolve,10));assert.ok(pendingChunks.has(scenario),'lazy_chunk_not_held');}
+  for(const scenario of ['hold-dispose','hold-offline','hold-route','reject-import']){
+   const loading=await actualPage(scenario),beforeAuth=startupAuthPaths.length,beforeApi=requests.length;await loading.goto(origin,{waitUntil:'domcontentloaded'});
+   if(scenario==='reject-import'){
+    await loading.getByRole('heading',{name:'Could not open KDG Capture',exact:true}).waitFor();assert.equal((await loading.evaluate(()=>window.startupProbe)).ownerCalls,0);await loading.evaluate(()=>dispatchEvent(new PageTransitionEvent('pagehide')));assert.equal(await loading.locator('#root').textContent(),'');
+   }else{
+    await waitChunk(scenario);
+    if(scenario==='hold-dispose')await loading.evaluate(()=>dispatchEvent(new PageTransitionEvent('pagehide')));
+    if(scenario==='hold-offline')await loading.evaluate(()=>{Object.defineProperty(navigator,'onLine',{configurable:true,get:()=>false});dispatchEvent(new Event('offline'));});
+    if(scenario==='hold-route')await loading.evaluate(()=>{history.pushState(null,'','/auth/callback?code=PRIVATE#access_token=PRIVATE');dispatchEvent(new PopStateEvent('popstate'));});
+    const chunk=pendingChunks.get(scenario);chunk.release();await loading.evaluate(async url=>{await import(url);await new Promise(resolve=>setTimeout(resolve,0));},chunk.url);assert.equal((await loading.evaluate(()=>window.startupProbe)).ownerCalls,0);
+    if(scenario==='hold-dispose')assert.equal(await loading.locator('#root').textContent(),'');
+    if(scenario==='hold-offline'){await loading.getByRole('heading',{name:'Connect to the internet',exact:true}).waitFor();await loading.evaluate(()=>{delete navigator.onLine;dispatchEvent(new Event('online'));});await loading.getByRole('button',{name:'Sign in',exact:true}).waitFor();}
+    if(scenario==='hold-route'){await loading.getByRole('heading',{name:'Page unavailable',exact:true}).waitFor();assert.equal(new URL(loading.url()).search,'');assert.equal(new URL(loading.url()).hash,'');await loading.getByRole('link',{name:'Go to start',exact:true}).click();await loading.getByRole('button',{name:'Sign in',exact:true}).waitFor();}
+   }
+   assert.equal(startupAuthPaths.length,beforeAuth);assert.equal(requests.length,beforeApi);await loading.close();
+  }checks.push('actual_pending_import_disposal_no_owner','actual_pending_import_offline_and_route_recovery','actual_import_rejection_safe_disposal');
+  assert.ok(issues.filter(e=>e.path==='/api/v1/context').length===10&&issues.filter(e=>e.path!=='/api/v1/context').length===rejectedChunks&&issues.every(e=>e.event==='console_error'&&(e.path==='/api/v1/context'||e.path.startsWith('/assets/LocalEntryRoute-'))),'unexpected_complete_actual_startup_error');assert.equal(failedResponses.length,10+rejectedChunks);assert.ok(failedResponses.filter(e=>e.path!=='/api/v1/context').every(e=>e.status===503&&e.path.startsWith('/assets/LocalEntryRoute-')));checks.push('complete_actual_startup_errors_checked');
 
 await page.screenshot({path:join(proof,'auth-entry.png'),fullPage:true});
  }

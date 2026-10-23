@@ -170,8 +170,8 @@ See [owner evidence](../docs/EMAIL_CODE_ENTRY_EVIDENCE.md).
 supplies a React Root and fixed `org`, Auth `url`/`publicKey`; browser/storage and Auth/API
 transports may be injected for synthetic qualification. It imports the owner CSS, checks
 the org and root route before SDK/storage work, then creates one stable Auth client
-outside React rendering. There is no automatic environment lookup, main/index startup,
-public deployment target or default account. Disposal detaches browser/React subscriptions
+outside React rendering. At that checkpoint there was no automatic environment lookup or main/index startup.
+There is no public deployment target or default account. Disposal detaches browser/React subscriptions
 and requests SDK refresh shutdown; it does not erase SDK sessions or revoke accounts.
 
 Only `/` and the existing `#kdg-entry-content` skip-link anchor are supported. Unexpected
@@ -187,6 +187,47 @@ unmounts it synchronously. SDK refresh is requested to stop while offline/refuse
 started work can still finish and is never described as revoked. Application routers
 using pushState/replaceState must emit their own route notification; these methods do
 not raise popstate. The candidate listens to real popstate/hashchange/online/offline.
-The only consuming mount remains `tests/auth-fixture/local-entry.tsx`, using synthetic
+At that historical route-only checkpoint, the only consuming mount was `tests/auth-fixture/local-entry.tsx`, using synthetic
 SDK transport and loopback API; the fixture's sessionStorage selector is harness-only,
-not app configuration or unfinished form persistence. No app main/index is activated.
+not app configuration or unfinished form persistence. That checkpoint had no app main/index;
+the following actual-startup section supersedes that limitation.
+
+## Actual local frontend startup
+
+The real `index.html` loads `src/main.ts`, which starts from one inert script named
+`kdg-local-config`. Checked-in content is null: no configured target, account, grant or
+Auth request. Missing/bad config uses the existing closed entry surface and route scrub.
+Only local/CI loopback page and Auth origins are accepted. No URL/sessionStorage/Vite-env
+fallback or configurable API target exists. KDG business API stays same-origin at
+`/api/v1/context`; host-owned reverse-proxy/API routing is still needed outside the proof.
+
+The exact public fields are schema_version (1), environment_kind (local_disposable or
+ci_disposable), org_id (configured canonical nonnil UUID), auth_url (loopback HTTP/S
+origin only), auth_public_key (publishable or legacy anon). Unknown fields are refused.
+Never place service/private keys or tokens in HTML; validation cannot undo exposing data
+already shipped there. Embed data as application/json, no src, exactly once, <=8192 UTF-8
+bytes; serializers must escape less-than characters to prevent script termination.
+No deployment/provisioning/configuration command or real fixture is introduced.
+
+Pure public config validation has no SDK import. Startup preflights the route and online
+state before loading the Auth mount: the selected SDK probes local storage at import
+time. Cancellation can suppress later mounting, but cannot undo an already initiated
+module import or SDK side effect. Pagehide disposes the active root; cached pageshow
+restarts from current configuration/session/access, never cached admission. A missing or
+duplicate root fails closed without creating a client. Existing unfinished form input
+is memory-only; no survival promise is added for page lifecycle restoration.
+
+Run the selected Node26.11.1 command `node apps/kdg-capture/web/tests/auth-proof.mjs`
+from repository root using the retained tool paths above. It now builds both the prior
+fixture journey and the actual copied app index/main, then serves synthetic config
+variants and loopback Auth/API HTTP with network/DOM/storage instrumentation. No npm
+workspace/lock/dependency changes were made to add KDG to root; root npm dev/build
+remain unsuitable. A public deployment or normal installed dev-server command is not
+qualified by this internal build/startup proof.
+
+The retained Chromium headless shell explicitly disables back/forward caching (CDP
+BackForwardCacheDisabledForDelegate). The proof covers real Back with a reload and
+fresh denial, plus a separately simulated persisted-page lifecycle with fresh denial
+and no old admission rendered. It does not claim an actual BFCache restoration.
+Held/rejected lazy imports prove disposal, offline/route refusal and explicit recovery
+without constructing the Auth owner after cancellation.

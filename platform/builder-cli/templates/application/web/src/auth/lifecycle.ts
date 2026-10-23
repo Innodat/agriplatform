@@ -424,3 +424,18 @@ export function observeBrowserEntry(options:Readonly<{browser:BrowserEntryPort;p
   dispose(){if(disposed)return;disposed=true;detach();},
  };
 }
+
+export type EmbeddedPublicConfigDocument={querySelectorAll(selector:string):ArrayLike<{readonly tagName:string;readonly textContent:string|null;getAttribute(name:string):string|null}>};
+/** Read inert public data only. Owner policy must validate the returned unknown value. */
+export function readEmbeddedPublicConfig(document:EmbeddedPublicConfigDocument,id:string):Readonly<{kind:'value';value:unknown}>|Readonly<{kind:'unavailable'}>{
+ try{
+  if(!/^[a-z][a-z0-9-]{0,63}$/.test(id))return{kind:'unavailable'};
+  const nodes=document.querySelectorAll('#'+id);
+  if(nodes.length!==1)return{kind:'unavailable'};
+  const node=nodes[0];
+  if(node.tagName!=='SCRIPT'||node.getAttribute('type')!=='application/json'||node.getAttribute('src')!==null)return{kind:'unavailable'};
+  const text=node.textContent;
+  if(typeof text!=='string'||text.length>8192||new TextEncoder().encode(text).byteLength>8192)return{kind:'unavailable'};
+  return Object.freeze({kind:'value',value:JSON.parse(text)});
+ }catch{return{kind:'unavailable'};}
+}
