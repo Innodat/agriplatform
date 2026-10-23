@@ -1,0 +1,102 @@
+{
+  "schema_version": 1,
+  "scope": "inert KDG-owned capture outcome storage candidate; synthetic adapter qualification only",
+  "base_commit": "fbd80f3793f7de589769768b0c581a506506f9af",
+  "fingerprints_hmac": "deferred",
+  "database_io": false,
+  "docker_lifecycle": false,
+  "api_runtime_changed": false,
+  "migration_applied": false,
+  "results": {
+    "candidate_tests": 16,
+    "managed_helper_tests": 26,
+    "owner_context_tests": 4,
+    "parity": "PASS",
+    "typescript_version": "7.0.2 preserved"
+  },
+  "interpreters": {
+    "P": "platform/deployment/.local/access-organization-check-20261022/owner-env/bin/python",
+    "N": "platform/deployment/.local/kdg-toolchains/ad277eef-a10e-4aac-bb82-5743653fb2e0/payload/node/bin/node"
+  },
+  "commands": [
+    [
+      "P",
+      "-I",
+      "-B",
+      "apps/kdg-capture/write-tests/test_operation_outcomes.py"
+    ],
+    [
+      "P",
+      "-I",
+      "-B",
+      "apps/kdg-capture/write-tools/test_transaction_context.py"
+    ],
+    [
+      "P",
+      "-I",
+      "-B",
+      "apps/kdg-capture/write-tests/test_owner_context.py"
+    ],
+    [
+      "N",
+      "platform/builder-cli/scripts/sync-kdg-write.mjs",
+      "--check"
+    ]
+  ],
+  "review": {
+    "completed": true,
+    "findings": 6,
+    "patched": 5,
+    "false": 1,
+    "deferred": 0
+  },
+  "limits": [
+    "no table, capture/history persistence, RLS, concurrent uniqueness or actual rollback/durability proof",
+    "no public recovery/API or current-resource authorization implementation",
+    "reuse the exact installed verified context; caller owns lock/recheck and atomic domain/evidence/outcome transaction",
+    "native/release safety remains consuming gate"
+  ],
+  "preservation": {
+    "preexisting_paths": 141,
+    "preexisting_missing": [],
+    "preexisting_changed_since_snapshot": [
+      "_bmad-output/planning-artifacts/epics.md",
+      "apps/leave/docs/implementation-plan.md",
+      "apps/leave/docs/planning-handoff-e3.md",
+      "apps/scribeswell/backend/personal_notes_contract.py",
+      "apps/scribeswell/deployment/migrate.py",
+      "apps/scribeswell/web/src/pages/ReaderPage.tsx",
+      "apps/leave/docs/architecture/contracts/e5-capabilities-and-commands.md",
+      "apps/leave/docs/architecture/contracts/e5-request-command-and-finalization.md",
+      "apps/scribeswell/backend/personal_notes_router.py",
+      "apps/scribeswell/tests/test_personal_notes_storage.py",
+      "apps/scribeswell/web/src/components/studies/NoteEditor.tsx",
+      "apps/scribeswell/web/src/context/StudiesContext.tsx",
+      "apps/scribeswell/web/src/lib/personal-notes.ts",
+      "apps/scribeswell/web/tests/personal-notes.spec.cjs"
+    ],
+    "historical_handoff_exact_suffix": true,
+    "typescript_version": "7.0.2",
+    "api_changes": [],
+    "generated_helper_changes": [],
+    "historical_api_managed_dependency_files_unchanged": 45
+  },
+  "sources": {
+    "_bmad-output/implementation-artifacts/spec-kdg-outcome-storage-candidate.md": "ea7721c63a71eed265ce4b9cc10b14d352b9ddccec86ac8becd61a32ccdeca62",
+    "apps/kdg-capture/write-candidate/operation_outcomes.py": "e625d9048d89a6dcd8e17636c418218eaa3c53d329283701c35890c04e5984cb",
+    "apps/kdg-capture/write-tests/test_operation_outcomes.py": "9ddc7de51b122e97b9ccb4d72ac9eaee37f60008813833b374ba125b3e349809",
+    "apps/kdg-capture/docs/OUTCOME_STORAGE_CANDIDATE_EVIDENCE.md": "cbb981a5f5e3fdc05a47c49e2b0780d0fa071f3736de8d8116f4c588e7bb34f8",
+    "apps/kdg-capture/docs/next-session.md": "69b64a7c24d0ad8c138d75d4bdc33a83df3862eff9d70666c77a6f5853712105",
+    "apps/kdg-capture/docs/contracts.md": "bd335dc1c15b2617fe021dbfe8e726f505ac207ec3196aaaf73597316eeda5db",
+    "apps/kdg-capture/migrations/README.md": "a76da000a674a28f67258849325de1b75f32412ae28ee042cbdf344782c72ba4"
+  },
+  "logs": {
+    "/tmp/kdg-outcome-candidate-atdd-red.log": "08264822eb84b331bfc98626ed7bfa4b34b0fa0b0aa0cbb82f9580b6d31525a1",
+    "/tmp/kdg-outcome-candidate-atdd-green.log": "455a234a903f02c7d36882c9b036acc1ee7cca1176404082cfe9897ae40211f7",
+    "/tmp/kdg-outcome-deadline-red.log": "c759a84e9455c10ae93da2a885dcae1a36165e6168d18719a3947203902db929",
+    "/tmp/kdg-outcome-storage-tests.log": "5dd355dae720158ea36e35d91d4045a1400399fae1af95eb3b89b3f3ac4d0d1b",
+    "/tmp/kdg-outcome-helper-tests.log": "0ea97ad155c1422d969a7e16c6e4c3ee98e2f2209c55bc0d8c4b0053a1708b51",
+    "/tmp/kdg-outcome-review-red.log": "f992e2d7b337eadb56d59de9e18a58cee7bc2bca5a5f7be1c5f5896b92f3bab7",
+    "/tmp/kdg-outcome-review-green.log": "d76c87d843ef6f4ae3c269be2211c484ab62bfa603d8a794e659dda647c4aad4"
+  }
+}

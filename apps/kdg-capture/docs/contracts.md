@@ -749,3 +749,14 @@ failure is the fixed identifier kdg_capture.invalid_questionnaire_definition; ra
 validation context is never returned by that boundary. Field-path presentation belongs
 to the consuming API. initial_definition requires four supplied IDs and creates only
 inert exact initial content, no version/organization/actor identity or stored publication.
+
+## Implemented private outcome storage candidate — 2026-10-23
+
+The [KDG-owned adapter](../write-candidate/operation_outcomes.py) validates closed v1
+capture.create/edit receipts and stored rows, performs exact org/executor-account/
+handler-command/operation lookup and plain server-attributed INSERT in a caller-owned
+write transaction. Read [synthetic evidence](OUTCOME_STORAGE_CANDIDATE_EVIDENCE.md).
+No mounted API, migration or persisted capture/history/outcome implementation follows.
+Current stored-resource authority, atomic linked writes and native/release qualification
+remain consuming gates. GET recovery and POST retry retain their different authority
+requirements above. Private None is not public unresolved or rollback proof.

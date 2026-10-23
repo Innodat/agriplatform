@@ -1,3 +1,29 @@
+## Current delivery — inert outcome storage candidate, 2026-10-23
+
+KDG now has an app-owned private outcome lookup/append adapter and closed v1 capture
+receipts, qualified synthetically. Read [outcome storage evidence](OUTCOME_STORAGE_CANDIDATE_EVIDENCE.md).
+No connection, migration, HTTP recovery route or persisted-outcome claim follows.
+Lookup binds org/executor account/handler command/operation and preserves the original
+capture/revision. Invalid or unsupported rows fail closed; only a successful absent
+read returns None. Append is a plain INSERT inside the caller's write transaction,
+with server time/verified attribution and no commit or success acknowledgement.
+
+The existing scaffold-managed helper/tests remain unchanged and parity passes. Capture
+SQL/DTOs/policy stay app-owned. A delayed row fetch now fails the original deadline.
+Current stored-resource authorization must precede disclosure; GET own-read recovery
+and POST create retry retain their different current-authority requirements.
+
+Next deliver capture/revision/outcome DDL and concrete authorized owner writes together,
+then qualify native RLS, immutable history/linkage, concurrency/atomicity and release
+recovery before activation. The current schema contains only the migration ledger.
+Do not apply a partial outcome-only schema or treat synthetic adapter tests as native
+proof. Preserve Story1.2 bootstrap's distinct fingerprint/replay gate and historical
+native evidence. Fingerprints/HMAC remain deferred; synthetic local/CI only. Preserve
+concurrent work, resources and TypeScript7.0.2. No Leave/editor, real accounts/access,
+production, provisioning/deployment/pilot or cleanup.
+
+Earlier handoffs follow unchanged as historical checkpoints.
+
 ## Current delivery — scoped WRITE operation locking, 2026-10-23
 
 The scaffold/KDG managed transaction helper now includes OutcomeKey and bounded

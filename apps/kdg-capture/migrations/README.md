@@ -103,3 +103,9 @@ handler-command/operation serialization. Use only inside the verified owner tran
 This synthetic extension does not apply a migration, create an outcome table, prove native
 lock timing/release or supply stored-resource authorization/replay. KDG business unique
 constraints and atomic outcome/evidence/domain writes remain a separate consuming gate.
+
+The app-owned inert outcome storage candidate adds a separate optional synthetic suite:
+`P -I -B apps/kdg-capture/write-tests/test_operation_outcomes.py` using the retained
+WRITE environment above. See [candidate evidence](../docs/OUTCOME_STORAGE_CANDIDATE_EVIDENCE.md).
+This introduces no migration/table, connection or public recovery route; native capture/
+revision/outcome linkage and atomicity still require a coordinated consuming delivery.
