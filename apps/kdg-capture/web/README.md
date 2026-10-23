@@ -163,3 +163,30 @@ rechecked on reload. The app source is qualified in an isolated synthetic browse
 public startup/configuration and actual mail delivery are not activated. Configure Auth's
 email template to use `{{ .Token }}` and qualify delivery before real use.
 See [owner evidence](../docs/EMAIL_CODE_ENTRY_EVIDENCE.md).
+
+## Explicit local entry route
+
+`mountKdgLocalEntry(root, options)` is an explicitly invoked local/CI host. The caller
+supplies a React Root and fixed `org`, Auth `url`/`publicKey`; browser/storage and Auth/API
+transports may be injected for synthetic qualification. It imports the owner CSS, checks
+the org and root route before SDK/storage work, then creates one stable Auth client
+outside React rendering. There is no automatic environment lookup, main/index startup,
+public deployment target or default account. Disposal detaches browser/React subscriptions
+and requests SDK refresh shutdown; it does not erase SDK sessions or revoke accounts.
+
+Only `/` and the existing `#kdg-entry-content` skip-link anchor are supported. Unexpected
+query/hash/callback paths scrub the current address/history state, close the entry and
+show Go to start. No OAuth exchange or return-URL interpretation runs. The link performs
+an explicit clean page load and fresh API checks; a previously completed SDK session may
+be recovered on that load, including one saved after local cancellation. Route disposal
+prevents that late completion from reopening the currently refused page. Scrubbing cannot
+remove an initial HTTP URL already observed by a server; do not add sensitive URL logging.
+
+Browser connectivity events keep the same mounted code form and resend guard; refusal
+unmounts it synchronously. SDK refresh is requested to stop while offline/refused; already
+started work can still finish and is never described as revoked. Application routers
+using pushState/replaceState must emit their own route notification; these methods do
+not raise popstate. The candidate listens to real popstate/hashchange/online/offline.
+The only consuming mount remains `tests/auth-fixture/local-entry.tsx`, using synthetic
+SDK transport and loopback API; the fixture's sessionStorage selector is harness-only,
+not app configuration or unfinished form persistence. No app main/index is activated.

@@ -39,3 +39,5 @@
 .kdg-entry form { display: flex; flex-direction: column; align-items: flex-start; gap: 1rem; }
 .kdg-entry label { font-weight: 600; }
 .kdg-entry input { font: inherit; padding: 0.75rem; min-height: 3rem; width: min(100%, 24rem); border: 2px solid var(--kdg-foreground); border-radius: var(--kdg-radius); }
+
+.kdg-entry-start { display: inline-flex; align-items: center; min-height: 48px; padding-inline: 12px; }

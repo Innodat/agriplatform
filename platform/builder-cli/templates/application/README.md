@@ -162,3 +162,17 @@ configuration candidate lives at repository-root
 each application. The fixture is not automatically emitted, merged or activated.
 Its README distinguishes email-provider enablement from global signup prevention and
 records the remaining Auth rendering, SMTP, expiry/reuse and device qualification.
+
+## Explicit browser entry observation
+
+The generated `observeBrowserEntry` helper observes only declared paths and anchors,
+plus browser connectivity. Inject browser ports; start once and dispose on owner/root
+replacement. Unexpected locations scrub to the declared safe path before publishing an
+unsupported state, with no raw URL data in publications. Connectivity cannot clear a
+route refusal; clean explicit history navigation or a new page load may observe again.
+Treat route refusal as immediate owner-view disposal so old async work cannot publish
+admission. Keep policy paths, fixed organization, public config/client creation, recovery
+presentation and actual navigation application-owned. History pushState/replaceState do
+not emit popstate automatically; an application router must explicitly notify its own
+route observation when it uses them. Do not treat URL scrubbing as erasing network or
+browser history outside the current entry. No generic public startup/router is activated.

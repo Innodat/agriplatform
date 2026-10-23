@@ -330,3 +330,48 @@ test('runtime storage failure permanently closes this client even if storage lat
  const values=new Map();let fail=false;const store=protectSessionStorage({getItem:k=>{if(fail)throw Error('PRIVATE');return values.get(k)??null;},setItem:(k,v)=>{values.set(k,v);},removeItem:k=>{values.delete(k);}},'sample-auth');
  store.setItem('sample-auth','synthetic-session');fail=true;assert.throws(()=>store.getItem('sample-auth'),{message:'auth_storage_unavailable'});fail=false;assert.throws(()=>store.getItem('sample-auth'),{message:'auth_storage_unavailable'});
 });
+
+const {observeBrowserEntry}=await import('../src/auth/lifecycle.ts');
+function browserFixture(){
+ const listeners=new Map(),removed=[],scrubbed=[];let publish=()=>{};
+ const browser={location:{pathname:'/',search:'',hash:''},navigator:{onLine:true},history:{replaceState(_data,_unused,path){scrubbed.push(path);Object.assign(browser.location,{pathname:path,search:'',hash:''});}},addEventListener(name,listener){listeners.set(name,listener);},removeEventListener(name,listener){assert.equal(listeners.get(name),listener);removed.push(name);listeners.delete(name);}};
+ return{browser,listeners,removed,scrubbed,emit:name=>listeners.get(name)?.(),options:()=>({browser,paths:['/'],safePath:'/',anchors:['#kdg-entry-content'],publish:state=>publish(state)}),onPublish:fn=>{publish=fn;}};
+}
+test('browser entry observes initial route/connectivity and detaches all listeners on disposal',()=>{
+ assert.equal(typeof observeBrowserEntry,'function','browser observer missing');const f=browserFixture(),states=[];f.onPublish(s=>states.push(s));const guard=observeBrowserEntry(f.options());guard.start();
+ assert.deepEqual(states.at(-1),{route:'entry',online:true});assert.equal(f.listeners.size,4);f.browser.navigator.onLine=false;f.emit('offline');assert.deepEqual(states.at(-1),{route:'entry',online:false});
+ guard.dispose();guard.dispose();assert.equal(f.listeners.size,0);assert.equal(f.removed.length,4);guard.start();assert.equal(f.listeners.size,0);
+});
+test('browser entry rejects and scrubs callback credentials before publishing, never emits raw URLs',()=>{
+ const f=browserFixture(),states=[];Object.assign(f.browser.location,{pathname:'/auth/callback',search:'?code=PRIVATE',hash:'#access_token=PRIVATE'});f.onPublish(s=>{assert.deepEqual(f.scrubbed,['/']);states.push(s);});
+ const guard=observeBrowserEntry(f.options());guard.start();assert.deepEqual(states.at(-1),{route:'unsupported',online:true});assert.ok(!JSON.stringify(states).includes('PRIVATE'));guard.dispose();
+});
+test('browser entry keeps query refusal through connectivity changes but explicit clean history can return',()=>{
+ const f=browserFixture(),states=[];f.browser.location.search='?return=https://evil.invalid';f.onPublish(s=>states.push(s));const guard=observeBrowserEntry(f.options());guard.start();
+ f.emit('offline');f.emit('online');assert.equal(states.at(-1).route,'unsupported');f.emit('popstate');assert.equal(states.at(-1).route,'entry');guard.dispose();
+});
+test('browser entry permits only declared skip anchor, refuses unknown routes and removes unsafe history state',()=>{
+ const f=browserFixture(),states=[];f.browser.location.hash='#kdg-entry-content';f.onPublish(s=>states.push(s));const guard=observeBrowserEntry(f.options());guard.start();assert.equal(states.at(-1).route,'entry');assert.deepEqual(f.scrubbed,[]);
+ f.browser.location.pathname='/admin';f.emit('popstate');assert.equal(states.at(-1).route,'unsupported');assert.deepEqual(f.scrubbed,['/']);guard.dispose();
+});
+test('browser entry scrub/read/listener failures close safely and remove partial subscriptions',()=>{
+ for(const fault of ['scrub','read','listen']){
+  const f=browserFixture(),states=[];f.onPublish(s=>states.push(s));if(fault==='scrub'){f.browser.location.search='?code=PRIVATE';f.browser.history.replaceState=()=>{throw Error('PRIVATE');};}
+  if(fault==='read')Object.defineProperty(f.browser,'location',{get(){throw Error('PRIVATE');}});
+  if(fault==='listen'){const add=f.browser.addEventListener;f.browser.addEventListener=(name,fn)=>{if(name==='hashchange')throw Error('PRIVATE');add(name,fn);};}
+  const guard=observeBrowserEntry(f.options());guard.start();assert.equal(states.at(-1).route,'unavailable');guard.dispose();assert.equal(f.listeners.size,0);assert.ok(!JSON.stringify(states).includes('PRIVATE'));
+ }
+});
+
+test('browser entry pins the safe path and suppresses callbacks retained beyond disposal',()=>{
+ const f=browserFixture(),states=[],options=f.options();options.publish=s=>states.push(s);const guard=observeBrowserEntry(options);options.safePath='https://evil.invalid';guard.start();
+ f.browser.location.search='?code=PRIVATE';f.emit('popstate');assert.deepEqual(f.scrubbed,['/']);const listener=f.listeners.get('popstate');guard.dispose();const count=states.length;listener();assert.equal(states.length,count);
+});
+
+test('browser entry refuses the paired hashchange after a popstate already scrubbed an unsafe fragment',()=>{
+ const f=browserFixture(),states=[];f.onPublish(s=>states.push(s));const guard=observeBrowserEntry(f.options());guard.start();f.browser.location.hash='#access_token=PRIVATE';f.emit('popstate');assert.equal(states.at(-1).route,'unsupported');f.emit('hashchange');assert.equal(states.at(-1).route,'unsupported');guard.dispose();
+});
+
+test('browser entry scrubs a second unsafe fragment while already refused without reopening',()=>{
+ const f=browserFixture(),states=[];f.onPublish(s=>states.push(s));const guard=observeBrowserEntry(f.options());guard.start();f.browser.location.hash='#access_token=PRIVATE';f.emit('hashchange');assert.equal(states.at(-1).route,'unsupported');f.browser.location.hash='#code=PRIVATE2';f.emit('hashchange');assert.deepEqual(f.scrubbed,['/','/']);assert.equal(f.browser.location.hash,'');assert.equal(states.at(-1).route,'unsupported');guard.dispose();
+});

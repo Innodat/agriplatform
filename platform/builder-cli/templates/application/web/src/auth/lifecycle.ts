@@ -383,3 +383,44 @@ export function protectSessionStorage(storage:SessionStoragePort,namespace:strin
  };
  const probe=namespace+'-probe-'+crypto.randomUUID();result.getItem(probe);result.setItem(probe,'probe');result.removeItem(probe);return result;
 }
+
+export type BrowserEntryState=Readonly<{route:'entry'|'unsupported'|'unavailable';online:boolean}>;
+export type BrowserEntryPort={
+ readonly location:{readonly pathname:string;readonly search:string;readonly hash:string};
+ readonly navigator:{readonly onLine:boolean};
+ readonly history:{replaceState(data:unknown,unused:string,url:string):void};
+ addEventListener(name:string,listener:()=>void):void;
+ removeEventListener(name:string,listener:()=>void):void;
+};
+/** Observe only declared entry paths/anchors. URL data never appears in publications. */
+export function observeBrowserEntry(options:Readonly<{browser:BrowserEntryPort;paths:readonly string[];safePath:string;anchors?:readonly string[];publish(state:BrowserEntryState):void}>){
+ const {browser,publish,safePath}=options,paths=new Set(options.paths),anchors=new Set(options.anchors??[]);
+ if(!paths.has(safePath)||[...paths].some(path=>!/^\/(?:[A-Za-z0-9_-]+(?:\/[A-Za-z0-9_-]+)*)?$/.test(path))||[...anchors].some(anchor=>!/^#[A-Za-z][A-Za-z0-9_-]*$/.test(anchor)))throw Error('browser_entry_configuration_invalid');
+ let state:BrowserEntryState=Object.freeze({route:'unavailable',online:false}),started=false,disposed=false;
+ const registered:Array<[string,()=>void]>=[];
+ const set=(route:BrowserEntryState['route'],online:boolean)=>{if(!disposed){state=Object.freeze({route,online});publish(state);}};
+ const connectivity=()=>{if(disposed)return;try{set(state.route,browser.navigator.onLine===true);}catch{set('unavailable',false);}};
+ const allowedLocation=()=>{const {pathname,search,hash}=browser.location;return paths.has(pathname)&&search===''&&(hash===''||anchors.has(hash));};
+ const location=()=>{
+  if(disposed)return;
+  try{
+   const online=browser.navigator.onLine===true,allowed=allowedLocation();
+   if(!allowed)browser.history.replaceState(null,'',safePath);
+   set(allowed?'entry':'unsupported',online);
+  }catch{set('unavailable',false);}
+ };
+ // Browsers can emit popstate then hashchange for one fragment navigation.
+ // The second event must not reinterpret our scrubbed address as fresh admission.
+ const hashchange=()=>{if(disposed)return;try{if(state.route==='entry'||!allowedLocation())location();}catch{set('unavailable',false);}};
+ const detach=()=>{for(const [name,listener] of registered.splice(0)){try{browser.removeEventListener(name,listener);}catch{/* Disposed handlers cannot publish even if browser detachment fails. */}}};
+ return{
+  state:()=>state,
+  start(){
+   if(disposed||started)return;started=true;
+   try{for(const [name,listener] of [['popstate',location],['hashchange',hashchange],['online',connectivity],['offline',connectivity]] as const){browser.addEventListener(name,listener);registered.push([name,listener]);}}
+   catch{detach();set('unavailable',false);return;}
+   location();
+  },
+  dispose(){if(disposed)return;disposed=true;detach();},
+ };
+}

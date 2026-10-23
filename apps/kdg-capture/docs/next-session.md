@@ -1,3 +1,34 @@
+## Current delivery — explicit local entry-route mount, 2026-10-23
+
+KDG now has an explicitly invoked local/CI React-root mount connecting configured
+fixed org/public Auth inputs to the selected email-code entry. Root-only route and
+skip-link policy, real browser connectivity/history observation, safe refusal/scrubbing,
+and synchronous owner disposal are proved with injected SDK transport/loopback API.
+Read [local entry-route evidence](LOCAL_ENTRY_ROUTE_EVIDENCE.md) and its receipt.
+
+Scaffold owns neutral browser observation and its emitted tests; KDG copies stay managed.
+KDG owns route/config/branding and current API admission. Invalid org/URL/key/storage,
+initial offline state and unsupported callbacks cannot bootstrap the SDK. Reconnect keeps
+code/cooldown; paired history/hash events and later unsafe fragments cannot reopen a
+refused page. Direct disposal/pending context and verification tests suppress stale
+admission. Explicit clean Back/new start rechecks current access, including saved SDK
+sessions. No cancelled SDK side effects are described as revoked.
+
+Final proof: 98 emitted + 48 owner tests (146 total), 58 compiler/SDK/React/browser checks,
+builder 68 and strict TypeScript 7.0.2 pass; fresh offline generation is bootstrap-only,
+not generation-ready. All eight review findings resolved, none deferred. Legacy tests,
+source-bound historical evidence and native/email-template fixtures remain preserved.
+
+Next select the local frontend startup/configuration prerequisite with bmad-help/build
+from current owner contracts. The mount is still invoked only by the synthetic harness;
+there is no automatic app main/index or public startup. No real email/Auth delivery,
+server expiry/single-use/device or full Story1.1 readiness follows. Keep everything
+synthetic local/CI, preserve concurrent changes/Docker/baseline, and defer fingerprints/
+HMAC. No Leave/editor, production, real accounts/access, provisioning, deployment/pilot
+or cleanup.
+
+Earlier handoffs follow unchanged as historical checkpoints.
+
 ## Current delivery — numeric-code template/configuration candidate, 2026-10-23
 
 The shared opt-in email template and TOML fragment now have offline code-only/content
