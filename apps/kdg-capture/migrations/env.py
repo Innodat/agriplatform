@@ -19,7 +19,8 @@ try:
             include_schemas=True,include_name=lambda name,kind,parent:kind!='schema' or name==POLICY.schema)
         options=context.get_context().opts
         guard_command(getattr(options.get('fn'),'__name__',None),options.get('destination_rev'))
-        context.run_migrations()
+        with context.begin_transaction():
+            context.run_migrations()
         connection.execute(text('REVOKE ALL ON kdg_capture.alembic_version FROM PUBLIC,kdg_capture_runtime,kdg_capture_operator'))
 except MigrationError:raise
 except Exception:

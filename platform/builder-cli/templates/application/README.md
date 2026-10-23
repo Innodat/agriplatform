@@ -209,20 +209,28 @@ and config files in the owner wrapper. This development helper does not qualify 
 hosting, installed-workspace integration, LAN HTTPS, provider delivery or device behavior.
 Run `node --test web/local-host-tools/test-local-entry-host.mjs` from an emitted app root.
 
-## Inert schema-foundation candidate
+## Controlled migration helper candidate
 
 Generated database-tools/owned_migration.py and test_owned_migration.py are opt-in
-migration-environment candidates. They create no roles, database, schema, migration
-configuration or domain tables and are never imported by the HTTP API. The owner
-supplies exact prepared schema/role/revision policy and retains its Alembic history.
-They currently guard an empty schema/initial private ledger only; do not reuse this
-catalog contract unchanged after adding business tables.
+migration-environment candidates, never imported by the HTTP API. They create no roles,
+database, schema, owner migration configuration or domain tables. Owners supply the
+prepared schema/role policy and retain Alembic histories and explicit grants.
+
+Use the platform-wide focused verification approach: controlled migrations, least
+privilege, application ownership and focused access tests; ordinary Alembic/PostgreSQL
+behavior; proven reusable fixtures/tests; additional guards for concrete failures.
+The helper checks the selected migration login and schema owner, bounds PostgreSQL17+
+transaction/lock waits and serializes each owner's migrations. It permits normal owned
+business tables and advancing histories without a generic catalogue whitelist.
+Alembic interprets revisions. This is not a complete privilege/membership auditor:
+prove actual restricted runtime/operator allow/deny and tenant behavior for each schema.
 
 Unit tests use the existing pinned migration environment (SQLAlchemy2.1.4/Alembic1.20.0/
 psycopg3.3.6/Python3.15), not the generated HTTP-only API environment. No dependency or
 lock update is implied. Run P -I -B database-tools/test_owned_migration.py with that
 explicit environment. KDG proves rendered/installed tests and managed parity; native
-PostgreSQL qualification is still pending a compatible authorized disposable target.
-These emitted tests do not establish role/ACL/RLS or release readiness for any app.
-Existing ADR0015–0020 remain mandatory across owners. No startup migrations, shared
-business table store, cross-app imports or automatic adoption are introduced.
+PostgreSQL qualification remains separate. These emitted tests prove control flow,
+not actual role/ACL/RLS, transaction rollback, timing or release readiness.
+ADRs0015–0020 remain binding: controlled coordinated migrations before activation,
+failure blocking, previous-version compatibility and explicit recovery evidence.
+No startup migrations, shared business store or automatic existing-app adoption.

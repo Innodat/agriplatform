@@ -1,0 +1,173 @@
+{
+  "schema_version": 1,
+  "scope": "offline platform focused migration verification, shared scaffold + KDG first consuming adoption",
+  "base_commit": "f7fa272d7c0bb3d7ceb16a1900439fcc6689a210",
+  "native_acceptance": false,
+  "database_mutations": false,
+  "docker_lifecycle": false,
+  "acceptance": {
+    "AC1": "existing owned tables/advanced history regression fails old inventory then passes simplified wrapper; test-double evidence",
+    "AC2": "wrong runtime/operator/session and privileged migration role refusal tests retained",
+    "AC3": "bounded settings/owner lock/control-flow failure blocking; safe chained-error regression observed red then green; no native SQL claim",
+    "AC4": "actual rendered/installed emitted suite plus managed parity/preservation tests in 72 builder tests",
+    "AC5": "actual owner Alembic metadata and env wiring plus five real CLI refusal cases without DB"
+  },
+  "results": {
+    "neutral_emitted_tests": 11,
+    "owner_tests": 9,
+    "owner_actual_cli_refusal_cases": 5,
+    "builder_tests": 72,
+    "strict_typescript": "7.0.2 PASS",
+    "managed_parity": "PASS",
+    "scoped_diff_check": "PASS"
+  },
+  "commands": [
+    {
+      "command": [
+        "/home/ck/repos/innodat/agriplatform/platform/deployment/.local/access-organization-check-20261022/owner-env/bin/python",
+        "-I",
+        "-B",
+        "apps/kdg-capture/database-tools/test_owned_migration.py"
+      ],
+      "exit": 0
+    },
+    {
+      "command": [
+        "/home/ck/repos/innodat/agriplatform/platform/deployment/.local/access-organization-check-20261022/owner-env/bin/python",
+        "-I",
+        "-B",
+        "apps/kdg-capture/migrations/tests/test_foundation.py"
+      ],
+      "exit": 0
+    },
+    {
+      "command": [
+        "/home/ck/repos/innodat/agriplatform/platform/deployment/.local/kdg-toolchains/ad277eef-a10e-4aac-bb82-5743653fb2e0/payload/node/bin/node",
+        "--test",
+        "--test-reporter=spec",
+        "--test-timeout=90000",
+        "platform/builder-cli/tests/*.test.mjs"
+      ],
+      "environment": {
+        "PATH": "/home/ck/repos/innodat/agriplatform/platform/deployment/.local/kdg-toolchains/ad277eef-a10e-4aac-bb82-5743653fb2e0/payload/node/bin:/usr/bin:/bin",
+        "npm_execpath": "/home/ck/repos/innodat/agriplatform/platform/deployment/.local/kdg-toolchains/ad277eef-a10e-4aac-bb82-5743653fb2e0/payload/npm/bin/npm-cli.js"
+      },
+      "overall_timeout_seconds": 120,
+      "execution": "outside restricted process sandbox",
+      "exit": 0
+    },
+    {
+      "command": [
+        "/home/ck/repos/innodat/agriplatform/platform/deployment/.local/kdg-toolchains/ad277eef-a10e-4aac-bb82-5743653fb2e0/payload/node/bin/node",
+        "node_modules/typescript/bin/tsc",
+        "--project",
+        "platform/builder-cli/tsconfig.json",
+        "--noEmit"
+      ],
+      "exit": 0
+    },
+    {
+      "command": [
+        "/home/ck/repos/innodat/agriplatform/platform/deployment/.local/kdg-toolchains/ad277eef-a10e-4aac-bb82-5743653fb2e0/payload/node/bin/node",
+        "platform/builder-cli/scripts/sync-kdg-database.mjs",
+        "--check"
+      ],
+      "exit": 0
+    }
+  ],
+  "incomplete_attempts": [
+    {
+      "command": "initial broad builder invocation",
+      "exit": 130,
+      "reason": "interrupted after child-process stall"
+    },
+    {
+      "command": "bounded restricted sandbox builder invocation with test-isolation=none",
+      "exit": 124,
+      "reason": "existing child-process lifecycle tests stalled; superseded by qualified72-test pass outside sandbox"
+    }
+  ],
+  "review": {
+    "reviewer": "/root/review_focused_migrations",
+    "findings": 3,
+    "patched": 2,
+    "rejected_low": 1,
+    "new_deferred_defects": 0,
+    "triage": "_bmad-output/implementation-artifacts/spec-platform-focused-migration-verification.md"
+  },
+  "sources": {
+    "_bmad-output/implementation-artifacts/spec-platform-focused-migration-verification.md": "382c2ffbb4622c76f27764e73ab38b7ba46042c206e44b7e38833e9b7b141a0c",
+    "apps/kdg-capture/database-tools/.generated-files.json": "1766db768cd21db0a824ff63ad596159ee4d25545652e3af350a26b87fceb67d",
+    "apps/kdg-capture/database-tools/owned_migration.py": "6b8f96aea6fba39f21fc9134917be0776088f92f9cdc80b2d2224a50c3b12cf0",
+    "apps/kdg-capture/database-tools/test_owned_migration.py": "95f0be531a0370f64a2cbe98ee670092214772c9ed41678ca1e9d394bda801c2",
+    "apps/kdg-capture/migrations/README.md": "f75c5848fbb525a4bd0f80df21634203b5ce29311f00c841101c6978e52ceb58",
+    "apps/kdg-capture/migrations/env.py": "3f5daa4ccee098e8a5795514800051e11de46114b04dbe815d7f9acb152bbda6",
+    "apps/kdg-capture/migrations/policy.py": "0c53c251cc3f15446499a828ea8ab73d7d829044c67550f9612ddeb6c03e387d",
+    "apps/kdg-capture/migrations/tests/test_foundation.py": "41ce36b7be00f54a8c6d84f2b557f50467947d5e14200dc5a65b906c6b74db14",
+    "apps/kdg-capture/docs/FOCUSED_MIGRATION_VERIFICATION_EVIDENCE.md": "256d099b7339c73f08489bab2f4ba76789506ed7139bc454bbea4cf219d128a4",
+    "apps/kdg-capture/docs/next-session.md": "37a8abc72742155a929e30e2a67e9438c1eb85e842f8a1b544e21f77803d7a29",
+    "platform/builder-cli/README.md": "65d14e8b275de08fc2e330123bc16bbe904fdcf96be51c65a234c37667561676",
+    "platform/builder-cli/templates/application/README.md": "c121baf113c89e0cdf992fd29be771c43ca45151b8cb88eeaba954c90437b91d",
+    "platform/builder-cli/templates/application/database-tools/owned_migration.py": "6b8f96aea6fba39f21fc9134917be0776088f92f9cdc80b2d2224a50c3b12cf0",
+    "platform/builder-cli/templates/application/database-tools/test_owned_migration.py": "95f0be531a0370f64a2cbe98ee670092214772c9ed41678ca1e9d394bda801c2",
+    "platform/builder-cli/tests/database-pattern.test.mjs": "5f3056cd7df2d5f4e4d5a6847e6c6d910c3256053eb338d71cd46e2c5e603be0",
+    "platform/docs/development/migration-verification.md": "536813ea8aae5350cb80cc0bc955e43fac3c43b3b023816ccdd01aeddea56362"
+  },
+  "source_sections": {
+    "AGENTS.md#Platform-wide migration verification": "a7b6d77a2b6b4b368d5dfb36acae226ff124983c83d08adc385b1a7bd2d6b97e"
+  },
+  "preserved": {
+    "package.json": "f353097548bbc53b737b88ee2c836af561aa805491405e3c0b6cd8c098e9f6da",
+    "package-lock.json": "9a8128448ab80c4319e61fb325e0030eeb71e2e31966b65f3e11f5774a667fe4",
+    "platform/builder-cli/package.json": "1921614e192482707b6785a0948a409f8cfc4fa6e468da16f0dcd1fc30225a92",
+    "apps/kdg-capture/web/package.json": "e120ae2ef3b986b1171d338c2a6197059b8bbecd824d82c6329f65e84137fb12",
+    "apps/kdg-capture/migrations/versions/0001_foundation.py": "1fc0de88b1a4c363bc73c59079a8c29258a1698d7b13c001da5e45d82d5c6745",
+    "apps/kdg-capture/docs/SCHEMA_FOUNDATION_CANDIDATE_EVIDENCE.md": "6d3f0ab66a4559281811eee9955da4d4773e8edda83a9dc09f9f8650d6e2cb07",
+    "apps/kdg-capture/docs/evidence/schema-foundation-candidate-20261023.json": "81208a78cd00922617769a72d714c4eb451e86e3f7894a00ac3bc9d9a6d78e3e",
+    "apps/kdg-capture/migrations/tests/schema_fixture.py": "7b8f44cd7e6458579e9b1c565bce69adc6a818af4626bf59e8708b150c555b1b",
+    "_bmad-output/implementation-artifacts/spec-kdg-schema-native-acceptance.md": "e01abb999bcb69f80e832d96c3c80ec4260fbbf3224a0dbe0ae2bdbd37760307"
+  },
+  "logs": {
+    "acceptance_red": {
+      "path": "/tmp/platform-migration-acceptance-red.log",
+      "sha256": "aa3155ce5ccd65aa08d3542f9d2229a26f0e624b5b6270414b6c202d7498d621"
+    },
+    "safe_error_red": {
+      "path": "/tmp/platform-migration-safe-error-red.log",
+      "sha256": "3a81b9637dcf3b72d35526a62deece21a90928be76a9de8a5b59ba9d49bddb86"
+    },
+    "neutral_green": {
+      "path": "/tmp/platform-migration-neutral-green.log",
+      "sha256": "559eb112e32c2cf545d6bb62a145ab12ff8cd9883db2652c2cd1a619a1e8ed80"
+    },
+    "owner_green": {
+      "path": "/tmp/platform-migration-owner-final.log",
+      "sha256": "b66c355e68a45d944bb7f24d60abd5e9b8759493375219a8fcb6bd2a2b3fae31"
+    },
+    "focused_rendered": {
+      "path": "/tmp/platform-migration-builder-focused-direct.log",
+      "sha256": "e32a60d3fece45a7cde0368fb823eb866e0a7fd2df5801fbac868cd1b16a715c"
+    },
+    "builder_regression": {
+      "path": "/tmp/platform-migration-builder-qualified.log",
+      "sha256": "c7c0d75cc70510f43bd3b6a6b5790bee1e76221f8bfc10541f60750af48812a6"
+    },
+    "incomplete_first_builder": {
+      "path": "/tmp/platform-migration-builder-all.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "sandbox_timeout": {
+      "path": "/tmp/platform-migration-builder-final.log",
+      "sha256": "7f573f39da259119a7594cd0d287b37aa5a8b10cc2f9d5bc779498835f325251"
+    },
+    "strict_typescript": {
+      "path": "/tmp/platform-migration-ts.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  "limits": [
+    "No native SQL/RLS/lock/rollback or release-readiness proof",
+    "No new fixture promoted without consuming native evidence",
+    "Other application/service implementations unchanged; shared approach applies to their next relevant delivery"
+  ]
+}

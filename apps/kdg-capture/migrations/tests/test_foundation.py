@@ -4,7 +4,8 @@ import sys
 import unittest
 from unittest.mock import patch
 from types import SimpleNamespace
-import runpy,importlib.util,os
+import runpy,importlib.util,os,subprocess
+from contextlib import nullcontext
 ROOT=Path(__file__).resolve().parents[4]
 MIGRATIONS=ROOT/'apps/kdg-capture/migrations'
 sys.path.insert(0,str(MIGRATIONS))
@@ -39,8 +40,8 @@ class CandidateTests(unittest.TestCase):
         from alembic.config import Config
         from alembic.script import ScriptDirectory
         scripts=ScriptDirectory.from_config(Config(str(ROOT/'apps/kdg-capture/alembic.ini')))
-        self.assertEqual(scripts.get_heads(),[policy.POLICY.revision]);self.assertEqual([r.revision for r in scripts.walk_revisions()],[policy.POLICY.revision])
-        migration=scripts.get_revision(policy.POLICY.revision).module
+        self.assertEqual(scripts.get_heads(),['0001_kdg_foundation']);self.assertEqual([r.revision for r in scripts.walk_revisions()],['0001_kdg_foundation'])
+        migration=scripts.get_revision('0001_kdg_foundation').module
         with self.assertRaisesRegex(RuntimeError,'downgrade_prohibited'):migration.downgrade()
 
 class WiringTests(unittest.TestCase):
@@ -54,7 +55,13 @@ class WiringTests(unittest.TestCase):
             if isinstance(value,dict):return {k:change(v) for k,v in value.items()}
             return value
         for key,value in vars(c).copy().items():setattr(c,key,change(value))
-        c.history=[{'version_num':policy.POLICY.revision}]
+        execute=c.execute
+        def owner_execute(statement,parameters=None):
+            if str(statement)=='REVOKE ALL ON kdg_capture.alembic_version FROM PUBLIC,kdg_capture_runtime,kdg_capture_operator':
+                self.assertFalse(engine.committed)
+                c.statements.append((str(statement),parameters));return None
+            return execute(statement,parameters)
+        c.execute=owner_execute
         engine.disposed=False
         engine.dispose=lambda:setattr(engine,'disposed',True)
         return engine
@@ -64,25 +71,43 @@ class WiringTests(unittest.TestCase):
         captured={};effects=[]
         def configure(**values):captured.update(values)
         def migrate():
-            effects.append('migration');engine.connection.tables=[dict(name='alembic_version',kind='r',owner=policy.POLICY.migrator)]
-            if broken:engine.connection.history=[{'version_num':'unknown'}]
+            effects.append('migration')
+            if broken:raise RuntimeError('PRIVATE_DATABASE_DETAILS')
         fake=SimpleNamespace(config=SimpleNamespace(cmd_opts=SimpleNamespace(cmd=(upgrade,))),is_offline_mode=lambda:False,configure=configure,
-            get_context=lambda:SimpleNamespace(opts=dict(fn=upgrade if method=='upgrade' else stamp,destination_rev='head')),run_migrations=migrate)
+            get_context=lambda:SimpleNamespace(opts=dict(fn=upgrade if method=='upgrade' else stamp,destination_rev='head')),begin_transaction=nullcontext,run_migrations=migrate)
         with patch('alembic.context',fake),patch('sqlalchemy.create_engine',return_value=engine),patch.dict(os.environ,CandidateTests().values(),clear=True):
             runpy.run_path(str(MIGRATIONS/'env.py'))
         return captured,effects
-    def test_actual_env_configures_local_history_and_commits_after_postcondition(self):
+    def test_actual_env_configures_owned_alembic_history_and_commits(self):
         engine=self.engine();config,effects=self.run_env(engine)
         self.assertEqual(effects,['migration']);self.assertEqual(config['version_table_schema'],'kdg_capture');self.assertTrue(config['transactional_ddl'])
         self.assertTrue(config['include_name']('kdg_capture','schema',{}));self.assertFalse(config['include_name']('another_owner','schema',{}))
+        self.assertEqual(engine.connection.statements[-1][0],
+            'REVOKE ALL ON kdg_capture.alembic_version FROM PUBLIC,kdg_capture_runtime,kdg_capture_operator')
         self.assertTrue(engine.committed);self.assertTrue(engine.disposed)
     def test_actual_env_wrong_direction_rolls_back_before_migration(self):
         engine=self.engine()
-        with self.assertRaisesRegex(policy.MigrationError,'upgrade_head_only'):self.run_env(engine,method='stamp')
-        self.assertTrue(engine.rolled_back);self.assertFalse(engine.committed);self.assertEqual(engine.connection.tables,[]);self.assertTrue(engine.disposed)
-    def test_actual_env_bad_postcondition_rolls_back_and_disposes(self):
-        engine=self.engine()
-        with self.assertRaisesRegex(policy.MigrationError,'history_invalid'):self.run_env(engine,broken=True)
+        # A callback failure inside the controlled transaction is normalized by the
+        # neutral boundary. Actual CLI direction refusals retain the owner identifier.
+        with self.assertRaisesRegex(policy.MigrationError,'^owned_migration_failed_requires_reconciliation$'):self.run_env(engine,method='stamp')
         self.assertTrue(engine.rolled_back);self.assertFalse(engine.committed);self.assertTrue(engine.disposed)
+    def test_actual_env_migration_failure_blocks_commit_and_disposes(self):
+        engine=self.engine()
+        with self.assertRaisesRegex(policy.MigrationError,'^owned_migration_failed_requires_reconciliation$') as caught:self.run_env(engine,broken=True)
+        self.assertNotIn('PRIVATE',str(caught.exception))
+        self.assertTrue(engine.rolled_back);self.assertFalse(engine.committed);self.assertTrue(engine.disposed)
+
+class CliRefusalTests(unittest.TestCase):
+    def test_real_cli_refuses_unsupported_or_unconfigured_commands_without_a_database(self):
+        for args,identifier in [(['upgrade','head','--sql'],'kdg_migration_upgrade_head_only'),
+                                (['downgrade','base'],'kdg_migration_upgrade_head_only'),
+                                (['stamp','head'],'kdg_migration_upgrade_head_only'),
+                                (['current'],'kdg_migration_upgrade_head_only'),
+                                (['upgrade','head'],'kdg_migration_configuration_invalid')]:
+            with self.subTest(args=args):
+                result=subprocess.run([sys.executable,'-I','-B','-m','alembic','-c',str(ROOT/'apps/kdg-capture/alembic.ini'),*args],
+                    cwd=ROOT,env={'PATH':'/usr/bin:/bin','LANG':'C.UTF-8'},capture_output=True,text=True,timeout=10)
+                self.assertNotEqual(result.returncode,0)
+                self.assertIn(identifier,result.stderr)
 
 if __name__=='__main__':unittest.main()

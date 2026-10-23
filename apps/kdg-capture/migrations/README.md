@@ -1,85 +1,74 @@
-# KDG schema foundation candidate
+# KDG controlled migration candidate
 
-This owner-local Alembic history is a reviewed code candidate, not an applied schema or
-verified PostgreSQL security boundary. It prepares only kdg_capture's private migration
-ledger; no questionnaire, child, assignment, capture or outcome tables exist here.
-The API never imports this directory or starts migrations. The release registry remains
-unchanged. Do not treat the checked-in revision or unit tests as native acceptance.
+KDG owns schema kdg_capture and its separate Alembic history under ADR0015–0020.
+No business tables, migration execution, release registration or API startup migrations
+are delivered here. The initial revision only lets Alembic initialize its private ledger
+in an explicitly prepared schema. Native PostgreSQL acceptance remains unfinished.
 
-The neutral helper and its unit tests come from builder templates in a separate managed
-`../database-tools` root. Update the owning templates, then use selected Node 26.11.1
-from repository root:
+Follow the platform-wide [focused migration verification approach](../../../platform/docs/development/migration-verification.md).
+The shared helper now provides a small controlled transaction wrapper instead of an
+empty-schema/exact-ledger inventory. Alembic resolves revision history; PostgreSQL
+enforces privileges and transactions. Normal owned tables and new revisions do not
+require editing a generic allowlist. The helper checks the exact nonadministrator
+migration login/schema owner and keeps bounded waits, an owner advisory lock and safe
+failures. It does not certify all role memberships, ACLs or cross-owner privileges.
+Those require controlled setup and focused tests using real restricted logins.
+
+Owner URL/command policy stays restricted to explicitly selected synthetic kdg-local
+at 127.0.0.1:55482, database kdg_schema_<32 lowercase hex>, with the exact migrator and
+no URL query options or ambient fallback. Only online upgrade head is permitted.
+Unknown endpoint54322 is untouched. Keep ledger access private and migration credentials
+separate from API/runtime/operator credentials. Runtime/operator receive only the
+operations required by the consuming domain migration.
+
+The neutral helper and behavioral tests are managed in ../database-tools. Update the
+builder templates, then use selected Node26.11.1 from repository root:
 
 ```sh
 "$N" platform/builder-cli/scripts/sync-kdg-database.mjs --write
 "$N" platform/builder-cli/scripts/sync-kdg-database.mjs --check
 ```
 
-Never hand-edit generated helpers/tests/.generated-files.json. Application owners retain
-schema names, roles, revisions, migration history, domain tables and authorization.
-Other apps can consume the same inert helper/tests; no existing app is migrated.
-The helper is intentionally a strict empty-schema/initial-ledger candidate. Future
-business tables need explicit owner catalog/migration evolution and new acceptance.
+Never hand-edit generated helpers/tests/manifest. Owners retain schema, roles, histories,
+URL/command policy, domain rules and authorization. No other owner is migrated.
 
-Candidate guards check an actual migrator login matching session_user, PostgreSQL17,
-no superuser/BYPASSRLS/role or database creation/replication/database ownership, no incoming
-or outgoing memberships for the three selected roles, exact prepared schema owner/ACL,
-no effective cross-owner schema creation or relation/function authority, and only the
-expected permanent non-RLS private Alembic ledger. Unexpected schema objects, ledger
-columns/privileges/history/triggers/rules/policies or extra indexes refuse. The controlled
-transaction sets bounded waits/deadline and takes a stable owner advisory transaction lock,
-then rechecks after waiting and verifies the ledger before committing. Errors are fixed
-safe identifiers; no connection URL, password, SQL payload or DB exception is rendered.
-Only online upgrade head is supported. No stamp/downgrade or automatic rollback of an
-applied migration is allowed; a reported failure requires state reconciliation.
-
-No database is contacted by import, policy validation, history inspection or unit tests.
-Using P as the existing approved Access migration environment's Python:
+Using P as the approved retained migration environment's Python, from repository root:
 
 ```sh
 "$P" -I -B apps/kdg-capture/database-tools/test_owned_migration.py
 "$P" -I -B apps/kdg-capture/migrations/tests/test_foundation.py
 ```
 
-P is `platform/deployment/.local/access-organization-check-20261022/owner-env/bin/python`.
-It already contains approved SQLAlchemy2.1.4, Alembic1.20.0 and psycopg3.3.6 on Python3.15.
-The current KDG API environment and generated HTTP-only API manifest do not include these
-migration dependencies. Tests use the explicit retained migration environment; no default
-API or clean-install migration dependency qualification is claimed. No manifest/lock or
-installation change is included. Generated schema tests are opt-in migration-env tests.
+P is platform/deployment/.local/access-organization-check-20261022/owner-env/bin/python:
+Python3.15, SQLAlchemy2.1.4, Alembic1.20.0 and psycopg3.3.6. No install, manifest, lock,
+API environment or TypeScript7.0.2 baseline change. Tests are offline control-flow and
+metadata evidence, not actual PostgreSQL privileges, locks or rollback.
 
-## Native acceptance remains blocked
+## Pending native acceptance
 
-The known disposable PostgreSQL endpoint127.0.0.1:55482 is stopped. Port54322 belongs to
-an unknown target and must not be used. The historical atomic fixture is not a compatible
-KDG target: its migrator owns its database and its roles/schema are different. Do not
-rerun its CREATE ROLE/DATABASE preparer or resume Docker under the existing no-provisioning
-scope. No migration command below was executed against PostgreSQL in this delivery.
+The user authorized the narrow exception to resume the retained synthetic stack and
+prepare one isolated KDG test database and three restricted roles. That authorization
+has not been used successfully: the draft fixture failed while reading its input,
+before connecting or creating anything. The stack was stopped with resources retained.
+The draft schema_fixture.py is unqualified and must not be treated as a working setup.
+Do not rerun historical preparers or the rejected broad Access verifier.
 
-Native verification requires one explicitly prepared disposable database named
-kdg_schema_<32 lowercase hex>, at fixed127.0.0.1:55482, with:
+The next native item should use ordinary isolated fixture setup and actual separate
+migrator/runtime/operator logins. Prove upgrade/repeat, private ledger/DDL and cross-owner
+denials, owner serialization, a failed transaction's retained state and explicit retry.
+Alembic should reject unknown history through its ordinary revision handling. Add a
+specific guard only if a reproduced failure requires it. Domain RLS and business-write
+cases belong with their first table/API slice. Preserve all historical databases,
+roles, data, source-bound evidence and Docker resources; stop normally after testing.
+No general provisioning, real accounts/access, deployment/pilot or cleanup is authorized.
 
-- Separate exact LOGIN roles kdg_capture_migrator, kdg_capture_runtime and
-  kdg_capture_operator; nonprivileged, no memberships in either direction, no database
-  ownership/CREATE. The fixture administrator owns the dedicated database.
-- Existing empty kdg_capture schema owned by the migrator. Runtime/operator have USAGE
-  only; PUBLIC/other roles have no schema authority. No shared business data or cross-owner
-  privileges. Preparing these objects is separate from migration execution.
-- A private explicit migration URL, target ID kdg-local and local_disposable/ci_disposable
-  kind. URL uses postgresql+psycopg, exact migrator login and nonempty password; no query
-  options, ambient URL fallback or alternative database/host/port.
+Current local-only command, not yet natively qualified: supply
+KDG_MIGRATION_TARGET_ID, KDG_MIGRATION_ENVIRONMENT_KIND and
+KDG_MIGRATION_DATABASE_URL privately, then run
+`P -I -B -m alembic -c apps/kdg-capture/alembic.ini upgrade head`.
+A reported failure blocks progress; reconcile actual state before retrying.
+No automatic downgrade or claim of release readiness follows from this candidate.
 
-After native target preparation is explicitly authorized and independently verified,
-the future native proof must exercise actual separate migrator/runtime/operator logins,
-empty upgrade, repeated upgrade, ledger/catalog/ACL mismatch refusal, DDL/ledger access
-denial for runtime/operator, owner locking, rollback/forward retry and unchanged unrelated
-schemas/data. Both current and previous API versions must remain compatible; this
-candidate adds no API change or business data, but native compatibility is still unproved.
-No role or target preparation, native run, production registration, release activation,
-Auth/account setup or resource cleanup follows from these instructions.
-
-Controlled candidate command (not executed natively): supply KDG_MIGRATION_TARGET_ID,
-KDG_MIGRATION_ENVIRONMENT_KIND and KDG_MIGRATION_DATABASE_URL privately, then run
-`P -I -B -m alembic -c apps/kdg-capture/alembic.ini upgrade head` from repository root.
-Local-only connection arguments pin hostaddr and disable TLS/GSS/passfile fallback for
-this disposable loopback candidate. They cannot select a remote or production target.
+The [earlier candidate evidence](../docs/SCHEMA_FOUNDATION_CANDIDATE_EVIDENCE.md) remains
+historical and source-bound. Its exhaustive inventory assertions describe that version,
+not the current simplified helper.

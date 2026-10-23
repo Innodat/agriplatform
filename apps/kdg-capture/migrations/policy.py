@@ -4,7 +4,7 @@ import sys
 sys.path.insert(0,str(Path(__file__).resolve().parents[1]/'database-tools'))
 from owned_migration import MigrationPolicy,MigrationError
 
-POLICY=MigrationPolicy('kdg_capture','kdg_capture_migrator','kdg_capture_runtime','kdg_capture_operator','0001_kdg_foundation')
+POLICY=MigrationPolicy('kdg_capture','kdg_capture_migrator','kdg_capture_runtime','kdg_capture_operator')
 
 def connection_url(environment):
     """Candidate is restricted to explicit known synthetic target; no target discovery."""

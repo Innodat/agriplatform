@@ -4,16 +4,16 @@
     "generator": "builder-v1",
     "template": "schema-foundation-v1-candidate",
     "recipe": "13151600e7ec6366ad1cc374bd4b9174b4289fd11079b768183407e5302de102",
-    "source": "390ce93342ad9d8b52d23fefe54e2b93c575496f162246e68697a51049f51d72"
+    "source": "78f1b46762cc39c3ee09046cd0323f654975df89cb2e6bc23913c29bb9ced01e"
   },
   "files": {
     "owned_migration.py": {
       "classification": "generated",
-      "sha256": "369c2e8e6282352227bf2328a644af6cce4181473d1c52f3e4233d89ae8251e6"
+      "sha256": "6b8f96aea6fba39f21fc9134917be0776088f92f9cdc80b2d2224a50c3b12cf0"
     },
     "test_owned_migration.py": {
       "classification": "generated",
-      "sha256": "658ff64a3ad4c389eaa7d930aa458dc1427a76651710012a19047e12e4964cb0"
+      "sha256": "95f0be531a0370f64a2cbe98ee670092214772c9ed41678ca1e9d394bda801c2"
     }
   }
 }

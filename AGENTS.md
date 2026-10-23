@@ -300,3 +300,13 @@ Leave teams derive from organization-scoped supervisor direct reports. Do not ad
 independent named-team catalogue/membership or team-profile default for MVP. People owns
 supervisor facts over HTTP; Leave owns authorized temporal grouping/views and workflow
 snapshots. Group membership itself grants no access or approval authority.
+
+## Platform-wide migration verification
+
+Follow [focused migration verification](platform/docs/development/migration-verification.md)
+for all applications, services and scaffolds. Keep controlled migrations, least privilege,
+application ownership and focused access tests. Prefer ordinary Alembic/PostgreSQL
+behavior over custom checks of internal structures; promote proven reusable fixtures
+and tests with their first consumer. Add guards for concrete failure cases with
+behavioral evidence. Existing release safety, authorization and tenant protections remain
+binding; test doubles do not establish actual database permissions or rollback.

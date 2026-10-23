@@ -1,3 +1,39 @@
+## Current delivery — focused platform migration verification, 2026-10-23
+
+The user clarified that the platform-wide change is to the verification approach, not
+the application architecture. Keep controlled migrations, least privilege, application
+ownership and focused access tests. Prefer ordinary Alembic/PostgreSQL behavior over
+checks of internal structures; promote proven reusable fixtures/tests and add guards
+for concrete failures. See [platform guidance](../../../platform/docs/development/migration-verification.md)
+and [KDG consuming evidence](FOCUSED_MIGRATION_VERIFICATION_EVIDENCE.md).
+
+The shared/scaffold helper no longer requires an empty schema or exact physical ledger
+inventory. Alembic owns revision interpretation; the helper retains selected migration
+login/schema-owner checks, bounded owner serialization and safe transaction failures.
+KDG's generated helper/tests/manifest are synchronized; URL/command policy remains local.
+Actual least-privilege setup and focused real allow/deny tests remain required. Offline
+wrapper tests do not establish native database security, timing or rollback.
+
+Next resume the separate native KDG acceptance item using an ordinary isolated fixture.
+The user already approved resuming the retained run99b7231c-0a5b-4bdb-98e8-3329564c526a
+and preparing one isolated KDG test DB plus three roles; do not ask again for that same
+exception. No fixture object was created: the prior draft failed on input format before
+connecting, and the stack was stopped with resources retained. Preserve that failed
+draft/evidence, correct or replace it explicitly before use, and do not rerun historical
+preparers or the broad rejected Access verifier. Unknown54322 stays untouched.
+Prove upgrade/repeat, actual restricted-login DDL/ledger/cross-owner denials, serialization,
+failed-transaction retained state and explicit retry. Let Alembic reject unknown revisions.
+The old native draft's exhaustive inventory matrix is historical intent superseded by
+the user's clarified focused approach; do not restore the removed catalogue machinery.
+
+No native acceptance, business table/API write, production registry or release readiness
+is claimed. Existing app/service histories and historical candidate evidence stay intact.
+Preserve concurrent changes, Docker resources and the approved baseline including TS7.0.2.
+No Leave/editor, production, real accounts/access, general provisioning, deployment/pilot,
+cleanup or fingerprints/HMAC. KDG still has no Entra requirement.
+
+Earlier handoffs follow unchanged as historical checkpoints.
+
 ## Current delivery — KDG schema foundation candidate, 2026-10-23
 
 The first KDG database candidate now has a separate owner Alembic history/policy and
