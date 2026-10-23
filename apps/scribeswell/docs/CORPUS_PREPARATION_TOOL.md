@@ -189,9 +189,10 @@ committed preparation.
 
 ## Outcomes and recovery
 
-These are semantic outcomes; a closed child/result wire schema must be specified
-with the supervised executor delivery before it is implemented. The next pure
-parser depends only on the request table above, not a provisional result format.
+The [worker result and attempt-evidence contract](CORPUS_PREPARATION_EVIDENCE.md)
+now specifies the closed wire, two persistence checkpoints and finite recovery
+records. It is a design, not implemented codecs or storage. The existing request
+parser remains independent of that later result format.
 
 | Outcome | Evidence required | Further action |
 |---|---|---|
@@ -258,8 +259,8 @@ The first two rows are implemented by the pure app-owned parser and its acceptan
 tests; the remaining rows are future executor/admission qualification. Parsing
 consumes the existing pure custody validator without authenticating owner records.
 Subsequent
-supervisor work must close its result wire, durable-attempt capture and actual
-fixture admission before implementing SQL effects; live owner integration remains
+supervisor work must prove the specified result wire/durable-attempt capture and
+close actual fixture admission and applicable atomic audit before SQL effects; live owner integration remains
 separate. No scaffold/shared UI/agent context or accepted ADR change is required by
 this documentation slice. Studies UX, standalone account creation and separate
 Access/KDG/Leave/factory ownership remain unchanged.
