@@ -3,6 +3,8 @@
 The controlled release now includes the separately credentialed
 `scribeswell-owned` adoption baseline. See [owned migration preparation and
 recovery](../docs/MIGRATIONS.md) before refreshing release evidence or deploying.
+Explicit prepared/history selection and committed evidence follow the
+[host validation contract](../docs/HOST_VALIDATION_PROFILES.md); dormant remains default.
 The initial schema/bootstrap below remains an explicit prerequisite, not the
 forward migration mechanism. Registration alone does not qualify a live target.
 

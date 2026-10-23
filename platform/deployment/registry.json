@@ -26,6 +26,7 @@
         "apps/scribeswell/deployment/migrate.py",
         "apps/scribeswell/deployment/migration-requirements.txt",
         "apps/scribeswell/backend/database.py",
+        "platform/deployment/host-release.py",
         "platform/deployment/target_contract.py"
       ]
     }

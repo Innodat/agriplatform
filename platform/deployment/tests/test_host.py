@@ -34,6 +34,26 @@ class Host(unittest.TestCase):
   evidence=Path(command[command.index('-v')+1].removesuffix(':/evidence'))
   (evidence/'migrations.json').write_text(report if isinstance(report,str) else json.dumps(report))
  def deploy(self,root):return host.deploy('staging','a'*40,root/'images.json',root/'config.json',root/'attempt',root/'public.json')
+ def success_report(self,command):
+  if Path(command[command.index('--env-file')+1]).name!='scribeswell-migrations.env':return {'complete':True,'owners':{}}
+  contract=host.scribeswell_contract();expected=contract.from_environ(host.env_values(Path(command[command.index('--env-file')+1])))
+  proof=contract.evidence(expected)
+  return {'complete':True,'owners':{'scribeswell':{'status':'succeeded','before':'scribeswell_0003','after':'scribeswell_0003','requested_validation':proof,'validation':proof}}}
+ def test_scribeswell_revision_only_success_blocks_activation(self):
+  with tempfile.TemporaryDirectory() as d:
+   root=Path(d);self.setup_target(root);calls=[]
+   def execute(command,**kwargs):
+    calls.append(command)
+    if command[:2]==['docker','run']:
+     self.migration_report(command,{'complete':True,'owners':{'scribeswell':{'status':'succeeded','before':'scribeswell_0003','after':'scribeswell_0003'}}})
+   def render(output,*args):output.mkdir();(output/'apisix.yaml').write_text('fake');return {}
+   with patch.object(host,'require_compose'),patch.object(host,'render',side_effect=render),patch.object(host.os,'chown'),patch.object(host,'execute',side_effect=execute),patch.object(host.subprocess,'check_output',return_value=''),patch.object(host,'supervisor_events',return_value={}):
+    with self.assertRaisesRegex(ValueError,'migration failed'):self.deploy(root)
+   report=json.loads((root/'attempt/evidence.json').read_text())
+   self.assertFalse(report['activated'])
+   self.assertEqual(report['migrations']['pts-owned']['status'],'succeeded')
+   self.assertEqual(report['migrations']['scribeswell-owned']['status'],'failed')
+   self.assertFalse(any(c[:2]==['docker','compose'] for c in calls))
  def test_catalogue_reference_enters_migration_compatibility_fingerprint(self):
   with tempfile.TemporaryDirectory() as d:
    root=Path(d);app=root/'app';app.mkdir();(app/'alembic.ini').write_text('[alembic]')
@@ -122,7 +142,7 @@ class Host(unittest.TestCase):
   with tempfile.TemporaryDirectory() as d:
    root=Path(d);self.setup_target(root);calls=[]
    prior={'complete':True,'owners':{owner:{'status':'succeeded','before':[],'after':['0001']} for owner in ('access','content','pts')}}
-   failed={'complete':False,'owners':{'scribeswell':{'status':'failed','before':[],'after':None,'outcome_requires_reconciliation':True}}}
+   failed={'complete':False,'code':'scribeswell_migration_failed','owners':{'scribeswell':{'status':'failed','before':None,'outcome_requires_reconciliation':True}}}
    def execute(command,**kwargs):
     calls.append(command)
     if command[:2]==['docker','run']:
@@ -144,7 +164,7 @@ class Host(unittest.TestCase):
   with tempfile.TemporaryDirectory() as d:
    root=Path(d);self.setup_target(root)
    def execute(command,**kwargs):
-    if command[:2]==['docker','run']:self.migration_report(command,{'complete':True,'owners':{}})
+    if command[:2]==['docker','run']:self.migration_report(command,self.success_report(command))
     if command[:2]==['docker','compose']:raise RuntimeError('health failure')
    def render(output,*args):output.mkdir();(output/'apisix.yaml').write_text('fake');return {}
    observed={'events':[{'container_id':'old','action':'kill','signal':'9'}],'warnings':[{'code':'forced_termination','container_id':'old'}]}
@@ -163,7 +183,7 @@ class Host(unittest.TestCase):
   with tempfile.TemporaryDirectory() as d:
    root=Path(d);self.setup_target(root)
    def execute(command,**kwargs):
-    if command[:2]==['docker','run']:self.migration_report(command,{'complete':True,'owners':{}})
+    if command[:2]==['docker','run']:self.migration_report(command,self.success_report(command))
     if command[:2]==['docker','compose']:self.assertTrue((root/'state/release-pending.json').exists())
    def render(output,*args):output.mkdir();(output/'apisix.yaml').write_text('fake');return {}
    with patch.object(host,'require_compose'),patch.object(host,'render',side_effect=render),patch.object(host.os,'chown'),patch.object(host,'execute',side_effect=execute),patch.object(host.subprocess,'check_output',return_value='old\n'),patch.object(host,'supervisor_events',return_value={}):
@@ -183,7 +203,7 @@ class Host(unittest.TestCase):
      if command[:2]==['docker','run']:
       self.assertTrue(any(c[:3]==['docker','network','create'] for c in calls))
       self.assertEqual(command[command.index('--network')+1],next(c[-1] for c in reversed(calls) if c[:3]==['docker','network','create']))
-      if failure!='absent':self.migration_report(command,'invalid' if failure=='detail' else {'complete':True,'owners':{}})
+      if failure!='absent':self.migration_report(command,'invalid' if failure=='detail' else self.success_report(command))
       if failure=='run':raise RuntimeError('secret-db-password')
       if failure in ('timeout','stop'):raise host.subprocess.TimeoutExpired(command,1500)
      if command[:2]==['docker','stop']:

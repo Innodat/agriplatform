@@ -8,6 +8,8 @@ import time
 APP = Path(__file__).resolve().parents[1]
 ROOT = APP.parents[1]
 BUDGET_SECONDS = 180
+sys.path.insert(0,str(APP / 'migrations'))
+from release_profile import from_environ, selection, evidence as profile_evidence, strict_json, valid_result, OPTION_KEYS
 
 def validate_url(environ):
     sys.path.insert(0,str(ROOT / 'platform/deployment'))
@@ -18,7 +20,10 @@ def worker():
     # Internal IPC only. No raw exception or Alembic logging crosses this process.
     config=None
     try:
-        request=json.loads(sys.stdin.read(16385))
+        request=strict_json(sys.stdin.read(16385),16384)
+        if type(request) is not dict or set(request)!={'url','validation'}:
+            raise ValueError
+        expected=selection(request['validation'])
         sys.path.insert(0,str(APP / 'backend'))
         from database import validate_url as local_url
         url=local_url(request['url'],'scribeswell_migrator')
@@ -26,8 +31,16 @@ def worker():
         from alembic import command
         from alembic.config import Config
         config=Config(str(APP / 'alembic.ini'))
+        config.attributes['scribeswell_validation_profile']=expected['profile']
+        if expected['custody'] is not None:
+            config.attributes['scribeswell_prepared_actor']=expected['custody']
         command.upgrade(config,'head')
-        result={'before':config.attributes['scribeswell_before'],'after':config.attributes['scribeswell_after']}
+        if config.attributes.get('scribeswell_validated_profile')!=expected['profile']:
+            raise ValueError
+        result={'before':config.attributes['scribeswell_before'],'after':config.attributes['scribeswell_after'],
+                'validation':profile_evidence(expected)}
+        if not valid_result(result,expected):
+            raise ValueError
         sys.stdout.write(json.dumps(result))
     except BaseException:
         result={'code':'scribeswell_migration_failed'}
@@ -57,14 +70,16 @@ def main(target=Path('/evidence/migrations.json'), *, environ=None, run=subproce
     child=None
     try:
         save()
+        expected=from_environ(environ)
+        entry['requested_validation']=profile_evidence(expected)
         url=validate_url(environ)
         if not 0 < timeout <= BUDGET_SECONDS:
             raise ValueError
-        clean={key:value for key,value in environ.items() if not key.startswith('PG') and key!='SCRIBESWELL_MIGRATION_DATABASE_URL'}
+        clean={key:value for key,value in environ.items() if not key.startswith('PG') and key not in OPTION_KEYS|{'SCRIBESWELL_MIGRATION_DATABASE_URL'}}
         entry['status']='running';save()
         child=run([sys.executable,str(Path(__file__).resolve()),'--worker'],stdin=subprocess.PIPE,stdout=subprocess.PIPE,stderr=subprocess.DEVNULL,env=clean,text=True)
         try:
-            output,_=child.communicate(json.dumps({'url':url}),timeout=max(.001,timeout-(time.monotonic()-started)-min(5,timeout/10)))
+            output,_=child.communicate(json.dumps({'url':url,'validation':expected}),timeout=max(.001,timeout-(time.monotonic()-started)-min(5,timeout/10)))
         except subprocess.TimeoutExpired:
             child.kill()
             child.communicate(timeout=5)
@@ -72,20 +87,22 @@ def main(target=Path('/evidence/migrations.json'), *, environ=None, run=subproce
             raise RuntimeError from None
         if len(output)>4096:
             raise RuntimeError
-        result=json.loads(output)
+        result=strict_json(output,4096)
         if child.returncode:
             if (isinstance(result,dict) and set(result) <= {'code','before'}
                     and result.get('code')=='scribeswell_migration_failed' and 'before' in result
                     and (result['before'] is None or result['before'] in ('scribeswell_0001','scribeswell_0002','scribeswell_0003'))):
                 entry['before']=result['before']
             raise RuntimeError
-        if set(result)!={'before','after'} or result['before'] not in (None,'scribeswell_0001','scribeswell_0002','scribeswell_0003') or result['after']!='scribeswell_0003':
+        if not valid_result(result,expected):
             raise RuntimeError
         entry.update(status='succeeded',**result)
         report['complete']=True
         save()
     except BaseException:
         report['complete']=False
+        entry.pop('validation',None)
+        entry.pop('after',None)
         if child is not None and child.poll() is None:
             child.kill()
             try:child.communicate(timeout=5)

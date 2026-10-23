@@ -3,10 +3,9 @@
 `prepared-controller-v1` validates an already prepared, dormant `scribeswell_0003`
 for controlled native rehearsal. It performs no caller preparation, actor registration,
 grant repair, enforcement activation, scripture import or state cleanup. The existing
-host adapter and command line remain strict dormant-only; ambient environment hints
-cannot select this profile. The separate [controller-history native profile](CONTROLLER_HISTORY_PROFILE.md)
-qualifies coherent history without changing this profile. Operational host integration
-and live preparation remain separate gates.
+host defaults to dormant and the native command line remains strict dormant-only.
+The controlled adapter accepts only the explicit [host selection contract](HOST_VALIDATION_PROFILES.md). The separate [controller-history native profile](CONTROLLER_HISTORY_PROFILE.md)
+qualifies coherent history without changing this profile. Live preparation and target activation remain separate gates.
 
 Use `baseline.preflight_prepared(connection, expected_actor)` on an actual restricted
 migrator connection inside a caller-owned writable `READ COMMITTED` transaction.
@@ -39,8 +38,7 @@ command.upgrade(config, 'head')
 
 Use the existing explicit migration database URL and validation prerequisites in
 [MIGRATIONS.md](MIGRATIONS.md). Omission means `dormant`. Unknown/`None` profiles,
-custody in dormant mode and missing prepared custody fail. There is no new environment,
-CLI or host selector. `scribeswell_validated_profile` appears only after successful
+custody in dormant mode and missing prepared custody fail. The native CLI has no environment selector; controlled host inputs are separate. `scribeswell_validated_profile` appears only after successful
 pre/post checks and transaction commit; it is removed before each new invocation,
 including offline/unsupported attempts. Existing before/after revision observations
 remain diagnostic evidence rather than a new durable ledger.
@@ -94,4 +92,4 @@ active release, importer transition and sealed publication/reader proof remain o
 
 Impact decisions: no scaffold, shared UI or agent-context promotion; app documentation
 and the canonical handoff record this bounded profile. Accepted ADRs, applied revisions,
-references, host selection and importer behavior are unchanged.
+references and importer behavior are unchanged by that native delivery.

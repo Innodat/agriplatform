@@ -29,7 +29,7 @@ class Release(unittest.TestCase):
   registry=json.loads((ROOT/'platform/deployment/registry.json').read_text())
   groups=[g for g in registry['migration_groups'] if 'scribeswell' in g['owners']]
   self.assertEqual(len(groups),1)
-  self.assertEqual(groups[0],{'id':'scribeswell-owned','dockerfile':'apps/scribeswell/deployment/Migrations.Dockerfile','env_file':'scribeswell-migrations.env','owners':['scribeswell'],'compatibility_inputs':['apps/scribeswell/deployment/migrate.py','apps/scribeswell/deployment/migration-requirements.txt','apps/scribeswell/backend/database.py','platform/deployment/target_contract.py']})
+  self.assertEqual(groups[0],{'id':'scribeswell-owned','dockerfile':'apps/scribeswell/deployment/Migrations.Dockerfile','env_file':'scribeswell-migrations.env','owners':['scribeswell'],'compatibility_inputs':['apps/scribeswell/deployment/migrate.py','apps/scribeswell/deployment/migration-requirements.txt','apps/scribeswell/backend/database.py','platform/deployment/host-release.py','platform/deployment/target_contract.py']})
   app=next(m for m in manifests if m['id']=='scribeswell')
   self.assertEqual(app['migration'],{'owner':'scribeswell','config':'apps/scribeswell/alembic.ini','url_env':'SCRIBESWELL_MIGRATION_DATABASE_URL','role':'scribeswell_migrator'})
  def test_health_failure_is_not_success(self):

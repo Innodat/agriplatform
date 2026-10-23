@@ -198,7 +198,7 @@ def test_adapter_safe_evidence_and_stripped_environment(tmp_path):
         def __init__(self,args,**kwargs):calls.append((args,kwargs))
         def communicate(self,request,**kwargs):
             assert json.loads(request)['url']==VALID_ENV['SCRIBESWELL_MIGRATION_DATABASE_URL']
-            return json.dumps({'before':None,'after':REVISION}),None
+            return json.dumps({'before':None,'after':REVISION,'validation':{'profile':'dormant','custody_sha256':None}}),None
         def poll(self):return 0
     target=tmp_path/'evidence.json'
     result=adapter.main(target,environ=VALID_ENV|{'PGHOST':'hostile','PGOPTIONS':'-c role=postgres'},run=Process)
@@ -254,7 +254,7 @@ def test_real_supervised_worker_records_committed_before_after(prepared,tmp_path
     target=tmp_path/'actual.json'
     result=adapter.main(target,environ={})
     assert result['complete']
-    assert result['owners']['scribeswell']=={'status':'succeeded','before':None,'after':REVISION}
+    assert result['owners']['scribeswell']=={'status':'succeeded','before':None,'after':REVISION,'requested_validation':{'profile':'dormant','custody_sha256':None},'validation':{'profile':'dormant','custody_sha256':None}}
     assert admin.execute('SELECT * FROM scribeswell.alembic_version').fetchall()==[(REVISION,)]
 
 @pytest.mark.parametrize('output',['not-json','[]','{}','{"before":null,"after":"unknown"}','{"before":[],"after":"scribeswell_0001"}'])
@@ -375,7 +375,7 @@ def test_worker_emits_known_before_after_upgrade_failure(monkeypatch,capsys):
         config.attributes['scribeswell_before']=REVISION
         raise RuntimeError('sensitive-error-must-not-cross-ipc')
     monkeypatch.setattr(command,'upgrade',fail)
-    monkeypatch.setattr(sys,'stdin',io.StringIO(json.dumps({'url':'postgresql://scribeswell_migrator:secret@127.0.0.1:1/postgres'})))
+    monkeypatch.setattr(sys,'stdin',io.StringIO(json.dumps({'url':'postgresql://scribeswell_migrator:secret@127.0.0.1:1/postgres','validation':{'profile':'dormant','custody':None}})))
     with pytest.raises(SystemExit):load_adapter().worker()
     assert json.loads(capsys.readouterr().out)=={'code':'scribeswell_migration_failed','before':REVISION}
 
@@ -402,6 +402,7 @@ def test_failed_worker_rejects_unvalidated_observations(tmp_path,response):
 
 def test_actual_worker_timeout_reaps_and_releases_transaction(prepared,tmp_path,monkeypatch):
     from concurrent.futures import ThreadPoolExecutor
+    import signal
     import time
     import psycopg
     admin,url=prepared
@@ -409,11 +410,14 @@ def test_actual_worker_timeout_reaps_and_releases_transaction(prepared,tmp_path,
     adapter=load_adapter()
     monkeypatch.setattr(adapter,'validate_url',lambda env:migration_url(url))
     target=tmp_path/'timeout.json'
+    children=[]
+    def launch(*args,**kwargs):
+        child=subprocess.Popen(*args,**kwargs);children.append(child);return child
     with psycopg.connect(url,autocommit=True) as observer:
         with admin.transaction():
             admin.execute("SELECT pg_advisory_xact_lock(hashtext('scribeswell-owned-migrations'))")
             with ThreadPoolExecutor(max_workers=1) as executor:
-                attempt=executor.submit(adapter.main,target,environ={},timeout=2.5)
+                attempt=executor.submit(adapter.main,target,environ={},timeout=2.5,run=launch)
                 deadline=time.monotonic()+2
                 waiting=[]
                 while time.monotonic()<deadline:
@@ -421,6 +425,10 @@ def test_actual_worker_timeout_reaps_and_releases_transaction(prepared,tmp_path,
                     if waiting:break
                     time.sleep(.02)
                 assert waiting,'real migrator must be observed waiting on the held owner lock'
+                # Isolate supervisor termination from the native lock-timeout race.
+                # Stop only this owned child after its real backend is observed;
+                # the supervisor must SIGKILL/reap it within the original budget.
+                children[0].send_signal(signal.SIGSTOP)
                 with pytest.raises(SystemExit):attempt.result(timeout=8)
             deadline=time.monotonic()+5
             while time.monotonic()<deadline:
@@ -431,7 +439,8 @@ def test_actual_worker_timeout_reaps_and_releases_transaction(prepared,tmp_path,
             assert observer.execute("SELECT to_regclass('scribeswell.alembic_version')").fetchone()==(None,)
     report=json.loads(target.read_text())
     assert report['complete'] is False
-    assert report['owners']['scribeswell']=={'status':'unknown','outcome_requires_reconciliation':True}
+    assert report['owners']['scribeswell']=={'status':'unknown','outcome_requires_reconciliation':True,'requested_validation':{'profile':'dormant','custody_sha256':None}}
+    assert children[0].returncode == -signal.SIGKILL
     assert business_state(admin)==before
     assert 'fixture' not in target.read_text() and 'postgresql' not in target.read_text()
 
@@ -516,10 +525,10 @@ def test_adapter_supports_all_known_before_revisions(tmp_path,before):
     class Process:
         returncode=0
         def __init__(self,*args,**kwargs):pass
-        def communicate(self,*args,**kwargs):return json.dumps({'before':before,'after':REVISION}),None
+        def communicate(self,*args,**kwargs):return json.dumps({'before':before,'after':REVISION,'validation':{'profile':'dormant','custody_sha256':None}}),None
         def poll(self):return 0
     result=load_adapter().main(tmp_path/'success.json',environ=VALID_ENV,run=Process)
-    assert result['owners']['scribeswell']=={'before':before,'after':REVISION,'status':'succeeded'}
+    assert result['owners']['scribeswell']=={'before':before,'after':REVISION,'status':'succeeded','requested_validation':{'profile':'dormant','custody_sha256':None},'validation':{'profile':'dormant','custody_sha256':None}}
 
 
 def establish_revision_two(admin):

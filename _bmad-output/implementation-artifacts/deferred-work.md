@@ -112,3 +112,7 @@
 - source_spec: `_bmad-output/implementation-artifacts/spec-access-b-organization-check.md`
   summary: Bound the existing authentication provider adapter's whole operation before deployed Access operation.
   evidence: Existing httpx timeout bounds individual I/O waits; a slowly trickling provider can exceed a total operation deadline. Provider deployment qualification is not claimed by this synthetic check delivery.
+
+- source_spec: `spec-scribeswell-host-validation-profiles.md`
+  summary: Bound migration supervisor stdout buffering before allocation rather than checking wire size after communicate.
+  evidence: Blind B2 verified against original7d1cd2b adapter; existing communicate buffers before4096 rejection. New fixed worker shapes remain small and deadlines/activation denials remain, but a hard memory ceiling requires separate supervisor transport work.

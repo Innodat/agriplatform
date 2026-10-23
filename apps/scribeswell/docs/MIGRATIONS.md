@@ -54,8 +54,9 @@ SQL or deployment. Before controlled adoption:
 The existing host release coordinator registers a separate `scribeswell-owned`
 migration group. Its nonroot image is built from
 `apps/scribeswell/deployment/Migrations.Dockerfile`. Its private
-`scribeswell-migrations.env` contains exactly `SUPABASE_URL` and
-`SCRIBESWELL_MIGRATION_DATABASE_URL`, using the prepared migration role, matching
+`scribeswell-migrations.env` requires `SUPABASE_URL` and
+`SCRIBESWELL_MIGRATION_DATABASE_URL` by default, with only the optional explicit
+[profile/custody inputs](HOST_VALIDATION_PROFILES.md), using the prepared migration role, matching
 Supabase project and explicit TLS. Keep this file outside version control and
 separate from `scribeswell.env`; runtime must never receive migration credentials.
 
@@ -76,23 +77,22 @@ production execution uses the bounded adapter through the host coordinator.
 Supported execution is upgrade to head, including replay validation.
 Stamp, downgrade, offline generation and unrelated commands are rejected. Replay
 checks the catalogue again rather than trusting a stored revision alone. Head
-replay deliberately requires false enforcement, empty epoch/bindings/controller
+replay defaults to false enforcement, empty epoch/bindings/controller
 tables and shipped owner-only ACLs. Fixture-only controller activity is not an
-approved active release profile; operational-state qualification and coordinated
-caller/importer transitions remain separate gates.
+approval to activate a live target; explicit profiles below qualify operational
+state while live custody and coordinated caller/importer transitions remain gates.
 
 ## Controlled prepared replay
 
 The separate [prepared-controller profile](PREPARED_CONTROLLER_PROFILE.md) qualifies
-an already prepared, false-enforcement, empty-history `0003` only through explicit
-native Alembic Config attributes or the direct owner checker. It permits exactly the
+an already prepared, false-enforcement, empty-history `0003` through explicit
+native Alembic Config attributes, the direct owner checker, or the controlled host adapter. It permits exactly the
 operator schema USAGE and two entry EXECUTE grants against the original reference,
 and matches independently supplied custody against protected local records. It does
 not verify Identity, provision callers, adopt earlier revisions or enable enforcement.
-The host adapter and ordinary CLI remain dormant-only and reject prepared targets;
-there is no ambient environment selector. Native profile evidence is published only
-after both checks and commit. The separate history-native profile below extends
-local rehearsal; operational host release support remains a later gate.
+The ordinary native CLI remains dormant-only. The controlled adapter now accepts
+only explicit profile/custody inputs under the [host contract](HOST_VALIDATION_PROFILES.md).
+Profile evidence is published only after both checks and commit.
 
 ## Controller-history native replay
 
@@ -100,8 +100,9 @@ The explicit [controller-history profile](CONTROLLER_HISTORY_PROFILE.md) additio
 validates empty or coherent committed history at exact0003, including paused states
 and historical executor changes. It preserves the prepared profile's exact custody,
 catalogue and privilege gates. Native Config selection remains deliberate; the
-ordinary CLI/host stays dormant-only. This qualification changes no enforcement,
-actor/grant, importer or publication state. Live custody, operational host integration
+ordinary CLI stays dormant-only and the host defaults to dormant. Explicit host
+profile/custody inputs now support bounded replay. This qualification changes no enforcement,
+actor/grant, importer or publication state. Live custody, image/target qualification
 and coordinated production transition remain gates.
 
 ## Failure and recovery
@@ -135,6 +136,7 @@ a uniquely named database, and removes only its own database and roles. Run
 database suites sequentially against that cluster.
 
 ```sh
+python -m pytest apps/scribeswell/tests/test_host_validation_profiles.py -q
 python -m pytest apps/scribeswell/tests/test_controller_history_profile.py -q
 python -m pytest apps/scribeswell/tests/test_prepared_controller_profile.py -q
 python -m pytest apps/scribeswell/tests/test_owned_migrations.py -q

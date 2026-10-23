@@ -22,9 +22,9 @@ command.upgrade(config, 'head')
 The existing [migration prerequisites](MIGRATIONS.md) apply. Local custody matching
 does not independently verify Identity. All earlier/absent/invalid ledger states
 reject. Omission remains strict `dormant`; explicit `prepared-controller-v1` remains
-false-enforcement/empty-history only. There is no CLI, environment or host selector
-for either native profile. Host integration, externally verified live custody and
-production role/writer preparation remain separate gates.
+false-enforcement/empty-history only. The native CLI has no environment selector; the [controlled host adapter](HOST_VALIDATION_PROFILES.md)
+now accepts explicit profile/custody inputs and defaults to dormant. Externally
+verified live custody and production role/writer preparation remain separate gates.
 
 The exact pinned catalogue, restricted migration/operator authority and three
 owner-granted nongrantable operator ACL additions are identical to prepared replay.
@@ -73,7 +73,8 @@ prerequisite. There are no external waits or scripture scans under these locks.
 
 These are per-statement/lock ceilings, not an end-to-end connection, validation or
 COMMIT deadline. The native caller owns transaction completion and rollback after
-failure. Operational supervisor/host wiring and its transport deadlines remain gated.
+failure. The [controlled host supervisor](HOST_VALIDATION_PROFILES.md) supplies an outer budget;
+native-only callers still own their end-to-end deadline.
 Success evidence `scribeswell_validated_profile` appears only after pre/post validation
 and successful commit. Reused evidence clears even on invalid/offline/unsupported
 attempts. SQL/driver failures expose fixed safe identifiers without raw payloads.

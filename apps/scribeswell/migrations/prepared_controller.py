@@ -1,7 +1,5 @@
 """Closed prepared-controller v1 checks. Local custody is not Identity verification."""
 import json
-import re
-from uuid import UUID
 from baseline import APP, REVISION, BaselineError, _checked_authority_ledger
 from catalogue import snapshot
 
@@ -9,7 +7,6 @@ OPERATOR = 'scribeswell_corpus_operator'
 ENTRIES = ('execute_corpus_command', 'lookup_corpus_command_outcome')
 TABLES = ('corpus_operator_principal', 'corpus_operator_authority', 'corpus_fence_control',
           'corpus_epoch', 'corpus_attempt', 'corpus_command_outcome', 'corpus_write_binding')
-FIELDS = {'schema_version','source_id','executor_actor_id','actor_kind','actor_key','preparation_evidence_ref'}
 
 
 def deny(code):
@@ -17,22 +14,11 @@ def deny(code):
 
 
 def custody(value):
-    if type(value) is not dict or set(value) != FIELDS:
-        deny('custody_invalid')
-    if type(value['schema_version']) is not int or value['schema_version'] != 1 or value['actor_kind'] != 'service':
-        deny('custody_invalid')
-    for name, pattern in (('source_id',r'[A-Za-z0-9][A-Za-z0-9._:-]{0,63}'),
-                          ('actor_key',r'[a-z][a-z0-9_.:-]{0,127}'),
-                          ('preparation_evidence_ref',r'[A-Za-z0-9][A-Za-z0-9_.:/-]{0,255}')):
-        if type(value[name]) is not str or re.fullmatch(pattern,value[name],flags=re.ASCII) is None:
-            deny('custody_invalid')
+    from release_profile import validate_custody
     try:
-        actor = UUID(value['executor_actor_id'])
-        if actor.int == 0 or str(actor) != value['executor_actor_id']:
-            deny('custody_invalid')
-    except (ValueError, TypeError, AttributeError):
+        return validate_custody(value)
+    except ValueError:
         deny('custody_invalid')
-    return dict(value)
 
 
 def acl(connection, value):

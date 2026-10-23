@@ -95,15 +95,15 @@ explicit same-operation reconciliation. This connection adapter still exposes no
 general command runner.
 
 [Migration verification](MIGRATIONS.md) preserves independently pinned `0001`/`0002`
-references and adds a separately generated `0003` reference. Default and host replay remain deliberately dormant-only. The explicit native
+references and adds a separately generated `0003` reference. Default replay remains deliberately dormant; the native CLI has no profile selector. The explicit native
 [prepared-controller profile](PREPARED_CONTROLLER_PROFILE.md) additionally checks a
 prepared operator while enforcement stays false and history empty, matching local
 custody without claiming Identity verification. It changes no grants or state.
 The separate [controller-history native profile](CONTROLLER_HISTORY_PROFILE.md)
 validates coherent active/paused history under the same current-custody and privilege
-gates, preserving original outcomes. Operational host release integration and live
-preparation remain gates. Real actor/caller preparation,
-least-privilege operational release profile, target adoption and writer/importer
+gates, preserving original outcomes. Explicit [host selection](HOST_VALIDATION_PROFILES.md)
+now carries these validators through the bounded worker. Real actor/caller preparation,
+live target qualification, target adoption and writer/importer
 transition remain gates. The [outer supervisor](CORPUS_OPERATOR.md) is fixture-qualified;
 its existence does not prepare a live caller or qualify an active release. Closed
 writes are not a sealed full audit,

@@ -2,18 +2,27 @@
 import argparse
 import fcntl
 import hashlib
+import importlib.util
 import json
 import os
 from pathlib import Path
 import re
 import subprocess
 import sys
+import tempfile
 import time
 import uuid
 from release import ROOT, load_manifests, safe_path
 from render_gateway import APISIX, render, origin, require_compose
 from target_contract import database_url
 from tls.renew import save as save_state, durable_unlink
+
+def scribeswell_contract():
+ # App-owned pure build-time contract, not an imported runtime/server capability.
+ path=ROOT/'apps/scribeswell/migrations/release_profile.py'
+ spec=importlib.util.spec_from_file_location('scribeswell_release_profile',path)
+ module=importlib.util.module_from_spec(spec);spec.loader.exec_module(module)
+ return module
 
 def execute(args,**kwargs):
  # Suppress third-party exception/stdout content: credentials may be in database errors.
@@ -47,11 +56,11 @@ def env_values(path):
  for line in path.read_text().splitlines():
   if not line or line.startswith('#'):continue
   key,separator,value=line.partition('=')
-  if not separator or not value or 'REQUIRED' in value or 'STAGING_' in value or '\x00' in value:raise ValueError('incomplete environment')
+  if not separator or key in data or not value or 'REQUIRED' in value or 'STAGING_' in value or '\x00' in value:raise ValueError('incomplete environment')
   data[key]=value
  return data
 
-def preflight(config,environment,manifests,public_config):
+def preflight(config,environment,manifests,public_config,*,migration_inputs=None):
  if public_config!={"environment":environment,"site":config["site"],"api":config["api"],"supabase_url":config["supabase_url"]}:raise ValueError("CI public configuration differs from host")
  if config['environment']!=environment:raise ValueError('environment mismatch')
  site=config['site'];api=config['api'];origin(site);origin(api)
@@ -76,8 +85,12 @@ def preflight(config,environment,manifests,public_config):
   values=env_values(secrets/group['env_file'])
   if values.get('SUPABASE_URL')!=project:raise ValueError('migration project mismatch')
   expected={owner_map[owner]['url_env']:owner_map[owner]['role'] for owner in group['owners']}
-  if set(values)!={*expected,'SUPABASE_URL'}:raise ValueError('migration authority mismatch')
+  options=set()
+  if group['id']=='scribeswell-owned':
+   contract=scribeswell_contract();contract.from_environ(values);options=contract.OPTION_KEYS
+  if not {*expected,'SUPABASE_URL'}<=set(values) or set(values)-{*expected,'SUPABASE_URL'}-options:raise ValueError('migration authority mismatch')
   for field,role in expected.items():database_url(values[field],project,role)
+  if migration_inputs is not None:migration_inputs[group['id']]=dict(values)
  bootstrap=json.loads(Path(config['bootstrap_evidence']).read_text())
  if bootstrap.get('environment')!=environment or bootstrap.get('supabase_url')!=project or bootstrap.get('schema_fingerprint')!=fingerprint() or bootstrap.get('migration_compatibility_fingerprint')!=migration_fingerprint() or not all(bootstrap.get(key) is True for key in ['initial_schema_verified','previous_version_compatible','recovery_verified','auth_storage_verified']) or not isinstance(bootstrap.get('approval_reference'),str) or not bootstrap['approval_reference'].strip():raise ValueError('bootstrap/compatibility evidence missing or stale')
  return secrets
@@ -101,7 +114,8 @@ def supervisor_events(environment,since,previous_ids):
 
 def deploy(environment,sha,images_path,config_path,release_dir,public_config_path):
  if not re.fullmatch('[0-9a-f]{40}',sha):raise ValueError('exact commit SHA required')
- config=json.loads(config_path.read_text());manifests=load_manifests();secrets=preflight(config,environment,manifests,json.loads(public_config_path.read_text()))
+ config=json.loads(config_path.read_text());manifests=load_manifests();migration_inputs={}
+ secrets=preflight(config,environment,manifests,json.loads(public_config_path.read_text()),migration_inputs=migration_inputs)
  images=json.loads(images_path.read_text());registry=json.loads((ROOT/'platform/deployment/registry.json').read_text())
  if images.get('sha')!=sha:raise ValueError('image commit mismatch')
  require_compose()
@@ -116,11 +130,21 @@ def deploy(environment,sha,images_path,config_path,release_dir,public_config_pat
   def save():
    tmp=release_dir/'evidence.tmp';tmp.write_text(json.dumps(report,indent=2)+'\n');tmp.replace(release_dir/'evidence.json')
   save()
+  inputs_temp=None
   try:
+   # Freeze the exact validated migration inputs, including credentials, privately.
+   # Docker and evidence comparison consume the same attempt-specific selection.
+   inputs_temp=tempfile.TemporaryDirectory(prefix='migration-inputs-',dir=state)
+   input_dir=Path(inputs_temp.name)
+   for group in registry.get('migration_groups',[]):
+    fd=os.open(input_dir/group['env_file'],os.O_WRONLY|os.O_CREAT|os.O_EXCL,0o600)
+    with os.fdopen(fd,'w',encoding='utf-8') as stream:
+     stream.write(''.join(key+'='+value+'\n' for key,value in migration_inputs[group['id']].items()))
+     stream.flush();os.fsync(stream.fileno())
    for group in registry.get('migration_groups',[]):
     report['migrations'][group['id']]={'status':'not_attempted'}
    # Validate and pull ALL images before any database changes.
-   for group in registry.get('migration_groups',[]):env_values(secrets/group['env_file'])
+   for group in registry.get('migration_groups',[]):env_values(input_dir/group['env_file'])
    for image in [APISIX,*images['images'].values()]:
     if not re.fullmatch(r'[a-zA-Z0-9./:_-]+@sha256:[0-9a-f]{64}',image):raise ValueError('immutable images required')
     execute(['docker','pull',image],timeout=300)
@@ -130,7 +154,8 @@ def deploy(environment,sha,images_path,config_path,release_dir,public_config_pat
    os.chown(generated,-1,636);os.chown(generated/'apisix.yaml',-1,636)
    for group in registry.get('migration_groups',[]):
     group_id=group['id'];entry=report['migrations'][group_id];entry['status']='running';save()
-    migration_env=secrets/group['env_file'];env_values(migration_env)
+    migration_env=input_dir/group['env_file'];migration_values=migration_inputs[group_id]
+    expected_validation=scribeswell_contract().from_environ(migration_values) if group_id=='scribeswell-owned' else None
     evidence=release_dir/group_id;evidence.mkdir(mode=0o700);os.chown(evidence,10001,10001)
     migration_name='migration-'+group_id+'-'+uuid.uuid4().hex
     network_name=migration_name+'-network';network_created=False;job_succeeded=False
@@ -163,10 +188,22 @@ def deploy(environment,sha,images_path,config_path,release_dir,public_config_pat
       # Cleanup must run even when the migration evidence is absent or malformed.
       try:
        evidence_file=evidence/'migrations.json'
-       entry['detail']=json.loads(evidence_file.read_text()) if evidence_file.exists() else None
-       if job_succeeded and entry['network']['cleanup']=='removed' and entry['detail'] and entry['detail'].get('complete'):entry['status']='succeeded'
+       if group_id=='scribeswell-owned':
+        contract=scribeswell_contract()
+        detail=None
+        if evidence_file.exists():
+         with evidence_file.open() as stream:
+          try:detail=contract.strict_json(stream.read(4097),4096)
+          except ValueError:pass
+        qualified=contract.successful_report(detail,expected_validation)
+        entry['detail']=detail if qualified else contract.safe_failure(detail,expected_validation)
+       else:
+        entry['detail']=json.loads(evidence_file.read_text()) if evidence_file.exists() else None
+        qualified=bool(entry['detail'] and entry['detail'].get('complete'))
+       if job_succeeded and entry['network']['cleanup']=='removed' and qualified:entry['status']='succeeded'
       finally:save()
     if entry['status']!='succeeded':raise ValueError('migration failed')
+   inputs_temp.cleanup();inputs_temp=None
    command=['docker','compose','-f',str(generated/'compose.json')]
    previous_ids=subprocess.check_output(['docker','ps','-q','--no-trunc','--filter','label=com.docker.compose.project=agriplatform-'+environment],text=True,stderr=subprocess.DEVNULL,timeout=10).split()
    candidate={'sha':sha,'images':images['images'],'compose':str(generated/'compose.json'),'evidence':str(release_dir/'evidence.json')}
@@ -181,6 +218,8 @@ def deploy(environment,sha,images_path,config_path,release_dir,public_config_pat
    durable_unlink(state/'release-pending.json')
   except Exception:
    report['code']='release_failed_reconcile_before_retry';report['finished_at']=int(time.time());save();raise
+  finally:
+   if inputs_temp is not None:inputs_temp.cleanup()
 
 if __name__=='__main__':
  p=argparse.ArgumentParser();p.add_argument('--public-config',type=Path);p.add_argument('--fingerprint',action='store_true');p.add_argument('--environment',choices=['staging','production']);p.add_argument('--sha');p.add_argument('--images',type=Path);p.add_argument('--config',type=Path);p.add_argument('--release-dir',type=Path);a=p.parse_args()
