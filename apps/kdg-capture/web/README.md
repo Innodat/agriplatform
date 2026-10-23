@@ -231,3 +231,51 @@ fresh denial, plus a separately simulated persisted-page lifecycle with fresh de
 and no old admission rendered. It does not claim an actual BFCache restoration.
 Held/rejected lazy imports prove disposal, offline/route refusal and explicit recovery
 without constructing the Auth owner after cancellation.
+
+## Opt-in loopback development host
+
+`local-host.config.ts` connects the actual frontend to a running KDG API at the same
+browser origin. It does not start shared infrastructure or create accounts/access.
+Use it only with disposable synthetic local/CI services and the retained approved
+Vite 8.3.4 / Node 26.11.1 / React 19.3.0 / TypeScript 7.0.2 installation. There is
+still no ordinary installed KDG workspace; root npm dev/build remains unsuitable.
+
+Supply an absolute `KDG_LOCAL_WEB_CONFIG` file path through the local process environment.
+The file must be a regular JSON file outside the application and all node_modules
+paths, including resolved symlinks, at most 8192 UTF-8 bytes. It has exactly the five
+public startup fields documented above plus `api_origin`, a fixed HTTP origin with
+literal 127.0.0.1 and an explicit nonzero port. No credentials, service keys, API paths
+or remote API targets belong in this file. There is no checked-in configured target.
+Only the five validated public fields are embedded; api_origin remains host-side.
+
+From the web directory, with N the selected Node and V the retained Vite bin/vite.js:
+
+```sh
+KDG_LOCAL_WEB_CONFIG=/absolute/private/synthetic-local.json "$N" "$V" --config local-host.config.ts
+```
+
+The default web port is 5177; `--port 0` requests an ephemeral proof port. Port conflicts
+fail rather than selecting another port. Resolved configuration rejects non-loopback
+host overrides, HMR, CORS, HTTPS and alternate proxies. This host is intentionally HTTP
+loopback only, not LAN/device HTTPS, a PWA delivery server or a production reverse proxy.
+It explicitly selects tsconfig.auth.json to avoid stale root project references.
+
+The generated opt-in host helper bridges declared GET /api/v1/context only. Unknown
+API routes return JSON 404, never app HTML. It forwards only the bearer and JSON Accept,
+rejects request bodies and duplicate bearers, suppresses redirects/cookies/service keys,
+bounds upstream responses to 64 KiB and total waits to 12 seconds, and returns private
+safe errors for unavailable/invalid responses. Current KDG API authorization still runs
+on every request. No browser Auth request is proxied through this business API route.
+Ambient VITE values, public directory serving and HMR are disabled; served file roots
+are constrained and test/config sources denied. Host logs contain a selected listen
+origin only; they never print request URLs, payloads or configuration.
+
+`local-host-tools` is a separate managed root so the existing fixed Auth inventory is
+preserved. Update canonical builder templates/tests, then run selected Node from repo
+root with `platform/builder-cli/scripts/sync-kdg-local-host.mjs --write`; CI uses --check.
+Never edit its generated code, tests or .generated-files.json directly. Run
+`node --test apps/kdg-capture/web/local-host-tools/test-local-entry-host.mjs` and
+`node apps/kdg-capture/web/tests/local-host-proof.mjs` using the selected Node. The latter
+uses a fresh retained dependency capsule and actual Vite CLI / KDG FastAPI, synthetic
+Auth HTTP and synthetic Access transport; it uses no database or Docker command.
+See ../docs/LOCAL_WEB_HOST_EVIDENCE.md for exact evidence and remaining gates.

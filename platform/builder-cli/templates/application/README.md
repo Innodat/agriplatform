@@ -189,3 +189,22 @@ started module loading cannot be undone by subsequent cancellation. Do not embed
 credentials, service keys or tokens. The owner must serialize HTML-embedded JSON safely
 (e.g. escape less-than characters) and define document/cache restoration lifecycle.
 This helper does not activate a default config schema, Auth method or app startup.
+
+## Opt-in local entry host
+
+Generated web/local-host-tools supplies createLocalEntryHost and emitted behavioral
+Node tests. It is inert until an owner selects it in an explicit development Vite
+configuration. The owner validates public fields, script ID and declared read-only API
+routes and supplies a fixed literal-127.0.0.1 HTTP API origin. No default provider,
+organization, config file discovery or API route is enabled in the default scaffold.
+Serialize only validated public data; the helper escapes HTML termination and bounds
+UTF-8 bytes. Never pass service credentials or tokens as publicConfig.
+
+The helper binds loopback, disables env files/ambient VITE injection/public/HMR/CORS,
+rejects unsafe resolved CLI settings, and relays only declared GET API paths. It forwards
+only bearer/Accept headers, rejects bodies/duplicate bearers, disallows redirects, bounds
+response bytes/deadline, validates UTF-8 JSON and keeps failures private and opaque.
+Applications still own authorization and exact safe DTO contracts. Restrict served roots
+and config files in the owner wrapper. This development helper does not qualify production
+hosting, installed-workspace integration, LAN HTTPS, provider delivery or device behavior.
+Run `node --test web/local-host-tools/test-local-entry-host.mjs` from an emitted app root.

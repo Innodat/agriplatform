@@ -1,3 +1,34 @@
+## Current delivery — explicit local web host, 2026-10-23
+
+An opt-in owner Vite config now serves the actual KDG frontend and bridges same-origin
+GET /api/v1/context to its fixed loopback API. Configuration is an explicit bounded file
+outside served roots; only validated public fields enter HTML. No checked-in target,
+shared infrastructure startup, provider/account setup or root dependency/workspace change.
+Read [local host evidence](LOCAL_WEB_HOST_EVIDENCE.md) and its durable receipt.
+
+Neutral host code/tests are emitted by the scaffold and adopted in a separate managed
+local-host-tools root. Existing Auth inventory/manifest stay unchanged. Use selected Node
+with sync-kdg-local-host --write/--check; never hand-edit managed files. KDG owns schema,
+API path and host file policy. Relay deadlines, response bounds, safe errors, header/
+body restrictions, invalid config/CLI bindings and file/env isolation are proved.
+
+Final runtime: 10 checks with actual Vite CLI / actual KDG FastAPI and synthetic Auth/
+Access boundaries, source-copy hashes and unforced owned exits. Neutral5, builder70,
+strict TS7, Auth170/71 and API79 pass; full offline generation remains bootstrap-only,
+generation_ready=false. Seven review findings and two follow-ups resolved. This qualifies
+the retained-capsule local command, not an installed root workspace or real provider.
+
+Next use bmad-help/build against current owner contracts to select the next synthetic
+local/CI prerequisite toward persistence. Real Auth/SMTP delivery, server expiry/reuse/
+resend/device/LAN HTTPS and complete Story1.1 remain separate gates; do not turn more
+mock coverage into those claims. Existing native Access/API evidence remains historical,
+not a newly repeated SQL proof. KDG has no Entra requirement. Preserve concurrent changes,
+history, Docker and approved dependencies including TypeScript 7.0.2. No Leave/editor,
+production, real accounts/access, provisioning, deployment/pilot or cleanup. Fingerprints/
+HMAC remain deferred.
+
+Earlier handoffs follow unchanged as historical checkpoints.
+
 ## Current delivery — actual local frontend startup, 2026-10-23
 
 KDG's actual index/main now reads explicit inert local/CI public configuration and
