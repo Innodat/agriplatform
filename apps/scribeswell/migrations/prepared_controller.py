@@ -119,7 +119,7 @@ def operator(connection):
         deny('operator_authority')
 
 
-def local_state(connection, expected):
+def custody_state(connection, expected):
     principal = connection.exec_driver_sql("""SELECT database_login,executor_actor_id::text,actor_kind,actor_key,preparation_evidence_ref,
         revision>0 AND created_by_actor_id<>'00000000-0000-0000-0000-000000000000'::uuid
         AND updated_by_actor_id<>'00000000-0000-0000-0000-000000000000'::uuid AND isfinite(created_at) AND isfinite(updated_at)
@@ -133,6 +133,10 @@ def local_state(connection, expected):
         FROM scribeswell.corpus_operator_authority ORDER BY command LIMIT 4""").fetchall()
     if [tuple(row) for row in authority] != [(OPERATOR,expected['source_id'],'corpus.'+command,True) for command in ('begin','recover','seal')]:
         deny('custody_mismatch')
+
+
+def local_state(connection, expected):
+    custody_state(connection, expected)
     if connection.exec_driver_sql('SELECT singleton,enforcement FROM scribeswell.corpus_fence_control').fetchall() != [(True,False)]:
         deny('dormant_state_required')
     for table in TABLES[3:]:
@@ -140,7 +144,7 @@ def local_state(connection, expected):
             deny('dormant_state_required')
 
 
-def _preflight_prepared(connection, expected_actor):
+def checked_prepared(connection, expected_actor, *, controller_history=False):
     expected = custody(expected_actor)
     if not connection.in_transaction() or connection.connection.dbapi_connection.autocommit or connection.get_isolation_level() != 'READ COMMITTED' or connection.exec_driver_sql('SHOW transaction_read_only').scalar() != 'off':
         deny('transaction_required')
@@ -156,11 +160,18 @@ def _preflight_prepared(connection, expected_actor):
     state = _checked_authority_ledger(connection)
     if state != REVISION:
         deny('revision_required')
+    if controller_history:
+        connection.exec_driver_sql('SELECT pg_catalog.pg_advisory_xact_lock(31003,1)')
     for table in TABLES:
         connection.exec_driver_sql('LOCK TABLE scribeswell.'+table+' IN SHARE MODE')
     catalogue(connection,pinned)
     operator(connection)
-    local_state(connection,expected)
+    return state, expected
+
+
+def _preflight_prepared(connection, expected_actor):
+    state, expected = checked_prepared(connection, expected_actor)
+    local_state(connection, expected)
     return state
 
 

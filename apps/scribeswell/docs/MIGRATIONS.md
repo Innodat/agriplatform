@@ -91,7 +91,18 @@ and matches independently supplied custody against protected local records. It d
 not verify Identity, provision callers, adopt earlier revisions or enable enforcement.
 The host adapter and ordinary CLI remain dormant-only and reject prepared targets;
 there is no ambient environment selector. Native profile evidence is published only
-after both checks and commit. Active/history release support remains a later gate.
+after both checks and commit. The separate history-native profile below extends
+local rehearsal; operational host release support remains a later gate.
+
+## Controller-history native replay
+
+The explicit [controller-history profile](CONTROLLER_HISTORY_PROFILE.md) additionally
+validates empty or coherent committed history at exact0003, including paused states
+and historical executor changes. It preserves the prepared profile's exact custody,
+catalogue and privilege gates. Native Config selection remains deliberate; the
+ordinary CLI/host stays dormant-only. This qualification changes no enforcement,
+actor/grant, importer or publication state. Live custody, operational host integration
+and coordinated production transition remain gates.
 
 ## Failure and recovery
 
@@ -124,6 +135,7 @@ a uniquely named database, and removes only its own database and roles. Run
 database suites sequentially against that cluster.
 
 ```sh
+python -m pytest apps/scribeswell/tests/test_controller_history_profile.py -q
 python -m pytest apps/scribeswell/tests/test_prepared_controller_profile.py -q
 python -m pytest apps/scribeswell/tests/test_owned_migrations.py -q
 python -m pytest apps/scribeswell/tests -q

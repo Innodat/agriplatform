@@ -112,3 +112,9 @@ def preflight_prepared(connection, expected_actor):
     """Validate explicit prepared custody without preparing or activating anything."""
     from prepared_controller import preflight_prepared as validate
     return validate(connection, expected_actor)
+
+
+def preflight_controller_history(connection, expected_actor):
+    """Validate explicit committed controller history; never activate or repair."""
+    from controller_history import preflight_controller_history as validate
+    return validate(connection, expected_actor)

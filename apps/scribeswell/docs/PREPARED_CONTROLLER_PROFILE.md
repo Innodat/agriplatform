@@ -4,8 +4,9 @@
 for controlled native rehearsal. It performs no caller preparation, actor registration,
 grant repair, enforcement activation, scripture import or state cleanup. The existing
 host adapter and command line remain strict dormant-only; ambient environment hints
-cannot select this profile. An active enforcement/history release profile and host
-integration remain separate gates.
+cannot select this profile. The separate [controller-history native profile](CONTROLLER_HISTORY_PROFILE.md)
+qualifies coherent history without changing this profile. Operational host integration
+and live preparation remain separate gates.
 
 Use `baseline.preflight_prepared(connection, expected_actor)` on an actual restricted
 migrator connection inside a caller-owned writable `READ COMMITTED` transaction.

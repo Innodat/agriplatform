@@ -2,7 +2,7 @@
 import os
 from alembic import context
 from sqlalchemy import create_engine, pool
-from baseline import BaselineError, preflight, preflight_prepared, ledger
+from baseline import BaselineError, preflight, preflight_prepared, preflight_controller_history, ledger
 config = context.config
 config.attributes.pop('scribeswell_validated_profile',None)
 if context.is_offline_mode():
@@ -10,15 +10,16 @@ if context.is_offline_mode():
 engine = None
 try:
     profile = config.attributes.get('scribeswell_validation_profile','dormant')
-    if profile not in ('dormant','prepared-controller-v1'):
+    if profile not in ('dormant','prepared-controller-v1','controller-history-v1'):
         raise BaselineError('scribeswell_validation_profile_invalid')
     supplied = 'scribeswell_prepared_actor' in config.attributes
-    if (profile == 'dormant' and supplied) or (profile == 'prepared-controller-v1' and not supplied):
+    if (profile == 'dormant' and supplied) or (profile != 'dormant' and not supplied):
         raise BaselineError('scribeswell_validation_profile_invalid')
-    if profile == 'prepared-controller-v1':
+    if profile != 'dormant':
         from prepared_controller import custody
         expected_actor = custody(config.attributes['scribeswell_prepared_actor'])
-        validate = lambda connection: preflight_prepared(connection,expected_actor)
+        checker = preflight_prepared if profile == 'prepared-controller-v1' else preflight_controller_history
+        validate = lambda connection: checker(connection,expected_actor)
     else:
         validate = preflight
     command = getattr(getattr(config, 'cmd_opts', None), 'cmd', None)
