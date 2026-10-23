@@ -622,8 +622,12 @@ The opt-in application database helper supplies bounded owner serialization and 
 connection checks; Alembic owns revision resolution and PostgreSQL owns permissions.
 Do not add a generic object/ledger whitelist for each application's business tables.
 Promote reusable fixtures only when proved by a consumer, together with emitted tests.
-KDG's simplified helper is offline-tested; native privilege/rollback acceptance remains
-a separate gate. Existing applications/services are not automatically rewritten.
+KDG's isolated foundation now has native privilege/rollback/lock/retry acceptance;
+business-table RLS and release readiness remain separate. Neutral native checks and
+their offline denial-oracle tests are emitted under native-database-tools. KDG adopts
+them via scripts/sync-kdg-native-database.mjs --write/--check in a separate managed root,
+preserving the existing helper inventory. The owner retains explicit synthetic fixture
+setup/target policy. Existing applications/services are not automatically rewritten.
 
 [Platform ADR-0015](../docs/architecture/decisions/0015-alembic-migration-authority.md)
 selects Alembic for project-owned schemas. Templates must include owned-schema

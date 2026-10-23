@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "identity": {
+    "generator": "builder-v1",
+    "template": "native-schema-checks-v1-candidate",
+    "recipe": "1a2b97d5aede2ee646c52ec9febaed55c592346b8103635f6fb2f20c27bec073",
+    "source": "44038d925cb1ecb9f53ade7f5b1ae12aa1485453a39bbad51c4848c11c53f672"
+  },
+  "files": {
+    "native_migration_checks.py": {
+      "classification": "generated",
+      "sha256": "cbfbdacf7b54d1bcb13bd4a5644ca5a6fcb7c978514d1722514960540fc1bc21"
+    },
+    "test_native_migration_checks.py": {
+      "classification": "generated",
+      "sha256": "a56d7fcdbcedebea491d3967ff927b36c37b47a45920f63e358367533a36c80b"
+    }
+  }
+}

@@ -234,3 +234,24 @@ not actual role/ACL/RLS, transaction rollback, timing or release readiness.
 ADRs0015–0020 remain binding: controlled coordinated migrations before activation,
 failure blocking, previous-version compatibility and explicit recovery evidence.
 No startup migrations, shared business store or automatic existing-app adoption.
+
+## Opt-in native migration acceptance
+
+Generated native-database-tools/native_migration_checks.py contains reusable checks,
+not a fixture provisioner or an automatically executed test. Owners must explicitly
+prepare an isolated disposable database, separate migrator/runtime/operator logins and
+a foreign sentinel table, then supply their restricted SQLAlchemy engines, validated
+MigrationPolicy, expected head and controlled upgrade callback to check_native_migrations.
+The callback returns ok and safe_failure booleans plus optional log/exit references.
+Do not use live, shared or historical business databases: the suite temporarily changes
+the fixture ledger, restores it conditionally, and tests rolled-back synthetic DDL.
+Failure requires inspection before retry; retain partial evidence and all resources.
+
+The native suite checks actual logins, upgrade/repeat, SQLSTATE42501 denials for ledger/
+DDL/cross-owner/role assumptions, failed-DDL retained state, unknown-history refusal and
+owner-lock timeout/retry. It does not prove tenant business rules, production setup,
+previous-version domain compatibility or coordinated release activation. KDG is the
+first consuming native proof. The fixture adapter stays app-owned; credentials are
+never generated or selected by the scaffold. Emitted test_native_migration_checks.py
+checks denial/rollback-oracle false positives offline (three tests), without database I/O:
+`P -I -B native-database-tools/test_native_migration_checks.py`.

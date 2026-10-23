@@ -1,9 +1,9 @@
 # KDG controlled migration candidate
 
 KDG owns schema kdg_capture and its separate Alembic history under ADR0015–0020.
-No business tables, migration execution, release registration or API startup migrations
-are delivered here. The initial revision only lets Alembic initialize its private ledger
-in an explicitly prepared schema. Native PostgreSQL acceptance remains unfinished.
+This history contains no business tables. Controlled native execution was confined to
+the isolated synthetic fixture; API startup and the release registry remain unchanged. The initial revision only lets Alembic initialize its private ledger
+in an explicitly prepared schema. Native acceptance now passes for this initial-ledger foundation only.
 
 Follow the platform-wide [focused migration verification approach](../../../platform/docs/development/migration-verification.md).
 The shared helper now provides a small controlled transaction wrapper instead of an
@@ -44,25 +44,26 @@ Python3.15, SQLAlchemy2.1.4, Alembic1.20.0 and psycopg3.3.6. No install, manifes
 API environment or TypeScript7.0.2 baseline change. Tests are offline control-flow and
 metadata evidence, not actual PostgreSQL privileges, locks or rollback.
 
-## Pending native acceptance
+## Native foundation acceptance
 
-The user authorized the narrow exception to resume the retained synthetic stack and
-prepare one isolated KDG test database and three restricted roles. That authorization
-has not been used successfully: the draft fixture failed while reading its input,
-before connecting or creating anything. The stack was stopped with resources retained.
-The draft schema_fixture.py is unqualified and must not be treated as a working setup.
-Do not rerun historical preparers or the rejected broad Access verifier.
+The approved retained synthetic run was resumed and one fresh template0 database plus
+three restricted roles were prepared by tests/native_fixture.py. Roles already present
+are refused before alteration/adoption. The earlier schema_fixture.py remains unchanged
+as an unqualified failed historical draft. Do not run it, historical preparers or the
+rejected broad Access verifier. All created resources and private credentials are retained.
 
-The next native item should use ordinary isolated fixture setup and actual separate
-migrator/runtime/operator logins. Prove upgrade/repeat, private ledger/DDL and cross-owner
-denials, owner serialization, a failed transaction's retained state and explicit retry.
-Alembic should reject unknown history through its ordinary revision handling. Add a
+The actual first Alembic upgrade succeeded. The reusable native suite proves separate
+migrator/runtime/operator logins, upgrade/repeat, private-ledger/DDL/cross-owner/SET ROLE
+denials (SQLSTATE42501), owner-lock refusal/retry, transactional DDL rollback and ordinary
+unknown-history refusal/restoration/retry. A separate SELECT-only inspector verifies
+retained head, absence of the rolled-back probe, foreign sentinel and unchanged
+preexisting role/database metadata. Historical business rows are not rehashed. Add a
 specific guard only if a reproduced failure requires it. Domain RLS and business-write
 cases belong with their first table/API slice. Preserve all historical databases,
 roles, data, source-bound evidence and Docker resources; stop normally after testing.
 No general provisioning, real accounts/access, deployment/pilot or cleanup is authorized.
 
-Current local-only command, not yet natively qualified: supply
+Qualified initial-ledger local command: supply
 KDG_MIGRATION_TARGET_ID, KDG_MIGRATION_ENVIRONMENT_KIND and
 KDG_MIGRATION_DATABASE_URL privately, then run
 `P -I -B -m alembic -c apps/kdg-capture/alembic.ini upgrade head`.
@@ -72,3 +73,13 @@ No automatic downgrade or claim of release readiness follows from this candidate
 The [earlier candidate evidence](../docs/SCHEMA_FOUNDATION_CANDIDATE_EVIDENCE.md) remains
 historical and source-bound. Its exhaustive inventory assertions describe that version,
 not the current simplified helper.
+
+
+Native scenarios/tests are managed separately in ../native-database-tools. Update their
+canonical templates, then use selected Node26.11.1 with
+`platform/builder-cli/scripts/sync-kdg-native-database.mjs --write` and `--check`.
+Never hand-edit either managed root or its manifest. The native module does not provision
+anything; KDG owns its explicit fixture adapter and fixed target/role/history policy.
+See [native evidence](../docs/NATIVE_SCHEMA_FOUNDATION_EVIDENCE.md) for exact retained
+fixture references, proof commands, review and limitations. Only rerun native acceptance
+against that retained new fixture after verifying its custody and resuming the known run.

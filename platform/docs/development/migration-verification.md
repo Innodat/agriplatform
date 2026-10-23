@@ -48,7 +48,10 @@ where compatible; do not rerun setup as a substitute for a read-only inspection.
 synthetic fixtures isolated, and preserve historical evidence and retained resources.
 Promoting a fixture requires actual consuming evidence, not merely a shared-looking API.
 
-KDG is the first consumer of the simplified helper. Its emitted wrapper/owner tests
-remain offline evidence until separate native acceptance passes. Other existing owners
+KDG is the first consumer of the simplified helper and the scaffolded opt-in native
+checks. Its isolated initial-ledger proof covers real restricted logins, permission
+denials, failed-DDL rollback, unknown-history refusal and lock timeout/retry. This does
+not qualify business-table RLS or release activation. Its fixture adapter remains
+KDG-owned; neutral scenarios and denial-oracle tests are shared. Other existing owners
 retain their histories, tests and implementations; adopt the shared approach in their
 next relevant delivery rather than rewriting them automatically.

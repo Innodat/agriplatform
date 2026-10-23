@@ -1,3 +1,39 @@
+## Current delivery — native initial-ledger acceptance, 2026-10-23
+
+The focused platform migration approach now passes actual KDG PostgreSQL acceptance.
+Read [native evidence](NATIVE_SCHEMA_FOUNDATION_EVIDENCE.md), its receipt and
+[migration instructions](../migrations/README.md). The existing simplified runner/env/
+revision needed no runtime change. Native helpers and their denial/rollback-oracle tests
+are emitted by the scaffold and consumed in a separate managed native-database-tools
+root; the existing database-tools inventory is preserved. KDG owns fixture preparation,
+credentials and exact target/schema/role/history policy. No generic provisioning engine.
+
+The authorized new isolated template0 database/three roles now exist and are retained;
+do not rerun preparation, which refuses existing roles. Use only the receipt's fixture
+if repeating qualification. Earlier failed schema_fixture.py and preliminary reports
+remain historical. The stack stopped normally with all data/Docker resources retained.
+Unknown54322 and historical business databases were not used for writes.
+
+Final seven-stage native suite and independent SELECT-only inspection pass: actual
+restricted logins, upgrade/repeat,16 SQLSTATE42501 denials, wrong-role wrapper refusal,
+verified successful-DDL rollback/retry, unknown history refusal/restoration/retry and
+bounded owner-lock refusal/retry. Build review's rollback-oracle false positive was
+reproduced and fixed in canonical/emitted tests, then the full native proof was rerun.
+Historical data rows were not rehashed; preexisting role/database metadata is unchanged.
+11 neutral/3 oracle/9 owner tests,73 builder tests, strict TS7.0.2 and parity pass.
+
+Next use bmad-help/build to select the first small KDG-owned persistence/API behavior
+from current contracts/readiness, with synthetic data and no editor UI. Domain tables
+need their own constraints, attribution, actual permission/organization tests and API
+acceptance; this initial ledger is not tenant-RLS or business-write proof. Keep ordinary
+Alembic/PostgreSQL behavior and focused tests; add guards only for concrete failures.
+No release activation or full Story1.1/provider/device readiness is implied.
+
+Preserve concurrent work, historical evidence, Docker resources and the approved baseline
+including TypeScript7.0.2. No Leave/editor, production, real accounts/access, general
+provisioning, deployment/pilot or cleanup. Fingerprints/HMAC stay deferred. KDG has no
+Entra requirement. Earlier handoffs follow unchanged as historical checkpoints.
+
 ## Current delivery — focused platform migration verification, 2026-10-23
 
 The user clarified that the platform-wide change is to the verification approach, not
