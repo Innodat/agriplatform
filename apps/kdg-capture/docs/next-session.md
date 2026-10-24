@@ -1,3 +1,30 @@
+## Current delivery — concrete fresh capture write body, 2026-10-24
+
+Read [create-body evidence](CAPTURE_CREATE_BODY_EVIDENCE.md) and its source-bound receipt.
+write-candidate/capture_create.py now performs current membership/eligibility/assignment
+checks, original-definition validation and linked capture/outcome/history inserts inside
+the existing bounded transaction. 57 focused tests and 43 native rollback cases pass. Native rollback qualification consumes this real body.
+Both create permissions remain own-author. Existing outcomes stop this fresh-only body
+before incoming semantics; stored-target authorization/replay belongs to the next outer
+handler. Returned data is provisional until the caller's durable commit.
+
+Child coordination uses the documented org/child advisory lock after the operation lock.
+Every future child/assignment mutation must acquire exactly this lock before state access;
+arbitrary alternate SQL does not participate. No broader parent grants or custom privileged
+locking functions. Native two-connection lock-wait proof is separate from committed-table
+visibility. The unapplied schema, active 0001 head and historical evidence remain intact.
+
+Next implement current-protected outer create/replay orchestration and qualify durable
+commit/lost-response/duplicate concurrency using restricted connections before promoting
+migrations or mounting writes. Preserve original stored-target authority, all current
+checks, original budget and ADR-0020 release/recovery gates. Historical metadata-hash
+discrepancy remains unresolved; never relabel the old inspector as passing.
+Fingerprints/HMAC deferred; bootstrap unchanged. Synthetic local/CI only; preserve concurrent
+work/resources/dependencies/TS 7.0.2. No Leave/editor, real accounts/access, production,
+provisioning/deployment/pilot or cleanup.
+
+Earlier handoffs follow unchanged as historical checkpoints.
+
 ## Current delivery — rollback-only native storage qualification, 2026-10-24
 
 The linked storage candidate now executes on actual PostgreSQL in the exact retained

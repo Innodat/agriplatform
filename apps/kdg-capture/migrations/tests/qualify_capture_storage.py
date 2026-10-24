@@ -12,6 +12,7 @@ import re
 import sys
 import time
 from uuid import uuid4
+from unittest.mock import patch
 
 from alembic.migration import MigrationContext
 from alembic.operations import Operations
@@ -36,7 +37,9 @@ def load(name, path):
     return module
 
 
-outcomes = load('kdg_native_outcomes', ROOT / 'apps/kdg-capture/write-candidate/operation_outcomes.py')
+sys.path.insert(0, str(ROOT / 'apps/kdg-capture/write-candidate'))
+import capture_create as create
+outcomes = create.outcomes
 candidate = load('kdg_native_storage_candidate', ROOT / 'apps/kdg-capture/migrations/candidates/0002_capture_storage.py')
 write = outcomes.write
 
@@ -101,6 +104,12 @@ def seed(connection):
                             'VALUES(:id,:org,:questionnaire,1,CAST(:definition AS jsonb),:hash,:actor)'),
                        dict(id=VERSION, org=ORG, questionnaire=QUESTIONNAIRE, definition=raw,
                             hash=sha256(raw.encode()).hexdigest(), actor=ACTOR))
+    newer_definition = initial_definition([f'{n:08x}-aaaa-4aaa-8aaa-{n:012x}' for n in range(13,17)])
+    newer_raw = json.dumps(newer_definition.model_dump())
+    connection.execute(text('INSERT INTO kdg_capture.questionnaire_version(id,org_id,questionnaire_id,display_version,definition,definition_hash,published_by) '
+                            'VALUES(:id,:org,:questionnaire,2,CAST(:definition AS jsonb),:hash,:actor)'),
+                       dict(id=str(uuid4()),org=ORG,questionnaire=QUESTIONNAIRE,definition=newer_raw,
+                            hash=sha256(newer_raw.encode()).hexdigest(),actor=ACTOR))
     connection.execute(text("INSERT INTO kdg_capture.child(id,org_id,display_name,active,revision,created_by,updated_by) VALUES(:id,:org,'Synthetic child',true,1,:actor,:actor)"),
                        dict(id=CHILD, org=ORG, actor=ACTOR))
     connection.execute(text('INSERT INTO kdg_capture.child_assignment(id,org_id,child_id,account_id,membership_id,active,revision,created_by,updated_by) '
@@ -144,19 +153,25 @@ def create_capture(connection, budget, context):
         capture_id=capture, child_id=CHILD, questionnaire_version_id=VERSION,
         observation_date='2026-10-24', answers=answers, captured_at='2026-10-24T10:11:12.123456789Z',
         child_eligibility_ref=context.account_id)))
-    definition = connection.execute(text('SELECT definition FROM kdg_capture.questionnaire_version WHERE org_id=:org AND id=:id'),
-                                    dict(org=ORG, id=VERSION)).scalar_one()
-    validate_answers(command, parse_definition(json.dumps(definition)))
+    receipt = create.create_in_transaction(connection, budget, context, command,
+        membership_id='1', permission=create.ALL).model_dump()
+    key = write.OutcomeKey('kdg_capture', context.org_id, context.account_id,
+                           'capture.create', command.operation_id)
+    found = outcomes.lookup_private(connection, budget, key, context)
+    assert found is not None
     parameters = dict(capture=capture, org=ORG, child=CHILD, questionnaire=QUESTIONNAIRE, version=VERSION,
                       account=context.account_id, actor=context.actor_id, ref=context.account_id,
                       date=date(2026,10,24), answers=json.dumps(answers), device=command.captured_at)
-    write.execute(connection, budget, CAPTURE_INSERT, parameters)
-    evidence, key, receipt = append_receipt(connection, budget, context, capture, operation=command.operation_id)
-    assert write.execute(connection, budget, HISTORY_INSERT, evidence).rowcount == 1
+    evidence = dict(org=ORG, account=context.account_id, actor=context.actor_id,
+                    initiator=context.actor_id, capture=capture, outcome=found.id,
+                    command='capture.create', operation=command.operation_id)
     stored = connection.execute(text('SELECT observation_date,answers,captured_at,owner_account_id::text,owner_actor_id::text,created_by::text,updated_by::text,revision '
                                      'FROM kdg_capture.capture WHERE id=:id'), dict(id=capture)).one()
     assert tuple(stored) == (date.fromisoformat(command.observation_date), answers, command.captured_at,
                              context.account_id, context.actor_id, context.actor_id, context.actor_id, 1)
+    assert connection.execute(text('SELECT questionnaire_version_id::text FROM kdg_capture.capture WHERE id=:id'),
+                              dict(id=capture)).scalar_one() == VERSION
+    assert connection.execute(text('SELECT count(*) FROM kdg_capture.questionnaire_version')).scalar_one() == 2
     history = connection.execute(text('SELECT observation_date,answers,captured_at,operation_id::text,outcome_id::text,executor_account_id::text,executor_actor_id::text,initiator_actor_id::text '
                                       'FROM kdg_capture.capture_revision WHERE capture_id=:id'), dict(id=capture)).one()
     assert tuple(history) == (date.fromisoformat(command.observation_date), answers, command.captured_at,
@@ -165,6 +180,112 @@ def create_capture(connection, budget, context):
     connection.execute(text('SET CONSTRAINTS ALL DEFERRED'))
     assert outcomes.lookup_private(connection, budget, key, context).receipt().model_dump() == receipt
     return parameters, evidence
+
+
+def qualify_create_rules(connection, budget, context, passed):
+    """Exercise the actual body, with each synthetic variation rolled back."""
+    answers = {QUESTION_IDS[0]: {'value': 1}, **{key: {'value': False} for key in QUESTION_IDS[1:]}}
+    def command(**changes):
+        values = dict(operation_id=str(uuid4()), command_version=1, capture_id=str(uuid4()),
+            child_id=CHILD, questionnaire_version_id=VERSION, observation_date='2026-10-24',
+            captured_at='2026-10-24T10:11:12Z', child_eligibility_ref=context.account_id, answers=answers)
+        values.update(changes)
+        return parse_create(json.dumps(values))
+    def counts():
+        return tuple(connection.execute(text('SELECT count(*) FROM kdg_capture.' + table)).scalar_one()
+                     for table in ('capture', 'operation_outcome', 'capture_revision'))
+    baseline = counts()
+    for name, expected, changes, member, permission, mutation in (
+        ('create_rejects_missing_assignment', 'assignment_unavailable', {}, '1', create.ASSIGNED, None),
+        ('create_rejects_old_membership_eligibility', 'child_eligibility_unavailable', {}, '2', create.ALL, None),
+        ('create_rejects_foreign_eligibility', 'child_eligibility_unavailable', {'child_eligibility_ref': OTHER_ACCOUNT}, '1', create.ALL, None),
+        ('create_rejects_missing_original_version', 'questionnaire_version_unavailable', {'questionnaire_version_id': str(uuid4())}, '1', create.ALL, None),
+        ('create_rejects_invalid_original_answers', 'validation_failed', {'answers': {}}, '1', create.ALL, None),
+        ('prior_active_child_create_after_inactivity', None, {}, '1', create.ALL,
+         'UPDATE kdg_capture.child SET active=false,revision=2'),
+        ('current_assignment_create', None, {}, '1', create.ASSIGNED,
+         "UPDATE kdg_capture.child_assignment SET account_id='" + ACCOUNT + "'"),
+        ('create_rejects_inactive_assignment', 'assignment_unavailable', {}, '1', create.ASSIGNED,
+         "UPDATE kdg_capture.child_assignment SET account_id='" + ACCOUNT + "',active=false"),
+        ('create_rejects_old_membership_assignment', 'assignment_unavailable', {}, '1', create.ASSIGNED,
+         "UPDATE kdg_capture.child_assignment SET account_id='" + ACCOUNT + "',membership_id=2"),
+    ):
+        with connection.begin_nested() as case:
+            if mutation:
+                # Test-only alternate writer; model owner cooperation before mutation.
+                create.child_lock(connection, budget, context, CHILD)
+                connection.execute(text('SET LOCAL ROLE supabase_admin'))
+                connection.execute(text(mutation))
+                connection.execute(text('SET LOCAL ROLE kdg_capture_runtime'))
+            try:
+                create.create_in_transaction(connection, budget, context, command(**changes),
+                    membership_id=member, permission=permission)
+            except write.WriteError as error:
+                assert expected is not None and str(error) == expected, 'unexpected_create_refusal'
+                assert counts() == baseline, 'failed_create_left_writes'
+            else:
+                assert expected is None, 'expected_create_refusal_missing'
+                connection.execute(text('SET CONSTRAINTS ALL IMMEDIATE'))
+                assert counts() == tuple(value + 1 for value in baseline), 'create_linkage_missing'
+            case.rollback()
+        assert counts() == baseline
+        passed(name)
+
+
+    # A valid assigned observation remains historical evidence when CURRENT all
+    # authority no longer needs that now-inactive assignment.
+    with connection.begin_nested() as case:
+        create.child_lock(connection,budget,context,CHILD)
+        connection.execute(text('SET LOCAL ROLE supabase_admin'))
+        connection.execute(text('UPDATE kdg_capture.child_assignment SET account_id=:account,active=false'),dict(account=ACCOUNT))
+        connection.execute(text("INSERT INTO kdg_capture.child_eligibility(org_id,ref,account_id,membership_id,child_id,child_revision,observed_active,create_permission,assignment_id,assignment_revision,issued_by) "
+            "SELECT org_id,'historical-assigned',account_id,membership_id,child_id,1,true,:permission,id,revision,:actor FROM kdg_capture.child_assignment"),
+            dict(permission=create.ASSIGNED,actor=ACTOR))
+        connection.execute(text('SET LOCAL ROLE kdg_capture_runtime'))
+        create.create_in_transaction(connection,budget,context,command(child_eligibility_ref='historical-assigned'),membership_id='1',permission=create.ALL)
+        connection.execute(text('SET CONSTRAINTS ALL IMMEDIATE'))
+        assert counts() == tuple(value + 1 for value in baseline)
+        case.rollback()
+    assert counts() == baseline
+    passed('historical_assigned_current_all_without_active_assignment')
+
+    with connection.begin_nested() as case:
+        second_child = str(uuid4())
+        connection.execute(text('SET LOCAL ROLE supabase_admin'))
+        connection.execute(text("INSERT INTO kdg_capture.child(id,org_id,display_name,active,revision,created_by,updated_by) VALUES(:id,:org,'Other synthetic child',true,1,:actor,:actor)"),
+            dict(id=second_child,org=ORG,actor=ACTOR))
+        connection.execute(text("INSERT INTO kdg_capture.child_eligibility(org_id,ref,account_id,membership_id,child_id,child_revision,observed_active,create_permission,issued_by) "
+            "VALUES(:org,'other-child-ref',:account,1,:child,1,true,:permission,:actor)"),
+            dict(org=ORG,account=ACCOUNT,child=second_child,permission=create.ALL,actor=ACTOR))
+        connection.execute(text('SET LOCAL ROLE kdg_capture_runtime'))
+        try:
+            create.create_in_transaction(connection,budget,context,command(child_eligibility_ref='other-child-ref'),membership_id='1',permission=create.ALL)
+        except write.WriteError as error:
+            assert str(error) == 'child_eligibility_unavailable'
+        else:
+            raise AssertionError('wrong_child_eligibility_accepted')
+        assert counts() == baseline
+        case.rollback()
+    passed('same_account_current_member_wrong_child_reference_refused')
+
+    # Inject an actual native history-constraint failure AFTER capture+outcome SQL.
+    bad_history = create.HISTORY_INSERT.replace(
+        "CAST(:actor AS uuid),\nCAST(:outcome AS uuid)", "NULL,\nCAST(:outcome AS uuid)")
+    assert bad_history != create.HISTORY_INSERT
+    reached_history = []
+    execute = write.execute
+    def observe_history(conn, original_budget, statement, parameters=None):
+        if statement == bad_history:
+            assert counts() == (baseline[0]+1,baseline[1]+1,baseline[2]), 'required_pre_failure_inserts_missing'
+            reached_history.append(True)
+        return execute(conn,original_budget,statement,parameters)
+    with patch.object(create,'HISTORY_INSERT',bad_history), patch.object(write,'execute',observe_history):
+        state = expect_error(connection,
+            lambda: create.create_in_transaction(connection,budget,context,command(),membership_id='1',permission=create.ALL),
+            ('23514',),immediate=True)
+    assert reached_history == [True], 'native_history_failure_not_executed'
+    assert counts() == baseline, 'post_insert_failure_not_rolled_back'
+    passed('native_history_failure_rolls_back_capture_and_outcome',state)
 
 
 def expect_error(connection, action, expected, *, immediate=False):
@@ -226,8 +347,34 @@ def qualify():
                         "EXTRACT(EPOCH FROM current_setting('transaction_timeout')::interval)")).one()
                     assert all(0 < observed <= cap for observed, cap in zip(limits, (5, 2, 10)))
                     passed('bounded_database_limits_installed')
+                    # A second EXISTING restricted connection holds only a synthetic
+                    # advisory key, no candidate table visibility or persistent write.
+                    contested_child = str(uuid4())
+                    with fixture.connect(make_url(value['urls']['runtime'])) as holder:
+                        holder.execute("SELECT pg_advisory_xact_lock(hashtextextended(%s,0))",
+                            ('kdg_capture:child:v1:' + ORG + ':' + contested_child,))
+                        state = expect_error(connection,
+                            lambda: create.child_lock(connection, budget, context, contested_child),
+                            ('55P03',), immediate=True)
+                        holder.rollback()
+                    passed('child_coordination_lock_wait_bounded_two_connections', state)
+                    # Same restricted holder rolled back: acquisition must now succeed.
+                    create.child_lock(connection,budget,context,contested_child)
+                    passed('child_coordination_lock_released_after_holder_rollback')
+                    qualify_create_rules(connection, budget, context, passed)
                     own, own_evidence = create_capture(connection, budget, context)
                     passed('capture_outcome_history_and_original_receipt')
+                    passed('older_published_definition_persisted_despite_newer_version')
+                    original_command = parse_create(json.dumps(dict(operation_id=own_evidence['operation'],
+                        command_version=1,capture_id=str(uuid4()),child_id=str(uuid4()),questionnaire_version_id=str(uuid4()),
+                        observation_date='2026-10-24',answers={},captured_at='2026-10-24T00:00:00Z',child_eligibility_ref='missing')))
+                    try:
+                        create.create_in_transaction(connection,budget,context,original_command,membership_id='1',permission=create.ALL)
+                    except write.WriteError as error:
+                        assert str(error) == 'operation_verification_unavailable'
+                    else:
+                        raise AssertionError('fresh_path_disclosed_or_overwrote_existing_outcome')
+                    passed('existing_outcome_stops_before_incoming_semantics')
                     noop, _, _ = append_receipt(connection, budget, context, own['capture'], command='capture.edit')
                     connection.execute(text('SET CONSTRAINTS ALL IMMEDIATE'))
                     connection.execute(text('SET CONSTRAINTS ALL DEFERRED'))
@@ -346,6 +493,7 @@ def qualify():
         head='0001_kdg_foundation', durable_commit=False, concurrent_visibility=False,
         source_hashes={str(path.relative_to(ROOT)):sha256(path.read_bytes()).hexdigest() for path in (
             Path(__file__), Path(candidate.__file__), Path(outcomes.__file__), Path(write.__file__),
+            Path(create.__file__),
             Path(fixture.__file__), Path(inspect_native.__file__),
             ROOT/'apps/kdg-capture/api/capture_commands.py', ROOT/'apps/kdg-capture/api/questionnaire.py',
             ROOT/'apps/kdg-capture/api/context.py')})

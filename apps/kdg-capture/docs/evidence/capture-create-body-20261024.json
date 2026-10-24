@@ -1,0 +1,322 @@
+{
+  "date": "2026-10-24",
+  "baseline_head": "65a37808b2e235d991a0065269aff46f9b0a9795",
+  "scope": "inert KDG fresh capture transaction body, synthetic rollback qualification",
+  "acceptance_red": [
+    {
+      "case": "removed/current-membership assignment",
+      "observed": "WriteError not raised; three inserts observed before assignment check implementation"
+    },
+    {
+      "case": "distinct capture/operation UUID",
+      "observed": "WriteError not raised before structural guard"
+    }
+  ],
+  "tests": [
+    {
+      "command": [
+        "platform/deployment/.local/access-organization-check-20261022/owner-env/bin/python",
+        "-I",
+        "-B",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "apps/kdg-capture/write-tests",
+        "-p",
+        "test_*.py"
+      ],
+      "exit_code": 0,
+      "passed": 57
+    },
+    {
+      "command": [
+        "platform/deployment/.local/access-organization-check-20261022/owner-env/bin/python",
+        "-I",
+        "-B",
+        "apps/kdg-capture/migrations/tests/qualify_capture_storage.py",
+        "--run"
+      ],
+      "exit_code": 0,
+      "passed": 43,
+      "private_report": "platform/deployment/.local/kdg-native-focused-20261023/fixture-cff53592f5ca43a1a0cc65398957140f/capture-storage-148d5530ddf54679a8af04caa14326fb.json",
+      "report_sha256": "2d5ca824333bffe557f4db990cbedeaa2dc091b759210b9bbb09cbdd9521dc18",
+      "result": {
+        "cases": [
+          {
+            "case": "actual_candidate_ddl",
+            "sqlstate": null
+          },
+          {
+            "case": "runtime_current_role_admin_session_explicit",
+            "sqlstate": null
+          },
+          {
+            "case": "bounded_database_limits_installed",
+            "sqlstate": null
+          },
+          {
+            "case": "child_coordination_lock_wait_bounded_two_connections",
+            "sqlstate": "55P03"
+          },
+          {
+            "case": "child_coordination_lock_released_after_holder_rollback",
+            "sqlstate": null
+          },
+          {
+            "case": "create_rejects_missing_assignment",
+            "sqlstate": null
+          },
+          {
+            "case": "create_rejects_old_membership_eligibility",
+            "sqlstate": null
+          },
+          {
+            "case": "create_rejects_foreign_eligibility",
+            "sqlstate": null
+          },
+          {
+            "case": "create_rejects_missing_original_version",
+            "sqlstate": null
+          },
+          {
+            "case": "create_rejects_invalid_original_answers",
+            "sqlstate": null
+          },
+          {
+            "case": "prior_active_child_create_after_inactivity",
+            "sqlstate": null
+          },
+          {
+            "case": "current_assignment_create",
+            "sqlstate": null
+          },
+          {
+            "case": "create_rejects_inactive_assignment",
+            "sqlstate": null
+          },
+          {
+            "case": "create_rejects_old_membership_assignment",
+            "sqlstate": null
+          },
+          {
+            "case": "historical_assigned_current_all_without_active_assignment",
+            "sqlstate": null
+          },
+          {
+            "case": "same_account_current_member_wrong_child_reference_refused",
+            "sqlstate": null
+          },
+          {
+            "case": "native_history_failure_rolls_back_capture_and_outcome",
+            "sqlstate": "23514"
+          },
+          {
+            "case": "capture_outcome_history_and_original_receipt",
+            "sqlstate": null
+          },
+          {
+            "case": "older_published_definition_persisted_despite_newer_version",
+            "sqlstate": null
+          },
+          {
+            "case": "existing_outcome_stops_before_incoming_semantics",
+            "sqlstate": null
+          },
+          {
+            "case": "noop_receipt_without_fake_history",
+            "sqlstate": null
+          },
+          {
+            "case": "valid_changed_edit_and_original_receipt",
+            "sqlstate": null
+          },
+          {
+            "case": "runtime_cannot_change_owner",
+            "sqlstate": "42501"
+          },
+          {
+            "case": "runtime_cannot_mutate_outcome",
+            "sqlstate": "42501"
+          },
+          {
+            "case": "runtime_cannot_ddl",
+            "sqlstate": "42501"
+          },
+          {
+            "case": "invalid_device_hour",
+            "sqlstate": "23514"
+          },
+          {
+            "case": "capture_without_history",
+            "sqlstate": "23503"
+          },
+          {
+            "case": "same_org_foreign_child",
+            "sqlstate": "23503"
+          },
+          {
+            "case": "unknown_reported_revision",
+            "sqlstate": "23503"
+          },
+          {
+            "case": "own_scope_hides_other_capture_history_eligibility_assignment",
+            "sqlstate": null
+          },
+          {
+            "case": "own_outcome_cannot_target_other_owner",
+            "sqlstate": "42501"
+          },
+          {
+            "case": "all_read_keeps_outcomes_and_eligibility_caller_scoped",
+            "sqlstate": null
+          },
+          {
+            "case": "read_mode_cannot_insert",
+            "sqlstate": "42501"
+          },
+          {
+            "case": "foreign_org_all_domain_tables_empty",
+            "sqlstate": null
+          },
+          {
+            "case": "missing_mode_all_domain_tables_empty",
+            "sqlstate": null
+          },
+          {
+            "case": "immutable_capture_guard_for_alternate_writer",
+            "sqlstate": "23514"
+          },
+          {
+            "case": "immutable_history_for_alternate_writer",
+            "sqlstate": "23514"
+          },
+          {
+            "case": "unicode_blank_child_name",
+            "sqlstate": "23514"
+          },
+          {
+            "case": "history_outcome_initiator_disagreement",
+            "sqlstate": "23514"
+          },
+          {
+            "case": "history_without_real_capture_transition",
+            "sqlstate": "23514"
+          },
+          {
+            "case": "forced_deferred_checks_executed",
+            "sqlstate": null
+          },
+          {
+            "case": "outer_transaction_rolled_back",
+            "sqlstate": null
+          },
+          {
+            "case": "ledger_only_and_current_metadata_restored",
+            "sqlstate": null
+          }
+        ],
+        "concurrent_visibility": false,
+        "current_metadata_sha256": "0e66a3dd9f0e0612a9e23d33f01459afc232720c15d8d2a7793e557726b45b09",
+        "durable_commit": false,
+        "head": "0001_kdg_foundation",
+        "historical_global_hash_matches": false,
+        "historical_inspector_after_passed": false,
+        "historical_inspector_before_passed": false,
+        "qualified": true,
+        "role_identity": {
+          "current_user": "kdg_capture_runtime",
+          "session_user": "supabase_admin"
+        },
+        "rollback_only": true,
+        "source_hashes": {
+          "apps/kdg-capture/api/capture_commands.py": "378197903cd973f7807ecad879fc737077071e644be8f44716ea2e3f23727a07",
+          "apps/kdg-capture/api/context.py": "1c58d6432fa321252d5e4fd88d1e1b589bb989cf4243a2fb4a7104a7c9151a06",
+          "apps/kdg-capture/api/questionnaire.py": "7aac78d320f1181fc074c4b6950f5e142ce284c148407c28cce825a2ef63e90a",
+          "apps/kdg-capture/migrations/candidates/0002_capture_storage.py": "94c8839b22255dd7d6d2ec3aa13a5a793f14f5937cf54b4bfac6ed058b0d06e8",
+          "apps/kdg-capture/migrations/tests/inspect_native.py": "0c8e96c5817db2d85199430fdb8e332150ec536f2116878a80a1338db0d68cac",
+          "apps/kdg-capture/migrations/tests/native_fixture.py": "d031539b709a228b0e3da86c68960791a7a7d5fc5220cc9c27f3687a5e98907a",
+          "apps/kdg-capture/migrations/tests/qualify_capture_storage.py": "4a7ac32afaf4bbbb270dfad09579f4e48e198d241cb966c90923b7cecce81364",
+          "apps/kdg-capture/write-candidate/capture_create.py": "179f5dd11763a6072ba6689a6641747729ad8e63124e8db74aface5816dc3906",
+          "apps/kdg-capture/write-candidate/operation_outcomes.py": "e625d9048d89a6dcd8e17636c418218eaa3c53d329283701c35890c04e5984cb",
+          "apps/kdg-capture/write-tools/transaction_context.py": "e46244916563bb8111e65675cb1d992778a6c076dc247c4b1fa12b7d9cc47ce7"
+        }
+      }
+    },
+    {
+      "command": [
+        "platform/deployment/.local/kdg-toolchains/ad277eef-a10e-4aac-bb82-5743653fb2e0/payload/node/bin/node",
+        "platform/builder-cli/scripts/sync-kdg-write.mjs",
+        "--check"
+      ],
+      "exit_code": 0,
+      "result": "KDG write context code/test parity verified."
+    }
+  ],
+  "intermediate_fixture_failure": {
+    "sqlstate": "23502",
+    "rollback_verified": true,
+    "correction": "seed missing required active/revision fields; no application expected-result change"
+  },
+  "lifecycle": {
+    "run_id": "99b7231c-0a5b-4bdb-98e8-3329564c526a",
+    "existing_run_resumed": true,
+    "new_fixture_prepared": false,
+    "normal_stop": true,
+    "cleanup_reset_prune": false,
+    "commands": [
+      [
+        "python3",
+        "platform/deployment/dev.py",
+        "up",
+        "--target",
+        "platform/deployment/environments/kdg-local.json",
+        "--run-id",
+        "99b7231c-0a5b-4bdb-98e8-3329564c526a",
+        "--supabase",
+        "/home/ck/repos/innodat/agriplatform/platform/deployment/.local/kdg-toolchains/ad277eef-a10e-4aac-bb82-5743653fb2e0/payload/supabase/supabase"
+      ],
+      [
+        "python3",
+        "platform/deployment/dev.py",
+        "stop",
+        "--target",
+        "platform/deployment/environments/kdg-local.json",
+        "--run-id",
+        "99b7231c-0a5b-4bdb-98e8-3329564c526a",
+        "--supabase",
+        "/home/ck/repos/innodat/agriplatform/platform/deployment/.local/kdg-toolchains/ad277eef-a10e-4aac-bb82-5743653fb2e0/payload/supabase/supabase"
+      ]
+    ]
+  },
+  "review": {
+    "findings": 7,
+    "patched": 7,
+    "deferred": 0
+  },
+  "preservation": {
+    "preexisting_paths": 105,
+    "missing": [],
+    "changed": [],
+    "unchanged_tracked_kdg_scaffold_dependency_files": 333,
+    "historical_handoff_exact_suffix": true,
+    "resolved_typescript": "7.0.2"
+  },
+  "sources": {
+    "_bmad-output/implementation-artifacts/spec-kdg-create-body-20261024.md": "1905f69e70a3785785a99116aae57276485a4bb61315b64e4a00e4f8843bb937",
+    "apps/kdg-capture/write-candidate/capture_create.py": "179f5dd11763a6072ba6689a6641747729ad8e63124e8db74aface5816dc3906",
+    "apps/kdg-capture/write-tests/test_capture_create.py": "8eed99c5600531e4e25fa872aa8fea842e76f40132e329ca89c7c369cd762271",
+    "apps/kdg-capture/migrations/tests/qualify_capture_storage.py": "4a7ac32afaf4bbbb270dfad09579f4e48e198d241cb966c90923b7cecce81364",
+    "apps/kdg-capture/docs/CAPTURE_CREATE_BODY_EVIDENCE.md": "a2f14bffe9836c06f6eed7c0a2d8fb2274be307c98af7fa81b44dfb73a67fb87",
+    "apps/kdg-capture/docs/next-session.md": "7e2ec9d96a7e09ff293a2d7a9dbec88c9db56ffb7027b47c28a5da3b32616190"
+  },
+  "limits": [
+    "backend authority evidence is a caller precondition; no real Access HTTP or mounted write API",
+    "fresh-only body stops on existing outcome; actual stored-target authorization/replay remains consuming work",
+    "private returned receipt is provisional until caller commits; no durable commit/lost-response/committed concurrency qualification",
+    "advisory child lock coordinates participating owner commands only; future child/assignment writers must acquire it",
+    "candidate tables run under runtime current role inside administrator session; actual restricted logins checked separately",
+    "historical global metadata-hash mismatch unresolved and preserved; current before/after retention verified",
+    "active migration stays0001; coordinated migration/previous-code/recovery/activation safeguards remain gates"
+  ]
+}
