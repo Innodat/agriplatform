@@ -122,3 +122,16 @@ connecting. See [schema evidence](../docs/LINKED_STORAGE_SCHEMA_EVIDENCE.md). No
 of a database/schema/role, seed rows, native target operation or cleanup occurs.
 Historical0001 native qualification remains tied to its old source/head; a consuming
 suite must qualify the new schema/current authority without rewriting that evidence.
+
+## Rollback-only native storage acceptance
+
+The opt-in `tests/qualify_capture_storage.py --run` validates the exact retained fixture,
+executes candidate DDL and synthetic domain SQL in one managed transaction, forces
+deferred constraints, then rolls everything back. It neither promotes the candidate nor
+updates active history. The fixture admin session switches current role for runtime
+checks; this is separate from restricted-login identity checks. See
+[native rollback evidence](../docs/NATIVE_STORAGE_ROLLBACK_EVIDENCE.md) for27 cases,
+exact commands, report/source bindings and unresolved old global-hash discrepancy.
+Run only with the retained P environment and known run resumed; never invoke preparers.
+Current schema returns to ledger-only; durable commit/concurrency/current-authority and
+release recovery remain consuming qualification. Historical inspectors/reports stay intact.

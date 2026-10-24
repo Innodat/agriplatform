@@ -1,3 +1,29 @@
+## Current delivery — rollback-only native storage qualification, 2026-10-24
+
+The linked storage candidate now executes on actual PostgreSQL in the exact retained
+synthetic fixture, with all candidate DDL/data rolled back. Read
+[native rollback evidence](NATIVE_STORAGE_ROLLBACK_EVIDENCE.md).27 native cases prove
+role-scoped RLS/privilege/constraint/trigger behavior, concrete capture→outcome→history
+SQL, original receipt/no-op and rollback. Active head remains0001; candidate stays outside
+versions. Production code, managed copies and dependencies are unchanged.
+
+Candidate-table SQL uses runtime current role inside an administrator session; actual
+restricted login checks are separate. This is not durable commit, cross-connection replay/
+concurrency, real current Access or production API qualification. The historical global
+metadata hash differs from its old baseline (unresolved); preserve that evidence and do
+not relabel its inspector as passing. Fresh exact fixture/role/ledger/sentinel checks and
+current before/after metadata match establish this rollback-only run's preservation.
+
+Next deliver concrete protected owner writes and durable commit/lost-response/concurrency
+qualification through restricted connections before migration promotion. Preserve current
+stored-target authority, original definition and eligibility/member/assignment checks,
+short locks and ADR-0020 migration/previous-code/recovery gates. Do not apply/activate a
+candidate solely from rollback proof. Fingerprints/HMAC deferred, bootstrap contract
+unchanged. Preserve concurrent work/history/resources and TS7.0.2; no Leave/editor, real
+accounts/access, production, provisioning/deployment/pilot or cleanup.
+
+Earlier handoffs follow unchanged as historical checkpoints.
+
 ## Current delivery — linked storage schema candidate, 2026-10-23
 
 KDG now has an unapplied Alembic candidate for supporting questionnaire/version/child/

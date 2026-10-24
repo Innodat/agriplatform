@@ -1,0 +1,257 @@
+{
+  "schema_version": 1,
+  "scope": "rollback-only native qualification of KDG linked storage candidate",
+  "base_commit": "28942b879d33060b77b711b64ec4930eb28b1862",
+  "fingerprints_hmac": "deferred",
+  "candidate_promoted": false,
+  "active_head": "0001_kdg_foundation",
+  "permanent_candidate_schema_or_data": false,
+  "new_roles_or_databases": false,
+  "results": {
+    "native_cases": 27,
+    "focused_offline_tests": 45,
+    "qualifier_oracle_tests": 12,
+    "review_findings": 8,
+    "review_deferred": 0,
+    "typescript": "7.0.2 preserved"
+  },
+  "native_report": {
+    "path": "/home/ck/repos/innodat/agriplatform/platform/deployment/.local/kdg-native-focused-20261023/fixture-cff53592f5ca43a1a0cc65398957140f/capture-storage-53c2c195f38c4bdeaa0decf60de9237f.json",
+    "sha256": "8d5b7789b8fbaa2782e8b82a8b95030bb0b6c92b29b2b9609a3e4495eebfa21f",
+    "result": {
+      "cases": [
+        {
+          "case": "actual_candidate_ddl",
+          "sqlstate": null
+        },
+        {
+          "case": "runtime_current_role_admin_session_explicit",
+          "sqlstate": null
+        },
+        {
+          "case": "bounded_database_limits_installed",
+          "sqlstate": null
+        },
+        {
+          "case": "capture_outcome_history_and_original_receipt",
+          "sqlstate": null
+        },
+        {
+          "case": "noop_receipt_without_fake_history",
+          "sqlstate": null
+        },
+        {
+          "case": "valid_changed_edit_and_original_receipt",
+          "sqlstate": null
+        },
+        {
+          "case": "runtime_cannot_change_owner",
+          "sqlstate": "42501"
+        },
+        {
+          "case": "runtime_cannot_mutate_outcome",
+          "sqlstate": "42501"
+        },
+        {
+          "case": "runtime_cannot_ddl",
+          "sqlstate": "42501"
+        },
+        {
+          "case": "invalid_device_hour",
+          "sqlstate": "23514"
+        },
+        {
+          "case": "capture_without_history",
+          "sqlstate": "23503"
+        },
+        {
+          "case": "same_org_foreign_child",
+          "sqlstate": "23503"
+        },
+        {
+          "case": "unknown_reported_revision",
+          "sqlstate": "23503"
+        },
+        {
+          "case": "own_scope_hides_other_capture_history_eligibility_assignment",
+          "sqlstate": null
+        },
+        {
+          "case": "own_outcome_cannot_target_other_owner",
+          "sqlstate": "42501"
+        },
+        {
+          "case": "all_read_keeps_outcomes_and_eligibility_caller_scoped",
+          "sqlstate": null
+        },
+        {
+          "case": "read_mode_cannot_insert",
+          "sqlstate": "42501"
+        },
+        {
+          "case": "foreign_org_all_domain_tables_empty",
+          "sqlstate": null
+        },
+        {
+          "case": "missing_mode_all_domain_tables_empty",
+          "sqlstate": null
+        },
+        {
+          "case": "immutable_capture_guard_for_alternate_writer",
+          "sqlstate": "23514"
+        },
+        {
+          "case": "immutable_history_for_alternate_writer",
+          "sqlstate": "23514"
+        },
+        {
+          "case": "unicode_blank_child_name",
+          "sqlstate": "23514"
+        },
+        {
+          "case": "history_outcome_initiator_disagreement",
+          "sqlstate": "23514"
+        },
+        {
+          "case": "history_without_real_capture_transition",
+          "sqlstate": "23514"
+        },
+        {
+          "case": "forced_deferred_checks_executed",
+          "sqlstate": null
+        },
+        {
+          "case": "outer_transaction_rolled_back",
+          "sqlstate": null
+        },
+        {
+          "case": "ledger_only_and_current_metadata_restored",
+          "sqlstate": null
+        }
+      ],
+      "concurrent_visibility": false,
+      "current_metadata_sha256": "0e66a3dd9f0e0612a9e23d33f01459afc232720c15d8d2a7793e557726b45b09",
+      "durable_commit": false,
+      "head": "0001_kdg_foundation",
+      "historical_global_hash_matches": false,
+      "historical_inspector_after_passed": false,
+      "historical_inspector_before_passed": false,
+      "qualified": true,
+      "role_identity": {
+        "current_user": "kdg_capture_runtime",
+        "session_user": "supabase_admin"
+      },
+      "rollback_only": true,
+      "source_hashes": {
+        "apps/kdg-capture/api/capture_commands.py": "378197903cd973f7807ecad879fc737077071e644be8f44716ea2e3f23727a07",
+        "apps/kdg-capture/api/context.py": "1c58d6432fa321252d5e4fd88d1e1b589bb989cf4243a2fb4a7104a7c9151a06",
+        "apps/kdg-capture/api/questionnaire.py": "7aac78d320f1181fc074c4b6950f5e142ce284c148407c28cce825a2ef63e90a",
+        "apps/kdg-capture/migrations/candidates/0002_capture_storage.py": "94c8839b22255dd7d6d2ec3aa13a5a793f14f5937cf54b4bfac6ed058b0d06e8",
+        "apps/kdg-capture/migrations/tests/inspect_native.py": "0c8e96c5817db2d85199430fdb8e332150ec536f2116878a80a1338db0d68cac",
+        "apps/kdg-capture/migrations/tests/native_fixture.py": "d031539b709a228b0e3da86c68960791a7a7d5fc5220cc9c27f3687a5e98907a",
+        "apps/kdg-capture/migrations/tests/qualify_capture_storage.py": "6460b3d010905c0a1b2c1a64bcd8fb7f3284237ccf2629dc1c1a63cd2ffa958f",
+        "apps/kdg-capture/write-candidate/operation_outcomes.py": "e625d9048d89a6dcd8e17636c418218eaa3c53d329283701c35890c04e5984cb",
+        "apps/kdg-capture/write-tools/transaction_context.py": "e46244916563bb8111e65675cb1d992778a6c076dc247c4b1fa12b7d9cc47ce7"
+      }
+    }
+  },
+  "historical_inspector": {
+    "before_passed": false,
+    "after_passed": false,
+    "global_hash_matches": false,
+    "cause": "unresolved; old proof preserved"
+  },
+  "lifecycle": {
+    "run_id": "99b7231c-0a5b-4bdb-98e8-3329564c526a",
+    "resumed_existing_run": true,
+    "new_fixture_prepared": false,
+    "normal_stop": {
+      "code": "completed",
+      "ok": true,
+      "project": "agriplatform-kdg-mbcjHApbS9uY6DMpVkxSag",
+      "run_id": "99b7231c-0a5b-4bdb-98e8-3329564c526a",
+      "runtime_ready": false,
+      "stage": "stop"
+    },
+    "reset_prune_cleanup": false
+  },
+  "interpreter": "platform/deployment/.local/access-organization-check-20261022/owner-env/bin/python",
+  "commands": [
+    [
+      "P",
+      "-I",
+      "-B",
+      "apps/kdg-capture/migrations/tests/qualify_capture_storage.py",
+      "--run"
+    ],
+    [
+      "P",
+      "-I",
+      "-B",
+      "-m",
+      "unittest",
+      "discover",
+      "-s",
+      "apps/kdg-capture/write-tests",
+      "-p",
+      "test_*.py"
+    ]
+  ],
+  "lifecycle_commands": [
+    [
+      "python3",
+      "platform/deployment/dev.py",
+      "up",
+      "--target",
+      "platform/deployment/environments/kdg-local.json",
+      "--run-id",
+      "99b7231c-0a5b-4bdb-98e8-3329564c526a",
+      "--supabase",
+      "/home/ck/repos/innodat/agriplatform/platform/deployment/.local/kdg-toolchains/ad277eef-a10e-4aac-bb82-5743653fb2e0/payload/supabase/supabase"
+    ],
+    [
+      "python3",
+      "platform/deployment/dev.py",
+      "stop",
+      "--target",
+      "platform/deployment/environments/kdg-local.json",
+      "--run-id",
+      "99b7231c-0a5b-4bdb-98e8-3329564c526a",
+      "--supabase",
+      "/home/ck/repos/innodat/agriplatform/platform/deployment/.local/kdg-toolchains/ad277eef-a10e-4aac-bb82-5743653fb2e0/payload/supabase/supabase"
+    ]
+  ],
+  "preservation": {
+    "preexisting_paths": 104,
+    "missing": [],
+    "unchanged_tracked_kdg_template_dependency_files": 228,
+    "handoff_exact_historical_suffix": true,
+    "typescript": "7.0.2"
+  },
+  "sources": {
+    "_bmad-output/implementation-artifacts/spec-kdg-native-storage-rollback.md": "25a5ce7186dff685b6740e75e0b81c367411d5c77e159e4f96a87dc8a310334d",
+    "apps/kdg-capture/migrations/tests/qualify_capture_storage.py": "6460b3d010905c0a1b2c1a64bcd8fb7f3284237ccf2629dc1c1a63cd2ffa958f",
+    "apps/kdg-capture/write-tests/test_native_storage_qualification.py": "271eabe8a29213849e5fba342c126db3d2dd4293e18e59970974183827f92fca",
+    "apps/kdg-capture/docs/NATIVE_STORAGE_ROLLBACK_EVIDENCE.md": "16526aa76e53d278ddcd66270dd9aa364a5fc25ea26effbe97fc8d29b1ae465c",
+    "apps/kdg-capture/docs/next-session.md": "526e61a91bce99528407e93249ebf4c4546ea6512d344915a7bae8cd46346a45",
+    "apps/kdg-capture/docs/contracts.md": "adad6d13888658fd0a065abf48634bd16d5b2957c634b13019d8ab6177c65631",
+    "apps/kdg-capture/migrations/README.md": "276ad76329897e60917ed4c03edc828a30eb51054a984a57b637ff5174a14a47"
+  },
+  "logs": {
+    "/tmp/kdg-native-storage-atdd-red.log": "236400a5418d0e63910359d4094be14a7257f6c8b5af47968e4fc2a33a4e5839",
+    "/tmp/kdg-native-storage-first.log": "ac31407e9b8f75962bde56efcc167efdc5456a6e8a5f3705c334c0db5047a5c8",
+    "/tmp/kdg-native-storage-oracle-red.log": "d70dca9f52391cab42553575545e88e2c63551921acc4af782d72fbf22632bdb",
+    "/tmp/kdg-native-storage-context-red.log": "c663cb20a1e71c6d560084772d2211a8c30bfbe88818bc315aa7e3b9a2fa2f16",
+    "/tmp/kdg-native-storage-review-red.log": "69b309fd7d751e8d7edb3e27d96472df95472b1e326a355b1714931d3679d18f",
+    "/tmp/kdg-native-storage-review-green.log": "38a75847d1d7b156b13383842d1c006dbe8709fbc13d3d5ac41d826d77c6e02f",
+    "/tmp/kdg-native-storage-write-final.log": "661e9f7b5e08b595093a540c879ab20a138d8894d3f2812d692b4a3c9a2344ff",
+    "/tmp/kdg-native-storage-final.log": "e1e4cb4f6a0bc509c27c2645b156812f178b044915ce7ef87adceab1b0426da4",
+    "/tmp/kdg-native-storage-stop.log": "9ed3242495b6e33460d62935d226726eed7b2371cce3d92d563cae37e047697c"
+  },
+  "limits": [
+    "runtime current role under fixture administrator session; restricted login identities/privileges checked separately",
+    "no durable COMMIT acknowledgement, concurrent cross-connection visibility/replay, or current Access HTTP/production writer qualification",
+    "historical global hash mismatch remains unresolved; this run verifies current before/after preservation only",
+    "candidate remains outside active migrations; release/previous-code/recovery gates remain"
+  ]
+}

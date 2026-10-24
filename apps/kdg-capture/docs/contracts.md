@@ -786,3 +786,14 @@ outcome target/revision columns preserve the existing private adapter interface.
 opaque eligibility references are nonblank text <=200 codepoints; retained observations
 do not confer current authority. Parent mutation commands/grants remain gated. Native
 constraint/RLS/atomicity/current authority and release recovery precede promotion.
+
+## Rollback-only native storage evidence — 2026-10-24
+
+The [native suite](../migrations/tests/qualify_capture_storage.py) now executes actual
+candidate DDL, constraints/triggers/RLS and concrete capture/outcome/history SQL inside
+rollback-only transactions. See [evidence](NATIVE_STORAGE_ROLLBACK_EVIDENCE.md). Candidate
+tables use the runtime current role within a fixture-admin session; actual restricted
+logins are separately inspected. No durable commit, concurrent replay, current Access
+or protected writer API is implied, and no active migration is installed. The unresolved
+historical global hash difference remains recorded; fresh fixture/current preservation
+checks establish this run's rollback only. Promotion/release gates remain binding.
