@@ -27,7 +27,7 @@ export const api={
  note:(token:string,study:string,id:string)=>request<NoteView>(token,`/api/studies/${study}/notes/${id}`),
  lookup:(token:string,operation:string,command:string,timeout=15000)=>request<Outcome>(token,`/api/operations/${operation}?command=${command}`,'GET',undefined,timeout),
 };
-export type Attempt={operation_id:string;command:'study.create'|'study.rename'|'study.passages.replace'|'note.create'|'note.replace';path:string;method:string;payload:Record<string,unknown>;study?:string;note?:string;generation:number};
+export type Attempt={operation_id:string;command:'study.create'|'study.rename'|'study.passages.replace'|'note.create'|'note.replace'|'note.delete';path:string;method:string;payload:Record<string,unknown>;study?:string;note?:string;generation:number};
 function ack(value:OperationAck,attempt:Attempt){
  if(!value||Object.keys(value).sort().join(',')!=='command,note_id,operation_id,revision,study_id'||typeof value.revision!=='string'||value.operation_id!==attempt.operation_id||value.command!==attempt.command||!/^\d+$/.test(value.revision)||BigInt(value.revision)<1n||BigInt(value.revision)>9223372036854775807n||!value.study_id||(attempt.study&&value.study_id!==attempt.study)||(attempt.note&&value.note_id!==attempt.note)||(['study.create','study.rename','study.passages.replace'].includes(attempt.command)?value.note_id!==null:!value.note_id))throw new NotesFailure('operation_unresolved');
  return value;

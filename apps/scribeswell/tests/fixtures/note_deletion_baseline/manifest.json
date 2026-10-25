@@ -1,0 +1,11 @@
+{
+  "commit": "c8a56681ba3eec7d104f4aab951b2e66195bb0e9",
+  "files": {
+    "personal_notes_contract.py": {
+      "sha256": "93eef0a698096a8805cad4fd728996fd8c01e96d9ee08c9f8447ea951f7e8431"
+    },
+    "personal_notes_storage.py": {
+      "sha256": "e6069ca3c878a1e10781ea7debfabb9e83e5b54681dc8b8e2fdd359e6181243c"
+    }
+  }
+}

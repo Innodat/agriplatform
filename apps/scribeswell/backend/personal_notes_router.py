@@ -30,7 +30,7 @@ def build_router(access,storage):
                     payload=parse_command('studies.enroll',await body(request))
                     result=await access.enroll(bearer,payload.operation_id,deadline)
                 else:
-                    payload=parse_command(kind,await body(request,MAX_SEARCH_BODY_BYTES if kind=='studies.search' else MAX_PASSAGE_BODY_BYTES if kind=='study.passages.replace' else MAX_BODY_BYTES)) if kind in ('studies.search','study.create','study.rename','study.passages.replace','note.create','note.replace') else None
+                    payload=parse_command(kind,await body(request,MAX_SEARCH_BODY_BYTES if kind=='studies.search' else MAX_PASSAGE_BODY_BYTES if kind=='study.passages.replace' else MAX_BODY_BYTES)) if kind in ('studies.search','study.create','study.rename','study.passages.replace','note.create','note.replace','note.delete') else None
                     allowed={'limit','cursor'} if kind=='list' else {'command'} if kind=='lookup' else set()
                     if set(request.query_params)-allowed or any(len(request.query_params.getlist(k))!=1 for k in request.query_params): raise ValueError
                     # Fresh remote authority, completed before the first local transaction.
@@ -45,7 +45,7 @@ def build_router(access,storage):
                         result=await storage.list(identity,study_id,int(raw_limit),request.query_params.get('cursor'),deadline)
                     else:
                         command=request.query_params.get('command')
-                        if command not in ('study.create','study.rename','study.passages.replace','note.create','note.replace'): raise ValueError
+                        if command not in ('study.create','study.rename','study.passages.replace','note.create','note.replace','note.delete'): raise ValueError
                         result=await storage.lookup(identity,operation_id,command,deadline)
                 return JSONResponse(result,headers={'Cache-Control':'private, no-store'})
         except NotesError as error:
@@ -79,6 +79,8 @@ def build_router(access,storage):
     async def read_note(request:Request): return await handle(request,'read')
     @router.put('/api/studies/{study_id}/notes/{note_id}')
     async def replace_note(request:Request): return await handle(request,'note.replace')
+    @router.delete('/api/studies/{study_id}/notes/{note_id}')
+    async def delete_note(request:Request): return await handle(request,'note.delete')
     @router.get('/api/operations/{operation_id}')
     async def lookup(request:Request): return await handle(request,'lookup')
     return router

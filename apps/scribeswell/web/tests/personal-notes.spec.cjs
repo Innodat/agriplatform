@@ -38,6 +38,13 @@ async function setup(page,options={}){
    else{if(metadata.title!==payload.title){metadata.title=payload.title;metadata.revision=String(Number(metadata.revision)+1);}data={operation_id:payload.operation_id,command:'study.rename',study_id:study,note_id:null,revision:metadata.revision};operations.set(payload.operation_id,data);}
    if(options.dropRename){options.dropRename=false;return r.abort('connectionreset');}
   }
+  else if(path.endsWith('/notes/'+note)&&method==='DELETE'){
+   if(options.beforeDelete)await options.beforeDelete();
+   if(options.failDelete)return r.fulfill({status:options.failDelete,json:{code:options.failDeleteCode??(options.failDelete===409?'note_revision_conflict':options.failDelete===401?'authentication_required':options.failDelete===403?'studies_access_denied':'studies_storage_unavailable')}});
+   if(operations.has(payload.operation_id))data=operations.get(payload.operation_id);
+   else{if(payload.expected_revision!==revision)return r.fulfill({status:409,json:{code:'note_revision_conflict'}});revision=String(Number(revision)+1);saved={document:{version:1,blocks:[]},connections:[],highlights:[]};noteCreated=false;data={operation_id:payload.operation_id,command:'note.delete',study_id:study,note_id:note,revision};operations.set(payload.operation_id,data);}
+   if(options.dropDelete){options.dropDelete=false;return r.abort('connectionreset');}
+  }
   else if(path.endsWith('/notes/'+note)&&method==='PUT'){if(options.beforePut)await options.beforePut();if(options.failPut)return r.fulfill({status:options.failPut,json:{code:options.failPutCode??(options.failPut===409?'note_revision_conflict':options.failPut===401?'authentication_required':options.failPut===403?'studies_access_denied':'studies_storage_unavailable')}});saved=payload.value;revision=String(Number(revision)+1);data={operation_id:payload.operation_id,command:'note.replace',study_id:study,note_id:note,revision};}
   else if(path.endsWith('/notes/'+note))data={...attribution,id:note,study_id:study,visibility:'study',value:saved,revision};
   else if(path.endsWith('/notes')&&method==='POST'){noteCreated=true;saved=options.noteValue??payload.value;data={operation_id:payload.operation_id,command:'note.create',study_id:study,note_id:note,revision};}
@@ -48,7 +55,7 @@ async function setup(page,options={}){
   if(data.command)operations.set(data.operation_id,data);
   if(method==='PUT'&&options.dropPut){options.dropPut=false;return r.abort('connectionreset');}
   return r.fulfill({json:data,headers:{'cache-control':'private, no-store'}});
- });return {requests,metadata,collection};
+ });return {requests,metadata,collection,advanceNote:(value)=>{saved=value;revision=String(Number(revision)+1);}};
 }
 test('explicitly enroll, create, write Hebrew and reopen saved text after reload',async({page})=>{
  const {requests}=await setup(page);await page.goto('/');expect(requests).toHaveLength(0);
@@ -625,4 +632,187 @@ test('library review: superseded queued refresh frame cannot restore into a newe
 
 test('library review: newer search supersedes an unfinished result selection',async({page})=>{
  let release;await reviewLibrary(page,{detail:(id,view)=>new Promise(resolve=>release=()=>resolve(view(id)))});await page.getByRole('button',{name:'Study A',exact:true}).click();await expect.poll(()=>!!release).toBe(true);const input=page.getByRole('textbox',{name:'Search studies',exact:true});await input.fill('newer private query');await input.press('Enter');await expect(input).toHaveValue('newer private query');const stale=page.waitForResponse('**/api/studies/'+study);release();await stale;await expect(page.getByRole('heading',{name:'Study A',exact:true})).toHaveCount(0);await expect(input).toBeVisible();await expect(input).toHaveValue('newer private query');
+});
+
+test('note deletion requires safe-focused confirmation and cancel preserves dirty writing',async({page})=>{
+ const {requests}=await setup(page);await firstNote(page);
+ await page.getByLabel('Note text',{exact:true}).fill('private unsent writing');
+ await page.getByRole('button',{name:'Delete note',exact:true}).click();
+ const dialog=page.getByRole('dialog',{name:'Delete this note?'});
+ await expect(dialog).toBeVisible();await expect(dialog).toContainText('permanently');await expect(dialog).toContainText('cannot be undone');await expect(dialog.getByRole('button',{name:'Cancel',exact:true})).toBeFocused();
+ await dialog.getByRole('button',{name:'Cancel',exact:true}).click();
+ await expect(page.getByLabel('Note text',{exact:true})).toContainText('private unsent writing');
+ expect(requests.filter(r=>r.method==='DELETE')).toHaveLength(0);
+});
+
+
+test('confirmed dirty note deletion erases just the target without saving unsent writing',async({page})=>{
+ const {requests}=await setup(page);await firstNote(page);
+ await page.getByLabel('Note text',{exact:true}).fill('do not save merely to erase');
+ await page.getByRole('button',{name:'Delete note',exact:true}).click();
+ await page.getByRole('dialog').getByRole('button',{name:'Delete note',exact:true}).click();
+ await expect(page.getByRole('dialog')).toHaveCount(0);await expect(page.getByLabel('Note text',{exact:true})).toHaveCount(0);await expect(page.getByText('Select a note in Studies.',{exact:true})).toBeFocused();
+ expect(requests.filter(r=>r.method==='DELETE')).toHaveLength(1);expect(requests.filter(r=>r.method==='PUT'&&r.path.endsWith('/notes/'+note))).toHaveLength(0);
+ await page.getByRole('button',{name:'Studies',exact:true}).click();await expect(page.getByRole('heading',{name:'Untitled study',exact:true})).toBeVisible();await expect(page.getByRole('list',{name:'Notes',exact:true}).getByRole('button')).toHaveCount(0);
+});
+
+test('unknown delete retains frozen writing and explicitly retries the original operation',async({page})=>{
+ const options={dropDelete:true,unresolved:true};const {requests}=await setup(page,options);await firstNote(page);
+ await page.getByLabel('Note text',{exact:true}).fill('retained until acknowledgement');await page.getByRole('button',{name:'Delete note',exact:true}).click();
+ await page.getByRole('dialog').getByRole('button',{name:'Delete note',exact:true}).click();
+ await expect(page.getByRole('dialog')).toContainText('Deletion not confirmed');await expect(page.getByLabel('Note text',{exact:true})).toContainText('retained until acknowledgement');
+ await page.getByRole('dialog').getByRole('button',{name:'Close',exact:true}).click();
+ await expect(page.getByLabel('Note text',{exact:true})).toHaveAttribute('contenteditable','false');
+ await page.getByRole('button',{name:'Delete note',exact:true}).click();await page.getByRole('button',{name:'Retry deletion',exact:true}).click();await expect(page.getByRole('dialog')).toHaveCount(0);
+ const deletes=requests.filter(r=>r.method==='DELETE');expect(deletes).toHaveLength(2);expect(deletes[1].payload).toEqual(deletes[0].payload);
+});
+
+test('deletion waits for executing save and uses its confirmed revision',async({page})=>{
+ let release;const options={beforePut:()=>new Promise(resolve=>{release=resolve;})};const {requests}=await setup(page,options);await firstNote(page);
+ await page.getByLabel('Note text',{exact:true}).fill('executing save');await expect.poll(()=>!!release).toBe(true);
+ await page.getByRole('button',{name:'Delete note',exact:true}).click();await expect(page.getByRole('dialog').getByRole('button',{name:'Delete note',exact:true})).toBeDisabled();expect(requests.filter(r=>r.method==='DELETE')).toHaveLength(0);
+ release();await expect(page.getByRole('dialog').getByRole('button',{name:'Delete note',exact:true})).toBeEnabled();await page.getByRole('dialog').getByRole('button',{name:'Delete note',exact:true}).click();await expect(page.getByRole('dialog')).toHaveCount(0);
+ expect(requests.find(r=>r.method==='DELETE').payload.expected_revision).toBe('2');
+});
+
+test('delete conflict preserves writing and requires review and a fresh explicit confirmation',async({page})=>{
+ const options={failDelete:409};const {requests,advanceNote}=await setup(page,options);await firstNote(page);await page.getByLabel('Note text',{exact:true}).fill('local work');
+ await page.getByRole('button',{name:'Delete note',exact:true}).click();await page.getByRole('dialog').getByRole('button',{name:'Delete note',exact:true}).click();await expect(page.getByRole('dialog')).toContainText('Deletion not confirmed');await expect(page.getByLabel('Note text',{exact:true})).toContainText('local work');
+ options.failDelete=0;advanceNote({document:{version:1,blocks:[]},connections:[],highlights:[]});await page.getByRole('button',{name:'Review current note',exact:true}).click();await expect(page.getByRole('dialog')).toContainText('Current note loaded');expect(requests.filter(r=>r.method==='DELETE')).toHaveLength(1);
+ await page.getByRole('dialog').getByRole('button',{name:'Delete note',exact:true}).click();await expect(page.getByRole('dialog')).toHaveCount(0);
+ const deletes=requests.filter(r=>r.method==='DELETE');expect(deletes[0].payload.operation_id).not.toBe(deletes[1].payload.operation_id);expect(deletes[1].payload.expected_revision).toBe('2');await expect(page.getByLabel('Note text',{exact:true})).toHaveCount(0);
+});
+
+test('unknown previous save must recover before separately confirmed deletion',async({page})=>{
+ const options={dropPut:true,unresolved:true};const {requests}=await setup(page,options);await firstNote(page);await page.getByLabel('Note text',{exact:true}).fill('unknown previous save');await expect(page.getByRole('button',{name:'Retry',exact:true})).toBeVisible();
+ await page.getByRole('button',{name:'Delete note',exact:true}).click();await expect(page.getByRole('dialog')).toContainText('Recover that save first');expect(requests.filter(r=>r.method==='DELETE')).toHaveLength(0);
+ options.unresolved=false;await page.getByRole('button',{name:'Recover previous save',exact:true}).click();await expect(page.getByRole('dialog').getByRole('button',{name:'Delete note',exact:true})).toBeEnabled();expect(requests.filter(r=>r.method==='DELETE')).toHaveLength(0);
+ await page.getByRole('dialog').getByRole('button',{name:'Delete note',exact:true}).click();await expect(page.getByRole('dialog')).toHaveCount(0);
+ const saves=requests.filter(r=>r.method==='PUT'&&r.path.endsWith('/notes/'+note));expect(saves).toHaveLength(2);expect(saves[0].payload).toEqual(saves[1].payload);
+});
+
+for(const late of ['success','denial'])test('note deletion account replacement rejects late '+late,async({page})=>{
+ let release;const options={beforeDelete:()=>new Promise(resolve=>release=resolve),failDelete:late==='denial'?403:0};const {requests}=await setup(page,options);await firstNote(page);await page.getByLabel('Note text',{exact:true}).fill('old account private writing');
+ await page.getByRole('button',{name:'Delete note',exact:true}).click();await page.getByRole('dialog').getByRole('button',{name:'Delete note',exact:true}).click();await expect.poll(()=>!!release).toBe(true);
+ await page.route('**/auth/v1/token*',r=>r.fulfill({json:{...session,access_token:'other-account',user:{...session.user,id:'10000000-0000-4000-8000-000000000002'}}}));
+ await page.evaluate(async()=>{const {supabase}=await import('/src/lib/supabase.ts');await supabase.auth.signInWithPassword({email:'other@example.invalid',password:'fixture'});});
+ await expect(page.getByRole('dialog')).toHaveCount(0);await expect(page.getByLabel('Note text',{exact:true})).toHaveCount(0);const currentControl=page.getByRole('button',{name:'Studies',exact:true});await currentControl.focus();const lateReply=page.waitForResponse(r=>r.request().method()==='DELETE');release();await (await lateReply).finished();await page.evaluate(()=>new Promise(requestAnimationFrame));await expect(currentControl).toBeFocused();await expect(page.getByText('old account private writing')).toHaveCount(0);await expect(page.getByText('Studies access is unavailable for this account.')).toHaveCount(0);expect(requests.filter(r=>r.method==='DELETE')).toHaveLength(1);
+});
+
+test('note deletion navigation preserves an unknown operation and suppresses fresh saves',async({page})=>{
+ const options={dropDelete:true,unresolved:true};const {requests}=await setup(page,options);await firstNote(page);
+ await page.getByLabel('Note text',{exact:true}).fill('original private unsent writing');await page.getByRole('button',{name:'Delete note',exact:true}).click();await page.getByRole('dialog').getByRole('button',{name:'Delete note',exact:true}).click();await expect(page.getByRole('dialog')).toContainText('Deletion not confirmed');await page.getByRole('dialog').getByRole('button',{name:'Close',exact:true}).click();
+ await page.getByRole('button',{name:'Back to Studies',exact:true}).click();await page.getByRole('button',{name:'Leave study',exact:true}).click();await page.getByRole('button',{name:'Untitled study',exact:true}).click();
+ // The fixture has committed the tombstone and omits it from lists; the retained
+ // target is still recoverable by returning to the current Analysis lane.
+ await page.getByRole('button',{name:'Analysis',exact:true}).click();
+ // Navigation clears selection, so reopen recovery through an explicit retained action.
+ await expect(page.getByRole('button',{name:/^Recover deletion:/})).toBeVisible();await page.getByRole('button',{name:/^Recover deletion:/}).click();
+ await page.getByRole('button',{name:'Retry deletion',exact:true}).click();await expect(page.getByRole('dialog')).toHaveCount(0);
+ const deletes=requests.filter(r=>r.method==='DELETE');expect(deletes).toHaveLength(2);expect(deletes[0].payload).toEqual(deletes[1].payload);expect(requests.filter(r=>r.method==='PUT'&&r.path.endsWith('/notes/'+note))).toHaveLength(0);
+});
+
+test('note deletion captured target does not evict a different selected note after navigation',async({page})=>{
+ let release;const {requests}=await setup(page,{beforeDelete:()=>new Promise(resolve=>release=resolve)});await firstNote(page);
+ const other='40000000-0000-4000-8000-000000000002',otherValue={document:{version:1,blocks:[{type:'paragraph',direction:'auto',content:[{type:'text',text:'Other note survives',marks:[]}]}]},connections:[],highlights:[]};
+ await page.route('**/api/studies/'+study+'/notes',r=>r.request().method()==='GET'?r.fulfill({json:{items:[{...attribution,id:other,study_id:study,visibility:'study',revision:'1',value:otherValue}],next_cursor:null}}):r.fallback());
+ await page.route('**/api/studies/'+study+'/notes/'+other,r=>r.fulfill({json:{...attribution,id:other,study_id:study,visibility:'study',revision:'1',value:otherValue}}));
+ await page.getByRole('button',{name:'Delete note',exact:true}).click();await page.getByRole('dialog').getByRole('button',{name:'Delete note',exact:true}).click();await expect.poll(()=>!!release).toBe(true);await page.getByRole('dialog').getByRole('button',{name:'Close',exact:true}).click();
+ await page.getByRole('button',{name:'Back to Studies',exact:true}).click();await page.getByRole('button',{name:'Leave study',exact:true}).click();await page.getByRole('button',{name:'Untitled study',exact:true}).click();await page.getByRole('button',{name:'Other note survives',exact:true}).click();
+ await page.getByLabel('Note text',{exact:true}).focus();const lateReply=page.waitForResponse(r=>r.request().method()==='DELETE');release();await (await lateReply).finished();await page.evaluate(()=>new Promise(requestAnimationFrame));await expect(page.getByLabel('Note text',{exact:true})).toContainText('Other note survives');await expect(page.getByLabel('Note text',{exact:true})).toBeFocused();expect(requests.find(r=>r.method==='DELETE').path).toBe('/api/studies/'+study+'/notes/'+note);
+});
+
+test('note deletion after a definitive prior-save conflict reviews current revision and clears only failed save identity',async({page})=>{
+ const options={failPut:409};const {requests,advanceNote}=await setup(page,options);await firstNote(page);await page.getByLabel('Note text',{exact:true}).fill('my conflicting save');await expect(page.getByRole('alert')).toContainText('This note has changed');
+ await page.getByRole('button',{name:'Delete note',exact:true}).click();await expect(page.getByRole('dialog')).toContainText('Review the current note');advanceNote({document:{version:1,blocks:[]},connections:[],highlights:[]});await page.getByRole('button',{name:'Review current note',exact:true}).click();await expect(page.getByRole('dialog')).toContainText('Current note loaded');await expect(page.getByLabel('Note text',{exact:true})).toContainText('my conflicting save');
+ await page.getByRole('dialog').getByRole('button',{name:'Delete note',exact:true}).click();await expect(page.getByRole('dialog')).toHaveCount(0);expect(requests.filter(r=>r.method==='DELETE')).toHaveLength(1);expect(requests.find(r=>r.method==='DELETE').payload.expected_revision).toBe('2');await expect(page.getByLabel('Note text',{exact:true})).toHaveCount(0);expect(requests.filter(r=>r.method==='PUT'&&r.path.endsWith('/notes/'+note))).toHaveLength(1);
+});
+
+test('note deletion composing cancel preserves final composition through saving and reopen',async({page})=>{
+ const {requests}=await setup(page);await firstNote(page);const editor=page.getByLabel('Note text',{exact:true});await editor.dispatchEvent('compositionstart');await editor.fill('initial composing text');await page.getByRole('button',{name:'Delete note',exact:true}).click();
+ await editor.evaluate(el=>{el.textContent='final composed שָׁלוֹם';el.dispatchEvent(new CompositionEvent('compositionend',{bubbles:true}));});
+ await page.getByRole('dialog').getByRole('button',{name:'Cancel',exact:true}).click();await expect(editor).toContainText('final composed שָׁלוֹם');await expect(page.getByRole('status').filter({hasText:'Draft saved'})).toBeVisible();
+ expect(JSON.stringify(requests.filter(r=>r.method==='PUT').at(-1).payload.value)).toContain('final composed שָׁלוֹם');
+ await page.reload();await page.getByRole('button',{name:'Studies',exact:true}).click();await page.getByRole('button',{name:'Untitled study',exact:true}).click();await page.getByRole('button',{name:'final composed שָׁלוֹם',exact:true}).click();await expect(editor).toContainText('final composed שָׁלוֹם');expect(requests.filter(r=>r.method==='DELETE')).toHaveLength(0);
+});
+
+test('note deletion bounded preparation keeps unresolved save and requires original recovery',async({page})=>{
+ let release;const {requests}=await setup(page,{beforePut:()=>new Promise(resolve=>release=resolve)});await firstNote(page);await page.getByLabel('Note text',{exact:true}).fill('still saving');await expect.poll(()=>!!release).toBe(true);
+ await page.getByRole('button',{name:'Delete note',exact:true}).click();await expect(page.getByRole('button',{name:'Recover previous save',exact:true})).toBeVisible({timeout:6500});expect(requests.filter(r=>r.method==='DELETE')).toHaveLength(0);
+ release();await page.getByRole('button',{name:'Recover previous save',exact:true}).click();await expect(page.getByRole('dialog').getByRole('button',{name:'Delete note',exact:true})).toBeEnabled();expect(requests.filter(r=>r.method==='DELETE')).toHaveLength(0);expect(requests.filter(r=>r.method==='PUT'&&r.path.endsWith('/notes/'+note))).toHaveLength(1);
+ await page.getByRole('dialog').getByRole('button',{name:'Cancel',exact:true}).click();await expect(page.getByLabel('Note text',{exact:true})).toContainText('still saving');
+});
+
+test('note deletion filters a stale notes page arriving after committed acknowledgement',async({page})=>{
+ let releaseDelete,releasePage;await setup(page,{beforeDelete:()=>new Promise(resolve=>releaseDelete=resolve)});await firstNote(page);
+ await page.route('**/api/studies/'+study+'/notes',async r=>{if(r.request().method()!=='GET')return r.fallback();const stale={items:[{...attribution,id:note,study_id:study,visibility:'study',revision:'1',value:{document:{version:1,blocks:[]},connections:[],highlights:[]}}],next_cursor:null};await new Promise(resolve=>releasePage=resolve);return r.fulfill({json:stale});});
+ await page.getByRole('button',{name:'Delete note',exact:true}).click();await page.getByRole('dialog').getByRole('button',{name:'Delete note',exact:true}).click();await expect.poll(()=>!!releaseDelete).toBe(true);await page.getByRole('dialog').getByRole('button',{name:'Close',exact:true}).click();
+ await page.getByRole('button',{name:'Back to Studies',exact:true}).click();await page.getByRole('button',{name:'Leave study',exact:true}).click();await page.getByRole('button',{name:'Untitled study',exact:true}).click();await expect.poll(()=>!!releasePage).toBe(true);
+ const committed=page.waitForResponse(r=>r.request().method()==='DELETE');releaseDelete();await committed;releasePage();await expect(page.getByRole('heading',{name:'Untitled study',exact:true})).toBeVisible();await expect(page.getByRole('list',{name:'Notes',exact:true})).toBeAttached();await expect(page.getByRole('list',{name:'Notes',exact:true}).getByRole('button')).toHaveCount(0);
+});
+
+test('note deletion lost reply resolves through read-only original outcome lookup',async({page})=>{
+ const {requests}=await setup(page,{dropDelete:true});await firstNote(page);await page.getByRole('button',{name:'Delete note',exact:true}).click();await page.getByRole('dialog').getByRole('button',{name:'Delete note',exact:true}).click();await expect(page.getByRole('dialog')).toHaveCount(0);await expect(page.getByLabel('Note text',{exact:true})).toHaveCount(0);expect(requests.filter(r=>r.method==='DELETE')).toHaveLength(1);
+});
+
+test('note deletion same-account authority recovery never automatically repeats deletion',async({page})=>{
+ const options={failDelete:401};const {requests}=await setup(page,options);await firstNote(page);await page.getByLabel('Note text',{exact:true}).fill('recoverable private input');await page.getByRole('button',{name:'Delete note',exact:true}).click();await page.getByRole('dialog').getByRole('button',{name:'Delete note',exact:true}).click();await expect(page.getByRole('dialog')).toHaveCount(0);await expect(page.getByLabel('Note text',{exact:true})).toHaveCount(0);
+ options.failDelete=0;await page.getByRole('button',{name:'Retry Studies',exact:true}).click();await expect(page.getByRole('button',{name:/^Recover deletion:/})).toBeVisible();expect(requests.filter(r=>r.method==='DELETE')).toHaveLength(1);
+ await page.getByRole('button',{name:/^Recover deletion:/}).click();await page.getByRole('button',{name:'Retry deletion',exact:true}).click();await expect(page.getByRole('dialog')).toHaveCount(0);const deletes=requests.filter(r=>r.method==='DELETE');expect(deletes).toHaveLength(2);expect(deletes[0].payload).toEqual(deletes[1].payload);
+});
+
+for(const origin of ['save','delete'])test('note deletion review Cancel does not authorize stale autosave after '+origin+' conflict',async({page})=>{
+ const options=origin==='save'?{failPut:409}:{failDelete:409};const {requests}=await setup(page,options);await firstNote(page);await page.getByLabel('Note text',{exact:true}).fill('my retained stale writing');if(origin==='save')await expect(page.getByRole('alert')).toContainText('This note has changed');
+ await page.getByRole('button',{name:'Delete note',exact:true}).click();if(origin==='delete')await page.getByRole('dialog').getByRole('button',{name:'Delete note',exact:true}).click();
+ const remote={document:{version:1,blocks:[{type:'paragraph',direction:'auto',content:[{type:'text',text:'Concurrent saved writing',marks:[]}]}]},connections:[],highlights:[]};
+ await page.route('**/api/studies/'+study+'/notes/'+note,r=>r.request().method()==='GET'?r.fulfill({json:{...attribution,id:note,study_id:study,visibility:'study',revision:'2',value:remote}}):r.fallback());
+ await page.getByRole('button',{name:'Review current note',exact:true}).click();await expect(page.getByRole('region',{name:'Current saved note',exact:true})).toContainText('Concurrent saved writing');const prior=requests.filter(r=>r.method==='PUT'&&r.path.endsWith('/notes/'+note)).length;
+ await page.getByRole('dialog').getByRole('button',{name:'Cancel',exact:true}).click();await expect(page.getByLabel('Note text',{exact:true})).toContainText('my retained stale writing');await page.waitForTimeout(800);expect(requests.filter(r=>r.method==='PUT'&&r.path.endsWith('/notes/'+note))).toHaveLength(prior);
+});
+
+test('deletion review excludes overlapping same-target requests and keeps one confirmed revision',async({page})=>{
+ const options={failDelete:409};const {requests,advanceNote}=await setup(page,options);await firstNote(page);await page.getByRole('button',{name:'Delete note',exact:true}).click();await page.getByRole('dialog').getByRole('button',{name:'Delete note',exact:true}).click();
+ let release,reads=0;const remote={document:{version:1,blocks:[{type:'paragraph',direction:'auto',content:[{type:'text',text:'Reviewed saved writing',marks:[]}]}]},connections:[],highlights:[]};advanceNote(remote);
+ await page.route('**/api/studies/'+study+'/notes/'+note,async r=>{if(r.request().method()!=='GET')return r.fallback();reads++;if(reads===1)await new Promise(resolve=>release=resolve);return r.fulfill({json:{...attribution,id:note,study_id:study,visibility:'study',revision:reads===1?'2':'3',value:remote}});});
+ await page.getByRole('button',{name:'Review current note',exact:true}).evaluate(button=>{button.click();button.click();});await expect.poll(()=>!!release).toBe(true);await page.waitForTimeout(100);expect(reads).toBe(1);await expect(page.getByRole('button',{name:'Review current note',exact:true})).toBeDisabled();
+ release();await expect(page.getByRole('region',{name:'Current saved note',exact:true})).toContainText('Reviewed saved writing');options.failDelete=0;await page.getByRole('dialog').getByRole('button',{name:'Delete note',exact:true}).click();await expect(page.getByRole('dialog')).toHaveCount(0);expect(requests.filter(r=>r.method==='DELETE').at(-1).payload.expected_revision).toBe('2');
+});
+
+test('deletion review shows list semantics formatting external destinations and canonical passage targets',async({page})=>{
+ const options={failDelete:409};await setup(page,options);await firstNote(page);await page.getByRole('button',{name:'Delete note',exact:true}).click();await page.getByRole('dialog').getByRole('button',{name:'Delete note',exact:true}).click();
+ const passage=await page.evaluate(async()=>{const {parseReference}=await import('/src/lib/passage-references.ts');return parseReference('Genesis 2:1');});
+ const remote={document:{version:2,blocks:[{type:'list',style:'ordered',items:[[{type:'paragraph',direction:'rtl',content:[{type:'text',text:'First item',marks:['bold']},{type:'external_link',url:'https://example.org/new-destination',content:[{type:'text',text:'Same link label',marks:['italic']}]}]}],[{type:'paragraph',direction:'auto',content:[{type:'passage_link',label:'Same passage label',reference:passage}]}]]},{type:'list',style:'bullet',items:[[{type:'paragraph',direction:'auto',content:[{type:'text',text:'Bullet item',marks:[]}]}]]}]},connections:[],highlights:[]};
+ await page.route('**/api/studies/'+study+'/notes/'+note,r=>r.request().method()==='GET'?r.fulfill({json:{...attribution,id:note,study_id:study,visibility:'study',revision:'2',value:remote}}):r.fallback());
+ await page.getByRole('button',{name:'Review current note',exact:true}).click();const review=page.getByRole('region',{name:'Current saved note',exact:true});await expect(review.locator('ol>li')).toHaveCount(2);await expect(review.locator('ul>li')).toHaveCount(1);await expect(review.locator('p[dir="rtl"] strong')).toHaveText('First item');await expect(review.locator('em')).toHaveText('Same link label');await expect(review).toContainText('https://example.org/new-destination');await expect(review).toContainText('Same passage label');await expect(review).toContainText('Genesis 2:1');expect(await review.locator('a').count()).toBe(0);
+});
+
+test('deletion recovery labels distinguish two retained targets and recover their own operations',async({page})=>{
+ const options={failDelete:503};const {requests}=await setup(page,options);await firstNote(page);await page.getByLabel('Note text',{exact:true}).fill('First target');await page.getByRole('button',{name:'Delete note',exact:true}).click();await page.getByRole('dialog').getByRole('button',{name:'Delete note',exact:true}).click();await expect(page.getByRole('dialog')).toContainText('Deletion not confirmed');await page.getByRole('dialog').getByRole('button',{name:'Close',exact:true}).click();await page.getByRole('button',{name:'Back to Studies',exact:true}).click();
+ const other='40000000-0000-4000-8000-000000000002',secondValue={document:{version:1,blocks:[{type:'paragraph',direction:'auto',content:[{type:'text',text:'Second target',marks:[]}]}]},connections:[],highlights:[]};let recover=false;const secondDeletes=[];
+ await page.route('**/api/studies/'+study+'/notes',r=>r.request().method()==='POST'?r.fulfill({json:{operation_id:r.request().postDataJSON().operation_id,command:'note.create',study_id:study,note_id:other,revision:'1'}}):r.fallback());
+ await page.route('**/api/studies/'+study+'/notes/'+other,r=>{if(r.request().method()==='DELETE'){const payload=r.request().postDataJSON();secondDeletes.push(payload);return recover?r.fulfill({json:{operation_id:payload.operation_id,command:'note.delete',study_id:study,note_id:other,revision:'2'}}):r.fulfill({status:503,json:{code:'studies_storage_unavailable'}});}return r.fulfill({json:{...attribution,id:other,study_id:study,visibility:'study',revision:'1',value:secondValue}});});
+ await page.getByRole('button',{name:'Add note',exact:true}).click();await page.getByRole('button',{name:'Delete note',exact:true}).click();await page.getByRole('dialog').getByRole('button',{name:'Delete note',exact:true}).click();await expect(page.getByRole('dialog')).toContainText('Deletion not confirmed');await page.getByRole('dialog').getByRole('button',{name:'Close',exact:true}).click();
+ const first=page.getByRole('button',{name:/^Recover deletion:.*First target/}),second=page.getByRole('button',{name:/^Recover deletion:.*Second target/});await expect(first).toBeVisible();await expect(second).toBeVisible();expect(await first.textContent()).not.toBe(await second.textContent());
+ recover=true;await second.click();await expect(page.getByRole('dialog')).toContainText('Second target');await page.getByRole('button',{name:'Retry deletion',exact:true}).click();await expect(page.getByRole('dialog')).toHaveCount(0);await expect(first).toBeVisible();options.failDelete=0;await first.click();await expect(page.getByRole('dialog')).toContainText('First target');await page.getByRole('button',{name:'Retry deletion',exact:true}).click();await expect(page.getByRole('dialog')).toHaveCount(0);
+ const firstDeletes=requests.filter(r=>r.method==='DELETE');expect(firstDeletes).toHaveLength(2);expect(firstDeletes[0].payload).toEqual(firstDeletes[1].payload);expect(secondDeletes).toHaveLength(2);expect(secondDeletes[0]).toEqual(secondDeletes[1]);expect(secondDeletes[0].operation_id).not.toBe(firstDeletes[0].payload.operation_id);
+});
+
+test('deletion selected target acknowledgement focuses visible fallback when editor is hidden',async({page})=>{
+ let release;await setup(page,{beforeDelete:()=>new Promise(resolve=>release=resolve)});await firstNote(page);await page.getByRole('button',{name:'Delete note',exact:true}).click();await page.getByRole('dialog').getByRole('button',{name:'Delete note',exact:true}).click();await expect.poll(()=>!!release).toBe(true);await page.getByRole('dialog').getByRole('button',{name:'Close',exact:true}).click();await page.getByRole('button',{name:'Back to Studies',exact:true}).click();
+ const lateReply=page.waitForResponse(r=>r.request().method()==='DELETE');release();await (await lateReply).finished();await expect(page.getByText('Note deleted.',{exact:true})).toBeVisible();await expect(page.getByText('Note deleted.',{exact:true})).toBeFocused();await expect(page.getByRole('button',{name:'Add note',exact:true})).toBeVisible();
+});
+
+test('deletion review wraps the full long valid destination within desktop and mobile dialog width',async({page})=>{
+ await setup(page,{failDelete:409});await firstNote(page);await page.getByRole('button',{name:'Delete note',exact:true}).click();await page.getByRole('dialog').getByRole('button',{name:'Delete note',exact:true}).click();
+ const url='https://example.org/new-destination?query='+'a'.repeat(1900),remote={document:{version:1,blocks:[{type:'paragraph',direction:'auto',content:[{type:'external_link',url,content:[{type:'text',text:'Saved destination',marks:[]}]}]}]},connections:[],highlights:[]};
+ await page.route('**/api/studies/'+study+'/notes/'+note,r=>r.request().method()==='GET'?r.fulfill({json:{...attribution,id:note,study_id:study,visibility:'study',revision:'2',value:remote}}):r.fallback());await page.getByRole('button',{name:'Review current note',exact:true}).click();const review=page.getByRole('region',{name:'Current saved note',exact:true});await expect(review).toContainText(url);
+ const widths=await page.getByRole('dialog').evaluate(dialog=>{const content=dialog.querySelector('[aria-label="Current saved note"]');return {dialog:dialog.scrollWidth<=dialog.clientWidth,review:content.scrollWidth<=content.clientWidth,viewport:dialog.getBoundingClientRect().left>=0&&dialog.getBoundingClientRect().right<=innerWidth};});expect(widths).toEqual({dialog:true,review:true,viewport:true});
+});
+
+for(const destination of ['reader after tools close','surviving public control'])test('deletion acknowledgement preserves deliberate focus on '+destination,async({page})=>{
+ let release;await setup(page,{beforeDelete:()=>new Promise(resolve=>release=resolve)});await firstNote(page);await page.getByRole('button',{name:'Delete note',exact:true}).click();await page.getByRole('dialog').getByRole('button',{name:'Delete note',exact:true}).click();await expect.poll(()=>!!release).toBe(true);await page.getByRole('dialog').getByRole('button',{name:'Close',exact:true}).click();
+ const mobile=test.info().project.name==='mobile';
+ if(destination==='reader after tools close')await page.getByRole('button',{name:mobile?'Return to reader':'Analysis',exact:true}).click();
+ const control=destination==='surviving public control'&&mobile?page.getByRole('button',{name:'Compare passages',exact:true}):page.getByRole('button',{name:/^Navigate: Genesis, chapter 1/});await expect(control).toBeVisible();await control.focus();await expect(control).toBeFocused();
+ const acknowledgement=page.waitForResponse(r=>r.request().method()==='DELETE');release();await (await acknowledgement).finished();await expect(page.getByLabel('Note text',{exact:true})).toHaveCount(0);await page.evaluate(()=>new Promise(requestAnimationFrame));await expect(control).toBeFocused();await expect(page.getByText('Note deleted.',{exact:true})).toHaveCount(0);
 });

@@ -31,6 +31,7 @@ All paths are relative to the Scribeswell origin. Browser account sessions go to
 | `GET /api/studies/{study_id}/notes` | Current owner's ordinary active notes, bounded full-value page. No previews derived before authorization. |
 | `GET /api/studies/{study_id}/notes/{note_id}` | Reopen full current value/revision/attribution. |
 | `PUT /api/studies/{study_id}/notes/{note_id}` | `note.replace`, required expected revision and complete value; never upserts. |
+| `DELETE /api/studies/{study_id}/notes/{note_id}` | Confirmed `note.delete`, operation ID and expected revision only; atomically erases and closes this owned note. |
 | `GET /api/operations/{operation_id}?command=…` | Current-owner committed compact outcome or `unresolved`; no body, fingerprint or historical content. |
 
 Create and replace acknowledge with HTTP 200, matching retry outcomes. IDs are canonical lowercase nonnil UUID strings. Revisions are positive signed-bigint **decimal strings**, max `9223372036854775807`; overflow fails closed. Server attribution uses exact UTC `YYYY-MM-DDTHH:MM:SS.ffffffZ` and durable actor IDs, preserving executor/initiator responsibilities where applicable. Clients cannot supply attribution. Success and all private error responses carry `Cache-Control: private, no-store`; intermediaries/service workers must not cache private bytes. Closed/deleted/wrong-owner resources share `resource_unavailable`/404 without existence disclosure.
@@ -321,3 +322,40 @@ checks and prepared-only restricted native and actual-owner zero-mutation proof.
 No migration/index/model, owner service, shared UI/scaffold promotion, accepted ADR
 or agent-context change is introduced. Production activation remains disabled;
 final native/owner integration stays deferred under direction266.
+
+
+## Confirmed own-note deletion — component delivery, final integration pending
+
+[The adopted note-deletion contract](NOTE_DELETION_V1.md) adds the closed
+`note.delete` command and DELETE path above, with the existing strict UUID/revision,
+current Access, safe errors and private/no-store boundary. Under the existing
+operation→parent→note lock order, one transaction replaces the entire aggregate
+with exact empty format1, closes it, advances revision/update attribution once and
+inserts a compact receipt. The explicit erasure bypasses only replacement's
+format2→format1 prohibition. Other notes, metadata and collected passages remain.
+
+Only original committed deletion receipts may recover against the same owned
+inactive note, including after later parent closure. Historical create/replace
+receipts remain unavailable; changed deletion payload refuses. Read/list/search
+exclude closed notes. Prepared controlled0004 widens receipt checks and requires
+exact empty inactive values; the existing monotonic lifecycle prevents reopening.
+Invalid pre-existing inactive payloads fail installation transactionally and need
+an explicit controlled recovery decision. Prior migrations and restricted grants
+are unchanged. No migration, activation or production-data deletion ran here.
+
+The selected editor offers explicit confirmation with Cancel focused first. Opening
+it pauses the note's save timer and retains input, including final IME composition.
+Preparation waits at most five seconds for an executing original save; unresolved
+saves require recovery before separately confirmed deletion. Executing/unknown
+deletion freezes this target, retains its operation/input across ordinary in-memory
+navigation and exposes explicit original-operation recovery. Confirmed acknowledgement
+evicts only the target; local tombstone guards reject late page/read/create results.
+Conflict review displays current saved writing and records a deletion-only revision;
+Cancel never grants stale local input a newer autosave base. Current account/session
+protections apply, and reauthentication never repeats deletion automatically.
+
+[Deletion evidence](NOTE_DELETION_EVIDENCE.md) separates executed component checks
+from collected/syntax-only restricted SQL, migration, actual-owner UI and independent
+SQL proof. Final native/owner/session execution remains deferred under direction266.
+Whole-study deletion and broader Studies gates remain open; production is disabled.
+Scaffold/shared UI, agent context and accepted ADRs remain unchanged.

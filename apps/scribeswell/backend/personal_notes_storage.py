@@ -67,6 +67,10 @@ class PersonalNotesStorage:
         return row
 
     async def _live_outcome(self,cursor,account,outcome):
+        if outcome['command']=='note.delete':
+            await cursor.execute(f'SELECT id FROM {SCHEMA}.notes WHERE account_id=%s AND study_id=%s AND id=%s AND NOT active',(account,outcome['study_id'],outcome['note_id']))
+            if await cursor.fetchone() is None: raise NotesError('resource_unavailable')
+            return
         await self._parent(cursor,account,outcome['study_id'])
         if outcome['note_id'] is not None: await self._note(cursor,account,outcome['study_id'],outcome['note_id'])
 
@@ -108,7 +112,7 @@ class PersonalNotesStorage:
                 revision=await self._replace_passages(cursor,account,actor,study_id,payload)
             else:
                 await self._parent(cursor,account,study_id,lock=True)
-                value=payload.value.model_dump(mode='json')
+                value={'document':{'version':1,'blocks':[]},'connections':[],'highlights':[]} if command=='note.delete' else payload.value.model_dump(mode='json')
                 if command=='note.create':
                     note_id=str(uuid4());revision='1'
                     await cursor.execute(f'INSERT INTO {SCHEMA}.notes(id,account_id,study_id,value,created_by,updated_by) VALUES(%s,%s,%s,%s,%s,%s)',(note_id,account,study_id,Jsonb(value),actor,actor))
@@ -118,12 +122,12 @@ class PersonalNotesStorage:
                     view(row,True)
                     revision=str(row['revision'])
                     if revision!=payload.expected_revision: raise NotesError('note_revision_conflict',{'expected_revision':payload.expected_revision,'current_revision':revision})
-                    if row['value']['document']['version']==2 and value['document']['version']==1:
+                    if command!='note.delete' and row['value']['document']['version']==2 and value['document']['version']==1:
                         raise NotesError('note_format_unsupported')
-                    if row['value']!=value:
+                    if command=='note.delete' or row['value']!=value:
                         if row['revision']>=int(MAX_REVISION): raise NotesError('resource_unavailable')
                         revision=str(row['revision']+1)
-                        await cursor.execute(f'UPDATE {SCHEMA}.notes SET value=%s, revision=revision+1, updated_by=%s, updated_at=clock_timestamp() WHERE account_id=%s AND study_id=%s AND id=%s',(Jsonb(value),actor,account,study_id,note_id))
+                        await cursor.execute(f'UPDATE {SCHEMA}.notes SET value=%s, active=%s, revision=revision+1, updated_by=%s, updated_at=clock_timestamp() WHERE account_id=%s AND study_id=%s AND id=%s',(Jsonb(value),command!='note.delete',actor,account,study_id,note_id))
             outcome={'operation_id':payload.operation_id,'command':command,'study_id':study_id,'note_id':note_id,'revision':revision}
             await cursor.execute(f'INSERT INTO {SCHEMA}.receipts(account_id,command,command_version,operation_id,fingerprint,outcome,study_id,note_id,created_by) VALUES(%s,%s,1,%s,%s,%s,%s,%s,%s)',(account,command,payload.operation_id,fingerprint,Jsonb(outcome),study_id,note_id,actor))
             return OperationAck.model_validate(outcome).model_dump(mode='json')

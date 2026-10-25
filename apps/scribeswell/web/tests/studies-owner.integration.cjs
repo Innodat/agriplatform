@@ -140,10 +140,24 @@ if(!process.env.SCRIBESWELL_OWNER_DENIED){
   expect((await request(other,'/api/studies')).body.items.length===0).toBe(true);
   for(const query of [text,'Matthew','Genesis 2:1'])expect((await request(other,'/api/studies/search','POST',{query})).body.items).toEqual([]);
   await checkpoint('foreign-after');
+  stage('confirmed-note-deletion');const retained=await request(page,`/api/studies/${study}/notes`,'POST',{operation_id:crypto.randomUUID(),value:{document:{version:1,blocks:[{type:'paragraph',direction:'auto',content:[{type:'text',text:'Independent note remains',marks:[]}]}]},connections:[],highlights:[]}});expect(retained.status).toBe(200);await checkpoint('deletion-before');
+  await page.getByRole('button',{name:'Renamed English שָׁלוֹם',exact:true}).click();
+  await page.getByRole('list',{name:'Notes',exact:true}).getByRole('button').filter({hasText:text}).click();
+  await page.getByRole('button',{name:'Delete note',exact:true}).click();
+  await expect(page.getByRole('dialog').getByRole('button',{name:'Cancel',exact:true})).toBeFocused();
+  const deletedReply=page.waitForResponse(r=>r.request().method()==='DELETE'&&r.url().endsWith('/notes/'+note.id));
+  await page.getByRole('dialog').getByRole('button',{name:'Delete note',exact:true}).click();
+  const deletionAck=await (await deletedReply).json();expect(deletionAck.command).toBe('note.delete');
+  await expect(page.getByRole('dialog')).toHaveCount(0);await expect(editor).toHaveCount(0);
+  expect((await request(page,`/api/studies/${study}/notes/${note.id}`)).status).toBe(404);
+  expect((await request(page,`/api/operations/${deletionAck.operation_id}?command=note.delete`)).body.outcome).toEqual(deletionAck);
+  fs.writeFileSync(path.join(proof,'deletion-result.json'),JSON.stringify({study,note:note.id,operation:deletionAck.operation_id,revision:deletionAck.revision}),{flag:'wx',mode:0o600});await checkpoint('deletion-after');
+  note.value={document:{version:1,blocks:[]},connections:[],highlights:[]};note.revision=deletionAck.revision;
+
   await privacy.settle();
   const stored=await context.storageState();fs.writeFileSync(path.join(proof,'other-context-private.json'),JSON.stringify(stored),{flag:'wx',mode:0o600});await context.close();
   fs.writeFileSync(path.join(proof,'owner-context-private.json'),JSON.stringify(await page.context().storageState()),{flag:'wx',mode:0o600});
-  const result={study,note_link_operation:linkAck.operation_id,passage_operations:passageOperations,passage_item:passageItem,rename_operation:renameAck.operation_id,rename_title:'Renamed English שָׁלוֹם',retry_study:retryStudy,note:note.id,operation:create.operation_id,ui_operation:uiCreated.operation_id,enrollment:enrollment.operation_id,ui_enrollment:uiEnrollment.operation_id,other_enrollment:otherEnrollment,account_actors:{[fixture.accounts[0].account_id]:uiEnrollment.result.actor_id,[fixture.accounts[1].account_id]:otherAck.body.result.actor_id},value:note.value,credential_inspection:await privacy.settle()};
+  const result={study,retained_note:retained.body.note_id,note_delete_operation:deletionAck.operation_id,note_link_operation:linkAck.operation_id,passage_operations:passageOperations,passage_item:passageItem,rename_operation:renameAck.operation_id,rename_title:'Renamed English שָׁלוֹם',retry_study:retryStudy,note:note.id,operation:create.operation_id,ui_operation:uiCreated.operation_id,enrollment:enrollment.operation_id,ui_enrollment:uiEnrollment.operation_id,other_enrollment:otherEnrollment,account_actors:{[fixture.accounts[0].account_id]:uiEnrollment.result.actor_id,[fixture.accounts[1].account_id]:otherAck.body.result.actor_id},value:note.value,credential_inspection:await privacy.settle()};
   fs.writeFileSync(path.join(proof,'browser-result.json'),JSON.stringify(result),{flag:'wx',mode:0o600});
  }));
 }else{
@@ -159,6 +173,8 @@ if(!process.env.SCRIBESWELL_OWNER_DENIED){
   expect((await request(page,`/api/operations/${result.rename_operation}?command=study.rename`)).status).toBe(403);
   expect((await request(page,'/api/studies','POST',{operation_id:result.operation,title:'Lost reply study'})).status).toBe(403);
   expect((await request(page,`/api/studies/${result.study}/notes/${result.note}`,'PUT',{operation_id:crypto.randomUUID(),expected_revision:'2',value:result.value})).status).toBe(403);
+  expect((await request(page,`/api/studies/${result.study}/notes/${result.note}`,'DELETE',{operation_id:result.note_delete_operation,expected_revision:'3'})).status).toBe(403);
+  expect((await request(page,`/api/operations/${result.note_delete_operation}?command=note.delete`)).status).toBe(403);
   expect((await request(page,'/api/studies/enrollment','POST',{operation_id:result.enrollment})).status).toBe(403);
   expect((await request(page,'/api/studies/search','POST',{query:'Matthew'})).status).toBe(403);
   stage('public-reader');await expect(page.getByText('בְּרֵאשִׁית',{exact:true}).first()).toBeVisible();

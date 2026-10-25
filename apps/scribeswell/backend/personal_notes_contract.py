@@ -117,7 +117,7 @@ ExternalUrl = Annotated[str, Field(min_length=1, max_length=2048,
                 'Semantic validation also requires valid IDNA DNS or canonical IPv4/unscoped IPv6, '
                 'port 1–65535, safe percent escapes, scalar Unicode and at most 2048 UTF-8 bytes.',
     json_schema_extra={'not': {'pattern': r'[\s\\\x00-\x1f\x7f-\x9f]'}}), AfterValidator(_url)]
-Command = Literal['study.create', 'study.rename', 'study.passages.replace', 'note.create', 'note.replace']
+Command = Literal['study.create', 'study.rename', 'study.passages.replace', 'note.create', 'note.replace', 'note.delete']
 
 
 class Closed(BaseModel):
@@ -265,6 +265,11 @@ class ReplaceNote(Closed):
     value: NoteValue
 
 
+class DeleteNote(Closed):
+    operation_id: Identifier
+    expected_revision: Revision
+
+
 class PassageItem(Closed):
     id: Identifier
     reference: PassageReference
@@ -350,7 +355,7 @@ class NotePage(Closed):
 class OperationAck(Closed):
     model_config = ConfigDict(json_schema_extra={'oneOf': [
         {'properties': {'command': {'enum': ['study.create', 'study.rename', 'study.passages.replace']}, 'note_id': {'type': 'null'}}},
-        {'properties': {'command': {'enum': ['note.create', 'note.replace']}, 'note_id': {'type': 'string'}}},
+        {'properties': {'command': {'enum': ['note.create', 'note.replace', 'note.delete']}, 'note_id': {'type': 'string'}}},
     ]})
     operation_id: Identifier
     command: Command
@@ -398,7 +403,7 @@ class RevisionProblem(Closed):
 
 
 ErrorResponse = Annotated[Union[Problem, RevisionProblem], Field(discriminator='code')]
-COMMAND_MODELS = {'studies.search': SearchStudies, 'study.passages.replace': ReplacePassages, 'studies.enroll': EnrollStudies, 'study.create': CreateStudy, 'study.rename': RenameStudy, 'note.create': CreateNote, 'note.replace': ReplaceNote}
+COMMAND_MODELS = {'studies.search': SearchStudies, 'study.passages.replace': ReplacePassages, 'studies.enroll': EnrollStudies, 'study.create': CreateStudy, 'study.rename': RenameStudy, 'note.create': CreateNote, 'note.replace': ReplaceNote, 'note.delete': DeleteNote}
 
 
 class ContractInputError(ValueError):
@@ -418,7 +423,7 @@ def _unique_object(pairs):
     return value
 
 
-def parse_command(command: str, raw: bytes) -> SearchStudies | CreateStudy | RenameStudy | ReplacePassages | CreateNote | ReplaceNote:
+def parse_command(command: str, raw: bytes) -> SearchStudies | CreateStudy | RenameStudy | ReplacePassages | CreateNote | ReplaceNote | DeleteNote:
     """Strict bounded HTTP body decoder. No access, database or network work."""
     result = None
     try:
@@ -453,7 +458,7 @@ def parse_command(command: str, raw: bytes) -> SearchStudies | CreateStudy | Ren
 
 def openapi_contract() -> dict:
     """Generate planned OpenAPI from the DTO definitions, never from fake routes."""
-    models = (SearchStudies, EnrollStudies, EnrollmentAck, CreateStudy, RenameStudy, ReplacePassages, PassageList, CreateNote, ReplaceNote, StudyView, NoteView, StudyPage,
+    models = (SearchStudies, EnrollStudies, EnrollmentAck, CreateStudy, RenameStudy, ReplacePassages, PassageList, CreateNote, ReplaceNote, DeleteNote, StudyView, NoteView, StudyPage,
               NotePage, OperationAck, Outcome, ErrorResponse)
     schemas = {}
     for model in models:
@@ -517,6 +522,7 @@ def openapi_contract() -> dict:
                 '/api/studies/{study_id}/notes': {'post': operation('createNote', 'OperationAck', body='CreateNote', parameters=(study,)),
                                                 'get': operation('listNotes', 'NotePage', parameters=(study, *page))},
                 '/api/studies/{study_id}/notes/{note_id}': {
+                    'delete': operation('deleteNote', 'OperationAck', body='DeleteNote', parameters=(study, note)),
                     'get': operation('readNote', 'NoteView', parameters=(study, note)),
                     'put': operation('replaceNote', 'OperationAck', body='ReplaceNote', parameters=(study, note))},
                 '/api/operations/{operation_id}': {'get': operation('lookupOperation', 'Outcome', parameters=(op,

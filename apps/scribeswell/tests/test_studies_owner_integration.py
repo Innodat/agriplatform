@@ -234,18 +234,19 @@ inspection.settle().then(()=>process.exit(1),()=>console.log('sentinel-rejected'
     assert result.returncode==0 and result.stdout.strip()=='sentinel-rejected'
     assert 'private-test-key' not in result.stdout+result.stderr
 
-@pytest.mark.parametrize('change',[None,'missing-other-binding','wrong-other-binding','study-creation-actor','study-update-actor','note-actor','receipt-actor'])
+@pytest.mark.parametrize('change',[None,'missing-other-binding','wrong-other-binding','study-creation-actor','study-update-actor','note-actor','receipt-actor','deleted-value','deleted-active','retained-active','retained-creation-actor','retained-update-actor'])
 def test_final_oracle_checks_both_durable_bindings_and_all_record_actors(tmp_path,change):
     import copy
     module=fixture_module();state={name:[] for name in module.PROTECTED_TABLES}
-    expected={'study':'ui-study','retry_study':'retry-study','note':'note','operation':'retry-op','ui_operation':'ui-op','enrollment':'retry-enroll','ui_enrollment':'ui-enroll','other_enrollment':'other-enroll','account_actors':{'owner':'actor-a','other':'actor-b'},'value':{'document':'synthetic-oracle-value'}}
+    expected={'study':'ui-study','retry_study':'retry-study','note':'note','retained_note':'retained-note','note_delete_operation':'delete-op','operation':'retry-op','ui_operation':'ui-op','enrollment':'retry-enroll','ui_enrollment':'ui-enroll','other_enrollment':'other-enroll','account_actors':{'owner':'actor-a','other':'actor-b'},'value':{'document':{'version':1,'blocks':[]},'connections':[],'highlights':[]}}
     state['identity.users']=[{'id':'owner'},{'id':'other'}]
     state['identity.actor']=[{'id':'service','kind':'service'},{'id':'actor-a','kind':'account'},{'id':'actor-b','kind':'account'}]
     state['identity.account_actor']=[{'account_id':a,'actor_id':b} for a,b in expected['account_actors'].items()]
     attribution={'account_id':'owner','created_by':'actor-a','updated_by':'actor-a','created_at':'2026-01-01','updated_at':'2026-01-01','revision':1}
     state['scribeswell_studies.studies']=[dict(attribution,id=id) for id in ('ui-study','retry-study')]
-    state['scribeswell_studies.notes']=[dict(attribution,id='note',study_id='ui-study',value=expected['value'])]
-    state['scribeswell_studies.receipts']=[{'command':command,'operation_id':operation,'account_id':'owner','created_by':'actor-a','created_at':'2026-01-01'} for command,operation in [('study.create','ui-op'),('study.create','retry-op'),('note.create','note-op'),('note.replace','replace-op')]]
+    state['scribeswell_studies.notes']=[dict(attribution,id='note',study_id='ui-study',value=copy.deepcopy(expected['value']),active=False),dict(attribution,id='retained-note',study_id='ui-study',value={'document':'retained-oracle-value'},active=True)]
+    state['scribeswell_studies.notes'][0]['revision']=2
+    state['scribeswell_studies.receipts']=[{'command':command,'operation_id':operation,'account_id':'owner','created_by':'actor-a','created_at':'2026-01-01'} for command,operation in [('study.create','ui-op'),('study.create','retry-op'),('note.create','note-op'),('note.replace','replace-op'),('note.create','retained-note-op'),('note.delete','delete-op')]]
     for table in ('access.studies_account_grant','access.studies_assignment_event','identity.studies_setup_event'):
         state[table]=copy.deepcopy(state['identity.account_actor'])
     for table in ('access.studies_enrollment_outcome','identity.studies_setup_outcome'):
@@ -255,6 +256,11 @@ def test_final_oracle_checks_both_durable_bindings_and_all_record_actors(tmp_pat
     if change=='wrong-other-binding':state['identity.account_actor'][1]['actor_id']='actor-a'
     for label,table,field in [('study-creation-actor','scribeswell_studies.studies','created_by'),('study-update-actor','scribeswell_studies.studies','updated_by'),('note-actor','scribeswell_studies.notes','created_by'),('receipt-actor','scribeswell_studies.receipts','created_by')]:
         if change==label:state[table][0][field]='actor-b'
+    if change=='deleted-value':state['scribeswell_studies.notes'][0]['value']={'document':'deleted-content-refilled'}
+    if change=='deleted-active':state['scribeswell_studies.notes'][0]['active']=True
+    if change=='retained-active':state['scribeswell_studies.notes'][1]['active']=False
+    if change=='retained-creation-actor':state['scribeswell_studies.notes'][1]['created_by']='actor-b'
+    if change=='retained-update-actor':state['scribeswell_studies.notes'][1]['updated_by']='actor-b'
     run=object.__new__(module.Qualification);run.proof=tmp_path;run.actor='service';run.accounts=[{'account_id':'owner'},{'account_id':'other'}];run.snapshot=lambda label:state
     module.private(tmp_path/'browser-result.json',expected)
     if change:
