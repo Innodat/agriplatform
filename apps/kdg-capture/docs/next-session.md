@@ -1,3 +1,30 @@
+## Current delivery — candidate own-edit HTTP and replay, 2026-10-25
+
+Read [evidence](OWN_EDIT_HTTP_EVIDENCE.md), [record](evidence/own-edit-http-20261025.json)
+and [current contracts](contracts.md). Explicit candidate PUT now requires both current
+own-read/own-edit capabilities with matching account/actor/membership, before acquisition.
+Fresh writes use the qualified body; duplicates authorize the stored target and return
+the original receipt despite a different valid incoming path/body/revision. Fresh
+conflicts expose only safe typed current_revision. One original deadline covers body,
+Access, worker, SQL, commit and release; cancellation drains exclusive ownership.
+
+46 focused tests within265 affected tests, three scaffold parity checks, candidate schema/
+generated checks and TypeScript7.0.2 consuming tests pass. Offline export and generated
+contracts remain separate from active API/client startup. Three review lenses completed:
+ten findings addressed, one rejected with evidence, none deferred.
+No Docker/native writes or dependency changes. Concurrent work, historical evidence and
+resources preserved; fingerprints/HMAC deferred. Neutral helpers/scaffold unchanged;
+KDG orchestration remains application-owned. Shared UI/context/ADR unchanged.
+
+Next use bmad-help/bmad-build to qualify the actual candidate PUT orchestration and
+stored-target replay against the retained synthetic PostgreSQL fixture. Earlier native
+body qualification does not prove this boundary. Keep real Identity/Access, native
+contention/cancellation/TCP drain, startup/editor/queue/UI and ADR-0020 release gates
+separate. No Leave/editor, real accounts/access, production, provisioning, deployment,
+pilot or cleanup. Skip routine approval halts within already authorized work.
+
+Earlier handoffs follow unchanged as historical checkpoints.
+
 ## Current delivery — native own-edit body, 2026-10-25
 
 Read [native evidence](NATIVE_OWN_EDIT_EVIDENCE.md), [source-bound record](evidence/native-own-edit-20261025.json)

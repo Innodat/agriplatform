@@ -966,3 +966,24 @@ successful datasets remain retained; current claims bind to the reviewed-source 
 Context/Access and differentiated editor actors are synthetic: real Identity binding,
 current HTTP admission/Auth/replay, conflict wire mapping, native contention/cancellation,
 active startup/browser/editor/queue/UI and ADR-0020 release gates remain unqualified.
+
+
+### Candidate current-access own-edit API and replay — 2026-10-25
+
+`write-candidate/edit_http.py:create_candidate` explicitly constructs an unmounted
+PUT /api/v1/captures/{capture_id}. Both current own-read and own-edit checks precede
+acquisition, with matching account/actor/membership and fixed org/own-account scope.
+One original10-second Budget covers streaming through commit/release acknowledgement;
+both Access checks share3 seconds, using the older observation for existing freshness.
+A duplicate returns its original receipt only after current stored-target ownership
+verification; incoming path/content/revision never authorize that target. Fresh actions
+use the unchanged qualified body. No create/assignment/active-child prerequisite is added.
+
+Fresh conflicts return409 `kdg_capture.capture_revision_conflict` with top-level string
+`current_revision` in the compatible safe error envelope; no snapshot. Fresh missing or
+foreign captures return404 `capture_unavailable`. Strict bounded JSON, single Bearer and application/json Content-Type,
+closed query, private no-store and safe errors apply. Worker cancellation retains
+connection ownership until unwind; no late/provisional success acknowledgement.
+[Evidence](OWN_EDIT_HTTP_EVIDENCE.md) and candidate edit-openapi/generated types record
+synthetic behavior and exact limits. Active API/browser/editor/queue wiring, native
+qualification of this new boundary, real Identity/Access and release gates remain open.

@@ -1,0 +1,217 @@
+{
+  "baseline_commit": "9827908ab7570b4e84f13de19bca91e1aac71d4c",
+  "commands": [
+    {
+      "command": "platform/deployment/.local/access-organization-check-20261022/owner-env/bin/python -I -B -m unittest discover -s apps/kdg-capture/write-tests -p test_capture_edit_handler.py",
+      "result": "initial missing-module RED; then actual pending transaction RED12tests9errors89.140s observed before implementation; separate replay log retained"
+    },
+    {
+      "command": "platform/deployment/.local/access-organization-check-20261022/owner-env/bin/python -I -B -m unittest discover -s apps/kdg-capture/write-tests -p 'test_*edit*h*.py'",
+      "result": "36PASS1.689s saved focused log"
+    },
+    {
+      "command": "platform/deployment/.local/access-organization-check-20261022/owner-env/bin/python -I -B -m unittest discover -s apps/kdg-capture/write-tests -p test_edit_contract.py",
+      "result": "pending schema stub RED3errors; then3PASS; actual wire agreement4PASS10.151s"
+    },
+    {
+      "command": "timeout 60s platform/deployment/.local/access-organization-check-20261022/owner-env/bin/python -I -B -m unittest discover -s apps/kdg-capture/write-tests -p test_edit_export.py",
+      "result": "3PASS0.323s"
+    },
+    {
+      "command": "timeout 120s platform/deployment/.local/access-organization-check-20261022/owner-env/bin/python -I -B -m unittest discover -s apps/kdg-capture/write-tests -p 'test_*.py'",
+      "result": "262PASS20.637s unrestricted local subprocess access"
+    },
+    {
+      "command": "platform/deployment/.local/access-organization-check-20261022/owner-env/bin/python -I -B apps/kdg-capture/write-candidate/export_edit_openapi.py",
+      "result": "export exit0"
+    },
+    {
+      "command": "platform/deployment/.local/access-organization-check-20261022/owner-env/bin/python -I -B apps/kdg-capture/write-candidate/export_edit_openapi.py --check",
+      "result": "check exit0"
+    },
+    {
+      "command": "platform/deployment/.local/kdg-toolchains/ad277eef-a10e-4aac-bb82-5743653fb2e0/payload/node/bin/node platform/deployment/.local/scaffold-application/proof-dI2Gy9/root/platform/api-client/src/cli.mjs --schema apps/kdg-capture/write-candidate/edit-openapi.json --output apps/kdg-capture/contracts/edit-generated",
+      "result": "generate exit0 with local process access; initial repo CLI refused missing installed tool; retained payload sandbox subprocess failed then unrestricted passed; no installs"
+    },
+    {
+      "command": "platform/deployment/.local/kdg-toolchains/ad277eef-a10e-4aac-bb82-5743653fb2e0/payload/node/bin/node platform/deployment/.local/scaffold-application/proof-dI2Gy9/root/platform/api-client/src/cli.mjs --schema apps/kdg-capture/write-candidate/edit-openapi.json --output apps/kdg-capture/contracts/edit-generated --check",
+      "result": "check exit0 with local process access"
+    },
+    {
+      "command": "platform/deployment/.local/kdg-toolchains/ad277eef-a10e-4aac-bb82-5743653fb2e0/payload/node/bin/node node_modules/typescript/bin/tsc --project apps/kdg-capture/tests/tsconfig.edit.json",
+      "result": "exit0,11 negative cases"
+    },
+    {
+      "command": "platform/deployment/.local/kdg-toolchains/ad277eef-a10e-4aac-bb82-5743653fb2e0/payload/node/bin/node platform/builder-cli/scripts/sync-kdg-write.mjs --check",
+      "result": "exit0 parity verified"
+    },
+    {
+      "command": "platform/deployment/.local/kdg-toolchains/ad277eef-a10e-4aac-bb82-5743653fb2e0/payload/node/bin/node platform/builder-cli/scripts/sync-kdg-database.mjs --check",
+      "result": "exit0 parity verified"
+    },
+    {
+      "command": "platform/deployment/.local/kdg-toolchains/ad277eef-a10e-4aac-bb82-5743653fb2e0/payload/node/bin/node platform/builder-cli/scripts/sync-kdg-native-database.mjs --check",
+      "result": "exit0 parity verified"
+    },
+    {
+      "command": "timeout 120s platform/deployment/.local/access-organization-check-20261022/owner-env/bin/python -I -B -m unittest discover -s apps/kdg-capture/write-tests -p 'test_*.py'",
+      "result": "reviewed tree265PASS22.033s; same final parity/schema/generation and TypeScript checks passed again"
+    }
+  ],
+  "date": "2026-10-25",
+  "effects": {
+    "active_startup": false,
+    "browser_editor_queue": false,
+    "docker_native": false,
+    "fingerprints_hmac": "deferred",
+    "historical_evidence": "preserved",
+    "migrations": false,
+    "provisioning_deployment_cleanup": false,
+    "real_accounts_access": false
+  },
+  "impacts": {
+    "adr": "none",
+    "agent_context": "none",
+    "docs": "evidence/record/contracts/prepended handoff",
+    "scaffold": "reuse unchanged neutral helpers and generator; KDG capability/SQL orchestration local",
+    "shared_ui": "none"
+  },
+  "limits": {
+    "duplicate_contention": "native serialization remains unqualified; overlapping fixture tests independent operations on exclusive connections",
+    "response_wallclock": "worker unwind may exceed execution deadline; TCP/native driver drain unqualified"
+  },
+  "logs": {
+    ".local/kdg-own-edit-http-20261025/affected.log": "2bc417f023f362226d004c81bc796f702d51cb68618c3462a9c4307775ca9d89",
+    ".local/kdg-own-edit-http-20261025/contract-green.log": "1145a40f3a268e07eea61b45a1412c14dd8fe057713250a65063bdd48cac099a",
+    ".local/kdg-own-edit-http-20261025/contract-red.log": "3aea183700cf9daaa66246a68c88b6b6bd59d6030f5010849874a0dd487620f6",
+    ".local/kdg-own-edit-http-20261025/contract-wire.log": "bdb71234709a463a08839ad793a4b52e04c1d63574ccc097861403aa99edb276",
+    ".local/kdg-own-edit-http-20261025/implementation-behavioral-red-replay.log": "363f80d581450935cfc6955d49b554b9fe97159ca33f7e34ad4a2e38e42d94ef",
+    ".local/kdg-own-edit-http-20261025/implementation-focused-green.log": "945953cf609d52aa8c3978142253847d5093183bf91110ce7d60a2084a689d9e",
+    ".local/kdg-own-edit-http-20261025/reviewed-affected.log": "e5141637c82069c639424d5f90e70c5da1ff52faf9cb1443cf56603fef9f9d9a"
+  },
+  "pre_review_diff": {
+    "path": ".local/kdg-own-edit-http-20261025/pre-review/review.diff",
+    "sha256": "9c82446de872cf5a2176bdd6935fb82f318ef0ce22620e5bb8a5a8332887f5e8"
+  },
+  "remaining_gates": [
+    "native qualification of new HTTP orchestration and replay",
+    "real current Identity/Access",
+    "native contention/cancellation and TCP drain",
+    "active startup/client/editor/queue/UI adoption",
+    "ADR0020 compatibility/recovery/activation"
+  ],
+  "review": {
+    "findings_addressed": 10,
+    "findings_deferred": 0,
+    "findings_rejected": 1,
+    "layers": [
+      "blind-hunter",
+      "edge-case-hunter",
+      "verification-gap"
+    ],
+    "status": "complete",
+    "triage": "_bmad-output/implementation-artifacts/spec-kdg-own-edit-http.md"
+  },
+  "sources": {
+    "apps/kdg-capture/api/capture_commands.py": "378197903cd973f7807ecad879fc737077071e644be8f44716ea2e3f23727a07",
+    "apps/kdg-capture/api/context.py": "1c58d6432fa321252d5e4fd88d1e1b589bb989cf4243a2fb4a7104a7c9151a06",
+    "apps/kdg-capture/api/questionnaire.py": "7aac78d320f1181fc074c4b6950f5e142ce284c148407c28cce825a2ef63e90a",
+    "apps/kdg-capture/api/safe_errors.py": "18a1359b2b1f9bb8c79c91644582c9d320bf22ed56d53afac179ff3fce6901df",
+    "apps/kdg-capture/contracts/edit-generated/.generated-files.json": "4c054b902d97501f8d05f3f64a91fdcfafe433bb4e8c6ade1ba578cc74d734c7",
+    "apps/kdg-capture/contracts/edit-generated/index.ts": "aa16300fb5696c73a3d2b5bdde0300e24ba94a74fb0c69046c035636aee008e5",
+    "apps/kdg-capture/contracts/edit-generated/types.gen.ts": "beb6d0ec1cacc54b980f01d51ed5f4ee074be91ed7d6ebeb1333b63004dd36c9",
+    "apps/kdg-capture/tests/edit-contract.ts": "b7e4b117e35ead24247a85abd3b1574886cfb9d2daa00444eaddc78bce9390e8",
+    "apps/kdg-capture/tests/tsconfig.edit.json": "0137e3e655c728e3e4425b75f9e67c4c4f67505da59e889911573dc43bcdc85f",
+    "apps/kdg-capture/write-candidate/capture_create.py": "179f5dd11763a6072ba6689a6641747729ad8e63124e8db74aface5816dc3906",
+    "apps/kdg-capture/write-candidate/capture_create_handler.py": "6b1d375e4a47a8b94acc588c3c644fda15f53766f47d9c6a482160c93b36eecd",
+    "apps/kdg-capture/write-candidate/capture_edit.py": "3997cdd6525c8e60b12b7e3de9a1848a51d435b5de31d798355180f45c834171",
+    "apps/kdg-capture/write-candidate/capture_edit_handler.py": "881b26652605622fbd0f2d3c1adf637140d5846c9395b3725283bc3f11d6445f",
+    "apps/kdg-capture/write-candidate/edit-openapi.json": "a0b7b2463ad8aa6a7c5de228ca6356e3789cf8507c4c15f105b8b0855a301375",
+    "apps/kdg-capture/write-candidate/edit_http.py": "cb4499dd1bd8b3ead0068b6ed740de5621a9c695dc9cbd4128ea006b27e7a22d",
+    "apps/kdg-capture/write-candidate/edit_openapi.py": "9a0146fcb6652be1e5ee2cc06b10601af03ed2a7ac67dfd515372ac6fc04360d",
+    "apps/kdg-capture/write-candidate/export_edit_openapi.py": "8a7e6f721fd6c9a5d4ee9c08ac9dd5e1843ce86e1a9f63204c5f8a2ead4be442",
+    "apps/kdg-capture/write-candidate/export_recovery_openapi.py": "2e000c70679d2a6f175ec2a3660a2a299c364f17f3258af35efe5fb01b7a81b3",
+    "apps/kdg-capture/write-candidate/operation_outcomes.py": "e625d9048d89a6dcd8e17636c418218eaa3c53d329283701c35890c04e5984cb",
+    "apps/kdg-capture/write-candidate/operation_recovery.py": "951113487c64c70170a5f09de051b2b9d543c398e1bea36bd993fdea5b5abac6",
+    "apps/kdg-capture/write-candidate/recovery_http.py": "58e7bf371e0f4689b4a5d13476dbdc58d22fe65a4f3f3460e18e6d7b00098b34",
+    "apps/kdg-capture/write-candidate/recovery_openapi.py": "9ee7009e5d27b9002b3b8eaf6649b428e62abc477ac75fdeb25e286ae40f22a8",
+    "apps/kdg-capture/write-tests/test_capture_edit_handler.py": "86ba285202bd245653e105512a5260efcab6fa777a45a23c00e60040ab6d7066",
+    "apps/kdg-capture/write-tests/test_edit_contract.py": "25f0c233e079fa969b2790c7456dad247b78fa907a2d07e5f4f47a326abc1e4d",
+    "apps/kdg-capture/write-tests/test_edit_export.py": "5d6d02cc5e2805a297448c32b3b39dfa14665adaf88988e47e3c8b3b7929c917",
+    "apps/kdg-capture/write-tests/test_edit_http.py": "e9f9453d32c3d7209defeb82ac3378af8a68c7bcd5cf37223923d585ec364926",
+    "apps/kdg-capture/write-tools/transaction_context.py": "e46244916563bb8111e65675cb1d992778a6c076dc247c4b1fa12b7d9cc47ce7",
+    "platform/api-client/src/cli.mjs": "f3a36934bfb3e9c264b8e2fe4ddf0cafbac88c7aba4ebda0a6ffb52003059377",
+    "platform/api-client/src/compat.mjs": "8a7029ab9293627153844755cace2700cecc73086840ea22103e248ad822601c",
+    "platform/api-client/src/generate.mjs": "623fc8e5b873535f702aae495056baefa107f1d637d608d8a87d73f7f8c6dd0a",
+    "platform/api-client/src/tooling.mjs": "f1e848685392d110d11409abde9e605a0b1e996385a379ff29135126ff1a6a7e"
+  },
+  "status": "qualified_synthetic_candidate_only",
+  "tests": {
+    "affected": 265,
+    "affected_seconds": 22.033,
+    "contract_export": 8,
+    "core_focused": 38,
+    "negative_types": 12,
+    "scaffold_parity": 3,
+    "total_focused": 46,
+    "typescript": "7.0.2"
+  },
+  "tooling": {
+    "approved_tool": "@hey-api/openapi-ts0.99.0 with existing isolated TypeScript6.0.3; applications TypeScript7.0.2 unchanged",
+    "dependencies_installed": false,
+    "generator_payload": "platform/deployment/.local/scaffold-application/proof-dI2Gy9/root/platform/api-client/src/cli.mjs",
+    "owner_sources_match": true
+  },
+  "traceability": {
+    "commit_cancellation": [
+      "test_sql_commit_failure_and_late_commit_never_acknowledge",
+      "test_direct_repeated_cancellation_holds_lease_until_worker_unwind",
+      "test_access_cancellation_never_acquires_connection",
+      "test_expiry_and_release_completion_remain_in_original_budget",
+      "test_overlapping_successful_writes_use_separate_exclusive_connections"
+    ],
+    "conflict": [
+      "test_stale_unchanged_conflict_has_only_current_revision",
+      "test_conflict_wire_is_safe_typed_metadata",
+      "test_conflict_requires_only_typed_metadata_and_code_specific_errors"
+    ],
+    "contracts": [
+      "test_actual_success_conflict_and_denial_match_schema",
+      "test_export_and_stale_check_without_live_engine_or_network",
+      "edit-contract.ts11negativecases",
+      "test_populated_answer_schema_agrees_with_runtime_structural_parser",
+      "edit-contract.ts12negativecases including false details"
+    ],
+    "deadlines": [
+      "test_original_budget_context_and_actual_body_identity_are_preserved",
+      "test_older_observation_is_not_renewed_by_second_check",
+      "test_total_access_window_bounds_both_checks",
+      "test_body_stream_deadline_and_continuous_empty_chunks",
+      "test_slow_acquisition_does_not_refresh_evidence",
+      "test_expired_workers_hold_exclusive_lease_until_unwind"
+    ],
+    "fresh_noop": [
+      "test_fresh_requires_both_current_capabilities_and_actual_body",
+      "test_actual_fresh_committed_and_noop_receipts"
+    ],
+    "replay": [
+      "test_duplicate_authorizes_stored_target_and_ignores_proposal_semantics",
+      "test_duplicate_different_valid_target_and_invalid_domain_returns_original",
+      "test_missing_foreign_or_malformed_stored_target_is_private",
+      "test_malformed_outcome_is_private"
+    ],
+    "scope": [
+      "test_denial_of_either_never_falls_back_or_enters_sql",
+      "test_pair_must_match_account_actor_membership_scope",
+      "test_access_closed_decoding_rejects_untrusted_evidence_before_sql",
+      "test_denial_setup_outage_and_bad_scope_prevent_acquisition"
+    ],
+    "validation": [
+      "test_parse_precedes_access_even_for_duplicate",
+      "test_path_body_version_bounds_and_duplicates_precede_access",
+      "test_query_and_bearer_ambiguity_never_checks_out",
+      "test_json_media_type_is_required_single_and_allows_parameters",
+      "test_cumulative_chunked_utf8_byte_ceiling_allows_exact_limit_only"
+    ]
+  }
+}
