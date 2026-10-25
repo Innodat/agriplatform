@@ -1,3 +1,31 @@
+## Current delivery — native stored-edit recovery, 2026-10-25
+
+Read [current contracts](contracts.md), [native evidence](NATIVE_EDIT_RECOVERY_EVIDENCE.md)
+and [source-bound receipt](evidence/native-edit-recovery-20261025.json). One fresh capture
+created through the actual handler and two test-only restricted-runtime edits qualify
+stored-edit recovery through the unchanged candidate HTTP boundary. Independent reads
+prove original edit revision2 survives revision3 and create receipt remains revision1.
+Native scope/denial, released leases, prior business rows, sentinel and ledger0002 pass.
+Two new datasets remain retained; final counts are capture12/outcome16/history16
+plus four of each parent. The known run stopped normally, resources/data intact.
+
+18 focused and176 affected tests pass; three scaffold parity checks pass. Native
+pre/new/post checkpoints pass. Nine review findings fixed, one rejected, none deferred. This proves stored-edit recovery; no edit writer or
+edit API/domain authorization is implemented. Historical receipts and concurrent work
+remain preserved, TypeScript7.0.2 unchanged, fingerprints/HMAC deferred.
+
+Next use bmad-help/bmad-build for the bounded inert own-edit transaction body: original
+version validation, conditional revision, no-op behavior and atomic outcome/history,
+using existing verified owner context. Keep HTTP/Auth orchestration, editor/queue/UI and
+startup adoption separate. Real Access, native cancellation/TCP drain and ADR-0020
+compatibility/recovery/activation remain gates. Synthetic local/CI only; no Leave/editor,
+production, real-account/access, provisioning, deployment/pilot or cleanup.
+
+User instruction: skip routine BMAD approval halts within clearly authorized work;
+pause for material intent gaps or required permission boundaries.
+
+Earlier handoffs follow unchanged as historical checkpoints.
+
 ## Current delivery — candidate recovery Auth/entry consumer, 2026-10-25
 
 Read [current contracts](contracts.md), [Auth integration evidence](RECOVERY_ENTRY_EVIDENCE.md)

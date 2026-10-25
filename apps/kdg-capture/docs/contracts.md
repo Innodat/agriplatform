@@ -910,3 +910,19 @@ The trusted generic lease is never published and is hidden by this consuming wra
 Organization replacement disposes the old entry owner. Server access is checked per call;
 a returned observation grants no later write authority. Candidate remains unconnected to
 browser/editor and active API startup. See [qualification](RECOVERY_ENTRY_EVIDENCE.md).
+
+
+### Native stored-edit recovery fixture — 2026-10-25
+
+The [retained-only qualifier](../migrations/tests/qualify_edit_recovery_http.py) creates
+one fresh synthetic capture through the actual runtime create handler, then commits two
+explicitly test-only edits under the restricted runtime login. Independent read-only
+storage checks and unchanged candidate HTTP recover the original edit at revision2
+before and after revision3 exists; original create remains revision1. Exact scope,
+current own-read denial before checkout and lease release are verified natively.
+
+[Evidence](NATIVE_EDIT_RECOVERY_EVIDENCE.md) records journal-before-write identities,
+complete prior-row preservation, exact parent/capture/outcome/history deltas and source
+receipts. This qualifies stored-edit recovery only. It supplies no edit API/domain
+authorization, real Access, browser/queue/editor integration or release activation.
+Historical native reports retain their original source claims and limitations.

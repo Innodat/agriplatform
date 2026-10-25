@@ -1,0 +1,314 @@
+{
+  "artifact_hashes": {
+    "_bmad-output/implementation-artifacts/spec-kdg-native-edit-recovery.md": "50521a856e8c031d813126d36f6146ef5d581b2f48e120807cb4883bcff7d694",
+    "apps/kdg-capture/docs/NATIVE_EDIT_RECOVERY_EVIDENCE.md": "cfa0fa19781fdd88d93560f783f82e8d5fe38599125a982ddf90b6d79416e6f0",
+    "apps/kdg-capture/docs/contracts.md": "0b86f267dff9116b1b875c09acdd4179451045225f4d7a1968c35c14e32a2285",
+    "apps/kdg-capture/docs/next-session.md": "cbe34bd9bb60e37106a9074ff5e7607ba0326a46752088d9fb37474915522af2",
+    "apps/kdg-capture/write-tests/test_native_edit_recovery.py": "b7528b2cb98959ed20282561d63de6904d33c5bd831ee85b92f3b42bb01e4186"
+  },
+  "baseline_commit": "837e580409494d97a38546924ce850e8cd6c76ff",
+  "commands": [
+    {
+      "command": "timeout 45s platform/deployment/.local/access-organization-check-20261022/owner-env/bin/python -I -B -m unittest discover -s apps/kdg-capture/write-tests -p test_native_edit_recovery.py",
+      "result": "initial RED: missing qualifier module; final 12 PASS"
+    },
+    {
+      "command": "timeout 45s platform/deployment/.local/access-organization-check-20261022/owner-env/bin/python -I -B -m unittest discover -s apps/kdg-capture/write-tests -p 'test_*.py'",
+      "result": "sandbox timeout124; no assertion failure before timeout"
+    },
+    {
+      "command": "timeout 120s platform/deployment/.local/access-organization-check-20261022/owner-env/bin/python -I -B -m unittest discover -s apps/kdg-capture/write-tests -p 'test_*.py'",
+      "result": "sandbox timeout124; no assertion failure before timeout"
+    },
+    {
+      "command": "timeout 45s platform/deployment/.local/access-organization-check-20261022/owner-env/bin/python -I -B -m unittest discover -v -s apps/kdg-capture/write-tests -p 'test_*.py'",
+      "result": "unrestricted timeout124; progressed through contract schema test; no assertion failure"
+    },
+    {
+      "command": "timeout 120s platform/deployment/.local/access-organization-check-20261022/owner-env/bin/python -I -B -m unittest discover -v -s apps/kdg-capture/write-tests -p 'test_*.py'",
+      "log": "/tmp/kdg-edit-write-tests-final.log",
+      "result": "unrestricted exit0;170 PASS in32.558s"
+    },
+    {
+      "command": "platform/deployment/.local/kdg-toolchains/ad277eef-a10e-4aac-bb82-5743653fb2e0/payload/node/bin/node platform/builder-cli/scripts/sync-kdg-write.mjs --check",
+      "result": "exit0 parity verified"
+    },
+    {
+      "command": "platform/deployment/.local/kdg-toolchains/ad277eef-a10e-4aac-bb82-5743653fb2e0/payload/node/bin/node platform/builder-cli/scripts/sync-kdg-database.mjs --check",
+      "result": "exit0 parity verified"
+    },
+    {
+      "command": "platform/deployment/.local/kdg-toolchains/ad277eef-a10e-4aac-bb82-5743653fb2e0/payload/node/bin/node platform/builder-cli/scripts/sync-kdg-native-database.mjs --check",
+      "result": "exit0 parity verified"
+    },
+    {
+      "command": "timeout 60s platform/deployment/.local/access-organization-check-20261022/owner-env/bin/python -I -B apps/kdg-capture/migrations/tests/qualify_recovery_http.py --qualify-retained",
+      "receipt": {
+        "path": "platform/deployment/.local/kdg-native-focused-20261023/fixture-cff53592f5ca43a1a0cc65398957140f/capture-commit-recovery-http-ba2ab46381334086b789af6f6d4ea5d5.json",
+        "sha256": "d1b984efa32ce44c96ea256c19a36038871a1e924c81556f25160670970d4452"
+      },
+      "result": "exit0 qualified"
+    },
+    {
+      "command": "timeout 60s platform/deployment/.local/access-organization-check-20261022/owner-env/bin/python -I -B apps/kdg-capture/migrations/tests/qualify_edit_recovery_http.py --qualify-retained",
+      "receipt": {
+        "path": "platform/deployment/.local/kdg-native-focused-20261023/fixture-cff53592f5ca43a1a0cc65398957140f/capture-commit-edit-recovery-http-2ce811ff762c469aad5b9bb2443a1b55.json",
+        "sha256": "781d3889a267bcbc7d9648a2d425b46a793f59ed692017c8710ac092d5f3e7cb"
+      },
+      "result": "exit0 qualified"
+    },
+    {
+      "command": "timeout 60s platform/deployment/.local/access-organization-check-20261022/owner-env/bin/python -I -B apps/kdg-capture/migrations/tests/qualify_recovery_http.py --qualify-retained",
+      "receipt": {
+        "path": "platform/deployment/.local/kdg-native-focused-20261023/fixture-cff53592f5ca43a1a0cc65398957140f/capture-commit-recovery-http-5d0504144d6249b3b6a1a8c6be6425b0.json",
+        "sha256": "80d37f21a7177befc0be6f977d0ccd897f199f506c5364e89161ddbac5023b1c"
+      },
+      "result": "exit0 qualified"
+    },
+    {
+      "command": "timeout 120s platform/deployment/.local/access-organization-check-20261022/owner-env/bin/python -I -B -m unittest discover -v -s apps/kdg-capture/write-tests -p 'test_*.py'",
+      "log": "platform/deployment/.local/kdg-native-edit-recovery-20261025/review-9b948327-e303-4bdc-87c6-568fbd7dcb01/kdg-edit-write-tests-reviewed.log",
+      "result": "reviewed source exit0;176 PASS in8.188s"
+    },
+    {
+      "command": "timeout 60s platform/deployment/.local/access-organization-check-20261022/owner-env/bin/python -I -B apps/kdg-capture/migrations/tests/qualify_edit_recovery_http.py --qualify-retained",
+      "receipt": {
+        "path": "platform/deployment/.local/kdg-native-focused-20261023/fixture-cff53592f5ca43a1a0cc65398957140f/capture-commit-edit-recovery-http-d58241785ea94f8b9f040771e1acd635.json",
+        "sha256": "b48f7835538beef535593e358009b4051470a6211fe067afe82a1c79b9bca135"
+      },
+      "result": "reviewed source exit0 qualified"
+    },
+    {
+      "command": "timeout 60s platform/deployment/.local/access-organization-check-20261022/owner-env/bin/python -I -B apps/kdg-capture/migrations/tests/qualify_recovery_http.py --qualify-retained",
+      "receipt": {
+        "path": "platform/deployment/.local/kdg-native-focused-20261023/fixture-cff53592f5ca43a1a0cc65398957140f/capture-commit-recovery-http-03a0e31a22dc43cba25ba9bc8342f4aa.json",
+        "sha256": "1c8bbcd227674a6fed44520f48b237a106b754435e061c7de9ea650a359ff0c7"
+      },
+      "result": "final SELECT-only exit0 qualified; counts12/16/16 unchanged"
+    },
+    {
+      "command": "python3 platform/deployment/dev.py up --target platform/deployment/environments/kdg-local.json --run-id 99b7231c-0a5b-4bdb-98e8-3329564c526a --supabase /home/ck/repos/innodat/agriplatform/platform/deployment/.local/kdg-toolchains/ad277eef-a10e-4aac-bb82-5743653fb2e0/payload/supabase/supabase",
+      "result": "ok completed; resumed existing network/volume"
+    },
+    {
+      "command": "python3 platform/deployment/dev.py stop --target platform/deployment/environments/kdg-local.json --run-id 99b7231c-0a5b-4bdb-98e8-3329564c526a --supabase /home/ck/repos/innodat/agriplatform/platform/deployment/.local/kdg-toolchains/ad277eef-a10e-4aac-bb82-5743653fb2e0/payload/supabase/supabase",
+      "result": "ok completed; normal stop; resources/data retained"
+    }
+  ],
+  "date": "2026-10-25",
+  "effects": {
+    "active_startup": false,
+    "cleanup": false,
+    "fingerprints_hmac": "deferred",
+    "historical_metadata_discrepancy": "unresolved",
+    "migrations": false,
+    "privilege_expansion": false,
+    "provisioning": false,
+    "schema_changes": false,
+    "typescript": "7.0.2 unchanged"
+  },
+  "historical_attempts": [
+    {
+      "counts_after": {
+        "capture": 11,
+        "capture_revision": 13,
+        "child": 3,
+        "child_assignment": 3,
+        "child_eligibility": 3,
+        "operation_outcome": 13,
+        "questionnaire": 3,
+        "questionnaire_version": 3
+      },
+      "counts_before": {
+        "capture": 10,
+        "capture_revision": 10,
+        "child": 2,
+        "child_assignment": 2,
+        "child_eligibility": 2,
+        "operation_outcome": 10,
+        "questionnaire": 2,
+        "questionnaire_version": 2
+      },
+      "label": "first native pass before proof-review fixes",
+      "report": {
+        "path": "platform/deployment/.local/kdg-native-focused-20261023/fixture-cff53592f5ca43a1a0cc65398957140f/capture-commit-edit-recovery-http-2ce811ff762c469aad5b9bb2443a1b55.json",
+        "sha256": "781d3889a267bcbc7d9648a2d425b46a793f59ed692017c8710ac092d5f3e7cb"
+      },
+      "source_claim": "applies only to first source capsule",
+      "start": {
+        "path": "platform/deployment/.local/kdg-native-focused-20261023/fixture-cff53592f5ca43a1a0cc65398957140f/capture-commit-edit-recovery-start-2bb80f0685244de6be195b662f3a5453.json",
+        "sha256": "62c03ad7b804394b960dbcf9a495386f5b4f33fab758a731fe24d9d3c8889bfa"
+      }
+    }
+  ],
+  "impacts": {
+    "adr": "none",
+    "agent_context": "none",
+    "documentation": "evidence/contracts/next-session",
+    "scaffold": "none;existing primitives parity-checked",
+    "shared_ui": "none"
+  },
+  "native": {
+    "counts_after": {
+      "capture": 12,
+      "capture_revision": 16,
+      "child": 4,
+      "child_assignment": 4,
+      "child_eligibility": 4,
+      "operation_outcome": 16,
+      "questionnaire": 4,
+      "questionnaire_version": 4
+    },
+    "counts_before": {
+      "capture": 11,
+      "capture_revision": 13,
+      "child": 3,
+      "child_assignment": 3,
+      "child_eligibility": 3,
+      "operation_outcome": 13,
+      "questionnaire": 3,
+      "questionnaire_version": 3
+    },
+    "database": "kdg_schema_659350f762c8494c9241b7b1c8ea9566",
+    "dataset_attempts_retained": 2,
+    "edit_api_qualified": false,
+    "final_readonly": {
+      "path": "platform/deployment/.local/kdg-native-focused-20261023/fixture-cff53592f5ca43a1a0cc65398957140f/capture-commit-recovery-http-03a0e31a22dc43cba25ba9bc8342f4aa.json",
+      "sha256": "1c8bbcd227674a6fed44520f48b237a106b754435e061c7de9ea650a359ff0c7"
+    },
+    "head": "0002_kdg_capture_storage",
+    "native_edit_receipt": true,
+    "normal_stop": {
+      "code": "completed",
+      "ok": true,
+      "stage": "stop"
+    },
+    "prior_rows_unchanged": true,
+    "report": {
+      "path": "platform/deployment/.local/kdg-native-focused-20261023/fixture-cff53592f5ca43a1a0cc65398957140f/capture-commit-edit-recovery-http-d58241785ea94f8b9f040771e1acd635.json",
+      "sha256": "b48f7835538beef535593e358009b4051470a6211fe067afe82a1c79b9bca135"
+    },
+    "resources_verified_retained": {
+      "database_volume": "supabase_db_agriplatform-kdg-mbcjHApbS9uY6DMpVkxSag",
+      "network_id": "4ab79f8eceb6dd0b6fe6486b77528c8e85cdd3a406b186b7c438c59d6d815a68",
+      "running_containers": 0
+    },
+    "revision2_http": {
+      "cases": [
+        "original_edit_receipt_and_release",
+        "original_create_still_revision1",
+        "wrong_discriminator_unresolved",
+        "foreign_account_unresolved",
+        "pooled_scope_cleared",
+        "current_denial_before_checkout",
+        "foreign_organization_unresolved"
+      ],
+      "leases_released": true,
+      "physical_connections_closed": true
+    },
+    "revision3_http": {
+      "cases": [
+        "original_edit_receipt_and_release",
+        "latest_edit3_receipt_and_release",
+        "original_create_still_revision1",
+        "wrong_discriminator_unresolved",
+        "foreign_account_unresolved",
+        "pooled_scope_cleared",
+        "current_denial_before_checkout",
+        "foreign_organization_unresolved"
+      ],
+      "leases_released": true,
+      "physical_connections_closed": true
+    },
+    "run_id": "99b7231c-0a5b-4bdb-98e8-3329564c526a",
+    "sentinel_unchanged": true,
+    "start": {
+      "path": "platform/deployment/.local/kdg-native-focused-20261023/fixture-cff53592f5ca43a1a0cc65398957140f/capture-commit-edit-recovery-start-3a9ea0e99b1142c282e2d725369e0bd6.json",
+      "sha256": "b00ace9d46153a259e981d771ed224f4490df96ace75738c2160072e845dfafa"
+    },
+    "stopped_normally": true
+  },
+  "remaining_gates": [
+    "edit API and domain authorization",
+    "real Access",
+    "native cancellation/commit uncertainty and TCP drain",
+    "active startup/browser/queue/editor adoption",
+    "ADR-0020 compatibility/recovery/activation"
+  ],
+  "review": {
+    "deferred": 0,
+    "false": 1,
+    "findings": 10,
+    "layers": [
+      "blind-hunter",
+      "edge-case-hunter",
+      "verification-gap"
+    ],
+    "patched": 9,
+    "triage": "_bmad-output/implementation-artifacts/spec-kdg-native-edit-recovery.md"
+  },
+  "source_capsules": {
+    "directory": "platform/deployment/.local/kdg-native-edit-recovery-20261025/review-9b948327-e303-4bdc-87c6-568fbd7dcb01",
+    "first_and_reviewed_versions_verified": true,
+    "review_diff_sha256": "45c5898c43be33f2e2340dc8add6207ec200f097a3717b1347a49d2d0f7f109f"
+  },
+  "sources": {
+    "apps/kdg-capture/api/capture_commands.py": "378197903cd973f7807ecad879fc737077071e644be8f44716ea2e3f23727a07",
+    "apps/kdg-capture/api/context.py": "1c58d6432fa321252d5e4fd88d1e1b589bb989cf4243a2fb4a7104a7c9151a06",
+    "apps/kdg-capture/api/export_openapi.py": "564cdd231f1401ce2ed125e53f047b9e674fa16bbec08fb253ff38e67c51fe69",
+    "apps/kdg-capture/api/main.py": "a44bc61f1d8d8e93a28cf6e38da45da70feb4f8fe1b1da7791e99f0a1c697fe3",
+    "apps/kdg-capture/api/questionnaire.py": "7aac78d320f1181fc074c4b6950f5e142ce284c148407c28cce825a2ef63e90a",
+    "apps/kdg-capture/api/runtime.py": "c070ba130f327a01c9332c0b67cb35a7cf46a137bbc359e498bb75594cdb616e",
+    "apps/kdg-capture/api/safe_errors.py": "18a1359b2b1f9bb8c79c91644582c9d320bf22ed56d53afac179ff3fce6901df",
+    "apps/kdg-capture/migrations/candidates/0002_capture_storage.py": "94c8839b22255dd7d6d2ec3aa13a5a793f14f5937cf54b4bfac6ed058b0d06e8",
+    "apps/kdg-capture/migrations/tests/capture_commit_fixture.py": "e9372b9351bf10f42d3b041508be1a68b4d8cd62291084b16d6d0e07a02fe4d1",
+    "apps/kdg-capture/migrations/tests/native_fixture.py": "d031539b709a228b0e3da86c68960791a7a7d5fc5220cc9c27f3687a5e98907a",
+    "apps/kdg-capture/migrations/tests/qualify_capture_commit.py": "c3f7490e74147b44d2a3f7cc8851655946520d7d1edd5c23daf4daf2d4663833",
+    "apps/kdg-capture/migrations/tests/qualify_capture_storage.py": "4a7ac32afaf4bbbb270dfad09579f4e48e198d241cb966c90923b7cecce81364",
+    "apps/kdg-capture/migrations/tests/qualify_edit_recovery_http.py": "8af1ccb00690c8edd9fb5f128c6ee8bff27310a21cb30da3c7d125fa9ceec2db",
+    "apps/kdg-capture/migrations/tests/qualify_operation_recovery.py": "063e5fdece540c5310f71c9d96388fbda635734f7de475d79129cca82b395f69",
+    "apps/kdg-capture/migrations/tests/qualify_recovery_http.py": "cd8e20e48ec5b131b7d637787c193ec71238495e241213ead7ae1549633b88f3",
+    "apps/kdg-capture/write-candidate/capture_create.py": "179f5dd11763a6072ba6689a6641747729ad8e63124e8db74aface5816dc3906",
+    "apps/kdg-capture/write-candidate/capture_create_handler.py": "6b1d375e4a47a8b94acc588c3c644fda15f53766f47d9c6a482160c93b36eecd",
+    "apps/kdg-capture/write-candidate/export_recovery_openapi.py": "2e000c70679d2a6f175ec2a3660a2a299c364f17f3258af35efe5fb01b7a81b3",
+    "apps/kdg-capture/write-candidate/operation_outcomes.py": "e625d9048d89a6dcd8e17636c418218eaa3c53d329283701c35890c04e5984cb",
+    "apps/kdg-capture/write-candidate/operation_recovery.py": "951113487c64c70170a5f09de051b2b9d543c398e1bea36bd993fdea5b5abac6",
+    "apps/kdg-capture/write-candidate/recovery_http.py": "58e7bf371e0f4689b4a5d13476dbdc58d22fe65a4f3f3460e18e6d7b00098b34",
+    "apps/kdg-capture/write-candidate/recovery_openapi.py": "9ee7009e5d27b9002b3b8eaf6649b428e62abc477ac75fdeb25e286ae40f22a8",
+    "apps/kdg-capture/write-tools/transaction_context.py": "e46244916563bb8111e65675cb1d992778a6c076dc247c4b1fa12b7d9cc47ce7",
+    "platform/deployment/dev.py": "604e03aedc9a0233c37a08ab5080d2c2dd7bea524f036b46764c2be3b9da3065",
+    "platform/deployment/native_cli.py": "f4c6506610e7dee8982c867223f2350a48f77565fc6cbac857cfa7c5506bc760"
+  },
+  "status": "qualified_stored_edit_recovery_candidate_only",
+  "tests": {
+    "affected_pass": 176,
+    "controlled_storage_corruptions_rejected": 14,
+    "focused_pass": 18,
+    "red": "missing qualifier module observed before implementation",
+    "scaffold_parity_pass": 3
+  },
+  "traceability": {
+    "failure": [
+      "test_write_failure_has_no_success_receipt",
+      "test_source_drift_has_no_success_receipt",
+      "test_read_or_preservation_failure_has_no_success_receipt",
+      "test_cli_failure_retains_intent_and_safe_stage",
+      "test_receipt_io_failure_never_prints_exception_payload"
+    ],
+    "fresh_dataset_and_preservation": [
+      "test_plan_has_fresh_distinct_journaled_identities",
+      "test_journal_precedes_seed",
+      "test_preservation_rejects_any_prior_row_change",
+      "test_delta_checks_all_parent_and_business_tables",
+      "native complete prior-row hashes/exact deltas"
+    ],
+    "original_edit_stability": [
+      "test_later_edit_preserves_exact_original_evidence",
+      "native revision2/revision3 independent read-only and HTTP passes"
+    ],
+    "scope_denial_and_release": [
+      "native revision2_http",
+      "native revision3_http"
+    ]
+  }
+}

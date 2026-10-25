@@ -128,7 +128,7 @@ def changed(raw, **values):
     return json.dumps(dict(json.loads(raw), **values))
 
 
-def seed(admin, data):
+def seed(admin, data, *, assignment_id=None):
     """Only synthetic KDG parents. No capture/outcome/history or identity writes."""
     engine = fixture.engine(admin)
     try:
@@ -139,7 +139,7 @@ def seed(admin, data):
             connection.execute(text('INSERT INTO kdg_capture.questionnaire(id,org_id,created_by) VALUES(:questionnaire,:org,:actor)'), params)
             connection.execute(text('INSERT INTO kdg_capture.questionnaire_version(id,org_id,questionnaire_id,display_version,definition,definition_hash,published_by) VALUES(:version,:org,:questionnaire,1,CAST(:definition AS jsonb),:hash,:actor)'), dict(params,definition=definition,hash=sha256(definition.encode()).hexdigest()))
             connection.execute(text("INSERT INTO kdg_capture.child(id,org_id,display_name,active,revision,created_by,updated_by) VALUES(:child,:org,'Synthetic durable qualification child',true,1,:actor,:actor)"),params)
-            connection.execute(text("INSERT INTO kdg_capture.child_assignment(id,org_id,child_id,account_id,membership_id,active,revision,created_by,updated_by) VALUES(:id,:org,:child,:account,1,true,1,:actor,:actor)"),dict(params,id=str(uuid4())))
+            connection.execute(text("INSERT INTO kdg_capture.child_assignment(id,org_id,child_id,account_id,membership_id,active,revision,created_by,updated_by) VALUES(:id,:org,:child,:account,1,true,1,:actor,:actor)"),dict(params,id=assignment_id or str(uuid4())))
             connection.execute(text("INSERT INTO kdg_capture.child_eligibility(org_id,ref,account_id,membership_id,child_id,child_revision,observed_active,create_permission,issued_by) VALUES(:org,:ref,:account,1,:child,1,true,:permission,:actor)"),dict(params,permission=create.ALL))
     finally:
         engine.dispose()
