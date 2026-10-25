@@ -870,3 +870,26 @@ parameter declarations alone cannot express all query multiplicity constraints.
 [Evidence](RECOVERY_CONTRACT_EVIDENCE.md) records actual schema-to-wire, TypeScript and
 fresh-import export checks. Historical native evidence remains bound to its original
 source versions; this metadata delivery makes no new native or release claim.
+
+
+### Candidate recovery request adapter — 2026-10-25
+
+`web/src/recovery.ts:recoverOperation(session,pending,options)` consumes generated types
+and validates unknown wire data. Pending scope pins account/org/original operation and
+command; edit also requires its queued capture target. One fixed relative GET sends
+only bearer and required discriminator. Required caller `{signal,isCurrent}` represents
+its existing generation plus account/org observation; cancellation or stale execution
+cannot return a receipt or denial for publication. This is a local fence; server checks
+current own-read authority. Actual Auth/entry wiring remains a consuming gate.
+
+A total at-most10-second deadline covers headers/body even if transport ignores abort.
+Per-read monotonic checks prevent empty-chunk timer starvation;16KiB cumulative UTF-8
+bytes, exact decoded shape/identity/version/revision/error status families and duplicate
+keys are checked. Responses must be JSON/private/no-store. Safe frozen results preserve
+original compact receipt or verified unresolved, with no raw upstream messages. Edit
+mismatch refuses acknowledgement; create keeps first committed target under ADR-0061.
+
+No retry, refresh, new operation ID, write, queue/storage mutation or Synced feedback is
+performed. Unresolved remains compatible with a later commit. The candidate is not
+imported by active startup; [evidence](RECOVERY_ADAPTER_EVIDENCE.md) records synthetic
+transport/type verification and the required future Auth integration boundary.

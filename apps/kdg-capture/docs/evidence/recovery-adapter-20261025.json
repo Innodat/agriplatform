@@ -1,0 +1,89 @@
+{
+  "artifact_hashes": {
+    "_bmad-output/implementation-artifacts/spec-kdg-recovery-adapter.md": "2aac5c0bc9b1599322e1df0cba6e6dd89792aea96b3a67dad5e08dd337cbff70",
+    "apps/kdg-capture/docs/RECOVERY_ADAPTER_EVIDENCE.md": "b270a4444cf1cf580a5b9eb4488cce640353ff7c3c6ba165718128e7cd7af4b8",
+    "apps/kdg-capture/docs/contracts.md": "28acd74aecdcad5215ce71c2fdd6018d4f48cbc08a410fa88a1ffa70974d938e",
+    "apps/kdg-capture/docs/next-session.md": "0d4f3ff271ed646afb7319cbc4609cf9715044dd68613684f019330247993004"
+  },
+  "baseline_commit": "43406e846dafe7ec5dbea4a62a9c3c9614dfdff2",
+  "commands": [
+    "platform/deployment/.local/kdg-toolchains/ad277eef-a10e-4aac-bb82-5743653fb2e0/payload/node/bin/node --test apps/kdg-capture/web/tests/recovery.test.mjs",
+    "platform/deployment/.local/kdg-toolchains/ad277eef-a10e-4aac-bb82-5743653fb2e0/payload/node/bin/node --test apps/kdg-capture/web/tests/entry.test.mjs apps/kdg-capture/web/tests/recovery.test.mjs",
+    "platform/deployment/.local/kdg-toolchains/ad277eef-a10e-4aac-bb82-5743653fb2e0/payload/node/bin/node --test --test-reporter=dot apps/kdg-capture/web/tests/entry.test.mjs apps/kdg-capture/web/tests/recovery.test.mjs",
+    "platform/deployment/.local/kdg-toolchains/ad277eef-a10e-4aac-bb82-5743653fb2e0/payload/node/bin/node node_modules/typescript/bin/tsc --project apps/kdg-capture/web/tsconfig.recovery.json",
+    "platform/deployment/.local/kdg-toolchains/ad277eef-a10e-4aac-bb82-5743653fb2e0/payload/node/bin/node node_modules/typescript/bin/tsc --project apps/kdg-capture/web/tsconfig.json",
+    "platform/deployment/.local/kdg-toolchains/ad277eef-a10e-4aac-bb82-5743653fb2e0/payload/node/bin/node node_modules/typescript/bin/tsc --project apps/kdg-capture/tests/tsconfig.recovery.json",
+    "platform/deployment/.local/kdg-toolchains/ad277eef-a10e-4aac-bb82-5743653fb2e0/payload/node/bin/node platform/builder-cli/scripts/sync-kdg-write.mjs --check",
+    "platform/deployment/.local/kdg-toolchains/ad277eef-a10e-4aac-bb82-5743653fb2e0/payload/node/bin/node platform/builder-cli/scripts/sync-kdg-database.mjs --check",
+    "platform/deployment/.local/kdg-toolchains/ad277eef-a10e-4aac-bb82-5743653fb2e0/payload/node/bin/node platform/builder-cli/scripts/sync-kdg-native-database.mjs --check"
+  ],
+  "contract": {
+    "create_first_committed_target_preserved": true,
+    "no_automatic_retry_refresh_write_new_operation_or_synced_state": true,
+    "original_edit_capture_required": true,
+    "request": "one fixed relative GET; original operation and closed command only",
+    "required_owner_lease": [
+      "AbortSignal",
+      "isCurrent generation/account/org predicate"
+    ],
+    "response_byte_limit": 16384,
+    "result": "frozen original receipt, verified unresolved, safe status/error identifier or fixed local failure kind",
+    "total_deadline_max_ms": 10000
+  },
+  "date": "2026-10-25",
+  "effects": {
+    "active_api_changes": false,
+    "active_browser_or_editor_wiring": false,
+    "auth_changes": false,
+    "backend_or_native_tests_rerun": false,
+    "dependencies_changed": false,
+    "docker_resumed": false,
+    "fingerprints_hmac": "deferred",
+    "historical_evidence_preserved": true,
+    "previous_contract_source_capsule_preserved": true,
+    "retained_data_and_resources_preserved": true
+  },
+  "remaining_gates": [
+    "actual existing Auth/entry execution lease integration",
+    "queue/snapshot/UI consuming reconciliation without automatic acknowledgement",
+    "native committed-edit/cancellation/server drain and real Access",
+    "controlled API dependency/startup and ADR-0020 compatibility/recovery/release activation"
+  ],
+  "review": {
+    "deferred": 0,
+    "findings": 5,
+    "fixed": 5,
+    "layer": "blind-hunter",
+    "triage": "_bmad-output/implementation-artifacts/spec-kdg-recovery-adapter.md"
+  },
+  "sources": {
+    "apps/kdg-capture/contracts/recovery-generated/types.gen.ts": "a0fe45efa0cde073b6a9ed2e2c2b96f19046a22e1a837bb25d2ae89390bd1bc4",
+    "apps/kdg-capture/web/src/entry.ts": "78379ca3bcc3c84f856750c2d62506fe4784f6b5ab9bfc3a594ed3aff02660a5",
+    "apps/kdg-capture/web/src/recovery.ts": "6650516a48005191c18f6e16751755876829de0100255c866457c4404fbbdf40",
+    "apps/kdg-capture/web/tests/entry.test.mjs": "51d9f2270b2cc709df9da24b05b810f9e8cc215f514dd14ed148780a6733d8fe",
+    "apps/kdg-capture/web/tests/recovery.test.mjs": "118b4ac7792e15742559b30cc9dfa5d46bfc783c226e03c4bb355d5661fb3eb0",
+    "apps/kdg-capture/web/tests/recovery.types.ts": "9ab2d5a64d7d823695fb91778b01ac8a7bab9a1b779101efc74bda16324f547d",
+    "apps/kdg-capture/web/tsconfig.recovery.json": "41dc1afab18eb0dbba97a39a26b680bff6a88c683515378135da14bc8e0290c0",
+    "apps/kdg-capture/write-candidate/recovery-openapi.json": "43be0e34edce45647b0eb1eba6d4d67c5103ef316400298e024c4ec925df6623"
+  },
+  "status": "qualified_unconnected_candidate",
+  "tests": {
+    "adapter_negative_typing_cases": 5,
+    "adapter_typecheck": true,
+    "affected_frontend_pass": 68,
+    "atdd_stub_failures": 29,
+    "controlled_empty_chunk_red_observed": true,
+    "existing_contract_negative_typing_cases": 12,
+    "existing_entry_pass": 29,
+    "existing_entry_typecheck": true,
+    "generated_contract_typecheck": true,
+    "network_failure_and_cleanup_red_observed": true,
+    "recovery_pass": 39,
+    "scaffold_parity": [
+      "write context code/test",
+      "database code/test",
+      "native database test"
+    ],
+    "typescript": "7.0.2"
+  }
+}

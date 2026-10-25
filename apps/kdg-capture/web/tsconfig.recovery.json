@@ -1,0 +1,4 @@
+{
+  "extends": "./tsconfig.json",
+  "files": ["src/recovery.ts", "tests/recovery.types.ts"]
+}

@@ -1,3 +1,34 @@
+## Current delivery — candidate recovery request adapter, 2026-10-25
+
+Read [adapter evidence](RECOVERY_ADAPTER_EVIDENCE.md) and
+[its receipt](evidence/recovery-adapter-20261025.json). The unconnected generated-type
+consumer now makes one bounded same-origin original-operation GET, strictly validates
+receipt/unresolved/error DTOs, binds edit target and returns frozen safe results. It
+requires a caller-owned signal/isCurrent lease for the existing account/org/generation;
+no new lifecycle, Auth/browser/editor integration or API activation is introduced.
+
+39 recovery +29 existing entry tests pass together (68); TypeScript7.0.2 adapter,
+entry and generated-contract fixtures pass, including5 new negative typing cases.
+Scaffold3 code/test parity checks pass. All5 review findings fixed, none deferred;
+controlled empty chunks first reproduced timer starvation, then monotonic per-read
+checks fixed it. Input mutation, body-phase cancellation, exact unresolved and16384/
+16385-byte multibyte streaming cases pass. No retry/refresh/write/new ID, local-store
+change or automatic Synced feedback. Previous contract source capsule intact; no
+backend/native rerun or new native claim. Docker remains stopped; resources/data,
+historical proof, dependencies and concurrent work preserved. Fingerprints/HMAC deferred.
+
+Next use bmad-help to select isolated consuming Auth/entry lease integration: bind the
+adapter's signal/isCurrent to existing current session/organization observations and
+abort on replacement/logout/disposal, with synthetic tests. Reuse existing lifecycle;
+if a proven generic hook is needed, update its owning template and scaffold tests in
+the same delivery. Keep editor/active API wiring and operation queue/state mutation
+out of that slice. Native edit/cancellation/server-drain, real Access, API dependency/
+startup adoption and ADR-0020 compatibility/recovery/release remain gates.
+Synthetic local/CI only; no Leave/editor, real accounts/access, production,
+provisioning/deployment/pilot or cleanup. Preserve TypeScript7.0.2 and historical evidence.
+
+Earlier handoffs follow unchanged as historical checkpoints.
+
 ## Current delivery — candidate recovery OpenAPI/client contract, 2026-10-25
 
 Read [contract evidence](RECOVERY_CONTRACT_EVIDENCE.md) and
