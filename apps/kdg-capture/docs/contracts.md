@@ -926,3 +926,22 @@ complete prior-row preservation, exact parent/capture/outcome/history deltas and
 receipts. This qualifies stored-edit recovery only. It supplies no edit API/domain
 authorization, real Access, browser/queue/editor integration or release activation.
 Historical native reports retain their original source claims and limitations.
+
+
+### Inert fresh own-edit transaction body — 2026-10-25
+
+`write-candidate/capture_edit.py:edit_in_transaction` now consumes a trusted current
+own_write context/original Budget, path capture UUID, EditCommand and exact own-edit
+permission. The caller owns current admission/membership, durable actor and required
+read/edit authority before entering the transaction. No new Auth/HTTP boundary exists.
+
+The scoped operation lock/private lookup precedes SELECT FOR UPDATE on the exact own
+capture. Existing outcome stops privately for later stored-target-authorized replay.
+Fresh answers use the stored original definition. Unassignment/ordinary child inactivity
+do not remove historical own-edit rights. Stale expected revision raises a safe local
+RevisionConflict with only current_revision metadata, including when values are unchanged.
+Changed writes conditionally increment once and append linked outcome/history; no-op
+appends only its receipt. The original owner/child/version/device/creation facts remain
+immutable. This body returns only a provisional receipt; acknowledgement requires the
+outer durable commit. Native behavior and eventual HTTP409/error mapping are unqualified.
+See [own-edit evidence](OWN_EDIT_BODY_EVIDENCE.md); no active API/client wiring changes.

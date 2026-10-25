@@ -1,0 +1,91 @@
+{
+  "artifact_sha256": {
+    "_bmad-output/implementation-artifacts/spec-kdg-own-edit-body.md": "043608bf28bf21f0de8953a487106ef30b54f376f51ce6626d809a6b1bec2361",
+    "apps/kdg-capture/docs/OWN_EDIT_BODY_EVIDENCE.md": "a86d3dd9400bcd4002f703c2bb028d80955696f4a15550c33777c60d0044c18f",
+    "apps/kdg-capture/docs/contracts.md": "77b3bd41c723d7234c1beccf2efc52606c90b0e08afa3a77fc7ed47a891dd6e3",
+    "apps/kdg-capture/docs/next-session.md": "d14fa25930ce150732233bd4e6e6f1c1887afb3c6e7c0d058829d099a0102ba9"
+  },
+  "baseline_commit": "6072e73377d5d7b4a46b0975b53800001431ed94",
+  "commands": [
+    {
+      "command": "timeout 45s platform/deployment/.local/access-organization-check-20261022/owner-env/bin/python -I -B -m unittest discover -s apps/kdg-capture/write-tests -p test_capture_edit.py",
+      "results": [
+        "ATDD RED:17 tests,23 subcase errors against stub",
+        "reviewed focused23 PASS in0.052s"
+      ]
+    },
+    {
+      "command": "timeout 120s platform/deployment/.local/access-organization-check-20261022/owner-env/bin/python -I -B -m unittest discover -v -s apps/kdg-capture/write-tests -p 'test_*.py'",
+      "result": "reviewed199 PASS in8.213s"
+    },
+    {
+      "command": "platform/deployment/.local/kdg-toolchains/ad277eef-a10e-4aac-bb82-5743653fb2e0/payload/node/bin/node platform/builder-cli/scripts/sync-kdg-write.mjs --check",
+      "result": "PASS"
+    },
+    {
+      "command": "platform/deployment/.local/kdg-toolchains/ad277eef-a10e-4aac-bb82-5743653fb2e0/payload/node/bin/node platform/builder-cli/scripts/sync-kdg-database.mjs --check",
+      "result": "PASS"
+    },
+    {
+      "command": "platform/deployment/.local/kdg-toolchains/ad277eef-a10e-4aac-bb82-5743653fb2e0/payload/node/bin/node platform/builder-cli/scripts/sync-kdg-native-database.mjs --check",
+      "result": "PASS"
+    }
+  ],
+  "contract": {
+    "acknowledgement": "provisional until outer durable commit; late commit remains uncertain",
+    "authority": "trusted caller current admission/membership, actor and corresponding own-read/own-edit; shape checks grant nothing",
+    "changed": "conditional date/answers/revision update, outcome and snapshot",
+    "conflict": "local RevisionConflict; safe current_revision string; future409 adaptation",
+    "existing_outcome": "private refusal; later stored-target-authorized orchestration required",
+    "locks": "scoped operation, then scoped capture FOR UPDATE",
+    "noop": "outcome only; no update/history"
+  },
+  "date": "2026-10-25",
+  "effects": {
+    "active_api_or_ui": false,
+    "database_changes": false,
+    "dependencies_changed": false,
+    "docker_actions": false,
+    "fingerprints_hmac": "deferred",
+    "historical_evidence_preserved": true,
+    "migrations": false,
+    "native_execution": false,
+    "typescript": "7.0.2"
+  },
+  "impacts": {
+    "adr": "none",
+    "agent_context": "none",
+    "documentation": "contracts,evidence,handoff",
+    "scaffold": "existing primitives unchanged and parity-checked; new domain SQL stays local",
+    "shared_ui": "none"
+  },
+  "limitations": [
+    "Connection doubles do not prove native permissions, locking, rollback, durable commit or unchanged timestamps",
+    "Earlier native fixture-edit proof does not qualify this new body",
+    "HTTP current-access/replay, native qualification, browser/editor/queue, startup and ADR-0020 release remain consuming gates"
+  ],
+  "proof": "platform/deployment/.local/kdg-own-edit-body-20261025/body-417daa9d-bb61-49c5-aef2-54eae17a5cfd",
+  "source_sha256": {
+    "apps/kdg-capture/api/capture_commands.py": "378197903cd973f7807ecad879fc737077071e644be8f44716ea2e3f23727a07",
+    "apps/kdg-capture/api/context.py": "1c58d6432fa321252d5e4fd88d1e1b589bb989cf4243a2fb4a7104a7c9151a06",
+    "apps/kdg-capture/api/questionnaire.py": "7aac78d320f1181fc074c4b6950f5e142ce284c148407c28cce825a2ef63e90a",
+    "apps/kdg-capture/migrations/candidates/0002_capture_storage.py": "94c8839b22255dd7d6d2ec3aa13a5a793f14f5937cf54b4bfac6ed058b0d06e8",
+    "apps/kdg-capture/write-candidate/capture_create.py": "179f5dd11763a6072ba6689a6641747729ad8e63124e8db74aface5816dc3906",
+    "apps/kdg-capture/write-candidate/capture_edit.py": "3997cdd6525c8e60b12b7e3de9a1848a51d435b5de31d798355180f45c834171",
+    "apps/kdg-capture/write-candidate/operation_outcomes.py": "e625d9048d89a6dcd8e17636c418218eaa3c53d329283701c35890c04e5984cb",
+    "apps/kdg-capture/write-tests/test_capture_create.py": "8eed99c5600531e4e25fa872aa8fea842e76f40132e329ca89c7c369cd762271",
+    "apps/kdg-capture/write-tests/test_capture_edit.py": "f54ebaf6314c66bc37cead11071ca165c54bb90b856fe2234d81efcceefce68d",
+    "apps/kdg-capture/write-tools/test_transaction_context.py": "122acf521fa53b39b876d94c14588f19188074ef4176a24fb0b01ce514e25a47",
+    "apps/kdg-capture/write-tools/transaction_context.py": "e46244916563bb8111e65675cb1d992778a6c076dc247c4b1fa12b7d9cc47ce7"
+  },
+  "status": "inert_own_edit_body_synthetically_verified",
+  "tests": {
+    "addressed": 5,
+    "affected": 199,
+    "atdd_red_tests": 17,
+    "deferred": 0,
+    "focused": 23,
+    "review_findings": 5,
+    "scaffold_parity": 3
+  }
+}

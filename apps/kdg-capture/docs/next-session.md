@@ -1,3 +1,33 @@
+## Current delivery — inert own-edit transaction body, 2026-10-25
+
+Read [current contracts](contracts.md), [own-edit body evidence](OWN_EDIT_BODY_EVIDENCE.md)
+and [receipt](evidence/own-edit-body-20261025.json). The fresh-only body now uses current
+verified own-write context, original version validation, scoped operation and capture
+locks, conditional revision, receipt-only no-op and atomic outcome/history composition.
+Stale input conflicts even when values match; no assignment/create-eligibility/active-child
+check blocks historical own editing. Existing outcomes stop privately for later replay.
+No route, engine, Auth/HTTP orchestration or active API/editor/queue/UI wiring is added.
+
+23 focused and199 affected tests pass; three scaffold parity checks pass. Five review
+findings addressed, none deferred. Ordinary PostgreSQL foreign keys replace a redundant
+consistency guard; new SQL stays KDG-owned and neutral scaffolds remain unchanged.
+Connection doubles prove control flow/SQL generation, not native behavior. No native or
+Docker execution; retained resources/data and historical evidence preserved.
+TypeScript7.0.2 unchanged; fingerprints/HMAC deferred.
+
+Next use bmad-help/bmad-build to qualify this actual own-edit body natively on fresh
+synthetic fixture data: changed edit, receipt-only no-op, stale conflict and atomic
+outcome/history/attribution. Earlier stored-edit recovery used fixture SQL and does not
+qualify the new body. Keep current-access HTTP/replay orchestration, editor/queue/UI,
+active startup and release adoption separate. Native cancellation/TCP drain, real Access
+and ADR-0020 compatibility/recovery/activation remain gates. Synthetic local/CI only;
+no Leave/editor, real accounts/access, production, provisioning, deployment/pilot or cleanup.
+
+User instruction: skip routine approval halts within clearly authorized work; pause for
+material intent gaps or required permission boundaries. Preserve concurrent changes.
+
+Earlier handoffs follow unchanged as historical checkpoints.
+
 ## Current delivery — native stored-edit recovery, 2026-10-25
 
 Read [current contracts](contracts.md), [native evidence](NATIVE_EDIT_RECOVERY_EVIDENCE.md)
