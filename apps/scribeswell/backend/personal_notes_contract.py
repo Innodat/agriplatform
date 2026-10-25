@@ -180,6 +180,8 @@ class DocumentV1(Closed):
                 nodes += 1
                 if isinstance(value, TextInline):
                     text_size += len(value.text)
+                elif isinstance(value, PassageLink):
+                    text_size += len(value.label)
                 pending.extend(value.__dict__.values())
             elif isinstance(value, tuple):
                 pending.extend(value)
@@ -188,8 +190,37 @@ class DocumentV1(Closed):
         return self
 
 
+class PassageLink(Closed):
+    type: Literal['passage_link']
+    reference: PassageReference
+    label: Annotated[str, Field(min_length=1, max_length=200), AfterValidator(_unicode)]
+
+
+InlineV2 = Annotated[Union[TextInline, ExternalLink, PassageLink], Field(discriminator='type')]
+
+
+class ParagraphV2(Closed):
+    type: Literal['paragraph']
+    direction: Literal['auto', 'ltr', 'rtl']
+    content: tuple[InlineV2, ...] = Field(max_length=256)
+
+
+class ListBlockV2(Closed):
+    type: Literal['list']
+    style: Literal['bullet', 'ordered']
+    items: tuple[Annotated[tuple[ParagraphV2, ...], Field(min_length=1, max_length=16)], ...] = Field(min_length=1, max_length=128)
+
+
+BlockV2 = Annotated[Union[ParagraphV2, ListBlockV2], Field(discriminator='type')]
+
+
+class DocumentV2(DocumentV1):
+    version: Annotated[int, Field(ge=2, le=2)]
+    blocks: tuple[BlockV2, ...] = Field(max_length=256)
+
+
 class NoteValue(Closed):
-    document: DocumentV1
+    document: DocumentV1 | DocumentV2
     connections: tuple[()]
     highlights: tuple[()]
 
@@ -336,7 +367,7 @@ class Problem(Closed):
     error: Literal['Request could not be completed']
     code: Literal['scribeswell_personal_notes_input_invalid', 'authentication_required',
                   'studies_access_denied', 'studies_access_unavailable', 'studies_storage_unavailable', 'resource_unavailable',
-                  'operation_payload_mismatch', 'operation_unresolved', 'request_deadline_exceeded']
+                  'operation_payload_mismatch', 'operation_unresolved', 'note_format_unsupported', 'request_deadline_exceeded']
     details: None
 
 
@@ -426,7 +457,7 @@ def openapi_contract() -> dict:
                  'parameters': list(parameters), 'responses': {}}
         codes = {'400': ['scribeswell_personal_notes_input_invalid'], '401': ['authentication_required'],
                  '403': ['studies_access_denied'], '404': ['resource_unavailable'],
-                 '409': ['note_revision_conflict', 'study_revision_conflict', 'passage_revision_conflict', 'operation_payload_mismatch', 'operation_unresolved'],
+                 '409': ['note_revision_conflict', 'study_revision_conflict', 'passage_revision_conflict', 'note_format_unsupported', 'operation_payload_mismatch', 'operation_unresolved'],
                  '503': ['studies_access_unavailable', 'studies_storage_unavailable', 'request_deadline_exceeded']}
         for status, description, schema in [('200', 'Acknowledged or current authorized result', response),
                                            ('400', 'Invalid input', 'ErrorResponse'),

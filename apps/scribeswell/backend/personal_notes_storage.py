@@ -118,6 +118,8 @@ class PersonalNotesStorage:
                     view(row,True)
                     revision=str(row['revision'])
                     if revision!=payload.expected_revision: raise NotesError('note_revision_conflict',{'expected_revision':payload.expected_revision,'current_revision':revision})
+                    if row['value']['document']['version']==2 and value['document']['version']==1:
+                        raise NotesError('note_format_unsupported')
                     if row['value']!=value:
                         if row['revision']>=int(MAX_REVISION): raise NotesError('resource_unavailable')
                         revision=str(row['revision']+1)

@@ -74,7 +74,7 @@ if(!process.env.SCRIBESWELL_OWNER_DENIED){
   stage('editor-autosave');const editor=page.getByLabel('Note text',{exact:true});await editor.fill(text);
   await expect(page.getByRole('status').filter({hasText:'Draft saved'})).toBeVisible();
   const notes=await request(page,`/api/studies/${study}/notes`);expect(notes.status).toBe(200);expect(notes.body.items.length===1).toBe(true);
-  const note=notes.body.items[0];expect(JSON.stringify(note.value).includes(text)).toBe(true);
+  let note=notes.body.items[0];expect(JSON.stringify(note.value).includes(text)).toBe(true);
   await page.reload();await page.getByRole('button',{name:'Studies',exact:true}).click();await page.getByRole('button',{name:'UI study',exact:true}).click();
   await page.getByRole('button',{name:text,exact:true}).click();expect(await editor.textContent()===text).toBe(true);
   stage('rename-preserves-note');await checkpoint('rename-before');
@@ -103,6 +103,17 @@ if(!process.env.SCRIBESWELL_OWNER_DENIED){
   await page.reload();await page.getByRole('button',{name:'Studies',exact:true}).click();await page.getByRole('button',{name:'Renamed English שָׁלוֹם',exact:true}).click();await expect(page.getByRole('list',{name:'Passages',exact:true})).toContainText('Matthew 26:63–64');
   await page.getByRole('button',{name:'Open Matthew 26:63–64',exact:true}).click();await expect(page.getByText('Matthew 26:63–64 — Text unavailable',{exact:true})).toBeVisible();
   expect((await request(page,`/api/studies/${study}/notes/${note.id}`)).body).toEqual(note);
+  stage('note-passage-link');await checkpoint('note-links-before');
+  await page.getByRole('button',{name:'Analysis',exact:true}).click();
+  await editor.focus();await editor.press('ControlOrMeta+End');
+  await page.getByRole('button',{name:'Insert passage reference',exact:true}).click();await page.getByLabel('Passage reference',{exact:true}).fill('Genesis1:31–2:3');
+  const linkReply=page.waitForResponse(reply=>new URL(reply.url()).pathname===`/api/studies/${study}/notes/${note.id}`&&reply.request().method()==='PUT');await page.getByLabel('Passage reference',{exact:true}).press('Enter');const linkAck=await(await linkReply).json();
+  await expect(page.getByRole('status').filter({hasText:'Draft saved'})).toBeVisible();
+  note=(await request(page,`/api/studies/${study}/notes/${note.id}`)).body;expect(note.value.document.version).toBe(2);expect(note.revision).toBe('3');
+  await page.reload();await page.getByRole('button',{name:'Studies',exact:true}).click();await page.getByRole('button',{name:'Renamed English שָׁלוֹם',exact:true}).click();await page.getByRole('list',{name:'Notes',exact:true}).getByRole('button').click();await expect(editor.locator('[data-note-passage]')).toHaveText('Genesis 1:31–2:3');
+  await page.getByRole('button',{name:'Read note',exact:true}).click();await editor.locator('[data-note-passage]').click();expect(new URL(page.url()).searchParams.get('book')).toBe('Gen');await page.getByRole('button',{name:'Edit note',exact:true}).click();
+  const legacy={document:{version:1,blocks:[]},connections:[],highlights:[]};const downgrade=await request(page,`/api/studies/${study}/notes/${note.id}`,'PUT',{operation_id:crypto.randomUUID(),expected_revision:note.revision,value:legacy});expect(downgrade.status).toBe(409);expect(downgrade.body).toEqual({error:'Request could not be completed',code:'note_format_unsupported',details:null});
+  fs.writeFileSync(path.join(proof,'note-links-result.json'),JSON.stringify({study,note:note.id,operation:linkAck.operation_id,value:note.value}),{flag:'wx',mode:0o600});await checkpoint('note-links-after');
   stage('second-account-isolation');const context=await browser.newContext();privacy.inspect(context);const other=await context.newPage();await login(other,fixture.accounts[1]);
   const otherEnrollment=crypto.randomUUID();const otherAck=await request(other,'/api/studies/enrollment','POST',{operation_id:otherEnrollment});expect(otherAck.status).toBe(200);
   await checkpoint('foreign-before');
@@ -120,7 +131,7 @@ if(!process.env.SCRIBESWELL_OWNER_DENIED){
   await privacy.settle();
   const stored=await context.storageState();fs.writeFileSync(path.join(proof,'other-context-private.json'),JSON.stringify(stored),{flag:'wx',mode:0o600});await context.close();
   fs.writeFileSync(path.join(proof,'owner-context-private.json'),JSON.stringify(await page.context().storageState()),{flag:'wx',mode:0o600});
-  const result={study,passage_operations:passageOperations,passage_item:passageItem,rename_operation:renameAck.operation_id,rename_title:'Renamed English שָׁלוֹם',retry_study:retryStudy,note:note.id,operation:create.operation_id,ui_operation:uiCreated.operation_id,enrollment:enrollment.operation_id,ui_enrollment:uiEnrollment.operation_id,other_enrollment:otherEnrollment,account_actors:{[fixture.accounts[0].account_id]:uiEnrollment.result.actor_id,[fixture.accounts[1].account_id]:otherAck.body.result.actor_id},value:note.value,credential_inspection:await privacy.settle()};
+  const result={study,note_link_operation:linkAck.operation_id,passage_operations:passageOperations,passage_item:passageItem,rename_operation:renameAck.operation_id,rename_title:'Renamed English שָׁלוֹם',retry_study:retryStudy,note:note.id,operation:create.operation_id,ui_operation:uiCreated.operation_id,enrollment:enrollment.operation_id,ui_enrollment:uiEnrollment.operation_id,other_enrollment:otherEnrollment,account_actors:{[fixture.accounts[0].account_id]:uiEnrollment.result.actor_id,[fixture.accounts[1].account_id]:otherAck.body.result.actor_id},value:note.value,credential_inspection:await privacy.settle()};
   fs.writeFileSync(path.join(proof,'browser-result.json'),JSON.stringify(result),{flag:'wx',mode:0o600});
  }));
 }else{

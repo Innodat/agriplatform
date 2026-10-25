@@ -186,3 +186,18 @@ def test_passage_access_denial_precedes_local_storage():
     headers={'Authorization':'Bearer current'};url='/api/studies/'+OP+'/passages'
     assert c.get(url,headers=headers).status_code==403
     assert c.put(url,headers=headers,json={'operation_id':OP,'expected_revision':'1','items':[]}).status_code==403
+
+def test_note_format_refusal_is_fixed_409_no_store_and_accepts_v2_boundary():
+    from personal_notes_access import NotesError
+    from passage_references import parse_reference
+    calls=[]
+    class Refuses:
+        async def execute(self,identity,command,payload,study,note,deadline):
+            calls.append(payload.value.document.version)
+            raise NotesError('note_format_unsupported')
+    app=FastAPI();app.include_router(build_router(Access(),Refuses()))
+    v={'document':{'version':2,'blocks':[{'type':'paragraph','direction':'auto','content':[{'type':'passage_link','reference':parse_reference('Matt 26:63–64'),'label':'Stored plain label'}]}]},'connections':[],'highlights':[]}
+    response=TestClient(app).put(f'/api/studies/{OP}/notes/{OP}',headers={'Authorization':'Bearer current'},json={'operation_id':OP,'expected_revision':'2','value':v})
+    assert calls==[2] and response.status_code==409
+    assert response.json()=={'error':'Request could not be completed','code':'note_format_unsupported','details':None}
+    assert response.headers['cache-control']=='private, no-store'

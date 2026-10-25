@@ -4,7 +4,7 @@ import {useAuth} from '@/context/AuthContext';
 import {BookChapterSelector} from '@/components/bible/book-chapter-selector';
 import {referenceLabel,type PassageReference} from '@/lib/passage-references';
 import type {NoteValue} from '@/lib/personal-notes';
-export function preview(value:NoteValue){return value.document.blocks.flatMap(block=>block.type==='paragraph'?[block]:block.items.flat()).map(p=>p.content.map(i=>i.type==='text'?i.text:i.content.map(t=>t.text).join('')).join('')).join(' ').slice(0,120)||'Empty note';}
+export function preview(value:NoteValue){return value.document.blocks.flatMap(block=>block.type==='paragraph'?[block]:block.items.flat()).map(p=>p.content.map(i=>i.type==='text'?i.text:i.type==='passage_link'?i.label:i.content.map(t=>t.text).join('')).join('')).join(' ').slice(0,120)||'Empty note';}
 export function StudiesPanel({activeReference,onOpen}:{activeReference?:PassageReference;onOpen?:(reference:PassageReference)=>void}){const studies=useStudies(),{user}=useAuth();const [creating,setCreating]=useState(false),[title,setTitle]=useState('');useEffect(()=>{setCreating(false);setTitle('');},[user?.id]);
  const renameButton=useRef<HTMLButtonElement>(null),previousSurface=useRef({study:studies.study?.id,editing:!!studies.titleEdit});
  useEffect(()=>{const previous=previousSurface.current;if(previous.study===studies.study?.id&&previous.editing&&!studies.titleEdit)renameButton.current?.focus();previousSurface.current={study:studies.study?.id,editing:!!studies.titleEdit};},[studies.study?.id,!!studies.titleEdit]);

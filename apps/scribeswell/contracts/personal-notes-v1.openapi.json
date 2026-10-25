@@ -150,6 +150,45 @@
         "title": "DocumentV1",
         "type": "object"
       },
+      "DocumentV2": {
+        "additionalProperties": false,
+        "properties": {
+          "blocks": {
+            "items": {
+              "discriminator": {
+                "mapping": {
+                  "list": "#/components/schemas/ListBlockV2",
+                  "paragraph": "#/components/schemas/ParagraphV2"
+                },
+                "propertyName": "type"
+              },
+              "oneOf": [
+                {
+                  "$ref": "#/components/schemas/ParagraphV2"
+                },
+                {
+                  "$ref": "#/components/schemas/ListBlockV2"
+                }
+              ]
+            },
+            "maxItems": 256,
+            "title": "Blocks",
+            "type": "array"
+          },
+          "version": {
+            "maximum": 2,
+            "minimum": 2,
+            "title": "Version",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "version",
+          "blocks"
+        ],
+        "title": "DocumentV2",
+        "type": "object"
+      },
       "EnrollStudies": {
         "additionalProperties": false,
         "properties": {
@@ -250,6 +289,7 @@
         "discriminator": {
           "mapping": {
             "authentication_required": "#/components/schemas/Problem",
+            "note_format_unsupported": "#/components/schemas/Problem",
             "note_revision_conflict": "#/components/schemas/RevisionProblem",
             "operation_payload_mismatch": "#/components/schemas/Problem",
             "operation_unresolved": "#/components/schemas/Problem",
@@ -349,6 +389,45 @@
         "title": "ListBlock",
         "type": "object"
       },
+      "ListBlockV2": {
+        "additionalProperties": false,
+        "properties": {
+          "items": {
+            "items": {
+              "items": {
+                "$ref": "#/components/schemas/ParagraphV2"
+              },
+              "maxItems": 16,
+              "minItems": 1,
+              "type": "array"
+            },
+            "maxItems": 128,
+            "minItems": 1,
+            "title": "Items",
+            "type": "array"
+          },
+          "style": {
+            "enum": [
+              "bullet",
+              "ordered"
+            ],
+            "title": "Style",
+            "type": "string"
+          },
+          "type": {
+            "const": "list",
+            "title": "Type",
+            "type": "string"
+          }
+        },
+        "required": [
+          "type",
+          "style",
+          "items"
+        ],
+        "title": "ListBlockV2",
+        "type": "object"
+      },
       "NotePage": {
         "additionalProperties": false,
         "properties": {
@@ -395,7 +474,15 @@
             "type": "array"
           },
           "document": {
-            "$ref": "#/components/schemas/DocumentV1"
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/DocumentV1"
+              },
+              {
+                "$ref": "#/components/schemas/DocumentV2"
+              }
+            ],
+            "title": "Document"
           },
           "highlights": {
             "maxItems": 0,
@@ -677,6 +764,58 @@
         "title": "Paragraph",
         "type": "object"
       },
+      "ParagraphV2": {
+        "additionalProperties": false,
+        "properties": {
+          "content": {
+            "items": {
+              "discriminator": {
+                "mapping": {
+                  "external_link": "#/components/schemas/ExternalLink",
+                  "passage_link": "#/components/schemas/PassageLink",
+                  "text": "#/components/schemas/TextInline"
+                },
+                "propertyName": "type"
+              },
+              "oneOf": [
+                {
+                  "$ref": "#/components/schemas/TextInline"
+                },
+                {
+                  "$ref": "#/components/schemas/ExternalLink"
+                },
+                {
+                  "$ref": "#/components/schemas/PassageLink"
+                }
+              ]
+            },
+            "maxItems": 256,
+            "title": "Content",
+            "type": "array"
+          },
+          "direction": {
+            "enum": [
+              "auto",
+              "ltr",
+              "rtl"
+            ],
+            "title": "Direction",
+            "type": "string"
+          },
+          "type": {
+            "const": "paragraph",
+            "title": "Type",
+            "type": "string"
+          }
+        },
+        "required": [
+          "type",
+          "direction",
+          "content"
+        ],
+        "title": "ParagraphV2",
+        "type": "object"
+      },
       "PassageItem": {
         "additionalProperties": false,
         "properties": {
@@ -699,6 +838,32 @@
           "reference"
         ],
         "title": "PassageItem",
+        "type": "object"
+      },
+      "PassageLink": {
+        "additionalProperties": false,
+        "properties": {
+          "label": {
+            "maxLength": 200,
+            "minLength": 1,
+            "title": "Label",
+            "type": "string"
+          },
+          "reference": {
+            "$ref": "#/components/schemas/PassageReference"
+          },
+          "type": {
+            "const": "passage_link",
+            "title": "Type",
+            "type": "string"
+          }
+        },
+        "required": [
+          "type",
+          "reference",
+          "label"
+        ],
+        "title": "PassageLink",
         "type": "object"
       },
       "PassageList": {
@@ -808,6 +973,7 @@
               "resource_unavailable",
               "operation_payload_mismatch",
               "operation_unresolved",
+              "note_format_unsupported",
               "request_deadline_exceeded"
             ],
             "title": "Code",
@@ -1455,6 +1621,7 @@
                             "note_revision_conflict",
                             "study_revision_conflict",
                             "passage_revision_conflict",
+                            "note_format_unsupported",
                             "operation_payload_mismatch",
                             "operation_unresolved"
                           ]
@@ -1702,6 +1869,7 @@
                             "note_revision_conflict",
                             "study_revision_conflict",
                             "passage_revision_conflict",
+                            "note_format_unsupported",
                             "operation_payload_mismatch",
                             "operation_unresolved"
                           ]
@@ -1933,6 +2101,7 @@
                             "note_revision_conflict",
                             "study_revision_conflict",
                             "passage_revision_conflict",
+                            "note_format_unsupported",
                             "operation_payload_mismatch",
                             "operation_unresolved"
                           ]
@@ -2166,6 +2335,7 @@
                             "note_revision_conflict",
                             "study_revision_conflict",
                             "passage_revision_conflict",
+                            "note_format_unsupported",
                             "operation_payload_mismatch",
                             "operation_unresolved"
                           ]
@@ -2404,6 +2574,7 @@
                             "note_revision_conflict",
                             "study_revision_conflict",
                             "passage_revision_conflict",
+                            "note_format_unsupported",
                             "operation_payload_mismatch",
                             "operation_unresolved"
                           ]
@@ -2665,6 +2836,7 @@
                             "note_revision_conflict",
                             "study_revision_conflict",
                             "passage_revision_conflict",
+                            "note_format_unsupported",
                             "operation_payload_mismatch",
                             "operation_unresolved"
                           ]
@@ -2911,6 +3083,7 @@
                             "note_revision_conflict",
                             "study_revision_conflict",
                             "passage_revision_conflict",
+                            "note_format_unsupported",
                             "operation_payload_mismatch",
                             "operation_unresolved"
                           ]
@@ -3163,6 +3336,7 @@
                             "note_revision_conflict",
                             "study_revision_conflict",
                             "passage_revision_conflict",
+                            "note_format_unsupported",
                             "operation_payload_mismatch",
                             "operation_unresolved"
                           ]
@@ -3423,6 +3597,7 @@
                             "note_revision_conflict",
                             "study_revision_conflict",
                             "passage_revision_conflict",
+                            "note_format_unsupported",
                             "operation_payload_mismatch",
                             "operation_unresolved"
                           ]
@@ -3661,6 +3836,7 @@
                             "note_revision_conflict",
                             "study_revision_conflict",
                             "passage_revision_conflict",
+                            "note_format_unsupported",
                             "operation_payload_mismatch",
                             "operation_unresolved"
                           ]
@@ -3907,6 +4083,7 @@
                             "note_revision_conflict",
                             "study_revision_conflict",
                             "passage_revision_conflict",
+                            "note_format_unsupported",
                             "operation_payload_mismatch",
                             "operation_unresolved"
                           ]
@@ -4155,6 +4332,7 @@
                             "note_revision_conflict",
                             "study_revision_conflict",
                             "passage_revision_conflict",
+                            "note_format_unsupported",
                             "operation_payload_mismatch",
                             "operation_unresolved"
                           ]

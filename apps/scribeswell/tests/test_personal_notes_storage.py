@@ -523,3 +523,54 @@ def test_native_maximum_collection_replace_reorder_with_competing_note_and_title
     assert first[0]['revision']=='2'
     reordered=run(stage('2',list(reversed(items)),'Maximum collection reordered','2','2'))
     assert reordered[0]['revision']=='3'
+
+def test_native_note_format2_fence_original_v1_receipt_and_actual_baseline(native):
+    """Prepared only until final integration; actual restricted-login/SQL proof."""
+    from passage_references import parse_reference
+    sys.path.insert(0,str(Path(__file__).with_name('fixtures')))
+    from note_links_baseline_loader import load
+    baseline,previous=load()
+    storage,admin_url,runtime,*_=native
+    old=previous.PersonalNotesStorage(runtime)
+    study=create(storage,'Format compatibility')['study_id']
+    original=baseline.parse_command('note.create',json.dumps({'operation_id':str(uuid4()),'value':value('ordinary baseline')}).encode())
+    ack=run(old.execute(IDENTITY,'note.create',original,study,None,deadline()));note=ack['note_id']
+    ordinary=run(old.read(IDENTITY,study,note,deadline()))
+    assert ordinary==run(storage.read(IDENTITY,study,note,deadline()))
+    # An actual baseline writer commits its own no-op replacement at revision1.
+    original_replace=baseline.parse_command('note.replace',json.dumps({'operation_id':str(uuid4()),'expected_revision':'1','value':ordinary['value']}).encode())
+    replacement_ack=run(old.execute(IDENTITY,'note.replace',original_replace,study,note,deadline()))
+    assert replacement_ack['revision']=='1' and run(old.read(IDENTITY,study,note,deadline()))==ordinary
+    v=value('explanation ');v['document']['version']=2
+    v['document']['blocks'][0]['content'].append({'type':'passage_link','reference':parse_reference('Gen 1:31–2:3'),'label':'Genesis 1:31–2:3'})
+    updated=run(storage.execute(IDENTITY,'note.replace',command('note.replace',expected_revision='1',value=v),study,note,deadline()))
+    rich=run(storage.read(IDENTITY,study,note,deadline()))
+    noop=run(storage.execute(IDENTITY,'note.replace',command('note.replace',expected_revision=rich['revision'],value=v),study,note,deadline()))
+    assert noop['revision']==rich['revision'] and run(storage.read(IDENTITY,study,note,deadline()))==rich
+    with pytest.raises(NotesError,match='studies_storage_unavailable'):run(old.read(IDENTITY,study,note,deadline()))
+    # Both actual old/current receipt paths acknowledge the original v1 replacement
+    # at revision1, despite current richer revision2, without replacing that row.
+    with psycopg.connect(admin_url) as connection:
+        rich_row=connection.execute('SELECT * FROM scribeswell_studies.notes WHERE id=%s',(note,)).fetchone()
+        rich_receipts=connection.execute('SELECT count(*) FROM scribeswell_studies.receipts').fetchone()[0]
+    assert run(storage.execute(IDENTITY,'note.replace',parse_command('note.replace',original_replace.model_dump_json().encode()),study,note,deadline()))==replacement_ack
+    assert run(old.execute(IDENTITY,'note.replace',original_replace,study,note,deadline()))==replacement_ack
+    assert run(storage.read(IDENTITY,study,note,deadline()))==rich
+    with psycopg.connect(admin_url) as connection:
+        assert connection.execute('SELECT * FROM scribeswell_studies.notes WHERE id=%s',(note,)).fetchone()==rich_row
+        assert connection.execute('SELECT count(*) FROM scribeswell_studies.receipts').fetchone()[0]==rich_receipts
+    downgrade=command('note.replace',expected_revision=updated['revision'],value=value('legacy overwrite'))
+    with psycopg.connect(admin_url) as connection:
+        before=connection.execute('SELECT * FROM scribeswell_studies.notes WHERE id=%s',(note,)).fetchone()
+        receipt_count=connection.execute('SELECT count(*) FROM scribeswell_studies.receipts').fetchone()[0]
+    with pytest.raises(NotesError,match='note_format_unsupported'):run(storage.execute(IDENTITY,'note.replace',downgrade,study,note,deadline()))
+    with psycopg.connect(admin_url) as connection:
+        assert connection.execute('SELECT * FROM scribeswell_studies.notes WHERE id=%s',(note,)).fetchone()==before
+        assert connection.execute('SELECT count(*) FROM scribeswell_studies.receipts').fetchone()[0]==receipt_count
+    assert run(storage.read(IDENTITY,study,note,deadline()))==rich
+
+    without_link=value('kept format2');without_link['document']['version']=2
+    removed=run(storage.execute(IDENTITY,'note.replace',command('note.replace',expected_revision=rich['revision'],value=without_link),study,note,deadline()))
+    assert run(storage.read(IDENTITY,study,note,deadline()))['value']==without_link
+    with pytest.raises(NotesError,match='note_format_unsupported'):
+        run(storage.execute(IDENTITY,'note.replace',command('note.replace',expected_revision=removed['revision'],value=value()),study,note,deadline()))

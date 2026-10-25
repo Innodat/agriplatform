@@ -260,3 +260,19 @@ def test_final_oracle_checks_both_durable_bindings_and_all_record_actors(tmp_pat
     if change:
         with pytest.raises(AssertionError):run.observe('synthetic-oracle')
     else:run.observe('synthetic-oracle')
+
+@pytest.mark.parametrize('change',[None,'value','revision','delete','extra'])
+def test_note_link_checkpoint_refuses_changes_to_every_non_target_note(change):
+    import copy
+    module=fixture_module()
+    before=[{'id':'target','study_id':'study-a','revision':1,'value':'original'},
+            {'id':'other','study_id':'study-b','revision':7,'value':'unrelated'}]
+    after=copy.deepcopy(before);after[0].update(revision=2,value='rich target')
+    if change=='value':after[1]['value']='unexpected'
+    elif change=='revision':after[1]['revision']=8
+    elif change=='delete':after.pop()
+    elif change=='extra':after.append({'id':'new-other','revision':1,'value':'unexpected'})
+    if change:
+        with pytest.raises(AssertionError,match='another note'):
+            module.assert_non_target_notes_unchanged(before,after,'target')
+    else:module.assert_non_target_notes_unchanged(before,after,'target')

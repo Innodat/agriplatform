@@ -12,7 +12,7 @@ class NotesError(Exception):
         super().__init__(code)
 
 STATUSES = {'scribeswell_personal_notes_input_invalid':400,'authentication_required':401,
-    'studies_access_denied':403,'resource_unavailable':404,'note_revision_conflict':409,'study_revision_conflict':409,'passage_revision_conflict':409,
+    'studies_access_denied':403,'resource_unavailable':404,'note_revision_conflict':409,'note_format_unsupported':409,'study_revision_conflict':409,'passage_revision_conflict':409,
     'operation_payload_mismatch':409,'operation_unresolved':409,'studies_access_unavailable':503,
     'studies_storage_unavailable':503,'request_deadline_exceeded':503}
 

@@ -1,0 +1,14 @@
+{
+  "baseline_commit": "2a383ffcb5c7e75645cf3c2bc1dab0d30ab8f7ae",
+  "files": {
+    "personal_notes_contract.py": {
+      "source": "apps/scribeswell/backend/personal_notes_contract.py",
+      "sha256": "dda4e51146cdfc7116b7a0ca47ae2953203a4723ede5b1e3748356033b250e1e"
+    },
+    "personal_notes_storage.py": {
+      "source": "apps/scribeswell/backend/personal_notes_storage.py",
+      "sha256": "1bd44b865d3957e71d1227a33a23b200f7ca4c22795f272b3cac3968033e7ef8"
+    }
+  },
+  "purpose": "Frozen baseline format1 DTO and actual storage consumer; isolated from widened DTO imports. No deployed-binary claim."
+}

@@ -69,6 +69,20 @@ export type DocumentV1 = {
 };
 
 /**
+ * DocumentV2
+ */
+export type DocumentV2 = {
+    /**
+     * Blocks
+     */
+    blocks: Array<ParagraphV2 | ListBlockV2>;
+    /**
+     * Version
+     */
+    version: number;
+};
+
+/**
  * EnrollStudies
  */
 export type EnrollStudies = {
@@ -116,7 +130,7 @@ export type EnrollmentResult = {
 };
 
 export type ErrorResponse = ({
-    code: 'authentication_required' | 'operation_payload_mismatch' | 'operation_unresolved' | 'request_deadline_exceeded' | 'resource_unavailable' | 'scribeswell_personal_notes_input_invalid' | 'studies_access_denied' | 'studies_access_unavailable' | 'studies_storage_unavailable';
+    code: 'authentication_required' | 'note_format_unsupported' | 'operation_payload_mismatch' | 'operation_unresolved' | 'request_deadline_exceeded' | 'resource_unavailable' | 'scribeswell_personal_notes_input_invalid' | 'studies_access_denied' | 'studies_access_unavailable' | 'studies_storage_unavailable';
 } & Problem) | ({
     code: 'note_revision_conflict' | 'passage_revision_conflict' | 'study_revision_conflict';
 } & RevisionProblem);
@@ -160,6 +174,24 @@ export type ListBlock = {
 };
 
 /**
+ * ListBlockV2
+ */
+export type ListBlockV2 = {
+    /**
+     * Items
+     */
+    items: Array<Array<ParagraphV2>>;
+    /**
+     * Style
+     */
+    style: 'bullet' | 'ordered';
+    /**
+     * Type
+     */
+    type: 'list';
+};
+
+/**
  * NotePage
  */
 export type NotePage = {
@@ -181,7 +213,10 @@ export type NoteValue = {
      * Connections
      */
     connections: Array<unknown>;
-    document: DocumentV1;
+    /**
+     * Document
+     */
+    document: DocumentV1 | DocumentV2;
     /**
      * Highlights
      */
@@ -289,6 +324,24 @@ export type Paragraph = {
 };
 
 /**
+ * ParagraphV2
+ */
+export type ParagraphV2 = {
+    /**
+     * Content
+     */
+    content: Array<TextInline | ExternalLink | PassageLink>;
+    /**
+     * Direction
+     */
+    direction: 'auto' | 'ltr' | 'rtl';
+    /**
+     * Type
+     */
+    type: 'paragraph';
+};
+
+/**
  * PassageItem
  */
 export type PassageItem = {
@@ -297,6 +350,21 @@ export type PassageItem = {
      */
     id: string;
     reference: PassageReference;
+};
+
+/**
+ * PassageLink
+ */
+export type PassageLink = {
+    /**
+     * Label
+     */
+    label: string;
+    reference: PassageReference;
+    /**
+     * Type
+     */
+    type: 'passage_link';
 };
 
 /**
@@ -354,7 +422,7 @@ export type Problem = {
     /**
      * Code
      */
-    code: 'scribeswell_personal_notes_input_invalid' | 'authentication_required' | 'studies_access_denied' | 'studies_access_unavailable' | 'studies_storage_unavailable' | 'resource_unavailable' | 'operation_payload_mismatch' | 'operation_unresolved' | 'request_deadline_exceeded';
+    code: 'scribeswell_personal_notes_input_invalid' | 'authentication_required' | 'studies_access_denied' | 'studies_access_unavailable' | 'studies_storage_unavailable' | 'resource_unavailable' | 'operation_payload_mismatch' | 'operation_unresolved' | 'note_format_unsupported' | 'request_deadline_exceeded';
     /**
      * Details
      */
@@ -607,7 +675,7 @@ export type LookupOperationErrors = {
      * Revision, operation payload or unresolved conflict
      */
     409: ErrorResponse & {
-        code?: 'note_revision_conflict' | 'study_revision_conflict' | 'passage_revision_conflict' | 'operation_payload_mismatch' | 'operation_unresolved';
+        code?: 'note_revision_conflict' | 'study_revision_conflict' | 'passage_revision_conflict' | 'note_format_unsupported' | 'operation_payload_mismatch' | 'operation_unresolved';
     };
     /**
      * Access, storage or deadline unavailable
@@ -667,7 +735,7 @@ export type ListStudiesErrors = {
      * Revision, operation payload or unresolved conflict
      */
     409: ErrorResponse & {
-        code?: 'note_revision_conflict' | 'study_revision_conflict' | 'passage_revision_conflict' | 'operation_payload_mismatch' | 'operation_unresolved';
+        code?: 'note_revision_conflict' | 'study_revision_conflict' | 'passage_revision_conflict' | 'note_format_unsupported' | 'operation_payload_mismatch' | 'operation_unresolved';
     };
     /**
      * Access, storage or deadline unavailable
@@ -724,7 +792,7 @@ export type CreateStudyErrors = {
      * Revision, operation payload or unresolved conflict
      */
     409: ErrorResponse & {
-        code?: 'note_revision_conflict' | 'study_revision_conflict' | 'passage_revision_conflict' | 'operation_payload_mismatch' | 'operation_unresolved';
+        code?: 'note_revision_conflict' | 'study_revision_conflict' | 'passage_revision_conflict' | 'note_format_unsupported' | 'operation_payload_mismatch' | 'operation_unresolved';
     };
     /**
      * Access, storage or deadline unavailable
@@ -781,7 +849,7 @@ export type EnrollStudiesErrors = {
      * Revision, operation payload or unresolved conflict
      */
     409: ErrorResponse & {
-        code?: 'note_revision_conflict' | 'study_revision_conflict' | 'passage_revision_conflict' | 'operation_payload_mismatch' | 'operation_unresolved';
+        code?: 'note_revision_conflict' | 'study_revision_conflict' | 'passage_revision_conflict' | 'note_format_unsupported' | 'operation_payload_mismatch' | 'operation_unresolved';
     };
     /**
      * Access, storage or deadline unavailable
@@ -840,7 +908,7 @@ export type ReadStudyErrors = {
      * Revision, operation payload or unresolved conflict
      */
     409: ErrorResponse & {
-        code?: 'note_revision_conflict' | 'study_revision_conflict' | 'passage_revision_conflict' | 'operation_payload_mismatch' | 'operation_unresolved';
+        code?: 'note_revision_conflict' | 'study_revision_conflict' | 'passage_revision_conflict' | 'note_format_unsupported' | 'operation_payload_mismatch' | 'operation_unresolved';
     };
     /**
      * Access, storage or deadline unavailable
@@ -902,7 +970,7 @@ export type ListNotesErrors = {
      * Revision, operation payload or unresolved conflict
      */
     409: ErrorResponse & {
-        code?: 'note_revision_conflict' | 'study_revision_conflict' | 'passage_revision_conflict' | 'operation_payload_mismatch' | 'operation_unresolved';
+        code?: 'note_revision_conflict' | 'study_revision_conflict' | 'passage_revision_conflict' | 'note_format_unsupported' | 'operation_payload_mismatch' | 'operation_unresolved';
     };
     /**
      * Access, storage or deadline unavailable
@@ -961,7 +1029,7 @@ export type CreateNoteErrors = {
      * Revision, operation payload or unresolved conflict
      */
     409: ErrorResponse & {
-        code?: 'note_revision_conflict' | 'study_revision_conflict' | 'passage_revision_conflict' | 'operation_payload_mismatch' | 'operation_unresolved';
+        code?: 'note_revision_conflict' | 'study_revision_conflict' | 'passage_revision_conflict' | 'note_format_unsupported' | 'operation_payload_mismatch' | 'operation_unresolved';
     };
     /**
      * Access, storage or deadline unavailable
@@ -1021,7 +1089,7 @@ export type ReadNoteErrors = {
      * Revision, operation payload or unresolved conflict
      */
     409: ErrorResponse & {
-        code?: 'note_revision_conflict' | 'study_revision_conflict' | 'passage_revision_conflict' | 'operation_payload_mismatch' | 'operation_unresolved';
+        code?: 'note_revision_conflict' | 'study_revision_conflict' | 'passage_revision_conflict' | 'note_format_unsupported' | 'operation_payload_mismatch' | 'operation_unresolved';
     };
     /**
      * Access, storage or deadline unavailable
@@ -1081,7 +1149,7 @@ export type ReplaceNoteErrors = {
      * Revision, operation payload or unresolved conflict
      */
     409: ErrorResponse & {
-        code?: 'note_revision_conflict' | 'study_revision_conflict' | 'passage_revision_conflict' | 'operation_payload_mismatch' | 'operation_unresolved';
+        code?: 'note_revision_conflict' | 'study_revision_conflict' | 'passage_revision_conflict' | 'note_format_unsupported' | 'operation_payload_mismatch' | 'operation_unresolved';
     };
     /**
      * Access, storage or deadline unavailable
@@ -1140,7 +1208,7 @@ export type ReadPassagesErrors = {
      * Revision, operation payload or unresolved conflict
      */
     409: ErrorResponse & {
-        code?: 'note_revision_conflict' | 'study_revision_conflict' | 'passage_revision_conflict' | 'operation_payload_mismatch' | 'operation_unresolved';
+        code?: 'note_revision_conflict' | 'study_revision_conflict' | 'passage_revision_conflict' | 'note_format_unsupported' | 'operation_payload_mismatch' | 'operation_unresolved';
     };
     /**
      * Access, storage or deadline unavailable
@@ -1199,7 +1267,7 @@ export type ReplacePassagesErrors = {
      * Revision, operation payload or unresolved conflict
      */
     409: ErrorResponse & {
-        code?: 'note_revision_conflict' | 'study_revision_conflict' | 'passage_revision_conflict' | 'operation_payload_mismatch' | 'operation_unresolved';
+        code?: 'note_revision_conflict' | 'study_revision_conflict' | 'passage_revision_conflict' | 'note_format_unsupported' | 'operation_payload_mismatch' | 'operation_unresolved';
     };
     /**
      * Access, storage or deadline unavailable
@@ -1258,7 +1326,7 @@ export type RenameStudyErrors = {
      * Revision, operation payload or unresolved conflict
      */
     409: ErrorResponse & {
-        code?: 'note_revision_conflict' | 'study_revision_conflict' | 'passage_revision_conflict' | 'operation_payload_mismatch' | 'operation_unresolved';
+        code?: 'note_revision_conflict' | 'study_revision_conflict' | 'passage_revision_conflict' | 'note_format_unsupported' | 'operation_payload_mismatch' | 'operation_unresolved';
     };
     /**
      * Access, storage or deadline unavailable

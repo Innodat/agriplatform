@@ -2,7 +2,7 @@
 
 This app-owned contract supports the first create/write/reopen and ordinary study-title rename milestones. **Implemented:** strict DTOs, generated OpenAPI/TypeScript, bounded same-origin private API, explicit Access enrollment/check adapters, app-owned PostgreSQL persistence and receipt recovery, controlled private Alembic history, and Studies/Analysis note editing with autosave. **Activation remains disabled in production.** The runtime is an explicit development/test opt-in pending coordinated startup/release qualification; public reading and standalone signup remain independent. Native SQL/browser proof and actual owner HTTP/domain integration are recorded below; synthetic Access responses alone do not establish live Identity/Access authorization.
 
-The canonical Studies SPEC, UX and accepted platform ADRs retain authority. This milestone is ordinary owner-only studies and notes. Sharing, private responses, introduction/source metadata editing, passage lists, deliberate passage links, highlights, conflict copies, deletion and search retain their agreed requirements for later consuming slices. No product requirement is removed. This is partial D2 contract readiness, not D1–D5 closure.
+The canonical Studies SPEC, UX and accepted platform ADRs retain authority. This milestone is ordinary owner-only studies and notes. Sharing, private responses, introduction/source metadata editing, highlights, conflict copies, deletion and search retain their agreed requirements for later consuming slices. No product requirement is removed. This is partial D2 contract readiness, not D1–D5 closure.
 
 ## Wire source and generation
 
@@ -43,7 +43,7 @@ Lists use `(created_at DESC, id DESC)` keyset order, default 20/max 50, after ow
 
 Every command requires all three fields: `document`, `connections`, `highlights`. This version accepts only **empty** connections/highlights arrays and ordinary `visibility: study` read models. Unknown fields and unsupported nodes are errors, never stripped. Do not let this restricted writer edit a richer saved value: richer nodes/relationships require a new compatible version/adoption strategy before activation, with old clients refused rather than allowed to erase unsupported content.
 
-Document version is integer 1 (not boolean/float). Blocks are paragraphs or ordered/bullet lists. Paragraphs have explicit auto/ltr/rtl direction and text/external-link inlines. Lists contain nonempty groups of paragraphs, with no nested lists. Text preserves Unicode and combining marks exactly; scalar UTF-8 only. Bold/italic marks are unique and canonically ordered bold then italic. External links contain text nodes only. No HTML, CSS, event attributes, image nodes, nested links or passage links. Render with text nodes, never HTML injection; open external links safely with `noopener noreferrer`. The URL validator permits only absolute HTTP(S), valid host/port, no credentials, whitespace, Unicode Cc controls, backslash or malformed/unsafe percent escapes. Numeric browser hosts must be canonical IPv4; IPv6 must be unscoped. Generated schemas encode representable constraints and property descriptions identify additional semantic checks; JSON Schema alone cannot prove transport framing, Unicode scalar/byte budgets, calendar chronology or browser host/port semantics. Never fetch links server-side.
+Document version is integer 1 (not boolean/float). Blocks are paragraphs or ordered/bullet lists. Paragraphs have explicit auto/ltr/rtl direction and text/external-link inlines. Lists contain nonempty groups of paragraphs, with no nested lists. Text preserves Unicode and combining marks exactly; scalar UTF-8 only. Bold/italic marks are unique and canonically ordered bold then italic. External links contain text nodes only. No HTML, CSS, event attributes, image nodes, nested links or passage links in format1. The separately adopted format2 below adds a closed atomic passage link. Render with text nodes, never HTML injection; open external links safely with `noopener noreferrer`. The URL validator permits only absolute HTTP(S), valid host/port, no credentials, whitespace, Unicode Cc controls, backslash or malformed/unsafe percent escapes. Numeric browser hosts must be canonical IPv4; IPv6 must be unscoped. Generated schemas encode representable constraints and property descriptions identify additional semantic checks; JSON Schema alone cannot prove transport framing, Unicode scalar/byte budgets, calendar chronology or browser host/port semantics. Never fetch links server-side.
 
 | Bound | Value |
 | --- | --- |
@@ -66,7 +66,7 @@ The closed error DTOs carry `error: "Request could not be completed"`, a stable 
 | 401 | `authentication_required` |
 | 403 | `studies_access_denied` |
 | 404 | `resource_unavailable` |
-| 409 | `note_revision_conflict`, `operation_payload_mismatch`, `operation_unresolved` |
+| 409 | `note_revision_conflict`, `note_format_unsupported`, `operation_payload_mismatch`, `operation_unresolved` |
 | 503 | `studies_access_unavailable`, `studies_storage_unavailable`, `request_deadline_exceeded` |
 
 Storage failures use `operation_unresolved`/409 if commit outcome is uncertain, `studies_storage_unavailable`/503 for definite non-deadline failure, or `request_deadline_exceeded`/503 only when the deadline actually expired. The generated error union defines possible bodies; the private adapter enforces this status mapping and safe cache headers on success/exception/streaming paths. No private framework-default 422 input echoes.
@@ -270,3 +270,35 @@ activation or deployment has run for this extension. Native migration/RLS/permis
 previous-consumer, race and actual-owner UI/SQL proof are prepared and explicitly
 pending the final integration phase under direction266. Earlier note/title native
 and owner evidence remains historical evidence for those earlier source versions.
+
+
+## Passage links inside notes — component delivery, final integration pending
+
+[The adopted note reference contract](NOTE_REFERENCES_V1.md) extends only the
+complete note document grammar: ordinary DocumentV1 remains unchanged, while
+DocumentV2 permits exact `{type:'passage_link',reference,label}` in paragraph/list
+inlines. References use the pinned inventory; stored scalar plain labels are
+preserved. Explicit insertion generates the canonical English label and upgrades
+that note to2. Removing its last link retains2. Existing node/text budgets count
+labels and reference models; note commands keep65,536-byte/depth/node limits.
+Connections/highlights remain empty. No quote, collection entry or highlight follows.
+
+After current lifecycle/revision checks under the existing parent→note locks,
+format2→format1 replacement refuses with409 `note_format_unsupported`, null details
+and the existing safe/no-store envelope before mutation or receipt. An already
+committed original format1 operation may acknowledge its historical receipt after
+current authority/lifecycle checks without replacing richer current content.
+Command versions, fingerprints, acknowledgements and ordinary format1 writes stay
+compatible. This requires coordinated read-aware prior-server/browser adoption
+before activation; an actual old-format refusal is safe failure, not seamless
+previous-version compatibility. No richer production writes are activated.
+
+The existing Notes tab uses one DOM/save lane for Read note / Edit note. Editing a
+link offers explicit Open passage; reading activates it directly through the active
+reader controller with the full range. Input, other reader panes and the current
+note remain. Format refusal pauses saving, retains input and says Reload to continue
+editing. Existing conflict and exit safeguards apply. The
+[note reference evidence](NOTE_REFERENCES_EVIDENCE.md) separates executed component
+and DTO/method checks from prepared-only native and actual-owner UI/SQL proof.
+No SQL migration, shared UI/scaffold promotion or accepted ADR/context change is
+needed; production, provider, physical-device and broader Studies gates remain.

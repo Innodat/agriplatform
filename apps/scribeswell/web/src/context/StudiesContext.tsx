@@ -5,7 +5,7 @@ import {api,execute,NotesFailure,uuid,type NoteValue,type NoteView,type StudyVie
 import {referenceKey,validateReference,type PassageReference} from '@/lib/passage-references';
 type PassageIntent={kind:'add';reference:PassageReference}|{kind:'remove';id:string;reference:PassageReference};
 type CollectionLane={study:string;list?:PassageList;intent?:PassageIntent;attempt?:Attempt;confirmed?:OperationAck;running?:Promise<void>;status:'loading'|'ready'|'saving'|'failed'|'conflict'|'reviewed';message:string;read:number};
-export type Lane={note:NoteView;value:NoteValue;generation:number;saved:number;status:'saved'|'pending'|'saving'|'failed'|'conflict';attempt?:Attempt;running?:Promise<void>;timer?:ReturnType<typeof setTimeout>;first?:number;composing:boolean;invalid:boolean};
+export type Lane={note:NoteView;value:NoteValue;generation:number;saved:number;status:'saved'|'pending'|'saving'|'failed'|'conflict';attempt?:Attempt;running?:Promise<void>;timer?:ReturnType<typeof setTimeout>;first?:number;composing:boolean;invalid:boolean;formatUnsupported?:boolean};
 type TitleEdit={study:string;candidate:string;base:string;open:boolean;status:'editing'|'saving'|'failed'|'conflict';message:string;confirmed?:OperationAck;attempt?:Attempt;running?:Promise<void>};
 type Tool='studies'|'analysis'|null;
 function useStatefulStudies(){
@@ -46,13 +46,13 @@ function useStatefulStudies(){
   const attempt=lane.attempt;lane.status='saving';update();
   lane.running=(async()=>{
    try{const result=await execute(token,attempt);if(!valid(captured))return;lane.note={...lane.note,revision:result.revision,value:attempt.payload.value as NoteValue};lane.saved=attempt.generation;setNotes(old=>old.map(note=>note.id===lane.note.id?lane.note:note));lane.attempt=undefined;lane.status=lane.saved===lane.generation?'saved':'pending';}
-   catch(e){if(!valid(captured))return;const code=e instanceof NotesFailure?e.code:'';lane.status=['note_revision_conflict','operation_payload_mismatch','resource_unavailable'].includes(code)?'conflict':'failed';if(code==='scribeswell_personal_notes_input_invalid')lane.attempt=undefined;if(['authentication_required','studies_access_denied'].includes(code))fail(e);}
+   catch(e){if(!valid(captured))return;const code=e instanceof NotesFailure?e.code:'';lane.status=['note_revision_conflict','note_format_unsupported','operation_payload_mismatch','resource_unavailable'].includes(code)?'conflict':'failed';if(code==='note_format_unsupported')lane.formatUnsupported=true;if(code==='scribeswell_personal_notes_input_invalid')lane.attempt=undefined;if(['authentication_required','studies_access_denied'].includes(code))fail(e);}
    finally{lane.running=undefined;if(valid(captured)){update();if(lane.status==='pending')schedule(lane);}}
   })();return lane.running;
  }
  function schedule(lane:Lane){clearTimeout(lane.timer);if(lane.composing||lane.running||lane.status==='failed'||lane.status==='conflict')return;const now=Date.now();lane.first??=now;lane.timer=setTimeout(()=>void flush(lane),Math.min(500,Math.max(0,2000-(now-lane.first))));}
  function change(value:NoteValue){const lane=current?lanes.current.get(current):undefined;if(!lane)return;lane.value=value;lane.invalid=false;lane.generation++;if(lane.status!=='failed'&&lane.status!=='conflict')lane.status='pending';update();schedule(lane);}
- function composition(active:boolean){const lane=current?lanes.current.get(current):undefined;if(lane){lane.composing=active;if(active)clearTimeout(lane.timer);else schedule(lane);}}
+ function composition(active:boolean){const lane=current?lanes.current.get(current):undefined;if(lane){lane.composing=active;if(active)clearTimeout(lane.timer);else schedule(lane);update();}}
  async function exit(action:()=>void|Promise<void>,switching=false){const captured=epoch.current;const lane=current?lanes.current.get(current):undefined;if(lane){const end=Date.now()+5000;while(lane.generation!==lane.saved&&!lane.invalid&&!lane.composing&&lane.status!=='failed'&&lane.status!=='conflict'&&Date.now()<end){await Promise.race([flush(lane),new Promise<void>(resolve=>setTimeout(resolve,Math.max(1,end-Date.now())))]);if(!valid(captured))return;}if(!valid(captured))return;if(lane.composing||lane.invalid||lane.generation!==lane.saved){setExitPrompt({action,switching,discard:switching&&lane.status==='conflict'?lane:undefined});return;}}await action();}
  async function openStudy(id:string){
   if(!token)return;const requestNavigation=++navigation.current;

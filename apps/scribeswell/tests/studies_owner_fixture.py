@@ -83,6 +83,9 @@ def protected_state(connection):
 def unchanged_state(before,after):
     if before!=after:raise AssertionError('Denied operation changed protected business state')
 
+def assert_non_target_notes_unchanged(before,after,note_id):
+    assert [row for row in before if row['id']!=note_id]==[row for row in after if row['id']!=note_id],'Note link changed another note'
+
 def empty_protected_state(state):
     if any(state[name] for name in PROTECTED_TABLES if name not in ('identity.users','identity.actor')):
         raise AssertionError('Protected effects exist before explicit enrollment')
@@ -295,7 +298,7 @@ class Qualification:
             assert row['account_id']==owner and row['created_by']==row['updated_by']==bindings[owner]
             assert row['created_at'] and row['updated_at']>=row['created_at'] and row['revision']>0
         receipts=state['scribeswell_studies.receipts']
-        assert sorted(row['command'] for row in receipts)==sorted(['note.create','note.replace','study.create','study.create']+(['study.rename'] if 'rename_operation' in expected else [])+['study.passages.replace']*len(expected.get('passage_operations',[])))
+        assert sorted(row['command'] for row in receipts)==sorted(['note.create','note.replace','study.create','study.create']+(['study.rename'] if 'rename_operation' in expected else [])+['study.passages.replace']*len(expected.get('passage_operations',[]))+(['note.replace'] if 'note_link_operation' in expected else []))
         if 'rename_operation' in expected:
             renamed=next(row for row in studies if row['id']==expected['study'])
             assert renamed['title']==expected['rename_title'] and renamed['revision']==2
@@ -341,7 +344,7 @@ class Qualification:
 
     def browser(self):
         def checkpoints(process):
-            for name in ('pre-enrollment','rename-before','rename-after','passages-before','passages-after','foreign-before','foreign-after'):
+            for name in ('pre-enrollment','rename-before','rename-after','passages-before','passages-after','note-links-before','note-links-after','foreign-before','foreign-after'):
                 limit=time.monotonic()+60
                 while not (self.proof/(name+'-check.json')).exists():
                     if process.poll() is not None or time.monotonic()>=limit:raise RuntimeError('qualification_checkpoint_missing:'+name)
@@ -379,6 +382,22 @@ class Qualification:
                     receipts=[row for row in after['scribeswell_studies.receipts'] if row['command']=='study.passages.replace']
                     assert {row['operation_id'] for row in receipts}==set(expected['operations']) and len(receipts)==3
                     assert all(row['created_by']==headers[0]['updated_by'] and row['outcome']['note_id'] is None for row in receipts)
+                elif name=='note-links-before':self.snapshot('before-note-links')
+                elif name=='note-links-after':
+                    before=self.protected_snapshots['before-note-links'];after=self.snapshot('after-note-links')
+                    expected=json.loads((self.proof/'note-links-result.json').read_text())
+                    for table in ('scribeswell_studies.studies','scribeswell_studies.passage_lists','scribeswell_studies.passage_entries'):
+                        assert before[table]==after[table],'Note link changed independent resource'
+                    assert_non_target_notes_unchanged(before['scribeswell_studies.notes'],after['scribeswell_studies.notes'],expected['note'])
+                    old=next(row for row in before['scribeswell_studies.notes'] if row['id']==expected['note'])
+                    new=next(row for row in after['scribeswell_studies.notes'] if row['id']==expected['note'])
+                    assert new['value']==expected['value'] and new['value']['document']['version']==2
+                    assert new['revision']==old['revision']+1 and new['updated_at']>old['updated_at']
+                    assert new['created_at']==old['created_at'] and new['created_by']==old['created_by']==new['updated_by']
+                    previous=before['scribeswell_studies.receipts'];current=after['scribeswell_studies.receipts']
+                    added=[row for row in current if row not in previous]
+                    assert len(current)==len(previous)+1 and len(added)==1
+                    assert added[0]['command']=='note.replace' and added[0]['operation_id']==expected['operation']
                 elif name=='foreign-before':self.snapshot('before-foreign-denial')
                 else:self.snapshot('after-foreign-denial',previous='before-foreign-denial')
                 private(self.proof/(name+'-observed.json'),{'independent_sql':True})
