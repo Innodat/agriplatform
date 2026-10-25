@@ -1,0 +1,7 @@
+{
+  "generator": "tools/py/build_reference_catalogue.py",
+  "files": [
+    "data/reference-catalogue/catalogue.json",
+    "web/src/generated/reference-catalogue.json"
+  ]
+}

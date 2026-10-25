@@ -1,6 +1,8 @@
 import { useBook } from "./useBible";
 import type { BookResponse, BookWithChaptersResponse } from "@/schemas/bible.schema";
 
+import {referenceBook,referenceBooks} from '@/lib/passage-references';
+
 type Target = { book: string; chapter: number };
 function chapters(data: BookWithChaptersResponse | null) {
   return data ? [...data.chapters].sort((a, b) => a.chapter_num - b.chapter_num) : [];
@@ -8,7 +10,8 @@ function chapters(data: BookWithChaptersResponse | null) {
 
 /** Follow the existing catalogue order and actual chapter lists, never counts. */
 export function useChapterNavigation(books: BookResponse[], book: string, chapter: number) {
-  const current = useBook(book);
+  const declared=referenceBook(book),referenceOnly=declared?.text_support==='reference_only';
+  const current = useBook(referenceOnly?null:book);
   // useBook can retain the prior response until its effect starts. Do not use
   // it for a different reference, even during that first render.
   const currentChapters = chapters(!current.loading && current.data?.osis_id === book ? current.data : null);
@@ -28,6 +31,11 @@ export function useChapterNavigation(books: BookResponse[], book: string, chapte
   if (chapterIndex >= 0 && chapterIndex < currentChapters.length - 1) next = { book, chapter: currentChapters[chapterIndex + 1].chapter_num };
   else if (followingBook && followingChapters.length) next = { book: followingBook.osis_id, chapter: followingChapters[0].chapter_num };
 
+  if(referenceOnly&&declared){
+    const index=referenceBooks.findIndex(item=>item.book_id===book),prior=referenceBooks[index-1],following=referenceBooks[index+1];
+    previous=chapter>1?{book,chapter:chapter-1}:prior?{book:prior.book_id,chapter:prior.chapter_verse_counts.length}:null;
+    next=chapter<declared.chapter_verse_counts.length?{book,chapter:chapter+1}:following?{book:following.book_id,chapter:1}:null;
+  }
   const failures = [current, ...(priorBook ? [prior] : []), ...(followingBook ? [following] : [])].filter(result => result.error);
   return { previous, next, error: failures.length > 0, retry: () => failures.forEach(result => result.refetch()) };
 }

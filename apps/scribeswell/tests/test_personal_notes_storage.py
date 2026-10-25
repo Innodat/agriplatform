@@ -76,6 +76,7 @@ def native():
             shutil.copytree(APP/'studies-migrations',target/'history')
             shutil.copytree(APP/'studies-database-tools',target/'studies-database-tools')
             (target/'history/versions/0002_study_rename.py').unlink()
+            (target/'history/versions/0003_collected_passages.py').unlink()
             old_config=Config();old_config.set_main_option('script_location',str(target/'history'))
             alembic.upgrade(old_config,'head')
         import importlib.util
@@ -98,6 +99,21 @@ def native():
                 assert admin.execute('SELECT version_num FROM scribeswell_studies.alembic_version').fetchone()[0]=='scribeswell_studies_0001'
                 checks=admin.execute("SELECT pg_get_constraintdef(oid) FROM pg_constraint WHERE conrelid='scribeswell_studies.receipts'::regclass AND contype='c'").fetchall()
                 assert all('study.rename' not in definition for (definition,) in checks)
+            assert run(old_storage.read(IDENTITY,old_study,old_note['note_id'],deadline()))==old_before
+        # Freeze the immediate previous0002 consumer before testing additive0003 failure.
+        with tempfile.TemporaryDirectory(prefix='scribeswell-previous-rename-history-') as directory:
+            target=Path(directory);shutil.copytree(APP/'studies-migrations',target/'history');shutil.copytree(APP/'studies-database-tools',target/'studies-database-tools')
+            (target/'history/versions/0003_collected_passages.py').unlink()
+            cfg=Config();cfg.set_main_option('script_location',str(target/'history'));alembic.upgrade(cfg,'head')
+        with tempfile.TemporaryDirectory(prefix='scribeswell-passages-failure-') as directory:
+            target=Path(directory);shutil.copytree(APP/'studies-migrations',target/'history');shutil.copytree(APP/'studies-database-tools',target/'studies-database-tools')
+            migration=target/'history/versions/0003_collected_passages.py'
+            migration.write_text(migration.read_text().replace('\ndef downgrade():', "\n    raise RuntimeError('synthetic failure after collection DDL')\n\ndef downgrade():"))
+            cfg=Config();cfg.set_main_option('script_location',str(target/'history'))
+            with pytest.raises(Exception,match='scribeswell_studies_migration_failed'):alembic.upgrade(cfg,'head')
+            with psycopg.connect(admin_url) as admin:
+                assert admin.execute('SELECT version_num FROM scribeswell_studies.alembic_version').fetchone()[0]=='scribeswell_studies_0002'
+                assert admin.execute("SELECT to_regclass('scribeswell_studies.passage_lists'),to_regclass('scribeswell_studies.passage_entries')").fetchone()==(None,None)
             assert run(old_storage.read(IDENTITY,old_study,old_note['note_id'],deadline()))==old_before
         alembic.upgrade(Config(str(APP/'studies-alembic.ini')),'head')
         assert run(old_storage.read(IDENTITY,old_study,old_note['note_id'],deadline()))==old_before
@@ -215,13 +231,13 @@ def test_native_migration_failure_rollback_retry_and_owner_force_rls(native):
         shutil.copytree(APP/'studies-database-tools',target/'studies-database-tools')
         env=(target/'history/env.py').read_text().replace("parents[1]/'studies-database-tools'","parents[1]/'studies-database-tools'")
         (target/'history/env.py').write_text(env)
-        failure=target/'history/versions/0003_failure.py'
-        failure.write_text("from alembic import op\nrevision='fixture_0003'\ndown_revision='scribeswell_studies_0002'\ndef upgrade():\n op.execute('CREATE TABLE scribeswell_studies.failure_probe(id int)')\n raise RuntimeError('synthetic failure')\n")
+        failure=target/'history/versions/0004_failure.py'
+        failure.write_text("from alembic import op\nrevision='fixture_0004'\ndown_revision='scribeswell_studies_0003'\ndef upgrade():\n op.execute('CREATE TABLE scribeswell_studies.failure_probe(id int)')\n raise RuntimeError('synthetic failure')\n")
         cfg=Config();cfg.set_main_option('script_location',str(target/'history'))
         with pytest.raises(Exception,match='scribeswell_studies_migration_failed'):alembic.upgrade(cfg,'head')
         with psycopg.connect(admin_url) as admin:
             assert admin.execute("SELECT to_regclass('scribeswell_studies.failure_probe')").fetchone()[0] is None
-            assert admin.execute('SELECT version_num FROM scribeswell_studies.alembic_version').fetchone()[0]=='scribeswell_studies_0002'
+            assert admin.execute('SELECT version_num FROM scribeswell_studies.alembic_version').fetchone()[0]=='scribeswell_studies_0003'
         failure.write_text(failure.read_text().replace(" raise RuntimeError('synthetic failure')",''))
         alembic.upgrade(cfg,'head');alembic.upgrade(cfg,'head')
         assert run(storage.read(IDENTITY,study,saved['note_id'],deadline()))==before
@@ -383,3 +399,127 @@ def test_unknown_alembic_history_refuses_without_reversing_acknowledged_data(nat
         alembic.upgrade(Config(str(APP/'studies-alembic.ini')),'head')
     assert run(storage.read(IDENTITY,study,None,deadline()))['title']=='Retained before unknown history'
     with psycopg.connect(admin_url) as c:assert c.execute('SELECT version_num FROM scribeswell_studies.alembic_version').fetchone()[0]=='unknown_fixture_revision'
+
+# Prepared for the deferred final native integration phase; collection-only proof below.
+def passage_items(*texts):
+    from passage_references import parse_reference
+    return [{'id':str(uuid4()),'reference':parse_reference(text)} for text in texts]
+
+def replace_passages(storage,study,items,revision='1',payload=None,identity=IDENTITY):
+    return run(storage.execute(identity,'study.passages.replace',payload or command('study.passages.replace',expected_revision=revision,items=items),study,None,deadline()))
+
+def test_native_collected_passages_noop_replay_independent_attribution_and_identity(native):
+    storage,admin_url,_,_=native
+    study=create(storage,'Collection title')['study_id']
+    note=run(storage.execute(IDENTITY,'note.create',command('note.create',value=value('must survive collection')),study,None,deadline()))
+    before_study=run(storage.read(IDENTITY,study,None,deadline()));before_note=run(storage.read(IDENTITY,study,note['note_id'],deadline()))
+    assert run(storage.passages(IDENTITY,study,deadline()))=={'study_id':study,'revision':'1','items':[]}
+    empty=replace_passages(storage,study,[]);assert empty['revision']=='1'
+    with psycopg.connect(admin_url) as c:assert c.execute('SELECT count(*) FROM scribeswell_studies.passage_lists WHERE study_id=%s',(study,)).fetchone()[0]==0
+    items=passage_items('Gen1','Ps110:1','Ps110:1–3','Gen1:31–2:3','Matt26:63–64')
+    payload=command('study.passages.replace',expected_revision='1',items=items)
+    ack=replace_passages(storage,study,items,payload=payload);assert ack['revision']=='2'
+    assert run(storage.passages(IDENTITY,study,deadline()))=={'study_id':study,'revision':'2','items':items}
+    with psycopg.connect(admin_url) as c:
+        header=c.execute('SELECT * FROM scribeswell_studies.passage_lists WHERE study_id=%s',(study,)).fetchone()
+        rows=c.execute('SELECT * FROM scribeswell_studies.passage_entries WHERE study_id=%s ORDER BY position',(study,)).fetchall()
+    assert replace_passages(storage,study,items,revision='2')['revision']=='2'
+    with psycopg.connect(admin_url) as c:
+        assert c.execute('SELECT * FROM scribeswell_studies.passage_lists WHERE study_id=%s',(study,)).fetchone()==header
+        assert c.execute('SELECT * FROM scribeswell_studies.passage_entries WHERE study_id=%s ORDER BY position',(study,)).fetchall()==rows
+    assert replace_passages(storage,study,items,payload=payload)==ack
+    assert run(storage.lookup(IDENTITY,payload.operation_id,'study.passages.replace',deadline()))=={'status':'committed','outcome':ack}
+    with pytest.raises(NotesError,match='passage_revision_conflict'):replace_passages(storage,study,items[1:])
+    altered=payload.model_copy(update={'expected_revision':'2'})
+    with pytest.raises(NotesError,match='operation_payload_mismatch'):replace_passages(storage,study,items,payload=altered)
+    forged=[{**items[0],'reference':items[1]['reference']}]
+    with pytest.raises(NotesError,match='input_invalid'):replace_passages(storage,study,forged,revision='2')
+    rebound=[{**items[0],'id':str(uuid4())},*items[1:]]
+    with pytest.raises(NotesError,match='input_invalid'):replace_passages(storage,study,rebound,revision='2')
+    removed=replace_passages(storage,study,items[1:],revision='2');assert removed['revision']=='3'
+    assert replace_passages(storage,study,items,payload=payload)==ack
+    assert run(storage.passages(IDENTITY,study,deadline()))['items']==items[1:] # replay cannot resurrect
+    assert run(storage.read(IDENTITY,study,None,deadline()))==before_study
+    assert run(storage.read(IDENTITY,study,note['note_id'],deadline()))==before_note
+    other={'account_id':B,'actor_id':ACTOR}
+    with pytest.raises(NotesError,match='resource_unavailable'):run(storage.passages(other,study,deadline()))
+    with pytest.raises(NotesError,match='resource_unavailable'):replace_passages(storage,study,[],identity=other)
+    assert run(storage.lookup(other,payload.operation_id,'study.passages.replace',deadline()))=={'status':'unresolved'}
+    with psycopg.connect(admin_url) as c:c.execute('UPDATE scribeswell_studies.studies SET active=false WHERE id=%s',(study,))
+    with pytest.raises(NotesError,match='resource_unavailable'):replace_passages(storage,study,items,payload=payload)
+    with pytest.raises(NotesError,match='resource_unavailable'):run(storage.lookup(IDENTITY,payload.operation_id,'study.passages.replace',deadline()))
+
+def test_native_collected_passages_concurrency_permissions_and_overflow(native):
+    storage,admin_url,runtime,_=native;study=create(storage,'Collection race')['study_id']
+    payload=command('study.passages.replace',expected_revision='1',items=passage_items('Gen1'))
+    async def same():
+        outcomes=await asyncio.gather(*(storage.execute(IDENTITY,'study.passages.replace',payload,study,None,deadline()) for _ in range(3)))
+        assert all(ack==outcomes[0] for ack in outcomes)
+        race=await asyncio.gather(*(storage.execute(IDENTITY,'study.passages.replace',command('study.passages.replace',expected_revision='2',items=passage_items(text)),study,None,deadline()) for text in ('Ps110','Gen2')),return_exceptions=True)
+        assert sum(isinstance(result,NotesError) and result.code=='passage_revision_conflict' for result in race)==1
+        assert sum(isinstance(result,dict) and result['revision']=='3' for result in race)==1
+    run(same())
+    with psycopg.connect(runtime) as c:
+        assert c.execute('SELECT count(*) FROM scribeswell_studies.passage_lists').fetchone()[0]==0
+        assert c.execute('SELECT count(*) FROM scribeswell_studies.passage_entries').fetchone()[0]==0
+    for statement in ('DELETE FROM scribeswell_studies.passage_lists','UPDATE scribeswell_studies.passage_entries SET book_id=book_id','UPDATE scribeswell_studies.passage_lists SET created_by=created_by'):
+        with psycopg.connect(runtime) as c:
+            c.execute("SELECT set_config('app.account_id',%s,true)",(A,))
+            with pytest.raises(psycopg.errors.InsufficientPrivilege):c.execute(statement)
+    for role in ('anon','authenticated','service_role','scribeswell_runtime'):
+        url=make_url(runtime).set(username=role,password='synthetic-only').render_as_string(hide_password=False)
+        for table in ('passage_lists','passage_entries'):
+            with psycopg.connect(url) as c:
+                with pytest.raises(psycopg.errors.InsufficientPrivilege):c.execute('SELECT * FROM scribeswell_studies.'+table)
+    with psycopg.connect(runtime) as c:
+        c.execute("SELECT set_config('app.account_id',%s,true)",(B,))
+        assert c.execute('DELETE FROM scribeswell_studies.passage_entries WHERE study_id=%s RETURNING id',(study,)).fetchall()==[]
+    with psycopg.connect(admin_url) as c:c.execute('UPDATE scribeswell_studies.passage_lists SET revision=9223372036854775807 WHERE study_id=%s',(study,))
+    with pytest.raises(NotesError,match='resource_unavailable'):replace_passages(storage,study,[],revision='9223372036854775807')
+    assert run(storage.passages(IDENTITY,study,deadline()))['revision']=='9223372036854775807'
+
+def test_native_collected_passages_structural_constraints(native):
+    storage,_,runtime,_=native;study=create(storage,'Collection constraint')['study_id']
+    replace_passages(storage,study,passage_items('Gen1'))
+    sql_insert='INSERT INTO scribeswell_studies.passage_entries(account_id,study_id,id,position,catalogue_id,catalogue_version,versification_id,book_id,kind,start_chapter,start_verse,end_chapter,end_verse,created_by) VALUES(%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)'
+    from passage_references import CATALOGUE_VERSION
+    base=[A,study,str(uuid4()),2,'scribeswell.references.v1',CATALOGUE_VERSION,'oshb-hebrew-json-c2d8e9e5','Gen','verse_range',1,1,1,2,ACTOR]
+    for changes in ({3:0},{9:0},{10:0},{12:0},{11:None},{9:2,11:1},{8:'chapter'},{0:B}):
+        values=base[:]
+        for key,val in changes.items():values[key]=val
+        with psycopg.connect(runtime) as c:
+            c.execute("SELECT set_config('app.account_id',%s,true)",(A,))
+            with pytest.raises((psycopg.errors.CheckViolation,psycopg.errors.InsufficientPrivilege)):c.execute(sql_insert,values)
+    # Same canonical chapter under another ID is rejected by the database, not just the DTO.
+    duplicate=base[:];duplicate[8:13]=['chapter',1,None,None,None]
+    with psycopg.connect(runtime) as c:
+        c.execute("SELECT set_config('app.account_id',%s,true)",(A,))
+        with pytest.raises(psycopg.errors.UniqueViolation):c.execute(sql_insert,duplicate)
+
+def test_native_maximum_collection_replace_reorder_with_competing_note_and_title_deadlines(native):
+    """Prepared only: measure actual200-row writes before considering optimization."""
+    storage,*_=native
+    from passage_references import parse_reference,BOOKS
+    study=create(storage,'Maximum collection deadline')['study_id']
+    note=run(storage.execute(IDENTITY,'note.create',command('note.create',value=value('before maximum list')),study,None,deadline()))
+    references=[parse_reference(f'Gen 1:1–{chapter}:{verse}') for chapter,count in enumerate(BOOKS['Gen']['chapter_verse_counts'],1) for verse in range(1,count+1)][:200]
+    items=[{'id':str(uuid4()),'reference':reference} for reference in references]
+    async def stage(expected_revision,ordered,label,title_revision,note_revision):
+        async def bounded(kind,payload,note_id=None):
+            started=time.monotonic();end=started+5
+            outcome=await storage.execute(IDENTITY,kind,payload,study,note_id,end)
+            assert time.monotonic()<end,'Native maximum collection/competing operation exceeded real5s deadline'
+            return outcome
+        results=await asyncio.gather(
+            bounded('study.passages.replace',command('study.passages.replace',expected_revision=expected_revision,items=ordered)),
+            bounded('study.rename',command('study.rename',expected_revision=title_revision,title=label)),
+            bounded('note.replace',command('note.replace',expected_revision=note_revision,value=value(label)),note['note_id']))
+        current=await storage.passages(IDENTITY,study,deadline())
+        assert current['items']==ordered and current['revision']==str(int(expected_revision)+1)
+        assert (await storage.read(IDENTITY,study,None,deadline()))['title']==label
+        assert (await storage.read(IDENTITY,study,note['note_id'],deadline()))['value']==value(label)
+        return results
+    first=run(stage('1',items,'Maximum collection installed','1','1'))
+    assert first[0]['revision']=='2'
+    reordered=run(stage('2',list(reversed(items)),'Maximum collection reordered','2','2'))
+    assert reordered[0]['revision']=='3'

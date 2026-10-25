@@ -12,6 +12,18 @@ import {useStudies} from "@/context/StudiesContext";
 import {StudiesPanel} from "@/components/studies/StudiesPanel";
 import {NoteEditor} from "@/components/studies/NoteEditor";
 
+import {chapterReference,makeReference,referenceBook,referenceStart,type PassageReference} from '@/lib/passage-references';
+function urlReference(params:URLSearchParams,pane:1|2):PassageReference|undefined{
+ const prefix=pane===1?'':'compare',book=params.get(pane===1?'book':'compareBook')??'Gen';
+ function coordinate(key:string,fallback?:number){const raw=params.get(key);if(raw===null)return fallback;if(!/^[1-9][0-9]*$/.test(raw))throw Error('invalid coordinate');const value=Number(raw);if(!Number.isSafeInteger(value))throw Error('invalid coordinate');return value;}
+ try{
+  const chapter=coordinate(pane===1?'chapter':'compareChapter',1)!,verse=coordinate(pane===1?'verse':'compareVerse');
+  const endChapter=coordinate(prefix+'EndChapter',chapter),endVerse=coordinate(prefix+'EndVerse',verse);
+  if(verse===undefined){if(params.has(prefix+'EndChapter')||params.has(prefix+'EndVerse'))return undefined;return chapterReference(book,chapter);}
+  return makeReference(book,{kind:'verse_range',start:{chapter,verse},end:{chapter:endChapter!,verse:endVerse!}});
+ }catch{return undefined;}
+}
+
 type ScrollAnchor = { scroll: HTMLElement; word: HTMLElement; offset: number; focusedScrollTop?: number };
 function captureAnchors(root: HTMLElement | null): ScrollAnchor[] {
   return Array.from(root?.querySelectorAll<HTMLElement>('[data-reader-scroll]') ?? []).flatMap(scroll => {
@@ -74,6 +86,7 @@ export function ReaderPage() {
   const compareChapter = chapterNumber(params.get('compareChapter'));
   const comparing = Boolean(compareBook);
   const [targetRevision,setTargetRevision] = useState({1:0,2:0});
+  const [activePane,setActivePane]=useState<Pane>(1);
   const [mobilePane, setMobilePane] = useState<Pane>(1);
   const [previewWord, setPreviewWord] = useState<WordResponse | null>(null);
   const dwell = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -90,10 +103,13 @@ export function ReaderPage() {
   useEffect(() => { if (!comparing) setMobilePane(1); }, [comparing]);
   const books = useBooks();
   const morphology = useWordMorphology(selected?.word.id ?? null);
-  const bookName = (osis: string) => books.data?.data.find(b => b.osis_id === osis)?.name_en ?? osis;
+  const bookName = (osis: string) => books.data?.data.find(b => b.osis_id === osis)?.name_en ?? referenceBook(osis)?.name_en ?? osis;
   const context = selected ? `${bookName(selected.book)} ${selected.chapter}:${selected.verse}` : '';
 
-  function navigate(pane: Pane, nextBook: string, nextChapter: number, verse?: number) {
+  function navigate(pane: Pane, nextBook: string, nextChapter: number, verse?: number,reference?:PassageReference) {
+    setActivePane(pane);
+    const range=reference?.target.kind==='verse_range'?reference.target:undefined;
+    if(range)verse=range.start.verse;
     if(verse)setTargetRevision(previous=>({...previous,[pane]:previous[pane]+1}));
     if (selection?.pane === pane) setSelection(null);
     setParams(previous => {
@@ -101,6 +117,8 @@ export function ReaderPage() {
       next.set(pane === 1 ? 'book' : 'compareBook', nextBook);
       next.set(pane === 1 ? 'chapter' : 'compareChapter', String(nextChapter));
       next.delete(pane === 1 ? 'verse' : 'compareVerse');
+      const prefix=pane===1?'':'compare';next.delete(prefix+'EndChapter');next.delete(prefix+'EndVerse');
+      if(range){next.set(prefix+'EndChapter',String(range.end.chapter));next.set(prefix+'EndVerse',String(range.end.verse));}
       if (verse) next.set(pane === 1 ? 'verse' : 'compareVerse', String(verse));
       return next;
     });
@@ -109,7 +127,7 @@ export function ReaderPage() {
     if (comparing) {
       if (selection?.pane === 2) setSelection(null);
       setMobilePane(1);
-      setParams(previous => { const next = new URLSearchParams(previous); next.delete('compareBook'); next.delete('compareChapter'); next.delete('compareVerse'); return next; });
+      setParams(previous => { const next = new URLSearchParams(previous); next.delete('compareBook'); next.delete('compareChapter'); next.delete('compareVerse');next.delete('compareEndChapter');next.delete('compareEndVerse');setActivePane(1); return next; });
     } else {
       setSelection(null);
       navigate(2, book, chapter);
@@ -119,14 +137,14 @@ export function ReaderPage() {
   function chooseWord(pane: Pane, word: WordResponse, verse: number) {
     cancelPreview();
     if(studies.enabled&&studies.current){studies.setTool('analysis');studies.setAnalysisTab('Word');}
-    setMobilePane(pane);
+    setMobilePane(pane);setActivePane(pane);
     changeFocus(false);
     setSelection(previous => !focused && previous?.pane === pane && previous.word.id === word.id ? null : {
       pane, word, verse, book: pane === 1 ? book : compareBook, chapter: pane === 1 ? chapter : compareChapter,
     });
   }
   function showPane(pane: Pane) {
-    setMobilePane(pane);
+    setMobilePane(pane);setActivePane(pane);
     // Keep analysis attached to the visible passage on narrow screens.
     if (selection?.pane !== pane) setSelection(null);
   }
@@ -154,10 +172,10 @@ export function ReaderPage() {
       </div>}
       <div className={`flex flex-col gap-4 flex-1 min-h-0 ${comparing ? 'xl:flex-row' : 'md:flex-row md:justify-center'}`}>
         <div className={`${studies.enabled&&studies.tool?'hidden md:flex':'flex'} gap-4 flex-1 min-w-0 min-h-0 ${comparing ? '' : 'md:max-w-[44rem]'}`}>
-          <PassagePane number={1} targetRevision={targetRevision[1]} targetVerse={verseNumber(params.get("verse"))} book={book} chapter={chapter} books={books.data?.data ?? []} comparing={comparing} visible={!comparing || mobilePane === 1} selectedWordId={selected?.pane === 1 ? selected.word.id : null} matchKey={(previewWord??selected?.word)?.match_key??null} onPreview={preview} onNavigate={(b,c) => navigate(1,b,c)} onWord={(w,v) => chooseWord(1,w,v)} />
-          {comparing && <PassagePane number={2} targetRevision={targetRevision[2]} targetVerse={verseNumber(params.get("compareVerse"))} book={compareBook} chapter={compareChapter} books={books.data?.data ?? []} comparing visible={mobilePane === 2} selectedWordId={selected?.pane === 2 ? selected.word.id : null} matchKey={(previewWord??selected?.word)?.match_key??null} onPreview={preview} onNavigate={(b,c) => navigate(2,b,c)} onWord={(w,v) => chooseWord(2,w,v)} />}
+          <PassagePane reference={urlReference(params,1)} onActivate={()=>setActivePane(1)} number={1} targetRevision={targetRevision[1]} targetVerse={verseNumber(params.get("verse"))} book={book} chapter={chapter} books={books.data?.data ?? []} comparing={comparing} visible={!comparing || mobilePane === 1} selectedWordId={selected?.pane === 1 ? selected.word.id : null} matchKey={(previewWord??selected?.word)?.match_key??null} onPreview={preview} onNavigate={(b,c,r) => navigate(1,b,c,undefined,r)} onWord={(w,v) => chooseWord(1,w,v)} />
+          {comparing && <PassagePane reference={urlReference(params,2)} onActivate={()=>setActivePane(2)} number={2} targetRevision={targetRevision[2]} targetVerse={verseNumber(params.get("compareVerse"))} book={compareBook} chapter={compareChapter} books={books.data?.data ?? []} comparing visible={mobilePane === 2} selectedWordId={selected?.pane === 2 ? selected.word.id : null} matchKey={(previewWord??selected?.word)?.match_key??null} onPreview={preview} onNavigate={(b,c,r) => navigate(2,b,c,undefined,r)} onWord={(w,v) => chooseWord(2,w,v)} />}
         </div>
-        {studies.enabled&&<aside key={studies.accountKey} hidden={!studies.tool} aria-label="Study tools" className="min-h-0 overflow-y-auto bg-white border border-stone-200 rounded-xl shrink-0 w-full md:w-80 max-h-full flex-1 md:flex-none"><button className="underline m-3 md:hidden" onClick={()=>studies.setTool(null)}>Return to reader</button><div hidden={studies.tool!=='studies'}><StudiesPanel/></div><div hidden={studies.tool!=='analysis'}><div role="tablist" aria-label="Analysis" className="flex border-b">{(['Word','Occurrences','Notes'] as const).map(tab=><button key={tab} role="tab" aria-selected={studies.analysisTab===tab} disabled={tab!=='Notes'&&!selected} className="flex-1 p-2 disabled:opacity-40" onClick={()=>studies.setAnalysisTab(tab)}>{tab}</button>)}</div><div hidden={studies.analysisTab!=='Notes'}><NoteEditor/></div><div hidden={studies.analysisTab==='Notes'}>{studies.tool==='analysis'&&morphology.loading&&<p role="status">Loading word analysis…</p>}{studies.tool==='analysis'&&morphology.data&&selected&&<WordStudy hideTabs controlledTab={studies.analysisTab==='Occurrences'?'Occurrences':'Word'} currentPane={selected.pane} key={`${selected.pane}:${selected.word.id}`} word={morphology.data} context={context} books={books.data?.data??[]} onClose={()=>{setSelection(null);studies.setAnalysisTab('Notes');}} onOpen={(pane,b,c,v)=>{navigate(pane,b,c,v);setMobilePane(pane);}} />}</div></div></aside>}
+        {studies.enabled&&<aside key={studies.accountKey} hidden={!studies.tool} aria-label="Study tools" className="min-h-0 overflow-y-auto bg-white border border-stone-200 rounded-xl shrink-0 w-full md:w-80 max-h-full flex-1 md:flex-none"><button className="underline m-3 md:hidden" onClick={()=>studies.setTool(null)}>Return to reader</button><div hidden={studies.tool!=='studies'}><StudiesPanel activeReference={urlReference(params,comparing?activePane:1)} onOpen={reference=>{const pane=comparing?activePane:1,start=referenceStart(reference);navigate(pane,reference.book_id,start.chapter,start.verse,reference);setMobilePane(pane);studies.setTool(null);}}/></div><div hidden={studies.tool!=='analysis'}><div role="tablist" aria-label="Analysis" className="flex border-b">{(['Word','Occurrences','Notes'] as const).map(tab=><button key={tab} role="tab" aria-selected={studies.analysisTab===tab} disabled={tab!=='Notes'&&!selected} className="flex-1 p-2 disabled:opacity-40" onClick={()=>studies.setAnalysisTab(tab)}>{tab}</button>)}</div><div hidden={studies.analysisTab!=='Notes'}><NoteEditor/></div><div hidden={studies.analysisTab==='Notes'}>{studies.tool==='analysis'&&morphology.loading&&<p role="status">Loading word analysis…</p>}{studies.tool==='analysis'&&morphology.data&&selected&&<WordStudy hideTabs controlledTab={studies.analysisTab==='Occurrences'?'Occurrences':'Word'} currentPane={selected.pane} key={`${selected.pane}:${selected.word.id}`} word={morphology.data} context={context} books={books.data?.data??[]} onClose={()=>{setSelection(null);studies.setAnalysisTab('Notes');}} onOpen={(pane,b,c,v)=>{navigate(pane,b,c,v);setMobilePane(pane);}} />}</div></div></aside>}
         {selected && !focused && (!studies.enabled||!studies.tool) && <aside data-inspector-scroll aria-label="Word analysis panel" className={`min-h-0 max-h-[45%] overflow-y-auto overscroll-contain shrink-0 ${comparing ? 'xl:max-h-full xl:h-full xl:w-72' : 'md:max-h-full md:h-full md:w-72'}`}>
           {morphology.loading && <p role="status" className="p-4 bg-white">Loading word analysis… <button className="underline" onClick={() => setSelection(null)}>Close</button></p>}
           {morphology.error && <p role="alert" className="bg-white p-4 text-sm text-red-700">Could not load word analysis. <button className="underline" onClick={morphology.refetch}>Retry word analysis</button><button className="ml-2 underline" onClick={() => setSelection(null)}>Close</button></p>}

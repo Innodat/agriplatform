@@ -1,6 +1,6 @@
 /** Same-origin private adapter. No private bodies in browser storage or diagnostics. */
-import type {NoteValue, NoteView, StudyView, OperationAck, StudyPage, NotePage, Outcome, EnrollmentAck} from '@/generated/personal-notes/types.gen';
-export type {NoteValue,NoteView,StudyView,OperationAck};
+import type {NoteValue, NoteView, StudyView, OperationAck, StudyPage, NotePage, Outcome, EnrollmentAck, PassageList} from '@/generated/personal-notes/types.gen';
+export type {NoteValue,NoteView,StudyView,OperationAck,PassageList};
 const base=import.meta.env.BASE_URL.replace(/\/$/,'');
 export class NotesFailure extends Error { constructor(public code:string){super(code);} }
 export const emptyValue=():NoteValue=>({document:{version:1,blocks:[]},connections:[],highlights:[]});
@@ -22,12 +22,13 @@ export const api={
  studies:(token:string,cursor?:string)=>request<StudyPage>(token,'/api/studies'+(cursor?'?cursor='+encodeURIComponent(cursor):'')),
  study:(token:string,id:string)=>request<StudyView>(token,`/api/studies/${id}`),
  notes:(token:string,id:string,cursor?:string)=>request<NotePage>(token,`/api/studies/${id}/notes`+(cursor?'?cursor='+encodeURIComponent(cursor):'')),
+ passages:(token:string,id:string)=>request<PassageList>(token,`/api/studies/${id}/passages`),
  note:(token:string,study:string,id:string)=>request<NoteView>(token,`/api/studies/${study}/notes/${id}`),
  lookup:(token:string,operation:string,command:string,timeout=15000)=>request<Outcome>(token,`/api/operations/${operation}?command=${command}`,'GET',undefined,timeout),
 };
-export type Attempt={operation_id:string;command:'study.create'|'study.rename'|'note.create'|'note.replace';path:string;method:string;payload:Record<string,unknown>;study?:string;note?:string;generation:number};
+export type Attempt={operation_id:string;command:'study.create'|'study.rename'|'study.passages.replace'|'note.create'|'note.replace';path:string;method:string;payload:Record<string,unknown>;study?:string;note?:string;generation:number};
 function ack(value:OperationAck,attempt:Attempt){
- if(!value||Object.keys(value).sort().join(',')!=='command,note_id,operation_id,revision,study_id'||typeof value.revision!=='string'||value.operation_id!==attempt.operation_id||value.command!==attempt.command||!/^\d+$/.test(value.revision)||BigInt(value.revision)<1n||BigInt(value.revision)>9223372036854775807n||!value.study_id||(attempt.study&&value.study_id!==attempt.study)||(attempt.note&&value.note_id!==attempt.note)||(['study.create','study.rename'].includes(attempt.command)?value.note_id!==null:!value.note_id))throw new NotesFailure('operation_unresolved');
+ if(!value||Object.keys(value).sort().join(',')!=='command,note_id,operation_id,revision,study_id'||typeof value.revision!=='string'||value.operation_id!==attempt.operation_id||value.command!==attempt.command||!/^\d+$/.test(value.revision)||BigInt(value.revision)<1n||BigInt(value.revision)>9223372036854775807n||!value.study_id||(attempt.study&&value.study_id!==attempt.study)||(attempt.note&&value.note_id!==attempt.note)||(['study.create','study.rename','study.passages.replace'].includes(attempt.command)?value.note_id!==null:!value.note_id))throw new NotesFailure('operation_unresolved');
  return value;
 }
 export async function execute(token:string,attempt:Attempt):Promise<OperationAck>{

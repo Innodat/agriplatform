@@ -87,10 +87,28 @@ if(!process.env.SCRIBESWELL_OWNER_DENIED){
   fs.writeFileSync(path.join(proof,'rename-result.json'),JSON.stringify({study,title:'Renamed English שָׁלוֹם',operation:renameAck.operation_id}),{flag:'wx',mode:0o600});await checkpoint('rename-after');
   await page.reload();await page.getByRole('button',{name:'Studies',exact:true}).click();await page.getByRole('button',{name:'Renamed English שָׁלוֹם',exact:true}).click();
   await page.getByRole('button',{name:text,exact:true}).click();expect(await editor.textContent()===text).toBe(true);
+  stage('collect-reopen-remove-passages');await checkpoint('passages-before');
+  await page.getByRole('button',{name:'Back to Studies',exact:true}).click();
+  const passageOperations=[];
+  for(const reference of ['Genesis1','Matthew26:63–64']){
+   await page.getByRole('button',{name:'Add passage',exact:true}).click();await page.getByLabel('Passage reference',{exact:true}).fill(reference);
+   const response=page.waitForResponse(reply=>new URL(reply.url()).pathname===`/api/studies/${study}/passages`&&reply.request().method()==='PUT');await page.getByLabel('Passage reference',{exact:true}).press('Enter');passageOperations.push((await(await response).json()).operation_id);
+   await expect(page.getByRole('button',{name:'Add passage',exact:true})).toBeEnabled();
+  }
+  await page.getByRole('button',{name:'Add passage',exact:true}).click();await page.getByLabel('Passage reference',{exact:true}).fill('Genesis1');await page.getByLabel('Passage reference',{exact:true}).press('Enter');await expect(page.getByRole('alert')).toContainText('Already in this study');await page.getByRole('button',{name:'Cancel',exact:true}).click();
+  const removal=page.waitForResponse(reply=>new URL(reply.url()).pathname===`/api/studies/${study}/passages`&&reply.request().method()==='PUT');await page.getByRole('button',{name:'Remove Genesis 1',exact:true}).click();passageOperations.push((await(await removal).json()).operation_id);
+  await expect(page.getByRole('list',{name:'Passages',exact:true}).locator('li')).toHaveCount(1);
+  const collected=await request(page,`/api/studies/${study}/passages`);expect(collected.status).toBe(200);expect(collected.body.revision).toBe('4');const passageItem=collected.body.items[0];
+  fs.writeFileSync(path.join(proof,'passages-result.json'),JSON.stringify({study,operations:passageOperations,item:passageItem}),{flag:'wx',mode:0o600});await checkpoint('passages-after');
+  await page.reload();await page.getByRole('button',{name:'Studies',exact:true}).click();await page.getByRole('button',{name:'Renamed English שָׁלוֹם',exact:true}).click();await expect(page.getByRole('list',{name:'Passages',exact:true})).toContainText('Matthew 26:63–64');
+  await page.getByRole('button',{name:'Open Matthew 26:63–64',exact:true}).click();await expect(page.getByText('Matthew 26:63–64 — Text unavailable',{exact:true})).toBeVisible();
+  expect((await request(page,`/api/studies/${study}/notes/${note.id}`)).body).toEqual(note);
   stage('second-account-isolation');const context=await browser.newContext();privacy.inspect(context);const other=await context.newPage();await login(other,fixture.accounts[1]);
   const otherEnrollment=crypto.randomUUID();const otherAck=await request(other,'/api/studies/enrollment','POST',{operation_id:otherEnrollment});expect(otherAck.status).toBe(200);
   await checkpoint('foreign-before');
-  for(const route of [`/api/studies/${study}`,`/api/studies/${study}/notes/${note.id}`])expect((await request(other,route)).status).toBe(404);
+  for(const route of [`/api/studies/${study}/passages`,`/api/studies/${study}`,`/api/studies/${study}/notes/${note.id}`])expect((await request(other,route)).status).toBe(404);
+  expect((await request(other,`/api/studies/${study}/passages`,'PUT',{operation_id:crypto.randomUUID(),expected_revision:'4',items:[]})).status).toBe(404);
+  expect((await request(other,`/api/operations/${passageOperations[0]}?command=study.passages.replace`)).body.status).toBe('unresolved');
   expect((await request(other,`/api/studies/${study}/notes`)).status).toBe(404);
   expect((await request(other,`/api/studies/${study}/title`,'PUT',{operation_id:crypto.randomUUID(),expected_revision:'2',title:'Forbidden rename'})).status).toBe(404);
   expect((await request(other,`/api/operations/${renameAck.operation_id}?command=study.rename`)).body.status).toBe('unresolved');
@@ -102,7 +120,7 @@ if(!process.env.SCRIBESWELL_OWNER_DENIED){
   await privacy.settle();
   const stored=await context.storageState();fs.writeFileSync(path.join(proof,'other-context-private.json'),JSON.stringify(stored),{flag:'wx',mode:0o600});await context.close();
   fs.writeFileSync(path.join(proof,'owner-context-private.json'),JSON.stringify(await page.context().storageState()),{flag:'wx',mode:0o600});
-  const result={study,rename_operation:renameAck.operation_id,rename_title:'Renamed English שָׁלוֹם',retry_study:retryStudy,note:note.id,operation:create.operation_id,ui_operation:uiCreated.operation_id,enrollment:enrollment.operation_id,ui_enrollment:uiEnrollment.operation_id,other_enrollment:otherEnrollment,account_actors:{[fixture.accounts[0].account_id]:uiEnrollment.result.actor_id,[fixture.accounts[1].account_id]:otherAck.body.result.actor_id},value:note.value,credential_inspection:await privacy.settle()};
+  const result={study,passage_operations:passageOperations,passage_item:passageItem,rename_operation:renameAck.operation_id,rename_title:'Renamed English שָׁלוֹם',retry_study:retryStudy,note:note.id,operation:create.operation_id,ui_operation:uiCreated.operation_id,enrollment:enrollment.operation_id,ui_enrollment:uiEnrollment.operation_id,other_enrollment:otherEnrollment,account_actors:{[fixture.accounts[0].account_id]:uiEnrollment.result.actor_id,[fixture.accounts[1].account_id]:otherAck.body.result.actor_id},value:note.value,credential_inspection:await privacy.settle()};
   fs.writeFileSync(path.join(proof,'browser-result.json'),JSON.stringify(result),{flag:'wx',mode:0o600});
  }));
 }else{
@@ -111,6 +129,9 @@ if(!process.env.SCRIBESWELL_OWNER_DENIED){
   const privacy=inspection();
   const context=await browser.newContext({storageState:path.join(proof,'owner-context-private.json')});privacy.inspect(context);const page=await context.newPage();await page.goto('/');
   for(const route of ['/api/studies',`/api/studies/${result.study}`,`/api/operations/${result.operation}?command=study.create`])expect((await request(page,route)).status).toBe(403);
+  expect((await request(page,`/api/studies/${result.study}/passages`)).status).toBe(403);
+  expect((await request(page,`/api/studies/${result.study}/passages`,'PUT',{operation_id:crypto.randomUUID(),expected_revision:'4',items:[]})).status).toBe(403);
+  expect((await request(page,`/api/operations/${result.passage_operations[0]}?command=study.passages.replace`)).status).toBe(403);
   expect((await request(page,`/api/studies/${result.study}/title`,'PUT',{operation_id:result.rename_operation,expected_revision:'1',title:result.rename_title})).status).toBe(403);
   expect((await request(page,`/api/operations/${result.rename_operation}?command=study.rename`)).status).toBe(403);
   expect((await request(page,'/api/studies','POST',{operation_id:result.operation,title:'Lost reply study'})).status).toBe(403);

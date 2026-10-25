@@ -284,3 +284,15 @@ test('word study has persistent Word and Occurrences tabs',async({page})=>{
  await expect(page.getByRole('tab',{name:'Occurrences',exact:true})).toBeVisible();
  await expect(page.getByRole('tab',{name:'Notes',exact:true})).toHaveCount(0);
 });
+
+test('typed reference visibly positions remote book chapter and hovering does not trap later typing',async({page})=>{
+ await setup(page);await page.goto('/');await page.getByRole('button',{name:/Navigate:/}).first().click();const input=page.getByLabel('Passage reference',{exact:true});await input.fill('Matthew26:63–64');const matthew=page.getByRole('button',{name:'Matthew — Reference only',exact:true}),chapter=page.getByRole('button',{name:'Chapter 26 of Matthew',exact:true});await expect(matthew).toBeInViewport();await expect(chapter).toBeInViewport();
+ await page.getByRole('button',{name:/Genesis —/}).hover();await expect(page.getByRole('group',{name:'Chapters of Genesis',exact:true})).toBeVisible();await input.fill('Matthew26:63');await expect(page.getByRole('group',{name:'Chapters of Matthew',exact:true})).toBeVisible();await input.press('Enter');await expect(page.getByText('Matthew 26:63 — Text unavailable',{exact:true})).toBeVisible();
+});
+
+test('passage review reference-only chapter boundaries follow catalogue without NT corpus requests',async({page})=>{
+ await setup(page);const calls=[];page.on('request',request=>{if(new URL(request.url()).pathname.startsWith('/api/bible/'))calls.push(new URL(request.url()).pathname);});
+ await page.goto('/?book=Matt&chapter=28');await expect(page.getByText('Matthew 28 — Text unavailable',{exact:true})).toBeVisible();await page.getByRole('button',{name:'Next chapter',exact:true}).click();expect(new URL(page.url()).searchParams.get('book')).toBe('Mark');expect(new URL(page.url()).searchParams.get('chapter')).toBe('1');await page.getByRole('button',{name:'Previous chapter',exact:true}).click();expect(new URL(page.url()).searchParams.get('book')).toBe('Matt');expect(new URL(page.url()).searchParams.get('chapter')).toBe('28');
+ await page.goto('/?book=Matt&chapter=1');await expect(page.getByText('Matthew 1 — Text unavailable',{exact:true})).toBeVisible();await page.getByRole('button',{name:'Previous chapter',exact:true}).click();expect(new URL(page.url()).searchParams.get('book')).toBe('2Chr');expect(new URL(page.url()).searchParams.get('chapter')).toBe('36');
+ await page.goto('/?book=Rev&chapter=22');await expect(page.getByRole('button',{name:'Next chapter',exact:true})).toBeDisabled();expect(calls.filter(path=>/\/books\/(?:Matt|Mark|Rev)(?:\/|$)/.test(path))).toEqual([]);
+});

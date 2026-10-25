@@ -4,14 +4,14 @@ import time
 from fastapi import APIRouter,Request
 from fastapi.responses import JSONResponse
 from pydantic import TypeAdapter
-from personal_notes_contract import Identifier,parse_command,ContractInputError,MAX_BODY_BYTES
+from personal_notes_contract import Identifier,parse_command,ContractInputError,MAX_BODY_BYTES,MAX_PASSAGE_BODY_BYTES
 from personal_notes_access import NotesError,STATUSES
 
-async def body(request):
+async def body(request,limit=MAX_BODY_BYTES):
     raw=bytearray()
     async for chunk in request.stream():
         raw.extend(chunk)
-        if len(raw)>MAX_BODY_BYTES: raise NotesError('scribeswell_personal_notes_input_invalid')
+        if len(raw)>limit: raise NotesError('scribeswell_personal_notes_input_invalid')
     return bytes(raw)
 
 def build_router(access,storage):
@@ -30,12 +30,13 @@ def build_router(access,storage):
                     payload=parse_command('studies.enroll',await body(request))
                     result=await access.enroll(bearer,payload.operation_id,deadline)
                 else:
-                    payload=parse_command(kind,await body(request)) if kind in ('study.create','study.rename','note.create','note.replace') else None
+                    payload=parse_command(kind,await body(request,MAX_PASSAGE_BODY_BYTES if kind=='study.passages.replace' else MAX_BODY_BYTES)) if kind in ('study.create','study.rename','study.passages.replace','note.create','note.replace') else None
                     allowed={'limit','cursor'} if kind=='list' else {'command'} if kind=='lookup' else set()
                     if set(request.query_params)-allowed or any(len(request.query_params.getlist(k))!=1 for k in request.query_params): raise ValueError
                     # Fresh remote authority, completed before the first local transaction.
                     identity=await access.check(bearer,deadline)
                     if payload is not None: result=await storage.execute(identity,kind,payload,study_id,note_id,deadline)
+                    elif kind=='passages': result=await storage.passages(identity,study_id,deadline)
                     elif kind=='read': result=await storage.read(identity,study_id,note_id,deadline)
                     elif kind=='list':
                         raw_limit=request.query_params.get('limit','20')
@@ -43,7 +44,7 @@ def build_router(access,storage):
                         result=await storage.list(identity,study_id,int(raw_limit),request.query_params.get('cursor'),deadline)
                     else:
                         command=request.query_params.get('command')
-                        if command not in ('study.create','study.rename','note.create','note.replace'): raise ValueError
+                        if command not in ('study.create','study.rename','study.passages.replace','note.create','note.replace'): raise ValueError
                         result=await storage.lookup(identity,operation_id,command,deadline)
                 return JSONResponse(result,headers={'Cache-Control':'private, no-store'})
         except NotesError as error:
@@ -61,6 +62,10 @@ def build_router(access,storage):
     async def list_studies(request:Request): return await handle(request,'list')
     @router.get('/api/studies/{study_id}')
     async def read_study(request:Request): return await handle(request,'read')
+    @router.get('/api/studies/{study_id}/passages')
+    async def passages(request:Request): return await handle(request,'passages')
+    @router.put('/api/studies/{study_id}/passages')
+    async def replace_passages(request:Request): return await handle(request,'study.passages.replace')
     @router.put('/api/studies/{study_id}/title')
     async def rename_study(request:Request): return await handle(request,'study.rename')
     @router.post('/api/studies/{study_id}/notes')

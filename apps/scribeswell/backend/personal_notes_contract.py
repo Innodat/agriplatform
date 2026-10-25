@@ -15,7 +15,13 @@ from uuid import UUID
 
 from pydantic import AfterValidator, BaseModel, ConfigDict, Field, TypeAdapter, model_validator
 
+try:
+    from .passage_references import PassageReference
+except ImportError:
+    from passage_references import PassageReference
+
 MAX_BODY_BYTES = 65536
+MAX_PASSAGE_BODY_BYTES = 131072
 MAX_JSON_DEPTH = 16
 MAX_JSON_NODES = 8192
 MAX_REVISION = '9223372036854775807'
@@ -110,7 +116,7 @@ ExternalUrl = Annotated[str, Field(min_length=1, max_length=2048,
                 'Semantic validation also requires valid IDNA DNS or canonical IPv4/unscoped IPv6, '
                 'port 1–65535, safe percent escapes, scalar Unicode and at most 2048 UTF-8 bytes.',
     json_schema_extra={'not': {'pattern': r'[\s\\\x00-\x1f\x7f-\x9f]'}}), AfterValidator(_url)]
-Command = Literal['study.create', 'study.rename', 'note.create', 'note.replace']
+Command = Literal['study.create', 'study.rename', 'study.passages.replace', 'note.create', 'note.replace']
 
 
 class Closed(BaseModel):
@@ -227,6 +233,31 @@ class ReplaceNote(Closed):
     value: NoteValue
 
 
+class PassageItem(Closed):
+    id: Identifier
+    reference: PassageReference
+
+
+class ReplacePassages(Closed):
+    operation_id: Identifier
+    expected_revision: Revision
+    items: tuple[PassageItem, ...] = Field(max_length=200)
+
+    @model_validator(mode='after')
+    def unique_entries(self):
+        ids = [item.id for item in self.items]
+        references = [json.dumps(item.reference.model_dump(mode='json'), sort_keys=True) for item in self.items]
+        if len(set(ids)) != len(ids) or len(set(references)) != len(references):
+            raise ValueError('duplicate passage')
+        return self
+
+
+class PassageList(Closed):
+    study_id: Identifier
+    revision: Revision
+    items: tuple[PassageItem, ...] = Field(max_length=200)
+
+
 class Attribution(Closed):
     created_at: UtcTimestamp
     updated_at: UtcTimestamp
@@ -272,7 +303,7 @@ class NotePage(Closed):
 
 class OperationAck(Closed):
     model_config = ConfigDict(json_schema_extra={'oneOf': [
-        {'properties': {'command': {'enum': ['study.create', 'study.rename']}, 'note_id': {'type': 'null'}}},
+        {'properties': {'command': {'enum': ['study.create', 'study.rename', 'study.passages.replace']}, 'note_id': {'type': 'null'}}},
         {'properties': {'command': {'enum': ['note.create', 'note.replace']}, 'note_id': {'type': 'string'}}},
     ]})
     operation_id: Identifier
@@ -283,7 +314,7 @@ class OperationAck(Closed):
 
     @model_validator(mode='after')
     def resource_shape(self):
-        if (self.command in ('study.create', 'study.rename')) != (self.note_id is None):
+        if (self.command in ('study.create', 'study.rename', 'study.passages.replace')) != (self.note_id is None):
             raise ValueError('invalid outcome resources')
         return self
 
@@ -316,12 +347,12 @@ class RevisionDetails(Closed):
 
 class RevisionProblem(Closed):
     error: Literal['Request could not be completed']
-    code: Literal['note_revision_conflict', 'study_revision_conflict']
+    code: Literal['note_revision_conflict', 'study_revision_conflict', 'passage_revision_conflict']
     details: RevisionDetails
 
 
 ErrorResponse = Annotated[Union[Problem, RevisionProblem], Field(discriminator='code')]
-COMMAND_MODELS = {'studies.enroll': EnrollStudies, 'study.create': CreateStudy, 'study.rename': RenameStudy, 'note.create': CreateNote, 'note.replace': ReplaceNote}
+COMMAND_MODELS = {'study.passages.replace': ReplacePassages, 'studies.enroll': EnrollStudies, 'study.create': CreateStudy, 'study.rename': RenameStudy, 'note.create': CreateNote, 'note.replace': ReplaceNote}
 
 
 class ContractInputError(ValueError):
@@ -341,11 +372,11 @@ def _unique_object(pairs):
     return value
 
 
-def parse_command(command: str, raw: bytes) -> CreateStudy | RenameStudy | CreateNote | ReplaceNote:
+def parse_command(command: str, raw: bytes) -> CreateStudy | RenameStudy | ReplacePassages | CreateNote | ReplaceNote:
     """Strict bounded HTTP body decoder. No access, database or network work."""
     result = None
     try:
-        if type(raw) is not bytes or not raw or len(raw) > MAX_BODY_BYTES or raw.startswith(b'\xef\xbb\xbf'):
+        if type(raw) is not bytes or not raw or len(raw) > (MAX_PASSAGE_BODY_BYTES if command == 'study.passages.replace' else MAX_BODY_BYTES) or raw.startswith(b'\xef\xbb\xbf'):
             raise ValueError('invalid framing')
         tree = json.loads(raw.decode('utf-8'), object_pairs_hook=_unique_object,
                           parse_float=_reject_float, parse_constant=_reject_float)
@@ -376,7 +407,7 @@ def parse_command(command: str, raw: bytes) -> CreateStudy | RenameStudy | Creat
 
 def openapi_contract() -> dict:
     """Generate planned OpenAPI from the DTO definitions, never from fake routes."""
-    models = (EnrollStudies, EnrollmentAck, CreateStudy, RenameStudy, CreateNote, ReplaceNote, StudyView, NoteView, StudyPage,
+    models = (EnrollStudies, EnrollmentAck, CreateStudy, RenameStudy, ReplacePassages, PassageList, CreateNote, ReplaceNote, StudyView, NoteView, StudyPage,
               NotePage, OperationAck, Outcome, ErrorResponse)
     schemas = {}
     for model in models:
@@ -395,7 +426,7 @@ def openapi_contract() -> dict:
                  'parameters': list(parameters), 'responses': {}}
         codes = {'400': ['scribeswell_personal_notes_input_invalid'], '401': ['authentication_required'],
                  '403': ['studies_access_denied'], '404': ['resource_unavailable'],
-                 '409': ['note_revision_conflict', 'study_revision_conflict', 'operation_payload_mismatch', 'operation_unresolved'],
+                 '409': ['note_revision_conflict', 'study_revision_conflict', 'passage_revision_conflict', 'operation_payload_mismatch', 'operation_unresolved'],
                  '503': ['studies_access_unavailable', 'studies_storage_unavailable', 'request_deadline_exceeded']}
         for status, description, schema in [('200', 'Acknowledged or current authorized result', response),
                                            ('400', 'Invalid input', 'ErrorResponse'),
@@ -424,7 +455,7 @@ def openapi_contract() -> dict:
     return {'openapi': '3.1.0', 'info': {'title': 'Scribeswell personal notes — v1', 'version': '1.0.0'},
             'x-generated-file-warning': 'Generated by tools/py/export_personal_notes_contract.py; do not edit.',
             'x-runtime-status': 'opt-in-development-production-disabled',
-            'x-command-input-limits': {'bytes': MAX_BODY_BYTES, 'json_depth': MAX_JSON_DEPTH,
+            'x-command-input-limits': {'bytes': MAX_BODY_BYTES, 'passage_collection_bytes': MAX_PASSAGE_BODY_BYTES, 'json_depth': MAX_JSON_DEPTH,
                                        'json_nodes': MAX_JSON_NODES, 'document_nodes': 2048, 'text_codepoints': 50000,
                                        'url_utf8_bytes': 2048, 'revision_max': MAX_REVISION,
                                        'duplicate_keys': 'rejected', 'marks_order': ['bold', 'italic']},
@@ -434,6 +465,7 @@ def openapi_contract() -> dict:
                 '/api/studies': {'post': operation('createStudy', 'OperationAck', body='CreateStudy'),
                                  'get': operation('listStudies', 'StudyPage', parameters=page)},
                 '/api/studies/{study_id}': {'get': operation('readStudy', 'StudyView', parameters=(study,))},
+                '/api/studies/{study_id}/passages': {'get': operation('readPassages', 'PassageList', parameters=(study,)), 'put': operation('replacePassages', 'OperationAck', body='ReplacePassages', parameters=(study,))},
                 '/api/studies/{study_id}/title': {'put': operation('renameStudy', 'OperationAck', body='RenameStudy', parameters=(study,))},
                 '/api/studies/{study_id}/notes': {'post': operation('createNote', 'OperationAck', body='CreateNote', parameters=(study,)),
                                                 'get': operation('listNotes', 'NotePage', parameters=(study, *page))},

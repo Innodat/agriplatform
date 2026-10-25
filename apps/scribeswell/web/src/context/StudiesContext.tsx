@@ -1,7 +1,10 @@
 /** One in-memory account/note save lane, independent of mounted tool/editor views. */
 import {createContext,useContext,useEffect,useRef,useState,type ReactNode} from 'react';
 import {useAuth} from './AuthContext';
-import {api,execute,NotesFailure,uuid,type NoteValue,type NoteView,type StudyView,type OperationAck,type Attempt} from '@/lib/personal-notes';
+import {api,execute,NotesFailure,uuid,type NoteValue,type NoteView,type StudyView,type OperationAck,type Attempt,type PassageList} from '@/lib/personal-notes';
+import {referenceKey,validateReference,type PassageReference} from '@/lib/passage-references';
+type PassageIntent={kind:'add';reference:PassageReference}|{kind:'remove';id:string;reference:PassageReference};
+type CollectionLane={study:string;list?:PassageList;intent?:PassageIntent;attempt?:Attempt;confirmed?:OperationAck;running?:Promise<void>;status:'loading'|'ready'|'saving'|'failed'|'conflict'|'reviewed';message:string;read:number};
 export type Lane={note:NoteView;value:NoteValue;generation:number;saved:number;status:'saved'|'pending'|'saving'|'failed'|'conflict';attempt?:Attempt;running?:Promise<void>;timer?:ReturnType<typeof setTimeout>;first?:number;composing:boolean;invalid:boolean};
 type TitleEdit={study:string;candidate:string;base:string;open:boolean;status:'editing'|'saving'|'failed'|'conflict';message:string;confirmed?:OperationAck;attempt?:Attempt;running?:Promise<void>};
 type Tool='studies'|'analysis'|null;
@@ -16,17 +19,19 @@ function useStatefulStudies(){
  const [studyCursor,setStudyCursor]=useState<string|null>(null),[notesCursor,setNotesCursor]=useState<string|null>(null);
  const lanes=useRef(new Map<string,Lane>()),[,render]=useState(0);const update=()=>render(x=>x+1);
  const [exitPrompt,setExitPrompt]=useState<{action:()=>void|Promise<void>;switching:boolean;discard?:Lane}|null>(null);
+ const collectionNavigation=useRef(0);
  const navigation=useRef(0),selectedStudy=useRef<string|undefined>(undefined),notesPosition=useRef<string|null>(null),pendingPages=useRef(new Set<string>());
  selectedStudy.current=study?.id;
  const titles=useRef(new Map<string,TitleEdit>()),titleReads=useRef(new Map<string,number>());
+ const collections=useRef(new Map<string,CollectionLane>());
  const creation=useRef<Attempt|undefined>(undefined);const enrollment=useRef<string|undefined>(undefined);
- useEffect(()=>{for(const lane of lanes.current.values())clearTimeout(lane.timer);lanes.current.clear();titles.current.clear();titleReads.current.clear();navigation.current++;pendingPages.current.clear();notesPosition.current=null;creation.current=undefined;enrollment.current=undefined;setStudies([]);setStudy(null);setNotes([]);setCurrent(null);setError('');setBusy(false);setExitPrompt(null);setStudyCursor(null);setNotesCursor(null);dataAccount.current=account;setAuthority(true);},[account]);
+ useEffect(()=>{for(const lane of lanes.current.values())clearTimeout(lane.timer);lanes.current.clear();titles.current.clear();titleReads.current.clear();collections.current.clear();navigation.current++;pendingPages.current.clear();notesPosition.current=null;creation.current=undefined;enrollment.current=undefined;setStudies([]);setStudy(null);setNotes([]);setCurrent(null);setError('');setBusy(false);setExitPrompt(null);setStudyCursor(null);setNotesCursor(null);dataAccount.current=account;setAuthority(true);},[account]);
  function valid(captured:number){return epoch.current===captured&&identity.current===account;}
  function fail(failure:unknown){
   const code=failure instanceof NotesFailure?failure.code:'studies_storage_unavailable';
   if(code==='authentication_required'){epoch.current++;setAuthority(false);for(const lane of lanes.current.values())clearTimeout(lane.timer);}
   if(code==='studies_access_denied'){
-   epoch.current++;for(const lane of lanes.current.values())clearTimeout(lane.timer);lanes.current.clear();titles.current.clear();titleReads.current.clear();setStudies([]);setNotes([]);setStudy(null);setCurrent(null);creation.current=undefined;enrollment.current=undefined;
+   epoch.current++;for(const lane of lanes.current.values())clearTimeout(lane.timer);lanes.current.clear();titles.current.clear();titleReads.current.clear();collections.current.clear();setStudies([]);setNotes([]);setStudy(null);setCurrent(null);creation.current=undefined;enrollment.current=undefined;
   }
   setBusy(false);setError(code==='studies_access_denied'?'Studies access is unavailable for this account.':code==='authentication_required'?'Sign in to use My studies.':'Studies could not be loaded. Try again.');
  }
@@ -51,12 +56,57 @@ function useStatefulStudies(){
  async function exit(action:()=>void|Promise<void>,switching=false){const captured=epoch.current;const lane=current?lanes.current.get(current):undefined;if(lane){const end=Date.now()+5000;while(lane.generation!==lane.saved&&!lane.invalid&&!lane.composing&&lane.status!=='failed'&&lane.status!=='conflict'&&Date.now()<end){await Promise.race([flush(lane),new Promise<void>(resolve=>setTimeout(resolve,Math.max(1,end-Date.now())))]);if(!valid(captured))return;}if(!valid(captured))return;if(lane.composing||lane.invalid||lane.generation!==lane.saved){setExitPrompt({action,switching,discard:switching&&lane.status==='conflict'?lane:undefined});return;}}await action();}
  async function openStudy(id:string){
   if(!token)return;const requestNavigation=++navigation.current;
-  await exit(async()=>{if(requestNavigation!==navigation.current)return;const captured=epoch.current;setBusy(true);
+  await exit(async()=>{if(requestNavigation!==navigation.current)return;collectionNavigation.current++;const captured=epoch.current;setBusy(true);
    try{const [selected,page]=await Promise.all([api.study(token,id),api.notes(token,id)]);
-    if(valid(captured)&&requestNavigation===navigation.current){selectedStudy.current=selected.id;notesPosition.current=page.next_cursor;setStudy(selected);if(creation.current?.command==='study.create'&&creation.current.study===selected.id)creation.current=undefined;setNotes(page.items);setNotesCursor(page.next_cursor);setCurrent(null);setTool('studies');setError('');}
+    if(valid(captured)&&requestNavigation===navigation.current){selectedStudy.current=selected.id;notesPosition.current=page.next_cursor;setStudy(selected);if(creation.current?.command==='study.create'&&creation.current.study===selected.id)creation.current=undefined;setNotes(page.items);setNotesCursor(page.next_cursor);setCurrent(null);setTool('studies');setError('');void loadPassages(selected.id);}
    }catch(e){if(valid(captured)&&requestNavigation===navigation.current)fail(e);}finally{if(valid(captured)&&requestNavigation===navigation.current)setBusy(false);}
   },true);
  }
+ // Collection authority/revisions/recovery are independent of notes and metadata.
+ function collectionLane(id:string){let lane=collections.current.get(id);if(!lane){lane={study:id,status:'loading',message:'',read:0};collections.current.set(id,lane);}return lane;}
+ async function refreshPassages(lane:CollectionLane,captured:number,currentRead=()=>true){
+  if(!token)return;const read=++lane.read;const latest=await api.passages(token,lane.study);
+  if(!valid(captured)||collections.current.get(lane.study)!==lane||read!==lane.read||!currentRead())return;
+  const identifier=(value:unknown)=>typeof value==='string'&&/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/.test(value)&&value!=='00000000-0000-0000-0000-000000000000';
+  if(!latest||Object.keys(latest).sort().join(',')!=='items,revision,study_id'||latest.study_id!==lane.study||!Array.isArray(latest.items)||latest.items.length>200||!latest.items.every(item=>item&&Object.keys(item).sort().join(',')==='id,reference'&&identifier(item.id)&&validateReference(item.reference))||new Set(latest.items.map(item=>item.id)).size!==latest.items.length||new Set(latest.items.map(item=>referenceKey(item.reference))).size!==latest.items.length||typeof latest.revision!=='string'||!(/^[1-9][0-9]{0,18}$/).test(latest.revision)||BigInt(latest.revision)>9223372036854775807n)throw new NotesFailure('response_invalid');
+  if(!lane.list||BigInt(latest.revision)>=BigInt(lane.list.revision))lane.list=latest;
+  update();return latest;
+ }
+ async function loadPassages(id:string){
+  const lane=collectionLane(id),captured=epoch.current,requestNavigation=collectionNavigation.current;if(lane.attempt||lane.running)return;
+  const read=lane.read+1,currentRead=()=>valid(captured)&&collections.current.get(id)===lane&&lane.read===read&&selectedStudy.current===id&&collectionNavigation.current===requestNavigation&&!lane.attempt&&!lane.running;
+  try{const latest=await refreshPassages(lane,captured,currentRead);if(!latest||!currentRead())return;lane.status=lane.intent?'reviewed':'ready';lane.message=lane.intent?'Current passages loaded. Review the list, then explicitly try your change.':'';update();}
+  catch(e){if(!currentRead())return;lane.status='failed';lane.message='Passages could not be loaded. Retry loading them.';update();if(e instanceof NotesFailure&&['authentication_required','studies_access_denied'].includes(e.code))fail(e);}
+ }
+ async function savePassages(lane:CollectionLane){
+  if(!token||lane.running||lane.status==='conflict')return;
+  if(!lane.attempt){if(!lane.list||!lane.intent)return;const intent=lane.intent;let items=structuredClone(lane.list.items);
+   if(intent.kind==='add'){
+    if(items.some(item=>referenceKey(item.reference)===referenceKey(intent.reference))){lane.message='Already in this study';lane.intent=undefined;lane.status='ready';update();return;}
+    if(items.length>=200){lane.message='This study has 200 passages. Remove one before adding another.';update();return;}
+    items.push({id:uuid(),reference:intent.reference});
+   }else items=items.filter(item=>item.id!==intent.id);
+   const operation_id=uuid();lane.attempt={operation_id,command:'study.passages.replace',path:`/api/studies/${lane.study}/passages`,method:'PUT',payload:{operation_id,expected_revision:lane.list.revision,items},study:lane.study,generation:0};
+  }
+  const captured=epoch.current,requestNavigation=navigation.current,attempt=lane.attempt;lane.read++;lane.status='saving';lane.message=lane.confirmed?'Passages saved. Refreshing current list…':'Saving passages…';update();
+  lane.running=(async()=>{
+   try{if(!lane.confirmed){lane.confirmed=await execute(token,attempt);if(!valid(captured))return;}
+    await refreshPassages(lane,captured);if(!valid(captured))return;
+    lane.attempt=undefined;lane.confirmed=undefined;lane.intent=undefined;lane.status='ready';lane.message='';
+   }catch(e){if(!valid(captured))return;const code=e instanceof NotesFailure?e.code:'';
+    if(lane.confirmed){lane.status='failed';lane.message='Passages saved. Current list could not be refreshed. Retry loading it.';}
+    else if(code==='passage_revision_conflict'){lane.status='conflict';lane.attempt=undefined;lane.message='Passages changed elsewhere. Load and review current passages before trying your change.';}
+    else if(code==='scribeswell_personal_notes_input_invalid'){lane.status='ready';lane.attempt=undefined;lane.message='This passage could not be added. Check the reference.';}
+    else{lane.status='failed';lane.message='Passages not saved. Retry the original change.';}
+    if(selectedStudy.current===lane.study&&navigation.current===requestNavigation&&['authentication_required','studies_access_denied'].includes(code))fail(e);
+   }finally{lane.running=undefined;if(valid(captured))update();}
+  })();return lane.running;
+ }
+ async function collect(reference:PassageReference){if(!study)return false;const lane=collectionLane(study.id);if(lane.attempt||lane.running||!lane.list||['conflict','reviewed'].includes(lane.status))return false;lane.intent={kind:'add',reference};await savePassages(lane);return !['This passage could not be added. Check the reference.','Already in this study'].includes(lane.message);}
+ function removePassage(id:string){if(!study)return;const lane=collectionLane(study.id);if(lane.attempt||lane.running||!lane.list||['conflict','reviewed'].includes(lane.status))return;const item=lane.list.items.find(item=>item.id===id);if(!item)return;lane.intent={kind:'remove',id,reference:item.reference};void savePassages(lane);}
+ function retryPassages(){if(!study)return;const lane=collectionLane(study.id);if(lane.attempt||lane.intent&&lane.status==='reviewed')void savePassages(lane);else void loadPassages(study.id);}
+ function reviewPassages(){if(study)void loadPassages(study.id);}
+ function cancelPassageIntent(){const lane=study?collections.current.get(study.id):undefined;if(lane&&!lane.attempt&&!lane.running){lane.intent=undefined;lane.status='ready';lane.message='';update();}}
  // Metadata has its own operation lane and never flushes/replaces a note buffer.
  async function refreshTitle(id:string,captured:number){
   if(!token)return;
@@ -125,11 +175,12 @@ function useStatefulStudies(){
  async function start(){if(!token){setError('Sign in to use My studies.');return false;}const captured=epoch.current;setBusy(true);try{enrollment.current??=uuid();await api.enroll(token,enrollment.current);if(!valid(captured))return false;enrollment.current=undefined;setError('');return true;}catch(e){if(valid(captured))fail(e);return false;}finally{if(valid(captured))setBusy(false);}}
  async function create(title:string|null){if(!token)return;if(creation.current&&creation.current.command!=='study.create'){setError('Retry the original note creation before starting another study.');return;}const captured=epoch.current;setBusy(true);try{if(!creation.current){const operation_id=uuid();creation.current={operation_id,command:'study.create',path:'/api/studies',method:'POST',payload:{operation_id,title},generation:0};}const result=await execute(token,creation.current);if(!valid(captured))return;creation.current.study=result.study_id;await openStudy(result.study_id);}catch(e){if(valid(captured)){if(e instanceof NotesFailure&&e.code==='scribeswell_personal_notes_input_invalid')creation.current=undefined;fail(e);}}finally{if(valid(captured))setBusy(false);}}
  async function addNote(){if(!token||!study)return;if(creation.current&&(creation.current.command!=='note.create'||creation.current.study!==study.id)){setError('Retry the original creation before starting another note.');return;}await exit(async()=>{const captured=epoch.current;setBusy(true);try{if(!creation.current){const operation_id=uuid();creation.current={operation_id,command:'note.create',path:`/api/studies/${study.id}/notes`,method:'POST',payload:{operation_id,value:{document:{version:1,blocks:[]},connections:[],highlights:[]}},study:study.id,generation:0};}const result=await execute(token,creation.current);if(!valid(captured))return;const note=await api.note(token,study.id,result.note_id!);if(!valid(captured))return;creation.current=undefined;lanes.current.set(note.id,{note,value:note.value,generation:0,saved:0,status:'saved',composing:false,invalid:false});setNotes(old=>[note,...old]);setCurrent(note.id);setTool('analysis');setAnalysisTab('Notes');update();}catch(e){if(valid(captured))fail(e);}finally{if(valid(captured))setBusy(false);}},true);}
- useEffect(()=>{function unload(e:BeforeUnloadEvent){if([...lanes.current.values()].some(l=>l.invalid||l.generation!==l.saved)||[...titles.current.values()].some(edit=>!edit.confirmed&&(edit.attempt||edit.running))){e.preventDefault();e.returnValue='';}}window.addEventListener('beforeunload',unload);return()=>window.removeEventListener('beforeunload',unload);},[]);
+ useEffect(()=>{function unload(e:BeforeUnloadEvent){if([...lanes.current.values()].some(l=>l.invalid||l.generation!==l.saved)||[...titles.current.values()].some(edit=>!edit.confirmed&&(edit.attempt||edit.running))||[...collections.current.values()].some(lane=>!lane.confirmed&&(!!lane.attempt||!!lane.running))){e.preventDefault();e.returnValue='';}}window.addEventListener('beforeunload',unload);return()=>window.removeEventListener('beforeunload',unload);},[]);
  const visible=dataAccount.current===account&&authority;
  const titleEdit=study&&visible?titles.current.get(study.id):undefined;
+ const collection=study&&visible?collections.current.get(study.id):undefined;
  const lane=current&&visible?lanes.current.get(current):undefined;
- return {accountKey:account??'anonymous',enabled:import.meta.env.VITE_STUDIES_ENABLED==='true',tool,setTool,analysisTab,setAnalysisTab,invalidInput:()=>{if(lane){lane.invalid=true;lane.status='failed';clearTimeout(lane.timer);update();}},studies:visible?studies:[],study:visible?study:null,notes:visible?notes:[],current:visible?current:null,lane,error,busy,studyCursor,notesCursor,titleEdit: titleEdit?.open?titleEdit:undefined,beginRename,changeTitle,cancelRename,saveTitle,reloadTitle,loadStudies,moreNotes,openStudies,openStudy,openNote,start,create,addNote,change,composition,retry:()=>lane&&flush(lane,true),exit,exitPrompt,stay:()=>setExitPrompt(null),proceed:async()=>{const prompt=exitPrompt;setExitPrompt(null);if(prompt){if(prompt.discard&&lanes.current.get(prompt.discard.note.id)===prompt.discard){clearTimeout(prompt.discard.timer);lanes.current.delete(prompt.discard.note.id);setCurrent(null);}await prompt.action();}},leave:()=>{const requestNavigation=++navigation.current;return exit(()=>{if(requestNavigation!==navigation.current)return;selectedStudy.current=undefined;notesPosition.current=null;setStudy(null);setCurrent(null);setNotes([]);setTool('studies');void loadStudies();},true);}};
+ return {accountKey:account??'anonymous',enabled:import.meta.env.VITE_STUDIES_ENABLED==='true',tool,setTool,analysisTab,setAnalysisTab,invalidInput:()=>{if(lane){lane.invalid=true;lane.status='failed';clearTimeout(lane.timer);update();}},studies:visible?studies:[],study:visible?study:null,notes:visible?notes:[],current:visible?current:null,lane,error,busy,studyCursor,notesCursor,collection,collect,removePassage,retryPassages,reviewPassages,cancelPassageIntent,titleEdit: titleEdit?.open?titleEdit:undefined,beginRename,changeTitle,cancelRename,saveTitle,reloadTitle,loadStudies,moreNotes,openStudies,openStudy,openNote,start,create,addNote,change,composition,retry:()=>lane&&flush(lane,true),exit,exitPrompt,stay:()=>setExitPrompt(null),proceed:async()=>{const prompt=exitPrompt;setExitPrompt(null);if(prompt){if(prompt.discard&&lanes.current.get(prompt.discard.note.id)===prompt.discard){clearTimeout(prompt.discard.timer);lanes.current.delete(prompt.discard.note.id);setCurrent(null);}await prompt.action();}},leave:()=>{const requestNavigation=++navigation.current;return exit(()=>{if(requestNavigation!==navigation.current)return;collectionNavigation.current++;selectedStudy.current=undefined;notesPosition.current=null;setStudy(null);setCurrent(null);setNotes([]);setTool('studies');void loadStudies();},true);}};
 }
 type Studies=ReturnType<typeof useStatefulStudies>;
 const Context=createContext<Studies|null>(null);

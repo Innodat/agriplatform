@@ -55,6 +55,7 @@ export function toHebrewOrdinal(n: number): string {
 
   for (const [value, letter] of GEMATRIA_VALUES) {
     while (remaining >= value) {
+      if (remaining === 15 || remaining === 16) return result + (remaining === 15 ? "טו" : "טז");
       result += letter;
       remaining -= value;
     }

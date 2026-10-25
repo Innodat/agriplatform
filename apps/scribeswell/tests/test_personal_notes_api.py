@@ -140,3 +140,49 @@ def test_rename_boundary_fresh_authority_safe_conflict_and_input():
         response=c.put('/api/studies/'+OP+'/title',headers={'Authorization':'Bearer current'},json=invalid)
         assert response.status_code==400 and response.headers['cache-control']=='private, no-store'
     assert c.put('/api/studies/'+OP+'/title',json=body).status_code==401
+
+def test_passage_collection_current_authority_safe_rejections_and_lookup():
+    from personal_notes_access import NotesError
+    from passage_references import parse_reference
+    calls=[]
+    class PassageStorage(Storage):
+        async def passages(self,identity,study_id,deadline):
+            assert identity['account_id']==ACCOUNT and study_id==OP
+            return {'study_id':study_id,'revision':'1','items':[]}
+        async def execute(self,identity,command,payload,study_id,note_id,deadline):
+            calls.append(command)
+            assert command=='study.passages.replace' and study_id==OP and note_id is None
+            if payload.expected_revision=='2':raise NotesError('passage_revision_conflict',{'expected_revision':'2','current_revision':'1'})
+            return {'operation_id':payload.operation_id,'command':command,'study_id':study_id,'note_id':None,'revision':'2'}
+        async def lookup(self,identity,operation_id,command,deadline):
+            assert command=='study.passages.replace'
+            return {'status':'unresolved'}
+    app=FastAPI();app.include_router(build_router(Access(),PassageStorage()));c=TestClient(app)
+    headers={'Authorization':'Bearer current'};url='/api/studies/'+OP+'/passages'
+    assert c.get(url,headers=headers).json()=={'study_id':OP,'revision':'1','items':[]}
+    payload={'operation_id':OP,'expected_revision':'1','items':[{'id':OP,'reference':parse_reference('Gen1:31–2:3')}]}
+    result=c.put(url,headers=headers,json=payload)
+    assert result.status_code==200 and result.json()['command']=='study.passages.replace'
+    assert result.headers['cache-control']=='private, no-store'
+    conflict=c.put(url,headers=headers,json={**payload,'expected_revision':'2'})
+    assert conflict.status_code==409 and conflict.json()['details']=={'expected_revision':'2','current_revision':'1'}
+    assert c.get('/api/operations/'+OP+'?command=study.passages.replace',headers=headers).json()=={'status':'unresolved'}
+    for change in ({'owner_account_id':ACCOUNT},{'items':payload['items']*2},{'expected_revision':True}):
+        result=c.put(url,headers=headers,json={**payload,**change})
+        assert result.status_code==400 and result.json()['code']=='scribeswell_personal_notes_input_invalid'
+        assert 'Genesis' not in result.text and result.headers['cache-control']=='private, no-store'
+    assert calls==['study.passages.replace','study.passages.replace']
+    assert c.get(url).status_code==401
+
+
+def test_passage_access_denial_precedes_local_storage():
+    from personal_notes_access import NotesError
+    class Denied:
+        async def check(self,*args):raise NotesError('studies_access_denied')
+    class Never:
+        async def passages(self,*args):raise AssertionError('storage must not run')
+        async def execute(self,*args):raise AssertionError('storage must not run')
+    app=FastAPI();app.include_router(build_router(Denied(),Never()));c=TestClient(app)
+    headers={'Authorization':'Bearer current'};url='/api/studies/'+OP+'/passages'
+    assert c.get(url,headers=headers).status_code==403
+    assert c.put(url,headers=headers,json={'operation_id':OP,'expected_revision':'1','items':[]}).status_code==403

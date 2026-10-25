@@ -8,6 +8,7 @@ async function setup(page,options={}){
  await page.addInitScript(s=>localStorage.setItem('pts-auth',JSON.stringify(s)),session);
  await page.route('http://127.0.0.1:8001/**',r=>r.fulfill({json:[]}));
  await page.route('**/api/bible/**',r=>{const path=new URL(r.request().url()).pathname;const b={id:1,osis_id:'Gen',name_en:'Genesis',name_he:'בראשית',testament:'OT',book_order:1};const w={id:1,position:1,surface_he:'בְּרֵאשִׁית',display_he:'בְּרֵאשִׁית',lemma_strong:null,morph_code:null};return r.fulfill({json:path.endsWith('/books')?{data:[b],total:1}:path.endsWith('/books/Gen')?{...b,chapters:[{id:1,chapter_num:1}]}:path.includes('/words/')?{...w,morphemes:[]}:{data:[{id:1,verse_num:1,book_id:1,chapter_num:1,words:[w]}],total:1}});});
+ const collection={study_id:study,revision:'1',items:[]};
  const metadata={title:'Untitled study',revision:'1'};
  let saved={document:{version:1,blocks:[]},connections:[],highlights:[]},created=false,noteCreated=false,revision='1',requests=[],operations=new Map();
  await page.route('**/api/operations/**',async r=>{if(options.beforeLookup)await options.beforeLookup();const id=new URL(r.request().url()).pathname.split('/').pop();return r.fulfill({json:options.unresolved?{status:'unresolved'}:operations.has(id)?{status:'committed',outcome:operations.get(id)}:{status:'unresolved'}});});
@@ -15,6 +16,20 @@ async function setup(page,options={}){
   const req=r.request(),url=new URL(req.url()),path=url.pathname,method=req.method(),payload=req.postDataJSON();requests.push({path,method,payload});
   let data;
   if(path.endsWith('/enrollment'))data={operation_id:payload.operation_id,status:'committed',result:{disposition:'created',account_id:account,actor_id:actor,permission:'scribeswell.studies.use'}};
+  else if(path.endsWith('/passages')){
+   if(method==='GET'){
+    if(options.beforePassageRead)await options.beforePassageRead();
+    if(options.failPassageRead)return r.fulfill({status:503,json:{code:'studies_storage_unavailable'}});
+    data=collection;
+   }else{
+    if(options.beforePassagePut)await options.beforePassagePut();
+    if(options.failPassages)return r.fulfill({status:options.failPassages,json:{code:options.failPassages===409?'passage_revision_conflict':options.failPassages===400?'scribeswell_personal_notes_input_invalid':options.failPassages===401?'authentication_required':options.failPassages===403?'studies_access_denied':options.failPassages===404?'resource_unavailable':'studies_storage_unavailable'}});
+    if(operations.has(payload.operation_id))data=operations.get(payload.operation_id);
+    else{if(payload.expected_revision!==collection.revision)return r.fulfill({status:409,json:{code:'passage_revision_conflict'}});if(JSON.stringify(payload.items)!==JSON.stringify(collection.items)){collection.items=payload.items;collection.revision=String(Number(collection.revision)+1);}data={operation_id:payload.operation_id,command:'study.passages.replace',study_id:study,note_id:null,revision:collection.revision};operations.set(payload.operation_id,data);}
+    if(options.afterPassageCommit)options.afterPassageCommit();
+    if(options.dropPassages){options.dropPassages=false;return r.abort('connectionreset');}
+   }
+  }
   else if(path.endsWith('/title')&&method==='PUT'){
    if(options.beforeRename)await options.beforeRename();
    if(options.failRename)return r.fulfill({status:options.failRename,json:{code:options.failRename===409?'study_revision_conflict':options.failRename===400?'scribeswell_personal_notes_input_invalid':options.failRename===401?'authentication_required':options.failRename===403?'studies_access_denied':'studies_storage_unavailable'}});
@@ -32,7 +47,7 @@ async function setup(page,options={}){
   if(data.command)operations.set(data.operation_id,data);
   if(method==='PUT'&&options.dropPut){options.dropPut=false;return r.abort('connectionreset');}
   return r.fulfill({json:data,headers:{'cache-control':'private, no-store'}});
- });return {requests,metadata};
+ });return {requests,metadata,collection};
 }
 test('explicitly enroll, create, write Hebrew and reopen saved text after reload',async({page})=>{
  const {requests}=await setup(page);await page.goto('/');expect(requests).toHaveLength(0);
@@ -235,4 +250,121 @@ test('rename patch: overlapping same-study metadata cannot lower heading revisio
 
 test('rename patch: opening a note during initial read releases loading without reopening title',async({page})=>{
  await setup(page);await firstNote(page);await page.getByRole('button',{name:'Back to Studies',exact:true}).click();let release;const gate=new Promise(resolve=>release=resolve);await page.route('**/api/studies/'+study,async r=>{await gate;return r.fallback();});await page.getByRole('button',{name:'Rename',exact:true}).click();await expect(page.getByRole('status')).toContainText('Loading Studies');await page.getByRole('button',{name:'Empty note',exact:true}).click();await expect(page.getByLabel('Note text',{exact:true})).toBeVisible();const read=page.waitForResponse('**/api/studies/'+study);release();await read;await page.getByRole('button',{name:'Back to Studies',exact:true}).click();await expect(page.getByLabel('Title',{exact:true})).toHaveCount(0);await expect(page.getByRole('button',{name:'Rename',exact:true})).toBeEnabled();await expect(page.getByRole('button',{name:'Add note',exact:true})).toBeEnabled();await expect(page.getByRole('status')).toHaveCount(0);
+});
+
+test('collected passage keeps dirty writing and opens only explicitly',async({page})=>{
+ const {requests}=await setup(page,{failPut:503});await firstNote(page);
+ await page.getByLabel('Note text',{exact:true}).fill('Dirty collection observation עברית');
+ await page.getByRole('button',{name:'Back to Studies',exact:true}).click();
+ await page.getByRole('button',{name:'Add passage',exact:true}).click();
+ await page.getByLabel('Passage reference',{exact:true}).fill('Genesis1:31–2:3');
+ await page.getByLabel('Passage reference',{exact:true}).press('Enter');
+ await expect(page.getByRole('list',{name:'Passages',exact:true})).toContainText('Genesis 1:31–2:3');
+ expect(new URL(page.url()).searchParams.get('chapter')).toBe(null);
+ await page.getByRole('button',{name:'Analysis',exact:true}).click();await expect(page.getByLabel('Note text',{exact:true})).toContainText('Dirty collection observation');
+ expect(requests.filter(r=>r.path.endsWith('/passages')&&r.method==='PUT')).toHaveLength(1);
+});
+
+async function collectionStudy(page){await page.goto('/');await page.getByRole('button',{name:'Studies',exact:true}).click();await page.getByRole('button',{name:'Start a study',exact:true}).click();await page.getByRole('button',{name:'Create study',exact:true}).click();await expect(page.getByRole('button',{name:'Add passage',exact:true})).toBeEnabled();}
+async function addReference(page,text,label='Add passage'){await page.getByRole('button',{name:label,exact:true}).click();await page.getByLabel('Passage reference',{exact:true}).fill(text);await page.getByLabel('Passage reference',{exact:true}).press('Enter');}
+
+test('collected passages persist chapters Hebrew ranges overlap and duplicate IDs without navigation',async({page})=>{
+ const {requests,collection,metadata}=await setup(page);await collectionStudy(page);
+ for(const text of ['בראשית א','תהילים קי:1','Ps 110:1–3','Genesis1:31–2:3','Matthew26:63–64']){await addReference(page,text);await expect(page.getByRole('button',{name:'Add passage',exact:true})).toBeEnabled();}
+ const list=page.getByRole('list',{name:'Passages',exact:true});await expect(list.locator('li')).toHaveCount(5);expect(collection.items[0].reference.target).toEqual({kind:'chapter',chapter:1});const original=JSON.stringify(collection),writes=requests.filter(r=>r.path.endsWith('/passages')&&r.method==='PUT').length;
+ await addReference(page,'Genesis 1');await expect(page.getByRole('alert')).toContainText('Already in this study');await expect(page.getByLabel('Passage reference',{exact:true})).toHaveValue('Genesis 1');await expect(page.getByLabel('Passage reference',{exact:true})).toBeEditable();await page.getByRole('button',{name:'Cancel',exact:true}).click();expect(JSON.stringify(collection)).toBe(original);expect(requests.filter(r=>r.path.endsWith('/passages')&&r.method==='PUT')).toHaveLength(writes);expect(metadata.revision).toBe('1');expect(new URL(page.url()).searchParams.has('verse')).toBe(false);
+ await page.reload();await page.getByRole('button',{name:'Studies',exact:true}).click();await page.getByRole('button',{name:'Untitled study',exact:true}).click();await expect(list.locator('li')).toHaveCount(5);await expect(list).toContainText('Genesis 1:31–2:3');
+ await page.getByRole('button',{name:'Open Matthew 26:63–64',exact:true}).click();await expect(page.getByText(/Matthew 26:63–64 — Text unavailable/)).toBeVisible();expect(new URL(page.url()).searchParams.get('verse')).toBe('63');expect(new URL(page.url()).searchParams.get('EndVerse')).toBe('64');await expect(page.getByRole('button',{name:/Word:/})).toHaveCount(0);await page.getByRole('button',{name:'Next chapter',exact:true}).click();expect(new URL(page.url()).searchParams.get('chapter')).toBe('27');await page.goBack();await expect(page.getByText(/Matthew 26:63–64 — Text unavailable/)).toBeVisible();
+ await page.getByRole('button',{name:'Studies',exact:true}).click();await page.getByRole('button',{name:'Remove Psalms 110:1–3',exact:true}).click();await expect(list.locator('li')).toHaveCount(4);await expect(list).toContainText('Psalms 110:1');
+});
+
+test('collected picker cancels restores focus rejects bad numbering and clears range on another chapter',async({page})=>{
+ const {requests}=await setup(page);await collectionStudy(page);const add=page.getByRole('button',{name:'Add passage',exact:true});await add.click();const input=page.getByLabel('Passage reference',{exact:true});
+ for(const text of ['Ps2:10–13','Genesis 1.1','Ps 11.0:1','Gen 1:3–1','unknown1']){await input.fill(text);await input.press('Enter');await expect(input).toBeVisible();await expect(page.getByText('Enter a valid book and chapter, verse or range.')).toBeVisible();}
+ await input.fill('Genesis1:31–2:3');await expect(page.getByRole('button',{name:'Chapter 1 of Genesis',exact:true})).toHaveAttribute('aria-current','page');await input.press('Escape');await expect(add).toBeFocused();expect(requests.filter(r=>r.method==='PUT')).toHaveLength(0);
+ await add.click();await input.fill('Genesis1:31–2:3');await page.getByRole('button',{name:'Chapter 2 of Genesis',exact:true}).click();await expect(page.getByRole('list',{name:'Passages',exact:true})).toContainText('Genesis 2');expect(requests.find(r=>r.method==='PUT').payload.items[0].reference.target).toEqual({kind:'chapter',chapter:2});
+ await page.getByRole('button',{name:'Add current passage',exact:true}).click();await expect(input).toHaveValue('Genesis 1');await page.getByRole('button',{name:'Cancel',exact:true}).click();await expect(page.getByRole('button',{name:'Add current passage',exact:true})).toBeFocused();
+});
+
+test('collected passages conflict keeps candidate and requires current-list review and explicit new action',async({page})=>{
+ const options={failPassages:409};const {requests,collection}=await setup(page,options);await collectionStudy(page);await addReference(page,'Ps110:1–3');await expect(page.getByRole('alert')).toContainText('Passages changed elsewhere');await expect(page.getByText('Intended change: Add Psalms 110:1–3')).toBeVisible();const first=requests.find(r=>r.method==='PUT').payload;
+ const concurrent={id:'50000000-0000-4000-8000-000000000001',reference:first.items[0].reference};concurrent.reference=JSON.parse(JSON.stringify(concurrent.reference));concurrent.reference.book_id='Gen';concurrent.reference.target={kind:'chapter',chapter:2};collection.items=[concurrent];collection.revision='2';
+ options.failPassages=0;await page.getByRole('button',{name:'Load current passages',exact:true}).click();await expect(page.getByRole('button',{name:'Apply reviewed change',exact:true})).toBeVisible();expect(requests.filter(r=>r.method==='PUT')).toHaveLength(1);await expect(page.getByRole('list',{name:'Passages',exact:true})).toContainText('Genesis 2');await page.getByRole('button',{name:'Apply reviewed change',exact:true}).click();await expect(page.getByRole('list',{name:'Passages',exact:true})).toContainText('Psalms 110:1–3');const second=requests.filter(r=>r.method==='PUT').at(-1).payload;expect(second.operation_id).not.toBe(first.operation_id);expect(second.expected_revision).toBe('2');expect(second.items).toHaveLength(2);expect(second.items[0]).toEqual(concurrent);expect(second.items[1].reference).toEqual(first.items[0].reference);await expect(page.getByRole('list',{name:'Passages',exact:true})).toContainText('Genesis 2');
+});
+
+test('collected uncertain operation freezes its snapshot and retries original identity',async({page})=>{
+ const options={dropPassages:true,unresolved:true};const {requests,collection}=await setup(page,options);await collectionStudy(page);await addReference(page,'Gen1:31–2:3');await expect(page.getByRole('button',{name:'Retry passage change',exact:true})).toBeVisible();await expect(page.getByRole('button',{name:'Add passage',exact:true})).toBeDisabled();const first=requests.find(r=>r.method==='PUT').payload;expect(collection.items).toHaveLength(1);
+ const warned=await page.evaluate(()=>{const event=new Event('beforeunload',{cancelable:true});window.dispatchEvent(event);return event.defaultPrevented;});expect(warned).toBe(true);
+ options.unresolved=false;await page.getByRole('button',{name:'Retry passage change',exact:true}).click();await expect(page.getByRole('list',{name:'Passages',exact:true})).toContainText('Genesis 1:31–2:3');expect(requests.filter(r=>r.method==='PUT').map(r=>r.payload)).toEqual([first,first]);expect(collection.revision).toBe('2');
+});
+
+test('collected acknowledged success retries only current read after refresh failure',async({page})=>{
+ const options={afterPassageCommit:()=>{options.failPassageRead=true;}};const {requests}=await setup(page,options);await collectionStudy(page);await addReference(page,'Gen1');await expect(page.getByRole('alert')).toContainText('Passages saved. Current list could not be refreshed');const writes=requests.filter(r=>r.method==='PUT').length;expect(await page.evaluate(()=>{const event=new Event('beforeunload',{cancelable:true});window.dispatchEvent(event);return event.defaultPrevented;})).toBe(false);
+ options.failPassageRead=false;await page.getByRole('button',{name:'Retry passages refresh',exact:true}).click();await expect(page.getByRole('list',{name:'Passages',exact:true})).toContainText('Genesis 1');expect(requests.filter(r=>r.method==='PUT')).toHaveLength(writes);
+});
+
+test('collected late account response cannot repopulate another account',async({page})=>{
+ let release;const options={beforePassagePut:()=>new Promise(resolve=>release=resolve)};await setup(page,options);await collectionStudy(page);await addReference(page,'Ps110');await expect.poll(()=>Boolean(release)).toBe(true);
+ await page.route('**/auth/v1/token*',r=>r.fulfill({json:{...session,access_token:'other-account',user:{...session.user,id:'10000000-0000-4000-8000-000000000002'}}}));await page.evaluate(async()=>{const {supabase}=await import('/src/lib/supabase.ts');await supabase.auth.signInWithPassword({email:'other@example.invalid',password:'fixture'});});release();await expect(page.getByRole('list',{name:'Passages',exact:true})).toHaveCount(0);await expect(page.getByText('Psalms 110',{exact:true})).toHaveCount(0);await expect(page.getByRole('button',{name:'Studies',exact:true})).toBeVisible();
+});
+
+for(const status of [401,403,404])test(`collected current access or lifecycle refusal ${status} keeps public reader usable`,async({page})=>{
+ await setup(page,{failPassages:status});await collectionStudy(page);await addReference(page,'Gen1');if(status===404)await expect(page.getByRole('button',{name:'Retry passage change',exact:true})).toBeVisible();else await expect(page.getByRole('alert')).toContainText(status===401?'Sign in':'Studies access');await page.getByRole('button',{name:'Studies',exact:true}).click();await expect(page.getByRole('region',{name:'Chapter text',exact:true})).toBeVisible();await expect(page.getByRole('button',{name:/Word:/})).toBeVisible();
+});
+
+test('collected reference parser Python and browser accept the same canonical examples',async({page})=>{
+ await setup(page);await page.goto('/');const samples=['Psalm110:1','Ps 110:1–3','תהילים קי:1','Genesis1:31–2:3','Matthew26:63–64','בראשית ט״ו','1 Samuel 2','Psalm קטו:1','Psalm קטז:1','Ps 119:קטו–קטז','I. Samuel 2'];const actual=await page.evaluate(async samples=>{const {parseReference}=await import('/src/lib/passage-references.ts');return samples.map(parseReference);},samples);
+ const {execFileSync}=require('node:child_process'),path=require('node:path');const script="import json,sys;from apps.scribeswell.backend.passage_references import parse_reference;print(json.dumps([parse_reference(s) for s in json.loads(sys.argv[1])]))";const expected=JSON.parse(execFileSync(process.env.SCRIBESWELL_TEST_PYTHON||'python3',['-c',script,JSON.stringify(samples)],{cwd:path.resolve(__dirname,'../../../..'),encoding:'utf8'}));expect(actual).toEqual(expected);
+});
+
+for(const status of [401,403])test(`collected late initial read ${status} after study departure cannot revoke current context`,async({page})=>{
+ await reviewLibrary(page);let release;let first=true;
+ await page.route('**/api/studies/*/passages',async r=>{const parent=new URL(r.request().url()).pathname.split('/')[3];if(parent===study&&first){first=false;await new Promise(resolve=>release=resolve);return r.fulfill({status,json:{code:status===401?'authentication_required':'studies_access_denied'}});}return r.fulfill({json:{study_id:parent,revision:'1',items:[]}});});
+ await page.getByRole('button',{name:'Study A',exact:true}).click();await expect.poll(()=>Boolean(release)).toBe(true);await page.getByRole('button',{name:'Leave study',exact:true}).click();await page.getByRole('button',{name:'Study B',exact:true}).click();await expect(page.getByRole('button',{name:'Add passage',exact:true})).toBeEnabled();release();await page.waitForTimeout(100);await expect(page.getByRole('heading',{name:'Study B',exact:true})).toBeVisible();await expect(page.getByRole('alert')).toHaveCount(0);
+});
+
+test('collected obsolete initial read cannot change executing lane status',async({page})=>{
+ let releaseRead,releasePut,reads=0;const options={beforePassageRead:()=>{reads++;if(reads===2)return new Promise(resolve=>releaseRead=resolve);},beforePassagePut:()=>new Promise(resolve=>releasePut=resolve)};await setup(page,options);await collectionStudy(page);await page.getByRole('button',{name:'Leave study',exact:true}).click();await page.getByRole('button',{name:'Untitled study',exact:true}).click();await expect.poll(()=>Boolean(releaseRead)).toBe(true);await page.getByRole('button',{name:'Add passage',exact:true}).click();await page.getByLabel('Passage reference',{exact:true}).fill('Ps110');await page.getByLabel('Passage reference',{exact:true}).press('Enter');await expect.poll(()=>Boolean(releasePut)).toBe(true);releaseRead();await page.waitForTimeout(100);await expect(page.getByRole('status').filter({hasText:'Saving passages…'})).toHaveCount(1);options.beforePassagePut=undefined;releasePut();await expect(page.getByRole('list',{name:'Passages',exact:true})).toContainText('Psalms 110');
+});
+
+test('collected server input rejection keeps editable candidate and correction uses fresh operation',async({page})=>{
+ const options={failPassages:400};const {requests}=await setup(page,options);await collectionStudy(page);await addReference(page,'Ps110:1–3');const input=page.getByLabel('Passage reference',{exact:true});await expect(input).toHaveValue('Ps110:1–3');await expect(input).toBeEditable();options.failPassages=0;await input.fill('Genesis1');await input.press('Enter');await expect(input).toHaveCount(0);await expect(page.getByRole('list',{name:'Passages',exact:true})).toContainText('Genesis 1');const puts=requests.filter(r=>r.method==='PUT');expect(puts).toHaveLength(2);expect(puts[0].payload.operation_id).not.toBe(puts[1].payload.operation_id);
+});
+
+test('collected matching chapter confirms complete range and explicit Open preserves dirty note and other pane',async({page})=>{
+ await setup(page,{failPut:503});await firstNote(page);await page.getByLabel('Note text',{exact:true}).fill('Dirty while opening a range');await expect(page.getByRole('status').filter({hasText:'Changes not saved'})).toBeVisible();await page.getByRole('button',{name:'Compare passages',exact:true}).click();await page.getByRole('button',{name:'Back to Studies',exact:true}).click();await page.getByRole('button',{name:'Add passage',exact:true}).click();await page.getByLabel('Passage reference',{exact:true}).fill('Genesis1:31–2:3');await page.getByRole('button',{name:'Chapter 1 of Genesis',exact:true}).click();await expect(page.getByRole('list',{name:'Passages',exact:true})).toContainText('Genesis 1:31–2:3');expect(new URL(page.url()).searchParams.has('compareVerse')).toBe(false);await page.getByRole('button',{name:'Open Genesis 1:31–2:3',exact:true}).click();const url=new URL(page.url());expect(url.searchParams.get('chapter')).toBe(null);expect(url.searchParams.get('compareVerse')).toBe('31');expect(url.searchParams.get('compareEndChapter')).toBe('2');expect(url.searchParams.get('compareEndVerse')).toBe('3');await page.getByRole('button',{name:'Analysis',exact:true}).click();await expect(page.getByLabel('Note text',{exact:true})).toContainText('Dirty while opening a range');
+});
+
+test('collected supported source outage retains reference and offers truthful chapter Retry',async({page})=>{
+ await setup(page);await page.route('**/api/bible/books/Ps/chapters/110/verses*',r=>r.fulfill({status:503,json:{code:'unavailable'}}));await collectionStudy(page);await addReference(page,'Ps110');await page.getByRole('button',{name:'Open Psalms 110',exact:true}).click();await expect(page.getByRole('button',{name:'Retry chapter',exact:true})).toBeVisible();await expect(page.getByText('Text unavailable',{exact:false})).toHaveCount(0);await page.getByRole('button',{name:'Studies',exact:true}).click();await expect(page.getByRole('list',{name:'Passages',exact:true})).toContainText('Psalms 110');
+});
+
+// Focused corrections from independent delivery review.
+test('passage review parser rejects numeric Hebrew punctuation with Python browser parity',async({page})=>{
+ await setup(page);await page.goto('/');const samples=['Gen . 1','Gen 1׃1','Gen 1׀1','Gen 1.1','Genesis 1:1׃2','Ps 11.0:1','I. Samuel 2','II. Samuel 2','Ps. 110:1'];
+ const actual=await page.evaluate(async samples=>{const {parseReference}=await import('/src/lib/passage-references.ts');return samples.map(text=>{try{return parseReference(text);}catch{return null;}});},samples);
+ const {execFileSync}=require('node:child_process'),path=require('node:path');const script="import json,sys;from apps.scribeswell.backend.passage_references import parse_reference,ReferenceError\ndef parse(s):\n try:return parse_reference(s)\n except ReferenceError:return None\nprint(json.dumps([parse(s) for s in json.loads(sys.argv[1])]))";const expected=JSON.parse(execFileSync(process.env.SCRIBESWELL_TEST_PYTHON||'python3',['-c',script,JSON.stringify(samples)],{cwd:path.resolve(__dirname,'../../../..'),encoding:'utf8'}));expect(actual).toEqual(expected);expect(actual.slice(0,6)).toEqual([null,null,null,null,null,null]);expect(actual[6].book_id).toBe('1Sam');
+});
+
+for(const query of ['chapter=0','chapter=bad','chapter=1.5','chapter=51','verse=0','verse=bad','verse=32','verse=1&EndChapter=0','verse=1&EndChapter=bad','verse=1&EndChapter=51','verse=1&EndVerse=0','verse=1&EndVerse=bad','verse=1&EndVerse=32','EndVerse=2','verse=2&EndVerse=1'])test(`passage review malformed current coordinates stay uncollectable ${query}`,async({page})=>{
+ await setup(page);await page.goto('/?book=Gen&'+query);const original=new URL(page.url()).search;await page.getByRole('button',{name:'Studies',exact:true}).click();await page.getByRole('button',{name:'Start a study',exact:true}).click();await page.getByRole('button',{name:'Create study',exact:true}).click();await expect(page.getByRole('button',{name:'Add passage',exact:true})).toBeEnabled();await expect(page.getByRole('button',{name:'Add current passage',exact:true})).toHaveCount(0);expect(new URL(page.url()).search).toBe(original);
+});
+for(const query of ['chapter=1&verse=2','chapter=1&verse=2&EndChapter=1','chapter=1&verse=2&EndVerse=3','verse=2'])test(`passage review absent endpoints alone may default ${query}`,async({page})=>{
+ await setup(page);await page.goto('/?book=Gen&'+query);await page.getByRole('button',{name:'Studies',exact:true}).click();await page.getByRole('button',{name:'Start a study',exact:true}).click();await page.getByRole('button',{name:'Create study',exact:true}).click();await page.getByRole('button',{name:'Add current passage',exact:true}).click();await expect(page.getByLabel('Passage reference',{exact:true})).toHaveValue(query.includes('EndVerse=3')?'Genesis 1:2–3':'Genesis 1:2');await page.getByRole('button',{name:'Cancel',exact:true}).click();
+});
+
+test('passage review Stay retains pending initial collection read',async({page})=>{
+ let release;const options={failPut:503,beforePassageRead:()=>new Promise(resolve=>release=resolve)};await setup(page,options);await firstNote(page);await expect.poll(()=>Boolean(release)).toBe(true);await page.getByLabel('Note text',{exact:true}).fill('Dirty retained study');await expect(page.getByRole('status').filter({hasText:'Changes not saved'})).toBeVisible();await page.getByRole('button',{name:'Back to Studies',exact:true}).click();await page.getByRole('button',{name:'Leave study',exact:true}).click();await page.getByRole('button',{name:'Stay',exact:true}).click();options.beforePassageRead=undefined;release();await expect(page.getByRole('button',{name:'Add passage',exact:true})).toBeEnabled();await page.getByRole('button',{name:'Analysis',exact:true}).click();await expect(page.getByLabel('Note text',{exact:true})).toContainText('Dirty retained study');
+});
+
+test('passage review remove conflict identifies original reference after concurrent deletion',async({page})=>{
+ const options={};const {collection}=await setup(page,options);await collectionStudy(page);await addReference(page,'Ps110:1–3');await expect(page.getByRole('button',{name:'Add passage',exact:true})).toBeEnabled();options.failPassages=409;await page.getByRole('button',{name:'Remove Psalms 110:1–3',exact:true}).click();await expect(page.getByText('Intended change: Remove Psalms 110:1–3',{exact:true})).toBeVisible();collection.items=[];collection.revision='3';options.failPassages=0;await page.getByRole('button',{name:'Load current passages',exact:true}).click();await expect(page.getByRole('list',{name:'Passages',exact:true}).locator('li')).toHaveCount(0);await expect(page.getByText('Intended change: Remove Psalms 110:1–3',{exact:true})).toBeVisible();
+});
+
+for(const destination of ['focus','reopen'])test(`passage review dismissed executing picker never steals ${destination}`,async({page})=>{
+ let release;const options={beforePassagePut:()=>new Promise(resolve=>release=resolve)};await setup(page,options);await collectionStudy(page);await addReference(page,'Gen1');await expect.poll(()=>Boolean(release)).toBe(true);expect(await page.evaluate(()=>{const event=new Event('beforeunload',{cancelable:true});window.dispatchEvent(event);return event.defaultPrevented;})).toBe(true);await page.getByRole('button',{name:'Cancel',exact:true}).click();
+ if(destination==='focus'){await page.getByRole('button',{name:'Rename',exact:true}).click();await page.getByLabel('Title',{exact:true}).fill('Focused after cancellation');}
+ else{if(test.info().project.name==='mobile')await page.getByRole('button',{name:'Return to reader',exact:true}).click();await page.getByRole('button',{name:/Navigate:/}).first().click();await page.getByLabel('Passage reference',{exact:true}).fill('Ps110');}
+ options.beforePassagePut=undefined;release();await expect(page.locator('ul[aria-label="Passages"]')).toContainText('Genesis 1');
+ if(destination==='focus')await expect(page.getByLabel('Title',{exact:true})).toBeFocused();else{await expect(page.getByLabel('Passage reference',{exact:true})).toHaveValue('Ps110');await expect(page.getByLabel('Passage reference',{exact:true})).toBeFocused();}
 });

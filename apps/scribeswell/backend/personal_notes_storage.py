@@ -10,7 +10,7 @@ import psycopg
 from psycopg.rows import dict_row
 from psycopg.types.json import Jsonb
 from personal_notes_access import NotesError,remaining
-from personal_notes_contract import MAX_REVISION,StudyView,NoteView,OperationAck
+from personal_notes_contract import MAX_REVISION,StudyView,NoteView,OperationAck,PassageList
 from personal_notes_cursor import encode,decode
 
 SCHEMA='scribeswell_studies'
@@ -81,7 +81,7 @@ class PersonalNotesStorage:
             receipt=await cursor.fetchone()
             if receipt:
                 if receipt['fingerprint']!=fingerprint: raise NotesError('operation_payload_mismatch')
-                if command=='study.rename': await self._parent(cursor,account,receipt['outcome']['study_id'],lock=True)
+                if command in ('study.rename','study.passages.replace'): await self._parent(cursor,account,receipt['outcome']['study_id'],lock=True)
                 else: await self._live_outcome(cursor,account,receipt['outcome'])
                 return OperationAck.model_validate(receipt['outcome']).model_dump(mode='json')
             if command=='study.create':
@@ -103,6 +103,9 @@ class PersonalNotesStorage:
                     if row['revision']>=int(MAX_REVISION): raise NotesError('resource_unavailable')
                     revision=str(row['revision']+1)
                     await cursor.execute(f'UPDATE {SCHEMA}.studies SET title=%s, revision=revision+1, updated_by=%s, updated_at=clock_timestamp() WHERE account_id=%s AND id=%s',(payload.title,actor,account,study_id))
+            elif command=='study.passages.replace':
+                await self._parent(cursor,account,study_id,lock=True)
+                revision=await self._replace_passages(cursor,account,actor,study_id,payload)
             else:
                 await self._parent(cursor,account,study_id,lock=True)
                 value=payload.value.model_dump(mode='json')
@@ -122,6 +125,51 @@ class PersonalNotesStorage:
             outcome={'operation_id':payload.operation_id,'command':command,'study_id':study_id,'note_id':note_id,'revision':revision}
             await cursor.execute(f'INSERT INTO {SCHEMA}.receipts(account_id,command,command_version,operation_id,fingerprint,outcome,study_id,note_id,created_by) VALUES(%s,%s,1,%s,%s,%s,%s,%s,%s)',(account,command,payload.operation_id,fingerprint,Jsonb(outcome),study_id,note_id,actor))
             return OperationAck.model_validate(outcome).model_dump(mode='json')
+
+    async def _passages(self,cursor,account,study_id):
+        await cursor.execute(f'SELECT revision FROM {SCHEMA}.passage_lists WHERE account_id=%s AND study_id=%s',(account,study_id))
+        header=await cursor.fetchone()
+        await cursor.execute(f'SELECT * FROM {SCHEMA}.passage_entries WHERE account_id=%s AND study_id=%s ORDER BY position',(account,study_id))
+        rows=await cursor.fetchall()
+        items=[]
+        for row in rows:
+            reference={key:row[key] for key in ('catalogue_id','catalogue_version','versification_id','book_id')}
+            reference['target']={'kind':'chapter','chapter':row['start_chapter']} if row['kind']=='chapter' else {'kind':'verse_range','start':{'chapter':row['start_chapter'],'verse':row['start_verse']},'end':{'chapter':row['end_chapter'],'verse':row['end_verse']}}
+            items.append({'id':str(row['id']),'reference':reference})
+        return PassageList.model_validate_json(json.dumps({'study_id':study_id,'revision':str(header['revision']) if header else '1','items':items})).model_dump(mode='json'),rows
+
+    async def passages(self,identity,study_id,deadline):
+        async with self.transaction(identity,deadline) as cursor:
+            # The same parent lock gives a coherent header/ordered-entry snapshot.
+            await self._parent(cursor,identity['account_id'],study_id,lock=True)
+            result,_=await self._passages(cursor,identity['account_id'],study_id)
+            return result
+
+    async def _replace_passages(self,cursor,account,actor,study_id,payload):
+        current,rows=await self._passages(cursor,account,study_id)
+        revision=current['revision']
+        if revision!=payload.expected_revision:raise NotesError('passage_revision_conflict',{'expected_revision':payload.expected_revision,'current_revision':revision})
+        items=[item.model_dump(mode='json') for item in payload.items]
+        if items==current['items']:return revision
+        if int(revision)>=int(MAX_REVISION):raise NotesError('resource_unavailable')
+        retained={item['id']:item['reference'] for item in current['items']}
+        if any(item['id'] in retained and retained[item['id']]!=item['reference'] for item in items):raise NotesError('scribeswell_personal_notes_input_invalid')
+        retained_references={json.dumps(item['reference'],sort_keys=True):item['id'] for item in current['items']}
+        if any(retained_references.get(json.dumps(item['reference'],sort_keys=True),item['id'])!=item['id'] for item in items):raise NotesError('scribeswell_personal_notes_input_invalid')
+        revision=str(int(revision)+1)
+        if current['revision']=='1':
+            await cursor.execute(f'INSERT INTO {SCHEMA}.passage_lists(account_id,study_id,revision,created_by,updated_by) VALUES(%s,%s,%s,%s,%s)',(account,study_id,int(revision),actor,actor))
+        else:
+            await cursor.execute(f'UPDATE {SCHEMA}.passage_lists SET revision=%s,updated_by=%s,updated_at=clock_timestamp() WHERE account_id=%s AND study_id=%s',(int(revision),actor,account,study_id))
+        # Replace order atomically; preserve original creation attribution of retained IDs.
+        originals={str(row['id']):row for row in rows}
+        await cursor.execute(f'DELETE FROM {SCHEMA}.passage_entries WHERE account_id=%s AND study_id=%s',(account,study_id))
+        for position,item in enumerate(items,1):
+            reference=item['reference'];target=reference['target'];old=originals.get(item['id'])
+            start=target['start'] if target['kind']=='verse_range' else {'chapter':target['chapter'],'verse':None}
+            end=target.get('end',{'chapter':None,'verse':None})
+            await cursor.execute(f'INSERT INTO {SCHEMA}.passage_entries(account_id,study_id,id,position,catalogue_id,catalogue_version,versification_id,book_id,kind,start_chapter,start_verse,end_chapter,end_verse,created_at,created_by) VALUES(%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,COALESCE(%s,clock_timestamp()),%s)',(account,study_id,item['id'],position,reference['catalogue_id'],reference['catalogue_version'],reference['versification_id'],reference['book_id'],target['kind'],start['chapter'],start['verse'],end['chapter'],end['verse'],old['created_at'] if old else None,old['created_by'] if old else actor))
+        return revision
 
     async def lookup(self,identity,operation_id,command,deadline):
         async with self.transaction(identity,deadline) as cursor:

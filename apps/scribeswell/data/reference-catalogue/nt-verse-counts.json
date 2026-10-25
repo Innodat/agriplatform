@@ -1,0 +1,430 @@
+{
+  "source_url": "https://crosswire.org/svn/sword/!svn/bc/3765/trunk/include/canon.h",
+  "source_sha256": "782e7a603cdfb45ddfd6eed9d31a639929fb928b47c7042d83c8ee9b76af078a",
+  "description": "Factual New Testament chapter/verse maxima extracted from CrossWire SWORD KJV inventory revision3765. No software or scripture text included. Reference numbering only; no conversion or corpus availability claim.",
+  "versification_id": "crosswire-kjv-3765",
+  "books": [
+    {
+      "book_id": "Matt",
+      "name_en": "Matthew",
+      "chapter_verse_counts": [
+        25,
+        23,
+        17,
+        25,
+        48,
+        34,
+        29,
+        34,
+        38,
+        42,
+        30,
+        50,
+        58,
+        36,
+        39,
+        28,
+        27,
+        35,
+        30,
+        34,
+        46,
+        46,
+        39,
+        51,
+        46,
+        75,
+        66,
+        20
+      ]
+    },
+    {
+      "book_id": "Mark",
+      "name_en": "Mark",
+      "chapter_verse_counts": [
+        45,
+        28,
+        35,
+        41,
+        43,
+        56,
+        37,
+        38,
+        50,
+        52,
+        33,
+        44,
+        37,
+        72,
+        47,
+        20
+      ]
+    },
+    {
+      "book_id": "Luke",
+      "name_en": "Luke",
+      "chapter_verse_counts": [
+        80,
+        52,
+        38,
+        44,
+        39,
+        49,
+        50,
+        56,
+        62,
+        42,
+        54,
+        59,
+        35,
+        35,
+        32,
+        31,
+        37,
+        43,
+        48,
+        47,
+        38,
+        71,
+        56,
+        53
+      ]
+    },
+    {
+      "book_id": "John",
+      "name_en": "John",
+      "chapter_verse_counts": [
+        51,
+        25,
+        36,
+        54,
+        47,
+        71,
+        53,
+        59,
+        41,
+        42,
+        57,
+        50,
+        38,
+        31,
+        27,
+        33,
+        26,
+        40,
+        42,
+        31,
+        25
+      ]
+    },
+    {
+      "book_id": "Acts",
+      "name_en": "Acts",
+      "chapter_verse_counts": [
+        26,
+        47,
+        26,
+        37,
+        42,
+        15,
+        60,
+        40,
+        43,
+        48,
+        30,
+        25,
+        52,
+        28,
+        41,
+        40,
+        34,
+        28,
+        41,
+        38,
+        40,
+        30,
+        35,
+        27,
+        27,
+        32,
+        44,
+        31
+      ]
+    },
+    {
+      "book_id": "Rom",
+      "name_en": "Romans",
+      "chapter_verse_counts": [
+        32,
+        29,
+        31,
+        25,
+        21,
+        23,
+        25,
+        39,
+        33,
+        21,
+        36,
+        21,
+        14,
+        23,
+        33,
+        27
+      ]
+    },
+    {
+      "book_id": "1Cor",
+      "name_en": "I Corinthians",
+      "chapter_verse_counts": [
+        31,
+        16,
+        23,
+        21,
+        13,
+        20,
+        40,
+        13,
+        27,
+        33,
+        34,
+        31,
+        13,
+        40,
+        58,
+        24
+      ]
+    },
+    {
+      "book_id": "2Cor",
+      "name_en": "II Corinthians",
+      "chapter_verse_counts": [
+        24,
+        17,
+        18,
+        18,
+        21,
+        18,
+        16,
+        24,
+        15,
+        18,
+        33,
+        21,
+        14
+      ]
+    },
+    {
+      "book_id": "Gal",
+      "name_en": "Galatians",
+      "chapter_verse_counts": [
+        24,
+        21,
+        29,
+        31,
+        26,
+        18
+      ]
+    },
+    {
+      "book_id": "Eph",
+      "name_en": "Ephesians",
+      "chapter_verse_counts": [
+        23,
+        22,
+        21,
+        32,
+        33,
+        24
+      ]
+    },
+    {
+      "book_id": "Phil",
+      "name_en": "Philippians",
+      "chapter_verse_counts": [
+        30,
+        30,
+        21,
+        23
+      ]
+    },
+    {
+      "book_id": "Col",
+      "name_en": "Colossians",
+      "chapter_verse_counts": [
+        29,
+        23,
+        25,
+        18
+      ]
+    },
+    {
+      "book_id": "1Thess",
+      "name_en": "I Thessalonians",
+      "chapter_verse_counts": [
+        10,
+        20,
+        13,
+        18,
+        28
+      ]
+    },
+    {
+      "book_id": "2Thess",
+      "name_en": "II Thessalonians",
+      "chapter_verse_counts": [
+        12,
+        17,
+        18
+      ]
+    },
+    {
+      "book_id": "1Tim",
+      "name_en": "I Timothy",
+      "chapter_verse_counts": [
+        20,
+        15,
+        16,
+        16,
+        25,
+        21
+      ]
+    },
+    {
+      "book_id": "2Tim",
+      "name_en": "II Timothy",
+      "chapter_verse_counts": [
+        18,
+        26,
+        17,
+        22
+      ]
+    },
+    {
+      "book_id": "Titus",
+      "name_en": "Titus",
+      "chapter_verse_counts": [
+        16,
+        15,
+        15
+      ]
+    },
+    {
+      "book_id": "Phlm",
+      "name_en": "Philemon",
+      "chapter_verse_counts": [
+        25
+      ]
+    },
+    {
+      "book_id": "Heb",
+      "name_en": "Hebrews",
+      "chapter_verse_counts": [
+        14,
+        18,
+        19,
+        16,
+        14,
+        20,
+        28,
+        13,
+        28,
+        39,
+        40,
+        29,
+        25
+      ]
+    },
+    {
+      "book_id": "Jas",
+      "name_en": "James",
+      "chapter_verse_counts": [
+        27,
+        26,
+        18,
+        17,
+        20
+      ]
+    },
+    {
+      "book_id": "1Pet",
+      "name_en": "I Peter",
+      "chapter_verse_counts": [
+        25,
+        25,
+        22,
+        19,
+        14
+      ]
+    },
+    {
+      "book_id": "2Pet",
+      "name_en": "II Peter",
+      "chapter_verse_counts": [
+        21,
+        22,
+        18
+      ]
+    },
+    {
+      "book_id": "1John",
+      "name_en": "I John",
+      "chapter_verse_counts": [
+        10,
+        29,
+        24,
+        21,
+        21
+      ]
+    },
+    {
+      "book_id": "2John",
+      "name_en": "II John",
+      "chapter_verse_counts": [
+        13
+      ]
+    },
+    {
+      "book_id": "3John",
+      "name_en": "III John",
+      "chapter_verse_counts": [
+        14
+      ]
+    },
+    {
+      "book_id": "Jude",
+      "name_en": "Jude",
+      "chapter_verse_counts": [
+        25
+      ]
+    },
+    {
+      "book_id": "Rev",
+      "name_en": "Revelation of John",
+      "chapter_verse_counts": [
+        20,
+        29,
+        22,
+        11,
+        14,
+        17,
+        17,
+        13,
+        21,
+        11,
+        19,
+        17,
+        18,
+        20,
+        8,
+        21,
+        18,
+        24,
+        21,
+        15,
+        27,
+        21
+      ]
+    }
+  ]
+}

@@ -52,6 +52,8 @@ def source_inventory():
     paths.update(ACCESS.glob('*.py'))
     for base in (ACCESS/'identity-migrations',ACCESS/'migrations',ACCESS/'tools',APP/'backend',APP/'studies-migrations',APP/'studies-database-tools',APP/'tools/sql',APP/'supabase/migrations',APP/'web/src'):
         paths.update(p for p in base.rglob('*') if p.is_file() and p.suffix in ('.py','.sql','.json','.ts','.tsx','.ini'))
+    paths.update((APP/'data/reference-catalogue').glob('*.json'))
+    paths.update((APP/'scripts').glob('hebrew.json'));paths.update((APP/'tools/py').glob('build_reference_catalogue.py'))
     paths.update((APP/'web/tests').glob('studies-owner*.cjs'))
     paths.update((APP/'tools/py').glob('qualify_studies_owner_integration.py'))
     paths.update((APP/'web').glob('*config.*'))
@@ -70,6 +72,7 @@ PROTECTED_TABLES=(
     'identity.studies_setup_outcome','identity.studies_setup_event',
     'access.studies_account_grant','access.studies_enrollment_outcome','access.studies_assignment_event',
     'scribeswell_studies.studies','scribeswell_studies.notes','scribeswell_studies.receipts',
+    'scribeswell_studies.passage_lists','scribeswell_studies.passage_entries',
 )
 
 def protected_state(connection):
@@ -292,11 +295,17 @@ class Qualification:
             assert row['account_id']==owner and row['created_by']==row['updated_by']==bindings[owner]
             assert row['created_at'] and row['updated_at']>=row['created_at'] and row['revision']>0
         receipts=state['scribeswell_studies.receipts']
-        assert sorted(row['command'] for row in receipts)==sorted(['note.create','note.replace','study.create','study.create']+(['study.rename'] if 'rename_operation' in expected else []))
+        assert sorted(row['command'] for row in receipts)==sorted(['note.create','note.replace','study.create','study.create']+(['study.rename'] if 'rename_operation' in expected else [])+['study.passages.replace']*len(expected.get('passage_operations',[])))
         if 'rename_operation' in expected:
             renamed=next(row for row in studies if row['id']==expected['study'])
             assert renamed['title']==expected['rename_title'] and renamed['revision']==2
             assert {row['operation_id'] for row in receipts if row['command']=='study.rename'}=={expected['rename_operation']}
+        if 'passage_operations' in expected:
+            assert {row['operation_id'] for row in receipts if row['command']=='study.passages.replace'}==set(expected['passage_operations'])
+            headers=state['scribeswell_studies.passage_lists'];entries=state['scribeswell_studies.passage_entries']
+            assert len(headers)==1 and headers[0]['revision']==4 and headers[0]['study_id']==expected['study']
+            assert len(entries)==1 and entries[0]['id']==expected['passage_item']['id'] and entries[0]['book_id']=='Matt'
+            for row in headers+entries:assert row['account_id']==owner and row['created_by']==bindings[owner] and row['created_at']
         assert {row['operation_id'] for row in receipts if row['command']=='study.create'}=={expected['operation'],expected['ui_operation']}
         for row in receipts:assert row['account_id']==owner and row['created_by']==bindings[owner] and row['created_at']
         for table in ('access.studies_account_grant','access.studies_assignment_event','identity.studies_setup_event'):
@@ -332,7 +341,7 @@ class Qualification:
 
     def browser(self):
         def checkpoints(process):
-            for name in ('pre-enrollment','rename-before','rename-after','foreign-before','foreign-after'):
+            for name in ('pre-enrollment','rename-before','rename-after','passages-before','passages-after','foreign-before','foreign-after'):
                 limit=time.monotonic()+60
                 while not (self.proof/(name+'-check.json')).exists():
                     if process.poll() is not None or time.monotonic()>=limit:raise RuntimeError('qualification_checkpoint_missing:'+name)
@@ -354,6 +363,22 @@ class Qualification:
                     receipts=[row for row in current if row['command']=='study.rename']
                     assert len(receipts)==1 and receipts[0]['operation_id']==expected['operation'] and receipts[0]['created_by']==new['updated_by']
                     assert receipts[0]['outcome']['revision']=='2' and receipts[0]['outcome']['note_id'] is None
+                elif name=='passages-before':self.snapshot('before-passages')
+                elif name=='passages-after':
+                    before=self.protected_snapshots['before-passages'];after=self.snapshot('after-passages')
+                    expected=json.loads((self.proof/'passages-result.json').read_text())
+                    assert before['scribeswell_studies.notes']==after['scribeswell_studies.notes'],'Collection mutated note rows'
+                    assert before['scribeswell_studies.studies']==after['scribeswell_studies.studies'],'Collection mutated title rows'
+                    headers=after['scribeswell_studies.passage_lists'];entries=after['scribeswell_studies.passage_entries']
+                    assert len(headers)==1 and headers[0]['revision']==4 and headers[0]['study_id']==expected['study']
+                    assert len(entries)==1 and entries[0]['book_id']=='Matt' and entries[0]['id']==expected['item']['id'] and entries[0]['position']==1
+                    assert all(entries[0][key]==expected['item']['reference'][key] for key in ('catalogue_id','catalogue_version','versification_id','book_id'))
+                    assert entries[0]['kind']=='verse_range' and (entries[0]['start_chapter'],entries[0]['start_verse'],entries[0]['end_chapter'],entries[0]['end_verse'])==(26,63,26,64)
+                    assert entries[0]['created_by']==headers[0]['created_by']==headers[0]['updated_by']
+                    assert headers[0]['updated_at']>=headers[0]['created_at'] and entries[0]['created_at']
+                    receipts=[row for row in after['scribeswell_studies.receipts'] if row['command']=='study.passages.replace']
+                    assert {row['operation_id'] for row in receipts}==set(expected['operations']) and len(receipts)==3
+                    assert all(row['created_by']==headers[0]['updated_by'] and row['outcome']['note_id'] is None for row in receipts)
                 elif name=='foreign-before':self.snapshot('before-foreign-denial')
                 else:self.snapshot('after-foreign-denial',previous='before-foreign-denial')
                 private(self.proof/(name+'-observed.json'),{'independent_sql':True})

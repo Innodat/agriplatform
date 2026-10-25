@@ -243,3 +243,30 @@ RLS, receipt immutability and controlled failure/forward recovery. Old running c
 remain compatible with existing paths/read shapes and their own receipt commands.
 Required native migration/permission/concurrency/replay and actual-owner browser proof
 must run before claiming this extension implemented. Production remains disabled.
+
+## Collected passage extension — component delivery, final integration pending
+
+The app now supplies the independent `study.passages.replace` lane, owner-only
+`GET`/`PUT /api/studies/{study_id}/passages`, pinned reference catalogue and strict
+chapter/range DTOs. See [the adopted collection contract](PASSAGE_REFERENCES_V1.md)
+and [delivery evidence](COLLECTED_PASSAGES_EVIDENCE.md) for the precise wire, migration,
+recovery, picker and reader behavior. NoteValue and existing note/title wire shapes
+remain unchanged. The collection has its own revision; an untouched list is logically
+empty at revision1, and its first changed write advances to2.
+
+The earlier65,536-byte command limit continues to apply to enrollment, study, title
+and note commands. **Only `study.passages.replace` permits131,072 bytes**, so200 valid
+range items fit. The same duplicate-key, integer, JSON-depth16 and visited-values8,192
+bounds remain. The router applies the command-specific bound while streaming, before
+strict DTO validation. Generated OpenAPI records the exception as
+`x-command-input-limits.passage_collection_bytes`.
+
+`passage_revision_conflict` adds a safe409 with the same typed expected/current
+revision details. The existing private no-store, owner/current authority, parent
+lifecycle, bounded deadline and original-operation semantics apply. New normalized
+`passage_lists`/`passage_entries` tables and compatible receipt constraints arrive
+through ordinary controlled revision0003;0001/0002 remain unchanged. No migration,
+activation or deployment has run for this extension. Native migration/RLS/permission,
+previous-consumer, race and actual-owner UI/SQL proof are prepared and explicitly
+pending the final integration phase under direction266. Earlier note/title native
+and owner evidence remains historical evidence for those earlier source versions.
