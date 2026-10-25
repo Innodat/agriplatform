@@ -850,3 +850,23 @@ lifespan disposes the owned engine after the ASGI host drains requests.
 remaining native, schema/client, startup and release gates. Active context API and
 approved dependency manifests remain unchanged; constructing a candidate is no release
 authorization or provisioning action.
+
+
+### Candidate recovery OpenAPI and client types — 2026-10-25
+
+The candidate's custom OpenAPI metadata now describes its manually validated inputs
+and actual serialized output. [Candidate OpenAPI](../write-candidate/recovery-openapi.json)
+is exported deterministically with no engine/authority construction or network/SQL.
+It declares required command_type, canonical nonnil UUID, Bearer authentication,
+required committed/unresolved status, v1 receipt and decimal-string signed-bigint
+revision bounds. Error schemas have closed shapes and status-specific identifier enums;
+private/no-store and401 Bearer challenge are documented and wire-validated.
+
+Existing platform generation produces separate types in contracts/recovery-generated;
+active context schema/client and startup remain unchanged. These types are compile-time
+contracts, not a runtime SDK, token supplier, UUID validator or browser integration.
+The existing manual boundary still rejects unknown/duplicate selectors; OpenAPI
+parameter declarations alone cannot express all query multiplicity constraints.
+[Evidence](RECOVERY_CONTRACT_EVIDENCE.md) records actual schema-to-wire, TypeScript and
+fresh-import export checks. Historical native evidence remains bound to its original
+source versions; this metadata delivery makes no new native or release claim.

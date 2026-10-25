@@ -1,3 +1,35 @@
+## Current delivery — candidate recovery OpenAPI/client contract, 2026-10-25
+
+Read [contract evidence](RECOVERY_CONTRACT_EVIDENCE.md) and
+[its receipt](evidence/recovery-contract-20261025.json). Candidate OpenAPI now precisely
+describes required discriminator/canonical operation UUID/Bearer, committed/unresolved
+outputs and status-specific safe errors. Separate recovery-generated client types come
+from the existing platform generator; active context schema/client/startup untouched.
+These are compile-time types, not a runtime SDK or browser wiring.
+
+158 affected tests pass, including10 schema/export/wire cases. Actual create/edit at
+signed-bigint max, unresolved and every declared error pair validate with an existing
+local JSON Schema tool. Fresh-import sentinels prove export constructs no engine or
+network client. Candidate schema/types freshness, active context export and TypeScript
+7.0.2 candidate/context fixtures pass;12 negative typing cases and scaffold3 parity
+checks pass. All6 review findings fixed, none deferred. Retained pinned generator used
+after byte-match; no dependency install/update. Historical native receipts remain
+immutable and source-bound to prior candidate versions; metadata/refactoring gets
+separate synthetic evidence, with no new native claim. Future native source inventory
+includes metadata owner. Known Docker run remains stopped; resources/data intact.
+
+Next use bmad-help to select a small consuming recovery request adapter using generated
+types, runtime response validation and synthetic transport tests, without active browser
+or editor wiring. Preserve current own-read/session authority and original operation
+identity; unresolved is not rollback proof or authority for a new operation ID.
+Native committed-edit, real Access, native cancellation/server drain, controlled API
+dependency/startup adoption and ADR-0020 compatibility/recovery/release remain gates.
+Fingerprints/HMAC deferred. Preserve concurrent work/history/resources/dependencies/
+TypeScript7.0.2. Synthetic local/CI only; no Leave/editor, real accounts/access,
+production, provisioning/deployment/pilot or cleanup.
+
+Earlier handoffs follow unchanged as historical checkpoints.
+
 ## Current delivery — native recovery HTTP qualification, 2026-10-25
 
 Read [native HTTP evidence](NATIVE_RECOVERY_HTTP_EVIDENCE.md) and

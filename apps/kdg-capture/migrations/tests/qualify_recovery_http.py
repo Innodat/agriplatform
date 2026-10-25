@@ -25,6 +25,7 @@ SOURCES=(
     'apps/kdg-capture/migrations/tests/capture_commit_fixture.py',
     'apps/kdg-capture/migrations/tests/native_fixture.py',
     'apps/kdg-capture/write-candidate/recovery_http.py',
+    'apps/kdg-capture/write-candidate/recovery_openapi.py',
     'apps/kdg-capture/api/safe_errors.py',
     'apps/kdg-capture/migrations/tests/qualify_recovery_http.py',
 )

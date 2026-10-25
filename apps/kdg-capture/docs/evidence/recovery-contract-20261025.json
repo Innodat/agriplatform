@@ -1,0 +1,108 @@
+{
+  "artifact_hashes": {
+    "_bmad-output/implementation-artifacts/spec-kdg-recovery-contract.md": "b63141b9d3aef3972536071049edbf4829a17717157ef9bbe24e71005c40ced0",
+    "apps/kdg-capture/docs/RECOVERY_CONTRACT_EVIDENCE.md": "bf9e6242c56fabb8da2ec46c5436ddd2063a5f61f0172a47576b5e0e6a8f9d57",
+    "apps/kdg-capture/docs/contracts.md": "32cb46922e2ad4b1698655c293ec863eb12840e309fc2b0d320c3bfad13bb8b7",
+    "apps/kdg-capture/docs/next-session.md": "1124fad7260ad188b550cf13b1444137a169d7f32661c5485ff7f79094d726bd"
+  },
+  "baseline_commit": "c4fd2ef578c986c138d8613f27c1379ab54077c1",
+  "commands": [
+    "timeout 45s platform/deployment/.local/access-organization-check-20261022/owner-env/bin/python -I -B -m unittest discover -s apps/kdg-capture/write-tests -p test_recovery_http.py",
+    "timeout 45s platform/deployment/.local/access-organization-check-20261022/owner-env/bin/python -I -B -m unittest discover -s apps/kdg-capture/write-tests -p test_recovery_contract.py",
+    "timeout 45s platform/deployment/.local/access-organization-check-20261022/owner-env/bin/python -I -B -m unittest discover -s apps/kdg-capture/write-tests -p test_*.py",
+    "platform/deployment/.local/access-organization-check-20261022/owner-env/bin/python -I -B apps/kdg-capture/write-candidate/export_recovery_openapi.py",
+    "platform/deployment/.local/access-organization-check-20261022/owner-env/bin/python -I -B apps/kdg-capture/write-candidate/export_recovery_openapi.py --check",
+    "platform/deployment/.local/access-organization-check-20261022/owner-env/bin/python -B apps/kdg-capture/api/export_openapi.py --check",
+    "platform/deployment/.local/kdg-toolchains/ad277eef-a10e-4aac-bb82-5743653fb2e0/payload/node/bin/node platform/deployment/.local/scaffold-application/proof-dI2Gy9/root/platform/api-client/src/cli.mjs --schema apps/kdg-capture/write-candidate/recovery-openapi.json --output apps/kdg-capture/contracts/recovery-generated",
+    "platform/deployment/.local/kdg-toolchains/ad277eef-a10e-4aac-bb82-5743653fb2e0/payload/node/bin/node platform/deployment/.local/scaffold-application/proof-dI2Gy9/root/platform/api-client/src/cli.mjs --schema apps/kdg-capture/write-candidate/recovery-openapi.json --output apps/kdg-capture/contracts/recovery-generated --check",
+    "platform/deployment/.local/kdg-toolchains/ad277eef-a10e-4aac-bb82-5743653fb2e0/payload/node/bin/node node_modules/typescript/bin/tsc --project apps/kdg-capture/tests/tsconfig.recovery.json",
+    "platform/deployment/.local/kdg-toolchains/ad277eef-a10e-4aac-bb82-5743653fb2e0/payload/node/bin/node node_modules/typescript/bin/tsc --project apps/kdg-capture/tests/tsconfig.json",
+    "platform/deployment/.local/kdg-toolchains/ad277eef-a10e-4aac-bb82-5743653fb2e0/payload/node/bin/node platform/builder-cli/scripts/sync-kdg-write.mjs --check",
+    "platform/deployment/.local/kdg-toolchains/ad277eef-a10e-4aac-bb82-5743653fb2e0/payload/node/bin/node platform/builder-cli/scripts/sync-kdg-database.mjs --check",
+    "platform/deployment/.local/kdg-toolchains/ad277eef-a10e-4aac-bb82-5743653fb2e0/payload/node/bin/node platform/builder-cli/scripts/sync-kdg-native-database.mjs --check"
+  ],
+  "date": "2026-10-25",
+  "effects": {
+    "active_api_wiring": false,
+    "active_context_contract_changed": false,
+    "browser_wiring": false,
+    "data_or_schema_changed": false,
+    "dependencies_changed": false,
+    "docker_resumed": false,
+    "fingerprints_hmac": "deferred",
+    "historical_native_receipts_preserved": true,
+    "native_qualification_rerun": false,
+    "native_source_scope": "historical original versions; metadata source added for future qualification",
+    "typescript": "7.0.2"
+  },
+  "limitations": [
+    "generated types only; no runtime SDK/response validation/browser integration",
+    "UUID/revision TypeScript aliases are strings, constraints enforced by server/runtime consumer",
+    "OpenAPI parameters alone do not encode unknown/duplicate query rejection",
+    "native committed-edit/cancellation/server drain and real Access remain unqualified",
+    "controlled API dependency/startup adoption and ADR-0020 release gates remain"
+  ],
+  "review": {
+    "deferred": 0,
+    "findings": 6,
+    "fixed": 6,
+    "layer": "blind-hunter",
+    "triage": "_bmad-output/implementation-artifacts/spec-kdg-recovery-contract.md"
+  },
+  "sources": {
+    "apps/kdg-capture/api/context.py": "1c58d6432fa321252d5e4fd88d1e1b589bb989cf4243a2fb4a7104a7c9151a06",
+    "apps/kdg-capture/api/safe_errors.py": "18a1359b2b1f9bb8c79c91644582c9d320bf22ed56d53afac179ff3fce6901df",
+    "apps/kdg-capture/contracts/recovery-generated/.generated-files.json": "37a3ff008f2e53ebc936367083b39c1d4b68fea0023b662b5228e2648f280853",
+    "apps/kdg-capture/contracts/recovery-generated/index.ts": "a517d6aeb58fcfa35bb6d3732e265c1387c347b709e96b9d4f1d51fd1f527ee5",
+    "apps/kdg-capture/contracts/recovery-generated/types.gen.ts": "a0fe45efa0cde073b6a9ed2e2c2b96f19046a22e1a837bb25d2ae89390bd1bc4",
+    "apps/kdg-capture/migrations/tests/qualify_recovery_http.py": "cd8e20e48ec5b131b7d637787c193ec71238495e241213ead7ae1549633b88f3",
+    "apps/kdg-capture/tests/recovery-contract.ts": "77e95665882dbb82d0e26b913cd85c1206b7a416cad60ccdd4c5746c9178050f",
+    "apps/kdg-capture/tests/tsconfig.recovery.json": "873c83b2579eafb836b3b573f9499936f98dca4b9b9b7e3640b2daba40546fa5",
+    "apps/kdg-capture/tests/validate_recovery_schema.py": "a798e0e32597475a76c320916d65ce684173ec518200982c514eea7767e78be2",
+    "apps/kdg-capture/write-candidate/export_recovery_openapi.py": "2e000c70679d2a6f175ec2a3660a2a299c364f17f3258af35efe5fb01b7a81b3",
+    "apps/kdg-capture/write-candidate/operation_outcomes.py": "e625d9048d89a6dcd8e17636c418218eaa3c53d329283701c35890c04e5984cb",
+    "apps/kdg-capture/write-candidate/operation_recovery.py": "951113487c64c70170a5f09de051b2b9d543c398e1bea36bd993fdea5b5abac6",
+    "apps/kdg-capture/write-candidate/recovery-openapi.json": "43be0e34edce45647b0eb1eba6d4d67c5103ef316400298e024c4ec925df6623",
+    "apps/kdg-capture/write-candidate/recovery_http.py": "58e7bf371e0f4689b4a5d13476dbdc58d22fe65a4f3f3460e18e6d7b00098b34",
+    "apps/kdg-capture/write-candidate/recovery_openapi.py": "9ee7009e5d27b9002b3b8eaf6649b428e62abc477ac75fdeb25e286ae40f22a8",
+    "apps/kdg-capture/write-tests/test_recovery_contract.py": "3f7c842e9b36429a46ca33deed445ca39d71808696baee4fd1d9a4814da61440"
+  },
+  "status": "qualified_candidate_contract_only",
+  "tests": {
+    "active_context_schema_current": true,
+    "active_context_typescript": true,
+    "affected_pass": 158,
+    "atdd_initial_contract_failures": 5,
+    "candidate_generated_current": true,
+    "candidate_schema_current": true,
+    "candidate_typescript": true,
+    "contract_pass": 10,
+    "fresh_import_no_io": true,
+    "prechange_http_characterization": 24,
+    "scaffold_parity": [
+      "write context code/test",
+      "database code/test",
+      "native database test"
+    ],
+    "typescript_negative_cases": 12
+  },
+  "tooling": {
+    "application_typescript": "7.0.2",
+    "direct_checkout_cli": "safely refused api_client_tool_invalid; missing installed dependencies",
+    "downloads": false,
+    "generator": "platform/deployment/.local/scaffold-application/proof-dI2Gy9/root/platform/api-client/src/cli.mjs",
+    "installs": false,
+    "jsonschema": "4.10.3",
+    "schema_dialect": "Draft202012",
+    "schema_validation_interpreter": "/usr/bin/python3",
+    "source_byte_match": {
+      "platform/api-client/src/cli.mjs": "f3a36934bfb3e9c264b8e2fe4ddf0cafbac88c7aba4ebda0a6ffb52003059377",
+      "platform/api-client/src/compat.mjs": "8a7029ab9293627153844755cace2700cecc73086840ea22103e248ad822601c",
+      "platform/api-client/src/generate.mjs": "623fc8e5b873535f702aae495056baefa107f1d637d608d8a87d73f7f8c6dd0a",
+      "platform/api-client/src/tooling.mjs": "f1e848685392d110d11409abde9e605a0b1e996385a379ff29135126ff1a6a7e",
+      "platform/builder-cli/src/scaffold-install.ts": "b0c5a41d0fa0738cde40d5b8c0b00be3fdc972d7329cd615fb27cb33c0ab7671"
+    },
+    "tool_compiler": "6.0.3",
+    "upstream": "0.99.0"
+  }
+}

@@ -88,16 +88,24 @@ def create_candidate(*, org_id, access_url, service_key, database_url, transport
     authority = recovery.RecoveryHandler(org_id=org_id, access_url=access_url,
         service_key=service_key, transport=transport)
     engine = _engine(database_url)  # Lazy ordinary engine; no connection/startup I/O.
+    return _create_app(authority,engine,org_id)
+
+
+def _create_app(authority,engine,org_id):
+    """Shared route registration; export supplies no live collaborators."""
     @asynccontextmanager
     async def lifespan(app):
         try:
             yield
         finally:
             # The ASGI host drains requests before lifespan shutdown.
-            await run_in_threadpool(engine.dispose)
+            if engine is not None:
+                await run_in_threadpool(engine.dispose)
 
     app = FastAPI(title='KDG candidate operation recovery', lifespan=lifespan, docs_url=None,
         redoc_url=None, openapi_url=None, redirect_slashes=False)
+    from recovery_openapi import schema_for
+    app.openapi = lambda: schema_for(app,PAIRS)
     app.state.recovery_engine = engine
     install_safe_errors(app)
     app.add_middleware(PrivateResponses)
