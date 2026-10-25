@@ -17,6 +17,9 @@ function useStatefulStudies(){
  const [analysisTab,setAnalysisTab]=useState<'Word'|'Occurrences'|'Notes'>('Notes');
  const [tool,setTool]=useState<Tool>(null),[studies,setStudies]=useState<StudyView[]>([]),[study,setStudy]=useState<StudyView|null>(null),[notes,setNotes]=useState<NoteView[]>([]),[current,setCurrent]=useState<string|null>(null),[error,setError]=useState(''),[busy,setBusy]=useState(false);
  const [studyCursor,setStudyCursor]=useState<string|null>(null),[notesCursor,setNotesCursor]=useState<string|null>(null);
+ const [searchCandidate,setSearchCandidate]=useState(''),[libraryBusy,setLibraryBusy]=useState(false),[libraryError,setLibraryError]=useState(''),[libraryInputInvalid,setLibraryInputInvalid]=useState(false),[libraryVerified,setLibraryVerified]=useState(false),[libraryRestore,setLibraryRestore]=useState(0);
+ // Passive scroll events from a collapsed list must not replace its saved return anchor.
+ const library=useRef({query:'',generation:0,depth:1,cursor:null as string|null,pending:false,positionLocked:false,position:{scroll:0,focus:''}});
  const lanes=useRef(new Map<string,Lane>()),[,render]=useState(0);const update=()=>render(x=>x+1);
  const [exitPrompt,setExitPrompt]=useState<{action:()=>void|Promise<void>;switching:boolean;discard?:Lane}|null>(null);
  const collectionNavigation=useRef(0);
@@ -25,17 +28,54 @@ function useStatefulStudies(){
  const titles=useRef(new Map<string,TitleEdit>()),titleReads=useRef(new Map<string,number>());
  const collections=useRef(new Map<string,CollectionLane>());
  const creation=useRef<Attempt|undefined>(undefined);const enrollment=useRef<string|undefined>(undefined);
- useEffect(()=>{for(const lane of lanes.current.values())clearTimeout(lane.timer);lanes.current.clear();titles.current.clear();titleReads.current.clear();collections.current.clear();navigation.current++;pendingPages.current.clear();notesPosition.current=null;creation.current=undefined;enrollment.current=undefined;setStudies([]);setStudy(null);setNotes([]);setCurrent(null);setError('');setBusy(false);setExitPrompt(null);setStudyCursor(null);setNotesCursor(null);dataAccount.current=account;setAuthority(true);},[account]);
+ useEffect(()=>{for(const lane of lanes.current.values())clearTimeout(lane.timer);lanes.current.clear();titles.current.clear();titleReads.current.clear();collections.current.clear();navigation.current++;pendingPages.current.clear();notesPosition.current=null;creation.current=undefined;enrollment.current=undefined;setStudies([]);setStudy(null);setNotes([]);setCurrent(null);setError('');setBusy(false);setExitPrompt(null);setStudyCursor(null);setNotesCursor(null);dataAccount.current=account;setAuthority(true);library.current={query:'',generation:library.current.generation+1,depth:1,cursor:null,pending:false,positionLocked:false,position:{scroll:0,focus:''}};setSearchCandidate('');setLibraryError('');setLibraryInputInvalid(false);setLibraryBusy(false);setLibraryVerified(false);},[account]);
  function valid(captured:number){return epoch.current===captured&&identity.current===account;}
  function fail(failure:unknown){
   const code=failure instanceof NotesFailure?failure.code:'studies_storage_unavailable';
-  if(code==='authentication_required'){epoch.current++;setAuthority(false);for(const lane of lanes.current.values())clearTimeout(lane.timer);}
+  if(code==='authentication_required'){epoch.current++;library.current.pending=false;setLibraryBusy(false);setLibraryVerified(false);setAuthority(false);for(const lane of lanes.current.values())clearTimeout(lane.timer);}
   if(code==='studies_access_denied'){
-   epoch.current++;for(const lane of lanes.current.values())clearTimeout(lane.timer);lanes.current.clear();titles.current.clear();titleReads.current.clear();collections.current.clear();setStudies([]);setNotes([]);setStudy(null);setCurrent(null);creation.current=undefined;enrollment.current=undefined;
+   epoch.current++;library.current.generation++;library.current.query='';library.current.depth=1;library.current.cursor=null;library.current.position={scroll:0,focus:''};library.current.positionLocked=false;setSearchCandidate('');setLibraryVerified(false);setLibraryBusy(false);for(const lane of lanes.current.values())clearTimeout(lane.timer);lanes.current.clear();titles.current.clear();titleReads.current.clear();collections.current.clear();setStudies([]);setNotes([]);setStudy(null);setCurrent(null);creation.current=undefined;enrollment.current=undefined;
   }
   setBusy(false);setError(code==='studies_access_denied'?'Studies access is unavailable for this account.':code==='authentication_required'?'Sign in to use My studies.':'Studies could not be loaded. Try again.');
  }
- async function loadStudies(more=false){if(!token){setError('Sign in to use My studies.');return;}const captured=epoch.current;setBusy(true);setError('');try{const result=await api.studies(token,more?studyCursor??undefined:undefined);if(valid(captured)){setAuthority(true);setStudies(old=>{const existing=new Map(old.map(item=>[item.id,item]));const items=result.items.map(item=>{const current=existing.get(item.id);return current&&BigInt(current.revision)>BigInt(item.revision)?current:item;});return more?[...old,...items]:items;});setStudyCursor(result.next_cursor);}}catch(e){if(valid(captured))fail(e);}finally{if(valid(captured))setBusy(false);}}
+ async function loadStudies(more=false,query=library.current.query,changed=false){
+  const state=library.current;
+  if(more&&(state.pending||!state.cursor))return;
+  if(more)state.positionLocked=false;
+  const captured=epoch.current,requestNavigation=navigation.current;
+  const generation=more?state.generation:++state.generation;
+  // A refreshed return keeps that anchor protected until the visible restoration finishes.
+  if(!more)state.positionLocked=!changed;
+  if(changed){state.query=query;state.depth=1;state.cursor=null;state.position={scroll:0,focus:''};setStudies([]);setStudyCursor(null);}
+  const currentRead=()=>valid(captured)&&generation===library.current.generation&&requestNavigation===navigation.current;
+  state.pending=true;setLibraryBusy(true);setLibraryError('');setLibraryInputInvalid(false);
+  if(!more)setLibraryVerified(false);
+  try{
+   if(!token)throw new NotesFailure('authentication_required');
+   let cursor=more?state.cursor:undefined,items:StudyView[]=[],pages=0;
+   const depth=more?1:state.depth;
+   do{
+    const result=await api.search(token,query,cursor??undefined);
+    if(!currentRead())return;
+    items.push(...result.items);cursor=result.next_cursor;pages++;
+   }while(cursor&&pages<depth);
+   if(!currentRead())return;
+   setAuthority(true);setLibraryVerified(true);setError('');
+   setStudies(old=>{const existing=new Map(old.map(item=>[item.id,item])),unique=new Map<string,StudyView>();for(const item of more?[...old,...items]:items){const known=existing.get(item.id);unique.set(item.id,known&&BigInt(known.revision)>BigInt(item.revision)?known:item);}return [...unique.values()];});
+   state.cursor=cursor??null;state.depth=more?state.depth+pages:pages;setStudyCursor(state.cursor);if(!more&&!changed)setLibraryRestore(x=>x+1);
+  }catch(failure){
+   if(!currentRead())return;
+   setLibraryVerified(false);
+   const code=failure instanceof NotesFailure?failure.code:'studies_storage_unavailable';
+   if(code==='studies_access_denied'||code==='authentication_required')fail(failure);
+   setLibraryInputInvalid(code==='scribeswell_personal_notes_input_invalid');
+   setLibraryError(code==='scribeswell_personal_notes_input_invalid'?'Enter a valid search of up to 200 characters.':code==='studies_access_denied'?'Studies access is unavailable for this account.':code==='authentication_required'?'Sign in to use My studies.':'Studies could not be loaded. Try again.');
+  }finally{if(currentRead()){state.pending=false;setLibraryBusy(false);}}
+ }
+ function changeSearchCandidate(value:string){if(identity.current===account&&dataAccount.current===account&&authority)setSearchCandidate(value);}
+ function searchStudies(){if(!authority)return;return loadStudies(false,searchCandidate,true);}
+ function clearSearch(){if(!authority)return;setSearchCandidate('');return loadStudies(false,'',true);}
+ function rememberLibrary(scroll:number,focus?:string){if(library.current.positionLocked)return;library.current.position={scroll,focus:focus??library.current.position.focus};}
  function openStudies(){setTool(tool==='studies'?null:'studies');if(tool!=='studies'&&!study)void loadStudies();}
  async function flush(lane:Lane,retry=false):Promise<void>{
   if(lane.running)return lane.running;
@@ -55,11 +95,11 @@ function useStatefulStudies(){
  function composition(active:boolean){const lane=current?lanes.current.get(current):undefined;if(lane){lane.composing=active;if(active)clearTimeout(lane.timer);else schedule(lane);update();}}
  async function exit(action:()=>void|Promise<void>,switching=false){const captured=epoch.current;const lane=current?lanes.current.get(current):undefined;if(lane){const end=Date.now()+5000;while(lane.generation!==lane.saved&&!lane.invalid&&!lane.composing&&lane.status!=='failed'&&lane.status!=='conflict'&&Date.now()<end){await Promise.race([flush(lane),new Promise<void>(resolve=>setTimeout(resolve,Math.max(1,end-Date.now())))]);if(!valid(captured))return;}if(!valid(captured))return;if(lane.composing||lane.invalid||lane.generation!==lane.saved){setExitPrompt({action,switching,discard:switching&&lane.status==='conflict'?lane:undefined});return;}}await action();}
  async function openStudy(id:string){
-  if(!token)return;const requestNavigation=++navigation.current;
-  await exit(async()=>{if(requestNavigation!==navigation.current)return;collectionNavigation.current++;const captured=epoch.current;setBusy(true);
+  if(!token)return;const requestLibrary=++library.current.generation;library.current.pending=false;setLibraryBusy(false);const requestNavigation=++navigation.current;
+  await exit(async()=>{if(requestNavigation!==navigation.current||requestLibrary!==library.current.generation)return;collectionNavigation.current++;const captured=epoch.current;setBusy(true);
    try{const [selected,page]=await Promise.all([api.study(token,id),api.notes(token,id)]);
-    if(valid(captured)&&requestNavigation===navigation.current){selectedStudy.current=selected.id;notesPosition.current=page.next_cursor;setStudy(selected);if(creation.current?.command==='study.create'&&creation.current.study===selected.id)creation.current=undefined;setNotes(page.items);setNotesCursor(page.next_cursor);setCurrent(null);setTool('studies');setError('');void loadPassages(selected.id);}
-   }catch(e){if(valid(captured)&&requestNavigation===navigation.current)fail(e);}finally{if(valid(captured)&&requestNavigation===navigation.current)setBusy(false);}
+    if(valid(captured)&&requestNavigation===navigation.current&&requestLibrary===library.current.generation){library.current.positionLocked=true;selectedStudy.current=selected.id;notesPosition.current=page.next_cursor;setStudy(selected);if(creation.current?.command==='study.create'&&creation.current.study===selected.id)creation.current=undefined;setNotes(page.items);setNotesCursor(page.next_cursor);setCurrent(null);setTool('studies');setError('');void loadPassages(selected.id);}
+   }catch(e){if(valid(captured)&&requestNavigation===navigation.current&&requestLibrary===library.current.generation)fail(e);}finally{if(valid(captured)&&requestNavigation===navigation.current)setBusy(false);}
   },true);
  }
  // Collection authority/revisions/recovery are independent of notes and metadata.
@@ -176,11 +216,12 @@ function useStatefulStudies(){
  async function create(title:string|null){if(!token)return;if(creation.current&&creation.current.command!=='study.create'){setError('Retry the original note creation before starting another study.');return;}const captured=epoch.current;setBusy(true);try{if(!creation.current){const operation_id=uuid();creation.current={operation_id,command:'study.create',path:'/api/studies',method:'POST',payload:{operation_id,title},generation:0};}const result=await execute(token,creation.current);if(!valid(captured))return;creation.current.study=result.study_id;await openStudy(result.study_id);}catch(e){if(valid(captured)){if(e instanceof NotesFailure&&e.code==='scribeswell_personal_notes_input_invalid')creation.current=undefined;fail(e);}}finally{if(valid(captured))setBusy(false);}}
  async function addNote(){if(!token||!study)return;if(creation.current&&(creation.current.command!=='note.create'||creation.current.study!==study.id)){setError('Retry the original creation before starting another note.');return;}await exit(async()=>{const captured=epoch.current;setBusy(true);try{if(!creation.current){const operation_id=uuid();creation.current={operation_id,command:'note.create',path:`/api/studies/${study.id}/notes`,method:'POST',payload:{operation_id,value:{document:{version:1,blocks:[]},connections:[],highlights:[]}},study:study.id,generation:0};}const result=await execute(token,creation.current);if(!valid(captured))return;const note=await api.note(token,study.id,result.note_id!);if(!valid(captured))return;creation.current=undefined;lanes.current.set(note.id,{note,value:note.value,generation:0,saved:0,status:'saved',composing:false,invalid:false});setNotes(old=>[note,...old]);setCurrent(note.id);setTool('analysis');setAnalysisTab('Notes');update();}catch(e){if(valid(captured))fail(e);}finally{if(valid(captured))setBusy(false);}},true);}
  useEffect(()=>{function unload(e:BeforeUnloadEvent){if([...lanes.current.values()].some(l=>l.invalid||l.generation!==l.saved)||[...titles.current.values()].some(edit=>!edit.confirmed&&(edit.attempt||edit.running))||[...collections.current.values()].some(lane=>!lane.confirmed&&(!!lane.attempt||!!lane.running))){e.preventDefault();e.returnValue='';}}window.addEventListener('beforeunload',unload);return()=>window.removeEventListener('beforeunload',unload);},[]);
- const visible=dataAccount.current===account&&authority;
+ const visible=dataAccount.current===account&&authority,libraryGeneration=library.current.generation,libraryEpoch=epoch.current,libraryNavigation=navigation.current;
+ const canRestoreLibrary=()=>identity.current===account&&epoch.current===libraryEpoch&&library.current.generation===libraryGeneration&&navigation.current===libraryNavigation&&!selectedStudy.current&&!library.current.pending&&library.current.positionLocked;
  const titleEdit=study&&visible?titles.current.get(study.id):undefined;
  const collection=study&&visible?collections.current.get(study.id):undefined;
  const lane=current&&visible?lanes.current.get(current):undefined;
- return {accountKey:account??'anonymous',enabled:import.meta.env.VITE_STUDIES_ENABLED==='true',tool,setTool,analysisTab,setAnalysisTab,invalidInput:()=>{if(lane){lane.invalid=true;lane.status='failed';clearTimeout(lane.timer);update();}},studies:visible?studies:[],study:visible?study:null,notes:visible?notes:[],current:visible?current:null,lane,error,busy,studyCursor,notesCursor,collection,collect,removePassage,retryPassages,reviewPassages,cancelPassageIntent,titleEdit: titleEdit?.open?titleEdit:undefined,beginRename,changeTitle,cancelRename,saveTitle,reloadTitle,loadStudies,moreNotes,openStudies,openStudy,openNote,start,create,addNote,change,composition,retry:()=>lane&&flush(lane,true),exit,exitPrompt,stay:()=>setExitPrompt(null),proceed:async()=>{const prompt=exitPrompt;setExitPrompt(null);if(prompt){if(prompt.discard&&lanes.current.get(prompt.discard.note.id)===prompt.discard){clearTimeout(prompt.discard.timer);lanes.current.delete(prompt.discard.note.id);setCurrent(null);}await prompt.action();}},leave:()=>{const requestNavigation=++navigation.current;return exit(()=>{if(requestNavigation!==navigation.current)return;collectionNavigation.current++;selectedStudy.current=undefined;notesPosition.current=null;setStudy(null);setCurrent(null);setNotes([]);setTool('studies');void loadStudies();},true);}};
+ return {accountKey:account??'anonymous',enabled:import.meta.env.VITE_STUDIES_ENABLED==='true',tool,setTool,analysisTab,setAnalysisTab,invalidInput:()=>{if(lane){lane.invalid=true;lane.status='failed';clearTimeout(lane.timer);update();}},studies:visible&&libraryVerified?studies:[],study:visible?study:null,notes:visible?notes:[],current:visible?current:null,lane,error,busy,searchCandidate:visible?searchCandidate:'',searchMasked:!visible,setSearchCandidate:changeSearchCandidate,searchStudies,clearSearch,libraryBusy,libraryError,libraryInputInvalid,libraryVerified:visible&&libraryVerified,libraryRestore,libraryPosition:library.current.position,canRestoreLibrary,finishLibraryRestore:()=>{if(canRestoreLibrary())library.current.positionLocked=false;},rememberLibrary,studyCursor:visible?studyCursor:null,notesCursor,collection,collect,removePassage,retryPassages,reviewPassages,cancelPassageIntent,titleEdit: titleEdit?.open?titleEdit:undefined,beginRename,changeTitle,cancelRename,saveTitle,reloadTitle,loadStudies,moreNotes,openStudies,openStudy,openNote,start,create,addNote,change,composition,retry:()=>lane&&flush(lane,true),exit,exitPrompt,stay:()=>setExitPrompt(null),proceed:async()=>{const prompt=exitPrompt;setExitPrompt(null);if(prompt){if(prompt.discard&&lanes.current.get(prompt.discard.note.id)===prompt.discard){clearTimeout(prompt.discard.timer);lanes.current.delete(prompt.discard.note.id);setCurrent(null);}await prompt.action();}},leave:()=>{const requestNavigation=++navigation.current;return exit(()=>{if(requestNavigation!==navigation.current)return;collectionNavigation.current++;selectedStudy.current=undefined;notesPosition.current=null;setStudy(null);setCurrent(null);setNotes([]);setTool('studies');void loadStudies();},true);}};
 }
 type Studies=ReturnType<typeof useStatefulStudies>;
 const Context=createContext<Studies|null>(null);

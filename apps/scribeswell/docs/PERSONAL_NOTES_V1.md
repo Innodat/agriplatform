@@ -302,3 +302,22 @@ editing. Existing conflict and exit safeguards apply. The
 and DTO/method checks from prepared-only native and actual-owner UI/SQL proof.
 No SQL migration, shared UI/scaffold promotion or accepted ADR/context change is
 needed; production, provider, physical-device and broader Studies gates remain.
+
+
+## Own-study library search — component delivery, final integration pending
+
+The [adopted library-search contract](LIBRARY_SEARCH_V1.md) adds a closed read-only
+`POST /api/studies/search` with required scalar `query` (at most200 codepoints),
+default20/max50 `limit` and optional query/account-bound search `cursor`. The body
+limit is4096 UTF-8 bytes with existing strict duplicate-key/depth/node validation.
+It performs fresh Access checking and scoped SQL matching before keyset pagination,
+returns existing StudyPage metadata and creates no receipt or mutation. Existing
+GET/list routes and list-v1 cursors are unchanged. Search queries never enter URLs,
+browser storage or diagnostics. Its separate in-memory candidate/applied/page lane
+preserves loaded depth and best-effort scroll/focus on refreshed library return.
+
+[Delivery evidence](LIBRARY_SEARCH_EVIDENCE.md) records executed contract/component
+checks and prepared-only restricted native and actual-owner zero-mutation proof.
+No migration/index/model, owner service, shared UI/scaffold promotion, accepted ADR
+or agent-context change is introduced. Production activation remains disabled;
+final native/owner integration stays deferred under direction266.

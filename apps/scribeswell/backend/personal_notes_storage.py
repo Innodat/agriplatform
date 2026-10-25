@@ -197,3 +197,13 @@ class PersonalNotesStorage:
             await cursor.execute(f'SELECT * FROM {SCHEMA}.{resource} WHERE {where} ORDER BY created_at DESC,id DESC LIMIT %s',(*values,limit+1))
             rows=await cursor.fetchall(); more=len(rows)>limit; rows=rows[:limit]
             return {'items':[view(row,bool(study_id)) for row in rows],'next_cursor':encode(resource,account,study_id,stamp(rows[-1]['created_at']),str(rows[-1]['id'])) if more else None}
+
+    async def search(self,identity,payload,deadline):
+        from personal_notes_search import canonical_query,decode_cursor,encode_cursor,search_sql
+        account=identity['account_id'];query=canonical_query(payload.query)
+        position=decode_cursor(payload.cursor,account,query) if payload.cursor else None
+        sql,values=search_sql(account,query,position,payload.limit)
+        async with self.transaction(identity,deadline) as cursor:
+            await cursor.execute(sql,values)
+            rows=await cursor.fetchall();more=len(rows)>payload.limit;rows=rows[:payload.limit]
+            return {'items':[view(row) for row in rows], 'next_cursor':encode_cursor(account,query,stamp(rows[-1]['created_at']),str(rows[-1]['id'])) if more else None}

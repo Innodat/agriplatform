@@ -574,3 +574,126 @@ def test_native_note_format2_fence_original_v1_receipt_and_actual_baseline(nativ
     assert run(storage.read(IDENTITY,study,note,deadline()))['value']==without_link
     with pytest.raises(NotesError,match='note_format_unsupported'):
         run(storage.execute(IDENTITY,'note.replace',command('note.replace',expected_revision=removed['revision'],value=value()),study,note,deadline()))
+
+def test_native_library_search_filtered_matching_pagination_isolation_and_zero_mutation(native):
+    """PREPARED ONLY: actual restricted PostgreSQL17 matching, not a mocked SQL claim."""
+    from psycopg.types.json import Jsonb
+    from passage_references import parse_reference
+    storage,admin_url,*_=native
+    marker='Library native only '+uuid4().hex
+    target=create(storage,marker+' café 100%_\\')['study_id']
+    content=value();content['document']['version']=2
+    content['document']['blocks']=[{'type':'paragraph','direction':'auto','content':[
+        {'type':'text','text':marker+' for','marks':['bold']},
+        {'type':'external_link','url':'https://url-target-only.invalid/hidden-needle','content':[{'type':'text','text':'matted','marks':[]}]},
+        {'type':'text','text':' שָׁלוֹם','marks':[]},
+        {'type':'passage_link','reference':parse_reference('Gen 1:31–2:3'),'label':'Stored custom label'}]},
+        {'type':'list','style':'bullet','items':[[{'type':'paragraph','direction':'rtl','content':[{'type':'text','text':'List paragraph','marks':[]}]}]]}]
+    for _ in range(2):run(storage.execute(IDENTITY,'note.create',command('note.create',value=content),target,None,deadline()))
+    run(storage.execute(IDENTITY,'study.passages.replace',command('study.passages.replace',expected_revision='1',items=[{'id':str(uuid4()),'reference':parse_reference('Matt 26:63–64')},{'id':str(uuid4()),'reference':parse_reference('Gen 2')}]),target,None,deadline()))
+    # More than the old default page hides target from an unfiltered first-page scan.
+    for i in range(22):create(storage,marker+' filler '+str(i))
+    assert target not in [s['id'] for s in run(storage.list(IDENTITY,None,20,None,deadline()))['items']]
+    other={'account_id':B,'actor_id':ACTOR}
+    foreign=run(storage.execute(other,'study.create',command('study.create',title=marker+' foreign'),None,None,deadline()))['study_id']
+    run(storage.execute(other,'note.create',command('note.create',value=content),foreign,None,deadline()))
+    closed=create(storage,marker+' closed')['study_id']
+    inactive=create(storage,'Inactive note parent')['study_id']
+    inactive_note=run(storage.execute(IDENTITY,'note.create',command('note.create',value=value(marker+' inactive-note-only')),inactive,None,deadline()))['note_id']
+    equal_ids=[str(uuid4()) for _ in range(3)]
+    malformed=create(storage,'Malformed JSON parent')['study_id']
+    with psycopg.connect(admin_url) as c:
+        c.execute('UPDATE scribeswell_studies.studies SET active=false WHERE id=%s',(closed,))
+        c.execute('UPDATE scribeswell_studies.notes SET active=false WHERE id=%s',(inactive_note,))
+        for identifier in equal_ids:
+            c.execute("INSERT INTO scribeswell_studies.studies(account_id,id,title,created_at,updated_at,created_by,updated_by) VALUES(%s,%s,%s,'2026-10-25T00:00:00Z','2026-10-25T00:00:00Z',%s,%s)",(A,identifier,marker+' equal',ACTOR,ACTOR))
+        # Stored unknown array/object/numeric shapes must never cause a cast/traversal failure.
+        for blocks in ({'arbitrary':marker},[{'type':'paragraph','direction':'auto','content':{'text':marker}}],[{'type':'paragraph','direction':'auto','content':[{'type':'passage_link','label':'malformed label','reference':{'target':{'kind':'chapter','chapter':{}}}}]}]):
+            malformed_value={'document':{'version':2,'blocks':blocks},'connections':[],'highlights':[]}
+            c.execute('INSERT INTO scribeswell_studies.notes(account_id,study_id,id,value,created_by,updated_by) VALUES(%s,%s,%s,%s,%s,%s)',(A,malformed,str(uuid4()),Jsonb(malformed_value),ACTOR,ACTOR))
+    def search(text,limit=20,cursor=None,identity=IDENTITY):
+        payload=parse_command('studies.search',json.dumps({'query':text,'limit':limit,'cursor':cursor},ensure_ascii=False).encode())
+        return run(storage.search(identity,payload,deadline()))
+    def snapshot():
+        with psycopg.connect(admin_url) as c:
+            return {table:c.execute(sql.SQL('SELECT t.* FROM scribeswell_studies.{} t ORDER BY to_jsonb(t)::text').format(sql.Identifier(table))).fetchall() for table in ('studies','notes','receipts','passage_lists','passage_entries')}
+    before=snapshot()
+    for query in ('CAFÉ 100%_\\',marker+' formatted','Stored custom label','List paragraph','שָׁלוֹם','Gen 1:31','Genesis 2','בראשית ב:ב','Matthew','Matt 26:64','Gen 1:30–2:1','Gen 2:25'):
+        ids=[s['id'] for s in search(query)['items']]
+        assert target in ids and foreign not in ids and closed not in ids and malformed not in ids
+        assert ids.count(target)==1
+    for query in ('hidden-needle',marker+' inactive-note-only','Gen 999','Gen 3:1'):
+        assert target not in [s['id'] for s in search(query)['items']]
+    assert [s['id'] for s in search('cafe\u0301 100%_\\')['items']]==[target]
+    found=[];cursor=None
+    while True:
+        page=search(marker,1,cursor);found.extend(s['id'] for s in page['items']);cursor=page['next_cursor']
+        if cursor is None:break
+    assert len(found)==len(set(found)) and target in found and foreign not in found and closed not in found
+    assert [identifier for identifier in found if identifier in equal_ids]==sorted(equal_ids,reverse=True)
+    # Literal labels are recognized fields; search does not certify/repair a corrupt aggregate.
+    assert [s['id'] for s in search('malformed label')['items']]==[malformed]
+    assert search(marker+' inactive-note-only')['items']==[]
+    assert snapshot()==before,'Search mutated saved content/attribution/revisions/receipts'
+    # Previous GET and its original cursor still work after search.
+    old=run(storage.list(IDENTITY,None,1,None,deadline()));assert old['next_cursor']
+    assert run(storage.list(IDENTITY,None,1,old['next_cursor'],deadline()))['items'][0]['id']!=old['items'][0]['id']
+    assert target not in [s['id'] for s in search(marker,identity=other)['items']]
+
+    # New reads reflect acknowledged saved replacements; no search index/backfill exists.
+    note_page=run(storage.list(IDENTITY,target,50,None,deadline()))
+    for note in note_page['items']:
+        run(storage.execute(IDENTITY,'note.replace',command('note.replace',expected_revision=note['revision'],value={'document':{'version':2,'blocks':[]},'connections':[],'highlights':[]}),target,note['id'],deadline()))
+    assert target not in [s['id'] for s in search(marker+' formatted')['items']]
+    assert target in [s['id'] for s in search('Matthew')['items']]
+
+def test_native_library_search_numeric_reference_guards_identity_and_format1(native):
+    """Prepared only: otherwise-valid corrupt references exercise real numeric guards."""
+    from copy import deepcopy
+    from psycopg.types.json import Jsonb
+    from passage_references import parse_reference
+    storage,admin_url,*_=native
+    marker='Unique ordinary saved body '+uuid4().hex
+    ordinary=create(storage,'Ordinary note parent')['study_id']
+    run(storage.execute(IDENTITY,'note.create',command('note.create',value=value(marker)),ordinary,None,deadline()))
+    canonical=parse_reference('Gen 1:1–2:3');cases=[]
+    malformed_numbers=[('object',{}),('array',[]),('boolean',True),('decimal',1.5),('oversized',10**100)]
+    for label,number in malformed_numbers:
+        reference=deepcopy(canonical);reference['target']={'kind':'chapter','chapter':number}
+        cases.append(('chapter-'+label,reference,2))
+        for endpoint in ('start','end'):
+            for coordinate in ('chapter','verse'):
+                reference=deepcopy(canonical);reference['target'][endpoint][coordinate]=number
+                cases.append((endpoint+'-'+coordinate+'-'+label,reference,2))
+    for start,end in (({'chapter':2,'verse':3},{'chapter':1,'verse':1}),({'chapter':2,'verse':3},{'chapter':2,'verse':2})):
+        reference=deepcopy(canonical);reference['target'].update(start=start,end=end)
+        cases.append(('reversed-range',reference,2))
+    for field,wrong in (('catalogue_id','unsupported.catalogue'),('catalogue_version','0'*64),('versification_id','crosswire-kjv-3765')):
+        reference=deepcopy(canonical);reference[field]=wrong;cases.append(('wrong-'+field,reference,2))
+    cases.append(('unsupported-document',deepcopy(canonical),3))
+    invalid_studies=[]
+    with psycopg.connect(admin_url) as connection:
+        for label,reference,version in cases:
+            study=create(storage,'Guard case '+label)['study_id'];invalid_studies.append(study)
+            stored={'document':{'version':version,'blocks':[{'type':'paragraph','direction':'auto','content':[{'type':'passage_link','reference':reference,'label':'Visible guard label'}]}]},'connections':[],'highlights':[]}
+            connection.execute('INSERT INTO scribeswell_studies.notes(account_id,study_id,id,value,created_by,updated_by) VALUES(%s,%s,%s,%s,%s,%s)',(A,study,str(uuid4()),Jsonb(stored),ACTOR,ACTOR))
+        # Normalized collection rows also reject mismatched version/versification at search.
+        for field,wrong in (('catalogue_version','0'*64),('versification_id','crosswire-kjv-3765')):
+            study=create(storage,'Collection identity guard')['study_id'];invalid_studies.append(study)
+            reference=deepcopy(canonical);reference[field]=wrong
+            connection.execute('INSERT INTO scribeswell_studies.passage_lists(account_id,study_id,revision,created_by,updated_by) VALUES(%s,%s,2,%s,%s)',(A,study,ACTOR,ACTOR))
+            connection.execute("INSERT INTO scribeswell_studies.passage_entries(account_id,study_id,id,position,catalogue_id,catalogue_version,versification_id,book_id,kind,start_chapter,start_verse,end_chapter,end_verse,created_by) VALUES(%s,%s,%s,1,%s,%s,%s,'Gen','verse_range',1,1,2,3,%s)",(A,study,str(uuid4()),reference['catalogue_id'],reference['catalogue_version'],reference['versification_id'],ACTOR))
+    def all_ids(query):
+        found=[];cursor=None
+        while True:
+            payload=parse_command('studies.search',json.dumps({'query':query,'limit':50,'cursor':cursor}).encode())
+            page=run(storage.search(IDENTITY,payload,deadline()));found.extend(item['id'] for item in page['items']);cursor=page['next_cursor']
+            if cursor is None:return found
+    assert all_ids(marker)==[ordinary],'Active format1 unique note-body text was not found'
+    for query in ('Gen','Genesis 1','Gen 2:1','Gen 1:1–2:3'):
+        found=all_ids(query)
+        for (label,_,_),study in zip(cases,invalid_studies):
+            assert study not in found,(label,query)
+        assert all(study not in found for study in invalid_studies[len(cases):]),'Mismatched normalized collection identity matched'
+    unsupported=invalid_studies[len(cases)-1]
+    assert unsupported not in all_ids('Visible guard label'),'Unsupported document version contributed visible text'

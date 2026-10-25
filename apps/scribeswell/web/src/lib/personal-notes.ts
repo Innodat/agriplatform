@@ -18,6 +18,7 @@ export async function request<T>(token:string,path:string,method='GET',body?:unk
  finally{clearTimeout(timer);}
 }
 export const api={
+ search:(token:string,query:string,cursor?:string)=>request<StudyPage>(token,'/api/studies/search','POST',{query,cursor:cursor??null}),
  enroll:(token:string,operation_id:string)=>request<EnrollmentAck>(token,'/api/studies/enrollment','POST',{operation_id}),
  studies:(token:string,cursor?:string)=>request<StudyPage>(token,'/api/studies'+(cursor?'?cursor='+encodeURIComponent(cursor):'')),
  study:(token:string,id:string)=>request<StudyView>(token,`/api/studies/${id}`),

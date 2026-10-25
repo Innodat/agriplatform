@@ -344,7 +344,7 @@ class Qualification:
 
     def browser(self):
         def checkpoints(process):
-            for name in ('pre-enrollment','rename-before','rename-after','passages-before','passages-after','note-links-before','note-links-after','foreign-before','foreign-after'):
+            for name in ('pre-enrollment','rename-before','rename-after','passages-before','passages-after','note-links-before','note-links-after','search-before','search-after','foreign-before','foreign-after'):
                 limit=time.monotonic()+60
                 while not (self.proof/(name+'-check.json')).exists():
                     if process.poll() is not None or time.monotonic()>=limit:raise RuntimeError('qualification_checkpoint_missing:'+name)
@@ -398,6 +398,8 @@ class Qualification:
                     added=[row for row in current if row not in previous]
                     assert len(current)==len(previous)+1 and len(added)==1
                     assert added[0]['command']=='note.replace' and added[0]['operation_id']==expected['operation']
+                elif name=='search-before':self.snapshot('before-library-search')
+                elif name=='search-after':self.snapshot('after-library-search',previous='before-library-search')
                 elif name=='foreign-before':self.snapshot('before-foreign-denial')
                 else:self.snapshot('after-foreign-denial',previous='before-foreign-denial')
                 private(self.proof/(name+'-observed.json'),{'independent_sql':True})

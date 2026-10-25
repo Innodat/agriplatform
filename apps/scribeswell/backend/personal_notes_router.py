@@ -4,7 +4,7 @@ import time
 from fastapi import APIRouter,Request
 from fastapi.responses import JSONResponse
 from pydantic import TypeAdapter
-from personal_notes_contract import Identifier,parse_command,ContractInputError,MAX_BODY_BYTES,MAX_PASSAGE_BODY_BYTES
+from personal_notes_contract import Identifier,parse_command,ContractInputError,MAX_BODY_BYTES,MAX_PASSAGE_BODY_BYTES,MAX_SEARCH_BODY_BYTES
 from personal_notes_access import NotesError,STATUSES
 
 async def body(request,limit=MAX_BODY_BYTES):
@@ -30,12 +30,13 @@ def build_router(access,storage):
                     payload=parse_command('studies.enroll',await body(request))
                     result=await access.enroll(bearer,payload.operation_id,deadline)
                 else:
-                    payload=parse_command(kind,await body(request,MAX_PASSAGE_BODY_BYTES if kind=='study.passages.replace' else MAX_BODY_BYTES)) if kind in ('study.create','study.rename','study.passages.replace','note.create','note.replace') else None
+                    payload=parse_command(kind,await body(request,MAX_SEARCH_BODY_BYTES if kind=='studies.search' else MAX_PASSAGE_BODY_BYTES if kind=='study.passages.replace' else MAX_BODY_BYTES)) if kind in ('studies.search','study.create','study.rename','study.passages.replace','note.create','note.replace') else None
                     allowed={'limit','cursor'} if kind=='list' else {'command'} if kind=='lookup' else set()
                     if set(request.query_params)-allowed or any(len(request.query_params.getlist(k))!=1 for k in request.query_params): raise ValueError
                     # Fresh remote authority, completed before the first local transaction.
                     identity=await access.check(bearer,deadline)
-                    if payload is not None: result=await storage.execute(identity,kind,payload,study_id,note_id,deadline)
+                    if kind=='studies.search': result=await storage.search(identity,payload,deadline)
+                    elif payload is not None: result=await storage.execute(identity,kind,payload,study_id,note_id,deadline)
                     elif kind=='passages': result=await storage.passages(identity,study_id,deadline)
                     elif kind=='read': result=await storage.read(identity,study_id,note_id,deadline)
                     elif kind=='list':
@@ -54,6 +55,8 @@ def build_router(access,storage):
         except Exception: code,details='studies_storage_unavailable',None
         return JSONResponse({'error':'Request could not be completed','code':code,'details':details},status_code=STATUSES[code],headers={'Cache-Control':'private, no-store'})
 
+    @router.post('/api/studies/search')
+    async def search_studies(request:Request): return await handle(request,'studies.search')
     @router.post('/api/studies/enrollment')
     async def enrollment(request:Request): return await handle(request,'enroll')
     @router.post('/api/studies')

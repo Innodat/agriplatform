@@ -542,6 +542,26 @@ export type RevisionProblem = {
 };
 
 /**
+ * SearchStudies
+ */
+export type SearchStudies = {
+    /**
+     * Cursor
+     */
+    cursor?: string | null;
+    /**
+     * Limit
+     */
+    limit?: number;
+    /**
+     * Query
+     *
+     * Unicode scalar string without NUL; at most 200 codepoints before outer trim/NFC matching.
+     */
+    query: string;
+};
+
+/**
  * StudyPage
  */
 export type StudyPage = {
@@ -869,6 +889,63 @@ export type EnrollStudiesResponses = {
 };
 
 export type EnrollStudiesResponse = EnrollStudiesResponses[keyof EnrollStudiesResponses];
+
+export type SearchStudiesData = {
+    body: SearchStudies;
+    path?: never;
+    query?: never;
+    url: '/api/studies/search';
+};
+
+export type SearchStudiesErrors = {
+    /**
+     * Invalid input
+     */
+    400: ErrorResponse & {
+        code?: 'scribeswell_personal_notes_input_invalid';
+    };
+    /**
+     * Authentication required
+     */
+    401: ErrorResponse & {
+        code?: 'authentication_required';
+    };
+    /**
+     * Current Studies access denied
+     */
+    403: ErrorResponse & {
+        code?: 'studies_access_denied';
+    };
+    /**
+     * Unavailable resource; does not reveal another owner
+     */
+    404: ErrorResponse & {
+        code?: 'resource_unavailable';
+    };
+    /**
+     * Revision, operation payload or unresolved conflict
+     */
+    409: ErrorResponse & {
+        code?: 'note_revision_conflict' | 'study_revision_conflict' | 'passage_revision_conflict' | 'note_format_unsupported' | 'operation_payload_mismatch' | 'operation_unresolved';
+    };
+    /**
+     * Access, storage or deadline unavailable
+     */
+    503: ErrorResponse & {
+        code?: 'studies_access_unavailable' | 'studies_storage_unavailable' | 'request_deadline_exceeded';
+    };
+};
+
+export type SearchStudiesError = SearchStudiesErrors[keyof SearchStudiesErrors];
+
+export type SearchStudiesResponses = {
+    /**
+     * Acknowledged or current authorized result
+     */
+    200: StudyPage;
+};
+
+export type SearchStudiesResponse = SearchStudiesResponses[keyof SearchStudiesResponses];
 
 export type ReadStudyData = {
     body?: never;

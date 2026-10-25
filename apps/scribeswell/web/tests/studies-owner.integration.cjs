@@ -47,6 +47,7 @@ if(!process.env.SCRIBESWELL_OWNER_DENIED){
  test('actual owner enrollment, lost completed replies, editor autosave, reload and second-account isolation',safeScenario(async({browser,page})=>{
   const privacy=inspection();privacy.inspect(page.context());
   stage('first-provider-callback');await login(page,fixture.accounts[0]);
+  const initialSearch=await request(page,'/api/studies/search','POST',{query:'Matthew'});expect(initialSearch.status).toBe(503);expect(initialSearch.body.code).toBe('studies_access_unavailable');
   stage('public-reader');await expect(page.getByText('בְּרֵאשִׁית',{exact:true}).first()).toBeVisible();
   stage('before-enrollment-denial');const denied=await request(page,'/api/studies');expect(denied.status).toBe(503);expect(denied.body.code).toBe('studies_access_unavailable');
   await checkpoint('pre-enrollment');
@@ -114,6 +115,16 @@ if(!process.env.SCRIBESWELL_OWNER_DENIED){
   await page.getByRole('button',{name:'Read note',exact:true}).click();await editor.locator('[data-note-passage]').click();expect(new URL(page.url()).searchParams.get('book')).toBe('Gen');await page.getByRole('button',{name:'Edit note',exact:true}).click();
   const legacy={document:{version:1,blocks:[]},connections:[],highlights:[]};const downgrade=await request(page,`/api/studies/${study}/notes/${note.id}`,'PUT',{operation_id:crypto.randomUUID(),expected_revision:note.revision,value:legacy});expect(downgrade.status).toBe(409);expect(downgrade.body).toEqual({error:'Request could not be completed',code:'note_format_unsupported',details:null});
   fs.writeFileSync(path.join(proof,'note-links-result.json'),JSON.stringify({study,note:note.id,operation:linkAck.operation_id,value:note.value}),{flag:'wx',mode:0o600});await checkpoint('note-links-after');
+  stage('saved-library-search');await checkpoint('search-before');
+  await page.getByRole('button',{name:'Back to Studies',exact:true}).click();await page.getByRole('button',{name:'Leave study',exact:true}).click();
+  const searchInput=page.getByRole('textbox',{name:'Search studies',exact:true});
+  for(const query of [text,'Renamed English שָׁלוֹם','Genesis 2:1','בראשית ב:א','Matthew']){
+   await searchInput.fill(query);await searchInput.press('Enter');await expect(page.getByRole('button',{name:'Renamed English שָׁלוֹם',exact:true})).toBeVisible();
+   const found=await request(page,'/api/studies/search','POST',{query,limit:1,cursor:null});expect(found.status).toBe(200);expect(found.body.items.some(item=>item.id===study)).toBe(true);
+  }
+  await page.getByRole('button',{name:'Renamed English שָׁלוֹם',exact:true}).click();await page.getByRole('button',{name:'Leave study',exact:true}).click();await expect(searchInput).toHaveValue('Matthew');await expect(page.getByRole('button',{name:'Renamed English שָׁלוֹם',exact:true})).toBeVisible();
+  await page.getByRole('button',{name:'Clear',exact:true}).click();
+  await checkpoint('search-after');
   stage('second-account-isolation');const context=await browser.newContext();privacy.inspect(context);const other=await context.newPage();await login(other,fixture.accounts[1]);
   const otherEnrollment=crypto.randomUUID();const otherAck=await request(other,'/api/studies/enrollment','POST',{operation_id:otherEnrollment});expect(otherAck.status).toBe(200);
   await checkpoint('foreign-before');
@@ -127,6 +138,7 @@ if(!process.env.SCRIBESWELL_OWNER_DENIED){
   expect((await request(other,`/api/studies/${study}/notes/${note.id}`,'PUT',{operation_id:crypto.randomUUID(),expected_revision:note.revision,value:note.value})).status).toBe(404);
   expect((await request(other,`/api/operations/${create.operation_id}?command=study.create`)).body.status).toBe('unresolved');
   expect((await request(other,'/api/studies')).body.items.length===0).toBe(true);
+  for(const query of [text,'Matthew','Genesis 2:1'])expect((await request(other,'/api/studies/search','POST',{query})).body.items).toEqual([]);
   await checkpoint('foreign-after');
   await privacy.settle();
   const stored=await context.storageState();fs.writeFileSync(path.join(proof,'other-context-private.json'),JSON.stringify(stored),{flag:'wx',mode:0o600});await context.close();
@@ -148,6 +160,7 @@ if(!process.env.SCRIBESWELL_OWNER_DENIED){
   expect((await request(page,'/api/studies','POST',{operation_id:result.operation,title:'Lost reply study'})).status).toBe(403);
   expect((await request(page,`/api/studies/${result.study}/notes/${result.note}`,'PUT',{operation_id:crypto.randomUUID(),expected_revision:'2',value:result.value})).status).toBe(403);
   expect((await request(page,'/api/studies/enrollment','POST',{operation_id:result.enrollment})).status).toBe(403);
+  expect((await request(page,'/api/studies/search','POST',{query:'Matthew'})).status).toBe(403);
   stage('public-reader');await expect(page.getByText('בְּרֵאשִׁית',{exact:true}).first()).toBeVisible();
   const anonymous=await browser.newContext();privacy.inspect(anonymous);const publicPage=await anonymous.newPage();await publicPage.goto('/');
   await expect(publicPage.getByRole('button',{name:'Sign in',exact:true})).toBeVisible();await expect(publicPage.getByText('בְּרֵאשִׁית',{exact:true}).first()).toBeVisible();
