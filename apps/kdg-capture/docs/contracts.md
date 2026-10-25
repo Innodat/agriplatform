@@ -893,3 +893,20 @@ No retry, refresh, new operation ID, write, queue/storage mutation or Synced fee
 performed. Unresolved remains compatible with a later commit. The candidate is not
 imported by active startup; [evidence](RECOVERY_ADAPTER_EVIDENCE.md) records synthetic
 transport/type verification and the required future Auth integration boundary.
+
+
+### Candidate recovery consuming Auth entry — 2026-10-25
+
+`web/src/recovery-entry.ts:createRecoveryEntry` owns recovery within the existing
+fixed-organization Auth entry. `recover(pending)` requires current admission and matching
+pending/session/context account and organization, then passes the pinned bearer and
+existing lifecycle execution signal/predicate to recoverOperation. Unadmitted or
+superseded execution returns `superseded`; mismatched/malformed input returns
+`invalid_request` without transport. Current results preserve the recovery wire contract.
+Refresh, account replacement, retry/sign-in, logout, password recovery and disposal abort
+in-flight reads; late receipts/errors cannot escape. Every result releases its own lease.
+No automatic Auth recovery, write, queue mutation, new operation or Synced feedback occurs.
+The trusted generic lease is never published and is hidden by this consuming wrapper.
+Organization replacement disposes the old entry owner. Server access is checked per call;
+a returned observation grants no later write authority. Candidate remains unconnected to
+browser/editor and active API startup. See [qualification](RECOVERY_ENTRY_EVIDENCE.md).

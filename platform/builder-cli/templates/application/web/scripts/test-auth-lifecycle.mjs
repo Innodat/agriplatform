@@ -394,3 +394,31 @@ test('embedded configuration enforces UTF-8 bytes and validates selector before 
  f.node.textContent=JSON.stringify('x'.repeat(8190));assert.equal(readEmbeddedPublicConfig(f.document,'public-config').kind,'value');
  assert.deepEqual(readEmbeddedPublicConfig({querySelectorAll(){throw Error('must not read');}},'x,script'),{kind:'unavailable'});
 });
+
+test('execution lease requires current admission and keeps bearer outside publication',async()=>{
+ const f=fixture();assert.equal(f.bridge.acquireExecution(),null);await f.bridge.start();
+ const first=f.bridge.acquireExecution(),second=f.bridge.acquireExecution();assert.ok(first.isCurrent());assert.equal(first.session.access_token,'synthetic');assert.equal(first.context.account,A);
+ assert.ok(!JSON.stringify(f.states).includes('access_token'));assert.ok(Object.isFrozen(first.session));assert.ok(Object.isFrozen(first));
+ first.release();first.release();assert.equal(first.isCurrent(),false);assert.equal(first.signal.aborted,true);assert.equal(second.isCurrent(),true);
+ assert.equal(f.bridge.state().kind,'authorized');f.bridge.dispose();assert.equal(second.isCurrent(),false);assert.equal(second.signal.aborted,true);assert.equal(f.bridge.acquireExecution(),null);
+ const denied=fixture({}, {verify:async()=>({kind:'access_denied'})});await denied.bridge.start();assert.equal(denied.bridge.acquireExecution(),null);denied.bridge.dispose();
+});
+for(const action of ['refresh','account','retry','signIn','signOut','recovery','dispose'])test('execution lease closes synchronously on '+action,async()=>{
+ const f=fixture();await f.bridge.start();const lease=f.bridge.acquireExecution();let reentered='not_called';
+ lease.signal.addEventListener('abort',()=>{reentered=f.bridge.acquireExecution();});
+ if(action==='refresh')f.emit('TOKEN_REFRESHED',session(A,'fresh'));
+ else if(action==='account')f.emit('SIGNED_IN',session(B));else if(action==='recovery')f.emit('PASSWORD_RECOVERY',session(A));
+ else if(action==='dispose')f.bridge.dispose();else void f.bridge[action]();
+ assert.equal(lease.isCurrent(),false);assert.equal(lease.signal.aborted,true);assert.equal(reentered,null);
+ await tick();f.bridge.dispose();
+});
+test('execution abort callback disposal settles a replacement retry',async()=>{
+ const f=fixture();await f.bridge.start();const lease=f.bridge.acquireExecution();lease.signal.addEventListener('abort',()=>f.bridge.dispose());
+ const result=await Promise.race([f.bridge.retry().then(()=>true),new Promise(resolve=>setTimeout(()=>resolve(false),30))]);
+ assert.equal(result,true);assert.equal(f.bridge.state().kind,'signed_out');
+});
+test('execution abort callback retry supersedes outer retry without clearing its timer',async()=>{
+ const f=fixture();await f.bridge.start();const lease=f.bridge.acquireExecution();let nested;
+ lease.signal.addEventListener('abort',()=>{nested=f.bridge.retry();});const outer=f.bridge.retry();await outer;await nested;
+ assert.equal(f.verified.length,2);assert.equal(f.bridge.state().kind,'authorized');f.bridge.dispose();
+});

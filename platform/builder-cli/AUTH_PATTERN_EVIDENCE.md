@@ -1,3 +1,12 @@
+Current extension, 2026-10-25: the canonical lifecycle and generated tests now include
+trusted-owner execution leases tied to existing admission/session epochs. KDG consumes
+these through its separately imported candidate recovery entry. No bearer is published;
+reset cancels work before replacement admission, and completion releases only its lease.
+118 generated tests pass in an actual fresh scaffold, including reentrant abort callback
+disposal/retry. Managed KDG template/test parity passes. See the source-bound
+[KDG qualification](../../apps/kdg-capture/docs/RECOVERY_ENTRY_EVIDENCE.md). Historical
+proof counts below remain scoped to their original source versions.
+
 # Scaffold Auth lifecycle and KDG parity — 2026-10-23
 
 The bounded reconciliation is complete after all nine Blind Hunter findings were

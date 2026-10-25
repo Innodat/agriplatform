@@ -17,8 +17,8 @@ const files=renderApplication(recipe,root),identity={generator:'builder-v1',temp
 let passed=false;const checks=[];
 try{
  installScaffold(output,files,identity);checkScaffold(output);checks.push('actual_renderer_installer');
- const args=['--test'];if(process.argv.includes('--acceptance-only'))args.push('--test-name-pattern','bootstrap admits');args.push(join(output,'web/scripts/test-auth-lifecycle.mjs'));
- const tests=spawnSync(process.execPath,args,{encoding:'utf8',timeout:30000});writeFileSync(join(proof,'tests.log'),tests.stdout+tests.stderr);assert.equal(tests.status,0,'generated_behavior_failed');checks.push('generated_behavior');
+ const args=['--test','--test-isolation=none'];if(process.argv.includes('--acceptance-only'))args.push('--test-name-pattern','bootstrap admits');args.push(join(output,'web/scripts/test-auth-lifecycle.mjs'));
+ const tests=spawnSync(process.execPath,args,{encoding:'utf8',timeout:30000});writeFileSync(join(proof,'tests.log'),tests.stdout+tests.stderr);assert.ifError(tests.error);assert.equal(tests.status,0,'generated_behavior_failed');checks.push('generated_behavior');
  writeFileSync(join(output,'web/src/App.tsx'),'// owner custom seed\n');writeFileSync(join(output,'custom.txt'),'owner custom');installScaffold(output,files,identity);checkScaffold(output);
  assert.equal(readFileSync(join(output,'web/src/App.tsx'),'utf8'),'// owner custom seed\n');assert.equal(readFileSync(join(output,'custom.txt'),'utf8'),'owner custom');checks.push('owner_custom_preserved');passed=true;
 }finally{

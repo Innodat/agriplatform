@@ -1,3 +1,30 @@
+## Current delivery — candidate recovery Auth/entry consumer, 2026-10-25
+
+Read [current contracts](contracts.md), [Auth integration evidence](RECOVERY_ENTRY_EVIDENCE.md)
+and [receipt](evidence/recovery-entry-20261025.json). Recovery now consumes the existing
+Auth lifecycle's admitted pinned session and epoch, with synchronous abort and stale
+result suppression. The generic lease and generated behavioral tests are propagated
+through owning scaffold templates and managed KDG regeneration. Candidate wrapper stays
+unconnected to browser/editor, queue mutation and active API startup.
+
+199 consuming/Auth/config/lifecycle tests pass; strict TypeScript7.0.2 and three new
+negative type cases pass. Actual fresh scaffold runs118 generated lifecycle tests and
+preserves owner customizations. Recovery/entry/scaffold regression74 passes; managed
+Auth parity passes. Five blind-review findings fixed, none deferred, including two
+reproduced reentrant cancellation failures. Historical receipts remain source-bound;
+no backend/native/browser qualification claimed. Docker/resources/data and approved
+dependencies preserved. Fingerprints/HMAC deferred.
+
+Next use bmad-help to select bounded native edit-to-recovery HTTP qualification using
+synthetic data and existing candidate contracts: prove original edit identity/target and
+committed revision with current own-read authority. Keep editor/queue/UI mutation and API
+startup adoption separate. Native cancellation/server drain and ADR-0020 compatibility/
+recovery/release remain gates. Synthetic local/CI only; no Leave/editor, real accounts/
+access, production, provisioning/deployment/pilot or cleanup. Preserve TypeScript7.0.2,
+concurrent work and historical evidence.
+
+Earlier handoffs follow unchanged as historical checkpoints.
+
 ## Current delivery — candidate recovery request adapter, 2026-10-25
 
 Read [adapter evidence](RECOVERY_ADAPTER_EVIDENCE.md) and

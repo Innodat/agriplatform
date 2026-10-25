@@ -12,6 +12,8 @@ export type AuthPort = {
 export type Boundary<T> = {check(session:Session|null):Promise<EntryState<T>>;clear():void;dispose():void};
 export type BoundaryFactory<T> = (publish:(state:EntryState<T>)=>void)=>Boundary<T>;
 export type LifecycleOptions<T> = Readonly<{auth:AuthPort;createBoundary:BoundaryFactory<T>;publish:(state:EntryState<T>)=>void;beginSignIn:()=>Promise<void>;online?:boolean;timeoutMs?:number}>;
+/** Trusted owner execution only; never publish or persist this bearer-bearing lease. Release in finally. */
+export type ExecutionLease<T> = Readonly<{session:Session;context:T;signal:AbortSignal;isCurrent():boolean;release():void}>;
 const pin=(session: ProviderSession | null): Session | null=>session?Object.freeze({account_id:session.user.id,access_token:session.access_token}):null;
 
 /** Auth owns sessions. The application-owned boundary alone establishes admission. */
@@ -21,21 +23,27 @@ export function createSessionLifecycle<T>(options: LifecycleOptions<T>) {
   let locked=false, seenLive=false, session: Session | null=null, recovery: string | null=null;
   let subscription: {unsubscribe:()=>void} | undefined, timer: ReturnType<typeof setTimeout> | undefined;
   let finish: (()=>void) | undefined, pending: Promise<void>=Promise.resolve();
-  const set=(next: EntryState<T>)=>{if(!disposed){state=Object.freeze(next);options.publish(state);}};
+  let admissionEpoch=-1;
+  const executions=new Set<AbortController>();
+  const set=(next: EntryState<T>)=>{if(!disposed){state=Object.freeze(next);admissionEpoch=next.kind==='authorized'?epoch:-1;options.publish(state);}};
   // Owner callbacks may be late or absent. Only returned, epoch-checked outcomes publish.
   const gate=options.createBoundary(()=>{});
   const valid=(execution: number)=>!disposed&&epoch===execution;
-  function reset() {
-    epoch++;if(timer!==undefined)clearTimeout(timer);timer=undefined;
-    const previous=finish;finish=undefined;previous?.();
+  function reset(): number {
+    const execution=++epoch;admissionEpoch=-1;
+    const previousExecutions=[...executions];executions.clear();
+    if(timer!==undefined)clearTimeout(timer);timer=undefined;
+    const previous=finish;finish=undefined;
     try{gate.clear();}catch{/* Epoch invalidation still closes publication if owner cancellation fails. */}
+    for(const controller of previousExecutions)controller.abort();
+    previous?.();return execution;
   }
   function fail(execution: number) {
-    if(valid(execution)){locked=true;session=null;recovery=null;reset();set({kind:'authorization_unavailable'});}
+    if(valid(execution)){locked=true;session=null;recovery=null;const replacement=reset();if(valid(replacement))set({kind:'authorization_unavailable'});}
   }
   function run(task: (execution: number)=>Promise<void>, kind: 'checking' | 'signed_out'='checking', allowOffline=false): Promise<void> {
     if(disposed)return Promise.resolve();
-    reset();const execution=epoch;
+    const execution=reset();if(!valid(execution))return Promise.resolve();
     if(!Number.isFinite(duration)||duration<=0||duration>10000){locked=true;set({kind:'invalid_response'});return Promise.resolve();}
     if(!online&&!allowOffline){set({kind:'signed_out'});return Promise.resolve();}
     pending=new Promise(resolve=>{finish=resolve;});const result=pending;
@@ -64,15 +72,15 @@ export function createSessionLifecycle<T>(options: LifecycleOptions<T>) {
     if(eventName==='INITIAL_SESSION'&&seenLive)return;
     if(eventName!=='INITIAL_SESSION')seenLive=true;
     if(eventName==='SIGNED_OUT'){
-      locked=true;session=null;recovery=null;reset();set({kind:'signed_out'});return;
+      locked=true;session=null;recovery=null;const execution=reset();if(valid(execution))set({kind:'signed_out'});return;
     }
     if(eventName==='PASSWORD_RECOVERY'){
-      locked=true;session=null;recovery=null;reset();set({kind:'authentication_required'});return;
+      locked=true;session=null;recovery=null;const execution=reset();if(valid(execution))set({kind:'authentication_required'});return;
     }
     try {
       const current=pin(value);
       if(eventName==='TOKEN_REFRESHED'&&session&&current?.account_id!==session.account_id){
-        locked=true;session=null;recovery=null;reset();set({kind:'authentication_required'});return;
+        locked=true;session=null;recovery=null;const execution=reset();if(valid(execution))set({kind:'authentication_required'});return;
       }
       const recover=eventName==='TOKEN_REFRESHED'&&current!==null&&recovery===current.account_id;
       if(recover||eventName!=='INITIAL_SESSION')recovery=null;
@@ -98,6 +106,15 @@ export function createSessionLifecycle<T>(options: LifecycleOptions<T>) {
   }
   return {
     state:()=>state,
+    acquireExecution(): ExecutionLease<T> | null {
+      if(disposed||locked||state.kind!=='authorized'||!session||admissionEpoch!==epoch)return null;
+      const observed=state,current=session,execution=epoch,controller=new AbortController();
+      executions.add(controller);
+      return Object.freeze({session:current,context:observed.context,signal:controller.signal,
+        isCurrent:()=>!disposed&&!controller.signal.aborted&&epoch===execution&&state===observed&&session===current,
+        release(){executions.delete(controller);controller.abort();},
+      });
+    },
     start,
     retry(): Promise<void> {
       if(disposed)return Promise.resolve();
