@@ -1,3 +1,32 @@
+## Current delivery — restricted-runtime durable create qualification, 2026-10-25
+
+Read [native commit evidence](NATIVE_CAPTURE_COMMIT_EVIDENCE.md) and
+[its receipt](evidence/native-capture-commit-20261025.json). The approved exact retained
+fixture now has ordinary restricted-migrator ledger 0002 and complete candidate storage,
+while active Alembic discovery remains0001. Eight native groups pass through actual
+runtime-login handlers with MockTransport Access: closed-writer durability, changed-body
+original receipt, actual concurrent overlap, bounded busy/retry, native post-insert
+rollback with a waiting valid writer, shared-capture safe loser, stored-child current
+membership/assignment and restricted scope/privilege refusals. Two separately journaled datasets retain ten linked triplets and their parents. Independent reconnect confirms revision,
+counts, source bindings and foreign sentinel; current metadata is unchanged. The old
+global-hash discrepancy stays unresolved. 101 affected tests and 21 focused harness tests
+pass; scaffold write parity passes. No handler/shared helper fix was required.
+
+Use only the new app-owned custody/explicit-phase adapter against this transitioned
+fixture. Old ledger-only inspectors/rollback qualifiers are historical and inapplicable;
+do not invoke preparers, reset, downgrade or replace prior receipts. The qualification
+journals attempt and command IDs before seeding, checks applied candidate provenance,
+and proves full stored fields, absence and per-dataset totals before success. Migration and qualification remain separate,
+with failure blocking and actual-state reconciliation before retry. Known run
+99b7231c-0a5b-4bdb-98e8-3329564c526a was stopped normally; data/resources remain intact.
+
+Next select a bounded remaining consuming boundary: GET own-read recovery or explicit
+mounting prerequisites. Native cancellation/commit uncertainty, real Access, protected
+HTTP adaptation and ADR-0020 compatibility/recovery/release activation remain gates.
+No active migration promotion, bootstrap/dependency/TS 7.0.2 change, real account/access,
+Leave/editor, production, provisioning/deployment/pilot or cleanup occurred.
+Fingerprints/HMAC remain deferred. Historical handoffs below stay source-bound.
+
 ## Current delivery — protected outer create/retry handler, 2026-10-25
 
 Read [handler contract and evidence](CREATE_HANDLER_EVIDENCE.md) and its source-bound

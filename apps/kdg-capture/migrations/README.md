@@ -1,3 +1,23 @@
+## Retained fixture transition — 2026-10-25
+
+The specifically approved retained fixture is now durably at
+`0002_kdg_capture_storage`, with complete candidate storage/RLS/grants and two synthetic datasets
+of five capture/outcome/history triplets each retained. Active `versions` discovery still ends at
+`0001_kdg_foundation`; candidate promotion and release activation remain gated.
+See [durable commit evidence](../docs/NATIVE_CAPTURE_COMMIT_EVIDENCE.md) and its receipt.
+The new app-owned `tests/capture_commit_fixture.py` supplies custody and test-only combined
+revision discovery; `tests/qualify_capture_commit.py` requires separate explicit
+`--migrate-retained` and `--qualify-retained` phases through the existing env/policy.
+Applied candidate provenance is checked against an original successful upgrade receipt.
+It never prepares resources, stamps history, bypasses migration policy or reverses DDL.
+
+Old ledger-only inspection and rollback-only qualifiers below are historical and
+inapplicable to this transitioned fixture. Preserve their files/receipts and the old
+unresolved global metadata-hash discrepancy. Never run their preparers or reset/downgrade
+the fixture. A reported failure blocks progress until an independent reconnect reconciles
+ordinary Alembic revision and relevant effects; retain successful migration and data.
+The exact known run was stopped normally with all resources retained.
+
 # KDG controlled migration candidate
 
 KDG owns schema kdg_capture and its separate Alembic history under ADR0015–0020.
