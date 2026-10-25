@@ -1,3 +1,32 @@
+## Current delivery — native own-edit body, 2026-10-25
+
+Read [native evidence](NATIVE_OWN_EDIT_EVIDENCE.md), [source-bound record](evidence/native-own-edit-20261025.json)
+and [contracts](contracts.md). The actual inert own-edit body now passes native restricted
+PostgreSQL qualification: answers/date edits, exact receipt-only no-op, stale conflict,
+original-version validation, foreign scope refusal, native23514 rollback, explicit
+original-command retry and committed-duplicate private refusal. Body/schema unchanged.
+Independent reads follow every closed writer. Exact new deltas: capture+1, outcomes+5,
+revisions+4, five parents+1 each; two retained successful datasets total14/26/24 and six of each parent. Prior complete
+rows, sentinel and ledger0002 remain unchanged. Pre/post SELECT-only checkpoints pass.
+
+20 focused/219 affected tests and three scaffold parity checks pass. Initial meaningful
+RED used a pending behavior stub. Native sources and safe reports/logs are retained;
+reviewed-source proof verifies the uncommitted outcome before fault injection and
+retains observed execution results across failed independent reads. First-source
+capsules/receipts remain historical. Reviewed run stopped normally; no runtime containers
+remain and original network/database volume are retained. Three review layers completed:
+two findings addressed, eight rejected with evidence, none deferred.
+Scaffold/shared UI/context/ADR unchanged; documentation updated. TypeScript7.0.2,
+concurrent work and historical evidence preserved; fingerprints/HMAC deferred.
+
+Next use bmad-help/bmad-build for bounded current-access edit HTTP/Auth orchestration
+and stored-target-authorized replay. Do not infer real actor/account binding or current
+HTTP admission from synthetic contexts. Keep editor/queue/UI/startup adoption, native
+contention/cancellation/TCP drain and ADR-0020 compatibility/recovery/activation gated.
+No production, deployment/pilot, provisioning, privilege expansion, migration or cleanup.
+
+Earlier handoffs follow unchanged as historical checkpoints.
+
 ## Current delivery — inert own-edit transaction body, 2026-10-25
 
 Read [current contracts](contracts.md), [own-edit body evidence](OWN_EDIT_BODY_EVIDENCE.md)

@@ -1,0 +1,1023 @@
+{
+  "baseline_commit": "bc644db4c6bdd4d551fc288d8e81b06b5e6e8f86",
+  "commands": [
+    {
+      "command": "platform/deployment/.local/access-organization-check-20261022/owner-env/bin/python -I -B -m unittest discover -s apps/kdg-capture/write-tests -p test_native_own_edit.py",
+      "log": {
+        "path": "platform/deployment/.local/kdg-native-own-edit-20261025/verification-logs/focused.log",
+        "sha256": "ec903f41287a7d25015f4e27cfb2e024c010999e2c2519666a96704307d83a85"
+      },
+      "result": "initial acceptance RED: pending new_plan behavior stub raises NotImplementedError; final18 PASS"
+    },
+    {
+      "command": "timeout 120s platform/deployment/.local/access-organization-check-20261022/owner-env/bin/python -I -B -m unittest discover -s apps/kdg-capture/write-tests -p 'test_*.py'",
+      "log": {
+        "path": "platform/deployment/.local/kdg-native-own-edit-20261025/verification-logs/write-tests.log",
+        "sha256": "3aed9ed4b0c5171aab0d64b774a1e7152ae77c53fa7d553f91d921c77514b256"
+      },
+      "result": "sandbox timeout124 after49 tests, no assertion failure"
+    },
+    {
+      "command": "timeout 120s platform/deployment/.local/access-organization-check-20261022/owner-env/bin/python -I -B -m unittest discover -s apps/kdg-capture/write-tests -p 'test_*.py'",
+      "log": {
+        "path": "platform/deployment/.local/kdg-native-own-edit-20261025/verification-logs/write-tests-unrestricted.log",
+        "sha256": "9266926fe46e4a7e1f8fc85a2d28984983e308f1122b34db93de44c946c78dc1"
+      },
+      "result": "unrestricted exit0;217 PASS in8.034s"
+    },
+    {
+      "command": "platform/deployment/.local/kdg-toolchains/ad277eef-a10e-4aac-bb82-5743653fb2e0/payload/node/bin/node platform/builder-cli/scripts/sync-kdg-write.mjs --check",
+      "result": "exit0 parity verified"
+    },
+    {
+      "command": "platform/deployment/.local/kdg-toolchains/ad277eef-a10e-4aac-bb82-5743653fb2e0/payload/node/bin/node platform/builder-cli/scripts/sync-kdg-database.mjs --check",
+      "result": "exit0 parity verified"
+    },
+    {
+      "command": "platform/deployment/.local/kdg-toolchains/ad277eef-a10e-4aac-bb82-5743653fb2e0/payload/node/bin/node platform/builder-cli/scripts/sync-kdg-native-database.mjs --check",
+      "result": "exit0 parity verified"
+    },
+    {
+      "command": "timeout 60s platform/deployment/.local/access-organization-check-20261022/owner-env/bin/python -I -B apps/kdg-capture/migrations/tests/qualify_recovery_http.py --qualify-retained",
+      "log": {
+        "path": "platform/deployment/.local/kdg-native-own-edit-20261025/verification-logs/pre.log",
+        "sha256": "e2fa9560ef3e435d12432aa4a3207137bd02eb4668c4f9900070eb52ce5b4800"
+      },
+      "receipt": {
+        "path": "platform/deployment/.local/kdg-native-focused-20261023/fixture-cff53592f5ca43a1a0cc65398957140f/capture-commit-recovery-http-abb3b479582b4ec29311d9ccdc7b67a9.json",
+        "sha256": "1c8bbcd227674a6fed44520f48b237a106b754435e061c7de9ea650a359ff0c7"
+      },
+      "result": "exit0 qualified"
+    },
+    {
+      "command": "timeout 60s platform/deployment/.local/access-organization-check-20261022/owner-env/bin/python -I -B apps/kdg-capture/migrations/tests/qualify_own_edit.py --qualify-retained",
+      "log": {
+        "path": "platform/deployment/.local/kdg-native-own-edit-20261025/verification-logs/native.log",
+        "sha256": "eb443fa298c9c37d0499b8f4592ad9f2c5528bd61bea84925c7e3ef5a38cb300"
+      },
+      "receipt": {
+        "path": "platform/deployment/.local/kdg-native-focused-20261023/fixture-cff53592f5ca43a1a0cc65398957140f/capture-commit-own-edit-e8cd93423004446696144fd50138c0cf.json",
+        "sha256": "8afb72369c5cfa6088b717ab8546c4f6de7d23d9cd7b1f2efe814bcf66e64019"
+      },
+      "result": "exit0 qualified"
+    },
+    {
+      "command": "timeout 60s platform/deployment/.local/access-organization-check-20261022/owner-env/bin/python -I -B apps/kdg-capture/migrations/tests/qualify_recovery_http.py --qualify-retained",
+      "log": {
+        "path": "platform/deployment/.local/kdg-native-own-edit-20261025/verification-logs/post.log",
+        "sha256": "63d97b2594f6e993037a4307147a0280aca302bed7975514970bd42fa3dae966"
+      },
+      "receipt": {
+        "path": "platform/deployment/.local/kdg-native-focused-20261023/fixture-cff53592f5ca43a1a0cc65398957140f/capture-commit-recovery-http-0ed8670d2a574550864937fdd2ea4e7f.json",
+        "sha256": "3a5e21350dcf18485c82aefc364c01bbeecbb972940178dce6b2081363ba55dd"
+      },
+      "result": "exit0 qualified"
+    },
+    {
+      "command": "python3 platform/deployment/dev.py up --target platform/deployment/environments/kdg-local.json --run-id 99b7231c-0a5b-4bdb-98e8-3329564c526a --supabase /home/ck/repos/innodat/agriplatform/platform/deployment/.local/kdg-toolchains/ad277eef-a10e-4aac-bb82-5743653fb2e0/payload/supabase/supabase",
+      "result": "root completed ok; exact retained resources preserved"
+    },
+    {
+      "command": "python3 platform/deployment/dev.py stop --target platform/deployment/environments/kdg-local.json --run-id 99b7231c-0a5b-4bdb-98e8-3329564c526a --supabase /home/ck/repos/innodat/agriplatform/platform/deployment/.local/kdg-toolchains/ad277eef-a10e-4aac-bb82-5743653fb2e0/payload/supabase/supabase",
+      "result": "root completed ok; exact retained resources preserved"
+    },
+    {
+      "command": "platform/deployment/.local/access-organization-check-20261022/owner-env/bin/python -I -B -m unittest discover -s apps/kdg-capture/write-tests -p test_native_own_edit.py",
+      "log": {
+        "path": "platform/deployment/.local/kdg-native-own-edit-20261025/reviewed-verification-logs/focused.log",
+        "sha256": "4b36e9d535c33719b70310ddce65b2e5733f508dc3f6c1fb650348a5b15a172f"
+      },
+      "result": "reviewed source20 PASS"
+    },
+    {
+      "command": "timeout 120s platform/deployment/.local/access-organization-check-20261022/owner-env/bin/python -I -B -m unittest discover -s apps/kdg-capture/write-tests -p 'test_*.py'",
+      "log": {
+        "path": "platform/deployment/.local/kdg-native-own-edit-20261025/reviewed-verification-logs/write-tests.log",
+        "sha256": "f9c72ac3f4b995fab7b9652f8634dc02d44a101505f796e18b2da139fe355cb9"
+      },
+      "result": "root reviewed source unrestricted exit0;219 PASS in8.826s"
+    },
+    {
+      "command": "platform/deployment/.local/kdg-toolchains/ad277eef-a10e-4aac-bb82-5743653fb2e0/payload/node/bin/node platform/builder-cli/scripts/sync-kdg-write.mjs --check",
+      "result": "root reviewed source exit0 parity verified"
+    },
+    {
+      "command": "platform/deployment/.local/kdg-toolchains/ad277eef-a10e-4aac-bb82-5743653fb2e0/payload/node/bin/node platform/builder-cli/scripts/sync-kdg-database.mjs --check",
+      "result": "root reviewed source exit0 parity verified"
+    },
+    {
+      "command": "platform/deployment/.local/kdg-toolchains/ad277eef-a10e-4aac-bb82-5743653fb2e0/payload/node/bin/node platform/builder-cli/scripts/sync-kdg-native-database.mjs --check",
+      "result": "root reviewed source exit0 parity verified"
+    },
+    {
+      "command": "timeout 60s platform/deployment/.local/access-organization-check-20261022/owner-env/bin/python -I -B apps/kdg-capture/migrations/tests/qualify_recovery_http.py --qualify-retained",
+      "log": {
+        "path": "platform/deployment/.local/kdg-native-own-edit-20261025/reviewed-verification-logs/pre.log",
+        "sha256": "40b3c7aac5ae7e6d057ac3b7f3b7c44d4321a85ccc47f91082b752c903a7cdc9"
+      },
+      "receipt": {
+        "path": "platform/deployment/.local/kdg-native-focused-20261023/fixture-cff53592f5ca43a1a0cc65398957140f/capture-commit-recovery-http-609955804c414f7e98194799e7f4eb82.json",
+        "sha256": "3a5e21350dcf18485c82aefc364c01bbeecbb972940178dce6b2081363ba55dd"
+      },
+      "result": "reviewed source exit0 qualified"
+    },
+    {
+      "command": "timeout 60s platform/deployment/.local/access-organization-check-20261022/owner-env/bin/python -I -B apps/kdg-capture/migrations/tests/qualify_own_edit.py --qualify-retained",
+      "log": {
+        "path": "platform/deployment/.local/kdg-native-own-edit-20261025/reviewed-verification-logs/native.log",
+        "sha256": "d741b160c79f0786be18bfbfd1f21542bf6ff67a8dd6f7fca801198806b0e220"
+      },
+      "receipt": {
+        "path": "platform/deployment/.local/kdg-native-focused-20261023/fixture-cff53592f5ca43a1a0cc65398957140f/capture-commit-own-edit-a12d043cdfa04fbfa81f5f3663500128.json",
+        "sha256": "c78e077e6903a6695638041d3a97ca6cd5aab4812d40807ff1ee8779d8b562fe"
+      },
+      "result": "reviewed source exit0 qualified"
+    },
+    {
+      "command": "timeout 60s platform/deployment/.local/access-organization-check-20261022/owner-env/bin/python -I -B apps/kdg-capture/migrations/tests/qualify_recovery_http.py --qualify-retained",
+      "log": {
+        "path": "platform/deployment/.local/kdg-native-own-edit-20261025/reviewed-verification-logs/post.log",
+        "sha256": "b10c466d0ccec67abe80f7c3ca5891abf488843680a676c3ec83360909a92d8b"
+      },
+      "receipt": {
+        "path": "platform/deployment/.local/kdg-native-focused-20261023/fixture-cff53592f5ca43a1a0cc65398957140f/capture-commit-recovery-http-9a8290716cf84ab8a789068e0dd6d015.json",
+        "sha256": "f5ceb883e7d6462287f0590e74da929cf86334a1c7dfe5bcb5a46ab8e498c48e"
+      },
+      "result": "reviewed source exit0 qualified"
+    },
+    {
+      "command": "python3 platform/deployment/dev.py up --target platform/deployment/environments/kdg-local.json --run-id 99b7231c-0a5b-4bdb-98e8-3329564c526a --supabase /home/ck/repos/innodat/agriplatform/platform/deployment/.local/kdg-toolchains/ad277eef-a10e-4aac-bb82-5743653fb2e0/payload/supabase/supabase",
+      "result": "root reviewed run completed ok; original network and database volume preserved; stopped runtime empty"
+    },
+    {
+      "command": "python3 platform/deployment/dev.py stop --target platform/deployment/environments/kdg-local.json --run-id 99b7231c-0a5b-4bdb-98e8-3329564c526a --supabase /home/ck/repos/innodat/agriplatform/platform/deployment/.local/kdg-toolchains/ad277eef-a10e-4aac-bb82-5743653fb2e0/payload/supabase/supabase",
+      "result": "root reviewed run completed ok; original network and database volume preserved; stopped runtime empty"
+    }
+  ],
+  "date": "2026-10-25",
+  "effects": {
+    "active_startup": false,
+    "application_body_changed": false,
+    "cleanup": false,
+    "fingerprints_hmac": "deferred",
+    "historical_metadata_discrepancy": "unresolved",
+    "migrations": false,
+    "privilege_expansion": false,
+    "provisioning": false,
+    "schema_changes": false,
+    "typescript": "7.0.2 unchanged"
+  },
+  "historical_attempts": [
+    {
+      "label": "first successful native qualification before review proof fixes",
+      "native": {
+        "checks": {
+          "answers": {
+            "result": {
+              "receipt": {
+                "command_type": "capture.edit",
+                "command_version": 1,
+                "operation_id": "3a744a64-cab4-4675-81c9-8a1326c8bc9a",
+                "result": {
+                  "capture_id": "cbd93874-d97f-4bae-84fc-3e707707bc60",
+                  "revision": "2"
+                },
+                "status": "committed"
+              },
+              "sql": {
+                "capture_updates": 1,
+                "history_inserts": 1
+              }
+            },
+            "storage": {
+              "current_revision": 2,
+              "discovered_outcomes": {
+                "answers": "c1378c46-1f14-4e96-84d0-0ecd7fb4f191",
+                "create": "2da9d106-553b-4d85-9ae6-450cbb3655fd"
+              },
+              "verified": true
+            }
+          },
+          "create": {
+            "current_revision": 1,
+            "discovered_outcomes": {
+              "create": "2da9d106-553b-4d85-9ae6-450cbb3655fd"
+            },
+            "verified": true
+          },
+          "date": {
+            "result": {
+              "receipt": {
+                "command_type": "capture.edit",
+                "command_version": 1,
+                "operation_id": "97b230a9-7c1a-451a-88ec-a33e7bc75117",
+                "result": {
+                  "capture_id": "cbd93874-d97f-4bae-84fc-3e707707bc60",
+                  "revision": "3"
+                },
+                "status": "committed"
+              },
+              "sql": {
+                "capture_updates": 1,
+                "history_inserts": 1
+              }
+            },
+            "storage": {
+              "current_revision": 3,
+              "discovered_outcomes": {
+                "answers": "c1378c46-1f14-4e96-84d0-0ecd7fb4f191",
+                "create": "2da9d106-553b-4d85-9ae6-450cbb3655fd",
+                "date": "0e607310-750e-4fe6-86bc-a03411843936"
+              },
+              "verified": true
+            }
+          },
+          "duplicate": {
+            "result": {
+              "error": "operation_verification_unavailable",
+              "sql": {
+                "capture_updates": 0,
+                "history_inserts": 0
+              }
+            },
+            "storage": {
+              "current_revision": 4,
+              "discovered_outcomes": {
+                "answers": "c1378c46-1f14-4e96-84d0-0ecd7fb4f191",
+                "create": "2da9d106-553b-4d85-9ae6-450cbb3655fd",
+                "date": "0e607310-750e-4fe6-86bc-a03411843936",
+                "noop": "deb1506a-dbe3-4b1e-8196-ba9c198021c9",
+                "retry": "5a12d420-40a3-4261-8c1f-90d8bf79e227"
+              },
+              "verified": true
+            }
+          },
+          "foreign_account": {
+            "result": {
+              "error": "capture_unavailable",
+              "sql": {
+                "capture_updates": 0,
+                "history_inserts": 0
+              }
+            },
+            "storage": {
+              "current_revision": 3,
+              "discovered_outcomes": {
+                "answers": "c1378c46-1f14-4e96-84d0-0ecd7fb4f191",
+                "create": "2da9d106-553b-4d85-9ae6-450cbb3655fd",
+                "date": "0e607310-750e-4fe6-86bc-a03411843936",
+                "noop": "deb1506a-dbe3-4b1e-8196-ba9c198021c9"
+              },
+              "verified": true
+            }
+          },
+          "foreign_org": {
+            "result": {
+              "error": "capture_unavailable",
+              "sql": {
+                "capture_updates": 0,
+                "history_inserts": 0
+              }
+            },
+            "storage": {
+              "current_revision": 3,
+              "discovered_outcomes": {
+                "answers": "c1378c46-1f14-4e96-84d0-0ecd7fb4f191",
+                "create": "2da9d106-553b-4d85-9ae6-450cbb3655fd",
+                "date": "0e607310-750e-4fe6-86bc-a03411843936",
+                "noop": "deb1506a-dbe3-4b1e-8196-ba9c198021c9"
+              },
+              "verified": true
+            }
+          },
+          "invalid": {
+            "result": {
+              "error": "validation_failed",
+              "sql": {
+                "capture_updates": 0,
+                "history_inserts": 0
+              }
+            },
+            "storage": {
+              "current_revision": 3,
+              "discovered_outcomes": {
+                "answers": "c1378c46-1f14-4e96-84d0-0ecd7fb4f191",
+                "create": "2da9d106-553b-4d85-9ae6-450cbb3655fd",
+                "date": "0e607310-750e-4fe6-86bc-a03411843936",
+                "noop": "deb1506a-dbe3-4b1e-8196-ba9c198021c9"
+              },
+              "verified": true
+            }
+          },
+          "native_fault": {
+            "result": {
+              "error": "internal_error",
+              "native_sqlstate": "23514",
+              "sql": {
+                "capture_updates": 1,
+                "history_inserts": 0
+              }
+            },
+            "storage": {
+              "current_revision": 3,
+              "discovered_outcomes": {
+                "answers": "c1378c46-1f14-4e96-84d0-0ecd7fb4f191",
+                "create": "2da9d106-553b-4d85-9ae6-450cbb3655fd",
+                "date": "0e607310-750e-4fe6-86bc-a03411843936",
+                "noop": "deb1506a-dbe3-4b1e-8196-ba9c198021c9"
+              },
+              "verified": true
+            }
+          },
+          "noop": {
+            "result": {
+              "receipt": {
+                "command_type": "capture.edit",
+                "command_version": 1,
+                "operation_id": "aec6041c-5fdd-4fb0-8b16-ad89164b81cd",
+                "result": {
+                  "capture_id": "cbd93874-d97f-4bae-84fc-3e707707bc60",
+                  "revision": "3"
+                },
+                "status": "committed"
+              },
+              "sql": {
+                "capture_updates": 0,
+                "history_inserts": 0
+              }
+            },
+            "storage": {
+              "current_revision": 3,
+              "discovered_outcomes": {
+                "answers": "c1378c46-1f14-4e96-84d0-0ecd7fb4f191",
+                "create": "2da9d106-553b-4d85-9ae6-450cbb3655fd",
+                "date": "0e607310-750e-4fe6-86bc-a03411843936",
+                "noop": "deb1506a-dbe3-4b1e-8196-ba9c198021c9"
+              },
+              "verified": true
+            }
+          },
+          "retry": {
+            "result": {
+              "receipt": {
+                "command_type": "capture.edit",
+                "command_version": 1,
+                "operation_id": "ea068b05-86b2-4ca9-b6fd-7c8e169f7eef",
+                "result": {
+                  "capture_id": "cbd93874-d97f-4bae-84fc-3e707707bc60",
+                  "revision": "4"
+                },
+                "status": "committed"
+              },
+              "sql": {
+                "capture_updates": 1,
+                "history_inserts": 1
+              }
+            },
+            "storage": {
+              "current_revision": 4,
+              "discovered_outcomes": {
+                "answers": "c1378c46-1f14-4e96-84d0-0ecd7fb4f191",
+                "create": "2da9d106-553b-4d85-9ae6-450cbb3655fd",
+                "date": "0e607310-750e-4fe6-86bc-a03411843936",
+                "noop": "deb1506a-dbe3-4b1e-8196-ba9c198021c9",
+                "retry": "5a12d420-40a3-4261-8c1f-90d8bf79e227"
+              },
+              "verified": true
+            }
+          },
+          "stale": {
+            "result": {
+              "current_revision": "3",
+              "error": "kdg_capture.capture_revision_conflict",
+              "sql": {
+                "capture_updates": 0,
+                "history_inserts": 0
+              }
+            },
+            "storage": {
+              "current_revision": 3,
+              "discovered_outcomes": {
+                "answers": "c1378c46-1f14-4e96-84d0-0ecd7fb4f191",
+                "create": "2da9d106-553b-4d85-9ae6-450cbb3655fd",
+                "date": "0e607310-750e-4fe6-86bc-a03411843936",
+                "noop": "deb1506a-dbe3-4b1e-8196-ba9c198021c9"
+              },
+              "verified": true
+            }
+          }
+        },
+        "counts_after": {
+          "capture": 13,
+          "capture_revision": 20,
+          "child": 5,
+          "child_assignment": 5,
+          "child_eligibility": 5,
+          "operation_outcome": 21,
+          "questionnaire": 5,
+          "questionnaire_version": 5
+        },
+        "counts_before": {
+          "capture": 12,
+          "capture_revision": 16,
+          "child": 4,
+          "child_assignment": 4,
+          "child_eligibility": 4,
+          "operation_outcome": 16,
+          "questionnaire": 4,
+          "questionnaire_version": 4
+        },
+        "database": "kdg_schema_659350f762c8494c9241b7b1c8ea9566",
+        "head": "0002_kdg_capture_storage",
+        "native_attempts": 1,
+        "normal_stop": {
+          "code": "completed",
+          "database_volume": "supabase_db_agriplatform-kdg-mbcjHApbS9uY6DMpVkxSag",
+          "network_id": "4ab79f8eceb6dd0b6fe6486b77528c8e85cdd3a406b186b7c438c59d6d815a68",
+          "ok": true,
+          "resources_retained": true,
+          "running_containers": 0,
+          "stage": "stop"
+        },
+        "post": {
+          "path": "platform/deployment/.local/kdg-native-focused-20261023/fixture-cff53592f5ca43a1a0cc65398957140f/capture-commit-recovery-http-0ed8670d2a574550864937fdd2ea4e7f.json",
+          "sha256": "3a5e21350dcf18485c82aefc364c01bbeecbb972940178dce6b2081363ba55dd"
+        },
+        "pre": {
+          "path": "platform/deployment/.local/kdg-native-focused-20261023/fixture-cff53592f5ca43a1a0cc65398957140f/capture-commit-recovery-http-abb3b479582b4ec29311d9ccdc7b67a9.json",
+          "sha256": "1c8bbcd227674a6fed44520f48b237a106b754435e061c7de9ea650a359ff0c7"
+        },
+        "prior_rows_unchanged": true,
+        "report": {
+          "path": "platform/deployment/.local/kdg-native-focused-20261023/fixture-cff53592f5ca43a1a0cc65398957140f/capture-commit-own-edit-e8cd93423004446696144fd50138c0cf.json",
+          "sha256": "8afb72369c5cfa6088b717ab8546c4f6de7d23d9cd7b1f2efe814bcf66e64019"
+        },
+        "run_id": "99b7231c-0a5b-4bdb-98e8-3329564c526a",
+        "sentinel_unchanged": true,
+        "start": {
+          "path": "platform/deployment/.local/kdg-native-focused-20261023/fixture-cff53592f5ca43a1a0cc65398957140f/capture-commit-own-edit-start-7731b92b591647ab98f1527e80850f9b.json",
+          "sha256": "1bfaa57f3ee95eb7b9de05ef2ed3524a4495771edf6f6eaa5072e39021214cd9"
+        }
+      },
+      "source_claim": "original executed native-source capsule only",
+      "sources": {
+        "apps/kdg-capture/api/capture_commands.py": "378197903cd973f7807ecad879fc737077071e644be8f44716ea2e3f23727a07",
+        "apps/kdg-capture/api/context.py": "1c58d6432fa321252d5e4fd88d1e1b589bb989cf4243a2fb4a7104a7c9151a06",
+        "apps/kdg-capture/api/export_openapi.py": "564cdd231f1401ce2ed125e53f047b9e674fa16bbec08fb253ff38e67c51fe69",
+        "apps/kdg-capture/api/main.py": "a44bc61f1d8d8e93a28cf6e38da45da70feb4f8fe1b1da7791e99f0a1c697fe3",
+        "apps/kdg-capture/api/questionnaire.py": "7aac78d320f1181fc074c4b6950f5e142ce284c148407c28cce825a2ef63e90a",
+        "apps/kdg-capture/api/runtime.py": "c070ba130f327a01c9332c0b67cb35a7cf46a137bbc359e498bb75594cdb616e",
+        "apps/kdg-capture/api/safe_errors.py": "18a1359b2b1f9bb8c79c91644582c9d320bf22ed56d53afac179ff3fce6901df",
+        "apps/kdg-capture/migrations/candidates/0002_capture_storage.py": "94c8839b22255dd7d6d2ec3aa13a5a793f14f5937cf54b4bfac6ed058b0d06e8",
+        "apps/kdg-capture/migrations/tests/capture_commit_fixture.py": "e9372b9351bf10f42d3b041508be1a68b4d8cd62291084b16d6d0e07a02fe4d1",
+        "apps/kdg-capture/migrations/tests/native_fixture.py": "d031539b709a228b0e3da86c68960791a7a7d5fc5220cc9c27f3687a5e98907a",
+        "apps/kdg-capture/migrations/tests/qualify_capture_commit.py": "c3f7490e74147b44d2a3f7cc8851655946520d7d1edd5c23daf4daf2d4663833",
+        "apps/kdg-capture/migrations/tests/qualify_capture_storage.py": "4a7ac32afaf4bbbb270dfad09579f4e48e198d241cb966c90923b7cecce81364",
+        "apps/kdg-capture/migrations/tests/qualify_edit_recovery_http.py": "8af1ccb00690c8edd9fb5f128c6ee8bff27310a21cb30da3c7d125fa9ceec2db",
+        "apps/kdg-capture/migrations/tests/qualify_operation_recovery.py": "063e5fdece540c5310f71c9d96388fbda635734f7de475d79129cca82b395f69",
+        "apps/kdg-capture/migrations/tests/qualify_own_edit.py": "bb0f57b941ca5e77d5eb2015cf260da32fd345df7e43bd49351173db24b30a22",
+        "apps/kdg-capture/migrations/tests/qualify_recovery_http.py": "cd8e20e48ec5b131b7d637787c193ec71238495e241213ead7ae1549633b88f3",
+        "apps/kdg-capture/write-candidate/capture_create.py": "179f5dd11763a6072ba6689a6641747729ad8e63124e8db74aface5816dc3906",
+        "apps/kdg-capture/write-candidate/capture_create_handler.py": "6b1d375e4a47a8b94acc588c3c644fda15f53766f47d9c6a482160c93b36eecd",
+        "apps/kdg-capture/write-candidate/capture_edit.py": "3997cdd6525c8e60b12b7e3de9a1848a51d435b5de31d798355180f45c834171",
+        "apps/kdg-capture/write-candidate/export_recovery_openapi.py": "2e000c70679d2a6f175ec2a3660a2a299c364f17f3258af35efe5fb01b7a81b3",
+        "apps/kdg-capture/write-candidate/operation_outcomes.py": "e625d9048d89a6dcd8e17636c418218eaa3c53d329283701c35890c04e5984cb",
+        "apps/kdg-capture/write-candidate/operation_recovery.py": "951113487c64c70170a5f09de051b2b9d543c398e1bea36bd993fdea5b5abac6",
+        "apps/kdg-capture/write-candidate/recovery_http.py": "58e7bf371e0f4689b4a5d13476dbdc58d22fe65a4f3f3460e18e6d7b00098b34",
+        "apps/kdg-capture/write-candidate/recovery_openapi.py": "9ee7009e5d27b9002b3b8eaf6649b428e62abc477ac75fdeb25e286ae40f22a8",
+        "apps/kdg-capture/write-tools/transaction_context.py": "e46244916563bb8111e65675cb1d992778a6c076dc247c4b1fa12b7d9cc47ce7",
+        "platform/deployment/dev.py": "604e03aedc9a0233c37a08ab5080d2c2dd7bea524f036b46764c2be3b9da3065",
+        "platform/deployment/native_cli.py": "f4c6506610e7dee8982c867223f2350a48f77565fc6cbac857cfa7c5506bc760"
+      },
+      "tests": {
+        "affected_pass": 219,
+        "focused_pass": 20,
+        "red": "pending behavior stub NotImplementedError",
+        "scaffold_parity_pass": 3
+      }
+    }
+  ],
+  "impacts": {
+    "adr": "none",
+    "agent_context": "none",
+    "documentation": "evidence/receipt/contracts/prepended handoff",
+    "scaffold": "none; proven primitives reused and parity verified",
+    "shared_ui": "none"
+  },
+  "native": {
+    "checks": {
+      "answers": {
+        "result": {
+          "receipt": {
+            "command_type": "capture.edit",
+            "command_version": 1,
+            "operation_id": "0a62d511-224f-4be0-92f2-c129dc611e63",
+            "result": {
+              "capture_id": "b4ccf986-e34b-4fe1-b245-9d2432b8958d",
+              "revision": "2"
+            },
+            "status": "committed"
+          },
+          "sql": {
+            "capture_updates": 1,
+            "history_inserts": 1
+          }
+        },
+        "storage": {
+          "current_revision": 2,
+          "discovered_outcomes": {
+            "answers": "04eafd94-9b46-407e-8fcb-d8bf7bfec4e3",
+            "create": "757f7f3c-d9c2-4960-86c3-9ba0b678a2de"
+          },
+          "verified": true
+        }
+      },
+      "create": {
+        "current_revision": 1,
+        "discovered_outcomes": {
+          "create": "757f7f3c-d9c2-4960-86c3-9ba0b678a2de"
+        },
+        "verified": true
+      },
+      "date": {
+        "result": {
+          "receipt": {
+            "command_type": "capture.edit",
+            "command_version": 1,
+            "operation_id": "09f1fb3c-54a6-4a2c-89aa-3d39619719c9",
+            "result": {
+              "capture_id": "b4ccf986-e34b-4fe1-b245-9d2432b8958d",
+              "revision": "3"
+            },
+            "status": "committed"
+          },
+          "sql": {
+            "capture_updates": 1,
+            "history_inserts": 1
+          }
+        },
+        "storage": {
+          "current_revision": 3,
+          "discovered_outcomes": {
+            "answers": "04eafd94-9b46-407e-8fcb-d8bf7bfec4e3",
+            "create": "757f7f3c-d9c2-4960-86c3-9ba0b678a2de",
+            "date": "c6f1fa59-ca17-41a1-8456-ce357dac3021"
+          },
+          "verified": true
+        }
+      },
+      "duplicate": {
+        "result": {
+          "error": "operation_verification_unavailable",
+          "sql": {
+            "capture_updates": 0,
+            "history_inserts": 0
+          }
+        },
+        "storage": {
+          "current_revision": 4,
+          "discovered_outcomes": {
+            "answers": "04eafd94-9b46-407e-8fcb-d8bf7bfec4e3",
+            "create": "757f7f3c-d9c2-4960-86c3-9ba0b678a2de",
+            "date": "c6f1fa59-ca17-41a1-8456-ce357dac3021",
+            "noop": "b4cded38-0fb4-4d6e-aa7a-9b80aec8673f",
+            "retry": "00499265-3be5-4a41-8af3-2766e12bb6e1"
+          },
+          "verified": true
+        }
+      },
+      "foreign_account": {
+        "result": {
+          "error": "capture_unavailable",
+          "sql": {
+            "capture_updates": 0,
+            "history_inserts": 0
+          }
+        },
+        "storage": {
+          "current_revision": 3,
+          "discovered_outcomes": {
+            "answers": "04eafd94-9b46-407e-8fcb-d8bf7bfec4e3",
+            "create": "757f7f3c-d9c2-4960-86c3-9ba0b678a2de",
+            "date": "c6f1fa59-ca17-41a1-8456-ce357dac3021",
+            "noop": "b4cded38-0fb4-4d6e-aa7a-9b80aec8673f"
+          },
+          "verified": true
+        }
+      },
+      "foreign_org": {
+        "result": {
+          "error": "capture_unavailable",
+          "sql": {
+            "capture_updates": 0,
+            "history_inserts": 0
+          }
+        },
+        "storage": {
+          "current_revision": 3,
+          "discovered_outcomes": {
+            "answers": "04eafd94-9b46-407e-8fcb-d8bf7bfec4e3",
+            "create": "757f7f3c-d9c2-4960-86c3-9ba0b678a2de",
+            "date": "c6f1fa59-ca17-41a1-8456-ce357dac3021",
+            "noop": "b4cded38-0fb4-4d6e-aa7a-9b80aec8673f"
+          },
+          "verified": true
+        }
+      },
+      "invalid": {
+        "result": {
+          "error": "validation_failed",
+          "sql": {
+            "capture_updates": 0,
+            "history_inserts": 0
+          }
+        },
+        "storage": {
+          "current_revision": 3,
+          "discovered_outcomes": {
+            "answers": "04eafd94-9b46-407e-8fcb-d8bf7bfec4e3",
+            "create": "757f7f3c-d9c2-4960-86c3-9ba0b678a2de",
+            "date": "c6f1fa59-ca17-41a1-8456-ce357dac3021",
+            "noop": "b4cded38-0fb4-4d6e-aa7a-9b80aec8673f"
+          },
+          "verified": true
+        }
+      },
+      "native_fault": {
+        "result": {
+          "error": "internal_error",
+          "native_sqlstate": "23514",
+          "outcome_present_before_fault": true,
+          "sql": {
+            "capture_updates": 1,
+            "history_inserts": 0
+          }
+        },
+        "storage": {
+          "current_revision": 3,
+          "discovered_outcomes": {
+            "answers": "04eafd94-9b46-407e-8fcb-d8bf7bfec4e3",
+            "create": "757f7f3c-d9c2-4960-86c3-9ba0b678a2de",
+            "date": "c6f1fa59-ca17-41a1-8456-ce357dac3021",
+            "noop": "b4cded38-0fb4-4d6e-aa7a-9b80aec8673f"
+          },
+          "verified": true
+        }
+      },
+      "noop": {
+        "result": {
+          "receipt": {
+            "command_type": "capture.edit",
+            "command_version": 1,
+            "operation_id": "3bb1555d-7495-4178-bda6-63cb14e5b7fa",
+            "result": {
+              "capture_id": "b4ccf986-e34b-4fe1-b245-9d2432b8958d",
+              "revision": "3"
+            },
+            "status": "committed"
+          },
+          "sql": {
+            "capture_updates": 0,
+            "history_inserts": 0
+          }
+        },
+        "storage": {
+          "current_revision": 3,
+          "discovered_outcomes": {
+            "answers": "04eafd94-9b46-407e-8fcb-d8bf7bfec4e3",
+            "create": "757f7f3c-d9c2-4960-86c3-9ba0b678a2de",
+            "date": "c6f1fa59-ca17-41a1-8456-ce357dac3021",
+            "noop": "b4cded38-0fb4-4d6e-aa7a-9b80aec8673f"
+          },
+          "verified": true
+        }
+      },
+      "retry": {
+        "result": {
+          "receipt": {
+            "command_type": "capture.edit",
+            "command_version": 1,
+            "operation_id": "a1197169-7c50-4d1b-9018-716cc7f60ef7",
+            "result": {
+              "capture_id": "b4ccf986-e34b-4fe1-b245-9d2432b8958d",
+              "revision": "4"
+            },
+            "status": "committed"
+          },
+          "sql": {
+            "capture_updates": 1,
+            "history_inserts": 1
+          }
+        },
+        "storage": {
+          "current_revision": 4,
+          "discovered_outcomes": {
+            "answers": "04eafd94-9b46-407e-8fcb-d8bf7bfec4e3",
+            "create": "757f7f3c-d9c2-4960-86c3-9ba0b678a2de",
+            "date": "c6f1fa59-ca17-41a1-8456-ce357dac3021",
+            "noop": "b4cded38-0fb4-4d6e-aa7a-9b80aec8673f",
+            "retry": "00499265-3be5-4a41-8af3-2766e12bb6e1"
+          },
+          "verified": true
+        }
+      },
+      "stale": {
+        "result": {
+          "current_revision": "3",
+          "error": "kdg_capture.capture_revision_conflict",
+          "sql": {
+            "capture_updates": 0,
+            "history_inserts": 0
+          }
+        },
+        "storage": {
+          "current_revision": 3,
+          "discovered_outcomes": {
+            "answers": "04eafd94-9b46-407e-8fcb-d8bf7bfec4e3",
+            "create": "757f7f3c-d9c2-4960-86c3-9ba0b678a2de",
+            "date": "c6f1fa59-ca17-41a1-8456-ce357dac3021",
+            "noop": "b4cded38-0fb4-4d6e-aa7a-9b80aec8673f"
+          },
+          "verified": true
+        }
+      }
+    },
+    "counts_after": {
+      "capture": 14,
+      "capture_revision": 24,
+      "child": 6,
+      "child_assignment": 6,
+      "child_eligibility": 6,
+      "operation_outcome": 26,
+      "questionnaire": 6,
+      "questionnaire_version": 6
+    },
+    "counts_before": {
+      "capture": 13,
+      "capture_revision": 20,
+      "child": 5,
+      "child_assignment": 5,
+      "child_eligibility": 5,
+      "operation_outcome": 21,
+      "questionnaire": 5,
+      "questionnaire_version": 5
+    },
+    "database": "kdg_schema_659350f762c8494c9241b7b1c8ea9566",
+    "execution_results": {
+      "answers": {
+        "receipt": {
+          "command_type": "capture.edit",
+          "command_version": 1,
+          "operation_id": "0a62d511-224f-4be0-92f2-c129dc611e63",
+          "result": {
+            "capture_id": "b4ccf986-e34b-4fe1-b245-9d2432b8958d",
+            "revision": "2"
+          },
+          "status": "committed"
+        },
+        "sql": {
+          "capture_updates": 1,
+          "history_inserts": 1
+        }
+      },
+      "create": {
+        "receipt": {
+          "command_type": "capture.create",
+          "command_version": 1,
+          "operation_id": "ed3d5aa1-6ac0-41ac-bcc6-74f9e040fd58",
+          "result": {
+            "capture_id": "b4ccf986-e34b-4fe1-b245-9d2432b8958d",
+            "revision": "1"
+          },
+          "status": "committed"
+        }
+      },
+      "date": {
+        "receipt": {
+          "command_type": "capture.edit",
+          "command_version": 1,
+          "operation_id": "09f1fb3c-54a6-4a2c-89aa-3d39619719c9",
+          "result": {
+            "capture_id": "b4ccf986-e34b-4fe1-b245-9d2432b8958d",
+            "revision": "3"
+          },
+          "status": "committed"
+        },
+        "sql": {
+          "capture_updates": 1,
+          "history_inserts": 1
+        }
+      },
+      "duplicate": {
+        "error": "operation_verification_unavailable",
+        "sql": {
+          "capture_updates": 0,
+          "history_inserts": 0
+        }
+      },
+      "foreign_account": {
+        "error": "capture_unavailable",
+        "sql": {
+          "capture_updates": 0,
+          "history_inserts": 0
+        }
+      },
+      "foreign_org": {
+        "error": "capture_unavailable",
+        "sql": {
+          "capture_updates": 0,
+          "history_inserts": 0
+        }
+      },
+      "invalid": {
+        "error": "validation_failed",
+        "sql": {
+          "capture_updates": 0,
+          "history_inserts": 0
+        }
+      },
+      "native_fault": {
+        "error": "internal_error",
+        "native_sqlstate": "23514",
+        "outcome_present_before_fault": true,
+        "sql": {
+          "capture_updates": 1,
+          "history_inserts": 0
+        }
+      },
+      "noop": {
+        "receipt": {
+          "command_type": "capture.edit",
+          "command_version": 1,
+          "operation_id": "3bb1555d-7495-4178-bda6-63cb14e5b7fa",
+          "result": {
+            "capture_id": "b4ccf986-e34b-4fe1-b245-9d2432b8958d",
+            "revision": "3"
+          },
+          "status": "committed"
+        },
+        "sql": {
+          "capture_updates": 0,
+          "history_inserts": 0
+        }
+      },
+      "retry": {
+        "receipt": {
+          "command_type": "capture.edit",
+          "command_version": 1,
+          "operation_id": "a1197169-7c50-4d1b-9018-716cc7f60ef7",
+          "result": {
+            "capture_id": "b4ccf986-e34b-4fe1-b245-9d2432b8958d",
+            "revision": "4"
+          },
+          "status": "committed"
+        },
+        "sql": {
+          "capture_updates": 1,
+          "history_inserts": 1
+        }
+      },
+      "stale": {
+        "current_revision": "3",
+        "error": "kdg_capture.capture_revision_conflict",
+        "sql": {
+          "capture_updates": 0,
+          "history_inserts": 0
+        }
+      }
+    },
+    "head": "0002_kdg_capture_storage",
+    "native_attempts": 2,
+    "normal_stop": {
+      "code": "completed",
+      "database_volume": "supabase_db_agriplatform-kdg-mbcjHApbS9uY6DMpVkxSag",
+      "network_id": "4ab79f8eceb6dd0b6fe6486b77528c8e85cdd3a406b186b7c438c59d6d815a68",
+      "ok": true,
+      "resources_retained": true,
+      "running_containers": 0,
+      "stage": "stop"
+    },
+    "post": {
+      "path": "platform/deployment/.local/kdg-native-focused-20261023/fixture-cff53592f5ca43a1a0cc65398957140f/capture-commit-recovery-http-9a8290716cf84ab8a789068e0dd6d015.json",
+      "sha256": "f5ceb883e7d6462287f0590e74da929cf86334a1c7dfe5bcb5a46ab8e498c48e"
+    },
+    "pre": {
+      "path": "platform/deployment/.local/kdg-native-focused-20261023/fixture-cff53592f5ca43a1a0cc65398957140f/capture-commit-recovery-http-609955804c414f7e98194799e7f4eb82.json",
+      "sha256": "3a5e21350dcf18485c82aefc364c01bbeecbb972940178dce6b2081363ba55dd"
+    },
+    "prior_rows_unchanged": true,
+    "report": {
+      "path": "platform/deployment/.local/kdg-native-focused-20261023/fixture-cff53592f5ca43a1a0cc65398957140f/capture-commit-own-edit-a12d043cdfa04fbfa81f5f3663500128.json",
+      "sha256": "c78e077e6903a6695638041d3a97ca6cd5aab4812d40807ff1ee8779d8b562fe"
+    },
+    "run_id": "99b7231c-0a5b-4bdb-98e8-3329564c526a",
+    "sentinel_unchanged": true,
+    "start": {
+      "path": "platform/deployment/.local/kdg-native-focused-20261023/fixture-cff53592f5ca43a1a0cc65398957140f/capture-commit-own-edit-start-8426129914134ef5b49b127076dac387.json",
+      "sha256": "aff716c9424c54244db95a1e0187a5b039cefb677d92a393e58f5c2f2e02784e"
+    },
+    "successful_datasets_retained": 2
+  },
+  "remaining_gates": [
+    "real Identity actor/account binding and real current Access/HTTP admission",
+    "edit HTTP/Auth/replay orchestration and conflict wire mapping",
+    "native contention/cancellation and TCP drain",
+    "active startup/browser/editor/queue/UI",
+    "ADR-0020 compatibility/recovery/activation"
+  ],
+  "review": {
+    "findings_addressed": 2,
+    "findings_deferred": 0,
+    "findings_rejected": 8,
+    "layers": [
+      "blind-hunter",
+      "edge-case-hunter",
+      "verification-gap"
+    ],
+    "status": "complete",
+    "triage": "_bmad-output/implementation-artifacts/spec-kdg-native-own-edit.md"
+  },
+  "source_capsules": {
+    "executed": "platform/deployment/.local/kdg-native-own-edit-20261025/reviewed-source",
+    "final_tests": {
+      "path": "platform/deployment/.local/kdg-native-own-edit-20261025/test_native_own_edit-final.py",
+      "sha256": "84519e52f58d08306016dccc4ee2fdfc50016ef5bb72a19478df14edaf9b8d93"
+    },
+    "first_executed": "platform/deployment/.local/kdg-native-own-edit-20261025/native-source",
+    "initial": "platform/deployment/.local/kdg-native-own-edit-20261025/initial-source",
+    "reviewed_tests": {
+      "path": "platform/deployment/.local/kdg-native-own-edit-20261025/reviewed-source/test_native_own_edit.py",
+      "sha256": "27df437a1982c80dd522ac37a920841272887205701fd285d5a448be0b091f24"
+    }
+  },
+  "sources": {
+    "apps/kdg-capture/api/capture_commands.py": "378197903cd973f7807ecad879fc737077071e644be8f44716ea2e3f23727a07",
+    "apps/kdg-capture/api/context.py": "1c58d6432fa321252d5e4fd88d1e1b589bb989cf4243a2fb4a7104a7c9151a06",
+    "apps/kdg-capture/api/export_openapi.py": "564cdd231f1401ce2ed125e53f047b9e674fa16bbec08fb253ff38e67c51fe69",
+    "apps/kdg-capture/api/main.py": "a44bc61f1d8d8e93a28cf6e38da45da70feb4f8fe1b1da7791e99f0a1c697fe3",
+    "apps/kdg-capture/api/questionnaire.py": "7aac78d320f1181fc074c4b6950f5e142ce284c148407c28cce825a2ef63e90a",
+    "apps/kdg-capture/api/runtime.py": "c070ba130f327a01c9332c0b67cb35a7cf46a137bbc359e498bb75594cdb616e",
+    "apps/kdg-capture/api/safe_errors.py": "18a1359b2b1f9bb8c79c91644582c9d320bf22ed56d53afac179ff3fce6901df",
+    "apps/kdg-capture/migrations/candidates/0002_capture_storage.py": "94c8839b22255dd7d6d2ec3aa13a5a793f14f5937cf54b4bfac6ed058b0d06e8",
+    "apps/kdg-capture/migrations/tests/capture_commit_fixture.py": "e9372b9351bf10f42d3b041508be1a68b4d8cd62291084b16d6d0e07a02fe4d1",
+    "apps/kdg-capture/migrations/tests/native_fixture.py": "d031539b709a228b0e3da86c68960791a7a7d5fc5220cc9c27f3687a5e98907a",
+    "apps/kdg-capture/migrations/tests/qualify_capture_commit.py": "c3f7490e74147b44d2a3f7cc8851655946520d7d1edd5c23daf4daf2d4663833",
+    "apps/kdg-capture/migrations/tests/qualify_capture_storage.py": "4a7ac32afaf4bbbb270dfad09579f4e48e198d241cb966c90923b7cecce81364",
+    "apps/kdg-capture/migrations/tests/qualify_edit_recovery_http.py": "8af1ccb00690c8edd9fb5f128c6ee8bff27310a21cb30da3c7d125fa9ceec2db",
+    "apps/kdg-capture/migrations/tests/qualify_operation_recovery.py": "063e5fdece540c5310f71c9d96388fbda635734f7de475d79129cca82b395f69",
+    "apps/kdg-capture/migrations/tests/qualify_own_edit.py": "fc108c4231c9b186d71e162c3a6e137dc9896451b0890214f1fe56d5b09ae328",
+    "apps/kdg-capture/migrations/tests/qualify_recovery_http.py": "cd8e20e48ec5b131b7d637787c193ec71238495e241213ead7ae1549633b88f3",
+    "apps/kdg-capture/write-candidate/capture_create.py": "179f5dd11763a6072ba6689a6641747729ad8e63124e8db74aface5816dc3906",
+    "apps/kdg-capture/write-candidate/capture_create_handler.py": "6b1d375e4a47a8b94acc588c3c644fda15f53766f47d9c6a482160c93b36eecd",
+    "apps/kdg-capture/write-candidate/capture_edit.py": "3997cdd6525c8e60b12b7e3de9a1848a51d435b5de31d798355180f45c834171",
+    "apps/kdg-capture/write-candidate/export_recovery_openapi.py": "2e000c70679d2a6f175ec2a3660a2a299c364f17f3258af35efe5fb01b7a81b3",
+    "apps/kdg-capture/write-candidate/operation_outcomes.py": "e625d9048d89a6dcd8e17636c418218eaa3c53d329283701c35890c04e5984cb",
+    "apps/kdg-capture/write-candidate/operation_recovery.py": "951113487c64c70170a5f09de051b2b9d543c398e1bea36bd993fdea5b5abac6",
+    "apps/kdg-capture/write-candidate/recovery_http.py": "58e7bf371e0f4689b4a5d13476dbdc58d22fe65a4f3f3460e18e6d7b00098b34",
+    "apps/kdg-capture/write-candidate/recovery_openapi.py": "9ee7009e5d27b9002b3b8eaf6649b428e62abc477ac75fdeb25e286ae40f22a8",
+    "apps/kdg-capture/write-tools/transaction_context.py": "e46244916563bb8111e65675cb1d992778a6c076dc247c4b1fa12b7d9cc47ce7",
+    "platform/deployment/dev.py": "604e03aedc9a0233c37a08ab5080d2c2dd7bea524f036b46764c2be3b9da3065",
+    "platform/deployment/native_cli.py": "f4c6506610e7dee8982c867223f2350a48f77565fc6cbac857cfa7c5506bc760"
+  },
+  "status": "qualified_native_own_edit_body_only",
+  "tests": {
+    "affected_pass": 219,
+    "focused_pass": 20,
+    "red": "pending behavior stub NotImplementedError",
+    "scaffold_parity_pass": 3
+  },
+  "traceability": {
+    "actual_changed_edits": [
+      "answers",
+      "date",
+      "retry",
+      "test_oracle_independently_discovers_five_outcomes_and_four_revisions"
+    ],
+    "custody_evidence": [
+      "test_journal_precedes_seed_and_every_write_has_independent_read",
+      "test_source_drift_prevents_writes_or_success",
+      "test_success_receipt_io_failure_returns_safe_failed_attempt",
+      "test_bootstrap_read_failure_returns_safe_best_effort_receipt",
+      "test_bootstrap_import_failure_returns_safe_best_effort_receipt",
+      "test_successful_execution_retained_when_create_or_edit_read_fails"
+    ],
+    "noop": [
+      "test_noop_requires_exact_capture_timestamps_and_no_history",
+      "native noop SQL counts and exact full capture/history equality"
+    ],
+    "refusals": [
+      "stale",
+      "invalid",
+      "foreign_account",
+      "foreign_org",
+      "duplicate"
+    ],
+    "rollback": [
+      "native_fault actual23514",
+      "test_failed_attempt_requires_complete_rollback",
+      "test_native_fault_cannot_pass_on_synthetic_internal_error",
+      "native reviewed fault outcome_present_before_fault:true under original Budget",
+      "test_missing_uncommitted_outcome_refuses_before_native_fault"
+    ]
+  }
+}

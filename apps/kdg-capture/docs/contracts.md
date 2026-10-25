@@ -945,3 +945,24 @@ appends only its receipt. The original owner/child/version/device/creation facts
 immutable. This body returns only a provisional receipt; acknowledgement requires the
 outer durable commit. Native behavior and eventual HTTP409/error mapping are unqualified.
 See [own-edit evidence](OWN_EDIT_BODY_EVIDENCE.md); no active API/client wiring changes.
+
+
+### Native own-edit body qualification — 2026-10-25
+
+The actual inert fresh-only `edit_in_transaction` body is now qualified against retained
+PostgreSQL using actual restricted runtime writers and independent restricted read-only
+sessions after writer disposal. Answers-only/date-only writes preserve original facts;
+no-op adds only a revision3 receipt and preserves exact capture/timestamps/history.
+Stale unchanged input conflicts; invalid original-version answers and foreign scopes
+leave no writes. A native23514 after update/outcome and before history fully rolls back;
+explicit original-command retry commits revision4. A committed duplicate stops privately
+without replay/disclosure. The existing body/schema are unchanged.
+
+[Native evidence](NATIVE_OWN_EDIT_EVIDENCE.md) records exact five-outcome/four-revision
+proof, original-row/sentinel/ledger preservation, safe failure receipts and source bindings. The reviewed fault verifies the original
+uncommitted outcome inside the same transaction/original Budget before injection;
+already observed execution results survive a later independent-read failure. Two
+successful datasets remain retained; current claims bind to the reviewed-source report.
+Context/Access and differentiated editor actors are synthetic: real Identity binding,
+current HTTP admission/Auth/replay, conflict wire mapping, native contention/cancellation,
+active startup/browser/editor/queue/UI and ADR-0020 release gates remain unqualified.
