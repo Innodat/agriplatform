@@ -103,6 +103,33 @@ def executing_group_members(group):
     except (OSError,ValueError,IndexError):raise OSError('qualification_process_observation_unavailable') from None
     return members
 
+def assert_study_erasure(before,after,expected):
+    study=expected['study'];empty={'document':{'version':1,'blocks':[]},'connections':[],'highlights':[]}
+    # Preserve independent owner/application/identity rows and every old receipt.
+    changed={'scribeswell_studies.studies','scribeswell_studies.notes','scribeswell_studies.passage_lists','scribeswell_studies.passage_entries','scribeswell_studies.receipts'}
+    for table in before:
+        if table not in changed:assert before[table]==after[table]
+    for table in ('scribeswell_studies.studies','scribeswell_studies.notes'):
+        key='id' if table.endswith('.studies') else 'study_id'
+        assert [row for row in before[table] if row[key]!=study]==[row for row in after[table] if row[key]!=study]
+        old={row['id']:row for row in before[table] if row[key]==study};new={row['id']:row for row in after[table] if row[key]==study}
+        assert old.keys()==new.keys()
+        for id,row in old.items():
+            current=new[id]
+            if not row['active']:assert current==row;continue
+            assert not current['active'] and current['revision']==row['revision']+1
+            assert current['created_at']==row['created_at'] and current['created_by']==row['created_by']==current['updated_by'] and current['updated_at']>row['updated_at']
+            if table.endswith('.studies'):assert current['title']=='Deleted study' and current['revision']==int(expected['revision'])
+            else:assert current['value']==empty
+    for table in ('scribeswell_studies.passage_lists','scribeswell_studies.passage_entries'):
+        assert after[table]==[row for row in before[table] if row['study_id']!=study]
+    old=before['scribeswell_studies.receipts'];new=after['scribeswell_studies.receipts']
+    assert all(row in new for row in old)
+    added=[row for row in new if row not in old]
+    assert len(added)==1 and added[0]['command']=='study.delete' and added[0]['operation_id']==expected['operation']
+    assert added[0]['outcome']=={'operation_id':expected['operation'],'command':'study.delete','study_id':study,'note_id':None,'revision':expected['revision']}
+
+
 class Qualification:
     def __init__(self,run_id,cli,proof):
         if str(UUID(run_id))!=run_id or UUID(run_id).int==0:raise ValueError('canonical_new_run_required')
@@ -295,21 +322,29 @@ class Qualification:
         assert len(notes)==2 and {row['id'] for row in notes}=={expected['note'],expected['retained_note']}
         target=next(row for row in notes if row['id']==expected['note'])
         assert target['study_id']==expected['study'] and target['value']==expected['value'] and not target['active']
-        assert next(row for row in notes if row['id']==expected['retained_note'])['active']
+        retained=next(row for row in notes if row['id']==expected['retained_note'])
+        if 'study_delete_operation' in expected:
+            assert not retained['active'] and retained['value']=={'document':{'version':1,'blocks':[]},'connections':[],'highlights':[]}
+            deleted_study=next(row for row in studies if row['id']==expected['study'])
+            assert not deleted_study['active'] and deleted_study['title']=='Deleted study' and deleted_study['revision']==3
+            assert next(row for row in studies if row['id']==expected['retry_study'])['active']
+        else:assert retained['active']
         for row in studies+notes:
             assert row['account_id']==owner and row['created_by']==row['updated_by']==bindings[owner]
             assert row['created_at'] and row['updated_at']>=row['created_at'] and row['revision']>0
         receipts=state['scribeswell_studies.receipts']
-        assert sorted(row['command'] for row in receipts)==sorted(['note.create','note.replace','study.create','study.create']+(['study.rename'] if 'rename_operation' in expected else [])+['study.passages.replace']*len(expected.get('passage_operations',[]))+(['note.replace'] if 'note_link_operation' in expected else [])+(['note.delete','note.create'] if 'note_delete_operation' in expected else []))
+        assert sorted(row['command'] for row in receipts)==sorted(['note.create','note.replace','study.create','study.create']+(['study.rename'] if 'rename_operation' in expected else [])+['study.passages.replace']*len(expected.get('passage_operations',[]))+(['note.replace'] if 'note_link_operation' in expected else [])+(['note.delete','note.create'] if 'note_delete_operation' in expected else [])+(['study.delete'] if 'study_delete_operation' in expected else []))
         if 'rename_operation' in expected:
             renamed=next(row for row in studies if row['id']==expected['study'])
-            assert renamed['title']==expected['rename_title'] and renamed['revision']==2
+            assert (renamed['title'],renamed['revision'])==(('Deleted study',3) if 'study_delete_operation' in expected else (expected['rename_title'],2))
             assert {row['operation_id'] for row in receipts if row['command']=='study.rename'}=={expected['rename_operation']}
         if 'passage_operations' in expected:
             assert {row['operation_id'] for row in receipts if row['command']=='study.passages.replace'}==set(expected['passage_operations'])
             headers=state['scribeswell_studies.passage_lists'];entries=state['scribeswell_studies.passage_entries']
-            assert len(headers)==1 and headers[0]['revision']==4 and headers[0]['study_id']==expected['study']
-            assert len(entries)==1 and entries[0]['id']==expected['passage_item']['id'] and entries[0]['book_id']=='Matt'
+            if 'study_delete_operation' in expected:assert headers==[] and entries==[]
+            else:
+                assert len(headers)==1 and headers[0]['revision']==4 and headers[0]['study_id']==expected['study']
+                assert len(entries)==1 and entries[0]['id']==expected['passage_item']['id'] and entries[0]['book_id']=='Matt'
             for row in headers+entries:assert row['account_id']==owner and row['created_by']==bindings[owner] and row['created_at']
         assert {row['operation_id'] for row in receipts if row['command']=='study.create'}=={expected['operation'],expected['ui_operation']}
         for row in receipts:assert row['account_id']==owner and row['created_by']==bindings[owner] and row['created_at']
@@ -346,7 +381,7 @@ class Qualification:
 
     def browser(self):
         def checkpoints(process):
-            for name in ('pre-enrollment','rename-before','rename-after','passages-before','passages-after','note-links-before','note-links-after','search-before','search-after','foreign-before','foreign-after','deletion-before','deletion-after'):
+            for name in ('pre-enrollment','rename-before','rename-after','passages-before','passages-after','note-links-before','note-links-after','search-before','search-after','foreign-before','foreign-after','deletion-before','deletion-after','study-deletion-before','study-deletion-after'):
                 limit=time.monotonic()+60
                 while not (self.proof/(name+'-check.json')).exists():
                     if process.poll() is not None or time.monotonic()>=limit:raise RuntimeError('qualification_checkpoint_missing:'+name)
@@ -417,6 +452,10 @@ class Qualification:
                     added=[row for row in after['scribeswell_studies.receipts'] if row not in before['scribeswell_studies.receipts']]
                     assert len(added)==1 and added[0]['command']=='note.delete' and added[0]['operation_id']==expected['operation']
                     assert set(added[0]['outcome'])=={'operation_id','command','study_id','note_id','revision'}
+                elif name=='study-deletion-before':self.snapshot('before-study-deletion')
+                elif name=='study-deletion-after':
+                    before=self.protected_snapshots['before-study-deletion'];after=self.snapshot('after-study-deletion')
+                    expected=json.loads((self.proof/'study-deletion-result.json').read_text());assert_study_erasure(before,after,expected)
                 elif name=='foreign-before':self.snapshot('before-foreign-denial')
                 else:self.snapshot('after-foreign-denial',previous='before-foreign-denial')
                 private(self.proof/(name+'-observed.json'),{'independent_sql':True})

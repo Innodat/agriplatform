@@ -24,6 +24,9 @@ def command(kind,**fields):return parse_command(kind,json.dumps({'operation_id':
 def value(text='בְּרֵאשִׁית'):
     return {'document':{'version':1,'blocks':[{'type':'paragraph','direction':'rtl','content':[{'type':'text','text':text,'marks':[]}]}]},'connections':[],'highlights':[]}
 def run(coro):return asyncio.run(coro)
+def close_study(storage,study):
+    current=run(storage.read(IDENTITY,study,None,deadline()))
+    return run(storage.execute(IDENTITY,'study.delete',command('study.delete',expected_revision=current['revision']),study,None,deadline()))
 def deadline():return time.monotonic()+5
 
 @pytest.fixture(scope='module')
@@ -78,6 +81,7 @@ def native():
             (target/'history/versions/0002_study_rename.py').unlink()
             (target/'history/versions/0003_collected_passages.py').unlink()
             (target/'history/versions/0004_note_deletion.py').unlink()
+            (target/'history/versions/0005_study_deletion.py').unlink()
             old_config=Config();old_config.set_main_option('script_location',str(target/'history'))
             alembic.upgrade(old_config,'head')
         import importlib.util
@@ -106,6 +110,7 @@ def native():
             target=Path(directory);shutil.copytree(APP/'studies-migrations',target/'history');shutil.copytree(APP/'studies-database-tools',target/'studies-database-tools')
             (target/'history/versions/0003_collected_passages.py').unlink()
             (target/'history/versions/0004_note_deletion.py').unlink()
+            (target/'history/versions/0005_study_deletion.py').unlink()
             cfg=Config();cfg.set_main_option('script_location',str(target/'history'));alembic.upgrade(cfg,'head')
         with tempfile.TemporaryDirectory(prefix='scribeswell-passages-failure-') as directory:
             target=Path(directory);shutil.copytree(APP/'studies-migrations',target/'history');shutil.copytree(APP/'studies-database-tools',target/'studies-database-tools')
@@ -121,6 +126,7 @@ def native():
         with tempfile.TemporaryDirectory(prefix='scribeswell-previous-deletion-history-') as directory:
             target=Path(directory);shutil.copytree(APP/'studies-migrations',target/'history');shutil.copytree(APP/'studies-database-tools',target/'studies-database-tools')
             (target/'history/versions/0004_note_deletion.py').unlink()
+            (target/'history/versions/0005_study_deletion.py').unlink()
             cfg=Config();cfg.set_main_option('script_location',str(target/'history'));alembic.upgrade(cfg,'head')
         sys.path.insert(0,str(APP/'tests/fixtures'))
         from note_deletion_baseline_loader import load
@@ -134,6 +140,28 @@ def native():
             assert not admin.execute("SELECT 1 FROM pg_constraint WHERE conname='notes_closed_value_empty'").fetchone()
             # Explicit fixture-only forward repair; migration itself never adopts/erases data.
             admin.execute('UPDATE scribeswell_studies.notes SET value=%s WHERE id=%s',(psycopg.types.json.Jsonb({'document':{'version':1,'blocks':[]},'connections':[],'highlights':[]}),legacy['note_id']))
+        # Stop at0004 to construct the concrete preexisting closed-parent failure.
+        with tempfile.TemporaryDirectory(prefix='scribeswell-previous-study-deletion-') as directory:
+            target=Path(directory);shutil.copytree(APP/'studies-migrations',target/'history');shutil.copytree(APP/'studies-database-tools',target/'studies-database-tools')
+            (target/'history/versions/0005_study_deletion.py').unlink()
+            cfg=Config();cfg.set_main_option('script_location',str(target/'history'));alembic.upgrade(cfg,'head')
+        sys.path.insert(0,str(APP/'tests/fixtures'))
+        from study_deletion_baseline_loader import load as study_baseline
+        previous_contract,previous_storage=study_baseline();previous_study=previous_storage.PersonalNotesStorage(runtime)
+        invalid_parent=run(previous_study.execute(IDENTITY,'study.create',previous_contract.parse_command('study.create',json.dumps({'operation_id':str(uuid4()),'title':'Deleted study'}).encode()),None,None,deadline()))['study_id']
+        invalid_child=run(previous_study.execute(IDENTITY,'note.create',previous_contract.parse_command('note.create',json.dumps({'operation_id':str(uuid4()),'value':value('preexisting violation must survive')}).encode()),invalid_parent,None,deadline()))['note_id']
+        with psycopg.connect(admin_url) as admin:admin.execute('UPDATE scribeswell_studies.studies SET active=false WHERE id=%s',(invalid_parent,))
+        with psycopg.connect(migrator) as owner:
+            assert not owner.execute('SELECT rolbypassrls FROM pg_roles WHERE rolname=current_user').fetchone()[0]
+            assert owner.execute('SELECT count(*) FROM scribeswell_studies.notes').fetchone()[0]==0
+        with pytest.raises(Exception,match='scribeswell_studies_migration_failed'):alembic.upgrade(Config(str(APP/'studies-alembic.ini')),'head')
+        with psycopg.connect(admin_url) as admin:
+            assert admin.execute('SELECT version_num FROM scribeswell_studies.alembic_version').fetchone()[0]=='scribeswell_studies_0004'
+            assert admin.execute('SELECT value FROM scribeswell_studies.notes WHERE id=%s',(invalid_child,)).fetchone()[0]==value('preexisting violation must survive')
+            assert all(row[0] for row in admin.execute("SELECT relforcerowsecurity FROM pg_class WHERE oid=ANY(ARRAY['scribeswell_studies.studies'::regclass,'scribeswell_studies.notes'::regclass,'scribeswell_studies.passage_lists'::regclass,'scribeswell_studies.passage_entries'::regclass])").fetchall())
+            assert not admin.execute("SELECT 1 FROM pg_trigger WHERE tgname='active_study_insert'").fetchone()
+            # Explicit fixture-only controlled forward repair, never migration adoption.
+            admin.execute('UPDATE scribeswell_studies.notes SET active=false,value=%s WHERE id=%s',(psycopg.types.json.Jsonb({'document':{'version':1,'blocks':[]},'connections':[],'highlights':[]}),invalid_child))
         alembic.upgrade(Config(str(APP/'studies-alembic.ini')),'head')
         assert run(checkpoint.read(IDENTITY,old_study,old_note['note_id'],deadline()))['value']==old_before['value']
         run(checkpoint.execute(IDENTITY,'note.replace',baseline_contract.parse_command('note.replace',json.dumps({'operation_id':str(uuid4()),'expected_revision':'1','value':old_before['value']}).encode()),old_study,old_note['note_id'],deadline()))
@@ -209,8 +237,7 @@ def test_native_restricted_roles_constraints_and_closed_resource(native):
     with psycopg.connect(runtime) as c:
         c.execute("SELECT set_config('app.account_id',%s,true)",(A,))
         with pytest.raises(psycopg.errors.InsufficientPrivilege):c.execute('UPDATE scribeswell_studies.notes SET created_by=%s WHERE id=%s',(ACTOR,ack['note_id']))
-    with psycopg.connect(admin_url) as c:
-        c.execute('UPDATE scribeswell_studies.studies SET active=false WHERE id=%s',(study,))
+    close_study(storage,study)
     with pytest.raises(NotesError,match='resource_unavailable'):run(storage.execute(IDENTITY,'note.create',payload,study,None,deadline()))
     with pytest.raises(NotesError,match='resource_unavailable'):run(storage.lookup(IDENTITY,payload.operation_id,'note.create',deadline()))
 
@@ -252,13 +279,13 @@ def test_native_migration_failure_rollback_retry_and_owner_force_rls(native):
         shutil.copytree(APP/'studies-database-tools',target/'studies-database-tools')
         env=(target/'history/env.py').read_text().replace("parents[1]/'studies-database-tools'","parents[1]/'studies-database-tools'")
         (target/'history/env.py').write_text(env)
-        failure=target/'history/versions/0005_failure.py'
-        failure.write_text("from alembic import op\nrevision='fixture_0005'\ndown_revision='scribeswell_studies_0004'\ndef upgrade():\n op.execute('CREATE TABLE scribeswell_studies.failure_probe(id int)')\n raise RuntimeError('synthetic failure')\n")
+        failure=target/'history/versions/0006_failure.py'
+        failure.write_text("from alembic import op\nrevision='fixture_0006'\ndown_revision='scribeswell_studies_0005'\ndef upgrade():\n op.execute('CREATE TABLE scribeswell_studies.failure_probe(id int)')\n raise RuntimeError('synthetic failure')\n")
         cfg=Config();cfg.set_main_option('script_location',str(target/'history'))
         with pytest.raises(Exception,match='scribeswell_studies_migration_failed'):alembic.upgrade(cfg,'head')
         with psycopg.connect(admin_url) as admin:
             assert admin.execute("SELECT to_regclass('scribeswell_studies.failure_probe')").fetchone()[0] is None
-            assert admin.execute('SELECT version_num FROM scribeswell_studies.alembic_version').fetchone()[0]=='scribeswell_studies_0004'
+            assert admin.execute('SELECT version_num FROM scribeswell_studies.alembic_version').fetchone()[0]=='scribeswell_studies_0005'
         failure.write_text(failure.read_text().replace(" raise RuntimeError('synthetic failure')",''))
         alembic.upgrade(cfg,'head');alembic.upgrade(cfg,'head')
         assert run(storage.read(IDENTITY,study,saved['note_id'],deadline()))==before
@@ -278,7 +305,7 @@ def test_native_receipt_survives_lost_response_and_scope_constraints(native):
     assert run(storage.execute(IDENTITY,'study.create',payload,None,None,deadline()))==recovered['outcome']
     with psycopg.connect(runtime) as c:
         c.execute("SELECT set_config('app.account_id',%s,true)",(A,))
-        with pytest.raises(psycopg.errors.ForeignKeyViolation):c.execute('INSERT INTO scribeswell_studies.notes(id,account_id,study_id,value,created_by,updated_by) VALUES(%s,%s,%s,%s,%s,%s)',(str(uuid4()),A,str(uuid4()),psycopg.types.json.Jsonb(value()),ACTOR,ACTOR))
+        with pytest.raises(psycopg.errors.CheckViolation):c.execute('INSERT INTO scribeswell_studies.notes(id,account_id,study_id,value,created_by,updated_by) VALUES(%s,%s,%s,%s,%s,%s)',(str(uuid4()),A,str(uuid4()),psycopg.types.json.Jsonb(value()),ACTOR,ACTOR))
     study=recovered['outcome']['study_id'];ack=run(storage.execute(IDENTITY,'note.create',command('note.create',value=value()),study,None,deadline()))
     with psycopg.connect(admin_url) as c:c.execute('UPDATE scribeswell_studies.notes SET revision=9223372036854775807 WHERE id=%s',(ack['note_id'],))
     with pytest.raises(NotesError,match='resource_unavailable'):run(storage.execute(IDENTITY,'note.replace',command('note.replace',expected_revision='9223372036854775807',value=value('overflow')),study,ack['note_id'],deadline()))
@@ -313,7 +340,8 @@ def test_native_browser_create_write_reopen(native):
     try:
         access_url=start(owner);api_app=FastAPI();api_app.include_router(build_router(StudiesAccess(access_url,'synthetic-server-only'),native[0]));api_url=start(api_app)
         # Earlier storage scenarios belong to this same fixture; browser needs an unused default name.
-        with psycopg.connect(native[1]) as c:c.execute('UPDATE scribeswell_studies.studies SET active=false WHERE active')
+        # Release default names only; preserve earlier overflow rows and lifecycle evidence.
+        with psycopg.connect(native[1]) as c:c.execute("UPDATE scribeswell_studies.studies SET title='Fixture '||id::text WHERE active AND title LIKE 'Untitled study%'")
         env={**os.environ,'SCRIBESWELL_NOTES_NATIVE_API':api_url}
         result=subprocess.run(['npm','run','test:browser','--workspace=apps/scribeswell/web','--','personal-notes.spec.cjs','--project=desktop','--grep','native PostgreSQL'],env=env,cwd=APP.parents[1],timeout=90,capture_output=True,text=True)
         assert result.returncode==0,result.stdout+result.stderr
@@ -370,7 +398,7 @@ def test_native_rename_noop_replay_conflict_attribution_and_independent_note(nat
         run(storage.execute({'account_id':B,'actor_id':ACTOR},'study.rename',rename,study,None,deadline()))
     with psycopg.connect(admin_url) as c:
         assert c.execute("SELECT count(*) FROM scribeswell_studies.receipts WHERE command='study.rename' AND operation_id=%s",(rename.operation_id,)).fetchone()[0]==1
-        c.execute('UPDATE scribeswell_studies.studies SET active=false WHERE id=%s',(study,))
+    close_study(storage,study)
     with pytest.raises(NotesError,match='resource_unavailable'):run(storage.execute(IDENTITY,'study.rename',rename,study,None,deadline()))
     with pytest.raises(NotesError,match='resource_unavailable'):run(storage.lookup(IDENTITY,rename.operation_id,'study.rename',deadline()))
 
@@ -466,7 +494,7 @@ def test_native_collected_passages_noop_replay_independent_attribution_and_ident
     with pytest.raises(NotesError,match='resource_unavailable'):run(storage.passages(other,study,deadline()))
     with pytest.raises(NotesError,match='resource_unavailable'):replace_passages(storage,study,[],identity=other)
     assert run(storage.lookup(other,payload.operation_id,'study.passages.replace',deadline()))=={'status':'unresolved'}
-    with psycopg.connect(admin_url) as c:c.execute('UPDATE scribeswell_studies.studies SET active=false WHERE id=%s',(study,))
+    close_study(storage,study)
     with pytest.raises(NotesError,match='resource_unavailable'):replace_passages(storage,study,items,payload=payload)
     with pytest.raises(NotesError,match='resource_unavailable'):run(storage.lookup(IDENTITY,payload.operation_id,'study.passages.replace',deadline()))
 
@@ -483,7 +511,7 @@ def test_native_collected_passages_concurrency_permissions_and_overflow(native):
     with psycopg.connect(runtime) as c:
         assert c.execute('SELECT count(*) FROM scribeswell_studies.passage_lists').fetchone()[0]==0
         assert c.execute('SELECT count(*) FROM scribeswell_studies.passage_entries').fetchone()[0]==0
-    for statement in ('DELETE FROM scribeswell_studies.passage_lists','UPDATE scribeswell_studies.passage_entries SET book_id=book_id','UPDATE scribeswell_studies.passage_lists SET created_by=created_by'):
+    for statement in ('UPDATE scribeswell_studies.passage_entries SET book_id=book_id','UPDATE scribeswell_studies.passage_lists SET created_by=created_by'):
         with psycopg.connect(runtime) as c:
             c.execute("SELECT set_config('app.account_id',%s,true)",(A,))
             with pytest.raises(psycopg.errors.InsufficientPrivilege):c.execute(statement)
@@ -495,6 +523,7 @@ def test_native_collected_passages_concurrency_permissions_and_overflow(native):
     with psycopg.connect(runtime) as c:
         c.execute("SELECT set_config('app.account_id',%s,true)",(B,))
         assert c.execute('DELETE FROM scribeswell_studies.passage_entries WHERE study_id=%s RETURNING id',(study,)).fetchall()==[]
+        assert c.execute('DELETE FROM scribeswell_studies.passage_lists WHERE study_id=%s RETURNING study_id',(study,)).fetchall()==[]
     with psycopg.connect(admin_url) as c:c.execute('UPDATE scribeswell_studies.passage_lists SET revision=9223372036854775807 WHERE study_id=%s',(study,))
     with pytest.raises(NotesError,match='resource_unavailable'):replace_passages(storage,study,[],revision='9223372036854775807')
     assert run(storage.passages(IDENTITY,study,deadline()))['revision']=='9223372036854775807'
@@ -624,7 +653,7 @@ def test_native_library_search_filtered_matching_pagination_isolation_and_zero_m
     equal_ids=[str(uuid4()) for _ in range(3)]
     malformed=create(storage,'Malformed JSON parent')['study_id']
     with psycopg.connect(admin_url) as c:
-        c.execute('UPDATE scribeswell_studies.studies SET active=false WHERE id=%s',(closed,))
+        c.execute("UPDATE scribeswell_studies.studies SET active=false,title='Deleted study' WHERE id=%s",(closed,))
         c.execute('UPDATE scribeswell_studies.notes SET active=false,value=%s WHERE id=%s',(psycopg.types.json.Jsonb({'document':{'version':1,'blocks':[]},'connections':[],'highlights':[]}),inactive_note))
         for identifier in equal_ids:
             c.execute("INSERT INTO scribeswell_studies.studies(account_id,id,title,created_at,updated_at,created_by,updated_by) VALUES(%s,%s,%s,'2026-10-25T00:00:00Z','2026-10-25T00:00:00Z',%s,%s)",(A,identifier,marker+' equal',ACTOR,ACTOR))
@@ -745,7 +774,7 @@ def test_native_note_deletion_erasure_receipt_recovery_constraints_and_previous_
     _,previous=load();old=previous.PersonalNotesStorage(runtime)
     assert run(old.list(IDENTITY,study,50,None,deadline()))['items']==[before]
     with pytest.raises(NotesError,match='resource_unavailable'):run(old.read(IDENTITY,study,note,deadline()))
-    with psycopg.connect(admin_url) as c:c.execute('UPDATE scribeswell_studies.studies SET active=false WHERE id=%s',(study,))
+    close_study(storage,study)
     assert run(storage.lookup(IDENTITY,payload.operation_id,'note.delete',deadline()))['outcome']==ack
     assert run(storage.execute(IDENTITY,'note.delete',payload,study,note,deadline()))==ack
     with pytest.raises(NotesError,match='resource_unavailable'):run(storage.lookup(IDENTITY,initial.operation_id,'note.create',deadline()))
@@ -820,3 +849,174 @@ def test_native_byte_frozen_old_save_races_new_deletion_without_resurrection_or_
         assert c.execute('SELECT count(*) FROM scribeswell_studies.receipts WHERE account_id=%s AND operation_id=%s',(A,late.operation_id)).fetchone()[0]==0
         failed=saving.operation_id if delete_won else deletion.operation_id
         assert c.execute('SELECT count(*) FROM scribeswell_studies.receipts WHERE account_id=%s AND operation_id=%s',(A,failed)).fetchone()[0]==0
+
+
+def test_native_study_deletion_atomic_erasure_original_receipts_and_previous_f6_consumer(native):
+    storage,admin_url,runtime,_=native
+    study=create(storage,'Private study title to erase')['study_id']
+    independent=create(storage,'Independent copy')['study_id']
+    original=command('note.create',value=value('Private body to erase'))
+    note=run(storage.execute(IDENTITY,'note.create',original,study,None,deadline()))
+    old_deleted=run(storage.execute(IDENTITY,'note.create',command('note.create',value=value('Already erased')),study,None,deadline()))
+    child_delete=command('note.delete',expected_revision='1')
+    child_ack=run(storage.execute(IDENTITY,'note.delete',child_delete,study,old_deleted['note_id'],deadline()))
+    retained=run(storage.execute(IDENTITY,'note.create',command('note.create',value=value('Independent copy body')),independent,None,deadline()))
+    copy_before=run(storage.read(IDENTITY,independent,retained['note_id'],deadline()))
+    replace_passages(storage,study,passage_items('Gen1'))
+    with psycopg.connect(admin_url) as c:
+        old_tombstone=c.execute('SELECT * FROM scribeswell_studies.notes WHERE id=%s',(old_deleted['note_id'],)).fetchone()
+    payload=command('study.delete',expected_revision='1');ack=run(storage.execute(IDENTITY,'study.delete',payload,study,None,deadline()))
+    assert ack['note_id'] is None and ack['revision']=='2'
+    with psycopg.connect(runtime,row_factory=psycopg.rows.dict_row) as c:
+        c.execute("SELECT set_config('app.account_id',%s,true)",(A,))
+        parent=c.execute('SELECT * FROM scribeswell_studies.studies WHERE id=%s',(study,)).fetchone()
+        erased=c.execute('SELECT * FROM scribeswell_studies.notes WHERE id=%s',(note['note_id'],)).fetchone()
+        assert parent['title']=='Deleted study' and not parent['active'] and parent['revision']==2 and parent['updated_by']==ACTOR
+        assert not erased['active'] and erased['revision']==2 and erased['updated_by']==ACTOR
+        assert erased['value']=={'document':{'version':1,'blocks':[]},'connections':[],'highlights':[]}
+        for table in ('passage_lists','passage_entries'):assert c.execute(f'SELECT count(*) FROM scribeswell_studies.{table} WHERE study_id=%s',(study,)).fetchone()['count']==0
+        receipt=c.execute("SELECT outcome FROM scribeswell_studies.receipts WHERE command='study.delete' AND operation_id=%s",(payload.operation_id,)).fetchone()['outcome']
+        assert receipt==ack and set(receipt)=={'operation_id','command','study_id','note_id','revision'}
+    with psycopg.connect(admin_url) as c:assert c.execute('SELECT * FROM scribeswell_studies.notes WHERE id=%s',(old_deleted['note_id'],)).fetchone()==old_tombstone
+    assert run(storage.read(IDENTITY,independent,retained['note_id'],deadline()))==copy_before
+    assert run(storage.execute(IDENTITY,'study.delete',payload,study,None,deadline()))==ack
+    assert run(storage.lookup(IDENTITY,payload.operation_id,'study.delete',deadline()))['outcome']==ack
+    assert run(storage.execute(IDENTITY,'note.delete',child_delete,study,old_deleted['note_id'],deadline()))==child_ack
+    assert run(storage.lookup(IDENTITY,child_delete.operation_id,'note.delete',deadline()))['outcome']==child_ack
+    with pytest.raises(NotesError,match='operation_payload_mismatch'):run(storage.execute(IDENTITY,'study.delete',payload.model_copy(update={'expected_revision':'2'}),study,None,deadline()))
+    for kind,args in [('study.delete',command('study.delete',expected_revision='2')),('note.create',original)]:
+        with pytest.raises(NotesError,match='resource_unavailable'):run(storage.execute(IDENTITY,kind,args,study,None,deadline()))
+    with pytest.raises(NotesError,match='resource_unavailable'):run(storage.lookup(IDENTITY,original.operation_id,'note.create',deadline()))
+    sys.path.insert(0,str(APP/'tests/fixtures'));from study_deletion_baseline_loader import load
+    contract,previous=load();old=previous.PersonalNotesStorage(runtime)
+    assert all(row['id']!=study for row in run(old.list(IDENTITY,None,50,None,deadline()))['items'])
+    with pytest.raises(NotesError,match='resource_unavailable'):run(old.read(IDENTITY,study,None,deadline()))
+    for kind,fields,note_id in [('note.create',{'value':value('old writer cannot refill')},None),('note.replace',{'expected_revision':'2','value':value('old writer cannot refill')},note['note_id'])]:
+        old_command=contract.parse_command(kind,json.dumps({'operation_id':str(uuid4()),**fields}).encode())
+        with pytest.raises(NotesError,match='resource_unavailable'):run(old.execute(IDENTITY,kind,old_command,study,note_id,deadline()))
+    # Actual previous f6 consumer still writes its unaffected owned resource.
+    old_payload=contract.parse_command('note.replace',json.dumps({'operation_id':str(uuid4()),'expected_revision':copy_before['revision'],'value':copy_before['value']}).encode())
+    run(old.execute(IDENTITY,'note.replace',old_payload,independent,retained['note_id'],deadline()))
+
+
+def test_native_study_deletion_overflow_rollback_alternate_writes_and_race(native,monkeypatch):
+    storage,admin_url,runtime,_=native
+    study=create(storage,'Overflow must preserve title')['study_id']
+    note=run(storage.execute(IDENTITY,'note.create',command('note.create',value=value('Overflow protected')),study,None,deadline()))
+    payload=command('study.delete',expected_revision='1')
+    with psycopg.connect(admin_url) as c:c.execute('UPDATE scribeswell_studies.notes SET revision=9223372036854775807 WHERE id=%s',(note['note_id'],))
+    with pytest.raises(NotesError,match='resource_unavailable'):run(storage.execute(IDENTITY,'study.delete',payload,study,None,deadline()))
+    assert run(storage.read(IDENTITY,study,None,deadline()))['title']=='Overflow must preserve title'
+    with psycopg.connect(admin_url) as c:
+        assert not c.execute('SELECT 1 FROM scribeswell_studies.receipts WHERE operation_id=%s',(payload.operation_id,)).fetchone()
+        c.execute('UPDATE scribeswell_studies.notes SET revision=1 WHERE id=%s',(note['note_id'],))
+    # Fail exactly at receipt insertion: transaction must undo every cleanup write.
+    original=psycopg.AsyncCursor.execute
+    async def fail_receipt(cursor,query,params=None,*args,**kwargs):
+        if str(query).startswith('INSERT INTO scribeswell_studies.receipts'):raise RuntimeError('fixture receipt failure')
+        return await original(cursor,query,params,*args,**kwargs)
+    with monkeypatch.context() as patch:
+        patch.setattr(psycopg.AsyncCursor,'execute',fail_receipt)
+        with pytest.raises(NotesError,match='studies_storage_unavailable'):run(storage.execute(IDENTITY,'study.delete',payload,study,None,deadline()))
+    assert run(storage.read(IDENTITY,study,note['note_id'],deadline()))['value']==value('Overflow protected')
+    # This test's alternate-write scope is closed by an acknowledged command.
+    deletion=run(storage.execute(IDENTITY,'study.delete',payload,study,None,deadline()))
+    assert run(storage.lookup(IDENTITY,payload.operation_id,'study.delete',deadline()))['outcome']==deletion
+    with psycopg.connect(runtime) as c:
+        c.execute("SELECT set_config('app.account_id',%s,true)",(A,))
+        for statement,args in [
+          ('INSERT INTO scribeswell_studies.notes(id,account_id,study_id,value,created_by,updated_by) VALUES(%s,%s,%s,%s,%s,%s)',(str(uuid4()),A,study,psycopg.types.json.Jsonb(value()),ACTOR,ACTOR)),
+          ('INSERT INTO scribeswell_studies.passage_lists(account_id,study_id,revision,created_by,updated_by) VALUES(%s,%s,2,%s,%s)',(A,study,ACTOR,ACTOR)),
+          ("INSERT INTO scribeswell_studies.passage_entries(account_id,study_id,id,position,catalogue_id,catalogue_version,versification_id,book_id,kind,start_chapter,created_by) VALUES(%s,%s,%s,1,'scribeswell.references.v1',%s,'oshb-hebrew-json-c2d8e9e5','Gen','chapter',1,%s)",(A,study,str(uuid4()),'0'*64,ACTOR)),
+          ("UPDATE scribeswell_studies.studies SET title='Refill' WHERE id=%s",(study,)),
+          ('UPDATE scribeswell_studies.studies SET active=true WHERE id=%s',(study,))]:
+            with pytest.raises(psycopg.errors.CheckViolation),c.transaction():c.execute(statement,args)
+    # Closing a still-populated active parent through the restricted alternate path refuses.
+    other=create(storage,'Guarded active parent')['study_id']
+    run(storage.execute(IDENTITY,'note.create',command('note.create',value=value()),other,None,deadline()))
+    with psycopg.connect(runtime) as c:
+        c.execute("SELECT set_config('app.account_id',%s,true)",(A,))
+        with pytest.raises(psycopg.errors.CheckViolation),c.transaction():c.execute("UPDATE scribeswell_studies.studies SET active=false,title='Deleted study' WHERE id=%s",(other,))
+
+
+async def ordered_parent_commands(first_storage,first_args,second_storage,second_args):
+    """Hold the first actual parent lock until the competing writer has entered."""
+    acquired=asyncio.Event();release=asyncio.Event();contending=asyncio.Event()
+    class First(type(first_storage)):
+        async def _parent(self,*args,**kwargs):
+            row=await super()._parent(*args,**kwargs)
+            if kwargs.get('lock'):acquired.set();await asyncio.wait_for(release.wait(),1)
+            return row
+    class Second(type(second_storage)):
+        async def _parent(self,*args,**kwargs):
+            if kwargs.get('lock'):contending.set()
+            return await super()._parent(*args,**kwargs)
+    first=asyncio.create_task(First(first_storage.url).execute(*first_args,deadline()))
+    await asyncio.wait_for(acquired.wait(),1)
+    second=asyncio.create_task(Second(second_storage.url).execute(*second_args,deadline()))
+    await asyncio.wait_for(contending.wait(),1)
+    release.set()
+    return await asyncio.gather(first,second,return_exceptions=True)
+
+
+@pytest.mark.parametrize('writer',['current','previous-f6'])
+@pytest.mark.parametrize('first',['writer','delete'])
+def test_native_study_deletion_deterministic_parent_lock_orders(native,writer,first):
+    storage,admin_url,runtime,_=native
+    study=create(storage,'Deterministic parent race')['study_id']
+    if writer=='current':
+        note=run(storage.execute(IDENTITY,'note.create',command('note.create',value=value('Before race')),study,None,deadline()))['note_id']
+        producer=storage;kind='note.replace';payload=command(kind,expected_revision='1',value=value('Winning current writer'))
+    else:
+        sys.path.insert(0,str(APP/'tests/fixtures'));from study_deletion_baseline_loader import load
+        contract,previous=load();producer=previous.PersonalNotesStorage(runtime);kind='note.create';note=None
+        payload=contract.parse_command(kind,json.dumps({'operation_id':str(uuid4()),'value':value('Winning previous writer')}).encode())
+    delete=command('study.delete',expected_revision='1')
+    writer_args=(IDENTITY,kind,payload,study,note);delete_args=(IDENTITY,'study.delete',delete,study,None)
+    if first=='writer':written,erased=run(ordered_parent_commands(producer,writer_args,storage,delete_args))
+    else:erased,written=run(ordered_parent_commands(storage,delete_args,producer,writer_args))
+    assert isinstance(erased,dict) and erased['command']=='study.delete'
+    if first=='writer':assert isinstance(written,dict) and written['command']==kind
+    else:assert isinstance(written,NotesError) and written.code=='resource_unavailable'
+    with psycopg.connect(admin_url) as c:
+        assert c.execute('SELECT active,title,revision FROM scribeswell_studies.studies WHERE id=%s',(study,)).fetchone()==(False,'Deleted study',2)
+        rows=c.execute('SELECT active,revision,value FROM scribeswell_studies.notes WHERE study_id=%s',(study,)).fetchall()
+        assert len(rows)==(1 if writer=='current' or first=='writer' else 0)
+        for active,revision,body in rows:
+            assert not active and revision==(3 if writer=='current' and first=='writer' else 2)
+            assert body=={'document':{'version':1,'blocks':[]},'connections':[],'highlights':[]}
+        assert c.execute('SELECT count(*) FROM scribeswell_studies.receipts WHERE operation_id=%s',(delete.operation_id,)).fetchone()[0]==1
+        assert c.execute('SELECT count(*) FROM scribeswell_studies.receipts WHERE operation_id=%s',(payload.operation_id,)).fetchone()[0]==(1 if first=='writer' else 0)
+    assert run(storage.lookup(IDENTITY,delete.operation_id,'study.delete',deadline()))['outcome']==erased
+
+
+def test_native_study_deletion_parent_overflow(native):
+    storage,admin_url,*_=native
+    overflowing=create(storage,'Parent overflow stays active')['study_id']
+    with psycopg.connect(admin_url) as c:c.execute('UPDATE scribeswell_studies.studies SET revision=9223372036854775807 WHERE id=%s',(overflowing,))
+    overflow=command('study.delete',expected_revision='9223372036854775807')
+    with pytest.raises(NotesError,match='resource_unavailable'):run(storage.execute(IDENTITY,'study.delete',overflow,overflowing,None,deadline()))
+    with psycopg.connect(admin_url) as c:
+        assert c.execute('SELECT active,title FROM scribeswell_studies.studies WHERE id=%s',(overflowing,)).fetchone()==(True,'Parent overflow stays active')
+        assert not c.execute('SELECT 1 FROM scribeswell_studies.receipts WHERE operation_id=%s',(overflow.operation_id,)).fetchone()
+
+
+@pytest.mark.parametrize('closed',[False,True])
+def test_native_study_deletion_foreign_current_access_cannot_delete_replay_or_lookup(native,closed):
+    storage,admin_url,*_=native
+    study=create(storage,'Owner private title')['study_id']
+    run(storage.execute(IDENTITY,'note.create',command('note.create',value=value('Owner private body')),study,None,deadline()))
+    replace_passages(storage,study,passage_items('Gen1'))
+    deletion=command('study.delete',expected_revision='1')
+    if closed:run(storage.execute(IDENTITY,'study.delete',deletion,study,None,deadline()))
+    def snapshot():
+        with psycopg.connect(admin_url,row_factory=psycopg.rows.dict_row) as c:
+            return {table:c.execute(f'SELECT * FROM scribeswell_studies.{table} WHERE '+('id=%s' if table=='studies' else 'study_id=%s')+' ORDER BY '+('position' if table=='passage_entries' else 'operation_id' if table=='receipts' else 'id' if table in ('studies','notes') else 'study_id'),(study,)).fetchall() for table in ('studies','notes','passage_lists','passage_entries','receipts')}
+    before=snapshot();foreign={'account_id':B,'actor_id':ACTOR}
+    # This identity is already admitted at the owner boundary; local ownership
+    # must independently refuse new commands and the owner's original operation.
+    for original in (command('study.delete',expected_revision='1'),deletion):
+        with pytest.raises(NotesError,match='resource_unavailable'):run(storage.execute(foreign,'study.delete',original,study,None,deadline()))
+        assert snapshot()==before
+    assert run(storage.lookup(foreign,deletion.operation_id,'study.delete',deadline()))=={'status':'unresolved'}
+    assert snapshot()==before

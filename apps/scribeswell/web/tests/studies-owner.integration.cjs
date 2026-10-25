@@ -154,10 +154,25 @@ if(!process.env.SCRIBESWELL_OWNER_DENIED){
   fs.writeFileSync(path.join(proof,'deletion-result.json'),JSON.stringify({study,note:note.id,operation:deletionAck.operation_id,revision:deletionAck.revision}),{flag:'wx',mode:0o600});await checkpoint('deletion-after');
   note.value={document:{version:1,blocks:[]},connections:[],highlights:[]};note.revision=deletionAck.revision;
 
+  stage('confirmed-study-deletion');await checkpoint('study-deletion-before');
+  await page.getByRole('button',{name:'Studies',exact:true}).click();
+  await page.getByRole('button',{name:'Delete study',exact:true}).click();
+  const studyDialog=page.getByRole('dialog',{name:'Delete this study?',exact:true});
+  await expect(studyDialog.getByRole('button',{name:'Cancel',exact:true})).toBeFocused();
+  const studyDeletedReply=page.waitForResponse(r=>r.request().method()==='DELETE'&&r.url().endsWith('/studies/'+study));
+  await studyDialog.getByRole('button',{name:'Delete study',exact:true}).click();
+  const studyDeletionAck=await (await studyDeletedReply).json();expect(studyDeletionAck.command).toBe('study.delete');
+  await expect(studyDialog).toHaveCount(0);
+  expect((await request(page,`/api/studies/${study}`)).status).toBe(404);
+  expect((await request(page,`/api/operations/${studyDeletionAck.operation_id}?command=study.delete`)).body.outcome).toEqual(studyDeletionAck);
+  expect((await request(page,`/api/operations/${deletionAck.operation_id}?command=note.delete`)).body.outcome).toEqual(deletionAck);
+  expect((await request(page,`/api/operations/${renameAck.operation_id}?command=study.rename`)).status).toBe(404);
+  fs.writeFileSync(path.join(proof,'study-deletion-result.json'),JSON.stringify({study,operation:studyDeletionAck.operation_id,revision:studyDeletionAck.revision}),{flag:'wx',mode:0o600});await checkpoint('study-deletion-after');
+
   await privacy.settle();
   const stored=await context.storageState();fs.writeFileSync(path.join(proof,'other-context-private.json'),JSON.stringify(stored),{flag:'wx',mode:0o600});await context.close();
   fs.writeFileSync(path.join(proof,'owner-context-private.json'),JSON.stringify(await page.context().storageState()),{flag:'wx',mode:0o600});
-  const result={study,retained_note:retained.body.note_id,note_delete_operation:deletionAck.operation_id,note_link_operation:linkAck.operation_id,passage_operations:passageOperations,passage_item:passageItem,rename_operation:renameAck.operation_id,rename_title:'Renamed English שָׁלוֹם',retry_study:retryStudy,note:note.id,operation:create.operation_id,ui_operation:uiCreated.operation_id,enrollment:enrollment.operation_id,ui_enrollment:uiEnrollment.operation_id,other_enrollment:otherEnrollment,account_actors:{[fixture.accounts[0].account_id]:uiEnrollment.result.actor_id,[fixture.accounts[1].account_id]:otherAck.body.result.actor_id},value:note.value,credential_inspection:await privacy.settle()};
+  const result={study,study_delete_operation:studyDeletionAck.operation_id,retained_note:retained.body.note_id,note_delete_operation:deletionAck.operation_id,note_link_operation:linkAck.operation_id,passage_operations:passageOperations,passage_item:passageItem,rename_operation:renameAck.operation_id,rename_title:'Renamed English שָׁלוֹם',retry_study:retryStudy,note:note.id,operation:create.operation_id,ui_operation:uiCreated.operation_id,enrollment:enrollment.operation_id,ui_enrollment:uiEnrollment.operation_id,other_enrollment:otherEnrollment,account_actors:{[fixture.accounts[0].account_id]:uiEnrollment.result.actor_id,[fixture.accounts[1].account_id]:otherAck.body.result.actor_id},value:note.value,credential_inspection:await privacy.settle()};
   fs.writeFileSync(path.join(proof,'browser-result.json'),JSON.stringify(result),{flag:'wx',mode:0o600});
  }));
 }else{
@@ -175,6 +190,7 @@ if(!process.env.SCRIBESWELL_OWNER_DENIED){
   expect((await request(page,`/api/studies/${result.study}/notes/${result.note}`,'PUT',{operation_id:crypto.randomUUID(),expected_revision:'2',value:result.value})).status).toBe(403);
   expect((await request(page,`/api/studies/${result.study}/notes/${result.note}`,'DELETE',{operation_id:result.note_delete_operation,expected_revision:'3'})).status).toBe(403);
   expect((await request(page,`/api/operations/${result.note_delete_operation}?command=note.delete`)).status).toBe(403);
+  expect((await request(page,`/api/operations/${result.study_delete_operation}?command=study.delete`)).status).toBe(403);
   expect((await request(page,'/api/studies/enrollment','POST',{operation_id:result.enrollment})).status).toBe(403);
   expect((await request(page,'/api/studies/search','POST',{query:'Matthew'})).status).toBe(403);
   stage('public-reader');await expect(page.getByText('בְּרֵאשִׁית',{exact:true}).first()).toBeVisible();

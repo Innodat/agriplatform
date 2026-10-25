@@ -67,6 +67,10 @@ class PersonalNotesStorage:
         return row
 
     async def _live_outcome(self,cursor,account,outcome):
+        if outcome['command']=='study.delete':
+            await cursor.execute(f'SELECT id FROM {SCHEMA}.studies WHERE account_id=%s AND id=%s AND NOT active',(account,outcome['study_id']))
+            if await cursor.fetchone() is None: raise NotesError('resource_unavailable')
+            return
         if outcome['command']=='note.delete':
             await cursor.execute(f'SELECT id FROM {SCHEMA}.notes WHERE account_id=%s AND study_id=%s AND id=%s AND NOT active',(account,outcome['study_id'],outcome['note_id']))
             if await cursor.fetchone() is None: raise NotesError('resource_unavailable')
@@ -107,6 +111,21 @@ class PersonalNotesStorage:
                     if row['revision']>=int(MAX_REVISION): raise NotesError('resource_unavailable')
                     revision=str(row['revision']+1)
                     await cursor.execute(f'UPDATE {SCHEMA}.studies SET title=%s, revision=revision+1, updated_by=%s, updated_at=clock_timestamp() WHERE account_id=%s AND id=%s',(payload.title,actor,account,study_id))
+            elif command=='study.delete':
+                row=await self._parent(cursor,account,study_id,lock=True)
+                revision=str(row['revision'])
+                if revision!=payload.expected_revision: raise NotesError('study_revision_conflict',{'expected_revision':payload.expected_revision,'current_revision':revision})
+                if row['revision']>=int(MAX_REVISION): raise NotesError('resource_unavailable')
+                # Every API child writer locks this parent first. Preflight all
+                # active notes before erasing anything; inactive receipts stay intact.
+                await cursor.execute(f'SELECT id FROM {SCHEMA}.notes WHERE account_id=%s AND study_id=%s AND active AND revision>=%s LIMIT 1',(account,study_id,int(MAX_REVISION)))
+                if await cursor.fetchone() is not None: raise NotesError('resource_unavailable')
+                empty={'document':{'version':1,'blocks':[]},'connections':[],'highlights':[]}
+                await cursor.execute(f'UPDATE {SCHEMA}.notes SET value=%s, active=false, revision=revision+1, updated_by=%s, updated_at=clock_timestamp() WHERE account_id=%s AND study_id=%s AND active',(Jsonb(empty),actor,account,study_id))
+                await cursor.execute(f'DELETE FROM {SCHEMA}.passage_entries WHERE account_id=%s AND study_id=%s',(account,study_id))
+                await cursor.execute(f'DELETE FROM {SCHEMA}.passage_lists WHERE account_id=%s AND study_id=%s',(account,study_id))
+                await cursor.execute(f"UPDATE {SCHEMA}.studies SET title='Deleted study', active=false, revision=revision+1, updated_by=%s, updated_at=clock_timestamp() WHERE account_id=%s AND id=%s",(actor,account,study_id))
+                revision=str(row['revision']+1)
             elif command=='study.passages.replace':
                 await self._parent(cursor,account,study_id,lock=True)
                 revision=await self._replace_passages(cursor,account,actor,study_id,payload)

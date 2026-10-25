@@ -234,8 +234,9 @@ inspection.settle().then(()=>process.exit(1),()=>console.log('sentinel-rejected'
     assert result.returncode==0 and result.stdout.strip()=='sentinel-rejected'
     assert 'private-test-key' not in result.stdout+result.stderr
 
+@pytest.mark.parametrize('study_closed',[False,True])
 @pytest.mark.parametrize('change',[None,'missing-other-binding','wrong-other-binding','study-creation-actor','study-update-actor','note-actor','receipt-actor','deleted-value','deleted-active','retained-active','retained-creation-actor','retained-update-actor'])
-def test_final_oracle_checks_both_durable_bindings_and_all_record_actors(tmp_path,change):
+def test_final_oracle_checks_both_durable_bindings_and_all_record_actors(tmp_path,change,study_closed):
     import copy
     module=fixture_module();state={name:[] for name in module.PROTECTED_TABLES}
     expected={'study':'ui-study','retry_study':'retry-study','note':'note','retained_note':'retained-note','note_delete_operation':'delete-op','operation':'retry-op','ui_operation':'ui-op','enrollment':'retry-enroll','ui_enrollment':'ui-enroll','other_enrollment':'other-enroll','account_actors':{'owner':'actor-a','other':'actor-b'},'value':{'document':{'version':1,'blocks':[]},'connections':[],'highlights':[]}}
@@ -247,6 +248,12 @@ def test_final_oracle_checks_both_durable_bindings_and_all_record_actors(tmp_pat
     state['scribeswell_studies.notes']=[dict(attribution,id='note',study_id='ui-study',value=copy.deepcopy(expected['value']),active=False),dict(attribution,id='retained-note',study_id='ui-study',value={'document':'retained-oracle-value'},active=True)]
     state['scribeswell_studies.notes'][0]['revision']=2
     state['scribeswell_studies.receipts']=[{'command':command,'operation_id':operation,'account_id':'owner','created_by':'actor-a','created_at':'2026-01-01'} for command,operation in [('study.create','ui-op'),('study.create','retry-op'),('note.create','note-op'),('note.replace','replace-op'),('note.create','retained-note-op'),('note.delete','delete-op')]]
+    if study_closed:
+        expected['study_delete_operation']='study-delete-op'
+        state['scribeswell_studies.studies'][0].update(active=False,title='Deleted study',revision=3)
+        state['scribeswell_studies.studies'][1]['active']=True
+        state['scribeswell_studies.notes'][1].update(active=False,value=copy.deepcopy(expected['value']))
+        state['scribeswell_studies.receipts'].append({'command':'study.delete','operation_id':'study-delete-op','account_id':'owner','created_by':'actor-a','created_at':'2026-01-01'})
     for table in ('access.studies_account_grant','access.studies_assignment_event','identity.studies_setup_event'):
         state[table]=copy.deepcopy(state['identity.account_actor'])
     for table in ('access.studies_enrollment_outcome','identity.studies_setup_outcome'):
@@ -258,7 +265,7 @@ def test_final_oracle_checks_both_durable_bindings_and_all_record_actors(tmp_pat
         if change==label:state[table][0][field]='actor-b'
     if change=='deleted-value':state['scribeswell_studies.notes'][0]['value']={'document':'deleted-content-refilled'}
     if change=='deleted-active':state['scribeswell_studies.notes'][0]['active']=True
-    if change=='retained-active':state['scribeswell_studies.notes'][1]['active']=False
+    if change=='retained-active':state['scribeswell_studies.notes'][1]['active']=study_closed
     if change=='retained-creation-actor':state['scribeswell_studies.notes'][1]['created_by']='actor-b'
     if change=='retained-update-actor':state['scribeswell_studies.notes'][1]['updated_by']='actor-b'
     run=object.__new__(module.Qualification);run.proof=tmp_path;run.actor='service';run.accounts=[{'account_id':'owner'},{'account_id':'other'}];run.snapshot=lambda label:state
@@ -282,3 +289,30 @@ def test_note_link_checkpoint_refuses_changes_to_every_non_target_note(change):
         with pytest.raises(AssertionError,match='another note'):
             module.assert_non_target_notes_unchanged(before,after,'target')
     else:module.assert_non_target_notes_unchanged(before,after,'target')
+
+@pytest.mark.parametrize('tamper',[None,'title','active','note-value','note-revision','inactive-note','passage','receipt','unrelated'])
+def test_whole_study_erasure_independent_oracle_retains_other_scope_and_old_tombstones(tamper):
+    import copy
+    module=fixture_module();before={name:[] for name in module.PROTECTED_TABLES}
+    attribution=dict(account_id='owner',created_by='actor',updated_by='actor',created_at='2026-01-01',updated_at='2026-01-01',revision=1,active=True)
+    empty={'document':{'version':1,'blocks':[]},'connections':[],'highlights':[]}
+    before['scribeswell_studies.studies']=[dict(attribution,id='study',title='Private title'),dict(attribution,id='other',title='Other title')]
+    before['scribeswell_studies.notes']=[dict(attribution,id='note',study_id='study',value={'private':'body'}),dict(attribution,id='old',study_id='study',active=False,value=copy.deepcopy(empty)),dict(attribution,id='copy',study_id='other',value={'private':'independent'})]
+    before['scribeswell_studies.passage_lists']=[dict(study_id='study')];before['scribeswell_studies.passage_entries']=[dict(study_id='study')]
+    before['scribeswell_studies.receipts']=[dict(command='note.delete',operation_id='old-op')]
+    after=copy.deepcopy(before);after['scribeswell_studies.studies'][0].update(active=False,title='Deleted study',revision=2,updated_at='2026-01-02')
+    after['scribeswell_studies.notes'][0].update(active=False,value=copy.deepcopy(empty),revision=2,updated_at='2026-01-02')
+    after['scribeswell_studies.passage_lists']=[];after['scribeswell_studies.passage_entries']=[]
+    expected=dict(study='study',operation='delete-op',revision='2')
+    after['scribeswell_studies.receipts'].append(dict(command='study.delete',operation_id='delete-op',outcome=dict(operation_id='delete-op',command='study.delete',study_id='study',note_id=None,revision='2')))
+    if tamper=='title':after['scribeswell_studies.studies'][0]['title']='Private title'
+    if tamper=='active':after['scribeswell_studies.studies'][0]['active']=True
+    if tamper=='note-value':after['scribeswell_studies.notes'][0]['value']={'private':'body'}
+    if tamper=='note-revision':after['scribeswell_studies.notes'][0]['revision']=1
+    if tamper=='inactive-note':after['scribeswell_studies.notes'][1]['revision']=2
+    if tamper=='passage':after['scribeswell_studies.passage_entries']=before['scribeswell_studies.passage_entries']
+    if tamper=='receipt':after['scribeswell_studies.receipts'].pop(0)
+    if tamper=='unrelated':after['scribeswell_studies.notes'][2]['active']=False
+    if tamper:
+        with pytest.raises(AssertionError):module.assert_study_erasure(before,after,expected)
+    else:module.assert_study_erasure(before,after,expected)

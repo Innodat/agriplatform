@@ -69,6 +69,20 @@ export type DeleteNote = {
 };
 
 /**
+ * DeleteStudy
+ */
+export type DeleteStudy = {
+    /**
+     * Expected Revision
+     */
+    expected_revision: string;
+    /**
+     * Operation Id
+     */
+    operation_id: string;
+};
+
+/**
  * DocumentV1
  */
 export type DocumentV1 = {
@@ -285,7 +299,7 @@ export type NoteView = {
 };
 
 export type OperationAck = ({
-    command?: 'study.create' | 'study.rename' | 'study.passages.replace';
+    command?: 'study.create' | 'study.rename' | 'study.passages.replace' | 'study.delete';
     note_id?: null;
 } | {
     command?: 'note.create' | 'note.replace' | 'note.delete';
@@ -294,7 +308,7 @@ export type OperationAck = ({
     /**
      * Command
      */
-    command: 'study.create' | 'study.rename' | 'study.passages.replace' | 'note.create' | 'note.replace' | 'note.delete';
+    command: 'study.create' | 'study.rename' | 'study.passages.replace' | 'study.delete' | 'note.create' | 'note.replace' | 'note.delete';
     /**
      * Note Id
      */
@@ -675,7 +689,7 @@ export type LookupOperationData = {
         operation_id: string;
     };
     query: {
-        command: 'study.create' | 'study.rename' | 'study.passages.replace' | 'note.create' | 'note.replace' | 'note.delete';
+        command: 'study.create' | 'study.rename' | 'study.passages.replace' | 'study.delete' | 'note.create' | 'note.replace' | 'note.delete';
     };
     url: '/api/operations/{operation_id}';
 };
@@ -960,6 +974,65 @@ export type SearchStudiesResponses = {
 };
 
 export type SearchStudiesResponse = SearchStudiesResponses[keyof SearchStudiesResponses];
+
+export type DeleteStudyData = {
+    body: DeleteStudy;
+    path: {
+        study_id: string;
+    };
+    query?: never;
+    url: '/api/studies/{study_id}';
+};
+
+export type DeleteStudyErrors = {
+    /**
+     * Invalid input
+     */
+    400: ErrorResponse & {
+        code?: 'scribeswell_personal_notes_input_invalid';
+    };
+    /**
+     * Authentication required
+     */
+    401: ErrorResponse & {
+        code?: 'authentication_required';
+    };
+    /**
+     * Current Studies access denied
+     */
+    403: ErrorResponse & {
+        code?: 'studies_access_denied';
+    };
+    /**
+     * Unavailable resource; does not reveal another owner
+     */
+    404: ErrorResponse & {
+        code?: 'resource_unavailable';
+    };
+    /**
+     * Revision, operation payload or unresolved conflict
+     */
+    409: ErrorResponse & {
+        code?: 'note_revision_conflict' | 'study_revision_conflict' | 'passage_revision_conflict' | 'note_format_unsupported' | 'operation_payload_mismatch' | 'operation_unresolved';
+    };
+    /**
+     * Access, storage or deadline unavailable
+     */
+    503: ErrorResponse & {
+        code?: 'studies_access_unavailable' | 'studies_storage_unavailable' | 'request_deadline_exceeded';
+    };
+};
+
+export type DeleteStudyError = DeleteStudyErrors[keyof DeleteStudyErrors];
+
+export type DeleteStudyResponses = {
+    /**
+     * Acknowledged or current authorized result
+     */
+    200: OperationAck;
+};
+
+export type DeleteStudyResponse = DeleteStudyResponses[keyof DeleteStudyResponses];
 
 export type ReadStudyData = {
     body?: never;

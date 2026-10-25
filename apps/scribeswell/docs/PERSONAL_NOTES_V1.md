@@ -357,5 +357,28 @@ protections apply, and reauthentication never repeats deletion automatically.
 [Deletion evidence](NOTE_DELETION_EVIDENCE.md) separates executed component checks
 from collected/syntax-only restricted SQL, migration, actual-owner UI and independent
 SQL proof. Final native/owner/session execution remains deferred under direction266.
-Whole-study deletion and broader Studies gates remain open; production is disabled.
+Whole-study deletion component delivery follows below; broader Studies gates remain open and production is disabled.
 Scaffold/shared UI, agent context and accepted ADRs remain unchanged.
+
+
+## Confirmed whole-study deletion — component delivery, final integration pending
+
+[The adopted study-deletion contract](STUDY_DELETION_V1.md) adds strict
+`DELETE /api/studies/{study_id}` with `study.delete`, operation ID and expected
+metadata revision only. Current Access and retained ownership remain required.
+Operation→parent locking serializes active child cleanup; overflow preflight precedes
+exact empty note values, passage entry/header removal and the inactive `Deleted study`
+sentinel. Metadata and active child revisions/attribution advance once independently.
+Only original study.delete/note.delete receipts recover against closed owned scope;
+changed payloads and prior create/rename/replace/collection recovery refuse safely.
+
+Migration0005 is prepared with ordinary receipt/title constraints, minimal insert and
+closure guards, narrow passage-header DELETE and transactional migrator-visible
+preexisting-data validation. No migration or activation ran. Browser confirmation
+retains all target input, pauses lanes, bounds preparation to five seconds and recovers
+unknown originals before separate explicit confirmation. Executing/unknown deletion
+retains one payload across navigation, freezes target editing and rejects stale private
+success/error continuations. Acknowledgement evicts exactly the captured study; other
+studies and deliberate public-reader focus remain. [Delivery evidence](STUDY_DELETION_EVIDENCE.md)
+records component checks and prepared-only restricted SQL/actual-owner proof. Scaffold,
+shared UI, agent context and accepted ADRs remain unchanged.

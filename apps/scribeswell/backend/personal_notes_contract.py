@@ -117,7 +117,7 @@ ExternalUrl = Annotated[str, Field(min_length=1, max_length=2048,
                 'Semantic validation also requires valid IDNA DNS or canonical IPv4/unscoped IPv6, '
                 'port 1–65535, safe percent escapes, scalar Unicode and at most 2048 UTF-8 bytes.',
     json_schema_extra={'not': {'pattern': r'[\s\\\x00-\x1f\x7f-\x9f]'}}), AfterValidator(_url)]
-Command = Literal['study.create', 'study.rename', 'study.passages.replace', 'note.create', 'note.replace', 'note.delete']
+Command = Literal['study.create', 'study.rename', 'study.passages.replace', 'study.delete', 'note.create', 'note.replace', 'note.delete']
 
 
 class Closed(BaseModel):
@@ -270,6 +270,11 @@ class DeleteNote(Closed):
     expected_revision: Revision
 
 
+class DeleteStudy(Closed):
+    operation_id: Identifier
+    expected_revision: Revision
+
+
 class PassageItem(Closed):
     id: Identifier
     reference: PassageReference
@@ -354,7 +359,7 @@ class NotePage(Closed):
 
 class OperationAck(Closed):
     model_config = ConfigDict(json_schema_extra={'oneOf': [
-        {'properties': {'command': {'enum': ['study.create', 'study.rename', 'study.passages.replace']}, 'note_id': {'type': 'null'}}},
+        {'properties': {'command': {'enum': ['study.create', 'study.rename', 'study.passages.replace', 'study.delete']}, 'note_id': {'type': 'null'}}},
         {'properties': {'command': {'enum': ['note.create', 'note.replace', 'note.delete']}, 'note_id': {'type': 'string'}}},
     ]})
     operation_id: Identifier
@@ -365,7 +370,7 @@ class OperationAck(Closed):
 
     @model_validator(mode='after')
     def resource_shape(self):
-        if (self.command in ('study.create', 'study.rename', 'study.passages.replace')) != (self.note_id is None):
+        if (self.command in ('study.create', 'study.rename', 'study.passages.replace', 'study.delete')) != (self.note_id is None):
             raise ValueError('invalid outcome resources')
         return self
 
@@ -403,7 +408,7 @@ class RevisionProblem(Closed):
 
 
 ErrorResponse = Annotated[Union[Problem, RevisionProblem], Field(discriminator='code')]
-COMMAND_MODELS = {'studies.search': SearchStudies, 'study.passages.replace': ReplacePassages, 'studies.enroll': EnrollStudies, 'study.create': CreateStudy, 'study.rename': RenameStudy, 'note.create': CreateNote, 'note.replace': ReplaceNote, 'note.delete': DeleteNote}
+COMMAND_MODELS = {'studies.search': SearchStudies, 'study.passages.replace': ReplacePassages, 'studies.enroll': EnrollStudies, 'study.create': CreateStudy, 'study.rename': RenameStudy, 'note.create': CreateNote, 'note.replace': ReplaceNote, 'note.delete': DeleteNote, 'study.delete': DeleteStudy}
 
 
 class ContractInputError(ValueError):
@@ -423,7 +428,7 @@ def _unique_object(pairs):
     return value
 
 
-def parse_command(command: str, raw: bytes) -> SearchStudies | CreateStudy | RenameStudy | ReplacePassages | CreateNote | ReplaceNote | DeleteNote:
+def parse_command(command: str, raw: bytes) -> SearchStudies | CreateStudy | RenameStudy | ReplacePassages | CreateNote | ReplaceNote | DeleteNote | DeleteStudy:
     """Strict bounded HTTP body decoder. No access, database or network work."""
     result = None
     try:
@@ -458,7 +463,7 @@ def parse_command(command: str, raw: bytes) -> SearchStudies | CreateStudy | Ren
 
 def openapi_contract() -> dict:
     """Generate planned OpenAPI from the DTO definitions, never from fake routes."""
-    models = (SearchStudies, EnrollStudies, EnrollmentAck, CreateStudy, RenameStudy, ReplacePassages, PassageList, CreateNote, ReplaceNote, DeleteNote, StudyView, NoteView, StudyPage,
+    models = (SearchStudies, EnrollStudies, EnrollmentAck, CreateStudy, RenameStudy, ReplacePassages, PassageList, CreateNote, ReplaceNote, DeleteNote, DeleteStudy, StudyView, NoteView, StudyPage,
               NotePage, OperationAck, Outcome, ErrorResponse)
     schemas = {}
     for model in models:
@@ -516,7 +521,7 @@ def openapi_contract() -> dict:
                 '/api/studies/enrollment': {'post': operation('enrollStudies', 'EnrollmentAck', body='EnrollStudies')},
                 '/api/studies': {'post': operation('createStudy', 'OperationAck', body='CreateStudy'),
                                  'get': operation('listStudies', 'StudyPage', parameters=page)},
-                '/api/studies/{study_id}': {'get': operation('readStudy', 'StudyView', parameters=(study,))},
+                '/api/studies/{study_id}': {'delete': operation('deleteStudy', 'OperationAck', body='DeleteStudy', parameters=(study,)), 'get': operation('readStudy', 'StudyView', parameters=(study,))},
                 '/api/studies/{study_id}/passages': {'get': operation('readPassages', 'PassageList', parameters=(study,)), 'put': operation('replacePassages', 'OperationAck', body='ReplacePassages', parameters=(study,))},
                 '/api/studies/{study_id}/title': {'put': operation('renameStudy', 'OperationAck', body='RenameStudy', parameters=(study,))},
                 '/api/studies/{study_id}/notes': {'post': operation('createNote', 'OperationAck', body='CreateNote', parameters=(study,)),
