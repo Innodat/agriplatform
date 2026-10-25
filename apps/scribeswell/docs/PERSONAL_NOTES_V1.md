@@ -1,6 +1,6 @@
 # Personal study notes: first wire contract
 
-This app-owned contract supports the first create/write/reopen milestone. **Implemented:** strict DTOs, generated OpenAPI/TypeScript, bounded same-origin private API, explicit Access enrollment/check adapters, app-owned PostgreSQL persistence and receipt recovery, controlled private Alembic history, and Studies/Analysis note editing with autosave. **Activation remains disabled in production.** The runtime is an explicit development/test opt-in pending coordinated owner/migration/integration qualification; public reading and standalone signup remain independent. Native SQL and browser proof are recorded below; synthetic Access responses do not establish live Identity/Access authorization.
+This app-owned contract supports the first create/write/reopen milestone. **Implemented:** strict DTOs, generated OpenAPI/TypeScript, bounded same-origin private API, explicit Access enrollment/check adapters, app-owned PostgreSQL persistence and receipt recovery, controlled private Alembic history, and Studies/Analysis note editing with autosave. **Activation remains disabled in production.** The runtime is an explicit development/test opt-in pending coordinated startup/release qualification; public reading and standalone signup remain independent. Native SQL/browser proof and actual owner HTTP/domain integration are recorded below; synthetic Access responses alone do not establish live Identity/Access authorization.
 
 The canonical Studies SPEC, UX and accepted platform ADRs retain authority. This milestone is ordinary owner-only studies and notes. Sharing, private responses, study metadata editing, introduction/source metadata, passage lists, deliberate passage links, highlights, conflict copies, deletion and search retain their agreed requirements for later consuming slices. No product requirement is removed. This is partial D2 contract readiness, not D1–D5 closure.
 
@@ -102,9 +102,9 @@ ADR-0020 requires a controlled additive migration and qualified roles **before**
 
 | Existing acceptance scope | Evidence now | Remaining proof |
 | --- | --- | --- |
-| CAP-1/CAP-3 create/write/reopen | Native SQL + browser create/write/reopen and actual formatting toolbar/reload | Live owner/provider/integration qualification |
+| CAP-1/CAP-3 create/write/reopen | Native SQL + browser create/write/reopen and actual formatting toolbar/reload | Default owner startup/readiness and coordinated release qualification |
 | CAP-9 saving and lifecycle | Strict revisions, native no-op/replay/concurrency/lifecycle and browser delayed/unknown outcomes | Wider deferred copy/delete/richer-content workflows |
-| D1 identity/access | Bounded exact app HTTP binding consumes delivered owner contract | Coordinated current owner/provider and activation qualification |
+| D1 identity/access | Bounded exact app HTTP binding consumes delivered owner contract | Default owner startup/readiness and activation qualification |
 | D2 data/save | Versioned first wire, private schema and native permission/transaction proof | Catalogue anchors, private responses/copy/delete and richer content contracts |
 | D3/D4/D5 | Existing requirements preserved | Existing owner/release/browser evidence gates remain open |
 
@@ -176,3 +176,19 @@ Scaffold impact: installer-owned shared migration helper is consumed unchanged. 
 UI: no promotion is justified yet for this app-specific editor/lane; no generic engine
 was added. Agent context and accepted ADRs: unchanged. Documentation: this contract and
 canonical companions now distinguish runtime evidence from activation/readiness.
+
+## Actual owner integration qualification — 2026-10-25
+
+The separate one-run fixture and Playwright configuration now pass through the actual
+app, Access/Identity owner SQL, native local Supabase Auth and provider-issued callbacks.
+[Owner integration evidence](STUDIES_OWNER_INTEGRATION_EVIDENCE.md) records the complete
+source-frozen run, independent SQL/actor/duplicate-effect observations, protected disable,
+second-account isolation, earlier failed preparations and exact-run normal stop.
+Actual initial checks preserve zero effects before explicit enrollment; the native
+owner returns a safe503 while no actor has been explicitly prepared. Both real browser
+cases and all independent SQL stages passed. Synthetic owner tests remain consuming
+contract evidence; this new result establishes the stated local HTTP/domain chain.
+Standalone signup, default Access startup/readiness, production release and physical
+devices remain unqualified. Owner implementations and retained runs were preserved.
+The separate broad browser regression had three failures that passed unchanged in
+isolated reruns. Their cause is not established; this is not a full broad pass.
