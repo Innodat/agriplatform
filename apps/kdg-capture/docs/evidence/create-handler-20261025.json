@@ -1,0 +1,111 @@
+{
+  "date": "2026-10-25",
+  "baseline_head": "054ea94f5a92f2a5b91e8f5c288a8e3de408801f",
+  "scope": "unmounted protected KDG create/retry orchestration",
+  "tests": [
+    {
+      "command": [
+        "timeout",
+        "45s",
+        "platform/deployment/.local/access-organization-check-20261022/owner-env/bin/python",
+        "-I",
+        "-B",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "apps/kdg-capture/write-tests",
+        "-p",
+        "test_*.py"
+      ],
+      "exit_code": 0,
+      "passed": 80,
+      "handler_cases": 23
+    },
+    {
+      "command": [
+        "platform/deployment/.local/kdg-toolchains/ad277eef-a10e-4aac-bb82-5743653fb2e0/payload/node/bin/node",
+        "platform/builder-cli/scripts/sync-kdg-write.mjs",
+        "--check"
+      ],
+      "exit_code": 0,
+      "result": "KDG write context code/test parity verified."
+    },
+    {
+      "reviewer_recheck": "worker cancellation and admission regressions",
+      "passed": 2,
+      "result": "Both findings addressed; no remaining concrete issue in these fixes."
+    }
+  ],
+  "red_evidence": [
+    {
+      "case": "initial missing handler",
+      "observed": "ModuleNotFoundError"
+    },
+    {
+      "case": "cleanup freshness",
+      "observed": "HandlerError not raised despite two-second cleanup delay"
+    },
+    {
+      "case": "direct repeated cancellation",
+      "observed": "caller cancellation escaped while worker owned connection"
+    },
+    {
+      "case": "worker limiter saturation",
+      "observed": "worker admission retained connection beyond total budget"
+    }
+  ],
+  "execution": {
+    "transport": "httpx.MockTransport only",
+    "database": "recorded SQL connection only",
+    "native_database_operations": false,
+    "docker_lifecycle_operations": false,
+    "real_accounts_access_or_network": false,
+    "mounted_api": false,
+    "active_migration_changed": false,
+    "new_dependencies": false,
+    "sandbox_worker_stall": "interrupted only the stalled test session, then bounded synthetic worker tests passed with escalation"
+  },
+  "review": {
+    "findings": 6,
+    "patched": 5,
+    "rejected": 1,
+    "rejected_reason": "distinct capture/operation UUIDs remain the existing cross-field structural requirement before lookup, explicitly documented and tested for existing outcomes",
+    "deferred": 0,
+    "worker_fixes_independently_rechecked": true
+  },
+  "preservation": {
+    "preexisting_paths": 105,
+    "missing": [],
+    "changed": [],
+    "unchanged_tracked_kdg_scaffold_dependency_files": 338,
+    "handoff_exact_historical_suffix": true,
+    "resolved_typescript": "7.0.2"
+  },
+  "sources": {
+    "_bmad-output/implementation-artifacts/spec-kdg-create-handler-20261025.md": "e5de437f58afffa1877c0f420c43ad1dd95297236609b367305cd8e776ac157d",
+    "apps/kdg-capture/write-candidate/capture_create_handler.py": "e612ca34d70ff3a7686ad9190e285f7bff96dd64ce937fc635a4d6d2d05ca597",
+    "apps/kdg-capture/write-tests/test_capture_create_handler.py": "44f52b1121131c81d09a5c4b875de9cdaef784273c37db2df36ff0ab4fd55899",
+    "apps/kdg-capture/docs/CREATE_HANDLER_EVIDENCE.md": "8653cfd067685e77b107994670ae61191a9c6474c4c138cce31d4c4017820ad3",
+    "apps/kdg-capture/docs/next-session.md": "7091add63a7436586513bb7f2b168b2772a90fa682a38af5abd30ece619404da"
+  },
+  "unchanged_dependencies": {
+    "package.json": "f353097548bbc53b737b88ee2c836af561aa805491405e3c0b6cd8c098e9f6da",
+    "package-lock.json": "9a8128448ab80c4319e61fb325e0030eeb71e2e31966b65f3e11f5774a667fe4",
+    "apps/kdg-capture/api/pyproject.toml": "75b87a5a99d7e6d39b3c74ba16a4016e51027f2352665bcb1276c1aa5de31241",
+    "apps/kdg-capture/api/uv.lock": "9b3164930e96657ff76be97ff992b8a5dd64b713b0dd09c3d9b08e56ab88ec2b",
+    "apps/kdg-capture/write-candidate/capture_create.py": "179f5dd11763a6072ba6689a6641747729ad8e63124e8db74aface5816dc3906",
+    "apps/kdg-capture/write-candidate/operation_outcomes.py": "e625d9048d89a6dcd8e17636c418218eaa3c53d329283701c35890c04e5984cb",
+    "apps/kdg-capture/write-tools/transaction_context.py": "e46244916563bb8111e65675cb1d992778a6c076dc247c4b1fa12b7d9cc47ce7",
+    "apps/kdg-capture/migrations/candidates/0002_capture_storage.py": "94c8839b22255dd7d6d2ec3aa13a5a793f14f5937cf54b4bfac6ed058b0d06e8"
+  },
+  "limits": [
+    "No native durable commit, lost-response/replay, cross-connection concurrency or restricted-role outer-handler qualification.",
+    "Embedding owner must bound connection acquisition and body streaming, enforce header multiplicity, retain exclusive connection ownership, and install existing safe HTTP adapter/private cache policy.",
+    "GET own-read outcome recovery remains a separate boundary; POST replay requires current create/stored-child authority.",
+    "Candidate schema remains unapplied; controlled migrations, previous-code compatibility, activation blocked on failure and explicit recovery precede mounting.",
+    "Future child/assignment mutations must participate in the existing owner coordination lock.",
+    "Historical native global metadata-hash discrepancy remains unresolved and preserved.",
+    "Fingerprints/HMAC deferred; bootstrap contract unchanged."
+  ]
+}

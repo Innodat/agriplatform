@@ -1,3 +1,31 @@
+## Current delivery — protected outer create/retry handler, 2026-10-25
+
+Read [handler contract and evidence](CREATE_HANDLER_EVIDENCE.md) and its source-bound
+receipt. 80 affected tests pass, including 23 handler cases. write-candidate/capture_create_handler.py now checks current protected create
+HTTP evidence before the bounded owner transaction, authorizes replay on the actual
+stored capture/child, and returns the original receipt only after successful commit
+and final deadline checks. Assigned replay checks the stored child's current same-member
+assignment; all stays own-author. GET own-read recovery remains a separate next boundary.
+
+This is an unmounted callable, qualified with synthetic HTTP/recorded SQL only. No native
+durable commit, real Access, committed replay/concurrency or API activation claim follows.
+The existing fresh body, active 0001 head, unapplied candidate and historical evidence
+remain unchanged. Connection acquisition/header multiplicity/body streaming and safe HTTP
+adaptation are explicit embedding prerequisites. Retain the original budget/observation;
+no network under locks. Worker admission uses the remaining deadline; cancellation
+awaits the retained SQL worker before connection release. All future child/assignment writers must use the existing child lock.
+
+Next qualify restricted-role durable commit/lost-response/duplicate concurrency and the
+outer handler against the candidate storage before mounting writes or promoting migrations.
+A persistent synthetic fixture change needs a specifically scoped controlled delivery;
+do not silently change the retained ledger-only fixture or erase historical baselines.
+ADR-0020 previous-code/migration/recovery gates and unresolved historical metadata-hash
+discrepancy remain. Fingerprints/HMAC deferred; bootstrap unchanged. Preserve concurrent
+work/history/resources/dependencies/TS 7.0.2. Synthetic local/CI only; no Leave/editor,
+real accounts/access, production, provisioning/deployment/pilot or cleanup.
+
+Earlier handoffs follow unchanged as historical checkpoints.
+
 ## Current delivery — concrete fresh capture write body, 2026-10-24
 
 Read [create-body evidence](CAPTURE_CREATE_BODY_EVIDENCE.md) and its source-bound receipt.
