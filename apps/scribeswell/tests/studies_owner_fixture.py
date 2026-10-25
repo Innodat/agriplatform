@@ -292,7 +292,11 @@ class Qualification:
             assert row['account_id']==owner and row['created_by']==row['updated_by']==bindings[owner]
             assert row['created_at'] and row['updated_at']>=row['created_at'] and row['revision']>0
         receipts=state['scribeswell_studies.receipts']
-        assert sorted(row['command'] for row in receipts)==['note.create','note.replace','study.create','study.create']
+        assert sorted(row['command'] for row in receipts)==sorted(['note.create','note.replace','study.create','study.create']+(['study.rename'] if 'rename_operation' in expected else []))
+        if 'rename_operation' in expected:
+            renamed=next(row for row in studies if row['id']==expected['study'])
+            assert renamed['title']==expected['rename_title'] and renamed['revision']==2
+            assert {row['operation_id'] for row in receipts if row['command']=='study.rename'}=={expected['rename_operation']}
         assert {row['operation_id'] for row in receipts if row['command']=='study.create'}=={expected['operation'],expected['ui_operation']}
         for row in receipts:assert row['account_id']==owner and row['created_by']==bindings[owner] and row['created_at']
         for table in ('access.studies_account_grant','access.studies_assignment_event','identity.studies_setup_event'):
@@ -328,12 +332,28 @@ class Qualification:
 
     def browser(self):
         def checkpoints(process):
-            for name in ('pre-enrollment','foreign-before','foreign-after'):
+            for name in ('pre-enrollment','rename-before','rename-after','foreign-before','foreign-after'):
                 limit=time.monotonic()+60
                 while not (self.proof/(name+'-check.json')).exists():
                     if process.poll() is not None or time.monotonic()>=limit:raise RuntimeError('qualification_checkpoint_missing:'+name)
                     time.sleep(.05)
                 if name=='pre-enrollment':self.observe('after-protected-check',initial=True)
+                elif name=='rename-before':self.snapshot('before-rename')
+                elif name=='rename-after':
+                    before=self.protected_snapshots['before-rename'];after=self.snapshot('after-rename')
+                    expected=json.loads((self.proof/'rename-result.json').read_text())
+                    assert before['scribeswell_studies.notes']==after['scribeswell_studies.notes'],'Rename changed acknowledged note rows'
+                    old=next(row for row in before['scribeswell_studies.studies'] if row['id']==expected['study'])
+                    new=next(row for row in after['scribeswell_studies.studies'] if row['id']==expected['study'])
+                    assert old['revision']==1 and new['revision']==2 and new['title']==expected['title']
+                    assert new['updated_by']==old['created_by'] and new['updated_at']>old['updated_at']
+                    for key in old:
+                        if key not in ('title','revision','updated_by','updated_at'):assert new[key]==old[key]
+                    previous=before['scribeswell_studies.receipts'];current=after['scribeswell_studies.receipts']
+                    assert len(current)==len(previous)+1 and all(row in current for row in previous)
+                    receipts=[row for row in current if row['command']=='study.rename']
+                    assert len(receipts)==1 and receipts[0]['operation_id']==expected['operation'] and receipts[0]['created_by']==new['updated_by']
+                    assert receipts[0]['outcome']['revision']=='2' and receipts[0]['outcome']['note_id'] is None
                 elif name=='foreign-before':self.snapshot('before-foreign-denial')
                 else:self.snapshot('after-foreign-denial',previous='before-foreign-denial')
                 private(self.proof/(name+'-observed.json'),{'independent_sql':True})

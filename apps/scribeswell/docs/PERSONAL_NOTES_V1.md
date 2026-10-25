@@ -1,8 +1,8 @@
 # Personal study notes: first wire contract
 
-This app-owned contract supports the first create/write/reopen milestone. **Implemented:** strict DTOs, generated OpenAPI/TypeScript, bounded same-origin private API, explicit Access enrollment/check adapters, app-owned PostgreSQL persistence and receipt recovery, controlled private Alembic history, and Studies/Analysis note editing with autosave. **Activation remains disabled in production.** The runtime is an explicit development/test opt-in pending coordinated startup/release qualification; public reading and standalone signup remain independent. Native SQL/browser proof and actual owner HTTP/domain integration are recorded below; synthetic Access responses alone do not establish live Identity/Access authorization.
+This app-owned contract supports the first create/write/reopen and ordinary study-title rename milestones. **Implemented:** strict DTOs, generated OpenAPI/TypeScript, bounded same-origin private API, explicit Access enrollment/check adapters, app-owned PostgreSQL persistence and receipt recovery, controlled private Alembic history, and Studies/Analysis note editing with autosave. **Activation remains disabled in production.** The runtime is an explicit development/test opt-in pending coordinated startup/release qualification; public reading and standalone signup remain independent. Native SQL/browser proof and actual owner HTTP/domain integration are recorded below; synthetic Access responses alone do not establish live Identity/Access authorization.
 
-The canonical Studies SPEC, UX and accepted platform ADRs retain authority. This milestone is ordinary owner-only studies and notes. Sharing, private responses, study metadata editing, introduction/source metadata, passage lists, deliberate passage links, highlights, conflict copies, deletion and search retain their agreed requirements for later consuming slices. No product requirement is removed. This is partial D2 contract readiness, not D1–D5 closure.
+The canonical Studies SPEC, UX and accepted platform ADRs retain authority. This milestone is ordinary owner-only studies and notes. Sharing, private responses, introduction/source metadata editing, passage lists, deliberate passage links, highlights, conflict copies, deletion and search retain their agreed requirements for later consuming slices. No product requirement is removed. This is partial D2 contract readiness, not D1–D5 closure.
 
 ## Wire source and generation
 
@@ -192,3 +192,54 @@ Standalone signup, default Access startup/readiness, production release and phys
 devices remain unqualified. Owner implementations and retained runs were preserved.
 The separate broad browser regression had three failures that passed unchanged in
 isolated reruns. Their cause is not established; this is not a full broad pass.
+
+## Study title rename extension — opt-in delivery
+
+The strict API, independent metadata operation lane and additive migration implement this contract. Qualification is recorded in [the rename evidence](STUDY_RENAME_EVIDENCE.md); production activation remains disabled.
+It closes the ordinary-title subset of CAP-1/ST-02; introduction/source metadata,
+references, sharing, deletion and broader feature gates remain unchanged.
+
+`PUT /api/studies/{study_id}/title` accepts only required `operation_id`,
+`expected_revision` and `title`, with existing nonnil UUID, positive signed-bigint
+revision and exact Title rules. Empty/null/blank titles are invalid here; only
+explicit creation allocates a default. Preserve supplied Unicode and whitespace
+exactly; duplicate titles remain permitted. Its command is `study.rename`, version1.
+Success200 uses existing compact OperationAck with matching study ID, null note ID
+and metadata revision. Extend command-correlated schemas, lookup and safe409
+`study_revision_conflict` details `{expected_revision,current_revision}`; other safe
+status/no-store/size/error rules remain. Generated consumers must agree.
+
+After fresh current Access, take the existing operation lock then active owner
+study row lock. An identical operation/payload replays its original compact outcome
+only after current lifecycle checks; changed payload/path is409 mismatch. For a
+new operation, compare metadata revision under that lock. A changed title advances
+revision once and changes only title/update actor/server UTC time; preserve study ID,
+creation attribution, notes, note revisions and reading context. Identical title
+records an acknowledgement/receipt without revision or last-change attribution
+change. Commit metadata and receipt atomically; bigint overflow refuses safely.
+Racing note writes retain their independent revision/value and existing parent-first
+lock order. Replaying an older rename never overwrites a later title. Owner/lifecycle
+filtering applies to reads and outcome lookup before disclosure.
+
+The active study offers Rename with a compact Title field and explicit Save / Cancel.
+Until saving, candidate text changes no heading/library or server state. Cancel before
+Save sends nothing. While executing, freeze candidate/operation and prevent competing
+rename submission. Confirmed success refreshes current metadata in heading/library
+without resetting note editor/save lanes or moving scripture; do not replace a newer
+title using an old acknowledgement's candidate. Identity/study/navigation generations
+reject stale responses. Conflict preserves entered text, offers deliberate current-title
+reload, and requires a subsequent explicit Save with a new operation/base revision.
+An uncertain outcome retains original operation/payload for explicit Retry via bounded
+lookup/replay; no later rename overtakes it, no rollback or automatic restart is
+promised. Closing the title surface does not cancel an executing/unknown command:
+retain its in-memory attempt for resolution, then re-read current metadata before a
+new edit. Authentication recovery uses the same account protection; confirmed account
+replacement clears old private state. Title controls do not intercept note typing.
+
+A new controlled private Alembic revision widens receipt command and nullable-note
+correlation CHECKs to admit study.rename while preserving prior commands/rows. The
+existing restricted title UPDATE grant remains sufficient. Keep0001 immutable, forced
+RLS, receipt immutability and controlled failure/forward recovery. Old running clients
+remain compatible with existing paths/read shapes and their own receipt commands.
+Required native migration/permission/concurrency/replay and actual-owner browser proof
+must run before claiming this extension implemented. Production remains disabled.

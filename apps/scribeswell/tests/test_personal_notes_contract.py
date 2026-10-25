@@ -424,3 +424,20 @@ def test_safe_host_variants_are_preserved(url):
     payload = replacement()
     payload['value']['document']['blocks'][0]['content'][1]['url'] = url
     assert command('note.replace', payload).value.document.blocks[0].content[1].url == url
+
+
+def test_rename_title_wire_and_correlated_outcome():
+    payload = {'operation_id': OP, 'expected_revision': '1', 'title': '  שָׁלוֹם study  '}
+    assert command('study.rename', payload).title == payload['title']
+    assert schema_validates('RenameStudy', payload)
+    outcome = {'operation_id': OP, 'command': 'study.rename', 'study_id': STUDY, 'note_id': None, 'revision': '2'}
+    assert contract.OperationAck.model_validate_json(json.dumps(outcome)).note_id is None
+    assert schema_validates('OperationAck', outcome)
+    outcome['note_id'] = NOTE
+    assert not schema_validates('OperationAck', outcome)
+    for change in ({'title': None}, {'title': ''}, {'title': '  '}, {'title': 'bad\ninput'}, {'expected_revision': 1}, {'actor_id': OP}):
+        with pytest.raises(contract.ContractInputError):
+            command('study.rename', {**payload, **change})
+    problem = {'error': 'Request could not be completed', 'code': 'study_revision_conflict',
+               'details': {'expected_revision': '1', 'current_revision': '2'}}
+    assert contract.RevisionProblem.model_validate_json(json.dumps(problem)).code == 'study_revision_conflict'

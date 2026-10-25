@@ -47,6 +47,9 @@ def test_authentication_denial_happens_before_storage_and_input_is_never_echoed(
     assert denied.status_code==403 and denied.json()['code']=='studies_access_denied'
     assert denied.headers['cache-control']=='private, no-store'
     assert c.get('/api/studies').status_code==401
+    rename={'operation_id':OP,'expected_revision':'1','title':'Forbidden'}
+    assert c.put('/api/studies/'+OP+'/title',headers={'Authorization':'Bearer current'},json=rename).status_code==403
+    assert c.get('/api/operations/'+OP+'?command=study.rename',headers={'Authorization':'Bearer current'}).status_code==403
     for raw in (b'{"title":"sensitive","title":null}',b'{"operation_id":"'+OP.encode()+b'","title":"'+b'x'*65536+b'"}'):
         invalid=c.post('/api/studies',headers={'Authorization':'Bearer current'},content=raw)
         assert invalid.status_code==400 and 'sensitive' not in invalid.text
@@ -116,3 +119,24 @@ def test_enabled_main_contains_framework_validation_and_unexpected_private_error
     public=c.get('/review-public-unexpected')
     assert public.status_code==500 and public.json()=={'error':'Internal server error'}
     assert 'cache-control' not in public.headers
+
+
+def test_rename_boundary_fresh_authority_safe_conflict_and_input():
+    from personal_notes_access import NotesError
+    calls=[]
+    class Current(Access):
+        async def check(self,*args):calls.append('access');return await super().check(*args)
+    class Renames(Storage):
+        async def execute(self,identity,command,payload,study_id,note_id,deadline):
+            calls.append('storage');assert command=='study.rename' and study_id==OP and note_id is None
+            raise NotesError('study_revision_conflict',{'expected_revision':'1','current_revision':'2'})
+    app=FastAPI();app.include_router(build_router(Current(),Renames()));c=TestClient(app)
+    body={'operation_id':OP,'expected_revision':'1','title':'new שלום'}
+    response=c.put('/api/studies/'+OP+'/title',headers={'Authorization':'Bearer current'},json=body)
+    assert calls==['access','storage'] and response.status_code==409
+    assert response.json()['details']=={'expected_revision':'1','current_revision':'2'}
+    assert response.headers['cache-control']=='private, no-store'
+    for invalid in ({**body,'title':None},{**body,'owner_account_id':ACCOUNT},{**body,'expected_revision':1}):
+        response=c.put('/api/studies/'+OP+'/title',headers={'Authorization':'Bearer current'},json=invalid)
+        assert response.status_code==400 and response.headers['cache-control']=='private, no-store'
+    assert c.put('/api/studies/'+OP+'/title',json=body).status_code==401

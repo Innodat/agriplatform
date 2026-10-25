@@ -81,7 +81,8 @@ class PersonalNotesStorage:
             receipt=await cursor.fetchone()
             if receipt:
                 if receipt['fingerprint']!=fingerprint: raise NotesError('operation_payload_mismatch')
-                await self._live_outcome(cursor,account,receipt['outcome'])
+                if command=='study.rename': await self._parent(cursor,account,receipt['outcome']['study_id'],lock=True)
+                else: await self._live_outcome(cursor,account,receipt['outcome'])
                 return OperationAck.model_validate(receipt['outcome']).model_dump(mode='json')
             if command=='study.create':
                 study_id=str(uuid4()); title=payload.title
@@ -94,6 +95,14 @@ class PersonalNotesStorage:
                         remaining(deadline); number+=1; title=f'Untitled study {number}'
                 await cursor.execute(f'INSERT INTO {SCHEMA}.studies(id,account_id,title,created_by,updated_by) VALUES(%s,%s,%s,%s,%s)',(study_id,account,title,actor,actor))
                 revision='1'
+            elif command=='study.rename':
+                row=await self._parent(cursor,account,study_id,lock=True)
+                revision=str(row['revision'])
+                if revision!=payload.expected_revision: raise NotesError('study_revision_conflict',{'expected_revision':payload.expected_revision,'current_revision':revision})
+                if row['title']!=payload.title:
+                    if row['revision']>=int(MAX_REVISION): raise NotesError('resource_unavailable')
+                    revision=str(row['revision']+1)
+                    await cursor.execute(f'UPDATE {SCHEMA}.studies SET title=%s, revision=revision+1, updated_by=%s, updated_at=clock_timestamp() WHERE account_id=%s AND id=%s',(payload.title,actor,account,study_id))
             else:
                 await self._parent(cursor,account,study_id,lock=True)
                 value=payload.value.model_dump(mode='json')

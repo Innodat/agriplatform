@@ -77,11 +77,23 @@ if(!process.env.SCRIBESWELL_OWNER_DENIED){
   const note=notes.body.items[0];expect(JSON.stringify(note.value).includes(text)).toBe(true);
   await page.reload();await page.getByRole('button',{name:'Studies',exact:true}).click();await page.getByRole('button',{name:'UI study',exact:true}).click();
   await page.getByRole('button',{name:text,exact:true}).click();expect(await editor.textContent()===text).toBe(true);
+  stage('rename-preserves-note');await checkpoint('rename-before');
+  await page.getByRole('button',{name:'Back to Studies',exact:true}).click();await page.getByRole('button',{name:'Rename',exact:true}).click();
+  await page.getByLabel('Title',{exact:true}).fill('Renamed English שָׁלוֹם');
+  const renameReply=page.waitForResponse(response=>new URL(response.url()).pathname===`/api/studies/${study}/title`&&response.request().method()==='PUT');
+  await page.getByRole('button',{name:'Save',exact:true}).click();const renameAck=await(await renameReply).json();expect(renameAck.command).toBe('study.rename');expect(renameAck.revision).toBe('2');
+  await expect(page.getByRole('heading',{name:'Renamed English שָׁלוֹם',exact:true})).toBeVisible();
+  const afterRename=await request(page,`/api/studies/${study}/notes/${note.id}`);expect(JSON.stringify(afterRename.body)===JSON.stringify(note)).toBe(true);
+  fs.writeFileSync(path.join(proof,'rename-result.json'),JSON.stringify({study,title:'Renamed English שָׁלוֹם',operation:renameAck.operation_id}),{flag:'wx',mode:0o600});await checkpoint('rename-after');
+  await page.reload();await page.getByRole('button',{name:'Studies',exact:true}).click();await page.getByRole('button',{name:'Renamed English שָׁלוֹם',exact:true}).click();
+  await page.getByRole('button',{name:text,exact:true}).click();expect(await editor.textContent()===text).toBe(true);
   stage('second-account-isolation');const context=await browser.newContext();privacy.inspect(context);const other=await context.newPage();await login(other,fixture.accounts[1]);
   const otherEnrollment=crypto.randomUUID();const otherAck=await request(other,'/api/studies/enrollment','POST',{operation_id:otherEnrollment});expect(otherAck.status).toBe(200);
   await checkpoint('foreign-before');
   for(const route of [`/api/studies/${study}`,`/api/studies/${study}/notes/${note.id}`])expect((await request(other,route)).status).toBe(404);
   expect((await request(other,`/api/studies/${study}/notes`)).status).toBe(404);
+  expect((await request(other,`/api/studies/${study}/title`,'PUT',{operation_id:crypto.randomUUID(),expected_revision:'2',title:'Forbidden rename'})).status).toBe(404);
+  expect((await request(other,`/api/operations/${renameAck.operation_id}?command=study.rename`)).body.status).toBe('unresolved');
   expect((await request(other,`/api/studies/${study}/notes`,'POST',{operation_id:crypto.randomUUID(),value:note.value})).status).toBe(404);
   expect((await request(other,`/api/studies/${study}/notes/${note.id}`,'PUT',{operation_id:crypto.randomUUID(),expected_revision:note.revision,value:note.value})).status).toBe(404);
   expect((await request(other,`/api/operations/${create.operation_id}?command=study.create`)).body.status).toBe('unresolved');
@@ -90,7 +102,7 @@ if(!process.env.SCRIBESWELL_OWNER_DENIED){
   await privacy.settle();
   const stored=await context.storageState();fs.writeFileSync(path.join(proof,'other-context-private.json'),JSON.stringify(stored),{flag:'wx',mode:0o600});await context.close();
   fs.writeFileSync(path.join(proof,'owner-context-private.json'),JSON.stringify(await page.context().storageState()),{flag:'wx',mode:0o600});
-  const result={study,retry_study:retryStudy,note:note.id,operation:create.operation_id,ui_operation:uiCreated.operation_id,enrollment:enrollment.operation_id,ui_enrollment:uiEnrollment.operation_id,other_enrollment:otherEnrollment,account_actors:{[fixture.accounts[0].account_id]:uiEnrollment.result.actor_id,[fixture.accounts[1].account_id]:otherAck.body.result.actor_id},value:note.value,credential_inspection:await privacy.settle()};
+  const result={study,rename_operation:renameAck.operation_id,rename_title:'Renamed English שָׁלוֹם',retry_study:retryStudy,note:note.id,operation:create.operation_id,ui_operation:uiCreated.operation_id,enrollment:enrollment.operation_id,ui_enrollment:uiEnrollment.operation_id,other_enrollment:otherEnrollment,account_actors:{[fixture.accounts[0].account_id]:uiEnrollment.result.actor_id,[fixture.accounts[1].account_id]:otherAck.body.result.actor_id},value:note.value,credential_inspection:await privacy.settle()};
   fs.writeFileSync(path.join(proof,'browser-result.json'),JSON.stringify(result),{flag:'wx',mode:0o600});
  }));
 }else{
@@ -99,6 +111,8 @@ if(!process.env.SCRIBESWELL_OWNER_DENIED){
   const privacy=inspection();
   const context=await browser.newContext({storageState:path.join(proof,'owner-context-private.json')});privacy.inspect(context);const page=await context.newPage();await page.goto('/');
   for(const route of ['/api/studies',`/api/studies/${result.study}`,`/api/operations/${result.operation}?command=study.create`])expect((await request(page,route)).status).toBe(403);
+  expect((await request(page,`/api/studies/${result.study}/title`,'PUT',{operation_id:result.rename_operation,expected_revision:'1',title:result.rename_title})).status).toBe(403);
+  expect((await request(page,`/api/operations/${result.rename_operation}?command=study.rename`)).status).toBe(403);
   expect((await request(page,'/api/studies','POST',{operation_id:result.operation,title:'Lost reply study'})).status).toBe(403);
   expect((await request(page,`/api/studies/${result.study}/notes/${result.note}`,'PUT',{operation_id:crypto.randomUUID(),expected_revision:'2',value:result.value})).status).toBe(403);
   expect((await request(page,'/api/studies/enrollment','POST',{operation_id:result.enrollment})).status).toBe(403);

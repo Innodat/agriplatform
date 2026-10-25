@@ -69,7 +69,40 @@ def native():
             return bible_service.get_books().model_dump(mode='json')
     public_before=previous_read();assert public_before['data'][0]['osis_id']=='Gen'
     try:
+        # Preserve the old controlled entry's head-only rule; qualify its frozen history.
+        import tempfile,shutil
+        with tempfile.TemporaryDirectory(prefix='scribeswell-previous-history-') as directory:
+            target=Path(directory)
+            shutil.copytree(APP/'studies-migrations',target/'history')
+            shutil.copytree(APP/'studies-database-tools',target/'studies-database-tools')
+            (target/'history/versions/0002_study_rename.py').unlink()
+            old_config=Config();old_config.set_main_option('script_location',str(target/'history'))
+            alembic.upgrade(old_config,'head')
+        import importlib.util
+        previous_spec=importlib.util.spec_from_file_location('previous_notes_sql_consumer',APP/'tests/fixtures/personal_notes_storage_previous.py')
+        previous_module=importlib.util.module_from_spec(previous_spec);previous_spec.loader.exec_module(previous_module)
+        old_storage=previous_module.PersonalNotesStorage(runtime)
+        old_study=create(old_storage,'Previous consumer title')['study_id']
+        old_note=run(old_storage.execute(IDENTITY,'note.create',command('note.create',value=value('previous consumer')),old_study,None,deadline()))
+        old_before=run(old_storage.read(IDENTITY,old_study,old_note['note_id'],deadline()))
+        # Fail after the actual 0002 ALTERs, then prove transactional rollback and forward retry.
+        with tempfile.TemporaryDirectory(prefix='scribeswell-rename-failure-') as directory:
+            target=Path(directory)
+            shutil.copytree(APP/'studies-migrations',target/'history')
+            shutil.copytree(APP/'studies-database-tools',target/'studies-database-tools')
+            migration=target/'history/versions/0002_study_rename.py'
+            migration.write_text(migration.read_text().replace('\ndef downgrade():', "\n    raise RuntimeError('synthetic failure after rename ALTERs')\n\ndef downgrade():"))
+            failed_config=Config();failed_config.set_main_option('script_location',str(target/'history'))
+            with pytest.raises(Exception,match='scribeswell_studies_migration_failed'):alembic.upgrade(failed_config,'head')
+            with psycopg.connect(admin_url) as admin:
+                assert admin.execute('SELECT version_num FROM scribeswell_studies.alembic_version').fetchone()[0]=='scribeswell_studies_0001'
+                checks=admin.execute("SELECT pg_get_constraintdef(oid) FROM pg_constraint WHERE conrelid='scribeswell_studies.receipts'::regclass AND contype='c'").fetchall()
+                assert all('study.rename' not in definition for (definition,) in checks)
+            assert run(old_storage.read(IDENTITY,old_study,old_note['note_id'],deadline()))==old_before
         alembic.upgrade(Config(str(APP/'studies-alembic.ini')),'head')
+        assert run(old_storage.read(IDENTITY,old_study,old_note['note_id'],deadline()))==old_before
+        assert run(old_storage.lookup(IDENTITY,old_note['operation_id'],'note.create',deadline()))['outcome']==old_note
+        run(old_storage.execute(IDENTITY,'note.replace',command('note.replace',expected_revision='1',value=value('previous consumer still writes')),old_study,old_note['note_id'],deadline()))
         alembic.upgrade(Config(str(APP/'studies-alembic.ini')),'head')
         assert previous_read()==public_before
         yield PersonalNotesStorage(runtime),admin_url,runtime,migrator
@@ -182,13 +215,13 @@ def test_native_migration_failure_rollback_retry_and_owner_force_rls(native):
         shutil.copytree(APP/'studies-database-tools',target/'studies-database-tools')
         env=(target/'history/env.py').read_text().replace("parents[1]/'studies-database-tools'","parents[1]/'studies-database-tools'")
         (target/'history/env.py').write_text(env)
-        failure=target/'history/versions/0002_failure.py'
-        failure.write_text("from alembic import op\nrevision='fixture_0002'\ndown_revision='scribeswell_studies_0001'\ndef upgrade():\n op.execute('CREATE TABLE scribeswell_studies.failure_probe(id int)')\n raise RuntimeError('synthetic failure')\n")
+        failure=target/'history/versions/0003_failure.py'
+        failure.write_text("from alembic import op\nrevision='fixture_0003'\ndown_revision='scribeswell_studies_0002'\ndef upgrade():\n op.execute('CREATE TABLE scribeswell_studies.failure_probe(id int)')\n raise RuntimeError('synthetic failure')\n")
         cfg=Config();cfg.set_main_option('script_location',str(target/'history'))
         with pytest.raises(Exception,match='scribeswell_studies_migration_failed'):alembic.upgrade(cfg,'head')
         with psycopg.connect(admin_url) as admin:
             assert admin.execute("SELECT to_regclass('scribeswell_studies.failure_probe')").fetchone()[0] is None
-            assert admin.execute('SELECT version_num FROM scribeswell_studies.alembic_version').fetchone()[0]=='scribeswell_studies_0001'
+            assert admin.execute('SELECT version_num FROM scribeswell_studies.alembic_version').fetchone()[0]=='scribeswell_studies_0002'
         failure.write_text(failure.read_text().replace(" raise RuntimeError('synthetic failure')",''))
         alembic.upgrade(cfg,'head');alembic.upgrade(cfg,'head')
         assert run(storage.read(IDENTITY,study,saved['note_id'],deadline()))==before
@@ -265,6 +298,78 @@ def test_native_unknown_commit_outcome_resolves_same_receipt(native,monkeypatch)
     outcome=run(storage.lookup(IDENTITY,payload.operation_id,'study.create',deadline()))
     assert outcome['status']=='committed'
     assert run(storage.execute(IDENTITY,'study.create',payload,None,None,deadline()))==outcome['outcome']
+
+
+
+def test_native_rename_noop_replay_conflict_attribution_and_independent_note(native):
+    storage,admin_url,_,_=native
+    study=create(storage,'Original')['study_id']
+    saved=run(storage.execute(IDENTITY,'note.create',command('note.create',value=value()),study,None,deadline()))
+    note_before=run(storage.read(IDENTITY,study,saved['note_id'],deadline()))
+    before=run(storage.read(IDENTITY,study,None,deadline()))
+    noop=command('study.rename',expected_revision='1',title='Original')
+    assert run(storage.execute(IDENTITY,'study.rename',noop,study,None,deadline()))['revision']=='1'
+    assert run(storage.read(IDENTITY,study,None,deadline()))==before
+    rename=command('study.rename',expected_revision='1',title='  English שָׁלוֹם  ')
+    ack=run(storage.execute(IDENTITY,'study.rename',rename,study,None,deadline()))
+    assert ack['revision']=='2' and ack['note_id'] is None
+    after=run(storage.read(IDENTITY,study,None,deadline()))
+    assert after['title']==rename.title and after['updated_by_actor_id']==ACTOR
+    assert after['created_at']==before['created_at'] and after['created_by_actor_id']==before['created_by_actor_id']
+    assert after['updated_at']>before['updated_at']
+    assert run(storage.read(IDENTITY,study,saved['note_id'],deadline()))==note_before
+    assert run(storage.lookup(IDENTITY,rename.operation_id,'study.rename',deadline()))=={'status':'committed','outcome':ack}
+    later=command('study.rename',expected_revision='2',title='Later title')
+    run(storage.execute(IDENTITY,'study.rename',later,study,None,deadline()))
+    assert run(storage.execute(IDENTITY,'study.rename',rename,study,None,deadline()))==ack
+    assert run(storage.read(IDENTITY,study,None,deadline()))['title']=='Later title'
+    with pytest.raises(NotesError,match='operation_payload_mismatch'):
+        run(storage.execute(IDENTITY,'study.rename',rename.model_copy(update={'title':'forged'}),study,None,deadline()))
+    with pytest.raises(NotesError,match='operation_payload_mismatch'):
+        run(storage.execute(IDENTITY,'study.rename',rename,str(uuid4()),None,deadline()))
+    with pytest.raises(NotesError,match='study_revision_conflict'):
+        run(storage.execute(IDENTITY,'study.rename',command('study.rename',expected_revision='1',title='stale'),study,None,deadline()))
+    with pytest.raises(NotesError,match='resource_unavailable'):
+        run(storage.execute({'account_id':B,'actor_id':ACTOR},'study.rename',rename,study,None,deadline()))
+    with psycopg.connect(admin_url) as c:
+        assert c.execute("SELECT count(*) FROM scribeswell_studies.receipts WHERE command='study.rename' AND operation_id=%s",(rename.operation_id,)).fetchone()[0]==1
+        c.execute('UPDATE scribeswell_studies.studies SET active=false WHERE id=%s',(study,))
+    with pytest.raises(NotesError,match='resource_unavailable'):run(storage.execute(IDENTITY,'study.rename',rename,study,None,deadline()))
+    with pytest.raises(NotesError,match='resource_unavailable'):run(storage.lookup(IDENTITY,rename.operation_id,'study.rename',deadline()))
+
+
+def test_native_rename_and_note_races_preserve_both_and_metadata_cas(native):
+    storage,*_=native
+    study=create(storage,'Race')['study_id']
+    note=run(storage.execute(IDENTITY,'note.create',command('note.create',value=value()),study,None,deadline()))
+    async def race():
+        results=await asyncio.gather(storage.execute(IDENTITY,'study.rename',command('study.rename',expected_revision='1',title='Renamed race'),study,None,deadline()),storage.execute(IDENTITY,'note.replace',command('note.replace',expected_revision='1',value=value('Independent note')),study,note['note_id'],deadline()))
+        assert [r['revision'] for r in results]==['2','2']
+        results=await asyncio.gather(*(storage.execute(IDENTITY,'study.rename',command('study.rename',expected_revision='2',title=str(i)),study,None,deadline()) for i in range(2)),return_exceptions=True)
+        assert sum(isinstance(r,NotesError) and r.code=='study_revision_conflict' for r in results)==1
+        assert sum(isinstance(r,dict) and r.get('revision')=='3' for r in results)==1
+        duplicate=command('study.rename',expected_revision='3',title='One rename effect')
+        repeated=await asyncio.gather(*(storage.execute(IDENTITY,'study.rename',duplicate,study,None,deadline()) for _ in range(5)))
+        assert all(result==repeated[0] for result in repeated) and repeated[0]['revision']=='4'
+    run(race())
+    assert run(storage.read(IDENTITY,study,note['note_id'],deadline()))['value']==value('Independent note')
+
+
+def test_native_rename_lost_commit_and_overflow(native,monkeypatch):
+    storage,admin_url,*_=native
+    study=create(storage,'Lost rename')['study_id']
+    payload=command('study.rename',expected_revision='1',title='Recovered rename')
+    original=psycopg.AsyncConnection.commit
+    async def lost(connection):
+        await original(connection)
+        raise psycopg.OperationalError('synthetic lost commit reply')
+    with monkeypatch.context() as patch:
+        patch.setattr(psycopg.AsyncConnection,'commit',lost)
+        with pytest.raises(NotesError,match='operation_unresolved'):run(storage.execute(IDENTITY,'study.rename',payload,study,None,deadline()))
+    ack=run(storage.lookup(IDENTITY,payload.operation_id,'study.rename',deadline()))['outcome']
+    assert ack['revision']=='2' and run(storage.execute(IDENTITY,'study.rename',payload,study,None,deadline()))==ack
+    with psycopg.connect(admin_url) as c:c.execute('UPDATE scribeswell_studies.studies SET revision=9223372036854775807 WHERE id=%s',(study,))
+    with pytest.raises(NotesError,match='resource_unavailable'):run(storage.execute(IDENTITY,'study.rename',command('study.rename',expected_revision='9223372036854775807',title='overflow'),study,None,deadline()))
 
 
 def test_unknown_alembic_history_refuses_without_reversing_acknowledged_data(native):

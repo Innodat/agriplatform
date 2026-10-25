@@ -110,7 +110,7 @@ ExternalUrl = Annotated[str, Field(min_length=1, max_length=2048,
                 'Semantic validation also requires valid IDNA DNS or canonical IPv4/unscoped IPv6, '
                 'port 1–65535, safe percent escapes, scalar Unicode and at most 2048 UTF-8 bytes.',
     json_schema_extra={'not': {'pattern': r'[\s\\\x00-\x1f\x7f-\x9f]'}}), AfterValidator(_url)]
-Command = Literal['study.create', 'note.create', 'note.replace']
+Command = Literal['study.create', 'study.rename', 'note.create', 'note.replace']
 
 
 class Closed(BaseModel):
@@ -210,6 +210,12 @@ class CreateStudy(Closed):
     title: Title | None  # required null requests atomic default allocation
 
 
+class RenameStudy(Closed):
+    operation_id: Identifier
+    expected_revision: Revision
+    title: Title
+
+
 class CreateNote(Closed):
     operation_id: Identifier
     value: NoteValue
@@ -266,7 +272,7 @@ class NotePage(Closed):
 
 class OperationAck(Closed):
     model_config = ConfigDict(json_schema_extra={'oneOf': [
-        {'properties': {'command': {'const': 'study.create'}, 'note_id': {'type': 'null'}}},
+        {'properties': {'command': {'enum': ['study.create', 'study.rename']}, 'note_id': {'type': 'null'}}},
         {'properties': {'command': {'enum': ['note.create', 'note.replace']}, 'note_id': {'type': 'string'}}},
     ]})
     operation_id: Identifier
@@ -277,7 +283,7 @@ class OperationAck(Closed):
 
     @model_validator(mode='after')
     def resource_shape(self):
-        if (self.command == 'study.create') != (self.note_id is None):
+        if (self.command in ('study.create', 'study.rename')) != (self.note_id is None):
             raise ValueError('invalid outcome resources')
         return self
 
@@ -310,12 +316,12 @@ class RevisionDetails(Closed):
 
 class RevisionProblem(Closed):
     error: Literal['Request could not be completed']
-    code: Literal['note_revision_conflict']
+    code: Literal['note_revision_conflict', 'study_revision_conflict']
     details: RevisionDetails
 
 
 ErrorResponse = Annotated[Union[Problem, RevisionProblem], Field(discriminator='code')]
-COMMAND_MODELS = {'studies.enroll': EnrollStudies, 'study.create': CreateStudy, 'note.create': CreateNote, 'note.replace': ReplaceNote}
+COMMAND_MODELS = {'studies.enroll': EnrollStudies, 'study.create': CreateStudy, 'study.rename': RenameStudy, 'note.create': CreateNote, 'note.replace': ReplaceNote}
 
 
 class ContractInputError(ValueError):
@@ -335,7 +341,7 @@ def _unique_object(pairs):
     return value
 
 
-def parse_command(command: str, raw: bytes) -> CreateStudy | CreateNote | ReplaceNote:
+def parse_command(command: str, raw: bytes) -> CreateStudy | RenameStudy | CreateNote | ReplaceNote:
     """Strict bounded HTTP body decoder. No access, database or network work."""
     result = None
     try:
@@ -370,7 +376,7 @@ def parse_command(command: str, raw: bytes) -> CreateStudy | CreateNote | Replac
 
 def openapi_contract() -> dict:
     """Generate planned OpenAPI from the DTO definitions, never from fake routes."""
-    models = (EnrollStudies, EnrollmentAck, CreateStudy, CreateNote, ReplaceNote, StudyView, NoteView, StudyPage,
+    models = (EnrollStudies, EnrollmentAck, CreateStudy, RenameStudy, CreateNote, ReplaceNote, StudyView, NoteView, StudyPage,
               NotePage, OperationAck, Outcome, ErrorResponse)
     schemas = {}
     for model in models:
@@ -389,7 +395,7 @@ def openapi_contract() -> dict:
                  'parameters': list(parameters), 'responses': {}}
         codes = {'400': ['scribeswell_personal_notes_input_invalid'], '401': ['authentication_required'],
                  '403': ['studies_access_denied'], '404': ['resource_unavailable'],
-                 '409': ['note_revision_conflict', 'operation_payload_mismatch', 'operation_unresolved'],
+                 '409': ['note_revision_conflict', 'study_revision_conflict', 'operation_payload_mismatch', 'operation_unresolved'],
                  '503': ['studies_access_unavailable', 'studies_storage_unavailable', 'request_deadline_exceeded']}
         for status, description, schema in [('200', 'Acknowledged or current authorized result', response),
                                            ('400', 'Invalid input', 'ErrorResponse'),
@@ -428,6 +434,7 @@ def openapi_contract() -> dict:
                 '/api/studies': {'post': operation('createStudy', 'OperationAck', body='CreateStudy'),
                                  'get': operation('listStudies', 'StudyPage', parameters=page)},
                 '/api/studies/{study_id}': {'get': operation('readStudy', 'StudyView', parameters=(study,))},
+                '/api/studies/{study_id}/title': {'put': operation('renameStudy', 'OperationAck', body='RenameStudy', parameters=(study,))},
                 '/api/studies/{study_id}/notes': {'post': operation('createNote', 'OperationAck', body='CreateNote', parameters=(study,)),
                                                 'get': operation('listNotes', 'NotePage', parameters=(study, *page))},
                 '/api/studies/{study_id}/notes/{note_id}': {

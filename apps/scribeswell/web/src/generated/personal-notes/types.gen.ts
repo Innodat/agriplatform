@@ -104,7 +104,7 @@ export type EnrollmentResult = {
 export type ErrorResponse = ({
     code: 'authentication_required' | 'operation_payload_mismatch' | 'operation_unresolved' | 'request_deadline_exceeded' | 'resource_unavailable' | 'scribeswell_personal_notes_input_invalid' | 'studies_access_denied' | 'studies_access_unavailable' | 'studies_storage_unavailable';
 } & Problem) | ({
-    code: 'note_revision_conflict';
+    code: 'note_revision_conflict' | 'study_revision_conflict';
 } & RevisionProblem);
 
 /**
@@ -222,7 +222,7 @@ export type NoteView = {
 };
 
 export type OperationAck = ({
-    command?: 'study.create';
+    command?: 'study.create' | 'study.rename';
     note_id?: null;
 } | {
     command?: 'note.create' | 'note.replace';
@@ -231,7 +231,7 @@ export type OperationAck = ({
     /**
      * Command
      */
-    command: 'study.create' | 'note.create' | 'note.replace';
+    command: 'study.create' | 'study.rename' | 'note.create' | 'note.replace';
     /**
      * Note Id
      */
@@ -293,6 +293,26 @@ export type Problem = {
 };
 
 /**
+ * RenameStudy
+ */
+export type RenameStudy = {
+    /**
+     * Expected Revision
+     */
+    expected_revision: string;
+    /**
+     * Operation Id
+     */
+    operation_id: string;
+    /**
+     * Title
+     *
+     * Nonblank scalar Unicode title, no Unicode Cc controls; whitespace is preserved.
+     */
+    title: string;
+};
+
+/**
  * ReplaceNote
  */
 export type ReplaceNote = {
@@ -328,7 +348,7 @@ export type RevisionProblem = {
     /**
      * Code
      */
-    code: 'note_revision_conflict';
+    code: 'note_revision_conflict' | 'study_revision_conflict';
     details: RevisionDetails;
     /**
      * Error
@@ -436,7 +456,7 @@ export type LookupOperationData = {
         operation_id: string;
     };
     query: {
-        command: 'study.create' | 'note.create' | 'note.replace';
+        command: 'study.create' | 'study.rename' | 'note.create' | 'note.replace';
     };
     url: '/api/operations/{operation_id}';
 };
@@ -470,7 +490,7 @@ export type LookupOperationErrors = {
      * Revision, operation payload or unresolved conflict
      */
     409: ErrorResponse & {
-        code?: 'note_revision_conflict' | 'operation_payload_mismatch' | 'operation_unresolved';
+        code?: 'note_revision_conflict' | 'study_revision_conflict' | 'operation_payload_mismatch' | 'operation_unresolved';
     };
     /**
      * Access, storage or deadline unavailable
@@ -530,7 +550,7 @@ export type ListStudiesErrors = {
      * Revision, operation payload or unresolved conflict
      */
     409: ErrorResponse & {
-        code?: 'note_revision_conflict' | 'operation_payload_mismatch' | 'operation_unresolved';
+        code?: 'note_revision_conflict' | 'study_revision_conflict' | 'operation_payload_mismatch' | 'operation_unresolved';
     };
     /**
      * Access, storage or deadline unavailable
@@ -587,7 +607,7 @@ export type CreateStudyErrors = {
      * Revision, operation payload or unresolved conflict
      */
     409: ErrorResponse & {
-        code?: 'note_revision_conflict' | 'operation_payload_mismatch' | 'operation_unresolved';
+        code?: 'note_revision_conflict' | 'study_revision_conflict' | 'operation_payload_mismatch' | 'operation_unresolved';
     };
     /**
      * Access, storage or deadline unavailable
@@ -644,7 +664,7 @@ export type EnrollStudiesErrors = {
      * Revision, operation payload or unresolved conflict
      */
     409: ErrorResponse & {
-        code?: 'note_revision_conflict' | 'operation_payload_mismatch' | 'operation_unresolved';
+        code?: 'note_revision_conflict' | 'study_revision_conflict' | 'operation_payload_mismatch' | 'operation_unresolved';
     };
     /**
      * Access, storage or deadline unavailable
@@ -703,7 +723,7 @@ export type ReadStudyErrors = {
      * Revision, operation payload or unresolved conflict
      */
     409: ErrorResponse & {
-        code?: 'note_revision_conflict' | 'operation_payload_mismatch' | 'operation_unresolved';
+        code?: 'note_revision_conflict' | 'study_revision_conflict' | 'operation_payload_mismatch' | 'operation_unresolved';
     };
     /**
      * Access, storage or deadline unavailable
@@ -765,7 +785,7 @@ export type ListNotesErrors = {
      * Revision, operation payload or unresolved conflict
      */
     409: ErrorResponse & {
-        code?: 'note_revision_conflict' | 'operation_payload_mismatch' | 'operation_unresolved';
+        code?: 'note_revision_conflict' | 'study_revision_conflict' | 'operation_payload_mismatch' | 'operation_unresolved';
     };
     /**
      * Access, storage or deadline unavailable
@@ -824,7 +844,7 @@ export type CreateNoteErrors = {
      * Revision, operation payload or unresolved conflict
      */
     409: ErrorResponse & {
-        code?: 'note_revision_conflict' | 'operation_payload_mismatch' | 'operation_unresolved';
+        code?: 'note_revision_conflict' | 'study_revision_conflict' | 'operation_payload_mismatch' | 'operation_unresolved';
     };
     /**
      * Access, storage or deadline unavailable
@@ -884,7 +904,7 @@ export type ReadNoteErrors = {
      * Revision, operation payload or unresolved conflict
      */
     409: ErrorResponse & {
-        code?: 'note_revision_conflict' | 'operation_payload_mismatch' | 'operation_unresolved';
+        code?: 'note_revision_conflict' | 'study_revision_conflict' | 'operation_payload_mismatch' | 'operation_unresolved';
     };
     /**
      * Access, storage or deadline unavailable
@@ -944,7 +964,7 @@ export type ReplaceNoteErrors = {
      * Revision, operation payload or unresolved conflict
      */
     409: ErrorResponse & {
-        code?: 'note_revision_conflict' | 'operation_payload_mismatch' | 'operation_unresolved';
+        code?: 'note_revision_conflict' | 'study_revision_conflict' | 'operation_payload_mismatch' | 'operation_unresolved';
     };
     /**
      * Access, storage or deadline unavailable
@@ -964,3 +984,62 @@ export type ReplaceNoteResponses = {
 };
 
 export type ReplaceNoteResponse = ReplaceNoteResponses[keyof ReplaceNoteResponses];
+
+export type RenameStudyData = {
+    body: RenameStudy;
+    path: {
+        study_id: string;
+    };
+    query?: never;
+    url: '/api/studies/{study_id}/title';
+};
+
+export type RenameStudyErrors = {
+    /**
+     * Invalid input
+     */
+    400: ErrorResponse & {
+        code?: 'scribeswell_personal_notes_input_invalid';
+    };
+    /**
+     * Authentication required
+     */
+    401: ErrorResponse & {
+        code?: 'authentication_required';
+    };
+    /**
+     * Current Studies access denied
+     */
+    403: ErrorResponse & {
+        code?: 'studies_access_denied';
+    };
+    /**
+     * Unavailable resource; does not reveal another owner
+     */
+    404: ErrorResponse & {
+        code?: 'resource_unavailable';
+    };
+    /**
+     * Revision, operation payload or unresolved conflict
+     */
+    409: ErrorResponse & {
+        code?: 'note_revision_conflict' | 'study_revision_conflict' | 'operation_payload_mismatch' | 'operation_unresolved';
+    };
+    /**
+     * Access, storage or deadline unavailable
+     */
+    503: ErrorResponse & {
+        code?: 'studies_access_unavailable' | 'studies_storage_unavailable' | 'request_deadline_exceeded';
+    };
+};
+
+export type RenameStudyError = RenameStudyErrors[keyof RenameStudyErrors];
+
+export type RenameStudyResponses = {
+    /**
+     * Acknowledged or current authorized result
+     */
+    200: OperationAck;
+};
+
+export type RenameStudyResponse = RenameStudyResponses[keyof RenameStudyResponses];
