@@ -1,3 +1,32 @@
+## Current delivery — native recovery HTTP qualification, 2026-10-25
+
+Read [native HTTP evidence](NATIVE_RECOVERY_HTTP_EVIDENCE.md) and
+[its receipt](evidence/native-recovery-http-20261025.json). The unchanged explicit
+candidate now has12 passing native groups through its actual read-only runtime pool:
+original receipt, scoped absence/discriminator/account/org isolation, cleared reused
+context, closed selectors, current denial before checkout, pool saturation/reuse,
+SELECT-error rollback/reuse, overlapping exclusive leases and both lifespan disposals.
+All6 physical connections closed;2 overlapped distinctly. ASGI and Access are synthetic;
+no TCP-server drain, native cancellation/commit uncertainty or real Access claim.
+
+148 affected tests pass, including7 qualification evidence tests; three scaffold parity
+checks pass. Five review findings fixed, none deferred. Initial11-group receipt and
+all historical proof remain intact. Ledger0002,10 captures/outcomes/history rows each
+and sentinel unchanged. Prior candidate/recovery source capsules intact; no code fix to
+runtime handlers was required. Known run99b7231c-0a5b-4bdb-98e8-3329564c526a stopped
+normally; all Docker/data retained. Historical global-metadata discrepancy unresolved.
+
+Next use bmad-help to select candidate recovery OpenAPI/export and generated-client
+contract qualification, keeping active startup/routes unchanged. Do not silently add
+SQL dependencies to active API or promote migrations. Native committed-edit evidence,
+real Access, native cancellation/server drain, controlled owner dependency adoption,
+ADR-0020 previous-version/recovery and release activation remain gates.
+Fingerprints/HMAC deferred. Preserve concurrent work/history/resources/dependencies/
+TypeScript7.0.2. Synthetic local/CI only; no Leave/editor, real accounts/access,
+production, provisioning/deployment/pilot or cleanup.
+
+Earlier handoffs follow unchanged as historical checkpoints.
+
 ## Current delivery — candidate recovery HTTP embedding, 2026-10-25
 
 Read [HTTP embedding evidence](RECOVERY_HTTP_EVIDENCE.md) and

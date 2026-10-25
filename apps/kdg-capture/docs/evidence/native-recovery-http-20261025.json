@@ -1,0 +1,122 @@
+{
+  "artifact_hashes": {
+    "_bmad-output/implementation-artifacts/spec-kdg-native-recovery-http.md": "40b319ec7c1eb5a1eba13bfcbfe84ba6e5d8b4f66ffe208aa12ad7051fada674",
+    "apps/kdg-capture/docs/NATIVE_RECOVERY_HTTP_EVIDENCE.md": "0279a8d6ae606b378194edf44783e1bebb8144bcbced48d48779d5341e913050",
+    "apps/kdg-capture/docs/next-session.md": "6778b3566791fe832c6200e83d3407398fce83a5bfdab2f38a310c00c0eb686f",
+    "apps/kdg-capture/write-tests/test_native_recovery_http.py": "14157cdc96d58f96923f0a16b22f57d55e84f98fded2cd8b0d6b45624e5255e1"
+  },
+  "baseline_commit": "0ce7b1c268eb5b0d995178970b5e87bc761aebc7",
+  "commands": [
+    "timeout 45s platform/deployment/.local/access-organization-check-20261022/owner-env/bin/python -I -B -m unittest discover -s apps/kdg-capture/write-tests -p test_native_recovery_http.py",
+    "timeout 45s platform/deployment/.local/access-organization-check-20261022/owner-env/bin/python -I -B -m unittest discover -s apps/kdg-capture/write-tests -p test_*.py",
+    "platform/deployment/.local/kdg-toolchains/ad277eef-a10e-4aac-bb82-5743653fb2e0/payload/node/bin/node platform/builder-cli/scripts/sync-kdg-write.mjs --check",
+    "platform/deployment/.local/kdg-toolchains/ad277eef-a10e-4aac-bb82-5743653fb2e0/payload/node/bin/node platform/builder-cli/scripts/sync-kdg-database.mjs --check",
+    "platform/deployment/.local/kdg-toolchains/ad277eef-a10e-4aac-bb82-5743653fb2e0/payload/node/bin/node platform/builder-cli/scripts/sync-kdg-native-database.mjs --check",
+    "timeout 60s platform/deployment/.local/access-organization-check-20261022/owner-env/bin/python -I -B apps/kdg-capture/migrations/tests/qualify_recovery_http.py --qualify-retained",
+    "python3 platform/deployment/dev.py up --target platform/deployment/environments/kdg-local.json --run-id 99b7231c-0a5b-4bdb-98e8-3329564c526a --supabase /home/ck/repos/innodat/agriplatform/platform/deployment/.local/kdg-toolchains/ad277eef-a10e-4aac-bb82-5743653fb2e0/payload/supabase/supabase",
+    "python3 platform/deployment/dev.py stop --target platform/deployment/environments/kdg-local.json --run-id 99b7231c-0a5b-4bdb-98e8-3329564c526a --supabase /home/ck/repos/innodat/agriplatform/platform/deployment/.local/kdg-toolchains/ad277eef-a10e-4aac-bb82-5743653fb2e0/payload/supabase/supabase"
+  ],
+  "date": "2026-10-25",
+  "effects": {
+    "active_api_wiring": false,
+    "cleanup": false,
+    "dependencies_changed": false,
+    "fingerprints_hmac": "deferred",
+    "historical_global_metadata_discrepancy": "unresolved",
+    "historical_native_sources_preserved": true,
+    "migration_activation": false,
+    "persistent_row_changes": false,
+    "production": false,
+    "provisioning": false,
+    "release_activation": false,
+    "schema_changes": false,
+    "typescript": "7.0.2"
+  },
+  "native": {
+    "asgi_transport": true,
+    "cases": [
+      "original_receipt_and_release",
+      "unknown_operation",
+      "command_discriminator",
+      "foreign_account",
+      "scope_cleared_on_reused_connection",
+      "closed_http_selectors",
+      "current_access_denial_before_checkout",
+      "actual_pool_saturation_failure_and_reuse",
+      "native_select_error_rollback_and_reuse",
+      "overlapping_runtime_connections",
+      "actual_lifespan_disposal",
+      "foreign_organization"
+    ],
+    "counts_after": {
+      "capture": 10,
+      "capture_revision": 10,
+      "operation_outcome": 10
+    },
+    "counts_before": {
+      "capture": 10,
+      "capture_revision": 10,
+      "operation_outcome": 10
+    },
+    "database": "kdg_schema_659350f762c8494c9241b7b1c8ea9566",
+    "groups": 12,
+    "head": "0002_kdg_capture_storage",
+    "initial_checkpoint": {
+      "groups": 11,
+      "report": "platform/deployment/.local/kdg-native-focused-20261023/fixture-cff53592f5ca43a1a0cc65398957140f/capture-commit-recovery-http-296f960eb02e4d94992de0f4421f4336.json",
+      "sha256": "e65e8cfe2aed83a6ccded2b9e75ac3e1f2a9b1d1dfac3085eadd56e87f0a63c1"
+    },
+    "native_edit_receipt": false,
+    "overlap_connections": 2,
+    "physical_connections": 6,
+    "physical_connections_closed": 6,
+    "read_only": true,
+    "real_access": false,
+    "real_http_listener": false,
+    "report": "platform/deployment/.local/kdg-native-focused-20261023/fixture-cff53592f5ca43a1a0cc65398957140f/capture-commit-recovery-http-7f67806acf134f63b40ad4ad01ae69f2.json",
+    "run_id": "99b7231c-0a5b-4bdb-98e8-3329564c526a",
+    "sentinel_unchanged": true,
+    "sha256": "93943e0fb3655d722b6409625f9965ce76c0bc0c962456638ee4872026d5ac6e",
+    "stopped_normally": true
+  },
+  "remaining_gates": [
+    "candidate schema/export/generated-client qualification",
+    "controlled API dependency ownership and startup adoption",
+    "native committed-edit receipt",
+    "native cancellation/commit uncertainty and TCP server drain",
+    "real Access",
+    "ADR-0020 previous-version compatibility, recovery and release activation"
+  ],
+  "review": {
+    "deferred": 0,
+    "findings": 5,
+    "fixed": 5,
+    "layer": "blind-hunter",
+    "triage": "_bmad-output/implementation-artifacts/spec-kdg-native-recovery-http.md"
+  },
+  "source_capture": "before candidate/custody imports; unchanged at preflight/postflight",
+  "sources": {
+    "apps/kdg-capture/api/context.py": "1c58d6432fa321252d5e4fd88d1e1b589bb989cf4243a2fb4a7104a7c9151a06",
+    "apps/kdg-capture/api/safe_errors.py": "18a1359b2b1f9bb8c79c91644582c9d320bf22ed56d53afac179ff3fce6901df",
+    "apps/kdg-capture/migrations/tests/capture_commit_fixture.py": "e9372b9351bf10f42d3b041508be1a68b4d8cd62291084b16d6d0e07a02fe4d1",
+    "apps/kdg-capture/migrations/tests/native_fixture.py": "d031539b709a228b0e3da86c68960791a7a7d5fc5220cc9c27f3687a5e98907a",
+    "apps/kdg-capture/migrations/tests/qualify_operation_recovery.py": "063e5fdece540c5310f71c9d96388fbda635734f7de475d79129cca82b395f69",
+    "apps/kdg-capture/migrations/tests/qualify_recovery_http.py": "358bd35614393a6a0f4c171201f26a75bd9774ea66d20742220bfe3c133c7575",
+    "apps/kdg-capture/write-candidate/capture_create_handler.py": "6b1d375e4a47a8b94acc588c3c644fda15f53766f47d9c6a482160c93b36eecd",
+    "apps/kdg-capture/write-candidate/operation_outcomes.py": "e625d9048d89a6dcd8e17636c418218eaa3c53d329283701c35890c04e5984cb",
+    "apps/kdg-capture/write-candidate/operation_recovery.py": "951113487c64c70170a5f09de051b2b9d543c398e1bea36bd993fdea5b5abac6",
+    "apps/kdg-capture/write-candidate/recovery_http.py": "d105fa4d78cbffe459ee49ef024bdcd6ae723c490953bc2f4ed56aaf6eb9a44b",
+    "apps/kdg-capture/write-tools/transaction_context.py": "e46244916563bb8111e65675cb1d992778a6c076dc247c4b1fa12b7d9cc47ce7"
+  },
+  "status": "qualified_candidate_only",
+  "tests": {
+    "affected_pass": 148,
+    "focused_qualification_pass": 7,
+    "scaffold_parity": [
+      "write context code/test",
+      "database code/test",
+      "native database test"
+    ],
+    "stub_errors_observed": 4
+  }
+}
