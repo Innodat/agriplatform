@@ -100,18 +100,18 @@ def _transaction(conn, budget, context, command, evidence):
     return receipt
 
 
-async def _worker(conn, budget, context, command, evidence):
+async def _worker(conn, budget, context, command, evidence, transaction=None):
     try:
         # AnyIO cancels limiter admission on expiry. Once started, its default
         # non-abandoning worker scope awaits completion; SQL has the same Budget.
         with anyio.fail_after(budget.remaining()):
-            return await run_in_threadpool(_transaction, conn, budget, context, command, evidence)
+            return await run_in_threadpool(transaction or _transaction, conn, budget, context, command, evidence)
     except TimeoutError:
         raise write.WriteError('execution_timeout') from None
 
 
-async def _complete_worker(conn, budget, context, command, evidence):
-    task = asyncio.create_task(_worker(conn, budget, context, command, evidence))
+async def _complete_worker(conn, budget, context, command, evidence, transaction=None):
+    task = asyncio.create_task(_worker(conn, budget, context, command, evidence, transaction))
     try:
         return await asyncio.shield(task)
     except asyncio.CancelledError:
@@ -131,6 +131,9 @@ async def _complete_worker(conn, budget, context, command, evidence):
 
 
 class CreateHandler:
+    _permissions = (create.ALL, create.ASSIGNED)
+    _evidence_type = CreateEvidence
+
     def __init__(self, *, org_id, access_url, service_key, transport=None):
         try:
             canonical_uuid(org_id)
@@ -152,7 +155,7 @@ class CreateHandler:
             async with asyncio.timeout(min(ACCESS_SECONDS, budget.remaining())):
                 async with httpx.AsyncClient(transport=self._transport, timeout=ACCESS_SECONDS,
                     follow_redirects=False, trust_env=False) as client:
-                    for permission in (create.ALL, create.ASSIGNED):
+                    for permission in self._permissions:
                         observed_start = datetime.now(timezone.utc)
                         async with client.stream('POST', self.access_url + '/v2/check',
                             headers={'Authorization': token, 'X-Service-Key': self._service_key,
@@ -179,7 +182,7 @@ class CreateHandler:
                                     (401, 'authentication_required'), (409, 'identity.actor_setup_required')):
                                     raise HandlerError(upstream.status_code, code)
                                 raise ValueError('unavailable_check')
-                            evidence = CreateEvidence.model_validate(body)
+                            evidence = self._evidence_type.model_validate(body)
                             now = datetime.now(timezone.utc)
                             if (evidence.permission != permission
                                 or evidence.authorization_scope.org_id != self.org_id

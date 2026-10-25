@@ -797,3 +797,31 @@ logins are separately inspected. No durable commit, concurrent replay, current A
 or protected writer API is implied, and no active migration is installed. The unresolved
 historical global hash difference remains recorded; fresh fixture/current preservation
 checks establish this run's rollback only. Promotion/release gates remain binding.
+
+
+### Unmounted own-read recovery consumer — 2026-10-25
+
+`write-candidate/operation_recovery.py` implements the callable behind the planned
+GET operation lookup, without mounting an HTTP route. `RecoveryHandler.execute`
+takes an exclusive fresh connection, canonical operation UUID, required closed
+`capture.create` / `capture.edit` discriminator and bearer authorization. Organization
+is configured; account and durable actor come from current protected Access read.own
+evidence, including current membership and own-account resource scope. Caller-selected
+account, organization or target parameters are not accepted.
+
+It reads the private exact scoped outcome and separately verifies the actual stored
+capture's org/owner before disclosing the original v1 compact receipt. It does not
+require current create authority, assignment or child eligibility and takes no business
+or operation locks. Successful absence returns exactly
+`{operation_id,command_type,status: "unresolved"}`; this permits a concurrent later
+commit. Stored-target or storage verification failure yields safe
+`503 operation_verification_unavailable`, never unresolved. Existing authentication,
+Access denial/setup and bounded execution errors remain machine-readable.
+
+The total ten-second budget covers current Access (at most three seconds), worker
+admission, fresh observation entry, SQL and completion. Cancellation retains connection
+ownership until the worker finishes. Future HTTP adaptation must preserve validated
+single-valued query/header inputs, bounded acquisition and no-store/error conventions;
+no route, release activation or new edit writer follows from this callable.
+[Implementation and qualification evidence](OPERATION_RECOVERY_EVIDENCE.md) records
+the exact native/synthetic coverage and remaining gates.

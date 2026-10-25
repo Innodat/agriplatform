@@ -1,0 +1,104 @@
+{
+  "artifact_hashes": {
+    "_bmad-output/implementation-artifacts/spec-kdg-operation-recovery.md": "304a512027317a6a1e3d28b1070ff63aa4870ab440a19fc571d24fe86fb07fe2",
+    "apps/kdg-capture/docs/OPERATION_RECOVERY_EVIDENCE.md": "768e116f3005685932c520b75af673ca43a6c42ef288d1ab5eb65da13f0a82e7",
+    "apps/kdg-capture/docs/contracts.md": "2ce59c40138174bb64ba28271507d9a31f61f5c91268dde91cd9fe14408ddcbc",
+    "apps/kdg-capture/docs/next-session.md": "6cd26547353d756e77d72ffe9c030550f3fab9096434a19865e5fe713789934b",
+    "apps/kdg-capture/write-tests/test_operation_recovery.py": "8cefd270ba6cd9f230deba3fab0b177148cb9db22dead881d63badd558cbc576"
+  },
+  "atdd": {
+    "explicit_stub_behavioral_failures": 11,
+    "initial_module_missing": true
+  },
+  "baseline_commit": "093161ca975149001d86e05665dac3649105c51f",
+  "commands": [
+    "timeout 45s platform/deployment/.local/access-organization-check-20261022/owner-env/bin/python -I -B -m unittest discover -s apps/kdg-capture/write-tests -p test_capture_create_handler.py",
+    "timeout 45s platform/deployment/.local/access-organization-check-20261022/owner-env/bin/python -I -B -m unittest discover -s apps/kdg-capture/write-tests -p test_operation_recovery.py",
+    "timeout 45s platform/deployment/.local/access-organization-check-20261022/owner-env/bin/python -I -B -m unittest discover -s apps/kdg-capture/write-tests -p test_*.py",
+    "platform/deployment/.local/kdg-toolchains/ad277eef-a10e-4aac-bb82-5743653fb2e0/payload/node/bin/node platform/builder-cli/scripts/sync-kdg-write.mjs --check",
+    "platform/deployment/.local/kdg-toolchains/ad277eef-a10e-4aac-bb82-5743653fb2e0/payload/node/bin/node platform/builder-cli/scripts/sync-kdg-database.mjs --check",
+    "platform/deployment/.local/kdg-toolchains/ad277eef-a10e-4aac-bb82-5743653fb2e0/payload/node/bin/node platform/builder-cli/scripts/sync-kdg-native-database.mjs --check",
+    "timeout 60s platform/deployment/.local/access-organization-check-20261022/owner-env/bin/python -I -B apps/kdg-capture/migrations/tests/qualify_operation_recovery.py --qualify-retained",
+    "python3 platform/deployment/dev.py up --target platform/deployment/environments/kdg-local.json --run-id 99b7231c-0a5b-4bdb-98e8-3329564c526a --supabase /home/ck/repos/innodat/agriplatform/platform/deployment/.local/kdg-toolchains/ad277eef-a10e-4aac-bb82-5743653fb2e0/payload/supabase/supabase",
+    "python3 platform/deployment/dev.py stop --target platform/deployment/environments/kdg-local.json --run-id 99b7231c-0a5b-4bdb-98e8-3329564c526a --supabase /home/ck/repos/innodat/agriplatform/platform/deployment/.local/kdg-toolchains/ad277eef-a10e-4aac-bb82-5743653fb2e0/payload/supabase/supabase"
+  ],
+  "date": "2026-10-25",
+  "effects": {
+    "cleanup": false,
+    "dependencies_changed": false,
+    "fingerprints_hmac": "deferred",
+    "http_mounted": false,
+    "persistent_row_changes": false,
+    "provisioning": false,
+    "real_access": false,
+    "release_activated": false,
+    "schema_changes": false,
+    "typescript": "7.0.2"
+  },
+  "native": {
+    "cases": [
+      "original_create_receipt_after_assignment_removed",
+      "unknown_operation",
+      "required_command_discriminator",
+      "foreign_account",
+      "foreign_organization",
+      "current_own_read_denial"
+    ],
+    "counts_after": {
+      "capture": 10,
+      "capture_revision": 10,
+      "operation_outcome": 10
+    },
+    "counts_before": {
+      "capture": 10,
+      "capture_revision": 10,
+      "operation_outcome": 10
+    },
+    "database": "kdg_schema_659350f762c8494c9241b7b1c8ea9566",
+    "head": "0002_kdg_capture_storage",
+    "historical_global_metadata_discrepancy": "unresolved; no cluster inventory claim",
+    "initial_failed_report": "platform/deployment/.local/kdg-native-focused-20261023/fixture-cff53592f5ca43a1a0cc65398957140f/capture-commit-own-read-e26c805ed9fc400198e94615c538bee0.json",
+    "initial_failure": "preliminary qualifier Budget constructed after observation; fixed and requalified",
+    "native_edit_receipt": false,
+    "read_only": true,
+    "report": "platform/deployment/.local/kdg-native-focused-20261023/fixture-cff53592f5ca43a1a0cc65398957140f/capture-commit-own-read-cbd2b630b5e74ccb906430f8b86d3ec3.json",
+    "run_id": "99b7231c-0a5b-4bdb-98e8-3329564c526a",
+    "sentinel_unchanged": true,
+    "sha256": "d5ca883650c28277e0820be73beed4c5ef6f6fb483eb714aaf3855a69f860d02",
+    "stopped_normally": true
+  },
+  "remaining_gates": [
+    "bounded connection acquisition and strict protected HTTP adaptation",
+    "real Access qualification",
+    "native cancellation/commit uncertainty",
+    "ADR-0020 previous-version compatibility, recovery and release activation"
+  ],
+  "review": {
+    "deferred": 0,
+    "findings": 5,
+    "fixed": 5,
+    "layer": "blind-hunter",
+    "triage": "_bmad-output/implementation-artifacts/spec-kdg-operation-recovery.md"
+  },
+  "sources": {
+    "apps/kdg-capture/api/context.py": "1c58d6432fa321252d5e4fd88d1e1b589bb989cf4243a2fb4a7104a7c9151a06",
+    "apps/kdg-capture/migrations/tests/capture_commit_fixture.py": "e9372b9351bf10f42d3b041508be1a68b4d8cd62291084b16d6d0e07a02fe4d1",
+    "apps/kdg-capture/migrations/tests/native_fixture.py": "d031539b709a228b0e3da86c68960791a7a7d5fc5220cc9c27f3687a5e98907a",
+    "apps/kdg-capture/migrations/tests/qualify_operation_recovery.py": "063e5fdece540c5310f71c9d96388fbda635734f7de475d79129cca82b395f69",
+    "apps/kdg-capture/write-candidate/capture_create_handler.py": "6b1d375e4a47a8b94acc588c3c644fda15f53766f47d9c6a482160c93b36eecd",
+    "apps/kdg-capture/write-candidate/operation_outcomes.py": "e625d9048d89a6dcd8e17636c418218eaa3c53d329283701c35890c04e5984cb",
+    "apps/kdg-capture/write-candidate/operation_recovery.py": "951113487c64c70170a5f09de051b2b9d543c398e1bea36bd993fdea5b5abac6",
+    "apps/kdg-capture/write-tools/transaction_context.py": "e46244916563bb8111e65675cb1d992778a6c076dc247c4b1fa12b7d9cc47ce7"
+  },
+  "status": "qualified_unmounted",
+  "tests": {
+    "affected_pass": 117,
+    "create_characterization_before_refactor": 23,
+    "recovery_pass": 16,
+    "scaffold_parity": [
+      "write context code/test",
+      "database candidate code/test",
+      "native database test"
+    ]
+  }
+}

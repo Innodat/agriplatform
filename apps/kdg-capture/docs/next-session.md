@@ -1,3 +1,31 @@
+## Current delivery — own-read operation recovery, 2026-10-25
+
+Read [recovery contract/evidence](OPERATION_RECOVERY_EVIDENCE.md) and
+[its receipt](evidence/operation-recovery-20261025.json). The unmounted recovery
+callable uses current read.own account/durable-actor evidence, exact scoped outcome
+lookup and actual stored-owner authorization. Create/assignment loss does not prevent
+own-read recovery. Original create/edit receipts stay unchanged; successful absence
+alone returns unresolved. No create/eligibility checks, advisory locks or writes occur.
+
+117 affected tests pass, including 16 recovery cases and existing create protections;
+all three scaffold code/test parity checks pass. Six SELECT-only native cases pass on
+the exact retained0002 fixture through a read-only runtime connection. Ten linked
+capture/outcome/history triplets, revision and sentinel remain unchanged. The initial
+qualifier observation-order failure and all historical receipts remain intact. Native
+committed-edit coverage is not claimed; no retained edit outcome exists. Five review
+findings fixed, none deferred. Known run99b7231c-0a5b-4bdb-98e8-3329564c526a stopped
+normally; Docker/data remain. Historical global-metadata discrepancy stays unresolved.
+
+Next use bmad-help to select the protected HTTP embedding prerequisite: bounded
+connection acquisition, strict query/header adaptation, safe no-store response/error
+mapping and explicit unmounted route tests. Do not activate APIs or migrations. Real
+Access qualification, native cancellation/uncertainty and ADR-0020 previous-version,
+recovery and release gates remain. Fingerprints/HMAC stay deferred. Preserve concurrent
+work/history/resources/dependencies/TypeScript7.0.2. Synthetic local/CI only; no
+Leave/editor, real accounts/access, production, provisioning/deployment/pilot or cleanup.
+
+Earlier handoffs follow unchanged as historical checkpoints.
+
 ## Current delivery — restricted-runtime durable create qualification, 2026-10-25
 
 Read [native commit evidence](NATIVE_CAPTURE_COMMIT_EVIDENCE.md) and
