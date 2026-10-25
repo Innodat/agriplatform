@@ -1,3 +1,59 @@
+## Current delivery — reviewed native candidate own-edit HTTP, 2026-10-25
+
+Read [native evidence](NATIVE_EDIT_HTTP_EVIDENCE.md), [source-bound record](evidence/native-edit-http-20261025.json)
+and [contracts](contracts.md). The reviewed candidate PUT passes20 create/HTTP checks
+against retained PostgreSQL with mocked Access,33 bound executed sources and complete
+independent row verification. Exact permission sequences and committed-replay denial
+for each capability pass before checkout. Original-account replay immediately after
+foreign-account refusal reuses the same pool and preserves exact storage. Focused tests also prove safe execution
+metadata retention when response JSON decoding fails. Native23514 verifies the uncommitted
+outcome, fully rolls back, and original retry commits once; all3 application physical
+connections are disposed. Totals16capture/36outcomes/32histories,parent8; all prior rows,
+sentinel and ledger unchanged. SELECT-only pre/post pass. Exact run stopped normally;
+no scoped containers running, original network/database volume retained.
+
+18 focused tests within283 affected tests (13.302s), three scaffold parity checks pass.
+Three review lenses: seven addressed, two rejected with evidence, none deferred. Original
+32-source/17-case/13-focused/278-affected proof and first tests/record/review diff remain
+retained as historical evidence. Body/API/schema/dependencies and scaffold/shared UI/
+context/ADR unchanged; fingerprints/HMAC deferred. Concurrent work remains preserved.
+
+Next bounded slice: build an unconnected own-edit request adapter consuming generated
+edit types, typed safe conflict/current_revision metadata and original operation plus
+capture-target receipt binding. Preserve input when receipts mismatch; return safe
+results for a future caller. Keep browser/editor/queue/startup activation, real
+Identity/Access, native contention/cancellation/TCP drain and ADR-0020 release gates
+separate. No Leave/editor, real accounts/access, production/deployment/pilot,
+migration/provisioning or cleanup. No active startup adoption.
+
+Earlier handoffs follow unchanged as historical checkpoints.
+
+## Current delivery — native candidate own-edit HTTP, 2026-10-25
+
+Read [native evidence](NATIVE_EDIT_HTTP_EVIDENCE.md), [source-bound record](evidence/native-edit-http-20261025.json)
+and [contracts](contracts.md). Actual candidate PUT, ordinary writer engine/pool and
+stored-target replay pass retained PostgreSQL checks with mocked current Access.
+Answers/date edits commit2/3; exact receipt-only no-op and original receipt replay at2
+preserve current3. Safe stale/invalid/scope/admission refusals pass. Native23514 after
+UPDATE/outcome rolls back fully; original retry commits4 once and duplicate replays it.
+Every response releases its lease before a fresh restricted independent read; three
+observed application physical connections are disposed. Exact totals15/31/28,parent7;
+complete prior rows/sentinel/ledger preserved. SELECT-only pre/post pass unchanged.
+
+13 focused tests within278 affected tests and three scaffold parity checks pass.
+Executed sources/intent/report/log hashes are retained. Body/schema/API, dependencies,
+scaffold/shared UI/context/ADR unchanged; fingerprints/HMAC deferred. Concurrent work,
+historical evidence and retained resources preserved. Exact run stopped normally; no
+scoped containers remain running, original network/database volume retained. Root owns
+final review and commit.
+
+Future consuming work must keep real Identity/Access, native contention/cancellation/
+TCP drain, active API/browser/editor/queue/UI and ADR-0020 release gates explicit.
+ASGI/mocked Access establish no native network or real authority claim. No Leave/editor,
+real accounts/access, production/deployment/pilot, migration/provisioning or cleanup.
+
+Earlier handoffs follow unchanged as historical checkpoints.
+
 ## Current delivery — candidate own-edit HTTP and replay, 2026-10-25
 
 Read [evidence](OWN_EDIT_HTTP_EVIDENCE.md), [record](evidence/own-edit-http-20261025.json)

@@ -987,3 +987,27 @@ connection ownership until unwind; no late/provisional success acknowledgement.
 [Evidence](OWN_EDIT_HTTP_EVIDENCE.md) and candidate edit-openapi/generated types record
 synthetic behavior and exact limits. Active API/browser/editor/queue wiring, native
 qualification of this new boundary, real Identity/Access and release gates remain open.
+
+
+### Native candidate own-edit HTTP qualification — 2026-10-25
+
+The actual candidate PUT orchestration and stored-target replay now pass retained
+PostgreSQL qualification with mocked current Access and actual restricted runtime
+sessions. Actual create establishes1; answers/date PUTs commit2/3; receipt-only no-op
+preserves complete capture/timestamps/history. A changed valid incoming path, stale
+revision and domain-invalid answers replay the original edit receipt at2 while storage
+remains3. Fresh stale/invalid, foreign scopes, either denied capability and malformed
+HTTP return safe expected outcomes without writes. Reviewed checks include committed-replay
+denial for each capability, exact Access-check sequences and original-account replay on
+the same pool immediately after foreign-account refusal. Native23514 after UPDATE/outcome
+and before history fully rolls back; original-command retry commits4 once, duplicate
+returns the original receipt. Released leases precede every independent restricted
+read; all observed physical application connections are disposed at lifespan end.
+
+[Native evidence](NATIVE_EDIT_HTTP_EVIDENCE.md) and its [source-bound record](evidence/native-edit-http-20261025.json)
+retain journaled inputs, executed dependencies, observed responses before oracles,
+exact deltas and complete prior-row/sentinel/ledger preservation. The reviewed33-source report records20 create/PUT checks and totals16/36/32 with
+eight of each parent. The first32-source proof at15/31/28 remains historical evidence. Body/schema/API, scaffold/shared UI/context/ADR
+remain unchanged. ASGI/mocked Access prove no real network or Identity/Access authority;
+native contention/cancellation/TCP drain, active API/browser/editor/queue/UI and ADR-0020
+release gates remain open. No migration, provisioning, privilege expansion or cleanup.
