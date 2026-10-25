@@ -825,3 +825,28 @@ single-valued query/header inputs, bounded acquisition and no-store/error conven
 no route, release activation or new edit writer follows from this callable.
 [Implementation and qualification evidence](OPERATION_RECOVERY_EVIDENCE.md) records
 the exact native/synthetic coverage and remaining gates.
+
+
+### Candidate-only recovery HTTP embedding — 2026-10-25
+
+`write-candidate/recovery_http.py:create_candidate` constructs the candidate GET
+`/api/v1/operations/{operation_id}` with exactly one required `command_type` item,
+canonical operation UUID, a single valid bearer token and empty bounded body. Unknown
+or duplicate query selectors return422; invalid/multiple bearer headers return401 with
+challenge. Committed/unresolved DTOs retain the preceding callable contract; known
+safe errors are allowlisted and all responses are private/no-store, including routing
+and unexpected failures. No module app or active startup import is added.
+
+One original Budget covers body receipt, current Access, bounded pool/driver checkout,
+SQL and release. Acquisition follows Access; slow acquisition cannot refresh evidence.
+The existing retained worker owns checkout through release on cancellation/expiry.
+Ordinary fixed pool/driver timeouts bound phases; response completion may await unwind,
+never abandon ownership or report late success. The lazy engine uses a single numeric
+PostgreSQL host, an explicit port (default5432), no URL query overrides, pool timeout0.25s,
+connect timeout3s, no overflow/pre-ping/recycle and read-only defaults. Standard FastAPI
+lifespan disposes the owned engine after the ASGI host drains requests.
+
+[HTTP qualification evidence](RECOVERY_HTTP_EVIDENCE.md) records synthetic coverage and
+remaining native, schema/client, startup and release gates. Active context API and
+approved dependency manifests remain unchanged; constructing a candidate is no release
+authorization or provisioning action.

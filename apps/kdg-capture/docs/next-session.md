@@ -1,3 +1,33 @@
+## Current delivery — candidate recovery HTTP embedding, 2026-10-25
+
+Read [HTTP embedding evidence](RECOVERY_HTTP_EVIDENCE.md) and
+[its receipt](evidence/recovery-http-20261025.json). Explicit create_candidate constructs
+only an unmounted recovery GET API, with strict single discriminator/bearer, canonical
+operation UUID and empty bounded body. It reuses current own-read authorization,
+original receipts and safe errors; all responses are private/no-store. Active API,
+startup, generated schema/client and dependency baseline remain unchanged.
+
+141 affected tests pass, including24 HTTP cases. Ordinary QueuePool checkout/driver
+bounds and read-only defaults are configured lazily; current Access precedes acquisition.
+One original budget covers body through release; the retained worker owns checkout,
+SQL and release through cancellation and expiry. Slow checkout cannot renew evidence.
+Overlapping synthetic real-pool leases remain exclusive. Standard lifespan disposes
+the owned engine after host drain. Five review findings fixed, none deferred; all three
+scaffold code/test parity checks pass. Existing recovery native source capsule intact.
+No Docker run resumed or native data/receipt changed.
+
+Next select a SELECT-only native qualification of this explicit candidate against the
+exact retained0002 runtime database/pool, with synthetic Access and no seeding, migration
+or API activation. Use only current custody adapter; preserve all failed/historical
+receipts and the unresolved global-metadata discrepancy. Native driver/pool/drain,
+real Access, candidate schema/client adoption, active startup and ADR-0020 previous-code,
+recovery/release gates remain. Known run99b7231c-0a5b-4bdb-98e8-3329564c526a remains
+stopped with all resources/data intact. Fingerprints/HMAC deferred. Preserve concurrent
+work/history/dependencies/TypeScript7.0.2. Synthetic local/CI only; no Leave/editor,
+real accounts/access, production, provisioning/deployment/pilot or cleanup.
+
+Earlier handoffs follow unchanged as historical checkpoints.
+
 ## Current delivery — own-read operation recovery, 2026-10-25
 
 Read [recovery contract/evidence](OPERATION_RECOVERY_EVIDENCE.md) and

@@ -1,0 +1,93 @@
+{
+  "artifact_hashes": {
+    "_bmad-output/implementation-artifacts/spec-kdg-recovery-http.md": "8d54657a03ffe756b36da4db3bb52fc4b32ef9942e618730dc530ecfa5763d12",
+    "apps/kdg-capture/docs/RECOVERY_HTTP_EVIDENCE.md": "b156bd81d2f07e9ffdbb8d1743d5681840a895764d70289eb365ef08b7ca4c12",
+    "apps/kdg-capture/docs/contracts.md": "53952c040100c3e794d675ae645b7db1eeda8843a785fbed977c8ebad0f6530d",
+    "apps/kdg-capture/docs/next-session.md": "233a0434eae1390e290dbc05b486ffae07732a54f29ad996cb60f2f34e77a189"
+  },
+  "atdd": {
+    "review_lifespan_red": "disposed0 !=1 observed before fix",
+    "stub_behavioral_failures": 13
+  },
+  "baseline_commit": "711b7f8980ce59349d1506c661938f9180359b91",
+  "commands": [
+    "timeout 45s platform/deployment/.local/access-organization-check-20261022/owner-env/bin/python -I -B -m unittest discover -s apps/kdg-capture/write-tests -p test_recovery_http.py",
+    "timeout 45s platform/deployment/.local/access-organization-check-20261022/owner-env/bin/python -I -B -m unittest discover -s apps/kdg-capture/write-tests -p test_*.py",
+    "platform/deployment/.local/kdg-toolchains/ad277eef-a10e-4aac-bb82-5743653fb2e0/payload/node/bin/node platform/builder-cli/scripts/sync-kdg-write.mjs --check",
+    "platform/deployment/.local/kdg-toolchains/ad277eef-a10e-4aac-bb82-5743653fb2e0/payload/node/bin/node platform/builder-cli/scripts/sync-kdg-database.mjs --check",
+    "platform/deployment/.local/kdg-toolchains/ad277eef-a10e-4aac-bb82-5743653fb2e0/payload/node/bin/node platform/builder-cli/scripts/sync-kdg-native-database.mjs --check"
+  ],
+  "connection_policy": {
+    "connect_timeout_seconds": 3,
+    "expiry_behavior": "retain worker/connection through unwind; no late success; no authority renewal",
+    "explicit_port_default": 5432,
+    "max_overflow": 0,
+    "owner_lifespan_disposal": true,
+    "pool": "SQLAlchemy QueuePool",
+    "pool_pre_ping": false,
+    "pool_recycle": false,
+    "pool_size": 5,
+    "pool_timeout_seconds": 0.25,
+    "read_only": true,
+    "single_numeric_host": true
+  },
+  "date": "2026-10-25",
+  "effects": {
+    "active_api_routes_changed": false,
+    "active_startup_changed": false,
+    "cleanup": false,
+    "dependencies_changed": false,
+    "docker_resumed": false,
+    "fingerprints_hmac": "deferred",
+    "historical_native_sources_preserved": true,
+    "production": false,
+    "real_access": false,
+    "retained_resources_preserved": true,
+    "schema_or_rows_changed": false,
+    "typescript": "7.0.2"
+  },
+  "remaining_gates": [
+    "SELECT-only native candidate/driver/pool qualification on exact retained0002",
+    "real Access",
+    "native server drain/disposal",
+    "candidate schema/client adoption and active startup",
+    "ADR-0020 previous-version compatibility, migration/recovery and release activation",
+    "API dependency ownership adoption using approved existing baseline"
+  ],
+  "review": {
+    "deferred": 0,
+    "findings": 5,
+    "fixed": 5,
+    "layer": "blind-hunter",
+    "triage": "_bmad-output/implementation-artifacts/spec-kdg-recovery-http.md"
+  },
+  "sources": {
+    "apps/kdg-capture/api/context.py": "1c58d6432fa321252d5e4fd88d1e1b589bb989cf4243a2fb4a7104a7c9151a06",
+    "apps/kdg-capture/api/main.py": "a44bc61f1d8d8e93a28cf6e38da45da70feb4f8fe1b1da7791e99f0a1c697fe3",
+    "apps/kdg-capture/api/safe_errors.py": "18a1359b2b1f9bb8c79c91644582c9d320bf22ed56d53afac179ff3fce6901df",
+    "apps/kdg-capture/write-candidate/capture_create_handler.py": "6b1d375e4a47a8b94acc588c3c644fda15f53766f47d9c6a482160c93b36eecd",
+    "apps/kdg-capture/write-candidate/operation_outcomes.py": "e625d9048d89a6dcd8e17636c418218eaa3c53d329283701c35890c04e5984cb",
+    "apps/kdg-capture/write-candidate/operation_recovery.py": "951113487c64c70170a5f09de051b2b9d543c398e1bea36bd993fdea5b5abac6",
+    "apps/kdg-capture/write-candidate/recovery_http.py": "d105fa4d78cbffe459ee49ef024bdcd6ae723c490953bc2f4ed56aaf6eb9a44b",
+    "apps/kdg-capture/write-tests/test_capture_create.py": "8eed99c5600531e4e25fa872aa8fea842e76f40132e329ca89c7c369cd762271",
+    "apps/kdg-capture/write-tests/test_capture_create_handler.py": "44f52b1121131c81d09a5c4b875de9cdaef784273c37db2df36ff0ab4fd55899",
+    "apps/kdg-capture/write-tests/test_operation_outcomes.py": "9ddc7de51b122e97b9ccb4d72ac9eaee37f60008813833b374ba125b3e349809",
+    "apps/kdg-capture/write-tests/test_operation_recovery.py": "8cefd270ba6cd9f230deba3fab0b177148cb9db22dead881d63badd558cbc576",
+    "apps/kdg-capture/write-tests/test_recovery_http.py": "12f0838726c61a98ebe26c9e886ab9120b4a8c99d14ee1cdfb323cd3f2c59f07",
+    "apps/kdg-capture/write-tools/transaction_context.py": "e46244916563bb8111e65675cb1d992778a6c076dc247c4b1fa12b7d9cc47ce7"
+  },
+  "status": "qualified_candidate_only",
+  "tests": {
+    "actual_database": false,
+    "affected_pass": 141,
+    "http_pass": 24,
+    "ordinary_pool_exhaustion": true,
+    "overlapping_pool_leases": true,
+    "scaffold_parity": [
+      "write context code/test",
+      "database code/test",
+      "native database test"
+    ],
+    "synthetic_driver": true
+  }
+}
