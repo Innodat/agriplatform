@@ -7,6 +7,7 @@ with another request. Header multiplicity/body streaming belong to the future HT
 adapter. Tests inject MockTransport; this module never provisions authority or storage.
 """
 import asyncio
+from dataclasses import dataclass
 from datetime import datetime, timedelta, timezone
 import json
 import re
@@ -110,24 +111,42 @@ async def _worker(conn, budget, context, command, evidence, transaction=None):
         raise write.WriteError('execution_timeout') from None
 
 
-async def _complete_worker(conn, budget, context, command, evidence, transaction=None):
-    task = asyncio.create_task(_worker(conn, budget, context, command, evidence, transaction))
+@dataclass(frozen=True,repr=False)
+class _WorkerOutcome:
+    # A completed private task must never render a receipt, SQL or raw exception,
+    # including asyncio debug/task diagnostics after outer cancellation.
+    value: object = None
+    error: Exception | None = None
+    def __repr__(self):return '<_WorkerOutcome private>'
+
+
+async def _worker_outcome(conn,budget,context,command,evidence,transaction=None):
     try:
-        return await asyncio.shield(task)
+        return _WorkerOutcome(value=await _worker(conn,budget,context,command,evidence,transaction))
+    except Exception as error:
+        return _WorkerOutcome(error=error)
+
+
+async def _complete_worker(conn, budget, context, command, evidence, transaction=None):
+    # Python3.15 shield logs the inner task's raw exception after cancellation,
+    # even when an owner later retrieves it. Shield a non-raising private outcome;
+    # only a current, uncancelled owner unwraps the result/error below.
+    task = asyncio.create_task(_worker_outcome(conn, budget, context, command, evidence, transaction))
+    try:
+        outcome = await asyncio.shield(task)
     except asyncio.CancelledError:
-        # Direct Task.cancel(), including repeated cancellation, must not release
-        # the connection while SQL still owns it. Cancellation is not an ack or
-        # rollback promise; this attempt may commit and require original-ID recovery.
+        # Repeated cancellation cannot release the connection before unwind.
         while not task.done():
             try:
                 await asyncio.shield(task)
             except asyncio.CancelledError:
                 pass
-            except Exception:
-                break
         if not task.cancelled():
-            task.exception()  # Consume only; preserve cancellation, never log payloads.
+            task.result()  # Consume privately; never unwrap a cancelled attempt.
         raise
+    if outcome.error is not None:
+        raise outcome.error
+    return outcome.value
 
 
 class CreateHandler:

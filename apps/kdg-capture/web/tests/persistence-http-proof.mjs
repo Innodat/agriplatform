@@ -13,14 +13,14 @@ assert.equal(JSON.parse(readFileSync(join(retained,'node_modules/typescript/pack
 const proof=join(root,'platform/deployment/.local/kdg-persistence-http-path-20261026','network-'+randomUUID()),capsule=join(proof,'capsule');mkdirSync(capsule,{recursive:true,mode:0o700});
 const paths=[
  'web/tests/persistence-child.mjs','web/tests/persistence-http-proof.mjs','web/tests/persistence-http-fixture.py','web/tsconfig.auth.json',
- 'web/src/read.ts','web/src/read-entry.ts','web/src/create.ts','web/src/create-entry.ts','web/src/edit.ts','web/src/edit-entry.ts','web/src/recovery.ts','web/src/recovery-entry.ts','web/src/auth-entry.ts','web/src/auth/lifecycle.ts','web/src/entry.ts','web/src/auth-public-input.ts',
- 'contracts/read-generated/types.gen.ts','contracts/create-generated/types.gen.ts','contracts/edit-generated/types.gen.ts','contracts/recovery-generated/types.gen.ts','contracts/generated/types.gen.ts',
+ 'web/src/history.ts','web/src/history-entry.ts','web/src/read-validation.ts','web/src/read.ts','web/src/read-entry.ts','web/src/create.ts','web/src/create-entry.ts','web/src/edit.ts','web/src/edit-entry.ts','web/src/recovery.ts','web/src/recovery-entry.ts','web/src/auth-entry.ts','web/src/auth/lifecycle.ts','web/src/entry.ts','web/src/auth-public-input.ts',
+ 'contracts/history-generated/types.gen.ts','contracts/read-generated/types.gen.ts','contracts/create-generated/types.gen.ts','contracts/edit-generated/types.gen.ts','contracts/recovery-generated/types.gen.ts','contracts/generated/types.gen.ts',
  'api/main.py','api/context.py','api/safe_errors.py','api/capture_commands.py','api/questionnaire.py','write-tools/transaction_context.py',
- ...['read_http','read_openapi','capture_read','create_http','edit_http','recovery_http','create_openapi','edit_openapi','recovery_openapi','capture_create_handler','capture_edit_handler','capture_create','capture_edit','operation_recovery','operation_outcomes'].map(x=>'write-candidate/'+x+'.py')
+ ...['history_http','history_openapi','capture_history','read_http','read_openapi','capture_read','create_http','edit_http','recovery_http','create_openapi','edit_openapi','recovery_openapi','capture_create_handler','capture_edit_handler','capture_create','capture_edit','operation_recovery','operation_outcomes'].map(x=>'write-candidate/'+x+'.py')
 ].map(x=>owner+'/'+x);
 const sources=Object.fromEntries(paths.map(path=>{const bytes=readFileSync(join(root,path)),dest=join(capsule,path);mkdirSync(dirname(dest),{recursive:true});writeFileSync(dest,bytes);return[path,hash(bytes)];}));
 writeFileSync(join(capsule,'package.json'),'{"private":true,"type":"module"}\n');symlinkSync(join(retained,'node_modules'),join(capsule,'node_modules'),'dir');
-writeFileSync(join(capsule,'tsconfig.json'),JSON.stringify({compilerOptions:{strict:true,target:'ES2022',module:'ESNext',moduleResolution:'Bundler',skipLibCheck:true,lib:['ES2022','DOM','DOM.Iterable'],rootDir:join(capsule,owner),outDir:join(capsule,'compiled')},files:['read-entry','create-entry','edit-entry','recovery-entry'].map(x=>join(capsule,owner,'web/src/'+x+'.ts'))}));
+writeFileSync(join(capsule,'tsconfig.json'),JSON.stringify({compilerOptions:{strict:true,target:'ES2022',module:'ESNext',moduleResolution:'Bundler',skipLibCheck:true,lib:['ES2022','DOM','DOM.Iterable'],rootDir:join(capsule,owner),outDir:join(capsule,'compiled')},files:['history-entry','read-entry','create-entry','edit-entry','recovery-entry'].map(x=>join(capsule,owner,'web/src/'+x+'.ts'))}));
 const types=spawnSync(process.execPath,[join(retained,'node_modules/typescript/bin/tsc'),'--project',join(capsule,'tsconfig.json')],{encoding:'utf8',timeout:30000});writeFileSync(join(proof,'types.log'),types.stdout+types.stderr);assert.ifError(types.error);assert.equal(types.status,0);
 let childOwner,shutdown={forced_stop:false,stop_signal:null,shutdown_failed:false},origin,server,passed=false,stopped=false,stderr='',stdout='';const checks=[],traffic=[];
 try{
@@ -32,15 +32,16 @@ try{
  const {ids}=ready;origin=ready.origin;assert.equal(new URL(origin).hostname,'127.0.0.1');
  const request=async(url,init)=>{assert.ok(url.startsWith('/api/v1/'));const response=await fetch(origin+url,init);traffic.push({path:url,method:init?.method??'GET',status:response.status});return response;};
  const fixture=async mode=>{const r=await fetch(origin+'/__fixture',mode?{method:'POST',body:JSON.stringify({mode})}:{});assert.equal(r.status,200);return r.json();};
+ const {createHistoryEntry}=await import(pathToFileURL(join(capsule,'compiled/web/src/history-entry.js')));
  const {createReadEntry}=await import(pathToFileURL(join(capsule,'compiled/web/src/read-entry.js')));
  const {createCreateEntry}=await import(pathToFileURL(join(capsule,'compiled/web/src/create-entry.js')));
  const {createEditEntry}=await import(pathToFileURL(join(capsule,'compiled/web/src/edit-entry.js')));
  const {createRecoveryEntry}=await import(pathToFileURL(join(capsule,'compiled/web/src/recovery-entry.js')));
  const session={user:{id:ids.account},access_token:'synthetic-token'};
  function entry(factory,adapter=request){let callback;const auth={getSession:async()=>({data:{session},error:null}),refreshSession:async()=>({data:{session},error:null}),signOut:async()=>({error:null}),onAuthStateChange:cb=>{callback=cb;return{data:{subscription:{unsubscribe(){}}}};}};const owner=factory({org:ids.org,auth,publish(){},beginSignIn:async()=>{},request:adapter});return{owner,replace(){callback('TOKEN_REFRESHED',{...session,access_token:'synthetic-replacement'});}};}
- const create=entry(createCreateEntry),edit=entry(createEditEntry),recover=entry(createRecoveryEntry),read=entry(createReadEntry);
+ const create=entry(createCreateEntry),edit=entry(createEditEntry),recover=entry(createRecoveryEntry),read=entry(createReadEntry),history=entry(createHistoryEntry);
  try{
-  await Promise.all([create.owner.start(),edit.owner.start(),recover.owner.start(),read.owner.start()]);
+  await Promise.all([create.owner.start(),edit.owner.start(),recover.owner.start(),read.owner.start(),history.owner.start()]);
   const command={operation_id:ids.create,command_version:1,capture_id:ids.capture,child_id:ids.child,questionnaire_version_id:ids.version,observation_date:'2026-10-26',captured_at:'2026-10-26T10:00:00Z',child_eligibility_ref:'synthetic',answers:{[ids.question]:{value:1},[ids.actor]:{value:false},[ids.child]:{value:false},[ids.version]:{value:false}}};
   const pending={account_id:ids.account,org_id:ids.org,command};
   const created=await create.owner.create(pending);assert.equal(created.kind,'committed');assert.equal(created.receipt.result.revision,'1');checks.push('create1_over_loopback');
@@ -126,9 +127,54 @@ try{
   }
   checks.push('auth_replacement_late_headers_and_body_new_execution_usable');
   state=await fixture();assert.equal(state.acquired,state.released);assert.equal(state.outcomes,4);assert.equal(state.history,3);assert.equal(state.captures[ids.capture].revision,2);
+
+  await fixture('history_seed');
+  const historyPending={account_id:ids.account,org_id:ids.org,from_date:'2026-10-01',to_date:'2026-10-26',limit:2};
+  const all=[],pages=[];let historyCursor;
+  do{
+   const result=await history.owner.history({...historyPending,...(historyCursor?{cursor:historyCursor}:{})});
+   assert.equal(result.kind,'loaded');assert.equal(result.page.account_id,ids.account);assert.equal(result.page.org_id,ids.org);
+   pages.push(result.page);all.push(...result.page.items);historyCursor=result.page.next_cursor;
+  }while(historyCursor);
+  assert.ok(pages.length>=4);assert.equal(new Set(all.map(item=>item.capture_id)).size,all.length);
+  assert.equal(all.filter(item=>item.capture_id.endsWith('-0000000000c9')).length,1);
+  assert.ok(all.every(item=>item.owner_account_id===ids.account&&item.org_id===ids.org&&item.observation_date>='2026-10-01'&&item.observation_date<='2026-10-26'));
+  const second=all.find(item=>item.questionnaire_version==='2');assert.equal(second.definition.questions[0].label,'Second original definition');
+  assert.equal(all.find(item=>item.capture_id===ids.capture).revision,'2');
+  const tieA=all.findIndex(item=>item.capture_id.startsWith('000000c9-')),tieB=all.findIndex(item=>item.capture_id.startsWith('000000ca-'));
+  assert.ok(tieA<tieB,'microseconds precede inverse UUID tie breaker');
+  assert.ok(Object.isFrozen(pages[0].items[0].definition.questions));
+  checks.push('history_row_pages_inclusive_dates_original_versions_microseconds_no_loss');
+  const beforeHistoryDenial=await fixture('deny');
+  assert.deepEqual(await history.owner.history({...historyPending,cursor:pages[0].next_cursor}),{kind:'error',status:403,error_id:'access_denied'});
+  assert.equal((await fixture()).acquired,beforeHistoryDenial.acquired);
+  await fixture('foreign_read');const foreignPage=await history.owner.history(historyPending);assert.equal(foreignPage.kind,'invalid_response');
+  await fixture('inactive_removed');assert.equal((await history.owner.history(historyPending)).kind,'loaded');
+  checks.push('history_current_authority_before_checkout_and_empty_scope_validation');
+  await fixture('history_bytes');
+  const bytePending={...historyPending,from_date:'2026-10-20',to_date:'2026-10-20',limit:100};
+  const byteFirst=await history.owner.history(bytePending);assert.equal(byteFirst.kind,'loaded');assert.equal(byteFirst.page.items.length,4);assert.ok(byteFirst.page.next_cursor);
+  const byteLast=await history.owner.history({...bytePending,cursor:byteFirst.page.next_cursor});assert.equal(byteLast.kind,'loaded');assert.equal(byteLast.page.items.length,1);assert.equal(byteLast.page.next_cursor,null);
+  assert.equal(new Set([...byteFirst.page.items,...byteLast.page.items].map(item=>item.capture_id)).size,5);
+  checks.push('history_actual_utf8_byte_continuation_without_skipping');
+  for(const phase of ['headers','body']){
+   const reached=deferred(),release=deferred();let held=true;
+   const adapter=async(url,init)=>{
+    const r=await request(url,init);if(!url.startsWith('/api/v1/captures?')||!held)return r;held=false;
+    if(phase==='headers'){reached.resolve();await release.promise;return r;}
+    const bytes=new Uint8Array(await r.arrayBuffer());
+    return new Response(new ReadableStream({async pull(c){reached.resolve();await release.promise;try{c.enqueue(bytes);c.close();}catch{}}}),{status:r.status,headers:r.headers});
+   };
+   const old=entry(createHistoryEntry,adapter);await old.owner.start();const work=old.owner.history(historyPending);await reached.promise;
+   old.replace();assert.equal((await work).kind,'superseded');release.resolve();
+   for(let i=0;i<50&&old.owner.state().kind!=='authorized';i++)await new Promise(r=>setTimeout(r,2));
+   assert.equal((await old.owner.history(historyPending)).kind,'loaded');old.owner.dispose();
+  }
+  checks.push('history_auth_replacement_late_headers_and_body_fenced');
+  state=await fixture();assert.equal(state.acquired,state.released);assert.equal(state.outcomes,4);assert.equal(state.history,3);
   writeFileSync(join(proof,'integration-state.json'),JSON.stringify(state,null,2)+'\n');
   passed=true;
- }finally{create.owner.dispose();edit.owner.dispose();recover.owner.dispose();read.owner.dispose();}
+ }finally{create.owner.dispose();edit.owner.dispose();recover.owner.dispose();read.owner.dispose();history.owner.dispose();}
 }finally{
  if(server&&childOwner)shutdown=await stopChild(server,childOwner,origin);
  stopped=!!childOwner&&childOwner.state.code===0&&!shutdown.forced_stop;writeFileSync(join(proof,'fixture.log'),stdout+stderr);

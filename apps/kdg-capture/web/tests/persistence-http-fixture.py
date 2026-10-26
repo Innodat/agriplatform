@@ -27,6 +27,8 @@ import create_http
 import edit_http
 import recovery_http
 import read_http
+import history_http
+import capture_history as history_read
 import capture_read as read
 import main as context_http
 import capture_create as create
@@ -44,6 +46,7 @@ class Rows:
     def __init__(self,value=None):self.value=value
     def mappings(self):return self
     def one_or_none(self):return self.value
+    def all(self):return self.value
 
 class Store:
     def __init__(self):
@@ -94,13 +97,22 @@ class Connection:
             result=dict(id=p['capture'],org_id=p['org'],owner_account_id=p['account'])
             if sql==handler.STORED_CAPTURE:result['child_id']=capture['child']
             return Rows(result)
+        if sql==history_read.HISTORY:
+            rows=[]
+            for key,capture in self.captures.items():
+                if capture['org']!=p['org'] or capture['account']!=p['account'] or not p['from_date']<=date.fromisoformat(capture['date'])<=p['to_date']:continue
+                position=(datetime.fromisoformat(capture['created_at']),key)
+                if p['last_id'] is not None and position>=(p['last_created_at'],p['last_id']):continue
+                rows.append((position,key))
+            rows.sort(reverse=True)
+            return Rows([self.execute(read.DETAIL,dict(org=p['org'],account=p['account'],capture=key)).one_or_none() for _,key in rows[:p['row_limit']]])
         if sql==read.DETAIL:
             capture=self.captures.get(p['capture'])
             if not capture or capture['org']!=p['org'] or capture['account']!=p['account']:return Rows()
             value=dict(capture_id=p['capture'],org_id=capture['org'],owner_account_id=capture['account'],
                 owner_actor_id=capture['owner_actor'],child_id=capture['child'],child_label='Synthetic child',
                 questionnaire_id=capture['questionnaire'],questionnaire_version_id=capture['version'],
-                questionnaire_version=1,definition=initial_definition([QUESTION,ACTOR,CHILD,VERSION]).model_dump(),
+                questionnaire_version=capture.get('display_version',1),definition=copy.deepcopy(capture.get('definition',initial_definition([QUESTION,ACTOR,CHILD,VERSION]).model_dump())),
                 revision=capture['revision'],observation_date=date.fromisoformat(capture['date']),answers=copy.deepcopy(capture['answers']),
                 captured_at=capture['captured_at'],created_by=capture['created_by'],created_at=datetime.fromisoformat(capture['created_at']),
                 updated_by=capture['updated_by'],updated_at=datetime.fromisoformat(capture['updated_at']))
@@ -149,11 +161,12 @@ async def serve(directory):
     edit_app=edit_http._create_app(edit_handler.EditHandler(**args),store,ORG)
     recovery_app=recovery_http._create_app(recovery.RecoveryHandler(**args),store,ORG)
     read_app=read_http._create_app(read.ReadHandler(**args),store,ORG)
+    history_app=history_http._create_app(history_read.HistoryHandler(**args),store,ORG)
     context_app=context_http.create_app(**args)
     @asynccontextmanager
     async def lifespan(app):
         async with AsyncExitStack() as stack:
-            for child in (create_app,edit_app,recovery_app,read_app,context_app):await stack.enter_async_context(child.router.lifespan_context(child))
+            for child in (create_app,edit_app,recovery_app,read_app,history_app,context_app):await stack.enter_async_context(child.router.lifespan_context(child))
             yield
         (directory/'storage-final.json').write_text(json.dumps(store.snapshot(),sort_keys=True,indent=2)+'\n')
     from starlette.applications import Starlette
@@ -167,10 +180,30 @@ async def serve(directory):
         if path=='/__fixture':
             if scope['method']=='POST':
                 raw=await receive();mode=json.loads(raw.get('body',b'{}')).get('mode')
-                if mode not in ('all','assigned','assigned_removed','deny','expired','mismatch','outage','fail_acquire','fail_sql','fail_commit','fail_release','foreign_read','inactive_removed','invalid_detail'):return await JSONResponse({},status_code=422)(scope,receive,send)
+                if mode not in ('all','assigned','assigned_removed','deny','expired','mismatch','outage','fail_acquire','fail_sql','fail_commit','fail_release','foreign_read','inactive_removed','invalid_detail','history_seed','history_bytes'):return await JSONResponse({},status_code=422)(scope,receive,send)
                 store.mode=mode
+                if mode in ('history_seed','history_bytes'):
+                    # Explicit disposable synthetic records; no commands/receipts or authority minted.
+                    with store.lock:
+                        base=copy.deepcopy(store.captures[CAPTURE])
+                        for n in range(201,210) if mode=='history_seed' else range(301,306):
+                            key=f'{n:08x}-cccc-4ccc-8ccc-{n:012x}'
+                            value=copy.deepcopy(base)
+                            value.update(created_at='2026-10-26T00:00:00.000002Z' if n==201 else '2026-10-26T00:00:00.000001Z',date='2026-10-01')
+                            if n==202:
+                                value['display_version']=2;value['version']=UNKNOWN
+                                value['definition']=initial_definition([QUESTION,ACTOR,CHILD,VERSION]).model_dump()
+                                value['definition']['questions'][0]['label']='Second original definition'
+                            if n==207:value['account']=ACTOR
+                            if n==208:value['org']=ACTOR
+                            if n==209:value['date']='2026-09-30'
+                            if mode=='history_bytes':
+                                ids=[f'{q:08x}-dddd-4ddd-8ddd-{q:012x}' for q in range(1,26)]
+                                value.update(date='2026-10-20',definition=dict(schema_version=1,questions=[dict(id=q,type='text',label='Text',required=True) for q in ids]),answers={q:{'value':'😀'*5000} for q in ids})
+                            store.captures[key]=value
+
             return await JSONResponse(store.snapshot())(scope,receive,send)
-        child=context_app if path=='/api/v1/context' else recovery_app if path.startswith('/api/v1/operations/') else create_app if path=='/api/v1/captures' else read_app if scope['method']=='GET' else edit_app
+        child=context_app if path=='/api/v1/context' else recovery_app if path.startswith('/api/v1/operations/') else (history_app if scope['method']=='GET' else create_app) if path=='/api/v1/captures' else read_app if scope['method']=='GET' else edit_app
         await child(scope,receive,send)
     sock=socket.socket();sock.bind(('127.0.0.1',0));sock.listen(128)
     server=uvicorn.Server(uvicorn.Config(dispatch,log_level='warning',lifespan='on',timeout_graceful_shutdown=5))

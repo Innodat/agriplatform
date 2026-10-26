@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import {test} from 'node:test';
-import {readCapture} from '../src/read.ts';
+import {readCapture} from '../../../../compiled/web/src/read.js';
 import {A,O,C,Q,detail,pending,response} from './read-fixture.mjs';
 const read=(request,options={},work=pending(),session={account_id:A,access_token:'synthetic'})=>readCapture(session,work,{signal:new AbortController().signal,isCurrent:()=>true,request,timeoutMs:1000,...options});
 const deferred=()=>{let resolve;const promise=new Promise(r=>resolve=r);return{promise,resolve};};

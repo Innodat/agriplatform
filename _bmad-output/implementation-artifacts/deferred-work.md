@@ -120,3 +120,7 @@
 - source_spec: `_bmad-output/implementation-artifacts/spec-kdg-own-capture-readback.md`
   summary: Qualify the KDG own-detail joined original questionnaire read against actual PostgreSQL during separately authorized native qualification.
   evidence: Blind B9 and verification VG1 show SQL-string doubles return prepared rows even if the original-version predicate is removed. Use two versions and an older owned capture plus restricted runtime role; current synthetic-only delivery explicitly excludes native/DB qualification and activation.
+
+- source_spec: `_bmad-output/implementation-artifacts/spec-kdg-own-history-pages.md`
+  summary: Qualify actual PostgreSQL own-history selection, original versions, keyset continuation and retained read after child deactivation or assignment removal during separately authorized native work.
+  evidence: Verification VG1 shows SQL-string doubles independently filter rows and would not detect an unintended active-child/assignment predicate. Current delivery explicitly excludes native/DB qualification and activation; current authority and owner/date predicates still apply.

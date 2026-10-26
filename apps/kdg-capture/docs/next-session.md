@@ -1,3 +1,32 @@
+## Current delivery - protected own-history pages, 2026-10-26
+
+Read [history-page evidence](OWN_HISTORY_PAGES_EVIDENCE.md), its
+[machine record](evidence/own-history-pages-20261026.json) and current
+[contracts](contracts.md). Candidate GET /api/v1/captures, generated history contract
+and isolated one-page transport/Auth consumer return bounded own-history pages with
+original definitions/current detail. Inclusive explicit dates, descending immutable
+creation tuple, current per-page own-read and independent SQL scope/filter predicates
+apply. Unsigned cursors navigate only; fingerprints/HMAC remain deferred. Row and 2 MiB
+byte caps continue after the last included item without skipping the next row.
+
+Source-bound coordinator checks pass 276 backend, 461 compiled Auth/client and 127 direct
+cases, four fixture guards, thirteen loopback groups, five strict TS7.0.2 adapter configs,
+ten schema/client freshness checks and four scaffold parities. Cancellation canaries
+also fixed Python3.15 shield's raw-exception diagnostics through private redacted worker
+outcomes while retaining exclusive ownership and safe errors. Review: ten addressed,
+one rejected with evidence and one native qualification group deferred.
+
+Continue authorized implementation without repeated next/approval stops. Next missing
+consumer is separately scoped offline own-history page/definition merging and exact
+own-read observation evidence; consult approved contracts before selecting the slice.
+No UI/editor/Leave, browser/queue/default-startup activation, real accounts/Access,
+actual DB/native/Docker qualification, migrations/provisioning, deployment/pilot/
+production or cleanup. Preserve concurrent work, historical evidence/resources and
+approved dependencies including TypeScript7.0.2. Never read/run/copy the preexisting
+untracked migration fixture. Historical handoffs follow unchanged.
+
+---
+
 ## Current delivery - protected own-capture readback, 2026-10-26
 
 Read [readback evidence](OWN_CAPTURE_READBACK_EVIDENCE.md), its

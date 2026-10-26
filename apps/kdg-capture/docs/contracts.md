@@ -1126,3 +1126,47 @@ read observation, grants later write authority or automatically retries. Operati
 recovery still returns the original receipt even when detail now has a later revision.
 Listing, pagination, offline cache integration and activation remain separate consuming
 work. See [readback evidence](OWN_CAPTURE_READBACK_EVIDENCE.md).
+
+
+## Candidate own-history pagination — 2026-10-26
+
+`GET /api/v1/captures` is an explicitly constructed own-history candidate. Every page
+requires current fixed-org `kdg_capture.capture.read.own` and verified account/actor
+before checkout. Inclusive `from_date` and `to_date` are explicit date-only filters;
+`limit` defaults to 30 and is bounded to 1–100. The caller fixes the dates for a download;
+the eventual phone host calculates today plus previous 29 days. Unknown/duplicate
+query keys, account/org selectors, malformed bounds/limit/cursor and nonempty bodies
+are refused safely. Child assignment, active status and create/edit grants do not
+filter already-owned readable history.
+
+Ordering and continuation use descending immutable `(created_at,capture_id)`; current
+observation dates filter independently. Full records carry current answers/revision,
+permitted child label, original questionnaire definition/version and stored provenance
+under the existing detail contract. A page echoes its verified account/org and query
+binding, includes items and a nullable next_cursor. Empty is a verified current query
+result, never an inference about deletion. Pages are separate reads; concurrent edits
+or late synchronization may require refresh.
+
+Cursor bytes are closed, versioned canonical base64url JSON, bounded and strictly
+decoded. Compare account/org/own-read mode/date/limit binding with the current verified
+request and reject mismatches. The tuple is untrusted navigation; SQL always applies
+current org/owner/date predicates independently. This is intentionally unsigned and
+not tamper-evident: a caller choosing another valid position can only navigate their
+currently authorized query. No opaque value substitutes for authority, and there is
+no server cursor registry, expiry/worker-affinity mechanism, new service or signing
+key. This clarifies the earlier scope/filter-binding seed; it does not introduce HMAC.
+
+The server selects at most limit+1 rows and returns at most 100 full records, each
+subject to the existing 512 KiB detail bound. A separate 2 MiB actual UTF8 page bound may
+reduce the count; continuation follows the last included tuple, preserving the first
+omitted row for the next page. No partial item or invalid required stored evidence
+becomes success. Every response is private/no-store; existing current authorization,
+safe errors, one bounded read-only execution/worker ownership and final response
+serialization safeguards apply. No network-completion deadline is promised.
+
+The isolated one-page client/Auth consumer pins account/org/query and rejects an
+invalid whole page, stale Auth result, duplicate/out-of-order record or inconsistent
+continuation. It neither walks pages automatically nor changes cache, queue, saved
+status, uncertain-operation receipts or offline observations. Offline merging,
+read-observation renewal, history UI and activation remain later consuming work.
+See [history-page evidence](OWN_HISTORY_PAGES_EVIDENCE.md).

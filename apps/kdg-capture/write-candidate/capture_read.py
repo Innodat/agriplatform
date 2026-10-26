@@ -39,14 +39,16 @@ class CaptureDetail(Closed):
     updated_by: Identifier
     updated_at: DeviceTime
 
-DETAIL='''SELECT c.id AS capture_id,c.org_id,c.owner_account_id,c.owner_actor_id,
+PROJECTION='''SELECT c.id AS capture_id,c.org_id,c.owner_account_id,c.owner_actor_id,
 c.child_id,ch.display_name AS child_label,c.questionnaire_id,c.questionnaire_version_id,
 v.display_version AS questionnaire_version,v.definition,c.revision,c.observation_date,
 c.answers,c.captured_at,c.created_by,c.created_at,c.updated_by,c.updated_at
 FROM kdg_capture.capture c
 JOIN kdg_capture.child ch ON ch.org_id=c.org_id AND ch.id=c.child_id
 JOIN kdg_capture.questionnaire_version v ON v.org_id=c.org_id
-AND v.questionnaire_id=c.questionnaire_id AND v.id=c.questionnaire_version_id
+AND v.questionnaire_id=c.questionnaire_id AND v.id=c.questionnaire_version_id'''
+
+DETAIL=PROJECTION+'''
 WHERE c.org_id=CAST(:org AS uuid) AND c.owner_account_id=CAST(:account AS uuid)
 AND c.id=CAST(:capture AS uuid)'''
 

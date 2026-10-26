@@ -1,0 +1,4 @@
+{
+ "extends":"./tsconfig.json",
+ "files":["src/history.ts","tests/history.types.ts"]
+}

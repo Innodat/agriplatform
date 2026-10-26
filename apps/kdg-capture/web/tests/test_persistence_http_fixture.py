@@ -42,4 +42,23 @@ class FixtureGuards(unittest.TestCase):
             for scope in ('org','account','capture'):
                 self.assertIsNone(connection.execute(fixture.read.DETAIL,dict(parameters,**{scope:fixture.UNKNOWN})).value)
 
+    def test_history_scope_dates_position_limit_and_original_versions(self):
+        from datetime import date
+        store=fixture.Store();connection=fixture.Connection(store)
+        parameters=dict(org=fixture.ORG,account=fixture.ACCOUNT,actor=fixture.ACTOR,child=fixture.CHILD,
+            version=fixture.VERSION,questionnaire=fixture.QUESTIONNAIRE,capture=fixture.CAPTURE,
+            date=date(2026,10,26),answers='{}',device='2026-10-26T10:00:00Z')
+        with connection.begin():
+            connection.execute(fixture.create.CAPTURE_INSERT,parameters)
+            connection.captures[fixture.CAPTURE]['created_at']='2026-10-26T00:00:00.000001Z'
+            query=dict(org=fixture.ORG,account=fixture.ACCOUNT,from_date=date(2026,10,26),to_date=date(2026,10,26),last_id=None,last_created_at=None,row_limit=2)
+            rows=connection.execute(fixture.history_read.HISTORY,query).all();self.assertEqual(len(rows),1)
+            for scope in ('org','account'):
+                self.assertEqual(connection.execute(fixture.history_read.HISTORY,{**query,scope:fixture.UNKNOWN}).all(),[])
+            self.assertEqual(connection.execute(fixture.history_read.HISTORY,{**query,'to_date':date(2026,10,25)}).all(),[])
+            self.assertEqual(connection.execute(fixture.history_read.HISTORY,{**query,'last_id':fixture.CAPTURE,'last_created_at':rows[0]['created_at']}).all(),[])
+            self.assertEqual(connection.execute(fixture.history_read.HISTORY,{**query,'row_limit':0}).all(),[])
+            rows[0]['definition']['questions'][0]['label']='mutation'
+            self.assertNotEqual(connection.execute(fixture.history_read.HISTORY,query).all()[0]['definition']['questions'][0]['label'],'mutation')
+
 if __name__=='__main__':unittest.main()

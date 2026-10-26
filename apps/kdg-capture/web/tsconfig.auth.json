@@ -18,6 +18,9 @@
     "skipLibCheck": true
   },
   "files": [
+    "src/history-entry.ts",
+    "tests/history.types.ts",
+    "tests/history-entry.types.ts",
     "src/read-entry.ts",
     "tests/read.types.ts",
     "tests/read-entry.types.ts",
