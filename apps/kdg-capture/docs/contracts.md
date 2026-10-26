@@ -1642,3 +1642,43 @@ contracts remain. No endpoint/OpenAPI/command/schema upgrade or activation is ad
 See [retained-proposal evidence](RETAINED_PROPOSAL_RESOLUTION_EVIDENCE.md). Qualification
 and review status is recorded there; no full Story2.3/UI, physical-device/browser update,
 native permissions/rollback or release readiness is implied.
+
+## Online organization read API subset — 2026-10-26
+
+The separately constructed `admin_http` candidate owns
+`GET /api/v1/admin/captures` and `GET /api/v1/admin/captures/{capture_id}`.
+Every request, including continuation, checks current fixed-organization
+`kdg_capture.capture.read.all`, verified account/durable actor/membership and exact
+organization authorization/resource scope before checkout. No client selector, role
+name, own-read grant or offline observation confers all-read authority. Denial has no
+own fallback. Server transaction mode is `all_read`; organization predicates and
+original child/questionnaire joins apply independently of the cursor. Existing own
+endpoints and offline observation remain unchanged.
+
+Detail returns the existing complete `CaptureDetail`, including immutable owner/actor,
+original questionnaire definition and stored creation/update provenance. It adds no
+actor names, audit events, revision archive, write acknowledgement or edit authority.
+Missing/foreign organization detail remains the same safe 404; invalid required stored
+evidence fails safely without partial results. Historical reading does not depend on
+current child activity or assignment.
+
+History requires explicit inclusive `from_date`/`to_date`, default `limit=30`, maximum
+100, optional canonical base64url cursor of at most 2048 bytes. Closed navigation binds
+current account/org/read.all/date/limit and descending immutable `(created_at,id)`.
+Own/all cursors are incompatible. Current authority and independent SQL filters remain
+required for any valid cursor position; no HMAC, cursor registry or implied snapshot.
+The closed page contains `org_id`, `account_id`, dates, limit, complete items and nullable
+`next_cursor`, with no observation, expiry or offline lease. Row selection is limit+1;
+actual UTF8 limits remain 512 KiB per detail and 2 MiB per page. Byte-limited continuation
+starts after the last included item without skipping omitted valid rows.
+
+One original ten-second budget covers authorization, bounded acquisition, worker-owned
+read-only transaction/release and final response construction. Access has at most three
+seconds and SQL entry requires the original one-second-fresh observation. Cancellation
+awaits worker unwind. All responses/errors are private/no-store with stable safe typed
+errors. Nothing mounts these routes or sends all-record data to browser persistence.
+
+Owner-exported `admin-openapi.json` and `contracts/admin-generated/` describe this subset;
+[online read evidence](ONLINE_ADMIN_READ_EVIDENCE.md) records current qualification.
+Actor-display mapping, audit DTO/routes, online portal/session UI, actual restricted-role
+SQL and activation are not established by this API subset. No complete Story 3.1 claim.

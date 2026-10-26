@@ -54,14 +54,35 @@ AND c.id=CAST(:capture AS uuid)'''
 
 
 def _snapshot(row,context,lookup):
-    if row is None:
-        raise write.WriteError('capture_unavailable')
+    # Preserve strict own semantics before sharing structural validation.
+    value=_normalized_record(row)
     try:
-        value=dict(row)
-        for key,item in value.items():
-            if isinstance(item,UUID):value[key]=str(item)
         if (value['capture_id'],value['org_id'],value['owner_account_id'])!=(lookup.capture_id,context.org_id,context.account_id):
             raise write.WriteError('capture_unavailable')
+    except KeyError:raise write.WriteError('capture_read_unavailable') from None
+    return _validated_record(value)
+
+
+def _normalized_record(row):
+    if row is None:raise write.WriteError('capture_unavailable')
+    try:return {key:str(item) if isinstance(item,UUID) else item for key,item in dict(row).items()}
+    except (ValueError,TypeError,KeyError,RecursionError,OverflowError):
+        raise write.WriteError('capture_read_unavailable') from None
+
+
+def _bound_record(row,context,lookup):
+    value=_normalized_record(row)
+    try:
+        if (value['capture_id'],value['org_id'])!=(lookup.capture_id,context.org_id):
+            raise write.WriteError('capture_unavailable')
+        return value
+    except (ValueError,TypeError,KeyError):
+        raise write.WriteError('capture_read_unavailable') from None
+
+
+def _validated_record(value):
+    """Validate the original definition, whole answers and stored provenance."""
+    try:
         for key in ('revision','questionnaire_version'):
             if type(value[key]) is not int:raise ValueError('invalid_revision')
             value[key]=str(value[key])

@@ -168,6 +168,9 @@ class CreateHandler:
         self.org_id, self.access_url = org_id, access_url.rstrip('/')
         self._service_key, self._transport = service_key, transport
 
+    def _resource_matches(self, evidence):
+        return evidence.resource_scope.account_id == evidence.account_id
+
     async def _authorize(self, token, budget):
         try:
             # One total window bounds both capability checks, transport AND body.
@@ -205,7 +208,7 @@ class CreateHandler:
                             now = datetime.now(timezone.utc)
                             if (evidence.permission != permission
                                 or evidence.authorization_scope.org_id != self.org_id
-                                or evidence.resource_scope.account_id != evidence.account_id
+                                or not self._resource_matches(evidence)
                                 or not observed_start-timedelta(seconds=1) <= evidence.checked_at <= now+timedelta(seconds=1)):
                                 raise ValueError('invalid_authority')
                             budget.remaining()

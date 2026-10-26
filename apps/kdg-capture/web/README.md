@@ -381,3 +381,15 @@ recovery still delivers fresh selected edits. With N set to retained Node26.11.1
 See
 [retained-proposal evidence](../docs/RETAINED_PROPOSAL_RESOLUTION_EVIDENCE.md) for current
 qualification. Existing schema4 remains unmounted; previous decisions/bytes are retained.
+
+The unmounted online administrator read candidate has a separate no-observation page
+contract. Its generated types cannot substitute for the own-history offline observation.
+From repository root with N set to retained Node 26.11.1:
+
+```sh
+"$N" platform/deployment/.local/web-baseline-qualification/new-5/root/node_modules/typescript/bin/tsc --project apps/kdg-capture/web/tsconfig.admin.json
+"$N" apps/kdg-capture/web/tests/admin-read-http-proof.mjs
+```
+
+See [online administrator read evidence](../docs/ONLINE_ADMIN_READ_EVIDENCE.md) for
+current proof status and limits. No portal, all-record cache or startup activation.

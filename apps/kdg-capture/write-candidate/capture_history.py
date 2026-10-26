@@ -65,7 +65,7 @@ def _pairs(pairs):
         result[key]=value
     return result
 
-def decode_cursor(raw):
+def _decode_cursor(raw,model):
     """Strict closed canonical syntax, before any authority call or checkout."""
     try:
         if type(raw) is not str or not 1<=len(raw)<=MAX_CURSOR_BYTES or not re.fullmatch(r'[A-Za-z0-9_-]+',raw):raise ValueError('cursor')
@@ -73,7 +73,7 @@ def decode_cursor(raw):
         value=json.loads(encoded.decode('ascii'),object_pairs_hook=_pairs)
         # Reject duplicate keys, alternate JSON spellings/padding and bool version.
         if _encode(value)!=raw or type(value.get('v')) is not int:raise ValueError('cursor')
-        cursor=Continuation.model_validate(value)
+        cursor=model.model_validate(value)
         instant=datetime.fromisoformat(cursor.last_created_at)
         if instant.astimezone(timezone.utc).isoformat().replace('+00:00','Z')!=cursor.last_created_at:raise ValueError('cursor')
         if cursor.from_date>cursor.to_date:raise ValueError('cursor')
@@ -81,7 +81,11 @@ def decode_cursor(raw):
     except (ValueError,TypeError,KeyError,AttributeError,UnicodeError,RecursionError,OverflowError):
         raise protected.HandlerError(422,'validation_failed') from None
 
-def parse_query(items):
+def decode_cursor(raw):
+    return _decode_cursor(raw,Continuation)
+
+
+def _parse_query(items,decoder):
     values={}
     try:
         for key,value in items:
@@ -91,22 +95,33 @@ def parse_query(items):
             if not re.fullmatch(r'[1-9][0-9]{0,2}',values['limit']):raise ValueError('limit')
             values['limit']=int(values['limit'])
         query=Query.model_validate(values)
-        if query.cursor is not None:decode_cursor(query.cursor)
+        if query.cursor is not None:decoder(query.cursor)
         return query
     except (ValueError,TypeError,RecursionError):
         raise protected.HandlerError(422,'validation_failed') from None
 
-def position(query,context):
+def parse_query(items):
+    return _parse_query(items,decode_cursor)
+
+
+def _position(query,context,decoder,permission):
     if query.cursor is None:return None
-    cursor=decode_cursor(query.cursor)
-    if (cursor.org_id,cursor.account_id,cursor.permission,cursor.from_date,cursor.to_date,cursor.limit)!=(context.org_id,context.account_id,PERMISSION,query.from_date,query.to_date,query.limit):
+    cursor=decoder(query.cursor)
+    if (cursor.org_id,cursor.account_id,cursor.permission,cursor.from_date,cursor.to_date,cursor.limit)!=(context.org_id,context.account_id,permission,query.from_date,query.to_date,query.limit):
         raise protected.HandlerError(422,'validation_failed')
     return cursor
 
-def continuation(query,context,detail):
-    return _encode(dict(v=1,org_id=context.org_id,account_id=context.account_id,permission=PERMISSION,
+def position(query,context):
+    return _position(query,context,decode_cursor,PERMISSION)
+
+
+def _continuation(query,context,detail,permission):
+    return _encode(dict(v=1,org_id=context.org_id,account_id=context.account_id,permission=permission,
         from_date=query.from_date,to_date=query.to_date,limit=query.limit,
         last_created_at=detail.created_at,last_id=detail.capture_id))
+
+def continuation(query,context,detail):
+    return _continuation(query,context,detail,PERMISSION)
 
 # Independently enforce every scope/filter predicate: the position carries no authority.
 HISTORY=read.PROJECTION+'''
@@ -116,29 +131,30 @@ AND c.observation_date<=CAST(:to_date AS date)
 AND (CAST(:last_id AS uuid) IS NULL OR (c.created_at,c.id)<(CAST(:last_created_at AS timestamptz),CAST(:last_id AS uuid)))
 ORDER BY c.created_at DESC,c.id DESC LIMIT :row_limit'''
 
-def _page(rows,budget,context,query,evidence):
+def _page_details(rows,budget,context,query,last,snapshot):
     if len(rows)>query.limit+1:raise write.WriteError('capture_read_unavailable')
-    last=position(query,context)
     previous=(datetime.fromisoformat(last.last_created_at),last.last_id) if last else None
     details=[]
     for row in rows:
         budget.remaining()
         try:
-            detail=read._snapshot(row,context,read.Lookup(capture_id=str(row['capture_id'])))
+            detail=snapshot(row,context,read.Lookup(capture_id=str(row['capture_id'])))
             current=(datetime.fromisoformat(detail.created_at),detail.capture_id)
             if not query.from_date<=detail.observation_date<=query.to_date or (previous is not None and current>=previous):raise ValueError('invalid_order')
             previous=current;details.append(detail)
         except (ValueError,TypeError,KeyError,write.WriteError):
             raise write.WriteError('capture_read_unavailable') from None
+    return details
+
+
+def _bounded_page(page,details,budget,context,query,make_cursor):
     included=[]
-    observation=OwnReadObservation.model_validate({**evidence.model_dump(mode='json'),'expires_at':evidence.checked_at+timedelta(days=7)})
-    page=HistoryPage(observation=observation,org_id=context.org_id,account_id=context.account_id,from_date=query.from_date,to_date=query.to_date,limit=query.limit,items=[],next_cursor=None)
     # Serialize the empty envelope once. Item bytes and commas accumulate;
     # only the small nullable cursor overhead changes for each candidate.
     envelope_bytes=len(page.model_dump_json().encode('utf-8'))
     item_bytes=0;next_cursor=None
     for index,detail in enumerate(details[:query.limit]):
-        candidate_cursor=continuation(query,context,detail) if index+1<len(details) else None
+        candidate_cursor=make_cursor(query,context,detail) if index+1<len(details) else None
         candidate_items=item_bytes+len(detail.model_dump_json().encode('utf-8'))+(1 if included else 0)
         # Canonical continuation contains only ASCII base64url characters.
         cursor_bytes=len(candidate_cursor)+2 if candidate_cursor is not None else 4
@@ -153,6 +169,12 @@ def _page(rows,budget,context,query,evidence):
         raise write.WriteError('capture_read_unavailable')
     budget.remaining()
     return page
+
+def _page(rows,budget,context,query,evidence):
+    details=_page_details(rows,budget,context,query,position(query,context),read._snapshot)
+    observation=OwnReadObservation.model_validate({**evidence.model_dump(mode='json'),'expires_at':evidence.checked_at+timedelta(days=7)})
+    page=HistoryPage(observation=observation,org_id=context.org_id,account_id=context.account_id,from_date=query.from_date,to_date=query.to_date,limit=query.limit,items=[],next_cursor=None)
+    return _bounded_page(page,details,budget,context,query,continuation)
 
 def _transaction(conn,budget,context,query,evidence):
     last=position(query,context)

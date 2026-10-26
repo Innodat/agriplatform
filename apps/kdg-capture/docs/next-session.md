@@ -1,3 +1,28 @@
+## Current delivery — completed online organization read API, 2026-10-26
+
+Read [online read evidence](ONLINE_ADMIN_READ_EVIDENCE.md) and the
+[delivery spec](../../../_bmad-output/implementation-artifacts/spec-kdg-online-admin-read.md).
+Baseline is 328049f1ac6e67df74c6a88a2ef139849c25df03. The inert Story 3.1 history/detail
+API subset is implemented under exact current capture.read.all, separate from own-only
+routes and offline observations. Final 33-command qualification passes: 377 synthetic
+backend tests, 37 actual HTTP checks, 127 direct client tests, eight affected HTTP proofs,
+eight export/eight generated-client checks, strict TypeScript 7.0.2 and five scaffold
+parities. Twelve unchanged complete-source browser/store proofs are reused.
+Independent review: seven fixes, three low refinements rejected, one native SQL
+qualification deferred before activation. Detail CPU work follows commit; test-only
+phase timing is characterized and corrected without changing application deadlines.
+No schema change, actor names, audit endpoint, portal, full Story 3.1 or activation claim.
+Continue ready authorized synthetic local/CI work without routine stops. Next assess
+record-owned bounded online audit DTO/cursor/actor-display closure against approved
+Story 3.1 before implementation; do not infer unresolved contracts or full-story readiness.
+Preserve concurrent work, historical evidence/resources and TypeScript 7.0.2. No UI/editor/
+Leave, active startup/browser/worker/sender/queue integration, real accounts/Auth/Access,
+native PostgreSQL/Docker, provisioning/migrations, deployment/production/pilot or cleanup.
+Fingerprints/HMAC remain deferred. Never read/run/copy/hash the prohibited preexisting
+untracked migration fixture. Historical handoffs follow unchanged.
+
+---
+
 ## Current delivery — completed retained-proposal persistence decisions, 2026-10-26
 
 Read [retained-proposal evidence](RETAINED_PROPOSAL_RESOLUTION_EVIDENCE.md) and the

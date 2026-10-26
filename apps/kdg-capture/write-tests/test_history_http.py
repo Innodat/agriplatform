@@ -205,8 +205,8 @@ class HistoryAcceptance(unittest.IsolatedAsyncioTestCase):
         history=boundary.recovery;original_budget=history.write.Budget
         for cancel in (False,True):
             for phase in ('borrow','sql','release'):
-                pool=Pool();started=threading.Event();release=threading.Event()
-                def pending():started.set();release.wait(2)
+                pool=Pool();started=threading.Event();release=threading.Event();budgets=[]
+                def pending():started.set();release.wait(5)
                 if phase=='sql':
                     original=pool.connection.execute
                     def execute(sql,p):
@@ -223,18 +223,21 @@ class HistoryAcceptance(unittest.IsolatedAsyncioTestCase):
                             if phase=='release':pending()
                             pool.releases+=1
                     pool.connect=connect
-                def short():
-                    budget=original_budget();budget.deadline=budget.started_at+.06;return budget
+                def controlled():
+                    budget=original_budget();budgets.append(budget);return budget
                 self.app.state.recovery_engine=pool
-                with patch.object(history.write,'Budget',side_effect=short):
+                with patch.object(history.write,'Budget',side_effect=controlled):
                     task=asyncio.create_task(self.get())
                     try:
-                        for _ in range(200):
-                            if started.is_set():break
-                            await asyncio.sleep(.001)
-                        self.assertTrue(started.is_set(),phase)
+                        self.assertTrue(await asyncio.to_thread(started.wait,2),phase)
+                        # Expire only after the intended worker phase is reached;
+                        # authorization/scheduling time cannot choose another phase.
+                        self.assertEqual(len(budgets),1)
+                        budgets[0].deadline=budgets[0].started_at-1
+                        with self.assertRaisesRegex(history.write.WriteError,'execution_timeout'):
+                            budgets[0].remaining()
                         if cancel:task.cancel();await asyncio.sleep(.01);task.cancel()
-                        await asyncio.sleep(.08);self.assertFalse(task.done(),phase)
+                        await asyncio.sleep(.01);self.assertFalse(task.done(),phase)
                     finally:
                         release.set()
                         if cancel:

@@ -148,3 +148,7 @@
 - source_spec: `_bmad-output/implementation-artifacts/spec-kdg-provision-contract.md`
   summary: Qualify native protected setup issuance and latest published-version selection before activation.
   evidence: Synthetic result dispatch cannot prove actual PostgreSQL organization/account isolation, least-privilege eligibility INSERT, atomic batch rollback, multiple-version DESC selection or native batch latency. Controlled narrow grants and native qualification remain prerequisites; this delivery explicitly excludes native/live work.
+
+- source_spec: `_bmad-output/implementation-artifacts/spec-kdg-online-admin-read.md`
+  summary: Qualify actual administrator history SQL with tied timestamps and multiple pages before activation.
+  evidence: New synthetic collaborators independently filter and sort, so native PostgreSQL must prove organization/date predicates, descending tuple keyset traversal and restricted all_read permissions; current user scope excludes native database work.
