@@ -1,0 +1,37 @@
+
+> scribeswell-web@0.1.0 test:browser
+> playwright test --config playwright.config.cjs --workers=2 --fully-parallel personal-notes.spec.cjs --grep R[1-7] 
+
+[WebServer] (node:609162) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 18 tests using 2 workers
+
+(node:609182) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:609181) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   2 [desktop] › tests/personal-notes.spec.cjs:1926:31 › R2 Preview has direct truthful recovery for 503 (2.4s)
+  ✓   1 [desktop] › tests/personal-notes.spec.cjs:1921:1 › R1 explicit note Open activates a relevant hidden pane without changing positions or adding history (3.4s)
+  ✓   3 [desktop] › tests/personal-notes.spec.cjs:1926:31 › R2 Preview has direct truthful recovery for 404 (2.0s)
+  ✓   4 [desktop] › tests/personal-notes.spec.cjs:1930:39 › R3 study details Save restores its own trigger focus (1.8s)
+  ✓   5 [desktop] › tests/personal-notes.spec.cjs:1930:39 › R3 study details Cancel restores its own trigger focus (1.9s)
+  ✓   7 [desktop] › tests/personal-notes.spec.cjs:1938:1 › R5 unknown creation visibly freezes original complete candidate until reconciliation (1.6s)
+  ✓   6 [desktop] › tests/personal-notes.spec.cjs:1934:1 › R4 successful note autosave preserves separate preview and completed pagination (3.0s)
+  ✓   9 [desktop] › tests/personal-notes.spec.cjs:1946:1 › R7 empty readable context page with continuation offers More without a global empty claim (1.9s)
+  ✓   8 [desktop] › tests/personal-notes.spec.cjs:1942:1 › R6 discovery requests exact complete canonical reference again after deliberate passage change (2.3s)
+(node:609750) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:609757) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  11 [mobile] › tests/personal-notes.spec.cjs:1926:31 › R2 Preview has direct truthful recovery for 503 (2.6s)
+  ✓  10 [mobile] › tests/personal-notes.spec.cjs:1921:1 › R1 explicit note Open activates a relevant hidden pane without changing positions or adding history (3.5s)
+  ✓  12 [mobile] › tests/personal-notes.spec.cjs:1926:31 › R2 Preview has direct truthful recovery for 404 (2.0s)
+  ✓  13 [mobile] › tests/personal-notes.spec.cjs:1930:39 › R3 study details Save restores its own trigger focus (1.9s)
+  ✓  14 [mobile] › tests/personal-notes.spec.cjs:1930:39 › R3 study details Cancel restores its own trigger focus (1.8s)
+  ✓  16 [mobile] › tests/personal-notes.spec.cjs:1938:1 › R5 unknown creation visibly freezes original complete candidate until reconciliation (1.6s)
+  ✓  15 [mobile] › tests/personal-notes.spec.cjs:1934:1 › R4 successful note autosave preserves separate preview and completed pagination (3.0s)
+  ✓  18 [mobile] › tests/personal-notes.spec.cjs:1946:1 › R7 empty readable context page with continuation offers More without a global empty claim (1.9s)
+  ✓  17 [mobile] › tests/personal-notes.spec.cjs:1942:1 › R6 discovery requests exact complete canonical reference again after deliberate passage change (2.3s)
+
+  18 passed (23.5s)

@@ -1,0 +1,29 @@
+
+> scribeswell-web@0.1.0 test:browser
+> playwright test --config playwright.config.cjs --grep D[3-9] 
+
+[WebServer] (node:554327) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 14 tests using 2 workers
+
+(node:554421) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:554422) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   2 [mobile] › tests/personal-notes.spec.cjs:1857:1 › D3 relevant Preview preserves local writing destination and explicit Open uses save guard once (1.7s)
+  ✓   1 [desktop] › tests/personal-notes.spec.cjs:1857:1 › D3 relevant Preview preserves local writing destination and explicit Open uses save guard once (1.8s)
+  ✓   3 [mobile] › tests/personal-notes.spec.cjs:1869:1 › D4 relevant pagination retains authorized items on failure and retries same cursor (2.2s)
+  ✓   4 [desktop] › tests/personal-notes.spec.cjs:1869:1 › D4 relevant pagination retains authorized items on failure and retries same cursor (2.2s)
+  ✓   6 [desktop] › tests/personal-notes.spec.cjs:1874:1 › D5 details invalid source preserves candidate and new corrected operation; Cancel changes nothing (2.4s)
+  ✓   5 [mobile] › tests/personal-notes.spec.cjs:1874:1 › D5 details invalid source preserves candidate and new corrected operation; Cancel changes nothing (2.6s)
+  ✓   7 [desktop] › tests/personal-notes.spec.cjs:1880:1 › D6 details conflict deliberately reads current without replacing candidate (2.2s)
+  ✓   8 [mobile] › tests/personal-notes.spec.cjs:1880:1 › D6 details conflict deliberately reads current without replacing candidate (2.2s)
+  ✓   9 [desktop] › tests/personal-notes.spec.cjs:1885:1 › D7 details unknown Cancel reopens original frozen operation without rollback promise (2.3s)
+  ✓  10 [mobile] › tests/personal-notes.spec.cjs:1885:1 › D7 details unknown Cancel reopens original frozen operation without rollback promise (2.5s)
+  ✓  11 [desktop] › tests/personal-notes.spec.cjs:1890:1 › D8 late context and Preview cannot leak across a new workspace tab (2.3s)
+  ✓  12 [mobile] › tests/personal-notes.spec.cjs:1890:1 › D8 late context and Preview cannot leak across a new workspace tab (2.3s)
+  ✓  14 [mobile] › tests/personal-notes.spec.cjs:1894:1 › D9 contextual admission denial masks private results without hiding public reading (2.0s)
+  ✓  13 [desktop] › tests/personal-notes.spec.cjs:1894:1 › D9 contextual admission denial masks private results without hiding public reading (2.1s)
+
+  14 passed (17.7s)

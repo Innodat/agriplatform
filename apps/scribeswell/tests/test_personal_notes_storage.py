@@ -84,6 +84,7 @@ def native():
             (target/'history/versions/0005_study_deletion.py').unlink()
             (target/'history/versions/0006_own_highlights.py').unlink()
             (target/'history/versions/0007_own_copies.py').unlink()
+            (target/'history/versions/0008_study_details.py').unlink()
             old_config=Config();old_config.set_main_option('script_location',str(target/'history'))
             alembic.upgrade(old_config,'head')
         import importlib.util
@@ -115,6 +116,7 @@ def native():
             (target/'history/versions/0005_study_deletion.py').unlink()
             (target/'history/versions/0006_own_highlights.py').unlink()
             (target/'history/versions/0007_own_copies.py').unlink()
+            (target/'history/versions/0008_study_details.py').unlink()
             cfg=Config();cfg.set_main_option('script_location',str(target/'history'));alembic.upgrade(cfg,'head')
         with tempfile.TemporaryDirectory(prefix='scribeswell-passages-failure-') as directory:
             target=Path(directory);shutil.copytree(APP/'studies-migrations',target/'history');shutil.copytree(APP/'studies-database-tools',target/'studies-database-tools')
@@ -133,6 +135,7 @@ def native():
             (target/'history/versions/0005_study_deletion.py').unlink()
             (target/'history/versions/0006_own_highlights.py').unlink()
             (target/'history/versions/0007_own_copies.py').unlink()
+            (target/'history/versions/0008_study_details.py').unlink()
             cfg=Config();cfg.set_main_option('script_location',str(target/'history'));alembic.upgrade(cfg,'head')
         sys.path.insert(0,str(APP/'tests/fixtures'))
         from note_deletion_baseline_loader import load
@@ -152,6 +155,7 @@ def native():
             (target/'history/versions/0005_study_deletion.py').unlink()
             (target/'history/versions/0006_own_highlights.py').unlink()
             (target/'history/versions/0007_own_copies.py').unlink()
+            (target/'history/versions/0008_study_details.py').unlink()
             cfg=Config();cfg.set_main_option('script_location',str(target/'history'));alembic.upgrade(cfg,'head')
         sys.path.insert(0,str(APP/'tests/fixtures'))
         from study_deletion_baseline_loader import load as study_baseline
@@ -170,6 +174,17 @@ def native():
             assert not admin.execute("SELECT 1 FROM pg_trigger WHERE tgname='active_study_insert'").fetchone()
             # Explicit fixture-only controlled forward repair, never migration adoption.
             admin.execute('UPDATE scribeswell_studies.notes SET active=false,value=%s WHERE id=%s',(psycopg.types.json.Jsonb({'document':{'version':1,'blocks':[]},'connections':[],'highlights':[]}),invalid_child))
+        # PREPARED ONLY: prove additive0008 failure cannot leave nullable columns,
+        # grants or receipt command adoption partially installed, then retry forward.
+        with tempfile.TemporaryDirectory(prefix='scribeswell-details-failure-') as directory:
+            target=Path(directory);shutil.copytree(APP/'studies-migrations',target/'history');shutil.copytree(APP/'studies-database-tools',target/'studies-database-tools')
+            migration=target/'history/versions/0008_study_details.py'
+            migration.write_text(migration.read_text().replace('\ndef downgrade():', "\n raise RuntimeError('synthetic failure after details ALTERs')\n\ndef downgrade():"))
+            cfg=Config();cfg.set_main_option('script_location',str(target/'history'))
+            with pytest.raises(Exception,match='scribeswell_studies_migration_failed'):alembic.upgrade(cfg,'head')
+            with psycopg.connect(admin_url) as admin:
+                assert not admin.execute("SELECT 1 FROM information_schema.columns WHERE table_schema='scribeswell_studies' AND table_name='studies' AND column_name='introduction'").fetchone()
+                assert admin.execute('SELECT value FROM scribeswell_studies.notes WHERE id=%s',(old_note['note_id'],)).fetchone()[0]==old_before['value']
         alembic.upgrade(Config(str(APP/'studies-alembic.ini')),'head')
         assert run(checkpoint.read(IDENTITY,old_study,old_note['note_id'],deadline()))['value']==old_before['value']
         run(checkpoint.execute(IDENTITY,'note.replace',baseline_contract.parse_command('note.replace',json.dumps({'operation_id':str(uuid4()),'expected_revision':'1','value':old_before['value']}).encode()),old_study,old_note['note_id'],deadline()))
@@ -287,13 +302,13 @@ def test_native_migration_failure_rollback_retry_and_owner_force_rls(native):
         shutil.copytree(APP/'studies-database-tools',target/'studies-database-tools')
         env=(target/'history/env.py').read_text().replace("parents[1]/'studies-database-tools'","parents[1]/'studies-database-tools'")
         (target/'history/env.py').write_text(env)
-        failure=target/'history/versions/0008_failure.py'
-        failure.write_text("from alembic import op\nrevision='fixture_0008'\ndown_revision='scribeswell_studies_0007'\ndef upgrade():\n op.execute('CREATE TABLE scribeswell_studies.failure_probe(id int)')\n raise RuntimeError('synthetic failure')\n")
+        failure=target/'history/versions/0009_failure.py'
+        failure.write_text("from alembic import op\nrevision='fixture_0009'\ndown_revision='scribeswell_studies_0008'\ndef upgrade():\n op.execute('CREATE TABLE scribeswell_studies.failure_probe(id int)')\n raise RuntimeError('synthetic failure')\n")
         cfg=Config();cfg.set_main_option('script_location',str(target/'history'))
         with pytest.raises(Exception,match='scribeswell_studies_migration_failed'):alembic.upgrade(cfg,'head')
         with psycopg.connect(admin_url) as admin:
             assert admin.execute("SELECT to_regclass('scribeswell_studies.failure_probe')").fetchone()[0] is None
-            assert admin.execute('SELECT version_num FROM scribeswell_studies.alembic_version').fetchone()[0]=='scribeswell_studies_0007'
+            assert admin.execute('SELECT version_num FROM scribeswell_studies.alembic_version').fetchone()[0]=='scribeswell_studies_0008'
         failure.write_text(failure.read_text().replace(" raise RuntimeError('synthetic failure')",''))
         alembic.upgrade(cfg,'head');alembic.upgrade(cfg,'head')
         assert run(storage.read(IDENTITY,study,saved['note_id'],deadline()))==before

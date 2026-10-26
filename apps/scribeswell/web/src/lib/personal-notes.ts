@@ -1,5 +1,7 @@
 /** Same-origin private adapter. No private bodies in browser storage or diagnostics. */
-import type {NoteValue, NoteView, StudyView, OperationAck, StudyPage, NotePage, Outcome, EnrollmentAck, PassageList} from '@/generated/personal-notes/types.gen';
+import type {NoteValue, NoteView, StudyView, OperationAck, StudyPage, NotePage, Outcome, EnrollmentAck, PassageList,ContextNotePage} from '@/generated/personal-notes/types.gen';
+import {safeNoteUrl} from './note-value';
+import {validateReference,type PassageReference} from './passage-references';
 export type {NoteValue,NoteView,StudyView,OperationAck,PassageList};
 import {isReadableNoteValue} from './note-value';
 // A declared page can carry 50 maximum-size aggregates plus bounded attribution.
@@ -30,7 +32,7 @@ function readableCredit(value:unknown,owner:unknown,note:boolean){
  if(!['source_account_id','source_study_id','origin_account_id','origin_study_id','created_by_actor_id'].every(key=>noteIdentifier(value[key]))||value.source_account_id!==owner||value.origin_account_id!==owner||!creditTime(value.created_at)||!creditTitle(value.label))return false;
  return note?['note.duplicate','note.conflict_copy','study.copy'].includes(value.relation as string)&&noteIdentifier(value.source_note_id)&&noteIdentifier(value.origin_note_id):value.relation==='study.copy'&&value.source_note_id===null&&value.origin_note_id===null;
 }
-function readableStudy(value:unknown):value is StudyView{return object(value)&&noteIdentifier(value.id)&&noteIdentifier(value.owner_account_id)&&readableCredit(value.copy_credit,value.owner_account_id,false);}
+function readableStudy(value:unknown):value is StudyView{return object(value)&&noteIdentifier(value.id)&&noteIdentifier(value.owner_account_id)&&creditTitle(value.title)&&typeof value.revision==='string'&&/^[1-9][0-9]{0,18}$/.test(value.revision)&&BigInt(value.revision)<=9223372036854775807n&&(value.introduction==null||typeof value.introduction==='string'&&Array.from(value.introduction).length<=10000&&!/[\u0000\uD800-\uDFFF]/u.test(value.introduction))&&(value.source_url==null||typeof value.source_url==='string'&&safeNoteUrl(value.source_url))&&readableCredit(value.copy_credit,value.owner_account_id,false);}
 function studyPage(value:StudyPage){if(!value||!Array.isArray(value.items)||!value.items.every(readableStudy))throw new NotesFailure('response_invalid');return value;}
 async function readStudy(token:string,id:string,signal?:AbortSignal){const value=await request<unknown>(token,`/api/studies/${id}`,'GET',undefined,15000,signal);if(!readableStudy(value)||value.id!==id)throw new NotesFailure('response_invalid');return value;}
 function readableNote(value:unknown):value is NoteView {
@@ -49,6 +51,11 @@ async function readNotes(token:string,study:string,cursor?:string,signal?:AbortS
  return value;
 }
 export const api={
+ contextNotes:async(token:string,reference:PassageReference,cursor?:string,signal?:AbortSignal)=>{
+  const value=await request<ContextNotePage>(token,'/api/studies/context-notes','POST',{reference,cursor:cursor??null},15000,signal);
+  if(!value||!Array.isArray(value.items)||value.items.length>50||!value.items.every(item=>object(item)&&noteIdentifier(item.note_id)&&noteIdentifier(item.study_id)&&noteIdentifier(item.owner_account_id)&&creditTitle(item.study_title)&&typeof item.revision==='string'&&/^[1-9][0-9]{0,18}$/.test(item.revision)&&BigInt(item.revision)<=9223372036854775807n&&typeof item.preview==='string'&&Array.from(item.preview).length<=120&&!/[\uD800-\uDFFF]/u.test(item.preview)&&Array.isArray(item.references)&&item.references.length<=256&&item.references.every(validateReference))||new Set(value.items.map(item=>item.note_id)).size!==value.items.length||value.next_cursor!==null&&(typeof value.next_cursor!=='string'||!/^[A-Za-z0-9_-]{1,512}$/.test(value.next_cursor)))throw new NotesFailure('response_invalid');
+  return value;
+ },
  search:(token:string,query:string,cursor?:string)=>request<StudyPage>(token,'/api/studies/search','POST',{query,cursor:cursor??null}).then(studyPage),
  enroll:(token:string,operation_id:string)=>request<EnrollmentAck>(token,'/api/studies/enrollment','POST',{operation_id}),
  studies:(token:string,cursor?:string,signal?:AbortSignal)=>request<StudyPage>(token,'/api/studies'+(cursor?'?cursor='+encodeURIComponent(cursor):''),'GET',undefined,15000,signal).then(studyPage),
@@ -58,9 +65,9 @@ export const api={
  note:readNote,
  lookup:(token:string,operation:string,command:string,timeout=15000)=>request<Outcome>(token,`/api/operations/${operation}?command=${command}`,'GET',undefined,timeout),
 };
-export type Attempt={operation_id:string;command:'study.create'|'study.rename'|'study.passages.replace'|'study.delete'|'note.create'|'note.replace'|'note.delete'|'note.duplicate'|'note.conflict_copy'|'study.copy';path:string;method:string;payload:Record<string,unknown>;study?:string;note?:string;sourceStudy?:string;sourceNote?:string;generation:number};
+export type Attempt={operation_id:string;command:'study.details.replace'|'study.create'|'study.rename'|'study.passages.replace'|'study.delete'|'note.create'|'note.replace'|'note.delete'|'note.duplicate'|'note.conflict_copy'|'study.copy';path:string;method:string;payload:Record<string,unknown>;study?:string;note?:string;sourceStudy?:string;sourceNote?:string;generation:number};
 function ack(value:OperationAck,attempt:Attempt){
- if(!value||Object.keys(value).sort().join(',')!=='command,note_id,operation_id,revision,study_id'||typeof value.revision!=='string'||value.operation_id!==attempt.operation_id||value.command!==attempt.command||!/^\d+$/.test(value.revision)||BigInt(value.revision)<1n||BigInt(value.revision)>9223372036854775807n||!noteIdentifier(value.study_id)||(value.note_id!==null&&!noteIdentifier(value.note_id))||(attempt.command==='study.copy'&&value.study_id===attempt.sourceStudy)||(['note.duplicate','note.conflict_copy'].includes(attempt.command)&&value.note_id===attempt.sourceNote)||(attempt.study&&attempt.command!=='study.copy'&&value.study_id!==attempt.study)||(attempt.note&&value.note_id!==attempt.note)||(['study.create','study.rename','study.passages.replace','study.delete','study.copy'].includes(attempt.command)?value.note_id!==null:!value.note_id))throw new NotesFailure('operation_unresolved');
+ if(!value||Object.keys(value).sort().join(',')!=='command,note_id,operation_id,revision,study_id'||typeof value.revision!=='string'||value.operation_id!==attempt.operation_id||value.command!==attempt.command||!/^\d+$/.test(value.revision)||BigInt(value.revision)<1n||BigInt(value.revision)>9223372036854775807n||!noteIdentifier(value.study_id)||(value.note_id!==null&&!noteIdentifier(value.note_id))||(attempt.command==='study.copy'&&value.study_id===attempt.sourceStudy)||(['note.duplicate','note.conflict_copy'].includes(attempt.command)&&value.note_id===attempt.sourceNote)||(attempt.study&&attempt.command!=='study.copy'&&value.study_id!==attempt.study)||(attempt.note&&value.note_id!==attempt.note)||(['study.details.replace','study.create','study.rename','study.passages.replace','study.delete','study.copy'].includes(attempt.command)?value.note_id!==null:!value.note_id))throw new NotesFailure('operation_unresolved');
  return value;
 }
 export async function execute(token:string,attempt:Attempt):Promise<OperationAck>{

@@ -9,6 +9,7 @@ from uuid import uuid4
 import psycopg
 from psycopg.rows import dict_row
 from psycopg.types.json import Jsonb
+from pydantic import ValidationError
 from personal_notes_access import NotesError,remaining
 from personal_notes_contract import MAX_REVISION,StudyView,NoteView,OperationAck,PassageList
 from personal_notes_cursor import encode,decode
@@ -22,7 +23,7 @@ def view(row,note=False):
     result.update(owner_account_id=str(row['account_id']),created_at=stamp(row['created_at']),updated_at=stamp(row['updated_at']),
                   created_by_actor_id=str(row['created_by']),updated_by_actor_id=str(row['updated_by']))
     if note: result.update(study_id=str(row['study_id']),visibility=row['visibility'],value=row['value'])
-    else: result['title']=row['title']
+    else: result.update(title=row['title'],introduction=row.get('introduction'),source_url=row.get('source_url'))
     return (NoteView if note else StudyView).model_validate_json(json.dumps(result,ensure_ascii=False)).model_dump(mode='json')
 
 class PersonalNotesStorage:
@@ -81,6 +82,10 @@ class PersonalNotesStorage:
     async def execute(self,identity,command,payload,study_id,note_id,deadline):
         account,actor=identity['account_id'],identity['actor_id']
         body=payload.model_dump(mode='json')
+        if command=='study.create':
+            # Preserve fingerprints of original create commands across adoption.
+            for field in ('introduction','source_url'):
+                if field not in payload.model_fields_set:body.pop(field,None)
         fingerprint=hashlib.sha256(json.dumps({'command':command,'version':1,'study_id':study_id,'note_id':note_id,'payload':body},sort_keys=True,separators=(',',':'),ensure_ascii=False).encode()).hexdigest()
         from own_copies import COMMANDS,execute_copy
         if command in COMMANDS:return await execute_copy(self,identity,command,payload,study_id,note_id,deadline,fingerprint)
@@ -108,7 +113,7 @@ class PersonalNotesStorage:
             receipt=await cursor.fetchone()
             if receipt:
                 if receipt['fingerprint']!=fingerprint: raise NotesError('operation_payload_mismatch')
-                if command in ('study.rename','study.passages.replace'): await self._parent(cursor,account,receipt['outcome']['study_id'],lock=True)
+                if command in ('study.rename','study.details.replace','study.passages.replace'): await self._parent(cursor,account,receipt['outcome']['study_id'],lock=True)
                 else: await self._live_outcome(cursor,account,receipt['outcome'])
                 return OperationAck.model_validate(receipt['outcome']).model_dump(mode='json')
             if command=='study.create':
@@ -120,7 +125,7 @@ class PersonalNotesStorage:
                     title='Untitled study'; number=0
                     while title in titles:
                         remaining(deadline); number+=1; title=f'Untitled study {number}'
-                await cursor.execute(f'INSERT INTO {SCHEMA}.studies(id,account_id,title,created_by,updated_by) VALUES(%s,%s,%s,%s,%s)',(study_id,account,title,actor,actor))
+                await cursor.execute(f'INSERT INTO {SCHEMA}.studies(id,account_id,title,introduction,source_url,created_by,updated_by) VALUES(%s,%s,%s,%s,%s,%s,%s)',(study_id,account,title,payload.introduction,payload.source_url,actor,actor))
                 revision='1'
             elif command=='study.rename':
                 row=await self._parent(cursor,account,study_id,lock=True)
@@ -130,6 +135,14 @@ class PersonalNotesStorage:
                     if row['revision']>=int(MAX_REVISION): raise NotesError('resource_unavailable')
                     revision=str(row['revision']+1)
                     await cursor.execute(f'UPDATE {SCHEMA}.studies SET title=%s, revision=revision+1, updated_by=%s, updated_at=clock_timestamp() WHERE account_id=%s AND id=%s',(payload.title,actor,account,study_id))
+            elif command=='study.details.replace':
+                row=await self._parent(cursor,account,study_id,lock=True)
+                revision=str(row['revision'])
+                if revision!=payload.expected_revision: raise NotesError('study_revision_conflict',{'expected_revision':payload.expected_revision,'current_revision':revision})
+                if any(row.get(key)!=body[key] for key in ('title','introduction','source_url')):
+                    if row['revision']>=int(MAX_REVISION): raise NotesError('resource_unavailable')
+                    revision=str(row['revision']+1)
+                    await cursor.execute(f'UPDATE {SCHEMA}.studies SET title=%s,introduction=%s,source_url=%s,revision=revision+1,updated_by=%s,updated_at=clock_timestamp() WHERE account_id=%s AND id=%s',(payload.title,payload.introduction,payload.source_url,actor,account,study_id))
             elif command=='study.delete':
                 row=await self._parent(cursor,account,study_id,lock=True)
                 revision=str(row['revision'])
@@ -143,7 +156,7 @@ class PersonalNotesStorage:
                 await cursor.execute(f'UPDATE {SCHEMA}.notes SET value=%s, active=false, revision=revision+1, updated_by=%s, updated_at=clock_timestamp() WHERE account_id=%s AND study_id=%s AND active',(Jsonb(empty),actor,account,study_id))
                 await cursor.execute(f'DELETE FROM {SCHEMA}.passage_entries WHERE account_id=%s AND study_id=%s',(account,study_id))
                 await cursor.execute(f'DELETE FROM {SCHEMA}.passage_lists WHERE account_id=%s AND study_id=%s',(account,study_id))
-                await cursor.execute(f"UPDATE {SCHEMA}.studies SET title='Deleted study', active=false, revision=revision+1, updated_by=%s, updated_at=clock_timestamp() WHERE account_id=%s AND id=%s",(actor,account,study_id))
+                await cursor.execute(f"UPDATE {SCHEMA}.studies SET title='Deleted study', introduction=NULL, source_url=NULL, active=false, revision=revision+1, updated_by=%s, updated_at=clock_timestamp() WHERE account_id=%s AND id=%s",(actor,account,study_id))
                 revision=str(row['revision']+1)
             elif command=='study.passages.replace':
                 await self._parent(cursor,account,study_id,lock=True)
@@ -262,3 +275,22 @@ class PersonalNotesStorage:
             await cursor.execute(sql,values)
             rows=await cursor.fetchall();more=len(rows)>payload.limit;rows=rows[:payload.limit]
             return {'items':[view(row) for row in rows], 'next_cursor':encode_cursor(account,query,stamp(rows[-1]['created_at']),str(rows[-1]['id'])) if more else None}
+
+    async def context_notes(self,identity,payload,deadline):
+        from personal_notes_context import context_query,context_sql,context_item
+        from personal_notes_search import decode_cursor,encode_cursor
+        account=identity['account_id'];reference=payload.reference.model_dump(mode='json');query=context_query(reference)
+        position=decode_cursor(payload.cursor,account,query) if payload.cursor else None
+        sql,values=context_sql(account,reference,position,payload.limit)
+        async with self.transaction(identity,deadline) as cursor:
+            await cursor.execute(sql,values)
+            rows=await cursor.fetchall();more=len(rows)>payload.limit;rows=rows[:payload.limit]
+            items=[]
+            for row in rows:
+                try:items.append(context_item(row))
+                except ValidationError:
+                    # A known-version stored row may contain unsupported/corrupt
+                    # siblings. Reuse the owning DTO, skip that row only, and page
+                    # by the bounded raw SQL scan so later valid notes stay reachable.
+                    continue
+            return {'items':items, 'next_cursor':encode_cursor(account,query,stamp(rows[-1]['created_at']),str(rows[-1]['id'])) if more else None}

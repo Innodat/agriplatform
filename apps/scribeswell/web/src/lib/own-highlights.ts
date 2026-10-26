@@ -40,6 +40,11 @@ export function noteReferences(value:NoteValue){
  for(const block of value.document.blocks)for(const p of block.type==='paragraph'?[block]:block.items.flat())for(const i of p.content)if(i.type==='passage_link')refs.push(i.reference);
  return [...new Map(refs.map(ref=>[referenceKey(ref),ref])).values()];
 }
+export function referencesOverlap(a:PassageReference,b:PassageReference){
+ if(a.catalogue_id!==b.catalogue_id||a.catalogue_version!==b.catalogue_version||a.versification_id!==b.versification_id||a.book_id!==b.book_id)return false;
+ const bounds=(ref:PassageReference)=>ref.target.kind==='chapter'?[[ref.target.chapter,1],[ref.target.chapter,referenceBook(ref.book_id)!.chapter_verse_counts[ref.target.chapter-1]]]:[[ref.target.start.chapter,ref.target.start.verse],[ref.target.end.chapter,ref.target.end.verse]];
+ const [as,ae]=bounds(a),[bs,be]=bounds(b),le=(x:number[],y:number[])=>x[0]<y[0]||x[0]===y[0]&&x[1]<=y[1];return le(as,be)&&le(bs,ae);
+}
 export function status(anchor:HighlightAnchor,evidence:Evidence|undefined,segment:HighlightAnchor['segments'][number]):'valid'|'needs_review'|'unavailable'{
  if(!evidence||evidence.status!=='ready')return 'unavailable';
  const ref=segment.reference;if(ref.target.kind!=='verse_range')return 'needs_review';const point=ref.target.start;

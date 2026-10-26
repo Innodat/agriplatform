@@ -1,0 +1,96 @@
+
+> scribeswell-web@0.1.0 test:browser
+> playwright test --config playwright.config.cjs --grep rename: failed dirty|outline lifetime Retry survives Rename tab during held passages|D(13 |14 )
+
+[WebServer] (node:570399) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 8 tests using 4 workers
+
+(node:570432) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:570438) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:570445) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:570440) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  4 [mobile] › tests/personal-notes.spec.cjs:309:1 › rename: failed dirty note lane remains independent and recoverable (5.5s)
+  ✓  3 [desktop] › tests/personal-notes.spec.cjs:309:1 › rename: failed dirty note lane remains independent and recoverable (6.0s)
+  ✓  5 [mobile] › tests/personal-notes.spec.cjs:1913:1 › D13 study details stay independent of the autosaved note lane (2.5s)
+  ✓  6 [desktop] › tests/personal-notes.spec.cjs:1913:1 › D13 study details stay independent of the autosaved note lane (2.6s)
+  ✘  2 [mobile] › tests/workspace-restoration.spec.cjs:342:91 › outline lifetime Retry survives Rename tab during held passages without restoring stale public or note state (9.2s)
+  ✘  1 [desktop] › tests/workspace-restoration.spec.cjs:342:91 › outline lifetime Retry survives Rename tab during held passages without restoring stale public or note state (9.8s)
+  ✓  7 [mobile] › tests/personal-notes.spec.cjs:1917:1 › D14 explicit study creation carries optional whole-form details and preserves candidate on refusal (1.7s)
+  ✓  8 [desktop] › tests/personal-notes.spec.cjs:1917:1 › D14 explicit study creation carries optional whole-form details and preserves candidate on refusal (1.8s)
+
+
+  1) [desktop] › tests/workspace-restoration.spec.cjs:342:91 › outline lifetime Retry survives Rename tab during held passages without restoring stale public or note state 
+
+    Error: expect(locator).toHaveText(expected) failed
+
+    Locator:  getByRole('tablist', { name: 'Workspace tabs' }).getByRole('tab').first()
+    Expected: "Private label 1"
+    Received: "Genesis 1"
+    Timeout:  5000ms
+
+    Call log:
+      - Expect "toHaveText" getByRole('tablist', { name: 'Workspace tabs' }).getByRole('tab').first() with timeout 5000ms
+      - waiting for getByRole('tablist', { name: 'Workspace tabs' }).getByRole('tab').first()
+        - locator resolved to <button role="tab" dir="auto" tabindex="0" aria-selected="true" aria-controls="workspace-panel" class="px-3 py-2 max-w-48 truncate" data-workspace-tab="6421c5a3-4956-473a-8905-54989a0ae53d" id="workspace-tab-00360034003200310063003500610033002d0034003900350036002d0034003700330061002d0038003900300035002d003500340039003800390061003000610065003500330064">Genesis 1</button>
+        12 × unexpected value "Genesis 1"
+           - locator resolved to <button role="tab" dir="auto" tabindex="0" aria-selected="true" data-workspace-tab="saved-0" aria-controls="workspace-panel" class="px-3 py-2 max-w-48 truncate" id="workspace-tab-00730061007600650064002d0030">Genesis 1</button>
+        - unexpected value "Genesis 1"
+
+
+      344 |  if(action==='Next chapter')await page.setViewportSize({width:1280,height:900});
+      345 |  await setup(page);await seed(page,publicSetup(1),privateSetup(1));let held=true,releases=[];
+    > 346 |  await owner(page,{read:async r=>{if(held&&new URL(r.request().url()).pathname.endsWith('/'+phase))await new Promise(resolve=>releases.push(resolve));return normalResources(r);}});await page.goto('/');await expect(tabs(page).first()).toHaveText('Private label 1');await page.getByRole('button',{name:'Studies',exact:true}).click();await expect.poll(()=>releases.length).toBeGreaterThan(0);
+          |                                                                                                                                                                                                                                           ^
+      347 |  if(action==='Next chapter')await page.getByRole('button',{name:'Next chapter',exact:true}).click();else {await page.getByRole('button',{name:'Rename tab 1',exact:true}).click();await page.getByLabel('Tab name',{exact:true}).fill('New explicit tab label');await page.getByRole('dialog',{name:'Rename workspace tab',exact:true}).getByRole('button',{name:'Save',exact:true}).click();}
+      348 |  const chapter=()=>page.evaluate(()=>history.state.usr.scribeswellReader.panes[0].ref.target.chapter);if(action==='Next chapter')expect(await chapter()).toBe(2);else await expect(tabs(page).first()).toHaveText('New explicit tab label');held=false;for(const release of releases)release();const retry=page.getByRole('alert').filter({hasText:'Study outline could not be loaded.'});await expect(retry).toBeVisible();await expect(page.getByRole('list',{name:'Notes',exact:true}).getByRole('button')).toHaveCount(1);await retry.getByRole('button',{name:'Retry',exact:true}).click();await expect(page.getByRole('list',{name:'Notes',exact:true}).getByRole('button')).toHaveCount(2);await expect(page.getByRole('button',{name:'Add passage',exact:true})).toBeEnabled();if(action==='Next chapter')expect(await chapter()).toBe(2);else await expect(tabs(page).first()).toHaveText('New explicit tab label');await page.getByRole('button',{name:'Analysis',exact:true}).click();await expect(page.getByRole('textbox',{name:'Note text',exact:true})).toHaveText('Saved note A');
+      349 | });
+        at /home/ck/repos/innodat/agriplatform/apps/scribeswell/web/tests/workspace-restoration.spec.cjs:346:235
+
+    Error Context: test-results/workspace-restoration-outl-47ffb--stale-public-or-note-state-desktop/error-context.md
+
+  2) [mobile] › tests/workspace-restoration.spec.cjs:342:91 › outline lifetime Retry survives Rename tab during held passages without restoring stale public or note state 
+
+    Error: expect(locator).toHaveText(expected) failed
+
+    Locator:  getByRole('tablist', { name: 'Workspace tabs' }).getByRole('tab').first()
+    Expected: "Private label 1"
+    Received: "Genesis 1"
+    Timeout:  5000ms
+
+    Call log:
+      - Expect "toHaveText" getByRole('tablist', { name: 'Workspace tabs' }).getByRole('tab').first() with timeout 5000ms
+      - waiting for getByRole('tablist', { name: 'Workspace tabs' }).getByRole('tab').first()
+        - locator resolved to <button role="tab" dir="auto" tabindex="0" aria-selected="true" aria-controls="workspace-panel" class="px-3 py-2 max-w-48 truncate" data-workspace-tab="b3a43ff5-8cdf-428c-9297-434cbc719a3a" id="workspace-tab-00620033006100340033006600660035002d0038006300640066002d0034003200380063002d0039003200390037002d003400330034006300620063003700310039006100330061">Genesis 1</button>
+        12 × unexpected value "Genesis 1"
+           - locator resolved to <button role="tab" dir="auto" tabindex="0" aria-selected="true" data-workspace-tab="saved-0" aria-controls="workspace-panel" class="px-3 py-2 max-w-48 truncate" id="workspace-tab-00730061007600650064002d0030">Genesis 1</button>
+        - unexpected value "Genesis 1"
+
+
+      344 |  if(action==='Next chapter')await page.setViewportSize({width:1280,height:900});
+      345 |  await setup(page);await seed(page,publicSetup(1),privateSetup(1));let held=true,releases=[];
+    > 346 |  await owner(page,{read:async r=>{if(held&&new URL(r.request().url()).pathname.endsWith('/'+phase))await new Promise(resolve=>releases.push(resolve));return normalResources(r);}});await page.goto('/');await expect(tabs(page).first()).toHaveText('Private label 1');await page.getByRole('button',{name:'Studies',exact:true}).click();await expect.poll(()=>releases.length).toBeGreaterThan(0);
+          |                                                                                                                                                                                                                                           ^
+      347 |  if(action==='Next chapter')await page.getByRole('button',{name:'Next chapter',exact:true}).click();else {await page.getByRole('button',{name:'Rename tab 1',exact:true}).click();await page.getByLabel('Tab name',{exact:true}).fill('New explicit tab label');await page.getByRole('dialog',{name:'Rename workspace tab',exact:true}).getByRole('button',{name:'Save',exact:true}).click();}
+      348 |  const chapter=()=>page.evaluate(()=>history.state.usr.scribeswellReader.panes[0].ref.target.chapter);if(action==='Next chapter')expect(await chapter()).toBe(2);else await expect(tabs(page).first()).toHaveText('New explicit tab label');held=false;for(const release of releases)release();const retry=page.getByRole('alert').filter({hasText:'Study outline could not be loaded.'});await expect(retry).toBeVisible();await expect(page.getByRole('list',{name:'Notes',exact:true}).getByRole('button')).toHaveCount(1);await retry.getByRole('button',{name:'Retry',exact:true}).click();await expect(page.getByRole('list',{name:'Notes',exact:true}).getByRole('button')).toHaveCount(2);await expect(page.getByRole('button',{name:'Add passage',exact:true})).toBeEnabled();if(action==='Next chapter')expect(await chapter()).toBe(2);else await expect(tabs(page).first()).toHaveText('New explicit tab label');await page.getByRole('button',{name:'Analysis',exact:true}).click();await expect(page.getByRole('textbox',{name:'Note text',exact:true})).toHaveText('Saved note A');
+      349 | });
+        at /home/ck/repos/innodat/agriplatform/apps/scribeswell/web/tests/workspace-restoration.spec.cjs:346:235
+
+    Error Context: test-results/workspace-restoration-outl-47ffb--stale-public-or-note-state-mobile/error-context.md
+
+  2 failed
+    [desktop] › tests/workspace-restoration.spec.cjs:342:91 › outline lifetime Retry survives Rename tab during held passages without restoring stale public or note state 
+    [mobile] › tests/workspace-restoration.spec.cjs:342:91 › outline lifetime Retry survives Rename tab during held passages without restoring stale public or note state 
+  6 passed (14.3s)
+npm error Lifecycle script `test:browser` failed with error:
+npm error code 1
+npm error path /home/ck/repos/innodat/agriplatform/apps/scribeswell/web
+npm error workspace scribeswell-web@0.1.0
+npm error location /home/ck/repos/innodat/agriplatform/apps/scribeswell/web
+npm error command failed
+npm error command sh -c playwright test --config playwright.config.cjs --grep 'rename: failed dirty|outline lifetime Retry survives Rename tab during held passages|D(13 |14 )'

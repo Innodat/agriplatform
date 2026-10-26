@@ -54,3 +54,7 @@ The browser transport accepts at most `50*262144+65536` response characters,
 covering a declared maximum note page plus bounded attribution/envelope. Existing
 50-row, per-value262144-byte, document and aggregate guards still reject invalid
 responses. A larger list allowance does not expand the2MiB whole-copy limit.
+
+The additive [study-details adoption](STUDY_DETAILS_DISCOVERY_V1.md) retains nullable
+introduction/source_url in the coherent whole-study snapshot and its existing2MiB
+canonical UTF-8 bound. Title-only writers preserve these fields.

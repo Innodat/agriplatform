@@ -1,0 +1,76 @@
+
+> scribeswell-web@0.1.0 test:browser
+> playwright test --config playwright.config.cjs --grep D1 study details|D2 relevant own --project desktop
+
+[WebServer] (node:543347) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 2 tests using 1 worker
+
+(node:543394) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  1 [desktop] › tests/personal-notes.spec.cjs:1828:1 › D1 study details use explicit whole-form Save Cancel and preserve note writing (5.9s)
+(node:543644) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  2 [desktop] › tests/personal-notes.spec.cjs:1838:1 › D2 relevant own notes offer inspection without changing current note (5.9s)
+
+
+  1) [desktop] › tests/personal-notes.spec.cjs:1828:1 › D1 study details use explicit whole-form Save Cancel and preserve note writing 
+
+    Error: expect(locator).toHaveAttribute(expected) failed
+
+    Locator: getByRole('link', { name: 'Study source', exact: true })
+    Expected: "noopener noreferrer"
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toHaveAttribute" getByRole('link', { name: 'Study source', exact: true }) with timeout 5000ms
+      - waiting for getByRole('link', { name: 'Study source', exact: true })
+
+
+      1833 |  await page.getByRole('button',{name:'Save',exact:true}).click();
+      1834 |  await expect(page.getByText('Introduction\nמבוא',{exact:true})).toBeVisible();
+    > 1835 |  await expect(page.getByRole('link',{name:'Study source',exact:true})).toHaveAttribute('rel','noopener noreferrer');
+           |                                                                        ^
+      1836 | });
+      1837 |
+      1838 | test('D2 relevant own notes offer inspection without changing current note',async({page})=>{
+        at /home/ck/repos/innodat/agriplatform/apps/scribeswell/web/tests/personal-notes.spec.cjs:1835:72
+
+    Error Context: test-results/personal-notes-D1-study-de-dc54c-l-and-preserve-note-writing-desktop/error-context.md
+
+  2) [desktop] › tests/personal-notes.spec.cjs:1838:1 › D2 relevant own notes offer inspection without changing current note 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByRole('region', { name: 'Relevant own notes', exact: true })
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByRole('region', { name: 'Relevant own notes', exact: true }) with timeout 5000ms
+      - waiting for getByRole('region', { name: 'Relevant own notes', exact: true })
+
+
+      1838 | test('D2 relevant own notes offer inspection without changing current note',async({page})=>{
+      1839 |  await setup(page);await firstNote(page);
+    > 1840 |  await expect(page.getByRole('region',{name:'Relevant own notes',exact:true})).toBeVisible();
+           |                                                                                ^
+      1841 | });
+      1842 |
+        at /home/ck/repos/innodat/agriplatform/apps/scribeswell/web/tests/personal-notes.spec.cjs:1840:80
+
+    Error Context: test-results/personal-notes-D2-relevant-fe88a-thout-changing-current-note-desktop/error-context.md
+
+  2 failed
+    [desktop] › tests/personal-notes.spec.cjs:1828:1 › D1 study details use explicit whole-form Save Cancel and preserve note writing 
+    [desktop] › tests/personal-notes.spec.cjs:1838:1 › D2 relevant own notes offer inspection without changing current note 
+npm error Lifecycle script `test:browser` failed with error:
+npm error code 1
+npm error path /home/ck/repos/innodat/agriplatform/apps/scribeswell/web
+npm error workspace scribeswell-web@0.1.0
+npm error location /home/ck/repos/innodat/agriplatform/apps/scribeswell/web
+npm error command failed
+npm error command sh -c playwright test --config playwright.config.cjs --grep 'D1 study details|D2 relevant own' --project desktop

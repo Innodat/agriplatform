@@ -2,7 +2,7 @@
 import {createContext,useContext,useEffect,useLayoutEffect,useRef,useState,type ReactNode} from 'react';
 import {useWorkspace,useTabState,useTabRef} from './ReaderWorkspaceContext';
 import {isReadableNoteValue} from '@/lib/note-value';
-import {aggregate,type HighlightAnchor,type NoteHighlight} from '@/lib/own-highlights';
+import {aggregate,noteReferences,referencesOverlap,type HighlightAnchor,type NoteHighlight} from '@/lib/own-highlights';
 import {accountId,type PrivateSelection} from '@/lib/workspace-storage';
 import {useAuth} from './AuthContext';
 import {api,execute,NotesFailure,uuid,type NoteValue,type NoteView,type StudyView,type OperationAck,type Attempt,type PassageList} from '@/lib/personal-notes';
@@ -12,7 +12,7 @@ type CollectionLane={study:string;list?:PassageList;intent?:PassageIntent;attemp
 export type Lane={note:NoteView;value:NoteValue;generation:number;saved:number;status:'saved'|'pending'|'saving'|'failed'|'conflict';attempt?:Attempt;running?:Promise<void>;timer?:ReturnType<typeof setTimeout>;first?:number;composing:boolean;invalid:boolean;formatUnsupported?:boolean;abandoned?:boolean;deletion?:Deletion;latest?:NoteView;reviewing?:boolean};
 type Deletion={lane:Lane;label:string;open:boolean;reviewing?:boolean;status:'preparing'|'ready'|'save-recovery'|'executing'|'unknown'|'conflict';message:string;review?:NoteValue;reviewRevision?:string;attempt?:Attempt};
 type StudyDeletion={preparation?:number;study:StudyView;open:boolean;status:'preparing'|'ready'|'recovery'|'executing'|'unknown'|'conflict';message:string;attempt?:Attempt;review?:StudyView;running?:Promise<void>};
-type TitleEdit={study:string;candidate:string;base:string;open:boolean;status:'editing'|'saving'|'failed'|'conflict';message:string;confirmed?:OperationAck;attempt?:Attempt;running?:Promise<void>};
+type TitleEdit={study:string;candidate:string;details?:boolean;introduction?:string;source_url?:string;review?:StudyView;base:string;open:boolean;status:'editing'|'saving'|'failed'|'conflict';message:string;confirmed?:OperationAck;attempt?:Attempt;running?:Promise<void>};
 type Tool='studies'|'analysis'|null;
 /** Match the exact note.replace JSON envelope used by flush; never accept a
  * mark that only fits when operation/revision fields are omitted. */
@@ -250,7 +250,7 @@ function useStatefulStudies(){
   const captured=epoch.current,fields=workspace.views.get(key),note=fields?.get('current') as string|undefined;
   const lane=forceLane??(note?lanes.current.get(note):undefined),nav=(fields?.get('ref:navigation') as {current:number}|undefined)?.current;
   const fresh=()=>valid(captured)&&workspace.views.get(key)===fields&&workspace.latest.current.tabs.some(tab=>tab.tabKey===key)&&fields?.get('current')===note&&(fields?.get('ref:navigation') as {current:number}|undefined)?.current===nav&&actionFresh();
-  if(lane&&(forceLane||!contexts(lane,key).length)&&!lane.deletion&&!studyBlocked(lane.note.study_id)){
+  if(lane&&!lane.abandoned&&(forceLane||!contexts(lane,key).length)&&!lane.deletion&&!studyBlocked(lane.note.study_id)){
    const end=Date.now()+5000;
    while(lane.generation!==lane.saved&&!lane.invalid&&!lane.composing&&lane.status!=='failed'&&lane.status!=='conflict'&&Date.now()<end){
     await Promise.race([flush(lane),new Promise<void>(resolve=>setTimeout(resolve,Math.max(1,end-Date.now())))]);
@@ -406,32 +406,33 @@ function useStatefulStudies(){
   const reads=metadataReads.current.get(id)??new Set<Promise<StudyView|undefined>>();metadataReads.current.set(id,reads);
   const promise=readTitle(id,captured);reads.add(promise);void promise.then(()=>reads.delete(promise),()=>reads.delete(promise));return promise;
  }
- async function beginRename(){
+ async function beginRename(details=false){
   if(!token||!study||busy||studyBlocked(study.id))return;
   const id=study.id,existing=titles.current.get(id);
-  if(existing?.attempt||existing?.running){existing.open=true;update();return;}
+  if(existing){existing.open=true;update();return;}
   const captured=epoch.current,requestNavigation=navigation.current,read=(titleReads.current.get(id)??0)+1;titleReads.current.set(id,read);setBusy(true);
   try{const latest=await refreshTitle(id,captured);
    if(!latest||!valid(captured)||requestNavigation!==navigation.current||selectedStudy.current!==id||titleReads.current.get(id)!==read)return;
-   titles.current.set(id,{study:id,candidate:latest.title,base:latest.revision,open:true,status:'editing',message:''});update();
+   titles.current.set(id,{study:id,candidate:latest.title,details,introduction:latest.introduction??'',source_url:latest.source_url??'',base:latest.revision,open:true,status:'editing',message:''});update();
   }catch(e){if(valid(captured)&&requestNavigation===navigation.current&&selectedStudy.current===id&&titleReads.current.get(id)===read)fail(e);}
   finally{if(valid(captured)&&(requestNavigation===navigation.current||selectedStudy.current===id)&&titleReads.current.get(id)===read)setBusy(false);}
  }
  function changeTitle(candidate:string){const edit=study?titles.current.get(study.id):undefined;if(!edit||studyBlocked(edit.study)||edit.attempt||edit.running)return;edit.candidate=candidate;edit.message='';update();}
+ function changeDetails(field:'introduction'|'source_url',value:string){const edit=study?titles.current.get(study.id):undefined;if(!edit||studyBlocked(edit.study)||edit.attempt||edit.running)return;edit[field]=value;edit.message='';update();}
  function cancelRename(){if(study)titleReads.current.set(study.id,(titleReads.current.get(study.id)??0)+1);const edit=study?titles.current.get(study.id):undefined;if(!edit)return;if(edit.attempt||edit.running)edit.open=false;else titles.current.delete(edit.study);update();}
  async function reloadTitle(){
   if(!study||!token)return;const edit=titles.current.get(study.id);if(!edit||edit.running)return;
   const captured=epoch.current,requestNavigation=navigation.current,read=(titleReads.current.get(edit.study)??0)+1;titleReads.current.set(edit.study,read);
   const currentRead=()=>valid(captured)&&requestNavigation===navigation.current&&selectedStudy.current===edit.study&&titles.current.get(edit.study)===edit&&titleReads.current.get(edit.study)===read&&!edit.attempt&&!edit.running;
   try{const latest=await refreshTitle(edit.study,captured);if(!latest||!currentRead())return;
-   edit.base=latest.revision;edit.status='editing';edit.message='Current title: '+latest.title+'. Your entered title is kept. Select Save to rename.';update();
+   edit.base=latest.revision;edit.status='editing';edit.message=edit.details?'Current study details loaded for review. Your entered details are kept. Select Save to replace them.':'Current title: '+latest.title+'. Your entered title is kept. Select Save to rename.';if(edit.details)edit.review=latest;update();
   }catch(e){if(currentRead()){edit.message='Current title could not be loaded. Retry loading it.';update();if(e instanceof NotesFailure&&['authentication_required','studies_access_denied'].includes(e.code))fail(e);}}
  }
  async function saveTitle(){
   if(!token||!study)return;const edit=titles.current.get(study.id);if(!edit||studyBlocked(edit.study)||edit.running||edit.status==='conflict')return;
   const captured=epoch.current;
-  if(!edit.attempt){const operation_id=uuid();edit.attempt={operation_id,command:'study.rename',path:`/api/studies/${edit.study}/title`,method:'PUT',payload:{operation_id,expected_revision:edit.base,title:edit.candidate},study:edit.study,generation:0};}
-  const attempt=edit.attempt;edit.status='saving';edit.message=edit.confirmed?'Title saved. Refreshing current title…':'Saving title…';update();
+  if(!edit.attempt){const operation_id=uuid();edit.attempt={operation_id,command:edit.details?'study.details.replace':'study.rename',path:`/api/studies/${edit.study}`+(edit.details?'':'/title'),method:'PUT',payload:{operation_id,expected_revision:edit.base,title:edit.candidate,...(edit.details?{introduction:edit.introduction||null,source_url:edit.source_url||null}:{})},study:edit.study,generation:0};}
+  const attempt=edit.attempt;edit.status='saving';edit.message=edit.details?(edit.confirmed?'Study details saved. Refreshing current details…':'Saving study details…'):(edit.confirmed?'Title saved. Refreshing current title…':'Saving title…');update();
   edit.running=(async()=>{
    try{if(!edit.confirmed){const outcome=await execute(authorizedToken(),attempt);if(!valid(captured)||!liveStudy(edit.study)||titles.current.get(edit.study)!==edit)return;edit.confirmed=outcome;}
     if(!valid(captured))return;
@@ -439,10 +440,10 @@ function useStatefulStudies(){
     await refreshTitle(edit.study,captured);if(!valid(captured)||!liveStudy(edit.study)||titles.current.get(edit.study)!==edit)return;
     titles.current.delete(edit.study);
    }catch(e){if(!valid(captured)||!liveStudy(edit.study)||titles.current.get(edit.study)!==edit)return;const code=e instanceof NotesFailure?e.code:'';
-    if(edit.confirmed){edit.status='failed';edit.message='Title saved. Current title could not be refreshed. Retry loading it.';}
-    else if(code==='study_revision_conflict'){edit.status='conflict';edit.attempt=undefined;edit.message='This study title changed elsewhere. Load current title before saving.';}
-    else if(code==='scribeswell_personal_notes_input_invalid'){edit.status='editing';edit.attempt=undefined;edit.message='Enter a title of 1–200 characters without control characters.';}
-    else {edit.status='failed';edit.message='Title not saved. Retry the original rename.';}
+    if(edit.confirmed){edit.status='failed';edit.message=edit.details?'Study details saved. Current details could not be refreshed. Retry loading them.':'Title saved. Current title could not be refreshed. Retry loading it.';}
+    else if(code==='study_revision_conflict'){edit.status='conflict';edit.attempt=undefined;edit.message=edit.details?'This study changed elsewhere. Load current details before saving.':'This study title changed elsewhere. Load current title before saving.';}
+    else if(code==='scribeswell_personal_notes_input_invalid'){edit.status='editing';edit.attempt=undefined;edit.message=edit.details?'Check title (1–200 characters), introduction (up to 10000 characters) and safe HTTP or HTTPS source URL. Your entered details are kept.':'Enter a title of 1–200 characters without control characters.';}
+    else {edit.status='failed';edit.message=edit.details?'Study details not saved. Retry the original save.':'Title not saved. Retry the original rename.';}
     if(['authentication_required','studies_access_denied'].includes(code))fail(e);
    }finally{edit.running=undefined;if(valid(captured))update();}
   })();return edit.running;
@@ -455,11 +456,33 @@ function useStatefulStudies(){
   try{const result=await api.notes(authorizedToken(),parent,cursor);if(currentPage()){notesPosition.current=result.next_cursor;setNotes(old=>[...old,...result.items.filter(note=>!deleted.current.has(note.id))]);setNotesCursor(result.next_cursor);}}
   catch(e){if(currentPage())fail(e);}finally{pendingPages.current.delete(key);}
  }
- async function openNote(id:string){
-  if(!token||!study||!liveStudy(study.id)||deleted.current.has(id))return;if(id===current){navigation.current++;setTool('analysis');setAnalysisTab('Notes');return;}const parent=study.id,requestNavigation=++navigation.current;
-  await exit(async()=>{if(requestNavigation!==navigation.current||selectedStudy.current!==parent)return;const captured=epoch.current;
-   try{let lane=lanes.current.get(id);if(!lane){const note=await api.note(authorizedToken(),parent,id);if(!valid(captured)||requestNavigation!==navigation.current||selectedStudy.current!==parent||!liveStudy(parent)||deleted.current.has(id))return;lane={note,value:note.value,generation:0,saved:0,status:'saved',composing:false,invalid:false};lanes.current.set(id,lane);}await exit(()=>{if(!valid(captured)||requestNavigation!==navigation.current||selectedStudy.current!==parent||deleted.current.has(id))return;lane!.abandoned=false;setCurrent(id);setTool('analysis');setAnalysisTab('Notes');setError('');if(creation.current&&['note.create','note.duplicate','note.conflict_copy'].includes(creation.current.command)&&creationConfirmed.current?.note_id===id)retireCreation(creation.current);update();},true,workspace.workspace.tabKey,()=>requestNavigation===navigation.current&&selectedStudy.current===parent,undefined,true);}
-   catch(e){if(valid(captured)&&requestNavigation===navigation.current&&selectedStudy.current===parent&&liveStudy(parent))fail(e);}
+ function revealNote(value:NoteValue){
+  const layout=workspace.latest.current.read(),refs=noteReferences(value);
+  if(!refs.length)return;
+  const matches=layout.panes.filter(p=>p.valid&&refs.some(ref=>referencesOverlap(ref,p.ref)));
+  if(matches.some(p=>p.paneKey===layout.activePaneKey||Array.from(workspace.root.current?.querySelectorAll<HTMLElement>('[data-reader-pane]')??[]).some(node=>node.dataset.paneKey===p.paneKey&&node.getClientRects().length)))return;
+  if(matches.length){workspace.latest.current.activate(matches[0].paneKey);return;}
+  const segment=aggregate(value).highlights[0]?.anchor.segments[0],ref=segment?.reference??refs[0];
+  const point=segment?.reference.target.kind==='verse_range'?segment.reference.target.start:undefined;
+  workspace.latest.current.open(ref,layout.activePaneKey,false,point?{chapter:point.chapter,verse:point.verse,word:segment!.start_position,offset:0}:undefined);
+ }
+ async function openNote(id:string,parentId=study?.id){
+  if(!token||!parentId||!liveStudy(parentId)||deleted.current.has(id))return;
+  if(id===current&&parentId===study?.id){navigation.current++;setTool('analysis');setAnalysisTab('Notes');const lane=lanes.current.get(id);if(lane)revealNote(lane.value);return;}
+  const parent=parentId,origin=selectedStudy.current,requestNavigation=++navigation.current,originLayout=workspace.latest.current.read(),originTool=activeTool.current;
+  const fresh=()=>requestNavigation===navigation.current&&selectedStudy.current===origin&&liveStudy(parent)&&!deleted.current.has(id)&&workspace.latest.current.read().tabKey===originLayout.tabKey&&workspace.latest.current.read().revision===originLayout.revision&&activeTool.current===originTool;
+  await exit(async()=>{if(!fresh())return;const captured=epoch.current;
+   try{
+    const selected=parent===study?.id?study:await api.study(authorizedToken(),parent);
+    if(!valid(captured)||!fresh()||selected?.owner_account_id!==account)return;
+    let lane=lanes.current.get(id);
+    if(!lane){const note=await api.note(authorizedToken(),parent,id);if(!valid(captured)||!fresh()||note.owner_account_id!==account)return;lane={note,value:note.value,generation:0,saved:0,status:'saved',composing:false,invalid:false};lanes.current.set(id,lane);}
+    await exit(()=>{if(!valid(captured)||!fresh())return;
+     if(parent!==origin){collectionNavigation.current++;selectedStudy.current=parent;setStudy(selected);setNotes([lane!.note]);setNotesCursor(null);notesPosition.current=null;workspace.views.get(workspace.workspace.tabKey)?.set('restoredOutline',true);void loadPassages(parent);}
+     lane!.abandoned=false;setCurrent(id);setTool('analysis');setAnalysisTab('Notes');setError('');revealNote(lane!.value);
+     if(creation.current&&['note.create','note.duplicate','note.conflict_copy'].includes(creation.current.command)&&creationConfirmed.current?.note_id===id)retireCreation(creation.current);update();
+    },true,workspace.workspace.tabKey,fresh,undefined,true);
+   }catch(e){if(valid(captured)&&fresh())fail(e);}
   },true);
  }
  async function reviewLatest(lane:Lane){
@@ -712,9 +735,9 @@ function useStatefulStudies(){
   }finally{if(valid(captured))update();}
  }
  async function start(){if(!token){setError('Sign in to use My studies.');return false;}const captured=epoch.current;setBusy(true);try{enrollment.current??=uuid();await api.enroll(authorizedToken(),enrollment.current);if(!valid(captured))return false;enrollment.current=undefined;setError('');return true;}catch(e){if(valid(captured))fail(e);return false;}finally{if(valid(captured))setBusy(false);}}
- async function create(title:string|null){
+ async function create(title:string|null,details?:{introduction:string|null;source_url:string|null}){
   if(!token)return;if(creation.current&&creationOrigin.current?.key!==workspace.workspace.tabKey){setError('Recover the original creation before starting another study.');return;}if(creation.current&&creation.current.command!=='study.create'){setError('Retry the original note creation before starting another study.');return;}
-  if(!creation.current){const operation_id=uuid();creation.current={operation_id,command:'study.create',path:'/api/studies',method:'POST',payload:{operation_id,title},generation:0};creationOrigin.current={key:workspace.workspace.tabKey,navigation,generation:navigation.current,tool,resume:()=>create(title)};}
+  if(!creation.current){const operation_id=uuid();creation.current={operation_id,command:'study.create',path:'/api/studies',method:'POST',payload:{operation_id,title,...details},generation:0};creationOrigin.current={key:workspace.workspace.tabKey,navigation,generation:navigation.current,tool,resume:()=>create(title,details)};}
   const original=creation.current,captured=epoch.current;setBusy(true);
   const running=creationConfirmed.current?Promise.resolve(creationConfirmed.current):creationRunning.current??execute(authorizedToken(),original);creationRunning.current=running;
   const live=()=>valid(captured)&&creation.current===original;
@@ -783,7 +806,7 @@ function useStatefulStudies(){
   };
   return next();
  }
- return {reviewLatest,useLatest,duplicateNote:(bound?:Lane)=>copyOwn('note.duplicate',bound??lane),saveMine:(bound?:Lane)=>copyOwn('note.conflict_copy',bound??lane),copyStudy:()=>copyOwn('study.copy'),pendingSaves:visible?[...lanes.current.values()].filter(item=>item.abandoned&&item.attempt&&item.status!=='conflict'):[],recoverSave:(lane:Lane)=>flush(lane,true),creationRecovery:visible&&!!creation.current,creationKnown:visible&&!!creationConfirmed.current,creationLabel:creationConfirmed.current?.note_id&&study?.id===creationConfirmed.current.study_id?'Open created note':'Open created study',recoverCreation:()=>creationOrigin.current?.resume(),openCreated,editorLanes,studyDeletedFocus:visible&&studyDeletedFocus&&valid(studyDeletedFocus.captured)&&navigation.current===studyDeletedFocus.navigation&&!selectedStudy.current&&activeTool.current!==null&&(stillReplacingFocus(studyDeletedFocus.source)||document.activeElement?.hasAttribute('data-study-deleted-focus'))?studyDeletedFocus:null,studyDeletion:visible&&studyDeleteTarget?studyDeletions.current.get(studyDeleteTarget):undefined,studyDeletionPaused:!!study&&studyBlocked(study.id),studyWritesFrozen:!!study&&!!studyDeletions.current.get(study.id)?.attempt,pendingStudyDeletions:visible?[...studyDeletions.current.values()].filter(target=>!!target.attempt&&!target.open):[],beginStudyDelete,closeStudyDelete,confirmStudyDelete,recoverStudyWrites,reviewStudyDelete,openStudyDeletion:(target:StudyDeletion)=>{if(!visible||studyDeletions.current.get(target.study.id)!==target)return;target.open=true;setStudyDeleteTarget(target.study.id);update();},deletionFocus:visible?deletionFocus:null,canFocusDeletion:()=>!!deletionFocus&&activeTool.current!==null&&stillReplacingFocus(deletionFocus.source)&&valid(deletionFocus.epoch)&&authority&&dataAccount.current===account&&selectedNote.current===null&&selectedStudy.current===deletionFocus.study&&navigation.current===deletionFocus.navigation,pendingDeletions:visible?[...deletions.current.values()].filter(target=>!!target.attempt&&!target.open):[],openDeletion:(target:Deletion)=>{if(!visible||deletions.current.get(target.lane.note.id)!==target)return;target.open=true;setDeleteTarget(target.lane.note.id);update();},deletion:visible&&deleteTarget?deletions.current.get(deleteTarget):undefined,beginDelete,closeDelete,confirmDelete,recoverDeleteSave,reviewDelete,accountKey:account??'anonymous',enabled:import.meta.env.VITE_STUDIES_ENABLED==='true',tool,setTool,analysisTab,setAnalysisTab,invalidInput:(bound?:Lane)=>{const target=bound??lane;if(target&&!target.deletion?.attempt){target.invalid=true;target.status='failed';clearTimeout(target.timer);update();}},studies:visible&&libraryVerified?studies:[],study:visible?study:null,notes:visible?notes:[],current:visible?current:null,lane,error,accountError,busy,searchCandidate:visible?searchCandidate:'',searchMasked:!visible,setSearchCandidate:changeSearchCandidate,searchStudies,clearSearch,libraryBusy,libraryError,libraryInputInvalid,libraryVerified:visible&&libraryVerified,libraryRestore,libraryPosition:library.current.position,canRestoreLibrary,finishLibraryRestore:()=>{if(canRestoreLibrary())library.current.positionLocked=false;},rememberLibrary,studyCursor:visible?studyCursor:null,notesCursor,collection,collect,removePassage,retryPassages,reviewPassages,cancelPassageIntent,titleEdit: titleEdit?.open?titleEdit:undefined,beginRename,changeTitle,cancelRename,saveTitle,reloadTitle,loadStudies,moreNotes,openStudies,openStudy,openNote,start,create,addNote,change,mark,composition,retry:(bound?:Lane)=>(bound??lane)&&flush((bound??lane)!,true),exit:exitAccount,exitPrompt,stay:()=>{setExitPrompt(null);workspace.cancelRestore();if(workspace.devicePending)workspace.cancelDevice();},proceed:async()=>{const prompt=exitPrompt;setExitPrompt(null);if(!prompt||!prompt.fresh())return;
+ return {pendingStudyCreation:visible&&creation.current?.command==='study.create'&&creationOrigin.current?.key===workspace.workspace.tabKey,privateReadFailure:(failure:unknown)=>{if(valid(libraryEpoch))fail(failure,true);},changeDetails,beginDetails:()=>beginRename(true),detailsEdit:titleEdit?.open&&titleEdit.details?titleEdit:undefined,reviewLatest,useLatest,duplicateNote:(bound?:Lane)=>copyOwn('note.duplicate',bound??lane),saveMine:(bound?:Lane)=>copyOwn('note.conflict_copy',bound??lane),copyStudy:()=>copyOwn('study.copy'),pendingSaves:visible?[...lanes.current.values()].filter(item=>item.abandoned&&item.attempt&&item.status!=='conflict'):[],recoverSave:(lane:Lane)=>flush(lane,true),creationRecovery:visible&&!!creation.current,creationKnown:visible&&!!creationConfirmed.current,creationLabel:creationConfirmed.current?.note_id&&study?.id===creationConfirmed.current.study_id?'Open created note':'Open created study',recoverCreation:()=>creationOrigin.current?.resume(),openCreated,editorLanes,studyDeletedFocus:visible&&studyDeletedFocus&&valid(studyDeletedFocus.captured)&&navigation.current===studyDeletedFocus.navigation&&!selectedStudy.current&&activeTool.current!==null&&(stillReplacingFocus(studyDeletedFocus.source)||document.activeElement?.hasAttribute('data-study-deleted-focus'))?studyDeletedFocus:null,studyDeletion:visible&&studyDeleteTarget?studyDeletions.current.get(studyDeleteTarget):undefined,studyDeletionPaused:!!study&&studyBlocked(study.id),studyWritesFrozen:!!study&&!!studyDeletions.current.get(study.id)?.attempt,pendingStudyDeletions:visible?[...studyDeletions.current.values()].filter(target=>!!target.attempt&&!target.open):[],beginStudyDelete,closeStudyDelete,confirmStudyDelete,recoverStudyWrites,reviewStudyDelete,openStudyDeletion:(target:StudyDeletion)=>{if(!visible||studyDeletions.current.get(target.study.id)!==target)return;target.open=true;setStudyDeleteTarget(target.study.id);update();},deletionFocus:visible?deletionFocus:null,canFocusDeletion:()=>!!deletionFocus&&activeTool.current!==null&&stillReplacingFocus(deletionFocus.source)&&valid(deletionFocus.epoch)&&authority&&dataAccount.current===account&&selectedNote.current===null&&selectedStudy.current===deletionFocus.study&&navigation.current===deletionFocus.navigation,pendingDeletions:visible?[...deletions.current.values()].filter(target=>!!target.attempt&&!target.open):[],openDeletion:(target:Deletion)=>{if(!visible||deletions.current.get(target.lane.note.id)!==target)return;target.open=true;setDeleteTarget(target.lane.note.id);update();},deletion:visible&&deleteTarget?deletions.current.get(deleteTarget):undefined,beginDelete,closeDelete,confirmDelete,recoverDeleteSave,reviewDelete,accountKey:account??'anonymous',enabled:import.meta.env.VITE_STUDIES_ENABLED==='true',tool,setTool,analysisTab,setAnalysisTab,invalidInput:(bound?:Lane)=>{const target=bound??lane;if(target&&!target.deletion?.attempt){target.invalid=true;target.status='failed';clearTimeout(target.timer);update();}},studies:visible&&libraryVerified?studies:[],study:visible?study:null,notes:visible?notes:[],current:visible?current:null,lane,error,accountError,busy,searchCandidate:visible?searchCandidate:'',searchMasked:!visible,setSearchCandidate:changeSearchCandidate,searchStudies,clearSearch,libraryBusy,libraryError,libraryInputInvalid,libraryVerified:visible&&libraryVerified,libraryRestore,libraryPosition:library.current.position,canRestoreLibrary,finishLibraryRestore:()=>{if(canRestoreLibrary())library.current.positionLocked=false;},rememberLibrary,studyCursor:visible?studyCursor:null,notesCursor,collection,collect,removePassage,retryPassages,reviewPassages,cancelPassageIntent,titleEdit: titleEdit?.open&&!titleEdit.details?titleEdit:undefined,beginRename,changeTitle,cancelRename,saveTitle,reloadTitle,loadStudies,moreNotes,openStudies,openStudy,openNote,start,create,addNote,change,mark,composition,retry:(bound?:Lane)=>(bound??lane)&&flush((bound??lane)!,true),exit:exitAccount,exitPrompt,stay:()=>{setExitPrompt(null);workspace.cancelRestore();if(workspace.devicePending)workspace.cancelDevice();},proceed:async()=>{const prompt=exitPrompt;setExitPrompt(null);if(!prompt||!prompt.fresh())return;
  if(prompt.discard&&!contexts(prompt.discard,prompt.key).length){
   abandonLane(prompt.discard);
  }

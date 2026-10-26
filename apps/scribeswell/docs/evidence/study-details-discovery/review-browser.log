@@ -1,0 +1,41 @@
+
+> scribeswell-web@0.1.0 test:browser
+> playwright test --config playwright.config.cjs tests/personal-notes.spec.cjs --grep R[1-7] |D3 |D10 |D14 |creation retry freezes
+
+[WebServer] (node:600564) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 26 tests using 2 workers
+
+(node:600628) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:600633) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   1 [desktop] › tests/personal-notes.spec.cjs:1857:1 › D3 relevant Preview preserves local writing destination and explicit Open uses save guard once (1.5s)
+  ✓   2 [mobile] › tests/personal-notes.spec.cjs:1857:1 › D3 relevant Preview preserves local writing destination and explicit Open uses save guard once (1.5s)
+  ✓   3 [desktop] › tests/personal-notes.spec.cjs:1898:28 › D10 outline note Open reveals only absent relevant passage 1 (1.2s)
+  ✓   4 [mobile] › tests/personal-notes.spec.cjs:1898:28 › D10 outline note Open reveals only absent relevant passage 1 (1.3s)
+  ✓   5 [desktop] › tests/personal-notes.spec.cjs:1898:28 › D10 outline note Open reveals only absent relevant passage 2 (1.2s)
+  ✓   6 [mobile] › tests/personal-notes.spec.cjs:1898:28 › D10 outline note Open reveals only absent relevant passage 2 (1.3s)
+  ✓   7 [desktop] › tests/personal-notes.spec.cjs:1917:1 › D14 explicit study creation carries optional whole-form details and preserves candidate on refusal (1.8s)
+  ✓   8 [mobile] › tests/personal-notes.spec.cjs:1917:1 › D14 explicit study creation carries optional whole-form details and preserves candidate on refusal (1.8s)
+  ✓   9 [desktop] › tests/personal-notes.spec.cjs:1921:1 › R1 explicit note Open activates a relevant hidden pane without changing positions or adding history (3.4s)
+  ✓  10 [mobile] › tests/personal-notes.spec.cjs:1921:1 › R1 explicit note Open activates a relevant hidden pane without changing positions or adding history (3.4s)
+  ✓  11 [desktop] › tests/personal-notes.spec.cjs:1926:31 › R2 Preview has direct truthful recovery for 503 (2.2s)
+  ✓  12 [mobile] › tests/personal-notes.spec.cjs:1926:31 › R2 Preview has direct truthful recovery for 503 (2.2s)
+  ✓  13 [desktop] › tests/personal-notes.spec.cjs:1926:31 › R2 Preview has direct truthful recovery for 404 (2.3s)
+  ✓  14 [mobile] › tests/personal-notes.spec.cjs:1926:31 › R2 Preview has direct truthful recovery for 404 (2.2s)
+  ✓  15 [desktop] › tests/personal-notes.spec.cjs:1930:39 › R3 study details Save restores its own trigger focus (1.9s)
+  ✓  16 [mobile] › tests/personal-notes.spec.cjs:1930:39 › R3 study details Save restores its own trigger focus (1.9s)
+  ✓  17 [desktop] › tests/personal-notes.spec.cjs:1930:39 › R3 study details Cancel restores its own trigger focus (1.8s)
+  ✓  18 [mobile] › tests/personal-notes.spec.cjs:1930:39 › R3 study details Cancel restores its own trigger focus (1.7s)
+  ✓  19 [desktop] › tests/personal-notes.spec.cjs:1934:1 › R4 successful note autosave preserves separate preview and completed pagination (2.9s)
+  ✓  20 [mobile] › tests/personal-notes.spec.cjs:1934:1 › R4 successful note autosave preserves separate preview and completed pagination (2.9s)
+  ✓  21 [desktop] › tests/personal-notes.spec.cjs:1938:1 › R5 unknown creation visibly freezes original complete candidate until reconciliation (1.6s)
+  ✓  22 [mobile] › tests/personal-notes.spec.cjs:1938:1 › R5 unknown creation visibly freezes original complete candidate until reconciliation (1.9s)
+  ✓  23 [desktop] › tests/personal-notes.spec.cjs:1942:1 › R6 discovery requests exact complete canonical reference again after deliberate passage change (2.4s)
+  ✓  24 [mobile] › tests/personal-notes.spec.cjs:1942:1 › R6 discovery requests exact complete canonical reference again after deliberate passage change (2.3s)
+  ✓  25 [desktop] › tests/personal-notes.spec.cjs:1946:1 › R7 empty readable context page with continuation offers More without a global empty claim (1.8s)
+  ✓  26 [mobile] › tests/personal-notes.spec.cjs:1946:1 › R7 empty readable context page with continuation offers More without a global empty claim (1.7s)
+
+  26 passed (28.7s)

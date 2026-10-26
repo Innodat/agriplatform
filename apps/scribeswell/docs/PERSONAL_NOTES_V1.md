@@ -413,3 +413,12 @@ app-owned callback filter now also protects retained malformed-tab provenance.
 Independent review and final782-pass/2-expected-skip component browser regression
 and build are complete; native/actual-owner/session/device/release gates and durable
 same-device restoration remain separate work.
+
+## Optional study details and contextual own-note discovery
+
+The additive opt-in [STUDY_DETAILS_DISCOVERY_V1](STUDY_DETAILS_DISCOVERY_V1.md)
+extends study configuration with nullable introduction/source, a complete independent
+`study.details.replace` command and bounded account-scoped passage discovery.
+Title-only rename preserves details; original create receipt canonicalization keeps
+absent additive fields absent. Whole-copy bounds include these details. Native0008
+and SQL qualification are authored only, with controlled activation still gated.

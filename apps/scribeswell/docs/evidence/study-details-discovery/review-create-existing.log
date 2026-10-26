@@ -1,0 +1,17 @@
+
+> scribeswell-web@0.1.0 test:browser
+> playwright test --config playwright.config.cjs tests/personal-notes.spec.cjs --grep review: unknown study create preserves original operation and frozen title|rejected study create can correct
+
+[WebServer] (node:602990) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 2 tests using 2 workers
+
+(node:603009) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:603008) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  1 [desktop] › tests/personal-notes.spec.cjs:263:1 › review: unknown study create preserves original operation and frozen title (1.4s)
+  ✓  2 [mobile] › tests/personal-notes.spec.cjs:263:1 › review: unknown study create preserves original operation and frozen title (1.4s)
+
+  2 passed (2.8s)

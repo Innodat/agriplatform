@@ -1,0 +1,19 @@
+
+> scribeswell-web@0.1.0 test:browser
+> playwright test --config playwright.config.cjs tests/personal-notes.spec.cjs --grep R8 Switch anyway|D3 relevant Preview
+
+[WebServer] (node:614934) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 4 tests using 2 workers
+
+(node:614992) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:614998) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  1 [desktop] › tests/personal-notes.spec.cjs:1857:1 › D3 relevant Preview preserves local writing destination and explicit Open uses save guard once (1.5s)
+  ✓  2 [mobile] › tests/personal-notes.spec.cjs:1857:1 › D3 relevant Preview preserves local writing destination and explicit Open uses save guard once (1.5s)
+  ✓  4 [mobile] › tests/personal-notes.spec.cjs:1950:1 › R8 Switch anyway unmounts source editor while destination read waits and preserves original unknown operation (2.5s)
+  ✓  3 [desktop] › tests/personal-notes.spec.cjs:1950:1 › R8 Switch anyway unmounts source editor while destination read waits and preserves original unknown operation (2.6s)
+
+  4 passed (6.1s)

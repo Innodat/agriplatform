@@ -1,0 +1,905 @@
+{
+  "baseline": "47529be6acde6e0dd8373ee1bbf571e9d5e09e75",
+  "files": {
+    "apps/scribeswell/backend/errors.py": {
+      "before": "5e83f2c57cf15ff7719d8d782283176b57264f01fb49a99cddcecf5ee9eb1ed1",
+      "after": "5e83f2c57cf15ff7719d8d782283176b57264f01fb49a99cddcecf5ee9eb1ed1"
+    },
+    "apps/scribeswell/backend/corpus_evidence.py": {
+      "before": "922fd3921da486754aa3646ac9d96e1ac0c6028f26bc29c69143031552501614",
+      "after": "922fd3921da486754aa3646ac9d96e1ac0c6028f26bc29c69143031552501614"
+    },
+    "apps/scribeswell/backend/database.py": {
+      "before": "57da87d4ae91c979edec74de20a55a1396ad35db79f75bd6050e81d999b24add",
+      "after": "57da87d4ae91c979edec74de20a55a1396ad35db79f75bd6050e81d999b24add"
+    },
+    "apps/scribeswell/backend/corpus_publication_input.py": {
+      "before": "3d64d3747131faeec2b72c937b38f91e03ac7d073d78f250e306eb9f7cd6a0b4",
+      "after": "3d64d3747131faeec2b72c937b38f91e03ac7d073d78f250e306eb9f7cd6a0b4"
+    },
+    "apps/scribeswell/backend/corpus_operator.py": {
+      "before": "c0d0e592ee78d02992bcc5f8ca77b0669498f6c83390e19e63260b4714505201",
+      "after": "c0d0e592ee78d02992bcc5f8ca77b0669498f6c83390e19e63260b4714505201"
+    },
+    "apps/scribeswell/backend/own_highlights.py": {
+      "before": "060e8145190de3a190f92f2e4df67813dc28805956e1e645fdbcafe860ff89c8",
+      "after": "060e8145190de3a190f92f2e4df67813dc28805956e1e645fdbcafe860ff89c8"
+    },
+    "apps/scribeswell/backend/passage_references.py": {
+      "before": "8f2c7dc755ef5ef93df8976e25e77d74065efa52c1904df506604a35e4364125",
+      "after": "8f2c7dc755ef5ef93df8976e25e77d74065efa52c1904df506604a35e4364125"
+    },
+    "apps/scribeswell/backend/caller_preparation_fixture.py": {
+      "before": "ba96d75bc9fb6e5352b819623d1fe29dcc68dba1da68bb441c6faa9ed1ccfbc6",
+      "after": "ba96d75bc9fb6e5352b819623d1fe29dcc68dba1da68bb441c6faa9ed1ccfbc6"
+    },
+    "apps/scribeswell/backend/caller_preparation_evidence.py": {
+      "before": "940507b8f45055ee536a1fa2f45ce9a5fe73f5b46b1e91e242b591bc313e59d4",
+      "after": "940507b8f45055ee536a1fa2f45ce9a5fe73f5b46b1e91e242b591bc313e59d4"
+    },
+    "apps/scribeswell/backend/personal_notes_access.py": {
+      "before": "fecf3a08f0a8635912fd75cc95b17f0e4ea1c08876c8e44898d8c5c6510f2a25",
+      "after": "fecf3a08f0a8635912fd75cc95b17f0e4ea1c08876c8e44898d8c5c6510f2a25"
+    },
+    "apps/scribeswell/backend/corpus_database_audit.py": {
+      "before": "1492af7c7280c6b4e3e026d6a0edeff2ab373bc4514ea874c7fd3b7dc5f6e2e6",
+      "after": "1492af7c7280c6b4e3e026d6a0edeff2ab373bc4514ea874c7fd3b7dc5f6e2e6"
+    },
+    "apps/scribeswell/backend/config.py": {
+      "before": "f8768f0a8db1572fcd8edd11b33b1aaee851c0a0b0633f8cff548427e1a3cbd2",
+      "after": "f8768f0a8db1572fcd8edd11b33b1aaee851c0a0b0633f8cff548427e1a3cbd2"
+    },
+    "apps/scribeswell/backend/personal_notes_context.py": {
+      "before": null,
+      "after": "9d3707345df18fae931d26040eec12f40a7f539be499b4a8f32059407951aa10"
+    },
+    "apps/scribeswell/backend/closed_corpus_audit.py": {
+      "before": "ee1edc771fd7e23a1ccff80a99d63642a86bad8bef0964a74b8f3b85484b8d33",
+      "after": "ee1edc771fd7e23a1ccff80a99d63642a86bad8bef0964a74b8f3b85484b8d33"
+    },
+    "apps/scribeswell/backend/main.py": {
+      "before": "854b99f44eac23030d7aac2a3aefa7e3047b74a68fd9abc981f66a6643243e9f",
+      "after": "854b99f44eac23030d7aac2a3aefa7e3047b74a68fd9abc981f66a6643243e9f"
+    },
+    "apps/scribeswell/backend/corpus_manifest.py": {
+      "before": "fe803eff158c78d0d540b2ab285023dc7401cf89682bf74be0383d5b1aaae7c5",
+      "after": "fe803eff158c78d0d540b2ab285023dc7401cf89682bf74be0383d5b1aaae7c5"
+    },
+    "apps/scribeswell/backend/caller_preparation_input.py": {
+      "before": "86b710fa395c2a8337b10cbf4a64b30ea43c4425256459a64cbf642b3ff92221",
+      "after": "86b710fa395c2a8337b10cbf4a64b30ea43c4425256459a64cbf642b3ff92221"
+    },
+    "apps/scribeswell/backend/personal_notes_cursor.py": {
+      "before": "8ee3dc32708283244f67c28cba9dc557e9a0d15f63d9b53992b597450c910c1f",
+      "after": "8ee3dc32708283244f67c28cba9dc557e9a0d15f63d9b53992b597450c910c1f"
+    },
+    "apps/scribeswell/backend/personal_notes_search.py": {
+      "before": "ea5c267eaaec1c68c5c0a9f4197256523794a77e311949fed2422de2f8e77872",
+      "after": "ea5c267eaaec1c68c5c0a9f4197256523794a77e311949fed2422de2f8e77872"
+    },
+    "apps/scribeswell/backend/corpus_publish.py": {
+      "before": "4ded06f8025f6c210823a7d1c9ad88d50db31b3215ac60d3f7cfeaa8c868665d",
+      "after": "4ded06f8025f6c210823a7d1c9ad88d50db31b3215ac60d3f7cfeaa8c868665d"
+    },
+    "apps/scribeswell/backend/personal_notes_router.py": {
+      "before": "dbfeca457bc46a2fa92c3e7eda3317878de738b1410c3b6f624932dce1c62512",
+      "after": "b021bb0d30e2c9f6e2b065dd66aee08144e4374cab716c0754906a0fee6dbf5f"
+    },
+    "apps/scribeswell/backend/caller_preparation_storage.py": {
+      "before": "208886f2abfcff53be00ed2991931e433bbdb18dc66e09096a528a73ee1dddd8",
+      "after": "208886f2abfcff53be00ed2991931e433bbdb18dc66e09096a528a73ee1dddd8"
+    },
+    "apps/scribeswell/backend/pagination.py": {
+      "before": "db02b65fbef157643a74c53fb7beca824cbfd3c62401dbe1afb44e33060d9b53",
+      "after": "db02b65fbef157643a74c53fb7beca824cbfd3c62401dbe1afb44e33060d9b53"
+    },
+    "apps/scribeswell/backend/personal_notes_storage.py": {
+      "before": "cc7891d01568f1744b9a859ffaa6f8749b48ea334f46e3fc21d4dba4c510ecb4",
+      "after": "f4ed7fe219aa94faf84f8e1346ff499adde87c1d16a9b7f6d5017defb81424c5"
+    },
+    "apps/scribeswell/backend/corpus_publication.py": {
+      "before": "be731082199927e8dc39d969c537b3e265d21793cacf3134c0f94ade30ee39bd",
+      "after": "be731082199927e8dc39d969c537b3e265d21793cacf3134c0f94ade30ee39bd"
+    },
+    "apps/scribeswell/backend/personal_notes_contract.py": {
+      "before": "d67efbd485b8cb0581655a4853e9f70cb075d5c11fced168a6e3811f36511d40",
+      "after": "af8dc55c89f14acb4f284a0bf456fed79af8444a52501fa5a9b6148f5de294e3"
+    },
+    "apps/scribeswell/backend/corpus_source.py": {
+      "before": "c1ad586c527335fbea4b764ea7f44a2fe999f61dbf902813901abc004f75e8a0",
+      "after": "c1ad586c527335fbea4b764ea7f44a2fe999f61dbf902813901abc004f75e8a0"
+    },
+    "apps/scribeswell/backend/reader_evidence.py": {
+      "before": "6694d9c43f4c3493d3523b8adc2d2a22e56e4821eafc170df46bd3443715d717",
+      "after": "6694d9c43f4c3493d3523b8adc2d2a22e56e4821eafc170df46bd3443715d717"
+    },
+    "apps/scribeswell/backend/own_copies.py": {
+      "before": "314d256c80587775f422f01c41692a2039e20b85022f38cfe1f635de067797ea",
+      "after": "37760c26ca7c13f5b1a5a17f8499b5242385045dd86f4141861acac9fbc72853"
+    },
+    "apps/scribeswell/backend/highlight_evidence.py": {
+      "before": "310fd7eb562300c8d16f4dbb4e494b9484ad4934d3fa50eb3a17eba89fc73ff9",
+      "after": "310fd7eb562300c8d16f4dbb4e494b9484ad4934d3fa50eb3a17eba89fc73ff9"
+    },
+    "apps/scribeswell/backend/schemas/bible_schemas.py": {
+      "before": "f9c669995efe8536ff92557377478cf6195a4b16264229a6c7dd6f14951c28e7",
+      "after": "f9c669995efe8536ff92557377478cf6195a4b16264229a6c7dd6f14951c28e7"
+    },
+    "apps/scribeswell/backend/schemas/__init__.py": {
+      "before": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+      "after": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b"
+    },
+    "apps/scribeswell/backend/auth/__init__.py": {
+      "before": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+      "after": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b"
+    },
+    "apps/scribeswell/backend/auth/jwt_optional.py": {
+      "before": "fd815262bdf5cd2af40ba43e82f55480c30cf6829350c9425ef50ad333df544b",
+      "after": "fd815262bdf5cd2af40ba43e82f55480c30cf6829350c9425ef50ad333df544b"
+    },
+    "apps/scribeswell/backend/routers/__init__.py": {
+      "before": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+      "after": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b"
+    },
+    "apps/scribeswell/backend/routers/bible.py": {
+      "before": "d8e66af6c25d151bd8f77b0991214031c517489d28332b484ebbdcfaf9aed274",
+      "after": "d8e66af6c25d151bd8f77b0991214031c517489d28332b484ebbdcfaf9aed274"
+    },
+    "apps/scribeswell/backend/models/__init__.py": {
+      "before": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+      "after": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b"
+    },
+    "apps/scribeswell/backend/services/__init__.py": {
+      "before": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+      "after": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b"
+    },
+    "apps/scribeswell/backend/services/bible_service.py": {
+      "before": "17e0c2a498c00cde8459e9b1815a7134c02d2d698d994e79a153d9f5ab0729ef",
+      "after": "17e0c2a498c00cde8459e9b1815a7134c02d2d698d994e79a153d9f5ab0729ef"
+    },
+    "apps/scribeswell/backend/services/oshb_morph.py": {
+      "before": "ce696e2a5b119a299c2d1dae3c90d80847191909121846dad14d0eea75dbb3f0",
+      "after": "ce696e2a5b119a299c2d1dae3c90d80847191909121846dad14d0eea75dbb3f0"
+    },
+    "apps/scribeswell/backend/services/lexicon_service.py": {
+      "before": "30b3cf911701cc50c6c1f0590321757ba9615532e5692b2c0fdadf8cf484497a",
+      "after": "30b3cf911701cc50c6c1f0590321757ba9615532e5692b2c0fdadf8cf484497a"
+    },
+    "apps/scribeswell/backend/models/generated/__init__.py": {
+      "before": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+      "after": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b"
+    },
+    "apps/scribeswell/backend/models/generated/bible_models.py": {
+      "before": "22456a0247aef1390cc7b83500171034f05baa99117b6e401577ffee8063d1b9",
+      "after": "22456a0247aef1390cc7b83500171034f05baa99117b6e401577ffee8063d1b9"
+    },
+    "apps/scribeswell/web/src/main.tsx": {
+      "before": "42cd34649a2e98f8f3894a8cd83055a164d22b0e3f849ff304dbce44e601c8dc",
+      "after": "42cd34649a2e98f8f3894a8cd83055a164d22b0e3f849ff304dbce44e601c8dc"
+    },
+    "apps/scribeswell/web/src/vite-env.d.ts": {
+      "before": "65996936fbb042915f7b74a200fcdde7e410f32a669b1ab9597cfaa4b0faddb5",
+      "after": "65996936fbb042915f7b74a200fcdde7e410f32a669b1ab9597cfaa4b0faddb5"
+    },
+    "apps/scribeswell/web/src/App.tsx": {
+      "before": "9fdf0da1ec028ec53e98c0d2cbd2b9c2a48df1e50eb7d36a07ed360d6ed48a08",
+      "after": "9fdf0da1ec028ec53e98c0d2cbd2b9c2a48df1e50eb7d36a07ed360d6ed48a08"
+    },
+    "apps/scribeswell/web/src/context/StudiesContext.tsx": {
+      "before": "5792884afd269c50552d1da0b0008c7d79f166bc5bc0b001556c8aa860fc54f6",
+      "after": "e491c0ce259bd4e3eab2af58505777b47794c0cf32acd4098b9eefe28b9b837a"
+    },
+    "apps/scribeswell/web/src/context/AuthContext.tsx": {
+      "before": "260dedbaa663c8deccb0c5f884581326199fc9d3482e10d12a29f474e041d863",
+      "after": "260dedbaa663c8deccb0c5f884581326199fc9d3482e10d12a29f474e041d863"
+    },
+    "apps/scribeswell/web/src/context/ReaderWorkspaceContext.tsx": {
+      "before": "ddccc29f3a27ab42ef4b2238b31740845625c19f04661d664d7d8c0603a8baa2",
+      "after": "ddccc29f3a27ab42ef4b2238b31740845625c19f04661d664d7d8c0603a8baa2"
+    },
+    "apps/scribeswell/web/src/schemas/bible.schema.ts": {
+      "before": "b5ea31b8b74472f12524c8704caf76da8cc9b16ab2e9c0fa137bbf4a886085ca",
+      "after": "b5ea31b8b74472f12524c8704caf76da8cc9b16ab2e9c0fa137bbf4a886085ca"
+    },
+    "apps/scribeswell/web/src/lib/own-highlights.ts": {
+      "before": "8ce2165368c3112f9ed1027f92fe16eef9491d62e7238b57e659ad8d937a61c1",
+      "after": "4d93724df34b23c4e9a8064270d24dd1949c6f40d1634e79330da6c453423d0b"
+    },
+    "apps/scribeswell/web/src/lib/api-client.ts": {
+      "before": "6df8fa44ea35eaeba8c38c0c6372aeb2951507e3f7d4760919625e850bf20065",
+      "after": "6df8fa44ea35eaeba8c38c0c6372aeb2951507e3f7d4760919625e850bf20065"
+    },
+    "apps/scribeswell/web/src/lib/supabase.ts": {
+      "before": "921d08273bedb704ded1be275c2e8b980ed8556d35d755858095940c2bf417a2",
+      "after": "921d08273bedb704ded1be275c2e8b980ed8556d35d755858095940c2bf417a2"
+    },
+    "apps/scribeswell/web/src/lib/personal-notes.ts": {
+      "before": "df48e98be47cd57fa0ff40607f991546acc56fbfac30527805b77a7976339e05",
+      "after": "6bd913033299cd5ba46f2266d469e0c96a80a533eb304d241c3ad8ecaefaa966"
+    },
+    "apps/scribeswell/web/src/lib/app-directory.ts": {
+      "before": "96dbce90a4ad0b44bf078ede4cee761230a7038bca3bcc8e945454e151fe4b16",
+      "after": "96dbce90a4ad0b44bf078ede4cee761230a7038bca3bcc8e945454e151fe4b16"
+    },
+    "apps/scribeswell/web/src/lib/note-value.ts": {
+      "before": "3c5a7cf0c6e3afb9863c752071c1402d43c2b84a99db887b6c22586c2be66141",
+      "after": "3c5a7cf0c6e3afb9863c752071c1402d43c2b84a99db887b6c22586c2be66141"
+    },
+    "apps/scribeswell/web/src/lib/workspace-storage.ts": {
+      "before": "3402304e8c9f8f217b680e13992e31af0abd20a9d38c25673642a0a7a762ea56",
+      "after": "3402304e8c9f8f217b680e13992e31af0abd20a9d38c25673642a0a7a762ea56"
+    },
+    "apps/scribeswell/web/src/lib/passage-references.ts": {
+      "before": "3719534d356881a02c3dec0a7775055fbf8144dedc99c988fbda0c0b524bc32e",
+      "after": "3719534d356881a02c3dec0a7775055fbf8144dedc99c988fbda0c0b524bc32e"
+    },
+    "apps/scribeswell/web/src/lib/account-entry.ts": {
+      "before": "fb81a355965c17a3e27df2e5b2d77c17cd63b47b15d5677fbfda39de0ead2302",
+      "after": "fb81a355965c17a3e27df2e5b2d77c17cd63b47b15d5677fbfda39de0ead2302"
+    },
+    "apps/scribeswell/web/src/lib/reader-layout.ts": {
+      "before": "e2362111ad4e890f47baa3b79e4e419f5edb2f9c0b5723dae58f79c8ffaa9e8a",
+      "after": "e2362111ad4e890f47baa3b79e4e419f5edb2f9c0b5723dae58f79c8ffaa9e8a"
+    },
+    "apps/scribeswell/web/src/lib/hebrew-ordinal.ts": {
+      "before": "d87ab57eb46ff79d69237d7980bcab6104b7f09616c5aecb9bfcf6778a2e091b",
+      "after": "d87ab57eb46ff79d69237d7980bcab6104b7f09616c5aecb9bfcf6778a2e091b"
+    },
+    "apps/scribeswell/web/src/hooks/useReaderWorkspace.ts": {
+      "before": "935d7764d2e2a84448fdce7b665d3a87ab012cc46179cafc0eba7a42703d3226",
+      "after": "ae56defc2474f07c504b127a90bf58fb045bc996888d8d696ab33b1102468237"
+    },
+    "apps/scribeswell/web/src/hooks/useChapterNavigation.ts": {
+      "before": "23ae30b7af358fd85086d5ca70a12b6766d6bdd0cc400000124119c2dedd16f2",
+      "after": "23ae30b7af358fd85086d5ca70a12b6766d6bdd0cc400000124119c2dedd16f2"
+    },
+    "apps/scribeswell/web/src/hooks/useBible.ts": {
+      "before": "6e430d9b8877909f892805f98415837775c7819941394edc615f0469d4fc2d3b",
+      "after": "6e430d9b8877909f892805f98415837775c7819941394edc615f0469d4fc2d3b"
+    },
+    "apps/scribeswell/web/src/hooks/useMyApps.ts": {
+      "before": "74dfbcc15c1e177a4a5df4e6120036f6c5fc64a088bf2e98d280dec806cd3b21",
+      "after": "74dfbcc15c1e177a4a5df4e6120036f6c5fc64a088bf2e98d280dec806cd3b21"
+    },
+    "apps/scribeswell/web/src/pages/ReaderPage.tsx": {
+      "before": "1a2cf4a56f9c977c9bb2acf012699056f08caf47977a7591fa9e47d98e1572df",
+      "after": "b9e68da30b1252520160a8ae9a965f98167bb2f08ed9a329979941ae484d232a"
+    },
+    "apps/scribeswell/web/src/generated/reference-catalogue.json": {
+      "before": "0268f81119bb0de669f3c42898a5d64a30d1a76a60dd359169aa608f4aa54595",
+      "after": "0268f81119bb0de669f3c42898a5d64a30d1a76a60dd359169aa608f4aa54595"
+    },
+    "apps/scribeswell/web/src/components/layout/AppLauncher.tsx": {
+      "before": "7130c59b5d0c98a7112bacfacbd7a5f3f178841c29807fe76f66a83e88fc53ef",
+      "after": "7130c59b5d0c98a7112bacfacbd7a5f3f178841c29807fe76f66a83e88fc53ef"
+    },
+    "apps/scribeswell/web/src/components/layout/Topbar.tsx": {
+      "before": "bc4ffeb95310f2a0af1ede75f398058927826f6116127c1e9883793682f5ef87",
+      "after": "bc4ffeb95310f2a0af1ede75f398058927826f6116127c1e9883793682f5ef87"
+    },
+    "apps/scribeswell/web/src/components/layout/AppShell.tsx": {
+      "before": "ae618be162ee521234a08e8d80622b38c5f9fb872629004995cfe1f0f266e490",
+      "after": "ae618be162ee521234a08e8d80622b38c5f9fb872629004995cfe1f0f266e490"
+    },
+    "apps/scribeswell/web/src/components/studies/RelevantNotes.tsx": {
+      "before": null,
+      "after": "52e80e9cea6a4ca47b4a8c9d84c9e19b33ed28247a2fc95185c610da890e92bd"
+    },
+    "apps/scribeswell/web/src/components/studies/StudiesPanel.tsx": {
+      "before": "7e7f5039923f8d695f4cc041b37c90b091ef7ce010679f84ea6c58821a7032b1",
+      "after": "1591fa8f725a3a2a11d384bbadac22366574fa482d7c417e3caeb55518f02c2f"
+    },
+    "apps/scribeswell/web/src/components/studies/NoteEditor.tsx": {
+      "before": "21bbd4c0c83fc09fa790e4190ac0f9df674b4b1cb74c851fe1297280769734fc",
+      "after": "21bbd4c0c83fc09fa790e4190ac0f9df674b4b1cb74c851fe1297280769734fc"
+    },
+    "apps/scribeswell/web/src/components/auth/SignInDialog.tsx": {
+      "before": "9314a4be0f69b4310617cbf1cc4124f3af7341030afc6d5ca238b95f2b40c365",
+      "after": "9314a4be0f69b4310617cbf1cc4124f3af7341030afc6d5ca238b95f2b40c365"
+    },
+    "apps/scribeswell/web/src/components/bible/MorphologyPanel.tsx": {
+      "before": "eed6885c9324bfa8bd7aec259074d09d5ddbf3ffe4e1fe4351dcd1e32f773575",
+      "after": "eed6885c9324bfa8bd7aec259074d09d5ddbf3ffe4e1fe4351dcd1e32f773575"
+    },
+    "apps/scribeswell/web/src/components/bible/book-chapter-selector.tsx": {
+      "before": "9c6b61ef867bd07bfc6a741ac919c10847a49682b391a92f43654fb2e96a23a2",
+      "after": "9c6b61ef867bd07bfc6a741ac919c10847a49682b391a92f43654fb2e96a23a2"
+    },
+    "apps/scribeswell/web/src/components/bible/BookList.tsx": {
+      "before": "ede89c35b08c2431436be0535b87d96794fb747013691fdcdb353d358f5219f0",
+      "after": "ede89c35b08c2431436be0535b87d96794fb747013691fdcdb353d358f5219f0"
+    },
+    "apps/scribeswell/web/src/components/bible/ChapterNav.tsx": {
+      "before": "e81687c3ae8a7123d0be8e2bb1a4e8573f8d6a066698cb5aae375f1be131775f",
+      "after": "e81687c3ae8a7123d0be8e2bb1a4e8573f8d6a066698cb5aae375f1be131775f"
+    },
+    "apps/scribeswell/web/src/components/bible/OwnHighlightActions.tsx": {
+      "before": "8e8fdd5c63a419dd32db440e22e58cfef510c51a439749d215b6db0eb8ff3d2f",
+      "after": "8e8fdd5c63a419dd32db440e22e58cfef510c51a439749d215b6db0eb8ff3d2f"
+    },
+    "apps/scribeswell/web/src/components/bible/PassagePane.tsx": {
+      "before": "974aa871e98a602cb7de87c1651fa1c9cb5a4adcf03846604c09c02138c7c04c",
+      "after": "974aa871e98a602cb7de87c1651fa1c9cb5a4adcf03846604c09c02138c7c04c"
+    },
+    "apps/scribeswell/web/src/components/bible/WordStudy.tsx": {
+      "before": "670898690550832e5a35b8d712c0f76a0bd9617815b2dc8ac0c95747c05af23f",
+      "after": "670898690550832e5a35b8d712c0f76a0bd9617815b2dc8ac0c95747c05af23f"
+    },
+    "apps/scribeswell/web/src/components/bible/WorkspaceTabs.tsx": {
+      "before": "c29cb0be6652e32af728fef6ab78458eb017e46c289862a6ec8e8050c63c6887",
+      "after": "c29cb0be6652e32af728fef6ab78458eb017e46c289862a6ec8e8050c63c6887"
+    },
+    "apps/scribeswell/web/src/components/bible/VerseReader.tsx": {
+      "before": "8f2f180698af0e3a39df4d6d8a8b5b3481576461f9f8fe631bd27c1d4cc27945",
+      "after": "8f2f180698af0e3a39df4d6d8a8b5b3481576461f9f8fe631bd27c1d4cc27945"
+    },
+    "apps/scribeswell/web/src/generated/personal-notes/types.gen.ts": {
+      "before": "31d9108dca5579de1218748bb3d36bdd6fe5dcb04367328540db20f349fa949a",
+      "after": "54a4d37824d748ca2f75bc42d6e9ec7c59c46ae12ad382016f7caa935be19f0c"
+    },
+    "apps/scribeswell/web/src/generated/personal-notes/index.ts": {
+      "before": "3c5b588f10b37117871a26c6a04d640eaef9dae3cba41620708e7cdb8d854294",
+      "after": "829c9f60bbecf846ff409c653e3bfc1aa0df00b4a6872726551c4cc19a384ca3"
+    },
+    "apps/scribeswell/web/src/generated/personal-notes/.generated-files.json": {
+      "before": "654a1edc712cbd8c30f841dc947bd74799911fd0eb159abba4102139690b4b5b",
+      "after": "e0f71f232685dc20f980ccae20c010a5750829e0d7ff8d3d22142f894f736156"
+    },
+    "apps/scribeswell/web/tests/account-entry.spec.cjs": {
+      "before": "9139865d10e75850aaf33aba0b46d178edc4d958ad4ea7d57a401e2c74cad193",
+      "after": "9139865d10e75850aaf33aba0b46d178edc4d958ad4ea7d57a401e2c74cad193"
+    },
+    "apps/scribeswell/web/tests/reader.spec.cjs": {
+      "before": "120e2efd6e7cf421ea5fe48c87d40df8e1d8f4f5d45d34dffc20ae6d5f62de0c",
+      "after": "120e2efd6e7cf421ea5fe48c87d40df8e1d8f4f5d45d34dffc20ae6d5f62de0c"
+    },
+    "apps/scribeswell/web/tests/studies-owner.integration.cjs": {
+      "before": "21ea897c9d1b69c3092b53a68a0e6cbf2c639c0d46beaf4ea00c3fea0229dff4",
+      "after": "21ea897c9d1b69c3092b53a68a0e6cbf2c639c0d46beaf4ea00c3fea0229dff4"
+    },
+    "apps/scribeswell/web/tests/personal-notes.spec.cjs": {
+      "before": "e0944b1b698e9c0f0c27d2a4dfb4ba2746ede1d45cdaf59b311c7b37a76d9f6a",
+      "after": "822879d1fce5cd8d08bf039b47a6dcc713261083b1bd883fc199c23e41204b43"
+    },
+    "apps/scribeswell/web/tests/lexicon.spec.cjs": {
+      "before": "89308a55fc5fe6813325ba1103168508021cb8dfc9b0ca9ca2bc8e615e883993",
+      "after": "89308a55fc5fe6813325ba1103168508021cb8dfc9b0ca9ca2bc8e615e883993"
+    },
+    "apps/scribeswell/web/tests/session.integration.cjs": {
+      "before": "28b9c2fd26a5b572304329c7bd3c053b3a14685acdd4dd046625ef8499c5c0b2",
+      "after": "28b9c2fd26a5b572304329c7bd3c053b3a14685acdd4dd046625ef8499c5c0b2"
+    },
+    "apps/scribeswell/web/tests/production-origin.release.cjs": {
+      "before": "55581baa016c6a8b5e1a1e9f4d8498191886973bc673c8234774d6528e31145d",
+      "after": "55581baa016c6a8b5e1a1e9f4d8498191886973bc673c8234774d6528e31145d"
+    },
+    "apps/scribeswell/web/tests/workspace-restoration.spec.cjs": {
+      "before": "e583d70fd6d8ffad731b055b972c029bf3a13f33cd87c146f16db1d0c3ffcd24",
+      "after": "d7ed2647d2062cc3084354360c37480fa6f68501555736ceea027cf5ba4af8a8"
+    },
+    "apps/scribeswell/web/tests/workspace-tabs.spec.cjs": {
+      "before": "b752634674e6284e221dd3f8861f42cf8458c3df5283a4f3b4188f9490828e0f",
+      "after": "b752634674e6284e221dd3f8861f42cf8458c3df5283a4f3b4188f9490828e0f"
+    },
+    "apps/scribeswell/web/tests/studies-owner-reporter.cjs": {
+      "before": "ee3f7c58671b1973c83b5d81db921db73fcbddcdad73b97d9566d11e6da18fc7",
+      "after": "ee3f7c58671b1973c83b5d81db921db73fcbddcdad73b97d9566d11e6da18fc7"
+    },
+    "apps/scribeswell/web/tests/four-passage.spec.cjs": {
+      "before": "39f9acc0c601d33b88d0aed8be9d9e26918de3de52c94ae95d427f069a9341d7",
+      "after": "39f9acc0c601d33b88d0aed8be9d9e26918de3de52c94ae95d427f069a9341d7"
+    },
+    "apps/scribeswell/web/tests/studies-owner-privacy.cjs": {
+      "before": "45b816c0a45ae4822874f8156836521cbfc8a222cf46d7ec024a100da183865d",
+      "after": "45b816c0a45ae4822874f8156836521cbfc8a222cf46d7ec024a100da183865d"
+    },
+    "apps/scribeswell/web/tests/session-api-fixture.cjs": {
+      "before": "c44a0f4de0e40703515241dd2328580cd0efbd306931fa9885762bab93e62129",
+      "after": "c44a0f4de0e40703515241dd2328580cd0efbd306931fa9885762bab93e62129"
+    },
+    "apps/scribeswell/contracts/personal-notes-v1.openapi.json": {
+      "before": "8e9df390bdd0a359b5addb1de0af8d77a98cf88f6c19600f397343e703d34584",
+      "after": "9e13f898c7105ae2ddcee8364528d3d0c6e72f5d0a23b9559c27906007c9d35b"
+    },
+    "apps/scribeswell/studies-migrations/env.py": {
+      "before": "e7a2764a1bee540800e670f50f251b3dccebe8392c304f769c64307b1d88c8a3",
+      "after": "e7a2764a1bee540800e670f50f251b3dccebe8392c304f769c64307b1d88c8a3"
+    },
+    "apps/scribeswell/studies-migrations/tests/qualify_personal_notes.py": {
+      "before": "f4fdc1d1cca4789150b580923a8f582fa990bcb5840601cf4a3c5b9ea99076c3",
+      "after": "f4fdc1d1cca4789150b580923a8f582fa990bcb5840601cf4a3c5b9ea99076c3"
+    },
+    "apps/scribeswell/studies-migrations/versions/0006_own_highlights.py": {
+      "before": "057585ab54287e16d852b50e90a4194c54e94405cb9b625748df10b797a3e5c4",
+      "after": "057585ab54287e16d852b50e90a4194c54e94405cb9b625748df10b797a3e5c4"
+    },
+    "apps/scribeswell/studies-migrations/versions/0001_personal_notes.py": {
+      "before": "b4fedf15d6de8a2966d310d18ab89f15af5a737852dd9c4f3e7f94f3f33a36e9",
+      "after": "b4fedf15d6de8a2966d310d18ab89f15af5a737852dd9c4f3e7f94f3f33a36e9"
+    },
+    "apps/scribeswell/studies-migrations/versions/0002_study_rename.py": {
+      "before": "15e604cfd8aa126fc0f0aefe7d7ea280205fb337d7b7558fc326d9393fd5c4f3",
+      "after": "15e604cfd8aa126fc0f0aefe7d7ea280205fb337d7b7558fc326d9393fd5c4f3"
+    },
+    "apps/scribeswell/studies-migrations/versions/0003_collected_passages.py": {
+      "before": "c1ce1350f89c1fa111614f7502dc94a68ef87601b387f2e11fd5ebd80a988cfc",
+      "after": "c1ce1350f89c1fa111614f7502dc94a68ef87601b387f2e11fd5ebd80a988cfc"
+    },
+    "apps/scribeswell/studies-migrations/versions/0008_study_details.py": {
+      "before": null,
+      "after": "dc0e5d326ab0a28e1a39501c6c1f06c2a9bd86b06b43a99815c660a08e4866cf"
+    },
+    "apps/scribeswell/studies-migrations/versions/0007_own_copies.py": {
+      "before": "5f75af08071ec17b1ad5e7c406ae4bed92f570328fe40cb477af6378c1592ea3",
+      "after": "5f75af08071ec17b1ad5e7c406ae4bed92f570328fe40cb477af6378c1592ea3"
+    },
+    "apps/scribeswell/studies-migrations/versions/0004_note_deletion.py": {
+      "before": "d3d0b8e0e97d6335865a3b8e1634a474935476a85c67b39e2d7e72d31a8b30c8",
+      "after": "d3d0b8e0e97d6335865a3b8e1634a474935476a85c67b39e2d7e72d31a8b30c8"
+    },
+    "apps/scribeswell/studies-migrations/versions/0005_study_deletion.py": {
+      "before": "8ea74f5531c4dbdbeee79c0a9185b809bd1afb84299dd978b65f201a204ad251",
+      "after": "8ea74f5531c4dbdbeee79c0a9185b809bd1afb84299dd978b65f201a204ad251"
+    },
+    "apps/scribeswell/tests/caller_preparation_rehearsal.py": {
+      "before": "80c5587c64392d1fad6e0bec7b07ac954f409fcc7bbcd069389ac9e1be9a17ef",
+      "after": "80c5587c64392d1fad6e0bec7b07ac954f409fcc7bbcd069389ac9e1be9a17ef"
+    },
+    "apps/scribeswell/tests/test_highlight_evidence.py": {
+      "before": "098bc0b54850ddcb9841255774d19bf54a50a348a97cf549d827943e9c4b791f",
+      "after": "098bc0b54850ddcb9841255774d19bf54a50a348a97cf549d827943e9c4b791f"
+    },
+    "apps/scribeswell/tests/test_import_bible.py": {
+      "before": "bfb8efbe1a28fcb469d8a2fb21616e5127079df9bc4cf14de341ea938ffc80e7",
+      "after": "bfb8efbe1a28fcb469d8a2fb21616e5127079df9bc4cf14de341ea938ffc80e7"
+    },
+    "apps/scribeswell/tests/test_note_deletion.py": {
+      "before": "9981d81340547802d1e764991569e6a06e1d2bbae5fd2f94ef18fc403bc8a60d",
+      "after": "9981d81340547802d1e764991569e6a06e1d2bbae5fd2f94ef18fc403bc8a60d"
+    },
+    "apps/scribeswell/tests/test_own_highlights.py": {
+      "before": "ceb298693311decda23eef6f361b7d0f7438ef1575a733bdb9d0968b63c534f9",
+      "after": "ceb298693311decda23eef6f361b7d0f7438ef1575a733bdb9d0968b63c534f9"
+    },
+    "apps/scribeswell/tests/test_word_inspector.py": {
+      "before": "02147e84dbe73510c9443a1815162b9e1e8b67a9be5056f20fa1cf93707ae1f7",
+      "after": "02147e84dbe73510c9443a1815162b9e1e8b67a9be5056f20fa1cf93707ae1f7"
+    },
+    "apps/scribeswell/tests/test_caller_preparation_fixture.py": {
+      "before": "28eb0f1b21eeeb134e22513abb91b1687c027ad17a44147b39d1bffe0eefcdcc",
+      "after": "28eb0f1b21eeeb134e22513abb91b1687c027ad17a44147b39d1bffe0eefcdcc"
+    },
+    "apps/scribeswell/tests/test_corpus_database_audit.py": {
+      "before": "a3752d3b6f9e4e69a054118d53e9952aa059239a8818b58eee7f78779c216652",
+      "after": "a3752d3b6f9e4e69a054118d53e9952aa059239a8818b58eee7f78779c216652"
+    },
+    "apps/scribeswell/tests/test_lexicon.py": {
+      "before": "2b88bbef46aad428a31dee3a80833b0be88b0918198ebbabb480357373982aa1",
+      "after": "2b88bbef46aad428a31dee3a80833b0be88b0918198ebbabb480357373982aa1"
+    },
+    "apps/scribeswell/tests/test_fenced_importer.py": {
+      "before": "72916f828dc1f6eb332a8a91cf16a566fd394e7224ebfe5a5c52a0343aa5d357",
+      "after": "72916f828dc1f6eb332a8a91cf16a566fd394e7224ebfe5a5c52a0343aa5d357"
+    },
+    "apps/scribeswell/tests/test_host_validation_profiles.py": {
+      "before": "350178a1de51bc907f1781d6d5ce61c9b92d58b8c00d2ff6e8d55d5db1f23f75",
+      "after": "350178a1de51bc907f1781d6d5ce61c9b92d58b8c00d2ff6e8d55d5db1f23f75"
+    },
+    "apps/scribeswell/tests/test_caller_preparation_rehearsal.py": {
+      "before": "d9c6dedf73ec73aa5401780036c93628562608d3e72feffb5e7a33c8d94b4149",
+      "after": "d9c6dedf73ec73aa5401780036c93628562608d3e72feffb5e7a33c8d94b4149"
+    },
+    "apps/scribeswell/tests/test_closed_corpus_audit.py": {
+      "before": "db06fecb77d73a4fb5caf398b47856ac1450a60700ab61d756d44419bd71db0d",
+      "after": "db06fecb77d73a4fb5caf398b47856ac1450a60700ab61d756d44419bd71db0d"
+    },
+    "apps/scribeswell/tests/test_reader_evidence_native.py": {
+      "before": "adf9788ffad94e81c390d46ae3e5aa34b51c834f7642b7307817ca043a65f02d",
+      "after": "adf9788ffad94e81c390d46ae3e5aa34b51c834f7642b7307817ca043a65f02d"
+    },
+    "apps/scribeswell/tests/test_corpus_publication_input.py": {
+      "before": "c35593e68b3b055c1e60c429df41e6b227db1d268ec77750693277b99cef39e2",
+      "after": "c35593e68b3b055c1e60c429df41e6b227db1d268ec77750693277b99cef39e2"
+    },
+    "apps/scribeswell/tests/test_owned_migrations.py": {
+      "before": "dff1f6c798bec3c8f437daef8ca875e41019f4a9fad1c46a79d45eef28a80397",
+      "after": "dff1f6c798bec3c8f437daef8ca875e41019f4a9fad1c46a79d45eef28a80397"
+    },
+    "apps/scribeswell/tests/test_own_highlights_native.py": {
+      "before": "c104e1ffe0477af1e6aed6d7b43a5b3316863eec8545e5a5b81083f6523d35f6",
+      "after": "c104e1ffe0477af1e6aed6d7b43a5b3316863eec8545e5a5b81083f6523d35f6"
+    },
+    "apps/scribeswell/tests/test_own_copies_native.py": {
+      "before": "c0e2e6d6933373be56b157ab5cdff619e69c6e805907aa27bf035df39ea40d2e",
+      "after": "c0e2e6d6933373be56b157ab5cdff619e69c6e805907aa27bf035df39ea40d2e"
+    },
+    "apps/scribeswell/tests/test_note_passage_links.py": {
+      "before": "8a49a94d0edeaa4dc68ab81a6d21d3fc90c787e769fedcbf4976f779a6d04c50",
+      "after": "8a49a94d0edeaa4dc68ab81a6d21d3fc90c787e769fedcbf4976f779a6d04c50"
+    },
+    "apps/scribeswell/tests/test_direct_database.py": {
+      "before": "e12464d4bb9516748270dae14b60af30b84e390c7ec1469af8e127c6fe8658ae",
+      "after": "e12464d4bb9516748270dae14b60af30b84e390c7ec1469af8e127c6fe8658ae"
+    },
+    "apps/scribeswell/tests/test_personal_notes_api.py": {
+      "before": "36776ec396e1d901c94dd66a5ca89026a055a7bfbaeaa3739f529501b88df76f",
+      "after": "36776ec396e1d901c94dd66a5ca89026a055a7bfbaeaa3739f529501b88df76f"
+    },
+    "apps/scribeswell/tests/test_corpus_publish_native.py": {
+      "before": "0f4eb7dfaea74cd14a8f6e2e159480d401d0d170640be7a950db682528f5a9ac",
+      "after": "0f4eb7dfaea74cd14a8f6e2e159480d401d0d170640be7a950db682528f5a9ac"
+    },
+    "apps/scribeswell/tests/test_caller_preparation_input.py": {
+      "before": "2d111aa546a14513dd04ce9ff341aa49537d90751b1c8e97da9ef05809979414",
+      "after": "2d111aa546a14513dd04ce9ff341aa49537d90751b1c8e97da9ef05809979414"
+    },
+    "apps/scribeswell/tests/test_corpus_evidence.py": {
+      "before": "692739ad55125f55b4904c01318d164d37ce701daf38887e21370e2ad649c1d1",
+      "after": "692739ad55125f55b4904c01318d164d37ce701daf38887e21370e2ad649c1d1"
+    },
+    "apps/scribeswell/tests/test_postgres_acceptance.py": {
+      "before": "eeeb8e822f573a3dbe20183e09a1a683b95e5c119ee8e62cc6303e748d8e09b5",
+      "after": "eeeb8e822f573a3dbe20183e09a1a683b95e5c119ee8e62cc6303e748d8e09b5"
+    },
+    "apps/scribeswell/tests/test_corpus_publish.py": {
+      "before": "b04e7e79da0e8d4fb1174dc7f3abf3e8b491e240f9b0f0ef5506d604ddaca2be",
+      "after": "b04e7e79da0e8d4fb1174dc7f3abf3e8b491e240f9b0f0ef5506d604ddaca2be"
+    },
+    "apps/scribeswell/tests/test_corpus_operator.py": {
+      "before": "c2212d5b5ef224f0a2e8fbb0be9c38abf96aebc1e73221c1cbf8d59798e3d298",
+      "after": "c2212d5b5ef224f0a2e8fbb0be9c38abf96aebc1e73221c1cbf8d59798e3d298"
+    },
+    "apps/scribeswell/tests/test_caller_preparation_evidence.py": {
+      "before": "69f093171041c422a6c1b6c805bd2f1d9538e7e26187084a7a4417e5cd3d25b4",
+      "after": "69f093171041c422a6c1b6c805bd2f1d9538e7e26187084a7a4417e5cd3d25b4"
+    },
+    "apps/scribeswell/tests/test_corpus_manifest.py": {
+      "before": "5c11d3eedba3f3e8411ecbe355b13e72fbd8433d28b55dafe56af82ce117fa23",
+      "after": "5c11d3eedba3f3e8411ecbe355b13e72fbd8433d28b55dafe56af82ce117fa23"
+    },
+    "apps/scribeswell/tests/test_controller_history_profile.py": {
+      "before": "d397084e5c58d7a213ce222d048b4b70323d3e34b29c3af426731ae322f9c194",
+      "after": "d397084e5c58d7a213ce222d048b4b70323d3e34b29c3af426731ae322f9c194"
+    },
+    "apps/scribeswell/tests/test_studies_owner_integration.py": {
+      "before": "0f4ff48373bdeebd6ca4ab118768b91fa226d7c175a24a4055bcac8dc2c7a9b7",
+      "after": "0f4ff48373bdeebd6ca4ab118768b91fa226d7c175a24a4055bcac8dc2c7a9b7"
+    },
+    "apps/scribeswell/tests/conftest.py": {
+      "before": "c52822b4eb995e97e7bbae06879f9c9979be547cddb4b8493415a9f5bb4ebcbd",
+      "after": "c52822b4eb995e97e7bbae06879f9c9979be547cddb4b8493415a9f5bb4ebcbd"
+    },
+    "apps/scribeswell/tests/test_personal_notes_contract.py": {
+      "before": "7a7fa19f74c8b69b08b2ada6a974ed827ed2ae2d0a6a1187e9b8ce9d62a3895a",
+      "after": "7a7fa19f74c8b69b08b2ada6a974ed827ed2ae2d0a6a1187e9b8ce9d62a3895a"
+    },
+    "apps/scribeswell/tests/test_study_details_discovery_native.py": {
+      "before": null,
+      "after": "fccd5fc2bcfc85f020e5913f6e15f9ea47a63559e53c4bd69d855009249cc7bc"
+    },
+    "apps/scribeswell/tests/test_study_deletion.py": {
+      "before": "fc2c845df89abea0e45ad26f97e4e6192e13615ade671feea826a14167a3c240",
+      "after": "fc2c845df89abea0e45ad26f97e4e6192e13615ade671feea826a14167a3c240"
+    },
+    "apps/scribeswell/tests/test_passage_references.py": {
+      "before": "0ea6bc4b0d9db85df932dbe374933721d288b153d0b95a6644fc010b0d3f3b7b",
+      "after": "0ea6bc4b0d9db85df932dbe374933721d288b153d0b95a6644fc010b0d3f3b7b"
+    },
+    "apps/scribeswell/tests/test_publication_profile.py": {
+      "before": "df05024d41032f63014f83328ae5a645c67e76c12a25efc542420e62e039b210",
+      "after": "df05024d41032f63014f83328ae5a645c67e76c12a25efc542420e62e039b210"
+    },
+    "apps/scribeswell/tests/test_personal_notes_release.py": {
+      "before": "c12f8a169b5cad2d4a75755b09ec94b95a0480c7520f418ab89bdb53eb0d4bbd",
+      "after": "c12f8a169b5cad2d4a75755b09ec94b95a0480c7520f418ab89bdb53eb0d4bbd"
+    },
+    "apps/scribeswell/tests/test_study_details_discovery.py": {
+      "before": null,
+      "after": "8b7938dfe4aa21b3a300d745f39fe703560ef49a17e639976b760b5d7e035925"
+    },
+    "apps/scribeswell/tests/test_library_search.py": {
+      "before": "d3298324d478e4aba9850972c30ec5cbab8af247a3daf9dc5ca034aa06423a61",
+      "after": "d3298324d478e4aba9850972c30ec5cbab8af247a3daf9dc5ca034aa06423a61"
+    },
+    "apps/scribeswell/tests/test_personal_notes_storage.py": {
+      "before": "0ff4b3ba76a84c0e044cc86023cc3293290dc7d95ba485e5873a4cc66b2bf028",
+      "after": "2d615669fc915420ff0b1de486eb7c4fadbde1232b39851052c472c00bd2a98a"
+    },
+    "apps/scribeswell/tests/test_own_copies.py": {
+      "before": "79b0810e5088c01e09c43073c3990d71115345a0af9a5883bcdccc37dc0efef9",
+      "after": "79b0810e5088c01e09c43073c3990d71115345a0af9a5883bcdccc37dc0efef9"
+    },
+    "apps/scribeswell/tests/test_prepared_controller_profile.py": {
+      "before": "33fa887c8e02ac2740283aebea971a5ad8d72477cef03649f64d34b5a2ce158b",
+      "after": "33fa887c8e02ac2740283aebea971a5ad8d72477cef03649f64d34b5a2ce158b"
+    },
+    "apps/scribeswell/tests/test_caller_preparation_capture.py": {
+      "before": "14842702dc7761c87782573075b5ffd267883c2bffa7c3f9d5bdf926bfe70fc4",
+      "after": "14842702dc7761c87782573075b5ffd267883c2bffa7c3f9d5bdf926bfe70fc4"
+    },
+    "apps/scribeswell/tests/test_caller_preparation_storage.py": {
+      "before": "68f9cb3b18a85b17dbdcd0f060ca0b8a6cdeb9ee8ba4e22e5780428c6534f037",
+      "after": "68f9cb3b18a85b17dbdcd0f060ca0b8a6cdeb9ee8ba4e22e5780428c6534f037"
+    },
+    "apps/scribeswell/tests/studies_owner_fixture.py": {
+      "before": "d7543c93b5c96e8ad1cd4d68c5efd35ae7c91079f4ec607f8a48107e5b2594de",
+      "after": "d7543c93b5c96e8ad1cd4d68c5efd35ae7c91079f4ec607f8a48107e5b2594de"
+    },
+    "apps/scribeswell/tests/test_corpus_publication.py": {
+      "before": "97179f3055209ad799ca7f1676334d59dd1fa0d4c8bffe876c17d223b9246b4a",
+      "after": "97179f3055209ad799ca7f1676334d59dd1fa0d4c8bffe876c17d223b9246b4a"
+    },
+    "apps/scribeswell/tests/test_corpus_writer_fence.py": {
+      "before": "425ab471f931851d2581f7d260adacd9f6ac665b519a5b6d08678bc5e38e6f80",
+      "after": "425ab471f931851d2581f7d260adacd9f6ac665b519a5b6d08678bc5e38e6f80"
+    },
+    "apps/scribeswell/tests/test_reader_integrity.py": {
+      "before": "cbe1055903159f9ba40c5e1234ba27c2fd003bd500ff1e2233cffab94ef9b5d1",
+      "after": "cbe1055903159f9ba40c5e1234ba27c2fd003bd500ff1e2233cffab94ef9b5d1"
+    },
+    "apps/scribeswell/tests/fixtures/personal_notes_storage_previous.py": {
+      "before": "6eb5bcd16315e2f88f92e4db685551e6587b36978802a70300307ca828fde685",
+      "after": "6eb5bcd16315e2f88f92e4db685551e6587b36978802a70300307ca828fde685"
+    },
+    "apps/scribeswell/tests/fixtures/note_links_baseline_loader.py": {
+      "before": "fb0d0cc7076b666769010180de2ed37e7231090aeaa13ce95a6e267c6d26c3f6",
+      "after": "fb0d0cc7076b666769010180de2ed37e7231090aeaa13ce95a6e267c6d26c3f6"
+    },
+    "apps/scribeswell/tests/fixtures/note_deletion_baseline_loader.py": {
+      "before": "9023cf07539bbe64aad76803dccc35176fef3f9407303650065450d5c52baad5",
+      "after": "9023cf07539bbe64aad76803dccc35176fef3f9407303650065450d5c52baad5"
+    },
+    "apps/scribeswell/tests/fixtures/study_deletion_baseline_loader.py": {
+      "before": "55a73aca6d0a10cf34b0d8ff9f51aafe5bffa8d96b7a74f7af42a8a9ac8181ae",
+      "after": "55a73aca6d0a10cf34b0d8ff9f51aafe5bffa8d96b7a74f7af42a8a9ac8181ae"
+    },
+    "apps/scribeswell/tests/fixtures/verse-token-digests-v1.json": {
+      "before": "16c5d189d1aeb7b74c757b4f03530c3670f3d12746a1572db9cab7eb4068c9cf",
+      "after": "16c5d189d1aeb7b74c757b4f03530c3670f3d12746a1572db9cab7eb4068c9cf"
+    },
+    "apps/scribeswell/tests/fixtures/note_links_baseline/manifest.json": {
+      "before": "3d0450f7809d997e1be0dbee92c794d8146f775c5362e857c2eee9b935052df0",
+      "after": "3d0450f7809d997e1be0dbee92c794d8146f775c5362e857c2eee9b935052df0"
+    },
+    "apps/scribeswell/tests/fixtures/note_links_baseline/personal_notes_storage.py": {
+      "before": "1bd44b865d3957e71d1227a33a23b200f7ca4c22795f272b3cac3968033e7ef8",
+      "after": "1bd44b865d3957e71d1227a33a23b200f7ca4c22795f272b3cac3968033e7ef8"
+    },
+    "apps/scribeswell/tests/fixtures/note_links_baseline/personal_notes_contract.py": {
+      "before": "dda4e51146cdfc7116b7a0ca47ae2953203a4723ede5b1e3748356033b250e1e",
+      "after": "dda4e51146cdfc7116b7a0ca47ae2953203a4723ede5b1e3748356033b250e1e"
+    },
+    "apps/scribeswell/tests/fixtures/note_deletion_baseline/manifest.json": {
+      "before": "60cf823d1acd4880b6a91cde2af430a4a399ab4514c3da7339eb41b13bd7561a",
+      "after": "60cf823d1acd4880b6a91cde2af430a4a399ab4514c3da7339eb41b13bd7561a"
+    },
+    "apps/scribeswell/tests/fixtures/note_deletion_baseline/personal_notes_storage.py": {
+      "before": "e6069ca3c878a1e10781ea7debfabb9e83e5b54681dc8b8e2fdd359e6181243c",
+      "after": "e6069ca3c878a1e10781ea7debfabb9e83e5b54681dc8b8e2fdd359e6181243c"
+    },
+    "apps/scribeswell/tests/fixtures/note_deletion_baseline/personal_notes_contract.py": {
+      "before": "93eef0a698096a8805cad4fd728996fd8c01e96d9ee08c9f8447ea951f7e8431",
+      "after": "93eef0a698096a8805cad4fd728996fd8c01e96d9ee08c9f8447ea951f7e8431"
+    },
+    "apps/scribeswell/tests/fixtures/study_deletion_baseline/manifest.json": {
+      "before": "bf7d40a2c8b1c760b5968a67b53d16b96a8cde8ace5728fe3d6022431e2cb5f1",
+      "after": "bf7d40a2c8b1c760b5968a67b53d16b96a8cde8ace5728fe3d6022431e2cb5f1"
+    },
+    "apps/scribeswell/tests/fixtures/study_deletion_baseline/personal_notes_storage.py": {
+      "before": "66892a11e44532e34232103f155883337b874a4966bf05a59a63234d1340ca83",
+      "after": "66892a11e44532e34232103f155883337b874a4966bf05a59a63234d1340ca83"
+    },
+    "apps/scribeswell/tests/fixtures/study_deletion_baseline/personal_notes_contract.py": {
+      "before": "1de62b8c02a1176630ddca5de225e3574c4bfb34216bb34aa9e509c50dc2ed84",
+      "after": "1de62b8c02a1176630ddca5de225e3574c4bfb34216bb34aa9e509c50dc2ed84"
+    },
+    "apps/scribeswell/docs/OWN_HIGHLIGHTS_EVIDENCE.md": {
+      "before": "b2d231cc058e184c9940b9f3cb6194862d85ac0b6d9241faa75acd6eb649f01e",
+      "after": "b2d231cc058e184c9940b9f3cb6194862d85ac0b6d9241faa75acd6eb649f01e"
+    },
+    "apps/scribeswell/docs/COLLECTED_PASSAGES_EVIDENCE.md": {
+      "before": "189bc20c93d16a82c63f0b14601a020d392ca3c20e70a148563b2e86027523f5",
+      "after": "189bc20c93d16a82c63f0b14601a020d392ca3c20e70a148563b2e86027523f5"
+    },
+    "apps/scribeswell/docs/CORPUS_EVIDENCE.md": {
+      "before": "e069f9d91a18dd590e36041ae38597b7db65406f4b3c45101d66ebac363ddd98",
+      "after": "e069f9d91a18dd590e36041ae38597b7db65406f4b3c45101d66ebac363ddd98"
+    },
+    "apps/scribeswell/docs/ACCOUNT_ENTRY.md": {
+      "before": "545871793ce42e2f1ac0d7415f297db5cabd6e91109b395e9902fb23a9a8e018",
+      "after": "545871793ce42e2f1ac0d7415f297db5cabd6e91109b395e9902fb23a9a8e018"
+    },
+    "apps/scribeswell/docs/CORPUS_PUBLICATION_INPUT.md": {
+      "before": "de8888de8ede9a2a4c930b1ffaa12747de6dfb11f60c258a5e5643d31fb14ca2",
+      "after": "de8888de8ede9a2a4c930b1ffaa12747de6dfb11f60c258a5e5643d31fb14ca2"
+    },
+    "apps/scribeswell/docs/PERSONAL_NOTES_V1.md": {
+      "before": "fed3f773b7351eee92e74b98f961048b81ea23458381533d0424f66e17d4063f",
+      "after": "e94f058f0510f2230005dc7264b759646268886ba5fd4e1ac3ce00415cbc65f9"
+    },
+    "apps/scribeswell/docs/CORPUS_CONTROLLER.md": {
+      "before": "a47f7b7ced55463858dec33261eccf3974960f49225a50b0537aceae00073cc1",
+      "after": "a47f7b7ced55463858dec33261eccf3974960f49225a50b0537aceae00073cc1"
+    },
+    "apps/scribeswell/docs/NOTE_DELETION_EVIDENCE.md": {
+      "before": "77ca8ff14df5dbbdca43c679e4262598a07c31a033a86d2306c322281cfb577d",
+      "after": "77ca8ff14df5dbbdca43c679e4262598a07c31a033a86d2306c322281cfb577d"
+    },
+    "apps/scribeswell/docs/NOTE_REFERENCES_EVIDENCE.md": {
+      "before": "4e4cb09e50204ccd9825c8354392833e5200b8216199c703cda63013f1d8a41e",
+      "after": "4e4cb09e50204ccd9825c8354392833e5200b8216199c703cda63013f1d8a41e"
+    },
+    "apps/scribeswell/docs/STUDIES_OWNER_INTEGRATION_EVIDENCE.md": {
+      "before": "7d2f137941da2280ad6f1b48050306083962154740b2fb513561728768ad9a28",
+      "after": "7d2f137941da2280ad6f1b48050306083962154740b2fb513561728768ad9a28"
+    },
+    "apps/scribeswell/docs/FOCUS_READING.md": {
+      "before": "3bfcd976001225fb52e4740b7ae698a2ac1bebabb4fedcd4cdcca0d16da8da22",
+      "after": "3bfcd976001225fb52e4740b7ae698a2ac1bebabb4fedcd4cdcca0d16da8da22"
+    },
+    "apps/scribeswell/docs/OWN_HIGHLIGHTS_V1.md": {
+      "before": "74e4ce0922d1e4dcdc40dae861ce3099e4f323a8b8dd21e3be4e7ab35ff82cc4",
+      "after": "74e4ce0922d1e4dcdc40dae861ce3099e4f323a8b8dd21e3be4e7ab35ff82cc4"
+    },
+    "apps/scribeswell/docs/CORPUS_PREPARATION_EVIDENCE.md": {
+      "before": "1f37d60d6826aa88f1f7e8b969774868880ee0b360eeb14caa1a4badd868c002",
+      "after": "1f37d60d6826aa88f1f7e8b969774868880ee0b360eeb14caa1a4badd868c002"
+    },
+    "apps/scribeswell/docs/WORKSPACE_RESTORATION_EVIDENCE.md": {
+      "before": "6d4f6f75a970c384daeadd03c8b324c6e295e4c78fbe7ce2a32501e6c7149b7f",
+      "after": "6d4f6f75a970c384daeadd03c8b324c6e295e4c78fbe7ce2a32501e6c7149b7f"
+    },
+    "apps/scribeswell/docs/OWN_COPIES_EVIDENCE.md": {
+      "before": "fb8984b2dc8bebee9f761a3c2327898345c6944c6788a55b08e7062f1bec2f87",
+      "after": "fb8984b2dc8bebee9f761a3c2327898345c6944c6788a55b08e7062f1bec2f87"
+    },
+    "apps/scribeswell/docs/HIGHLIGHT_EVIDENCE_CONTRACT.md": {
+      "before": "2919a82c3764641c6af53f7784e4c9768dc1e609705e5485da9bd4e7ade8950f",
+      "after": "2919a82c3764641c6af53f7784e4c9768dc1e609705e5485da9bd4e7ade8950f"
+    },
+    "apps/scribeswell/docs/CORPUS_OPERATOR.md": {
+      "before": "bcf3dc429ee4fb160d25a6dcd42a2ffc2dfc60a93c5de288874a5ad7ba7f7817",
+      "after": "bcf3dc429ee4fb160d25a6dcd42a2ffc2dfc60a93c5de288874a5ad7ba7f7817"
+    },
+    "apps/scribeswell/docs/INSPECTOR_POLISH.md": {
+      "before": "ec446e5c4f7c3a8e566014af1723a8c3c9185507f72d7b78019d07fe0a072c0d",
+      "after": "ec446e5c4f7c3a8e566014af1723a8c3c9185507f72d7b78019d07fe0a072c0d"
+    },
+    "apps/scribeswell/docs/WORD_INSPECTOR.md": {
+      "before": "9cd1065cf562bac8893d5ddedc157d2b7a892fe69605aee33503d636bcd17ba7",
+      "after": "9cd1065cf562bac8893d5ddedc157d2b7a892fe69605aee33503d636bcd17ba7"
+    },
+    "apps/scribeswell/docs/LOCAL_READER_RELEASE.md": {
+      "before": "1a8b0407a688bf1557f61194423a74f54b1319dd7fbf0437dad9aba303238e2f",
+      "after": "1a8b0407a688bf1557f61194423a74f54b1319dd7fbf0437dad9aba303238e2f"
+    },
+    "apps/scribeswell/docs/FOUR_PASSAGE_LAYOUT_V1.md": {
+      "before": "a82dcccd9a57afe924047432bbc5c051c4d9d7c29e63dffab5dc98695b32a27f",
+      "after": "a82dcccd9a57afe924047432bbc5c051c4d9d7c29e63dffab5dc98695b32a27f"
+    },
+    "apps/scribeswell/docs/LEXICON_STUDY.md": {
+      "before": "a97fb6b08e22f2892e8b9c15d3cb6eb1d14c0d7b5a08cbf41edc7e177e218feb",
+      "after": "a97fb6b08e22f2892e8b9c15d3cb6eb1d14c0d7b5a08cbf41edc7e177e218feb"
+    },
+    "apps/scribeswell/docs/PASSAGE_COMPARISON.md": {
+      "before": "652d28e8a4e4f72119a413c70e923987836d078ecf82906667a804916ab7081b",
+      "after": "652d28e8a4e4f72119a413c70e923987836d078ecf82906667a804916ab7081b"
+    },
+    "apps/scribeswell/docs/SHARED_SESSION.md": {
+      "before": "2a92417264179f6dcb0ec17d8979b0d907e4f96430da23553c58f7df2e5c29cd",
+      "after": "2a92417264179f6dcb0ec17d8979b0d907e4f96430da23553c58f7df2e5c29cd"
+    },
+    "apps/scribeswell/docs/READER_SCROLL_LAYOUT.md": {
+      "before": "f44f3cf8e0169a6a60add1c865d4f6c5aca491e51ad6f4ca7cd750eb183e0bf3",
+      "after": "f44f3cf8e0169a6a60add1c865d4f6c5aca491e51ad6f4ca7cd750eb183e0bf3"
+    },
+    "apps/scribeswell/docs/WORKSPACE_TABS_V1.md": {
+      "before": "84bbbc0b00135b4bee66f08e788f2a8bcb5e782409c58553d5e86c5b2320d2d1",
+      "after": "84bbbc0b00135b4bee66f08e788f2a8bcb5e782409c58553d5e86c5b2320d2d1"
+    },
+    "apps/scribeswell/docs/MIGRATIONS.md": {
+      "before": "792ec3f012bf1256ccacba1502203fd791876f50148c9093d8fac7d305a87574",
+      "after": "792ec3f012bf1256ccacba1502203fd791876f50148c9093d8fac7d305a87574"
+    },
+    "apps/scribeswell/docs/WORKSPACE_TABS_EVIDENCE.md": {
+      "before": "1d7701280eb6a7c6c357d836db730489d1ae5d6e04b4b4f8082bcd5035c500c1",
+      "after": "1d7701280eb6a7c6c357d836db730489d1ae5d6e04b4b4f8082bcd5035c500c1"
+    },
+    "apps/scribeswell/docs/STUDY_DELETION_V1.md": {
+      "before": "cdc7a23e6ef06f46601c60cc208cffbcc5813b9f77fac16aa29df6e0857114fb",
+      "after": "cdc7a23e6ef06f46601c60cc208cffbcc5813b9f77fac16aa29df6e0857114fb"
+    },
+    "apps/scribeswell/docs/CONTROLLER_HISTORY_PROFILE.md": {
+      "before": "aaeb4411bc695e4bf40d43cca99634c3bc22052cc5fe8015a150df9382a1df29",
+      "after": "aaeb4411bc695e4bf40d43cca99634c3bc22052cc5fe8015a150df9382a1df29"
+    },
+    "apps/scribeswell/docs/scribeswell.md": {
+      "before": "0b81f8f42a5de66b8047be0d5a537a629887abb00542bfa97d4b08f158016dcf",
+      "after": "0b81f8f42a5de66b8047be0d5a537a629887abb00542bfa97d4b08f158016dcf"
+    },
+    "apps/scribeswell/docs/STUDY_DETAILS_DISCOVERY_EVIDENCE.md": {
+      "before": null,
+      "after": "1690c2cea10394d58dc751a72c5ce05cf5453ddf24d1e30f240b59f9f7763e4c"
+    },
+    "apps/scribeswell/docs/HOST_VALIDATION_PROFILES.md": {
+      "before": "8b466f51ea3ab008dece3a87dae366344aa7be70ce702419942759b80529a238",
+      "after": "8b466f51ea3ab008dece3a87dae366344aa7be70ce702419942759b80529a238"
+    },
+    "apps/scribeswell/docs/LIBRARY_SEARCH_EVIDENCE.md": {
+      "before": "83862e72964ff2758b3d7c074a43677f1c7aca811e015578ed5c11ef1dbbba4e",
+      "after": "83862e72964ff2758b3d7c074a43677f1c7aca811e015578ed5c11ef1dbbba4e"
+    },
+    "apps/scribeswell/docs/PASSAGE_REFERENCES_V1.md": {
+      "before": "4ac99f1d019304ca92df3bf61a841d8ab2183b607409241b4426f1fa8fd48a39",
+      "after": "4ac99f1d019304ca92df3bf61a841d8ab2183b607409241b4426f1fa8fd48a39"
+    },
+    "apps/scribeswell/docs/NOTE_DELETION_V1.md": {
+      "before": "08b6bfa2e0e6890800a99f5decd79e447b1f65214f9e424bd4812148caa4b677",
+      "after": "08b6bfa2e0e6890800a99f5decd79e447b1f65214f9e424bd4812148caa4b677"
+    },
+    "apps/scribeswell/docs/PREPARED_CONTROLLER_PROFILE.md": {
+      "before": "c18ffb11707d934bd53523e6c3b9b84c4696fdc40960119601608169e89973f9",
+      "after": "c18ffb11707d934bd53523e6c3b9b84c4696fdc40960119601608169e89973f9"
+    },
+    "apps/scribeswell/docs/CORPUS_CALLER_PREPARATION.md": {
+      "before": "692c208e40fbf72b44be634d889bbdc2f398aac4acc2b6eb35c276316600b5d2",
+      "after": "692c208e40fbf72b44be634d889bbdc2f398aac4acc2b6eb35c276316600b5d2"
+    },
+    "apps/scribeswell/docs/STUDY_DETAILS_DISCOVERY_V1.md": {
+      "before": null,
+      "after": "b8a3ea220ea127d77f0c67dab899a3571c41cc4293279ebf2fc19b2c1ac5fae4"
+    },
+    "apps/scribeswell/docs/STUDY_RENAME_EVIDENCE.md": {
+      "before": "29b7e0e9a48cf4ceca306775384d55fda163ddb77d7ad0b4e48dcf3551c3f30d",
+      "after": "29b7e0e9a48cf4ceca306775384d55fda163ddb77d7ad0b4e48dcf3551c3f30d"
+    },
+    "apps/scribeswell/docs/LIBRARY_SEARCH_V1.md": {
+      "before": "76940aba67ee8799a4299f7200726a8c3cdc47cc36a46ac0a934f077115f77de",
+      "after": "76940aba67ee8799a4299f7200726a8c3cdc47cc36a46ac0a934f077115f77de"
+    },
+    "apps/scribeswell/docs/OWN_COPIES_V1.md": {
+      "before": "8e6a5babcb1d31d03ac35c5a4df3e27cfb8c974f4930483a13a4c19e5225146c",
+      "after": "ff89eebb756c7a00270020bcc73bd35531a9b7c1b99a0d95a0b059dd05b0824d"
+    },
+    "apps/scribeswell/docs/WORKSPACE_RESTORATION_V1.md": {
+      "before": "fc5d49e110d18e914f7b3798fccb0eb87e7e4db4e219ad9096b24c28edebdd81",
+      "after": "fc5d49e110d18e914f7b3798fccb0eb87e7e4db4e219ad9096b24c28edebdd81"
+    },
+    "apps/scribeswell/docs/CORPUS_PREPARATION_TOOL.md": {
+      "before": "ce89f5374a34771a10c9b14ffbcad544a72a6989464b46b5e95df64ed9beaa39",
+      "after": "ce89f5374a34771a10c9b14ffbcad544a72a6989464b46b5e95df64ed9beaa39"
+    },
+    "apps/scribeswell/docs/NOTE_RESPONSE_BOUNDARY_EVIDENCE.md": {
+      "before": "74e7e8d9ea675297ea46ae666507513eb0b72aabfedeeaa4beded949d1ec93ae",
+      "after": "74e7e8d9ea675297ea46ae666507513eb0b72aabfedeeaa4beded949d1ec93ae"
+    },
+    "apps/scribeswell/docs/codex-master-brief.md": {
+      "before": "81aceb14fdff460c1a629169f1dc5c759137441cc08c529e9392d3dd69784be5",
+      "after": "81aceb14fdff460c1a629169f1dc5c759137441cc08c529e9392d3dd69784be5"
+    },
+    "apps/scribeswell/docs/data-repair.md": {
+      "before": "937b6d27bb94cecd1bcc6e9c33dc827458fab5f86d3a3cd69830e709b58006a1",
+      "after": "937b6d27bb94cecd1bcc6e9c33dc827458fab5f86d3a3cd69830e709b58006a1"
+    },
+    "apps/scribeswell/docs/NOTE_REFERENCES_V1.md": {
+      "before": "de7e76592d00bb5165c3c17df80c68531e2261c7a32a0760c6d2d07b2e30ab39",
+      "after": "de7e76592d00bb5165c3c17df80c68531e2261c7a32a0760c6d2d07b2e30ab39"
+    },
+    "apps/scribeswell/docs/FOUR_PASSAGE_LAYOUT_EVIDENCE.md": {
+      "before": "87e110297f0218daa319d9858533d178e60a363f7748eb9e206ebec02938851b",
+      "after": "87e110297f0218daa319d9858533d178e60a363f7748eb9e206ebec02938851b"
+    },
+    "apps/scribeswell/docs/CORPUS_WRITER_FENCE.md": {
+      "before": "6ffdc16f9f62e4f5f70e6959169ab40ef6ad2b0cc05d3d05763918401aa8c9e0",
+      "after": "6ffdc16f9f62e4f5f70e6959169ab40ef6ad2b0cc05d3d05763918401aa8c9e0"
+    },
+    "apps/scribeswell/docs/STUDY_DELETION_EVIDENCE.md": {
+      "before": "3dccf3e285a924ff57eb2b4f0914bea7efe0997e512aa7be3df06e12787eb272",
+      "after": "3dccf3e285a924ff57eb2b4f0914bea7efe0997e512aa7be3df06e12787eb272"
+    },
+    "apps/scribeswell/docs/verification/lexicon-source-audit.md": {
+      "before": "c6b922432e7611b966fb6baa2d2deb9ab21f579cb40933107b1132dfa221abf9",
+      "after": "c6b922432e7611b966fb6baa2d2deb9ab21f579cb40933107b1132dfa221abf9"
+    }
+  }
+}

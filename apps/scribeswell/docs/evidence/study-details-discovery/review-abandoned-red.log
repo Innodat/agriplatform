@@ -1,0 +1,102 @@
+
+> scribeswell-web@0.1.0 test:browser
+> playwright test --config playwright.config.cjs tests/personal-notes.spec.cjs --grep R8 newer --project desktop
+
+[WebServer] (node:613962) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 3 tests using 1 worker
+
+(node:614020) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  1 [desktop] › tests/personal-notes.spec.cjs:1950:58 › R8 newer input after Switch anyway protects source during held destination read (6.9s)
+(node:614267) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  2 [desktop] › tests/personal-notes.spec.cjs:1950:58 › R8 newer composition after Switch anyway protects source during held destination read (7.0s)
+(node:614565) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  3 [desktop] › tests/personal-notes.spec.cjs:1950:58 › R8 newer invalid after Switch anyway protects source during held destination read (6.1s)
+
+
+  1) [desktop] › tests/personal-notes.spec.cjs:1950:58 › R8 newer input after Switch anyway protects source during held destination read 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByRole('dialog', { name: 'Changes not saved' })
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByRole('dialog', { name: 'Changes not saved' }) with timeout 5000ms
+      - waiting for getByRole('dialog', { name: 'Changes not saved' })
+
+
+      1954 |  // unmount the old view. It belongs to that exact source lane, never destination.
+      1955 |  const queued=await page.evaluate(inputKind=>{const source=document.querySelector('[aria-label="Note text"]'),proceed=Array.from(document.querySelectorAll('dialog button')).find(button=>button.textContent==='Switch anyway');proceed.click();const connected=source.isConnected;if(inputKind==='invalid')source.innerHTML='<p>Newer invalid source input<img></p>';else source.textContent='Newer protected source input';source.dispatchEvent(inputKind==='composition'?new CompositionEvent('compositionstart',{bubbles:true}):new InputEvent('input',{bubbles:true,inputType:'insertText',data:'new'}));return connected;},inputKind);expect(queued).toBe(true);await expect.poll(()=>!!release).toBe(true);release();
+    > 1956 |  const guard=page.getByRole('dialog',{name:'Changes not saved'});await expect(guard).toBeVisible();await guard.getByRole('button',{name:'Stay',exact:true}).click();await expect(editor).toContainText(inputKind==='invalid'?'Newer invalid source input':'Newer protected source input');await expect(editor).not.toContainText('Another own explanation');
+           |                                                                                      ^
+      1957 |  if(inputKind==='composition')await editor.dispatchEvent('compositionend',{data:'new'});
+      1958 |  if(inputKind==='invalid')await editor.fill('Corrected newer protected source input');
+      1959 |  await page.getByRole('region',{name:'Note editor',exact:true}).getByRole('button',{name:'Retry',exact:true}).click();await expect.poll(()=>store.requests.filter(r=>r.method==='PUT'&&r.path.endsWith('/notes/'+note)).length).toBe(2);expect(store.requests.filter(r=>r.method==='PUT'&&r.path.endsWith('/notes/'+note))[1].payload).toEqual(original);await expect(editor).toContainText('protected source input');
+        at /home/ck/repos/innodat/agriplatform/apps/scribeswell/web/tests/personal-notes.spec.cjs:1956:86
+
+    Error Context: test-results/personal-notes-R8-newer-in-f5004-uring-held-destination-read-desktop/error-context.md
+
+  2) [desktop] › tests/personal-notes.spec.cjs:1950:58 › R8 newer composition after Switch anyway protects source during held destination read 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByRole('dialog', { name: 'Changes not saved' })
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByRole('dialog', { name: 'Changes not saved' }) with timeout 5000ms
+      - waiting for getByRole('dialog', { name: 'Changes not saved' })
+
+
+      1954 |  // unmount the old view. It belongs to that exact source lane, never destination.
+      1955 |  const queued=await page.evaluate(inputKind=>{const source=document.querySelector('[aria-label="Note text"]'),proceed=Array.from(document.querySelectorAll('dialog button')).find(button=>button.textContent==='Switch anyway');proceed.click();const connected=source.isConnected;if(inputKind==='invalid')source.innerHTML='<p>Newer invalid source input<img></p>';else source.textContent='Newer protected source input';source.dispatchEvent(inputKind==='composition'?new CompositionEvent('compositionstart',{bubbles:true}):new InputEvent('input',{bubbles:true,inputType:'insertText',data:'new'}));return connected;},inputKind);expect(queued).toBe(true);await expect.poll(()=>!!release).toBe(true);release();
+    > 1956 |  const guard=page.getByRole('dialog',{name:'Changes not saved'});await expect(guard).toBeVisible();await guard.getByRole('button',{name:'Stay',exact:true}).click();await expect(editor).toContainText(inputKind==='invalid'?'Newer invalid source input':'Newer protected source input');await expect(editor).not.toContainText('Another own explanation');
+           |                                                                                      ^
+      1957 |  if(inputKind==='composition')await editor.dispatchEvent('compositionend',{data:'new'});
+      1958 |  if(inputKind==='invalid')await editor.fill('Corrected newer protected source input');
+      1959 |  await page.getByRole('region',{name:'Note editor',exact:true}).getByRole('button',{name:'Retry',exact:true}).click();await expect.poll(()=>store.requests.filter(r=>r.method==='PUT'&&r.path.endsWith('/notes/'+note)).length).toBe(2);expect(store.requests.filter(r=>r.method==='PUT'&&r.path.endsWith('/notes/'+note))[1].payload).toEqual(original);await expect(editor).toContainText('protected source input');
+        at /home/ck/repos/innodat/agriplatform/apps/scribeswell/web/tests/personal-notes.spec.cjs:1956:86
+
+    Error Context: test-results/personal-notes-R8-newer-co-a7660-uring-held-destination-read-desktop/error-context.md
+
+  3) [desktop] › tests/personal-notes.spec.cjs:1950:58 › R8 newer invalid after Switch anyway protects source during held destination read 
+
+    Test was interrupted.
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByRole('dialog', { name: 'Changes not saved' })
+    Expected: visible
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByRole('dialog', { name: 'Changes not saved' }) with timeout 5000ms
+      - waiting for getByRole('dialog', { name: 'Changes not saved' })
+      - Test ended.
+
+
+      1954 |  // unmount the old view. It belongs to that exact source lane, never destination.
+      1955 |  const queued=await page.evaluate(inputKind=>{const source=document.querySelector('[aria-label="Note text"]'),proceed=Array.from(document.querySelectorAll('dialog button')).find(button=>button.textContent==='Switch anyway');proceed.click();const connected=source.isConnected;if(inputKind==='invalid')source.innerHTML='<p>Newer invalid source input<img></p>';else source.textContent='Newer protected source input';source.dispatchEvent(inputKind==='composition'?new CompositionEvent('compositionstart',{bubbles:true}):new InputEvent('input',{bubbles:true,inputType:'insertText',data:'new'}));return connected;},inputKind);expect(queued).toBe(true);await expect.poll(()=>!!release).toBe(true);release();
+    > 1956 |  const guard=page.getByRole('dialog',{name:'Changes not saved'});await expect(guard).toBeVisible();await guard.getByRole('button',{name:'Stay',exact:true}).click();await expect(editor).toContainText(inputKind==='invalid'?'Newer invalid source input':'Newer protected source input');await expect(editor).not.toContainText('Another own explanation');
+           |                                                                                      ^
+      1957 |  if(inputKind==='composition')await editor.dispatchEvent('compositionend',{data:'new'});
+      1958 |  if(inputKind==='invalid')await editor.fill('Corrected newer protected source input');
+      1959 |  await page.getByRole('region',{name:'Note editor',exact:true}).getByRole('button',{name:'Retry',exact:true}).click();await expect.poll(()=>store.requests.filter(r=>r.method==='PUT'&&r.path.endsWith('/notes/'+note)).length).toBe(2);expect(store.requests.filter(r=>r.method==='PUT'&&r.path.endsWith('/notes/'+note))[1].payload).toEqual(original);await expect(editor).toContainText('protected source input');
+        at /home/ck/repos/innodat/agriplatform/apps/scribeswell/web/tests/personal-notes.spec.cjs:1956:86
+
+    Error Context: test-results/personal-notes-R8-newer-in-204a8-uring-held-destination-read-desktop/error-context.md
+
+  2 failed
+    [desktop] › tests/personal-notes.spec.cjs:1950:58 › R8 newer input after Switch anyway protects source during held destination read 
+    [desktop] › tests/personal-notes.spec.cjs:1950:58 › R8 newer composition after Switch anyway protects source during held destination read 
+  1 interrupted
+    [desktop] › tests/personal-notes.spec.cjs:1950:58 › R8 newer invalid after Switch anyway protects source during held destination read 

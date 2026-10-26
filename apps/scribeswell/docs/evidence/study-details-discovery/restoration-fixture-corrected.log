@@ -1,0 +1,23 @@
+
+> scribeswell-web@0.1.0 test:browser
+> playwright test --config playwright.config.cjs tests/workspace-restoration.spec.cjs --grep outline return cancelled Rename during held|outline lifetime Retry survives Rename tab during held
+
+[WebServer] (node:576778) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 8 tests using 2 workers
+
+(node:576835) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:576829) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  2 [desktop] › tests/workspace-restoration.spec.cjs:335:86 › outline return cancelled Rename during held notes has complete outline or truthful Retry (1.8s)
+  ✓  1 [mobile] › tests/workspace-restoration.spec.cjs:335:86 › outline return cancelled Rename during held notes has complete outline or truthful Retry (1.8s)
+  ✓  3 [desktop] › tests/workspace-restoration.spec.cjs:335:86 › outline return cancelled Rename during held passages has complete outline or truthful Retry (3.2s)
+  ✓  4 [mobile] › tests/workspace-restoration.spec.cjs:335:86 › outline return cancelled Rename during held passages has complete outline or truthful Retry (3.2s)
+  ✓  6 [mobile] › tests/workspace-restoration.spec.cjs:342:91 › outline lifetime Retry survives Rename tab during held notes without restoring stale public or note state (3.0s)
+  ✓  5 [desktop] › tests/workspace-restoration.spec.cjs:342:91 › outline lifetime Retry survives Rename tab during held notes without restoring stale public or note state (3.1s)
+  ✓  7 [mobile] › tests/workspace-restoration.spec.cjs:342:91 › outline lifetime Retry survives Rename tab during held passages without restoring stale public or note state (2.9s)
+  ✓  8 [desktop] › tests/workspace-restoration.spec.cjs:342:91 › outline lifetime Retry survives Rename tab during held passages without restoring stale public or note state (3.0s)
+
+  8 passed (12.8s)

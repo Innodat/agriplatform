@@ -20,8 +20,8 @@ def independent_value(value):
     try:return TypeAdapter(NoteValue).validate_json(json.dumps(result)).model_dump(mode='json')
     except (ValidationError,ValueError,TypeError):raise NotesError('note_format_unsupported') from None
 
-def check_bounds(title,notes,passages):
-    aggregate={'title':title,'notes':[{'visibility':n['visibility'],'value':n['value']} for n in notes],
+def check_bounds(title,notes,passages,introduction=None,source_url=None):
+    aggregate={'title':title,'introduction':introduction,'source_url':source_url,'notes':[{'visibility':n['visibility'],'value':n['value']} for n in notes],
                'passages':[p['reference'] for p in passages]}
     if len(notes)>128 or len(passages)>200 or len(json.dumps(aggregate,ensure_ascii=False,sort_keys=True,separators=(',',':')).encode())>2097152:
         raise NotesError('copy_limit_exceeded')
@@ -100,14 +100,14 @@ async def execute_copy(storage,identity,command,payload,study,note,deadline,fing
             await cursor.execute(f'SELECT * FROM {SCHEMA}.notes WHERE account_id=%s AND study_id=%s AND active ORDER BY id LIMIT 129',(account,study))
             notes=await cursor.fetchall()
             passages,_=await storage._passages(cursor,account,study)
-            check_bounds(parent['title'],notes,passages['items'])
+            check_bounds(parent['title'],notes,passages['items'],parent.get('introduction'),parent.get('source_url'))
             if any(row['visibility']!='study' for row in notes):raise NotesError('note_format_unsupported')
             # Validate all aggregates before allocating destination identities.
             for row in notes:
                 try:TypeAdapter(NoteValue).validate_json(json.dumps(row['value']))
                 except (ValidationError,ValueError,TypeError):raise NotesError('note_format_unsupported') from None
             destination=str(uuid4())
-            await cursor.execute(f'INSERT INTO {SCHEMA}.studies(id,account_id,title,created_by,updated_by) VALUES(%s,%s,%s,%s,%s)',(destination,account,parent['title'],actor,actor))
+            await cursor.execute(f'INSERT INTO {SCHEMA}.studies(id,account_id,title,introduction,source_url,created_by,updated_by) VALUES(%s,%s,%s,%s,%s,%s,%s)',(destination,account,parent['title'],parent.get('introduction'),parent.get('source_url'),actor,actor))
             await provenance(cursor,account,destination,None,study,None,command,actor)
             for row in notes:
                 copied=await insert_note(cursor,account,actor,destination,row['value'],row['visibility'])

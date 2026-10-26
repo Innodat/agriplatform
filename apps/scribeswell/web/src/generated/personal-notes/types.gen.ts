@@ -90,6 +90,71 @@ export type ConflictCopyNote = {
 };
 
 /**
+ * ContextNote
+ */
+export type ContextNote = {
+    /**
+     * Note Id
+     */
+    note_id: string;
+    /**
+     * Owner Account Id
+     */
+    owner_account_id: string;
+    /**
+     * Preview
+     */
+    preview: string;
+    /**
+     * References
+     */
+    references: Array<PassageReference>;
+    /**
+     * Revision
+     */
+    revision: string;
+    /**
+     * Study Id
+     */
+    study_id: string;
+    /**
+     * Study Title
+     *
+     * Nonblank scalar Unicode title, no Unicode Cc controls; whitespace is preserved.
+     */
+    study_title: string;
+};
+
+/**
+ * ContextNotePage
+ */
+export type ContextNotePage = {
+    /**
+     * Items
+     */
+    items: Array<ContextNote>;
+    /**
+     * Next Cursor
+     */
+    next_cursor: string | null;
+};
+
+/**
+ * ContextNotes
+ */
+export type ContextNotes = {
+    /**
+     * Cursor
+     */
+    cursor?: string | null;
+    /**
+     * Limit
+     */
+    limit?: number;
+    reference: PassageReference;
+};
+
+/**
  * CopyCredit
  */
 export type CopyCredit = {
@@ -167,9 +232,17 @@ export type CreateNote = {
  */
 export type CreateStudy = {
     /**
+     * Introduction
+     */
+    introduction?: string | null;
+    /**
      * Operation Id
      */
     operation_id: string;
+    /**
+     * Source Url
+     */
+    source_url?: string | null;
     /**
      * Title
      */
@@ -498,7 +571,7 @@ export type NoteView = {
 };
 
 export type OperationAck = ({
-    command?: 'study.create' | 'study.rename' | 'study.passages.replace' | 'study.delete' | 'study.copy';
+    command?: 'study.details.replace' | 'study.create' | 'study.rename' | 'study.passages.replace' | 'study.delete' | 'study.copy';
     note_id?: null;
 } | {
     command?: 'note.create' | 'note.replace' | 'note.delete' | 'note.duplicate' | 'note.conflict_copy';
@@ -507,7 +580,7 @@ export type OperationAck = ({
     /**
      * Command
      */
-    command: 'study.create' | 'study.rename' | 'study.passages.replace' | 'study.delete' | 'note.create' | 'note.replace' | 'note.delete' | 'note.duplicate' | 'note.conflict_copy' | 'study.copy';
+    command: 'study.details.replace' | 'study.create' | 'study.rename' | 'study.passages.replace' | 'study.delete' | 'note.create' | 'note.replace' | 'note.delete' | 'note.duplicate' | 'note.conflict_copy' | 'study.copy';
     /**
      * Note Id
      */
@@ -740,6 +813,34 @@ export type ReplacePassages = {
 };
 
 /**
+ * ReplaceStudyDetails
+ */
+export type ReplaceStudyDetails = {
+    /**
+     * Expected Revision
+     */
+    expected_revision: string;
+    /**
+     * Introduction
+     */
+    introduction: string | null;
+    /**
+     * Operation Id
+     */
+    operation_id: string;
+    /**
+     * Source Url
+     */
+    source_url: string | null;
+    /**
+     * Title
+     *
+     * Nonblank scalar Unicode title, no Unicode Cc controls; whitespace is preserved.
+     */
+    title: string;
+};
+
+/**
  * RevisionDetails
  */
 export type RevisionDetails = {
@@ -822,6 +923,10 @@ export type StudyView = {
      */
     id: string;
     /**
+     * Introduction
+     */
+    introduction?: string | null;
+    /**
      * Owner Account Id
      */
     owner_account_id: string;
@@ -829,6 +934,10 @@ export type StudyView = {
      * Revision
      */
     revision: string;
+    /**
+     * Source Url
+     */
+    source_url?: string | null;
     /**
      * Title
      *
@@ -889,7 +998,7 @@ export type LookupOperationData = {
         operation_id: string;
     };
     query: {
-        command: 'study.create' | 'study.rename' | 'study.passages.replace' | 'study.delete' | 'note.create' | 'note.replace' | 'note.delete' | 'note.duplicate' | 'note.conflict_copy' | 'study.copy';
+        command: 'study.details.replace' | 'study.create' | 'study.rename' | 'study.passages.replace' | 'study.delete' | 'note.create' | 'note.replace' | 'note.delete' | 'note.duplicate' | 'note.conflict_copy' | 'study.copy';
     };
     url: '/api/operations/{operation_id}';
 };
@@ -1060,6 +1169,63 @@ export type CreateStudyResponses = {
 };
 
 export type CreateStudyResponse = CreateStudyResponses[keyof CreateStudyResponses];
+
+export type ContextNotesData = {
+    body: ContextNotes;
+    path?: never;
+    query?: never;
+    url: '/api/studies/context-notes';
+};
+
+export type ContextNotesErrors = {
+    /**
+     * Invalid input
+     */
+    400: ErrorResponse & {
+        code?: 'scribeswell_personal_notes_input_invalid';
+    };
+    /**
+     * Authentication required
+     */
+    401: ErrorResponse & {
+        code?: 'authentication_required';
+    };
+    /**
+     * Current Studies access denied
+     */
+    403: ErrorResponse & {
+        code?: 'studies_access_denied';
+    };
+    /**
+     * Unavailable resource; does not reveal another owner
+     */
+    404: ErrorResponse & {
+        code?: 'resource_unavailable';
+    };
+    /**
+     * Revision, operation payload or unresolved conflict
+     */
+    409: ErrorResponse & {
+        code?: 'note_revision_conflict' | 'study_revision_conflict' | 'passage_revision_conflict' | 'note_format_unsupported' | 'highlight_proof_invalid' | 'operation_payload_mismatch' | 'operation_unresolved' | 'copy_limit_exceeded' | 'note_base_unavailable';
+    };
+    /**
+     * Access, storage or deadline unavailable
+     */
+    503: ErrorResponse & {
+        code?: 'studies_access_unavailable' | 'studies_storage_unavailable' | 'highlight_proof_unavailable' | 'request_deadline_exceeded';
+    };
+};
+
+export type ContextNotesError = ContextNotesErrors[keyof ContextNotesErrors];
+
+export type ContextNotesResponses = {
+    /**
+     * Acknowledged or current authorized result
+     */
+    200: ContextNotePage;
+};
+
+export type ContextNotesResponse = ContextNotesResponses[keyof ContextNotesResponses];
 
 export type EnrollStudiesData = {
     body: EnrollStudies;
@@ -1292,6 +1458,65 @@ export type ReadStudyResponses = {
 };
 
 export type ReadStudyResponse = ReadStudyResponses[keyof ReadStudyResponses];
+
+export type ReplaceStudyDetailsData = {
+    body: ReplaceStudyDetails;
+    path: {
+        study_id: string;
+    };
+    query?: never;
+    url: '/api/studies/{study_id}';
+};
+
+export type ReplaceStudyDetailsErrors = {
+    /**
+     * Invalid input
+     */
+    400: ErrorResponse & {
+        code?: 'scribeswell_personal_notes_input_invalid';
+    };
+    /**
+     * Authentication required
+     */
+    401: ErrorResponse & {
+        code?: 'authentication_required';
+    };
+    /**
+     * Current Studies access denied
+     */
+    403: ErrorResponse & {
+        code?: 'studies_access_denied';
+    };
+    /**
+     * Unavailable resource; does not reveal another owner
+     */
+    404: ErrorResponse & {
+        code?: 'resource_unavailable';
+    };
+    /**
+     * Revision, operation payload or unresolved conflict
+     */
+    409: ErrorResponse & {
+        code?: 'note_revision_conflict' | 'study_revision_conflict' | 'passage_revision_conflict' | 'note_format_unsupported' | 'highlight_proof_invalid' | 'operation_payload_mismatch' | 'operation_unresolved' | 'copy_limit_exceeded' | 'note_base_unavailable';
+    };
+    /**
+     * Access, storage or deadline unavailable
+     */
+    503: ErrorResponse & {
+        code?: 'studies_access_unavailable' | 'studies_storage_unavailable' | 'highlight_proof_unavailable' | 'request_deadline_exceeded';
+    };
+};
+
+export type ReplaceStudyDetailsError = ReplaceStudyDetailsErrors[keyof ReplaceStudyDetailsErrors];
+
+export type ReplaceStudyDetailsResponses = {
+    /**
+     * Acknowledged or current authorized result
+     */
+    200: OperationAck;
+};
+
+export type ReplaceStudyDetailsResponse = ReplaceStudyDetailsResponses[keyof ReplaceStudyDetailsResponses];
 
 export type CopyStudyData = {
     body: CopyStudy;

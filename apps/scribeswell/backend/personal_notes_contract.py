@@ -120,7 +120,14 @@ ExternalUrl = Annotated[str, Field(min_length=1, max_length=2048,
                 'Semantic validation also requires valid IDNA DNS or canonical IPv4/unscoped IPv6, '
                 'port 1–65535, safe percent escapes, scalar Unicode and at most 2048 UTF-8 bytes.',
     json_schema_extra={'not': {'pattern': r'[\s\\\x00-\x1f\x7f-\x9f]'}}), AfterValidator(_url)]
-Command = Literal['study.create', 'study.rename', 'study.passages.replace', 'study.delete', 'note.create', 'note.replace', 'note.delete', 'note.duplicate', 'note.conflict_copy', 'study.copy']
+def _introduction(value: str) -> str:
+    if '\x00' in value:
+        raise ValueError('invalid introduction')
+    return _unicode(value)
+
+
+Introduction = Annotated[str, Field(max_length=10000, json_schema_extra={'not': {'pattern': r'\u0000'}}), AfterValidator(_introduction)]
+Command = Literal['study.details.replace', 'study.create', 'study.rename', 'study.passages.replace', 'study.delete', 'note.create', 'note.replace', 'note.delete', 'note.duplicate', 'note.conflict_copy', 'study.copy']
 
 
 class Closed(BaseModel):
@@ -338,12 +345,19 @@ class EnrollmentAck(Closed):
 class CreateStudy(Closed):
     operation_id: Identifier
     title: Title | None  # required null requests atomic default allocation
+    introduction: Introduction | None = None
+    source_url: ExternalUrl | None = None
 
 
 class RenameStudy(Closed):
     operation_id: Identifier
     expected_revision: Revision
     title: Title
+
+
+class ReplaceStudyDetails(RenameStudy):
+    introduction: Introduction | None
+    source_url: ExternalUrl | None
 
 
 class CreateNote(Closed):
@@ -435,6 +449,8 @@ class CopyCredit(Closed):
 
 
 class StudyView(Attribution):
+    introduction: Introduction | None = Field(default=None, exclude_if=lambda value: value is None)
+    source_url: ExternalUrl | None = Field(default=None, exclude_if=lambda value: value is None)
     copy_credit: CopyCredit | None = Field(default=None, exclude_if=lambda value: value is None)
     id: Identifier
     owner_account_id: Identifier
@@ -470,6 +486,27 @@ class SearchStudies(Closed):
     cursor: Cursor | None = None
 
 
+class ContextNotes(Closed):
+    reference: PassageReference
+    limit: Annotated[int, Field(ge=1, le=50)] = 20
+    cursor: Cursor | None = None
+
+
+class ContextNote(Closed):
+    study_id: Identifier
+    study_title: Title
+    owner_account_id: Identifier
+    note_id: Identifier
+    revision: Revision
+    preview: Annotated[str, Field(max_length=120), AfterValidator(_unicode)]
+    references: tuple[PassageReference, ...] = Field(max_length=256)
+
+
+class ContextNotePage(Closed):
+    items: tuple[ContextNote, ...] = Field(max_length=50)
+    next_cursor: Cursor | None
+
+
 class StudyPage(Closed):
     items: tuple[StudyView, ...] = Field(max_length=50)
     next_cursor: Cursor | None
@@ -482,7 +519,7 @@ class NotePage(Closed):
 
 class OperationAck(Closed):
     model_config = ConfigDict(json_schema_extra={'oneOf': [
-        {'properties': {'command': {'enum': ['study.create', 'study.rename', 'study.passages.replace', 'study.delete', 'study.copy']}, 'note_id': {'type': 'null'}}},
+        {'properties': {'command': {'enum': ['study.details.replace', 'study.create', 'study.rename', 'study.passages.replace', 'study.delete', 'study.copy']}, 'note_id': {'type': 'null'}}},
         {'properties': {'command': {'enum': ['note.create', 'note.replace', 'note.delete', 'note.duplicate', 'note.conflict_copy']}, 'note_id': {'type': 'string'}}},
     ]})
     operation_id: Identifier
@@ -493,7 +530,7 @@ class OperationAck(Closed):
 
     @model_validator(mode='after')
     def resource_shape(self):
-        if (self.command in ('study.create', 'study.rename', 'study.passages.replace', 'study.delete', 'study.copy')) != (self.note_id is None):
+        if (self.command in ('study.details.replace', 'study.create', 'study.rename', 'study.passages.replace', 'study.delete', 'study.copy')) != (self.note_id is None):
             raise ValueError('invalid outcome resources')
         return self
 
@@ -531,7 +568,7 @@ class RevisionProblem(Closed):
 
 
 ErrorResponse = Annotated[Union[Problem, RevisionProblem], Field(discriminator='code')]
-COMMAND_MODELS = {'note.duplicate': DuplicateNote, 'note.conflict_copy': ConflictCopyNote, 'study.copy': CopyStudy, 'studies.search': SearchStudies, 'study.passages.replace': ReplacePassages, 'studies.enroll': EnrollStudies, 'study.create': CreateStudy, 'study.rename': RenameStudy, 'note.create': CreateNote, 'note.replace': ReplaceNote, 'note.delete': DeleteNote, 'study.delete': DeleteStudy}
+COMMAND_MODELS = {'study.details.replace': ReplaceStudyDetails, 'notes.context': ContextNotes, 'note.duplicate': DuplicateNote, 'note.conflict_copy': ConflictCopyNote, 'study.copy': CopyStudy, 'studies.search': SearchStudies, 'study.passages.replace': ReplacePassages, 'studies.enroll': EnrollStudies, 'study.create': CreateStudy, 'study.rename': RenameStudy, 'note.create': CreateNote, 'note.replace': ReplaceNote, 'note.delete': DeleteNote, 'study.delete': DeleteStudy}
 
 
 class ContractInputError(ValueError):
@@ -555,7 +592,7 @@ def parse_command(command: str, raw: bytes) -> SearchStudies | CreateStudy | Ren
     """Strict bounded HTTP body decoder. No access, database or network work."""
     result = None
     try:
-        if type(raw) is not bytes or not raw or len(raw) > (MAX_SEARCH_BODY_BYTES if command == 'studies.search' else MAX_PASSAGE_BODY_BYTES if command == 'study.passages.replace' else MAX_NOTE_BODY_BYTES if command in ('note.create','note.replace','note.conflict_copy') else MAX_BODY_BYTES) or raw.startswith(b'\xef\xbb\xbf'):
+        if type(raw) is not bytes or not raw or len(raw) > (MAX_SEARCH_BODY_BYTES if command in ('studies.search','notes.context') else MAX_PASSAGE_BODY_BYTES if command == 'study.passages.replace' else MAX_NOTE_BODY_BYTES if command in ('note.create','note.replace','note.conflict_copy') else MAX_BODY_BYTES) or raw.startswith(b'\xef\xbb\xbf'):
             raise ValueError('invalid framing')
         tree = json.loads(raw.decode('utf-8'), object_pairs_hook=_unique_object,
                           parse_float=_reject_float, parse_constant=_reject_float)
@@ -586,7 +623,7 @@ def parse_command(command: str, raw: bytes) -> SearchStudies | CreateStudy | Ren
 
 def openapi_contract() -> dict:
     """Generate planned OpenAPI from the DTO definitions, never from fake routes."""
-    models = (SearchStudies, EnrollStudies, EnrollmentAck, CreateStudy, RenameStudy, ReplacePassages, PassageList, CreateNote, ReplaceNote, DeleteNote, DeleteStudy, DuplicateNote, ConflictCopyNote, CopyStudy, StudyView, NoteView, StudyPage,
+    models = (ReplaceStudyDetails, ContextNotes, ContextNotePage, SearchStudies, EnrollStudies, EnrollmentAck, CreateStudy, RenameStudy, ReplacePassages, PassageList, CreateNote, ReplaceNote, DeleteNote, DeleteStudy, DuplicateNote, ConflictCopyNote, CopyStudy, StudyView, NoteView, StudyPage,
               NotePage, OperationAck, Outcome, ErrorResponse)
     schemas = {}
     for model in models:
@@ -640,11 +677,12 @@ def openapi_contract() -> dict:
                                        'duplicate_keys': 'rejected', 'marks_order': ['bold', 'italic']},
             'x-normative-contract': '../docs/PERSONAL_NOTES_V1.md',
             'paths': {
+                '/api/studies/context-notes': {'post': operation('contextNotes', 'ContextNotePage', body='ContextNotes')},
                 '/api/studies/search': {'post': operation('searchStudies', 'StudyPage', body='SearchStudies')},
                 '/api/studies/enrollment': {'post': operation('enrollStudies', 'EnrollmentAck', body='EnrollStudies')},
                 '/api/studies': {'post': operation('createStudy', 'OperationAck', body='CreateStudy'),
                                  'get': operation('listStudies', 'StudyPage', parameters=page)},
-                '/api/studies/{study_id}': {'delete': operation('deleteStudy', 'OperationAck', body='DeleteStudy', parameters=(study,)), 'get': operation('readStudy', 'StudyView', parameters=(study,))},
+                '/api/studies/{study_id}': {'put': operation('replaceStudyDetails', 'OperationAck', body='ReplaceStudyDetails', parameters=(study,)), 'delete': operation('deleteStudy', 'OperationAck', body='DeleteStudy', parameters=(study,)), 'get': operation('readStudy', 'StudyView', parameters=(study,))},
                 '/api/studies/{study_id}/passages': {'get': operation('readPassages', 'PassageList', parameters=(study,)), 'put': operation('replacePassages', 'OperationAck', body='ReplacePassages', parameters=(study,))},
                 '/api/studies/{study_id}/copy': {'post': operation('copyStudy', 'OperationAck', body='CopyStudy', parameters=(study,))},
                 '/api/studies/{study_id}/notes/{note_id}/duplicate': {'post': operation('duplicateNote', 'OperationAck', body='DuplicateNote', parameters=(study,note))},

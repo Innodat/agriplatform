@@ -1,0 +1,63 @@
+
+> scribeswell-web@0.1.0 test:browser
+> playwright test --config playwright.config.cjs --workers=2 --fully-parallel --grep D[0-9]+ |details review|relevant review|rename: failed dirty note|outline return cancelled Rename|outline lifetime Retry survives Rename tab|copies: Copy study|copies review: last-context
+
+[WebServer] (node:606072) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 44 tests using 2 workers
+
+(node:606122) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:606123) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   2 [desktop] › tests/personal-notes.spec.cjs:1732:1 › copies: Copy study confirms writing and opens exact titled own result without reader navigation (1.6s)
+  ✓   1 [desktop] › tests/personal-notes.spec.cjs:309:1 › rename: failed dirty note lane remains independent and recoverable (2.5s)
+  ✓   4 [desktop] › tests/personal-notes.spec.cjs:1830:1 › D1 study details use explicit whole-form Save Cancel and preserve note writing (967ms)
+  ✓   3 [desktop] › tests/personal-notes.spec.cjs:1794:1 › copies review: last-context acknowledged fork retires only the captured branch (2.0s)
+  ✓   5 [desktop] › tests/personal-notes.spec.cjs:1840:1 › D2 relevant own notes offer inspection without changing current note (1.8s)
+  ✓   6 [desktop] › tests/personal-notes.spec.cjs:1857:1 › D3 relevant Preview preserves local writing destination and explicit Open uses save guard once (2.8s)
+  ✓   7 [desktop] › tests/personal-notes.spec.cjs:1869:1 › D4 relevant pagination retains authorized items on failure and retries same cursor (2.2s)
+  ✓   8 [desktop] › tests/personal-notes.spec.cjs:1874:1 › D5 details invalid source preserves candidate and new corrected operation; Cancel changes nothing (2.4s)
+  ✓   9 [desktop] › tests/personal-notes.spec.cjs:1880:1 › D6 details conflict deliberately reads current without replacing candidate (2.2s)
+  ✓  10 [desktop] › tests/personal-notes.spec.cjs:1885:1 › D7 details unknown Cancel reopens original frozen operation without rollback promise (2.4s)
+  ✓  11 [desktop] › tests/personal-notes.spec.cjs:1890:1 › D8 late context and Preview cannot leak across a new workspace tab (2.3s)
+  ✓  12 [desktop] › tests/personal-notes.spec.cjs:1894:1 › D9 contextual admission denial masks private results without hiding public reading (1.9s)
+  ✓  13 [desktop] › tests/personal-notes.spec.cjs:1898:28 › D10 outline note Open reveals only absent relevant passage 1 (2.0s)
+  ✓  14 [desktop] › tests/personal-notes.spec.cjs:1898:28 › D10 outline note Open reveals only absent relevant passage 2 (2.1s)
+  ✓  15 [desktop] › tests/personal-notes.spec.cjs:1903:1 › D11 late relevant Open after tab change cannot select or navigate the new tab (2.2s)
+  ✓  16 [desktop] › tests/personal-notes.spec.cjs:1907:1 › D12 anchored outline Open carries source occurrence in one reader history navigation (2.2s)
+  ✓  18 [desktop] › tests/personal-notes.spec.cjs:1917:1 › D14 explicit study creation carries optional whole-form details and preserves candidate on refusal (1.4s)
+  ✓  17 [desktop] › tests/personal-notes.spec.cjs:1913:1 › D13 study details stay independent of the autosaved note lane (2.7s)
+  ✓  19 [desktop] › tests/workspace-restoration.spec.cjs:335:86 › outline return cancelled Rename during held notes has complete outline or truthful Retry (2.8s)
+  ✓  20 [desktop] › tests/workspace-restoration.spec.cjs:335:86 › outline return cancelled Rename during held passages has complete outline or truthful Retry (3.0s)
+  ✓  21 [desktop] › tests/workspace-restoration.spec.cjs:342:91 › outline lifetime Retry survives Rename tab during held notes without restoring stale public or note state (3.2s)
+  ✓  22 [desktop] › tests/workspace-restoration.spec.cjs:342:91 › outline lifetime Retry survives Rename tab during held passages without restoring stale public or note state (3.2s)
+(node:607328) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:607335) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  24 [mobile] › tests/personal-notes.spec.cjs:1732:1 › copies: Copy study confirms writing and opens exact titled own result without reader navigation (2.4s)
+  ✓  23 [mobile] › tests/personal-notes.spec.cjs:309:1 › rename: failed dirty note lane remains independent and recoverable (4.1s)
+  ✓  26 [mobile] › tests/personal-notes.spec.cjs:1830:1 › D1 study details use explicit whole-form Save Cancel and preserve note writing (1.8s)
+  ✓  25 [mobile] › tests/personal-notes.spec.cjs:1794:1 › copies review: last-context acknowledged fork retires only the captured branch (3.4s)
+  ✓  27 [mobile] › tests/personal-notes.spec.cjs:1840:1 › D2 relevant own notes offer inspection without changing current note (2.0s)
+  ✓  28 [mobile] › tests/personal-notes.spec.cjs:1857:1 › D3 relevant Preview preserves local writing destination and explicit Open uses save guard once (2.8s)
+  ✓  29 [mobile] › tests/personal-notes.spec.cjs:1869:1 › D4 relevant pagination retains authorized items on failure and retries same cursor (2.0s)
+  ✓  30 [mobile] › tests/personal-notes.spec.cjs:1874:1 › D5 details invalid source preserves candidate and new corrected operation; Cancel changes nothing (2.4s)
+  ✓  31 [mobile] › tests/personal-notes.spec.cjs:1880:1 › D6 details conflict deliberately reads current without replacing candidate (2.0s)
+  ✓  32 [mobile] › tests/personal-notes.spec.cjs:1885:1 › D7 details unknown Cancel reopens original frozen operation without rollback promise (2.2s)
+  ✓  33 [mobile] › tests/personal-notes.spec.cjs:1890:1 › D8 late context and Preview cannot leak across a new workspace tab (2.2s)
+  ✓  34 [mobile] › tests/personal-notes.spec.cjs:1894:1 › D9 contextual admission denial masks private results without hiding public reading (2.0s)
+  ✓  35 [mobile] › tests/personal-notes.spec.cjs:1898:28 › D10 outline note Open reveals only absent relevant passage 1 (2.1s)
+  ✓  36 [mobile] › tests/personal-notes.spec.cjs:1898:28 › D10 outline note Open reveals only absent relevant passage 2 (2.2s)
+  ✓  37 [mobile] › tests/personal-notes.spec.cjs:1903:1 › D11 late relevant Open after tab change cannot select or navigate the new tab (2.6s)
+  ✓  38 [mobile] › tests/personal-notes.spec.cjs:1907:1 › D12 anchored outline Open carries source occurrence in one reader history navigation (2.1s)
+  ✓  40 [mobile] › tests/personal-notes.spec.cjs:1917:1 › D14 explicit study creation carries optional whole-form details and preserves candidate on refusal (1.4s)
+  ✓  39 [mobile] › tests/personal-notes.spec.cjs:1913:1 › D13 study details stay independent of the autosaved note lane (2.7s)
+  ✓  41 [mobile] › tests/workspace-restoration.spec.cjs:335:86 › outline return cancelled Rename during held notes has complete outline or truthful Retry (2.7s)
+  ✓  42 [mobile] › tests/workspace-restoration.spec.cjs:335:86 › outline return cancelled Rename during held passages has complete outline or truthful Retry (2.9s)
+  ✓  43 [mobile] › tests/workspace-restoration.spec.cjs:342:91 › outline lifetime Retry survives Rename tab during held notes without restoring stale public or note state (2.7s)
+  ✓  44 [mobile] › tests/workspace-restoration.spec.cjs:342:91 › outline lifetime Retry survives Rename tab during held passages without restoring stale public or note state (2.6s)
+
+  44 passed (55.8s)

@@ -1,0 +1,308 @@
+
+> scribeswell-web@0.1.0 test:browser
+> playwright test --config playwright.config.cjs --grep D[3-9] 
+
+[WebServer] (node:550327) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 14 tests using 2 workers
+
+(node:550364) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:550370) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘   2 [mobile] › tests/personal-notes.spec.cjs:1857:1 › D3 relevant Preview preserves local writing destination and explicit Open uses save guard once (6.4s)
+  ✘   1 [desktop] › tests/personal-notes.spec.cjs:1857:1 › D3 relevant Preview preserves local writing destination and explicit Open uses save guard once (6.5s)
+(node:550751) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:550758) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   3 [mobile] › tests/personal-notes.spec.cjs:1869:1 › D4 relevant pagination retains authorized items on failure and retries same cursor (1.2s)
+  ✓   4 [desktop] › tests/personal-notes.spec.cjs:1869:1 › D4 relevant pagination retains authorized items on failure and retries same cursor (1.2s)
+  ✘   5 [mobile] › tests/personal-notes.spec.cjs:1874:1 › D5 details invalid source preserves candidate and new corrected operation; Cancel changes nothing (6.0s)
+  ✘   6 [desktop] › tests/personal-notes.spec.cjs:1874:1 › D5 details invalid source preserves candidate and new corrected operation; Cancel changes nothing (6.1s)
+(node:551190) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:551200) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘   7 [mobile] › tests/personal-notes.spec.cjs:1880:1 › D6 details conflict deliberately reads current without replacing candidate (6.6s)
+  ✘   8 [desktop] › tests/personal-notes.spec.cjs:1880:1 › D6 details conflict deliberately reads current without replacing candidate (6.5s)
+(node:551513) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:551539) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘   9 [mobile] › tests/personal-notes.spec.cjs:1885:1 › D7 details unknown Cancel reopens original frozen operation without rollback promise (6.5s)
+  ✘  10 [desktop] › tests/personal-notes.spec.cjs:1885:1 › D7 details unknown Cancel reopens original frozen operation without rollback promise (6.5s)
+(node:551922) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:551929) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  11 [mobile] › tests/personal-notes.spec.cjs:1890:1 › D8 late context and Preview cannot leak across a new workspace tab (30.0s)
+  ✘  12 [desktop] › tests/personal-notes.spec.cjs:1890:1 › D8 late context and Preview cannot leak across a new workspace tab (30.0s)
+(node:552977) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:552984) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  13 [mobile] › tests/personal-notes.spec.cjs:1894:1 › D9 contextual admission denial masks private results without hiding public reading (1.2s)
+  ✓  14 [desktop] › tests/personal-notes.spec.cjs:1894:1 › D9 contextual admission denial masks private results without hiding public reading (1.1s)
+
+
+  1) [desktop] › tests/personal-notes.spec.cjs:1857:1 › D3 relevant Preview preserves local writing destination and explicit Open uses save guard once 
+
+    Error: expect(locator).toContainText(expected) failed
+
+    Locator: getByRole('textbox', { name: 'Note text', exact: true })
+    Expected substring: "Another own explanation"
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toContainText" getByRole('textbox', { name: 'Note text', exact: true }) with timeout 5000ms
+      - waiting for getByRole('textbox', { name: 'Note text', exact: true })
+
+
+      1864 |  await surface.getByRole('button',{name:'Open',exact:true}).click();const dialog=page.getByRole('dialog',{name:'Changes not saved'});await expect(dialog).toBeVisible();await dialog.getByRole('button',{name:'Stay',exact:true}).click();await expect(editor).toHaveText('Local pending explanation');
+      1865 |  await surface.getByRole('button',{name:'Open',exact:true}).click();await dialog.getByRole('button',{name:'Switch anyway',exact:true}).click();
+    > 1866 |  await expect(editor).toContainText('Another own explanation');expect(readerParams(page.url()).get('chapter')).toBe('2');expect(await page.evaluate(()=>history.length)).toBe(before.length+1);
+           |                       ^
+      1867 | });
+      1868 |
+      1869 | test('D4 relevant pagination retains authorized items on failure and retries same cursor',async({page})=>{
+        at /home/ck/repos/innodat/agriplatform/apps/scribeswell/web/tests/personal-notes.spec.cjs:1866:23
+
+    Error Context: test-results/personal-notes-D3-relevant-bed63-t-Open-uses-save-guard-once-desktop/error-context.md
+
+  2) [desktop] › tests/personal-notes.spec.cjs:1874:1 › D5 details invalid source preserves candidate and new corrected operation; Cancel changes nothing 
+
+    Error: expect(locator).toHaveValue(expected) failed
+
+    Locator: getByLabel('Introduction', { exact: true })
+    Expected: "Candidate intro"
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toHaveValue" getByLabel('Introduction', { exact: true }) with timeout 5000ms
+      - waiting for getByLabel('Introduction', { exact: true })
+
+
+      1874 | test('D5 details invalid source preserves candidate and new corrected operation; Cancel changes nothing',async({page})=>{
+      1875 |  const store=await setup(page);await collectionStudy(page);const attempts=[];await page.route('**/api/studies/'+study,r=>{if(r.request().method()!=='PUT')return r.fallback();const body=r.request().postDataJSON();attempts.push(body);if(body.source_url.startsWith('javascript:'))return r.fulfill({status:400,json:{code:'scribeswell_personal_notes_input_invalid'}});return r.fallback();});
+    > 1876 |  await page.getByRole('button',{name:'Edit study details'}).click();await page.getByLabel('Introduction',{exact:true}).fill('Candidate intro');await page.getByLabel('Source URL',{exact:true}).fill('javascript:bad');await page.getByRole('button',{name:'Save',exact:true}).click();await expect(page.getByRole('alert')).toContainText('safe HTTP');await expect(page.getByLabel('Introduction',{exact:true})).toHaveValue('Candidate intro');await page.getByLabel('Source URL',{exact:true}).fill('https://example.invalid');await page.getByRole('button',{name:'Save',exact:true}).click();await expect(page.getByRole('link',{name:'Study source'})).toBeVisible();expect(attempts[0].operation_id).not.toBe(attempts[1].operation_id);
+           |                                                                                                                                                                                                                                                                                                                                                                                                                    ^
+      1877 |  await page.getByRole('button',{name:'Edit study details'}).click();await page.getByLabel('Introduction',{exact:true}).fill('Cancelled');await page.getByRole('button',{name:'Cancel',exact:true}).click();expect(store.metadata.introduction).toBe('Candidate intro');expect(attempts).toHaveLength(2);
+      1878 | });
+      1879 |
+        at /home/ck/repos/innodat/agriplatform/apps/scribeswell/web/tests/personal-notes.spec.cjs:1876:404
+
+    Error Context: test-results/personal-notes-D5-details--c1540-tion-Cancel-changes-nothing-desktop/error-context.md
+
+  3) [desktop] › tests/personal-notes.spec.cjs:1880:1 › D6 details conflict deliberately reads current without replacing candidate 
+
+    Error: expect(locator).toHaveValue(expected) failed
+
+    Locator: getByLabel('Introduction', { exact: true })
+    Expected: "Mine"
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toHaveValue" getByLabel('Introduction', { exact: true }) with timeout 5000ms
+      - waiting for getByLabel('Introduction', { exact: true })
+
+
+      1880 | test('D6 details conflict deliberately reads current without replacing candidate',async({page})=>{
+      1881 |  const store=await setup(page);await collectionStudy(page);let first=true;await page.route('**/api/studies/'+study,r=>{if(r.request().method()==='PUT'&&first){first=false;store.metadata.revision='2';store.metadata.introduction='Remote intro';return r.fulfill({status:409,json:{code:'study_revision_conflict'}});}return r.fallback();});
+    > 1882 |  await page.getByRole('button',{name:'Edit study details'}).click();await page.getByLabel('Introduction',{exact:true}).fill('Mine');await page.getByRole('button',{name:'Save',exact:true}).click();await page.getByRole('button',{name:'Load current details'}).click();await expect(page.getByRole('region',{name:'Current saved study details'})).toContainText('Remote intro');await expect(page.getByLabel('Introduction',{exact:true})).toHaveValue('Mine');await page.getByRole('button',{name:'Save',exact:true}).click();await expect(page.getByRole('form',{name:'Study details'})).toHaveCount(0);expect(store.metadata.introduction).toBe('Mine');
+           |                                                                                                                                                                                                                                                                                                                                                                                                                                               ^
+      1883 | });
+      1884 |
+      1885 | test('D7 details unknown Cancel reopens original frozen operation without rollback promise',async({page})=>{
+        at /home/ck/repos/innodat/agriplatform/apps/scribeswell/web/tests/personal-notes.spec.cjs:1882:431
+
+    Error Context: test-results/personal-notes-D6-details--8d6c4-without-replacing-candidate-desktop/error-context.md
+
+  4) [desktop] › tests/personal-notes.spec.cjs:1885:1 › D7 details unknown Cancel reopens original frozen operation without rollback promise 
+
+    Error: expect(locator).toHaveAttribute(expected) failed
+
+    Locator: getByLabel('Introduction', { exact: true })
+    Expected: ""
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toHaveAttribute" getByLabel('Introduction', { exact: true }) with timeout 5000ms
+      - waiting for getByLabel('Introduction', { exact: true })
+
+
+      1885 | test('D7 details unknown Cancel reopens original frozen operation without rollback promise',async({page})=>{
+      1886 |  await setup(page,{unresolved:true});await collectionStudy(page);const attempts=[];let first=true;await page.route('**/api/studies/'+study,r=>{if(r.request().method()!=='PUT')return r.fallback();attempts.push(r.request().postDataJSON());if(first){first=false;return r.abort('connectionreset');}return r.fallback();});
+    > 1887 |  await page.getByRole('button',{name:'Edit study details'}).click();await page.getByLabel('Introduction',{exact:true}).fill('Frozen');await page.getByRole('button',{name:'Save',exact:true}).click();await expect(page.getByRole('button',{name:'Retry details save'})).toBeVisible();await expect(page.getByText(/An unconfirmed save may still complete/)).toBeVisible();await page.getByRole('button',{name:'Cancel',exact:true}).click();await page.getByRole('button',{name:'Edit study details'}).click();await expect(page.getByLabel('Introduction',{exact:true})).toHaveAttribute('readonly','');await page.getByRole('button',{name:'Retry details save'}).click();await expect(page.getByRole('form',{name:'Study details'})).toHaveCount(0);expect(attempts).toHaveLength(2);expect(attempts[1]).toEqual(attempts[0]);
+           |                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             ^
+      1888 | });
+      1889 |
+      1890 | test('D8 late context and Preview cannot leak across a new workspace tab',async({page})=>{
+        at /home/ck/repos/innodat/agriplatform/apps/scribeswell/web/tests/personal-notes.spec.cjs:1887:557
+
+    Error Context: test-results/personal-notes-D7-details--def57-on-without-rollback-promise-desktop/error-context.md
+
+  5) [desktop] › tests/personal-notes.spec.cjs:1890:1 › D8 late context and Preview cannot leak across a new workspace tab 
+
+    Test timeout of 30000ms exceeded.
+
+    Error: locator.click: Test timeout of 30000ms exceeded.
+    Call log:
+      - waiting for getByRole('button', { name: 'Add workspace tab', exact: true })
+
+
+      1889 |
+      1890 | test('D8 late context and Preview cannot leak across a new workspace tab',async({page})=>{
+    > 1891 |  let release;await discoveryFixture(page,{beforePreview:()=>new Promise(resolve=>release=resolve)});await firstNote(page);const surface=page.getByRole('region',{name:'Relevant own notes'});await surface.getByRole('button',{name:'Preview',exact:true}).click();await expect.poll(()=>!!release).toBe(true);await page.getByRole('button',{name:'Add workspace tab',exact:true}).click();await page.getByRole('dialog',{name:'Book and chapter selector'}).getByRole('button',{name:'Cancel',exact:true}).click();release();await expect(page.getByRole('region',{name:'Relevant note preview'})).toHaveCount(0);
+           |                                                                                                                                                                                                                                                                                                                                                                                     ^
+      1892 | });
+      1893 |
+      1894 | test('D9 contextual admission denial masks private results without hiding public reading',async({page})=>{
+        at /home/ck/repos/innodat/agriplatform/apps/scribeswell/web/tests/personal-notes.spec.cjs:1891:373
+
+    Error Context: test-results/personal-notes-D8-late-con-e974d--across-a-new-workspace-tab-desktop/error-context.md
+
+  6) [mobile] › tests/personal-notes.spec.cjs:1857:1 › D3 relevant Preview preserves local writing destination and explicit Open uses save guard once 
+
+    Error: expect(locator).toContainText(expected) failed
+
+    Locator: getByRole('textbox', { name: 'Note text', exact: true })
+    Expected substring: "Another own explanation"
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toContainText" getByRole('textbox', { name: 'Note text', exact: true }) with timeout 5000ms
+      - waiting for getByRole('textbox', { name: 'Note text', exact: true })
+
+
+      1864 |  await surface.getByRole('button',{name:'Open',exact:true}).click();const dialog=page.getByRole('dialog',{name:'Changes not saved'});await expect(dialog).toBeVisible();await dialog.getByRole('button',{name:'Stay',exact:true}).click();await expect(editor).toHaveText('Local pending explanation');
+      1865 |  await surface.getByRole('button',{name:'Open',exact:true}).click();await dialog.getByRole('button',{name:'Switch anyway',exact:true}).click();
+    > 1866 |  await expect(editor).toContainText('Another own explanation');expect(readerParams(page.url()).get('chapter')).toBe('2');expect(await page.evaluate(()=>history.length)).toBe(before.length+1);
+           |                       ^
+      1867 | });
+      1868 |
+      1869 | test('D4 relevant pagination retains authorized items on failure and retries same cursor',async({page})=>{
+        at /home/ck/repos/innodat/agriplatform/apps/scribeswell/web/tests/personal-notes.spec.cjs:1866:23
+
+    Error Context: test-results/personal-notes-D3-relevant-bed63-t-Open-uses-save-guard-once-mobile/error-context.md
+
+  7) [mobile] › tests/personal-notes.spec.cjs:1874:1 › D5 details invalid source preserves candidate and new corrected operation; Cancel changes nothing 
+
+    Error: expect(locator).toHaveValue(expected) failed
+
+    Locator: getByLabel('Introduction', { exact: true })
+    Expected: "Candidate intro"
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toHaveValue" getByLabel('Introduction', { exact: true }) with timeout 5000ms
+      - waiting for getByLabel('Introduction', { exact: true })
+
+
+      1874 | test('D5 details invalid source preserves candidate and new corrected operation; Cancel changes nothing',async({page})=>{
+      1875 |  const store=await setup(page);await collectionStudy(page);const attempts=[];await page.route('**/api/studies/'+study,r=>{if(r.request().method()!=='PUT')return r.fallback();const body=r.request().postDataJSON();attempts.push(body);if(body.source_url.startsWith('javascript:'))return r.fulfill({status:400,json:{code:'scribeswell_personal_notes_input_invalid'}});return r.fallback();});
+    > 1876 |  await page.getByRole('button',{name:'Edit study details'}).click();await page.getByLabel('Introduction',{exact:true}).fill('Candidate intro');await page.getByLabel('Source URL',{exact:true}).fill('javascript:bad');await page.getByRole('button',{name:'Save',exact:true}).click();await expect(page.getByRole('alert')).toContainText('safe HTTP');await expect(page.getByLabel('Introduction',{exact:true})).toHaveValue('Candidate intro');await page.getByLabel('Source URL',{exact:true}).fill('https://example.invalid');await page.getByRole('button',{name:'Save',exact:true}).click();await expect(page.getByRole('link',{name:'Study source'})).toBeVisible();expect(attempts[0].operation_id).not.toBe(attempts[1].operation_id);
+           |                                                                                                                                                                                                                                                                                                                                                                                                                    ^
+      1877 |  await page.getByRole('button',{name:'Edit study details'}).click();await page.getByLabel('Introduction',{exact:true}).fill('Cancelled');await page.getByRole('button',{name:'Cancel',exact:true}).click();expect(store.metadata.introduction).toBe('Candidate intro');expect(attempts).toHaveLength(2);
+      1878 | });
+      1879 |
+        at /home/ck/repos/innodat/agriplatform/apps/scribeswell/web/tests/personal-notes.spec.cjs:1876:404
+
+    Error Context: test-results/personal-notes-D5-details--c1540-tion-Cancel-changes-nothing-mobile/error-context.md
+
+  8) [mobile] › tests/personal-notes.spec.cjs:1880:1 › D6 details conflict deliberately reads current without replacing candidate 
+
+    Error: expect(locator).toHaveValue(expected) failed
+
+    Locator: getByLabel('Introduction', { exact: true })
+    Expected: "Mine"
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toHaveValue" getByLabel('Introduction', { exact: true }) with timeout 5000ms
+      - waiting for getByLabel('Introduction', { exact: true })
+
+
+      1880 | test('D6 details conflict deliberately reads current without replacing candidate',async({page})=>{
+      1881 |  const store=await setup(page);await collectionStudy(page);let first=true;await page.route('**/api/studies/'+study,r=>{if(r.request().method()==='PUT'&&first){first=false;store.metadata.revision='2';store.metadata.introduction='Remote intro';return r.fulfill({status:409,json:{code:'study_revision_conflict'}});}return r.fallback();});
+    > 1882 |  await page.getByRole('button',{name:'Edit study details'}).click();await page.getByLabel('Introduction',{exact:true}).fill('Mine');await page.getByRole('button',{name:'Save',exact:true}).click();await page.getByRole('button',{name:'Load current details'}).click();await expect(page.getByRole('region',{name:'Current saved study details'})).toContainText('Remote intro');await expect(page.getByLabel('Introduction',{exact:true})).toHaveValue('Mine');await page.getByRole('button',{name:'Save',exact:true}).click();await expect(page.getByRole('form',{name:'Study details'})).toHaveCount(0);expect(store.metadata.introduction).toBe('Mine');
+           |                                                                                                                                                                                                                                                                                                                                                                                                                                               ^
+      1883 | });
+      1884 |
+      1885 | test('D7 details unknown Cancel reopens original frozen operation without rollback promise',async({page})=>{
+        at /home/ck/repos/innodat/agriplatform/apps/scribeswell/web/tests/personal-notes.spec.cjs:1882:431
+
+    Error Context: test-results/personal-notes-D6-details--8d6c4-without-replacing-candidate-mobile/error-context.md
+
+  9) [mobile] › tests/personal-notes.spec.cjs:1885:1 › D7 details unknown Cancel reopens original frozen operation without rollback promise 
+
+    Error: expect(locator).toHaveAttribute(expected) failed
+
+    Locator: getByLabel('Introduction', { exact: true })
+    Expected: ""
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toHaveAttribute" getByLabel('Introduction', { exact: true }) with timeout 5000ms
+      - waiting for getByLabel('Introduction', { exact: true })
+
+
+      1885 | test('D7 details unknown Cancel reopens original frozen operation without rollback promise',async({page})=>{
+      1886 |  await setup(page,{unresolved:true});await collectionStudy(page);const attempts=[];let first=true;await page.route('**/api/studies/'+study,r=>{if(r.request().method()!=='PUT')return r.fallback();attempts.push(r.request().postDataJSON());if(first){first=false;return r.abort('connectionreset');}return r.fallback();});
+    > 1887 |  await page.getByRole('button',{name:'Edit study details'}).click();await page.getByLabel('Introduction',{exact:true}).fill('Frozen');await page.getByRole('button',{name:'Save',exact:true}).click();await expect(page.getByRole('button',{name:'Retry details save'})).toBeVisible();await expect(page.getByText(/An unconfirmed save may still complete/)).toBeVisible();await page.getByRole('button',{name:'Cancel',exact:true}).click();await page.getByRole('button',{name:'Edit study details'}).click();await expect(page.getByLabel('Introduction',{exact:true})).toHaveAttribute('readonly','');await page.getByRole('button',{name:'Retry details save'}).click();await expect(page.getByRole('form',{name:'Study details'})).toHaveCount(0);expect(attempts).toHaveLength(2);expect(attempts[1]).toEqual(attempts[0]);
+           |                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             ^
+      1888 | });
+      1889 |
+      1890 | test('D8 late context and Preview cannot leak across a new workspace tab',async({page})=>{
+        at /home/ck/repos/innodat/agriplatform/apps/scribeswell/web/tests/personal-notes.spec.cjs:1887:557
+
+    Error Context: test-results/personal-notes-D7-details--def57-on-without-rollback-promise-mobile/error-context.md
+
+  10) [mobile] › tests/personal-notes.spec.cjs:1890:1 › D8 late context and Preview cannot leak across a new workspace tab 
+
+    Test timeout of 30000ms exceeded.
+
+    Error: locator.click: Test timeout of 30000ms exceeded.
+    Call log:
+      - waiting for getByRole('button', { name: 'Add workspace tab', exact: true })
+
+
+      1889 |
+      1890 | test('D8 late context and Preview cannot leak across a new workspace tab',async({page})=>{
+    > 1891 |  let release;await discoveryFixture(page,{beforePreview:()=>new Promise(resolve=>release=resolve)});await firstNote(page);const surface=page.getByRole('region',{name:'Relevant own notes'});await surface.getByRole('button',{name:'Preview',exact:true}).click();await expect.poll(()=>!!release).toBe(true);await page.getByRole('button',{name:'Add workspace tab',exact:true}).click();await page.getByRole('dialog',{name:'Book and chapter selector'}).getByRole('button',{name:'Cancel',exact:true}).click();release();await expect(page.getByRole('region',{name:'Relevant note preview'})).toHaveCount(0);
+           |                                                                                                                                                                                                                                                                                                                                                                                     ^
+      1892 | });
+      1893 |
+      1894 | test('D9 contextual admission denial masks private results without hiding public reading',async({page})=>{
+        at /home/ck/repos/innodat/agriplatform/apps/scribeswell/web/tests/personal-notes.spec.cjs:1891:373
+
+    Error Context: test-results/personal-notes-D8-late-con-e974d--across-a-new-workspace-tab-mobile/error-context.md
+
+  10 failed
+    [desktop] › tests/personal-notes.spec.cjs:1857:1 › D3 relevant Preview preserves local writing destination and explicit Open uses save guard once 
+    [desktop] › tests/personal-notes.spec.cjs:1874:1 › D5 details invalid source preserves candidate and new corrected operation; Cancel changes nothing 
+    [desktop] › tests/personal-notes.spec.cjs:1880:1 › D6 details conflict deliberately reads current without replacing candidate 
+    [desktop] › tests/personal-notes.spec.cjs:1885:1 › D7 details unknown Cancel reopens original frozen operation without rollback promise 
+    [desktop] › tests/personal-notes.spec.cjs:1890:1 › D8 late context and Preview cannot leak across a new workspace tab 
+    [mobile] › tests/personal-notes.spec.cjs:1857:1 › D3 relevant Preview preserves local writing destination and explicit Open uses save guard once 
+    [mobile] › tests/personal-notes.spec.cjs:1874:1 › D5 details invalid source preserves candidate and new corrected operation; Cancel changes nothing 
+    [mobile] › tests/personal-notes.spec.cjs:1880:1 › D6 details conflict deliberately reads current without replacing candidate 
+    [mobile] › tests/personal-notes.spec.cjs:1885:1 › D7 details unknown Cancel reopens original frozen operation without rollback promise 
+    [mobile] › tests/personal-notes.spec.cjs:1890:1 › D8 late context and Preview cannot leak across a new workspace tab 
+  4 passed (1.1m)
+npm error Lifecycle script `test:browser` failed with error:
+npm error code 1
+npm error path /home/ck/repos/innodat/agriplatform/apps/scribeswell/web
+npm error workspace scribeswell-web@0.1.0
+npm error location /home/ck/repos/innodat/agriplatform/apps/scribeswell/web
+npm error command failed
+npm error command sh -c playwright test --config playwright.config.cjs --grep 'D[3-9] '

@@ -1,0 +1,19 @@
+
+> scribeswell-web@0.1.0 test:browser
+> playwright test --config playwright.config.cjs --grep D1 study details|D2 relevant own
+
+[WebServer] (node:548772) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 4 tests using 2 workers
+
+(node:548810) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:548816) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  1 [desktop] › tests/personal-notes.spec.cjs:1830:1 › D1 study details use explicit whole-form Save Cancel and preserve note writing (1.2s)
+  ✓  2 [mobile] › tests/personal-notes.spec.cjs:1830:1 › D1 study details use explicit whole-form Save Cancel and preserve note writing (1.2s)
+  ✓  3 [desktop] › tests/personal-notes.spec.cjs:1840:1 › D2 relevant own notes offer inspection without changing current note (1.0s)
+  ✓  4 [mobile] › tests/personal-notes.spec.cjs:1840:1 › D2 relevant own notes offer inspection without changing current note (959ms)
+
+  4 passed (4.3s)

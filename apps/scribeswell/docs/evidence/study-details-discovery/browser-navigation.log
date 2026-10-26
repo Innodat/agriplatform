@@ -1,0 +1,25 @@
+
+> scribeswell-web@0.1.0 test:browser
+> playwright test --config playwright.config.cjs --grep D(3 |10 |11 |12 )
+
+[WebServer] (node:561030) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 10 tests using 2 workers
+
+(node:561115) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:561109) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   2 [desktop] › tests/personal-notes.spec.cjs:1857:1 › D3 relevant Preview preserves local writing destination and explicit Open uses save guard once (1.5s)
+  ✓   1 [mobile] › tests/personal-notes.spec.cjs:1857:1 › D3 relevant Preview preserves local writing destination and explicit Open uses save guard once (1.5s)
+  ✓   3 [desktop] › tests/personal-notes.spec.cjs:1898:28 › D10 outline note Open reveals only absent relevant passage 1 (1.2s)
+  ✓   4 [mobile] › tests/personal-notes.spec.cjs:1898:28 › D10 outline note Open reveals only absent relevant passage 1 (1.2s)
+  ✓   6 [mobile] › tests/personal-notes.spec.cjs:1898:28 › D10 outline note Open reveals only absent relevant passage 2 (2.2s)
+  ✓   5 [desktop] › tests/personal-notes.spec.cjs:1898:28 › D10 outline note Open reveals only absent relevant passage 2 (2.2s)
+  ✓   7 [mobile] › tests/personal-notes.spec.cjs:1903:1 › D11 late relevant Open after tab change cannot select or navigate the new tab (2.5s)
+  ✓   8 [desktop] › tests/personal-notes.spec.cjs:1903:1 › D11 late relevant Open after tab change cannot select or navigate the new tab (2.5s)
+  ✓  10 [desktop] › tests/personal-notes.spec.cjs:1907:1 › D12 anchored outline Open carries source occurrence in one reader history navigation (2.3s)
+  ✓   9 [mobile] › tests/personal-notes.spec.cjs:1907:1 › D12 anchored outline Open carries source occurrence in one reader history navigation (2.4s)
+
+  10 passed (12.1s)

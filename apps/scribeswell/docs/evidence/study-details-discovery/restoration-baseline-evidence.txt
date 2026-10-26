@@ -1,0 +1,6 @@
+Baseline 47529be6acde6e0dd8373ee1bbf571e9d5e09e75
+Fixture:
+const ownedNote=(id,parent=study)=>({id,study_id:parent,owner_account_id:account,revision:'1',value:{document:{version:1,blocks:[{type:'paragraph',direction:'auto',content:[{type:'text',text:id===note?'Saved note A':'Saved note B',marks:[]}]}]},connections:[],highlights:[]}});
+Adapter:
+ return ['id','study_id','owner_account_id'].every(key=>noteIdentifier(note[key]))&&typeof note.revision==='string'&&/^[1-9][0-9]{0,18}$/.test(note.revision)&&BigInt(note.revision)<=9223372036854775807n&&note.visibility==='study'&&readableCredit(note.copy_credit,note.owner_account_id,true)&&isReadableNoteValue(note.value);
+Only fixture validity changed; expectations and timing retained.

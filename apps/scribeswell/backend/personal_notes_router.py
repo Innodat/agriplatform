@@ -30,12 +30,13 @@ def build_router(access,storage):
                     payload=parse_command('studies.enroll',await body(request))
                     result=await access.enroll(bearer,payload.operation_id,deadline)
                 else:
-                    payload=parse_command(kind,await body(request,MAX_SEARCH_BODY_BYTES if kind=='studies.search' else MAX_PASSAGE_BODY_BYTES if kind=='study.passages.replace' else MAX_NOTE_BODY_BYTES if kind in ('note.create','note.replace','note.conflict_copy') else MAX_BODY_BYTES)) if kind in ('studies.search','study.create','study.rename','study.passages.replace','study.delete','note.create','note.replace','note.delete','note.duplicate','note.conflict_copy','study.copy') else None
+                    payload=parse_command(kind,await body(request,MAX_SEARCH_BODY_BYTES if kind in ('studies.search','notes.context') else MAX_PASSAGE_BODY_BYTES if kind=='study.passages.replace' else MAX_NOTE_BODY_BYTES if kind in ('note.create','note.replace','note.conflict_copy') else MAX_BODY_BYTES)) if kind in ('notes.context','study.details.replace','studies.search','study.create','study.rename','study.passages.replace','study.delete','note.create','note.replace','note.delete','note.duplicate','note.conflict_copy','study.copy') else None
                     allowed={'limit','cursor'} if kind=='list' else {'command'} if kind=='lookup' else set()
                     if set(request.query_params)-allowed or any(len(request.query_params.getlist(k))!=1 for k in request.query_params): raise ValueError
                     # Fresh remote authority, completed before the first local transaction.
                     identity=await access.check(bearer,deadline)
-                    if kind=='studies.search': result=await storage.search(identity,payload,deadline)
+                    if kind=='notes.context': result=await storage.context_notes(identity,payload,deadline)
+                    elif kind=='studies.search': result=await storage.search(identity,payload,deadline)
                     elif payload is not None: result=await storage.execute(identity,kind,payload,study_id,note_id,deadline)
                     elif kind=='passages': result=await storage.passages(identity,study_id,deadline)
                     elif kind=='read': result=await storage.read(identity,study_id,note_id,deadline)
@@ -45,7 +46,7 @@ def build_router(access,storage):
                         result=await storage.list(identity,study_id,int(raw_limit),request.query_params.get('cursor'),deadline)
                     else:
                         command=request.query_params.get('command')
-                        if command not in ('study.create','study.rename','study.passages.replace','study.delete','note.create','note.replace','note.delete','note.duplicate','note.conflict_copy','study.copy'): raise ValueError
+                        if command not in ('study.details.replace','study.create','study.rename','study.passages.replace','study.delete','note.create','note.replace','note.delete','note.duplicate','note.conflict_copy','study.copy'): raise ValueError
                         result=await storage.lookup(identity,operation_id,command,deadline)
                 return JSONResponse(result,headers={'Cache-Control':'private, no-store'})
         except NotesError as error:
@@ -55,6 +56,10 @@ def build_router(access,storage):
         except Exception: code,details='studies_storage_unavailable',None
         return JSONResponse({'error':'Request could not be completed','code':code,'details':details},status_code=STATUSES[code],headers={'Cache-Control':'private, no-store'})
 
+    @router.post('/api/studies/context-notes')
+    async def context_notes(request:Request): return await handle(request,'notes.context')
+    @router.put('/api/studies/{study_id}')
+    async def details(request:Request): return await handle(request,'study.details.replace')
     @router.post('/api/studies/search')
     async def search_studies(request:Request): return await handle(request,'studies.search')
     @router.post('/api/studies/enrollment')

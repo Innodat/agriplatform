@@ -317,7 +317,7 @@ export function useReaderWorkspace(root: React.RefObject<HTMLElement | null>) {
       activePaneKey: key
     }, true);
   }
-  function open(ref: PassageReference, key = read().activePaneKey, picker = false) {
+  function open(ref: PassageReference, key = read().activePaneKey, picker = false, sourceAnchor?:Anchor) {
     const w = read();
     if (!w.panes.some(p => p.paneKey === key)) return;
     const unresolved=w.invalid&&picker;
@@ -330,7 +330,7 @@ export function useReaderWorkspace(root: React.RefObject<HTMLElement | null>) {
       panes: w.panes.map(p => p.paneKey === key ? {
         ...p,
         ref,
-        anchor: undefined,
+        anchor: sourceAnchor&&validAnchor(sourceAnchor,ref)?sourceAnchor:undefined,
         valid: !unresolved,
         generation: ++generation.current,
         seek: undefined,
