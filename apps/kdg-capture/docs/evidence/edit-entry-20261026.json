@@ -1,0 +1,247 @@
+{
+  "title": "Own-edit execution through current Auth admission",
+  "date": "2026-10-26",
+  "node": "26.11.1",
+  "typescript": "7.0.2",
+  "dependencies_installed": false,
+  "proofs": {
+    "initial_spawn_failure": {
+      "retained": "platform/deployment/.local/kdg-edit-entry-20261026/initial_spawn_failure",
+      "original": "platform/deployment/.local/kdg-auth-entry-20261023/auth-0b8fb403-4731-4a40-935d-18f4adb2f589",
+      "files_manifest": {
+        "path": "platform/deployment/.local/kdg-edit-entry-20261026/initial_spawn_failure/files-sha256.json",
+        "sha256": "bd0e06a354555d1442ca4743a47bd2fa2f18eb3605619653938c607ec1cd1ac4"
+      }
+    },
+    "red_initial_fixture": {
+      "retained": "platform/deployment/.local/kdg-edit-entry-20261026/red_initial_fixture",
+      "original": "platform/deployment/.local/kdg-auth-entry-20261023/auth-37bf05f6-e6be-4ad8-bc13-978b913f6ced",
+      "files_manifest": {
+        "path": "platform/deployment/.local/kdg-edit-entry-20261026/red_initial_fixture/files-sha256.json",
+        "sha256": "84bef4cfb6d1aa220c882a015c380221233be10d0e504e5dec03ba83c0344017"
+      }
+    },
+    "green_attempt_invalid_fixture": {
+      "retained": "platform/deployment/.local/kdg-edit-entry-20261026/green_attempt_invalid_fixture",
+      "original": "platform/deployment/.local/kdg-auth-entry-20261023/auth-ed02dfc4-5e08-432c-a2c5-a7449e0f2010",
+      "files_manifest": {
+        "path": "platform/deployment/.local/kdg-edit-entry-20261026/green_attempt_invalid_fixture/files-sha256.json",
+        "sha256": "ec7eae915f9a29206890c526109fb74fccb2a62ecf135ad444ad5586a4cb1394"
+      }
+    },
+    "red_valid_command": {
+      "retained": "platform/deployment/.local/kdg-edit-entry-20261026/red_valid_command",
+      "original": "platform/deployment/.local/kdg-auth-entry-20261023/auth-3dc61adc-bca6-4295-9a28-304defe2a4f6",
+      "files_manifest": {
+        "path": "platform/deployment/.local/kdg-edit-entry-20261026/red_valid_command/files-sha256.json",
+        "sha256": "5b70c378908b07dea89b22fd62179cf4767363665a0834ac0df4476afc6569e9"
+      }
+    },
+    "green_valid_command": {
+      "retained": "platform/deployment/.local/kdg-edit-entry-20261026/green_valid_command",
+      "original": "platform/deployment/.local/kdg-auth-entry-20261023/auth-03357674-8cb9-46b6-b38d-55865525b947",
+      "files_manifest": {
+        "path": "platform/deployment/.local/kdg-edit-entry-20261026/green_valid_command/files-sha256.json",
+        "sha256": "56e9608a58fe988407ce3ba5aa1e931ea4a352bb9c045c738bf65958c8c0f546"
+      }
+    },
+    "green_expanded": {
+      "retained": "platform/deployment/.local/kdg-edit-entry-20261026/green_expanded",
+      "original": "platform/deployment/.local/kdg-auth-entry-20261023/auth-0dbaa455-3f96-45ee-8127-d124c59955fc",
+      "files_manifest": {
+        "path": "platform/deployment/.local/kdg-edit-entry-20261026/green_expanded/files-sha256.json",
+        "sha256": "c4df65f86ddf32a763d6d67968b8b57de7b505cc59e0fbcded27bba998cbe4c5"
+      }
+    },
+    "full_unit": {
+      "retained": "platform/deployment/.local/kdg-edit-entry-20261026/full_unit",
+      "original": "platform/deployment/.local/kdg-auth-entry-20261023/auth-5e9f0f45-075b-4433-a324-a4272dba2f3c",
+      "files_manifest": {
+        "path": "platform/deployment/.local/kdg-edit-entry-20261026/full_unit/files-sha256.json",
+        "sha256": "6b961cc948483dfa89f605d088dae135e259e008f0221b00e38be2d9bcb90fd7"
+      }
+    }
+  },
+  "commands": [
+    {
+      "name": "unit",
+      "command": [
+        "platform/deployment/.local/kdg-toolchains/ad277eef-a10e-4aac-bb82-5743653fb2e0/payload/node/bin/node",
+        "apps/kdg-capture/web/tests/auth-proof.mjs",
+        "--unit-only"
+      ],
+      "exit_code": 0,
+      "log_sha256": "6021d2793dd635356e6d22986dd4fd120d6c376cc97d99225dac70c2de0b32e4"
+    },
+    {
+      "name": "affected",
+      "command": [
+        "platform/deployment/.local/kdg-toolchains/ad277eef-a10e-4aac-bb82-5743653fb2e0/payload/node/bin/node",
+        "--test",
+        "--test-isolation=none",
+        "apps/kdg-capture/web/tests/edit.test.mjs",
+        "apps/kdg-capture/web/tests/recovery.test.mjs",
+        "apps/kdg-capture/web/tests/entry.test.mjs"
+      ],
+      "exit_code": 0,
+      "log_sha256": "aa2c3a6d744812590d632317e0ddae1965a44920b6541f9d4ed454141e6d906a"
+    },
+    {
+      "name": "edit-types",
+      "command": [
+        "platform/deployment/.local/kdg-toolchains/ad277eef-a10e-4aac-bb82-5743653fb2e0/payload/node/bin/node",
+        "platform/deployment/.local/web-baseline-qualification/new-5/root/node_modules/typescript/bin/tsc",
+        "--project",
+        "apps/kdg-capture/web/tsconfig.edit.json"
+      ],
+      "exit_code": 0,
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "recovery-types",
+      "command": [
+        "platform/deployment/.local/kdg-toolchains/ad277eef-a10e-4aac-bb82-5743653fb2e0/payload/node/bin/node",
+        "platform/deployment/.local/web-baseline-qualification/new-5/root/node_modules/typescript/bin/tsc",
+        "--project",
+        "apps/kdg-capture/web/tsconfig.recovery.json"
+      ],
+      "exit_code": 0,
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "auth-parity",
+      "command": [
+        "platform/deployment/.local/kdg-toolchains/ad277eef-a10e-4aac-bb82-5743653fb2e0/payload/node/bin/node",
+        "platform/builder-cli/scripts/sync-kdg-auth.mjs",
+        "--check"
+      ],
+      "exit_code": 0,
+      "log_sha256": "4b5a33370ab94c8eb2c30482243c02e3c361bdc3fbeb500f6a537c818347b8b8"
+    },
+    {
+      "name": "write-parity",
+      "command": [
+        "platform/deployment/.local/kdg-toolchains/ad277eef-a10e-4aac-bb82-5743653fb2e0/payload/node/bin/node",
+        "platform/builder-cli/scripts/sync-kdg-write.mjs",
+        "--check"
+      ],
+      "exit_code": 0,
+      "log_sha256": "8f30b74c18ce5092fd85528d63efc0a3cb932d95dbb3adb62e42c717e8e054f8"
+    },
+    {
+      "name": "database-parity",
+      "command": [
+        "platform/deployment/.local/kdg-toolchains/ad277eef-a10e-4aac-bb82-5743653fb2e0/payload/node/bin/node",
+        "platform/builder-cli/scripts/sync-kdg-database.mjs",
+        "--check"
+      ],
+      "exit_code": 0,
+      "log_sha256": "0d4bb5ed7e466491068271cc8944768f1c553e601f25ef3ccd3fb777e73c106b"
+    },
+    {
+      "name": "native-database-parity",
+      "command": [
+        "platform/deployment/.local/kdg-toolchains/ad277eef-a10e-4aac-bb82-5743653fb2e0/payload/node/bin/node",
+        "platform/builder-cli/scripts/sync-kdg-native-database.mjs",
+        "--check"
+      ],
+      "exit_code": 0,
+      "log_sha256": "cc0a1669a50c37bef62f2e0873ce748988e4ee1b885c835953a07bf0c1571fd3"
+    }
+  ],
+  "historical_preservation": {
+    "contracts_prefix_sha256": "8ffa252da1138e52f9e7a60f3de48bc08d7640cab434efe9381c9aab1ad1c8e0",
+    "contracts_prefix_bytes": 74564,
+    "next_session_suffix_sha256": "99cd8252811500724c416ef979095af51a5429fbb779b4e1792839c7a1fa7aac",
+    "next_session_suffix_bytes": 220718
+  },
+  "traceability": {
+    "current_original_pinned_PUT": [
+      "current admitted entry",
+      "configuration and nested caller mutation",
+      "factory pins actual supplied configuration"
+    ],
+    "current_admission_account_org": [
+      "unadmitted and mismatched",
+      "replacement admission",
+      "offline replacement"
+    ],
+    "lifecycle_invalidation": [
+      "entry refresh/account/retry/signIn/signOut/recovery/offline/dispose",
+      "body-phase stale error",
+      "replacement during ready success/error"
+    ],
+    "safe_results_and_preservation": [
+      "current error result",
+      "malformed current error",
+      "network error",
+      "typed conflict"
+    ],
+    "concurrency_release": [
+      "completion preserves other current work",
+      "invalid input leaves a current sibling"
+    ],
+    "runtime_input_reentrancy": [
+      "malformed runtime input",
+      "reentrant scope/nested/throwing"
+    ],
+    "typing": [
+      "edit-entry.types.ts: hidden lease, generated command/exact revision, conflict narrowing, immutable receipt"
+    ]
+  },
+  "qualification_limits": [
+    "Synthetic local/CI only; no real Auth/accounts/Access",
+    "No browser/editor/queue/startup activation",
+    "No backend/native/Docker qualification",
+    "No provisioning/migration/deployment/release/pilot/cleanup",
+    "Synchronous adapter preflight remains non-preemptible; byte bound follows serialization",
+    "Completion observations are not cached authority or rollback/absence claims"
+  ],
+  "impacts": {
+    "scaffold": "Existing lifecycle reused unchanged; no neutral regression found",
+    "shared_ui": "none",
+    "agent_context": "none",
+    "documentation": "evidence, source-bound record, appended contracts, prepended handoff",
+    "adr": "none; existing decisions retained"
+  },
+  "final_source_sha256": {
+    "apps/kdg-capture/web/src/edit-entry.ts": "90c7e7cee0a1dd45195ed2156244bb33edcd8963e9b43bd349bb63a1a1d658c9",
+    "apps/kdg-capture/web/src/auth-entry.ts": "e90825ae276f0707e26a63ab0a0d8d991ff056248425b3d0302cfcb212fd9953",
+    "apps/kdg-capture/web/src/edit.ts": "8152eb223ddcfcb5f55387ceeb69679faaaaabca808d70268e5026b541525602",
+    "apps/kdg-capture/web/src/recovery.ts": "e9661858c884447f06fd52ce98d37858797072f1011922e7416e756ceda4ea08",
+    "apps/kdg-capture/web/src/entry.ts": "78379ca3bcc3c84f856750c2d62506fe4784f6b5ab9bfc3a594ed3aff02660a5",
+    "apps/kdg-capture/web/src/auth/lifecycle.ts": "dc9a959b9de712eba2c80f26650eaa3439a85fbef93f8099eaf18366e95961a9",
+    "apps/kdg-capture/web/tests/auth-proof.mjs": "303e51707faf12753b7c64545020aafb4a6f8b9346691f8f5ff2090e365cb0d3",
+    "apps/kdg-capture/web/tests/edit-entry.test.mjs": "7b2bd6cfe8d6a5433577758136dac69d6bc47d0c6b5de772d8ce97112dc6a3ba",
+    "apps/kdg-capture/web/tests/edit-entry.types.ts": "b44e959d7e191968afca5f4c0018595abd1ebbbbd5fd667e9a8f60e6f7a5c72f",
+    "apps/kdg-capture/web/tests/edit.test.mjs": "3f0cf3f1bac7c74fc4822b137f02948d562283cc4d377ab0a07d6d149cabf88d",
+    "apps/kdg-capture/web/tests/edit.types.ts": "930a3e02587bab1ea8bded8f3bd60f9578c1e367dc521aee7a0d7b831d08e899",
+    "apps/kdg-capture/web/tests/recovery.test.mjs": "bd0d62e29a9e4bb1489770260d44a4a978207135bbd5261204910394dadc92cd",
+    "apps/kdg-capture/web/tests/recovery.types.ts": "9ab2d5a64d7d823695fb91778b01ac8a7bab9a1b779101efc74bda16324f547d",
+    "apps/kdg-capture/web/tests/entry.test.mjs": "51d9f2270b2cc709df9da24b05b810f9e8cc215f514dd14ed148780a6733d8fe",
+    "apps/kdg-capture/web/tsconfig.auth.json": "9a0c5d181dabb9c2c5d9d30d2c41c65a5d9cf903b5322dbd269c455689e87345",
+    "apps/kdg-capture/web/tsconfig.json": "7901d08fb1e77850cb6f2f20435deeaa52e67afa5891f3dbe904121c1a1deb93",
+    "apps/kdg-capture/web/tsconfig.edit.json": "58c5c0f17361c530bee4cb34e86e28f8541a87cf7b612d47f35f1179d3c3670d",
+    "apps/kdg-capture/web/tsconfig.recovery.json": "41dc1afab18eb0dbba97a39a26b680bff6a88c683515378135da14bc8e0290c0",
+    "platform/builder-cli/scripts/sync-kdg-auth.mjs": "443a2e45e281eea90a0db2bb3821456c65ea66c17ab92627d729a8ba1a074e3f",
+    "platform/builder-cli/scripts/sync-kdg-write.mjs": "2d61a06b498363fdc8472fa202646f95b4b23a64ebdb3dc6b1da231cd197e225",
+    "platform/builder-cli/scripts/sync-kdg-database.mjs": "0b85caa28c65c38e4b9e5e1ec35a87f3bf8139f6d449520abcc74f1a9a1f3009",
+    "platform/builder-cli/scripts/sync-kdg-native-database.mjs": "4e821b137ff4c7aad71af533843fe696c79d02f8daa9b3e9b857a99789757961"
+  },
+  "final_log_sha256": {
+    "platform/deployment/.local/kdg-edit-entry-20261026/final/database-parity.log": "0d4bb5ed7e466491068271cc8944768f1c553e601f25ef3ccd3fb777e73c106b",
+    "platform/deployment/.local/kdg-edit-entry-20261026/final/native-database-parity.log": "cc0a1669a50c37bef62f2e0873ce748988e4ee1b885c835953a07bf0c1571fd3",
+    "platform/deployment/.local/kdg-edit-entry-20261026/final/recovery-types.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "platform/deployment/.local/kdg-edit-entry-20261026/final/affected.log": "aa2c3a6d744812590d632317e0ddae1965a44920b6541f9d4ed454141e6d906a",
+    "platform/deployment/.local/kdg-edit-entry-20261026/final/edit-types.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "platform/deployment/.local/kdg-edit-entry-20261026/final/unit.log": "6021d2793dd635356e6d22986dd4fd120d6c376cc97d99225dac70c2de0b32e4",
+    "platform/deployment/.local/kdg-edit-entry-20261026/final/write-parity.log": "8f30b74c18ce5092fd85528d63efc0a3cb932d95dbb3adb62e42c717e8e054f8",
+    "platform/deployment/.local/kdg-edit-entry-20261026/final/auth-parity.log": "4b5a33370ab94c8eb2c30482243c02e3c361bdc3fbeb500f6a537c818347b8b8"
+  },
+  "proof_manifest_note": "Repeated full capsule inventories are retained as source-bound manifests; pre-review-expanded-record.json retains the original expanded record unchanged.",
+  "verification_status": "Existing proofs, commands and final_* hashes remain historical pre-review results. Final root verification passed; see the linked post-review record.",
+  "post_review": {
+    "path": "edit-entry-post-review-20261026.json",
+    "sha256": "cf5eb4c92e919949b73b3562f558c5b07f0e7f874afe2e1433cec5e8d118c67b"
+  }
+}

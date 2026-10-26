@@ -18,6 +18,8 @@
     "skipLibCheck": true
   },
   "files": [
+    "src/edit-entry.ts",
+    "tests/edit-entry.types.ts",
     "src/auth-entry.ts",
     "src/recovery-entry.ts",
     "tests/recovery-entry.types.ts",

@@ -1,0 +1,104 @@
+{
+  "status": "qualified; root final verification passed",
+  "command": [
+    "platform/deployment/.local/kdg-toolchains/ad277eef-a10e-4aac-bb82-5743653fb2e0/payload/node/bin/node",
+    "apps/kdg-capture/web/tests/auth-proof.mjs",
+    "--edit-entry-only",
+    "--acceptance-only"
+  ],
+  "exit_code": 0,
+  "log": {
+    "path": "platform/deployment/.local/kdg-edit-entry-20261026/post-review/combined-flags.log",
+    "sha256": "72bf30efe16b3e5c21a69af8f2caf73df26c1f0a3bc4b6c5f89683150ea8e101"
+  },
+  "proof": "platform/deployment/.local/kdg-edit-entry-20261026/post-review/auth-c7552131-fde1-47f8-b7c4-861b08e383ee",
+  "files_manifest": {
+    "path": "platform/deployment/.local/kdg-edit-entry-20261026/post-review/combined-flags-files-sha256.json",
+    "sha256": "0f72144c39a6f872bb7b1b04aeb939b56f5aa69d4826789d651a461e76a9b6fd"
+  },
+  "selected_mode": "edit-entry-only",
+  "selected_test_files": [
+    "apps/kdg-capture/web/tests/edit-entry.test.mjs"
+  ],
+  "test_counts": {
+    "total": 38,
+    "executed": 38,
+    "passed": 38,
+    "failed": 0,
+    "cancelled": 0,
+    "skipped": 0,
+    "todo": 0
+  },
+  "checks": [
+    "strict_ts7_own_source",
+    "strict_own_source_negative_control",
+    "sdk_session_tests"
+  ],
+  "source_unchanged": true,
+  "limitations": [
+    "Implementer focused proof is historical; final broader synthetic checks are root-owned and recorded separately below",
+    "Strict retained TS7 source compilation and existing compiler negative control run as part of focused harness",
+    "Runtime wrapper and adapter unchanged"
+  ],
+  "coverage_added": [
+    "explicit edit-only precedence over combined acceptance flag and nonzero executed-count evidence",
+    "admitted replacement organization with scoped original edit and disposed previous owner refusal",
+    "pending, denied and unavailable context: no PUT",
+    "held edit, offline disposal/replacement, late old response and offline refusal in one sequence",
+    "invalid editTimeoutMs: 0, negative, NaN, Infinity, >10000 with unchanged admission and independent valid work"
+  ],
+  "root_final_verification": {
+    "baseline_commit": "95e54f90b37d7b7c0c00c0a4c7ee3acdd29f5a43",
+    "commands_manifest": {
+      "path": "platform/deployment/.local/kdg-edit-entry-20261026/root-final/commands.json",
+      "sha256": "f429e9da4aac473ea13e5472b701496d1df8375dae4046afa56dbdfc1cbf745a"
+    },
+    "sources_manifest": {
+      "path": "platform/deployment/.local/kdg-edit-entry-20261026/root-final/sources-sha256.json",
+      "sha256": "53ed564d40589c00aa0153ad2eb34e4b38e33c4d4d6dfa30371807b1d3dea3ab"
+    },
+    "proofs": {
+      "unit": {
+        "proof": "/home/ck/repos/innodat/agriplatform/platform/deployment/.local/kdg-auth-entry-20261023/auth-d5baa2f7-c008-4f0e-9fd5-e16b7b3c34f1",
+        "result_sha256": "1d17aa63122623488f04c850fca62a97bd0b5559eb2aea2c2e71031ab0e66673",
+        "selected_mode": "unit-only",
+        "test_counts": {
+          "total": 237,
+          "executed": 237,
+          "passed": 237,
+          "failed": 0,
+          "cancelled": 0,
+          "skipped": 0,
+          "todo": 0
+        }
+      },
+      "acceptance-compat": {
+        "proof": "/home/ck/repos/innodat/agriplatform/platform/deployment/.local/kdg-auth-entry-20261023/auth-6a6f1556-5404-4262-953c-adb8b13d3ee0",
+        "result_sha256": "bc3c84901197c894731c294ed0f1b77ae53e0477e447dfcb717b696d76f4178b",
+        "selected_mode": "acceptance-only",
+        "test_counts": {
+          "total": 1,
+          "executed": 1,
+          "passed": 1,
+          "failed": 0,
+          "cancelled": 0,
+          "skipped": 0,
+          "todo": 0
+        }
+      }
+    },
+    "affected_tests": 124,
+    "typescript": "7.0.2",
+    "strict_adapter_configurations": 2,
+    "scaffold_parity_checks": 4,
+    "review": {
+      "layers": 3,
+      "addressed": 7,
+      "deferred": 0
+    },
+    "spec": {
+      "path": "_bmad-output/implementation-artifacts/spec-kdg-edit-entry.md",
+      "frozen_intent_sha256": "062c6b33d1a5437e8b4ff9eb4cb02bae037b6cedba5fcb5aa34f590122fa1af8"
+    }
+  }
+}

@@ -1,3 +1,29 @@
+## Current delivery — isolated own-edit Auth execution entry, 2026-10-26
+
+Read [entry evidence](EDIT_ENTRY_EVIDENCE.md) and the [source-bound record](evidence/edit-entry-20261026.json).
+`createEditEntry` now wraps the existing lifecycle and editCapture, hiding leases and
+checking pinned account/org and freshness. The earlier 31 consumer/230 Auth results,
+124 direct regressions, strict adapter types and parity checks are historical pre-review
+observations. Post-review focused proof runs 38 cases with combined edit-entry-only and
+acceptance-only flags, all passing with none skipped. Final root checks pass237 compiled
+Auth cases,124 direct regressions, strict TypeScript7.0.2 and all four scaffold parity
+checks. The legacy acceptance-only option also passes. Three review layers completed,
+seven findings addressed and none deferred; see the [post-review record](evidence/edit-entry-post-review-20261026.json). Historical acceptance controls and exact source/log
+capsules are retained under platform/deployment/.local/kdg-edit-entry-20261026.
+No browser/editor/startup wiring or real Auth/Access/backend/native/release qualification
+is included. Fixed-org and offline owner replacement remain host responsibilities;
+results confer no future authority or rollback/absence claim. No neutral changes,
+dependencies, generated edits, migrations, deployment or cleanup occurred. Fingerprints/
+HMAC remain deferred.
+
+Next bounded slice: synthetic loopback HTTP qualification of this isolated consumer and
+the existing candidate edit API, with synthetic authority/storage and no browser/editor
+or startup activation. Keep real Access, native contention/cancellation/TCP drain and
+release safeguards separate. Use selected source capsules; never copy or read the forbidden
+untracked migration fixture. Earlier handoff follows unchanged.
+
+---
+
 ## Current delivery — unconnected own-edit request adapter, 2026-10-26
 
 Read [adapter evidence](EDIT_ADAPTER_EVIDENCE.md), [source-bound record](evidence/edit-adapter-20261026.json)

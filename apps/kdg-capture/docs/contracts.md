@@ -1042,3 +1042,26 @@ dropping input; legitimate omitted optional fields remain valid. Synchronous JSO
 cannot be preempted or heap-bounded: the byte check follows serialization and an elapsed
 deadline prevents transport. Actual Auth integration, real Access, browser/native and
 release activation remain separate gates.
+
+
+## Candidate own-edit entry — 2026-10-26
+
+`createEditEntry` binds the original generated edit command to the existing current
+Auth execution lease. The wrapper hides raw acquisition, pins fixed organization and
+configuration, checks pending account/org against admission and delegates synchronous
+nested snapshot/PUT/response semantics to editCapture. The adapter budget starts after
+the wrapper pending spread; synchronous wrapper capture and serialization cannot be
+preempted. Its maximum 10-second deadline is not an end-to-end wall-clock bound. Every acquired execution releases
+in finally; stale completions return superseded, including ready results. Operation
+results never change admission, publications or caller input. Offline uses disposed prior
+owner plus an online:false replacement; organization changes replace the owner.
+[Evidence](EDIT_ENTRY_EVIDENCE.md) retains historical pre-review results of 31 consumer
+and 230 full synthetic Auth tests, 124 direct regressions, strict TS7 and four parity checks.
+Post-review focused proof executes all 38 edit-entry cases with combined edit-only and
+acceptance-only flags. Root final verification passes237 compiled Auth cases,124 direct
+regressions, strict TypeScript7.0.2 and four scaffold parity checks; seven review findings
+addressed, none deferred. This separately imported
+candidate is unconnected to browser/editor/startup and creates no new session lifecycle,
+retry/recovery, queue mutation or Synced feedback. Results observe completion only;
+cancellation/deadline does not prove rollback or absence. Real Auth/Access, backend/native,
+browser and release activation remain unqualified.
