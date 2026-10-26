@@ -1,3 +1,35 @@
+## Current delivery — explicit saved-edit delivery/recovery, 2026-10-26
+
+Read [delivery evidence](EDIT_DELIVERY_EVIDENCE.md), its
+[machine record](evidence/edit-delivery-20261026.json) and current [contracts](contracts.md).
+The unmounted Auth consumer recovers the original operation before at most one exact
+PUT, durably consumes receipt/conflict and imports current own-detail under one lease
+and total deadline. Retained recovery remains possible after edit-only denial/expiry.
+Unknown outcomes keep original bytes/IDs; receipt acknowledgement does not claim newer
+local input Synced. Confirmed PUT denial latches editing before a bounded read probe.
+
+Final32 jobs pass:73 delivery and29 integrated HTTP checks;103 reconciliation,
+92 Save,61 history,575 compiled clients,127 direct tests, four guards and16 existing
+loopback groups. Seven strict TS7.0.2 configurations, twelve schema/client freshness
+checks and five scaffold parities pass. Prior313 backend proof reused with77 unchanged
+source hashes. Review: seven findings addressed, two rejected, no new deferrals.
+Actual synthetic API cases include committed response loss without repeat PUT, server
+edit/read denial and conflict. No sender/UI/startup/automatic retry is activated.
+
+Continue authorized implementation without routine next/approval stops. Remaining
+Story2.2 work includes pending-create persistence/setup edit observations, then durable
+sender claims and other approved delivery prerequisites; recheck product contracts
+before selecting the next coherent piece. This feature is an explicit consumer,
+not full end-to-end editing or automatic synchronization.
+Synthetic local/CI only: no UI/editor/Leave, active sender/queue/browser/service-worker/
+default-startup activation, real accounts/Auth/Access, actual PostgreSQL/native-driver/
+Docker qualification, provisioning/migrations, deployment/production/pilot or cleanup.
+Preserve concurrent changes, historical evidence/resources and approved dependencies
+including TypeScript7.0.2. Fingerprints/HMAC remain deferred. Never read/run/copy/hash
+the preexisting untracked migration fixture. Historical handoffs follow unchanged.
+
+---
+
 ## Current delivery — ordered local edit reconciliation, 2026-10-26
 
 Read [reconciliation evidence](EDIT_RECONCILIATION_EVIDENCE.md), its

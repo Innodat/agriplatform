@@ -1,0 +1,4 @@
+{
+  "extends": "./tsconfig.auth.json",
+  "files": ["src/edit-delivery.ts", "src/edit-delivery-entry.ts", "tests/edit-delivery.types.ts"]
+}

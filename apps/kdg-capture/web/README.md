@@ -279,3 +279,23 @@ Never edit its generated code, tests or .generated-files.json directly. Run
 uses a fresh retained dependency capsule and actual Vite CLI / KDG FastAPI, synthetic
 Auth HTTP and synthetic Access transport; it uses no database or Docker command.
 See ../docs/LOCAL_WEB_HOST_EVIDENCE.md for exact evidence and remaining gates.
+
+
+Explicit saved-edit delivery remains unmounted. `createEditDeliveryEntry` exposes
+`deliver({account_id, org_id, action_id})` under one admitted Auth execution lease;
+`deliverSavedEdit` is its isolated execution primitive. `lookupPreparedEdit` reads
+one retained command under own-read; `importCurrentDetail` imports validated detail
+without renewing permissions. See [the delivery evidence](../docs/EDIT_DELIVERY_EVIDENCE.md).
+
+From repository root with the retained approved Node26.11.1 executable:
+
+```sh
+platform/deployment/.local/kdg-toolchains/ad277eef-a10e-4aac-bb82-5743653fb2e0/payload/node/bin/node apps/kdg-capture/web/tests/edit-delivery-proof.mjs
+platform/deployment/.local/kdg-toolchains/ad277eef-a10e-4aac-bb82-5743653fb2e0/payload/node/bin/node apps/kdg-capture/web/tests/edit-delivery-http-proof.mjs
+```
+
+These commands use existing ignored approved modules/Chromium/Python prerequisites
+and selected-source capsules; they install nothing. The strict Auth compilation
+uses approved retained modules and the existing upstream declaration-check exception.
+The checkout's older root node_modules cannot qualify the approved Auth SDK contract.
+Neither proof starts normal application entry, schedules delivery or accesses real accounts.

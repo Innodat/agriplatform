@@ -1346,3 +1346,34 @@ with existing `expired`, `denied` and `unavailable` failures. Callers consume on
 validated transport/recovery results with the same scoped execution fence. No active
 Auth-to-sender coordinator, pending-create consumer or complete Story2.2 claim is made.
 See [ordered reconciliation evidence](EDIT_RECONCILIATION_EVIDENCE.md).
+
+## Explicit saved-edit delivery and recovery — 2026-10-26
+
+An unmounted consumer coordinates one selected saved edit under one Auth execution
+lease. It recovers the original operation outcome before sending; only an unresolved
+outcome plus current own-edit authority permits one PUT in that invocation. Retained
+preparation, receipt recovery and readback require own-read independently of edit.
+Original command bytes, action/operation identity and reviewed revision remain stable.
+
+The original total deadline includes storage, HTTP and publication (default/maximum
+30 seconds; each HTTP phase at most 10 seconds). Session replacement, abort or deadline
+suppresses success and dependent work. Storage completes before network waits; no
+business transaction is held across HTTP. Unavailable, malformed or authentication
+failures do not acknowledge work or establish permission denial.
+
+A matched committed outcome is consumed durably before current detail is imported.
+Acknowledgement describes that operation only: it does not promise that newer local
+changes are Synced. Readback failure preserves a known durable receipt and leaves
+readback pending. Exact revision conflicts retain Needs attention without implicit
+rebase. Detail import renews neither read nor edit observations.
+
+Recovery/read access denial locks the partition. An ambiguous PUT denial first latches edit denial, then checks
+current own-detail: success preserves own-read; read denial or an unverifiable probe
+conservatively locks the partition within the execution fence. A deadline/session
+change stops further writes while retaining an already-latched edit denial. Existing fresh restoration
+contracts remain the way to restore authority. Original pending input is retained.
+
+Simultaneous explicit calls may submit the identical operation; existing server
+idempotency prevents duplicate effects. This consumer introduces no exclusive sender
+claim, scheduling, automatic retry or startup integration. Durable claims and active
+queue delivery remain separate prerequisites; this is not a production release gate.

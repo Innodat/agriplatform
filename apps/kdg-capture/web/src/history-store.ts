@@ -288,6 +288,27 @@ export async function openHistoryStore(scope:Readonly<{account_id:string;org_id:
    },execution);
   },
   /** Inert preparation only: transactionally freeze bytes before returning any command. */
+  async lookupPreparedEdit(pinned:Readonly<{account_id:string;org_id:string;action_id:string}>,execution:Execution={}){
+   let pin:typeof pinned;
+   try{pin={...pinned};if(pin.account_id!==account_id||pin.org_id!==org_id||!id(pin.action_id))return result('invalid');}catch{return result('invalid');}
+   return editOperation<Readonly<{kind:'missing'|'blocked'}>|Frozen<{kind:'prepared';pending:PreparedEdit;serialized:string}>>(async(tx,check)=>{
+    const {clock,validate}=await readAccess(tx,check);
+    const action=await request<any>(tx.objectStore('edit_actions').get(partition+'/'+pin.action_id));check();validate();
+    if(!supported(action))return {value:result('blocked'),clock,validate};
+    if(!action.delivery)return {value:result('missing'),clock,validate};
+    if(!prepared(action)||action.delivery.conflict)return {value:result('blocked'),clock,validate};
+    return {value:freeze({kind:'prepared' as const,pending:action.delivery.pending,serialized:action.delivery.serialized}),clock,validate};
+   },execution);
+  },
+  /** Current own-detail adds no new read/edit observation and cannot restore denial. */
+  async importCurrentDetail(value:unknown,pinned:Readonly<{account_id:string;org_id:string;capture_id:string}>,execution:Execution={}){
+   let baseline:Frozen<CaptureDetail>;
+   try{const pin={...pinned};if(pin.account_id!==account_id||pin.org_id!==org_id||!id(pin.capture_id))return result('invalid');const captured=structuredClone(value);if(new TextEncoder().encode(JSON.stringify(captured)).byteLength>524288)return result('invalid');baseline=validateDetail(captured,pin);}catch{return result('invalid');}
+   return editOperation(async(tx,check)=>{
+    const {clock,validate}=await readAccess(tx,check);await importBaseline(tx,baseline,check);validate();
+    return {value:result('imported'),clock,validate};
+   },execution);
+  },
   async prepareEdit(action_id:string,execution:Execution={}){
    if(!id(action_id))return result('invalid');
    return editOperation<Readonly<{kind:'blocked'|'invalid'}>|Frozen<{kind:'prepared';pending:PreparedEdit;serialized:string}>>(async(tx,check)=>{
