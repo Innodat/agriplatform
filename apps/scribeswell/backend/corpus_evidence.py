@@ -1,4 +1,7 @@
 """Reproducible source-artifact candidates, without database or publication authority."""
+from contextlib import contextmanager
+from contextvars import ContextVar
+from copy import deepcopy
 import hashlib
 import json
 import re
@@ -78,7 +81,37 @@ def _unique_object(pairs):
     return result
 
 
+# Private worker execution scope: one exact pure source observation, never DB proof.
+_QUALIFIED_SOURCE = ContextVar('scribeswell_qualified_source',default=None)
+
+
+@contextmanager
+def _qualified_source_execution():
+    token=_QUALIFIED_SOURCE.set({})
+    try:yield
+    finally:_QUALIFIED_SOURCE.reset(token)
+
+
 def build_source_candidate(raw, expected_source_sha256, *, source_id, catalogue_version,
+                           versification_id, tokenization_version):
+    """Qualify exact source bytes; worker-only reuse never caches database proof."""
+    labels=dict(source_id=source_id,catalogue_version=catalogue_version,
+                versification_id=versification_id,tokenization_version=tokenization_version)
+    scope=_QUALIFIED_SOURCE.get()
+    # Exact immutable bytes, expected checksum and every identity label must agree.
+    # Invalid types still execute the original validator and safe error mapping.
+    cacheable=(scope is not None and type(raw) is bytes and len(raw)<=MAX_SOURCE_BYTES
+               and type(expected_source_sha256) is str and all(type(v) is str for v in labels.values()))
+    key=(raw,expected_source_sha256,*labels.values()) if cacheable else None
+    entry=scope.get('entry') if cacheable else None
+    if entry is not None and entry[0]==key:
+        return deepcopy(entry[1])
+    result=_build_source_candidate(raw,expected_source_sha256,**labels)
+    if cacheable:scope['entry']=(key,deepcopy(result))
+    return result
+
+
+def _build_source_candidate(raw, expected_source_sha256, *, source_id, catalogue_version,
                            versification_id, tokenization_version):
     """Qualify exactly these bytes and return a deterministic source-only inventory."""
     labels = dict(source_id=source_id, catalogue_version=catalogue_version,
@@ -101,6 +134,13 @@ def build_source_candidate(raw, expected_source_sha256, *, source_id, catalogue_
         raise EvidenceError('json_invalid') from None
     if not isinstance(data, dict) or set(data) != set(NAME_EN_TO_META):
         raise EvidenceError('source_inventory_invalid')
+    # Cache only deterministic decoding within this one qualification call. Every
+    # occurrence still passes field bounds, position and exact verse digest checks.
+    # The fixed-size cache retains no source across operations or returned values.
+    from functools import lru_cache
+    @lru_cache(maxsize=4096)
+    def decoded_surface(fields):
+        return decode_word(list(fields), 'source')[0]['surface_he']
     counts = dict(books=len(BOOK_METADATA), chapters=0, verses=0, tokens=0)
     inventory = []
     for meta in BOOK_METADATA:
@@ -122,10 +162,10 @@ def build_source_candidate(raw, expected_source_sha256, *, source_id, catalogue_
                     for field in word:
                         _text(field, 2048)
                     try:
-                        decoded, _ = decode_word(word, 'source')
+                        surface = decoded_surface(tuple(word))
                     except ValueError:
                         raise EvidenceError('source_word_invalid') from None
-                    tokens.append([position, decoded['surface_he']])
+                    tokens.append([position, surface])
                 digest = verse_token_digest(**labels, book=meta['osis_id'], chapter=chapter,
                                             verse=verse, tokens=tokens)
                 counts['tokens'] += len(tokens)

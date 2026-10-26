@@ -303,3 +303,44 @@ def test_cli_pins_exact_multiword_verse_digests(tmp_path):
     # Slash-stripped display_he bytes have different independently pinned hashes.
     assert verses[0]['verse_token_digest'] != 'b0f510c1288c4af5d9c8130d7f243ef9c9d037672d7b62e475903b2535d124ce'
     assert verses[1]['verse_token_digest'] != '508e5b33a32416244dfb1a5ff015a93860996b0bde874af90f32dd28c89051e7'
+
+
+def test_new_source_qualification_reexecutes_decoder_for_same_original_bytes(monkeypatch):
+    from test_corpus_publication_input import source_bytes
+    import corpus_evidence as evidence
+    raw=source_bytes();checksum=__import__('hashlib').sha256(raw).hexdigest()
+    labels=dict(source_id='tanakh',catalogue_version='catalogue-v1',versification_id='versification-v1',tokenization_version='tokens-v1')
+    before=evidence.build_source_candidate(raw,checksum,**labels)
+    def refuse(*args):raise ValueError('synthetic decoder refusal')
+    monkeypatch.setattr(evidence,'decode_word',refuse)
+    with pytest.raises(evidence.EvidenceError,match='source_word_invalid'):
+        evidence.build_source_candidate(raw,checksum,**labels)
+    assert before['counts']['tokens']==39
+
+
+def test_private_execution_cache_preserves_copy_identity_and_rechecks_after_exit(monkeypatch):
+    from test_corpus_publication_input import source_bytes
+    import corpus_evidence as evidence
+    raw=source_bytes();checksum=hashlib.sha256(raw).hexdigest()
+    labels=dict(source_id='tanakh',catalogue_version='catalogue-v1',versification_id='versification-v1',tokenization_version='tokens-v1')
+    original=evidence._build_source_candidate;calls=[]
+    def observed(*args,**kwargs):calls.append(1);return original(*args,**kwargs)
+    monkeypatch.setattr(evidence,'_build_source_candidate',observed)
+    with evidence._qualified_source_execution():
+        first=evidence.build_source_candidate(raw,checksum,**labels)
+        first['verses'][0]['verse_token_digest']='mutated'
+        again=evidence.build_source_candidate(raw,checksum,**labels)
+        assert again['verses'][0]['verse_token_digest']!='mutated' and len(calls)==1
+        changed=evidence.build_source_candidate(raw,checksum,**{**labels,'source_id':'changed'})
+        assert changed['source_id']=='changed' and len(calls)==2
+        for bad_raw,bad_checksum in [(raw,'0'*64),(raw+b' ',checksum),(b'{',hashlib.sha256(b'{').hexdigest())]:
+            with pytest.raises(evidence.EvidenceError):evidence.build_source_candidate(bad_raw,bad_checksum,**labels)
+    before=len(calls)
+    evidence.build_source_candidate(raw,checksum,**labels)
+    assert len(calls)==before+1
+    with pytest.raises(RuntimeError):
+        with evidence._qualified_source_execution():
+            evidence.build_source_candidate(raw,checksum,**labels)
+            raise RuntimeError('synthetic failure')
+    before=len(calls);evidence.build_source_candidate(raw,checksum,**labels)
+    assert len(calls)==before+1

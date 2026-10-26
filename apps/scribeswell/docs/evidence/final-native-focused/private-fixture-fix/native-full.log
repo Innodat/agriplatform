@@ -1,0 +1,64 @@
+SAFE_NATIVE_DRIVER CheckViolation 23514
+SAFE_NATIVE_DRIVER CheckViolation 23514
+F
+=================================== FAILURES ===================================
+__________ test_native_create_write_reopen_noop_replay_and_isolation ___________
+
+native = (<personal_notes_storage.PersonalNotesStorage object at 0x76ed1fdad280>, 'postgresql://postgres:synthetic-only@127.0.0...esql://scribeswell_studies_migrator:synthetic-only@127.0.0.1:32771/scribeswell_notes_d035bc048f3a445fb35e5a155c485607')
+
+    def test_native_create_write_reopen_noop_replay_and_isolation(native):
+        storage,_,_,_=native
+        study=create(storage)['study_id']; payload=command('note.create',value=value())
+>       ack=run(storage.execute(IDENTITY,'note.create',payload,study,None,deadline()))
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+apps/scribeswell/tests/test_personal_notes_storage.py:211: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+apps/scribeswell/tests/test_personal_notes_storage.py:26: in run
+    def run(coro):return asyncio.run(coro)
+                         ^^^^^^^^^^^^^^^^^
+/usr/lib/python3.12/asyncio/runners.py:194: in run
+    return runner.run(main)
+           ^^^^^^^^^^^^^^^^
+/usr/lib/python3.12/asyncio/runners.py:118: in run
+    return self._loop.run_until_complete(task)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/usr/lib/python3.12/asyncio/base_events.py:687: in run_until_complete
+    return future.result()
+           ^^^^^^^^^^^^^^^
+apps/scribeswell/backend/personal_notes_storage.py:109: in execute
+    async with self.transaction(identity,deadline,write=True) as cursor:
+/usr/lib/python3.12/contextlib.py:231: in __aexit__
+    await self.gen.athrow(value)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <personal_notes_storage.PersonalNotesStorage object at 0x76ed1fdad280>
+identity = {'account_id': '10000000-0000-4000-8000-000000000001', 'actor_id': '20000000-0000-4000-8000-000000000001'}
+deadline = 18673.975214242
+
+    @asynccontextmanager
+    async def transaction(self,identity,deadline,*,write=False):
+        connection=None
+        committing=False
+        timer=None
+        try:
+            async with asyncio.timeout(remaining(deadline)):
+                connection=await psycopg.AsyncConnection.connect(self.url,autocommit=False,row_factory=dict_row,connect_timeout=1)
+                timer=asyncio.get_running_loop().call_at(deadline,connection.pgconn.finish)
+                async with connection.cursor() as cursor:
+                    await cursor.execute("SELECT set_config('app.account_id',%s,true), set_config('lock_timeout',%s,true),set_config('statement_timeout',%s,true)",
+                        (identity['account_id'],str(max(1,min(1000,int(remaining(deadline)*1000))))+'ms',str(max(1,min(2000,int(remaining(deadline)*1000))))+'ms'))
+                    yield cursor
+                    remaining(deadline)
+                    committing=True
+                    await connection.commit()
+        except NotesError: raise
+        except BaseException as exc:
+            # No cancellation cleanup wait: close the dedicated libpq socket.
+            code='operation_unresolved' if write and committing else 'request_deadline_exceeded' if time.monotonic()>=deadline else 'studies_storage_unavailable'
+            if isinstance(exc,(KeyboardInterrupt,SystemExit)): raise
+>           raise NotesError(code) from None
+E           personal_notes_access.NotesError: studies_storage_unavailable
+
+apps/scribeswell/backend/personal_notes_storage.py:53: NotesError
+1 failed in 1.71s

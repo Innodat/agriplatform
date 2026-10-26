@@ -1,0 +1,89 @@
+[
+  {
+    "run": "browser-matrix-corrections/focused-first",
+    "result": {
+      "argv": [
+        "npm",
+        "run",
+        "test:browser",
+        "--workspace=apps/scribeswell/web",
+        "--",
+        "personal-notes.spec.cjs",
+        "workspace-restoration.spec.cjs",
+        "--workers=1",
+        "--grep",
+        "review: note changes reset|unknown study create preserves|note links: links source marks|across an owned atom survives|passage-only saved Notes preview|review tabs E1|same current (clean|unknown)|resource404 clears|late second candidate|current admission403|current (note|study)404|current hydration401|loop1 requested"
+      ],
+      "exit_code": 1,
+      "seconds": 218.72,
+      "selected_files": 103,
+      "source_unchanged": true
+    },
+    "summary": "1 failed; 45 passed (3.6m)"
+  },
+  {
+    "run": "browser-matrix-corrections/admission-order-diagnostic",
+    "result": {
+      "argv": [
+        "npm",
+        "run",
+        "test:browser",
+        "--workspace=apps/scribeswell/web",
+        "--",
+        "workspace-restoration.spec.cjs",
+        "--workers=1",
+        "--repeat-each=3",
+        "--grep",
+        "current admission403"
+      ],
+      "exit_code": 0,
+      "seconds": 37.44,
+      "selected_files": 103,
+      "source_unchanged": true
+    },
+    "summary": "6 passed (35.4s)"
+  },
+  {
+    "run": "browser-matrix-corrections/admission-controlled-order-red",
+    "result": {
+      "argv": [
+        "npm",
+        "run",
+        "test:browser",
+        "--workspace=apps/scribeswell/web",
+        "--",
+        "workspace-restoration.spec.cjs",
+        "--workers=1",
+        "--project=mobile",
+        "--grep",
+        "current admission403"
+      ],
+      "exit_code": 1,
+      "seconds": 19.95,
+      "selected_files": 103,
+      "source_unchanged": true
+    },
+    "summary": "1 failed"
+  },
+  {
+    "run": "browser-matrix-corrections/ordered-hydration-green",
+    "result": {
+      "argv": [
+        "npm",
+        "run",
+        "test:browser",
+        "--workspace=apps/scribeswell/web",
+        "--",
+        "workspace-restoration.spec.cjs",
+        "--workers=1",
+        "--grep",
+        "late second candidate|current admission403|current (note|study)404|current hydration401"
+      ],
+      "exit_code": 0,
+      "seconds": 44.66,
+      "selected_files": 103,
+      "source_unchanged": true
+    },
+    "summary": "10 passed (42.8s)"
+  }
+]

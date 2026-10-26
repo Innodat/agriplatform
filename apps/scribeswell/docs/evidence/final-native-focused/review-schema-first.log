@@ -1,0 +1,3 @@
+Command: /tmp/scribeswell-implementation-python/bin/python -m pytest -q apps/scribeswell/tests/test_personal_notes_contract.py -k "note_text_schema_and_runtime_preserve_scalar_boundary or generation_is_reproducible or all_generated_components_are_valid_json_schema"
+1 failed, 5 passed, 122 deselected in 2.72s
+Failure: new test used strict model_validate with JSON list marks instead of transport model_validate_json; valid input rejected solely at marks tuple_type. Fixed test to use actual JSON transport entry.

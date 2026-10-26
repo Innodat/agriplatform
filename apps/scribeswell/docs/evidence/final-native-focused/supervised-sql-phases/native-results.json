@@ -1,0 +1,20 @@
+{
+  "results": [
+    {
+      "argv": [
+        "/tmp/scribeswell-implementation-python/bin/python",
+        "-m",
+        "pytest",
+        "-q",
+        "apps/scribeswell/tests/test_corpus_publish_native.py::test_native_checked_in_artifact_publication_capacity_timing_and_replay[artifact]",
+        "-rs",
+        "-s"
+      ],
+      "exit_code": 1,
+      "seconds": 46.5
+    }
+  ],
+  "container": "scribeswell-final-dca802f12382",
+  "stopped": true,
+  "source_unchanged": true
+}

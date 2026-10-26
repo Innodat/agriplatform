@@ -1,0 +1,14 @@
+
+> scribeswell-web@0.1.0 test:browser
+> playwright test --config playwright.config.cjs --workers=1 --project=desktop --grep note text wire grammar rejects NUL
+
+[WebServer] (node:871385) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 1 test using 1 worker
+
+(node:871518) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  1 [desktop] › tests/personal-notes.spec.cjs:1960:1 › note text wire grammar rejects NUL and preserves newlines and combining marks (2.3s)
+
+  1 passed (7.6s)

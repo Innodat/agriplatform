@@ -48,6 +48,8 @@ def _control(char: str) -> bool:
 
 
 def _unicode(value: str) -> str:
+    if '\x00' in value:
+        raise ValueError('invalid Unicode text')
     value.encode('utf-8', errors='strict')
     return value
 
@@ -105,6 +107,10 @@ def _url(value: str) -> str:
     return value
 
 
+# JSON-schema-only ECMAScript code-unit pattern; Rust runtime regex cannot
+# compile surrogate ranges. Runtime scalar validation remains in _unicode.
+_INVALID_SCALAR_PATTERN = r'\u0000|[\uD800-\uDBFF](?![\uDC00-\uDFFF])|(?:^|[^\uD800-\uDBFF])[\uDC00-\uDFFF]'
+
 Identifier = Annotated[str, Field(min_length=36, max_length=36, pattern=r'^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$',
     json_schema_extra={'not': {'const': '00000000-0000-0000-0000-000000000000'}}), AfterValidator(_uuid)]
 Revision = Annotated[str, Field(pattern=_revision_pattern(), json_schema_extra={'not': {'pattern': r'[^0-9]'}}), AfterValidator(_revision)]
@@ -126,7 +132,7 @@ def _introduction(value: str) -> str:
     return _unicode(value)
 
 
-Introduction = Annotated[str, Field(max_length=10000, json_schema_extra={'not': {'pattern': r'\u0000'}}), AfterValidator(_introduction)]
+Introduction = Annotated[str, Field(max_length=10000, json_schema_extra={'not': {'pattern': _INVALID_SCALAR_PATTERN}}), AfterValidator(_introduction)]
 Command = Literal['study.details.replace', 'study.create', 'study.rename', 'study.passages.replace', 'study.delete', 'note.create', 'note.replace', 'note.delete', 'note.duplicate', 'note.conflict_copy', 'study.copy']
 
 
@@ -142,7 +148,7 @@ class Closed(BaseModel):
 
 class TextInline(Closed):
     type: Literal['text']
-    text: Annotated[str, Field(min_length=1, max_length=4096), AfterValidator(_unicode)]
+    text: Annotated[str, Field(min_length=1, max_length=4096, description='Unicode scalar text without NUL; line breaks and combining marks retained.', json_schema_extra={'not': {'pattern': _INVALID_SCALAR_PATTERN}}), AfterValidator(_unicode)]
     marks: tuple[Literal['bold', 'italic'], ...] = Field(max_length=2,
         json_schema_extra={'enum': [list(marks) for marks in MARK_SETS]})
 
@@ -204,7 +210,7 @@ class DocumentV1(Closed):
 class PassageLink(Closed):
     type: Literal['passage_link']
     reference: PassageReference
-    label: Annotated[str, Field(min_length=1, max_length=200), AfterValidator(_unicode)]
+    label: Annotated[str, Field(min_length=1, max_length=200, json_schema_extra={'not': {'pattern': _INVALID_SCALAR_PATTERN}}), AfterValidator(_unicode)]
 
 
 InlineV2 = Annotated[Union[TextInline, ExternalLink, PassageLink], Field(discriminator='type')]
@@ -481,7 +487,7 @@ def _search_unicode(value: str) -> str:
 class SearchStudies(Closed):
     query: Annotated[str, Field(max_length=200,
         description='Unicode scalar string without NUL; at most 200 codepoints before outer trim/NFC matching.',
-        json_schema_extra={'not': {'pattern': r'\u0000'}}), AfterValidator(_search_unicode)]
+        json_schema_extra={'not': {'pattern': _INVALID_SCALAR_PATTERN}}), AfterValidator(_search_unicode)]
     limit: Annotated[int, Field(ge=1, le=50)] = 20
     cursor: Cursor | None = None
 

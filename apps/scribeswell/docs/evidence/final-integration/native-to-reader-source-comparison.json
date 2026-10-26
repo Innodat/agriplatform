@@ -1,0 +1,11 @@
+{
+  "comparison": "Parent full native snapshot versus frozen corrected reader/browser source",
+  "prior_paths": 207,
+  "changed_paths": [
+    "apps/scribeswell/web/src/components/bible/PassagePane.tsx",
+    "apps/scribeswell/web/src/context/StudiesContext.tsx",
+    "apps/scribeswell/web/tests/personal-notes.spec.cjs",
+    "apps/scribeswell/web/tests/workspace-restoration.spec.cjs"
+  ],
+  "native_backend_migrations_contracts_unchanged": true
+}

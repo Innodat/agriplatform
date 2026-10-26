@@ -1,0 +1,12 @@
+.......F.
+=================================== FAILURES ===================================
+___ test_capacity_profile_is_explicit_and_requires_postcommit_0006_evidence ____
+
+    def test_capacity_profile_is_explicit_and_requires_postcommit_0006_evidence():
+        expected=selection(dict(profile='publication-capacity-v1',custody=None))
+>       assert from_environ({'SCRIBESWELL_MIGRATION_PROFILE':'publication-capacity-v1'})==expected
+               ^^^^^^^^^^^^
+E       NameError: name 'from_environ' is not defined
+
+apps/scribeswell/tests/test_publication_profile.py:96: NameError
+1 failed, 8 passed, 76 deselected in 37.14s

@@ -85,6 +85,7 @@ def native():
             (target/'history/versions/0006_own_highlights.py').unlink()
             (target/'history/versions/0007_own_copies.py').unlink()
             (target/'history/versions/0008_study_details.py').unlink()
+            (target/'history/versions/0009_note_metadata_predicates.py').unlink()
             old_config=Config();old_config.set_main_option('script_location',str(target/'history'))
             alembic.upgrade(old_config,'head')
         import importlib.util
@@ -117,6 +118,7 @@ def native():
             (target/'history/versions/0006_own_highlights.py').unlink()
             (target/'history/versions/0007_own_copies.py').unlink()
             (target/'history/versions/0008_study_details.py').unlink()
+            (target/'history/versions/0009_note_metadata_predicates.py').unlink()
             cfg=Config();cfg.set_main_option('script_location',str(target/'history'));alembic.upgrade(cfg,'head')
         with tempfile.TemporaryDirectory(prefix='scribeswell-passages-failure-') as directory:
             target=Path(directory);shutil.copytree(APP/'studies-migrations',target/'history');shutil.copytree(APP/'studies-database-tools',target/'studies-database-tools')
@@ -136,6 +138,7 @@ def native():
             (target/'history/versions/0006_own_highlights.py').unlink()
             (target/'history/versions/0007_own_copies.py').unlink()
             (target/'history/versions/0008_study_details.py').unlink()
+            (target/'history/versions/0009_note_metadata_predicates.py').unlink()
             cfg=Config();cfg.set_main_option('script_location',str(target/'history'));alembic.upgrade(cfg,'head')
         sys.path.insert(0,str(APP/'tests/fixtures'))
         from note_deletion_baseline_loader import load
@@ -156,6 +159,7 @@ def native():
             (target/'history/versions/0006_own_highlights.py').unlink()
             (target/'history/versions/0007_own_copies.py').unlink()
             (target/'history/versions/0008_study_details.py').unlink()
+            (target/'history/versions/0009_note_metadata_predicates.py').unlink()
             cfg=Config();cfg.set_main_option('script_location',str(target/'history'));alembic.upgrade(cfg,'head')
         sys.path.insert(0,str(APP/'tests/fixtures'))
         from study_deletion_baseline_loader import load as study_baseline
@@ -303,12 +307,12 @@ def test_native_migration_failure_rollback_retry_and_owner_force_rls(native):
         env=(target/'history/env.py').read_text().replace("parents[1]/'studies-database-tools'","parents[1]/'studies-database-tools'")
         (target/'history/env.py').write_text(env)
         failure=target/'history/versions/0009_failure.py'
-        failure.write_text("from alembic import op\nrevision='fixture_0009'\ndown_revision='scribeswell_studies_0008'\ndef upgrade():\n op.execute('CREATE TABLE scribeswell_studies.failure_probe(id int)')\n raise RuntimeError('synthetic failure')\n")
+        failure.write_text("from alembic import op\nrevision='fixture_0010'\ndown_revision='scribeswell_studies_0009'\ndef upgrade():\n op.execute('CREATE TABLE scribeswell_studies.failure_probe(id int)')\n raise RuntimeError('synthetic failure')\n")
         cfg=Config();cfg.set_main_option('script_location',str(target/'history'))
         with pytest.raises(Exception,match='scribeswell_studies_migration_failed'):alembic.upgrade(cfg,'head')
         with psycopg.connect(admin_url) as admin:
             assert admin.execute("SELECT to_regclass('scribeswell_studies.failure_probe')").fetchone()[0] is None
-            assert admin.execute('SELECT version_num FROM scribeswell_studies.alembic_version').fetchone()[0]=='scribeswell_studies_0008'
+            assert admin.execute('SELECT version_num FROM scribeswell_studies.alembic_version').fetchone()[0]=='scribeswell_studies_0009'
         failure.write_text(failure.read_text().replace(" raise RuntimeError('synthetic failure')",''))
         alembic.upgrade(cfg,'head');alembic.upgrade(cfg,'head')
         assert run(storage.read(IDENTITY,study,saved['note_id'],deadline()))==before
@@ -894,8 +898,8 @@ def test_native_study_deletion_atomic_erasure_original_receipts_and_previous_f6_
         c.execute("SELECT set_config('app.account_id',%s,true)",(A,))
         parent=c.execute('SELECT * FROM scribeswell_studies.studies WHERE id=%s',(study,)).fetchone()
         erased=c.execute('SELECT * FROM scribeswell_studies.notes WHERE id=%s',(note['note_id'],)).fetchone()
-        assert parent['title']=='Deleted study' and not parent['active'] and parent['revision']==2 and parent['updated_by']==ACTOR
-        assert not erased['active'] and erased['revision']==2 and erased['updated_by']==ACTOR
+        assert parent['title']=='Deleted study' and not parent['active'] and parent['revision']==2 and str(parent['updated_by'])==ACTOR
+        assert not erased['active'] and erased['revision']==2 and str(erased['updated_by'])==ACTOR
         assert erased['value']=={'document':{'version':1,'blocks':[]},'connections':[],'highlights':[]}
         for table in ('passage_lists','passage_entries'):assert c.execute(f'SELECT count(*) FROM scribeswell_studies.{table} WHERE study_id=%s',(study,)).fetchone()['count']==0
         receipt=c.execute("SELECT outcome FROM scribeswell_studies.receipts WHERE command='study.delete' AND operation_id=%s",(payload.operation_id,)).fetchone()['outcome']
@@ -1043,3 +1047,46 @@ def test_native_study_deletion_foreign_current_access_cannot_delete_replay_or_lo
         assert snapshot()==before
     assert run(storage.lookup(foreign,deletion.operation_id,'study.delete',deadline()))=={'status':'unresolved'}
     assert snapshot()==before
+
+
+def test_native_api_nul_rejected_without_note_or_receipt_and_unicode_preserved(native):
+    from fastapi import FastAPI
+    from fastapi.testclient import TestClient
+    from personal_notes_router import build_router
+    storage,admin_url,_,_=native
+    study=create(storage)['study_id']
+    class CurrentAccess:
+        async def check(self,*args):return IDENTITY
+    app=FastAPI();app.include_router(build_router(CurrentAccess(),storage))
+    client=TestClient(app)
+    operation=str(uuid4())
+    with psycopg.connect(admin_url) as db:
+        before=db.execute('SELECT (SELECT count(*) FROM scribeswell_studies.notes),(SELECT count(*) FROM scribeswell_studies.receipts)').fetchone()
+    response=client.post('/api/studies/'+study+'/notes',headers={'Authorization':'Bearer current'},json={'operation_id':operation,'value':value('before\x00after')})
+    assert response.status_code==400
+    assert response.json()['code']=='scribeswell_personal_notes_input_invalid'
+    assert 'before' not in response.text and 'after' not in response.text
+    with psycopg.connect(admin_url) as db:
+        assert db.execute('SELECT (SELECT count(*) FROM scribeswell_studies.notes),(SELECT count(*) FROM scribeswell_studies.receipts)').fetchone()==before
+    text='First\nבְּרֵאשִׁית\ne\u0301'
+    response=client.post('/api/studies/'+study+'/notes',headers={'Authorization':'Bearer current'},json={'operation_id':operation,'value':value(text)})
+    assert response.status_code==200
+    ack=response.json()
+    assert run(storage.read(IDENTITY,study,ack['note_id'],deadline()))['value']==value(text)
+
+    replacement_operation=str(uuid4())
+    path='/api/studies/'+study+'/notes/'+ack['note_id']
+    with psycopg.connect(admin_url) as db:
+        original=db.execute('SELECT to_jsonb(n) FROM scribeswell_studies.notes n WHERE id=%s',(ack['note_id'],)).fetchone()
+        receipts=db.execute('SELECT count(*) FROM scribeswell_studies.receipts').fetchone()
+    rejected=client.put(path,headers={'Authorization':'Bearer current'},json={'operation_id':replacement_operation,'expected_revision':ack['revision'],'value':value('bad\x00replacement')})
+    assert rejected.status_code==400
+    assert rejected.json()['code']=='scribeswell_personal_notes_input_invalid'
+    with psycopg.connect(admin_url) as db:
+        assert db.execute('SELECT to_jsonb(n) FROM scribeswell_studies.notes n WHERE id=%s',(ack['note_id'],)).fetchone()==original
+        assert db.execute('SELECT count(*) FROM scribeswell_studies.receipts').fetchone()==receipts
+    corrected=text+'\nCorrected e\u0301 😀'
+    accepted=client.put(path,headers={'Authorization':'Bearer current'},json={'operation_id':replacement_operation,'expected_revision':ack['revision'],'value':value(corrected)})
+    assert accepted.status_code==200
+    assert int(accepted.json()['revision'])==int(ack['revision'])+1
+    assert run(storage.read(IDENTITY,study,ack['note_id'],deadline()))['value']==value(corrected)

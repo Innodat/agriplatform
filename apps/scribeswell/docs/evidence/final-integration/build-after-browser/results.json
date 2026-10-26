@@ -1,0 +1,16 @@
+{
+  "results": [
+    {
+      "name": "build",
+      "argv": [
+        "npm",
+        "run",
+        "build",
+        "--workspace=apps/scribeswell/web"
+      ],
+      "exit_code": 0,
+      "seconds": 9.08
+    }
+  ],
+  "source_unchanged": true
+}

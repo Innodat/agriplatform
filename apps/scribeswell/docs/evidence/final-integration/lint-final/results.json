@@ -1,0 +1,16 @@
+{
+  "results": [
+    {
+      "name": "lint",
+      "argv": [
+        "npm",
+        "run",
+        "lint",
+        "--workspace=apps/scribeswell/web"
+      ],
+      "exit_code": 2,
+      "seconds": 1.22
+    }
+  ],
+  "source_unchanged": true
+}

@@ -1,0 +1,18 @@
+{
+  "argv": [
+    "npm",
+    "run",
+    "test:browser",
+    "--workspace=apps/scribeswell/web",
+    "--",
+    "workspace-restoration.spec.cjs",
+    "--workers=1",
+    "--project=mobile",
+    "--grep",
+    "current admission403"
+  ],
+  "exit_code": 1,
+  "seconds": 19.95,
+  "selected_files": 103,
+  "source_unchanged": true
+}

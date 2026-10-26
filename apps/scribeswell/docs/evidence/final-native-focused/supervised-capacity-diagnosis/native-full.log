@@ -1,0 +1,209 @@
+QUALIFIED_CAPACITY_SOURCE {"counts": {"books": 39, "chapters": 929, "tokens": 306785, "verses": 23213}, "source_bytes": 13096412, "source_sha256": "c2d8e9e565be4ee69f938b444e5e0dc37fdfd0d9ccb185d1a5f8d95fab91c498"}
+SUPERVISED_ATTEMPT_SECONDS 31.36
+{"phase":"_prepare","seconds":6.199}
+{"phase":"_prepare","seconds":5.471}
+{"step":"publication.activate","lookup":true,"batch_index":null,"seconds":0.031}
+{"phase":"audit_closed_attempt","seconds":12.625}
+{"step":"publication.stage","lookup":true,"batch_index":null,"seconds":0.086}
+{"step":"publication.stage","lookup":false,"batch_index":null,"seconds":0.873}
+{"step":"publication.batch","lookup":true,"batch_index":0,"seconds":0.01}
+{"driver_class":"QueryCanceled","sqlstate":"57014"}
+{"step":"publication.batch","lookup":false,"batch_index":0,"seconds":5.021}
+
+DURABLE_PUBLICATION_STEPS [('publication.stage', 1)]
+FQUALIFIED_CAPACITY_SOURCE {"counts": {"books": 39, "chapters": 321, "tokens": 1000000, "verses": 50000}, "source_bytes": 22101126, "source_sha256": "69f665b81b38c22d43bef8a5fad9cf11a38aaeadc8f0a9dce295ecc0d39df58d"}
+SUPERVISED_ATTEMPT_SECONDS 58.07
+{"phase":"_prepare","seconds":10.778}
+{"phase":"_prepare","seconds":10.934}
+{"step":"publication.activate","lookup":true,"batch_index":null,"seconds":0.022}
+{"phase":"audit_closed_attempt","seconds":30.049}
+{"step":"publication.stage","lookup":true,"batch_index":null,"seconds":0.154}
+{"step":"publication.stage","lookup":false,"batch_index":null,"seconds":1.401}
+{"step":"publication.batch","lookup":true,"batch_index":0,"seconds":0.011}
+
+DURABLE_PUBLICATION_STEPS [('publication.stage', 1)]
+F
+=================================== FAILURES ===================================
+_ test_native_checked_in_artifact_publication_capacity_timing_and_replay[artifact] _
+
+closed = (<psycopg.Connection [IDLE] (host=127.0.0.1 port=32786 user=postgres database=scribeswell_migration_bcefb9c896844a3386...22222-2222-4222-8222-222222222222', attempt_id='5eb416ae-bcfc-4ad4-85ef-3e550aa6f607', generation='1', state='closed'))
+publication_source = b'{"Genesis": [[[["\xd7\x91\xd6\xbc\xd6\xb0/\xd7\xa8\xd6\xb5\xd7\x90\xd7\xa9\xd7\x81\xd6\xb4\xd6\x96\xd7\x99\xd7\xaa",...\xd6\xb6\xd7\xa5", "d/776", "HTd/Ncbsa"], ["\xd7\x97\xd6\xb5\xd6\xbd\xd7\xa8\xd6\xb6\xd7\x9d", "2764 a", "HNcmsa"]]]]}'
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7f4dd12c3bf0>
+tmp_path = PosixPath('/tmp/pytest-of-ck/pytest-57/test_native_checked_in_artifac0')
+
+    @pytest.mark.parametrize('publication_source',['artifact','maximum'],indirect=True)
+    def test_native_checked_in_artifact_publication_capacity_timing_and_replay(closed,publication_source,monkeypatch,tmp_path):
+        import time
+        from corpus_evidence import build_source_candidate
+        admin,url,seal,_=closed
+        expected=build_source_candidate(publication_source,hashlib.sha256(publication_source).hexdigest(),source_id='tanakh',catalogue_version=seal['payload']['input']['catalogue_version'],versification_id=seal['payload']['input']['versification_id'],tokenization_version=seal['payload']['input']['tokenization_version'])
+        counts=expected['counts']
+        actual=admin.execute('SELECT (SELECT count(*) FROM scribeswell.book),(SELECT count(*) FROM scribeswell.chapter),(SELECT count(*) FROM scribeswell.verse),(SELECT count(*) FROM scribeswell.word)').fetchone()
+        assert actual==tuple(counts[k] for k in ('books','chapters','verses','tokens'))
+        import corpus_operator as supervised
+        from test_postgres_acceptance import role_url
+        target=supervised.OperatorTarget('local_disposable',role_url(url,'scribeswell_corpus_operator'),unquote(urlsplit(url).path[1:]))
+        print('QUALIFIED_CAPACITY_SOURCE',json.dumps({'source_bytes':len(publication_source),'source_sha256':hashlib.sha256(publication_source).hexdigest(),'counts':counts},sort_keys=True),flush=True)
+        if os.environ.get('SCRIBESWELL_CAPACITY_DIAGNOSTICS')=='1':
+            probe=tmp_path/'capacity-probe.py';trace=tmp_path/'capacity-steps.jsonl'
+            probe.write_text(CAPACITY_PROBE.replace('TRACE_PATH',repr(str(trace))))
+            original_worker=supervised._worker_command
+            def diagnostic_worker():
+                command=original_worker()
+                command[-1]=command[-1].replace('from corpus_operator import _worker_main;',"import runpy;runpy.run_path("+repr(str(probe))+");from corpus_operator import _worker_main;")
+                return command
+            monkeypatch.setattr(supervised,'_worker_command',diagnostic_worker)
+        operation=str(uuid4());started=time.monotonic()
+>       try:result=supervised.publish_closed_attempt(target,encode(seal),publication_source,operation_id=operation)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+apps/scribeswell/tests/test_corpus_publish_native.py:517: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+apps/scribeswell/backend/corpus_operator.py:345: in publish_closed_attempt
+    return _publication_invoke(target, raw, source_raw, operation_id, lookup=False)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+target = <corpus_operator.OperatorTarget object at 0x7f4dc5b67980>
+raw = b'{"schema_version": 1, "operation_id": "4e0691f8-415d-4d1b-b70b-eaa225f0d995", "command": "corpus.seal", "scope": {"k...d_attempt_id": "5eb416ae-bcfc-4ad4-85ef-3e550aa6f607"}, "reason_code": "source_seal", "evidence_ref": "run:fixture/1"}'
+source_raw = b'{"Genesis": [[[["\xd7\x91\xd6\xbc\xd6\xb0/\xd7\xa8\xd6\xb5\xd7\x90\xd7\xa9\xd7\x81\xd6\xb4\xd6\x96\xd7\x99\xd7\xaa",...\xd6\xb6\xd7\xa5", "d/776", "HTd/Ncbsa"], ["\xd7\x97\xd6\xb5\xd6\xbd\xd7\xa8\xd6\xb6\xd7\x9d", "2764 a", "HNcmsa"]]]]}'
+operation_id = '050e59a7-8aa7-4850-991f-9f6e5c2a648b'
+
+    def _publication_invoke(target, raw, source_raw, operation_id, *, lookup):
+        from corpus_publish import PublishError, _activation, _receipt as publication_receipt
+        from corpus_publication_input import _uuid
+        deadline = time.monotonic() + _OPERATION_SECONDS
+        invalid = False
+        try:
+            _target(target)
+            _uuid(operation_id)
+            command = parse_command(raw)
+            if (command.command != 'corpus.seal' or type(source_raw) is not bytes
+                    or len(source_raw) > MAX_SOURCE_BYTES):
+                raise ValueError
+        except Exception:
+            invalid = True
+        if invalid:
+            raise PublishError('input_invalid')
+        failure, result = None, None
+        try:
+            request = json.dumps(dict(version='publication-v1', target=asdict(target),
+                lookup=lookup, raw=base64.b64encode(raw).decode('ascii'),
+                source=base64.b64encode(source_raw).decode('ascii'), operation_id=operation_id),
+                separators=(',', ':')).encode('ascii')
+            if len(request) > _MAX_REQUEST:
+                raise ValueError
+            value = _decode(_exchange(request, deadline))
+            if type(value) is not dict or len(value) != 1:
+                raise ValueError
+            if set(value) == {'error'} and type(value['error']) is str and value['error'] in _PUBLICATION_FAILURES:
+                failure = value['error']
+            elif set(value) == {'receipt'}:
+                if value['receipt'] is None and lookup:
+                    result = None
+                else:
+                    result = publication_receipt(value['receipt'], _activation(command, operation_id))
+            else:
+                raise ValueError
+            if time.monotonic() >= deadline - _REAP_SECONDS:
+                raise ValueError
+        except Exception:
+            failure = 'unknown_outcome'
+        if failure:
+>           raise PublishError(failure)
+E           corpus_publish.PublishError: corpus_publish.unavailable
+
+apps/scribeswell/backend/corpus_operator.py:339: PublishError
+_ test_native_checked_in_artifact_publication_capacity_timing_and_replay[maximum] _
+
+closed = (<psycopg.Connection [IDLE] (host=127.0.0.1 port=32786 user=postgres database=scribeswell_migration_dca9560a9e2a4a4583...22222-2222-4222-8222-222222222222', attempt_id='2910ab5e-004a-4650-9eb6-db524a932181', generation='1', state='closed'))
+publication_source = b'{"Genesis":[[[["\xd7\x90\xd7\x91","1","HNcmsa"],["\xd7\x90\xd7\x91","1","HNcmsa"],["\xd7\x90\xd7\x91","1","HNcmsa"],...1","HNcmsa"],["\xd7\x90\xd7\x91","1","HNcmsa"],["\xd7\x90\xd7\x91","1","HNcmsa"],["\xd7\x90\xd7\x91","1","HNcmsa"]]]]}'
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7f4dd04cc260>
+tmp_path = PosixPath('/tmp/pytest-of-ck/pytest-57/test_native_checked_in_artifac1')
+
+    @pytest.mark.parametrize('publication_source',['artifact','maximum'],indirect=True)
+    def test_native_checked_in_artifact_publication_capacity_timing_and_replay(closed,publication_source,monkeypatch,tmp_path):
+        import time
+        from corpus_evidence import build_source_candidate
+        admin,url,seal,_=closed
+        expected=build_source_candidate(publication_source,hashlib.sha256(publication_source).hexdigest(),source_id='tanakh',catalogue_version=seal['payload']['input']['catalogue_version'],versification_id=seal['payload']['input']['versification_id'],tokenization_version=seal['payload']['input']['tokenization_version'])
+        counts=expected['counts']
+        actual=admin.execute('SELECT (SELECT count(*) FROM scribeswell.book),(SELECT count(*) FROM scribeswell.chapter),(SELECT count(*) FROM scribeswell.verse),(SELECT count(*) FROM scribeswell.word)').fetchone()
+        assert actual==tuple(counts[k] for k in ('books','chapters','verses','tokens'))
+        import corpus_operator as supervised
+        from test_postgres_acceptance import role_url
+        target=supervised.OperatorTarget('local_disposable',role_url(url,'scribeswell_corpus_operator'),unquote(urlsplit(url).path[1:]))
+        print('QUALIFIED_CAPACITY_SOURCE',json.dumps({'source_bytes':len(publication_source),'source_sha256':hashlib.sha256(publication_source).hexdigest(),'counts':counts},sort_keys=True),flush=True)
+        if os.environ.get('SCRIBESWELL_CAPACITY_DIAGNOSTICS')=='1':
+            probe=tmp_path/'capacity-probe.py';trace=tmp_path/'capacity-steps.jsonl'
+            probe.write_text(CAPACITY_PROBE.replace('TRACE_PATH',repr(str(trace))))
+            original_worker=supervised._worker_command
+            def diagnostic_worker():
+                command=original_worker()
+                command[-1]=command[-1].replace('from corpus_operator import _worker_main;',"import runpy;runpy.run_path("+repr(str(probe))+");from corpus_operator import _worker_main;")
+                return command
+            monkeypatch.setattr(supervised,'_worker_command',diagnostic_worker)
+        operation=str(uuid4());started=time.monotonic()
+>       try:result=supervised.publish_closed_attempt(target,encode(seal),publication_source,operation_id=operation)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+apps/scribeswell/tests/test_corpus_publish_native.py:517: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+apps/scribeswell/backend/corpus_operator.py:345: in publish_closed_attempt
+    return _publication_invoke(target, raw, source_raw, operation_id, lookup=False)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+target = <corpus_operator.OperatorTarget object at 0x7f4dae576100>
+raw = b'{"schema_version": 1, "operation_id": "72f69914-9a71-42c8-9e36-bacefc853f5d", "command": "corpus.seal", "scope": {"k...d_attempt_id": "2910ab5e-004a-4650-9eb6-db524a932181"}, "reason_code": "source_seal", "evidence_ref": "run:fixture/1"}'
+source_raw = b'{"Genesis":[[[["\xd7\x90\xd7\x91","1","HNcmsa"],["\xd7\x90\xd7\x91","1","HNcmsa"],["\xd7\x90\xd7\x91","1","HNcmsa"],...1","HNcmsa"],["\xd7\x90\xd7\x91","1","HNcmsa"],["\xd7\x90\xd7\x91","1","HNcmsa"],["\xd7\x90\xd7\x91","1","HNcmsa"]]]]}'
+operation_id = 'ab59f393-4590-4bc8-a7eb-a631d7144e19'
+
+    def _publication_invoke(target, raw, source_raw, operation_id, *, lookup):
+        from corpus_publish import PublishError, _activation, _receipt as publication_receipt
+        from corpus_publication_input import _uuid
+        deadline = time.monotonic() + _OPERATION_SECONDS
+        invalid = False
+        try:
+            _target(target)
+            _uuid(operation_id)
+            command = parse_command(raw)
+            if (command.command != 'corpus.seal' or type(source_raw) is not bytes
+                    or len(source_raw) > MAX_SOURCE_BYTES):
+                raise ValueError
+        except Exception:
+            invalid = True
+        if invalid:
+            raise PublishError('input_invalid')
+        failure, result = None, None
+        try:
+            request = json.dumps(dict(version='publication-v1', target=asdict(target),
+                lookup=lookup, raw=base64.b64encode(raw).decode('ascii'),
+                source=base64.b64encode(source_raw).decode('ascii'), operation_id=operation_id),
+                separators=(',', ':')).encode('ascii')
+            if len(request) > _MAX_REQUEST:
+                raise ValueError
+            value = _decode(_exchange(request, deadline))
+            if type(value) is not dict or len(value) != 1:
+                raise ValueError
+            if set(value) == {'error'} and type(value['error']) is str and value['error'] in _PUBLICATION_FAILURES:
+                failure = value['error']
+            elif set(value) == {'receipt'}:
+                if value['receipt'] is None and lookup:
+                    result = None
+                else:
+                    result = publication_receipt(value['receipt'], _activation(command, operation_id))
+            else:
+                raise ValueError
+            if time.monotonic() >= deadline - _REAP_SECONDS:
+                raise ValueError
+        except Exception:
+            failure = 'unknown_outcome'
+        if failure:
+>           raise PublishError(failure)
+E           corpus_publish.PublishError: corpus_publish.unknown_outcome
+
+apps/scribeswell/backend/corpus_operator.py:339: PublishError
+------------------------------ Captured log call -------------------------------
+WARNING  corpus_operator:corpus_operator.py:178 {"service":"scribeswell","action":"corpus_operator_cleanup","code":"forced_termination_reaped"}
+2 failed in 169.80s (0:02:49)

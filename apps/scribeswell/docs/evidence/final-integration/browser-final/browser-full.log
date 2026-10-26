@@ -1,0 +1,493 @@
+
+> scribeswell-web@0.1.0 test:browser
+> playwright test --config playwright.config.cjs --workers=4 --fully-parallel
+
+[WebServer] (node:1090808) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 1168 tests using 4 workers
+
+(node:1090924) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:1090913) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:1090932) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:1090919) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓     4 [desktop] › tests/account-entry.spec.cjs:16:1 › standalone Create account is available without a study (4.8s)
+  ✓     3 [desktop] › tests/account-entry.spec.cjs:12:1 › existing sign-in and cancellation preserve public analysis (6.3s)
+  ✓     2 [desktop] › tests/account-entry.spec.cjs:29:247 › signup maps safe typed error signup_disabled (6.6s)
+  ✓     1 [desktop] › tests/account-entry.spec.cjs:19:1 › confirmation pending is neutral, explicit and keeps only validated public return fields (6.7s)
+  ✓     5 [desktop] › tests/account-entry.spec.cjs:29:247 › signup maps safe typed error weak_password (5.7s)
+  ✓     7 [desktop] › tests/account-entry.spec.cjs:29:247 › signup maps safe typed error unknown (4.7s)
+  ✓     6 [desktop] › tests/account-entry.spec.cjs:29:247 › signup maps safe typed error email_address_invalid (4.9s)
+  ✓     8 [desktop] › tests/account-entry.spec.cjs:29:247 › signup maps safe typed error over_request_rate_limit (5.0s)
+  ✓    10 [desktop] › tests/account-entry.spec.cjs:33:132 › sign-in maps safe typed error email_not_confirmed (4.7s)
+  ✓    11 [desktop] › tests/account-entry.spec.cjs:36:1 › session signup updates shared storage without protected requests (4.9s)
+  ✓     9 [desktop] › tests/account-entry.spec.cjs:33:132 › sign-in maps safe typed error invalid_credentials (5.7s)
+  ✓    12 [desktop] › tests/account-entry.spec.cjs:39:1 › invalid callback preserves existing session and scrubs metadata (7.7s)
+  ✓    15 [desktop] › tests/account-entry.spec.cjs:48:1 › return helper drops duplicate malformed and oversized fields (3.3s)
+  ✓    13 [desktop] › tests/account-entry.spec.cjs:42:1 › cancel and mode switch discard late outcomes and clear secrets (4.7s)
+  ✓    14 [desktop] › tests/account-entry.spec.cjs:45:1 › focus trap and short viewport retain accessible entry and confirmation (4.9s)
+  ✓    17 [desktop] › tests/account-entry.spec.cjs:54:1 › valid provider signup callback uses the existing session owner (3.3s)
+  ✓    16 [desktop] › tests/account-entry.spec.cjs:51:1 › thrown transport error settles without provider text or automatic retry (5.1s)
+  ✓    19 [desktop] › tests/account-entry.spec.cjs:61:1 › closing and reopening during signup ignores late errors and secrets (5.4s)
+  ✓    20 [desktop] › tests/account-entry.spec.cjs:65:1 › transport exception diagnostics and inline error exclude sensitive messages (4.2s)
+  ✓    21 [desktop] › tests/account-entry.spec.cjs:68:1 › signed-out invalid callback offers sign-in and preserves public reading (4.2s)
+  ✓    22 [desktop] › tests/account-entry.spec.cjs:71:53 › callback recovery scrubs secrets and preserves prior session: incomplete (4.5s)
+  ✓    23 [desktop] › tests/account-entry.spec.cjs:71:53 › callback recovery scrubs secrets and preserves prior session: rejected (4.8s)
+  ✓    24 [desktop] › tests/account-entry.spec.cjs:71:53 › callback recovery scrubs secrets and preserves prior session: mixed (4.2s)
+  ✓    25 [desktop] › tests/account-entry.spec.cjs:75:1 › modal isolates header and reader through confirmation and restores interaction (4.1s)
+  ✓    26 [desktop] › tests/account-entry.spec.cjs:78:1 › populated launcher and account controls fit 320px closed header (3.0s)
+  ✓    27 [desktop] › tests/account-entry.spec.cjs:81:1 › held account request announces busy progress and settles (2.5s)
+  ✓    28 [desktop] › tests/account-entry.spec.cjs:84:40 › late successful signup establishes session after close (3.1s)
+  ✓    29 [desktop] › tests/account-entry.spec.cjs:84:40 › late successful signup establishes session after switch (3.3s)
+  ✓    18 [desktop] › tests/account-entry.spec.cjs:57:1 › provider requests use a fifteen second network bound without automatic retry (20.0s)
+  ✓    30 [desktop] › tests/account-entry.spec.cjs:87:1 › rejected startup callback never restores a concurrently signed-out session (6.4s)
+  ✓    31 [desktop] › tests/account-entry.spec.cjs:90:1 › ordinary user rejection after callback initialization keeps SDK session semantics (4.8s)
+  ✓    33 [desktop] › tests/account-entry.spec.cjs:126:1 › review: invalid supplied reader never blends legacy fields into account return (2.8s)
+  ✓    32 [desktop] › tests/account-entry.spec.cjs:94:1 › review: signup retains a complete public reader arrangement and strips private destinations (6.3s)
+  ✓    34 [desktop] › tests/account-entry.spec.cjs:148:1 › P10 callback projection is pure and preserves unrelated raw query when only the fragment needs filtering (2.8s)
+  ✓    36 [desktop] › tests/four-passage.spec.cjs:100:1 › closed codec refuses malformed links and retains complete ranges (2.9s)
+  ✓    37 [desktop] › tests/four-passage.spec.cjs:127:1 › controller preserves foreign native state and uses one push per deliberate transition (4.5s)
+  ✓    38 [desktop] › tests/four-passage.spec.cjs:173:38 › non-record Router usr survives add and repeated replay 17 (4.6s)
+  ✓    35 [desktop] › tests/four-passage.spec.cjs:73:1 › four panes preserve stable identities and require explicit capacity replacement (7.0s)
+  ✓    39 [desktop] › tests/four-passage.spec.cjs:173:38 › non-record Router usr survives add and repeated replay ["foreign"] (5.5s)
+  ✓    41 [desktop] › tests/four-passage.spec.cjs:222:1 › codec rejects closed snapshot violations and URL bounds without private fields (2.9s)
+  ✓    40 [desktop] › tests/four-passage.spec.cjs:193:1 › independent same-reference anchors survive repeated browser replay (6.5s)
+  ✓    44 [desktop] › tests/four-passage.spec.cjs:341:1 › layout clamps retain intended anchor while a subsequent user movement replaces it (3.3s)
+  ✓    42 [desktop] › tests/four-passage.spec.cjs:287:1 › reduced-height four pane layout offers named switcher and no viewport overflow (5.9s)
+  ✓    43 [desktop] › tests/four-passage.spec.cjs:303:1 › Add duplicates the complete canonical range and replacement changes only the explicitly chosen pane (7.3s)
+  ✓    47 [desktop] › tests/four-passage.spec.cjs:432:1 › structured foreign Router user values remain unmodified by checkpoints and navigation (3.7s)
+  ✓    46 [desktop] › tests/four-passage.spec.cjs:412:1 › a deferred outgoing checkpoint cannot overwrite the new browser entry (4.4s)
+  ✓    45 [desktop] › tests/four-passage.spec.cjs:374:1 › closing an inactive pane preserves active survivor and native default-key semantics (6.4s)
+  ✓    50 [desktop] › tests/four-passage.spec.cjs:510:1 › closed codec enforces pane, active, identity and canonical anchor boundaries (2.9s)
+  ✓    51 [desktop] › tests/four-passage.spec.cjs:641:1 › initial StrictMode entry keeps one committed pane identity while data becomes ready (2.8s)
+  ✓    48 [desktop] › tests/four-passage.spec.cjs:457:1 › four-pane row qualification reserves two hundred usable text pixels after controls (6.0s)
+  ✓    52 [desktop] › tests/four-passage.spec.cjs:662:1 › painted ready text retains actual wheel input without a late seek (3.5s)
+  ✓    54 [desktop] › tests/four-passage.spec.cjs:731:1 › review: missing restored anchor falls back to the explicit target verse (4.5s)
+  ✓    49 [desktop] › tests/four-passage.spec.cjs:475:1 › capacity confirmation refuses a different replayed layout after close-add cycles (11.0s)
+  ✓    53 [desktop] › tests/four-passage.spec.cjs:680:1 › available-container geometry supplies three columns, wrapping and four-pane two-by-two with tools (8.1s)
+  ✓    55 [desktop] › tests/four-passage.spec.cjs:794:46 › review: closing a focused active control hands focus to the active survivor (6.2s)
+  ✓    56 [desktop] › tests/four-passage.spec.cjs:794:46 › review: closing a focused inactive control hands focus to the active survivor (5.5s)
+  ✓    57 [desktop] › tests/four-passage.spec.cjs:830:51 › review: a scrollbar gesture checkpoints movement after one second through completion from active pane (5.5s)
+  ✓    58 [desktop] › tests/four-passage.spec.cjs:830:51 › review: a scrollbar gesture checkpoints movement after one second through completion from inactive pane (6.1s)
+  ✓    61 [desktop] › tests/four-passage.spec.cjs:1020:49 › review: a late gesture completion cannot checkpoint a different entry after navigation (3.9s)
+  ✓    60 [desktop] › tests/four-passage.spec.cjs:959:1 › review: wrapped word-position anchors restore a later word independently of its ID (6.1s)
+  ✓    59 [desktop] › tests/four-passage.spec.cjs:883:1 › review: wrapping controls and navigation errors requalify unchanged grid height (9.3s)
+  ✓    62 [desktop] › tests/four-passage.spec.cjs:1020:49 › review: a late gesture completion cannot checkpoint a different entry after POP (3.8s)
+  ✓    64 [desktop] › tests/four-passage.spec.cjs:1081:1 › review: pending deliberate movement survives scroll delivery after a real height change (3.0s)
+  ✓    63 [desktop] › tests/four-passage.spec.cjs:1050:1 › review: rapid POP replay expires outgoing gesture timers and intent (4.4s)
+  ✓    66 [desktop] › tests/lexicon.spec.cjs:80:1 › occurrence pages survive tabs, filter resets, errors retry and new words clear old results (4.9s)
+  ✓    67 [desktop] › tests/lexicon.spec.cjs:89:1 › BDB safe references preview and open at verse without changing the other passage (4.0s)
+  ✓    68 [desktop] › tests/lexicon.spec.cjs:97:1 › missing dictionary and failures keep morphology usable with retry; touch pins without hover (4.7s)
+  ✓    65 [desktop] › tests/lexicon.spec.cjs:65:1 › root highlights keep homonyms distinct in both chapters; dwell cancels and restores pinned state (10.2s)
+  ✓    69 [desktop] › tests/lexicon.spec.cjs:103:1 › late occurrence results cannot cross selections and pending preview cancels on focus changes (4.9s)
+  ✓    70 [desktop] › tests/lexicon.spec.cjs:110:1 › current passage follows selected pane and ordinary mobile switches preserve targeted scroll (4.8s)
+  ✓    71 [desktop] › tests/lexicon.spec.cjs:116:1 › explicitly reopening the same verse seeks again and invalid verse URLs are ignored (5.7s)
+  ✓    73 [desktop] › tests/lexicon.spec.cjs:135:1 › review regression: explicit null and ambiguous legacy lemmas never choose an identity (4.4s)
+  ✓    74 [desktop] › tests/lexicon.spec.cjs:150:1 › review regression: actual BDB invalid Ezra reference remains text and Hebrew runs retain direction and font (4.1s)
+  ✓    75 [desktop] › tests/lexicon.spec.cjs:162:1 › review regression: unavailable reference previews cannot replace a working passage (3.8s)
+  ✓    77 [desktop] › tests/lexicon.spec.cjs:184:1 › actual aligned participle segments remain readable without source details (3.5s)
+  ✓    76 [desktop] › tests/lexicon.spec.cjs:171:1 › compact grammar and linked dictionary preserve selected passage and restore entry history (4.8s)
+  ✓    72 [desktop] › tests/lexicon.spec.cjs:121:1 › review regression: desktop reload and responsive reveal apply pending verse targets once (10.1s)
+  ✓    80 [desktop] › tests/lexicon.spec.cjs:218:1 › unaligned source retains grammar without fabricated surface pieces (3.4s)
+  ✓    79 [desktop] › tests/lexicon.spec.cjs:207:1 › linked identity controls occurrences; late dictionaries and retry never restore token grammar (4.8s)
+  ✓    78 [desktop] › tests/lexicon.spec.cjs:192:1 › dictionary Back restores pagination, expansions and inspector scroll; clipped links are absent (6.8s)
+  ✓    81 [desktop] › tests/lexicon.spec.cjs:224:1 › selecting the same token in the other passage resets dictionary history (5.4s)
+  ✓    82 [desktop] › tests/lexicon.spec.cjs:232:1 › keyboard dictionary Back restores originating link and failed-entry fallback focus (4.4s)
+  ✓    84 [desktop] › tests/lexicon.spec.cjs:248:1 › delayed dictionary cannot move Occurrences scroll or focus its hidden heading (5.0s)
+  ✓    83 [desktop] › tests/lexicon.spec.cjs:241:1 › Back keeps saved scroll through failed reload and retry (5.7s)
+  ✓    85 [desktop] › tests/lexicon.spec.cjs:258:1 › self references are text and missing-stem aspects remain readable in Aramaic segments (3.7s)
+  ✓    86 [desktop] › tests/lexicon.spec.cjs:265:1 › BDB preview bounds real nested outline and keeps graphemes and link labels intact (4.6s)
+  ✓    87 [desktop] › tests/lexicon.spec.cjs:272:1 › actual entry 10 Strong source link follows 9 and restores keyboard origin on Back (4.4s)
+  ✓    88 [desktop] › tests/lexicon.spec.cjs:279:36 › Back restores Strong details when navigation precedes the native toggle event: true (4.8s)
+  ✓    89 [desktop] › tests/lexicon.spec.cjs:279:36 › Back restores Strong details when navigation precedes the native toggle event: false (5.5s)
+  ✓    90 [desktop] › tests/lexicon.spec.cjs:295:1 › dictionary controls show hand cursors and header closes either tab without duplicate actions (5.7s)
+  ✓    91 [desktop] › tests/lexicon.spec.cjs:316:1 › Open here follows active pane while analysis keeps its distinct origin and beside inserts adjacently (6.2s)
+  ✓    93 [desktop] › tests/lexicon.spec.cjs:432:1 › desktop active-pane cue follows focus without moving analysis origin or pushing history (4.9s)
+  ✓    92 [desktop] › tests/lexicon.spec.cjs:361:1 › capacity beside replacement changes the chosen nonactive reference and preserves all other positions (9.5s)
+  ✓    94 [desktop] › tests/lexicon.spec.cjs:465:1 › workspace tabs retain occurrence page filters and expansion without hidden analysis requests (5.8s)
+  ✓    95 [desktop] › tests/lexicon.spec.cjs:476:1 › review tabs B2 retained linked dictionary remount and late ready keep explicit workspace-tab focus (4.3s)
+  ✓    96 [desktop] › tests/lexicon.spec.cjs:479:46 › review tabs V2 preview Open in new tab uses supplied verse without picker and retains source layout (4.1s)
+  ✓    97 [desktop] › tests/lexicon.spec.cjs:479:46 › review tabs V2 occurrence Open in new tab uses supplied verse without picker and retains source layout (4.7s)
+  ✓    98 [desktop] › tests/lexicon.spec.cjs:482:1 › review tabs E2 live POP retains unchanged word filters while changed references invalidate origin (6.3s)
+  ✓   100 [desktop] › tests/personal-notes.spec.cjs:159:1 › failed saves use inline Retry and exit-only Stay / Close anyway (5.9s)
+  ✓    99 [desktop] › tests/personal-notes.spec.cjs:143:1 › explicitly enroll, create, write Hebrew and reopen saved text after reload (8.5s)
+  ✓   101 [desktop] › tests/personal-notes.spec.cjs:163:1 › delayed old acknowledgement cannot mark newer text saved (6.2s)
+  -   105 [desktop] › tests/personal-notes.spec.cjs:175:1 › native PostgreSQL browser reload returns the acknowledged aggregate
+  ✓   102 [desktop] › tests/personal-notes.spec.cjs:169:59 › account replacement discards prior private UI and late saves (current) (6.1s)
+  ✓   103 [desktop] › tests/personal-notes.spec.cjs:166:1 › composition defers autosave until IME completion (6.4s)
+  ✓   104 [desktop] › tests/personal-notes.spec.cjs:169:59 › account replacement discards prior private UI and late saves (other-account) (6.2s)
+  ✓   107 [desktop] › tests/personal-notes.spec.cjs:189:1 › revision conflict preserves input and guards study switching (5.6s)
+  ✓   106 [desktop] › tests/personal-notes.spec.cjs:186:1 › unknown response blocks newer snapshots and recovers the original operation (6.7s)
+  ✓   108 [desktop] › tests/personal-notes.spec.cjs:192:1 › same-account reauthentication preserves input and requires explicit retry (5.5s)
+  ✓   109 [desktop] › tests/personal-notes.spec.cjs:197:1 › rich paragraphs directions lists marks and safe links survive saving and reopening (7.0s)
+  ✓   111 [desktop] › tests/personal-notes.spec.cjs:207:1 › word inspection and Notes return retain the shared edit lane (5.4s)
+  ✓   112 [desktop] › tests/personal-notes.spec.cjs:210:1 › unsupported current editor input stays unsaved and exit guarded until corrected (5.6s)
+  ✓   113 [desktop] › tests/personal-notes.spec.cjs:213:49 › account replacement clears local study title input (3.4s)
+  ✓   115 [desktop] › tests/personal-notes.spec.cjs:217:1 › review: rejected study title can be corrected without replaying invalid payload (3.4s)
+  ✓   114 [desktop] › tests/personal-notes.spec.cjs:213:49 › account replacement clears local link URL input (4.5s)
+  ✓   110 [desktop] › tests/personal-notes.spec.cjs:201:1 › editor toolbar actions persist direction marks lists and safe links (12.7s)
+  ✓   117 [desktop] › tests/personal-notes.spec.cjs:231:1 › review: IME exit prompts responsively and Stay retains composing input (6.3s)
+  ✓   119 [desktop] › tests/personal-notes.spec.cjs:237:1 › review: invalid DNS link remains correctable without changing note text (4.9s)
+  ✓   118 [desktop] › tests/personal-notes.spec.cjs:234:1 › review: Shift Enter soft break survives save and reload (7.9s)
+  ✓   120 [desktop] › tests/personal-notes.spec.cjs:253:1 › review: superseded study and note responses cannot replace newer navigation (3.3s)
+  ✓   121 [desktop] › tests/personal-notes.spec.cjs:258:1 › review: More notes deduplicates its page and ignores a changed study parent (3.7s)
+  ✓   123 [desktop] › tests/personal-notes.spec.cjs:266:1 › review: unknown study create preserves original operation and frozen title (2.9s)
+  ✓   122 [desktop] › tests/personal-notes.spec.cjs:263:1 › review: note changes reset link range URL form and direction control (5.1s)
+  ✓   125 [desktop] › tests/personal-notes.spec.cjs:279:1 › rename: conflict retains candidate and current reload requires new explicit Save (4.9s)
+  ✓   126 [desktop] › tests/personal-notes.spec.cjs:282:1 › rename: unknown outcome survives closing and retries frozen original without overtaking (4.8s)
+  ✓   124 [desktop] › tests/personal-notes.spec.cjs:272:1 › rename: explicit Save Cancel and reload preserve independent note and reader (8.3s)
+  ✓   127 [desktop] › tests/personal-notes.spec.cjs:285:1 › rename: invalid input is editable and corrected with a new operation (4.4s)
+  ✓   128 [desktop] › tests/personal-notes.spec.cjs:288:1 › rename: closing executing title keeps operation and stale acknowledgement reads current metadata (4.6s)
+  ✓   129 [desktop] › tests/personal-notes.spec.cjs:292:1 › rename: navigation and account replacement reject late private responses (4.8s)
+  ✓   130 [desktop] › tests/personal-notes.spec.cjs:297:1 › rename: account replacement during executing command rejects its late reply (4.3s)
+  ✓   131 [desktop] › tests/personal-notes.spec.cjs:301:31 › rename: 401 hides private state and preserves public reading (4.7s)
+  ✘   116 [desktop] › tests/personal-notes.spec.cjs:222:1 › review: reopening a conflicting lane preserves mine until explicit latest replacement (30.1s)
+  ✓   132 [desktop] › tests/personal-notes.spec.cjs:301:31 › rename: 403 hides private state and preserves public reading (4.2s)
+(node:1100003) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   133 [desktop] › tests/personal-notes.spec.cjs:306:50 › rename: late begin metadata cannot reopen a departed title editor (4.3s)
+  ✓   134 [desktop] › tests/personal-notes.spec.cjs:306:50 › rename: late conflict reload metadata cannot reopen a departed title editor (4.9s)
+  ✓   135 [desktop] › tests/personal-notes.spec.cjs:319:1 › rename patch: opening a note during rename still reconciles its study heading (4.7s)
+  ✓   137 [desktop] › tests/personal-notes.spec.cjs:322:1 › rename patch: confirmed PUT retries only a failed metadata read (4.7s)
+  ✓   136 [desktop] › tests/personal-notes.spec.cjs:313:1 › rename: failed dirty note lane remains independent and recoverable (6.6s)
+  ✓   138 [desktop] › tests/personal-notes.spec.cjs:325:1 › rename patch: two hundred supplementary scalars remain intact and focus returns (5.7s)
+  ✓   139 [desktop] › tests/personal-notes.spec.cjs:328:1 › rename patch: reversed conflict reloads keep newest base revision (5.5s)
+  ✓   140 [desktop] › tests/personal-notes.spec.cjs:331:31 › rename patch: late reload 401 after departure does not revoke current context (5.0s)
+  ✓   141 [desktop] › tests/personal-notes.spec.cjs:331:31 › rename patch: late reload 403 after departure does not revoke current context (5.4s)
+  ✓   143 [desktop] › tests/personal-notes.spec.cjs:337:44 › rename patch: beforeunload warns for executing title operation (4.6s)
+  ✓   142 [desktop] › tests/personal-notes.spec.cjs:334:1 › rename patch: delayed old library keeps newer renamed metadata (5.4s)
+  ✓   144 [desktop] › tests/personal-notes.spec.cjs:337:44 › rename patch: beforeunload warns for unknown title operation (4.9s)
+  ✓   145 [desktop] › tests/personal-notes.spec.cjs:340:1 › rename patch: slow begin shows loading and prevents duplicate start (5.7s)
+  ✓   147 [desktop] › tests/personal-notes.spec.cjs:347:1 › rename patch: opening a note during initial read releases loading without reopening title (6.8s)
+  ✓   146 [desktop] › tests/personal-notes.spec.cjs:343:1 › rename patch: overlapping same-study metadata cannot lower heading revision (7.3s)
+  ✓   148 [desktop] › tests/personal-notes.spec.cjs:351:1 › collected passage keeps dirty writing and opens only explicitly (8.4s)
+  ✓   151 [desktop] › tests/personal-notes.spec.cjs:385:1 › collected passages conflict keeps candidate and requires current-list review and explicit new action (5.7s)
+  ✓   150 [desktop] › tests/personal-notes.spec.cjs:377:1 › collected picker cancels restores focus rejects bad numbering and clears range on another chapter (7.3s)
+  ✓   153 [desktop] › tests/personal-notes.spec.cjs:397:1 › collected acknowledged success retries only current read after refresh failure (3.6s)
+  ✓   154 [desktop] › tests/personal-notes.spec.cjs:402:1 › collected late account response cannot repopulate another account (3.6s)
+  ✓   149 [desktop] › tests/personal-notes.spec.cjs:367:1 › collected passages persist chapters Hebrew ranges overlap and duplicate IDs without navigation (13.7s)
+  ✓   155 [desktop] › tests/personal-notes.spec.cjs:407:35 › collected current access or lifecycle refusal 401 keeps public reader usable (3.5s)
+  ✓   156 [desktop] › tests/personal-notes.spec.cjs:407:35 › collected current access or lifecycle refusal 403 keeps public reader usable (3.5s)
+  ✓   157 [desktop] › tests/personal-notes.spec.cjs:407:35 › collected current access or lifecycle refusal 404 keeps public reader usable (3.5s)
+  ✓   158 [desktop] › tests/personal-notes.spec.cjs:411:1 › collected reference parser Python and browser accept the same canonical examples (2.3s)
+  ✓   159 [desktop] › tests/personal-notes.spec.cjs:416:31 › collected late initial read 401 after study departure cannot revoke current context (3.2s)
+  ✓   160 [desktop] › tests/personal-notes.spec.cjs:416:31 › collected late initial read 403 after study departure cannot revoke current context (3.2s)
+  ✓   161 [desktop] › tests/personal-notes.spec.cjs:422:1 › collected obsolete initial read cannot change executing lane status (4.3s)
+  ✓   162 [desktop] › tests/personal-notes.spec.cjs:426:1 › collected server input rejection keeps editable candidate and correction uses fresh operation (3.8s)
+  ✓   164 [desktop] › tests/personal-notes.spec.cjs:434:1 › collected supported source outage retains reference and offers truthful chapter Retry (3.4s)
+  ✓   165 [desktop] › tests/personal-notes.spec.cjs:439:1 › passage review parser rejects numeric Hebrew punctuation with Python browser parity (2.0s)
+  ✓   163 [desktop] › tests/personal-notes.spec.cjs:430:1 › collected matching chapter confirms complete range and explicit Open preserves dirty note and other pane (6.4s)
+  ✓   167 [desktop] › tests/personal-notes.spec.cjs:445:280 › passage review malformed current coordinates stay uncollectable chapter=bad (3.1s)
+  ✓   166 [desktop] › tests/personal-notes.spec.cjs:445:280 › passage review malformed current coordinates stay uncollectable chapter=0 (3.3s)
+  ✓   168 [desktop] › tests/personal-notes.spec.cjs:445:280 › passage review malformed current coordinates stay uncollectable chapter=1.5 (3.3s)
+  ✓   169 [desktop] › tests/personal-notes.spec.cjs:445:280 › passage review malformed current coordinates stay uncollectable chapter=51 (3.3s)
+  ✓   170 [desktop] › tests/personal-notes.spec.cjs:445:280 › passage review malformed current coordinates stay uncollectable verse=0 (3.4s)
+  ✓   171 [desktop] › tests/personal-notes.spec.cjs:445:280 › passage review malformed current coordinates stay uncollectable verse=bad (3.1s)
+  ✘   152 [desktop] › tests/personal-notes.spec.cjs:391:1 › collected uncertain operation freezes its snapshot and retries original identity (30.1s)
+  ✓   172 [desktop] › tests/personal-notes.spec.cjs:445:280 › passage review malformed current coordinates stay uncollectable verse=32 (3.3s)
+  ✓   173 [desktop] › tests/personal-notes.spec.cjs:445:280 › passage review malformed current coordinates stay uncollectable verse=1&EndChapter=0 (3.4s)
+  ✓   174 [desktop] › tests/personal-notes.spec.cjs:445:280 › passage review malformed current coordinates stay uncollectable verse=1&EndChapter=bad (3.5s)
+(node:1102679) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   175 [desktop] › tests/personal-notes.spec.cjs:445:280 › passage review malformed current coordinates stay uncollectable verse=1&EndVerse=0 (3.7s)
+  ✓   176 [desktop] › tests/personal-notes.spec.cjs:445:280 › passage review malformed current coordinates stay uncollectable verse=1&EndVerse=bad (3.8s)
+  ✓   177 [desktop] › tests/personal-notes.spec.cjs:445:280 › passage review malformed current coordinates stay uncollectable verse=1&EndVerse=32 (3.8s)
+  ✓   178 [desktop] › tests/personal-notes.spec.cjs:445:280 › passage review malformed current coordinates stay uncollectable verse=1&EndChapter=51 (3.9s)
+  ✓   179 [desktop] › tests/personal-notes.spec.cjs:445:280 › passage review malformed current coordinates stay uncollectable EndVerse=2 (3.6s)
+  ✓   180 [desktop] › tests/personal-notes.spec.cjs:445:280 › passage review malformed current coordinates stay uncollectable verse=2&EndVerse=1 (3.7s)
+  ✓   181 [desktop] › tests/personal-notes.spec.cjs:448:116 › passage review absent endpoints alone may default chapter=1&verse=2 (4.0s)
+  ✓   182 [desktop] › tests/personal-notes.spec.cjs:448:116 › passage review absent endpoints alone may default chapter=1&verse=2&EndChapter=1 (4.2s)
+  ✓   184 [desktop] › tests/personal-notes.spec.cjs:448:116 › passage review absent endpoints alone may default verse=2 (4.2s)
+  ✓   183 [desktop] › tests/personal-notes.spec.cjs:448:116 › passage review absent endpoints alone may default chapter=1&verse=2&EndVerse=3 (5.4s)
+  ✓   185 [desktop] › tests/personal-notes.spec.cjs:452:1 › passage review Stay retains pending initial collection read (6.8s)
+  ✓   186 [desktop] › tests/personal-notes.spec.cjs:456:1 › passage review remove conflict identifies original reference after concurrent deletion (6.1s)
+  ✓   187 [desktop] › tests/personal-notes.spec.cjs:460:45 › passage review dismissed executing picker never steals focus (6.6s)
+  ✓   188 [desktop] › tests/personal-notes.spec.cjs:460:45 › passage review dismissed executing picker never steals reopen (6.3s)
+  ✓   190 [desktop] › tests/personal-notes.spec.cjs:476:126 › note links: canonical insertion תהילים קי:1 preserves current reader and note (6.0s)
+  ✓   189 [desktop] › tests/personal-notes.spec.cjs:468:1 › note links: insert at caret retains writing and format2 after final deletion (7.4s)
+  ✓   191 [desktop] › tests/personal-notes.spec.cjs:476:126 › note links: canonical insertion Genesis 2 preserves current reader and note (6.0s)
+  ✓   192 [desktop] › tests/personal-notes.spec.cjs:476:126 › note links: canonical insertion Matthew26:63–64 preserves current reader and note (5.9s)
+  ✓   194 [desktop] › tests/personal-notes.spec.cjs:485:1 › note links: edit click offers Open read click navigates active pane with full range and same lane (6.9s)
+  ✓   193 [desktop] › tests/personal-notes.spec.cjs:479:1 › note links: cancel invalid IME and stale input preserve writing and useful reference input (7.9s)
+  ✓   196 [desktop] › tests/personal-notes.spec.cjs:494:1 › note links: corrupt and foreign atoms stay unsaved and cannot switch to stale reading (7.3s)
+  ✓   197 [desktop] › tests/personal-notes.spec.cjs:497:1 › note links: terminal format refusal pauses saves and retains whole local note (5.4s)
+  ✓   195 [desktop] › tests/personal-notes.spec.cjs:488:1 › note links: links source marks lists direction plain paste and reload roundtrip (11.3s)
+  ✓   198 [desktop] › tests/personal-notes.spec.cjs:501:1 › note links: keyboard edit offers Open and keyboard read opens range in active pane only (6.3s)
+  ✓   199 [desktop] › tests/personal-notes.spec.cjs:504:1 › note links: unknown original operation and delayed acknowledgement preserve coherent newer value in Read (6.6s)
+  ✓   200 [desktop] › tests/personal-notes.spec.cjs:507:41 › note links: Backspace removes atomic inline and retains version2 (4.9s)
+  ✓   201 [desktop] › tests/personal-notes.spec.cjs:507:41 › note links: Delete removes atomic inline and retains version2 (5.6s)
+  ✓   202 [desktop] › tests/personal-notes.spec.cjs:510:1 › note links: account replacement clears picker and pending insertion without leaking prior writing (4.9s)
+  ✓   203 [desktop] › tests/personal-notes.spec.cjs:513:1 › note links: note switch cancels picker without inserting into replacement note (6.4s)
+  ✓   204 [desktop] › tests/personal-notes.spec.cjs:518:32 › note links: insertion inside source at 0 preserves source text marks and URL (7.5s)
+  ✓   205 [desktop] › tests/personal-notes.spec.cjs:518:32 › note links: insertion inside source at 6 preserves source text marks and URL (6.9s)
+  ✓   206 [desktop] › tests/personal-notes.spec.cjs:518:32 › note links: insertion inside source at 14 preserves source text marks and URL (6.6s)
+  ✓   207 [desktop] › tests/personal-notes.spec.cjs:521:1 › note links: caret inside an existing atom resolves after it without corrupting its label (5.6s)
+  ✓   208 [desktop] › tests/personal-notes.spec.cjs:524:1 › note links: Read Edit restores caret and keeps ordinary notes in format1 (4.9s)
+  ✓   210 [desktop] › tests/personal-notes.spec.cjs:531:1 › note links patch: deliberate external focus is retained when picker closes (4.4s)
+  ✓   209 [desktop] › tests/personal-notes.spec.cjs:528:1 › note links patch: direction after atomic insertion targets the actual paragraph (5.7s)
+  ✓   211 [desktop] › tests/personal-notes.spec.cjs:534:1 › note links patch: atomic label isolates direction inside opposite-direction text (5.4s)
+  ✓   212 [desktop] › tests/personal-notes.spec.cjs:537:1 › note links patch: queued insertion does not steal a deliberately changed focus (6.1s)
+  ✓   213 [desktop] › tests/personal-notes.spec.cjs:540:1 › note links patch: Read hides source-link form and Edit restores its candidate without writing (7.4s)
+  ✓   214 [desktop] › tests/personal-notes.spec.cjs:544:37 › note links review: native insertion Undo Redo preserves writing and source at null (9.5s)
+  ✓   215 [desktop] › tests/personal-notes.spec.cjs:544:37 › note links review: native insertion Undo Redo preserves writing and source at 0 (9.3s)
+  ✓   216 [desktop] › tests/personal-notes.spec.cjs:544:37 › note links review: native insertion Undo Redo preserves writing and source at 6 (8.9s)
+  ✓   218 [desktop] › tests/personal-notes.spec.cjs:547:1 › note links review: no-caret insertion follows trailing DIV and loose text (4.6s)
+  ✓   217 [desktop] › tests/personal-notes.spec.cjs:544:37 › note links review: native insertion Undo Redo preserves writing and source at 14 (9.7s)
+  ✓   219 [desktop] › tests/personal-notes.spec.cjs:550:1 › note links review: interrupted composition replacement accepts insertion only in new lane (5.3s)
+  ✓   220 [desktop] › tests/personal-notes.spec.cjs:553:1 › note links review: source link refuses selection containing owned atom before mutation (5.7s)
+  ✓   221 [desktop] › tests/personal-notes.spec.cjs:556:1 › note links review: inline boundary refuses insertion without changing writing or closing candidate (5.5s)
+  ✓   222 [desktop] › tests/personal-notes.spec.cjs:559:1 › note links review: retained reference reopens at its candidate book and rejection is accessible (5.6s)
+  ✓   223 [desktop] › tests/personal-notes.spec.cjs:562:70 › note links review: Bold across an owned atom survives save reload (10.9s)
+  ✓   224 [desktop] › tests/personal-notes.spec.cjs:562:70 › note links review: Italic across an owned atom survives save reload (12.7s)
+  ✓   225 [desktop] › tests/personal-notes.spec.cjs:562:70 › note links review: Bullet list across an owned atom survives save reload (12.2s)
+  ✓   226 [desktop] › tests/personal-notes.spec.cjs:562:70 › note links review: Numbered list across an owned atom survives save reload (10.9s)
+  ✓   227 [desktop] › tests/personal-notes.spec.cjs:565:1 › note links review: passage-only saved Notes preview reopens with plain reference label (6.9s)
+  ✓   228 [desktop] › tests/personal-notes.spec.cjs:568:1 › note links review: noncanonical stored Unicode HTML-looking label stays plain and exact (7.0s)
+  ✓   229 [desktop] › tests/personal-notes.spec.cjs:571:1 › note links review: ordinary copied metadata never acquires native-history ownership (8.1s)
+  ✓   230 [desktop] › tests/personal-notes.spec.cjs:574:47 › note links review: paste at final atom uses editable caret boundary (7.8s)
+  ✓   231 [desktop] › tests/personal-notes.spec.cjs:574:47 › note links review: keyless input at final atom uses editable caret boundary (6.1s)
+  ✓   232 [desktop] › tests/personal-notes.spec.cjs:578:100 › note links deletion: Backspace on empty removes one owned atom and native Undo Redo retains version2 (7.4s)
+  ✓   233 [desktop] › tests/personal-notes.spec.cjs:578:100 › note links deletion: Delete on empty removes one owned atom and native Undo Redo retains version2 (7.4s)
+  ✓   234 [desktop] › tests/personal-notes.spec.cjs:578:100 › note links deletion: beforeinput backward on empty removes one owned atom and native Undo Redo retains version2 (7.8s)
+  ✓   235 [desktop] › tests/personal-notes.spec.cjs:578:100 › note links deletion: Backspace on Keep removes one owned atom and native Undo Redo retains version2 (8.4s)
+  ✓   238 [desktop] › tests/personal-notes.spec.cjs:583:1 › library search finds saved results beyond the first page and returns at loaded depth (3.5s)
+  ✓   236 [desktop] › tests/personal-notes.spec.cjs:578:100 › note links deletion: Delete on Keep removes one owned atom and native Undo Redo retains version2 (6.3s)
+  ✓   239 [desktop] › tests/personal-notes.spec.cjs:607:1 › library search candidate Enter Clear and literal Unicode terms stay in read bodies (3.6s)
+  ✓   237 [desktop] › tests/personal-notes.spec.cjs:578:100 › note links deletion: beforeinput backward on Keep removes one owned atom and native Undo Redo retains version2 (7.0s)
+  ✓   240 [desktop] › tests/personal-notes.spec.cjs:621:40 › library search ignores late old-query success and loading finalizers (3.1s)
+  ✓   241 [desktop] › tests/personal-notes.spec.cjs:621:40 › library search ignores late old-query denial and loading finalizers (3.2s)
+  ✓   242 [desktop] › tests/personal-notes.spec.cjs:632:1 › library search hides unavailable pages retries applied input and clears on denial (3.9s)
+  ✓   243 [desktop] › tests/personal-notes.spec.cjs:640:1 › library search deduplicates More and rejects a late page after query change (3.7s)
+  ✓   244 [desktop] › tests/personal-notes.spec.cjs:646:1 › library search restores multi-page scroll and stable result focus after refreshed return (4.6s)
+  ✓   245 [desktop] › tests/personal-notes.spec.cjs:652:1 › library search account replacement clears candidates pages and rejects late denial (4.1s)
+  ✓   246 [desktop] › tests/personal-notes.spec.cjs:659:1 › library search old completion cannot stop current loading (3.4s)
+  ✓   248 [desktop] › tests/personal-notes.spec.cjs:668:1 › library search authentication failure stops loading and successful same-account retry clears sign-in error (4.2s)
+  ✓   249 [desktop] › tests/personal-notes.spec.cjs:674:1 › library search invalid input retains editable candidate and corrected Enter recovers (4.0s)
+  ✓   250 [desktop] › tests/personal-notes.spec.cjs:679:1 › library review: composing Enter and submit preserve candidate until normal Enter (4.2s)
+  ✓   247 [desktop] › tests/personal-notes.spec.cjs:664:1 › library search preserves unacknowledged note input and reader position in its independent lane (7.7s)
+  ✓   252 [desktop] › tests/personal-notes.spec.cjs:687:1 › library review: More completion leaves newly focused search input alone (4.7s)
+  ✓   251 [desktop] › tests/personal-notes.spec.cjs:683:1 › library review: masked candidate refuses editing and restores exact private input (5.1s)
+  ✓   253 [desktop] › tests/personal-notes.spec.cjs:691:1 › library review: delayed hidden refresh leaves Analysis focus and shared scroll untouched (6.8s)
+  ✓   254 [desktop] › tests/personal-notes.spec.cjs:695:1 › library review: input error association and query-free completed results announcement (5.3s)
+  ✓   255 [desktop] › tests/personal-notes.spec.cjs:699:1 › library review: stale old-token401 cannot remask restored same-account search (4.7s)
+  ✓   256 [desktop] › tests/personal-notes.spec.cjs:705:1 › library review: queued layout-collapse scroll preserves saved return anchor (5.2s)
+  ✓   257 [desktop] › tests/personal-notes.spec.cjs:711:1 › library review: winning pending selection preserves latest return focus (4.1s)
+  ✓   258 [desktop] › tests/personal-notes.spec.cjs:715:1 › library review: superseded queued refresh frame cannot restore into a newer query (4.7s)
+  ✓   259 [desktop] › tests/personal-notes.spec.cjs:721:1 › library review: newer search supersedes an unfinished result selection (4.1s)
+  ✓   260 [desktop] › tests/personal-notes.spec.cjs:725:1 › note deletion requires safe-focused confirmation and cancel preserves dirty writing (5.9s)
+  ✓   261 [desktop] › tests/personal-notes.spec.cjs:737:1 › confirmed dirty note deletion erases just the target without saving unsent writing (5.3s)
+  ✓   262 [desktop] › tests/personal-notes.spec.cjs:747:1 › unknown delete retains frozen writing and explicitly retries the original operation (6.0s)
+  ✓   263 [desktop] › tests/personal-notes.spec.cjs:758:1 › deletion waits for executing save and uses its confirmed revision (5.5s)
+  ✓   264 [desktop] › tests/personal-notes.spec.cjs:766:1 › delete conflict preserves writing and requires review and a fresh explicit confirmation (5.0s)
+  ✓   265 [desktop] › tests/personal-notes.spec.cjs:774:1 › unknown previous save must recover before separately confirmed deletion (5.8s)
+  ✓   266 [desktop] › tests/personal-notes.spec.cjs:782:40 › note deletion account replacement rejects late success (4.7s)
+  ✓   267 [desktop] › tests/personal-notes.spec.cjs:782:40 › note deletion account replacement rejects late denial (4.6s)
+  ✓   268 [desktop] › tests/personal-notes.spec.cjs:790:1 › note deletion navigation preserves an unknown operation and suppresses fresh saves (6.3s)
+  ✓   269 [desktop] › tests/personal-notes.spec.cjs:803:1 › note deletion captured target does not evict a different selected note after navigation (5.4s)
+  ✓   270 [desktop] › tests/personal-notes.spec.cjs:813:1 › note deletion after a definitive prior-save conflict reviews current revision and clears only failed save identity (6.4s)
+  ✓   271 [desktop] › tests/personal-notes.spec.cjs:819:1 › note deletion composing cancel preserves final composition through saving and reopen (7.8s)
+  ✓   273 [desktop] › tests/personal-notes.spec.cjs:834:1 › note deletion filters a stale notes page arriving after committed acknowledgement (4.8s)
+  ✓   274 [desktop] › tests/personal-notes.spec.cjs:842:1 › note deletion lost reply resolves through read-only original outcome lookup (4.2s)
+  ✓   275 [desktop] › tests/personal-notes.spec.cjs:846:1 › note deletion same-account authority recovery never automatically repeats deletion (4.6s)
+  ✓   272 [desktop] › tests/personal-notes.spec.cjs:827:1 › note deletion bounded preparation keeps unresolved save and requires original recovery (10.4s)
+  ✓   277 [desktop] › tests/personal-notes.spec.cjs:852:39 › note deletion review Cancel does not authorize stale autosave after delete conflict (4.9s)
+  ✓   276 [desktop] › tests/personal-notes.spec.cjs:852:39 › note deletion review Cancel does not authorize stale autosave after save conflict (5.7s)
+  ✓   278 [desktop] › tests/personal-notes.spec.cjs:861:1 › deletion review excludes overlapping same-target requests and keeps one confirmed revision (4.5s)
+  ✓   279 [desktop] › tests/personal-notes.spec.cjs:869:1 › deletion review shows list semantics formatting external destinations and canonical passage targets (5.1s)
+  ✓   281 [desktop] › tests/personal-notes.spec.cjs:888:1 › deletion selected target acknowledgement focuses visible fallback when editor is hidden (5.6s)
+  ✓   280 [desktop] › tests/personal-notes.spec.cjs:877:1 › deletion recovery labels distinguish two retained targets and recover their own operations (7.5s)
+  ✓   282 [desktop] › tests/personal-notes.spec.cjs:893:1 › deletion review wraps the full long valid destination within desktop and mobile dialog width (5.1s)
+  ✓   283 [desktop] › tests/personal-notes.spec.cjs:900:82 › deletion acknowledgement preserves deliberate focus on reader after tools close (4.6s)
+  ✓   284 [desktop] › tests/personal-notes.spec.cjs:900:82 › deletion acknowledgement preserves deliberate focus on surviving public control (4.1s)
+  ✓   286 [desktop] › tests/personal-notes.spec.cjs:922:1 › whole-study deletion discards dirty writing only after acknowledgement without save (3.9s)
+  ✓   285 [desktop] › tests/personal-notes.spec.cjs:908:1 › whole-study deletion confirms captured owned scope and Cancel preserves unsent writing (5.6s)
+  ✓   288 [desktop] › tests/personal-notes.spec.cjs:930:32 › whole-study deletion unknown retry retains original payload across navigation (4.1s)
+  ✓   287 [desktop] › tests/personal-notes.spec.cjs:926:1 › whole-study deletion composing Cancel preserves final IME and resumes original save policy (5.2s)
+  ✓   289 [desktop] › tests/personal-notes.spec.cjs:930:32 › whole-study deletion lost reply resolves original receipt (3.0s)
+  ✓   290 [desktop] › tests/personal-notes.spec.cjs:936:1 › whole-study deletion current metadata conflict requires review and fresh explicit confirmation (4.0s)
+  ✓   292 [desktop] › tests/personal-notes.spec.cjs:940:77 › whole-study deletion prepares executing title before separate confirmation (4.3s)
+  ✓   291 [desktop] › tests/personal-notes.spec.cjs:940:77 › whole-study deletion prepares executing save before separate confirmation (4.8s)
+  ✓   293 [desktop] › tests/personal-notes.spec.cjs:940:77 › whole-study deletion prepares executing collection before separate confirmation (4.5s)
+  ✓   294 [desktop] › tests/personal-notes.spec.cjs:940:77 › whole-study deletion prepares executing child deletion before separate confirmation (4.1s)
+  ✓   295 [desktop] › tests/personal-notes.spec.cjs:940:77 › whole-study deletion prepares executing creation before separate confirmation (4.0s)
+  ✓   297 [desktop] › tests/personal-notes.spec.cjs:958:1 › whole-study deletion executing and unknown freeze visible editing and formatting after Close (3.9s)
+  ✓   296 [desktop] › tests/personal-notes.spec.cjs:954:1 › whole-study deletion bounds preparation and requires original save recovery first (5.4s)
+  ✓   298 [desktop] › tests/personal-notes.spec.cjs:962:1 › whole-study deletion definitive original save conflict leaves recovery and needs new explicit confirmation (5.0s)
+  ✓   299 [desktop] › tests/personal-notes.spec.cjs:966:1 › whole-study deletion preparation has one five-second total wait for an executing save (3.8s)
+  ✓   300 [desktop] › tests/personal-notes.spec.cjs:974:29 › whole-study deletion current 401 masks private attempts without auto replay (4.0s)
+  ✓   301 [desktop] › tests/personal-notes.spec.cjs:974:29 › whole-study deletion current 403 masks private attempts without auto replay (4.2s)
+  ✓   302 [desktop] › tests/personal-notes.spec.cjs:978:41 › whole-study deletion account replacement rejects late success (4.2s)
+  ✓   303 [desktop] › tests/personal-notes.spec.cjs:978:41 › whole-study deletion account replacement rejects late denial (4.5s)
+  ✓   304 [desktop] › tests/personal-notes.spec.cjs:982:1 › whole-study deletion acknowledgement preserves deliberate surviving public focus (4.6s)
+  ✓   305 [desktop] › tests/personal-notes.spec.cjs:986:40 › whole-study deletion rejects late collection read success after acknowledgement (4.6s)
+  ✓   306 [desktop] › tests/personal-notes.spec.cjs:986:40 › whole-study deletion rejects late collection read denial after acknowledgement (4.8s)
+  ✓   308 [desktop] › tests/personal-notes.spec.cjs:1000:1 › whole-study deletion long title remains readable within desktop and mobile confirmation (3.9s)
+  ✓   307 [desktop] › tests/personal-notes.spec.cjs:992:1 › whole-study deletion captured target acknowledgement preserves another selected study and writing (5.3s)
+  ✓   309 [desktop] › tests/personal-notes.spec.cjs:1004:1 › whole-study deletion known creation acknowledgement survives failed follow-up read without extra command (4.5s)
+  ✓   310 [desktop] › tests/personal-notes.spec.cjs:1010:1 › study deletion review recovery has one deadline and ignores late original-save outcomes (5.0s)
+  ✓   311 [desktop] › tests/personal-notes.spec.cjs:1019:101 › study deletion review classifies original child deletion note_revision_conflict (4.8s)
+  ✓   312 [desktop] › tests/personal-notes.spec.cjs:1019:101 › study deletion review classifies original child deletion operation_payload_mismatch (5.0s)
+  ✓   313 [desktop] › tests/personal-notes.spec.cjs:1019:101 › study deletion review classifies original child deletion resource_unavailable (4.4s)
+  ✓   314 [desktop] › tests/personal-notes.spec.cjs:1023:1 › study deletion review recovered save updates saved preview and preserves newer composing input on Cancel (4.7s)
+  ✓   316 [desktop] › tests/personal-notes.spec.cjs:1031:1 › study deletion review metadata shares the original simultaneous-lane preparation deadline (4.9s)
+  ✓   315 [desktop] › tests/personal-notes.spec.cjs:1027:1 › study deletion review simultaneous save and collection must both settle before confirmation (6.0s)
+  ✓   317 [desktop] › tests/personal-notes.spec.cjs:1039:1 › study deletion review explicit reopening after same-user authentication restarts interrupted preparation (5.4s)
+  ✓   318 [desktop] › tests/personal-notes.spec.cjs:1043:57 › study deletion review original creation unknown keeps or retires its paired identity (4.5s)
+  ✓   319 [desktop] › tests/personal-notes.spec.cjs:1043:57 › study deletion review original creation resource_unavailable keeps or retires its paired identity (4.5s)
+  ✓   320 [desktop] › tests/personal-notes.spec.cjs:1051:1 › study deletion review recovered creation is visible after Cancel and next creations use fresh commands (5.2s)
+  ✓   321 [desktop] › tests/personal-notes.spec.cjs:1059:49 › four-pane layout retains the same composing editor and owned passage atoms through add close and replay (selection) (8.4s)
+  ✓   323 [desktop] › tests/personal-notes.spec.cjs:1148:1 › four-pane public transitions preserve an unknown original save operation (5.6s)
+  ✓   322 [desktop] › tests/personal-notes.spec.cjs:1059:49 › four-pane layout retains the same composing editor and owned passage atoms through add close and replay (caret) (7.8s)
+  ✓   324 [desktop] › tests/personal-notes.spec.cjs:1182:118 › review: malformed Add Cancel retains unresolved provenance across replay and refresh until valid choice ?book=Gen&chapter=bad&other=keep#reading (5.6s)
+  ✓   327 [desktop] › tests/personal-notes.spec.cjs:1322:1 › workspace tabs inherit note identity but retain independent tool and study contexts (5.5s)
+  ✓   325 [desktop] › tests/personal-notes.spec.cjs:1182:118 › review: malformed Add Cancel retains unresolved provenance across replay and refresh until valid choice ?reader=%7B%7D&book=Exod&other=keep#reading (7.2s)
+  ✓   328 [desktop] › tests/personal-notes.spec.cjs:1337:1 › workspace tabs retain distinct note DOM caret atoms and composition routing without cloning a shared lane (6.5s)
+  ✓   326 [desktop] › tests/personal-notes.spec.cjs:1273:1 › review: malformed capacity Add replacement Cancel still requires a valid passage choice (8.2s)
+  ✓   330 [desktop] › tests/personal-notes.spec.cjs:1368:1 › workspace tabs retain a closed-origin creation recovery item without hijacking the active tab (3.6s)
+  ✓   329 [desktop] › tests/personal-notes.spec.cjs:1354:1 › workspace tabs guard only the last live note context and reject changed-input consent (6.8s)
+  ✓   332 [desktop] › tests/personal-notes.spec.cjs:1392:1 › workspace tabs closed history never restores inherited private associations (5.3s)
+  ✓   333 [desktop] › tests/personal-notes.spec.cjs:1399:1 › workspace tabs mask all private labels during authentication loss and clear them on account replacement (6.4s)
+  ✓   334 [desktop] › tests/personal-notes.spec.cjs:1406:1 › workspace tabs last-context discard retains only the original unknown save for explicit recovery (5.6s)
+  ✓   335 [desktop] › tests/personal-notes.spec.cjs:1412:1 › workspace tabs direct Open in new tab retains a complete range with no picker and inherits only note identity (4.9s)
+  ✓   331 [desktop] › tests/personal-notes.spec.cjs:1376:1 › workspace tabs capacity replay guards the sole unresolved context and Stay cancels held restoration (13.6s)
+  ✓   338 [desktop] › tests/personal-notes.spec.cjs:1420:1 › workspace tabs inherited study outlines retain independent pagination cursors (3.7s)
+  ✓   336 [desktop] › tests/personal-notes.spec.cjs:1416:38 › workspace tabs confirmed note deletion clears every matching private association and retains public tabs (5.7s)
+  ✓   337 [desktop] › tests/personal-notes.spec.cjs:1416:38 › workspace tabs confirmed study deletion clears every matching private association and retains public tabs (6.0s)
+  ✓   341 [desktop] › tests/personal-notes.spec.cjs:1434:1 › workspace tabs libraries retain distinct applied queries and scroll when flags match (4.2s)
+  ✓   339 [desktop] › tests/personal-notes.spec.cjs:1424:1 › workspace tabs reject stale layout consent and clear open consent on account replacement (6.8s)
+  ✓   342 [desktop] › tests/personal-notes.spec.cjs:1438:1 › workspace tabs delayed creation retains known recovery when new last-context input prevents attachment (4.3s)
+  ✓   340 [desktop] › tests/personal-notes.spec.cjs:1430:1 › workspace tabs recheck last-context departure after a delayed replacement read without background focus (6.8s)
+  ✘   346 [desktop] › tests/personal-notes.spec.cjs:1459:77 › review tabs B10 closed-origin title 403 retains safe account recovery without tool or focus takeover (80ms)
+  ✘   344 [desktop] › tests/personal-notes.spec.cjs:1456:1 › review tabs B1 delayed denial clears labels renamed on newer inactive live tab records (1.2s)
+  ✘   343 [desktop] › tests/personal-notes.spec.cjs:1445:1 › workspace tabs retain malformed-origin URL and collection refusal after another tab navigates validly (2.4s)
+  ✘   345 [desktop] › tests/personal-notes.spec.cjs:1459:77 › review tabs B10 closed-origin title 401 retains safe account recovery without tool or focus takeover (515ms)
+
+
+  1) [desktop] › tests/personal-notes.spec.cjs:222:1 › review: reopening a conflicting lane preserves mine until explicit latest replacement 
+
+    Test timeout of 30000ms exceeded.
+
+    Error: locator.click: Test timeout of 30000ms exceeded.
+    Call log:
+      - waiting for getByRole('button', { name: 'Review latest', exact: true })
+
+
+      226 |  await page.getByRole('button',{name:'Back to Studies',exact:true}).click();await page.getByRole('button',{name:'Empty note',exact:true}).click();
+      227 |  await expect(editor).toContainText('My conflicting text');expect(reads).toBe(0);
+    > 228 |  await page.getByRole('button',{name:'Review latest',exact:true}).click();await expect(page.getByRole('region',{name:'Current saved note'})).toContainText('Latest from server');
+          |                                                                   ^
+      229 |  await expect(editor).toContainText('My conflicting text');await page.getByRole('button',{name:'Use latest',exact:true}).click();await expect(editor).toContainText('Latest from server');expect(reads).toBe(1);
+      230 | });
+      231 | test('review: IME exit prompts responsively and Stay retains composing input',async({page})=>{
+        at /home/ck/repos/innodat/agriplatform/apps/scribeswell/web/tests/personal-notes.spec.cjs:228:67
+
+    Error Context: test-results/personal-notes-review-reop-b9cb6-explicit-latest-replacement-desktop/error-context.md
+
+  2) [desktop] › tests/personal-notes.spec.cjs:391:1 › collected uncertain operation freezes its snapshot and retries original identity 
+
+    Test timeout of 30000ms exceeded.
+
+    Error: locator.click: Test timeout of 30000ms exceeded.
+    Call log:
+      - waiting for getByRole('button', { name: 'Studies', exact: true })
+
+
+      362 | });
+      363 |
+    > 364 | async function collectionStudy(page){await page.goto('/');await page.getByRole('button',{name:'Studies',exact:true}).click();await page.getByRole('button',{name:'Start a study',exact:true}).click();await page.getByRole('button',{name:'Create study',exact:true}).click();await expect(page.getByRole('button',{name:'Add passage',exact:true})).toBeEnabled();}
+          |                                                                                                                      ^
+      365 | async function addReference(page,text,label='Add passage'){await page.getByRole('button',{name:label,exact:true}).click();await page.getByLabel('Passage reference',{exact:true}).fill(text);await page.getByLabel('Passage reference',{exact:true}).press('Enter');}
+      366 |
+      367 | test('collected passages persist chapters Hebrew ranges overlap and duplicate IDs without navigation',async({page})=>{
+        at collectionStudy (/home/ck/repos/innodat/agriplatform/apps/scribeswell/web/tests/personal-notes.spec.cjs:364:118)
+        at /home/ck/repos/innodat/agriplatform/apps/scribeswell/web/tests/personal-notes.spec.cjs:392:106
+
+    Error Context: test-results/personal-notes-collected-u-54838-d-retries-original-identity-desktop/error-context.md
+
+  3) [desktop] › tests/personal-notes.spec.cjs:1445:1 › workspace tabs retain malformed-origin URL and collection refusal after another tab navigates validly 
+
+    Test was interrupted.
+
+    Error: locator.click: Test ended.
+    Call log:
+      - waiting for getByRole('button', { name: 'Start a study', exact: true })
+        - locator resolved to <button class="underline">Start a study</button>
+      - attempting click action
+        - waiting for element to be visible, enabled and stable
+
+
+      1445 | test('workspace tabs retain malformed-origin URL and collection refusal after another tab navigates validly',async({page})=>{
+      1446 |  await setup(page);const malformed='/?reader=%7B%7D&foreign=keep#reading';await page.goto(malformed);const original=page.url();await page.evaluate(()=>{const state=history.state;history.replaceState({...state,foreignOuter:'retained',usr:{...state.usr,foreignUser:'retained'}},'');});
+    > 1447 |  await page.getByRole('button',{name:'Studies',exact:true}).click();await page.getByRole('button',{name:'Start a study',exact:true}).click();await page.getByRole('button',{name:'Create study',exact:true}).click();await expect(page.getByRole('button',{name:'Add current passage',exact:true})).toHaveCount(0);
+           |                                                                                                                                      ^
+      1448 |  await page.getByRole('button',{name:'New workspace tab',exact:true}).click();await page.getByRole('dialog',{name:'Book and chapter selector'}).getByRole('textbox',{name:'Passage reference',exact:true}).fill('Genesis 2');await page.getByRole('dialog',{name:'Book and chapter selector'}).getByRole('textbox',{name:'Passage reference',exact:true}).press('Enter');await expect(page.getByText('Invalid reading link',{exact:true})).toHaveCount(0);expect(new URL(page.url()).searchParams.get('reader')).not.toBe('{}');
+      1449 |  await page.getByRole('tablist',{name:'Workspace tabs'}).getByRole('tab').first().click();expect(page.url()).toBe(original);await expect(page.getByText('Invalid reading link',{exact:true})).toBeVisible();await expect(page.getByRole('button',{name:'Add current passage',exact:true})).toHaveCount(0);await expect(page.getByRole('button',{name:'Add passage',exact:true})).toBeVisible();expect(await page.evaluate(()=>[history.state.foreignOuter,history.state.usr.foreignUser])).toEqual(['retained','retained']);
+      1450 |  if(page.viewportSize().width<768)await page.getByRole('button',{name:'Return to reader',exact:true}).click();await page.getByRole('button',{name:/Navigate:/}).first().click();await page.getByRole('textbox',{name:'Passage reference',exact:true}).fill('Genesis 1');await page.getByRole('textbox',{name:'Passage reference',exact:true}).press('Enter');await expect(page.getByText('Invalid reading link',{exact:true})).toHaveCount(0);if(await page.getByRole('button',{name:'Studies',exact:true}).getAttribute('aria-pressed')!=='true')await page.getByRole('button',{name:'Studies',exact:true}).click();await expect(page.getByRole('button',{name:'Add current passage',exact:true})).toBeVisible();
+        at /home/ck/repos/innodat/agriplatform/apps/scribeswell/web/tests/personal-notes.spec.cjs:1447:134
+
+    Error Context: test-results/personal-notes-workspace-t-face8-other-tab-navigates-validly-desktop/error-context.md
+
+  4) [desktop] › tests/personal-notes.spec.cjs:1456:1 › review tabs B1 delayed denial clears labels renamed on newer inactive live tab records 
+
+    Test was interrupted.
+
+    Error: page.goto: Test ended.
+    Call log:
+      - navigating to "http://127.0.0.1:5182/", waiting until "load"
+
+
+      156 | });
+      157 |
+    > 158 | async function firstNote(page){await page.goto('/');await expect(page.getByRole('tablist',{name:'Workspace tabs'})).toHaveAttribute('data-device-ready','true');await page.getByRole('button',{name:'Studies',exact:true}).click();await page.getByRole('button',{name:'Start a study',exact:true}).click();await page.getByRole('button',{name:'Create study',exact:true}).click();await page.getByRole('button',{name:'Add note',exact:true}).click();await expect(page.getByLabel('Note text',{exact:true})).toBeVisible();}
+          |                                           ^
+      159 | test('failed saves use inline Retry and exit-only Stay / Close anyway',async({page})=>{
+      160 |  const options={failPut:503};await setup(page,options);await firstNote(page);await page.getByLabel('Note text',{exact:true}).fill('Unsaved Hebrew שָׁלוֹם');await expect(page.getByRole('status').filter({hasText:'Changes not saved'})).toBeVisible();await expect(page.getByRole('button',{name:'Keep editing'})).toHaveCount(0);await expect(page.getByRole('dialog')).toHaveCount(0);
+      161 |  await page.getByRole('button',{name:'Sign out',exact:true}).click();await expect(page.getByRole('dialog',{name:'Changes not saved'})).toBeVisible();await page.getByRole('button',{name:'Stay',exact:true}).click();await expect(page.getByLabel('Note text',{exact:true})).toContainText('שָׁלוֹם');options.failPut=0;await page.getByRole('button',{name:'Retry',exact:true}).click();await expect(page.getByRole('status').filter({hasText:'Draft saved'})).toBeVisible();await page.getByRole('button',{name:'Sign out',exact:true}).click();await expect(page.getByRole('dialog',{name:'Changes not saved'})).toHaveCount(0);
+        at firstNote (/home/ck/repos/innodat/agriplatform/apps/scribeswell/web/tests/personal-notes.spec.cjs:158:43)
+        at /home/ck/repos/innodat/agriplatform/apps/scribeswell/web/tests/personal-notes.spec.cjs:1457:132
+
+    Error Context: test-results/personal-notes-review-tabs-766f2-r-inactive-live-tab-records-desktop/error-context.md
+
+  5) [desktop] › tests/personal-notes.spec.cjs:1459:77 › review tabs B10 closed-origin title 401 retains safe account recovery without tool or focus takeover 
+
+    Test was interrupted.
+
+    Error: page.goto: Test ended.
+    Call log:
+      - navigating to "http://127.0.0.1:5182/", waiting until "load"
+
+
+      156 | });
+      157 |
+    > 158 | async function firstNote(page){await page.goto('/');await expect(page.getByRole('tablist',{name:'Workspace tabs'})).toHaveAttribute('data-device-ready','true');await page.getByRole('button',{name:'Studies',exact:true}).click();await page.getByRole('button',{name:'Start a study',exact:true}).click();await page.getByRole('button',{name:'Create study',exact:true}).click();await page.getByRole('button',{name:'Add note',exact:true}).click();await expect(page.getByLabel('Note text',{exact:true})).toBeVisible();}
+          |                                           ^
+      159 | test('failed saves use inline Retry and exit-only Stay / Close anyway',async({page})=>{
+      160 |  const options={failPut:503};await setup(page,options);await firstNote(page);await page.getByLabel('Note text',{exact:true}).fill('Unsaved Hebrew שָׁלוֹם');await expect(page.getByRole('status').filter({hasText:'Changes not saved'})).toBeVisible();await expect(page.getByRole('button',{name:'Keep editing'})).toHaveCount(0);await expect(page.getByRole('dialog')).toHaveCount(0);
+      161 |  await page.getByRole('button',{name:'Sign out',exact:true}).click();await expect(page.getByRole('dialog',{name:'Changes not saved'})).toBeVisible();await page.getByRole('button',{name:'Stay',exact:true}).click();await expect(page.getByLabel('Note text',{exact:true})).toContainText('שָׁלוֹם');options.failPut=0;await page.getByRole('button',{name:'Retry',exact:true}).click();await expect(page.getByRole('status').filter({hasText:'Draft saved'})).toBeVisible();await page.getByRole('button',{name:'Sign out',exact:true}).click();await expect(page.getByRole('dialog',{name:'Changes not saved'})).toHaveCount(0);
+        at firstNote (/home/ck/repos/innodat/agriplatform/apps/scribeswell/web/tests/personal-notes.spec.cjs:158:43)
+        at /home/ck/repos/innodat/agriplatform/apps/scribeswell/web/tests/personal-notes.spec.cjs:1460:236
+
+    Error Context: test-results/personal-notes-review-tabs-829c5-hout-tool-or-focus-takeover-desktop/error-context.md
+
+  2 failed
+    [desktop] › tests/personal-notes.spec.cjs:222:1 › review: reopening a conflicting lane preserves mine until explicit latest replacement 
+    [desktop] › tests/personal-notes.spec.cjs:391:1 › collected uncertain operation freezes its snapshot and retries original identity 
+  4 interrupted
+    [desktop] › tests/personal-notes.spec.cjs:1445:1 › workspace tabs retain malformed-origin URL and collection refusal after another tab navigates validly 
+    [desktop] › tests/personal-notes.spec.cjs:1456:1 › review tabs B1 delayed denial clears labels renamed on newer inactive live tab records 
+    [desktop] › tests/personal-notes.spec.cjs:1459:77 › review tabs B10 closed-origin title 401 retains safe account recovery without tool or focus takeover 
+    [desktop] › tests/personal-notes.spec.cjs:1459:77 › review tabs B10 closed-origin title 403 retains safe account recovery without tool or focus takeover 
+  1 skipped
+  822 did not run
+  339 passed (8.2m)
+npm error Lifecycle script `test:browser` failed with error:
+npm error code 130
+npm error path /home/ck/repos/innodat/agriplatform/apps/scribeswell/web
+npm error workspace scribeswell-web@0.1.0
+npm error location /home/ck/repos/innodat/agriplatform/apps/scribeswell/web
+npm error command failed
+npm error command sh -c playwright test --config playwright.config.cjs --workers=4 --fully-parallel

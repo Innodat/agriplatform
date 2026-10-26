@@ -311,7 +311,7 @@ def test_public_database_create_rejected(prepared):
     assert invoke(url).returncode==0
 
 
-@pytest.mark.parametrize('revision',['base',REVISION])
+@pytest.mark.parametrize('revision',['base','scribeswell_0001','scribeswell_0002','scribeswell_0004','scribeswell_0005','scribeswell_0006'])
 def test_nonhead_upgrade_rejected_cli_and_programmatic(prepared,monkeypatch,revision):
     from alembic import command
     from alembic.config import Config
@@ -325,6 +325,20 @@ def test_nonhead_upgrade_rejected_cli_and_programmatic(prepared,monkeypatch,revi
     assert admin.execute('SELECT * FROM scribeswell.alembic_version').fetchall()==[(REVISION,)]
     assert business_state(admin)==before
 
+
+
+def test_explicit_pinned_controller_head_matches_historical_head(prepared,monkeypatch):
+    from alembic import command
+    from alembic.config import Config
+    admin,url=prepared
+    assert invoke(url,revision=REVISION).returncode==0
+    before=business_state(admin)
+    monkeypatch.setenv('SCRIBESWELL_MIGRATION_DATABASE_URL',migration_url(url))
+    config=Config(str(APP/'alembic.ini'))
+    command.upgrade(config,REVISION)
+    assert config.attributes['scribeswell_validated_profile']=='dormant'
+    assert admin.execute('SELECT * FROM scribeswell.alembic_version').fetchall()==[(REVISION,)]
+    assert business_state(admin)==before
 
 def test_postvalidation_failure_rolls_back_created_ledger(prepared,monkeypatch):
     import baseline
@@ -352,7 +366,7 @@ def test_postvalidation_failure_rolls_back_created_ledger(prepared,monkeypatch):
     assert business_state(admin)==before
 
 
-@pytest.mark.parametrize('before',[None,'scribeswell_0001','scribeswell_0002',REVISION])
+@pytest.mark.parametrize('before',[None,'scribeswell_0001','scribeswell_0002',REVISION,'scribeswell_0006'])
 def test_failed_worker_preserves_valid_known_before(tmp_path,before):
     class Process:
         returncode=1

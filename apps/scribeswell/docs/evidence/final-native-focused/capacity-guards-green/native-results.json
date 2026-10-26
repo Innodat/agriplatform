@@ -1,0 +1,24 @@
+{
+  "results": [
+    {
+      "argv": [
+        "/tmp/scribeswell-implementation-python/bin/python",
+        "-m",
+        "pytest",
+        "-q",
+        "apps/scribeswell/tests/test_corpus_publish_native.py",
+        "apps/scribeswell/tests/test_publication_profile.py",
+        "apps/scribeswell/tests/test_own_highlights.py",
+        "-k",
+        "not checked_in_artifact_publication_capacity",
+        "-rs",
+        "-s"
+      ],
+      "exit_code": 0,
+      "seconds": 108.73
+    }
+  ],
+  "container": "scribeswell-final-5620a162a536",
+  "stopped": true,
+  "source_unchanged": true
+}

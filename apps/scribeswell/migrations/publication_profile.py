@@ -68,7 +68,7 @@ def preserve_controller(connection, actual, expected, *, prepared):
                 deny()
 
 
-def preflight_publication(connection, expected_actor=None, *, reader=False):
+def preflight_publication(connection, expected_actor=None, *, reader=False, capacity=False):
     try:
         if (not connection.in_transaction() or connection.connection.dbapi_connection.autocommit
                 or connection.get_isolation_level()!='READ COMMITTED'
@@ -80,7 +80,8 @@ def preflight_publication(connection, expected_actor=None, *, reader=False):
             connection.exec_driver_sql('SELECT pg_catalog.set_config(%s,%s,true)',
                                        (name,str(min(current,ceiling) if current else ceiling)+'ms'))
         state=_checked_authority_ledger(connection)
-        if state not in ((PUBLICATION_REVISION,'scribeswell_0005') if reader else (REVISION,PUBLICATION_REVISION)):
+        allowed=(REVISION,PUBLICATION_REVISION,'scribeswell_0005','scribeswell_0006') if capacity else (PUBLICATION_REVISION,'scribeswell_0005') if reader else (REVISION,PUBLICATION_REVISION)
+        if state not in allowed:
             deny()
         if expected_actor is not None:
             connection.exec_driver_sql('SELECT pg_catalog.pg_advisory_xact_lock(31003,1)')

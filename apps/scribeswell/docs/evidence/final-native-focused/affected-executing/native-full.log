@@ -1,0 +1,84 @@
+.......s...............F...................................FF.......................................................................F...........................................................................
+=================================== FAILURES ===================================
+_ test_native_study_deletion_atomic_erasure_original_receipts_and_previous_f6_consumer _
+
+native = (<personal_notes_storage.PersonalNotesStorage object at 0x7cdb91cc34d0>, 'postgresql://postgres:synthetic-only@127.0.0...esql://scribeswell_studies_migrator:synthetic-only@127.0.0.1:32778/scribeswell_notes_2aebd41a93d44f6e8e7211d45b70f5ed')
+
+    def test_native_study_deletion_atomic_erasure_original_receipts_and_previous_f6_consumer(native):
+        storage,admin_url,runtime,_=native
+        study=create(storage,'Private study title to erase')['study_id']
+        independent=create(storage,'Independent copy')['study_id']
+        original=command('note.create',value=value('Private body to erase'))
+        note=run(storage.execute(IDENTITY,'note.create',original,study,None,deadline()))
+        old_deleted=run(storage.execute(IDENTITY,'note.create',command('note.create',value=value('Already erased')),study,None,deadline()))
+        child_delete=command('note.delete',expected_revision='1')
+        child_ack=run(storage.execute(IDENTITY,'note.delete',child_delete,study,old_deleted['note_id'],deadline()))
+        retained=run(storage.execute(IDENTITY,'note.create',command('note.create',value=value('Independent copy body')),independent,None,deadline()))
+        copy_before=run(storage.read(IDENTITY,independent,retained['note_id'],deadline()))
+        replace_passages(storage,study,passage_items('Gen1'))
+        with psycopg.connect(admin_url) as c:
+            old_tombstone=c.execute('SELECT * FROM scribeswell_studies.notes WHERE id=%s',(old_deleted['note_id'],)).fetchone()
+        payload=command('study.delete',expected_revision='1');ack=run(storage.execute(IDENTITY,'study.delete',payload,study,None,deadline()))
+        assert ack['note_id'] is None and ack['revision']=='2'
+        with psycopg.connect(runtime,row_factory=psycopg.rows.dict_row) as c:
+            c.execute("SELECT set_config('app.account_id',%s,true)",(A,))
+            parent=c.execute('SELECT * FROM scribeswell_studies.studies WHERE id=%s',(study,)).fetchone()
+            erased=c.execute('SELECT * FROM scribeswell_studies.notes WHERE id=%s',(note['note_id'],)).fetchone()
+>           assert parent['title']=='Deleted study' and not parent['active'] and parent['revision']==2 and parent['updated_by']==ACTOR
+E           AssertionError: assert ('Deleted study' == 'Deleted study'
+E             
+E               Deleted study and not False and 2 == 2 and UUID('20000000-0000-4000-8000-000000000001') == '20000000-0000-4000-8000-000000000001')
+
+apps/scribeswell/tests/test_personal_notes_storage.py:901: AssertionError
+_ test_native_context_keyset_cursor_bound_to_reference_account_and_saved_preview _
+
+details_native = (<personal_notes_storage.PersonalNotesStorage object at 0x7cdb8f47fdd0>, 'postgresql://postgres:synthetic-only@127.0.0...esql://scribeswell_studies_migrator:synthetic-only@127.0.0.1:32778/scribeswell_notes_5e7e07bef3b1410ba7b29e431b53147d')
+
+    def test_native_context_keyset_cursor_bound_to_reference_account_and_saved_preview(details_native):
+     storage,*_=details_native;study=create(storage,'Paging')['study_id'];ids={linked(storage,study)['note_id'] for _ in range(3)}
+     first=context(storage,limit=2);second=context(storage,cursor=first['next_cursor'],limit=2)
+>    assert len(first['items'])==2 and len(second['items'])==1 and {n['note_id'] for n in first['items']+second['items']}==ids
+E    AssertionError: assert (2 == 2 and 2 == 1)
+E     +  where 2 = len([{'note_id': '45ebd146-de0b-4729-9600-02a12d23c9c3', 'owner_account_id': '10000000-0000-4000-8000-000000000001', 'prev...'target': {'end': {'chapter': 1, 'verse': 1}, 'kind': 'verse_range', 'start': {'chapter': 1, 'verse': 1}}, ...}], ...}])
+E     +  and   2 = len([{'note_id': '6747bcff-5c44-4b00-8b95-69cb57ec481c', 'owner_account_id': '10000000-0000-4000-8000-000000000001', 'prev...'target': {'end': {'chapter': 1, 'verse': 1}, 'kind': 'verse_range', 'start': {'chapter': 1, 'verse': 1}}, ...}], ...}])
+
+apps/scribeswell/tests/test_study_details_discovery_native.py:95: AssertionError
+_ test_native_context_connections_document_links_and_highlight_overlap_deduplicate _
+
+details_native = (<personal_notes_storage.PersonalNotesStorage object at 0x7cdb8f47fdd0>, 'postgresql://postgres:synthetic-only@127.0.0...esql://scribeswell_studies_migrator:synthetic-only@127.0.0.1:32778/scribeswell_notes_5e7e07bef3b1410ba7b29e431b53147d')
+
+    def test_native_context_connections_document_links_and_highlight_overlap_deduplicate(details_native):
+     storage,*_=details_native;study=create(storage,'References')['study_id']
+     from test_own_highlights import value as highlighted
+     v=highlighted();ref=v['highlights'][0]['anchor']['segments'][0]['reference'];v['connections']=[{'id':str(uuid4()),'reference':ref}]
+     # Synthetic trusted fixture seed avoids pretending a live source observation.
+     with psycopg.connect(details_native[1]) as db:
+      identifier=str(uuid4());db.execute('INSERT INTO scribeswell_studies.notes(id,account_id,study_id,value,created_by,updated_by) VALUES(%s,%s,%s,%s,%s,%s)',(identifier,A,study,Jsonb(v),ACTOR,ACTOR))
+     result=context(storage);assert sum(n['note_id']==identifier for n in result['items'])==1
+>    linked(storage,study,'Gen1:31–2:2');assert len(context(storage,'Gen2:1')['items'])==1
+                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E    AssertionError: assert 20 == 1
+E     +  where 20 = len([{'note_id': '3c1ad25d-4eff-4d72-9122-7844f1f5c247', 'owner_account_id': '10000000-0000-4000-8000-000000000001', 'prev...et': {'end': {'chapter': 2, 'verse': 1}, 'kind': 'verse_range', 'start': {'chapter': 2, 'verse': 1}}, ...}], ...}, ...])
+
+apps/scribeswell/tests/test_study_details_discovery_native.py:109: AssertionError
+________ test_actual_owner_session_required_not_set_role_impersonation _________
+
+rehearsal = (<psycopg.Connection [IDLE] (host=127.0.0.1 port=32778 user=postgres database=scribeswell_migration_6c1ed7fd168c4df087...(postgresql+psycopg://scribeswell_migrator:***@127.0.0.1:32778/scribeswell_migration_6c1ed7fd168c4df087b8f8602e0f3e3a))
+
+    def test_actual_owner_session_required_not_set_role_impersonation(rehearsal):
+        admin, url, engine = rehearsal
+        owner = create_engine(url.replace('postgresql://','postgresql+psycopg://'), poolclass=pool.NullPool)
+        try:
+            with owner.begin() as connection:
+                connection.exec_driver_sql('SET LOCAL ROLE scribeswell_migrator')
+                from baseline import BaselineError
+                with pytest.raises(BaselineError, match='unsafe_authority'):
+                    stage_initial(connection, CUSTODY, PREPARER)
+>           assert failure.value.sqlstate == '22012'
+                   ^^^^^^^
+E           NameError: name 'failure' is not defined
+
+apps/scribeswell/tests/test_caller_preparation_rehearsal.py:316: NameError
+=========================== short test summary info ============================
+SKIPPED [1] apps/scribeswell/tests/test_personal_notes_storage.py:341: Explicit browser qualification opt-in required
+4 failed, 203 passed, 1 skipped in 158.73s (0:02:38)

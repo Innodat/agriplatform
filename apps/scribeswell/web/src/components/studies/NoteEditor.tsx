@@ -19,7 +19,7 @@ const passageRegistry=new WeakMap<HTMLElement,Map<string,PassageInline>>();
 function registry(root:HTMLElement){let entries=passageRegistry.get(root);if(!entries){entries=new Map();passageRegistry.set(root,entries);}return entries;}
 function bindNativeAtoms(root:HTMLElement){const entries=registry(root),seen=new Set<string>();for(const node of root.querySelectorAll<HTMLElement>('[data-note-passage]')){const token=node.dataset.notePassage??'',inline=entries.get(token);if(!inline||seen.has(token))throw Error();seen.add(token);passageNodes.set(node,inline);passageValue(node);}}
 
-function validLabel(label:string){return typeof label==='string'&&Array.from(label).length>0&&Array.from(label).length<=200&&!/[\uD800-\uDFFF]/u.test(label);}
+function validLabel(label:string){return typeof label==='string'&&Array.from(label).length>0&&Array.from(label).length<=200&&!/[\u0000\uD800-\uDFFF]/u.test(label);}
 function passageNode(inline:PassageInline,owner:HTMLElement){
  if(Object.keys(inline).sort().join(',')!=='label,reference,type'||inline.type!=='passage_link'||!validateReference(inline.reference)||!validLabel(inline.label))throw Error();
  const node=document.createElement('span');node.dataset.notePassage=crypto.randomUUID();node.dir='auto';node.style.unicodeBidi='isolate';node.contentEditable='false';node.setAttribute('role','link');node.tabIndex=0;node.className='underline text-amber-900 cursor-pointer';node.textContent=inline.label;const stored=structuredClone(inline);passageNodes.set(node,stored);registry(owner).set(node.dataset.notePassage!,stored);return node;
@@ -30,7 +30,7 @@ function paragraph(value:Paragraph,owner:HTMLElement){const p=document.createEle
 function draw(root:HTMLElement,value:NoteValue){passageRegistry.set(root,new Map());if(![1,2].includes(value.document.version))throw Error();const nodes=value.document.blocks.map(block=>{if(block.type==='paragraph')return paragraph(block,root);const list=document.createElement(block.style==='bullet'?'ul':'ol');for(const item of block.items){const li=document.createElement('li');for(const p of item)li.append(paragraph(p,root));list.append(li);}return list;});root.replaceChildren(...nodes);}
 function inlines(nodes:NodeListOf<ChildNode>|ChildNode[],marks:('bold'|'italic')[]=[],linked=false):Inline[]{
  const result:Inline[]=[];
- for(const node of nodes){if(node.nodeType===Node.TEXT_NODE){const text=node.textContent??'';const scalars=Array.from(text);for(let i=0;i<scalars.length;i+=4096){const chunk=scalars.slice(i,i+4096).join('');if(chunk)result.push({type:'text',text:chunk,marks:[...marks] as Extract<Inline,{type:'text'}>['marks']});}continue;}
+ for(const node of nodes){if(node.nodeType===Node.TEXT_NODE){const text=node.textContent??'';if(/[\u0000\uD800-\uDFFF]/u.test(text))throw Error();const scalars=Array.from(text);for(let i=0;i<scalars.length;i+=4096){const chunk=scalars.slice(i,i+4096).join('');if(chunk)result.push({type:'text',text:chunk,marks:[...marks] as Extract<Inline,{type:'text'}>['marks']});}continue;}
   if(!(node instanceof HTMLElement))throw Error();
   const tag=node.tagName;
   if(node.hasAttribute('data-note-passage')){if(linked)throw Error();result.push(passageValue(node));continue;}

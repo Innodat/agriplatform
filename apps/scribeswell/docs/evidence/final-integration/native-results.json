@@ -1,0 +1,19 @@
+{
+  "results": [
+    {
+      "argv": [
+        "/tmp/scribeswell-implementation-python/bin/python",
+        "-m",
+        "pytest",
+        "-q",
+        "apps/scribeswell/tests",
+        "-rs"
+      ],
+      "exit_code": 1,
+      "seconds": 393.33
+    }
+  ],
+  "container": "scribeswell-final-339c2406d77c",
+  "stopped": true,
+  "source_unchanged": true
+}

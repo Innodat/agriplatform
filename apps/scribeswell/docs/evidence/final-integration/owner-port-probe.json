@@ -1,0 +1,16 @@
+{
+  "observed_utc": "2026-10-26T20:23:42.292682+00:00",
+  "method": "short loopback bind probe; sockets immediately closed; no environment started or stopped",
+  "ports": {
+    "5188": "available_at_probe",
+    "8188": "available_at_probe",
+    "8189": "available_at_probe",
+    "55480": "available_at_probe",
+    "55481": "occupied_or_unavailable_untouched",
+    "55482": "occupied_or_unavailable_untouched",
+    "55483": "available_at_probe",
+    "15484": "available_at_probe",
+    "8443": "available_at_probe"
+  },
+  "decision": "No new live-owner qualification; preserve occupied owner ports. Native/browser app fixtures use distinct ports."
+}

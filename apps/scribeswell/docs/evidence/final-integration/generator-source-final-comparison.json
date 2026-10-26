@@ -1,0 +1,22 @@
+[
+  {
+    "path": "platform/api-client/src/cli.mjs",
+    "matches_checked_source": true
+  },
+  {
+    "path": "platform/api-client/src/tooling.mjs",
+    "matches_checked_source": true
+  },
+  {
+    "path": "platform/api-client/src/compat.mjs",
+    "matches_checked_source": true
+  },
+  {
+    "path": "platform/api-client/src/generate.mjs",
+    "matches_checked_source": true
+  },
+  {
+    "path": "platform/builder-cli/src/scaffold-install.ts",
+    "matches_checked_source": true
+  }
+]

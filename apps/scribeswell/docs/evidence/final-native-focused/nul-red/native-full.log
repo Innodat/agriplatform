@@ -1,0 +1,35 @@
+SAFE_NATIVE_DRIVER CheckViolation 23514
+SAFE_NATIVE_DRIVER CheckViolation 23514
+SAFE_ASYNC_DRIVER UntranslatableCharacter 22P05 None
+F
+=================================== FAILURES ===================================
+__ test_native_api_nul_rejected_without_note_or_receipt_and_unicode_preserved __
+
+native = (<personal_notes_storage.PersonalNotesStorage object at 0x7e03165bc200>, 'postgresql://postgres:synthetic-only@127.0.0...esql://scribeswell_studies_migrator:synthetic-only@127.0.0.1:32779/scribeswell_notes_e7f9be2ffd3645ae8234cfdb164136f0')
+
+    def test_native_api_nul_rejected_without_note_or_receipt_and_unicode_preserved(native):
+        from fastapi import FastAPI
+        from fastapi.testclient import TestClient
+        from personal_notes_router import build_router
+        storage,admin_url,_,_=native
+        study=create(storage)['study_id']
+        class CurrentAccess:
+            async def check(self,*args):return IDENTITY
+        app=FastAPI();app.include_router(build_router(CurrentAccess(),storage))
+        client=TestClient(app)
+        operation=str(uuid4())
+        with psycopg.connect(admin_url) as db:
+            before=db.execute('SELECT (SELECT count(*) FROM scribeswell_studies.notes),(SELECT count(*) FROM scribeswell_studies.receipts)').fetchone()
+        response=client.post('/api/studies/'+study+'/notes',headers={'Authorization':'Bearer current'},json={'operation_id':operation,'value':value('before\x00after')})
+>       assert response.status_code==400
+E       assert 503 == 400
+E        +  where 503 = <Response [503 Service Unavailable]>.status_code
+
+apps/scribeswell/tests/test_personal_notes_storage.py:1066: AssertionError
+=============================== warnings summary ===============================
+apps/scribeswell/tests/test_personal_notes_storage.py::test_native_api_nul_rejected_without_note_or_receipt_and_unicode_preserved
+  /home/ck/.local/lib/python3.12/site-packages/fastapi/testclient.py:1: StarletteDeprecationWarning: Using `httpx` with `starlette.testclient` is deprecated; install `httpx2` instead.
+    from starlette.testclient import TestClient as TestClient  # noqa
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+1 failed, 1 warning in 4.48s

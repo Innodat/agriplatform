@@ -1,0 +1,406 @@
+QUALIFIED_CAPACITY_SOURCE {"counts": {"books": 39, "chapters": 321, "tokens": 1000000, "verses": 50000}, "source_bytes": 22101126, "source_sha256": "69f665b81b38c22d43bef8a5fad9cf11a38aaeadc8f0a9dce295ecc0d39df58d"}
+CAPACITY_WORD_INSERT_PROFILE {"execution_ms": 773.564, "triggers": [{"Calls": 20000, "Constraint Name": "corpus_manifest_word_identity_source_revision_ordinal_fkey", "Relation": "corpus_manifest_word_identity", "Time": 287.953, "Trigger Name": "RI_ConstraintTrigger_c_16769"}, {"Calls": 1, "Constraint Name": null, "Relation": "corpus_manifest_word_identity", "Time": 7.257, "Trigger Name": "corpus_publication_append"}, {"Calls": 20000, "Constraint Name": null, "Relation": "corpus_manifest_word_identity", "Time": 82.847, "Trigger Name": "corpus_publication_protection"}]}
+EXPLICIT_ORIGINAL_OPERATION_RESUME corpus_publish.unavailable 42.979
+SUPERVISED_ATTEMPT_SECONDS 102.76
+{"phase":"_prepare","seconds":4.599}
+{"phase":"_prepare","seconds":0.431}
+{"step":"publication.activate","lookup":true,"batch_index":null,"seconds":0.046}
+{"phase":"audit_closed_attempt","seconds":13.018}
+{"step":"publication.stage","lookup":true,"batch_index":null,"seconds":0.202}
+{"step":"publication.stage","lookup":false,"batch_index":null,"seconds":1.892}
+{"step":"publication.batch","lookup":true,"batch_index":0,"seconds":0.019}
+{"sql_phase":"capacity_phase:validation:0.112042"}
+{"sql_phase":"capacity_phase:batch:0.138129"}
+{"sql_phase":"capacity_phase:verses:0.178852"}
+{"step":"publication.batch","lookup":false,"batch_index":0,"seconds":0.51}
+{"step":"publication.batch","lookup":true,"batch_index":1,"seconds":0.031}
+{"sql_phase":"capacity_phase:validation:0.132509"}
+{"sql_phase":"capacity_phase:batch:0.141698"}
+{"sql_phase":"capacity_phase:verses:0.169606"}
+{"step":"publication.batch","lookup":false,"batch_index":1,"seconds":0.56}
+{"step":"publication.batch","lookup":true,"batch_index":2,"seconds":0.038}
+{"sql_phase":"capacity_phase:validation:0.113135"}
+{"sql_phase":"capacity_phase:batch:0.127179"}
+{"sql_phase":"capacity_phase:verses:0.175617"}
+{"step":"publication.batch","lookup":false,"batch_index":2,"seconds":0.513}
+{"step":"publication.batch","lookup":true,"batch_index":3,"seconds":0.026}
+{"sql_phase":"capacity_phase:validation:0.118911"}
+{"sql_phase":"capacity_phase:batch:0.133705"}
+{"sql_phase":"capacity_phase:verses:0.172728"}
+{"step":"publication.batch","lookup":false,"batch_index":3,"seconds":0.516}
+{"step":"publication.batch","lookup":true,"batch_index":4,"seconds":0.021}
+{"sql_phase":"capacity_phase:validation:0.109449"}
+{"sql_phase":"capacity_phase:batch:0.119644"}
+{"sql_phase":"capacity_phase:verses:0.154827"}
+{"step":"publication.batch","lookup":false,"batch_index":4,"seconds":0.538}
+{"step":"publication.batch","lookup":true,"batch_index":5,"seconds":0.024}
+{"sql_phase":"capacity_phase:validation:0.611889"}
+{"sql_phase":"capacity_phase:batch:0.622017"}
+{"sql_phase":"capacity_phase:verses:0.649159"}
+{"step":"publication.batch","lookup":false,"batch_index":5,"seconds":0.96}
+{"step":"publication.batch","lookup":true,"batch_index":6,"seconds":0.026}
+{"sql_phase":"capacity_phase:validation:0.626325"}
+{"sql_phase":"capacity_phase:batch:0.634575"}
+{"sql_phase":"capacity_phase:verses:0.663945"}
+{"step":"publication.batch","lookup":false,"batch_index":6,"seconds":1.068}
+{"step":"publication.batch","lookup":true,"batch_index":7,"seconds":0.022}
+{"sql_phase":"capacity_phase:validation:0.655498"}
+{"sql_phase":"capacity_phase:batch:0.679912"}
+{"sql_phase":"capacity_phase:verses:0.754023"}
+{"step":"publication.batch","lookup":false,"batch_index":7,"seconds":1.183}
+{"step":"publication.batch","lookup":true,"batch_index":8,"seconds":0.021}
+{"sql_phase":"capacity_phase:validation:0.593780"}
+{"sql_phase":"capacity_phase:batch:0.603110"}
+{"sql_phase":"capacity_phase:verses:0.633467"}
+{"step":"publication.batch","lookup":false,"batch_index":8,"seconds":0.944}
+{"step":"publication.batch","lookup":true,"batch_index":9,"seconds":0.019}
+{"sql_phase":"capacity_phase:validation:0.594949"}
+{"sql_phase":"capacity_phase:batch:0.604384"}
+{"sql_phase":"capacity_phase:verses:0.631272"}
+{"step":"publication.batch","lookup":false,"batch_index":9,"seconds":1.098}
+{"step":"publication.batch","lookup":true,"batch_index":10,"seconds":0.024}
+{"sql_phase":"capacity_phase:validation:0.679199"}
+{"sql_phase":"capacity_phase:batch:0.691924"}
+{"sql_phase":"capacity_phase:verses:0.721818"}
+{"step":"publication.batch","lookup":false,"batch_index":10,"seconds":1.038}
+{"step":"publication.batch","lookup":true,"batch_index":11,"seconds":0.021}
+{"sql_phase":"capacity_phase:validation:0.583100"}
+{"sql_phase":"capacity_phase:batch:0.591671"}
+{"sql_phase":"capacity_phase:verses:0.631316"}
+{"step":"publication.batch","lookup":false,"batch_index":11,"seconds":1.016}
+{"step":"publication.batch","lookup":true,"batch_index":12,"seconds":0.029}
+{"sql_phase":"capacity_phase:validation:0.570081"}
+{"sql_phase":"capacity_phase:batch:0.578447"}
+{"sql_phase":"capacity_phase:verses:0.604713"}
+{"step":"publication.batch","lookup":false,"batch_index":12,"seconds":1.075}
+{"step":"publication.batch","lookup":true,"batch_index":13,"seconds":0.024}
+{"sql_phase":"capacity_phase:validation:0.583619"}
+{"sql_phase":"capacity_phase:batch:0.591945"}
+{"sql_phase":"capacity_phase:verses:0.622063"}
+{"step":"publication.batch","lookup":false,"batch_index":13,"seconds":0.987}
+{"step":"publication.batch","lookup":true,"batch_index":14,"seconds":0.023}
+{"sql_phase":"capacity_phase:validation:0.742069"}
+{"sql_phase":"capacity_phase:batch:0.752529"}
+{"sql_phase":"capacity_phase:verses:0.790651"}
+{"step":"publication.batch","lookup":false,"batch_index":14,"seconds":1.237}
+{"step":"publication.batch","lookup":true,"batch_index":15,"seconds":0.027}
+{"sql_phase":"capacity_phase:validation:0.627169"}
+{"sql_phase":"capacity_phase:batch:0.638842"}
+{"sql_phase":"capacity_phase:verses:0.683117"}
+{"step":"publication.batch","lookup":false,"batch_index":15,"seconds":1.051}
+{"step":"publication.batch","lookup":true,"batch_index":16,"seconds":0.024}
+{"sql_phase":"capacity_phase:validation:0.590850"}
+{"sql_phase":"capacity_phase:batch:0.599963"}
+{"sql_phase":"capacity_phase:verses:0.634366"}
+{"step":"publication.batch","lookup":false,"batch_index":16,"seconds":0.97}
+{"step":"publication.batch","lookup":true,"batch_index":17,"seconds":0.025}
+{"sql_phase":"capacity_phase:validation:0.686672"}
+{"sql_phase":"capacity_phase:batch:0.700267"}
+{"sql_phase":"capacity_phase:verses:0.744835"}
+{"step":"publication.batch","lookup":false,"batch_index":17,"seconds":1.181}
+{"step":"publication.batch","lookup":true,"batch_index":18,"seconds":0.027}
+{"sql_phase":"capacity_phase:validation:0.526746"}
+{"sql_phase":"capacity_phase:batch:0.538847"}
+{"sql_phase":"capacity_phase:verses:0.586530"}
+{"step":"publication.batch","lookup":false,"batch_index":18,"seconds":0.933}
+{"step":"publication.batch","lookup":true,"batch_index":19,"seconds":0.043}
+{"sql_phase":"capacity_phase:validation:0.535911"}
+{"sql_phase":"capacity_phase:batch:0.545139"}
+{"sql_phase":"capacity_phase:verses:0.574913"}
+{"step":"publication.batch","lookup":false,"batch_index":19,"seconds":0.99}
+{"step":"publication.batch","lookup":true,"batch_index":20,"seconds":0.022}
+{"sql_phase":"capacity_phase:validation:0.486541"}
+{"sql_phase":"capacity_phase:batch:0.495825"}
+{"sql_phase":"capacity_phase:verses:0.521846"}
+{"step":"publication.batch","lookup":false,"batch_index":20,"seconds":0.857}
+{"step":"publication.batch","lookup":true,"batch_index":21,"seconds":0.022}
+{"sql_phase":"capacity_phase:validation:0.454343"}
+{"sql_phase":"capacity_phase:batch:0.466230"}
+{"sql_phase":"capacity_phase:verses:0.497896"}
+{"step":"publication.batch","lookup":false,"batch_index":21,"seconds":0.853}
+{"step":"publication.batch","lookup":true,"batch_index":22,"seconds":0.024}
+{"sql_phase":"capacity_phase:validation:0.439181"}
+{"sql_phase":"capacity_phase:batch:0.451213"}
+{"sql_phase":"capacity_phase:verses:0.485332"}
+{"step":"publication.batch","lookup":false,"batch_index":22,"seconds":0.943}
+{"step":"publication.batch","lookup":true,"batch_index":23,"seconds":0.028}
+{"sql_phase":"capacity_phase:validation:0.442788"}
+{"sql_phase":"capacity_phase:batch:0.454048"}
+{"sql_phase":"capacity_phase:verses:0.481493"}
+{"step":"publication.batch","lookup":false,"batch_index":23,"seconds":0.885}
+{"step":"publication.batch","lookup":true,"batch_index":24,"seconds":0.07}
+{"sql_phase":"capacity_phase:validation:0.439168"}
+{"sql_phase":"capacity_phase:batch:0.450387"}
+{"sql_phase":"capacity_phase:verses:0.478662"}
+{"step":"publication.batch","lookup":false,"batch_index":24,"seconds":0.901}
+{"step":"publication.batch","lookup":true,"batch_index":25,"seconds":0.028}
+{"sql_phase":"capacity_phase:validation:0.441099"}
+{"sql_phase":"capacity_phase:batch:0.453340"}
+{"sql_phase":"capacity_phase:verses:0.481735"}
+{"step":"publication.batch","lookup":false,"batch_index":25,"seconds":0.866}
+{"step":"publication.batch","lookup":true,"batch_index":26,"seconds":0.045}
+{"sql_phase":"capacity_phase:validation:0.392278"}
+{"sql_phase":"capacity_phase:batch:0.400125"}
+{"sql_phase":"capacity_phase:verses:0.443263"}
+{"step":"publication.batch","lookup":false,"batch_index":26,"seconds":0.806}
+{"step":"publication.batch","lookup":true,"batch_index":27,"seconds":0.021}
+{"sql_phase":"capacity_phase:validation:0.430548"}
+{"sql_phase":"capacity_phase:batch:0.444435"}
+{"sql_phase":"capacity_phase:verses:0.473530"}
+{"step":"publication.batch","lookup":false,"batch_index":27,"seconds":0.904}
+{"step":"publication.batch","lookup":true,"batch_index":28,"seconds":0.029}
+{"sql_phase":"capacity_phase:validation:0.496418"}
+{"sql_phase":"capacity_phase:batch:0.505231"}
+{"sql_phase":"capacity_phase:verses:0.532489"}
+{"step":"publication.batch","lookup":false,"batch_index":28,"seconds":1.028}
+{"step":"publication.batch","lookup":true,"batch_index":29,"seconds":0.032}
+{"sql_phase":"capacity_phase:validation:0.433297"}
+{"sql_phase":"capacity_phase:batch:0.445326"}
+{"sql_phase":"capacity_phase:verses:0.488928"}
+{"step":"publication.batch","lookup":false,"batch_index":29,"seconds":0.913}
+{"step":"publication.batch","lookup":true,"batch_index":30,"seconds":0.023}
+{"sql_phase":"capacity_phase:validation:0.427520"}
+{"sql_phase":"capacity_phase:batch:0.439535"}
+{"sql_phase":"capacity_phase:verses:0.485634"}
+{"step":"publication.batch","lookup":false,"batch_index":30,"seconds":0.896}
+{"step":"publication.batch","lookup":true,"batch_index":31,"seconds":0.027}
+{"sql_phase":"capacity_phase:validation:0.382810"}
+{"sql_phase":"capacity_phase:batch:0.392605"}
+{"sql_phase":"capacity_phase:verses:0.427887"}
+{"step":"publication.batch","lookup":false,"batch_index":31,"seconds":0.963}
+{"step":"publication.batch","lookup":true,"batch_index":32,"seconds":0.045}
+{"sql_phase":"capacity_phase:validation:0.311499"}
+{"sql_phase":"capacity_phase:batch:0.320749"}
+{"sql_phase":"capacity_phase:verses:0.342601"}
+{"step":"publication.batch","lookup":false,"batch_index":32,"seconds":1.317}
+{"step":"publication.batch","lookup":true,"batch_index":33,"seconds":0.035}
+{"sql_phase":"capacity_phase:validation:0.187947"}
+{"sql_phase":"capacity_phase:batch:0.193823"}
+{"sql_phase":"capacity_phase:verses:0.209817"}
+{"step":"publication.batch","lookup":false,"batch_index":33,"seconds":1.596}
+{"step":"publication.batch","lookup":true,"batch_index":34,"seconds":0.085}
+{"sql_phase":"capacity_phase:validation:0.189140"}
+{"sql_phase":"capacity_phase:batch:0.194686"}
+{"sql_phase":"capacity_phase:verses:0.214306"}
+{"step":"publication.batch","lookup":false,"batch_index":34,"seconds":1.185}
+{"step":"publication.batch","lookup":true,"batch_index":35,"seconds":0.035}
+{"sql_phase":"capacity_phase:validation:0.193845"}
+{"sql_phase":"capacity_phase:batch:0.198797"}
+{"sql_phase":"capacity_phase:verses:0.222039"}
+{"step":"publication.batch","lookup":false,"batch_index":35,"seconds":1.001}
+{"step":"publication.batch","lookup":true,"batch_index":36,"seconds":0.037}
+{"sql_phase":"capacity_phase:validation:0.172489"}
+{"sql_phase":"capacity_phase:batch:0.176887"}
+{"sql_phase":"capacity_phase:verses:0.194332"}
+{"step":"publication.batch","lookup":false,"batch_index":36,"seconds":0.841}
+{"step":"publication.batch","lookup":true,"batch_index":37,"seconds":0.043}
+{"sql_phase":"capacity_phase:validation:0.177857"}
+{"sql_phase":"capacity_phase:batch:0.183650"}
+{"sql_phase":"capacity_phase:verses:0.205163"}
+{"phase":"_prepare","seconds":6.002}
+{"phase":"_prepare","seconds":0.384}
+{"step":"publication.activate","lookup":true,"batch_index":null,"seconds":0.039}
+{"phase":"audit_closed_attempt","seconds":16.566}
+{"step":"publication.stage","lookup":true,"batch_index":null,"seconds":0.381}
+{"step":"publication.batch","lookup":true,"batch_index":0,"seconds":0.048}
+{"step":"publication.batch","lookup":true,"batch_index":1,"seconds":0.043}
+{"step":"publication.batch","lookup":true,"batch_index":2,"seconds":0.061}
+{"step":"publication.batch","lookup":true,"batch_index":3,"seconds":0.079}
+{"step":"publication.batch","lookup":true,"batch_index":4,"seconds":0.048}
+{"step":"publication.batch","lookup":true,"batch_index":5,"seconds":0.046}
+{"step":"publication.batch","lookup":true,"batch_index":6,"seconds":0.038}
+{"step":"publication.batch","lookup":true,"batch_index":7,"seconds":0.035}
+{"step":"publication.batch","lookup":true,"batch_index":8,"seconds":0.037}
+{"step":"publication.batch","lookup":true,"batch_index":9,"seconds":0.036}
+{"step":"publication.batch","lookup":true,"batch_index":10,"seconds":0.039}
+{"step":"publication.batch","lookup":true,"batch_index":11,"seconds":0.043}
+{"step":"publication.batch","lookup":true,"batch_index":12,"seconds":0.047}
+{"step":"publication.batch","lookup":true,"batch_index":13,"seconds":0.067}
+{"step":"publication.batch","lookup":true,"batch_index":14,"seconds":0.067}
+{"step":"publication.batch","lookup":true,"batch_index":15,"seconds":0.049}
+{"step":"publication.batch","lookup":true,"batch_index":16,"seconds":0.03}
+{"step":"publication.batch","lookup":true,"batch_index":17,"seconds":0.029}
+{"step":"publication.batch","lookup":true,"batch_index":18,"seconds":0.029}
+{"step":"publication.batch","lookup":true,"batch_index":19,"seconds":0.032}
+{"step":"publication.batch","lookup":true,"batch_index":20,"seconds":0.028}
+{"step":"publication.batch","lookup":true,"batch_index":21,"seconds":0.028}
+{"step":"publication.batch","lookup":true,"batch_index":22,"seconds":0.026}
+{"step":"publication.batch","lookup":true,"batch_index":23,"seconds":0.029}
+{"step":"publication.batch","lookup":true,"batch_index":24,"seconds":0.028}
+{"step":"publication.batch","lookup":true,"batch_index":25,"seconds":0.028}
+{"step":"publication.batch","lookup":true,"batch_index":26,"seconds":0.027}
+{"step":"publication.batch","lookup":true,"batch_index":27,"seconds":0.029}
+{"step":"publication.batch","lookup":true,"batch_index":28,"seconds":0.023}
+{"step":"publication.batch","lookup":true,"batch_index":29,"seconds":0.022}
+{"step":"publication.batch","lookup":true,"batch_index":30,"seconds":0.031}
+{"step":"publication.batch","lookup":true,"batch_index":31,"seconds":0.038}
+{"step":"publication.batch","lookup":true,"batch_index":32,"seconds":0.045}
+{"step":"publication.batch","lookup":true,"batch_index":33,"seconds":0.064}
+{"step":"publication.batch","lookup":true,"batch_index":34,"seconds":0.033}
+{"step":"publication.batch","lookup":true,"batch_index":35,"seconds":0.034}
+{"step":"publication.batch","lookup":true,"batch_index":36,"seconds":0.037}
+{"step":"publication.batch","lookup":true,"batch_index":37,"seconds":0.038}
+{"sql_phase":"capacity_phase:validation:0.136728"}
+{"sql_phase":"capacity_phase:batch:0.150691"}
+{"sql_phase":"capacity_phase:verses:0.190468"}
+{"step":"publication.batch","lookup":false,"batch_index":37,"seconds":0.726}
+{"step":"publication.batch","lookup":true,"batch_index":38,"seconds":0.042}
+{"sql_phase":"capacity_phase:validation:0.186945"}
+{"sql_phase":"capacity_phase:batch:0.203067"}
+{"sql_phase":"capacity_phase:verses:0.267099"}
+{"step":"publication.batch","lookup":false,"batch_index":38,"seconds":0.85}
+{"step":"publication.batch","lookup":true,"batch_index":39,"seconds":0.069}
+{"sql_phase":"capacity_phase:validation:0.251732"}
+{"sql_phase":"capacity_phase:batch:0.278688"}
+{"sql_phase":"capacity_phase:verses:0.331760"}
+{"step":"publication.batch","lookup":false,"batch_index":39,"seconds":1.081}
+{"step":"publication.batch","lookup":true,"batch_index":40,"seconds":0.045}
+{"sql_phase":"capacity_phase:validation:0.253536"}
+{"sql_phase":"capacity_phase:batch:0.271680"}
+{"sql_phase":"capacity_phase:verses:0.350256"}
+{"step":"publication.batch","lookup":false,"batch_index":40,"seconds":1.286}
+{"step":"publication.batch","lookup":true,"batch_index":41,"seconds":0.06}
+{"sql_phase":"capacity_phase:validation:0.241706"}
+{"sql_phase":"capacity_phase:batch:0.252625"}
+{"sql_phase":"capacity_phase:verses:0.301823"}
+{"step":"publication.batch","lookup":false,"batch_index":41,"seconds":1.004}
+{"step":"publication.batch","lookup":true,"batch_index":42,"seconds":0.036}
+{"sql_phase":"capacity_phase:validation:0.306344"}
+{"sql_phase":"capacity_phase:batch:0.321482"}
+{"sql_phase":"capacity_phase:verses:0.361250"}
+{"step":"publication.batch","lookup":false,"batch_index":42,"seconds":0.92}
+{"step":"publication.batch","lookup":true,"batch_index":43,"seconds":0.043}
+{"sql_phase":"capacity_phase:validation:0.272980"}
+{"sql_phase":"capacity_phase:batch:0.283546"}
+{"sql_phase":"capacity_phase:verses:0.331434"}
+{"step":"publication.batch","lookup":false,"batch_index":43,"seconds":0.808}
+{"step":"publication.batch","lookup":true,"batch_index":44,"seconds":0.032}
+{"sql_phase":"capacity_phase:validation:0.226654"}
+{"sql_phase":"capacity_phase:batch:0.239302"}
+{"sql_phase":"capacity_phase:verses:0.271247"}
+{"step":"publication.batch","lookup":false,"batch_index":44,"seconds":0.622}
+{"step":"publication.batch","lookup":true,"batch_index":45,"seconds":0.019}
+{"sql_phase":"capacity_phase:validation:0.185246"}
+{"sql_phase":"capacity_phase:batch:0.195547"}
+{"sql_phase":"capacity_phase:verses:0.235568"}
+{"step":"publication.batch","lookup":false,"batch_index":45,"seconds":0.686}
+{"step":"publication.batch","lookup":true,"batch_index":46,"seconds":0.055}
+{"sql_phase":"capacity_phase:validation:0.299859"}
+{"sql_phase":"capacity_phase:batch:0.315761"}
+{"sql_phase":"capacity_phase:verses:0.359785"}
+{"step":"publication.batch","lookup":false,"batch_index":46,"seconds":1.024}
+{"step":"publication.batch","lookup":true,"batch_index":47,"seconds":0.04}
+{"sql_phase":"capacity_phase:validation:0.178328"}
+{"sql_phase":"capacity_phase:batch:0.192998"}
+{"sql_phase":"capacity_phase:verses:0.229636"}
+{"step":"publication.batch","lookup":false,"batch_index":47,"seconds":0.674}
+{"step":"publication.batch","lookup":true,"batch_index":48,"seconds":0.024}
+{"sql_phase":"capacity_phase:validation:0.153383"}
+{"sql_phase":"capacity_phase:batch:0.163606"}
+{"sql_phase":"capacity_phase:verses:0.197566"}
+{"step":"publication.batch","lookup":false,"batch_index":48,"seconds":0.585}
+{"step":"publication.batch","lookup":true,"batch_index":49,"seconds":0.024}
+{"sql_phase":"capacity_phase:validation:0.142827"}
+{"sql_phase":"capacity_phase:batch:0.152258"}
+{"sql_phase":"capacity_phase:verses:0.195035"}
+{"step":"publication.batch","lookup":false,"batch_index":49,"seconds":0.6}
+{"step":"publication.complete","lookup":true,"batch_index":null,"seconds":0.027}
+{"driver_class":"QueryCanceled","sqlstate":"57014","routine_lines":[["scribeswell.corpus_manifest_compact","3"],["scribeswell.corpus_manifest_compact","5"],["scribeswell.corpus_manifest_compact","5"],["scribeswell.corpus_manifest_compact","5"],["scribeswell.validate_corpus_manifest_completion","36"],["scribeswell.protect_corpus_publication_record","30"],["scribeswell.corpus_publication_internal","182"]]}
+{"step":"publication.complete","lookup":false,"batch_index":null,"seconds":5.028}
+
+DURABLE_PUBLICATION_STEPS [('publication.batch', 50), ('publication.stage', 1)]
+F
+=================================== FAILURES ===================================
+_ test_native_checked_in_artifact_publication_capacity_timing_and_replay[maximum] _
+
+closed = (<psycopg.Connection [IDLE] (host=127.0.0.1 port=32795 user=postgres database=scribeswell_migration_b34bd884094c41a89d...22222-2222-4222-8222-222222222222', attempt_id='9f75f775-5327-4d11-8201-764a0bcd1c3d', generation='1', state='closed'))
+publication_source = b'{"Genesis":[[[["\xd7\x90\xd7\x91","1","HNcmsa"],["\xd7\x90\xd7\x91","1","HNcmsa"],["\xd7\x90\xd7\x91","1","HNcmsa"],...1","HNcmsa"],["\xd7\x90\xd7\x91","1","HNcmsa"],["\xd7\x90\xd7\x91","1","HNcmsa"],["\xd7\x90\xd7\x91","1","HNcmsa"]]]]}'
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7518d56645f0>
+tmp_path = PosixPath('/tmp/pytest-of-ck/pytest-74/test_native_checked_in_artifac0')
+
+    @pytest.mark.parametrize('publication_source',['artifact','maximum'],indirect=True)
+    def test_native_checked_in_artifact_publication_capacity_timing_and_replay(closed,publication_source,monkeypatch,tmp_path):
+        import time
+        from corpus_evidence import build_source_candidate
+        admin,url,seal,_=closed
+        expected=build_source_candidate(publication_source,hashlib.sha256(publication_source).hexdigest(),source_id='tanakh',catalogue_version=seal['payload']['input']['catalogue_version'],versification_id=seal['payload']['input']['versification_id'],tokenization_version=seal['payload']['input']['tokenization_version'])
+        counts=expected['counts']
+        actual=admin.execute('SELECT (SELECT count(*) FROM scribeswell.book),(SELECT count(*) FROM scribeswell.chapter),(SELECT count(*) FROM scribeswell.verse),(SELECT count(*) FROM scribeswell.word)').fetchone()
+        assert actual==tuple(counts[k] for k in ('books','chapters','verses','tokens'))
+        import corpus_operator as supervised
+        from test_postgres_acceptance import role_url
+        target=supervised.OperatorTarget('local_disposable',role_url(url,'scribeswell_corpus_operator'),unquote(urlsplit(url).path[1:]))
+        print('QUALIFIED_CAPACITY_SOURCE',json.dumps({'source_bytes':len(publication_source),'source_sha256':hashlib.sha256(publication_source).hexdigest(),'counts':counts},sort_keys=True),flush=True)
+        if os.environ.get('SCRIBESWELL_CAPACITY_DIAGNOSTICS')=='1':
+            probe=tmp_path/'capacity-probe.py';trace=tmp_path/'capacity-steps.jsonl'
+            probe.write_text(CAPACITY_PROBE.replace('TRACE_PATH',repr(str(trace))))
+            original_worker=supervised._worker_command
+            def diagnostic_worker():
+                command=original_worker()
+                command[-1]=command[-1].replace('from corpus_operator import _worker_main;',"import runpy;runpy.run_path("+repr(str(probe))+");from corpus_operator import _worker_main;")
+                return command
+            monkeypatch.setattr(supervised,'_worker_command',diagnostic_worker)
+        operation=str(uuid4());started=time.monotonic()
+>       try:result=supervised.publish_closed_attempt(target,encode(seal),publication_source,operation_id=operation)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+apps/scribeswell/tests/test_corpus_publish_native.py:526: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+apps/scribeswell/backend/corpus_operator.py:345: in publish_closed_attempt
+    return _publication_invoke(target, raw, source_raw, operation_id, lookup=False)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+target = <corpus_operator.OperatorTarget object at 0x7518b3c9e6c0>
+raw = b'{"schema_version": 1, "operation_id": "4017b718-447f-4285-bfef-0197f9c89ef3", "command": "corpus.seal", "scope": {"k...d_attempt_id": "9f75f775-5327-4d11-8201-764a0bcd1c3d"}, "reason_code": "source_seal", "evidence_ref": "run:fixture/1"}'
+source_raw = b'{"Genesis":[[[["\xd7\x90\xd7\x91","1","HNcmsa"],["\xd7\x90\xd7\x91","1","HNcmsa"],["\xd7\x90\xd7\x91","1","HNcmsa"],...1","HNcmsa"],["\xd7\x90\xd7\x91","1","HNcmsa"],["\xd7\x90\xd7\x91","1","HNcmsa"],["\xd7\x90\xd7\x91","1","HNcmsa"]]]]}'
+operation_id = '62e5234d-b59f-44db-996e-3b38ffaa4756'
+
+    def _publication_invoke(target, raw, source_raw, operation_id, *, lookup):
+        from corpus_publish import PublishError, _activation, _receipt as publication_receipt
+        from corpus_publication_input import _uuid
+        deadline = time.monotonic() + _OPERATION_SECONDS
+        invalid = False
+        try:
+            _target(target)
+            _uuid(operation_id)
+            command = parse_command(raw)
+            if (command.command != 'corpus.seal' or type(source_raw) is not bytes
+                    or len(source_raw) > MAX_SOURCE_BYTES):
+                raise ValueError
+        except Exception:
+            invalid = True
+        if invalid:
+            raise PublishError('input_invalid')
+        failure, result = None, None
+        try:
+            request = json.dumps(dict(version='publication-v1', target=asdict(target),
+                lookup=lookup, raw=base64.b64encode(raw).decode('ascii'),
+                source=base64.b64encode(source_raw).decode('ascii'), operation_id=operation_id),
+                separators=(',', ':')).encode('ascii')
+            if len(request) > _MAX_REQUEST:
+                raise ValueError
+            value = _decode(_exchange(request, deadline))
+            if type(value) is not dict or len(value) != 1:
+                raise ValueError
+            if set(value) == {'error'} and type(value['error']) is str and value['error'] in _PUBLICATION_FAILURES:
+                failure = value['error']
+            elif set(value) == {'receipt'}:
+                if value['receipt'] is None and lookup:
+                    result = None
+                else:
+                    result = publication_receipt(value['receipt'], _activation(command, operation_id))
+            else:
+                raise ValueError
+            if time.monotonic() >= deadline - _REAP_SECONDS:
+                raise ValueError
+        except Exception:
+            failure = 'unknown_outcome'
+        if failure:
+>           raise PublishError(failure)
+E           corpus_publish.PublishError: corpus_publish.unknown_outcome
+
+apps/scribeswell/backend/corpus_operator.py:339: PublishError
+------------------------------ Captured log call -------------------------------
+WARNING  corpus_operator:corpus_operator.py:178 {"service":"scribeswell","action":"corpus_operator_cleanup","code":"forced_termination_reaped"}
+1 failed in 132.40s (0:02:12)

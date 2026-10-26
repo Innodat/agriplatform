@@ -441,3 +441,14 @@ def test_rename_title_wire_and_correlated_outcome():
     problem = {'error': 'Request could not be completed', 'code': 'study_revision_conflict',
                'details': {'expected_revision': '1', 'current_revision': '2'}}
     assert contract.RevisionProblem.model_validate_json(json.dumps(problem)).code == 'study_revision_conflict'
+
+
+@pytest.mark.parametrize('text,valid',[('before\x00after',False),('before\ud800after',False),
+    ('before\udc00after',False),('First\nבְּרֵאשִׁית\ne\u0301 😀',True)])
+def test_note_text_schema_and_runtime_preserve_scalar_boundary(text,valid):
+    inline={'type':'text','text':text,'marks':[]}
+    assert schema_validates('TextInline',inline) is valid
+    if valid:
+        assert contract.TextInline.model_validate_json(json.dumps(inline)).text==text
+    else:
+        with pytest.raises(ValueError):contract.TextInline.model_validate_json(json.dumps(inline))

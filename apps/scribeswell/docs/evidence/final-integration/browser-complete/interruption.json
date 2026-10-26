@@ -1,0 +1,11 @@
+{
+  "reason": "Parent ended after observed script transport boot failure and incoherent word2 fixture; no current-source complete acceptance claimed",
+  "signal": "SIGINT only to verified Playwright descendant of this runner",
+  "summary": [
+    "  3 failed",
+    "  4 interrupted",
+    "  1 skipped",
+    "  591 did not run",
+    "  569 passed (14.2m)"
+  ]
+}

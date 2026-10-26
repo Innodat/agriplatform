@@ -1,0 +1,20 @@
+{
+  "results": [
+    {
+      "argv": [
+        "/tmp/scribeswell-implementation-python/bin/python",
+        "-m",
+        "pytest",
+        "-q",
+        "apps/scribeswell/tests/test_personal_notes_storage.py::test_native_create_write_reopen_noop_replay_and_isolation",
+        "-rs",
+        "-s"
+      ],
+      "exit_code": 1,
+      "seconds": 2.47
+    }
+  ],
+  "container": "scribeswell-final-c1820ab650c4",
+  "stopped": true,
+  "source_unchanged": true
+}

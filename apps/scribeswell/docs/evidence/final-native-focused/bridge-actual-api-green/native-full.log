@@ -1,0 +1,102 @@
+F
+=================================== FAILURES ===================================
+___________________ test_native_browser_create_write_reopen ____________________
+
+native = (<personal_notes_storage.PersonalNotesStorage object at 0x7abd898ef6e0>, 'postgresql://postgres:synthetic-only@127.0.0...esql://scribeswell_studies_migrator:synthetic-only@127.0.0.1:32807/scribeswell_notes_e2987b2f598947a8b1224743521c486b')
+
+    def test_native_browser_create_write_reopen(native):
+        if os.environ.get('SCRIBESWELL_NOTES_BROWSER_QUALIFY')!='true':pytest.skip('Explicit browser qualification opt-in required')
+        import socket,threading,subprocess
+        import uvicorn
+        from fastapi import FastAPI,Request
+        from personal_notes_router import build_router
+        from personal_notes_access import StudiesAccess
+        from fastapi.responses import JSONResponse
+        from datetime import datetime,timezone
+        owner=FastAPI()
+        @owner.post('/v2/check')
+        async def check(request:Request):
+            assert request.headers['x-service-key']=='synthetic-server-only'
+            assert await request.json()=={'permission':'scribeswell.studies.use','authorization_scope':{'kind':'account'}}
+            return {'account_id':A,'actor_id':ACTOR,'permission':'scribeswell.studies.use','authorization_scope':{'kind':'account'},'decision_id':str(uuid4()),'checked_at':datetime.now(timezone.utc).isoformat()}
+        @owner.post('/v2/enrollments/scribeswell-studies')
+        async def enroll(request:Request):
+            payload=await request.json()
+            return {'operation_id':payload['operation_id'],'status':'committed','result':{'disposition':'created','account_id':A,'actor_id':ACTOR,'permission':'scribeswell.studies.use'}}
+        servers=[]
+        def start(app):
+            sock=socket.socket();sock.bind(('127.0.0.1',0));sock.listen(128)
+            server=uvicorn.Server(uvicorn.Config(app,log_level='critical',access_log=False));thread=threading.Thread(target=server.run,kwargs={'sockets':[sock]},daemon=True);thread.start();servers.append((server,thread,sock));end=time.monotonic()+5
+            while not server.started:
+                if time.monotonic()>end:raise RuntimeError('Fixture startup deadline')
+                time.sleep(.01)
+            return f'http://127.0.0.1:{sock.getsockname()[1]}'
+        try:
+            access_url=start(owner);api_app=FastAPI();api_app.include_router(build_router(StudiesAccess(access_url,'synthetic-server-only'),native[0]));api_url=start(api_app)
+            # Earlier storage scenarios belong to this same fixture; browser needs an unused default name.
+            # Release default names only; preserve earlier overflow rows and lifecycle evidence.
+            with psycopg.connect(native[1]) as c:c.execute("UPDATE scribeswell_studies.studies SET title='Fixture '||id::text WHERE active AND title LIKE 'Untitled study%'")
+            env={**os.environ,'SCRIBESWELL_NOTES_NATIVE_API':api_url}
+            result=subprocess.run(['npm','run','test:browser','--workspace=apps/scribeswell/web','--','personal-notes.spec.cjs','--project=desktop','--grep','native PostgreSQL'],env=env,cwd=APP.parents[1],timeout=90,capture_output=True,text=True)
+>           assert result.returncode==0,result.stdout+result.stderr
+E           AssertionError: 
+E             > scribeswell-web@0.1.0 test:browser
+E             > playwright test --config playwright.config.cjs personal-notes.spec.cjs --project=desktop --grep native PostgreSQL
+E             
+E             
+E             Running 1 test using 1 worker
+E             
+E             NATIVE_FIXTURE_ACK_IDS {"study_id":"3d91365e-6bfa-4977-9f97-83ccbbca41f7","note_id":"cfd3cd1b-33c3-47ab-b51b-96acdcd1a236","stub_study":"30000000-0000-4000-8000-000000000001","stub_note":"40000000-0000-4000-8000-000000000001"}
+E               ✓  1 [desktop] › tests/personal-notes.spec.cjs:175:1 › native PostgreSQL browser reload returns the acknowledged aggregate (6.9s)
+E             Error: "route.fetch: Test ended.
+E             Call log:
+E               - → POST http://127.0.0.1:44645/api/studies/context-notes
+E                 - user-agent: Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/153.0.8010.12 Safari/537.36
+E                 - accept: */*
+E                 - accept-encoding: gzip,deflate,br
+E                 - accept-language: en-US
+E                 - authorization: Bearer current
+E                 - content-type: application/json
+E                 - origin: http://127.0.0.1:5182
+E                 - referer: http://127.0.0.1:5182/?reader=%7B%22v%22%3A1%2C%22panes%22%3A%5B%7B%22ref%22%3A%7B%22catalogue_id%22%3A%22scribeswell.references.v1%22%2C%22catalogue_version%22%3A%2248fa91f3bcd02b63138152e43a9292c7f1091e1beffb44c2243b483ffaafb5ba%22%2C%22versification_id%22%3A%22oshb-hebrew-json-c2d8e9e5%22%2C%22book_id%22%3A%22Gen%22%2C%22target%22%3A%7B%22kind%22%3A%22chapter%22%2C%22chapter%22%3A1%7D%7D%7D%5D%2C%22active%22%3A0%7D
+E                 - sec-ch-ua: "HeadlessChrome";v="153", "Not_A Brand";v="8", "Chromium";v="153"
+E                 - sec-ch-ua-mobile: ?0
+E                 - sec-ch-ua-platform: "Linux"
+E                 - content-length: 262
+E             " while running route callback.
+E             Consider awaiting `await page.unrouteAll({ behavior: 'ignoreErrors' })`
+E             before the end of the test to ignore remaining routes in flight.
+E             
+E             Failed worker ran 1 test:
+E             [desktop] › tests/personal-notes.spec.cjs:175:1 › native PostgreSQL browser reload returns the acknowledged aggregate
+E             
+E                at personal-notes.spec.cjs:178
+E             
+E               176 |  test.skip(!process.env.SCRIBESWELL_NOTES_NATIVE_API,'Explicit owned native API fixture required');
+E               177 |  await setup(page);await page.unroute('**/api/studies**');const acknowledgements=[];
+E             > 178 |  for(const pattern of ['**/api/studies**','**/api/operations/**'])await page.route(pattern,async r=>{const target=process.env.SCRIBESWELL_NOTES_NATIVE_API+new URL(r.request().url()).pathname+new URL(r.request().url()).search;const response=await r.fetch({url:target});if(r.request().method()==='POST'){const result=await response.json();if(['study.create','note.create'].includes(result.command))acknowledgements.push(result);}await r.fulfill({response});});
+E                   |                                                                                                                                                                                                                                                         ^
+E               179 |  await firstNote(page);await page.getByLabel('Note text',{exact:true}).fill('Native persisted בְּרֵאשִׁית');await expect(page.getByRole('status').filter({hasText:'Draft saved'})).toBeVisible();
+E               180 |  const createdStudy=acknowledgements.find(result=>result.command==='study.create'),createdNote=acknowledgements.find(result=>result.command==='note.create');expect(createdStudy?.study_id).toMatch(/^[0-9a-f-]{36}$/);expect(createdNote?.study_id).toBe(createdStudy.study_id);expect(createdNote?.note_id).toMatch(/^[0-9a-f-]{36}$/);console.log('NATIVE_FIXTURE_ACK_IDS',JSON.stringify({study_id:createdStudy.study_id,note_id:createdNote.note_id,stub_study:study,stub_note:note}));
+E               181 |  await reloadRememberedWorkspace(page,{studyId:createdStudy.study_id,noteId:createdNote.note_id});await page.getByRole('button',{name:'Studies',exact:true}).click();await page.getByRole('button',{name:'Native persisted בְּרֵאשִׁית',exact:true}).click();await expect(page.getByLabel('Note text',{exact:true})).toContainText('Native persisted בְּרֵאשִׁית');
+E                 at /home/ck/repos/innodat/agriplatform/apps/scribeswell/web/tests/personal-notes.spec.cjs:178:249
+E             
+E               1 passed (11.8s)
+E               1 error was not a part of any test, see above for details
+E             [WebServer] (node:964183) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+E             [WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+E             (node:964277) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+E             (Use `node --trace-warnings ...` to show where the warning was created)
+E             npm error Lifecycle script `test:browser` failed with error:
+E             npm error code 1
+E             npm error path /home/ck/repos/innodat/agriplatform/apps/scribeswell/web
+E             npm error workspace scribeswell-web@0.1.0
+E             npm error location /home/ck/repos/innodat/agriplatform/apps/scribeswell/web
+E             npm error command failed
+E             npm error command sh -c playwright test --config playwright.config.cjs personal-notes.spec.cjs --project=desktop --grep 'native PostgreSQL'
+E             
+E           assert 1 == 0
+E            +  where 1 = CompletedProcess(args=['npm', 'run', 'test:browser', '--workspace=apps/scribeswell/web', '--', 'personal-notes.spec.cj...playwright test --config playwright.config.cjs personal-notes.spec.cjs --project=desktop --grep 'native PostgreSQL'\n").returncode
+
+apps/scribeswell/tests/test_personal_notes_storage.py:374: AssertionError
+1 failed in 19.33s

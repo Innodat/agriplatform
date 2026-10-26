@@ -6,7 +6,8 @@ branch_labels=None
 depends_on=None
 
 def upgrade():
-    op.execute('''
+    # Execute literal DDL without SQLAlchemy text() interpreting JSON :1 as a bind.
+    op.get_bind().exec_driver_sql('''
 ALTER TABLE scribeswell_studies.receipts DROP CONSTRAINT receipts_command_check;
 ALTER TABLE scribeswell_studies.receipts DROP CONSTRAINT receipts_check;
 ALTER TABLE scribeswell_studies.receipts ADD CONSTRAINT receipts_command_check CHECK(command IN('study.create','study.rename','study.passages.replace','note.create','note.replace','note.delete'));

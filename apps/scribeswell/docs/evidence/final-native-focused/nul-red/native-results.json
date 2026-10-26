@@ -1,0 +1,20 @@
+{
+  "results": [
+    {
+      "argv": [
+        "/tmp/scribeswell-implementation-python/bin/python",
+        "-m",
+        "pytest",
+        "-q",
+        "apps/scribeswell/tests/test_personal_notes_storage.py::test_native_api_nul_rejected_without_note_or_receipt_and_unicode_preserved",
+        "-rs",
+        "-s"
+      ],
+      "exit_code": 1,
+      "seconds": 6.05
+    }
+  ],
+  "container": "scribeswell-final-f1e1a94ed9d1",
+  "stopped": true,
+  "source_unchanged": true
+}

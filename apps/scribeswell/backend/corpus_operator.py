@@ -17,7 +17,7 @@ import time
 from urllib.parse import parse_qs, unquote, urlsplit
 
 import psycopg
-from corpus_evidence import MAX_SOURCE_BYTES, EvidenceError
+from corpus_evidence import MAX_SOURCE_BYTES, EvidenceError, _qualified_source_execution
 from corpus_publication import (CommandReceipt, PublicationError, _receipt,
                                 execute_command as _execute, lookup_outcome as _lookup)
 from corpus_publication_input import MAX_COMMAND_BYTES, parse_command, prepare_command
@@ -350,6 +350,7 @@ def lookup_publication(target: OperatorTarget, raw: bytes, source_raw: bytes, *,
     return _publication_invoke(target, raw, source_raw, operation_id, lookup=True)
 
 
+@_qualified_source_execution()
 def _publication_worker(request):
     from corpus_publish import (PublishError, _prepare, publish_closed_attempt as publish,
                                 lookup_publication as lookup)

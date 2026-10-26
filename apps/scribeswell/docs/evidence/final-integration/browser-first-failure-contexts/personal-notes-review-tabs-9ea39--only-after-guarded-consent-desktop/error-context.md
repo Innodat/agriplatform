@@ -1,0 +1,302 @@
+# Instructions
+
+- Following Playwright test failed.
+- Explain why, be concise, respect Playwright best practices.
+- Provide a snippet of code with the fix, if possible.
+
+# Test info
+
+- Name: personal-notes.spec.cjs >> review tabs E1 sole conflicted note reopens latest only after guarded consent
+- Location: tests/personal-notes.spec.cjs:1464:1
+
+# Error details
+
+```
+Error: expect(locator).toBeVisible() failed
+
+Locator: getByRole('dialog', { name: 'Changes not saved' })
+Expected: visible
+Timeout: 5000ms
+Error: element(s) not found
+
+Call log:
+  - Expect "toBeVisible" getByRole('dialog', { name: 'Changes not saved' }) with timeout 5000ms
+  - waiting for getByRole('dialog', { name: 'Changes not saved' })
+
+```
+
+```yaml
+- banner:
+  - text: Scribes' Well reader@example.invalid
+  - button "Sign out"
+- main:
+  - tablist "Workspace tabs":
+    - tab "Genesis 1" [selected]
+    - button "Rename tab 1": Rename
+  - button "New workspace tab": + New tab
+  - button "Add reader pane"
+  - button "Enter focus mode": Focus mode
+  - navigation "Reader tools":
+    - button "Studies"
+    - button "Analysis" [pressed]
+    - text: Untitled study
+  - tabpanel "Genesis 1":
+    - region "Passage 1":
+      - button "Previous chapter" [disabled]
+      - 'button "Navigate: Genesis, chapter 1. Open selector."':
+        - text: Genesis א
+        - img
+      - button "Next chapter" [disabled]
+      - region "Chapter text":
+        - paragraph: "Current note: my conflicting input · Changes not saved"
+        - list "Verses":
+          - listitem:
+            - text: "1"
+            - paragraph:
+              - 'button "Word: בְּרֵאשִׁית"': בְּרֵאשִׁית
+  - complementary "Study tools":
+    - tablist "Analysis":
+      - tab "Word" [disabled]
+      - tab "Occurrences" [disabled]
+      - tab "Notes" [selected]
+    - region "Relevant own notes":
+      - heading "Relevant own notes" [level=3]
+      - paragraph: Genesis 1 · Only you
+      - paragraph: No relevant saved notes.
+      - list
+    - region "Note editor":
+      - heading "Notes" [level=3]
+      - button "Duplicate note"
+      - button "Delete note"
+      - button "Delete study"
+      - paragraph: Untitled study
+      - button "Read note"
+      - toolbar "Note formatting":
+        - button "Bold": B
+        - button "Italic": I
+        - button "Bullet list"
+        - button "Numbered list"
+        - button "Link"
+        - button "Insert passage reference":
+          - text: Insert passage reference
+          - img
+        - text: Direction
+        - combobox "Paragraph direction":
+          - option "Auto" [selected]
+          - option "Left to right"
+          - option "Right to left"
+      - textbox "Note text"
+      - status: Changes not saved
+      - region "Note conflict":
+        - alert: This note has changed. Your input is kept here.
+        - button "Review latest"
+        - button "Save mine as a new note"
+      - button "Back to Studies"
+```
+
+# Test source
+
+```ts
+  1365 | });
+  1366 | 
+  1367 | test('workspace tabs retain a closed-origin creation recovery item without hijacking the active tab',async({page})=>{
+  1368 |  const {requests}=await setup(page);let release;await page.route('**/api/studies',async r=>{if(r.request().method()!=='POST')return r.fallback();await new Promise(resolve=>release=resolve);return r.fallback();});
+  1369 |  await page.goto('/');await page.getByRole('button',{name:'Studies',exact:true}).click();await page.getByRole('button',{name:'Start a study',exact:true}).click();await page.getByRole('button',{name:'Create study',exact:true}).click();await expect.poll(()=>!!release).toBe(true);
+  1370 |  await page.getByRole('button',{name:'New workspace tab',exact:true}).click();await page.getByRole('dialog',{name:'Book and chapter selector'}).getByRole('button',{name:'Cancel',exact:true}).click();await page.getByRole('button',{name:'Close tab 1',exact:true}).click();release();
+  1371 |  await expect(page.getByRole('button',{name:'Open created study',exact:true})).toBeVisible();await expect(page.getByRole('button',{name:'Studies',exact:true})).toHaveAttribute('aria-pressed','false');expect(requests.filter(r=>r.path==='/api/studies'&&r.method==='POST')).toHaveLength(1);
+  1372 |  await page.getByRole('button',{name:'Open created study',exact:true}).click();await expect(page.getByRole('heading',{name:'Untitled study',exact:true})).toBeVisible();expect(requests.filter(r=>r.path==='/api/studies'&&r.method==='POST')).toHaveLength(1);
+  1373 | });
+  1374 | 
+  1375 | test('workspace tabs capacity replay guards the sole unresolved context and Stay cancels held restoration',async({page})=>{
+  1376 |  const options={failPut:503};await setup(page,options);await firstNote(page);await page.getByRole('textbox',{name:'Note text',exact:true}).fill('sole unsaved context');await expect(page.getByRole('status').filter({hasText:'Changes not saved'})).toBeVisible();
+  1377 |  const add=async()=>{await page.getByRole('button',{name:'New workspace tab',exact:true}).click();await page.getByRole('dialog',{name:'Book and chapter selector'}).getByRole('button',{name:'Cancel',exact:true}).click();};
+  1378 |  await add();await page.getByRole('button',{name:'Studies',exact:true}).click();await page.getByRole('button',{name:'Leave study',exact:true}).click();await page.getByRole('button',{name:'Close tab 2',exact:true}).click();
+  1379 |  await add();await page.getByRole('button',{name:'Studies',exact:true}).click();await page.getByRole('button',{name:'Leave study',exact:true}).click();
+  1380 |  for(let i=0;i<10;i++)await add();await page.evaluate(()=>history.go(-12));
+  1381 |  const restore=page.getByRole('dialog',{name:'Choose tab to close and restore'});await expect(restore).toBeVisible();const idx=await page.evaluate(()=>history.state.idx);
+  1382 |  await restore.getByRole('button',{name:/Close tab 1:/}).click();const consent=page.getByRole('dialog',{name:'Changes not saved'});await expect(consent).toBeVisible();await consent.getByRole('button',{name:'Stay',exact:true}).click();await expect(consent).toHaveCount(0);await expect(restore).toHaveCount(0);await expect(page.getByRole('tablist',{name:'Workspace tabs'}).getByRole('tab')).toHaveCount(12);expect(await page.evaluate(()=>history.state.idx)).toBe(idx);
+  1383 |  const publicEntry=await page.evaluate(()=>JSON.stringify(history.state.usr.scribeswellReader));
+  1384 |  await page.getByRole('button',{name:'Studies',exact:true}).click();await page.getByRole('button',{name:'Untitled study',exact:true}).click();await expect(page.getByRole('button',{name:'Add current passage',exact:true})).toHaveCount(0);await expect(page.getByRole('button',{name:'Add passage',exact:true})).toBeVisible();
+  1385 |  await page.evaluate(()=>{const scroll=document.querySelector('[data-reader-scroll]');scroll.dispatchEvent(new WheelEvent('wheel',{bubbles:true}));scroll.dispatchEvent(new Event('scroll',{bubbles:true}));});await page.waitForTimeout(200);expect(await page.evaluate(()=>JSON.stringify(history.state.usr.scribeswellReader))).toBe(publicEntry);
+  1386 |  await page.getByRole('button',{name:'Choose tab to close and restore',exact:true}).click();await expect(restore).toBeVisible();await restore.getByRole('button',{name:'Cancel',exact:true}).click();
+  1387 |  await page.getByRole('tablist',{name:'Workspace tabs'}).getByRole('tab').first().click();await expect(page.getByRole('button',{name:'Choose tab to close and restore',exact:true})).toHaveCount(0);if(await page.getByRole('button',{name:'Analysis',exact:true}).getAttribute('aria-pressed')!=='true')await page.getByRole('button',{name:'Analysis',exact:true}).click();await expect(page.getByRole('textbox',{name:'Note text',exact:true})).toHaveText('sole unsaved context');
+  1388 |  await page.goBack();await expect(restore).toBeVisible();const replayIndex=await page.evaluate(()=>history.state.idx);await restore.getByRole('button',{name:/Close tab 1:/}).click();await consent.getByRole('button',{name:'Close anyway',exact:true}).click();await expect(restore).toHaveCount(0);await expect(page.getByRole('tablist',{name:'Workspace tabs'}).getByRole('tab')).toHaveCount(12);expect(await page.evaluate(()=>history.state.idx)).toBe(replayIndex);await expect(page.getByRole('button',{name:'Analysis',exact:true})).toHaveAttribute('aria-pressed','false');await page.getByRole('button',{name:'Analysis',exact:true}).click();await expect(page.getByRole('textbox',{name:'Note text',exact:true})).toHaveCount(0);await expect(page.getByText('Select a note in Studies.',{exact:true})).toBeVisible();
+  1389 | });
+  1390 | 
+  1391 | test('workspace tabs closed history never restores inherited private associations',async({page})=>{
+  1392 |  await setup(page);await firstNote(page);await page.getByRole('textbox',{name:'Note text',exact:true}).fill('private lane remains A');await expect(page.getByRole('status').filter({hasText:'Draft saved'})).toBeVisible();
+  1393 |  await page.getByRole('button',{name:'New workspace tab',exact:true}).click();await page.getByRole('dialog',{name:'Book and chapter selector'}).getByRole('button',{name:'Cancel',exact:true}).click();await page.getByRole('button',{name:'Close tab 2',exact:true}).click();await page.goBack();
+  1394 |  await expect(page.getByRole('tablist',{name:'Workspace tabs'}).getByRole('tab')).toHaveCount(2);await expect(page.getByRole('button',{name:'Analysis',exact:true})).toHaveAttribute('aria-pressed','false');await page.getByRole('button',{name:'Analysis',exact:true}).click();await expect(page.getByRole('textbox',{name:'Note text',exact:true})).toHaveCount(0);await expect(page.getByText('Select a note in Studies.',{exact:true})).toBeVisible();
+  1395 |  await page.getByRole('tablist',{name:'Workspace tabs'}).getByRole('tab').first().click();await expect(page.getByRole('textbox',{name:'Note text',exact:true})).toHaveText('private lane remains A');
+  1396 | });
+  1397 | 
+  1398 | test('workspace tabs mask all private labels during authentication loss and clear them on account replacement',async({page})=>{
+  1399 |  const options={failPut:401};await setup(page,options);await firstNote(page);const rename=async(index,label)=>{await page.getByRole('button',{name:`Rename tab ${index}`,exact:true}).click();await page.getByLabel('Tab name',{exact:true}).fill(label);await page.getByRole('dialog',{name:'Rename workspace tab'}).getByRole('button',{name:'Save',exact:true}).click();};
+  1400 |  await rename(1,'private label A');await page.getByRole('button',{name:'New workspace tab',exact:true}).click();await page.getByRole('dialog',{name:'Book and chapter selector'}).getByRole('button',{name:'Cancel',exact:true}).click();await rename(2,'private label B');await page.getByRole('button',{name:'Analysis',exact:true}).click();await page.getByRole('textbox',{name:'Note text',exact:true}).fill('auth failure input');await expect(page.getByRole('alert')).toContainText('Sign in');await expect(page.getByText('private label A',{exact:true})).toHaveCount(0);await expect(page.getByText('private label B',{exact:true})).toHaveCount(0);
+  1401 |  await page.route('**/auth/v1/token*',r=>r.fulfill({json:{...session,access_token:'renewed-current'}}));await page.evaluate(async()=>{const {supabase}=await import('/src/lib/supabase.ts');await supabase.auth.signInWithPassword({email:'reader@example.invalid',password:'fixture'});});options.failPut=0;await page.getByRole('button',{name:'Retry Studies',exact:true}).click();await expect(page.getByText('private label A',{exact:true})).toBeVisible();await expect(page.getByText('private label B',{exact:true})).toBeVisible();
+  1402 |  await page.route('**/auth/v1/token*',r=>r.fulfill({json:{...session,access_token:'other-account',user:{...session.user,id:'10000000-0000-4000-8000-000000000002'}}}));await page.evaluate(async()=>{const {supabase}=await import('/src/lib/supabase.ts');await supabase.auth.signOut({scope:'local'});await supabase.auth.signInWithPassword({email:'other@example.invalid',password:'fixture'});});await expect(page.getByText('private label A',{exact:true})).toHaveCount(0);await expect(page.getByText('private label B',{exact:true})).toHaveCount(0);await expect(page.getByText('auth failure input',{exact:true})).toHaveCount(0);await page.getByRole('button',{name:'Add reader pane',exact:true}).click();await page.getByRole('dialog',{name:'Book and chapter selector'}).getByRole('button',{name:'Cancel',exact:true}).click();await expect(page.getByText('private label A',{exact:true})).toHaveCount(0);await expect(page.getByText('private label B',{exact:true})).toHaveCount(0);
+  1403 | });
+  1404 | 
+  1405 | test('workspace tabs last-context discard retains only the original unknown save for explicit recovery',async({page})=>{
+  1406 |  const options={failPut:503};const {requests}=await setup(page,options);await firstNote(page);await page.getByRole('button',{name:'New workspace tab',exact:true}).click();await page.getByRole('dialog',{name:'Book and chapter selector'}).getByRole('button',{name:'Cancel',exact:true}).click();await page.getByRole('button',{name:'Studies',exact:true}).click();await page.getByRole('button',{name:'Leave study',exact:true}).click();await page.getByRole('tablist',{name:'Workspace tabs'}).getByRole('tab').first().click();
+  1407 |  await page.getByRole('textbox',{name:'Note text',exact:true}).fill('original unknown payload');await expect(page.getByRole('status').filter({hasText:'Changes not saved'})).toBeVisible();const original=structuredClone(requests.filter(r=>r.method==='PUT').at(-1).payload);await page.getByRole('textbox',{name:'Note text',exact:true}).fill('newer input explicitly abandoned');
+  1408 |  await page.getByRole('button',{name:'Close tab 1',exact:true}).click();await page.getByRole('dialog',{name:'Changes not saved'}).getByRole('button',{name:'Close anyway',exact:true}).click();await expect(page.getByRole('tablist',{name:'Workspace tabs'}).getByRole('tab')).toHaveCount(1);await expect(page.locator('[aria-label="Note text"]')).toHaveCount(0);await expect(page.getByRole('button',{name:'Recover note save 1',exact:true})).toBeVisible();options.failPut=0;await page.getByRole('button',{name:'Recover note save 1',exact:true}).click();await expect(page.getByRole('button',{name:'Recover note save 1',exact:true})).toHaveCount(0);expect(requests.filter(r=>r.method==='PUT')).toHaveLength(2);expect(requests.filter(r=>r.method==='PUT').at(-1).payload).toEqual(original);await expect(page.getByRole('tablist',{name:'Workspace tabs'}).getByRole('tab')).toHaveCount(1);await expect(page.locator('[aria-label="Note text"]')).toHaveCount(0);expect(requests.filter(r=>r.method==='DELETE')).toHaveLength(0);
+  1409 | });
+  1410 | 
+  1411 | test('workspace tabs direct Open in new tab retains a complete range with no picker and inherits only note identity',async({page})=>{
+  1412 |  const {collection,requests}=await setup(page);const catalogue=require('../src/generated/reference-catalogue.json');const reference={catalogue_id:catalogue.catalogue_id,catalogue_version:catalogue.catalogue_version,versification_id:catalogue.books[0].versification_id,book_id:'Gen',target:{kind:'verse_range',start:{chapter:1,verse:31},end:{chapter:2,verse:3}}};collection.items.push({id:'50000000-0000-4000-8000-000000000001',reference});await firstNote(page);await page.getByRole('textbox',{name:'Note text',exact:true}).fill('associated original lane');await expect(page.getByRole('status').filter({hasText:'Draft saved'})).toBeVisible();await page.getByRole('button',{name:'Back to Studies',exact:true}).click();await page.getByRole('button',{name:'Open Genesis 1:31–2:3 in new tab',exact:true}).click();await expect(page.getByRole('dialog')).toHaveCount(0);expect(await page.evaluate(()=>JSON.parse(new URL(location.href).searchParams.get('reader')).panes[0].ref)).toEqual(reference);await expect(page.getByRole('button',{name:'Analysis',exact:true})).toHaveAttribute('aria-pressed','false');await page.getByRole('button',{name:'Analysis',exact:true}).click();await expect(page.getByRole('textbox',{name:'Note text',exact:true})).toHaveText('associated original lane');expect(requests.filter(r=>r.method==='POST'&&r.path.endsWith('/notes'))).toHaveLength(1);
+  1413 | });
+  1414 | 
+  1415 | for(const target of ['note','study'])test(`workspace tabs confirmed ${target} deletion clears every matching private association and retains public tabs`,async({page})=>{
+  1416 |  const {requests}=await setup(page);await firstNote(page);await page.getByRole('textbox',{name:'Note text',exact:true}).fill('shared deleted resource');await expect(page.getByRole('status').filter({hasText:'Draft saved'})).toBeVisible();await page.getByRole('button',{name:'New workspace tab',exact:true}).click();await page.getByRole('dialog',{name:'Book and chapter selector'}).getByRole('button',{name:'Cancel',exact:true}).click();await page.getByRole('button',{name:'Analysis',exact:true}).click();await page.getByRole('button',{name:`Delete ${target}`,exact:true}).click();await page.getByRole('dialog').getByRole('button',{name:`Delete ${target}`,exact:true}).click();await expect(page.getByRole('dialog')).toHaveCount(0);await expect(page.locator('[aria-label="Note text"]')).toHaveCount(0);await page.getByRole('tablist',{name:'Workspace tabs'}).getByRole('tab').first().click();await expect(page.locator('[aria-label="Note text"]')).toHaveCount(0);await expect(page.getByRole('tablist',{name:'Workspace tabs'}).getByRole('tab')).toHaveCount(2);expect(requests.filter(r=>r.method==='DELETE')).toHaveLength(1);if(page.viewportSize().width<768)await page.getByRole('button',{name:'Return to reader',exact:true}).click();await expect(page.getByRole('button',{name:/Word: בְּרֵאשִׁית/})).toBeVisible();
+  1417 | });
+  1418 | 
+  1419 | test('workspace tabs inherited study outlines retain independent pagination cursors',async({page})=>{
+  1420 |  await reviewLibrary(page,{notes:async(parent,cursor,view)=>cursor?{items:[view(parent,'40000000-0000-4000-8000-000000000003','Older outline note')],next_cursor:null}:{items:[view(parent,note,'A first')],next_cursor:'page-two'}});await page.getByRole('button',{name:'Study A',exact:true}).click();await expect(page.getByRole('button',{name:'More notes',exact:true})).toBeVisible();await page.getByRole('button',{name:'New workspace tab',exact:true}).click();await page.getByRole('dialog',{name:'Book and chapter selector'}).getByRole('button',{name:'Cancel',exact:true}).click();await page.getByRole('button',{name:'Studies',exact:true}).click();await page.getByRole('button',{name:'More notes',exact:true}).click();await expect(page.getByRole('button',{name:'Older outline note',exact:true})).toBeVisible();await expect(page.getByRole('button',{name:'More notes',exact:true})).toHaveCount(0);await page.getByRole('tablist',{name:'Workspace tabs'}).getByRole('tab').first().click();await expect(page.getByRole('button',{name:'Older outline note',exact:true})).toHaveCount(0);await page.getByRole('button',{name:'More notes',exact:true}).click();await expect(page.getByRole('button',{name:'Older outline note',exact:true})).toBeVisible();
+  1421 | });
+  1422 | 
+  1423 | test('workspace tabs reject stale layout consent and clear open consent on account replacement',async({page})=>{
+  1424 |  const options={failPut:503};await setup(page,options);await firstNote(page);await page.getByRole('button',{name:'New workspace tab',exact:true}).click();await page.getByRole('dialog',{name:'Book and chapter selector'}).getByRole('button',{name:'Cancel',exact:true}).click();await page.getByRole('button',{name:'Studies',exact:true}).click();await page.getByRole('button',{name:'Leave study',exact:true}).click();await page.getByRole('tablist',{name:'Workspace tabs'}).getByRole('tab').first().click();await page.getByRole('textbox',{name:'Note text',exact:true}).fill('consent origin');await expect(page.getByRole('status').filter({hasText:'Changes not saved'})).toBeVisible();await page.getByRole('button',{name:'Close tab 1',exact:true}).click();await expect(page.getByRole('dialog',{name:'Changes not saved'})).toBeVisible();
+  1425 |  await page.getByRole('tablist',{name:'Workspace tabs'}).getByRole('tab').nth(1).evaluate(el=>el.click());await page.getByRole('dialog',{name:'Changes not saved'}).getByRole('button',{name:'Close anyway',exact:true}).click();await expect(page.getByRole('tablist',{name:'Workspace tabs'}).getByRole('tab')).toHaveCount(2);await page.getByRole('tablist',{name:'Workspace tabs'}).getByRole('tab').first().click();await expect(page.getByRole('textbox',{name:'Note text',exact:true})).toHaveText('consent origin');await page.getByRole('button',{name:'Close tab 1',exact:true}).click();await expect(page.getByRole('dialog',{name:'Changes not saved'})).toBeVisible();
+  1426 |  await page.route('**/auth/v1/token*',r=>r.fulfill({json:{...session,access_token:'other-account',user:{...session.user,id:'10000000-0000-4000-8000-000000000002'}}}));await page.evaluate(async()=>{const {supabase}=await import('/src/lib/supabase.ts');await supabase.auth.signOut({scope:'local'});await supabase.auth.signInWithPassword({email:'other@example.invalid',password:'fixture'});});await expect(page.getByRole('dialog',{name:'Changes not saved'})).toHaveCount(0);await expect(page.locator('[aria-label="Note text"]')).toHaveCount(0);await expect(page.getByRole('tablist',{name:'Workspace tabs'}).getByRole('tab')).toHaveCount(2);
+  1427 | });
+  1428 | 
+  1429 | test('workspace tabs recheck last-context departure after a delayed replacement read without background focus',async({page})=>{
+  1430 |  let release;await reviewLibrary(page,{read:async(parent,id,view)=>{if(id!==note)await new Promise(resolve=>release=resolve);return view(parent,id,id===note?'A first':'A second');}});await page.route('**/api/studies/*/notes/*',r=>r.request().method()==='PUT'?r.fulfill({status:503,json:{code:'studies_storage_unavailable'}}):r.fallback());await page.getByRole('button',{name:'Study A',exact:true}).click();await page.getByRole('button',{name:'A first',exact:true}).click();await page.getByRole('textbox',{name:'Note text',exact:true}).fill('last-context race input');await expect(page.getByRole('status').filter({hasText:'Changes not saved'})).toBeVisible();await page.getByRole('button',{name:'New workspace tab',exact:true}).click();await page.getByRole('dialog',{name:'Book and chapter selector'}).getByRole('button',{name:'Cancel',exact:true}).click();await page.getByRole('tablist',{name:'Workspace tabs'}).getByRole('tab').first().click();await page.getByRole('button',{name:'Back to Studies',exact:true}).click();await page.getByRole('button',{name:'A second',exact:true}).click();await expect.poll(()=>!!release).toBe(true);await page.getByRole('tablist',{name:'Workspace tabs'}).getByRole('tab').nth(1).click();await page.getByRole('button',{name:'Studies',exact:true}).click();await page.getByRole('button',{name:'Leave study',exact:true}).click();const response=page.waitForResponse('**/notes/40000000-0000-4000-8000-000000000002');release();await response;await expect(page.getByRole('dialog',{name:'Changes not saved'})).toHaveCount(0);await page.getByRole('tablist',{name:'Workspace tabs'}).getByRole('tab').first().click();if(await page.getByRole('button',{name:'Analysis',exact:true}).getAttribute('aria-pressed')!=='true')await page.getByRole('button',{name:'Analysis',exact:true}).click();await expect(page.getByRole('textbox',{name:'Note text',exact:true})).toHaveText('last-context race input');
+  1431 | });
+  1432 | 
+  1433 | test('workspace tabs libraries retain distinct applied queries and scroll when flags match',async({page})=>{
+  1434 |  await setup(page,{search:async(r,body)=>r.fulfill({json:{items:Array.from({length:20},(_,i)=>({...attribution,id:`30000000-0000-4000-8000-${String(i+10).padStart(12,'0')}`,title:`${body.query||'initial'} result ${i}`,revision:'1'})),next_cursor:null}})});await page.goto('/');await page.getByRole('button',{name:'Studies',exact:true}).click();const query=page.getByRole('textbox',{name:'Search studies',exact:true}),surface=page.getByRole('complementary',{name:'Study tools',exact:true});await query.fill('alfa');await query.press('Enter');await expect(page.getByRole('button',{name:'alfa result 0',exact:true})).toBeVisible();const a=await surface.evaluate(el=>{el.scrollTop=200;return el.scrollTop;});expect(a).toBeGreaterThan(100);await page.waitForTimeout(100);await page.getByRole('button',{name:'New workspace tab',exact:true}).click();await page.getByRole('dialog',{name:'Book and chapter selector'}).getByRole('button',{name:'Cancel',exact:true}).click();await page.getByRole('button',{name:'Studies',exact:true}).click();await query.fill('beta');await query.press('Enter');await expect(page.getByRole('button',{name:'beta result 0',exact:true})).toBeVisible();const b=await surface.evaluate(el=>{el.scrollTop=400;return el.scrollTop;});expect(b).toBeGreaterThan(a+50);await page.waitForTimeout(100);await page.getByRole('tablist',{name:'Workspace tabs'}).getByRole('tab').first().click();await expect(query).toHaveValue('alfa');await expect.poll(async()=>Math.abs(await surface.evaluate(el=>el.scrollTop)-a)).toBeLessThan(3);await page.getByRole('tablist',{name:'Workspace tabs'}).getByRole('tab').nth(1).click();await expect(query).toHaveValue('beta');await expect.poll(async()=>Math.abs(await surface.evaluate(el=>el.scrollTop)-b)).toBeLessThan(3);
+  1435 | });
+  1436 | 
+  1437 | test('workspace tabs delayed creation retains known recovery when new last-context input prevents attachment',async({page})=>{
+  1438 |  const options={failPut:503};await setup(page,options);await firstNote(page);const other='40000000-0000-4000-8000-000000000002';let release,posts=0;
+  1439 |  await page.route('**/api/studies/*/notes',async r=>{if(r.request().method()!=='POST')return r.fallback();posts++;await new Promise(resolve=>release=resolve);const body=r.request().postDataJSON();return r.fulfill({json:{operation_id:body.operation_id,command:'note.create',study_id:study,note_id:other,revision:'1'}});});
+  1440 |  await page.route('**/notes/'+other,r=>r.fulfill({json:{...attribution,id:other,study_id:study,visibility:'study',revision:'1',value:{document:{version:1,blocks:[]},connections:[],highlights:[]}}}));await page.getByRole('button',{name:'Back to Studies',exact:true}).click();await page.getByRole('button',{name:'Add note',exact:true}).click();await expect.poll(()=>!!release).toBe(true);
+  1441 |  await page.locator('[aria-label="Note text"]').evaluate(el=>{el.textContent='late composition input';el.dispatchEvent(new InputEvent('input',{bubbles:true}));});await page.waitForTimeout(700);release();const consent=page.getByRole('dialog',{name:'Changes not saved'});await expect(consent).toBeVisible();await consent.getByRole('button',{name:'Stay',exact:true}).click();await expect(page.getByRole('button',{name:'Open created note',exact:true})).toBeVisible();await page.getByRole('button',{name:'Analysis',exact:true}).click();await expect(page.getByRole('textbox',{name:'Note text',exact:true})).toHaveText('late composition input');expect(posts).toBe(1);
+  1442 | });
+  1443 | 
+  1444 | test('workspace tabs retain malformed-origin URL and collection refusal after another tab navigates validly',async({page})=>{
+  1445 |  await setup(page);const malformed='/?reader=%7B%7D&foreign=keep#reading';await page.goto(malformed);const original=page.url();await page.evaluate(()=>{const state=history.state;history.replaceState({...state,foreignOuter:'retained',usr:{...state.usr,foreignUser:'retained'}},'');});
+  1446 |  await page.getByRole('button',{name:'Studies',exact:true}).click();await page.getByRole('button',{name:'Start a study',exact:true}).click();await page.getByRole('button',{name:'Create study',exact:true}).click();await expect(page.getByRole('button',{name:'Add current passage',exact:true})).toHaveCount(0);
+  1447 |  await page.getByRole('button',{name:'New workspace tab',exact:true}).click();await page.getByRole('dialog',{name:'Book and chapter selector'}).getByRole('textbox',{name:'Passage reference',exact:true}).fill('Genesis 2');await page.getByRole('dialog',{name:'Book and chapter selector'}).getByRole('textbox',{name:'Passage reference',exact:true}).press('Enter');await expect(page.getByText('Invalid reading link',{exact:true})).toHaveCount(0);expect(new URL(page.url()).searchParams.get('reader')).not.toBe('{}');
+  1448 |  await page.getByRole('tablist',{name:'Workspace tabs'}).getByRole('tab').first().click();expect(page.url()).toBe(original);await expect(page.getByText('Invalid reading link',{exact:true})).toBeVisible();await expect(page.getByRole('button',{name:'Add current passage',exact:true})).toHaveCount(0);await expect(page.getByRole('button',{name:'Add passage',exact:true})).toBeVisible();expect(await page.evaluate(()=>[history.state.foreignOuter,history.state.usr.foreignUser])).toEqual(['retained','retained']);
+  1449 |  if(page.viewportSize().width<768)await page.getByRole('button',{name:'Return to reader',exact:true}).click();await page.getByRole('button',{name:/Navigate:/}).first().click();await page.getByRole('textbox',{name:'Passage reference',exact:true}).fill('Genesis 1');await page.getByRole('textbox',{name:'Passage reference',exact:true}).press('Enter');await expect(page.getByText('Invalid reading link',{exact:true})).toHaveCount(0);if(await page.getByRole('button',{name:'Studies',exact:true}).getAttribute('aria-pressed')!=='true')await page.getByRole('button',{name:'Studies',exact:true}).click();await expect(page.getByRole('button',{name:'Add current passage',exact:true})).toBeVisible();
+  1450 | });
+  1451 | 
+  1452 | async function reviewTabAdd(page){await page.getByRole('button',{name:'New workspace tab',exact:true}).click();await page.getByRole('dialog',{name:'Book and chapter selector'}).getByRole('button',{name:'Cancel',exact:true}).click();}
+  1453 | async function reviewTabRename(page,index,label){await page.getByRole('button',{name:`Rename tab ${index}`,exact:true}).click();await page.getByLabel('Tab name',{exact:true}).fill(label);await page.getByRole('dialog',{name:'Rename workspace tab'}).getByRole('button',{name:'Save',exact:true}).click();}
+  1454 | async function reviewTwoNotes(page){await reviewLibrary(page);await page.getByRole('button',{name:'Study A',exact:true}).click();await page.getByRole('button',{name:'A first',exact:true}).click();await reviewTabAdd(page);await page.getByRole('button',{name:'Studies',exact:true}).click();await page.getByRole('button',{name:'A second',exact:true}).click();}
+  1455 | test('review tabs B1 delayed denial clears labels renamed on newer inactive live tab records',async({page})=>{
+  1456 |  let release;const options={beforeRename:()=>new Promise(resolve=>release=resolve),failRename:403};await setup(page,options);await firstNote(page);await reviewTabAdd(page);await page.getByRole('tablist',{name:'Workspace tabs'}).getByRole('tab').first().click();await page.getByRole('button',{name:'Back to Studies',exact:true}).click();await page.getByRole('button',{name:'Rename',exact:true}).click();await page.getByLabel('Title',{exact:true}).fill('denied');await page.getByRole('button',{name:'Save',exact:true}).click();await expect.poll(()=>!!release).toBe(true);await reviewTabRename(page,2,'newer inactive secret');const reply=page.waitForResponse('**/title');release();await reply;await expect(page.getByRole('alert').first()).toContainText('access is unavailable');options.failRename=0;await page.getByRole('button',{name:'Retry',exact:true}).click();await expect(page.getByText('newer inactive secret',{exact:true})).toHaveCount(0);
+  1457 | });
+  1458 | for(const operation of ['title','collection'])for(const status of [401,403])test(`review tabs B10 closed-origin ${operation} ${status} retains safe account recovery without tool or focus takeover`,async({page})=>{
+  1459 |  let release;const options=operation==='title'?{beforeRename:()=>new Promise(resolve=>release=resolve),failRename:status}:{beforePassagePut:()=>new Promise(resolve=>release=resolve),failPassages:status};await setup(page,options);await firstNote(page);await reviewTabAdd(page);await reviewTabRename(page,2,'survivor private label');await page.getByRole('tablist',{name:'Workspace tabs'}).getByRole('tab').first().click();await page.getByRole('button',{name:'Back to Studies',exact:true}).click();if(operation==='title'){await page.getByRole('button',{name:'Rename',exact:true}).click();await page.getByLabel('Title',{exact:true}).fill('pending title');await page.getByRole('button',{name:'Save',exact:true}).click();}else await addReference(page,'Genesis 1');await expect.poll(()=>!!release).toBe(true);await page.getByRole('button',{name:'Close tab 1',exact:true}).click();const survivor=page.getByRole('tablist',{name:'Workspace tabs'}).getByRole('tab');await survivor.focus();const response=page.waitForResponse(operation==='title'?'**/title':'**/passages');release();await response;await expect(page.getByRole('button',{name:'Retry account access',exact:true})).toBeVisible();await expect(survivor).toBeFocused();await expect(page.getByRole('button',{name:'Studies',exact:true})).toHaveAttribute('aria-pressed','false');await expect(page.getByText('survivor private label',{exact:true})).toHaveCount(0);if(status===401){await page.route('**/auth/v1/token*',r=>r.fulfill({json:{...session,access_token:'renewed-current'}}));await page.evaluate(async()=>{const {supabase}=await import('/src/lib/supabase.ts');await supabase.auth.signInWithPassword({email:'reader@example.invalid',password:'fixture'});});}options.failRename=0;options.failPassages=0;await page.getByRole('button',{name:'Retry account access',exact:true}).click();await expect(page.getByRole('button',{name:'Retry account access',exact:true})).toHaveCount(0);await expect(page.getByRole('button',{name:'Studies',exact:true})).toHaveAttribute('aria-pressed','false');await expect(page.getByText('survivor private label',{exact:true})).toHaveCount(status===401?1:0);
+  1460 | });
+  1461 | test('review tabs B6 masked Rename is disabled with a reason while anonymous and authorized Rename remain usable',async({page})=>{
+  1462 |  const options={failPut:401};await setup(page,options);await firstNote(page);await reviewTabRename(page,1,'authorized label');await page.getByRole('textbox',{name:'Note text',exact:true}).fill('mask');await expect(page.getByRole('alert')).toContainText('Sign in');const button=page.getByRole('button',{name:'Rename tab 1',exact:true});await expect(button).toBeDisabled();await expect(button).toHaveAccessibleDescription(/Sign in|access/i);
+  1463 | });
+  1464 | test('review tabs E1 sole conflicted note reopens latest only after guarded consent',async({page})=>{
+> 1465 |  const options={failPut:409};const {advanceNote}=await setup(page,options);await firstNote(page);await page.getByRole('textbox',{name:'Note text',exact:true}).fill('my conflicting input');await expect(page.getByRole('alert')).toContainText('This note has changed');advanceNote({document:{version:1,blocks:[{type:'paragraph',direction:'auto',content:[{type:'text',text:'latest server value',marks:[]}]}]},connections:[],highlights:[]});await page.getByRole('button',{name:'Back to Studies',exact:true}).click();await page.getByRole('list',{name:'Notes',exact:true}).getByRole('button').first().click();const dialog=page.getByRole('dialog',{name:'Changes not saved'});await expect(dialog).toBeVisible();await dialog.getByRole('button',{name:'Stay',exact:true}).click();await page.getByRole('list',{name:'Notes',exact:true}).getByRole('button').first().click();await dialog.getByRole('button',{name:'Switch anyway',exact:true}).click();await expect(page.getByRole('textbox',{name:'Note text',exact:true})).toHaveText('latest server value');
+       |                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                ^ Error: expect(locator).toBeVisible() failed
+  1466 | });
+  1467 | test('review tabs B4 delayed Edit mode restore cannot change selection in another exposed note host',async({page})=>{
+  1468 |  await reviewTwoNotes(page);const tabs=page.getByRole('tablist',{name:'Workspace tabs'}).getByRole('tab');await tabs.first().click();const editor=page.getByRole('textbox',{name:'Note text',exact:true});await editor.evaluate(el=>{el.focus();const r=document.createRange();r.selectNodeContents(el);getSelection().removeAllRanges();getSelection().addRange(r);});await page.getByRole('button',{name:'Read note',exact:true}).click();await page.evaluate(()=>{window.modeRestore=[];window.originalTimeout=window.setTimeout;window.setTimeout=(callback,delay,...args)=>{if(delay===0){window.modeRestore.push(()=>callback(...args));return 987654;}return window.originalTimeout(callback,delay,...args);};});await page.getByRole('button',{name:'Edit note',exact:true}).click();await tabs.nth(1).click();await editor.focus();await editor.evaluate(el=>{const r=document.createRange();r.selectNodeContents(el);r.collapse(false);getSelection().removeAllRanges();getSelection().addRange(r);window.selectedOther=r.endContainer;window.selectedOffset=r.endOffset;});await page.evaluate(()=>{window.setTimeout=window.originalTimeout;window.modeRestore.splice(0).forEach(fn=>fn());});expect(await editor.evaluate(el=>{const r=getSelection().getRangeAt(0);return el.contains(r.startContainer)&&r.endContainer===window.selectedOther&&r.endOffset===window.selectedOffset;})).toBe(true);await expect(editor).toBeFocused();
+  1469 | });
+  1470 | for(const state of ['failed','composing'])test(`review tabs V1 sign-out guards ${state} background input while the active retained note is saved`,async({page})=>{
+  1471 |  await reviewTwoNotes(page);const tabs=page.getByRole('tablist',{name:'Workspace tabs'}).getByRole('tab');await tabs.first().click();const editor=page.getByRole('textbox',{name:'Note text',exact:true});if(state==='failed')await page.route('**/api/studies/*/notes/*',r=>r.request().method()==='PUT'?r.fulfill({status:503,json:{code:'studies_storage_unavailable'}}):r.fallback());else await editor.dispatchEvent('compositionstart');await editor.fill('background private '+state);if(state==='failed')await expect(page.getByRole('status').filter({hasText:'Changes not saved'})).toBeVisible();await tabs.nth(1).click();await expect(editor).toHaveText('A second');await page.getByRole('button',{name:'Sign out',exact:true}).click();const prompt=page.getByRole('dialog',{name:'Changes not saved'});await expect(prompt).toBeVisible();await prompt.getByRole('button',{name:'Stay',exact:true}).click();await tabs.first().click();await expect(editor).toHaveText('background private '+state);
+  1472 | });
+  1473 | test('review tabs V1 sequential account consent is non-destructive when the second unresolved lane stays',async({page})=>{
+  1474 |  await reviewTwoNotes(page);await page.route('**/api/studies/*/notes/*',r=>r.request().method()==='PUT'?r.fulfill({status:503,json:{code:'studies_storage_unavailable'}}):r.fallback());const tabs=page.getByRole('tablist',{name:'Workspace tabs'}).getByRole('tab'),editor=page.getByRole('textbox',{name:'Note text',exact:true});await editor.fill('lane B unresolved');await expect(page.getByRole('status').filter({hasText:'Changes not saved'})).toBeVisible();await tabs.first().click();await editor.fill('lane A unresolved');await expect(page.getByRole('status').filter({hasText:'Changes not saved'})).toBeVisible();await page.getByRole('button',{name:'Sign out',exact:true}).click();const prompt=page.getByRole('dialog',{name:'Changes not saved'});await prompt.getByRole('button',{name:'Close anyway',exact:true}).click();await expect(prompt).toBeVisible();await prompt.getByRole('button',{name:'Stay',exact:true}).click();await expect(editor).toHaveText('lane A unresolved');await tabs.nth(1).click();await expect(editor).toHaveText('lane B unresolved');await tabs.first().click();await page.getByRole('button',{name:'Sign out',exact:true}).click();await prompt.getByRole('button',{name:'Close anyway',exact:true}).click();await prompt.getByRole('button',{name:'Close anyway',exact:true}).click();await expect(page.getByRole('button',{name:'Sign out',exact:true})).toHaveCount(0);
+  1475 | });
+  1476 | 
+  1477 | test('review tabs B3 word scroll survives hidden Notes scrolling without focus restoration',async({page})=>{
+  1478 |  await setup(page,{noteValue:{document:{version:1,blocks:Array.from({length:100},(_,i)=>({type:'paragraph',direction:'auto',content:[{type:'text',text:'Long note '+i+' content',marks:[]}]}))},connections:[],highlights:[]}});await page.route('**/api/bible/words/**',r=>r.fulfill({json:{id:1,position:1,surface_he:'בְּרֵאשִׁית',display_he:'בְּרֵאשִׁית',lemma_strong:'4428',lexical_id:'4428',morph_code:null,morphemes:[]}}));await page.route('**/api/bible/lexicon/**',r=>r.fulfill({json:{status:'available',lexical_id:'4428',lemma:'king',bdb:[{kind:'text',text:'Long definition '.repeat(300)}]}}));await firstNote(page);if(page.viewportSize().width<768)await page.getByRole('button',{name:'Return to reader',exact:true}).click();await page.getByRole('button',{name:/Word: בְּרֵאשִׁית/}).click();await page.getByRole('button',{name:'Show more',exact:true}).click();const surface=page.getByRole('complementary',{name:'Study tools',exact:true});const position=await surface.evaluate(el=>{el.scrollTop=230;return el.scrollTop;});expect(position).toBeGreaterThan(100);await page.waitForTimeout(80);await page.getByRole('tab',{name:'Notes',exact:true}).evaluate(el=>el.focus({preventScroll:true}));await page.keyboard.press('Enter');await surface.evaluate(el=>el.scrollTop=600);await page.waitForTimeout(80);const word=page.getByRole('tab',{name:'Word',exact:true});await word.evaluate(el=>el.focus({preventScroll:true}));await page.keyboard.press('Enter');await expect(word).toBeFocused();await expect.poll(async()=>Math.abs(await surface.evaluate(el=>el.scrollTop)-position)).toBeLessThan(3);
+  1479 | });
+  1480 | test('review tabs E3 distinct long note contexts restore their own inspector scroll without focus theft',async({page})=>{
+  1481 |  let releaseSecond;
+  1482 |  const {otherNote}=await reviewLibrary(page,{read:async(parent,id,view)=>{
+  1483 |   // Hold the second note read so an outline click cannot masquerade as editor readiness.
+  1484 |   if(id!==note)await new Promise(resolve=>releaseSecond=resolve);
+  1485 |   return {...view(parent,id,'long note'),value:{document:{version:1,blocks:Array.from({length:120},(_,i)=>({type:'paragraph',direction:'auto',content:[{type:'text',text:id+' paragraph '+i,marks:[]}]}))},connections:[],highlights:[]}};
+  1486 |  }});
+  1487 |  await page.getByRole('button',{name:'Study A',exact:true}).click();
+  1488 |  await page.getByRole('button',{name:'A first',exact:true}).click();
+  1489 |  const editor=page.getByRole('textbox',{name:'Note text',exact:true});
+  1490 |  await expect(editor.locator('p').first()).toHaveText(note+' paragraph 0');
+  1491 |  const surface=page.getByRole('complementary',{name:'Study tools',exact:true});
+  1492 |  const a=await surface.evaluate(el=>{el.scrollTop=220;return el.scrollTop;});
+  1493 |  expect(a).toBe(220);
+  1494 |  await page.waitForTimeout(80);
+  1495 |  await reviewTabAdd(page);
+  1496 |  await page.getByRole('button',{name:'Studies',exact:true}).click();
+  1497 |  await page.getByRole('button',{name:'A second',exact:true}).click();
+  1498 |  await expect.poll(()=>!!releaseSecond).toBe(true);
+  1499 |  await expect(editor).toHaveCount(0);
+  1500 |  releaseSecond();
+  1501 |  await expect(editor.locator('p').first()).toHaveText(otherNote+' paragraph 0');
+  1502 |  const b=await surface.evaluate(el=>{el.scrollTop=650;return el.scrollTop;});
+  1503 |  expect(b).toBe(650);
+  1504 |  await page.waitForTimeout(80);
+  1505 |  const tabs=page.getByRole('tablist',{name:'Workspace tabs'}).getByRole('tab');
+  1506 |  await tabs.first().click();
+  1507 |  await expect(tabs.first()).toBeFocused();
+  1508 |  await expect.poll(async()=>Math.abs(await surface.evaluate(el=>el.scrollTop)-a)).toBeLessThan(3);
+  1509 |  await tabs.nth(1).click();
+  1510 |  await expect(tabs.nth(1)).toBeFocused();
+  1511 |  await expect.poll(async()=>Math.abs(await surface.evaluate(el=>el.scrollTop)-b)).toBeLessThan(3);
+  1512 | });
+  1513 | 
+  1514 | test('review tabs V1 sign-out rechecks saved background lanes receiving late composition during consent',async({page})=>{
+  1515 |  await reviewTwoNotes(page);const tabs=page.getByRole('tablist',{name:'Workspace tabs'}).getByRole('tab'),editor=page.getByRole('textbox',{name:'Note text',exact:true});await tabs.first().click();await editor.evaluate(el=>window.lateBackgroundEditor=el);await tabs.nth(1).click();await page.route('**/api/studies/*/notes/*',r=>r.request().method()==='PUT'?r.fulfill({status:503,json:{code:'studies_storage_unavailable'}}):r.fallback());await editor.fill('B needs consent');await expect(page.getByRole('status').filter({hasText:'Changes not saved'})).toBeVisible();await page.getByRole('button',{name:'Sign out',exact:true}).click();const prompt=page.getByRole('dialog',{name:'Changes not saved'});await expect(prompt).toBeVisible();await page.evaluate(()=>{const el=window.lateBackgroundEditor;el.dispatchEvent(new CompositionEvent('compositionstart',{bubbles:true}));el.textContent='A late composition';el.dispatchEvent(new InputEvent('input',{bubbles:true,isComposing:true}));});await prompt.getByRole('button',{name:'Close anyway',exact:true}).click();await expect(prompt).toBeVisible();await prompt.getByRole('button',{name:'Stay',exact:true}).click();await expect(page.getByRole('button',{name:'Sign out',exact:true})).toBeVisible();await tabs.first().click();await expect(editor).toHaveText('A late composition');
+  1516 | });
+  1517 | test('review tabs E1 shared conflicted lane cannot be replaced by reopening from another live context',async({page})=>{
+  1518 |  const {requests}=await setup(page,{failPut:409});await firstNote(page);await reviewTabAdd(page);const editor=page.getByRole('textbox',{name:'Note text',exact:true});await page.getByRole('button',{name:'Analysis',exact:true}).click();await editor.fill('shared conflicting input');await expect(page.getByRole('alert')).toContainText('This note has changed');const reads=requests.filter(r=>r.path.endsWith('/notes/'+note)&&r.method==='GET').length;await page.getByRole('button',{name:'Back to Studies',exact:true}).click();await page.getByRole('list',{name:'Notes',exact:true}).getByRole('button').first().click();await expect(page.getByRole('dialog',{name:'Changes not saved'})).toHaveCount(0);await expect(page.getByRole('button',{name:'Analysis',exact:true})).toHaveAttribute('aria-pressed','true');await expect(editor).toHaveText('shared conflicting input');expect(requests.filter(r=>r.path.endsWith('/notes/'+note)&&r.method==='GET')).toHaveLength(reads);
+  1519 | });
+  1520 | 
+  1521 | async function highlightCorpus(page,{changed=false,unavailable=false}={}){
+  1522 |  const catalogue=require('../../data/reference-catalogue/catalogue.json'),book=catalogue.books.find(b=>b.book_id==='Gen');
+  1523 |  const reference={catalogue_id:catalogue.catalogue_id,catalogue_version:catalogue.catalogue_version,versification_id:book.versification_id,book_id:'Gen',target:{kind:'verse_range',start:{chapter:1,verse:1},end:{chapter:1,verse:1}}};
+  1524 |  await page.route('**/api/bible/books/Gen/chapters/1/verses',r=>r.fulfill({json:{data:[{id:1,verse_num:1,book_id:1,chapter_num:1,words:['אָב','בֵּן','אֵל'].map((text,i)=>({id:i+1,position:i+1,surface_he:text,display_he:text,lemma_strong:null,morph_code:null})),anchor_evidence:unavailable?{version:1,status:'unavailable'}:{version:1,status:'ready',source_id:'source-v1',source_revision:'11111111-1111-4111-8111-111111111111',catalogue_version:catalogue.catalogue_version,versification_id:book.versification_id,tokenization_version:'tokens-v1',book:'Gen',chapter:1,verse:1,reference,verse_token_digest:(changed?'b':'a').repeat(64),observed_word_ids:['9007199254740993','9007199254740994','9007199254740995'],token_count:3}}],total:1}}));
+  1525 | }
+  1526 | async function showHighlightReader(page){if(page.viewportSize().width<768&&await page.getByRole('button',{name:'Return to reader',exact:true}).isVisible())await page.getByRole('button',{name:'Return to reader',exact:true}).click();}
+  1527 | async function selectHighlightPhrase(page){await showHighlightReader(page);const words=page.locator('[data-phrase-index]');await words.nth(0).click();await showHighlightReader(page);await words.nth(1).click({modifiers:['Shift']});await expect(page.getByRole('region',{name:'Selected phrase actions'})).toBeVisible();}
+  1528 | 
+  1529 | test('own highlights: exact ready phrase survives writing colour removal and reopen',async({page})=>{
+  1530 |  const {requests}=await setup(page);await highlightCorpus(page);await firstNote(page);await page.getByLabel('Note text',{exact:true}).fill('Writing before mark');await expect(page.getByRole('status').filter({hasText:'Draft saved'})).toBeVisible();
+  1531 |  await selectHighlightPhrase(page);await page.getByRole('button',{name:'Highlight',exact:true}).click();await page.getByLabel('Highlight colour',{exact:true}).fill('#123456');await page.getByRole('button',{name:'Apply highlight',exact:true}).click();await expect(page.locator('[data-own-highlight]')).toHaveCount(2);
+  1532 |  await expect.poll(()=>requests.filter(r=>r.method==='PUT'&&r.path.endsWith('/notes/'+note)).at(-1)?.payload.value.highlights.length).toBe(1);
+  1533 |  const mark=requests.filter(r=>r.method==='PUT'&&r.path.endsWith('/notes/'+note)).at(-1).payload.value.highlights[0];expect(mark.anchor.segments[0].observed_word_ids).toEqual(['9007199254740993','9007199254740994']);expect(mark.colour).toBe('#123456');
+  1534 |  await page.locator('[data-own-highlight]').first().click();await expect(page.getByLabel('Note text',{exact:true})).toBeVisible();await page.getByLabel('Note text',{exact:true}).fill('Writing after mark');await expect(page.getByRole('status').filter({hasText:'Draft saved'})).toBeVisible();
+  1535 |  const saved=requests.filter(r=>r.method==='PUT'&&r.path.endsWith('/notes/'+note)).at(-1).payload.value;expect(saved.highlights).toEqual([mark]);expect(saved.connections).toHaveLength(0);expect(saved.format_version).toBe(3);
+  1536 |  await reloadRememberedWorkspace(page);await showHighlightReader(page);await expect(page.locator('[data-own-highlight]')).toHaveCount(2);await page.getByText('Current note highlights',{exact:true}).click();await page.getByRole('button',{name:'Remove highlight',exact:true}).click();await expect(page.locator('[data-own-highlight]')).toHaveCount(0);
+  1537 |  await expect.poll(()=>requests.filter(r=>r.method==='PUT'&&r.path.endsWith('/notes/'+note)).at(-1)?.payload.value.highlights.length).toBe(0);expect(requests.filter(r=>r.method==='PUT'&&r.path.endsWith('/notes/'+note)).at(-1).payload.value.format_version).toBe(3);
+  1538 | });
+  1539 | test('own highlights: unavailable evidence cannot add a mark and source correction suppresses paint',async({page})=>{
+  1540 |  const {requests}=await setup(page);await highlightCorpus(page,{unavailable:true});await firstNote(page);await selectHighlightPhrase(page);await page.getByRole('button',{name:'Highlight',exact:true}).click();await expect(page.getByRole('button',{name:'Apply highlight',exact:true})).toBeDisabled();await expect(page.getByText('Highlight evidence unavailable.',{exact:false})).toBeVisible();expect(requests.filter(r=>r.method==='PUT')).toHaveLength(0);
+  1541 | });
+  1542 | test('own highlights: editor preserves format3 aggregate when source evidence is unavailable',async({page})=>{
+  1543 |  const catalogue=require('../../data/reference-catalogue/catalogue.json'),book=catalogue.books.find(b=>b.book_id==='Gen'),reference={catalogue_id:catalogue.catalogue_id,catalogue_version:catalogue.catalogue_version,versification_id:book.versification_id,book_id:'Gen',target:{kind:'verse_range',start:{chapter:1,verse:1},end:{chapter:1,verse:1}}};
+  1544 |  const value={format_version:3,document:{version:1,blocks:[]},connections:[{id:'55555555-5555-4555-8555-555555555555',reference}],highlights:[{id:'66666666-6666-4666-8666-666666666666',colour:'#FFE066',anchor:{version:1,source_id:'source-v1',source_revision:'11111111-1111-4111-8111-111111111111',catalogue_version:catalogue.catalogue_version,versification_id:book.versification_id,tokenization_version:'tokens-v1',segments:[{reference,start_position:1,end_position:2,observed_word_ids:['9007199254740993','9007199254740994'],verse_token_digest:'a'.repeat(64)}]}}]};
+  1545 |  const {requests}=await setup(page,{noteValue:value});await highlightCorpus(page,{unavailable:true});await firstNote(page);await page.getByLabel('Note text',{exact:true}).fill('Writing during proof outage');await expect(page.getByRole('status').filter({hasText:'Draft saved'})).toBeVisible();const saved=requests.filter(r=>r.method==='PUT').at(-1).payload.value;expect(saved.highlights).toEqual(value.highlights);expect(saved.connections).toEqual(value.connections);await showHighlightReader(page);await expect(page.locator('[data-own-highlight]')).toHaveCount(0);await page.getByText('Current note highlights',{exact:true}).click();await expect(page.getByText('Genesis 1:1 · Unavailable',{exact:true})).toBeVisible();
+  1546 | });
+  1547 | 
+  1548 | test('own highlights: source correction needs review and deliberate repair retains writing and mark identity',async({page})=>{
+  1549 |  const {requests}=await setup(page);await highlightCorpus(page);await firstNote(page);await page.getByLabel('Note text',{exact:true}).fill('Keep explanation through repair');await expect(page.getByRole('status').filter({hasText:'Draft saved'})).toBeVisible();await selectHighlightPhrase(page);await page.getByRole('button',{name:'Highlight',exact:true}).click();await page.getByLabel('Highlight colour',{exact:true}).fill('#123456');await page.getByRole('button',{name:'Apply highlight',exact:true}).click();await expect.poll(()=>requests.filter(r=>r.method==='PUT').at(-1)?.payload.value.highlights.length).toBe(1);
+  1550 |  const original=requests.filter(r=>r.method==='PUT').at(-1).payload.value.highlights[0];await highlightCorpus(page,{changed:true});await reloadRememberedWorkspace(page);await showHighlightReader(page);await expect(page.locator('[data-own-highlight]')).toHaveCount(0);await page.getByText('Current note highlights',{exact:true}).click();await expect(page.getByText('Genesis 1:1 · Needs review',{exact:true})).toBeVisible();await page.getByRole('button',{name:'Reselect to repair',exact:true}).click();await selectHighlightPhrase(page);await page.getByRole('button',{name:'Highlight',exact:true}).click();await page.getByRole('button',{name:'Apply highlight',exact:true}).click();await expect(page.locator('[data-own-highlight]')).toHaveCount(2);await expect.poll(()=>requests.filter(r=>r.method==='PUT').at(-1)?.payload.value.highlights[0].anchor.segments[0].verse_token_digest).toBe('b'.repeat(64));
+  1551 |  const repaired=requests.filter(r=>r.method==='PUT').at(-1).payload.value;expect(repaired.highlights[0].id).toBe(original.id);expect(repaired.highlights[0].colour).toBe(original.colour);expect(JSON.stringify(repaired.document)).toContain('Keep explanation through repair');
+  1552 | });
+  1553 | test('own highlights: stale note generation rejects palette and cross-pane native selection is refused',async({page})=>{
+  1554 |  const {requests}=await setup(page);await highlightCorpus(page);await firstNote(page);await selectHighlightPhrase(page);await page.getByRole('button',{name:'Highlight',exact:true}).click();
+  1555 |  // Change the shared lane after the palette was opened, without changing its public origin.
+  1556 |  if(await page.getByRole('button',{name:'Analysis',exact:true}).getAttribute('aria-pressed')!=='true')await page.getByRole('button',{name:'Analysis',exact:true}).click();await page.getByRole('tab',{name:'Notes',exact:true}).click();
+  1557 |  await page.getByLabel('Note text',{exact:true}).fill('Newer writing');await expect(page.getByRole('status').filter({hasText:'Draft saved'})).toBeVisible();await showHighlightReader(page);
+  1558 |  await page.getByRole('button',{name:'Apply highlight',exact:true}).click();await expect(page.getByText('Select these words again before highlighting.',{exact:true})).toBeVisible();expect(requests.filter(r=>r.method==='PUT').at(-1).payload.value.highlights).toEqual([]);
+  1559 |  await page.getByRole('button',{name:'Dismiss selection',exact:true}).click();await addReader(page);await showHighlightReader(page);
+  1560 |  if(page.viewportSize().width>=768){await page.locator('[data-reader-pane]').evaluateAll(panes=>{const a=panes[0].querySelector('.word-token').firstChild,b=panes[1].querySelector('.word-token').firstChild;const r=document.createRange();r.setStart(a,0);r.setEnd(b,b.textContent.length);getSelection().removeAllRanges();getSelection().addRange(r);document.dispatchEvent(new Event('selectionchange'));});await expect(page.getByRole('region',{name:'Selected phrase actions'})).toHaveCount(0);}
+  1561 | });
+  1562 | test('own highlights: Add to study collects containing verses without adding note or quotation',async({page})=>{
+  1563 |  const {requests}=await setup(page);await highlightCorpus(page);await firstNote(page);await selectHighlightPhrase(page);await page.getByRole('button',{name:'Add to study',exact:true}).click();await expect.poll(()=>requests.filter(r=>r.method==='PUT'&&r.path.endsWith('/passages')).length).toBe(1);const capture=requests.find(r=>r.method==='PUT'&&r.path.endsWith('/passages')).payload.items[0].reference;expect(capture.target).toEqual({kind:'verse_range',start:{chapter:1,verse:1},end:{chapter:1,verse:1}});expect(requests.filter(r=>r.method==='POST'&&r.path.endsWith('/notes'))).toHaveLength(1);expect(requests.filter(r=>r.method==='PUT'&&r.path.endsWith('/notes/'+note))).toHaveLength(0);
+  1564 | });
+  1565 | 
+```

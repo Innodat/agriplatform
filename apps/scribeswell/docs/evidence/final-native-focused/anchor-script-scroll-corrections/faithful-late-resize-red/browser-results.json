@@ -1,0 +1,18 @@
+{
+  "argv": [
+    "npm",
+    "run",
+    "test:browser",
+    "--workspace=apps/scribeswell/web",
+    "--",
+    "workspace-restoration.spec.cjs",
+    "--workers=1",
+    "--project=desktop",
+    "--grep",
+    "last public scroll checkpoint.*delayed initial resize (wheel|pointerdown)"
+  ],
+  "exit_code": 1,
+  "seconds": 13.88,
+  "selected_files": 103,
+  "source_unchanged": true
+}

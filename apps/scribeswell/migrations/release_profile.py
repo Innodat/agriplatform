@@ -8,8 +8,8 @@ from uuid import UUID
 PROFILE_ENV = 'SCRIBESWELL_MIGRATION_PROFILE'
 CUSTODY_ENV = 'SCRIBESWELL_MIGRATION_CUSTODY_JSON'
 OPTION_KEYS = {PROFILE_ENV, CUSTODY_ENV}
-PROFILES = ('dormant', 'prepared-controller-v1', 'controller-history-v1', 'publication-v1','reader-evidence-v1')
-REVISIONS = (None, 'scribeswell_0001', 'scribeswell_0002', 'scribeswell_0003', 'scribeswell_0004','scribeswell_0005')
+PROFILES = ('dormant', 'prepared-controller-v1', 'controller-history-v1', 'publication-v1','reader-evidence-v1','publication-capacity-v1')
+REVISIONS = (None, 'scribeswell_0001', 'scribeswell_0002', 'scribeswell_0003', 'scribeswell_0004','scribeswell_0005','scribeswell_0006')
 FIELDS = {'schema_version','source_id','executor_actor_id','actor_kind','actor_key','preparation_evidence_ref'}
 
 
@@ -63,7 +63,7 @@ def selection(value):
     profile = value['profile']
     if type(profile) is not str or profile not in PROFILES:
         invalid()
-    if profile == 'dormant' or (profile in ('publication-v1','reader-evidence-v1') and value['custody'] is None):
+    if profile == 'dormant' or (profile in ('publication-v1','reader-evidence-v1','publication-capacity-v1') and value['custody'] is None):
         if value['custody'] is not None:
             invalid()
         return dict(profile=profile, custody=None)
@@ -76,7 +76,7 @@ def from_environ(environ):
         invalid()
     profile = environ.get(PROFILE_ENV, 'dormant')
     supplied = CUSTODY_ENV in environ
-    if (profile == 'dormant' and supplied) or (profile not in ('dormant','publication-v1','reader-evidence-v1') and not supplied):
+    if (profile == 'dormant' and supplied) or (profile not in ('dormant','publication-v1','reader-evidence-v1','publication-capacity-v1') and not supplied):
         invalid()
     if supplied and (type(environ[CUSTODY_ENV]) is not str or '\n' in environ[CUSTODY_ENV] or '\r' in environ[CUSTODY_ENV]):
         invalid()
@@ -92,8 +92,8 @@ def evidence(value):
 def valid_result(result, expected):
     """A worker success must include the native post-COMMIT marker's evidence."""
     profile=expected['profile']
-    target='scribeswell_0005' if profile=='reader-evidence-v1' else 'scribeswell_0004' if profile=='publication-v1' else 'scribeswell_0003'
-    allowed=('scribeswell_0004','scribeswell_0005') if profile=='reader-evidence-v1' else ('scribeswell_0003','scribeswell_0004') if profile=='publication-v1' else (None,'scribeswell_0001','scribeswell_0002','scribeswell_0003') if profile=='dormant' else ('scribeswell_0003',)
+    target='scribeswell_0006' if profile=='publication-capacity-v1' else 'scribeswell_0005' if profile=='reader-evidence-v1' else 'scribeswell_0004' if profile=='publication-v1' else 'scribeswell_0003'
+    allowed=('scribeswell_0003','scribeswell_0004','scribeswell_0005','scribeswell_0006') if profile=='publication-capacity-v1' else ('scribeswell_0004','scribeswell_0005') if profile=='reader-evidence-v1' else ('scribeswell_0003','scribeswell_0004') if profile=='publication-v1' else (None,'scribeswell_0001','scribeswell_0002','scribeswell_0003') if profile=='dormant' else ('scribeswell_0003',)
     return (type(result) is dict and set(result)=={'before','after','validation'}
             and result['before'] in allowed and result['after']==target
             and result['validation']==evidence(expected))

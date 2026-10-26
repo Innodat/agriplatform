@@ -1,0 +1,24 @@
+{
+  "results": [
+    {
+      "argv": [
+        "/tmp/scribeswell-implementation-python/bin/python",
+        "-m",
+        "pytest",
+        "-q",
+        "apps/scribeswell/tests/test_corpus_publish_native.py",
+        "apps/scribeswell/tests/test_personal_notes_storage.py",
+        "apps/scribeswell/tests/test_owned_migrations.py",
+        "-k",
+        "capacity_concurrent_alternate or capacity_batch_wrong_digest or nul_rejected or failed_worker_preserves_valid_known_before or capacity_append or capacity_multirow",
+        "-rs",
+        "-s"
+      ],
+      "exit_code": 0,
+      "seconds": 115.15
+    }
+  ],
+  "container": "scribeswell-final-81f12f4fa100",
+  "stopped": true,
+  "source_unchanged": true
+}

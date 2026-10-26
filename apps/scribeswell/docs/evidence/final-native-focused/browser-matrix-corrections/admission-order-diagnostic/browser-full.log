@@ -1,0 +1,29 @@
+
+> scribeswell-web@0.1.0 test:browser
+> playwright test --config playwright.config.cjs workspace-restoration.spec.cjs --workers=1 --repeat-each=3 --grep current admission403
+
+[WebServer] (node:1077484) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 6 tests using 1 worker
+
+(node:1077554) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  1 [desktop] › tests/workspace-restoration.spec.cjs:163:1 › current admission403 clears already hydrated lanes after unrelated origin intent changes (6.1s)
+(node:1078045) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  2 [desktop] › tests/workspace-restoration.spec.cjs:163:1 › current admission403 clears already hydrated lanes after unrelated origin intent changes (4.1s)
+(node:1078265) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  3 [desktop] › tests/workspace-restoration.spec.cjs:163:1 › current admission403 clears already hydrated lanes after unrelated origin intent changes (3.3s)
+(node:1078605) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  4 [mobile] › tests/workspace-restoration.spec.cjs:163:1 › current admission403 clears already hydrated lanes after unrelated origin intent changes (3.0s)
+(node:1078767) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  5 [mobile] › tests/workspace-restoration.spec.cjs:163:1 › current admission403 clears already hydrated lanes after unrelated origin intent changes (3.6s)
+(node:1079126) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  6 [mobile] › tests/workspace-restoration.spec.cjs:163:1 › current admission403 clears already hydrated lanes after unrelated origin intent changes (3.2s)
+
+  6 passed (35.4s)

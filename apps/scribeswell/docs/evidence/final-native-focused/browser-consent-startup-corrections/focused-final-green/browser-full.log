@@ -1,0 +1,29 @@
+
+> scribeswell-web@0.1.0 test:browser
+> playwright test --config playwright.config.cjs personal-notes.spec.cjs --workers=1 --grep reopening a conflicting lane preserves|review tabs E1|same current (clean|unknown)|unknown study create preserves|collected uncertain operation freezes
+
+[WebServer] (node:1120154) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 14 tests using 1 worker
+
+(node:1120253) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   1 [desktop] › tests/personal-notes.spec.cjs:246:1 › review: reopening a conflicting lane preserves mine until explicit latest replacement (2.0s)
+  ✓   2 [desktop] › tests/personal-notes.spec.cjs:292:1 › review: unknown study create preserves original operation and frozen title (711ms)
+  ✓   3 [desktop] › tests/personal-notes.spec.cjs:416:1 › collected uncertain operation freezes its snapshot and retries original identity (874ms)
+  ✓   4 [desktop] › tests/personal-notes.spec.cjs:1490:1 › review tabs E1 sole conflicted note reopens latest only after guarded consent (2.0s)
+  ✓   5 [desktop] › tests/personal-notes.spec.cjs:1543:1 › review tabs E1 shared conflicted lane cannot be replaced by reopening from another live context (2.0s)
+  ✓   6 [desktop] › tests/personal-notes.spec.cjs:2024:40 › same current clean note reentry preserves lane and original operation (1.8s)
+  ✓   7 [desktop] › tests/personal-notes.spec.cjs:2024:40 › same current unknown note reentry preserves lane and original operation (2.2s)
+(node:1120800) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   8 [mobile] › tests/personal-notes.spec.cjs:246:1 › review: reopening a conflicting lane preserves mine until explicit latest replacement (2.3s)
+  ✓   9 [mobile] › tests/personal-notes.spec.cjs:292:1 › review: unknown study create preserves original operation and frozen title (1.1s)
+  ✓  10 [mobile] › tests/personal-notes.spec.cjs:416:1 › collected uncertain operation freezes its snapshot and retries original identity (2.0s)
+  ✓  11 [mobile] › tests/personal-notes.spec.cjs:1490:1 › review tabs E1 sole conflicted note reopens latest only after guarded consent (2.9s)
+  ✓  12 [mobile] › tests/personal-notes.spec.cjs:1543:1 › review tabs E1 shared conflicted lane cannot be replaced by reopening from another live context (2.9s)
+  ✓  13 [mobile] › tests/personal-notes.spec.cjs:2024:40 › same current clean note reentry preserves lane and original operation (1.8s)
+  ✓  14 [mobile] › tests/personal-notes.spec.cjs:2024:40 › same current unknown note reentry preserves lane and original operation (2.3s)
+
+  14 passed (29.7s)

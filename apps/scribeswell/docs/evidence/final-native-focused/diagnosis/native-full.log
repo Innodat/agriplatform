@@ -1,0 +1,159 @@
+SAFE_NATIVE_DRIVER InvalidRequestError None
+SAFE_NATIVE_DRIVER InvalidRequestError None
+E
+==================================== ERRORS ====================================
+_ ERROR at setup of test_native_create_write_reopen_noop_replay_and_isolation __
+
+    @pytest.fixture(scope='module')
+    def native():
+        raw=os.environ.get('SCRIBESWELL_NOTES_TEST_ADMIN_URL')
+        if not raw:pytest.skip('Explicit isolated PostgreSQL17+ fixture required')
+        url=make_url(raw)
+        assert url.host=='127.0.0.1' and url.database=='postgres'
+        database='scribeswell_notes_'+uuid4().hex
+        roles=['scribeswell_studies_migrator','scribeswell_studies_runtime','scribeswell_studies_operator']
+        public_roles=['anon','authenticated','service_role','scribeswell_runtime']
+        with psycopg.connect(raw,autocommit=True) as admin:
+            assert int(admin.execute('SHOW server_version_num').fetchone()[0])>=170000
+            assert not admin.execute('SELECT rolname FROM pg_roles WHERE rolname=ANY(%s)',(roles+public_roles,)).fetchall(),'Fresh cluster required'
+            for role in public_roles:admin.execute(sql.SQL("CREATE ROLE {} LOGIN PASSWORD 'synthetic-only'").format(sql.Identifier(role)))
+            admin.execute(sql.SQL('CREATE DATABASE {}').format(sql.Identifier(database)))
+        admin_url=url.set(database=database).render_as_string(hide_password=False)
+        with psycopg.connect(admin_url,autocommit=True) as admin:
+            admin.execute(sql.SQL('REVOKE TEMPORARY ON DATABASE {} FROM PUBLIC').format(sql.Identifier(database)))
+            admin.execute((APP/'tools/sql/prepare_personal_notes_roles.sql').read_text())
+            # Authoritative previous public schema with actual pre-existing corpus rows.
+            admin.execute((APP/'supabase/migrations/20260614000000_scribeswell_create_schema.sql').read_text())
+            admin.execute("INSERT INTO scribeswell.book VALUES(1,'Gen','Genesis','בראשית','old','torah',1);INSERT INTO scribeswell.chapter(id,book_id,chapter_num) VALUES(1,1,1);INSERT INTO scribeswell.verse(id,chapter_id,verse_num,book_id,chapter_num) VALUES(1,1,1,1,1);INSERT INTO scribeswell.word(id,verse_id,position,surface_he) VALUES(1,1,1,'בְּרֵאשִׁית')")
+            admin.execute('GRANT USAGE ON SCHEMA scribeswell TO scribeswell_runtime;GRANT SELECT ON ALL TABLES IN SCHEMA scribeswell TO scribeswell_runtime')
+            for table in ('book','chapter','verse','word','morpheme'):
+                admin.execute(sql.SQL('CREATE POLICY previous_runtime_read ON scribeswell.{} FOR SELECT TO scribeswell_runtime USING(true)').format(sql.Identifier(table)))
+            admin.execute("ALTER ROLE scribeswell_studies_migrator PASSWORD 'synthetic-only'")
+            admin.execute("ALTER ROLE scribeswell_studies_runtime PASSWORD 'synthetic-only'")
+            admin.execute('CREATE SCHEMA foreign_owner; CREATE TABLE foreign_owner.sentinel(id integer); INSERT INTO foreign_owner.sentinel VALUES(1)')
+        migrator=url.set(database=database,username=roles[0],password='synthetic-only').render_as_string(hide_password=False)
+        runtime=url.set(database=database,username=roles[1],password='synthetic-only').render_as_string(hide_password=False)
+        from alembic.config import Config
+        from alembic import command as alembic
+        previous=os.environ.get('SCRIBESWELL_STUDIES_MIGRATION_DATABASE_URL')
+        os.environ['SCRIBESWELL_STUDIES_MIGRATION_DATABASE_URL']=migrator
+        from database import Database
+        from services import bible_service
+        public_url=url.set(database=database,username='scribeswell_runtime',password='synthetic-only').render_as_string(hide_password=False)
+        previous_consumer=Database(public_url,'scribeswell_runtime');previous_consumer.open()
+        def previous_read():
+            with pytest.MonkeyPatch.context() as patch:
+                patch.setattr(bible_service,'get_database',lambda:previous_consumer)
+                return bible_service.get_books().model_dump(mode='json')
+        public_before=previous_read();assert public_before['data'][0]['osis_id']=='Gen'
+        try:
+            # Preserve the old controlled entry's head-only rule; qualify its frozen history.
+            import tempfile,shutil
+            with tempfile.TemporaryDirectory(prefix='scribeswell-previous-history-') as directory:
+                target=Path(directory)
+                shutil.copytree(APP/'studies-migrations',target/'history')
+                shutil.copytree(APP/'studies-database-tools',target/'studies-database-tools')
+                (target/'history/versions/0002_study_rename.py').unlink()
+                (target/'history/versions/0003_collected_passages.py').unlink()
+                (target/'history/versions/0004_note_deletion.py').unlink()
+                (target/'history/versions/0005_study_deletion.py').unlink()
+                (target/'history/versions/0006_own_highlights.py').unlink()
+                (target/'history/versions/0007_own_copies.py').unlink()
+                (target/'history/versions/0008_study_details.py').unlink()
+                old_config=Config();old_config.set_main_option('script_location',str(target/'history'))
+                alembic.upgrade(old_config,'head')
+            import importlib.util
+            previous_spec=importlib.util.spec_from_file_location('previous_notes_sql_consumer',APP/'tests/fixtures/personal_notes_storage_previous.py')
+            previous_module=importlib.util.module_from_spec(previous_spec);previous_spec.loader.exec_module(previous_module)
+            old_storage=previous_module.PersonalNotesStorage(runtime)
+            old_study=create(old_storage,'Previous consumer title')['study_id']
+            old_note=run(old_storage.execute(IDENTITY,'note.create',command('note.create',value=value('previous consumer')),old_study,None,deadline()))
+            old_before=run(old_storage.read(IDENTITY,old_study,old_note['note_id'],deadline()))
+            # Fail after the actual 0002 ALTERs, then prove transactional rollback and forward retry.
+            with tempfile.TemporaryDirectory(prefix='scribeswell-rename-failure-') as directory:
+                target=Path(directory)
+                shutil.copytree(APP/'studies-migrations',target/'history')
+                shutil.copytree(APP/'studies-database-tools',target/'studies-database-tools')
+                migration=target/'history/versions/0002_study_rename.py'
+                migration.write_text(migration.read_text().replace('\ndef downgrade():', "\n    raise RuntimeError('synthetic failure after rename ALTERs')\n\ndef downgrade():"))
+                failed_config=Config();failed_config.set_main_option('script_location',str(target/'history'))
+                with pytest.raises(Exception,match='scribeswell_studies_migration_failed'):alembic.upgrade(failed_config,'head')
+                with psycopg.connect(admin_url) as admin:
+                    assert admin.execute('SELECT version_num FROM scribeswell_studies.alembic_version').fetchone()[0]=='scribeswell_studies_0001'
+                    checks=admin.execute("SELECT pg_get_constraintdef(oid) FROM pg_constraint WHERE conrelid='scribeswell_studies.receipts'::regclass AND contype='c'").fetchall()
+                    assert all('study.rename' not in definition for (definition,) in checks)
+                assert run(old_storage.read(IDENTITY,old_study,old_note['note_id'],deadline()))==old_before
+            # Freeze the immediate previous0002 consumer before testing additive0003 failure.
+            with tempfile.TemporaryDirectory(prefix='scribeswell-previous-rename-history-') as directory:
+                target=Path(directory);shutil.copytree(APP/'studies-migrations',target/'history');shutil.copytree(APP/'studies-database-tools',target/'studies-database-tools')
+                (target/'history/versions/0003_collected_passages.py').unlink()
+                (target/'history/versions/0004_note_deletion.py').unlink()
+                (target/'history/versions/0005_study_deletion.py').unlink()
+                (target/'history/versions/0006_own_highlights.py').unlink()
+                (target/'history/versions/0007_own_copies.py').unlink()
+                (target/'history/versions/0008_study_details.py').unlink()
+                cfg=Config();cfg.set_main_option('script_location',str(target/'history'));alembic.upgrade(cfg,'head')
+            with tempfile.TemporaryDirectory(prefix='scribeswell-passages-failure-') as directory:
+                target=Path(directory);shutil.copytree(APP/'studies-migrations',target/'history');shutil.copytree(APP/'studies-database-tools',target/'studies-database-tools')
+                migration=target/'history/versions/0003_collected_passages.py'
+                migration.write_text(migration.read_text().replace('\ndef downgrade():', "\n    raise RuntimeError('synthetic failure after collection DDL')\n\ndef downgrade():"))
+                cfg=Config();cfg.set_main_option('script_location',str(target/'history'))
+                with pytest.raises(Exception,match='scribeswell_studies_migration_failed'):alembic.upgrade(cfg,'head')
+                with psycopg.connect(admin_url) as admin:
+                    assert admin.execute('SELECT version_num FROM scribeswell_studies.alembic_version').fetchone()[0]=='scribeswell_studies_0002'
+                    assert admin.execute("SELECT to_regclass('scribeswell_studies.passage_lists'),to_regclass('scribeswell_studies.passage_entries')").fetchone()==(None,None)
+                assert run(old_storage.read(IDENTITY,old_study,old_note['note_id'],deadline()))==old_before
+            # Real previous checkpoint/schema, invalid legacy tombstone and transactional0004 refusal.
+            with tempfile.TemporaryDirectory(prefix='scribeswell-previous-deletion-history-') as directory:
+                target=Path(directory);shutil.copytree(APP/'studies-migrations',target/'history');shutil.copytree(APP/'studies-database-tools',target/'studies-database-tools')
+                (target/'history/versions/0004_note_deletion.py').unlink()
+                (target/'history/versions/0005_study_deletion.py').unlink()
+                (target/'history/versions/0006_own_highlights.py').unlink()
+                (target/'history/versions/0007_own_copies.py').unlink()
+                (target/'history/versions/0008_study_details.py').unlink()
+                cfg=Config();cfg.set_main_option('script_location',str(target/'history'));alembic.upgrade(cfg,'head')
+            sys.path.insert(0,str(APP/'tests/fixtures'))
+            from note_deletion_baseline_loader import load
+            baseline_contract,baseline_storage=load();checkpoint=baseline_storage.PersonalNotesStorage(runtime)
+            legacy=run(checkpoint.execute(IDENTITY,'note.create',baseline_contract.parse_command('note.create',json.dumps({'operation_id':str(uuid4()),'value':value('legacy inactive payload')}).encode()),old_study,None,deadline()))
+            with psycopg.connect(admin_url) as admin:admin.execute('UPDATE scribeswell_studies.notes SET active=false WHERE id=%s',(legacy['note_id'],))
+            with pytest.raises(Exception,match='scribeswell_studies_migration_failed'):alembic.upgrade(Config(str(APP/'studies-alembic.ini')),'head')
+            with psycopg.connect(admin_url) as admin:
+                assert admin.execute('SELECT version_num FROM scribeswell_studies.alembic_version').fetchone()[0]=='scribeswell_studies_0003'
+                assert admin.execute('SELECT value FROM scribeswell_studies.notes WHERE id=%s',(legacy['note_id'],)).fetchone()[0]==value('legacy inactive payload')
+                assert not admin.execute("SELECT 1 FROM pg_constraint WHERE conname='notes_closed_value_empty'").fetchone()
+                # Explicit fixture-only forward repair; migration itself never adopts/erases data.
+                admin.execute('UPDATE scribeswell_studies.notes SET value=%s WHERE id=%s',(psycopg.types.json.Jsonb({'document':{'version':1,'blocks':[]},'connections':[],'highlights':[]}),legacy['note_id']))
+            # Stop at0004 to construct the concrete preexisting closed-parent failure.
+            with tempfile.TemporaryDirectory(prefix='scribeswell-previous-study-deletion-') as directory:
+                target=Path(directory);shutil.copytree(APP/'studies-migrations',target/'history');shutil.copytree(APP/'studies-database-tools',target/'studies-database-tools')
+                (target/'history/versions/0005_study_deletion.py').unlink()
+                (target/'history/versions/0006_own_highlights.py').unlink()
+                (target/'history/versions/0007_own_copies.py').unlink()
+                (target/'history/versions/0008_study_details.py').unlink()
+>               cfg=Config();cfg.set_main_option('script_location',str(target/'history'));alembic.upgrade(cfg,'head')
+                                                                                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+apps/scribeswell/tests/test_personal_notes_storage.py:159: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+/home/ck/.local/lib/python3.12/site-packages/alembic/command.py:487: in upgrade
+    script.run_env()
+/home/ck/.local/lib/python3.12/site-packages/alembic/script/base.py:550: in run_env
+    util.load_python_file(self.dir, "env.py")
+/home/ck/.local/lib/python3.12/site-packages/alembic/util/pyfiles.py:114: in load_python_file
+    module = load_module_py(module_id, path)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/home/ck/.local/lib/python3.12/site-packages/alembic/util/pyfiles.py:132: in load_module_py
+    spec.loader.exec_module(module)  # type: ignore
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap_external>:995: in exec_module
+    ???
+<frozen importlib._bootstrap>:488: in _call_with_frames_removed
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+>   ???
+E   owned_migration.MigrationError: scribeswell_studies_migration_failed_requires_reconciliation
+
+/tmp/scribeswell-previous-study-deletion-4ih5mw3s/history/env.py:26: MigrationError
+1 error in 1.37s

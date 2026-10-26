@@ -1,0 +1,212 @@
+..................................FFF.....FF..................................................................................................................................................
+=================================== FAILURES ===================================
+_ test_native_capacity_append_preserves_completion_header_serialization[batch] _
+
+closed = (<psycopg.Connection [IDLE] (host=127.0.0.1 port=32789 user=postgres database=scribeswell_migration_49a9c9dd9cb348c09b...22222-2222-4222-8222-222222222222', attempt_id='d1eb0bc7-0cc4-4e6f-aaea-ecaaaed01e3c', generation='1', state='closed'))
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x775e5b650500>
+append_kind = 'batch'
+
+    @pytest.mark.parametrize('append_kind',['batch','verse','word_identity'])
+    def test_native_capacity_append_preserves_completion_header_serialization(closed,monkeypatch,append_kind):
+        _,url,_,_=closed
+        upgraded=upgrade(url,monkeypatch,CUSTODY,capacity=True)
+        assert upgraded.attributes['scribeswell_before']=='scribeswell_0004'
+        assert upgraded.attributes['scribeswell_after']=='scribeswell_0006'
+>       test_native_alternate_append_waits_for_completion_header_lock(closed,monkeypatch,append_kind)
+
+apps/scribeswell/tests/test_corpus_publish_native.py:548: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+apps/scribeswell/tests/test_corpus_publish_native.py:366: in test_native_alternate_append_waits_for_completion_header_lock
+    execute_requests(url,[stage,batch])
+apps/scribeswell/tests/test_corpus_publish_native.py:288: in execute_requests
+    return [corpus_publish._acknowledge(connection,request) for request in requests]
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+connection = <psycopg.Connection [BAD] at 0x775e5b9809e0>
+request = {'batch_index': 0, 'command': 'publication.batch', 'first_ordinal': 0, 'operation_id': 'c9a19e42-f7dd-53e3-a761-74a8a33e60ce', ...}
+
+    def _acknowledge(connection, request):
+        # Lookup first also reconciles a previous process's lost commit acknowledgement.
+        previous = _call(connection, request, lookup=True)
+        if previous is not None:
+            return previous
+        try:
+            return _call(connection, request, lookup=False)
+        except PublishError as error:
+            if not error.code.endswith('.unknown_outcome'):
+                raise
+        recovered = _call(connection, request, lookup=True)
+        if recovered is None:
+>           raise PublishError('unknown_outcome')
+E           corpus_publish.PublishError: corpus_publish.unknown_outcome
+
+apps/scribeswell/backend/corpus_publish.py:132: PublishError
+_ test_native_capacity_append_preserves_completion_header_serialization[verse] _
+
+closed = (<psycopg.Connection [IDLE] (host=127.0.0.1 port=32789 user=postgres database=scribeswell_migration_557b0673d5484deda0...22222-2222-4222-8222-222222222222', attempt_id='1ab69022-8fdd-4c5d-ab7c-979c4f8d96ce', generation='1', state='closed'))
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x775e5b80bfb0>
+append_kind = 'verse'
+
+    @pytest.mark.parametrize('append_kind',['batch','verse','word_identity'])
+    def test_native_capacity_append_preserves_completion_header_serialization(closed,monkeypatch,append_kind):
+        _,url,_,_=closed
+        upgraded=upgrade(url,monkeypatch,CUSTODY,capacity=True)
+        assert upgraded.attributes['scribeswell_before']=='scribeswell_0004'
+        assert upgraded.attributes['scribeswell_after']=='scribeswell_0006'
+>       test_native_alternate_append_waits_for_completion_header_lock(closed,monkeypatch,append_kind)
+
+apps/scribeswell/tests/test_corpus_publish_native.py:548: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+apps/scribeswell/tests/test_corpus_publish_native.py:366: in test_native_alternate_append_waits_for_completion_header_lock
+    execute_requests(url,[stage,batch])
+apps/scribeswell/tests/test_corpus_publish_native.py:288: in execute_requests
+    return [corpus_publish._acknowledge(connection,request) for request in requests]
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+connection = <psycopg.Connection [BAD] at 0x775e5b7244a0>
+request = {'batch_index': 0, 'command': 'publication.batch', 'first_ordinal': 0, 'operation_id': '1e7ce708-bbf7-5a96-ba61-484fe0c3b25e', ...}
+
+    def _acknowledge(connection, request):
+        # Lookup first also reconciles a previous process's lost commit acknowledgement.
+        previous = _call(connection, request, lookup=True)
+        if previous is not None:
+            return previous
+        try:
+            return _call(connection, request, lookup=False)
+        except PublishError as error:
+            if not error.code.endswith('.unknown_outcome'):
+                raise
+        recovered = _call(connection, request, lookup=True)
+        if recovered is None:
+>           raise PublishError('unknown_outcome')
+E           corpus_publish.PublishError: corpus_publish.unknown_outcome
+
+apps/scribeswell/backend/corpus_publish.py:132: PublishError
+_ test_native_capacity_append_preserves_completion_header_serialization[word_identity] _
+
+closed = (<psycopg.Connection [IDLE] (host=127.0.0.1 port=32789 user=postgres database=scribeswell_migration_2284335388bd4485b8...22222-2222-4222-8222-222222222222', attempt_id='0dbcfc7e-efa7-4572-bdb5-2057adc09455', generation='1', state='closed'))
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x775e5b725190>
+append_kind = 'word_identity'
+
+    @pytest.mark.parametrize('append_kind',['batch','verse','word_identity'])
+    def test_native_capacity_append_preserves_completion_header_serialization(closed,monkeypatch,append_kind):
+        _,url,_,_=closed
+        upgraded=upgrade(url,monkeypatch,CUSTODY,capacity=True)
+        assert upgraded.attributes['scribeswell_before']=='scribeswell_0004'
+        assert upgraded.attributes['scribeswell_after']=='scribeswell_0006'
+>       test_native_alternate_append_waits_for_completion_header_lock(closed,monkeypatch,append_kind)
+
+apps/scribeswell/tests/test_corpus_publish_native.py:548: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+apps/scribeswell/tests/test_corpus_publish_native.py:366: in test_native_alternate_append_waits_for_completion_header_lock
+    execute_requests(url,[stage,batch])
+apps/scribeswell/tests/test_corpus_publish_native.py:288: in execute_requests
+    return [corpus_publish._acknowledge(connection,request) for request in requests]
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+connection = <psycopg.Connection [BAD] at 0x775e5b762ba0>
+request = {'batch_index': 0, 'command': 'publication.batch', 'first_ordinal': 0, 'operation_id': '937fa3f8-0be6-5d9d-af58-88cdf20313f7', ...}
+
+    def _acknowledge(connection, request):
+        # Lookup first also reconciles a previous process's lost commit acknowledgement.
+        previous = _call(connection, request, lookup=True)
+        if previous is not None:
+            return previous
+        try:
+            return _call(connection, request, lookup=False)
+        except PublishError as error:
+            if not error.code.endswith('.unknown_outcome'):
+                raise
+        recovered = _call(connection, request, lookup=True)
+        if recovered is None:
+>           raise PublishError('unknown_outcome')
+E           corpus_publish.PublishError: corpus_publish.unknown_outcome
+
+apps/scribeswell/backend/corpus_publish.py:132: PublishError
+_ test_native_capacity_append_first_blocks_completion_then_rejects_inconsistent_inventory _
+
+closed = (<psycopg.Connection [IDLE] (host=127.0.0.1 port=32789 user=postgres database=scribeswell_migration_09f44b32cf81486388...22222-2222-4222-8222-222222222222', attempt_id='1b0f6d7e-85e7-4ad3-938d-8e81f08ed634', generation='1', state='closed'))
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x775e5b668770>
+
+    def test_native_capacity_append_first_blocks_completion_then_rejects_inconsistent_inventory(closed,monkeypatch):
+        from test_corpus_writer_fence import background,wait_blocked
+        admin,url,_,_=closed
+        upgrade(url,monkeypatch,CUSTODY,capacity=True)
+        stage,batch,completion,_=planned_requests(closed,monkeypatch)
+>       execute_requests(url,[stage,batch]);revision=stage['source_revision']
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+apps/scribeswell/tests/test_corpus_publish_native.py:590: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+apps/scribeswell/tests/test_corpus_publish_native.py:288: in execute_requests
+    return [corpus_publish._acknowledge(connection,request) for request in requests]
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+connection = <psycopg.Connection [BAD] at 0x775e5adf3bc0>
+request = {'batch_index': 0, 'command': 'publication.batch', 'first_ordinal': 0, 'operation_id': '9f3c2c12-1150-5912-9a20-d24c3c95f2f8', ...}
+
+    def _acknowledge(connection, request):
+        # Lookup first also reconciles a previous process's lost commit acknowledgement.
+        previous = _call(connection, request, lookup=True)
+        if previous is not None:
+            return previous
+        try:
+            return _call(connection, request, lookup=False)
+        except PublishError as error:
+            if not error.code.endswith('.unknown_outcome'):
+                raise
+        recovered = _call(connection, request, lookup=True)
+        if recovered is None:
+>           raise PublishError('unknown_outcome')
+E           corpus_publish.PublishError: corpus_publish.unknown_outcome
+
+apps/scribeswell/backend/corpus_publish.py:132: PublishError
+__ test_native_capacity_multirow_actor_refusal_is_atomic_and_sets_server_time __
+
+closed = (<psycopg.Connection [IDLE] (host=127.0.0.1 port=32789 user=postgres database=scribeswell_migration_ab519d8a3464422a84...22222-2222-4222-8222-222222222222', attempt_id='8819d5bd-7142-4015-b030-9905e1e88967', generation='1', state='closed'))
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x775e5adf0290>
+
+    def test_native_capacity_multirow_actor_refusal_is_atomic_and_sets_server_time(closed,monkeypatch):
+        admin,url,_,_=closed
+        upgrade(url,monkeypatch,CUSTODY,capacity=True)
+        stage,batch,_,_=planned_requests(closed,monkeypatch)
+>       execute_requests(url,[stage,batch]);revision=stage['source_revision'];wrong=str(uuid4())
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+apps/scribeswell/tests/test_corpus_publish_native.py:606: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+apps/scribeswell/tests/test_corpus_publish_native.py:288: in execute_requests
+    return [corpus_publish._acknowledge(connection,request) for request in requests]
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+connection = <psycopg.Connection [BAD] at 0x775e5b769820>
+request = {'batch_index': 0, 'command': 'publication.batch', 'first_ordinal': 0, 'operation_id': 'a3e6361c-fbb7-5188-830f-d613d79e8097', ...}
+
+    def _acknowledge(connection, request):
+        # Lookup first also reconciles a previous process's lost commit acknowledgement.
+        previous = _call(connection, request, lookup=True)
+        if previous is not None:
+            return previous
+        try:
+            return _call(connection, request, lookup=False)
+        except PublishError as error:
+            if not error.code.endswith('.unknown_outcome'):
+                raise
+        recovered = _call(connection, request, lookup=True)
+        if recovered is None:
+>           raise PublishError('unknown_outcome')
+E           corpus_publish.PublishError: corpus_publish.unknown_outcome
+
+apps/scribeswell/backend/corpus_publish.py:132: PublishError
+=============================== warnings summary ===============================
+apps/scribeswell/tests/test_own_highlights.py::test_highlight_admission_errors_use_safe_typed_private_http_contract[highlight_proof_invalid-409]
+  /home/ck/.local/lib/python3.12/site-packages/fastapi/testclient.py:1: StarletteDeprecationWarning: Using `httpx` with `starlette.testclient` is deprecated; install `httpx2` instead.
+    from starlette.testclient import TestClient as TestClient  # noqa
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+5 failed, 185 passed, 2 deselected, 1 warning in 178.07s (0:02:58)

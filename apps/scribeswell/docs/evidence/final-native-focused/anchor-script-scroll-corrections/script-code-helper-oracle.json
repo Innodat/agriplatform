@@ -1,0 +1,1 @@
+{"status":"passed","assertions":8,"source_sha256":"1a97135924bdc5b7b24c03969a05f6c83331f07ea3ea5326c5b4a01b15d3dbd5","checks":["message URL excluded","frame pathname/line/column retained and query stripped","absent stack safe","known stable codes retained without surrounding text","aborted retained","unallowlisted code and raw URL reduced to transport"]}

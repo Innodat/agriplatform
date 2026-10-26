@@ -10,7 +10,7 @@ ROOT = APP.parents[1]
 BUDGET_SECONDS = 180
 sys.path.insert(0,str(APP / 'migrations'))
 sys.path.insert(0,str(APP / 'deployment'))
-from release_profile import from_environ, selection, evidence as profile_evidence, strict_json, valid_result, OPTION_KEYS
+from release_profile import from_environ, selection, evidence as profile_evidence, strict_json, valid_result, OPTION_KEYS, REVISIONS
 
 def validate_url(environ):
     sys.path.insert(0,str(ROOT / 'platform/deployment'))
@@ -35,7 +35,7 @@ def worker():
         config.attributes['scribeswell_validation_profile']=expected['profile']
         if expected['custody'] is not None:
             config.attributes['scribeswell_prepared_actor']=expected['custody']
-        command.upgrade(config,'scribeswell_0005' if expected['profile']=='reader-evidence-v1' else 'head' if expected['profile']=='publication-v1' else 'scribeswell_0003')
+        command.upgrade(config,'scribeswell_0006' if expected['profile']=='publication-capacity-v1' else 'scribeswell_0005' if expected['profile']=='reader-evidence-v1' else 'head' if expected['profile']=='publication-v1' else 'scribeswell_0003')
         if config.attributes.get('scribeswell_validated_profile')!=expected['profile']:
             raise ValueError
         result={'before':config.attributes['scribeswell_before'],'after':config.attributes['scribeswell_after'],
@@ -47,7 +47,7 @@ def worker():
         result={'code':'scribeswell_migration_failed'}
         if config is not None and 'scribeswell_before' in config.attributes:
             before=config.attributes['scribeswell_before']
-            if before is None or before in ('scribeswell_0001','scribeswell_0002','scribeswell_0003','scribeswell_0004','scribeswell_0005'):
+            if before in REVISIONS:
                 result['before']=before
         sys.stdout.write(json.dumps(result))
         raise SystemExit(1) from None
@@ -95,7 +95,7 @@ def main(target=Path('/evidence/migrations.json'), *, environ=None, run=subproce
         if child.returncode:
             if (isinstance(result,dict) and set(result) <= {'code','before'}
                     and result.get('code')=='scribeswell_migration_failed' and 'before' in result
-                    and (result['before'] is None or result['before'] in ('scribeswell_0001','scribeswell_0002','scribeswell_0003','scribeswell_0004','scribeswell_0005'))):
+                    and (result['before'] in REVISIONS)):
                 entry['before']=result['before']
             raise RuntimeError
         if not valid_result(result,expected):

@@ -1,0 +1,17 @@
+{
+  "argv": [
+    "npm",
+    "run",
+    "test:browser",
+    "--workspace=apps/scribeswell/web",
+    "--",
+    "workspace-restoration.spec.cjs",
+    "--workers=1",
+    "--grep",
+    "late second candidate|current admission403|current (note|study)404|current hydration401"
+  ],
+  "exit_code": 0,
+  "seconds": 44.66,
+  "selected_files": 103,
+  "source_unchanged": true
+}

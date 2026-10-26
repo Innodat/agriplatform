@@ -46,6 +46,35 @@ async function addReader(page) {
   }).click();
 }
 const {test,expect}=require('@playwright/test');
+// Bounded, failure-only fixture diagnostics. Never emit exception messages,
+// response bodies, headers, query strings, credentials or whole stack traces.
+const startupObservations=new WeakMap();
+function scriptPath(value){try{return new URL(value).pathname;}catch{return null;}}
+function scriptFailure(reason){
+ if(typeof reason!=='string')return 'transport';
+ const code=reason.match(/(?:^|\s)(net::ERR_[A-Z_]+)(?=\s|$)/)?.[1];
+ return code&&['net::ERR_ABORTED','net::ERR_FAILED','net::ERR_CONNECTION_RESET','net::ERR_CONNECTION_CLOSED','net::ERR_CONNECTION_REFUSED','net::ERR_TIMED_OUT','net::ERR_NETWORK_CHANGED','net::ERR_INTERNET_DISCONNECTED','net::ERR_NAME_NOT_RESOLVED','net::ERR_HTTP_RESPONSE_CODE_FAILURE','net::ERR_CACHE_READ_FAILURE','net::ERR_INSUFFICIENT_RESOURCES'].includes(code)?code==='net::ERR_ABORTED'?'aborted':code:'transport';
+}
+function exceptionLocation(stack){
+ const frame=typeof stack==='string'?stack.slice(0,8192).split('\n').slice(1,9).find(line=>/^\s*at /.test(line)):undefined;
+ const match=frame?.match(/https?:\/\/[^\s)]+/);
+ if(!match)return null;
+ const position=match[0].match(/:(\d+):(\d+)$/),url=position?match[0].slice(0,position.index):match[0];
+ return {pathname:scriptPath(url),...(position?{line:Number(position[1]),column:Number(position[2])}:{})};
+}
+test.beforeEach(async({page})=>{
+ const observations=[];startupObservations.set(page,observations);
+ const record=item=>{if(observations.length<16)observations.push(item);};
+ page.on('pageerror',error=>record({kind:'exception',name:/^[A-Za-z][A-Za-z0-9]{0,63}$/.test(error.name)?error.name:'Error',location:exceptionLocation(error.stack)}));
+ page.on('response',response=>{if(response.request().resourceType()==='script'&&response.status()>=400)record({kind:'script',pathname:scriptPath(response.url()),status:response.status(),failure:'http'});});
+ page.on('requestfailed',request=>{if(request.resourceType()==='script'){const reason=request.failure()?.errorText??'';record({kind:'script',pathname:scriptPath(request.url()),failure:scriptFailure(reason)});}});
+});
+test.afterEach(async({page},testInfo)=>{
+ if(testInfo.status===testInfo.expectedStatus)return;
+ const state=await page.evaluate(()=>({rootChildren:document.getElementById('root')?.childElementCount??null,readyState:document.readyState})).catch(()=>({rootChildren:null,readyState:'unavailable'}));
+ console.log('PERSONAL_NOTES_FIXTURE_DIAGNOSTIC',JSON.stringify({observations:startupObservations.get(page)??[],...state}));
+});
+
 const account='10000000-0000-4000-8000-000000000001',actor='20000000-0000-4000-8000-000000000001';
 const study='30000000-0000-4000-8000-000000000001',note='40000000-0000-4000-8000-000000000001';
 const session={access_token:'current',refresh_token:'fixture',expires_at:Date.now()/1000+3600,expires_in:3600,token_type:'bearer',user:{id:account,email:'reader@example.invalid',aud:'authenticated',app_metadata:{},user_metadata:{}}};
@@ -116,9 +145,9 @@ async function setup(page,options={}){
 }
 // Reload exercises the real device return: wait for acknowledged metadata, then
 // current authorized hydration before any tool click can supersede that return.
-async function waitForWorkspaceCheckpoint(page,{noteId=note,studySelected=true}={}){
+async function waitForWorkspaceCheckpoint(page,{studyId=study,noteId=note,studySelected=true}={}){
  await expect(page.getByRole('tablist',{name:'Workspace tabs'})).toHaveAttribute('data-device-ready','true');
- await expect.poll(()=>page.evaluate(async({account,study,noteId,studySelected})=>{
+ await expect.poll(()=>page.evaluate(async({account,studyId,noteId,studySelected})=>{
   const {readWorkspace}=await import('/src/lib/workspace-storage.ts');
   const saved=await readWorkspace(account),key=document.querySelector('[data-workspace-tab][aria-selected="true"]')?.getAttribute('data-workspace-tab');
   const tab=saved.public?.tabs.find(tab=>tab.tabKey===key);
@@ -127,11 +156,11 @@ async function waitForWorkspaceCheckpoint(page,{noteId=note,studySelected=true}=
   if(snapshot?.tabKey===key&&(tab.activePaneKey!==snapshot.activePaneKey||JSON.stringify(tab.panes.map(p=>[p.paneKey,p.ref]))!==JSON.stringify(snapshot.panes.map(p=>[p.paneKey,p.ref]))))return false;
   if(!studySelected)return true;
   const selected=saved.private?.tabs.find(row=>row.tabKey===key&&row.incarnation===tab.incarnation);
-  return selected?.study===study&&(noteId===null?selected.note===undefined:selected.note===noteId);
- },{account,study,noteId,studySelected})).toBe(true);
+  return selected?.study===studyId&&(noteId===null?selected.note===undefined:selected.note===noteId);
+ },{account,studyId,noteId,studySelected})).toBe(true);
 }
-async function reloadRememberedWorkspace(page,{title='Untitled study',noteId=note,studySelected=true}={}){
- await waitForWorkspaceCheckpoint(page,{noteId,studySelected});
+async function reloadRememberedWorkspace(page,{title='Untitled study',studyId=study,noteId=note,studySelected=true}={}){
+ await waitForWorkspaceCheckpoint(page,{studyId,noteId,studySelected});
  await page.reload();
  await expect(page.getByRole('tablist',{name:'Workspace tabs'})).toHaveAttribute('data-device-ready','true');
  if(studySelected){
@@ -174,10 +203,13 @@ for(const replacementToken of ['current','other-account'])test(`account replacem
 });
 test('native PostgreSQL browser reload returns the acknowledged aggregate',async({page})=>{
  test.skip(!process.env.SCRIBESWELL_NOTES_NATIVE_API,'Explicit owned native API fixture required');
- await setup(page);await page.unroute('**/api/studies**');
- for(const pattern of ['**/api/studies**','**/api/operations/**'])await page.route(pattern,async r=>{const target=process.env.SCRIBESWELL_NOTES_NATIVE_API+new URL(r.request().url()).pathname+new URL(r.request().url()).search;const response=await r.fetch({url:target});await r.fulfill({response});});
+ await setup(page);await page.unroute('**/api/studies**');const acknowledgements=[];
+ for(const pattern of ['**/api/studies**','**/api/operations/**'])await page.route(pattern,async r=>{const target=process.env.SCRIBESWELL_NOTES_NATIVE_API+new URL(r.request().url()).pathname+new URL(r.request().url()).search;const response=await r.fetch({url:target});if(r.request().method()==='POST'){const result=await response.json();if(['study.create','note.create'].includes(result.command))acknowledgements.push(result);}await r.fulfill({response});});
  await firstNote(page);await page.getByLabel('Note text',{exact:true}).fill('Native persisted בְּרֵאשִׁית');await expect(page.getByRole('status').filter({hasText:'Draft saved'})).toBeVisible();
- await reloadRememberedWorkspace(page);await page.getByRole('button',{name:'Studies',exact:true}).click();await page.getByRole('button',{name:'Native persisted בְּרֵאשִׁית',exact:true}).click();await expect(page.getByLabel('Note text',{exact:true})).toContainText('Native persisted בְּרֵאשִׁית');
+ const createdStudy=acknowledgements.find(result=>result.command==='study.create'),createdNote=acknowledgements.find(result=>result.command==='note.create');expect(createdStudy?.study_id).toMatch(/^[0-9a-f-]{36}$/);expect(createdNote?.study_id).toBe(createdStudy.study_id);expect(createdNote?.note_id).toMatch(/^[0-9a-f-]{36}$/);console.log('NATIVE_FIXTURE_ACK_IDS',JSON.stringify({study_id:createdStudy.study_id,note_id:createdNote.note_id,stub_study:study,stub_note:note}));
+ await reloadRememberedWorkspace(page,{studyId:createdStudy.study_id,noteId:createdNote.note_id});await page.getByRole('button',{name:'Studies',exact:true}).click();await page.getByRole('button',{name:'Native persisted בְּרֵאשִׁית',exact:true}).click();await expect(page.getByLabel('Note text',{exact:true})).toContainText('Native persisted בְּרֵאשִׁית');
+ // Drain actual API callbacks before Playwright tears down their request context.
+ await page.unrouteAll({behavior:'wait'});
 });
 
 test('unknown response blocks newer snapshots and recovers the original operation',async({page})=>{
@@ -222,6 +254,8 @@ test('review: reopening a conflicting lane preserves mine until explicit latest 
  await page.route('**/api/studies/'+study+'/notes/'+note,r=>{if(r.request().method()==='GET'){reads++;return r.fulfill({json:latest});}return r.fallback();});
  await page.getByRole('button',{name:'Back to Studies',exact:true}).click();await page.getByRole('button',{name:'Empty note',exact:true}).click();
  await expect(editor).toContainText('My conflicting text');expect(reads).toBe(0);
+ const consent=page.getByRole('dialog',{name:'Changes not saved'});await expect(consent).toBeVisible();await consent.getByRole('button',{name:'Stay',exact:true}).click();await page.getByRole('button',{name:'Analysis',exact:true}).click();
+ await expect(editor).toContainText('My conflicting text');expect(reads).toBe(0);
  await page.getByRole('button',{name:'Review latest',exact:true}).click();await expect(page.getByRole('region',{name:'Current saved note'})).toContainText('Latest from server');
  await expect(editor).toContainText('My conflicting text');await page.getByRole('button',{name:'Use latest',exact:true}).click();await expect(editor).toContainText('Latest from server');expect(reads).toBe(1);
 });
@@ -239,7 +273,7 @@ async function reviewLibrary(page,options={}){
  const value=text=>({document:{version:1,blocks:[{type:'paragraph',direction:'auto',content:[{type:'text',text,marks:[]}]}]},connections:[],highlights:[]});
  const studyView=id=>({...attribution,id,title:id===study?'Study A':'Study B',revision:'1'});
  const noteView=(parent,id,text)=>({...attribution,id,study_id:parent,visibility:'study',revision:'1',value:value(text)});
- await page.route('**/api/studies**',async r=>{if(r.request().method()==='PUT')return r.fallback();const url=new URL(r.request().url()),parts=url.pathname.split('/').filter(Boolean);let result;
+ await page.route('**/api/studies**',async r=>{if(r.request().method()==='PUT'||new URL(r.request().url()).pathname==='/api/studies/context-notes')return r.fallback();const url=new URL(r.request().url()),parts=url.pathname.split('/').filter(Boolean);let result;
   if(parts.length===2||parts[2]==='search')result={items:[studyView(study),studyView(otherStudy)],next_cursor:null};
   else if(parts.length===3)result=options.detail?await options.detail(parts[2],studyView):studyView(parts[2]);
   else if(parts.length===4){const parent=parts[2];result=options.notes?await options.notes(parent,url.searchParams.get('cursor'),noteView):{items:[noteView(parent,note,'A first'),noteView(parent,otherNote,'A second')],next_cursor:null};}
@@ -485,7 +519,7 @@ test('note links: links source marks lists direction plain paste and reload roun
  const {requests}=await setup(page);await firstNote(page);const editor=page.getByLabel('Note text',{exact:true});await editor.fill('Mixed עברית');await editor.press('ControlOrMeta+End');await page.getByLabel('Paragraph direction',{exact:true}).selectOption('rtl');await page.getByRole('button',{name:'Bullet list',exact:true}).click();await insertNoteReference(page,'Gen 1:31–2:3');await editor.press('End');await editor.press('ControlOrMeta+b');await editor.press('ArrowRight');await editor.press('ControlOrMeta+b');
  // Use a native clipboard event with HTML and a distinct plain-text value.
  await editor.evaluate(el=>{el.focus();const d=new DataTransfer();d.setData('text/html','<span data-note-passage="true">forged</span>');d.setData('text/plain',' plain');el.dispatchEvent(new ClipboardEvent('paste',{bubbles:true,clipboardData:d}));});
- await expect(page.getByRole('status').filter({hasText:'Draft saved'})).toBeVisible();const saved=structuredClone(requests.filter(r=>r.method==='PUT'&&r.path.endsWith('/notes/'+note)).at(-1).payload.value);expect(saved.document.version).toBe(2);expect(saved.document.blocks.some(b=>b.type==='list')).toBe(true);await reloadRememberedWorkspace(page);await page.getByRole('button',{name:'Studies',exact:true}).click();await page.getByRole('list',{name:'Notes',exact:true}).getByRole('button').click();await expect(editor.locator('[data-note-passage]')).toHaveCount(1);await expect(editor).toContainText('Genesis 1:31–2:3');await editor.press('End');await editor.press(' ');await expect(page.getByRole('status').filter({hasText:'Draft saved'})).toBeVisible();expect(requests.filter(r=>r.method==='PUT'&&r.path.endsWith('/notes/'+note)).at(-1).payload.value.document.version).toBe(2);
+ await expect(page.getByRole('status').filter({hasText:'Draft saved'})).toBeVisible();const saved=structuredClone(requests.filter(r=>r.method==='PUT'&&r.path.endsWith('/notes/'+note)).at(-1).payload.value);expect(saved.document.version).toBe(2);expect(saved.document.blocks.some(b=>b.type==='list')).toBe(true);await reloadRememberedWorkspace(page);await page.getByRole('button',{name:'Studies',exact:true}).click();await page.getByRole('list',{name:'Notes',exact:true}).locator(':scope > li > button:first-child').click();await expect(editor.locator('[data-note-passage]')).toHaveCount(1);await expect(editor).toContainText('Genesis 1:31–2:3');await editor.press('End');await editor.press(' ');await expect(page.getByRole('status').filter({hasText:'Draft saved'})).toBeVisible();expect(requests.filter(r=>r.method==='PUT'&&r.path.endsWith('/notes/'+note)).at(-1).payload.value.document.version).toBe(2);
 });
 test('note links: corrupt and foreign atoms stay unsaved and cannot switch to stale reading',async({page})=>{
  const {requests}=await setup(page);await firstNote(page);const editor=page.getByLabel('Note text',{exact:true});await insertNoteReference(page,'Gen 1');await expect(page.getByRole('status').filter({hasText:'Draft saved'})).toBeVisible();const before=requests.filter(r=>r.method==='PUT').length;await editor.locator('[data-note-passage]').evaluate(el=>{el.textContent='corrupt';el.parentElement.dispatchEvent(new InputEvent('input',{bubbles:true}));});await expect(page.getByRole('status')).toContainText('Changes not saved');await expect(page.getByRole('button',{name:'Read note',exact:true})).toBeDisabled();await page.waitForTimeout(650);expect(requests.filter(r=>r.method==='PUT')).toHaveLength(before);await editor.evaluate(el=>{el.replaceChildren();const s=document.createElement('span');s.dataset.notePassage='true';s.textContent='foreign';s.contentEditable='false';el.append(s);el.dispatchEvent(new InputEvent('input',{bubbles:true}));});await expect(page.getByRole('status')).toContainText('Changes not saved');await page.waitForTimeout(650);expect(requests.filter(r=>r.method==='PUT')).toHaveLength(before);
@@ -556,10 +590,10 @@ test('note links review: retained reference reopens at its candidate book and re
  await setup(page);await firstNote(page);await page.getByRole('button',{name:'Insert passage reference',exact:true}).click();const input=page.getByLabel('Passage reference',{exact:true});await input.fill('Ps 110:1');await page.getByRole('button',{name:'Cancel',exact:true}).click();await page.getByRole('button',{name:'Insert passage reference',exact:true}).click();await expect(input).toHaveValue('Ps 110:1');await expect(page.getByRole('group',{name:'Chapters of Psalms',exact:true})).toBeVisible();await input.fill('Ps 2:13');await expect(input).toHaveAttribute('aria-invalid','true');const errorId=await input.getAttribute('aria-describedby');expect(errorId).toBeTruthy();await expect(page.locator('[id="'+errorId+'"]')).toHaveAttribute('role','alert');await expect(page.locator('[id="'+errorId+'"]')).toContainText('Enter a valid');
 });
 for(const command of ['Bold','Italic','Bullet list','Numbered list'])test(`note links review: ${command} across an owned atom survives save reload`,async({page})=>{
- const {requests}=await setup(page);await firstNote(page);const editor=page.getByLabel('Note text',{exact:true});await editor.fill('Before ');await insertNoteReference(page,'Gen 1');await editor.press('End');await editor.pressSequentially(' after');await editor.press('ControlOrMeta+a');await page.getByRole('button',{name:command,exact:true}).click();await expect(page.getByRole('status').filter({hasText:'Draft saved'})).toBeVisible();const saved=requests.filter(r=>r.method==='PUT').at(-1).payload.value;expect(JSON.stringify(saved)).toContain('passage_link');await reloadRememberedWorkspace(page);await page.getByRole('button',{name:'Studies',exact:true}).click();await page.getByRole('list',{name:'Notes',exact:true}).getByRole('button').click();await expect(editor).toHaveText('Before Genesis 1 after');await expect(editor.locator('[data-note-passage]')).toHaveCount(1);if(command==='Bold'||command==='Italic'){const paragraphs=saved.document.blocks.flatMap(b=>b.type==='paragraph'?[b]:b.items.flat());expect(paragraphs.flatMap(p=>p.content).filter(i=>i.type==='text').every(i=>i.marks.includes(command.toLowerCase()))).toBe(true);}else expect(saved.document.blocks[0].type).toBe('list');
+ const {requests}=await setup(page);await firstNote(page);const editor=page.getByLabel('Note text',{exact:true});await editor.fill('Before ');await insertNoteReference(page,'Gen 1');await editor.press('End');await editor.pressSequentially(' after');await editor.press('ControlOrMeta+a');await page.getByRole('button',{name:command,exact:true}).click();await expect(page.getByRole('status').filter({hasText:'Draft saved'})).toBeVisible();const saved=requests.filter(r=>r.method==='PUT').at(-1).payload.value;expect(JSON.stringify(saved)).toContain('passage_link');await reloadRememberedWorkspace(page);await page.getByRole('button',{name:'Studies',exact:true}).click();await page.getByRole('list',{name:'Notes',exact:true}).locator(':scope > li > button:first-child').click();await expect(editor).toHaveText('Before Genesis 1 after');await expect(editor.locator('[data-note-passage]')).toHaveCount(1);if(command==='Bold'||command==='Italic'){const paragraphs=saved.document.blocks.flatMap(b=>b.type==='paragraph'?[b]:b.items.flat());expect(paragraphs.flatMap(p=>p.content).filter(i=>i.type==='text').every(i=>i.marks.includes(command.toLowerCase()))).toBe(true);}else expect(saved.document.blocks[0].type).toBe('list');
 });
 test('note links review: passage-only saved Notes preview reopens with plain reference label',async({page})=>{
- await setup(page);await firstNote(page);await insertNoteReference(page,'Gen 1');await expect(page.getByRole('status').filter({hasText:'Draft saved'})).toBeVisible();await page.getByRole('button',{name:'Back to Studies',exact:true}).click();const button=page.getByRole('list',{name:'Notes',exact:true}).getByRole('button');await expect(button).toHaveText('Genesis 1');await button.click();await expect(page.getByLabel('Note text',{exact:true}).locator('[data-note-passage]')).toHaveText('Genesis 1');
+ await setup(page);await firstNote(page);await insertNoteReference(page,'Gen 1');await expect(page.getByRole('status').filter({hasText:'Draft saved'})).toBeVisible();await page.getByRole('button',{name:'Back to Studies',exact:true}).click();const button=page.getByRole('list',{name:'Notes',exact:true}).locator(':scope > li > button:first-child');await expect(button).toHaveText('Genesis 1');await button.click();await expect(page.getByLabel('Note text',{exact:true}).locator('[data-note-passage]')).toHaveText('Genesis 1');
 });
 test('note links review: noncanonical stored Unicode HTML-looking label stays plain and exact',async({page})=>{
  const catalogue=require('../src/generated/reference-catalogue.json'),label='שָׁלוֹם 😀 <b>stored</b> e\u0301',reference={catalogue_id:catalogue.catalogue_id,catalogue_version:catalogue.catalogue_version,versification_id:catalogue.books.find(b=>b.book_id==='Gen').versification_id,book_id:'Gen',target:{kind:'chapter',chapter:1}},noteValue={document:{version:2,blocks:[{type:'paragraph',direction:'rtl',content:[{type:'passage_link',reference,label}]}]},connections:[],highlights:[]};const {requests}=await setup(page,{noteValue});await firstNote(page);const editor=page.getByLabel('Note text',{exact:true}),atom=editor.locator('[data-note-passage]');await expect(atom).toHaveText(label);await expect(atom.locator('b')).toHaveCount(0);await page.getByRole('button',{name:'Read note',exact:true}).click();await expect(atom).toHaveText(label);await page.getByRole('button',{name:'Edit note',exact:true}).click();await editor.press('End');await editor.press('!');await expect(page.getByRole('status').filter({hasText:'Draft saved'})).toBeVisible();const saved=requests.filter(r=>r.method==='PUT').at(-1).payload.value;expect(saved.document.blocks[0].content.find(i=>i.type==='passage_link')).toEqual({type:'passage_link',reference,label});
@@ -1907,7 +1941,9 @@ test('D11 late relevant Open after tab change cannot select or navigate the new 
 test('D12 anchored outline Open carries source occurrence in one reader history navigation',async({page})=>{
  const reference=detailsReference(2,1),catalogue=require('../../data/reference-catalogue/catalogue.json');
  const value={format_version:3,document:{version:1,blocks:[{type:'paragraph',direction:'auto',content:[{type:'text',text:'Anchored explanation',marks:[]}]}]},connections:[],highlights:[{id:'66666666-6666-4666-8666-666666666666',colour:'#FFE066',anchor:{version:1,source_id:'source-v1',source_revision:'11111111-1111-4111-8111-111111111111',catalogue_version:catalogue.catalogue_version,versification_id:reference.versification_id,tokenization_version:'tokens-v1',segments:[{reference,start_position:2,end_position:2,observed_word_ids:['2'],verse_token_digest:'a'.repeat(64)}]}}]};
- await setup(page,{noteValue:value});await firstNote(page);await page.getByRole('button',{name:'Back to Studies',exact:true}).click();const before=await page.evaluate(()=>history.length);await page.getByRole('list',{name:'Notes',exact:true}).getByRole('button',{name:'Anchored explanation',exact:true}).click();await expect.poll(()=>page.evaluate(()=>history.state?.usr?.scribeswellReader?.panes[0].anchor?.word)).toBe(2);expect(await page.evaluate(()=>history.length)).toBe(before+1);
+ await setup(page,{noteValue:value});
+ await page.route('**/api/bible/books/Gen/chapters/2/verses',r=>r.fulfill({json:{data:[{id:2,verse_num:1,book_id:1,chapter_num:2,words:[{id:1,position:1,surface_he:'אָב',display_he:'אָב',lemma_strong:null,morph_code:null},{id:2,position:2,surface_he:'בֵּן',display_he:'בֵּן',lemma_strong:null,morph_code:null}]}],total:1}}));
+ await firstNote(page);await page.getByRole('button',{name:'Back to Studies',exact:true}).click();const before=await page.evaluate(()=>history.length);await page.getByRole('list',{name:'Notes',exact:true}).getByRole('button',{name:'Anchored explanation',exact:true}).click();await expect.poll(()=>page.evaluate(()=>history.state?.usr?.scribeswellReader?.panes[0].anchor?.word)).toBe(2);expect(await page.evaluate(()=>history.length)).toBe(before+1);
 });
 
 test('D13 study details stay independent of the autosaved note lane',async({page})=>{
@@ -1955,4 +1991,52 @@ test('R8 Switch anyway unmounts source editor while destination read waits and p
  // Reconciliation remains available under the original operation while read waits.
  await recovery.click();await expect.poll(()=>store.requests.filter(r=>r.method==='PUT'&&r.path.endsWith('/notes/'+note)).length).toBe(2);expect(store.requests.filter(r=>r.method==='PUT'&&r.path.endsWith('/notes/'+note))[1].payload).toEqual(original);await expect(page.locator('[aria-label="Note text"]')).toHaveCount(0);
  release();await expect(editor).toContainText('Another own explanation');await expect(guard).toHaveCount(0);
+});
+
+test('note text wire grammar rejects NUL and preserves newlines and combining marks',async({page})=>{
+ await setup(page);await page.goto('/');
+ const values=['before\u0000after','First\nבְּרֵאשִׁית\ne\u0301'].map(text=>({document:{version:1,blocks:[{type:'paragraph',direction:'rtl',content:[{type:'text',text,marks:[]}]}]},connections:[],highlights:[]}));
+ const actual=await page.evaluate(async values=>{const {isReadableNoteValue}=await import('/src/lib/note-value.ts');return values.map(isReadableNoteValue);},values);
+ expect(actual).toEqual([false,true]);
+});
+
+
+test('editor rejects impossible scalar input locally and retains correctable DOM',async({page})=>{
+ const store=await setup(page);await firstNote(page);const editor=page.getByRole('textbox',{name:'Note text',exact:true});
+ for(const invalid of ['Before\u0000after','Before\uD800after','Before\uDC00after']){
+  const before=store.requests.filter(r=>r.method==='PUT').length;
+  await editor.evaluate((el,text)=>{el.replaceChildren(document.createTextNode(text));el.dispatchEvent(new InputEvent('input',{bubbles:true,inputType:'insertText'}));},invalid);
+  await expect(page.getByRole('status').filter({hasText:'Changes not saved'})).toBeVisible();
+  await page.waitForTimeout(700);expect(store.requests.filter(r=>r.method==='PUT')).toHaveLength(before);
+  await page.getByRole('button',{name:'Retry',exact:true}).click();await page.waitForTimeout(100);
+  expect(store.requests.filter(r=>r.method==='PUT')).toHaveLength(before);expect(await editor.textContent()).toBe(invalid);
+ }
+ const corrected='Useful\nבְּרֵאשִׁית e\u0301 😀';
+ await editor.evaluate((el,text)=>{el.replaceChildren(document.createTextNode(text));el.dispatchEvent(new InputEvent('input',{bubbles:true,inputType:'insertText'}));},corrected);
+ await page.getByRole('button',{name:'Retry',exact:true}).click();
+ await expect(page.getByRole('status').filter({hasText:'Draft saved'})).toBeVisible();
+ const saved=store.requests.filter(r=>r.method==='PUT').at(-1).payload.value;
+ expect(saved.document.blocks[0].content.map(n=>n.text).join('')).toBe(corrected);
+});
+
+test('exported note scalar schema uses JavaScript code-unit semantics',async({page})=>{
+ const fs=require('node:fs'),path=require('node:path');const schema=JSON.parse(fs.readFileSync(path.join(__dirname,'../../contracts/personal-notes-v1.openapi.json'),'utf8'));
+ const patterns=[];function visit(node){if(!node||typeof node!=='object')return;if(node.description?.includes('Unicode scalar')||node.properties?.text){const field=node.properties?.text??node;if(field.not?.pattern)patterns.push(field.not.pattern);}for(const value of Object.values(node))if(value&&typeof value==='object')visit(value);}visit(schema);
+ expect(patterns.length).toBeGreaterThan(0);
+ const results=await page.evaluate(patterns=>patterns.map(pattern=>['x\u0000y','x\uD800y','x\uDC00y','x😀y','x\ne\u0301'].map(value=>!new RegExp(pattern).test(value))),patterns);
+ expect(results).toEqual(patterns.map(()=>[false,false,false,true,true]));
+});
+
+
+for(const state of ['clean','unknown'])test(`same current ${state} note reentry preserves lane and original operation`,async({page})=>{
+ const {requests}=await setup(page,state==='unknown'?{dropPut:true,unresolved:true}:{});await firstNote(page);
+ const editor=page.getByRole('textbox',{name:'Note text',exact:true});await editor.fill('Retained '+state+' body');
+ await expect(page.getByRole('status').filter({hasText:state==='clean'?'Draft saved':'Changes not saved'})).toBeVisible();
+ const writes=requests.filter(r=>r.method==='PUT');expect(writes).toHaveLength(1);const original=structuredClone(writes[0].payload);
+ const reads=requests.filter(r=>r.path.endsWith('/notes/'+note)&&r.method==='GET').length;
+ await page.getByRole('button',{name:'Back to Studies',exact:true}).click();await page.getByRole('list',{name:'Notes',exact:true}).locator(':scope > li > button:first-child').click();
+ await expect(page.getByRole('dialog',{name:'Changes not saved'})).toHaveCount(0);await expect(editor).toHaveText('Retained '+state+' body');
+ expect(requests.filter(r=>r.path.endsWith('/notes/'+note)&&r.method==='GET')).toHaveLength(reads);
+ if(state==='unknown'){await page.getByRole('button',{name:'Retry',exact:true}).click();await expect(page.getByRole('status').filter({hasText:'Draft saved'})).toBeVisible();expect(requests.filter(r=>r.method==='PUT').map(r=>r.payload)).toEqual([original,original]);}
+ else expect(requests.filter(r=>r.method==='PUT')).toHaveLength(1);
 });

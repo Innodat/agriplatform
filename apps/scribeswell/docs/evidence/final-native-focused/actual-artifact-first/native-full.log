@@ -1,0 +1,145 @@
+📚 Seeding books...
+   ✓ 39 books
+Importing Genesis...
+   Verified Genesis: 50 chapters
+Importing Exodus...
+   Verified Exodus: 40 chapters
+Importing Leviticus...
+   Verified Leviticus: 27 chapters
+Importing Numbers...
+   Verified Numbers: 36 chapters
+Importing Deuteronomy...
+   Verified Deuteronomy: 34 chapters
+Importing Joshua...
+   Verified Joshua: 24 chapters
+Importing Judges...
+   Verified Judges: 21 chapters
+Importing Ruth...
+   Verified Ruth: 4 chapters
+Importing I Samuel...
+   Verified I Samuel: 31 chapters
+Importing II Samuel...
+   Verified II Samuel: 24 chapters
+Importing I Kings...
+   Verified I Kings: 22 chapters
+Importing II Kings...
+   Verified II Kings: 25 chapters
+Importing I Chronicles...
+   Verified I Chronicles: 29 chapters
+Importing II Chronicles...
+   Verified II Chronicles: 36 chapters
+Importing Ezra...
+   Verified Ezra: 10 chapters
+Importing Nehemiah...
+   Verified Nehemiah: 13 chapters
+Importing Esther...
+   Verified Esther: 10 chapters
+Importing Job...
+   Verified Job: 42 chapters
+Importing Psalms...
+   Verified Psalms: 150 chapters
+Importing Proverbs...
+   Verified Proverbs: 31 chapters
+Importing Ecclesiastes...
+   Verified Ecclesiastes: 12 chapters
+Importing Song of Solomon...
+   Verified Song of Solomon: 8 chapters
+Importing Isaiah...
+   Verified Isaiah: 66 chapters
+Importing Jeremiah...
+   Verified Jeremiah: 52 chapters
+Importing Lamentations...
+   Verified Lamentations: 5 chapters
+Importing Ezekiel...
+   Verified Ezekiel: 48 chapters
+Importing Daniel...
+   Verified Daniel: 12 chapters
+Importing Hosea...
+   Verified Hosea: 14 chapters
+Importing Joel...
+   Verified Joel: 4 chapters
+Importing Amos...
+   Verified Amos: 9 chapters
+Importing Obadiah...
+   Verified Obadiah: 1 chapters
+Importing Jonah...
+   Verified Jonah: 4 chapters
+Importing Micah...
+   Verified Micah: 7 chapters
+Importing Nahum...
+   Verified Nahum: 3 chapters
+Importing Habakkuk...
+   Verified Habakkuk: 3 chapters
+Importing Zephaniah...
+   Verified Zephaniah: 3 chapters
+Importing Haggai...
+   Verified Haggai: 2 chapters
+Importing Zechariah...
+   Verified Zechariah: 14 chapters
+Importing Malachi...
+   Verified Malachi: 3 chapters
+{"status": "verified", "source_sha256": "c2d8e9e565be4ee69f938b444e5e0dc37fdfd0d9ccb185d1a5f8d95fab91c498", "counts": {"books": 39, "chapters": 929, "verses": 23213, "words": 306785, "morphemes": 471674, "errors": 0}}
+F
+=================================== FAILURES ===================================
+_ test_native_checked_in_artifact_publication_capacity_timing_and_replay[artifact] _
+
+closed = (<psycopg.Connection [IDLE] (host=127.0.0.1 port=32781 user=postgres database=scribeswell_migration_c4bc8bf6221e48f98c...22222-2222-4222-8222-222222222222', attempt_id='4e0c42c9-4de5-45ba-93b8-50a45ace13ba', generation='1', state='closed'))
+publication_source = b'{"Genesis": [[[["\xd7\x91\xd6\xbc\xd6\xb0/\xd7\xa8\xd6\xb5\xd7\x90\xd7\xa9\xd7\x81\xd6\xb4\xd6\x96\xd7\x99\xd7\xaa",...\xd6\xb6\xd7\xa5", "d/776", "HTd/Ncbsa"], ["\xd7\x97\xd6\xb5\xd6\xbd\xd7\xa8\xd6\xb6\xd7\x9d", "2764 a", "HNcmsa"]]]]}'
+
+    @pytest.mark.parametrize('publication_source',['artifact'],indirect=True)
+    def test_native_checked_in_artifact_publication_capacity_timing_and_replay(closed,publication_source):
+        import time
+        from corpus_evidence import build_source_candidate
+        admin,url,seal,_=closed
+        expected=build_source_candidate(publication_source,hashlib.sha256(publication_source).hexdigest(),source_id='tanakh',catalogue_version=seal['payload']['input']['catalogue_version'],versification_id=seal['payload']['input']['versification_id'],tokenization_version=seal['payload']['input']['tokenization_version'])
+        counts=expected['counts']
+        actual=admin.execute('SELECT (SELECT count(*) FROM scribeswell.book),(SELECT count(*) FROM scribeswell.chapter),(SELECT count(*) FROM scribeswell.verse),(SELECT count(*) FROM scribeswell.word)').fetchone()
+        assert actual==tuple(counts[k] for k in ('books','chapters','verses','tokens'))
+        operation=str(uuid4());started=time.monotonic()
+        with operator(url) as connection:
+>           result=publish_closed_attempt(connection,encode(seal),publication_source,operation_id=operation)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+apps/scribeswell/tests/test_corpus_publish_native.py:473: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+apps/scribeswell/backend/corpus_publish.py:190: in publish_closed_attempt
+    _acknowledge(connection, request('batch', 'batch:' + str(index),
+apps/scribeswell/backend/corpus_publish.py:126: in _acknowledge
+    return _call(connection, request, lookup=False)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+connection = <psycopg.Connection [BAD] at 0x7e519a5210a0>
+request = {'batch_index': 4, 'command': 'publication.batch', 'first_ordinal': 4000, 'operation_id': 'c90f267b-4ee5-567c-a3ef-7bdc893199c8', ...}
+
+    def _call(connection, request, *, lookup):
+        failure, result = None, None
+        original_factory = connection.row_factory
+        try:
+            _idle(connection)
+            connection.row_factory = tuple_row
+            with connection.transaction():
+                connection.execute('SET TRANSACTION ISOLATION LEVEL READ COMMITTED READ WRITE')
+                connection.execute("SET LOCAL statement_timeout='5s'")
+                connection.execute("SET LOCAL lock_timeout='2s'")
+                connection.execute("SET LOCAL idle_in_transaction_session_timeout='5s'")
+                statement = ('SELECT scribeswell.lookup_corpus_publication_outcome(%s)' if lookup else
+                             'SELECT scribeswell.execute_corpus_publication(%s)')
+                row = connection.execute(statement, (Jsonb(request),)).fetchone()
+                if row is None or len(row) != 1 or (row[0] is None and not lookup):
+                    raise PublishError('unknown_outcome')
+                result = None if row[0] is None else _receipt(row[0], request)
+        except PublishError as error:
+            failure = error.code.rsplit('.', 1)[1]
+        except Exception as error:
+            failure = {'42501':'access_denied', '22023':'input_invalid', 'P0001':'conflict',
+                       '55000':'unavailable', '55P03':'unavailable', '57014':'unavailable',
+                       '25006':'unavailable', '25001':'unavailable'}.get(getattr(error, 'sqlstate', None), 'unknown_outcome')
+        finally:
+            connection.row_factory = original_factory
+        if failure:
+>           raise PublishError(failure)
+E           corpus_publish.PublishError: corpus_publish.unavailable
+
+apps/scribeswell/backend/corpus_publish.py:116: PublishError
+1 failed in 138.37s (0:02:18)

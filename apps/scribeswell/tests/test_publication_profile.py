@@ -2,7 +2,7 @@
 from pathlib import Path
 import sys
 sys.path.insert(0,str(Path(__file__).resolve().parents[1] / 'migrations'))
-from release_profile import selection, valid_result, evidence
+from release_profile import selection, valid_result, evidence, from_environ
 
 
 def test_publication_profile_selects_forward_revision_without_changing_old_profiles():
@@ -64,6 +64,7 @@ def test_publication_profile_accepts_explicit_custody_and_environment():
 
 @pytest.mark.parametrize('selected,target,before,after',[
     ('dormant','scribeswell_0003',None,'scribeswell_0003'),
+    ('publication-capacity-v1','scribeswell_0006','scribeswell_0004','scribeswell_0006'),
     ('publication-v1','head','scribeswell_0003','scribeswell_0004'),
     ('publication-v1','head','scribeswell_0004','scribeswell_0004')])
 def test_worker_pins_historical_profiles_and_reports_new_profile(monkeypatch,capsys,selected,target,before,after):
@@ -86,6 +87,15 @@ def test_alembic_retains_previous_and_forward_paths_without_executing_sql():
     from alembic.config import Config
     from alembic.script import ScriptDirectory
     script=ScriptDirectory.from_config(Config(str(APP/'alembic.ini')))
-    assert script.get_current_head()=='scribeswell_0005'
+    assert script.get_current_head()=='scribeswell_0006'
     assert [step.revision.revision for step in script._upgrade_revs('scribeswell_0003','scribeswell_0002')]==['scribeswell_0003']
-    assert [step.revision.revision for step in script._upgrade_revs('head','scribeswell_0003')]==['scribeswell_0004','scribeswell_0005']
+    assert [step.revision.revision for step in script._upgrade_revs('head','scribeswell_0003')]==['scribeswell_0004','scribeswell_0005','scribeswell_0006']
+
+
+def test_capacity_profile_is_explicit_and_requires_postcommit_0006_evidence():
+    expected=selection(dict(profile='publication-capacity-v1',custody=None))
+    assert from_environ({'SCRIBESWELL_MIGRATION_PROFILE':'publication-capacity-v1'})==expected
+    for before in ('scribeswell_0003','scribeswell_0004','scribeswell_0005','scribeswell_0006'):
+        assert valid_result(dict(before=before,after='scribeswell_0006',validation=evidence(expected)),expected)
+    for before,after in [('scribeswell_0002','scribeswell_0006'),('scribeswell_0004','scribeswell_0005')]:
+        assert not valid_result(dict(before=before,after=after,validation=evidence(expected)),expected)

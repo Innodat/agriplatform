@@ -1,0 +1,53 @@
+
+> scribeswell-web@0.1.0 test:browser
+> playwright test --config playwright.config.cjs workspace-restoration.spec.cjs --workers=1 --project=mobile --grep current admission403
+
+[WebServer] (node:1081660) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 1 test using 1 worker
+
+(node:1081849) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+HYDRATION_FIXTURE_DIAGNOSTIC {"observations":[{"kind":"study","event":"request"},{"kind":"study","event":"request"},{"kind":"note","event":"request"},{"kind":"note","event":"request"}],"noteReads":2,"tabs":[{"key":"saved-0","privateLabel":false},{"key":"saved-1","privateLabel":true}]}
+  ✘  1 [mobile] › tests/workspace-restoration.spec.cjs:163:1 › current admission403 clears already hydrated lanes after unrelated origin intent changes (9.6s)
+
+
+  1) [mobile] › tests/workspace-restoration.spec.cjs:163:1 › current admission403 clears already hydrated lanes after unrelated origin intent changes 
+
+    Error: expect(locator).toHaveText(expected) failed
+
+    Locator:  getByRole('tablist', { name: 'Workspace tabs' }).getByRole('tab').first()
+    Expected: "Private label 1"
+    Received: "Genesis 1"
+    Timeout:  5000ms
+
+    Call log:
+      - Expect "toHaveText" getByRole('tablist', { name: 'Workspace tabs' }).getByRole('tab').first() with timeout 5000ms
+      - waiting for getByRole('tablist', { name: 'Workspace tabs' }).getByRole('tab').first()
+        - locator resolved to <button role="tab" dir="auto" tabindex="0" aria-selected="true" aria-controls="workspace-panel" class="px-3 py-2 max-w-48 truncate" data-workspace-tab="209ca3ba-e932-49fe-ac29-553a664d1c1e" id="workspace-tab-00320030003900630061003300620061002d0065003900330032002d0034003900660065002d0061006300320039002d003500350033006100360036003400640031006300310065">Genesis 1</button>
+        12 × unexpected value "Genesis 1"
+           - locator resolved to <button role="tab" dir="auto" tabindex="0" aria-selected="true" data-workspace-tab="saved-0" aria-controls="workspace-panel" class="px-3 py-2 max-w-48 truncate" id="workspace-tab-00730061007600650064002d0030">Genesis 1</button>
+        - unexpected value "Genesis 1"
+
+
+      162 | });
+      163 | test('current admission403 clears already hydrated lanes after unrelated origin intent changes',async({page})=>{
+    > 164 |  await setup(page);await seed(page,publicSetup(),privateSetup());let notes=0,release,studyReads=0,releaseFirstStudy;const firstStudyGate=new Promise(resolve=>releaseFirstStudy=resolve);const observations=[];const gate=new Promise(resolve=>release=resolve);await owner(page,{read:async r=>{const path=new URL(r.request().url()).pathname;observations.push({kind:path.includes('/notes/')?'note':'study',event:'request'});if(path.endsWith('/notes/'+note)){notes++;if(notes===1)releaseFirstStudy();if(notes===2){await gate;return r.fulfill({status:403,json:{code:'studies_access_denied'}});}return r.fulfill({json:{id:note,study_id:study,owner_account_id:account,revision:'1',visibility:'study',value:{document:{version:1,blocks:[{type:'paragraph',direction:'auto',content:[{type:'text',text:'Authorized saved body',marks:[]}]}]},connections:[],highlights:[]}}});}studyReads++;if(process.env.SCRIBESWELL_REVERSE_HYDRATION_FIXTURE==='true'&&studyReads===1)await firstStudyGate;return r.fulfill({json:{id:study,owner_account_id:account,title:'Private study',revision:'1'}});}});await page.goto('/');try{await expect(tabs(page).first()).toHaveText('Private label 1');}catch(error){console.log('HYDRATION_FIXTURE_DIAGNOSTIC',JSON.stringify({observations,noteReads:notes,tabs:await tabs(page).evaluateAll(nodes=>nodes.map(node=>({key:node.dataset.workspaceTab,privateLabel:node.textContent?.startsWith('Private label')})))}));throw error;}await expect.poll(()=>notes).toBe(2);await page.getByRole('button',{name:'Analysis',exact:true}).click();await expect(page.getByRole('textbox',{name:'Note text',exact:true})).toHaveText('Authorized saved body');release();await expect(page.getByRole('textbox',{name:'Note text',exact:true})).toHaveCount(0);await expect(page.getByText('Private label 1',{exact:true})).toHaveCount(0);await expect.poll(async()=>(await stored(page))[`account:${account}`].tabs).toEqual([]);await expect(tabs(page)).toHaveCount(2);
+          |                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          ^
+      165 | });
+      166 | test('account pruning follows transaction completion when device-clock timestamps tie or go backwards',async({page})=>{
+      167 |  await setup(page);await seed(page,publicSetup());await page.evaluate(async({pub,priv})=>{const m=await import('/src/lib/workspace-storage.ts'),original=Date.now,clock=original();Date.now=()=>clock;try{for(let i=1;i<=4;i++)await m.writeWorkspace({...pub,updated:Date.now()},{...priv,updated:Date.now(),account:`10000000-0000-4000-8000-00000000000${i}`});}finally{Date.now=original;}},{pub:publicSetup(),priv:privateSetup()});let records=await stored(page);expect(Object.keys(records).filter(k=>k.startsWith('account:')).sort()).toEqual([2,3,4].map(i=>`account:10000000-0000-4000-8000-00000000000${i}`));
+        at /home/ck/repos/innodat/agriplatform/apps/scribeswell/web/tests/workspace-restoration.spec.cjs:164:1130
+
+    Error Context: test-results/workspace-restoration-curr-82d20-lated-origin-intent-changes-mobile/error-context.md
+
+  1 failed
+    [mobile] › tests/workspace-restoration.spec.cjs:163:1 › current admission403 clears already hydrated lanes after unrelated origin intent changes 
+npm error Lifecycle script `test:browser` failed with error:
+npm error code 1
+npm error path /home/ck/repos/innodat/agriplatform/apps/scribeswell/web
+npm error workspace scribeswell-web@0.1.0
+npm error location /home/ck/repos/innodat/agriplatform/apps/scribeswell/web
+npm error command failed
+npm error command sh -c playwright test --config playwright.config.cjs workspace-restoration.spec.cjs --workers=1 --project=mobile --grep 'current admission403'

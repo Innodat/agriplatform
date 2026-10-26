@@ -1,0 +1,209 @@
+QUALIFIED_CAPACITY_SOURCE {"counts": {"books": 39, "chapters": 929, "tokens": 306785, "verses": 23213}, "source_bytes": 13096412, "source_sha256": "c2d8e9e565be4ee69f938b444e5e0dc37fdfd0d9ccb185d1a5f8d95fab91c498"}
+SUPERVISED_ATTEMPT_SECONDS 28.016
+{"phase":"_prepare","seconds":4.588}
+{"phase":"_prepare","seconds":0.162}
+{"step":"publication.activate","lookup":true,"batch_index":null,"seconds":0.028}
+{"phase":"audit_closed_attempt","seconds":4.21}
+{"step":"publication.stage","lookup":true,"batch_index":null,"seconds":0.098}
+{"step":"publication.stage","lookup":false,"batch_index":null,"seconds":0.862}
+{"step":"publication.batch","lookup":true,"batch_index":0,"seconds":0.023}
+{"step":"publication.batch","lookup":false,"batch_index":0,"seconds":0.364}
+{"step":"publication.batch","lookup":true,"batch_index":1,"seconds":0.041}
+{"step":"publication.batch","lookup":false,"batch_index":1,"seconds":0.551}
+{"step":"publication.batch","lookup":true,"batch_index":2,"seconds":0.028}
+{"step":"publication.batch","lookup":false,"batch_index":2,"seconds":0.396}
+{"step":"publication.batch","lookup":true,"batch_index":3,"seconds":0.033}
+{"step":"publication.batch","lookup":false,"batch_index":3,"seconds":0.442}
+{"step":"publication.batch","lookup":true,"batch_index":4,"seconds":0.028}
+{"step":"publication.batch","lookup":false,"batch_index":4,"seconds":0.385}
+{"step":"publication.batch","lookup":true,"batch_index":5,"seconds":0.028}
+{"step":"publication.batch","lookup":false,"batch_index":5,"seconds":0.83}
+{"step":"publication.batch","lookup":true,"batch_index":6,"seconds":0.028}
+{"step":"publication.batch","lookup":false,"batch_index":6,"seconds":0.692}
+{"step":"publication.batch","lookup":true,"batch_index":7,"seconds":0.046}
+{"step":"publication.batch","lookup":false,"batch_index":7,"seconds":0.733}
+{"step":"publication.batch","lookup":true,"batch_index":8,"seconds":0.03}
+{"step":"publication.batch","lookup":false,"batch_index":8,"seconds":0.723}
+{"step":"publication.batch","lookup":true,"batch_index":9,"seconds":0.032}
+{"step":"publication.batch","lookup":false,"batch_index":9,"seconds":0.682}
+{"step":"publication.batch","lookup":true,"batch_index":10,"seconds":0.028}
+{"step":"publication.batch","lookup":false,"batch_index":10,"seconds":0.585}
+{"step":"publication.batch","lookup":true,"batch_index":11,"seconds":0.031}
+{"step":"publication.batch","lookup":false,"batch_index":11,"seconds":0.545}
+{"step":"publication.batch","lookup":true,"batch_index":12,"seconds":0.024}
+{"step":"publication.batch","lookup":false,"batch_index":12,"seconds":0.584}
+{"step":"publication.batch","lookup":true,"batch_index":13,"seconds":0.033}
+{"step":"publication.batch","lookup":false,"batch_index":13,"seconds":0.507}
+{"step":"publication.batch","lookup":true,"batch_index":14,"seconds":0.036}
+{"step":"publication.batch","lookup":false,"batch_index":14,"seconds":0.545}
+{"step":"publication.batch","lookup":true,"batch_index":15,"seconds":0.031}
+{"step":"publication.batch","lookup":false,"batch_index":15,"seconds":0.49}
+{"step":"publication.batch","lookup":true,"batch_index":16,"seconds":0.027}
+{"step":"publication.batch","lookup":false,"batch_index":16,"seconds":0.353}
+{"step":"publication.batch","lookup":true,"batch_index":17,"seconds":0.036}
+{"step":"publication.batch","lookup":false,"batch_index":17,"seconds":0.347}
+{"step":"publication.batch","lookup":true,"batch_index":18,"seconds":0.021}
+{"step":"publication.batch","lookup":false,"batch_index":18,"seconds":0.4}
+{"step":"publication.batch","lookup":true,"batch_index":19,"seconds":0.035}
+{"step":"publication.batch","lookup":false,"batch_index":19,"seconds":0.387}
+{"step":"publication.batch","lookup":true,"batch_index":20,"seconds":0.03}
+{"step":"publication.batch","lookup":false,"batch_index":20,"seconds":0.589}
+{"step":"publication.batch","lookup":true,"batch_index":21,"seconds":0.021}
+{"step":"publication.batch","lookup":false,"batch_index":21,"seconds":0.399}
+{"step":"publication.batch","lookup":true,"batch_index":22,"seconds":0.029}
+{"step":"publication.batch","lookup":false,"batch_index":22,"seconds":0.452}
+{"step":"publication.batch","lookup":true,"batch_index":23,"seconds":0.036}
+{"step":"publication.batch","lookup":false,"batch_index":23,"seconds":0.15}
+{"step":"publication.complete","lookup":true,"batch_index":null,"seconds":0.02}
+{"step":"publication.complete","lookup":false,"batch_index":null,"seconds":4.009}
+{"step":"publication.activate","lookup":true,"batch_index":null,"seconds":0.048}
+{"step":"publication.activate","lookup":false,"batch_index":null,"seconds":0.075}
+
+DURABLE_PUBLICATION_STEPS [('publication.activate', 1), ('publication.batch', 24), ('publication.complete', 1), ('publication.stage', 1)]
+ACTUAL_ARTIFACT_PUBLICATION {"counts": {"books": 39, "chapters": 929, "tokens": 306785, "verses": 23213}, "outer_budget_seconds": 60, "source_bytes": 13096412, "source_sha256": "c2d8e9e565be4ee69f938b444e5e0dc37fdfd0d9ccb185d1a5f8d95fab91c498", "statement_timeout_seconds": 5, "supervised_publication_seconds": 28.06, "work_budget_seconds": 58}
+.QUALIFIED_CAPACITY_SOURCE {"counts": {"books": 39, "chapters": 321, "tokens": 1000000, "verses": 50000}, "source_bytes": 22101126, "source_sha256": "69f665b81b38c22d43bef8a5fad9cf11a38aaeadc8f0a9dce295ecc0d39df58d"}
+SUPERVISED_ATTEMPT_SECONDS 58.037
+{"phase":"_prepare","seconds":11.368}
+{"phase":"_prepare","seconds":0.722}
+{"step":"publication.activate","lookup":true,"batch_index":null,"seconds":0.065}
+{"phase":"audit_closed_attempt","seconds":18.452}
+{"step":"publication.stage","lookup":true,"batch_index":null,"seconds":0.238}
+{"step":"publication.stage","lookup":false,"batch_index":null,"seconds":1.748}
+{"step":"publication.batch","lookup":true,"batch_index":0,"seconds":0.021}
+{"step":"publication.batch","lookup":false,"batch_index":0,"seconds":0.517}
+{"step":"publication.batch","lookup":true,"batch_index":1,"seconds":0.019}
+{"step":"publication.batch","lookup":false,"batch_index":1,"seconds":0.572}
+{"step":"publication.batch","lookup":true,"batch_index":2,"seconds":0.023}
+{"step":"publication.batch","lookup":false,"batch_index":2,"seconds":0.61}
+{"step":"publication.batch","lookup":true,"batch_index":3,"seconds":0.058}
+{"step":"publication.batch","lookup":false,"batch_index":3,"seconds":0.535}
+{"step":"publication.batch","lookup":true,"batch_index":4,"seconds":0.022}
+{"step":"publication.batch","lookup":false,"batch_index":4,"seconds":0.474}
+{"step":"publication.batch","lookup":true,"batch_index":5,"seconds":0.021}
+{"step":"publication.batch","lookup":false,"batch_index":5,"seconds":1.203}
+{"step":"publication.batch","lookup":true,"batch_index":6,"seconds":0.033}
+{"step":"publication.batch","lookup":false,"batch_index":6,"seconds":1.622}
+{"step":"publication.batch","lookup":true,"batch_index":7,"seconds":0.068}
+{"step":"publication.batch","lookup":false,"batch_index":7,"seconds":1.823}
+{"step":"publication.batch","lookup":true,"batch_index":8,"seconds":0.04}
+{"step":"publication.batch","lookup":false,"batch_index":8,"seconds":1.4}
+{"step":"publication.batch","lookup":true,"batch_index":9,"seconds":0.033}
+{"step":"publication.batch","lookup":false,"batch_index":9,"seconds":1.453}
+{"step":"publication.batch","lookup":true,"batch_index":10,"seconds":0.063}
+{"step":"publication.batch","lookup":false,"batch_index":10,"seconds":1.26}
+{"step":"publication.batch","lookup":true,"batch_index":11,"seconds":0.041}
+{"step":"publication.batch","lookup":false,"batch_index":11,"seconds":1.389}
+{"step":"publication.batch","lookup":true,"batch_index":12,"seconds":0.032}
+{"step":"publication.batch","lookup":false,"batch_index":12,"seconds":1.13}
+{"step":"publication.batch","lookup":true,"batch_index":13,"seconds":0.032}
+{"step":"publication.batch","lookup":false,"batch_index":13,"seconds":1.437}
+{"step":"publication.batch","lookup":true,"batch_index":14,"seconds":0.056}
+{"step":"publication.batch","lookup":false,"batch_index":14,"seconds":1.155}
+{"step":"publication.batch","lookup":true,"batch_index":15,"seconds":0.03}
+{"step":"publication.batch","lookup":false,"batch_index":15,"seconds":1.215}
+{"step":"publication.batch","lookup":true,"batch_index":16,"seconds":0.031}
+{"step":"publication.batch","lookup":false,"batch_index":16,"seconds":1.074}
+{"step":"publication.batch","lookup":true,"batch_index":17,"seconds":0.021}
+{"step":"publication.batch","lookup":false,"batch_index":17,"seconds":0.974}
+{"step":"publication.batch","lookup":true,"batch_index":18,"seconds":0.034}
+{"step":"publication.batch","lookup":false,"batch_index":18,"seconds":1.013}
+{"step":"publication.batch","lookup":true,"batch_index":19,"seconds":0.053}
+{"step":"publication.batch","lookup":false,"batch_index":19,"seconds":1.188}
+{"step":"publication.batch","lookup":true,"batch_index":20,"seconds":0.047}
+
+DURABLE_PUBLICATION_STEPS [('publication.batch', 20), ('publication.stage', 1)]
+F
+=================================== FAILURES ===================================
+_ test_native_checked_in_artifact_publication_capacity_timing_and_replay[maximum] _
+
+closed = (<psycopg.Connection [IDLE] (host=127.0.0.1 port=32793 user=postgres database=scribeswell_migration_8dac576f78ca4de3a3...22222-2222-4222-8222-222222222222', attempt_id='a9a7d69e-9a47-4a8b-964c-c2d2055b715d', generation='1', state='closed'))
+publication_source = b'{"Genesis":[[[["\xd7\x90\xd7\x91","1","HNcmsa"],["\xd7\x90\xd7\x91","1","HNcmsa"],["\xd7\x90\xd7\x91","1","HNcmsa"],...1","HNcmsa"],["\xd7\x90\xd7\x91","1","HNcmsa"],["\xd7\x90\xd7\x91","1","HNcmsa"],["\xd7\x90\xd7\x91","1","HNcmsa"]]]]}'
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7831c3b660c0>
+tmp_path = PosixPath('/tmp/pytest-of-ck/pytest-71/test_native_checked_in_artifac1')
+
+    @pytest.mark.parametrize('publication_source',['artifact','maximum'],indirect=True)
+    def test_native_checked_in_artifact_publication_capacity_timing_and_replay(closed,publication_source,monkeypatch,tmp_path):
+        import time
+        from corpus_evidence import build_source_candidate
+        admin,url,seal,_=closed
+        expected=build_source_candidate(publication_source,hashlib.sha256(publication_source).hexdigest(),source_id='tanakh',catalogue_version=seal['payload']['input']['catalogue_version'],versification_id=seal['payload']['input']['versification_id'],tokenization_version=seal['payload']['input']['tokenization_version'])
+        counts=expected['counts']
+        actual=admin.execute('SELECT (SELECT count(*) FROM scribeswell.book),(SELECT count(*) FROM scribeswell.chapter),(SELECT count(*) FROM scribeswell.verse),(SELECT count(*) FROM scribeswell.word)').fetchone()
+        assert actual==tuple(counts[k] for k in ('books','chapters','verses','tokens'))
+        import corpus_operator as supervised
+        from test_postgres_acceptance import role_url
+        target=supervised.OperatorTarget('local_disposable',role_url(url,'scribeswell_corpus_operator'),unquote(urlsplit(url).path[1:]))
+        print('QUALIFIED_CAPACITY_SOURCE',json.dumps({'source_bytes':len(publication_source),'source_sha256':hashlib.sha256(publication_source).hexdigest(),'counts':counts},sort_keys=True),flush=True)
+        if os.environ.get('SCRIBESWELL_CAPACITY_DIAGNOSTICS')=='1':
+            probe=tmp_path/'capacity-probe.py';trace=tmp_path/'capacity-steps.jsonl'
+            probe.write_text(CAPACITY_PROBE.replace('TRACE_PATH',repr(str(trace))))
+            original_worker=supervised._worker_command
+            def diagnostic_worker():
+                command=original_worker()
+                command[-1]=command[-1].replace('from corpus_operator import _worker_main;',"import runpy;runpy.run_path("+repr(str(probe))+");from corpus_operator import _worker_main;")
+                return command
+            monkeypatch.setattr(supervised,'_worker_command',diagnostic_worker)
+        operation=str(uuid4());started=time.monotonic()
+>       try:result=supervised.publish_closed_attempt(target,encode(seal),publication_source,operation_id=operation)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+apps/scribeswell/tests/test_corpus_publish_native.py:526: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+apps/scribeswell/backend/corpus_operator.py:345: in publish_closed_attempt
+    return _publication_invoke(target, raw, source_raw, operation_id, lookup=False)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+target = <corpus_operator.OperatorTarget object at 0x7831a2339c00>
+raw = b'{"schema_version": 1, "operation_id": "b51d5d91-d6aa-4e45-bc82-45a11c90f9de", "command": "corpus.seal", "scope": {"k...d_attempt_id": "a9a7d69e-9a47-4a8b-964c-c2d2055b715d"}, "reason_code": "source_seal", "evidence_ref": "run:fixture/1"}'
+source_raw = b'{"Genesis":[[[["\xd7\x90\xd7\x91","1","HNcmsa"],["\xd7\x90\xd7\x91","1","HNcmsa"],["\xd7\x90\xd7\x91","1","HNcmsa"],...1","HNcmsa"],["\xd7\x90\xd7\x91","1","HNcmsa"],["\xd7\x90\xd7\x91","1","HNcmsa"],["\xd7\x90\xd7\x91","1","HNcmsa"]]]]}'
+operation_id = '763e6cf4-7d48-4752-9d11-a11a3efbc101'
+
+    def _publication_invoke(target, raw, source_raw, operation_id, *, lookup):
+        from corpus_publish import PublishError, _activation, _receipt as publication_receipt
+        from corpus_publication_input import _uuid
+        deadline = time.monotonic() + _OPERATION_SECONDS
+        invalid = False
+        try:
+            _target(target)
+            _uuid(operation_id)
+            command = parse_command(raw)
+            if (command.command != 'corpus.seal' or type(source_raw) is not bytes
+                    or len(source_raw) > MAX_SOURCE_BYTES):
+                raise ValueError
+        except Exception:
+            invalid = True
+        if invalid:
+            raise PublishError('input_invalid')
+        failure, result = None, None
+        try:
+            request = json.dumps(dict(version='publication-v1', target=asdict(target),
+                lookup=lookup, raw=base64.b64encode(raw).decode('ascii'),
+                source=base64.b64encode(source_raw).decode('ascii'), operation_id=operation_id),
+                separators=(',', ':')).encode('ascii')
+            if len(request) > _MAX_REQUEST:
+                raise ValueError
+            value = _decode(_exchange(request, deadline))
+            if type(value) is not dict or len(value) != 1:
+                raise ValueError
+            if set(value) == {'error'} and type(value['error']) is str and value['error'] in _PUBLICATION_FAILURES:
+                failure = value['error']
+            elif set(value) == {'receipt'}:
+                if value['receipt'] is None and lookup:
+                    result = None
+                else:
+                    result = publication_receipt(value['receipt'], _activation(command, operation_id))
+            else:
+                raise ValueError
+            if time.monotonic() >= deadline - _REAP_SECONDS:
+                raise ValueError
+        except Exception:
+            failure = 'unknown_outcome'
+        if failure:
+>           raise PublishError(failure)
+E           corpus_publish.PublishError: corpus_publish.unknown_outcome
+
+apps/scribeswell/backend/corpus_operator.py:339: PublishError
+------------------------------ Captured log call -------------------------------
+WARNING  corpus_operator:corpus_operator.py:178 {"service":"scribeswell","action":"corpus_operator_cleanup","code":"forced_termination_reaped"}
+1 failed, 1 passed in 187.70s (0:03:07)

@@ -533,7 +533,7 @@
               {
                 "maxLength": 10000,
                 "not": {
-                  "pattern": "\\u0000"
+                  "pattern": "\\u0000|[\\uD800-\\uDBFF](?![\\uDC00-\\uDFFF])|(?:^|[^\\uD800-\\uDBFF])[\\uDC00-\\uDFFF]"
                 },
                 "type": "string"
               },
@@ -1588,6 +1588,9 @@
           "label": {
             "maxLength": 200,
             "minLength": 1,
+            "not": {
+              "pattern": "\\u0000|[\\uD800-\\uDBFF](?![\\uDC00-\\uDFFF])|(?:^|[^\\uD800-\\uDBFF])[\\uDC00-\\uDFFF]"
+            },
             "title": "Label",
             "type": "string"
           },
@@ -1923,7 +1926,7 @@
               {
                 "maxLength": 10000,
                 "not": {
-                  "pattern": "\\u0000"
+                  "pattern": "\\u0000|[\\uD800-\\uDBFF](?![\\uDC00-\\uDFFF])|(?:^|[^\\uD800-\\uDBFF])[\\uDC00-\\uDFFF]"
                 },
                 "type": "string"
               },
@@ -2077,7 +2080,7 @@
             "description": "Unicode scalar string without NUL; at most 200 codepoints before outer trim/NFC matching.",
             "maxLength": 200,
             "not": {
-              "pattern": "\\u0000"
+              "pattern": "\\u0000|[\\uD800-\\uDBFF](?![\\uDC00-\\uDFFF])|(?:^|[^\\uD800-\\uDBFF])[\\uDC00-\\uDFFF]"
             },
             "title": "Query",
             "type": "string"
@@ -2172,7 +2175,7 @@
               {
                 "maxLength": 10000,
                 "not": {
-                  "pattern": "\\u0000"
+                  "pattern": "\\u0000|[\\uD800-\\uDBFF](?![\\uDC00-\\uDFFF])|(?:^|[^\\uD800-\\uDBFF])[\\uDC00-\\uDFFF]"
                 },
                 "type": "string"
               },
@@ -2298,8 +2301,12 @@
             "type": "array"
           },
           "text": {
+            "description": "Unicode scalar text without NUL; line breaks and combining marks retained.",
             "maxLength": 4096,
             "minLength": 1,
+            "not": {
+              "pattern": "\\u0000|[\\uD800-\\uDBFF](?![\\uDC00-\\uDFFF])|(?:^|[^\\uD800-\\uDBFF])[\\uDC00-\\uDFFF]"
+            },
             "title": "Text",
             "type": "string"
           },

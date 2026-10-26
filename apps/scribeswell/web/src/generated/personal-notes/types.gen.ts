@@ -974,6 +974,8 @@ export type TextInline = {
     ];
     /**
      * Text
+     *
+     * Unicode scalar text without NUL; line breaks and combining marks retained.
      */
     text: string;
     /**

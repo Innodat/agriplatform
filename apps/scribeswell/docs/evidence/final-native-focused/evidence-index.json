@@ -1,0 +1,1433 @@
+[
+  {
+    "run": "actual-artifact-diagnosis",
+    "result": {
+      "results": [
+        {
+          "argv": [
+            "/tmp/scribeswell-implementation-python/bin/python",
+            "-m",
+            "pytest",
+            "-q",
+            "apps/scribeswell/tests/test_corpus_publish_native.py::test_native_checked_in_artifact_publication_capacity_timing_and_replay",
+            "-rs",
+            "-s"
+          ],
+          "exit_code": 1,
+          "seconds": 129.29
+        }
+      ],
+      "container": "scribeswell-final-945d6e5177d5",
+      "stopped": true,
+      "source_unchanged": true
+    },
+    "summary": "1 failed in 128.18s (0:02:08)"
+  },
+  {
+    "run": "actual-artifact-first",
+    "result": {
+      "results": [
+        {
+          "argv": [
+            "/tmp/scribeswell-implementation-python/bin/python",
+            "-m",
+            "pytest",
+            "-q",
+            "apps/scribeswell/tests/test_corpus_publish_native.py::test_native_checked_in_artifact_publication_capacity_timing_and_replay",
+            "-rs",
+            "-s"
+          ],
+          "exit_code": 1,
+          "seconds": 139.4
+        }
+      ],
+      "container": "scribeswell-final-0bf0c93dc358",
+      "stopped": true,
+      "source_unchanged": true
+    },
+    "summary": "1 failed in 138.37s (0:02:18)"
+  },
+  {
+    "run": "affected-executing",
+    "result": {
+      "results": [
+        {
+          "argv": [
+            "/tmp/scribeswell-implementation-python/bin/python",
+            "-m",
+            "pytest",
+            "-q",
+            "apps/scribeswell/tests/test_personal_notes_storage.py",
+            "apps/scribeswell/tests/test_own_highlights_native.py",
+            "apps/scribeswell/tests/test_own_copies_native.py",
+            "apps/scribeswell/tests/test_study_details_discovery_native.py",
+            "apps/scribeswell/tests/test_corpus_publish_native.py",
+            "apps/scribeswell/tests/test_reader_evidence_native.py",
+            "apps/scribeswell/tests/test_caller_preparation_rehearsal.py",
+            "apps/scribeswell/tests/test_owned_migrations.py::test_nonhead_upgrade_rejected_cli_and_programmatic",
+            "apps/scribeswell/tests/test_owned_migrations.py::test_explicit_pinned_controller_head_matches_historical_head",
+            "apps/scribeswell/tests/test_studies_owner_integration.py",
+            "-rs",
+            "-s"
+          ],
+          "exit_code": 1,
+          "seconds": 160.69
+        }
+      ],
+      "container": "scribeswell-final-542413a62516",
+      "stopped": true,
+      "source_unchanged": false
+    },
+    "summary": "4 failed, 203 passed, 1 skipped in 158.73s (0:02:38)"
+  },
+  {
+    "run": "affected-first",
+    "result": {
+      "results": [
+        {
+          "argv": [
+            "/tmp/scribeswell-implementation-python/bin/python",
+            "-m",
+            "pytest",
+            "-q",
+            "apps/scribeswell/tests/test_personal_notes_storage.py",
+            "apps/scribeswell/tests/test_own_highlights_native.py",
+            "apps/scribeswell/tests/test_own_copies_native.py",
+            "apps/scribeswell/tests/test_study_details_discovery_native.py",
+            "apps/scribeswell/tests/test_corpus_publish_native.py",
+            "apps/scribeswell/tests/test_reader_evidence_native.py",
+            "apps/scribeswell/tests/test_caller_preparation_rehearsal.py",
+            "apps/scribeswell/tests/test_owned_migrations.py::test_nonhead_upgrade_rejected_cli_and_programmatic",
+            "apps/scribeswell/tests/test_owned_migrations.py::test_explicit_pinned_controller_head_matches_historical_head",
+            "apps/scribeswell/tests/test_studies_owner_fixture.py",
+            "-rs",
+            "-s"
+          ],
+          "exit_code": 4,
+          "seconds": 1.12
+        }
+      ],
+      "container": "scribeswell-final-dc35132acd8c",
+      "stopped": true,
+      "source_unchanged": true
+    },
+    "summary": "See retained log"
+  },
+  {
+    "run": "affected-stable",
+    "result": {
+      "results": [
+        {
+          "argv": [
+            "/tmp/scribeswell-implementation-python/bin/python",
+            "-m",
+            "pytest",
+            "-q",
+            "apps/scribeswell/tests/test_personal_notes_storage.py",
+            "apps/scribeswell/tests/test_own_highlights_native.py",
+            "apps/scribeswell/tests/test_own_copies_native.py",
+            "apps/scribeswell/tests/test_study_details_discovery_native.py",
+            "apps/scribeswell/tests/test_corpus_publish_native.py",
+            "apps/scribeswell/tests/test_reader_evidence_native.py",
+            "apps/scribeswell/tests/test_caller_preparation_rehearsal.py",
+            "apps/scribeswell/tests/test_owned_migrations.py::test_nonhead_upgrade_rejected_cli_and_programmatic",
+            "apps/scribeswell/tests/test_owned_migrations.py::test_explicit_pinned_controller_head_matches_historical_head",
+            "apps/scribeswell/tests/test_studies_owner_integration.py",
+            "-rs",
+            "-s",
+            "-k",
+            "not native_browser_create_write_reopen and not checked_in_artifact_publication_capacity"
+          ],
+          "exit_code": 0,
+          "seconds": 145.46
+        }
+      ],
+      "container": "scribeswell-final-961ba719215f",
+      "stopped": true,
+      "source_unchanged": true
+    },
+    "summary": "209 passed, 2 deselected, 1 warning in 143.61s (0:02:23)"
+  },
+  {
+    "run": "capacity-alias-fix",
+    "result": {
+      "results": [
+        {
+          "argv": [
+            "/tmp/scribeswell-implementation-python/bin/python",
+            "-m",
+            "pytest",
+            "-q",
+            "apps/scribeswell/tests/test_corpus_publish_native.py",
+            "apps/scribeswell/tests/test_publication_profile.py",
+            "apps/scribeswell/tests/test_own_highlights.py",
+            "-k",
+            "capacity_append or capacity_profile or capacity_multirow or reader_profile_is_explicit",
+            "-rs",
+            "-s"
+          ],
+          "exit_code": 0,
+          "seconds": 101.3
+        }
+      ],
+      "container": "scribeswell-final-c7bffaface48",
+      "stopped": true,
+      "source_unchanged": true
+    },
+    "summary": "11 passed, 79 deselected in 98.18s (0:01:38)"
+  },
+  {
+    "run": "capacity-guards-first",
+    "result": {
+      "results": [
+        {
+          "argv": [
+            "/tmp/scribeswell-implementation-python/bin/python",
+            "-m",
+            "pytest",
+            "-q",
+            "apps/scribeswell/tests/test_corpus_publish_native.py",
+            "apps/scribeswell/tests/test_publication_profile.py",
+            "apps/scribeswell/tests/test_own_highlights.py",
+            "-k",
+            "capacity_append or capacity_profile or reader_profile_is_explicit",
+            "-rs",
+            "-s"
+          ],
+          "exit_code": 1,
+          "seconds": 38.76
+        }
+      ],
+      "container": "scribeswell-final-c1066e8a42aa",
+      "stopped": true,
+      "source_unchanged": true
+    },
+    "summary": "1 failed, 8 passed, 76 deselected in 37.14s"
+  },
+  {
+    "run": "capacity-guards-green",
+    "result": {
+      "results": [
+        {
+          "argv": [
+            "/tmp/scribeswell-implementation-python/bin/python",
+            "-m",
+            "pytest",
+            "-q",
+            "apps/scribeswell/tests/test_corpus_publish_native.py",
+            "apps/scribeswell/tests/test_publication_profile.py",
+            "apps/scribeswell/tests/test_own_highlights.py",
+            "-k",
+            "not checked_in_artifact_publication_capacity",
+            "-rs",
+            "-s"
+          ],
+          "exit_code": 0,
+          "seconds": 108.73
+        }
+      ],
+      "container": "scribeswell-final-5620a162a536",
+      "stopped": true,
+      "source_unchanged": true
+    },
+    "summary": "86 passed, 2 deselected, 1 warning in 107.58s (0:01:47)"
+  },
+  {
+    "run": "capacity-set-validation",
+    "result": {
+      "results": [
+        {
+          "argv": [
+            "/tmp/scribeswell-implementation-python/bin/python",
+            "-m",
+            "pytest",
+            "-q",
+            "apps/scribeswell/tests/test_corpus_publish_native.py",
+            "apps/scribeswell/tests/test_publication_profile.py",
+            "apps/scribeswell/tests/test_corpus_evidence.py",
+            "apps/scribeswell/tests/test_closed_corpus_audit.py",
+            "apps/scribeswell/tests/test_corpus_manifest.py",
+            "apps/scribeswell/tests/test_own_highlights.py",
+            "-k",
+            "not checked_in_artifact_publication_capacity",
+            "-rs",
+            "-s"
+          ],
+          "exit_code": 1,
+          "seconds": 179.59
+        }
+      ],
+      "container": "scribeswell-final-3f0a03b5a081",
+      "stopped": true,
+      "source_unchanged": true
+    },
+    "summary": "5 failed, 185 passed, 2 deselected, 1 warning in 178.07s (0:02:58)"
+  },
+  {
+    "run": "compactor-oracle",
+    "result": {
+      "results": [
+        {
+          "argv": [
+            "/tmp/scribeswell-implementation-python/bin/python",
+            "-m",
+            "pytest",
+            "-q",
+            "apps/scribeswell/tests/test_corpus_publish_native.py::test_native_capacity_compactor_matches_historical_bytes_and_python_oracle",
+            "-rs",
+            "-s"
+          ],
+          "exit_code": 0,
+          "seconds": 3.68
+        }
+      ],
+      "container": "scribeswell-final-227b50b65bf5",
+      "stopped": true,
+      "source_unchanged": true
+    },
+    "summary": "1 passed in 2.60s"
+  },
+  {
+    "run": "diagnosis",
+    "result": {
+      "results": [
+        {
+          "argv": [
+            "/tmp/scribeswell-implementation-python/bin/python",
+            "-m",
+            "pytest",
+            "-q",
+            "apps/scribeswell/tests/test_personal_notes_storage.py::test_native_create_write_reopen_noop_replay_and_isolation",
+            "-rs",
+            "-s"
+          ],
+          "exit_code": 1,
+          "seconds": 2.42
+        }
+      ],
+      "container": "scribeswell-final-b37c5b8deb22",
+      "stopped": true,
+      "source_unchanged": true
+    },
+    "summary": "1 error in 1.37s"
+  },
+  {
+    "run": "diagnosis-bind",
+    "result": {
+      "results": [
+        {
+          "argv": [
+            "/tmp/scribeswell-implementation-python/bin/python",
+            "-m",
+            "pytest",
+            "-q",
+            "apps/scribeswell/tests/test_personal_notes_storage.py::test_native_create_write_reopen_noop_replay_and_isolation",
+            "-rs",
+            "-s"
+          ],
+          "exit_code": 1,
+          "seconds": 2.47
+        }
+      ],
+      "container": "scribeswell-final-c1820ab650c4",
+      "stopped": true,
+      "source_unchanged": true
+    },
+    "summary": "1 error in 1.42s"
+  },
+  {
+    "run": "final-targeted-negative",
+    "result": {
+      "results": [
+        {
+          "argv": [
+            "/tmp/scribeswell-implementation-python/bin/python",
+            "-m",
+            "pytest",
+            "-q",
+            "apps/scribeswell/tests/test_corpus_publish_native.py",
+            "-k",
+            "capacity_completion_rejects or capacity_digest or capacity_batch_id_validation or capacity_compactor_matches",
+            "-rs",
+            "-s"
+          ],
+          "exit_code": 0,
+          "seconds": 42.84
+        }
+      ],
+      "container": "scribeswell-final-2e4b2d652aeb",
+      "stopped": true,
+      "source_unchanged": true
+    },
+    "summary": "13 passed, 47 deselected in 41.73s"
+  },
+  {
+    "run": "frontend-nul-green",
+    "result": {
+      "argv": [
+        "npm",
+        "run",
+        "test:browser",
+        "--workspace=apps/scribeswell/web",
+        "--",
+        "--workers=1",
+        "--project=desktop",
+        "--grep",
+        "note text wire grammar rejects NUL"
+      ],
+      "exit_code": 0,
+      "seconds": 10.73,
+      "selected_files": 103,
+      "source_unchanged": true
+    },
+    "summary": "1 passed (7.6s)"
+  },
+  {
+    "run": "frontend-nul-red",
+    "result": {
+      "argv": [
+        "npm",
+        "run",
+        "test:browser",
+        "--workspace=apps/scribeswell/web",
+        "--",
+        "--workers=1",
+        "--project=desktop",
+        "--grep",
+        "note text wire grammar rejects NUL"
+      ],
+      "exit_code": 1,
+      "seconds": 7.57,
+      "selected_files": 103,
+      "source_unchanged": true
+    },
+    "summary": "1 failed"
+  },
+  {
+    "run": "maximum-insert-profile",
+    "result": {
+      "results": [
+        {
+          "argv": [
+            "/tmp/scribeswell-implementation-python/bin/python",
+            "-m",
+            "pytest",
+            "-q",
+            "apps/scribeswell/tests/test_corpus_publish_native.py::test_native_checked_in_artifact_publication_capacity_timing_and_replay[maximum]",
+            "-rs",
+            "-s"
+          ],
+          "exit_code": 1,
+          "seconds": 133.45
+        }
+      ],
+      "container": "scribeswell-final-0abb2c8bf54c",
+      "stopped": true,
+      "source_unchanged": true
+    },
+    "summary": "1 failed in 132.40s (0:02:12)"
+  },
+  {
+    "run": "maximum-normalized-encoder",
+    "result": {
+      "results": [
+        {
+          "argv": [
+            "/tmp/scribeswell-implementation-python/bin/python",
+            "-m",
+            "pytest",
+            "-q",
+            "apps/scribeswell/tests/test_corpus_publish_native.py::test_native_checked_in_artifact_publication_capacity_timing_and_replay[maximum]",
+            "-rs",
+            "-s"
+          ],
+          "exit_code": 0,
+          "seconds": 99.98
+        }
+      ],
+      "container": "scribeswell-final-ab08dceaa693",
+      "stopped": true,
+      "source_unchanged": true
+    },
+    "summary": "1 passed in 98.96s (0:01:38)"
+  },
+  {
+    "run": "maximum-specialized-encoder",
+    "result": {
+      "results": [
+        {
+          "argv": [
+            "/tmp/scribeswell-implementation-python/bin/python",
+            "-m",
+            "pytest",
+            "-q",
+            "apps/scribeswell/tests/test_corpus_publish_native.py::test_native_checked_in_artifact_publication_capacity_timing_and_replay[maximum]",
+            "-rs",
+            "-s"
+          ],
+          "exit_code": 1,
+          "seconds": 172.89
+        }
+      ],
+      "container": "scribeswell-final-f74bb0489afb",
+      "stopped": true,
+      "source_unchanged": true
+    },
+    "summary": "1 failed in 169.49s (0:02:49)"
+  },
+  {
+    "run": "normalized-encoder-oracle",
+    "result": {
+      "results": [
+        {
+          "argv": [
+            "/tmp/scribeswell-implementation-python/bin/python",
+            "-m",
+            "pytest",
+            "-q",
+            "apps/scribeswell/tests/test_corpus_publish_native.py::test_native_capacity_compactor_matches_historical_bytes_and_python_oracle",
+            "-rs",
+            "-s"
+          ],
+          "exit_code": 0,
+          "seconds": 3.72
+        }
+      ],
+      "container": "scribeswell-final-1681d1c592b6",
+      "stopped": true,
+      "source_unchanged": true
+    },
+    "summary": "1 passed in 2.77s"
+  },
+  {
+    "run": "nul-red",
+    "result": {
+      "results": [
+        {
+          "argv": [
+            "/tmp/scribeswell-implementation-python/bin/python",
+            "-m",
+            "pytest",
+            "-q",
+            "apps/scribeswell/tests/test_personal_notes_storage.py::test_native_api_nul_rejected_without_note_or_receipt_and_unicode_preserved",
+            "-rs",
+            "-s"
+          ],
+          "exit_code": 1,
+          "seconds": 6.05
+        }
+      ],
+      "container": "scribeswell-final-f1e1a94ed9d1",
+      "stopped": true,
+      "source_unchanged": true
+    },
+    "summary": "1 failed, 1 warning in 4.48s"
+  },
+  {
+    "run": "private-fixture-fix",
+    "result": {
+      "results": [
+        {
+          "argv": [
+            "/tmp/scribeswell-implementation-python/bin/python",
+            "-m",
+            "pytest",
+            "-q",
+            "apps/scribeswell/tests/test_personal_notes_storage.py::test_native_create_write_reopen_noop_replay_and_isolation",
+            "-rs",
+            "-s"
+          ],
+          "exit_code": 1,
+          "seconds": 2.72
+        }
+      ],
+      "container": "scribeswell-final-6232c9823cc2",
+      "stopped": true,
+      "source_unchanged": true
+    },
+    "summary": "1 failed in 1.71s"
+  },
+  {
+    "run": "private-runtime-diagnosis",
+    "result": {
+      "results": [
+        {
+          "argv": [
+            "/tmp/scribeswell-implementation-python/bin/python",
+            "-m",
+            "pytest",
+            "-q",
+            "apps/scribeswell/tests/test_personal_notes_storage.py::test_native_create_write_reopen_noop_replay_and_isolation",
+            "-rs",
+            "-s"
+          ],
+          "exit_code": 1,
+          "seconds": 2.57
+        }
+      ],
+      "container": "scribeswell-final-ebd98a5d4b11",
+      "stopped": true,
+      "source_unchanged": true
+    },
+    "summary": "1 failed in 1.53s"
+  },
+  {
+    "run": "private-runtime-fix",
+    "result": {
+      "results": [
+        {
+          "argv": [
+            "/tmp/scribeswell-implementation-python/bin/python",
+            "-m",
+            "pytest",
+            "-q",
+            "apps/scribeswell/tests/test_personal_notes_storage.py::test_native_create_write_reopen_noop_replay_and_isolation",
+            "-rs",
+            "-s"
+          ],
+          "exit_code": 0,
+          "seconds": 2.97
+        }
+      ],
+      "container": "scribeswell-final-aecc14b37d52",
+      "stopped": true,
+      "source_unchanged": true
+    },
+    "summary": "1 passed in 1.92s"
+  },
+  {
+    "run": "private-runtime-function",
+    "result": {
+      "results": [
+        {
+          "argv": [
+            "/tmp/scribeswell-implementation-python/bin/python",
+            "-m",
+            "pytest",
+            "-q",
+            "apps/scribeswell/tests/test_personal_notes_storage.py::test_native_create_write_reopen_noop_replay_and_isolation",
+            "-rs",
+            "-s"
+          ],
+          "exit_code": 1,
+          "seconds": 2.82
+        }
+      ],
+      "container": "scribeswell-final-f1eec3c549b5",
+      "stopped": true,
+      "source_unchanged": true
+    },
+    "summary": "1 failed in 1.72s"
+  },
+  {
+    "run": "private-runtime-location",
+    "result": {
+      "results": [
+        {
+          "argv": [
+            "/tmp/scribeswell-implementation-python/bin/python",
+            "-m",
+            "pytest",
+            "-q",
+            "apps/scribeswell/tests/test_personal_notes_storage.py::test_native_create_write_reopen_noop_replay_and_isolation",
+            "-rs",
+            "-s"
+          ],
+          "exit_code": 1,
+          "seconds": 2.62
+        }
+      ],
+      "container": "scribeswell-final-4291a66d9e15",
+      "stopped": true,
+      "source_unchanged": true
+    },
+    "summary": "1 failed in 1.60s"
+  },
+  {
+    "run": "private-runtime-signature",
+    "result": {
+      "results": [
+        {
+          "argv": [
+            "/tmp/scribeswell-implementation-python/bin/python",
+            "-m",
+            "pytest",
+            "-q",
+            "apps/scribeswell/tests/test_personal_notes_storage.py::test_native_create_write_reopen_noop_replay_and_isolation",
+            "-rs",
+            "-s"
+          ],
+          "exit_code": 1,
+          "seconds": 2.82
+        }
+      ],
+      "container": "scribeswell-final-42aa3f81db93",
+      "stopped": true,
+      "source_unchanged": true
+    },
+    "summary": "1 failed in 1.68s"
+  },
+  {
+    "run": "projection-cost",
+    "result": {
+      "results": [
+        {
+          "argv": [
+            "/tmp/scribeswell-implementation-python/bin/python",
+            "-m",
+            "pytest",
+            "-q",
+            "apps/scribeswell/tests/test_corpus_publish_native.py::test_native_capacity_inventory_projection_timing",
+            "-rs",
+            "-s"
+          ],
+          "exit_code": 0,
+          "seconds": 7.2
+        }
+      ],
+      "container": "scribeswell-final-63e921b7f8c7",
+      "stopped": true,
+      "source_unchanged": true
+    },
+    "summary": "1 passed in 4.81s"
+  },
+  {
+    "run": "review-browser-corrected-green",
+    "result": {
+      "argv": [
+        "npm",
+        "run",
+        "test:browser",
+        "--workspace=apps/scribeswell/web",
+        "--",
+        "--workers=1",
+        "--project=desktop",
+        "--grep",
+        "editor rejects impossible scalar|exported note scalar schema"
+      ],
+      "exit_code": 0,
+      "seconds": 14.92,
+      "selected_files": 103,
+      "source_unchanged": true
+    },
+    "summary": "2 passed (13.1s)"
+  },
+  {
+    "run": "review-browser-green",
+    "result": {
+      "argv": [
+        "npm",
+        "run",
+        "test:browser",
+        "--workspace=apps/scribeswell/web",
+        "--",
+        "--workers=1",
+        "--project=desktop",
+        "--grep",
+        "editor rejects impossible scalar|exported note scalar schema"
+      ],
+      "exit_code": 1,
+      "seconds": 20.06,
+      "selected_files": 103,
+      "source_unchanged": true
+    },
+    "summary": "1 failed, 1 passed (18.6s)"
+  },
+  {
+    "run": "review-browser-red",
+    "result": {
+      "argv": [
+        "npm",
+        "run",
+        "test:browser",
+        "--workspace=apps/scribeswell/web",
+        "--",
+        "--workers=1",
+        "--project=desktop",
+        "--grep",
+        "editor rejects impossible scalar|exported note scalar schema"
+      ],
+      "exit_code": 1,
+      "seconds": 16.89,
+      "selected_files": 103,
+      "source_unchanged": true
+    },
+    "summary": "2 failed"
+  },
+  {
+    "run": "review-concurrency-all-green",
+    "result": {
+      "results": [
+        {
+          "argv": [
+            "/tmp/scribeswell-implementation-python/bin/python",
+            "-m",
+            "pytest",
+            "-q",
+            "apps/scribeswell/tests/test_corpus_publish_native.py",
+            "apps/scribeswell/tests/test_personal_notes_storage.py",
+            "apps/scribeswell/tests/test_owned_migrations.py",
+            "-k",
+            "capacity_concurrent_alternate",
+            "-rs",
+            "-s"
+          ],
+          "exit_code": 0,
+          "seconds": 28.65
+        }
+      ],
+      "container": "scribeswell-final-4f442037cfbf",
+      "stopped": true,
+      "source_unchanged": true
+    },
+    "summary": "3 passed, 197 deselected in 27.25s"
+  },
+  {
+    "run": "review-native-green",
+    "result": {
+      "results": [
+        {
+          "argv": [
+            "/tmp/scribeswell-implementation-python/bin/python",
+            "-m",
+            "pytest",
+            "-q",
+            "apps/scribeswell/tests/test_corpus_publish_native.py",
+            "apps/scribeswell/tests/test_personal_notes_storage.py",
+            "apps/scribeswell/tests/test_owned_migrations.py",
+            "-k",
+            "capacity_concurrent_alternate or capacity_batch_wrong_digest or nul_rejected or failed_worker_preserves_valid_known_before or capacity_append or capacity_multirow",
+            "-rs",
+            "-s"
+          ],
+          "exit_code": 0,
+          "seconds": 115.15
+        }
+      ],
+      "container": "scribeswell-final-81f12f4fa100",
+      "stopped": true,
+      "source_unchanged": true
+    },
+    "summary": "16 passed, 182 deselected, 1 warning in 112.66s (0:01:52)"
+  },
+  {
+    "run": "review-native-red",
+    "result": {
+      "results": [
+        {
+          "argv": [
+            "/tmp/scribeswell-implementation-python/bin/python",
+            "-m",
+            "pytest",
+            "-q",
+            "apps/scribeswell/tests/test_corpus_publish_native.py",
+            "apps/scribeswell/tests/test_personal_notes_storage.py",
+            "apps/scribeswell/tests/test_owned_migrations.py",
+            "-k",
+            "capacity_concurrent_alternate or capacity_batch_wrong_digest or nul_rejected or failed_worker_preserves_valid_known_before",
+            "-rs",
+            "-s"
+          ],
+          "exit_code": 1,
+          "seconds": 20.03
+        }
+      ],
+      "container": "scribeswell-final-a51ba6da4600",
+      "stopped": true,
+      "source_unchanged": true
+    },
+    "summary": "3 failed, 5 passed, 190 deselected, 1 warning in 18.04s"
+  },
+  {
+    "run": "specialized-encoder-oracle",
+    "result": {
+      "results": [
+        {
+          "argv": [
+            "/tmp/scribeswell-implementation-python/bin/python",
+            "-m",
+            "pytest",
+            "-q",
+            "apps/scribeswell/tests/test_corpus_publish_native.py::test_native_capacity_compactor_matches_historical_bytes_and_python_oracle",
+            "-rs",
+            "-s"
+          ],
+          "exit_code": 0,
+          "seconds": 8.53
+        }
+      ],
+      "container": "scribeswell-final-79b49737e52e",
+      "stopped": true,
+      "source_unchanged": true
+    },
+    "summary": "1 passed in 7.34s"
+  },
+  {
+    "run": "supervised-capacity-diagnosis",
+    "result": {
+      "results": [
+        {
+          "argv": [
+            "/tmp/scribeswell-implementation-python/bin/python",
+            "-m",
+            "pytest",
+            "-q",
+            "apps/scribeswell/tests/test_corpus_publish_native.py::test_native_checked_in_artifact_publication_capacity_timing_and_replay",
+            "-rs",
+            "-s"
+          ],
+          "exit_code": 1,
+          "seconds": 170.87
+        }
+      ],
+      "container": "scribeswell-final-1ecab3a25086",
+      "stopped": true,
+      "source_unchanged": true
+    },
+    "summary": "2 failed in 169.80s (0:02:49)"
+  },
+  {
+    "run": "supervised-capacity-first",
+    "result": {
+      "results": [
+        {
+          "argv": [
+            "/tmp/scribeswell-implementation-python/bin/python",
+            "-m",
+            "pytest",
+            "-q",
+            "apps/scribeswell/tests/test_corpus_publish_native.py::test_native_checked_in_artifact_publication_capacity_timing_and_replay",
+            "-rs",
+            "-s"
+          ],
+          "exit_code": 1,
+          "seconds": 406.82
+        }
+      ],
+      "container": "scribeswell-final-c314047bf5a6",
+      "stopped": true,
+      "source_unchanged": true
+    },
+    "summary": "2 failed in 405.02s (0:06:45)"
+  },
+  {
+    "run": "supervised-capacity-optimized",
+    "result": {
+      "results": [
+        {
+          "argv": [
+            "/tmp/scribeswell-implementation-python/bin/python",
+            "-m",
+            "pytest",
+            "-q",
+            "apps/scribeswell/tests/test_corpus_publish_native.py::test_native_checked_in_artifact_publication_capacity_timing_and_replay",
+            "-rs",
+            "-s"
+          ],
+          "exit_code": 1,
+          "seconds": 201.91
+        }
+      ],
+      "container": "scribeswell-final-81840ca0f006",
+      "stopped": true,
+      "source_unchanged": true
+    },
+    "summary": "2 failed in 200.12s (0:03:20)"
+  },
+  {
+    "run": "supervised-completion-aggregate",
+    "result": {
+      "results": [
+        {
+          "argv": [
+            "/tmp/scribeswell-implementation-python/bin/python",
+            "-m",
+            "pytest",
+            "-q",
+            "apps/scribeswell/tests/test_corpus_publish_native.py::test_native_checked_in_artifact_publication_capacity_timing_and_replay",
+            "-rs",
+            "-s"
+          ],
+          "exit_code": 1,
+          "seconds": 189.35
+        }
+      ],
+      "container": "scribeswell-final-c66a509447c2",
+      "stopped": true,
+      "source_unchanged": true
+    },
+    "summary": "1 failed, 1 passed in 187.70s (0:03:07)"
+  },
+  {
+    "run": "supervised-execution-cache",
+    "result": {
+      "results": [
+        {
+          "argv": [
+            "/tmp/scribeswell-implementation-python/bin/python",
+            "-m",
+            "pytest",
+            "-q",
+            "apps/scribeswell/tests/test_corpus_publish_native.py::test_native_checked_in_artifact_publication_capacity_timing_and_replay",
+            "-rs",
+            "-s"
+          ],
+          "exit_code": 1,
+          "seconds": 142.11
+        }
+      ],
+      "container": "scribeswell-final-1ba08a2aa70d",
+      "stopped": true,
+      "source_unchanged": true
+    },
+    "summary": "2 failed in 140.48s (0:02:20)"
+  },
+  {
+    "run": "supervised-sql-location",
+    "result": {
+      "results": [
+        {
+          "argv": [
+            "/tmp/scribeswell-implementation-python/bin/python",
+            "-m",
+            "pytest",
+            "-q",
+            "apps/scribeswell/tests/test_corpus_publish_native.py::test_native_checked_in_artifact_publication_capacity_timing_and_replay[artifact]",
+            "-rs",
+            "-s"
+          ],
+          "exit_code": 1,
+          "seconds": 53.1
+        }
+      ],
+      "container": "scribeswell-final-b759b3bd0956",
+      "stopped": true,
+      "source_unchanged": true
+    },
+    "summary": "1 failed in 52.11s"
+  },
+  {
+    "run": "supervised-sql-phases",
+    "result": {
+      "results": [
+        {
+          "argv": [
+            "/tmp/scribeswell-implementation-python/bin/python",
+            "-m",
+            "pytest",
+            "-q",
+            "apps/scribeswell/tests/test_corpus_publish_native.py::test_native_checked_in_artifact_publication_capacity_timing_and_replay[artifact]",
+            "-rs",
+            "-s"
+          ],
+          "exit_code": 1,
+          "seconds": 46.5
+        }
+      ],
+      "container": "scribeswell-final-dca802f12382",
+      "stopped": true,
+      "source_unchanged": true
+    },
+    "summary": "1 failed in 45.58s"
+  },
+  {
+    "run": "review-schema-green",
+    "argv": [
+      "/tmp/scribeswell-implementation-python/bin/python",
+      "-m",
+      "pytest",
+      "-q",
+      "apps/scribeswell/tests/test_personal_notes_contract.py",
+      "-k",
+      "note_text_schema_and_runtime_preserve_scalar_boundary or generation_is_reproducible or all_generated_components_are_valid_json_schema"
+    ],
+    "exit_code": 0,
+    "summary": "6 passed, 122 deselected in 2.10s",
+    "log": "review-schema-green.log",
+    "source_sha256": "016f3b298382b2c2fb984b5931a9fc989554bae834a4828793ab602ec8ec0b91"
+  },
+  {
+    "run": "bridge-actual-api-red",
+    "result": {
+      "results": [
+        {
+          "argv": [
+            "/tmp/scribeswell-implementation-python/bin/python",
+            "-m",
+            "pytest",
+            "-q",
+            "apps/scribeswell/tests/test_personal_notes_storage.py::test_native_browser_create_write_reopen",
+            "-rs",
+            "-s"
+          ],
+          "exit_code": 1,
+          "seconds": 20.38
+        }
+      ],
+      "container": "scribeswell-final-63264c25793e",
+      "stopped": true,
+      "source_unchanged": true
+    },
+    "summary": "1 failed in 19.13s"
+  },
+  {
+    "run": "bridge-actual-api-green",
+    "result": {
+      "results": [
+        {
+          "argv": [
+            "/tmp/scribeswell-implementation-python/bin/python",
+            "-m",
+            "pytest",
+            "-q",
+            "apps/scribeswell/tests/test_personal_notes_storage.py::test_native_browser_create_write_reopen",
+            "-rs",
+            "-s"
+          ],
+          "exit_code": 1,
+          "seconds": 21.81
+        }
+      ],
+      "container": "scribeswell-final-2dfc41c60803",
+      "stopped": true,
+      "source_unchanged": true
+    },
+    "summary": "1 failed in 19.33s"
+  },
+  {
+    "run": "bridge-actual-api-drained-green",
+    "result": {
+      "results": [
+        {
+          "argv": [
+            "/tmp/scribeswell-implementation-python/bin/python",
+            "-m",
+            "pytest",
+            "-q",
+            "apps/scribeswell/tests/test_personal_notes_storage.py::test_native_browser_create_write_reopen",
+            "-rs",
+            "-s"
+          ],
+          "exit_code": 0,
+          "seconds": 19.58
+        }
+      ],
+      "container": "scribeswell-final-531df387f18f",
+      "stopped": true,
+      "source_unchanged": true
+    },
+    "summary": "1 passed in 17.76s"
+  },
+  {
+    "run": "parent-full-native-final-red",
+    "evidence": "../final-integration/native-final/native-results.json",
+    "summary": "1 failed, 2383 passed, 1 warning in 1002.49s",
+    "classification": "native browser fixture fixed stub IDs in strict checkpoint; retained historical full-run red"
+  },
+  {
+    "run": "browser-matrix-corrections/focused-first",
+    "result": {
+      "argv": [
+        "npm",
+        "run",
+        "test:browser",
+        "--workspace=apps/scribeswell/web",
+        "--",
+        "personal-notes.spec.cjs",
+        "workspace-restoration.spec.cjs",
+        "--workers=1",
+        "--grep",
+        "review: note changes reset|unknown study create preserves|note links: links source marks|across an owned atom survives|passage-only saved Notes preview|review tabs E1|same current (clean|unknown)|resource404 clears|late second candidate|current admission403|current (note|study)404|current hydration401|loop1 requested"
+      ],
+      "exit_code": 1,
+      "seconds": 218.72,
+      "selected_files": 103,
+      "source_unchanged": true
+    },
+    "summary": "1 failed; 45 passed (3.6m)"
+  },
+  {
+    "run": "browser-matrix-corrections/admission-order-diagnostic",
+    "result": {
+      "argv": [
+        "npm",
+        "run",
+        "test:browser",
+        "--workspace=apps/scribeswell/web",
+        "--",
+        "workspace-restoration.spec.cjs",
+        "--workers=1",
+        "--repeat-each=3",
+        "--grep",
+        "current admission403"
+      ],
+      "exit_code": 0,
+      "seconds": 37.44,
+      "selected_files": 103,
+      "source_unchanged": true
+    },
+    "summary": "6 passed (35.4s)"
+  },
+  {
+    "run": "browser-matrix-corrections/admission-controlled-order-red",
+    "result": {
+      "argv": [
+        "npm",
+        "run",
+        "test:browser",
+        "--workspace=apps/scribeswell/web",
+        "--",
+        "workspace-restoration.spec.cjs",
+        "--workers=1",
+        "--project=mobile",
+        "--grep",
+        "current admission403"
+      ],
+      "exit_code": 1,
+      "seconds": 19.95,
+      "selected_files": 103,
+      "source_unchanged": true
+    },
+    "summary": "1 failed"
+  },
+  {
+    "run": "browser-matrix-corrections/ordered-hydration-green",
+    "result": {
+      "argv": [
+        "npm",
+        "run",
+        "test:browser",
+        "--workspace=apps/scribeswell/web",
+        "--",
+        "workspace-restoration.spec.cjs",
+        "--workers=1",
+        "--grep",
+        "late second candidate|current admission403|current (note|study)404|current hydration401"
+      ],
+      "exit_code": 0,
+      "seconds": 44.66,
+      "selected_files": 103,
+      "source_unchanged": true
+    },
+    "summary": "10 passed (42.8s)"
+  },
+  {
+    "run": "browser-consent-startup-corrections/focused-green",
+    "result": {
+      "argv": [
+        "npm",
+        "run",
+        "test:browser",
+        "--workspace=apps/scribeswell/web",
+        "--",
+        "personal-notes.spec.cjs",
+        "--workers=1",
+        "--grep",
+        "reopening a conflicting lane preserves|review tabs E1|same current (clean|unknown)|unknown study create preserves|collected uncertain operation freezes"
+      ],
+      "exit_code": 0,
+      "seconds": 27.24,
+      "selected_files": 103,
+      "source_unchanged": true
+    },
+    "summary": "14 passed (26.7s)"
+  },
+  {
+    "run": "browser-consent-startup-corrections/focused-final-green",
+    "result": {
+      "argv": [
+        "npm",
+        "run",
+        "test:browser",
+        "--workspace=apps/scribeswell/web",
+        "--",
+        "personal-notes.spec.cjs",
+        "--workers=1",
+        "--grep",
+        "reopening a conflicting lane preserves|review tabs E1|same current (clean|unknown)|unknown study create preserves|collected uncertain operation freezes"
+      ],
+      "exit_code": 0,
+      "seconds": 30.17,
+      "selected_files": 103,
+      "source_unchanged": true
+    },
+    "summary": "14 passed (29.7s)"
+  },
+  {
+    "run": "diagnostic-helper-oracle",
+    "result": {
+      "status": "passed",
+      "assertions": 3,
+      "source_sha256": "420a66e122d582c11b53a75bea976f745c91aaddfc8b1e90a0982875420bf789",
+      "checks": [
+        "message URL excluded",
+        "frame pathname/line/column retained and query stripped",
+        "absent stack safe"
+      ]
+    },
+    "command": "node /tmp/scribeswell-startup-oracle.cjs"
+  },
+  {
+    "run": "anchor-script-scroll-corrections/focused-first",
+    "result": {
+      "argv": [
+        "npm",
+        "run",
+        "test:browser",
+        "--workspace=apps/scribeswell/web",
+        "--",
+        "personal-notes.spec.cjs",
+        "workspace-restoration.spec.cjs",
+        "--workers=1",
+        "--grep",
+        "D3 relevant Preview|D12 anchored outline|reopening a conflicting lane preserves|review tabs E1|same current (clean|unknown)|unknown study create preserves|collected uncertain operation freezes|last public scroll checkpoint"
+      ],
+      "exit_code": 0,
+      "seconds": 40.55,
+      "selected_files": 103,
+      "source_unchanged": true
+    },
+    "summary": [
+      "20 passed (40.0s)"
+    ]
+  },
+  {
+    "run": "anchor-script-scroll-corrections/controlled-late-resize-red",
+    "result": {
+      "argv": [
+        "npm",
+        "run",
+        "test:browser",
+        "--workspace=apps/scribeswell/web",
+        "--",
+        "workspace-restoration.spec.cjs",
+        "--workers=1",
+        "--project=desktop",
+        "--grep",
+        "last public scroll checkpoint"
+      ],
+      "exit_code": 1,
+      "seconds": 7.7,
+      "selected_files": 103,
+      "source_unchanged": true
+    },
+    "summary": [
+      "1 failed"
+    ]
+  },
+  {
+    "run": "anchor-script-scroll-corrections/gesture-restore-green",
+    "result": {
+      "argv": [
+        "npm",
+        "run",
+        "test:browser",
+        "--workspace=apps/scribeswell/web",
+        "--",
+        "personal-notes.spec.cjs",
+        "workspace-restoration.spec.cjs",
+        "--workers=1",
+        "--grep",
+        "D3 relevant Preview|D12 anchored outline|reopening a conflicting lane preserves|review tabs E1|same current (clean|unknown)|unknown study create preserves|collected uncertain operation freezes|last public scroll checkpoint|real device reload restores four"
+      ],
+      "exit_code": 1,
+      "seconds": 56.05,
+      "selected_files": 103,
+      "source_unchanged": true
+    },
+    "summary": [
+      "2 failed",
+      "22 passed (55.5s)"
+    ]
+  },
+  {
+    "run": "anchor-script-scroll-corrections/faithful-late-resize-red",
+    "result": {
+      "argv": [
+        "npm",
+        "run",
+        "test:browser",
+        "--workspace=apps/scribeswell/web",
+        "--",
+        "workspace-restoration.spec.cjs",
+        "--workers=1",
+        "--project=desktop",
+        "--grep",
+        "last public scroll checkpoint.*delayed initial resize (wheel|pointerdown)"
+      ],
+      "exit_code": 1,
+      "seconds": 13.88,
+      "selected_files": 103,
+      "source_unchanged": true
+    },
+    "summary": [
+      "2 failed"
+    ]
+  },
+  {
+    "run": "anchor-script-scroll-corrections/faithful-gesture-final-green",
+    "result": {
+      "argv": [
+        "npm",
+        "run",
+        "test:browser",
+        "--workspace=apps/scribeswell/web",
+        "--",
+        "personal-notes.spec.cjs",
+        "workspace-restoration.spec.cjs",
+        "--workers=1",
+        "--grep",
+        "D12 anchored outline|last public scroll checkpoint|real device reload restores four"
+      ],
+      "exit_code": 1,
+      "seconds": 54.02,
+      "selected_files": 103,
+      "source_unchanged": true
+    },
+    "summary": [
+      "4 failed",
+      "10 passed (53.5s)"
+    ]
+  },
+  {
+    "run": "anchor-script-scroll-corrections/restored-pane-gestures-green",
+    "result": {
+      "argv": [
+        "npm",
+        "run",
+        "test:browser",
+        "--workspace=apps/scribeswell/web",
+        "--",
+        "personal-notes.spec.cjs",
+        "workspace-restoration.spec.cjs",
+        "--workers=1",
+        "--grep",
+        "D12 anchored outline|last public scroll checkpoint|real device reload restores four"
+      ],
+      "exit_code": 0,
+      "seconds": 46.12,
+      "selected_files": 103,
+      "source_unchanged": true
+    },
+    "summary": [
+      "14 passed (45.6s)"
+    ]
+  },
+  {
+    "run": "script-code-helper-oracle",
+    "result": {
+      "status": "passed",
+      "assertions": 8,
+      "source_sha256": "1a97135924bdc5b7b24c03969a05f6c83331f07ea3ea5326c5b4a01b15d3dbd5",
+      "checks": [
+        "message URL excluded",
+        "frame pathname/line/column retained and query stripped",
+        "absent stack safe",
+        "known stable codes retained without surrounding text",
+        "aborted retained",
+        "unallowlisted code and raw URL reduced to transport"
+      ]
+    },
+    "command": "node /tmp/scribeswell-script-code-oracle.cjs"
+  }
+]

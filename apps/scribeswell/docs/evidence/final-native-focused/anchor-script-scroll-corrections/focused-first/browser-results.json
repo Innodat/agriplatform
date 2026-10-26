@@ -1,0 +1,18 @@
+{
+  "argv": [
+    "npm",
+    "run",
+    "test:browser",
+    "--workspace=apps/scribeswell/web",
+    "--",
+    "personal-notes.spec.cjs",
+    "workspace-restoration.spec.cjs",
+    "--workers=1",
+    "--grep",
+    "D3 relevant Preview|D12 anchored outline|reopening a conflicting lane preserves|review tabs E1|same current (clean|unknown)|unknown study create preserves|collected uncertain operation freezes|last public scroll checkpoint"
+  ],
+  "exit_code": 0,
+  "seconds": 40.55,
+  "selected_files": 103,
+  "source_unchanged": true
+}

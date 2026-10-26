@@ -468,7 +468,9 @@ function useStatefulStudies(){
  }
  async function openNote(id:string,parentId=study?.id){
   if(!token||!parentId||!liveStudy(parentId)||deleted.current.has(id))return;
-  if(id===current&&parentId===study?.id){navigation.current++;setTool('analysis');setAnalysisTab('Notes');const lane=lanes.current.get(id);if(lane)revealNote(lane.value);return;}
+  const currentLane=lanes.current.get(id);
+  const reopening=id===current&&parentId===study?.id&&currentLane?.status==='conflict'&&!contexts(currentLane,workspace.workspace.tabKey).length?currentLane:undefined;
+  if(id===current&&parentId===study?.id&&!reopening){navigation.current++;setTool('analysis');setAnalysisTab('Notes');const lane=lanes.current.get(id);if(lane)revealNote(lane.value);return;}
   const parent=parentId,origin=selectedStudy.current,requestNavigation=++navigation.current,originLayout=workspace.latest.current.read(),originTool=activeTool.current;
   const fresh=()=>requestNavigation===navigation.current&&selectedStudy.current===origin&&liveStudy(parent)&&!deleted.current.has(id)&&workspace.latest.current.read().tabKey===originLayout.tabKey&&workspace.latest.current.read().revision===originLayout.revision&&activeTool.current===originTool;
   await exit(async()=>{if(!fresh())return;const captured=epoch.current;
@@ -476,6 +478,8 @@ function useStatefulStudies(){
     const selected=parent===study?.id?study:await api.study(authorizedToken(),parent);
     if(!valid(captured)||!fresh()||selected?.owner_account_id!==account)return;
     let lane=lanes.current.get(id);
+    // Only explicit last-context consent abandons this definitive conflict.
+    if(lane===reopening&&lane?.abandoned&&!contexts(lane,workspace.workspace.tabKey).length){lanes.current.delete(id);lane=undefined;}
     if(!lane){const note=await api.note(authorizedToken(),parent,id);if(!valid(captured)||!fresh()||note.owner_account_id!==account)return;lane={note,value:note.value,generation:0,saved:0,status:'saved',composing:false,invalid:false};lanes.current.set(id,lane);}
     await exit(()=>{if(!valid(captured)||!fresh())return;
      if(parent!==origin){collectionNavigation.current++;selectedStudy.current=parent;setStudy(selected);setNotes([lane!.note]);setNotesCursor(null);notesPosition.current=null;workspace.views.get(workspace.workspace.tabKey)?.set('restoredOutline',true);void loadPassages(parent);}

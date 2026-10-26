@@ -1,0 +1,19 @@
+{
+  "results": [
+    {
+      "argv": [
+        "/tmp/scribeswell-implementation-python/bin/python",
+        "-m",
+        "pytest",
+        "-q",
+        "apps/scribeswell/tests/test_personal_notes_storage.py::test_native_browser_create_write_reopen",
+        "-rs"
+      ],
+      "exit_code": 0,
+      "seconds": 12.58
+    }
+  ],
+  "container": "scribeswell-final-e89d2a23e024",
+  "stopped": true,
+  "source_unchanged": true
+}

@@ -1,0 +1,17 @@
+{
+  "argv": [
+    "npm",
+    "run",
+    "test:browser",
+    "--workspace=apps/scribeswell/web",
+    "--",
+    "--workers=1",
+    "--project=desktop",
+    "--grep",
+    "editor rejects impossible scalar|exported note scalar schema"
+  ],
+  "exit_code": 0,
+  "seconds": 14.92,
+  "selected_files": 103,
+  "source_unchanged": true
+}

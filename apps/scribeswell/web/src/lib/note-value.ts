@@ -15,7 +15,7 @@ export function safeNoteUrl(raw:string){
 }
 
 const object=(value:unknown):value is Record<string,unknown>=>!!value&&typeof value==='object'&&!Array.isArray(value);
-const text=(value:unknown,max:number,min=1):value is string=>typeof value==='string'&&!/[\uD800-\uDFFF]/u.test(value)&&Array.from(value).length>=min&&Array.from(value).length<=max;
+const text=(value:unknown,max:number,min=1):value is string=>typeof value==='string'&&!/[\u0000\uD800-\uDFFF]/u.test(value)&&Array.from(value).length>=min&&Array.from(value).length<=max;
 /** The fixed grammar bounds traversal; unknown versions/node kinds are not guessed. */
 export function isReadableNoteValue(value:unknown):value is NoteValue {
  if(!object(value)||!object(value.document)||!Array.isArray(value.connections)||!Array.isArray(value.highlights))return false;

@@ -1,0 +1,20 @@
+{
+  "results": [
+    {
+      "argv": [
+        "/tmp/scribeswell-implementation-python/bin/python",
+        "-m",
+        "pytest",
+        "-q",
+        "apps/scribeswell/tests/test_corpus_publish_native.py::test_native_capacity_inventory_projection_timing",
+        "-rs",
+        "-s"
+      ],
+      "exit_code": 0,
+      "seconds": 7.2
+    }
+  ],
+  "container": "scribeswell-final-63e921b7f8c7",
+  "stopped": true,
+  "source_unchanged": true
+}

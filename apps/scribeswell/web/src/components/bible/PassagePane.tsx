@@ -100,10 +100,16 @@ export function PassagePane({ reference,onActivate,number,paneKey,anchor,picker,
       const offset=anchored?anchor?.offset??0:0;
       scroll.current.scrollTop=node?scroll.current.scrollTop+node.getBoundingClientRect().top-scroll.current.getBoundingClientRect().top-offset:0;appliedTarget.current=key;positionChanged.current();
     };
+    const preserveUserPosition = (event:Event) => {
+      if(event.type==='pointerdown'&&(event as PointerEvent).button!==0)return;
+      if(scroll.current?.clientHeight&&scroll.current.getClientRects().length&&!verses.loading&&verses.data)appliedTarget.current=key;
+    };
+    const current=scroll.current;
+    for(const event of ['wheel','touchmove','keydown','pointerdown'])current?.addEventListener(event,preserveUserPosition,true);
     apply();
     const observer = new ResizeObserver(apply);
     if(scroll.current)observer.observe(scroll.current);
-    return ()=>observer.disconnect();
+    return ()=>{observer.disconnect();for(const event of ['wheel','touchmove','keydown','pointerdown'])current?.removeEventListener(event,preserveUserPosition,true);};
   },[book,chapter,targetVerse,targetRevision,verses.data,verses.loading,visible,anchor]);
   return (
     <section data-reader-pane data-pane-key={paneKey} aria-current={active?'true':undefined} onPointerDown={event=>{if(!(event.target as HTMLElement).closest('[data-close-pane]'))onActivate?.();}} onFocusCapture={event=>{if(!(event.target as HTMLElement).closest('[data-close-pane]'))onActivate?.();}} id={`passage-${number}`} aria-label={`Passage ${number}`} className={`${visible ? 'flex' : 'hidden'} ${active&&comparing?'ring-2 ring-inset ring-amber-300 rounded-lg':''} flex-col gap-3 flex-1 min-w-0 min-h-0 ${comparing ? 'lg:border-l lg:border-stone-200 lg:pl-3' : ''}`}>

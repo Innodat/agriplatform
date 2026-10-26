@@ -1,0 +1,11 @@
+{
+  "comparison": "final-native after snapshot versus current corrected browser source",
+  "prior_paths": 207,
+  "changed_paths": [
+    "apps/scribeswell/web/src/context/StudiesContext.tsx",
+    "apps/scribeswell/web/tests/personal-notes.spec.cjs",
+    "apps/scribeswell/web/tests/workspace-restoration.spec.cjs"
+  ],
+  "missing_paths": [],
+  "native_backend_migration_contract_sources_unchanged": true
+}

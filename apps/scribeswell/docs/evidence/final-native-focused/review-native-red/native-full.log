@@ -1,0 +1,179 @@
+FF.....F
+=================================== FAILURES ===================================
+________ test_native_capacity_concurrent_alternate_appends_both_finish _________
+
+closed = (<psycopg.Connection [IDLE] (host=127.0.0.1 port=32802 user=postgres database=scribeswell_migration_39cc26ec08b04aa29b...22222-2222-4222-8222-222222222222', attempt_id='c055ef23-57cc-42aa-bce6-c64025ac3614', generation='1', state='closed'))
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x79e5e0d867b0>
+
+    def test_native_capacity_concurrent_alternate_appends_both_finish(closed,monkeypatch):
+        from concurrent.futures import ThreadPoolExecutor
+        from threading import Barrier
+        admin,url,_,_=closed;upgrade(url,monkeypatch,CUSTODY,capacity=True)
+        stage,batch,_,_=planned_requests(closed,monkeypatch);execute_requests(url,[stage,batch])
+        revision=stage['source_revision'];ready=Barrier(2)
+        def append(position):
+            with psycopg.connect(url) as db:
+                db.execute("SET statement_timeout='8s'")
+                # These compatible locks are acquired by the header FK before the
+                # AFTER STATEMENT guard in alternate INSERT statements as well.
+                db.execute('SELECT source_revision FROM scribeswell.corpus_manifest_header WHERE source_revision=%s FOR KEY SHARE',(revision,))
+                ready.wait(timeout=5)
+                db.execute('INSERT INTO scribeswell.corpus_manifest_word_identity(source_revision,ordinal,position,word_id,created_by_actor_id) VALUES(%s,0,%s,%s,%s)',(revision,position,998+position,ACTOR))
+            return position
+        with ThreadPoolExecutor(max_workers=2) as pool:
+            futures=[pool.submit(append,i) for i in (2,3)]
+>           assert [f.result(timeout=12) for f in futures]==[2,3]
+                    ^^^^^^^^^^^^^^^^^^^^
+
+apps/scribeswell/tests/test_corpus_publish_native.py:811: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+/usr/lib/python3.12/concurrent/futures/_base.py:456: in result
+    return self.__get_result()
+           ^^^^^^^^^^^^^^^^^^^
+/usr/lib/python3.12/concurrent/futures/_base.py:401: in __get_result
+    raise self._exception
+/usr/lib/python3.12/concurrent/futures/thread.py:58: in run
+    result = self.fn(*self.args, **self.kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+apps/scribeswell/tests/test_corpus_publish_native.py:807: in append
+    db.execute('INSERT INTO scribeswell.corpus_manifest_word_identity(source_revision,ordinal,position,word_id,created_by_actor_id) VALUES(%s,0,%s,%s,%s)',(revision,position,998+position,ACTOR))
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <psycopg.Connection [BAD] at 0x79e5d68e0710>
+query = 'INSERT INTO scribeswell.corpus_manifest_word_identity(source_revision,ordinal,position,word_id,created_by_actor_id) VALUES(%s,0,%s,%s,%s)'
+params = ('664a9e5f-d949-5113-855d-1e2f118d8648', 2, 1000, '22222222-2222-4222-8222-222222222222')
+
+    def execute(
+        self,
+        query: Query,
+        params: Params | None = None,
+        *,
+        prepare: bool | None = None,
+        binary: bool = False,
+    ) -> Cursor[Row]:
+        """Execute a query and return a cursor to read its results."""
+        try:
+            cur = self.cursor()
+            if binary:
+                cur.format = BINARY
+    
+            if isinstance(query, Template):
+                if params is not None:
+                    raise TypeError(
+                        "'execute()' with string template query doesn't support parameters"
+                    )
+                return cur.execute(query, prepare=prepare)
+            else:
+                return cur.execute(query, params, prepare=prepare)
+        except e._NO_TRACEBACK as ex:
+>           raise ex.with_traceback(None)
+E           psycopg.errors.DeadlockDetected: deadlock detected
+E           DETAIL:  Process 117 waits for ShareLock on transaction 949; blocked by process 118.
+E           Process 118 waits for ShareLock on transaction 948; blocked by process 117.
+E           HINT:  See server log for query details.
+E           CONTEXT:  while locking tuple (0,1) in relation "corpus_manifest_header"
+E           SQL statement "SELECT created_by_actor_id                   FROM scribeswell.corpus_manifest_header
+E              WHERE source_revision=appended.source_revision FOR UPDATE"
+E           PL/pgSQL function scribeswell.check_corpus_publication_append() line 6 at SQL statement
+
+/tmp/scribeswell-implementation-python/lib/python3.12/site-packages/psycopg/connection.py:304: DeadlockDetected
+__ test_native_capacity_batch_wrong_digest_atomic_refusal_and_original_retry ___
+
+closed = (<psycopg.Connection [IDLE] (host=127.0.0.1 port=32802 user=postgres database=scribeswell_migration_8ee156689a564cd19d...22222-2222-4222-8222-222222222222', attempt_id='990f2b35-ee34-42d2-bc23-1e29ee1978c5', generation='1', state='closed'))
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x79e5d68e3410>
+
+    def test_native_capacity_batch_wrong_digest_atomic_refusal_and_original_retry(closed,monkeypatch):
+        admin,url,_,_=closed;upgrade(url,monkeypatch,CUSTODY,capacity=True)
+        stage,batch,_,_=planned_requests(closed,monkeypatch);execute_requests(url,[stage])
+        changed=deepcopy(batch);changed['rows'][0][3]='f'*64 if batch['rows'][0][3]!='f'*64 else 'e'*64
+        before=admin.execute('SELECT count(*) FROM scribeswell.corpus_publication_outcome').fetchone()
+        with operator(url) as connection:
+>           with pytest.raises(PublishError,match='input_invalid'):corpus_publish._acknowledge(connection,changed)
+                                                                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+apps/scribeswell/tests/test_corpus_publish_native.py:822: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+apps/scribeswell/backend/corpus_publish.py:126: in _acknowledge
+    return _call(connection, request, lookup=False)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+connection = <psycopg.Connection [BAD] at 0x79e5d6fcea80>
+request = {'batch_index': 0, 'command': 'publication.batch', 'first_ordinal': 0, 'operation_id': '53fe8e4f-c464-5b37-ad48-ed9feb83ab24', ...}
+
+    def _call(connection, request, *, lookup):
+        failure, result = None, None
+        original_factory = connection.row_factory
+        try:
+            _idle(connection)
+            connection.row_factory = tuple_row
+            with connection.transaction():
+                connection.execute('SET TRANSACTION ISOLATION LEVEL READ COMMITTED READ WRITE')
+                connection.execute("SET LOCAL statement_timeout='5s'")
+                connection.execute("SET LOCAL lock_timeout='2s'")
+                connection.execute("SET LOCAL idle_in_transaction_session_timeout='5s'")
+                statement = ('SELECT scribeswell.lookup_corpus_publication_outcome(%s)' if lookup else
+                             'SELECT scribeswell.execute_corpus_publication(%s)')
+                row = connection.execute(statement, (Jsonb(request),)).fetchone()
+                if row is None or len(row) != 1 or (row[0] is None and not lookup):
+                    raise PublishError('unknown_outcome')
+                result = None if row[0] is None else _receipt(row[0], request)
+        except PublishError as error:
+            failure = error.code.rsplit('.', 1)[1]
+        except Exception as error:
+            failure = {'42501':'access_denied', '22023':'input_invalid', 'P0001':'conflict',
+                       '55000':'unavailable', '55P03':'unavailable', '57014':'unavailable',
+                       '25006':'unavailable', '25001':'unavailable'}.get(getattr(error, 'sqlstate', None), 'unknown_outcome')
+        finally:
+            connection.row_factory = original_factory
+        if failure:
+>           raise PublishError(failure)
+E           corpus_publish.PublishError: corpus_publish.conflict
+
+apps/scribeswell/backend/corpus_publish.py:116: PublishError
+
+During handling of the above exception, another exception occurred:
+
+closed = (<psycopg.Connection [IDLE] (host=127.0.0.1 port=32802 user=postgres database=scribeswell_migration_8ee156689a564cd19d...22222-2222-4222-8222-222222222222', attempt_id='990f2b35-ee34-42d2-bc23-1e29ee1978c5', generation='1', state='closed'))
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x79e5d68e3410>
+
+    def test_native_capacity_batch_wrong_digest_atomic_refusal_and_original_retry(closed,monkeypatch):
+        admin,url,_,_=closed;upgrade(url,monkeypatch,CUSTODY,capacity=True)
+        stage,batch,_,_=planned_requests(closed,monkeypatch);execute_requests(url,[stage])
+        changed=deepcopy(batch);changed['rows'][0][3]='f'*64 if batch['rows'][0][3]!='f'*64 else 'e'*64
+        before=admin.execute('SELECT count(*) FROM scribeswell.corpus_publication_outcome').fetchone()
+        with operator(url) as connection:
+>           with pytest.raises(PublishError,match='input_invalid'):corpus_publish._acknowledge(connection,changed)
+E           AssertionError: Regex pattern did not match.
+E            Regex: 'input_invalid'
+E            Input: 'corpus_publish.conflict'
+
+apps/scribeswell/tests/test_corpus_publish_native.py:822: AssertionError
+______ test_failed_worker_preserves_valid_known_before[scribeswell_0006] _______
+
+tmp_path = PosixPath('/tmp/pytest-of-ck/pytest-82/test_failed_worker_preserves_v4')
+before = 'scribeswell_0006'
+
+    @pytest.mark.parametrize('before',[None,'scribeswell_0001','scribeswell_0002',REVISION,'scribeswell_0006'])
+    def test_failed_worker_preserves_valid_known_before(tmp_path,before):
+        class Process:
+            returncode=1
+            def __init__(self,*args,**kwargs):pass
+            def communicate(self,*args,**kwargs):
+                return json.dumps({'code':'scribeswell_migration_failed','before':before}),None
+            def poll(self):return 1
+        target=tmp_path/'failed.json'
+        with pytest.raises(SystemExit):load_adapter().main(target,environ=VALID_ENV,run=Process)
+        entry=json.loads(target.read_text())['owners']['scribeswell']
+>       assert entry['before']==before
+               ^^^^^^^^^^^^^^^
+E       KeyError: 'before'
+
+apps/scribeswell/tests/test_owned_migrations.py:380: KeyError
+=============================== warnings summary ===============================
+apps/scribeswell/tests/test_personal_notes_storage.py::test_native_api_nul_rejected_without_note_or_receipt_and_unicode_preserved
+  /home/ck/.local/lib/python3.12/site-packages/fastapi/testclient.py:1: StarletteDeprecationWarning: Using `httpx` with `starlette.testclient` is deprecated; install `httpx2` instead.
+    from starlette.testclient import TestClient as TestClient  # noqa
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+3 failed, 5 passed, 190 deselected, 1 warning in 18.04s

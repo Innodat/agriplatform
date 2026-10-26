@@ -1,0 +1,287 @@
+QUALIFIED_CAPACITY_SOURCE {"counts": {"books": 39, "chapters": 929, "tokens": 306785, "verses": 23213}, "source_bytes": 13096412, "source_sha256": "c2d8e9e565be4ee69f938b444e5e0dc37fdfd0d9ccb185d1a5f8d95fab91c498"}
+SUPERVISED_ATTEMPT_SECONDS 58.021
+{"phase":"_prepare","seconds":6.298}
+{"phase":"_prepare","seconds":7.073}
+{"step":"publication.activate","lookup":true,"batch_index":null,"seconds":0.043}
+{"phase":"audit_closed_attempt","seconds":28.171}
+{"step":"publication.stage","lookup":true,"batch_index":null,"seconds":0.098}
+{"step":"publication.stage","lookup":false,"batch_index":null,"seconds":0.981}
+{"step":"publication.batch","lookup":true,"batch_index":0,"seconds":0.03}
+{"step":"publication.batch","lookup":false,"batch_index":0,"seconds":0.478}
+{"step":"publication.batch","lookup":true,"batch_index":1,"seconds":0.033}
+{"step":"publication.batch","lookup":false,"batch_index":1,"seconds":0.443}
+{"step":"publication.batch","lookup":true,"batch_index":2,"seconds":0.025}
+{"step":"publication.batch","lookup":false,"batch_index":2,"seconds":0.426}
+{"step":"publication.batch","lookup":true,"batch_index":3,"seconds":0.025}
+{"step":"publication.batch","lookup":false,"batch_index":3,"seconds":0.36}
+{"step":"publication.batch","lookup":true,"batch_index":4,"seconds":0.026}
+{"step":"publication.batch","lookup":false,"batch_index":4,"seconds":0.403}
+{"step":"publication.batch","lookup":true,"batch_index":5,"seconds":0.032}
+{"step":"publication.batch","lookup":false,"batch_index":5,"seconds":0.61}
+{"step":"publication.batch","lookup":true,"batch_index":6,"seconds":0.035}
+{"step":"publication.batch","lookup":false,"batch_index":6,"seconds":0.662}
+{"step":"publication.batch","lookup":true,"batch_index":7,"seconds":0.029}
+{"step":"publication.batch","lookup":false,"batch_index":7,"seconds":0.637}
+{"step":"publication.batch","lookup":true,"batch_index":8,"seconds":0.024}
+{"step":"publication.batch","lookup":false,"batch_index":8,"seconds":0.591}
+{"step":"publication.batch","lookup":true,"batch_index":9,"seconds":0.044}
+{"step":"publication.batch","lookup":false,"batch_index":9,"seconds":0.656}
+{"step":"publication.batch","lookup":true,"batch_index":10,"seconds":0.025}
+{"step":"publication.batch","lookup":false,"batch_index":10,"seconds":0.549}
+{"step":"publication.batch","lookup":true,"batch_index":11,"seconds":0.048}
+{"step":"publication.batch","lookup":false,"batch_index":11,"seconds":0.632}
+{"step":"publication.batch","lookup":true,"batch_index":12,"seconds":0.038}
+{"step":"publication.batch","lookup":false,"batch_index":12,"seconds":0.85}
+{"step":"publication.batch","lookup":true,"batch_index":13,"seconds":0.04}
+{"step":"publication.batch","lookup":false,"batch_index":13,"seconds":0.601}
+{"step":"publication.batch","lookup":true,"batch_index":14,"seconds":0.026}
+{"step":"publication.batch","lookup":false,"batch_index":14,"seconds":0.554}
+{"step":"publication.batch","lookup":true,"batch_index":15,"seconds":0.022}
+{"step":"publication.batch","lookup":false,"batch_index":15,"seconds":0.37}
+{"step":"publication.batch","lookup":true,"batch_index":16,"seconds":0.032}
+{"step":"publication.batch","lookup":false,"batch_index":16,"seconds":0.41}
+{"step":"publication.batch","lookup":true,"batch_index":17,"seconds":0.027}
+{"step":"publication.batch","lookup":false,"batch_index":17,"seconds":0.299}
+{"step":"publication.batch","lookup":true,"batch_index":18,"seconds":0.023}
+{"step":"publication.batch","lookup":false,"batch_index":18,"seconds":0.328}
+{"step":"publication.batch","lookup":true,"batch_index":19,"seconds":0.041}
+{"step":"publication.batch","lookup":false,"batch_index":19,"seconds":0.332}
+{"step":"publication.batch","lookup":true,"batch_index":20,"seconds":0.025}
+{"step":"publication.batch","lookup":false,"batch_index":20,"seconds":0.524}
+{"step":"publication.batch","lookup":true,"batch_index":21,"seconds":0.045}
+{"step":"publication.batch","lookup":false,"batch_index":21,"seconds":0.37}
+{"step":"publication.batch","lookup":true,"batch_index":22,"seconds":0.027}
+{"step":"publication.batch","lookup":false,"batch_index":22,"seconds":0.422}
+{"step":"publication.batch","lookup":true,"batch_index":23,"seconds":0.02}
+{"step":"publication.batch","lookup":false,"batch_index":23,"seconds":0.124}
+{"step":"publication.complete","lookup":true,"batch_index":null,"seconds":0.017}
+
+DURABLE_PUBLICATION_STEPS [('publication.batch', 24), ('publication.stage', 1)]
+FQUALIFIED_CAPACITY_SOURCE {"counts": {"books": 39, "chapters": 321, "tokens": 1000000, "verses": 50000}, "source_bytes": 22101126, "source_sha256": "69f665b81b38c22d43bef8a5fad9cf11a38aaeadc8f0a9dce295ecc0d39df58d"}
+SUPERVISED_ATTEMPT_SECONDS 58.069
+{"phase":"_prepare","seconds":6.01}
+{"phase":"_prepare","seconds":5.281}
+{"step":"publication.activate","lookup":true,"batch_index":null,"seconds":0.04}
+{"phase":"audit_closed_attempt","seconds":27.056}
+{"step":"publication.stage","lookup":true,"batch_index":null,"seconds":0.237}
+{"step":"publication.stage","lookup":false,"batch_index":null,"seconds":1.793}
+{"step":"publication.batch","lookup":true,"batch_index":0,"seconds":0.056}
+{"step":"publication.batch","lookup":false,"batch_index":0,"seconds":0.639}
+{"step":"publication.batch","lookup":true,"batch_index":1,"seconds":0.041}
+{"step":"publication.batch","lookup":false,"batch_index":1,"seconds":0.591}
+{"step":"publication.batch","lookup":true,"batch_index":2,"seconds":0.04}
+{"step":"publication.batch","lookup":false,"batch_index":2,"seconds":0.676}
+{"step":"publication.batch","lookup":true,"batch_index":3,"seconds":0.027}
+{"step":"publication.batch","lookup":false,"batch_index":3,"seconds":0.568}
+{"step":"publication.batch","lookup":true,"batch_index":4,"seconds":0.035}
+{"step":"publication.batch","lookup":false,"batch_index":4,"seconds":1.008}
+{"step":"publication.batch","lookup":true,"batch_index":5,"seconds":0.029}
+{"step":"publication.batch","lookup":false,"batch_index":5,"seconds":1.228}
+{"step":"publication.batch","lookup":true,"batch_index":6,"seconds":0.027}
+{"step":"publication.batch","lookup":false,"batch_index":6,"seconds":1.067}
+{"step":"publication.batch","lookup":true,"batch_index":7,"seconds":0.026}
+{"step":"publication.batch","lookup":false,"batch_index":7,"seconds":1.079}
+{"step":"publication.batch","lookup":true,"batch_index":8,"seconds":0.035}
+{"step":"publication.batch","lookup":false,"batch_index":8,"seconds":1.055}
+{"step":"publication.batch","lookup":true,"batch_index":9,"seconds":0.038}
+{"step":"publication.batch","lookup":false,"batch_index":9,"seconds":0.974}
+{"step":"publication.batch","lookup":true,"batch_index":10,"seconds":0.047}
+{"step":"publication.batch","lookup":false,"batch_index":10,"seconds":1.037}
+{"step":"publication.batch","lookup":true,"batch_index":11,"seconds":0.026}
+{"step":"publication.batch","lookup":false,"batch_index":11,"seconds":1.177}
+{"step":"publication.batch","lookup":true,"batch_index":12,"seconds":0.023}
+{"step":"publication.batch","lookup":false,"batch_index":12,"seconds":1.278}
+{"step":"publication.batch","lookup":true,"batch_index":13,"seconds":0.023}
+{"step":"publication.batch","lookup":false,"batch_index":13,"seconds":1.401}
+{"step":"publication.batch","lookup":true,"batch_index":14,"seconds":0.03}
+{"step":"publication.batch","lookup":false,"batch_index":14,"seconds":1.136}
+{"step":"publication.batch","lookup":true,"batch_index":15,"seconds":0.029}
+
+DURABLE_PUBLICATION_STEPS [('publication.batch', 15), ('publication.stage', 1)]
+F
+=================================== FAILURES ===================================
+_ test_native_checked_in_artifact_publication_capacity_timing_and_replay[artifact] _
+
+closed = (<psycopg.Connection [IDLE] (host=127.0.0.1 port=32791 user=postgres database=scribeswell_migration_56b6bc80926343ce99...22222-2222-4222-8222-222222222222', attempt_id='fdd43d64-10da-4ba6-a892-07dea4db8376', generation='1', state='closed'))
+publication_source = b'{"Genesis": [[[["\xd7\x91\xd6\xbc\xd6\xb0/\xd7\xa8\xd6\xb5\xd7\x90\xd7\xa9\xd7\x81\xd6\xb4\xd6\x96\xd7\x99\xd7\xaa",...\xd6\xb6\xd7\xa5", "d/776", "HTd/Ncbsa"], ["\xd7\x97\xd6\xb5\xd6\xbd\xd7\xa8\xd6\xb6\xd7\x9d", "2764 a", "HNcmsa"]]]]}'
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7483ae3abad0>
+tmp_path = PosixPath('/tmp/pytest-of-ck/pytest-62/test_native_checked_in_artifac0')
+
+    @pytest.mark.parametrize('publication_source',['artifact','maximum'],indirect=True)
+    def test_native_checked_in_artifact_publication_capacity_timing_and_replay(closed,publication_source,monkeypatch,tmp_path):
+        import time
+        from corpus_evidence import build_source_candidate
+        admin,url,seal,_=closed
+        expected=build_source_candidate(publication_source,hashlib.sha256(publication_source).hexdigest(),source_id='tanakh',catalogue_version=seal['payload']['input']['catalogue_version'],versification_id=seal['payload']['input']['versification_id'],tokenization_version=seal['payload']['input']['tokenization_version'])
+        counts=expected['counts']
+        actual=admin.execute('SELECT (SELECT count(*) FROM scribeswell.book),(SELECT count(*) FROM scribeswell.chapter),(SELECT count(*) FROM scribeswell.verse),(SELECT count(*) FROM scribeswell.word)').fetchone()
+        assert actual==tuple(counts[k] for k in ('books','chapters','verses','tokens'))
+        import corpus_operator as supervised
+        from test_postgres_acceptance import role_url
+        target=supervised.OperatorTarget('local_disposable',role_url(url,'scribeswell_corpus_operator'),unquote(urlsplit(url).path[1:]))
+        print('QUALIFIED_CAPACITY_SOURCE',json.dumps({'source_bytes':len(publication_source),'source_sha256':hashlib.sha256(publication_source).hexdigest(),'counts':counts},sort_keys=True),flush=True)
+        if os.environ.get('SCRIBESWELL_CAPACITY_DIAGNOSTICS')=='1':
+            probe=tmp_path/'capacity-probe.py';trace=tmp_path/'capacity-steps.jsonl'
+            probe.write_text(CAPACITY_PROBE.replace('TRACE_PATH',repr(str(trace))))
+            original_worker=supervised._worker_command
+            def diagnostic_worker():
+                command=original_worker()
+                command[-1]=command[-1].replace('from corpus_operator import _worker_main;',"import runpy;runpy.run_path("+repr(str(probe))+");from corpus_operator import _worker_main;")
+                return command
+            monkeypatch.setattr(supervised,'_worker_command',diagnostic_worker)
+        operation=str(uuid4());started=time.monotonic()
+>       try:result=supervised.publish_closed_attempt(target,encode(seal),publication_source,operation_id=operation)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+apps/scribeswell/tests/test_corpus_publish_native.py:526: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+apps/scribeswell/backend/corpus_operator.py:345: in publish_closed_attempt
+    return _publication_invoke(target, raw, source_raw, operation_id, lookup=False)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+target = <corpus_operator.OperatorTarget object at 0x74839fb53000>
+raw = b'{"schema_version": 1, "operation_id": "74238a8c-c7a8-409b-ba7f-84291ca188d4", "command": "corpus.seal", "scope": {"k...d_attempt_id": "fdd43d64-10da-4ba6-a892-07dea4db8376"}, "reason_code": "source_seal", "evidence_ref": "run:fixture/1"}'
+source_raw = b'{"Genesis": [[[["\xd7\x91\xd6\xbc\xd6\xb0/\xd7\xa8\xd6\xb5\xd7\x90\xd7\xa9\xd7\x81\xd6\xb4\xd6\x96\xd7\x99\xd7\xaa",...\xd6\xb6\xd7\xa5", "d/776", "HTd/Ncbsa"], ["\xd7\x97\xd6\xb5\xd6\xbd\xd7\xa8\xd6\xb6\xd7\x9d", "2764 a", "HNcmsa"]]]]}'
+operation_id = 'c3cd4ac0-8c60-4d5b-ba9c-e2bebbc805f7'
+
+    def _publication_invoke(target, raw, source_raw, operation_id, *, lookup):
+        from corpus_publish import PublishError, _activation, _receipt as publication_receipt
+        from corpus_publication_input import _uuid
+        deadline = time.monotonic() + _OPERATION_SECONDS
+        invalid = False
+        try:
+            _target(target)
+            _uuid(operation_id)
+            command = parse_command(raw)
+            if (command.command != 'corpus.seal' or type(source_raw) is not bytes
+                    or len(source_raw) > MAX_SOURCE_BYTES):
+                raise ValueError
+        except Exception:
+            invalid = True
+        if invalid:
+            raise PublishError('input_invalid')
+        failure, result = None, None
+        try:
+            request = json.dumps(dict(version='publication-v1', target=asdict(target),
+                lookup=lookup, raw=base64.b64encode(raw).decode('ascii'),
+                source=base64.b64encode(source_raw).decode('ascii'), operation_id=operation_id),
+                separators=(',', ':')).encode('ascii')
+            if len(request) > _MAX_REQUEST:
+                raise ValueError
+            value = _decode(_exchange(request, deadline))
+            if type(value) is not dict or len(value) != 1:
+                raise ValueError
+            if set(value) == {'error'} and type(value['error']) is str and value['error'] in _PUBLICATION_FAILURES:
+                failure = value['error']
+            elif set(value) == {'receipt'}:
+                if value['receipt'] is None and lookup:
+                    result = None
+                else:
+                    result = publication_receipt(value['receipt'], _activation(command, operation_id))
+            else:
+                raise ValueError
+            if time.monotonic() >= deadline - _REAP_SECONDS:
+                raise ValueError
+        except Exception:
+            failure = 'unknown_outcome'
+        if failure:
+>           raise PublishError(failure)
+E           corpus_publish.PublishError: corpus_publish.unknown_outcome
+
+apps/scribeswell/backend/corpus_operator.py:339: PublishError
+------------------------------ Captured log call -------------------------------
+WARNING  corpus_operator:corpus_operator.py:178 {"service":"scribeswell","action":"corpus_operator_cleanup","code":"forced_termination_reaped"}
+_ test_native_checked_in_artifact_publication_capacity_timing_and_replay[maximum] _
+
+closed = (<psycopg.Connection [IDLE] (host=127.0.0.1 port=32791 user=postgres database=scribeswell_migration_d5787ad0e92a46e7ba...22222-2222-4222-8222-222222222222', attempt_id='de5d0155-9e1f-4a08-9a26-5b271b11c912', generation='1', state='closed'))
+publication_source = b'{"Genesis":[[[["\xd7\x90\xd7\x91","1","HNcmsa"],["\xd7\x90\xd7\x91","1","HNcmsa"],["\xd7\x90\xd7\x91","1","HNcmsa"],...1","HNcmsa"],["\xd7\x90\xd7\x91","1","HNcmsa"],["\xd7\x90\xd7\x91","1","HNcmsa"],["\xd7\x90\xd7\x91","1","HNcmsa"]]]]}'
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7483ad2b8560>
+tmp_path = PosixPath('/tmp/pytest-of-ck/pytest-62/test_native_checked_in_artifac1')
+
+    @pytest.mark.parametrize('publication_source',['artifact','maximum'],indirect=True)
+    def test_native_checked_in_artifact_publication_capacity_timing_and_replay(closed,publication_source,monkeypatch,tmp_path):
+        import time
+        from corpus_evidence import build_source_candidate
+        admin,url,seal,_=closed
+        expected=build_source_candidate(publication_source,hashlib.sha256(publication_source).hexdigest(),source_id='tanakh',catalogue_version=seal['payload']['input']['catalogue_version'],versification_id=seal['payload']['input']['versification_id'],tokenization_version=seal['payload']['input']['tokenization_version'])
+        counts=expected['counts']
+        actual=admin.execute('SELECT (SELECT count(*) FROM scribeswell.book),(SELECT count(*) FROM scribeswell.chapter),(SELECT count(*) FROM scribeswell.verse),(SELECT count(*) FROM scribeswell.word)').fetchone()
+        assert actual==tuple(counts[k] for k in ('books','chapters','verses','tokens'))
+        import corpus_operator as supervised
+        from test_postgres_acceptance import role_url
+        target=supervised.OperatorTarget('local_disposable',role_url(url,'scribeswell_corpus_operator'),unquote(urlsplit(url).path[1:]))
+        print('QUALIFIED_CAPACITY_SOURCE',json.dumps({'source_bytes':len(publication_source),'source_sha256':hashlib.sha256(publication_source).hexdigest(),'counts':counts},sort_keys=True),flush=True)
+        if os.environ.get('SCRIBESWELL_CAPACITY_DIAGNOSTICS')=='1':
+            probe=tmp_path/'capacity-probe.py';trace=tmp_path/'capacity-steps.jsonl'
+            probe.write_text(CAPACITY_PROBE.replace('TRACE_PATH',repr(str(trace))))
+            original_worker=supervised._worker_command
+            def diagnostic_worker():
+                command=original_worker()
+                command[-1]=command[-1].replace('from corpus_operator import _worker_main;',"import runpy;runpy.run_path("+repr(str(probe))+");from corpus_operator import _worker_main;")
+                return command
+            monkeypatch.setattr(supervised,'_worker_command',diagnostic_worker)
+        operation=str(uuid4());started=time.monotonic()
+>       try:result=supervised.publish_closed_attempt(target,encode(seal),publication_source,operation_id=operation)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+apps/scribeswell/tests/test_corpus_publish_native.py:526: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+apps/scribeswell/backend/corpus_operator.py:345: in publish_closed_attempt
+    return _publication_invoke(target, raw, source_raw, operation_id, lookup=False)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+target = <corpus_operator.OperatorTarget object at 0x74838b2d2140>
+raw = b'{"schema_version": 1, "operation_id": "ce387070-b862-4d88-98f1-d60e3a38ef67", "command": "corpus.seal", "scope": {"k...d_attempt_id": "de5d0155-9e1f-4a08-9a26-5b271b11c912"}, "reason_code": "source_seal", "evidence_ref": "run:fixture/1"}'
+source_raw = b'{"Genesis":[[[["\xd7\x90\xd7\x91","1","HNcmsa"],["\xd7\x90\xd7\x91","1","HNcmsa"],["\xd7\x90\xd7\x91","1","HNcmsa"],...1","HNcmsa"],["\xd7\x90\xd7\x91","1","HNcmsa"],["\xd7\x90\xd7\x91","1","HNcmsa"],["\xd7\x90\xd7\x91","1","HNcmsa"]]]]}'
+operation_id = 'e3a6bc02-6e7a-48e6-ae47-8dec4cf164e5'
+
+    def _publication_invoke(target, raw, source_raw, operation_id, *, lookup):
+        from corpus_publish import PublishError, _activation, _receipt as publication_receipt
+        from corpus_publication_input import _uuid
+        deadline = time.monotonic() + _OPERATION_SECONDS
+        invalid = False
+        try:
+            _target(target)
+            _uuid(operation_id)
+            command = parse_command(raw)
+            if (command.command != 'corpus.seal' or type(source_raw) is not bytes
+                    or len(source_raw) > MAX_SOURCE_BYTES):
+                raise ValueError
+        except Exception:
+            invalid = True
+        if invalid:
+            raise PublishError('input_invalid')
+        failure, result = None, None
+        try:
+            request = json.dumps(dict(version='publication-v1', target=asdict(target),
+                lookup=lookup, raw=base64.b64encode(raw).decode('ascii'),
+                source=base64.b64encode(source_raw).decode('ascii'), operation_id=operation_id),
+                separators=(',', ':')).encode('ascii')
+            if len(request) > _MAX_REQUEST:
+                raise ValueError
+            value = _decode(_exchange(request, deadline))
+            if type(value) is not dict or len(value) != 1:
+                raise ValueError
+            if set(value) == {'error'} and type(value['error']) is str and value['error'] in _PUBLICATION_FAILURES:
+                failure = value['error']
+            elif set(value) == {'receipt'}:
+                if value['receipt'] is None and lookup:
+                    result = None
+                else:
+                    result = publication_receipt(value['receipt'], _activation(command, operation_id))
+            else:
+                raise ValueError
+            if time.monotonic() >= deadline - _REAP_SECONDS:
+                raise ValueError
+        except Exception:
+            failure = 'unknown_outcome'
+        if failure:
+>           raise PublishError(failure)
+E           corpus_publish.PublishError: corpus_publish.unknown_outcome
+
+apps/scribeswell/backend/corpus_operator.py:339: PublishError
+------------------------------ Captured log call -------------------------------
+WARNING  corpus_operator:corpus_operator.py:178 {"service":"scribeswell","action":"corpus_operator_cleanup","code":"forced_termination_reaped"}
+2 failed in 200.12s (0:03:20)

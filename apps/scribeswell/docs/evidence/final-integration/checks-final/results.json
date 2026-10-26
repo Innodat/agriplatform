@@ -1,0 +1,70 @@
+{
+  "results": [
+    {
+      "name": "build",
+      "argv": [
+        "npm",
+        "run",
+        "build",
+        "--workspace=apps/scribeswell/web"
+      ],
+      "exit_code": 0,
+      "seconds": 3.58
+    },
+    {
+      "name": "openapi",
+      "argv": [
+        "/tmp/scribeswell-implementation-python/bin/python",
+        "apps/scribeswell/tools/py/export_personal_notes_contract.py",
+        "--check"
+      ],
+      "exit_code": 0,
+      "seconds": 0.32
+    },
+    {
+      "name": "catalogue",
+      "argv": [
+        "/tmp/scribeswell-implementation-python/bin/python",
+        "apps/scribeswell/tools/py/build_reference_catalogue.py",
+        "--check"
+      ],
+      "exit_code": 0,
+      "seconds": 0.27
+    },
+    {
+      "name": "dto",
+      "argv": [
+        "/home/ck/repos/innodat/agriplatform/platform/deployment/.local/kdg-toolchains/2cb59147-0378-4fff-bf09-ba3f9e353aa0/payload/node/bin/node",
+        "/tmp/scribeswell-codegen-isolated/platform/api-client/src/cli.mjs",
+        "--schema",
+        "/home/ck/repos/innodat/agriplatform/apps/scribeswell/contracts/personal-notes-v1.openapi.json",
+        "--output",
+        "/home/ck/repos/innodat/agriplatform/apps/scribeswell/web/src/generated/personal-notes",
+        "--check"
+      ],
+      "exit_code": 0,
+      "seconds": 0.62
+    },
+    {
+      "name": "database-helper",
+      "argv": [
+        "/home/ck/repos/innodat/agriplatform/platform/deployment/.local/kdg-toolchains/2cb59147-0378-4fff-bf09-ba3f9e353aa0/payload/node/bin/node",
+        "apps/scribeswell/tools/sync_personal_notes_database.mjs",
+        "--check"
+      ],
+      "exit_code": 0,
+      "seconds": 0.12
+    },
+    {
+      "name": "compose",
+      "argv": [
+        "python3",
+        "tools/py/run_compose_supabase.py",
+        "--check-only"
+      ],
+      "exit_code": 0,
+      "seconds": 0.07
+    }
+  ],
+  "source_unchanged": true
+}

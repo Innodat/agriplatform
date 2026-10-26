@@ -1,0 +1,650 @@
+[
+  {
+    "test": "ERROR at setup of test_native_multibatch_missing_order_and_exact_resume[multi]",
+    "errors": [
+      "E           psycopg.errors.UniqueViolation: duplicate key value violates unique constraint \"verse_chapter_id_verse_num_key\"",
+      "E           DETAIL:  Key (chapter_id, verse_num)=(1001, 1) already exists."
+    ]
+  },
+  {
+    "test": "ERROR at setup of test_native_same_operation_concurrency_has_one_independent_effect",
+    "errors": [
+      "E   owned_migration.MigrationError: scribeswell_studies_migration_failed_requires_reconciliation"
+    ]
+  },
+  {
+    "test": "ERROR at setup of test_native_copy_receipt_survives_source_deletion_and_copy_is_independent",
+    "errors": [
+      "E   owned_migration.MigrationError: scribeswell_studies_migration_failed_requires_reconciliation"
+    ]
+  },
+  {
+    "test": "ERROR at setup of test_native_copy_of_copy_retains_bounded_original_credit_and_owner_privacy",
+    "errors": [
+      "E   owned_migration.MigrationError: scribeswell_studies_migration_failed_requires_reconciliation"
+    ]
+  },
+  {
+    "test": "ERROR at setup of test_native_whole_copy_includes_more_than_a_page_ordered_passages_and_outlives_source",
+    "errors": [
+      "E   owned_migration.MigrationError: scribeswell_studies_migration_failed_requires_reconciliation"
+    ]
+  },
+  {
+    "test": "ERROR at setup of test_native_over_limit_copy_has_no_destination_receipt_or_provenance",
+    "errors": [
+      "E   owned_migration.MigrationError: scribeswell_studies_migration_failed_requires_reconciliation"
+    ]
+  },
+  {
+    "test": "ERROR at setup of test_native_provenance_failure_rolls_back_complete_copy_and_exact_retry",
+    "errors": [
+      "E   owned_migration.MigrationError: scribeswell_studies_migration_failed_requires_reconciliation"
+    ]
+  },
+  {
+    "test": "ERROR at setup of test_native_historical_base_survives_later_revision_but_never_revives_deleted_source",
+    "errors": [
+      "E   owned_migration.MigrationError: scribeswell_studies_migration_failed_requires_reconciliation"
+    ]
+  },
+  {
+    "test": "ERROR at setup of test_native_copy_save_delete_race_never_has_partial_destination",
+    "errors": [
+      "E   owned_migration.MigrationError: scribeswell_studies_migration_failed_requires_reconciliation"
+    ]
+  },
+  {
+    "test": "ERROR at setup of test_native_original_payload_mismatch_rejected_without_another_effect",
+    "errors": [
+      "E   owned_migration.MigrationError: scribeswell_studies_migration_failed_requires_reconciliation"
+    ]
+  },
+  {
+    "test": "ERROR at setup of test_native_synthetic_historical_anchor_base_is_exact_and_deleted_source_stays_closed",
+    "errors": [
+      "E   owned_migration.MigrationError: scribeswell_studies_migration_failed_requires_reconciliation"
+    ]
+  },
+  {
+    "test": "ERROR at setup of test_native_copy_cross_account_source_and_provenance_destination_scope_fail_closed",
+    "errors": [
+      "E   owned_migration.MigrationError: scribeswell_studies_migration_failed_requires_reconciliation"
+    ]
+  },
+  {
+    "test": "ERROR at setup of test_native_own_copy_provenance_refuses_cross_account_credit[source_account_id-study_copy_provenance-False]",
+    "errors": [
+      "E   owned_migration.MigrationError: scribeswell_studies_migration_failed_requires_reconciliation"
+    ]
+  },
+  {
+    "test": "ERROR at setup of test_native_own_copy_provenance_refuses_cross_account_credit[source_account_id-note_copy_provenance-True]",
+    "errors": [
+      "E   owned_migration.MigrationError: scribeswell_studies_migration_failed_requires_reconciliation"
+    ]
+  },
+  {
+    "test": "ERROR at setup of test_native_own_copy_provenance_refuses_cross_account_credit[origin_account_id-study_copy_provenance-False]",
+    "errors": [
+      "E   owned_migration.MigrationError: scribeswell_studies_migration_failed_requires_reconciliation"
+    ]
+  },
+  {
+    "test": "ERROR at setup of test_native_own_copy_provenance_refuses_cross_account_credit[origin_account_id-note_copy_provenance-True]",
+    "errors": [
+      "E   owned_migration.MigrationError: scribeswell_studies_migration_failed_requires_reconciliation"
+    ]
+  },
+  {
+    "test": "ERROR at setup of test_native_copy_waits_for_source_child_parent_lock_and_copies_coherent_result[note.create]",
+    "errors": [
+      "E   owned_migration.MigrationError: scribeswell_studies_migration_failed_requires_reconciliation"
+    ]
+  },
+  {
+    "test": "ERROR at setup of test_native_copy_waits_for_source_child_parent_lock_and_copies_coherent_result[note.replace]",
+    "errors": [
+      "E   owned_migration.MigrationError: scribeswell_studies_migration_failed_requires_reconciliation"
+    ]
+  },
+  {
+    "test": "ERROR at setup of test_native_copy_waits_for_source_child_parent_lock_and_copies_coherent_result[study.passages.replace]",
+    "errors": [
+      "E   owned_migration.MigrationError: scribeswell_studies_migration_failed_requires_reconciliation"
+    ]
+  },
+  {
+    "test": "ERROR at setup of test_native_metadata_atomic_immutable_owner_scoped_without_body",
+    "errors": [
+      "E   owned_migration.MigrationError: scribeswell_studies_migration_failed_requires_reconciliation"
+    ]
+  },
+  {
+    "test": "ERROR at setup of test_native_old_writer_cannot_erase_format3_or_forge_base_metadata",
+    "errors": [
+      "E   owned_migration.MigrationError: scribeswell_studies_migration_failed_requires_reconciliation"
+    ]
+  },
+  {
+    "test": "ERROR at setup of test_native_competing_aggregate_updates_keep_one_revision_and_all_metadata",
+    "errors": [
+      "E   owned_migration.MigrationError: scribeswell_studies_migration_failed_requires_reconciliation"
+    ]
+  },
+  {
+    "test": "ERROR at setup of test_native_metadata_failure_rolls_back_note_and_receipt",
+    "errors": [
+      "E   owned_migration.MigrationError: scribeswell_studies_migration_failed_requires_reconciliation"
+    ]
+  },
+  {
+    "test": "ERROR at setup of test_native_search_derives_connections_once_without_collection",
+    "errors": [
+      "E   owned_migration.MigrationError: scribeswell_studies_migration_failed_requires_reconciliation"
+    ]
+  },
+  {
+    "test": "ERROR at setup of test_native_create_write_reopen_noop_replay_and_isolation",
+    "errors": [
+      "E   owned_migration.MigrationError: scribeswell_studies_migration_failed_requires_reconciliation"
+    ]
+  },
+  {
+    "test": "ERROR at setup of test_concurrent_default_titles_and_same_operation",
+    "errors": [
+      "E   owned_migration.MigrationError: scribeswell_studies_migration_failed_requires_reconciliation"
+    ]
+  },
+  {
+    "test": "ERROR at setup of test_native_restricted_roles_constraints_and_closed_resource",
+    "errors": [
+      "E   owned_migration.MigrationError: scribeswell_studies_migration_failed_requires_reconciliation"
+    ]
+  },
+  {
+    "test": "ERROR at setup of test_native_revision_race_and_deadline",
+    "errors": [
+      "E   owned_migration.MigrationError: scribeswell_studies_migration_failed_requires_reconciliation"
+    ]
+  },
+  {
+    "test": "ERROR at setup of test_cursor_owner_parent_and_pagination",
+    "errors": [
+      "E   owned_migration.MigrationError: scribeswell_studies_migration_failed_requires_reconciliation"
+    ]
+  },
+  {
+    "test": "ERROR at setup of test_native_migration_failure_rollback_retry_and_owner_force_rls",
+    "errors": [
+      "E   owned_migration.MigrationError: scribeswell_studies_migration_failed_requires_reconciliation"
+    ]
+  },
+  {
+    "test": "ERROR at setup of test_native_receipt_survives_lost_response_and_scope_constraints",
+    "errors": [
+      "E   owned_migration.MigrationError: scribeswell_studies_migration_failed_requires_reconciliation"
+    ]
+  },
+  {
+    "test": "ERROR at setup of test_native_browser_create_write_reopen",
+    "errors": [
+      "E   owned_migration.MigrationError: scribeswell_studies_migration_failed_requires_reconciliation"
+    ]
+  },
+  {
+    "test": "ERROR at setup of test_native_unknown_commit_outcome_resolves_same_receipt",
+    "errors": [
+      "E   owned_migration.MigrationError: scribeswell_studies_migration_failed_requires_reconciliation"
+    ]
+  },
+  {
+    "test": "ERROR at setup of test_native_rename_noop_replay_conflict_attribution_and_independent_note",
+    "errors": [
+      "E   owned_migration.MigrationError: scribeswell_studies_migration_failed_requires_reconciliation"
+    ]
+  },
+  {
+    "test": "ERROR at setup of test_native_rename_and_note_races_preserve_both_and_metadata_cas",
+    "errors": [
+      "E   owned_migration.MigrationError: scribeswell_studies_migration_failed_requires_reconciliation"
+    ]
+  },
+  {
+    "test": "ERROR at setup of test_native_rename_lost_commit_and_overflow",
+    "errors": [
+      "E   owned_migration.MigrationError: scribeswell_studies_migration_failed_requires_reconciliation"
+    ]
+  },
+  {
+    "test": "ERROR at setup of test_unknown_alembic_history_refuses_without_reversing_acknowledged_data",
+    "errors": [
+      "E   owned_migration.MigrationError: scribeswell_studies_migration_failed_requires_reconciliation"
+    ]
+  },
+  {
+    "test": "ERROR at setup of test_native_collected_passages_noop_replay_independent_attribution_and_identity",
+    "errors": [
+      "E   owned_migration.MigrationError: scribeswell_studies_migration_failed_requires_reconciliation"
+    ]
+  },
+  {
+    "test": "ERROR at setup of test_native_collected_passages_concurrency_permissions_and_overflow",
+    "errors": [
+      "E   owned_migration.MigrationError: scribeswell_studies_migration_failed_requires_reconciliation"
+    ]
+  },
+  {
+    "test": "ERROR at setup of test_native_collected_passages_structural_constraints",
+    "errors": [
+      "E   owned_migration.MigrationError: scribeswell_studies_migration_failed_requires_reconciliation"
+    ]
+  },
+  {
+    "test": "ERROR at setup of test_native_maximum_collection_replace_reorder_with_competing_note_and_title_deadlines",
+    "errors": [
+      "E   owned_migration.MigrationError: scribeswell_studies_migration_failed_requires_reconciliation"
+    ]
+  },
+  {
+    "test": "ERROR at setup of test_native_note_format2_fence_original_v1_receipt_and_actual_baseline",
+    "errors": [
+      "E   owned_migration.MigrationError: scribeswell_studies_migration_failed_requires_reconciliation"
+    ]
+  },
+  {
+    "test": "ERROR at setup of test_native_library_search_filtered_matching_pagination_isolation_and_zero_mutation",
+    "errors": [
+      "E   owned_migration.MigrationError: scribeswell_studies_migration_failed_requires_reconciliation"
+    ]
+  },
+  {
+    "test": "ERROR at setup of test_native_library_search_numeric_reference_guards_identity_and_format1",
+    "errors": [
+      "E   owned_migration.MigrationError: scribeswell_studies_migration_failed_requires_reconciliation"
+    ]
+  },
+  {
+    "test": "ERROR at setup of test_native_note_deletion_erasure_receipt_recovery_constraints_and_previous_consumer",
+    "errors": [
+      "E   owned_migration.MigrationError: scribeswell_studies_migration_failed_requires_reconciliation"
+    ]
+  },
+  {
+    "test": "ERROR at setup of test_native_note_deletion_race_rollback_overflow_and_lost_commit",
+    "errors": [
+      "E   owned_migration.MigrationError: scribeswell_studies_migration_failed_requires_reconciliation"
+    ]
+  },
+  {
+    "test": "ERROR at setup of test_native_byte_frozen_old_save_races_new_deletion_without_resurrection_or_failed_receipts",
+    "errors": [
+      "E   owned_migration.MigrationError: scribeswell_studies_migration_failed_requires_reconciliation"
+    ]
+  },
+  {
+    "test": "ERROR at setup of test_native_study_deletion_atomic_erasure_original_receipts_and_previous_f6_consumer",
+    "errors": [
+      "E   owned_migration.MigrationError: scribeswell_studies_migration_failed_requires_reconciliation"
+    ]
+  },
+  {
+    "test": "ERROR at setup of test_native_study_deletion_overflow_rollback_alternate_writes_and_race",
+    "errors": [
+      "E   owned_migration.MigrationError: scribeswell_studies_migration_failed_requires_reconciliation"
+    ]
+  },
+  {
+    "test": "ERROR at setup of test_native_study_deletion_deterministic_parent_lock_orders[writer-current]",
+    "errors": [
+      "E   owned_migration.MigrationError: scribeswell_studies_migration_failed_requires_reconciliation"
+    ]
+  },
+  {
+    "test": "ERROR at setup of test_native_study_deletion_deterministic_parent_lock_orders[writer-previous-f6]",
+    "errors": [
+      "E   owned_migration.MigrationError: scribeswell_studies_migration_failed_requires_reconciliation"
+    ]
+  },
+  {
+    "test": "ERROR at setup of test_native_study_deletion_deterministic_parent_lock_orders[delete-current]",
+    "errors": [
+      "E   owned_migration.MigrationError: scribeswell_studies_migration_failed_requires_reconciliation"
+    ]
+  },
+  {
+    "test": "ERROR at setup of test_native_study_deletion_deterministic_parent_lock_orders[delete-previous-f6]",
+    "errors": [
+      "E   owned_migration.MigrationError: scribeswell_studies_migration_failed_requires_reconciliation"
+    ]
+  },
+  {
+    "test": "ERROR at setup of test_native_study_deletion_parent_overflow",
+    "errors": [
+      "E   owned_migration.MigrationError: scribeswell_studies_migration_failed_requires_reconciliation"
+    ]
+  },
+  {
+    "test": "ERROR at setup of test_native_study_deletion_foreign_current_access_cannot_delete_replay_or_lookup[False]",
+    "errors": [
+      "E   owned_migration.MigrationError: scribeswell_studies_migration_failed_requires_reconciliation"
+    ]
+  },
+  {
+    "test": "ERROR at setup of test_native_study_deletion_foreign_current_access_cannot_delete_replay_or_lookup[True]",
+    "errors": [
+      "E   owned_migration.MigrationError: scribeswell_studies_migration_failed_requires_reconciliation"
+    ]
+  },
+  {
+    "test": "ERROR at setup of test_native_additive_metadata_old_create_receipt_and_old_title_writer_preserve_details",
+    "errors": [
+      "E   owned_migration.MigrationError: scribeswell_studies_migration_failed_requires_reconciliation"
+    ]
+  },
+  {
+    "test": "ERROR at setup of test_native_metadata_revision_noop_null_clear_constraints_and_receipt_atomicity",
+    "errors": [
+      "E   owned_migration.MigrationError: scribeswell_studies_migration_failed_requires_reconciliation"
+    ]
+  },
+  {
+    "test": "ERROR at setup of test_native_previous_running_title_only_delete_still_erases_additive_details",
+    "errors": [
+      "E   owned_migration.MigrationError: scribeswell_studies_migration_failed_requires_reconciliation"
+    ]
+  },
+  {
+    "test": "ERROR at setup of test_native_context_filters_parent_note_visibility_before_limit_and_each_note_once",
+    "errors": [
+      "E   owned_migration.MigrationError: scribeswell_studies_migration_failed_requires_reconciliation"
+    ]
+  },
+  {
+    "test": "ERROR at setup of test_native_context_keyset_cursor_bound_to_reference_account_and_saved_preview",
+    "errors": [
+      "E   owned_migration.MigrationError: scribeswell_studies_migration_failed_requires_reconciliation"
+    ]
+  },
+  {
+    "test": "ERROR at setup of test_native_context_connections_document_links_and_highlight_overlap_deduplicate",
+    "errors": [
+      "E   owned_migration.MigrationError: scribeswell_studies_migration_failed_requires_reconciliation"
+    ]
+  },
+  {
+    "test": "ERROR at setup of test_native_whole_copy_preserves_details_and_atomic_byte_preflight",
+    "errors": [
+      "E   owned_migration.MigrationError: scribeswell_studies_migration_failed_requires_reconciliation"
+    ]
+  },
+  {
+    "test": "ERROR at setup of test_native_context_unsupported_neighbor_has_bounded_cursor_to_valid_later_match[sibling0]",
+    "errors": [
+      "E   owned_migration.MigrationError: scribeswell_studies_migration_failed_requires_reconciliation"
+    ]
+  },
+  {
+    "test": "ERROR at setup of test_native_context_unsupported_neighbor_has_bounded_cursor_to_valid_later_match[sibling1]",
+    "errors": [
+      "E   owned_migration.MigrationError: scribeswell_studies_migration_failed_requires_reconciliation"
+    ]
+  },
+  {
+    "test": "ERROR at setup of test_native_details_replace_races_title_only_rename_under_one_metadata_revision",
+    "errors": [
+      "E   owned_migration.MigrationError: scribeswell_studies_migration_failed_requires_reconciliation"
+    ]
+  },
+  {
+    "test": "ERROR at setup of test_native_details_replace_races_delete_without_resurrection_or_retained_metadata",
+    "errors": [
+      "E   owned_migration.MigrationError: scribeswell_studies_migration_failed_requires_reconciliation"
+    ]
+  },
+  {
+    "test": "ERROR at setup of test_native_details_replace_races_whole_study_copy_with_one_coherent_metadata_snapshot",
+    "errors": [
+      "E   owned_migration.MigrationError: scribeswell_studies_migration_failed_requires_reconciliation"
+    ]
+  },
+  {
+    "test": "test_failed_insert_rolls_back_whole_bundle[1]",
+    "errors": [
+      "E           psycopg.errors.DivisionByZero: division by zero"
+    ]
+  },
+  {
+    "test": "test_failed_insert_rolls_back_whole_bundle[2]",
+    "errors": [
+      "E           psycopg.errors.DivisionByZero: division by zero"
+    ]
+  },
+  {
+    "test": "test_failed_insert_rolls_back_whole_bundle[3]",
+    "errors": [
+      "E           psycopg.errors.DivisionByZero: division by zero"
+    ]
+  },
+  {
+    "test": "test_failed_insert_rolls_back_whole_bundle[4]",
+    "errors": [
+      "E           psycopg.errors.DivisionByZero: division by zero"
+    ]
+  },
+  {
+    "test": "test_native_complete_digest_activation_and_exact_retry",
+    "errors": [
+      "E           corpus_publish.PublishError: corpus_publish.corpus_mismatch"
+    ]
+  },
+  {
+    "test": "test_native_recovery_rejects_missing_completion_and_retains_stage",
+    "errors": [
+      "E           IndexError: list index out of range"
+    ]
+  },
+  {
+    "test": "test_native_partial_or_changed_manifest_cannot_complete",
+    "errors": [
+      "E           IndexError: list index out of range"
+    ]
+  },
+  {
+    "test": "test_native_alternate_writes_preserve_immutable_proof[UPDATE scribeswell.corpus_manifest_header SET header=header]",
+    "errors": [
+      "E           corpus_publish.PublishError: corpus_publish.corpus_mismatch"
+    ]
+  },
+  {
+    "test": "test_native_alternate_writes_preserve_immutable_proof[DELETE FROM scribeswell.corpus_manifest_header]",
+    "errors": [
+      "E           corpus_publish.PublishError: corpus_publish.corpus_mismatch"
+    ]
+  },
+  {
+    "test": "test_native_alternate_writes_preserve_immutable_proof[TRUNCATE scribeswell.corpus_manifest_header CASCADE]",
+    "errors": [
+      "E           corpus_publish.PublishError: corpus_publish.corpus_mismatch"
+    ]
+  },
+  {
+    "test": "test_native_completion_rejects_complete_inconsistent_batch_evidence[rows]",
+    "errors": [
+      "E           corpus_publish.PublishError: corpus_publish.corpus_mismatch"
+    ]
+  },
+  {
+    "test": "test_native_completion_rejects_complete_inconsistent_batch_evidence[index]",
+    "errors": [
+      "E           corpus_publish.PublishError: corpus_publish.corpus_mismatch"
+    ]
+  },
+  {
+    "test": "test_native_completion_rejects_complete_inconsistent_batch_evidence[offset]",
+    "errors": [
+      "E           corpus_publish.PublishError: corpus_publish.corpus_mismatch"
+    ]
+  },
+  {
+    "test": "test_native_alternate_constituent_actor_must_match_header[batch]",
+    "errors": [
+      "E           corpus_publish.PublishError: corpus_publish.corpus_mismatch"
+    ]
+  },
+  {
+    "test": "test_native_alternate_constituent_actor_must_match_header[verse]",
+    "errors": [
+      "E           corpus_publish.PublishError: corpus_publish.corpus_mismatch"
+    ]
+  },
+  {
+    "test": "test_native_alternate_constituent_actor_must_match_header[word_identity]",
+    "errors": [
+      "E           corpus_publish.PublishError: corpus_publish.corpus_mismatch"
+    ]
+  },
+  {
+    "test": "test_native_alternate_constituent_actor_must_match_header[completion]",
+    "errors": [
+      "E           corpus_publish.PublishError: corpus_publish.corpus_mismatch"
+    ]
+  },
+  {
+    "test": "test_native_full_digest_rejection_after_structurally_valid_batches",
+    "errors": [
+      "E           corpus_publish.PublishError: corpus_publish.corpus_mismatch"
+    ]
+  },
+  {
+    "test": "test_native_alternate_append_waits_for_completion_header_lock[batch]",
+    "errors": [
+      "E           corpus_publish.PublishError: corpus_publish.corpus_mismatch"
+    ]
+  },
+  {
+    "test": "test_native_alternate_append_waits_for_completion_header_lock[verse]",
+    "errors": [
+      "E           corpus_publish.PublishError: corpus_publish.corpus_mismatch"
+    ]
+  },
+  {
+    "test": "test_native_alternate_append_waits_for_completion_header_lock[word_identity]",
+    "errors": [
+      "E           corpus_publish.PublishError: corpus_publish.corpus_mismatch"
+    ]
+  },
+  {
+    "test": "test_native_publication_recovery_serializes_at_observed_barrier[publication]",
+    "errors": [
+      "E           corpus_publish.PublishError: corpus_publish.corpus_mismatch"
+    ]
+  },
+  {
+    "test": "test_native_publication_recovery_serializes_at_observed_barrier[recovery]",
+    "errors": [
+      "E           corpus_publish.PublishError: corpus_publish.corpus_mismatch"
+    ]
+  },
+  {
+    "test": "test_native_postcommit_ack_loss_reconciles_each_original_operation[publication.stage]",
+    "errors": [
+      "E           corpus_publish.PublishError: corpus_publish.corpus_mismatch"
+    ]
+  },
+  {
+    "test": "test_native_postcommit_ack_loss_reconciles_each_original_operation[publication.batch]",
+    "errors": [
+      "E           corpus_publish.PublishError: corpus_publish.corpus_mismatch"
+    ]
+  },
+  {
+    "test": "test_native_postcommit_ack_loss_reconciles_each_original_operation[publication.complete]",
+    "errors": [
+      "E           corpus_publish.PublishError: corpus_publish.corpus_mismatch"
+    ]
+  },
+  {
+    "test": "test_native_postcommit_ack_loss_reconciles_each_original_operation[publication.activate]",
+    "errors": [
+      "E           corpus_publish.PublishError: corpus_publish.corpus_mismatch"
+    ]
+  },
+  {
+    "test": "test_native_supervised_stdout_discard_original_lookup_retry_and_revocation",
+    "errors": [
+      "E       assert (0,) == (1,)",
+      "E         ",
+      "E         At index 0 diff: 0 != 1",
+      "E         Use -v to get more diff"
+    ]
+  },
+  {
+    "test": "test_nonhead_upgrade_rejected_cli_and_programmatic[scribeswell_0003]",
+    "errors": [
+      "E       AssertionError: assert 0 != 0",
+      "E        +  where 0 = CompletedProcess(args=['/tmp/scribeswell-implementation-python/bin/python', '-m', 'alembic', '-c', '/home/ck/repos/innodat/agriplatform/apps/scribeswell/alembic.ini', 'upgrade', 'scribeswell_0003'], returncode=0, stdout='', stderr='').returncode",
+      "E        +    where CompletedProcess(args=['/tmp/scribeswell-implementation-python/bin/python', '-m', 'alembic', '-c', '/home/ck/repos/innodat/agriplatform/apps/scribeswell/alembic.ini', 'upgrade', 'scribeswell_0003'], returncode=0, stdout='', stderr='') = invoke('postgresql://postgres:synthetic-only@127.0.0.1:32768/scribeswell_migration_493b8be2b2784cdab55b8285e00d3b1f', revision='scribeswell_0003')"
+    ]
+  },
+  {
+    "test": "test_native_snapshot_publication_actual_words_and_private_metadata_denials",
+    "errors": [
+      "E           corpus_publish.PublishError: corpus_publish.corpus_mismatch"
+    ]
+  },
+  {
+    "test": "test_native_reader_repeatable_snapshot_excludes_concurrent_word_change",
+    "errors": [
+      "E           corpus_publish.PublishError: corpus_publish.corpus_mismatch"
+    ]
+  },
+  {
+    "test": "test_failed_preparation_never_starts_apps_and_stops_only_owned_run",
+    "errors": [
+      "E               RuntimeError: qualification_dependency_missing:rfc8785",
+      "E       AssertionError: Regex pattern did not match.",
+      "E        Regex: 'synthetic_preparation_failure'",
+      "E        Input: 'qualification_dependency_missing:rfc8785'"
+    ]
+  },
+  {
+    "test": "test_collision_refuses_before_wrapper_or_adoption",
+    "errors": [
+      "E               RuntimeError: qualification_dependency_missing:rfc8785",
+      "E           AssertionError: Regex pattern did not match.",
+      "E            Regex: 'qualification_port_occupied'",
+      "E            Input: 'qualification_dependency_missing:rfc8785'"
+    ]
+  },
+  {
+    "test": "test_interrupt_stops_owned_processes_and_exact_run",
+    "errors": [
+      "E               RuntimeError: qualification_dependency_missing:rfc8785"
+    ]
+  },
+  {
+    "test": "test_exact_run_stop_failure_is_a_failure",
+    "errors": [
+      "E               RuntimeError: qualification_dependency_missing:rfc8785",
+      "E       AssertionError: Regex pattern did not match.",
+      "E        Regex: 'qualification_exact_run_stop_failed'",
+      "E        Input: 'qualification_dependency_missing:rfc8785'"
+    ]
+  },
+  {
+    "test": "test_exited_launcher_still_terminates_its_owned_group",
+    "errors": [
+      "E               RuntimeError: qualification_dependency_missing:rfc8785",
+      "E       AssertionError: Regex pattern did not match.",
+      "E        Regex: 'synthetic_failure'",
+      "E        Input: 'qualification_dependency_missing:rfc8785'"
+    ]
+  },
+  {
+    "test": "test_process_cleanup_error_still_stops_exact_native_run",
+    "errors": [
+      "E       IndexError: list index out of range"
+    ]
+  }
+]

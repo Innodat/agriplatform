@@ -1,0 +1,46 @@
+
+> scribeswell-web@0.1.0 test:browser
+> playwright test --config playwright.config.cjs --workers=1 --project=desktop --grep note text wire grammar rejects NUL
+
+[WebServer] (node:719202) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 1 test using 1 worker
+
+(node:719291) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  1 [desktop] › tests/personal-notes.spec.cjs:1960:1 › note text wire grammar rejects NUL and preserves newlines and combining marks (1.3s)
+
+
+  1) [desktop] › tests/personal-notes.spec.cjs:1960:1 › note text wire grammar rejects NUL and preserves newlines and combining marks 
+
+    Error: expect(received).toEqual(expected) // deep equality
+
+    - Expected  - 1
+    + Received  + 1
+
+      Array [
+    -   false,
+    +   true,
+        true,
+      ]
+
+      1962 |  const values=['before\u0000after','First\nבְּרֵאשִׁית\ne\u0301'].map(text=>({document:{version:1,blocks:[{type:'paragraph',direction:'rtl',content:[{type:'text',text,marks:[]}]}]},connections:[],highlights:[]}));
+      1963 |  const actual=await page.evaluate(async values=>{const {isReadableNoteValue}=await import('/src/lib/note-value.ts');return values.map(isReadableNoteValue);},values);
+    > 1964 |  expect(actual).toEqual([false,true]);
+           |                 ^
+      1965 | });
+      1966 |
+        at /home/ck/repos/innodat/agriplatform/apps/scribeswell/web/tests/personal-notes.spec.cjs:1964:17
+
+    Error Context: test-results/personal-notes-note-text-w-14451-ewlines-and-combining-marks-desktop/error-context.md
+
+  1 failed
+    [desktop] › tests/personal-notes.spec.cjs:1960:1 › note text wire grammar rejects NUL and preserves newlines and combining marks 
+npm error Lifecycle script `test:browser` failed with error:
+npm error code 1
+npm error path /home/ck/repos/innodat/agriplatform/apps/scribeswell/web
+npm error workspace scribeswell-web@0.1.0
+npm error location /home/ck/repos/innodat/agriplatform/apps/scribeswell/web
+npm error command failed
+npm error command sh -c playwright test --config playwright.config.cjs --workers=1 --project=desktop --grep 'note text wire grammar rejects NUL'

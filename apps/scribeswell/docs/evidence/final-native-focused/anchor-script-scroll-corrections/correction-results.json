@@ -1,0 +1,148 @@
+[
+  {
+    "run": "anchor-script-scroll-corrections/focused-first",
+    "result": {
+      "argv": [
+        "npm",
+        "run",
+        "test:browser",
+        "--workspace=apps/scribeswell/web",
+        "--",
+        "personal-notes.spec.cjs",
+        "workspace-restoration.spec.cjs",
+        "--workers=1",
+        "--grep",
+        "D3 relevant Preview|D12 anchored outline|reopening a conflicting lane preserves|review tabs E1|same current (clean|unknown)|unknown study create preserves|collected uncertain operation freezes|last public scroll checkpoint"
+      ],
+      "exit_code": 0,
+      "seconds": 40.55,
+      "selected_files": 103,
+      "source_unchanged": true
+    },
+    "summary": [
+      "20 passed (40.0s)"
+    ]
+  },
+  {
+    "run": "anchor-script-scroll-corrections/controlled-late-resize-red",
+    "result": {
+      "argv": [
+        "npm",
+        "run",
+        "test:browser",
+        "--workspace=apps/scribeswell/web",
+        "--",
+        "workspace-restoration.spec.cjs",
+        "--workers=1",
+        "--project=desktop",
+        "--grep",
+        "last public scroll checkpoint"
+      ],
+      "exit_code": 1,
+      "seconds": 7.7,
+      "selected_files": 103,
+      "source_unchanged": true
+    },
+    "summary": [
+      "1 failed"
+    ]
+  },
+  {
+    "run": "anchor-script-scroll-corrections/gesture-restore-green",
+    "result": {
+      "argv": [
+        "npm",
+        "run",
+        "test:browser",
+        "--workspace=apps/scribeswell/web",
+        "--",
+        "personal-notes.spec.cjs",
+        "workspace-restoration.spec.cjs",
+        "--workers=1",
+        "--grep",
+        "D3 relevant Preview|D12 anchored outline|reopening a conflicting lane preserves|review tabs E1|same current (clean|unknown)|unknown study create preserves|collected uncertain operation freezes|last public scroll checkpoint|real device reload restores four"
+      ],
+      "exit_code": 1,
+      "seconds": 56.05,
+      "selected_files": 103,
+      "source_unchanged": true
+    },
+    "summary": [
+      "2 failed",
+      "22 passed (55.5s)"
+    ]
+  },
+  {
+    "run": "anchor-script-scroll-corrections/faithful-late-resize-red",
+    "result": {
+      "argv": [
+        "npm",
+        "run",
+        "test:browser",
+        "--workspace=apps/scribeswell/web",
+        "--",
+        "workspace-restoration.spec.cjs",
+        "--workers=1",
+        "--project=desktop",
+        "--grep",
+        "last public scroll checkpoint.*delayed initial resize (wheel|pointerdown)"
+      ],
+      "exit_code": 1,
+      "seconds": 13.88,
+      "selected_files": 103,
+      "source_unchanged": true
+    },
+    "summary": [
+      "2 failed"
+    ]
+  },
+  {
+    "run": "anchor-script-scroll-corrections/faithful-gesture-final-green",
+    "result": {
+      "argv": [
+        "npm",
+        "run",
+        "test:browser",
+        "--workspace=apps/scribeswell/web",
+        "--",
+        "personal-notes.spec.cjs",
+        "workspace-restoration.spec.cjs",
+        "--workers=1",
+        "--grep",
+        "D12 anchored outline|last public scroll checkpoint|real device reload restores four"
+      ],
+      "exit_code": 1,
+      "seconds": 54.02,
+      "selected_files": 103,
+      "source_unchanged": true
+    },
+    "summary": [
+      "4 failed",
+      "10 passed (53.5s)"
+    ]
+  },
+  {
+    "run": "anchor-script-scroll-corrections/restored-pane-gestures-green",
+    "result": {
+      "argv": [
+        "npm",
+        "run",
+        "test:browser",
+        "--workspace=apps/scribeswell/web",
+        "--",
+        "personal-notes.spec.cjs",
+        "workspace-restoration.spec.cjs",
+        "--workers=1",
+        "--grep",
+        "D12 anchored outline|last public scroll checkpoint|real device reload restores four"
+      ],
+      "exit_code": 0,
+      "seconds": 46.12,
+      "selected_files": 103,
+      "source_unchanged": true
+    },
+    "summary": [
+      "14 passed (45.6s)"
+    ]
+  }
+]

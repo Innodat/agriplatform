@@ -1,0 +1,31 @@
+{
+  "results": [
+    {
+      "argv": [
+        "/tmp/scribeswell-implementation-python/bin/python",
+        "-m",
+        "pytest",
+        "-q",
+        "apps/scribeswell/tests/test_personal_notes_storage.py",
+        "apps/scribeswell/tests/test_own_highlights_native.py",
+        "apps/scribeswell/tests/test_own_copies_native.py",
+        "apps/scribeswell/tests/test_study_details_discovery_native.py",
+        "apps/scribeswell/tests/test_corpus_publish_native.py",
+        "apps/scribeswell/tests/test_reader_evidence_native.py",
+        "apps/scribeswell/tests/test_caller_preparation_rehearsal.py",
+        "apps/scribeswell/tests/test_owned_migrations.py::test_nonhead_upgrade_rejected_cli_and_programmatic",
+        "apps/scribeswell/tests/test_owned_migrations.py::test_explicit_pinned_controller_head_matches_historical_head",
+        "apps/scribeswell/tests/test_studies_owner_integration.py",
+        "-rs",
+        "-s",
+        "-k",
+        "not native_browser_create_write_reopen and not checked_in_artifact_publication_capacity"
+      ],
+      "exit_code": 0,
+      "seconds": 145.46
+    }
+  ],
+  "container": "scribeswell-final-961ba719215f",
+  "stopped": true,
+  "source_unchanged": true
+}

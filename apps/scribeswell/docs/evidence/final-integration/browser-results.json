@@ -1,0 +1,15 @@
+{
+  "argv": [
+    "npm",
+    "run",
+    "test:browser",
+    "--workspace=apps/scribeswell/web",
+    "--",
+    "--workers=2",
+    "--fully-parallel"
+  ],
+  "exit_code": 1,
+  "seconds": 2058.85,
+  "selected_files": 103,
+  "source_unchanged": true
+}

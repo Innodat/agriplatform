@@ -1,0 +1,3 @@
+INVENTORY_PROJECTION_TIMING {"batch_rows": 1000, "cached_seconds": 0.034246, "inventory_rows": 50000, "uncached_seconds": 0.047605}
+.
+1 passed in 4.81s

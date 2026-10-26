@@ -17,7 +17,14 @@ from passage_references import parse_reference
 def details_native(request):
  if os.environ.get('SCRIBESWELL_STUDY_DETAILS_NATIVE')!='1':pytest.skip('explicit final-phase qualification only')
  assert urlsplit(os.environ.get('SCRIBESWELL_NOTES_TEST_ADMIN_URL','')).port not in (55481,55482)
- return request.getfixturevalue('native')
+ fixture=request.getfixturevalue('native')
+ storage,admin_url,*_=fixture
+ # Module-owned storage is shared; retire prior cases through real lifecycle commands.
+ with psycopg.connect(admin_url) as db:
+  parents=db.execute('SELECT account_id,id,revision FROM scribeswell_studies.studies WHERE active').fetchall()
+ for account,study,revision in parents:
+  run(storage.execute({'account_id':str(account),'actor_id':ACTOR},'study.delete',command('study.delete',expected_revision=str(revision)),str(study),None,deadline()))
+ return fixture
 
 def details(storage,study,revision='1',introduction='Intro\nמבוא',source_url='https://example.invalid/source'):
  return run(storage.execute(IDENTITY,'study.details.replace',command('study.details.replace',expected_revision=revision,title='Detailed study',introduction=introduction,source_url=source_url),study,None,deadline()))
@@ -44,7 +51,7 @@ def test_native_additive_metadata_old_create_receipt_and_old_title_writer_preser
  saved=run(storage.read(IDENTITY,study,None,deadline()));assert saved['introduction']=='Intro\nמבוא' and saved['source_url']=='https://example.invalid/source' and saved['revision']=='3'
  with psycopg.connect(admin_url) as db:
   assert db.execute("SELECT data_type,is_nullable FROM information_schema.columns WHERE table_schema='scribeswell_studies' AND table_name='studies' AND column_name='introduction'").fetchone()==('text','YES')
-  assert db.execute('SELECT version_num FROM scribeswell_studies.alembic_version').fetchone()[0]=='scribeswell_studies_0008'
+  assert db.execute('SELECT version_num FROM scribeswell_studies.alembic_version').fetchone()[0]=='scribeswell_studies_0009'
 
 
 def test_native_metadata_revision_noop_null_clear_constraints_and_receipt_atomicity(details_native):
@@ -170,3 +177,24 @@ def test_native_details_replace_races_whole_study_copy_with_one_coherent_metadat
   saved=run(storage.read(IDENTITY,copied['study_id'],None,deadline()))
   assert (saved['title'],saved['introduction'],saved['source_url'])==('Detailed study','Intro\nמבוא','https://example.invalid/source')
  current=run(storage.read(IDENTITY,study,None,deadline()));assert (current['title'],current['introduction'],current['source_url'])==('New title','New intro','https://example.invalid/new')
+
+
+def test_native_context_representative_volume_with_existing_deadlines(details_native):
+ import time
+ storage,admin_url,*_=details_native
+ own=create(storage,'Volume own')['study_id']
+ other=run(storage.execute({'account_id':B,'actor_id':ACTOR},'study.create',command('study.create',title='Volume private'),None,None,deadline()))['study_id']
+ def saved(reference):
+  v=value('Saved volume writing');v['document']['version']=2;v['document']['blocks'][0]['content'].append({'type':'passage_link','label':reference,'reference':parse_reference(reference)});return v
+ matching=saved('Gen1:1');nonmatching=saved('Gen2:1')
+ with psycopg.connect(admin_url) as db:
+  for account,study in [(A,own),(B,other)]:
+   db.execute('INSERT INTO scribeswell_studies.notes(id,account_id,study_id,value,created_by,updated_by) SELECT gen_random_uuid(),%s,%s,CASE WHEN i<=200 THEN %s::jsonb ELSE %s::jsonb END,%s,%s FROM generate_series(1,5000) i',(account,study,Jsonb(matching),Jsonb(nonmatching),ACTOR,ACTOR))
+ started=time.monotonic();page=context(storage,limit=50);elapsed=time.monotonic()-started
+ assert len(page['items'])==50 and page['next_cursor']
+ assert all(item['owner_account_id']==A and item['study_id']==own for item in page['items'])
+ assert elapsed<5
+ following=context(storage,cursor=page['next_cursor'],limit=50)
+ assert len(following['items'])==50
+ assert not set(n['note_id'] for n in page['items']) & set(n['note_id'] for n in following['items'])
+ print('CONTEXT_VOLUME',json.dumps({'total_notes':10000,'account_notes':5000,'matches_per_account':200,'page_limit':50,'first_page_seconds':round(elapsed,3),'transaction_total_seconds':5,'statement_timeout_seconds':2},sort_keys=True))

@@ -1,0 +1,7 @@
+{
+  "comparison": "Passing build snapshot versus current instrumented browser tests",
+  "changed_paths": [
+    "apps/scribeswell/web/tests/personal-notes.spec.cjs"
+  ],
+  "runtime_source_unchanged": true
+}

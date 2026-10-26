@@ -1,0 +1,18 @@
+{
+  "argv": [
+    "npm",
+    "run",
+    "test:browser",
+    "--workspace=apps/scribeswell/web",
+    "--",
+    "personal-notes.spec.cjs",
+    "workspace-restoration.spec.cjs",
+    "--workers=1",
+    "--grep",
+    "review: note changes reset|unknown study create preserves|note links: links source marks|across an owned atom survives|passage-only saved Notes preview|review tabs E1|same current (clean|unknown)|resource404 clears|late second candidate|current admission403|current (note|study)404|current hydration401|loop1 requested"
+  ],
+  "exit_code": 1,
+  "seconds": 218.72,
+  "selected_files": 103,
+  "source_unchanged": true
+}

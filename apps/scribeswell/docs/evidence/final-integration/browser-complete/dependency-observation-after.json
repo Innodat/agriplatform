@@ -1,0 +1,23 @@
+{
+  "observed_utc": "2026-10-26T21:05:25.678072+00:00",
+  "files": {
+    "package.json": {
+      "sha256": "afbeadffb47b4638ce905a9db8ab16ff16d78ad248a79a2f9cbeab67ea8012aa",
+      "modified_ns": 1793015153499714449
+    },
+    "package-lock.json": {
+      "sha256": "d582e3e82cab94dcee48c9237a2a8d9a156eb916f443a3e04b7412448e7eb9f7",
+      "modified_ns": 1793016616265566890
+    },
+    "apps/scribeswell/web/package.json": {
+      "sha256": "d6259b9abf9b0f84c9d707a906163c0a3c238299c68530a938700c78c7f6b3aa",
+      "modified_ns": 1790317112162222499
+    },
+    "apps/scribeswell/web/node_modules/.vite/deps/_metadata.json": {
+      "sha256": "82bf2654d46b05f143f401c2f88cfa3bda11dd9854e2994934159c6e4159db2e",
+      "modified_ns": 1792660293116005648
+    }
+  },
+  "unchanged_since_in_progress_observation": true,
+  "scope": "read-only dependency observations, not a complete environment inventory or causal conclusion"
+}

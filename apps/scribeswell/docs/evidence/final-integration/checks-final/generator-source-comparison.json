@@ -1,0 +1,27 @@
+[
+  {
+    "path": "platform/api-client/src/cli.mjs",
+    "matches_isolated": true,
+    "sha256": "f3a36934bfb3e9c264b8e2fe4ddf0cafbac88c7aba4ebda0a6ffb52003059377"
+  },
+  {
+    "path": "platform/api-client/src/tooling.mjs",
+    "matches_isolated": true,
+    "sha256": "f1e848685392d110d11409abde9e605a0b1e996385a379ff29135126ff1a6a7e"
+  },
+  {
+    "path": "platform/api-client/src/compat.mjs",
+    "matches_isolated": true,
+    "sha256": "8a7029ab9293627153844755cace2700cecc73086840ea22103e248ad822601c"
+  },
+  {
+    "path": "platform/api-client/src/generate.mjs",
+    "matches_isolated": true,
+    "sha256": "623fc8e5b873535f702aae495056baefa107f1d637d608d8a87d73f7f8c6dd0a"
+  },
+  {
+    "path": "platform/builder-cli/src/scaffold-install.ts",
+    "matches_isolated": true,
+    "sha256": "941dfacb1d565d962add18e0c8466f7c11d614ebd07a6db5aed64c663400da22"
+  }
+]

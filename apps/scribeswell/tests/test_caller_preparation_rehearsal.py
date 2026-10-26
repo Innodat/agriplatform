@@ -115,9 +115,11 @@ def test_failed_insert_rolls_back_whole_bundle(rehearsal, insertion):
                 cursor.execute('SELECT 1/0')
     event.listen(engine, 'before_cursor_execute', fail)
     try:
-        with pytest.raises(DBAPIError):
+        # Direct callback cursor execution bypasses SQLAlchemy's DBAPI wrapper.
+        with pytest.raises(psycopg.errors.DivisionByZero) as failure:
             with engine.begin() as connection:
                 stage_initial(connection, CUSTODY, PREPARER)
+        assert failure.value.sqlstate == '22012'
     finally:
         event.remove(engine, 'before_cursor_execute', fail)
     assert len(writes) == insertion

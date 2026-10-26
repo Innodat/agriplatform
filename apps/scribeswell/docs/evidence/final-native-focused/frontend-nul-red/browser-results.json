@@ -1,0 +1,17 @@
+{
+  "argv": [
+    "npm",
+    "run",
+    "test:browser",
+    "--workspace=apps/scribeswell/web",
+    "--",
+    "--workers=1",
+    "--project=desktop",
+    "--grep",
+    "note text wire grammar rejects NUL"
+  ],
+  "exit_code": 1,
+  "seconds": 7.57,
+  "selected_files": 103,
+  "source_unchanged": true
+}

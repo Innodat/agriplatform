@@ -1,0 +1,38 @@
+📦 Supabase composition plan
+   Repo root: /home/ck/repos/innodat/agriplatform
+   Root Supabase workdir: supabase
+
+   Modules:
+     - platform: platform (8 migrations, 1 seeds, 6 functions)
+     - expense: apps/expense (6 migrations, 1 seeds, 0 functions)
+     - scribeswell: apps/scribeswell (1 migrations, 0 seeds, 0 functions)
+
+   Migrations to compose: 15
+     - 20250815110000_platform_create_identity_schema.sql  <=  platform/supabase/migrations/20250815110000_platform_create_identity_schema.sql
+     - 20250815120000_platform_create_content_system_schema.sql  <=  platform/supabase/migrations/20250815120000_platform_create_content_system_schema.sql
+     - 20250815130000_finance_create_schema.sql  <=  apps/expense/supabase/migrations/20250815130000_finance_create_schema.sql
+     - 20250815140000_finance_tables_policies.sql  <=  apps/expense/supabase/migrations/20250815140000_finance_tables_policies.sql
+     - 20250815150000_platform_auth-hook.sql  <=  platform/supabase/migrations/20250815150000_platform_auth-hook.sql
+     - 20250815160000_platform_create_audit_log_tbl.sql  <=  platform/supabase/migrations/20250815160000_platform_create_audit_log_tbl.sql
+     - 20250815161000_finance_create_audit_log_tbl.sql  <=  apps/expense/supabase/migrations/20250815161000_finance_create_audit_log_tbl.sql
+     - 20250815170000_platform_create_audit_triggers.sql  <=  platform/supabase/migrations/20250815170000_platform_create_audit_triggers.sql
+     - 20250815171000_finance_create_audit_triggers.sql  <=  apps/expense/supabase/migrations/20250815171000_finance_create_audit_triggers.sql
+     - 20250815180000_platform_add_get_user_roles_function.sql  <=  platform/supabase/migrations/20250815180000_platform_add_get_user_roles_function.sql
+     - 20250815200000_finance_create_func_add_receipt_with_items.sql  <=  apps/expense/supabase/migrations/20250815200000_finance_create_func_add_receipt_with_items.sql
+     - 20250815210000_platform_multitenancy_orgs.sql  <=  platform/supabase/migrations/20250815210000_platform_multitenancy_orgs.sql
+     - 20250815211000_finance_multitenancy_orgs.sql  <=  apps/expense/supabase/migrations/20250815211000_finance_multitenancy_orgs.sql
+     - 20250815220000_platform_add_content_versioning.sql  <=  platform/supabase/migrations/20250815220000_platform_add_content_versioning.sql
+     - 20260614000000_scribeswell_create_schema.sql  <=  apps/scribeswell/supabase/migrations/20260614000000_scribeswell_create_schema.sql
+
+   Seeds to compose: 2
+     - 001_identity.sql  <=  platform/supabase/seeds/001_identity.sql
+     - 010_finance.sql  <=  apps/expense/supabase/seeds/010_finance.sql
+
+   Functions to compose: 5
+     - cs-finalize-upload/  <=  platform/supabase/functions/cs-finalize-upload
+     - cs-generate-signed-url/  <=  platform/supabase/functions/cs-generate-signed-url
+     - cs-update-content/  <=  platform/supabase/functions/cs-update-content
+     - cs-upload-content/  <=  platform/supabase/functions/cs-upload-content
+     - tests/  <=  platform/supabase/functions/tests
+
+✅ Dry run complete. No files were changed.
