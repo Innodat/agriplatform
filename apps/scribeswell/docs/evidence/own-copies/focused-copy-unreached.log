@@ -1,0 +1,29 @@
+
+> scribeswell-web@0.1.0 test:browser
+> playwright test --config playwright.config.cjs --workers=2 --fully-parallel -g keeps local writing and retires|whole-study limit|delayed acknowledgement in another tab|copy authentication
+
+[WebServer] (node:447337) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 10 tests using 2 workers
+
+(node:447382) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:447383) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   2 [desktop] › tests/personal-notes.spec.cjs:1741:76 › copies: highlight_proof_unavailable keeps local writing and retires the failed fork identity (2.5s)
+  ✓   1 [desktop] › tests/personal-notes.spec.cjs:1741:76 › copies: note_base_unavailable keeps local writing and retires the failed fork identity (2.6s)
+  ✓   3 [desktop] › tests/personal-notes.spec.cjs:1747:1 › copies: whole-study limit failure creates no partial result and permits explicit new attempt (2.7s)
+  ✓   4 [desktop] › tests/personal-notes.spec.cjs:1752:1 › copies: a delayed acknowledgement in another tab offers Open created without changing selection (3.2s)
+(node:447850) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   5 [desktop] › tests/personal-notes.spec.cjs:1757:1 › copies: copy authentication recovery never repeats the effect automatically (3.1s)
+(node:448005) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   6 [mobile] › tests/personal-notes.spec.cjs:1741:76 › copies: note_base_unavailable keeps local writing and retires the failed fork identity (4.1s)
+  ✓   7 [mobile] › tests/personal-notes.spec.cjs:1741:76 › copies: highlight_proof_unavailable keeps local writing and retires the failed fork identity (3.8s)
+  ✓   8 [mobile] › tests/personal-notes.spec.cjs:1747:1 › copies: whole-study limit failure creates no partial result and permits explicit new attempt (2.5s)
+  ✓  10 [mobile] › tests/personal-notes.spec.cjs:1757:1 › copies: copy authentication recovery never repeats the effect automatically (2.8s)
+  ✓   9 [mobile] › tests/personal-notes.spec.cjs:1752:1 › copies: a delayed acknowledgement in another tab offers Open created without changing selection (3.1s)
+
+  10 passed (18.7s)

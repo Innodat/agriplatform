@@ -1,0 +1,18 @@
+{
+  "argv": [
+    "npm",
+    "run",
+    "test:browser",
+    "--workspace",
+    "scribeswell-web",
+    "--",
+    "--project=desktop",
+    "-g",
+    "held copied-note read cannot reverse tool Studies"
+  ],
+  "exit_code": 1,
+  "test": "[desktop] copies review: held copied-note read cannot reverse tool Studies",
+  "assertion": "Changes not saved dialog count: expected 0, received 1",
+  "test_seconds": 8.7,
+  "phase": "observed before explicit-recovery retirement implementation"
+}

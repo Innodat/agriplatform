@@ -120,7 +120,7 @@ ExternalUrl = Annotated[str, Field(min_length=1, max_length=2048,
                 'Semantic validation also requires valid IDNA DNS or canonical IPv4/unscoped IPv6, '
                 'port 1–65535, safe percent escapes, scalar Unicode and at most 2048 UTF-8 bytes.',
     json_schema_extra={'not': {'pattern': r'[\s\\\x00-\x1f\x7f-\x9f]'}}), AfterValidator(_url)]
-Command = Literal['study.create', 'study.rename', 'study.passages.replace', 'study.delete', 'note.create', 'note.replace', 'note.delete']
+Command = Literal['study.create', 'study.rename', 'study.passages.replace', 'study.delete', 'note.create', 'note.replace', 'note.delete', 'note.duplicate', 'note.conflict_copy', 'study.copy']
 
 
 class Closed(BaseModel):
@@ -357,6 +357,22 @@ class ReplaceNote(Closed):
     value: NoteValue
 
 
+class DuplicateNote(Closed):
+    operation_id: Identifier
+    expected_revision: Revision
+
+
+class ConflictCopyNote(Closed):
+    operation_id: Identifier
+    base_revision: Revision
+    value: NoteValue
+
+
+class CopyStudy(Closed):
+    operation_id: Identifier
+    expected_revision: Revision
+
+
 class DeleteNote(Closed):
     operation_id: Identifier
     expected_revision: Revision
@@ -405,7 +421,21 @@ class Attribution(Closed):
         return self
 
 
+class CopyCredit(Closed):
+    relation: Literal['note.duplicate', 'note.conflict_copy', 'study.copy']
+    source_account_id: Identifier
+    source_study_id: Identifier
+    source_note_id: Identifier | None
+    origin_account_id: Identifier
+    origin_study_id: Identifier
+    origin_note_id: Identifier | None
+    created_at: UtcTimestamp
+    created_by_actor_id: Identifier
+    label: Title | Literal['Original unavailable']
+
+
 class StudyView(Attribution):
+    copy_credit: CopyCredit | None = Field(default=None, exclude_if=lambda value: value is None)
     id: Identifier
     owner_account_id: Identifier
     title: Title
@@ -413,6 +443,7 @@ class StudyView(Attribution):
 
 
 class NoteView(Attribution):
+    copy_credit: CopyCredit | None = Field(default=None, exclude_if=lambda value: value is None)
     id: Identifier
     study_id: Identifier
     owner_account_id: Identifier
@@ -451,8 +482,8 @@ class NotePage(Closed):
 
 class OperationAck(Closed):
     model_config = ConfigDict(json_schema_extra={'oneOf': [
-        {'properties': {'command': {'enum': ['study.create', 'study.rename', 'study.passages.replace', 'study.delete']}, 'note_id': {'type': 'null'}}},
-        {'properties': {'command': {'enum': ['note.create', 'note.replace', 'note.delete']}, 'note_id': {'type': 'string'}}},
+        {'properties': {'command': {'enum': ['study.create', 'study.rename', 'study.passages.replace', 'study.delete', 'study.copy']}, 'note_id': {'type': 'null'}}},
+        {'properties': {'command': {'enum': ['note.create', 'note.replace', 'note.delete', 'note.duplicate', 'note.conflict_copy']}, 'note_id': {'type': 'string'}}},
     ]})
     operation_id: Identifier
     command: Command
@@ -462,7 +493,7 @@ class OperationAck(Closed):
 
     @model_validator(mode='after')
     def resource_shape(self):
-        if (self.command in ('study.create', 'study.rename', 'study.passages.replace', 'study.delete')) != (self.note_id is None):
+        if (self.command in ('study.create', 'study.rename', 'study.passages.replace', 'study.delete', 'study.copy')) != (self.note_id is None):
             raise ValueError('invalid outcome resources')
         return self
 
@@ -484,7 +515,7 @@ class Problem(Closed):
     error: Literal['Request could not be completed']
     code: Literal['scribeswell_personal_notes_input_invalid', 'authentication_required',
                   'studies_access_denied', 'studies_access_unavailable', 'studies_storage_unavailable', 'resource_unavailable',
-                  'operation_payload_mismatch', 'operation_unresolved', 'highlight_proof_invalid', 'highlight_proof_unavailable', 'note_format_unsupported', 'request_deadline_exceeded']
+                  'operation_payload_mismatch', 'operation_unresolved', 'copy_limit_exceeded', 'note_base_unavailable', 'highlight_proof_invalid', 'highlight_proof_unavailable', 'note_format_unsupported', 'request_deadline_exceeded']
     details: None
 
 
@@ -500,7 +531,7 @@ class RevisionProblem(Closed):
 
 
 ErrorResponse = Annotated[Union[Problem, RevisionProblem], Field(discriminator='code')]
-COMMAND_MODELS = {'studies.search': SearchStudies, 'study.passages.replace': ReplacePassages, 'studies.enroll': EnrollStudies, 'study.create': CreateStudy, 'study.rename': RenameStudy, 'note.create': CreateNote, 'note.replace': ReplaceNote, 'note.delete': DeleteNote, 'study.delete': DeleteStudy}
+COMMAND_MODELS = {'note.duplicate': DuplicateNote, 'note.conflict_copy': ConflictCopyNote, 'study.copy': CopyStudy, 'studies.search': SearchStudies, 'study.passages.replace': ReplacePassages, 'studies.enroll': EnrollStudies, 'study.create': CreateStudy, 'study.rename': RenameStudy, 'note.create': CreateNote, 'note.replace': ReplaceNote, 'note.delete': DeleteNote, 'study.delete': DeleteStudy}
 
 
 class ContractInputError(ValueError):
@@ -524,7 +555,7 @@ def parse_command(command: str, raw: bytes) -> SearchStudies | CreateStudy | Ren
     """Strict bounded HTTP body decoder. No access, database or network work."""
     result = None
     try:
-        if type(raw) is not bytes or not raw or len(raw) > (MAX_SEARCH_BODY_BYTES if command == 'studies.search' else MAX_PASSAGE_BODY_BYTES if command == 'study.passages.replace' else MAX_NOTE_BODY_BYTES if command in ('note.create','note.replace') else MAX_BODY_BYTES) or raw.startswith(b'\xef\xbb\xbf'):
+        if type(raw) is not bytes or not raw or len(raw) > (MAX_SEARCH_BODY_BYTES if command == 'studies.search' else MAX_PASSAGE_BODY_BYTES if command == 'study.passages.replace' else MAX_NOTE_BODY_BYTES if command in ('note.create','note.replace','note.conflict_copy') else MAX_BODY_BYTES) or raw.startswith(b'\xef\xbb\xbf'):
             raise ValueError('invalid framing')
         tree = json.loads(raw.decode('utf-8'), object_pairs_hook=_unique_object,
                           parse_float=_reject_float, parse_constant=_reject_float)
@@ -535,7 +566,7 @@ def parse_command(command: str, raw: bytes) -> SearchStudies | CreateStudy | Ren
         while pending:
             value, depth = pending.pop()
             nodes += 1
-            if nodes > (MAX_NOTE_JSON_NODES if command in ('note.create','note.replace') else MAX_JSON_NODES) or depth > MAX_JSON_DEPTH:
+            if nodes > (MAX_NOTE_JSON_NODES if command in ('note.create','note.replace','note.conflict_copy') else MAX_JSON_NODES) or depth > MAX_JSON_DEPTH:
                 raise ValueError('JSON budget exceeded')
             if isinstance(value, dict):
                 for key in value:
@@ -555,7 +586,7 @@ def parse_command(command: str, raw: bytes) -> SearchStudies | CreateStudy | Ren
 
 def openapi_contract() -> dict:
     """Generate planned OpenAPI from the DTO definitions, never from fake routes."""
-    models = (SearchStudies, EnrollStudies, EnrollmentAck, CreateStudy, RenameStudy, ReplacePassages, PassageList, CreateNote, ReplaceNote, DeleteNote, DeleteStudy, StudyView, NoteView, StudyPage,
+    models = (SearchStudies, EnrollStudies, EnrollmentAck, CreateStudy, RenameStudy, ReplacePassages, PassageList, CreateNote, ReplaceNote, DeleteNote, DeleteStudy, DuplicateNote, ConflictCopyNote, CopyStudy, StudyView, NoteView, StudyPage,
               NotePage, OperationAck, Outcome, ErrorResponse)
     schemas = {}
     for model in models:
@@ -574,7 +605,7 @@ def openapi_contract() -> dict:
                  'parameters': list(parameters), 'responses': {}}
         codes = {'400': ['scribeswell_personal_notes_input_invalid'], '401': ['authentication_required'],
                  '403': ['studies_access_denied'], '404': ['resource_unavailable'],
-                 '409': ['note_revision_conflict', 'study_revision_conflict', 'passage_revision_conflict', 'note_format_unsupported', 'highlight_proof_invalid', 'operation_payload_mismatch', 'operation_unresolved'],
+                 '409': ['note_revision_conflict', 'study_revision_conflict', 'passage_revision_conflict', 'note_format_unsupported', 'highlight_proof_invalid', 'operation_payload_mismatch', 'operation_unresolved', 'copy_limit_exceeded', 'note_base_unavailable'],
                  '503': ['studies_access_unavailable', 'studies_storage_unavailable', 'highlight_proof_unavailable', 'request_deadline_exceeded']}
         for status, description, schema in [('200', 'Acknowledged or current authorized result', response),
                                            ('400', 'Invalid input', 'ErrorResponse'),
@@ -615,6 +646,9 @@ def openapi_contract() -> dict:
                                  'get': operation('listStudies', 'StudyPage', parameters=page)},
                 '/api/studies/{study_id}': {'delete': operation('deleteStudy', 'OperationAck', body='DeleteStudy', parameters=(study,)), 'get': operation('readStudy', 'StudyView', parameters=(study,))},
                 '/api/studies/{study_id}/passages': {'get': operation('readPassages', 'PassageList', parameters=(study,)), 'put': operation('replacePassages', 'OperationAck', body='ReplacePassages', parameters=(study,))},
+                '/api/studies/{study_id}/copy': {'post': operation('copyStudy', 'OperationAck', body='CopyStudy', parameters=(study,))},
+                '/api/studies/{study_id}/notes/{note_id}/duplicate': {'post': operation('duplicateNote', 'OperationAck', body='DuplicateNote', parameters=(study,note))},
+                '/api/studies/{study_id}/notes/{note_id}/conflict-copy': {'post': operation('conflictCopyNote', 'OperationAck', body='ConflictCopyNote', parameters=(study,note))},
                 '/api/studies/{study_id}/title': {'put': operation('renameStudy', 'OperationAck', body='RenameStudy', parameters=(study,))},
                 '/api/studies/{study_id}/notes': {'post': operation('createNote', 'OperationAck', body='CreateNote', parameters=(study,)),
                                                 'get': operation('listNotes', 'NotePage', parameters=(study, *page))},

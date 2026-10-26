@@ -1,0 +1,21 @@
+{
+  "apps/scribeswell/backend/own_copies.py": null,
+  "apps/scribeswell/backend/personal_notes_access.py": "703214aa7ce52611d161857561f0e46cb9aa7e3c32aaee6850e650a02e8f50a3",
+  "apps/scribeswell/backend/personal_notes_contract.py": "273f5265bce9073aead45b4cf761b7c138831389c979f0c94c5ff064eafdbf00",
+  "apps/scribeswell/backend/personal_notes_router.py": "589c81ec6b5b1ee2dc5655ed7b522e6f20c4c3eb0e991d3a37c1a9eb85c02a15",
+  "apps/scribeswell/backend/personal_notes_storage.py": "ef47d5f03ad114c047d2f85ec932b4cbdabcbcb66bad078611894370c230aeb9",
+  "apps/scribeswell/docs/OWN_COPIES_V1.md": null,
+  "apps/scribeswell/studies-migrations/versions/0007_own_copies.py": null,
+  "apps/scribeswell/tests/test_own_copies.py": null,
+  "apps/scribeswell/tests/test_own_copies_native.py": null,
+  "apps/scribeswell/tests/test_personal_notes_storage.py": "16b65729b22af80d05deef563a7bceb9a5391124052e1ce95f3b7ec0c15172f8",
+  "apps/scribeswell/web/src/context/StudiesContext.tsx": "2952beaa3a4260f763ab816043aeb48cdea778e65efd21c4b5896b9fad3cd834",
+  "apps/scribeswell/web/src/components/studies/NoteEditor.tsx": "b542b3a1677e6828ab3a2ea5dde886bc9b68d1bf86cc730434a4445c67a47965",
+  "apps/scribeswell/web/src/components/studies/StudiesPanel.tsx": "b0f2ce44e629f2b05b224eef0b52867b3eb97fb89ac19cb2598941837a5d0493",
+  "apps/scribeswell/web/src/lib/personal-notes.ts": "c8355ad41557050bfcd42602fab82f7e0c70dd53702971565fe9218a441ba2ae",
+  "apps/scribeswell/web/tests/personal-notes.spec.cjs": "d1fc19417cdd59a2b1f85f5e68760fcf8bca47e0b3d6d19ae681c528b09707cf",
+  "apps/scribeswell/contracts/personal-notes-v1.openapi.json": "79afd285fa47dc1e6d342bb7ef23186274b16e1ff43c94f75b3285efb70653f4",
+  "apps/scribeswell/web/src/generated/personal-notes/types.gen.ts": "7899e02e36647ae26a68064bde533a22511816e4458cee1a86269023e7f83c4a",
+  "apps/scribeswell/web/src/generated/personal-notes/index.ts": "8d734fda4b3411909014a94daa6bb2ffab01c0ad5f85356fd57e122d660f959b",
+  "apps/scribeswell/web/src/generated/personal-notes/.generated-files.json": "f7a6fe944c157db995f0f8532c6a043b5cf4be62ea154442290ca0ce61324eaf"
+}

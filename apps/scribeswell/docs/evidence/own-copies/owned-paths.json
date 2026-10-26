@@ -1,0 +1,21 @@
+[
+  "apps/scribeswell/backend/own_copies.py",
+  "apps/scribeswell/backend/personal_notes_access.py",
+  "apps/scribeswell/backend/personal_notes_contract.py",
+  "apps/scribeswell/backend/personal_notes_router.py",
+  "apps/scribeswell/backend/personal_notes_storage.py",
+  "apps/scribeswell/docs/OWN_COPIES_V1.md",
+  "apps/scribeswell/studies-migrations/versions/0007_own_copies.py",
+  "apps/scribeswell/tests/test_own_copies.py",
+  "apps/scribeswell/tests/test_own_copies_native.py",
+  "apps/scribeswell/tests/test_personal_notes_storage.py",
+  "apps/scribeswell/web/src/context/StudiesContext.tsx",
+  "apps/scribeswell/web/src/components/studies/NoteEditor.tsx",
+  "apps/scribeswell/web/src/components/studies/StudiesPanel.tsx",
+  "apps/scribeswell/web/src/lib/personal-notes.ts",
+  "apps/scribeswell/web/tests/personal-notes.spec.cjs",
+  "apps/scribeswell/contracts/personal-notes-v1.openapi.json",
+  "apps/scribeswell/web/src/generated/personal-notes/types.gen.ts",
+  "apps/scribeswell/web/src/generated/personal-notes/index.ts",
+  "apps/scribeswell/web/src/generated/personal-notes/.generated-files.json"
+]

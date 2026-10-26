@@ -1,0 +1,78 @@
+{
+  "results": [
+    {
+      "name": "e1-corrected",
+      "argv": [
+        "npm",
+        "run",
+        "test:browser",
+        "--workspace=apps/scribeswell/web",
+        "--",
+        "--workers=2",
+        "--fully-parallel",
+        "personal-notes.spec.cjs",
+        "--grep",
+        "shared conflicted lane"
+      ],
+      "exit_code": 0,
+      "seconds": 13.34
+    },
+    {
+      "name": "build",
+      "argv": [
+        "npm",
+        "run",
+        "build",
+        "--workspace=apps/scribeswell/web"
+      ],
+      "exit_code": 0,
+      "seconds": 8.74
+    },
+    {
+      "name": "openapi",
+      "argv": [
+        "/tmp/scribeswell-implementation-python/bin/python",
+        "apps/scribeswell/tools/py/export_personal_notes_contract.py",
+        "--check"
+      ],
+      "exit_code": 0,
+      "seconds": 0.58
+    },
+    {
+      "name": "catalogue",
+      "argv": [
+        "/tmp/scribeswell-implementation-python/bin/python",
+        "apps/scribeswell/tools/py/build_reference_catalogue.py",
+        "--check"
+      ],
+      "exit_code": 0,
+      "seconds": 0.47
+    },
+    {
+      "name": "dto",
+      "argv": [
+        "/home/ck/repos/innodat/agriplatform/platform/deployment/.local/kdg-toolchains/2cb59147-0378-4fff-bf09-ba3f9e353aa0/payload/node/bin/node",
+        "/tmp/scribeswell-codegen-isolated/platform/api-client/src/cli.mjs",
+        "--schema",
+        "/home/ck/repos/innodat/agriplatform/apps/scribeswell/contracts/personal-notes-v1.openapi.json",
+        "--output",
+        "/home/ck/repos/innodat/agriplatform/apps/scribeswell/web/src/generated/personal-notes",
+        "--check"
+      ],
+      "exit_code": 0,
+      "seconds": 2.39
+    },
+    {
+      "name": "database-helper",
+      "argv": [
+        "/home/ck/repos/innodat/agriplatform/platform/deployment/.local/kdg-toolchains/2cb59147-0378-4fff-bf09-ba3f9e353aa0/payload/node/bin/node",
+        "apps/scribeswell/tools/sync_personal_notes_database.mjs",
+        "--check"
+      ],
+      "exit_code": 0,
+      "seconds": 0.27
+    }
+  ],
+  "selected_files": 186,
+  "source_unchanged": true
+}

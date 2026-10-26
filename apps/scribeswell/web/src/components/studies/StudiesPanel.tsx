@@ -23,7 +23,7 @@ export function StudiesPanel({activeReference,onOpen,onOpenNewTab}:{activeRefere
  <h2 className="font-semibold">My studies</h2>
  {studies.error&&<p role="alert">{studies.error} <button className="underline" onClick={()=>void studies.loadStudies()}>Retry</button></p>}
  {!user&&<p>Sign in or create an account from the header to start a study.</p>}
- {user&&studies.study?<><h3 className="font-semibold">{studies.study.title}</h3><button className="underline block" onClick={studies.beginStudyDelete}>Delete study</button>
+ {user&&studies.study?<><h3 className="font-semibold">{studies.study.title}</h3>{studies.study.copy_credit&&<p>Copied from: {studies.study.copy_credit.label}</p>}<button className="underline block" disabled={studies.busy||studies.studyDeletionPaused} onClick={()=>void studies.copyStudy()}>Copy study</button><button className="underline block" onClick={studies.beginStudyDelete}>Delete study</button>
  {studies.titleEdit?<form onSubmit={e=>{e.preventDefault();void studies.saveTitle();}} className="space-y-2">
  <label>Title<input autoFocus dir="auto" className="block border rounded p-2 w-full" value={studies.titleEdit.candidate} readOnly={!!studies.titleEdit.attempt||!!studies.titleEdit.running} onChange={e=>studies.changeTitle(e.target.value)} /></label>
  {studies.titleEdit.message&&<p role={studies.titleEdit.status==='saving'?'status':'alert'}>{studies.titleEdit.message}</p>}

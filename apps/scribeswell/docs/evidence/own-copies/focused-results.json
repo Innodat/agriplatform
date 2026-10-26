@@ -1,0 +1,38 @@
+{
+  "results": [
+    {
+      "name": "copy-unreached",
+      "argv": [
+        "npm",
+        "run",
+        "test:browser",
+        "--workspace",
+        "scribeswell-web",
+        "--",
+        "--workers=2",
+        "--fully-parallel",
+        "-g",
+        "keeps local writing and retires|whole-study limit|delayed acknowledgement in another tab|copy authentication"
+      ],
+      "exit_code": 0,
+      "seconds": 19.39
+    },
+    {
+      "name": "mobile-fork",
+      "argv": [
+        "npm",
+        "run",
+        "test:browser",
+        "--workspace",
+        "scribeswell-web",
+        "--",
+        "--project=mobile",
+        "-g",
+        "copies: Save mine"
+      ],
+      "exit_code": 0,
+      "seconds": 8.24
+    }
+  ],
+  "source_unchanged": true
+}

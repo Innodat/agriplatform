@@ -1,0 +1,16 @@
+{
+  "argv": [
+    "npm",
+    "run",
+    "test:browser",
+    "--workspace",
+    "scribeswell-web",
+    "--",
+    "--workers=2",
+    "--fully-parallel",
+    "-g",
+    "copies review:"
+  ],
+  "exit_code": 1,
+  "seconds": 61.30879270099831
+}

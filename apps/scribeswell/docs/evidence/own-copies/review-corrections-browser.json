@@ -1,0 +1,16 @@
+{
+  "argv": [
+    "npm",
+    "run",
+    "test:browser",
+    "--workspace",
+    "scribeswell-web",
+    "--",
+    "--workers=2",
+    "--fully-parallel",
+    "-g",
+    "note and study credit display|adapters reject malformed credit"
+  ],
+  "exit_code": 0,
+  "seconds": 23.749127424000108
+}

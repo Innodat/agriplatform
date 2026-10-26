@@ -1,0 +1,21 @@
+{
+  "apps/scribeswell/backend/own_copies.py": "314d256c80587775f422f01c41692a2039e20b85022f38cfe1f635de067797ea",
+  "apps/scribeswell/backend/personal_notes_access.py": "fecf3a08f0a8635912fd75cc95b17f0e4ea1c08876c8e44898d8c5c6510f2a25",
+  "apps/scribeswell/backend/personal_notes_contract.py": "d67efbd485b8cb0581655a4853e9f70cb075d5c11fced168a6e3811f36511d40",
+  "apps/scribeswell/backend/personal_notes_router.py": "dbfeca457bc46a2fa92c3e7eda3317878de738b1410c3b6f624932dce1c62512",
+  "apps/scribeswell/backend/personal_notes_storage.py": "cc7891d01568f1744b9a859ffaa6f8749b48ea334f46e3fc21d4dba4c510ecb4",
+  "apps/scribeswell/docs/OWN_COPIES_V1.md": "8e6a5babcb1d31d03ac35c5a4df3e27cfb8c974f4930483a13a4c19e5225146c",
+  "apps/scribeswell/studies-migrations/versions/0007_own_copies.py": "47ee00a2f520dd6cef24a41ade3ff8383320e272a6695ee0011ec5bf40ac6cc9",
+  "apps/scribeswell/tests/test_own_copies.py": "79b0810e5088c01e09c43073c3990d71115345a0af9a5883bcdccc37dc0efef9",
+  "apps/scribeswell/tests/test_own_copies_native.py": "6526332feb81ad0a2edfd68bf90c6af3eeccef0cb0c6113c303c8c15ec61ded1",
+  "apps/scribeswell/tests/test_personal_notes_storage.py": "0ff4b3ba76a84c0e044cc86023cc3293290dc7d95ba485e5873a4cc66b2bf028",
+  "apps/scribeswell/web/src/context/StudiesContext.tsx": "11214bad759dc779af29ad274aa86b68e51bb41d17ed08d5512345c0575298e9",
+  "apps/scribeswell/web/src/components/studies/NoteEditor.tsx": "21bbd4c0c83fc09fa790e4190ac0f9df674b4b1cb74c851fe1297280769734fc",
+  "apps/scribeswell/web/src/components/studies/StudiesPanel.tsx": "7e7f5039923f8d695f4cc041b37c90b091ef7ce010679f84ea6c58821a7032b1",
+  "apps/scribeswell/web/src/lib/personal-notes.ts": "601f8cfbac046f016dcd6ba7f5ea7cb59b21a48fcca6a6ef45ada87df2a2bc87",
+  "apps/scribeswell/web/tests/personal-notes.spec.cjs": "6d88abdb1d137150c64a163c4ee7b44132a8b708082344cf99d310150b9a029b",
+  "apps/scribeswell/contracts/personal-notes-v1.openapi.json": "8e9df390bdd0a359b5addb1de0af8d77a98cf88f6c19600f397343e703d34584",
+  "apps/scribeswell/web/src/generated/personal-notes/types.gen.ts": "31d9108dca5579de1218748bb3d36bdd6fe5dcb04367328540db20f349fa949a",
+  "apps/scribeswell/web/src/generated/personal-notes/index.ts": "3c5b588f10b37117871a26c6a04d640eaef9dae3cba41620708e7cdb8d854294",
+  "apps/scribeswell/web/src/generated/personal-notes/.generated-files.json": "654a1edc712cbd8c30f841dc947bd74799911fd0eb159abba4102139690b4b5b"
+}

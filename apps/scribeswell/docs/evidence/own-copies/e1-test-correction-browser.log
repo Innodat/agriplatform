@@ -1,0 +1,17 @@
+
+> scribeswell-web@0.1.0 test:browser
+> playwright test --config playwright.config.cjs --workers=2 -g review tabs E1 shared conflicted lane
+
+[WebServer] (node:523448) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 2 tests using 2 workers
+
+(node:523594) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:523595) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  1 [mobile] › tests/personal-notes.spec.cjs:1512:1 › review tabs E1 shared conflicted lane cannot be replaced by reopening from another live context (4.7s)
+  ✓  2 [desktop] › tests/personal-notes.spec.cjs:1512:1 › review tabs E1 shared conflicted lane cannot be replaced by reopening from another live context (4.8s)
+
+  2 passed (10.5s)

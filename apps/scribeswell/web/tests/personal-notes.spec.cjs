@@ -214,12 +214,14 @@ test('review: rejected study title can be corrected without replaying invalid pa
  await page.route('**/api/studies',r=>{if(r.request().method()==='POST'&&r.request().postDataJSON().title==='   '){rejected.push(r.request().postDataJSON());return r.fulfill({status:400,json:{code:'scribeswell_personal_notes_input_invalid'}});}return r.fallback();});
  await page.goto('/');await page.getByRole('button',{name:'Studies',exact:true}).click();await page.getByRole('button',{name:'Start a study',exact:true}).click();await page.getByLabel('Study title (optional)').fill('   ');await page.getByRole('button',{name:'Create study',exact:true}).click();await expect(page.getByRole('alert')).toBeVisible();await page.getByLabel('Study title (optional)').fill('Corrected title');await page.getByRole('button',{name:'Create study',exact:true}).click();await expect(page.getByRole('button',{name:'Add note',exact:true})).toBeVisible();const accepted=requests.find(r=>r.method==='POST'&&r.path==='/api/studies').payload;expect(accepted.title).toBe('Corrected title');expect(accepted.operation_id).not.toBe(rejected[0].operation_id);
 });
-test('review: confirmed conflict discard reopens latest while Stay preserves mine',async({page})=>{
+test('review: reopening a conflicting lane preserves mine until explicit latest replacement',async({page})=>{
  const options={failPut:409};await setup(page,options);await firstNote(page);const editor=page.getByLabel('Note text',{exact:true});await editor.fill('My conflicting text');await expect(page.getByRole('alert')).toContainText('This note has changed');
  const latest={...attribution,id:note,study_id:study,visibility:'study',revision:'2',value:{document:{version:1,blocks:[{type:'paragraph',direction:'auto',content:[{type:'text',text:'Latest from server',marks:[]}]}]},connections:[],highlights:[]}};let reads=0;
  await page.route('**/api/studies/'+study+'/notes/'+note,r=>{if(r.request().method()==='GET'){reads++;return r.fulfill({json:latest});}return r.fallback();});
- await page.getByRole('button',{name:'Back to Studies',exact:true}).click();await page.getByRole('button',{name:'Empty note',exact:true}).click();await page.getByRole('button',{name:'Stay',exact:true}).click();await page.getByRole('button',{name:'Analysis',exact:true}).click();await expect(editor).toContainText('My conflicting text');expect(reads).toBe(0);
- await page.getByRole('button',{name:'Back to Studies',exact:true}).click();await page.getByRole('button',{name:'Empty note',exact:true}).click();await page.getByRole('button',{name:'Switch anyway',exact:true}).click();await expect(editor).toContainText('Latest from server');expect(reads).toBe(1);
+ await page.getByRole('button',{name:'Back to Studies',exact:true}).click();await page.getByRole('button',{name:'Empty note',exact:true}).click();
+ await expect(editor).toContainText('My conflicting text');expect(reads).toBe(0);
+ await page.getByRole('button',{name:'Review latest',exact:true}).click();await expect(page.getByRole('region',{name:'Current saved note'})).toContainText('Latest from server');
+ await expect(editor).toContainText('My conflicting text');await page.getByRole('button',{name:'Use latest',exact:true}).click();await expect(editor).toContainText('Latest from server');expect(reads).toBe(1);
 });
 test('review: IME exit prompts responsively and Stay retains composing input',async({page})=>{
  await setup(page);await firstNote(page);const editor=page.getByLabel('Note text',{exact:true});await editor.dispatchEvent('compositionstart');await editor.fill('Still composing עברית');await page.getByRole('button',{name:'Sign out',exact:true}).click();await expect(page.getByRole('dialog',{name:'Changes not saved'})).toBeVisible({timeout:1000});await page.getByRole('button',{name:'Stay',exact:true}).click();await expect(editor).toContainText('Still composing עברית');await editor.dispatchEvent('compositionend');await expect(page.getByRole('status')).toContainText('Draft saved');
@@ -1508,7 +1510,7 @@ test('review tabs V1 sign-out rechecks saved background lanes receiving late com
  await reviewTwoNotes(page);const tabs=page.getByRole('tablist',{name:'Workspace tabs'}).getByRole('tab'),editor=page.getByRole('textbox',{name:'Note text',exact:true});await tabs.first().click();await editor.evaluate(el=>window.lateBackgroundEditor=el);await tabs.nth(1).click();await page.route('**/api/studies/*/notes/*',r=>r.request().method()==='PUT'?r.fulfill({status:503,json:{code:'studies_storage_unavailable'}}):r.fallback());await editor.fill('B needs consent');await expect(page.getByRole('status').filter({hasText:'Changes not saved'})).toBeVisible();await page.getByRole('button',{name:'Sign out',exact:true}).click();const prompt=page.getByRole('dialog',{name:'Changes not saved'});await expect(prompt).toBeVisible();await page.evaluate(()=>{const el=window.lateBackgroundEditor;el.dispatchEvent(new CompositionEvent('compositionstart',{bubbles:true}));el.textContent='A late composition';el.dispatchEvent(new InputEvent('input',{bubbles:true,isComposing:true}));});await prompt.getByRole('button',{name:'Close anyway',exact:true}).click();await expect(prompt).toBeVisible();await prompt.getByRole('button',{name:'Stay',exact:true}).click();await expect(page.getByRole('button',{name:'Sign out',exact:true})).toBeVisible();await tabs.first().click();await expect(editor).toHaveText('A late composition');
 });
 test('review tabs E1 shared conflicted lane cannot be replaced by reopening from another live context',async({page})=>{
- const {requests}=await setup(page,{failPut:409});await firstNote(page);await reviewTabAdd(page);const editor=page.getByRole('textbox',{name:'Note text',exact:true});await page.getByRole('button',{name:'Analysis',exact:true}).click();await editor.fill('shared conflicting input');await expect(page.getByRole('alert')).toContainText('This note has changed');const reads=requests.filter(r=>r.path.endsWith('/notes/'+note)&&r.method==='GET').length;await page.getByRole('button',{name:'Back to Studies',exact:true}).click();await page.getByRole('list',{name:'Notes',exact:true}).getByRole('button').first().click();await expect(page.getByRole('dialog',{name:'Changes not saved'})).toHaveCount(0);await page.getByRole('button',{name:'Analysis',exact:true}).click();await expect(editor).toHaveText('shared conflicting input');expect(requests.filter(r=>r.path.endsWith('/notes/'+note)&&r.method==='GET')).toHaveLength(reads);
+ const {requests}=await setup(page,{failPut:409});await firstNote(page);await reviewTabAdd(page);const editor=page.getByRole('textbox',{name:'Note text',exact:true});await page.getByRole('button',{name:'Analysis',exact:true}).click();await editor.fill('shared conflicting input');await expect(page.getByRole('alert')).toContainText('This note has changed');const reads=requests.filter(r=>r.path.endsWith('/notes/'+note)&&r.method==='GET').length;await page.getByRole('button',{name:'Back to Studies',exact:true}).click();await page.getByRole('list',{name:'Notes',exact:true}).getByRole('button').first().click();await expect(page.getByRole('dialog',{name:'Changes not saved'})).toHaveCount(0);await expect(page.getByRole('button',{name:'Analysis',exact:true})).toHaveAttribute('aria-pressed','true');await expect(editor).toHaveText('shared conflicting input');expect(requests.filter(r=>r.path.endsWith('/notes/'+note)&&r.method==='GET')).toHaveLength(reads);
 });
 
 async function highlightCorpus(page,{changed=false,unavailable=false}={}){
@@ -1648,4 +1650,177 @@ test('own highlights review: navigation cancels repair and account replacement c
 test('own highlights review: destination picker loads and selects notes after first page',async({page})=>{
  await setup(page);await highlightCorpus(page);const destination='40000000-0000-4000-8000-000000000051',value={document:{version:1,blocks:[{type:'paragraph',direction:'auto',content:[{type:'text',text:'Destination 51',marks:[]}]}]},connections:[],highlights:[]};const row=(id,v)=>({...attribution,id,study_id:study,visibility:'study',revision:'1',value:v});
  await page.route(`**/api/studies/${study}/notes*`,r=>{if(r.request().method()!=='GET'||new URL(r.request().url()).pathname!==`/api/studies/${study}/notes`)return r.fallback();const more=new URL(r.request().url()).searchParams.has('cursor');return r.fulfill({json:{items:more?[row(destination,value)]:[row(note,{document:{version:1,blocks:[]},connections:[],highlights:[]})],next_cursor:more?null:'page_two'}});});await page.route(`**/api/studies/${study}/notes/${destination}`,r=>r.fulfill({json:row(destination,value)}));await firstNote(page);await selectHighlightPhrase(page);await page.getByRole('button',{name:'Highlight',exact:true}).click();await page.getByRole('button',{name:'Change',exact:true}).click();await expect(page.getByRole('button',{name:'Destination 51',exact:true})).toHaveCount(0);await page.getByRole('button',{name:'More own notes',exact:true}).click();await page.getByRole('button',{name:'Destination 51',exact:true}).click();await showHighlightReader(page);await expect(page.getByLabel('Highlight colour palette')).toContainText('Current note: Destination 51');
+});
+
+test('copies: review latest preserves the local branch until explicit use latest',async({page})=>{
+ const options={failPut:409};const store=await setup(page,options);await firstNote(page);
+ await page.getByRole('textbox',{name:'Note text',exact:true}).fill('My complete branch שָׁלוֹם');
+ await expect(page.getByRole('status').filter({hasText:'Changes not saved'})).toBeVisible();
+ store.advanceNote({document:{version:1,blocks:[{type:'paragraph',direction:'auto',content:[{type:'text',text:'New server writing',marks:[]}]}]},connections:[],highlights:[]});
+ await page.getByRole('button',{name:'Review latest',exact:true}).click({timeout:3000});
+ await expect(page.getByRole('region',{name:'Current saved note'})).toContainText('New server writing');
+ await expect(page.getByRole('textbox',{name:'Note text',exact:true})).toContainText('My complete branch שָׁלוֹם');
+ await page.getByRole('button',{name:'Use latest',exact:true}).click();
+ await expect(page.getByRole('textbox',{name:'Note text',exact:true})).toContainText('New server writing');
+});
+
+function copyCredit(noteCredit=true,label='Original study',relation='note.duplicate'){
+ return {relation:noteCredit?relation:'study.copy',source_account_id:account,source_study_id:study,source_note_id:noteCredit?note:null,origin_account_id:account,origin_study_id:study,origin_note_id:noteCredit?note:null,created_at:attribution.created_at,created_by_actor_id:actor,label};
+}
+async function copiesFixture(page,options={}){
+ const store=await setup(page,options),copies=[],attempts=[],outcomes=new Map();
+ const newNote='40000000-0000-4000-8000-000000000099',newStudy='30000000-0000-4000-8000-000000000099';
+ await page.route('**/api/operations/**',r=>{const id=new URL(r.request().url()).pathname.split('/').pop();if(options.copyUnknown)return r.fulfill({json:{status:'unresolved'}});if(outcomes.has(id))return r.fulfill({json:{status:'committed',outcome:outcomes.get(id)}});return r.fallback();});
+ await page.route('**/api/studies**',async r=>{
+  const req=r.request(),url=new URL(req.url()),path=url.pathname,payload=req.postDataJSON();
+  if(req.method()==='POST'&&/\/(duplicate|conflict-copy|copy)$/.test(path)){
+   attempts.push({path,payload});
+   if(options.beforeCopy)await options.beforeCopy();
+   if(options.copyFailure)return r.fulfill({status:409,json:{code:options.copyFailure}});
+   if(path.endsWith('/copy')&&payload.expected_revision!==store.metadata.revision)return r.fulfill({status:409,json:{code:'study_revision_conflict'}});
+   let result=outcomes.get(payload.operation_id);
+   if(!result){
+    const entire=path.endsWith('/copy'),conflict=path.endsWith('/conflict-copy');
+    const latest=store.requests.filter(x=>x.payload?.value).at(-1)?.payload.value??{document:{version:1,blocks:[]},connections:[],highlights:[]};
+    const source=structuredClone(conflict?payload.value:latest);for(const item of [...source.connections,...source.highlights])item.id=crypto.randomUUID();
+    copies.push({...attribution,id:newNote,study_id:entire?newStudy:study,visibility:'study',revision:'1',value:source,copy_credit:copyCredit(true,options.creditLabel??store.metadata.title,entire?'study.copy':conflict?'note.conflict_copy':'note.duplicate')});
+    result={operation_id:payload.operation_id,command:entire?'study.copy':conflict?'note.conflict_copy':'note.duplicate',study_id:entire?newStudy:study,note_id:entire?null:newNote,revision:'1'};outcomes.set(payload.operation_id,result);
+   }
+   if(options.copyDrop){options.copyDrop=false;return r.abort('connectionreset');}
+   return r.fulfill({json:result});
+  }
+  if(path.endsWith('/notes/'+newNote)){
+   const copy=copies.find(n=>n.id===newNote);if(req.method()==='PUT'){copy.value=payload.value;copy.revision=String(Number(copy.revision)+1);return r.fulfill({json:{operation_id:payload.operation_id,command:'note.replace',study_id:copy.study_id,note_id:newNote,revision:copy.revision}});}
+   if(options.beforeCopyRead)await options.beforeCopyRead();
+   return r.fulfill({json:copy});
+  }
+  if(path.includes('/'+newStudy)){
+   if(path.endsWith('/notes'))return r.fulfill({json:{items:copies.filter(item=>item.study_id===newStudy),next_cursor:null}});
+   if(path.endsWith('/passages'))return r.fulfill({json:{study_id:newStudy,revision:'1',items:[]}});
+   return r.fulfill({json:{...attribution,id:newStudy,title:store.metadata.title,revision:'1',copy_credit:copyCredit(false,options.creditLabel??store.metadata.title)}});
+  }
+  return r.fallback();
+ });
+ return {...store,copies,attempts,newNote,newStudy};
+}
+
+test('copies: Duplicate confirms pending writing and opens an independent editable note',async({page})=>{
+ const store=await copiesFixture(page);await firstNote(page);const editor=page.getByRole('textbox',{name:'Note text',exact:true});await editor.fill('Complete own note שָׁלוֹם');
+ await page.getByRole('button',{name:'Duplicate note',exact:true}).click();await expect.poll(()=>store.copies.length).toBe(1);
+ await expect(editor).toContainText('Complete own note שָׁלוֹם');await editor.fill('Independent changed copy');await expect(page.getByRole('status').filter({hasText:'Draft saved'})).toBeVisible();
+ expect(store.attempts[0].payload.expected_revision).toBe('2');
+ expect(store.requests.filter(r=>r.method==='PUT'&&r.path.endsWith('/notes/'+note)).at(-1).payload.value.document.blocks[0].content[0].text).toBe('Complete own note שָׁלוֹם');
+});
+
+test('copies: Save mine freezes original base and complete local value without overwriting latest',async({page})=>{
+ const store=await copiesFixture(page,{failPut:409});await firstNote(page);const editor=page.getByRole('textbox',{name:'Note text',exact:true});await editor.fill('Local branch שָׁלוֹם');await expect(page.getByRole('alert')).toContainText('This note has changed');
+ store.advanceNote({document:{version:1,blocks:[{type:'paragraph',direction:'auto',content:[{type:'text',text:'Later server value',marks:[]}]}]},connections:[],highlights:[]});
+ await page.getByRole('button',{name:'Save mine as a new note',exact:true}).click();await expect.poll(()=>store.copies.length).toBe(1);await expect(page.getByRole('button',{name:'Open created note',exact:true})).toHaveCount(0);
+ await expect(editor).toContainText('Local branch שָׁלוֹם');expect(store.attempts[0].payload.base_revision).toBe('1');expect(store.requests.filter(r=>r.method==='PUT')).toHaveLength(1);
+ await editor.fill('Edited own fork');await expect(page.getByRole('status').filter({hasText:'Draft saved'})).toBeVisible();
+});
+
+test('copies: unknown fork retains frozen operation and does not select over newer local edits',async({page})=>{
+ const options={failPut:409,copyDrop:true,copyUnknown:true};const store=await copiesFixture(page,options);await firstNote(page);const editor=page.getByRole('textbox',{name:'Note text',exact:true});await editor.fill('Frozen branch');await expect(page.getByRole('alert')).toContainText('This note has changed');
+ await page.getByRole('button',{name:'Save mine as a new note',exact:true}).click();await expect(page.getByRole('button',{name:'Recover original creation',exact:true})).toBeVisible();await editor.fill('New input after unknown outcome');
+ options.copyUnknown=false;await page.getByRole('button',{name:'Recover original creation',exact:true}).click();await expect(page.getByRole('button',{name:'Open created note',exact:true})).toBeVisible();
+ expect(store.attempts).toHaveLength(2);expect(store.attempts[1].payload).toEqual(store.attempts[0].payload);expect(store.copies).toHaveLength(1);await expect(editor).toContainText('New input after unknown outcome');
+});
+
+test('copies: Copy study confirms writing and opens exact titled own result without reader navigation',async({page})=>{
+ const store=await copiesFixture(page);await firstNote(page);await page.getByRole('textbox',{name:'Note text',exact:true}).fill('All saved input');const before=readerParams(page.url()).get('book');
+ await page.getByRole('button',{name:'Back to Studies',exact:true}).click();await page.getByRole('button',{name:'Copy study',exact:true}).click();await expect.poll(()=>store.copies.length).toBe(1);
+ await expect(page.getByRole('heading',{name:'Untitled study',exact:true})).toBeVisible();await expect(page.getByRole('button',{name:'All saved input',exact:true})).toBeVisible();expect(readerParams(page.url()).get('book')).toBe(before);expect(store.copies[0].study_id).toBe(store.newStudy);
+});
+
+for(const kind of ['composition','invalid','conflict'])test('copies: study copy refuses '+kind+' input without silently omitting it',async({page})=>{
+ const store=await copiesFixture(page,kind==='conflict'?{failPut:409}:{});await firstNote(page);const editor=page.getByRole('textbox',{name:'Note text',exact:true});
+ if(kind==='composition')await editor.dispatchEvent('compositionstart');
+ await editor.fill('Recoverable input');
+ if(kind==='invalid')await editor.evaluate(el=>{el.innerHTML='<table><tbody><tr><td>Recoverable input</td></tr></tbody></table>';el.dispatchEvent(new InputEvent('input',{bubbles:true,inputType:'insertText'}));});
+ if(kind==='conflict')await expect(page.getByRole('alert')).toContainText('This note has changed');
+ await page.getByRole('button',{name:'Back to Studies',exact:true}).click();await page.getByRole('button',{name:'Copy study',exact:true}).click();await expect(page.getByRole('alert')).toContainText('Confirm or recover all pending writing');expect(store.attempts).toHaveLength(0);
+ await page.getByRole('button',{name:'Analysis',exact:true}).click();await expect(editor).toContainText('Recoverable input');
+});
+
+for(const error of ['note_base_unavailable','highlight_proof_unavailable'])test('copies: '+error+' keeps local writing and retires the failed fork identity',async({page})=>{
+ const options={failPut:409,copyFailure:error};const store=await copiesFixture(page,options);await firstNote(page);const editor=page.getByRole('textbox',{name:'Note text',exact:true});await editor.fill('Preserved branch');await expect(page.getByRole('alert')).toContainText('This note has changed');
+ await page.getByRole('button',{name:'Save mine as a new note',exact:true}).click();await expect(page.getByRole('button',{name:'Recover original creation',exact:true})).toHaveCount(0);await expect(editor).toContainText('Preserved branch');await expect(page.getByRole('alert').filter({hasText:error==='note_base_unavailable'?'original base is unavailable':'Copy was not saved'})).toBeVisible();
+ options.copyFailure=undefined;await page.getByRole('button',{name:'Save mine as a new note',exact:true}).click();await expect.poll(()=>store.copies.length).toBe(1);expect(store.attempts[0].payload.operation_id).not.toBe(store.attempts[1].payload.operation_id);
+});
+
+test('copies: whole-study limit failure creates no partial result and permits explicit new attempt',async({page})=>{
+ const options={copyFailure:'copy_limit_exceeded'};const store=await copiesFixture(page,options);await firstNote(page);await page.getByRole('button',{name:'Back to Studies',exact:true}).click();await page.getByRole('button',{name:'Copy study',exact:true}).click();await expect(page.getByRole('alert')).toContainText('too large to copy');expect(store.copies).toHaveLength(0);await expect(page.getByRole('button',{name:'Recover original creation',exact:true})).toHaveCount(0);
+ options.copyFailure=undefined;await page.getByRole('button',{name:'Copy study',exact:true}).click();await expect.poll(()=>store.copies.length).toBe(1);expect(store.attempts[0].payload.operation_id).not.toBe(store.attempts[1].payload.operation_id);
+});
+
+test('copies: a delayed acknowledgement in another tab offers Open created without changing selection',async({page})=>{
+ let release;const store=await copiesFixture(page,{beforeCopy:()=>new Promise(resolve=>release=resolve)});await firstNote(page);await page.getByRole('textbox',{name:'Note text',exact:true}).fill('Source stays selected');await page.getByRole('button',{name:'Duplicate note',exact:true}).click();await expect.poll(()=>!!release).toBe(true);
+ await page.getByRole('button',{name:'New workspace tab',exact:true}).click();await page.getByRole('dialog',{name:'Book and chapter selector'}).getByRole('button',{name:'Cancel',exact:true}).click();release();await expect(page.getByRole('button',{name:'Open created note',exact:true})).toBeVisible();expect(store.copies).toHaveLength(1);
+});
+
+test('copies: copy authentication recovery never repeats the effect automatically',async({page})=>{
+ const options={copyFailure:'authentication_required'};const store=await copiesFixture(page,options);await firstNote(page);await page.getByRole('textbox',{name:'Note text',exact:true}).fill('Recoverable source');await page.getByRole('button',{name:'Duplicate note',exact:true}).click();await expect(page.getByRole('textbox',{name:'Note text',exact:true})).toHaveCount(0);expect(store.attempts).toHaveLength(1);
+ await page.route('**/auth/v1/token*',r=>r.fulfill({json:{...session,access_token:'renewed-current'}}));await page.evaluate(async()=>{const {supabase}=await import('/src/lib/supabase.ts');await supabase.auth.signInWithPassword({email:'reader@example.invalid',password:'fixture'});});options.copyFailure=undefined;
+ await page.getByRole('button',{name:'Retry Studies',exact:true}).click();await expect(page.getByRole('textbox',{name:'Note text',exact:true})).toContainText('Recoverable source');expect(store.attempts).toHaveLength(1);await page.getByRole('button',{name:'Recover original creation',exact:true}).click();await expect.poll(()=>store.copies.length).toBe(1);expect(store.attempts[1].payload).toEqual(store.attempts[0].payload);
+});
+
+function largeValidCopyValue(){
+ const value=reviewHighlightValue(2),anchor=value.highlights[0].anchor;
+ anchor.source_id='s'.repeat(64);anchor.tokenization_version='t'.repeat(64);
+ anchor.segments.forEach((segment,i)=>{segment.end_position=32;segment.observed_word_ids=Array.from({length:32},(_,j)=>(9007199254740993n+BigInt(i*32+j)).toString());segment.verse_token_digest='a'.repeat(64);});
+ value.document.blocks[0].content=Array.from({length:13},(_,i)=>({type:'text',text:'x'.repeat(i===12?848:4096),marks:[]}));
+ value.connections=Array.from({length:128},()=>({id:crypto.randomUUID(),reference:structuredClone(anchor.segments[0].reference)}));
+ value.highlights=Array.from({length:64},()=>({id:crypto.randomUUID(),colour:'#ABCDEF',anchor:structuredClone(anchor)}));return value;
+}
+
+test('copies adapter: twenty valid large aggregates remain readable and bounded overflow is rejected',async({page})=>{
+ await setup(page);const value=largeValidCopyValue();
+ const {execFileSync}=require('node:child_process'),path=require('node:path');
+ execFileSync(process.env.SCRIBESWELL_TEST_PYTHON||'python3',['-c',"import sys;from apps.scribeswell.backend.personal_notes_contract import parse_command;parse_command('note.create',sys.stdin.buffer.read())"],{input:JSON.stringify({operation_id:note,value}),cwd:path.resolve(__dirname,'../../../..'),encoding:'utf8'});
+ const rows=Array.from({length:20},()=>({...attribution,id:crypto.randomUUID(),study_id:study,visibility:'study',value,revision:'1'}));
+ const response=JSON.stringify({items:rows,next_cursor:null});expect(response.length).toBeGreaterThan(4000000);
+ await page.route('**/api/studies/'+study+'/notes',r=>r.fulfill({contentType:'application/json',body:response}));await page.goto('/');
+ const result=await page.evaluate(async study=>{const {api}=await import('/src/lib/personal-notes.ts');try{return {count:(await api.notes('current',study)).items.length};}catch(e){return {error:e.code};}},study);
+ expect(result).toEqual({count:20});
+ await page.route('**/api/studies/'+study+'/notes',r=>r.fulfill({contentType:'application/json',body:' '.repeat(50*262144+65537)}));
+ const overflow=await page.evaluate(async study=>{const {api}=await import('/src/lib/personal-notes.ts');try{await api.notes('current',study);return 'accepted';}catch(e){return e.code;}},study);expect(overflow).toBe('response_invalid');
+});
+
+async function unsavedUnload(page){return page.evaluate(()=>{const event=new Event('beforeunload',{cancelable:true});window.dispatchEvent(event);return event.defaultPrevented;});}
+
+test('copies review: last-context acknowledged fork retires only the captured branch',async({page})=>{
+ await copiesFixture(page,{failPut:409});await firstNote(page);await page.getByRole('textbox',{name:'Note text',exact:true}).fill('Captured branch');await expect(page.getByRole('alert')).toContainText('This note has changed');await page.getByRole('button',{name:'Save mine as a new note',exact:true}).click();await expect(page.getByText('Copied from: Untitled study',{exact:true})).toBeVisible();expect(await unsavedUnload(page)).toBe(false);
+ await page.getByRole('button',{name:'Back to Studies',exact:true}).click();await page.getByRole('button',{name:'Leave study',exact:true}).click();await expect(page.getByRole('dialog',{name:'Changes not saved'})).toHaveCount(0);
+});
+
+test('copies review: fork preserves a captured branch still selected in another live context',async({page})=>{
+ await copiesFixture(page,{failPut:409});await firstNote(page);await page.getByRole('textbox',{name:'Note text',exact:true}).fill('Shared captured branch');await expect(page.getByRole('alert')).toContainText('This note has changed');await reviewTabAdd(page);await page.getByRole('button',{name:'Analysis',exact:true}).click();await page.getByRole('button',{name:'Save mine as a new note',exact:true}).click();await expect(page.getByText('Copied from: Untitled study',{exact:true})).toBeVisible();expect(await unsavedUnload(page)).toBe(true);
+ await page.getByRole('tablist',{name:'Workspace tabs'}).getByRole('tab').first().click();await expect(page.getByRole('textbox',{name:'Note text',exact:true})).toHaveText('Shared captured branch');await expect(page.getByRole('alert')).toContainText('This note has changed');
+});
+
+test('copies review: newer input during held copied-note read retains branch and acknowledged recovery',async({page})=>{
+ let release;const options={failPut:409,beforeCopyRead:()=>new Promise(resolve=>release=resolve)};await copiesFixture(page,options);await firstNote(page);const editor=page.getByRole('textbox',{name:'Note text',exact:true});await editor.fill('Captured branch');await expect(page.getByRole('alert')).toContainText('This note has changed');await page.getByRole('button',{name:'Save mine as a new note',exact:true}).click();await expect.poll(()=>!!release).toBe(true);await editor.fill('Newer local branch');release();await expect(page.getByRole('button',{name:'Open created note',exact:true})).toBeVisible();await expect(editor).toHaveText('Newer local branch');expect(await unsavedUnload(page)).toBe(true);options.beforeCopyRead=undefined;await page.getByRole('button',{name:'Open created note',exact:true}).click();await expect(page.getByRole('dialog',{name:'Changes not saved'})).toBeVisible();await page.getByRole('button',{name:'Stay',exact:true}).click();await expect(editor).toHaveText('Newer local branch');expect(await unsavedUnload(page)).toBe(true);
+});
+
+for(const tool of ['Analysis','Studies'])test('copies review: held copied-note read cannot reverse tool '+tool,async({page})=>{
+ let release;const options={failPut:409,beforeCopyRead:()=>new Promise(resolve=>release=resolve)};await copiesFixture(page,options);await firstNote(page);await page.getByRole('textbox',{name:'Note text',exact:true}).fill('Captured fork branch');await expect(page.getByRole('alert')).toContainText('This note has changed');await page.getByRole('button',{name:'Save mine as a new note',exact:true}).click();await expect.poll(()=>!!release).toBe(true);await page.getByRole('button',{name:tool,exact:true}).click();release();await expect(page.getByRole('button',{name:'Open created note',exact:true})).toBeVisible();await expect(page.getByRole('button',{name:tool,exact:true})).toHaveAttribute('aria-pressed',tool==='Analysis'?'false':'true');options.beforeCopyRead=undefined;await page.getByRole('button',{name:'Open created note',exact:true}).click();await expect(page.getByRole('dialog',{name:'Changes not saved'})).toHaveCount(0);await expect(page.getByText('Copied from: Untitled study',{exact:true})).toBeVisible();expect(await unsavedUnload(page)).toBe(false);
+});
+
+test('copies review: held copied-note read never reselects after confirmed source deletion',async({page})=>{
+ let release;await copiesFixture(page,{beforeCopyRead:()=>new Promise(resolve=>release=resolve)});await firstNote(page);await page.getByRole('button',{name:'Duplicate note',exact:true}).click();await expect.poll(()=>!!release).toBe(true);await page.getByRole('button',{name:'Delete note',exact:true}).click();await page.getByRole('dialog',{name:'Delete this note?'}).getByRole('button',{name:'Delete note',exact:true}).click();await expect(page.getByRole('textbox',{name:'Note text',exact:true})).toHaveCount(0);release();await expect(page.getByRole('button',{name:'Open created note',exact:true})).toBeVisible();await expect(page.getByRole('textbox',{name:'Note text',exact:true})).toHaveCount(0);
+});
+
+test('copies review: study conflict refreshes metadata for the next explicit copy only',async({page})=>{
+ const store=await copiesFixture(page);await firstNote(page);store.metadata.revision='2';store.metadata.title='Current authorized title';await page.getByRole('button',{name:'Back to Studies',exact:true}).click();await page.getByRole('button',{name:'Copy study',exact:true}).click();await expect(page.getByRole('heading',{name:'Current authorized title',exact:true})).toBeVisible();expect(store.attempts).toHaveLength(1);expect(store.copies).toHaveLength(0);await page.getByRole('button',{name:'Copy study',exact:true}).click();await expect.poll(()=>store.copies.length).toBe(1);expect(store.attempts[1].payload.expected_revision).toBe('2');
+});
+
+for(const label of ['Source study','Original unavailable'])test('copies review: note and study credit display '+label,async({page})=>{
+ await copiesFixture(page,{creditLabel:label});await firstNote(page);await page.getByRole('button',{name:'Duplicate note',exact:true}).click();await expect(page.getByText('Copied from: '+label,{exact:true})).toBeVisible();await page.getByRole('button',{name:'Back to Studies',exact:true}).click();await page.getByRole('button',{name:'Copy study',exact:true}).click();await expect(page.getByText('Copied from: '+label,{exact:true})).toBeVisible();
+});
+
+test('copies review: adapters reject malformed credit on note study and library reads',async({page})=>{
+ await setup(page);await page.goto('/');const valid=copyCredit(),baseNote={...attribution,id:note,study_id:study,revision:'1',visibility:'study',value:{document:{version:1,blocks:[]},connections:[],highlights:[]}},baseStudy={...attribution,id:study,title:'Study',revision:'1'};
+ const variants=[undefined,null,valid,{...valid,label:{}},{...valid,source_note_id:'not-an-id'},{...valid,origin_account_id:'00000000-0000-0000-0000-000000000000'},{...valid,relation:'unsafe'},{...valid,created_at:'2026-02-30T00:00:00.000000Z'},{...valid,created_by_actor_id:'bad'},{...valid,label:'\uD800'},{...valid,label:' '},{...valid,created_by_actor_id:actor+'\n'},{...valid,created_at:attribution.created_at+'\n'}];
+ const result=await page.evaluate(async({variants,baseNote,baseStudy})=>{const {api}=await import('/src/lib/personal-notes.ts');const original=window.fetch,results=[];try{for(const credit of variants){const row={...baseNote,...(credit===undefined?{}:{copy_credit:credit})};window.fetch=async()=>new Response(JSON.stringify(row));try{await api.note('current',baseNote.study_id,baseNote.id);results.push(true);}catch{results.push(false);}}const bad={...baseStudy,copy_credit:{label:{}}};window.fetch=async()=>new Response(JSON.stringify(bad));try{await api.study('current',baseStudy.id);results.push(true);}catch{results.push(false);}window.fetch=async()=>new Response(JSON.stringify({items:[bad],next_cursor:null}));for(const read of [()=>api.studies('current'),()=>api.search('current','q')]){try{await read();results.push(true);}catch{results.push(false);}}return results;}finally{window.fetch=original;}},{variants,baseNote,baseStudy});expect(result).toEqual([true,true,true,...Array(13).fill(false)]);
 });

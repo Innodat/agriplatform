@@ -1,0 +1,15 @@
+{
+  "argv": [
+    "npm",
+    "run",
+    "test:browser",
+    "--workspace",
+    "scribeswell-web",
+    "--",
+    "--workers=2",
+    "-g",
+    "review tabs E1 shared conflicted lane"
+  ],
+  "exit_code": 0,
+  "seconds": 11.59204698600115
+}

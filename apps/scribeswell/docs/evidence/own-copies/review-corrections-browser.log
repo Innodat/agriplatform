@@ -1,0 +1,25 @@
+
+> scribeswell-web@0.1.0 test:browser
+> playwright test --config playwright.config.cjs --workers=2 --fully-parallel -g note and study credit display|adapters reject malformed credit
+
+[WebServer] (node:493120) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 6 tests using 2 workers
+
+(node:493279) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:493280) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  2 [desktop] › tests/personal-notes.spec.cjs:1818:60 › copies review: note and study credit display Original unavailable (4.3s)
+  ✓  1 [desktop] › tests/personal-notes.spec.cjs:1818:60 › copies review: note and study credit display Source study (6.4s)
+  ✓  3 [desktop] › tests/personal-notes.spec.cjs:1822:1 › copies review: adapters reject malformed credit on note study and library reads (3.1s)
+(node:493822) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:493841) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  4 [mobile] › tests/personal-notes.spec.cjs:1818:60 › copies review: note and study credit display Source study (4.9s)
+  ✓  5 [mobile] › tests/personal-notes.spec.cjs:1818:60 › copies review: note and study credit display Original unavailable (4.9s)
+  ✓  6 [mobile] › tests/personal-notes.spec.cjs:1822:1 › copies review: adapters reject malformed credit on note study and library reads (2.3s)
+
+  6 passed (22.7s)

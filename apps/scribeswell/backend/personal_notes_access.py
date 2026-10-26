@@ -11,7 +11,7 @@ class NotesError(Exception):
         self.code, self.details = code, details
         super().__init__(code)
 
-STATUSES = {'highlight_proof_invalid':409,'highlight_proof_unavailable':503,'scribeswell_personal_notes_input_invalid':400,'authentication_required':401,
+STATUSES = {'copy_limit_exceeded':409,'note_base_unavailable':409,'highlight_proof_invalid':409,'highlight_proof_unavailable':503,'scribeswell_personal_notes_input_invalid':400,'authentication_required':401,
     'studies_access_denied':403,'resource_unavailable':404,'note_revision_conflict':409,'note_format_unsupported':409,'study_revision_conflict':409,'passage_revision_conflict':409,
     'operation_payload_mismatch':409,'operation_unresolved':409,'studies_access_unavailable':503,
     'studies_storage_unavailable':503,'request_deadline_exceeded':503}

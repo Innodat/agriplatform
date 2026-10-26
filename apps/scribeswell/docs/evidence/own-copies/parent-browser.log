@@ -1,0 +1,142 @@
+
+> scribeswell-web@0.1.0 test:browser
+> playwright test --config playwright.config.cjs --workers=2 --fully-parallel personal-notes.spec.cjs --grep copies|reopening a conflicting lane|revision conflict preserves input|shared conflicted lane|own highlights: first destination|own highlights: native phrase selection
+
+[WebServer] (node:507855) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 58 tests using 2 workers
+
+(node:507915) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:507922) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   1 [desktop] › tests/personal-notes.spec.cjs:184:1 › revision conflict preserves input and guards study switching (4.8s)
+  ✓   2 [desktop] › tests/personal-notes.spec.cjs:217:1 › review: reopening a conflicting lane preserves mine until explicit latest replacement (4.5s)
+  ✓   4 [desktop] › tests/personal-notes.spec.cjs:1561:1 › own highlights: first destination is explicitly created and Add note never quotes selected text (3.6s)
+  ✓   5 [desktop] › tests/personal-notes.spec.cjs:1565:1 › own highlights: native phrase selection preserves touch context menu and desktop context route (1.7s)
+  ✓   6 [desktop] › tests/personal-notes.spec.cjs:1655:1 › copies: review latest preserves the local branch until explicit use latest (2.5s)
+  ✘   3 [desktop] › tests/personal-notes.spec.cjs:1512:1 › review tabs E1 shared conflicted lane cannot be replaced by reopening from another live context (8.9s)
+(node:508626) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   7 [desktop] › tests/personal-notes.spec.cjs:1707:1 › copies: Duplicate confirms pending writing and opens an independent editable note (2.2s)
+  ✓   9 [desktop] › tests/personal-notes.spec.cjs:1723:1 › copies: unknown fork retains frozen operation and does not select over newer local edits (2.6s)
+  ✓   8 [desktop] › tests/personal-notes.spec.cjs:1715:1 › copies: Save mine freezes original base and complete local value without overwriting latest (3.6s)
+  ✓  10 [desktop] › tests/personal-notes.spec.cjs:1730:1 › copies: Copy study confirms writing and opens exact titled own result without reader navigation (2.2s)
+  ✓  11 [desktop] › tests/personal-notes.spec.cjs:1736:56 › copies: study copy refuses composition input without silently omitting it (2.7s)
+  ✓  12 [desktop] › tests/personal-notes.spec.cjs:1736:56 › copies: study copy refuses invalid input without silently omitting it (2.3s)
+  ✓  13 [desktop] › tests/personal-notes.spec.cjs:1736:56 › copies: study copy refuses conflict input without silently omitting it (3.2s)
+  ✓  14 [desktop] › tests/personal-notes.spec.cjs:1746:76 › copies: note_base_unavailable keeps local writing and retires the failed fork identity (3.2s)
+  ✓  16 [desktop] › tests/personal-notes.spec.cjs:1752:1 › copies: whole-study limit failure creates no partial result and permits explicit new attempt (2.0s)
+  ✓  15 [desktop] › tests/personal-notes.spec.cjs:1746:76 › copies: highlight_proof_unavailable keeps local writing and retires the failed fork identity (3.4s)
+  ✓  17 [desktop] › tests/personal-notes.spec.cjs:1757:1 › copies: a delayed acknowledgement in another tab offers Open created without changing selection (2.8s)
+  ✓  18 [desktop] › tests/personal-notes.spec.cjs:1762:1 › copies: copy authentication recovery never repeats the effect automatically (2.6s)
+  ✓  19 [desktop] › tests/personal-notes.spec.cjs:1777:1 › copies adapter: twenty valid large aggregates remain readable and bounded overflow is rejected (3.1s)
+  ✓  20 [desktop] › tests/personal-notes.spec.cjs:1792:1 › copies review: last-context acknowledged fork retires only the captured branch (4.0s)
+  ✓  21 [desktop] › tests/personal-notes.spec.cjs:1797:1 › copies review: fork preserves a captured branch still selected in another live context (3.8s)
+  ✓  22 [desktop] › tests/personal-notes.spec.cjs:1802:1 › copies review: newer input during held copied-note read retains branch and acknowledged recovery (3.5s)
+  ✓  23 [desktop] › tests/personal-notes.spec.cjs:1806:42 › copies review: held copied-note read cannot reverse tool Analysis (4.4s)
+  ✓  24 [desktop] › tests/personal-notes.spec.cjs:1806:42 › copies review: held copied-note read cannot reverse tool Studies (4.6s)
+  ✓  25 [desktop] › tests/personal-notes.spec.cjs:1810:1 › copies review: held copied-note read never reselects after confirmed source deletion (2.5s)
+  ✓  26 [desktop] › tests/personal-notes.spec.cjs:1814:1 › copies review: study conflict refreshes metadata for the next explicit copy only (2.6s)
+  ✓  27 [desktop] › tests/personal-notes.spec.cjs:1818:60 › copies review: note and study credit display Source study (2.8s)
+  ✓  28 [desktop] › tests/personal-notes.spec.cjs:1818:60 › copies review: note and study credit display Original unavailable (2.9s)
+  ✓  29 [desktop] › tests/personal-notes.spec.cjs:1822:1 › copies review: adapters reject malformed credit on note study and library reads (1.3s)
+(node:510013) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:510020) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  30 [mobile] › tests/personal-notes.spec.cjs:184:1 › revision conflict preserves input and guards study switching (3.8s)
+  ✓  31 [mobile] › tests/personal-notes.spec.cjs:217:1 › review: reopening a conflicting lane preserves mine until explicit latest replacement (3.6s)
+  ✓  33 [mobile] › tests/personal-notes.spec.cjs:1561:1 › own highlights: first destination is explicitly created and Add note never quotes selected text (3.6s)
+  ✓  34 [mobile] › tests/personal-notes.spec.cjs:1565:1 › own highlights: native phrase selection preserves touch context menu and desktop context route (1.2s)
+  ✓  35 [mobile] › tests/personal-notes.spec.cjs:1655:1 › copies: review latest preserves the local branch until explicit use latest (2.5s)
+  ✘  32 [mobile] › tests/personal-notes.spec.cjs:1512:1 › review tabs E1 shared conflicted lane cannot be replaced by reopening from another live context (8.6s)
+(node:510610) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  36 [mobile] › tests/personal-notes.spec.cjs:1707:1 › copies: Duplicate confirms pending writing and opens an independent editable note (2.9s)
+  ✓  38 [mobile] › tests/personal-notes.spec.cjs:1723:1 › copies: unknown fork retains frozen operation and does not select over newer local edits (4.1s)
+  ✓  37 [mobile] › tests/personal-notes.spec.cjs:1715:1 › copies: Save mine freezes original base and complete local value without overwriting latest (5.1s)
+  ✓  39 [mobile] › tests/personal-notes.spec.cjs:1730:1 › copies: Copy study confirms writing and opens exact titled own result without reader navigation (2.6s)
+  ✓  40 [mobile] › tests/personal-notes.spec.cjs:1736:56 › copies: study copy refuses composition input without silently omitting it (2.9s)
+  ✓  41 [mobile] › tests/personal-notes.spec.cjs:1736:56 › copies: study copy refuses invalid input without silently omitting it (3.0s)
+  ✓  42 [mobile] › tests/personal-notes.spec.cjs:1736:56 › copies: study copy refuses conflict input without silently omitting it (3.5s)
+  ✓  43 [mobile] › tests/personal-notes.spec.cjs:1746:76 › copies: note_base_unavailable keeps local writing and retires the failed fork identity (2.7s)
+  ✓  44 [mobile] › tests/personal-notes.spec.cjs:1746:76 › copies: highlight_proof_unavailable keeps local writing and retires the failed fork identity (2.9s)
+  ✓  45 [mobile] › tests/personal-notes.spec.cjs:1752:1 › copies: whole-study limit failure creates no partial result and permits explicit new attempt (2.0s)
+  ✓  46 [mobile] › tests/personal-notes.spec.cjs:1757:1 › copies: a delayed acknowledgement in another tab offers Open created without changing selection (2.5s)
+  ✓  47 [mobile] › tests/personal-notes.spec.cjs:1762:1 › copies: copy authentication recovery never repeats the effect automatically (2.4s)
+  ✓  48 [mobile] › tests/personal-notes.spec.cjs:1777:1 › copies adapter: twenty valid large aggregates remain readable and bounded overflow is rejected (2.5s)
+  ✓  49 [mobile] › tests/personal-notes.spec.cjs:1792:1 › copies review: last-context acknowledged fork retires only the captured branch (3.4s)
+  ✓  50 [mobile] › tests/personal-notes.spec.cjs:1797:1 › copies review: fork preserves a captured branch still selected in another live context (3.4s)
+  ✓  51 [mobile] › tests/personal-notes.spec.cjs:1802:1 › copies review: newer input during held copied-note read retains branch and acknowledged recovery (3.0s)
+  ✓  52 [mobile] › tests/personal-notes.spec.cjs:1806:42 › copies review: held copied-note read cannot reverse tool Analysis (3.1s)
+  ✓  53 [mobile] › tests/personal-notes.spec.cjs:1806:42 › copies review: held copied-note read cannot reverse tool Studies (3.0s)
+  ✓  54 [mobile] › tests/personal-notes.spec.cjs:1810:1 › copies review: held copied-note read never reselects after confirmed source deletion (2.0s)
+  ✓  55 [mobile] › tests/personal-notes.spec.cjs:1814:1 › copies review: study conflict refreshes metadata for the next explicit copy only (2.3s)
+  ✓  56 [mobile] › tests/personal-notes.spec.cjs:1818:60 › copies review: note and study credit display Source study (2.4s)
+  ✓  57 [mobile] › tests/personal-notes.spec.cjs:1818:60 › copies review: note and study credit display Original unavailable (2.4s)
+  ✓  58 [mobile] › tests/personal-notes.spec.cjs:1822:1 › copies review: adapters reject malformed credit on note study and library reads (1.2s)
+
+
+  1) [desktop] › tests/personal-notes.spec.cjs:1512:1 › review tabs E1 shared conflicted lane cannot be replaced by reopening from another live context 
+
+    Error: expect(locator).toHaveText(expected) failed
+
+    Locator: getByRole('textbox', { name: 'Note text', exact: true })
+    Expected: "shared conflicting input"
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toHaveText" getByRole('textbox', { name: 'Note text', exact: true }) with timeout 5000ms
+      - waiting for getByRole('textbox', { name: 'Note text', exact: true })
+
+
+      1511 | });
+      1512 | test('review tabs E1 shared conflicted lane cannot be replaced by reopening from another live context',async({page})=>{
+    > 1513 |  const {requests}=await setup(page,{failPut:409});await firstNote(page);await reviewTabAdd(page);const editor=page.getByRole('textbox',{name:'Note text',exact:true});await page.getByRole('button',{name:'Analysis',exact:true}).click();await editor.fill('shared conflicting input');await expect(page.getByRole('alert')).toContainText('This note has changed');const reads=requests.filter(r=>r.path.endsWith('/notes/'+note)&&r.method==='GET').length;await page.getByRole('button',{name:'Back to Studies',exact:true}).click();await page.getByRole('list',{name:'Notes',exact:true}).getByRole('button').first().click();await expect(page.getByRole('dialog',{name:'Changes not saved'})).toHaveCount(0);await page.getByRole('button',{name:'Analysis',exact:true}).click();await expect(editor).toHaveText('shared conflicting input');expect(requests.filter(r=>r.path.endsWith('/notes/'+note)&&r.method==='GET')).toHaveLength(reads);
+           |                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               ^
+      1514 | });
+      1515 |
+      1516 | async function highlightCorpus(page,{changed=false,unavailable=false}={}){
+        at /home/ck/repos/innodat/agriplatform/apps/scribeswell/web/tests/personal-notes.spec.cjs:1513:783
+
+    Error Context: test-results/personal-notes-review-tabs-08074-g-from-another-live-context-desktop/error-context.md
+
+  2) [mobile] › tests/personal-notes.spec.cjs:1512:1 › review tabs E1 shared conflicted lane cannot be replaced by reopening from another live context 
+
+    Error: expect(locator).toHaveText(expected) failed
+
+    Locator: getByRole('textbox', { name: 'Note text', exact: true })
+    Expected: "shared conflicting input"
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toHaveText" getByRole('textbox', { name: 'Note text', exact: true }) with timeout 5000ms
+      - waiting for getByRole('textbox', { name: 'Note text', exact: true })
+
+
+      1511 | });
+      1512 | test('review tabs E1 shared conflicted lane cannot be replaced by reopening from another live context',async({page})=>{
+    > 1513 |  const {requests}=await setup(page,{failPut:409});await firstNote(page);await reviewTabAdd(page);const editor=page.getByRole('textbox',{name:'Note text',exact:true});await page.getByRole('button',{name:'Analysis',exact:true}).click();await editor.fill('shared conflicting input');await expect(page.getByRole('alert')).toContainText('This note has changed');const reads=requests.filter(r=>r.path.endsWith('/notes/'+note)&&r.method==='GET').length;await page.getByRole('button',{name:'Back to Studies',exact:true}).click();await page.getByRole('list',{name:'Notes',exact:true}).getByRole('button').first().click();await expect(page.getByRole('dialog',{name:'Changes not saved'})).toHaveCount(0);await page.getByRole('button',{name:'Analysis',exact:true}).click();await expect(editor).toHaveText('shared conflicting input');expect(requests.filter(r=>r.path.endsWith('/notes/'+note)&&r.method==='GET')).toHaveLength(reads);
+           |                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               ^
+      1514 | });
+      1515 |
+      1516 | async function highlightCorpus(page,{changed=false,unavailable=false}={}){
+        at /home/ck/repos/innodat/agriplatform/apps/scribeswell/web/tests/personal-notes.spec.cjs:1513:783
+
+    Error Context: test-results/personal-notes-review-tabs-08074-g-from-another-live-context-mobile/error-context.md
+
+  2 failed
+    [desktop] › tests/personal-notes.spec.cjs:1512:1 › review tabs E1 shared conflicted lane cannot be replaced by reopening from another live context 
+    [mobile] › tests/personal-notes.spec.cjs:1512:1 › review tabs E1 shared conflicted lane cannot be replaced by reopening from another live context 
+  56 passed (1.6m)
+npm error Lifecycle script `test:browser` failed with error:
+npm error code 1
+npm error path /home/ck/repos/innodat/agriplatform/apps/scribeswell/web
+npm error workspace scribeswell-web@0.1.0
+npm error location /home/ck/repos/innodat/agriplatform/apps/scribeswell/web
+npm error command failed
+npm error command sh -c playwright test --config playwright.config.cjs --workers=2 --fully-parallel personal-notes.spec.cjs --grep 'copies|reopening a conflicting lane|revision conflict preserves input|shared conflicted lane|own highlights: first destination|own highlights: native phrase selection'

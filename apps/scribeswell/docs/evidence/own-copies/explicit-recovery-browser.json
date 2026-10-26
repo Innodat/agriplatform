@@ -1,0 +1,16 @@
+{
+  "argv": [
+    "npm",
+    "run",
+    "test:browser",
+    "--workspace",
+    "scribeswell-web",
+    "--",
+    "--workers=2",
+    "--fully-parallel",
+    "-g",
+    "held copied-note read cannot reverse tool|newer input during held copied-note read|last-context acknowledged fork|fork preserves a captured branch"
+  ],
+  "exit_code": 0,
+  "seconds": 26.63053429499996
+}

@@ -136,6 +136,213 @@
         "title": "Committed",
         "type": "object"
       },
+      "ConflictCopyNote": {
+        "additionalProperties": false,
+        "properties": {
+          "base_revision": {
+            "not": {
+              "pattern": "[^0-9]"
+            },
+            "pattern": "^(?:[1-9][0-9]{0,17}|[1-8][0-9]{18}|9[0-1][0-9]{17}|92[0-1][0-9]{16}|922[0-2][0-9]{15}|9223[0-2][0-9]{14}|92233[0-6][0-9]{13}|922337[0-1][0-9]{12}|92233720[0-2][0-9]{10}|922337203[0-5][0-9]{9}|9223372036[0-7][0-9]{8}|92233720368[0-4][0-9]{7}|922337203685[0-3][0-9]{6}|9223372036854[0-6][0-9]{5}|92233720368547[0-6][0-9]{4}|922337203685477[0-4][0-9]{3}|9223372036854775[0-7][0-9]{2}|922337203685477580[0-6][0-9]{0}|9223372036854775807)$",
+            "title": "Base Revision",
+            "type": "string"
+          },
+          "operation_id": {
+            "maxLength": 36,
+            "minLength": 36,
+            "not": {
+              "const": "00000000-0000-0000-0000-000000000000"
+            },
+            "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+            "title": "Operation Id",
+            "type": "string"
+          },
+          "value": {
+            "$ref": "#/components/schemas/NoteValue"
+          }
+        },
+        "required": [
+          "operation_id",
+          "base_revision",
+          "value"
+        ],
+        "title": "ConflictCopyNote",
+        "type": "object"
+      },
+      "CopyCredit": {
+        "additionalProperties": false,
+        "properties": {
+          "created_at": {
+            "description": "Server UTC timestamp; calendar validity and attribution chronology require semantic validation.",
+            "maxLength": 27,
+            "minLength": 27,
+            "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}\\.[0-9]{6}Z$",
+            "title": "Created At",
+            "type": "string"
+          },
+          "created_by_actor_id": {
+            "maxLength": 36,
+            "minLength": 36,
+            "not": {
+              "const": "00000000-0000-0000-0000-000000000000"
+            },
+            "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+            "title": "Created By Actor Id",
+            "type": "string"
+          },
+          "label": {
+            "anyOf": [
+              {
+                "allOf": [
+                  {
+                    "pattern": "\\S",
+                    "type": "string"
+                  }
+                ],
+                "description": "Nonblank scalar Unicode title, no Unicode Cc controls; whitespace is preserved.",
+                "maxLength": 200,
+                "minLength": 1,
+                "not": {
+                  "pattern": "[\\x00-\\x1f\\x7f-\\x9f]"
+                },
+                "pattern": "^[^\\x00-\\x1f\\x7f-\\x9f]+$",
+                "type": "string"
+              },
+              {
+                "const": "Original unavailable",
+                "type": "string"
+              }
+            ],
+            "title": "Label"
+          },
+          "origin_account_id": {
+            "maxLength": 36,
+            "minLength": 36,
+            "not": {
+              "const": "00000000-0000-0000-0000-000000000000"
+            },
+            "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+            "title": "Origin Account Id",
+            "type": "string"
+          },
+          "origin_note_id": {
+            "anyOf": [
+              {
+                "maxLength": 36,
+                "minLength": 36,
+                "not": {
+                  "const": "00000000-0000-0000-0000-000000000000"
+                },
+                "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Origin Note Id"
+          },
+          "origin_study_id": {
+            "maxLength": 36,
+            "minLength": 36,
+            "not": {
+              "const": "00000000-0000-0000-0000-000000000000"
+            },
+            "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+            "title": "Origin Study Id",
+            "type": "string"
+          },
+          "relation": {
+            "enum": [
+              "note.duplicate",
+              "note.conflict_copy",
+              "study.copy"
+            ],
+            "title": "Relation",
+            "type": "string"
+          },
+          "source_account_id": {
+            "maxLength": 36,
+            "minLength": 36,
+            "not": {
+              "const": "00000000-0000-0000-0000-000000000000"
+            },
+            "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+            "title": "Source Account Id",
+            "type": "string"
+          },
+          "source_note_id": {
+            "anyOf": [
+              {
+                "maxLength": 36,
+                "minLength": 36,
+                "not": {
+                  "const": "00000000-0000-0000-0000-000000000000"
+                },
+                "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Source Note Id"
+          },
+          "source_study_id": {
+            "maxLength": 36,
+            "minLength": 36,
+            "not": {
+              "const": "00000000-0000-0000-0000-000000000000"
+            },
+            "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+            "title": "Source Study Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "relation",
+          "source_account_id",
+          "source_study_id",
+          "source_note_id",
+          "origin_account_id",
+          "origin_study_id",
+          "origin_note_id",
+          "created_at",
+          "created_by_actor_id",
+          "label"
+        ],
+        "title": "CopyCredit",
+        "type": "object"
+      },
+      "CopyStudy": {
+        "additionalProperties": false,
+        "properties": {
+          "expected_revision": {
+            "not": {
+              "pattern": "[^0-9]"
+            },
+            "pattern": "^(?:[1-9][0-9]{0,17}|[1-8][0-9]{18}|9[0-1][0-9]{17}|92[0-1][0-9]{16}|922[0-2][0-9]{15}|9223[0-2][0-9]{14}|92233[0-6][0-9]{13}|922337[0-1][0-9]{12}|92233720[0-2][0-9]{10}|922337203[0-5][0-9]{9}|9223372036[0-7][0-9]{8}|92233720368[0-4][0-9]{7}|922337203685[0-3][0-9]{6}|9223372036854[0-6][0-9]{5}|92233720368547[0-6][0-9]{4}|922337203685477[0-4][0-9]{3}|9223372036854775[0-7][0-9]{2}|922337203685477580[0-6][0-9]{0}|9223372036854775807)$",
+            "title": "Expected Revision",
+            "type": "string"
+          },
+          "operation_id": {
+            "maxLength": 36,
+            "minLength": 36,
+            "not": {
+              "const": "00000000-0000-0000-0000-000000000000"
+            },
+            "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+            "title": "Operation Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "operation_id",
+          "expected_revision"
+        ],
+        "title": "CopyStudy",
+        "type": "object"
+      },
       "CreateNote": {
         "additionalProperties": false,
         "properties": {
@@ -341,6 +548,35 @@
         "title": "DocumentV2",
         "type": "object"
       },
+      "DuplicateNote": {
+        "additionalProperties": false,
+        "properties": {
+          "expected_revision": {
+            "not": {
+              "pattern": "[^0-9]"
+            },
+            "pattern": "^(?:[1-9][0-9]{0,17}|[1-8][0-9]{18}|9[0-1][0-9]{17}|92[0-1][0-9]{16}|922[0-2][0-9]{15}|9223[0-2][0-9]{14}|92233[0-6][0-9]{13}|922337[0-1][0-9]{12}|92233720[0-2][0-9]{10}|922337203[0-5][0-9]{9}|9223372036[0-7][0-9]{8}|92233720368[0-4][0-9]{7}|922337203685[0-3][0-9]{6}|9223372036854[0-6][0-9]{5}|92233720368547[0-6][0-9]{4}|922337203685477[0-4][0-9]{3}|9223372036854775[0-7][0-9]{2}|922337203685477580[0-6][0-9]{0}|9223372036854775807)$",
+            "title": "Expected Revision",
+            "type": "string"
+          },
+          "operation_id": {
+            "maxLength": 36,
+            "minLength": 36,
+            "not": {
+              "const": "00000000-0000-0000-0000-000000000000"
+            },
+            "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+            "title": "Operation Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "operation_id",
+          "expected_revision"
+        ],
+        "title": "DuplicateNote",
+        "type": "object"
+      },
       "EnrollStudies": {
         "additionalProperties": false,
         "properties": {
@@ -441,8 +677,10 @@
         "discriminator": {
           "mapping": {
             "authentication_required": "#/components/schemas/Problem",
+            "copy_limit_exceeded": "#/components/schemas/Problem",
             "highlight_proof_invalid": "#/components/schemas/Problem",
             "highlight_proof_unavailable": "#/components/schemas/Problem",
+            "note_base_unavailable": "#/components/schemas/Problem",
             "note_format_unsupported": "#/components/schemas/Problem",
             "note_revision_conflict": "#/components/schemas/RevisionProblem",
             "operation_payload_mismatch": "#/components/schemas/Problem",
@@ -790,6 +1028,17 @@
       "NoteView": {
         "additionalProperties": false,
         "properties": {
+          "copy_credit": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/CopyCredit"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
           "created_at": {
             "description": "Server UTC timestamp; calendar validity and attribution chronology require semantic validation.",
             "maxLength": 27,
@@ -898,7 +1147,8 @@
                   "study.create",
                   "study.rename",
                   "study.passages.replace",
-                  "study.delete"
+                  "study.delete",
+                  "study.copy"
                 ]
               },
               "note_id": {
@@ -912,7 +1162,9 @@
                 "enum": [
                   "note.create",
                   "note.replace",
-                  "note.delete"
+                  "note.delete",
+                  "note.duplicate",
+                  "note.conflict_copy"
                 ]
               },
               "note_id": {
@@ -930,7 +1182,10 @@
               "study.delete",
               "note.create",
               "note.replace",
-              "note.delete"
+              "note.delete",
+              "note.duplicate",
+              "note.conflict_copy",
+              "study.copy"
             ],
             "title": "Command",
             "type": "string"
@@ -1265,6 +1520,8 @@
               "resource_unavailable",
               "operation_payload_mismatch",
               "operation_unresolved",
+              "copy_limit_exceeded",
+              "note_base_unavailable",
               "highlight_proof_invalid",
               "highlight_proof_unavailable",
               "note_format_unsupported",
@@ -1594,6 +1851,17 @@
       "StudyView": {
         "additionalProperties": false,
         "properties": {
+          "copy_credit": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/CopyCredit"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
           "created_at": {
             "description": "Server UTC timestamp; calendar validity and attribution chronology require semantic validation.",
             "maxLength": 27,
@@ -1797,7 +2065,10 @@
                 "study.delete",
                 "note.create",
                 "note.replace",
-                "note.delete"
+                "note.delete",
+                "note.duplicate",
+                "note.conflict_copy",
+                "study.copy"
               ],
               "type": "string"
             }
@@ -1964,7 +2235,9 @@
                             "note_format_unsupported",
                             "highlight_proof_invalid",
                             "operation_payload_mismatch",
-                            "operation_unresolved"
+                            "operation_unresolved",
+                            "copy_limit_exceeded",
+                            "note_base_unavailable"
                           ]
                         }
                       }
@@ -2214,7 +2487,9 @@
                             "note_format_unsupported",
                             "highlight_proof_invalid",
                             "operation_payload_mismatch",
-                            "operation_unresolved"
+                            "operation_unresolved",
+                            "copy_limit_exceeded",
+                            "note_base_unavailable"
                           ]
                         }
                       }
@@ -2448,7 +2723,9 @@
                             "note_format_unsupported",
                             "highlight_proof_invalid",
                             "operation_payload_mismatch",
-                            "operation_unresolved"
+                            "operation_unresolved",
+                            "copy_limit_exceeded",
+                            "note_base_unavailable"
                           ]
                         }
                       }
@@ -2684,7 +2961,9 @@
                             "note_format_unsupported",
                             "highlight_proof_invalid",
                             "operation_payload_mismatch",
-                            "operation_unresolved"
+                            "operation_unresolved",
+                            "copy_limit_exceeded",
+                            "note_base_unavailable"
                           ]
                         }
                       }
@@ -2920,7 +3199,9 @@
                             "note_format_unsupported",
                             "highlight_proof_invalid",
                             "operation_payload_mismatch",
-                            "operation_unresolved"
+                            "operation_unresolved",
+                            "copy_limit_exceeded",
+                            "note_base_unavailable"
                           ]
                         }
                       }
@@ -3171,7 +3452,9 @@
                             "note_format_unsupported",
                             "highlight_proof_invalid",
                             "operation_payload_mismatch",
-                            "operation_unresolved"
+                            "operation_unresolved",
+                            "copy_limit_exceeded",
+                            "note_base_unavailable"
                           ]
                         }
                       }
@@ -3410,7 +3693,262 @@
                             "note_format_unsupported",
                             "highlight_proof_invalid",
                             "operation_payload_mismatch",
-                            "operation_unresolved"
+                            "operation_unresolved",
+                            "copy_limit_exceeded",
+                            "note_base_unavailable"
+                          ]
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            },
+            "description": "Revision, operation payload or unresolved conflict",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "private, no-store",
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/ErrorResponse"
+                    },
+                    {
+                      "properties": {
+                        "code": {
+                          "enum": [
+                            "studies_access_unavailable",
+                            "studies_storage_unavailable",
+                            "highlight_proof_unavailable",
+                            "request_deadline_exceeded"
+                          ]
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            },
+            "description": "Access, storage or deadline unavailable",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "private, no-store",
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "accountSession": []
+          }
+        ]
+      }
+    },
+    "/api/studies/{study_id}/copy": {
+      "post": {
+        "operationId": "copyStudy",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "study_id",
+            "required": true,
+            "schema": {
+              "maxLength": 36,
+              "minLength": 36,
+              "not": {
+                "const": "00000000-0000-0000-0000-000000000000"
+              },
+              "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CopyStudy"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OperationAck"
+                }
+              }
+            },
+            "description": "Acknowledged or current authorized result",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "private, no-store",
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/ErrorResponse"
+                    },
+                    {
+                      "properties": {
+                        "code": {
+                          "enum": [
+                            "scribeswell_personal_notes_input_invalid"
+                          ]
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            },
+            "description": "Invalid input",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "private, no-store",
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/ErrorResponse"
+                    },
+                    {
+                      "properties": {
+                        "code": {
+                          "enum": [
+                            "authentication_required"
+                          ]
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            },
+            "description": "Authentication required",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "private, no-store",
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/ErrorResponse"
+                    },
+                    {
+                      "properties": {
+                        "code": {
+                          "enum": [
+                            "studies_access_denied"
+                          ]
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            },
+            "description": "Current Studies access denied",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "private, no-store",
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/ErrorResponse"
+                    },
+                    {
+                      "properties": {
+                        "code": {
+                          "enum": [
+                            "resource_unavailable"
+                          ]
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            },
+            "description": "Unavailable resource; does not reveal another owner",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "private, no-store",
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/ErrorResponse"
+                    },
+                    {
+                      "properties": {
+                        "code": {
+                          "enum": [
+                            "note_revision_conflict",
+                            "study_revision_conflict",
+                            "passage_revision_conflict",
+                            "note_format_unsupported",
+                            "highlight_proof_invalid",
+                            "operation_payload_mismatch",
+                            "operation_unresolved",
+                            "copy_limit_exceeded",
+                            "note_base_unavailable"
                           ]
                         }
                       }
@@ -3674,7 +4212,9 @@
                             "note_format_unsupported",
                             "highlight_proof_invalid",
                             "operation_payload_mismatch",
-                            "operation_unresolved"
+                            "operation_unresolved",
+                            "copy_limit_exceeded",
+                            "note_base_unavailable"
                           ]
                         }
                       }
@@ -3923,7 +4463,9 @@
                             "note_format_unsupported",
                             "highlight_proof_invalid",
                             "operation_payload_mismatch",
-                            "operation_unresolved"
+                            "operation_unresolved",
+                            "copy_limit_exceeded",
+                            "note_base_unavailable"
                           ]
                         }
                       }
@@ -4188,7 +4730,9 @@
                             "note_format_unsupported",
                             "highlight_proof_invalid",
                             "operation_payload_mismatch",
-                            "operation_unresolved"
+                            "operation_unresolved",
+                            "copy_limit_exceeded",
+                            "note_base_unavailable"
                           ]
                         }
                       }
@@ -4441,7 +4985,9 @@
                             "note_format_unsupported",
                             "highlight_proof_invalid",
                             "operation_payload_mismatch",
-                            "operation_unresolved"
+                            "operation_unresolved",
+                            "copy_limit_exceeded",
+                            "note_base_unavailable"
                           ]
                         }
                       }
@@ -4704,7 +5250,543 @@
                             "note_format_unsupported",
                             "highlight_proof_invalid",
                             "operation_payload_mismatch",
-                            "operation_unresolved"
+                            "operation_unresolved",
+                            "copy_limit_exceeded",
+                            "note_base_unavailable"
+                          ]
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            },
+            "description": "Revision, operation payload or unresolved conflict",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "private, no-store",
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/ErrorResponse"
+                    },
+                    {
+                      "properties": {
+                        "code": {
+                          "enum": [
+                            "studies_access_unavailable",
+                            "studies_storage_unavailable",
+                            "highlight_proof_unavailable",
+                            "request_deadline_exceeded"
+                          ]
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            },
+            "description": "Access, storage or deadline unavailable",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "private, no-store",
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "accountSession": []
+          }
+        ]
+      }
+    },
+    "/api/studies/{study_id}/notes/{note_id}/conflict-copy": {
+      "post": {
+        "operationId": "conflictCopyNote",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "study_id",
+            "required": true,
+            "schema": {
+              "maxLength": 36,
+              "minLength": 36,
+              "not": {
+                "const": "00000000-0000-0000-0000-000000000000"
+              },
+              "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "note_id",
+            "required": true,
+            "schema": {
+              "maxLength": 36,
+              "minLength": 36,
+              "not": {
+                "const": "00000000-0000-0000-0000-000000000000"
+              },
+              "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ConflictCopyNote"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OperationAck"
+                }
+              }
+            },
+            "description": "Acknowledged or current authorized result",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "private, no-store",
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/ErrorResponse"
+                    },
+                    {
+                      "properties": {
+                        "code": {
+                          "enum": [
+                            "scribeswell_personal_notes_input_invalid"
+                          ]
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            },
+            "description": "Invalid input",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "private, no-store",
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/ErrorResponse"
+                    },
+                    {
+                      "properties": {
+                        "code": {
+                          "enum": [
+                            "authentication_required"
+                          ]
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            },
+            "description": "Authentication required",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "private, no-store",
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/ErrorResponse"
+                    },
+                    {
+                      "properties": {
+                        "code": {
+                          "enum": [
+                            "studies_access_denied"
+                          ]
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            },
+            "description": "Current Studies access denied",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "private, no-store",
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/ErrorResponse"
+                    },
+                    {
+                      "properties": {
+                        "code": {
+                          "enum": [
+                            "resource_unavailable"
+                          ]
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            },
+            "description": "Unavailable resource; does not reveal another owner",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "private, no-store",
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/ErrorResponse"
+                    },
+                    {
+                      "properties": {
+                        "code": {
+                          "enum": [
+                            "note_revision_conflict",
+                            "study_revision_conflict",
+                            "passage_revision_conflict",
+                            "note_format_unsupported",
+                            "highlight_proof_invalid",
+                            "operation_payload_mismatch",
+                            "operation_unresolved",
+                            "copy_limit_exceeded",
+                            "note_base_unavailable"
+                          ]
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            },
+            "description": "Revision, operation payload or unresolved conflict",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "private, no-store",
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/ErrorResponse"
+                    },
+                    {
+                      "properties": {
+                        "code": {
+                          "enum": [
+                            "studies_access_unavailable",
+                            "studies_storage_unavailable",
+                            "highlight_proof_unavailable",
+                            "request_deadline_exceeded"
+                          ]
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            },
+            "description": "Access, storage or deadline unavailable",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "private, no-store",
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "accountSession": []
+          }
+        ]
+      }
+    },
+    "/api/studies/{study_id}/notes/{note_id}/duplicate": {
+      "post": {
+        "operationId": "duplicateNote",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "study_id",
+            "required": true,
+            "schema": {
+              "maxLength": 36,
+              "minLength": 36,
+              "not": {
+                "const": "00000000-0000-0000-0000-000000000000"
+              },
+              "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "note_id",
+            "required": true,
+            "schema": {
+              "maxLength": 36,
+              "minLength": 36,
+              "not": {
+                "const": "00000000-0000-0000-0000-000000000000"
+              },
+              "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DuplicateNote"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OperationAck"
+                }
+              }
+            },
+            "description": "Acknowledged or current authorized result",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "private, no-store",
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/ErrorResponse"
+                    },
+                    {
+                      "properties": {
+                        "code": {
+                          "enum": [
+                            "scribeswell_personal_notes_input_invalid"
+                          ]
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            },
+            "description": "Invalid input",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "private, no-store",
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/ErrorResponse"
+                    },
+                    {
+                      "properties": {
+                        "code": {
+                          "enum": [
+                            "authentication_required"
+                          ]
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            },
+            "description": "Authentication required",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "private, no-store",
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/ErrorResponse"
+                    },
+                    {
+                      "properties": {
+                        "code": {
+                          "enum": [
+                            "studies_access_denied"
+                          ]
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            },
+            "description": "Current Studies access denied",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "private, no-store",
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/ErrorResponse"
+                    },
+                    {
+                      "properties": {
+                        "code": {
+                          "enum": [
+                            "resource_unavailable"
+                          ]
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            },
+            "description": "Unavailable resource; does not reveal another owner",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "private, no-store",
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/ErrorResponse"
+                    },
+                    {
+                      "properties": {
+                        "code": {
+                          "enum": [
+                            "note_revision_conflict",
+                            "study_revision_conflict",
+                            "passage_revision_conflict",
+                            "note_format_unsupported",
+                            "highlight_proof_invalid",
+                            "operation_payload_mismatch",
+                            "operation_unresolved",
+                            "copy_limit_exceeded",
+                            "note_base_unavailable"
                           ]
                         }
                       }
@@ -4945,7 +6027,9 @@
                             "note_format_unsupported",
                             "highlight_proof_invalid",
                             "operation_payload_mismatch",
-                            "operation_unresolved"
+                            "operation_unresolved",
+                            "copy_limit_exceeded",
+                            "note_base_unavailable"
                           ]
                         }
                       }
@@ -5194,7 +6278,9 @@
                             "note_format_unsupported",
                             "highlight_proof_invalid",
                             "operation_payload_mismatch",
-                            "operation_unresolved"
+                            "operation_unresolved",
+                            "copy_limit_exceeded",
+                            "note_base_unavailable"
                           ]
                         }
                       }
@@ -5445,7 +6531,9 @@
                             "note_format_unsupported",
                             "highlight_proof_invalid",
                             "operation_payload_mismatch",
-                            "operation_unresolved"
+                            "operation_unresolved",
+                            "copy_limit_exceeded",
+                            "note_base_unavailable"
                           ]
                         }
                       }

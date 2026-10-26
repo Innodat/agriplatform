@@ -1,0 +1,14 @@
+
+> scribeswell-web@0.1.0 test:browser
+> playwright test --config playwright.config.cjs --project=mobile -g copies: Save mine
+
+[WebServer] (node:448486) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 1 test using 1 worker
+
+(node:448559) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  1 [mobile] › tests/personal-notes.spec.cjs:1710:1 › copies: Save mine freezes original base and complete local value without overwriting latest (4.1s)
+
+  1 passed (7.3s)

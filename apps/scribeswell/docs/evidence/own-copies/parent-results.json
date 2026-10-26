@@ -1,0 +1,42 @@
+{
+  "results": [
+    {
+      "name": "application-python",
+      "argv": [
+        "/tmp/scribeswell-implementation-python/bin/python",
+        "-m",
+        "pytest",
+        "-q",
+        "apps/scribeswell/tests/test_own_copies.py",
+        "apps/scribeswell/tests/test_own_highlights.py",
+        "apps/scribeswell/tests/test_personal_notes_contract.py",
+        "apps/scribeswell/tests/test_personal_notes_api.py",
+        "apps/scribeswell/tests/test_library_search.py",
+        "apps/scribeswell/tests/test_note_deletion.py",
+        "apps/scribeswell/tests/test_study_deletion.py",
+        "apps/scribeswell/tests/test_highlight_evidence.py"
+      ],
+      "exit_code": 0,
+      "seconds": 3.96
+    },
+    {
+      "name": "browser",
+      "argv": [
+        "npm",
+        "run",
+        "test:browser",
+        "--workspace=apps/scribeswell/web",
+        "--",
+        "--workers=2",
+        "--fully-parallel",
+        "personal-notes.spec.cjs",
+        "--grep",
+        "copies|reopening a conflicting lane|revision conflict preserves input|shared conflicted lane|own highlights: first destination|own highlights: native phrase selection"
+      ],
+      "exit_code": 1,
+      "seconds": 98.47
+    }
+  ],
+  "selected_files": 186,
+  "source_unchanged": true
+}

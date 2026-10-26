@@ -82,6 +82,8 @@ class PersonalNotesStorage:
         account,actor=identity['account_id'],identity['actor_id']
         body=payload.model_dump(mode='json')
         fingerprint=hashlib.sha256(json.dumps({'command':command,'version':1,'study_id':study_id,'note_id':note_id,'payload':body},sort_keys=True,separators=(',',':'),ensure_ascii=False).encode()).hexdigest()
+        from own_copies import COMMANDS,execute_copy
+        if command in COMMANDS:return await execute_copy(self,identity,command,payload,study_id,note_id,deadline,fingerprint)
         observations={}
         if command in ('note.create','note.replace') and body['value'].get('highlights'):
             # Reconcile before source waits. This read takes no business write lock;
@@ -233,7 +235,11 @@ class PersonalNotesStorage:
     async def read(self,identity,study_id,note_id,deadline):
         async with self.transaction(identity,deadline) as cursor:
             parent=await self._parent(cursor,identity['account_id'],study_id)
-            return view(await self._note(cursor,identity['account_id'],study_id,note_id),True) if note_id else view(parent)
+            from own_copies import credit
+            result=view(await self._note(cursor,identity['account_id'],study_id,note_id),True) if note_id else view(parent)
+            source_credit=await credit(cursor,identity['account_id'],study_id,note_id)
+            if source_credit is not None:result['copy_credit']=source_credit
+            return result
 
     async def list(self,identity,study_id,limit,cursor_value,deadline):
         resource='notes' if study_id else 'studies'; account=identity['account_id']

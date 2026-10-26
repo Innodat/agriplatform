@@ -1,0 +1,29 @@
+
+> scribeswell-web@0.1.0 test:browser
+> playwright test --config playwright.config.cjs --workers=2 --fully-parallel -g held copied-note read cannot reverse tool|newer input during held copied-note read|last-context acknowledged fork|fork preserves a captured branch
+
+[WebServer] (node:504290) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 10 tests using 2 workers
+
+(node:504388) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:504382) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   2 [desktop] › tests/personal-notes.spec.cjs:1792:1 › copies review: last-context acknowledged fork retires only the captured branch (4.5s)
+  ✓   1 [desktop] › tests/personal-notes.spec.cjs:1797:1 › copies review: fork preserves a captured branch still selected in another live context (5.1s)
+  ✓   3 [desktop] › tests/personal-notes.spec.cjs:1802:1 › copies review: newer input during held copied-note read retains branch and acknowledged recovery (3.7s)
+  ✓   4 [desktop] › tests/personal-notes.spec.cjs:1806:42 › copies review: held copied-note read cannot reverse tool Analysis (3.8s)
+(node:504844) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   5 [desktop] › tests/personal-notes.spec.cjs:1806:42 › copies review: held copied-note read cannot reverse tool Studies (3.7s)
+(node:504973) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   6 [mobile] › tests/personal-notes.spec.cjs:1792:1 › copies review: last-context acknowledged fork retires only the captured branch (4.4s)
+  ✓   7 [mobile] › tests/personal-notes.spec.cjs:1797:1 › copies review: fork preserves a captured branch still selected in another live context (4.2s)
+  ✓   8 [mobile] › tests/personal-notes.spec.cjs:1802:1 › copies review: newer input during held copied-note read retains branch and acknowledged recovery (3.9s)
+  ✓   9 [mobile] › tests/personal-notes.spec.cjs:1806:42 › copies review: held copied-note read cannot reverse tool Analysis (4.7s)
+  ✓  10 [mobile] › tests/personal-notes.spec.cjs:1806:42 › copies review: held copied-note read cannot reverse tool Studies (4.4s)
+
+  10 passed (26.0s)
