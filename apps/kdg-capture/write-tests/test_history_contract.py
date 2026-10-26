@@ -66,3 +66,19 @@ class HistoryContract(unittest.IsolatedAsyncioTestCase):
         for cursor in ('','bad+cursor','bad/cursor','bad=cursor','bad cursor','bad\n','x'*2049):
             self.assertFalse(self.valid(doc,shape,{**first.json(),'next_cursor':cursor}))
         self.assertTrue(self.valid(doc,shape,{**first.json(),'next_cursor':None}))
+
+    async def test_observation_metadata_rejects_noncanonical_membership_and_timestamps(self):
+        import json
+        doc=json.loads(export_history_openapi.render())
+        model=doc['components']['schemas']['OwnReadObservation']
+        valid=contracts.CreateContract.valid
+        for field,value in [('membership_id','7\n'),('checked_at','2026-10-26T10:00:00+00:00'),('checked_at','2026-10-26T12:00:00+02:00'),('expires_at','2026-11-02T10:00:00+00:00'),('expires_at','2026-11-02T10:00:00Z\n')]:
+            with self.subTest(field=field,value=value):
+                self.assertFalse(valid(self,doc,model['properties'][field],value))
+        for name in ('OwnReadObservation','OwnEditObservation'):
+            if name not in doc['components']['schemas']:continue
+            props=doc['components']['schemas'][name]['properties']
+            for field,title in [('account_id','Account Id'),('actor_id','Actor Id'),('decision_id','Decision Id')]:
+                self.assertEqual(props[field]['title'],title)
+                for value in ['00000000-0000-0000-0000-000000000000','11111111-1111-4111-8111-111111111111\n']:
+                    self.assertFalse(valid(self,doc,props[field],value))

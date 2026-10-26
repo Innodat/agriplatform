@@ -148,7 +148,7 @@ export type ErrorEnvelope = {
  */
 export type HistoryPage = {
     /**
-     * Org Id
+     * Account Id
      */
     account_id: string;
     /**

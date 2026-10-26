@@ -12,15 +12,16 @@ const retained=join(root,'platform/deployment/.local/web-baseline-qualification/
 assert.equal(JSON.parse(readFileSync(join(retained,'node_modules/typescript/package.json'))).version,'7.0.2');
 const proof=join(root,'platform/deployment/.local/kdg-persistence-http-path-20261026','network-'+randomUUID()),capsule=join(proof,'capsule');mkdirSync(capsule,{recursive:true,mode:0o700});
 const paths=[
- 'web/tests/persistence-child.mjs','web/tests/persistence-http-proof.mjs','web/tests/persistence-http-fixture.py','web/tsconfig.auth.json',
+ 'web/src/own-observation.ts',
+ 'web/src/edit-context.ts','web/src/edit-context-entry.ts','contracts/edit-context-generated/types.gen.ts','web/tests/persistence-child.mjs','web/tests/persistence-http-proof.mjs','web/tests/persistence-http-fixture.py','web/tsconfig.auth.json',
  'web/offline-tools/idb.ts','web/src/history-store.ts','web/src/history-download.ts','web/src/history.ts','web/src/history-entry.ts','web/src/read-validation.ts','web/src/read.ts','web/src/read-entry.ts','web/src/create.ts','web/src/create-entry.ts','web/src/edit.ts','web/src/edit-entry.ts','web/src/recovery.ts','web/src/recovery-entry.ts','web/src/auth-entry.ts','web/src/auth/lifecycle.ts','web/src/entry.ts','web/src/auth-public-input.ts',
  'contracts/history-generated/types.gen.ts','contracts/read-generated/types.gen.ts','contracts/create-generated/types.gen.ts','contracts/edit-generated/types.gen.ts','contracts/recovery-generated/types.gen.ts','contracts/generated/types.gen.ts',
  'api/main.py','api/context.py','api/safe_errors.py','api/capture_commands.py','api/questionnaire.py','write-tools/transaction_context.py',
- ...['history_http','history_openapi','capture_history','read_http','read_openapi','capture_read','create_http','edit_http','recovery_http','create_openapi','edit_openapi','recovery_openapi','capture_create_handler','capture_edit_handler','capture_create','capture_edit','operation_recovery','operation_outcomes'].map(x=>'write-candidate/'+x+'.py')
+ ...['own_observation_openapi','edit_context','edit_context_http','edit_context_openapi','history_http','history_openapi','capture_history','read_http','read_openapi','capture_read','create_http','edit_http','recovery_http','create_openapi','edit_openapi','recovery_openapi','capture_create_handler','capture_edit_handler','capture_create','capture_edit','operation_recovery','operation_outcomes'].map(x=>'write-candidate/'+x+'.py')
 ].map(x=>owner+'/'+x);
 const sources=Object.fromEntries(paths.map(path=>{const bytes=readFileSync(join(root,path)),dest=join(capsule,path);mkdirSync(dirname(dest),{recursive:true});writeFileSync(dest,bytes);return[path,hash(bytes)];}));
 writeFileSync(join(capsule,'package.json'),'{"private":true,"type":"module"}\n');symlinkSync(join(retained,'node_modules'),join(capsule,'node_modules'),'dir');
-writeFileSync(join(capsule,'tsconfig.json'),JSON.stringify({compilerOptions:{strict:true,target:'ES2022',module:'ESNext',moduleResolution:'Bundler',skipLibCheck:true,lib:['ES2022','DOM','DOM.Iterable'],rootDir:join(capsule,owner),outDir:join(capsule,'compiled')},files:['history-entry','read-entry','create-entry','edit-entry','recovery-entry'].map(x=>join(capsule,owner,'web/src/'+x+'.ts'))}));
+writeFileSync(join(capsule,'tsconfig.json'),JSON.stringify({compilerOptions:{strict:true,target:'ES2022',module:'ESNext',moduleResolution:'Bundler',skipLibCheck:true,lib:['ES2022','DOM','DOM.Iterable'],rootDir:join(capsule,owner),outDir:join(capsule,'compiled')},files:['edit-context-entry','history-entry','read-entry','create-entry','edit-entry','recovery-entry'].map(x=>join(capsule,owner,'web/src/'+x+'.ts'))}));
 const types=spawnSync(process.execPath,[join(retained,'node_modules/typescript/bin/tsc'),'--project',join(capsule,'tsconfig.json')],{encoding:'utf8',timeout:30000});writeFileSync(join(proof,'types.log'),types.stdout+types.stderr);assert.ifError(types.error);assert.equal(types.status,0);
 let childOwner,shutdown={forced_stop:false,stop_signal:null,shutdown_failed:false},origin,server,passed=false,stopped=false,stderr='',stdout='';const checks=[],traffic=[];
 try{
@@ -32,6 +33,7 @@ try{
  const {ids}=ready;origin=ready.origin;assert.equal(new URL(origin).hostname,'127.0.0.1');
  const request=async(url,init)=>{assert.ok(url.startsWith('/api/v1/'));const response=await fetch(origin+url,init);traffic.push({path:url,method:init?.method??'GET',status:response.status});return response;};
  const fixture=async mode=>{const r=await fetch(origin+'/__fixture',mode?{method:'POST',body:JSON.stringify({mode})}:{});assert.equal(r.status,200);return r.json();};
+ const {createEditContextEntry}=await import(pathToFileURL(join(capsule,'compiled/web/src/edit-context-entry.js')));
  const {createHistoryEntry}=await import(pathToFileURL(join(capsule,'compiled/web/src/history-entry.js')));
  const {createReadEntry}=await import(pathToFileURL(join(capsule,'compiled/web/src/read-entry.js')));
  const {createCreateEntry}=await import(pathToFileURL(join(capsule,'compiled/web/src/create-entry.js')));
@@ -39,20 +41,30 @@ try{
  const {createRecoveryEntry}=await import(pathToFileURL(join(capsule,'compiled/web/src/recovery-entry.js')));
  const session={user:{id:ids.account},access_token:'synthetic-token'};
  function entry(factory,adapter=request){let callback;const auth={getSession:async()=>({data:{session},error:null}),refreshSession:async()=>({data:{session},error:null}),signOut:async()=>({error:null}),onAuthStateChange:cb=>{callback=cb;return{data:{subscription:{unsubscribe(){}}}};}};const owner=factory({org:ids.org,auth,publish(){},beginSignIn:async()=>{},request:adapter});return{owner,replace(){callback('TOKEN_REFRESHED',{...session,access_token:'synthetic-replacement'});}};}
- const create=entry(createCreateEntry),edit=entry(createEditEntry),recover=entry(createRecoveryEntry),read=entry(createReadEntry),history=entry(createHistoryEntry);
+ const editContext=entry(createEditContextEntry),create=entry(createCreateEntry),edit=entry(createEditEntry),recover=entry(createRecoveryEntry),read=entry(createReadEntry),history=entry(createHistoryEntry);
  try{
-  await Promise.all([create.owner.start(),edit.owner.start(),recover.owner.start(),read.owner.start(),history.owner.start()]);
+  await Promise.all([editContext.owner.start(),create.owner.start(),edit.owner.start(),recover.owner.start(),read.owner.start(),history.owner.start()]);
   const command={operation_id:ids.create,command_version:1,capture_id:ids.capture,child_id:ids.child,questionnaire_version_id:ids.version,observation_date:'2026-10-26',captured_at:'2026-10-26T10:00:00Z',child_eligibility_ref:'synthetic',answers:{[ids.question]:{value:1},[ids.actor]:{value:false},[ids.child]:{value:false},[ids.version]:{value:false}}};
   const pending={account_id:ids.account,org_id:ids.org,command};
   const created=await create.owner.create(pending);assert.equal(created.kind,'committed');assert.equal(created.receipt.result.revision,'1');checks.push('create1_over_loopback');
   const readPending={account_id:ids.account,org_id:ids.org,capture_id:ids.capture};
   const firstRead=await read.owner.read(readPending);assert.equal(firstRead.kind,'loaded');assert.equal(firstRead.snapshot.revision,'1');assert.deepEqual(firstRead.snapshot.answers,command.answers);assert.equal(firstRead.snapshot.captured_at,command.captured_at);assert.equal(firstRead.snapshot.child_label,'Synthetic child');assert.ok(Object.isFrozen(firstRead.snapshot.definition.questions));
   const originalDefinition=firstRead.snapshot.definition;
+  const beforeContext=await fixture();const firstContext=await editContext.owner.load(readPending);
+  assert.equal(firstContext.kind,'loaded');assert.deepEqual(firstContext.context.capture,firstRead.snapshot);
+  assert.deepEqual(firstContext.context.editable_fields,['observation_date','answers']);
+  assert.equal(firstContext.context.read_observation.permission,'kdg_capture.capture.read.own');assert.equal(firstContext.context.edit_observation.permission,'kdg_capture.capture.edit.own');
+  const afterContext=await fixture();assert.equal(afterContext.outcomes,beforeContext.outcomes);assert.equal(afterContext.history,beforeContext.history);assert.deepEqual(afterContext.captures,beforeContext.captures);
+  checks.push('edit_context_after_create_full_original_and_independent_observations_without_writes');
   assert.equal((await create.owner.create(pending)).receipt.result.revision,'1');
   const changed={operation_id:ids.edit,command_version:1,expected_revision:'1',observation_date:'2026-10-26',answers:{...command.answers,[ids.question]:{value:2}}};
   const editPending={account_id:ids.account,org_id:ids.org,capture_id:ids.capture,command:changed};
   const edited=await edit.owner.edit(editPending);assert.equal(edited.kind,'committed');assert.equal(edited.receipt.result.revision,'2');
   const currentRead=await read.owner.read(readPending);assert.equal(currentRead.kind,'loaded');assert.equal(currentRead.snapshot.revision,'2');assert.deepEqual(currentRead.snapshot.answers,changed.answers);assert.deepEqual(currentRead.snapshot.definition,originalDefinition);assert.equal(created.receipt.result.revision,'1');assert.equal(currentRead.snapshot.owner_actor_id,ids.actor);assert.equal(currentRead.snapshot.created_by,ids.actor);assert.equal(currentRead.snapshot.updated_by,ids.actor);checks.push('protected_current_read_after_create_and_edit_preserves_original_definition_and_receipt');
+  const currentContext=await editContext.owner.load(readPending);assert.equal(currentContext.kind,'loaded');assert.deepEqual(currentContext.context.capture,currentRead.snapshot);assert.deepEqual(currentContext.context.capture.definition,originalDefinition);
+  for(const [mode,error_id,status] of [['edit_denied','access_denied',403],['edit_identity','authorization_unavailable',503],['mismatch','authorization_unavailable',503]]){const before=await fixture(mode);assert.deepEqual(await editContext.owner.load(readPending),{kind:'error',status,error_id});assert.equal((await fixture()).acquired,before.acquired);}
+  await fixture('inactive_removed');assert.equal((await editContext.owner.load(readPending)).kind,'loaded');await fixture('all');
+  checks.push('edit_context_current_revision_edit_denial_identity_scope_and_inactive_original_version');
   assert.equal((await edit.owner.edit(editPending)).receipt.result.revision,'2');
   const lookup=(operation_id,command_type)=>({account_id:ids.account,org_id:ids.org,operation_id,command_type,...(command_type==='capture.edit'?{capture_id:ids.capture}:{})});
   assert.deepEqual((await recover.owner.recover(lookup(ids.create,'capture.create'))).receipt,created.receipt);
@@ -171,10 +183,19 @@ try{
    assert.equal((await old.owner.history(historyPending)).kind,'loaded');old.owner.dispose();
   }
   checks.push('history_auth_replacement_late_headers_and_body_fenced');
+  for(const phase of ['headers','body']){
+   const reached=deferred(),release=deferred();let held=true;
+   const adapter=async(url,init)=>{const r=await request(url,init);if(!url.endsWith('/edit-context')||!held)return r;held=false;
+    if(phase==='headers'){reached.resolve();await release.promise;return r;}
+    const bytes=new Uint8Array(await r.arrayBuffer());return new Response(new ReadableStream({async pull(c){reached.resolve();await release.promise;try{c.enqueue(bytes);c.close();}catch{}}}),{status:r.status,headers:r.headers});};
+   const old=entry(createEditContextEntry,adapter);await old.owner.start();const work=old.owner.load(readPending);await reached.promise;old.replace();assert.equal((await work).kind,'superseded');release.resolve();
+   for(let i=0;i<50&&old.owner.state().kind!=='authorized';i++)await new Promise(r=>setTimeout(r,2));assert.equal((await old.owner.load(readPending)).kind,'loaded');old.owner.dispose();
+  }
+  checks.push('edit_context_auth_replacement_late_headers_and_body_fenced');
   state=await fixture();assert.equal(state.acquired,state.released);assert.equal(state.outcomes,4);assert.equal(state.history,3);
   writeFileSync(join(proof,'integration-state.json'),JSON.stringify(state,null,2)+'\n');
   passed=true;
- }finally{create.owner.dispose();edit.owner.dispose();recover.owner.dispose();read.owner.dispose();history.owner.dispose();}
+ }finally{editContext.owner.dispose();create.owner.dispose();edit.owner.dispose();recover.owner.dispose();read.owner.dispose();history.owner.dispose();}
 }finally{
  if(server&&childOwner)shutdown=await stopChild(server,childOwner,origin);
  stopped=!!childOwner&&childOwner.state.code===0&&!shutdown.forced_stop;writeFileSync(join(proof,'fixture.log'),stdout+stderr);

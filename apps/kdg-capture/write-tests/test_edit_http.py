@@ -213,9 +213,10 @@ class HTTPAcceptance(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(result.json()['error_id'],'execution_timeout')
     async def test_expired_workers_hold_exclusive_lease_until_unwind(self):
         original_budget=write.Budget
-        def short():
-            budget=original_budget();budget.deadline=budget.started_at+.04;return budget
+        now=100.0
+        def controlled():return original_budget()
         for phase in ('borrow','sql','release'):
+            now=100.0
             self.pool=Pool();self.app.state.edit_engine=self.pool
             entered,finish=threading.Event(),threading.Event()
             def pending():entered.set();finish.wait(2)
@@ -226,13 +227,16 @@ class HTTPAcceptance(unittest.IsolatedAsyncioTestCase):
                     return execute(sql,args)
                 self.pool.connection.execute=blocked
             else:setattr(self.pool,phase,pending)
-            with patch.object(write,'Budget',side_effect=short):
+            # Expire only after the intended phase starts; setup is not bounded
+            # by a40ms scheduling assumption. Production ownership is unchanged.
+            with patch.object(write,'time',SimpleNamespace(monotonic=lambda:now)), patch.object(write,'Budget',side_effect=controlled):
                 task=asyncio.create_task(self.put())
                 try:
                     for _ in range(200):
                         if entered.is_set():break
                         await asyncio.sleep(.001)
                     self.assertTrue(entered.is_set(),phase)
+                    now=111.0  # Original ten-second budget expired during this phase.
                     await asyncio.sleep(.06)
                     self.assertFalse(task.done(),phase)
                 finally:

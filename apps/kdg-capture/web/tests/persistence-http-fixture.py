@@ -27,6 +27,8 @@ import create_http
 import edit_http
 import recovery_http
 import read_http
+import edit_context_http
+import edit_context
 import history_http
 import capture_history as history_read
 import capture_read as read
@@ -152,9 +154,10 @@ async def serve(directory):
         mode=store.mode
         if mode=='outage':return httpx.Response(503,json={'detail':{'code':'unavailable'}})
         if mode in ('deny','expired'):return httpx.Response(403 if mode=='deny' else 401,json={'detail':{'code':'access_denied' if mode=='deny' else 'authentication_required'}})
+        if mode=='edit_denied' and permission==edit.OWN:return httpx.Response(403,json={'detail':{'code':'access_denied'}})
         if mode.startswith('assigned') and permission==create.ALL:return httpx.Response(403,json={'detail':{'code':'access_denied'}})
         account=ACTOR if mode=='foreign_read' else ACCOUNT
-        return httpx.Response(200,json=dict(account_id=account,actor_id=ACTOR,membership_id='7',authorization_scope=dict(kind='organization',org_id=ORG),resource_scope=dict(kind='own_account',account_id=ACTOR if mode=='mismatch' else account),permission=permission,decision_id=UNKNOWN,checked_at=datetime.now(timezone.utc).isoformat().replace('+00:00','Z')))
+        return httpx.Response(200,json=dict(account_id=account,actor_id=CHILD if mode=='edit_identity' and permission==edit.OWN else ACTOR,membership_id='7',authorization_scope=dict(kind='organization',org_id=ORG),resource_scope=dict(kind='own_account',account_id=ACTOR if mode=='mismatch' else account),permission=permission,decision_id=UNKNOWN,checked_at=datetime.now(timezone.utc).isoformat().replace('+00:00','Z')))
     transport=httpx.MockTransport(access)
     args=dict(org_id=ORG,access_url='https://access.invalid',service_key='synthetic',transport=transport)
     create_app=create_http._create_app(handler.CreateHandler(**args),store,ORG)
@@ -162,11 +165,12 @@ async def serve(directory):
     recovery_app=recovery_http._create_app(recovery.RecoveryHandler(**args),store,ORG)
     read_app=read_http._create_app(read.ReadHandler(**args),store,ORG)
     history_app=history_http._create_app(history_read.HistoryHandler(**args),store,ORG)
+    edit_context_app=edit_context_http._create_app(edit_context.EditContextHandler(**args),store,ORG)
     context_app=context_http.create_app(**args)
     @asynccontextmanager
     async def lifespan(app):
         async with AsyncExitStack() as stack:
-            for child in (create_app,edit_app,recovery_app,read_app,history_app,context_app):await stack.enter_async_context(child.router.lifespan_context(child))
+            for child in (create_app,edit_app,recovery_app,read_app,history_app,edit_context_app,context_app):await stack.enter_async_context(child.router.lifespan_context(child))
             yield
         (directory/'storage-final.json').write_text(json.dumps(store.snapshot(),sort_keys=True,indent=2)+'\n')
     from starlette.applications import Starlette
@@ -180,7 +184,7 @@ async def serve(directory):
         if path=='/__fixture':
             if scope['method']=='POST':
                 raw=await receive();mode=json.loads(raw.get('body',b'{}')).get('mode')
-                if mode not in ('all','assigned','assigned_removed','deny','expired','mismatch','outage','fail_acquire','fail_sql','fail_commit','fail_release','foreign_read','inactive_removed','invalid_detail','history_seed','history_bytes'):return await JSONResponse({},status_code=422)(scope,receive,send)
+                if mode not in ('edit_denied','edit_identity','all','assigned','assigned_removed','deny','expired','mismatch','outage','fail_acquire','fail_sql','fail_commit','fail_release','foreign_read','inactive_removed','invalid_detail','history_seed','history_bytes'):return await JSONResponse({},status_code=422)(scope,receive,send)
                 store.mode=mode
                 if mode in ('history_seed','history_bytes'):
                     # Explicit disposable synthetic records; no commands/receipts or authority minted.
@@ -203,7 +207,7 @@ async def serve(directory):
                             store.captures[key]=value
 
             return await JSONResponse(store.snapshot())(scope,receive,send)
-        child=context_app if path=='/api/v1/context' else recovery_app if path.startswith('/api/v1/operations/') else (history_app if scope['method']=='GET' else create_app) if path=='/api/v1/captures' else read_app if scope['method']=='GET' else edit_app
+        child=edit_context_app if path.endswith('/edit-context') else context_app if path=='/api/v1/context' else recovery_app if path.startswith('/api/v1/operations/') else (history_app if scope['method']=='GET' else create_app) if path=='/api/v1/captures' else read_app if scope['method']=='GET' else edit_app
         await child(scope,receive,send)
     sock=socket.socket();sock.bind(('127.0.0.1',0));sock.listen(128)
     server=uvicorn.Server(uvicorn.Config(dispatch,log_level='warning',lifespan='on',timeout_graceful_shutdown=5))

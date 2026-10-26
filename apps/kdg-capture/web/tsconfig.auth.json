@@ -18,6 +18,9 @@
     "skipLibCheck": true
   },
   "files": [
+    "src/edit-context-entry.ts",
+    "tests/edit-context.types.ts",
+    "tests/edit-context-entry.types.ts",
     "src/history-store.ts",
     "src/history-download.ts",
     "tests/history-store.types.ts",

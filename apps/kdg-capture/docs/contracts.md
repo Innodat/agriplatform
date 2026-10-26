@@ -1216,3 +1216,38 @@ from the builder template under `web/offline-tools`, checked through
 merge and retention policy; there is no generic offline history runtime engine.
 No UI/service-worker/default-startup activation or physical-device durability claim
 is included. See [offline history evidence](OFFLINE_HISTORY_EVIDENCE.md).
+
+
+## Candidate protected own-edit context — 2026-10-26
+
+`GET /api/v1/captures/{capture_id}/edit-context` now has an isolated candidate
+implementation, generated contract and strict transport/Auth consumer. It checks current
+own-read and own-edit independently before checkout, requiring the same verified
+organization, account, durable actor and membership. Missing and foreign captures
+share safe404. Historical own editing needs neither create permission nor current
+child assignment/active status.
+
+The closed response contains current original-owner `capture` with its original
+questionnaire, exact `editable_fields` (`observation_date`, `answers`),
+`read_observation` and `edit_observation`. Each observation retains its own actual
+Access decision ID and checked_at; expires_at is exactly seven days later. It grants
+no create/all-record authority. This supersedes earlier no-edit-context limitations
+only for this explicit current read/edit check. Ordinary reads/history/receipts cannot
+mint own-edit evidence. No local observation is persisted by this consumer.
+
+The existing short read-only transaction and exclusive worker ownership use one
+original ten-second budget through final serialization/release. Detail has an
+independent512KiB UTF8 limit; the entire context has a544KiB limit. Current safe typed
+errors and private/no-store behavior apply. Client whole-envelope validation and
+Auth leases prevent malformed, foreign, late or replaced-session publication.
+No command, receipt, saved overlay or queue mutation occurs.
+
+Observation metadata is generated from owning schemas, with strict identifiers,
+positive membership IDs and canonical UTC-Z timestamps. Context and history share
+only their local exact observation metadata/validator. Existing PUT authorization
+retains its behavior through a small shared pair-check implementation.
+
+This remains unmounted synthetic code. Actual PostgreSQL permissions, joins,
+read-only effects and native cancellation/drain qualification remain activation
+prerequisites. No local Save/UI/worker activation is included. See
+[own-edit context evidence](OWN_EDIT_CONTEXT_EVIDENCE.md) and its machine record.

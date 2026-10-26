@@ -59,7 +59,7 @@ def _transaction(conn,budget,context,proposal,evidence):
 class EditHandler(protected.CreateHandler):
     _permissions=(PERMISSION,)
     _evidence_type=Context
-    async def _authorize(self,token,budget):
+    async def _authorize_pair(self,token,budget):
         try:
             async with asyncio.timeout(min(protected.ACCESS_SECONDS,budget.remaining())):
                 read,observed=await super()._authorize(token,budget)
@@ -68,9 +68,13 @@ class EditHandler(protected.CreateHandler):
                 evidence,_=await checker._authorize(token,budget)
                 if (read.account_id,read.actor_id,read.membership_id)!=(evidence.account_id,evidence.actor_id,evidence.membership_id):
                     raise HandlerError(503,'authorization_unavailable')
-                return evidence,observed
+                return read,evidence,observed
         except TimeoutError:
             raise HandlerError(503,'authorization_unavailable') from None
+
+    async def _authorize(self,token,budget):
+        _,evidence,observed=await self._authorize_pair(token,budget)
+        return evidence,observed
 
     async def execute(self,conn,capture_id,raw,authorization):
         budget=write.Budget()

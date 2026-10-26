@@ -4,7 +4,7 @@
     "generator": "platform-api-client",
     "template": "hey-api-0.99.0-types-v1",
     "recipe": "d3e06e4788695ffaa9ce45bcc8d62724af3870669d43ea340ea9d6342d976d3d",
-    "source": "35c60d23093e9e90e67659c34f78dfe571e07f77f402cb11335581f2152531aa"
+    "source": "ef4029ef2c13892fa5f4e2f94fb3f49852600a47675bb0b0dbfeeba6d5924d58"
   },
   "files": {
     "index.ts": {
@@ -13,7 +13,7 @@
     },
     "types.gen.ts": {
       "classification": "generated",
-      "sha256": "0a49b7a362dd52bc664ab183069023516011973ea787c1b06230c24527501659"
+      "sha256": "f87b41f81b2a6f39ddf13b775e95e9d21d63038949a93e943f85521fab18e227"
     }
   }
 }

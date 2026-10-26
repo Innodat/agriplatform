@@ -1,3 +1,34 @@
+## Current delivery — protected own-edit context, 2026-10-26
+
+Read [own-edit context evidence](OWN_EDIT_CONTEXT_EVIDENCE.md), its
+[machine record](evidence/own-edit-context-20261026.json) and current [contracts](contracts.md).
+Candidate GET /api/v1/captures/{capture_id}/edit-context checks current own-read and
+own-edit independently before checkout, returning original-record detail and separate
+exact seven-day observations. Generated schema/client, strict transport and Auth leases
+are implemented. No write, local Save, observation persistence or activation occurs.
+
+Final source-bound verification: 313 backend,127 direct, four guards,
+16 loopback groups and 61 isolated Chromium IndexedDB checks pass,
+alongside575 compiled Auth/client tests, six strict TS7.0.2 adapter configurations,
+twelve schema/client freshness checks and five scaffold parities. Review: ten
+addressed, two rejected with evidence, one actual PostgreSQL qualification group deferred.
+The old edit timing-test scheduling correction and characterization limits are explicit.
+
+Continue implementation without routine next/approval stops. Next approved Story2.2
+consumer is isolated local explicit-Save persistence: pin reviewed base, atomically
+retain completed saved overlay/action snapshots and predecessors, preserve conflicts
+and exact own-edit evidence. Recheck contracts before choosing its scope; no UI,
+unfinished-input autosave or queue activation is implied.
+
+Synthetic local/CI only. No UI/editor/Leave, service worker/browser/queue/default-startup
+activation, real accounts/Auth/Access, PostgreSQL/native-driver/Docker qualification,
+migrations/provisioning, deployment/production/pilot or cleanup. Preserve concurrent
+work, historical evidence/resources and dependencies including TypeScript7.0.2.
+Fingerprints/HMAC remain deferred. Never read/run/copy the preexisting untracked
+migration fixture. Historical handoffs follow unchanged.
+
+---
+
 ## Current delivery — atomic offline own-history consumption, 2026-10-26
 
 Read [offline history evidence](OFFLINE_HISTORY_EVIDENCE.md), its

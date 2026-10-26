@@ -124,3 +124,7 @@
 - source_spec: `_bmad-output/implementation-artifacts/spec-kdg-own-history-pages.md`
   summary: Qualify actual PostgreSQL own-history selection, original versions, keyset continuation and retained read after child deactivation or assignment removal during separately authorized native work.
   evidence: Verification VG1 shows SQL-string doubles independently filter rows and would not detect an unintended active-child/assignment predicate. Current delivery explicitly excludes native/DB qualification and activation; current authority and owner/date predicates still apply.
+
+- source_spec: `_bmad-output/implementation-artifacts/spec-kdg-own-edit-context.md`
+  summary: Qualify actual PostgreSQL protected own-edit context joins, runtime permissions and absence of durable mutations during separately authorized native work.
+  evidence: Blind B4 confirms current context HTTP/loopback proof uses synthetic storage and does not establish actual role permissions, transaction behavior or read-only effects. User excludes PostgreSQL/native qualification now; this remains required before activation under the existing release safeguards.

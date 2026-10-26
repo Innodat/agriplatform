@@ -2,6 +2,7 @@
 from copy import deepcopy
 from fastapi.openapi.utils import get_openapi
 from read_openapi import schema_for as detail_schema
+from own_observation_openapi import apply_observation_metadata
 
 
 def schema_for(app,error_pairs):
@@ -14,7 +15,7 @@ def schema_for(app,error_pairs):
     for name,value in own.items():
         if name not in schema['components']['schemas']:schema['components']['schemas'][name]=deepcopy(value)
     history=own['HistoryPage']
-    uuid=deepcopy(schema['components']['schemas']['CaptureDetail']['properties']['org_id'])
+    uuid=apply_observation_metadata(schema['components']['schemas'])
     for key in ('org_id','account_id'):history['properties'][key].update(uuid)
     for key in ('from_date','to_date'):history['properties'][key].update(format='date',pattern=r'^[0-9]{4}-[0-9]{2}-[0-9]{2}(?![\s\S])')
     cursor_schema=dict(type='string',minLength=1,maxLength=2048,pattern=r'^[A-Za-z0-9_-]+(?![\s\S])')
@@ -22,7 +23,7 @@ def schema_for(app,error_pairs):
         if branch.get('type')=='string':branch.update(deepcopy(cursor_schema))
     schema['components']['schemas']['HistoryPage']=history
     operation=schema['paths']['/api/v1/captures']['get']
-    operation.update(operationId='history_captures',security=[{'HTTPBearer':[]}],description='Current original-owner history with inclusive explicit observation dates, descending immutable (created_at,id) keyset position. Bounded canonical base64url JSON cursor binds current org/account/own-read/date/limit; untrusted navigation, neither signature nor authority. Every query independently constrains scope and dates. No snapshot, deletion evidence, write acknowledgement or offline observation renewal. Unknown/duplicate query and nonempty body refused. Maximum UTF8 page 2MiB; each original-definition detail 512KiB. Caller pins dates across pages.')
+    operation.update(operationId='history_captures',security=[{'HTTPBearer':[]}],description='Current original-owner history with inclusive explicit observation dates, descending immutable (created_at,id) keyset position. Bounded canonical base64url JSON cursor binds current org/account/own-read/date/limit; untrusted navigation, neither signature nor authority. Every query independently constrains scope and dates. Includes the exact verified own-read observation, expiring seven days after its checked_at. No snapshot, deletion evidence or write acknowledgement; no create/edit authority. Unknown/duplicate query and nonempty body refused. Maximum UTF8 page 2MiB; each original-definition detail 512KiB. Caller pins dates across pages.')
     operation['parameters']=[
         dict(name=key,**{'in':'query'},required=True,schema=deepcopy(history['properties'][key])) for key in ('from_date','to_date')]+[
         dict(name='limit',**{'in':'query'},required=False,schema=dict(type='integer',minimum=1,maximum=100,default=30)),
