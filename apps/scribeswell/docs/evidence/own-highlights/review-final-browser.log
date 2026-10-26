@@ -1,0 +1,35 @@
+
+> scribeswell-web@0.1.0 test:browser
+> playwright test --config playwright.config.cjs --workers=1 personal-notes.spec.cjs --grep own highlights review:|exact ready phrase survives|retires the definitively
+
+[WebServer] (node:357537) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 20 tests using 1 worker
+
+(node:357849) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   1 [desktop] › tests/personal-notes.spec.cjs:1522:1 › own highlights: exact ready phrase survives writing colour removal and reopen (9.7s)
+  ✓   2 [desktop] › tests/personal-notes.spec.cjs:1605:1 › own highlights: rejected aggregate stays recoverable and retires the definitively rejected unavailable-proof operation (4.4s)
+  ✓   3 [desktop] › tests/personal-notes.spec.cjs:1618:1 › own highlights review: definitive proof rejection permits mark removal and writing during outage (5.3s)
+  ✓   4 [desktop] › tests/personal-notes.spec.cjs:1624:1 › own highlights review: mixed visible segments retain worst status and repair action (3.0s)
+  ✓   5 [desktop] › tests/personal-notes.spec.cjs:1627:1 › own highlights review: existing recolour preserves ID anchor writing and reopened paint (8.4s)
+  ✓   6 [desktop] › tests/personal-notes.spec.cjs:1631:1 › own highlights review: cancelling and dismissing repair never replace a later new mark (11.5s)
+  ✓   7 [desktop] › tests/personal-notes.spec.cjs:1635:1 › own highlights review: whole command budget counts envelope and repeated mark removal adds no connections (19.3s)
+  ✓   8 [desktop] › tests/personal-notes.spec.cjs:1640:1 › own highlights review: keyboard range after drag and Shift activation keep endpoint (10.1s)
+  ✓   9 [desktop] › tests/personal-notes.spec.cjs:1645:1 › own highlights review: navigation cancels repair and account replacement clears prior phrase (10.6s)
+  ✓  10 [desktop] › tests/personal-notes.spec.cjs:1648:1 › own highlights review: destination picker loads and selects notes after first page (7.5s)
+(node:361039) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  11 [mobile] › tests/personal-notes.spec.cjs:1522:1 › own highlights: exact ready phrase survives writing colour removal and reopen (12.3s)
+  ✓  12 [mobile] › tests/personal-notes.spec.cjs:1605:1 › own highlights: rejected aggregate stays recoverable and retires the definitively rejected unavailable-proof operation (6.5s)
+  ✓  13 [mobile] › tests/personal-notes.spec.cjs:1618:1 › own highlights review: definitive proof rejection permits mark removal and writing during outage (6.3s)
+  ✓  14 [mobile] › tests/personal-notes.spec.cjs:1624:1 › own highlights review: mixed visible segments retain worst status and repair action (3.6s)
+  ✓  15 [mobile] › tests/personal-notes.spec.cjs:1627:1 › own highlights review: existing recolour preserves ID anchor writing and reopened paint (7.3s)
+  ✓  16 [mobile] › tests/personal-notes.spec.cjs:1631:1 › own highlights review: cancelling and dismissing repair never replace a later new mark (7.5s)
+  ✓  17 [mobile] › tests/personal-notes.spec.cjs:1635:1 › own highlights review: whole command budget counts envelope and repeated mark removal adds no connections (11.5s)
+  ✓  18 [mobile] › tests/personal-notes.spec.cjs:1640:1 › own highlights review: keyboard range after drag and Shift activation keep endpoint (6.2s)
+  ✓  19 [mobile] › tests/personal-notes.spec.cjs:1645:1 › own highlights review: navigation cancels repair and account replacement clears prior phrase (5.5s)
+  ✓  20 [mobile] › tests/personal-notes.spec.cjs:1648:1 › own highlights review: destination picker loads and selects notes after first page (6.0s)
+
+  20 passed (3.0m)

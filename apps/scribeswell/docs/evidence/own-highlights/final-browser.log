@@ -1,0 +1,57 @@
+
+> scribeswell-web@0.1.0 test:browser
+> playwright test --config playwright.config.cjs --workers=2 --fully-parallel personal-notes.spec.cjs --grep own highlights:|composition defers|insert at caret retains|native insertion Undo Redo preserves writing and source at 0
+
+[WebServer] (node:311599) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 38 tests using 2 workers
+
+(node:311837) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:311826) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   2 [desktop] › tests/personal-notes.spec.cjs:164:1 › composition defers autosave until IME completion (7.1s)
+  ✓   1 [desktop] › tests/personal-notes.spec.cjs:460:1 › note links: insert at caret retains writing and format2 after final deletion (8.1s)
+  ✓   3 [desktop] › tests/personal-notes.spec.cjs:536:37 › note links review: native insertion Undo Redo preserves writing and source at 0 (8.0s)
+  ✓   4 [desktop] › tests/personal-notes.spec.cjs:1522:1 › own highlights: exact ready phrase survives writing colour removal and reopen (11.1s)
+  ✓   5 [desktop] › tests/personal-notes.spec.cjs:1532:1 › own highlights: unavailable evidence cannot add a mark and source correction suppresses paint (4.7s)
+  ✓   6 [desktop] › tests/personal-notes.spec.cjs:1535:1 › own highlights: editor preserves format3 aggregate when source evidence is unavailable (4.8s)
+  ✓   7 [desktop] › tests/personal-notes.spec.cjs:1541:1 › own highlights: source correction needs review and deliberate repair retains writing and mark identity (10.1s)
+  ✓   8 [desktop] › tests/personal-notes.spec.cjs:1546:1 › own highlights: stale note generation rejects palette and cross-pane native selection is refused (6.5s)
+  ✓   9 [desktop] › tests/personal-notes.spec.cjs:1555:1 › own highlights: Add to study collects containing verses without adding note or quotation (4.8s)
+  ✓  10 [desktop] › tests/personal-notes.spec.cjs:1559:1 › own highlights: first destination is explicitly created and Add note never quotes selected text (6.2s)
+  ✓  11 [desktop] › tests/personal-notes.spec.cjs:1563:1 › own highlights: native phrase selection preserves touch context menu and desktop context route (4.0s)
+  ✓  13 [desktop] › tests/personal-notes.spec.cjs:1573:1 › own highlights: unsupported composing lane refuses mark mutation and keeps its writing (5.0s)
+  ✓  12 [desktop] › tests/personal-notes.spec.cjs:1570:1 › own highlights: shared tab lane keeps marks while another tab edits writing (8.7s)
+  ✓  15 [desktop] › tests/personal-notes.spec.cjs:1585:1 › own highlights: marked-word note opens with its actual ordinary analysis source (5.5s)
+  ✓  14 [desktop] › tests/personal-notes.spec.cjs:1577:1 › own highlights: off-passage book with the same verse numbers is not labelled Needs review (6.9s)
+  ✓  16 [desktop] › tests/personal-notes.spec.cjs:1589:1 › own highlights: actual mouse drag captures one continuous phrase across verse boundaries (6.0s)
+  ✓  17 [desktop] › tests/personal-notes.spec.cjs:1596:1 › own highlights: guard and server reject trailing-newline anchor lexemes identically (6.5s)
+  ✓  18 [desktop] › tests/personal-notes.spec.cjs:1602:1 › own highlights: Add note creates a connected empty observation with no quotation or mark (4.1s)
+(node:314245) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  19 [desktop] › tests/personal-notes.spec.cjs:1605:1 › own highlights: rejected aggregate stays recoverable and retries the original unavailable-proof operation (6.0s)
+(node:314382) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  20 [mobile] › tests/personal-notes.spec.cjs:164:1 › composition defers autosave until IME completion (7.5s)
+  ✓  21 [mobile] › tests/personal-notes.spec.cjs:460:1 › note links: insert at caret retains writing and format2 after final deletion (6.1s)
+  ✓  22 [mobile] › tests/personal-notes.spec.cjs:536:37 › note links review: native insertion Undo Redo preserves writing and source at 0 (8.4s)
+  ✓  24 [mobile] › tests/personal-notes.spec.cjs:1532:1 › own highlights: unavailable evidence cannot add a mark and source correction suppresses paint (4.7s)
+  ✓  23 [mobile] › tests/personal-notes.spec.cjs:1522:1 › own highlights: exact ready phrase survives writing colour removal and reopen (11.4s)
+  ✓  25 [mobile] › tests/personal-notes.spec.cjs:1535:1 › own highlights: editor preserves format3 aggregate when source evidence is unavailable (5.2s)
+  ✓  26 [mobile] › tests/personal-notes.spec.cjs:1541:1 › own highlights: source correction needs review and deliberate repair retains writing and mark identity (10.8s)
+  ✓  27 [mobile] › tests/personal-notes.spec.cjs:1546:1 › own highlights: stale note generation rejects palette and cross-pane native selection is refused (7.0s)
+  ✓  28 [mobile] › tests/personal-notes.spec.cjs:1555:1 › own highlights: Add to study collects containing verses without adding note or quotation (5.5s)
+  ✓  29 [mobile] › tests/personal-notes.spec.cjs:1559:1 › own highlights: first destination is explicitly created and Add note never quotes selected text (6.3s)
+  ✓  30 [mobile] › tests/personal-notes.spec.cjs:1563:1 › own highlights: native phrase selection preserves touch context menu and desktop context route (4.3s)
+  ✓  31 [mobile] › tests/personal-notes.spec.cjs:1570:1 › own highlights: shared tab lane keeps marks while another tab edits writing (8.3s)
+  ✓  32 [mobile] › tests/personal-notes.spec.cjs:1573:1 › own highlights: unsupported composing lane refuses mark mutation and keeps its writing (5.5s)
+  ✓  34 [mobile] › tests/personal-notes.spec.cjs:1585:1 › own highlights: marked-word note opens with its actual ordinary analysis source (5.6s)
+  ✓  33 [mobile] › tests/personal-notes.spec.cjs:1577:1 › own highlights: off-passage book with the same verse numbers is not labelled Needs review (6.3s)
+  ✓  35 [mobile] › tests/personal-notes.spec.cjs:1589:1 › own highlights: actual mouse drag captures one continuous phrase across verse boundaries (6.4s)
+  ✓  36 [mobile] › tests/personal-notes.spec.cjs:1596:1 › own highlights: guard and server reject trailing-newline anchor lexemes identically (6.7s)
+  ✓  37 [mobile] › tests/personal-notes.spec.cjs:1602:1 › own highlights: Add note creates a connected empty observation with no quotation or mark (4.4s)
+  ✓  38 [mobile] › tests/personal-notes.spec.cjs:1605:1 › own highlights: rejected aggregate stays recoverable and retries the original unavailable-proof operation (6.2s)
+
+  38 passed (2.3m)

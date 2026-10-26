@@ -1,0 +1,73 @@
+
+> scribeswell-web@0.1.0 test:browser
+> playwright test --config playwright.config.cjs --workers=2 --fully-parallel personal-notes.spec.cjs --grep own highlights|composition defers|insert at caret retains|native insertion Undo Redo preserves writing and source at 0
+
+[WebServer] (node:366253) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 54 tests using 2 workers
+
+(node:366380) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:366381) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   1 [desktop] › tests/personal-notes.spec.cjs:164:1 › composition defers autosave until IME completion (13.5s)
+  ✓   2 [desktop] › tests/personal-notes.spec.cjs:460:1 › note links: insert at caret retains writing and format2 after final deletion (11.5s)
+  ✓   3 [desktop] › tests/personal-notes.spec.cjs:536:37 › note links review: native insertion Undo Redo preserves writing and source at 0 (12.3s)
+  ✓   4 [desktop] › tests/personal-notes.spec.cjs:1522:1 › own highlights: exact ready phrase survives writing colour removal and reopen (14.7s)
+  ✓   5 [desktop] › tests/personal-notes.spec.cjs:1532:1 › own highlights: unavailable evidence cannot add a mark and source correction suppresses paint (7.7s)
+  ✓   6 [desktop] › tests/personal-notes.spec.cjs:1535:1 › own highlights: editor preserves format3 aggregate when source evidence is unavailable (8.2s)
+  ✓   8 [desktop] › tests/personal-notes.spec.cjs:1546:1 › own highlights: stale note generation rejects palette and cross-pane native selection is refused (9.0s)
+  ✓   7 [desktop] › tests/personal-notes.spec.cjs:1541:1 › own highlights: source correction needs review and deliberate repair retains writing and mark identity (15.2s)
+  ✓   9 [desktop] › tests/personal-notes.spec.cjs:1555:1 › own highlights: Add to study collects containing verses without adding note or quotation (5.6s)
+  ✓  10 [desktop] › tests/personal-notes.spec.cjs:1559:1 › own highlights: first destination is explicitly created and Add note never quotes selected text (6.7s)
+  ✓  11 [desktop] › tests/personal-notes.spec.cjs:1563:1 › own highlights: native phrase selection preserves touch context menu and desktop context route (5.7s)
+  ✓  13 [desktop] › tests/personal-notes.spec.cjs:1573:1 › own highlights: unsupported composing lane refuses mark mutation and keeps its writing (10.9s)
+  ✓  12 [desktop] › tests/personal-notes.spec.cjs:1570:1 › own highlights: shared tab lane keeps marks while another tab edits writing (14.5s)
+  ✓  14 [desktop] › tests/personal-notes.spec.cjs:1577:1 › own highlights: off-passage book with the same verse numbers is not labelled Needs review (11.0s)
+  ✓  15 [desktop] › tests/personal-notes.spec.cjs:1585:1 › own highlights: marked-word note opens with its actual ordinary analysis source (9.7s)
+  ✓  16 [desktop] › tests/personal-notes.spec.cjs:1589:1 › own highlights: actual mouse drag captures one continuous phrase across verse boundaries (7.8s)
+  ✓  17 [desktop] › tests/personal-notes.spec.cjs:1596:1 › own highlights: guard and server reject trailing-newline anchor lexemes identically (7.8s)
+  ✓  18 [desktop] › tests/personal-notes.spec.cjs:1602:1 › own highlights: Add note creates a connected empty observation with no quotation or mark (6.5s)
+  ✓  19 [desktop] › tests/personal-notes.spec.cjs:1605:1 › own highlights: rejected aggregate stays recoverable and retires the definitively rejected unavailable-proof operation (7.7s)
+  ✓  21 [desktop] › tests/personal-notes.spec.cjs:1624:1 › own highlights review: mixed visible segments retain worst status and repair action (3.9s)
+  ✓  20 [desktop] › tests/personal-notes.spec.cjs:1618:1 › own highlights review: definitive proof rejection permits mark removal and writing during outage (6.3s)
+  ✓  22 [desktop] › tests/personal-notes.spec.cjs:1627:1 › own highlights review: existing recolour preserves ID anchor writing and reopened paint (9.7s)
+  ✓  23 [desktop] › tests/personal-notes.spec.cjs:1631:1 › own highlights review: cancelling and dismissing repair never replace a later new mark (10.3s)
+  ✓  25 [desktop] › tests/personal-notes.spec.cjs:1640:1 › own highlights review: keyboard range after drag and Shift activation keep endpoint (8.1s)
+  ✓  24 [desktop] › tests/personal-notes.spec.cjs:1635:1 › own highlights review: whole command budget counts envelope and repeated mark removal adds no connections (13.1s)
+  ✓  26 [desktop] › tests/personal-notes.spec.cjs:1645:1 › own highlights review: navigation cancels repair and account replacement clears prior phrase (6.5s)
+(node:371134) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  27 [desktop] › tests/personal-notes.spec.cjs:1648:1 › own highlights review: destination picker loads and selects notes after first page (6.2s)
+(node:371265) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  28 [mobile] › tests/personal-notes.spec.cjs:164:1 › composition defers autosave until IME completion (7.6s)
+  ✓  29 [mobile] › tests/personal-notes.spec.cjs:460:1 › note links: insert at caret retains writing and format2 after final deletion (8.6s)
+  ✓  30 [mobile] › tests/personal-notes.spec.cjs:536:37 › note links review: native insertion Undo Redo preserves writing and source at 0 (10.9s)
+  ✓  32 [mobile] › tests/personal-notes.spec.cjs:1532:1 › own highlights: unavailable evidence cannot add a mark and source correction suppresses paint (6.5s)
+  ✓  31 [mobile] › tests/personal-notes.spec.cjs:1522:1 › own highlights: exact ready phrase survives writing colour removal and reopen (16.4s)
+  ✓  33 [mobile] › tests/personal-notes.spec.cjs:1535:1 › own highlights: editor preserves format3 aggregate when source evidence is unavailable (8.4s)
+  ✓  35 [mobile] › tests/personal-notes.spec.cjs:1546:1 › own highlights: stale note generation rejects palette and cross-pane native selection is refused (15.0s)
+  ✓  34 [mobile] › tests/personal-notes.spec.cjs:1541:1 › own highlights: source correction needs review and deliberate repair retains writing and mark identity (25.5s)
+  ✓  36 [mobile] › tests/personal-notes.spec.cjs:1555:1 › own highlights: Add to study collects containing verses without adding note or quotation (8.0s)
+  ✓  37 [mobile] › tests/personal-notes.spec.cjs:1559:1 › own highlights: first destination is explicitly created and Add note never quotes selected text (10.9s)
+  ✓  38 [mobile] › tests/personal-notes.spec.cjs:1563:1 › own highlights: native phrase selection preserves touch context menu and desktop context route (9.4s)
+  ✓  39 [mobile] › tests/personal-notes.spec.cjs:1570:1 › own highlights: shared tab lane keeps marks while another tab edits writing (18.0s)
+  ✓  40 [mobile] › tests/personal-notes.spec.cjs:1573:1 › own highlights: unsupported composing lane refuses mark mutation and keeps its writing (18.7s)
+  ✓  41 [mobile] › tests/personal-notes.spec.cjs:1577:1 › own highlights: off-passage book with the same verse numbers is not labelled Needs review (12.3s)
+  ✓  42 [mobile] › tests/personal-notes.spec.cjs:1585:1 › own highlights: marked-word note opens with its actual ordinary analysis source (12.5s)
+  ✓  43 [mobile] › tests/personal-notes.spec.cjs:1589:1 › own highlights: actual mouse drag captures one continuous phrase across verse boundaries (9.3s)
+  ✓  44 [mobile] › tests/personal-notes.spec.cjs:1596:1 › own highlights: guard and server reject trailing-newline anchor lexemes identically (10.5s)
+  ✓  45 [mobile] › tests/personal-notes.spec.cjs:1602:1 › own highlights: Add note creates a connected empty observation with no quotation or mark (10.6s)
+  ✓  46 [mobile] › tests/personal-notes.spec.cjs:1605:1 › own highlights: rejected aggregate stays recoverable and retires the definitively rejected unavailable-proof operation (13.8s)
+  ✓  47 [mobile] › tests/personal-notes.spec.cjs:1618:1 › own highlights review: definitive proof rejection permits mark removal and writing during outage (15.5s)
+  ✓  48 [mobile] › tests/personal-notes.spec.cjs:1624:1 › own highlights review: mixed visible segments retain worst status and repair action (9.8s)
+  ✓  49 [mobile] › tests/personal-notes.spec.cjs:1627:1 › own highlights review: existing recolour preserves ID anchor writing and reopened paint (15.2s)
+  ✓  50 [mobile] › tests/personal-notes.spec.cjs:1631:1 › own highlights review: cancelling and dismissing repair never replace a later new mark (15.1s)
+  ✓  52 [mobile] › tests/personal-notes.spec.cjs:1640:1 › own highlights review: keyboard range after drag and Shift activation keep endpoint (15.1s)
+  ✓  51 [mobile] › tests/personal-notes.spec.cjs:1635:1 › own highlights review: whole command budget counts envelope and repeated mark removal adds no connections (21.8s)
+  ✓  53 [mobile] › tests/personal-notes.spec.cjs:1645:1 › own highlights review: navigation cancels repair and account replacement clears prior phrase (9.2s)
+  ✓  54 [mobile] › tests/personal-notes.spec.cjs:1648:1 › own highlights review: destination picker loads and selects notes after first page (10.6s)
+
+  54 passed (5.3m)

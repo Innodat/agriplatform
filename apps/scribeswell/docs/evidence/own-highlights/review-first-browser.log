@@ -1,0 +1,100 @@
+
+> scribeswell-web@0.1.0 test:browser
+> playwright test --config playwright.config.cjs --workers=2 --fully-parallel personal-notes.spec.cjs --grep own highlights review:
+
+[WebServer] (node:352450) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 12 tests using 2 workers
+
+(node:352608) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:352607) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   2 [desktop] › tests/personal-notes.spec.cjs:1624:1 › own highlights review: mixed visible segments retain worst status and repair action (6.1s)
+  ✓   1 [desktop] › tests/personal-notes.spec.cjs:1618:1 › own highlights review: definitive proof rejection permits mark removal and writing during outage (9.1s)
+  ✓   3 [desktop] › tests/personal-notes.spec.cjs:1627:1 › own highlights review: existing recolour preserves ID anchor writing and reopened paint (9.7s)
+  ✓   4 [desktop] › tests/personal-notes.spec.cjs:1631:1 › own highlights review: cancelling and dismissing repair never replace a later new mark (10.5s)
+  ✓   6 [desktop] › tests/personal-notes.spec.cjs:1640:1 › own highlights review: keyboard range after drag and Shift activation keep endpoint (7.4s)
+(node:353851) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   5 [desktop] › tests/personal-notes.spec.cjs:1635:1 › own highlights review: whole command budget counts envelope and repeated mark removal adds no connections (13.5s)
+(node:354049) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘   8 [mobile] › tests/personal-notes.spec.cjs:1624:1 › own highlights review: mixed visible segments retain worst status and repair action (8.4s)
+(node:354540) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   9 [mobile] › tests/personal-notes.spec.cjs:1627:1 › own highlights review: existing recolour preserves ID anchor writing and reopened paint (10.4s)
+  ✘   7 [mobile] › tests/personal-notes.spec.cjs:1618:1 › own highlights review: definitive proof rejection permits mark removal and writing during outage (30.2s)
+(node:355177) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  10 [mobile] › tests/personal-notes.spec.cjs:1631:1 › own highlights review: cancelling and dismissing repair never replace a later new mark (12.7s)
+  ✓  12 [mobile] › tests/personal-notes.spec.cjs:1640:1 › own highlights review: keyboard range after drag and Shift activation keep endpoint (8.7s)
+  ✓  11 [mobile] › tests/personal-notes.spec.cjs:1635:1 › own highlights review: whole command budget counts envelope and repeated mark removal adds no connections (17.3s)
+
+
+  1) [mobile] › tests/personal-notes.spec.cjs:1618:1 › own highlights review: definitive proof rejection permits mark removal and writing during outage 
+
+    Test timeout of 30000ms exceeded.
+
+    Error: locator.click: Test timeout of 30000ms exceeded.
+    Call log:
+      - waiting for getByRole('button', { name: 'Return to reader', exact: true })
+        - waiting for navigation to finish...
+        - navigated to "http://127.0.0.1:5182/"
+
+
+      1517 |  await page.route('**/api/bible/books/Gen/chapters/1/verses',r=>r.fulfill({json:{data:[{id:1,verse_num:1,book_id:1,chapter_num:1,words:['אָב','בֵּן','אֵל'].map((text,i)=>({id:i+1,position:i+1,surface_he:text,display_he:text,lemma_strong:null,morph_code:null})),anchor_evidence:unavailable?{version:1,status:'unavailable'}:{version:1,status:'ready',source_id:'source-v1',source_revision:'11111111-1111-4111-8111-111111111111',catalogue_version:catalogue.catalogue_version,versification_id:book.versification_id,tokenization_version:'tokens-v1',book:'Gen',chapter:1,verse:1,reference,verse_token_digest:(changed?'b':'a').repeat(64),observed_word_ids:['9007199254740993','9007199254740994','9007199254740995'],token_count:3}}],total:1}}));
+      1518 | }
+    > 1519 | async function showHighlightReader(page){if(page.viewportSize().width<768&&await page.getByRole('button',{name:'Return to reader',exact:true}).isVisible())await page.getByRole('button',{name:'Return to reader',exact:true}).click();}
+           |                                                                                                                                                                                                                                ^
+      1520 | async function selectHighlightPhrase(page){await showHighlightReader(page);const words=page.locator('[data-phrase-index]');await words.nth(0).click();await showHighlightReader(page);await words.nth(1).click({modifiers:['Shift']});await expect(page.getByRole('region',{name:'Selected phrase actions'})).toBeVisible();}
+      1521 |
+      1522 | test('own highlights: exact ready phrase survives writing colour removal and reopen',async({page})=>{
+        at showHighlightReader (/home/ck/repos/innodat/agriplatform/apps/scribeswell/web/tests/personal-notes.spec.cjs:1519:224)
+        at selectHighlightPhrase (/home/ck/repos/innodat/agriplatform/apps/scribeswell/web/tests/personal-notes.spec.cjs:1520:44)
+        at /home/ck/repos/innodat/agriplatform/apps/scribeswell/web/tests/personal-notes.spec.cjs:1621:24
+
+    Error Context: test-results/personal-notes-own-highlig-218a4-l-and-writing-during-outage-mobile/error-context.md
+
+  2) [mobile] › tests/personal-notes.spec.cjs:1624:1 › own highlights review: mixed visible segments retain worst status and repair action 
+
+    Error: expect(locator).toHaveAttribute(expected) failed
+
+    Locator:  getByRole('tablist', { name: 'Workspace tabs' })
+    Expected: "true"
+    Received: "false"
+    Timeout:  5000ms
+
+    Call log:
+      - Expect "toHaveAttribute" getByRole('tablist', { name: 'Workspace tabs' }) with timeout 5000ms
+      - waiting for getByRole('tablist', { name: 'Workspace tabs' })
+        - waiting for "http://127.0.0.1:5182/" navigation to finish...
+        - navigated to "http://127.0.0.1:5182/"
+        2 × locator resolved to <div role="tablist" data-device-ready="false" aria-label="Workspace tabs" class="flex max-w-full overflow-x-auto gap-1 items-center">…</div>
+          - unexpected value "false"
+
+
+      154 | });
+      155 |
+    > 156 | async function firstNote(page){await page.goto('/');await expect(page.getByRole('tablist',{name:'Workspace tabs'})).toHaveAttribute('data-device-ready','true');await page.getByRole('button',{name:'Studies',exact:true}).click();await page.getByRole('button',{name:'Start a study',exact:true}).click();await page.getByRole('button',{name:'Create study',exact:true}).click();await page.getByRole('button',{name:'Add note',exact:true}).click();await expect(page.getByLabel('Note text',{exact:true})).toBeVisible();}
+          |                                                                                                                     ^
+      157 | test('failed saves use inline Retry and exit-only Stay / Close anyway',async({page})=>{
+      158 |  const options={failPut:503};await setup(page,options);await firstNote(page);await page.getByLabel('Note text',{exact:true}).fill('Unsaved Hebrew שָׁלוֹם');await expect(page.getByRole('status').filter({hasText:'Changes not saved'})).toBeVisible();await expect(page.getByRole('button',{name:'Keep editing'})).toHaveCount(0);await expect(page.getByRole('dialog')).toHaveCount(0);
+      159 |  await page.getByRole('button',{name:'Sign out',exact:true}).click();await expect(page.getByRole('dialog',{name:'Changes not saved'})).toBeVisible();await page.getByRole('button',{name:'Stay',exact:true}).click();await expect(page.getByLabel('Note text',{exact:true})).toContainText('שָׁלוֹם');options.failPut=0;await page.getByRole('button',{name:'Retry',exact:true}).click();await expect(page.getByRole('status').filter({hasText:'Draft saved'})).toBeVisible();await page.getByRole('button',{name:'Sign out',exact:true}).click();await expect(page.getByRole('dialog',{name:'Changes not saved'})).toHaveCount(0);
+        at firstNote (/home/ck/repos/innodat/agriplatform/apps/scribeswell/web/tests/personal-notes.spec.cjs:156:117)
+        at /home/ck/repos/innodat/agriplatform/apps/scribeswell/web/tests/personal-notes.spec.cjs:1625:93
+
+    Error Context: test-results/personal-notes-own-highlig-d320b-st-status-and-repair-action-mobile/error-context.md
+
+  2 failed
+    [mobile] › tests/personal-notes.spec.cjs:1618:1 › own highlights review: definitive proof rejection permits mark removal and writing during outage 
+    [mobile] › tests/personal-notes.spec.cjs:1624:1 › own highlights review: mixed visible segments retain worst status and repair action 
+  10 passed (1.5m)
+npm error Lifecycle script `test:browser` failed with error:
+npm error code 1
+npm error path /home/ck/repos/innodat/agriplatform/apps/scribeswell/web
+npm error workspace scribeswell-web@0.1.0
+npm error location /home/ck/repos/innodat/agriplatform/apps/scribeswell/web
+npm error command failed
+npm error command sh -c playwright test --config playwright.config.cjs --workers=2 --fully-parallel personal-notes.spec.cjs --grep 'own highlights review:'
