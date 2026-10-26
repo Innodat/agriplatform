@@ -1,0 +1,29 @@
+[WebServer] (node:953933) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 1 test using 1 worker
+
+(node:953953) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  1 [desktop] › tests/four-passage.spec.cjs:1046:1 › review: rapid POP replay expires outgoing gesture timers and intent (828ms)
+
+
+  1) [desktop] › tests/four-passage.spec.cjs:1046:1 › review: rapid POP replay expires outgoing gesture timers and intent 
+
+    Error: expect(received).toBe(expected) // Object.is equality
+
+    Expected: "{\"usr\":{\"scribeswellReader\":{\"v\":1,\"tabKey\":\"a9082247-0f7e-4edd-9bd6-8fbf89da4514\",\"activePaneKey\":\"9a050c5c-aea1-479d-8683-678df61e8fc4\",\"panes\":[{\"paneKey\":\"b03be8f1-9759-4f62-8d5a-17e6fd7e91e1\",\"ref\":{\"catalogue_id\":\"scribeswell.references.v1\",\"catalogue_version\":\"48fa91f3bcd02b63138152e43a9292c7f1091e1beffb44c2243b483ffaafb5ba\",\"versification_id\":\"oshb-hebrew-json-c2d8e9e5\",\"book_id\":\"Gen\",\"target\":{\"kind\":\"chapter\",\"chapter\":1}},\"anchor\":{\"chapter\":1,\"verse\":1,\"offset\":0,\"word\":1}},{\"paneKey\":\"9a050c5c-aea1-479d-8683-678df61e8fc4\",\"ref\":{\"catalogue_id\":\"scribeswell.references.v1\",\"catalogue_version\":\"48fa91f3bcd02b63138152e43a9292c7f1091e1beffb44c2243b483ffaafb5ba\",\"versification_id\":\"oshb-hebrew-json-c2d8e9e5\",\"book_id\":\"Gen\",\"target\":{\"kind\":\"chapter\",\"chapter\":1}}}]}},\"key\":\"2uwwh5cq\",\"idx\":1}"
+    Received: "{\"usr\":{\"scribeswellReader\":{\"v\":1,\"tabKey\":\"a9082247-0f7e-4edd-9bd6-8fbf89da4514\",\"activePaneKey\":\"9a050c5c-aea1-479d-8683-678df61e8fc4\",\"panes\":[{\"paneKey\":\"b03be8f1-9759-4f62-8d5a-17e6fd7e91e1\",\"ref\":{\"catalogue_id\":\"scribeswell.references.v1\",\"catalogue_version\":\"48fa91f3bcd02b63138152e43a9292c7f1091e1beffb44c2243b483ffaafb5ba\",\"versification_id\":\"oshb-hebrew-json-c2d8e9e5\",\"book_id\":\"Gen\",\"target\":{\"kind\":\"chapter\",\"chapter\":1}},\"anchor\":{\"chapter\":1,\"verse\":1,\"offset\":0,\"word\":1}},{\"paneKey\":\"9a050c5c-aea1-479d-8683-678df61e8fc4\",\"ref\":{\"catalogue_id\":\"scribeswell.references.v1\",\"catalogue_version\":\"48fa91f3bcd02b63138152e43a9292c7f1091e1beffb44c2243b483ffaafb5ba\",\"versification_id\":\"oshb-hebrew-json-c2d8e9e5\",\"book_id\":\"Gen\",\"target\":{\"kind\":\"chapter\",\"chapter\":1}},\"anchor\":{\"chapter\":1,\"verse\":8,\"offset\":-14,\"word\":1}}]}},\"key\":\"2uwwh5cq\",\"idx\":1}"
+
+      1072 |   await page.evaluate(() => window.dispatchEvent(new PointerEvent('pointerup', {pointerId: 73, button: 0})));
+      1073 |   await page.clock.runFor(150);
+    > 1074 |   expect(await page.evaluate(() => JSON.stringify(history.state))).toBe(before);
+           |                                                                    ^
+      1075 | });
+      1076 |
+        at /home/ck/repos/innodat/agriplatform/apps/scribeswell/web/tests/four-passage.spec.cjs:1074:68
+
+    Error Context: test-results/four-passage-review-rapid--b1e79-g-gesture-timers-and-intent-desktop/error-context.md
+
+  1 failed
+    [desktop] › tests/four-passage.spec.cjs:1046:1 › review: rapid POP replay expires outgoing gesture timers and intent 

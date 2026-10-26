@@ -1,0 +1,28 @@
+[WebServer] (node:878297) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 1 test using 1 worker
+
+(node:878314) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  1 [desktop] › tests/four-passage.spec.cjs:20:1 › initial StrictMode entry keeps one committed pane identity while data becomes ready (592ms)
+
+
+  1) [desktop] › tests/four-passage.spec.cjs:20:1 › initial StrictMode entry keeps one committed pane identity while data becomes ready 
+
+    Error: expect(received).toBe(expected) // Object.is equality
+
+    Expected: 1
+    Received: 2
+
+      18 | test('capacity confirmation refuses a different replayed layout after close-add cycles',async({page})=>{await setup(page);await page.goto('/');for(let i=0;i<3;i++)await add(page);for(let i=0;i<3;i++){await page.getByRole('button',{name:'Close passage 4',exact:true}).click();await add(page);}await page.getByRole('button',{name:'Add reader pane',exact:true}).click();const capacity=page.getByRole('dialog',{name:'Choose passage to replace'});await expect(capacity).toBeVisible();await page.goBack();await expect(page.locator('[data-reader-pane]')).toHaveCount(3);const before=page.url(),idx=await page.evaluate(()=>history.state.idx);await capacity.getByRole('button',{name:'Replace passage 1: Genesis 1',exact:true}).click();expect(page.url()).toBe(before);expect(await page.evaluate(()=>history.state.idx)).toBe(idx);await expect(page.getByRole('dialog',{name:'Book and chapter selector'})).toHaveCount(0);});
+      19 | test('closed codec enforces pane, active, identity and canonical anchor boundaries',async({page})=>{await setup(page);await page.goto('/');const r=await page.evaluate(async()=>{const m=await import('/src/lib/reader-layout.ts'),p=await import('/src/lib/passage-references.ts'),ref=p.chapterReference('Gen',1);const url=(n,active=0,extra={})=>m.parseReaderURL(new URLSearchParams({reader:JSON.stringify({v:1,panes:Array.from({length:n},()=>({ref})),active,...extra})}));const state={v:1,tabKey:'tab',activePaneKey:'a',panes:[{paneKey:'a',ref,anchor:{chapter:1,verse:1,word:1,offset:0}}]},valid=s=>!!m.parseSnapshot(s,{refs:s.panes.map(x=>x.ref),active:0,invalid:false});const anchor=x=>valid({...state,panes:[{...state.panes[0],anchor:x}]});const key128='界'.repeat(128),keyed={...state,tabKey:key128,activePaneKey:key128,panes:[{...state.panes[0],paneKey:key128}]},multiple={...state,panes:[state.panes[0],state.panes[0]]};const richRef=p.parseReference('Psalms 119:176–150:6'),panes=Array.from({length:4},(_,i)=>({paneKey:'界'.repeat(127)+i,ref:richRef,anchor:{chapter:119,verse:176,word:4096,offset:-512}})),multibyte={v:1,tabKey:key128,activePaneKey:panes[0].paneKey,panes};const tooLarge={...state,tabKey:'界'.repeat(4096)};return {url:[url(1).invalid,url(4).invalid,url(5).invalid,url(0).invalid,url(4,-1).invalid,url(4,4).invalid,url(1,0,{v:2}).invalid,url(1,0,{private:'refused'}).invalid],keys:[valid(keyed),valid({...keyed,tabKey:key128+'x'}),valid(multiple)],anchors:[anchor({chapter:1,verse:1,word:0,offset:0}),anchor({chapter:1,verse:1,word:4097,offset:0}),anchor({chapter:1,verse:32,offset:0}),anchor({chapter:2,verse:1,offset:0}),anchor({chapter:1,verse:1,word:4096,offset:512})],multibyte:valid(multibyte),bytes:new TextEncoder().encode(JSON.stringify(multibyte)).length,oversize:valid(tooLarge)};});expect(r.url).toEqual([false,false,true,true,true,true,true,true]);expect(r.keys).toEqual([true,false,false]);expect(r.anchors).toEqual([false,false,false,false,true]);expect(r.multibyte).toBe(true);expect(r.bytes).toBeLessThan(8192);expect(r.oversize).toBe(false);});
+    > 20 | test('initial StrictMode entry keeps one committed pane identity while data becomes ready',async({page})=>{await setup(page);await page.addInitScript(()=>{window.__initialPaneKeys=new Set();new MutationObserver(records=>{for(const record of records)for(const node of [...record.addedNodes,...record.removedNodes]){if(!(node instanceof Element))continue;const panes=[...(node.matches('[data-reader-pane]')?[node]:[]),...node.querySelectorAll('[data-reader-pane]')];for(const pane of panes)window.__initialPaneKeys.add(pane.dataset.paneKey);}}).observe(document,{childList:true,subtree:true});});await page.goto('/');await expect(page.locator('[data-reader-scroll][data-ready="true"]')).toBeVisible();expect(await page.evaluate(()=>window.__initialPaneKeys.size)).toBe(1);});
+         |                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           ^
+      21 |
+        at /home/ck/repos/innodat/agriplatform/apps/scribeswell/web/tests/four-passage.spec.cjs:20:763
+
+    Error Context: test-results/four-passage-initial-Stric-95ed2-ty-while-data-becomes-ready-desktop/error-context.md
+
+  1 failed
+    [desktop] › tests/four-passage.spec.cjs:20:1 › initial StrictMode entry keeps one committed pane identity while data becomes ready 

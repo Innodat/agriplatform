@@ -1,0 +1,39 @@
+[WebServer] (node:951076) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 1 test using 1 worker
+
+(node:951096) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  1 [desktop] › tests/four-passage.spec.cjs:830:51 › review: a scrollbar gesture checkpoints movement after one second through completion from inactive pane (799ms)
+
+
+  1) [desktop] › tests/four-passage.spec.cjs:830:51 › review: a scrollbar gesture checkpoints movement after one second through completion from inactive pane 
+
+    Error: expect(received).toEqual(expected) // deep equality
+
+    - Expected  - 2
+    + Received  + 2
+
+      Object {
+        "chapter": 1,
+    -   "offset": -14,
+    -   "verse": 8,
+    +   "offset": -6,
+    +   "verse": 4,
+        "word": 1,
+      }
+
+      873 |     button: 0
+      874 |   })));
+    > 875 |   expect(await page.evaluate(() => history.state.usr.scribeswellReader.panes[0].anchor)).toEqual(expected);
+          |                                                                                          ^
+      876 |   await page.clock.resume();
+      877 |   await page.reload();
+      878 |   await expect.poll(() => page.locator('[data-reader-pane]').first().locator('[data-reader-scroll]').evaluate((node, anchor) => {
+        at /home/ck/repos/innodat/agriplatform/apps/scribeswell/web/tests/four-passage.spec.cjs:875:90
+
+    Error Context: test-results/four-passage-review-a-scro-b2406-mpletion-from-inactive-pane-desktop/error-context.md
+
+  1 failed
+    [desktop] › tests/four-passage.spec.cjs:830:51 › review: a scrollbar gesture checkpoints movement after one second through completion from inactive pane 

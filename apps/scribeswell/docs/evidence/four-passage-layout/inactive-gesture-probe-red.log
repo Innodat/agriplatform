@@ -1,0 +1,18 @@
+Command: node /tmp/scribeswell-four-passage-inactive-gesture-probe.cjs
+Public-only exploratory probe against already-running Vite5182, with no runtime/test source edits.
+{"before":"pdudpqj4","after":"0dal09m8","expected":{"chapter":1,"verse":8,"word":1,"offset":-14},"actual":{"chapter":1,"verse":4,"offset":-6,"word":1}}
+expect(received).toEqual(expected) // deep equality
+
+- Expected  - 2
++ Received  + 2
+
+  Object {
+    "chapter": 1,
+-   "offset": -14,
+-   "verse": 8,
++   "offset": -6,
++   "verse": 4,
+    "word": 1,
+  }
+
+Exit status: 1

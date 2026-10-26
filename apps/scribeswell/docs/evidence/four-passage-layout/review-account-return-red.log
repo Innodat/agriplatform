@@ -1,0 +1,70 @@
+[WebServer] (node:935233) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 2 tests using 1 worker
+
+(node:935295) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  1 [desktop] › tests/account-entry.spec.cjs:94:1 › review: signup retains a complete public reader arrangement and strips private destinations (899ms)
+(node:935404) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  2 [desktop] › tests/account-entry.spec.cjs:126:1 › review: invalid supplied reader never blends legacy fields into account return (420ms)
+
+
+  1) [desktop] › tests/account-entry.spec.cjs:94:1 › review: signup retains a complete public reader arrangement and strips private destinations 
+
+    Error: expect(received).toEqual(expected) // deep equality
+
+    - Expected  - 1
+    + Received  + 2
+
+      Array [
+    -   "reader",
+    +   "book",
+    +   "chapter",
+      ]
+
+      119 |   const destination = new URL(new URL(requests[0]).searchParams.get('redirect_to'));
+      120 |   expect(destination.origin + destination.pathname).toBe('http://127.0.0.1:5182/');
+    > 121 |   expect([...destination.searchParams.keys()]).toEqual(['reader']);
+          |                                                ^
+      122 |   expect(JSON.parse(destination.searchParams.get('reader'))).toEqual(reader);
+      123 |   expect(destination.hash).toBe('');
+      124 | });
+        at /home/ck/repos/innodat/agriplatform/apps/scribeswell/web/tests/account-entry.spec.cjs:121:48
+
+    Error Context: test-results/account-entry-review-signu-b0e96-strips-private-destinations-desktop/error-context.md
+
+  2) [desktop] › tests/account-entry.spec.cjs:126:1 › review: invalid supplied reader never blends legacy fields into account return 
+
+    Error: expect(received).toEqual(expected) // deep equality
+
+    - Expected  - 5
+    + Received  + 5
+
+      Array [
+    -   "http://127.0.0.1:5182/",
+    -   "http://127.0.0.1:5182/",
+    -   "http://127.0.0.1:5182/",
+    -   "http://127.0.0.1:5182/",
+    -   "http://127.0.0.1:5182/",
+    +   "http://127.0.0.1:5182/?book=Gen&chapter=1",
+    +   "http://127.0.0.1:5182/?book=Gen&chapter=1",
+    +   "http://127.0.0.1:5182/?book=Gen&chapter=1",
+    +   "http://127.0.0.1:5182/?book=Gen&chapter=1",
+    +   "http://127.0.0.1:5182/?book=Gen&chapter=1",
+      ]
+
+      143 |     });
+      144 |   });
+    > 145 |   expect(results).toEqual(Array(5).fill('http://127.0.0.1:5182/'));
+          |                   ^
+      146 | });
+      147 |
+        at /home/ck/repos/innodat/agriplatform/apps/scribeswell/web/tests/account-entry.spec.cjs:145:19
+
+    Error Context: test-results/account-entry-review-inval-c14a3--fields-into-account-return-desktop/error-context.md
+
+  2 failed
+    [desktop] › tests/account-entry.spec.cjs:94:1 › review: signup retains a complete public reader arrangement and strips private destinations 
+    [desktop] › tests/account-entry.spec.cjs:126:1 › review: invalid supplied reader never blends legacy fields into account return 

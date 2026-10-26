@@ -1,0 +1,47 @@
+[WebServer] (node:879078) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 20 tests using 1 worker
+
+(node:879095) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   1 [desktop] › tests/four-passage.spec.cjs:13:1 › layout clamps retain intended anchor while a subsequent user movement replaces it (1.0s)
+  ✓   2 [desktop] › tests/four-passage.spec.cjs:20:1 › initial StrictMode entry keeps one committed pane identity while data becomes ready (472ms)
+(node:879344) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   3 [desktop] › tests/four-passage.spec.cjs:13:1 › layout clamps retain intended anchor while a subsequent user movement replaces it (628ms)
+  ✓   4 [desktop] › tests/four-passage.spec.cjs:20:1 › initial StrictMode entry keeps one committed pane identity while data becomes ready (493ms)
+(node:879491) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   5 [desktop] › tests/four-passage.spec.cjs:13:1 › layout clamps retain intended anchor while a subsequent user movement replaces it (495ms)
+  ✓   6 [desktop] › tests/four-passage.spec.cjs:20:1 › initial StrictMode entry keeps one committed pane identity while data becomes ready (384ms)
+(node:879595) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   7 [desktop] › tests/four-passage.spec.cjs:13:1 › layout clamps retain intended anchor while a subsequent user movement replaces it (514ms)
+  ✓   8 [desktop] › tests/four-passage.spec.cjs:20:1 › initial StrictMode entry keeps one committed pane identity while data becomes ready (391ms)
+(node:879697) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   9 [desktop] › tests/four-passage.spec.cjs:13:1 › layout clamps retain intended anchor while a subsequent user movement replaces it (739ms)
+  ✓  10 [desktop] › tests/four-passage.spec.cjs:20:1 › initial StrictMode entry keeps one committed pane identity while data becomes ready (883ms)
+(node:879886) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  11 [mobile] › tests/four-passage.spec.cjs:13:1 › layout clamps retain intended anchor while a subsequent user movement replaces it (974ms)
+  ✓  12 [mobile] › tests/four-passage.spec.cjs:20:1 › initial StrictMode entry keeps one committed pane identity while data becomes ready (712ms)
+(node:880014) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  13 [mobile] › tests/four-passage.spec.cjs:13:1 › layout clamps retain intended anchor while a subsequent user movement replaces it (893ms)
+  ✓  14 [mobile] › tests/four-passage.spec.cjs:20:1 › initial StrictMode entry keeps one committed pane identity while data becomes ready (694ms)
+(node:880156) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  15 [mobile] › tests/four-passage.spec.cjs:13:1 › layout clamps retain intended anchor while a subsequent user movement replaces it (877ms)
+  ✓  16 [mobile] › tests/four-passage.spec.cjs:20:1 › initial StrictMode entry keeps one committed pane identity while data becomes ready (681ms)
+(node:880283) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  17 [mobile] › tests/four-passage.spec.cjs:13:1 › layout clamps retain intended anchor while a subsequent user movement replaces it (837ms)
+  ✓  18 [mobile] › tests/four-passage.spec.cjs:20:1 › initial StrictMode entry keeps one committed pane identity while data becomes ready (662ms)
+(node:880404) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  19 [mobile] › tests/four-passage.spec.cjs:13:1 › layout clamps retain intended anchor while a subsequent user movement replaces it (911ms)
+  ✓  20 [mobile] › tests/four-passage.spec.cjs:20:1 › initial StrictMode entry keeps one committed pane identity while data becomes ready (686ms)
+
+  20 passed (20.6s)

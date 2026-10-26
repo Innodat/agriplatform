@@ -1,3 +1,50 @@
+// Project the new public wire into coordinates for existing behavioral assertions.
+// Deliberate navigation now emits only reader; incoming legacy links stay covered.
+function readerParams(href) {
+  const params = new URL(href).searchParams;
+  if (!params.has('reader')) return params;
+  const layout = JSON.parse(params.get('reader')),
+    out = new URLSearchParams();
+  layout.panes.forEach(({
+    ref
+  }, index) => {
+    const start = ref.target.kind === 'chapter' ? {
+        chapter: ref.target.chapter
+      } : ref.target.start,
+      prefix = index ? 'compare' : '';
+    out.set(index ? 'compareBook' : 'book', ref.book_id);
+    out.set(index ? 'compareChapter' : 'chapter', String(start.chapter));
+    if (start.verse) {
+      out.set(index ? 'compareVerse' : 'verse', String(start.verse));
+      out.set(prefix + 'EndChapter', String(ref.target.end.chapter));
+      out.set(prefix + 'EndVerse', String(ref.target.end.verse));
+    }
+  });
+  return out;
+}
+async function addReader(page) {
+  const tool = (await page.getByRole('button', {
+    name: 'Analysis',
+    exact: true
+  }).getAttribute('aria-pressed')) === 'true' ? 'Analysis' : (await page.getByRole('button', {
+    name: 'Studies',
+    exact: true
+  }).getAttribute('aria-pressed')) === 'true' ? 'Studies' : null;
+  await page.getByRole('button', {
+    name: 'Add reader pane',
+    exact: true
+  }).click();
+  await page.getByRole('dialog', {
+    name: 'Book and chapter selector'
+  }).getByRole('button', {
+    name: 'Cancel',
+    exact: true
+  }).click();
+  if (tool && page.viewportSize().width < 768) await page.getByRole('button', {
+    name: tool,
+    exact: true
+  }).click();
+}
 const {test,expect}=require('@playwright/test');
 const account='10000000-0000-4000-8000-000000000001',actor='20000000-0000-4000-8000-000000000001';
 const study='30000000-0000-4000-8000-000000000001',note='40000000-0000-4000-8000-000000000001';
@@ -275,7 +322,7 @@ test('collected passage keeps dirty writing and opens only explicitly',async({pa
  await page.getByLabel('Passage reference',{exact:true}).fill('Genesis1:31–2:3');
  await page.getByLabel('Passage reference',{exact:true}).press('Enter');
  await expect(page.getByRole('list',{name:'Passages',exact:true})).toContainText('Genesis 1:31–2:3');
- expect(new URL(page.url()).searchParams.get('chapter')).toBe(null);
+ expect(readerParams(page.url()).get('chapter')).toBe(null);
  await page.getByRole('button',{name:'Analysis',exact:true}).click();await expect(page.getByLabel('Note text',{exact:true})).toContainText('Dirty collection observation');
  expect(requests.filter(r=>r.path.endsWith('/passages')&&r.method==='PUT')).toHaveLength(1);
 });
@@ -287,9 +334,9 @@ test('collected passages persist chapters Hebrew ranges overlap and duplicate ID
  const {requests,collection,metadata}=await setup(page);await collectionStudy(page);
  for(const text of ['בראשית א','תהילים קי:1','Ps 110:1–3','Genesis1:31–2:3','Matthew26:63–64']){await addReference(page,text);await expect(page.getByRole('button',{name:'Add passage',exact:true})).toBeEnabled();}
  const list=page.getByRole('list',{name:'Passages',exact:true});await expect(list.locator('li')).toHaveCount(5);expect(collection.items[0].reference.target).toEqual({kind:'chapter',chapter:1});const original=JSON.stringify(collection),writes=requests.filter(r=>r.path.endsWith('/passages')&&r.method==='PUT').length;
- await addReference(page,'Genesis 1');await expect(page.getByRole('alert')).toContainText('Already in this study');await expect(page.getByLabel('Passage reference',{exact:true})).toHaveValue('Genesis 1');await expect(page.getByLabel('Passage reference',{exact:true})).toBeEditable();await page.getByRole('button',{name:'Cancel',exact:true}).click();expect(JSON.stringify(collection)).toBe(original);expect(requests.filter(r=>r.path.endsWith('/passages')&&r.method==='PUT')).toHaveLength(writes);expect(metadata.revision).toBe('1');expect(new URL(page.url()).searchParams.has('verse')).toBe(false);
+ await addReference(page,'Genesis 1');await expect(page.getByRole('alert')).toContainText('Already in this study');await expect(page.getByLabel('Passage reference',{exact:true})).toHaveValue('Genesis 1');await expect(page.getByLabel('Passage reference',{exact:true})).toBeEditable();await page.getByRole('button',{name:'Cancel',exact:true}).click();expect(JSON.stringify(collection)).toBe(original);expect(requests.filter(r=>r.path.endsWith('/passages')&&r.method==='PUT')).toHaveLength(writes);expect(metadata.revision).toBe('1');expect(readerParams(page.url()).has('verse')).toBe(false);
  await page.reload();await page.getByRole('button',{name:'Studies',exact:true}).click();await page.getByRole('button',{name:'Untitled study',exact:true}).click();await expect(list.locator('li')).toHaveCount(5);await expect(list).toContainText('Genesis 1:31–2:3');
- await page.getByRole('button',{name:'Open Matthew 26:63–64',exact:true}).click();await expect(page.getByText(/Matthew 26:63–64 — Text unavailable/)).toBeVisible();expect(new URL(page.url()).searchParams.get('verse')).toBe('63');expect(new URL(page.url()).searchParams.get('EndVerse')).toBe('64');await expect(page.getByRole('button',{name:/Word:/})).toHaveCount(0);await page.getByRole('button',{name:'Next chapter',exact:true}).click();expect(new URL(page.url()).searchParams.get('chapter')).toBe('27');await page.goBack();await expect(page.getByText(/Matthew 26:63–64 — Text unavailable/)).toBeVisible();
+ await page.getByRole('button',{name:'Open Matthew 26:63–64',exact:true}).click();await expect(page.getByText(/Matthew 26:63–64 — Text unavailable/)).toBeVisible();expect(readerParams(page.url()).get('verse')).toBe('63');expect(readerParams(page.url()).get('EndVerse')).toBe('64');await expect(page.getByRole('button',{name:/Word:/})).toHaveCount(0);await page.getByRole('button',{name:'Next chapter',exact:true}).click();expect(readerParams(page.url()).get('chapter')).toBe('27');await page.goBack();await expect(page.getByText(/Matthew 26:63–64 — Text unavailable/)).toBeVisible();
  await page.getByRole('button',{name:'Studies',exact:true}).click();await page.getByRole('button',{name:'Remove Psalms 110:1–3',exact:true}).click();await expect(list.locator('li')).toHaveCount(4);await expect(list).toContainText('Psalms 110:1');
 });
 
@@ -347,7 +394,7 @@ test('collected server input rejection keeps editable candidate and correction u
 });
 
 test('collected matching chapter confirms complete range and explicit Open preserves dirty note and other pane',async({page})=>{
- await setup(page,{failPut:503});await firstNote(page);await page.getByLabel('Note text',{exact:true}).fill('Dirty while opening a range');await expect(page.getByRole('status').filter({hasText:'Changes not saved'})).toBeVisible();await page.getByRole('button',{name:'Compare passages',exact:true}).click();await page.getByRole('button',{name:'Back to Studies',exact:true}).click();await page.getByRole('button',{name:'Add passage',exact:true}).click();await page.getByLabel('Passage reference',{exact:true}).fill('Genesis1:31–2:3');await page.getByRole('button',{name:'Chapter 1 of Genesis',exact:true}).click();await expect(page.getByRole('list',{name:'Passages',exact:true})).toContainText('Genesis 1:31–2:3');expect(new URL(page.url()).searchParams.has('compareVerse')).toBe(false);await page.getByRole('button',{name:'Open Genesis 1:31–2:3',exact:true}).click();const url=new URL(page.url());expect(url.searchParams.get('chapter')).toBe(null);expect(url.searchParams.get('compareVerse')).toBe('31');expect(url.searchParams.get('compareEndChapter')).toBe('2');expect(url.searchParams.get('compareEndVerse')).toBe('3');await page.getByRole('button',{name:'Analysis',exact:true}).click();await expect(page.getByLabel('Note text',{exact:true})).toContainText('Dirty while opening a range');
+ await setup(page,{failPut:503});await firstNote(page);await page.getByLabel('Note text',{exact:true}).fill('Dirty while opening a range');await expect(page.getByRole('status').filter({hasText:'Changes not saved'})).toBeVisible();await addReader(page);await page.getByRole('button',{name:'Back to Studies',exact:true}).click();await page.getByRole('button',{name:'Add passage',exact:true}).click();await page.getByLabel('Passage reference',{exact:true}).fill('Genesis1:31–2:3');await page.getByRole('button',{name:'Chapter 1 of Genesis',exact:true}).click();await expect(page.getByRole('list',{name:'Passages',exact:true})).toContainText('Genesis 1:31–2:3');expect(readerParams(page.url()).has('compareVerse')).toBe(false);await page.getByRole('button',{name:'Open Genesis 1:31–2:3',exact:true}).click();const url=new URL(page.url());expect(readerParams(url.href).get('chapter')).toBe('1');expect(readerParams(url.href).get('compareVerse')).toBe('31');expect(readerParams(url.href).get('compareEndChapter')).toBe('2');expect(readerParams(url.href).get('compareEndVerse')).toBe('3');await page.getByRole('button',{name:'Analysis',exact:true}).click();await expect(page.getByLabel('Note text',{exact:true})).toContainText('Dirty while opening a range');
 });
 
 test('collected supported source outage retains reference and offers truthful chapter Retry',async({page})=>{
@@ -418,7 +465,7 @@ test('note links: terminal format refusal pauses saves and retains whole local n
 });
 
 test('note links: keyboard edit offers Open and keyboard read opens range in active pane only',async({page})=>{
- const {requests}=await setup(page);await firstNote(page);await page.getByRole('button',{name:'Compare passages',exact:true}).click();const editor=page.getByLabel('Note text',{exact:true});await editor.fill('Keep same note ');await insertNoteReference(page,'Gen 1:31–2:3');const atom=editor.locator('[data-note-passage]'),before=new URL(page.url());await atom.focus();await atom.press('Enter');expect(page.url()).toBe(before.href);await expect(page.getByRole('button',{name:'Open passage',exact:true})).toBeVisible();await page.getByRole('button',{name:'Read note',exact:true}).click();await atom.focus();await atom.press('Space');await expect.poll(()=>new URL(page.url()).searchParams.get('compareEndVerse')).toBe('3');const url=new URL(page.url());expect(url.searchParams.get('compareVerse')).toBe('31');expect(url.searchParams.get('compareEndChapter')).toBe('2');expect(url.searchParams.get('book')).toBe(before.searchParams.get('book'));expect(url.searchParams.get('chapter')).toBe(before.searchParams.get('chapter'));if(page.viewportSize().width<768)await page.getByRole('button',{name:'Analysis',exact:true}).click();await expect(editor).toContainText('Keep same note Genesis 1:31–2:3');expect(requests.filter(r=>r.method==='POST'&&r.path.endsWith('/notes'))).toHaveLength(1);
+ const {requests}=await setup(page);await firstNote(page);await addReader(page);const editor=page.getByLabel('Note text',{exact:true});await editor.fill('Keep same note ');await insertNoteReference(page,'Gen 1:31–2:3');const atom=editor.locator('[data-note-passage]'),before=new URL(page.url());await atom.focus();await atom.press('Enter');expect(page.url()).toBe(before.href);await expect(page.getByRole('button',{name:'Open passage',exact:true})).toBeVisible();await page.getByRole('button',{name:'Read note',exact:true}).click();await atom.focus();await atom.press('Space');await expect.poll(()=>readerParams(page.url()).get('compareEndVerse')).toBe('3');const url=new URL(page.url());expect(readerParams(url.href).get('compareVerse')).toBe('31');expect(readerParams(url.href).get('compareEndChapter')).toBe('2');expect(readerParams(url.href).get('book')).toBe(readerParams(before.href).get('book'));expect(readerParams(url.href).get('chapter')).toBe(readerParams(before.href).get('chapter'));if(page.viewportSize().width<768)await page.getByRole('button',{name:'Analysis',exact:true}).click();await expect(editor).toContainText('Keep same note Genesis 1:31–2:3');expect(requests.filter(r=>r.method==='POST'&&r.path.endsWith('/notes'))).toHaveLength(1);
 });
 test('note links: unknown original operation and delayed acknowledgement preserve coherent newer value in Read',async({page})=>{
  let release;const options={dropPut:true,beforeLookup:()=>new Promise(resolve=>release=resolve)};const {requests}=await setup(page,options);await firstNote(page);const editor=page.getByLabel('Note text',{exact:true});await insertNoteReference(page,'Gen 1');await expect.poll(()=>Boolean(release)).toBe(true);const first=structuredClone(requests.filter(r=>r.method==='PUT').at(-1).payload);await editor.press('End');await editor.press('x');await page.getByRole('button',{name:'Read note',exact:true}).click();await expect(editor).toContainText('Genesis 1x');await expect(page.getByRole('status')).not.toHaveText('Draft saved');expect(requests.filter(r=>r.method==='PUT')).toHaveLength(1);options.beforeLookup=undefined;release();await expect(page.getByRole('status').filter({hasText:'Draft saved'})).toBeVisible();const puts=requests.filter(r=>r.method==='PUT');expect(puts).toHaveLength(2);expect(puts[0].payload).toEqual(first);expect(puts[1].payload.value.document.version).toBe(2);expect(puts[1].payload.operation_id).not.toBe(first.operation_id);await expect(editor.locator('[data-note-passage]')).toHaveCount(1);
@@ -820,7 +867,7 @@ for(const destination of ['reader after tools close','surviving public control']
  let release;await setup(page,{beforeDelete:()=>new Promise(resolve=>release=resolve)});await firstNote(page);await page.getByRole('button',{name:'Delete note',exact:true}).click();await page.getByRole('dialog').getByRole('button',{name:'Delete note',exact:true}).click();await expect.poll(()=>!!release).toBe(true);await page.getByRole('dialog').getByRole('button',{name:'Close',exact:true}).click();
  const mobile=test.info().project.name==='mobile';
  if(destination==='reader after tools close')await page.getByRole('button',{name:mobile?'Return to reader':'Analysis',exact:true}).click();
- const control=destination==='surviving public control'&&mobile?page.getByRole('button',{name:'Compare passages',exact:true}):page.getByRole('button',{name:/^Navigate: Genesis, chapter 1/});await expect(control).toBeVisible();await control.focus();await expect(control).toBeFocused();
+ const control=destination==='surviving public control'&&mobile?page.getByRole('button',{name:'Add reader pane',exact:true}):page.getByRole('button',{name:/^Navigate: Genesis, chapter 1/});await expect(control).toBeVisible();await control.focus();await expect(control).toBeFocused();
  const acknowledgement=page.waitForResponse(r=>r.request().method()==='DELETE');release();await (await acknowledgement).finished();await expect(page.getByLabel('Note text',{exact:true})).toHaveCount(0);await page.evaluate(()=>new Promise(requestAnimationFrame));await expect(control).toBeFocused();await expect(page.getByText('Note deleted.',{exact:true})).toHaveCount(0);
 });
 
@@ -899,7 +946,7 @@ for(const reply of ['success','denial'])test('whole-study deletion account repla
 });
 
 test('whole-study deletion acknowledgement preserves deliberate surviving public focus',async({page})=>{
- let release;await setup(page,{beforeStudyDelete:()=>new Promise(resolve=>release=resolve)});await firstNote(page);const dialog=await confirmWholeDeletion(page);await expect.poll(()=>!!release).toBe(true);await dialog.getByRole('button',{name:'Close',exact:true}).click();const control=test.info().project.name==='mobile'?page.getByRole('button',{name:'Compare passages',exact:true}):page.getByRole('button',{name:/^Navigate: Genesis, chapter 1/});await control.focus();release();await expect(page.getByLabel('Note text',{exact:true})).toHaveCount(0);await expect(control).toBeFocused();await expect(page.getByText('Study deleted.',{exact:true})).toHaveCount(0);
+ let release;await setup(page,{beforeStudyDelete:()=>new Promise(resolve=>release=resolve)});await firstNote(page);const dialog=await confirmWholeDeletion(page);await expect.poll(()=>!!release).toBe(true);await dialog.getByRole('button',{name:'Close',exact:true}).click();const control=test.info().project.name==='mobile'?page.getByRole('button',{name:'Add reader pane',exact:true}):page.getByRole('button',{name:/^Navigate: Genesis, chapter 1/});await control.focus();release();await expect(page.getByLabel('Note text',{exact:true})).toHaveCount(0);await expect(control).toBeFocused();await expect(page.getByText('Study deleted.',{exact:true})).toHaveCount(0);
 });
 
 for(const late of ['success','denial'])test('whole-study deletion rejects late collection read '+late+' after acknowledgement',async({page})=>{
@@ -973,4 +1020,265 @@ test('study deletion review recovered creation is visible after Cancel and next 
  for(const [id,text] of [[otherNote,'Recovered committed note'],[freshNote,'Distinct fresh note']])await page.route('**/api/studies/'+study+'/notes/'+id,r=>r.fulfill({json:{...attribution,id,study_id:study,visibility:'study',revision:'1',value:{document:{version:1,blocks:[{type:'paragraph',direction:'auto',content:[{type:'text',text,marks:[]}]}]},connections:[],highlights:[]}}}));
  await page.getByRole('button',{name:'Add note',exact:true}).click();await expect(page.getByRole('alert')).toContainText('Studies could not be loaded');const dialog=await openWholeDeletion(page);recover=true;await dialog.getByRole('button',{name:'Recover previous operations',exact:true}).click();await expect(dialog.getByRole('button',{name:'Delete study',exact:true})).toBeEnabled();await dialog.getByRole('button',{name:'Cancel',exact:true}).click();await expect(page.getByRole('list',{name:'Notes',exact:true})).toContainText('Recovered committed note');await page.getByRole('button',{name:'Add note',exact:true}).click();await expect(page.getByLabel('Note text',{exact:true})).toContainText('Distinct fresh note');expect(commands).toHaveLength(3);expect(commands[1]).toEqual(commands[0]);expect(commands[2].operation_id).not.toBe(commands[0].operation_id);
  const studiesBefore=requests.filter(request=>request.method==='POST'&&request.path==='/api/studies').length;await page.getByRole('button',{name:'Back to Studies',exact:true}).click();await page.getByRole('button',{name:'Leave study',exact:true}).click();await page.getByRole('button',{name:'Create study',exact:true}).click();await expect.poll(()=>requests.filter(request=>request.method==='POST'&&request.path==='/api/studies').length).toBe(studiesBefore+1);expect(requests.filter(request=>request.method==='POST'&&request.path==='/api/studies').at(-1).payload.operation_id).not.toBe(commands[0].operation_id);
+});
+
+for (const rangeMode of ['selection', 'caret']) test(`four-pane layout retains the same composing editor and owned passage atoms through add close and replay (${rangeMode})`, async ({
+  page
+}) => {
+  const {
+    requests
+  } = await setup(page);
+  await firstNote(page);
+  const editor = page.getByLabel('Note text', {
+    exact: true
+  });
+  await editor.fill('Original writing ');
+  await insertNoteReference(page, 'Genesis 1:2–3');
+  await expect(page.getByRole('status').filter({
+    hasText: 'Draft saved'
+  })).toBeVisible();
+  await editor.evaluate(el => {
+    window.__fourEditor = el;
+    window.__fourAtom = el.querySelector('[data-note-passage]');
+  });
+  const writes = requests.filter(r => r.method === 'PUT').length;
+  await editor.dispatchEvent('compositionstart');
+  await editor.evaluate(el => {
+    el.append(document.createTextNode(' composing עברית'));
+    el.dispatchEvent(new InputEvent('input', {
+      bubbles: true,
+      inputType: 'insertCompositionText'
+    }));
+  });
+  await editor.evaluate((el, rangeMode) => {
+    const walker = document.createTreeWalker(el, NodeFilter.SHOW_TEXT);
+    let text = walker.nextNode();
+    while (text && text.parentElement.closest('[data-note-passage]')) text = walker.nextNode();
+    const range = document.createRange();
+    range.setStart(text, rangeMode === 'caret' ? 5 : 2);
+    range.setEnd(text, rangeMode === 'caret' ? 5 : 8);
+    getSelection().removeAllRanges();
+    getSelection().addRange(range);
+    window.__fourCaret = range.cloneRange();
+  }, rangeMode);
+  async function assertCaret() {
+    await editor.focus();
+    expect(await editor.evaluate(() => {
+      const selection = getSelection(),
+        range = selection.rangeCount ? selection.getRangeAt(0) : null,
+        saved = window.__fourCaret;
+      return range ? {
+        sameStart: range.startContainer === saved.startContainer,
+        start: range.startOffset,
+        sameEnd: range.endContainer === saved.endContainer,
+        end: range.endOffset
+      } : null;
+    })).toEqual({
+      sameStart: true,
+      start: rangeMode === 'caret' ? 5 : 2,
+      sameEnd: true,
+      end: rangeMode === 'caret' ? 5 : 8
+    });
+  }
+  await addReader(page);
+  await assertCaret();
+  await page.goBack();
+  await assertCaret();
+  await page.goForward();
+  await assertCaret();
+  if (page.viewportSize().width < 768) await page.getByRole('button', {
+    name: 'Return to reader',
+    exact: true
+  }).click();
+  await page.getByRole('button', {
+    name: 'Close passage 2',
+    exact: true
+  }).click();
+  if (!(await editor.isVisible())) await page.getByRole('button', {
+    name: 'Analysis',
+    exact: true
+  }).click();
+  await expect(editor).toContainText('composing עברית');
+  await assertCaret();
+  expect(await editor.evaluate(el => el === window.__fourEditor && el.querySelector('[data-note-passage]') === window.__fourAtom)).toBe(true);
+  await page.waitForTimeout(650);
+  expect(requests.filter(r => r.method === 'PUT')).toHaveLength(writes);
+  await editor.dispatchEvent('compositionend');
+  await assertCaret();
+  await expect(page.getByRole('status').filter({
+    hasText: 'Draft saved'
+  })).toBeVisible();
+  await assertCaret();
+  expect(requests.filter(r => r.method === 'POST' && r.path.endsWith('/notes'))).toHaveLength(1);
+});
+test('four-pane public transitions preserve an unknown original save operation', async ({
+  page
+}) => {
+  const options = {
+    failPut: 503
+  };
+  const {
+    requests
+  } = await setup(page, options);
+  await firstNote(page);
+  const editor = page.getByLabel('Note text', {
+    exact: true
+  });
+  await editor.fill('Original frozen save');
+  await expect(page.getByRole('status').filter({
+    hasText: 'Changes not saved'
+  })).toBeVisible();
+  const original = structuredClone(requests.find(r => r.method === 'PUT').payload);
+  await editor.evaluate(el => window.__fourEditor = el);
+  await addReader(page);
+  await page.goBack();
+  await page.goForward();
+  await expect(editor).toContainText('Original frozen save');
+  expect(await editor.evaluate(el => el === window.__fourEditor)).toBe(true);
+  options.failPut = 0;
+  await page.getByRole('button', {
+    name: 'Retry',
+    exact: true
+  }).click();
+  await expect(page.getByRole('status').filter({
+    hasText: 'Draft saved'
+  })).toBeVisible();
+  expect(requests.filter(r => r.method === 'PUT').map(r => r.payload)).toEqual([original, original]);
+});
+for (const malformed of ['?book=Gen&chapter=bad&other=keep#reading', '?reader=%7B%7D&book=Exod&other=keep#reading']) test(`review: malformed Add Cancel retains unresolved provenance across replay and refresh until valid choice ${malformed}`, async ({
+  page
+}) => {
+  await setup(page);
+  await page.goto('/' + malformed);
+  const original = page.url();
+  await page.getByRole('button', {
+    name: 'Studies',
+    exact: true
+  }).click();
+  await page.getByRole('button', {
+    name: 'Start a study',
+    exact: true
+  }).click();
+  await page.getByRole('button', {
+    name: 'Create study',
+    exact: true
+  }).click();
+  const idx = await page.evaluate(() => history.state.idx);
+  await addReader(page);
+  expect(page.url()).toBe(original);
+  expect(await page.evaluate(() => history.state.idx)).toBe(idx + 1);
+  await expect(page.locator('[data-reader-pane]')).toHaveCount(2);
+  await expect(page.getByRole('button', {
+    name: 'Add current passage',
+    exact: true
+  })).toHaveCount(0);
+  await expect(page.getByRole('button', {
+    name: 'Add passage',
+    exact: true
+  })).toBeEnabled();
+  await page.goBack();
+  await expect(page.locator('[data-reader-pane]')).toHaveCount(1);
+  await page.goForward();
+  await expect(page.locator('[data-reader-pane]')).toHaveCount(2);
+  await expect(page.getByRole('button', {
+    name: 'Add current passage',
+    exact: true
+  })).toHaveCount(0);
+  await page.goBack();
+  await expect(page.locator('[data-reader-pane]')).toHaveCount(1);
+  await page.goForward();
+  await expect(page.locator('[data-reader-pane]')).toHaveCount(2);
+  await expect(page.getByRole('button', {
+    name: 'Add current passage',
+    exact: true
+  })).toHaveCount(0);
+  await page.reload();
+  expect(page.url()).toBe(original);
+  await expect(page.locator('[data-reader-pane]')).toHaveCount(2);
+  await page.getByRole('button', {
+    name: 'Studies',
+    exact: true
+  }).click();
+  await page.getByRole('button', {
+    name: 'Untitled study',
+    exact: true
+  }).click();
+  await expect(page.getByRole('button', {
+    name: 'Add current passage',
+    exact: true
+  })).toHaveCount(0);
+  if (page.viewportSize().width < 768) await page.getByRole('button', {
+    name: 'Return to reader',
+    exact: true
+  }).click();
+  await page.locator('[data-reader-pane]').nth(1).getByRole('button', {
+    name: /Navigate:/
+  }).click();
+  await page.getByLabel('Passage reference', {
+    exact: true
+  }).fill('Genesis 2');
+  await page.getByLabel('Passage reference', {
+    exact: true
+  }).press('Enter');
+  expect(new URL(page.url()).searchParams.has('reader')).toBe(true);
+  expect(new URL(page.url()).searchParams.get('other')).toBe('keep');
+  expect(new URL(page.url()).hash).toBe('#reading');
+  if ((await page.getByRole('button', {
+    name: 'Studies',
+    exact: true
+  }).getAttribute('aria-pressed')) !== 'true') await page.getByRole('button', {
+    name: 'Studies',
+    exact: true
+  }).click();
+  await expect(page.getByRole('button', {
+    name: 'Add current passage',
+    exact: true
+  })).toBeVisible();
+});
+test('review: malformed capacity Add replacement Cancel still requires a valid passage choice', async ({
+  page
+}) => {
+  await setup(page);
+  await page.goto('/?chapter=bad');
+  const original = page.url();
+  for (let i = 0; i < 3; i++) await addReader(page);
+  await page.getByRole('button', {
+    name: 'Add reader pane',
+    exact: true
+  }).click();
+  await page.getByRole('dialog', {
+    name: 'Choose passage to replace'
+  }).getByRole('button', {
+    name: 'Replace passage 1: Genesis 1',
+    exact: true
+  }).click();
+  await page.getByRole('dialog', {
+    name: 'Book and chapter selector'
+  }).getByRole('button', {
+    name: 'Cancel',
+    exact: true
+  }).click();
+  expect(page.url()).toBe(original);
+  await page.reload();
+  await expect(page.locator('[data-reader-pane]')).toHaveCount(4);
+  await page.getByRole('button', {
+    name: 'Studies',
+    exact: true
+  }).click();
+  await page.getByRole('button', {
+    name: 'Start a study',
+    exact: true
+  }).click();
+  await page.getByRole('button', {
+    name: 'Create study',
+    exact: true
+  }).click();
+  await expect(page.getByRole('button', {
+    name: 'Add current passage',
+    exact: true
+  })).toHaveCount(0);
+  await expect(page.getByRole('button', {
+    name: 'Add passage',
+    exact: true
+  })).toBeEnabled();
 });

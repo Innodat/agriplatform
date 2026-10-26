@@ -1,3 +1,50 @@
+// Project the new public wire into coordinates for existing behavioral assertions.
+// Deliberate navigation now emits only reader; incoming legacy links stay covered.
+function readerParams(href) {
+  const params = new URL(href).searchParams;
+  if (!params.has('reader')) return params;
+  const layout = JSON.parse(params.get('reader')),
+    out = new URLSearchParams();
+  layout.panes.forEach(({
+    ref
+  }, index) => {
+    const start = ref.target.kind === 'chapter' ? {
+        chapter: ref.target.chapter
+      } : ref.target.start,
+      prefix = index ? 'compare' : '';
+    out.set(index ? 'compareBook' : 'book', ref.book_id);
+    out.set(index ? 'compareChapter' : 'chapter', String(start.chapter));
+    if (start.verse) {
+      out.set(index ? 'compareVerse' : 'verse', String(start.verse));
+      out.set(prefix + 'EndChapter', String(ref.target.end.chapter));
+      out.set(prefix + 'EndVerse', String(ref.target.end.verse));
+    }
+  });
+  return out;
+}
+async function addReader(page) {
+  const tool = (await page.getByRole('button', {
+    name: 'Analysis',
+    exact: true
+  }).getAttribute('aria-pressed')) === 'true' ? 'Analysis' : (await page.getByRole('button', {
+    name: 'Studies',
+    exact: true
+  }).getAttribute('aria-pressed')) === 'true' ? 'Studies' : null;
+  await page.getByRole('button', {
+    name: 'Add reader pane',
+    exact: true
+  }).click();
+  await page.getByRole('dialog', {
+    name: 'Book and chapter selector'
+  }).getByRole('button', {
+    name: 'Cancel',
+    exact: true
+  }).click();
+  if (tool && page.viewportSize().width < 768) await page.getByRole('button', {
+    name: tool,
+    exact: true
+  }).click();
+}
 const {test,expect}=require('@playwright/test');
 const books=[{id:1,osis_id:'Gen',name_en:'Genesis',name_he:'א',testament:'old',division:'torah',book_order:1},{id:2,osis_id:'Exod',name_en:'Exodus',name_he:'ב',testament:'old',division:'torah',book_order:2}];
 const words=[{id:1,position:1,surface_he:'מֶלֶךְ',display_he:'מֶלֶךְ',lemma_strong:'4428',lexical_id:'4428',match_key:'root:haj',morph_code:'HNcmsa'},{id:2,position:2,surface_he:'מַמְלָכָה',display_he:'מַמְלָכָה',lemma_strong:'c/4467',lexical_id:'4467',match_key:'root:haj',morph_code:'HC/Ncfsa'},{id:3,position:3,surface_he:'מָלַךְ',display_he:'מָלַךְ',lemma_strong:'4427 b',lexical_id:'4427 b',match_key:'root:hah',morph_code:'HVqp3ms'}];
@@ -16,7 +63,7 @@ async function setup(page){
 }
 
 test('root highlights keep homonyms distinct in both chapters; dwell cancels and restores pinned state',async({page})=>{
- await setup(page);await page.getByRole('button',{name:'Compare passages',exact:true}).click();
+ await setup(page);await addReader(page);
  await page.setViewportSize({width:1280,height:900});
  const one=page.getByRole('region',{name:'Passage 1',exact:true}),two=page.getByRole('region',{name:'Passage 2',exact:true});
  await one.locator('.word-token').first().click();
@@ -41,10 +88,10 @@ test('occurrence pages survive tabs, filter resets, errors retry and new words c
 
 test('BDB safe references preview and open at verse without changing the other passage',async({page})=>{
  await setup(page);await page.locator('.word-token').first().click();await page.getByText('BDB outline',{exact:true}).click();await page.getByRole('button',{name:'Ex 1:20',exact:true}).click();const preview=page.getByRole('region',{name:'Scripture preview'});await expect(preview.getByText('מלך',{exact:true})).toHaveCount(0);await expect(preview.locator('[lang=he]')).toBeVisible();
- await preview.getByRole('button',{name:'Open in comparison',exact:true}).click();await expect(page).toHaveURL(/compareBook=Exod/);await expect(page).toHaveURL(/compareVerse=20/);
+ await preview.getByRole('button',{name:'Open beside',exact:true}).click();await expect.poll(()=>readerParams(page.url()).toString()).toMatch(/compareBook=Exod/);await expect.poll(()=>readerParams(page.url()).toString()).toMatch(/compareVerse=20/);
  const two=page.getByRole('region',{name:'Passage 2',exact:true});await expect(two.locator('[data-verse="20"]')).toBeInViewport();
  await page.setViewportSize({width:1280,height:900});await expect(page.getByRole('region',{name:'Passage 1',exact:true}).getByRole('button',{name:/Navigate: Genesis, chapter 1/})).toBeVisible();
- await page.goBack();await expect(page.getByRole('button',{name:'Compare passages',exact:true})).toBeVisible();
+ await page.goBack();await expect(page.getByRole('button',{name:'Add reader pane',exact:true})).toBeVisible();
 });
 
 test('missing dictionary and failures keep morphology usable with retry; touch pins without hover',async({page})=>{
@@ -61,13 +108,13 @@ test('late occurrence results cannot cross selections and pending preview cancel
 });
 
 test('current passage follows selected pane and ordinary mobile switches preserve targeted scroll',async({page})=>{
- await setup(page);await page.getByRole('button',{name:'Compare passages',exact:true}).click();
- const two=page.getByRole('region',{name:'Passage 2',exact:true});await two.locator('.word-token').first().click();await page.getByRole('tab',{name:'Occurrences'}).click();await page.getByRole('button',{name:'Open in current passage',exact:true}).click();await expect(page).toHaveURL(/compareBook=Exod/);expect(new URL(page.url()).searchParams.get('book')).not.toBe('Exod');await expect(two.locator('[data-verse="20"]')).toBeInViewport();
+ await setup(page);await addReader(page);
+ const two=page.getByRole('region',{name:'Passage 2',exact:true});await two.locator('.word-token').first().click();await page.getByRole('tab',{name:'Occurrences'}).click();await page.getByRole('button',{name:'Open here',exact:true}).click();await expect.poll(()=>readerParams(page.url()).toString()).toMatch(/compareBook=Exod/);expect(readerParams(page.url()).get('book')).not.toBe('Exod');await expect(two.locator('[data-verse="20"]')).toBeInViewport();
  await page.setViewportSize({width:390,height:844});const text=two.locator('[data-reader-scroll]');await text.evaluate(el=>el.scrollTop=100);await page.getByRole('button',{name:/Show passage 1/}).click();await page.getByRole('button',{name:/Show passage 2/}).click();await expect.poll(()=>text.evaluate(el=>el.scrollTop)).toBe(100);
 });
 
 test('explicitly reopening the same verse seeks again and invalid verse URLs are ignored',async({page})=>{
- await setup(page);await page.setViewportSize({width:1280,height:900});await page.locator('.word-token').first().click();await page.getByRole('tab',{name:'Occurrences'}).click();const open=page.getByRole('button',{name:'Open in comparison',exact:true});await open.click();const two=page.getByRole('region',{name:'Passage 2',exact:true});await expect(two.locator('[data-verse="20"]')).toBeInViewport();await two.locator('[data-reader-scroll]').evaluate(el=>el.scrollTop=0);await open.click();await expect(two.locator('[data-verse="20"]')).toBeInViewport();
+ await setup(page);await page.setViewportSize({width:1280,height:900});await page.locator('.word-token').first().click();await page.getByRole('tab',{name:'Occurrences'}).click();const open=page.getByRole('button',{name:'Open beside',exact:true});await open.click();const two=page.getByRole('region',{name:'Passage 2',exact:true});await expect(two.locator('[data-verse="20"]')).toBeInViewport();await two.locator('[data-reader-scroll]').evaluate(el=>el.scrollTop=0);await page.getByRole('button',{name:'Open here',exact:true}).click();await expect(two.locator('[data-verse="20"]')).toBeInViewport();
  await page.goto('/?verse=999999');await expect(page.locator('[data-verse="1"]')).toBeInViewport();await expect.poll(()=>page.locator('[data-reader-scroll]').evaluate(el=>el.scrollTop)).toBe(0);
 });
 
@@ -82,7 +129,7 @@ test('review regression: desktop reload and responsive reveal apply pending vers
  await two.locator('[data-reader-scroll]').evaluate(el=>el.scrollTop=100);
  await page.setViewportSize({width:390,height:844});await page.setViewportSize({width:1280,height:900});
  await expect.poll(()=>two.locator('[data-reader-scroll]').evaluate(el=>el.scrollTop)).toBe(100);
- await page.getByRole('button',{name:'Close comparison',exact:true}).click();expect(new URL(page.url()).searchParams.has('compareVerse')).toBe(false);
+ await page.getByRole('button',{name:'Close passage 2',exact:true}).click();expect(readerParams(page.url()).has('compareVerse')).toBe(false);
 });
 
 test('review regression: explicit null and ambiguous legacy lemmas never choose an identity',async({page})=>{
@@ -117,7 +164,7 @@ test('review regression: unavailable reference previews cannot replace a working
  await page.route('**/api/bible/books/Exod/chapters/1/verses',r=>r.fulfill({json:{data:[{id:1,verse_num:1,book_id:2,chapter_num:1,words:[words[0]]}],total:1}}));
  await page.locator('.word-token').first().click();await page.getByText('BDB outline',{exact:true}).click();await page.getByRole('button',{name:'Ex 1:20',exact:true}).click();
  const preview=page.getByRole('region',{name:'Scripture preview'});await expect(preview.getByText('Verse not present in this collection.')).toBeVisible();
- await expect(preview.getByRole('button',{name:'Open in current passage',exact:true})).toBeDisabled();await expect(preview.getByRole('button',{name:'Open in comparison',exact:true})).toBeDisabled();
+ await expect(preview.getByRole('button',{name:'Open here',exact:true})).toBeDisabled();await expect(preview.getByRole('button',{name:'Open beside',exact:true})).toBeDisabled();
  await expect(page.getByRole('region',{name:'Passage 1',exact:true}).getByRole('button',{name:/Navigate: Genesis, chapter 1/})).toBeVisible();
 });
 
@@ -175,7 +222,7 @@ test('unaligned source retains grammar without fabricated surface pieces',async(
 });
 
 test('selecting the same token in the other passage resets dictionary history',async({page})=>{
- await setup(page);await page.setViewportSize({width:1280,height:900});await page.getByRole('button',{name:'Compare passages',exact:true}).click();
+ await setup(page);await page.setViewportSize({width:1280,height:900});await addReader(page);
  await page.route('**/api/bible/lexicon/**',r=>r.fulfill({json:{status:'available',lexical_id:'4428',lemma:'מֶלֶךְ',root:{id:'a',text:'אב',lexical_id:'1'}}}));
  const one=page.getByRole('region',{name:'Passage 1',exact:true}),two=page.getByRole('region',{name:'Passage 2',exact:true});
  await one.locator('.word-token').first().click();await page.getByRole('button',{name:'Open dictionary entry 1'}).click();await expect(page.getByRole('button',{name:'Back to previous dictionary entry'})).toBeVisible();
@@ -264,4 +311,153 @@ test('dictionary controls show hand cursors and header closes either tab without
   await expect(panel).toHaveCount(0);await expect(page.locator('.word-token.selected')).toHaveCount(0);
   if(tab==='Word')await page.locator('.word-token').first().click();
  }
+});
+
+test('Open here follows active pane while analysis keeps its distinct origin and beside inserts adjacently', async ({
+  page
+}) => {
+  await setup(page);
+  await page.setViewportSize({
+    width: 1600,
+    height: 1000
+  });
+  await addReader(page);
+  const one = page.locator('[data-reader-pane]').nth(0),
+    two = page.locator('[data-reader-pane]').nth(1);
+  await one.locator('.word-token').first().click();
+  await page.getByRole('tab', {
+    name: 'Occurrences',
+    exact: true
+  }).click();
+  await two.locator('[data-reader-scroll]').focus();
+  await expect(page.getByText('Genesis 1:1', {
+    exact: true
+  })).toBeVisible();
+  const origin = await one.getAttribute('data-pane-key'),
+    target = await two.getAttribute('data-pane-key');
+  await page.getByRole('button', {
+    name: 'Open here',
+    exact: true
+  }).click();
+  await expect(two.getByRole('button', {
+    name: /Navigate: Exodus/
+  })).toBeVisible();
+  await expect(one.getByRole('button', {
+    name: /Navigate: Genesis/
+  })).toBeVisible();
+  await expect(page.getByText('Genesis 1:1', {
+    exact: true
+  })).toBeVisible();
+  await page.getByRole('button', {
+    name: 'Open beside',
+    exact: true
+  }).click();
+  await expect(page.locator('[data-reader-pane]')).toHaveCount(3);
+  expect(await page.locator('[data-reader-pane]').evaluateAll(ns => ns.slice(0, 2).map(n => n.dataset.paneKey))).toEqual([origin, target]);
+  await expect(page.locator('[data-reader-pane]').nth(2).getByRole('button', {
+    name: /Navigate: Exodus/
+  })).toBeVisible();
+});
+test('capacity beside replacement changes the chosen nonactive reference and preserves all other positions', async ({
+  page
+}) => {
+  await setup(page);
+  await page.setViewportSize({
+    width: 1800,
+    height: 1100
+  });
+  for (let i = 0; i < 3; i++) await addReader(page);
+  const panes = page.locator('[data-reader-pane]');
+  await panes.nth(0).locator('.word-token').first().click();
+  await page.getByRole('tab', {
+    name: 'Occurrences',
+    exact: true
+  }).click();
+  await panes.nth(3).locator('[data-reader-scroll]').focus();
+  await expect(page.getByRole('button', {
+    name: 'Open beside',
+    exact: true
+  })).toBeVisible();
+  for (let i = 0; i < 4; i++) await panes.nth(i).locator('[data-reader-scroll]').evaluate((el, position) => el.scrollTop = position, 80 + i * 30);
+  const beforeRefs = JSON.parse(new URL(page.url()).searchParams.get('reader')).panes,
+    beforeKeys = await panes.evaluateAll(ns => ns.map(n => n.dataset.paneKey)),
+    beforePositions = await page.locator('[data-reader-scroll]').evaluateAll(ns => ns.map(n => n.scrollTop)),
+    url = page.url(),
+    idx = await page.evaluate(() => history.state.idx);
+  await page.getByRole('button', {
+    name: 'Open beside',
+    exact: true
+  }).click();
+  const dialog = page.getByRole('dialog', {
+    name: 'Choose passage to replace'
+  });
+  await dialog.getByRole('button', {
+    name: 'Cancel',
+    exact: true
+  }).click();
+  expect(page.url()).toBe(url);
+  expect(await page.evaluate(() => history.state.idx)).toBe(idx);
+  expect(await page.locator('[data-reader-scroll]').evaluateAll(ns => ns.map(n => n.scrollTop))).toEqual(beforePositions);
+  await page.getByRole('button', {
+    name: 'Open beside',
+    exact: true
+  }).click();
+  await dialog.getByRole('button', {
+    name: 'Replace passage 2: Genesis 1',
+    exact: true
+  }).click();
+  await expect(panes.nth(1).getByRole('button', {
+    name: /Navigate: Exodus/
+  })).toBeVisible();
+  const after = JSON.parse(new URL(page.url()).searchParams.get('reader'));
+  expect(after.active).toBe(1);
+  expect(after.panes[1].ref.book_id).toBe('Exod');
+  expect(after.panes[1].ref.target).toEqual({
+    kind: 'verse_range',
+    start: {
+      chapter: 1,
+      verse: 20
+    },
+    end: {
+      chapter: 1,
+      verse: 20
+    }
+  });
+  for (const i of [0, 2, 3]) {
+    expect(after.panes[i]).toEqual(beforeRefs[i]);
+    expect(await panes.nth(i).locator('[data-reader-scroll]').evaluate(n => n.scrollTop)).toBe(beforePositions[i]);
+  }
+  expect(await panes.evaluateAll(ns => ns.map(n => n.dataset.paneKey))).toEqual(beforeKeys);
+});
+test('desktop active-pane cue follows focus without moving analysis origin or pushing history', async ({
+  page
+}) => {
+  await setup(page);
+  await page.setViewportSize({
+    width: 1600,
+    height: 1000
+  });
+  await addReader(page);
+  const one = page.locator('[data-reader-pane]').nth(0),
+    two = page.locator('[data-reader-pane]').nth(1);
+  await one.locator('.word-token').first().click();
+  await expect(one).toHaveAttribute('aria-current', 'true');
+  await expect(one.getByText('Active', {
+    exact: true
+  })).toBeVisible();
+  await one.locator('[data-reader-scroll]').evaluate(n => n.scrollTop = 100);
+  await two.locator('[data-reader-scroll]').evaluate(n => n.scrollTop = 180);
+  const idx = await page.evaluate(() => history.state.idx);
+  await two.locator('[data-reader-scroll]').focus();
+  await expect(two).toHaveAttribute('aria-current', 'true');
+  await expect(two.getByText('Active', {
+    exact: true
+  })).toBeVisible();
+  await expect(one).not.toHaveAttribute('aria-current', 'true');
+  await expect(page.getByText('Genesis 1:1', {
+    exact: true
+  })).toBeVisible();
+  expect(await page.evaluate(() => history.state.idx)).toBe(idx);
+  expect(await one.locator('[data-reader-scroll]').evaluate(n => n.scrollTop)).toBe(100);
+  expect(await two.locator('[data-reader-scroll]').evaluate(n => n.scrollTop)).toBe(180);
 });

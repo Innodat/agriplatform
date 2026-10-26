@@ -1,7 +1,7 @@
 /** Public Hebrew reader with optional independent passage comparison. */
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
-import { useSearchParams } from "react-router-dom";
-import { Columns2, Maximize2, Minimize2, X } from "lucide-react";
+import {useReaderWorkspace} from "@/hooks/useReaderWorkspace";
+import { Columns2, Maximize2, Minimize2 } from "lucide-react";
 import { useReaderLayout } from "@/components/layout/AppShell";
 import { PassagePane } from "@/components/bible/PassagePane";
 import { WordStudy } from "@/components/bible/WordStudy";
@@ -12,18 +12,7 @@ import {useStudies} from "@/context/StudiesContext";
 import {StudiesPanel} from "@/components/studies/StudiesPanel";
 import {NoteEditor} from "@/components/studies/NoteEditor";
 
-import {chapterReference,makeReference,referenceBook,referenceStart,type PassageReference} from '@/lib/passage-references';
-function urlReference(params:URLSearchParams,pane:1|2):PassageReference|undefined{
- const prefix=pane===1?'':'compare',book=params.get(pane===1?'book':'compareBook')??'Gen';
- function coordinate(key:string,fallback?:number){const raw=params.get(key);if(raw===null)return fallback;if(!/^[1-9][0-9]*$/.test(raw))throw Error('invalid coordinate');const value=Number(raw);if(!Number.isSafeInteger(value))throw Error('invalid coordinate');return value;}
- try{
-  const chapter=coordinate(pane===1?'chapter':'compareChapter',1)!,verse=coordinate(pane===1?'verse':'compareVerse');
-  const endChapter=coordinate(prefix+'EndChapter',chapter),endVerse=coordinate(prefix+'EndVerse',verse);
-  if(verse===undefined){if(params.has(prefix+'EndChapter')||params.has(prefix+'EndVerse'))return undefined;return chapterReference(book,chapter);}
-  return makeReference(book,{kind:'verse_range',start:{chapter,verse},end:{chapter:endChapter!,verse:endVerse!}});
- }catch{return undefined;}
-}
-
+import {chapterReference,makeReference,referenceBook,referenceStart,referenceLabel,type PassageReference} from '@/lib/passage-references';
 type ScrollAnchor = { scroll: HTMLElement; word: HTMLElement; offset: number; focusedScrollTop?: number };
 function captureAnchors(root: HTMLElement | null): ScrollAnchor[] {
   return Array.from(root?.querySelectorAll<HTMLElement>('[data-reader-scroll]') ?? []).flatMap(scroll => {
@@ -37,18 +26,12 @@ function captureAnchors(root: HTMLElement | null): ScrollAnchor[] {
   });
 }
 
-type Pane = 1 | 2;
-type Selection = { pane: Pane; book: string; chapter: number; verse: number; word: WordResponse };
-function chapterNumber(value: string | null) {
-  const number = Number(value);
-  return Number.isSafeInteger(number) && number > 0 && number <= 150 ? number : 1;
-}
-function verseNumber(value:string|null){const n=Number(value);return Number.isSafeInteger(n)&&n>0&&n<=176?n:null;}
+type Selection = {pane:string;generation:number;book:string;chapter:number;verse:number;word:WordResponse};
 const control = "inline-flex items-center justify-center gap-2 rounded-lg border border-stone-200 px-3 py-1.5 text-sm text-stone-700 hover:bg-stone-100 focus-visible:outline-2 focus-visible:outline-amber-600";
 
 export function ReaderPage() {
   const studies=useStudies();
-  const [params, setParams] = useSearchParams();
+
   const { focused, setFocused } = useReaderLayout();
   const focusButton = useRef<HTMLButtonElement>(null);
   const reader = useRef<HTMLDivElement>(null);
@@ -80,82 +63,91 @@ export function ReaderPage() {
     window.addEventListener('keydown', escape);
     return () => window.removeEventListener('keydown', escape);
   }, [focused, changeFocus]);
-  const book = params.get('book') || 'Gen';
-  const chapter = chapterNumber(params.get('chapter'));
-  const compareBook = params.get('compareBook') || '';
-  const compareChapter = chapterNumber(params.get('compareChapter'));
-  const comparing = Boolean(compareBook);
-  const [targetRevision,setTargetRevision] = useState({1:0,2:0});
-  const [activePane,setActivePane]=useState<Pane>(1);
-  const [mobilePane, setMobilePane] = useState<Pane>(1);
-  const [previewWord, setPreviewWord] = useState<WordResponse | null>(null);
-  const dwell = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const cancelPreview = useCallback(() => {if(dwell.current)clearTimeout(dwell.current);dwell.current=null;setPreviewWord(null);},[]);
-  useLayoutEffect(()=>{cancelPreview();return ()=>{if(dwell.current)clearTimeout(dwell.current);};},[book,chapter,compareBook,compareChapter,focused,mobilePane,cancelPreview]);
-  function preview(word:WordResponse|null){cancelPreview();if(word)dwell.current=setTimeout(()=>setPreviewWord(word),1000);}
-  const [selection, setSelection] = useState<Selection | null>(null);
-  // Validate against URL on every render, including history navigation. Never
-  // briefly attribute the old word to the newly selected passage.
-  const selected = selection && (selection.pane === 1
-    ? selection.book === book && selection.chapter === chapter
-    : comparing && selection.book === compareBook && selection.chapter === compareChapter) ? selection : null;
-  useEffect(() => { if (!selected) setSelection(null); }, [selected]);
-  useEffect(() => { if (!comparing) setMobilePane(1); }, [comparing]);
-  const books = useBooks();
-  const morphology = useWordMorphology(selected?.word.id ?? null);
-  const bookName = (osis: string) => books.data?.data.find(b => b.osis_id === osis)?.name_en ?? referenceBook(osis)?.name_en ?? osis;
-  const context = selected ? `${bookName(selected.book)} ${selected.chapter}:${selected.verse}` : '';
-
-  function navigate(pane: Pane, nextBook: string, nextChapter: number, verse?: number,reference?:PassageReference) {
-    setActivePane(pane);
-    const range=reference?.target.kind==='verse_range'?reference.target:undefined;
-    if(range)verse=range.start.verse;
-    if(verse)setTargetRevision(previous=>({...previous,[pane]:previous[pane]+1}));
-    if (selection?.pane === pane) setSelection(null);
-    setParams(previous => {
-      const next = new URLSearchParams(previous);
-      next.set(pane === 1 ? 'book' : 'compareBook', nextBook);
-      next.set(pane === 1 ? 'chapter' : 'compareChapter', String(nextChapter));
-      next.delete(pane === 1 ? 'verse' : 'compareVerse');
-      const prefix=pane===1?'':'compare';next.delete(prefix+'EndChapter');next.delete(prefix+'EndVerse');
-      if(range){next.set(prefix+'EndChapter',String(range.end.chapter));next.set(prefix+'EndVerse',String(range.end.verse));}
-      if (verse) next.set(pane === 1 ? 'verse' : 'compareVerse', String(verse));
-      return next;
+  const controller=useReaderWorkspace(reader);
+  const {workspace}=controller,comparing=workspace.panes.length>1;
+  const active=workspace.panes.find(p=>p.paneKey===workspace.activePaneKey)!;
+  const grid=useRef<HTMLDivElement>(null);
+  const [geometry,setGeometry]=useState({width:0,height:0,chrome:52});
+  useLayoutEffect(() => {
+    const node=grid.current;
+    if(!node)return;
+    const measured=new Map<string,number>();
+    const dirty=new Set<string>();
+    const observed=new Set<Element>();
+    const measure=() => {
+      const width=node.clientWidth;
+      const count=node.querySelectorAll('[data-reader-pane]').length;
+      const columns=count===1?1:width>=992&&count===3?3:width>=656?2:1;
+      const candidateWidth=(width-16*(columns-1))/columns;
+      const panes=Array.from(node.querySelectorAll<HTMLElement>('[data-reader-pane]'));
+      for(const pane of panes) {
+        const key=pane.dataset.paneKey!;
+        const scroll=pane.querySelector<HTMLElement>('[data-reader-scroll]');
+        if(!scroll?.clientHeight)continue;
+        const chrome=Math.max(52,pane.clientHeight-scroll.clientHeight);
+        // A single visible pane is wider than a candidate grid cell. Retain
+        // measured wrapping cost until the controls themselves change, so
+        // widening that fallback cannot repeatedly re-enable a too-short grid.
+        if(pane.clientWidth<=candidateWidth+2||!measured.has(key)||dirty.has(key))measured.set(key,chrome);
+        else measured.set(key,Math.max(measured.get(key)!,chrome));
+        dirty.delete(key);
+      }
+      const chrome=Math.max(52,...measured.values());
+      setGeometry(previous=>previous.width===width&&previous.height===node.clientHeight&&previous.chrome===chrome
+        ?previous:{width,height:node.clientHeight,chrome});
+    };
+    const resize=new ResizeObserver(measure);
+    const observe=() => {
+      const next=new Set<Element>([node,...node.querySelectorAll('[data-reader-controls], [data-reader-chrome], [data-reader-scroll]')]);
+      for(const element of observed)if(!next.has(element)){resize.unobserve(element);observed.delete(element);}
+      for(const element of next)if(!observed.has(element)){resize.observe(element);observed.add(element);}
+    };
+    const changes=new MutationObserver(records=>{
+      for(const record of records) {
+        const target=record.target instanceof Element?record.target:record.target.parentElement;
+        const chrome=target?.closest('[data-reader-controls], [data-reader-chrome]');
+        const changedChrome=[...record.addedNodes,...record.removedNodes].some(n=>n instanceof Element&&n.matches('[data-reader-chrome]'));
+        if(chrome||changedChrome) {
+          const pane=target?.closest<HTMLElement>('[data-reader-pane]');
+          if(pane?.dataset.paneKey)dirty.add(pane.dataset.paneKey);
+        }
+      }
+      observe();
+      measure();
     });
-  }
-  function toggleComparison() {
-    if (comparing) {
-      if (selection?.pane === 2) setSelection(null);
-      setMobilePane(1);
-      setParams(previous => { const next = new URLSearchParams(previous); next.delete('compareBook'); next.delete('compareChapter'); next.delete('compareVerse');next.delete('compareEndChapter');next.delete('compareEndVerse');setActivePane(1); return next; });
-    } else {
-      setSelection(null);
-      navigate(2, book, chapter);
-      setMobilePane(2);
-    }
-  }
-  function chooseWord(pane: Pane, word: WordResponse, verse: number) {
-    cancelPreview();
-    if(studies.enabled&&studies.current){studies.setTool('analysis');studies.setAnalysisTab('Word');}
-    setMobilePane(pane);setActivePane(pane);
-    changeFocus(false);
-    setSelection(previous => !focused && previous?.pane === pane && previous.word.id === word.id ? null : {
-      pane, word, verse, book: pane === 1 ? book : compareBook, chapter: pane === 1 ? chapter : compareChapter,
-    });
-  }
-  function showPane(pane: Pane) {
-    setMobilePane(pane);setActivePane(pane);
-    // Keep analysis attached to the visible passage on narrow screens.
-    if (selection?.pane !== pane) setSelection(null);
-  }
-
+    observe();
+    changes.observe(node,{subtree:true,childList:true,characterData:true,attributes:true,attributeFilter:['style','class']});
+    measure();
+    return()=>{resize.disconnect();changes.disconnect();};
+  },[workspace.panes.length,studies.tool]);
+  const count=workspace.panes.length;
+  const columns=count===1?1:geometry.width>=992&&count===3?3:geometry.width>=656?2:1;
+  const rows=Math.ceil(count/columns),single=columns===1||(rows>1&&(geometry.height-16*(rows-1))/rows-geometry.chrome<200);
+  const [previewWord,setPreviewWord]=useState<WordResponse|null>(null);
+  const dwell=useRef<ReturnType<typeof setTimeout>|null>(null);
+  const cancelPreview=useCallback(()=>{if(dwell.current)clearTimeout(dwell.current);dwell.current=null;setPreviewWord(null);},[]);
+  useLayoutEffect(()=>{cancelPreview();return()=>{if(dwell.current)clearTimeout(dwell.current);};},[workspace,focused,cancelPreview]);
+  function preview(word:WordResponse|null){cancelPreview();if(word){const revision=controller.read().revision;dwell.current=setTimeout(()=>{if(revision===controller.read().revision)setPreviewWord(word);},1000);}}
+  const [selection,setSelection]=useState<Selection|null>(null);
+  const source=selection&&workspace.panes.find(p=>p.paneKey===selection.pane&&p.generation===selection.generation);
+  const selected=source&&(!single||source.paneKey===workspace.activePaneKey)?selection:null;
+  useEffect(()=>{if(!selected)setSelection(null);},[selected]);
+  const books=useBooks(),morphology=useWordMorphology(selected?.word.id??null);
+  const bookName=(osis:string)=>books.data?.data.find(b=>b.osis_id===osis)?.name_en??referenceBook(osis)?.name_en??osis;
+  const context=selected?`${bookName(selected.book)} ${selected.chapter}:${selected.verse}`:'';
+  const [capacity,setCapacity]=useState<{ref:PassageReference;picker:boolean;revision:number}|null>(null);
+  const capacityDialog=useRef<HTMLDialogElement>(null);
+  useEffect(()=>{if(capacity&&!capacityDialog.current?.open)capacityDialog.current?.showModal();},[capacity]);
+  function add(ref:PassageReference,picker=false){if(!controller.add(ref,picker))setCapacity({ref,picker,revision:controller.read().revision});else if(picker&&window.matchMedia('(max-width:767px)').matches)studies.setTool(null);}
+  function navigate(key:string,b:string,c:number,verse?:number,reference?:PassageReference){const ref=reference??(verse?makeReference(b,{kind:'verse_range',start:{chapter:c,verse},end:{chapter:c,verse}}):chapterReference(b,c));controller.open(ref,key);}
+  function open(target:'here'|'beside',b:string,c:number,v:number){const ref=makeReference(b,{kind:'verse_range',start:{chapter:c,verse:v},end:{chapter:c,verse:v}});if(target==='here')controller.open(ref);else add(ref);}
+  function chooseWord(key:string,word:WordResponse,verse:number){const pane=controller.read().panes.find(p=>p.paneKey===key);if(!pane)return;cancelPreview();controller.activate(key);if(studies.enabled&&studies.current){studies.setTool('analysis');studies.setAnalysisTab('Word');}changeFocus(false);setSelection(previous=>!focused&&previous?.pane===key&&previous.generation===pane.generation&&previous.word.id===word.id?null:{pane:key,generation:pane.generation,word,verse,book:pane.ref.book_id,chapter:referenceStart(pane.ref).chapter});}
   return (
     <div ref={reader} className={`flex flex-col gap-3 h-full min-h-0 mx-auto ${comparing ? 'max-w-[100rem]' : 'max-w-5xl'}`}>
       <div className="flex flex-wrap shrink-0 items-center gap-2">
-        <button hidden={focused} type="button" className={focused ? "hidden" : control} onClick={toggleComparison} aria-pressed={comparing}>
-          {comparing ? <X size={16} aria-hidden="true" /> : <Columns2 size={16} aria-hidden="true" />}
-          {comparing ? 'Close comparison' : 'Compare passages'}
-        </button>
+        <button hidden={focused} type="button" className={focused?'hidden':control} onClick={()=>add(controller.read().panes.find(p=>p.paneKey===controller.read().activePaneKey)!.ref,true)}><Columns2 size={16} aria-hidden="true"/>Add reader pane</button>
+        {workspace.invalid&&<p role="alert">Invalid reading link</p>}
+        {capacity&&<dialog ref={capacityDialog} aria-label="Choose passage to replace" onCancel={()=>setCapacity(null)} onClose={()=>setCapacity(null)} className="rounded-xl p-4 max-w-[calc(100vw-2rem)]"><p>Choose passage to replace</p>{workspace.panes.map((p,i)=><button className="block underline p-2" key={p.paneKey} onClick={()=>{if(controller.read().revision===capacity.revision){controller.open(capacity.ref,p.paneKey,capacity.picker);if(capacity.picker&&window.matchMedia('(max-width:767px)').matches)studies.setTool(null);}capacityDialog.current?.close();setCapacity(null);}}>Replace passage {i+1}: {referenceLabel(p.ref)}</button>)}<button autoFocus className="underline p-2" onClick={()=>{capacityDialog.current?.close();setCapacity(null);}}>Cancel</button></dialog>}
         <button ref={focusButton} type="button" className={control} aria-label={focused ? 'Exit focus mode' : 'Enter focus mode'} aria-pressed={focused} onClick={() => changeFocus(!focused)} title={focused ? 'Exit focus mode (Escape)' : 'Hide header and word analysis'}>
           {focused ? <Minimize2 size={16} aria-hidden="true" /> : <Maximize2 size={16} aria-hidden="true" />}
           {focused ? 'Exit focus' : 'Focus mode'}
@@ -165,21 +157,16 @@ export function ReaderPage() {
       </div>
       {studies.enabled&&<nav aria-label="Reader tools" className="flex shrink-0 gap-2"><button className={control} aria-pressed={studies.tool==='studies'} onClick={studies.openStudies}>Studies</button><button className={control} aria-pressed={studies.tool==='analysis'} onClick={()=>studies.setTool(studies.tool==='analysis'?null:'analysis')}>Analysis</button>{studies.study&&<span className="truncate self-center">{studies.study.title}</span>}</nav>}
       {studies.enabled&&studies.error&&studies.tool==='analysis'&&<p role="alert">{studies.error} <button className="underline" onClick={()=>void studies.loadStudies()}>Retry Studies</button></p>}
-      {comparing && <div role="group" aria-label="Visible passage" className="flex gap-2 shrink-0 lg:hidden">
-        {([1, 2] as const).map(pane => <button key={pane} className={`${control} flex-1 min-w-0 ${mobilePane === pane ? 'bg-amber-100 border-amber-300' : ''}`} aria-controls={`passage-${pane}`} aria-label={`Show passage ${pane}: ${bookName(pane === 1 ? book : compareBook)} ${pane === 1 ? chapter : compareChapter}`} aria-pressed={mobilePane === pane} onClick={() => showPane(pane)}>
-          <span className="truncate">{pane}: {bookName(pane === 1 ? book : compareBook)} {pane === 1 ? chapter : compareChapter}</span>
-        </button>)}
-      </div>}
-      <div className={`flex flex-col gap-4 flex-1 min-h-0 ${comparing ? 'xl:flex-row' : 'md:flex-row md:justify-center'}`}>
-        <div className={`${studies.enabled&&studies.tool?'hidden md:flex':'flex'} gap-4 flex-1 min-w-0 min-h-0 ${comparing ? '' : 'md:max-w-[44rem]'}`}>
-          <PassagePane reference={urlReference(params,1)} onActivate={()=>setActivePane(1)} number={1} targetRevision={targetRevision[1]} targetVerse={verseNumber(params.get("verse"))} book={book} chapter={chapter} books={books.data?.data ?? []} comparing={comparing} visible={!comparing || mobilePane === 1} selectedWordId={selected?.pane === 1 ? selected.word.id : null} matchKey={(previewWord??selected?.word)?.match_key??null} onPreview={preview} onNavigate={(b,c,r) => navigate(1,b,c,undefined,r)} onWord={(w,v) => chooseWord(1,w,v)} />
-          {comparing && <PassagePane reference={urlReference(params,2)} onActivate={()=>setActivePane(2)} number={2} targetRevision={targetRevision[2]} targetVerse={verseNumber(params.get("compareVerse"))} book={compareBook} chapter={compareChapter} books={books.data?.data ?? []} comparing visible={mobilePane === 2} selectedWordId={selected?.pane === 2 ? selected.word.id : null} matchKey={(previewWord??selected?.word)?.match_key??null} onPreview={preview} onNavigate={(b,c,r) => navigate(2,b,c,undefined,r)} onWord={(w,v) => chooseWord(2,w,v)} />}
+      {single&&comparing&&<div role="group" aria-label="Visible passage" className="flex flex-wrap gap-2 shrink-0">{workspace.panes.map((p,i)=><button key={p.paneKey} className={`${control} min-w-0`} aria-controls={`passage-${i+1}`} aria-label={`Show passage ${i+1}: ${referenceLabel(p.ref)}`} aria-pressed={workspace.activePaneKey===p.paneKey} onClick={()=>controller.activate(p.paneKey)}>{i+1}: {referenceLabel(p.ref)}</button>)}</div>}
+      <div className="flex flex-col md:flex-row md:justify-center gap-4 flex-1 min-h-0">
+        <div ref={grid} className={`${studies.enabled&&studies.tool?'hidden md:grid':'grid'} gap-4 flex-1 min-w-0 min-h-0 ${!comparing?'md:max-w-[44rem]':''}`} style={{gridTemplateColumns:`repeat(${single?1:columns},minmax(0,1fr))`,gridTemplateRows:`repeat(${single?1:rows},minmax(0,1fr))`}}>
+          {workspace.panes.map((p,i)=>{const start=referenceStart(p.ref);return <PassagePane active={workspace.activePaneKey===p.paneKey} focused={focused} key={p.paneKey} paneKey={p.paneKey} anchor={p.anchor} picker={p.picker} reference={p.ref} onActivate={()=>controller.activate(p.paneKey)} number={i+1} targetRevision={p.generation} targetVerse={start.verse} book={p.ref.book_id} chapter={start.chapter} books={books.data?.data??[]} comparing={comparing} visible={!single||workspace.activePaneKey===p.paneKey} selectedWordId={selected?.pane===p.paneKey?selected.word.id:null} matchKey={(previewWord??selected?.word)?.match_key??null} onPreview={preview} onNavigate={(b,c,r)=>navigate(p.paneKey,b,c,undefined,r)} onWord={(w,v)=>chooseWord(p.paneKey,w,v)} onClose={comparing?()=>controller.close(p.paneKey):undefined}/>;})}
         </div>
-        {studies.enabled&&<aside key={studies.accountKey} hidden={!studies.tool} aria-label="Study tools" className="min-h-0 overflow-y-auto bg-white border border-stone-200 rounded-xl shrink-0 w-full md:w-80 max-h-full flex-1 md:flex-none"><button className="underline m-3 md:hidden" onClick={()=>studies.setTool(null)}>Return to reader</button><div hidden={studies.tool!=='studies'}><StudiesPanel activeReference={urlReference(params,comparing?activePane:1)} onOpen={reference=>{const pane=comparing?activePane:1,start=referenceStart(reference);navigate(pane,reference.book_id,start.chapter,start.verse,reference);setMobilePane(pane);studies.setTool(null);}}/></div><div hidden={studies.tool!=='analysis'}><div role="tablist" aria-label="Analysis" className="flex border-b">{(['Word','Occurrences','Notes'] as const).map(tab=><button key={tab} role="tab" aria-selected={studies.analysisTab===tab} disabled={tab!=='Notes'&&!selected} className="flex-1 p-2 disabled:opacity-40" onClick={()=>studies.setAnalysisTab(tab)}>{tab}</button>)}</div><div hidden={studies.analysisTab!=='Notes'}><NoteEditor onOpen={reference=>{const pane=comparing?activePane:1,start=referenceStart(reference);navigate(pane,reference.book_id,start.chapter,start.verse,reference);setMobilePane(pane);if(window.matchMedia('(max-width:767px)').matches)studies.setTool(null);}}/></div><div hidden={studies.analysisTab==='Notes'}>{studies.tool==='analysis'&&morphology.loading&&<p role="status">Loading word analysis…</p>}{studies.tool==='analysis'&&morphology.data&&selected&&<WordStudy hideTabs controlledTab={studies.analysisTab==='Occurrences'?'Occurrences':'Word'} currentPane={selected.pane} key={`${selected.pane}:${selected.word.id}`} word={morphology.data} context={context} books={books.data?.data??[]} onClose={()=>{setSelection(null);studies.setAnalysisTab('Notes');}} onOpen={(pane,b,c,v)=>{navigate(pane,b,c,v);setMobilePane(pane);}} />}</div></div></aside>}
-        {selected && !focused && (!studies.enabled||!studies.tool) && <aside data-inspector-scroll aria-label="Word analysis panel" className={`min-h-0 max-h-[45%] overflow-y-auto overscroll-contain shrink-0 ${comparing ? 'xl:max-h-full xl:h-full xl:w-72' : 'md:max-h-full md:h-full md:w-72'}`}>
+        {studies.enabled&&<aside key={studies.accountKey} hidden={!studies.tool} aria-label="Study tools" className="min-h-0 overflow-y-auto bg-white border border-stone-200 rounded-xl shrink-0 w-full md:w-80 max-h-full flex-1 md:flex-none"><button className="underline m-3 md:hidden" onClick={()=>studies.setTool(null)}>Return to reader</button><div hidden={studies.tool!=='studies'}><StudiesPanel activeReference={active.valid?active.ref:selected?.pane===active.paneKey?makeReference(selected.book,{kind:'verse_range',start:{chapter:selected.chapter,verse:selected.verse},end:{chapter:selected.chapter,verse:selected.verse}}):undefined} onOpen={reference=>{controller.open(reference);studies.setTool(null);}}/></div><div hidden={studies.tool!=='analysis'}><div role="tablist" aria-label="Analysis" className="flex border-b">{(['Word','Occurrences','Notes'] as const).map(tab=><button key={tab} role="tab" aria-selected={studies.analysisTab===tab} disabled={tab!=='Notes'&&!selected} className="flex-1 p-2 disabled:opacity-40" onClick={()=>studies.setAnalysisTab(tab)}>{tab}</button>)}</div><div hidden={studies.analysisTab!=='Notes'}><NoteEditor onOpen={reference=>{controller.open(reference);if(window.matchMedia('(max-width:767px)').matches)studies.setTool(null);}}/></div><div hidden={studies.analysisTab==='Notes'}>{studies.tool==='analysis'&&morphology.loading&&<p role="status">Loading word analysis…</p>}{studies.tool==='analysis'&&morphology.data&&selected&&morphology.data.id===selected.word.id&&<WordStudy hideTabs controlledTab={studies.analysisTab==='Occurrences'?'Occurrences':'Word'} key={`${selected.pane}:${selected.word.id}`} word={morphology.data} context={context} books={books.data?.data??[]} onClose={()=>{setSelection(null);studies.setAnalysisTab('Notes');}} onOpen={open} />}</div></div></aside>}
+        {selected && !focused && (!studies.enabled||!studies.tool) && <aside data-inspector-scroll aria-label="Word analysis panel" className={`min-h-0 max-h-[45%] overflow-y-auto overscroll-contain shrink-0 md:max-h-full md:h-full md:w-72`}>
           {morphology.loading && <p role="status" className="p-4 bg-white">Loading word analysis… <button className="underline" onClick={() => setSelection(null)}>Close</button></p>}
           {morphology.error && <p role="alert" className="bg-white p-4 text-sm text-red-700">Could not load word analysis. <button className="underline" onClick={morphology.refetch}>Retry word analysis</button><button className="ml-2 underline" onClick={() => setSelection(null)}>Close</button></p>}
-          {morphology.data && morphology.data.id === selected.word.id && <WordStudy currentPane={selected.pane} key={`${selected.pane}:${selected.word.id}`} word={morphology.data} context={context} books={books.data?.data ?? []} onClose={() => setSelection(null)} onOpen={(pane,b,c,v)=>{navigate(pane,b,c,v);setMobilePane(pane);}} />}
+          {morphology.data && morphology.data.id === selected.word.id && <WordStudy key={`${selected.pane}:${selected.word.id}`} word={morphology.data} context={context} books={books.data?.data ?? []} onClose={() => setSelection(null)} onOpen={open} />}
         </aside>}
       </div>
     </div>

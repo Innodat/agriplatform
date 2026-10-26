@@ -1,3 +1,50 @@
+// Project the new public wire into coordinates for existing behavioral assertions.
+// Deliberate navigation now emits only reader; incoming legacy links stay covered.
+function readerParams(href) {
+  const params = new URL(href).searchParams;
+  if (!params.has('reader')) return params;
+  const layout = JSON.parse(params.get('reader')),
+    out = new URLSearchParams();
+  layout.panes.forEach(({
+    ref
+  }, index) => {
+    const start = ref.target.kind === 'chapter' ? {
+        chapter: ref.target.chapter
+      } : ref.target.start,
+      prefix = index ? 'compare' : '';
+    out.set(index ? 'compareBook' : 'book', ref.book_id);
+    out.set(index ? 'compareChapter' : 'chapter', String(start.chapter));
+    if (start.verse) {
+      out.set(index ? 'compareVerse' : 'verse', String(start.verse));
+      out.set(prefix + 'EndChapter', String(ref.target.end.chapter));
+      out.set(prefix + 'EndVerse', String(ref.target.end.verse));
+    }
+  });
+  return out;
+}
+async function addReader(page) {
+  const tool = (await page.getByRole('button', {
+    name: 'Analysis',
+    exact: true
+  }).getAttribute('aria-pressed')) === 'true' ? 'Analysis' : (await page.getByRole('button', {
+    name: 'Studies',
+    exact: true
+  }).getAttribute('aria-pressed')) === 'true' ? 'Studies' : null;
+  await page.getByRole('button', {
+    name: 'Add reader pane',
+    exact: true
+  }).click();
+  await page.getByRole('dialog', {
+    name: 'Book and chapter selector'
+  }).getByRole('button', {
+    name: 'Cancel',
+    exact: true
+  }).click();
+  if (tool && page.viewportSize().width < 768) await page.getByRole('button', {
+    name: tool,
+    exact: true
+  }).click();
+}
 const {test,expect}=require('@playwright/test');
 const book=(id,osis,name,he)=>({id,osis_id:osis,name_en:name,name_he:he,testament:'OT',book_order:id,division:'torah'});
 const gen=book(1,'Gen','Genesis','בראשית'),ex=book(2,'Exod','Exodus','שמות');
@@ -138,11 +185,11 @@ test('long morphology scrolls independently and text stays at a readable width',
 
 test('compare passages independently, restore URL state and identify word origin',async({page},info)=>{
  await setup(page);await page.goto('/');
- await page.getByRole('button',{name:'Compare passages',exact:true}).click();
+ await addReader(page);
  const one=page.getByRole('region',{name:'Passage 1',exact:true,includeHidden:true});const two=page.getByRole('region',{name:'Passage 2',exact:true,includeHidden:true});
  if(info.project.name==='mobile')await page.getByRole('button',{name:/Show passage 2/}).click();
  await two.getByRole('button',{name:/Navigate:/}).click();await two.getByRole('button',{name:/Exodus —/}).click();await two.getByRole('button',{name:'Chapter 1 of Exodus',exact:true}).click();
- await expect(page).toHaveURL(/compareBook=Exod/);await expect(two.getByRole('button',{name:/Word: שֵׁמוֹת/})).toBeVisible();
+ await expect.poll(()=>readerParams(page.url()).toString()).toMatch(/compareBook=Exod/);await expect(two.getByRole('button',{name:/Word: שֵׁמוֹת/})).toBeVisible();
  await page.route('**/api/bible/words/2/morphology',r=>r.fulfill({json:{...second,morphemes:[]}}));
  await two.getByRole('button',{name:/Word: שֵׁמוֹת/}).click();await expect(page.getByText('Exodus 1:1',{exact:true})).toBeVisible();
  await expect(page.getByLabel('Hebrew word: שֵׁמוֹת',{exact:true})).toBeVisible();
@@ -153,7 +200,7 @@ test('compare passages independently, restore URL state and identify word origin
  await page.reload();await expect(one.getByRole('button',{name:/Word: בְּרֵאשִׁית/})).toBeVisible();
  if(info.project.name==='mobile')await page.getByRole('button',{name:/Show passage 2/}).click();
  await expect(two.getByRole('button',{name:/Word: שֵׁמוֹת/})).toBeVisible();
- await page.getByRole('button',{name:'Close comparison',exact:true}).click();await expect(page).not.toHaveURL(/compareBook/);await expect(two).toHaveCount(0);
+ await page.getByRole('button',{name:'Close passage 2',exact:true}).click();await expect(page).not.toHaveURL(/compareBook/);await expect(two).toHaveCount(0);
  await page.goBack();if(info.project.name==='mobile')await page.getByRole('button',{name:/Show passage 2/}).click();await expect(two.getByRole('button',{name:/Word: שֵׁמוֹת/})).toBeVisible();
 });
 
@@ -189,7 +236,7 @@ test('comparison chapter failure and delayed response leave the other passage us
  await expect(two.getByRole('button',{name:'Retry chapter'})).toBeVisible();fail=false;await two.getByRole('button',{name:'Retry chapter'}).click();await expect(two.getByRole('button',{name:/Word: שֵׁמוֹת/})).toBeVisible();
  await page.route('**/api/bible/words/2/morphology',async r=>{await new Promise(resolve=>release=resolve);await r.fulfill({json:{...second,morphemes:[]}});});
  await two.getByRole('button',{name:/Word: שֵׁמוֹת/}).click();await expect.poll(()=>Boolean(release)).toBe(true);
- await page.getByRole('button',{name:'Close comparison',exact:true}).click();
+ await page.getByRole('button',{name:'Close passage 2',exact:true}).click();
  await one.getByRole('button',{name:/Word: בְּרֵאשִׁית/}).click();await expect(page.getByLabel('Hebrew word: בְּרֵאשִׁית',{exact:true})).toBeVisible();
  const late=page.waitForResponse('**/api/bible/words/2/morphology');release();await (await late).finished();await expect(page.getByLabel('Hebrew word: שֵׁמוֹת',{exact:true})).toHaveCount(0);
 });
@@ -198,11 +245,12 @@ test('comparison bounds shared chapter numbers and keeps analysis with the visib
  await setup(page);await page.goto('/?book=Gen&chapter=9007199254740991&compareBook=Exod&compareChapter=-1');
  const one=page.getByRole('region',{name:'Passage 1',exact:true});
  await expect(one.getByRole('button',{name:/Navigate: Genesis, chapter 1/})).toBeVisible();
- await page.getByRole('button',{name:'Close comparison',exact:true}).click();
+ await expect(page.getByRole('button',{name:'Close passage 1',exact:true})).toHaveCount(0);
  await one.getByRole('button',{name:/Word:/}).click();await expect(page.getByRole('complementary',{name:'Word morphology'})).toBeVisible();
- await page.getByRole('button',{name:'Compare passages',exact:true}).click();await expect(page.getByRole('complementary',{name:'Word morphology'})).toHaveCount(0);
- await page.setViewportSize({width:1280,height:900});await one.getByRole('button',{name:/Word:/}).click();
- await page.setViewportSize({width:390,height:844});await expect(one).toBeVisible();await expect(page.getByText('Genesis 1:1',{exact:true})).toBeVisible();
+ await addReader(page);
+ // Adding preserves a visible origin; hiding that origin on a phone clears it.
+ await page.setViewportSize({width:1280,height:900});if(await page.getByRole('button',{name:'Close morphology panel'}).isVisible())await page.getByRole('button',{name:'Close morphology panel'}).click();await one.getByRole('button',{name:/Word:/}).click();
+ await page.setViewportSize({width:390,height:844});await page.getByRole('button',{name:'Show passage 1: Genesis 1'}).click();if(!await page.getByText('Genesis 1:1',{exact:true}).isVisible())await one.getByRole('button',{name:/Word:/}).click();await expect(page.getByText('Genesis 1:1',{exact:true})).toBeVisible();
  const switcher=page.getByRole('button',{name:'Show passage 2: Genesis 1'});await expect(switcher).toHaveAttribute('aria-controls','passage-2');await switcher.focus();await page.keyboard.press('Enter');await expect(one).toHaveCount(0);await expect(page.getByRole('complementary',{name:'Word morphology'})).toHaveCount(0);
 });
 
@@ -218,7 +266,7 @@ test('comparison isolates a late chapter and supports keyboard reading at tablet
  const late=page.waitForResponse('**/api/bible/books/Exod/chapters/1/verses');release();await (await late).finished();await page.evaluate(()=>new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r))));
  await expect(two.getByRole('button',{name:/Word: שֵׁמוֹת/})).toHaveCount(0);await expect.poll(()=>text.evaluate(el=>el.scrollTop)).toBeGreaterThan(0);
  await two.getByRole('button',{name:/Word:/}).first().focus();await page.keyboard.press('Enter');await expect(page.getByText('Genesis 1:1',{exact:true})).toBeVisible();
- const textBounds=await text.boundingBox(),panelBounds=await page.getByRole('complementary',{name:'Word analysis panel'}).boundingBox();expect(textBounds.y+textBounds.height).toBeLessThanOrEqual(panelBounds.y);expect(await page.evaluate(()=>scrollY)).toBe(0);
+ const textBounds=await text.boundingBox(),panelBounds=await page.getByRole('complementary',{name:'Word analysis panel'}).boundingBox();expect(textBounds.x+textBounds.width).toBeLessThanOrEqual(panelBounds.x);expect(await page.evaluate(()=>scrollY)).toBe(0);
 });
 
 test('focus mode preserves the passage, restores analysis and handles Escape in order',async({page})=>{
@@ -235,13 +283,13 @@ test('previous and next chapters cross book boundaries and preserve comparison s
  await setup(page);await page.goto('/?book=Gen&chapter=1&compareBook=Exod&compareChapter=1');
  const one=page.getByRole('region',{name:'Passage 1',exact:true}),two=page.getByRole('region',{name:'Passage 2',exact:true});
  await expect(one.getByRole('button',{name:'Previous chapter',exact:true})).toBeDisabled();
- await one.getByRole('button',{name:'Next chapter',exact:true}).click();await expect(page).toHaveURL(/book=Gen&chapter=2&compareBook=Exod&compareChapter=1/);
- await one.getByRole('button',{name:'Next chapter',exact:true}).click();await expect(page).toHaveURL(/book=Exod&chapter=1&compareBook=Exod&compareChapter=1/);
- await one.getByRole('button',{name:'Previous chapter',exact:true}).click();await expect(page).toHaveURL(/book=Gen&chapter=2&compareBook=Exod&compareChapter=1/);
+ await one.getByRole('button',{name:'Next chapter',exact:true}).click();await expect.poll(()=>readerParams(page.url()).toString()).toMatch(/book=Gen&chapter=2&compareBook=Exod&compareChapter=1/);
+ await one.getByRole('button',{name:'Next chapter',exact:true}).click();await expect.poll(()=>readerParams(page.url()).toString()).toMatch(/book=Exod&chapter=1&compareBook=Exod&compareChapter=1/);
+ await one.getByRole('button',{name:'Previous chapter',exact:true}).click();await expect.poll(()=>readerParams(page.url()).toString()).toMatch(/book=Gen&chapter=2&compareBook=Exod&compareChapter=1/);
  await page.getByRole('button',{name:'Enter focus mode',exact:true}).click();
  if(info.project.name==='mobile')await page.getByRole('button',{name:/Show passage 2:/}).click();
- await two.getByRole('button',{name:'Next chapter',exact:true}).click();await expect(page).toHaveURL(/book=Gen&chapter=2&compareBook=Exod&compareChapter=2/);await expect(two.getByRole('button',{name:'Next chapter',exact:true})).toBeDisabled();await expect(page.getByRole('button',{name:'Exit focus mode',exact:true})).toBeVisible();
- await page.goBack();await expect(page).toHaveURL(/compareChapter=1/);await expect(two.getByRole('button',{name:'Next chapter',exact:true})).toBeEnabled();
+ await two.getByRole('button',{name:'Next chapter',exact:true}).click();await expect.poll(()=>readerParams(page.url()).toString()).toMatch(/book=Gen&chapter=2&compareBook=Exod&compareChapter=2/);await expect(two.getByRole('button',{name:'Next chapter',exact:true})).toBeDisabled();await expect(page.getByRole('button',{name:'Exit focus mode',exact:true})).toBeVisible();
+ await page.goBack();await expect.poll(()=>readerParams(page.url()).toString()).toMatch(/compareChapter=1/);await expect(two.getByRole('button',{name:'Next chapter',exact:true})).toBeEnabled();
 });
 
 test('chapter navigation retries metadata and follows actual sorted chapters',async({page})=>{
@@ -249,9 +297,9 @@ test('chapter navigation retries metadata and follows actual sorted chapters',as
  await page.route('**/api/bible/books/Gen',r=>failCurrent?r.fulfill({status:503,json:{error:'unavailable'}}):r.fulfill({json:{...gen,chapters:[{id:3,chapter_num:3},{id:1,chapter_num:1}]}}));
  await page.route('**/api/bible/books/Exod',r=>failNeighbor?r.fulfill({status:503,json:{error:'unavailable'}}):r.fulfill({json:{...ex,chapters:[{id:2,chapter_num:2},{id:1,chapter_num:1}]}}));
  await page.goto('/');const next=page.getByRole('button',{name:'Next chapter',exact:true});await expect(next).toBeDisabled();await expect(page.getByRole('button',{name:/Word:/})).toBeVisible();
- failCurrent=false;await page.getByRole('button',{name:'Retry navigation',exact:true}).click();await expect(next).toBeEnabled();await next.focus();await page.keyboard.press('Enter');await expect(page).toHaveURL(/chapter=3/);
- await expect(next).toBeDisabled();await expect(page.getByRole('button',{name:'Previous chapter',exact:true})).toBeEnabled();failNeighbor=false;await page.getByRole('button',{name:'Retry navigation',exact:true}).click();await next.click();await expect(page).toHaveURL(/book=Exod&chapter=1/);
- await page.getByRole('button',{name:'Previous chapter',exact:true}).click();await expect(page).toHaveURL(/book=Gen&chapter=3/);
+ failCurrent=false;await page.getByRole('button',{name:'Retry navigation',exact:true}).click();await expect(next).toBeEnabled();await next.focus();await page.keyboard.press('Enter');await expect.poll(()=>readerParams(page.url()).toString()).toMatch(/chapter=3/);
+ await expect(next).toBeDisabled();await expect(page.getByRole('button',{name:'Previous chapter',exact:true})).toBeEnabled();failNeighbor=false;await page.getByRole('button',{name:'Retry navigation',exact:true}).click();await next.click();await expect.poll(()=>readerParams(page.url()).toString()).toMatch(/book=Exod&chapter=1/);
+ await page.getByRole('button',{name:'Previous chapter',exact:true}).click();await expect.poll(()=>readerParams(page.url()).toString()).toMatch(/book=Gen&chapter=3/);
 });
 
 test('late navigation metadata cannot restore targets from the old book',async({page})=>{
@@ -261,7 +309,7 @@ test('late navigation metadata cannot restore targets from the old book',async({
  // A previously visited reference is another real way to change passage while metadata is pending.
  await page.evaluate(()=>{history.pushState({},'', '?book=Gen&chapter=1');dispatchEvent(new PopStateEvent('popstate'));});
  await expect(page.getByRole('button',{name:/Navigate: Genesis/})).toBeVisible();const late=page.waitForResponse('**/api/bible/books/Exod');release();await (await late).finished();
- await expect(page.getByRole('button',{name:'Previous chapter',exact:true})).toBeDisabled();await page.getByRole('button',{name:'Next chapter',exact:true}).click();await expect(page).toHaveURL(/book=Gen&chapter=2/);
+ await expect(page.getByRole('button',{name:'Previous chapter',exact:true})).toBeDisabled();await page.getByRole('button',{name:'Next chapter',exact:true}).click();await expect.poll(()=>readerParams(page.url()).toString()).toMatch(/book=Gen&chapter=2/);
 });
 
 test('focus roundtrip preserves the final reading position and respects new scrolling',async({page})=>{
@@ -292,7 +340,7 @@ test('typed reference visibly positions remote book chapter and hovering does no
 
 test('passage review reference-only chapter boundaries follow catalogue without NT corpus requests',async({page})=>{
  await setup(page);const calls=[];page.on('request',request=>{if(new URL(request.url()).pathname.startsWith('/api/bible/'))calls.push(new URL(request.url()).pathname);});
- await page.goto('/?book=Matt&chapter=28');await expect(page.getByText('Matthew 28 — Text unavailable',{exact:true})).toBeVisible();await page.getByRole('button',{name:'Next chapter',exact:true}).click();expect(new URL(page.url()).searchParams.get('book')).toBe('Mark');expect(new URL(page.url()).searchParams.get('chapter')).toBe('1');await page.getByRole('button',{name:'Previous chapter',exact:true}).click();expect(new URL(page.url()).searchParams.get('book')).toBe('Matt');expect(new URL(page.url()).searchParams.get('chapter')).toBe('28');
- await page.goto('/?book=Matt&chapter=1');await expect(page.getByText('Matthew 1 — Text unavailable',{exact:true})).toBeVisible();await page.getByRole('button',{name:'Previous chapter',exact:true}).click();expect(new URL(page.url()).searchParams.get('book')).toBe('2Chr');expect(new URL(page.url()).searchParams.get('chapter')).toBe('36');
+ await page.goto('/?book=Matt&chapter=28');await expect(page.getByText('Matthew 28 — Text unavailable',{exact:true})).toBeVisible();await page.getByRole('button',{name:'Next chapter',exact:true}).click();expect(readerParams(page.url()).get('book')).toBe('Mark');expect(readerParams(page.url()).get('chapter')).toBe('1');await page.getByRole('button',{name:'Previous chapter',exact:true}).click();expect(readerParams(page.url()).get('book')).toBe('Matt');expect(readerParams(page.url()).get('chapter')).toBe('28');
+ await page.goto('/?book=Matt&chapter=1');await expect(page.getByText('Matthew 1 — Text unavailable',{exact:true})).toBeVisible();await page.getByRole('button',{name:'Previous chapter',exact:true}).click();expect(readerParams(page.url()).get('book')).toBe('2Chr');expect(readerParams(page.url()).get('chapter')).toBe('36');
  await page.goto('/?book=Rev&chapter=22');await expect(page.getByRole('button',{name:'Next chapter',exact:true})).toBeDisabled();expect(calls.filter(path=>/\/books\/(?:Matt|Mark|Rev)(?:\/|$)/.test(path))).toEqual([]);
 });

@@ -1,0 +1,32 @@
+[WebServer] (node:984677) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 1 test using 1 worker
+
+(node:984696) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  1 [desktop] › tests/four-passage.spec.cjs:1077:1 › review: pending deliberate movement survives scroll delivery after a real height change (5.6s)
+
+
+  1) [desktop] › tests/four-passage.spec.cjs:1077:1 › review: pending deliberate movement survives scroll delivery after a real height change 
+
+    Error: expect(received).toBe(expected) // Object.is equality
+
+    Expected: 120
+    Received: 921
+
+    Call Log:
+    - Timeout 5000ms exceeded while waiting on the predicate
+
+      1104 |   await scroll.evaluate((node, height) => { node.style.height = `${height}px`; }, original.height);
+      1105 |   await expect(scroll).toHaveJSProperty('clientHeight', original.height);
+    > 1106 |   await expect.poll(() => scroll.evaluate(node => node.scrollTop)).toBe(120);
+           |                                                                    ^
+      1107 | });
+      1108 |
+        at /home/ck/repos/innodat/agriplatform/apps/scribeswell/web/tests/four-passage.spec.cjs:1106:68
+
+    Error Context: test-results/four-passage-review-pendin-55fa0--after-a-real-height-change-desktop/error-context.md
+
+  1 failed
+    [desktop] › tests/four-passage.spec.cjs:1077:1 › review: pending deliberate movement survives scroll delivery after a real height change 

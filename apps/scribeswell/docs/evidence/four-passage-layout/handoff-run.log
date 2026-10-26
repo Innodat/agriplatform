@@ -1,0 +1,115 @@
+[WebServer] (node:872453) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 78 tests using 1 worker
+
+(node:872470) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   1 [desktop] › tests/four-passage.spec.cjs:5:1 › four panes preserve stable identities and require explicit capacity replacement (1.7s)
+  ✓   2 [desktop] › tests/four-passage.spec.cjs:6:1 › closed codec refuses malformed links and retains complete ranges (445ms)
+  ✓   3 [desktop] › tests/four-passage.spec.cjs:7:1 › controller preserves foreign native state and uses one push per deliberate transition (876ms)
+  ✓   4 [desktop] › tests/four-passage.spec.cjs:8:35 › non-record Router usr survives add and repeated replay 17 (656ms)
+  ✓   5 [desktop] › tests/four-passage.spec.cjs:8:35 › non-record Router usr survives add and repeated replay ["foreign"] (607ms)
+  ✓   6 [desktop] › tests/four-passage.spec.cjs:9:1 › independent same-reference anchors survive repeated browser replay (895ms)
+  ✓   7 [desktop] › tests/four-passage.spec.cjs:10:1 › codec rejects closed snapshot violations and URL bounds without private fields (582ms)
+  ✓   8 [desktop] › tests/four-passage.spec.cjs:11:1 › reduced-height four pane layout offers named switcher and no viewport overflow (1.6s)
+  ✓   9 [desktop] › tests/four-passage.spec.cjs:12:1 › Add duplicates the complete canonical range and replacement changes only the explicitly chosen pane (2.3s)
+  ✓  10 [desktop] › tests/four-passage.spec.cjs:13:1 › layout clamps retain intended anchor while a subsequent user movement replaces it (1.3s)
+  ✓  11 [desktop] › tests/four-passage.spec.cjs:14:1 › closing an inactive pane preserves active survivor and native default-key semantics (1.8s)
+  ✓  12 [desktop] › tests/four-passage.spec.cjs:15:1 › a deferred outgoing checkpoint cannot overwrite the new browser entry (1.5s)
+  ✓  13 [desktop] › tests/four-passage.spec.cjs:16:1 › structured foreign Router user values remain unmodified by checkpoints and navigation (1.1s)
+  ✓  14 [desktop] › tests/four-passage.spec.cjs:17:1 › four-pane row qualification reserves two hundred usable text pixels after controls (1.5s)
+  ✓  15 [desktop] › tests/four-passage.spec.cjs:18:1 › capacity confirmation refuses a different replayed layout after close-add cycles (2.4s)
+  ✓  16 [desktop] › tests/four-passage.spec.cjs:19:1 › closed codec enforces pane, active, identity and canonical anchor boundaries (562ms)
+  ✓  17 [desktop] › tests/lexicon.spec.cjs:273:1 › Open here follows active pane while analysis keeps its distinct origin and beside inserts adjacently (1.6s)
+  ✓  18 [desktop] › tests/lexicon.spec.cjs:276:1 › capacity beside replacement changes the chosen nonactive reference and preserves all other positions (2.1s)
+  ✓  19 [desktop] › tests/lexicon.spec.cjs:277:1 › desktop active-pane cue follows focus without moving analysis origin or pushing history (1.4s)
+  ✓  20 [desktop] › tests/personal-notes.spec.cjs:353:1 › collected matching chapter confirms complete range and explicit Open preserves dirty note and other pane (2.7s)
+  ✓  21 [desktop] › tests/personal-notes.spec.cjs:368:280 › passage review malformed current coordinates stay uncollectable chapter=0 (847ms)
+  ✓  22 [desktop] › tests/personal-notes.spec.cjs:368:280 › passage review malformed current coordinates stay uncollectable chapter=bad (926ms)
+  ✓  23 [desktop] › tests/personal-notes.spec.cjs:368:280 › passage review malformed current coordinates stay uncollectable chapter=1.5 (846ms)
+  ✓  24 [desktop] › tests/personal-notes.spec.cjs:368:280 › passage review malformed current coordinates stay uncollectable chapter=51 (892ms)
+  ✓  25 [desktop] › tests/personal-notes.spec.cjs:368:280 › passage review malformed current coordinates stay uncollectable verse=0 (1.2s)
+  ✓  26 [desktop] › tests/personal-notes.spec.cjs:368:280 › passage review malformed current coordinates stay uncollectable verse=bad (1.1s)
+  ✓  27 [desktop] › tests/personal-notes.spec.cjs:368:280 › passage review malformed current coordinates stay uncollectable verse=32 (965ms)
+  ✓  28 [desktop] › tests/personal-notes.spec.cjs:368:280 › passage review malformed current coordinates stay uncollectable verse=1&EndChapter=0 (950ms)
+  ✓  29 [desktop] › tests/personal-notes.spec.cjs:368:280 › passage review malformed current coordinates stay uncollectable verse=1&EndChapter=bad (883ms)
+  ✓  30 [desktop] › tests/personal-notes.spec.cjs:368:280 › passage review malformed current coordinates stay uncollectable verse=1&EndChapter=51 (867ms)
+  ✓  31 [desktop] › tests/personal-notes.spec.cjs:368:280 › passage review malformed current coordinates stay uncollectable verse=1&EndVerse=0 (930ms)
+  ✓  32 [desktop] › tests/personal-notes.spec.cjs:368:280 › passage review malformed current coordinates stay uncollectable verse=1&EndVerse=bad (1.2s)
+  ✓  33 [desktop] › tests/personal-notes.spec.cjs:368:280 › passage review malformed current coordinates stay uncollectable verse=1&EndVerse=32 (1.0s)
+  ✓  34 [desktop] › tests/personal-notes.spec.cjs:368:280 › passage review malformed current coordinates stay uncollectable EndVerse=2 (886ms)
+  ✓  35 [desktop] › tests/personal-notes.spec.cjs:368:280 › passage review malformed current coordinates stay uncollectable verse=2&EndVerse=1 (985ms)
+  ✓  36 [desktop] › tests/personal-notes.spec.cjs:424:1 › note links: keyboard edit offers Open and keyboard read opens range in active pane only (1.5s)
+  ✓  37 [desktop] › tests/personal-notes.spec.cjs:982:1 › four-pane layout retains the same composing editor and owned passage atoms through add close and replay (3.9s)
+  ✓  38 [desktop] › tests/personal-notes.spec.cjs:985:1 › four-pane public transitions preserve an unknown original save operation (1.8s)
+  ✓  39 [desktop] › tests/reader.spec.cjs:272:1 › focus roundtrip preserves the final reading position and respects new scrolling (929ms)
+(node:874200) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  40 [mobile] › tests/four-passage.spec.cjs:5:1 › four panes preserve stable identities and require explicit capacity replacement (1.9s)
+  ✓  41 [mobile] › tests/four-passage.spec.cjs:6:1 › closed codec refuses malformed links and retains complete ranges (713ms)
+  ✓  42 [mobile] › tests/four-passage.spec.cjs:7:1 › controller preserves foreign native state and uses one push per deliberate transition (1.5s)
+  ✓  43 [mobile] › tests/four-passage.spec.cjs:8:35 › non-record Router usr survives add and repeated replay 17 (1.3s)
+  ✓  44 [mobile] › tests/four-passage.spec.cjs:8:35 › non-record Router usr survives add and repeated replay ["foreign"] (1.1s)
+  ✓  45 [mobile] › tests/four-passage.spec.cjs:9:1 › independent same-reference anchors survive repeated browser replay (1.7s)
+  ✓  46 [mobile] › tests/four-passage.spec.cjs:10:1 › codec rejects closed snapshot violations and URL bounds without private fields (588ms)
+  ✓  47 [mobile] › tests/four-passage.spec.cjs:11:1 › reduced-height four pane layout offers named switcher and no viewport overflow (1.4s)
+  ✓  48 [mobile] › tests/four-passage.spec.cjs:12:1 › Add duplicates the complete canonical range and replacement changes only the explicitly chosen pane (1.8s)
+  ✘  49 [mobile] › tests/four-passage.spec.cjs:13:1 › layout clamps retain intended anchor while a subsequent user movement replaces it (5.7s)
+(node:874793) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  50 [mobile] › tests/four-passage.spec.cjs:14:1 › closing an inactive pane preserves active survivor and native default-key semantics (885ms)
+  ✓  51 [mobile] › tests/four-passage.spec.cjs:15:1 › a deferred outgoing checkpoint cannot overwrite the new browser entry (779ms)
+  ✓  52 [mobile] › tests/four-passage.spec.cjs:16:1 › structured foreign Router user values remain unmodified by checkpoints and navigation (587ms)
+  ✓  53 [mobile] › tests/four-passage.spec.cjs:17:1 › four-pane row qualification reserves two hundred usable text pixels after controls (1.4s)
+  ✓  54 [mobile] › tests/four-passage.spec.cjs:18:1 › capacity confirmation refuses a different replayed layout after close-add cycles (2.5s)
+  ✓  55 [mobile] › tests/four-passage.spec.cjs:19:1 › closed codec enforces pane, active, identity and canonical anchor boundaries (616ms)
+  ✓  56 [mobile] › tests/lexicon.spec.cjs:273:1 › Open here follows active pane while analysis keeps its distinct origin and beside inserts adjacently (1.6s)
+  ✓  57 [mobile] › tests/lexicon.spec.cjs:276:1 › capacity beside replacement changes the chosen nonactive reference and preserves all other positions (2.3s)
+  ✓  58 [mobile] › tests/lexicon.spec.cjs:277:1 › desktop active-pane cue follows focus without moving analysis origin or pushing history (1.4s)
+  ✓  59 [mobile] › tests/personal-notes.spec.cjs:353:1 › collected matching chapter confirms complete range and explicit Open preserves dirty note and other pane (2.6s)
+  ✓  60 [mobile] › tests/personal-notes.spec.cjs:368:280 › passage review malformed current coordinates stay uncollectable chapter=0 (836ms)
+  ✓  61 [mobile] › tests/personal-notes.spec.cjs:368:280 › passage review malformed current coordinates stay uncollectable chapter=bad (903ms)
+  ✓  62 [mobile] › tests/personal-notes.spec.cjs:368:280 › passage review malformed current coordinates stay uncollectable chapter=1.5 (886ms)
+  ✓  63 [mobile] › tests/personal-notes.spec.cjs:368:280 › passage review malformed current coordinates stay uncollectable chapter=51 (874ms)
+  ✓  64 [mobile] › tests/personal-notes.spec.cjs:368:280 › passage review malformed current coordinates stay uncollectable verse=0 (879ms)
+  ✓  65 [mobile] › tests/personal-notes.spec.cjs:368:280 › passage review malformed current coordinates stay uncollectable verse=bad (978ms)
+  ✓  66 [mobile] › tests/personal-notes.spec.cjs:368:280 › passage review malformed current coordinates stay uncollectable verse=32 (896ms)
+  ✓  67 [mobile] › tests/personal-notes.spec.cjs:368:280 › passage review malformed current coordinates stay uncollectable verse=1&EndChapter=0 (872ms)
+  ✓  68 [mobile] › tests/personal-notes.spec.cjs:368:280 › passage review malformed current coordinates stay uncollectable verse=1&EndChapter=bad (851ms)
+  ✓  69 [mobile] › tests/personal-notes.spec.cjs:368:280 › passage review malformed current coordinates stay uncollectable verse=1&EndChapter=51 (974ms)
+  ✓  70 [mobile] › tests/personal-notes.spec.cjs:368:280 › passage review malformed current coordinates stay uncollectable verse=1&EndVerse=0 (923ms)
+  ✓  71 [mobile] › tests/personal-notes.spec.cjs:368:280 › passage review malformed current coordinates stay uncollectable verse=1&EndVerse=bad (897ms)
+  ✓  72 [mobile] › tests/personal-notes.spec.cjs:368:280 › passage review malformed current coordinates stay uncollectable verse=1&EndVerse=32 (845ms)
+  ✓  73 [mobile] › tests/personal-notes.spec.cjs:368:280 › passage review malformed current coordinates stay uncollectable EndVerse=2 (923ms)
+  ✓  74 [mobile] › tests/personal-notes.spec.cjs:368:280 › passage review malformed current coordinates stay uncollectable verse=2&EndVerse=1 (974ms)
+  ✓  75 [mobile] › tests/personal-notes.spec.cjs:424:1 › note links: keyboard edit offers Open and keyboard read opens range in active pane only (1.8s)
+  ✓  76 [mobile] › tests/personal-notes.spec.cjs:982:1 › four-pane layout retains the same composing editor and owned passage atoms through add close and replay (3.9s)
+  ✓  77 [mobile] › tests/personal-notes.spec.cjs:985:1 › four-pane public transitions preserve an unknown original save operation (2.0s)
+  ✓  78 [mobile] › tests/reader.spec.cjs:272:1 › focus roundtrip preserves the final reading position and respects new scrolling (1.0s)
+
+
+  1) [mobile] › tests/four-passage.spec.cjs:13:1 › layout clamps retain intended anchor while a subsequent user movement replaces it 
+
+    Error: expect(received).toBe(expected) // Object.is equality
+
+    Expected: 921
+    Received: 0
+
+    Call Log:
+    - Timeout 5000ms exceeded while waiting on the predicate
+
+      11 | test('reduced-height four pane layout offers named switcher and no viewport overflow',async({page})=>{await setup(page);await page.setViewportSize({width:1100,height:450});await page.goto('/');for(let i=0;i<3;i++)await add(page);await expect(page.getByRole('group',{name:'Visible passage'})).toBeVisible();await expect(page.locator('[data-reader-pane]:visible')).toHaveCount(1);expect(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth)).toBe(false);});
+      12 | test('Add duplicates the complete canonical range and replacement changes only the explicitly chosen pane',async({page})=>{await setup(page);await page.goto('/?book=Gen&chapter=1&verse=2&EndChapter=2&EndVerse=3');for(let i=0;i<3;i++)await add(page);const before=await page.locator('[data-reader-pane]').evaluateAll(ns=>ns.map(n=>n.dataset.paneKey));const layout=JSON.parse(new URL(page.url()).searchParams.get('reader'));expect(layout.panes.every(p=>p.ref.target.end.chapter===2&&p.ref.target.end.verse===3)).toBe(true);await page.getByRole('button',{name:'Add reader pane',exact:true}).click();await page.getByRole('dialog',{name:'Choose passage to replace'}).getByRole('button',{name:'Replace passage 1: Genesis 1:2–2:3',exact:true}).click();await expect(page.getByRole('dialog',{name:'Book and chapter selector'})).toBeVisible();await page.getByRole('dialog',{name:'Book and chapter selector'}).getByRole('button',{name:'Cancel',exact:true}).click();expect(await page.locator('[data-reader-pane]').evaluateAll(ns=>ns.map(n=>n.dataset.paneKey))).toEqual(before);expect(JSON.parse(new URL(page.url()).searchParams.get('reader')).active).toBe(0);await page.getByRole('button',{name:'Close passage 1',exact:true}).click();const after=await page.locator('[data-reader-pane]').evaluateAll(ns=>ns.map(n=>n.dataset.paneKey));expect(after).toEqual(before.slice(1));expect(JSON.parse(new URL(page.url()).searchParams.get('reader')).active).toBe(0);});
+    > 13 | test('layout clamps retain intended anchor while a subsequent user movement replaces it',async({page})=>{await setup(page);await page.setViewportSize({width:1100,height:500});await page.goto('/');const scroll=page.locator('[data-reader-scroll]');await expect(page.locator('[data-word-position]').first()).toBeVisible();await scroll.evaluate(el=>el.scrollTop=el.scrollHeight);const before=await scroll.evaluate(el=>el.scrollTop);await page.setViewportSize({width:1100,height:900});await page.setViewportSize({width:1100,height:500});await expect.poll(()=>scroll.evaluate(el=>el.scrollTop)).toBe(before);await scroll.evaluate(el=>el.scrollTop=120);await page.setViewportSize({width:1100,height:900});await page.setViewportSize({width:1100,height:500});await expect.poll(()=>scroll.evaluate(el=>el.scrollTop)).toBe(120);});
+         |                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              ^
+      14 | test('closing an inactive pane preserves active survivor and native default-key semantics',async({page})=>{await setup(page);await page.setViewportSize({width:1600,height:1000});await page.goto('/');await page.evaluate(()=>{const {key,...state}=history.state;history.replaceState({...state,foreign:'default-entry'},'');});await add(page);await add(page);const keys=await page.locator('[data-reader-pane]').evaluateAll(ns=>ns.map(n=>n.dataset.paneKey));await page.getByRole('button',{name:'Close passage 1',exact:true}).click();const state=await page.evaluate(()=>history.state.usr.scribeswellReader);expect(state.activePaneKey).toBe(keys[2]);expect(state.panes.map(p=>p.paneKey)).toEqual(keys.slice(1));await page.goBack();await expect(page.locator('[data-reader-pane]')).toHaveCount(3);await page.goBack();await expect(page.locator('[data-reader-pane]')).toHaveCount(2);await page.goBack();await expect(page.locator('[data-reader-pane]')).toHaveCount(1);expect(await page.evaluate(()=>Object.hasOwn(history.state,'key'))).toBe(false);expect(await page.evaluate(()=>history.state.foreign)).toBe('default-entry');});
+      15 | test('a deferred outgoing checkpoint cannot overwrite the new browser entry',async({page})=>{await setup(page);await page.goto('/');const scroll=page.locator('[data-reader-scroll]');await expect(page.locator('[data-word-position]').first()).toBeVisible();await scroll.dispatchEvent('wheel',{deltaY:120});await scroll.evaluate(el=>el.scrollTop=120);await add(page);const key=await page.evaluate(()=>history.state.key);await page.waitForTimeout(180);expect(await page.evaluate(()=>history.state.key)).toBe(key);expect(await page.evaluate(()=>history.state.usr.scribeswellReader.panes.length)).toBe(2);await page.goBack();await expect(page.locator('[data-reader-pane]')).toHaveCount(1);await expect.poll(()=>page.locator('[data-reader-scroll]').evaluate(el=>el.scrollTop)).toBe(120);});
+      16 | test('structured foreign Router user values remain unmodified by checkpoints and navigation',async({page})=>{await setup(page);await page.goto('/');const result=await page.evaluate(async()=>{const m=await import('/src/lib/reader-layout.ts');return [new Date('2026-10-26T00:00:00Z'),new Map([['foreign',42]]),new Set(['foreign']),['foreign'],17,null].map(value=>{const merged=m.snapshotState(value,{v:1});return value===null?merged.scribeswellReader.v===1:merged===value;});});expect(result).toEqual([true,true,true,true,true,true]);await page.evaluate(()=>history.replaceState({...history.state,usr:new Map([['foreign',42]])},''));await add(page);expect(await page.evaluate(()=>history.state.usr instanceof Map&&history.state.usr.get('foreign')===42)).toBe(true);await page.goBack();await expect(page.locator('[data-reader-pane]')).toHaveCount(1);expect(await page.evaluate(()=>history.state.usr instanceof Map&&history.state.usr.get('foreign')===42)).toBe(true);});
+        at /home/ck/repos/innodat/agriplatform/apps/scribeswell/web/tests/four-passage.spec.cjs:13:590
+
+    Error Context: test-results/four-passage-layout-clamps-31fa2-t-user-movement-replaces-it-mobile/error-context.md
+
+  1 failed
+    [mobile] › tests/four-passage.spec.cjs:13:1 › layout clamps retain intended anchor while a subsequent user movement replaces it 
+  77 passed (1.8m)

@@ -1,0 +1,218 @@
+[WebServer] (node:919026) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 8 tests using 1 worker
+
+(node:919063) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  1 [desktop] › tests/four-passage.spec.cjs:732:1 › review: missing restored anchor falls back to the explicit target verse (4.6s)
+(node:919214) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  2 [desktop] › tests/four-passage.spec.cjs:758:46 › review: closing a focused active control hands focus to the active survivor (5.8s)
+(node:919430) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  3 [desktop] › tests/four-passage.spec.cjs:758:46 › review: closing a focused inactive control hands focus to the active survivor (5.8s)
+(node:919650) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  4 [desktop] › tests/four-passage.spec.cjs:782:1 › review: a scrollbar gesture checkpoints movement after one second through completion (4.7s)
+(node:919826) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  5 [desktop] › tests/four-passage.spec.cjs:800:1 › review: wrapping controls and navigation errors requalify unchanged grid height (5.9s)
+(node:920057) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  6 [desktop] › tests/four-passage.spec.cjs:835:1 › review: wrapped word-position anchors restore a later word independently of its ID (485ms)
+(node:920148) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  7 [desktop] › tests/personal-notes.spec.cjs:1025:1 › four-pane layout retains the same composing editor and owned passage atoms through add close and replay (1.9s)
+(node:920278) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  8 [desktop] › tests/personal-notes.spec.cjs:1136:1 › review: malformed Add Cancel retains unresolved provenance across replay and refresh until valid choice (751ms)
+
+
+  1) [desktop] › tests/four-passage.spec.cjs:732:1 › review: missing restored anchor falls back to the explicit target verse 
+
+    Error: expect(received).toBe(expected) // Object.is equality
+
+    Expected: 0
+    Received: 750
+
+    Call Log:
+    - Timeout 5000ms exceeded while waiting on the predicate
+
+      753 |     const verse = node.querySelector('[data-verse="20"]');
+      754 |     return verse ? Math.round(verse.getBoundingClientRect().top-node.getBoundingClientRect().top) : null;
+    > 755 |   })).toBe(0);
+          |       ^
+      756 | });
+      757 |
+      758 | for (const target of ['active', 'inactive']) test(`review: closing a focused ${target} control hands focus to the active survivor`, async ({page}) => {
+        at /home/ck/repos/innodat/agriplatform/apps/scribeswell/web/tests/four-passage.spec.cjs:755:7
+
+    Error Context: test-results/four-passage-review-missin-7a762-o-the-explicit-target-verse-desktop/error-context.md
+
+  2) [desktop] › tests/four-passage.spec.cjs:758:46 › review: closing a focused active control hands focus to the active survivor 
+
+    Error: expect(locator).toBeFocused() failed
+
+    Locator:  locator('[data-reader-pane][data-pane-key="717e0119-0106-48c9-8eda-6ff4368251d1"]').getByRole('button', { name: /Navigate:/ })
+    Expected: focused
+    Received: inactive
+    Timeout:  5000ms
+
+    Call log:
+      - Expect "toBeFocused" locator('[data-reader-pane][data-pane-key="717e0119-0106-48c9-8eda-6ff4368251d1"]').getByRole('button', { name: /Navigate:/ }) with timeout 5000ms
+      - waiting for locator('[data-reader-pane][data-pane-key="717e0119-0106-48c9-8eda-6ff4368251d1"]').getByRole('button', { name: /Navigate:/ })
+        14 × locator resolved to <button type="button" aria-expanded="false" aria-haspopup="dialog" aria-label="Navigate: Genesis, chapter 1. Open selector." class="inline-flex items-center gap-2 rounded-lg px-3 py-1.5 text-sm hover:bg-stone-100">…</button>
+           - unexpected value "inactive"
+
+
+      770 |   await close.focus();
+      771 |   await close.press('Enter');
+    > 772 |   await expect(survivorPane.getByRole('button',{name:/Navigate:/})).toBeFocused();
+          |                                                                     ^
+      773 |   await expect(survivorPane).toHaveAttribute('aria-current','true');
+      774 |   expect(await survivorPane.locator('[data-reader-scroll]').evaluate(node => node.scrollTop)).toBe(120);
+      775 |   expect(await page.evaluate(() => history.state.idx)).toBe(idx+1);
+        at /home/ck/repos/innodat/agriplatform/apps/scribeswell/web/tests/four-passage.spec.cjs:772:69
+
+    Error Context: test-results/four-passage-review-closin-814d4-ocus-to-the-active-survivor-desktop/error-context.md
+
+  3) [desktop] › tests/four-passage.spec.cjs:758:46 › review: closing a focused inactive control hands focus to the active survivor 
+
+    Error: expect(locator).toBeFocused() failed
+
+    Locator:  locator('[data-reader-pane][data-pane-key="f5ebcdc0-e671-487a-8ba7-3c7f776fcd32"]').getByRole('button', { name: /Navigate:/ })
+    Expected: focused
+    Received: inactive
+    Timeout:  5000ms
+
+    Call log:
+      - Expect "toBeFocused" locator('[data-reader-pane][data-pane-key="f5ebcdc0-e671-487a-8ba7-3c7f776fcd32"]').getByRole('button', { name: /Navigate:/ }) with timeout 5000ms
+      - waiting for locator('[data-reader-pane][data-pane-key="f5ebcdc0-e671-487a-8ba7-3c7f776fcd32"]').getByRole('button', { name: /Navigate:/ })
+        14 × locator resolved to <button type="button" aria-expanded="false" aria-haspopup="dialog" aria-label="Navigate: Genesis, chapter 1. Open selector." class="inline-flex items-center gap-2 rounded-lg px-3 py-1.5 text-sm hover:bg-stone-100">…</button>
+           - unexpected value "inactive"
+
+
+      770 |   await close.focus();
+      771 |   await close.press('Enter');
+    > 772 |   await expect(survivorPane.getByRole('button',{name:/Navigate:/})).toBeFocused();
+          |                                                                     ^
+      773 |   await expect(survivorPane).toHaveAttribute('aria-current','true');
+      774 |   expect(await survivorPane.locator('[data-reader-scroll]').evaluate(node => node.scrollTop)).toBe(120);
+      775 |   expect(await page.evaluate(() => history.state.idx)).toBe(idx+1);
+        at /home/ck/repos/innodat/agriplatform/apps/scribeswell/web/tests/four-passage.spec.cjs:772:69
+
+    Error Context: test-results/four-passage-review-closin-d533f-ocus-to-the-active-survivor-desktop/error-context.md
+
+  4) [desktop] › tests/four-passage.spec.cjs:782:1 › review: a scrollbar gesture checkpoints movement after one second through completion 
+
+    Error: expect(received).toBe(expected) // Object.is equality
+
+    Expected: 280
+    Received: 119
+
+    Call Log:
+    - Timeout 5000ms exceeded while waiting on the predicate
+
+      795 |   await page.clock.resume();
+      796 |   await page.reload();
+    > 797 |   await expect.poll(() => page.locator('[data-reader-scroll]').evaluate(node => node.scrollTop)).toBe(280);
+          |                                                                                                  ^
+      798 | });
+      799 |
+      800 | test('review: wrapping controls and navigation errors requalify unchanged grid height', async ({page}) => {
+        at /home/ck/repos/innodat/agriplatform/apps/scribeswell/web/tests/four-passage.spec.cjs:797:98
+
+    Error Context: test-results/four-passage-review-a-scro-e0841-e-second-through-completion-desktop/error-context.md
+
+  5) [desktop] › tests/four-passage.spec.cjs:800:1 › review: wrapping controls and navigation errors requalify unchanged grid height 
+
+    Error: expect(locator).toHaveCount(expected) failed
+
+    Locator:  locator('[data-reader-pane]:visible')
+    Expected: 1
+    Received: 4
+    Timeout:  5000ms
+
+    Call log:
+      - Expect "toHaveCount" locator('[data-reader-pane]:visible') with timeout 5000ms
+      - waiting for locator('[data-reader-pane]:visible')
+        14 × locator resolved to 4 elements
+           - unexpected value "4"
+
+
+      807 |   const trigger = page.locator('[data-reader-pane]').nth(3).getByRole('button',{name:/Navigate:/});
+      808 |   await trigger.evaluate(node => node.style.width='380px');
+    > 809 |   await expect(page.locator('[data-reader-pane]:visible')).toHaveCount(1);
+          |                                                            ^
+      810 |   const stable = await page.evaluate(async () => {
+      811 |     const counts=[];
+      812 |     for(let i=0;i<12;i++) {await new Promise(requestAnimationFrame);counts.push([...document.querySelectorAll('[data-reader-pane]')].filter(n=>n.clientHeight>0).length);}
+        at /home/ck/repos/innodat/agriplatform/apps/scribeswell/web/tests/four-passage.spec.cjs:809:60
+
+    Error Context: test-results/four-passage-review-wrappi-494d0-alify-unchanged-grid-height-desktop/error-context.md
+
+  6) [desktop] › tests/four-passage.spec.cjs:835:1 › review: wrapped word-position anchors restore a later word independently of its ID 
+
+    Error: expect(received).toBeGreaterThan(expected)
+
+    Expected: > 1
+    Received:   1
+
+      853 |     return {verse:Number(word.closest('[data-verse]').dataset.verse),word:Number(word.dataset.wordPosition),offset:Math.round(word.getBoundingClientRect().top-bounds.top)};
+      854 |   });
+    > 855 |   expect(expected.word).toBeGreaterThan(1);
+          |                         ^
+      856 |   await add(page);
+      857 |   await page.goBack();
+      858 |   await expect(page.locator('[data-reader-pane]')).toHaveCount(1);
+        at /home/ck/repos/innodat/agriplatform/apps/scribeswell/web/tests/four-passage.spec.cjs:855:25
+
+    Error Context: test-results/four-passage-review-wrappe-b257f-ord-independently-of-its-ID-desktop/error-context.md
+
+  7) [desktop] › tests/personal-notes.spec.cjs:1025:1 › four-pane layout retains the same composing editor and owned passage atoms through add close and replay 
+
+    Error: expect(received).toBe(expected) // Object.is equality
+
+    Expected: true
+    Received: false
+
+      1067 |       const selection=getSelection(),range=selection.rangeCount?selection.getRangeAt(0):null,saved=window.__fourCaret;
+      1068 |       return !!range&&range.startContainer===saved.startContainer&&range.startOffset===saved.startOffset&&range.endContainer===saved.endContainer&&range.endOffset===saved.endOffset;
+    > 1069 |     })).toBe(true);
+           |         ^
+      1070 |   }
+      1071 |   await addReader(page);
+      1072 |   await assertCaret();
+        at assertCaret (/home/ck/repos/innodat/agriplatform/apps/scribeswell/web/tests/personal-notes.spec.cjs:1069:9)
+        at /home/ck/repos/innodat/agriplatform/apps/scribeswell/web/tests/personal-notes.spec.cjs:1072:3
+
+    Error Context: test-results/personal-notes-four-pane-l-878ff-hrough-add-close-and-replay-desktop/error-context.md
+
+  8) [desktop] › tests/personal-notes.spec.cjs:1136:1 › review: malformed Add Cancel retains unresolved provenance across replay and refresh until valid choice 
+
+    Error: expect(received).toBe(expected) // Object.is equality
+
+    Expected: "http://127.0.0.1:5182/?book=Gen&chapter=bad&other=keep#reading"
+    Received: "http://127.0.0.1:5182/?other=keep&reader=%7B%22v%22%3A1%2C%22panes%22%3A%5B%7B%22ref%22%3A%7B%22catalogue_id%22%3A%22scribeswell.references.v1%22%2C%22catalogue_version%22%3A%2248fa91f3bcd02b63138152e43a9292c7f1091e1beffb44c2243b483ffaafb5ba%22%2C%22versification_id%22%3A%22oshb-hebrew-json-c2d8e9e5%22%2C%22book_id%22%3A%22Gen%22%2C%22target%22%3A%7B%22kind%22%3A%22chapter%22%2C%22chapter%22%3A1%7D%7D%7D%2C%7B%22ref%22%3A%7B%22catalogue_id%22%3A%22scribeswell.references.v1%22%2C%22catalogue_version%22%3A%2248fa91f3bcd02b63138152e43a9292c7f1091e1beffb44c2243b483ffaafb5ba%22%2C%22versification_id%22%3A%22oshb-hebrew-json-c2d8e9e5%22%2C%22book_id%22%3A%22Gen%22%2C%22target%22%3A%7B%22kind%22%3A%22chapter%22%2C%22chapter%22%3A1%7D%7D%7D%5D%2C%22active%22%3A1%7D#reading"
+
+      1143 |   const idx=await page.evaluate(()=>history.state.idx);
+      1144 |   await addReader(page);
+    > 1145 |   expect(page.url()).toBe(original);
+           |                      ^
+      1146 |   expect(await page.evaluate(()=>history.state.idx)).toBe(idx+1);
+      1147 |   await expect(page.locator('[data-reader-pane]')).toHaveCount(2);
+      1148 |   await expect(page.getByRole('button',{name:'Add current passage',exact:true})).toHaveCount(0);
+        at /home/ck/repos/innodat/agriplatform/apps/scribeswell/web/tests/personal-notes.spec.cjs:1145:22
+
+    Error Context: test-results/personal-notes-review-malf-8e10e--refresh-until-valid-choice-desktop/error-context.md
+
+  8 failed
+    [desktop] › tests/four-passage.spec.cjs:732:1 › review: missing restored anchor falls back to the explicit target verse 
+    [desktop] › tests/four-passage.spec.cjs:758:46 › review: closing a focused active control hands focus to the active survivor 
+    [desktop] › tests/four-passage.spec.cjs:758:46 › review: closing a focused inactive control hands focus to the active survivor 
+    [desktop] › tests/four-passage.spec.cjs:782:1 › review: a scrollbar gesture checkpoints movement after one second through completion 
+    [desktop] › tests/four-passage.spec.cjs:800:1 › review: wrapping controls and navigation errors requalify unchanged grid height 
+    [desktop] › tests/four-passage.spec.cjs:835:1 › review: wrapped word-position anchors restore a later word independently of its ID 
+    [desktop] › tests/personal-notes.spec.cjs:1025:1 › four-pane layout retains the same composing editor and owned passage atoms through add close and replay 
+    [desktop] › tests/personal-notes.spec.cjs:1136:1 › review: malformed Add Cancel retains unresolved provenance across replay and refresh until valid choice 

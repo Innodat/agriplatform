@@ -90,3 +90,57 @@ test('rejected startup callback never restores a concurrently signed-out session
 test('ordinary user rejection after callback initialization keeps SDK session semantics',async({page})=>{
  await setup(page);await page.goto('/');await page.evaluate(s=>localStorage.setItem('pts-auth',JSON.stringify(s)),session);await page.route('**/auth/v1/user*',r=>r.fulfill({status:401,json:{error_code:'session_not_found',msg:'synthetic-private-rejection'}}));await page.goto('/?book=Gen&chapter=1#'+new URLSearchParams({access_token:'synthetic-rejected',refresh_token:'synthetic-refresh',expires_in:'3600',token_type:'bearer',type:'signup'}));await expect(page.getByRole('alert')).toContainText('invalid or has expired');await expect(page.getByRole('button',{name:'Sign out',exact:true})).toBeVisible();await page.evaluate(async()=>{const {supabase}=await import('/src/lib/supabase.ts');await supabase.auth.getUser();});await expect(page.getByRole('button',{name:'Sign out',exact:true})).toHaveCount(0);expect(await page.evaluate(()=>localStorage.getItem('pts-auth'))).toBeNull();
 });
+
+test('review: signup retains a complete public reader arrangement and strips private destinations', async ({page}) => {
+  await setup(page);
+  await page.goto('/');
+  const reader = await page.evaluate(async () => {
+    const {makeReference, chapterReference} = await import('/src/lib/passage-references.ts');
+    return {v: 1, panes: [
+      {ref: makeReference('Gen', {kind: 'verse_range', start: {chapter: 1, verse: 2}, end: {chapter: 2, verse: 3}})},
+      {ref: chapterReference('Exod', 2)},
+    ], active: 1};
+  });
+  const query = new URLSearchParams({
+    reader: JSON.stringify(reader), book: 'Mal', chapter: '4',
+    study_id: 'private-study', note_id: 'private-note',
+    return: 'https://evil.invalid', redirect_to: 'https://evil.invalid',
+  });
+  await page.goto('/?' + query + '#private-fragment');
+  const requests = [];
+  await page.route('**/auth/v1/signup*', route => {
+    requests.push(route.request().url());
+    return route.fulfill({json: {...user, identities: []}});
+  });
+  await enter(page);
+  await page.getByRole('dialog').getByRole('button', {name: 'Create account', exact: true}).click();
+  await expect(page.getByRole('heading', {name: 'Check your email'})).toBeVisible();
+  expect(requests).toHaveLength(1);
+  const destination = new URL(new URL(requests[0]).searchParams.get('redirect_to'));
+  expect(destination.origin + destination.pathname).toBe('http://127.0.0.1:5182/');
+  expect([...destination.searchParams.keys()]).toEqual(['reader']);
+  expect(JSON.parse(destination.searchParams.get('reader'))).toEqual(reader);
+  expect(destination.hash).toBe('');
+});
+
+test('review: invalid supplied reader never blends legacy fields into account return', async ({page}) => {
+  await setup(page);
+  await page.goto('/');
+  const results = await page.evaluate(async () => {
+    const {publicAccountReturn} = await import('/src/lib/account-entry.ts');
+    const {chapterReference} = await import('/src/lib/passage-references.ts');
+    const valid = {v: 1, panes: [{ref: chapterReference('Gen', 1)}], active: 0};
+    const values = [
+      'reader=%7B%7D',
+      new URLSearchParams({reader: JSON.stringify({...valid, v: 2})}).toString(),
+      new URLSearchParams({reader: JSON.stringify({...valid, private: true})}).toString(),
+      new URLSearchParams({reader: 'x'.repeat(5000)}).toString(),
+      new URLSearchParams([['reader', JSON.stringify(valid)], ['reader', JSON.stringify(valid)]]).toString(),
+    ];
+    return values.map(query => {
+      history.replaceState(history.state, '', '/?' + query + '&book=Gen&chapter=1&return=https://evil.invalid#private');
+      return publicAccountReturn();
+    });
+  });
+  expect(results).toEqual(Array(5).fill('http://127.0.0.1:5182/'));
+});

@@ -1,0 +1,3 @@
+# Preserve this delivery's exact safe synthetic/public verification output.
+# The repository-wide log exclusion still applies everywhere else.
+!/*.log

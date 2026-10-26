@@ -1,0 +1,137 @@
+[WebServer] (node:882386) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 86 tests using 1 worker
+
+(node:882403) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   1 [desktop] › tests/four-passage.spec.cjs:5:1 › four panes preserve stable identities and require explicit capacity replacement (1.8s)
+  ✓   2 [desktop] › tests/four-passage.spec.cjs:6:1 › closed codec refuses malformed links and retains complete ranges (456ms)
+  ✓   3 [desktop] › tests/four-passage.spec.cjs:7:1 › controller preserves foreign native state and uses one push per deliberate transition (908ms)
+  ✓   4 [desktop] › tests/four-passage.spec.cjs:8:35 › non-record Router usr survives add and repeated replay 17 (681ms)
+  ✓   5 [desktop] › tests/four-passage.spec.cjs:8:35 › non-record Router usr survives add and repeated replay ["foreign"] (605ms)
+  ✓   6 [desktop] › tests/four-passage.spec.cjs:9:1 › independent same-reference anchors survive repeated browser replay (817ms)
+  ✓   7 [desktop] › tests/four-passage.spec.cjs:10:1 › codec rejects closed snapshot violations and URL bounds without private fields (344ms)
+  ✓   8 [desktop] › tests/four-passage.spec.cjs:11:1 › reduced-height four pane layout offers named switcher and no viewport overflow (1.3s)
+  ✓   9 [desktop] › tests/four-passage.spec.cjs:12:1 › Add duplicates the complete canonical range and replacement changes only the explicitly chosen pane (1.9s)
+  ✓  10 [desktop] › tests/four-passage.spec.cjs:13:1 › layout clamps retain intended anchor while a subsequent user movement replaces it (729ms)
+  ✓  11 [desktop] › tests/four-passage.spec.cjs:14:1 › closing an inactive pane preserves active survivor and native default-key semantics (1.6s)
+  ✓  12 [desktop] › tests/four-passage.spec.cjs:15:1 › a deferred outgoing checkpoint cannot overwrite the new browser entry (1.2s)
+  ✓  13 [desktop] › tests/four-passage.spec.cjs:16:1 › structured foreign Router user values remain unmodified by checkpoints and navigation (1.1s)
+  ✓  14 [desktop] › tests/four-passage.spec.cjs:17:1 › four-pane row qualification reserves two hundred usable text pixels after controls (1.9s)
+  ✓  15 [desktop] › tests/four-passage.spec.cjs:18:1 › capacity confirmation refuses a different replayed layout after close-add cycles (3.6s)
+  ✓  16 [desktop] › tests/four-passage.spec.cjs:19:1 › closed codec enforces pane, active, identity and canonical anchor boundaries (785ms)
+  ✓  17 [desktop] › tests/four-passage.spec.cjs:20:1 › initial StrictMode entry keeps one committed pane identity while data becomes ready (898ms)
+  ✘  18 [desktop] › tests/four-passage.spec.cjs:21:1 › ready text cannot apply a delayed initial seek after a new reading position (1.0s)
+(node:883266) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  19 [desktop] › tests/lexicon.spec.cjs:73:1 › explicitly reopening the same verse seeks again and invalid verse URLs are ignored (2.0s)
+  ✓  20 [desktop] › tests/lexicon.spec.cjs:78:1 › review regression: desktop reload and responsive reveal apply pending verse targets once (2.8s)
+  ✓  21 [desktop] › tests/lexicon.spec.cjs:273:1 › Open here follows active pane while analysis keeps its distinct origin and beside inserts adjacently (1.8s)
+  ✓  22 [desktop] › tests/lexicon.spec.cjs:276:1 › capacity beside replacement changes the chosen nonactive reference and preserves all other positions (2.9s)
+  ✓  23 [desktop] › tests/lexicon.spec.cjs:277:1 › desktop active-pane cue follows focus without moving analysis origin or pushing history (1.8s)
+  ✓  24 [desktop] › tests/personal-notes.spec.cjs:353:1 › collected matching chapter confirms complete range and explicit Open preserves dirty note and other pane (2.8s)
+  ✓  25 [desktop] › tests/personal-notes.spec.cjs:368:280 › passage review malformed current coordinates stay uncollectable chapter=0 (804ms)
+  ✓  26 [desktop] › tests/personal-notes.spec.cjs:368:280 › passage review malformed current coordinates stay uncollectable chapter=bad (981ms)
+  ✓  27 [desktop] › tests/personal-notes.spec.cjs:368:280 › passage review malformed current coordinates stay uncollectable chapter=1.5 (1.1s)
+  ✓  28 [desktop] › tests/personal-notes.spec.cjs:368:280 › passage review malformed current coordinates stay uncollectable chapter=51 (997ms)
+  ✓  29 [desktop] › tests/personal-notes.spec.cjs:368:280 › passage review malformed current coordinates stay uncollectable verse=0 (948ms)
+  ✓  30 [desktop] › tests/personal-notes.spec.cjs:368:280 › passage review malformed current coordinates stay uncollectable verse=bad (1.0s)
+  ✓  31 [desktop] › tests/personal-notes.spec.cjs:368:280 › passage review malformed current coordinates stay uncollectable verse=32 (1.0s)
+  ✓  32 [desktop] › tests/personal-notes.spec.cjs:368:280 › passage review malformed current coordinates stay uncollectable verse=1&EndChapter=0 (976ms)
+  ✓  33 [desktop] › tests/personal-notes.spec.cjs:368:280 › passage review malformed current coordinates stay uncollectable verse=1&EndChapter=bad (969ms)
+  ✓  34 [desktop] › tests/personal-notes.spec.cjs:368:280 › passage review malformed current coordinates stay uncollectable verse=1&EndChapter=51 (967ms)
+  ✓  35 [desktop] › tests/personal-notes.spec.cjs:368:280 › passage review malformed current coordinates stay uncollectable verse=1&EndVerse=0 (997ms)
+  ✓  36 [desktop] › tests/personal-notes.spec.cjs:368:280 › passage review malformed current coordinates stay uncollectable verse=1&EndVerse=bad (969ms)
+  ✓  37 [desktop] › tests/personal-notes.spec.cjs:368:280 › passage review malformed current coordinates stay uncollectable verse=1&EndVerse=32 (974ms)
+  ✓  38 [desktop] › tests/personal-notes.spec.cjs:368:280 › passage review malformed current coordinates stay uncollectable EndVerse=2 (903ms)
+  ✓  39 [desktop] › tests/personal-notes.spec.cjs:368:280 › passage review malformed current coordinates stay uncollectable verse=2&EndVerse=1 (883ms)
+  ✓  40 [desktop] › tests/personal-notes.spec.cjs:424:1 › note links: keyboard edit offers Open and keyboard read opens range in active pane only (1.7s)
+  ✓  41 [desktop] › tests/personal-notes.spec.cjs:982:1 › four-pane layout retains the same composing editor and owned passage atoms through add close and replay (4.0s)
+  ✓  42 [desktop] › tests/personal-notes.spec.cjs:985:1 › four-pane public transitions preserve an unknown original save operation (1.8s)
+  ✓  43 [desktop] › tests/reader.spec.cjs:272:1 › focus roundtrip preserves the final reading position and respects new scrolling (1.2s)
+(node:884451) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  44 [mobile] › tests/four-passage.spec.cjs:5:1 › four panes preserve stable identities and require explicit capacity replacement (2.1s)
+  ✓  45 [mobile] › tests/four-passage.spec.cjs:6:1 › closed codec refuses malformed links and retains complete ranges (760ms)
+  ✓  46 [mobile] › tests/four-passage.spec.cjs:7:1 › controller preserves foreign native state and uses one push per deliberate transition (1.2s)
+  ✓  47 [mobile] › tests/four-passage.spec.cjs:8:35 › non-record Router usr survives add and repeated replay 17 (1.1s)
+  ✓  48 [mobile] › tests/four-passage.spec.cjs:8:35 › non-record Router usr survives add and repeated replay ["foreign"] (1.1s)
+  ✓  49 [mobile] › tests/four-passage.spec.cjs:9:1 › independent same-reference anchors survive repeated browser replay (1.8s)
+  ✓  50 [mobile] › tests/four-passage.spec.cjs:10:1 › codec rejects closed snapshot violations and URL bounds without private fields (649ms)
+  ✓  51 [mobile] › tests/four-passage.spec.cjs:11:1 › reduced-height four pane layout offers named switcher and no viewport overflow (1.6s)
+  ✓  52 [mobile] › tests/four-passage.spec.cjs:12:1 › Add duplicates the complete canonical range and replacement changes only the explicitly chosen pane (1.9s)
+  ✓  53 [mobile] › tests/four-passage.spec.cjs:13:1 › layout clamps retain intended anchor while a subsequent user movement replaces it (753ms)
+  ✓  54 [mobile] › tests/four-passage.spec.cjs:14:1 › closing an inactive pane preserves active survivor and native default-key semantics (1.4s)
+  ✓  55 [mobile] › tests/four-passage.spec.cjs:15:1 › a deferred outgoing checkpoint cannot overwrite the new browser entry (1.2s)
+  ✓  56 [mobile] › tests/four-passage.spec.cjs:16:1 › structured foreign Router user values remain unmodified by checkpoints and navigation (833ms)
+  ✓  57 [mobile] › tests/four-passage.spec.cjs:17:1 › four-pane row qualification reserves two hundred usable text pixels after controls (1.4s)
+  ✓  58 [mobile] › tests/four-passage.spec.cjs:18:1 › capacity confirmation refuses a different replayed layout after close-add cycles (2.3s)
+  ✓  59 [mobile] › tests/four-passage.spec.cjs:19:1 › closed codec enforces pane, active, identity and canonical anchor boundaries (530ms)
+  ✓  60 [mobile] › tests/four-passage.spec.cjs:20:1 › initial StrictMode entry keeps one committed pane identity while data becomes ready (692ms)
+  ✘  61 [mobile] › tests/four-passage.spec.cjs:21:1 › ready text cannot apply a delayed initial seek after a new reading position (913ms)
+(node:885280) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  62 [mobile] › tests/lexicon.spec.cjs:73:1 › explicitly reopening the same verse seeks again and invalid verse URLs are ignored (1.7s)
+  ✓  63 [mobile] › tests/lexicon.spec.cjs:78:1 › review regression: desktop reload and responsive reveal apply pending verse targets once (2.7s)
+  ✓  64 [mobile] › tests/lexicon.spec.cjs:273:1 › Open here follows active pane while analysis keeps its distinct origin and beside inserts adjacently (1.8s)
+  ✓  65 [mobile] › tests/lexicon.spec.cjs:276:1 › capacity beside replacement changes the chosen nonactive reference and preserves all other positions (2.2s)
+  ✓  66 [mobile] › tests/lexicon.spec.cjs:277:1 › desktop active-pane cue follows focus without moving analysis origin or pushing history (1.4s)
+  ✓  67 [mobile] › tests/personal-notes.spec.cjs:353:1 › collected matching chapter confirms complete range and explicit Open preserves dirty note and other pane (2.5s)
+  ✓  68 [mobile] › tests/personal-notes.spec.cjs:368:280 › passage review malformed current coordinates stay uncollectable chapter=0 (693ms)
+  ✓  69 [mobile] › tests/personal-notes.spec.cjs:368:280 › passage review malformed current coordinates stay uncollectable chapter=bad (851ms)
+  ✓  70 [mobile] › tests/personal-notes.spec.cjs:368:280 › passage review malformed current coordinates stay uncollectable chapter=1.5 (927ms)
+  ✓  71 [mobile] › tests/personal-notes.spec.cjs:368:280 › passage review malformed current coordinates stay uncollectable chapter=51 (869ms)
+  ✓  72 [mobile] › tests/personal-notes.spec.cjs:368:280 › passage review malformed current coordinates stay uncollectable verse=0 (829ms)
+  ✓  73 [mobile] › tests/personal-notes.spec.cjs:368:280 › passage review malformed current coordinates stay uncollectable verse=bad (937ms)
+  ✓  74 [mobile] › tests/personal-notes.spec.cjs:368:280 › passage review malformed current coordinates stay uncollectable verse=32 (867ms)
+  ✓  75 [mobile] › tests/personal-notes.spec.cjs:368:280 › passage review malformed current coordinates stay uncollectable verse=1&EndChapter=0 (1.1s)
+  ✓  76 [mobile] › tests/personal-notes.spec.cjs:368:280 › passage review malformed current coordinates stay uncollectable verse=1&EndChapter=bad (881ms)
+  ✓  77 [mobile] › tests/personal-notes.spec.cjs:368:280 › passage review malformed current coordinates stay uncollectable verse=1&EndChapter=51 (853ms)
+  ✓  78 [mobile] › tests/personal-notes.spec.cjs:368:280 › passage review malformed current coordinates stay uncollectable verse=1&EndVerse=0 (923ms)
+  ✓  79 [mobile] › tests/personal-notes.spec.cjs:368:280 › passage review malformed current coordinates stay uncollectable verse=1&EndVerse=bad (838ms)
+  ✓  80 [mobile] › tests/personal-notes.spec.cjs:368:280 › passage review malformed current coordinates stay uncollectable verse=1&EndVerse=32 (854ms)
+  ✓  81 [mobile] › tests/personal-notes.spec.cjs:368:280 › passage review malformed current coordinates stay uncollectable EndVerse=2 (824ms)
+  ✓  82 [mobile] › tests/personal-notes.spec.cjs:368:280 › passage review malformed current coordinates stay uncollectable verse=2&EndVerse=1 (857ms)
+  ✓  83 [mobile] › tests/personal-notes.spec.cjs:424:1 › note links: keyboard edit offers Open and keyboard read opens range in active pane only (1.6s)
+  ✓  84 [mobile] › tests/personal-notes.spec.cjs:982:1 › four-pane layout retains the same composing editor and owned passage atoms through add close and replay (4.0s)
+  ✓  85 [mobile] › tests/personal-notes.spec.cjs:985:1 › four-pane public transitions preserve an unknown original save operation (2.0s)
+  ✓  86 [mobile] › tests/reader.spec.cjs:272:1 › focus roundtrip preserves the final reading position and respects new scrolling (1.0s)
+
+
+  1) [desktop] › tests/four-passage.spec.cjs:21:1 › ready text cannot apply a delayed initial seek after a new reading position 
+
+    Error: expect(received).toBe(expected) // Object.is equality
+
+    Expected: 120
+    Received: 119
+
+      19 | test('closed codec enforces pane, active, identity and canonical anchor boundaries',async({page})=>{await setup(page);await page.goto('/');const r=await page.evaluate(async()=>{const m=await import('/src/lib/reader-layout.ts'),p=await import('/src/lib/passage-references.ts'),ref=p.chapterReference('Gen',1);const url=(n,active=0,extra={})=>m.parseReaderURL(new URLSearchParams({reader:JSON.stringify({v:1,panes:Array.from({length:n},()=>({ref})),active,...extra})}));const state={v:1,tabKey:'tab',activePaneKey:'a',panes:[{paneKey:'a',ref,anchor:{chapter:1,verse:1,word:1,offset:0}}]},valid=s=>!!m.parseSnapshot(s,{refs:s.panes.map(x=>x.ref),active:0,invalid:false});const anchor=x=>valid({...state,panes:[{...state.panes[0],anchor:x}]});const key128='界'.repeat(128),keyed={...state,tabKey:key128,activePaneKey:key128,panes:[{...state.panes[0],paneKey:key128}]},multiple={...state,panes:[state.panes[0],state.panes[0]]};const richRef=p.parseReference('Psalms 119:176–150:6'),panes=Array.from({length:4},(_,i)=>({paneKey:'界'.repeat(127)+i,ref:richRef,anchor:{chapter:119,verse:176,word:4096,offset:-512}})),multibyte={v:1,tabKey:key128,activePaneKey:panes[0].paneKey,panes};const tooLarge={...state,tabKey:'界'.repeat(4096)};return {url:[url(1).invalid,url(4).invalid,url(5).invalid,url(0).invalid,url(4,-1).invalid,url(4,4).invalid,url(1,0,{v:2}).invalid,url(1,0,{private:'refused'}).invalid],keys:[valid(keyed),valid({...keyed,tabKey:key128+'x'}),valid(multiple)],anchors:[anchor({chapter:1,verse:1,word:0,offset:0}),anchor({chapter:1,verse:1,word:4097,offset:0}),anchor({chapter:1,verse:32,offset:0}),anchor({chapter:2,verse:1,offset:0}),anchor({chapter:1,verse:1,word:4096,offset:512})],multibyte:valid(multibyte),bytes:new TextEncoder().encode(JSON.stringify(multibyte)).length,oversize:valid(tooLarge)};});expect(r.url).toEqual([false,false,true,true,true,true,true,true]);expect(r.keys).toEqual([true,false,false]);expect(r.anchors).toEqual([false,false,false,false,true]);expect(r.multibyte).toBe(true);expect(r.bytes).toBeLessThan(8192);expect(r.oversize).toBe(false);});
+      20 | test('initial StrictMode entry keeps one committed pane identity while data becomes ready',async({page})=>{await setup(page);await page.addInitScript(()=>{window.__initialPaneKeys=new Set();new MutationObserver(records=>{for(const record of records)for(const node of [...record.addedNodes,...record.removedNodes]){if(!(node instanceof Element))continue;const panes=[...(node.matches('[data-reader-pane]')?[node]:[]),...node.querySelectorAll('[data-reader-pane]')];for(const pane of panes)window.__initialPaneKeys.add(pane.dataset.paneKey);}}).observe(document,{childList:true,subtree:true});});await page.goto('/');await expect(page.locator('[data-reader-scroll][data-ready="true"]')).toBeVisible();expect(await page.evaluate(()=>window.__initialPaneKeys.size)).toBe(1);});
+    > 21 | test('ready text cannot apply a delayed initial seek after a new reading position',async({page})=>{await setup(page);await page.setViewportSize({width:1100,height:500});await page.addInitScript(()=>{window.__readyPosition=null;new MutationObserver(()=>{const scroll=document.querySelector('[data-reader-scroll][data-ready="true"]');if(window.__readyPosition!==null||!scroll||scroll.scrollHeight<=scroll.clientHeight)return;scroll.scrollTop=120;window.__readyPosition=scroll.scrollTop;}).observe(document,{childList:true,attributes:true,subtree:true});});await page.goto('/');await expect.poll(()=>page.evaluate(()=>window.__readyPosition)).toBe(120);await page.evaluate(()=>new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve))));expect(await page.locator('[data-reader-scroll]').evaluate(n=>n.scrollTop)).toBe(120);});
+         |                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                ^
+      22 |
+        at /home/ck/repos/innodat/agriplatform/apps/scribeswell/web/tests/four-passage.spec.cjs:21:832
+
+    Error Context: test-results/four-passage-ready-text-ca-dff0e-fter-a-new-reading-position-desktop/error-context.md
+
+  2) [mobile] › tests/four-passage.spec.cjs:21:1 › ready text cannot apply a delayed initial seek after a new reading position 
+
+    Error: expect(received).toBe(expected) // Object.is equality
+
+    Expected: 120
+    Received: 119
+
+      19 | test('closed codec enforces pane, active, identity and canonical anchor boundaries',async({page})=>{await setup(page);await page.goto('/');const r=await page.evaluate(async()=>{const m=await import('/src/lib/reader-layout.ts'),p=await import('/src/lib/passage-references.ts'),ref=p.chapterReference('Gen',1);const url=(n,active=0,extra={})=>m.parseReaderURL(new URLSearchParams({reader:JSON.stringify({v:1,panes:Array.from({length:n},()=>({ref})),active,...extra})}));const state={v:1,tabKey:'tab',activePaneKey:'a',panes:[{paneKey:'a',ref,anchor:{chapter:1,verse:1,word:1,offset:0}}]},valid=s=>!!m.parseSnapshot(s,{refs:s.panes.map(x=>x.ref),active:0,invalid:false});const anchor=x=>valid({...state,panes:[{...state.panes[0],anchor:x}]});const key128='界'.repeat(128),keyed={...state,tabKey:key128,activePaneKey:key128,panes:[{...state.panes[0],paneKey:key128}]},multiple={...state,panes:[state.panes[0],state.panes[0]]};const richRef=p.parseReference('Psalms 119:176–150:6'),panes=Array.from({length:4},(_,i)=>({paneKey:'界'.repeat(127)+i,ref:richRef,anchor:{chapter:119,verse:176,word:4096,offset:-512}})),multibyte={v:1,tabKey:key128,activePaneKey:panes[0].paneKey,panes};const tooLarge={...state,tabKey:'界'.repeat(4096)};return {url:[url(1).invalid,url(4).invalid,url(5).invalid,url(0).invalid,url(4,-1).invalid,url(4,4).invalid,url(1,0,{v:2}).invalid,url(1,0,{private:'refused'}).invalid],keys:[valid(keyed),valid({...keyed,tabKey:key128+'x'}),valid(multiple)],anchors:[anchor({chapter:1,verse:1,word:0,offset:0}),anchor({chapter:1,verse:1,word:4097,offset:0}),anchor({chapter:1,verse:32,offset:0}),anchor({chapter:2,verse:1,offset:0}),anchor({chapter:1,verse:1,word:4096,offset:512})],multibyte:valid(multibyte),bytes:new TextEncoder().encode(JSON.stringify(multibyte)).length,oversize:valid(tooLarge)};});expect(r.url).toEqual([false,false,true,true,true,true,true,true]);expect(r.keys).toEqual([true,false,false]);expect(r.anchors).toEqual([false,false,false,false,true]);expect(r.multibyte).toBe(true);expect(r.bytes).toBeLessThan(8192);expect(r.oversize).toBe(false);});
+      20 | test('initial StrictMode entry keeps one committed pane identity while data becomes ready',async({page})=>{await setup(page);await page.addInitScript(()=>{window.__initialPaneKeys=new Set();new MutationObserver(records=>{for(const record of records)for(const node of [...record.addedNodes,...record.removedNodes]){if(!(node instanceof Element))continue;const panes=[...(node.matches('[data-reader-pane]')?[node]:[]),...node.querySelectorAll('[data-reader-pane]')];for(const pane of panes)window.__initialPaneKeys.add(pane.dataset.paneKey);}}).observe(document,{childList:true,subtree:true});});await page.goto('/');await expect(page.locator('[data-reader-scroll][data-ready="true"]')).toBeVisible();expect(await page.evaluate(()=>window.__initialPaneKeys.size)).toBe(1);});
+    > 21 | test('ready text cannot apply a delayed initial seek after a new reading position',async({page})=>{await setup(page);await page.setViewportSize({width:1100,height:500});await page.addInitScript(()=>{window.__readyPosition=null;new MutationObserver(()=>{const scroll=document.querySelector('[data-reader-scroll][data-ready="true"]');if(window.__readyPosition!==null||!scroll||scroll.scrollHeight<=scroll.clientHeight)return;scroll.scrollTop=120;window.__readyPosition=scroll.scrollTop;}).observe(document,{childList:true,attributes:true,subtree:true});});await page.goto('/');await expect.poll(()=>page.evaluate(()=>window.__readyPosition)).toBe(120);await page.evaluate(()=>new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve))));expect(await page.locator('[data-reader-scroll]').evaluate(n=>n.scrollTop)).toBe(120);});
+         |                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                ^
+      22 |
+        at /home/ck/repos/innodat/agriplatform/apps/scribeswell/web/tests/four-passage.spec.cjs:21:832
+
+    Error Context: test-results/four-passage-ready-text-ca-dff0e-fter-a-new-reading-position-mobile/error-context.md
+
+  2 failed
+    [desktop] › tests/four-passage.spec.cjs:21:1 › ready text cannot apply a delayed initial seek after a new reading position 
+    [mobile] › tests/four-passage.spec.cjs:21:1 › ready text cannot apply a delayed initial seek after a new reading position 
+  84 passed (2.0m)

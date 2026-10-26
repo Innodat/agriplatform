@@ -64,6 +64,7 @@ export function VerseReader({
             {verse.words.map((word) => (
               <button
                 key={word.id}
+                data-word-position={word.position}
                 onPointerEnter={event=>{if(event.pointerType!=='touch')onPreview?.(word);}}
                 onPointerLeave={()=>onPreview?.(null)}
                 onPointerCancel={()=>onPreview?.(null)}

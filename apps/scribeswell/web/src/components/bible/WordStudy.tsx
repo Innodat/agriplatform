@@ -5,7 +5,7 @@ import {getLexicon, getOccurrences} from '@/lib/api-client';
 import type {BookResponse, LexiconNode, WordWithMorphologyResponse} from '@/schemas/bible.schema';
 
 type Reference = {book:string; chapter:number; verse:number};
-type Props = {controlledTab?:'Word'|'Occurrences';hideTabs?:boolean;currentPane:1|2; word:WordWithMorphologyResponse; context:string; books:BookResponse[]; onClose:()=>void; onOpen:(pane:1|2,book:string,chapter:number,verse:number)=>void};
+type Props = {controlledTab?:'Word'|'Occurrences';hideTabs?:boolean; word:WordWithMorphologyResponse; context:string; books:BookResponse[]; onClose:()=>void; onOpen:(target:"here"|"beside",book:string,chapter:number,verse:number)=>void};
 type View = {identity:string|null; linked:boolean; tab:'Word'|'Occurrences'; book:string; offset:number; requested:boolean; reference:Reference|null; strong:boolean; bdb:boolean; scroll:number; focusId?:string};
 function initialView(identity:string|null,linked=false):View {return {identity,linked,tab:'Word',book:'',offset:0,requested:false,reference:null,strong:false,bdb:false,scroll:0};}
 // Stop at a contiguous prefix; bound both text and nested block layout. Links
@@ -52,7 +52,7 @@ export function WordStudy(props:Props) {
   function back(){const previous=history[history.length-1];if(!previous)return;setHistory(old=>old.slice(0,-1));setView(previous);setRevision(n=>n+1);}
   return <StudyEntry key={revision} {...props} initial={view} canBack={history.length>0} onBack={back} onFollow={follow}/>;
 }
-function StudyEntry({word,context,books,onClose,onOpen,currentPane,initial,canBack,onBack,onFollow,controlledTab,hideTabs}:Props&{initial:View;canBack:boolean;onBack:()=>void;onFollow:(identity:string,view:View)=>void}) {
+function StudyEntry({word,context,books,onClose,onOpen,initial,canBack,onBack,onFollow,controlledTab,hideTabs}:Props&{initial:View;canBack:boolean;onBack:()=>void;onFollow:(identity:string,view:View)=>void}) {
   const [localTab,setTab]=useState(initial.tab);
   const tab=controlledTab??localTab;
   const [book,setBook]=useState(initial.book);
@@ -145,7 +145,7 @@ function StudyEntry({word,context,books,onClose,onOpen,currentPane,initial,canBa
           {preview.loading&&<p role="status">Loading verse…</p>}
           {preview.error&&<p>Verse unavailable. <button className="underline" onClick={preview.refetch}>Retry preview</button></p>}
           {preview.data&&<p dir="rtl" lang="he" className="font-hebrew text-lg">{preview.data.data.find(v=>v.verse_num===reference.verse)?.words.map(w=>w.display_he??w.surface_he).join(' ')||'Verse not present in this collection.'}</p>}
-          <button className="underline mr-3 disabled:opacity-40" disabled={!previewVerse} onClick={()=>{if(previewVerse)onOpen(currentPane,reference.book,reference.chapter,reference.verse);}}>Open in current passage</button><button className="underline disabled:opacity-40" disabled={!previewVerse} onClick={()=>{if(previewVerse)onOpen(currentPane===1?2:1,reference.book,reference.chapter,reference.verse);}}>Open in comparison</button>
+          <button className="underline mr-3 disabled:opacity-40" disabled={!previewVerse} onClick={()=>{if(previewVerse)onOpen("here",reference.book,reference.chapter,reference.verse);}}>Open here</button><button className="underline disabled:opacity-40" disabled={!previewVerse} onClick={()=>{if(previewVerse)onOpen("beside",reference.book,reference.chapter,reference.verse);}}>Open beside</button>
           <button className="block underline" onClick={()=>setReference(null)}>Close preview</button>
         </section>}
       </div>
@@ -157,7 +157,7 @@ function StudyEntry({word,context,books,onClose,onOpen,currentPane,initial,canBa
       {occurrences.loading&&requested&&<p role="status">Loading occurrences…</p>}
       {occurrences.error&&<p>Could not load occurrences. <button className="underline" onClick={occurrences.refetch}>Retry occurrences</button></p>}
       {occurrences.data&&<><p>{occurrences.data.total} word occurrences in {occurrences.data.verse_total} verses</p>{!occurrences.data.total&&<p>No matching occurrences.</p>}
-        <ol className="space-y-3">{occurrences.data.data.map(row=><li key={row.id} className="border-b pb-2"><p>{row.book_name} {row.chapter}:{row.verse} · word {row.position}</p><p className="font-hebrew text-xl" dir="rtl" lang="he">{row.display_he??row.surface_he}</p><button className="underline mr-2" onClick={()=>onOpen(currentPane,row.book,row.chapter,row.verse)}>Open in current passage</button><button className="underline" onClick={()=>onOpen(currentPane===1?2:1,row.book,row.chapter,row.verse)}>Open in comparison</button></li>)}</ol>
+        <ol className="space-y-3">{occurrences.data.data.map(row=><li key={row.id} className="border-b pb-2"><p>{row.book_name} {row.chapter}:{row.verse} · word {row.position}</p><p className="font-hebrew text-xl" dir="rtl" lang="he">{row.display_he??row.surface_he}</p><button className="underline mr-2" onClick={()=>onOpen("here",row.book,row.chapter,row.verse)}>Open here</button><button className="underline" onClick={()=>onOpen("beside",row.book,row.chapter,row.verse)}>Open beside</button></li>)}</ol>
         <div className="flex justify-between"><button disabled={offset===0} className="underline disabled:opacity-30" onClick={()=>setOffset(Math.max(0,offset-25))}>Previous results</button><button disabled={offset+25>=occurrences.data.total} className="underline disabled:opacity-30" onClick={()=>setOffset(offset+25)}>Next results</button></div>
       </>}
     </div>

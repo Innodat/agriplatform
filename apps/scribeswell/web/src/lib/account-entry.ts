@@ -1,9 +1,15 @@
 /** Public reader context only; no caller-selected destination or private state. */
+import {parseReaderURL, readerSearch} from './reader-layout';
 const books = new Set('Gen Exod Lev Num Deut Josh Judg Ruth 1Sam 2Sam 1Kgs 2Kgs 1Chr 2Chr Ezra Neh Esth Job Ps Prov Eccl Song Isa Jer Lam Ezek Dan Hos Joel Amos Obad Jonah Mic Nah Hab Zeph Hag Zech Mal'.split(' '));
 export function publicAccountReturn() {
   const destination = new URL(location.origin);
   destination.pathname = new URL(import.meta.env.BASE_URL, location.origin).pathname;
-  const input = new URLSearchParams(location.search);
+ const input = new URLSearchParams(location.search);
+ if (input.has('reader')) {
+   const layout = parseReaderURL(input);
+   if (!layout.invalid) destination.search = readerSearch('', layout.refs, layout.active);
+   return destination.href;
+ }
   for (const key of ['book', 'chapter', 'verse', 'compareBook', 'compareChapter', 'compareVerse']) {
     const values = input.getAll(key);
     if (values.length !== 1) continue;

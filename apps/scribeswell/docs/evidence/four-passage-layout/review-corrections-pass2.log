@@ -1,0 +1,17 @@
+[WebServer] (node:926441) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 8 tests using 1 worker
+
+(node:926492) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  1 [desktop] › tests/four-passage.spec.cjs:731:1 › review: missing restored anchor falls back to the explicit target verse (656ms)
+  ✓  2 [desktop] › tests/four-passage.spec.cjs:791:46 › review: closing a focused active control hands focus to the active survivor (836ms)
+  ✓  3 [desktop] › tests/four-passage.spec.cjs:791:46 › review: closing a focused inactive control hands focus to the active survivor (773ms)
+  ✓  4 [desktop] › tests/four-passage.spec.cjs:827:1 › review: a scrollbar gesture checkpoints movement after one second through completion (646ms)
+  ✓  5 [desktop] › tests/four-passage.spec.cjs:866:1 › review: wrapping controls and navigation errors requalify unchanged grid height (1.4s)
+  ✓  6 [desktop] › tests/four-passage.spec.cjs:938:1 › review: wrapped word-position anchors restore a later word independently of its ID (723ms)
+  ✓  7 [desktop] › tests/personal-notes.spec.cjs:1025:1 › four-pane layout retains the same composing editor and owned passage atoms through add close and replay (3.6s)
+  ✓  8 [desktop] › tests/personal-notes.spec.cjs:1137:1 › review: malformed Add Cancel retains unresolved provenance across replay and refresh until valid choice (1.4s)
+
+  8 passed (11.6s)

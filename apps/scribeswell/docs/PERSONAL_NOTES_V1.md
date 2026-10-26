@@ -2,7 +2,7 @@
 
 This app-owned contract supports the first create/write/reopen and ordinary study-title rename milestones. **Implemented:** strict DTOs, generated OpenAPI/TypeScript, bounded same-origin private API, explicit Access enrollment/check adapters, app-owned PostgreSQL persistence and receipt recovery, controlled private Alembic history, and Studies/Analysis note editing with autosave. **Activation remains disabled in production.** The runtime is an explicit development/test opt-in pending coordinated startup/release qualification; public reading and standalone signup remain independent. Native SQL/browser proof and actual owner HTTP/domain integration are recorded below; synthetic Access responses alone do not establish live Identity/Access authorization.
 
-The canonical Studies SPEC, UX and accepted platform ADRs retain authority. This milestone is ordinary owner-only studies and notes. Sharing, private responses, introduction/source metadata editing, highlights, conflict copies, deletion and search retain their agreed requirements for later consuming slices. No product requirement is removed. This is partial D2 contract readiness, not D1–D5 closure.
+The canonical Studies SPEC, UX and accepted platform ADRs retain authority. The original first-wire milestone covers ordinary owner-only studies and notes. The linked extensions below now supply collected passages, passage links, library search, confirmed note/study deletion and public four-passage layout as component deliveries, with their stated final integration and device gates still pending. Sharing, private responses, introduction/source metadata editing, highlights and conflict copies retain their agreed later requirements. No product requirement is removed. This is partial D2 contract readiness, not D1–D5 closure.
 
 ## Wire source and generation
 
@@ -382,3 +382,14 @@ success/error continuations. Acknowledgement evicts exactly the captured study; 
 studies and deliberate public-reader focus remain. [Delivery evidence](STUDY_DELETION_EVIDENCE.md)
 records component checks and prepared-only restricted SQL/actual-owner proof. Scaffold,
 shared UI, agent context and accepted ADRs remain unchanged.
+
+## Four-passage public reader — component delivery in review
+
+The [adopted layout contract](FOUR_PASSAGE_LAYOUT_V1.md) and
+[component evidence](FOUR_PASSAGE_LAYOUT_EVIDENCE.md) cover one to four independent,
+stable-keyed public panes, explicit capacity replacement and bounded public URL/history
+position recovery. Existing Studies lanes and the composing editor remain mounted
+through public add/close/replay; public layout changes create no note mutations.
+Tabs, per-tab private associations, durable same-device restoration, final owner/native
+integration, physical-device acceptance and production activation retain their gates.
+No private wire, migration, Access/Identity path, scaffold/shared UI or ADR is changed.

@@ -1,0 +1,37 @@
+[WebServer] (node:871771) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 1 test using 1 worker
+
+(node:871791) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  1 [desktop] › tests/lexicon.spec.cjs:277:1 › desktop active-pane cue follows focus without moving analysis origin or pushing history (5.8s)
+
+
+  1) [desktop] › tests/lexicon.spec.cjs:277:1 › desktop active-pane cue follows focus without moving analysis origin or pushing history 
+
+    Error: expect(locator).toHaveAttribute(expected) failed
+
+    Locator:  locator('[data-reader-pane]').first()
+    Expected: "true"
+    Received: ""
+    Timeout:  5000ms
+
+    Call log:
+      - Expect "toHaveAttribute" locator('[data-reader-pane]').first() with timeout 5000ms
+      - waiting for locator('[data-reader-pane]').first()
+        14 × locator resolved to <section id="passage-1" aria-label="Passage 1" data-reader-pane="true" data-pane-key="4cf75199-ad36-4e85-be4f-22e9a7f9b7f9" class="flex flex-col gap-3 flex-1 min-w-0 min-h-0 lg:border-l lg:border-stone-200 lg:pl-3">…</section>
+           - unexpected value "null"
+
+
+      275 | });
+      276 | test('capacity beside replacement changes the chosen nonactive reference and preserves all other positions',async({page})=>{await setup(page);await page.setViewportSize({width:1800,height:1100});for(let i=0;i<3;i++)await addReader(page);const panes=page.locator('[data-reader-pane]');await panes.nth(0).locator('.word-token').first().click();await page.getByRole('tab',{name:'Occurrences',exact:true}).click();await panes.nth(3).locator('[data-reader-scroll]').focus();await expect(page.getByRole('button',{name:'Open beside',exact:true})).toBeVisible();for(let i=0;i<4;i++)await panes.nth(i).locator('[data-reader-scroll]').evaluate((el,position)=>el.scrollTop=position,80+i*30);const beforeRefs=JSON.parse(new URL(page.url()).searchParams.get('reader')).panes,beforeKeys=await panes.evaluateAll(ns=>ns.map(n=>n.dataset.paneKey)),beforePositions=await page.locator('[data-reader-scroll]').evaluateAll(ns=>ns.map(n=>n.scrollTop)),url=page.url(),idx=await page.evaluate(()=>history.state.idx);await page.getByRole('button',{name:'Open beside',exact:true}).click();const dialog=page.getByRole('dialog',{name:'Choose passage to replace'});await dialog.getByRole('button',{name:'Cancel',exact:true}).click();expect(page.url()).toBe(url);expect(await page.evaluate(()=>history.state.idx)).toBe(idx);expect(await page.locator('[data-reader-scroll]').evaluateAll(ns=>ns.map(n=>n.scrollTop))).toEqual(beforePositions);await page.getByRole('button',{name:'Open beside',exact:true}).click();await dialog.getByRole('button',{name:'Replace passage 2: Genesis 1',exact:true}).click();await expect(panes.nth(1).getByRole('button',{name:/Navigate: Exodus/})).toBeVisible();const after=JSON.parse(new URL(page.url()).searchParams.get('reader'));expect(after.active).toBe(1);expect(after.panes[1].ref.book_id).toBe('Exod');expect(after.panes[1].ref.target).toEqual({kind:'verse_range',start:{chapter:1,verse:20},end:{chapter:1,verse:20}});for(const i of [0,2,3]){expect(after.panes[i]).toEqual(beforeRefs[i]);expect(await panes.nth(i).locator('[data-reader-scroll]').evaluate(n=>n.scrollTop)).toBe(beforePositions[i]);}expect(await panes.evaluateAll(ns=>ns.map(n=>n.dataset.paneKey))).toEqual(beforeKeys);});
+    > 277 | test('desktop active-pane cue follows focus without moving analysis origin or pushing history',async({page})=>{await setup(page);await page.setViewportSize({width:1600,height:1000});await addReader(page);const one=page.locator('[data-reader-pane]').nth(0),two=page.locator('[data-reader-pane]').nth(1);await one.locator('.word-token').first().click();await expect(one).toHaveAttribute('aria-current','true');await expect(one.getByText('Active',{exact:true})).toBeVisible();await one.locator('[data-reader-scroll]').evaluate(n=>n.scrollTop=100);await two.locator('[data-reader-scroll]').evaluate(n=>n.scrollTop=180);const idx=await page.evaluate(()=>history.state.idx);await two.locator('[data-reader-scroll]').focus();await expect(two).toHaveAttribute('aria-current','true');await expect(two.getByText('Active',{exact:true})).toBeVisible();await expect(one).not.toHaveAttribute('aria-current','true');await expect(page.getByText('Genesis 1:1',{exact:true})).toBeVisible();expect(await page.evaluate(()=>history.state.idx)).toBe(idx);expect(await one.locator('[data-reader-scroll]').evaluate(n=>n.scrollTop)).toBe(100);expect(await two.locator('[data-reader-scroll]').evaluate(n=>n.scrollTop)).toBe(180);});
+          |                                                                                                                                                                                                                                                                                                                                                                                  ^
+      278 |
+        at /home/ck/repos/innodat/agriplatform/apps/scribeswell/web/tests/lexicon.spec.cjs:277:370
+
+    Error Context: test-results/lexicon-desktop-active-pan-0c985-s-origin-or-pushing-history-desktop/error-context.md
+
+  1 failed
+    [desktop] › tests/lexicon.spec.cjs:277:1 › desktop active-pane cue follows focus without moving analysis origin or pushing history 
