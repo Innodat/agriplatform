@@ -1,3 +1,30 @@
+## Current delivery — completed bounded online audit metadata, 2026-10-26
+
+Baseline is b3e79e9d9a8d2510c9703b28c311addbcaa940a0. Organization-wide history/detail
+reads are complete. The inert record-owned event metadata API is implemented
+under current read.all, with stable durable actor IDs, numeric revision navigation,
+private/no-store errors and existing deadlines. No schema change or name-resolution
+contract is implied; historical actor display and full Story 3.1 remain outstanding.
+Read [audit evidence](ONLINE_AUDIT_READ_EVIDENCE.md) and the
+[delivery spec](../../../_bmad-output/implementation-artifacts/spec-kdg-online-audit-read.md).
+Continue ready authorized synthetic local/CI work without routine approval stops.
+Preserve concurrent changes, all historical evidence/resources and TypeScript 7.0.2.
+No UI/editor/Leave, active startup/browser/sender/queue/worker integration, real accounts/
+services, native PostgreSQL/Docker, provisioning/migration execution, deployment,
+production/pilot or cleanup. Fingerprints/HMAC remain deferred. Never read/run/copy/hash
+the prohibited preexisting untracked migration fixture. Historical handoffs follow unchanged.
+
+Final ten-command qualification passes: 115 focused tests (29 new audit tests),
+43 actual HTTP checks, export/client/type freshness and all five scaffold parities.
+All 277 earlier implementation sources and 185 protected files remain unchanged;
+21 prior HTTP/browser/store proofs are reused with full source-bound evidence.
+Independent review addressed ten findings and rejected two suggestions; none newly
+deferred. Next assess the approved online all-edit API/context/recovery contracts
+or the Identity-owned historical actor-label contract against actual owner readiness.
+Do not infer full Story 3.1 completion, named audit presentation or activation.
+
+---
+
 ## Current delivery — completed online organization read API, 2026-10-26
 
 Read [online read evidence](ONLINE_ADMIN_READ_EVIDENCE.md) and the

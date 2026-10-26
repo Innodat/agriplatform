@@ -393,3 +393,16 @@ From repository root with N set to retained Node 26.11.1:
 
 See [online administrator read evidence](../docs/ONLINE_ADMIN_READ_EVIDENCE.md) for
 current proof status and limits. No portal, all-record cache or startup activation.
+
+The inert online audit metadata candidate is documented in
+[ONLINE_AUDIT_READ_EVIDENCE.md](../docs/ONLINE_AUDIT_READ_EVIDENCE.md).
+Its generated audit contract is separate from own-observation caching. It returns
+stable actor IDs and committed revision metadata only; historical display-name and
+portal contracts remain outstanding. No business response is persisted by this proof.
+
+From repository root with N set to retained Node 26.11.1, qualify the audit contract and synthetic transport:
+
+```sh
+"$N" platform/deployment/.local/web-baseline-qualification/new-5/root/node_modules/typescript/bin/tsc --project apps/kdg-capture/web/tsconfig.audit.json
+"$N" apps/kdg-capture/web/tests/audit-read-http-proof.mjs
+```

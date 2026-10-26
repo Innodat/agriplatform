@@ -1682,3 +1682,37 @@ Owner-exported `admin-openapi.json` and `contracts/admin-generated/` describe th
 [online read evidence](ONLINE_ADMIN_READ_EVIDENCE.md) records current qualification.
 Actor-display mapping, audit DTO/routes, online portal/session UI, actual restricted-role
 SQL and activation are not established by this API subset. No complete Story 3.1 claim.
+
+## Bounded online audit metadata API subset — 2026-10-26
+
+The separately constructed `audit_http` candidate exposes
+`GET /api/v1/admin/captures/{capture_id}/events`. Every page requires the same current
+fixed-org capture.read.all account/actor/membership and organization resource scope
+as the administrator read API. No own fallback, offline observation or stored authority.
+
+The closed page has org_id, account_id (verified reader), capture_id, original
+owner_account_id/owner_actor_id, created_by/created_at, updated_by/updated_at,
+current_revision, limit, events and next_cursor. Each event contains revision,
+command_type (capture.create/edit), executor_actor_id, nullable initiator_actor_id and
+recorded_at. IDs represent durable actors; actor-name resolution remains a separate
+Identity-owned HTTP contract and is not supplied by assignment-target discovery.
+Creation/update stamps and revision recorded_at are independent server statement times,
+not exact commit instants. Preserve actual executor/initiator and original ownership.
+
+Read immutable capture_revision metadata directly, without executor-private outcomes,
+answer snapshots, definitions, receipt/operation/outcome IDs or operational logs. One
+bounded SELECT observes the parent and lateral event selection coherently. No-op/retry
+receipts add no event. Validate after the short read-only all_read transaction; release
+and final serialization remain inside the original 10-second budget, with owned unwind.
+
+Closed query accepts only limit (default 30/max 100) and cursor (maximum 2,048 bytes).
+Numeric revision DESC and strict revision < last define navigation. A canonical closed
+cursor binds version, verified caller/org/capture/read.all/limit/last revision. SQL scope
+remains independently checked; cursor positions confer no authority. Limit+1 determines
+continuation; actual UTF8 response is at most 64 KiB. No cross-request snapshot promise.
+Newer events are available on refresh. Missing/foreign records share private 404; invalid
+stored evidence returns a safe unavailable error, never partial audit data.
+
+Owner-generated audit OpenAPI/client and [audit evidence](ONLINE_AUDIT_READ_EVIDENCE.md)
+record this technical subset. Historical display names, portal/UI, actual native SQL/RLS
+and full Story 3.1 remain outstanding; no migration or activation is performed.
