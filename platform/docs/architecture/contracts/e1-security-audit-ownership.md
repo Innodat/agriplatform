@@ -1,5 +1,13 @@
 # E1 security and business audit ownership proposal
 
+E7 consuming read design, 2026-10-25: the
+[Leave E7 contract](../../../../apps/leave/docs/architecture/contracts/e7-overview-reports-and-audit.md)
+allocates source-owned Access/Identity, People, Content and notification evidence
+projections plus Leave-local query and bounded chronological composition. These are
+planned, explicitly scoped HTTP reads, not a new audit-write service or completed
+source endpoints. Each owner retains authoritative capture/retention, read policy
+and failure evidence; ordinary own-draft audit exceptions below remain unchanged.
+
 WRITE closure, 2026-10-14: [owner execution contract](owned-write-and-secret-execution.md)
 selects concrete outcome/event/linkage, transaction/role/error/recovery and KDG key-file
 inputs. This supersedes earlier unspecified physical WRITE passages for the bounded

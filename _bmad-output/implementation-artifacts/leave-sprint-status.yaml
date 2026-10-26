@@ -1,0 +1,370 @@
+# STATUS DEFINITIONS:
+# ==================
+# Epic Status:
+#   - backlog: Epic not yet started
+#   - in-progress: Epic actively being worked on
+#   - done: All stories in epic completed
+
+# Story Status:
+#   - backlog: Story only exists in epic file
+#   - ready-for-dev: Story file created, ready for development
+#   - in-progress: Developer actively working on implementation
+#   - review: Implementation complete, ready for review
+#   - done: Story completed
+
+# Retrospective Status:
+#   - optional: Can be completed but not required
+#   - done: Retrospective has been completed
+
+# Action Item Status:
+#   - open: Committed during a retrospective, not yet addressed
+#   - in-progress: Actively being worked on
+#   - done: Completed
+
+# WORKFLOW NOTES:
+# ===============
+# - Epic transitions to 'in-progress' automatically when its first story starts (via build's sprint sync)
+# - Stories can be worked in parallel if team capacity allows
+# - Developer typically creates the next story after the previous one is 'done' to incorporate learnings
+# - Dev moves story to 'review', then runs code-review (fresh context, different LLM recommended)
+# - Retrospective appends its action items to action_items; the status view surfaces open ones
+generated: 10-26-2026 11:14
+last_updated: 10-26-2026 12:13
+project: Leave
+project_key: NOKEY
+tracking_system: file-system
+story_location: _bmad-output/implementation-artifacts/leave-stories
+development_status:
+  epic-1: in-progress
+  1-1-e1-env-reproduce-an-isolated-development-and-acceptance-envi: in-progress
+  1-2-e1-p1-generate-a-runnable-application-foundation-safely: backlog
+  1-3-e1-service-generate-an-independently-owned-internal-service: backlog
+  1-4-e1-id-a-establish-a-verified-identity-migration-baseline: backlog
+  1-5-e1-id-b-link-accounts-to-people-and-preserve-membership-hist: backlog
+  1-6-e1-access-a-configure-application-admission-and-grants-safel: backlog
+  1-7-e1-access-b-enforce-current-application-and-user-access: backlog
+  1-8-e1-content-read-protect-owned-files-and-stream-private-reads: backlog
+  1-9-e1-discovery-discover-only-currently-accessible-organization: backlog
+  1-10-e1-people-resolve-my-shared-employment-for-the-selected-orga: backlog
+  1-11-e1-write-prove-safe-owned-writes-for-generated-backends: backlog
+  1-12-e1-launcher-show-accessible-apps-with-honest-discovery-state: backlog
+  1-13-e1-ref-prove-a-generated-authenticated-application-against-r: backlog
+  1-14-e1-a1-sign-in-and-enter-an-authorized-leave-organization: backlog
+  1-15-e1-pts-adopt-use-pts-through-individual-platform-access: backlog
+  1-16-e1-verify-exercise-the-shared-reference-journey-in-hosted-en: backlog
+  1-17-e1-context-explain-whether-i-can-start-or-edit-a-leave-draft: backlog
+  1-18-e1-choices-choose-a-leave-type-and-its-permitted-duration-mo: backlog
+  1-19-e1-d1-create-or-resume-my-application-draft: backlog
+  1-20-e1-d2-a-save-and-read-my-draft-input-safely: backlog
+  1-21-e1-d2-b-edit-autosave-close-and-reopen-my-draft: backlog
+  1-22-e1-d3-switch-organizations-without-losing-or-mixing-draft-da: backlog
+  1-23-e1-d4-deliberately-discard-my-draft-and-start-again: backlog
+  1-24-e1-d5-return-safely-to-my-draft-after-sign-in-expires: backlog
+  epic-1-retrospective: optional
+
+  epic-2: backlog
+  2-1-2-11-add-an-employee-with-an-initial-employment-period: backlog
+  2-2-2-14-maintain-simple-organization-departments-and-locations: backlog
+  2-3-2-12-record-an-employment-end-date-with-reviewed-consequence: backlog
+  2-4-2-15-assign-or-clear-an-employee-s-department-and-location: backlog
+  2-5-2-16-assign-or-clear-an-employee-s-supervisor: backlog
+  2-6-2-1-enable-or-suspend-leave-for-an-organization: backlog
+  2-7-2-13-record-a-return-to-employment-without-replacing-the-emp: backlog
+  2-8-2-17-replace-a-supervisor-for-selected-employees: backlog
+  2-9-2-18-configure-an-organization-holiday-calendar: backlog
+  2-10-2-19-create-a-reusable-leave-work-profile: backlog
+  2-11-2-2-assign-leave-roles-to-an-existing-organization-member: backlog
+  2-12-2-6-invite-a-person-to-join-an-organization-securely: backlog
+  2-13-2-10-remove-a-member-s-organization-access-without-erasing-h: backlog
+  2-14-2-20-assign-or-change-an-employee-s-leave-work-profile: backlog
+  2-15-2-21-set-or-change-the-organization-s-default-leave-work-pro: backlog
+  2-16-2-3-create-or-duplicate-an-application-specific-custom-role: backlog
+  2-17-2-7-verify-a-trusted-microsoft-entra-tenant-for-an-organizat: backlog
+  2-18-2-9-prepare-and-activate-application-access-before-first-sig: backlog
+  2-19-2-22-override-an-employee-s-work-settings-or-restore-profile: backlog
+  2-20-2-25-see-actionable-setup-status-from-saved-configuration: backlog
+  2-21-2-4-review-and-apply-changes-to-a-custom-role-held-by-member: backlog
+  2-22-2-5-delete-an-unassigned-custom-role-while-preserving-its-hi: backlog
+  2-23-2-8-explicitly-enable-automatic-onboarding-from-a-trusted-te: backlog
+  2-24-2-23-review-and-publish-changes-to-a-shared-work-profile: backlog
+  2-25-2-26-view-an-employee-s-employment-and-leave-work-settings-t: backlog
+  2-26-2-24-archive-an-unused-work-profile-without-losing-its-histo: backlog
+  epic-2-retrospective: optional
+
+  epic-3: backlog
+  3-1-3-22-durably-accept-notification-events: backlog
+  3-2-3-25-a-process-channel-deliveries-and-create-in-app-notifica: backlog
+  3-3-3-25-b-deliver-notification-emails-and-recover-uncertain-pro: backlog
+  3-4-3-26-read-a-scoped-notification-inbox-and-manage-read-state: backlog
+  3-5-3-27-show-the-notification-panel-and-organization-unread-ind: backlog
+  3-6-3-1-create-and-view-an-organization-s-leave-types: backlog
+  3-7-3-2-view-a-leave-type-s-policy-and-version-history: backlog
+  3-8-3-3-a-review-and-publish-an-initial-policy-through-the-api: backlog
+  3-9-3-3-b-configure-and-publish-an-initial-policy-in-the-web-edi: backlog
+  3-10-3-5-explain-which-policy-applies-to-an-employee: backlog
+  3-11-3-7-calculate-leave-duration-from-the-employee-s-work-schedu: backlog
+  3-12-3-9-preserve-an-ordered-history-of-actual-balance-changes: backlog
+  3-13-3-23-save-notification-intent-atomically-with-leave-changes: backlog
+  3-14-3-4-review-starter-examples-before-activating-a-policy: backlog
+  3-15-3-6-view-and-select-employees-for-a-policy: backlog
+  3-16-3-8-calculate-daily-earned-entitlement: backlog
+  3-17-3-10-apply-accumulated-balance-caps-to-daily-earning: backlog
+  3-18-3-24-hand-over-leave-notifications-through-a-recoverable-wor: backlog
+  3-19-3-11-calculate-upfront-annual-entitlement: backlog
+  3-20-3-12-calculate-monthly-entitlement-instalments: backlog
+  3-21-3-13-calculate-monthly-entitlement-across-partial-employment: backlog
+  3-22-3-14-calculate-carry-over-at-a-leave-year-boundary: backlog
+  3-23-3-15-calculate-entitlement-expiry-dates-and-effects: backlog
+  3-24-3-16-calculate-changes-between-entitlement-availability-meth: backlog
+  3-25-3-17-a-compose-a-reproducible-current-leave-balance: backlog
+  3-26-3-17-b-read-an-authorized-current-balance-from-authoritative: backlog
+  3-27-3-18-project-funding-for-every-requested-leave-date: backlog
+  3-28-3-19-show-a-clear-leave-request-preview-in-apply: backlog
+  3-29-3-20-explain-request-restrictions-and-required-information-i: backlog
+  3-30-3-21-calculate-an-exceptional-funding-proposal: backlog
+  3-31-3-41-calculate-request-previews-without-an-entitlement-balan: backlog
+  3-32-3-28-review-and-confirm-initial-employee-policy-assignments: backlog
+  3-33-3-29-review-and-confirm-a-one-off-leave-balance-adjustment: backlog
+  3-34-3-30-change-recurring-employee-entitlement-or-return-to-poli: backlog
+  3-35-3-31-understand-my-leave-balance-and-history: backlog
+  3-36-3-32-view-an-employee-s-leave-entitlement-settings: backlog
+  3-37-3-34-a-review-and-publish-a-used-policy-change-through-the-a: backlog
+  3-38-3-42-a-understand-untracked-leave-in-my-leave-and-apply: backlog
+  3-39-3-33-see-policy-and-entitlement-setup-issues: backlog
+  3-40-3-34-b-review-and-publish-a-used-policy-change-in-the-web-ed: backlog
+  3-41-3-35-a-amend-or-cancel-a-scheduled-policy-change-through-the: backlog
+  3-42-3-36-a-review-and-confirm-assignment-changes-through-the-api: backlog
+  3-43-3-39-change-an-existing-leave-type-s-details-and-permitted-u: backlog
+  3-44-3-42-b-explain-untracked-leave-in-employee-administration: backlog
+  3-45-3-35-b-review-scheduled-policy-amendments-and-cancellations: backlog
+  3-46-3-36-b-review-assignment-changes-in-the-focused-editor: backlog
+  3-47-3-37-deactivate-a-leave-type-while-preserving-its-history: backlog
+  3-48-3-38-restore-an-inactive-leave-type: backlog
+  epic-3-retrospective: optional
+
+  epic-4: backlog
+  4-1-4-1-start-or-resume-an-authorized-content-upload: backlog
+  4-2-4-2-verify-and-finalize-uploaded-content: backlog
+  4-3-4-3-use-the-organization-s-configured-storage-provider-consi: backlog
+  4-4-4-4-s-protect-a-prepared-attachment-reference-in-content: backlog
+  4-5-4-11-s-dispose-eligible-unreferenced-content-recoverably: backlog
+  4-6-4-12-s-reclaim-abandoned-uploads-using-existing-content-fenc: backlog
+  4-7-4-14-retire-the-superseded-content-prototype-safely: backlog
+  4-8-4-4-l-confirm-and-recover-a-leave-draft-attachment: backlog
+  4-9-4-12-l-protect-saved-leave-attachments-during-abandonment-re: backlog
+  4-10-4-5-upload-supporting-documents-in-my-leave-draft: backlog
+  4-11-4-6-show-document-status-without-exposing-protected-details: backlog
+  4-12-4-8-remove-or-replace-a-document-on-my-editable-draft: backlog
+  4-13-4-10-configure-supporting-document-retention: backlog
+  4-14-4-7-open-and-download-an-authorized-supporting-document: backlog
+  4-15-4-11-l-release-leave-documents-at-their-applicable-retention: backlog
+  4-16-4-9-notify-me-when-a-document-needs-attention: backlog
+  4-17-4-13-prove-the-complete-leave-attachment-journey: backlog
+  epic-4-retrospective: optional
+
+  epic-5: backlog
+  5-1-5-1-resolve-my-configured-approval-route-and-explain-setup-p: backlog
+  5-2-5-10-a-preserve-request-state-and-provide-authorized-current: backlog
+  5-3-5-2-check-temporary-approver-eligibility-and-authority-limit: backlog
+  5-4-5-10-c-recover-request-operations-through-the-existing-leave: backlog
+  5-5-5-4-apply-the-configured-approval-fallback-during-absence: backlog
+  5-6-5-3-check-approval-coverage-throughout-an-applicant-s-absenc: backlog
+  5-7-5-28-c-expose-minimum-approval-coverage-attention-before-fir: backlog
+  5-8-5-6-validate-requested-duration-and-same-date-limits: backlog
+  5-9-5-7-check-employment-policy-eligibility-and-permitted-reques: backlog
+  5-10-5-8-a-record-and-settle-request-commitments-through-protecte: backlog
+  5-11-5-9-check-required-supporting-documents-before-submission-an: backlog
+  5-12-5-10-b-finalize-existing-requests-through-current-gates-and: backlog
+  5-13-5-19-a-withdraw-my-pending-request-through-the-protected-api: backlog
+  5-14-5-18-a-decide-an-assigned-request-through-the-protected-api: backlog
+  5-15-5-15-a-integrate-one-off-balance-adjustments-with-actual-pen: backlog
+  5-16-5-15-c-integrate-recurring-entitlement-changes-with-pending: backlog
+  5-17-5-15-e-integrate-policy-publication-with-pending-request-imp: backlog
+  5-18-5-15-g-integrate-scheduled-policy-amendments-and-cancellatio: backlog
+  5-19-5-15-i-integrate-policy-assignment-changes-with-pending-requ: backlog
+  5-20-5-15-m-integrate-employee-work-setting-overrides-and-resets: backlog
+  5-21-5-15-o-integrate-employee-work-profile-assignment-with-pendi: backlog
+  5-22-5-15-q-integrate-organization-default-profile-changes-with-p: backlog
+  5-23-5-15-s-integrate-shared-work-profile-publication-with-pendin: backlog
+  5-24-5-15-u-integrate-holiday-calendar-changes-with-pending-reque: backlog
+  5-25-5-16-a-query-my-actionable-approval-queue-and-permitted-insp: backlog
+  5-26-5-17-a-query-permitted-team-availability-for-request-dates: backlog
+  5-27-5-24-a-transfer-selected-unfinished-approval-steps-through-t: backlog
+  5-28-5-5-a-record-a-scoped-coverage-exception-and-reassess-pendin: backlog
+  5-29-5-16-b-browse-my-approval-queue-and-inspect-permitted-reques: backlog
+  5-30-5-24-c-integrate-single-supervisor-changes-with-unfinished-a: backlog
+  5-31-5-15-k-integrate-employment-end-date-changes-with-pending-le: backlog
+  5-32-5-17-b-see-permitted-team-availability-in-request-review: backlog
+  5-33-5-24-e-integrate-selected-and-planned-supervisor-replacement: backlog
+  5-34-5-23-a-process-temporary-expiry-and-authorized-conditional-r: backlog
+  5-35-5-21-a-create-a-bounded-temporary-appointment-and-apply-its: backlog
+  5-36-5-22-a-extend-a-temporary-appointment-and-safely-postpone-it: backlog
+  5-37-5-25-a-restore-outstanding-supervisor-review-when-recorded-a: backlog
+  5-38-5-11-a-submit-my-own-leave-request-through-the-protected-api: backlog
+  5-39-5-22-c-end-temporary-authority-early-and-resolve-its-unfinis: backlog
+  5-40-5-26-a-generate-recurring-reminders-for-currently-actionable: backlog
+  5-41-5-11-b-submit-through-apply-and-see-the-confirmed-result: backlog
+  5-42-5-12-a-record-on-behalf-leave-and-accept-the-initial-employe: backlog
+  5-43-5-27-a-escalate-overdue-approvals-once-and-expose-current-ma: backlog
+  5-44-5-13-a-confirm-exceptional-allocation-and-optional-approval: backlog
+  5-45-5-15-b-review-pending-request-impacts-before-confirming-a-ba: backlog
+  5-46-5-15-d-review-pending-request-impacts-of-recurring-entitleme: backlog
+  5-47-5-15-f-review-pending-request-impacts-in-policy-publication: backlog
+  5-48-5-15-h-review-pending-impacts-of-scheduled-policy-amendments: backlog
+  5-49-5-15-j-review-pending-request-impacts-of-policy-assignment-c: backlog
+  5-50-5-15-l-review-leave-consequences-before-confirming-an-employ: backlog
+  5-51-5-15-n-review-pending-request-impacts-of-employee-work-setti: backlog
+  5-52-5-15-p-review-pending-request-impacts-of-employee-profile-as: backlog
+  5-53-5-15-r-review-pending-request-impacts-of-organization-defaul: backlog
+  5-54-5-15-t-review-pending-request-impacts-of-shared-work-profile: backlog
+  5-55-5-15-v-review-pending-request-impacts-of-holiday-calendar-ch: backlog
+  5-56-5-18-b-approve-or-reject-from-completed-request-review: backlog
+  5-57-5-19-b-withdraw-my-pending-request-from-its-details: backlog
+  5-58-5-20-a-preserve-corrections-and-resubmit-a-rejected-request: backlog
+  5-59-5-21-b-appoint-a-temporary-approver-through-the-reviewed-app: backlog
+  5-60-5-24-b-review-and-confirm-manual-reassignment-of-selected-ap: backlog
+  5-61-5-24-d-show-leave-consequences-in-single-supervisor-editing: backlog
+  5-62-5-24-f-review-selected-supervisor-replacements-and-their-lea: backlog
+  5-63-5-28-a-complete-residual-coverage-attention-reads-after-the: backlog
+  5-64-5-5-b-record-a-reasoned-exception-from-existing-request-and: backlog
+  5-65-5-12-b-submit-for-an-employee-and-complete-the-initial-respo: backlog
+  5-66-5-20-b-edit-and-resubmit-a-rejected-request-in-the-browser: backlog
+  5-67-5-22-b-extend-a-temporary-appointment-from-its-details: backlog
+  5-68-5-22-d-end-a-temporary-appointment-early-from-its-details: backlog
+  5-69-5-27-b-show-escalated-approvals-in-manage-leave-needs-attent: backlog
+  5-70-5-30-a-complete-own-request-details-and-formal-history-reads: backlog
+  5-71-5-32-i-verify-temporary-appointment-from-effective-start-thr: backlog
+  5-72-5-32-j-verify-supervisor-step-restoration-when-recorded-abse: backlog
+  5-73-5-13-b-review-exceptional-funding-and-confirm-the-permitted: backlog
+  5-74-5-28-b-complete-coverage-attention-composition-and-existing: backlog
+  5-75-5-29-a-query-my-year-based-leave-calendar-and-history-list: backlog
+  5-76-5-30-b-complete-existing-request-details-with-secondary-form: backlog
+  5-77-5-32-k-verify-recurring-reminders-and-one-time-manager-escal: backlog
+  5-78-5-29-b-browse-my-leave-in-calendar-and-list-views: backlog
+  5-79-5-32-c-verify-rejected-correction-and-same-request-fresh-cyc: backlog
+  5-80-5-32-f-verify-employment-end-consequences-across-people-and: backlog
+  5-81-5-32-g-verify-used-policy-publication-and-pending-request-co: backlog
+  5-82-5-32-h-verify-required-documents-through-actual-submission-a: backlog
+  5-83-5-32-l-verify-original-submission-recovery-after-its-respons: backlog
+  5-84-5-31-a-compose-current-leave-and-required-responses-on-my-le: backlog
+  5-85-5-32-a-verify-a-funded-own-request-journey-through-final-app: backlog
+  5-86-5-32-b-verify-on-behalf-submission-and-the-initial-employee: backlog
+  5-87-5-32-d-verify-employee-withdrawal-and-connected-pending-work: backlog
+  5-88-5-32-e-verify-a-one-off-balance-adjustment-against-a-pending: backlog
+  epic-5-retrospective: optional
+
+  epic-6: backlog
+  6-1-6-1-project-correction-consequences-from-retained-history: backlog
+  6-2-6-4-calculate-cancellation-reversal-and-dependent-earning-ef: backlog
+  6-3-6-2-expose-minimum-correction-and-deficit-attention-through: backlog
+  6-4-6-15-record-reasoned-deficit-review-outcomes-without-erasing: backlog
+  6-5-6-3-show-minimum-correction-attention-on-manage-leave: backlog
+  6-6-6-16-review-deficits-and-follow-permitted-remedies: backlog
+  6-7-6-19-integrate-approved-and-historical-consequences-of-one-o: backlog
+  6-8-6-21-integrate-approved-and-historical-consequences-of-recur: backlog
+  6-9-6-23-integrate-approved-and-historical-consequences-of-used: backlog
+  6-10-6-25-integrate-approved-and-historical-consequences-of-sched: backlog
+  6-11-6-27-integrate-approved-and-historical-consequences-of-emplo: backlog
+  6-12-6-29-integrate-approved-and-historical-consequences-of-emplo: backlog
+  6-13-6-31-integrate-approved-and-historical-consequences-of-emplo: backlog
+  6-14-6-33-integrate-approved-and-historical-consequences-of-emplo: backlog
+  6-15-6-35-integrate-approved-and-historical-consequences-of-organ: backlog
+  6-16-6-37-integrate-approved-and-historical-consequences-of-share: backlog
+  6-17-6-39-integrate-approved-and-historical-consequences-of-holid: backlog
+  6-18-6-20-review-approved-and-historical-consequences-of-one-off: backlog
+  6-19-6-22-review-approved-and-historical-consequences-of-recurrin: backlog
+  6-20-6-24-review-approved-and-historical-consequences-of-used-pol: backlog
+  6-21-6-26-review-approved-and-historical-consequences-of-schedule: backlog
+  6-22-6-28-review-approved-and-historical-consequences-of-employee: backlog
+  6-23-6-30-review-approved-and-historical-consequences-of-employme: backlog
+  6-24-6-32-review-approved-and-historical-consequences-of-employee: backlog
+  6-25-6-34-review-approved-and-historical-consequences-of-employee: backlog
+  6-26-6-36-review-approved-and-historical-consequences-of-organiza: backlog
+  6-27-6-38-review-approved-and-historical-consequences-of-shared-w: backlog
+  6-28-6-40-review-approved-and-historical-consequences-of-holiday: backlog
+  6-29-6-41-correct-recorded-employment-dates-through-the-existing: backlog
+  6-30-6-42-review-a-factual-employment-date-correction-and-its-lea: backlog
+  6-31-6-5-cancel-approved-leave-through-one-protected-command: backlog
+  6-32-6-6-review-and-confirm-approved-leave-cancellation: backlog
+  6-33-6-7-track-administrative-correction-follow-up-at-its-real-li: backlog
+  6-34-6-8-present-correction-follow-up-in-existing-attention-and-d: backlog
+  6-35-6-9-atomically-cancel-and-submit-a-linked-replacement: backlog
+  6-36-6-10-change-my-approved-leave-through-the-existing-request-f: backlog
+  6-37-6-11-correct-another-employee-s-approved-leave-under-adminis: backlog
+  6-38-6-12-review-an-administrative-correction-and-its-employee-ex: backlog
+  6-39-6-13-allow-scoped-administrators-to-preserve-and-resubmit-re: backlog
+  6-40-6-14-resume-rejected-administrative-corrections-from-follow: backlog
+  6-41-6-17-complete-linked-correction-and-calculation-history-read: backlog
+  6-42-6-18-explain-corrected-leave-in-employee-history-and-calenda: backlog
+  6-43-6-43-verify-cancellation-and-own-replacement-across-real-bou: backlog
+  6-44-6-44-verify-administrative-correction-rejection-and-follow-u: backlog
+  6-45-6-45-verify-historical-corrections-and-deficit-outcomes-thro: backlog
+  6-46-6-46-verify-correction-compatibility-and-recoverable-release: backlog
+  epic-6-retrospective: optional
+
+  epic-7: backlog
+  7-1-7-21-read-identity-access-audit-evidence-through-its-owner: backlog
+  7-2-7-22-read-people-audit-evidence-through-its-owner: backlog
+  7-3-7-24-read-notification-delivery-audit-evidence-through-its-o: backlog
+  7-4-7-25-query-existing-leave-audit-events-with-protected-fields: backlog
+  7-5-7-23-read-content-audit-evidence-through-its-owner: backlog
+  7-6-7-26-compose-a-chronological-audit-page-from-authorized-owne: backlog
+  7-7-7-1-read-the-scoped-organization-absence-overview: backlog
+  7-8-7-11-query-leave-used-by-employee-type-team-and-period-repor: backlog
+  7-9-7-13-query-upcoming-absence-reports: backlog
+  7-10-7-15-query-pending-approval-aging-reports: backlog
+  7-11-7-17-query-overrides-and-administrative-adjustments-reports: backlog
+  7-12-7-7-query-current-and-corrected-point-in-time-balance-report: backlog
+  7-13-7-9-query-accrual-and-adjustment-history-reports: backlog
+  7-14-7-19-generate-an-audited-csv-from-all-matching-authorized-re: backlog
+  7-15-7-2-browse-the-organization-timeline-without-changing-leave: backlog
+  7-16-7-4-remember-overview-filters-within-the-current-account-and: backlog
+  7-17-7-3-use-the-date-grouped-overview-and-staged-filters-on-mobi: backlog
+  7-18-7-5-restore-applied-overview-filters-with-truthful-preferenc: backlog
+  7-19-7-6-complete-existing-management-navigation-to-overview-and: backlog
+  7-20-7-27-search-audit-history-and-inspect-permitted-before-and-a: backlog
+  7-21-7-29-verify-organization-overview-privacy-and-accessible-nav: backlog
+  7-22-7-8-read-balance-reports-in-the-first-shared-reporting-layou: backlog
+  7-23-7-10-browse-accrual-and-adjustment-history-results: backlog
+  7-24-7-12-browse-leave-used-by-employee-type-team-and-period-resu: backlog
+  7-25-7-14-browse-upcoming-absence-results: backlog
+  7-26-7-16-browse-pending-approval-aging-results: backlog
+  7-27-7-18-browse-overrides-and-administrative-adjustments-results: backlog
+  7-28-7-30-verify-cross-owner-audit-chronology-and-private-detail: backlog
+  7-29-7-20-export-each-report-with-clear-progress-and-retry-feedba: backlog
+  7-30-7-28-verify-all-six-report-and-csv-definitions-through-actua: backlog
+  7-31-7-31-qualify-reporting-bounds-compatibility-and-read-only-op: backlog
+  epic-7-retrospective: optional
+
+  epic-8: backlog
+  8-1-8-1-validate-a-versioned-consultant-import-package-without-b: backlog
+  8-2-8-21-verify-recoverable-backup-capability-across-actual-owne: backlog
+  8-3-8-22-rehearse-consistent-database-document-and-dependency-re: backlog
+  8-4-8-2-resolve-import-identities-and-owner-prerequisites-explic: backlog
+  8-5-8-19-prove-one-bounded-monitoring-setup-with-safe-correlatio: backlog
+  8-6-8-16-verify-configured-retention-and-auditable-document-disp: backlog
+  8-7-8-18-demonstrate-bounded-worker-drain-forced-stop-and-recove: backlog
+  8-8-8-20-demonstrate-alert-thresholds-and-verified-incident-reco: backlog
+  8-9-8-23-reconcile-restored-notification-work-before-resuming-ou: backlog
+  8-10-8-3-reconcile-opening-balances-and-transferred-request-effec: backlog
+  8-11-8-4-bind-client-email-approval-to-the-exact-import-preview: backlog
+  8-12-8-5-apply-reconciled-opening-portions-through-the-accounting: backlog
+  8-13-8-8-prepare-imported-documents-through-the-existing-content: backlog
+  8-14-8-6-adopt-recorded-historical-and-approved-requests-with-exp: backlog
+  8-15-8-17-qualify-accessible-role-journeys-on-supported-browsers: backlog
+  8-16-8-7-import-pending-requests-into-a-freshly-verified-approval: backlog
+  8-17-8-9-apply-one-approved-employee-import-atomically-through-le: backlog
+  8-18-8-10-resume-imports-using-original-employee-operation-outcom: backlog
+  8-19-8-11-reconcile-applied-records-against-the-exact-approved-ba: backlog
+  8-20-8-15-qualify-cross-organization-security-through-real-owner: backlog
+  8-21-8-12-reconcile-export-to-cutover-changes-before-final-approv: backlog
+  8-22-8-24-qualify-coordinated-migrations-and-recoverable-release: backlog
+  8-23-8-25-measure-representative-application-and-import-workloads: backlog
+  8-24-8-13-release-only-current-actionable-imported-work-notificat: backlog
+  8-25-8-27-prepare-support-and-operational-handover-from-verified: backlog
+  8-26-8-14-verify-import-arithmetic-atomic-apply-and-interruption: backlog
+  8-27-8-26-run-representative-human-acceptance-for-each-role: backlog
+  8-28-8-28-assemble-the-pilot-release-evidence-and-go-no-go-decisi: backlog
+  8-29-8-29-enable-the-approved-pilot-through-existing-access-and-d: backlog
+  8-30-8-30-verify-pilot-health-and-record-operational-acceptance: backlog
+  epic-8-retrospective: optional

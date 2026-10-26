@@ -2,6 +2,15 @@
 
 **Status:** Planning draft; tooling is not implemented.
 
+E8 technical planning proposal, 2026-10-25: the
+[owning import contract](../architecture/contracts/e8-import-cutover-and-qualification.md)
+and [single review package](../../../../_bmad-output/planning-artifacts/e8-planning-review.md)
+allocate exact package/plan/report evidence, actual owner adapters, protected apply/
+resume, source eligibility and qualification. Accepted ADR-0170 binds pending-
+workflow/notice and employee-unit behavior following user approval on 2026-10-25.
+The accepted procedure below remains authoritative. No executable tool, email,
+import, provider mutation or pilot activation was run by planning.
+
 For consultants preparing and reconciling a client migration. Product requirements
 remain in [features.md](../features.md), with delivery work tracked in
 [implementation-plan.md](../implementation-plan.md).
@@ -82,3 +91,22 @@ These are consultant checklist items, not additional client application screens.
 Manual employee and opening-balance entry remains available through the planned
 normal application flows. Detailed cutover execution, rollback, and executable
 import contracts still require delivery design and verification before a real migration.
+
+## Accepted pending-work and recovery-unit behavior
+
+[ADR-0170](../architecture/decisions/0170-imported-pending-work-and-resumable-employee-units.md)
+was accepted with E8 planning on 2026-10-25. Pending source requests receive freshly
+verified Leave approval cycles at controlled activation, with new route/initial
+response/wait consequences disclosed in the exact approved report. External partial
+decisions remain historical evidence. Do not replay old completed business notices;
+release only current actionable pending work after authorized activation.
+
+One employee's Leave opening/request/evidence envelope commits together. Successful
+employees remain committed when another fails. Resolve original unit outcomes before
+explicit retry; changed data/selection/route needs renewed report/email approval. Staged
+records stay outside ordinary user economic/read/task/action scope until the approved
+selection reconciles and activation is authorized. Support compatible source eligibility
+before storing such records; follow controlled maintenance/recovery if needed.
+
+These are accepted requirements for the future tool, not executable instructions or
+permission for actual data import, emails, migration or activation.

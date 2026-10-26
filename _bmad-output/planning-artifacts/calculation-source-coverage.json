@@ -1,0 +1,5495 @@
+{
+  "date": "2026-10-26",
+  "status": "scoped-manual-semantic-reconciliation-not-global-pass",
+  "body_units": [
+    {
+      "source_unit": "SRC1-0517",
+      "source_path": "apps/leave/docs/features.md",
+      "source_line": 517,
+      "source_hash": "1c67ab59867b830d3525551063df7e6d51f7fe0a1ebf995806b52455bda69c80",
+      "disposition": "required",
+      "primary_owners": [
+        "3.41"
+      ],
+      "supporting_owners": [
+        "3.42-A",
+        "3.42-B",
+        "5.8-A",
+        "6.1",
+        "7.7"
+      ],
+      "acceptance": [
+        "3.41/AC01",
+        "3.41/AC02",
+        "3.41/AC03",
+        "3.41/AC04",
+        "3.41/AC05",
+        "3.41/AC06",
+        "3.41/AC07",
+        "3.42-A/AC01",
+        "3.42-A/AC02",
+        "3.42-A/AC03",
+        "3.42-A/AC04",
+        "3.42-A/AC05",
+        "3.42-A/AC06",
+        "3.42-A/AC07",
+        "3.42-B/AC01",
+        "3.42-B/AC02",
+        "3.42-B/AC03",
+        "3.42-B/AC04",
+        "3.42-B/AC05",
+        "3.42-B/AC06",
+        "3.42-B/AC07",
+        "5.8-A/AC01",
+        "5.8-A/AC02",
+        "5.8-A/AC03",
+        "5.8-A/AC04",
+        "5.8-A/AC05",
+        "6.1/AC01",
+        "6.1/AC02",
+        "6.1/AC03",
+        "7.7/AC01",
+        "7.7/AC02",
+        "7.7/AC03",
+        "7.7/AC04"
+      ],
+      "assertions": [
+        "Typed untracked not applicable distinct manual zero",
+        "duration/usage/access/assignment/date/document/approval still enforced",
+        "Not balance-limited not infinite/zero",
+        "no grant/reserve/consume/shortfall",
+        "used tracking category fixed"
+      ],
+      "review_method": "manual complete source reading, numerical example and accepted-precedence comparison with existing CALC/actual producer contracts; no lexical scoring"
+    },
+    {
+      "source_unit": "SRC1-0528",
+      "source_path": "apps/leave/docs/features.md",
+      "source_line": 528,
+      "source_hash": "5e5f38c510a3d23e86b64dc15bddac4dfc648b3fb2dbe5040510285e69e240db",
+      "disposition": "required",
+      "primary_owners": [
+        "3.17-A"
+      ],
+      "supporting_owners": [],
+      "acceptance": [
+        "3.17-A/AC01",
+        "3.17-A/AC02",
+        "3.17-A/AC03",
+        "3.17-A/AC04",
+        "3.17-A/AC05",
+        "3.17-A/AC06",
+        "3.17-A/AC07",
+        "3.17-A/AC08"
+      ],
+      "assertions": [
+        "Immutable actual events plus effective derived automatic earning, no mutable authoritative balance total"
+      ],
+      "review_method": "manual complete source reading, numerical example and accepted-precedence comparison with existing CALC/actual producer contracts; no lexical scoring"
+    },
+    {
+      "source_unit": "SRC1-0531",
+      "source_path": "apps/leave/docs/features.md",
+      "source_line": 531,
+      "source_hash": "fb7382ad20e88be99f26ac23c94f4c01446604bd48d439896b682846748bead0",
+      "disposition": "required",
+      "primary_owners": [
+        "3.31"
+      ],
+      "supporting_owners": [],
+      "acceptance": [
+        "3.31/AC01",
+        "3.31/AC02",
+        "3.31/AC03",
+        "3.31/AC04",
+        "3.31/AC05",
+        "3.31/AC06"
+      ],
+      "assertions": [
+        "Available/remaining/reserved separately",
+        "pending request links preserve return context",
+        "source/grant/carry/expiry/used/adjustment actor/reason expandable",
+        "history filter does not change current balance",
+        "schedule conversion explained"
+      ],
+      "review_method": "manual complete source reading, numerical example and accepted-precedence comparison with existing CALC/actual producer contracts; no lexical scoring"
+    },
+    {
+      "source_unit": "SRC1-0541",
+      "source_path": "apps/leave/docs/features.md",
+      "source_line": 541,
+      "source_hash": "a3c146999f16b452b1bca278a75b7b55b1e6a1a933b34d7dba3474a3e8c40aa5",
+      "disposition": "required",
+      "primary_owners": [
+        "3.29"
+      ],
+      "supporting_owners": [
+        "5.15-A",
+        "5.15-B",
+        "6.19"
+      ],
+      "acceptance": [
+        "3.29/AC01",
+        "3.29/AC02",
+        "3.29/AC03",
+        "3.29/AC04",
+        "3.29/AC05",
+        "3.29/AC06",
+        "3.29/AC07",
+        "3.29/AC08",
+        "5.15-A/AC01",
+        "5.15-A/AC02",
+        "5.15-A/AC03",
+        "5.15-A/AC04",
+        "5.15-A/AC05",
+        "5.15-A/AC06",
+        "5.15-B/AC01",
+        "5.15-B/AC02",
+        "5.15-B/AC03",
+        "5.15-B/AC04",
+        "5.15-B/AC05",
+        "5.15-B/AC06",
+        "6.19/AC01",
+        "6.19/AC02",
+        "6.19/AC03"
+      ],
+      "assertions": [
+        "Add/Deduct amount/effective date/reason/current/result/affected requests",
+        "Review then Confirm",
+        "mistake corrected by new explained adjustment",
+        "minimal notifications link authorized amount/date/result/actor/reason",
+        "later unpaid notice no renewed response"
+      ],
+      "review_method": "manual complete source reading, numerical example and accepted-precedence comparison with existing CALC/actual producer contracts; no lexical scoring"
+    },
+    {
+      "source_unit": "SRC1-0550",
+      "source_path": "apps/leave/docs/features.md",
+      "source_line": 550,
+      "source_hash": "16c3dc4baf7d9e3ccdc6b02eae80befcb155cef25260e0312c982003ad401127",
+      "disposition": "required",
+      "primary_owners": [
+        "5.15-A"
+      ],
+      "supporting_owners": [
+        "6.1",
+        "6.15",
+        "6.19"
+      ],
+      "acceptance": [
+        "5.15-A/AC01",
+        "5.15-A/AC02",
+        "5.15-A/AC03",
+        "5.15-A/AC04",
+        "5.15-A/AC05",
+        "5.15-A/AC06",
+        "6.1/AC01",
+        "6.1/AC02",
+        "6.1/AC03",
+        "6.15/AC01",
+        "6.15/AC02",
+        "6.15/AC03",
+        "6.19/AC01",
+        "6.19/AC02",
+        "6.19/AC03"
+      ],
+      "assertions": [
+        "Authorizer reviews exact pending effects and retains resolution responsibility",
+        "existing attention/actor/reason and separate remedial permissions, no referral/permission transfer",
+        "discretionary approved impacts resolve before commit, necessary factual unresolved deficits explicit",
+        "predictable expiry not surprise"
+      ],
+      "review_method": "manual complete source reading, numerical example and accepted-precedence comparison with existing CALC/actual producer contracts; no lexical scoring"
+    },
+    {
+      "source_unit": "SRC1-0565",
+      "source_path": "apps/leave/docs/features.md",
+      "source_line": 565,
+      "source_hash": "7e34e3524c85914a2ba89620376e30e06d822b531407673e32e1955473a13c39",
+      "disposition": "context",
+      "primary_owners": [
+        "3.17-A"
+      ],
+      "supporting_owners": [],
+      "acceptance": [
+        "3.17-A/AC01",
+        "3.17-A/AC02",
+        "3.17-A/AC03",
+        "3.17-A/AC04",
+        "3.17-A/AC05",
+        "3.17-A/AC06",
+        "3.17-A/AC07",
+        "3.17-A/AC08"
+      ],
+      "assertions": [
+        "Section/table/example navigation or historical planning note",
+        "actual deterministic history/event/portion contracts own implementation, not a second ledger specification"
+      ],
+      "review_method": "manual complete source reading, numerical example and accepted-precedence comparison with existing CALC/actual producer contracts; no lexical scoring"
+    },
+    {
+      "source_unit": "SRC1-0567",
+      "source_path": "apps/leave/docs/features.md",
+      "source_line": 567,
+      "source_hash": "1d9d4b21606050fdca2394ec50ed32ae13e925cf58ca6457c166f869dabbb609",
+      "disposition": "required",
+      "primary_owners": [
+        "8.5"
+      ],
+      "supporting_owners": [],
+      "acceptance": [
+        "8.5/AC01",
+        "8.5/AC02",
+        "8.5/AC03",
+        "8.5/AC04"
+      ],
+      "assertions": [
+        "Approved reconciled opening portions through existing accounting owner"
+      ],
+      "review_method": "manual complete source reading, numerical example and accepted-precedence comparison with existing CALC/actual producer contracts; no lexical scoring"
+    },
+    {
+      "source_unit": "SRC1-0568",
+      "source_path": "apps/leave/docs/features.md",
+      "source_line": 568,
+      "source_hash": "94e62aee5a92c818f03f8c8143bf6313bb348707cdb8ff51f928ebd7b4276e1b",
+      "disposition": "required",
+      "primary_owners": [
+        "3.8"
+      ],
+      "supporting_owners": [],
+      "acceptance": [
+        "3.8/AC01",
+        "3.8/AC02",
+        "3.8/AC03",
+        "3.8/AC04",
+        "3.8/AC05",
+        "3.8/AC06",
+        "3.8/AC07"
+      ],
+      "assertions": [
+        "Derived automatic earning, no daily posting transaction"
+      ],
+      "review_method": "manual complete source reading, numerical example and accepted-precedence comparison with existing CALC/actual producer contracts; no lexical scoring"
+    },
+    {
+      "source_unit": "SRC1-0569",
+      "source_path": "apps/leave/docs/features.md",
+      "source_line": 569,
+      "source_hash": "1554b8e1bd65c2a746cccb8cee7aa6ed4a4142290a17ca6760f60b66b5fe1278",
+      "disposition": "required",
+      "primary_owners": [
+        "3.14"
+      ],
+      "supporting_owners": [],
+      "acceptance": [
+        "3.14/AC01",
+        "3.14/AC02",
+        "3.14/AC03",
+        "3.14/AC04",
+        "3.14/AC05",
+        "3.14/AC06",
+        "3.14/AC07"
+      ],
+      "assertions": [
+        "Once-only source-preserving carry-over"
+      ],
+      "review_method": "manual complete source reading, numerical example and accepted-precedence comparison with existing CALC/actual producer contracts; no lexical scoring"
+    },
+    {
+      "source_unit": "SRC1-0570",
+      "source_path": "apps/leave/docs/features.md",
+      "source_line": 570,
+      "source_hash": "463513b220fdeff9da524b70a46417f5bd5c382b935caf9446bd9b8ecd3ea23d",
+      "disposition": "required",
+      "primary_owners": [
+        "3.15"
+      ],
+      "supporting_owners": [],
+      "acceptance": [
+        "3.15/AC01",
+        "3.15/AC02",
+        "3.15/AC03",
+        "3.15/AC04",
+        "3.15/AC05",
+        "3.15/AC06"
+      ],
+      "assertions": [
+        "Inclusive last-valid-date expiry and explanatory evidence"
+      ],
+      "review_method": "manual complete source reading, numerical example and accepted-precedence comparison with existing CALC/actual producer contracts; no lexical scoring"
+    },
+    {
+      "source_unit": "SRC1-0571",
+      "source_path": "apps/leave/docs/features.md",
+      "source_line": 571,
+      "source_hash": "18050f17cdf9e6136ce0acb3043bf4ffc44a3ab6256718f22076fab55bee7d64",
+      "disposition": "required",
+      "primary_owners": [
+        "5.8-A"
+      ],
+      "supporting_owners": [],
+      "acceptance": [
+        "5.8-A/AC01",
+        "5.8-A/AC02",
+        "5.8-A/AC03",
+        "5.8-A/AC04",
+        "5.8-A/AC05"
+      ],
+      "assertions": [
+        "Protected pending dated reservation"
+      ],
+      "review_method": "manual complete source reading, numerical example and accepted-precedence comparison with existing CALC/actual producer contracts; no lexical scoring"
+    },
+    {
+      "source_unit": "SRC1-0572",
+      "source_path": "apps/leave/docs/features.md",
+      "source_line": 572,
+      "source_hash": "6850052da511556d9d2e1d720df6e99ac39eb50205170b56963990c81179ae11",
+      "disposition": "required",
+      "primary_owners": [
+        "5.10-B"
+      ],
+      "supporting_owners": [],
+      "acceptance": [
+        "5.10-B/AC01",
+        "5.10-B/AC02",
+        "5.10-B/AC03",
+        "5.10-B/AC04",
+        "5.10-B/AC05",
+        "5.10-B/AC06",
+        "5.10-B/AC07"
+      ],
+      "assertions": [
+        "Final consumption exactly once"
+      ],
+      "review_method": "manual complete source reading, numerical example and accepted-precedence comparison with existing CALC/actual producer contracts; no lexical scoring"
+    },
+    {
+      "source_unit": "SRC1-0573",
+      "source_path": "apps/leave/docs/features.md",
+      "source_line": 573,
+      "source_hash": "02a3202db782be78b5656e15db79baf2268ecfcf54072ce47ba9dd43873382a9",
+      "disposition": "required",
+      "primary_owners": [
+        "5.8-A"
+      ],
+      "supporting_owners": [],
+      "acceptance": [
+        "5.8-A/AC01",
+        "5.8-A/AC02",
+        "5.8-A/AC03",
+        "5.8-A/AC04",
+        "5.8-A/AC05"
+      ],
+      "assertions": [
+        "Rejection/withdrawal release once"
+      ],
+      "review_method": "manual complete source reading, numerical example and accepted-precedence comparison with existing CALC/actual producer contracts; no lexical scoring"
+    },
+    {
+      "source_unit": "SRC1-0574",
+      "source_path": "apps/leave/docs/features.md",
+      "source_line": 574,
+      "source_hash": "b79ff8f5b15a6c9217e7bae0ea1bc5540bc9897fc8c0530f290df56916accf55",
+      "disposition": "required",
+      "primary_owners": [
+        "6.4"
+      ],
+      "supporting_owners": [],
+      "acceptance": [
+        "6.4/AC01",
+        "6.4/AC02",
+        "6.4/AC03"
+      ],
+      "assertions": [
+        "Cancellation compensates consumption and dependent cap effects"
+      ],
+      "review_method": "manual complete source reading, numerical example and accepted-precedence comparison with existing CALC/actual producer contracts; no lexical scoring"
+    },
+    {
+      "source_unit": "SRC1-0575",
+      "source_path": "apps/leave/docs/features.md",
+      "source_line": 575,
+      "source_hash": "c0bdf6e931fdc6d6a12550d1795dcdc3fe644e786edcba1ebdd8018a052a1d7b",
+      "disposition": "required",
+      "primary_owners": [
+        "3.29"
+      ],
+      "supporting_owners": [],
+      "acceptance": [
+        "3.29/AC01",
+        "3.29/AC02",
+        "3.29/AC03",
+        "3.29/AC04",
+        "3.29/AC05",
+        "3.29/AC06",
+        "3.29/AC07",
+        "3.29/AC08"
+      ],
+      "assertions": [
+        "Reasoned actual manual balance event"
+      ],
+      "review_method": "manual complete source reading, numerical example and accepted-precedence comparison with existing CALC/actual producer contracts; no lexical scoring"
+    },
+    {
+      "source_unit": "SRC1-0576",
+      "source_path": "apps/leave/docs/features.md",
+      "source_line": 576,
+      "source_hash": "80af32def99320c14a1bea840bfeb545ea2650736503a9e74d3d244ac0ee8f64",
+      "disposition": "required",
+      "primary_owners": [
+        "3.21"
+      ],
+      "supporting_owners": [],
+      "acceptance": [
+        "3.21/AC01",
+        "3.21/AC02",
+        "3.21/AC03",
+        "3.21/AC04",
+        "3.21/AC05",
+        "3.21/AC06"
+      ],
+      "assertions": [
+        "Only policy/exception-authorized explicit negative paid allocation"
+      ],
+      "review_method": "manual complete source reading, numerical example and accepted-precedence comparison with existing CALC/actual producer contracts; no lexical scoring"
+    },
+    {
+      "source_unit": "SRC1-0577",
+      "source_path": "apps/leave/docs/features.md",
+      "source_line": 577,
+      "source_hash": "dd30dc94d9cf2580b0fa8702e9f479a6429e223bbe7fa1fa5847a7d37c2497c8",
+      "disposition": "required",
+      "primary_owners": [
+        "3.21"
+      ],
+      "supporting_owners": [],
+      "acceptance": [
+        "3.21/AC01",
+        "3.21/AC02",
+        "3.21/AC03",
+        "3.21/AC04",
+        "3.21/AC05",
+        "3.21/AC06"
+      ],
+      "assertions": [
+        "Explicit unpaid allocation preserves requested duration"
+      ],
+      "review_method": "manual complete source reading, numerical example and accepted-precedence comparison with existing CALC/actual producer contracts; no lexical scoring"
+    },
+    {
+      "source_unit": "SRC1-0579",
+      "source_path": "apps/leave/docs/features.md",
+      "source_line": 579,
+      "source_hash": "c6e4fbcf8f0500d19454ce999c493047f231cad11059c4f1d54dab493671606e",
+      "disposition": "required",
+      "primary_owners": [
+        "3.19"
+      ],
+      "supporting_owners": [
+        "3.31"
+      ],
+      "acceptance": [
+        "3.19/AC01",
+        "3.19/AC02",
+        "3.19/AC03",
+        "3.19/AC04",
+        "3.19/AC05",
+        "3.19/AC06",
+        "3.19/AC07",
+        "3.31/AC01",
+        "3.31/AC02",
+        "3.31/AC03",
+        "3.31/AC04",
+        "3.31/AC05",
+        "3.31/AC06"
+      ],
+      "assertions": [
+        "Accrued/used/reserved/current/projected/requested/projected-remaining authoritative separate results and explanations"
+      ],
+      "review_method": "manual complete source reading, numerical example and accepted-precedence comparison with existing CALC/actual producer contracts; no lexical scoring"
+    },
+    {
+      "source_unit": "SRC1-0582",
+      "source_path": "apps/leave/docs/features.md",
+      "source_line": 582,
+      "source_hash": "2c7798a0b4413b6e0cb5b0debf68bc94284ac5a5ce0ab6b6f4a0aea77e590e19",
+      "disposition": "required",
+      "primary_owners": [
+        "3.17-A"
+      ],
+      "supporting_owners": [
+        "3.9",
+        "6.17",
+        "3.17-B"
+      ],
+      "acceptance": [
+        "3.17-A/AC01",
+        "3.17-A/AC02",
+        "3.17-A/AC04",
+        "3.17-A/AC06",
+        "3.17-B/AC05",
+        "6.17/AC01"
+      ],
+      "assertions": [
+        "On-demand without worker/double posting",
+        "reads no decision snapshot",
+        "actual consequential immutable input/policy/calculation version evidence",
+        "corrected current differs original Balance at approval and historical balance, later pending change L-0151 not response"
+      ],
+      "review_method": "manual complete source reading, numerical example and accepted-precedence comparison with existing CALC/actual producer contracts; no lexical scoring"
+    },
+    {
+      "source_unit": "SRC1-0604",
+      "source_path": "apps/leave/docs/features.md",
+      "source_line": 604,
+      "source_hash": "e837cab0d2b44bbe66df44ca7b96416debdbe8fb8665ab8345fb4c49642783e9",
+      "disposition": "required",
+      "primary_owners": [
+        "3.17-B"
+      ],
+      "supporting_owners": [
+        "7.31",
+        "8.25"
+      ],
+      "acceptance": [
+        "3.17-B/AC01",
+        "3.17-B/AC02",
+        "3.17-B/AC03",
+        "3.17-B/AC04",
+        "3.17-B/AC05",
+        "3.17-B/AC06",
+        "3.17-B/AC07",
+        "3.17-B/AC08",
+        "7.31/AC01",
+        "7.31/AC02",
+        "7.31/AC03",
+        "7.31/AC04",
+        "8.25/AC01",
+        "8.25/AC02",
+        "8.25/AC03",
+        "8.25/AC04"
+      ],
+      "assertions": [
+        "Expected100employees/representative1000 safety baseline not restriction or measured guarantee",
+        "synchronous settings initially",
+        "actual history/pending/concurrency/endpoint/transaction/dependency workload measured before need for background"
+      ],
+      "review_method": "manual complete source reading, numerical example and accepted-precedence comparison with existing CALC/actual producer contracts; no lexical scoring"
+    },
+    {
+      "source_unit": "SRC1-0615",
+      "source_path": "apps/leave/docs/features.md",
+      "source_line": 615,
+      "source_hash": "a28c301045448e21f166c278a6d59e6cec7dae9e924f9cfb242670a8e2ec2770",
+      "disposition": "required",
+      "primary_owners": [
+        "3.17-B"
+      ],
+      "supporting_owners": [
+        "3.17-A"
+      ],
+      "acceptance": [
+        "3.17-B/AC07",
+        "3.17-A/AC07"
+      ],
+      "assertions": [
+        "Indexed multi-year direct history replay first",
+        "no speculative cache/checkpoint/accrual worker",
+        "if later justified derived invalidation never substitutes immutable evidence"
+      ],
+      "review_method": "manual complete source reading, numerical example and accepted-precedence comparison with existing CALC/actual producer contracts; no lexical scoring"
+    },
+    {
+      "source_unit": "SRC1-0625",
+      "source_path": "apps/leave/docs/features.md",
+      "source_line": 625,
+      "source_hash": "6fc6fea49b2776f08c2857612c58f0ac84b67b590a096375fde7cad9b6deab5a",
+      "disposition": "required",
+      "primary_owners": [
+        "3.15"
+      ],
+      "supporting_owners": [
+        "3.14",
+        "3.18",
+        "3.16"
+      ],
+      "acceptance": [
+        "3.15/AC03",
+        "3.15/AC05",
+        "3.16/AC03",
+        "3.18/AC01"
+      ],
+      "assertions": [
+        "Expiry/rollover before new earning/cap at employee civil date;20atcap minus2 March31 then April1 earning",
+        "all replay/projection same",
+        "inclusive expiry through stated date"
+      ],
+      "review_method": "manual complete source reading, numerical example and accepted-precedence comparison with existing CALC/actual producer contracts; no lexical scoring"
+    },
+    {
+      "source_unit": "SRC1-0635",
+      "source_path": "apps/leave/docs/features.md",
+      "source_line": 635,
+      "source_hash": "944aa51d759b8d0fc073c7403680848e208500a3392074e9d857a1be20166e4a",
+      "disposition": "required",
+      "primary_owners": [
+        "3.9"
+      ],
+      "supporting_owners": [],
+      "acceptance": [
+        "3.9/AC02",
+        "3.9/AC03",
+        "3.9/AC04"
+      ],
+      "assertions": [
+        "Separate effective date/recorded UTC/server sequence assigned under employee coordination after automatic effects",
+        "same retry same order",
+        "backdate original recorded time",
+        "no client clock or exposed sequence"
+      ],
+      "review_method": "manual complete source reading, numerical example and accepted-precedence comparison with existing CALC/actual producer contracts; no lexical scoring"
+    },
+    {
+      "source_unit": "SRC1-0645",
+      "source_path": "apps/leave/docs/features.md",
+      "source_line": 645,
+      "source_hash": "99d625c0391c6c8f41cd5dbcc52f618d33d31af4d080de7d6e61087faab795e5",
+      "disposition": "required",
+      "primary_owners": [
+        "3.9"
+      ],
+      "supporting_owners": [
+        "3.17-A"
+      ],
+      "acceptance": [
+        "3.9/AC01",
+        "3.9/AC02",
+        "3.9/AC03",
+        "3.9/AC04",
+        "3.9/AC05",
+        "3.9/AC06",
+        "3.9/AC07",
+        "3.17-A/AC01",
+        "3.17-A/AC02",
+        "3.17-A/AC03",
+        "3.17-A/AC04",
+        "3.17-A/AC05",
+        "3.17-A/AC06",
+        "3.17-A/AC07",
+        "3.17-A/AC08"
+      ],
+      "assertions": [
+        "Consequential snapshot atomically linked action",
+        "indexed context plus bounded structured relevant values/immutable versions/allocation",
+        "separate calculation versus policy version",
+        "reads no snapshot, no generic history-code engine"
+      ],
+      "review_method": "manual complete source reading, numerical example and accepted-precedence comparison with existing CALC/actual producer contracts; no lexical scoring"
+    },
+    {
+      "source_unit": "SRC1-0656",
+      "source_path": "apps/leave/docs/features.md",
+      "source_line": 656,
+      "source_hash": "d1deffc167e77d0ee7e54328fa38b13587d76066eaf70ffdb765e5e519ef8b17",
+      "disposition": "required",
+      "primary_owners": [
+        "3.28"
+      ],
+      "supporting_owners": [
+        "3.29",
+        "3.34-A"
+      ],
+      "acceptance": [
+        "3.28/AC08",
+        "3.29/AC04",
+        "3.29/AC08",
+        "3.34-A/AC05"
+      ],
+      "assertions": [
+        "Final protected input/review check with actual configuration writers",
+        "changed consequence renews confirmation/input retained, equivalent effect may proceed",
+        "policy snapshot preserved",
+        "first real writer participates before first entitlement activation"
+      ],
+      "review_method": "manual complete source reading, numerical example and accepted-precedence comparison with existing CALC/actual producer contracts; no lexical scoring"
+    },
+    {
+      "source_unit": "SRC1-0666",
+      "source_path": "apps/leave/docs/features.md",
+      "source_line": 666,
+      "source_hash": "f49aad932e5f14331b7b7ca25b3b706c1db6f9999d53fb5e3546f11c2b928420",
+      "disposition": "required",
+      "primary_owners": [
+        "6.1"
+      ],
+      "supporting_owners": [
+        "6.4",
+        "6.17"
+      ],
+      "acceptance": [
+        "6.1/AC01",
+        "6.1/AC02",
+        "6.1/AC03",
+        "6.4/AC01",
+        "6.4/AC02",
+        "6.4/AC03",
+        "6.17/AC01",
+        "6.17/AC02",
+        "6.17/AC03"
+      ],
+      "assertions": [
+        "Updated authoritative replay and precommit consequential review",
+        "immutable correction then refreshed reads, not repair total",
+        "balance consequences even no open screen"
+      ],
+      "review_method": "manual complete source reading, numerical example and accepted-precedence comparison with existing CALC/actual producer contracts; no lexical scoring"
+    },
+    {
+      "source_unit": "SRC1-0673",
+      "source_path": "apps/leave/docs/features.md",
+      "source_line": 673,
+      "source_hash": "262187a7356da4f84ed71343da085bbdc1449b627705a9c4fc87691bd99ef889",
+      "disposition": "delivery-constraint",
+      "primary_owners": [
+        "3.17-A"
+      ],
+      "supporting_owners": [
+        "3.13",
+        "3.28",
+        "5.8-A",
+        "6.45"
+      ],
+      "acceptance": [
+        "3.17-A/AC01",
+        "3.17-A/AC02",
+        "3.17-A/AC03",
+        "3.17-A/AC04",
+        "3.17-A/AC05",
+        "3.17-A/AC06",
+        "3.17-A/AC07",
+        "3.17-A/AC08",
+        "3.13/AC01",
+        "3.13/AC02",
+        "3.13/AC03",
+        "3.13/AC04",
+        "3.13/AC05",
+        "3.13/AC06",
+        "3.13/AC07",
+        "3.13/AC08",
+        "3.13/AC09",
+        "3.13/AC10",
+        "3.13/AC11",
+        "3.28/AC01",
+        "3.28/AC02",
+        "3.28/AC03",
+        "3.28/AC04",
+        "3.28/AC05",
+        "3.28/AC06",
+        "3.28/AC07",
+        "3.28/AC08",
+        "3.28/AC09",
+        "5.8-A/AC01",
+        "5.8-A/AC02",
+        "5.8-A/AC03",
+        "5.8-A/AC04",
+        "5.8-A/AC05",
+        "6.45/AC01",
+        "6.45/AC02",
+        "6.45/AC03"
+      ],
+      "assertions": [
+        "Focused daily/partialmonthly/expiry/arithmetic plus real transaction/concurrency/repeated-submit/sourcewriter proof",
+        "no document count as passing tests"
+      ],
+      "review_method": "manual complete source reading, numerical example and accepted-precedence comparison with existing CALC/actual producer contracts; no lexical scoring"
+    },
+    {
+      "source_unit": "SRC1-0680",
+      "source_path": "apps/leave/docs/features.md",
+      "source_line": 680,
+      "source_hash": "08c82c0dd16ec8c720af5d9d7b9900f42ee8e33767538399505460fed8ce5dad",
+      "disposition": "required",
+      "primary_owners": [
+        "3.29"
+      ],
+      "supporting_owners": [
+        "E1-WRITE",
+        "5.10-C"
+      ],
+      "acceptance": [
+        "3.29/AC01",
+        "3.29/AC02",
+        "3.29/AC03",
+        "3.29/AC04",
+        "3.29/AC05",
+        "3.29/AC06",
+        "3.29/AC07",
+        "3.29/AC08",
+        "E1-WRITE/AC01",
+        "E1-WRITE/AC02",
+        "E1-WRITE/AC03",
+        "E1-WRITE/AC04",
+        "E1-WRITE/AC05",
+        "5.10-C/AC01",
+        "5.10-C/AC02",
+        "5.10-C/AC03",
+        "5.10-C/AC04",
+        "5.10-C/AC05",
+        "5.10-C/AC06"
+      ],
+      "assertions": [
+        "Bounded employee coordination then fresh state",
+        "known no-effect busy preserves form vs unknown commit resolves original operation",
+        "changed results re-review",
+        "exact chosen deadlines verified"
+      ],
+      "review_method": "manual complete source reading, numerical example and accepted-precedence comparison with existing CALC/actual producer contracts; no lexical scoring"
+    },
+    {
+      "source_unit": "SRC1-0689",
+      "source_path": "apps/leave/docs/features.md",
+      "source_line": 689,
+      "source_hash": "fe72fd179ac14c6e0b0fe2925ef66efebed693b937599858a7f819eeead8ed44",
+      "disposition": "required",
+      "primary_owners": [
+        "3.29"
+      ],
+      "supporting_owners": [
+        "3.23",
+        "3.24"
+      ],
+      "acceptance": [
+        "3.29/AC01",
+        "3.29/AC02",
+        "3.29/AC03",
+        "3.29/AC04",
+        "3.29/AC05",
+        "3.29/AC06",
+        "3.29/AC07",
+        "3.29/AC08",
+        "3.23/AC01",
+        "3.23/AC02",
+        "3.23/AC03",
+        "3.23/AC04",
+        "3.23/AC05",
+        "3.23/AC06",
+        "3.24/AC01",
+        "3.24/AC02",
+        "3.24/AC03",
+        "3.24/AC04",
+        "3.24/AC05",
+        "3.24/AC06",
+        "3.24/AC07",
+        "3.24/AC08"
+      ],
+      "assertions": [
+        "Current shared access before short local protected calculation/domain/audit/snapshot/outbox commit",
+        "external waits/handover after unlock",
+        "current facts across delays and justified bounded exceptions"
+      ],
+      "review_method": "manual complete source reading, numerical example and accepted-precedence comparison with existing CALC/actual producer contracts; no lexical scoring"
+    },
+    {
+      "source_unit": "SRC1-0697",
+      "source_path": "apps/leave/docs/features.md",
+      "source_line": 697,
+      "source_hash": "8b5115ae83ddae3d261b2ece2886e52a4a03fb7e419b1afd003b4328506e3822",
+      "disposition": "required",
+      "primary_owners": [
+        "8.19"
+      ],
+      "supporting_owners": [],
+      "acceptance": [
+        "8.19/AC01",
+        "8.19/AC02",
+        "8.19/AC03",
+        "8.19/AC04"
+      ],
+      "assertions": [
+        "Safe structured outcome/time/error/operation/event/trace references",
+        "no notes/medical/credentials/signedURLs/payload exception telemetry",
+        "business audit separate",
+        "safe optional support details only"
+      ],
+      "review_method": "manual complete source reading, numerical example and accepted-precedence comparison with existing CALC/actual producer contracts; no lexical scoring"
+    },
+    {
+      "source_unit": "SRC1-0705",
+      "source_path": "apps/leave/docs/features.md",
+      "source_line": 705,
+      "source_hash": "fe8eeaa5470599532001e8cdb81092d914e1d183c18661231034ef6029074363",
+      "disposition": "mixed-current-and-deferred",
+      "primary_owners": [
+        "8.19"
+      ],
+      "supporting_owners": [
+        "8.20"
+      ],
+      "acceptance": [
+        "8.19/AC01",
+        "8.19/AC02",
+        "8.19/AC03",
+        "8.19/AC04",
+        "8.20/AC01",
+        "8.20/AC02",
+        "8.20/AC03",
+        "8.20/AC04"
+      ],
+      "assertions": [
+        "One bounded async monitoring/log/health/trace setup with real simple failure",
+        "export not prerequisite",
+        "no Loki comparison/AI repair gate, browser tracing may follow backend"
+      ],
+      "review_method": "manual complete source reading, numerical example and accepted-precedence comparison with existing CALC/actual producer contracts; no lexical scoring"
+    },
+    {
+      "source_unit": "SRC1-0714",
+      "source_path": "apps/leave/docs/features.md",
+      "source_line": 714,
+      "source_hash": "7626b277903bb90091c36daa2b2e68eb78c25ac5ee6cf2f0f8ff2deb5e14b25c",
+      "disposition": "required",
+      "primary_owners": [
+        "3.24"
+      ],
+      "supporting_owners": [
+        "8.20"
+      ],
+      "acceptance": [
+        "3.24/AC01",
+        "3.24/AC02",
+        "3.24/AC03",
+        "3.24/AC04",
+        "3.24/AC05",
+        "3.24/AC06",
+        "3.24/AC07",
+        "3.24/AC08",
+        "8.20/AC01",
+        "8.20/AC02",
+        "8.20/AC03",
+        "8.20/AC04"
+      ],
+      "assertions": [
+        "Separate API readiness/worker progression/channel health",
+        "provider outage does not block domain action if required dependencies pass",
+        "detect eligible stuck not idle",
+        "required authority fails closed"
+      ],
+      "review_method": "manual complete source reading, numerical example and accepted-precedence comparison with existing CALC/actual producer contracts; no lexical scoring"
+    },
+    {
+      "source_unit": "SRC1-0721",
+      "source_path": "apps/leave/docs/features.md",
+      "source_line": 721,
+      "source_hash": "da0d1d08a9f6690a277be28d510d5e68ff284d2c566f6aed71b3e615482a5a8c",
+      "disposition": "required",
+      "primary_owners": [
+        "3.24"
+      ],
+      "supporting_owners": [
+        "3.23"
+      ],
+      "acceptance": [
+        "3.24/AC01",
+        "3.24/AC02",
+        "3.24/AC03",
+        "3.24/AC04",
+        "3.24/AC05",
+        "3.24/AC06",
+        "3.24/AC07",
+        "3.24/AC08",
+        "3.23/AC01",
+        "3.23/AC02",
+        "3.23/AC03",
+        "3.23/AC04",
+        "3.23/AC05",
+        "3.23/AC06"
+      ],
+      "assertions": [
+        "One initial separate Leave Postgres worker",
+        "atomic owner outbox intent, brief claim then HTTP without lock",
+        "claim-owner completion, expired recovery/stable event dedup",
+        "remote acceptance not channel success",
+        "no shared-table/broker/workflow-engine"
+      ],
+      "review_method": "manual complete source reading, numerical example and accepted-precedence comparison with existing CALC/actual producer contracts; no lexical scoring"
+    },
+    {
+      "source_unit": "SRC1-0732",
+      "source_path": "apps/leave/docs/features.md",
+      "source_line": 732,
+      "source_hash": "3599e679b3731b1b0231665c390d8d27a30eecd6d669878c94b95986152f044d",
+      "disposition": "required",
+      "primary_owners": [
+        "3.24"
+      ],
+      "supporting_owners": [
+        "3.25-A",
+        "8.27"
+      ],
+      "acceptance": [
+        "3.24/AC01",
+        "3.24/AC02",
+        "3.24/AC03",
+        "3.24/AC04",
+        "3.24/AC05",
+        "3.24/AC06",
+        "3.24/AC07",
+        "3.24/AC08",
+        "3.25-A/AC01",
+        "3.25-A/AC02",
+        "3.25-A/AC03",
+        "3.25-A/AC04",
+        "3.25-A/AC05",
+        "3.25-A/AC06",
+        "3.25-A/AC07",
+        "8.27/AC01",
+        "8.27/AC02",
+        "8.27/AC03",
+        "8.27/AC04"
+      ],
+      "assertions": [
+        "Bounded increasing retry, correction-required stop/exhaustion retained/alert",
+        "authorized unchanged audited requeue and relevance/dedup",
+        "never repeat business action",
+        "command/runbook not manager queue dashboard"
+      ],
+      "review_method": "manual complete source reading, numerical example and accepted-precedence comparison with existing CALC/actual producer contracts; no lexical scoring"
+    },
+    {
+      "source_unit": "SRC1-0741",
+      "source_path": "apps/leave/docs/features.md",
+      "source_line": 741,
+      "source_hash": "585afae9100db8a29d8d0c723505de0c9505b8c9ddbb5f8e0d6a0bf495eda711",
+      "disposition": "required",
+      "primary_owners": [
+        "E1-P1"
+      ],
+      "supporting_owners": [
+        "3.9",
+        "3.23"
+      ],
+      "acceptance": [
+        "E1-P1/AC01",
+        "E1-P1/AC02",
+        "E1-P1/AC03",
+        "E1-P1/AC04",
+        "E1-P1/AC05",
+        "E1-P1/AC06",
+        "E1-P1/AC07",
+        "3.9/AC01",
+        "3.9/AC02",
+        "3.9/AC03",
+        "3.9/AC04",
+        "3.9/AC05",
+        "3.9/AC06",
+        "3.9/AC07",
+        "3.23/AC01",
+        "3.23/AC02",
+        "3.23/AC03",
+        "3.23/AC04",
+        "3.23/AC05",
+        "3.23/AC06"
+      ],
+      "assertions": [
+        "Server mutable creation/update versus immutable creation actor/time",
+        "durable actor registry, initiator/executor distinct, all write paths ignore supplied attribution",
+        "consequential audit separate",
+        "command/release identifiers not source lines"
+      ],
+      "review_method": "manual complete source reading, numerical example and accepted-precedence comparison with existing CALC/actual producer contracts; no lexical scoring"
+    },
+    {
+      "source_unit": "SRC1-0749",
+      "source_path": "apps/leave/docs/features.md",
+      "source_line": 749,
+      "source_hash": "b4c8834547c438b1f7b447983dec701c7c9bea5563939342bdfc7354ad6d211f",
+      "disposition": "required",
+      "primary_owners": [
+        "3.24"
+      ],
+      "supporting_owners": [
+        "E1-SERVICE"
+      ],
+      "acceptance": [
+        "3.24/AC01",
+        "3.24/AC02",
+        "3.24/AC03",
+        "3.24/AC04",
+        "3.24/AC05",
+        "3.24/AC06",
+        "3.24/AC07",
+        "3.24/AC08",
+        "E1-SERVICE/AC01",
+        "E1-SERVICE/AC02",
+        "E1-SERVICE/AC03",
+        "E1-SERVICE/AC04",
+        "E1-SERVICE/AC05",
+        "E1-SERVICE/AC06",
+        "E1-SERVICE/AC07"
+      ],
+      "assertions": [
+        "Restricted owner service identity across orgs",
+        "narrow authoritative claim/discovery and per-item transaction-local scope with pooled leakage proof",
+        "context no blanket business authority"
+      ],
+      "review_method": "manual complete source reading, numerical example and accepted-precedence comparison with existing CALC/actual producer contracts; no lexical scoring"
+    },
+    {
+      "source_unit": "SRC1-0757",
+      "source_path": "apps/leave/docs/features.md",
+      "source_line": 757,
+      "source_hash": "945fa5704781be681edc38fc1b4d7c9c58034c39f836d06f5f143d1301bdf1db",
+      "disposition": "required",
+      "primary_owners": [
+        "8.18"
+      ],
+      "supporting_owners": [
+        "3.24"
+      ],
+      "acceptance": [
+        "8.18/AC01",
+        "8.18/AC02",
+        "8.18/AC03",
+        "8.18/AC04",
+        "3.24/AC01",
+        "3.24/AC02",
+        "3.24/AC03",
+        "3.24/AC04",
+        "3.24/AC05",
+        "3.24/AC06",
+        "3.24/AC07",
+        "3.24/AC08"
+      ],
+      "assertions": [
+        "Stop claims/bounded drain/supervisor forced-stop evidence",
+        "recover duplicates safely and verify replacement health/progress before claiming recovery",
+        "overruns visible without new dashboard"
+      ],
+      "review_method": "manual complete source reading, numerical example and accepted-precedence comparison with existing CALC/actual producer contracts; no lexical scoring"
+    },
+    {
+      "source_unit": "SRC1-0767",
+      "source_path": "apps/leave/docs/features.md",
+      "source_line": 767,
+      "source_hash": "20b36b097852181391b8653481a8aae7398fe6f8f2d546c829444d6703ab8c32",
+      "disposition": "required",
+      "primary_owners": [
+        "3.23"
+      ],
+      "supporting_owners": [
+        "3.24",
+        "8.24"
+      ],
+      "acceptance": [
+        "3.23/AC01",
+        "3.23/AC02",
+        "3.23/AC03",
+        "3.23/AC04",
+        "3.23/AC05",
+        "3.23/AC06",
+        "3.24/AC01",
+        "3.24/AC02",
+        "3.24/AC03",
+        "3.24/AC04",
+        "3.24/AC05",
+        "3.24/AC06",
+        "3.24/AC07",
+        "3.24/AC08",
+        "8.24/AC01",
+        "8.24/AC02",
+        "8.24/AC03",
+        "8.24/AC04"
+      ],
+      "assertions": [
+        "Explicit event type/version",
+        "old active producers/queued/inflight/failed work retain interpretable semantics",
+        "unknown version retained/flagged not guessed/discarded",
+        "release rollback compatibility, no schema registry"
+      ],
+      "review_method": "manual complete source reading, numerical example and accepted-precedence comparison with existing CALC/actual producer contracts; no lexical scoring"
+    },
+    {
+      "source_unit": "SRC1-0775",
+      "source_path": "apps/leave/docs/features.md",
+      "source_line": 775,
+      "source_hash": "e366e72e83022c3d55e32350764bac419c4e04f216f57129399d259941fd87a7",
+      "disposition": "required",
+      "primary_owners": [
+        "3.24"
+      ],
+      "supporting_owners": [],
+      "acceptance": [
+        "3.24/AC01",
+        "3.24/AC02",
+        "3.24/AC03",
+        "3.24/AC04",
+        "3.24/AC05",
+        "3.24/AC06",
+        "3.24/AC07",
+        "3.24/AC08"
+      ],
+      "assertions": [
+        "Leave schema outbox",
+        "current business relevance/skip before handover preserving original intent/audit",
+        "factual own rules",
+        "skip cannot undo remote acceptance/unknown",
+        "links current authorized state"
+      ],
+      "review_method": "manual complete source reading, numerical example and accepted-precedence comparison with existing CALC/actual producer contracts; no lexical scoring"
+    },
+    {
+      "source_unit": "SRC1-0784",
+      "source_path": "apps/leave/docs/features.md",
+      "source_line": 784,
+      "source_hash": "656b80e2584fb62a449e0db99427e38d4f2d0aeffdc771ae073f1a2f69e2752b",
+      "disposition": "required",
+      "primary_owners": [
+        "3.24"
+      ],
+      "supporting_owners": [
+        "3.25-A"
+      ],
+      "acceptance": [
+        "3.24/AC01",
+        "3.24/AC02",
+        "3.24/AC03",
+        "3.24/AC04",
+        "3.24/AC05",
+        "3.24/AC06",
+        "3.24/AC07",
+        "3.24/AC08",
+        "3.25-A/AC01",
+        "3.25-A/AC02",
+        "3.25-A/AC03",
+        "3.25-A/AC04",
+        "3.25-A/AC05",
+        "3.25-A/AC06",
+        "3.25-A/AC07"
+      ],
+      "assertions": [
+        "Original event+90d retry cutoff never renewed",
+        "terminal details/attempts90d further",
+        "receiver dedup at least90d acceptance and unresolved, expired deny after cleanup",
+        "newlyauthorized newevent/ref for later communication not business repeat"
+      ],
+      "review_method": "manual complete source reading, numerical example and accepted-precedence comparison with existing CALC/actual producer contracts; no lexical scoring"
+    },
+    {
+      "source_unit": "SRC1-0794",
+      "source_path": "apps/leave/docs/features.md",
+      "source_line": 794,
+      "source_hash": "05b6f07bfbbf8bb6fbd5011350e5323ce5d96efcda9c97af5a3a7dec1b9e8c53",
+      "disposition": "required",
+      "primary_owners": [
+        "3.25-A"
+      ],
+      "supporting_owners": [
+        "3.24",
+        "3.25-B"
+      ],
+      "acceptance": [
+        "3.25-A/AC01",
+        "3.25-A/AC02",
+        "3.25-A/AC03",
+        "3.25-A/AC04",
+        "3.25-A/AC05",
+        "3.25-A/AC06",
+        "3.25-A/AC07",
+        "3.24/AC01",
+        "3.24/AC02",
+        "3.24/AC03",
+        "3.24/AC04",
+        "3.24/AC05",
+        "3.24/AC06",
+        "3.24/AC07",
+        "3.24/AC08",
+        "3.25-B/AC01",
+        "3.25-B/AC02",
+        "3.25-B/AC03",
+        "3.25-B/AC04",
+        "3.25-B/AC05",
+        "3.25-B/AC06",
+        "3.25-B/AC07"
+      ],
+      "assertions": [
+        "Historical event not guaranteed current status/order",
+        "newer delivery not blocked by failed older",
+        "no notification rollback of request",
+        "current links and obsolete checks"
+      ],
+      "review_method": "manual complete source reading, numerical example and accepted-precedence comparison with existing CALC/actual producer contracts; no lexical scoring"
+    },
+    {
+      "source_unit": "SRC1-0801",
+      "source_path": "apps/leave/docs/features.md",
+      "source_line": 801,
+      "source_hash": "807403d61dbd78bff870be2ea90c0e7e63de01963d4f1bbd2feec2248797af1d",
+      "disposition": "required",
+      "primary_owners": [
+        "4.2"
+      ],
+      "supporting_owners": [],
+      "acceptance": [
+        "4.2/AC01",
+        "4.2/AC02",
+        "4.2/AC03",
+        "4.2/AC04",
+        "4.2/AC05",
+        "4.2/AC06",
+        "4.2/AC07"
+      ],
+      "assertions": [
+        "Verified finalized content ID immutable exact bytes despite late upload/finalization race",
+        "replacement new identity/verification/authorized association original evidence preserved"
+      ],
+      "review_method": "manual complete source reading, numerical example and accepted-precedence comparison with existing CALC/actual producer contracts; no lexical scoring"
+    },
+    {
+      "source_unit": "SRC1-0807",
+      "source_path": "apps/leave/docs/features.md",
+      "source_line": 807,
+      "source_hash": "8531638b216c28636ce6a3ae12a743bc8855ed7cf3f78fb705eda2c01d9f6f10",
+      "disposition": "required",
+      "primary_owners": [
+        "4.4-L"
+      ],
+      "supporting_owners": [
+        "4.4-S"
+      ],
+      "acceptance": [
+        "4.4-L/AC01",
+        "4.4-L/AC02",
+        "4.4-L/AC03",
+        "4.4-L/AC04",
+        "4.4-L/AC05",
+        "4.4-S/AC01",
+        "4.4-S/AC02",
+        "4.4-S/AC03",
+        "4.4-S/AC04",
+        "4.4-S/AC05"
+      ],
+      "assertions": [
+        "Finalized file separate saved association",
+        "Attaching until confirmed, original identity retry",
+        "current scope/readiness",
+        "required unconfirmed blocks",
+        "saved/inflight association protected from reclamation"
+      ],
+      "review_method": "manual complete source reading, numerical example and accepted-precedence comparison with existing CALC/actual producer contracts; no lexical scoring"
+    },
+    {
+      "source_unit": "SRC1-0816",
+      "source_path": "apps/leave/docs/features.md",
+      "source_line": 816,
+      "source_hash": "e4c2f3e12dcb797c3811d259fbef30d4e593cdafe9337631d6ff8135a068c61c",
+      "disposition": "required",
+      "primary_owners": [
+        "4.7"
+      ],
+      "supporting_owners": [
+        "4.5"
+      ],
+      "acceptance": [
+        "4.7/AC01",
+        "4.7/AC02",
+        "4.7/AC03",
+        "4.7/AC04",
+        "4.7/AC05",
+        "4.7/AC06",
+        "4.7/AC07",
+        "4.5/AC01",
+        "4.5/AC02",
+        "4.5/AC03",
+        "4.5/AC04",
+        "4.5/AC05",
+        "4.5/AC06",
+        "4.5/AC07",
+        "4.5/AC08",
+        "4.5/AC09"
+      ],
+      "assertions": [
+        "Each bounded actual backend attempt gives specific safe denied/missing/connection/unavailable result, no global-offline/poll/preflight or guaranteed temporary claim",
+        "uncertain mutations originalidentity",
+        "required safety/access never bypassed"
+      ],
+      "review_method": "manual complete source reading, numerical example and accepted-precedence comparison with existing CALC/actual producer contracts; no lexical scoring"
+    },
+    {
+      "source_unit": "SRC1-0826",
+      "source_path": "apps/leave/docs/features.md",
+      "source_line": 826,
+      "source_hash": "f83987817f3e814e710eebecf3638cbe7390a0e28b651cf31413a0545f5c0851",
+      "disposition": "required",
+      "primary_owners": [
+        "E1-WRITE"
+      ],
+      "supporting_owners": [
+        "4.9"
+      ],
+      "acceptance": [
+        "E1-WRITE/AC01",
+        "E1-WRITE/AC02",
+        "E1-WRITE/AC03",
+        "E1-WRITE/AC04",
+        "E1-WRITE/AC05",
+        "4.9/AC01",
+        "4.9/AC02",
+        "4.9/AC03",
+        "4.9/AC04",
+        "4.9/AC05",
+        "4.9/AC06",
+        "4.9/AC07"
+      ],
+      "assertions": [
+        "Stable typed machine codes not English/Portuguese branches",
+        "safe unknown fallback/generated types/adapters and localized presentation",
+        "preserve input and uncertain-operation recovery"
+      ],
+      "review_method": "manual complete source reading, numerical example and accepted-precedence comparison with existing CALC/actual producer contracts; no lexical scoring"
+    },
+    {
+      "source_unit": "SRC1-0834",
+      "source_path": "apps/leave/docs/features.md",
+      "source_line": 834,
+      "source_hash": "3851bb73407783d30fc170ad295da7da7d0209d42e4a3998e96f4c5435055595",
+      "disposition": "required",
+      "primary_owners": [
+        "E1-D5"
+      ],
+      "supporting_owners": [
+        "5.10-C"
+      ],
+      "acceptance": [
+        "E1-D5/AC01",
+        "E1-D5/AC02",
+        "E1-D5/AC03",
+        "E1-D5/AC04",
+        "E1-D5/AC05",
+        "E1-D5/AC06",
+        "E1-D5/AC07",
+        "E1-D5/AC08",
+        "5.10-C/AC01",
+        "5.10-C/AC02",
+        "5.10-C/AC03",
+        "5.10-C/AC04",
+        "5.10-C/AC05",
+        "5.10-C/AC06"
+      ],
+      "assertions": [
+        "Normal refresh then sign-in, same verified account/org/page/recoverable input",
+        "current permissions/calculation and safe lostaccess fallback",
+        "account switch protects prior data",
+        "no auto consequential action"
+      ],
+      "review_method": "manual complete source reading, numerical example and accepted-precedence comparison with existing CALC/actual producer contracts; no lexical scoring"
+    },
+    {
+      "source_unit": "SRC1-0842",
+      "source_path": "apps/leave/docs/features.md",
+      "source_line": 842,
+      "source_hash": "446edfe94b3890f082512ff29bb51d6c5f6553a1b80073e02ae910d68dcfaef2",
+      "disposition": "required",
+      "primary_owners": [
+        "E1-P1"
+      ],
+      "supporting_owners": [
+        "E1-D1",
+        "3.9"
+      ],
+      "acceptance": [
+        "E1-P1/AC01",
+        "E1-P1/AC02",
+        "E1-P1/AC03",
+        "E1-P1/AC04",
+        "E1-P1/AC05",
+        "E1-P1/AC06",
+        "E1-P1/AC07",
+        "E1-D1/AC01",
+        "E1-D1/AC02",
+        "E1-D1/AC03",
+        "E1-D1/AC04",
+        "E1-D1/AC05",
+        "E1-D1/AC06",
+        "3.9/AC01",
+        "3.9/AC02",
+        "3.9/AC03",
+        "3.9/AC04",
+        "3.9/AC05",
+        "3.9/AC06",
+        "3.9/AC07"
+      ],
+      "assertions": [
+        "Real database owner-local/scoped references/required/uniqueness/draft and operation identity constraints",
+        "RLS plus API",
+        "recognized safe conflict map",
+        "no cross-owner FK/domain math in structural engine"
+      ],
+      "review_method": "manual complete source reading, numerical example and accepted-precedence comparison with existing CALC/actual producer contracts; no lexical scoring"
+    },
+    {
+      "source_unit": "SRC1-0850",
+      "source_path": "apps/leave/docs/features.md",
+      "source_line": 850,
+      "source_hash": "c0917e895ad3e654832aa096c5f1c85c612d3bc161f551ebed8c747bd0a0d23b",
+      "disposition": "context",
+      "primary_owners": [
+        "3.17-A"
+      ],
+      "supporting_owners": [],
+      "acceptance": [
+        "3.17-A/AC01",
+        "3.17-A/AC02",
+        "3.17-A/AC03",
+        "3.17-A/AC04",
+        "3.17-A/AC05",
+        "3.17-A/AC06",
+        "3.17-A/AC07",
+        "3.17-A/AC08"
+      ],
+      "assertions": [
+        "Section/table/example navigation or historical planning note",
+        "actual deterministic history/event/portion contracts own implementation, not a second ledger specification"
+      ],
+      "review_method": "manual complete source reading, numerical example and accepted-precedence comparison with existing CALC/actual producer contracts; no lexical scoring"
+    },
+    {
+      "source_unit": "SRC1-0854",
+      "source_path": "apps/leave/docs/features.md",
+      "source_line": 854,
+      "source_hash": "d10bd5bccbfe8ea083870b961cba577fa9af9747dcc2c0e7c6da1e93bd10bbbc",
+      "disposition": "context",
+      "primary_owners": [
+        "3.17-A"
+      ],
+      "supporting_owners": [],
+      "acceptance": [
+        "3.17-A/AC01",
+        "3.17-A/AC02",
+        "3.17-A/AC03",
+        "3.17-A/AC04",
+        "3.17-A/AC05",
+        "3.17-A/AC06",
+        "3.17-A/AC07",
+        "3.17-A/AC08"
+      ],
+      "assertions": [
+        "Section/table/example navigation or historical planning note",
+        "actual deterministic history/event/portion contracts own implementation, not a second ledger specification"
+      ],
+      "review_method": "manual complete source reading, numerical example and accepted-precedence comparison with existing CALC/actual producer contracts; no lexical scoring"
+    },
+    {
+      "source_unit": "SRC1-0857",
+      "source_path": "apps/leave/docs/features.md",
+      "source_line": 857,
+      "source_hash": "4035826d6a92aa71a4b97b04f2f3c9e51bb3e666076acefebc5511fc61f418c7",
+      "disposition": "context",
+      "primary_owners": [
+        "3.17-A"
+      ],
+      "supporting_owners": [],
+      "acceptance": [
+        "3.17-A/AC01",
+        "3.17-A/AC02",
+        "3.17-A/AC03",
+        "3.17-A/AC04",
+        "3.17-A/AC05",
+        "3.17-A/AC06",
+        "3.17-A/AC07",
+        "3.17-A/AC08"
+      ],
+      "assertions": [
+        "Section/table/example navigation or historical planning note",
+        "actual deterministic history/event/portion contracts own implementation, not a second ledger specification"
+      ],
+      "review_method": "manual complete source reading, numerical example and accepted-precedence comparison with existing CALC/actual producer contracts; no lexical scoring"
+    },
+    {
+      "source_unit": "SRC1-0859",
+      "source_path": "apps/leave/docs/features.md",
+      "source_line": 859,
+      "source_hash": "d8fbe577ea8eabad959493309fd4ef5b1141ee05a2017e77af85ab94673c8f10",
+      "disposition": "required",
+      "primary_owners": [
+        "3.8"
+      ],
+      "supporting_owners": [],
+      "acceptance": [
+        "3.8/AC01",
+        "3.8/AC02",
+        "3.8/AC03",
+        "3.8/AC04",
+        "3.8/AC06"
+      ],
+      "assertions": [
+        "Start-day on-demand cumulative annualminutes\u00d7inclusiveemployed/fullactualyeardays;8640\u00d7100/365 floor2367/full8640",
+        "one-day employment one",
+        "no segment denominator/double proration/daily rounding"
+      ],
+      "review_method": "manual complete source reading, numerical example and accepted-precedence comparison with existing CALC/actual producer contracts; no lexical scoring"
+    },
+    {
+      "source_unit": "SRC1-0860",
+      "source_path": "apps/leave/docs/features.md",
+      "source_line": 860,
+      "source_hash": "3a2782f732e6c1816b4c3d4db38c158b900a5437b1cba4968874bac85b53429f",
+      "disposition": "required",
+      "primary_owners": [
+        "3.11"
+      ],
+      "supporting_owners": [],
+      "acceptance": [
+        "3.11/AC01",
+        "3.11/AC02",
+        "3.11/AC03",
+        "3.11/AC08"
+      ],
+      "assertions": [
+        "Calendar Jan1/anniversary start upfront once",
+        "midperiod join on actual employment/coverage with adjusted/full choice and standalone final floor, next original period start"
+      ],
+      "review_method": "manual complete source reading, numerical example and accepted-precedence comparison with existing CALC/actual producer contracts; no lexical scoring"
+    },
+    {
+      "source_unit": "SRC1-0861",
+      "source_path": "apps/leave/docs/features.md",
+      "source_line": 861,
+      "source_hash": "0bc386e7e3e46df76a982f303f8023d8352e7df769601bd78c3bb96ca4a69de5",
+      "disposition": "required",
+      "primary_owners": [
+        "3.12"
+      ],
+      "supporting_owners": [],
+      "acceptance": [
+        "3.12/AC01",
+        "3.12/AC02"
+      ],
+      "assertions": [
+        "Twelve leave-year aligned monthly intervals original anchor each offset, Jan31 clampFeb thenMar31/Apr30",
+        "exact continuous year endpoints",
+        "independent inclusive expiry arithmetic"
+      ],
+      "review_method": "manual complete source reading, numerical example and accepted-precedence comparison with existing CALC/actual producer contracts; no lexical scoring"
+    },
+    {
+      "source_unit": "SRC1-0862",
+      "source_path": "apps/leave/docs/features.md",
+      "source_line": 862,
+      "source_hash": "c41760305220ff8e5c925c73a8803ece2f079eb91fa945938c80dc84ec235567",
+      "disposition": "required",
+      "primary_owners": [
+        "3.29"
+      ],
+      "supporting_owners": [],
+      "acceptance": [
+        "3.29/AC01",
+        "3.29/AC02",
+        "3.29/AC03",
+        "3.29/AC04",
+        "3.29/AC05",
+        "3.29/AC06",
+        "3.29/AC07",
+        "3.29/AC08"
+      ],
+      "assertions": [
+        "Manual-only zero before explicit authorized reasoned grant",
+        "no automatic schedule/proration or duplicate retry"
+      ],
+      "review_method": "manual complete source reading, numerical example and accepted-precedence comparison with existing CALC/actual producer contracts; no lexical scoring"
+    },
+    {
+      "source_unit": "SRC1-0864",
+      "source_path": "apps/leave/docs/features.md",
+      "source_line": 864,
+      "source_hash": "1f589a978e8e89adb4e5028833e8f93e5a0428f038e508d1b773453db19a394c",
+      "disposition": "required",
+      "primary_owners": [
+        "3.8"
+      ],
+      "supporting_owners": [],
+      "acceptance": [
+        "3.8/AC01",
+        "3.8/AC02",
+        "3.8/AC03",
+        "3.8/AC04",
+        "3.8/AC06"
+      ],
+      "assertions": [
+        "Start-day on-demand cumulative annualminutes\u00d7inclusiveemployed/fullactualyeardays;8640\u00d7100/365 floor2367/full8640",
+        "one-day employment one",
+        "no segment denominator/double proration/daily rounding"
+      ],
+      "review_method": "manual complete source reading, numerical example and accepted-precedence comparison with existing CALC/actual producer contracts; no lexical scoring"
+    },
+    {
+      "source_unit": "SRC1-0873",
+      "source_path": "apps/leave/docs/features.md",
+      "source_line": 873,
+      "source_hash": "0a400c406b783d715986f6ab7794f26edfbd0a3df92de1e2ff23b3926a8965b4",
+      "disposition": "required",
+      "primary_owners": [
+        "3.8"
+      ],
+      "supporting_owners": [],
+      "acceptance": [
+        "3.8/AC01",
+        "3.8/AC02",
+        "3.8/AC03",
+        "3.8/AC04",
+        "3.8/AC06"
+      ],
+      "assertions": [
+        "Start-day on-demand cumulative annualminutes\u00d7inclusiveemployed/fullactualyeardays;8640\u00d7100/365 floor2367/full8640",
+        "one-day employment one",
+        "no segment denominator/double proration/daily rounding"
+      ],
+      "review_method": "manual complete source reading, numerical example and accepted-precedence comparison with existing CALC/actual producer contracts; no lexical scoring"
+    },
+    {
+      "source_unit": "SRC1-0881",
+      "source_path": "apps/leave/docs/features.md",
+      "source_line": 881,
+      "source_hash": "8c2886e391b49a88e18a3728f4a7da2031bce13a57edfc8d4003d40c124160ee",
+      "disposition": "required",
+      "primary_owners": [
+        "3.10"
+      ],
+      "supporting_owners": [
+        "3.8"
+      ],
+      "acceptance": [
+        "3.10/AC01",
+        "3.10/AC02",
+        "3.10/AC03",
+        "3.10/AC04"
+      ],
+      "assertions": [
+        "Precise chronological cap before usabilityfloor;119.8+.5 at120 accepts.2/excludes.3",
+        "Mondayexcluded not caughtup after later deduction, resume nexteligible day"
+      ],
+      "review_method": "manual complete source reading, numerical example and accepted-precedence comparison with existing CALC/actual producer contracts; no lexical scoring"
+    },
+    {
+      "source_unit": "SRC1-0891",
+      "source_path": "apps/leave/docs/features.md",
+      "source_line": 891,
+      "source_hash": "1097020cf8c65124fab1bc0e5829aa3bd38abb28612fdc9dcf9a729d80e6c26d",
+      "disposition": "required",
+      "primary_owners": [
+        "3.10"
+      ],
+      "supporting_owners": [
+        "3.8"
+      ],
+      "acceptance": [
+        "3.10/AC01",
+        "3.10/AC02",
+        "3.10/AC03",
+        "3.10/AC04"
+      ],
+      "assertions": [
+        "Precise chronological cap before usabilityfloor;119.8+.5 at120 accepts.2/excludes.3",
+        "Mondayexcluded not caughtup after later deduction, resume nexteligible day"
+      ],
+      "review_method": "manual complete source reading, numerical example and accepted-precedence comparison with existing CALC/actual producer contracts; no lexical scoring"
+    },
+    {
+      "source_unit": "SRC1-0898",
+      "source_path": "apps/leave/docs/features.md",
+      "source_line": 898,
+      "source_hash": "d1d4676a7fd9a50471c2f6e0a8b62892d0dc2133a73c35bd0ea9999d0bc203f7",
+      "disposition": "required",
+      "primary_owners": [
+        "3.8"
+      ],
+      "supporting_owners": [],
+      "acceptance": [
+        "3.8/AC05"
+      ],
+      "assertions": [
+        "18\u00d7181/365 +24\u00d7184/365 precise prospective July1rate, same full denominator before finalfloor",
+        "recurring override boundary distinct"
+      ],
+      "review_method": "manual complete source reading, numerical example and accepted-precedence comparison with existing CALC/actual producer contracts; no lexical scoring"
+    },
+    {
+      "source_unit": "SRC1-0908",
+      "source_path": "apps/leave/docs/features.md",
+      "source_line": 908,
+      "source_hash": "06ff0251cf8f6543fb1498bcf5099d0dad2bcf491fa3959a796eea1619bab78d",
+      "disposition": "required",
+      "primary_owners": [
+        "3.8"
+      ],
+      "supporting_owners": [],
+      "acceptance": [
+        "3.8/AC01",
+        "3.8/AC02",
+        "3.8/AC03",
+        "3.8/AC04",
+        "3.8/AC06"
+      ],
+      "assertions": [
+        "Start-day on-demand cumulative annualminutes\u00d7inclusiveemployed/fullactualyeardays;8640\u00d7100/365 floor2367/full8640",
+        "one-day employment one",
+        "no segment denominator/double proration/daily rounding"
+      ],
+      "review_method": "manual complete source reading, numerical example and accepted-precedence comparison with existing CALC/actual producer contracts; no lexical scoring"
+    },
+    {
+      "source_unit": "SRC1-0915",
+      "source_path": "apps/leave/docs/features.md",
+      "source_line": 915,
+      "source_hash": "b45363312211e1ad7a6774c78fac4958b071329c4a48dea27ad563ab05ced5d7",
+      "disposition": "required",
+      "primary_owners": [
+        "3.16"
+      ],
+      "supporting_owners": [],
+      "acceptance": [
+        "3.16/AC01",
+        "3.16/AC02",
+        "3.16/AC03",
+        "3.16/AC04"
+      ],
+      "assertions": [
+        "Availability method changes only actual nextemployee period boundary",
+        "prior method current period, carry/request history preserved and employee-specific preview"
+      ],
+      "review_method": "manual complete source reading, numerical example and accepted-precedence comparison with existing CALC/actual producer contracts; no lexical scoring"
+    },
+    {
+      "source_unit": "SRC1-0922",
+      "source_path": "apps/leave/docs/features.md",
+      "source_line": 922,
+      "source_hash": "27045cc7c0eda4a35209c32b19c65a7e7ed8b51548b7260d4b62519d36e8ad61",
+      "disposition": "required",
+      "primary_owners": [
+        "3.11"
+      ],
+      "supporting_owners": [
+        "3.34-A"
+      ],
+      "acceptance": [
+        "3.11/AC05",
+        "3.34-A/AC09"
+      ],
+      "assertions": [
+        "18\u219224 upfront keeps currentgrant18",
+        "nextperiod24",
+        "immediateextra separateauthorizedadjustment",
+        "actual employee dates/notices"
+      ],
+      "review_method": "manual complete source reading, numerical example and accepted-precedence comparison with existing CALC/actual producer contracts; no lexical scoring"
+    },
+    {
+      "source_unit": "SRC1-0929",
+      "source_path": "apps/leave/docs/features.md",
+      "source_line": 929,
+      "source_hash": "346f6b57c848fd92aba0bae4c46c2d0f101de8a09c0026ae6eed03d4a6f16f24",
+      "disposition": "required",
+      "primary_owners": [
+        "3.13"
+      ],
+      "supporting_owners": [
+        "3.34-A"
+      ],
+      "acceptance": [
+        "3.13/AC03",
+        "3.13/AC04",
+        "3.34-A/AC09"
+      ],
+      "assertions": [
+        "18\u219224 duringJuly15\u2013Aug14 current1.5unchanged,nextAug15nominal2, firstendavailableSep14",
+        "employeeactualeffects/inappemail and amendment/cancelnotice",
+        "continuingoverrideno falseamountchange"
+      ],
+      "review_method": "manual complete source reading, numerical example and accepted-precedence comparison with existing CALC/actual producer contracts; no lexical scoring"
+    },
+    {
+      "source_unit": "SRC1-0941",
+      "source_path": "apps/leave/docs/features.md",
+      "source_line": 941,
+      "source_hash": "e4b5b3ec01b7050968d9e5e7a6370eea75afc78d95501145e66929553968201d",
+      "disposition": "required",
+      "primary_owners": [
+        "3.13"
+      ],
+      "supporting_owners": [
+        "3.12"
+      ],
+      "acceptance": [
+        "3.12/AC04",
+        "3.12/AC05",
+        "3.13/AC05",
+        "3.13/AC06"
+      ],
+      "assertions": [
+        "Cumulative8550 gives712then713,total8550",
+        "partial/ratechangedfractions cumulative712.5+952.5\u21921665",
+        "nominalindependentconsumption/cap, no restoredexcludedfraction"
+      ],
+      "review_method": "manual complete source reading, numerical example and accepted-precedence comparison with existing CALC/actual producer contracts; no lexical scoring"
+    },
+    {
+      "source_unit": "SRC1-0957",
+      "source_path": "apps/leave/docs/features.md",
+      "source_line": 957,
+      "source_hash": "84c574616d72ce21c1f3f82e891acc160a2a6912b0065c41e782f2ae0569c2ef",
+      "disposition": "required",
+      "primary_owners": [
+        "3.13"
+      ],
+      "supporting_owners": [
+        "3.3-B"
+      ],
+      "acceptance": [
+        "3.13/AC01",
+        "3.13/AC02",
+        "3.3-B/AC08"
+      ],
+      "assertions": [
+        "Calendar-day adjusted/full per alignedperiod inclusive employed",
+        "newmonthly Adjust default,1.5forfull/.75for15of30 vsfull1.5;480\u00d715/30=240",
+        "daily hidesselector, manualamountseparate"
+      ],
+      "review_method": "manual complete source reading, numerical example and accepted-precedence comparison with existing CALC/actual producer contracts; no lexical scoring"
+    },
+    {
+      "source_unit": "SRC1-0974",
+      "source_path": "apps/leave/docs/features.md",
+      "source_line": 974,
+      "source_hash": "1ba201c63e7e2fed5849fdc3886c46daf82528dc8420be3d527073947595c9e0",
+      "disposition": "required",
+      "primary_owners": [
+        "3.13"
+      ],
+      "supporting_owners": [
+        "3.3-B"
+      ],
+      "acceptance": [
+        "3.13/AC01",
+        "3.13/AC02",
+        "3.3-B/AC08"
+      ],
+      "assertions": [
+        "Calendar-day adjusted/full per alignedperiod inclusive employed",
+        "newmonthly Adjust default,1.5forfull/.75for15of30 vsfull1.5;480\u00d715/30=240",
+        "daily hidesselector, manualamountseparate"
+      ],
+      "review_method": "manual complete source reading, numerical example and accepted-precedence comparison with existing CALC/actual producer contracts; no lexical scoring"
+    },
+    {
+      "source_unit": "SRC1-0981",
+      "source_path": "apps/leave/docs/features.md",
+      "source_line": 981,
+      "source_hash": "e7a591797e8175bb418c81f75b120ecae6c44a29c4bc436e4c14c5fed17b2ccd",
+      "disposition": "required",
+      "primary_owners": [
+        "3.11"
+      ],
+      "supporting_owners": [
+        "3.13"
+      ],
+      "acceptance": [
+        "3.11/AC10",
+        "3.13/AC05",
+        "3.13/AC06"
+      ],
+      "assertions": [
+        "Fixed whole-minute floor final standalone481\u00d715/30=240.5\u2192240 and240.7\u2192240",
+        "cumulative relatedmonthly preservesfraction, not requestincrement"
+      ],
+      "review_method": "manual complete source reading, numerical example and accepted-precedence comparison with existing CALC/actual producer contracts; no lexical scoring"
+    },
+    {
+      "source_unit": "SRC1-0991",
+      "source_path": "apps/leave/docs/features.md",
+      "source_line": 991,
+      "source_hash": "6a5ceae75b5f078d9b1d4197ae60addf9f37159d1bc7f7c80eb50a10a51b50d9",
+      "disposition": "required",
+      "primary_owners": [
+        "3.3-B"
+      ],
+      "supporting_owners": [],
+      "acceptance": [
+        "3.3-B/AC01",
+        "3.3-B/AC02",
+        "3.3-B/AC03",
+        "3.3-B/AC04",
+        "3.3-B/AC05",
+        "3.3-B/AC06",
+        "3.3-B/AC07",
+        "3.3-B/AC08"
+      ],
+      "assertions": [
+        "Plain Leave per year and employed-time explanation/example visible/expandable not hoveronly",
+        "no rounding setting"
+      ],
+      "review_method": "manual complete source reading, numerical example and accepted-precedence comparison with existing CALC/actual producer contracts; no lexical scoring"
+    },
+    {
+      "source_unit": "SRC1-0996",
+      "source_path": "apps/leave/docs/features.md",
+      "source_line": 996,
+      "source_hash": "e2d8d2f15a4d6446f22af45ef4880f5952db63165135e98b1e15c8e291d14691",
+      "disposition": "required",
+      "primary_owners": [
+        "3.17-A"
+      ],
+      "supporting_owners": [
+        "3.11",
+        "3.12",
+        "3.29"
+      ],
+      "acceptance": [
+        "3.17-A/AC01",
+        "3.17-A/AC02",
+        "3.17-A/AC03",
+        "3.17-A/AC04",
+        "3.17-A/AC05",
+        "3.17-A/AC06",
+        "3.17-A/AC07",
+        "3.17-A/AC08",
+        "3.11/AC01",
+        "3.11/AC02",
+        "3.11/AC03",
+        "3.11/AC04",
+        "3.11/AC05",
+        "3.11/AC06",
+        "3.11/AC07",
+        "3.11/AC08",
+        "3.11/AC09",
+        "3.11/AC10",
+        "3.12/AC01",
+        "3.12/AC02",
+        "3.12/AC03",
+        "3.12/AC04",
+        "3.12/AC05",
+        "3.12/AC06",
+        "3.29/AC01",
+        "3.29/AC02",
+        "3.29/AC03",
+        "3.29/AC04",
+        "3.29/AC05",
+        "3.29/AC06",
+        "3.29/AC07",
+        "3.29/AC08"
+      ],
+      "assertions": [
+        "No duplicate derived upfront/monthly grant on repeatedread",
+        "manualgrant requires authority/reason and original retry identity"
+      ],
+      "review_method": "manual complete source reading, numerical example and accepted-precedence comparison with existing CALC/actual producer contracts; no lexical scoring"
+    },
+    {
+      "source_unit": "SRC1-1004",
+      "source_path": "apps/leave/docs/features.md",
+      "source_line": 1004,
+      "source_hash": "f5b5e0ec6fbc9fc7925c1bfd3d5b57d56153188cf4b61f20b453d0d272f8e64e",
+      "disposition": "context",
+      "primary_owners": [
+        "E1-REF"
+      ],
+      "supporting_owners": [],
+      "acceptance": [
+        "E1-REF/AC01",
+        "E1-REF/AC02",
+        "E1-REF/AC03",
+        "E1-REF/AC04",
+        "E1-REF/AC05",
+        "E1-REF/AC06",
+        "E1-REF/AC07"
+      ],
+      "assertions": [
+        "Decision pointer/qualification context",
+        "operative owner rows bind accepted precedence and exact examples, no duplicate runtime feature from link"
+      ],
+      "review_method": "manual complete source reading, numerical example and accepted-precedence comparison with existing CALC/actual producer contracts; no lexical scoring"
+    },
+    {
+      "source_unit": "SRC1-1008",
+      "source_path": "apps/leave/docs/features.md",
+      "source_line": 1008,
+      "source_hash": "3901cc3f1d93a496f8bb0c12821f9ff8197f9874b81e73031b61b4f9ffadf703",
+      "disposition": "required",
+      "primary_owners": [
+        "3.12"
+      ],
+      "supporting_owners": [],
+      "acceptance": [
+        "3.12/AC01",
+        "3.12/AC02"
+      ],
+      "assertions": [
+        "Twelve leave-year aligned monthly intervals original anchor each offset, Jan31 clampFeb thenMar31/Apr30",
+        "exact continuous year endpoints",
+        "independent inclusive expiry arithmetic"
+      ],
+      "review_method": "manual complete source reading, numerical example and accepted-precedence comparison with existing CALC/actual producer contracts; no lexical scoring"
+    },
+    {
+      "source_unit": "SRC1-1022",
+      "source_path": "apps/leave/docs/features.md",
+      "source_line": 1022,
+      "source_hash": "e1c8c9d2f51591346f8dbfa73479e495320eb0e2e9984acd7f11ae5b6619bc5b",
+      "disposition": "required",
+      "primary_owners": [
+        "3.12"
+      ],
+      "supporting_owners": [
+        "3.13"
+      ],
+      "acceptance": [
+        "3.12/AC03",
+        "3.13/AC02"
+      ],
+      "assertions": [
+        "Calendar startApr1 versusendApr30/May31",
+        "actualFeb28/29",
+        "prorated480\u00d715/30=240 once"
+      ],
+      "review_method": "manual complete source reading, numerical example and accepted-precedence comparison with existing CALC/actual producer contracts; no lexical scoring"
+    },
+    {
+      "source_unit": "SRC1-1028",
+      "source_path": "apps/leave/docs/features.md",
+      "source_line": 1028,
+      "source_hash": "da17b3fbd7e24b68c1682081b3178803663574e48877f4090f6c590d8b4f95f5",
+      "disposition": "context",
+      "primary_owners": [
+        "E1-REF"
+      ],
+      "supporting_owners": [],
+      "acceptance": [
+        "E1-REF/AC01",
+        "E1-REF/AC02",
+        "E1-REF/AC03",
+        "E1-REF/AC04",
+        "E1-REF/AC05",
+        "E1-REF/AC06",
+        "E1-REF/AC07"
+      ],
+      "assertions": [
+        "Decision pointer/qualification context",
+        "operative owner rows bind accepted precedence and exact examples, no duplicate runtime feature from link"
+      ],
+      "review_method": "manual complete source reading, numerical example and accepted-precedence comparison with existing CALC/actual producer contracts; no lexical scoring"
+    },
+    {
+      "source_unit": "SRC1-1030",
+      "source_path": "apps/leave/docs/features.md",
+      "source_line": 1030,
+      "source_hash": "ca5274e8d91b83e1800e9d4e389c4af181312578bfe0075f025d3194af45b414",
+      "disposition": "required",
+      "primary_owners": [
+        "3.13"
+      ],
+      "supporting_owners": [],
+      "acceptance": [
+        "3.13/AC02",
+        "3.13/AC04"
+      ],
+      "assertions": [
+        "JoinApr16 gives240of480: startavailableApr16 nextMay1",
+        "endavailableApr30 nextMay31",
+        "no duplicateApril, caps/eligibilityremain"
+      ],
+      "review_method": "manual complete source reading, numerical example and accepted-precedence comparison with existing CALC/actual producer contracts; no lexical scoring"
+    },
+    {
+      "source_unit": "SRC1-1036",
+      "source_path": "apps/leave/docs/features.md",
+      "source_line": 1036,
+      "source_hash": "c41393329eb82a88360a079eb553851f40632ae88850b7931f8598e842c21173",
+      "disposition": "required",
+      "primary_owners": [
+        "3.13"
+      ],
+      "supporting_owners": [],
+      "acceptance": [
+        "3.13/AC02",
+        "3.13/AC04"
+      ],
+      "assertions": [
+        "JoinApr16 gives240of480: startavailableApr16 nextMay1",
+        "endavailableApr30 nextMay31",
+        "no duplicateApril, caps/eligibilityremain"
+      ],
+      "review_method": "manual complete source reading, numerical example and accepted-precedence comparison with existing CALC/actual producer contracts; no lexical scoring"
+    },
+    {
+      "source_unit": "SRC1-1043",
+      "source_path": "apps/leave/docs/features.md",
+      "source_line": 1043,
+      "source_hash": "a40e5e5819028268e1622d7654dce5e7b53ba5326f51eac98d8ac7835ce5247c",
+      "disposition": "context",
+      "primary_owners": [
+        "E1-REF"
+      ],
+      "supporting_owners": [],
+      "acceptance": [
+        "E1-REF/AC01",
+        "E1-REF/AC02",
+        "E1-REF/AC03",
+        "E1-REF/AC04",
+        "E1-REF/AC05",
+        "E1-REF/AC06",
+        "E1-REF/AC07"
+      ],
+      "assertions": [
+        "Decision pointer/qualification context",
+        "operative owner rows bind accepted precedence and exact examples, no duplicate runtime feature from link"
+      ],
+      "review_method": "manual complete source reading, numerical example and accepted-precedence comparison with existing CALC/actual producer contracts; no lexical scoring"
+    },
+    {
+      "source_unit": "SRC1-1045",
+      "source_path": "apps/leave/docs/features.md",
+      "source_line": 1045,
+      "source_hash": "0f393d6bb795b6259cd06c04d534d6bb659f67f1a9bc3787b62cd946555bc942",
+      "disposition": "required",
+      "primary_owners": [
+        "3.12"
+      ],
+      "supporting_owners": [],
+      "acceptance": [
+        "3.12/AC03"
+      ],
+      "assertions": [
+        "Apr30grant240 fundsApr30 atworkdate start notApr29 or postponedMay1",
+        "existingcaps/expiry/reservationsremain"
+      ],
+      "review_method": "manual complete source reading, numerical example and accepted-precedence comparison with existing CALC/actual producer contracts; no lexical scoring"
+    },
+    {
+      "source_unit": "SRC1-1050",
+      "source_path": "apps/leave/docs/features.md",
+      "source_line": 1050,
+      "source_hash": "ed2edb9a64d5695c4466bf00db32fccc7ab4542e4cbeed8af84f5742296b5dab",
+      "disposition": "required",
+      "primary_owners": [
+        "3.12"
+      ],
+      "supporting_owners": [],
+      "acceptance": [
+        "3.12/AC03"
+      ],
+      "assertions": [
+        "Apr30grant240 fundsApr30 atworkdate start notApr29 or postponedMay1",
+        "existingcaps/expiry/reservationsremain"
+      ],
+      "review_method": "manual complete source reading, numerical example and accepted-precedence comparison with existing CALC/actual producer contracts; no lexical scoring"
+    },
+    {
+      "source_unit": "SRC1-1055",
+      "source_path": "apps/leave/docs/features.md",
+      "source_line": 1055,
+      "source_hash": "754af4c3459d0fc40e542aa664660ffdce5112ec89d82606aee4aeaa9e442e18",
+      "disposition": "context",
+      "primary_owners": [
+        "E1-REF"
+      ],
+      "supporting_owners": [],
+      "acceptance": [
+        "E1-REF/AC01",
+        "E1-REF/AC02",
+        "E1-REF/AC03",
+        "E1-REF/AC04",
+        "E1-REF/AC05",
+        "E1-REF/AC06",
+        "E1-REF/AC07"
+      ],
+      "assertions": [
+        "Decision pointer/qualification context",
+        "operative owner rows bind accepted precedence and exact examples, no duplicate runtime feature from link"
+      ],
+      "review_method": "manual complete source reading, numerical example and accepted-precedence comparison with existing CALC/actual producer contracts; no lexical scoring"
+    },
+    {
+      "source_unit": "SRC1-1057",
+      "source_path": "apps/leave/docs/features.md",
+      "source_line": 1057,
+      "source_hash": "30f9e76c9f343e3dce90f7233158565a448f3e5c5b48fdc026cd1d05b488618f",
+      "disposition": "required",
+      "primary_owners": [
+        "6.29"
+      ],
+      "supporting_owners": [
+        "3.11",
+        "3.13",
+        "5.15-K"
+      ],
+      "acceptance": [
+        "6.29/AC01",
+        "6.29/AC02",
+        "6.29/AC03",
+        "3.11/AC01",
+        "3.11/AC02",
+        "3.11/AC03",
+        "3.11/AC04",
+        "3.11/AC05",
+        "3.11/AC06",
+        "3.11/AC07",
+        "3.11/AC08",
+        "3.11/AC09",
+        "3.11/AC10",
+        "3.13/AC01",
+        "3.13/AC02",
+        "3.13/AC03",
+        "3.13/AC04",
+        "3.13/AC05",
+        "3.13/AC06",
+        "3.13/AC07",
+        "3.13/AC08",
+        "3.13/AC09",
+        "3.13/AC10",
+        "3.13/AC11",
+        "5.15-K/AC01",
+        "5.15-K/AC02",
+        "5.15-K/AC03",
+        "5.15-K/AC04",
+        "5.15-K/AC05",
+        "5.15-K/AC06"
+      ],
+      "assertions": [
+        "Known employmentendApr15 recalculatesstartavailable480\u2192240 adjusted/full480retained",
+        "original evidence/reasoned correction notduplicate, spentdeficitflagged no approvedpaid\u2192unpaid",
+        "laterpendingnotice no newresponse"
+      ],
+      "review_method": "manual complete source reading, numerical example and accepted-precedence comparison with existing CALC/actual producer contracts; no lexical scoring"
+    },
+    {
+      "source_unit": "SRC1-1068",
+      "source_path": "apps/leave/docs/features.md",
+      "source_line": 1068,
+      "source_hash": "fc1f0b71d42a3725bbbf49d25a930293f7604d5951e2f292f504e707270fa160",
+      "disposition": "required",
+      "primary_owners": [
+        "6.29"
+      ],
+      "supporting_owners": [
+        "3.11",
+        "3.13",
+        "5.15-K"
+      ],
+      "acceptance": [
+        "6.29/AC01",
+        "6.29/AC02",
+        "6.29/AC03",
+        "3.11/AC01",
+        "3.11/AC02",
+        "3.11/AC03",
+        "3.11/AC04",
+        "3.11/AC05",
+        "3.11/AC06",
+        "3.11/AC07",
+        "3.11/AC08",
+        "3.11/AC09",
+        "3.11/AC10",
+        "3.13/AC01",
+        "3.13/AC02",
+        "3.13/AC03",
+        "3.13/AC04",
+        "3.13/AC05",
+        "3.13/AC06",
+        "3.13/AC07",
+        "3.13/AC08",
+        "3.13/AC09",
+        "3.13/AC10",
+        "3.13/AC11",
+        "5.15-K/AC01",
+        "5.15-K/AC02",
+        "5.15-K/AC03",
+        "5.15-K/AC04",
+        "5.15-K/AC05",
+        "5.15-K/AC06"
+      ],
+      "assertions": [
+        "Known employmentendApr15 recalculatesstartavailable480\u2192240 adjusted/full480retained",
+        "original evidence/reasoned correction notduplicate, spentdeficitflagged no approvedpaid\u2192unpaid",
+        "laterpendingnotice no newresponse"
+      ],
+      "review_method": "manual complete source reading, numerical example and accepted-precedence comparison with existing CALC/actual producer contracts; no lexical scoring"
+    },
+    {
+      "source_unit": "SRC1-1077",
+      "source_path": "apps/leave/docs/features.md",
+      "source_line": 1077,
+      "source_hash": "d38651a7a59af889e0f7418c5b16d7c21b36dd766dfa4f5d62aba854b519885f",
+      "disposition": "context",
+      "primary_owners": [
+        "E1-REF"
+      ],
+      "supporting_owners": [],
+      "acceptance": [
+        "E1-REF/AC01",
+        "E1-REF/AC02",
+        "E1-REF/AC03",
+        "E1-REF/AC04",
+        "E1-REF/AC05",
+        "E1-REF/AC06",
+        "E1-REF/AC07"
+      ],
+      "assertions": [
+        "Decision pointer/qualification context",
+        "operative owner rows bind accepted precedence and exact examples, no duplicate runtime feature from link"
+      ],
+      "review_method": "manual complete source reading, numerical example and accepted-precedence comparison with existing CALC/actual producer contracts; no lexical scoring"
+    },
+    {
+      "source_unit": "SRC1-1079",
+      "source_path": "apps/leave/docs/features.md",
+      "source_line": 1079,
+      "source_hash": "8777990df988c9aafaa23d800683505a4e35566cc8d8c247426157e2ab6b6c62",
+      "disposition": "required",
+      "primary_owners": [
+        "5.7"
+      ],
+      "supporting_owners": [
+        "5.10-B",
+        "5.15-K",
+        "6.29"
+      ],
+      "acceptance": [
+        "5.7/AC01",
+        "5.7/AC02",
+        "5.7/AC03",
+        "5.7/AC04",
+        "5.7/AC05",
+        "5.7/AC06",
+        "5.7/AC07",
+        "5.10-B/AC01",
+        "5.10-B/AC02",
+        "5.10-B/AC03",
+        "5.10-B/AC04",
+        "5.10-B/AC05",
+        "5.10-B/AC06",
+        "5.10-B/AC07",
+        "5.15-K/AC01",
+        "5.15-K/AC02",
+        "5.15-K/AC03",
+        "5.15-K/AC04",
+        "5.15-K/AC05",
+        "5.15-K/AC06",
+        "6.29/AC01",
+        "6.29/AC02",
+        "6.29/AC03"
+      ],
+      "assertions": [
+        "Known endJun30 inclusive, July1date blocks submit/final",
+        "sourcechange flags existing Julyrequest with actor/explanation, no silent date/cancel/newcorrectionauthority"
+      ],
+      "review_method": "manual complete source reading, numerical example and accepted-precedence comparison with existing CALC/actual producer contracts; no lexical scoring"
+    },
+    {
+      "source_unit": "SRC1-1086",
+      "source_path": "apps/leave/docs/features.md",
+      "source_line": 1086,
+      "source_hash": "0c3a14a1b76f56ff48de86cbd3f8828f2f2b45529122177023c7eedb147476a7",
+      "disposition": "required",
+      "primary_owners": [
+        "5.7"
+      ],
+      "supporting_owners": [
+        "5.10-B",
+        "5.15-K",
+        "6.29"
+      ],
+      "acceptance": [
+        "5.7/AC01",
+        "5.7/AC02",
+        "5.7/AC03",
+        "5.7/AC04",
+        "5.7/AC05",
+        "5.7/AC06",
+        "5.7/AC07",
+        "5.10-B/AC01",
+        "5.10-B/AC02",
+        "5.10-B/AC03",
+        "5.10-B/AC04",
+        "5.10-B/AC05",
+        "5.10-B/AC06",
+        "5.10-B/AC07",
+        "5.15-K/AC01",
+        "5.15-K/AC02",
+        "5.15-K/AC03",
+        "5.15-K/AC04",
+        "5.15-K/AC05",
+        "5.15-K/AC06",
+        "6.29/AC01",
+        "6.29/AC02",
+        "6.29/AC03"
+      ],
+      "assertions": [
+        "Known endJun30 inclusive, July1date blocks submit/final",
+        "sourcechange flags existing Julyrequest with actor/explanation, no silent date/cancel/newcorrectionauthority"
+      ],
+      "review_method": "manual complete source reading, numerical example and accepted-precedence comparison with existing CALC/actual producer contracts; no lexical scoring"
+    },
+    {
+      "source_unit": "SRC1-1094",
+      "source_path": "apps/leave/docs/features.md",
+      "source_line": 1094,
+      "source_hash": "a58125ee763af0c7e26ee67a8dca538477d5b669f346a195b24a64fd7b131a0b",
+      "disposition": "context",
+      "primary_owners": [
+        "E1-REF"
+      ],
+      "supporting_owners": [],
+      "acceptance": [
+        "E1-REF/AC01",
+        "E1-REF/AC02",
+        "E1-REF/AC03",
+        "E1-REF/AC04",
+        "E1-REF/AC05",
+        "E1-REF/AC06",
+        "E1-REF/AC07"
+      ],
+      "assertions": [
+        "Decision pointer/qualification context",
+        "operative owner rows bind accepted precedence and exact examples, no duplicate runtime feature from link"
+      ],
+      "review_method": "manual complete source reading, numerical example and accepted-precedence comparison with existing CALC/actual producer contracts; no lexical scoring"
+    },
+    {
+      "source_unit": "SRC1-1096",
+      "source_path": "apps/leave/docs/features.md",
+      "source_line": 1096,
+      "source_hash": "5734bd83fa0d78da92456432f1b43c74d31b5a690bf35b8518755e189c4856a6",
+      "disposition": "required",
+      "primary_owners": [
+        "3.20"
+      ],
+      "supporting_owners": [
+        "5.7"
+      ],
+      "acceptance": [
+        "3.20/AC03"
+      ],
+      "assertions": [
+        "Minimum notice calendar default0",
+        "sevenrequired/threedaysnotice may proceed reason+flag",
+        "sameday0 no notice reason",
+        "backdating independently checked"
+      ],
+      "review_method": "manual complete source reading, numerical example and accepted-precedence comparison with existing CALC/actual producer contracts; no lexical scoring"
+    },
+    {
+      "source_unit": "SRC1-1102",
+      "source_path": "apps/leave/docs/features.md",
+      "source_line": 1102,
+      "source_hash": "65cd81a675057dd49d4b89f69436521e77740ae0b604293ecc6c55786fdfea4e",
+      "disposition": "required",
+      "primary_owners": [
+        "3.20"
+      ],
+      "supporting_owners": [
+        "5.7"
+      ],
+      "acceptance": [
+        "3.20/AC03"
+      ],
+      "assertions": [
+        "Minimum notice calendar default0",
+        "sevenrequired/threedaysnotice may proceed reason+flag",
+        "sameday0 no notice reason",
+        "backdating independently checked"
+      ],
+      "review_method": "manual complete source reading, numerical example and accepted-precedence comparison with existing CALC/actual producer contracts; no lexical scoring"
+    },
+    {
+      "source_unit": "SRC1-1108",
+      "source_path": "apps/leave/docs/features.md",
+      "source_line": 1108,
+      "source_hash": "7d2997eb4175adb1a483c491d2f62113352db022a67a05171a82405a930026b9",
+      "disposition": "context",
+      "primary_owners": [
+        "E1-REF"
+      ],
+      "supporting_owners": [],
+      "acceptance": [
+        "E1-REF/AC01",
+        "E1-REF/AC02",
+        "E1-REF/AC03",
+        "E1-REF/AC04",
+        "E1-REF/AC05",
+        "E1-REF/AC06",
+        "E1-REF/AC07"
+      ],
+      "assertions": [
+        "Decision pointer/qualification context",
+        "operative owner rows bind accepted precedence and exact examples, no duplicate runtime feature from link"
+      ],
+      "review_method": "manual complete source reading, numerical example and accepted-precedence comparison with existing CALC/actual producer contracts; no lexical scoring"
+    },
+    {
+      "source_unit": "SRC1-1110",
+      "source_path": "apps/leave/docs/features.md",
+      "source_line": 1110,
+      "source_hash": "15ee6608b58b1aa63682c49b5a2aa472023beb03a8b84fa6984c43df9ebac87c",
+      "disposition": "required",
+      "primary_owners": [
+        "3.20"
+      ],
+      "supporting_owners": [
+        "5.7"
+      ],
+      "acceptance": [
+        "3.20/AC04"
+      ],
+      "assertions": [
+        "No arbitrary backdatecutoff",
+        "Sep10on15=fivedayslate,Sep1on15fourteen allowed withreason",
+        "historicaldate schedule/policy plus normal eligibility/capacity/balance and audit"
+      ],
+      "review_method": "manual complete source reading, numerical example and accepted-precedence comparison with existing CALC/actual producer contracts; no lexical scoring"
+    },
+    {
+      "source_unit": "SRC1-1117",
+      "source_path": "apps/leave/docs/features.md",
+      "source_line": 1117,
+      "source_hash": "3195957af802a91860ceb3463d8f99532576ea6cc23059248aadb4c2fd5ef2ed",
+      "disposition": "required",
+      "primary_owners": [
+        "3.20"
+      ],
+      "supporting_owners": [
+        "5.7"
+      ],
+      "acceptance": [
+        "3.20/AC04"
+      ],
+      "assertions": [
+        "No arbitrary backdatecutoff",
+        "Sep10on15=fivedayslate,Sep1on15fourteen allowed withreason",
+        "historicaldate schedule/policy plus normal eligibility/capacity/balance and audit"
+      ],
+      "review_method": "manual complete source reading, numerical example and accepted-precedence comparison with existing CALC/actual producer contracts; no lexical scoring"
+    },
+    {
+      "source_unit": "SRC1-1126",
+      "source_path": "apps/leave/docs/features.md",
+      "source_line": 1126,
+      "source_hash": "159d6b84bf587c7f8e6a12d227365e1a4cec360660ea0753d399f6410eec1f64",
+      "disposition": "context",
+      "primary_owners": [
+        "E1-REF"
+      ],
+      "supporting_owners": [],
+      "acceptance": [
+        "E1-REF/AC01",
+        "E1-REF/AC02",
+        "E1-REF/AC03",
+        "E1-REF/AC04",
+        "E1-REF/AC05",
+        "E1-REF/AC06",
+        "E1-REF/AC07"
+      ],
+      "assertions": [
+        "Decision pointer/qualification context",
+        "operative owner rows bind accepted precedence and exact examples, no duplicate runtime feature from link"
+      ],
+      "review_method": "manual complete source reading, numerical example and accepted-precedence comparison with existing CALC/actual producer contracts; no lexical scoring"
+    },
+    {
+      "source_unit": "SRC1-1128",
+      "source_path": "apps/leave/docs/features.md",
+      "source_line": 1128,
+      "source_hash": "17464fd9cfda01de8894b1e909d38e9e2acc9443408c87534e43f2f3330733f5",
+      "disposition": "required",
+      "primary_owners": [
+        "3.7"
+      ],
+      "supporting_owners": [],
+      "acceptance": [
+        "3.7/AC03",
+        "3.7/AC04"
+      ],
+      "assertions": [
+        "Single date halfexact50%/hours30minuteincrement, no startend/halfchoice",
+        "optionalarrangementnote/fullrangeunchanged"
+      ],
+      "review_method": "manual complete source reading, numerical example and accepted-precedence comparison with existing CALC/actual producer contracts; no lexical scoring"
+    },
+    {
+      "source_unit": "SRC1-1134",
+      "source_path": "apps/leave/docs/features.md",
+      "source_line": 1134,
+      "source_hash": "a1dcc112f3d4e87a9f0fb67a6daba8c07adcffbe826a3d2902c14df61985ffb8",
+      "disposition": "required",
+      "primary_owners": [
+        "5.6"
+      ],
+      "supporting_owners": [
+        "3.20"
+      ],
+      "acceptance": [
+        "5.6/AC01",
+        "5.6/AC02",
+        "5.6/AC03",
+        "5.6/AC04",
+        "5.6/AC05",
+        "5.6/AC06",
+        "5.6/AC07",
+        "5.6/AC08",
+        "3.20/AC01",
+        "3.20/AC02",
+        "3.20/AC03",
+        "3.20/AC04",
+        "3.20/AC05",
+        "3.20/AC06",
+        "3.20/AC07"
+      ],
+      "assertions": [
+        "Only submitted/inapproval/approved daily sameemployeeorg active capacity alltypes",
+        "potentialconflictwarning allows2+2within8 blocksfull+positive",
+        "concurrent guarded",
+        "draft/reject/withdraw/cancel excluded"
+      ],
+      "review_method": "manual complete source reading, numerical example and accepted-precedence comparison with existing CALC/actual producer contracts; no lexical scoring"
+    },
+    {
+      "source_unit": "SRC1-1141",
+      "source_path": "apps/leave/docs/features.md",
+      "source_line": 1141,
+      "source_hash": "ea1dd92a4a7b5ffba0aa9c74387f2aabe3c381a7f2d34187acddb6dcf2d5956d",
+      "disposition": "required",
+      "primary_owners": [
+        "5.17-A"
+      ],
+      "supporting_owners": [
+        "5.29-A"
+      ],
+      "acceptance": [
+        "5.17-A/AC01",
+        "5.17-A/AC02",
+        "5.17-A/AC03",
+        "5.17-A/AC04",
+        "5.17-A/AC05",
+        "5.17-A/AC06",
+        "5.29-A/AC01",
+        "5.29-A/AC02",
+        "5.29-A/AC03",
+        "5.29-A/AC04",
+        "5.29-A/AC05",
+        "5.29-A/AC06"
+      ],
+      "assertions": [
+        "No invented clocktimes",
+        "ownHalfday/hours versuscolleaguePartdayabsence, type/note/doc hidden",
+        "exactdurationdeduction"
+      ],
+      "review_method": "manual complete source reading, numerical example and accepted-precedence comparison with existing CALC/actual producer contracts; no lexical scoring"
+    },
+    {
+      "source_unit": "SRC1-1146",
+      "source_path": "apps/leave/docs/features.md",
+      "source_line": 1146,
+      "source_hash": "479097ec0d3d8a68dc80f44946e208c8c64d5ef094b18be50eaa229be244f480",
+      "disposition": "required",
+      "primary_owners": [
+        "5.6"
+      ],
+      "supporting_owners": [
+        "3.20"
+      ],
+      "acceptance": [
+        "5.6/AC01",
+        "5.6/AC02",
+        "5.6/AC03",
+        "5.6/AC04",
+        "5.6/AC05",
+        "5.6/AC06",
+        "5.6/AC07",
+        "5.6/AC08",
+        "3.20/AC01",
+        "3.20/AC02",
+        "3.20/AC03",
+        "3.20/AC04",
+        "3.20/AC05",
+        "3.20/AC06",
+        "3.20/AC07"
+      ],
+      "assertions": [
+        "Only submitted/inapproval/approved daily sameemployeeorg active capacity alltypes",
+        "potentialconflictwarning allows2+2within8 blocksfull+positive",
+        "concurrent guarded",
+        "draft/reject/withdraw/cancel excluded"
+      ],
+      "review_method": "manual complete source reading, numerical example and accepted-precedence comparison with existing CALC/actual producer contracts; no lexical scoring"
+    },
+    {
+      "source_unit": "SRC1-1153",
+      "source_path": "apps/leave/docs/features.md",
+      "source_line": 1153,
+      "source_hash": "2a094f5a0f2ec2b711623823540a999f6e11921944083fd3b549adcede7f0540",
+      "disposition": "context",
+      "primary_owners": [
+        "E1-REF"
+      ],
+      "supporting_owners": [],
+      "acceptance": [
+        "E1-REF/AC01",
+        "E1-REF/AC02",
+        "E1-REF/AC03",
+        "E1-REF/AC04",
+        "E1-REF/AC05",
+        "E1-REF/AC06",
+        "E1-REF/AC07"
+      ],
+      "assertions": [
+        "Decision pointer/qualification context",
+        "operative owner rows bind accepted precedence and exact examples, no duplicate runtime feature from link"
+      ],
+      "review_method": "manual complete source reading, numerical example and accepted-precedence comparison with existing CALC/actual producer contracts; no lexical scoring"
+    },
+    {
+      "source_unit": "SRC1-1155",
+      "source_path": "apps/leave/docs/features.md",
+      "source_line": 1155,
+      "source_hash": "c526418942597cc9510927c40c8a06b5d7b5e2be4a2ef183fe6255c9951acb35",
+      "disposition": "required",
+      "primary_owners": [
+        "6.11"
+      ],
+      "supporting_owners": [
+        "6.12"
+      ],
+      "acceptance": [
+        "6.11/AC01",
+        "6.11/AC02",
+        "6.11/AC03",
+        "6.12/AC01",
+        "6.12/AC02",
+        "6.12/AC03"
+      ],
+      "assertions": [
+        "Current/past/future factualcorrection requires scoped manager leave.admin.on_behalf, not orgadmin/initialonbehalf alone",
+        "reason/originalhistory",
+        "approved datechange linkedreplacement revalidation/approval",
+        "dailycapacity and no extraapprovalright"
+      ],
+      "review_method": "manual complete source reading, numerical example and accepted-precedence comparison with existing CALC/actual producer contracts; no lexical scoring"
+    },
+    {
+      "source_unit": "SRC1-1165",
+      "source_path": "apps/leave/docs/features.md",
+      "source_line": 1165,
+      "source_hash": "23153c1f60990128e4537994fce67e4f1835ef9ff1cbd4cfd6d67365259b5d46",
+      "disposition": "required",
+      "primary_owners": [
+        "6.11"
+      ],
+      "supporting_owners": [
+        "6.12"
+      ],
+      "acceptance": [
+        "6.11/AC01",
+        "6.11/AC02",
+        "6.11/AC03",
+        "6.12/AC01",
+        "6.12/AC02",
+        "6.12/AC03"
+      ],
+      "assertions": [
+        "Current/past/future factualcorrection requires scoped manager leave.admin.on_behalf, not orgadmin/initialonbehalf alone",
+        "reason/originalhistory",
+        "approved datechange linkedreplacement revalidation/approval",
+        "dailycapacity and no extraapprovalright"
+      ],
+      "review_method": "manual complete source reading, numerical example and accepted-precedence comparison with existing CALC/actual producer contracts; no lexical scoring"
+    },
+    {
+      "source_unit": "SRC1-1173",
+      "source_path": "apps/leave/docs/features.md",
+      "source_line": 1173,
+      "source_hash": "84a8e87981df6378fa17d9f9e7de8efd2eeb77449ef1c4e7c75a15f96871f72c",
+      "disposition": "context",
+      "primary_owners": [
+        "E1-REF"
+      ],
+      "supporting_owners": [],
+      "acceptance": [
+        "E1-REF/AC01",
+        "E1-REF/AC02",
+        "E1-REF/AC03",
+        "E1-REF/AC04",
+        "E1-REF/AC05",
+        "E1-REF/AC06",
+        "E1-REF/AC07"
+      ],
+      "assertions": [
+        "Decision pointer/qualification context",
+        "operative owner rows bind accepted precedence and exact examples, no duplicate runtime feature from link"
+      ],
+      "review_method": "manual complete source reading, numerical example and accepted-precedence comparison with existing CALC/actual producer contracts; no lexical scoring"
+    },
+    {
+      "source_unit": "SRC1-1175",
+      "source_path": "apps/leave/docs/features.md",
+      "source_line": 1175,
+      "source_hash": "f84f179145d43a146aab657ea7d4ba03cf142e3331e5e223f5aef8760e42db7b",
+      "disposition": "required",
+      "primary_owners": [
+        "6.11"
+      ],
+      "supporting_owners": [
+        "6.12"
+      ],
+      "acceptance": [
+        "6.11/AC01",
+        "6.11/AC02",
+        "6.11/AC03",
+        "6.12/AC01",
+        "6.12/AC02",
+        "6.12/AC03"
+      ],
+      "assertions": [
+        "Current/past/future factualcorrection requires scoped manager leave.admin.on_behalf, not orgadmin/initialonbehalf alone",
+        "reason/originalhistory",
+        "approved datechange linkedreplacement revalidation/approval",
+        "dailycapacity and no extraapprovalright"
+      ],
+      "review_method": "manual complete source reading, numerical example and accepted-precedence comparison with existing CALC/actual producer contracts; no lexical scoring"
+    },
+    {
+      "source_unit": "SRC1-1182",
+      "source_path": "apps/leave/docs/features.md",
+      "source_line": 1182,
+      "source_hash": "8d2ebc4ee3ad6372ba39ab927de6b1b78c27a4e6d4acf3d67230de34eb8bf280",
+      "disposition": "context",
+      "primary_owners": [
+        "E1-REF"
+      ],
+      "supporting_owners": [],
+      "acceptance": [
+        "E1-REF/AC01",
+        "E1-REF/AC02",
+        "E1-REF/AC03",
+        "E1-REF/AC04",
+        "E1-REF/AC05",
+        "E1-REF/AC06",
+        "E1-REF/AC07"
+      ],
+      "assertions": [
+        "Decision pointer/qualification context",
+        "operative owner rows bind accepted precedence and exact examples, no duplicate runtime feature from link"
+      ],
+      "review_method": "manual complete source reading, numerical example and accepted-precedence comparison with existing CALC/actual producer contracts; no lexical scoring"
+    },
+    {
+      "source_unit": "SRC1-1184",
+      "source_path": "apps/leave/docs/features.md",
+      "source_line": 1184,
+      "source_hash": "b90aa6a97c2323772bf8b29023c8c8b4717efabf14f38d065429dd41115a68f0",
+      "disposition": "required",
+      "primary_owners": [
+        "6.18"
+      ],
+      "supporting_owners": [
+        "6.17"
+      ],
+      "acceptance": [
+        "6.18/AC01",
+        "6.18/AC02",
+        "6.18/AC03",
+        "6.17/AC01",
+        "6.17/AC02",
+        "6.17/AC03"
+      ],
+      "assertions": [
+        "Actual correction minimal email/inapp links authorized beforeafter/actor/reason",
+        "correctionnotesexcludedpayload",
+        "L-0151 laterpendingno renewedresponse but initialremaining currentexact gate"
+      ],
+      "review_method": "manual complete source reading, numerical example and accepted-precedence comparison with existing CALC/actual producer contracts; no lexical scoring"
+    },
+    {
+      "source_unit": "SRC1-1191",
+      "source_path": "apps/leave/docs/features.md",
+      "source_line": 1191,
+      "source_hash": "defcfc82824c922f3222d31fb1e4f6f96d93d046b7068263edc648204b62dab4",
+      "disposition": "required",
+      "primary_owners": [
+        "6.18"
+      ],
+      "supporting_owners": [
+        "6.17"
+      ],
+      "acceptance": [
+        "6.18/AC01",
+        "6.18/AC02",
+        "6.18/AC03",
+        "6.17/AC01",
+        "6.17/AC02",
+        "6.17/AC03"
+      ],
+      "assertions": [
+        "Actual correction minimal email/inapp links authorized beforeafter/actor/reason",
+        "correctionnotesexcludedpayload",
+        "L-0151 laterpendingno renewedresponse but initialremaining currentexact gate"
+      ],
+      "review_method": "manual complete source reading, numerical example and accepted-precedence comparison with existing CALC/actual producer contracts; no lexical scoring"
+    },
+    {
+      "source_unit": "SRC1-1197",
+      "source_path": "apps/leave/docs/features.md",
+      "source_line": 1197,
+      "source_hash": "e1112c7908edff9971d5ea28c1a91839d06a863e5bb3a4cb6f22d26dd210d6a9",
+      "disposition": "context",
+      "primary_owners": [
+        "E1-REF"
+      ],
+      "supporting_owners": [],
+      "acceptance": [
+        "E1-REF/AC01",
+        "E1-REF/AC02",
+        "E1-REF/AC03",
+        "E1-REF/AC04",
+        "E1-REF/AC05",
+        "E1-REF/AC06",
+        "E1-REF/AC07"
+      ],
+      "assertions": [
+        "Decision pointer/qualification context",
+        "operative owner rows bind accepted precedence and exact examples, no duplicate runtime feature from link"
+      ],
+      "review_method": "manual complete source reading, numerical example and accepted-precedence comparison with existing CALC/actual producer contracts; no lexical scoring"
+    },
+    {
+      "source_unit": "SRC1-1199",
+      "source_path": "apps/leave/docs/features.md",
+      "source_line": 1199,
+      "source_hash": "97f540feca2f87278be9890a3db975878dcc93186d62218426b59382829f1a83",
+      "disposition": "required",
+      "primary_owners": [
+        "3.27"
+      ],
+      "supporting_owners": [
+        "3.26"
+      ],
+      "acceptance": [
+        "3.27/AC01",
+        "3.27/AC02",
+        "3.27/AC03",
+        "3.27/AC04",
+        "3.27/AC05",
+        "3.27/AC06",
+        "3.27/AC07",
+        "3.26/AC01",
+        "3.26/AC02",
+        "3.26/AC03",
+        "3.26/AC04",
+        "3.26/AC05",
+        "3.26/AC06",
+        "3.26/AC07"
+      ],
+      "assertions": [
+        "Bell/inbox selectedorg only",
+        "permitted crossorg summary countsnotdetails",
+        "A2/B3 switchclean, inactiveB losescount/linkaccess",
+        "current Leave admission in addition membership"
+      ],
+      "review_method": "manual complete source reading, numerical example and accepted-precedence comparison with existing CALC/actual producer contracts; no lexical scoring"
+    },
+    {
+      "source_unit": "SRC1-1203",
+      "source_path": "apps/leave/docs/features.md",
+      "source_line": 1203,
+      "source_hash": "e22b7bd6f4c42a4ca4f36f7babd5e342e819184f9f013f4d4f273b21a635a45a",
+      "disposition": "required",
+      "primary_owners": [
+        "3.27"
+      ],
+      "supporting_owners": [
+        "3.26"
+      ],
+      "acceptance": [
+        "3.27/AC01",
+        "3.27/AC02",
+        "3.27/AC03",
+        "3.27/AC04",
+        "3.27/AC05",
+        "3.27/AC06",
+        "3.27/AC07",
+        "3.26/AC01",
+        "3.26/AC02",
+        "3.26/AC03",
+        "3.26/AC04",
+        "3.26/AC05",
+        "3.26/AC06",
+        "3.26/AC07"
+      ],
+      "assertions": [
+        "Bell/inbox selectedorg only",
+        "permitted crossorg summary countsnotdetails",
+        "A2/B3 switchclean, inactiveB losescount/linkaccess",
+        "current Leave admission in addition membership"
+      ],
+      "review_method": "manual complete source reading, numerical example and accepted-precedence comparison with existing CALC/actual producer contracts; no lexical scoring"
+    },
+    {
+      "source_unit": "SRC1-1208",
+      "source_path": "apps/leave/docs/features.md",
+      "source_line": 1208,
+      "source_hash": "df626564ff8009ddbcb747101a521d9f73650551e49fd46caaf2cf96bca2d913",
+      "disposition": "required",
+      "primary_owners": [
+        "3.27"
+      ],
+      "supporting_owners": [
+        "3.26"
+      ],
+      "acceptance": [
+        "3.27/AC01",
+        "3.27/AC02",
+        "3.27/AC03",
+        "3.27/AC04",
+        "3.27/AC05",
+        "3.27/AC06",
+        "3.27/AC07",
+        "3.26/AC01",
+        "3.26/AC02",
+        "3.26/AC03",
+        "3.26/AC04",
+        "3.26/AC05",
+        "3.26/AC06",
+        "3.26/AC07"
+      ],
+      "assertions": [
+        "Bell/inbox selectedorg only",
+        "permitted crossorg summary countsnotdetails",
+        "A2/B3 switchclean, inactiveB losescount/linkaccess",
+        "current Leave admission in addition membership"
+      ],
+      "review_method": "manual complete source reading, numerical example and accepted-precedence comparison with existing CALC/actual producer contracts; no lexical scoring"
+    },
+    {
+      "source_unit": "SRC1-1215",
+      "source_path": "apps/leave/docs/features.md",
+      "source_line": 1215,
+      "source_hash": "b9c61a5f3eeea46a2f95d82bec184aaff403fb6d8d0020d6e3bdea5b2c6f52e6",
+      "disposition": "context",
+      "primary_owners": [
+        "E1-REF"
+      ],
+      "supporting_owners": [],
+      "acceptance": [
+        "E1-REF/AC01",
+        "E1-REF/AC02",
+        "E1-REF/AC03",
+        "E1-REF/AC04",
+        "E1-REF/AC05",
+        "E1-REF/AC06",
+        "E1-REF/AC07"
+      ],
+      "assertions": [
+        "Decision pointer/qualification context",
+        "operative owner rows bind accepted precedence and exact examples, no duplicate runtime feature from link"
+      ],
+      "review_method": "manual complete source reading, numerical example and accepted-precedence comparison with existing CALC/actual producer contracts; no lexical scoring"
+    },
+    {
+      "source_unit": "SRC1-1217",
+      "source_path": "apps/leave/docs/features.md",
+      "source_line": 1217,
+      "source_hash": "554259cbd08fb702e215ff7ae8c0114a92d3763f4f2d4b1fe242a6c61d0a6b4f",
+      "disposition": "required",
+      "primary_owners": [
+        "3.26"
+      ],
+      "supporting_owners": [],
+      "acceptance": [
+        "3.26/AC01",
+        "3.26/AC02",
+        "3.26/AC03",
+        "3.26/AC04",
+        "3.26/AC05",
+        "3.26/AC06",
+        "3.26/AC07"
+      ],
+      "assertions": [
+        "Openmarks ownnotificationread and activeorg Markall",
+        "A2\u21921\u21920 leavesB3/otherusers",
+        "no decision/initialresponse satisfied"
+      ],
+      "review_method": "manual complete source reading, numerical example and accepted-precedence comparison with existing CALC/actual producer contracts; no lexical scoring"
+    },
+    {
+      "source_unit": "SRC1-1223",
+      "source_path": "apps/leave/docs/features.md",
+      "source_line": 1223,
+      "source_hash": "620daeae8b40b006aa81cbcdf8152580b17309ee18a4eefb404305837ca6ef0c",
+      "disposition": "required",
+      "primary_owners": [
+        "3.26"
+      ],
+      "supporting_owners": [],
+      "acceptance": [
+        "3.26/AC01",
+        "3.26/AC02",
+        "3.26/AC03",
+        "3.26/AC04",
+        "3.26/AC05",
+        "3.26/AC06",
+        "3.26/AC07"
+      ],
+      "assertions": [
+        "Openmarks ownnotificationread and activeorg Markall",
+        "A2\u21921\u21920 leavesB3/otherusers",
+        "no decision/initialresponse satisfied"
+      ],
+      "review_method": "manual complete source reading, numerical example and accepted-precedence comparison with existing CALC/actual producer contracts; no lexical scoring"
+    },
+    {
+      "source_unit": "SRC1-1229",
+      "source_path": "apps/leave/docs/features.md",
+      "source_line": 1229,
+      "source_hash": "2c426d1b75d788af75bac2f96e521693fe69a735a27715906a8ae44bd116a465",
+      "disposition": "context",
+      "primary_owners": [
+        "E1-REF"
+      ],
+      "supporting_owners": [],
+      "acceptance": [
+        "E1-REF/AC01",
+        "E1-REF/AC02",
+        "E1-REF/AC03",
+        "E1-REF/AC04",
+        "E1-REF/AC05",
+        "E1-REF/AC06",
+        "E1-REF/AC07"
+      ],
+      "assertions": [
+        "Decision pointer/qualification context",
+        "operative owner rows bind accepted precedence and exact examples, no duplicate runtime feature from link"
+      ],
+      "review_method": "manual complete source reading, numerical example and accepted-precedence comparison with existing CALC/actual producer contracts; no lexical scoring"
+    },
+    {
+      "source_unit": "SRC1-1231",
+      "source_path": "apps/leave/docs/features.md",
+      "source_line": 1231,
+      "source_hash": "b8b8fd4883f2d4179caade03f919ef868676dc03eceaeed23d8fd60e82125910",
+      "disposition": "required",
+      "primary_owners": [
+        "5.26-A"
+      ],
+      "supporting_owners": [
+        "5.27-A"
+      ],
+      "acceptance": [
+        "5.26-A/AC01",
+        "5.26-A/AC02",
+        "5.26-A/AC03",
+        "5.26-A/AC04",
+        "5.26-A/AC05",
+        "5.26-A/AC06",
+        "5.26-A/AC07",
+        "5.27-A/AC01",
+        "5.27-A/AC02",
+        "5.27-A/AC03",
+        "5.27-A/AC04",
+        "5.27-A/AC05",
+        "5.27-A/AC06",
+        "5.27-A/AC07"
+      ],
+      "assertions": [
+        "Recurring3calendardays default/currentactionable only",
+        "stopdecided/terminal",
+        "manageronce7days and unresolvedattention",
+        "no decision/reroute effect"
+      ],
+      "review_method": "manual complete source reading, numerical example and accepted-precedence comparison with existing CALC/actual producer contracts; no lexical scoring"
+    },
+    {
+      "source_unit": "SRC1-1237",
+      "source_path": "apps/leave/docs/features.md",
+      "source_line": 1237,
+      "source_hash": "550f03f28122cce8b2b07739e24087284d94d2581114db4b8a21352ecc031e35",
+      "disposition": "required",
+      "primary_owners": [
+        "5.26-A"
+      ],
+      "supporting_owners": [
+        "5.27-A"
+      ],
+      "acceptance": [
+        "5.26-A/AC01",
+        "5.26-A/AC02",
+        "5.26-A/AC03",
+        "5.26-A/AC04",
+        "5.26-A/AC05",
+        "5.26-A/AC06",
+        "5.26-A/AC07",
+        "5.27-A/AC01",
+        "5.27-A/AC02",
+        "5.27-A/AC03",
+        "5.27-A/AC04",
+        "5.27-A/AC05",
+        "5.27-A/AC06",
+        "5.27-A/AC07"
+      ],
+      "assertions": [
+        "Recurring3calendardays default/currentactionable only",
+        "stopdecided/terminal",
+        "manageronce7days and unresolvedattention",
+        "no decision/reroute effect"
+      ],
+      "review_method": "manual complete source reading, numerical example and accepted-precedence comparison with existing CALC/actual producer contracts; no lexical scoring"
+    },
+    {
+      "source_unit": "SRC1-1244",
+      "source_path": "apps/leave/docs/features.md",
+      "source_line": 1244,
+      "source_hash": "e505ddbb8d1b610fbb4dad72c3d2e4f2448221e0a7802423d1f2223ff2201640",
+      "disposition": "context",
+      "primary_owners": [
+        "E1-REF"
+      ],
+      "supporting_owners": [],
+      "acceptance": [
+        "E1-REF/AC01",
+        "E1-REF/AC02",
+        "E1-REF/AC03",
+        "E1-REF/AC04",
+        "E1-REF/AC05",
+        "E1-REF/AC06",
+        "E1-REF/AC07"
+      ],
+      "assertions": [
+        "Decision pointer/qualification context",
+        "operative owner rows bind accepted precedence and exact examples, no duplicate runtime feature from link"
+      ],
+      "review_method": "manual complete source reading, numerical example and accepted-precedence comparison with existing CALC/actual producer contracts; no lexical scoring"
+    },
+    {
+      "source_unit": "SRC1-1246",
+      "source_path": "apps/leave/docs/features.md",
+      "source_line": 1246,
+      "source_hash": "57759b3e102196b54376bdbe466661771a81e20501bd5c83fd1a47a666b3b1b5",
+      "disposition": "required",
+      "primary_owners": [
+        "5.27-A"
+      ],
+      "supporting_owners": [],
+      "acceptance": [
+        "5.27-A/AC01",
+        "5.27-A/AC02",
+        "5.27-A/AC03",
+        "5.27-A/AC04",
+        "5.27-A/AC05",
+        "5.27-A/AC06",
+        "5.27-A/AC07"
+      ],
+      "assertions": [
+        "Onceafterdefault7calendar unanswerednotifyauthorizedmanager",
+        "currentassignmentunchanged and no impliedreroute/approvalright"
+      ],
+      "review_method": "manual complete source reading, numerical example and accepted-precedence comparison with existing CALC/actual producer contracts; no lexical scoring"
+    },
+    {
+      "source_unit": "SRC1-1252",
+      "source_path": "apps/leave/docs/features.md",
+      "source_line": 1252,
+      "source_hash": "b29bfed883ca5c17514beba50b8920add4516e30d6b4855a1d0fe735782edf4c",
+      "disposition": "required",
+      "primary_owners": [
+        "5.27-A"
+      ],
+      "supporting_owners": [],
+      "acceptance": [
+        "5.27-A/AC01",
+        "5.27-A/AC02",
+        "5.27-A/AC03",
+        "5.27-A/AC04",
+        "5.27-A/AC05",
+        "5.27-A/AC06",
+        "5.27-A/AC07"
+      ],
+      "assertions": [
+        "Onceafterdefault7calendar unanswerednotifyauthorizedmanager",
+        "currentassignmentunchanged and no impliedreroute/approvalright"
+      ],
+      "review_method": "manual complete source reading, numerical example and accepted-precedence comparison with existing CALC/actual producer contracts; no lexical scoring"
+    },
+    {
+      "source_unit": "SRC1-1258",
+      "source_path": "apps/leave/docs/features.md",
+      "source_line": 1258,
+      "source_hash": "b9cb44672c64aeebbebf1ee34a5574be3d44afddadb1bb42e913fd3f67a50298",
+      "disposition": "context",
+      "primary_owners": [
+        "E1-REF"
+      ],
+      "supporting_owners": [],
+      "acceptance": [
+        "E1-REF/AC01",
+        "E1-REF/AC02",
+        "E1-REF/AC03",
+        "E1-REF/AC04",
+        "E1-REF/AC05",
+        "E1-REF/AC06",
+        "E1-REF/AC07"
+      ],
+      "assertions": [
+        "Decision pointer/qualification context",
+        "operative owner rows bind accepted precedence and exact examples, no duplicate runtime feature from link"
+      ],
+      "review_method": "manual complete source reading, numerical example and accepted-precedence comparison with existing CALC/actual producer contracts; no lexical scoring"
+    },
+    {
+      "source_unit": "SRC1-1260",
+      "source_path": "apps/leave/docs/features.md",
+      "source_line": 1260,
+      "source_hash": "f38e5027e45217f12058925e9e7c09f4929be6b68a2148bc191a20e093d47de8",
+      "disposition": "required",
+      "primary_owners": [
+        "5.26-A"
+      ],
+      "supporting_owners": [
+        "5.27-A"
+      ],
+      "acceptance": [
+        "5.26-A/AC01",
+        "5.26-A/AC02",
+        "5.26-A/AC03",
+        "5.26-A/AC04",
+        "5.26-A/AC05",
+        "5.26-A/AC06",
+        "5.26-A/AC07",
+        "5.27-A/AC01",
+        "5.27-A/AC02",
+        "5.27-A/AC03",
+        "5.27-A/AC04",
+        "5.27-A/AC05",
+        "5.27-A/AC06",
+        "5.27-A/AC07"
+      ],
+      "assertions": [
+        "Recurring3calendardays default/currentactionable only",
+        "stopdecided/terminal",
+        "manageronce7days and unresolvedattention",
+        "no decision/reroute effect"
+      ],
+      "review_method": "manual complete source reading, numerical example and accepted-precedence comparison with existing CALC/actual producer contracts; no lexical scoring"
+    },
+    {
+      "source_unit": "SRC1-1269",
+      "source_path": "apps/leave/docs/features.md",
+      "source_line": 1269,
+      "source_hash": "f8504ab9c881b75955a526887b1f223d52ef34aa7611b1118f18e97477bd087b",
+      "disposition": "required",
+      "primary_owners": [
+        "5.26-A"
+      ],
+      "supporting_owners": [
+        "5.24-A",
+        "5.27-A"
+      ],
+      "acceptance": [
+        "5.26-A/AC01",
+        "5.26-A/AC02",
+        "5.26-A/AC03",
+        "5.26-A/AC04",
+        "5.26-A/AC05",
+        "5.26-A/AC06",
+        "5.26-A/AC07",
+        "5.24-A/AC01",
+        "5.24-A/AC02",
+        "5.24-A/AC03",
+        "5.24-A/AC04",
+        "5.24-A/AC05",
+        "5.24-A/AC06",
+        "5.27-A/AC01",
+        "5.27-A/AC02",
+        "5.27-A/AC03",
+        "5.27-A/AC04",
+        "5.27-A/AC05",
+        "5.27-A/AC06",
+        "5.27-A/AC07"
+      ],
+      "assertions": [
+        "Transfer sameunfinished step preserveswaiting clock, immediateassignmentnotice",
+        "day6transfer stillday7escalate, no newrepeat escalation",
+        "differentnewactionablestep ownclock"
+      ],
+      "review_method": "manual complete source reading, numerical example and accepted-precedence comparison with existing CALC/actual producer contracts; no lexical scoring"
+    },
+    {
+      "source_unit": "SRC1-1277",
+      "source_path": "apps/leave/docs/features.md",
+      "source_line": 1277,
+      "source_hash": "5e90d00f0455bf3d7af481f30de49a61c260e7bffb554a63759a02a41a8d0958",
+      "disposition": "required",
+      "primary_owners": [
+        "5.26-A"
+      ],
+      "supporting_owners": [
+        "5.27-A",
+        "3.24"
+      ],
+      "acceptance": [
+        "5.26-A/AC01",
+        "5.26-A/AC02",
+        "5.26-A/AC03",
+        "5.26-A/AC04",
+        "5.26-A/AC05",
+        "5.26-A/AC06",
+        "5.26-A/AC07",
+        "5.27-A/AC01",
+        "5.27-A/AC02",
+        "5.27-A/AC03",
+        "5.27-A/AC04",
+        "5.27-A/AC05",
+        "5.27-A/AC06",
+        "5.27-A/AC07",
+        "3.24/AC01",
+        "3.24/AC02",
+        "3.24/AC03",
+        "3.24/AC04",
+        "3.24/AC05",
+        "3.24/AC06",
+        "3.24/AC07",
+        "3.24/AC08"
+      ],
+      "assertions": [
+        "Afterinterruption atmostone currentcatchup peroutstandingstep, missedonescalation ifstilldue",
+        "stableexistingintent coalesced/relevancechecked beforehandover, no repeatedbusinesschange"
+      ],
+      "review_method": "manual complete source reading, numerical example and accepted-precedence comparison with existing CALC/actual producer contracts; no lexical scoring"
+    },
+    {
+      "source_unit": "SRC1-1286",
+      "source_path": "apps/leave/docs/features.md",
+      "source_line": 1286,
+      "source_hash": "2bf4b03b2907d5a865ad0b6dbd614f840cc9d05ea79538c01faf4ab3e9b3670d",
+      "disposition": "required",
+      "primary_owners": [
+        "3.14"
+      ],
+      "supporting_owners": [],
+      "acceptance": [
+        "3.14/AC01",
+        "3.14/AC02"
+      ],
+      "assertions": [
+        "Carrynone/all/limited600\u21920/600/480",
+        "capdistinct",
+        "expireMarch31inclusive orconfigurednoexpiry",
+        "scheduleminuteconversion and once-derived not duplicated"
+      ],
+      "review_method": "manual complete source reading, numerical example and accepted-precedence comparison with existing CALC/actual producer contracts; no lexical scoring"
+    },
+    {
+      "source_unit": "SRC1-1293",
+      "source_path": "apps/leave/docs/features.md",
+      "source_line": 1293,
+      "source_hash": "72b1b0d330d0d6b628df7ea08af5c79986b215a5874fc7c59914cf1c570b06d4",
+      "disposition": "required",
+      "primary_owners": [
+        "3.14"
+      ],
+      "supporting_owners": [],
+      "acceptance": [
+        "3.14/AC01",
+        "3.14/AC02"
+      ],
+      "assertions": [
+        "Carrynone/all/limited600\u21920/600/480",
+        "capdistinct",
+        "expireMarch31inclusive orconfigurednoexpiry",
+        "scheduleminuteconversion and once-derived not duplicated"
+      ],
+      "review_method": "manual complete source reading, numerical example and accepted-precedence comparison with existing CALC/actual producer contracts; no lexical scoring"
+    },
+    {
+      "source_unit": "SRC1-1300",
+      "source_path": "apps/leave/docs/features.md",
+      "source_line": 1300,
+      "source_hash": "695057721094628866ce6f9d599ba101437af71587fe908212083629ce88d96c",
+      "disposition": "required",
+      "primary_owners": [
+        "3.15"
+      ],
+      "supporting_owners": [],
+      "acceptance": [
+        "3.15/AC01",
+        "3.15/AC02",
+        "3.15/AC03"
+      ],
+      "assertions": [
+        "Configuredmonths oncefromactualstart",
+        "Jan1+3\u2192Mar31,July1+3\u2192Sep30",
+        "Jan15+1\u2192Feb14,Jan31+1\u2192Feb28/29,Feb29+12\u2192Feb28nextyear",
+        "earlierexpiry retained"
+      ],
+      "review_method": "manual complete source reading, numerical example and accepted-precedence comparison with existing CALC/actual producer contracts; no lexical scoring"
+    },
+    {
+      "source_unit": "SRC1-1310",
+      "source_path": "apps/leave/docs/features.md",
+      "source_line": 1310,
+      "source_hash": "d2d3c0619961a08c05564af87e3610b0c7dfd3bc0a3c6e96987d54e555d1033e",
+      "disposition": "required",
+      "primary_owners": [
+        "3.15"
+      ],
+      "supporting_owners": [],
+      "acceptance": [
+        "3.15/AC01",
+        "3.15/AC02",
+        "3.15/AC03"
+      ],
+      "assertions": [
+        "Configuredmonths oncefromactualstart",
+        "Jan1+3\u2192Mar31,July1+3\u2192Sep30",
+        "Jan15+1\u2192Feb14,Jan31+1\u2192Feb28/29,Feb29+12\u2192Feb28nextyear",
+        "earlierexpiry retained"
+      ],
+      "review_method": "manual complete source reading, numerical example and accepted-precedence comparison with existing CALC/actual producer contracts; no lexical scoring"
+    },
+    {
+      "source_unit": "SRC1-1316",
+      "source_path": "apps/leave/docs/features.md",
+      "source_line": 1316,
+      "source_hash": "d5f75439578ed639b0a96cad606e92c85c775e3c1e7304af8ca4815146b249b7",
+      "disposition": "required",
+      "primary_owners": [
+        "3.14"
+      ],
+      "supporting_owners": [],
+      "acceptance": [
+        "3.14/AC02"
+      ],
+      "assertions": [
+        "Five-day limit8h\u21922400/6h\u21921800minutes boundedunused",
+        "retained standardday/effective schedule atrollover, laterchange no rewrite"
+      ],
+      "review_method": "manual complete source reading, numerical example and accepted-precedence comparison with existing CALC/actual producer contracts; no lexical scoring"
+    },
+    {
+      "source_unit": "SRC1-1322",
+      "source_path": "apps/leave/docs/features.md",
+      "source_line": 1322,
+      "source_hash": "0591b4cca631605e74d92041b1fb4263bafb1d91ff38578b36bfbb579a6847c8",
+      "disposition": "required",
+      "primary_owners": [
+        "3.14"
+      ],
+      "supporting_owners": [],
+      "acceptance": [
+        "3.14/AC03"
+      ],
+      "assertions": [
+        "Carried120 onceonly cannotagain, repeatedsubjectremaininglimit",
+        "provenance/originalexpiry no reset"
+      ],
+      "review_method": "manual complete source reading, numerical example and accepted-precedence comparison with existing CALC/actual producer contracts; no lexical scoring"
+    },
+    {
+      "source_unit": "SRC1-1328",
+      "source_path": "apps/leave/docs/features.md",
+      "source_line": 1328,
+      "source_hash": "f3f19b9c1b7f944d58831fa39bb5a59c7648bb2349f80c758af09aa2adb8ef84",
+      "disposition": "required",
+      "primary_owners": [
+        "3.14"
+      ],
+      "supporting_owners": [],
+      "acceptance": [
+        "3.14/AC03"
+      ],
+      "assertions": [
+        "Carried120 onceonly cannotagain, repeatedsubjectremaininglimit",
+        "provenance/originalexpiry no reset"
+      ],
+      "review_method": "manual complete source reading, numerical example and accepted-precedence comparison with existing CALC/actual producer contracts; no lexical scoring"
+    },
+    {
+      "source_unit": "SRC1-1335",
+      "source_path": "apps/leave/docs/features.md",
+      "source_line": 1335,
+      "source_hash": "c3ca8bb9ddbb27ad885ba3cca0933092b091552f876a0689e1cf195d482f5c38",
+      "disposition": "context",
+      "primary_owners": [
+        "E1-REF"
+      ],
+      "supporting_owners": [],
+      "acceptance": [
+        "E1-REF/AC01",
+        "E1-REF/AC02",
+        "E1-REF/AC03",
+        "E1-REF/AC04",
+        "E1-REF/AC05",
+        "E1-REF/AC06",
+        "E1-REF/AC07"
+      ],
+      "assertions": [
+        "Decision pointer/qualification context",
+        "operative owner rows bind accepted precedence and exact examples, no duplicate runtime feature from link"
+      ],
+      "review_method": "manual complete source reading, numerical example and accepted-precedence comparison with existing CALC/actual producer contracts; no lexical scoring"
+    },
+    {
+      "source_unit": "SRC1-1337",
+      "source_path": "apps/leave/docs/features.md",
+      "source_line": 1337,
+      "source_hash": "82bb059a1719ebd2755acb34863e50d164267a3610dcf5da9298c30a1b5daff3",
+      "disposition": "required",
+      "primary_owners": [
+        "3.15"
+      ],
+      "supporting_owners": [
+        "3.14"
+      ],
+      "acceptance": [
+        "3.14/AC04",
+        "3.15/AC04"
+      ],
+      "assertions": [
+        "Noncarried disabled/excess/onceonly expireswithexplanation;600limit480 givescarry480+expired120",
+        "no payout/type transfer/duplicate derivedeffect"
+      ],
+      "review_method": "manual complete source reading, numerical example and accepted-precedence comparison with existing CALC/actual producer contracts; no lexical scoring"
+    },
+    {
+      "source_unit": "SRC1-1343",
+      "source_path": "apps/leave/docs/features.md",
+      "source_line": 1343,
+      "source_hash": "e4f017fb76383d7863473c719ad0570618d451148d08acb456f783a087f08caa",
+      "disposition": "required",
+      "primary_owners": [
+        "3.15"
+      ],
+      "supporting_owners": [
+        "3.14"
+      ],
+      "acceptance": [
+        "3.14/AC04",
+        "3.15/AC04"
+      ],
+      "assertions": [
+        "Noncarried disabled/excess/onceonly expireswithexplanation;600limit480 givescarry480+expired120",
+        "no payout/type transfer/duplicate derivedeffect"
+      ],
+      "review_method": "manual complete source reading, numerical example and accepted-precedence comparison with existing CALC/actual producer contracts; no lexical scoring"
+    },
+    {
+      "source_unit": "SRC1-1351",
+      "source_path": "apps/leave/docs/features.md",
+      "source_line": 1351,
+      "source_hash": "25998f9ab2fd546d60c04a32a0071d629e603db6ccd93024a0ccb8966349626c",
+      "disposition": "context",
+      "primary_owners": [
+        "E1-REF"
+      ],
+      "supporting_owners": [],
+      "acceptance": [
+        "E1-REF/AC01",
+        "E1-REF/AC02",
+        "E1-REF/AC03",
+        "E1-REF/AC04",
+        "E1-REF/AC05",
+        "E1-REF/AC06",
+        "E1-REF/AC07"
+      ],
+      "assertions": [
+        "Decision pointer/qualification context",
+        "operative owner rows bind accepted precedence and exact examples, no duplicate runtime feature from link"
+      ],
+      "review_method": "manual complete source reading, numerical example and accepted-precedence comparison with existing CALC/actual producer contracts; no lexical scoring"
+    },
+    {
+      "source_unit": "SRC1-1355",
+      "source_path": "apps/leave/docs/features.md",
+      "source_line": 1355,
+      "source_hash": "6d191b337b792637635d8bb7a96c72d0bbe46e53c389716b862f380f0c43790d",
+      "disposition": "required",
+      "primary_owners": [
+        "3.18"
+      ],
+      "supporting_owners": [
+        "3.19",
+        "5.8-A",
+        "3.14"
+      ],
+      "acceptance": [
+        "3.18/AC01",
+        "3.18/AC05",
+        "3.14/AC05",
+        "5.8-A/AC01"
+      ],
+      "assertions": [
+        "Pending480with360valid produces120shortfall/2hunpaidrequested visiblyproposed, retainpending/approvermatchingallocation",
+        "reservation no extension/circumvention/finalconsumption",
+        "knownrollover includedinitialprojection"
+      ],
+      "review_method": "manual complete source reading, numerical example and accepted-precedence comparison with existing CALC/actual producer contracts; no lexical scoring"
+    },
+    {
+      "source_unit": "SRC1-1361",
+      "source_path": "apps/leave/docs/features.md",
+      "source_line": 1361,
+      "source_hash": "c024abc090e3b7c28b8da5e6c8ea1cc85ddbb22df5f6c85652f6be2823485ff2",
+      "disposition": "required",
+      "primary_owners": [
+        "3.18"
+      ],
+      "supporting_owners": [
+        "3.19",
+        "5.8-A",
+        "3.14"
+      ],
+      "acceptance": [
+        "3.18/AC01",
+        "3.18/AC05",
+        "3.14/AC05",
+        "5.8-A/AC01"
+      ],
+      "assertions": [
+        "Pending480with360valid produces120shortfall/2hunpaidrequested visiblyproposed, retainpending/approvermatchingallocation",
+        "reservation no extension/circumvention/finalconsumption",
+        "knownrollover includedinitialprojection"
+      ],
+      "review_method": "manual complete source reading, numerical example and accepted-precedence comparison with existing CALC/actual producer contracts; no lexical scoring"
+    },
+    {
+      "source_unit": "SRC1-1370",
+      "source_path": "apps/leave/docs/features.md",
+      "source_line": 1370,
+      "source_hash": "89bd6ed7acb2a18d51c1a8ad0d8edc17f1a83a67102b85c73f622bd636a61317",
+      "disposition": "required",
+      "primary_owners": [
+        "3.18"
+      ],
+      "supporting_owners": [
+        "3.19",
+        "5.8-A",
+        "3.14"
+      ],
+      "acceptance": [
+        "3.18/AC01",
+        "3.18/AC05",
+        "3.14/AC05",
+        "5.8-A/AC01"
+      ],
+      "assertions": [
+        "Pending480with360valid produces120shortfall/2hunpaidrequested visiblyproposed, retainpending/approvermatchingallocation",
+        "reservation no extension/circumvention/finalconsumption",
+        "knownrollover includedinitialprojection"
+      ],
+      "review_method": "manual complete source reading, numerical example and accepted-precedence comparison with existing CALC/actual producer contracts; no lexical scoring"
+    },
+    {
+      "source_unit": "SRC1-1378",
+      "source_path": "apps/leave/docs/features.md",
+      "source_line": 1378,
+      "source_hash": "e5b843d844fa12c881a32b7a3f86d8f1de2e3fee4d0a79809a6facbdb3889cdf",
+      "disposition": "context",
+      "primary_owners": [
+        "E1-REF"
+      ],
+      "supporting_owners": [],
+      "acceptance": [
+        "E1-REF/AC01",
+        "E1-REF/AC02",
+        "E1-REF/AC03",
+        "E1-REF/AC04",
+        "E1-REF/AC05",
+        "E1-REF/AC06",
+        "E1-REF/AC07"
+      ],
+      "assertions": [
+        "Decision pointer/qualification context",
+        "operative owner rows bind accepted precedence and exact examples, no duplicate runtime feature from link"
+      ],
+      "review_method": "manual complete source reading, numerical example and accepted-precedence comparison with existing CALC/actual producer contracts; no lexical scoring"
+    },
+    {
+      "source_unit": "SRC1-1380",
+      "source_path": "apps/leave/docs/features.md",
+      "source_line": 1380,
+      "source_hash": "4d271cb23cdee6673fe9e09029379b23da119ea65f48f90130c8db812b3d8724",
+      "disposition": "required",
+      "primary_owners": [
+        "3.18"
+      ],
+      "supporting_owners": [
+        "5.8-A"
+      ],
+      "acceptance": [
+        "3.18/AC05",
+        "5.8-A/AC01"
+      ],
+      "assertions": [
+        "Existing240of480 protectedagainstnewearlier360",
+        "newfunded240/short120",
+        "expectedearn/expire/carry initiallyprojected, no surpriseboundary shortfall"
+      ],
+      "review_method": "manual complete source reading, numerical example and accepted-precedence comparison with existing CALC/actual producer contracts; no lexical scoring"
+    },
+    {
+      "source_unit": "SRC1-1387",
+      "source_path": "apps/leave/docs/features.md",
+      "source_line": 1387,
+      "source_hash": "a9a74afdc7e225d434ecdd9bf49d15fee8497dbbac49ce40accf33969cac4937",
+      "disposition": "required",
+      "primary_owners": [
+        "5.15-A"
+      ],
+      "supporting_owners": [
+        "5.10-B",
+        "3.29"
+      ],
+      "acceptance": [
+        "5.15-A/AC01",
+        "5.15-A/AC02",
+        "5.15-A/AC03",
+        "5.15-A/AC04",
+        "5.15-A/AC05",
+        "5.15-A/AC06",
+        "5.10-B/AC01",
+        "5.10-B/AC02",
+        "5.10-B/AC03",
+        "5.10-B/AC04",
+        "5.10-B/AC05",
+        "5.10-B/AC06",
+        "5.10-B/AC07",
+        "3.29/AC01",
+        "3.29/AC02",
+        "3.29/AC03",
+        "3.29/AC04",
+        "3.29/AC05",
+        "3.29/AC06",
+        "3.29/AC07",
+        "3.29/AC08"
+      ],
+      "assertions": [
+        "Authorizer exactreview/explanation/previousrevisedamount andminimalnotice",
+        "later0\u2192120 no renewedresponse/obligation iforiginallyfullypaid",
+        "prior decisions retained, initialonbehalfresponsecurrentamount ifoutstanding",
+        "scheduledsourceauthorizerretained"
+      ],
+      "review_method": "manual complete source reading, numerical example and accepted-precedence comparison with existing CALC/actual producer contracts; no lexical scoring"
+    },
+    {
+      "source_unit": "SRC1-1394",
+      "source_path": "apps/leave/docs/features.md",
+      "source_line": 1394,
+      "source_hash": "04c99c5879ff7ed64c405e57a1e4824e4553c1c77a41a4a5f7f57c6d7ff94a9b",
+      "disposition": "required",
+      "primary_owners": [
+        "5.15-A"
+      ],
+      "supporting_owners": [
+        "5.10-B",
+        "3.29"
+      ],
+      "acceptance": [
+        "5.15-A/AC01",
+        "5.15-A/AC02",
+        "5.15-A/AC03",
+        "5.15-A/AC04",
+        "5.15-A/AC05",
+        "5.15-A/AC06",
+        "5.10-B/AC01",
+        "5.10-B/AC02",
+        "5.10-B/AC03",
+        "5.10-B/AC04",
+        "5.10-B/AC05",
+        "5.10-B/AC06",
+        "5.10-B/AC07",
+        "3.29/AC01",
+        "3.29/AC02",
+        "3.29/AC03",
+        "3.29/AC04",
+        "3.29/AC05",
+        "3.29/AC06",
+        "3.29/AC07",
+        "3.29/AC08"
+      ],
+      "assertions": [
+        "Authorizer exactreview/explanation/previousrevisedamount andminimalnotice",
+        "later0\u2192120 no renewedresponse/obligation iforiginallyfullypaid",
+        "prior decisions retained, initialonbehalfresponsecurrentamount ifoutstanding",
+        "scheduledsourceauthorizerretained"
+      ],
+      "review_method": "manual complete source reading, numerical example and accepted-precedence comparison with existing CALC/actual producer contracts; no lexical scoring"
+    },
+    {
+      "source_unit": "SRC1-1405",
+      "source_path": "apps/leave/docs/features.md",
+      "source_line": 1405,
+      "source_hash": "46cb082c044f87145d98c233985b27a927fe99bce84099c0278dbdaa9f7524f7",
+      "disposition": "context",
+      "primary_owners": [
+        "3.17-A"
+      ],
+      "supporting_owners": [],
+      "acceptance": [
+        "3.17-A/AC01",
+        "3.17-A/AC02",
+        "3.17-A/AC03",
+        "3.17-A/AC04",
+        "3.17-A/AC05",
+        "3.17-A/AC06",
+        "3.17-A/AC07",
+        "3.17-A/AC08"
+      ],
+      "assertions": [
+        "Section/table/example navigation or historical planning note",
+        "actual deterministic history/event/portion contracts own implementation, not a second ledger specification"
+      ],
+      "review_method": "manual complete source reading, numerical example and accepted-precedence comparison with existing CALC/actual producer contracts; no lexical scoring"
+    },
+    {
+      "source_unit": "SRC1-1407",
+      "source_path": "apps/leave/docs/features.md",
+      "source_line": 1407,
+      "source_hash": "38aecd52b451515b91b77d1cb2145b15e31f17b6621ea7d5f6071da2d9447378",
+      "disposition": "required",
+      "primary_owners": [
+        "3.18"
+      ],
+      "supporting_owners": [
+        "5.8-A"
+      ],
+      "acceptance": [
+        "3.18/AC05",
+        "5.8-A/AC01"
+      ],
+      "assertions": [
+        "Existing240of480 protectedagainstnewearlier360",
+        "newfunded240/short120",
+        "expectedearn/expire/carry initiallyprojected, no surpriseboundary shortfall"
+      ],
+      "review_method": "manual complete source reading, numerical example and accepted-precedence comparison with existing CALC/actual producer contracts; no lexical scoring"
+    },
+    {
+      "source_unit": "SRC1-1411",
+      "source_path": "apps/leave/docs/features.md",
+      "source_line": 1411,
+      "source_hash": "740e824e95c480ca0745a85489a4a5bd6f513ea8fd4327f9eae6b2528ecf7f78",
+      "disposition": "required",
+      "primary_owners": [
+        "5.15-A"
+      ],
+      "supporting_owners": [
+        "5.10-B",
+        "3.29"
+      ],
+      "acceptance": [
+        "5.15-A/AC01",
+        "5.15-A/AC02",
+        "5.15-A/AC03",
+        "5.15-A/AC04",
+        "5.15-A/AC05",
+        "5.15-A/AC06",
+        "5.10-B/AC01",
+        "5.10-B/AC02",
+        "5.10-B/AC03",
+        "5.10-B/AC04",
+        "5.10-B/AC05",
+        "5.10-B/AC06",
+        "5.10-B/AC07",
+        "3.29/AC01",
+        "3.29/AC02",
+        "3.29/AC03",
+        "3.29/AC04",
+        "3.29/AC05",
+        "3.29/AC06",
+        "3.29/AC07",
+        "3.29/AC08"
+      ],
+      "assertions": [
+        "Authorizer exactreview/explanation/previousrevisedamount andminimalnotice",
+        "later0\u2192120 no renewedresponse/obligation iforiginallyfullypaid",
+        "prior decisions retained, initialonbehalfresponsecurrentamount ifoutstanding",
+        "scheduledsourceauthorizerretained"
+      ],
+      "review_method": "manual complete source reading, numerical example and accepted-precedence comparison with existing CALC/actual producer contracts; no lexical scoring"
+    },
+    {
+      "source_unit": "SRC1-1417",
+      "source_path": "apps/leave/docs/features.md",
+      "source_line": 1417,
+      "source_hash": "0f8406c98d9184352d83d05c8769a19bdeec296bc0106226b418d2143f61036b",
+      "disposition": "context",
+      "primary_owners": [
+        "E1-REF"
+      ],
+      "supporting_owners": [],
+      "acceptance": [
+        "E1-REF/AC01",
+        "E1-REF/AC02",
+        "E1-REF/AC03",
+        "E1-REF/AC04",
+        "E1-REF/AC05",
+        "E1-REF/AC06",
+        "E1-REF/AC07"
+      ],
+      "assertions": [
+        "Decision pointer/qualification context",
+        "operative owner rows bind accepted precedence and exact examples, no duplicate runtime feature from link"
+      ],
+      "review_method": "manual complete source reading, numerical example and accepted-precedence comparison with existing CALC/actual producer contracts; no lexical scoring"
+    },
+    {
+      "source_unit": "SRC1-1419",
+      "source_path": "apps/leave/docs/features.md",
+      "source_line": 1419,
+      "source_hash": "df1238aa5802c841dbd61ed7738c927f004a38eaeff6359923d26f2b08313b9d",
+      "disposition": "required",
+      "primary_owners": [
+        "3.10"
+      ],
+      "supporting_owners": [],
+      "acceptance": [
+        "3.10/AC01",
+        "3.10/AC04"
+      ],
+      "assertions": [
+        "Capseparatecarry;2400cap2280+240 admits120/excludes120explained, no removeexisting",
+        "uncappedall",
+        "derived excluded notpostedfiction"
+      ],
+      "review_method": "manual complete source reading, numerical example and accepted-precedence comparison with existing CALC/actual producer contracts; no lexical scoring"
+    },
+    {
+      "source_unit": "SRC1-1424",
+      "source_path": "apps/leave/docs/features.md",
+      "source_line": 1424,
+      "source_hash": "59621b55c724ddad412e6681b0922dab42a1dcf4771932f470a533785fb8c280",
+      "disposition": "required",
+      "primary_owners": [
+        "3.10"
+      ],
+      "supporting_owners": [],
+      "acceptance": [
+        "3.10/AC01",
+        "3.10/AC04"
+      ],
+      "assertions": [
+        "Capseparatecarry;2400cap2280+240 admits120/excludes120explained, no removeexisting",
+        "uncappedall",
+        "derived excluded notpostedfiction"
+      ],
+      "review_method": "manual complete source reading, numerical example and accepted-precedence comparison with existing CALC/actual producer contracts; no lexical scoring"
+    },
+    {
+      "source_unit": "SRC1-1430",
+      "source_path": "apps/leave/docs/features.md",
+      "source_line": 1430,
+      "source_hash": "e70a57fe973c860147e0c5a5e6723754e80cc92600126ad54e218c4ebff66f16",
+      "disposition": "required",
+      "primary_owners": [
+        "3.10"
+      ],
+      "supporting_owners": [
+        "5.8-A",
+        "3.11"
+      ],
+      "acceptance": [
+        "3.10/AC05",
+        "3.10/AC07",
+        "3.11/AC06"
+      ],
+      "assertions": [
+        "Earnedreservation600still2400accumulated atcap",
+        "finalconsume\u21921800headroom, withdraw\u21922400unchanged",
+        "futurereservation notcurrentearning"
+      ],
+      "review_method": "manual complete source reading, numerical example and accepted-precedence comparison with existing CALC/actual producer contracts; no lexical scoring"
+    },
+    {
+      "source_unit": "SRC1-1438",
+      "source_path": "apps/leave/docs/features.md",
+      "source_line": 1438,
+      "source_hash": "4f4314e97d0b69b3fbf5dfafc593f409bef88b6fb7ff3d9067bb89cab5ed0c1e",
+      "disposition": "required",
+      "primary_owners": [
+        "3.10"
+      ],
+      "supporting_owners": [],
+      "acceptance": [
+        "3.10/AC02",
+        "3.10/AC03"
+      ],
+      "assertions": [
+        "Capexcluded240neverrestored",
+        "later2400\u21922100 deduction noinstantgrant, nextdue240\u21922340 oronlyfit120",
+        "prospective no catchup"
+      ],
+      "review_method": "manual complete source reading, numerical example and accepted-precedence comparison with existing CALC/actual producer contracts; no lexical scoring"
+    },
+    {
+      "source_unit": "SRC1-1443",
+      "source_path": "apps/leave/docs/features.md",
+      "source_line": 1443,
+      "source_hash": "4f38a4447de090374aeb36bed58679b004f5e18d3044e9082cc16f9159e8edc0",
+      "disposition": "required",
+      "primary_owners": [
+        "3.10"
+      ],
+      "supporting_owners": [],
+      "acceptance": [
+        "3.10/AC02",
+        "3.10/AC03"
+      ],
+      "assertions": [
+        "Capexcluded240neverrestored",
+        "later2400\u21922100 deduction noinstantgrant, nextdue240\u21922340 oronlyfit120",
+        "prospective no catchup"
+      ],
+      "review_method": "manual complete source reading, numerical example and accepted-precedence comparison with existing CALC/actual producer contracts; no lexical scoring"
+    },
+    {
+      "source_unit": "SRC1-1450",
+      "source_path": "apps/leave/docs/features.md",
+      "source_line": 1450,
+      "source_hash": "5c5cae1b662d5e9b4d45c8a9a94ffdcce07402f82b40324466caa0c71bd8e012",
+      "disposition": "context",
+      "primary_owners": [
+        "E1-REF"
+      ],
+      "supporting_owners": [],
+      "acceptance": [
+        "E1-REF/AC01",
+        "E1-REF/AC02",
+        "E1-REF/AC03",
+        "E1-REF/AC04",
+        "E1-REF/AC05",
+        "E1-REF/AC06",
+        "E1-REF/AC07"
+      ],
+      "assertions": [
+        "Decision pointer/qualification context",
+        "operative owner rows bind accepted precedence and exact examples, no duplicate runtime feature from link"
+      ],
+      "review_method": "manual complete source reading, numerical example and accepted-precedence comparison with existing CALC/actual producer contracts; no lexical scoring"
+    },
+    {
+      "source_unit": "SRC1-1452",
+      "source_path": "apps/leave/docs/features.md",
+      "source_line": 1452,
+      "source_hash": "d66cde5e35f631132879b62b5232f2cb05dde5dbffe88059e1a014cb7eae90e4",
+      "disposition": "required",
+      "primary_owners": [
+        "3.18"
+      ],
+      "supporting_owners": [],
+      "acceptance": [
+        "3.18/AC01",
+        "3.18/AC05"
+      ],
+      "assertions": [
+        "Projecteach requesteddate/validyear3 sources, earlierentitlementonlyifstillvalidcarry;60daysneeds60eligible, earlysubmission no grant",
+        "future reservation nottodayconsumption and earliercommitmentprotected"
+      ],
+      "review_method": "manual complete source reading, numerical example and accepted-precedence comparison with existing CALC/actual producer contracts; no lexical scoring"
+    },
+    {
+      "source_unit": "SRC1-1461",
+      "source_path": "apps/leave/docs/features.md",
+      "source_line": 1461,
+      "source_hash": "eac59f434303e8fc6aeceadbdacdf979f5bb68276033a4d79d4aef6c2b3f1d80",
+      "disposition": "required",
+      "primary_owners": [
+        "3.20"
+      ],
+      "supporting_owners": [
+        "5.7"
+      ],
+      "acceptance": [
+        "3.20/AC02"
+      ],
+      "assertions": [
+        "Default12months inclusive everydate: Sep14 2026\u2192Sep14 2027allowed/Sep15endblocked evenwithinstart/funds",
+        "configurablehorizon distinctcarryvalidity"
+      ],
+      "review_method": "manual complete source reading, numerical example and accepted-precedence comparison with existing CALC/actual producer contracts; no lexical scoring"
+    },
+    {
+      "source_unit": "SRC1-1469",
+      "source_path": "apps/leave/docs/features.md",
+      "source_line": 1469,
+      "source_hash": "46cb082c044f87145d98c233985b27a927fe99bce84099c0278dbdaa9f7524f7",
+      "disposition": "context",
+      "primary_owners": [
+        "3.17-A"
+      ],
+      "supporting_owners": [],
+      "acceptance": [
+        "3.17-A/AC01",
+        "3.17-A/AC02",
+        "3.17-A/AC03",
+        "3.17-A/AC04",
+        "3.17-A/AC05",
+        "3.17-A/AC06",
+        "3.17-A/AC07",
+        "3.17-A/AC08"
+      ],
+      "assertions": [
+        "Section/table/example navigation or historical planning note",
+        "actual deterministic history/event/portion contracts own implementation, not a second ledger specification"
+      ],
+      "review_method": "manual complete source reading, numerical example and accepted-precedence comparison with existing CALC/actual producer contracts; no lexical scoring"
+    },
+    {
+      "source_unit": "SRC1-1471",
+      "source_path": "apps/leave/docs/features.md",
+      "source_line": 1471,
+      "source_hash": "016e15af39d8b855f7a6fc4c6f88a31e8472cfa739128acb6e716ebb6c56922c",
+      "disposition": "required",
+      "primary_owners": [
+        "3.18"
+      ],
+      "supporting_owners": [],
+      "acceptance": [
+        "3.18/AC01",
+        "3.18/AC05"
+      ],
+      "assertions": [
+        "Projecteach requesteddate/validyear3 sources, earlierentitlementonlyifstillvalidcarry;60daysneeds60eligible, earlysubmission no grant",
+        "future reservation nottodayconsumption and earliercommitmentprotected"
+      ],
+      "review_method": "manual complete source reading, numerical example and accepted-precedence comparison with existing CALC/actual producer contracts; no lexical scoring"
+    },
+    {
+      "source_unit": "SRC1-1474",
+      "source_path": "apps/leave/docs/features.md",
+      "source_line": 1474,
+      "source_hash": "7bfd7ef1ba5d1b4f6c4fabdf13e653f4057e58b250a0963d2daf2516ac1f0355",
+      "disposition": "required",
+      "primary_owners": [
+        "3.18"
+      ],
+      "supporting_owners": [],
+      "acceptance": [
+        "3.18/AC01",
+        "3.18/AC05"
+      ],
+      "assertions": [
+        "Projecteach requesteddate/validyear3 sources, earlierentitlementonlyifstillvalidcarry;60daysneeds60eligible, earlysubmission no grant",
+        "future reservation nottodayconsumption and earliercommitmentprotected"
+      ],
+      "review_method": "manual complete source reading, numerical example and accepted-precedence comparison with existing CALC/actual producer contracts; no lexical scoring"
+    },
+    {
+      "source_unit": "SRC1-1477",
+      "source_path": "apps/leave/docs/features.md",
+      "source_line": 1477,
+      "source_hash": "ee4ff8f0262562ac709eba42d863e3fba93c13ae2e699c499fb57c5700e0fb13",
+      "disposition": "required",
+      "primary_owners": [
+        "3.20"
+      ],
+      "supporting_owners": [
+        "5.7"
+      ],
+      "acceptance": [
+        "3.20/AC02"
+      ],
+      "assertions": [
+        "Default12months inclusive everydate: Sep14 2026\u2192Sep14 2027allowed/Sep15endblocked evenwithinstart/funds",
+        "configurablehorizon distinctcarryvalidity"
+      ],
+      "review_method": "manual complete source reading, numerical example and accepted-precedence comparison with existing CALC/actual producer contracts; no lexical scoring"
+    },
+    {
+      "source_unit": "SRC1-1481",
+      "source_path": "apps/leave/docs/features.md",
+      "source_line": 1481,
+      "source_hash": "d80f79c11e5761aab5dcdabbc3ffbca3f756e198c17450109fc80a9e77993af4",
+      "disposition": "context",
+      "primary_owners": [
+        "E1-REF"
+      ],
+      "supporting_owners": [],
+      "acceptance": [
+        "E1-REF/AC01",
+        "E1-REF/AC02",
+        "E1-REF/AC03",
+        "E1-REF/AC04",
+        "E1-REF/AC05",
+        "E1-REF/AC06",
+        "E1-REF/AC07"
+      ],
+      "assertions": [
+        "Decision pointer/qualification context",
+        "operative owner rows bind accepted precedence and exact examples, no duplicate runtime feature from link"
+      ],
+      "review_method": "manual complete source reading, numerical example and accepted-precedence comparison with existing CALC/actual producer contracts; no lexical scoring"
+    },
+    {
+      "source_unit": "SRC1-1483",
+      "source_path": "apps/leave/docs/features.md",
+      "source_line": 1483,
+      "source_hash": "893a705a6d057cd6aa10a83b24bbfba3b88458c877a7b0844e31fb09adaa3c0f",
+      "disposition": "required",
+      "primary_owners": [
+        "3.20"
+      ],
+      "supporting_owners": [
+        "5.7"
+      ],
+      "acceptance": [
+        "3.20/AC02"
+      ],
+      "assertions": [
+        "Default12months inclusive everydate: Sep14 2026\u2192Sep14 2027allowed/Sep15endblocked evenwithinstart/funds",
+        "configurablehorizon distinctcarryvalidity"
+      ],
+      "review_method": "manual complete source reading, numerical example and accepted-precedence comparison with existing CALC/actual producer contracts; no lexical scoring"
+    },
+    {
+      "source_unit": "SRC1-1490",
+      "source_path": "apps/leave/docs/features.md",
+      "source_line": 1490,
+      "source_hash": "b8758a6eac8f76e9885ee53460fc60902762602415304e20b750b6e367ee09ce",
+      "disposition": "context",
+      "primary_owners": [
+        "E1-REF"
+      ],
+      "supporting_owners": [],
+      "acceptance": [
+        "E1-REF/AC01",
+        "E1-REF/AC02",
+        "E1-REF/AC03",
+        "E1-REF/AC04",
+        "E1-REF/AC05",
+        "E1-REF/AC06",
+        "E1-REF/AC07"
+      ],
+      "assertions": [
+        "Decision pointer/qualification context",
+        "operative owner rows bind accepted precedence and exact examples, no duplicate runtime feature from link"
+      ],
+      "review_method": "manual complete source reading, numerical example and accepted-precedence comparison with existing CALC/actual producer contracts; no lexical scoring"
+    },
+    {
+      "source_unit": "SRC1-1492",
+      "source_path": "apps/leave/docs/features.md",
+      "source_line": 1492,
+      "source_hash": "ebb45850e8de11e232903402253ce3884d0eadd0faf851f0f28d17ff333a6b52",
+      "disposition": "required",
+      "primary_owners": [
+        "3.10"
+      ],
+      "supporting_owners": [
+        "5.8-A",
+        "3.11"
+      ],
+      "acceptance": [
+        "3.10/AC05",
+        "3.10/AC07",
+        "3.11/AC06"
+      ],
+      "assertions": [
+        "Earnedreservation600still2400accumulated atcap",
+        "finalconsume\u21921800headroom, withdraw\u21922400unchanged",
+        "futurereservation notcurrentearning"
+      ],
+      "review_method": "manual complete source reading, numerical example and accepted-precedence comparison with existing CALC/actual producer contracts; no lexical scoring"
+    },
+    {
+      "source_unit": "SRC1-1500",
+      "source_path": "apps/leave/docs/features.md",
+      "source_line": 1500,
+      "source_hash": "c6b51785f0177e98ab417a7958a741194306e24e1c7bc72b901e9978e0273d9f",
+      "disposition": "context",
+      "primary_owners": [
+        "E1-REF"
+      ],
+      "supporting_owners": [],
+      "acceptance": [
+        "E1-REF/AC01",
+        "E1-REF/AC02",
+        "E1-REF/AC03",
+        "E1-REF/AC04",
+        "E1-REF/AC05",
+        "E1-REF/AC06",
+        "E1-REF/AC07"
+      ],
+      "assertions": [
+        "Decision pointer/qualification context",
+        "operative owner rows bind accepted precedence and exact examples, no duplicate runtime feature from link"
+      ],
+      "review_method": "manual complete source reading, numerical example and accepted-precedence comparison with existing CALC/actual producer contracts; no lexical scoring"
+    },
+    {
+      "source_unit": "SRC1-1502",
+      "source_path": "apps/leave/docs/features.md",
+      "source_line": 1502,
+      "source_hash": "24d4ab6d3e85d7007970ff3ebe08087bc71b186c5f141703114e00c28ccd2809",
+      "disposition": "required",
+      "primary_owners": [
+        "6.4"
+      ],
+      "supporting_owners": [],
+      "acceptance": [
+        "6.4/AC01",
+        "6.4/AC02",
+        "6.4/AC03"
+      ],
+      "assertions": [
+        "Counterfactual cancellation replay preservingotheractualevents:20cap\u219215approved\u219217earn\u219213otherused",
+        "cancel+5/-2=16, once compensating entries/originalexpiry, not rewritingpast"
+      ],
+      "review_method": "manual complete source reading, numerical example and accepted-precedence comparison with existing CALC/actual producer contracts; no lexical scoring"
+    },
+    {
+      "source_unit": "SRC1-1508",
+      "source_path": "apps/leave/docs/features.md",
+      "source_line": 1508,
+      "source_hash": "86855188b15d36e0fbd0e19b14646ad3ca37e1c2af7856eed6de9b3a285a69d0",
+      "disposition": "required",
+      "primary_owners": [
+        "6.6"
+      ],
+      "supporting_owners": [
+        "6.2",
+        "6.15"
+      ],
+      "acceptance": [
+        "6.6/AC01",
+        "6.6/AC02",
+        "6.6/AC03",
+        "6.2/AC01",
+        "6.2/AC02",
+        "6.2/AC03",
+        "6.15/AC01",
+        "6.15/AC02",
+        "6.15/AC03"
+      ],
+      "assertions": [
+        "Beforecancelshowrestored/reversedextra/expiry/result",
+        "laterpendingL-0151notice no renewedresponse",
+        "spentextra deficitreview not paid\u2192unpaid/extra cancellationapproval"
+      ],
+      "review_method": "manual complete source reading, numerical example and accepted-precedence comparison with existing CALC/actual producer contracts; no lexical scoring"
+    },
+    {
+      "source_unit": "SRC1-1517",
+      "source_path": "apps/leave/docs/features.md",
+      "source_line": 1517,
+      "source_hash": "f54c934a0636e38f495ab2d561c107ff213e609f4369a9e3d6748a494b9bdaf1",
+      "disposition": "required",
+      "primary_owners": [
+        "6.4"
+      ],
+      "supporting_owners": [],
+      "acceptance": [
+        "6.4/AC01",
+        "6.4/AC02",
+        "6.4/AC03"
+      ],
+      "assertions": [
+        "Counterfactual cancellation replay preservingotheractualevents:20cap\u219215approved\u219217earn\u219213otherused",
+        "cancel+5/-2=16, once compensating entries/originalexpiry, not rewritingpast"
+      ],
+      "review_method": "manual complete source reading, numerical example and accepted-precedence comparison with existing CALC/actual producer contracts; no lexical scoring"
+    },
+    {
+      "source_unit": "SRC1-1525",
+      "source_path": "apps/leave/docs/features.md",
+      "source_line": 1525,
+      "source_hash": "ed77fc9044c108f3a0d3387eb58d9ce7de78a9d62ceb8227af50b96520d9694d",
+      "disposition": "context",
+      "primary_owners": [
+        "E1-REF"
+      ],
+      "supporting_owners": [],
+      "acceptance": [
+        "E1-REF/AC01",
+        "E1-REF/AC02",
+        "E1-REF/AC03",
+        "E1-REF/AC04",
+        "E1-REF/AC05",
+        "E1-REF/AC06",
+        "E1-REF/AC07"
+      ],
+      "assertions": [
+        "Decision pointer/qualification context",
+        "operative owner rows bind accepted precedence and exact examples, no duplicate runtime feature from link"
+      ],
+      "review_method": "manual complete source reading, numerical example and accepted-precedence comparison with existing CALC/actual producer contracts; no lexical scoring"
+    },
+    {
+      "source_unit": "SRC1-1527",
+      "source_path": "apps/leave/docs/features.md",
+      "source_line": 1527,
+      "source_hash": "7cef1985159ce4e548074619440d4731b36ec97e9d83ed346f3912c6c72335ff",
+      "disposition": "required",
+      "primary_owners": [
+        "6.15"
+      ],
+      "supporting_owners": [
+        "6.16"
+      ],
+      "acceptance": [
+        "6.15/AC01",
+        "6.15/AC02",
+        "6.15/AC03",
+        "6.16/AC01",
+        "6.16/AC02",
+        "6.16/AC03"
+      ],
+      "assertions": [
+        "Scopedmanager balanceadjustpermission, mandatoryreasoned employeevisible outcome",
+        "review no entitlement, separateexplicitgrant ifchosen",
+        "never automaticpreviousapprovedunpaid"
+      ],
+      "review_method": "manual complete source reading, numerical example and accepted-precedence comparison with existing CALC/actual producer contracts; no lexical scoring"
+    },
+    {
+      "source_unit": "SRC1-1534",
+      "source_path": "apps/leave/docs/features.md",
+      "source_line": 1534,
+      "source_hash": "73510e3d51f9fcadd9c313cab18ffb42a4a0cdbf018ec980b8ce3e0e0ade3b41",
+      "disposition": "required",
+      "primary_owners": [
+        "6.15"
+      ],
+      "supporting_owners": [
+        "6.16"
+      ],
+      "acceptance": [
+        "6.15/AC01",
+        "6.15/AC02",
+        "6.15/AC03",
+        "6.16/AC01",
+        "6.16/AC02",
+        "6.16/AC03"
+      ],
+      "assertions": [
+        "Scopedmanager balanceadjustpermission, mandatoryreasoned employeevisible outcome",
+        "review no entitlement, separateexplicitgrant ifchosen",
+        "never automaticpreviousapprovedunpaid"
+      ],
+      "review_method": "manual complete source reading, numerical example and accepted-precedence comparison with existing CALC/actual producer contracts; no lexical scoring"
+    },
+    {
+      "source_unit": "SRC1-1543",
+      "source_path": "apps/leave/docs/features.md",
+      "source_line": 1543,
+      "source_hash": "9152d2dfd04d50da68073f99eb52bdd7e08e21f60651ca29a255b6142b273223",
+      "disposition": "context",
+      "primary_owners": [
+        "E1-REF"
+      ],
+      "supporting_owners": [],
+      "acceptance": [
+        "E1-REF/AC01",
+        "E1-REF/AC02",
+        "E1-REF/AC03",
+        "E1-REF/AC04",
+        "E1-REF/AC05",
+        "E1-REF/AC06",
+        "E1-REF/AC07"
+      ],
+      "assertions": [
+        "Decision pointer/qualification context",
+        "operative owner rows bind accepted precedence and exact examples, no duplicate runtime feature from link"
+      ],
+      "review_method": "manual complete source reading, numerical example and accepted-precedence comparison with existing CALC/actual producer contracts; no lexical scoring"
+    },
+    {
+      "source_unit": "SRC1-1545",
+      "source_path": "apps/leave/docs/features.md",
+      "source_line": 1545,
+      "source_hash": "e43a0d859f250ba0c6db7b5c7708c36b11fc5fb3136a7bc3dfba165d77a1e5aa",
+      "disposition": "required",
+      "primary_owners": [
+        "3.14"
+      ],
+      "supporting_owners": [],
+      "acceptance": [
+        "3.14/AC02"
+      ],
+      "assertions": [
+        "Five-day limit8h\u21922400/6h\u21921800minutes boundedunused",
+        "retained standardday/effective schedule atrollover, laterchange no rewrite"
+      ],
+      "review_method": "manual complete source reading, numerical example and accepted-precedence comparison with existing CALC/actual producer contracts; no lexical scoring"
+    },
+    {
+      "source_unit": "SRC1-1552",
+      "source_path": "apps/leave/docs/features.md",
+      "source_line": 1552,
+      "source_hash": "84e681e4a471f19353053b4de7e32ff0fa58cb6476b510b6edd2f18095bb5a2d",
+      "disposition": "context",
+      "primary_owners": [
+        "E1-REF"
+      ],
+      "supporting_owners": [],
+      "acceptance": [
+        "E1-REF/AC01",
+        "E1-REF/AC02",
+        "E1-REF/AC03",
+        "E1-REF/AC04",
+        "E1-REF/AC05",
+        "E1-REF/AC06",
+        "E1-REF/AC07"
+      ],
+      "assertions": [
+        "Decision pointer/qualification context",
+        "operative owner rows bind accepted precedence and exact examples, no duplicate runtime feature from link"
+      ],
+      "review_method": "manual complete source reading, numerical example and accepted-precedence comparison with existing CALC/actual producer contracts; no lexical scoring"
+    },
+    {
+      "source_unit": "SRC1-1554",
+      "source_path": "apps/leave/docs/features.md",
+      "source_line": 1554,
+      "source_hash": "6717895f0ec76247e54682a8348af73e51fcb24ec7271537b044be52665fb3f5",
+      "disposition": "required",
+      "primary_owners": [
+        "3.7"
+      ],
+      "supporting_owners": [],
+      "acceptance": [
+        "3.7/AC02",
+        "3.7/AC03"
+      ],
+      "assertions": [
+        "Standarddayconversion distinctactualscheduleddate:8hstandardcarry5=40h,Friday6consumes6/full3half",
+        "retained effective snapshots, no8h Fridaycharge"
+      ],
+      "review_method": "manual complete source reading, numerical example and accepted-precedence comparison with existing CALC/actual producer contracts; no lexical scoring"
+    },
+    {
+      "source_unit": "SRC1-1561",
+      "source_path": "apps/leave/docs/features.md",
+      "source_line": 1561,
+      "source_hash": "a00e743420ed297b7ba2585483dfa3f73aa534f5fb45ad0cc7ec4eb3f116cf45",
+      "disposition": "required",
+      "primary_owners": [
+        "3.7"
+      ],
+      "supporting_owners": [],
+      "acceptance": [
+        "3.7/AC02",
+        "3.7/AC03"
+      ],
+      "assertions": [
+        "Standarddayconversion distinctactualscheduleddate:8hstandardcarry5=40h,Friday6consumes6/full3half",
+        "retained effective snapshots, no8h Fridaycharge"
+      ],
+      "review_method": "manual complete source reading, numerical example and accepted-precedence comparison with existing CALC/actual producer contracts; no lexical scoring"
+    },
+    {
+      "source_unit": "SRC1-1568",
+      "source_path": "apps/leave/docs/features.md",
+      "source_line": 1568,
+      "source_hash": "15eca0145b814ddfc39818d195365ca0af9a5f2535236da7128da264fa10ceae",
+      "disposition": "context",
+      "primary_owners": [
+        "E1-REF"
+      ],
+      "supporting_owners": [],
+      "acceptance": [
+        "E1-REF/AC01",
+        "E1-REF/AC02",
+        "E1-REF/AC03",
+        "E1-REF/AC04",
+        "E1-REF/AC05",
+        "E1-REF/AC06",
+        "E1-REF/AC07"
+      ],
+      "assertions": [
+        "Decision pointer/qualification context",
+        "operative owner rows bind accepted precedence and exact examples, no duplicate runtime feature from link"
+      ],
+      "review_method": "manual complete source reading, numerical example and accepted-precedence comparison with existing CALC/actual producer contracts; no lexical scoring"
+    },
+    {
+      "source_unit": "SRC1-1570",
+      "source_path": "apps/leave/docs/features.md",
+      "source_line": 1570,
+      "source_hash": "e8a12b016e07a5bf777798c0e13e3eb26d9f0796bb3e33f2bae6af890ecbbeea",
+      "disposition": "required",
+      "primary_owners": [
+        "3.8"
+      ],
+      "supporting_owners": [
+        "3.11",
+        "3.12"
+      ],
+      "acceptance": [
+        "3.8/AC01",
+        "3.8/AC02",
+        "3.8/AC03",
+        "3.8/AC04",
+        "3.8/AC05",
+        "3.8/AC06",
+        "3.8/AC07",
+        "3.11/AC01",
+        "3.11/AC02",
+        "3.11/AC03",
+        "3.11/AC04",
+        "3.11/AC05",
+        "3.11/AC06",
+        "3.11/AC07",
+        "3.11/AC08",
+        "3.11/AC09",
+        "3.11/AC10",
+        "3.12/AC01",
+        "3.12/AC02",
+        "3.12/AC03",
+        "3.12/AC04",
+        "3.12/AC05",
+        "3.12/AC06"
+      ],
+      "assertions": [
+        "CalendarJan1\u2013Dec31 versusanniversaryJuly1\u2013June30 independentdaily/monthly/upfront method",
+        "exactperiodsproration/rollover",
+        "no inferperiodfromaccrualfrequency"
+      ],
+      "review_method": "manual complete source reading, numerical example and accepted-precedence comparison with existing CALC/actual producer contracts; no lexical scoring"
+    },
+    {
+      "source_unit": "SRC1-1577",
+      "source_path": "apps/leave/docs/features.md",
+      "source_line": 1577,
+      "source_hash": "b02e4ba92e713a699f35f4f69392c026d8b0b052f850147bbbd9159151db0b00",
+      "disposition": "required",
+      "primary_owners": [
+        "3.8"
+      ],
+      "supporting_owners": [
+        "3.11",
+        "3.12"
+      ],
+      "acceptance": [
+        "3.8/AC01",
+        "3.8/AC02",
+        "3.8/AC03",
+        "3.8/AC04",
+        "3.8/AC05",
+        "3.8/AC06",
+        "3.8/AC07",
+        "3.11/AC01",
+        "3.11/AC02",
+        "3.11/AC03",
+        "3.11/AC04",
+        "3.11/AC05",
+        "3.11/AC06",
+        "3.11/AC07",
+        "3.11/AC08",
+        "3.11/AC09",
+        "3.11/AC10",
+        "3.12/AC01",
+        "3.12/AC02",
+        "3.12/AC03",
+        "3.12/AC04",
+        "3.12/AC05",
+        "3.12/AC06"
+      ],
+      "assertions": [
+        "CalendarJan1\u2013Dec31 versusanniversaryJuly1\u2013June30 independentdaily/monthly/upfront method",
+        "exactperiodsproration/rollover",
+        "no inferperiodfromaccrualfrequency"
+      ],
+      "review_method": "manual complete source reading, numerical example and accepted-precedence comparison with existing CALC/actual producer contracts; no lexical scoring"
+    },
+    {
+      "source_unit": "SRC1-1583",
+      "source_path": "apps/leave/docs/features.md",
+      "source_line": 1583,
+      "source_hash": "3541f2464863b3ae292912112445c0aefd8de24f485b57a8b25643cbe247d967",
+      "disposition": "context",
+      "primary_owners": [
+        "E1-REF"
+      ],
+      "supporting_owners": [],
+      "acceptance": [
+        "E1-REF/AC01",
+        "E1-REF/AC02",
+        "E1-REF/AC03",
+        "E1-REF/AC04",
+        "E1-REF/AC05",
+        "E1-REF/AC06",
+        "E1-REF/AC07"
+      ],
+      "assertions": [
+        "Decision pointer/qualification context",
+        "operative owner rows bind accepted precedence and exact examples, no duplicate runtime feature from link"
+      ],
+      "review_method": "manual complete source reading, numerical example and accepted-precedence comparison with existing CALC/actual producer contracts; no lexical scoring"
+    },
+    {
+      "source_unit": "SRC1-1585",
+      "source_path": "apps/leave/docs/features.md",
+      "source_line": 1585,
+      "source_hash": "d593480ad3f0adaa3f12e939639359cd57b778bb85af07c26f899fbfade6ab6c",
+      "disposition": "required",
+      "primary_owners": [
+        "3.34-A"
+      ],
+      "supporting_owners": [
+        "3.28"
+      ],
+      "acceptance": [
+        "3.34-A/AC10",
+        "3.28/AC09"
+      ],
+      "assertions": [
+        "Usedbasis fixedinitialchoice inclfutureconfirmedassignment",
+        "newtypeallowed butno entitlementmigration/manualadjustshortcut",
+        "earningmethodfixedbasis and necessaryfactualemploymentcorrection remain"
+      ],
+      "review_method": "manual complete source reading, numerical example and accepted-precedence comparison with existing CALC/actual producer contracts; no lexical scoring"
+    },
+    {
+      "source_unit": "SRC1-1596",
+      "source_path": "apps/leave/docs/features.md",
+      "source_line": 1596,
+      "source_hash": "0235e6e926d1aa1d1883fe07b3e128e437668fed45e92e163f94af8abd531be5",
+      "disposition": "required",
+      "primary_owners": [
+        "3.11"
+      ],
+      "supporting_owners": [],
+      "acceptance": [
+        "3.11/AC01",
+        "3.11/AC02",
+        "3.11/AC03",
+        "3.11/AC08"
+      ],
+      "assertions": [
+        "Calendar Jan1/anniversary start upfront once",
+        "midperiod join on actual employment/coverage with adjusted/full choice and standalone final floor, next original period start"
+      ],
+      "review_method": "manual complete source reading, numerical example and accepted-precedence comparison with existing CALC/actual producer contracts; no lexical scoring"
+    },
+    {
+      "source_unit": "SRC1-1603",
+      "source_path": "apps/leave/docs/features.md",
+      "source_line": 1603,
+      "source_hash": "c8b60411059fa486adf4ae7ac1ad573a0fe23b4293d816024acd59011aea4a42",
+      "disposition": "required",
+      "primary_owners": [
+        "3.11"
+      ],
+      "supporting_owners": [],
+      "acceptance": [
+        "3.11/AC01",
+        "3.11/AC02",
+        "3.11/AC03",
+        "3.11/AC08"
+      ],
+      "assertions": [
+        "Calendar Jan1/anniversary start upfront once",
+        "midperiod join on actual employment/coverage with adjusted/full choice and standalone final floor, next original period start"
+      ],
+      "review_method": "manual complete source reading, numerical example and accepted-precedence comparison with existing CALC/actual producer contracts; no lexical scoring"
+    },
+    {
+      "source_unit": "SRC1-1610",
+      "source_path": "apps/leave/docs/features.md",
+      "source_line": 1610,
+      "source_hash": "3ff871b08fa33a0fa85480923c28ad41f732c73ce255a660428f750efa520886",
+      "disposition": "context",
+      "primary_owners": [
+        "E1-REF"
+      ],
+      "supporting_owners": [],
+      "acceptance": [
+        "E1-REF/AC01",
+        "E1-REF/AC02",
+        "E1-REF/AC03",
+        "E1-REF/AC04",
+        "E1-REF/AC05",
+        "E1-REF/AC06",
+        "E1-REF/AC07"
+      ],
+      "assertions": [
+        "Decision pointer/qualification context",
+        "operative owner rows bind accepted precedence and exact examples, no duplicate runtime feature from link"
+      ],
+      "review_method": "manual complete source reading, numerical example and accepted-precedence comparison with existing CALC/actual producer contracts; no lexical scoring"
+    },
+    {
+      "source_unit": "SRC1-1612",
+      "source_path": "apps/leave/docs/features.md",
+      "source_line": 1612,
+      "source_hash": "5fa177f8cd636d995848375dbd61fa6e662232e4f04c8efb086a094d2d1e71eb",
+      "disposition": "required",
+      "primary_owners": [
+        "3.8"
+      ],
+      "supporting_owners": [
+        "3.11"
+      ],
+      "acceptance": [
+        "3.8/AC07"
+      ],
+      "assertions": [
+        "Feb29originalanniversary clampedFeb28nonleap thenreturnsFeb29;2027periodFeb28throughFeb28 2028,nextFeb29",
+        "no gaps/overlap/changed original date"
+      ],
+      "review_method": "manual complete source reading, numerical example and accepted-precedence comparison with existing CALC/actual producer contracts; no lexical scoring"
+    },
+    {
+      "source_unit": "SRC1-1619",
+      "source_path": "apps/leave/docs/features.md",
+      "source_line": 1619,
+      "source_hash": "82bf0fa30d365a616a22c236575a2a3088b14d058b86f7420a780e32795398f6",
+      "disposition": "required",
+      "primary_owners": [
+        "3.8"
+      ],
+      "supporting_owners": [
+        "3.11"
+      ],
+      "acceptance": [
+        "3.8/AC07"
+      ],
+      "assertions": [
+        "Feb29originalanniversary clampedFeb28nonleap thenreturnsFeb29;2027periodFeb28throughFeb28 2028,nextFeb29",
+        "no gaps/overlap/changed original date"
+      ],
+      "review_method": "manual complete source reading, numerical example and accepted-precedence comparison with existing CALC/actual producer contracts; no lexical scoring"
+    },
+    {
+      "source_unit": "SRC1-1624",
+      "source_path": "apps/leave/docs/features.md",
+      "source_line": 1624,
+      "source_hash": "c4b3aad70465ccc0f01278bfc983326dc0e2943cdbe4e762057a21f126f56cad",
+      "disposition": "context",
+      "primary_owners": [
+        "E1-REF"
+      ],
+      "supporting_owners": [],
+      "acceptance": [
+        "E1-REF/AC01",
+        "E1-REF/AC02",
+        "E1-REF/AC03",
+        "E1-REF/AC04",
+        "E1-REF/AC05",
+        "E1-REF/AC06",
+        "E1-REF/AC07"
+      ],
+      "assertions": [
+        "Decision pointer/qualification context",
+        "operative owner rows bind accepted precedence and exact examples, no duplicate runtime feature from link"
+      ],
+      "review_method": "manual complete source reading, numerical example and accepted-precedence comparison with existing CALC/actual producer contracts; no lexical scoring"
+    },
+    {
+      "source_unit": "SRC1-1626",
+      "source_path": "apps/leave/docs/features.md",
+      "source_line": 1626,
+      "source_hash": "1a0742f31f78ead63da7d1d995cafcee767d82f150fa5fe6f79e39d242bad113",
+      "disposition": "required",
+      "primary_owners": [
+        "3.18"
+      ],
+      "supporting_owners": [],
+      "acceptance": [
+        "3.18/AC01",
+        "3.18/AC02",
+        "3.18/AC03",
+        "3.18/AC04"
+      ],
+      "assertions": [
+        "Chronological dates reuse no entitlement:240+later240 funds240each,480first short240;480thenexpiry beforeday2 yieldssecondshort240;480minusotherreserved240 candidate480short240",
+        "futureearning neverrepairs earlierdate"
+      ],
+      "review_method": "manual complete source reading, numerical example and accepted-precedence comparison with existing CALC/actual producer contracts; no lexical scoring"
+    },
+    {
+      "source_unit": "SRC1-1635",
+      "source_path": "apps/leave/docs/features.md",
+      "source_line": 1635,
+      "source_hash": "111e7e4190ad48695f117d7a7b0a9cd8966d54958201f54808bdd55d124c840f",
+      "disposition": "context",
+      "primary_owners": [
+        "3.17-A"
+      ],
+      "supporting_owners": [],
+      "acceptance": [
+        "3.17-A/AC01",
+        "3.17-A/AC02",
+        "3.17-A/AC03",
+        "3.17-A/AC04",
+        "3.17-A/AC05",
+        "3.17-A/AC06",
+        "3.17-A/AC07",
+        "3.17-A/AC08"
+      ],
+      "assertions": [
+        "Section/table/example navigation or historical planning note",
+        "actual deterministic history/event/portion contracts own implementation, not a second ledger specification"
+      ],
+      "review_method": "manual complete source reading, numerical example and accepted-precedence comparison with existing CALC/actual producer contracts; no lexical scoring"
+    },
+    {
+      "source_unit": "SRC1-1637",
+      "source_path": "apps/leave/docs/features.md",
+      "source_line": 1637,
+      "source_hash": "a497d27efac73a89e238d425dc826c930ecbc93269958b2dbb333df4122ff0c5",
+      "disposition": "required",
+      "primary_owners": [
+        "3.18"
+      ],
+      "supporting_owners": [],
+      "acceptance": [
+        "3.18/AC01",
+        "3.18/AC02",
+        "3.18/AC03",
+        "3.18/AC04"
+      ],
+      "assertions": [
+        "Chronological dates reuse no entitlement:240+later240 funds240each,480first short240;480thenexpiry beforeday2 yieldssecondshort240;480minusotherreserved240 candidate480short240",
+        "futureearning neverrepairs earlierdate"
+      ],
+      "review_method": "manual complete source reading, numerical example and accepted-precedence comparison with existing CALC/actual producer contracts; no lexical scoring"
+    },
+    {
+      "source_unit": "SRC1-1641",
+      "source_path": "apps/leave/docs/features.md",
+      "source_line": 1641,
+      "source_hash": "cf7a7b07105a49a665e7c5ea0404f812e32336090221397e056cc6e5b0e6a235",
+      "disposition": "required",
+      "primary_owners": [
+        "3.18"
+      ],
+      "supporting_owners": [],
+      "acceptance": [
+        "3.18/AC01",
+        "3.18/AC02",
+        "3.18/AC03",
+        "3.18/AC04"
+      ],
+      "assertions": [
+        "Chronological dates reuse no entitlement:240+later240 funds240each,480first short240;480thenexpiry beforeday2 yieldssecondshort240;480minusotherreserved240 candidate480short240",
+        "futureearning neverrepairs earlierdate"
+      ],
+      "review_method": "manual complete source reading, numerical example and accepted-precedence comparison with existing CALC/actual producer contracts; no lexical scoring"
+    },
+    {
+      "source_unit": "SRC1-1646",
+      "source_path": "apps/leave/docs/features.md",
+      "source_line": 1646,
+      "source_hash": "0af1c7494eb76fbb438ea05c15de282d210d464c363664d8e52d68eb079a8817",
+      "disposition": "required",
+      "primary_owners": [
+        "3.18"
+      ],
+      "supporting_owners": [],
+      "acceptance": [
+        "3.18/AC01",
+        "3.18/AC02",
+        "3.18/AC03",
+        "3.18/AC04"
+      ],
+      "assertions": [
+        "Chronological dates reuse no entitlement:240+later240 funds240each,480first short240;480thenexpiry beforeday2 yieldssecondshort240;480minusotherreserved240 candidate480short240",
+        "futureearning neverrepairs earlierdate"
+      ],
+      "review_method": "manual complete source reading, numerical example and accepted-precedence comparison with existing CALC/actual producer contracts; no lexical scoring"
+    },
+    {
+      "source_unit": "SRC1-1650",
+      "source_path": "apps/leave/docs/features.md",
+      "source_line": 1650,
+      "source_hash": "20806e98569a12501536058ecfc8cd46655ab6bfb0f42392b75d08139a0e177f",
+      "disposition": "context",
+      "primary_owners": [
+        "3.17-A"
+      ],
+      "supporting_owners": [],
+      "acceptance": [
+        "3.17-A/AC01",
+        "3.17-A/AC02",
+        "3.17-A/AC03",
+        "3.17-A/AC04",
+        "3.17-A/AC05",
+        "3.17-A/AC06",
+        "3.17-A/AC07",
+        "3.17-A/AC08"
+      ],
+      "assertions": [
+        "Section/table/example navigation or historical planning note",
+        "actual deterministic history/event/portion contracts own implementation, not a second ledger specification"
+      ],
+      "review_method": "manual complete source reading, numerical example and accepted-precedence comparison with existing CALC/actual producer contracts; no lexical scoring"
+    },
+    {
+      "source_unit": "SRC1-1655",
+      "source_path": "apps/leave/docs/features.md",
+      "source_line": 1655,
+      "source_hash": "bb7f6f591d9d96ca524e253d38a3b3a460bc4fb0a91eb458e966c13b13446230",
+      "disposition": "required",
+      "primary_owners": [
+        "3.18"
+      ],
+      "supporting_owners": [],
+      "acceptance": [
+        "3.18/AC02",
+        "3.18/AC03",
+        "3.18/AC04"
+      ],
+      "assertions": [
+        "Earliestexpiry thenoldestoriginalsourceperiod thenstableportionkey",
+        "nonexpiringlast butsameagetie, carryretainsoriginalperiod;120first+180laterfor300leaves60later/240nonexpire",
+        "otherbalance cannotfill60shortfall withoutauthorizedexception"
+      ],
+      "review_method": "manual complete source reading, numerical example and accepted-precedence comparison with existing CALC/actual producer contracts; no lexical scoring"
+    },
+    {
+      "source_unit": "SRC1-1662",
+      "source_path": "apps/leave/docs/features.md",
+      "source_line": 1662,
+      "source_hash": "ae2d98359aeee249c704e71c90aaf78ef268975870c2a7ce13b33e2f9df78ede",
+      "disposition": "required",
+      "primary_owners": [
+        "3.18"
+      ],
+      "supporting_owners": [],
+      "acceptance": [
+        "3.18/AC02",
+        "3.18/AC03",
+        "3.18/AC04"
+      ],
+      "assertions": [
+        "Earliestexpiry thenoldestoriginalsourceperiod thenstableportionkey",
+        "nonexpiringlast butsameagetie, carryretainsoriginalperiod;120first+180laterfor300leaves60later/240nonexpire",
+        "otherbalance cannotfill60shortfall withoutauthorizedexception"
+      ],
+      "review_method": "manual complete source reading, numerical example and accepted-precedence comparison with existing CALC/actual producer contracts; no lexical scoring"
+    },
+    {
+      "source_unit": "SRC1-1671",
+      "source_path": "apps/leave/docs/features.md",
+      "source_line": 1671,
+      "source_hash": "81a9f934706ddb866319c7518fe36dbdc0b4b0b3bb9b39c10c19a166c743be0d",
+      "disposition": "required",
+      "primary_owners": [
+        "3.18"
+      ],
+      "supporting_owners": [],
+      "acceptance": [
+        "3.18/AC02",
+        "3.18/AC03",
+        "3.18/AC04"
+      ],
+      "assertions": [
+        "Earliestexpiry thenoldestoriginalsourceperiod thenstableportionkey",
+        "nonexpiringlast butsameagetie, carryretainsoriginalperiod;120first+180laterfor300leaves60later/240nonexpire",
+        "otherbalance cannotfill60shortfall withoutauthorizedexception"
+      ],
+      "review_method": "manual complete source reading, numerical example and accepted-precedence comparison with existing CALC/actual producer contracts; no lexical scoring"
+    },
+    {
+      "source_unit": "SRC1-1680",
+      "source_path": "apps/leave/docs/features.md",
+      "source_line": 1680,
+      "source_hash": "48cec543dfc25809500ba3da1d31d918023dc00f7de6667447c1946376677871",
+      "disposition": "required",
+      "primary_owners": [
+        "3.15"
+      ],
+      "supporting_owners": [
+        "3.18"
+      ],
+      "acceptance": [
+        "3.15/AC03",
+        "3.18/AC01"
+      ],
+      "assertions": [
+        "Expiry lastusable Dec31fundsDec31notJan1evenearlysubmit",
+        "spandatesassessedseparately"
+      ],
+      "review_method": "manual complete source reading, numerical example and accepted-precedence comparison with existing CALC/actual producer contracts; no lexical scoring"
+    },
+    {
+      "source_unit": "SRC1-1685",
+      "source_path": "apps/leave/docs/features.md",
+      "source_line": 1685,
+      "source_hash": "081553fb187533d5e7227c626e18362fecb53995c342766588af6ed6d47f45ae",
+      "disposition": "required",
+      "primary_owners": [
+        "3.15"
+      ],
+      "supporting_owners": [
+        "3.18"
+      ],
+      "acceptance": [
+        "3.15/AC03",
+        "3.18/AC01"
+      ],
+      "assertions": [
+        "Expiry lastusable Dec31fundsDec31notJan1evenearlysubmit",
+        "spandatesassessedseparately"
+      ],
+      "review_method": "manual complete source reading, numerical example and accepted-precedence comparison with existing CALC/actual producer contracts; no lexical scoring"
+    },
+    {
+      "source_unit": "SRC1-1691",
+      "source_path": "apps/leave/docs/features.md",
+      "source_line": 1691,
+      "source_hash": "25a035c77601fa9d813a1b9cfa7b928f0229770c3586f35293356fafe3c70485",
+      "disposition": "context",
+      "primary_owners": [
+        "E1-REF"
+      ],
+      "supporting_owners": [],
+      "acceptance": [
+        "E1-REF/AC01",
+        "E1-REF/AC02",
+        "E1-REF/AC03",
+        "E1-REF/AC04",
+        "E1-REF/AC05",
+        "E1-REF/AC06",
+        "E1-REF/AC07"
+      ],
+      "assertions": [
+        "Decision pointer/qualification context",
+        "operative owner rows bind accepted precedence and exact examples, no duplicate runtime feature from link"
+      ],
+      "review_method": "manual complete source reading, numerical example and accepted-precedence comparison with existing CALC/actual producer contracts; no lexical scoring"
+    },
+    {
+      "source_unit": "SRC1-1693",
+      "source_path": "apps/leave/docs/features.md",
+      "source_line": 1693,
+      "source_hash": "81fc411d4163d0bdcc05cb2d2108cfc8096bdf7bd5d6b60de5c198e5f30bb77f",
+      "disposition": "required",
+      "primary_owners": [
+        "3.18"
+      ],
+      "supporting_owners": [],
+      "acceptance": [
+        "3.18/AC01"
+      ],
+      "assertions": [
+        "EffectivegrantFeb1usableatstartFeb1notJan31 regardlesssubmit",
+        "policydatevaries, expiry/othercommitmentsremain"
+      ],
+      "review_method": "manual complete source reading, numerical example and accepted-precedence comparison with existing CALC/actual producer contracts; no lexical scoring"
+    },
+    {
+      "source_unit": "SRC1-1698",
+      "source_path": "apps/leave/docs/features.md",
+      "source_line": 1698,
+      "source_hash": "26a4fef35bb8ab29069ec47173c8b79922b577110a133d834d323bbb9b5753a1",
+      "disposition": "required",
+      "primary_owners": [
+        "3.18"
+      ],
+      "supporting_owners": [],
+      "acceptance": [
+        "3.18/AC01"
+      ],
+      "assertions": [
+        "EffectivegrantFeb1usableatstartFeb1notJan31 regardlesssubmit",
+        "policydatevaries, expiry/othercommitmentsremain"
+      ],
+      "review_method": "manual complete source reading, numerical example and accepted-precedence comparison with existing CALC/actual producer contracts; no lexical scoring"
+    },
+    {
+      "source_unit": "SRC1-1704",
+      "source_path": "apps/leave/docs/features.md",
+      "source_line": 1704,
+      "source_hash": "cca20000b8949bda46794923678134277c91a7bc85016d4622eded3686d7cd63",
+      "disposition": "context",
+      "primary_owners": [
+        "E1-REF"
+      ],
+      "supporting_owners": [],
+      "acceptance": [
+        "E1-REF/AC01",
+        "E1-REF/AC02",
+        "E1-REF/AC03",
+        "E1-REF/AC04",
+        "E1-REF/AC05",
+        "E1-REF/AC06",
+        "E1-REF/AC07"
+      ],
+      "assertions": [
+        "Decision pointer/qualification context",
+        "operative owner rows bind accepted precedence and exact examples, no duplicate runtime feature from link"
+      ],
+      "review_method": "manual complete source reading, numerical example and accepted-precedence comparison with existing CALC/actual producer contracts; no lexical scoring"
+    },
+    {
+      "source_unit": "SRC1-1706",
+      "source_path": "apps/leave/docs/features.md",
+      "source_line": 1706,
+      "source_hash": "023cadd3cf4341dddc0a9e3a3b2580e7669182875cd0280813f1fe2417cc6e69",
+      "disposition": "required",
+      "primary_owners": [
+        "3.7"
+      ],
+      "supporting_owners": [
+        "3.15"
+      ],
+      "acceptance": [
+        "3.7/AC01",
+        "3.15/AC03"
+      ],
+      "assertions": [
+        "Employee Johannesburg workdate authoritative not NewYorkviewer",
+        "Feb1grantstart andJan31expiry sameforboth",
+        "no clientclock/domain conversion drift"
+      ],
+      "review_method": "manual complete source reading, numerical example and accepted-precedence comparison with existing CALC/actual producer contracts; no lexical scoring"
+    },
+    {
+      "source_unit": "SRC1-1711",
+      "source_path": "apps/leave/docs/features.md",
+      "source_line": 1711,
+      "source_hash": "4d8a3d114ec306689d8dbde5b2760577d3d3d51be7811de51df50cb886da1dd7",
+      "disposition": "required",
+      "primary_owners": [
+        "3.7"
+      ],
+      "supporting_owners": [
+        "3.15"
+      ],
+      "acceptance": [
+        "3.7/AC01",
+        "3.15/AC03"
+      ],
+      "assertions": [
+        "Employee Johannesburg workdate authoritative not NewYorkviewer",
+        "Feb1grantstart andJan31expiry sameforboth",
+        "no clientclock/domain conversion drift"
+      ],
+      "review_method": "manual complete source reading, numerical example and accepted-precedence comparison with existing CALC/actual producer contracts; no lexical scoring"
+    },
+    {
+      "source_unit": "SRC1-1719",
+      "source_path": "apps/leave/docs/features.md",
+      "source_line": 1719,
+      "source_hash": "4ff222320affffd0051d51c3d2a44369f9f704243cb7d5f71f42f6e1a88c3eac",
+      "disposition": "context",
+      "primary_owners": [
+        "E1-REF"
+      ],
+      "supporting_owners": [],
+      "acceptance": [
+        "E1-REF/AC01",
+        "E1-REF/AC02",
+        "E1-REF/AC03",
+        "E1-REF/AC04",
+        "E1-REF/AC05",
+        "E1-REF/AC06",
+        "E1-REF/AC07"
+      ],
+      "assertions": [
+        "Decision pointer/qualification context",
+        "operative owner rows bind accepted precedence and exact examples, no duplicate runtime feature from link"
+      ],
+      "review_method": "manual complete source reading, numerical example and accepted-precedence comparison with existing CALC/actual producer contracts; no lexical scoring"
+    }
+  ],
+  "limits": "199 complete calculation-section source units manually read; source-owner assertions/numerical examples and actual acceptance references. Existing CALC table retained, not duplicated as product truth. Full Leave EXPERIENCE and final bidirectional closure remain G01."
+}

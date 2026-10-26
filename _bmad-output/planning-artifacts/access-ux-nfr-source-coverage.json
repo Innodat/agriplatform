@@ -1,0 +1,3963 @@
+{
+  "date": "2026-10-26",
+  "status": "scoped-manual-semantic-reconciliation-not-global-pass",
+  "body_units": [
+    {
+      "source_unit": "SRC1-0003",
+      "source_path": "apps/leave/docs/features.md",
+      "source_line": 3,
+      "source_hash": "d4797b66342dafb22639d9f679502b3021365dda2133e47dcde376c90771d63a",
+      "disposition": "context",
+      "primary_owners": [
+        "E1-A1"
+      ],
+      "acceptance": [
+        "E1-A1/AC01",
+        "E1-A1/AC02",
+        "E1-A1/AC03",
+        "E1-A1/AC04",
+        "E1-A1/AC05",
+        "E1-A1/AC06",
+        "E1-A1/AC07",
+        "E1-A1/AC08",
+        "E1-A1/AC09",
+        "E1-A1/AC10"
+      ],
+      "assertions": [
+        "Version/status/source authority is context, not runtime completion or new product behavior"
+      ],
+      "review_method": "manual full-source reading and semantic source/precedence allocation, no lexical scoring"
+    },
+    {
+      "source_unit": "SRC1-0006",
+      "source_path": "apps/leave/docs/features.md",
+      "source_line": 6,
+      "source_hash": "d6ecd7a85cf42356d9833d13aea6f2ddc75299fac37cd62fa813efd74982ce08",
+      "disposition": "context",
+      "primary_owners": [
+        "E1-A1"
+      ],
+      "acceptance": [
+        "E1-A1/AC01",
+        "E1-A1/AC02",
+        "E1-A1/AC03",
+        "E1-A1/AC04",
+        "E1-A1/AC05",
+        "E1-A1/AC06",
+        "E1-A1/AC07",
+        "E1-A1/AC08",
+        "E1-A1/AC09",
+        "E1-A1/AC10"
+      ],
+      "assertions": [
+        "Version/status/source authority is context, not runtime completion or new product behavior"
+      ],
+      "review_method": "manual full-source reading and semantic source/precedence allocation, no lexical scoring"
+    },
+    {
+      "source_unit": "SRC1-0009",
+      "source_path": "apps/leave/docs/features.md",
+      "source_line": 9,
+      "source_hash": "dfb3b1a9079188cb9c5ec6b0d48a1e77788441e41f56016e28bcc9cfc89976c7",
+      "disposition": "context",
+      "primary_owners": [
+        "E1-A1"
+      ],
+      "acceptance": [
+        "E1-A1/AC01",
+        "E1-A1/AC02",
+        "E1-A1/AC03",
+        "E1-A1/AC04",
+        "E1-A1/AC05",
+        "E1-A1/AC06",
+        "E1-A1/AC07",
+        "E1-A1/AC08",
+        "E1-A1/AC09",
+        "E1-A1/AC10"
+      ],
+      "assertions": [
+        "Version/status/source authority is context, not runtime completion or new product behavior"
+      ],
+      "review_method": "manual full-source reading and semantic source/precedence allocation, no lexical scoring"
+    },
+    {
+      "source_unit": "SRC1-0013",
+      "source_path": "apps/leave/docs/features.md",
+      "source_line": 13,
+      "source_hash": "29d4406d6f0ad185200e3acff23f3dcf5b5485d8ec0d2b6db7b5572f7f331266",
+      "disposition": "required",
+      "primary_owners": [
+        "E1-ID-B",
+        "E1-ACCESS-B"
+      ],
+      "acceptance": [
+        "E1-ID-B/AC01",
+        "E1-ID-B/AC02",
+        "E1-ID-B/AC03",
+        "E1-ID-B/AC04",
+        "E1-ID-B/AC05",
+        "E1-ID-B/AC06",
+        "E1-ID-B/AC07",
+        "E1-ID-B/AC08",
+        "E1-ID-B/AC09",
+        "E1-ACCESS-B/AC01",
+        "E1-ACCESS-B/AC02",
+        "E1-ACCESS-B/AC03",
+        "E1-ACCESS-B/AC04",
+        "E1-ACCESS-B/AC05",
+        "E1-ACCESS-B/AC06",
+        "E1-ACCESS-B/AC07",
+        "E1-ACCESS-B/AC08",
+        "E1-ACCESS-B/AC09"
+      ],
+      "assertions": [
+        "Organization is the tenant, including for-profit",
+        "org_id isolation and no generic NGO-only type restrictions"
+      ],
+      "review_method": "manual full-source reading and semantic source/precedence allocation, no lexical scoring"
+    },
+    {
+      "source_unit": "SRC1-0018",
+      "source_path": "apps/leave/docs/features.md",
+      "source_line": 18,
+      "source_hash": "abefb898e8bf4d49a2e266b1fc38347cf605a40cb58520e6025e5f16903c7bae",
+      "disposition": "required",
+      "primary_owners": [
+        "E1-PEOPLE",
+        "2.11",
+        "2.15",
+        "2.16"
+      ],
+      "acceptance": [
+        "E1-PEOPLE/AC01",
+        "E1-PEOPLE/AC02",
+        "E1-PEOPLE/AC03",
+        "E1-PEOPLE/AC04",
+        "E1-PEOPLE/AC05",
+        "E1-PEOPLE/AC06",
+        "E1-PEOPLE/AC07",
+        "E1-PEOPLE/AC08",
+        "2.11/AC01",
+        "2.11/AC02",
+        "2.11/AC03",
+        "2.11/AC04",
+        "2.11/AC05",
+        "2.11/AC06",
+        "2.11/AC07",
+        "2.11/AC08",
+        "2.11/AC09",
+        "2.15/AC01",
+        "2.15/AC02",
+        "2.15/AC03",
+        "2.15/AC04",
+        "2.15/AC05",
+        "2.15/AC06",
+        "2.15/AC07",
+        "2.15/AC08",
+        "2.16/AC01",
+        "2.16/AC02",
+        "2.16/AC03",
+        "2.16/AC04",
+        "2.16/AC05",
+        "2.16/AC06",
+        "2.16/AC07",
+        "2.16/AC08"
+      ],
+      "assertions": [
+        "Identity/People own common person/employment/nullable supervisor/placement",
+        "Leave settings stay local over authorized HTTP, not copied employee master"
+      ],
+      "review_method": "manual full-source reading and semantic source/precedence allocation, no lexical scoring"
+    },
+    {
+      "source_unit": "SRC1-0027",
+      "source_path": "apps/leave/docs/features.md",
+      "source_line": 27,
+      "source_hash": "c04ee1300239b2748b30085c6634731560dc6442a48c415500813c438bfa6596",
+      "disposition": "context",
+      "primary_owners": [
+        "E1-REF"
+      ],
+      "acceptance": [
+        "E1-REF/AC01",
+        "E1-REF/AC02",
+        "E1-REF/AC03",
+        "E1-REF/AC04",
+        "E1-REF/AC05",
+        "E1-REF/AC06",
+        "E1-REF/AC07"
+      ],
+      "assertions": [
+        "Product outcome and platform-reference framing",
+        "does not claim generated mechanisms exist or authorize broad upfront work"
+      ],
+      "review_method": "manual full-source reading and semantic source/precedence allocation, no lexical scoring"
+    },
+    {
+      "source_unit": "SRC1-0031",
+      "source_path": "apps/leave/docs/features.md",
+      "source_line": 31,
+      "source_hash": "7e167d4d8241f70f5d57333c7fd4303c45d28c4bd9313e059896d9a00c11f5cb",
+      "disposition": "context",
+      "primary_owners": [
+        "E1-REF"
+      ],
+      "acceptance": [
+        "E1-REF/AC01",
+        "E1-REF/AC02",
+        "E1-REF/AC03",
+        "E1-REF/AC04",
+        "E1-REF/AC05",
+        "E1-REF/AC06",
+        "E1-REF/AC07"
+      ],
+      "assertions": [
+        "Product outcome and platform-reference framing",
+        "does not claim generated mechanisms exist or authorize broad upfront work"
+      ],
+      "review_method": "manual full-source reading and semantic source/precedence allocation, no lexical scoring"
+    },
+    {
+      "source_unit": "SRC1-0035",
+      "source_path": "apps/leave/docs/features.md",
+      "source_line": 35,
+      "source_hash": "3308d1752abac4ec7f7f6199cb189e83b638fb2f87afb5be4f66a4062fa41a49",
+      "disposition": "delivery-constraint",
+      "primary_owners": [
+        "E1-P1",
+        "E1-REF",
+        "8.28"
+      ],
+      "acceptance": [
+        "E1-P1/AC01",
+        "E1-P1/AC02",
+        "E1-P1/AC03",
+        "E1-P1/AC04",
+        "E1-P1/AC05",
+        "E1-P1/AC06",
+        "E1-P1/AC07",
+        "E1-REF/AC01",
+        "E1-REF/AC02",
+        "E1-REF/AC03",
+        "E1-REF/AC04",
+        "E1-REF/AC05",
+        "E1-REF/AC06",
+        "E1-REF/AC07",
+        "8.28/AC01",
+        "8.28/AC02",
+        "8.28/AC03",
+        "8.28/AC04"
+      ],
+      "assertions": [
+        "First consumers prove/promote neutral UI/scaffold with tests/catalogue/docs/changelog/migration guidance",
+        "BMAD sole workflow",
+        "requirement trace and observed acceptance failure/focused TDD",
+        "risky refactors characterized",
+        "no Leave business generator or duplicate lifecycle"
+      ],
+      "review_method": "manual full-source reading and semantic source/precedence allocation, no lexical scoring"
+    },
+    {
+      "source_unit": "SRC1-0041",
+      "source_path": "apps/leave/docs/features.md",
+      "source_line": 41,
+      "source_hash": "33ecb905f1c450029f04668cfe0634fab35f614967b35094df22f1aa3719db07",
+      "disposition": "delivery-constraint",
+      "primary_owners": [
+        "E1-P1",
+        "E1-REF",
+        "8.28"
+      ],
+      "acceptance": [
+        "E1-P1/AC01",
+        "E1-P1/AC02",
+        "E1-P1/AC03",
+        "E1-P1/AC04",
+        "E1-P1/AC05",
+        "E1-P1/AC06",
+        "E1-P1/AC07",
+        "E1-REF/AC01",
+        "E1-REF/AC02",
+        "E1-REF/AC03",
+        "E1-REF/AC04",
+        "E1-REF/AC05",
+        "E1-REF/AC06",
+        "E1-REF/AC07",
+        "8.28/AC01",
+        "8.28/AC02",
+        "8.28/AC03",
+        "8.28/AC04"
+      ],
+      "assertions": [
+        "First consumers prove/promote neutral UI/scaffold with tests/catalogue/docs/changelog/migration guidance",
+        "BMAD sole workflow",
+        "requirement trace and observed acceptance failure/focused TDD",
+        "risky refactors characterized",
+        "no Leave business generator or duplicate lifecycle"
+      ],
+      "review_method": "manual full-source reading and semantic source/precedence allocation, no lexical scoring"
+    },
+    {
+      "source_unit": "SRC1-0047",
+      "source_path": "apps/leave/docs/features.md",
+      "source_line": 47,
+      "source_hash": "4f48424fb2513daa5ef90ba8600c53a7b1b7ffa513bcbad5d5f35178ea147a3e",
+      "disposition": "delivery-constraint",
+      "primary_owners": [
+        "E1-P1",
+        "E1-REF",
+        "8.28"
+      ],
+      "acceptance": [
+        "E1-P1/AC01",
+        "E1-P1/AC02",
+        "E1-P1/AC03",
+        "E1-P1/AC04",
+        "E1-P1/AC05",
+        "E1-P1/AC06",
+        "E1-P1/AC07",
+        "E1-REF/AC01",
+        "E1-REF/AC02",
+        "E1-REF/AC03",
+        "E1-REF/AC04",
+        "E1-REF/AC05",
+        "E1-REF/AC06",
+        "E1-REF/AC07",
+        "8.28/AC01",
+        "8.28/AC02",
+        "8.28/AC03",
+        "8.28/AC04"
+      ],
+      "assertions": [
+        "First consumers prove/promote neutral UI/scaffold with tests/catalogue/docs/changelog/migration guidance",
+        "BMAD sole workflow",
+        "requirement trace and observed acceptance failure/focused TDD",
+        "risky refactors characterized",
+        "no Leave business generator or duplicate lifecycle"
+      ],
+      "review_method": "manual full-source reading and semantic source/precedence allocation, no lexical scoring"
+    },
+    {
+      "source_unit": "SRC1-0052",
+      "source_path": "apps/leave/docs/features.md",
+      "source_line": 52,
+      "source_hash": "e46cfe052d4871261076d4b8dd81043e6e2cba927ce433e9e8a3878968ac32f8",
+      "disposition": "delivery-constraint",
+      "primary_owners": [
+        "E1-P1",
+        "E1-REF",
+        "8.28"
+      ],
+      "acceptance": [
+        "E1-P1/AC01",
+        "E1-P1/AC02",
+        "E1-P1/AC03",
+        "E1-P1/AC04",
+        "E1-P1/AC05",
+        "E1-P1/AC06",
+        "E1-P1/AC07",
+        "E1-REF/AC01",
+        "E1-REF/AC02",
+        "E1-REF/AC03",
+        "E1-REF/AC04",
+        "E1-REF/AC05",
+        "E1-REF/AC06",
+        "E1-REF/AC07",
+        "8.28/AC01",
+        "8.28/AC02",
+        "8.28/AC03",
+        "8.28/AC04"
+      ],
+      "assertions": [
+        "First consumers prove/promote neutral UI/scaffold with tests/catalogue/docs/changelog/migration guidance",
+        "BMAD sole workflow",
+        "requirement trace and observed acceptance failure/focused TDD",
+        "risky refactors characterized",
+        "no Leave business generator or duplicate lifecycle"
+      ],
+      "review_method": "manual full-source reading and semantic source/precedence allocation, no lexical scoring"
+    },
+    {
+      "source_unit": "SRC1-0060",
+      "source_path": "apps/leave/docs/features.md",
+      "source_line": 60,
+      "source_hash": "5d3c8017ed74130a0a7ac0f9719076bee158cddfee4e6b1e44fa77717e41de1a",
+      "disposition": "delivery-constraint",
+      "primary_owners": [
+        "E1-P1",
+        "E1-REF",
+        "8.28"
+      ],
+      "acceptance": [
+        "E1-P1/AC01",
+        "E1-P1/AC02",
+        "E1-P1/AC03",
+        "E1-P1/AC04",
+        "E1-P1/AC05",
+        "E1-P1/AC06",
+        "E1-P1/AC07",
+        "E1-REF/AC01",
+        "E1-REF/AC02",
+        "E1-REF/AC03",
+        "E1-REF/AC04",
+        "E1-REF/AC05",
+        "E1-REF/AC06",
+        "E1-REF/AC07",
+        "8.28/AC01",
+        "8.28/AC02",
+        "8.28/AC03",
+        "8.28/AC04"
+      ],
+      "assertions": [
+        "First consumers prove/promote neutral UI/scaffold with tests/catalogue/docs/changelog/migration guidance",
+        "BMAD sole workflow",
+        "requirement trace and observed acceptance failure/focused TDD",
+        "risky refactors characterized",
+        "no Leave business generator or duplicate lifecycle"
+      ],
+      "review_method": "manual full-source reading and semantic source/precedence allocation, no lexical scoring"
+    },
+    {
+      "source_unit": "SRC1-0069",
+      "source_path": "apps/leave/docs/features.md",
+      "source_line": 69,
+      "source_hash": "3f93b27d5b2026df2081f2303742ae9299500abb8fd3155dbbf0314011019195",
+      "disposition": "required",
+      "primary_owners": [
+        "E1-D2-B"
+      ],
+      "acceptance": [
+        "E1-D2-B/AC01",
+        "E1-D2-B/AC02",
+        "E1-D2-B/AC03",
+        "E1-D2-B/AC04",
+        "E1-D2-B/AC05",
+        "E1-D2-B/AC06",
+        "E1-D2-B/AC07",
+        "E1-D2-B/AC08",
+        "E1-D2-B/AC09",
+        "E1-D2-B/AC10"
+      ],
+      "assertions": [
+        "Clear next action in actual user surface, not a new task engine"
+      ],
+      "review_method": "manual full-source reading and semantic source/precedence allocation, no lexical scoring"
+    },
+    {
+      "source_unit": "SRC1-0070",
+      "source_path": "apps/leave/docs/features.md",
+      "source_line": 70,
+      "source_hash": "4f228ac4d127a489c3d52e20df5f78c4dae2f2844edec6188aac42849b176d75",
+      "disposition": "required",
+      "primary_owners": [
+        "3.19"
+      ],
+      "acceptance": [
+        "3.19/AC01",
+        "3.19/AC02",
+        "3.19/AC03",
+        "3.19/AC04",
+        "3.19/AC05",
+        "3.19/AC06",
+        "3.19/AC07"
+      ],
+      "assertions": [
+        "Backend calculation and paid/unpaid consequence explained before actual submission"
+      ],
+      "review_method": "manual full-source reading and semantic source/precedence allocation, no lexical scoring"
+    },
+    {
+      "source_unit": "SRC1-0071",
+      "source_path": "apps/leave/docs/features.md",
+      "source_line": 71,
+      "source_hash": "2e3e3bc43947009c7d21ef89d08adbb5c31bfc95d2b93438325e4e2f9baa083c",
+      "disposition": "required",
+      "primary_owners": [
+        "3.9",
+        "5.10-A",
+        "6.17"
+      ],
+      "acceptance": [
+        "3.9/AC01",
+        "3.9/AC02",
+        "3.9/AC03",
+        "3.9/AC04",
+        "3.9/AC05",
+        "3.9/AC06",
+        "3.9/AC07",
+        "5.10-A/AC01",
+        "5.10-A/AC02",
+        "5.10-A/AC03",
+        "5.10-A/AC04",
+        "6.17/AC01",
+        "6.17/AC02",
+        "6.17/AC03"
+      ],
+      "assertions": [
+        "Immutable events/versions/decision evidence preserve meaning through correction"
+      ],
+      "review_method": "manual full-source reading and semantic source/precedence allocation, no lexical scoring"
+    },
+    {
+      "source_unit": "SRC1-0072",
+      "source_path": "apps/leave/docs/features.md",
+      "source_line": 72,
+      "source_hash": "98d0219d5a7624cf487ece508d2da848d02d36c9d6feebfa1cb6897a340af952",
+      "disposition": "required",
+      "primary_owners": [
+        "4.6",
+        "7.1"
+      ],
+      "acceptance": [
+        "4.6/AC01",
+        "4.6/AC02",
+        "4.6/AC03",
+        "4.6/AC04",
+        "4.6/AC05",
+        "7.1/AC01",
+        "7.1/AC02",
+        "7.1/AC03",
+        "7.1/AC04"
+      ],
+      "assertions": [
+        "Default sensitive reason/document privacy enforced in projections and bytes"
+      ],
+      "review_method": "manual full-source reading and semantic source/precedence allocation, no lexical scoring"
+    },
+    {
+      "source_unit": "SRC1-0073",
+      "source_path": "apps/leave/docs/features.md",
+      "source_line": 73,
+      "source_hash": "d505944894008c026050ce69d7747c5dd3496e1084c0bfa1eb4c69a9aada533d",
+      "disposition": "required",
+      "primary_owners": [
+        "E1-ACCESS-B",
+        "5.10-A"
+      ],
+      "acceptance": [
+        "E1-ACCESS-B/AC01",
+        "E1-ACCESS-B/AC02",
+        "E1-ACCESS-B/AC03",
+        "E1-ACCESS-B/AC04",
+        "E1-ACCESS-B/AC05",
+        "E1-ACCESS-B/AC06",
+        "E1-ACCESS-B/AC07",
+        "E1-ACCESS-B/AC08",
+        "E1-ACCESS-B/AC09",
+        "5.10-A/AC01",
+        "5.10-A/AC02",
+        "5.10-A/AC03",
+        "5.10-A/AC04"
+      ],
+      "assertions": [
+        "Current org/resource access plus native storage isolation",
+        "UI filtering alone insufficient"
+      ],
+      "review_method": "manual full-source reading and semantic source/precedence allocation, no lexical scoring"
+    },
+    {
+      "source_unit": "SRC1-0074",
+      "source_path": "apps/leave/docs/features.md",
+      "source_line": 74,
+      "source_hash": "9bb669a16a21e6d6ac5e779dc40e5b3008c1223d1b1ab76b33601db61400bbce",
+      "disposition": "required",
+      "primary_owners": [
+        "3.3-A"
+      ],
+      "acceptance": [
+        "3.3-A/AC01",
+        "3.3-A/AC02",
+        "3.3-A/AC03",
+        "3.3-A/AC04",
+        "3.3-A/AC05",
+        "3.3-A/AC06",
+        "3.3-A/AC07",
+        "3.3-A/AC08",
+        "3.3-A/AC09",
+        "3.3-A/AC10"
+      ],
+      "assertions": [
+        "Reviewed configurable policy, not hard-coded employment law"
+      ],
+      "review_method": "manual full-source reading and semantic source/precedence allocation, no lexical scoring"
+    },
+    {
+      "source_unit": "SRC1-0075",
+      "source_path": "apps/leave/docs/features.md",
+      "source_line": 75,
+      "source_hash": "9f5d7bf1e1164b436e067e3f10f024c13ef2fa9e21135d27fcdbe5ca21be8483",
+      "disposition": "required",
+      "primary_owners": [
+        "5.13-A"
+      ],
+      "acceptance": [
+        "5.13-A/AC01",
+        "5.13-A/AC02",
+        "5.13-A/AC03",
+        "5.13-A/AC04",
+        "5.13-A/AC05",
+        "5.13-A/AC06"
+      ],
+      "assertions": [
+        "Explicit independent override authority/reason/conserved sources and immutable audit"
+      ],
+      "review_method": "manual full-source reading and semantic source/precedence allocation, no lexical scoring"
+    },
+    {
+      "source_unit": "SRC1-0076",
+      "source_path": "apps/leave/docs/features.md",
+      "source_line": 76,
+      "source_hash": "0e6a682f9c5ae2736f0fc226d6d246132adde6be76a8432060081d9a5396063e",
+      "disposition": "required",
+      "primary_owners": [
+        "E1-ACCESS-B"
+      ],
+      "acceptance": [
+        "E1-ACCESS-B/AC01",
+        "E1-ACCESS-B/AC02",
+        "E1-ACCESS-B/AC03",
+        "E1-ACCESS-B/AC04",
+        "E1-ACCESS-B/AC05",
+        "E1-ACCESS-B/AC06",
+        "E1-ACCESS-B/AC07",
+        "E1-ACCESS-B/AC08",
+        "E1-ACCESS-B/AC09"
+      ],
+      "assertions": [
+        "Platform administration is no business or document-read grant"
+      ],
+      "review_method": "manual full-source reading and semantic source/precedence allocation, no lexical scoring"
+    },
+    {
+      "source_unit": "SRC1-0082",
+      "source_path": "apps/leave/docs/features.md",
+      "source_line": 82,
+      "source_hash": "c006557afd7df3a8d64c2192b221ebb340a43a543e24e0bfbb0c2436d9f9c73c",
+      "disposition": "context-with-owner-constraint",
+      "primary_owners": [
+        "E1-PEOPLE"
+      ],
+      "acceptance": [
+        "E1-PEOPLE/AC01",
+        "E1-PEOPLE/AC02",
+        "E1-PEOPLE/AC03",
+        "E1-PEOPLE/AC04",
+        "E1-PEOPLE/AC05",
+        "E1-PEOPLE/AC06",
+        "E1-PEOPLE/AC07",
+        "E1-PEOPLE/AC08"
+      ],
+      "assertions": [
+        "Persona wording is not an employment/membership schema merge",
+        "verified person/account/employment/access remain separate under P-0042"
+      ],
+      "review_method": "manual full-source reading and semantic source/precedence allocation, no lexical scoring"
+    },
+    {
+      "source_unit": "SRC1-0087",
+      "source_path": "apps/leave/docs/features.md",
+      "source_line": 87,
+      "source_hash": "5bfc7ee093fd0ede585cc4cbe45285c04f4fa94ae68dd5ffc4179e8c4086d5fb",
+      "disposition": "required",
+      "primary_owners": [
+        "5.1",
+        "5.18-A"
+      ],
+      "acceptance": [
+        "5.1/AC01",
+        "5.1/AC02",
+        "5.1/AC03",
+        "5.1/AC04",
+        "5.1/AC05",
+        "5.1/AC06",
+        "5.1/AC07",
+        "5.1/AC08",
+        "5.18-A/AC01",
+        "5.18-A/AC02",
+        "5.18-A/AC03",
+        "5.18-A/AC04",
+        "5.18-A/AC05",
+        "5.18-A/AC06",
+        "5.18-A/AC07"
+      ],
+      "assertions": [
+        "Assigned one/two-step route and one Approver role",
+        "current step authority, self rules, independent override/document checks"
+      ],
+      "review_method": "manual full-source reading and semantic source/precedence allocation, no lexical scoring"
+    },
+    {
+      "source_unit": "SRC1-0095",
+      "source_path": "apps/leave/docs/features.md",
+      "source_line": 95,
+      "source_hash": "2c2effb560a87f93065c5b05b3d22367e41745e4e988a1a885f926e663d3bdbc",
+      "disposition": "required",
+      "primary_owners": [
+        "5.12-A"
+      ],
+      "acceptance": [
+        "5.12-A/AC01",
+        "5.12-A/AC02",
+        "5.12-A/AC03",
+        "5.12-A/AC04",
+        "5.12-A/AC05",
+        "5.12-A/AC06",
+        "5.12-A/AC07",
+        "5.12-A/AC08"
+      ],
+      "assertions": [
+        "Standard Approver includes separately scoped initial on-behalf action",
+        "custom omission and temporary/fallback non-inheritance",
+        "current ordinary target/policy population, admin authority for broader targets"
+      ],
+      "review_method": "manual full-source reading and semantic source/precedence allocation, no lexical scoring"
+    },
+    {
+      "source_unit": "SRC1-0107",
+      "source_path": "apps/leave/docs/features.md",
+      "source_line": 107,
+      "source_hash": "726e0fa238afe1ee047b1435cec8fff03bc69e928e3e92d3e1568e2d05a35872",
+      "disposition": "required",
+      "primary_owners": [
+        "6.5"
+      ],
+      "acceptance": [
+        "6.5/AC01",
+        "6.5/AC02",
+        "6.5/AC03"
+      ],
+      "assertions": [
+        "Standard Approver separately scoped future cancellation with reason/notice",
+        "custom omission and no temporary inheritance",
+        "started/past correction remains authorized manager path"
+      ],
+      "review_method": "manual full-source reading and semantic source/precedence allocation, no lexical scoring"
+    },
+    {
+      "source_unit": "SRC1-0115",
+      "source_path": "apps/leave/docs/features.md",
+      "source_line": 115,
+      "source_hash": "6c19cc5ffc2617b0b9eeec9a82c6c13d560f022657b1ab9d7e82fdd49220b7d9",
+      "disposition": "required",
+      "primary_owners": [
+        "7.1",
+        "3.34-A",
+        "6.11"
+      ],
+      "acceptance": [
+        "7.1/AC01",
+        "7.1/AC02",
+        "7.1/AC03",
+        "7.1/AC04",
+        "3.34-A/AC01",
+        "3.34-A/AC02",
+        "3.34-A/AC03",
+        "3.34-A/AC04",
+        "3.34-A/AC05",
+        "3.34-A/AC06",
+        "3.34-A/AC07",
+        "3.34-A/AC08",
+        "3.34-A/AC09",
+        "3.34-A/AC10",
+        "6.11/AC01",
+        "6.11/AC02",
+        "6.11/AC03"
+      ],
+      "assertions": [
+        "Manager org-wide MVP employee scope only in authorized org",
+        "permitted type/note/history",
+        "approvals/corrections/balance/documents still require independent capabilities"
+      ],
+      "review_method": "manual full-source reading and semantic source/precedence allocation, no lexical scoring"
+    },
+    {
+      "source_unit": "SRC1-0120",
+      "source_path": "apps/leave/docs/features.md",
+      "source_line": 120,
+      "source_hash": "5884fe3b6eb89cc8693577b3de9c22a2a121fa8924a357687be43fe911d8c29d",
+      "disposition": "required",
+      "primary_owners": [
+        "7.1",
+        "3.34-A",
+        "6.11"
+      ],
+      "acceptance": [
+        "7.1/AC01",
+        "7.1/AC02",
+        "7.1/AC03",
+        "7.1/AC04",
+        "3.34-A/AC01",
+        "3.34-A/AC02",
+        "3.34-A/AC03",
+        "3.34-A/AC04",
+        "3.34-A/AC05",
+        "3.34-A/AC06",
+        "3.34-A/AC07",
+        "3.34-A/AC08",
+        "3.34-A/AC09",
+        "3.34-A/AC10",
+        "6.11/AC01",
+        "6.11/AC02",
+        "6.11/AC03"
+      ],
+      "assertions": [
+        "Manager org-wide MVP employee scope only in authorized org",
+        "permitted type/note/history",
+        "approvals/corrections/balance/documents still require independent capabilities"
+      ],
+      "review_method": "manual full-source reading and semantic source/precedence allocation, no lexical scoring"
+    },
+    {
+      "source_unit": "SRC1-0129",
+      "source_path": "apps/leave/docs/features.md",
+      "source_line": 129,
+      "source_hash": "743b6471e9acbb39689ed665ec3fcd319ab4657c42b6d6261e14c196c524dd07",
+      "disposition": "required",
+      "primary_owners": [
+        "2.2",
+        "4.6"
+      ],
+      "acceptance": [
+        "2.2/AC01",
+        "2.2/AC02",
+        "2.2/AC03",
+        "2.2/AC04",
+        "2.2/AC05",
+        "2.2/AC06",
+        "2.2/AC07",
+        "2.2/AC08",
+        "4.6/AC01",
+        "4.6/AC02",
+        "4.6/AC03",
+        "4.6/AC04",
+        "4.6/AC05"
+      ],
+      "assertions": [
+        "Organization administration manages membership/access/setup, not automatic employee detail or medical bytes"
+      ],
+      "review_method": "manual full-source reading and semantic source/precedence allocation, no lexical scoring"
+    },
+    {
+      "source_unit": "SRC1-0134",
+      "source_path": "apps/leave/docs/features.md",
+      "source_line": 134,
+      "source_hash": "a40b4acfdd6942f89f624892b3de30a568df2c351673b0eda435eb0b17a2a917",
+      "disposition": "required",
+      "primary_owners": [
+        "E1-ACCESS-B"
+      ],
+      "acceptance": [
+        "E1-ACCESS-B/AC01",
+        "E1-ACCESS-B/AC02",
+        "E1-ACCESS-B/AC03",
+        "E1-ACCESS-B/AC04",
+        "E1-ACCESS-B/AC05",
+        "E1-ACCESS-B/AC06",
+        "E1-ACCESS-B/AC07",
+        "E1-ACCESS-B/AC08",
+        "E1-ACCESS-B/AC09"
+      ],
+      "assertions": [
+        "Platform administration is no business or document-read grant"
+      ],
+      "review_method": "manual full-source reading and semantic source/precedence allocation, no lexical scoring"
+    },
+    {
+      "source_unit": "SRC1-0139",
+      "source_path": "apps/leave/docs/features.md",
+      "source_line": 139,
+      "source_hash": "13247d96dede62b3f945e72b2f3972fa843aa2897150a2a94406fc34a9ff33a8",
+      "disposition": "required",
+      "primary_owners": [
+        "2.2",
+        "2.3"
+      ],
+      "acceptance": [
+        "2.2/AC01",
+        "2.2/AC02",
+        "2.2/AC03",
+        "2.2/AC04",
+        "2.2/AC05",
+        "2.2/AC06",
+        "2.2/AC07",
+        "2.2/AC08",
+        "2.3/AC01",
+        "2.3/AC02",
+        "2.3/AC03",
+        "2.3/AC04",
+        "2.3/AC05",
+        "2.3/AC06",
+        "2.3/AC07"
+      ],
+      "assertions": [
+        "App-maintained defaults and independent custom role create/duplicate",
+        "no mandatory template/cross-app bundle or silent new capabilities",
+        "grants require current authority"
+      ],
+      "review_method": "manual full-source reading and semantic source/precedence allocation, no lexical scoring"
+    },
+    {
+      "source_unit": "SRC1-0146",
+      "source_path": "apps/leave/docs/features.md",
+      "source_line": 146,
+      "source_hash": "48356f810b10aabb9e90b0d0d412fadffc1a078087289273feb2b68a110c401c",
+      "disposition": "required",
+      "primary_owners": [
+        "2.2",
+        "2.3"
+      ],
+      "acceptance": [
+        "2.2/AC01",
+        "2.2/AC02",
+        "2.2/AC03",
+        "2.2/AC04",
+        "2.2/AC05",
+        "2.2/AC06",
+        "2.2/AC07",
+        "2.2/AC08",
+        "2.3/AC01",
+        "2.3/AC02",
+        "2.3/AC03",
+        "2.3/AC04",
+        "2.3/AC05",
+        "2.3/AC06",
+        "2.3/AC07"
+      ],
+      "assertions": [
+        "App-maintained defaults and independent custom role create/duplicate",
+        "no mandatory template/cross-app bundle or silent new capabilities",
+        "grants require current authority"
+      ],
+      "review_method": "manual full-source reading and semantic source/precedence allocation, no lexical scoring"
+    },
+    {
+      "source_unit": "SRC1-0152",
+      "source_path": "apps/leave/docs/features.md",
+      "source_line": 152,
+      "source_hash": "addc4681e5231d008c2b3d03af843db504a1d0f0070b4302b059d50755b62325",
+      "disposition": "required",
+      "primary_owners": [
+        "2.2",
+        "2.4",
+        "2.5"
+      ],
+      "acceptance": [
+        "2.2/AC01",
+        "2.2/AC02",
+        "2.2/AC03",
+        "2.2/AC04",
+        "2.2/AC05",
+        "2.2/AC06",
+        "2.2/AC07",
+        "2.2/AC08",
+        "2.4/AC01",
+        "2.4/AC02",
+        "2.4/AC03",
+        "2.4/AC04",
+        "2.4/AC05",
+        "2.4/AC06",
+        "2.4/AC07",
+        "2.4/AC08",
+        "2.5/AC01",
+        "2.5/AC02",
+        "2.5/AC03",
+        "2.5/AC04",
+        "2.5/AC05",
+        "2.5/AC06",
+        "2.5/AC07"
+      ],
+      "assertions": [
+        "Union scoped role contributions",
+        "shared assignment drawer and dedicated definition page",
+        "current review/holder return and guarded unassigned deletion",
+        "no domain authority from role-name/UI alone"
+      ],
+      "review_method": "manual full-source reading and semantic source/precedence allocation, no lexical scoring"
+    },
+    {
+      "source_unit": "SRC1-0164",
+      "source_path": "apps/leave/docs/features.md",
+      "source_line": 164,
+      "source_hash": "0bcf35341684587ab3a4ce43f67ec52539bf9a43d44dde57378d1f4298dfbeb7",
+      "disposition": "required",
+      "primary_owners": [
+        "5.5-A"
+      ],
+      "acceptance": [
+        "5.5-A/AC01",
+        "5.5-A/AC02",
+        "5.5-A/AC03",
+        "5.5-A/AC04",
+        "5.5-A/AC05",
+        "5.5-A/AC06"
+      ],
+      "assertions": [
+        "Manager default missing-cover exception capability, custom omission",
+        "reason/audit/unresolved gap preserved, no approval right"
+      ],
+      "review_method": "manual full-source reading and semantic source/precedence allocation, no lexical scoring"
+    },
+    {
+      "source_unit": "SRC1-0170",
+      "source_path": "apps/leave/docs/features.md",
+      "source_line": 170,
+      "source_hash": "2cb901ea43a431c432dd74f6500f8d7522ed10bb48dcf00e85e71169de1a358b",
+      "disposition": "context-with-owner-constraint",
+      "primary_owners": [
+        "E1-ACCESS-A"
+      ],
+      "acceptance": [
+        "E1-ACCESS-A/AC01",
+        "E1-ACCESS-A/AC02",
+        "E1-ACCESS-A/AC03",
+        "E1-ACCESS-A/AC04",
+        "E1-ACCESS-A/AC05",
+        "E1-ACCESS-A/AC06",
+        "E1-ACCESS-A/AC07",
+        "E1-ACCESS-A/AC08"
+      ],
+      "assertions": [
+        "Permission-family list is provenance/catalogue direction, not wildcard runtime grants or unresolved alternate final-approver roles"
+      ],
+      "review_method": "manual full-source reading and semantic source/precedence allocation, no lexical scoring"
+    },
+    {
+      "source_unit": "SRC1-0173",
+      "source_path": "apps/leave/docs/features.md",
+      "source_line": 173,
+      "source_hash": "8fe90016952725df9ed29c3adaf7c1616a8d63f068dd5aef2db9d670b486670c",
+      "disposition": "required",
+      "primary_owners": [
+        "5.11-A"
+      ],
+      "acceptance": [
+        "5.11-A/AC01",
+        "5.11-A/AC02",
+        "5.11-A/AC03",
+        "5.11-A/AC04",
+        "5.11-A/AC05",
+        "5.11-A/AC06"
+      ],
+      "assertions": [
+        "Register exact capability/scope and enforce the actual action/resource",
+        "source family or role label is not wildcard authority",
+        "own/team/org/document/override actions remain independent"
+      ],
+      "review_method": "manual full-source reading and semantic source/precedence allocation, no lexical scoring"
+    },
+    {
+      "source_unit": "SRC1-0174",
+      "source_path": "apps/leave/docs/features.md",
+      "source_line": 174,
+      "source_hash": "d8de2c7da5eb590cb23d68f7ffc579370391de2d020481630e7c34452031c7d8",
+      "disposition": "required",
+      "primary_owners": [
+        "5.17-A"
+      ],
+      "acceptance": [
+        "5.17-A/AC01",
+        "5.17-A/AC02",
+        "5.17-A/AC03",
+        "5.17-A/AC04",
+        "5.17-A/AC05",
+        "5.17-A/AC06"
+      ],
+      "assertions": [
+        "Register exact capability/scope and enforce the actual action/resource",
+        "source family or role label is not wildcard authority",
+        "own/team/org/document/override actions remain independent"
+      ],
+      "review_method": "manual full-source reading and semantic source/precedence allocation, no lexical scoring"
+    },
+    {
+      "source_unit": "SRC1-0175",
+      "source_path": "apps/leave/docs/features.md",
+      "source_line": 175,
+      "source_hash": "6b24041d2e9b6010d8bcc21f0e0dca995f06631b14a51f3378969199e4d6e9e8",
+      "disposition": "required",
+      "primary_owners": [
+        "7.1"
+      ],
+      "acceptance": [
+        "7.1/AC01",
+        "7.1/AC02",
+        "7.1/AC03",
+        "7.1/AC04"
+      ],
+      "assertions": [
+        "Register exact capability/scope and enforce the actual action/resource",
+        "source family or role label is not wildcard authority",
+        "own/team/org/document/override actions remain independent"
+      ],
+      "review_method": "manual full-source reading and semantic source/precedence allocation, no lexical scoring"
+    },
+    {
+      "source_unit": "SRC1-0176",
+      "source_path": "apps/leave/docs/features.md",
+      "source_line": 176,
+      "source_hash": "19b53c8900d0c8568aaca5dc5af5342c28a22446dda2e4d51d37f9fab6882e2b",
+      "disposition": "required",
+      "primary_owners": [
+        "5.18-A"
+      ],
+      "acceptance": [
+        "5.18-A/AC01",
+        "5.18-A/AC02",
+        "5.18-A/AC03",
+        "5.18-A/AC04",
+        "5.18-A/AC05",
+        "5.18-A/AC06",
+        "5.18-A/AC07"
+      ],
+      "assertions": [
+        "Register exact capability/scope and enforce the actual action/resource",
+        "source family or role label is not wildcard authority",
+        "own/team/org/document/override actions remain independent"
+      ],
+      "review_method": "manual full-source reading and semantic source/precedence allocation, no lexical scoring"
+    },
+    {
+      "source_unit": "SRC1-0178",
+      "source_path": "apps/leave/docs/features.md",
+      "source_line": 178,
+      "source_hash": "cd5a4d937ff6a25aad9598fbf7d319ac41df9d3b32e6e538a007192ba20927df",
+      "disposition": "required",
+      "primary_owners": [
+        "3.17-B"
+      ],
+      "acceptance": [
+        "3.17-B/AC01",
+        "3.17-B/AC02",
+        "3.17-B/AC03",
+        "3.17-B/AC04",
+        "3.17-B/AC05",
+        "3.17-B/AC06",
+        "3.17-B/AC07",
+        "3.17-B/AC08"
+      ],
+      "assertions": [
+        "Register exact capability/scope and enforce the actual action/resource",
+        "source family or role label is not wildcard authority",
+        "own/team/org/document/override actions remain independent"
+      ],
+      "review_method": "manual full-source reading and semantic source/precedence allocation, no lexical scoring"
+    },
+    {
+      "source_unit": "SRC1-0179",
+      "source_path": "apps/leave/docs/features.md",
+      "source_line": 179,
+      "source_hash": "a74bf342914f4776e0fc179cc2a3efe771e79b9ca794a3b2e823fe894f8ace39",
+      "disposition": "required",
+      "primary_owners": [
+        "3.17-B"
+      ],
+      "acceptance": [
+        "3.17-B/AC01",
+        "3.17-B/AC02",
+        "3.17-B/AC03",
+        "3.17-B/AC04",
+        "3.17-B/AC05",
+        "3.17-B/AC06",
+        "3.17-B/AC07",
+        "3.17-B/AC08"
+      ],
+      "assertions": [
+        "Register exact capability/scope and enforce the actual action/resource",
+        "source family or role label is not wildcard authority",
+        "own/team/org/document/override actions remain independent"
+      ],
+      "review_method": "manual full-source reading and semantic source/precedence allocation, no lexical scoring"
+    },
+    {
+      "source_unit": "SRC1-0180",
+      "source_path": "apps/leave/docs/features.md",
+      "source_line": 180,
+      "source_hash": "b6d6c0f39888da8fc9ec4ebe924ad96f85d6597f7ae7540209fac53455872093",
+      "disposition": "required",
+      "primary_owners": [
+        "3.17-B"
+      ],
+      "acceptance": [
+        "3.17-B/AC01",
+        "3.17-B/AC02",
+        "3.17-B/AC03",
+        "3.17-B/AC04",
+        "3.17-B/AC05",
+        "3.17-B/AC06",
+        "3.17-B/AC07",
+        "3.17-B/AC08"
+      ],
+      "assertions": [
+        "Register exact capability/scope and enforce the actual action/resource",
+        "source family or role label is not wildcard authority",
+        "own/team/org/document/override actions remain independent"
+      ],
+      "review_method": "manual full-source reading and semantic source/precedence allocation, no lexical scoring"
+    },
+    {
+      "source_unit": "SRC1-0181",
+      "source_path": "apps/leave/docs/features.md",
+      "source_line": 181,
+      "source_hash": "7d2cb74f8626a762594f61088205763bc0e0560cdcc41cd37a6e3428fe3975c0",
+      "disposition": "required",
+      "primary_owners": [
+        "3.29"
+      ],
+      "acceptance": [
+        "3.29/AC01",
+        "3.29/AC02",
+        "3.29/AC03",
+        "3.29/AC04",
+        "3.29/AC05",
+        "3.29/AC06",
+        "3.29/AC07",
+        "3.29/AC08"
+      ],
+      "assertions": [
+        "Register exact capability/scope and enforce the actual action/resource",
+        "source family or role label is not wildcard authority",
+        "own/team/org/document/override actions remain independent"
+      ],
+      "review_method": "manual full-source reading and semantic source/precedence allocation, no lexical scoring"
+    },
+    {
+      "source_unit": "SRC1-0182",
+      "source_path": "apps/leave/docs/features.md",
+      "source_line": 182,
+      "source_hash": "53085a21cb458e261fa40bc546ecf1a276862b2af5840dadaeb902116a296ddf",
+      "disposition": "required",
+      "primary_owners": [
+        "5.13-A"
+      ],
+      "acceptance": [
+        "5.13-A/AC01",
+        "5.13-A/AC02",
+        "5.13-A/AC03",
+        "5.13-A/AC04",
+        "5.13-A/AC05",
+        "5.13-A/AC06"
+      ],
+      "assertions": [
+        "Register exact capability/scope and enforce the actual action/resource",
+        "source family or role label is not wildcard authority",
+        "own/team/org/document/override actions remain independent"
+      ],
+      "review_method": "manual full-source reading and semantic source/precedence allocation, no lexical scoring"
+    },
+    {
+      "source_unit": "SRC1-0183",
+      "source_path": "apps/leave/docs/features.md",
+      "source_line": 183,
+      "source_hash": "5460a152466759743b15216b02761d4e89f5275852674c49b773c7041b38c3b9",
+      "disposition": "required",
+      "primary_owners": [
+        "3.3-A"
+      ],
+      "acceptance": [
+        "3.3-A/AC01",
+        "3.3-A/AC02",
+        "3.3-A/AC03",
+        "3.3-A/AC04",
+        "3.3-A/AC05",
+        "3.3-A/AC06",
+        "3.3-A/AC07",
+        "3.3-A/AC08",
+        "3.3-A/AC09",
+        "3.3-A/AC10"
+      ],
+      "assertions": [
+        "Register exact capability/scope and enforce the actual action/resource",
+        "source family or role label is not wildcard authority",
+        "own/team/org/document/override actions remain independent"
+      ],
+      "review_method": "manual full-source reading and semantic source/precedence allocation, no lexical scoring"
+    },
+    {
+      "source_unit": "SRC1-0184",
+      "source_path": "apps/leave/docs/features.md",
+      "source_line": 184,
+      "source_hash": "465b5cc7b166afe4783b989e356421ed2c9dd466774b293bb4508b561d514f24",
+      "disposition": "required",
+      "primary_owners": [
+        "2.18"
+      ],
+      "acceptance": [
+        "2.18/AC01",
+        "2.18/AC02",
+        "2.18/AC03",
+        "2.18/AC04",
+        "2.18/AC05",
+        "2.18/AC06",
+        "2.18/AC07"
+      ],
+      "assertions": [
+        "Register exact capability/scope and enforce the actual action/resource",
+        "source family or role label is not wildcard authority",
+        "own/team/org/document/override actions remain independent"
+      ],
+      "review_method": "manual full-source reading and semantic source/precedence allocation, no lexical scoring"
+    },
+    {
+      "source_unit": "SRC1-0185",
+      "source_path": "apps/leave/docs/features.md",
+      "source_line": 185,
+      "source_hash": "4f4e181e281c02f08f4527a3c4f16608f4e3b5ff4ab874635283059b0f40d40a",
+      "disposition": "required",
+      "primary_owners": [
+        "2.19"
+      ],
+      "acceptance": [
+        "2.19/AC01",
+        "2.19/AC02",
+        "2.19/AC03",
+        "2.19/AC04",
+        "2.19/AC05",
+        "2.19/AC06",
+        "2.19/AC07",
+        "2.19/AC08"
+      ],
+      "assertions": [
+        "Register exact capability/scope and enforce the actual action/resource",
+        "source family or role label is not wildcard authority",
+        "own/team/org/document/override actions remain independent"
+      ],
+      "review_method": "manual full-source reading and semantic source/precedence allocation, no lexical scoring"
+    },
+    {
+      "source_unit": "SRC1-0186",
+      "source_path": "apps/leave/docs/features.md",
+      "source_line": 186,
+      "source_hash": "b3d771346110c496050fc57aa2c212aa300efcfeb83ce49919ffdb63e4f8158a",
+      "disposition": "required",
+      "primary_owners": [
+        "5.1"
+      ],
+      "acceptance": [
+        "5.1/AC01",
+        "5.1/AC02",
+        "5.1/AC03",
+        "5.1/AC04",
+        "5.1/AC05",
+        "5.1/AC06",
+        "5.1/AC07",
+        "5.1/AC08"
+      ],
+      "assertions": [
+        "Register exact capability/scope and enforce the actual action/resource",
+        "source family or role label is not wildcard authority",
+        "own/team/org/document/override actions remain independent"
+      ],
+      "review_method": "manual full-source reading and semantic source/precedence allocation, no lexical scoring"
+    },
+    {
+      "source_unit": "SRC1-0187",
+      "source_path": "apps/leave/docs/features.md",
+      "source_line": 187,
+      "source_hash": "80f2ed9e108a2f482a36f332d94f5526e7de38a92660e2ecad6bcf933b60b417",
+      "disposition": "required",
+      "primary_owners": [
+        "7.19"
+      ],
+      "acceptance": [
+        "7.19/AC01",
+        "7.19/AC02",
+        "7.19/AC03",
+        "7.19/AC04"
+      ],
+      "assertions": [
+        "Register exact capability/scope and enforce the actual action/resource",
+        "source family or role label is not wildcard authority",
+        "own/team/org/document/override actions remain independent"
+      ],
+      "review_method": "manual full-source reading and semantic source/precedence allocation, no lexical scoring"
+    },
+    {
+      "source_unit": "SRC1-0188",
+      "source_path": "apps/leave/docs/features.md",
+      "source_line": 188,
+      "source_hash": "40e2abb85709ce3d78915a2d4d9f352039c4e96acf9124157e9363a0bf2bef19",
+      "disposition": "required",
+      "primary_owners": [
+        "4.4-L"
+      ],
+      "acceptance": [
+        "4.4-L/AC01",
+        "4.4-L/AC02",
+        "4.4-L/AC03",
+        "4.4-L/AC04",
+        "4.4-L/AC05"
+      ],
+      "assertions": [
+        "Register exact capability/scope and enforce the actual action/resource",
+        "source family or role label is not wildcard authority",
+        "own/team/org/document/override actions remain independent"
+      ],
+      "review_method": "manual full-source reading and semantic source/precedence allocation, no lexical scoring"
+    },
+    {
+      "source_unit": "SRC1-0189",
+      "source_path": "apps/leave/docs/features.md",
+      "source_line": 189,
+      "source_hash": "616273bf59e45636ea332abc145ffe48b9c8bf08e37a82b396b77ffee494dbda",
+      "disposition": "required",
+      "primary_owners": [
+        "4.6"
+      ],
+      "acceptance": [
+        "4.6/AC01",
+        "4.6/AC02",
+        "4.6/AC03",
+        "4.6/AC04",
+        "4.6/AC05"
+      ],
+      "assertions": [
+        "Register exact capability/scope and enforce the actual action/resource",
+        "source family or role label is not wildcard authority",
+        "own/team/org/document/override actions remain independent"
+      ],
+      "review_method": "manual full-source reading and semantic source/precedence allocation, no lexical scoring"
+    },
+    {
+      "source_unit": "SRC1-0190",
+      "source_path": "apps/leave/docs/features.md",
+      "source_line": 190,
+      "source_hash": "951fa536baefde071398cfe42624a7d714228a66b9d6b0ad37357b9042ff460c",
+      "disposition": "required",
+      "primary_owners": [
+        "5.12-A"
+      ],
+      "acceptance": [
+        "5.12-A/AC01",
+        "5.12-A/AC02",
+        "5.12-A/AC03",
+        "5.12-A/AC04",
+        "5.12-A/AC05",
+        "5.12-A/AC06",
+        "5.12-A/AC07",
+        "5.12-A/AC08"
+      ],
+      "assertions": [
+        "Register exact capability/scope and enforce the actual action/resource",
+        "source family or role label is not wildcard authority",
+        "own/team/org/document/override actions remain independent"
+      ],
+      "review_method": "manual full-source reading and semantic source/precedence allocation, no lexical scoring"
+    },
+    {
+      "source_unit": "SRC1-0192",
+      "source_path": "apps/leave/docs/features.md",
+      "source_line": 192,
+      "source_hash": "6d5ecdf8c9a1bbd3d114865ed1c616855988e0b38216c19aa321d34f966abace",
+      "disposition": "required",
+      "primary_owners": [
+        "5.12-A",
+        "6.5",
+        "6.9",
+        "4.6"
+      ],
+      "acceptance": [
+        "5.12-A/AC01",
+        "5.12-A/AC02",
+        "5.12-A/AC03",
+        "5.12-A/AC04",
+        "5.12-A/AC05",
+        "5.12-A/AC06",
+        "5.12-A/AC07",
+        "5.12-A/AC08",
+        "6.5/AC01",
+        "6.5/AC02",
+        "6.5/AC03",
+        "6.9/AC01",
+        "6.9/AC02",
+        "6.9/AC03",
+        "4.6/AC01",
+        "4.6/AC02",
+        "4.6/AC03",
+        "4.6/AC04",
+        "4.6/AC05"
+      ],
+      "assertions": [
+        "Current membership/resource and assigned-step field visibility",
+        "separate medical metadata/byte permission",
+        "initial on-behalf reason/actor/target conflict checks",
+        "accepted L-0168 cancellation independent of initial submission, future replacement requires both and started/past manager correction remains separate"
+      ],
+      "review_method": "manual full-source reading and semantic source/precedence allocation, no lexical scoring"
+    },
+    {
+      "source_unit": "SRC1-2886",
+      "source_path": "apps/leave/docs/features.md",
+      "source_line": 2886,
+      "source_hash": "01509c64c73668c9da6e0da29d7ec37ad651392b85c72b8046a8a668e148ef13",
+      "disposition": "required",
+      "primary_owners": [
+        "E1-A1"
+      ],
+      "acceptance": [
+        "E1-A1/AC01",
+        "E1-A1/AC02",
+        "E1-A1/AC03",
+        "E1-A1/AC04",
+        "E1-A1/AC05",
+        "E1-A1/AC06",
+        "E1-A1/AC07",
+        "E1-A1/AC08",
+        "E1-A1/AC09",
+        "E1-A1/AC10"
+      ],
+      "assertions": [
+        "Inherited calm neutral light tokens and accessible text/focus/boundaries",
+        "actual neutral UI proven before promotion",
+        "no color-only status or assumed library implementation"
+      ],
+      "review_method": "manual full-source reading and semantic source/precedence allocation, no lexical scoring"
+    },
+    {
+      "source_unit": "SRC1-2887",
+      "source_path": "apps/leave/docs/features.md",
+      "source_line": 2887,
+      "source_hash": "7407a549bb3fdfac2efe75ad742e126702542d64e28b987beb07e2f619b17793",
+      "disposition": "required",
+      "primary_owners": [
+        "E1-A1"
+      ],
+      "acceptance": [
+        "E1-A1/AC01",
+        "E1-A1/AC02",
+        "E1-A1/AC03",
+        "E1-A1/AC04",
+        "E1-A1/AC05",
+        "E1-A1/AC06",
+        "E1-A1/AC07",
+        "E1-A1/AC08",
+        "E1-A1/AC09",
+        "E1-A1/AC10"
+      ],
+      "assertions": [
+        "Inherited calm neutral light tokens and accessible text/focus/boundaries",
+        "actual neutral UI proven before promotion",
+        "no color-only status or assumed library implementation"
+      ],
+      "review_method": "manual full-source reading and semantic source/precedence allocation, no lexical scoring"
+    },
+    {
+      "source_unit": "SRC1-2893",
+      "source_path": "apps/leave/docs/features.md",
+      "source_line": 2893,
+      "source_hash": "11a65744957d29881bab3d26e49bde794c7b4c0a100eb9b72c459a35cb40c3cb",
+      "disposition": "required",
+      "primary_owners": [
+        "E1-A1"
+      ],
+      "acceptance": [
+        "E1-A1/AC01",
+        "E1-A1/AC02",
+        "E1-A1/AC03",
+        "E1-A1/AC04",
+        "E1-A1/AC05",
+        "E1-A1/AC06",
+        "E1-A1/AC07",
+        "E1-A1/AC08",
+        "E1-A1/AC09",
+        "E1-A1/AC10"
+      ],
+      "assertions": [
+        "Inherited calm neutral light tokens and accessible text/focus/boundaries",
+        "actual neutral UI proven before promotion",
+        "no color-only status or assumed library implementation"
+      ],
+      "review_method": "manual full-source reading and semantic source/precedence allocation, no lexical scoring"
+    },
+    {
+      "source_unit": "SRC1-2895",
+      "source_path": "apps/leave/docs/features.md",
+      "source_line": 2895,
+      "source_hash": "dd8598eafd03fee4a884d47fae254f1fc302e2c794caf8d65222bc9afb27b0d4",
+      "disposition": "required",
+      "primary_owners": [
+        "3.19",
+        "5.31-A"
+      ],
+      "acceptance": [
+        "3.19/AC01",
+        "3.19/AC02",
+        "3.19/AC03",
+        "3.19/AC04",
+        "3.19/AC05",
+        "3.19/AC06",
+        "3.19/AC07",
+        "5.31-A/AC01",
+        "5.31-A/AC02",
+        "5.31-A/AC03",
+        "5.31-A/AC04",
+        "5.31-A/AC05",
+        "5.31-A/AC06"
+      ],
+      "assertions": [
+        "Prominent real balances/Apply and visible unpaid/required responses",
+        "routine ledger detail expandable, no hidden decision-critical information"
+      ],
+      "review_method": "manual full-source reading and semantic source/precedence allocation, no lexical scoring"
+    },
+    {
+      "source_unit": "SRC1-2899",
+      "source_path": "apps/leave/docs/features.md",
+      "source_line": 2899,
+      "source_hash": "264043c40b0cdfc2d9e0182547b6726ffcc9f7f9308c1221d3dd171617144ae2",
+      "disposition": "required",
+      "primary_owners": [
+        "E1-A1"
+      ],
+      "acceptance": [
+        "E1-A1/AC01",
+        "E1-A1/AC02",
+        "E1-A1/AC03",
+        "E1-A1/AC04",
+        "E1-A1/AC05",
+        "E1-A1/AC06",
+        "E1-A1/AC07",
+        "E1-A1/AC08",
+        "E1-A1/AC09",
+        "E1-A1/AC10"
+      ],
+      "assertions": [
+        "Inherited calm neutral light tokens and accessible text/focus/boundaries",
+        "actual neutral UI proven before promotion",
+        "no color-only status or assumed library implementation"
+      ],
+      "review_method": "manual full-source reading and semantic source/precedence allocation, no lexical scoring"
+    },
+    {
+      "source_unit": "SRC1-2904",
+      "source_path": "apps/leave/docs/features.md",
+      "source_line": 2904,
+      "source_hash": "026e57bf6ccdff4fcda918102cfb4bd41cd6e6702f16bc286f05230d6fc85a27",
+      "disposition": "required",
+      "primary_owners": [
+        "3.19",
+        "5.31-A"
+      ],
+      "acceptance": [
+        "3.19/AC01",
+        "3.19/AC02",
+        "3.19/AC03",
+        "3.19/AC04",
+        "3.19/AC05",
+        "3.19/AC06",
+        "3.19/AC07",
+        "5.31-A/AC01",
+        "5.31-A/AC02",
+        "5.31-A/AC03",
+        "5.31-A/AC04",
+        "5.31-A/AC05",
+        "5.31-A/AC06"
+      ],
+      "assertions": [
+        "Prominent real balances/Apply and visible unpaid/required responses",
+        "routine ledger detail expandable, no hidden decision-critical information"
+      ],
+      "review_method": "manual full-source reading and semantic source/precedence allocation, no lexical scoring"
+    },
+    {
+      "source_unit": "SRC1-2910",
+      "source_path": "apps/leave/docs/features.md",
+      "source_line": 2910,
+      "source_hash": "02e4f33509763cb2b080763a65e0b393ba2133c1be04b041221c34e4a29ca5e9",
+      "disposition": "context",
+      "primary_owners": [
+        "E1-A1"
+      ],
+      "acceptance": [
+        "E1-A1/AC01",
+        "E1-A1/AC02",
+        "E1-A1/AC03",
+        "E1-A1/AC04",
+        "E1-A1/AC05",
+        "E1-A1/AC06",
+        "E1-A1/AC07",
+        "E1-A1/AC08",
+        "E1-A1/AC09",
+        "E1-A1/AC10"
+      ],
+      "assertions": [
+        "ADR pointer contributes source authority, not a separate positive feature test"
+      ],
+      "review_method": "manual full-source reading and semantic source/precedence allocation, no lexical scoring"
+    },
+    {
+      "source_unit": "SRC1-2914",
+      "source_path": "apps/leave/docs/features.md",
+      "source_line": 2914,
+      "source_hash": "9f2f9b432c83c94bde3d6d0284e7d3da7a04d51e234b192f2101d488d0b1b0df",
+      "disposition": "required",
+      "primary_owners": [
+        "4.5",
+        "5.11-B",
+        "5.18-B",
+        "5.29-B"
+      ],
+      "acceptance": [
+        "4.5/AC01",
+        "4.5/AC02",
+        "4.5/AC03",
+        "4.5/AC04",
+        "4.5/AC05",
+        "4.5/AC06",
+        "4.5/AC07",
+        "4.5/AC08",
+        "4.5/AC09",
+        "5.11-B/AC01",
+        "5.11-B/AC02",
+        "5.11-B/AC03",
+        "5.11-B/AC04",
+        "5.11-B/AC05",
+        "5.11-B/AC06",
+        "5.11-B/AC07",
+        "5.18-B/AC01",
+        "5.18-B/AC02",
+        "5.18-B/AC03",
+        "5.18-B/AC04",
+        "5.18-B/AC05",
+        "5.18-B/AC06",
+        "5.18-B/AC07",
+        "5.29-B/AC01",
+        "5.29-B/AC02",
+        "5.29-B/AC03",
+        "5.29-B/AC04",
+        "5.29-B/AC05",
+        "5.29-B/AC06",
+        "5.29-B/AC07"
+      ],
+      "assertions": [
+        "Phone input/upload/preview/initial unpaid response/submit/history and actual assigned approve/reject work under same authority",
+        "compact calendar retains companion List",
+        "mobile hides no critical detail or medical guard"
+      ],
+      "review_method": "manual full-source reading and semantic source/precedence allocation, no lexical scoring"
+    },
+    {
+      "source_unit": "SRC1-2920",
+      "source_path": "apps/leave/docs/features.md",
+      "source_line": 2920,
+      "source_hash": "2c96050e6864e7651f0af899c637ac039aacc98bedea36c659f75134176ba358",
+      "disposition": "required",
+      "primary_owners": [
+        "4.5",
+        "5.11-B",
+        "5.18-B",
+        "5.29-B"
+      ],
+      "acceptance": [
+        "4.5/AC01",
+        "4.5/AC02",
+        "4.5/AC03",
+        "4.5/AC04",
+        "4.5/AC05",
+        "4.5/AC06",
+        "4.5/AC07",
+        "4.5/AC08",
+        "4.5/AC09",
+        "5.11-B/AC01",
+        "5.11-B/AC02",
+        "5.11-B/AC03",
+        "5.11-B/AC04",
+        "5.11-B/AC05",
+        "5.11-B/AC06",
+        "5.11-B/AC07",
+        "5.18-B/AC01",
+        "5.18-B/AC02",
+        "5.18-B/AC03",
+        "5.18-B/AC04",
+        "5.18-B/AC05",
+        "5.18-B/AC06",
+        "5.18-B/AC07",
+        "5.29-B/AC01",
+        "5.29-B/AC02",
+        "5.29-B/AC03",
+        "5.29-B/AC04",
+        "5.29-B/AC05",
+        "5.29-B/AC06",
+        "5.29-B/AC07"
+      ],
+      "assertions": [
+        "Phone input/upload/preview/initial unpaid response/submit/history and actual assigned approve/reject work under same authority",
+        "compact calendar retains companion List",
+        "mobile hides no critical detail or medical guard"
+      ],
+      "review_method": "manual full-source reading and semantic source/precedence allocation, no lexical scoring"
+    },
+    {
+      "source_unit": "SRC1-2928",
+      "source_path": "apps/leave/docs/features.md",
+      "source_line": 2928,
+      "source_hash": "b4a15f23fca290191cad072162d8df45a81a1ddeb4626039bc2ba501cc14e637",
+      "disposition": "context",
+      "primary_owners": [
+        "E1-A1"
+      ],
+      "acceptance": [
+        "E1-A1/AC01",
+        "E1-A1/AC02",
+        "E1-A1/AC03",
+        "E1-A1/AC04",
+        "E1-A1/AC05",
+        "E1-A1/AC06",
+        "E1-A1/AC07",
+        "E1-A1/AC08",
+        "E1-A1/AC09",
+        "E1-A1/AC10"
+      ],
+      "assertions": [
+        "ADR pointer contributes source authority, not a separate positive feature test"
+      ],
+      "review_method": "manual full-source reading and semantic source/precedence allocation, no lexical scoring"
+    },
+    {
+      "source_unit": "SRC1-2930",
+      "source_path": "apps/leave/docs/features.md",
+      "source_line": 2930,
+      "source_hash": "ca180fe02ca5a67e697831683f2ff1786f4fd90628c39eb9fdc304d99da5ed07",
+      "disposition": "required",
+      "primary_owners": [
+        "5.31-A"
+      ],
+      "acceptance": [
+        "5.31-A/AC01",
+        "5.31-A/AC02",
+        "5.31-A/AC03",
+        "5.31-A/AC04",
+        "5.31-A/AC05",
+        "5.31-A/AC06"
+      ],
+      "assertions": [
+        "One My Leave/Approvals/Manage Leave application with current section/action-count authority",
+        "start My Leave",
+        "no signout/role switching",
+        "unresolved-work badges independent of unread counts"
+      ],
+      "review_method": "manual full-source reading and semantic source/precedence allocation, no lexical scoring"
+    },
+    {
+      "source_unit": "SRC1-2935",
+      "source_path": "apps/leave/docs/features.md",
+      "source_line": 2935,
+      "source_hash": "18fe7cb60f5c897424af6a26730c31a2735ca54c987b527464e94cc8b22e698d",
+      "disposition": "required",
+      "primary_owners": [
+        "5.31-A"
+      ],
+      "acceptance": [
+        "5.31-A/AC01",
+        "5.31-A/AC02",
+        "5.31-A/AC03",
+        "5.31-A/AC04",
+        "5.31-A/AC05",
+        "5.31-A/AC06"
+      ],
+      "assertions": [
+        "One My Leave/Approvals/Manage Leave application with current section/action-count authority",
+        "start My Leave",
+        "no signout/role switching",
+        "unresolved-work badges independent of unread counts"
+      ],
+      "review_method": "manual full-source reading and semantic source/precedence allocation, no lexical scoring"
+    },
+    {
+      "source_unit": "SRC1-2941",
+      "source_path": "apps/leave/docs/features.md",
+      "source_line": 2941,
+      "source_hash": "4f47fca198302c9385215ac2f64ae0db3f33e1d2d17384c675cc9e9621dcf785",
+      "disposition": "context",
+      "primary_owners": [
+        "E1-A1"
+      ],
+      "acceptance": [
+        "E1-A1/AC01",
+        "E1-A1/AC02",
+        "E1-A1/AC03",
+        "E1-A1/AC04",
+        "E1-A1/AC05",
+        "E1-A1/AC06",
+        "E1-A1/AC07",
+        "E1-A1/AC08",
+        "E1-A1/AC09",
+        "E1-A1/AC10"
+      ],
+      "assertions": [
+        "ADR pointer contributes source authority, not a separate positive feature test"
+      ],
+      "review_method": "manual full-source reading and semantic source/precedence allocation, no lexical scoring"
+    },
+    {
+      "source_unit": "SRC1-2943",
+      "source_path": "apps/leave/docs/features.md",
+      "source_line": 2943,
+      "source_hash": "56d7a33cba55999bcbdf0bb29239b89c86bd63b816b6593507544ff9cf86c46a",
+      "disposition": "required",
+      "primary_owners": [
+        "5.29-A",
+        "5.29-B",
+        "3.31",
+        "3.19"
+      ],
+      "acceptance": [
+        "5.29-A/AC01",
+        "5.29-A/AC02",
+        "5.29-A/AC03",
+        "5.29-A/AC04",
+        "5.29-A/AC05",
+        "5.29-A/AC06",
+        "5.29-B/AC01",
+        "5.29-B/AC02",
+        "5.29-B/AC03",
+        "5.29-B/AC04",
+        "5.29-B/AC05",
+        "5.29-B/AC06",
+        "5.29-B/AC07",
+        "3.31/AC01",
+        "3.31/AC02",
+        "3.31/AC03",
+        "3.31/AC04",
+        "3.31/AC05",
+        "3.31/AC06",
+        "3.19/AC01",
+        "3.19/AC02",
+        "3.19/AC03",
+        "3.19/AC04",
+        "3.19/AC05",
+        "3.19/AC06",
+        "3.19/AC07"
+      ],
+      "assertions": [
+        "Own calendar/list/history employment bounds extend for actual recorded leave/rehire",
+        "full boundary years muted, no invented future upper bound",
+        "per-account/org view preference",
+        "current year only within bounds",
+        "authoritative per-type/current/projected explanations",
+        "future-date calculator/graph deferred"
+      ],
+      "review_method": "manual full-source reading and semantic source/precedence allocation, no lexical scoring"
+    },
+    {
+      "source_unit": "SRC1-2954",
+      "source_path": "apps/leave/docs/features.md",
+      "source_line": 2954,
+      "source_hash": "cfa6b31ad5816c4c965c91dfb5de52f6c4fc62d2f0537945e1f53bc19ecf943b",
+      "disposition": "required",
+      "primary_owners": [
+        "5.29-A",
+        "5.29-B",
+        "3.31",
+        "3.19"
+      ],
+      "acceptance": [
+        "5.29-A/AC01",
+        "5.29-A/AC02",
+        "5.29-A/AC03",
+        "5.29-A/AC04",
+        "5.29-A/AC05",
+        "5.29-A/AC06",
+        "5.29-B/AC01",
+        "5.29-B/AC02",
+        "5.29-B/AC03",
+        "5.29-B/AC04",
+        "5.29-B/AC05",
+        "5.29-B/AC06",
+        "5.29-B/AC07",
+        "3.31/AC01",
+        "3.31/AC02",
+        "3.31/AC03",
+        "3.31/AC04",
+        "3.31/AC05",
+        "3.31/AC06",
+        "3.19/AC01",
+        "3.19/AC02",
+        "3.19/AC03",
+        "3.19/AC04",
+        "3.19/AC05",
+        "3.19/AC06",
+        "3.19/AC07"
+      ],
+      "assertions": [
+        "Own calendar/list/history employment bounds extend for actual recorded leave/rehire",
+        "full boundary years muted, no invented future upper bound",
+        "per-account/org view preference",
+        "current year only within bounds",
+        "authoritative per-type/current/projected explanations",
+        "future-date calculator/graph deferred"
+      ],
+      "review_method": "manual full-source reading and semantic source/precedence allocation, no lexical scoring"
+    },
+    {
+      "source_unit": "SRC1-2966",
+      "source_path": "apps/leave/docs/features.md",
+      "source_line": 2966,
+      "source_hash": "88a6954006a0666eec33e7604a0cf87234be2abdff56419e790a7cbb180429ce",
+      "disposition": "context",
+      "primary_owners": [
+        "E1-A1"
+      ],
+      "acceptance": [
+        "E1-A1/AC01",
+        "E1-A1/AC02",
+        "E1-A1/AC03",
+        "E1-A1/AC04",
+        "E1-A1/AC05",
+        "E1-A1/AC06",
+        "E1-A1/AC07",
+        "E1-A1/AC08",
+        "E1-A1/AC09",
+        "E1-A1/AC10"
+      ],
+      "assertions": [
+        "ADR pointer contributes source authority, not a separate positive feature test"
+      ],
+      "review_method": "manual full-source reading and semantic source/precedence allocation, no lexical scoring"
+    },
+    {
+      "source_unit": "SRC1-2968",
+      "source_path": "apps/leave/docs/features.md",
+      "source_line": 2968,
+      "source_hash": "f33c5b32b99d2189801b55a4a1a183ecb106291525d44bb629f12535278b20c0",
+      "disposition": "required",
+      "primary_owners": [
+        "E1-ID-B",
+        "E1-A1"
+      ],
+      "acceptance": [
+        "E1-ID-B/AC01",
+        "E1-ID-B/AC02",
+        "E1-ID-B/AC03",
+        "E1-ID-B/AC04",
+        "E1-ID-B/AC05",
+        "E1-ID-B/AC06",
+        "E1-ID-B/AC07",
+        "E1-ID-B/AC08",
+        "E1-ID-B/AC09",
+        "E1-A1/AC01",
+        "E1-A1/AC02",
+        "E1-A1/AC03",
+        "E1-A1/AC04",
+        "E1-A1/AC05",
+        "E1-A1/AC06",
+        "E1-A1/AC07",
+        "E1-A1/AC08",
+        "E1-A1/AC09",
+        "E1-A1/AC10"
+      ],
+      "assertions": [
+        "Account-scoped persisted language survives org switch",
+        "English fallback does not overwrite desired preference",
+        "no timezone/jurisdiction/policy/value/authority change",
+        "another account independent",
+        "notification locale used when translated templates actually exist"
+      ],
+      "review_method": "manual full-source reading and semantic source/precedence allocation, no lexical scoring"
+    },
+    {
+      "source_unit": "SRC1-2974",
+      "source_path": "apps/leave/docs/features.md",
+      "source_line": 2974,
+      "source_hash": "d85068e86fefea253849f5f5afd0c05349a0ce92a2d4f2b68feee0eef2446dd5",
+      "disposition": "required",
+      "primary_owners": [
+        "E1-ID-B",
+        "E1-A1"
+      ],
+      "acceptance": [
+        "E1-ID-B/AC01",
+        "E1-ID-B/AC02",
+        "E1-ID-B/AC03",
+        "E1-ID-B/AC04",
+        "E1-ID-B/AC05",
+        "E1-ID-B/AC06",
+        "E1-ID-B/AC07",
+        "E1-ID-B/AC08",
+        "E1-ID-B/AC09",
+        "E1-A1/AC01",
+        "E1-A1/AC02",
+        "E1-A1/AC03",
+        "E1-A1/AC04",
+        "E1-A1/AC05",
+        "E1-A1/AC06",
+        "E1-A1/AC07",
+        "E1-A1/AC08",
+        "E1-A1/AC09",
+        "E1-A1/AC10"
+      ],
+      "assertions": [
+        "Account-scoped persisted language survives org switch",
+        "English fallback does not overwrite desired preference",
+        "no timezone/jurisdiction/policy/value/authority change",
+        "another account independent",
+        "notification locale used when translated templates actually exist"
+      ],
+      "review_method": "manual full-source reading and semantic source/precedence allocation, no lexical scoring"
+    },
+    {
+      "source_unit": "SRC1-2980",
+      "source_path": "apps/leave/docs/features.md",
+      "source_line": 2980,
+      "source_hash": "db34ff4e9f5a4dfa9f0f8ab3049906a57c05b82b114507300bbf5fe8f0e1b968",
+      "disposition": "context",
+      "primary_owners": [
+        "E1-A1"
+      ],
+      "acceptance": [
+        "E1-A1/AC01",
+        "E1-A1/AC02",
+        "E1-A1/AC03",
+        "E1-A1/AC04",
+        "E1-A1/AC05",
+        "E1-A1/AC06",
+        "E1-A1/AC07",
+        "E1-A1/AC08",
+        "E1-A1/AC09",
+        "E1-A1/AC10"
+      ],
+      "assertions": [
+        "ADR pointer contributes source authority, not a separate positive feature test"
+      ],
+      "review_method": "manual full-source reading and semantic source/precedence allocation, no lexical scoring"
+    },
+    {
+      "source_unit": "SRC1-2982",
+      "source_path": "apps/leave/docs/features.md",
+      "source_line": 2982,
+      "source_hash": "7a2a54ff6410541fa844466c729391229f450df6b62ce3455c9e3c811ac62142",
+      "disposition": "required-with-deferred-translation",
+      "primary_owners": [
+        "E1-A1"
+      ],
+      "acceptance": [
+        "E1-A1/AC01",
+        "E1-A1/AC02",
+        "E1-A1/AC03",
+        "E1-A1/AC04",
+        "E1-A1/AC05",
+        "E1-A1/AC06",
+        "E1-A1/AC07",
+        "E1-A1/AC08",
+        "E1-A1/AC09",
+        "E1-A1/AC10"
+      ],
+      "assertions": [
+        "English date presentation 15 Sep 2026 and translatable resources preserve canonical business dates",
+        "Portuguese Mozambique/Angola readiness, separate translation delivery"
+      ],
+      "review_method": "manual full-source reading and semantic source/precedence allocation, no lexical scoring"
+    },
+    {
+      "source_unit": "SRC1-2991",
+      "source_path": "apps/leave/docs/features.md",
+      "source_line": 2991,
+      "source_hash": "a24704cb04e3f257c65a02f3182138f856ad25bb6fd613b22bf9165aaa7df77f",
+      "disposition": "required-with-deferred-translation",
+      "primary_owners": [
+        "E1-A1"
+      ],
+      "acceptance": [
+        "E1-A1/AC01",
+        "E1-A1/AC02",
+        "E1-A1/AC03",
+        "E1-A1/AC04",
+        "E1-A1/AC05",
+        "E1-A1/AC06",
+        "E1-A1/AC07",
+        "E1-A1/AC08",
+        "E1-A1/AC09",
+        "E1-A1/AC10"
+      ],
+      "assertions": [
+        "English date presentation 15 Sep 2026 and translatable resources preserve canonical business dates",
+        "Portuguese Mozambique/Angola readiness, separate translation delivery"
+      ],
+      "review_method": "manual full-source reading and semantic source/precedence allocation, no lexical scoring"
+    },
+    {
+      "source_unit": "SRC1-2998",
+      "source_path": "apps/leave/docs/features.md",
+      "source_line": 2998,
+      "source_hash": "dedbaeaec934daa91c5bd8864f910f5458dc360b01cff2f6f3a78819120e0029",
+      "disposition": "required",
+      "primary_owners": [
+        "E1-A1",
+        "8.17"
+      ],
+      "acceptance": [
+        "E1-A1/AC01",
+        "E1-A1/AC02",
+        "E1-A1/AC03",
+        "E1-A1/AC04",
+        "E1-A1/AC05",
+        "E1-A1/AC06",
+        "E1-A1/AC07",
+        "E1-A1/AC08",
+        "E1-A1/AC09",
+        "E1-A1/AC10",
+        "8.17/AC01",
+        "8.17/AC02",
+        "8.17/AC03",
+        "8.17/AC04"
+      ],
+      "assertions": [
+        "First actual screens and pilot assemble WCAG 2.2 AA/keyboard/mobile/visible focus/non-color status evidence",
+        "written tokens or automation alone not compliance"
+      ],
+      "review_method": "manual full-source reading and semantic source/precedence allocation, no lexical scoring"
+    },
+    {
+      "source_unit": "SRC1-2999",
+      "source_path": "apps/leave/docs/features.md",
+      "source_line": 2999,
+      "source_hash": "dfe27ad45ac59999c4a732620f6eeca878388632acfd3f84f9ec760fd04bd7f6",
+      "disposition": "required",
+      "primary_owners": [
+        "E1-A1",
+        "8.17"
+      ],
+      "acceptance": [
+        "E1-A1/AC01",
+        "E1-A1/AC02",
+        "E1-A1/AC03",
+        "E1-A1/AC04",
+        "E1-A1/AC05",
+        "E1-A1/AC06",
+        "E1-A1/AC07",
+        "E1-A1/AC08",
+        "E1-A1/AC09",
+        "E1-A1/AC10",
+        "8.17/AC01",
+        "8.17/AC02",
+        "8.17/AC03",
+        "8.17/AC04"
+      ],
+      "assertions": [
+        "First actual screens and pilot assemble WCAG 2.2 AA/keyboard/mobile/visible focus/non-color status evidence",
+        "written tokens or automation alone not compliance"
+      ],
+      "review_method": "manual full-source reading and semantic source/precedence allocation, no lexical scoring"
+    },
+    {
+      "source_unit": "SRC1-3000",
+      "source_path": "apps/leave/docs/features.md",
+      "source_line": 3000,
+      "source_hash": "1825127d4cbb5fe8d890507782519785c5103f63be0cee42352a89f7c965baf4",
+      "disposition": "required",
+      "primary_owners": [
+        "E1-A1",
+        "8.17"
+      ],
+      "acceptance": [
+        "E1-A1/AC01",
+        "E1-A1/AC02",
+        "E1-A1/AC03",
+        "E1-A1/AC04",
+        "E1-A1/AC05",
+        "E1-A1/AC06",
+        "E1-A1/AC07",
+        "E1-A1/AC08",
+        "E1-A1/AC09",
+        "E1-A1/AC10",
+        "8.17/AC01",
+        "8.17/AC02",
+        "8.17/AC03",
+        "8.17/AC04"
+      ],
+      "assertions": [
+        "First actual screens and pilot assemble WCAG 2.2 AA/keyboard/mobile/visible focus/non-color status evidence",
+        "written tokens or automation alone not compliance"
+      ],
+      "review_method": "manual full-source reading and semantic source/precedence allocation, no lexical scoring"
+    },
+    {
+      "source_unit": "SRC1-3001",
+      "source_path": "apps/leave/docs/features.md",
+      "source_line": 3001,
+      "source_hash": "39088461f9517b924a8823cd07433e67a85b0a8a7ea294cb3ede606498ac4480",
+      "disposition": "required",
+      "primary_owners": [
+        "E1-A1",
+        "8.17"
+      ],
+      "acceptance": [
+        "E1-A1/AC01",
+        "E1-A1/AC02",
+        "E1-A1/AC03",
+        "E1-A1/AC04",
+        "E1-A1/AC05",
+        "E1-A1/AC06",
+        "E1-A1/AC07",
+        "E1-A1/AC08",
+        "E1-A1/AC09",
+        "E1-A1/AC10",
+        "8.17/AC01",
+        "8.17/AC02",
+        "8.17/AC03",
+        "8.17/AC04"
+      ],
+      "assertions": [
+        "First actual screens and pilot assemble WCAG 2.2 AA/keyboard/mobile/visible focus/non-color status evidence",
+        "written tokens or automation alone not compliance"
+      ],
+      "review_method": "manual full-source reading and semantic source/precedence allocation, no lexical scoring"
+    },
+    {
+      "source_unit": "SRC1-3002",
+      "source_path": "apps/leave/docs/features.md",
+      "source_line": 3002,
+      "source_hash": "3c1d16d50dc116e7f51ca39906c99dcc465d1db7af4c95be574d126bd5bccf43",
+      "disposition": "required",
+      "primary_owners": [
+        "3.19"
+      ],
+      "acceptance": [
+        "3.19/AC01",
+        "3.19/AC02",
+        "3.19/AC03",
+        "3.19/AC04",
+        "3.19/AC05",
+        "3.19/AC06",
+        "3.19/AC07"
+      ],
+      "assertions": [
+        "Plain calculation/shortfall explanation uses authoritative backend amounts"
+      ],
+      "review_method": "manual full-source reading and semantic source/precedence allocation, no lexical scoring"
+    },
+    {
+      "source_unit": "SRC1-3003",
+      "source_path": "apps/leave/docs/features.md",
+      "source_line": 3003,
+      "source_hash": "5a8cd536afed9792e985e263393e968c9d6eb1caeff717679aa3fc07664d6159",
+      "disposition": "required",
+      "primary_owners": [
+        "E1-D2-B",
+        "3.29"
+      ],
+      "acceptance": [
+        "E1-D2-B/AC01",
+        "E1-D2-B/AC02",
+        "E1-D2-B/AC03",
+        "E1-D2-B/AC04",
+        "E1-D2-B/AC05",
+        "E1-D2-B/AC06",
+        "E1-D2-B/AC07",
+        "E1-D2-B/AC08",
+        "E1-D2-B/AC09",
+        "E1-D2-B/AC10",
+        "3.29/AC01",
+        "3.29/AC02",
+        "3.29/AC03",
+        "3.29/AC04",
+        "3.29/AC05",
+        "3.29/AC06",
+        "3.29/AC07",
+        "3.29/AC08"
+      ],
+      "assertions": [
+        "Useful input survives validation/transport failure",
+        "no unacknowledged Saved or success-shaped optimistic consequential effects",
+        "retry respects idempotent outcome"
+      ],
+      "review_method": "manual full-source reading and semantic source/precedence allocation, no lexical scoring"
+    },
+    {
+      "source_unit": "SRC1-3004",
+      "source_path": "apps/leave/docs/features.md",
+      "source_line": 3004,
+      "source_hash": "1c1eb10fef12a454ca1e75f4c9bcebc27ca2782a3f3a127848ba0dec6eab6e3d",
+      "disposition": "required",
+      "primary_owners": [
+        "E1-D2-B",
+        "3.29"
+      ],
+      "acceptance": [
+        "E1-D2-B/AC01",
+        "E1-D2-B/AC02",
+        "E1-D2-B/AC03",
+        "E1-D2-B/AC04",
+        "E1-D2-B/AC05",
+        "E1-D2-B/AC06",
+        "E1-D2-B/AC07",
+        "E1-D2-B/AC08",
+        "E1-D2-B/AC09",
+        "E1-D2-B/AC10",
+        "3.29/AC01",
+        "3.29/AC02",
+        "3.29/AC03",
+        "3.29/AC04",
+        "3.29/AC05",
+        "3.29/AC06",
+        "3.29/AC07",
+        "3.29/AC08"
+      ],
+      "assertions": [
+        "Useful input survives validation/transport failure",
+        "no unacknowledged Saved or success-shaped optimistic consequential effects",
+        "retry respects idempotent outcome"
+      ],
+      "review_method": "manual full-source reading and semantic source/precedence allocation, no lexical scoring"
+    },
+    {
+      "source_unit": "SRC1-3005",
+      "source_path": "apps/leave/docs/features.md",
+      "source_line": 3005,
+      "source_hash": "6b5bca14f2e2b59d0f2e418167c75fe7004377e6ed78dd42b68ef92483c9829f",
+      "disposition": "required",
+      "primary_owners": [
+        "5.13-B",
+        "6.6"
+      ],
+      "acceptance": [
+        "5.13-B/AC01",
+        "5.13-B/AC02",
+        "5.13-B/AC03",
+        "5.13-B/AC04",
+        "5.13-B/AC05",
+        "5.13-B/AC06",
+        "5.13-B/AC07",
+        "6.6/AC01",
+        "6.6/AC02",
+        "6.6/AC03"
+      ],
+      "assertions": [
+        "Warnings versus rule blocks versus permitted override remain distinct",
+        "consequential/destructive/balance effects explicitly reviewed/confirmed under existing action UX"
+      ],
+      "review_method": "manual full-source reading and semantic source/precedence allocation, no lexical scoring"
+    },
+    {
+      "source_unit": "SRC1-3006",
+      "source_path": "apps/leave/docs/features.md",
+      "source_line": 3006,
+      "source_hash": "fdd784235c44a32a517030b4c34ceda31edab37cc0194709d46a4e165405e3f1",
+      "disposition": "required",
+      "primary_owners": [
+        "5.13-B",
+        "6.6"
+      ],
+      "acceptance": [
+        "5.13-B/AC01",
+        "5.13-B/AC02",
+        "5.13-B/AC03",
+        "5.13-B/AC04",
+        "5.13-B/AC05",
+        "5.13-B/AC06",
+        "5.13-B/AC07",
+        "6.6/AC01",
+        "6.6/AC02",
+        "6.6/AC03"
+      ],
+      "assertions": [
+        "Warnings versus rule blocks versus permitted override remain distinct",
+        "consequential/destructive/balance effects explicitly reviewed/confirmed under existing action UX"
+      ],
+      "review_method": "manual full-source reading and semantic source/precedence allocation, no lexical scoring"
+    },
+    {
+      "source_unit": "SRC1-3010",
+      "source_path": "apps/leave/docs/features.md",
+      "source_line": 3010,
+      "source_hash": "2ea408765c502aa5cb9a1ecc2e1e7bfb28edcd59aa218dbd888277baf86beab5",
+      "disposition": "required",
+      "primary_owners": [
+        "E1-ACCESS-B",
+        "5.10-A",
+        "8.15"
+      ],
+      "acceptance": [
+        "E1-ACCESS-B/AC01",
+        "E1-ACCESS-B/AC02",
+        "E1-ACCESS-B/AC03",
+        "E1-ACCESS-B/AC04",
+        "E1-ACCESS-B/AC05",
+        "E1-ACCESS-B/AC06",
+        "E1-ACCESS-B/AC07",
+        "E1-ACCESS-B/AC08",
+        "E1-ACCESS-B/AC09",
+        "5.10-A/AC01",
+        "5.10-A/AC02",
+        "5.10-A/AC03",
+        "5.10-A/AC04",
+        "8.15/AC01",
+        "8.15/AC02",
+        "8.15/AC03",
+        "8.15/AC04"
+      ],
+      "assertions": [
+        "Real DB/API/worker/cache/file/log cross-org/account/resource allow-deny",
+        "native roles and current authority, no broad credential or positive cache bypass"
+      ],
+      "review_method": "manual full-source reading and semantic source/precedence allocation, no lexical scoring"
+    },
+    {
+      "source_unit": "SRC1-3011",
+      "source_path": "apps/leave/docs/features.md",
+      "source_line": 3011,
+      "source_hash": "ded540bd03d82a3ce9a8dd2974dd8e5ebcdd1934d2d0b68e0f2a04c30fee658d",
+      "disposition": "required",
+      "primary_owners": [
+        "8.15",
+        "E1-SERVICE"
+      ],
+      "acceptance": [
+        "8.15/AC01",
+        "8.15/AC02",
+        "8.15/AC03",
+        "8.15/AC04",
+        "E1-SERVICE/AC01",
+        "E1-SERVICE/AC02",
+        "E1-SERVICE/AC03",
+        "E1-SERVICE/AC04",
+        "E1-SERVICE/AC05",
+        "E1-SERVICE/AC06",
+        "E1-SERVICE/AC07"
+      ],
+      "assertions": [
+        "Selected hosted transport/storage encryption and credential policy verified",
+        "synthetic/local setup is not production encryption proof"
+      ],
+      "review_method": "manual full-source reading and semantic source/precedence allocation, no lexical scoring"
+    },
+    {
+      "source_unit": "SRC1-3012",
+      "source_path": "apps/leave/docs/features.md",
+      "source_line": 3012,
+      "source_hash": "faf78c0bee8781980ded43637cf850930d96ab17376e05ec356af72a8ce637f4",
+      "disposition": "required",
+      "primary_owners": [
+        "4.1",
+        "4.3",
+        "4.7"
+      ],
+      "acceptance": [
+        "4.1/AC01",
+        "4.1/AC02",
+        "4.1/AC03",
+        "4.1/AC04",
+        "4.1/AC05",
+        "4.1/AC06",
+        "4.3/AC01",
+        "4.3/AC02",
+        "4.3/AC03",
+        "4.3/AC04",
+        "4.3/AC05",
+        "4.3/AC06",
+        "4.7/AC01",
+        "4.7/AC02",
+        "4.7/AC03",
+        "4.7/AC04",
+        "4.7/AC05",
+        "4.7/AC06",
+        "4.7/AC07"
+      ],
+      "assertions": [
+        "Provider-enforced 900-second direct uploads and fixed finalized bytes",
+        "authenticated app/Content private reads, no browser signed-read URL fallback"
+      ],
+      "review_method": "manual full-source reading and semantic source/precedence allocation, no lexical scoring"
+    },
+    {
+      "source_unit": "SRC1-3013",
+      "source_path": "apps/leave/docs/features.md",
+      "source_line": 3013,
+      "source_hash": "17b950e6e5e04b2162ffe986667327a42003e47444b631b3f2d2a3757649742b",
+      "disposition": "required",
+      "primary_owners": [
+        "E1-WRITE",
+        "3.17-A",
+        "3.22"
+      ],
+      "acceptance": [
+        "E1-WRITE/AC01",
+        "E1-WRITE/AC02",
+        "E1-WRITE/AC03",
+        "E1-WRITE/AC04",
+        "E1-WRITE/AC05",
+        "3.17-A/AC01",
+        "3.17-A/AC02",
+        "3.17-A/AC03",
+        "3.17-A/AC04",
+        "3.17-A/AC05",
+        "3.17-A/AC06",
+        "3.17-A/AC07",
+        "3.17-A/AC08",
+        "3.22/AC01",
+        "3.22/AC02",
+        "3.22/AC03",
+        "3.22/AC04",
+        "3.22/AC05",
+        "3.22/AC06"
+      ],
+      "assertions": [
+        "Original write outcomes/receiver dedup and deterministic repeated on-demand calculation",
+        "no duplicated effects or automatic posted accrual"
+      ],
+      "review_method": "manual full-source reading and semantic source/precedence allocation, no lexical scoring"
+    },
+    {
+      "source_unit": "SRC1-3014",
+      "source_path": "apps/leave/docs/features.md",
+      "source_line": 3014,
+      "source_hash": "1c5f1959a0a8099cdbb9717df44b644673891b1399c2127c8bb1e1f74a3ba71a",
+      "disposition": "required",
+      "primary_owners": [
+        "3.34-A",
+        "5.18-A"
+      ],
+      "acceptance": [
+        "3.34-A/AC01",
+        "3.34-A/AC02",
+        "3.34-A/AC03",
+        "3.34-A/AC04",
+        "3.34-A/AC05",
+        "3.34-A/AC06",
+        "3.34-A/AC07",
+        "3.34-A/AC08",
+        "3.34-A/AC09",
+        "3.34-A/AC10",
+        "5.18-A/AC01",
+        "5.18-A/AC02",
+        "5.18-A/AC03",
+        "5.18-A/AC04",
+        "5.18-A/AC05",
+        "5.18-A/AC06",
+        "5.18-A/AC07"
+      ],
+      "assertions": [
+        "Current reviewed revisions guarded atomically",
+        "stale/current changes require appropriate renewed review, not timestamp-only overwrite"
+      ],
+      "review_method": "manual full-source reading and semantic source/precedence allocation, no lexical scoring"
+    },
+    {
+      "source_unit": "SRC1-3015",
+      "source_path": "apps/leave/docs/features.md",
+      "source_line": 3015,
+      "source_hash": "6ea8c649aff03497ffa4bbb9268f3feb018431e094e20910a2751376d1c52f13",
+      "disposition": "required",
+      "primary_owners": [
+        "8.19",
+        "8.20"
+      ],
+      "acceptance": [
+        "8.19/AC01",
+        "8.19/AC02",
+        "8.19/AC03",
+        "8.19/AC04",
+        "8.20/AC01",
+        "8.20/AC02",
+        "8.20/AC03",
+        "8.20/AC04"
+      ],
+      "assertions": [
+        "Safe structured operation/trace/metric/progress and actionable independent alerts begin at first consumer",
+        "no sensitive payload dump or monitoring dependency for business writes"
+      ],
+      "review_method": "manual full-source reading and semantic source/precedence allocation, no lexical scoring"
+    },
+    {
+      "source_unit": "SRC1-3016",
+      "source_path": "apps/leave/docs/features.md",
+      "source_line": 3016,
+      "source_hash": "fdb73c6987c7c97a1aa6f0a8cbad5c6e1dd8b7921d3691ca03995625d1fadabc",
+      "disposition": "required",
+      "primary_owners": [
+        "8.22",
+        "8.24"
+      ],
+      "acceptance": [
+        "8.22/AC01",
+        "8.22/AC02",
+        "8.22/AC03",
+        "8.22/AC04",
+        "8.24/AC01",
+        "8.24/AC02",
+        "8.24/AC03",
+        "8.24/AC04"
+      ],
+      "assertions": [
+        "Actual DB/private-byte/dependency restore and controlled compatibility/migration-failure recovery",
+        "no startup migrations or automatic destructive downgrade"
+      ],
+      "review_method": "manual full-source reading and semantic source/precedence allocation, no lexical scoring"
+    },
+    {
+      "source_unit": "SRC1-3017",
+      "source_path": "apps/leave/docs/features.md",
+      "source_line": 3017,
+      "source_hash": "ee14c0462380ba53323356473b9e0ca8c78dc110097ece5c7e41cdc2c460a51d",
+      "disposition": "required",
+      "primary_owners": [
+        "4.10",
+        "4.11-L"
+      ],
+      "acceptance": [
+        "4.10/AC01",
+        "4.10/AC02",
+        "4.10/AC03",
+        "4.10/AC04",
+        "4.10/AC05",
+        "4.10/AC06",
+        "4.10/AC07",
+        "4.10/AC08",
+        "4.11-L/AC01",
+        "4.11-L/AC02",
+        "4.11-L/AC03",
+        "4.11-L/AC04"
+      ],
+      "assertions": [
+        "Reviewed applicable retention and reference-protected recoverable auditable disposal",
+        "Save does not delete, no ordinary draft expiry"
+      ],
+      "review_method": "manual full-source reading and semantic source/precedence allocation, no lexical scoring"
+    },
+    {
+      "source_unit": "SRC1-3018",
+      "source_path": "apps/leave/docs/features.md",
+      "source_line": 3018,
+      "source_hash": "d9b70484c696b67c4687a010c8111c916995be74174008e34549deeef16d9246",
+      "disposition": "required",
+      "primary_owners": [
+        "3.7",
+        "3.15",
+        "3.9"
+      ],
+      "acceptance": [
+        "3.7/AC01",
+        "3.7/AC02",
+        "3.7/AC03",
+        "3.7/AC04",
+        "3.7/AC05",
+        "3.7/AC06",
+        "3.7/AC07",
+        "3.15/AC01",
+        "3.15/AC02",
+        "3.15/AC03",
+        "3.15/AC04",
+        "3.15/AC05",
+        "3.15/AC06",
+        "3.9/AC01",
+        "3.9/AC02",
+        "3.9/AC03",
+        "3.9/AC04",
+        "3.9/AC05",
+        "3.9/AC06",
+        "3.9/AC07"
+      ],
+      "assertions": [
+        "Employee-local civil dates, effective history, deterministic calendar boundaries and sequence",
+        "no viewer timezone/client-clock authority"
+      ],
+      "review_method": "manual full-source reading and semantic source/precedence allocation, no lexical scoring"
+    },
+    {
+      "source_unit": "SRC1-3019",
+      "source_path": "apps/leave/docs/features.md",
+      "source_line": 3019,
+      "source_hash": "a87cec0f4579ed8712e3e099830a3be1a37fd46fae226af3c4d182379105c747",
+      "disposition": "required",
+      "primary_owners": [
+        "3.17-B",
+        "7.31",
+        "8.25"
+      ],
+      "acceptance": [
+        "3.17-B/AC01",
+        "3.17-B/AC02",
+        "3.17-B/AC03",
+        "3.17-B/AC04",
+        "3.17-B/AC05",
+        "3.17-B/AC06",
+        "3.17-B/AC07",
+        "3.17-B/AC08",
+        "7.31/AC01",
+        "7.31/AC02",
+        "7.31/AC03",
+        "7.31/AC04",
+        "8.25/AC01",
+        "8.25/AC02",
+        "8.25/AC03",
+        "8.25/AC04"
+      ],
+      "assertions": [
+        "Consuming owner binds/measures representative history/concurrency/hardware and endpoint/transaction/resource targets before release",
+        "no assumed capacity or unmeasured estimate as evidence"
+      ],
+      "review_method": "manual full-source reading and semantic source/precedence allocation, no lexical scoring"
+    },
+    {
+      "source_unit": "SRC1-3021",
+      "source_path": "apps/leave/docs/features.md",
+      "source_line": 3021,
+      "source_hash": "ea993299099dc22d4f4e5d56b867e0a8688f3300c331209c6f390fd2902099ea",
+      "disposition": "required",
+      "primary_owners": [
+        "8.22",
+        "8.23"
+      ],
+      "acceptance": [
+        "8.22/AC01",
+        "8.22/AC02",
+        "8.22/AC03",
+        "8.22/AC04",
+        "8.23/AC01",
+        "8.23/AC02",
+        "8.23/AC03",
+        "8.23/AC04"
+      ],
+      "assertions": [
+        "Consistent DB/private bytes/Identity/Access/config recovery",
+        "hold outbound and reconcile receiver/provider uncertainty before resume",
+        "actual representative access/balance/document proof"
+      ],
+      "review_method": "manual full-source reading and semantic source/precedence allocation, no lexical scoring"
+    },
+    {
+      "source_unit": "SRC1-3030",
+      "source_path": "apps/leave/docs/features.md",
+      "source_line": 3030,
+      "source_hash": "b0df89e9676e62aa7f04a53ae5f0e97e6bb2e6b9efb161a29afacc9801faf32c",
+      "disposition": "context",
+      "primary_owners": [
+        "8.28"
+      ],
+      "acceptance": [
+        "8.28/AC01",
+        "8.28/AC02",
+        "8.28/AC03",
+        "8.28/AC04"
+      ],
+      "assertions": [
+        "Owner/decision-gate table heading is navigation"
+      ],
+      "review_method": "manual full-source reading and semantic source/precedence allocation, no lexical scoring"
+    },
+    {
+      "source_unit": "SRC1-3032",
+      "source_path": "apps/leave/docs/features.md",
+      "source_line": 3032,
+      "source_hash": "50a45afb6879b701dcbf37cbe6f75c5b7b3b8ee364bfe103a47c8c4aea13b534",
+      "disposition": "required",
+      "primary_owners": [
+        "4.1",
+        "4.3",
+        "4.7"
+      ],
+      "acceptance": [
+        "4.1/AC01",
+        "4.1/AC02",
+        "4.1/AC03",
+        "4.1/AC04",
+        "4.1/AC05",
+        "4.1/AC06",
+        "4.3/AC01",
+        "4.3/AC02",
+        "4.3/AC03",
+        "4.3/AC04",
+        "4.3/AC05",
+        "4.3/AC06",
+        "4.7/AC01",
+        "4.7/AC02",
+        "4.7/AC03",
+        "4.7/AC04",
+        "4.7/AC05",
+        "4.7/AC06",
+        "4.7/AC07"
+      ],
+      "assertions": [
+        "Provider-enforced 900-second direct uploads and fixed finalized bytes",
+        "authenticated app/Content private reads, no browser signed-read URL fallback"
+      ],
+      "review_method": "manual full-source reading and semantic source/precedence allocation, no lexical scoring"
+    },
+    {
+      "source_unit": "SRC1-3033",
+      "source_path": "apps/leave/docs/features.md",
+      "source_line": 3033,
+      "source_hash": "b10fe25aef6863b0e4f4d5fe62d61c7919536ce68a15dd86b7b03e1194c13353",
+      "disposition": "required",
+      "primary_owners": [
+        "8.21",
+        "8.22"
+      ],
+      "acceptance": [
+        "8.21/AC01",
+        "8.21/AC02",
+        "8.21/AC03",
+        "8.21/AC04",
+        "8.22/AC01",
+        "8.22/AC02",
+        "8.22/AC03",
+        "8.22/AC04"
+      ],
+      "assertions": [
+        "Verified RPO at most one hour, essential RTO four hours from incident, 30-day backup retention",
+        "before pilot/quarterly/major-change rehearsals"
+      ],
+      "review_method": "manual full-source reading and semantic source/precedence allocation, no lexical scoring"
+    },
+    {
+      "source_unit": "SRC1-3034",
+      "source_path": "apps/leave/docs/features.md",
+      "source_line": 3034,
+      "source_hash": "92e2381f0a1b6bfcf91e345cae7d62778c886215e799cb039164410b7ca2d701",
+      "disposition": "required",
+      "primary_owners": [
+        "8.20"
+      ],
+      "acceptance": [
+        "8.20/AC01",
+        "8.20/AC02",
+        "8.20/AC03",
+        "8.20/AC04"
+      ],
+      "assertions": [
+        "API/heartbeat five minutes, eligible delivery age warn fifteen minutes/escalate one hour",
+        "stale verified recovery point/integrity immediate",
+        "retries never reset age"
+      ],
+      "review_method": "manual full-source reading and semantic source/precedence allocation, no lexical scoring"
+    },
+    {
+      "source_unit": "SRC1-3035",
+      "source_path": "apps/leave/docs/features.md",
+      "source_line": 3035,
+      "source_hash": "6204db9e69f13dee82932a7728b6d9f79e833f8f7b10beb33de15058d9020378",
+      "disposition": "required",
+      "primary_owners": [
+        "8.17",
+        "8.25"
+      ],
+      "acceptance": [
+        "8.17/AC01",
+        "8.17/AC02",
+        "8.17/AC03",
+        "8.17/AC04",
+        "8.25/AC01",
+        "8.25/AC02",
+        "8.25/AC03",
+        "8.25/AC04"
+      ],
+      "assertions": [
+        "Current/previous Chrome Edge Firefox Safari plus actual Android/iOS/iPad browser evidence",
+        "exact versions/OS and measured workload outcomes recorded",
+        "ownership can be combined but proof not waived"
+      ],
+      "review_method": "manual full-source reading and semantic source/precedence allocation, no lexical scoring"
+    },
+    {
+      "source_unit": "SRC1-3037",
+      "source_path": "apps/leave/docs/features.md",
+      "source_line": 3037,
+      "source_hash": "149d54632f1ee93d0ea9fb14c9dd70ec03ccedfedf9029bea9eaa64fe79dd91e",
+      "disposition": "required",
+      "primary_owners": [
+        "8.17",
+        "8.25"
+      ],
+      "acceptance": [
+        "8.17/AC01",
+        "8.17/AC02",
+        "8.17/AC03",
+        "8.17/AC04",
+        "8.25/AC01",
+        "8.25/AC02",
+        "8.25/AC03",
+        "8.25/AC04"
+      ],
+      "assertions": [
+        "Current/previous Chrome Edge Firefox Safari plus actual Android/iOS/iPad browser evidence",
+        "exact versions/OS and measured workload outcomes recorded",
+        "ownership can be combined but proof not waived"
+      ],
+      "review_method": "manual full-source reading and semantic source/precedence allocation, no lexical scoring"
+    },
+    {
+      "source_unit": "SRC1-3046",
+      "source_path": "apps/leave/docs/features.md",
+      "source_line": 3046,
+      "source_hash": "31510421eebb56ed55777ea90ff47aad74fbc0634d6f4fa575373cd8811735a6",
+      "disposition": "mixed-current-and-excluded",
+      "primary_owners": [
+        "8.1",
+        "8.4",
+        "8.9"
+      ],
+      "acceptance": [
+        "8.1/AC01",
+        "8.1/AC02",
+        "8.1/AC03",
+        "8.1/AC04",
+        "8.4/AC01",
+        "8.4/AC02",
+        "8.4/AC03",
+        "8.4/AC04",
+        "8.9/AC01",
+        "8.9/AC02",
+        "8.9/AC03",
+        "8.9/AC04"
+      ],
+      "assertions": [
+        "Consultant-only templates/preview/row errors/duplicates/reconciliation/exact client email approval before apply",
+        "changed data needs renewed report",
+        "no self-service/client confirmation screen, manual entry retained"
+      ],
+      "review_method": "manual full-source reading and semantic source/precedence allocation, no lexical scoring"
+    },
+    {
+      "source_unit": "SRC1-3054",
+      "source_path": "apps/leave/docs/features.md",
+      "source_line": 3054,
+      "source_hash": "6517abc58075856b24a82ba2cbb0d334168403060f92af099f9fe7d5102c5ea1",
+      "disposition": "excluded-independent-teams",
+      "primary_owners": [
+        "2.16",
+        "7.1"
+      ],
+      "acceptance": [
+        "2.16/AC01",
+        "2.16/AC02",
+        "2.16/AC03",
+        "2.16/AC04",
+        "2.16/AC05",
+        "2.16/AC06",
+        "2.16/AC07",
+        "2.16/AC08",
+        "7.1/AC01",
+        "7.1/AC02",
+        "7.1/AC03",
+        "7.1/AC04"
+      ],
+      "assertions": [
+        "Supervisor-derived teams only",
+        "no named team catalogue/membership/default work profile"
+      ],
+      "review_method": "manual full-source reading and semantic source/precedence allocation, no lexical scoring"
+    },
+    {
+      "source_unit": "SRC1-3056",
+      "source_path": "apps/leave/docs/features.md",
+      "source_line": 3056,
+      "source_hash": "dca4e3d19f34c83de49d09e44a94caa0eafa4cf5b3eeb3815f8ad78ca594b47d",
+      "disposition": "mixed-current-and-deferred",
+      "primary_owners": [
+        "2.16",
+        "2.17"
+      ],
+      "acceptance": [
+        "2.16/AC01",
+        "2.16/AC02",
+        "2.16/AC03",
+        "2.16/AC04",
+        "2.16/AC05",
+        "2.16/AC06",
+        "2.16/AC07",
+        "2.16/AC08",
+        "2.17/AC01",
+        "2.17/AC02",
+        "2.17/AC03",
+        "2.17/AC04",
+        "2.17/AC05",
+        "2.17/AC06",
+        "2.17/AC07",
+        "2.17/AC08"
+      ],
+      "assertions": [
+        "Manual shared supervisor MVP",
+        "Graph directory sync deferred and separate from calendars",
+        "no role grant/silent reroute from imported fact"
+      ],
+      "review_method": "manual full-source reading and semantic source/precedence allocation, no lexical scoring"
+    },
+    {
+      "source_unit": "SRC1-3061",
+      "source_path": "apps/leave/docs/features.md",
+      "source_line": 3061,
+      "source_hash": "8ded45775832225b8768e6969f22e8c8686026f54af4ed2cbaa72211d837f513",
+      "disposition": "excluded-from-mvp",
+      "primary_owners": [
+        "8.16"
+      ],
+      "acceptance": [
+        "8.16/AC01",
+        "8.16/AC02",
+        "8.16/AC03",
+        "8.16/AC04"
+      ],
+      "assertions": [
+        "External calendar/payroll/HRIS, Teams/Slack/SMS, generic workflow builder, statutory updates, provider migration and optimization remain excluded",
+        "no positive implementation tests invented"
+      ],
+      "review_method": "manual full-source reading and semantic source/precedence allocation, no lexical scoring"
+    },
+    {
+      "source_unit": "SRC1-3062",
+      "source_path": "apps/leave/docs/features.md",
+      "source_line": 3062,
+      "source_hash": "d6c27a8d5f08381543f9e61c2aee5e0a58048dcc28b892852ddcf19dd5fcf141",
+      "disposition": "excluded-from-mvp",
+      "primary_owners": [
+        "8.16"
+      ],
+      "acceptance": [
+        "8.16/AC01",
+        "8.16/AC02",
+        "8.16/AC03",
+        "8.16/AC04"
+      ],
+      "assertions": [
+        "External calendar/payroll/HRIS, Teams/Slack/SMS, generic workflow builder, statutory updates, provider migration and optimization remain excluded",
+        "no positive implementation tests invented"
+      ],
+      "review_method": "manual full-source reading and semantic source/precedence allocation, no lexical scoring"
+    },
+    {
+      "source_unit": "SRC1-3063",
+      "source_path": "apps/leave/docs/features.md",
+      "source_line": 3063,
+      "source_hash": "8be58cd3ed971ee03d2d850ca640b96b0373f71a7271af805fe4ecf6d91b64b0",
+      "disposition": "excluded-from-mvp",
+      "primary_owners": [
+        "8.16"
+      ],
+      "acceptance": [
+        "8.16/AC01",
+        "8.16/AC02",
+        "8.16/AC03",
+        "8.16/AC04"
+      ],
+      "assertions": [
+        "External calendar/payroll/HRIS, Teams/Slack/SMS, generic workflow builder, statutory updates, provider migration and optimization remain excluded",
+        "no positive implementation tests invented"
+      ],
+      "review_method": "manual full-source reading and semantic source/precedence allocation, no lexical scoring"
+    },
+    {
+      "source_unit": "SRC1-3064",
+      "source_path": "apps/leave/docs/features.md",
+      "source_line": 3064,
+      "source_hash": "0ee119705eaae3948e24d91e7ad47cb66fae026fcbeab7f202d0ce8304886a84",
+      "disposition": "excluded-from-mvp",
+      "primary_owners": [
+        "8.16"
+      ],
+      "acceptance": [
+        "8.16/AC01",
+        "8.16/AC02",
+        "8.16/AC03",
+        "8.16/AC04"
+      ],
+      "assertions": [
+        "External calendar/payroll/HRIS, Teams/Slack/SMS, generic workflow builder, statutory updates, provider migration and optimization remain excluded",
+        "no positive implementation tests invented"
+      ],
+      "review_method": "manual full-source reading and semantic source/precedence allocation, no lexical scoring"
+    },
+    {
+      "source_unit": "SRC1-3065",
+      "source_path": "apps/leave/docs/features.md",
+      "source_line": 3065,
+      "source_hash": "ee8035c36c59f8a2ac1a571f792445e62b3531f2a6ead35919ccc1ee6e7e65f1",
+      "disposition": "mixed-current-and-excluded",
+      "primary_owners": [
+        "2.7",
+        "2.8"
+      ],
+      "acceptance": [
+        "2.7/AC01",
+        "2.7/AC02",
+        "2.7/AC03",
+        "2.7/AC04",
+        "2.7/AC05",
+        "2.7/AC06",
+        "2.7/AC07",
+        "2.8/AC01",
+        "2.8/AC02",
+        "2.8/AC03",
+        "2.8/AC04",
+        "2.8/AC05",
+        "2.8/AC06",
+        "2.8/AC07",
+        "2.8/AC08",
+        "2.8/AC09",
+        "2.8/AC10"
+      ],
+      "assertions": [
+        "Initial verified Entra mapping/opt-in included under P-0057",
+        "arbitrary provider replacement still excluded"
+      ],
+      "review_method": "manual full-source reading and semantic source/precedence allocation, no lexical scoring"
+    },
+    {
+      "source_unit": "SRC1-3068",
+      "source_path": "apps/leave/docs/features.md",
+      "source_line": 3068,
+      "source_hash": "e09f2144ca3b89384e7b7a28e8e4e7d109dd4812ef3a01584e8d06cc3f2435b1",
+      "disposition": "excluded-from-mvp",
+      "primary_owners": [
+        "8.16"
+      ],
+      "acceptance": [
+        "8.16/AC01",
+        "8.16/AC02",
+        "8.16/AC03",
+        "8.16/AC04"
+      ],
+      "assertions": [
+        "External calendar/payroll/HRIS, Teams/Slack/SMS, generic workflow builder, statutory updates, provider migration and optimization remain excluded",
+        "no positive implementation tests invented"
+      ],
+      "review_method": "manual full-source reading and semantic source/precedence allocation, no lexical scoring"
+    },
+    {
+      "source_unit": "SRC1-3069",
+      "source_path": "apps/leave/docs/features.md",
+      "source_line": 3069,
+      "source_hash": "97c064f64ba3e8fc8af2dda3675a6df1046105018c79caf148c5b1a4debadc47",
+      "disposition": "excluded-from-mvp",
+      "primary_owners": [
+        "8.16"
+      ],
+      "acceptance": [
+        "8.16/AC01",
+        "8.16/AC02",
+        "8.16/AC03",
+        "8.16/AC04"
+      ],
+      "assertions": [
+        "External calendar/payroll/HRIS, Teams/Slack/SMS, generic workflow builder, statutory updates, provider migration and optimization remain excluded",
+        "no positive implementation tests invented"
+      ],
+      "review_method": "manual full-source reading and semantic source/precedence allocation, no lexical scoring"
+    },
+    {
+      "source_unit": "SRC1-3070",
+      "source_path": "apps/leave/docs/features.md",
+      "source_line": 3070,
+      "source_hash": "dc340722c4ee59079e3155f88fb5c9d6f524fa74a464f1aa97f5c83f618c928a",
+      "disposition": "excluded-translation-delivery",
+      "primary_owners": [
+        "E1-A1",
+        "8.16"
+      ],
+      "acceptance": [
+        "E1-A1/AC01",
+        "E1-A1/AC02",
+        "E1-A1/AC03",
+        "E1-A1/AC04",
+        "E1-A1/AC05",
+        "E1-A1/AC06",
+        "E1-A1/AC07",
+        "E1-A1/AC08",
+        "E1-A1/AC09",
+        "E1-A1/AC10",
+        "8.16/AC01",
+        "8.16/AC02",
+        "8.16/AC03",
+        "8.16/AC04"
+      ],
+      "assertions": [
+        "English/localization readiness included",
+        "Portuguese/further translation delivery remains separate"
+      ],
+      "review_method": "manual full-source reading and semantic source/precedence allocation, no lexical scoring"
+    },
+    {
+      "source_unit": "SRC1-3074",
+      "source_path": "apps/leave/docs/features.md",
+      "source_line": 3074,
+      "source_hash": "3bdcfa6a25c1035edb5f86603fa0a5a474dc404d22a1d478b30cfd8b577b049d",
+      "disposition": "context",
+      "primary_owners": [
+        "8.28"
+      ],
+      "acceptance": [
+        "8.28/AC01",
+        "8.28/AC02",
+        "8.28/AC03",
+        "8.28/AC04"
+      ],
+      "assertions": [
+        "Acceptance-summary introduction is framing, not an extra runtime test"
+      ],
+      "review_method": "manual full-source reading and semantic source/precedence allocation, no lexical scoring"
+    },
+    {
+      "source_unit": "SRC1-3076",
+      "source_path": "apps/leave/docs/features.md",
+      "source_line": 3076,
+      "source_hash": "0d6b5e2fabf606d88614d8ff2bd9764d008bcb842d3247e098e689c831c820d0",
+      "disposition": "required",
+      "primary_owners": [
+        "E1-D3",
+        "8.15"
+      ],
+      "acceptance": [
+        "E1-D3/AC01",
+        "E1-D3/AC02",
+        "E1-D3/AC03",
+        "E1-D3/AC04",
+        "E1-D3/AC05",
+        "E1-D3/AC06",
+        "E1-D3/AC07",
+        "E1-D3/AC08",
+        "8.15/AC01",
+        "8.15/AC02",
+        "8.15/AC03",
+        "8.15/AC04"
+      ],
+      "assertions": [
+        "Multi-org switching and all actual tenant boundaries"
+      ],
+      "review_method": "manual full-source reading and semantic source/precedence allocation, no lexical scoring"
+    },
+    {
+      "source_unit": "SRC1-3077",
+      "source_path": "apps/leave/docs/features.md",
+      "source_line": 3077,
+      "source_hash": "de710146f4af27302f13643e699cab847dcfcf301d40ca4c856850e1f6b74ad6",
+      "disposition": "required",
+      "primary_owners": [
+        "2.18",
+        "2.19",
+        "3.3-B",
+        "3.30"
+      ],
+      "acceptance": [
+        "2.18/AC01",
+        "2.18/AC02",
+        "2.18/AC03",
+        "2.18/AC04",
+        "2.18/AC05",
+        "2.18/AC06",
+        "2.18/AC07",
+        "2.19/AC01",
+        "2.19/AC02",
+        "2.19/AC03",
+        "2.19/AC04",
+        "2.19/AC05",
+        "2.19/AC06",
+        "2.19/AC07",
+        "2.19/AC08",
+        "3.3-B/AC01",
+        "3.3-B/AC02",
+        "3.3-B/AC03",
+        "3.3-B/AC04",
+        "3.3-B/AC05",
+        "3.3-B/AC06",
+        "3.3-B/AC07",
+        "3.3-B/AC08",
+        "3.30/AC01",
+        "3.30/AC02",
+        "3.30/AC03",
+        "3.30/AC04",
+        "3.30/AC05",
+        "3.30/AC06",
+        "3.30/AC07",
+        "3.30/AC08"
+      ],
+      "assertions": [
+        "Authorized configuration without direct DB access"
+      ],
+      "review_method": "manual full-source reading and semantic source/precedence allocation, no lexical scoring"
+    },
+    {
+      "source_unit": "SRC1-3079",
+      "source_path": "apps/leave/docs/features.md",
+      "source_line": 3079,
+      "source_hash": "8df51b11667bc530e6afd75f71bf8ebe611d6b278424365747d642c08df0a6d0",
+      "disposition": "required",
+      "primary_owners": [
+        "5.11-B",
+        "3.19"
+      ],
+      "acceptance": [
+        "5.11-B/AC01",
+        "5.11-B/AC02",
+        "5.11-B/AC03",
+        "5.11-B/AC04",
+        "5.11-B/AC05",
+        "5.11-B/AC06",
+        "5.11-B/AC07",
+        "3.19/AC01",
+        "3.19/AC02",
+        "3.19/AC03",
+        "3.19/AC04",
+        "3.19/AC05",
+        "3.19/AC06",
+        "3.19/AC07"
+      ],
+      "assertions": [
+        "Full/half/hour submission and exact current/projected explanation"
+      ],
+      "review_method": "manual full-source reading and semantic source/precedence allocation, no lexical scoring"
+    },
+    {
+      "source_unit": "SRC1-3081",
+      "source_path": "apps/leave/docs/features.md",
+      "source_line": 3081,
+      "source_hash": "33060c52b878d521bad03391b120c89e457a1d33fd49d987932e8f2df0d95e96",
+      "disposition": "required",
+      "primary_owners": [
+        "5.18-A",
+        "5.13-A"
+      ],
+      "acceptance": [
+        "5.18-A/AC01",
+        "5.18-A/AC02",
+        "5.18-A/AC03",
+        "5.18-A/AC04",
+        "5.18-A/AC05",
+        "5.18-A/AC06",
+        "5.18-A/AC07",
+        "5.13-A/AC01",
+        "5.13-A/AC02",
+        "5.13-A/AC03",
+        "5.13-A/AC04",
+        "5.13-A/AC05",
+        "5.13-A/AC06"
+      ],
+      "assertions": [
+        "Actual scoped decisions/explicit overrides and single ledger effects/history"
+      ],
+      "review_method": "manual full-source reading and semantic source/precedence allocation, no lexical scoring"
+    },
+    {
+      "source_unit": "SRC1-3083",
+      "source_path": "apps/leave/docs/features.md",
+      "source_line": 3083,
+      "source_hash": "6d18c086175cefe3b794e87f7fe928f7e47dd6cec4941cff9e4c22db249d199c",
+      "disposition": "required",
+      "primary_owners": [
+        "4.7",
+        "4.6"
+      ],
+      "acceptance": [
+        "4.7/AC01",
+        "4.7/AC02",
+        "4.7/AC03",
+        "4.7/AC04",
+        "4.7/AC05",
+        "4.7/AC06",
+        "4.7/AC07",
+        "4.6/AC01",
+        "4.6/AC02",
+        "4.6/AC03",
+        "4.6/AC04",
+        "4.6/AC05"
+      ],
+      "assertions": [
+        "FastAPI Content/application authorization and safety with private bytes"
+      ],
+      "review_method": "manual full-source reading and semantic source/precedence allocation, no lexical scoring"
+    },
+    {
+      "source_unit": "SRC1-3085",
+      "source_path": "apps/leave/docs/features.md",
+      "source_line": 3085,
+      "source_hash": "0d63917003d446614e41e65b015fbae2b19456566c6f39f3c3bac405638e838b",
+      "disposition": "required",
+      "primary_owners": [
+        "7.1",
+        "7.19"
+      ],
+      "acceptance": [
+        "7.1/AC01",
+        "7.1/AC02",
+        "7.1/AC03",
+        "7.1/AC04",
+        "7.19/AC01",
+        "7.19/AC02",
+        "7.19/AC03",
+        "7.19/AC04"
+      ],
+      "assertions": [
+        "Calendar/report/API/export privacy parity"
+      ],
+      "review_method": "manual full-source reading and semantic source/precedence allocation, no lexical scoring"
+    },
+    {
+      "source_unit": "SRC1-3086",
+      "source_path": "apps/leave/docs/features.md",
+      "source_line": 3086,
+      "source_hash": "124bcde5e49b042b5cf00065c25f515c8f09acff5deba4ad5247dc73aa6e65d0",
+      "disposition": "required",
+      "primary_owners": [
+        "3.17-A",
+        "3.22"
+      ],
+      "acceptance": [
+        "3.17-A/AC01",
+        "3.17-A/AC02",
+        "3.17-A/AC03",
+        "3.17-A/AC04",
+        "3.17-A/AC05",
+        "3.17-A/AC06",
+        "3.17-A/AC07",
+        "3.17-A/AC08",
+        "3.22/AC01",
+        "3.22/AC02",
+        "3.22/AC03",
+        "3.22/AC04",
+        "3.22/AC05",
+        "3.22/AC06"
+      ],
+      "assertions": [
+        "Repeated derived accrual and notification delivery duplicate-safe",
+        "L-0106 supersedes implication of an accrual posting job"
+      ],
+      "review_method": "manual full-source reading and semantic source/precedence allocation, no lexical scoring"
+    },
+    {
+      "source_unit": "SRC1-3088",
+      "source_path": "apps/leave/docs/features.md",
+      "source_line": 3088,
+      "source_hash": "340ddee22bcb71db734edd0bfcbacd2bc1fc63f33177c5feebcab35403edd704",
+      "disposition": "required",
+      "primary_owners": [
+        "8.15",
+        "8.17",
+        "8.22",
+        "8.24",
+        "8.28"
+      ],
+      "acceptance": [
+        "8.15/AC01",
+        "8.15/AC02",
+        "8.15/AC03",
+        "8.15/AC04",
+        "8.17/AC01",
+        "8.17/AC02",
+        "8.17/AC03",
+        "8.17/AC04",
+        "8.22/AC01",
+        "8.22/AC02",
+        "8.22/AC03",
+        "8.22/AC04",
+        "8.24/AC01",
+        "8.24/AC02",
+        "8.24/AC03",
+        "8.24/AC04",
+        "8.28/AC01",
+        "8.28/AC02",
+        "8.28/AC03",
+        "8.28/AC04"
+      ],
+      "assertions": [
+        "Actual security/accessibility/recovery/audit/release gates"
+      ],
+      "review_method": "manual full-source reading and semantic source/precedence allocation, no lexical scoring"
+    },
+    {
+      "source_unit": "SRC1-3090",
+      "source_path": "apps/leave/docs/features.md",
+      "source_line": 3090,
+      "source_hash": "8bdfdc34d9bdf92fb8226758c88b623055d20df36ce6514110425ac334ab71cd",
+      "disposition": "required",
+      "primary_owners": [
+        "E1-P1",
+        "8.28"
+      ],
+      "acceptance": [
+        "E1-P1/AC01",
+        "E1-P1/AC02",
+        "E1-P1/AC03",
+        "E1-P1/AC04",
+        "E1-P1/AC05",
+        "E1-P1/AC06",
+        "E1-P1/AC07",
+        "8.28/AC01",
+        "8.28/AC02",
+        "8.28/AC03",
+        "8.28/AC04"
+      ],
+      "assertions": [
+        "Per-feature scaffold decision and applicable generated/test/docs/migration proof"
+      ],
+      "review_method": "manual full-source reading and semantic source/precedence allocation, no lexical scoring"
+    },
+    {
+      "source_unit": "SRC1-3092",
+      "source_path": "apps/leave/docs/features.md",
+      "source_line": 3092,
+      "source_hash": "cccfd7409424188ed672fa41a87ec8f03eff0fb05c002838cbc6c7ec8ab81b58",
+      "disposition": "required",
+      "primary_owners": [
+        "8.28"
+      ],
+      "acceptance": [
+        "8.28/AC01",
+        "8.28/AC02",
+        "8.28/AC03",
+        "8.28/AC04"
+      ],
+      "assertions": [
+        "Source-to-scenario/real red-green/focused/affected tests and exact commands/results",
+        "no document-only acceptance claim"
+      ],
+      "review_method": "manual full-source reading and semantic source/precedence allocation, no lexical scoring"
+    },
+    {
+      "source_unit": "SRC1-3098",
+      "source_path": "apps/leave/docs/features.md",
+      "source_line": 3098,
+      "source_hash": "dcac2f6c78071bf3ab8266f4051f23b4dbdb474ba5cafa523c27587cf5363e04",
+      "disposition": "context",
+      "primary_owners": [
+        "E1-A1"
+      ],
+      "acceptance": [
+        "E1-A1/AC01",
+        "E1-A1/AC02",
+        "E1-A1/AC03",
+        "E1-A1/AC04",
+        "E1-A1/AC05",
+        "E1-A1/AC06",
+        "E1-A1/AC07",
+        "E1-A1/AC08",
+        "E1-A1/AC09",
+        "E1-A1/AC10"
+      ],
+      "assertions": [
+        "Related-document links are navigation/source context, not additional duplicate requirements"
+      ],
+      "review_method": "manual full-source reading and semantic source/precedence allocation, no lexical scoring"
+    },
+    {
+      "source_unit": "SRC1-3099",
+      "source_path": "apps/leave/docs/features.md",
+      "source_line": 3099,
+      "source_hash": "910c7608e0e8ab5846efeb829e0a8b4d3ec0c1dafb18babdf8a236ce7507c96e",
+      "disposition": "context",
+      "primary_owners": [
+        "E1-A1"
+      ],
+      "acceptance": [
+        "E1-A1/AC01",
+        "E1-A1/AC02",
+        "E1-A1/AC03",
+        "E1-A1/AC04",
+        "E1-A1/AC05",
+        "E1-A1/AC06",
+        "E1-A1/AC07",
+        "E1-A1/AC08",
+        "E1-A1/AC09",
+        "E1-A1/AC10"
+      ],
+      "assertions": [
+        "Related-document links are navigation/source context, not additional duplicate requirements"
+      ],
+      "review_method": "manual full-source reading and semantic source/precedence allocation, no lexical scoring"
+    },
+    {
+      "source_unit": "SRC1-3100",
+      "source_path": "apps/leave/docs/features.md",
+      "source_line": 3100,
+      "source_hash": "db0280416e90627673d7718f128b58ba5cf254092f7306af8919d7c734aa6e5e",
+      "disposition": "context",
+      "primary_owners": [
+        "E1-A1"
+      ],
+      "acceptance": [
+        "E1-A1/AC01",
+        "E1-A1/AC02",
+        "E1-A1/AC03",
+        "E1-A1/AC04",
+        "E1-A1/AC05",
+        "E1-A1/AC06",
+        "E1-A1/AC07",
+        "E1-A1/AC08",
+        "E1-A1/AC09",
+        "E1-A1/AC10"
+      ],
+      "assertions": [
+        "Related-document links are navigation/source context, not additional duplicate requirements"
+      ],
+      "review_method": "manual full-source reading and semantic source/precedence allocation, no lexical scoring"
+    },
+    {
+      "source_unit": "SRC1-3101",
+      "source_path": "apps/leave/docs/features.md",
+      "source_line": 3101,
+      "source_hash": "ca09ed7103bfcb033f60af36c895883bbba9608c68c486e9e05280b15f3781f0",
+      "disposition": "context",
+      "primary_owners": [
+        "E1-A1"
+      ],
+      "acceptance": [
+        "E1-A1/AC01",
+        "E1-A1/AC02",
+        "E1-A1/AC03",
+        "E1-A1/AC04",
+        "E1-A1/AC05",
+        "E1-A1/AC06",
+        "E1-A1/AC07",
+        "E1-A1/AC08",
+        "E1-A1/AC09",
+        "E1-A1/AC10"
+      ],
+      "assertions": [
+        "Related-document links are navigation/source context, not additional duplicate requirements"
+      ],
+      "review_method": "manual full-source reading and semantic source/precedence allocation, no lexical scoring"
+    },
+    {
+      "source_unit": "SRC1-3102",
+      "source_path": "apps/leave/docs/features.md",
+      "source_line": 3102,
+      "source_hash": "66726967a41d4f67dbfda6a7f042c0bb8e4fe3f2d83e3c340b6a5938873323fc",
+      "disposition": "context",
+      "primary_owners": [
+        "E1-A1"
+      ],
+      "acceptance": [
+        "E1-A1/AC01",
+        "E1-A1/AC02",
+        "E1-A1/AC03",
+        "E1-A1/AC04",
+        "E1-A1/AC05",
+        "E1-A1/AC06",
+        "E1-A1/AC07",
+        "E1-A1/AC08",
+        "E1-A1/AC09",
+        "E1-A1/AC10"
+      ],
+      "assertions": [
+        "Related-document links are navigation/source context, not additional duplicate requirements"
+      ],
+      "review_method": "manual full-source reading and semantic source/precedence allocation, no lexical scoring"
+    },
+    {
+      "source_unit": "SRC1-3103",
+      "source_path": "apps/leave/docs/features.md",
+      "source_line": 3103,
+      "source_hash": "2136b031f29d2e3e56f08eb95fa2924354033ff74f874ff99703434b8329a6d3",
+      "disposition": "context",
+      "primary_owners": [
+        "E1-A1"
+      ],
+      "acceptance": [
+        "E1-A1/AC01",
+        "E1-A1/AC02",
+        "E1-A1/AC03",
+        "E1-A1/AC04",
+        "E1-A1/AC05",
+        "E1-A1/AC06",
+        "E1-A1/AC07",
+        "E1-A1/AC08",
+        "E1-A1/AC09",
+        "E1-A1/AC10"
+      ],
+      "assertions": [
+        "Related-document links are navigation/source context, not additional duplicate requirements"
+      ],
+      "review_method": "manual full-source reading and semantic source/precedence allocation, no lexical scoring"
+    },
+    {
+      "source_unit": "SRC1-3104",
+      "source_path": "apps/leave/docs/features.md",
+      "source_line": 3104,
+      "source_hash": "a329b4b80c4083137cd392aa94e9f5510a755a5ebde73480ffddd221a7cea0fb",
+      "disposition": "context",
+      "primary_owners": [
+        "E1-A1"
+      ],
+      "acceptance": [
+        "E1-A1/AC01",
+        "E1-A1/AC02",
+        "E1-A1/AC03",
+        "E1-A1/AC04",
+        "E1-A1/AC05",
+        "E1-A1/AC06",
+        "E1-A1/AC07",
+        "E1-A1/AC08",
+        "E1-A1/AC09",
+        "E1-A1/AC10"
+      ],
+      "assertions": [
+        "Related-document links are navigation/source context, not additional duplicate requirements"
+      ],
+      "review_method": "manual full-source reading and semantic source/precedence allocation, no lexical scoring"
+    },
+    {
+      "source_unit": "SRC1-3105",
+      "source_path": "apps/leave/docs/features.md",
+      "source_line": 3105,
+      "source_hash": "d2bb1b8e83491eb23998bf6767af9b314c633a222a0838481f7fc669f0a21a3b",
+      "disposition": "context",
+      "primary_owners": [
+        "E1-A1"
+      ],
+      "acceptance": [
+        "E1-A1/AC01",
+        "E1-A1/AC02",
+        "E1-A1/AC03",
+        "E1-A1/AC04",
+        "E1-A1/AC05",
+        "E1-A1/AC06",
+        "E1-A1/AC07",
+        "E1-A1/AC08",
+        "E1-A1/AC09",
+        "E1-A1/AC10"
+      ],
+      "assertions": [
+        "Related-document links are navigation/source context, not additional duplicate requirements"
+      ],
+      "review_method": "manual full-source reading and semantic source/precedence allocation, no lexical scoring"
+    },
+    {
+      "source_unit": "SRC1-3110",
+      "source_path": "apps/leave/docs/features.md",
+      "source_line": 3110,
+      "source_hash": "303327395961a812c040db6a6d4aa7129e17aa2e55fa27e8bbb799d9c1411657",
+      "disposition": "required",
+      "primary_owners": [
+        "E1-D2-B",
+        "3.29",
+        "5.29-A"
+      ],
+      "acceptance": [
+        "E1-D2-B/AC01",
+        "E1-D2-B/AC02",
+        "E1-D2-B/AC03",
+        "E1-D2-B/AC04",
+        "E1-D2-B/AC05",
+        "E1-D2-B/AC06",
+        "E1-D2-B/AC07",
+        "E1-D2-B/AC08",
+        "E1-D2-B/AC09",
+        "E1-D2-B/AC10",
+        "3.29/AC01",
+        "3.29/AC02",
+        "3.29/AC03",
+        "3.29/AC04",
+        "3.29/AC05",
+        "3.29/AC06",
+        "3.29/AC07",
+        "3.29/AC08",
+        "5.29-A/AC01",
+        "5.29-A/AC02",
+        "5.29-A/AC03",
+        "5.29-A/AC04",
+        "5.29-A/AC05",
+        "5.29-A/AC06"
+      ],
+      "assertions": [
+        "Separate request autosave/explicit configuration Save/immediate preference",
+        "no hidden field writes/admin draft product",
+        "inline Retry and exit-only Stay/Close anyway"
+      ],
+      "review_method": "manual full-source reading and semantic source/precedence allocation, no lexical scoring"
+    },
+    {
+      "source_unit": "SRC1-3122",
+      "source_path": "apps/leave/docs/features.md",
+      "source_line": 3122,
+      "source_hash": "8b4e2ac4b9524881dd9cd7b3fd97bab51d10b769107f4368f674e3f31d742724",
+      "disposition": "required",
+      "primary_owners": [
+        "2.12",
+        "2.17",
+        "5.15-K"
+      ],
+      "acceptance": [
+        "2.12/AC01",
+        "2.12/AC02",
+        "2.12/AC03",
+        "2.12/AC04",
+        "2.12/AC05",
+        "2.12/AC06",
+        "2.12/AC07",
+        "2.12/AC08",
+        "2.17/AC01",
+        "2.17/AC02",
+        "2.17/AC03",
+        "2.17/AC04",
+        "2.17/AC05",
+        "2.17/AC06",
+        "2.17/AC07",
+        "2.17/AC08",
+        "5.15-K/AC01",
+        "5.15-K/AC02",
+        "5.15-K/AC03",
+        "5.15-K/AC04",
+        "5.15-K/AC05",
+        "5.15-K/AC06"
+      ],
+      "assertions": [
+        "People prepared source commit and recoverable Leave consequences over authorized HTTP",
+        "current review/history/authority preserved, no shared-table copy or new employee role"
+      ],
+      "review_method": "manual full-source reading and semantic source/precedence allocation, no lexical scoring"
+    },
+    {
+      "source_unit": "SRC1-3130",
+      "source_path": "apps/leave/docs/features.md",
+      "source_line": 3130,
+      "source_hash": "8c65c11aa61b68cc906777a3d010e4478f7a0576f8fa5ddfcec0bc03ea62033c",
+      "disposition": "required",
+      "primary_owners": [
+        "8.7",
+        "8.9",
+        "8.13"
+      ],
+      "acceptance": [
+        "8.7/AC01",
+        "8.7/AC02",
+        "8.7/AC03",
+        "8.7/AC04",
+        "8.9/AC01",
+        "8.9/AC02",
+        "8.9/AC03",
+        "8.9/AC04",
+        "8.13/AC01",
+        "8.13/AC02",
+        "8.13/AC03",
+        "8.13/AC04"
+      ],
+      "assertions": [
+        "L-0170 current pending cycle/route/initial response/new actionable clock at exact approved activation",
+        "historical external decisions/no old notice replay",
+        "employee-atomic resume, successful units retained, staged eligibility hidden until reconciled activation",
+        "no synthetic grant/new status/client UI"
+      ],
+      "review_method": "manual full-source reading and semantic source/precedence allocation, no lexical scoring"
+    },
+    {
+      "source_unit": "SRC1-3138",
+      "source_path": "apps/leave/docs/features.md",
+      "source_line": 3138,
+      "source_hash": "f76555fb4ef6f53770c0467fbfbe5f3c6a572954ade3bfecbed3af2af921841e",
+      "disposition": "required",
+      "primary_owners": [
+        "8.7",
+        "8.9",
+        "8.13"
+      ],
+      "acceptance": [
+        "8.7/AC01",
+        "8.7/AC02",
+        "8.7/AC03",
+        "8.7/AC04",
+        "8.9/AC01",
+        "8.9/AC02",
+        "8.9/AC03",
+        "8.9/AC04",
+        "8.13/AC01",
+        "8.13/AC02",
+        "8.13/AC03",
+        "8.13/AC04"
+      ],
+      "assertions": [
+        "L-0170 current pending cycle/route/initial response/new actionable clock at exact approved activation",
+        "historical external decisions/no old notice replay",
+        "employee-atomic resume, successful units retained, staged eligibility hidden until reconciled activation",
+        "no synthetic grant/new status/client UI"
+      ],
+      "review_method": "manual full-source reading and semantic source/precedence allocation, no lexical scoring"
+    }
+  ],
+  "limits": "132 source units only: Features framing/personas/Permissions, UX/NFR/exclusions/acceptance and appended accepted saving/source/import references; no runtime proof."
+}

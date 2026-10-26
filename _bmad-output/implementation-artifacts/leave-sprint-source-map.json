@@ -1,0 +1,4053 @@
+{
+  "source_graph": "_bmad-output/planning-artifacts/whole-product-delivery-register.json",
+  "source_graph_sha256": "95a7c5f9bcec1ff5872699368e212be4c01a1bd9a303f1cd94b6bd85bde88761",
+  "projection": "_bmad-output/planning-artifacts/leave-sprint-input.md",
+  "policy": "tracking ordinals only; delivery IDs/dependencies/acceptance remain unchanged; no parent counted twice",
+  "rows": [
+    {
+      "delivery_id": "E1-ENV",
+      "tracking_position": "1.1",
+      "title": "E1-ENV — Reproduce an isolated development and acceptance environment",
+      "dependencies": [],
+      "sprint_key": "1-1-e1-env-reproduce-an-isolated-development-and-acceptance-envi"
+    },
+    {
+      "delivery_id": "E1-P1",
+      "tracking_position": "1.2",
+      "title": "E1-P1 — Generate a runnable application foundation safely",
+      "dependencies": [
+        "E1-ENV"
+      ],
+      "sprint_key": "1-2-e1-p1-generate-a-runnable-application-foundation-safely"
+    },
+    {
+      "delivery_id": "E1-SERVICE",
+      "tracking_position": "1.3",
+      "title": "E1-SERVICE — Generate an independently owned internal service",
+      "dependencies": [
+        "E1-P1"
+      ],
+      "sprint_key": "1-3-e1-service-generate-an-independently-owned-internal-service"
+    },
+    {
+      "delivery_id": "E1-ID-A",
+      "tracking_position": "1.4",
+      "title": "E1-ID-A — Establish a verified identity migration baseline",
+      "dependencies": [
+        "E1-ENV",
+        "E1-SERVICE"
+      ],
+      "sprint_key": "1-4-e1-id-a-establish-a-verified-identity-migration-baseline"
+    },
+    {
+      "delivery_id": "E1-ID-B",
+      "tracking_position": "1.5",
+      "title": "E1-ID-B — Link accounts to people and preserve membership history",
+      "dependencies": [
+        "E1-ID-A"
+      ],
+      "sprint_key": "1-5-e1-id-b-link-accounts-to-people-and-preserve-membership-hist"
+    },
+    {
+      "delivery_id": "E1-ACCESS-A",
+      "tracking_position": "1.6",
+      "title": "E1-ACCESS-A — Configure application admission and grants safely",
+      "dependencies": [
+        "E1-ID-B",
+        "E1-SERVICE"
+      ],
+      "sprint_key": "1-6-e1-access-a-configure-application-admission-and-grants-safel"
+    },
+    {
+      "delivery_id": "E1-ACCESS-B",
+      "tracking_position": "1.7",
+      "title": "E1-ACCESS-B — Enforce current application and user access",
+      "dependencies": [
+        "E1-ACCESS-A"
+      ],
+      "sprint_key": "1-7-e1-access-b-enforce-current-application-and-user-access"
+    },
+    {
+      "delivery_id": "E1-CONTENT-READ",
+      "tracking_position": "1.8",
+      "title": "E1-CONTENT-READ — Protect owned files and stream private reads",
+      "dependencies": [
+        "E1-ACCESS-B",
+        "E1-ID-B",
+        "E1-SERVICE"
+      ],
+      "sprint_key": "1-8-e1-content-read-protect-owned-files-and-stream-private-reads"
+    },
+    {
+      "delivery_id": "E1-DISCOVERY",
+      "tracking_position": "1.9",
+      "title": "E1-DISCOVERY — Discover only currently accessible organizations and apps",
+      "dependencies": [
+        "E1-ACCESS-B"
+      ],
+      "sprint_key": "1-9-e1-discovery-discover-only-currently-accessible-organization"
+    },
+    {
+      "delivery_id": "E1-PEOPLE",
+      "tracking_position": "1.10",
+      "title": "E1-PEOPLE — Resolve my shared employment for the selected organization",
+      "dependencies": [
+        "E1-SERVICE",
+        "E1-ACCESS-B",
+        "E1-ID-B"
+      ],
+      "sprint_key": "1-10-e1-people-resolve-my-shared-employment-for-the-selected-orga"
+    },
+    {
+      "delivery_id": "E1-WRITE",
+      "tracking_position": "1.11",
+      "title": "E1-WRITE — Prove safe owned writes for generated backends",
+      "dependencies": [
+        "E1-P1",
+        "E1-SERVICE",
+        "E1-ID-B",
+        "E1-ACCESS-B"
+      ],
+      "sprint_key": "1-11-e1-write-prove-safe-owned-writes-for-generated-backends"
+    },
+    {
+      "delivery_id": "E1-LAUNCHER",
+      "tracking_position": "1.12",
+      "title": "E1-LAUNCHER — Show accessible apps with honest discovery states",
+      "dependencies": [
+        "E1-DISCOVERY"
+      ],
+      "sprint_key": "1-12-e1-launcher-show-accessible-apps-with-honest-discovery-state"
+    },
+    {
+      "delivery_id": "E1-REF",
+      "tracking_position": "1.13",
+      "title": "E1-REF — Prove a generated authenticated application against real persistence",
+      "dependencies": [
+        "E1-WRITE",
+        "E1-ACCESS-B",
+        "E1-P1"
+      ],
+      "sprint_key": "1-13-e1-ref-prove-a-generated-authenticated-application-against-r"
+    },
+    {
+      "delivery_id": "E1-A1",
+      "tracking_position": "1.14",
+      "title": "E1-A1 — Sign in and enter an authorized Leave organization",
+      "dependencies": [
+        "E1-LAUNCHER",
+        "E1-PEOPLE"
+      ],
+      "sprint_key": "1-14-e1-a1-sign-in-and-enter-an-authorized-leave-organization"
+    },
+    {
+      "delivery_id": "E1-PTS-ADOPT",
+      "tracking_position": "1.15",
+      "title": "E1-PTS-ADOPT — Use PtS through individual platform access",
+      "dependencies": [
+        "E1-CONTENT-READ",
+        "E1-ACCESS-B",
+        "E1-LAUNCHER"
+      ],
+      "sprint_key": "1-15-e1-pts-adopt-use-pts-through-individual-platform-access"
+    },
+    {
+      "delivery_id": "E1-VERIFY",
+      "tracking_position": "1.16",
+      "title": "E1-VERIFY — Exercise the shared reference journey in hosted environments",
+      "dependencies": [
+        "E1-REF",
+        "E1-ENV"
+      ],
+      "sprint_key": "1-16-e1-verify-exercise-the-shared-reference-journey-in-hosted-en"
+    },
+    {
+      "delivery_id": "E1-CONTEXT",
+      "tracking_position": "1.17",
+      "title": "E1-CONTEXT — Explain whether I can start or edit a Leave draft",
+      "dependencies": [
+        "E1-PEOPLE",
+        "E1-A1"
+      ],
+      "sprint_key": "1-17-e1-context-explain-whether-i-can-start-or-edit-a-leave-draft"
+    },
+    {
+      "delivery_id": "E1-CHOICES",
+      "tracking_position": "1.18",
+      "title": "E1-CHOICES — Choose a leave type and its permitted duration mode",
+      "dependencies": [
+        "E1-CONTEXT"
+      ],
+      "sprint_key": "1-18-e1-choices-choose-a-leave-type-and-its-permitted-duration-mo"
+    },
+    {
+      "delivery_id": "E1-D1",
+      "tracking_position": "1.19",
+      "title": "E1-D1 — Create or resume my application draft",
+      "dependencies": [
+        "E1-CHOICES",
+        "E1-WRITE"
+      ],
+      "sprint_key": "1-19-e1-d1-create-or-resume-my-application-draft"
+    },
+    {
+      "delivery_id": "E1-D2-A",
+      "tracking_position": "1.20",
+      "title": "E1-D2-A — Save and read my draft input safely",
+      "dependencies": [
+        "E1-D1"
+      ],
+      "sprint_key": "1-20-e1-d2-a-save-and-read-my-draft-input-safely"
+    },
+    {
+      "delivery_id": "E1-D2-B",
+      "tracking_position": "1.21",
+      "title": "E1-D2-B — Edit, autosave, close and reopen my draft",
+      "dependencies": [
+        "E1-D2-A",
+        "E1-REF"
+      ],
+      "sprint_key": "1-21-e1-d2-b-edit-autosave-close-and-reopen-my-draft"
+    },
+    {
+      "delivery_id": "E1-D3",
+      "tracking_position": "1.22",
+      "title": "E1-D3 — Switch organizations without losing or mixing draft data",
+      "dependencies": [
+        "E1-D2-B",
+        "E1-DISCOVERY"
+      ],
+      "sprint_key": "1-22-e1-d3-switch-organizations-without-losing-or-mixing-draft-da"
+    },
+    {
+      "delivery_id": "E1-D4",
+      "tracking_position": "1.23",
+      "title": "E1-D4 — Deliberately discard my draft and start again",
+      "dependencies": [
+        "E1-D2-B"
+      ],
+      "sprint_key": "1-23-e1-d4-deliberately-discard-my-draft-and-start-again"
+    },
+    {
+      "delivery_id": "E1-D5",
+      "tracking_position": "1.24",
+      "title": "E1-D5 — Return safely to my draft after sign-in expires",
+      "dependencies": [
+        "E1-D2-B",
+        "E1-A1"
+      ],
+      "sprint_key": "1-24-e1-d5-return-safely-to-my-draft-after-sign-in-expires"
+    },
+    {
+      "delivery_id": "2.11",
+      "tracking_position": "2.1",
+      "title": "2.11 — Add an employee with an initial employment period",
+      "dependencies": [
+        "E1-PEOPLE"
+      ],
+      "sprint_key": "2-1-2-11-add-an-employee-with-an-initial-employment-period"
+    },
+    {
+      "delivery_id": "2.14",
+      "tracking_position": "2.2",
+      "title": "2.14 — Maintain simple organization departments and locations",
+      "dependencies": [
+        "E1-PEOPLE"
+      ],
+      "sprint_key": "2-2-2-14-maintain-simple-organization-departments-and-locations"
+    },
+    {
+      "delivery_id": "2.12",
+      "tracking_position": "2.3",
+      "title": "2.12 — Record an employment end date with reviewed consequences",
+      "dependencies": [
+        "2.11"
+      ],
+      "sprint_key": "2-3-2-12-record-an-employment-end-date-with-reviewed-consequence"
+    },
+    {
+      "delivery_id": "2.15",
+      "tracking_position": "2.4",
+      "title": "2.15 — Assign or clear an employee's department and location",
+      "dependencies": [
+        "2.11",
+        "2.14"
+      ],
+      "sprint_key": "2-4-2-15-assign-or-clear-an-employee-s-department-and-location"
+    },
+    {
+      "delivery_id": "2.16",
+      "tracking_position": "2.5",
+      "title": "2.16 — Assign or clear an employee's supervisor",
+      "dependencies": [
+        "2.11"
+      ],
+      "sprint_key": "2-5-2-16-assign-or-clear-an-employee-s-supervisor"
+    },
+    {
+      "delivery_id": "2.1",
+      "tracking_position": "2.6",
+      "title": "2.1 — Enable or suspend Leave for an organization",
+      "dependencies": [
+        "E1-ACCESS-A",
+        "E1-ACCESS-B",
+        "E1-A1"
+      ],
+      "sprint_key": "2-6-2-1-enable-or-suspend-leave-for-an-organization"
+    },
+    {
+      "delivery_id": "2.13",
+      "tracking_position": "2.7",
+      "title": "2.13 — Record a return to employment without replacing the employee",
+      "dependencies": [
+        "2.12"
+      ],
+      "sprint_key": "2-7-2-13-record-a-return-to-employment-without-replacing-the-emp"
+    },
+    {
+      "delivery_id": "2.17",
+      "tracking_position": "2.8",
+      "title": "2.17 — Replace a supervisor for selected employees",
+      "dependencies": [
+        "2.16"
+      ],
+      "sprint_key": "2-8-2-17-replace-a-supervisor-for-selected-employees"
+    },
+    {
+      "delivery_id": "2.18",
+      "tracking_position": "2.9",
+      "title": "2.18 — Configure an organization holiday calendar",
+      "dependencies": [
+        "E1-A1",
+        "E1-WRITE"
+      ],
+      "sprint_key": "2-9-2-18-configure-an-organization-holiday-calendar"
+    },
+    {
+      "delivery_id": "2.19",
+      "tracking_position": "2.10",
+      "title": "2.19 — Create a reusable Leave work profile",
+      "dependencies": [
+        "2.18"
+      ],
+      "sprint_key": "2-10-2-19-create-a-reusable-leave-work-profile"
+    },
+    {
+      "delivery_id": "2.2",
+      "tracking_position": "2.11",
+      "title": "2.2 — Assign Leave roles to an existing organization member",
+      "dependencies": [
+        "2.1",
+        "E1-ID-B"
+      ],
+      "sprint_key": "2-11-2-2-assign-leave-roles-to-an-existing-organization-member"
+    },
+    {
+      "delivery_id": "2.6",
+      "tracking_position": "2.12",
+      "title": "2.6 — Invite a person to join an organization securely",
+      "dependencies": [
+        "E1-ID-B",
+        "2.1"
+      ],
+      "sprint_key": "2-12-2-6-invite-a-person-to-join-an-organization-securely"
+    },
+    {
+      "delivery_id": "2.10",
+      "tracking_position": "2.13",
+      "title": "2.10 — Remove a member's organization access without erasing history",
+      "dependencies": [
+        "2.2",
+        "E1-ID-B"
+      ],
+      "sprint_key": "2-13-2-10-remove-a-member-s-organization-access-without-erasing-h"
+    },
+    {
+      "delivery_id": "2.20",
+      "tracking_position": "2.14",
+      "title": "2.20 — Assign or change an employee's Leave work profile",
+      "dependencies": [
+        "2.19",
+        "2.11"
+      ],
+      "sprint_key": "2-14-2-20-assign-or-change-an-employee-s-leave-work-profile"
+    },
+    {
+      "delivery_id": "2.21",
+      "tracking_position": "2.15",
+      "title": "2.21 — Set or change the organization's default Leave work profile",
+      "dependencies": [
+        "2.19"
+      ],
+      "sprint_key": "2-15-2-21-set-or-change-the-organization-s-default-leave-work-pro"
+    },
+    {
+      "delivery_id": "2.3",
+      "tracking_position": "2.16",
+      "title": "2.3 — Create or duplicate an application-specific custom role",
+      "dependencies": [
+        "2.2"
+      ],
+      "sprint_key": "2-16-2-3-create-or-duplicate-an-application-specific-custom-role"
+    },
+    {
+      "delivery_id": "2.7",
+      "tracking_position": "2.17",
+      "title": "2.7 — Verify a trusted Microsoft Entra tenant for an organization",
+      "dependencies": [
+        "2.6"
+      ],
+      "sprint_key": "2-17-2-7-verify-a-trusted-microsoft-entra-tenant-for-an-organizat"
+    },
+    {
+      "delivery_id": "2.9",
+      "tracking_position": "2.18",
+      "title": "2.9 — Prepare and activate application access before first sign-in",
+      "dependencies": [
+        "2.2",
+        "2.6"
+      ],
+      "sprint_key": "2-18-2-9-prepare-and-activate-application-access-before-first-sig"
+    },
+    {
+      "delivery_id": "2.22",
+      "tracking_position": "2.19",
+      "title": "2.22 — Override an employee's work settings or restore profile inheritance",
+      "dependencies": [
+        "2.20",
+        "2.21"
+      ],
+      "sprint_key": "2-19-2-22-override-an-employee-s-work-settings-or-restore-profile"
+    },
+    {
+      "delivery_id": "2.25",
+      "tracking_position": "2.20",
+      "title": "2.25 — See actionable setup status from saved configuration",
+      "dependencies": [
+        "E1-A1",
+        "2.11",
+        "2.18",
+        "2.21",
+        "2.2"
+      ],
+      "sprint_key": "2-20-2-25-see-actionable-setup-status-from-saved-configuration"
+    },
+    {
+      "delivery_id": "2.4",
+      "tracking_position": "2.21",
+      "title": "2.4 — Review and apply changes to a custom role held by members",
+      "dependencies": [
+        "2.3"
+      ],
+      "sprint_key": "2-21-2-4-review-and-apply-changes-to-a-custom-role-held-by-member"
+    },
+    {
+      "delivery_id": "2.5",
+      "tracking_position": "2.22",
+      "title": "2.5 — Delete an unassigned custom role while preserving its history",
+      "dependencies": [
+        "2.3"
+      ],
+      "sprint_key": "2-22-2-5-delete-an-unassigned-custom-role-while-preserving-its-hi"
+    },
+    {
+      "delivery_id": "2.8",
+      "tracking_position": "2.23",
+      "title": "2.8 — Explicitly enable automatic onboarding from a trusted tenant",
+      "dependencies": [
+        "2.7"
+      ],
+      "sprint_key": "2-23-2-8-explicitly-enable-automatic-onboarding-from-a-trusted-te"
+    },
+    {
+      "delivery_id": "2.23",
+      "tracking_position": "2.24",
+      "title": "2.23 — Review and publish changes to a shared work profile",
+      "dependencies": [
+        "2.22",
+        "2.21"
+      ],
+      "sprint_key": "2-24-2-23-review-and-publish-changes-to-a-shared-work-profile"
+    },
+    {
+      "delivery_id": "2.26",
+      "tracking_position": "2.25",
+      "title": "2.26 — View an employee's employment and Leave work settings together",
+      "dependencies": [
+        "2.22",
+        "2.16",
+        "2.15"
+      ],
+      "sprint_key": "2-25-2-26-view-an-employee-s-employment-and-leave-work-settings-t"
+    },
+    {
+      "delivery_id": "2.24",
+      "tracking_position": "2.26",
+      "title": "2.24 — Archive an unused work profile without losing its history",
+      "dependencies": [
+        "2.20",
+        "2.21",
+        "2.23"
+      ],
+      "sprint_key": "2-26-2-24-archive-an-unused-work-profile-without-losing-its-histo"
+    },
+    {
+      "delivery_id": "3.22",
+      "tracking_position": "3.1",
+      "title": "3.22 — Durably accept notification events",
+      "dependencies": [
+        "E1-SERVICE",
+        "E1-ID-B",
+        "E1-ACCESS-B"
+      ],
+      "sprint_key": "3-1-3-22-durably-accept-notification-events"
+    },
+    {
+      "delivery_id": "3.25-A",
+      "tracking_position": "3.2",
+      "title": "3.25-A — Process channel deliveries and create in-app notifications",
+      "dependencies": [
+        "3.22"
+      ],
+      "sprint_key": "3-2-3-25-a-process-channel-deliveries-and-create-in-app-notifica"
+    },
+    {
+      "delivery_id": "3.25-B",
+      "tracking_position": "3.3",
+      "title": "3.25-B — Deliver notification emails and recover uncertain provider outcomes",
+      "dependencies": [
+        "3.25-A"
+      ],
+      "sprint_key": "3-3-3-25-b-deliver-notification-emails-and-recover-uncertain-pro"
+    },
+    {
+      "delivery_id": "3.26",
+      "tracking_position": "3.4",
+      "title": "3.26 — Read a scoped notification inbox and manage read state",
+      "dependencies": [
+        "3.25-A",
+        "E1-ACCESS-B"
+      ],
+      "sprint_key": "3-4-3-26-read-a-scoped-notification-inbox-and-manage-read-state"
+    },
+    {
+      "delivery_id": "3.27",
+      "tracking_position": "3.5",
+      "title": "3.27 — Show the notification panel and organization unread indicators",
+      "dependencies": [
+        "3.26",
+        "E1-A1"
+      ],
+      "sprint_key": "3-5-3-27-show-the-notification-panel-and-organization-unread-ind"
+    },
+    {
+      "delivery_id": "3.1",
+      "tracking_position": "3.6",
+      "title": "3.1 — Create and view an organization's leave types",
+      "dependencies": [
+        "E1-CHOICES",
+        "E1-WRITE"
+      ],
+      "sprint_key": "3-6-3-1-create-and-view-an-organization-s-leave-types"
+    },
+    {
+      "delivery_id": "3.2",
+      "tracking_position": "3.7",
+      "title": "3.2 — View a leave type's policy and version history",
+      "dependencies": [
+        "3.1"
+      ],
+      "sprint_key": "3-7-3-2-view-a-leave-type-s-policy-and-version-history"
+    },
+    {
+      "delivery_id": "3.3-A",
+      "tracking_position": "3.8",
+      "title": "3.3-A — Review and publish an initial policy through the API",
+      "dependencies": [
+        "3.2"
+      ],
+      "sprint_key": "3-8-3-3-a-review-and-publish-an-initial-policy-through-the-api"
+    },
+    {
+      "delivery_id": "3.3-B",
+      "tracking_position": "3.9",
+      "title": "3.3-B — Configure and publish an initial policy in the web editor",
+      "dependencies": [
+        "3.3-A"
+      ],
+      "sprint_key": "3-9-3-3-b-configure-and-publish-an-initial-policy-in-the-web-edi"
+    },
+    {
+      "delivery_id": "3.5",
+      "tracking_position": "3.10",
+      "title": "3.5 — Explain which policy applies to an employee",
+      "dependencies": [
+        "3.3-A",
+        "2.11"
+      ],
+      "sprint_key": "3-10-3-5-explain-which-policy-applies-to-an-employee"
+    },
+    {
+      "delivery_id": "3.7",
+      "tracking_position": "3.11",
+      "title": "3.7 — Calculate leave duration from the employee's work schedule",
+      "dependencies": [
+        "2.18",
+        "2.22",
+        "3.3-A"
+      ],
+      "sprint_key": "3-11-3-7-calculate-leave-duration-from-the-employee-s-work-schedu"
+    },
+    {
+      "delivery_id": "3.9",
+      "tracking_position": "3.12",
+      "title": "3.9 — Preserve an ordered history of actual balance changes",
+      "dependencies": [
+        "E1-WRITE",
+        "3.3-A",
+        "E1-ID-B"
+      ],
+      "sprint_key": "3-12-3-9-preserve-an-ordered-history-of-actual-balance-changes"
+    },
+    {
+      "delivery_id": "3.23",
+      "tracking_position": "3.13",
+      "title": "3.23 — Save notification intent atomically with Leave changes",
+      "dependencies": [
+        "3.9",
+        "3.22"
+      ],
+      "sprint_key": "3-13-3-23-save-notification-intent-atomically-with-leave-changes"
+    },
+    {
+      "delivery_id": "3.4",
+      "tracking_position": "3.14",
+      "title": "3.4 — Review starter examples before activating a policy",
+      "dependencies": [
+        "3.3-B"
+      ],
+      "sprint_key": "3-14-3-4-review-starter-examples-before-activating-a-policy"
+    },
+    {
+      "delivery_id": "3.6",
+      "tracking_position": "3.15",
+      "title": "3.6 — View and select employees for a policy",
+      "dependencies": [
+        "3.5",
+        "2.26"
+      ],
+      "sprint_key": "3-15-3-6-view-and-select-employees-for-a-policy"
+    },
+    {
+      "delivery_id": "3.8",
+      "tracking_position": "3.16",
+      "title": "3.8 — Calculate daily earned entitlement",
+      "dependencies": [
+        "3.7",
+        "3.3-A"
+      ],
+      "sprint_key": "3-16-3-8-calculate-daily-earned-entitlement"
+    },
+    {
+      "delivery_id": "3.10",
+      "tracking_position": "3.17",
+      "title": "3.10 — Apply accumulated-balance caps to daily earning",
+      "dependencies": [
+        "3.8",
+        "3.9"
+      ],
+      "sprint_key": "3-17-3-10-apply-accumulated-balance-caps-to-daily-earning"
+    },
+    {
+      "delivery_id": "3.24",
+      "tracking_position": "3.18",
+      "title": "3.24 — Hand over Leave notifications through a recoverable worker",
+      "dependencies": [
+        "3.23"
+      ],
+      "sprint_key": "3-18-3-24-hand-over-leave-notifications-through-a-recoverable-wor"
+    },
+    {
+      "delivery_id": "3.11",
+      "tracking_position": "3.19",
+      "title": "3.11 — Calculate upfront annual entitlement",
+      "dependencies": [
+        "3.7",
+        "3.10"
+      ],
+      "sprint_key": "3-19-3-11-calculate-upfront-annual-entitlement"
+    },
+    {
+      "delivery_id": "3.12",
+      "tracking_position": "3.20",
+      "title": "3.12 — Calculate monthly entitlement instalments",
+      "dependencies": [
+        "3.11"
+      ],
+      "sprint_key": "3-20-3-12-calculate-monthly-entitlement-instalments"
+    },
+    {
+      "delivery_id": "3.13",
+      "tracking_position": "3.21",
+      "title": "3.13 — Calculate monthly entitlement across partial employment and rate changes",
+      "dependencies": [
+        "3.12"
+      ],
+      "sprint_key": "3-21-3-13-calculate-monthly-entitlement-across-partial-employment"
+    },
+    {
+      "delivery_id": "3.14",
+      "tracking_position": "3.22",
+      "title": "3.14 — Calculate carry-over at a leave-year boundary",
+      "dependencies": [
+        "3.13"
+      ],
+      "sprint_key": "3-22-3-14-calculate-carry-over-at-a-leave-year-boundary"
+    },
+    {
+      "delivery_id": "3.15",
+      "tracking_position": "3.23",
+      "title": "3.15 — Calculate entitlement expiry dates and effects",
+      "dependencies": [
+        "3.14"
+      ],
+      "sprint_key": "3-23-3-15-calculate-entitlement-expiry-dates-and-effects"
+    },
+    {
+      "delivery_id": "3.16",
+      "tracking_position": "3.24",
+      "title": "3.16 — Calculate changes between entitlement availability methods",
+      "dependencies": [
+        "3.15"
+      ],
+      "sprint_key": "3-24-3-16-calculate-changes-between-entitlement-availability-meth"
+    },
+    {
+      "delivery_id": "3.17-A",
+      "tracking_position": "3.25",
+      "title": "3.17-A — Compose a reproducible current leave balance",
+      "dependencies": [
+        "3.16",
+        "3.9"
+      ],
+      "sprint_key": "3-25-3-17-a-compose-a-reproducible-current-leave-balance"
+    },
+    {
+      "delivery_id": "3.17-B",
+      "tracking_position": "3.26",
+      "title": "3.17-B — Read an authorized current balance from authoritative history",
+      "dependencies": [
+        "3.17-A"
+      ],
+      "sprint_key": "3-26-3-17-b-read-an-authorized-current-balance-from-authoritative"
+    },
+    {
+      "delivery_id": "3.18",
+      "tracking_position": "3.27",
+      "title": "3.18 — Project funding for every requested leave date",
+      "dependencies": [
+        "3.17-B",
+        "3.7"
+      ],
+      "sprint_key": "3-27-3-18-project-funding-for-every-requested-leave-date"
+    },
+    {
+      "delivery_id": "3.19",
+      "tracking_position": "3.28",
+      "title": "3.19 — Show a clear leave-request preview in Apply",
+      "dependencies": [
+        "3.18",
+        "E1-D2-B"
+      ],
+      "sprint_key": "3-28-3-19-show-a-clear-leave-request-preview-in-apply"
+    },
+    {
+      "delivery_id": "3.20",
+      "tracking_position": "3.29",
+      "title": "3.20 — Explain request restrictions and required information in Apply",
+      "dependencies": [
+        "3.19"
+      ],
+      "sprint_key": "3-29-3-20-explain-request-restrictions-and-required-information-i"
+    },
+    {
+      "delivery_id": "3.21",
+      "tracking_position": "3.30",
+      "title": "3.21 — Calculate an exceptional funding proposal",
+      "dependencies": [
+        "3.20"
+      ],
+      "sprint_key": "3-30-3-21-calculate-an-exceptional-funding-proposal"
+    },
+    {
+      "delivery_id": "3.41",
+      "tracking_position": "3.31",
+      "title": "3.41 — Calculate request previews without an entitlement balance",
+      "dependencies": [
+        "3.20",
+        "3.18"
+      ],
+      "sprint_key": "3-31-3-41-calculate-request-previews-without-an-entitlement-balan"
+    },
+    {
+      "delivery_id": "3.28",
+      "tracking_position": "3.32",
+      "title": "3.28 — Review and confirm initial employee policy assignments",
+      "dependencies": [
+        "3.18",
+        "3.41",
+        "3.24",
+        "3.25-B",
+        "3.6"
+      ],
+      "sprint_key": "3-32-3-28-review-and-confirm-initial-employee-policy-assignments"
+    },
+    {
+      "delivery_id": "3.29",
+      "tracking_position": "3.33",
+      "title": "3.29 — Review and confirm a one-off leave-balance adjustment",
+      "dependencies": [
+        "3.28",
+        "3.24",
+        "3.25-B",
+        "3.21"
+      ],
+      "sprint_key": "3-33-3-29-review-and-confirm-a-one-off-leave-balance-adjustment"
+    },
+    {
+      "delivery_id": "3.30",
+      "tracking_position": "3.34",
+      "title": "3.30 — Change recurring employee entitlement or return to policy",
+      "dependencies": [
+        "3.29"
+      ],
+      "sprint_key": "3-34-3-30-change-recurring-employee-entitlement-or-return-to-poli"
+    },
+    {
+      "delivery_id": "3.31",
+      "tracking_position": "3.35",
+      "title": "3.31 — Understand my leave balance and history",
+      "dependencies": [
+        "3.29",
+        "3.17-B"
+      ],
+      "sprint_key": "3-35-3-31-understand-my-leave-balance-and-history"
+    },
+    {
+      "delivery_id": "3.32",
+      "tracking_position": "3.36",
+      "title": "3.32 — View an employee's Leave entitlement settings",
+      "dependencies": [
+        "3.30",
+        "2.26"
+      ],
+      "sprint_key": "3-36-3-32-view-an-employee-s-leave-entitlement-settings"
+    },
+    {
+      "delivery_id": "3.34-A",
+      "tracking_position": "3.37",
+      "title": "3.34-A — Review and publish a used-policy change through the API",
+      "dependencies": [
+        "3.30",
+        "3.28"
+      ],
+      "sprint_key": "3-37-3-34-a-review-and-publish-a-used-policy-change-through-the-a"
+    },
+    {
+      "delivery_id": "3.42-A",
+      "tracking_position": "3.38",
+      "title": "3.42-A — Understand untracked leave in My Leave and Apply",
+      "dependencies": [
+        "3.41",
+        "3.31"
+      ],
+      "sprint_key": "3-38-3-42-a-understand-untracked-leave-in-my-leave-and-apply"
+    },
+    {
+      "delivery_id": "3.33",
+      "tracking_position": "3.39",
+      "title": "3.33 — See policy and entitlement setup issues",
+      "dependencies": [
+        "3.32",
+        "2.25"
+      ],
+      "sprint_key": "3-39-3-33-see-policy-and-entitlement-setup-issues"
+    },
+    {
+      "delivery_id": "3.34-B",
+      "tracking_position": "3.40",
+      "title": "3.34-B — Review and publish a used-policy change in the web editor",
+      "dependencies": [
+        "3.34-A",
+        "3.3-B"
+      ],
+      "sprint_key": "3-40-3-34-b-review-and-publish-a-used-policy-change-in-the-web-ed"
+    },
+    {
+      "delivery_id": "3.35-A",
+      "tracking_position": "3.41",
+      "title": "3.35-A — Amend or cancel a scheduled policy change through the API",
+      "dependencies": [
+        "3.34-A"
+      ],
+      "sprint_key": "3-41-3-35-a-amend-or-cancel-a-scheduled-policy-change-through-the"
+    },
+    {
+      "delivery_id": "3.36-A",
+      "tracking_position": "3.42",
+      "title": "3.36-A — Review and confirm assignment changes through the API",
+      "dependencies": [
+        "3.28",
+        "3.34-A"
+      ],
+      "sprint_key": "3-42-3-36-a-review-and-confirm-assignment-changes-through-the-api"
+    },
+    {
+      "delivery_id": "3.39",
+      "tracking_position": "3.43",
+      "title": "3.39 — Change an existing leave type's details and permitted units",
+      "dependencies": [
+        "3.34-A",
+        "E1-CHOICES"
+      ],
+      "sprint_key": "3-43-3-39-change-an-existing-leave-type-s-details-and-permitted-u"
+    },
+    {
+      "delivery_id": "3.42-B",
+      "tracking_position": "3.44",
+      "title": "3.42-B — Explain untracked leave in employee administration",
+      "dependencies": [
+        "3.32",
+        "3.41"
+      ],
+      "sprint_key": "3-44-3-42-b-explain-untracked-leave-in-employee-administration"
+    },
+    {
+      "delivery_id": "3.35-B",
+      "tracking_position": "3.45",
+      "title": "3.35-B — Review scheduled policy amendments and cancellations in the web UI",
+      "dependencies": [
+        "3.35-A",
+        "3.34-B"
+      ],
+      "sprint_key": "3-45-3-35-b-review-scheduled-policy-amendments-and-cancellations"
+    },
+    {
+      "delivery_id": "3.36-B",
+      "tracking_position": "3.46",
+      "title": "3.36-B — Review assignment changes in the focused editor",
+      "dependencies": [
+        "3.36-A",
+        "3.34-B"
+      ],
+      "sprint_key": "3-46-3-36-b-review-assignment-changes-in-the-focused-editor"
+    },
+    {
+      "delivery_id": "3.37",
+      "tracking_position": "3.47",
+      "title": "3.37 — Deactivate a leave type while preserving its history",
+      "dependencies": [
+        "3.36-A",
+        "3.35-A",
+        "3.29"
+      ],
+      "sprint_key": "3-47-3-37-deactivate-a-leave-type-while-preserving-its-history"
+    },
+    {
+      "delivery_id": "3.38",
+      "tracking_position": "3.48",
+      "title": "3.38 — Restore an inactive leave type",
+      "dependencies": [
+        "3.37"
+      ],
+      "sprint_key": "3-48-3-38-restore-an-inactive-leave-type"
+    },
+    {
+      "delivery_id": "4.1",
+      "tracking_position": "4.1",
+      "title": "4.1 — Start or resume an authorized Content upload",
+      "dependencies": [
+        "E1-CONTENT-READ",
+        "E1-ACCESS-B"
+      ],
+      "sprint_key": "4-1-4-1-start-or-resume-an-authorized-content-upload"
+    },
+    {
+      "delivery_id": "4.2",
+      "tracking_position": "4.2",
+      "title": "4.2 — Verify and finalize uploaded content",
+      "dependencies": [
+        "4.1"
+      ],
+      "sprint_key": "4-2-4-2-verify-and-finalize-uploaded-content"
+    },
+    {
+      "delivery_id": "4.3",
+      "tracking_position": "4.3",
+      "title": "4.3 — Use the organization's configured storage provider consistently",
+      "dependencies": [
+        "4.2",
+        "E1-PTS-ADOPT"
+      ],
+      "sprint_key": "4-3-4-3-use-the-organization-s-configured-storage-provider-consi"
+    },
+    {
+      "delivery_id": "4.4-S",
+      "tracking_position": "4.4",
+      "title": "4.4-S — Protect a prepared attachment reference in Content",
+      "dependencies": [
+        "4.2",
+        "4.3"
+      ],
+      "sprint_key": "4-4-4-4-s-protect-a-prepared-attachment-reference-in-content"
+    },
+    {
+      "delivery_id": "4.11-S",
+      "tracking_position": "4.5",
+      "title": "4.11-S — Dispose eligible unreferenced Content recoverably",
+      "dependencies": [
+        "4.4-S",
+        "4.3"
+      ],
+      "sprint_key": "4-5-4-11-s-dispose-eligible-unreferenced-content-recoverably"
+    },
+    {
+      "delivery_id": "4.12-S",
+      "tracking_position": "4.6",
+      "title": "4.12-S — Reclaim abandoned uploads using existing Content fences",
+      "dependencies": [
+        "4.4-S",
+        "4.11-S"
+      ],
+      "sprint_key": "4-6-4-12-s-reclaim-abandoned-uploads-using-existing-content-fenc"
+    },
+    {
+      "delivery_id": "4.14",
+      "tracking_position": "4.7",
+      "title": "4.14 — Retire the superseded Content prototype safely",
+      "dependencies": [
+        "4.3",
+        "E1-PTS-ADOPT",
+        "4.11-S",
+        "4.12-S"
+      ],
+      "sprint_key": "4-7-4-14-retire-the-superseded-content-prototype-safely"
+    },
+    {
+      "delivery_id": "4.4-L",
+      "tracking_position": "4.8",
+      "title": "4.4-L — Confirm and recover a Leave draft attachment",
+      "dependencies": [
+        "4.4-S",
+        "E1-D2-A"
+      ],
+      "sprint_key": "4-8-4-4-l-confirm-and-recover-a-leave-draft-attachment"
+    },
+    {
+      "delivery_id": "4.12-L",
+      "tracking_position": "4.9",
+      "title": "4.12-L — Protect saved Leave attachments during abandonment recovery",
+      "dependencies": [
+        "4.4-L",
+        "4.12-S"
+      ],
+      "sprint_key": "4-9-4-12-l-protect-saved-leave-attachments-during-abandonment-re"
+    },
+    {
+      "delivery_id": "4.5",
+      "tracking_position": "4.10",
+      "title": "4.5 — Upload supporting documents in my leave draft",
+      "dependencies": [
+        "4.4-L",
+        "E1-D2-B"
+      ],
+      "sprint_key": "4-10-4-5-upload-supporting-documents-in-my-leave-draft"
+    },
+    {
+      "delivery_id": "4.6",
+      "tracking_position": "4.11",
+      "title": "4.6 — Show document status without exposing protected details",
+      "dependencies": [
+        "4.5"
+      ],
+      "sprint_key": "4-11-4-6-show-document-status-without-exposing-protected-details"
+    },
+    {
+      "delivery_id": "4.8",
+      "tracking_position": "4.12",
+      "title": "4.8 — Remove or replace a document on my editable draft",
+      "dependencies": [
+        "4.5",
+        "4.4-L"
+      ],
+      "sprint_key": "4-12-4-8-remove-or-replace-a-document-on-my-editable-draft"
+    },
+    {
+      "delivery_id": "4.10",
+      "tracking_position": "4.13",
+      "title": "4.10 — Configure supporting-document retention",
+      "dependencies": [
+        "4.6",
+        "E1-WRITE"
+      ],
+      "sprint_key": "4-13-4-10-configure-supporting-document-retention"
+    },
+    {
+      "delivery_id": "4.7",
+      "tracking_position": "4.14",
+      "title": "4.7 — Open and download an authorized supporting document",
+      "dependencies": [
+        "4.6",
+        "E1-CONTENT-READ"
+      ],
+      "sprint_key": "4-14-4-7-open-and-download-an-authorized-supporting-document"
+    },
+    {
+      "delivery_id": "4.11-L",
+      "tracking_position": "4.15",
+      "title": "4.11-L — Release Leave documents at their applicable retention boundary",
+      "dependencies": [
+        "4.10",
+        "4.11-S"
+      ],
+      "sprint_key": "4-15-4-11-l-release-leave-documents-at-their-applicable-retention"
+    },
+    {
+      "delivery_id": "4.9",
+      "tracking_position": "4.16",
+      "title": "4.9 — Notify me when a document needs attention",
+      "dependencies": [
+        "4.8",
+        "3.24",
+        "3.25-B"
+      ],
+      "sprint_key": "4-16-4-9-notify-me-when-a-document-needs-attention"
+    },
+    {
+      "delivery_id": "4.13",
+      "tracking_position": "4.17",
+      "title": "4.13 — Prove the complete Leave attachment journey",
+      "dependencies": [
+        "4.9",
+        "4.7",
+        "4.11-L",
+        "4.12-L"
+      ],
+      "sprint_key": "4-17-4-13-prove-the-complete-leave-attachment-journey"
+    },
+    {
+      "delivery_id": "5.1",
+      "tracking_position": "5.1",
+      "title": "5.1 — Resolve my configured approval route and explain setup problems",
+      "dependencies": [
+        "2.16",
+        "3.3-A",
+        "E1-ACCESS-B",
+        "E1-PEOPLE",
+        "E1-WRITE"
+      ],
+      "sprint_key": "5-1-5-1-resolve-my-configured-approval-route-and-explain-setup-p"
+    },
+    {
+      "delivery_id": "5.10-A",
+      "tracking_position": "5.2",
+      "title": "5.10-A — Preserve request state and provide authorized current reads",
+      "dependencies": [
+        "2.11",
+        "3.9",
+        "E1-ACCESS-B",
+        "E1-WRITE"
+      ],
+      "sprint_key": "5-2-5-10-a-preserve-request-state-and-provide-authorized-current"
+    },
+    {
+      "delivery_id": "5.2",
+      "tracking_position": "5.3",
+      "title": "5.2 — Check temporary-approver eligibility and authority limits",
+      "dependencies": [
+        "2.16",
+        "3.3-A",
+        "5.1",
+        "E1-ACCESS-B",
+        "E1-PEOPLE",
+        "E1-WRITE"
+      ],
+      "sprint_key": "5-3-5-2-check-temporary-approver-eligibility-and-authority-limit"
+    },
+    {
+      "delivery_id": "5.10-C",
+      "tracking_position": "5.4",
+      "title": "5.10-C — Recover request operations through the existing Leave outcome API",
+      "dependencies": [
+        "5.10-A",
+        "E1-ACCESS-B",
+        "E1-D2-A",
+        "E1-WRITE"
+      ],
+      "sprint_key": "5-4-5-10-c-recover-request-operations-through-the-existing-leave"
+    },
+    {
+      "delivery_id": "5.4",
+      "tracking_position": "5.5",
+      "title": "5.4 — Apply the configured approval fallback during absence",
+      "dependencies": [
+        "2.16",
+        "3.3-A",
+        "5.1",
+        "5.2",
+        "E1-ACCESS-B",
+        "E1-PEOPLE",
+        "E1-WRITE"
+      ],
+      "sprint_key": "5-5-5-4-apply-the-configured-approval-fallback-during-absence"
+    },
+    {
+      "delivery_id": "5.3",
+      "tracking_position": "5.6",
+      "title": "5.3 — Check approval coverage throughout an applicant's absence",
+      "dependencies": [
+        "2.16",
+        "3.3-A",
+        "5.1",
+        "5.2",
+        "5.4",
+        "E1-ACCESS-B",
+        "E1-PEOPLE",
+        "E1-WRITE"
+      ],
+      "sprint_key": "5-6-5-3-check-approval-coverage-throughout-an-applicant-s-absenc"
+    },
+    {
+      "delivery_id": "5.28-C",
+      "tracking_position": "5.7",
+      "title": "5.28-C — Expose minimum approval-coverage attention before first request use",
+      "dependencies": [
+        "3.24",
+        "3.25-B",
+        "5.10-A",
+        "5.3",
+        "E1-ACCESS-B",
+        "E1-WRITE"
+      ],
+      "sprint_key": "5-7-5-28-c-expose-minimum-approval-coverage-attention-before-fir"
+    },
+    {
+      "delivery_id": "5.6",
+      "tracking_position": "5.8",
+      "title": "5.6 — Validate requested duration and same-date limits",
+      "dependencies": [
+        "2.12",
+        "3.18",
+        "3.28",
+        "3.7",
+        "E1-ACCESS-B",
+        "E1-WRITE"
+      ],
+      "sprint_key": "5-8-5-6-validate-requested-duration-and-same-date-limits"
+    },
+    {
+      "delivery_id": "5.7",
+      "tracking_position": "5.9",
+      "title": "5.7 — Check employment, policy eligibility and permitted request dates",
+      "dependencies": [
+        "2.12",
+        "3.18",
+        "3.28",
+        "3.7",
+        "E1-ACCESS-B",
+        "E1-WRITE"
+      ],
+      "sprint_key": "5-9-5-7-check-employment-policy-eligibility-and-permitted-reques"
+    },
+    {
+      "delivery_id": "5.8-A",
+      "tracking_position": "5.10",
+      "title": "5.8-A — Record and settle request commitments through protected owner operations",
+      "dependencies": [
+        "3.18",
+        "3.9",
+        "5.10-A",
+        "5.10-C",
+        "5.6",
+        "E1-ACCESS-B",
+        "E1-WRITE"
+      ],
+      "sprint_key": "5-10-5-8-a-record-and-settle-request-commitments-through-protecte"
+    },
+    {
+      "delivery_id": "5.9",
+      "tracking_position": "5.11",
+      "title": "5.9 — Check required supporting documents before submission and final approval",
+      "dependencies": [
+        "4.4-L",
+        "4.6",
+        "4.7",
+        "5.6",
+        "5.7",
+        "E1-ACCESS-B",
+        "E1-WRITE"
+      ],
+      "sprint_key": "5-11-5-9-check-required-supporting-documents-before-submission-an"
+    },
+    {
+      "delivery_id": "5.10-B",
+      "tracking_position": "5.12",
+      "title": "5.10-B — Finalize existing requests through current gates and atomic accounting",
+      "dependencies": [
+        "3.24",
+        "3.25-B",
+        "5.1",
+        "5.10-A",
+        "5.10-C",
+        "5.2",
+        "5.28-C",
+        "5.3",
+        "5.4",
+        "5.6",
+        "5.7",
+        "5.8-A",
+        "5.9",
+        "E1-ACCESS-B",
+        "E1-WRITE"
+      ],
+      "sprint_key": "5-12-5-10-b-finalize-existing-requests-through-current-gates-and"
+    },
+    {
+      "delivery_id": "5.19-A",
+      "tracking_position": "5.13",
+      "title": "5.19-A — Withdraw my pending request through the protected API",
+      "dependencies": [
+        "3.24",
+        "3.25-B",
+        "5.10-A",
+        "5.10-C",
+        "5.8-A",
+        "E1-ACCESS-B",
+        "E1-WRITE"
+      ],
+      "sprint_key": "5-13-5-19-a-withdraw-my-pending-request-through-the-protected-api"
+    },
+    {
+      "delivery_id": "5.18-A",
+      "tracking_position": "5.14",
+      "title": "5.18-A — Decide an assigned request through the protected API",
+      "dependencies": [
+        "3.24",
+        "3.25-B",
+        "5.10-A",
+        "5.10-B",
+        "5.10-C",
+        "5.19-A",
+        "E1-ACCESS-B",
+        "E1-WRITE"
+      ],
+      "sprint_key": "5-14-5-18-a-decide-an-assigned-request-through-the-protected-api"
+    },
+    {
+      "delivery_id": "5.15-A",
+      "tracking_position": "5.15",
+      "title": "5.15-A — Integrate one-off balance adjustments with actual pending requests",
+      "dependencies": [
+        "3.24",
+        "3.25-B",
+        "3.29",
+        "5.10-A",
+        "5.10-B",
+        "5.10-C",
+        "5.18-A",
+        "5.19-A",
+        "E1-ACCESS-B",
+        "E1-WRITE"
+      ],
+      "sprint_key": "5-15-5-15-a-integrate-one-off-balance-adjustments-with-actual-pen"
+    },
+    {
+      "delivery_id": "5.15-C",
+      "tracking_position": "5.16",
+      "title": "5.15-C — Integrate recurring entitlement changes with pending requests",
+      "dependencies": [
+        "3.24",
+        "3.25-B",
+        "3.30",
+        "5.10-A",
+        "5.10-B",
+        "5.10-C",
+        "5.18-A",
+        "5.19-A",
+        "E1-ACCESS-B",
+        "E1-WRITE"
+      ],
+      "sprint_key": "5-16-5-15-c-integrate-recurring-entitlement-changes-with-pending"
+    },
+    {
+      "delivery_id": "5.15-E",
+      "tracking_position": "5.17",
+      "title": "5.15-E — Integrate policy publication with pending-request impacts",
+      "dependencies": [
+        "3.24",
+        "3.25-B",
+        "3.34-A",
+        "5.10-A",
+        "5.10-B",
+        "5.10-C",
+        "5.18-A",
+        "5.19-A",
+        "E1-ACCESS-B",
+        "E1-WRITE"
+      ],
+      "sprint_key": "5-17-5-15-e-integrate-policy-publication-with-pending-request-imp"
+    },
+    {
+      "delivery_id": "5.15-G",
+      "tracking_position": "5.18",
+      "title": "5.15-G — Integrate scheduled policy amendments and cancellations with pending requests",
+      "dependencies": [
+        "3.24",
+        "3.25-B",
+        "3.35-A",
+        "5.10-A",
+        "5.10-B",
+        "5.10-C",
+        "5.18-A",
+        "5.19-A",
+        "E1-ACCESS-B",
+        "E1-WRITE"
+      ],
+      "sprint_key": "5-18-5-15-g-integrate-scheduled-policy-amendments-and-cancellatio"
+    },
+    {
+      "delivery_id": "5.15-I",
+      "tracking_position": "5.19",
+      "title": "5.15-I — Integrate policy-assignment changes with pending requests",
+      "dependencies": [
+        "3.24",
+        "3.25-B",
+        "3.36-A",
+        "5.10-A",
+        "5.10-B",
+        "5.10-C",
+        "5.18-A",
+        "5.19-A",
+        "E1-ACCESS-B",
+        "E1-WRITE"
+      ],
+      "sprint_key": "5-19-5-15-i-integrate-policy-assignment-changes-with-pending-requ"
+    },
+    {
+      "delivery_id": "5.15-M",
+      "tracking_position": "5.20",
+      "title": "5.15-M — Integrate employee work-setting overrides and resets with pending requests",
+      "dependencies": [
+        "2.22",
+        "3.24",
+        "3.25-B",
+        "5.10-A",
+        "5.10-B",
+        "5.10-C",
+        "5.18-A",
+        "5.19-A",
+        "E1-ACCESS-B",
+        "E1-WRITE"
+      ],
+      "sprint_key": "5-20-5-15-m-integrate-employee-work-setting-overrides-and-resets"
+    },
+    {
+      "delivery_id": "5.15-O",
+      "tracking_position": "5.21",
+      "title": "5.15-O — Integrate employee work-profile assignment with pending requests",
+      "dependencies": [
+        "2.20",
+        "3.24",
+        "3.25-B",
+        "5.10-A",
+        "5.10-B",
+        "5.10-C",
+        "5.18-A",
+        "5.19-A",
+        "E1-ACCESS-B",
+        "E1-WRITE"
+      ],
+      "sprint_key": "5-21-5-15-o-integrate-employee-work-profile-assignment-with-pendi"
+    },
+    {
+      "delivery_id": "5.15-Q",
+      "tracking_position": "5.22",
+      "title": "5.15-Q — Integrate organization-default profile changes with pending requests",
+      "dependencies": [
+        "2.21",
+        "3.24",
+        "3.25-B",
+        "5.10-A",
+        "5.10-B",
+        "5.10-C",
+        "5.18-A",
+        "5.19-A",
+        "E1-ACCESS-B",
+        "E1-WRITE"
+      ],
+      "sprint_key": "5-22-5-15-q-integrate-organization-default-profile-changes-with-p"
+    },
+    {
+      "delivery_id": "5.15-S",
+      "tracking_position": "5.23",
+      "title": "5.15-S — Integrate shared work-profile publication with pending requests",
+      "dependencies": [
+        "2.23",
+        "3.24",
+        "3.25-B",
+        "5.10-A",
+        "5.10-B",
+        "5.10-C",
+        "5.18-A",
+        "5.19-A",
+        "E1-ACCESS-B",
+        "E1-WRITE"
+      ],
+      "sprint_key": "5-23-5-15-s-integrate-shared-work-profile-publication-with-pendin"
+    },
+    {
+      "delivery_id": "5.15-U",
+      "tracking_position": "5.24",
+      "title": "5.15-U — Integrate holiday-calendar changes with pending requests",
+      "dependencies": [
+        "2.18",
+        "3.24",
+        "3.25-B",
+        "5.10-A",
+        "5.10-B",
+        "5.10-C",
+        "5.18-A",
+        "5.19-A",
+        "E1-ACCESS-B",
+        "E1-WRITE"
+      ],
+      "sprint_key": "5-24-5-15-u-integrate-holiday-calendar-changes-with-pending-reque"
+    },
+    {
+      "delivery_id": "5.16-A",
+      "tracking_position": "5.25",
+      "title": "5.16-A — Query my actionable approval queue and permitted inspection data",
+      "dependencies": [
+        "3.24",
+        "3.25-B",
+        "5.18-A",
+        "E1-ACCESS-B",
+        "E1-WRITE"
+      ],
+      "sprint_key": "5-25-5-16-a-query-my-actionable-approval-queue-and-permitted-insp"
+    },
+    {
+      "delivery_id": "5.17-A",
+      "tracking_position": "5.26",
+      "title": "5.17-A — Query permitted team availability for request dates",
+      "dependencies": [
+        "3.24",
+        "3.25-B",
+        "5.18-A",
+        "E1-ACCESS-B",
+        "E1-WRITE"
+      ],
+      "sprint_key": "5-26-5-17-a-query-permitted-team-availability-for-request-dates"
+    },
+    {
+      "delivery_id": "5.24-A",
+      "tracking_position": "5.27",
+      "title": "5.24-A — Transfer selected unfinished approval steps through the protected API",
+      "dependencies": [
+        "3.24",
+        "3.25-B",
+        "5.10-A",
+        "5.10-B",
+        "5.10-C",
+        "5.18-A",
+        "E1-ACCESS-B",
+        "E1-WRITE"
+      ],
+      "sprint_key": "5-27-5-24-a-transfer-selected-unfinished-approval-steps-through-t"
+    },
+    {
+      "delivery_id": "5.5-A",
+      "tracking_position": "5.28",
+      "title": "5.5-A — Record a scoped coverage exception and reassess pending finalization",
+      "dependencies": [
+        "3.24",
+        "3.25-B",
+        "5.10-A",
+        "5.10-B",
+        "5.10-C",
+        "5.18-A",
+        "5.28-C",
+        "E1-ACCESS-B",
+        "E1-WRITE"
+      ],
+      "sprint_key": "5-28-5-5-a-record-a-scoped-coverage-exception-and-reassess-pendin"
+    },
+    {
+      "delivery_id": "5.16-B",
+      "tracking_position": "5.29",
+      "title": "5.16-B — Browse my approval queue and inspect permitted requests",
+      "dependencies": [
+        "3.24",
+        "3.25-B",
+        "5.16-A",
+        "E1-ACCESS-B",
+        "E1-WRITE"
+      ],
+      "sprint_key": "5-29-5-16-b-browse-my-approval-queue-and-inspect-permitted-reques"
+    },
+    {
+      "delivery_id": "5.24-C",
+      "tracking_position": "5.30",
+      "title": "5.24-C — Integrate single-supervisor changes with unfinished approval transfers",
+      "dependencies": [
+        "3.24",
+        "3.25-B",
+        "5.24-A",
+        "5.28-C",
+        "E1-ACCESS-B",
+        "E1-WRITE"
+      ],
+      "sprint_key": "5-30-5-24-c-integrate-single-supervisor-changes-with-unfinished-a"
+    },
+    {
+      "delivery_id": "5.15-K",
+      "tracking_position": "5.31",
+      "title": "5.15-K — Integrate employment end-date changes with pending Leave requests",
+      "dependencies": [
+        "2.12",
+        "3.24",
+        "3.25-B",
+        "5.10-A",
+        "5.10-B",
+        "5.10-C",
+        "5.18-A",
+        "5.19-A",
+        "5.24-C",
+        "E1-ACCESS-B",
+        "E1-WRITE"
+      ],
+      "sprint_key": "5-31-5-15-k-integrate-employment-end-date-changes-with-pending-le"
+    },
+    {
+      "delivery_id": "5.17-B",
+      "tracking_position": "5.32",
+      "title": "5.17-B — See permitted team availability in request review",
+      "dependencies": [
+        "3.24",
+        "3.25-B",
+        "5.16-B",
+        "5.17-A",
+        "E1-ACCESS-B",
+        "E1-WRITE"
+      ],
+      "sprint_key": "5-32-5-17-b-see-permitted-team-availability-in-request-review"
+    },
+    {
+      "delivery_id": "5.24-E",
+      "tracking_position": "5.33",
+      "title": "5.24-E — Integrate selected and planned supervisor replacement with approval transfers",
+      "dependencies": [
+        "3.24",
+        "3.25-B",
+        "5.24-A",
+        "5.24-C",
+        "5.28-C",
+        "E1-ACCESS-B",
+        "E1-WRITE"
+      ],
+      "sprint_key": "5-33-5-24-e-integrate-selected-and-planned-supervisor-replacement"
+    },
+    {
+      "delivery_id": "5.23-A",
+      "tracking_position": "5.34",
+      "title": "5.23-A — Process temporary expiry and authorized conditional return",
+      "dependencies": [
+        "3.24",
+        "3.25-B",
+        "5.10-B",
+        "5.24-A",
+        "5.24-C",
+        "5.24-E",
+        "5.28-C",
+        "E1-ACCESS-B",
+        "E1-WRITE"
+      ],
+      "sprint_key": "5-34-5-23-a-process-temporary-expiry-and-authorized-conditional-r"
+    },
+    {
+      "delivery_id": "5.21-A",
+      "tracking_position": "5.35",
+      "title": "5.21-A — Create a bounded temporary appointment and apply its authorized pending work",
+      "dependencies": [
+        "3.24",
+        "3.25-B",
+        "5.10-A",
+        "5.10-B",
+        "5.10-C",
+        "5.16-A",
+        "5.23-A",
+        "5.24-A",
+        "5.28-C",
+        "E1-ACCESS-B",
+        "E1-WRITE"
+      ],
+      "sprint_key": "5-35-5-21-a-create-a-bounded-temporary-appointment-and-apply-its"
+    },
+    {
+      "delivery_id": "5.22-A",
+      "tracking_position": "5.36",
+      "title": "5.22-A — Extend a temporary appointment and safely postpone its return",
+      "dependencies": [
+        "3.24",
+        "3.25-B",
+        "5.10-B",
+        "5.21-A",
+        "5.23-A",
+        "5.28-C",
+        "E1-ACCESS-B",
+        "E1-WRITE"
+      ],
+      "sprint_key": "5-36-5-22-a-extend-a-temporary-appointment-and-safely-postpone-it"
+    },
+    {
+      "delivery_id": "5.25-A",
+      "tracking_position": "5.37",
+      "title": "5.25-A — Restore outstanding supervisor review when recorded absence ends",
+      "dependencies": [
+        "3.24",
+        "3.25-B",
+        "5.10-B",
+        "5.18-A",
+        "5.21-A",
+        "5.24-C",
+        "5.28-C",
+        "E1-ACCESS-B",
+        "E1-WRITE"
+      ],
+      "sprint_key": "5-37-5-25-a-restore-outstanding-supervisor-review-when-recorded-a"
+    },
+    {
+      "delivery_id": "5.11-A",
+      "tracking_position": "5.38",
+      "title": "5.11-A — Submit my own leave request through the protected API",
+      "dependencies": [
+        "3.24",
+        "3.25-B",
+        "3.28",
+        "5.10-A",
+        "5.10-B",
+        "5.10-C",
+        "5.15-A",
+        "5.15-C",
+        "5.15-E",
+        "5.15-G",
+        "5.15-I",
+        "5.15-K",
+        "5.15-M",
+        "5.15-O",
+        "5.15-Q",
+        "5.15-S",
+        "5.15-U",
+        "5.21-A",
+        "5.24-C",
+        "5.24-E",
+        "5.25-A",
+        "5.28-C",
+        "E1-ACCESS-B",
+        "E1-D2-B",
+        "E1-WRITE"
+      ],
+      "sprint_key": "5-38-5-11-a-submit-my-own-leave-request-through-the-protected-api"
+    },
+    {
+      "delivery_id": "5.22-C",
+      "tracking_position": "5.39",
+      "title": "5.22-C — End temporary authority early and resolve its unfinished work",
+      "dependencies": [
+        "3.24",
+        "3.25-B",
+        "5.10-B",
+        "5.21-A",
+        "5.22-A",
+        "5.23-A",
+        "5.24-A",
+        "5.28-C",
+        "E1-ACCESS-B",
+        "E1-WRITE"
+      ],
+      "sprint_key": "5-39-5-22-c-end-temporary-authority-early-and-resolve-its-unfinis"
+    },
+    {
+      "delivery_id": "5.26-A",
+      "tracking_position": "5.40",
+      "title": "5.26-A — Generate recurring reminders for currently actionable approvals",
+      "dependencies": [
+        "3.24",
+        "3.25-B",
+        "5.18-A",
+        "5.19-A",
+        "5.21-A",
+        "5.23-A",
+        "5.24-A",
+        "5.25-A",
+        "E1-ACCESS-B",
+        "E1-WRITE"
+      ],
+      "sprint_key": "5-40-5-26-a-generate-recurring-reminders-for-currently-actionable"
+    },
+    {
+      "delivery_id": "5.11-B",
+      "tracking_position": "5.41",
+      "title": "5.11-B — Submit through Apply and see the confirmed result",
+      "dependencies": [
+        "3.24",
+        "3.25-B",
+        "5.11-A",
+        "E1-ACCESS-B",
+        "E1-WRITE"
+      ],
+      "sprint_key": "5-41-5-11-b-submit-through-apply-and-see-the-confirmed-result"
+    },
+    {
+      "delivery_id": "5.12-A",
+      "tracking_position": "5.42",
+      "title": "5.12-A — Record on-behalf leave and accept the initial employee response through the API",
+      "dependencies": [
+        "3.24",
+        "3.25-B",
+        "5.10-B",
+        "5.11-A",
+        "5.18-A",
+        "5.19-A",
+        "5.28-C",
+        "E1-ACCESS-B",
+        "E1-WRITE"
+      ],
+      "sprint_key": "5-42-5-12-a-record-on-behalf-leave-and-accept-the-initial-employe"
+    },
+    {
+      "delivery_id": "5.27-A",
+      "tracking_position": "5.43",
+      "title": "5.27-A — Escalate overdue approvals once and expose current manager attention",
+      "dependencies": [
+        "3.24",
+        "3.25-B",
+        "5.24-A",
+        "5.26-A",
+        "E1-ACCESS-B",
+        "E1-WRITE"
+      ],
+      "sprint_key": "5-43-5-27-a-escalate-overdue-approvals-once-and-expose-current-ma"
+    },
+    {
+      "delivery_id": "5.13-A",
+      "tracking_position": "5.44",
+      "title": "5.13-A — Confirm exceptional allocation and optional approval through the API",
+      "dependencies": [
+        "3.24",
+        "3.25-B",
+        "5.10-B",
+        "5.12-A",
+        "5.18-A",
+        "E1-ACCESS-B",
+        "E1-WRITE"
+      ],
+      "sprint_key": "5-44-5-13-a-confirm-exceptional-allocation-and-optional-approval"
+    },
+    {
+      "delivery_id": "5.15-B",
+      "tracking_position": "5.45",
+      "title": "5.15-B — Review pending-request impacts before confirming a balance adjustment",
+      "dependencies": [
+        "3.24",
+        "3.25-B",
+        "3.29",
+        "5.11-B",
+        "5.15-A",
+        "E1-ACCESS-B",
+        "E1-WRITE"
+      ],
+      "sprint_key": "5-45-5-15-b-review-pending-request-impacts-before-confirming-a-ba"
+    },
+    {
+      "delivery_id": "5.15-D",
+      "tracking_position": "5.46",
+      "title": "5.15-D — Review pending-request impacts of recurring entitlement changes",
+      "dependencies": [
+        "3.24",
+        "3.25-B",
+        "3.30",
+        "5.11-B",
+        "5.15-C",
+        "E1-ACCESS-B",
+        "E1-WRITE"
+      ],
+      "sprint_key": "5-46-5-15-d-review-pending-request-impacts-of-recurring-entitleme"
+    },
+    {
+      "delivery_id": "5.15-F",
+      "tracking_position": "5.47",
+      "title": "5.15-F — Review pending-request impacts in policy publication",
+      "dependencies": [
+        "3.24",
+        "3.25-B",
+        "3.34-B",
+        "5.11-B",
+        "5.15-E",
+        "E1-ACCESS-B",
+        "E1-WRITE"
+      ],
+      "sprint_key": "5-47-5-15-f-review-pending-request-impacts-in-policy-publication"
+    },
+    {
+      "delivery_id": "5.15-H",
+      "tracking_position": "5.48",
+      "title": "5.15-H — Review pending impacts of scheduled policy amendments and cancellations",
+      "dependencies": [
+        "3.24",
+        "3.25-B",
+        "3.35-B",
+        "5.11-B",
+        "5.15-G",
+        "E1-ACCESS-B",
+        "E1-WRITE"
+      ],
+      "sprint_key": "5-48-5-15-h-review-pending-impacts-of-scheduled-policy-amendments"
+    },
+    {
+      "delivery_id": "5.15-J",
+      "tracking_position": "5.49",
+      "title": "5.15-J — Review pending-request impacts of policy-assignment changes",
+      "dependencies": [
+        "3.24",
+        "3.25-B",
+        "3.36-B",
+        "5.11-B",
+        "5.15-I",
+        "E1-ACCESS-B",
+        "E1-WRITE"
+      ],
+      "sprint_key": "5-49-5-15-j-review-pending-request-impacts-of-policy-assignment-c"
+    },
+    {
+      "delivery_id": "5.15-L",
+      "tracking_position": "5.50",
+      "title": "5.15-L — Review Leave consequences before confirming an employment end date",
+      "dependencies": [
+        "2.12",
+        "3.24",
+        "3.25-B",
+        "5.11-B",
+        "5.15-K",
+        "E1-ACCESS-B",
+        "E1-WRITE"
+      ],
+      "sprint_key": "5-50-5-15-l-review-leave-consequences-before-confirming-an-employ"
+    },
+    {
+      "delivery_id": "5.15-N",
+      "tracking_position": "5.51",
+      "title": "5.15-N — Review pending-request impacts of employee work-setting overrides",
+      "dependencies": [
+        "2.22",
+        "3.24",
+        "3.25-B",
+        "5.11-B",
+        "5.15-M",
+        "E1-ACCESS-B",
+        "E1-WRITE"
+      ],
+      "sprint_key": "5-51-5-15-n-review-pending-request-impacts-of-employee-work-setti"
+    },
+    {
+      "delivery_id": "5.15-P",
+      "tracking_position": "5.52",
+      "title": "5.15-P — Review pending-request impacts of employee profile assignment",
+      "dependencies": [
+        "2.20",
+        "3.24",
+        "3.25-B",
+        "5.11-B",
+        "5.15-O",
+        "E1-ACCESS-B",
+        "E1-WRITE"
+      ],
+      "sprint_key": "5-52-5-15-p-review-pending-request-impacts-of-employee-profile-as"
+    },
+    {
+      "delivery_id": "5.15-R",
+      "tracking_position": "5.53",
+      "title": "5.15-R — Review pending-request impacts of organization-default profile changes",
+      "dependencies": [
+        "2.21",
+        "3.24",
+        "3.25-B",
+        "5.11-B",
+        "5.15-Q",
+        "E1-ACCESS-B",
+        "E1-WRITE"
+      ],
+      "sprint_key": "5-53-5-15-r-review-pending-request-impacts-of-organization-defaul"
+    },
+    {
+      "delivery_id": "5.15-T",
+      "tracking_position": "5.54",
+      "title": "5.15-T — Review pending-request impacts of shared work-profile publication",
+      "dependencies": [
+        "2.23",
+        "3.24",
+        "3.25-B",
+        "5.11-B",
+        "5.15-S",
+        "E1-ACCESS-B",
+        "E1-WRITE"
+      ],
+      "sprint_key": "5-54-5-15-t-review-pending-request-impacts-of-shared-work-profile"
+    },
+    {
+      "delivery_id": "5.15-V",
+      "tracking_position": "5.55",
+      "title": "5.15-V — Review pending-request impacts of holiday-calendar changes",
+      "dependencies": [
+        "2.18",
+        "3.24",
+        "3.25-B",
+        "5.11-B",
+        "5.15-U",
+        "E1-ACCESS-B",
+        "E1-WRITE"
+      ],
+      "sprint_key": "5-55-5-15-v-review-pending-request-impacts-of-holiday-calendar-ch"
+    },
+    {
+      "delivery_id": "5.18-B",
+      "tracking_position": "5.56",
+      "title": "5.18-B — Approve or reject from completed request review",
+      "dependencies": [
+        "3.24",
+        "3.25-B",
+        "5.12-A",
+        "5.16-B",
+        "5.17-B",
+        "5.18-A",
+        "E1-ACCESS-B",
+        "E1-WRITE"
+      ],
+      "sprint_key": "5-56-5-18-b-approve-or-reject-from-completed-request-review"
+    },
+    {
+      "delivery_id": "5.19-B",
+      "tracking_position": "5.57",
+      "title": "5.19-B — Withdraw my pending request from its details",
+      "dependencies": [
+        "3.24",
+        "3.25-B",
+        "5.11-B",
+        "5.19-A",
+        "E1-ACCESS-B",
+        "E1-WRITE"
+      ],
+      "sprint_key": "5-57-5-19-b-withdraw-my-pending-request-from-its-details"
+    },
+    {
+      "delivery_id": "5.20-A",
+      "tracking_position": "5.58",
+      "title": "5.20-A — Preserve corrections and resubmit a rejected request through the API",
+      "dependencies": [
+        "3.24",
+        "3.25-B",
+        "5.10-B",
+        "5.11-A",
+        "5.12-A",
+        "5.18-A",
+        "5.28-C",
+        "E1-ACCESS-B",
+        "E1-WRITE"
+      ],
+      "sprint_key": "5-58-5-20-a-preserve-corrections-and-resubmit-a-rejected-request"
+    },
+    {
+      "delivery_id": "5.21-B",
+      "tracking_position": "5.59",
+      "title": "5.21-B — Appoint a temporary approver through the reviewed appointment screen",
+      "dependencies": [
+        "3.24",
+        "3.25-B",
+        "5.11-B",
+        "5.16-B",
+        "5.21-A",
+        "5.23-A",
+        "E1-ACCESS-B",
+        "E1-WRITE"
+      ],
+      "sprint_key": "5-59-5-21-b-appoint-a-temporary-approver-through-the-reviewed-app"
+    },
+    {
+      "delivery_id": "5.24-B",
+      "tracking_position": "5.60",
+      "title": "5.24-B — Review and confirm manual reassignment of selected approvals",
+      "dependencies": [
+        "3.24",
+        "3.25-B",
+        "5.11-B",
+        "5.24-A",
+        "E1-ACCESS-B",
+        "E1-WRITE"
+      ],
+      "sprint_key": "5-60-5-24-b-review-and-confirm-manual-reassignment-of-selected-ap"
+    },
+    {
+      "delivery_id": "5.24-D",
+      "tracking_position": "5.61",
+      "title": "5.24-D — Show Leave consequences in single-supervisor editing",
+      "dependencies": [
+        "3.24",
+        "3.25-B",
+        "5.11-B",
+        "5.24-C",
+        "E1-ACCESS-B",
+        "E1-WRITE"
+      ],
+      "sprint_key": "5-61-5-24-d-show-leave-consequences-in-single-supervisor-editing"
+    },
+    {
+      "delivery_id": "5.24-F",
+      "tracking_position": "5.62",
+      "title": "5.24-F — Review selected supervisor replacements and their Leave outcomes",
+      "dependencies": [
+        "3.24",
+        "3.25-B",
+        "5.11-B",
+        "5.24-E",
+        "E1-ACCESS-B",
+        "E1-WRITE"
+      ],
+      "sprint_key": "5-62-5-24-f-review-selected-supervisor-replacements-and-their-lea"
+    },
+    {
+      "delivery_id": "5.28-A",
+      "tracking_position": "5.63",
+      "title": "5.28-A — Complete residual coverage-attention reads after the first-use projection",
+      "dependencies": [
+        "3.24",
+        "3.25-B",
+        "5.21-A",
+        "5.22-C",
+        "5.23-A",
+        "5.24-C",
+        "5.24-E",
+        "5.25-A",
+        "5.27-A",
+        "5.28-C",
+        "5.5-A",
+        "E1-ACCESS-B",
+        "E1-WRITE"
+      ],
+      "sprint_key": "5-63-5-28-a-complete-residual-coverage-attention-reads-after-the"
+    },
+    {
+      "delivery_id": "5.5-B",
+      "tracking_position": "5.64",
+      "title": "5.5-B — Record a reasoned exception from existing request and coverage details",
+      "dependencies": [
+        "3.24",
+        "3.25-B",
+        "5.11-B",
+        "5.5-A",
+        "E1-ACCESS-B",
+        "E1-WRITE"
+      ],
+      "sprint_key": "5-64-5-5-b-record-a-reasoned-exception-from-existing-request-and"
+    },
+    {
+      "delivery_id": "5.12-B",
+      "tracking_position": "5.65",
+      "title": "5.12-B — Submit for an employee and complete the initial response in the browser",
+      "dependencies": [
+        "3.24",
+        "3.25-B",
+        "5.11-B",
+        "5.12-A",
+        "5.19-B",
+        "E1-ACCESS-B",
+        "E1-WRITE"
+      ],
+      "sprint_key": "5-65-5-12-b-submit-for-an-employee-and-complete-the-initial-respo"
+    },
+    {
+      "delivery_id": "5.20-B",
+      "tracking_position": "5.66",
+      "title": "5.20-B — Edit and resubmit a rejected request in the browser",
+      "dependencies": [
+        "3.24",
+        "3.25-B",
+        "5.11-B",
+        "5.20-A",
+        "E1-ACCESS-B",
+        "E1-WRITE"
+      ],
+      "sprint_key": "5-66-5-20-b-edit-and-resubmit-a-rejected-request-in-the-browser"
+    },
+    {
+      "delivery_id": "5.22-B",
+      "tracking_position": "5.67",
+      "title": "5.22-B — Extend a temporary appointment from its details",
+      "dependencies": [
+        "3.24",
+        "3.25-B",
+        "5.21-B",
+        "5.22-A",
+        "E1-ACCESS-B",
+        "E1-WRITE"
+      ],
+      "sprint_key": "5-67-5-22-b-extend-a-temporary-appointment-from-its-details"
+    },
+    {
+      "delivery_id": "5.22-D",
+      "tracking_position": "5.68",
+      "title": "5.22-D — End a temporary appointment early from its details",
+      "dependencies": [
+        "3.24",
+        "3.25-B",
+        "5.21-B",
+        "5.22-C",
+        "E1-ACCESS-B",
+        "E1-WRITE"
+      ],
+      "sprint_key": "5-68-5-22-d-end-a-temporary-appointment-early-from-its-details"
+    },
+    {
+      "delivery_id": "5.27-B",
+      "tracking_position": "5.69",
+      "title": "5.27-B — Show escalated approvals in Manage Leave Needs attention",
+      "dependencies": [
+        "3.24",
+        "3.25-B",
+        "5.11-B",
+        "5.24-B",
+        "5.27-A",
+        "E1-ACCESS-B",
+        "E1-WRITE"
+      ],
+      "sprint_key": "5-69-5-27-b-show-escalated-approvals-in-manage-leave-needs-attent"
+    },
+    {
+      "delivery_id": "5.30-A",
+      "tracking_position": "5.70",
+      "title": "5.30-A — Complete own-request details and formal-history reads",
+      "dependencies": [
+        "3.24",
+        "3.25-B",
+        "5.11-A",
+        "5.12-A",
+        "5.13-A",
+        "5.18-A",
+        "5.19-A",
+        "5.20-A",
+        "E1-ACCESS-B",
+        "E1-WRITE"
+      ],
+      "sprint_key": "5-70-5-30-a-complete-own-request-details-and-formal-history-reads"
+    },
+    {
+      "delivery_id": "5.32-I",
+      "tracking_position": "5.71",
+      "title": "5.32-I — Verify temporary appointment from effective start through expiry",
+      "dependencies": [
+        "3.24",
+        "3.25-B",
+        "5.16-B",
+        "5.18-B",
+        "5.21-B",
+        "5.23-A",
+        "E1-ACCESS-B",
+        "E1-WRITE"
+      ],
+      "sprint_key": "5-71-5-32-i-verify-temporary-appointment-from-effective-start-thr"
+    },
+    {
+      "delivery_id": "5.32-J",
+      "tracking_position": "5.72",
+      "title": "5.32-J — Verify supervisor-step restoration when recorded absence ends",
+      "dependencies": [
+        "3.24",
+        "3.25-B",
+        "5.16-B",
+        "5.18-B",
+        "5.25-A",
+        "E1-ACCESS-B",
+        "E1-WRITE"
+      ],
+      "sprint_key": "5-72-5-32-j-verify-supervisor-step-restoration-when-recorded-abse"
+    },
+    {
+      "delivery_id": "5.13-B",
+      "tracking_position": "5.73",
+      "title": "5.13-B — Review exceptional funding and confirm the permitted action",
+      "dependencies": [
+        "3.24",
+        "3.25-B",
+        "5.12-B",
+        "5.13-A",
+        "5.18-B",
+        "E1-ACCESS-B",
+        "E1-WRITE"
+      ],
+      "sprint_key": "5-73-5-13-b-review-exceptional-funding-and-confirm-the-permitted"
+    },
+    {
+      "delivery_id": "5.28-B",
+      "tracking_position": "5.74",
+      "title": "5.28-B — Complete coverage-attention composition and existing remedy navigation",
+      "dependencies": [
+        "3.24",
+        "3.25-B",
+        "5.21-B",
+        "5.24-B",
+        "5.27-B",
+        "5.28-A",
+        "5.28-C",
+        "E1-ACCESS-B",
+        "E1-WRITE"
+      ],
+      "sprint_key": "5-74-5-28-b-complete-coverage-attention-composition-and-existing"
+    },
+    {
+      "delivery_id": "5.29-A",
+      "tracking_position": "5.75",
+      "title": "5.29-A — Query my year-based leave calendar and history list",
+      "dependencies": [
+        "3.24",
+        "3.25-B",
+        "5.30-A",
+        "E1-ACCESS-B",
+        "E1-WRITE"
+      ],
+      "sprint_key": "5-75-5-29-a-query-my-year-based-leave-calendar-and-history-list"
+    },
+    {
+      "delivery_id": "5.30-B",
+      "tracking_position": "5.76",
+      "title": "5.30-B — Complete existing request details with secondary formal History",
+      "dependencies": [
+        "3.24",
+        "3.25-B",
+        "5.11-B",
+        "5.12-B",
+        "5.19-B",
+        "5.20-B",
+        "5.30-A",
+        "E1-ACCESS-B",
+        "E1-WRITE"
+      ],
+      "sprint_key": "5-76-5-30-b-complete-existing-request-details-with-secondary-form"
+    },
+    {
+      "delivery_id": "5.32-K",
+      "tracking_position": "5.77",
+      "title": "5.32-K — Verify recurring reminders and one-time manager escalation together",
+      "dependencies": [
+        "3.24",
+        "3.25-B",
+        "5.18-B",
+        "5.26-A",
+        "5.27-B",
+        "E1-ACCESS-B",
+        "E1-WRITE"
+      ],
+      "sprint_key": "5-77-5-32-k-verify-recurring-reminders-and-one-time-manager-escal"
+    },
+    {
+      "delivery_id": "5.29-B",
+      "tracking_position": "5.78",
+      "title": "5.29-B — Browse my leave in Calendar and List views",
+      "dependencies": [
+        "3.24",
+        "3.25-B",
+        "5.29-A",
+        "5.30-B",
+        "E1-ACCESS-B",
+        "E1-WRITE"
+      ],
+      "sprint_key": "5-78-5-29-b-browse-my-leave-in-calendar-and-list-views"
+    },
+    {
+      "delivery_id": "5.32-C",
+      "tracking_position": "5.79",
+      "title": "5.32-C — Verify rejected correction and same-request fresh-cycle resubmission",
+      "dependencies": [
+        "3.24",
+        "3.25-B",
+        "5.18-B",
+        "5.20-B",
+        "5.30-B",
+        "E1-ACCESS-B",
+        "E1-WRITE"
+      ],
+      "sprint_key": "5-79-5-32-c-verify-rejected-correction-and-same-request-fresh-cyc"
+    },
+    {
+      "delivery_id": "5.32-F",
+      "tracking_position": "5.80",
+      "title": "5.32-F — Verify employment-end consequences across People and Leave",
+      "dependencies": [
+        "3.24",
+        "3.25-B",
+        "5.15-L",
+        "5.18-B",
+        "5.30-B",
+        "E1-ACCESS-B",
+        "E1-WRITE"
+      ],
+      "sprint_key": "5-80-5-32-f-verify-employment-end-consequences-across-people-and"
+    },
+    {
+      "delivery_id": "5.32-G",
+      "tracking_position": "5.81",
+      "title": "5.32-G — Verify used-policy publication and pending-request consequences",
+      "dependencies": [
+        "3.24",
+        "3.25-B",
+        "5.15-F",
+        "5.18-B",
+        "5.30-B",
+        "E1-ACCESS-B",
+        "E1-WRITE"
+      ],
+      "sprint_key": "5-81-5-32-g-verify-used-policy-publication-and-pending-request-co"
+    },
+    {
+      "delivery_id": "5.32-H",
+      "tracking_position": "5.82",
+      "title": "5.32-H — Verify required documents through actual submission and final approval",
+      "dependencies": [
+        "3.24",
+        "3.25-B",
+        "5.11-B",
+        "5.18-B",
+        "5.30-B",
+        "E1-ACCESS-B",
+        "E1-WRITE"
+      ],
+      "sprint_key": "5-82-5-32-h-verify-required-documents-through-actual-submission-a"
+    },
+    {
+      "delivery_id": "5.32-L",
+      "tracking_position": "5.83",
+      "title": "5.32-L — Verify original submission recovery after its response is lost",
+      "dependencies": [
+        "3.24",
+        "3.25-B",
+        "5.11-B",
+        "5.30-B",
+        "E1-ACCESS-B",
+        "E1-WRITE"
+      ],
+      "sprint_key": "5-83-5-32-l-verify-original-submission-recovery-after-its-respons"
+    },
+    {
+      "delivery_id": "5.31-A",
+      "tracking_position": "5.84",
+      "title": "5.31-A — Compose current leave and required responses on My Leave",
+      "dependencies": [
+        "3.24",
+        "3.25-B",
+        "5.11-B",
+        "5.12-B",
+        "5.19-B",
+        "5.20-B",
+        "5.29-B",
+        "5.30-B",
+        "E1-ACCESS-B",
+        "E1-WRITE"
+      ],
+      "sprint_key": "5-84-5-31-a-compose-current-leave-and-required-responses-on-my-le"
+    },
+    {
+      "delivery_id": "5.32-A",
+      "tracking_position": "5.85",
+      "title": "5.32-A — Verify a funded own-request journey through final approval",
+      "dependencies": [
+        "3.24",
+        "3.25-B",
+        "5.11-B",
+        "5.18-B",
+        "5.30-B",
+        "5.31-A",
+        "E1-ACCESS-B",
+        "E1-WRITE"
+      ],
+      "sprint_key": "5-85-5-32-a-verify-a-funded-own-request-journey-through-final-app"
+    },
+    {
+      "delivery_id": "5.32-B",
+      "tracking_position": "5.86",
+      "title": "5.32-B — Verify on-behalf submission and the initial employee unpaid response",
+      "dependencies": [
+        "3.24",
+        "3.25-B",
+        "5.12-B",
+        "5.18-B",
+        "5.30-B",
+        "5.31-A",
+        "E1-ACCESS-B",
+        "E1-WRITE"
+      ],
+      "sprint_key": "5-86-5-32-b-verify-on-behalf-submission-and-the-initial-employee"
+    },
+    {
+      "delivery_id": "5.32-D",
+      "tracking_position": "5.87",
+      "title": "5.32-D — Verify employee withdrawal and connected pending-work closure",
+      "dependencies": [
+        "3.24",
+        "3.25-B",
+        "5.12-B",
+        "5.16-B",
+        "5.19-B",
+        "5.31-A",
+        "E1-ACCESS-B",
+        "E1-WRITE"
+      ],
+      "sprint_key": "5-87-5-32-d-verify-employee-withdrawal-and-connected-pending-work"
+    },
+    {
+      "delivery_id": "5.32-E",
+      "tracking_position": "5.88",
+      "title": "5.32-E — Verify a one-off balance adjustment against a pending request",
+      "dependencies": [
+        "3.24",
+        "3.25-B",
+        "5.15-B",
+        "5.18-B",
+        "5.30-B",
+        "5.31-A",
+        "E1-ACCESS-B",
+        "E1-WRITE"
+      ],
+      "sprint_key": "5-88-5-32-e-verify-a-one-off-balance-adjustment-against-a-pending"
+    },
+    {
+      "delivery_id": "6.1",
+      "tracking_position": "6.1",
+      "title": "6.1 — Project correction consequences from retained history",
+      "dependencies": [
+        "3.18",
+        "5.10-A",
+        "5.10-B",
+        "5.10-C"
+      ],
+      "sprint_key": "6-1-6-1-project-correction-consequences-from-retained-history"
+    },
+    {
+      "delivery_id": "6.4",
+      "tracking_position": "6.2",
+      "title": "6.4 — Calculate cancellation reversal and dependent earning effects",
+      "dependencies": [
+        "3.18",
+        "5.10-A",
+        "5.10-B",
+        "5.10-C",
+        "6.1"
+      ],
+      "sprint_key": "6-2-6-4-calculate-cancellation-reversal-and-dependent-earning-ef"
+    },
+    {
+      "delivery_id": "6.2",
+      "tracking_position": "6.3",
+      "title": "6.2 — Expose minimum correction and deficit attention through the API",
+      "dependencies": [
+        "3.18",
+        "5.10-A",
+        "5.10-B",
+        "5.10-C",
+        "5.15-A",
+        "5.28-C",
+        "6.1"
+      ],
+      "sprint_key": "6-3-6-2-expose-minimum-correction-and-deficit-attention-through"
+    },
+    {
+      "delivery_id": "6.15",
+      "tracking_position": "6.4",
+      "title": "6.15 — Record reasoned deficit-review outcomes without erasing balances",
+      "dependencies": [
+        "3.18",
+        "5.10-A",
+        "5.10-B",
+        "5.10-C",
+        "6.2"
+      ],
+      "sprint_key": "6-4-6-15-record-reasoned-deficit-review-outcomes-without-erasing"
+    },
+    {
+      "delivery_id": "6.3",
+      "tracking_position": "6.5",
+      "title": "6.3 — Show minimum correction attention on Manage Leave",
+      "dependencies": [
+        "3.18",
+        "5.10-A",
+        "5.10-B",
+        "5.10-C",
+        "6.2"
+      ],
+      "sprint_key": "6-5-6-3-show-minimum-correction-attention-on-manage-leave"
+    },
+    {
+      "delivery_id": "6.16",
+      "tracking_position": "6.6",
+      "title": "6.16 — Review deficits and follow permitted remedies",
+      "dependencies": [
+        "3.18",
+        "5.10-A",
+        "5.10-B",
+        "5.10-C",
+        "6.15",
+        "6.3"
+      ],
+      "sprint_key": "6-6-6-16-review-deficits-and-follow-permitted-remedies"
+    },
+    {
+      "delivery_id": "6.19",
+      "tracking_position": "6.7",
+      "title": "6.19 — Integrate approved and historical consequences of one-off balance adjustments",
+      "dependencies": [
+        "3.18",
+        "5.10-A",
+        "5.10-B",
+        "5.10-C",
+        "6.1",
+        "6.15",
+        "6.2",
+        "6.3"
+      ],
+      "sprint_key": "6-7-6-19-integrate-approved-and-historical-consequences-of-one-o"
+    },
+    {
+      "delivery_id": "6.21",
+      "tracking_position": "6.8",
+      "title": "6.21 — Integrate approved and historical consequences of recurring entitlement changes",
+      "dependencies": [
+        "3.18",
+        "5.10-A",
+        "5.10-B",
+        "5.10-C",
+        "6.1",
+        "6.15",
+        "6.2",
+        "6.3"
+      ],
+      "sprint_key": "6-8-6-21-integrate-approved-and-historical-consequences-of-recur"
+    },
+    {
+      "delivery_id": "6.23",
+      "tracking_position": "6.9",
+      "title": "6.23 — Integrate approved and historical consequences of used-policy publication",
+      "dependencies": [
+        "3.18",
+        "5.10-A",
+        "5.10-B",
+        "5.10-C",
+        "6.1",
+        "6.15",
+        "6.2",
+        "6.3"
+      ],
+      "sprint_key": "6-9-6-23-integrate-approved-and-historical-consequences-of-used"
+    },
+    {
+      "delivery_id": "6.25",
+      "tracking_position": "6.10",
+      "title": "6.25 — Integrate approved and historical consequences of scheduled policy amendments and cancellations",
+      "dependencies": [
+        "3.18",
+        "5.10-A",
+        "5.10-B",
+        "5.10-C",
+        "6.1",
+        "6.15",
+        "6.2",
+        "6.3"
+      ],
+      "sprint_key": "6-10-6-25-integrate-approved-and-historical-consequences-of-sched"
+    },
+    {
+      "delivery_id": "6.27",
+      "tracking_position": "6.11",
+      "title": "6.27 — Integrate approved and historical consequences of employee policy assignments",
+      "dependencies": [
+        "3.18",
+        "5.10-A",
+        "5.10-B",
+        "5.10-C",
+        "6.1",
+        "6.15",
+        "6.2",
+        "6.3"
+      ],
+      "sprint_key": "6-11-6-27-integrate-approved-and-historical-consequences-of-emplo"
+    },
+    {
+      "delivery_id": "6.29",
+      "tracking_position": "6.12",
+      "title": "6.29 — Integrate approved and historical consequences of employment periods and departure",
+      "dependencies": [
+        "3.18",
+        "5.10-A",
+        "5.10-B",
+        "5.10-C",
+        "6.1",
+        "6.15",
+        "6.2",
+        "6.3"
+      ],
+      "sprint_key": "6-12-6-29-integrate-approved-and-historical-consequences-of-emplo"
+    },
+    {
+      "delivery_id": "6.31",
+      "tracking_position": "6.13",
+      "title": "6.31 — Integrate approved and historical consequences of employee work-setting overrides and resets",
+      "dependencies": [
+        "3.18",
+        "5.10-A",
+        "5.10-B",
+        "5.10-C",
+        "6.1",
+        "6.15",
+        "6.2",
+        "6.3"
+      ],
+      "sprint_key": "6-13-6-31-integrate-approved-and-historical-consequences-of-emplo"
+    },
+    {
+      "delivery_id": "6.33",
+      "tracking_position": "6.14",
+      "title": "6.33 — Integrate approved and historical consequences of employee work-profile assignments",
+      "dependencies": [
+        "3.18",
+        "5.10-A",
+        "5.10-B",
+        "5.10-C",
+        "6.1",
+        "6.15",
+        "6.2",
+        "6.3"
+      ],
+      "sprint_key": "6-14-6-33-integrate-approved-and-historical-consequences-of-emplo"
+    },
+    {
+      "delivery_id": "6.35",
+      "tracking_position": "6.15",
+      "title": "6.35 — Integrate approved and historical consequences of organization-default work profiles",
+      "dependencies": [
+        "3.18",
+        "5.10-A",
+        "5.10-B",
+        "5.10-C",
+        "6.1",
+        "6.15",
+        "6.2",
+        "6.3"
+      ],
+      "sprint_key": "6-15-6-35-integrate-approved-and-historical-consequences-of-organ"
+    },
+    {
+      "delivery_id": "6.37",
+      "tracking_position": "6.16",
+      "title": "6.37 — Integrate approved and historical consequences of shared work-profile publication",
+      "dependencies": [
+        "3.18",
+        "5.10-A",
+        "5.10-B",
+        "5.10-C",
+        "6.1",
+        "6.15",
+        "6.2",
+        "6.3"
+      ],
+      "sprint_key": "6-16-6-37-integrate-approved-and-historical-consequences-of-share"
+    },
+    {
+      "delivery_id": "6.39",
+      "tracking_position": "6.17",
+      "title": "6.39 — Integrate approved and historical consequences of holiday-calendar changes",
+      "dependencies": [
+        "3.18",
+        "5.10-A",
+        "5.10-B",
+        "5.10-C",
+        "6.1",
+        "6.15",
+        "6.2",
+        "6.3"
+      ],
+      "sprint_key": "6-17-6-39-integrate-approved-and-historical-consequences-of-holid"
+    },
+    {
+      "delivery_id": "6.20",
+      "tracking_position": "6.18",
+      "title": "6.20 — Review approved and historical consequences of one-off balance adjustments",
+      "dependencies": [
+        "3.18",
+        "5.10-A",
+        "5.10-B",
+        "5.10-C",
+        "6.19"
+      ],
+      "sprint_key": "6-18-6-20-review-approved-and-historical-consequences-of-one-off"
+    },
+    {
+      "delivery_id": "6.22",
+      "tracking_position": "6.19",
+      "title": "6.22 — Review approved and historical consequences of recurring entitlement changes",
+      "dependencies": [
+        "3.18",
+        "5.10-A",
+        "5.10-B",
+        "5.10-C",
+        "6.21"
+      ],
+      "sprint_key": "6-19-6-22-review-approved-and-historical-consequences-of-recurrin"
+    },
+    {
+      "delivery_id": "6.24",
+      "tracking_position": "6.20",
+      "title": "6.24 — Review approved and historical consequences of used-policy publication",
+      "dependencies": [
+        "3.18",
+        "5.10-A",
+        "5.10-B",
+        "5.10-C",
+        "6.23"
+      ],
+      "sprint_key": "6-20-6-24-review-approved-and-historical-consequences-of-used-pol"
+    },
+    {
+      "delivery_id": "6.26",
+      "tracking_position": "6.21",
+      "title": "6.26 — Review approved and historical consequences of scheduled policy amendments and cancellations",
+      "dependencies": [
+        "3.18",
+        "5.10-A",
+        "5.10-B",
+        "5.10-C",
+        "6.25"
+      ],
+      "sprint_key": "6-21-6-26-review-approved-and-historical-consequences-of-schedule"
+    },
+    {
+      "delivery_id": "6.28",
+      "tracking_position": "6.22",
+      "title": "6.28 — Review approved and historical consequences of employee policy assignments",
+      "dependencies": [
+        "3.18",
+        "5.10-A",
+        "5.10-B",
+        "5.10-C",
+        "6.27"
+      ],
+      "sprint_key": "6-22-6-28-review-approved-and-historical-consequences-of-employee"
+    },
+    {
+      "delivery_id": "6.30",
+      "tracking_position": "6.23",
+      "title": "6.30 — Review approved and historical consequences of employment periods and departure",
+      "dependencies": [
+        "3.18",
+        "5.10-A",
+        "5.10-B",
+        "5.10-C",
+        "6.29"
+      ],
+      "sprint_key": "6-23-6-30-review-approved-and-historical-consequences-of-employme"
+    },
+    {
+      "delivery_id": "6.32",
+      "tracking_position": "6.24",
+      "title": "6.32 — Review approved and historical consequences of employee work-setting overrides and resets",
+      "dependencies": [
+        "3.18",
+        "5.10-A",
+        "5.10-B",
+        "5.10-C",
+        "6.31"
+      ],
+      "sprint_key": "6-24-6-32-review-approved-and-historical-consequences-of-employee"
+    },
+    {
+      "delivery_id": "6.34",
+      "tracking_position": "6.25",
+      "title": "6.34 — Review approved and historical consequences of employee work-profile assignments",
+      "dependencies": [
+        "3.18",
+        "5.10-A",
+        "5.10-B",
+        "5.10-C",
+        "6.33"
+      ],
+      "sprint_key": "6-25-6-34-review-approved-and-historical-consequences-of-employee"
+    },
+    {
+      "delivery_id": "6.36",
+      "tracking_position": "6.26",
+      "title": "6.36 — Review approved and historical consequences of organization-default work profiles",
+      "dependencies": [
+        "3.18",
+        "5.10-A",
+        "5.10-B",
+        "5.10-C",
+        "6.35"
+      ],
+      "sprint_key": "6-26-6-36-review-approved-and-historical-consequences-of-organiza"
+    },
+    {
+      "delivery_id": "6.38",
+      "tracking_position": "6.27",
+      "title": "6.38 — Review approved and historical consequences of shared work-profile publication",
+      "dependencies": [
+        "3.18",
+        "5.10-A",
+        "5.10-B",
+        "5.10-C",
+        "6.37"
+      ],
+      "sprint_key": "6-27-6-38-review-approved-and-historical-consequences-of-shared-w"
+    },
+    {
+      "delivery_id": "6.40",
+      "tracking_position": "6.28",
+      "title": "6.40 — Review approved and historical consequences of holiday-calendar changes",
+      "dependencies": [
+        "3.18",
+        "5.10-A",
+        "5.10-B",
+        "5.10-C",
+        "6.39"
+      ],
+      "sprint_key": "6-28-6-40-review-approved-and-historical-consequences-of-holiday"
+    },
+    {
+      "delivery_id": "6.41",
+      "tracking_position": "6.29",
+      "title": "6.41 — Correct recorded employment dates through the existing People owner",
+      "dependencies": [
+        "2.11",
+        "2.12",
+        "2.13",
+        "3.18",
+        "5.10-A",
+        "5.10-B",
+        "5.10-C",
+        "5.15-K",
+        "6.29"
+      ],
+      "sprint_key": "6-29-6-41-correct-recorded-employment-dates-through-the-existing"
+    },
+    {
+      "delivery_id": "6.42",
+      "tracking_position": "6.30",
+      "title": "6.42 — Review a factual employment-date correction and its Leave consequences",
+      "dependencies": [
+        "3.18",
+        "5.10-A",
+        "5.10-B",
+        "5.10-C",
+        "6.30",
+        "6.41"
+      ],
+      "sprint_key": "6-30-6-42-review-a-factual-employment-date-correction-and-its-lea"
+    },
+    {
+      "delivery_id": "6.5",
+      "tracking_position": "6.31",
+      "title": "6.5 — Cancel approved leave through one protected command",
+      "dependencies": [
+        "3.18",
+        "3.24",
+        "3.25-B",
+        "5.10-A",
+        "5.10-B",
+        "5.10-C",
+        "5.25-A",
+        "6.2",
+        "6.3",
+        "6.4"
+      ],
+      "sprint_key": "6-31-6-5-cancel-approved-leave-through-one-protected-command"
+    },
+    {
+      "delivery_id": "6.6",
+      "tracking_position": "6.32",
+      "title": "6.6 — Review and confirm approved-leave cancellation",
+      "dependencies": [
+        "3.18",
+        "5.10-A",
+        "5.10-B",
+        "5.10-C",
+        "6.5"
+      ],
+      "sprint_key": "6-32-6-6-review-and-confirm-approved-leave-cancellation"
+    },
+    {
+      "delivery_id": "6.7",
+      "tracking_position": "6.33",
+      "title": "6.7 — Track administrative correction follow-up at its real lifecycle producers",
+      "dependencies": [
+        "3.18",
+        "5.10-A",
+        "5.10-B",
+        "5.10-C",
+        "5.18-A",
+        "5.20-A",
+        "6.2"
+      ],
+      "sprint_key": "6-33-6-7-track-administrative-correction-follow-up-at-its-real-li"
+    },
+    {
+      "delivery_id": "6.8",
+      "tracking_position": "6.34",
+      "title": "6.8 — Present correction follow-up in existing attention and details",
+      "dependencies": [
+        "3.18",
+        "5.10-A",
+        "5.10-B",
+        "5.10-C",
+        "6.3",
+        "6.7"
+      ],
+      "sprint_key": "6-34-6-8-present-correction-follow-up-in-existing-attention-and-d"
+    },
+    {
+      "delivery_id": "6.9",
+      "tracking_position": "6.35",
+      "title": "6.9 — Atomically cancel and submit a linked replacement",
+      "dependencies": [
+        "3.18",
+        "4.4-L",
+        "5.10-A",
+        "5.10-B",
+        "5.10-C",
+        "5.11-A",
+        "5.12-A",
+        "6.5",
+        "6.7",
+        "6.8"
+      ],
+      "sprint_key": "6-35-6-9-atomically-cancel-and-submit-a-linked-replacement"
+    },
+    {
+      "delivery_id": "6.10",
+      "tracking_position": "6.36",
+      "title": "6.10 — Change my approved leave through the existing request form",
+      "dependencies": [
+        "3.18",
+        "5.10-A",
+        "5.10-B",
+        "5.10-C",
+        "6.6",
+        "6.9"
+      ],
+      "sprint_key": "6-36-6-10-change-my-approved-leave-through-the-existing-request-f"
+    },
+    {
+      "delivery_id": "6.11",
+      "tracking_position": "6.37",
+      "title": "6.11 — Correct another employee’s approved leave under administrative authority",
+      "dependencies": [
+        "3.18",
+        "4.4-L",
+        "5.10-A",
+        "5.10-B",
+        "5.10-C",
+        "5.11-A",
+        "5.12-A",
+        "6.9"
+      ],
+      "sprint_key": "6-37-6-11-correct-another-employee-s-approved-leave-under-adminis"
+    },
+    {
+      "delivery_id": "6.12",
+      "tracking_position": "6.38",
+      "title": "6.12 — Review an administrative correction and its employee explanation",
+      "dependencies": [
+        "3.18",
+        "5.10-A",
+        "5.10-B",
+        "5.10-C",
+        "6.10",
+        "6.11"
+      ],
+      "sprint_key": "6-38-6-12-review-an-administrative-correction-and-its-employee-ex"
+    },
+    {
+      "delivery_id": "6.13",
+      "tracking_position": "6.39",
+      "title": "6.13 — Allow scoped administrators to preserve and resubmit rejected corrections",
+      "dependencies": [
+        "3.18",
+        "4.4-L",
+        "5.10-A",
+        "5.10-B",
+        "5.10-C",
+        "5.11-A",
+        "5.12-A",
+        "6.11",
+        "6.7"
+      ],
+      "sprint_key": "6-39-6-13-allow-scoped-administrators-to-preserve-and-resubmit-re"
+    },
+    {
+      "delivery_id": "6.14",
+      "tracking_position": "6.40",
+      "title": "6.14 — Resume rejected administrative corrections from follow-up",
+      "dependencies": [
+        "3.18",
+        "5.10-A",
+        "5.10-B",
+        "5.10-C",
+        "6.12",
+        "6.13",
+        "6.8"
+      ],
+      "sprint_key": "6-40-6-14-resume-rejected-administrative-corrections-from-follow"
+    },
+    {
+      "delivery_id": "6.17",
+      "tracking_position": "6.41",
+      "title": "6.17 — Complete linked correction and calculation-history reads",
+      "dependencies": [
+        "3.18",
+        "5.10-A",
+        "5.10-B",
+        "5.10-C",
+        "6.11",
+        "6.13",
+        "6.15",
+        "6.9"
+      ],
+      "sprint_key": "6-41-6-17-complete-linked-correction-and-calculation-history-read"
+    },
+    {
+      "delivery_id": "6.18",
+      "tracking_position": "6.42",
+      "title": "6.18 — Explain corrected leave in employee history and calendars",
+      "dependencies": [
+        "3.18",
+        "5.10-A",
+        "5.10-B",
+        "5.10-C",
+        "6.10",
+        "6.12",
+        "6.14",
+        "6.16",
+        "6.17"
+      ],
+      "sprint_key": "6-42-6-18-explain-corrected-leave-in-employee-history-and-calenda"
+    },
+    {
+      "delivery_id": "6.43",
+      "tracking_position": "6.43",
+      "title": "6.43 — Verify cancellation and own replacement across real boundaries",
+      "dependencies": [
+        "3.18",
+        "5.10-A",
+        "5.10-B",
+        "5.10-C",
+        "6.10",
+        "6.18",
+        "6.6"
+      ],
+      "sprint_key": "6-43-6-43-verify-cancellation-and-own-replacement-across-real-bou"
+    },
+    {
+      "delivery_id": "6.44",
+      "tracking_position": "6.44",
+      "title": "6.44 — Verify administrative correction rejection and follow-up recovery",
+      "dependencies": [
+        "3.18",
+        "5.10-A",
+        "5.10-B",
+        "5.10-C",
+        "6.12",
+        "6.14",
+        "6.18"
+      ],
+      "sprint_key": "6-44-6-44-verify-administrative-correction-rejection-and-follow-u"
+    },
+    {
+      "delivery_id": "6.45",
+      "tracking_position": "6.45",
+      "title": "6.45 — Verify historical corrections and deficit outcomes through actual owners",
+      "dependencies": [
+        "3.18",
+        "5.10-A",
+        "5.10-B",
+        "5.10-C",
+        "6.16",
+        "6.18",
+        "6.20",
+        "6.22",
+        "6.24",
+        "6.26",
+        "6.28",
+        "6.30",
+        "6.32",
+        "6.34",
+        "6.36",
+        "6.38",
+        "6.40",
+        "6.42"
+      ],
+      "sprint_key": "6-45-6-45-verify-historical-corrections-and-deficit-outcomes-thro"
+    },
+    {
+      "delivery_id": "6.46",
+      "tracking_position": "6.46",
+      "title": "6.46 — Verify correction compatibility and recoverable release evidence",
+      "dependencies": [
+        "3.18",
+        "5.10-A",
+        "5.10-B",
+        "5.10-C",
+        "6.43",
+        "6.44",
+        "6.45"
+      ],
+      "sprint_key": "6-46-6-46-verify-correction-compatibility-and-recoverable-release"
+    },
+    {
+      "delivery_id": "7.21",
+      "tracking_position": "7.1",
+      "title": "7.21 — Read Identity/Access audit evidence through its owner",
+      "dependencies": [
+        "5.10-A",
+        "E1-ACCESS-A",
+        "E1-ACCESS-B",
+        "E1-ID-B"
+      ],
+      "sprint_key": "7-1-7-21-read-identity-access-audit-evidence-through-its-owner"
+    },
+    {
+      "delivery_id": "7.22",
+      "tracking_position": "7.2",
+      "title": "7.22 — Read People audit evidence through its owner",
+      "dependencies": [
+        "2.12",
+        "2.16",
+        "5.10-A",
+        "E1-ACCESS-B"
+      ],
+      "sprint_key": "7-2-7-22-read-people-audit-evidence-through-its-owner"
+    },
+    {
+      "delivery_id": "7.24",
+      "tracking_position": "7.3",
+      "title": "7.24 — Read notification delivery audit evidence through its owner",
+      "dependencies": [
+        "3.22",
+        "3.25-B",
+        "5.10-A",
+        "E1-ACCESS-B"
+      ],
+      "sprint_key": "7-3-7-24-read-notification-delivery-audit-evidence-through-its-o"
+    },
+    {
+      "delivery_id": "7.25",
+      "tracking_position": "7.4",
+      "title": "7.25 — Query existing Leave audit events with protected fields",
+      "dependencies": [
+        "5.10-A",
+        "E1-ACCESS-B"
+      ],
+      "sprint_key": "7-4-7-25-query-existing-leave-audit-events-with-protected-fields"
+    },
+    {
+      "delivery_id": "7.23",
+      "tracking_position": "7.5",
+      "title": "7.23 — Read Content audit evidence through its owner",
+      "dependencies": [
+        "4.11-S",
+        "4.7",
+        "5.10-A",
+        "E1-ACCESS-B"
+      ],
+      "sprint_key": "7-5-7-23-read-content-audit-evidence-through-its-owner"
+    },
+    {
+      "delivery_id": "7.26",
+      "tracking_position": "7.6",
+      "title": "7.26 — Compose a chronological audit page from authorized owner evidence",
+      "dependencies": [
+        "5.10-A",
+        "7.21",
+        "7.22",
+        "7.23",
+        "7.24",
+        "7.25",
+        "E1-ACCESS-B"
+      ],
+      "sprint_key": "7-6-7-26-compose-a-chronological-audit-page-from-authorized-owne"
+    },
+    {
+      "delivery_id": "7.1",
+      "tracking_position": "7.7",
+      "title": "7.1 — Read the scoped organization absence overview",
+      "dependencies": [
+        "2.26",
+        "3.17-B",
+        "4.7",
+        "5.10-A",
+        "5.30-A",
+        "6.17",
+        "6.9",
+        "E1-ACCESS-B",
+        "E1-PEOPLE"
+      ],
+      "sprint_key": "7-7-7-1-read-the-scoped-organization-absence-overview"
+    },
+    {
+      "delivery_id": "7.11",
+      "tracking_position": "7.8",
+      "title": "7.11 — Query leave used by employee, type, team and period reports",
+      "dependencies": [
+        "2.26",
+        "3.17-B",
+        "5.10-A",
+        "5.30-A",
+        "6.17",
+        "E1-ACCESS-B",
+        "E1-PEOPLE"
+      ],
+      "sprint_key": "7-8-7-11-query-leave-used-by-employee-type-team-and-period-repor"
+    },
+    {
+      "delivery_id": "7.13",
+      "tracking_position": "7.9",
+      "title": "7.13 — Query upcoming absence reports",
+      "dependencies": [
+        "2.26",
+        "3.17-B",
+        "5.10-A",
+        "5.30-A",
+        "6.17",
+        "E1-ACCESS-B",
+        "E1-PEOPLE"
+      ],
+      "sprint_key": "7-9-7-13-query-upcoming-absence-reports"
+    },
+    {
+      "delivery_id": "7.15",
+      "tracking_position": "7.10",
+      "title": "7.15 — Query pending approval aging reports",
+      "dependencies": [
+        "2.26",
+        "3.17-B",
+        "5.10-A",
+        "5.18-A",
+        "5.26-A",
+        "5.30-A",
+        "6.17",
+        "E1-ACCESS-B",
+        "E1-PEOPLE"
+      ],
+      "sprint_key": "7-10-7-15-query-pending-approval-aging-reports"
+    },
+    {
+      "delivery_id": "7.17",
+      "tracking_position": "7.11",
+      "title": "7.17 — Query overrides and administrative adjustments reports",
+      "dependencies": [
+        "2.26",
+        "3.17-B",
+        "5.10-A",
+        "5.30-A",
+        "6.17",
+        "E1-ACCESS-B",
+        "E1-PEOPLE"
+      ],
+      "sprint_key": "7-11-7-17-query-overrides-and-administrative-adjustments-reports"
+    },
+    {
+      "delivery_id": "7.7",
+      "tracking_position": "7.12",
+      "title": "7.7 — Query current and corrected point-in-time balance reports",
+      "dependencies": [
+        "2.26",
+        "3.17-B",
+        "5.10-A",
+        "5.30-A",
+        "6.17",
+        "E1-ACCESS-B",
+        "E1-PEOPLE"
+      ],
+      "sprint_key": "7-12-7-7-query-current-and-corrected-point-in-time-balance-report"
+    },
+    {
+      "delivery_id": "7.9",
+      "tracking_position": "7.13",
+      "title": "7.9 — Query accrual and adjustment history reports",
+      "dependencies": [
+        "2.26",
+        "3.17-B",
+        "5.10-A",
+        "5.30-A",
+        "6.17",
+        "E1-ACCESS-B",
+        "E1-PEOPLE"
+      ],
+      "sprint_key": "7-13-7-9-query-accrual-and-adjustment-history-reports"
+    },
+    {
+      "delivery_id": "7.19",
+      "tracking_position": "7.14",
+      "title": "7.19 — Generate an audited CSV from all matching authorized report rows",
+      "dependencies": [
+        "5.10-A",
+        "7.11",
+        "7.13",
+        "7.15",
+        "7.17",
+        "7.7",
+        "7.9",
+        "E1-ACCESS-B"
+      ],
+      "sprint_key": "7-14-7-19-generate-an-audited-csv-from-all-matching-authorized-re"
+    },
+    {
+      "delivery_id": "7.2",
+      "tracking_position": "7.15",
+      "title": "7.2 — Browse the organization timeline without changing leave by dragging",
+      "dependencies": [
+        "4.7",
+        "5.10-A",
+        "6.9",
+        "7.1",
+        "E1-ACCESS-B"
+      ],
+      "sprint_key": "7-15-7-2-browse-the-organization-timeline-without-changing-leave"
+    },
+    {
+      "delivery_id": "7.4",
+      "tracking_position": "7.16",
+      "title": "7.4 — Remember overview filters within the current account and organization",
+      "dependencies": [
+        "5.10-A",
+        "5.29-A",
+        "7.1",
+        "E1-ACCESS-B"
+      ],
+      "sprint_key": "7-16-7-4-remember-overview-filters-within-the-current-account-and"
+    },
+    {
+      "delivery_id": "7.3",
+      "tracking_position": "7.17",
+      "title": "7.3 — Use the date-grouped overview and staged filters on mobile",
+      "dependencies": [
+        "4.7",
+        "5.10-A",
+        "6.9",
+        "7.1",
+        "7.2",
+        "E1-ACCESS-B"
+      ],
+      "sprint_key": "7-17-7-3-use-the-date-grouped-overview-and-staged-filters-on-mobi"
+    },
+    {
+      "delivery_id": "7.5",
+      "tracking_position": "7.18",
+      "title": "7.5 — Restore applied overview filters with truthful preference feedback",
+      "dependencies": [
+        "5.10-A",
+        "7.3",
+        "7.4",
+        "E1-ACCESS-B"
+      ],
+      "sprint_key": "7-18-7-5-restore-applied-overview-filters-with-truthful-preferenc"
+    },
+    {
+      "delivery_id": "7.6",
+      "tracking_position": "7.19",
+      "title": "7.6 — Complete existing management navigation to overview and records",
+      "dependencies": [
+        "5.10-A",
+        "5.27-B",
+        "6.3",
+        "6.8",
+        "7.2",
+        "7.3",
+        "E1-ACCESS-B"
+      ],
+      "sprint_key": "7-19-7-6-complete-existing-management-navigation-to-overview-and"
+    },
+    {
+      "delivery_id": "7.27",
+      "tracking_position": "7.20",
+      "title": "7.27 — Search audit history and inspect permitted before and after",
+      "dependencies": [
+        "5.10-A",
+        "7.26",
+        "7.6",
+        "E1-ACCESS-B"
+      ],
+      "sprint_key": "7-20-7-27-search-audit-history-and-inspect-permitted-before-and-a"
+    },
+    {
+      "delivery_id": "7.29",
+      "tracking_position": "7.21",
+      "title": "7.29 — Verify organization overview privacy and accessible navigation",
+      "dependencies": [
+        "5.10-A",
+        "7.5",
+        "7.6",
+        "E1-ACCESS-B"
+      ],
+      "sprint_key": "7-21-7-29-verify-organization-overview-privacy-and-accessible-nav"
+    },
+    {
+      "delivery_id": "7.8",
+      "tracking_position": "7.22",
+      "title": "7.8 — Read balance reports in the first shared reporting layout",
+      "dependencies": [
+        "5.10-A",
+        "7.6",
+        "7.7",
+        "E1-ACCESS-B"
+      ],
+      "sprint_key": "7-22-7-8-read-balance-reports-in-the-first-shared-reporting-layou"
+    },
+    {
+      "delivery_id": "7.10",
+      "tracking_position": "7.23",
+      "title": "7.10 — Browse accrual and adjustment history results",
+      "dependencies": [
+        "5.10-A",
+        "7.8",
+        "7.9",
+        "E1-ACCESS-B"
+      ],
+      "sprint_key": "7-23-7-10-browse-accrual-and-adjustment-history-results"
+    },
+    {
+      "delivery_id": "7.12",
+      "tracking_position": "7.24",
+      "title": "7.12 — Browse leave used by employee, type, team and period results",
+      "dependencies": [
+        "5.10-A",
+        "7.11",
+        "7.8",
+        "E1-ACCESS-B"
+      ],
+      "sprint_key": "7-24-7-12-browse-leave-used-by-employee-type-team-and-period-resu"
+    },
+    {
+      "delivery_id": "7.14",
+      "tracking_position": "7.25",
+      "title": "7.14 — Browse upcoming absence results",
+      "dependencies": [
+        "5.10-A",
+        "7.13",
+        "7.8",
+        "E1-ACCESS-B"
+      ],
+      "sprint_key": "7-25-7-14-browse-upcoming-absence-results"
+    },
+    {
+      "delivery_id": "7.16",
+      "tracking_position": "7.26",
+      "title": "7.16 — Browse pending approval aging results",
+      "dependencies": [
+        "5.10-A",
+        "7.15",
+        "7.8",
+        "E1-ACCESS-B"
+      ],
+      "sprint_key": "7-26-7-16-browse-pending-approval-aging-results"
+    },
+    {
+      "delivery_id": "7.18",
+      "tracking_position": "7.27",
+      "title": "7.18 — Browse overrides and administrative adjustments results",
+      "dependencies": [
+        "5.10-A",
+        "7.17",
+        "7.8",
+        "E1-ACCESS-B"
+      ],
+      "sprint_key": "7-27-7-18-browse-overrides-and-administrative-adjustments-results"
+    },
+    {
+      "delivery_id": "7.30",
+      "tracking_position": "7.28",
+      "title": "7.30 — Verify cross-owner audit chronology and private detail access",
+      "dependencies": [
+        "5.10-A",
+        "7.27",
+        "E1-ACCESS-B"
+      ],
+      "sprint_key": "7-28-7-30-verify-cross-owner-audit-chronology-and-private-detail"
+    },
+    {
+      "delivery_id": "7.20",
+      "tracking_position": "7.29",
+      "title": "7.20 — Export each report with clear progress and retry feedback",
+      "dependencies": [
+        "5.10-A",
+        "7.10",
+        "7.12",
+        "7.14",
+        "7.16",
+        "7.18",
+        "7.19",
+        "E1-ACCESS-B"
+      ],
+      "sprint_key": "7-29-7-20-export-each-report-with-clear-progress-and-retry-feedba"
+    },
+    {
+      "delivery_id": "7.28",
+      "tracking_position": "7.30",
+      "title": "7.28 — Verify all six report and CSV definitions through actual consumers",
+      "dependencies": [
+        "5.10-A",
+        "7.10",
+        "7.12",
+        "7.14",
+        "7.16",
+        "7.18",
+        "7.20",
+        "7.8",
+        "E1-ACCESS-B"
+      ],
+      "sprint_key": "7-30-7-28-verify-all-six-report-and-csv-definitions-through-actua"
+    },
+    {
+      "delivery_id": "7.31",
+      "tracking_position": "7.31",
+      "title": "7.31 — Qualify reporting bounds, compatibility and read-only operation",
+      "dependencies": [
+        "5.10-A",
+        "7.28",
+        "7.29",
+        "7.30",
+        "E1-ACCESS-B"
+      ],
+      "sprint_key": "7-31-7-31-qualify-reporting-bounds-compatibility-and-read-only-op"
+    },
+    {
+      "delivery_id": "8.1",
+      "tracking_position": "8.1",
+      "title": "8.1 — Validate a versioned consultant import package without business writes",
+      "dependencies": [
+        "E1-ACCESS-B",
+        "E1-ENV"
+      ],
+      "sprint_key": "8-1-8-1-validate-a-versioned-consultant-import-package-without-b"
+    },
+    {
+      "delivery_id": "8.21",
+      "tracking_position": "8.2",
+      "title": "8.21 — Verify recoverable backup capability across actual owners and private bytes",
+      "dependencies": [
+        "E1-ACCESS-B",
+        "E1-ENV"
+      ],
+      "sprint_key": "8-2-8-21-verify-recoverable-backup-capability-across-actual-owne"
+    },
+    {
+      "delivery_id": "8.22",
+      "tracking_position": "8.3",
+      "title": "8.22 — Rehearse consistent database, document and dependency restoration",
+      "dependencies": [
+        "8.21",
+        "E1-ACCESS-B",
+        "E1-ENV"
+      ],
+      "sprint_key": "8-3-8-22-rehearse-consistent-database-document-and-dependency-re"
+    },
+    {
+      "delivery_id": "8.2",
+      "tracking_position": "8.4",
+      "title": "8.2 — Resolve import identities and owner prerequisites explicitly",
+      "dependencies": [
+        "2.26",
+        "8.1",
+        "E1-ACCESS-B",
+        "E1-ENV",
+        "E1-ID-B",
+        "E1-PEOPLE"
+      ],
+      "sprint_key": "8-4-8-2-resolve-import-identities-and-owner-prerequisites-explic"
+    },
+    {
+      "delivery_id": "8.19",
+      "tracking_position": "8.5",
+      "title": "8.19 — Prove one bounded monitoring setup with safe correlation",
+      "dependencies": [
+        "3.24",
+        "E1-ACCESS-B",
+        "E1-ENV",
+        "E1-VERIFY"
+      ],
+      "sprint_key": "8-5-8-19-prove-one-bounded-monitoring-setup-with-safe-correlatio"
+    },
+    {
+      "delivery_id": "8.16",
+      "tracking_position": "8.6",
+      "title": "8.16 — Verify configured retention and auditable document disposal",
+      "dependencies": [
+        "4.10",
+        "4.11-L",
+        "4.12-L",
+        "E1-ACCESS-B",
+        "E1-ENV"
+      ],
+      "sprint_key": "8-6-8-16-verify-configured-retention-and-auditable-document-disp"
+    },
+    {
+      "delivery_id": "8.18",
+      "tracking_position": "8.7",
+      "title": "8.18 — Demonstrate bounded worker drain, forced stop and recovery",
+      "dependencies": [
+        "3.24",
+        "5.23-A",
+        "5.26-A",
+        "E1-ACCESS-B",
+        "E1-ENV"
+      ],
+      "sprint_key": "8-7-8-18-demonstrate-bounded-worker-drain-forced-stop-and-recove"
+    },
+    {
+      "delivery_id": "8.20",
+      "tracking_position": "8.8",
+      "title": "8.20 — Demonstrate alert thresholds and verified incident recovery",
+      "dependencies": [
+        "8.18",
+        "8.19",
+        "E1-ACCESS-B",
+        "E1-ENV"
+      ],
+      "sprint_key": "8-8-8-20-demonstrate-alert-thresholds-and-verified-incident-reco"
+    },
+    {
+      "delivery_id": "8.23",
+      "tracking_position": "8.9",
+      "title": "8.23 — Reconcile restored notification work before resuming outbound effects",
+      "dependencies": [
+        "8.18",
+        "8.22",
+        "E1-ACCESS-B",
+        "E1-ENV"
+      ],
+      "sprint_key": "8-9-8-23-reconcile-restored-notification-work-before-resuming-ou"
+    },
+    {
+      "delivery_id": "8.3",
+      "tracking_position": "8.10",
+      "title": "8.3 — Reconcile opening balances and transferred request effects in preview",
+      "dependencies": [
+        "3.18",
+        "3.9",
+        "5.8-A",
+        "7.7",
+        "8.1",
+        "8.2",
+        "E1-ACCESS-B",
+        "E1-ENV"
+      ],
+      "sprint_key": "8-10-8-3-reconcile-opening-balances-and-transferred-request-effec"
+    },
+    {
+      "delivery_id": "8.4",
+      "tracking_position": "8.11",
+      "title": "8.4 — Bind client email approval to the exact import preview",
+      "dependencies": [
+        "8.3",
+        "E1-ACCESS-B",
+        "E1-ENV"
+      ],
+      "sprint_key": "8-11-8-4-bind-client-email-approval-to-the-exact-import-preview"
+    },
+    {
+      "delivery_id": "8.5",
+      "tracking_position": "8.12",
+      "title": "8.5 — Apply reconciled opening portions through the accounting owner",
+      "dependencies": [
+        "3.18",
+        "3.9",
+        "5.8-A",
+        "7.7",
+        "8.3",
+        "8.4",
+        "E1-ACCESS-B",
+        "E1-ENV"
+      ],
+      "sprint_key": "8-12-8-5-apply-reconciled-opening-portions-through-the-accounting"
+    },
+    {
+      "delivery_id": "8.8",
+      "tracking_position": "8.13",
+      "title": "8.8 — Prepare imported documents through the existing Content owner",
+      "dependencies": [
+        "4.12-S",
+        "4.4-L",
+        "4.4-S",
+        "4.7",
+        "8.2",
+        "8.4",
+        "E1-ACCESS-B",
+        "E1-ENV"
+      ],
+      "sprint_key": "8-13-8-8-prepare-imported-documents-through-the-existing-content"
+    },
+    {
+      "delivery_id": "8.6",
+      "tracking_position": "8.14",
+      "title": "8.6 — Adopt recorded historical and approved requests with explicit provenance",
+      "dependencies": [
+        "2.26",
+        "5.10-A",
+        "6.17",
+        "8.2",
+        "8.4",
+        "8.5",
+        "E1-ACCESS-B",
+        "E1-ENV",
+        "E1-ID-B",
+        "E1-PEOPLE"
+      ],
+      "sprint_key": "8-14-8-6-adopt-recorded-historical-and-approved-requests-with-exp"
+    },
+    {
+      "delivery_id": "8.17",
+      "tracking_position": "8.15",
+      "title": "8.17 — Qualify accessible role journeys on supported browsers",
+      "dependencies": [
+        "7.27",
+        "E1-ACCESS-B",
+        "E1-D5",
+        "E1-ENV"
+      ],
+      "sprint_key": "8-15-8-17-qualify-accessible-role-journeys-on-supported-browsers"
+    },
+    {
+      "delivery_id": "8.7",
+      "tracking_position": "8.16",
+      "title": "8.7 — Import pending requests into a freshly verified approval cycle",
+      "dependencies": [
+        "2.26",
+        "5.10-B",
+        "5.11-A",
+        "5.12-A",
+        "5.18-A",
+        "8.2",
+        "8.4",
+        "8.5",
+        "8.6",
+        "E1-ACCESS-B",
+        "E1-ENV",
+        "E1-ID-B",
+        "E1-PEOPLE"
+      ],
+      "sprint_key": "8-16-8-7-import-pending-requests-into-a-freshly-verified-approval"
+    },
+    {
+      "delivery_id": "8.9",
+      "tracking_position": "8.17",
+      "title": "8.9 — Apply one approved employee import atomically through Leave",
+      "dependencies": [
+        "8.4",
+        "8.5",
+        "8.6",
+        "8.7",
+        "8.8",
+        "E1-ACCESS-B",
+        "E1-ENV"
+      ],
+      "sprint_key": "8-17-8-9-apply-one-approved-employee-import-atomically-through-le"
+    },
+    {
+      "delivery_id": "8.10",
+      "tracking_position": "8.18",
+      "title": "8.10 — Resume imports using original employee operation outcomes",
+      "dependencies": [
+        "8.9",
+        "E1-ACCESS-B",
+        "E1-ENV"
+      ],
+      "sprint_key": "8-18-8-10-resume-imports-using-original-employee-operation-outcom"
+    },
+    {
+      "delivery_id": "8.11",
+      "tracking_position": "8.19",
+      "title": "8.11 — Reconcile applied records against the exact approved batch",
+      "dependencies": [
+        "3.18",
+        "3.9",
+        "5.8-A",
+        "7.7",
+        "8.10",
+        "E1-ACCESS-B",
+        "E1-ENV"
+      ],
+      "sprint_key": "8-19-8-11-reconcile-applied-records-against-the-exact-approved-ba"
+    },
+    {
+      "delivery_id": "8.15",
+      "tracking_position": "8.20",
+      "title": "8.15 — Qualify cross-organization security through real owner boundaries",
+      "dependencies": [
+        "7.28",
+        "7.29",
+        "7.30",
+        "E1-ACCESS-B",
+        "E1-ENV"
+      ],
+      "sprint_key": "8-20-8-15-qualify-cross-organization-security-through-real-owner"
+    },
+    {
+      "delivery_id": "8.12",
+      "tracking_position": "8.21",
+      "title": "8.12 — Reconcile export-to-cutover changes before final approval",
+      "dependencies": [
+        "8.11",
+        "E1-ACCESS-B",
+        "E1-ENV"
+      ],
+      "sprint_key": "8-21-8-12-reconcile-export-to-cutover-changes-before-final-approv"
+    },
+    {
+      "delivery_id": "8.24",
+      "tracking_position": "8.22",
+      "title": "8.24 — Qualify coordinated migrations and recoverable release activation",
+      "dependencies": [
+        "7.31",
+        "E1-ACCESS-B",
+        "E1-ENV",
+        "E1-VERIFY"
+      ],
+      "sprint_key": "8-22-8-24-qualify-coordinated-migrations-and-recoverable-release"
+    },
+    {
+      "delivery_id": "8.25",
+      "tracking_position": "8.23",
+      "title": "8.25 — Measure representative application and import workloads",
+      "dependencies": [
+        "7.31",
+        "E1-ACCESS-B",
+        "E1-ENV"
+      ],
+      "sprint_key": "8-23-8-25-measure-representative-application-and-import-workloads"
+    },
+    {
+      "delivery_id": "8.13",
+      "tracking_position": "8.24",
+      "title": "8.13 — Release only current actionable imported-work notifications at activation",
+      "dependencies": [
+        "3.24",
+        "3.25-B",
+        "5.26-A",
+        "8.10",
+        "8.12",
+        "8.7",
+        "E1-ACCESS-B",
+        "E1-ENV"
+      ],
+      "sprint_key": "8-24-8-13-release-only-current-actionable-imported-work-notificat"
+    },
+    {
+      "delivery_id": "8.27",
+      "tracking_position": "8.25",
+      "title": "8.27 — Prepare support and operational handover from verified procedures",
+      "dependencies": [
+        "8.20",
+        "8.22",
+        "8.23",
+        "8.24",
+        "E1-ACCESS-B",
+        "E1-ENV"
+      ],
+      "sprint_key": "8-25-8-27-prepare-support-and-operational-handover-from-verified"
+    },
+    {
+      "delivery_id": "8.14",
+      "tracking_position": "8.26",
+      "title": "8.14 — Verify import arithmetic, atomic apply and interruption recovery",
+      "dependencies": [
+        "8.11",
+        "8.12",
+        "8.13",
+        "E1-ACCESS-B",
+        "E1-ENV"
+      ],
+      "sprint_key": "8-26-8-14-verify-import-arithmetic-atomic-apply-and-interruption"
+    },
+    {
+      "delivery_id": "8.26",
+      "tracking_position": "8.27",
+      "title": "8.26 — Run representative human acceptance for each role",
+      "dependencies": [
+        "8.14",
+        "8.15",
+        "8.16",
+        "8.17",
+        "8.25",
+        "E1-ACCESS-B",
+        "E1-ENV"
+      ],
+      "sprint_key": "8-27-8-26-run-representative-human-acceptance-for-each-role"
+    },
+    {
+      "delivery_id": "8.28",
+      "tracking_position": "8.28",
+      "title": "8.28 — Assemble the pilot release evidence and go/no-go decision",
+      "dependencies": [
+        "8.11",
+        "8.12",
+        "8.14",
+        "8.15",
+        "8.16",
+        "8.17",
+        "8.18",
+        "8.19",
+        "8.20",
+        "8.21",
+        "8.22",
+        "8.23",
+        "8.24",
+        "8.25",
+        "8.26",
+        "8.27",
+        "E1-ACCESS-B",
+        "E1-ENV"
+      ],
+      "sprint_key": "8-28-8-28-assemble-the-pilot-release-evidence-and-go-no-go-decisi"
+    },
+    {
+      "delivery_id": "8.29",
+      "tracking_position": "8.29",
+      "title": "8.29 — Enable the approved pilot through existing access and discovery owners",
+      "dependencies": [
+        "2.1",
+        "8.13",
+        "8.28",
+        "E1-ACCESS-B",
+        "E1-DISCOVERY",
+        "E1-ENV",
+        "E1-LAUNCHER"
+      ],
+      "sprint_key": "8-29-8-29-enable-the-approved-pilot-through-existing-access-and-d"
+    },
+    {
+      "delivery_id": "8.30",
+      "tracking_position": "8.30",
+      "title": "8.30 — Verify pilot health and record operational acceptance",
+      "dependencies": [
+        "8.29",
+        "E1-ACCESS-B",
+        "E1-ENV"
+      ],
+      "sprint_key": "8-30-8-30-verify-pilot-health-and-record-operational-acceptance"
+    }
+  ],
+  "status_file": "_bmad-output/implementation-artifacts/leave-sprint-status.yaml",
+  "generation_note": "BMAD strict parser cannot express named E1 or hyphenated owner partitions. A title-only projection of the authoritative 310 leaves supplies numeric tracking ordinals; source identities/dependencies/criteria remain unchanged."
+}

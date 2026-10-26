@@ -121,3 +121,19 @@ draft. The preceding detailed version/guard plan remains a requirement for consu
 that rely on timezone-dependent results, not an additional E1 save condition. Prefer
 source-field validation and simple nonblocking draft setup feedback. E1 retains current
 access/ownership and confirmed restrictions; no implicit UTC eligibility is introduced.
+
+## Current applicability selection — planning candidate 2026-10-26
+
+The [work/calendar contract](work-calendar-and-minute-precision.md#noncircular-current-time-timezone-selection)
+selects an explicit initial UTC anchor and predecessor-timezone-derived retained UTC
+transition boundaries, including midnight gap/fold and skipped-date behavior. This
+resolves the earlier circular-selection planning gap for timezone-dependent consumers.
+It does not restore business-setup requirements for lightweight E1 draft preservation.
+
+## Consolidated adoption — accepted 2026-10-26
+
+The user explicitly approved the completed consolidated planning package. The reviewed
+choices and bounds in this contract are adopted under [the acceptance decision](../decisions/0171-work-calendar-precision-and-retention.md).
+Earlier candidate/pending-review wording is historical and superseded for these choices.
+Actual implementation and provider/database/browser/recovery proof remain delivery work.
+The user requires a new Codex session before implementation; no runtime action here.

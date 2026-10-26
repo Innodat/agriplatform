@@ -117,6 +117,14 @@
   summary: Bound migration supervisor stdout buffering before allocation rather than checking wire size after communicate.
   evidence: Blind B2 verified against original7d1cd2b adapter; existing communicate buffers before4096 rejection. New fixed worker shapes remain small and deadlines/activation denials remain, but a hard memory ceiling requires separate supervisor transport work.
 
+- source_spec: `_bmad-output/implementation-artifacts/spec-scribeswell-collected-passages.md`
+  summary: Execute prepared collected-passage native SQL and actual-owner browser/independent SQL qualification in the final integration phase authorized by direction266.
+  evidence: Review V2 confirms SQL migration, forced-RLS roles, races, rollback, previous consumers and maximum200-entry execution cannot be established by current mocked/component checks;16 native tests were only collected. User explicitly deferred integration until implementation sequence ends. Do not claim database/release readiness before actual runs; this is timing deferral, not a pre-existing issue.
+
+- source_spec: `_bmad-output/implementation-artifacts/spec-scribeswell-workspace-tabs.md`
+  summary: Bound eviction of acknowledged unassociated Scribeswell note-cache lanes without disturbing live edits or operation recovery.
+  evidence: Review B5 confirms baseline05e4b70 already retains every opened note body in lanes.current until account/denial/delete/conflict discard; repeated ordinary note visits can grow account-lifetime memory. This predates workspace tabs; characterize resource-owned recovery and current-read behavior before choosing an eviction bound.
+
 - source_spec: `_bmad-output/implementation-artifacts/spec-kdg-own-capture-readback.md`
   summary: Qualify the KDG own-detail joined original questionnaire read against actual PostgreSQL during separately authorized native qualification.
   evidence: Blind B9 and verification VG1 show SQL-string doubles return prepared rows even if the original-version predicate is removed. Use two versions and an older owned capture plus restricted runtime role; current synthetic-only delivery explicitly excludes native/DB qualification and activation.
@@ -125,6 +133,14 @@
   summary: Qualify actual PostgreSQL own-history selection, original versions, keyset continuation and retained read after child deactivation or assignment removal during separately authorized native work.
   evidence: Verification VG1 shows SQL-string doubles independently filter rows and would not detect an unintended active-child/assignment predicate. Current delivery explicitly excludes native/DB qualification and activation; current authority and owner/date predicates still apply.
 
+- source_spec: `_bmad-output/implementation-artifacts/spec-scribeswell-workspace-restoration.md`
+  summary: Validate malformed note documents consistently at the existing Studies response boundary before preview/editor consumption.
+  evidence: Existing personal-notes request<T> casts parsed JSON; ordinary openStudy/moreNotes and the restored-outline consumer pass note.value to StudiesPanel.preview, which dereferences document.blocks. A success response with valid ownership IDs but missing/malformed blocks can throw. Qualify shared adapter behavior with malformed response tests across ordinary and restored consumers rather than adding a second restoration-only document schema.
+
 - source_spec: `_bmad-output/implementation-artifacts/spec-kdg-own-edit-context.md`
   summary: Qualify actual PostgreSQL protected own-edit context joins, runtime permissions and absence of durable mutations during separately authorized native work.
   evidence: Blind B4 confirms current context HTTP/loopback proof uses synthetic storage and does not establish actual role permissions, transaction behavior or read-only effects. User excludes PostgreSQL/native qualification now; this remains required before activation under the existing release safeguards.
+
+- source_spec: `_bmad-output/implementation-artifacts/spec-scribeswell-note-response-boundary.md`
+  summary: Investigate the existing mobile public-scroll checkpoint failure; underlying product defect is medium severity if confirmed and currently unverified.
+  evidence: Frozen affected run02 had743passes/2expected native skips/1failure16.4m: after the existing synthetic scroll gesture, native history anchor stayed verse3 instead of advancing. Source166-file SHA1b10e1a3fcd202a38f2c803949b5a4d7e9fdcffe155a732c82bada7736fe07a4. The anonymous scenario does not execute the changed Notes read/URL guards. Twelve geometry-instrumented repeats passed; diagnostics were removed without changing original gesture/assertions, then48focused repeats passed on exactly the same166-source manifest. This does not establish the original cause. Retain log/failure context; capture bootstrap completion, painted geometry, gesture delivery and entry ownership during a failing occurrence before attributing it to fixture timing or runtime. Broader suite qualification remains open.

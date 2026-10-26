@@ -14,6 +14,20 @@ sources:
 
 ## Foundation
 
+**Zero-unpaid response update — 2026-10-23:** Leave ADR-0162 closes an outstanding
+initial on-behalf response when an authorized change makes requested unpaid zero. Remove
+the required-response prompt; keep the actual allocation-change/closure history without
+showing employee acknowledgement. Display the actual Approved or still-pending outcome
+from fresh finalization. Later same-cycle unpaid changes notify without reopening response;
+fresh submission cycles apply initial rules. Existing permission and other gates remain.
+
+**Pending unpaid-change update — 2026-10-21:** Leave ADR-0151 supersedes earlier
+renewed-acknowledgement wording for later allocation changes to pending requests,
+including correction/adjustment examples below. Use explanation and notification without
+a new response gate. Initial own-submission and initial unpaid on-behalf response remain;
+new replacement/resubmission cycles retain applicable initial rules. Never infer consent
+from notification read state or silently convert approved paid leave to unpaid.
+
 Responsive web for desktop and phones. [DESIGN.md](./DESIGN.md) owns visual identity;
 [platform EXPERIENCE.md](../../../../platform/EXPERIENCE.md) supplies shared interaction
 conventions. Use the planned shadcn-based platform primitives and Lucide icons;
@@ -131,8 +145,8 @@ and their coverage; this clarification does not waive any approval/finalization 
 
 When reopening an older draft, preserve entered details and refresh balances and
 applicable rules. Explain changes beside the affected field or balance, without
-a separate Review draft screen. An increased unpaid amount requires acknowledgement
-before submission. Past dates follow existing backdating rules; they are not
+a separate Review draft screen. The current unpaid amount requires acknowledgement
+before initial own-request submission; later pending changes follow ADR-0151 notification. Past dates follow existing backdating rules; they are not
 automatically invalid merely because the draft was saved earlier.
 Passing the selected end date does not delete or discard the draft. Preserve details;
 explain current backdating restrictions beside the dates and require corrections only
@@ -329,9 +343,11 @@ upcoming and pending entries with status labels and keep past leave easy to find
 Apply existing own-request authorization and compact month presentation on small
 screens while retaining access to the history list.
 
-Keep calendar day cells uncluttered with subtle leave markers. Selecting a date
-reveals its requests with permitted type, duration, and status; selecting a request
-opens details. Use neutral shapes or patterns to distinguish pending and approved
+Keep calendar day cells uncluttered with subtle leave markers. Selecting an entry
+that identifies one request opens its details directly in the right-hand desktop
+panel or mobile page. Only a marker representing multiple requests opens a concise
+chooser first, showing permitted type, duration and status. Do not require a date-summary
+step before opening a uniquely identified request (clarified 2026-10-22). Use neutral shapes or patterns to distinguish pending and approved
 entries, with accessible text equivalents, rather than using the primary-action
 accent or colour alone. The List view exposes equivalent information directly.
 The approved employee-history mock illustrates the neutral markers and selected-date
@@ -344,7 +360,30 @@ the request details. On phones, group each request in a compact stacked row:
 dates and status on the first line, type and duration below, with subtle separators
 instead of heavy card borders or shadows. Avoid a horizontally scrolling wide table.
 
+### Employee request details and formal history
+
+Under L-0154, resolving an outstanding condition after all approval decisions exist
+triggers a fresh completion check. Show Approved only after confirmed finalization;
+otherwise retain pending status with its current reason. No Approve again or separate
+Complete request action is introduced. Opening/reading never triggers approval.
+
+Lead with concise current status/outcome and any genuine employee response needed.
+Keep formal decision history secondary in an expandable History section: actual actor,
+decision, time/comment and temporary acting-for attribution under L-0018/L-0147.
+Distinguish intermediate step acceptance from overall approval. Show rejection reasons
+directly, without requiring history expansion. Preserve prior resubmission cycles and
+normal desktop panel/mobile detail navigation and close return context. Internal absence/
+coverage arrangements and informal deliberation stay outside employee history; no new
+private comment or discussion-thread feature is introduced. This presentation refinement
+was agreed 2026-10-22; existing decision visibility remains unchanged.
+
 ### Approver queue
+
+Under L-0158, one confirmation covers consecutive steps assigned to the same currently
+authorized person where same-person satisfaction is permitted. Show which responsibilities
+it covers, without a repeated approval click. A configured two-distinct-person requirement
+instead flags same-person routing for an eligible replacement; preserve self-approval and
+all independent checks.
 
 Expose one Approver role in access management. Supervisor is a reporting
 relationship used for assignment, and final approver is a workflow position;
@@ -377,7 +416,8 @@ permission-controlled supporting-document status, then expandable approval histo
 Keep Reject and Approve visible at the bottom without obscuring content.
 
 Apply existing workflow-specific override and employee-acknowledgement gates;
-final approval must not proceed while required renewed acknowledgement is missing.
+final approval must not proceed while a required initial employee response is missing.
+Later pending allocation changes require notification without a renewed-response gate (ADR-0151).
 Preserve the distinction between intermediate approval and final consumption.
 The layout does not grant document access or permission to decide an override.
 
@@ -399,13 +439,15 @@ omitted supervisor step Not required under absence policy, not Approved. Retain
 at least one valid approval, actual decision-maker attribution, self-approval and
 other finalization checks. Apply absence conditions when approval is needed, not
 on the applicant's leave dates. When both configured approvers are absent,
-the temporary final approver may decide alone if their appointment explicitly states
-May approve without the supervisor's step when the supervisor is absent. Include
-this in the assignment review as a scoped temporary responsibility; preserve
-self-approval restrictions. Do not require two substitutes solely for these steps.
+the eligible temporary final approver follows the same applicable configured absence
+policy as the original final approver, without another appointment checkbox or separate
+fallback responsibility. Show the policy consequence in normal assignment review.
+Disabled fallback retains both steps; preserve appointment scope/dates, self-approval
+and every independent finalization gate. Do not require two substitutes solely for a
+validly omitted step. See Leave ADR-0146, accepted 2026-10-21.
 
 In coverage review, recognize an available, policy-authorized final approver or
-explicitly authorized temporary final approver as valid coverage for the supervisor
+eligible appointed temporary final approver as valid coverage for the supervisor
 responsibilities they can handle alone. Do not request a duplicate substitute for
 those responsibilities. Separately surface any remaining responsibilities needing
 a substitute or explained exception.
@@ -464,10 +506,14 @@ this is not the complete multi-source funding editor.
 Show requested amount, available paid balance, and shortfall together, with unpaid
 leave as the default proposal. An actor with override permission can accept that
 proposal or specify an authorized alternative allocation, with a mandatory reason.
-Preview the resulting paid/unpaid split before confirmation. Preserve existing
-authorization for each funding source and employee acknowledgement requirements.
-Keep this decision separate from ordinary approval; permission to approve a
-request alone does not grant override authority.
+Preview the resulting paid/unpaid split before confirmation. Under Leave ADR-0150,
+one scoped exceptional-funding capability covers permitted sources; validate each
+source's eligibility/ownership/amount as business rules, not separate permission
+checkboxes. Retain employee acknowledgement requirements. Ordinary approval alone
+does not grant override authority. An actor authorized for both may use one Approve
+with exception confirmation, with one exception reason and atomic recorded funding/
+approval outcomes. An exception-only actor confirms funding without approving a step.
+Use existing records/activity/audit, not another workflow or log system.
 
 Retain a single employee request with an explicit paid/unpaid split and exact
 unpaid-amount acknowledgement. Do not require a separate unpaid request for the
@@ -476,14 +522,14 @@ entitlement after protected reservations; extra paid funding requires its own
 authorized, recorded exception. Discretionary grants take an entered amount,
 subject to permitted units and funding limits, rather than a fixed one-day value.
 
-Keep the override, revised allocation and employee response within the existing
-request. An increased unpaid amount produces a notification and **Your response
-is needed** on My Leave. Show previous/revised amounts, actor and reason. The
-approver sees **Waiting for employee acknowledgement** and final approval cannot
-complete until the employee acknowledges the current amount. Intermediate steps may proceed when otherwise authorized; missing acknowledgement alone does not block them
-or erase prior decisions. An unchanged or decreased unpaid amount needs no renewed
-acknowledgement. The response satisfies this finalization gate; it does not approve
-leave or create another workspace.
+Keep overrides and revised allocations within the existing request. Under Leave
+ADR-0151, later increases/decreases receive reviewed explanation and notification,
+not Your response is needed or Waiting for employee acknowledgement solely because of
+the change. Show previous/revised amounts, actor and reason in authorized details.
+The change-maker handles necessary discussion; no extra communication checkbox/task.
+An initial unpaid on-behalf response remains employee-only and blocks finalization
+while outstanding; later changes must not silently dismiss it. Once satisfied, it is
+not renewed for later changes. Preserve valid decisions and other finalization gates.
 
 ### Leave Manager home
 
@@ -608,6 +654,21 @@ is off work. Holiday and absence markers must not bypass existing privacy rules.
 
 ### Leave Manager escalated approvals
 
+L-0160: an eligible permanent supervisor replacement takes the affected employee's
+unfinished supervisor work even during temporary cover. Keep unrelated valid cover
+responsibilities; later expiry cannot send transferred work back to the former supervisor.
+Use existing change review/activity and actual queue/decision attribution.
+
+L-0157 avoids a burst of old reminders after technical interruption: at most one current
+catch-up per outstanding approval, with a previously missed single escalation if due.
+Resume normal scheduling; this adds no technical recovery task for employees/managers.
+
+Under L-0155, repeat approver reminders at the configured interval (default three
+calendar days); notify managers once at the escalation threshold (default seven days).
+Keep unresolved escalation visible without recurring manager notices; approver reminders
+continue under existing current-action rules. No additional reminder configuration UI
+is introduced beyond the interval/threshold already agreed.
+
 If a temporary approver becomes unavailable after the covered employee's leave is
 approved, retain the leave approval and show Replacement approver needed to
 authorized Leave Managers. Require authorized reassignment; do not automatically
@@ -626,6 +687,14 @@ responsibilities and dates; do not require a permanent Approver role first. Show
 what authority is being granted and record actor/reason/scope/dates. Retain absence,
 membership, and self-approval checks. Do not grant separate medical-document access
 or unrelated approval/editing powers. The temporary authority ends at expiry.
+
+Person-first appointment clarification — agreed 2026-10-21: start with the intended
+colleague, agreed by the departing approver and/or supervisor, then responsibilities
+and dates. The authorized manager selects the person; Leave checks that choice and
+explains conflicts for adjustment or a different selection. No automatic substitute
+search, ranking, recommendation or appointment. A suggestion grants no appointment
+authority. Coverage assessment identifies gaps in explicit arrangements/configured
+fallback; it does not select replacement people.
 
 Notify the temporary approver by email and in-app on appointment, changes, and
 early termination. Include whom they act for, assignment dates, and a link to
@@ -655,8 +724,9 @@ approvals remain unchanged.
 The approved assignment layout groups original/temporary approver, dates, explicitly
 granted responsibilities, pending-request selection, required reason, and conditional
 return at expiry. Review assignment shows a plain-language summary of these effects
-before Confirm temporary approver. For temporary final approval, explicitly state
-whether supervisor-absence single approval is included. The prototype reference is
+before Confirm temporary approver. For temporary final approval, explain whether the
+applicable workflow policy permits supervisor-absence single approval; do not add an
+appointment-level fallback option (Leave ADR-0146). The prototype reference is
 [temporary approver](./mockups/temporary-approver-wireframe.html); its fixed sample
 values and preview dialog are not production behavior.
 
@@ -670,9 +740,14 @@ An authorized extension before expiry postpones the return. This is a scheduled
 transfer authorized at setup, not an unannounced directory-driven reroute.
 
 Queue rows show employee, leave dates, current assigned approver, and time awaiting
-action. Opening an item shows the request and escalation history. Show Reassign
+action. Under L-0156, waiting time follows the same unfinished step through
+transfer; it does not restart with the receiving approver. Notify them of the assignment
+immediately through existing delivery. Keep an existing escalation visible without
+another escalation notice solely due to transfer. A different actionable step has its
+own clock. Opening an item shows the request and escalation history. Show Reassign
 approver only with existing rerouting permission; require a reason and preserve
-earlier decisions. Apply the active NGO scope and existing permission checks to
+earlier decisions. The standard Leave Manager role includes this permission within
+its organization by default (L-0153); restricted custom roles may omit it. Apply the active NGO scope and existing permission checks to
 both display and action. Escalation alone grants no approval or rerouting authority.
 
 ### Administrative leave correction
@@ -707,6 +782,13 @@ person can edit and resubmit the rejected replacement under the existing resubmi
 rules, preserving history. Keep the unresolved historical record visible for follow-up.
 
 ### Apply on behalf
+
+Default-role clarification — accepted 2026-10-21, Leave ADR-0149: the standard Approver
+role includes scoped initial on-behalf submission, so ordinary setup needs no extra
+grant per approver. Custom approval-only roles can omit it; temporary appointments
+alone do not supply it. Gate employee lookup and Submit for employee by the actual
+current capability/target scope, not role names. Do not grant broader correction,
+funding or medical-document access through this convenience default.
 
 [On-behalf preview](mockups/apply-on-behalf-preview.html) places the authorized
 employee picker first, followed by persistent employee/recording-actor context,
@@ -834,7 +916,9 @@ Keep approval requirements separate from the source of supervisor assignments.
 Maintain supervisor assignments manually in shared employment for MVP; future shared Microsoft Graph directory
 integration may populate them without replacing Leave's approval rules. Preserve
 authorized overrides, flag missing/invalid assignments, and retain NGO/approver
-eligibility checks. Do not silently reroute pending requests on directory changes.
+eligibility checks. Effective supervisor changes transfer unfinished supervisor steps
+under platform ADR-0060/Leave ADR-0147 with disclosed effect; other routing changes
+retain their specific authorization rules.
 
 Leave-type retirement — accepted 2026-10-15 under Leave ADR-0132: display Active/Inactive
 and Deactivate. Show current/scheduled dependencies and block while policy assignments
@@ -1105,6 +1189,13 @@ employee schedule defaults now use the work-profile pattern described above.
 
 ### Reports
 
+Temporal reporting clarification — accepted 2026-10-25, Leave ADR-0169: show the
+selected effective balance date and generation context; historical balances reflect
+corrected known history rather than rewriting original decision evidence. Staffing
+overview/upcoming/aging use current groups; dated balances use their date and used
+leave uses per-leave-date groups, splitting changed teams without duplicated minutes.
+Other effective-date report rows use that date. Current access remains independent.
+
 Start with a simple list of the existing MVP reports. Open each with relevant
 filters, results, and Export CSV where permitted. Export uses the same date range,
 filters, NGO scope, and privacy rules as the displayed results, through the
@@ -1185,7 +1276,9 @@ shared employment owns optional manual supervisor, department and location assig
 Use optional selectors with an unassigned choice; these describe organization-specific
 employment. Missing department/location does not block the employee or draft. A missing
 or ineligible supervisor blocks only a route that requires one. Leave resolves and
-snapshots eligible approvers at submission; changes do not silently reroute requests.
+records required steps/policy at submission; effective supervisor changes move unfinished
+supervisor steps to the eligible replacement under platform ADR-0060/Leave ADR-0147.
+Preserve completed decisions and independently selected final steps.
 Location changes do not silently replace Leave work profiles or overrides. The same authorized employee-settings surface may compose both
 owners through their contracts. No cross-silo imports or implemented shared directory
 are implied by the visual example. Generic tenant labels use Organization under
@@ -1195,7 +1288,8 @@ Supervisor replacement agreement — 2026-10-11: use the shared
 [focused supervisor-replacement flow](../../../../platform/EXPERIENCE.md#focused-supervisor-replacement--mvp-agreement-2026-10-11)
 from employee administration, with selection, effective date and reviewed confirmation.
 Keep Leave's route-eligibility/setup guidance distinct from the People-owned relationship
-write. Pending approvals retain snapshots and use a separate authorized selected transfer;
+write. Under ADR-0147, review explains that unfinished supervisor steps follow the eligible
+replacement at the effective change without a separate transfer action;
 no role grant or completed-decision rewrite occurs automatically. Existing setup filters
 suffice; no new report or general mass editor is required.
 
@@ -1260,6 +1354,15 @@ and pending reservations are already included, and which requests transfer. The
 preview reconciles these together so request effects are counted once. Follow
 the migration runbook linked from the Leave application README; do not add client UI for
 these source-mapping tasks.
+
+Import execution clarification — accepted 2026-10-25 under Leave ADR-0170:
+consultant results disclose freshly verified pending approval cycles, required initial
+employee responses and actual activation-time waiting clocks. Source decisions remain
+historical evidence; old completed notices are not replayed. Apply is atomic per
+employee with explicit resumable progress; staged imported work is unavailable to
+ordinary users until exact-batch reconciliation and authorized activation. Current
+pending notices then use the normal notification system. No client confirmation UI,
+new public request status or synthetic grant is introduced.
 
 ### Notification inbox
 
@@ -1454,22 +1557,15 @@ details, including stale details from a prior authorized view. Offer Back to My
 Leave only if the user retains application access. Do not imply that a request
 has been deleted when the actual condition is lack of current authorization.
 
-### Revised unpaid amount needs employee acknowledgement
+### Revised pending unpaid amount — explain and notify
 
-[Response-screen preview](mockups/revised-unpaid-acknowledgement-preview.html)
-shows the agreed five-day request changing from three paid plus two unpaid days
-to two paid plus three unpaid days. Layout approved on 20 September 2026; actions are
-illustrative and do not persist changes.
-
-Lead with Your response is needed. Show the previously requested unpaid amount
-and revised requested unpaid amount, followed by Changed by and the explanation.
-Provide an explicit checkbox acknowledging the exact revised amount and an
-Acknowledge action. Example: I acknowledge that 3 days are now requested as unpaid
-leave. Keep Withdraw request available for eligible pending requests.
-
-Acknowledgement satisfies the required employee response so final approval can complete;
-it does not approve leave. Recheck the current amount before recording the response
-and preserve the existing actor/reason/acknowledgement audit history.
+[Revised-allocation preview](mockups/revised-unpaid-acknowledgement-preview.html)
+retains its historical filename; current behavior follows Leave ADR-0151, accepted
+2026-10-21. Show Updated leave request, previous/revised allocation, Changed by and
+explanation. No renewed acknowledgement checkbox/action or waiting-response badge.
+Retain Close and eligible Withdraw request. Employee notice links here without exposing
+amounts/reasons in the notification payload. This does not remove an outstanding initial
+unpaid on-behalf response or create one for a request initially submitted fully paid.
 
 ### Change approved leave
 
@@ -1486,7 +1582,20 @@ and exact unpaid-amount acknowledgement rules apply. The combined operation must
 not leave a cancelled original merely because replacement validation failed;
 architecture must define consistency and retry behavior before implementation.
 
+### Pending withdrawal versus rejection
+
+Under L-0161, offer pending Withdraw request only to its employee owner, including
+on-behalf-created requests. Do not add manager withdrawal for another employee.
+Assigned authorized approvers use Reject with visible reason; unassigned managers use
+the existing permitted reassignment flow. Keep labels, history and actor intent distinct.
+
 ### Rejected request and resubmission
+
+Under L-0159, autosave corrections on the existing rejected request and reopen saved
+edits when the employee returns. Keep original submitted/rejected history and any
+separate new-application draft intact. No finish/discard requirement for the ordinary
+draft. Saving does not reserve or restart approval; explicit Resubmit starts the fresh
+cycle. Apply the established autosave feedback/Retry/exit and revision/lifecycle rules.
 
 Show the rejection reason prominently with Edit and resubmit. Open the request
 form with previous details filled in, allowing the employee to correct them,
@@ -1497,6 +1606,19 @@ Prior decisions remain historical, not approvals of the revised submission.
 Existing validation, permissions, and unpaid-amount acknowledgement still apply.
 
 ### Approved-leave cancellation confirmation
+
+Default authority accepted 2026-10-22 under Leave ADR-0152: employee own future approved
+cancellation; standard Approver scoped future cancellation with reason and employee
+notice; Leave Manager ongoing/past correction under correction authority. Temporary
+appointment alone supplies no cancellation grant; custom approval-only roles may omit
+it. Show actions from current capability, employee scope and time/lifecycle eligibility,
+not role names. Under accepted Leave ADR-0168 (2026-10-25), future eligibility ends
+on the first recorded requested date in the employee's current verified work timezone,
+including partial-day and multi-date requests. Change leave uses the same boundary;
+no exact absence time or future-tail edit is inferred. Standard Approvers use current
+ordinary supervisor/configured-final responsibility for the target employee/policy,
+not a historical decision, temporary appointment or fallback population. Separate
+cancellation and replacement-creation capabilities remain required.
 
 Identify the leave type and dates under Cancel this leave? Show the restored
 amount, any applicable accrual correction or expiry effects, and resulting
@@ -1560,8 +1682,9 @@ lost. Existing revalidation and exact unpaid-amount acknowledgement rules apply.
 Use We couldn’t submit your request. Your entered details are still here for a
 confirmed failure, with Retry. For an unknown result, use We’re checking whether
 your request was submitted and prevent another submission while checking. If
-checking cannot finish, use We couldn’t confirm submission. Reconnect to check
-again with Check status. Keep feedback beside the bottom actions rather than
+checking cannot finish, use We couldn’t confirm your submission. Please try again,
+with Retry. Retry first resolves the original operation; an unknown outcome never
+authorizes another submission (Leave ADR-0148). Keep feedback beside the bottom actions rather than
 only in a disappearing toast. Do not close the form until success is confirmed.
 
 
@@ -1713,10 +1836,10 @@ Failure / limits: A changed request stops the decision and retains the comment. 
 
 1. Sofia opens the shortfall in Ana’s existing pending request with the required override permission, chooses a permitted allocation and records a reason.
 2. She reviews and confirms the revised split. In this example an authorized correction changes 3 paid + 2 unpaid days to 2 paid + 3 unpaid days; a new request cannot displace Ana’s existing reservation.
-3. Ana receives a notification and opens Your response is needed on My Leave. She sees the previous/revised split, Sofia’s name and explanation, and acknowledges the exact current 3 unpaid days.
-4. **Climax:** acknowledgement clears the final-approval gate; remaining required decisions still apply. João sees Waiting for employee acknowledgement until the response is recorded. Intermediate steps may proceed when otherwise authorized; acknowledgement never substitutes for his decision.
+3. Ana receives a notification and opens the updated request. She sees the previous/revised split, Sofia’s name and explanation; no renewed acknowledgement is required (ADR-0151).
+4. **Climax:** the authorized change records explained funding and notification; no new employee-response gate is added. João still checks all required decisions and independent finalization conditions, including an initial unpaid on-behalf response if genuinely outstanding.
 
-Failure / limits: Recheck the unpaid amount before recording acknowledgement; a stale amount cannot satisfy the current requirement. Keep eligible withdrawal available. No renewed acknowledgement is needed when unpaid leave stays the same or decreases. An uncertain confirmation follows the shared recovery rules; no separate workspace is introduced.
+Failure / limits: Protect current reviewed allocation and change retries; preserve valid decisions and eligible withdrawal. Increases/decreases introduce no renewed response gate (ADR-0151). Existing initial unpaid on-behalf responses remain separate. No extra workspace or communication-confirmation checkbox.
 
 ### 4 — Request lifecycle: Sofia corrects Ana’s returned-early leave
 
@@ -1753,7 +1876,7 @@ Failure / limits: No leave differs from no filter matches or failed loading. Sea
 ### 7 — Approval cover and planned absence: Sofia appoints João for Maria
 
 1. Sofia selects an active same-NGO temporary approver, original approver, dates and exact responsibilities, checking overlaps and absence.
-2. She chooses pending requests to transfer, records the reason and reviews conditional expiry return; special supervisor-absence authority must be explicit.
+2. She chooses pending requests to transfer, records the reason and reviews conditional expiry return; a temporary final approver follows the applicable configured absence policy without an extra appointment option (ADR-0146).
 3. **Climax:** Confirm temporary approver grants only the appointed scope/dates without a permanent-role prerequisite, and sends minimal appointment notifications. João sees ordinary Approvals with Acting for Maria.
 
 Failure / limits: An unavailable original at expiry leaves work pending and flagged; authority does not auto-extend. Early termination requires reason and destination preview, may leave coverage unresolved, and never cancels already-approved leave.

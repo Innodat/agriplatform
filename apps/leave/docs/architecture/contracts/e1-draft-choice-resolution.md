@@ -164,3 +164,11 @@ Scaffold impact stays generic (scoped reference, published-version fixture, type
 Leave owns codes, modes and choice semantics. No new UI, agent policy or ADR required.
 Exact migration/role/trigger implementation, failure mapping, command/evidence shape and
 executable contract tests remain readiness work. No tables or fixture data were created.
+
+## Governing-source interface link — 2026-10-25
+
+[Configuration/rule inputs](leave-configuration-and-rule-inputs.md) binds E2/E3 effective
+assignment/profile/calendar references consumed by E5. It preserves this contract's offered
+metadata versus governing policy distinction. E1 draft reads/saves gain no consequential
+policy/work-configuration prerequisite; dependent E3/E5 consumers own actual version/rule
+integration. No existing E1 schema or choice pointer semantics changed.

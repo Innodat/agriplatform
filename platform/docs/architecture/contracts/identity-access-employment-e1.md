@@ -1221,3 +1221,469 @@ Agent context/ADRs: existing ownership and authorization rules suffice. Docs: re
 Access caller matrix, typed schema and owner projection/privileges with this contract.
 Exact bounds, provider revocation semantics and executable proof remain readiness gates;
 no endpoint, migration or runtime security evidence exists from this planning change.
+
+
+## Consequential People change attempts and cancellation fence — E5 candidate, 2026-10-23
+
+**Shared-owner technical proposal within the approved prepare-before-source direction;
+not an accepted new ADR, implemented protocol or expansion of E1's read-only slice.**
+This binds cancellation safety for later consequential employment/period/supervisor writers
+under P-0060 and the [Leave coordination contract](../../../../apps/leave/docs/architecture/contracts/e5-request-command-and-finalization.md#people-change-coordination-direction--approved-2026-10-23).
+Leave still owns request consequences; People owns facts and the source commit fence.
+
+### Minimal owner-local attempt identity and state
+
+Register a durable People-owned change attempt after explicit source confirmation and
+current authorization, before requesting Leave preparation. Bind its immutable identity
+to organization, executor/initiator, original operation ID, typed source command/version,
+source relationship/expected revision and canonical submitted input fingerprint. Its
+closed state is `registered`, `committed` or `cancelled`. Registration changes no employment
+fact/revision and is not the source command's committed-success receipt. Reuse existing
+owner operation mechanisms where they represent this state safely; do not create a
+platform-wide transaction service or duplicate employee master.
+
+A successful Leave preparation is associated with that exact attempt/source revision and
+reviewed change through restricted service calls. Persist the preparation identity/evidence
+in People before source commit. Immutable input binding prevents another request from
+reusing it for a different employee, effective date, supervisor or reviewed consequence.
+Current authorization for a genuinely new/restarted human execution remains mandatory;
+reconciliation of an already committed fact has its narrow service authority.
+
+| Current state / operation | Required atomic owner-local behavior |
+| --- | --- |
+| registered / commit | Lock the attempt and actual source in the declared owner order; require exact registered state, expected source revision and required bound Leave preparation; commit fact/history/revision/source outcome/consequence intent plus `committed` state together |
+| registered / cancel | Lock that same attempt; transition to `cancelled` durably without mutating the source fact; return its original identity and definitive cancellation state |
+| committed / cancel | Return truthful already-committed source outcome/version; cancellation cannot erase or reverse the fact. Leave must reconcile its actual consequences |
+| cancelled / commit, including delayed retries | Refuse execution; never recreate/re-register the same original attempt/operation as fresh. No source effect or committed-success receipt |
+| committed or cancelled / matching repeat | Return that original terminal state/outcome through current permitted access; no new mutation |
+
+Commit and cancel must contend on the same actual owner row/conditional transition. The
+winner determines a durable terminal state. Expected source revision also prevents a
+concurrent different attempt from overwriting changed source facts. This fencing baseline
+uses stable attempt identity and retained terminal state; no additional wall-clock lease
+or global generation counter is required solely to invalidate a cancelled attempt.
+The registration/cancel state is not itself a claim that an absent source outcome failed.
+
+### Safe release and recovery across owners
+
+Leave can release its prepared gate only after either (a) it has authoritative cancelled
+state for the exact attempt, or (b) authoritative committed source version and its required
+Leave consequences are reconciled. No remote wait occurs while either owner's business
+transaction is locked. Cancellation takes effect at People's local transition, not when
+Leave starts the HTTP call or a browser stops waiting.
+
+If commit wins, recover/apply consequences; if cancel wins, any delayed commit fails. If
+cancellation response is lost or People is unavailable, keep the gate and resolve the
+original attempt through bounded recovery. A missing record/read timeout is not cancellation.
+Never drop the gate because a timer elapsed while a registered attempt can still commit.
+An operational deadline may trigger cancel/reconciliation, but does not independently
+make release safe. Concrete exceptional-outage limits and alerts remain open.
+
+A preparation message or response can arrive after People cancelled. Any resulting Leave
+gate remains tied to that terminal attempt and is reconciled/released from authoritative
+cancelled state; it cannot resurrect source rights. A crash before Leave preparation may
+leave a registered source attempt with no fact change; cancel it through the same owner
+transition. After source commit, durable consequence intent/reconciliation resumes work;
+it does not edit the original immutable success result to pretend all owners committed
+atomically. No automatic rollback of another owner's committed employment fact.
+
+Retain terminal attempt evidence while supported delayed retries/messages can use the
+identity. No cleanup/TTL can recreate a cancelled operation or make old work fresh.
+Service authentication, consumer registration and scope must prevent an arbitrary app
+from preparing/cancelling another consumer's change. This candidate defines no public
+employee-master endpoints or new end-user cancellation screen.
+
+### Required proof and unresolved shared bindings
+
+Actual People/Leave suites must force both commit/cancel orderings, delayed old commit,
+late preparation after cancellation, unknown cancellation response, concurrent different
+source attempts, wrong attempt/version/scope, source-commit response loss and failed/resumed
+Leave consequence. Inspect real source history/outcome/attempt state and Leave gate/current
+approval authority; mock response order is not sufficient. Map this into E5-WRITER-02 and
+the real 5.15-K/5.24 producers without duplicate generic test suites.
+
+Exact People attempt storage/API/error schemas, protected owner row order, source-to-Leave
+affected subjects, consumer registration, future-effective boundaries, cancellation/service
+authority, execution/recovery deadlines and ADR adoption remain open. Shared architecture
+acceptance and implementation readiness are not asserted by this technical candidate.
+Scaffold impact is proven owner-local outcome/conditional-transition and restricted HTTP
+helpers; no shared runtime coordinator, UI surface or new agent rule is introduced.
+No code, tests, source edits, migrations or deployment occurred.
+
+
+## Affected subjects and future-effective observations — E5 candidate, 2026-10-23
+
+**Refines the source-attempt candidate; shared adoption and exact in-flight bounds remain
+open.** A People change names exact source employment relationships/items and old/new
+source values under its expected revision. The selected batch is not an organization-wide
+scope and a reviewed pending-request list is not the permanent affected population.
+
+| Source change | Required affected-subject discovery |
+| --- | --- |
+| One supervisor edit | Changed employee's unfinished supervisor responsibilities plus old/new supervisor applicability; preserve completed decisions and independently configured final steps |
+| Selected/planned replacement | Exact selected employment relationships as independent identified items; per-item source revision/outcome and Leave consequence, not everyone with the previous supervisor |
+| Employment end/period correction/rehire | Subject employee's relevant requested-date eligibility and accounting; additionally responsibilities/temporary cover where that person's eligibility is consumed by Leave. End-date treatment stays inclusive under the actual dated employment contract |
+
+People provides authorized source scope/evidence; Leave discovers its own current requests,
+responsibilities and appointment applicability. Neither owner reads the other's tables.
+Preparation locks/protects the relevant local membership identities and re-enumerates
+current work, including requests created since review. A materially changed reviewed
+consequence returns for existing renewed confirmation; do not silently broaden a selected
+People change or treat an old list of request IDs as permission to omit later work.
+Permanent replacement during temporary cover follows L-0160's per-responsibility precedence;
+no whole-appointment termination or later return to the superseded supervisor.
+
+### Record schedule now; enforce effective facts at the boundary
+
+Recording a future source change participates in the prepare/commit/reconcile protocol
+now. Reconciliation installs sufficient source revision/effective-boundary evidence for
+Leave to invalidate stale observations and handle future work. Then release the technical
+gate: do not hold a pending-change gate for days until the scheduled date, and do not
+apply future supervisor authority early. The installed evidence is a subordinate workflow
+observation, not another editable employment master.
+
+A dated/current consequential People observation needs actual source revision, effective
+source value, interpretation date/instant and next relevant effective boundary (or explicit
+none). Changes to a schedule/amendment/cancellation participate again and invalidate the
+old evidence. People owns normalization of supervisor effective instants and the declared
+timezone/version for date-only schedules. Do not choose the browser timezone or silently
+reuse Leave work timezone for every People fact. Employment eligibility still uses the
+requested work dates and inclusive period interpretation from the existing owner contract.
+Exact typed source response and date-only timezone rule remain adoption gates.
+
+A Leave execution that reaches a known boundary must obtain/reconcile the now-effective
+source observation before a new consequential authorization check. Its protected local
+check verifies both the installed source revision and whether the prepared observation's
+effective interval still contains the evaluation instant. If not, roll back/reprepare
+outside locks; never call People while holding the business transaction. A stale worker or
+queue cache cannot authorize the previous supervisor. Queue/transfer recovery may update
+stored unfinished assignments later, but an obsolete assignment cannot supply authority
+in the meantime. Unverifiable replacement yields pending/retryable attention under existing
+rules, not continued former authority or a skipped step.
+
+### Explicit remaining boundary decision
+
+A transaction can perform a valid final authorization check just before an effective
+instant and commit just after it. The existing Access bounded-in-flight exception does
+not automatically decide this People-domain case. Candidate recommendation: define the
+protected final check as the consequential authorization instant, bound the remaining
+transaction duration, and permit that already-validated decision to finish; any check at
+or after the boundary requires the new effective facts. Exact maximum duration and the
+accepted domain rule must be bound before this is claimed resolved. Do not claim a
+zero-delay physical commit cutoff or treat a preview/start-time check as final authority.
+This candidate is not yet an approved extension of in-flight supervisor authority.
+
+Required cases cover current edit with intervening new request, exact selected batch,
+future schedule before/at/after boundary, worker unavailable, amended/cancelled schedule,
+old/new/temp actors, employment rehire/date range and old observation crossing the
+boundary during execution. Inspect source/item versions, current deciding eligibility,
+immutable prior decisions and actual per-owner outcomes. No new universal polling worker,
+source duplication or additional end-user transfer confirmation is proposed. Actual
+consumer registration/discovery indexes/HTTP schemas, timezone and in-flight rule/budgets,
+shared ADR adoption and runtime evidence remain open; no implementation/tests occurred.
+
+
+### Leave supervisor-boundary rule accepted — 2026-10-23
+
+The user accepted the protected-final-check recommendation for Leave, recorded in
+[Leave ADR-0163](../../../../apps/leave/docs/architecture/decisions/0163-protected-authority-check-at-supervisor-boundaries.md).
+This resolves only that consumer's permanent-supervisor in-flight semantics: a valid final
+protected check before the boundary may finish its short bounded transaction afterward;
+checks at/after require the new effective facts, and restarted execution rechecks. Existing
+decision evidence retains evaluation instant/source basis. It does not approve the whole
+source-attempt protocol, set a numerical duration, extend Access/temp authority or impose
+a policy on other apps. Earlier pending language for this specific rule is superseded;
+all other source/schema/registration/timezone/budget/adoption/evidence gates remain open.
+
+
+## Restricted People–Leave coordination callers — E5 candidate, 2026-10-23
+
+**Internal HTTP caller policy proposal under the existing owner boundaries; no new human
+role or permission.** People alone writes its employment/period/supervisor facts and
+source attempt state. Leave alone writes its requests, assignments, local gates and
+consequences. Neither service nor its worker receives the other's database credentials.
+An external organization ID, actor ID or operation UUID is never sufficient authority.
+
+| Internal caller -> owner operation | Required bounded authority |
+| --- | --- |
+| Leave API -> People dated/current facts | Existing authorized consumer/user/domain scope; return only required employment/supervisor/version/boundary facts, not a general employee export |
+| People source API -> Leave prepare | Registered People source producer, verified exact registered source attempt/item and current human source-management confirmation context; Leave checks actual requested consequence scope |
+| People -> Leave reconcile notification | Restricted source-consequence producer and exact durable committed item/version; notice is a hint, not self-authenticating authority or a replacement for authoritative outcome verification |
+| Leave API/reconciler -> People attempt outcome | Registered Leave consumer, exact bound attempt/organization/source relationship; compact state/committed version only, not arbitrary human operation lookup or source input/history enumeration |
+| Leave reconciler -> People cancel registered attempt | Explicit consumer-scoped recovery capability for an attempt already bound to that consumer's preparation; People performs the commit-versus-cancel transition. Cannot alter source values, cancel unrelated work, undo committed facts or issue a replacement source command |
+| Leave own reconciler -> Leave apply/release | Owner-specific service identity and exact claimed durable causal work; verify source state/version then apply only required local effects. No human Approve, employee response or exceptional funding through service identity |
+
+A person may use the already authorized People source workflow to cancel/recover their
+uncommitted change where its owning command permits it; this table introduces no new
+browser endpoint or access to internal cancel calls. A user role named Leave Manager or
+Approver does not imply employment-management rights or backend service credentials.
+
+### Registration and environment policy
+
+Provision a small deployment-owned allowlist of producer/consumer identities, environments,
+exact operation families and supported protocol versions. This is service configuration,
+not a customer-managed permission screen, dynamic plugin registry or new runtime service.
+Use distinct caller credentials/identities per owner and environment; restricted workers
+follow P-0026. Existing E1 Leave own-read/manage caller admission does not automatically
+permit these later source/worker operations. Extend caller policy explicitly with the
+consuming stories and test denied unrelated calls. Do not reuse a universal platform key.
+
+For relevant organization source edits, preparation participation follows the registered
+active consumer's actual dependency scope. Enabling Leave must reconcile current source
+versions/schedules before consequential commands activate. Disabling browser access does
+not silently abandon an already committed source's consequence intent or an unknown
+attempt/gate: narrow registered recovery may finish/cancel that original work without
+reviving user access. Retiring a consumer requires resolving/fencing its outstanding
+attempts before withdrawing required participation. Exact enable/disable/retirement
+handshake and supported-version activation evidence remain to be bound.
+
+### Human execution versus durable recovery
+
+Source creation/commit is a protected human command with current People/Access authority;
+caller authentication cannot impersonate an arbitrary employee or manufacture approval.
+Queued/restarted human execution rechecks current permission. A recovery identity may
+observe/cancel an already registered attempt or complete consequences of an actual commit;
+it cannot relabel a delayed unauthorized human source edit as service work. Record actual
+executor and original initiator separately. Cancelling uncommitted work is not permission
+to commit its proposed employment change after the initiator loses authority.
+
+Derive scope from stored attempt/preparation/work ownership plus verified service policy,
+not solely request headers/body IDs. People cancellation is allowed only for the exact
+bound consumer; source human authority and consumer scope remain distinct. Confused-deputy
+cases (wrong consumer, organization, employee, attempt/version or environment) fail before
+protected details are disclosed. Unsupported protocol versions retain work for investigation
+and block unsafe activation, rather than dropping required consequences.
+
+Preserve existing machine-readable denied versus unavailable outcomes, redacted credentials
+and safe operation/trace links. Credentials and full source change payloads never enter
+logs or browser responses. Pin actual authentication transport/credential provisioning to
+the owning service integration before delivery; Access's existing X-Service-Key convention
+is not automatic authority for every People/Leave endpoint.
+
+### Evidence and completion limits
+
+Actual owner suites exercise valid paired calls, user-only credential rejection, wrong
+service/environment/consumer, forged scope, unrelated attempt lookup/cancel, current human
+revocation versus legitimate committed recovery, disabled app with pending reconciliation,
+protocol mismatch and denied cross-owner DB access. E5-WRITER-02/AUTH-01 reference real
+owner cases; no duplicate generic authorization service is introduced.
+
+This candidate allocates callers and least authority, not final route/error/schema/credential
+implementation or full protocol adoption. Exact consumer admission lifecycle, HTTP schemas,
+source version/effective-time payloads, execution budgets and real rollout evidence remain
+open with architecture acceptance and readiness. Scaffold reuses proven restricted HTTP
+clients/attribution; no shared UI/agent-context or accepted ADR changes are required.
+No credentials, grants, code, migrations, runtime tests or deployment were changed.
+
+
+## Leave participation across access disable/re-enable — E5 baseline, 2026-10-23
+
+**Clarifies the agreed distinction between organization app access and individual
+membership/grants; no new configurator control.** Access alone owns global/organization
+Leave admission under P-0046. Source coordination is a separate deployment/owner obligation:
+Access's enabled flag is not an instruction to unregister the People–Leave consumer.
+
+| Situation | Required behavior |
+| --- | --- |
+| Before first Leave adoption | Install supported restricted caller policy and participating People source writers, initialize Leave's source/boundary observations and reconcile adoption work before admitting consequential Leave commands |
+| Organization/global Leave access disabled | Enforce Access's existing new-action denial and bounded in-flight rules; retain drafts/grants/data. Do not remove source participation or credentials needed for narrowly authorized recovery |
+| People change already prepared/committed at disable | Resolve its original attempt; either authoritative cancel or actual committed consequence reconciliation. Disable cannot be treated as cancellation, rollback or proof no source commit occurred |
+| People changes after disable with retained Leave work | Keep required source participation for that retained workflow scope. Current facts and effective boundaries remain correct; no browser access or human approval is granted by recovery |
+| Leave access re-enabled | Resume only current valid membership/grants. Independently verify supported owner protocol, current source observations and unresolved relevant gates before consequential commands run; no stale authority or assumed empty backlog |
+| Person added/removed or capability changed | Existing Access/People identity, membership and domain rules apply. This is not an organization-app toggle or a reason to erase/change another person's source attempt |
+
+A Leave-specific readiness predicate may block an unsafe consequential API action while
+owner reconciliation is unavailable; it does not pretend Access revoked the user's grant.
+Use the existing truthful unavailable/pending recovery behavior and preserve independently
+permitted draft input. No new onboarding wizard, progress screen, approval queue or
+customer-operated integration registry is introduced. Current protected reads retain
+actual scope/access checks; this is not authority to show disabled app data to users.
+
+### Adoption ordering and retirement limit
+
+The deployment caller allowlist authenticates services; organization participation says
+which source changes require this consumer. Neither can be inferred from a launcher result
+or a cached browser access flag. Initial adoption must establish a source-side participation
+cutover **before** taking the authoritative source/boundary baseline and opening Leave
+consequential admission. Writes after that cutover must use the preparation protocol;
+concurrent changes during baseline creation must be reconciled before readiness. No interval
+may admit Leave commands while relevant People writes can bypass participation.
+
+Bind and prove the actual cutover mechanism with the People source implementation and
+controlled release procedure. The current planned People package is not evidence that a
+runtime subscription/registration mechanism exists. Do not silently invent a general
+registry service or claim a backfill snapshot alone prevents adoption races. Coordinated
+migration/activation evidence remains required under P-0020.
+
+**No automatic consumer retirement is part of MVP disable/re-enable.** Participation
+remains while retained Leave workflows or supported delayed work depend on it. Removing a
+deployed consumer later is an explicit technical decommission/release operation: resolve
+or fence outstanding attempts, reconcile committed consequences and prevent new dependent
+commands before removing required policy/handlers. Retained historical data is not blanket
+permission to run ongoing business actions, and absence of ready queue items is not proof
+that delayed/retryable versions are gone. P-0028 compatibility remains binding. No new
+end-user retirement feature or speculative dynamic subscription lifecycle is planned here.
+
+Actual owner acceptance covers disable before prepare, between prepare/source commit,
+after commit/before consequence, source changes while disabled, current re-enable with
+revoked grants, adoption racing a source writer and attempted unsafe handler removal.
+Inspect Access admission separately from source attempt/gate/current assignments and
+unchanged stored drafts. Existing Access owner tests cover individual membership changes;
+E5 references those rather than reproducing them. No live settings, grants, credentials,
+source facts, code, migrations or runtime tests changed.
+
+This binds participation lifetime and activation order at design level. Concrete cutover,
+wire/storage schemas, execution limits, shared protocol adoption and real concurrency
+proof still gate coverage/sizing/readiness. The user's agreement to the access distinction
+does not approve all remaining technical protocol details.
+
+
+## Consolidated People–Leave protocol navigation — 2026-10-23
+
+[People–Leave change coordination](people-leave-change-coordination.md) now owns the
+consolidated v1 internal operations/source variants/state sequence. Earlier E5 candidate
+sections here remain rationale and adopted rule references; follow that contract for the
+current wire baseline and its explicit remaining gates. E1's read-only slice is unchanged.
+No new source role, DB access, whole-protocol acceptance or runtime implementation follows.
+
+
+## People–Leave protocol adoption — 2026-10-23
+
+User adopted the consolidated [coordination baseline](people-leave-change-coordination.md)
+under [P-0062](../decisions/0062-people-leave-prepared-source-change-coordination.md).
+Earlier candidate/pending-adoption sections are superseded for that design; E1 remains
+its read/controlled foundation scope. Actual later source consumers implement required
+attempt/participation/storage/HTTP behavior with delivery proof. C5/C6 and overall readiness
+remain open; no runtime grant, source fact, migration or application code changed.
+
+## E5 shared management action catalog binding — 2026-10-25
+
+Select `people.employment.manage` as the exact organization-scoped wire identifier for
+E2's already required shared employment-management authority. People owns its action/
+target semantics; Access owns effective grants. This names one existing authority, not a
+new approval permission or a reason to split supervisor/period maintenance into additional
+human permission switches. No default role/grant changes are implied.
+
+The resource predicate is `{kind: organization_employments}`: actual employment records
+within the checked organization, including authorized creation of a relationship for a
+permitted verified person and addition/end of its actual employment periods. Existing
+2.16/17 supervisor management uses that same explicitly granted management authority,
+with exact same-org employee/supervisor checks and reviewed selection. An employment
+record/person link or application role name is not that authority. A service credential
+identifies the calling service, not an authorized human employment administrator.
+
+People verifies the current end-user and exact capability/resource target on each human
+source command. Preserve initiating account/actor and actual executor attribution; replay
+checks current target/outcome visibility under its owner recovery contract. Prepared source
+attempt records bind the authorized source action and exact immutable input. Narrow owner
+recovery can reconcile an already committed/prepared attempt under its service policy
+without manufacturing a current human approval or allowing a new source change.
+
+Leave's policy/schedule/approval/on-behalf/source-impact permission does not substitute
+for People management. Conversely, People management grants no general Leave request,
+funding, medical or approval permission. Mandatory Leave impact review uses independently
+verified exact consequence-read scope as the prepared-change protocol requires; it cannot
+substitute a redacted count for a required authorized review.
+
+**Remaining G4-P registry/admission gate:** Access's current generic catalog binds
+permissions to applications and app admission. Before registering this shared-owner
+identifier, bind its exact common-service registration/admission/default-adoption contract
+without silently making it a Leave-owned capability or adding a customer-facing People
+app toggle. This document does not claim the existing Access registry already supports
+independent shared-service capability ownership. Inspect/propose the smallest compatible
+owner design, with any material platform decision explicitly agreed before adoption.
+No new grants or live checks are made here. People source payload/attempt/storage remains
+the adopted people-leave-change-coordination contract; exact G6 artifacts remain open.
+
+## G4-P internal People admission proposal — 2026-10-25
+
+Proposed P-0063 and Access owning contract select reuse of existing `people` internal
+application registration, org admission and explicit `people.employment.manage` grants.
+No launcher, extra customer enablement step or Leave-owned capability alias; no automatic
+role-name/default grants. Current consumer-specific /v2/check needs its actual People
+adapter, not only registry rows. This is the concrete proposed closure of the preceding
+G4-P gate, pending user agreement. If accepted, align adopted status/references and plan
+actual Access/People producer-consumer tests before activation. No runtime change.
+
+## G4-P adoption and actual existing substrate — 2026-10-25
+
+User agreed P-0063. The proposed common-service registry/admission gate is closed at design
+level by existing internal Access app mechanics. Current KDG work already implements the
+shared registry/registration/org-admission primitives; do not plan those twice. Current
+organization SQL and KDG HTTP branch are kdg_capture-specific, so People caller/resource/
+check support and actual People management consumer/adoption remain. No People registration
+or service implementation was found in source; deployed state not inspected. Prior pending
+adoption text for this decision is superseded; other readiness gates remain.
+
+## Native-file current-session consumer — technical planning candidate 2026-10-25
+
+E1-ID-B's existing current-authentication boundary supplies the narrow subject/session
+check selected in the [Content transport contract](content-ownership-and-authenticated-read.md#concrete-native-file-authentication-adapter--technical-planning-candidate-2026-10-25).
+It lives with the actual Identity owner and its migration/privilege inventory, not a
+new file-auth service or application-owned Auth-table query. Reuse verified current
+account/actor/membership and operator target infrastructure already implemented here;
+add only the session-check routine/adapter and exact Leave/People consumer registration
+that are absent. The original account/person/employment/access separation is unchanged.
+
+The provider check accepts only authenticated registered services and a verified access
+credential, returns safe active/denied/unavailable information and opaque subject/session
+binding, and releases no provider session row or administration credential. Generated
+client/error/credential policy and native restricted-role tests change together. Actual
+selected account, service-actor, grant, membership and People resource rows are protected
+operator/release inputs, not fabricated live mappings needed to finish a planning document.
+Fixture clean/adopt/mismatch/revoked-session proof and real-provider qualification belong
+to ID-B and its first consumer. No runtime implementation or current-session evidence is
+claimed by this additional planning allocation.
+
+## Account language preference — source coverage refinement 2026-10-26
+
+Leave ADR-0059–0061 require a user's preference to survive organization switching.
+E1-ID-B owns the missing persistence/API boundary with Identity's account profile;
+E1-A1 owns the actual immediate personal preference presentation. There is no second
+person/employment setting, per-organization copy or application grant from a preference.
+
+Use `GET`/`PUT /v2/me/preferences/language` through the existing restricted service/user
+context. Resolve the verified account server-side; accept no body-supplied account/org.
+A read returns `{preferred_locale, revision}`; verified absence returns English and zero
+revision without inventing an employment/profile mutation. A write takes `operation_id`,
+`expected_revision` and an exact registered BCP-47 locale tag, updating the account's
+preference/revision/server attribution and compact outcome together. Invalid/unsupported
+values fail safely. Replays preserve original input/outcome; wrong account, changed
+payload and stale revision cannot overwrite another preference. No per-keystroke business
+history or new grant/catalogue permission is needed for authenticated own preference.
+
+Persist desired locale separately from rendered fallback. English is initially delivered;
+Portuguese readiness remains, with actual translation delivery deferred. A saved desired
+Portuguese locale can render English until its resources exist without rewriting that
+preference or changing dates' canonical input-format context. UI selection offers the
+registered supported choices and explains fallback; no arbitrary localization catalogue
+or new translation workflow is introduced. Normal language state follows the account
+across organizations; account switching clears the former account's UI/cache. Network
+failure never proves preference absence or a completed write. Immediate personal saving
+uses existing safe retry/original-outcome presentation, not a business Save/Cancel form.
+
+The existing approved English-only MVP notification increment is unchanged. When actual
+translated templates are introduced, the notification owner consumes the same authorized
+Identity preference and English fallback, rather than adding per-organization language
+truth. Real translation/template proof belongs to that first actual consumer. ID-B/A1
+prove own/other-account, concurrent/retried change, organization switch, unavailable
+translation and unchanged timezone/authority/stored values. This is planning only.
+
+## Final onboarding and continuity bindings — planning candidate 2026-10-26
+
+The [invitation/prepared-access protocol](organization-invitation-and-prepared-access.md)
+selects verified recipient/account binding, seven-day invitations, rotating resend,
+fresh mailbox challenge, thirty-day pending approvals and exact per-stage recovery for
+2.6/2.9. The [continuity contract](organization-administrator-continuity.md) selects
+last-owner plus protected-organization-administrator floors, ordinary self-removal denial
+and a single Identity/Access owner-local guard across membership and role writers.
+These resolve previously deferred planning inputs as candidates for one final review;
+existing membership identities/rejoin, least privilege and no implicit grants remain.
+
+## Consolidated adoption — accepted 2026-10-26
+
+The user explicitly approved the completed consolidated planning package. The reviewed
+choices and bounds in this contract are adopted under [the acceptance decision](../decisions/0064-approved-onboarding-continuity-and-content-contracts.md).
+Earlier candidate/pending-review wording is historical and superseded for these choices.
+Actual implementation and provider/database/browser/recovery proof remain delivery work.
+The user requires a new Codex session before implementation; no runtime action here.

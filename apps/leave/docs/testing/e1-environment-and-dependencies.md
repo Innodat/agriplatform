@@ -1,3 +1,30 @@
+## Approved topology refinement - 2026-10-26
+
+The user approved shared development with isolated destructive acceptance after
+questioning a duplicate Leave development stack. This supersedes the earlier
+requirement for a dedicated always-running Leave development Supabase instance.
+Use the existing KDG local stack for ordinary shared-service integration; preserve
+its target/config marker, accounts, schemas, grants and retained fixtures. Shared
+development does not merge application schema ownership or runtime credentials.
+Never run fixture reset or migration-failure tests against that shared instance.
+
+Existing shared substrate: `platform/deployment/environments/kdg-local.json`, native
+run `99b7231c-0a5b-4bdb-98e8-3329564c526a`, Auth port 55481 and PostgreSQL port 55482.
+Read-only native marker verification passed before adoption; runtime availability
+and each consuming owner's integration remain separate checks. Do not adopt the
+unrelated root Supabase project merely because its containers are already running.
+
+`platform/deployment/environments/leave-local.json` is a disposable acceptance-only
+target. Its separate ports and explicit subnet protect shared development during
+synthetic setup, reset, permission and migration-failure tests. It is not the normal
+Leave development startup. Keep bootstrap/runtime authority separate and report
+real Auth/PostgreSQL evidence independently of browser/Entra qualification.
+
+Current commands, evidence and remaining gates: [E1-ENV evidence](e1-environment-evidence.md).
+Earlier proposal/status text below remains historical.
+
+---
+
 # E1 development, test environment and dependency proposal
 
 **Status:** Local-first topology approved 2026-10-02; dependency ownership and command targets specified; compatibility pins and executable bootstrap remain open

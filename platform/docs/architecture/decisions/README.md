@@ -57,7 +57,7 @@ scaffolding, or more than one application.
 | [0038](./0038-finalized-content-byte-identity.md) | Accepted | Finalized content IDs bind verified bytes; replacement requires a new identity and authorized audited association |
 | [0039](./0039-organization-neutral-tenancy.md) | Accepted | Organization is the general tenant concept for nonprofit, for-profit and other organizations |
 | [0040](./0040-shared-employment-core-and-application-settings.md) | Accepted | Common employment facts have one shared HTTP service owner; applications retain their own settings and workflows |
-| [0041](./0041-shared-supervisor-department-and-location.md) | Accepted | Shared employment owns optional manual supervisor, department and location; application approval policies and Leave work profiles remain separate; refines 0040 |
+| [0041](./0041-shared-supervisor-department-and-location.md) | Superseded in part by 0060 | Shared employment owns optional manual supervisor, department and location; application approval policies and Leave work profiles remain separate; refines 0040; Leave pending-supervisor routing refined by 0060 |
 | [0042](./0042-person-account-employment-and-legacy-adoption.md) | Accepted | Platform-wide person/account separation, accountless employment, one relationship per person/organization and deliberate legacy identity/Expense adoption |
 | [0043](./0043-staged-platform-deployment.md) | Proposed | Platform manifests and checked main-to-production delivery on Netlify/Hetzner |
 | [0044](./0044-bounded-shared-input-observations-for-draft-saves.md) | Accepted | Bounded fresh shared-input observations for non-consequential draft saves; applications own time limits and consequential actions retain stronger checks |
@@ -76,4 +76,10 @@ scaffolding, or more than one application.
 | [0057](./0057-invitation-onboarding-and-trusted-tenant-enrollment.md) | Accepted | Invitation-only normal organization onboarding unless verified tenant enrollment is explicitly enabled; Entra/Supabase retained, no implicit app grants |
 | [0058](./0058-administrator-prepared-access-before-first-sign-in.md) | Accepted | Explicitly approve pending application roles before first sign-in; activate only against verified account/admission and current role policy, without automatic tenant-derived grants |
 | [0059](./0059-schema-validated-scaffold-configuration.md) | Accepted | Thin validated JSON scaffold input records proven pattern/source choices; specs/ADRs remain authoritative and actual tests enforce behavior |
+| [0060](./0060-application-owned-pending-supervisor-approval-transfer.md) | Accepted | Disclosed supervisor changes may transfer unfinished supervisor approvals under application policy; Leave adopts this, preserving eligibility, completed decisions, owner boundaries and existing activity/audit |
 | [0061](./0061-kdg-first-committed-operation-wins.md) | Accepted | KDG MVP returns the first committed scoped operation receipt without payload fingerprints; defers HMAC/key lifecycle while retaining atomicity, current authority and immutable queued commands; partially supersedes 0012 for KDG |
+| [0062](./0062-people-leave-prepared-source-change-coordination.md) | Accepted | Prepared People source attempts and Leave gates with atomic commit/cancel fencing, scoped HTTP callers, safe source-participation cutover and separate recoverable owner consequences |
+
+| [0063](./0063-internal-people-access-registration.md) | Accepted | Reuse implemented KDG/platform Access registry/admission foundations for internal People management; explicit independent grants, no launcher/extra customer setup; People-specific current-check integration remains |
+
+| [0064](./0064-approved-onboarding-continuity-and-content-contracts.md) | Accepted | Consolidated approved invitation/continuity, fixed-byte authenticated Content, assisted tenant trust and bounded shared foundation contracts |

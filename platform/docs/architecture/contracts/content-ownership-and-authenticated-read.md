@@ -366,3 +366,203 @@ Scaffold impact: reusable stream adapter and contract fixtures with the first co
 Shared UI: existing Open/Download and safe retry feedback; no new download manager.
 Agent context and ADR impacts: existing ADR-0038/0054/0055 instructions suffice; no change
 to accepted decisions. Documentation and test traceability remain with the owning stories.
+
+## Leave E5 association reference and target extension — 2026-10-25
+
+E4 remains the attachment association/protection owner. These selected types bind E5
+submission/on-behalf/correction consumers; they do not create a second upload/cleanup
+pipeline, browser Content control plane or request table in Content.
+
+Select an E4 confirmed association reference `{association_id, expected_revision}`:
+association_id is an actual Leave-owned UUID; revision is a positive canonical decimal
+string. E5 `attachment_refs` is a duplicate-free array of these references, at most three,
+not raw content IDs, provider paths or browser claims of safety/readiness. The actual
+E4 server association resolves immutable content identity and verified byte/version/size/
+type/ownership/readiness. Enforce accepted three-file/20 MB total/10 MB per-file and type
+rules using verified owner metadata. E4's actual allowed media types remain its source.
+
+The actual E4 Leave association target is a closed union:
+
+| Target | Exact owner scope / lifecycle |
+| --- | --- |
+| `draft` | org/employment/actual draft ID and current editable lifecycle; existing 4.4 contract |
+| `on_behalf_input` | org/target employment and server-issued E4 attachment context ID, bound to initiating authorized account/actor and explicit on-behalf target scope |
+| `request_correction` | org/employment/request/base cycle/actual open correction ID; current employee correction authority and revision/lifecycle |
+| `request_cycle` | org/employment/request/actual submitted cycle; retained actual association evidence and current authorized history read |
+
+E4 creates only its existing first-use draft branch in 4.4. Actual 5.12-A/B adds the
+on-behalf branch with the E4 owner; actual 5.20-A/B adds correction and consumes existing
+submitted association history. If a staging context is required before an on-behalf request
+exists, it stores only attachment target/initiator/protection/lifecycle—not another employee
+draft, on-behalf form payload or generic admin draft system. Its exact association/protection
+storage reuses actual E4 lifecycle primitives and is sized with that first consumer.
+
+Current on-behalf/attach scope is checked at context creation and each association/use;
+source target change cannot retarget prior context/files silently. Correction refs are
+bound to their actual request/base cycle; closed input cannot accept a late association.
+Existing files retained on a prior submitted cycle are not editable prior-cycle state.
+Any authorized reuse adds the actual new-cycle association to the same immutable content;
+no re-upload, byte mutation or Content ownership transfer. Actual E4 reuse policy and
+current source/retention checks still apply.
+
+On own submit, enumerate the actual confirmed editable-draft associations on the server;
+a second client list cannot replace saved draft truth. On-behalf/resubmit references must
+match their actual editable context and reviewed selection. The local submitted cycle's
+exact association list/linkage and input closure commit with the owning request operation.
+Required Content readiness/protection observations occur outside local business locks;
+E4's existing in-flight lifecycle fence prevents cleanup racing the protected local commit.
+Do not create the cycle then "fix up" unprotected file links in a second transaction.
+
+Original confirmation/submission retries reuse operation/content/association identity and
+E4 protection evidence. Unknown outcomes are not proof of abandonment. Reclaim only after
+E4's authoritative association reconciliation and bounded in-flight protection; no blind
+TTL deletion or late recreation after release. Losing E5 receipt response does not require
+another upload. Medical provision/readiness status is independent of sensitive metadata/
+byte permission; ordinary approver/manager/temp scope alone still cannot read those files.
+Retained cycle/history reads use current app/document permission, authenticated app routes
+and Content ownership checks under P-0054/0055, never exposed bearer read URLs.
+
+Actual E4/Leave consumer acceptance covers wrong org/target/initiator, stale association,
+duplicate refs, simultaneous file-size limits, cleanup-versus-submit, late closed-correction
+confirmation, lost on-behalf submit response and authorized same-content cycle reuse.
+Reference 4.4/4.13 association/byte/cleanup tests; actual 5.12/20/32-H add producer composition
+without implementing another pipeline. Full E4 timeout/storage/OpenAPI test artifact
+closure remains its first-consumer/G6 work, not proof from this typed extension. No runtime
+code, tests, migrations, grant changes or implementation/readiness authorization.
+
+## Concrete native-file authentication adapter — technical planning candidate 2026-10-25
+
+This selects one minimal model for the consolidated review, replacing the earlier open
+JWT-cookie-versus-opaque-session alternative. It extends the existing sign-in/refresh/
+logout owner; it does not introduce a second refresh token or whole-application cookie
+conversion. PTS-ADOPT implements the first browser consumer; Leave 4.7 reuses it.
+
+Use the existing verified short-lived access JWT in a file-origin Secure, HttpOnly,
+host-only cookie. Never store a refresh token there. Cookie expiration is no later than
+the access-token expiration. The file origin is the application's direct API origin,
+with HTTPS, an exact origin allowlist and credentialed CORS only for its owning web UI.
+Use SameSite=Lax for the selected same-site web/API deployment; a cross-site deployment
+is unsupported until its explicit cookie/CSRF transport is qualified. Do not silently
+relax attributes to make a different hosting layout work.
+
+Setup/renewal is an exact-origin POST authenticated by the existing access bearer. It
+verifies issuer/audience/signature/expiry, account and current provider session before
+setting the cookie. Unknown origins, ambient-cookie-only setup and body-supplied user
+identity are rejected. No bearer appears in a URL, link or context reference. File GET/
+HEAD/range routes cannot mutate authentication or renew it independently.
+
+Each native preview/download route contains an opaque non-authorizing context ID. Its
+short-lived server record binds the verified account, Auth session ID, application,
+resource reference, permitted presentation and expiration. Every file request compares
+that account/session with its current cookie, then repeats current Access, domain and
+Content checks. The context is never sufficient authority. A different account's new
+cookie therefore cannot turn an already-open old PDF viewer into that account's view.
+Context records contain no draft text or provider credential, expire with their session
+binding and can be invalidated by the existing logout path. Renewal for the same verified
+session may extend the context to the new short-lived token's expiration.
+
+### Current-session enforcement and delayed responses
+
+Identity supplies a narrow restricted-service current-session check. It validates the
+forwarded access credential and current account, then checks that its verified subject
+and `session_id` still identify the same live provider session. Keep this provider access
+inside Identity's narrowly privileged routine/adapter; application runtime roles receive
+no general Auth-table SELECT or provider administration key. No positive session cache
+may survive logout between new file requests. A two-second check deadline fails closed
+as temporarily unavailable; denial and inability to verify remain distinct typed outcomes.
+No business lock is held while checking Identity or Access.
+
+Supabase documents that sign-out removes the affected session rows while already-issued
+JWTs can remain valid until expiry, and explicitly describes checking the JWT's session
+ID against `auth.sessions`. This supports the selected server check; it does not prove
+our integration. See [Supabase sessions](https://supabase.com/docs/guides/auth/sessions)
+and [sign-out](https://supabase.com/docs/reference/javascript/auth-signout), consulted
+2026-10-25. The routine, app adapter and following race behavior are our design inference
+and require actual provider acceptance during delivery.
+
+Account switching must complete the existing provider's local-session sign-out for the
+old account before enabling the new account's file context. This revokes that session,
+not every other device. Logout also invalidates its file contexts and clears the cookie.
+If remote sign-out or context invalidation cannot be confirmed, do not claim logout/
+switch completed or enable a replacement file context; preserve the established recovery
+path. Existing app auth remains the only owner of provider sign-out and refresh.
+
+A delayed old setup/renewal response may physically arrive after logout or switch and
+write an old cookie. Signature validation or a frontend epoch cannot prevent that. The
+new request's live-session check rejects the revoked old session even then. That response
+cannot create a live session/context or restore old authority. An old cookie can cause a
+safe temporary authentication failure for the new account; the app re-establishes its
+current same-session cookie and reopens the authorized file. Do not promise ordering of
+Set-Cookie responses or silently retry an unsafe action. Old-context/new-cookie and
+new-context/old-cookie combinations both fail their account/session comparison.
+
+Already-started streams retain their declared bounds; this cannot recall delivered bytes.
+A new range/resume always authenticates again. If the originating app has closed and its
+credential expires, the native viewer returns through the app to reopen; it never becomes
+a refresh owner or receives login HTML disguised as PDF bytes.
+
+### First-consumer implementation and acceptance ownership
+
+- E1-ID-B adds the narrow current-session adapter/routine and tests credential subject/
+  session matching, revoked/unknown sessions, denial versus outage and restricted grants.
+  It reuses the actual Identity owner and its controlled migration/operator infrastructure.
+- E1-PTS-ADOPT owns cookie setup/renewal, same-site origin configuration, current-session
+  consumption, context binding, existing logout/account-switch integration and native
+  browser proof. E1-CONTENT-READ remains a service-to-service bytes/ownership boundary.
+- 4.7 consumes that proven transport and adds actual Leave resource/document authority;
+  it does not implement another session checker or provider login.
+
+Acceptance must delay a real old setup response across successful logout and account
+switch, attempt setup with the old JWT after revocation, reuse an old viewer under a new
+account and issue new GET/HEAD/range requests after membership/capability changes. Verify
+all denial/outage cases before bytes/metadata escape, and exercise expiry with the app tab
+closed. Provider mocks and UI epochs do not prove those cases. Actual browser cookie,
+Entra/Supabase sessions, deployed origins and ingress remain delivery evidence at these
+owners; writing this candidate does not execute or claim that evidence.
+
+Scaffold: promote the proven session-check/cookie/context client and fixtures once, keep
+origin/configuration and generated errors synchronized. Shared UI: reuse file-open/error/
+re-authentication return behavior. Agent context: existing current-authority/privacy rules
+suffice. Documentation: exact credential role, route/configuration, browser races and
+recovery evidence. Accepted ADRs unchanged; no private signed-read URL fallback.
+
+### Initial ingress and stream budgets — technical planning candidate 2026-10-25
+
+For the already-approved app-specific direct file ingress, select a 5-second connect
+budget, 30-second upstream idle budget, 60-second gateway idle budget and 15-minute
+whole-response ceiling. The gateway path must support streaming/backpressure and disable
+response buffering/caching for these private routes; no Netlify proxy rewrite carries
+file bytes. Generator-owned gateway configuration and the actual application manifest
+must agree. A provider failure cannot be hidden by a longer downstream timeout.
+
+Use 1 MiB application buffers, at most 16 concurrent streams per API instance and at
+most two per verified account; reject excess before headers with the standard typed
+capacity response and Retry-After. These are initial qualification budgets, not a new
+128 MiB business file limit. Test a representative 128 MiB PtS source at 1 MiB/s, slow
+clients, disconnect, 17th-stream capacity, two-account isolation and recovery after a
+partial transfer. Leave retains its smaller attachment limits. Record peak process
+memory/connection occupancy under that workload; buffers alone are not a total RSS claim.
+
+Support authorized GET, HEAD and one byte range, including bounded/open-ended/suffix
+forms. A range is always against the same finalized representation with stable opaque
+ETag, correct 206/Content-Range and length. Unsatisfiable ranges return 416 after current
+authorization; reject unsupported multiple ranges before bytes. HEAD uses the same
+metadata authority and sends no body. Standard If-Range behavior must be covered with
+the native viewer; a representation mismatch cannot splice bytes from another object.
+Return safe allowlisted type/disposition/length/range/cache headers only, sanitize display
+filenames, and use private no-store plus gateway cache bypass on successful and failed
+private responses. After headers, abort incomplete bytes instead of appending an error.
+
+These values are build/qualification inputs for CONTENT-READ and PTS-ADOPT/4.7, not
+claims that current deployment configuration or provider limits already satisfy them.
+A failing actual target must be corrected compatibly before activation. Hosted manifest,
+DNS/certificate/secret values are bound by the authorized release rather than invented
+in planning; selected route direction is already approved.
+
+## Consolidated adoption — accepted 2026-10-26
+
+The user explicitly approved the completed consolidated planning package. The reviewed
+choices and bounds in this contract are adopted under [the acceptance decision](../decisions/0064-approved-onboarding-continuity-and-content-contracts.md).
+Earlier candidate/pending-review wording is historical and superseded for these choices.
+Actual implementation and provider/database/browser/recovery proof remain delivery work.
+The user requires a new Codex session before implementation; no runtime action here.

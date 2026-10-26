@@ -21,6 +21,32 @@ companions:
 
 # Architecture Spine — Leave
 
+E8 planning proposal, 2026-10-25: the
+[import/cutover/qualification contract](./contracts/e8-import-cutover-and-qualification.md)
+allocates exact-batch consultant imports, protected owner adapters, recovery and actual
+pilot evidence. E8 and [L-0170](./decisions/0170-imported-pending-work-and-resumable-employee-units.md)
+were accepted on 2026-10-25; product/UX/runbook adopt pending-cycle/notice and employee-
+unit behavior. Whole-product coverage/readiness remain open; none of this authorizes
+actual import, migration or activation.
+
+E7 planning proposal, 2026-10-25: the
+[overview/report/audit contract](./contracts/e7-overview-reports-and-audit.md)
+allocates organization views, six report families, matching audited CSV and protected
+owner-specific audit reads without new balance/source ownership. User accepted E7
+planning and [L-0169](./decisions/0169-reporting-time-basis-and-derived-team-grouping.md)
+on 2026-10-25: corrected-known dated balances, current staffing groups and effective-
+date historical groups. Features/UX adopt those choices. E8/global validation/readiness
+remain open; no implementation is authorized by E7 planning closure.
+
+E6 technical planning proposal, 2026-10-25: the
+[correction/consequence contract](./contracts/e6-corrections-and-consequences.md)
+allocates cancellation reversal, atomic linked replacement, historical/source effects,
+deficit review and follow-up to existing owners. The user accepted both time/scope
+choices in [L-0168](./decisions/0168-cancellation-date-boundary-and-management-scope.md)
+on 2026-10-25: the first requested work-local date ends future cancellation, and
+standard Approvers use current ordinary responsibility scope. Other E6 delivery
+proposals and implementation readiness remain separate; E3/E5 safeguards stay binding.
+
 ## Design Paradigm
 
 **Lightweight layered application silo.** FastAPI endpoints authenticate and adapt;
@@ -102,7 +128,7 @@ flowchart LR
 
 - **Binds:** Mutating APIs, frontend confirmations and receiver contracts.
 - **Prevents:** Lost-response duplicates and stale approval masquerading as a new action.
-- **Rule:** Generate one UUID operation ID per user action, retaining its original payload across retries; service actions use stable backend identities. Enforce atomic scoped duplicate protection; altered payload with the same identity conflicts. Resource ID, integer revision, operation ID, downstream event ID and trace ID have distinct purposes. Compare expected revisions atomically and revalidate related inputs; changed consequential results require renewed confirmation, including exact increased unpaid acknowledgement. Resolve uncertain outcomes before edited/new attempts; a known uncommitted busy result may be retried. Inherits P-0012–0013 and L-0032, L-0112–0113.
+- **Rule:** Generate one UUID operation ID per user action, retaining its original payload across retries; service actions use stable backend identities. Enforce atomic scoped duplicate protection; altered payload with the same identity conflicts. Resource ID, integer revision, operation ID, downstream event ID and trace ID have distinct purposes. Compare expected revisions atomically and revalidate related inputs; changed consequential results require renewed confirmation, including exact initial unpaid acknowledgement where applicable; L-0151 removes renewed employee acknowledgement for later pending allocation changes. Resolve uncertain outcomes before edited/new attempts; a known uncommitted busy result may be retried. Inherits P-0012–0013 and L-0032, L-0112–0113.
 
 ### AD-5 — Historical facts and derived entitlement [ADOPTED]
 
@@ -232,7 +258,7 @@ first affected story is ready. Track completion in the existing implementation p
 | Deferred item | Owner and deadline | Required resolution |
 | --- | --- | --- |
 | Shared identity/access ownership and contract | Platform identity owner + Leave lead; before first draft-slice story readiness | Existing identity schema adoption, service placement, person/membership/permission identifiers, current authorization API, role management, allowed references and revocation execution bounds; no second directory |
-| Shared employment contract | Platform identity/people owner + Leave lead; minimal identity/read contract before E1, shared writes before E2 and freshness/impact contract before dependent mutations | Stable person/organization/employment references, history/rehire, current and effective reads, access/mutation authority, revisions and audited changes; version/validity and affected-request coordination without assuming distributed atomicity. P-0041 owns nullable department/location and manual supervisor references in shared employment; define scoped reference/null/history/retirement contracts and supervisor freshness at workflow resolution. Leave snapshots eligible approvers; shared changes cannot silently reroute pending requests or change work profiles. No full HR suite or Graph dependency |
+| Shared employment contract | Platform identity/people owner + Leave lead; minimal identity/read contract before E1, shared writes before E2 and freshness/impact contract before dependent mutations | Stable person/organization/employment references, history/rehire, current and effective reads, access/mutation authority, revisions and audited changes; version/validity and affected-request coordination without assuming distributed atomicity. P-0041 owns nullable department/location and manual supervisor references in shared employment; define scoped reference/null/history/retirement contracts and supervisor freshness at workflow resolution. Leave records required steps/policy; P-0060/L-0147 makes disclosed effective supervisor changes transfer unfinished supervisor steps to the eligible replacement. Completed/final decisions and work profiles remain protected. No full HR suite or Graph dependency |
 | Dependency pins and environment topology | Technical lead + operations; before first dependent story | Verify live compatibility, lock dependencies, choose development/test/staging/production isolation, provider configuration and secret handling |
 | Concrete persistence and concurrency | Leave technical lead; before affected mutation story | Tables/keys, employee guard, shared-configuration and cross-employee approval/coverage dependency protection, lock order/timeouts, event sequencing, indexes and snapshot schema; all alternate writers participate |
 | API operation/error contracts | Platform API owner + Leave lead; before first draft-slice story | Request/result recovery, scoped deduplication lifetime, revision fields, compatibility with existing numeric-code template, generated clients and framework adapters |
@@ -436,3 +462,248 @@ shared English templates with clear dates/relevant organization identification. 
 logos/colors/editable templates and Portuguese delivery are deferred; content remains
 translatable and existing preferences/English fallback/privacy remain binding. No new
 editor, delivery ownership change or implementation/readiness permission.
+
+
+Temporary final-approval simplification — accepted 2026-10-21:
+[L-0146](./decisions/0146-temporary-final-approver-follows-configured-absence-policy.md)
+partially supersedes L-0080: an eligible temporary final approver follows the applicable
+snapshotted absence policy without a separate appointment fallback flag. Enabled policy
+permits the both-absent single-final path; disabled policy keeps both steps required.
+Preserve current scoped/time-bounded authority, self-approval, required decisions,
+coverage, funding/documents/employee response and other AD-7 finalization gates. No
+silent policy/assignment/history rewrite; explicit reroute and L-0081 return remain.
+Bind evidence/consistency and verify all combinations with actual request consumers
+before activation. No implementation/readiness authorization.
+
+
+Supervisor routing and recovery simplification — accepted 2026-10-21:
+[P-0060](../../../../platform/docs/architecture/decisions/0060-application-owned-pending-supervisor-approval-transfer.md)
+and [L-0147](./decisions/0147-current-supervisor-routing-and-concise-decision-attribution.md)
+qualify AD-7's snapshotted routing: unfinished supervisor steps follow the eligible
+replacement at an authorized effective change with disclosed effect. Preserve completed
+decisions, independent final steps, policy/calculation evidence, current authority and
+all finalization guards. Use existing source/change/outcome activity and direct actual-
+actor/temporary acting-for decision attribution, not duplicate reassignment history.
+Owner coordination, active-cover interactions, stale-decision prevention and exact
+propagation bounds remain readiness contracts; no cross-owner transaction or grant.
+[L-0148](./decisions/0148-simple-retry-for-uncertain-submission.md) simplifies recovery
+to Retry, resolving the original operation before safely retrying and retaining truthful
+unknown state otherwise. Accepted predecessors unchanged; no implementation permission.
+
+
+Approver default-role convenience — accepted 2026-10-21:
+[L-0149](./decisions/0149-standard-approver-includes-scoped-on-behalf-submission.md)
+includes scoped initial on-behalf submission in the standard Approver capability set,
+while retaining explicit current capability/employee-scope checks. Custom approval-only
+roles and temporary appointments do not imply that grant. Preserve separate employee
+response, approval, correction/funding/document authority and custom-role version review.
+Resolve exact scope and narrow capability mapping before activation; no role-name check
+or runtime grant implied. No implementation/readiness authorization.
+
+
+Exceptional-funding authority/confirmation — accepted 2026-10-21:
+[L-0150](./decisions/0150-scoped-exceptional-funding-and-combined-confirmation.md)
+uses one scoped request exception capability across permitted sources, with source
+eligibility/ownership/amount validation rather than per-line grants. It does not confer
+unrelated standalone adjustment powers. An authorized actor may confirm funding and
+their approval step once with atomic distinct outcomes/accounting/evidence through the
+existing mechanism. No extra workflow/log; independent finalization/employee response
+remains binding. Exact source limits/effects/consistency and real consumer integration
+precede readiness. No implementation or runtime grants authorized.
+
+
+Later pending unpaid changes — accepted 2026-10-21:
+[L-0151](./decisions/0151-notify-pending-unpaid-changes-without-renewed-acknowledgement.md)
+removes renewed employee acknowledgement as an AD-7 finalization gate for later pending
+allocation increases/decreases. Authorizer reviews/explains exact before/after effects
+and coordinates communication; minimal employee notice links to authorized details.
+Initial self-service and initial unpaid on-behalf responses remain, including a still-
+outstanding initial response against current evidence. All independent gates, protected
+reservations/decisions, owner atomicity and approved-request safeguards stay binding.
+No new communication/consent tracking UI, runtime change or readiness authorization.
+
+
+Approved-cancellation defaults — accepted 2026-10-22:
+[L-0152](./decisions/0152-simple-approved-leave-cancellation-defaults.md) permits own
+future cancellation and includes scoped future approved-cancellation capability in
+standard Approver defaults. Started/past correction retains Leave Manager correction
+authority; temporary appointment alone grants none. Preserve one reviewed cancellation
+without another approval round, actual recalculation, attribution/history/notification,
+current scope/revision and linked replacement rules. Bind time boundaries, grants and
+real E6 tests before readiness; no implementation authorized.
+
+
+### Default Leave Manager reassignment — accepted 2026-10-22
+
+L-0153 includes explicit organization-scoped approval reassignment in the standard
+Leave Manager role; restricted custom roles may omit it. Keep current action capability
+checks, reason, eligible target and completed-step preservation. No approval/document
+rights arise from this mapping or escalation receipt. Exact capability/role-version/
+existing-grant adoption and tests remain readiness gates; no runtime grant change.
+
+
+### Pending completion reassessment — accepted 2026-10-22
+
+L-0154 triggers fresh finalization when an outstanding condition is resolved after
+required decisions exist (including required cover or initial unpaid on-behalf response).
+Retain current independent checks, valid decisions/actual actors and one-time effects;
+no repeat approval/manual completion button or approval on read. Bind exact trigger-owner
+and durable recovery contracts before readiness; no unspecified polling/callback engine.
+
+
+### Approval reminder recurrence — accepted 2026-10-22
+
+L-0155 repeats current approver reminders at the configured interval (default three
+calendar days), with one manager notice at escalation threshold (default seven days).
+Unresolved attention persists; approver reminders continue. Reuse E3 delivery identity/
+relevance/recovery. Exact anchor/timezone/reassignment/catch-up contracts remain open.
+
+
+### Approval waiting clock on transfer — accepted 2026-10-22
+
+L-0156 preserves the same unfinished step's waiting clock through reassignment, with
+immediate assignment notification intent to its receiving approver. Keep existing
+reminder/escalation schedule and active escalation without another notice merely for
+transfer. A different actionable step starts its own clock. Bind exact step/cycle/
+actionable-start/omission-restoration/timezone and due-work contracts before readiness.
+
+
+### Timed reminder recovery — accepted 2026-10-22
+
+L-0157 coalesces missed timed reminders to at most one current catch-up per outstanding
+approval, plus a missed single escalation if due. Preserve outbox/event identities and
+coordinate existing pending work; Leave owns pre-handover relevance, shared service owns
+transport. Business-change intent remains atomic with changes. Exact durable scheduling,
+occurrence/coalescing/next-due and uncertain-handover contracts remain open.
+
+
+### Consecutive same-person decisions — accepted 2026-10-22
+
+L-0158 permits one confirmation for consecutive steps assigned to the same person
+with current authority for each under applicable configuration. Attribute responsibilities
+covered by the actual decision. Configured two-distinct-person routes require a different
+eligible approver, not silent collapse. Self-approval/current scope/finalization guards
+remain. Exact configuration/decision-step representation and tests remain gates.
+
+
+### Rejected correction preservation — accepted 2026-10-22
+
+L-0159 autosaves request-scoped corrections separately from immutable submitted/rejected
+history and the ordinary new-application draft. Explicit Resubmit alone starts fresh
+approval/reservation. Bind correction revisions/closure, historical/current attachments,
+current access and stale-save races using existing lifecycle and save-failure patterns;
+no new status or administrative draft system. Contracts/tests/readiness remain open.
+
+
+### Permanent replacement during temporary cover — accepted 2026-10-22
+
+L-0160 applies P-0060/L-0147 to active temporary cover: eligible permanent replacement
+receives affected unfinished supervisor work, superseded cover loses that responsibility
+and unrelated valid appointment scope remains. Stale expiry cannot return transferred
+work to former supervisor. Preserve completed/selected final steps and L-0156 clock;
+exact current-authority/owner coordination/fencing/recovery contracts remain gates.
+
+
+### Pending withdrawal authority — accepted 2026-10-22
+
+L-0161 retains employee-only pending withdrawal, including on-behalf-created requests.
+No standard manager withdrawal capability is added. Assigned authorized approvers reject
+with employee-visible reason; unassigned managers use existing eligible reassignment.
+Preserve actual intent/actor and lifecycle effects; E6 cancellation defaults unchanged.
+
+### Zero-unpaid initial-response closure — accepted 2026-10-23
+
+[L-0162](./decisions/0162-close-initial-response-when-unpaid-reaches-zero.md) resolves
+L-0151's zero-amount gate. An authorized change to zero closes the outstanding initial
+on-behalf response without fabricated employee consent. Preserve history/actual change
+actor and trigger fresh current all-gate finalization using valid decisions; later same-
+cycle unpaid changes notify only, while fresh cycles apply their initial rules. Bind
+actual allocation/response/decision/withdrawal ordering and one-time effects before readiness.
+
+### Workload and performance feedback — agreed 2026-10-23
+
+Current two clients together have fewer than 100 employees; representative validation
+uses 1,000 as the agreed safety-factor workload. Use synchronous API execution initially
+for the proposed Leave-owned shared-setting impacts, retaining short protected transactions.
+Extend existing AD-13 endpoint/phase metrics to observe latency, traffic/errors, calculation,
+dependency and coordination/transaction costs as usage grows. Apply P-0023 and bounded
+asynchronous telemetry export; no new monitoring service or business UI. L-0108 remains
+measure-first: no initial background-impact/checkpoint machinery without evidence.
+Exact workload scenarios, numerical budgets and runtime qualification remain gates.
+
+
+### Supervisor-boundary authority instant — accepted 2026-10-23
+
+[Leave ADR-0163](./decisions/0163-protected-authority-check-at-supervisor-boundaries.md)
+resolves L-0147/0160's in-flight boundary: the final protected current-authority check is
+the authorization instant; a short bounded transaction checked before the permanent
+supervisor boundary may finish afterward. Checks at/after it use new facts regardless of
+worker lag. Record evaluation instant/source basis in existing decision evidence; restarted
+execution rechecks. No general grace period or extension of other authority. Exact budgets
+and actual People/Leave consistency proof remain readiness gates under P-0060/0022.
+
+
+### Adopted People source coordination — 2026-10-23
+
+[P-0062](../../../../platform/docs/architecture/decisions/0062-people-leave-prepared-source-change-coordination.md)
+adopts the owning People–Leave protocol: prepared source attempt/gate, same-attempt atomic
+commit/cancel fence, owner-local consequences and restricted HTTP, no cross-owner DB/HTTP
+under locks. Source participation cutover precedes baseline/consequential admission;
+disable retains narrow recovery. Source/effective/authority semantics remain P-0060 and
+L-0147/0160/0163. C4 planning design complete; exact consumer capability/schema, coverage,
+order/sizing and runtime proof still gate implementation readiness. No new user workflow.
+
+
+### Initial on-behalf target scope — accepted 2026-10-23
+
+[L-0164](./decisions/0164-initial-on-behalf-employee-scope.md) resolves L-0149: standard
+Approver's explicit action uses normal configured approval population; organization-wide
+administration requires that explicit action scope. Temporary/fallback/historical scope
+cannot expand it. Exact selected employee/policy and current grant/source state are checked
+in lookup and commit. No implicit decision/funding/document/employee-response authority.
+
+
+### Manual selected-transfer result boundaries — accepted 2026-10-23
+
+[L-0165](./decisions/0165-per-request-outcomes-for-selected-reassignment.md) binds multiple
+manual request selections to independent per-request outcomes, with within-request selected
+steps atomic. Freeze reviewed item/target/revisions and original per-item operation IDs;
+recover unknowns, retain success and never repeat transferred notices. Existing reason/
+current authority/L-0156 clocks remain. No bulk rollback/job engine; other source/appointment
+atomicity is independently bound. C6 actual source-test/order/size/readiness still required.
+
+### Approval-review team grouping — accepted 2026-10-24
+
+[L-0166](./decisions/0166-current-team-for-approval-availability.md) resolves 5.17 temporal
+grouping: current effective People supervisor/direct-report group, requested dates for
+absence intersection. Scheduled reporting changes apply when effective, not per future
+leave date. Existing current visibility/temp scope and advisory failure treatment remain.
+Historical/as-of report semantics remain separate; included request states/counts remain
+explicit query contract work.
+
+### Availability state inclusion — accepted 2026-10-24
+
+[L-0167](./decisions/0167-approved-and-pending-team-availability.md) adds confirmed versus
+pending absence classification to current-team 5.17 context. Actual approved versus
+submitted/in_approval source states remain distinct; exclude drafts, rejected/withdrawn/
+cancelled and the reviewed request. Current scope/privacy and advisory behavior unchanged.
+Read contract owns unique-person summaries, date-level projection and paging; no repeated
+counting from resubmission history or multiple requests for one employee.
+
+### Shared People Access registration and existing KDG substrate — accepted 2026-10-25
+
+[Platform P-0063](../../../../platform/docs/architecture/decisions/0063-internal-people-access-registration.md)
+uses internal People registration/org admission/explicit shared-management grants, without
+launcher or extra customer setup and independent of Leave enablement. Current KDG/platform
+registry/owner commands already exist and are reused. Its organization current-check path
+is KDG-specific, so actual People caller/check/resource/management integration and deliberate
+adoption remain. Do not rebuild delivered platform foundations or infer live People grants.
+No new role defaults, runtime implementation or readiness authorization.
+
+## Final consolidated adoption — 2026-10-26
+
+The user approved all final technical refinements under [platform ADR-0064](../../../../platform/docs/architecture/decisions/0064-approved-onboarding-continuity-and-content-contracts.md)
+and [Leave ADR-0171](./decisions/0171-work-calendar-precision-and-retention.md). Existing
+accepted ADRs remain immutable. CE complete and SP planning readiness PASS; actual
+scaffold/provider/native/browser proof belongs to delivery. Implementation is held for
+a new Codex session; use [the handoff](../implementation-handoff.md).

@@ -376,3 +376,57 @@ concurrent revision, discard/late-save and current authorization get separate re
 fixtures while Leave retains its actual domain acceptance. Shared scaffold/UI is reused,
 not Leave runtime imports or a generic draft service. Exact wire/DDL/retry-retention and
 story sizing remain readiness inputs. No new standalone story or implementation.
+
+## Concrete fixture and retry bounds — technical planning candidate 2026-10-25
+
+This binds the existing WRITE/REF/VERIFY fixture obligations for the consolidated
+planning review. It changes no application limit, grant or selected hosted target.
+The immutable example wire above remains authoritative; later draft demonstrations
+use their own lifecycle and cannot be deleted by the immutable-record cleanup command.
+
+| Boundary | Initial bound / behavior | Owner and acceptance oracle |
+| --- | --- | --- |
+| One hosted run | At most 10 created immutable example rows across its two exact fixture organizations; run maximum 10 minutes, excluding separately reported cleanup | VERIFY rejects an over-budget manifest before writes; server enforces the fixture record ceiling against concurrent runs, not only runner counters. |
+| Retained live example rows | At most 100 per configured fixture organization | WRITE blocks new example creates at capacity while retaining read/outcome/cleanup access. The target fixture cap is not a universal generated application rule. |
+| Cleanup | After every run, with recovery at the next run; failed-run rows eligible after 24 hours; exact target/organization/record/run manifest required | Restricted owner command deletes only immutable sample rows in its protected fixture registry. It cannot remove identities, memberships, grants, audit, outcomes, another app's data or arbitrary records that happen to carry a run ID. |
+| Retry evidence | No automatic receipt pruning in this increment; retain compact original outcomes after example cleanup | Concurrent retry and replay at 1 minute, 24 hours and after cleanup return the original acknowledgement. Changed stable input still fails; deleted example is not recreated. Missing receipt stays unresolved. |
+| Outcome capacity | Maximum 100,000 retained create outcomes per fixture organization | Block new creates before capacity exhaustion; do not prune deduplication evidence or block outcome recovery/cleanup. Operations can choose an explicitly migrated larger budget; no automatic rollover to fresh operation scope. |
+| Safe run artifacts | Retain 30 days, including failures and cleanup result, with credentials/tokens and payload dumps excluded | VERIFY records deployment/configuration identifiers, scenario/result, exact created IDs, operation/trace references and timings separately from business data. Artifact expiry does not delete owner outcomes or consequential audit. |
+| Run concurrency | One mutating hosted reference run per target; scope-bound lease with 15-minute expiry | Runner crash releases capacity through recovery; lease expiry never proves a create rolled back. A second run recovers prior exact IDs/outcomes before new writes. Domain operations remain independently idempotent. |
+
+Cleanup commits an example tombstone/outcome association under the same record/operation
+coordination as create recovery. It cannot race a late matching create into allocating
+another row. A compact receipt contains the original record ID but no retained label.
+No user-facing reference delete/update or history browser is added. Cleanup failure is
+a separate failed check and cannot turn the original scenario into a pass.
+
+Hosted target binding is a required deployment input rather than an unresolved new
+product workflow. The manifest names exact approved target identifier, application/API
+origins, configuration/release revision, fixture organization/account IDs, allowed
+scenarios and owner cleanup command. Runtime sign-in credentials come from the selected
+secret store; manifests/reports contain references only. Verify authority and configuration
+before any write. No default points at production, no synthetic staging is created, and
+no KDG environment is silently reused for Leave/reference work.
+
+VERIFY runs the safe allowed/denied create/read subset on each explicitly configured
+hosted target. Destructive fault injection, grant/revocation and migration-failure work
+runs on isolated qualification targets with its own exact fixture approval. A production
+smoke test cannot stand in for these checks. The current deployment README's registered
+applications do not configure a Leave/reference target. When none is configured, report
+`not configured` and block hosted activation; do not invent URLs or claim evidence.
+A standing staging environment is not required by this contract. If a release uses a
+staging target, its exact authorized binding and evidence are required just like any other.
+
+Impacts stay in WRITE (schema/outcome/cleanup role/guard tests), REF (existing browser
+wire and accurate recovery) and VERIFY (manifest, budgets and hosted execution). Reuse
+owner operation/error/generated-client/native-role patterns, not an additional fixture
+service. This selects bounded planning defaults; no hosted run, credential provisioning,
+cleanup, capacity query or runtime verification has occurred.
+
+## Consolidated adoption — accepted 2026-10-26
+
+The user explicitly approved the completed consolidated planning package. The reviewed
+choices and bounds in this contract are adopted under [the acceptance decision](../decisions/0064-approved-onboarding-continuity-and-content-contracts.md).
+Earlier candidate/pending-review wording is historical and superseded for these choices.
+Actual implementation and provider/database/browser/recovery proof remain delivery work.
+The user requires a new Codex session before implementation; no runtime action here.

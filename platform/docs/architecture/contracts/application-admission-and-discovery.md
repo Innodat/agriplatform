@@ -699,3 +699,127 @@ Reference service caller policy lists these exact IDs and organization discovery
 `reference`, without wildcard authority. See [owning reference contract](./platform-verification-app.md#initial-reference-capability-identifiers--2026-10-08).
 This resolves the initial create/read identifier gap in earlier passages; mixed-scope
 Access fixture identifiers and the remaining readiness contracts remain separate.
+
+
+## Leave source-coordination lifetime clarification — 2026-10-23
+
+Organization/global app disable is distinct from removing one person's membership/grants.
+It continues to use the accepted P-0046 behavior; no new control or admission state is added.
+For Leave, disabling user admission does not cancel a People source attempt or unregister
+required source participation. Narrow owner recovery resolves prepared/committed work
+without restoring user access. Re-enable checks still-valid Access authority plus Leave's
+actual domain readiness. The [People–Leave participation baseline](./identity-access-employment-e1.md#leave-participation-across-access-disablere-enable--e5-baseline-2026-10-23)
+owns adoption/retained-work ordering and planned evidence; Access does not take over source
+coordination or cross-owner database access. No runtime setting changed.
+
+
+## Leave E5 assigned and appointment authority consumer — 2026-10-23
+
+The [owning Leave C5 contract](../../../../apps/leave/docs/architecture/contracts/e5-capabilities-and-commands.md#source-actions-and-temporary-appointment-authority--2026-10-23)
+binds ordinary `leave.request.approve` to `{kind: assigned_workflow_steps}` resource scope
+and declares a restricted Leave-specific application/membership context consumer for the
+existing L-0082 temporary-only path. Context confirms app admission/identity, not a grant;
+Leave verifies its explicit appointment authority. It is selected before a permanent grant
+check, never fallback after denial. No People identity-context widening, wildcard/default
+role grant or per-appointment Access grant machinery. Actual Access/Leave consumers must
+implement/prove the new wire before activation; no endpoint/grant/test exists from this
+planning. Shared People management rights remain independently owned. Read the C5 contract
+for exact context fields/scope and actual test ownership.
+
+
+## Leave initial on-behalf resource predicate — accepted 2026-10-23
+
+Leave [ADR-0164](../../../../apps/leave/docs/architecture/decisions/0164-initial-on-behalf-employee-scope.md)
+resolves the existing initial action scope. Its `leave.admin.on_behalf` result is a closed
+resource union `normal_approval_population` / `organization_employees`, interpreted by Leave
+against current actual target/policy/source scope. Standard Approver defaults to the former;
+explicit administrative action scope is needed for the latter. No implicit app admission,
+role-name or temporary-scope broadening. Actual Access catalog/result and Leave command
+consumers must implement/prove it together; no live grant or code changed.
+
+## Leave E5 context/resource wire synchronization — 2026-10-25
+
+This closes the selected context/resource field types declared in the Leave C5 contract,
+not an implementation or live catalog/default-role change. ACCESS-B and actual Leave
+consumers own compatible schema/client/error changes together.
+
+POST `/v2/applications/leave/organization-context` is a new restricted Leave consumer,
+with current end-user bearer and the registered Leave API credential. Body is exactly
+`{org_id}` with canonical organization UUID. Unknown/duplicate fields and malformed IDs
+use the owning stable validation error. Success is exactly `account_id`, `actor_id`,
+nullable `person_id`, `org_id`, `membership_id`, `observation_id`, `checked_at`.
+Account/actor/person/org/observation identities are UUIDs; membership is a positive
+canonical decimal-string bigint, not a UUID or JavaScript number. checked_at is UTC
+RFC3339. The actor is verified durable attribution, not an employment record.
+
+Verify current account/session, current membership and Leave global/organization app
+admission before returning context. No synthetic employment/person link is required for
+an otherwise eligible current member merely to be appointed. A missing durable actor
+mapping is safe setup failure, not fabricated identity. Denied/unavailable checks use
+existing compatible Access typed errors; never return a successful partial context.
+Success is private/no-store, not a signed grant, replayable authority token or capability
+check result. Exact permitted caller/endpoint/environment is in service policy; a People
+identity-context credential cannot call this Leave consumer by inference.
+
+Ordinary `/v2/check` retains its existing common success fields and organization scope.
+For `leave.request.approve`, select the additional resource branch
+`resource_scope: {kind: assigned_workflow_steps}` with current membership ID and account/
+actor identity. Do not force own-person resource or a non-null person link for every
+approval consumer. Leave checks actual step/appointment/self/distinct-person scope.
+For `leave.admin.on_behalf`, the closed resource branches are
+`{kind: normal_approval_population}` and `{kind: organization_employees}` under L-0164;
+Leave checks actual target/policy scope. No arbitrary resource IDs, role-name fallback or
+union of denied resource scopes. These branches do not alter E1 own-person or PtS account
+responses. Context success is never substituted for a required permanent capability.
+
+Actual Access/Leave contract acceptance covers member without employment, unavailable
+admission, wrong credential/app/org, revoked membership, denied permanent grant with no
+fallback, response-field/scope mismatch, and unaffected existing account/own variants.
+Appointment expiry/current authority belongs to actual Leave consumers, not Access's
+context endpoint. No runtime tests, grants, catalog registration or new app control.
+
+## Proposed internal People registry/admission binding — 2026-10-25
+
+[P-0063](../decisions/0063-internal-people-access-registration.md) is proposed, not adopted.
+Current source inspection confirms access.applications, permissions and entry_permissions
+in migration access_0003 and existing protected organization_application.configure owner
+command. Consumer-specific current /v2/check dispatch/credentials remain actual extension
+work; no current People handler is claimed. This evidence supports reusing registry/admission
+mechanics, not claiming production behavior or rerunning their qualifications.
+
+If agreed, choose app_id `people`, permission `people.employment.manage`, organization
+scope, resource_scope `{kind: organization_employments}`. `/v2/check` keeps canonical
+permission/authorization_scope input, verified account/actor/current membership and common
+decision fields; no person link required solely for shared management. Positive decimal
+membership and actual target/People validation remain. Restricted People service policy
+permits only its declared checks. No Leave credential can request them by default.
+
+Internal People admission is provisioned through controlled shared-employment onboarding,
+with no automatic human grants. No Directory publication/entry permission. Leave disable
+does not affect People admission/grants; People disable blocks new human source commands
+without discarding separately required recovery. Exact owner registration/adoption commands
+and supported consumer coexistence tests belong to actual delivery. G4-P remains pending
+user adoption; do not silently register/enforce this proposal as accepted policy.
+
+## Internal People registration adopted; KDG reuse clarified — 2026-10-25
+
+User accepted P-0063 and asked whether KDG had already delivered the machinery. Current
+working-tree inspection confirms the generic Access registry/storage and protected app/
+permission/entry registration plus organization-admission commands are implemented. The
+preceding proposal/adoption-pending wording for P-0063 is superseded. Do not recreate
+these foundations or size their original delivery again for Leave/People.
+
+Actual source: access_0003 registry, protected command evidence files in services/access,
+organization_check.py and access_0015. KDG HTTP branch restricts permitted strings/caller/
+configured org; SQL additionally binds permissions.app_id='kdg_capture'. Thus existing
+organization checking is not already People-capable. No People service or explicit
+people.employment.manage registration/consumer was found in the repository. Deployed
+configuration was not inspected; source/evidence inspection is not a new runtime PASS.
+
+G4-P design now adopted: internal app_id people, exact management permission/org scope,
+organization_employments resource, controlled independent admission/explicit grants and
+no Directory entry. Actual compatible People check consumer and explicit owner provisioning/
+adoption remain delivery deltas. Preserve supported KDG/Scribeswell/PtS behavior and immutable
+historical migrations. Existing grants/admission do not prove every future grant/role UI
+or consumer path is implemented. G6/C6 must reconcile delivered substrate against actual
+remaining consumer work, not turn this reuse decision into another implementation epic.

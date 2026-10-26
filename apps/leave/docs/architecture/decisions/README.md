@@ -17,6 +17,9 @@ and are linked rather than duplicated here.
 
 | ADR | Status | Decision |
 |---|---|---|
+| [0170](./0170-imported-pending-work-and-resumable-employee-units.md) | Accepted | Freshly verified pending approval cycles/notices at activation and resumable atomic employee import units |
+| [0169](./0169-reporting-time-basis-and-derived-team-grouping.md) | Accepted | Corrected-known historical balances and current staffing versus effective-date historical team grouping |
+| [0168](./0168-cancellation-date-boundary-and-management-scope.md) | Accepted | First requested work-local date ends future cancellation; standard Approver uses current ordinary responsibility scope |
 | [0001](./0001-immutable-balance-ledger.md) | Superseded in part by 0090 for derived automatic accrual | Leave balances derive from an immutable ledger |
 | [0002](./0002-versioned-leave-policies.md) | Accepted | Leave types and policies are effective-dated and versioned |
 | [0003](./0003-working-time-in-minutes.md) | Accepted | Working-time consumption is stored canonically in minutes |
@@ -26,7 +29,7 @@ and are linked rather than duplicated here.
 | [0007](./0007-required-approval-and-automatic-decisions.md) | Superseded in part by 0008, 0078, and 0080 | Later-step ordering, coverage gate, and optional directional absence policy qualify approval rules |
 | [0008](./0008-later-step-acceptance-on-submission.md) | Superseded in part by 0078 and 0080 | Immediate later-step acceptance retained; coverage and optional absence policy qualify finalization |
 | [0009](./0009-resubmit-rejected-request.md) | Accepted | Correct and resubmit the same rejected request while preserving submission history |
-| [0010](./0010-cancel-and-replace-approved-leave.md) | Accepted | Cancel and replace approved leave through renewed approval, with scoped on-behalf rights |
+| [0010](./0010-cancel-and-replace-approved-leave.md) | Superseded in part by 0152 | Cancel and replace approved leave through renewed approval, with scoped on-behalf rights |
 | [0011](./0011-colleague-absence-privacy.md) | Superseded in part by 0074 | Colleague type/detail privacy remains; partial days now show Part-day absence |
 | [0012](./0012-assigned-approver-field-visibility.md) | Accepted | Assigned approvers see sensitive leave types and employee notes; medical documents remain separately authorized |
 | [0013](./0013-leave-manager-field-visibility.md) | Accepted | Leave Managers see in-scope types, employee notes, and approval history; medical documents remain separately authorized |
@@ -48,7 +51,7 @@ and are linked rather than duplicated here.
 | [0029](./0029-repeated-carry-over.md) | Accepted | Policies choose once-only or repeated carry-over within limits; existing expiry dates never extend |
 | [0030](./0030-non-carried-entitlement-expiry.md) | Accepted | Unused amounts excluded from carry-over expire with ledger history and employee explanation; no automatic payout or cross-type transfer |
 | [0031](./0031-pending-request-rollover-shortfalls.md) | Accepted | Reservations do not bypass rollover rules; keep shortfalls pending and warn of the exact requested unpaid amount |
-| [0032](./0032-protected-reservations-and-explained-changes.md) | Accepted | Protect existing reservations; explain authorized unpaid increases and require employee acknowledgement before final approval |
+| [0032](./0032-protected-reservations-and-explained-changes.md) | Superseded in part by 0151 | Protect existing reservations; explain authorized unpaid increases and require employee acknowledgement before final approval |
 | [0033](./0033-optional-accumulated-balance-cap.md) | Accepted | Optional balance caps limit scheduled accrual; explain excluded amounts and retain existing entitlement |
 | [0034](./0034-accrual-resumption-after-cap.md) | Accepted | Resume accrual on the next scheduled date within the cap, without automatic restoration of excluded amounts |
 | [0035](./0035-leave-date-funding-and-booking-horizon.md) | Accepted | Reserve entitlement valid on leave dates and enforce a per-policy advance-booking horizon |
@@ -69,8 +72,8 @@ and are linked rather than duplicated here.
 | [0050](./0050-minimum-notice-default-zero.md) | Accepted | Minimum notice defaults to zero calendar days; shorter-notice requests require an explanation and approver flag |
 | [0051](./0051-backdated-requests-without-cutoff.md) | Accepted | No fixed backdating cutoff; require a reason, visible lateness, normal approval, and historical calculations |
 | [0052](./0052-overlaps-and-administrative-corrections.md) | Superseded in part by 0074 | Correction authority/history remain; interval checks replaced by same-date warnings and daily duration limits |
-| [0053](./0053-administrative-correction-authority.md) | Accepted | Administrative corrections require a Leave Manager with scoped on-behalf permission; Organization Administrator alone is insufficient |
-| [0054](./0054-administrative-correction-notifications.md) | Accepted | Notify employees of corrections by email and in-app; acknowledgement only for increased requested unpaid leave |
+| [0053](./0053-administrative-correction-authority.md) | Superseded in part by 0152 | Administrative corrections require a Leave Manager with scoped on-behalf permission; Organization Administrator alone is insufficient |
+| [0054](./0054-administrative-correction-notifications.md) | Superseded in part by 0151 | Notify employees of corrections by email and in-app; acknowledgement only for increased requested unpaid leave |
 | [0055](./0055-ngo-scoped-notifications-and-badges.md) | Accepted | Active-NGO bell/inbox with count-only badges for each active NGO membership |
 | [0056](./0056-notification-read-state.md) | Accepted | Open marks read; bulk read affects only the user's active NGO; neither approves nor acknowledges leave |
 | [0057](./0057-approval-reminder-interval.md) | Accepted | Policy reminder interval defaults to three calendar days; remind only currently required approvers without changing decisions or routing |
@@ -85,7 +88,7 @@ and are linked rather than duplicated here.
 | [0066](./0066-role-sections-and-action-badges.md) | Accepted | Permission-based My Leave/Approvals/Manage Leave sections share active NGO; action badges are separate from unread counts |
 | [0067](./0067-automatic-draft-saving.md) | Superseded in part by 0075 | Truthful autosave, NGO-bound drafts, no reservation, and submission revalidation retained; closing label refined by 0075 |
 | [0068](./0068-ngo-switch-while-editing.md) | Accepted | Save drafts in the original NGO before switching; failed saves offer retry/stay/discard-unsaved-and-switch |
-| [0069](./0069-submission-summary-and-unpaid-acknowledgement.md) | Superseded in part by 0071 and 0088 | Exact unpaid acknowledgement and submit behavior remain; summary context simplified by 0071 |
+| [0069](./0069-submission-summary-and-unpaid-acknowledgement.md) | Superseded in part by 0071 and 0088 and 0151 | Exact unpaid acknowledgement and submit behavior remain; summary context simplified by 0071 |
 | [0070](./0070-simple-submission-confirmation.md) | Superseded in part by 0087 | Confirm submission with dates/status; keep identifiers internal, history accessible, employee actions clear, and retries duplicate-safe |
 | [0071](./0071-concise-summary-and-header-ngo-context.md) | Accepted | Keep NGO in header, show switcher only for multiple NGOs, and simplify summary without named approvers |
 | [0072](./0072-mobile-employee-and-approver-workflows.md) | Accepted | Complete employee/approver workflows on phones with compact month navigation and accessible history list |
@@ -96,14 +99,14 @@ and are linked rather than duplicated here.
 | [0077](./0077-scheduled-return-of-temporary-approvals.md) | Accepted | Authorize automatic return at temporary-assignment expiry with eligibility checks, audit, notification, and unresolved-cover fallback |
 | [0078](./0078-approval-coverage-before-final-approval.md) | Accepted | Require coverage before final approval, including automatic completion, with authorized explained exceptions; qualifies 0007/0008 |
 | [0079](./0079-temporary-appointment-grants-scoped-authority.md) | Accepted | Authorized temporary appointment grants bounded approval authority to active NGO members without a permanent approver role |
-| [0080](./0080-directional-absence-approval-policy.md) | Superseded in part by 0081 | Directional absence policy retained; pending-step return/timing resolved in 0081 |
+| [0080](./0080-directional-absence-approval-policy.md) | Superseded in part by 0081 and 0146 | Directional absence policy retained; timing/return resolved in 0081; temporary final approver follows configured fallback without extra appointment flag under 0146 |
 | [0081](./0081-absence-fallback-timing-and-return.md) | Accepted | Allow pending work to await supervisor return; continue reminders, restore outstanding supervisor step before final decision, and retain completed approvals |
 | [0082](./0082-one-approver-role-with-workflow-steps.md) | Accepted | One Approver role; supervisor relationships and final-step authority resolved through workflow assignments |
 | [0083](./0083-recurring-entitlement-period-boundaries.md) | Accepted | Recurring employee entitlement changes only at leave-period boundaries; default next boundary, immediate changes use separate adjustments |
 | [0084](./0084-request-focused-balance-planning.md) | Accepted | Keep projections in Apply; defer standalone calculator/graph and explain actual policy consequences |
 | [0085](./0085-period-relative-carry-over-expiry.md) | Accepted | Optional carry-over expiry in months from new period start, showing last usable date; existing expiry is never extended |
 | [0086](./0086-archive-markers-and-effective-dated-versions.md) | Accepted | Archive timestamps retire records; effective-dated versions preserve calculation rules; snapshots and audit remain distinct |
-| [0087](./0087-return-to-my-leave-after-submission.md) | Accepted | Return to My Leave after confirmed submission; optional detail link, persistent list status and duplicate-safe recovery |
+| [0087](./0087-return-to-my-leave-after-submission.md) | Superseded in part by 0148 | Return to My Leave after confirmed submission; optional detail link, persistent list status and duplicate-safe recovery; recovery label simplified to Retry by 0148 |
 | [0088](./0088-employee-acknowledgement-for-on-behalf-unpaid-leave.md) | Accepted | Managers may submit unpaid on-behalf requests; employee exact-amount response gates final approval and leaves the employee draft untouched |
 | [0089](./0089-carry-over-month-boundary-expiry.md) | Accepted | Deterministic month-boundary carry-over expiry, inclusive last usable date and leap-year examples |
 | [0090](./0090-annual-entitlement-availability-options.md) | Accepted | Annual entitlement with daily/upfront/monthly availability, manual grants retained, backend on-demand calculation |
@@ -144,7 +147,7 @@ and are linked rather than duplicated here.
 | [0125](./0125-supervisor-based-teams-for-mvp.md) | Accepted | Leave MVP teams are supervisor direct reports; independent named teams/team profile configuration deferred, current scope/privacy/history preserved |
 | [0126](./0126-explicit-policy-assignment-with-employee-filters.md) | Accepted | Employee filters select an explicit policy-assignment set; automatic eligibility deferred, backend assignment enforcement and historical/effect protections retained |
 | [0127](./0127-upfront-entitlement-with-calendar-day-proration-default.md) | Accepted | New automatic-entitlement policies default to upfront annual availability with calendar-day proration; editable alternatives and existing policies preserved |
-| [0128](./0128-accountable-request-impacts-of-administrative-changes.md) | Accepted | Change authorizers own visible request impacts; existing human coordination/permissions resolve pending issues, discretionary approved-request impacts resolved before commit, factual corrections retain deficit review |
+| [0128](./0128-accountable-request-impacts-of-administrative-changes.md) | Superseded in part by 0151 | Change authorizers own visible request impacts; existing human coordination/permissions resolve pending issues, discretionary approved-request impacts resolved before commit, factual corrections retain deficit review |
 | [0129](./0129-oldest-source-period-for-equal-expiry-allocation.md) | Accepted | Equal-expiry allocation uses oldest original source period, then stable portion identity; earliest-expiry priority and protected reservations retained |
 | [0130](./0130-standard-english-notification-templates-for-mvp.md) | Accepted | Leave MVP uses standard shared English notifications with organization identification; custom branding/editable templates/Portuguese delivery deferred, localization readiness retained |
 | [0131](./0131-other-organization-unread-indicator.md) | Accepted | Active-organization inbox with per-organization selector counts and discreet other-organization unread dot; single accessible organization has no selector, business responses remain separate |
@@ -162,3 +165,42 @@ and are linked rather than duplicated here.
 | [0143](./0143-initial-upfront-grant-from-policy-coverage-start.md) | Accepted | Initial upfront coverage starts at later employment/assignment date; use existing adjusted/full-period choice, without duplicate grant on resumption |
 | [0144](./0144-monthly-availability-after-assignment-coverage-ends.md) | Accepted | Covered monthly portion retains scheduled availability after assignment ending; no accelerated release, forfeiture solely from ending or uncovered earning |
 | [0145](./0145-reconcile-start-available-monthly-coverage-changes.md) | Accepted | Review/reconcile already-available monthly portion under adjusted/full coverage choice; preserve original evidence/request safeguards, no separate manual deduction or annual-upfront clawback implied |
+| [0146](./0146-temporary-final-approver-follows-configured-absence-policy.md) | Accepted | Temporary final approver follows the applicable configured absence fallback without a separate appointment flag; scope/date/self-approval and all independent finalization safeguards retained |
+| [0147](./0147-current-supervisor-routing-and-concise-decision-attribution.md) | Accepted | Pending supervisor steps follow the eligible replacement at effective change; use existing change activity and actual decision/acting-for attribution, preserving completed/final steps |
+| [0148](./0148-simple-retry-for-uncertain-submission.md) | Accepted | Retry resolves the original submission outcome first; no separate Check status action, duplicate submission or false outcome claim |
+| [0149](./0149-standard-approver-includes-scoped-on-behalf-submission.md) | Accepted | Standard Approver role includes scoped initial on-behalf submission; custom approval-only and temporary-only authority do not imply it, with correction/funding/document rights separate |
+| [0150](./0150-scoped-exceptional-funding-and-combined-confirmation.md) | Superseded in part by 0151 | One scoped exception capability covers permitted request funding sources; authorized actors may confirm funding and approval together, with distinct recorded outcomes and atomic effects |
+| [0151](./0151-notify-pending-unpaid-changes-without-renewed-acknowledgement.md) | Accepted | Later pending paid/unpaid changes require explained review and employee notice without renewed acknowledgement; initial self-service/on-behalf response rules and other finalization safeguards retained |
+| [0152](./0152-simple-approved-leave-cancellation-defaults.md) | Accepted | Employee own future cancellation and standard Approver scoped future cancellation; ongoing/past corrections use Leave Manager correction authority, temporary-only excluded, no extra approval round |
+
+| [0153](./0153-standard-leave-manager-includes-reassignment.md) | Accepted | Standard Leave Manager includes organization-scoped approval reassignment; restricted custom roles may omit it, separate checks and eligible-target/reason rules retained |
+
+| [0154](./0154-reassess-finalization-when-blocking-condition-resolves.md) | Accepted | Resolution of the last blocking condition triggers fresh finalization using existing valid decisions; no repeat approval/completion button, exact trigger and recovery contracts open |
+
+| [0155](./0155-recurring-reminders-and-single-escalation.md) | Accepted | Repeat approver reminders every configured interval (default three calendar days); notify manager once at escalation threshold (default seven), retain unresolved attention |
+
+| [0156](./0156-preserve-approval-waiting-clock-on-transfer.md) | Accepted | Preserve the same unfinished approval step’s waiting clock across transfer, notify recipient immediately, retain existing escalation; a different actionable step starts its own clock |
+
+| [0157](./0157-coalesced-reminder-catch-up.md) | Accepted | Coalesce missed timed reminders into at most one current catch-up; retain outbox identities and single due escalation, Leave relevance checks precede shared delivery |
+
+| [0158](./0158-one-decision-for-consecutive-same-person-steps.md) | Accepted | One confirmation covers consecutive same-person steps with authority for each; configured two-distinct-person routes require different eligible approvers |
+
+| [0159](./0159-autosave-rejected-request-corrections.md) | Accepted | Autosave corrections on the rejected request, retain submitted history and separate new-application draft; explicit Resubmit alone starts fresh approval |
+
+| [0160](./0160-permanent-supervisor-change-during-temporary-cover.md) | Accepted | Eligible permanent replacement takes affected unfinished supervisor work during temporary cover; preserve other appointment responsibilities and prevent stale return to previous supervisor |
+
+| [0161](./0161-employee-only-pending-withdrawal.md) | Accepted | Pending withdrawal remains employee-only; assigned authorized approvers reject with visible reason, no manager on-behalf withdrawal default |
+
+| [0162](./0162-close-initial-response-when-unpaid-reaches-zero.md) | Accepted | Close outstanding initial on-behalf response when requested unpaid becomes zero, preserve history without fabricated consent; later same-cycle changes notify only and all other finalization gates remain |
+
+| [0163](./0163-protected-authority-check-at-supervisor-boundaries.md) | Accepted | Final protected authority check governs a short bounded Leave transaction crossing a permanent-supervisor effective boundary; checks at/after use new facts, exact budgets remain gated |
+
+| [0164](./0164-initial-on-behalf-employee-scope.md) | Accepted | Standard Approver initial on-behalf targets normal configured approval population; organization-wide administration requires explicit on-behalf scope, temporary appointment alone adds none |
+
+| [0165](./0165-per-request-outcomes-for-selected-reassignment.md) | Accepted | Manual selected reassignment commits per request with truthful individual outcomes and original-item retries; within-request steps remain atomic |
+
+| [0166](./0166-current-team-for-approval-availability.md) | Accepted | E5 advisory availability compares requested dates against current effective supervisor team; no future/as-of grouping, expanded visibility or historical-report decision |
+
+| [0167](./0167-approved-and-pending-team-availability.md) | Accepted | Request-review availability includes approved and distinctly pending requests, excludes drafts/negative closed outcomes/self, preserves colleague privacy and advisory behavior |
+
+| [0171](./0171-work-calendar-precision-and-retention.md) | Accepted | Nominal work-calendar/DST quotas, exact half-minute accounting, anchored timezone applicability and prospective medical-retention defaults; links platform0064 |

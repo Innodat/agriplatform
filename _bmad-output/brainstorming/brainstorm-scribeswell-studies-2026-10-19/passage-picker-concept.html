@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Scribeswell · Passage picker concept</title>
+<style>
+*{box-sizing:border-box}body{margin:0;background:#f4f2ed;color:#283b39;font:15px/1.5 system-ui,sans-serif}button,input{font:inherit}button{cursor:pointer}button:focus-visible,a:focus-visible{outline:3px solid #ba8744;outline-offset:3px}.page{max-width:1250px;margin:auto;padding:36px 28px}.eyebrow{font-size:12px;text-transform:uppercase;letter-spacing:.12em;color:#657974}h1{font:36px/1.2 Georgia,serif;margin:10px 0}h2{font:24px Georgia,serif;margin:0}p{margin:10px 0;color:#667773}.intro{max-width:750px}.scenarios{display:grid;grid-template-columns:1fr 1fr;gap:26px;margin-top:28px}.scenario{min-width:0}.label{display:flex;align-items:center;gap:10px;margin-bottom:12px;font-weight:650}.number{display:grid;place-items:center;background:#dce6df;border-radius:50%;width:29px;height:29px}.app{border:1px solid #d5dcd5;border-radius:14px;background:#fffdf8;box-shadow:0 12px 30px #263e3510;overflow:hidden}.appbar{padding:16px 20px;border-bottom:1px solid #e5e7df;display:flex;justify-content:space-between;align-items:center}.brand{font:21px Georgia,serif}.badge{font-size:12px;background:#edf0e9;color:#5c7067;padding:4px 9px;border-radius:20px}.body{padding:22px}.context{font-size:12px;color:#728078;margin-bottom:9px}.selector,.secondary{background:#fffdf8;border:1px solid #b9c9be;color:#264c3e;padding:9px 12px;border-radius:7px}.selector{display:flex;gap:28px;align-items:center;font-weight:600}.key{font-size:12px;color:#728078;border:1px solid #d8dfd6;border-radius:4px;padding:0 6px}.picker{margin-top:12px;background:white;border:1px solid #b7c8bc;border-radius:10px;box-shadow:0 8px 18px #1d433418;padding:16px}.pick-title{display:flex;justify-content:space-between;font-weight:650;margin-bottom:10px}.close{background:none;border:0;color:#68786e;font-size:20px;line-height:1}.ref{width:100%;padding:11px;border:2px solid #628572;border-radius:7px;background:#fcfefb;font-size:17px;unicode-bidi:plaintext}.hint{font-size:12px;color:#728078;margin:7px 0 12px}.match{display:flex;align-items:center;gap:10px;background:#eef3ec;padding:11px;border-radius:7px}.matchtext{flex:1}.hebrew{font-family:serif;font-size:18px}.small{font-size:12px;color:#748074}.primary{background:#315f4a;color:white;border:0;border-radius:6px;padding:9px 13px;font-weight:600;white-space:nowrap}.browse{margin-top:16px;border-top:1px solid #e7ebe3;padding-top:11px}.browse summary{cursor:pointer;font-size:13px;color:#49634f}.books{display:flex;flex-wrap:wrap;gap:6px;margin:12px 0 4px}.book{background:#f4f5ef;border:1px solid #dce3d7;border-radius:5px;padding:6px 9px;color:#48604d}.reader{margin-top:24px;padding:20px;border:1px solid #e8e9df;border-radius:8px;background:#faf9f3;text-align:center;min-height:102px}.reader-title{font:20px Georgia,serif}.rule{height:8px;background:#e3e6db;border-radius:4px;margin:14px auto 0;width:80%}.rule.short{width:57%;margin-top:9px}.study-head{display:flex;align-items:center;justify-content:space-between}.study-title{font:25px Georgia,serif}.passages{padding:0;list-style:none;margin:15px 0}.passages li{padding:10px 0;border-bottom:1px solid #e8ebe2;display:flex;justify-content:space-between;align-items:center;gap:10px}.open{border:0;background:none;color:#37634e;text-decoration:underline;padding:3px;font-size:13px}.study-actions{display:flex;gap:9px;flex-wrap:wrap}.study-actions .secondary{font-size:13px}.notice{margin-top:14px;padding:10px 12px;background:#eaf1e6;border-radius:7px;color:#355b40;font-size:13px;min-height:40px}.notice:empty{display:none}.caption{margin:13px 2px;font-size:14px}.legend{display:flex;gap:24px;flex-wrap:wrap;margin-top:26px;border-top:1px solid #d8dfd4;padding-top:20px;font-size:14px}.dot{display:inline-block;width:8px;height:8px;border-radius:50%;background:#61866a;margin-right:8px}[hidden]{display:none!important}.footer{font-size:12px;margin-top:22px;color:#7e897f}@media(max-width:850px){.scenarios{grid-template-columns:1fr}.page{padding:24px 16px}h1{font-size:29px}.body{padding:17px}.match{flex-wrap:wrap}}
+</style>
+<main class="page">
+<div class="eyebrow">Scribeswell · Interactive UX sketch</div>
+<h1>One passage picker. Two clear actions.</h1>
+<p class="intro">Type in English or Hebrew, or browse. In the reader you open a passage; in a study you collect a passage. Try <b dir="auto">תהילים קי:1</b>, <b>ps 110:1</b> or <b>psalms 2:10-13</b>.</p>
+<div class="scenarios">
+<section class="scenario" aria-labelledby="left-label">
+<div class="label" id="left-label"><span class="number">1</span>Navigate the reader</div>
+<div class="app">
+<div class="appbar"><span class="brand">scribeswell</span><span class="badge">Reader</span></div>
+<div class="body">
+<div class="context">CURRENT PASSAGE</div>
+<button class="selector" id="reader-toggle" aria-expanded="true" aria-controls="reader-picker"><span id="reader-current">Daniel 7:13</span> <span>▾ <span class="key">/</span></span></button>
+<div class="picker" id="reader-picker" data-mode="reader">
+<div class="pick-title"><span>Go to passage</span><button class="close" aria-label="Close reader passage picker">×</button></div>
+<label class="small" for="reader-input">Book, chapter and optional verses</label>
+<input class="ref" id="reader-input" dir="auto" value="תהילים קי:1" autocomplete="off" spellcheck="false">
+<div class="hint">English / עברית · Enter to open · Esc to close</div>
+<div class="match"><div class="matchtext"><div class="result">Psalm 110:1</div><div class="small hebrew" dir="rtl">תהילים קי:1</div></div><button class="primary confirm">Open passage</button></div>
+<details class="browse"><summary>Or browse books and chapters</summary><div class="books"><button class="book" data-ref="ps 110:1">Psalms · תהילים</button><button class="book" data-ref="dan 7:13">Daniel · דניאל</button></div><p class="small">Illustrative shortcuts only. A complete picker would show all available books, chapters and verse ranges.</p></details>
+</div>
+<div class="reader"><div class="reader-title reading">Daniel 7:13</div><div class="small">Reading pane · text omitted in this sketch</div><div class="rule"></div><div class="rule short"></div></div>
+<div class="notice" id="reader-status" role="status"></div>
+</div></div>
+<p class="caption"><b>Open passage</b> changes the reader. Typing alone leaves it in place.</p>
+</section>
+<section class="scenario" aria-labelledby="right-label">
+<div class="label" id="right-label"><span class="number">2</span>Collect passages in a study</div>
+<div class="app">
+<div class="appbar"><span class="brand">scribeswell</span><span class="badge">My studies</span></div>
+<div class="body">
+<div class="context">ACTIVE STUDY · PRIVATE</div>
+<div class="study-head"><span class="study-title">Kissing the Son</span></div>
+<ul class="passages" id="passages"><li><span>Daniel 7:13</span><button class="open" data-open="Daniel 7:13">Open</button></li></ul>
+<div class="study-actions"><button class="secondary" id="study-toggle" aria-expanded="true" aria-controls="study-picker">＋ Add passage</button><button class="secondary" id="add-current">＋ Add current passage…</button></div>
+<div class="picker" id="study-picker" data-mode="study">
+<div class="pick-title"><span>Add passage to this study</span><button class="close" aria-label="Close study passage picker">×</button></div>
+<label class="small" for="study-input">Book, chapter and optional verses</label>
+<input class="ref" id="study-input" dir="auto" value="תהילים קי:1" autocomplete="off" spellcheck="false">
+<div class="hint">English / עברית · Enter to add · Reader stays in place</div>
+<div class="match"><div class="matchtext"><div class="result">Psalm 110:1</div><div class="small hebrew" dir="rtl">תהילים קי:1</div></div><button class="primary confirm">Add to study</button></div>
+<details class="browse"><summary>Or browse books and chapters</summary><div class="books"><button class="book" data-ref="ps 110:1">Psalms · תהילים</button><button class="book" data-ref="dan 7:13">Daniel · דניאל</button></div><p class="small">Same browsing controls as the reader picker.</p></details>
+</div>
+<div class="notice" id="study-status" role="status"></div>
+</div></div>
+<p class="caption"><b>Add to study</b> collects the reference. Use the entry’s <b>Open</b> action when you want to read it.</p>
+</section>
+</div>
+<div class="legend"><span><span class="dot"></span>One verse or a verse range</span><span><span class="dot"></span>Typing and browsing in the same panel</span><span><span class="dot"></span>Explicit Open / Add action</span></div>
+<p class="footer">Concept only: a few hard-coded reference examples, no full reference parser, Bible data, account connection or persistence. The two panels demonstrate two contexts of the same proposed component.</p>
+</main>
+<script>
+const samples=[{re:/^(?:ps(?:alms?)?\.?|תהילים|תהלים)\s+(?:110|קי)[\s:]+(?:1|א)[\s.]*$/iu,label:'Psalm 110:1',he:'תהילים קי:1',input:'תהילים קי:1'},{re:/^(?:ps(?:alms?)?\.?|תהילים|תהלים)\s+(?:2|ב)[\s:]+10\s*[-–]\s*13$/iu,label:'Psalm 2:10–13',he:'תהילים ב:10–13',input:'psalms 2:10-13'},{re:/^(?:dan(?:iel)?\.?|דניאל)\s+(?:7|ז)[\s:]+13$/iu,label:'Daniel 7:13',he:'דניאל ז:13',input:'dan 7:13'}];
+const $=s=>document.querySelector(s);let current='Daniel 7:13';const refs=new Set([current]);
+function resolve(value){return samples.find(s=>s.re.test(value.trim()))}
+function setOpen(mode,open){const picker=$('#'+mode+'-picker');picker.hidden=!open;$('#'+mode+'-toggle').setAttribute('aria-expanded',String(open));if(open){const input=picker.querySelector('input');input.focus();input.select()}else $('#'+mode+'-toggle').focus()}
+function openPassage(label){current=label;$('#reader-current').textContent=label;$('.reading').textContent=label;$('#reader-status').textContent='Reader opened '+label+'.'}
+for(const mode of ['reader','study']){const picker=$('#'+mode+'-picker'),input=picker.querySelector('input'),confirm=picker.querySelector('.confirm');function update(){const match=resolve(input.value);picker.querySelector('.result').textContent=match?.label||'Try one of the example references above';picker.querySelector('.hebrew').textContent=match?.he||'';confirm.disabled=!match;confirm.style.opacity=match?'1':'.45'}function submit(){const match=resolve(input.value);if(!match)return;if(mode==='reader'){openPassage(match.label);setOpen(mode,false)}else{if(refs.has(match.label)){$('#study-status').textContent=match.label+' is already in this study.'}else{refs.add(match.label);const li=document.createElement('li'),span=document.createElement('span'),button=document.createElement('button');span.textContent=match.label;button.className='open';button.textContent='Open';button.dataset.open=match.label;li.append(span,button);$('#passages').append(li);$('#study-status').textContent='Added '+match.label+'. Reader remains on '+current+'.'}input.value='';update();input.focus()}}
+input.addEventListener('input',update);input.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();submit()}});confirm.addEventListener('click',submit);picker.addEventListener('keydown',e=>{if(e.key==='Escape'){e.preventDefault();setOpen(mode,false)}});picker.querySelector('.close').addEventListener('click',()=>setOpen(mode,false));$('#'+mode+'-toggle').addEventListener('click',()=>setOpen(mode,picker.hidden));picker.querySelectorAll('.book').forEach(b=>b.addEventListener('click',()=>{input.value=b.dataset.ref;update();input.focus()}));update()}
+$('#passages').addEventListener('click',e=>{if(e.target.dataset.open)openPassage(e.target.dataset.open)});
+$('#add-current').addEventListener('click',()=>{setOpen('study',true);$('#study-input').value=samples.find(s=>s.label===current)?.input||'';$('#study-input').dispatchEvent(new Event('input'));$('#study-status').textContent='Current reference filled in. Adjust its verse range before adding.'});
+document.addEventListener('keydown',e=>{if(e.key==='/'&&!e.ctrlKey&&!e.metaKey&&!e.altKey&&!e.target.closest('input,textarea,[contenteditable]')){e.preventDefault();setOpen('reader',true)}});
+</script>
+</html>
