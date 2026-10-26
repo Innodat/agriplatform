@@ -18,6 +18,7 @@ export function Topbar() {
   const [entryMode,setEntryMode]=useState<AccountMode>('signin');
   const [callbackNotice,setCallbackNotice]=useState(callbackFailed);
   useEffect(() => {if(callbackFailed)setCallbackNotice(true);}, [callbackFailed]);
+  useEffect(()=>{const open=()=>{setEntryMode('signin');setShowSignIn(true);};window.addEventListener('scribeswell-account-entry',open);return()=>window.removeEventListener('scribeswell-account-entry',open);},[]);
   const { apps, loading: appsLoading } = useMyApps();
   useEffect(()=>{if(user){setShowSignIn(false);setSignOutError('');}},[user?.id]);
 

@@ -93,8 +93,17 @@ def get_chapter(osis_id: str, chapter_num: int) -> ChapterWithVersesResponse:
 # ── Verses ────────────────────────────────────────────────────────────────────
 
 def get_verses(osis_id: str, chapter_num: int) -> VersesListResponse:
-    """Return all verses with words for a given chapter."""
     db = get_database()
+    # Legacy/test repositories can still render text, but cannot certify proof.
+    if not hasattr(db,'reader_snapshot'):
+        return _get_verses_snapshot(osis_id,chapter_num,db)
+    with db.reader_snapshot():
+        return _get_verses_snapshot(osis_id,chapter_num,db,True)
+
+
+def _get_verses_snapshot(osis_id: str, chapter_num: int, db, proof=False) -> VersesListResponse:
+    """Return all verses with words for a given chapter."""
+
 
     # Resolve book
     book_resp = (
@@ -134,10 +143,16 @@ def get_verses(osis_id: str, chapter_num: int) -> VersesListResponse:
         if [w.position for w in words] != list(range(1, len(words) + 1)):
             raise DataIntegrityError(f"Incomplete Bible data at {reference}: word positions are not contiguous. Run the source audit/import.")
 
+    from reader_evidence import observed, UNAVAILABLE
+    publications=db.reader_publications(osis_id,chapter_num,[row['verse_num'] for row in v_resp]) if proof else {}
+    raw_by_verse={vid:[] for vid in verse_ids}
+    for word in word_rows:
+        if word['verse_id'] in raw_by_verse:raw_by_verse[word['verse_id']].append(word)
     verses = [
         VerseWithWordsResponse(
             **row,
             words=words_by_verse.get(row["id"], []),
+            anchor_evidence=observed(db,osis_id,chapter_num,row["verse_num"],raw_by_verse[row["id"]],publications.get(row["verse_num"])) if proof else dict(UNAVAILABLE),
         )
         for row in v_resp
     ]

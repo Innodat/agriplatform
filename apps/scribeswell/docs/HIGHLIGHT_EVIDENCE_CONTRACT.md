@@ -174,3 +174,16 @@ chronology gap. The publication profile acceptance assertion was executed and
 failed on the unsupported profile before profile implementation. Neither history
 has been reconstructed or claimed as stronger evidence. Exact subsequent
 commands/results and fingerprints are recorded in the verification artifact.
+
+## Own-note reader integration — opt-in delivery
+
+The later [own-highlight contract](OWN_HIGHLIGHTS_V1.md) now connects this pure
+comparison primitive to coherent public reader observations and whole-note private
+admission/preservation. The historical slices above remain their original evidence;
+their earlier statements that integration is pending describe those slices.
+[Current component evidence](OWN_HIGHLIGHTS_EVIDENCE.md) records format3, bounded
+repeatable snapshots, chapter-batched optional proof, immutable per-revision metadata,
+selection/current-note UI and exact verification/failure history. Public0005 and
+private0006 plus native suites are authored only. Native SQL, real owner/session,
+physical-device and release qualification remain deferred; no live publication,
+enforcement activation or production readiness is claimed.

@@ -13,6 +13,7 @@ from typing import Annotated, Literal, Union
 from urllib.parse import urlsplit
 from uuid import UUID
 
+from typing_extensions import TypeAliasType
 from pydantic import AfterValidator, BaseModel, ConfigDict, Field, TypeAdapter, model_validator
 
 try:
@@ -21,10 +22,12 @@ except ImportError:
     from passage_references import PassageReference
 
 MAX_BODY_BYTES = 65536
+MAX_NOTE_BODY_BYTES = 262144
 MAX_PASSAGE_BODY_BYTES = 131072
 MAX_SEARCH_BODY_BYTES = 4096
 MAX_JSON_DEPTH = 16
 MAX_JSON_NODES = 8192
+MAX_NOTE_JSON_NODES = 32768
 MAX_REVISION = '9223372036854775807'
 MARK_SETS = ((), ('bold',), ('italic',), ('bold', 'italic'))
 
@@ -220,10 +223,99 @@ class DocumentV2(DocumentV1):
     blocks: tuple[BlockV2, ...] = Field(max_length=256)
 
 
-class NoteValue(Closed):
+class LegacyNoteValue(Closed):
     document: DocumentV1 | DocumentV2
     connections: tuple[()]
     highlights: tuple[()]
+
+
+Label = Annotated[str, Field(min_length=1, max_length=64, pattern=r'^[A-Za-z0-9][A-Za-z0-9._:-]{0,63}$')]
+Digest = Annotated[str, Field(pattern=r'^[0-9a-f]{64}$')]
+
+
+class AnchorSegment(Closed):
+    reference: PassageReference
+    start_position: Annotated[int, Field(ge=1, le=512)]
+    end_position: Annotated[int, Field(ge=1, le=512)]
+    observed_word_ids: tuple[Revision, ...] = Field(min_length=1, max_length=512)
+    verse_token_digest: Digest
+
+    @model_validator(mode='after')
+    def exact_segment(self):
+        target = self.reference.target
+        if target.kind != 'verse_range' or target.start != target.end or self.reference.versification_id != 'oshb-hebrew-json-c2d8e9e5':
+            raise ValueError('single supported verse required')
+        if self.end_position < self.start_position or len(self.observed_word_ids) != self.end_position-self.start_position+1 or len(set(self.observed_word_ids)) != len(self.observed_word_ids):
+            raise ValueError('invalid selected positions')
+        return self
+
+
+class HighlightAnchor(Closed):
+    version: Annotated[int, Field(ge=1, le=1, json_schema_extra={'const':1})]
+    source_id: Label
+    source_revision: Identifier
+    catalogue_version: Label
+    versification_id: Label
+    tokenization_version: Label
+    segments: tuple[AnchorSegment, ...] = Field(min_length=1, max_length=128)
+
+    @model_validator(mode='after')
+    def continuous(self):
+        try:
+            from .passage_references import BOOKS
+        except ImportError:
+            from passage_references import BOOKS
+        previous = None
+        book = self.segments[0].reference.book_id
+        for segment in self.segments:
+            ref = segment.reference
+            if ref.book_id != book or ref.catalogue_version != self.catalogue_version or ref.versification_id != self.versification_id:
+                raise ValueError('anchor identity mismatch')
+            point = ref.target.start
+            if previous:
+                prior = previous.reference.target.start
+                counts = BOOKS[book]['chapter_verse_counts']
+                expected = (prior.chapter, prior.verse+1) if prior.verse < counts[prior.chapter-1] else (prior.chapter+1, 1)
+                if (point.chapter,point.verse) != expected or segment.start_position != 1:
+                    raise ValueError('discontinuous anchor')
+            previous = segment
+        ids = [identifier for segment in self.segments for identifier in segment.observed_word_ids]
+        if len(set(ids)) != len(ids):
+            raise ValueError('duplicate anchor IDs')
+        return self
+
+
+class NoteConnection(Closed):
+    id: Identifier
+    reference: PassageReference
+
+
+class NoteHighlight(Closed):
+    id: Identifier
+    colour: Annotated[str, Field(pattern=r'^#[0-9A-F]{6}$')]
+    anchor: HighlightAnchor
+
+
+class AggregateNoteValue(Closed):
+    format_version: Annotated[int, Field(ge=3, le=3, json_schema_extra={'const':3})]
+    document: DocumentV1 | DocumentV2
+    connections: tuple[NoteConnection, ...] = Field(max_length=128)
+    highlights: tuple[NoteHighlight, ...] = Field(max_length=64)
+
+    @model_validator(mode='after')
+    def aggregate_budget(self):
+        for items in (self.connections,self.highlights):
+            if len({item.id for item in items}) != len(items):
+                raise ValueError('duplicate identity')
+        segments = [segment for highlight in self.highlights for segment in highlight.anchor.segments]
+        if len(segments)>128 or sum(len(segment.observed_word_ids) for segment in segments)>4096:
+            raise ValueError('aggregate budget exceeded')
+        if len(json.dumps(self.model_dump(mode='json'),ensure_ascii=False,separators=(',',':')).encode())>MAX_NOTE_BODY_BYTES:
+            raise ValueError('aggregate budget exceeded')
+        return self
+
+
+NoteValue = TypeAliasType('NoteValue', LegacyNoteValue | AggregateNoteValue)
 
 
 class EnrollStudies(Closed):
@@ -392,7 +484,7 @@ class Problem(Closed):
     error: Literal['Request could not be completed']
     code: Literal['scribeswell_personal_notes_input_invalid', 'authentication_required',
                   'studies_access_denied', 'studies_access_unavailable', 'studies_storage_unavailable', 'resource_unavailable',
-                  'operation_payload_mismatch', 'operation_unresolved', 'note_format_unsupported', 'request_deadline_exceeded']
+                  'operation_payload_mismatch', 'operation_unresolved', 'highlight_proof_invalid', 'highlight_proof_unavailable', 'note_format_unsupported', 'request_deadline_exceeded']
     details: None
 
 
@@ -432,7 +524,7 @@ def parse_command(command: str, raw: bytes) -> SearchStudies | CreateStudy | Ren
     """Strict bounded HTTP body decoder. No access, database or network work."""
     result = None
     try:
-        if type(raw) is not bytes or not raw or len(raw) > (MAX_SEARCH_BODY_BYTES if command == 'studies.search' else MAX_PASSAGE_BODY_BYTES if command == 'study.passages.replace' else MAX_BODY_BYTES) or raw.startswith(b'\xef\xbb\xbf'):
+        if type(raw) is not bytes or not raw or len(raw) > (MAX_SEARCH_BODY_BYTES if command == 'studies.search' else MAX_PASSAGE_BODY_BYTES if command == 'study.passages.replace' else MAX_NOTE_BODY_BYTES if command in ('note.create','note.replace') else MAX_BODY_BYTES) or raw.startswith(b'\xef\xbb\xbf'):
             raise ValueError('invalid framing')
         tree = json.loads(raw.decode('utf-8'), object_pairs_hook=_unique_object,
                           parse_float=_reject_float, parse_constant=_reject_float)
@@ -443,7 +535,7 @@ def parse_command(command: str, raw: bytes) -> SearchStudies | CreateStudy | Ren
         while pending:
             value, depth = pending.pop()
             nodes += 1
-            if nodes > MAX_JSON_NODES or depth > MAX_JSON_DEPTH:
+            if nodes > (MAX_NOTE_JSON_NODES if command in ('note.create','note.replace') else MAX_JSON_NODES) or depth > MAX_JSON_DEPTH:
                 raise ValueError('JSON budget exceeded')
             if isinstance(value, dict):
                 for key in value:
@@ -482,8 +574,8 @@ def openapi_contract() -> dict:
                  'parameters': list(parameters), 'responses': {}}
         codes = {'400': ['scribeswell_personal_notes_input_invalid'], '401': ['authentication_required'],
                  '403': ['studies_access_denied'], '404': ['resource_unavailable'],
-                 '409': ['note_revision_conflict', 'study_revision_conflict', 'passage_revision_conflict', 'note_format_unsupported', 'operation_payload_mismatch', 'operation_unresolved'],
-                 '503': ['studies_access_unavailable', 'studies_storage_unavailable', 'request_deadline_exceeded']}
+                 '409': ['note_revision_conflict', 'study_revision_conflict', 'passage_revision_conflict', 'note_format_unsupported', 'highlight_proof_invalid', 'operation_payload_mismatch', 'operation_unresolved'],
+                 '503': ['studies_access_unavailable', 'studies_storage_unavailable', 'highlight_proof_unavailable', 'request_deadline_exceeded']}
         for status, description, schema in [('200', 'Acknowledged or current authorized result', response),
                                            ('400', 'Invalid input', 'ErrorResponse'),
                                            ('401', 'Authentication required', 'ErrorResponse'),
@@ -511,7 +603,7 @@ def openapi_contract() -> dict:
     return {'openapi': '3.1.0', 'info': {'title': 'Scribeswell personal notes — v1', 'version': '1.0.0'},
             'x-generated-file-warning': 'Generated by tools/py/export_personal_notes_contract.py; do not edit.',
             'x-runtime-status': 'opt-in-development-production-disabled',
-            'x-command-input-limits': {'bytes': MAX_BODY_BYTES, 'passage_collection_bytes': MAX_PASSAGE_BODY_BYTES, 'search_bytes': MAX_SEARCH_BODY_BYTES, 'json_depth': MAX_JSON_DEPTH,
+            'x-command-input-limits': {'bytes': MAX_BODY_BYTES, 'note_bytes': MAX_NOTE_BODY_BYTES, 'note_json_nodes': MAX_NOTE_JSON_NODES, 'passage_collection_bytes': MAX_PASSAGE_BODY_BYTES, 'search_bytes': MAX_SEARCH_BODY_BYTES, 'json_depth': MAX_JSON_DEPTH,
                                        'json_nodes': MAX_JSON_NODES, 'document_nodes': 2048, 'text_codepoints': 50000,
                                        'url_utf8_bytes': 2048, 'revision_max': MAX_REVISION,
                                        'duplicate_keys': 'rejected', 'marks_order': ['bold', 'italic']},

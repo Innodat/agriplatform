@@ -4,6 +4,7 @@ import {type Lane,useStudies} from '@/context/StudiesContext';
 import {BookChapterSelector} from '@/components/bible/book-chapter-selector';
 import {referenceLabel,validateReference,type PassageReference} from '@/lib/passage-references';
 import type {NoteValue} from '@/lib/personal-notes';
+import {noteReferences} from '@/lib/own-highlights';
 import {safeNoteUrl as safeUrl} from '@/lib/note-value';
 type Block=NoteValue['document']['blocks'][number];
 type Paragraph=Extract<Block,{type:'paragraph'}>;
@@ -26,7 +27,7 @@ function passageNode(inline:PassageInline,owner:HTMLElement){
 function passageValue(node:HTMLElement){const inline=passageNodes.get(node);if(!inline||!validateReference(inline.reference)||!validLabel(inline.label)||node.textContent!==inline.label||node.childNodes.length!==1||node.firstChild?.nodeType!==Node.TEXT_NODE||node.contentEditable!=='false')throw Error();return structuredClone(inline);}
 function appendInline(parent:HTMLElement,inlines:Inline[],owner:HTMLElement){for(const inline of inlines){if(inline.type==='passage_link'){parent.append(passageNode(inline,owner));}else if(inline.type==='external_link'){if(!safeUrl(inline.url))throw Error();const link=document.createElement('a');link.href=inline.url;link.rel='noopener noreferrer';link.target='_blank';appendInline(link,inline.content,owner);parent.append(link);}else{let node:Node=document.createTextNode(inline.text);for(const mark of [...inline.marks].reverse()){const wrapper=document.createElement(mark==='bold'?'strong':'em');wrapper.append(node);node=wrapper;}parent.append(node);}}}
 function paragraph(value:Paragraph,owner:HTMLElement){const p=document.createElement('p');p.dir=value.direction;appendInline(p,value.content,owner);if(!p.childNodes.length)p.append(document.createElement('br'));return p;}
-function draw(root:HTMLElement,value:NoteValue){passageRegistry.set(root,new Map());if(![1,2].includes(value.document.version)||value.connections.length||value.highlights.length)throw Error();const nodes=value.document.blocks.map(block=>{if(block.type==='paragraph')return paragraph(block,root);const list=document.createElement(block.style==='bullet'?'ul':'ol');for(const item of block.items){const li=document.createElement('li');for(const p of item)li.append(paragraph(p,root));list.append(li);}return list;});root.replaceChildren(...nodes);}
+function draw(root:HTMLElement,value:NoteValue){passageRegistry.set(root,new Map());if(![1,2].includes(value.document.version))throw Error();const nodes=value.document.blocks.map(block=>{if(block.type==='paragraph')return paragraph(block,root);const list=document.createElement(block.style==='bullet'?'ul':'ol');for(const item of block.items){const li=document.createElement('li');for(const p of item)li.append(paragraph(p,root));list.append(li);}return list;});root.replaceChildren(...nodes);}
 function inlines(nodes:NodeListOf<ChildNode>|ChildNode[],marks:('bold'|'italic')[]=[],linked=false):Inline[]{
  const result:Inline[]=[];
  for(const node of nodes){if(node.nodeType===Node.TEXT_NODE){const text=node.textContent??'';const scalars=Array.from(text);for(let i=0;i<scalars.length;i+=4096){const chunk=scalars.slice(i,i+4096).join('');if(chunk)result.push({type:'text',text:chunk,marks:[...marks] as Extract<Inline,{type:'text'}>['marks']});}continue;}
@@ -41,7 +42,7 @@ function inlines(nodes:NodeListOf<ChildNode>|ChildNode[],marks:('bold'|'italic')
  }
  return result;
 }
-function read(root:HTMLElement,version:1|2):NoteValue{
+function read(root:HTMLElement,version:1|2,base:NoteValue):NoteValue{
  const tokens=[...root.querySelectorAll<HTMLElement>('[data-note-passage]')].map(n=>n.dataset.notePassage);if(new Set(tokens).size!==tokens.length)throw Error();
  const direction=(node:HTMLElement,fallback:Paragraph['direction']):Paragraph['direction']=>node.dir==='rtl'?'rtl':node.dir==='ltr'?'ltr':node.dir==='auto'?'auto':fallback;
  function blocksIn(container:HTMLElement,inherited:Paragraph['direction'],insideList=false):Block[]{
@@ -67,7 +68,7 @@ function read(root:HTMLElement,version:1|2):NoteValue{
  const count=(v:unknown)=>{if(Array.isArray(v)){v.forEach(count);}else if(v&&typeof v==='object'){nodes++;const item=v as Record<string,unknown>;if(item.type==='text')text+=Array.from(item.text as string).length;if(item.type==='passage_link')text+=Array.from(item.label as string).length;Object.values(item).forEach(count);}};blocks.forEach(count);
  if(nodes>2048||text>50000)throw Error();
  if(version===1&&paragraphs.some(p=>p.content.some(i=>i.type==='passage_link')))throw Error();
- return {document:{version,blocks},connections:[],highlights:[]};
+ return {...base,document:{version,blocks}};
 }
 export function NoteEditor({onOpen}:{onOpen?:(reference:PassageReference)=>void}){
  const studies=useStudies();
@@ -103,7 +104,7 @@ function BoundNoteEditor({bound,onOpen}:{bound:Lane;onOpen?:(reference:PassageRe
   return()=>{document.removeEventListener('selectionchange',rememberSelection);document.removeEventListener('pointerdown',beforeFocus,true);};
  },[]);
  const [invalid,setInvalid]=useState(false),[link,setLink]=useState(''),[linking,setLinking]=useState(false),[linkError,setLinkError]=useState(''),[direction,setDirection]=useState('auto');const selection=useRef<Range|null>(null);
- useLayoutEffect(()=>{composing.current=lane?.composing??false;setReading(false);setOffered(null);setPassageError('');insertion.current=null;retainedSelection.current=null;pointerFocus.current=false;inputGeneration.current++;version.current=lane?.value.document.version===2?2:1;setInvalid(false);setLink('');setLinking(false);setLinkError('');selection.current=null;setDirection('auto');if(root.current)root.current.dir='auto';if(root.current&&lane)try{draw(root.current,lane.value);read(root.current,version.current);}catch{setInvalid(true);studies.invalidInput(lane); }},[lane]);
+ useLayoutEffect(()=>{composing.current=lane?.composing??false;setReading(false);setOffered(null);setPassageError('');insertion.current=null;retainedSelection.current=null;pointerFocus.current=false;inputGeneration.current++;version.current=lane?.value.document.version===2?2:1;setInvalid(false);setLink('');setLinking(false);setLinkError('');selection.current=null;setDirection('auto');if(root.current)root.current.dir='auto';if(root.current&&lane)try{draw(root.current,lane.value);read(root.current,version.current,lane.value);}catch{setInvalid(true);studies.invalidInput(lane); }},[lane]);
  useLayoutEffect(()=>{
   const scroll=root.current?.closest<HTMLElement>('[data-inspector-scroll]');if(!scroll||!isExposed())return;
   scroll.scrollTop=scrollPosition?.note===lane.note.id?scrollPosition.scroll:0;
@@ -118,8 +119,8 @@ function BoundNoteEditor({bound,onOpen}:{bound:Lane;onOpen?:(reference:PassageRe
   }else if(event.inputType.startsWith('insert'))prepareTyping();
  };editor.addEventListener('beforeinput',before);return()=>editor.removeEventListener('beforeinput',before);},[lane]);
  if(!lane)return <p data-note-empty-state tabIndex={-1} className="p-4">Select a note in Studies.</p>;
- function changed(event?:{nativeEvent:Event}){if(lane?.deletion?.attempt)return false;inputGeneration.current++;const saved=retainedSelection.current;if(saved&&root.current?.contains(saved.range.startContainer)&&root.current.contains(saved.range.endContainer))saved.generation=inputGeneration.current;setOffered(null);if(!root.current)return false;try{if(nativeEditing.current||event?.nativeEvent.isTrusted&&['historyUndo','historyRedo'].includes((event.nativeEvent as InputEvent).inputType))bindNativeAtoms(root.current);studies.change(read(root.current,version.current),lane);setInvalid(false);return true;}catch{setInvalid(true);studies.invalidInput(lane);return false;}}
- function nativeCommand(command:string,value?:string){if(lane?.deletion?.attempt)return false;const editor=root.current;if(!editor)return false;try{read(editor,version.current);nativeEditing.current=true;editor.focus();if(command==='insertText')prepareTyping();const accepted=document.execCommand(command,false,value);bindNativeAtoms(editor);return changed()&&accepted;}catch{setInvalid(true);studies.invalidInput(lane);return false;}finally{nativeEditing.current=false;}}
+ function changed(event?:{nativeEvent:Event}){if(lane?.deletion?.attempt)return false;inputGeneration.current++;const saved=retainedSelection.current;if(saved&&root.current?.contains(saved.range.startContainer)&&root.current.contains(saved.range.endContainer))saved.generation=inputGeneration.current;setOffered(null);if(!root.current)return false;try{if(nativeEditing.current||event?.nativeEvent.isTrusted&&['historyUndo','historyRedo'].includes((event.nativeEvent as InputEvent).inputType))bindNativeAtoms(root.current);studies.change(read(root.current,version.current,lane.value),lane);setInvalid(false);return true;}catch{setInvalid(true);studies.invalidInput(lane);return false;}}
+ function nativeCommand(command:string,value?:string){if(lane?.deletion?.attempt)return false;const editor=root.current;if(!editor)return false;try{read(editor,version.current,lane.value);nativeEditing.current=true;editor.focus();if(command==='insertText')prepareTyping();const accepted=document.execCommand(command,false,value);bindNativeAtoms(editor);return changed()&&accepted;}catch{setInvalid(true);studies.invalidInput(lane);return false;}finally{nativeEditing.current=false;}}
 
  function captureInsertion(){
   const selected=window.getSelection(),range=selected?.rangeCount?selected.getRangeAt(0):null;
@@ -160,7 +161,7 @@ function BoundNoteEditor({bound,onOpen}:{bound:Lane;onOpen?:(reference:PassageRe
    }
   }
   if(!(candidate instanceof HTMLElement)||!candidate.hasAttribute('data-note-passage')||!passageNodes.has(candidate))return null;
-  try{passageValue(candidate);read(editor,version.current);return candidate;}catch{return null;}
+  try{passageValue(candidate);read(editor,version.current,lane.value);return candidate;}catch{return null;}
  }
 
  function insertPassage(reference:PassageReference){
@@ -170,7 +171,7 @@ function BoundNoteEditor({bound,onOpen}:{bound:Lane;onOpen?:(reference:PassageRe
    setPassageError('Place the caret in this note, then try inserting the reference again.');return false;
   }
   try{
-   read(editor,version.current);if(!validateReference(reference))throw Error();
+   read(editor,version.current,lane.value);if(!validateReference(reference))throw Error();
    // Validate on a detached copy first, leaving live writing and selection intact.
    const candidate=editor.cloneNode(true) as HTMLElement;passageRegistry.set(candidate,new Map(registry(editor)));bindNativeAtoms(candidate);
    const at=(node:Node)=>{const path:number[]=[];while(node!==editor){const parent=node.parentNode;if(!parent)throw Error();path.unshift(Array.prototype.indexOf.call(parent.childNodes,node));node=parent;}let mapped:Node=candidate;for(const index of path)mapped=mapped.childNodes[index];return mapped;};
@@ -186,9 +187,9 @@ function BoundNoteEditor({bound,onOpen}:{bound:Lane;onOpen?:(reference:PassageRe
     const tailRange=document.createRange();tailRange.selectNodeContents(source);tailRange.setStart(range.startContainer,range.startOffset);
     const tail=source.cloneNode(false) as HTMLElement;tail.append(tailRange.extractContents());source.after(atom);if(tail.textContent)atom.after(tail);if(!source.textContent)source.remove();
    }else range.insertNode(atom);
-   const value=read(candidate,2),payload={operation_id:'00000000-0000-4000-8000-000000000000',expected_revision:lane!.note.revision,value};
-   if(new TextEncoder().encode(JSON.stringify(payload)).length>65536)throw Error();
-   const pending:[unknown,number][]=[[payload,1]];let visited=0;while(pending.length){const [item,depth]=pending.pop()!;if(++visited>8192||depth>16)throw Error();if(item&&typeof item==='object')for(const child of Object.values(item))pending.push([child,depth+1]);}
+   const value=read(candidate,2,lane.value),payload={operation_id:'00000000-0000-4000-8000-000000000000',expected_revision:lane!.note.revision,value};
+   if(new TextEncoder().encode(JSON.stringify(payload)).length>262144)throw Error();
+   const pending:[unknown,number][]=[[payload,1]];let visited=0;while(pending.length){const [item,depth]=pending.pop()!;if(++visited>32768||depth>16)throw Error();if(item&&typeof item==='object')for(const child of Object.values(item))pending.push([child,depth+1]);}
    // One native transaction preserves surrounding writing and source fragments in
    // the browser's existing editing history, including Undo/Redo of rebuilt atoms.
    registry(editor).set(atom.dataset.notePassage!,passageValue(atom));version.current=2;
@@ -198,11 +199,11 @@ function BoundNoteEditor({bound,onOpen}:{bound:Lane;onOpen?:(reference:PassageRe
    const caret=document.createRange();caret.setStartAfter(inserted);caret.collapse(true);restore(caret);setPassageError('');insertion.current=null;return true;
   }catch{setPassageError('This reference could not be inserted. Your writing is kept here.');return false;}
  }
- function switchMode(){if(composing.current||lane?.composing||invalid)return;try{read(root.current!,version.current);}catch{setInvalid(true);studies.invalidInput(lane);return;}if(!reading){const selected=window.getSelection();readSelection.current=selected?.rangeCount?selected.getRangeAt(0).cloneRange():null;}else{const captured={lane,account:studies.accountKey,tab,host:root.current};setTimeout(()=>{if(latest.current.lane===captured.lane&&latest.current.account===captured.account&&latest.current.tab===captured.tab&&root.current===captured.host&&isExposed())restore(readSelection.current);},0);}setOffered(null);setReading(!reading);}
+ function switchMode(){if(composing.current||lane?.composing||invalid)return;try{read(root.current!,version.current,lane.value);}catch{setInvalid(true);studies.invalidInput(lane);return;}if(!reading){const selected=window.getSelection();readSelection.current=selected?.rangeCount?selected.getRangeAt(0).cloneRange():null;}else{const captured={lane,account:studies.accountKey,tab,host:root.current};setTimeout(()=>{if(latest.current.lane===captured.lane&&latest.current.account===captured.account&&latest.current.tab===captured.tab&&root.current===captured.host&&isExposed())restore(readSelection.current);},0);}setOffered(null);setReading(!reading);}
  function activatePassage(target:HTMLElement){const node=target.closest<HTMLElement>('[data-note-passage]');if(!node||!root.current?.contains(node))return false;try{const inline=passageValue(node);if(reading)onOpen?.(inline.reference);else{const range=document.createRange();range.setStartAfter(node);range.collapse(true);restore(range);setOffered(inline);}return true;}catch{setInvalid(true);studies.invalidInput(lane);return true;}}
  function format(command:string){nativeCommand(command);}
  return <section aria-label="Note editor" className="p-3 space-y-3">
-  <h3 className="font-semibold">Notes</h3><button className="underline" disabled={studies.studyDeletionPaused} onClick={studies.beginDelete}>Delete note</button><button className="underline" onClick={studies.beginStudyDelete}>Delete study</button><p className="text-sm">{studies.study?.title}</p>
+  <h3 className="font-semibold">Notes</h3><button className="underline" disabled={studies.studyDeletionPaused} onClick={studies.beginDelete}>Delete note</button><button className="underline" onClick={studies.beginStudyDelete}>Delete study</button><p className="text-sm">{studies.study?.title}</p>{noteReferences(lane.value).map((reference,index)=><button key={index} className="underline text-sm mr-2" onClick={()=>onOpen?.(reference)}>{referenceLabel(reference)}</button>)}
   <button type="button" aria-pressed={reading} disabled={invalid||lane.composing||!!lane.deletion} className="underline" onClick={switchMode}>{reading?'Edit note':'Read note'}</button>
   <fieldset disabled={!!lane.deletion||studies.studyWritesFrozen} hidden={reading} role="toolbar" aria-label="Note formatting" className="flex flex-wrap gap-2 text-sm">
    <button onMouseDown={e=>e.preventDefault()} onClick={()=>format('bold')} aria-label="Bold" className="border rounded px-2 font-bold">B</button>

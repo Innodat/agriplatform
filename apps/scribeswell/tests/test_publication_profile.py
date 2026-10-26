@@ -24,6 +24,7 @@ from baseline import APP, PROFILES, SUPPORTED_REVISIONS
 def test_new_revision_is_recognized_independently_of_historical_reference_snapshots():
     assert 'scribeswell_0004' in SUPPORTED_REVISIONS
     assert 'scribeswell_0004' not in PROFILES
+    assert 'scribeswell_0005' in SUPPORTED_REVISIONS and 'scribeswell_0005' not in PROFILES
     assert set(PROFILES)=={'scribeswell_0001','scribeswell_0002','scribeswell_0003'}
 
 
@@ -85,6 +86,6 @@ def test_alembic_retains_previous_and_forward_paths_without_executing_sql():
     from alembic.config import Config
     from alembic.script import ScriptDirectory
     script=ScriptDirectory.from_config(Config(str(APP/'alembic.ini')))
-    assert script.get_current_head()=='scribeswell_0004'
+    assert script.get_current_head()=='scribeswell_0005'
     assert [step.revision.revision for step in script._upgrade_revs('scribeswell_0003','scribeswell_0002')]==['scribeswell_0003']
-    assert [step.revision.revision for step in script._upgrade_revs('head','scribeswell_0003')]==['scribeswell_0004']
+    assert [step.revision.revision for step in script._upgrade_revs('head','scribeswell_0003')]==['scribeswell_0004','scribeswell_0005']

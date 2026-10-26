@@ -3,8 +3,8 @@ Bible API — Pydantic request/response schemas
 These are the shapes returned by the FastAPI endpoints (not raw DB rows).
 """
 from __future__ import annotations
-from typing import Optional
-from pydantic import BaseModel
+from typing import Optional, Annotated, Literal
+from pydantic import BaseModel, Field
 
 
 # ── Response schemas ──────────────────────────────────────────────────────────
@@ -68,12 +68,37 @@ class WordWithMorphologyResponse(WordResponse):
     morphemes: list[MorphemeResponse]
 
 
+class UnavailableAnchorEvidence(BaseModel):
+    version: Literal[1] = 1
+    status: Literal['unavailable'] = 'unavailable'
+
+
+class ReadyAnchorEvidence(BaseModel):
+    version: Literal[1]
+    status: Literal['ready']
+    source_id: str
+    source_revision: str
+    catalogue_version: str
+    versification_id: str
+    tokenization_version: str
+    book: str
+    chapter: int
+    verse: int
+    reference: dict
+    verse_token_digest: str
+    observed_word_ids: list[str]
+    token_count: int
+
+
+AnchorEvidence = Annotated[ReadyAnchorEvidence | UnavailableAnchorEvidence, Field(discriminator='status')]
+
 class VerseWithWordsResponse(BaseModel):
     id: int
     verse_num: int
     book_id: int
     chapter_num: int
     words: list[WordResponse]
+    anchor_evidence: AnchorEvidence = Field(default_factory=UnavailableAnchorEvidence)
 
 
 # ── List wrappers ─────────────────────────────────────────────────────────────

@@ -1,0 +1,97 @@
+{
+  "results": [
+    {
+      "name": "application-python",
+      "argv": [
+        "/tmp/scribeswell-implementation-python/bin/python",
+        "-m",
+        "pytest",
+        "-q",
+        "apps/scribeswell/tests/test_own_highlights.py",
+        "apps/scribeswell/tests/test_personal_notes_contract.py",
+        "apps/scribeswell/tests/test_personal_notes_api.py",
+        "apps/scribeswell/tests/test_library_search.py",
+        "apps/scribeswell/tests/test_note_deletion.py",
+        "apps/scribeswell/tests/test_study_deletion.py",
+        "apps/scribeswell/tests/test_publication_profile.py",
+        "apps/scribeswell/tests/test_highlight_evidence.py"
+      ],
+      "exit_code": 0,
+      "seconds": 19.03
+    },
+    {
+      "name": "browser",
+      "argv": [
+        "env",
+        "SCRIBESWELL_TEST_PYTHON=/tmp/scribeswell-implementation-python/bin/python",
+        "npm",
+        "run",
+        "test:browser",
+        "--workspace=apps/scribeswell/web",
+        "--",
+        "--workers=2",
+        "--fully-parallel",
+        "personal-notes.spec.cjs",
+        "--grep",
+        "own highlights|composition defers|insert at caret retains|native insertion Undo Redo preserves writing and source at 0"
+      ],
+      "exit_code": 0,
+      "seconds": 320.61
+    },
+    {
+      "name": "reader",
+      "argv": [
+        "/tmp/scribeswell-implementation-python/bin/python",
+        "apps/scribeswell/docs/evidence/own-highlights/run_reader_hermetic.py"
+      ],
+      "exit_code": 0,
+      "seconds": 9.66
+    },
+    {
+      "name": "build",
+      "argv": [
+        "npm",
+        "run",
+        "build",
+        "--workspace=apps/scribeswell/web"
+      ],
+      "exit_code": 0,
+      "seconds": 25.6
+    },
+    {
+      "name": "openapi",
+      "argv": [
+        "/tmp/scribeswell-implementation-python/bin/python",
+        "apps/scribeswell/tools/py/export_personal_notes_contract.py",
+        "--check"
+      ],
+      "exit_code": 0,
+      "seconds": 1.0
+    },
+    {
+      "name": "catalogue",
+      "argv": [
+        "/tmp/scribeswell-implementation-python/bin/python",
+        "apps/scribeswell/tools/py/build_reference_catalogue.py",
+        "--check"
+      ],
+      "exit_code": 0,
+      "seconds": 0.71
+    },
+    {
+      "name": "dto",
+      "argv": [
+        "/home/ck/repos/innodat/agriplatform/platform/deployment/.local/kdg-toolchains/2cb59147-0378-4fff-bf09-ba3f9e353aa0/payload/node/bin/node",
+        "/tmp/scribeswell-codegen-isolated/platform/api-client/src/cli.mjs",
+        "--schema",
+        "/home/ck/repos/innodat/agriplatform/apps/scribeswell/contracts/personal-notes-v1.openapi.json",
+        "--output",
+        "/home/ck/repos/innodat/agriplatform/apps/scribeswell/web/src/generated/personal-notes",
+        "--check"
+      ],
+      "exit_code": 0,
+      "seconds": 2.56
+    }
+  ],
+  "source_unchanged": true
+}

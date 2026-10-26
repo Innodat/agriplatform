@@ -1,0 +1,32 @@
+{
+  "spec_baseline_commit": "faac78ee0da3009ac7b69ca6423a2b74a6139b27",
+  "observed_head_at_final_checks": "d1cffdb0094fb3c17b9ff1085c79bbc2fc0d1159",
+  "python_result": "235 passed",
+  "browser_result_before_colour_repair": "38 passed",
+  "post_colour_repair_browser": "2 passed",
+  "build": "passed before and after correction",
+  "reader_integrity_hermetic": "2 passed; public DB open/close replaced by fixture only",
+  "openapi_reproducibility": "passed",
+  "catalogue_reproducibility": "passed",
+  "pinned_dto_reproducibility": "api_client_current",
+  "native": "new suites never collected/executed; AST syntax only",
+  "intermediate_collection_deviation": "existing native tests collected and skipped in test_owned_migrations.py; no SQL executed",
+  "source_snapshots": {
+    "main": [
+      "final-before.json",
+      "final-after.json"
+    ],
+    "colour_repair": [
+      "repair-before.json",
+      "repair-after.json"
+    ]
+  },
+  "complete_final_integration": false,
+  "limitations": [
+    "parent review/checkpoint/canonical derivation outstanding",
+    "native permissions/schema/isolation/races/rollback/upgrade unqualified",
+    "actual owner/session and physical device proof deferred",
+    "pre-refactor characterization and some inner red-first chronology gaps",
+    "prior anonymous mobile-scroll regression remains unverified"
+  ]
+}

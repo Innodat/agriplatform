@@ -231,9 +231,9 @@ def test_collection_limits(kind, limit):
             block = {'type': 'list', 'style': 'bullet', 'items': [[empty]] * size if kind == 'items' else [[empty] * size]}
             blocks = [block]
         return {'document': {'version': 1, 'blocks': blocks}, 'connections': [], 'highlights': []}
-    contract.NoteValue.model_validate_json(json.dumps(value(limit)))
+    contract.TypeAdapter(contract.NoteValue).validate_json(json.dumps(value(limit)))
     with pytest.raises(ValueError):
-        contract.NoteValue.model_validate_json(json.dumps(value(limit + 1)))
+        contract.TypeAdapter(contract.NoteValue).validate_json(json.dumps(value(limit + 1)))
 
 
 def test_url_byte_limit_counts_unicode_bytes():
@@ -254,10 +254,10 @@ def test_document_node_budget_is_independent_of_transport_budget():
         {'type': 'text', 'text': 'x', 'marks': []} for _ in range(255)]}
     value = {'document': {'version': 1, 'blocks': [block] * 7}, 'connections': [], 'highlights': []}
     # Validate the response DTO directly: transport limit is independently tighter here.
-    contract.NoteValue.model_validate_json(json.dumps(value))
+    contract.TypeAdapter(contract.NoteValue).validate_json(json.dumps(value))
     value['document']['blocks'].append(block)
     with pytest.raises(ValueError):
-        contract.NoteValue.model_validate_json(json.dumps(value))
+        contract.TypeAdapter(contract.NoteValue).validate_json(json.dumps(value))
 
 
 @pytest.mark.parametrize('value', ['a\u0080b', 'a\u009fb'])

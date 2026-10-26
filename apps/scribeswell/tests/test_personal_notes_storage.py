@@ -82,6 +82,7 @@ def native():
             (target/'history/versions/0003_collected_passages.py').unlink()
             (target/'history/versions/0004_note_deletion.py').unlink()
             (target/'history/versions/0005_study_deletion.py').unlink()
+            (target/'history/versions/0006_own_highlights.py').unlink()
             old_config=Config();old_config.set_main_option('script_location',str(target/'history'))
             alembic.upgrade(old_config,'head')
         import importlib.util
@@ -111,6 +112,7 @@ def native():
             (target/'history/versions/0003_collected_passages.py').unlink()
             (target/'history/versions/0004_note_deletion.py').unlink()
             (target/'history/versions/0005_study_deletion.py').unlink()
+            (target/'history/versions/0006_own_highlights.py').unlink()
             cfg=Config();cfg.set_main_option('script_location',str(target/'history'));alembic.upgrade(cfg,'head')
         with tempfile.TemporaryDirectory(prefix='scribeswell-passages-failure-') as directory:
             target=Path(directory);shutil.copytree(APP/'studies-migrations',target/'history');shutil.copytree(APP/'studies-database-tools',target/'studies-database-tools')
@@ -127,6 +129,7 @@ def native():
             target=Path(directory);shutil.copytree(APP/'studies-migrations',target/'history');shutil.copytree(APP/'studies-database-tools',target/'studies-database-tools')
             (target/'history/versions/0004_note_deletion.py').unlink()
             (target/'history/versions/0005_study_deletion.py').unlink()
+            (target/'history/versions/0006_own_highlights.py').unlink()
             cfg=Config();cfg.set_main_option('script_location',str(target/'history'));alembic.upgrade(cfg,'head')
         sys.path.insert(0,str(APP/'tests/fixtures'))
         from note_deletion_baseline_loader import load
@@ -144,6 +147,7 @@ def native():
         with tempfile.TemporaryDirectory(prefix='scribeswell-previous-study-deletion-') as directory:
             target=Path(directory);shutil.copytree(APP/'studies-migrations',target/'history');shutil.copytree(APP/'studies-database-tools',target/'studies-database-tools')
             (target/'history/versions/0005_study_deletion.py').unlink()
+            (target/'history/versions/0006_own_highlights.py').unlink()
             cfg=Config();cfg.set_main_option('script_location',str(target/'history'));alembic.upgrade(cfg,'head')
         sys.path.insert(0,str(APP/'tests/fixtures'))
         from study_deletion_baseline_loader import load as study_baseline

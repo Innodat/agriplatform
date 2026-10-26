@@ -5,6 +5,7 @@
  * These mirror the Pydantic models in apps/scribeswell/backend/schemas/.
  */
 import { z } from "zod";
+import {readableEvidence,type Evidence} from "@/lib/own-highlights";
 
 // ── Book ──────────────────────────────────────────────────────────────────────
 
@@ -72,6 +73,7 @@ export const VerseWithWordsResponseSchema = z.object({
   book_id: z.number().int(),
   chapter_num: z.number().int(),
   words: z.array(WordResponseSchema),
+  anchor_evidence: z.unknown().transform(value=>readableEvidence(value)?value:({version:1,status:'unavailable'} as Evidence)).optional(),
 });
 
 export type VerseWithWordsResponse = z.infer<typeof VerseWithWordsResponseSchema>;

@@ -1,6 +1,7 @@
 /** Readability guard for the existing note wire versions, before UI attachment.
  * This does not authorize resources or replace server command validation. */
 import type {NoteValue} from '@/generated/personal-notes/types.gen';
+import {validAggregate} from './own-highlights';
 import {validateReference} from './passage-references';
 
 export function safeNoteUrl(raw:string){
@@ -17,7 +18,9 @@ const object=(value:unknown):value is Record<string,unknown>=>!!value&&typeof va
 const text=(value:unknown,max:number,min=1):value is string=>typeof value==='string'&&!/[\uD800-\uDFFF]/u.test(value)&&Array.from(value).length>=min&&Array.from(value).length<=max;
 /** The fixed grammar bounds traversal; unknown versions/node kinds are not guessed. */
 export function isReadableNoteValue(value:unknown):value is NoteValue {
- if(!object(value)||!object(value.document)||!Array.isArray(value.connections)||value.connections.length!==0||!Array.isArray(value.highlights)||value.highlights.length!==0)return false;
+ if(!object(value)||!object(value.document)||!Array.isArray(value.connections)||!Array.isArray(value.highlights))return false;
+ if('format_version'in value? !validAggregate(value):value.connections.length!==0||value.highlights.length!==0)return false;
+ if(new TextEncoder().encode(JSON.stringify(value)).length>262144)return false;
  const document=value.document;
  if(document.version!==1&&document.version!==2||!Array.isArray(document.blocks)||document.blocks.length>256)return false;
  let nodes=1,characters=0;

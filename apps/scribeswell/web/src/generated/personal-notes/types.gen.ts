@@ -5,6 +5,51 @@ export type ClientOptions = {
 };
 
 /**
+ * AggregateNoteValue
+ */
+export type AggregateNoteValue = {
+    /**
+     * Connections
+     */
+    connections: Array<NoteConnection>;
+    /**
+     * Document
+     */
+    document: DocumentV1 | DocumentV2;
+    /**
+     * Format Version
+     */
+    format_version: 3;
+    /**
+     * Highlights
+     */
+    highlights: Array<NoteHighlight>;
+};
+
+/**
+ * AnchorSegment
+ */
+export type AnchorSegment = {
+    /**
+     * End Position
+     */
+    end_position: number;
+    /**
+     * Observed Word Ids
+     */
+    observed_word_ids: Array<string>;
+    reference: PassageReference;
+    /**
+     * Start Position
+     */
+    start_position: number;
+    /**
+     * Verse Token Digest
+     */
+    verse_token_digest: string;
+};
+
+/**
  * ChapterTarget
  */
 export type ChapterTarget = {
@@ -158,7 +203,7 @@ export type EnrollmentResult = {
 };
 
 export type ErrorResponse = ({
-    code: 'authentication_required' | 'note_format_unsupported' | 'operation_payload_mismatch' | 'operation_unresolved' | 'request_deadline_exceeded' | 'resource_unavailable' | 'scribeswell_personal_notes_input_invalid' | 'studies_access_denied' | 'studies_access_unavailable' | 'studies_storage_unavailable';
+    code: 'authentication_required' | 'highlight_proof_invalid' | 'highlight_proof_unavailable' | 'note_format_unsupported' | 'operation_payload_mismatch' | 'operation_unresolved' | 'request_deadline_exceeded' | 'resource_unavailable' | 'scribeswell_personal_notes_input_invalid' | 'studies_access_denied' | 'studies_access_unavailable' | 'studies_storage_unavailable';
 } & Problem) | ({
     code: 'note_revision_conflict' | 'passage_revision_conflict' | 'study_revision_conflict';
 } & RevisionProblem);
@@ -181,6 +226,58 @@ export type ExternalLink = {
      * Absolute HTTP(S), no credentials/whitespace/Unicode Cc controls/backslash. Semantic validation also requires valid IDNA DNS or canonical IPv4/unscoped IPv6, port 1–65535, safe percent escapes, scalar Unicode and at most 2048 UTF-8 bytes.
      */
     url: string;
+};
+
+/**
+ * HighlightAnchor
+ */
+export type HighlightAnchor = {
+    /**
+     * Catalogue Version
+     */
+    catalogue_version: string;
+    /**
+     * Segments
+     */
+    segments: Array<AnchorSegment>;
+    /**
+     * Source Id
+     */
+    source_id: string;
+    /**
+     * Source Revision
+     */
+    source_revision: string;
+    /**
+     * Tokenization Version
+     */
+    tokenization_version: string;
+    /**
+     * Versification Id
+     */
+    versification_id: string;
+    /**
+     * Version
+     */
+    version: 1;
+};
+
+/**
+ * LegacyNoteValue
+ */
+export type LegacyNoteValue = {
+    /**
+     * Connections
+     */
+    connections: Array<unknown>;
+    /**
+     * Document
+     */
+    document: DocumentV1 | DocumentV2;
+    /**
+     * Highlights
+     */
+    highlights: Array<unknown>;
 };
 
 /**
@@ -220,6 +317,32 @@ export type ListBlockV2 = {
 };
 
 /**
+ * NoteConnection
+ */
+export type NoteConnection = {
+    /**
+     * Id
+     */
+    id: string;
+    reference: PassageReference;
+};
+
+/**
+ * NoteHighlight
+ */
+export type NoteHighlight = {
+    anchor: HighlightAnchor;
+    /**
+     * Colour
+     */
+    colour: string;
+    /**
+     * Id
+     */
+    id: string;
+};
+
+/**
  * NotePage
  */
 export type NotePage = {
@@ -233,23 +356,7 @@ export type NotePage = {
     next_cursor: string | null;
 };
 
-/**
- * NoteValue
- */
-export type NoteValue = {
-    /**
-     * Connections
-     */
-    connections: Array<unknown>;
-    /**
-     * Document
-     */
-    document: DocumentV1 | DocumentV2;
-    /**
-     * Highlights
-     */
-    highlights: Array<unknown>;
-};
+export type NoteValue = LegacyNoteValue | AggregateNoteValue;
 
 /**
  * NoteView
@@ -450,7 +557,7 @@ export type Problem = {
     /**
      * Code
      */
-    code: 'scribeswell_personal_notes_input_invalid' | 'authentication_required' | 'studies_access_denied' | 'studies_access_unavailable' | 'studies_storage_unavailable' | 'resource_unavailable' | 'operation_payload_mismatch' | 'operation_unresolved' | 'note_format_unsupported' | 'request_deadline_exceeded';
+    code: 'scribeswell_personal_notes_input_invalid' | 'authentication_required' | 'studies_access_denied' | 'studies_access_unavailable' | 'studies_storage_unavailable' | 'resource_unavailable' | 'operation_payload_mismatch' | 'operation_unresolved' | 'highlight_proof_invalid' | 'highlight_proof_unavailable' | 'note_format_unsupported' | 'request_deadline_exceeded';
     /**
      * Details
      */
@@ -723,13 +830,13 @@ export type LookupOperationErrors = {
      * Revision, operation payload or unresolved conflict
      */
     409: ErrorResponse & {
-        code?: 'note_revision_conflict' | 'study_revision_conflict' | 'passage_revision_conflict' | 'note_format_unsupported' | 'operation_payload_mismatch' | 'operation_unresolved';
+        code?: 'note_revision_conflict' | 'study_revision_conflict' | 'passage_revision_conflict' | 'note_format_unsupported' | 'highlight_proof_invalid' | 'operation_payload_mismatch' | 'operation_unresolved';
     };
     /**
      * Access, storage or deadline unavailable
      */
     503: ErrorResponse & {
-        code?: 'studies_access_unavailable' | 'studies_storage_unavailable' | 'request_deadline_exceeded';
+        code?: 'studies_access_unavailable' | 'studies_storage_unavailable' | 'highlight_proof_unavailable' | 'request_deadline_exceeded';
     };
 };
 
@@ -783,13 +890,13 @@ export type ListStudiesErrors = {
      * Revision, operation payload or unresolved conflict
      */
     409: ErrorResponse & {
-        code?: 'note_revision_conflict' | 'study_revision_conflict' | 'passage_revision_conflict' | 'note_format_unsupported' | 'operation_payload_mismatch' | 'operation_unresolved';
+        code?: 'note_revision_conflict' | 'study_revision_conflict' | 'passage_revision_conflict' | 'note_format_unsupported' | 'highlight_proof_invalid' | 'operation_payload_mismatch' | 'operation_unresolved';
     };
     /**
      * Access, storage or deadline unavailable
      */
     503: ErrorResponse & {
-        code?: 'studies_access_unavailable' | 'studies_storage_unavailable' | 'request_deadline_exceeded';
+        code?: 'studies_access_unavailable' | 'studies_storage_unavailable' | 'highlight_proof_unavailable' | 'request_deadline_exceeded';
     };
 };
 
@@ -840,13 +947,13 @@ export type CreateStudyErrors = {
      * Revision, operation payload or unresolved conflict
      */
     409: ErrorResponse & {
-        code?: 'note_revision_conflict' | 'study_revision_conflict' | 'passage_revision_conflict' | 'note_format_unsupported' | 'operation_payload_mismatch' | 'operation_unresolved';
+        code?: 'note_revision_conflict' | 'study_revision_conflict' | 'passage_revision_conflict' | 'note_format_unsupported' | 'highlight_proof_invalid' | 'operation_payload_mismatch' | 'operation_unresolved';
     };
     /**
      * Access, storage or deadline unavailable
      */
     503: ErrorResponse & {
-        code?: 'studies_access_unavailable' | 'studies_storage_unavailable' | 'request_deadline_exceeded';
+        code?: 'studies_access_unavailable' | 'studies_storage_unavailable' | 'highlight_proof_unavailable' | 'request_deadline_exceeded';
     };
 };
 
@@ -897,13 +1004,13 @@ export type EnrollStudiesErrors = {
      * Revision, operation payload or unresolved conflict
      */
     409: ErrorResponse & {
-        code?: 'note_revision_conflict' | 'study_revision_conflict' | 'passage_revision_conflict' | 'note_format_unsupported' | 'operation_payload_mismatch' | 'operation_unresolved';
+        code?: 'note_revision_conflict' | 'study_revision_conflict' | 'passage_revision_conflict' | 'note_format_unsupported' | 'highlight_proof_invalid' | 'operation_payload_mismatch' | 'operation_unresolved';
     };
     /**
      * Access, storage or deadline unavailable
      */
     503: ErrorResponse & {
-        code?: 'studies_access_unavailable' | 'studies_storage_unavailable' | 'request_deadline_exceeded';
+        code?: 'studies_access_unavailable' | 'studies_storage_unavailable' | 'highlight_proof_unavailable' | 'request_deadline_exceeded';
     };
 };
 
@@ -954,13 +1061,13 @@ export type SearchStudiesErrors = {
      * Revision, operation payload or unresolved conflict
      */
     409: ErrorResponse & {
-        code?: 'note_revision_conflict' | 'study_revision_conflict' | 'passage_revision_conflict' | 'note_format_unsupported' | 'operation_payload_mismatch' | 'operation_unresolved';
+        code?: 'note_revision_conflict' | 'study_revision_conflict' | 'passage_revision_conflict' | 'note_format_unsupported' | 'highlight_proof_invalid' | 'operation_payload_mismatch' | 'operation_unresolved';
     };
     /**
      * Access, storage or deadline unavailable
      */
     503: ErrorResponse & {
-        code?: 'studies_access_unavailable' | 'studies_storage_unavailable' | 'request_deadline_exceeded';
+        code?: 'studies_access_unavailable' | 'studies_storage_unavailable' | 'highlight_proof_unavailable' | 'request_deadline_exceeded';
     };
 };
 
@@ -1013,13 +1120,13 @@ export type DeleteStudyErrors = {
      * Revision, operation payload or unresolved conflict
      */
     409: ErrorResponse & {
-        code?: 'note_revision_conflict' | 'study_revision_conflict' | 'passage_revision_conflict' | 'note_format_unsupported' | 'operation_payload_mismatch' | 'operation_unresolved';
+        code?: 'note_revision_conflict' | 'study_revision_conflict' | 'passage_revision_conflict' | 'note_format_unsupported' | 'highlight_proof_invalid' | 'operation_payload_mismatch' | 'operation_unresolved';
     };
     /**
      * Access, storage or deadline unavailable
      */
     503: ErrorResponse & {
-        code?: 'studies_access_unavailable' | 'studies_storage_unavailable' | 'request_deadline_exceeded';
+        code?: 'studies_access_unavailable' | 'studies_storage_unavailable' | 'highlight_proof_unavailable' | 'request_deadline_exceeded';
     };
 };
 
@@ -1072,13 +1179,13 @@ export type ReadStudyErrors = {
      * Revision, operation payload or unresolved conflict
      */
     409: ErrorResponse & {
-        code?: 'note_revision_conflict' | 'study_revision_conflict' | 'passage_revision_conflict' | 'note_format_unsupported' | 'operation_payload_mismatch' | 'operation_unresolved';
+        code?: 'note_revision_conflict' | 'study_revision_conflict' | 'passage_revision_conflict' | 'note_format_unsupported' | 'highlight_proof_invalid' | 'operation_payload_mismatch' | 'operation_unresolved';
     };
     /**
      * Access, storage or deadline unavailable
      */
     503: ErrorResponse & {
-        code?: 'studies_access_unavailable' | 'studies_storage_unavailable' | 'request_deadline_exceeded';
+        code?: 'studies_access_unavailable' | 'studies_storage_unavailable' | 'highlight_proof_unavailable' | 'request_deadline_exceeded';
     };
 };
 
@@ -1134,13 +1241,13 @@ export type ListNotesErrors = {
      * Revision, operation payload or unresolved conflict
      */
     409: ErrorResponse & {
-        code?: 'note_revision_conflict' | 'study_revision_conflict' | 'passage_revision_conflict' | 'note_format_unsupported' | 'operation_payload_mismatch' | 'operation_unresolved';
+        code?: 'note_revision_conflict' | 'study_revision_conflict' | 'passage_revision_conflict' | 'note_format_unsupported' | 'highlight_proof_invalid' | 'operation_payload_mismatch' | 'operation_unresolved';
     };
     /**
      * Access, storage or deadline unavailable
      */
     503: ErrorResponse & {
-        code?: 'studies_access_unavailable' | 'studies_storage_unavailable' | 'request_deadline_exceeded';
+        code?: 'studies_access_unavailable' | 'studies_storage_unavailable' | 'highlight_proof_unavailable' | 'request_deadline_exceeded';
     };
 };
 
@@ -1193,13 +1300,13 @@ export type CreateNoteErrors = {
      * Revision, operation payload or unresolved conflict
      */
     409: ErrorResponse & {
-        code?: 'note_revision_conflict' | 'study_revision_conflict' | 'passage_revision_conflict' | 'note_format_unsupported' | 'operation_payload_mismatch' | 'operation_unresolved';
+        code?: 'note_revision_conflict' | 'study_revision_conflict' | 'passage_revision_conflict' | 'note_format_unsupported' | 'highlight_proof_invalid' | 'operation_payload_mismatch' | 'operation_unresolved';
     };
     /**
      * Access, storage or deadline unavailable
      */
     503: ErrorResponse & {
-        code?: 'studies_access_unavailable' | 'studies_storage_unavailable' | 'request_deadline_exceeded';
+        code?: 'studies_access_unavailable' | 'studies_storage_unavailable' | 'highlight_proof_unavailable' | 'request_deadline_exceeded';
     };
 };
 
@@ -1253,13 +1360,13 @@ export type DeleteNoteErrors = {
      * Revision, operation payload or unresolved conflict
      */
     409: ErrorResponse & {
-        code?: 'note_revision_conflict' | 'study_revision_conflict' | 'passage_revision_conflict' | 'note_format_unsupported' | 'operation_payload_mismatch' | 'operation_unresolved';
+        code?: 'note_revision_conflict' | 'study_revision_conflict' | 'passage_revision_conflict' | 'note_format_unsupported' | 'highlight_proof_invalid' | 'operation_payload_mismatch' | 'operation_unresolved';
     };
     /**
      * Access, storage or deadline unavailable
      */
     503: ErrorResponse & {
-        code?: 'studies_access_unavailable' | 'studies_storage_unavailable' | 'request_deadline_exceeded';
+        code?: 'studies_access_unavailable' | 'studies_storage_unavailable' | 'highlight_proof_unavailable' | 'request_deadline_exceeded';
     };
 };
 
@@ -1313,13 +1420,13 @@ export type ReadNoteErrors = {
      * Revision, operation payload or unresolved conflict
      */
     409: ErrorResponse & {
-        code?: 'note_revision_conflict' | 'study_revision_conflict' | 'passage_revision_conflict' | 'note_format_unsupported' | 'operation_payload_mismatch' | 'operation_unresolved';
+        code?: 'note_revision_conflict' | 'study_revision_conflict' | 'passage_revision_conflict' | 'note_format_unsupported' | 'highlight_proof_invalid' | 'operation_payload_mismatch' | 'operation_unresolved';
     };
     /**
      * Access, storage or deadline unavailable
      */
     503: ErrorResponse & {
-        code?: 'studies_access_unavailable' | 'studies_storage_unavailable' | 'request_deadline_exceeded';
+        code?: 'studies_access_unavailable' | 'studies_storage_unavailable' | 'highlight_proof_unavailable' | 'request_deadline_exceeded';
     };
 };
 
@@ -1373,13 +1480,13 @@ export type ReplaceNoteErrors = {
      * Revision, operation payload or unresolved conflict
      */
     409: ErrorResponse & {
-        code?: 'note_revision_conflict' | 'study_revision_conflict' | 'passage_revision_conflict' | 'note_format_unsupported' | 'operation_payload_mismatch' | 'operation_unresolved';
+        code?: 'note_revision_conflict' | 'study_revision_conflict' | 'passage_revision_conflict' | 'note_format_unsupported' | 'highlight_proof_invalid' | 'operation_payload_mismatch' | 'operation_unresolved';
     };
     /**
      * Access, storage or deadline unavailable
      */
     503: ErrorResponse & {
-        code?: 'studies_access_unavailable' | 'studies_storage_unavailable' | 'request_deadline_exceeded';
+        code?: 'studies_access_unavailable' | 'studies_storage_unavailable' | 'highlight_proof_unavailable' | 'request_deadline_exceeded';
     };
 };
 
@@ -1432,13 +1539,13 @@ export type ReadPassagesErrors = {
      * Revision, operation payload or unresolved conflict
      */
     409: ErrorResponse & {
-        code?: 'note_revision_conflict' | 'study_revision_conflict' | 'passage_revision_conflict' | 'note_format_unsupported' | 'operation_payload_mismatch' | 'operation_unresolved';
+        code?: 'note_revision_conflict' | 'study_revision_conflict' | 'passage_revision_conflict' | 'note_format_unsupported' | 'highlight_proof_invalid' | 'operation_payload_mismatch' | 'operation_unresolved';
     };
     /**
      * Access, storage or deadline unavailable
      */
     503: ErrorResponse & {
-        code?: 'studies_access_unavailable' | 'studies_storage_unavailable' | 'request_deadline_exceeded';
+        code?: 'studies_access_unavailable' | 'studies_storage_unavailable' | 'highlight_proof_unavailable' | 'request_deadline_exceeded';
     };
 };
 
@@ -1491,13 +1598,13 @@ export type ReplacePassagesErrors = {
      * Revision, operation payload or unresolved conflict
      */
     409: ErrorResponse & {
-        code?: 'note_revision_conflict' | 'study_revision_conflict' | 'passage_revision_conflict' | 'note_format_unsupported' | 'operation_payload_mismatch' | 'operation_unresolved';
+        code?: 'note_revision_conflict' | 'study_revision_conflict' | 'passage_revision_conflict' | 'note_format_unsupported' | 'highlight_proof_invalid' | 'operation_payload_mismatch' | 'operation_unresolved';
     };
     /**
      * Access, storage or deadline unavailable
      */
     503: ErrorResponse & {
-        code?: 'studies_access_unavailable' | 'studies_storage_unavailable' | 'request_deadline_exceeded';
+        code?: 'studies_access_unavailable' | 'studies_storage_unavailable' | 'highlight_proof_unavailable' | 'request_deadline_exceeded';
     };
 };
 
@@ -1550,13 +1657,13 @@ export type RenameStudyErrors = {
      * Revision, operation payload or unresolved conflict
      */
     409: ErrorResponse & {
-        code?: 'note_revision_conflict' | 'study_revision_conflict' | 'passage_revision_conflict' | 'note_format_unsupported' | 'operation_payload_mismatch' | 'operation_unresolved';
+        code?: 'note_revision_conflict' | 'study_revision_conflict' | 'passage_revision_conflict' | 'note_format_unsupported' | 'highlight_proof_invalid' | 'operation_payload_mismatch' | 'operation_unresolved';
     };
     /**
      * Access, storage or deadline unavailable
      */
     503: ErrorResponse & {
-        code?: 'studies_access_unavailable' | 'studies_storage_unavailable' | 'request_deadline_exceeded';
+        code?: 'studies_access_unavailable' | 'studies_storage_unavailable' | 'highlight_proof_unavailable' | 'request_deadline_exceeded';
     };
 };
 

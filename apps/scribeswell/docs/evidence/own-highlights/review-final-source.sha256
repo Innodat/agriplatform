@@ -1,0 +1,4 @@
+2952beaa3a4260f763ab816043aeb48cdea778e65efd21c4b5896b9fad3cd834  apps/scribeswell/web/src/context/StudiesContext.tsx
+8e8fdd5c63a419dd32db440e22e58cfef510c51a439749d215b6db0eb8ff3d2f  apps/scribeswell/web/src/components/bible/OwnHighlightActions.tsx
+8f2f180698af0e3a39df4d6d8a8b5b3481576461f9f8fe631bd27c1d4cc27945  apps/scribeswell/web/src/components/bible/VerseReader.tsx
+d1fc19417cdd59a2b1f85f5e68760fcf8bca47e0b3d6d19ae681c528b09707cf  apps/scribeswell/web/tests/personal-notes.spec.cjs

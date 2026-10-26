@@ -4,16 +4,16 @@
     "generator": "platform-api-client",
     "template": "hey-api-0.99.0-types-v1",
     "recipe": "d3e06e4788695ffaa9ce45bcc8d62724af3870669d43ea340ea9d6342d976d3d",
-    "source": "0cff1e5e68bff2ae88e0c7f350463a0d3e7bbb6891ac06e1dd3d2626dd696046"
+    "source": "1b29b42a2e6c9fac1f440012f9b057768b05a63c41058bcf60dba0d197716cd2"
   },
   "files": {
     "index.ts": {
       "classification": "generated",
-      "sha256": "bf567e9c1b4e643a67651856d02a9d5a28a80b9128ec7d42dbd4747f49ce4681"
+      "sha256": "8d734fda4b3411909014a94daa6bb2ffab01c0ad5f85356fd57e122d660f959b"
     },
     "types.gen.ts": {
       "classification": "generated",
-      "sha256": "7651733de002807517f1ef570d43c1b39b4306e47fe7a05bb39572df5648471e"
+      "sha256": "7899e02e36647ae26a68064bde533a22511816e4458cee1a86269023e7f83c4a"
     }
   }
 }

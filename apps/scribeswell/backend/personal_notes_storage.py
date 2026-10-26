@@ -82,6 +82,23 @@ class PersonalNotesStorage:
         account,actor=identity['account_id'],identity['actor_id']
         body=payload.model_dump(mode='json')
         fingerprint=hashlib.sha256(json.dumps({'command':command,'version':1,'study_id':study_id,'note_id':note_id,'payload':body},sort_keys=True,separators=(',',':'),ensure_ascii=False).encode()).hexdigest()
+        observations={}
+        if command in ('note.create','note.replace') and body['value'].get('highlights'):
+            # Reconcile before source waits. This read takes no business write lock;
+            # the later transaction rechecks current lifecycle/revision atomically.
+            async with self.transaction(identity,deadline) as read_cursor:
+                await read_cursor.execute(f'SELECT fingerprint,outcome FROM {SCHEMA}.receipts WHERE account_id=%s AND command=%s AND command_version=1 AND operation_id=%s',(account,command,payload.operation_id))
+                previous=await read_cursor.fetchone()
+                if previous:
+                    if previous['fingerprint']!=fingerprint:raise NotesError('operation_payload_mismatch')
+                    await self._live_outcome(read_cursor,account,previous['outcome'])
+                    return OperationAck.model_validate(previous['outcome']).model_dump(mode='json')
+                prior=(await self._note(read_cursor,account,study_id,note_id))['value'] if command=='note.replace' else {}
+            trusted={h['id']:h['anchor'] for h in prior.get('highlights',[])}
+            changed=[h for h in body['value']['highlights'] if trusted.get(h['id'])!=h['anchor']]
+            if changed:
+                from own_highlights import observe
+                observations=await asyncio.to_thread(observe,{'highlights':changed},deadline)
         async with self.transaction(identity,deadline,write=True) as cursor:
             # An operation lock resolves duplicate requests before taking resource locks.
             await cursor.execute("SELECT pg_advisory_xact_lock(hashtextextended(%s,0))",('operation:'+account+':'+command+':'+payload.operation_id,))
@@ -133,6 +150,8 @@ class PersonalNotesStorage:
                 await self._parent(cursor,account,study_id,lock=True)
                 value={'document':{'version':1,'blocks':[]},'connections':[],'highlights':[]} if command=='note.delete' else payload.value.model_dump(mode='json')
                 if command=='note.create':
+                    from own_highlights import validate
+                    validate(value,{},observations)
                     note_id=str(uuid4());revision='1'
                     await cursor.execute(f'INSERT INTO {SCHEMA}.notes(id,account_id,study_id,value,created_by,updated_by) VALUES(%s,%s,%s,%s,%s,%s)',(note_id,account,study_id,Jsonb(value),actor,actor))
                 else:
@@ -141,12 +160,19 @@ class PersonalNotesStorage:
                     view(row,True)
                     revision=str(row['revision'])
                     if revision!=payload.expected_revision: raise NotesError('note_revision_conflict',{'expected_revision':payload.expected_revision,'current_revision':revision})
+                    if command!='note.delete':
+                        from own_highlights import validate
+                        validate(value,row['value'],observations)
+                        if row['value'].get('format_version')==3 and value.get('format_version')!=3:raise NotesError('note_format_unsupported')
                     if command!='note.delete' and row['value']['document']['version']==2 and value['document']['version']==1:
                         raise NotesError('note_format_unsupported')
                     if command=='note.delete' or row['value']!=value:
                         if row['revision']>=int(MAX_REVISION): raise NotesError('resource_unavailable')
                         revision=str(row['revision']+1)
                         await cursor.execute(f'UPDATE {SCHEMA}.notes SET value=%s, active=%s, revision=revision+1, updated_by=%s, updated_at=clock_timestamp() WHERE account_id=%s AND study_id=%s AND id=%s',(Jsonb(value),command!='note.delete',actor,account,study_id,note_id))
+            if command in ('note.create','note.replace'):
+                from own_highlights import metadata
+                await cursor.execute(f'INSERT INTO {SCHEMA}.note_revision_metadata(account_id,study_id,note_id,revision,metadata,created_by) VALUES(%s,%s,%s,%s,%s,%s) ON CONFLICT DO NOTHING',(account,study_id,note_id,int(revision),Jsonb(metadata(value)),actor))
             outcome={'operation_id':payload.operation_id,'command':command,'study_id':study_id,'note_id':note_id,'revision':revision}
             await cursor.execute(f'INSERT INTO {SCHEMA}.receipts(account_id,command,command_version,operation_id,fingerprint,outcome,study_id,note_id,created_by) VALUES(%s,%s,1,%s,%s,%s,%s,%s,%s)',(account,command,payload.operation_id,fingerprint,Jsonb(outcome),study_id,note_id,actor))
             return OperationAck.model_validate(outcome).model_dump(mode='json')

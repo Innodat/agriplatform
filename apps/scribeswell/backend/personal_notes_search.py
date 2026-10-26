@@ -110,6 +110,10 @@ def search_sql(account,query,position,limit):
  LEFT JOIN LATERAL jsonb_array_elements({array("p.p->'content'")}) WITH ORDINALITY i(node,ni) ON true
  WHERE p.p->>'type'='paragraph' AND {keys('p.p',['type','direction','content'])} AND p.p->>'direction' IN ('auto','ltr','rtl')
  GROUP BY p.bi,p.ii,p.pi) paragraph"""
+    aggregate_reference=reference_match('r.reference')
+    aggregate_refs=f"""SELECT c.node->'reference' AS reference FROM jsonb_array_elements({array("n.value->'connections'")}) c(node)
+ UNION ALL SELECT segment.node->'reference' FROM jsonb_array_elements({array("n.value->'highlights'")}) h(node)
+ CROSS JOIN LATERAL jsonb_array_elements({array("h.node->'anchor'->'segments'")}) segment(node)"""
     boundary=' AND (s.created_at,s.id)<(%s::timestamptz,%s::uuid)' if position else ''
     sql=f"""WITH q AS (SELECT %s::uuid AS account,%s::text AS text,%s::jsonb AS ref,%s::jsonb AS counts,%s::int AS sc,%s::int AS sv,%s::int AS ec,%s::int AS ev)
  SELECT s.* FROM scribeswell_studies.studies s CROSS JOIN q
@@ -120,6 +124,8 @@ def search_sql(account,query,position,limit):
  AND n.value->'document'->'version' IN ('1'::jsonb,'2'::jsonb)
  AND {keys("n.value->'document'",['version','blocks'])}
  AND (POSITION(lower(q.text) IN lower(normalize(v.text,NFC)))>0 OR v.reference_match))
+ OR EXISTS (SELECT 1 FROM scribeswell_studies.notes n CROSS JOIN LATERAL ({aggregate_refs}) r
+ WHERE n.account_id=q.account AND n.study_id=s.id AND n.active AND n.value->'format_version'='3'::jsonb AND {aggregate_reference})
  OR EXISTS (SELECT 1 FROM scribeswell_studies.passage_entries e
  WHERE e.account_id=q.account AND e.study_id=s.id AND s.active
  AND e.catalogue_id=q.ref->>'catalogue_id' AND e.catalogue_version=q.ref->>'catalogue_version'

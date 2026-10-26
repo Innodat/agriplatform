@@ -29,7 +29,7 @@ interface PassagePaneProps {
   visible: boolean;
   selectedWordId: number | null;
   onNavigate: (book: string, chapter: number, reference?:PassageReference) => void;
-  onWord: (word: WordResponse, verse: number) => void;
+  onWord: (word: WordResponse, verse: number, retain?:boolean) => void;
 }
 
 export function PassagePane({ reference,onActivate,number,paneKey,anchor,picker,onClose,focused,active, targetVerse, targetRevision, matchKey, onPreview, book, chapter, books, comparing, visible, selectedWordId, onNavigate, onWord }: PassagePaneProps) {
@@ -120,7 +120,7 @@ export function PassagePane({ reference,onActivate,number,paneKey,anchor,picker,
         {referenceOnly&&<p role="status">{reference?referenceLabel(reference):`${referenceBook(book)?.name_en??book} ${chapter}`} — Text unavailable</p>}
         {!referenceOnly&&verses.loading && <p role="status" className="text-sm text-stone-400 animate-pulse">Loading chapter…</p>}
         {verses.error && <p role="alert" className="text-sm text-red-700">Could not load this chapter. <button className="underline" onClick={verses.refetch}>Retry chapter</button></p>}
-        {verses.data && <VerseReader verses={verses.data.data} selectedWordId={selectedWordId} onWordClick={onWord} matchKey={matchKey} onPreview={onPreview} />}
+        {verses.data && <VerseReader book={book} active={active} origin={`${paneKey}:${book}:${chapter}:${targetRevision}`} verses={verses.data.data} selectedWordId={selectedWordId} onWordClick={onWord} matchKey={matchKey} onPreview={onPreview} />}
       </section>
     </section>
   );

@@ -10,14 +10,14 @@ if context.is_offline_mode():
 engine = None
 try:
     profile = config.attributes.get('scribeswell_validation_profile','dormant')
-    if profile not in ('dormant','prepared-controller-v1','controller-history-v1','publication-v1'):
+    if profile not in ('dormant','prepared-controller-v1','controller-history-v1','publication-v1','reader-evidence-v1'):
         raise BaselineError('scribeswell_validation_profile_invalid')
     supplied = 'scribeswell_prepared_actor' in config.attributes
-    if (profile == 'dormant' and supplied) or (profile not in ('dormant','publication-v1') and not supplied):
+    if (profile == 'dormant' and supplied) or (profile not in ('dormant','publication-v1','reader-evidence-v1') and not supplied):
         raise BaselineError('scribeswell_validation_profile_invalid')
-    if profile == 'publication-v1':
+    if profile in ('publication-v1','reader-evidence-v1'):
         from publication_profile import preflight_publication
-        validate = lambda connection: preflight_publication(connection,config.attributes.get('scribeswell_prepared_actor'))
+        validate = lambda connection: preflight_publication(connection,config.attributes.get('scribeswell_prepared_actor'),reader=profile=='reader-evidence-v1')
     elif profile != 'dormant':
         from prepared_controller import custody
         expected_actor = custody(config.attributes['scribeswell_prepared_actor'])
@@ -50,10 +50,10 @@ try:
         if getattr(migration_fn,'__name__',None) != 'upgrade':
             raise BaselineError('scribeswell_upgrade_only')
         destination = context.get_context().opts.get('destination_rev')
-        required = 'scribeswell_0004' if profile=='publication-v1' else 'scribeswell_0003'
+        required = 'scribeswell_0005' if profile=='reader-evidence-v1' else 'scribeswell_0004' if profile=='publication-v1' else 'scribeswell_0003'
         if destination not in ('head',required):
             raise BaselineError('scribeswell_upgrade_head_only')
-        if profile!='publication-v1':
+        if profile!='reader-evidence-v1':
             # Preserve historical head invocations while pinning their versioned contract.
             from alembic.script import ScriptDirectory
             script = ScriptDirectory.from_config(config)

@@ -4,7 +4,7 @@ import time
 from fastapi import APIRouter,Request
 from fastapi.responses import JSONResponse
 from pydantic import TypeAdapter
-from personal_notes_contract import Identifier,parse_command,ContractInputError,MAX_BODY_BYTES,MAX_PASSAGE_BODY_BYTES,MAX_SEARCH_BODY_BYTES
+from personal_notes_contract import Identifier,parse_command,ContractInputError,MAX_BODY_BYTES,MAX_NOTE_BODY_BYTES,MAX_PASSAGE_BODY_BYTES,MAX_SEARCH_BODY_BYTES
 from personal_notes_access import NotesError,STATUSES
 
 async def body(request,limit=MAX_BODY_BYTES):
@@ -30,7 +30,7 @@ def build_router(access,storage):
                     payload=parse_command('studies.enroll',await body(request))
                     result=await access.enroll(bearer,payload.operation_id,deadline)
                 else:
-                    payload=parse_command(kind,await body(request,MAX_SEARCH_BODY_BYTES if kind=='studies.search' else MAX_PASSAGE_BODY_BYTES if kind=='study.passages.replace' else MAX_BODY_BYTES)) if kind in ('studies.search','study.create','study.rename','study.passages.replace','study.delete','note.create','note.replace','note.delete') else None
+                    payload=parse_command(kind,await body(request,MAX_SEARCH_BODY_BYTES if kind=='studies.search' else MAX_PASSAGE_BODY_BYTES if kind=='study.passages.replace' else MAX_NOTE_BODY_BYTES if kind in ('note.create','note.replace') else MAX_BODY_BYTES)) if kind in ('studies.search','study.create','study.rename','study.passages.replace','study.delete','note.create','note.replace','note.delete') else None
                     allowed={'limit','cursor'} if kind=='list' else {'command'} if kind=='lookup' else set()
                     if set(request.query_params)-allowed or any(len(request.query_params.getlist(k))!=1 for k in request.query_params): raise ValueError
                     # Fresh remote authority, completed before the first local transaction.
