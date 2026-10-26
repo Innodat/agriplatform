@@ -410,3 +410,39 @@ def test_native_postcommit_ack_loss_reconciles_each_original_operation(closed,mo
     assert admin.execute('SELECT count(*) FROM scribeswell.corpus_publication_outcome').fetchone()==(4,)
     assert admin.execute('SELECT count(*) FROM scribeswell.corpus_manifest_header').fetchone()==(1,)
     assert admin.execute('SELECT count(*) FROM scribeswell.corpus_manifest_completion').fetchone()==(1,)
+
+
+def test_native_supervised_stdout_discard_original_lookup_retry_and_revocation(closed, monkeypatch):
+    """Authored only: deliberate child stdout discard, not a network fault claim."""
+    import corpus_operator as supervised
+    from test_postgres_acceptance import role_url
+    admin, url, seal, sealed = closed
+    target = supervised.OperatorTarget('local_disposable',
+        role_url(url, 'scribeswell_corpus_operator'), unquote(urlsplit(url).path[1:]))
+    operation = str(uuid4())
+    raw, source = encode(seal), source_bytes()
+    original = supervised._worker_command
+    discarded = original()
+    discarded[-1] = discarded[-1].replace('from corpus_operator import _worker_main;',
+        "import os;sys.stdout=open(os.devnull,'w');from corpus_operator import _worker_main;")
+    monkeypatch.setattr(supervised, '_worker_command', lambda: discarded)
+    with pytest.raises(PublishError, match='unknown_outcome'):
+        supervised.publish_closed_attempt(target, raw, source, operation_id=operation)
+    # Native independent visibility, before any reconciliation or retry.
+    assert admin.execute('SELECT count(*) FROM scribeswell.corpus_publication_outcome WHERE operation_id=%s',
+                         (operation,)).fetchone() == (1,)
+    monkeypatch.setattr(supervised, '_worker_command', original)
+    result = supervised.lookup_publication(target, raw, source, operation_id=operation)
+    assert result is not None and result.operation_id == operation
+    assert supervised.publish_closed_attempt(target, raw, source, operation_id=operation) == result
+    with operator(url) as connection:
+        execute(connection, body('recover', sealed))
+    assert supervised.lookup_publication(target, raw, source, operation_id=operation) == result
+    assert supervised.publish_closed_attempt(target, raw, source, operation_id=operation) == result
+    assert admin.execute('SELECT * FROM scribeswell.current_corpus_publication').fetchall() == []
+    admin.execute('UPDATE scribeswell.corpus_publication_authority SET enabled=false,revision=revision+1')
+    for invoke in (supervised.lookup_publication, supervised.publish_closed_attempt):
+        with pytest.raises(PublishError, match='access_denied'):
+            invoke(target, raw, source, operation_id=operation)
+    assert (raw, source) == (encode(seal), source_bytes())
+    assert admin.execute('SELECT count(*) FROM scribeswell.corpus_manifest_header').fetchone() == (1,)

@@ -30,6 +30,7 @@ _MAX_REQUEST = (MAX_SOURCE_BYTES + MAX_COMMAND_BYTES) * 4 // 3 + 65536
 _ROLE = 'scribeswell_corpus_operator'
 _LOG = logging.getLogger(__name__)
 _SAFE_FAILURES = {'access_denied', 'input_invalid', 'conflict', 'unavailable', 'unknown_outcome'}
+_PUBLICATION_FAILURES = _SAFE_FAILURES | {'corpus_mismatch', 'deadline_exceeded'}
 _SOURCE_FAILURES = {'checksum_invalid', 'checksum_mismatch', 'duplicate_json_key',
     'identity_invalid', 'json_invalid', 'position_invalid', 'source_inventory_invalid',
     'source_structure_invalid', 'source_too_large', 'source_word_invalid',
@@ -246,6 +247,11 @@ def _worker_main():
         if len(payload) > _MAX_REQUEST:
             raise ValueError
         request = _decode(payload)
+        if type(request) is dict and request.get('version') == 'publication-v1':
+            response = _publication_worker(request)
+            sys.stdout.buffer.write(json.dumps(response, separators=(',', ':')).encode('ascii'))
+            sys.stdout.buffer.flush()
+            return 0
         if (type(request) is not dict or set(request) != {'version', 'target', 'lookup', 'raw', 'source'}
                 or type(request['version']) is not int or request['version'] != 1
                 or type(request['lookup']) is not bool or type(request['target']) is not dict
@@ -287,3 +293,91 @@ def _worker_main():
     sys.stdout.buffer.write(json.dumps(response, separators=(',', ':')).encode('ascii'))
     sys.stdout.buffer.flush()
     return 0
+
+
+def _publication_invoke(target, raw, source_raw, operation_id, *, lookup):
+    from corpus_publish import PublishError, _activation, _receipt as publication_receipt
+    from corpus_publication_input import _uuid
+    deadline = time.monotonic() + _OPERATION_SECONDS
+    invalid = False
+    try:
+        _target(target)
+        _uuid(operation_id)
+        command = parse_command(raw)
+        if (command.command != 'corpus.seal' or type(source_raw) is not bytes
+                or len(source_raw) > MAX_SOURCE_BYTES):
+            raise ValueError
+    except Exception:
+        invalid = True
+    if invalid:
+        raise PublishError('input_invalid')
+    failure, result = None, None
+    try:
+        request = json.dumps(dict(version='publication-v1', target=asdict(target),
+            lookup=lookup, raw=base64.b64encode(raw).decode('ascii'),
+            source=base64.b64encode(source_raw).decode('ascii'), operation_id=operation_id),
+            separators=(',', ':')).encode('ascii')
+        if len(request) > _MAX_REQUEST:
+            raise ValueError
+        value = _decode(_exchange(request, deadline))
+        if type(value) is not dict or len(value) != 1:
+            raise ValueError
+        if set(value) == {'error'} and type(value['error']) is str and value['error'] in _PUBLICATION_FAILURES:
+            failure = value['error']
+        elif set(value) == {'receipt'}:
+            if value['receipt'] is None and lookup:
+                result = None
+            else:
+                result = publication_receipt(value['receipt'], _activation(command, operation_id))
+        else:
+            raise ValueError
+        if time.monotonic() >= deadline - _REAP_SECONDS:
+            raise ValueError
+    except Exception:
+        failure = 'unknown_outcome'
+    if failure:
+        raise PublishError(failure)
+    return result
+
+
+def publish_closed_attempt(target: OperatorTarget, raw: bytes, source_raw: bytes, *, operation_id):
+    """Contain audit/publication; caller retains exact inputs for explicit recovery."""
+    return _publication_invoke(target, raw, source_raw, operation_id, lookup=False)
+
+
+def lookup_publication(target: OperatorTarget, raw: bytes, source_raw: bytes, *, operation_id):
+    """Query only the retained original activation, under current restricted authority."""
+    return _publication_invoke(target, raw, source_raw, operation_id, lookup=True)
+
+
+def _publication_worker(request):
+    from corpus_publish import (PublishError, _prepare, publish_closed_attempt as publish,
+                                lookup_publication as lookup)
+    response = {'error': 'unknown_outcome'}
+    try:
+        if (set(request) != {'version', 'target', 'lookup', 'raw', 'source', 'operation_id'}
+                or type(request['lookup']) is not bool or type(request['target']) is not dict
+                or set(request['target']) != {'kind', 'database_url', 'binding'}):
+            raise ValueError
+        url = _target(OperatorTarget(**request['target']))
+        raw = base64.b64decode(request['raw'], validate=True)
+        source = base64.b64decode(request['source'], validate=True)
+        if len(raw) > MAX_COMMAND_BYTES or len(source) > MAX_SOURCE_BYTES:
+            raise ValueError
+        _prepare(raw, source, request['operation_id'])
+        with psycopg.connect(url, autocommit=True, connect_timeout=5,
+                             sslcertmode='disable', gssencmode='disable',
+                             require_auth='password,md5,scram-sha-256',
+                             passfile='/dev/null') as connection:
+            receipt = (lookup if request['lookup'] else publish)(
+                connection, raw, source, operation_id=request['operation_id'])
+        response = {'receipt': None if receipt is None else asdict(receipt)}
+    except (EvidenceError, ValueError):
+        response = {'error': 'input_invalid'}
+    except (PublishError, PublicationError) as error:
+        code = error.code.rsplit('.', 1)[-1]
+        if code in _PUBLICATION_FAILURES:
+            response = {'error': code}
+    except Exception:
+        pass
+    return response

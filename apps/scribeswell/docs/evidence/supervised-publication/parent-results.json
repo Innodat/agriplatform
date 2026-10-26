@@ -1,0 +1,30 @@
+{
+  "argv": [
+    "/tmp/scribeswell-implementation-python/bin/python",
+    "-m",
+    "pytest",
+    "-q",
+    "apps/scribeswell/tests/test_corpus_operator_publish.py",
+    "apps/scribeswell/tests/test_corpus_publish.py",
+    "apps/scribeswell/tests/test_corpus_operator.py::test_invalid_target_never_spawns",
+    "apps/scribeswell/tests/test_corpus_operator.py::test_explicit_target_shapes_and_suppressed_frozen_repr",
+    "apps/scribeswell/tests/test_corpus_operator.py::test_invalid_input_never_spawns",
+    "apps/scribeswell/tests/test_corpus_operator.py::test_bad_child_response_never_success",
+    "apps/scribeswell/tests/test_corpus_operator.py::test_forged_receipt_validated_against_original",
+    "apps/scribeswell/tests/test_corpus_operator.py::test_stalled_child_bounded_killed_and_reaped",
+    "apps/scribeswell/tests/test_corpus_operator.py::test_ambient_credentials_scrubbed_and_stdin_only",
+    "apps/scribeswell/tests/test_corpus_operator.py::test_child_revalidates_target_and_source_before_connect",
+    "apps/scribeswell/tests/test_corpus_operator.py::test_full_source_qualification_is_inside_deadline",
+    "apps/scribeswell/tests/test_corpus_operator.py::test_source_failure_is_safe_and_target_never_connected",
+    "apps/scribeswell/tests/test_corpus_operator.py::test_fixed_budget_and_no_public_override",
+    "apps/scribeswell/tests/test_corpus_operator.py::test_invalid_pooler_single_host_binding_never_spawns",
+    "apps/scribeswell/tests/test_corpus_operator.py::test_validated_scheme_is_usable_libpq_conninfo",
+    "apps/scribeswell/tests/test_corpus_operator.py::test_worker_connect_disables_ambient_authentication_sources",
+    "apps/scribeswell/tests/test_corpus_operator.py::test_unverified_reap_warns_safely_with_bounded_cleanup",
+    "apps/scribeswell/tests/test_corpus_operator.py::test_exhausted_admission_budget_never_spawns",
+    "apps/scribeswell/tests/test_corpus_operator.py::test_private_protocol_rejects_invalid_requests_before_connect"
+  ],
+  "exit_code": 0,
+  "seconds": 5.95,
+  "source_unchanged": true
+}

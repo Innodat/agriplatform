@@ -1,0 +1,114 @@
+{
+  "argv": [
+    "/tmp/scribeswell-implementation-python/bin/python",
+    "-m",
+    "pytest",
+    "-q",
+    "apps/scribeswell/tests/test_corpus_operator_publish.py::test_known_publication_failures_preserved"
+  ],
+  "environment_filter": "remove keys starting PG or SUPABASE, or containing DATABASE or NATIVE"
+}
+FFFF                                                                     [100%]
+=================================== FAILURES ===================================
+______ test_known_publication_failures_preserved[worker-corpus_mismatch] _______
+
+code = 'corpus_mismatch', boundary = 'worker'
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x78f00ead5580>
+
+    @pytest.mark.parametrize('code', ['corpus_mismatch', 'deadline_exceeded'])
+    @pytest.mark.parametrize('boundary', ['worker', 'parent'])
+    def test_known_publication_failures_preserved(code, boundary, monkeypatch):
+        if boundary == 'parent':
+            monkeypatch.setattr(operator, '_exchange', lambda *a: json.dumps({'error':code}).encode())
+            with pytest.raises(PublishError) as error:
+                operator.publish_closed_attempt(TARGET, *inputs(), operation_id=OPERATION)
+            assert error.value.code == 'corpus_publish.' + code
+        else:
+            import corpus_publish
+            class Connection:
+                def __enter__(self): return self
+                def __exit__(self, *args): pass
+            monkeypatch.setattr(operator.psycopg, 'connect', lambda *a, **k: Connection())
+            def fail(*args, **kwargs): raise PublishError(code)
+            monkeypatch.setattr(corpus_publish, 'lookup_publication', fail)
+>           assert worker(monkeypatch, json.dumps(request()).encode()) == {'error':code}
+E           AssertionError: assert {'error': 'unknown_outcome'} == {'error': 'corpus_mismatch'}
+E             
+E             Differing items:
+E             {'error': 'unknown_outcome'} != {'error': 'corpus_mismatch'}
+E             Use -v to get more diff
+
+apps/scribeswell/tests/test_corpus_operator_publish.py:198: AssertionError
+_____ test_known_publication_failures_preserved[worker-deadline_exceeded] ______
+
+code = 'deadline_exceeded', boundary = 'worker'
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x78f00ead6f30>
+
+    @pytest.mark.parametrize('code', ['corpus_mismatch', 'deadline_exceeded'])
+    @pytest.mark.parametrize('boundary', ['worker', 'parent'])
+    def test_known_publication_failures_preserved(code, boundary, monkeypatch):
+        if boundary == 'parent':
+            monkeypatch.setattr(operator, '_exchange', lambda *a: json.dumps({'error':code}).encode())
+            with pytest.raises(PublishError) as error:
+                operator.publish_closed_attempt(TARGET, *inputs(), operation_id=OPERATION)
+            assert error.value.code == 'corpus_publish.' + code
+        else:
+            import corpus_publish
+            class Connection:
+                def __enter__(self): return self
+                def __exit__(self, *args): pass
+            monkeypatch.setattr(operator.psycopg, 'connect', lambda *a, **k: Connection())
+            def fail(*args, **kwargs): raise PublishError(code)
+            monkeypatch.setattr(corpus_publish, 'lookup_publication', fail)
+>           assert worker(monkeypatch, json.dumps(request()).encode()) == {'error':code}
+E           AssertionError: assert {'error': 'unknown_outcome'} == {'error': 'deadline_exceeded'}
+E             
+E             Differing items:
+E             {'error': 'unknown_outcome'} != {'error': 'deadline_exceeded'}
+E             Use -v to get more diff
+
+apps/scribeswell/tests/test_corpus_operator_publish.py:198: AssertionError
+______ test_known_publication_failures_preserved[parent-corpus_mismatch] _______
+
+code = 'corpus_mismatch', boundary = 'parent'
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x78f00ead4da0>
+
+    @pytest.mark.parametrize('code', ['corpus_mismatch', 'deadline_exceeded'])
+    @pytest.mark.parametrize('boundary', ['worker', 'parent'])
+    def test_known_publication_failures_preserved(code, boundary, monkeypatch):
+        if boundary == 'parent':
+            monkeypatch.setattr(operator, '_exchange', lambda *a: json.dumps({'error':code}).encode())
+            with pytest.raises(PublishError) as error:
+                operator.publish_closed_attempt(TARGET, *inputs(), operation_id=OPERATION)
+>           assert error.value.code == 'corpus_publish.' + code
+E           AssertionError: assert 'corpus_publi...known_outcome' == 'corpus_publi...rpus_mismatch'
+E             
+E             - corpus_publish.corpus_mismatch
+E             + corpus_publish.unknown_outcome
+
+apps/scribeswell/tests/test_corpus_operator_publish.py:189: AssertionError
+_____ test_known_publication_failures_preserved[parent-deadline_exceeded] ______
+
+code = 'deadline_exceeded', boundary = 'parent'
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x78f00ead5e20>
+
+    @pytest.mark.parametrize('code', ['corpus_mismatch', 'deadline_exceeded'])
+    @pytest.mark.parametrize('boundary', ['worker', 'parent'])
+    def test_known_publication_failures_preserved(code, boundary, monkeypatch):
+        if boundary == 'parent':
+            monkeypatch.setattr(operator, '_exchange', lambda *a: json.dumps({'error':code}).encode())
+            with pytest.raises(PublishError) as error:
+                operator.publish_closed_attempt(TARGET, *inputs(), operation_id=OPERATION)
+>           assert error.value.code == 'corpus_publish.' + code
+E           AssertionError: assert 'corpus_publi...known_outcome' == 'corpus_publi...line_exceeded'
+E             
+E             - corpus_publish.deadline_exceeded
+E             + corpus_publish.unknown_outcome
+
+apps/scribeswell/tests/test_corpus_operator_publish.py:189: AssertionError
+=========================== short test summary info ============================
+FAILED apps/scribeswell/tests/test_corpus_operator_publish.py::test_known_publication_failures_preserved[worker-corpus_mismatch]
+FAILED apps/scribeswell/tests/test_corpus_operator_publish.py::test_known_publication_failures_preserved[worker-deadline_exceeded]
+FAILED apps/scribeswell/tests/test_corpus_operator_publish.py::test_known_publication_failures_preserved[parent-corpus_mismatch]
+FAILED apps/scribeswell/tests/test_corpus_operator_publish.py::test_known_publication_failures_preserved[parent-deadline_exceeded]
+4 failed in 0.31s

@@ -296,3 +296,30 @@ request, separate trusted owner admission and private target, proposed total/COM
 deadlines and original-session reconciliation. It is a written design, not an
 implemented parser or runner. The first implementation boundary is pure parsing;
 owner evidence verification, supervised SQL execution and live readiness remain open.
+
+## Supervised publication caller contract
+
+`corpus_operator.publish_closed_attempt(target, seal_raw, source_raw, *, operation_id)`
+and `lookup_publication` with the same mandatory arguments contain the controlled
+publisher in the existing bounded, environment-stripped child supervisor. Retain
+immutable original operation UUID, exact seal bytes, exact source bytes and explicit
+prepared OperatorTarget in the caller's protected custody. No operation store,
+discovery, provisioning or public endpoint is introduced.
+
+The additive private protocol uses literal version `publication-v1`, with exactly
+`version,target,lookup,raw,source,operation_id`; controller integer version1 remains
+unchanged. Source and seal travel as bounded base64 stdin only. Full existing source
+qualification runs inside the child before connecting, including on lookup. Parent
+checks the bounded seal/operation and validates every receipt against the original
+activation and deterministic revision identity. The total60-second budget includes
+admission, encoding, source qualification, audit, connection and publication;2seconds
+are reserved for bounded direct-child termination/reaping. Request and response limits
+are shared with the controller. No caller timeout override exists.
+
+Malformed, missing, excessive or late acknowledgement means
+`corpus_publish.unknown_outcome`, never rollback. Explicit current-authority denial
+remains `corpus_publish.access_denied`; bounded source/input failures use
+`corpus_publish.input_invalid`. Other known publisher failures retain safe identifiers.
+Caller explicitly looks up the original inputs; None remains unresolved. An explicit
+same-input retry uses the existing publisher's original-operation reconciliation;
+no automatic outer retry, replacement operation or reactivation is performed.

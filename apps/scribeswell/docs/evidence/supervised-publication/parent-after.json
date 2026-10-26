@@ -1,0 +1,13 @@
+{
+  "apps/scribeswell/backend/corpus_operator.py": "cced7e984399a4919a2c114c7243932ff6e12cec48693d09283b2a4d75db110f",
+  "apps/scribeswell/backend/corpus_publish.py": "4ded06f8025f6c210823a7d1c9ad88d50db31b3215ac60d3f7cfeaa8c868665d",
+  "apps/scribeswell/backend/closed_corpus_audit.py": "ee1edc771fd7e23a1ccff80a99d63642a86bad8bef0964a74b8f3b85484b8d33",
+  "apps/scribeswell/backend/corpus_evidence.py": "922fd3921da486754aa3646ac9d96e1ac0c6028f26bc29c69143031552501614",
+  "apps/scribeswell/backend/corpus_publication_input.py": "3d64d3747131faeec2b72c937b38f91e03ac7d073d78f250e306eb9f7cd6a0b4",
+  "apps/scribeswell/backend/corpus_publication.py": "be731082199927e8dc39d969c537b3e265d21793cacf3134c0f94ade30ee39bd",
+  "apps/scribeswell/tests/test_corpus_operator_publish.py": "ee6bdbee26d8d66d2ca8d78c159a442d4fac47b2746cc7b30e55b5e78ba21473",
+  "apps/scribeswell/tests/test_corpus_publish.py": "b04e7e79da0e8d4fb1174dc7f3abf3e8b491e240f9b0f0ef5506d604ddaca2be",
+  "apps/scribeswell/tests/test_corpus_operator.py": "c2212d5b5ef224f0a2e8fbb0be9c38abf96aebc1e73221c1cbf8d59798e3d298",
+  "apps/scribeswell/tests/test_corpus_publish_native.py": "2ac507ae5b1b6b9f1d8a9d9c9b41eda0f04db23df48d1f6e786a0ffb0375a6db",
+  "apps/scribeswell/docs/CORPUS_CALLER_PREPARATION.md": "366f3a6e93e846d68b54f2584d061576ee03d2039defca239b3198bcbc8c4e11"
+}
