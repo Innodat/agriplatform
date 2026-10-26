@@ -8,8 +8,8 @@ from uuid import UUID
 PROFILE_ENV = 'SCRIBESWELL_MIGRATION_PROFILE'
 CUSTODY_ENV = 'SCRIBESWELL_MIGRATION_CUSTODY_JSON'
 OPTION_KEYS = {PROFILE_ENV, CUSTODY_ENV}
-PROFILES = ('dormant', 'prepared-controller-v1', 'controller-history-v1')
-REVISIONS = (None, 'scribeswell_0001', 'scribeswell_0002', 'scribeswell_0003')
+PROFILES = ('dormant', 'prepared-controller-v1', 'controller-history-v1', 'publication-v1')
+REVISIONS = (None, 'scribeswell_0001', 'scribeswell_0002', 'scribeswell_0003', 'scribeswell_0004')
 FIELDS = {'schema_version','source_id','executor_actor_id','actor_kind','actor_key','preparation_evidence_ref'}
 
 
@@ -63,7 +63,7 @@ def selection(value):
     profile = value['profile']
     if type(profile) is not str or profile not in PROFILES:
         invalid()
-    if profile == 'dormant':
+    if profile == 'dormant' or (profile == 'publication-v1' and value['custody'] is None):
         if value['custody'] is not None:
             invalid()
         return dict(profile=profile, custody=None)
@@ -76,7 +76,7 @@ def from_environ(environ):
         invalid()
     profile = environ.get(PROFILE_ENV, 'dormant')
     supplied = CUSTODY_ENV in environ
-    if (profile == 'dormant' and supplied) or (profile != 'dormant' and not supplied):
+    if (profile == 'dormant' and supplied) or (profile not in ('dormant','publication-v1') and not supplied):
         invalid()
     if supplied and (type(environ[CUSTODY_ENV]) is not str or '\n' in environ[CUSTODY_ENV] or '\r' in environ[CUSTODY_ENV]):
         invalid()
@@ -92,8 +92,11 @@ def evidence(value):
 def valid_result(result, expected):
     """A worker success must include the native post-COMMIT marker's evidence."""
     return (type(result) is dict and set(result) == {'before','after','validation'}
-            and result['before'] in REVISIONS and result['after'] == 'scribeswell_0003'
-            and (expected['profile'] == 'dormant' or result['before'] == 'scribeswell_0003')
+            and result['before'] in REVISIONS
+            and result['after'] == ('scribeswell_0004' if expected['profile']=='publication-v1' else 'scribeswell_0003')
+            and (result['before'] in ('scribeswell_0003','scribeswell_0004') if expected['profile']=='publication-v1'
+                 else (expected['profile']=='dormant' and result['before']!='scribeswell_0004')
+                 or result['before']=='scribeswell_0003')
             and result['validation'] == evidence(expected))
 
 

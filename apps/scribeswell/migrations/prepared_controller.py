@@ -46,7 +46,7 @@ def catalogue(connection, expected):
         deny('catalogue_mismatch')
 
 
-def operator(connection):
+def operator(connection, *, publication=False):
     role = connection.exec_driver_sql("SELECT rolcanlogin,rolsuper,rolbypassrls,rolcreatedb,rolcreaterole,rolreplication,rolinherit FROM pg_roles WHERE rolname=%s",(OPERATOR,)).first()
     if role is None or tuple(role) != (True,False,False,False,False,False,False):
         deny('operator_authority')
@@ -59,13 +59,25 @@ def operator(connection):
         AND EXISTS (SELECT FROM unnest(s.setconfig) x WHERE split_part(x,'=',1) NOT IN
         ('statement_timeout','lock_timeout','idle_in_transaction_session_timeout'))""",(OPERATOR,)).first():
         deny('operator_authority')
-    forbidden = connection.exec_driver_sql("""WITH actor AS (SELECT oid FROM pg_roles WHERE rolname=%s),
+    query = """WITH actor AS (SELECT oid FROM pg_roles WHERE rolname=%s),
+    profile AS (SELECT %s::boolean AS publication),
+    allowed_routines AS (
+      SELECT unnest(ARRAY['scribeswell.execute_corpus_command(jsonb)'::regprocedure::oid,
+        'scribeswell.lookup_corpus_command_outcome(jsonb)'::regprocedure::oid]) AS oid
+      UNION ALL SELECT to_regprocedure(name)::oid FROM profile,
+        unnest(ARRAY['scribeswell.execute_corpus_publication(jsonb)',
+                     'scribeswell.lookup_corpus_publication_outcome(jsonb)']) name WHERE publication),
+    allowed_reads AS (SELECT c.oid FROM pg_class c JOIN pg_namespace n ON n.oid=c.relnamespace,profile
+      WHERE publication AND n.nspname='scribeswell' AND c.relname IN
+       ('book','chapter','verse','word','corpus_fence_control','corpus_epoch','corpus_attempt',
+        'corpus_operator_principal','corpus_operator_authority')),
     business AS (SELECT * FROM pg_namespace WHERE nspname NOT IN ('pg_catalog','information_schema') AND left(nspname,3)<>'pg_')
     SELECT 1 FROM pg_shdepend d,actor WHERE d.refclassid='pg_authid'::regclass AND d.refobjid=actor.oid
        AND (d.deptype='o' OR (d.deptype='a' AND NOT (
          d.dbid=(SELECT oid FROM pg_database WHERE datname=current_database()) AND
-         ((d.classid='pg_namespace'::regclass AND d.objid='scribeswell'::regnamespace) OR
-          (d.classid='pg_proc'::regclass AND d.objid IN ('scribeswell.execute_corpus_command(jsonb)'::regprocedure,'scribeswell.lookup_corpus_command_outcome(jsonb)'::regprocedure))))))
+         ((d.classid='pg_class'::regclass AND d.objid IN (SELECT oid FROM allowed_reads)) OR
+          (d.classid='pg_namespace'::regclass AND d.objid='scribeswell'::regnamespace) OR
+          (d.classid='pg_proc'::regclass AND d.objid IN (SELECT oid FROM allowed_routines))))))
     UNION ALL SELECT 1 FROM pg_namespace n,actor WHERE n.nspowner=actor.oid
     UNION ALL SELECT 1 FROM pg_class c,actor WHERE c.relowner=actor.oid
     UNION ALL SELECT 1 FROM pg_proc p,actor WHERE p.proowner=actor.oid
@@ -79,10 +91,11 @@ def operator(connection):
        (s.context IS DISTINCT FROM 'user' AND has_parameter_privilege(actor.oid,p.parname,'SET'))
     UNION ALL SELECT 1 FROM business n,actor WHERE has_schema_privilege(actor.oid,n.oid,'CREATE')
     UNION ALL SELECT 1 FROM pg_namespace n,LATERAL aclexplode(n.nspacl) a,actor WHERE a.grantee=actor.oid AND NOT (n.nspname='scribeswell' AND a.privilege_type='USAGE' AND a.grantor=n.nspowner AND NOT a.is_grantable)
-    UNION ALL SELECT 1 FROM pg_class c,LATERAL aclexplode(c.relacl) a,actor WHERE a.grantee=actor.oid
+    UNION ALL SELECT 1 FROM pg_class c,LATERAL aclexplode(c.relacl) a,actor WHERE a.grantee=actor.oid AND NOT (c.oid IN (SELECT oid FROM allowed_reads)
+       AND a.privilege_type='SELECT' AND a.grantor=c.relowner AND NOT a.is_grantable)
     UNION ALL SELECT 1 FROM pg_attribute col,LATERAL aclexplode(col.attacl) a,actor WHERE a.grantee=actor.oid
     UNION ALL SELECT 1 FROM pg_proc p JOIN pg_namespace n ON n.oid=p.pronamespace,LATERAL aclexplode(p.proacl) a,actor
-       WHERE a.grantee=actor.oid AND NOT (n.nspname='scribeswell' AND p.proname IN ('execute_corpus_command','lookup_corpus_command_outcome') AND a.privilege_type='EXECUTE' AND a.grantor=p.proowner AND NOT a.is_grantable)
+       WHERE a.grantee=actor.oid AND NOT (n.nspname='scribeswell' AND p.oid IN (SELECT oid FROM allowed_routines) AND a.privilege_type='EXECUTE' AND a.grantor=p.proowner AND NOT a.is_grantable)
     UNION ALL SELECT 1 FROM pg_default_acl d,LATERAL aclexplode(d.defaclacl) a,actor WHERE a.grantee=actor.oid OR d.defaclrole=actor.oid
     UNION ALL SELECT 1 FROM pg_default_acl d,LATERAL aclexplode(d.defaclacl) a,actor
        WHERE a.grantee=0 AND d.defaclobjtype IN ('r','S') AND
@@ -96,11 +109,15 @@ def operator(connection):
     UNION ALL SELECT 1 FROM pg_class c JOIN business n ON n.oid=c.relnamespace,actor
        WHERE c.relkind IN ('r','p','v','m','f','S') AND has_schema_privilege(actor.oid,n.oid,'USAGE') AND
        CASE WHEN c.relkind='S' THEN has_sequence_privilege(actor.oid,c.oid,'USAGE,SELECT,UPDATE')
-       ELSE has_table_privilege(actor.oid,c.oid,'SELECT,INSERT,UPDATE,DELETE,TRUNCATE,REFERENCES,TRIGGER,MAINTAIN') OR has_any_column_privilege(actor.oid,c.oid,'SELECT,INSERT,UPDATE,REFERENCES') END
+       ELSE has_table_privilege(actor.oid,c.oid,'INSERT,UPDATE,DELETE,TRUNCATE,REFERENCES,TRIGGER,MAINTAIN')
+        OR has_any_column_privilege(actor.oid,c.oid,'INSERT,UPDATE,REFERENCES')
+        OR ((has_table_privilege(actor.oid,c.oid,'SELECT') OR has_any_column_privilege(actor.oid,c.oid,'SELECT'))
+           AND c.oid NOT IN (SELECT oid FROM allowed_reads)) END
     UNION ALL SELECT 1 FROM pg_proc p JOIN business n ON n.oid=p.pronamespace,actor
        WHERE p.prosecdef AND has_schema_privilege(actor.oid,n.oid,'USAGE') AND has_function_privilege(actor.oid,p.oid,'EXECUTE')
-       AND NOT (n.nspname='scribeswell' AND p.proname IN ('execute_corpus_command','lookup_corpus_command_outcome'))
-    """,(OPERATOR,)).first()
+       AND NOT (n.nspname='scribeswell' AND p.oid IN (SELECT oid FROM allowed_routines))
+    """
+    forbidden=connection.exec_driver_sql(query,(OPERATOR,publication)).first()
     if forbidden:
         deny('operator_authority')
 

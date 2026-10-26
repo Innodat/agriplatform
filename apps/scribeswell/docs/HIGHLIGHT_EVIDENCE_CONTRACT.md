@@ -8,7 +8,7 @@ Implemented: `backend/highlight_evidence.py` is a pure comparison primitive. It 
 
 The accepted shape is internal, not a new wire DTO. Positions are bounded to 512 tokens, Hebrew source books, chapter 1–150 and verse 1–176; complete catalogue eligibility and publication authority remain adapter responsibilities. IDs are canonical positive decimal PostgreSQL bigint strings. Each selected segment carries exactly one ID per selected position; current observations carry the complete distinct inventory.
 
-Still proposed: a protected immutable publication manifest and activation transition, fenced audit/import integration, a bounded read-only repeatable snapshot supplying publication and words together, canonical reference DTO mapping, trusted base-revision preservation, and current-proof validation before new/repaired anchor writes. A caller must not accept a new anchor from browser-supplied proof or from this primitive alone. Publication readiness cannot be inferred from a matching digest, closed controller attempt, or historical audit candidate. No source text matching, fuzzy relocation, actor/Access inference or organization prerequisite is introduced.
+The fenced importer, closed auditor and durable publication code are implemented as detailed below; native/release qualification remains deferred. Still pending: a bounded read-only repeatable reader snapshot supplying publication and words together, canonical reference DTO mapping, trusted base-revision preservation, and current-proof validation before new/repaired anchor writes. A caller must not accept a new anchor from browser-supplied proof or from this primitive alone. Publication readiness cannot be inferred from a matching digest, closed controller attempt, or historical audit candidate. No source text matching, fuzzy relocation, actor/Access inference or organization prerequisite is introduced.
 
 Tests use synthetic observations only. Native database, owner-service, public browser, physical selection-device and release qualification remain pending. No migrations or runtime behavior are changed by this slice.
 
@@ -46,7 +46,7 @@ The existing source audit visibility and full inventory/token/digest checks are 
 
 The adapter requires explicitly prepared read grants over the app-owned control/epoch/attempt/principal/authority metadata and corpus, plus the existing lookup EXECUTE grant, under the restricted `scribeswell_corpus_operator` principal. No such new grants are shipped or applied here. Missing preparation fails closed. Controlled schema/role DDL must remain stable during qualification. Application-side doubles establish orchestration and exact comparison only; actual restricted-role visibility, fence exclusion, recovery races and transport budgets require the final native integration.
 
-### Durable attestation and activation contract — proposed implementation
+### Durable attestation and activation contract — adopted design
 
 The trust boundary is the controlled Scribeswell owner auditor runtime. A frozen candidate, closed receipt, historical audit file, matching hash or shape-valid SQL payload is never independently proof of actual correspondence. Only that trusted runtime may feed the protected staging/completion routines; no browser or general external request may submit claimed audited manifests. The database protects restricted writes, immutable stage/completion records, structural completeness and final current-state CAS; it does not claim to independently rerun the Python full-source audit.
 
@@ -54,7 +54,7 @@ Retain the existing updating/closed epoch and attempt enums. A separate publicat
 
 Use immutable stage headers, ordered verse rows and a separate immutable completion record. Stage binds source/revision/attempt/generation/approved checksum, source labels, executor and auditor contract version. Batches contain at most 1,000 verses; existing audit maxima of 50,000 verses and 1,000,000 tokens apply, with a 64 MiB encoded-manifest ceiling. Completeness requires the full qualified supported inventory, exact ordered IDs/counts and manifest digest, never a partial `--book` output. Abandoned or incomplete stages cannot activate and are retained for owner investigation; no automatic cleanup policy is introduced.
 
-The planned manifest digest is SHA-256 over compact UTF-8 JSON without BOM/newline/normalization: `["scribeswell.manifest.v1", auditor_contract_version, source_id, catalogue_version, versification_id, tokenization_version, source_sha256, source_revision, executor_actor_id, attempt_id, generation_decimal_string, [[canonical_book, chapter, verse, verse_token_digest, [ordered_decimal_word_ids]], ...]]`. Verse order is the existing full-source qualifier's canonical book/chapter/verse order. This encoding is a concrete design, not yet implemented or accepted from external callers.
+The planned manifest digest is SHA-256 over compact UTF-8 JSON without BOM/newline/normalization: `["scribeswell.manifest.v1", auditor_contract_version, source_id, catalogue_version, versification_id, tokenization_version, source_sha256, source_revision, executor_actor_id, attempt_id, generation_decimal_string, [[canonical_book, chapter, verse, verse_token_digest, [ordered_decimal_word_ids]], ...]]`. Verse order is the existing full-source qualifier's canonical book/chapter/verse order. This encoding is implemented by the controlled publisher below and is never accepted as external proof.
 
 A source revision UUID is globally unique across all sources, attempts and stages. Its first immutable header permanently binds one complete manifest identity, including source/attempt/generation, auditor contract version, executor, declared digest/counts and ordered inventory; reuse with any difference conflicts. There is no revision rebinding or overwrite after recovery.
 
@@ -76,3 +76,101 @@ Closed-audit verification: final335 pure/application-side tests passed18.56s, wi
 | Bound qualification/lookup/scan/assembly execution | `test_total_deadline_cannot_return_late_candidate`, `test_late_receipt_reconciliation_does_not_open_audit_snapshot` |
 | Reuse actual receipt decoder and restore caller row factory | `test_actual_controller_lookup_normalizes_and_restores_caller_factory`, `test_lookup_failure_restores_factory_before_raising`, `test_read_grant_failure_is_safe_and_restores_caller` |
 | Reject invalid/unreconciled input before snapshot | `test_invalid_input_or_unreconciled_seal_does_not_open_snapshot`, `test_nonconnection_is_rejected_without_sql` |
+
+
+## Durable publication — implemented, release qualification deferred
+
+`backend/corpus_publish.py::publish_closed_attempt(connection, seal_raw, source_raw,
+operation_id=...)` is an internal controlled owner producer, with
+`lookup_publication` for original-operation reconciliation. It requires the strict
+original seal and exact complete approved source bytes. It accepts no external
+manifest or claimed audit. It prequalifies those inputs, derives revision/stage/
+batch/completion UUIDs deterministically from the retained activation operation,
+and looks up that original activation before invoking the closed auditor. A
+historical matching activation receipt returns immediately and never reactivates
+retired evidence. Changed retry intent conflicts under the same operation UUID.
+
+The canonical compact UTF-8 encoder binds the auditor-owned
+`scribeswell.closed_audit.v1` contract version, full header identity and every
+ordered verse digest/decimal word ID, with a 64 MiB ceiling. The controlled auditor
+alone supplies actual observations. Stage, batches of at most1,000 verses,
+completion and activation each use a fixed parameterized restricted routine in a
+separate bounded transaction. Caller row factories are restored. Successful
+transaction exit precedes acknowledgement; an unknown write acknowledgement
+triggers original-operation lookup. A missing receipt stays unknown and requires
+the caller to retain and retry the same operation. Existing caller execution
+containment still owns arbitrary transport stalls; this adapter opens no
+connections or supervisors.
+
+Forward `0004_corpus_publication.py` adds immutable headers, ordered verses,
+batches, structurally unique per-revision word identities, completions and semantic
+outcomes. It adds separate explicit source publication authority and a current
+pointer, retaining the existing epoch/controller enums and original begin/recover/
+seal behavior. Completion reconstructs the exact canonical encoding, validates
+counts, ordered inventory and ID correspondence, and verifies the full digest.
+Completion checks also run on alternate completion inserts; append/completion
+operations serialize on the same header lock, constituent actors match that header,
+and batch rows/indices/offsets must match normalized verse evidence. Immutable
+history and post-completion append protections cover update/delete/truncate paths. This
+protects storage structure; it does not turn submitted JSON into an independent
+SQL audit of corpus text. The restricted operation namespace is shared with the
+historical controller via an additive insert guard. New writes recheck current
+restricted login/principal, explicit publication authority, enforcement and the
+exact acknowledged closed tuple. Authorized exact committed replay returns its
+original receipt before current-tuple checks, without changing the pointer.
+
+`current_corpus_publication` exposes a stored pointer only while enforcement is on
+and its completed manifest belongs to the current closed epoch/attempt. Recovery
+therefore removes current usability while preserving immutable records. There is
+no reader/highlight integration in this delivery.
+
+The explicit `publication-v1` migration profile upgrades0003 to0004 and supports
+repeat/postflight at0004. With no custody input it requires the existing dormant
+controller state; with explicit existing custody it validates prepared/controller
+history without provisioning. Historical profile selections, including their
+standalone `upgrade head` invocation, remain pinned to0003. Existing generated
+references and0002/0003 migrations are unchanged. The new profile preserves pinned
+0003 objects by existing identity, definition and normalized ACL while allowing
+additions. Explicitly prepared audit SELECT access and the two new routine grants
+are qualified separately from historical profiles; grant options, table writes and
+other operator authority remain denied. Source corpus audit visibility also needs
+appropriate explicitly prepared RLS policy; SELECT grants alone are insufficient.
+
+No native migration, credential change, enforcement activation, actual owner
+service call or deployment was performed. The new opt-in
+`tests/test_corpus_publish_native.py` is authored and **unexecuted**. Its disposable
+fixture scenarios cover upgrade/repeat, previous controller compatibility,
+canonical completion/activation and retired retry, restricted permissions,
+authority/disable failures, stale and partial completion, immutable alternate
+writes, complete wrong-digest rejection, multi-batch resume, header-lock races,
+concurrent recovery, post-commit acknowledgement discard and failed-DDL rollback.
+These authored cases have not run, and completed-acknowledgement discard is not
+injected transport connection loss. Actual SQL syntax/execution, native grant/RLS
+isolation, recovery/concurrency, large-manifest budgets, transport containment and
+coordinated release activation remain mandatory final-phase gates. No live
+publication is claimed. Recovery is forward-only with original-operation lookup;
+there is no automatic downgrade or source rollback.
+
+Delivery impact: scaffold, shared UI, agent context and ADR changes are unnecessary
+for this app-specific controlled backend path. No runtime/service pattern is
+promoted. This contract and the retained evidence below are the documentation
+changes; accepted ADRs are unchanged.
+
+Verification and requirement-to-test traceability are retained in
+[evidence/durable-publication/verification.json](evidence/durable-publication/verification.json)
+and [the executed test result](evidence/durable-publication/final-result.txt).
+Protocol/encoding, per-boundary acknowledgement loss, original activation retry,
+changed semantics, failed commits, factory restoration, strict source admission
+and current denial are covered by `test_corpus_publish.py`. Version selection,
+worker/result propagation, independent historical reference recognition and
+pinned-definition/ACL preservation are covered by `test_publication_profile.py`
+and explicitly selected previous wrapper/profile tests. These doubles and pure
+checks establish application orchestration and comparison only.
+
+ATDD chronology: the initial publisher run failed collection because the module
+did not exist; this was **not a behavioral acceptance red**. Publisher behavior was
+then implemented before its full behavioral assertions, leaving an initial ATDD
+chronology gap. The publication profile acceptance assertion was executed and
+failed on the unsupported profile before profile implementation. Neither history
+has been reconstructed or claimed as stronger evidence. Exact subsequent
+commands/results and fingerprints are recorded in the verification artifact.

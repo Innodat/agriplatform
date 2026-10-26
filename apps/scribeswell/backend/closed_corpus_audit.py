@@ -17,6 +17,10 @@ from corpus_publication import PublicationError, _idle, lookup_outcome
 from corpus_publication_input import CommandValidationError, _uuid, parse_command
 
 
+# Bump when changing the correspondence contract consumed by durable manifests.
+AUDITOR_CONTRACT_VERSION = 'scribeswell.closed_audit.v1'
+
+
 class ClosedAuditError(RuntimeError):
     """Fixed safe identifier; never retains submitted or driver content."""
     def __init__(self, code):

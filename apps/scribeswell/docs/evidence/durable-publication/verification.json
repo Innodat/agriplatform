@@ -1,0 +1,136 @@
+{
+  "argv": [
+    "/tmp/scribeswell-implementation-python/bin/python",
+    "-m",
+    "pytest",
+    "-q",
+    "apps/scribeswell/tests/test_corpus_publish.py",
+    "apps/scribeswell/tests/test_publication_profile.py",
+    "apps/scribeswell/tests/test_corpus_publication_input.py",
+    "apps/scribeswell/tests/test_closed_corpus_audit.py",
+    "apps/scribeswell/tests/test_corpus_manifest.py",
+    "apps/scribeswell/tests/test_corpus_evidence.py",
+    "apps/scribeswell/tests/test_highlight_evidence.py",
+    "apps/scribeswell/tests/test_fenced_importer.py",
+    "apps/scribeswell/tests/test_host_validation_profiles.py::test_invalid_selection_never_starts_worker",
+    "apps/scribeswell/tests/test_host_validation_profiles.py::test_revision_only_worker_success_is_rejected",
+    "apps/scribeswell/tests/test_host_validation_profiles.py::test_final_evidence_write_failure_removes_success_marker",
+    "apps/scribeswell/tests/test_host_validation_profiles.py::test_bad_url_preserves_valid_requested_selection",
+    "apps/scribeswell/tests/test_host_validation_profiles.py::test_strict_decoder_rejects_nonfinite_numbers",
+    "apps/scribeswell/tests/test_host_validation_profiles.py::test_parent_rejects_mismatched_worker_evidence",
+    "apps/scribeswell/tests/test_host_validation_profiles.py::test_worker_requires_native_postcommit_marker",
+    "apps/scribeswell/tests/test_host_validation_profiles.py::test_worker_rejects_bad_ipc_before_alembic",
+    "apps/scribeswell/tests/test_owned_migrations.py::test_owned_baseline_has_independent_pinned_reference",
+    "apps/scribeswell/tests/test_owned_migrations.py::test_adapter_safe_evidence_and_stripped_environment",
+    "apps/scribeswell/tests/test_owned_migrations.py::test_adapter_rejects_bad_configuration_before_worker",
+    "apps/scribeswell/tests/test_owned_migrations.py::test_adapter_timeout_kills_reaps_and_marks_unknown",
+    "apps/scribeswell/tests/test_owned_migrations.py::test_adapter_malformed_results_fail_safely",
+    "apps/scribeswell/tests/test_owned_migrations.py::test_failed_worker_preserves_valid_known_before",
+    "apps/scribeswell/tests/test_owned_migrations.py::test_worker_emits_known_before_after_upgrade_failure",
+    "apps/scribeswell/tests/test_owned_migrations.py::test_failed_worker_rejects_unvalidated_observations",
+    "apps/scribeswell/tests/test_owned_migrations.py::test_adapter_supports_all_known_before_revisions"
+  ],
+  "exit_code": 0,
+  "before_sha256": {
+    "apps/scribeswell/backend/corpus_publish.py": "4ded06f8025f6c210823a7d1c9ad88d50db31b3215ac60d3f7cfeaa8c868665d",
+    "apps/scribeswell/backend/closed_corpus_audit.py": "ee1edc771fd7e23a1ccff80a99d63642a86bad8bef0964a74b8f3b85484b8d33",
+    "apps/scribeswell/migrations/versions/0004_corpus_publication.py": "a80764d9b2c8e959774f7309480f69216d64ce12b05aefd77d064be9f16c4b82",
+    "apps/scribeswell/migrations/baseline.py": "34d4e83f43ac3a7fa105f172c108ed3fadae1bb7ac078ea9ed65687ff2a5be1b",
+    "apps/scribeswell/migrations/env.py": "b277df6c12532c1eefcb691a5c282ef010c419d4a96361a6f7a1dc605e31dd3b",
+    "apps/scribeswell/migrations/prepared_controller.py": "dbe986a3391b1f75842de4e86b5c1ea48aa95496f059f2f088e88a86cecfba74",
+    "apps/scribeswell/migrations/publication_profile.py": "9d3ae9b7dad15e880c05e6a488561aae81dcc7403e33212b7e0b5091e7f92efe",
+    "apps/scribeswell/migrations/release_profile.py": "4db210c08c8da1901c1571ea6f56ee212680b1f47da71dfee3b6096b7b0826b7",
+    "apps/scribeswell/deployment/migrate.py": "419e4efe1cd8bac1fff79aa7250f3b2a2d3e3ae94af053d10eb734e058c9899b",
+    "apps/scribeswell/tests/test_corpus_publish.py": "b04e7e79da0e8d4fb1174dc7f3abf3e8b491e240f9b0f0ef5506d604ddaca2be",
+    "apps/scribeswell/tests/test_publication_profile.py": "5a0256da584b9b3a8c38ed287a1e693489faffd6303fd643ed6a5a8384cafa4c",
+    "apps/scribeswell/tests/test_corpus_publish_native.py": "0f4eb7dfaea74cd14a8f6e2e159480d401d0d170640be7a950db682528f5a9ac",
+    "apps/scribeswell/docs/HIGHLIGHT_EVIDENCE_CONTRACT.md": "9af5a1a44eddb1445aa5edc465188f3c0523f644ffeb5b8513dda02261c65cbd",
+    "apps/scribeswell/migrations/versions/0002_corpus_writer_fence.py": "7d3c790c8de85cd079b2ade3da63867285139fba570c8151972fd25b3a48042c",
+    "apps/scribeswell/migrations/versions/0003_corpus_controller.py": "d2d3399ec4178144b1a4df7edcdd0de6129672bf1e54f6aff3cd45147b519e2a",
+    "apps/scribeswell/migrations/reference.json": "10ac1f9f5060093e248fb1ed6987cfa24136b6c0662280bcc0dbdccbc0ea3dbf",
+    "apps/scribeswell/migrations/reference-head.json": "a446ef7ff8de5adc7bd7163c99affdd71850341bca962963c76458d54bf6019f",
+    "apps/scribeswell/migrations/reference-controller.json": "78f23cb01e2b91ff963bfc249631f8317b6c09ed9e41f45fd44abc72e8563d9a"
+  },
+  "after_sha256": {
+    "apps/scribeswell/backend/corpus_publish.py": "4ded06f8025f6c210823a7d1c9ad88d50db31b3215ac60d3f7cfeaa8c868665d",
+    "apps/scribeswell/backend/closed_corpus_audit.py": "ee1edc771fd7e23a1ccff80a99d63642a86bad8bef0964a74b8f3b85484b8d33",
+    "apps/scribeswell/migrations/versions/0004_corpus_publication.py": "a80764d9b2c8e959774f7309480f69216d64ce12b05aefd77d064be9f16c4b82",
+    "apps/scribeswell/migrations/baseline.py": "34d4e83f43ac3a7fa105f172c108ed3fadae1bb7ac078ea9ed65687ff2a5be1b",
+    "apps/scribeswell/migrations/env.py": "b277df6c12532c1eefcb691a5c282ef010c419d4a96361a6f7a1dc605e31dd3b",
+    "apps/scribeswell/migrations/prepared_controller.py": "dbe986a3391b1f75842de4e86b5c1ea48aa95496f059f2f088e88a86cecfba74",
+    "apps/scribeswell/migrations/publication_profile.py": "9d3ae9b7dad15e880c05e6a488561aae81dcc7403e33212b7e0b5091e7f92efe",
+    "apps/scribeswell/migrations/release_profile.py": "4db210c08c8da1901c1571ea6f56ee212680b1f47da71dfee3b6096b7b0826b7",
+    "apps/scribeswell/deployment/migrate.py": "419e4efe1cd8bac1fff79aa7250f3b2a2d3e3ae94af053d10eb734e058c9899b",
+    "apps/scribeswell/tests/test_corpus_publish.py": "b04e7e79da0e8d4fb1174dc7f3abf3e8b491e240f9b0f0ef5506d604ddaca2be",
+    "apps/scribeswell/tests/test_publication_profile.py": "5a0256da584b9b3a8c38ed287a1e693489faffd6303fd643ed6a5a8384cafa4c",
+    "apps/scribeswell/tests/test_corpus_publish_native.py": "0f4eb7dfaea74cd14a8f6e2e159480d401d0d170640be7a950db682528f5a9ac",
+    "apps/scribeswell/docs/HIGHLIGHT_EVIDENCE_CONTRACT.md": "9af5a1a44eddb1445aa5edc465188f3c0523f644ffeb5b8513dda02261c65cbd",
+    "apps/scribeswell/migrations/versions/0002_corpus_writer_fence.py": "7d3c790c8de85cd079b2ade3da63867285139fba570c8151972fd25b3a48042c",
+    "apps/scribeswell/migrations/versions/0003_corpus_controller.py": "d2d3399ec4178144b1a4df7edcdd0de6129672bf1e54f6aff3cd45147b519e2a",
+    "apps/scribeswell/migrations/reference.json": "10ac1f9f5060093e248fb1ed6987cfa24136b6c0662280bcc0dbdccbc0ea3dbf",
+    "apps/scribeswell/migrations/reference-head.json": "a446ef7ff8de5adc7bd7163c99affdd71850341bca962963c76458d54bf6019f",
+    "apps/scribeswell/migrations/reference-controller.json": "78f23cb01e2b91ff963bfc249631f8317b6c09ed9e41f45fd44abc72e8563d9a"
+  },
+  "fingerprints_equal": true,
+  "owned_paths": [
+    "apps/scribeswell/backend/corpus_publish.py",
+    "apps/scribeswell/backend/closed_corpus_audit.py",
+    "apps/scribeswell/migrations/versions/0004_corpus_publication.py",
+    "apps/scribeswell/migrations/baseline.py",
+    "apps/scribeswell/migrations/env.py",
+    "apps/scribeswell/migrations/prepared_controller.py",
+    "apps/scribeswell/migrations/publication_profile.py",
+    "apps/scribeswell/migrations/release_profile.py",
+    "apps/scribeswell/deployment/migrate.py",
+    "apps/scribeswell/tests/test_corpus_publish.py",
+    "apps/scribeswell/tests/test_publication_profile.py",
+    "apps/scribeswell/tests/test_corpus_publish_native.py",
+    "apps/scribeswell/docs/HIGHLIGHT_EVIDENCE_CONTRACT.md"
+  ],
+  "protected_unchanged_paths": [
+    "apps/scribeswell/migrations/versions/0002_corpus_writer_fence.py",
+    "apps/scribeswell/migrations/versions/0003_corpus_controller.py",
+    "apps/scribeswell/migrations/reference.json",
+    "apps/scribeswell/migrations/reference-head.json",
+    "apps/scribeswell/migrations/reference-controller.json"
+  ],
+  "native_executed": false,
+  "native_cases": "apps/scribeswell/tests/test_corpus_publish_native.py is authored and unexecuted; it was not collected by this command.",
+  "environment_safety": "Native fixture opt-in and DSN removed from final command environment; tests selected explicitly.",
+  "atdd_chronology": [
+    {
+      "command": "/tmp/scribeswell-implementation-python/bin/python -m pytest -q apps/scribeswell/tests/test_corpus_publish.py",
+      "result": "initial missing-module collection error; not a behavioral red"
+    },
+    {
+      "command": "/tmp/scribeswell-implementation-python/bin/python -m pytest -q apps/scribeswell/tests/test_publication_profile.py",
+      "result": "behavioral assertion failed on unsupported publication-v1 selection before profile implementation"
+    },
+    {
+      "result": "Publisher implementation preceded full behavioral assertions; initial ATDD chronology gap explicitly retained."
+    },
+    {
+      "result": "A broad -k suite attempt was interrupted after110 pure tests; replaced with explicit safe node IDs. No native result claimed."
+    },
+    {
+      "result": "Earlier focused runs:1 passed7.93s; profile1 passed9.64s; combined21 passed6.43s; combined28 passed4.96s; explicit affected317 passed38.77s; expanded35 passed5.52s; publisher/profile and previous wrapper63 passed8.03s."
+    }
+  ],
+  "limitations": [
+    "No SQL/migration/native execution or live publication claim.",
+    "Actual SQL syntax/execution, PostgreSQL permissions/RLS/isolation/concurrency/recovery and maximum-manifest time budgets remain final-phase gates.",
+    "Transport containment and coordinated migration/grant/release activation remain external controlled-caller gates."
+  ],
+  "parent_review": {
+    "findings": 12,
+    "structural_roots_corrected": [
+      "serialized append/completion",
+      "batch correspondence",
+      "constituent attribution"
+    ],
+    "focused_native_cases_authored": true,
+    "native_run": false,
+    "final_application_side_result": "422 passed in46.30s",
+    "historical_publisher_atdd_gap_retained": true
+  }
+}

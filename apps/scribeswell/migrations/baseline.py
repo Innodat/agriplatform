@@ -8,7 +8,8 @@ LEGACY_REVISION = 'scribeswell_0001'
 FENCE_REVISION = 'scribeswell_0002'
 REVISION = 'scribeswell_0003'
 PROFILES = {LEGACY_REVISION: 'reference.json', FENCE_REVISION: 'reference-head.json', REVISION: 'reference-controller.json'}
-SUPPORTED_REVISIONS = tuple(PROFILES)
+PUBLICATION_REVISION = 'scribeswell_0004'
+SUPPORTED_REVISIONS = (*PROFILES, PUBLICATION_REVISION)
 PINS = {
  'supabase/migrations/20260614000000_scribeswell_create_schema.sql': 'b5140822e9655b933a98f17df8b7a7cb8424246991e168238ba736a319b511f0',
  'deployment/bootstrap/001_direct_database_roles.sql': 'd03e8e34227fe73d0572d74e9c799a76982ed6ec83a774fec86e2c757d54c66d',
@@ -92,6 +93,8 @@ def _checked_authority_ledger(connection):
 
 def preflight(connection):
     state = _checked_authority_ledger(connection)
+    if state == PUBLICATION_REVISION:
+        raise BaselineError('scribeswell_publication_profile_required')
     head = state in (FENCE_REVISION, REVISION)
     expected = json.loads((APP / 'migrations' / PROFILES[state or LEGACY_REVISION]).read_text())
     if snapshot(connection, head=head) != expected:
