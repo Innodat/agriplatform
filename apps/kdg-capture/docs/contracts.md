@@ -1447,3 +1447,25 @@ refuse safely and unknown newer storage is retained. Schema3 browser update and
 connection coordination remains a release prerequisite, alongside existing native
 setup issuance qualification. See [local create Save evidence](LOCAL_CREATE_SAVE_EVIDENCE.md)
 and its [source-bound record](evidence/local-create-save-20261026.json).
+
+
+## Explicit saved-create delivery/recovery — 2026-10-26
+
+`createCreateDeliveryEntry.deliver({account_id,org_id,action_id})` explicitly consumes
+a saved create through original GET recovery, at most one unchanged POST, durable
+receipt and current readback. The original total30second maximum/default covers one
+Auth lease, storage, HTTP and final publication; each HTTP phase gets at most10seconds
+and remaining time. No sender/claim/scheduling or startup is activated.
+
+Version1 delivery metadata is separate from immutable pending/serialized/content.
+Matching receipt recovery remains own-read-only after creation expiry/denial. POST
+checks current authority; known local create denial requires explicit newer positive
+verification of either capability. Original cache expiry/absence from today's child
+list does not invalidate prior eligible saved work; preserve original reference.
+
+Only receipt-bound actual detail marks that create Synced, without inventing audit.
+Equal-revision content matches original date/answers; newer current detail may differ
+while retaining create receipt revision1. Preserve original local_capture and newer
+edit work. Known rejection retains selected Needs attention; unavailable outcomes
+retain original retryable IDs/bytes. Creation-only denial and read denial remain
+independent. See [owner evidence](CREATE_DELIVERY_EVIDENCE.md) and its machine record.

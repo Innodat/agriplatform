@@ -1,3 +1,29 @@
+## Current delivery — explicit saved-create delivery/recovery, 2026-10-26
+
+Read [create delivery evidence](CREATE_DELIVERY_EVIDENCE.md), its
+[machine record](evidence/create-delivery-20261026.json) and current [contracts](contracts.md).
+The unmounted consumer performs original-operation recovery before at most one exact
+POST, retains matching receipt and imports authorized current readback. Later server
+revision and newer local edit coexist with original create receipt revision1. Prior
+eligibility supports ordinary child inactivity. No sender/UI/startup is activated.
+Final qualification passes18 affected jobs:219 focused delivery checks,40 integrated
+HTTP/Auth/IDB groups,127 direct entry consumers, existing storage/Auth/setup regression
+and five scaffold parities. All13 review findings addressed, no deferrals. This does
+not claim complete Story1.6/2.2 or sender readiness.
+
+Continue ready authorized work without routine next/approval stops. Next consume
+pending-create own-edit Save under exact setup edit observations, using the actual
+create receipt predecessor before edit materialization. Preserve original create
+bytes, reviewed content and later local actions; never guess server revision.
+Synthetic local/CI only: no UI/editor/Leave, active sender/queue/browser/service-worker/
+default-startup, real accounts/Auth/Access, native PostgreSQL/Docker work, provisioning/
+migration execution, deployment/production/pilot or cleanup. Preserve concurrent
+changes, historical evidence/resources and TypeScript7.0.2. Fingerprints/HMAC remain
+deferred. Never read/run/copy/hash the preexisting untracked migration fixture.
+Historical handoffs follow unchanged.
+
+---
+
 ## Current delivery — atomic local create Save, 2026-10-26
 
 Read [local create Save evidence](LOCAL_CREATE_SAVE_EVIDENCE.md), its

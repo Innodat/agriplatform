@@ -11,7 +11,8 @@ import type {Provision} from '../../contracts/provision-generated/types.gen';
 import type {PendingCreate} from './create.js';
 export type SetupTicket=Readonly<{account_id:string;org_id:string;generation:number;nonce:string}>;
 export type ReviewedCreate=Frozen<{account_id:string;org_id:string;actor_id:string;membership_id:string;epoch:number;create_generation:number;child:Provision['children'][number];questionnaire:NonNullable<Provision['questionnaire']>;read_observation:Provision['read_observation'];create_observation:NonNullable<Provision['create_all_observation']>}>;
-export type LocalCreateIntent=Frozen<{key:string;partition:string;version:1;type:'capture.create';action_id:string;capture_id:string;pending:PendingCreate;serialized:string;content:string;status:'Pending';result:{kind:'saved_locally';capture_id:string;operation_id:string}}>;
+export type CreateDelivery=Frozen<{version:1;receipt?:{operation_id:string;command_type:'capture.create';status:'committed';command_version:1;result:{capture_id:string;revision:string}};attention?:string;readback_revision?:string}>;
+export type LocalCreateIntent=Frozen<{key:string;partition:string;version:1;type:'capture.create';action_id:string;capture_id:string;pending:PendingCreate;serialized:string;content:string;status:'Pending';delivery?:CreateDelivery;result:{kind:'saved_locally';capture_id:string;operation_id:string}}>;
 export const HISTORY_DATABASE='kdg-own-history-v1';
 export type LocalEditChanges=Pick<CaptureDetail,'observation_date'|'answers'>;
 export type ReviewedEdit=Frozen<{account_id:string;org_id:string;capture_id:string;base:CaptureDetail;capture:CaptureDetail;edit_epoch:number;edit_generation:number;predecessor_action_id:string|null;baseline_revision:string;read_observation:EditContext['read_observation'];edit_observation:EditContext['edit_observation']}>;
@@ -154,6 +155,13 @@ export async function openHistoryStore(scope:Readonly<{account_id:string;org_id:
  }
  function matches(action:any,baseline:any){return action.capture_id===baseline.capture_id&&canonical(action.changes)===canonical({observation_date:baseline.observation_date,answers:baseline.answers});}
  async function reconcileBaseline(tx:IDBTransaction,row:any,baseline:any,check:()=>void){
+  if(row.create_action_id){
+   const actions=tx.objectStore('create_actions'),action=await request<any>(actions.get(partition+'/'+row.create_action_id));check();
+   if(supportedCreate(action)&&validCreateDelivery(action)&&action.delivery?.receipt&&createMatches(action,baseline)){
+    actions.put({...action,delivery:{...action.delivery,readback_revision:baseline.revision}});
+    row={...row,create_status:'Synced'};
+   }
+  }
   if(row.saved_edit){
    const actions=tx.objectStore('edit_actions'),action=await request<any>(actions.get(partition+'/'+row.saved_edit.action_id));check();
    if(prepared(action)&&!action.delivery.conflict&&action.delivery.receipt&&BigInt(action.delivery.receipt.result.revision)<=BigInt(baseline.revision)&&(action.delivery.receipt.result.revision!==baseline.revision||matches(action,baseline))){
@@ -242,6 +250,25 @@ export async function openHistoryStore(scope:Readonly<{account_id:string;org_id:
    return outcome.kind==='saved_locally'&&outcome.capture_id===action.capture_id&&outcome.operation_id===action.action_id;
   }catch{return false;}
  }
+ function validateCreateReceipt(action:LocalCreateIntent,value:unknown){
+  const r=object(value,['operation_id','command_type','status','command_version','result']),v=object(r.result,['capture_id','revision']);
+  if(r.operation_id!==action.action_id||r.command_type!=='capture.create'||r.command_version!==1||r.status!=='committed'||v.capture_id!==action.capture_id||v.revision!=='1')throw Error('invalid_receipt');
+ }
+ function validCreateDelivery(action:LocalCreateIntent){
+  try{if(!Object.hasOwn(action,'delivery'))return true;const d=object(action.delivery,['version'],['receipt','attention','readback_revision']);if(d.version!==1)return false;
+   const receipt=Object.hasOwn(d,'receipt'),attention=Object.hasOwn(d,'attention');
+   if(receipt)validateCreateReceipt(action,d.receipt);
+   if(attention&&(typeof d.attention!=='string'||receipt))return false;
+   if(Object.hasOwn(d,'readback_revision')&&(!receipt||!decimal(d.readback_revision)||BigInt(d.readback_revision)<BigInt((d.receipt as any).result.revision)))return false;
+   return true;
+  }catch{return false;}
+ }
+ function createMatches(action:LocalCreateIntent,baseline:any){
+  const {reviewed:r}=JSON.parse(action.content),c=action.pending.command,receipt=action.delivery?.receipt;
+  if(!receipt||BigInt(baseline.revision)<BigInt(receipt.result.revision))return false;
+  if(baseline.capture_id!==c.capture_id||baseline.org_id!==org_id||baseline.owner_account_id!==account_id||baseline.owner_actor_id!==r.actor_id||baseline.child_id!==c.child_id||baseline.questionnaire_version_id!==c.questionnaire_version_id||baseline.captured_at!==c.captured_at||baseline.questionnaire_id!==r.questionnaire.questionnaire_id||baseline.questionnaire_version!==r.questionnaire.questionnaire_version||canonical(baseline.definition)!==canonical(r.questionnaire.definition))return false;
+  return baseline.revision!==receipt.result.revision||(baseline.observation_date===c.observation_date&&canonical(baseline.answers)===canonical(c.answers));
+ }
  function createSlot(permission:string){return permission==='kdg_capture.capture.create.all'?'create_all_observation':'create_assigned_observation';}
  function childScope(reviewed:any){return reviewed.actor_id+'/'+reviewed.membership_id+'/'+reviewed.child.create_permission+'/'+reviewed.child.child_id;}
  function childLoss(meta:any,key:string):ChildLoss {
@@ -256,7 +283,8 @@ export async function openHistoryStore(scope:Readonly<{account_id:string;org_id:
   const clock=validateObservation(meta.observation);
   if(reviewed){
    const loss=childLoss(meta,childScope(reviewed));if(loss.denied||childGeneration!==loss.generation)throw new AuthorityFailure('denied');
-   const slot=createSlot(reviewed.child.create_permission),current=p[slot],latch=createLatches.get(slot);
+   const slot=createSlot(reviewed.child.create_permission),current=p[slot],latch=createLatches.get(slot),negativeFloor=Math.max(meta.createDeniedAt?.[slot]??0,latch?.deniedAt??0);
+   if(negativeFloor&&(!current||Date.parse(current.checked_at)<=negativeFloor||Date.parse(reviewed.create_observation.checked_at)<=negativeFloor))throw new AuthorityFailure('denied');
    if(!current||(meta.createGenerations?.[slot]??0)!==reviewed.create_generation||(latch&&latch.generation>reviewed.create_generation)||reviewed.epoch!==epoch)throw new AuthorityFailure('denied');
    if(p.actor_id!==reviewed.actor_id||p.membership_id!==reviewed.membership_id||meta.observation.actor_id!==reviewed.actor_id||meta.observation.membership_id!==reviewed.membership_id)throw new AuthorityFailure('denied');
    const child=p.children.find((c:any)=>c.child_id===reviewed.child.child_id);
@@ -370,6 +398,59 @@ export async function openHistoryStore(scope:Readonly<{account_id:string;org_id:
     return {value:outcome,clock,validate};
    },execution);
   },
+  /** Retained immutable create is visible under own-read; setup expiry cannot veto recovery. */
+  async lookupPreparedCreate(pinned:Readonly<{account_id:string;org_id:string;action_id:string}>,execution:Execution={}){
+   let pin:typeof pinned;try{pin={...pinned};if(pin.account_id!==account_id||pin.org_id!==org_id||!id(pin.action_id))return result('invalid');}catch{return result('invalid');}
+   return editOperation<Readonly<{kind:'blocked'}>|Frozen<{kind:'prepared';pending:PendingCreate;serialized:string;receipt?:NonNullable<CreateDelivery['receipt']>}>>(async(tx,check)=>{
+    const {clock,validate}=await readAccess(tx,check),action=await request<any>(tx.objectStore('create_actions').get(partition+'/'+pin.action_id));check();validate();
+    if(!supportedCreate(action)||!validCreateDelivery(action))return {value:result('blocked'),clock,validate};
+    return {value:freeze({kind:'prepared' as const,pending:action.pending,serialized:action.serialized,...(action.delivery?.receipt?{receipt:action.delivery.receipt}:{})}),clock,validate};
+   },execution);
+  },
+  /** Delayed sending honors known denial, but the POST owns current creation validation. */
+  async prepareCreate(pinned:Readonly<{account_id:string;org_id:string;action_id:string}>,execution:Execution={}){
+   let pin:typeof pinned;try{pin={...pinned};if(pin.account_id!==account_id||pin.org_id!==org_id||!id(pin.action_id))return result('invalid');}catch{return result('invalid');}
+   return editOperation<Readonly<{kind:'blocked'|'denied'}>|Frozen<{kind:'prepared';pending:PendingCreate;serialized:string}>>(async(tx,check)=>{
+    const {meta,clock,validate}=await readAccess(tx,check),action=await request<any>(tx.objectStore('create_actions').get(partition+'/'+pin.action_id));check();validate();
+    if(!supportedCreate(action)||!validCreateDelivery(action)||action.delivery?.receipt)return {value:result('blocked'),clock,validate};
+    const setup=await request<any>(tx.objectStore('setups').get(partition));check();validate();
+    // A later explicit positive verification of either creation capability restores sending.
+    // Expiry and today's child list remain server-owned for delayed delivery.
+    const permitted=['create_all_observation','create_assigned_observation'].some(slot=>{
+     const positive=setup?.value?.[slot],latch=createLatches.get(slot),deniedAt=Math.max(meta.createDeniedAt?.[slot]??0,latch?.deniedAt??0);
+     return positive&&(!deniedAt||Date.parse(positive.checked_at)>deniedAt);
+    });
+    if(!permitted)return {value:result('denied'),clock,validate};
+    return {value:freeze({kind:'prepared' as const,pending:action.pending,serialized:action.serialized}),clock,validate};
+   },execution);
+  },
+  async consumeCreateReceipt(pinned:PendingCreate,value:unknown,execution:Execution={}){
+   let pin:PendingCreate,outcome:any;try{pin=structuredClone(pinned);outcome=structuredClone(value);if(pin.account_id!==account_id||pin.org_id!==org_id||!id(pin.command.operation_id))return result('invalid');object(outcome,['kind','receipt']);if(outcome.kind!=='committed')return result('invalid');}catch{return result('invalid');}
+   return editOperation<Readonly<{kind:'invalid'|'reconciled'}>>(async(tx,check)=>{
+    const {clock,validate}=await readAccess(tx,check),actions=tx.objectStore('create_actions'),action=await request<any>(actions.get(partition+'/'+pin.command.operation_id));check();validate();
+    if(!supportedCreate(action)||!validCreateDelivery(action)||canonical(action.pending)!==canonical(pin))return {value:result('invalid'),clock,validate};
+    try{validateCreateReceipt(action,outcome.receipt);}catch{return {value:result('invalid'),clock,validate};}
+    if(action.delivery?.receipt&&canonical(action.delivery.receipt)!==canonical(outcome.receipt))return {value:result('invalid'),clock,validate};
+    const {attention:_,...delivery}=action.delivery??{};actions.put({...action,delivery:{...delivery,version:1,receipt:outcome.receipt}});
+    const records=tx.objectStore('records'),row=await request<any>(records.get(partition+'/'+action.capture_id));check();if(row?.create_action_id===action.action_id&&row.create_status==='Needs attention')records.put({...row,create_status:'Pending'});
+    // Existing history alone cannot acknowledge this operation: an explicit bound detail follows.
+    return {value:result('reconciled'),clock,validate};
+   },execution);
+  },
+  async attentionCreate(pinned:Readonly<{account_id:string;org_id:string;action_id:string}>,reason:string,execution:Execution={}){
+   let pin:typeof pinned;try{pin={...pinned};if(pin.account_id!==account_id||pin.org_id!==org_id||!id(pin.action_id)||!['assignment_unavailable','identity.actor_setup_required','questionnaire_version_unavailable','child_eligibility_unavailable','validation_failed','unsupported_command_version','access_denied'].includes(reason))return result('invalid');}catch{return result('invalid');}
+   return editOperation<Readonly<{kind:'blocked'|'retained'}>>(async(tx,check)=>{const {clock,validate}=await readAccess(tx,check),actions=tx.objectStore('create_actions'),action=await request<any>(actions.get(partition+'/'+pin.action_id));check();validate();if(!supportedCreate(action)||!validCreateDelivery(action))return {value:result('blocked'),clock,validate};if(action.delivery?.receipt)return {value:result('retained'),clock,validate};actions.put({...action,delivery:{...action.delivery,version:1,attention:reason}});const records=tx.objectStore('records'),row=await request<any>(records.get(partition+'/'+action.capture_id));check();if(row?.create_action_id===action.action_id&&row.create_status!=='Synced')records.put({...row,create_status:'Needs attention'});return {value:result('retained'),clock,validate};},execution);
+  },
+  async denyCreate(pinned:Readonly<{account_id:string;org_id:string;action_id:string}>,execution:Execution={}){
+   let pin:typeof pinned;try{pin={...pinned};if(pin.account_id!==account_id||pin.org_id!==org_id||!id(pin.action_id)||!current()||execution.signal?.aborted||execution.isCurrent&&execution.isCurrent()!==true)return result('invalid');}catch{return result('invalid');}
+   // A verified current scoped denial survives failure to acquire/read/write IndexedDB.
+   const deniedAt=wall();for(const slot of ['create_all_observation','create_assigned_observation']){const prior=createLatches.get(slot);createLatches.set(slot,{generation:(prior?.generation??0)+1,deniedAt:Math.max(deniedAt,prior?.deniedAt??0)});}
+   return editOperation<Readonly<{kind:'denied'}>>(async(tx,check)=>{
+    const {meta,clock,validate}=await readAccess(tx,check),generations={...meta.createGenerations},denials={...meta.createDeniedAt};
+    for(const slot of ['create_all_observation','create_assigned_observation']){const latch=createLatches.get(slot)!;generations[slot]=Math.max(generations[slot]??0,latch.generation);denials[slot]=Math.max(denials[slot]??0,latch.deniedAt);}
+    tx.objectStore('partitions').put({...meta,createGenerations:generations,createDeniedAt:denials});return {value:result('denied'),clock,validate};
+   },execution);
+  },
   async readCreateActions(bounds:Readonly<{limit?:number;after?:string}>={},execution:Execution={}){
    const limit=bounds.limit??30,after=bounds.after;if(!Number.isInteger(limit)||limit<1||limit>100||after!==undefined&&(typeof after!=='string'||!after.startsWith(partition+'/')||after>=partition+'/\uffff'))return result('unavailable');
    return editOperation(async(tx,check)=>{const {clock,validate}=await readAccess(tx,check);const rows=await request<LocalCreateIntent[]>(tx.objectStore('create_actions').getAll(IDBKeyRange.bound(after??partition+'/',partition+'/\uffff',after!==undefined),limit+1));check();validate();return {value:freeze({kind:'available' as const,actions:rows.slice(0,limit).filter(supportedCreate),next_key:rows.length>limit?rows[limit-1].key:null}),clock,validate};},execution);
@@ -464,8 +545,11 @@ export async function openHistoryStore(scope:Readonly<{account_id:string;org_id:
   async importCurrentDetail(value:unknown,pinned:Readonly<{account_id:string;org_id:string;capture_id:string}>,execution:Execution={}){
    let baseline:Frozen<CaptureDetail>;
    try{const pin={...pinned};if(pin.account_id!==account_id||pin.org_id!==org_id||!id(pin.capture_id))return result('invalid');const captured=structuredClone(value);if(new TextEncoder().encode(JSON.stringify(captured)).byteLength>524288)return result('invalid');baseline=validateDetail(captured,pin);}catch{return result('invalid');}
-   return editOperation(async(tx,check)=>{
-    const {clock,validate}=await readAccess(tx,check);await importBaseline(tx,baseline,check);validate();
+   return editOperation<Readonly<{kind:'invalid'|'imported'}>>(async(tx,check)=>{
+    const {clock,validate}=await readAccess(tx,check);
+    const row=await request<any>(tx.objectStore('records').get(partition+'/'+baseline.capture_id));check();
+    if(row?.create_action_id){const action=await request<any>(tx.objectStore('create_actions').get(partition+'/'+row.create_action_id));check();if(supportedCreate(action)&&action.delivery?.receipt&&(!validCreateDelivery(action)||!createMatches(action,baseline)))return {value:result('invalid'),clock,validate};}
+    await importBaseline(tx,baseline,check);validate();
     return {value:result('imported'),clock,validate};
    },execution);
   },

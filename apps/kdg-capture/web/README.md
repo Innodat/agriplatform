@@ -329,3 +329,11 @@ from the repository root for real Chromium IndexedDB and synthetic HTTP/Auth int
 The proof uses TypeScript7.0.2 and explicitly selected source capsules; no installation
 is required. Setup, editor and sender remain unmounted. Schema3 activation needs
 separate browser-update/connection qualification; no older storage is deleted/reset.
+
+
+Explicit saved-create delivery/recovery remains unmounted. See
+[owner evidence](../docs/CREATE_DELIVERY_EVIDENCE.md). From repository root, run retained
+Node26.11.1 against `apps/kdg-capture/web/tests/create-delivery-proof.mjs` and
+`apps/kdg-capture/web/tests/create-delivery-http-proof.mjs`. These selected-source
+proofs use approved TS7.0.2 and retained Chromium/Python; no install or native database
+is required. The HTTP host seeds explicit synthetic eligibility and owns its shutdown.

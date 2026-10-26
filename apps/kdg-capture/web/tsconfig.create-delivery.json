@@ -1,0 +1,1 @@
+{"extends":"./tsconfig.auth.json","files":["src/create-delivery.ts","src/create-delivery-entry.ts","tests/create-delivery.types.ts"]}

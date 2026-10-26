@@ -66,6 +66,7 @@ export async function getCurrentContext(session: Session, org: string, options: 
   if (options.signal?.aborted) return {kind:'cancelled'};
   const duration = options.timeoutMs ?? 10000;
   if (!Number.isFinite(duration) || duration <= 0 || duration > 10000) return {kind:'invalid_response'};
+  const deadline=performance.now()+duration;
   const controller = new AbortController();
   let reader: ReadableStreamDefaultReader<Uint8Array> | undefined;
   let stop!: (value: ContextResult) => void;
@@ -86,8 +87,13 @@ export async function getCurrentContext(session: Session, org: string, options: 
       reader = response.body.getReader();
       const chunks: Uint8Array[] = [];let size=0;
       while (true) {
+        if(options.signal?.aborted||controller.signal.aborted)return {kind:'cancelled'};
+        if(performance.now()>=deadline)return {kind:'authorization_unavailable'};
         const chunk = await reader.read();
+        if(options.signal?.aborted||controller.signal.aborted)return {kind:'cancelled'};
+        if(performance.now()>=deadline)return {kind:'authorization_unavailable'};
         if (chunk.done) break;
+        if(!chunk.value.byteLength)continue;
         size += chunk.value.byteLength;
         if (size > 16384) return invalid();
         chunks.push(chunk.value);
@@ -100,7 +106,7 @@ export async function getCurrentContext(session: Session, org: string, options: 
       return response.status === 200 ? {kind:'authorized',context:context(body,account,org)} : {kind:errorKind(response.status,body)};
     } catch (error) {return {kind:error instanceof InvalidResponse ? 'invalid_response' : 'authorization_unavailable'};}
   };
-  try {return await Promise.race([work(),stopped]);}
+  try {const result=await Promise.race([work(),stopped]);return options.signal?.aborted?{kind:'cancelled'}:performance.now()>=deadline?{kind:'authorization_unavailable'}:result;}
   finally {
     clearTimeout(timer);options.signal?.removeEventListener('abort',cancel);controller.abort();
     if (reader) void reader.cancel().catch(() => {});
