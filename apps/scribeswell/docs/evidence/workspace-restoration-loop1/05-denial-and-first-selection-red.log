@@ -1,0 +1,94 @@
+
+> scribeswell-web@0.1.0 test:browser
+> playwright test --config playwright.config.cjs --workers=2 --project=desktop workspace-restoration.spec.cjs -g loop1 delayed A|loop1 first acknowledged
+
+[WebServer] (node:1491152) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 3 tests using 1 worker
+
+(node:1491204) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  1 [desktop] › tests/workspace-restoration.spec.cjs:230:37 › loop1 delayed A study denial cannot clear newer live B selection or label (30.0s)
+(node:1492157) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  2 [desktop] › tests/workspace-restoration.spec.cjs:230:37 › loop1 delayed A note denial cannot clear newer live B selection or label (30.1s)
+(node:1492816) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  3 [desktop] › tests/workspace-restoration.spec.cjs:236:1 › loop1 first acknowledged UI selection writes private IDs then automatically restores on reload (30.0s)
+
+
+  1) [desktop] › tests/workspace-restoration.spec.cjs:230:37 › loop1 delayed A study denial cannot clear newer live B selection or label 
+
+    Test timeout of 30000ms exceeded.
+
+    Error: locator.click: Test timeout of 30000ms exceeded.
+    Call log:
+      - waiting for getByRole('button', { name: 'Study B', exact: true })
+
+
+      231 |  await setup(page);await seed(page,publicSetup(),privateSetup());let seen=0,release;const gate=new Promise(resolve=>release=resolve);
+      232 |  await owner(page,{read:async r=>{const path=new URL(r.request().url()).pathname;if(path.endsWith(scope==='study'?'/'+study:'/notes/'+note)&&++seen===2){await gate;return r.fulfill({status:404,json:{code:'resource_unavailable'}});}return normalResources(r);}});
+    > 233 |  await page.goto('/');await expect(tabs(page).first()).toHaveText('Private label 1');await expect.poll(()=>!!release).toBe(true);await tabs(page).nth(1).click();await page.getByRole('button',{name:'Studies',exact:true}).click();await page.getByRole('button',{name:scope==='study'?'Study B':'Study A',exact:true}).click();await page.getByRole('button',{name:'Saved note B',exact:true}).click();await page.getByRole('button',{name:'Rename tab 2',exact:true}).click();await page.getByLabel('Tab name',{exact:true}).fill('New live B label');await page.getByRole('dialog',{name:'Rename workspace tab'}).getByRole('button',{name:'Save',exact:true}).click();
+          |                                                                                                                                                                                                                                                                                                                          ^
+      234 |  release();await page.waitForTimeout(450);await expect(tabs(page).nth(1)).toHaveText('New live B label');await expect(page.getByRole('textbox',{name:'Note text',exact:true})).toHaveText('Saved note B');await expect.poll(async()=>{const row=(await stored(page))[`account:${account}`]?.tabs.find(t=>t.tabKey==='saved-1');return row&&{study:row.study,note:row.note,label:row.label};}).toEqual({study:scope==='study'?secondStudy:study,note:secondNote,label:'New live B label'});
+      235 | });
+      236 | test('loop1 first acknowledged UI selection writes private IDs then automatically restores on reload',async({page})=>{
+        at /home/ck/repos/innodat/agriplatform/apps/scribeswell/web/tests/workspace-restoration.spec.cjs:233:314
+
+    Error Context: test-results/workspace-restoration-loop-5a0fa-r-live-B-selection-or-label-desktop/error-context.md
+
+  2) [desktop] › tests/workspace-restoration.spec.cjs:230:37 › loop1 delayed A note denial cannot clear newer live B selection or label 
+
+    Test timeout of 30000ms exceeded.
+
+    Error: locator.click: Test timeout of 30000ms exceeded.
+    Call log:
+      - waiting for getByRole('button', { name: 'Study A', exact: true })
+
+
+      231 |  await setup(page);await seed(page,publicSetup(),privateSetup());let seen=0,release;const gate=new Promise(resolve=>release=resolve);
+      232 |  await owner(page,{read:async r=>{const path=new URL(r.request().url()).pathname;if(path.endsWith(scope==='study'?'/'+study:'/notes/'+note)&&++seen===2){await gate;return r.fulfill({status:404,json:{code:'resource_unavailable'}});}return normalResources(r);}});
+    > 233 |  await page.goto('/');await expect(tabs(page).first()).toHaveText('Private label 1');await expect.poll(()=>!!release).toBe(true);await tabs(page).nth(1).click();await page.getByRole('button',{name:'Studies',exact:true}).click();await page.getByRole('button',{name:scope==='study'?'Study B':'Study A',exact:true}).click();await page.getByRole('button',{name:'Saved note B',exact:true}).click();await page.getByRole('button',{name:'Rename tab 2',exact:true}).click();await page.getByLabel('Tab name',{exact:true}).fill('New live B label');await page.getByRole('dialog',{name:'Rename workspace tab'}).getByRole('button',{name:'Save',exact:true}).click();
+          |                                                                                                                                                                                                                                                                                                                          ^
+      234 |  release();await page.waitForTimeout(450);await expect(tabs(page).nth(1)).toHaveText('New live B label');await expect(page.getByRole('textbox',{name:'Note text',exact:true})).toHaveText('Saved note B');await expect.poll(async()=>{const row=(await stored(page))[`account:${account}`]?.tabs.find(t=>t.tabKey==='saved-1');return row&&{study:row.study,note:row.note,label:row.label};}).toEqual({study:scope==='study'?secondStudy:study,note:secondNote,label:'New live B label'});
+      235 | });
+      236 | test('loop1 first acknowledged UI selection writes private IDs then automatically restores on reload',async({page})=>{
+        at /home/ck/repos/innodat/agriplatform/apps/scribeswell/web/tests/workspace-restoration.spec.cjs:233:314
+
+    Error Context: test-results/workspace-restoration-loop-f06d5-r-live-B-selection-or-label-desktop/error-context.md
+
+  3) [desktop] › tests/workspace-restoration.spec.cjs:236:1 › loop1 first acknowledged UI selection writes private IDs then automatically restores on reload 
+
+    Test timeout of 30000ms exceeded.
+
+    Error: locator.click: Test timeout of 30000ms exceeded.
+    Call log:
+      - waiting for getByRole('button', { name: 'Study A', exact: true })
+        - waiting for "http://127.0.0.1:5182/" navigation to finish...
+        - navigated to "http://127.0.0.1:5182/"
+
+
+      226 | const ownedStudy=id=>({id,owner_account_id:account,title:id===study?'Study A':'Study B',revision:'1'});
+      227 | const ownedNote=(id,parent=study)=>({id,study_id:parent,owner_account_id:account,revision:'1',value:{document:{version:1,blocks:[{type:'paragraph',direction:'auto',content:[{type:'text',text:id===note?'Saved note A':'Saved note B',marks:[]}]}]},connections:[],highlights:[]}});
+    > 228 | async function selectFirstNote(page){await page.getByRole('button',{name:'Studies',exact:true}).click();await page.getByRole('button',{name:'Study A',exact:true}).click();await page.getByRole('button',{name:'Saved note A',exact:true}).click();await expect(page.getByRole('textbox',{name:'Note text',exact:true})).toHaveText('Saved note A');}
+          |                                                                                                                                                                    ^
+      229 | function normalResources(r){const path=new URL(r.request().url()).pathname,parts=path.split('/'),parent=parts[3];return r.fulfill({json:path.endsWith('/passages')?{study_id:parent,revision:'1',items:[]}:path.endsWith('/notes')?{items:[ownedNote(note,parent),ownedNote(secondNote,parent)],next_cursor:null}:path.includes('/notes/')?ownedNote(parts.at(-1),parent):parent?ownedStudy(parent):{items:[ownedStudy(study),ownedStudy(secondStudy)],next_cursor:null}});}
+      230 | for(const scope of ['study','note'])test(`loop1 delayed A ${scope} denial cannot clear newer live B selection or label`,async({page})=>{
+      231 |  await setup(page);await seed(page,publicSetup(),privateSetup());let seen=0,release;const gate=new Promise(resolve=>release=resolve);
+        at selectFirstNote (/home/ck/repos/innodat/agriplatform/apps/scribeswell/web/tests/workspace-restoration.spec.cjs:228:164)
+        at /home/ck/repos/innodat/agriplatform/apps/scribeswell/web/tests/workspace-restoration.spec.cjs:237:82
+
+    Error Context: test-results/workspace-restoration-loop-bef57-atically-restores-on-reload-desktop/error-context.md
+
+  3 failed
+    [desktop] › tests/workspace-restoration.spec.cjs:230:37 › loop1 delayed A study denial cannot clear newer live B selection or label 
+    [desktop] › tests/workspace-restoration.spec.cjs:230:37 › loop1 delayed A note denial cannot clear newer live B selection or label 
+    [desktop] › tests/workspace-restoration.spec.cjs:236:1 › loop1 first acknowledged UI selection writes private IDs then automatically restores on reload 
+npm error Lifecycle script `test:browser` failed with error:
+npm error code 1
+npm error path /home/ck/repos/innodat/agriplatform/apps/scribeswell/web
+npm error workspace scribeswell-web@0.1.0
+npm error location /home/ck/repos/innodat/agriplatform/apps/scribeswell/web
+npm error command failed
+npm error command sh -c playwright test --config playwright.config.cjs --workers=2 --project=desktop workspace-restoration.spec.cjs -g 'loop1 delayed A|loop1 first acknowledged'

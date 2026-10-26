@@ -5,10 +5,10 @@ const base=import.meta.env.BASE_URL.replace(/\/$/,'');
 export class NotesFailure extends Error { constructor(public code:string){super(code);} }
 export const emptyValue=():NoteValue=>({document:{version:1,blocks:[]},connections:[],highlights:[]});
 export function uuid(){return crypto.randomUUID();}
-export async function request<T>(token:string,path:string,method='GET',body?:unknown,timeout=15000):Promise<T>{
+export async function request<T>(token:string,path:string,method='GET',body?:unknown,timeout=15000,signal?:AbortSignal):Promise<T>{
  const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),timeout);
  try{
-  const response=await fetch(base+path,{method,headers:{Authorization:`Bearer ${token}`,...(body?{'Content-Type':'application/json'}:{})},body:body?JSON.stringify(body):undefined,signal:controller.signal,cache:'no-store',credentials:'omit',redirect:'error'});
+  const response=await fetch(base+path,{method,headers:{Authorization:`Bearer ${token}`,...(body?{'Content-Type':'application/json'}:{})},body:body?JSON.stringify(body):undefined,signal:signal?AbortSignal.any([signal,controller.signal]):controller.signal,cache:'no-store',credentials:'omit',redirect:'error'});
   const raw=await response.text();
   if(raw.length>4_000_000)throw new NotesFailure('response_invalid');
   let value:unknown;try{value=JSON.parse(raw);}catch{throw new NotesFailure('operation_unresolved');}
@@ -20,11 +20,11 @@ export async function request<T>(token:string,path:string,method='GET',body?:unk
 export const api={
  search:(token:string,query:string,cursor?:string)=>request<StudyPage>(token,'/api/studies/search','POST',{query,cursor:cursor??null}),
  enroll:(token:string,operation_id:string)=>request<EnrollmentAck>(token,'/api/studies/enrollment','POST',{operation_id}),
- studies:(token:string,cursor?:string)=>request<StudyPage>(token,'/api/studies'+(cursor?'?cursor='+encodeURIComponent(cursor):'')),
- study:(token:string,id:string)=>request<StudyView>(token,`/api/studies/${id}`),
- notes:(token:string,id:string,cursor?:string)=>request<NotePage>(token,`/api/studies/${id}/notes`+(cursor?'?cursor='+encodeURIComponent(cursor):'')),
- passages:(token:string,id:string)=>request<PassageList>(token,`/api/studies/${id}/passages`),
- note:(token:string,study:string,id:string)=>request<NoteView>(token,`/api/studies/${study}/notes/${id}`),
+ studies:(token:string,cursor?:string,signal?:AbortSignal)=>request<StudyPage>(token,'/api/studies'+(cursor?'?cursor='+encodeURIComponent(cursor):''),'GET',undefined,15000,signal),
+ study:(token:string,id:string,signal?:AbortSignal)=>request<StudyView>(token,`/api/studies/${id}`,'GET',undefined,15000,signal),
+ notes:(token:string,id:string,cursor?:string,signal?:AbortSignal)=>request<NotePage>(token,`/api/studies/${id}/notes`+(cursor?'?cursor='+encodeURIComponent(cursor):''),'GET',undefined,15000,signal),
+ passages:(token:string,id:string,signal?:AbortSignal)=>request<PassageList>(token,`/api/studies/${id}/passages`,'GET',undefined,15000,signal),
+ note:(token:string,study:string,id:string,signal?:AbortSignal)=>request<NoteView>(token,`/api/studies/${study}/notes/${id}`,'GET',undefined,15000,signal),
  lookup:(token:string,operation:string,command:string,timeout=15000)=>request<Outcome>(token,`/api/operations/${operation}?command=${command}`,'GET',undefined,timeout),
 };
 export type Attempt={operation_id:string;command:'study.create'|'study.rename'|'study.passages.replace'|'study.delete'|'note.create'|'note.replace'|'note.delete';path:string;method:string;payload:Record<string,unknown>;study?:string;note?:string;generation:number};

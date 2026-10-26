@@ -1,0 +1,82 @@
+
+> scribeswell-web@0.1.0 test:browser
+> playwright test --config playwright.config.cjs workspace-tabs.spec.cjs --workers=4 --fully-parallel
+
+[WebServer] (node:1351991) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 18 tests using 4 workers
+
+(node:1352033) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:1352040) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:1352034) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:1352046) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   1 [desktop] › tests/workspace-tabs.spec.cjs:12:1 › tab activation closure and replay push exactly once and closed replay restores only public identity (2.2s)
+  ✓   4 [desktop] › tests/workspace-tabs.spec.cjs:20:1 › tab labels stay out of public history and manual roving keys preserve activation (2.2s)
+  ✓   3 [desktop] › tests/workspace-tabs.spec.cjs:34:1 › valid Unicode punctuation snapshot tab identity remains selectable and close focus is safe (2.8s)
+  ✓   6 [desktop] › tests/workspace-tabs.spec.cjs:43:1 › closing the sole pane delegates to tab closure and preserves the final reader without reset (1.2s)
+  ✓   5 [desktop] › tests/workspace-tabs.spec.cjs:38:1 › POP checkpoints the outgoing live tab anchor for a later explicit tab activation (2.3s)
+  ✓   2 [desktop] › tests/workspace-tabs.spec.cjs:26:1 › twelve tab cap never evicts and closed history requires explicit public-only victim choice (4.7s)
+  ✓   8 [desktop] › tests/workspace-tabs.spec.cjs:53:1 › P10 malformed tab provenance never revives scrubbed complete callback query credentials (1.4s)
+(node:1352583) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:1352591) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   9 [desktop] › tests/workspace-tabs.spec.cjs:86:1 › P10 ordinary malformed tab retains raw search bytes when no callback fields exist (1.4s)
+(node:1352766) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   7 [desktop] › tests/workspace-tabs.spec.cjs:47:1 › review tabs B8 complete manual keyboard movement wraps and reveals all twelve controls without activation (3.8s)
+  ✓  10 [mobile] › tests/workspace-tabs.spec.cjs:12:1 › tab activation closure and replay push exactly once and closed replay restores only public identity (1.5s)
+(node:1352814) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  11 [mobile] › tests/workspace-tabs.spec.cjs:20:1 › tab labels stay out of public history and manual roving keys preserve activation (1.6s)
+  ✓  15 [mobile] › tests/workspace-tabs.spec.cjs:43:1 › closing the sole pane delegates to tab closure and preserves the final reader without reset (3.2s)
+  ✓  13 [mobile] › tests/workspace-tabs.spec.cjs:38:1 › POP checkpoints the outgoing live tab anchor for a later explicit tab activation (5.3s)
+  ✓  12 [mobile] › tests/workspace-tabs.spec.cjs:26:1 › twelve tab cap never evicts and closed history requires explicit public-only victim choice (8.2s)
+  ✓  17 [mobile] › tests/workspace-tabs.spec.cjs:53:1 › P10 malformed tab provenance never revives scrubbed complete callback query credentials (3.5s)
+  ✘  14 [mobile] › tests/workspace-tabs.spec.cjs:34:1 › valid Unicode punctuation snapshot tab identity remains selectable and close focus is safe (10.1s)
+  ✓  18 [mobile] › tests/workspace-tabs.spec.cjs:86:1 › P10 ordinary malformed tab retains raw search bytes when no callback fields exist (3.4s)
+  ✓  16 [mobile] › tests/workspace-tabs.spec.cjs:47:1 › review tabs B8 complete manual keyboard movement wraps and reveals all twelve controls without activation (8.1s)
+
+
+  1) [mobile] › tests/workspace-tabs.spec.cjs:34:1 › valid Unicode punctuation snapshot tab identity remains selectable and close focus is safe 
+
+    Error: expect(locator).toHaveCount(expected) failed
+
+    Locator:  getByRole('tablist', { name: 'Workspace tabs' }).getByRole('tab')
+    Expected: 1
+    Received: 3
+    Timeout:  5000ms
+
+    Call log:
+      - Expect "toHaveCount" getByRole('tablist', { name: 'Workspace tabs' }).getByRole('tab') with timeout 5000ms
+      - waiting for getByRole('tablist', { name: 'Workspace tabs' }).getByRole('tab')
+        13 × locator resolved to 3 elements
+           - unexpected value "3"
+
+
+      33 |
+      34 | test('valid Unicode punctuation snapshot tab identity remains selectable and close focus is safe',async({page})=>{
+    > 35 |  await setup(page);await add(page);const key='עברית "quoted" [pane] #1';await page.evaluate(key=>{const state=history.state;history.replaceState({...state,usr:{...state.usr,scribeswellReader:{...state.usr.scribeswellReader,tabKey:key}}},'');},key);await page.reload();await expect(tabs(page)).toHaveCount(1);expect(await tabs(page).first().getAttribute('data-workspace-tab')).toBe(key);await expect(page.getByRole('tabpanel',{name:'Genesis 1',exact:true})).toBeVisible();await add(page);await tabs(page).first().click();await page.getByRole('button',{name:'Close tab 1',exact:true}).click();await expect(tabs(page)).toHaveCount(1);await expect(tabs(page).first()).toBeFocused();
+         |                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         ^
+      36 | });
+      37 |
+      38 | test('POP checkpoints the outgoing live tab anchor for a later explicit tab activation',async({page})=>{
+        at /home/ck/repos/innodat/agriplatform/apps/scribeswell/web/tests/workspace-tabs.spec.cjs:35:617
+
+    Error Context: test-results/workspace-tabs-valid-Unico-4b574-ble-and-close-focus-is-safe-mobile/error-context.md
+
+  1 failed
+    [mobile] › tests/workspace-tabs.spec.cjs:34:1 › valid Unicode punctuation snapshot tab identity remains selectable and close focus is safe 
+  17 passed (20.1s)
+npm error Lifecycle script `test:browser` failed with error:
+npm error code 1
+npm error path /home/ck/repos/innodat/agriplatform/apps/scribeswell/web
+npm error workspace scribeswell-web@0.1.0
+npm error location /home/ck/repos/innodat/agriplatform/apps/scribeswell/web
+npm error command failed
+npm error command sh -c playwright test --config playwright.config.cjs workspace-tabs.spec.cjs --workers=4 --fully-parallel

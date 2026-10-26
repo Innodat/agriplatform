@@ -1,0 +1,18 @@
+
+> scribeswell-web@0.1.0 test:browser
+> playwright test --config playwright.config.cjs workspace-restoration.spec.cjs personal-notes.spec.cjs --project=desktop --workers=2 --fully-parallel --grep two windows|changed intent during|retain distinct note DOM
+
+[WebServer] (node:1322321) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 3 tests using 2 workers
+
+(node:1322407) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:1322406) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  2 [desktop] › tests/personal-notes.spec.cjs:1302:1 › workspace tabs retain distinct note DOM caret atoms and composition routing without cloning a shared lane (3.0s)
+  ✓  1 [desktop] › tests/workspace-restoration.spec.cjs:92:1 › two windows preserve independent live layouts and last completed transaction wins future return (4.3s)
+  ✓  3 [desktop] › tests/workspace-restoration.spec.cjs:106:1 › changed intent during identity verification retains hidden candidates for explicit Retry (3.2s)
+
+  3 passed (9.2s)

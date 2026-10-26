@@ -1,0 +1,9 @@
+{
+  "diff": "/tmp/scribeswell-workspace-restoration-review-r08d25pn.patch",
+  "sha256": "b54939b2d8112183c4699b45b1079ad87ba1d41586ced7dfa35b2d9cc310b9d4",
+  "blind_agent": "/root/restoration_blind_review",
+  "edge_and_verification": "fresh ephemeral read-only Codex CLI gpt-6.1-sol medium; launched concurrently after child capacity failure",
+  "all_results_before_triage": true,
+  "triage_rows": 17,
+  "review_loop": 1
+}

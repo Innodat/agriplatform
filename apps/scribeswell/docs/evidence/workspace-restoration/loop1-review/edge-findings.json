@@ -1,0 +1,8 @@
+[
+  {
+    "location": "apps/scribeswell/web/src/context/StudiesContext.tsx:300",
+    "trigger_condition": "Outline notes contain valid ownership identifiers but missing or malformed value.document.blocks",
+    "guard_snippet": "if (!page.items.every(isValidNoteView)) throw new NotesFailure('response_invalid');",
+    "potential_consequence": "StudiesPanel preview throws during rendering instead of showing the outline Retry recovery."
+  }
+]

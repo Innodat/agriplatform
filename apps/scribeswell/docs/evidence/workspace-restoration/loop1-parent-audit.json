@@ -1,0 +1,16 @@
+{
+  "loop0_inventory_paths": 55,
+  "loop1_inventory_paths": 55,
+  "unchanged_paths": 50,
+  "changed_paths": [
+    "apps/scribeswell/web/src/context/ReaderWorkspaceContext.tsx",
+    "apps/scribeswell/web/src/context/StudiesContext.tsx",
+    "apps/scribeswell/web/src/hooks/useReaderWorkspace.ts",
+    "apps/scribeswell/web/src/lib/workspace-storage.ts",
+    "apps/scribeswell/web/tests/workspace-restoration.spec.cjs"
+  ],
+  "current_matches_handoff": true,
+  "parent_source_audit": "Read loop1 runtime changes and executable fixtures; preserved baseline behavior/hashes outside5file delta. Source correction and test chronology kept separate.",
+  "frozen_intent_sha256": "366fc71fc1c416595d1e0fc7fb73a16b7b05713803949ff1859c6afa77e9cf5b",
+  "full_regression": "running; no passing result claimed"
+}

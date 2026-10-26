@@ -1,0 +1,16 @@
+{
+  "base_proof": "worker-final-before.json / worker-final-after.json: 120 passed, unchanged55files",
+  "changed_since_120_pass": [
+    "apps/scribeswell/web/src/context/ReaderWorkspaceContext.tsx",
+    "apps/scribeswell/web/src/context/StudiesContext.tsx",
+    "apps/scribeswell/web/src/hooks/useReaderWorkspace.ts",
+    "apps/scribeswell/web/tests/workspace-restoration.spec.cjs"
+  ],
+  "current_files": 55,
+  "verification": [
+    "resource-scope-green.log:12 passed",
+    "worker-handoff-delta.log:26 passed",
+    "owner-recovery-final.log:18 passed",
+    "worker-handoff-build.log:passed"
+  ]
+}

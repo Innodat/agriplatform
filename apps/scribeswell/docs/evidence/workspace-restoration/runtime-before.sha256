@@ -1,0 +1,7 @@
+415ee4c65e47713e385df7c4ef9f0bb941adf59a216cb6721b83cf8562525209  apps/scribeswell/web/src/hooks/useReaderWorkspace.ts
+6643c295f776d95034da2f905af3ff8541abd0b0060346d88fc9e3581209b392  apps/scribeswell/web/src/context/ReaderWorkspaceContext.tsx
+5b0e754e1eb208e6c3be680e4c547b08d9187ad0d3a8680f6409aa85bf0feeeb  apps/scribeswell/web/src/context/StudiesContext.tsx
+260dedbaa663c8deccb0c5f884581326199fc9d3482e10d12a29f474e041d863  apps/scribeswell/web/src/context/AuthContext.tsx
+398d1b3754f85df32c08810496f21bf1f0c574c645228fb5b6930c06f06d999f  apps/scribeswell/web/src/lib/supabase.ts
+e2362111ad4e890f47baa3b79e4e419f5edb2f9c0b5723dae58f79c8ffaa9e8a  apps/scribeswell/web/src/lib/reader-layout.ts
+6129e3d85da21c0a4c61305f3efc5c939203ec7516b3554ab411fd554747f655  apps/scribeswell/web/src/lib/personal-notes.ts

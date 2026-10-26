@@ -1,0 +1,47 @@
+
+> scribeswell-web@0.1.0 test:browser
+> playwright test --config playwright.config.cjs --workers=4 --fully-parallel workspace-restoration.spec.cjs -g provider queued success|provider successful public|provider continuous|remembered dialog history POP|denied storage Retry remembers|cross-window future version|changed intent during identity verification|loop1 eviction Retry
+
+[WebServer] (node:170608) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 20 tests using 4 workers
+
+(node:170625) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:170638) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:170626) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:170632) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   1 [desktop] › tests/workspace-restoration.spec.cjs:142:1 › denied storage Retry remembers current reading once storage becomes available (2.3s)
+  ✓   4 [desktop] › tests/workspace-restoration.spec.cjs:208:1 › loop1 eviction Retry repopulates an unchanged successful live projection (2.8s)
+  ✓   2 [desktop] › tests/workspace-restoration.spec.cjs:101:1 › cross-window future version prevents even a previously eligible writer from changing records (2.9s)
+  ✓   3 [desktop] › tests/workspace-restoration.spec.cjs:108:1 › changed intent during identity verification retains hidden candidates for explicit Retry (3.1s)
+  ✓   5 [desktop] › tests/workspace-restoration.spec.cjs:353:44 › provider queued success recovers suppression before the third changed projection (1.9s)
+  ✓   7 [desktop] › tests/workspace-restoration.spec.cjs:361:1 › provider successful public checkpoint retains private recovery feedback (1.8s)
+  ✓   6 [desktop] › tests/workspace-restoration.spec.cjs:353:44 › provider queued success preserves a newer read failure (2.8s)
+(node:171276) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   8 [desktop] › tests/workspace-restoration.spec.cjs:364:1 › provider continuous actual checkpoints commit the current projection at the2s maximum without lifecycle flush (4.2s)
+  ✓   9 [desktop] › tests/workspace-restoration.spec.cjs:370:41 › remembered dialog history POP rejects stale accept and Cancel followed by current Retry stays usable (3.3s)
+(node:171315) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:171289) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  10 [desktop] › tests/workspace-restoration.spec.cjs:370:41 › remembered dialog history POP rejects stale victim and Cancel followed by current Retry stays usable (4.4s)
+(node:171401) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  11 [mobile] › tests/workspace-restoration.spec.cjs:101:1 › cross-window future version prevents even a previously eligible writer from changing records (6.0s)
+  ✓  12 [mobile] › tests/workspace-restoration.spec.cjs:142:1 › denied storage Retry remembers current reading once storage becomes available (4.8s)
+  ✓  13 [mobile] › tests/workspace-restoration.spec.cjs:108:1 › changed intent during identity verification retains hidden candidates for explicit Retry (7.3s)
+  ✓  14 [mobile] › tests/workspace-restoration.spec.cjs:208:1 › loop1 eviction Retry repopulates an unchanged successful live projection (5.7s)
+  ✓  15 [mobile] › tests/workspace-restoration.spec.cjs:353:44 › provider queued success recovers suppression before the third changed projection (5.0s)
+  ✓  16 [mobile] › tests/workspace-restoration.spec.cjs:353:44 › provider queued success preserves a newer read failure (5.9s)
+  ✓  17 [mobile] › tests/workspace-restoration.spec.cjs:361:1 › provider successful public checkpoint retains private recovery feedback (4.4s)
+  ✓  19 [mobile] › tests/workspace-restoration.spec.cjs:370:41 › remembered dialog history POP rejects stale accept and Cancel followed by current Retry stays usable (5.1s)
+  ✓  18 [mobile] › tests/workspace-restoration.spec.cjs:364:1 › provider continuous actual checkpoints commit the current projection at the2s maximum without lifecycle flush (7.0s)
+  ✓  20 [mobile] › tests/workspace-restoration.spec.cjs:370:41 › remembered dialog history POP rejects stale victim and Cancel followed by current Retry stays usable (4.5s)
+
+  20 passed (26.4s)

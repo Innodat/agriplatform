@@ -1,0 +1,50 @@
+
+> scribeswell-web@0.1.0 test:browser
+> playwright test --config playwright.config.cjs --workers=1 --project=desktop workspace-restoration.spec.cjs -g real IndexedDB reload
+
+[WebServer] (node:1485133) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 1 test using 1 worker
+
+(node:1485150) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  1 [desktop] › tests/workspace-restoration.spec.cjs:12:1 › real IndexedDB reload restores two public setups (7.1s)
+
+
+  1) [desktop] › tests/workspace-restoration.spec.cjs:12:1 › real IndexedDB reload restores two public setups 
+
+    Error: expect(locator).toHaveCount(expected) failed
+
+    Locator:  getByRole('tablist', { name: 'Workspace tabs' }).getByRole('tab')
+    Expected: 2
+    Received: 1
+    Timeout:  5000ms
+
+    Call log:
+      - Expect "toHaveCount" getByRole('tablist', { name: 'Workspace tabs' }).getByRole('tab') with timeout 5000ms
+      - waiting for getByRole('tablist', { name: 'Workspace tabs' }).getByRole('tab')
+        14 × locator resolved to 1 element
+           - unexpected value "1"
+
+
+      12 | test('real IndexedDB reload restores two public setups',async({page})=>{
+      13 |  await setup(page);await add(page);await expect(tabs(page)).toHaveCount(2);
+    > 14 |  await page.waitForTimeout(600);await page.reload();await expect(tabs(page)).toHaveCount(2);
+         |                                                                              ^
+      15 | });
+      16 | test('closed codec bounds privacy expiry and future version policy',async({page})=>{
+      17 |  await setup(page);
+        at /home/ck/repos/innodat/agriplatform/apps/scribeswell/web/tests/workspace-restoration.spec.cjs:14:78
+
+    Error Context: test-results/workspace-restoration-real-2124e--restores-two-public-setups-desktop/error-context.md
+
+  1 failed
+    [desktop] › tests/workspace-restoration.spec.cjs:12:1 › real IndexedDB reload restores two public setups 
+npm error Lifecycle script `test:browser` failed with error:
+npm error code 1
+npm error path /home/ck/repos/innodat/agriplatform/apps/scribeswell/web
+npm error workspace scribeswell-web@0.1.0
+npm error location /home/ck/repos/innodat/agriplatform/apps/scribeswell/web
+npm error command failed
+npm error command sh -c playwright test --config playwright.config.cjs --workers=1 --project=desktop workspace-restoration.spec.cjs -g 'real IndexedDB reload'

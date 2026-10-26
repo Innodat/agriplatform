@@ -1,0 +1,39 @@
+
+> scribeswell-web@0.1.0 test:browser
+> playwright test --config playwright.config.cjs workspace-restoration.spec.cjs --workers=4 --fully-parallel --grep 404 clears every affected live|authority 404|resource404 clears only|late hydration ignores account switch|current admission403
+
+[WebServer] (node:1381985) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 12 tests using 4 workers
+
+(node:1382002) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:1382009) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:1382015) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:1382008) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   2 [desktop] › tests/workspace-restoration.spec.cjs:68:187 › authority 404 clears candidate without affecting public setups (2.5s)
+  ✓   1 [desktop] › tests/workspace-restoration.spec.cjs:145:1 › resource404 clears only the affected selection and keeps unrelated authorized context (2.5s)
+  ✓   3 [desktop] › tests/workspace-restoration.spec.cjs:163:1 › current admission403 clears already hydrated lanes after unrelated origin intent changes (2.5s)
+  ✓   4 [desktop] › tests/workspace-restoration.spec.cjs:112:84 › late hydration ignores account switch without focus or selection replacement (2.6s)
+(node:1382454) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:1382439) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   6 [desktop] › tests/workspace-restoration.spec.cjs:190:37 › current study404 clears every affected live association after origin intent while preserving unrelated lanes (2.6s)
+  ✓   5 [desktop] › tests/workspace-restoration.spec.cjs:190:37 › current note404 clears every affected live association after origin intent while preserving unrelated lanes (2.9s)
+(node:1382700) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:1382709) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   8 [mobile] › tests/workspace-restoration.spec.cjs:68:187 › authority 404 clears candidate without affecting public setups (3.2s)
+  ✓   7 [mobile] › tests/workspace-restoration.spec.cjs:112:84 › late hydration ignores account switch without focus or selection replacement (3.8s)
+  ✓  10 [mobile] › tests/workspace-restoration.spec.cjs:145:1 › resource404 clears only the affected selection and keeps unrelated authorized context (5.5s)
+  ✓  11 [mobile] › tests/workspace-restoration.spec.cjs:163:1 › current admission403 clears already hydrated lanes after unrelated origin intent changes (5.7s)
+  ✓   9 [mobile] › tests/workspace-restoration.spec.cjs:190:37 › current note404 clears every affected live association after origin intent while preserving unrelated lanes (6.3s)
+  ✓  12 [mobile] › tests/workspace-restoration.spec.cjs:190:37 › current study404 clears every affected live association after origin intent while preserving unrelated lanes (6.2s)
+
+  12 passed (15.0s)

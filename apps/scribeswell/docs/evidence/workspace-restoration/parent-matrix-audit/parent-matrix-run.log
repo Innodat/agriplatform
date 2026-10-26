@@ -1,0 +1,46 @@
+Command: npm run test:browser --workspace=apps/scribeswell/web -- workspace-restoration.spec.cjs --workers=4 --fully-parallel --grep real device reload restores four|fresh explicit target|two windows|late automatic bootstrap|anonymous closure|wrong owner|storage denied|cross-window future
+
+> scribeswell-web@0.1.0 test:browser
+> playwright test --config playwright.config.cjs workspace-restoration.spec.cjs --workers=4 --fully-parallel --grep real device reload restores four|fresh explicit target|two windows|late automatic bootstrap|anonymous closure|wrong owner|storage denied|cross-window future
+
+[WebServer] (node:1413762) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 16 tests using 4 workers
+
+(node:1413779) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:1413783) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:1413792) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:1413786) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   3 [desktop] › tests/workspace-restoration.spec.cjs:74:48 › storage denied keeps reading usable and offers truthful Retry (1.6s)
+  ✓   1 [desktop] › tests/workspace-restoration.spec.cjs:54:1 › fresh explicit target stages twelve stored tabs and Cancel preserves the record with explicit Retry (2.6s)
+  ✓   2 [desktop] › tests/workspace-restoration.spec.cjs:101:1 › cross-window future version prevents even a previously eligible writer from changing records (2.8s)
+  ✓   5 [desktop] › tests/workspace-restoration.spec.cjs:130:1 › wrong owner or parent responses never expose a stored private candidate (1.6s)
+  ✓   4 [desktop] › tests/workspace-restoration.spec.cjs:94:1 › two windows preserve independent live layouts and last completed transaction wins future return (4.3s)
+  ✓   6 [desktop] › tests/workspace-restoration.spec.cjs:133:1 › anonymous closure and closed-key replay remain public when the owner returns (2.1s)
+(node:1414375) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:1414382) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   7 [desktop] › tests/workspace-restoration.spec.cjs:176:1 › late automatic bootstrap never steals focus from a newer open selector (2.5s)
+(node:1414470) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  10 [mobile] › tests/workspace-restoration.spec.cjs:74:48 › storage denied keeps reading usable and offers truthful Retry (1.3s)
+  ✓   8 [desktop] › tests/workspace-restoration.spec.cjs:182:1 › real device reload restores four independent pane references anchors and active pane plus inactive tab position (3.7s)
+  ✓   9 [mobile] › tests/workspace-restoration.spec.cjs:54:1 › fresh explicit target stages twelve stored tabs and Cancel preserves the record with explicit Retry (2.3s)
+(node:1414691) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  12 [mobile] › tests/workspace-restoration.spec.cjs:101:1 › cross-window future version prevents even a previously eligible writer from changing records (4.6s)
+  ✓  13 [mobile] › tests/workspace-restoration.spec.cjs:133:1 › anonymous closure and closed-key replay remain public when the owner returns (5.5s)
+  ✓  14 [mobile] › tests/workspace-restoration.spec.cjs:130:1 › wrong owner or parent responses never expose a stored private candidate (5.2s)
+  ✓  11 [mobile] › tests/workspace-restoration.spec.cjs:94:1 › two windows preserve independent live layouts and last completed transaction wins future return (8.9s)
+  ✓  15 [mobile] › tests/workspace-restoration.spec.cjs:176:1 › late automatic bootstrap never steals focus from a newer open selector (4.8s)
+  ✓  16 [mobile] › tests/workspace-restoration.spec.cjs:182:1 › real device reload restores four independent pane references anchors and active pane plus inactive tab position (6.9s)
+
+  16 passed (21.3s)
+
+Exit status: 0

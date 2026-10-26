@@ -1,0 +1,35 @@
+
+> scribeswell-web@0.1.0 test:browser
+> playwright test --config playwright.config.cjs --workers=4 --fully-parallel workspace-restoration.spec.cjs -g outline return cancelled
+
+[WebServer] (node:91952) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 8 tests using 4 workers
+
+(node:92011) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:92004) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:92022) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:92002) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  2 [desktop] › tests/workspace-restoration.spec.cjs:335:86 › outline return cancelled Delete study during held notes has complete outline or truthful Retry (6.5s)
+  ✓  3 [desktop] › tests/workspace-restoration.spec.cjs:335:86 › outline return cancelled Rename during held passages has complete outline or truthful Retry (6.6s)
+  ✓  1 [desktop] › tests/workspace-restoration.spec.cjs:335:86 › outline return cancelled Delete study during held passages has complete outline or truthful Retry (6.7s)
+  ✓  4 [desktop] › tests/workspace-restoration.spec.cjs:335:86 › outline return cancelled Rename during held notes has complete outline or truthful Retry (6.8s)
+(node:92605) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:92599) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:92614) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:92593) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  5 [mobile] › tests/workspace-restoration.spec.cjs:335:86 › outline return cancelled Rename during held passages has complete outline or truthful Retry (8.7s)
+  ✓  6 [mobile] › tests/workspace-restoration.spec.cjs:335:86 › outline return cancelled Delete study during held notes has complete outline or truthful Retry (9.5s)
+  ✓  8 [mobile] › tests/workspace-restoration.spec.cjs:335:86 › outline return cancelled Rename during held notes has complete outline or truthful Retry (9.2s)
+  ✓  7 [mobile] › tests/workspace-restoration.spec.cjs:335:86 › outline return cancelled Delete study during held passages has complete outline or truthful Retry (9.9s)
+
+  8 passed (22.3s)

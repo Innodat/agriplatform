@@ -1,0 +1,22 @@
+{
+  "archive": "failure-snapshots.zip",
+  "archive_sha256": "988e3090ffe44e71d4b00043aed405828d81422a50dd59d1a63412975af3974e",
+  "format": "ZIP; exact raw synthetic Playwright error-context snapshots, including original test-source sections",
+  "files": {
+    "personal-notes-editor-tool-7fcb8--marks-lists-and-safe-links-desktop.md": "fd40cacc41f8f1b8488491ae46b32f17f0dd4d5a10fad4756f763dc6b7f1f72b",
+    "personal-notes-explicitly--df1d3-pen-saved-text-after-reload-desktop.md": "0919c7e0939ca8f2098f05ce613130bdfa658affb2895a62915def467ece7a93",
+    "personal-notes-note-deleti-6131c-n-through-saving-and-reopen-desktop.md": "debf6380d3c9d6a0c10640e03356c869af9f03244d64b22822b2cf76b91274b3",
+    "personal-notes-note-links--14dbb-d-atom-survives-save-reload-desktop.md": "33ced32e7466496026a0739c8de30d486891d0e2c43a189bb8e279a1d30a9a90",
+    "personal-notes-note-links--14f6d-d-atom-survives-save-reload-desktop.md": "cb64a0806556f618a5969c578867a8b34ed87cd5d2ca7f4b27f9e010a9dbda1d",
+    "personal-notes-note-links--254de-d-atom-survives-save-reload-desktop.md": "e692fcaf73b272ccb7c9b99710b09a86e66fb80dbeaf6990c9560722f54d1868",
+    "personal-notes-note-links--bd082-d-atom-survives-save-reload-desktop.md": "70f5a1ed04b8974a6e45ce9430af1a442e1140de5e1c8a3f26069fe68add5cee",
+    "personal-notes-note-links--f7291--paste-and-reload-roundtrip-desktop.md": "329e53fc1f31af13d32b9af75ccde32e41cfb4cc4f0dcc454e67ca1453ef5cb4",
+    "personal-notes-rename-expl-145aa-independent-note-and-reader-desktop.md": "0a2200699da0671d3f06c1f70054d48a35cb0119ca051c3a87b5fe7a57be4a3e",
+    "personal-notes-review-Shif-a4410-ak-survives-save-and-reload-desktop.md": "bac4099ef9ca1647dc127afdedfe114b721682cd77eed44bf6bff7fff1633a8c",
+    "personal-notes-review-malf-566fc-ook-Exod-other-keep-reading-desktop.md": "bad23070f75f223694edcde5d711620fe7ad9ea61e0e68b0402f5430217d9d2b",
+    "personal-notes-review-malf-c69a5-ires-a-valid-passage-choice-desktop.md": "0785aa725787043e6886b656d34e47e4988c6b6c14ac433bbe2896f37119e70b",
+    "personal-notes-rich-paragr-7b3da-urvive-saving-and-reopening-desktop.md": "4974fa5003262150a8e289f2deb392350fa96de81e4a02869500dc31c198ba89",
+    "personal-notes-workspace-t-52036-thout-cloning-a-shared-lane-desktop.md": "04cb07f39d0d96a1bbfd092db7dd7e0cd12f25a08bab31c93e119d7f6e0062aa",
+    "personal-notes-workspace-t-5381c-ent-tool-and-study-contexts-desktop.md": "ee6ecb92cab80dd565fa274c41dcdb1c7e030783011144a524b95d5dae22c5ec"
+  }
+}

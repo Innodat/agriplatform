@@ -1,0 +1,128 @@
+
+> scribeswell-web@0.1.0 test:browser
+> playwright test --config playwright.config.cjs --workers=2 --project=desktop workspace-restoration.spec.cjs -g loop1
+
+[WebServer] (node:1486964) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 7 tests using 1 worker
+
+(node:1487034) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  1 [desktop] › tests/workspace-restoration.spec.cjs:203:102 › loop1 requested null study never exposes a private label (6.1s)
+(node:1487251) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  2 [desktop] › tests/workspace-restoration.spec.cjs:203:102 › loop1 requested null note never exposes a private label (5.9s)
+(node:1487514) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  3 [desktop] › tests/workspace-restoration.spec.cjs:203:102 › loop1 requested wrong note ID never exposes a private label (1.4s)
+  ✓  4 [desktop] › tests/workspace-restoration.spec.cjs:203:102 › loop1 requested wrong note parent never exposes a private label (1.9s)
+  ✓  5 [desktop] › tests/workspace-restoration.spec.cjs:203:102 › loop1 requested wrong note owner never exposes a private label (2.7s)
+  ✘  6 [desktop] › tests/workspace-restoration.spec.cjs:208:1 › loop1 eviction Retry repopulates an unchanged successful live projection (8.0s)
+(node:1487904) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  7 [desktop] › tests/workspace-restoration.spec.cjs:215:1 › loop1 alternating owners have bounded queued writes and truthful overload failure (1.5s)
+
+
+  1) [desktop] › tests/workspace-restoration.spec.cjs:203:102 › loop1 requested null study never exposes a private label 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByRole('status').filter({ hasText: 'Private reading context not restored.' })
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByRole('status').filter({ hasText: 'Private reading context not restored.' }) with timeout 5000ms
+      - waiting for getByRole('status').filter({ hasText: 'Private reading context not restored.' })
+
+
+      204 |  await setup(page);await seed(page,publicSetup(1),privateSetup(1));
+      205 |  await owner(page,{read:r=>{const isNote=new URL(r.request().url()).pathname.includes('/notes/');return r.fulfill({json:isNote?(shape==='null note'?null:{id:shape==='wrong note ID'?other:note,study_id:shape==='wrong note parent'?other:study,owner_account_id:shape==='wrong note owner'?other:account,revision:'1',value:{document:{version:1,blocks:[]},connections:[],highlights:[]}}):(shape==='null study'?null:{id:study,owner_account_id:account,title:'Owned',revision:'1'})});}});
+    > 206 |  await page.goto('/');await expect(page.getByRole('status').filter({hasText:'Private reading context not restored.'})).toBeVisible();await expect(tabs(page).first()).toHaveText('Genesis 1');expect((await stored(page))[`account:${account}`].tabs[0]).toMatchObject({study,note,label:'Private label 1'});
+          |                                                                                                                        ^
+      207 | });
+      208 | test('loop1 eviction Retry repopulates an unchanged successful live projection',async({page})=>{
+      209 |  await setup(page);await add(page);await settled(page);const old=(await stored(page)).public;
+        at /home/ck/repos/innodat/agriplatform/apps/scribeswell/web/tests/workspace-restoration.spec.cjs:206:120
+
+    Error Context: test-results/workspace-restoration-loop-b81e0-ver-exposes-a-private-label-desktop/error-context.md
+
+  2) [desktop] › tests/workspace-restoration.spec.cjs:203:102 › loop1 requested null note never exposes a private label 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByRole('status').filter({ hasText: 'Private reading context not restored.' })
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByRole('status').filter({ hasText: 'Private reading context not restored.' }) with timeout 5000ms
+      - waiting for getByRole('status').filter({ hasText: 'Private reading context not restored.' })
+
+
+      204 |  await setup(page);await seed(page,publicSetup(1),privateSetup(1));
+      205 |  await owner(page,{read:r=>{const isNote=new URL(r.request().url()).pathname.includes('/notes/');return r.fulfill({json:isNote?(shape==='null note'?null:{id:shape==='wrong note ID'?other:note,study_id:shape==='wrong note parent'?other:study,owner_account_id:shape==='wrong note owner'?other:account,revision:'1',value:{document:{version:1,blocks:[]},connections:[],highlights:[]}}):(shape==='null study'?null:{id:study,owner_account_id:account,title:'Owned',revision:'1'})});}});
+    > 206 |  await page.goto('/');await expect(page.getByRole('status').filter({hasText:'Private reading context not restored.'})).toBeVisible();await expect(tabs(page).first()).toHaveText('Genesis 1');expect((await stored(page))[`account:${account}`].tabs[0]).toMatchObject({study,note,label:'Private label 1'});
+          |                                                                                                                        ^
+      207 | });
+      208 | test('loop1 eviction Retry repopulates an unchanged successful live projection',async({page})=>{
+      209 |  await setup(page);await add(page);await settled(page);const old=(await stored(page)).public;
+        at /home/ck/repos/innodat/agriplatform/apps/scribeswell/web/tests/workspace-restoration.spec.cjs:206:120
+
+    Error Context: test-results/workspace-restoration-loop-5e379-ver-exposes-a-private-label-desktop/error-context.md
+
+  3) [desktop] › tests/workspace-restoration.spec.cjs:208:1 › loop1 eviction Retry repopulates an unchanged successful live projection 
+
+    Error: expect(received).toEqual(expected) // deep equality
+
+    Expected: ["540e5c20-a2cc-4be2-8e49-17877da2ec67", "280fceff-5c80-4d9f-9654-a5e2ad0cba77"]
+    Received: undefined
+
+    Call Log:
+    - Timeout 5000ms exceeded while waiting on the predicate
+
+      91 |  },{pub:publicSetup(),priv:privateSetup()});expect(result.coalesced).toBe(2);expect(result.failed).toBe(true);const records=await stored(page);expect(Object.keys(records).filter(k=>k.startsWith('account:'))).toHaveLength(3);expect(records[`account:${account}`]).toBeUndefined();expect(records.public.activeTabKey).toBe('saved-0');
+      92 | });
+    > 93 | async function settled(page){await expect(page.getByRole('tablist',{name:'Workspace tabs'})).toHaveAttribute('data-device-ready','true');await expect.poll(async()=>{const record=(await stored(page)).public;return record?.tabs.map(t=>t.tabKey);}).toEqual(await tabs(page).evaluateAll(nodes=>nodes.map(node=>node.dataset.workspaceTab)));}
+         |                                                                                                                                                                                                                                                       ^
+      94 | test('two windows preserve independent live layouts and last completed transaction wins future return',async({page,context})=>{
+      95 |  await setup(page);await settled(page);const second=await context.newPage();await setup(second);await settled(second);
+      96 |  const initialFirst=await tabs(page).evaluateAll(nodes=>nodes.map(node=>node.dataset.workspaceTab)),initialSecond=await tabs(second).evaluateAll(nodes=>nodes.map(node=>node.dataset.workspaceTab));expect(initialSecond).toEqual(initialFirst);
+        at settled (/home/ck/repos/innodat/agriplatform/apps/scribeswell/web/tests/workspace-restoration.spec.cjs:93:247)
+        at /home/ck/repos/innodat/agriplatform/apps/scribeswell/web/tests/workspace-restoration.spec.cjs:213:137
+
+    Error Context: test-results/workspace-restoration-loop-d7853--successful-live-projection-desktop/error-context.md
+
+  4) [desktop] › tests/workspace-restoration.spec.cjs:215:1 › loop1 alternating owners have bounded queued writes and truthful overload failure 
+
+    Error: expect(received).toBeLessThanOrEqual(expected)
+
+    Expected: <= 65
+    Received:    200
+
+      221 |   await new Promise(resolve=>setTimeout(resolve,100));release();const results=await Promise.all(writes);IDBDatabase.prototype.transaction=original;
+      222 |   return {accepted:results.filter(r=>r.ok).length,rejected:results.filter(r=>!r.ok).length,first:results[0].ok};
+    > 223 |  },{pub:publicSetup(),priv:privateSetup()});expect(result.first).toBe(true);expect(result.accepted).toBeGreaterThan(1);expect(result.accepted).toBeLessThanOrEqual(65);expect(result.rejected).toBeGreaterThan(0);
+          |                                                                                                                                                ^
+      224 | });
+      225 |
+        at /home/ck/repos/innodat/agriplatform/apps/scribeswell/web/tests/workspace-restoration.spec.cjs:223:144
+
+    Error Context: test-results/workspace-restoration-loop-840d7-d-truthful-overload-failure-desktop/error-context.md
+
+  4 failed
+    [desktop] › tests/workspace-restoration.spec.cjs:203:102 › loop1 requested null study never exposes a private label 
+    [desktop] › tests/workspace-restoration.spec.cjs:203:102 › loop1 requested null note never exposes a private label 
+    [desktop] › tests/workspace-restoration.spec.cjs:208:1 › loop1 eviction Retry repopulates an unchanged successful live projection 
+    [desktop] › tests/workspace-restoration.spec.cjs:215:1 › loop1 alternating owners have bounded queued writes and truthful overload failure 
+  3 passed (47.2s)
+npm error Lifecycle script `test:browser` failed with error:
+npm error code 1
+npm error path /home/ck/repos/innodat/agriplatform/apps/scribeswell/web
+npm error workspace scribeswell-web@0.1.0
+npm error location /home/ck/repos/innodat/agriplatform/apps/scribeswell/web
+npm error command failed
+npm error command sh -c playwright test --config playwright.config.cjs --workers=2 --project=desktop workspace-restoration.spec.cjs -g loop1

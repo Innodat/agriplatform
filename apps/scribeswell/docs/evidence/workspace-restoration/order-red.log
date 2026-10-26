@@ -1,0 +1,48 @@
+
+> scribeswell-web@0.1.0 test:browser
+> playwright test --config playwright.config.cjs workspace-restoration.spec.cjs --project=desktop --workers=1 --grep account pruning follows
+
+[WebServer] (node:1342066) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 1 test using 1 worker
+
+(node:1342085) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  1 [desktop] › tests/workspace-restoration.spec.cjs:166:1 › account pruning follows transaction completion when device-clock timestamps tie or go backwards (639ms)
+
+
+  1) [desktop] › tests/workspace-restoration.spec.cjs:166:1 › account pruning follows transaction completion when device-clock timestamps tie or go backwards 
+
+    Error: expect(received).toEqual(expected) // deep equality
+
+    - Expected  - 1
+    + Received  + 1
+
+      Array [
+    +   "account:10000000-0000-4000-8000-000000000001",
+        "account:10000000-0000-4000-8000-000000000002",
+    -   "account:10000000-0000-4000-8000-000000000003",
+        "account:10000000-0000-4000-8000-000000000004",
+      ]
+
+      165 | });
+      166 | test('account pruning follows transaction completion when device-clock timestamps tie or go backwards',async({page})=>{
+    > 167 |  await setup(page);await seed(page,publicSetup());await page.evaluate(async({pub,priv})=>{const m=await import('/src/lib/workspace-storage.ts'),original=Date.now,clock=original();Date.now=()=>clock;try{for(let i=1;i<=4;i++)await m.writeWorkspace({...pub,updated:Date.now()},{...priv,updated:Date.now(),account:`10000000-0000-4000-8000-00000000000${i}`});}finally{Date.now=original;}},{pub:publicSetup(),priv:privateSetup()});let records=await stored(page);expect(Object.keys(records).filter(k=>k.startsWith('account:')).sort()).toEqual([2,3,4].map(i=>`account:10000000-0000-4000-8000-00000000000${i}`));
+          |                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 ^
+      168 |  await page.evaluate(async({pub,priv})=>{const m=await import('/src/lib/workspace-storage.ts'),original=Date.now;Date.now=()=>1000;try{await m.writeWorkspace({...pub,updated:1000},{...priv,updated:1000,account:'10000000-0000-4000-8000-000000000005'});}finally{Date.now=original;}},{pub:publicSetup(),priv:privateSetup()});records=await stored(page);expect(Object.keys(records).filter(k=>k.startsWith('account:')).sort()).toEqual([3,4,5].map(i=>`account:10000000-0000-4000-8000-00000000000${i}`));expect([3,4,5].map(i=>records[`account:10000000-0000-4000-8000-00000000000${i}`].completed)).toEqual([3,4,5]);
+      169 | });
+      170 |
+        at /home/ck/repos/innodat/agriplatform/apps/scribeswell/web/tests/workspace-restoration.spec.cjs:167:529
+
+    Error Context: test-results/workspace-restoration-acco-4c82a-estamps-tie-or-go-backwards-desktop/error-context.md
+
+  1 failed
+    [desktop] › tests/workspace-restoration.spec.cjs:166:1 › account pruning follows transaction completion when device-clock timestamps tie or go backwards 
+npm error Lifecycle script `test:browser` failed with error:
+npm error code 1
+npm error path /home/ck/repos/innodat/agriplatform/apps/scribeswell/web
+npm error workspace scribeswell-web@0.1.0
+npm error location /home/ck/repos/innodat/agriplatform/apps/scribeswell/web
+npm error command failed
+npm error command sh -c playwright test --config playwright.config.cjs workspace-restoration.spec.cjs --project=desktop --workers=1 --grep 'account pruning follows'

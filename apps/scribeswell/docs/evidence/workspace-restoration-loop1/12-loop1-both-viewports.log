@@ -1,0 +1,110 @@
+
+> scribeswell-web@0.1.0 test:browser
+> playwright test --config playwright.config.cjs --workers=4 --fully-parallel workspace-restoration.spec.cjs -g loop1
+
+[WebServer] (node:1511840) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 44 tests using 4 workers
+
+(node:1511873) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:1511880) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:1511886) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:1511874) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   1 [desktop] › tests/workspace-restoration.spec.cjs:203:102 › loop1 requested null study never exposes a private label (2.1s)
+  ✓   2 [desktop] › tests/workspace-restoration.spec.cjs:203:102 › loop1 requested wrong note parent never exposes a private label (2.1s)
+  ✓   4 [desktop] › tests/workspace-restoration.spec.cjs:203:102 › loop1 requested null note never exposes a private label (2.1s)
+  ✓   3 [desktop] › tests/workspace-restoration.spec.cjs:203:102 › loop1 requested wrong note ID never exposes a private label (2.1s)
+  ✓   7 [desktop] › tests/workspace-restoration.spec.cjs:215:1 › loop1 alternating owners have bounded queued writes and truthful overload failure (1.8s)
+  ✓   5 [desktop] › tests/workspace-restoration.spec.cjs:203:102 › loop1 requested wrong note owner never exposes a private label (2.9s)
+  ✓   6 [desktop] › tests/workspace-restoration.spec.cjs:208:1 › loop1 eviction Retry repopulates an unchanged successful live projection (3.9s)
+  ✓   8 [desktop] › tests/workspace-restoration.spec.cjs:230:37 › loop1 delayed A study denial cannot clear newer live B selection or label (5.4s)
+  ✓  11 [desktop] › tests/workspace-restoration.spec.cjs:239:1 › loop1 same-owner coalescing bounds retained waiters to64 per pending batch (2.8s)
+  ✓   9 [desktop] › tests/workspace-restoration.spec.cjs:230:37 › loop1 delayed A note denial cannot clear newer live B selection or label (7.0s)
+  ✓  10 [desktop] › tests/workspace-restoration.spec.cjs:236:1 › loop1 first acknowledged UI selection writes private IDs then automatically restores on reload (7.8s)
+  ✓  12 [desktop] › tests/workspace-restoration.spec.cjs:253:1 › loop1 intermediate sole dirty victim choice then Cancel preserves input and tabs (9.6s)
+  ✓  15 [desktop] › tests/workspace-restoration.spec.cjs:261:1 › loop1 overall30s hydration deadline hides unfinished candidates and rejects late responses until Retry (5.2s)
+  ✓  13 [desktop] › tests/workspace-restoration.spec.cjs:256:47 › loop1 shared dirty staged victims guard final survivors once and Stay (10.1s)
+  ✓  14 [desktop] › tests/workspace-restoration.spec.cjs:256:47 › loop1 shared dirty staged victims guard final survivors once and Close anyway (9.6s)
+  ✓  16 [desktop] › tests/workspace-restoration.spec.cjs:269:56 › loop1 pagehide flushes latest eligible projection before debounce (3.4s)
+  ✓  17 [desktop] › tests/workspace-restoration.spec.cjs:269:56 › loop1 visibilitychange flushes latest eligible projection before debounce (3.8s)
+  ✓  20 [desktop] › tests/workspace-restoration.spec.cjs:283:1 › loop1 asynchronous transaction abort rolls back public and private writes and permits Retry (2.7s)
+  ✓  18 [desktop] › tests/workspace-restoration.spec.cjs:272:1 › loop1 lifecycle flush is suppressed while a restoration decision is unresolved (4.4s)
+(node:1513016) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  19 [desktop] › tests/workspace-restoration.spec.cjs:275:1 › loop1 actual blocked upgrade times out queued storage open and recovers after contention (5.7s)
+(node:1513167) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  23 [mobile] › tests/workspace-restoration.spec.cjs:203:102 › loop1 requested null study never exposes a private label (5.1s)
+  ✓  21 [desktop] › tests/workspace-restoration.spec.cjs:291:47 › loop1 sole dirty current victim final installation requires Stay (9.5s)
+  ✓  22 [desktop] › tests/workspace-restoration.spec.cjs:291:47 › loop1 sole dirty current victim final installation requires Close anyway (9.9s)
+(node:1513342) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  24 [mobile] › tests/workspace-restoration.spec.cjs:203:102 › loop1 requested null note never exposes a private label (5.4s)
+(node:1513422) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  25 [mobile] › tests/workspace-restoration.spec.cjs:203:102 › loop1 requested wrong note ID never exposes a private label (5.3s)
+  ✓  28 [mobile] › tests/workspace-restoration.spec.cjs:215:1 › loop1 alternating owners have bounded queued writes and truthful overload failure (4.7s)
+  ✓  27 [mobile] › tests/workspace-restoration.spec.cjs:208:1 › loop1 eviction Retry repopulates an unchanged successful live projection (7.0s)
+  ✓  26 [mobile] › tests/workspace-restoration.spec.cjs:203:102 › loop1 requested wrong note parent never exposes a private label (7.3s)
+  ✓  29 [mobile] › tests/workspace-restoration.spec.cjs:203:102 › loop1 requested wrong note owner never exposes a private label (7.0s)
+  ✓  33 [mobile] › tests/workspace-restoration.spec.cjs:239:1 › loop1 same-owner coalescing bounds retained waiters to64 per pending batch (3.7s)
+  ✓  31 [mobile] › tests/workspace-restoration.spec.cjs:230:37 › loop1 delayed A note denial cannot clear newer live B selection or label (8.3s)
+  ✓  30 [mobile] › tests/workspace-restoration.spec.cjs:230:37 › loop1 delayed A study denial cannot clear newer live B selection or label (8.4s)
+  ✓  32 [mobile] › tests/workspace-restoration.spec.cjs:236:1 › loop1 first acknowledged UI selection writes private IDs then automatically restores on reload (10.0s)
+  ✓  34 [mobile] › tests/workspace-restoration.spec.cjs:253:1 › loop1 intermediate sole dirty victim choice then Cancel preserves input and tabs (11.8s)
+  ✓  36 [mobile] › tests/workspace-restoration.spec.cjs:256:47 › loop1 shared dirty staged victims guard final survivors once and Close anyway (12.7s)
+  ✓  35 [mobile] › tests/workspace-restoration.spec.cjs:256:47 › loop1 shared dirty staged victims guard final survivors once and Stay (12.9s)
+  ✓  38 [mobile] › tests/workspace-restoration.spec.cjs:269:56 › loop1 pagehide flushes latest eligible projection before debounce (3.0s)
+  ✓  39 [mobile] › tests/workspace-restoration.spec.cjs:269:56 › loop1 visibilitychange flushes latest eligible projection before debounce (2.8s)
+  ✘  37 [mobile] › tests/workspace-restoration.spec.cjs:261:1 › loop1 overall30s hydration deadline hides unfinished candidates and rejects late responses until Retry (13.0s)
+  ✓  40 [mobile] › tests/workspace-restoration.spec.cjs:272:1 › loop1 lifecycle flush is suppressed while a restoration decision is unresolved (3.4s)
+(node:1514550) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  42 [mobile] › tests/workspace-restoration.spec.cjs:283:1 › loop1 asynchronous transaction abort rolls back public and private writes and permits Retry (2.0s)
+  ✓  41 [mobile] › tests/workspace-restoration.spec.cjs:275:1 › loop1 actual blocked upgrade times out queued storage open and recovers after contention (4.8s)
+  ✓  43 [mobile] › tests/workspace-restoration.spec.cjs:291:47 › loop1 sole dirty current victim final installation requires Close anyway (6.8s)
+  ✓  44 [mobile] › tests/workspace-restoration.spec.cjs:291:47 › loop1 sole dirty current victim final installation requires Stay (6.3s)
+
+
+  1) [mobile] › tests/workspace-restoration.spec.cjs:261:1 › loop1 overall30s hydration deadline hides unfinished candidates and rejects late responses until Retry 
+
+    Error: expect(locator).toHaveText(expected) failed
+
+    Locator:  getByRole('tablist', { name: 'Workspace tabs' }).getByRole('tab').first()
+    Expected: "Private label 1"
+    Received: "Genesis 1"
+    Timeout:  5000ms
+
+    Call log:
+      - Expect "toHaveText" getByRole('tablist', { name: 'Workspace tabs' }).getByRole('tab').first() with timeout 5000ms
+      - waiting for getByRole('tablist', { name: 'Workspace tabs' }).getByRole('tab').first()
+        13 × locator resolved to <button role="tab" dir="auto" tabindex="0" aria-selected="true" data-workspace-tab="saved-0" aria-controls="workspace-panel" class="px-3 py-2 max-w-48 truncate" id="workspace-tab-00730061007600650064002d0030">Genesis 1</button>
+           - unexpected value "Genesis 1"
+
+
+      262 |  await setup(page);const priv=privateSetup(6);for(const row of priv.tabs){delete row.study;delete row.note;}await seed(page,publicSetup(6),priv);let requests=[],retry=false;
+      263 |  await owner(page,{read:async r=>{if(!retry)await new Promise(resolve=>requests.push(resolve));return r.fulfill({json:{items:[],next_cursor:null}});}});await page.clock.install();await page.goto('/');await expect.poll(()=>requests.length).toBe(2);
+    > 264 |  await page.clock.fastForward(14000);requests[0]();requests[1]();await expect(tabs(page).first()).toHaveText('Private label 1');await expect.poll(()=>requests.length).toBe(4);
+          |                                                                                                   ^
+      265 |  await page.clock.fastForward(14000);requests[2]();requests[3]();await expect(tabs(page).nth(3)).toHaveText('Private label 4');await expect.poll(()=>requests.length).toBe(6);
+      266 |  await page.clock.fastForward(2100);await expect(page.getByRole('status').filter({hasText:'Private reading context not restored.'})).toBeVisible();requests[4]();requests[5]();await page.waitForTimeout(100);await expect(tabs(page).nth(4)).toHaveText('Genesis 1');await expect(tabs(page).nth(5)).toHaveText('Genesis 1');
+      267 |  retry=true;await page.getByRole('status').filter({hasText:'Private reading context not restored.'}).getByRole('button',{name:'Retry',exact:true}).click();await page.getByRole('dialog',{name:'Restore remembered reading setups'}).getByRole('button',{name:'Restore setups',exact:true}).click();await expect(tabs(page).nth(4)).toHaveText('Private label 5');await expect(tabs(page).nth(5)).toHaveText('Private label 6');
+        at /home/ck/repos/innodat/agriplatform/apps/scribeswell/web/tests/workspace-restoration.spec.cjs:264:99
+
+    Error Context: test-results/workspace-restoration-loop-96ef5--late-responses-until-Retry-mobile/error-context.md
+
+  1 failed
+    [mobile] › tests/workspace-restoration.spec.cjs:261:1 › loop1 overall30s hydration deadline hides unfinished candidates and rejects late responses until Retry 
+  43 passed (1.3m)
+npm error Lifecycle script `test:browser` failed with error:
+npm error code 1
+npm error path /home/ck/repos/innodat/agriplatform/apps/scribeswell/web
+npm error workspace scribeswell-web@0.1.0
+npm error location /home/ck/repos/innodat/agriplatform/apps/scribeswell/web
+npm error command failed
+npm error command sh -c playwright test --config playwright.config.cjs --workers=4 --fully-parallel workspace-restoration.spec.cjs -g loop1

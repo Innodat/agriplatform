@@ -1,0 +1,39 @@
+
+> scribeswell-web@0.1.0 test:browser
+> playwright test --config playwright.config.cjs workspace-restoration.spec.cjs --workers=4 --fully-parallel --grep current hydration401|last public scroll checkpoint|dirty shared note|current admission403|identity unauthenticated|authority 401
+
+[WebServer] (node:1398191) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 12 tests using 4 workers
+
+(node:1398217) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:1398216) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:1398210) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:1398218) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   2 [desktop] › tests/workspace-restoration.spec.cjs:157:72 › identity unauthenticated retains hidden candidates and never triggers protected reads (2.0s)
+  ✓   4 [desktop] › tests/workspace-restoration.spec.cjs:151:1 › late second candidate cannot overwrite a newer dirty shared note lane or expose its private label (2.6s)
+  ✓   1 [desktop] › tests/workspace-restoration.spec.cjs:163:1 › current admission403 clears already hydrated lanes after unrelated origin intent changes (2.8s)
+  ✓   3 [desktop] › tests/workspace-restoration.spec.cjs:68:187 › authority 401 retains hidden candidate without affecting public setups (2.7s)
+(node:1398676) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:1398667) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   5 [desktop] › tests/workspace-restoration.spec.cjs:179:1 › last public scroll checkpoint survives tools hiding the pane before the durable write (3.8s)
+  ✓   7 [mobile] › tests/workspace-restoration.spec.cjs:68:187 › authority 401 retains hidden candidate without affecting public setups (2.6s)
+  ✓   6 [desktop] › tests/workspace-restoration.spec.cjs:196:1 › current hydration401 masks all context and explicit fresh Retry retains dirty lane and original save command (3.6s)
+  ✓   8 [mobile] › tests/workspace-restoration.spec.cjs:151:1 › late second candidate cannot overwrite a newer dirty shared note lane or expose its private label (3.0s)
+(node:1398847) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:1398862) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   9 [mobile] › tests/workspace-restoration.spec.cjs:163:1 › current admission403 clears already hydrated lanes after unrelated origin intent changes (7.6s)
+  ✓  11 [mobile] › tests/workspace-restoration.spec.cjs:157:72 › identity unauthenticated retains hidden candidates and never triggers protected reads (5.6s)
+  ✓  10 [mobile] › tests/workspace-restoration.spec.cjs:196:1 › current hydration401 masks all context and explicit fresh Retry retains dirty lane and original save command (8.9s)
+  ✓  12 [mobile] › tests/workspace-restoration.spec.cjs:179:1 › last public scroll checkpoint survives tools hiding the pane before the durable write (7.2s)
+
+  12 passed (18.9s)

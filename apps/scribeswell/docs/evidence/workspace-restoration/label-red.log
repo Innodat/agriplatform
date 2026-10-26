@@ -1,0 +1,81 @@
+
+> scribeswell-web@0.1.0 test:browser
+> playwright test --config playwright.config.cjs workspace-restoration.spec.cjs --project=desktop --workers=2 --fully-parallel --grep explicit Rename while|explicit Reset while
+
+[WebServer] (node:1339490) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 2 tests using 2 workers
+
+(node:1339510) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:1339516) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  1 [desktop] › tests/workspace-restoration.spec.cjs:160:40 › explicit Rename while identity is pending preserves newer label intent and remembered resource IDs (6.6s)
+  ✘  2 [desktop] › tests/workspace-restoration.spec.cjs:160:40 › explicit Reset while identity is pending preserves newer label intent and remembered resource IDs (6.6s)
+
+
+  1) [desktop] › tests/workspace-restoration.spec.cjs:160:40 › explicit Rename while identity is pending preserves newer label intent and remembered resource IDs 
+
+    Error: expect(received).toEqual(expected) // deep equality
+
+    - Expected  - 1
+    + Received  + 1
+
+      Object {
+    -   "label": "New explicit label",
+    +   "label": "Private label 1",
+        "note": "40000000-0000-4000-8000-000000000001",
+        "study": "30000000-0000-4000-8000-000000000001",
+      }
+
+    Call Log:
+    - Timeout 5000ms exceeded while waiting on the predicate
+
+      159 | });
+      160 | for(const action of ['Rename','Reset'])test(`explicit ${action} while identity is pending preserves newer label intent and remembered resource IDs`,async({page})=>{
+    > 161 |  await setup(page);await seed(page,publicSetup(),privateSetup());let release;await owner(page,{identity:async r=>{await new Promise(resolve=>release=resolve);return r.fulfill({json:session.user});}});await page.goto('/');await expect.poll(()=>!!release).toBe(true);await page.getByRole('button',{name:'Rename tab 1',exact:true}).click();const dialog=page.getByRole('dialog',{name:'Rename workspace tab'});if(action==='Rename'){await page.getByLabel('Tab name',{exact:true}).fill('New explicit label');await dialog.getByRole('button',{name:'Save',exact:true}).click();}else await dialog.getByRole('button',{name:'Reset name',exact:true}).click();release();await expect.poll(async()=>{const row=(await stored(page))[`account:${account}`]?.tabs.find(t=>t.tabKey==='saved-0');return row&&{study:row.study,note:row.note,label:row.label??null};}).toEqual({study,note,label:action==='Rename'?'New explicit label':null});await expect(tabs(page).first()).toHaveText(action==='Rename'?'New explicit label':'Genesis 1');
+          |                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          ^
+      162 | });
+      163 |
+        at /home/ck/repos/innodat/agriplatform/apps/scribeswell/web/tests/workspace-restoration.spec.cjs:161:842
+
+    Error Context: test-results/workspace-restoration-expl-bf22f-and-remembered-resource-IDs-desktop/error-context.md
+
+  2) [desktop] › tests/workspace-restoration.spec.cjs:160:40 › explicit Reset while identity is pending preserves newer label intent and remembered resource IDs 
+
+    Error: expect(received).toEqual(expected) // deep equality
+
+    - Expected  - 1
+    + Received  + 1
+
+      Object {
+    -   "label": null,
+    +   "label": "Private label 1",
+        "note": "40000000-0000-4000-8000-000000000001",
+        "study": "30000000-0000-4000-8000-000000000001",
+      }
+
+    Call Log:
+    - Timeout 5000ms exceeded while waiting on the predicate
+
+      159 | });
+      160 | for(const action of ['Rename','Reset'])test(`explicit ${action} while identity is pending preserves newer label intent and remembered resource IDs`,async({page})=>{
+    > 161 |  await setup(page);await seed(page,publicSetup(),privateSetup());let release;await owner(page,{identity:async r=>{await new Promise(resolve=>release=resolve);return r.fulfill({json:session.user});}});await page.goto('/');await expect.poll(()=>!!release).toBe(true);await page.getByRole('button',{name:'Rename tab 1',exact:true}).click();const dialog=page.getByRole('dialog',{name:'Rename workspace tab'});if(action==='Rename'){await page.getByLabel('Tab name',{exact:true}).fill('New explicit label');await dialog.getByRole('button',{name:'Save',exact:true}).click();}else await dialog.getByRole('button',{name:'Reset name',exact:true}).click();release();await expect.poll(async()=>{const row=(await stored(page))[`account:${account}`]?.tabs.find(t=>t.tabKey==='saved-0');return row&&{study:row.study,note:row.note,label:row.label??null};}).toEqual({study,note,label:action==='Rename'?'New explicit label':null});await expect(tabs(page).first()).toHaveText(action==='Rename'?'New explicit label':'Genesis 1');
+          |                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          ^
+      162 | });
+      163 |
+        at /home/ck/repos/innodat/agriplatform/apps/scribeswell/web/tests/workspace-restoration.spec.cjs:161:842
+
+    Error Context: test-results/workspace-restoration-expl-a0f6e-and-remembered-resource-IDs-desktop/error-context.md
+
+  2 failed
+    [desktop] › tests/workspace-restoration.spec.cjs:160:40 › explicit Rename while identity is pending preserves newer label intent and remembered resource IDs 
+    [desktop] › tests/workspace-restoration.spec.cjs:160:40 › explicit Reset while identity is pending preserves newer label intent and remembered resource IDs 
+npm error Lifecycle script `test:browser` failed with error:
+npm error code 1
+npm error path /home/ck/repos/innodat/agriplatform/apps/scribeswell/web
+npm error workspace scribeswell-web@0.1.0
+npm error location /home/ck/repos/innodat/agriplatform/apps/scribeswell/web
+npm error command failed
+npm error command sh -c playwright test --config playwright.config.cjs workspace-restoration.spec.cjs --project=desktop --workers=2 --fully-parallel --grep 'explicit Rename while|explicit Reset while'

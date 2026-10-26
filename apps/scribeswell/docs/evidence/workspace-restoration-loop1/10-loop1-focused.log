@@ -1,0 +1,32 @@
+
+> scribeswell-web@0.1.0 test:browser
+> playwright test --config playwright.config.cjs --workers=1 --project=desktop workspace-restoration.spec.cjs -g loop1
+
+[WebServer] (node:1500900) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 19 tests using 1 worker
+
+(node:1500932) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   1 [desktop] › tests/workspace-restoration.spec.cjs:203:102 › loop1 requested null study never exposes a private label (1.0s)
+  ✓   2 [desktop] › tests/workspace-restoration.spec.cjs:203:102 › loop1 requested null note never exposes a private label (812ms)
+  ✓   3 [desktop] › tests/workspace-restoration.spec.cjs:203:102 › loop1 requested wrong note ID never exposes a private label (829ms)
+  ✓   4 [desktop] › tests/workspace-restoration.spec.cjs:203:102 › loop1 requested wrong note parent never exposes a private label (821ms)
+  ✓   5 [desktop] › tests/workspace-restoration.spec.cjs:203:102 › loop1 requested wrong note owner never exposes a private label (1.2s)
+  ✓   6 [desktop] › tests/workspace-restoration.spec.cjs:208:1 › loop1 eviction Retry repopulates an unchanged successful live projection (2.4s)
+  ✓   7 [desktop] › tests/workspace-restoration.spec.cjs:215:1 › loop1 alternating owners have bounded queued writes and truthful overload failure (1.1s)
+  ✓   8 [desktop] › tests/workspace-restoration.spec.cjs:230:37 › loop1 delayed A study denial cannot clear newer live B selection or label (2.1s)
+  ✓   9 [desktop] › tests/workspace-restoration.spec.cjs:230:37 › loop1 delayed A note denial cannot clear newer live B selection or label (2.3s)
+  ✓  10 [desktop] › tests/workspace-restoration.spec.cjs:236:1 › loop1 first acknowledged UI selection writes private IDs then automatically restores on reload (2.1s)
+  ✓  11 [desktop] › tests/workspace-restoration.spec.cjs:239:1 › loop1 same-owner coalescing bounds retained waiters to64 per pending batch (1.2s)
+  ✓  12 [desktop] › tests/workspace-restoration.spec.cjs:253:1 › loop1 intermediate sole dirty victim choice then Cancel preserves input and tabs (3.7s)
+  ✓  13 [desktop] › tests/workspace-restoration.spec.cjs:256:47 › loop1 shared dirty staged victims guard final survivors once and Stay (3.7s)
+  ✓  14 [desktop] › tests/workspace-restoration.spec.cjs:256:47 › loop1 shared dirty staged victims guard final survivors once and Close anyway (3.2s)
+  ✓  15 [desktop] › tests/workspace-restoration.spec.cjs:261:1 › loop1 overall30s hydration deadline hides unfinished candidates and rejects late responses until Retry (1.5s)
+  ✓  16 [desktop] › tests/workspace-restoration.spec.cjs:269:1 › loop1 pagehide flushes latest eligible projection before debounce (1.2s)
+  ✓  17 [desktop] › tests/workspace-restoration.spec.cjs:272:1 › loop1 lifecycle flush is suppressed while a restoration decision is unresolved (1.4s)
+  ✓  18 [desktop] › tests/workspace-restoration.spec.cjs:275:1 › loop1 actual blocked upgrade times out queued storage open and recovers after contention (3.6s)
+  ✓  19 [desktop] › tests/workspace-restoration.spec.cjs:283:1 › loop1 asynchronous transaction abort rolls back public and private writes and permits Retry (417ms)
+
+  19 passed (36.3s)

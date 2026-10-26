@@ -1,0 +1,104 @@
+
+> scribeswell-web@0.1.0 test:browser
+> playwright test --config playwright.config.cjs workspace-restoration.spec.cjs --workers=4 --fully-parallel --grep explicit Rename while|explicit Reset while|current admission403|account pruning follows|private completion ordinal|resource404 clears only|late second candidate
+
+[WebServer] (node:1343855) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 14 tests using 4 workers
+
+(node:1343881) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:1343883) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:1343882) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:1343875) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   2 [desktop] › tests/workspace-restoration.spec.cjs:145:1 › resource404 clears only the affected selection and keeps unrelated authorized context (2.4s)
+  ✓   1 [desktop] › tests/workspace-restoration.spec.cjs:160:40 › explicit Reset while identity is pending preserves newer label intent and remembered resource IDs (2.4s)
+  ✓   4 [desktop] › tests/workspace-restoration.spec.cjs:151:1 › late second candidate cannot overwrite a newer dirty shared note lane or expose its private label (2.4s)
+  ✓   3 [desktop] › tests/workspace-restoration.spec.cjs:160:40 › explicit Rename while identity is pending preserves newer label intent and remembered resource IDs (2.6s)
+  ✓   6 [desktop] › tests/workspace-restoration.spec.cjs:166:1 › account pruning follows transaction completion when device-clock timestamps tie or go backwards (778ms)
+  ✓   7 [desktop] › tests/workspace-restoration.spec.cjs:170:1 › private completion ordinal is storage-only bounded metadata and projections remain accepted (751ms)
+(node:1344351) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:1344366) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:1344372) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   8 [mobile] › tests/workspace-restoration.spec.cjs:145:1 › resource404 clears only the affected selection and keeps unrelated authorized context (2.1s)
+  ✓   9 [mobile] › tests/workspace-restoration.spec.cjs:151:1 › late second candidate cannot overwrite a newer dirty shared note lane or expose its private label (1.9s)
+  ✓  10 [mobile] › tests/workspace-restoration.spec.cjs:160:40 › explicit Rename while identity is pending preserves newer label intent and remembered resource IDs (2.1s)
+  ✓  13 [mobile] › tests/workspace-restoration.spec.cjs:166:1 › account pruning follows transaction completion when device-clock timestamps tie or go backwards (1.7s)
+  ✓  11 [mobile] › tests/workspace-restoration.spec.cjs:160:40 › explicit Reset while identity is pending preserves newer label intent and remembered resource IDs (2.7s)
+  ✘   5 [desktop] › tests/workspace-restoration.spec.cjs:163:1 › current admission403 clears already hydrated lanes after unrelated origin intent changes (6.6s)
+  ✓  14 [mobile] › tests/workspace-restoration.spec.cjs:170:1 › private completion ordinal is storage-only bounded metadata and projections remain accepted (1.2s)
+  ✘  12 [mobile] › tests/workspace-restoration.spec.cjs:163:1 › current admission403 clears already hydrated lanes after unrelated origin intent changes (7.9s)
+
+
+  1) [desktop] › tests/workspace-restoration.spec.cjs:163:1 › current admission403 clears already hydrated lanes after unrelated origin intent changes 
+
+    Error: expect(locator).toHaveCount(expected) failed
+
+    Locator:  getByRole('textbox', { name: 'Note text', exact: true })
+    Expected: 0
+    Received: 1
+    Timeout:  5000ms
+
+    Call log:
+      - Expect "toHaveCount" getByRole('textbox', { name: 'Note text', exact: true }) with timeout 5000ms
+      - waiting for getByRole('textbox', { name: 'Note text', exact: true })
+        14 × locator resolved to 1 element
+           - unexpected value "1"
+
+
+      162 | });
+      163 | test('current admission403 clears already hydrated lanes after unrelated origin intent changes',async({page})=>{
+    > 164 |  await setup(page);await seed(page,publicSetup(),privateSetup());let notes=0,release;const gate=new Promise(resolve=>release=resolve);await owner(page,{read:async r=>{const path=new URL(r.request().url()).pathname;if(path.endsWith('/notes/'+note)){notes++;if(notes===2){await gate;return r.fulfill({status:403,json:{code:'studies_access_denied'}});}return r.fulfill({json:{id:note,study_id:study,owner_account_id:account,revision:'1',value:{document:{version:1,blocks:[{type:'paragraph',direction:'auto',content:[{type:'text',text:'Authorized saved body',marks:[]}]}]},connections:[],highlights:[]}}});}return r.fulfill({json:{id:study,owner_account_id:account,title:'Private study',revision:'1'}});}});await page.goto('/');await expect(tabs(page).first()).toHaveText('Private label 1');await expect.poll(()=>notes).toBe(2);await page.getByRole('button',{name:'Analysis',exact:true}).click();await expect(page.getByRole('textbox',{name:'Note text',exact:true})).toHaveText('Authorized saved body');release();await expect(page.getByRole('textbox',{name:'Note text',exact:true})).toHaveCount(0);await expect(page.getByText('Private label 1',{exact:true})).toHaveCount(0);await expect.poll(async()=>(await stored(page))[`account:${account}`].tabs).toEqual([]);await expect(tabs(page)).toHaveCount(2);
+          |                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       ^
+      165 | });
+      166 | test('account pruning follows transaction completion when device-clock timestamps tie or go backwards',async({page})=>{
+      167 |  await setup(page);await seed(page,publicSetup());await page.evaluate(async({pub,priv})=>{const m=await import('/src/lib/workspace-storage.ts'),original=Date.now,clock=original();Date.now=()=>clock;try{for(let i=1;i<=4;i++)await m.writeWorkspace({...pub,updated:Date.now()},{...priv,updated:Date.now(),account:`10000000-0000-4000-8000-00000000000${i}`});}finally{Date.now=original;}},{pub:publicSetup(),priv:privateSetup()});let records=await stored(page);expect(Object.keys(records).filter(k=>k.startsWith('account:')).sort()).toEqual([2,3,4].map(i=>`account:10000000-0000-4000-8000-00000000000${i}`));
+        at /home/ck/repos/innodat/agriplatform/apps/scribeswell/web/tests/workspace-restoration.spec.cjs:164:1079
+
+    Error Context: test-results/workspace-restoration-curr-82d20-lated-origin-intent-changes-desktop/error-context.md
+
+  2) [mobile] › tests/workspace-restoration.spec.cjs:163:1 › current admission403 clears already hydrated lanes after unrelated origin intent changes 
+
+    Error: expect(locator).toHaveCount(expected) failed
+
+    Locator:  getByRole('textbox', { name: 'Note text', exact: true })
+    Expected: 0
+    Received: 1
+    Timeout:  5000ms
+
+    Call log:
+      - Expect "toHaveCount" getByRole('textbox', { name: 'Note text', exact: true }) with timeout 5000ms
+      - waiting for getByRole('textbox', { name: 'Note text', exact: true })
+        14 × locator resolved to 1 element
+           - unexpected value "1"
+
+
+      162 | });
+      163 | test('current admission403 clears already hydrated lanes after unrelated origin intent changes',async({page})=>{
+    > 164 |  await setup(page);await seed(page,publicSetup(),privateSetup());let notes=0,release;const gate=new Promise(resolve=>release=resolve);await owner(page,{read:async r=>{const path=new URL(r.request().url()).pathname;if(path.endsWith('/notes/'+note)){notes++;if(notes===2){await gate;return r.fulfill({status:403,json:{code:'studies_access_denied'}});}return r.fulfill({json:{id:note,study_id:study,owner_account_id:account,revision:'1',value:{document:{version:1,blocks:[{type:'paragraph',direction:'auto',content:[{type:'text',text:'Authorized saved body',marks:[]}]}]},connections:[],highlights:[]}}});}return r.fulfill({json:{id:study,owner_account_id:account,title:'Private study',revision:'1'}});}});await page.goto('/');await expect(tabs(page).first()).toHaveText('Private label 1');await expect.poll(()=>notes).toBe(2);await page.getByRole('button',{name:'Analysis',exact:true}).click();await expect(page.getByRole('textbox',{name:'Note text',exact:true})).toHaveText('Authorized saved body');release();await expect(page.getByRole('textbox',{name:'Note text',exact:true})).toHaveCount(0);await expect(page.getByText('Private label 1',{exact:true})).toHaveCount(0);await expect.poll(async()=>(await stored(page))[`account:${account}`].tabs).toEqual([]);await expect(tabs(page)).toHaveCount(2);
+          |                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       ^
+      165 | });
+      166 | test('account pruning follows transaction completion when device-clock timestamps tie or go backwards',async({page})=>{
+      167 |  await setup(page);await seed(page,publicSetup());await page.evaluate(async({pub,priv})=>{const m=await import('/src/lib/workspace-storage.ts'),original=Date.now,clock=original();Date.now=()=>clock;try{for(let i=1;i<=4;i++)await m.writeWorkspace({...pub,updated:Date.now()},{...priv,updated:Date.now(),account:`10000000-0000-4000-8000-00000000000${i}`});}finally{Date.now=original;}},{pub:publicSetup(),priv:privateSetup()});let records=await stored(page);expect(Object.keys(records).filter(k=>k.startsWith('account:')).sort()).toEqual([2,3,4].map(i=>`account:10000000-0000-4000-8000-00000000000${i}`));
+        at /home/ck/repos/innodat/agriplatform/apps/scribeswell/web/tests/workspace-restoration.spec.cjs:164:1079
+
+    Error Context: test-results/workspace-restoration-curr-82d20-lated-origin-intent-changes-mobile/error-context.md
+
+  2 failed
+    [desktop] › tests/workspace-restoration.spec.cjs:163:1 › current admission403 clears already hydrated lanes after unrelated origin intent changes 
+    [mobile] › tests/workspace-restoration.spec.cjs:163:1 › current admission403 clears already hydrated lanes after unrelated origin intent changes 
+  12 passed (15.6s)
+npm error Lifecycle script `test:browser` failed with error:
+npm error code 1
+npm error path /home/ck/repos/innodat/agriplatform/apps/scribeswell/web
+npm error workspace scribeswell-web@0.1.0
+npm error location /home/ck/repos/innodat/agriplatform/apps/scribeswell/web
+npm error command failed
+npm error command sh -c playwright test --config playwright.config.cjs workspace-restoration.spec.cjs --workers=4 --fully-parallel --grep 'explicit Rename while|explicit Reset while|current admission403|account pruning follows|private completion ordinal|resource404 clears only|late second candidate'

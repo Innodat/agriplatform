@@ -1,0 +1,25 @@
+
+Running 1 test using 1 worker
+
+(node:1298667) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  1 apps/scribeswell/web/tests/workspace-restoration.spec.cjs:16:1 › closed codec bounds privacy expiry and future version policy (1.6s)
+
+
+  1) apps/scribeswell/web/tests/workspace-restoration.spec.cjs:16:1 › closed codec bounds privacy expiry and future version policy 
+
+    Error: page.evaluate: TypeError: Failed to fetch dynamically imported module: http://127.0.0.1:5182/src/lib/workspace-storage.ts
+
+      16 | test('closed codec bounds privacy expiry and future version policy',async({page})=>{
+      17 |  await setup(page);
+    > 18 |  const result=await page.evaluate(async()=>{
+         |                          ^
+      19 |   const m=await import('/src/lib/workspace-storage.ts');
+      20 |   const pane={paneKey:'pane',ref:{version:1,book_id:'Gen',target:{kind:'chapter',chapter:1}}};
+      21 |   // Use the actual controller's public grammar instead of duplicating references.
+        at /home/ck/repos/innodat/agriplatform/apps/scribeswell/web/tests/workspace-restoration.spec.cjs:18:26
+
+    Error Context: test-results/workspace-restoration-clos-4ff68-y-and-future-version-policy/error-context.md
+
+  1 failed
+    apps/scribeswell/web/tests/workspace-restoration.spec.cjs:16:1 › closed codec bounds privacy expiry and future version policy 

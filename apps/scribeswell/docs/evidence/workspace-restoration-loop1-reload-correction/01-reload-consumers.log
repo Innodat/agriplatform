@@ -1,0 +1,604 @@
+
+> scribeswell-web@0.1.0 test:browser
+> playwright test --config playwright.config.cjs --workers=4 --fully-parallel personal-notes.spec.cjs -g explicitly enroll|native PostgreSQL browser reload|rich paragraphs|editor toolbar actions|Shift Enter soft|rename: explicit Save Cancel|collected passages persist|links source marks|across an owned atom survives|note deletion composing cancel|malformed Add Cancel|malformed capacity Add
+
+[WebServer] (node:33526) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 32 tests using 4 workers
+
+(node:33563) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:33567) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:33573) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:33560) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  -   2 [desktop] › tests/personal-notes.spec.cjs:168:1 › native PostgreSQL browser reload returns the acknowledged aggregate
+  ✘   3 [desktop] › tests/personal-notes.spec.cjs:136:1 › explicitly enroll, create, write Hebrew and reopen saved text after reload (7.3s)
+  ✘   4 [desktop] › tests/personal-notes.spec.cjs:187:1 › rich paragraphs directions lists marks and safe links survive saving and reopening (7.4s)
+  ✘   5 [desktop] › tests/personal-notes.spec.cjs:222:1 › review: Shift Enter soft break survives save and reload (7.4s)
+(node:34081) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:34088) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘   1 [desktop] › tests/personal-notes.spec.cjs:191:1 › editor toolbar actions persist direction marks lists and safe links (8.0s)
+(node:34096) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:34175) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   7 [desktop] › tests/personal-notes.spec.cjs:354:1 › collected passages persist chapters Hebrew ranges overlap and duplicate IDs without navigation (4.5s)
+  ✘   8 [desktop] › tests/personal-notes.spec.cjs:475:1 › note links: links source marks lists direction plain paste and reload roundtrip (6.9s)
+(node:34573) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘   6 [desktop] › tests/personal-notes.spec.cjs:259:1 › rename: explicit Save Cancel and reload preserve independent note and reader (8.4s)
+  ✘   9 [desktop] › tests/personal-notes.spec.cjs:549:70 › note links review: Bold across an owned atom survives save reload (7.7s)
+(node:34697) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:34705) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  10 [desktop] › tests/personal-notes.spec.cjs:549:70 › note links review: Italic across an owned atom survives save reload (6.9s)
+(node:34910) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  11 [desktop] › tests/personal-notes.spec.cjs:549:70 › note links review: Bullet list across an owned atom survives save reload (8.0s)
+(node:35085) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  14 [desktop] › tests/personal-notes.spec.cjs:1169:118 › review: malformed Add Cancel retains unresolved provenance across replay and refresh until valid choice ?book=Gen&chapter=bad&other=keep#reading (4.7s)
+  ✘  12 [desktop] › tests/personal-notes.spec.cjs:549:70 › note links review: Numbered list across an owned atom survives save reload (10.1s)
+  ✘  13 [desktop] › tests/personal-notes.spec.cjs:806:1 › note deletion composing cancel preserves final composition through saving and reopen (9.5s)
+(node:35276) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:35269) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  -  17 [mobile] › tests/personal-notes.spec.cjs:168:1 › native PostgreSQL browser reload returns the acknowledged aggregate
+  ✓  15 [desktop] › tests/personal-notes.spec.cjs:1169:118 › review: malformed Add Cancel retains unresolved provenance across replay and refresh until valid choice ?reader=%7B%7D&book=Exod&other=keep#reading (6.3s)
+  ✘  16 [desktop] › tests/personal-notes.spec.cjs:1260:1 › review: malformed capacity Add replacement Cancel still requires a valid passage choice (6.5s)
+(node:35471) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:35505) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  19 [mobile] › tests/personal-notes.spec.cjs:187:1 › rich paragraphs directions lists marks and safe links survive saving and reopening (8.8s)
+  ✘  18 [mobile] › tests/personal-notes.spec.cjs:136:1 › explicitly enroll, create, write Hebrew and reopen saved text after reload (9.1s)
+(node:35795) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:35801) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  21 [mobile] › tests/personal-notes.spec.cjs:222:1 › review: Shift Enter soft break survives save and reload (8.6s)
+  ✘  20 [mobile] › tests/personal-notes.spec.cjs:191:1 › editor toolbar actions persist direction marks lists and safe links (9.8s)
+(node:36014) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:36021) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  22 [mobile] › tests/personal-notes.spec.cjs:259:1 › rename: explicit Save Cancel and reload preserve independent note and reader (6.4s)
+  ✓  23 [mobile] › tests/personal-notes.spec.cjs:354:1 › collected passages persist chapters Hebrew ranges overlap and duplicate IDs without navigation (7.8s)
+  ✘  24 [mobile] › tests/personal-notes.spec.cjs:475:1 › note links: links source marks lists direction plain paste and reload roundtrip (10.9s)
+(node:36438) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  25 [mobile] › tests/personal-notes.spec.cjs:549:70 › note links review: Bold across an owned atom survives save reload (10.0s)
+  ✘  26 [mobile] › tests/personal-notes.spec.cjs:549:70 › note links review: Italic across an owned atom survives save reload (9.7s)
+(node:36474) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  27 [mobile] › tests/personal-notes.spec.cjs:549:70 › note links review: Bullet list across an owned atom survives save reload (8.9s)
+(node:36555) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:36674) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  30 [mobile] › tests/personal-notes.spec.cjs:1169:118 › review: malformed Add Cancel retains unresolved provenance across replay and refresh until valid choice ?book=Gen&chapter=bad&other=keep#reading (6.1s)
+  ✘  28 [mobile] › tests/personal-notes.spec.cjs:549:70 › note links review: Numbered list across an owned atom survives save reload (8.5s)
+  ✓  31 [mobile] › tests/personal-notes.spec.cjs:1169:118 › review: malformed Add Cancel retains unresolved provenance across replay and refresh until valid choice ?reader=%7B%7D&book=Exod&other=keep#reading (5.5s)
+  ✘  29 [mobile] › tests/personal-notes.spec.cjs:806:1 › note deletion composing cancel preserves final composition through saving and reopen (8.9s)
+  ✓  32 [mobile] › tests/personal-notes.spec.cjs:1260:1 › review: malformed capacity Add replacement Cancel still requires a valid passage choice (3.5s)
+
+
+  1) [desktop] › tests/personal-notes.spec.cjs:136:1 › explicitly enroll, create, write Hebrew and reopen saved text after reload 
+
+    Error: expect(received).toBe(expected) // Object.is equality
+
+    Expected: true
+    Received: false
+
+    Call Log:
+    - Timeout 5000ms exceeded while waiting on the predicate
+
+      125 |   const selected=saved.private?.tabs.find(row=>row.tabKey===key&&row.incarnation===tab.incarnation);
+      126 |   return selected?.study===study&&(noteId===null?selected.note===undefined:selected.note===noteId);
+    > 127 |  },{account,study,noteId,studySelected})).toBe(true);
+          |                                           ^
+      128 |  await page.reload();
+      129 |  await expect(page.getByRole('tablist',{name:'Workspace tabs'})).toHaveAttribute('data-device-ready','true');
+      130 |  if(studySelected){
+        at reloadRememberedWorkspace (/home/ck/repos/innodat/agriplatform/apps/scribeswell/web/tests/personal-notes.spec.cjs:127:43)
+        at /home/ck/repos/innodat/agriplatform/apps/scribeswell/web/tests/personal-notes.spec.cjs:145:2
+
+    Error Context: test-results/personal-notes-explicitly--df1d3-pen-saved-text-after-reload-desktop/error-context.md
+
+  2) [desktop] › tests/personal-notes.spec.cjs:187:1 › rich paragraphs directions lists marks and safe links survive saving and reopening 
+
+    Error: expect(received).toBe(expected) // Object.is equality
+
+    Expected: true
+    Received: false
+
+    Call Log:
+    - Timeout 5000ms exceeded while waiting on the predicate
+
+      125 |   const selected=saved.private?.tabs.find(row=>row.tabKey===key&&row.incarnation===tab.incarnation);
+      126 |   return selected?.study===study&&(noteId===null?selected.note===undefined:selected.note===noteId);
+    > 127 |  },{account,study,noteId,studySelected})).toBe(true);
+          |                                           ^
+      128 |  await page.reload();
+      129 |  await expect(page.getByRole('tablist',{name:'Workspace tabs'})).toHaveAttribute('data-device-ready','true');
+      130 |  if(studySelected){
+        at reloadRememberedWorkspace (/home/ck/repos/innodat/agriplatform/apps/scribeswell/web/tests/personal-notes.spec.cjs:127:43)
+        at /home/ck/repos/innodat/agriplatform/apps/scribeswell/web/tests/personal-notes.spec.cjs:189:2
+
+    Error Context: test-results/personal-notes-rich-paragr-7b3da-urvive-saving-and-reopening-desktop/error-context.md
+
+  3) [desktop] › tests/personal-notes.spec.cjs:191:1 › editor toolbar actions persist direction marks lists and safe links 
+
+    Error: expect(received).toBe(expected) // Object.is equality
+
+    Expected: true
+    Received: false
+
+    Call Log:
+    - Timeout 5000ms exceeded while waiting on the predicate
+
+      125 |   const selected=saved.private?.tabs.find(row=>row.tabKey===key&&row.incarnation===tab.incarnation);
+      126 |   return selected?.study===study&&(noteId===null?selected.note===undefined:selected.note===noteId);
+    > 127 |  },{account,study,noteId,studySelected})).toBe(true);
+          |                                           ^
+      128 |  await page.reload();
+      129 |  await expect(page.getByRole('tablist',{name:'Workspace tabs'})).toHaveAttribute('data-device-ready','true');
+      130 |  if(studySelected){
+        at reloadRememberedWorkspace (/home/ck/repos/innodat/agriplatform/apps/scribeswell/web/tests/personal-notes.spec.cjs:127:43)
+        at /home/ck/repos/innodat/agriplatform/apps/scribeswell/web/tests/personal-notes.spec.cjs:194:2
+
+    Error Context: test-results/personal-notes-editor-tool-7fcb8--marks-lists-and-safe-links-desktop/error-context.md
+
+  4) [desktop] › tests/personal-notes.spec.cjs:222:1 › review: Shift Enter soft break survives save and reload 
+
+    Error: expect(received).toBe(expected) // Object.is equality
+
+    Expected: true
+    Received: false
+
+    Call Log:
+    - Timeout 5000ms exceeded while waiting on the predicate
+
+      125 |   const selected=saved.private?.tabs.find(row=>row.tabKey===key&&row.incarnation===tab.incarnation);
+      126 |   return selected?.study===study&&(noteId===null?selected.note===undefined:selected.note===noteId);
+    > 127 |  },{account,study,noteId,studySelected})).toBe(true);
+          |                                           ^
+      128 |  await page.reload();
+      129 |  await expect(page.getByRole('tablist',{name:'Workspace tabs'})).toHaveAttribute('data-device-ready','true');
+      130 |  if(studySelected){
+        at reloadRememberedWorkspace (/home/ck/repos/innodat/agriplatform/apps/scribeswell/web/tests/personal-notes.spec.cjs:127:43)
+        at /home/ck/repos/innodat/agriplatform/apps/scribeswell/web/tests/personal-notes.spec.cjs:223:505
+
+    Error Context: test-results/personal-notes-review-Shif-a4410-ak-survives-save-and-reload-desktop/error-context.md
+
+  5) [desktop] › tests/personal-notes.spec.cjs:259:1 › rename: explicit Save Cancel and reload preserve independent note and reader 
+
+    Error: expect(received).toBe(expected) // Object.is equality
+
+    Expected: true
+    Received: false
+
+    Call Log:
+    - Timeout 5000ms exceeded while waiting on the predicate
+
+      125 |   const selected=saved.private?.tabs.find(row=>row.tabKey===key&&row.incarnation===tab.incarnation);
+      126 |   return selected?.study===study&&(noteId===null?selected.note===undefined:selected.note===noteId);
+    > 127 |  },{account,study,noteId,studySelected})).toBe(true);
+          |                                           ^
+      128 |  await page.reload();
+      129 |  await expect(page.getByRole('tablist',{name:'Workspace tabs'})).toHaveAttribute('data-device-ready','true');
+      130 |  if(studySelected){
+        at reloadRememberedWorkspace (/home/ck/repos/innodat/agriplatform/apps/scribeswell/web/tests/personal-notes.spec.cjs:127:43)
+        at /home/ck/repos/innodat/agriplatform/apps/scribeswell/web/tests/personal-notes.spec.cjs:264:2
+
+    Error Context: test-results/personal-notes-rename-expl-145aa-independent-note-and-reader-desktop/error-context.md
+
+  6) [desktop] › tests/personal-notes.spec.cjs:475:1 › note links: links source marks lists direction plain paste and reload roundtrip 
+
+    Error: expect(received).toBe(expected) // Object.is equality
+
+    Expected: true
+    Received: false
+
+    Call Log:
+    - Timeout 5000ms exceeded while waiting on the predicate
+
+      125 |   const selected=saved.private?.tabs.find(row=>row.tabKey===key&&row.incarnation===tab.incarnation);
+      126 |   return selected?.study===study&&(noteId===null?selected.note===undefined:selected.note===noteId);
+    > 127 |  },{account,study,noteId,studySelected})).toBe(true);
+          |                                           ^
+      128 |  await page.reload();
+      129 |  await expect(page.getByRole('tablist',{name:'Workspace tabs'})).toHaveAttribute('data-device-ready','true');
+      130 |  if(studySelected){
+        at reloadRememberedWorkspace (/home/ck/repos/innodat/agriplatform/apps/scribeswell/web/tests/personal-notes.spec.cjs:127:43)
+        at /home/ck/repos/innodat/agriplatform/apps/scribeswell/web/tests/personal-notes.spec.cjs:479:312
+
+    Error Context: test-results/personal-notes-note-links--f7291--paste-and-reload-roundtrip-desktop/error-context.md
+
+  7) [desktop] › tests/personal-notes.spec.cjs:549:70 › note links review: Bold across an owned atom survives save reload 
+
+    Error: expect(received).toBe(expected) // Object.is equality
+
+    Expected: true
+    Received: false
+
+    Call Log:
+    - Timeout 5000ms exceeded while waiting on the predicate
+
+      125 |   const selected=saved.private?.tabs.find(row=>row.tabKey===key&&row.incarnation===tab.incarnation);
+      126 |   return selected?.study===study&&(noteId===null?selected.note===undefined:selected.note===noteId);
+    > 127 |  },{account,study,noteId,studySelected})).toBe(true);
+          |                                           ^
+      128 |  await page.reload();
+      129 |  await expect(page.getByRole('tablist',{name:'Workspace tabs'})).toHaveAttribute('data-device-ready','true');
+      130 |  if(studySelected){
+        at reloadRememberedWorkspace (/home/ck/repos/innodat/agriplatform/apps/scribeswell/web/tests/personal-notes.spec.cjs:127:43)
+        at /home/ck/repos/innodat/agriplatform/apps/scribeswell/web/tests/personal-notes.spec.cjs:550:564
+
+    Error Context: test-results/personal-notes-note-links--254de-d-atom-survives-save-reload-desktop/error-context.md
+
+  8) [desktop] › tests/personal-notes.spec.cjs:549:70 › note links review: Italic across an owned atom survives save reload 
+
+    Error: expect(received).toBe(expected) // Object.is equality
+
+    Expected: true
+    Received: false
+
+    Call Log:
+    - Timeout 5000ms exceeded while waiting on the predicate
+
+      125 |   const selected=saved.private?.tabs.find(row=>row.tabKey===key&&row.incarnation===tab.incarnation);
+      126 |   return selected?.study===study&&(noteId===null?selected.note===undefined:selected.note===noteId);
+    > 127 |  },{account,study,noteId,studySelected})).toBe(true);
+          |                                           ^
+      128 |  await page.reload();
+      129 |  await expect(page.getByRole('tablist',{name:'Workspace tabs'})).toHaveAttribute('data-device-ready','true');
+      130 |  if(studySelected){
+        at reloadRememberedWorkspace (/home/ck/repos/innodat/agriplatform/apps/scribeswell/web/tests/personal-notes.spec.cjs:127:43)
+        at /home/ck/repos/innodat/agriplatform/apps/scribeswell/web/tests/personal-notes.spec.cjs:550:564
+
+    Error Context: test-results/personal-notes-note-links--14dbb-d-atom-survives-save-reload-desktop/error-context.md
+
+  9) [desktop] › tests/personal-notes.spec.cjs:549:70 › note links review: Bullet list across an owned atom survives save reload 
+
+    Error: expect(received).toBe(expected) // Object.is equality
+
+    Expected: true
+    Received: false
+
+    Call Log:
+    - Timeout 5000ms exceeded while waiting on the predicate
+
+      125 |   const selected=saved.private?.tabs.find(row=>row.tabKey===key&&row.incarnation===tab.incarnation);
+      126 |   return selected?.study===study&&(noteId===null?selected.note===undefined:selected.note===noteId);
+    > 127 |  },{account,study,noteId,studySelected})).toBe(true);
+          |                                           ^
+      128 |  await page.reload();
+      129 |  await expect(page.getByRole('tablist',{name:'Workspace tabs'})).toHaveAttribute('data-device-ready','true');
+      130 |  if(studySelected){
+        at reloadRememberedWorkspace (/home/ck/repos/innodat/agriplatform/apps/scribeswell/web/tests/personal-notes.spec.cjs:127:43)
+        at /home/ck/repos/innodat/agriplatform/apps/scribeswell/web/tests/personal-notes.spec.cjs:550:564
+
+    Error Context: test-results/personal-notes-note-links--14f6d-d-atom-survives-save-reload-desktop/error-context.md
+
+  10) [desktop] › tests/personal-notes.spec.cjs:549:70 › note links review: Numbered list across an owned atom survives save reload 
+
+    Error: expect(received).toBe(expected) // Object.is equality
+
+    Expected: true
+    Received: false
+
+    Call Log:
+    - Timeout 5000ms exceeded while waiting on the predicate
+
+      125 |   const selected=saved.private?.tabs.find(row=>row.tabKey===key&&row.incarnation===tab.incarnation);
+      126 |   return selected?.study===study&&(noteId===null?selected.note===undefined:selected.note===noteId);
+    > 127 |  },{account,study,noteId,studySelected})).toBe(true);
+          |                                           ^
+      128 |  await page.reload();
+      129 |  await expect(page.getByRole('tablist',{name:'Workspace tabs'})).toHaveAttribute('data-device-ready','true');
+      130 |  if(studySelected){
+        at reloadRememberedWorkspace (/home/ck/repos/innodat/agriplatform/apps/scribeswell/web/tests/personal-notes.spec.cjs:127:43)
+        at /home/ck/repos/innodat/agriplatform/apps/scribeswell/web/tests/personal-notes.spec.cjs:550:564
+
+    Error Context: test-results/personal-notes-note-links--bd082-d-atom-survives-save-reload-desktop/error-context.md
+
+  11) [desktop] › tests/personal-notes.spec.cjs:806:1 › note deletion composing cancel preserves final composition through saving and reopen 
+
+    Error: expect(received).toBe(expected) // Object.is equality
+
+    Expected: true
+    Received: false
+
+    Call Log:
+    - Timeout 5000ms exceeded while waiting on the predicate
+
+      125 |   const selected=saved.private?.tabs.find(row=>row.tabKey===key&&row.incarnation===tab.incarnation);
+      126 |   return selected?.study===study&&(noteId===null?selected.note===undefined:selected.note===noteId);
+    > 127 |  },{account,study,noteId,studySelected})).toBe(true);
+          |                                           ^
+      128 |  await page.reload();
+      129 |  await expect(page.getByRole('tablist',{name:'Workspace tabs'})).toHaveAttribute('data-device-ready','true');
+      130 |  if(studySelected){
+        at reloadRememberedWorkspace (/home/ck/repos/innodat/agriplatform/apps/scribeswell/web/tests/personal-notes.spec.cjs:127:43)
+        at /home/ck/repos/innodat/agriplatform/apps/scribeswell/web/tests/personal-notes.spec.cjs:811:2
+
+    Error Context: test-results/personal-notes-note-deleti-6131c-n-through-saving-and-reopen-desktop/error-context.md
+
+  12) [desktop] › tests/personal-notes.spec.cjs:1260:1 › review: malformed capacity Add replacement Cancel still requires a valid passage choice 
+
+    Error: "page.evaluate: Test ended." while running route callback.
+    Consider awaiting `await page.unrouteAll({ behavior: 'ignoreErrors' })`
+    before the end of the test to ignore remaining routes in flight.
+
+      52 | const attribution={owner_account_id:account,created_at:'2026-10-23T10:00:00.000000Z',updated_at:'2026-10-23T10:00:00.000000Z',created_by_actor_id:actor,updated_by_actor_id:actor};
+      53 | async function setup(page,options={}){
+    > 54 |  await page.route('**/auth/v1/user*',async r=>{const user=await page.evaluate(()=>{const value=localStorage.getItem('pts-auth');return value?JSON.parse(value).user:null;});return r.fulfill(user?{json:user}:{status:401,json:{error_code:'session_not_found',msg:'Synthetic session unavailable'}});});
+         |                                                                      ^
+      55 |  await page.route('**/auth/v1/logout*',r=>r.fulfill({json:{}}));
+      56 |  await page.addInitScript(s=>localStorage.setItem('pts-auth',JSON.stringify(s)),session);
+      57 |  await page.route('http://127.0.0.1:8001/**',r=>r.fulfill({json:[]}));
+        at /home/ck/repos/innodat/agriplatform/apps/scribeswell/web/tests/personal-notes.spec.cjs:54:70
+
+    Error Context: test-results/personal-notes-review-malf-c69a5-ires-a-valid-passage-choice-desktop/error-context.md
+
+  13) [mobile] › tests/personal-notes.spec.cjs:136:1 › explicitly enroll, create, write Hebrew and reopen saved text after reload 
+
+    Error: expect(received).toBe(expected) // Object.is equality
+
+    Expected: true
+    Received: false
+
+    Call Log:
+    - Timeout 5000ms exceeded while waiting on the predicate
+
+      125 |   const selected=saved.private?.tabs.find(row=>row.tabKey===key&&row.incarnation===tab.incarnation);
+      126 |   return selected?.study===study&&(noteId===null?selected.note===undefined:selected.note===noteId);
+    > 127 |  },{account,study,noteId,studySelected})).toBe(true);
+          |                                           ^
+      128 |  await page.reload();
+      129 |  await expect(page.getByRole('tablist',{name:'Workspace tabs'})).toHaveAttribute('data-device-ready','true');
+      130 |  if(studySelected){
+        at reloadRememberedWorkspace (/home/ck/repos/innodat/agriplatform/apps/scribeswell/web/tests/personal-notes.spec.cjs:127:43)
+        at /home/ck/repos/innodat/agriplatform/apps/scribeswell/web/tests/personal-notes.spec.cjs:145:2
+
+    Error Context: test-results/personal-notes-explicitly--df1d3-pen-saved-text-after-reload-mobile/error-context.md
+
+  14) [mobile] › tests/personal-notes.spec.cjs:187:1 › rich paragraphs directions lists marks and safe links survive saving and reopening 
+
+    Error: expect(received).toBe(expected) // Object.is equality
+
+    Expected: true
+    Received: false
+
+    Call Log:
+    - Timeout 5000ms exceeded while waiting on the predicate
+
+      125 |   const selected=saved.private?.tabs.find(row=>row.tabKey===key&&row.incarnation===tab.incarnation);
+      126 |   return selected?.study===study&&(noteId===null?selected.note===undefined:selected.note===noteId);
+    > 127 |  },{account,study,noteId,studySelected})).toBe(true);
+          |                                           ^
+      128 |  await page.reload();
+      129 |  await expect(page.getByRole('tablist',{name:'Workspace tabs'})).toHaveAttribute('data-device-ready','true');
+      130 |  if(studySelected){
+        at reloadRememberedWorkspace (/home/ck/repos/innodat/agriplatform/apps/scribeswell/web/tests/personal-notes.spec.cjs:127:43)
+        at /home/ck/repos/innodat/agriplatform/apps/scribeswell/web/tests/personal-notes.spec.cjs:189:2
+
+    Error Context: test-results/personal-notes-rich-paragr-7b3da-urvive-saving-and-reopening-mobile/error-context.md
+
+  15) [mobile] › tests/personal-notes.spec.cjs:191:1 › editor toolbar actions persist direction marks lists and safe links 
+
+    Error: expect(received).toBe(expected) // Object.is equality
+
+    Expected: true
+    Received: false
+
+    Call Log:
+    - Timeout 5000ms exceeded while waiting on the predicate
+
+      125 |   const selected=saved.private?.tabs.find(row=>row.tabKey===key&&row.incarnation===tab.incarnation);
+      126 |   return selected?.study===study&&(noteId===null?selected.note===undefined:selected.note===noteId);
+    > 127 |  },{account,study,noteId,studySelected})).toBe(true);
+          |                                           ^
+      128 |  await page.reload();
+      129 |  await expect(page.getByRole('tablist',{name:'Workspace tabs'})).toHaveAttribute('data-device-ready','true');
+      130 |  if(studySelected){
+        at reloadRememberedWorkspace (/home/ck/repos/innodat/agriplatform/apps/scribeswell/web/tests/personal-notes.spec.cjs:127:43)
+        at /home/ck/repos/innodat/agriplatform/apps/scribeswell/web/tests/personal-notes.spec.cjs:194:2
+
+    Error Context: test-results/personal-notes-editor-tool-7fcb8--marks-lists-and-safe-links-mobile/error-context.md
+
+  16) [mobile] › tests/personal-notes.spec.cjs:222:1 › review: Shift Enter soft break survives save and reload 
+
+    Error: expect(received).toBe(expected) // Object.is equality
+
+    Expected: true
+    Received: false
+
+    Call Log:
+    - Timeout 5000ms exceeded while waiting on the predicate
+
+      125 |   const selected=saved.private?.tabs.find(row=>row.tabKey===key&&row.incarnation===tab.incarnation);
+      126 |   return selected?.study===study&&(noteId===null?selected.note===undefined:selected.note===noteId);
+    > 127 |  },{account,study,noteId,studySelected})).toBe(true);
+          |                                           ^
+      128 |  await page.reload();
+      129 |  await expect(page.getByRole('tablist',{name:'Workspace tabs'})).toHaveAttribute('data-device-ready','true');
+      130 |  if(studySelected){
+        at reloadRememberedWorkspace (/home/ck/repos/innodat/agriplatform/apps/scribeswell/web/tests/personal-notes.spec.cjs:127:43)
+        at /home/ck/repos/innodat/agriplatform/apps/scribeswell/web/tests/personal-notes.spec.cjs:223:505
+
+    Error Context: test-results/personal-notes-review-Shif-a4410-ak-survives-save-and-reload-mobile/error-context.md
+
+  17) [mobile] › tests/personal-notes.spec.cjs:475:1 › note links: links source marks lists direction plain paste and reload roundtrip 
+
+    Error: expect(received).toBe(expected) // Object.is equality
+
+    Expected: true
+    Received: false
+
+    Call Log:
+    - Timeout 5000ms exceeded while waiting on the predicate
+
+      125 |   const selected=saved.private?.tabs.find(row=>row.tabKey===key&&row.incarnation===tab.incarnation);
+      126 |   return selected?.study===study&&(noteId===null?selected.note===undefined:selected.note===noteId);
+    > 127 |  },{account,study,noteId,studySelected})).toBe(true);
+          |                                           ^
+      128 |  await page.reload();
+      129 |  await expect(page.getByRole('tablist',{name:'Workspace tabs'})).toHaveAttribute('data-device-ready','true');
+      130 |  if(studySelected){
+        at reloadRememberedWorkspace (/home/ck/repos/innodat/agriplatform/apps/scribeswell/web/tests/personal-notes.spec.cjs:127:43)
+        at /home/ck/repos/innodat/agriplatform/apps/scribeswell/web/tests/personal-notes.spec.cjs:479:312
+
+    Error Context: test-results/personal-notes-note-links--f7291--paste-and-reload-roundtrip-mobile/error-context.md
+
+  18) [mobile] › tests/personal-notes.spec.cjs:549:70 › note links review: Bold across an owned atom survives save reload 
+
+    Error: expect(received).toBe(expected) // Object.is equality
+
+    Expected: true
+    Received: false
+
+    Call Log:
+    - Timeout 5000ms exceeded while waiting on the predicate
+
+      125 |   const selected=saved.private?.tabs.find(row=>row.tabKey===key&&row.incarnation===tab.incarnation);
+      126 |   return selected?.study===study&&(noteId===null?selected.note===undefined:selected.note===noteId);
+    > 127 |  },{account,study,noteId,studySelected})).toBe(true);
+          |                                           ^
+      128 |  await page.reload();
+      129 |  await expect(page.getByRole('tablist',{name:'Workspace tabs'})).toHaveAttribute('data-device-ready','true');
+      130 |  if(studySelected){
+        at reloadRememberedWorkspace (/home/ck/repos/innodat/agriplatform/apps/scribeswell/web/tests/personal-notes.spec.cjs:127:43)
+        at /home/ck/repos/innodat/agriplatform/apps/scribeswell/web/tests/personal-notes.spec.cjs:550:564
+
+    Error Context: test-results/personal-notes-note-links--254de-d-atom-survives-save-reload-mobile/error-context.md
+
+  19) [mobile] › tests/personal-notes.spec.cjs:549:70 › note links review: Italic across an owned atom survives save reload 
+
+    Error: expect(received).toBe(expected) // Object.is equality
+
+    Expected: true
+    Received: false
+
+    Call Log:
+    - Timeout 5000ms exceeded while waiting on the predicate
+
+      125 |   const selected=saved.private?.tabs.find(row=>row.tabKey===key&&row.incarnation===tab.incarnation);
+      126 |   return selected?.study===study&&(noteId===null?selected.note===undefined:selected.note===noteId);
+    > 127 |  },{account,study,noteId,studySelected})).toBe(true);
+          |                                           ^
+      128 |  await page.reload();
+      129 |  await expect(page.getByRole('tablist',{name:'Workspace tabs'})).toHaveAttribute('data-device-ready','true');
+      130 |  if(studySelected){
+        at reloadRememberedWorkspace (/home/ck/repos/innodat/agriplatform/apps/scribeswell/web/tests/personal-notes.spec.cjs:127:43)
+        at /home/ck/repos/innodat/agriplatform/apps/scribeswell/web/tests/personal-notes.spec.cjs:550:564
+
+    Error Context: test-results/personal-notes-note-links--14dbb-d-atom-survives-save-reload-mobile/error-context.md
+
+  20) [mobile] › tests/personal-notes.spec.cjs:549:70 › note links review: Bullet list across an owned atom survives save reload 
+
+    Error: expect(received).toBe(expected) // Object.is equality
+
+    Expected: true
+    Received: false
+
+    Call Log:
+    - Timeout 5000ms exceeded while waiting on the predicate
+
+      125 |   const selected=saved.private?.tabs.find(row=>row.tabKey===key&&row.incarnation===tab.incarnation);
+      126 |   return selected?.study===study&&(noteId===null?selected.note===undefined:selected.note===noteId);
+    > 127 |  },{account,study,noteId,studySelected})).toBe(true);
+          |                                           ^
+      128 |  await page.reload();
+      129 |  await expect(page.getByRole('tablist',{name:'Workspace tabs'})).toHaveAttribute('data-device-ready','true');
+      130 |  if(studySelected){
+        at reloadRememberedWorkspace (/home/ck/repos/innodat/agriplatform/apps/scribeswell/web/tests/personal-notes.spec.cjs:127:43)
+        at /home/ck/repos/innodat/agriplatform/apps/scribeswell/web/tests/personal-notes.spec.cjs:550:564
+
+    Error Context: test-results/personal-notes-note-links--14f6d-d-atom-survives-save-reload-mobile/error-context.md
+
+  21) [mobile] › tests/personal-notes.spec.cjs:549:70 › note links review: Numbered list across an owned atom survives save reload 
+
+    Error: expect(received).toBe(expected) // Object.is equality
+
+    Expected: true
+    Received: false
+
+    Call Log:
+    - Timeout 5000ms exceeded while waiting on the predicate
+
+      125 |   const selected=saved.private?.tabs.find(row=>row.tabKey===key&&row.incarnation===tab.incarnation);
+      126 |   return selected?.study===study&&(noteId===null?selected.note===undefined:selected.note===noteId);
+    > 127 |  },{account,study,noteId,studySelected})).toBe(true);
+          |                                           ^
+      128 |  await page.reload();
+      129 |  await expect(page.getByRole('tablist',{name:'Workspace tabs'})).toHaveAttribute('data-device-ready','true');
+      130 |  if(studySelected){
+        at reloadRememberedWorkspace (/home/ck/repos/innodat/agriplatform/apps/scribeswell/web/tests/personal-notes.spec.cjs:127:43)
+        at /home/ck/repos/innodat/agriplatform/apps/scribeswell/web/tests/personal-notes.spec.cjs:550:564
+
+    Error Context: test-results/personal-notes-note-links--bd082-d-atom-survives-save-reload-mobile/error-context.md
+
+  22) [mobile] › tests/personal-notes.spec.cjs:806:1 › note deletion composing cancel preserves final composition through saving and reopen 
+
+    Error: expect(received).toBe(expected) // Object.is equality
+
+    Expected: true
+    Received: false
+
+    Call Log:
+    - Timeout 5000ms exceeded while waiting on the predicate
+
+      125 |   const selected=saved.private?.tabs.find(row=>row.tabKey===key&&row.incarnation===tab.incarnation);
+      126 |   return selected?.study===study&&(noteId===null?selected.note===undefined:selected.note===noteId);
+    > 127 |  },{account,study,noteId,studySelected})).toBe(true);
+          |                                           ^
+      128 |  await page.reload();
+      129 |  await expect(page.getByRole('tablist',{name:'Workspace tabs'})).toHaveAttribute('data-device-ready','true');
+      130 |  if(studySelected){
+        at reloadRememberedWorkspace (/home/ck/repos/innodat/agriplatform/apps/scribeswell/web/tests/personal-notes.spec.cjs:127:43)
+        at /home/ck/repos/innodat/agriplatform/apps/scribeswell/web/tests/personal-notes.spec.cjs:811:2
+
+    Error Context: test-results/personal-notes-note-deleti-6131c-n-through-saving-and-reopen-mobile/error-context.md
+
+  22 failed
+    [desktop] › tests/personal-notes.spec.cjs:136:1 › explicitly enroll, create, write Hebrew and reopen saved text after reload 
+    [desktop] › tests/personal-notes.spec.cjs:187:1 › rich paragraphs directions lists marks and safe links survive saving and reopening 
+    [desktop] › tests/personal-notes.spec.cjs:191:1 › editor toolbar actions persist direction marks lists and safe links 
+    [desktop] › tests/personal-notes.spec.cjs:222:1 › review: Shift Enter soft break survives save and reload 
+    [desktop] › tests/personal-notes.spec.cjs:259:1 › rename: explicit Save Cancel and reload preserve independent note and reader 
+    [desktop] › tests/personal-notes.spec.cjs:475:1 › note links: links source marks lists direction plain paste and reload roundtrip 
+    [desktop] › tests/personal-notes.spec.cjs:549:70 › note links review: Bold across an owned atom survives save reload 
+    [desktop] › tests/personal-notes.spec.cjs:549:70 › note links review: Italic across an owned atom survives save reload 
+    [desktop] › tests/personal-notes.spec.cjs:549:70 › note links review: Bullet list across an owned atom survives save reload 
+    [desktop] › tests/personal-notes.spec.cjs:549:70 › note links review: Numbered list across an owned atom survives save reload 
+    [desktop] › tests/personal-notes.spec.cjs:806:1 › note deletion composing cancel preserves final composition through saving and reopen 
+    [desktop] › tests/personal-notes.spec.cjs:1260:1 › review: malformed capacity Add replacement Cancel still requires a valid passage choice 
+    [mobile] › tests/personal-notes.spec.cjs:136:1 › explicitly enroll, create, write Hebrew and reopen saved text after reload 
+    [mobile] › tests/personal-notes.spec.cjs:187:1 › rich paragraphs directions lists marks and safe links survive saving and reopening 
+    [mobile] › tests/personal-notes.spec.cjs:191:1 › editor toolbar actions persist direction marks lists and safe links 
+    [mobile] › tests/personal-notes.spec.cjs:222:1 › review: Shift Enter soft break survives save and reload 
+    [mobile] › tests/personal-notes.spec.cjs:475:1 › note links: links source marks lists direction plain paste and reload roundtrip 
+    [mobile] › tests/personal-notes.spec.cjs:549:70 › note links review: Bold across an owned atom survives save reload 
+    [mobile] › tests/personal-notes.spec.cjs:549:70 › note links review: Italic across an owned atom survives save reload 
+    [mobile] › tests/personal-notes.spec.cjs:549:70 › note links review: Bullet list across an owned atom survives save reload 
+    [mobile] › tests/personal-notes.spec.cjs:549:70 › note links review: Numbered list across an owned atom survives save reload 
+    [mobile] › tests/personal-notes.spec.cjs:806:1 › note deletion composing cancel preserves final composition through saving and reopen 
+  2 skipped
+  8 passed (1.2m)
+npm error Lifecycle script `test:browser` failed with error:
+npm error code 1
+npm error path /home/ck/repos/innodat/agriplatform/apps/scribeswell/web
+npm error workspace scribeswell-web@0.1.0
+npm error location /home/ck/repos/innodat/agriplatform/apps/scribeswell/web
+npm error command failed
+npm error command sh -c playwright test --config playwright.config.cjs --workers=4 --fully-parallel personal-notes.spec.cjs -g 'explicitly enroll|native PostgreSQL browser reload|rich paragraphs|editor toolbar actions|Shift Enter soft|rename: explicit Save Cancel|collected passages persist|links source marks|across an owned atom survives|note deletion composing cancel|malformed Add Cancel|malformed capacity Add'

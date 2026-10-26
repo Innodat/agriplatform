@@ -1,0 +1,47 @@
+
+> scribeswell-web@0.1.0 test:browser
+> playwright test --config playwright.config.cjs --workers=4 --fully-parallel workspace-restoration.spec.cjs -g outline return
+
+[WebServer] (node:66534) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 20 tests using 4 workers
+
+(node:66566) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:66572) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:66573) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:66579) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   2 [desktop] › tests/workspace-restoration.spec.cjs:303:120 › outline return late notes ignores dirty input without changing lanes or focus (2.7s)
+  ✓   4 [desktop] › tests/workspace-restoration.spec.cjs:303:120 › outline return late notes ignores close tab without changing lanes or focus (2.7s)
+  ✓   3 [desktop] › tests/workspace-restoration.spec.cjs:303:120 › outline return late notes ignores leave study without changing lanes or focus (2.7s)
+  ✓   1 [desktop] › tests/workspace-restoration.spec.cjs:297:1 › outline return opens complete current notes and passages without leaving or reselecting the restored study (4.0s)
+  ✓   5 [desktop] › tests/workspace-restoration.spec.cjs:303:120 › outline return late notes ignores account switch without changing lanes or focus (2.3s)
+  ✓   6 [desktop] › tests/workspace-restoration.spec.cjs:303:120 › outline return late passages ignores dirty input without changing lanes or focus (2.3s)
+  ✓   7 [desktop] › tests/workspace-restoration.spec.cjs:303:120 › outline return late passages ignores leave study without changing lanes or focus (2.4s)
+  ✓   8 [desktop] › tests/workspace-restoration.spec.cjs:303:120 › outline return late passages ignores close tab without changing lanes or focus (2.0s)
+(node:67191) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:67229) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   9 [desktop] › tests/workspace-restoration.spec.cjs:303:120 › outline return late passages ignores account switch without changing lanes or focus (4.2s)
+  ✓  10 [desktop] › tests/workspace-restoration.spec.cjs:317:1 › outline return readonly refresh preserves an existing dirty selected lane and retries invalid owner pages (4.8s)
+(node:67444) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:67506) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  12 [mobile] › tests/workspace-restoration.spec.cjs:303:120 › outline return late notes ignores dirty input without changing lanes or focus (5.3s)
+  ✓  11 [mobile] › tests/workspace-restoration.spec.cjs:297:1 › outline return opens complete current notes and passages without leaving or reselecting the restored study (7.6s)
+  ✓  13 [mobile] › tests/workspace-restoration.spec.cjs:303:120 › outline return late notes ignores leave study without changing lanes or focus (6.2s)
+  ✓  14 [mobile] › tests/workspace-restoration.spec.cjs:303:120 › outline return late notes ignores close tab without changing lanes or focus (5.7s)
+  ✓  15 [mobile] › tests/workspace-restoration.spec.cjs:303:120 › outline return late notes ignores account switch without changing lanes or focus (5.7s)
+  ✓  16 [mobile] › tests/workspace-restoration.spec.cjs:303:120 › outline return late passages ignores dirty input without changing lanes or focus (6.0s)
+  ✓  17 [mobile] › tests/workspace-restoration.spec.cjs:303:120 › outline return late passages ignores leave study without changing lanes or focus (5.6s)
+  ✓  18 [mobile] › tests/workspace-restoration.spec.cjs:303:120 › outline return late passages ignores close tab without changing lanes or focus (5.4s)
+  ✓  19 [mobile] › tests/workspace-restoration.spec.cjs:303:120 › outline return late passages ignores account switch without changing lanes or focus (5.1s)
+  ✓  20 [mobile] › tests/workspace-restoration.spec.cjs:317:1 › outline return readonly refresh preserves an existing dirty selected lane and retries invalid owner pages (5.5s)
+
+  20 passed (27.7s)

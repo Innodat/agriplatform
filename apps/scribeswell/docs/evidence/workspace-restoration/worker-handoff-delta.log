@@ -1,0 +1,53 @@
+
+> scribeswell-web@0.1.0 test:browser
+> playwright test --config playwright.config.cjs workspace-restoration.spec.cjs --workers=4 --fully-parallel --grep 404 clears every affected live|authority 404|resource404 clears only|current admission403|authority 503|authority 401|dirty shared note|identity unavailable|identity unauthenticated|identity different ID|explicit Rename while|explicit Reset while
+
+[WebServer] (node:1384799) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 26 tests using 4 workers
+
+(node:1384816) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:1384826) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:1384818) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:1384823) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   3 [desktop] › tests/workspace-restoration.spec.cjs:145:1 › resource404 clears only the affected selection and keeps unrelated authorized context (2.6s)
+  ✓   2 [desktop] › tests/workspace-restoration.spec.cjs:68:187 › authority 401 retains hidden candidate without affecting public setups (2.6s)
+  ✓   4 [desktop] › tests/workspace-restoration.spec.cjs:68:187 › authority 404 clears candidate without affecting public setups (2.6s)
+  ✓   1 [desktop] › tests/workspace-restoration.spec.cjs:68:187 › authority 503 retains hidden candidate without affecting public setups (2.8s)
+  ✓   6 [desktop] › tests/workspace-restoration.spec.cjs:157:72 › identity unavailable retains hidden candidates and never triggers protected reads (1.6s)
+  ✓   7 [desktop] › tests/workspace-restoration.spec.cjs:157:72 › identity unauthenticated retains hidden candidates and never triggers protected reads (1.6s)
+  ✓   8 [desktop] › tests/workspace-restoration.spec.cjs:157:72 › identity different ID retains hidden candidates and never triggers protected reads (1.7s)
+  ✓   5 [desktop] › tests/workspace-restoration.spec.cjs:151:1 › late second candidate cannot overwrite a newer dirty shared note lane or expose its private label (2.2s)
+  ✓   9 [desktop] › tests/workspace-restoration.spec.cjs:160:40 › explicit Rename while identity is pending preserves newer label intent and remembered resource IDs (2.1s)
+  ✓  10 [desktop] › tests/workspace-restoration.spec.cjs:160:40 › explicit Reset while identity is pending preserves newer label intent and remembered resource IDs (2.1s)
+  ✓  11 [desktop] › tests/workspace-restoration.spec.cjs:163:1 › current admission403 clears already hydrated lanes after unrelated origin intent changes (2.2s)
+(node:1385495) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  12 [desktop] › tests/workspace-restoration.spec.cjs:190:37 › current note404 clears every affected live association after origin intent while preserving unrelated lanes (2.2s)
+(node:1385527) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:1385539) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  13 [desktop] › tests/workspace-restoration.spec.cjs:190:37 › current study404 clears every affected live association after origin intent while preserving unrelated lanes (2.8s)
+(node:1385787) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  14 [mobile] › tests/workspace-restoration.spec.cjs:68:187 › authority 503 retains hidden candidate without affecting public setups (4.3s)
+  ✓  15 [mobile] › tests/workspace-restoration.spec.cjs:68:187 › authority 401 retains hidden candidate without affecting public setups (4.5s)
+  ✓  16 [mobile] › tests/workspace-restoration.spec.cjs:68:187 › authority 404 clears candidate without affecting public setups (5.1s)
+  ✓  19 [mobile] › tests/workspace-restoration.spec.cjs:157:72 › identity unavailable retains hidden candidates and never triggers protected reads (4.5s)
+  ✓  17 [mobile] › tests/workspace-restoration.spec.cjs:145:1 › resource404 clears only the affected selection and keeps unrelated authorized context (5.5s)
+  ✓  18 [mobile] › tests/workspace-restoration.spec.cjs:151:1 › late second candidate cannot overwrite a newer dirty shared note lane or expose its private label (5.6s)
+  ✓  20 [mobile] › tests/workspace-restoration.spec.cjs:157:72 › identity unauthenticated retains hidden candidates and never triggers protected reads (4.6s)
+  ✓  21 [mobile] › tests/workspace-restoration.spec.cjs:157:72 › identity different ID retains hidden candidates and never triggers protected reads (4.3s)
+  ✓  23 [mobile] › tests/workspace-restoration.spec.cjs:160:40 › explicit Reset while identity is pending preserves newer label intent and remembered resource IDs (5.4s)
+  ✓  22 [mobile] › tests/workspace-restoration.spec.cjs:160:40 › explicit Rename while identity is pending preserves newer label intent and remembered resource IDs (5.7s)
+  ✓  24 [mobile] › tests/workspace-restoration.spec.cjs:163:1 › current admission403 clears already hydrated lanes after unrelated origin intent changes (5.1s)
+  ✓  25 [mobile] › tests/workspace-restoration.spec.cjs:190:37 › current note404 clears every affected live association after origin intent while preserving unrelated lanes (4.5s)
+  ✓  26 [mobile] › tests/workspace-restoration.spec.cjs:190:37 › current study404 clears every affected live association after origin intent while preserving unrelated lanes (3.5s)
+
+  26 passed (27.7s)

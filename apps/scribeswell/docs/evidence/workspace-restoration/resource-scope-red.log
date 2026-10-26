@@ -1,0 +1,81 @@
+
+> scribeswell-web@0.1.0 test:browser
+> playwright test --config playwright.config.cjs workspace-restoration.spec.cjs --project=desktop --workers=2 --fully-parallel --grep 404 clears every affected live
+
+[WebServer] (node:1379459) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 2 tests using 2 workers
+
+(node:1379514) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:1379503) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  2 [desktop] › tests/workspace-restoration.spec.cjs:190:37 › current study404 clears every affected live association after origin intent while preserving unrelated lanes (6.5s)
+  ✘  1 [desktop] › tests/workspace-restoration.spec.cjs:190:37 › current note404 clears every affected live association after origin intent while preserving unrelated lanes (6.5s)
+
+
+  1) [desktop] › tests/workspace-restoration.spec.cjs:190:37 › current note404 clears every affected live association after origin intent while preserving unrelated lanes 
+
+    Error: expect(locator).toHaveCount(expected) failed
+
+    Locator:  getByRole('textbox', { name: 'Note text', exact: true })
+    Expected: 0
+    Received: 1
+    Timeout:  5000ms
+
+    Call log:
+      - Expect "toHaveCount" getByRole('textbox', { name: 'Note text', exact: true }) with timeout 5000ms
+      - waiting for getByRole('textbox', { name: 'Note text', exact: true })
+        14 × locator resolved to 1 element
+           - unexpected value "1"
+
+
+      191 |  await setup(page);const pub=publicSetup(3),priv=privateSetup(3),otherNote='40000000-0000-4000-8000-000000000002',otherStudy=scope==='note'?study:'30000000-0000-4000-8000-000000000002';priv.tabs[2].note=otherNote;priv.tabs[2].study=otherStudy;await seed(page,pub,priv);let reads=0,release;const gate=new Promise(resolve=>release=resolve);
+      192 |  await owner(page,{read:async r=>{const path=new URL(r.request().url()).pathname,isNote=path.includes('/notes/'),parent=path.split('/')[3],id=path.split('/').at(-1);if((scope==='note'&&isNote&&id===note)||(scope==='study'&&!isNote&&id===study)){reads++;if(reads===2){await gate;return r.fulfill({status:404,json:{code:'resource_unavailable'}});}}return r.fulfill({json:isNote?{id,study_id:parent,owner_account_id:account,revision:'1',value:{document:{version:1,blocks:[{type:'paragraph',direction:'auto',content:[{type:'text',text:id===note?'Saved note A':'Saved note B',marks:[]}]}]},connections:[],highlights:[]}}:{id,owner_account_id:account,title:'Authorized study',revision:'1'}});}});
+    > 193 |  await page.goto('/');await expect(tabs(page).first()).toHaveText('Private label 1');await expect(tabs(page).nth(2)).toHaveText('Private label 3');await page.getByRole('button',{name:'Analysis',exact:true}).click();await expect(page.getByRole('textbox',{name:'Note text',exact:true})).toHaveText('Saved note A');release();await expect(page.getByRole('textbox',{name:'Note text',exact:true})).toHaveCount(0);await expect(page.getByText('Private label 1',{exact:true})).toHaveCount(0);await expect(tabs(page).nth(2)).toHaveText('Private label 3');await tabs(page).nth(2).click();await page.getByRole('button',{name:'Analysis',exact:true}).click();await expect(page.getByRole('textbox',{name:'Note text',exact:true})).toHaveText('Saved note B');await expect(tabs(page)).toHaveCount(3);
+          |                                                                                                                                                                                                                                                                                                                                                                                                         ^
+      194 |  await expect.poll(async()=>{const rows=(await stored(page))[`account:${account}`]?.tabs;return rows?.filter(row=>row.note===note||row.study===study&&scope==='study').length;}).toBe(0);if(scope==='note')expect((await stored(page))[`account:${account}`].tabs.filter(row=>row.study===study&&!row.note)).toHaveLength(2);
+      195 | });
+      196 |
+        at /home/ck/repos/innodat/agriplatform/apps/scribeswell/web/tests/workspace-restoration.spec.cjs:193:393
+
+    Error Context: test-results/workspace-restoration-curr-2fd10--preserving-unrelated-lanes-desktop/error-context.md
+
+  2) [desktop] › tests/workspace-restoration.spec.cjs:190:37 › current study404 clears every affected live association after origin intent while preserving unrelated lanes 
+
+    Error: expect(locator).toHaveCount(expected) failed
+
+    Locator:  getByRole('textbox', { name: 'Note text', exact: true })
+    Expected: 0
+    Received: 1
+    Timeout:  5000ms
+
+    Call log:
+      - Expect "toHaveCount" getByRole('textbox', { name: 'Note text', exact: true }) with timeout 5000ms
+      - waiting for getByRole('textbox', { name: 'Note text', exact: true })
+        14 × locator resolved to 1 element
+           - unexpected value "1"
+
+
+      191 |  await setup(page);const pub=publicSetup(3),priv=privateSetup(3),otherNote='40000000-0000-4000-8000-000000000002',otherStudy=scope==='note'?study:'30000000-0000-4000-8000-000000000002';priv.tabs[2].note=otherNote;priv.tabs[2].study=otherStudy;await seed(page,pub,priv);let reads=0,release;const gate=new Promise(resolve=>release=resolve);
+      192 |  await owner(page,{read:async r=>{const path=new URL(r.request().url()).pathname,isNote=path.includes('/notes/'),parent=path.split('/')[3],id=path.split('/').at(-1);if((scope==='note'&&isNote&&id===note)||(scope==='study'&&!isNote&&id===study)){reads++;if(reads===2){await gate;return r.fulfill({status:404,json:{code:'resource_unavailable'}});}}return r.fulfill({json:isNote?{id,study_id:parent,owner_account_id:account,revision:'1',value:{document:{version:1,blocks:[{type:'paragraph',direction:'auto',content:[{type:'text',text:id===note?'Saved note A':'Saved note B',marks:[]}]}]},connections:[],highlights:[]}}:{id,owner_account_id:account,title:'Authorized study',revision:'1'}});}});
+    > 193 |  await page.goto('/');await expect(tabs(page).first()).toHaveText('Private label 1');await expect(tabs(page).nth(2)).toHaveText('Private label 3');await page.getByRole('button',{name:'Analysis',exact:true}).click();await expect(page.getByRole('textbox',{name:'Note text',exact:true})).toHaveText('Saved note A');release();await expect(page.getByRole('textbox',{name:'Note text',exact:true})).toHaveCount(0);await expect(page.getByText('Private label 1',{exact:true})).toHaveCount(0);await expect(tabs(page).nth(2)).toHaveText('Private label 3');await tabs(page).nth(2).click();await page.getByRole('button',{name:'Analysis',exact:true}).click();await expect(page.getByRole('textbox',{name:'Note text',exact:true})).toHaveText('Saved note B');await expect(tabs(page)).toHaveCount(3);
+          |                                                                                                                                                                                                                                                                                                                                                                                                         ^
+      194 |  await expect.poll(async()=>{const rows=(await stored(page))[`account:${account}`]?.tabs;return rows?.filter(row=>row.note===note||row.study===study&&scope==='study').length;}).toBe(0);if(scope==='note')expect((await stored(page))[`account:${account}`].tabs.filter(row=>row.study===study&&!row.note)).toHaveLength(2);
+      195 | });
+      196 |
+        at /home/ck/repos/innodat/agriplatform/apps/scribeswell/web/tests/workspace-restoration.spec.cjs:193:393
+
+    Error Context: test-results/workspace-restoration-curr-d0e66--preserving-unrelated-lanes-desktop/error-context.md
+
+  2 failed
+    [desktop] › tests/workspace-restoration.spec.cjs:190:37 › current note404 clears every affected live association after origin intent while preserving unrelated lanes 
+    [desktop] › tests/workspace-restoration.spec.cjs:190:37 › current study404 clears every affected live association after origin intent while preserving unrelated lanes 
+npm error Lifecycle script `test:browser` failed with error:
+npm error code 1
+npm error path /home/ck/repos/innodat/agriplatform/apps/scribeswell/web
+npm error workspace scribeswell-web@0.1.0
+npm error location /home/ck/repos/innodat/agriplatform/apps/scribeswell/web
+npm error command failed
+npm error command sh -c playwright test --config playwright.config.cjs workspace-restoration.spec.cjs --project=desktop --workers=2 --fully-parallel --grep '404 clears every affected live'

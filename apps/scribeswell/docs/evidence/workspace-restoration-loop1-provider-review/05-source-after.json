@@ -1,0 +1,6 @@
+{
+  "apps/scribeswell/web/src/context/ReaderWorkspaceContext.tsx": "ddccc29f3a27ab42ef4b2238b31740845625c19f04661d664d7d8c0603a8baa2",
+  "apps/scribeswell/web/tests/workspace-restoration.spec.cjs": "aed3caefedc7cafd87f35a03bc4d2ea7302e6566b5a1761193949aa81d854aa0",
+  "apps/scribeswell/docs/WORKSPACE_RESTORATION_V1.md": "383392fe1951d6ea4b397a26f26258b630d408d2919e856c1e4d167e58e682d8",
+  "apps/scribeswell/docs/WORKSPACE_RESTORATION_EVIDENCE.md": "b9f79b155abb7c3aa6c16c58c3dbde67fa2151f913dd53cc884209dd147d867d"
+}

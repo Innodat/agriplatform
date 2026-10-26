@@ -51,3 +51,15 @@ export const callbackRecovery = supabase.auth.initialize().then(({error}) => {
   if (callbackPresent) scrubAccountCallback();
   return callbackPresent;
 }).finally(() => {verifyingCallback = false;});
+
+/** Verify a captured token without invoking SDK getUser(jwt) or mutating its session. */
+export async function verifyWorkspaceIdentity(token:string,signal?:AbortSignal):Promise<{id:string}|{failure:'unavailable'|'unauthenticated'}>{
+  if(!supabaseUrl||!supabaseAnonKey)return {failure:'unavailable'};
+  try{
+    const response=await authFetch(`${supabaseUrl.replace(/\/$/,'')}/auth/v1/user`,{headers:{Authorization:`Bearer ${token}`,apikey:supabaseAnonKey},signal,cache:'no-store',credentials:'omit',redirect:'error'});
+    if(!response.ok)return {failure:response.status===401?'unauthenticated':'unavailable'};
+    const value:unknown=await response.json();
+    if(!value||typeof value!=='object'||!('id'in value)||typeof value.id!=='string'||! /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(value.id))return {failure:'unavailable'};
+    return {id:value.id};
+  }catch{return {failure:'unavailable'};}
+}

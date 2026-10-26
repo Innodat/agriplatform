@@ -1,0 +1,17 @@
+
+> scribeswell-web@0.1.0 test:browser
+> playwright test --config playwright.config.cjs --workers=2 --fully-parallel workspace-restoration.spec.cjs -g outline return
+
+[WebServer] (node:63888) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 2 tests using 2 workers
+
+(node:63905) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:63908) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  2 [mobile] › tests/workspace-restoration.spec.cjs:297:1 › outline return opens complete current notes and passages without leaving or reselecting the restored study (2.8s)
+  ✓  1 [desktop] › tests/workspace-restoration.spec.cjs:297:1 › outline return opens complete current notes and passages without leaving or reselecting the restored study (2.9s)
+
+  2 passed (3.9s)

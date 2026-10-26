@@ -1,0 +1,5 @@
+{
+  "reason": "Repeated demonstrated post-reload library-selection failures; stop before focused correction; no full qualification.",
+  "playwright_pid": 12400,
+  "signal": "SIGINT"
+}

@@ -1,0 +1,108 @@
+
+> scribeswell-web@0.1.0 test:browser
+> playwright test --config playwright.config.cjs --workers=1 --project=desktop workspace-restoration.spec.cjs -g loop1 intermediate|loop1 shared dirty
+
+[WebServer] (node:1494367) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 3 tests using 1 worker
+
+(node:1494400) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  1 [desktop] › tests/workspace-restoration.spec.cjs:253:1 › loop1 intermediate sole dirty victim choice then Cancel preserves input and tabs (8.0s)
+(node:1494662) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  2 [desktop] › tests/workspace-restoration.spec.cjs:256:47 › loop1 shared dirty staged victims guard final survivors once and Stay (8.2s)
+(node:1494932) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  3 [desktop] › tests/workspace-restoration.spec.cjs:256:47 › loop1 shared dirty staged victims guard final survivors once and Close anyway (8.1s)
+
+
+  1) [desktop] › tests/workspace-restoration.spec.cjs:253:1 › loop1 intermediate sole dirty victim choice then Cancel preserves input and tabs 
+
+    Error: expect(locator).toHaveCount(expected) failed
+
+    Locator:  getByRole('dialog', { name: 'Changes not saved' })
+    Expected: 0
+    Received: 1
+    Timeout:  5000ms
+
+    Call log:
+      - Expect "toHaveCount" getByRole('dialog', { name: 'Changes not saved' }) with timeout 5000ms
+      - waiting for getByRole('dialog', { name: 'Changes not saved' })
+        14 × locator resolved to 1 element
+           - unexpected value "1"
+
+
+      252 | }
+      253 | test('loop1 intermediate sole dirty victim choice then Cancel preserves input and tabs',async({page})=>{
+    > 254 |  const live=await stageDirtyCurrentVictims(page,false),dialog=page.getByRole('dialog',{name:'Restore remembered reading setups'});await dialog.getByRole('button',{name:/Close current tab 1:/}).click();await expect(page.getByRole('dialog',{name:'Changes not saved'})).toHaveCount(0);await dialog.getByRole('button',{name:'Cancel',exact:true}).click();expect(await tabs(page).evaluateAll(nodes=>nodes.map(node=>node.dataset.workspaceTab))).toEqual(live);await tabs(page).first().click();await page.getByRole('button',{name:'Analysis',exact:true}).click();await expect(page.getByRole('textbox',{name:'Note text',exact:true})).toHaveText('Dirty current-victim input');
+          |                                                                                                                                                                                                                                                                            ^
+      255 | });
+      256 | for(const decision of ['Stay','Close anyway'])test(`loop1 shared dirty staged victims guard final survivors once and ${decision}`,async({page})=>{
+      257 |  const live=await stageDirtyCurrentVictims(page,true),dialog=page.getByRole('dialog',{name:'Restore remembered reading setups'});await dialog.getByRole('button',{name:/Close current tab 1:/}).click();await expect(page.getByRole('dialog',{name:'Changes not saved'})).toHaveCount(0);await dialog.getByRole('button',{name:/Close current tab 1:/}).click();await expect(page.getByRole('dialog',{name:'Changes not saved'})).toHaveCount(0);await dialog.getByRole('button',{name:/Close remembered tab/}).first().click();const exit=page.getByRole('dialog',{name:'Changes not saved'});await expect(exit).toBeVisible();await exit.getByRole('button',{name:decision,exact:true}).click();
+        at /home/ck/repos/innodat/agriplatform/apps/scribeswell/web/tests/workspace-restoration.spec.cjs:254:268
+
+    Error Context: test-results/workspace-restoration-loop-db26d-el-preserves-input-and-tabs-desktop/error-context.md
+
+  2) [desktop] › tests/workspace-restoration.spec.cjs:256:47 › loop1 shared dirty staged victims guard final survivors once and Stay 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByRole('dialog', { name: 'Changes not saved' })
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByRole('dialog', { name: 'Changes not saved' }) with timeout 5000ms
+      - waiting for getByRole('dialog', { name: 'Changes not saved' })
+
+
+      255 | });
+      256 | for(const decision of ['Stay','Close anyway'])test(`loop1 shared dirty staged victims guard final survivors once and ${decision}`,async({page})=>{
+    > 257 |  const live=await stageDirtyCurrentVictims(page,true),dialog=page.getByRole('dialog',{name:'Restore remembered reading setups'});await dialog.getByRole('button',{name:/Close current tab 1:/}).click();await expect(page.getByRole('dialog',{name:'Changes not saved'})).toHaveCount(0);await dialog.getByRole('button',{name:/Close current tab 1:/}).click();await expect(page.getByRole('dialog',{name:'Changes not saved'})).toHaveCount(0);await dialog.getByRole('button',{name:/Close remembered tab/}).first().click();const exit=page.getByRole('dialog',{name:'Changes not saved'});await expect(exit).toBeVisible();await exit.getByRole('button',{name:decision,exact:true}).click();
+          |                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   ^
+      258 |  if(decision==='Stay'){expect(await tabs(page).evaluateAll(nodes=>nodes.map(node=>node.dataset.workspaceTab))).toEqual(live);await tabs(page).first().click();await page.getByRole('button',{name:'Analysis',exact:true}).click();await expect(page.getByRole('textbox',{name:'Note text',exact:true})).toHaveText('Dirty current-victim input');}
+      259 |  else {await expect(tabs(page)).toHaveCount(12);for(const key of live.slice(0,2))await expect(page.locator(`[data-workspace-tab="${key}"]`)).toHaveCount(0);await expect(page.getByRole('button',{name:'Recover note save 1',exact:true})).toBeVisible();}
+      260 | });
+        at /home/ck/repos/innodat/agriplatform/apps/scribeswell/web/tests/workspace-restoration.spec.cjs:257:595
+
+    Error Context: test-results/workspace-restoration-loop-5a2a7-nal-survivors-once-and-Stay-desktop/error-context.md
+
+  3) [desktop] › tests/workspace-restoration.spec.cjs:256:47 › loop1 shared dirty staged victims guard final survivors once and Close anyway 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByRole('dialog', { name: 'Changes not saved' })
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByRole('dialog', { name: 'Changes not saved' }) with timeout 5000ms
+      - waiting for getByRole('dialog', { name: 'Changes not saved' })
+
+
+      255 | });
+      256 | for(const decision of ['Stay','Close anyway'])test(`loop1 shared dirty staged victims guard final survivors once and ${decision}`,async({page})=>{
+    > 257 |  const live=await stageDirtyCurrentVictims(page,true),dialog=page.getByRole('dialog',{name:'Restore remembered reading setups'});await dialog.getByRole('button',{name:/Close current tab 1:/}).click();await expect(page.getByRole('dialog',{name:'Changes not saved'})).toHaveCount(0);await dialog.getByRole('button',{name:/Close current tab 1:/}).click();await expect(page.getByRole('dialog',{name:'Changes not saved'})).toHaveCount(0);await dialog.getByRole('button',{name:/Close remembered tab/}).first().click();const exit=page.getByRole('dialog',{name:'Changes not saved'});await expect(exit).toBeVisible();await exit.getByRole('button',{name:decision,exact:true}).click();
+          |                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   ^
+      258 |  if(decision==='Stay'){expect(await tabs(page).evaluateAll(nodes=>nodes.map(node=>node.dataset.workspaceTab))).toEqual(live);await tabs(page).first().click();await page.getByRole('button',{name:'Analysis',exact:true}).click();await expect(page.getByRole('textbox',{name:'Note text',exact:true})).toHaveText('Dirty current-victim input');}
+      259 |  else {await expect(tabs(page)).toHaveCount(12);for(const key of live.slice(0,2))await expect(page.locator(`[data-workspace-tab="${key}"]`)).toHaveCount(0);await expect(page.getByRole('button',{name:'Recover note save 1',exact:true})).toBeVisible();}
+      260 | });
+        at /home/ck/repos/innodat/agriplatform/apps/scribeswell/web/tests/workspace-restoration.spec.cjs:257:595
+
+    Error Context: test-results/workspace-restoration-loop-d37f6-ivors-once-and-Close-anyway-desktop/error-context.md
+
+  3 failed
+    [desktop] › tests/workspace-restoration.spec.cjs:253:1 › loop1 intermediate sole dirty victim choice then Cancel preserves input and tabs 
+    [desktop] › tests/workspace-restoration.spec.cjs:256:47 › loop1 shared dirty staged victims guard final survivors once and Stay 
+    [desktop] › tests/workspace-restoration.spec.cjs:256:47 › loop1 shared dirty staged victims guard final survivors once and Close anyway 
+npm error Lifecycle script `test:browser` failed with error:
+npm error code 1
+npm error path /home/ck/repos/innodat/agriplatform/apps/scribeswell/web
+npm error workspace scribeswell-web@0.1.0
+npm error location /home/ck/repos/innodat/agriplatform/apps/scribeswell/web
+npm error command failed
+npm error command sh -c playwright test --config playwright.config.cjs --workers=1 --project=desktop workspace-restoration.spec.cjs -g 'loop1 intermediate|loop1 shared dirty'

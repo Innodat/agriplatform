@@ -1,0 +1,98 @@
+
+> scribeswell-web@0.1.0 test:browser
+> playwright test --config playwright.config.cjs personal-notes.spec.cjs account-entry.spec.cjs --project=desktop --workers=4 --grep workspace tabs|review tabs|signup|ordinary user rejection
+
+[WebServer] (node:1296809) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 44 tests using 2 workers
+
+(node:1296827) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:1296828) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   1 [desktop] › tests/account-entry.spec.cjs:29:247 › signup maps safe typed error signup_disabled (1.4s)
+  ✓   2 [desktop] › tests/personal-notes.spec.cjs:1286:1 › workspace tabs inherit note identity but retain independent tool and study contexts (2.6s)
+  ✓   3 [desktop] › tests/account-entry.spec.cjs:29:247 › signup maps safe typed error weak_password (1.5s)
+  ✓   5 [desktop] › tests/account-entry.spec.cjs:29:247 › signup maps safe typed error email_address_invalid (1.9s)
+  ✓   6 [desktop] › tests/account-entry.spec.cjs:29:247 › signup maps safe typed error over_request_rate_limit (2.5s)
+  ✓   7 [desktop] › tests/account-entry.spec.cjs:29:247 › signup maps safe typed error unknown (1.2s)
+  ✓   8 [desktop] › tests/account-entry.spec.cjs:36:1 › session signup updates shared storage without protected requests (1.2s)
+  ✘   4 [desktop] › tests/personal-notes.spec.cjs:1301:1 › workspace tabs retain distinct note DOM caret atoms and composition routing without cloning a shared lane (8.0s)
+  ✓   9 [desktop] › tests/account-entry.spec.cjs:54:1 › valid provider signup callback uses the existing session owner (1.4s)
+(node:1297428) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  10 [desktop] › tests/account-entry.spec.cjs:61:1 › closing and reopening during signup ignores late errors and secrets (2.2s)
+  ✓  12 [desktop] › tests/account-entry.spec.cjs:84:40 › late successful signup establishes session after close (2.0s)
+  ✓  13 [desktop] › tests/account-entry.spec.cjs:84:40 › late successful signup establishes session after switch (1.6s)
+  ✓  11 [desktop] › tests/personal-notes.spec.cjs:1318:1 › workspace tabs guard only the last live note context and reject changed-input consent (5.2s)
+  ✓  14 [desktop] › tests/account-entry.spec.cjs:90:1 › ordinary user rejection after callback initialization keeps SDK session semantics (2.2s)
+  ✓  15 [desktop] › tests/personal-notes.spec.cjs:1332:1 › workspace tabs retain a closed-origin creation recovery item without hijacking the active tab (2.9s)
+  ✓  16 [desktop] › tests/account-entry.spec.cjs:94:1 › review: signup retains a complete public reader arrangement and strips private destinations (2.7s)
+  ✓  17 [desktop] › tests/personal-notes.spec.cjs:1340:1 › workspace tabs capacity replay guards the sole unresolved context and Stay cancels held restoration (6.5s)
+  ✓  18 [desktop] › tests/personal-notes.spec.cjs:1356:1 › workspace tabs closed history never restores inherited private associations (2.4s)
+  ✓  19 [desktop] › tests/personal-notes.spec.cjs:1363:1 › workspace tabs mask all private labels during authentication loss and clear them on account replacement (3.0s)
+  ✓  20 [desktop] › tests/personal-notes.spec.cjs:1370:1 › workspace tabs last-context discard retains only the original unknown save for explicit recovery (2.7s)
+  ✓  21 [desktop] › tests/personal-notes.spec.cjs:1376:1 › workspace tabs direct Open in new tab retains a complete range with no picker and inherits only note identity (1.9s)
+  ✓  22 [desktop] › tests/personal-notes.spec.cjs:1380:38 › workspace tabs confirmed note deletion clears every matching private association and retains public tabs (2.2s)
+  ✓  23 [desktop] › tests/personal-notes.spec.cjs:1380:38 › workspace tabs confirmed study deletion clears every matching private association and retains public tabs (2.6s)
+  ✓  24 [desktop] › tests/personal-notes.spec.cjs:1384:1 › workspace tabs inherited study outlines retain independent pagination cursors (1.3s)
+  ✓  25 [desktop] › tests/personal-notes.spec.cjs:1388:1 › workspace tabs reject stale layout consent and clear open consent on account replacement (2.8s)
+  ✓  26 [desktop] › tests/personal-notes.spec.cjs:1394:1 › workspace tabs recheck last-context departure after a delayed replacement read without background focus (2.5s)
+  ✓  27 [desktop] › tests/personal-notes.spec.cjs:1398:1 › workspace tabs libraries retain distinct applied queries and scroll when flags match (2.3s)
+  ✓  28 [desktop] › tests/personal-notes.spec.cjs:1402:1 › workspace tabs delayed creation retains known recovery when new last-context input prevents attachment (3.4s)
+  ✓  29 [desktop] › tests/personal-notes.spec.cjs:1409:1 › workspace tabs retain malformed-origin URL and collection refusal after another tab navigates validly (1.5s)
+  ✓  30 [desktop] › tests/personal-notes.spec.cjs:1420:1 › review tabs B1 delayed denial clears labels renamed on newer inactive live tab records (1.9s)
+  ✓  31 [desktop] › tests/personal-notes.spec.cjs:1423:77 › review tabs B10 closed-origin title 401 retains safe account recovery without tool or focus takeover (2.0s)
+  ✓  32 [desktop] › tests/personal-notes.spec.cjs:1423:77 › review tabs B10 closed-origin title 403 retains safe account recovery without tool or focus takeover (2.1s)
+  ✓  33 [desktop] › tests/personal-notes.spec.cjs:1423:77 › review tabs B10 closed-origin collection 401 retains safe account recovery without tool or focus takeover (2.0s)
+  ✓  34 [desktop] › tests/personal-notes.spec.cjs:1423:77 › review tabs B10 closed-origin collection 403 retains safe account recovery without tool or focus takeover (2.0s)
+  ✓  35 [desktop] › tests/personal-notes.spec.cjs:1426:1 › review tabs B6 masked Rename is disabled with a reason while anonymous and authorized Rename remain usable (2.1s)
+  ✓  36 [desktop] › tests/personal-notes.spec.cjs:1429:1 › review tabs E1 sole conflicted note reopens latest only after guarded consent (2.0s)
+  ✓  37 [desktop] › tests/personal-notes.spec.cjs:1432:1 › review tabs B4 delayed Edit mode restore cannot change selection in another exposed note host (1.8s)
+  ✓  38 [desktop] › tests/personal-notes.spec.cjs:1435:43 › review tabs V1 sign-out guards failed background input while the active retained note is saved (2.8s)
+  ✓  39 [desktop] › tests/personal-notes.spec.cjs:1435:43 › review tabs V1 sign-out guards composing background input while the active retained note is saved (1.5s)
+  ✓  40 [desktop] › tests/personal-notes.spec.cjs:1438:1 › review tabs V1 sequential account consent is non-destructive when the second unresolved lane stays (3.7s)
+  ✓  41 [desktop] › tests/personal-notes.spec.cjs:1442:1 › review tabs B3 word scroll survives hidden Notes scrolling without focus restoration (1.4s)
+  ✓  42 [desktop] › tests/personal-notes.spec.cjs:1445:1 › review tabs E3 distinct long note contexts restore their own inspector scroll without focus theft (2.0s)
+  ✓  43 [desktop] › tests/personal-notes.spec.cjs:1479:1 › review tabs V1 sign-out rechecks saved background lanes receiving late composition during consent (2.8s)
+  ✓  44 [desktop] › tests/personal-notes.spec.cjs:1482:1 › review tabs E1 shared conflicted lane cannot be replaced by reopening from another live context (2.1s)
+
+
+  1) [desktop] › tests/personal-notes.spec.cjs:1301:1 › workspace tabs retain distinct note DOM caret atoms and composition routing without cloning a shared lane 
+
+    Error: expect(locator).toHaveText(expected) failed
+
+    Locator: getByRole('textbox', { name: 'Note text', exact: true })
+    Expected: "אחד composingGenesis 1 suffix"
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toHaveText" getByRole('textbox', { name: 'Note text', exact: true }) with timeout 5000ms
+      - waiting for getByRole('textbox', { name: 'Note text', exact: true })
+        - waiting for navigation to finish...
+        - navigated to "http://127.0.0.1:5182/?reader=%7B%22v%22%3A1%2C%22panes%22%3A%5B%7B%22ref%22%3A%7B%22catalogue_id%22%3A%22scribeswell.references.v1%22%2C%22catalogue_version%22%3A%2248fa91f3bcd02b63138152e43a9292c7f…"
+
+
+      1311 |  await page.evaluate(()=>window.tabOriginalEditor.dispatchEvent(new CompositionEvent('compositionend',{bubbles:true,data:'אחד composing'})));
+      1312 |  await editor.fill('second note בלבד');await page.getByRole('tablist',{name:'Workspace tabs'}).getByRole('tab').first().click();
+    > 1313 |  await expect(editor).toHaveText('אחד composingGenesis 1 suffix');expect(await editor.evaluate(el=>el===window.tabOriginalEditor&&el.querySelector('[data-note-passage]')===window.tabOriginalAtom)).toBe(true);
+           |                       ^
+      1314 |  await editor.focus();expect(await editor.evaluate(()=>{const r=getSelection().getRangeAt(0);return {start:r.startContainer===window.tabOriginalText,end:r.endContainer===window.tabOriginalText,startOffset:r.startOffset,endOffset:r.endOffset};})).toEqual({start:true,end:true,startOffset:2,endOffset:4});
+      1315 |  await expect(page.locator('[aria-label="Note text"]')).toHaveCount(2);await editor.press('End');await editor.press('x');await expect(editor.locator('[data-note-passage]')).toHaveCount(1);await editor.press('ControlOrMeta+z');await expect(editor).not.toContainText(' suffixx');await expect(editor.locator('[data-note-passage]')).toHaveCount(1);await editor.press('ControlOrMeta+Shift+z');await expect(editor.locator('[data-note-passage]')).toHaveCount(1);await expect(page.getByRole('status').filter({hasText:'Draft saved'})).toBeVisible();
+      1316 | });
+        at /home/ck/repos/innodat/agriplatform/apps/scribeswell/web/tests/personal-notes.spec.cjs:1313:23
+
+    Error Context: test-results/personal-notes-workspace-t-52036-thout-cloning-a-shared-lane-desktop/error-context.md
+
+  1 failed
+    [desktop] › tests/personal-notes.spec.cjs:1301:1 › workspace tabs retain distinct note DOM caret atoms and composition routing without cloning a shared lane 
+  43 passed (1.5m)
+npm error Lifecycle script `test:browser` failed with error:
+npm error code 1
+npm error path /home/ck/repos/innodat/agriplatform/apps/scribeswell/web
+npm error workspace scribeswell-web@0.1.0
+npm error location /home/ck/repos/innodat/agriplatform/apps/scribeswell/web
+npm error command failed
+npm error command sh -c playwright test --config playwright.config.cjs personal-notes.spec.cjs account-entry.spec.cjs --project=desktop --workers=4 --grep 'workspace tabs|review tabs|signup|ordinary user rejection'

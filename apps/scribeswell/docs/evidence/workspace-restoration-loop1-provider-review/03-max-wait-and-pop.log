@@ -1,0 +1,82 @@
+
+> scribeswell-web@0.1.0 test:browser
+> playwright test --config playwright.config.cjs --workers=3 --project=desktop --fully-parallel workspace-restoration.spec.cjs -g provider continuous|remembered dialog history POP|provider successful public
+
+[WebServer] (node:163752) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 4 tests using 3 workers
+
+(node:163786) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:163787) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:163793) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  1 [desktop] › tests/workspace-restoration.spec.cjs:361:1 › provider successful public checkpoint retains private recovery feedback (2.2s)
+  ✓  2 [desktop] › tests/workspace-restoration.spec.cjs:364:1 › provider continuous actual checkpoints commit the current projection at the2s maximum without lifecycle flush (2.8s)
+  ✘  3 [desktop] › tests/workspace-restoration.spec.cjs:370:41 › remembered dialog history POP rejects stale accept and Cancel followed by current Retry stays usable (6.6s)
+  ✘  4 [desktop] › tests/workspace-restoration.spec.cjs:370:41 › remembered dialog history POP rejects stale victim and Cancel followed by current Retry stays usable (5.9s)
+
+
+  1) [desktop] › tests/workspace-restoration.spec.cjs:370:41 › remembered dialog history POP rejects stale accept and Cancel followed by current Retry stays usable 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByRole('status').filter({ hasText: 'Remembered reading setups are ready.' })
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByRole('status').filter({ hasText: 'Remembered reading setups are ready.' }) with timeout 5000ms
+      - waiting for getByRole('status').filter({ hasText: 'Remembered reading setups are ready.' })
+
+
+      369 | async function gateFirstWorkspaceOpen(page){await page.addInitScript(()=>{const original=indexedDB.open.bind(indexedDB);let first=true;indexedDB.open=(...args)=>{if(!first)return original(...args);first=false;let request;const callbacks={},proxy={};for(const key of ['result','transaction','error'])Object.defineProperty(proxy,key,{get:()=>request?.[key]});for(const event of ['onsuccess','onerror','onblocked','onupgradeneeded'])Object.defineProperty(proxy,event,{set:fn=>callbacks[event]=fn,get:()=>callbacks[event]});window.releaseDeviceBootstrap=()=>{request=original(...args);for(const event of ['onsuccess','onerror','onblocked','onupgradeneeded'])request[event]=eventObject=>callbacks[event]?.call(proxy,eventObject);};return proxy;};});}
+      370 | for(const choice of ['accept','victim'])test(`remembered dialog history POP rejects stale ${choice} and Cancel followed by current Retry stays usable`,async({page})=>{
+    > 371 |  await setup(page);await seed(page,publicSetup(choice==='victim'?12:2));await gateFirstWorkspaceOpen(page);const clockStart=Date.now();await page.clock.install({time:clockStart});await page.clock.pauseAt(clockStart+1000);await page.goto('/');await expect.poll(()=>page.evaluate(()=>typeof window.releaseDeviceBootstrap)).toBe('function');await page.getByRole('button',{name:'Next chapter',exact:true}).click();await page.evaluate(()=>window.releaseDeviceBootstrap());const notice=page.getByRole('status').filter({hasText:'Remembered reading setups are ready.'});await expect(notice).toBeVisible();await notice.getByRole('button',{name:'Retry',exact:true}).click();const dialog=page.getByRole('dialog',{name:'Restore remembered reading setups'});await expect(dialog).toBeVisible();await page.goBack();const chapter=()=>page.evaluate(()=>history.state.usr.scribeswellReader.panes[0].ref.target.chapter);await expect.poll(chapter).toBe(1);
+          |                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        ^
+      372 |  if(choice==='accept')await dialog.getByRole('button',{name:'Restore setups',exact:true}).click();else await dialog.getByRole('button',{name:/Close remembered tab/}).first().click();await expect(tabs(page)).toHaveCount(1);expect(await chapter()).toBe(1);await dialog.getByRole('button',{name:'Cancel',exact:true}).click();await notice.getByRole('button',{name:'Retry',exact:true}).click();await expect(dialog).toBeVisible();if(choice==='accept')await dialog.getByRole('button',{name:'Restore setups',exact:true}).click();else await dialog.getByRole('button',{name:/Close remembered tab/}).first().click();await expect(tabs(page)).toHaveCount(choice==='accept'?3:12);expect(await chapter()).toBe(1);
+      373 | });
+      374 |
+        at /home/ck/repos/innodat/agriplatform/apps/scribeswell/web/tests/workspace-restoration.spec.cjs:371:584
+
+    Error Context: test-results/workspace-restoration-reme-1d955--current-Retry-stays-usable-desktop/error-context.md
+
+  2) [desktop] › tests/workspace-restoration.spec.cjs:370:41 › remembered dialog history POP rejects stale victim and Cancel followed by current Retry stays usable 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByRole('status').filter({ hasText: 'Remembered reading setups are ready.' })
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByRole('status').filter({ hasText: 'Remembered reading setups are ready.' }) with timeout 5000ms
+      - waiting for getByRole('status').filter({ hasText: 'Remembered reading setups are ready.' })
+
+
+      369 | async function gateFirstWorkspaceOpen(page){await page.addInitScript(()=>{const original=indexedDB.open.bind(indexedDB);let first=true;indexedDB.open=(...args)=>{if(!first)return original(...args);first=false;let request;const callbacks={},proxy={};for(const key of ['result','transaction','error'])Object.defineProperty(proxy,key,{get:()=>request?.[key]});for(const event of ['onsuccess','onerror','onblocked','onupgradeneeded'])Object.defineProperty(proxy,event,{set:fn=>callbacks[event]=fn,get:()=>callbacks[event]});window.releaseDeviceBootstrap=()=>{request=original(...args);for(const event of ['onsuccess','onerror','onblocked','onupgradeneeded'])request[event]=eventObject=>callbacks[event]?.call(proxy,eventObject);};return proxy;};});}
+      370 | for(const choice of ['accept','victim'])test(`remembered dialog history POP rejects stale ${choice} and Cancel followed by current Retry stays usable`,async({page})=>{
+    > 371 |  await setup(page);await seed(page,publicSetup(choice==='victim'?12:2));await gateFirstWorkspaceOpen(page);const clockStart=Date.now();await page.clock.install({time:clockStart});await page.clock.pauseAt(clockStart+1000);await page.goto('/');await expect.poll(()=>page.evaluate(()=>typeof window.releaseDeviceBootstrap)).toBe('function');await page.getByRole('button',{name:'Next chapter',exact:true}).click();await page.evaluate(()=>window.releaseDeviceBootstrap());const notice=page.getByRole('status').filter({hasText:'Remembered reading setups are ready.'});await expect(notice).toBeVisible();await notice.getByRole('button',{name:'Retry',exact:true}).click();const dialog=page.getByRole('dialog',{name:'Restore remembered reading setups'});await expect(dialog).toBeVisible();await page.goBack();const chapter=()=>page.evaluate(()=>history.state.usr.scribeswellReader.panes[0].ref.target.chapter);await expect.poll(chapter).toBe(1);
+          |                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        ^
+      372 |  if(choice==='accept')await dialog.getByRole('button',{name:'Restore setups',exact:true}).click();else await dialog.getByRole('button',{name:/Close remembered tab/}).first().click();await expect(tabs(page)).toHaveCount(1);expect(await chapter()).toBe(1);await dialog.getByRole('button',{name:'Cancel',exact:true}).click();await notice.getByRole('button',{name:'Retry',exact:true}).click();await expect(dialog).toBeVisible();if(choice==='accept')await dialog.getByRole('button',{name:'Restore setups',exact:true}).click();else await dialog.getByRole('button',{name:/Close remembered tab/}).first().click();await expect(tabs(page)).toHaveCount(choice==='accept'?3:12);expect(await chapter()).toBe(1);
+      373 | });
+      374 |
+        at /home/ck/repos/innodat/agriplatform/apps/scribeswell/web/tests/workspace-restoration.spec.cjs:371:584
+
+    Error Context: test-results/workspace-restoration-reme-5fc99--current-Retry-stays-usable-desktop/error-context.md
+
+  2 failed
+    [desktop] › tests/workspace-restoration.spec.cjs:370:41 › remembered dialog history POP rejects stale accept and Cancel followed by current Retry stays usable 
+    [desktop] › tests/workspace-restoration.spec.cjs:370:41 › remembered dialog history POP rejects stale victim and Cancel followed by current Retry stays usable 
+  2 passed (9.7s)
+npm error Lifecycle script `test:browser` failed with error:
+npm error code 1
+npm error path /home/ck/repos/innodat/agriplatform/apps/scribeswell/web
+npm error workspace scribeswell-web@0.1.0
+npm error location /home/ck/repos/innodat/agriplatform/apps/scribeswell/web
+npm error command failed
+npm error command sh -c playwright test --config playwright.config.cjs --workers=3 --project=desktop --fully-parallel workspace-restoration.spec.cjs -g 'provider continuous|remembered dialog history POP|provider successful public'

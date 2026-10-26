@@ -1,0 +1,43 @@
+
+> scribeswell-web@0.1.0 test:browser
+> playwright test --config playwright.config.cjs --workers=1 --project=desktop workspace-restoration.spec.cjs -g outline return cancelled Rename during held notes
+
+[WebServer] (node:86925) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 1 test using 1 worker
+
+(node:86958) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  1 [desktop] › tests/workspace-restoration.spec.cjs:335:86 › outline return cancelled Rename during held notes has complete outline or truthful Retry (6.0s)
+
+
+  1) [desktop] › tests/workspace-restoration.spec.cjs:335:86 › outline return cancelled Rename during held notes has complete outline or truthful Retry 
+
+    Error: expect(received).toBe(expected) // Object.is equality
+
+    Expected: true
+    Received: false
+
+    Call Log:
+    - Timeout 5000ms exceeded while waiting on the predicate
+
+      338 |  if(modal==='Rename'){await page.getByLabel('Title',{exact:true}).fill('Cancelled unsent title');await page.getByRole('button',{name:'Cancel',exact:true}).click();}
+      339 |  else await page.getByRole('dialog',{name:'Delete study',exact:true}).getByRole('button',{name:'Cancel',exact:true}).click();
+    > 340 |  held=false;for(const release of releases)release();const rows=page.getByRole('list',{name:'Notes',exact:true}).getByRole('button'),retry=page.getByRole('alert').filter({hasText:'Study outline could not be loaded.'});await expect.poll(async()=>await rows.count()===2||await retry.isVisible()).toBe(true);if(await retry.isVisible())await retry.getByRole('button',{name:'Retry',exact:true}).click();await expect(rows).toHaveCount(2);await expect(page.getByRole('button',{name:'Add passage',exact:true})).toBeEnabled();await expect(page.getByRole('heading',{name:'Study A',exact:true})).toBeVisible();expect(commands).toBe(0);await page.getByRole('button',{name:'Analysis',exact:true}).click();await expect(page.getByRole('textbox',{name:'Note text',exact:true})).toHaveText('Saved note A');
+          |                                                                                                                                                                                                                                                                                                      ^
+      341 | });
+      342 |
+        at /home/ck/repos/innodat/agriplatform/apps/scribeswell/web/tests/workspace-restoration.spec.cjs:340:294
+
+    Error Context: test-results/workspace-restoration-outl-9e540-e-outline-or-truthful-Retry-desktop/error-context.md
+
+  1 failed
+    [desktop] › tests/workspace-restoration.spec.cjs:335:86 › outline return cancelled Rename during held notes has complete outline or truthful Retry 
+npm error Lifecycle script `test:browser` failed with error:
+npm error code 1
+npm error path /home/ck/repos/innodat/agriplatform/apps/scribeswell/web
+npm error workspace scribeswell-web@0.1.0
+npm error location /home/ck/repos/innodat/agriplatform/apps/scribeswell/web
+npm error command failed
+npm error command sh -c playwright test --config playwright.config.cjs --workers=1 --project=desktop workspace-restoration.spec.cjs -g 'outline return cancelled Rename during held notes'

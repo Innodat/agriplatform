@@ -1,0 +1,45 @@
+
+> scribeswell-web@0.1.0 test:browser
+> playwright test --config playwright.config.cjs personal-notes.spec.cjs workspace-restoration.spec.cjs --workers=4 --fully-parallel --grep same-account reauthentication preserves|library search authentication failure|stale old-token401|note deletion same-account authority|study deletion review explicit reopening|workspace tabs mask all private labels|current hydration401|last public scroll checkpoint|dirty shared note
+
+[WebServer] (node:1403823) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 18 tests using 4 workers
+
+(node:1403840) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:1403847) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:1403841) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:1403853) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   1 [desktop] › tests/personal-notes.spec.cjs:635:1 › library search authentication failure stops loading and successful same-account retry clears sign-in error (1.5s)
+  ✓   2 [desktop] › tests/personal-notes.spec.cjs:666:1 › library review: stale old-token401 cannot remask restored same-account search (1.6s)
+  ✓   4 [desktop] › tests/personal-notes.spec.cjs:813:1 › note deletion same-account authority recovery never automatically repeats deletion (2.0s)
+  ✓   3 [desktop] › tests/personal-notes.spec.cjs:162:1 › same-account reauthentication preserves input and requires explicit retry (2.7s)
+  ✓   5 [desktop] › tests/personal-notes.spec.cjs:1006:1 › study deletion review explicit reopening after same-user authentication restarts interrupted preparation (2.3s)
+  ✓   7 [desktop] › tests/workspace-restoration.spec.cjs:151:1 › late second candidate cannot overwrite a newer dirty shared note lane or expose its private label (1.8s)
+(node:1404332) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   6 [desktop] › tests/personal-notes.spec.cjs:1364:1 › workspace tabs mask all private labels during authentication loss and clear them on account replacement (3.0s)
+(node:1404437) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  11 [mobile] › tests/personal-notes.spec.cjs:635:1 › library search authentication failure stops loading and successful same-account retry clears sign-in error (716ms)
+  ✓   9 [desktop] › tests/workspace-restoration.spec.cjs:196:1 › current hydration401 masks all context and explicit fresh Retry retains dirty lane and original save command (2.4s)
+  ✓   8 [desktop] › tests/workspace-restoration.spec.cjs:179:1 › last public scroll checkpoint survives tools hiding the pane before the durable write (3.6s)
+  ✓  10 [mobile] › tests/personal-notes.spec.cjs:162:1 › same-account reauthentication preserves input and requires explicit retry (2.2s)
+(node:1404594) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:1404601) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  12 [mobile] › tests/personal-notes.spec.cjs:666:1 › library review: stale old-token401 cannot remask restored same-account search (1.2s)
+  ✓  14 [mobile] › tests/personal-notes.spec.cjs:813:1 › note deletion same-account authority recovery never automatically repeats deletion (4.6s)
+  ✓  16 [mobile] › tests/workspace-restoration.spec.cjs:151:1 › late second candidate cannot overwrite a newer dirty shared note lane or expose its private label (4.7s)
+  ✓  15 [mobile] › tests/personal-notes.spec.cjs:1006:1 › study deletion review explicit reopening after same-user authentication restarts interrupted preparation (6.0s)
+  ✓  13 [mobile] › tests/personal-notes.spec.cjs:1364:1 › workspace tabs mask all private labels during authentication loss and clear them on account replacement (6.8s)
+  ✓  18 [mobile] › tests/workspace-restoration.spec.cjs:196:1 › current hydration401 masks all context and explicit fresh Retry retains dirty lane and original save command (4.7s)
+  ✓  17 [mobile] › tests/workspace-restoration.spec.cjs:179:1 › last public scroll checkpoint survives tools hiding the pane before the durable write (5.6s)
+
+  18 passed (19.2s)

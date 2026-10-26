@@ -1,0 +1,221 @@
+
+> scribeswell-web@0.1.0 test:browser
+> playwright test --config playwright.config.cjs workspace-tabs.spec.cjs workspace-restoration.spec.cjs --workers=4 --fully-parallel
+
+[WebServer] (node:1354540) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 112 tests using 4 workers
+
+(node:1354628) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:1354634) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:1354627) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:1354635) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓    1 [desktop] › tests/workspace-restoration.spec.cjs:16:1 › closed codec bounds privacy expiry and future version policy (1.8s)
+  ✓    3 [desktop] › tests/workspace-restoration.spec.cjs:60:1 › fresh equal-reference link has a new incarnation and no private association (4.1s)
+  ✓    2 [desktop] › tests/workspace-restoration.spec.cjs:12:1 › real IndexedDB reload restores two public setups (4.7s)
+  ✓    4 [desktop] › tests/workspace-restoration.spec.cjs:54:1 › fresh explicit target stages twelve stored tabs and Cancel preserves the record with explicit Retry (4.9s)
+  ✓    5 [desktop] › tests/workspace-restoration.spec.cjs:63:1 › same verified owner refetches private selections into one resource lane while public storage stays closed (5.9s)
+  ✓    6 [desktop] › tests/workspace-restoration.spec.cjs:68:187 › authority 503 retains hidden candidate without affecting public setups (4.7s)
+  ✓    7 [desktop] › tests/workspace-restoration.spec.cjs:68:187 › authority 401 retains hidden candidate without affecting public setups (4.8s)
+  ✓    8 [desktop] › tests/workspace-restoration.spec.cjs:68:187 › authority 403 clears candidate without affecting public setups (4.7s)
+  ✓    9 [desktop] › tests/workspace-restoration.spec.cjs:68:187 › authority 404 clears candidate without affecting public setups (4.2s)
+  ✓   11 [desktop] › tests/workspace-restoration.spec.cjs:74:48 › storage denied keeps reading usable and offers truthful Retry (2.7s)
+  ✓   10 [desktop] › tests/workspace-restoration.spec.cjs:71:1 › different verified account never reads or displays another owner selections (3.8s)
+  ✓   12 [desktop] › tests/workspace-restoration.spec.cjs:74:48 › storage quota keeps reading usable and offers truthful Retry (3.0s)
+  ✓   13 [desktop] › tests/workspace-restoration.spec.cjs:74:48 › storage blocked keeps reading usable and offers truthful Retry (2.6s)
+  ✓   14 [desktop] › tests/workspace-restoration.spec.cjs:78:69 › expired stored record is bounded and future records remain untouched (4.5s)
+  ✓   16 [desktop] › tests/workspace-restoration.spec.cjs:78:69 › oversize stored record is bounded and future records remain untouched (4.7s)
+  ✓   15 [desktop] › tests/workspace-restoration.spec.cjs:78:69 › malformed stored record is bounded and future records remain untouched (4.9s)
+  ✓   17 [desktop] › tests/workspace-restoration.spec.cjs:78:69 › future stored record is bounded and future records remain untouched (4.6s)
+  ✓   19 [desktop] › tests/workspace-restoration.spec.cjs:81:1 › maximum accepted combinations and closed private DTO reject forbidden data and invalid timestamps (2.2s)
+  ✓   20 [desktop] › tests/workspace-restoration.spec.cjs:84:1 › atomic serialized writes coalesce and prune only completed account records (2.9s)
+  ✓   18 [desktop] › tests/workspace-restoration.spec.cjs:78:69 › old stored record is bounded and future records remain untouched (5.1s)
+  ✓   23 [desktop] › tests/workspace-restoration.spec.cjs:104:1 › delayed old identity401 cannot remove a newer SDK sign-in session (2.5s)
+  ✓   22 [desktop] › tests/workspace-restoration.spec.cjs:101:1 › cross-window future version prevents even a previously eligible writer from changing records (5.1s)
+  ✓   21 [desktop] › tests/workspace-restoration.spec.cjs:94:1 › two windows preserve independent live layouts and last completed transaction wins future return (8.1s)
+  ✓   24 [desktop] › tests/workspace-restoration.spec.cjs:108:1 › changed intent during identity verification retains hidden candidates for explicit Retry (6.1s)
+  ✓   25 [desktop] › tests/workspace-restoration.spec.cjs:112:84 › late hydration ignores changed navigation without focus or selection replacement (5.2s)
+  ✓   26 [desktop] › tests/workspace-restoration.spec.cjs:112:84 › late hydration ignores closed incarnation without focus or selection replacement (4.5s)
+  ✓   27 [desktop] › tests/workspace-restoration.spec.cjs:112:84 › late hydration ignores account switch without focus or selection replacement (4.6s)
+  ✓   28 [desktop] › tests/workspace-restoration.spec.cjs:120:1 › late public read after new tab intent requires explicit installation and never drops current tabs (4.8s)
+  ✓   29 [desktop] › tests/workspace-restoration.spec.cjs:124:1 › account intent invalidates a delayed public bootstrap even outside the reader root (4.8s)
+  ✓   31 [desktop] › tests/workspace-restoration.spec.cjs:130:1 › wrong owner or parent responses never expose a stored private candidate (3.7s)
+  ✓   30 [desktop] › tests/workspace-restoration.spec.cjs:127:1 › timed out open cannot later upgrade or install over intervening reading (7.0s)
+  ✓   32 [desktop] › tests/workspace-restoration.spec.cjs:133:1 › anonymous closure and closed-key replay remain public when the owner returns (5.0s)
+  ✓   33 [desktop] › tests/workspace-restoration.spec.cjs:136:1 › anonymous names stay memory-only and retained native refresh preserves matching incarnations (6.5s)
+  ✓   35 [desktop] › tests/workspace-restoration.spec.cjs:142:1 › denied storage Retry remembers current reading once storage becomes available (5.2s)
+  ✓   34 [desktop] › tests/workspace-restoration.spec.cjs:139:1 › evicted storage loses remembered metadata safely while public reading remains usable (7.4s)
+  ✓   36 [desktop] › tests/workspace-restoration.spec.cjs:145:1 › resource404 clears only the affected selection and keeps unrelated authorized context (5.8s)
+  ✓   38 [desktop] › tests/workspace-restoration.spec.cjs:151:1 › late second candidate cannot overwrite a newer dirty shared note lane or expose its private label (5.0s)
+  ✓   37 [desktop] › tests/workspace-restoration.spec.cjs:148:1 › unsent body never persists and reload refetches acknowledged content (7.2s)
+  ✓   40 [desktop] › tests/workspace-restoration.spec.cjs:157:72 › identity unavailable retains hidden candidates and never triggers protected reads (3.7s)
+  ✓   39 [desktop] › tests/workspace-restoration.spec.cjs:154:1 › surviving tabs retain owner-bound candidates across sign-out and require fresh verification on return (5.2s)
+  ✓   41 [desktop] › tests/workspace-restoration.spec.cjs:157:72 › identity unauthenticated retains hidden candidates and never triggers protected reads (3.9s)
+  ✓   42 [desktop] › tests/workspace-restoration.spec.cjs:157:72 › identity different ID retains hidden candidates and never triggers protected reads (4.2s)
+  ✓   43 [desktop] › tests/workspace-restoration.spec.cjs:160:40 › explicit Rename while identity is pending preserves newer label intent and remembered resource IDs (5.2s)
+  ✓   46 [desktop] › tests/workspace-restoration.spec.cjs:166:1 › account pruning follows transaction completion when device-clock timestamps tie or go backwards (2.0s)
+  ✓   44 [desktop] › tests/workspace-restoration.spec.cjs:160:40 › explicit Reset while identity is pending preserves newer label intent and remembered resource IDs (5.9s)
+  ✓   47 [desktop] › tests/workspace-restoration.spec.cjs:170:1 › private completion ordinal is storage-only bounded metadata and projections remain accepted (2.3s)
+  ✓   45 [desktop] › tests/workspace-restoration.spec.cjs:163:1 › current admission403 clears already hydrated lanes after unrelated origin intent changes (5.5s)
+  ✓   48 [desktop] › tests/workspace-tabs.spec.cjs:12:1 › tab activation closure and replay push exactly once and closed replay restores only public identity (4.2s)
+  ✓   49 [desktop] › tests/workspace-tabs.spec.cjs:20:1 › tab labels stay out of public history and manual roving keys preserve activation (4.0s)
+  ✘   51 [desktop] › tests/workspace-tabs.spec.cjs:34:1 › valid Unicode punctuation snapshot tab identity remains selectable and close focus is safe (5.3s)
+  ✓   53 [desktop] › tests/workspace-tabs.spec.cjs:48:1 › closing the sole pane delegates to tab closure and preserves the final reader without reset (3.7s)
+(node:1357150) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   52 [desktop] › tests/workspace-tabs.spec.cjs:43:1 › POP checkpoints the outgoing live tab anchor for a later explicit tab activation (7.4s)
+  ✓   50 [desktop] › tests/workspace-tabs.spec.cjs:26:1 › twelve tab cap never evicts and closed history requires explicit public-only victim choice (11.7s)
+  ✓   54 [desktop] › tests/workspace-tabs.spec.cjs:58:1 › P10 malformed tab provenance never revives scrubbed complete callback query credentials (5.2s)
+(node:1357372) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:1357381) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   56 [desktop] › tests/workspace-tabs.spec.cjs:91:1 › P10 ordinary malformed tab retains raw search bytes when no callback fields exist (4.7s)
+(node:1357582) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   58 [mobile] › tests/workspace-restoration.spec.cjs:16:1 › closed codec bounds privacy expiry and future version policy (3.2s)
+  ✓   57 [mobile] › tests/workspace-restoration.spec.cjs:12:1 › real IndexedDB reload restores two public setups (6.4s)
+  ✓   55 [desktop] › tests/workspace-tabs.spec.cjs:52:1 › review tabs B8 complete manual keyboard movement wraps and reveals all twelve controls without activation (13.8s)
+  ✓   60 [mobile] › tests/workspace-restoration.spec.cjs:60:1 › fresh equal-reference link has a new incarnation and no private association (5.4s)
+  ✓   59 [mobile] › tests/workspace-restoration.spec.cjs:54:1 › fresh explicit target stages twelve stored tabs and Cancel preserves the record with explicit Retry (6.3s)
+(node:1357864) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   61 [mobile] › tests/workspace-restoration.spec.cjs:63:1 › same verified owner refetches private selections into one resource lane while public storage stays closed (6.4s)
+  ✓   62 [mobile] › tests/workspace-restoration.spec.cjs:68:187 › authority 401 retains hidden candidate without affecting public setups (5.0s)
+  ✓   63 [mobile] › tests/workspace-restoration.spec.cjs:68:187 › authority 403 clears candidate without affecting public setups (5.1s)
+  ✓   64 [mobile] › tests/workspace-restoration.spec.cjs:68:187 › authority 503 retains hidden candidate without affecting public setups (5.5s)
+  ✓   65 [mobile] › tests/workspace-restoration.spec.cjs:68:187 › authority 404 clears candidate without affecting public setups (4.9s)
+  ✓   67 [mobile] › tests/workspace-restoration.spec.cjs:74:48 › storage denied keeps reading usable and offers truthful Retry (3.1s)
+  ✓   66 [mobile] › tests/workspace-restoration.spec.cjs:71:1 › different verified account never reads or displays another owner selections (4.3s)
+  ✓   68 [mobile] › tests/workspace-restoration.spec.cjs:74:48 › storage quota keeps reading usable and offers truthful Retry (3.5s)
+  ✓   69 [mobile] › tests/workspace-restoration.spec.cjs:74:48 › storage blocked keeps reading usable and offers truthful Retry (2.4s)
+  ✓   70 [mobile] › tests/workspace-restoration.spec.cjs:78:69 › expired stored record is bounded and future records remain untouched (4.7s)
+  ✓   71 [mobile] › tests/workspace-restoration.spec.cjs:78:69 › malformed stored record is bounded and future records remain untouched (4.6s)
+  ✓   72 [mobile] › tests/workspace-restoration.spec.cjs:78:69 › oversize stored record is bounded and future records remain untouched (4.7s)
+  ✓   73 [mobile] › tests/workspace-restoration.spec.cjs:78:69 › future stored record is bounded and future records remain untouched (4.7s)
+  ✓   75 [mobile] › tests/workspace-restoration.spec.cjs:81:1 › maximum accepted combinations and closed private DTO reject forbidden data and invalid timestamps (1.9s)
+  ✓   76 [mobile] › tests/workspace-restoration.spec.cjs:84:1 › atomic serialized writes coalesce and prune only completed account records (2.6s)
+  ✓   74 [mobile] › tests/workspace-restoration.spec.cjs:78:69 › old stored record is bounded and future records remain untouched (4.9s)
+  ✓   79 [mobile] › tests/workspace-restoration.spec.cjs:104:1 › delayed old identity401 cannot remove a newer SDK sign-in session (2.5s)
+  ✓   78 [mobile] › tests/workspace-restoration.spec.cjs:101:1 › cross-window future version prevents even a previously eligible writer from changing records (4.9s)
+  ✓   80 [mobile] › tests/workspace-restoration.spec.cjs:108:1 › changed intent during identity verification retains hidden candidates for explicit Retry (5.9s)
+  ✓   77 [mobile] › tests/workspace-restoration.spec.cjs:94:1 › two windows preserve independent live layouts and last completed transaction wins future return (8.6s)
+  ✓   81 [mobile] › tests/workspace-restoration.spec.cjs:112:84 › late hydration ignores changed navigation without focus or selection replacement (5.4s)
+  ✓   82 [mobile] › tests/workspace-restoration.spec.cjs:112:84 › late hydration ignores closed incarnation without focus or selection replacement (5.0s)
+  ✓   83 [mobile] › tests/workspace-restoration.spec.cjs:112:84 › late hydration ignores account switch without focus or selection replacement (5.3s)
+  ✓   85 [mobile] › tests/workspace-restoration.spec.cjs:124:1 › account intent invalidates a delayed public bootstrap even outside the reader root (4.5s)
+  ✓   87 [mobile] › tests/workspace-restoration.spec.cjs:130:1 › wrong owner or parent responses never expose a stored private candidate (2.4s)
+  ✓   86 [mobile] › tests/workspace-restoration.spec.cjs:127:1 › timed out open cannot later upgrade or install over intervening reading (6.9s)
+  ✓   88 [mobile] › tests/workspace-restoration.spec.cjs:133:1 › anonymous closure and closed-key replay remain public when the owner returns (3.5s)
+  ✓   91 [mobile] › tests/workspace-restoration.spec.cjs:142:1 › denied storage Retry remembers current reading once storage becomes available (2.9s)
+  ✓   89 [mobile] › tests/workspace-restoration.spec.cjs:136:1 › anonymous names stay memory-only and retained native refresh preserves matching incarnations (4.8s)
+  ✓   90 [mobile] › tests/workspace-restoration.spec.cjs:139:1 › evicted storage loses remembered metadata safely while public reading remains usable (4.5s)
+  ✓   92 [mobile] › tests/workspace-restoration.spec.cjs:145:1 › resource404 clears only the affected selection and keeps unrelated authorized context (4.2s)
+  ✓   94 [mobile] › tests/workspace-restoration.spec.cjs:151:1 › late second candidate cannot overwrite a newer dirty shared note lane or expose its private label (3.9s)
+  ✓   93 [mobile] › tests/workspace-restoration.spec.cjs:148:1 › unsent body never persists and reload refetches acknowledged content (6.2s)
+  ✓   96 [mobile] › tests/workspace-restoration.spec.cjs:157:72 › identity unavailable retains hidden candidates and never triggers protected reads (3.4s)
+  ✓   95 [mobile] › tests/workspace-restoration.spec.cjs:154:1 › surviving tabs retain owner-bound candidates across sign-out and require fresh verification on return (4.2s)
+  ✓   97 [mobile] › tests/workspace-restoration.spec.cjs:157:72 › identity unauthenticated retains hidden candidates and never triggers protected reads (3.5s)
+  ✓   98 [mobile] › tests/workspace-restoration.spec.cjs:157:72 › identity different ID retains hidden candidates and never triggers protected reads (3.7s)
+  ✓   99 [mobile] › tests/workspace-restoration.spec.cjs:160:40 › explicit Rename while identity is pending preserves newer label intent and remembered resource IDs (5.2s)
+  ✓  100 [mobile] › tests/workspace-restoration.spec.cjs:160:40 › explicit Reset while identity is pending preserves newer label intent and remembered resource IDs (4.9s)
+  ✓  102 [mobile] › tests/workspace-restoration.spec.cjs:166:1 › account pruning follows transaction completion when device-clock timestamps tie or go backwards (1.8s)
+  ✓  101 [mobile] › tests/workspace-restoration.spec.cjs:163:1 › current admission403 clears already hydrated lanes after unrelated origin intent changes (4.2s)
+  ✓  103 [mobile] › tests/workspace-restoration.spec.cjs:170:1 › private completion ordinal is storage-only bounded metadata and projections remain accepted (1.5s)
+  ✘   84 [mobile] › tests/workspace-restoration.spec.cjs:120:1 › late public read after new tab intent requires explicit installation and never drops current tabs (30.1s)
+  ✓  104 [mobile] › tests/workspace-tabs.spec.cjs:12:1 › tab activation closure and replay push exactly once and closed replay restores only public identity (3.0s)
+(node:1359808) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  105 [mobile] › tests/workspace-tabs.spec.cjs:20:1 › tab labels stay out of public history and manual roving keys preserve activation (3.4s)
+  ✓  109 [mobile] › tests/workspace-tabs.spec.cjs:48:1 › closing the sole pane delegates to tab closure and preserves the final reader without reset (3.5s)
+  ✓  107 [mobile] › tests/workspace-tabs.spec.cjs:43:1 › POP checkpoints the outgoing live tab anchor for a later explicit tab activation (6.1s)
+  ✘  108 [mobile] › tests/workspace-tabs.spec.cjs:34:1 › valid Unicode punctuation snapshot tab identity remains selectable and close focus is safe (4.7s)
+(node:1360100) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  106 [mobile] › tests/workspace-tabs.spec.cjs:26:1 › twelve tab cap never evicts and closed history requires explicit public-only victim choice (9.7s)
+  ✓  111 [mobile] › tests/workspace-tabs.spec.cjs:58:1 › P10 malformed tab provenance never revives scrubbed complete callback query credentials (3.7s)
+  ✓  112 [mobile] › tests/workspace-tabs.spec.cjs:91:1 › P10 ordinary malformed tab retains raw search bytes when no callback fields exist (3.4s)
+  ✓  110 [mobile] › tests/workspace-tabs.spec.cjs:52:1 › review tabs B8 complete manual keyboard movement wraps and reveals all twelve controls without activation (8.0s)
+
+
+  1) [desktop] › tests/workspace-tabs.spec.cjs:34:1 › valid Unicode punctuation snapshot tab identity remains selectable and close focus is safe 
+
+    Error: expect(received).toBe(expected) // Object.is equality
+
+    Expected: "עברית \"quoted\" [pane] #1"
+    Received: "340ca8fe-d6d6-4eb7-a8c3-e4abd90b1a6b"
+
+      38 |  await expect.poll(()=>page.evaluate(async()=>{const {readWorkspace}=await import('/src/lib/workspace-storage.ts');return (await readWorkspace()).public?.tabs.length;})).toBe(2);
+      39 |  const key='עברית "quoted" [pane] #1';await page.evaluate(async key=>{const state=history.state,snapshot=state.usr.scribeswellReader;const {readWorkspace,writeWorkspace}=await import('/src/lib/workspace-storage.ts');const remembered=(await readWorkspace()).public;await writeWorkspace({...remembered,activeTabKey:key,tabs:remembered.tabs.map(tab=>tab.tabKey===snapshot.tabKey?{...tab,tabKey:key}:tab)});history.replaceState({...state,usr:{...state.usr,scribeswellReader:{...snapshot,tabKey:key}}},'');},key);
+    > 40 |  await page.reload();await expect(tabs(page)).toHaveCount(2);expect(await tabs(page).nth(1).getAttribute('data-workspace-tab')).toBe(key);await expect(page.getByRole('tabpanel',{name:'Genesis 1',exact:true})).toBeVisible();await add(page);await tabs(page).nth(1).click();await page.getByRole('button',{name:'Close tab 2',exact:true}).click();await expect(tabs(page)).toHaveCount(2);await expect(tabs(page).first()).toBeFocused();
+         |                                                                                                                                 ^
+      41 | });
+      42 |
+      43 | test('POP checkpoints the outgoing live tab anchor for a later explicit tab activation',async({page})=>{
+        at /home/ck/repos/innodat/agriplatform/apps/scribeswell/web/tests/workspace-tabs.spec.cjs:40:129
+
+    Error Context: test-results/workspace-tabs-valid-Unico-4b574-ble-and-close-focus-is-safe-desktop/error-context.md
+
+  2) [mobile] › tests/workspace-restoration.spec.cjs:120:1 › late public read after new tab intent requires explicit installation and never drops current tabs 
+
+    Test timeout of 30000ms exceeded.
+
+    Error: locator.click: Test timeout of 30000ms exceeded.
+    Call log:
+      - waiting for getByRole('dialog', { name: 'Book and chapter selector' }).getByRole('button', { name: 'Cancel', exact: true })
+        - locator resolved to <button type="button" class="underline text-sm mt-1">Cancel</button>
+      - attempting click action
+        - waiting for element to be visible, enabled and stable
+        - element is not stable
+      - retrying click action
+        - waiting for element to be visible, enabled and stable
+      - element was detached from the DOM, retrying
+
+
+       9 | }
+      10 | const tabs=page=>page.getByRole('tablist',{name:'Workspace tabs'}).getByRole('tab');
+    > 11 | async function add(page){await page.getByRole('button',{name:'New workspace tab',exact:true}).click();await page.getByRole('dialog',{name:'Book and chapter selector'}).getByRole('button',{name:'Cancel',exact:true}).click();}
+         |                                                                                                                                                                                                                        ^
+      12 | test('real IndexedDB reload restores two public setups',async({page})=>{
+      13 |  await setup(page);await add(page);await expect(tabs(page)).toHaveCount(2);
+      14 |  await page.waitForTimeout(600);await page.reload();await expect(tabs(page)).toHaveCount(2);
+        at add (/home/ck/repos/innodat/agriplatform/apps/scribeswell/web/tests/workspace-restoration.spec.cjs:11:216)
+        at /home/ck/repos/innodat/agriplatform/apps/scribeswell/web/tests/workspace-restoration.spec.cjs:121:108
+
+    Error Context: test-results/workspace-restoration-late-2e390-nd-never-drops-current-tabs-mobile/error-context.md
+
+  3) [mobile] › tests/workspace-tabs.spec.cjs:34:1 › valid Unicode punctuation snapshot tab identity remains selectable and close focus is safe 
+
+    Error: expect(received).toBe(expected) // Object.is equality
+
+    Expected: "עברית \"quoted\" [pane] #1"
+    Received: "f196c3a9-8ae9-42dc-abc3-3bb2985017ee"
+
+      38 |  await expect.poll(()=>page.evaluate(async()=>{const {readWorkspace}=await import('/src/lib/workspace-storage.ts');return (await readWorkspace()).public?.tabs.length;})).toBe(2);
+      39 |  const key='עברית "quoted" [pane] #1';await page.evaluate(async key=>{const state=history.state,snapshot=state.usr.scribeswellReader;const {readWorkspace,writeWorkspace}=await import('/src/lib/workspace-storage.ts');const remembered=(await readWorkspace()).public;await writeWorkspace({...remembered,activeTabKey:key,tabs:remembered.tabs.map(tab=>tab.tabKey===snapshot.tabKey?{...tab,tabKey:key}:tab)});history.replaceState({...state,usr:{...state.usr,scribeswellReader:{...snapshot,tabKey:key}}},'');},key);
+    > 40 |  await page.reload();await expect(tabs(page)).toHaveCount(2);expect(await tabs(page).nth(1).getAttribute('data-workspace-tab')).toBe(key);await expect(page.getByRole('tabpanel',{name:'Genesis 1',exact:true})).toBeVisible();await add(page);await tabs(page).nth(1).click();await page.getByRole('button',{name:'Close tab 2',exact:true}).click();await expect(tabs(page)).toHaveCount(2);await expect(tabs(page).first()).toBeFocused();
+         |                                                                                                                                 ^
+      41 | });
+      42 |
+      43 | test('POP checkpoints the outgoing live tab anchor for a later explicit tab activation',async({page})=>{
+        at /home/ck/repos/innodat/agriplatform/apps/scribeswell/web/tests/workspace-tabs.spec.cjs:40:129
+
+    Error Context: test-results/workspace-tabs-valid-Unico-4b574-ble-and-close-focus-is-safe-mobile/error-context.md
+
+  3 failed
+    [desktop] › tests/workspace-tabs.spec.cjs:34:1 › valid Unicode punctuation snapshot tab identity remains selectable and close focus is safe 
+    [mobile] › tests/workspace-restoration.spec.cjs:120:1 › late public read after new tab intent requires explicit installation and never drops current tabs 
+    [mobile] › tests/workspace-tabs.spec.cjs:34:1 › valid Unicode punctuation snapshot tab identity remains selectable and close focus is safe 
+  109 passed (2.5m)
+npm error Lifecycle script `test:browser` failed with error:
+npm error code 1
+npm error path /home/ck/repos/innodat/agriplatform/apps/scribeswell/web
+npm error workspace scribeswell-web@0.1.0
+npm error location /home/ck/repos/innodat/agriplatform/apps/scribeswell/web
+npm error command failed
+npm error command sh -c playwright test --config playwright.config.cjs workspace-tabs.spec.cjs workspace-restoration.spec.cjs --workers=4 --fully-parallel

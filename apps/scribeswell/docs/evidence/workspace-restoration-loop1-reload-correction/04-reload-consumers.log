@@ -1,0 +1,60 @@
+
+> scribeswell-web@0.1.0 test:browser
+> playwright test --config playwright.config.cjs --workers=4 --fully-parallel personal-notes.spec.cjs -g explicitly enroll|native PostgreSQL browser reload|rich paragraphs|editor toolbar actions|Shift Enter soft|rename: explicit Save Cancel|collected passages persist|links source marks|across an owned atom survives|note deletion composing cancel|malformed Add Cancel|malformed capacity Add
+
+[WebServer] (node:41890) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 32 tests using 4 workers
+
+(node:41988) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:41981) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:41982) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:41989) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  -   2 [desktop] › tests/personal-notes.spec.cjs:173:1 › native PostgreSQL browser reload returns the acknowledged aggregate
+  ✓   3 [desktop] › tests/personal-notes.spec.cjs:141:1 › explicitly enroll, create, write Hebrew and reopen saved text after reload (4.7s)
+  ✓   1 [desktop] › tests/personal-notes.spec.cjs:192:1 › rich paragraphs directions lists marks and safe links survive saving and reopening (5.2s)
+  ✓   5 [desktop] › tests/personal-notes.spec.cjs:227:1 › review: Shift Enter soft break survives save and reload (5.2s)
+  ✓   4 [desktop] › tests/personal-notes.spec.cjs:196:1 › editor toolbar actions persist direction marks lists and safe links (5.8s)
+  ✓   6 [desktop] › tests/personal-notes.spec.cjs:264:1 › rename: explicit Save Cancel and reload preserve independent note and reader (8.0s)
+  ✓   9 [desktop] › tests/personal-notes.spec.cjs:554:70 › note links review: Bold across an owned atom survives save reload (8.3s)
+  ✓   8 [desktop] › tests/personal-notes.spec.cjs:480:1 › note links: links source marks lists direction plain paste and reload roundtrip (9.4s)
+  ✓   7 [desktop] › tests/personal-notes.spec.cjs:359:1 › collected passages persist chapters Hebrew ranges overlap and duplicate IDs without navigation (10.6s)
+  ✓  10 [desktop] › tests/personal-notes.spec.cjs:554:70 › note links review: Italic across an owned atom survives save reload (7.7s)
+  ✓  11 [desktop] › tests/personal-notes.spec.cjs:554:70 › note links review: Bullet list across an owned atom survives save reload (7.3s)
+  ✓  13 [desktop] › tests/personal-notes.spec.cjs:811:1 › note deletion composing cancel preserves final composition through saving and reopen (6.1s)
+  ✓  12 [desktop] › tests/personal-notes.spec.cjs:554:70 › note links review: Numbered list across an owned atom survives save reload (7.7s)
+(node:42969) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  14 [desktop] › tests/personal-notes.spec.cjs:1174:118 › review: malformed Add Cancel retains unresolved provenance across replay and refresh until valid choice ?book=Gen&chapter=bad&other=keep#reading (7.1s)
+  ✓  15 [desktop] › tests/personal-notes.spec.cjs:1174:118 › review: malformed Add Cancel retains unresolved provenance across replay and refresh until valid choice ?reader=%7B%7D&book=Exod&other=keep#reading (7.2s)
+(node:43112) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  16 [desktop] › tests/personal-notes.spec.cjs:1265:1 › review: malformed capacity Add replacement Cancel still requires a valid passage choice (7.8s)
+  -  18 [mobile] › tests/personal-notes.spec.cjs:173:1 › native PostgreSQL browser reload returns the acknowledged aggregate
+(node:43138) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:43271) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  17 [mobile] › tests/personal-notes.spec.cjs:141:1 › explicitly enroll, create, write Hebrew and reopen saved text after reload (7.5s)
+  ✓  19 [mobile] › tests/personal-notes.spec.cjs:227:1 › review: Shift Enter soft break survives save and reload (8.2s)
+  ✓  20 [mobile] › tests/personal-notes.spec.cjs:192:1 › rich paragraphs directions lists marks and safe links survive saving and reopening (7.3s)
+  ✓  21 [mobile] › tests/personal-notes.spec.cjs:264:1 › rename: explicit Save Cancel and reload preserve independent note and reader (8.6s)
+  ✓  22 [mobile] › tests/personal-notes.spec.cjs:196:1 › editor toolbar actions persist direction marks lists and safe links (9.6s)
+  ✓  24 [mobile] › tests/personal-notes.spec.cjs:480:1 › note links: links source marks lists direction plain paste and reload roundtrip (9.0s)
+  ✓  25 [mobile] › tests/personal-notes.spec.cjs:554:70 › note links review: Bold across an owned atom survives save reload (7.3s)
+  ✓  23 [mobile] › tests/personal-notes.spec.cjs:359:1 › collected passages persist chapters Hebrew ranges overlap and duplicate IDs without navigation (10.3s)
+  ✓  26 [mobile] › tests/personal-notes.spec.cjs:554:70 › note links review: Italic across an owned atom survives save reload (7.6s)
+  ✓  29 [mobile] › tests/personal-notes.spec.cjs:811:1 › note deletion composing cancel preserves final composition through saving and reopen (6.7s)
+  ✓  27 [mobile] › tests/personal-notes.spec.cjs:554:70 › note links review: Bullet list across an owned atom survives save reload (8.6s)
+  ✓  28 [mobile] › tests/personal-notes.spec.cjs:554:70 › note links review: Numbered list across an owned atom survives save reload (7.9s)
+  ✓  30 [mobile] › tests/personal-notes.spec.cjs:1174:118 › review: malformed Add Cancel retains unresolved provenance across replay and refresh until valid choice ?book=Gen&chapter=bad&other=keep#reading (7.6s)
+  ✓  31 [mobile] › tests/personal-notes.spec.cjs:1174:118 › review: malformed Add Cancel retains unresolved provenance across replay and refresh until valid choice ?reader=%7B%7D&book=Exod&other=keep#reading (6.0s)
+  ✓  32 [mobile] › tests/personal-notes.spec.cjs:1265:1 › review: malformed capacity Add replacement Cancel still requires a valid passage choice (6.0s)
+
+  2 skipped
+  30 passed (1.1m)

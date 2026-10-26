@@ -1,0 +1,33 @@
+
+> scribeswell-web@0.1.0 test:browser
+> playwright test --config playwright.config.cjs workspace-restoration.spec.cjs --workers=4 --fully-parallel --grep real device reload restores four|late automatic bootstrap|accepted distinct tab keys|last public scroll checkpoint
+
+[WebServer] (node:1370498) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 8 tests using 4 workers
+
+(node:1370549) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:1370544) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:1370557) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:1370551) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  2 [desktop] › tests/workspace-restoration.spec.cjs:173:1 › accepted distinct tab keys sharing an incarnation keep independent private candidates (1.9s)
+(node:1370962) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  1 [desktop] › tests/workspace-restoration.spec.cjs:176:1 › late automatic bootstrap never steals focus from a newer open selector (3.1s)
+(node:1371102) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  5 [mobile] › tests/workspace-restoration.spec.cjs:173:1 › accepted distinct tab keys sharing an incarnation keep independent private candidates (1.2s)
+  ✓  4 [desktop] › tests/workspace-restoration.spec.cjs:182:1 › real device reload restores four independent pane references anchors and active pane plus inactive tab position (3.8s)
+(node:1371188) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  3 [desktop] › tests/workspace-restoration.spec.cjs:179:1 › last public scroll checkpoint survives tools hiding the pane before the durable write (4.4s)
+  ✓  6 [mobile] › tests/workspace-restoration.spec.cjs:176:1 › late automatic bootstrap never steals focus from a newer open selector (2.5s)
+  ✓  7 [mobile] › tests/workspace-restoration.spec.cjs:179:1 › last public scroll checkpoint survives tools hiding the pane before the durable write (3.7s)
+  ✓  8 [mobile] › tests/workspace-restoration.spec.cjs:182:1 › real device reload restores four independent pane references anchors and active pane plus inactive tab position (3.4s)
+
+  8 passed (9.6s)

@@ -1,0 +1,47 @@
+
+> scribeswell-web@0.1.0 test:browser
+> playwright test --config playwright.config.cjs --workers=2 --project=desktop workspace-restoration.spec.cjs -g loop1
+
+[WebServer] (node:1490181) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 7 tests using 1 worker
+
+(node:1490227) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  1 [desktop] › tests/workspace-restoration.spec.cjs:203:102 › loop1 requested null study never exposes a private label (1.1s)
+  ✓  2 [desktop] › tests/workspace-restoration.spec.cjs:203:102 › loop1 requested null note never exposes a private label (902ms)
+  ✓  3 [desktop] › tests/workspace-restoration.spec.cjs:203:102 › loop1 requested wrong note ID never exposes a private label (858ms)
+  ✓  4 [desktop] › tests/workspace-restoration.spec.cjs:203:102 › loop1 requested wrong note parent never exposes a private label (828ms)
+  ✓  5 [desktop] › tests/workspace-restoration.spec.cjs:203:102 › loop1 requested wrong note owner never exposes a private label (830ms)
+  ✓  6 [desktop] › tests/workspace-restoration.spec.cjs:208:1 › loop1 eviction Retry repopulates an unchanged successful live projection (2.0s)
+  ✘  7 [desktop] › tests/workspace-restoration.spec.cjs:215:1 › loop1 alternating owners have bounded queued writes and truthful overload failure (1.0s)
+
+
+  1) [desktop] › tests/workspace-restoration.spec.cjs:215:1 › loop1 alternating owners have bounded queued writes and truthful overload failure 
+
+    Error: expect(received).toBe(expected) // Object.is equality
+
+    Expected: 9
+    Received: 72
+
+      221 |   await new Promise(resolve=>setTimeout(resolve,100));release();const results=await Promise.all(writes);IDBDatabase.prototype.transaction=original;
+      222 |   return {accepted:results.filter(r=>r.ok).length,rejected:results.filter(r=>!r.ok).length,first:results[0].ok};
+    > 223 |  },{pub:publicSetup(),priv:privateSetup()});expect(result.first).toBe(true);expect(result.accepted).toBe(9);expect(result.rejected).toBeGreaterThan(0);
+          |                                                                                                     ^
+      224 | });
+      225 |
+        at /home/ck/repos/innodat/agriplatform/apps/scribeswell/web/tests/workspace-restoration.spec.cjs:223:101
+
+    Error Context: test-results/workspace-restoration-loop-840d7-d-truthful-overload-failure-desktop/error-context.md
+
+  1 failed
+    [desktop] › tests/workspace-restoration.spec.cjs:215:1 › loop1 alternating owners have bounded queued writes and truthful overload failure 
+  6 passed (8.9s)
+npm error Lifecycle script `test:browser` failed with error:
+npm error code 1
+npm error path /home/ck/repos/innodat/agriplatform/apps/scribeswell/web
+npm error workspace scribeswell-web@0.1.0
+npm error location /home/ck/repos/innodat/agriplatform/apps/scribeswell/web
+npm error command failed
+npm error command sh -c playwright test --config playwright.config.cjs --workers=2 --project=desktop workspace-restoration.spec.cjs -g loop1

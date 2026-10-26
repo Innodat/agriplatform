@@ -1,0 +1,194 @@
+
+> scribeswell-web@0.1.0 test:browser
+> playwright test --config playwright.config.cjs workspace-restoration.spec.cjs --workers=4 --fully-parallel
+
+[WebServer] (node:1324663) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 76 tests using 4 workers
+
+(node:1324708) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:1324715) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:1324716) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:1324714) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   4 [desktop] › tests/workspace-restoration.spec.cjs:16:1 › closed codec bounds privacy expiry and future version policy (1.3s)
+  ✓   3 [desktop] › tests/workspace-restoration.spec.cjs:60:1 › fresh equal-reference link has a new incarnation and no private association (2.1s)
+  ✓   2 [desktop] › tests/workspace-restoration.spec.cjs:54:1 › fresh explicit target stages twelve stored tabs and Cancel preserves the record with explicit Retry (2.7s)
+  ✓   1 [desktop] › tests/workspace-restoration.spec.cjs:12:1 › real IndexedDB reload restores two public setups (2.8s)
+  ✓   5 [desktop] › tests/workspace-restoration.spec.cjs:63:1 › same verified owner refetches private selections into one resource lane while public storage stays closed (2.4s)
+  ✓   6 [desktop] › tests/workspace-restoration.spec.cjs:68:187 › authority 503 retains hidden candidate without affecting public setups (2.0s)
+  ✓   7 [desktop] › tests/workspace-restoration.spec.cjs:68:187 › authority 401 retains hidden candidate without affecting public setups (1.9s)
+  ✓   8 [desktop] › tests/workspace-restoration.spec.cjs:68:187 › authority 403 clears candidate without affecting public setups (1.9s)
+  ✓   9 [desktop] › tests/workspace-restoration.spec.cjs:68:187 › authority 404 clears candidate without affecting public setups (1.7s)
+  ✓  11 [desktop] › tests/workspace-restoration.spec.cjs:74:48 › storage denied keeps reading usable and offers truthful Retry (1.0s)
+  ✓  10 [desktop] › tests/workspace-restoration.spec.cjs:71:1 › different verified account never reads or displays another owner selections (1.7s)
+  ✓  12 [desktop] › tests/workspace-restoration.spec.cjs:74:48 › storage quota keeps reading usable and offers truthful Retry (1.5s)
+  ✓  13 [desktop] › tests/workspace-restoration.spec.cjs:74:48 › storage blocked keeps reading usable and offers truthful Retry (1.2s)
+  ✓  14 [desktop] › tests/workspace-restoration.spec.cjs:78:69 › expired stored record is bounded and future records remain untouched (2.6s)
+  ✓  15 [desktop] › tests/workspace-restoration.spec.cjs:78:69 › malformed stored record is bounded and future records remain untouched (2.6s)
+  ✓  16 [desktop] › tests/workspace-restoration.spec.cjs:78:69 › oversize stored record is bounded and future records remain untouched (3.2s)
+  ✓  19 [desktop] › tests/workspace-restoration.spec.cjs:81:1 › maximum accepted combinations and closed private DTO reject forbidden data and invalid timestamps (2.2s)
+  ✓  17 [desktop] › tests/workspace-restoration.spec.cjs:78:69 › future stored record is bounded and future records remain untouched (4.8s)
+  ✓  20 [desktop] › tests/workspace-restoration.spec.cjs:84:1 › atomic serialized writes coalesce and prune only completed account records (2.7s)
+  ✓  18 [desktop] › tests/workspace-restoration.spec.cjs:78:69 › old stored record is bounded and future records remain untouched (5.0s)
+  ✓  23 [desktop] › tests/workspace-restoration.spec.cjs:104:1 › delayed old identity401 cannot remove a newer SDK sign-in session (2.3s)
+  ✓  22 [desktop] › tests/workspace-restoration.spec.cjs:101:1 › cross-window future version prevents even a previously eligible writer from changing records (4.7s)
+  ✓  21 [desktop] › tests/workspace-restoration.spec.cjs:94:1 › two windows preserve independent live layouts and last completed transaction wins future return (8.4s)
+  ✓  24 [desktop] › tests/workspace-restoration.spec.cjs:108:1 › changed intent during identity verification retains hidden candidates for explicit Retry (6.0s)
+  ✓  25 [desktop] › tests/workspace-restoration.spec.cjs:112:84 › late hydration ignores changed navigation without focus or selection replacement (5.2s)
+  ✓  26 [desktop] › tests/workspace-restoration.spec.cjs:112:84 › late hydration ignores closed incarnation without focus or selection replacement (4.7s)
+  ✓  27 [desktop] › tests/workspace-restoration.spec.cjs:112:84 › late hydration ignores account switch without focus or selection replacement (4.8s)
+  ✓  28 [desktop] › tests/workspace-restoration.spec.cjs:120:1 › late public read after new tab intent requires explicit installation and never drops current tabs (5.0s)
+  ✓  29 [desktop] › tests/workspace-restoration.spec.cjs:124:1 › account intent invalidates a delayed public bootstrap even outside the reader root (4.8s)
+  ✓  31 [desktop] › tests/workspace-restoration.spec.cjs:130:1 › wrong owner or parent responses never expose a stored private candidate (3.7s)
+  ✓  30 [desktop] › tests/workspace-restoration.spec.cjs:127:1 › timed out open cannot later upgrade or install over intervening reading (7.2s)
+  ✓  32 [desktop] › tests/workspace-restoration.spec.cjs:133:1 › sign-out retires private incarnations and replay remains public when the owner returns (4.4s)
+  ✓  33 [desktop] › tests/workspace-restoration.spec.cjs:136:1 › anonymous names stay memory-only and retained native refresh preserves matching incarnations (5.7s)
+  ✓  35 [desktop] › tests/workspace-restoration.spec.cjs:142:1 › denied storage Retry remembers current reading once storage becomes available (3.5s)
+  ✓  34 [desktop] › tests/workspace-restoration.spec.cjs:139:1 › evicted storage loses remembered metadata safely while public reading remains usable (4.8s)
+  ✓  36 [desktop] › tests/workspace-restoration.spec.cjs:145:1 › resource404 clears only the affected selection and keeps unrelated authorized context (4.9s)
+(node:1326282) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:1326315) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  38 [desktop] › tests/workspace-restoration.spec.cjs:151:1 › late second candidate cannot overwrite a newer dirty shared note lane or expose its private label (4.8s)
+  ✓  37 [desktop] › tests/workspace-restoration.spec.cjs:148:1 › unsent body never persists and reload refetches acknowledged content (7.1s)
+(node:1326551) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  40 [mobile] › tests/workspace-restoration.spec.cjs:16:1 › closed codec bounds privacy expiry and future version policy (2.4s)
+(node:1326581) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  39 [mobile] › tests/workspace-restoration.spec.cjs:12:1 › real IndexedDB reload restores two public setups (5.3s)
+  ✓  43 [mobile] › tests/workspace-restoration.spec.cjs:60:1 › fresh equal-reference link has a new incarnation and no private association (5.8s)
+  ✓  42 [mobile] › tests/workspace-restoration.spec.cjs:63:1 › same verified owner refetches private selections into one resource lane while public storage stays closed (7.8s)
+  ✓  45 [mobile] › tests/workspace-restoration.spec.cjs:68:187 › authority 401 retains hidden candidate without affecting public setups (2.8s)
+  ✓  46 [mobile] › tests/workspace-restoration.spec.cjs:68:187 › authority 403 clears candidate without affecting public setups (2.8s)
+  ✘  41 [mobile] › tests/workspace-restoration.spec.cjs:54:1 › fresh explicit target stages twelve stored tabs and Cancel preserves the record with explicit Retry (10.4s)
+  ✘  44 [mobile] › tests/workspace-restoration.spec.cjs:68:187 › authority 503 retains hidden candidate without affecting public setups (9.9s)
+(node:1327072) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  47 [mobile] › tests/workspace-restoration.spec.cjs:68:187 › authority 404 clears candidate without affecting public setups (2.9s)
+(node:1327122) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  48 [mobile] › tests/workspace-restoration.spec.cjs:71:1 › different verified account never reads or displays another owner selections (3.5s)
+  ✓  50 [mobile] › tests/workspace-restoration.spec.cjs:74:48 › storage blocked keeps reading usable and offers truthful Retry (3.2s)
+  ✓  49 [mobile] › tests/workspace-restoration.spec.cjs:74:48 › storage denied keeps reading usable and offers truthful Retry (3.5s)
+  ✓  52 [mobile] › tests/workspace-restoration.spec.cjs:78:69 › expired stored record is bounded and future records remain untouched (5.5s)
+  ✓  53 [mobile] › tests/workspace-restoration.spec.cjs:78:69 › malformed stored record is bounded and future records remain untouched (5.1s)
+  ✓  54 [mobile] › tests/workspace-restoration.spec.cjs:78:69 › oversize stored record is bounded and future records remain untouched (4.7s)
+  ✓  57 [mobile] › tests/workspace-restoration.spec.cjs:81:1 › maximum accepted combinations and closed private DTO reject forbidden data and invalid timestamps (1.6s)
+  ✓  55 [mobile] › tests/workspace-restoration.spec.cjs:78:69 › future stored record is bounded and future records remain untouched (3.7s)
+  ✓  58 [mobile] › tests/workspace-restoration.spec.cjs:84:1 › atomic serialized writes coalesce and prune only completed account records (1.6s)
+  ✓  56 [mobile] › tests/workspace-restoration.spec.cjs:78:69 › old stored record is bounded and future records remain untouched (3.8s)
+  ✓  61 [mobile] › tests/workspace-restoration.spec.cjs:104:1 › delayed old identity401 cannot remove a newer SDK sign-in session (2.0s)
+  ✓  60 [mobile] › tests/workspace-restoration.spec.cjs:101:1 › cross-window future version prevents even a previously eligible writer from changing records (3.7s)
+  ✓  59 [mobile] › tests/workspace-restoration.spec.cjs:94:1 › two windows preserve independent live layouts and last completed transaction wins future return (6.9s)
+  ✓  62 [mobile] › tests/workspace-restoration.spec.cjs:108:1 › changed intent during identity verification retains hidden candidates for explicit Retry (5.0s)
+  ✓  63 [mobile] › tests/workspace-restoration.spec.cjs:112:84 › late hydration ignores changed navigation without focus or selection replacement (4.4s)
+  ✓  64 [mobile] › tests/workspace-restoration.spec.cjs:112:84 › late hydration ignores closed incarnation without focus or selection replacement (3.6s)
+  ✓  65 [mobile] › tests/workspace-restoration.spec.cjs:112:84 › late hydration ignores account switch without focus or selection replacement (3.6s)
+  ✓  66 [mobile] › tests/workspace-restoration.spec.cjs:120:1 › late public read after new tab intent requires explicit installation and never drops current tabs (3.8s)
+  ✓  67 [mobile] › tests/workspace-restoration.spec.cjs:124:1 › account intent invalidates a delayed public bootstrap even outside the reader root (3.7s)
+  ✓  69 [mobile] › tests/workspace-restoration.spec.cjs:130:1 › wrong owner or parent responses never expose a stored private candidate (3.0s)
+  ✓  70 [mobile] › tests/workspace-restoration.spec.cjs:133:1 › sign-out retires private incarnations and replay remains public when the owner returns (3.4s)
+  ✓  68 [mobile] › tests/workspace-restoration.spec.cjs:127:1 › timed out open cannot later upgrade or install over intervening reading (6.1s)
+  ✘  51 [mobile] › tests/workspace-restoration.spec.cjs:74:48 › storage quota keeps reading usable and offers truthful Retry (30.1s)
+  ✓  71 [mobile] › tests/workspace-restoration.spec.cjs:136:1 › anonymous names stay memory-only and retained native refresh preserves matching incarnations (4.2s)
+  ✓  73 [mobile] › tests/workspace-restoration.spec.cjs:142:1 › denied storage Retry remembers current reading once storage becomes available (2.9s)
+  ✓  72 [mobile] › tests/workspace-restoration.spec.cjs:139:1 › evicted storage loses remembered metadata safely while public reading remains usable (3.6s)
+(node:1328440) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  75 [mobile] › tests/workspace-restoration.spec.cjs:151:1 › late second candidate cannot overwrite a newer dirty shared note lane or expose its private label (3.8s)
+  ✓  74 [mobile] › tests/workspace-restoration.spec.cjs:148:1 › unsent body never persists and reload refetches acknowledged content (5.4s)
+  ✓  76 [mobile] › tests/workspace-restoration.spec.cjs:145:1 › resource404 clears only the affected selection and keeps unrelated authorized context (3.4s)
+
+
+  1) [mobile] › tests/workspace-restoration.spec.cjs:54:1 › fresh explicit target stages twelve stored tabs and Cancel preserves the record with explicit Retry 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByRole('dialog', { name: 'Restore remembered reading setups' })
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByRole('dialog', { name: 'Restore remembered reading setups' }) with timeout 5000ms
+      - waiting for getByRole('dialog', { name: 'Restore remembered reading setups' })
+
+
+      54 | test('fresh explicit target stages twelve stored tabs and Cancel preserves the record with explicit Retry',async({page})=>{
+      55 |  await setup(page);await seed(page,publicSetup(12));await page.goto('/?book=Gen&chapter=2');
+    > 56 |  const dialog=page.getByRole('dialog',{name:'Restore remembered reading setups'});await expect(dialog).toBeVisible();await expect(tabs(page)).toHaveCount(1);expect(new URL(page.url()).searchParams.get('chapter')).toBe('2');
+         |                                                                                                        ^
+      57 |  await dialog.getByRole('button',{name:'Cancel',exact:true}).click();await page.waitForTimeout(450);expect((await stored(page)).public.tabs).toHaveLength(12);await expect(tabs(page)).toHaveCount(1);
+      58 |  await page.getByRole('status').filter({hasText:'Remembered reading setups are ready.'}).getByRole('button',{name:'Retry',exact:true}).click();await expect(dialog).toBeVisible();await dialog.getByRole('button',{name:/Close remembered tab 2:/}).click();await expect(tabs(page)).toHaveCount(12);await expect(tabs(page).first()).toHaveText('Genesis 2');await expect(tabs(page).first()).toBeFocused();
+      59 | });
+        at /home/ck/repos/innodat/agriplatform/apps/scribeswell/web/tests/workspace-restoration.spec.cjs:56:104
+
+    Error Context: test-results/workspace-restoration-fres-99f99--record-with-explicit-Retry-mobile/error-context.md
+
+  2) [mobile] › tests/workspace-restoration.spec.cjs:68:187 › authority 503 retains hidden candidate without affecting public setups 
+
+    Error: expect(locator).toHaveCount(expected) failed
+
+    Locator:  getByRole('tablist', { name: 'Workspace tabs' }).getByRole('tab')
+    Expected: 2
+    Received: 1
+    Timeout:  5000ms
+
+    Call log:
+      - Expect "toHaveCount" getByRole('tablist', { name: 'Workspace tabs' }).getByRole('tab') with timeout 5000ms
+      - waiting for getByRole('tablist', { name: 'Workspace tabs' }).getByRole('tab')
+        13 × locator resolved to 1 element
+           - unexpected value "1"
+
+
+      67 | });
+      68 | for(const [status,code,cleared] of [[503,'studies_storage_unavailable',false],[401,'authentication_required',false],[403,'studies_access_denied',true],[404,'resource_unavailable',true]])test(`authority ${status} ${cleared?'clears':'retains hidden'} candidate without affecting public setups`,async({page})=>{
+    > 69 |  await setup(page);await seed(page,publicSetup(),privateSetup());await owner(page,{read:r=>r.fulfill({status,json:{code}})});await page.goto('/');await expect(tabs(page)).toHaveCount(2);await page.waitForTimeout(650);await expect(page.getByText('Private label 1',{exact:true})).toHaveCount(0);const records=await stored(page);expect(records.public.tabs).toHaveLength(2);expect(records[`account:${account}`].tabs).toHaveLength(cleared?0:2);
+         |                                                                                                                                                                            ^
+      70 | });
+      71 | test('different verified account never reads or displays another owner selections',async({page})=>{
+      72 |  await setup(page);await seed(page,publicSetup(),privateSetup());const calls=await owner(page);await page.evaluate(({s,other})=>localStorage.setItem('pts-auth',JSON.stringify({...s,user:{...s.user,id:other}})),{s:session,other});await page.goto('/');await expect(tabs(page)).toHaveCount(2);await page.waitForTimeout(500);expect(calls.reads()).toBe(0);await expect(page.getByText('Private label 1',{exact:true})).toHaveCount(0);expect((await stored(page))[`account:${account}`].tabs).toHaveLength(2);
+        at /home/ck/repos/innodat/agriplatform/apps/scribeswell/web/tests/workspace-restoration.spec.cjs:69:172
+
+    Error Context: test-results/workspace-restoration-auth-8e3db-out-affecting-public-setups-mobile/error-context.md
+
+  3) [mobile] › tests/workspace-restoration.spec.cjs:74:48 › storage quota keeps reading usable and offers truthful Retry 
+
+    Test timeout of 30000ms exceeded.
+
+    Error: locator.click: Test timeout of 30000ms exceeded.
+    Call log:
+      - waiting for getByRole('dialog', { name: 'Book and chapter selector' }).getByRole('button', { name: 'Cancel', exact: true })
+
+
+       9 | }
+      10 | const tabs=page=>page.getByRole('tablist',{name:'Workspace tabs'}).getByRole('tab');
+    > 11 | async function add(page){await page.getByRole('button',{name:'New workspace tab',exact:true}).click();await page.getByRole('dialog',{name:'Book and chapter selector'}).getByRole('button',{name:'Cancel',exact:true}).click();}
+         |                                                                                                                                                                                                                        ^
+      12 | test('real IndexedDB reload restores two public setups',async({page})=>{
+      13 |  await setup(page);await add(page);await expect(tabs(page)).toHaveCount(2);
+      14 |  await page.waitForTimeout(600);await page.reload();await expect(tabs(page)).toHaveCount(2);
+        at add (/home/ck/repos/innodat/agriplatform/apps/scribeswell/web/tests/workspace-restoration.spec.cjs:11:216)
+        at /home/ck/repos/innodat/agriplatform/apps/scribeswell/web/tests/workspace-restoration.spec.cjs:76:123
+
+    Error Context: test-results/workspace-restoration-stor-d550e-e-and-offers-truthful-Retry-mobile/error-context.md
+
+  3 failed
+    [mobile] › tests/workspace-restoration.spec.cjs:54:1 › fresh explicit target stages twelve stored tabs and Cancel preserves the record with explicit Retry 
+    [mobile] › tests/workspace-restoration.spec.cjs:68:187 › authority 503 retains hidden candidate without affecting public setups 
+    [mobile] › tests/workspace-restoration.spec.cjs:74:48 › storage quota keeps reading usable and offers truthful Retry 
+  73 passed (1.5m)
+npm error Lifecycle script `test:browser` failed with error:
+npm error code 1
+npm error path /home/ck/repos/innodat/agriplatform/apps/scribeswell/web
+npm error workspace scribeswell-web@0.1.0
+npm error location /home/ck/repos/innodat/agriplatform/apps/scribeswell/web
+npm error command failed
+npm error command sh -c playwright test --config playwright.config.cjs workspace-restoration.spec.cjs --workers=4 --fully-parallel

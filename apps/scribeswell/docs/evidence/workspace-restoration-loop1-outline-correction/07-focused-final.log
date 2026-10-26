@@ -1,0 +1,85 @@
+
+> scribeswell-web@0.1.0 test:browser
+> playwright test --config playwright.config.cjs --workers=4 --fully-parallel workspace-restoration.spec.cjs personal-notes.spec.cjs -g outline return|account replacement discards prior private UI|rejected study title can be corrected|same-account reauthentication preserves input|collected passages persist|malformed Add Cancel|same verified owner refetches|late hydration ignores|overall30s hydration deadline|current hydration401|current admission403
+
+[WebServer] (node:79649) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 58 tests using 4 workers
+
+(node:79681) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:79687) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:79688) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:79694) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   4 [desktop] › tests/personal-notes.spec.cjs:212:1 › review: rejected study title can be corrected without replaying invalid payload (1.5s)
+  ✓   2 [desktop] › tests/personal-notes.spec.cjs:187:1 › same-account reauthentication preserves input and requires explicit retry (2.5s)
+  ✓   3 [desktop] › tests/personal-notes.spec.cjs:167:59 › account replacement discards prior private UI and late saves (other-account) (2.7s)
+  ✓   1 [desktop] › tests/personal-notes.spec.cjs:167:59 › account replacement discards prior private UI and late saves (current) (2.8s)
+  ✓   8 [desktop] › tests/workspace-restoration.spec.cjs:63:1 › same verified owner refetches private selections into one resource lane while public storage stays closed (2.8s)
+  ✓   5 [desktop] › tests/personal-notes.spec.cjs:359:1 › collected passages persist chapters Hebrew ranges overlap and duplicate IDs without navigation (4.1s)
+  ✓   6 [desktop] › tests/personal-notes.spec.cjs:1174:118 › review: malformed Add Cancel retains unresolved provenance across replay and refresh until valid choice ?book=Gen&chapter=bad&other=keep#reading (5.2s)
+  ✓   7 [desktop] › tests/personal-notes.spec.cjs:1174:118 › review: malformed Add Cancel retains unresolved provenance across replay and refresh until valid choice ?reader=%7B%7D&book=Exod&other=keep#reading (5.6s)
+  ✓   9 [desktop] › tests/workspace-restoration.spec.cjs:112:84 › late hydration ignores changed navigation without focus or selection replacement (5.2s)
+  ✓  10 [desktop] › tests/workspace-restoration.spec.cjs:112:84 › late hydration ignores closed incarnation without focus or selection replacement (5.2s)
+  ✓  11 [desktop] › tests/workspace-restoration.spec.cjs:112:84 › late hydration ignores account switch without focus or selection replacement (6.0s)
+  ✓  12 [desktop] › tests/workspace-restoration.spec.cjs:163:1 › current admission403 clears already hydrated lanes after unrelated origin intent changes (6.5s)
+  ✓  14 [desktop] › tests/workspace-restoration.spec.cjs:261:1 › loop1 overall30s hydration deadline hides unfinished candidates and rejects late responses until Retry (7.8s)
+  ✓  13 [desktop] › tests/workspace-restoration.spec.cjs:196:1 › current hydration401 masks all context and explicit fresh Retry retains dirty lane and original save command (8.1s)
+  ✓  16 [desktop] › tests/workspace-restoration.spec.cjs:303:136 › outline return late notes ignores dirty input without changing lanes or focus (6.6s)
+  ✓  15 [desktop] › tests/workspace-restoration.spec.cjs:297:1 › outline return opens complete current notes and passages without leaving or reselecting the restored study (8.7s)
+  ✓  17 [desktop] › tests/workspace-restoration.spec.cjs:303:136 › outline return late notes ignores leave study without changing lanes or focus (5.4s)
+  ✓  18 [desktop] › tests/workspace-restoration.spec.cjs:303:136 › outline return late notes ignores replace study without changing lanes or focus (5.4s)
+  ✓  19 [desktop] › tests/workspace-restoration.spec.cjs:303:136 › outline return late notes ignores close tab without changing lanes or focus (4.6s)
+  ✓  20 [desktop] › tests/workspace-restoration.spec.cjs:303:136 › outline return late notes ignores account switch without changing lanes or focus (4.8s)
+  ✓  21 [desktop] › tests/workspace-restoration.spec.cjs:303:136 › outline return late passages ignores dirty input without changing lanes or focus (5.3s)
+  ✓  22 [desktop] › tests/workspace-restoration.spec.cjs:303:136 › outline return late passages ignores leave study without changing lanes or focus (5.7s)
+  ✓  24 [desktop] › tests/workspace-restoration.spec.cjs:303:136 › outline return late passages ignores close tab without changing lanes or focus (4.8s)
+  ✓  23 [desktop] › tests/workspace-restoration.spec.cjs:303:136 › outline return late passages ignores replace study without changing lanes or focus (6.1s)
+  ✓  25 [desktop] › tests/workspace-restoration.spec.cjs:303:136 › outline return late passages ignores account switch without changing lanes or focus (5.3s)
+  ✓  26 [desktop] › tests/workspace-restoration.spec.cjs:320:1 › outline return readonly refresh preserves an existing dirty selected lane and retries invalid owner pages (7.2s)
+  ✓  27 [desktop] › tests/workspace-restoration.spec.cjs:325:1 › outline return inherited restored context loads its own current outline on first explicit open (6.4s)
+  ✓  28 [desktop] › tests/workspace-restoration.spec.cjs:328:1 › outline return Back to Studies loads the visible restored outline without rail navigation (6.4s)
+(node:81358) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:81386) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:81369) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  29 [desktop] › tests/workspace-restoration.spec.cjs:331:1 › outline return tab reentry reloads a cancelled visible outline and never starts hidden outline reads (6.1s)
+(node:81534) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  30 [mobile] › tests/personal-notes.spec.cjs:167:59 › account replacement discards prior private UI and late saves (current) (5.7s)
+  ✓  31 [mobile] › tests/personal-notes.spec.cjs:167:59 › account replacement discards prior private UI and late saves (other-account) (5.1s)
+  ✓  33 [mobile] › tests/personal-notes.spec.cjs:212:1 › review: rejected study title can be corrected without replaying invalid payload (3.1s)
+  ✓  32 [mobile] › tests/personal-notes.spec.cjs:187:1 › same-account reauthentication preserves input and requires explicit retry (5.5s)
+  ✓  37 [mobile] › tests/workspace-restoration.spec.cjs:63:1 › same verified owner refetches private selections into one resource lane while public storage stays closed (5.7s)
+  ✓  36 [mobile] › tests/personal-notes.spec.cjs:1174:118 › review: malformed Add Cancel retains unresolved provenance across replay and refresh until valid choice ?reader=%7B%7D&book=Exod&other=keep#reading (7.7s)
+  ✓  35 [mobile] › tests/personal-notes.spec.cjs:1174:118 › review: malformed Add Cancel retains unresolved provenance across replay and refresh until valid choice ?book=Gen&chapter=bad&other=keep#reading (8.0s)
+  ✓  34 [mobile] › tests/personal-notes.spec.cjs:359:1 › collected passages persist chapters Hebrew ranges overlap and duplicate IDs without navigation (10.4s)
+  ✓  38 [mobile] › tests/workspace-restoration.spec.cjs:112:84 › late hydration ignores changed navigation without focus or selection replacement (5.4s)
+  ✓  39 [mobile] › tests/workspace-restoration.spec.cjs:112:84 › late hydration ignores closed incarnation without focus or selection replacement (5.0s)
+  ✓  40 [mobile] › tests/workspace-restoration.spec.cjs:112:84 › late hydration ignores account switch without focus or selection replacement (4.9s)
+  ✓  41 [mobile] › tests/workspace-restoration.spec.cjs:163:1 › current admission403 clears already hydrated lanes after unrelated origin intent changes (4.2s)
+  ✓  42 [mobile] › tests/workspace-restoration.spec.cjs:196:1 › current hydration401 masks all context and explicit fresh Retry retains dirty lane and original save command (6.0s)
+  ✓  43 [mobile] › tests/workspace-restoration.spec.cjs:261:1 › loop1 overall30s hydration deadline hides unfinished candidates and rejects late responses until Retry (5.5s)
+  ✓  45 [mobile] › tests/workspace-restoration.spec.cjs:303:136 › outline return late notes ignores dirty input without changing lanes or focus (4.5s)
+  ✓  44 [mobile] › tests/workspace-restoration.spec.cjs:297:1 › outline return opens complete current notes and passages without leaving or reselecting the restored study (8.2s)
+  ✓  46 [mobile] › tests/workspace-restoration.spec.cjs:303:136 › outline return late notes ignores leave study without changing lanes or focus (5.1s)
+  ✓  48 [mobile] › tests/workspace-restoration.spec.cjs:303:136 › outline return late notes ignores close tab without changing lanes or focus (5.6s)
+  ✓  47 [mobile] › tests/workspace-restoration.spec.cjs:303:136 › outline return late notes ignores replace study without changing lanes or focus (5.9s)
+  ✓  49 [mobile] › tests/workspace-restoration.spec.cjs:303:136 › outline return late notes ignores account switch without changing lanes or focus (5.1s)
+  ✓  50 [mobile] › tests/workspace-restoration.spec.cjs:303:136 › outline return late passages ignores dirty input without changing lanes or focus (5.3s)
+  ✓  51 [mobile] › tests/workspace-restoration.spec.cjs:303:136 › outline return late passages ignores leave study without changing lanes or focus (5.5s)
+  ✓  52 [mobile] › tests/workspace-restoration.spec.cjs:303:136 › outline return late passages ignores replace study without changing lanes or focus (6.0s)
+  ✓  53 [mobile] › tests/workspace-restoration.spec.cjs:303:136 › outline return late passages ignores close tab without changing lanes or focus (4.5s)
+  ✓  54 [mobile] › tests/workspace-restoration.spec.cjs:303:136 › outline return late passages ignores account switch without changing lanes or focus (4.8s)
+  ✓  55 [mobile] › tests/workspace-restoration.spec.cjs:320:1 › outline return readonly refresh preserves an existing dirty selected lane and retries invalid owner pages (7.9s)
+  ✓  56 [mobile] › tests/workspace-restoration.spec.cjs:325:1 › outline return inherited restored context loads its own current outline on first explicit open (7.6s)
+  ✓  57 [mobile] › tests/workspace-restoration.spec.cjs:328:1 › outline return Back to Studies loads the visible restored outline without rail navigation (7.4s)
+  ✓  58 [mobile] › tests/workspace-restoration.spec.cjs:331:1 › outline return tab reentry reloads a cancelled visible outline and never starts hidden outline reads (6.2s)
+
+  58 passed (1.5m)

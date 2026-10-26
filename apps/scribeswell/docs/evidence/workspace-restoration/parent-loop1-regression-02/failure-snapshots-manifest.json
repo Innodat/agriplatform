@@ -1,0 +1,8 @@
+{
+  "archive": "failure-snapshots.zip",
+  "archive_sha256": "938fa2062a435e45a4113b9db817b2a41b774b031a91f57127d0b9899cfd7d8d",
+  "format": "ZIP; exact raw synthetic Playwright error-context snapshots, including original test-source sections",
+  "files": {
+    "workspace-restoration-outl-e463b-electing-the-restored-study-desktop.md": "5ce4eea3c7f18e51249ca56e0c6ff56d0dbf45b1120b6f00dbacef245b08ce21"
+  }
+}

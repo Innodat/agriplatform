@@ -1,6 +1,7 @@
 /** One in-memory account/note save lane, independent of mounted tool/editor views. */
 import {createContext,useContext,useEffect,useLayoutEffect,useRef,useState,type ReactNode} from 'react';
 import {useWorkspace,useTabState,useTabRef} from './ReaderWorkspaceContext';
+import {accountId,type PrivateSelection} from '@/lib/workspace-storage';
 import {useAuth} from './AuthContext';
 import {api,execute,NotesFailure,uuid,type NoteValue,type NoteView,type StudyView,type OperationAck,type Attempt,type PassageList} from '@/lib/personal-notes';
 import {referenceKey,referenceLabel,validateReference,type PassageReference} from '@/lib/passage-references';
@@ -19,9 +20,10 @@ function useStatefulStudies(){
  const dataAccount=useRef(account);const [authority,setAuthority]=useState(true);
  const [accountError,setAccountError]=useState('');
  const epoch=useRef(0);const previous=useRef(account);
- if(previous.current!==account){previous.current=account;epoch.current++;workspace.views.clear();workspace.latest.current.workspace.label=undefined;for(const tab of workspace.latest.current.tabs)tab.label=undefined;}
+ if(previous.current!==account){previous.current=account;epoch.current++;workspace.views.clear();workspace.latest.current.workspace.label=undefined;for(const tab of workspace.latest.current.tabs){tab.label=undefined;tab.labelGeneration=0;}}
  const [analysisTab,setAnalysisTab]=useTabState<'Word'|'Occurrences'|'Notes'>('analysisTab','Notes');
  const [tool,setTool]=useTabState<Tool>('tool',null),[studies,setStudies]=useTabState<StudyView[]>('studies',[]),[study,setStudy]=useTabState<StudyView|null>('study',null,true),[notes,setNotes]=useTabState<NoteView[]>('notes',[],true),[current,setCurrent]=useTabState<string|null>('current',null,true),[error,setError]=useTabState('error',''),[busy,setBusy]=useTabState('busy',false);
+ useTabState('restoredOutline',false,true);
  const [studyCursor,setStudyCursor]=useTabState<string|null>('studyCursor',null),[notesCursor,setNotesCursor]=useTabState<string|null>('notesCursor',null,true);
  const [searchCandidate,setSearchCandidate]=useTabState('searchCandidate',''),[libraryBusy,setLibraryBusy]=useTabState('libraryBusy',false),[libraryError,setLibraryError]=useTabState('libraryError',''),[libraryInputInvalid,setLibraryInputInvalid]=useTabState('libraryInputInvalid',false),[libraryVerified,setLibraryVerified]=useTabState('libraryVerified',false),[libraryRestore,setLibraryRestore]=useTabState('libraryRestore',0);
  // Passive scroll events from a collapsed list must not replace its saved return anchor.
@@ -48,20 +50,117 @@ function useStatefulStudies(){
  const liveStudy=(id:string)=>!deletedStudies.current.has(id);
  const creationOrigin=useRef<{key:string;navigation:{current:number};generation:number;tool:Tool;resume:()=>Promise<void>}|undefined>(undefined);
  const creation=useRef<Attempt|undefined>(undefined);const enrollment=useRef<string|undefined>(undefined);
- useEffect(()=>{for(const lane of lanes.current.values())clearTimeout(lane.timer);lanes.current.clear();deleted.current.clear();deletions.current.clear();deletionSequence.current=0;childDeleteRunning.current.clear();setStudyDeletedFocus(null);deletedStudies.current.clear();studyDeletions.current.clear();setStudyDeleteTarget(null);creationRunning.current=undefined;creationConfirmed.current=undefined;metadataReads.current.clear();setDeletionFocus(null);setDeleteTarget(null);titles.current.clear();titleReads.current.clear();collections.current.clear();navigation.current++;pendingPages.current.clear();notesPosition.current=null;creation.current=undefined;creationOrigin.current=undefined;enrollment.current=undefined;setStudies([]);setStudy(null);setNotes([]);setCurrent(null);setError('');setBusy(false);setExitPrompt(null);setStudyCursor(null);setNotesCursor(null);dataAccount.current=account;setAuthority(true);setAccountError('');library.current={query:'',generation:library.current.generation+1,depth:1,cursor:null,pending:false,positionLocked:false,position:{scroll:0,focus:''}};setSearchCandidate('');setLibraryError('');setLibraryInputInvalid(false);setLibraryBusy(false);setLibraryVerified(false);},[account]);
+ useEffect(()=>{hydrated.current.clear();for(const lane of lanes.current.values())clearTimeout(lane.timer);lanes.current.clear();deleted.current.clear();deletions.current.clear();deletionSequence.current=0;childDeleteRunning.current.clear();setStudyDeletedFocus(null);deletedStudies.current.clear();studyDeletions.current.clear();setStudyDeleteTarget(null);creationRunning.current=undefined;creationConfirmed.current=undefined;metadataReads.current.clear();setDeletionFocus(null);setDeleteTarget(null);titles.current.clear();titleReads.current.clear();collections.current.clear();navigation.current++;pendingPages.current.clear();notesPosition.current=null;creation.current=undefined;creationOrigin.current=undefined;enrollment.current=undefined;setStudies([]);setStudy(null);setNotes([]);setCurrent(null);setError('');setBusy(false);setExitPrompt(null);setStudyCursor(null);setNotesCursor(null);dataAccount.current=account;setAuthority(true);setAccountError('');library.current={query:'',generation:library.current.generation+1,depth:1,cursor:null,pending:false,positionLocked:false,position:{scroll:0,focus:''}};setSearchCandidate('');setLibraryError('');setLibraryInputInvalid(false);setLibraryBusy(false);setLibraryVerified(false);},[account]);
+ // Remember selections only from acknowledged owner-owned resources. Pending records
+ // remain separate from live empty views while verification or a service is unavailable.
+ const hydrated=useRef(new Set<string>());
+ workspace.privateProjection.current=()=>{
+  if(!account)return [];
+  const result:PrivateSelection[]=[];
+  for(const tab of workspace.latest.current.tabs){
+   const fields=workspace.views.get(tab.tabKey),selected=fields?.get('study') as StudyView|null|undefined,id=fields?.get('current') as string|null|undefined;
+   const pending=workspace.remembered?.account===account?workspace.remembered.tabs.find(t=>t.tabKey===tab.tabKey&&t.incarnation===tab.incarnation):undefined;
+   const owned=selected?.owner_account_id===account&&accountId(selected.id)?selected:undefined;
+   const acknowledged=id?lanes.current.get(id)?.note:undefined;
+   const association=owned?{study:owned.id,...(acknowledged?.owner_account_id===account&&acknowledged.study_id===owned.id&&accountId(acknowledged.id)?{note:acknowledged.id}:{})}:{};
+   if(!owned&&pending&&!hydrated.current.has(JSON.stringify([account,tab.tabKey,tab.incarnation]))){const {label,...selection}=pending;result.push(tab.labelGeneration>0?{...selection,...(tab.label?{label:tab.label}:{})}:pending);continue;}
+   if(owned||tab.label)result.push({tabKey:tab.tabKey,incarnation:tab.incarnation,...association,...(tab.label?{label:tab.label}:{})});
+  }
+  return result;
+ };
+ useEffect(()=>{
+  const saved=workspace.remembered;
+  if(!saved||!account||!token||workspace.verifiedAccount!==account||saved.account!==account||!workspace.deviceReady)return;
+  if(workspace.privateIntent!==workspace.latest.current.deviceIntent.current){workspace.privateRestoreFailure();return;}
+  const captured=epoch.current,capturedToken=token,cancel=new AbortController(),end=setTimeout(()=>cancel.abort(),30000);
+  let finished=0;
+  const queue=saved.tabs.slice().sort((a,b)=>Number(b.tabKey===workspace.workspace.tabKey)-Number(a.tabKey===workspace.workspace.tabKey));
+  const worker=async()=>{while(queue.length&&!cancel.signal.aborted){
+   const candidate=queue.shift()!,tab=workspace.latest.current.tabs.find(t=>t.tabKey===candidate.tabKey&&t.incarnation===candidate.incarnation);
+   if(!tab||hydrated.current.has(JSON.stringify([account,tab.tabKey,tab.incarnation])))continue;
+   let fields=workspace.views.get(tab.tabKey);if(!fields){fields=new Map();workspace.views.set(tab.tabKey,fields);}
+   const capturedFields=fields,nav=fields.get('ref:navigation') as {current:number}|undefined,navigationGeneration=nav?.current;
+   const initialStudy=fields.get('study'),initialNote=fields.get('current'),intent=workspace.latest.current.deviceIntent.current;
+   const laneAtStart=candidate.note?lanes.current.get(candidate.note):undefined,laneInput=laneAtStart?.generation;
+   const fresh=()=>!cancel.signal.aborted&&valid(captured)&&currentToken.current===capturedToken&&workspace.views.get(tab.tabKey)===capturedFields&&workspace.latest.current.tabs.some(t=>t.tabKey===tab.tabKey&&t.incarnation===candidate.incarnation)&&workspace.latest.current.deviceIntent.current===intent&&capturedFields.get('study')===initialStudy&&capturedFields.get('current')===initialNote&&(nav?.current===navigationGeneration);
+   let requestedNote=false;
+   try{
+    const selected=candidate.study?await api.study(capturedToken,candidate.study,cancel.signal):undefined;
+    if(candidate.study&&(!selected||selected.id!==candidate.study||selected.owner_account_id!==account))throw new NotesFailure('response_invalid');
+    requestedNote=!!(candidate.note&&candidate.study);
+    const note=candidate.note&&candidate.study?await api.note(capturedToken,candidate.study,candidate.note,cancel.signal):undefined;
+    if(candidate.note&&(!note||note.id!==candidate.note||note.study_id!==candidate.study||note.owner_account_id!==account))throw new NotesFailure('response_invalid');
+    if(!selected)await api.studies(capturedToken,undefined,cancel.signal);
+    if(!fresh()){if(!cancel.signal.aborted)workspace.privateRestoreFailure();continue;}
+    if(note){
+     const existing=lanes.current.get(note.id);
+     if(existing){
+      // Fresh authority can reattach an unchanged retained lane, including its
+      // dirty buffer/original command. Input arriving during this read wins.
+      if(laneAtStart&&(existing!==laneAtStart||existing.generation!==laneInput)||!laneAtStart&&(existing.generation!==existing.saved||existing.attempt||existing.composing||existing.invalid)){workspace.privateRestoreFailure();continue;}
+      if(existing.status==='saved'&&existing.generation===existing.saved&&!existing.attempt&&!existing.composing&&!existing.invalid&&BigInt(note.revision)>=BigInt(existing.note.revision)){existing.note=note;existing.value=note.value;}
+     }else lanes.current.set(note.id,{note,value:note.value,generation:0,saved:0,status:'saved',composing:false,invalid:false});
+    }
+    if(selected){capturedFields.set('study',selected);capturedFields.set('notes',note?[note]:[]);capturedFields.set('current',note?.id??null);capturedFields.set('restoredOutline',true);}
+    if(candidate.label&&tab.labelGeneration===0)tab.label=candidate.label;
+    hydrated.current.add(JSON.stringify([account,tab.tabKey,tab.incarnation]));setAuthority(true);workspace.redraw();workspace.checkpoint();
+   }catch(error){
+    const code=error instanceof NotesFailure?error.code:'';
+    // Current account admission denial invalidates every private view, even
+    // after the originating tab's navigation or tool intent has changed.
+    if((code==='studies_access_denied'||code==='authentication_required')&&!cancel.signal.aborted&&valid(captured)&&currentToken.current===capturedToken){fail(error,code==='authentication_required');continue;}
+    if(candidate.study&&['resource_unavailable','study_not_found','note_not_found','resource_not_found','scribeswell_study_not_found','scribeswell_note_not_found','resource_access_denied'].includes(code)&&!cancel.signal.aborted&&valid(captured)&&currentToken.current===capturedToken){
+     const deniedNote=requestedNote?candidate.note:undefined;
+     clearResourceContexts(candidate.study,deniedNote);
+     for(let i=queue.length-1;i>=0;i--)if(queue[i].study===candidate.study&&(!deniedNote||queue[i].note===deniedNote))queue.splice(i,1);
+     continue;
+    }
+    if(!fresh())continue;
+    workspace.privateRestoreFailure();
+   }
+  }};
+  void Promise.all([worker(),worker()]).finally(()=>{finished=1;clearTimeout(end);});
+  cancel.signal.addEventListener('abort',()=>{if(!finished)workspace.privateRestoreFailure();},{once:true});
+  return()=>{finished=1;clearTimeout(end);cancel.abort();};
+ },[workspace.remembered,workspace.verifiedAccount,workspace.deviceReady,workspace.deviceInstalled,workspace.privateIntent,account,token]);
+ /** Confirmed resource unavailability fans out through this existing owner registry.
+  * A note denial retains its authorized study and independently selected notes. */
+ function clearResourceContexts(parent:string,note?:string){
+  for(const tab of workspace.latest.current.tabs){
+   const fields=workspace.views.get(tab.tabKey),selected=fields?.get('study') as StudyView|undefined;
+   const affected=note?fields?.get('current')===note:selected?.id===parent;
+   if(fields){
+    const list=fields.get('notes') as NoteView[]|undefined;if(list)fields.set('notes',list.filter(item=>note?item.id!==note:item.study_id!==parent));
+    const studies=fields.get('studies') as StudyView[]|undefined;if(!note&&studies)fields.set('studies',studies.filter(item=>item.id!==parent));
+    if(affected){fields.set('current',null);if(!note){fields.set('study',null);fields.set('notes',[]);}const navigation=fields.get('ref:navigation') as {current:number}|undefined;if(navigation)navigation.current++;}
+   }
+   if(affected){tab.label=undefined;tab.labelGeneration=0;hydrated.current.delete(JSON.stringify([account,tab.tabKey,tab.incarnation]));}
+  }
+  for(const lane of lanes.current.values())if(note?lane.note.id===note:lane.note.study_id===parent){clearTimeout(lane.timer);lanes.current.delete(lane.note.id);deletions.current.delete(lane.note.id);setDeleteTarget(current=>current===lane.note.id?null:current);}
+  if(!note){titles.current.delete(parent);titleReads.current.delete(parent);collections.current.delete(parent);studyDeletions.current.delete(parent);setStudyDeleteTarget(current=>current===parent?null:current);}
+  workspace.clearRememberedResource(parent,note);workspace.redraw();workspace.checkpoint();
+ }
  function authorizedToken(){if(identity.current!==account||!currentToken.current)throw new NotesFailure('authentication_required');return currentToken.current;}
  function valid(captured:number){return epoch.current===captured&&identity.current===account;}
- function fail(failure:unknown){
+ function fail(failure:unknown,restoreMask=false){
   const code=failure instanceof NotesFailure?failure.code:'studies_storage_unavailable';
   if((code==='authentication_required'||code==='studies_access_denied')&&!workspace.latest.current.tabs.some(tab=>tab.tabKey===workspace.workspace.tabKey))setAccountError(code==='authentication_required'?'Sign in to use My studies.':'Studies access is unavailable for this account.');
-  if(code==='authentication_required'){setStudyDeleteTarget(null);for(const target of studyDeletions.current.values()){target.open=false;if(target.status==='executing'){target.status='unknown';target.message='Deletion not confirmed. Retry the original deletion.';}}setDeleteTarget(null);for(const target of deletions.current.values()){target.open=false;if(target.status==='executing'){target.status='unknown';target.message='Deletion not confirmed. Retry the original deletion.';}}epoch.current++;library.current.pending=false;setLibraryBusy(false);setLibraryVerified(false);setAuthority(false);for(const lane of lanes.current.values())clearTimeout(lane.timer);}
+  if(code==='authentication_required'){
+   if(restoreMask){workspace.retainPrivateForRetry();hydrated.current.clear();
+   // Keep actual buffers/unknown attempts in the account lanes. Live private
+   // selections and labels stay empty until their own current GET succeeds.
+   for(const tab of workspace.latest.current.tabs){tab.label=undefined;tab.labelGeneration=0;const fields=workspace.views.get(tab.tabKey);if(!fields)continue;fields.set('study',null);fields.set('current',null);fields.set('notes',[]);fields.set('studies',[]);fields.set('libraryVerified',false);const navigation=fields.get('ref:navigation') as {current:number}|undefined;if(navigation)navigation.current++;}
+   workspace.redraw();}
+   setStudyDeleteTarget(null);for(const target of studyDeletions.current.values()){target.open=false;if(target.status==='executing'){target.status='unknown';target.message='Deletion not confirmed. Retry the original deletion.';}}setDeleteTarget(null);for(const target of deletions.current.values()){target.open=false;if(target.status==='executing'){target.status='unknown';target.message='Deletion not confirmed. Retry the original deletion.';}}epoch.current++;library.current.pending=false;setLibraryBusy(false);setLibraryVerified(false);setAuthority(false);for(const lane of lanes.current.values())clearTimeout(lane.timer);}
   if(code==='studies_access_denied'){
-   workspace.views.clear();if(workspace.latest.current.tabs.some(tab=>tab.tabKey===workspace.workspace.tabKey))workspace.views.set(workspace.workspace.tabKey,new Map<string,unknown>([['tool',activeTool.current],['error','Studies access is unavailable for this account.']]));workspace.latest.current.workspace.label=undefined;for(const tab of workspace.latest.current.tabs)tab.label=undefined;setAuthority(false);workspace.redraw();
+   workspace.forgetRemembered();
+   workspace.views.clear();if(workspace.latest.current.tabs.some(tab=>tab.tabKey===workspace.workspace.tabKey))workspace.views.set(workspace.workspace.tabKey,new Map<string,unknown>([['tool',activeTool.current],['error','Studies access is unavailable for this account.']]));workspace.latest.current.workspace.label=undefined;for(const tab of workspace.latest.current.tabs){tab.label=undefined;tab.labelGeneration=0;}setAuthority(false);workspace.redraw();
    epoch.current++;library.current.generation++;library.current.query='';library.current.depth=1;library.current.cursor=null;library.current.position={scroll:0,focus:''};library.current.positionLocked=false;setSearchCandidate('');setLibraryVerified(false);setLibraryBusy(false);for(const lane of lanes.current.values())clearTimeout(lane.timer);lanes.current.clear();deleted.current.clear();deletions.current.clear();deletionSequence.current=0;childDeleteRunning.current.clear();setStudyDeletedFocus(null);deletedStudies.current.clear();studyDeletions.current.clear();setStudyDeleteTarget(null);creationRunning.current=undefined;creationConfirmed.current=undefined;metadataReads.current.clear();setDeletionFocus(null);setDeleteTarget(null);titles.current.clear();titleReads.current.clear();collections.current.clear();setStudies([]);setNotes([]);setStudy(null);setCurrent(null);creation.current=undefined;creationOrigin.current=undefined;enrollment.current=undefined;
   }
   setBusy(false);setError(code==='studies_access_denied'?'Studies access is unavailable for this account.':code==='authentication_required'?'Sign in to use My studies.':'Studies could not be loaded. Try again.');
  }
  async function loadStudies(more=false,query=library.current.query,changed=false){
+  if(!more&&!changed&&workspace.views.get(workspace.workspace.tabKey)?.get('restoredOutline')&&workspace.views.get(workspace.workspace.tabKey)?.get('study')){await loadRestoredOutline();return;}
   const state=library.current;
   if(more&&(state.pending||!state.cursor))return;
   if(more)state.positionLocked=false;
@@ -100,6 +199,11 @@ function useStatefulStudies(){
  function clearSearch(){if(!authority)return;setSearchCandidate('');return loadStudies(false,'',true);}
  function rememberLibrary(scroll:number,focus?:string){if(library.current.positionLocked)return;library.current.position={scroll,focus:focus??library.current.position.focus};}
  function openStudies(){setTool(tool==='studies'?null:'studies');if(tool!=='studies'&&!study)void loadStudies();}
+ useEffect(()=>{
+  if(tool!=='studies'||!study||!authority||!workspace.deviceReady)return;
+  const fields=workspace.views.get(workspace.workspace.tabKey);void loadRestoredOutline();
+  return()=>{const active=fields?.get('restoredOutlineRead') as AbortController|undefined;active?.abort();fields?.delete('restoredOutlineRead');};
+ },[tool,study,authority,workspace.deviceReady,workspace.workspace.tabKey,account,token]);
  async function flush(lane:Lane,retry=false):Promise<void>{
   if(lane.running)return lane.running;
   if(lane.deletion||studyBlocked(lane.note.study_id))return;
@@ -137,22 +241,92 @@ function useStatefulStudies(){
   }
   if(fresh())await action();
  }
+ /** One departure transaction against the final survivor set. Consent is staged;
+  * buffers are abandoned only once every affected lane is approved and still fresh. */
+ function exitDevice(survivors:string[],action:()=>void,actionFresh:()=>boolean){
+  const captured=epoch.current,surviving=new Set(survivors);
+  const removed=workspace.latest.current.tabs.filter(tab=>!surviving.has(tab.tabKey)).map(tab=>{
+   const fields=workspace.views.get(tab.tabKey),note=fields?.get('current'),nav=fields?.get('ref:navigation') as {current:number}|undefined;
+   return {tab,fields,note,nav,navigation:nav?.current};
+  });
+  const fresh=()=>valid(captured)&&actionFresh()&&removed.every(item=>workspace.latest.current.tabs.includes(item.tab)&&workspace.views.get(item.tab.tabKey)===item.fields&&item.fields?.get('current')===item.note&&item.nav?.current===item.navigation);
+  const affected=[...new Set(removed.map(item=>typeof item.note==='string'?lanes.current.get(item.note):undefined).filter((lane):lane is Lane=>!!lane))].filter(lane=>!workspace.latest.current.tabs.some(tab=>surviving.has(tab.tabKey)&&workspace.views.get(tab.tabKey)?.get('current')===lane.note.id));
+  const approved=new Map<Lane,{generation:number;composing:boolean;invalid:boolean;deletion:Lane['deletion']}>();
+  const unchanged=()=>[...approved].every(([lane,state])=>lanes.current.get(lane.note.id)===lane&&lane.generation===state.generation&&lane.composing===state.composing&&lane.invalid===state.invalid&&lane.deletion===state.deletion&&!deleted.current.has(lane.note.id)&&liveStudy(lane.note.study_id));
+  const next=async():Promise<void>=>{
+   if(!fresh()||!unchanged())return;
+   const lane=affected.find(lane=>!approved.has(lane));
+   if(lane){const origin=removed.find(item=>item.note===lane.note.id)!;
+    await exit(()=>{approved.set(lane,{generation:lane.generation,composing:lane.composing,invalid:lane.invalid,deletion:lane.deletion});return next();},false,origin.tab.tabKey,()=>fresh()&&unchanged(),lane);return;
+   }
+   if(!fresh()||!unchanged())return;
+   for(const lane of approved.keys())if(lane.generation!==lane.saved||lane.composing||lane.invalid)abandonLane(lane);
+   action();
+  };
+  void next();
+ }
+ function abandonLane(lane:Lane){
+  clearTimeout(lane.timer);lane.abandoned=true;lane.composing=false;lane.invalid=false;
+  if(lane.attempt){lane.value=structuredClone(lane.attempt.payload.value as NoteValue);lane.generation=lane.attempt.generation;}
+  else lanes.current.delete(lane.note.id);
+ }
  useLayoutEffect(()=>{
   workspace.departure.current=(key,action,fresh)=>{void exit(action,false,key,fresh);};
+  workspace.deviceDeparture.current=exitDevice;
  });
 
  async function openStudy(id:string){
   if(!token||!liveStudy(id))return;const requestLibrary=++library.current.generation;library.current.pending=false;setLibraryBusy(false);const requestNavigation=++navigation.current;
   await exit(async()=>{if(requestNavigation!==navigation.current||requestLibrary!==library.current.generation)return;collectionNavigation.current++;const captured=epoch.current;setBusy(true);
    try{const [selected,page]=await Promise.all([api.study(authorizedToken(),id),api.notes(authorizedToken(),id)]);
-    if(valid(captured)&&liveStudy(id)&&requestNavigation===navigation.current&&requestLibrary===library.current.generation){await exit(()=>{if(!valid(captured)||requestNavigation!==navigation.current||requestLibrary!==library.current.generation)return;library.current.positionLocked=true;selectedStudy.current=selected.id;notesPosition.current=page.next_cursor;setStudy(selected);if(creation.current?.command==='study.create'&&creation.current.study===selected.id)retireCreation(creation.current);setNotes(page.items.filter(note=>!deleted.current.has(note.id)));setNotesCursor(page.next_cursor);setCurrent(null);setTool('studies');setError('');void loadPassages(selected.id);},true,workspace.workspace.tabKey,()=>requestNavigation===navigation.current&&requestLibrary===library.current.generation,undefined,true);}
+    if(valid(captured)&&liveStudy(id)&&requestNavigation===navigation.current&&requestLibrary===library.current.generation){await exit(()=>{if(!valid(captured)||requestNavigation!==navigation.current||requestLibrary!==library.current.generation)return;library.current.positionLocked=true;selectedStudy.current=selected.id;notesPosition.current=page.next_cursor;setStudy(selected);workspace.views.get(workspace.workspace.tabKey)?.set('restoredOutline',false);if(creation.current?.command==='study.create'&&creation.current.study===selected.id)retireCreation(creation.current);setNotes(page.items.filter(note=>!deleted.current.has(note.id)));setNotesCursor(page.next_cursor);setCurrent(null);setTool('studies');setError('');void loadPassages(selected.id);},true,workspace.workspace.tabKey,()=>requestNavigation===navigation.current&&requestLibrary===library.current.generation,undefined,true);}
    }catch(e){if(valid(captured)&&liveStudy(id)&&requestNavigation===navigation.current&&requestLibrary===library.current.generation)fail(e);}finally{if(valid(captured)&&requestNavigation===navigation.current)setBusy(false);}
   },true);
  }
+ // Restored selections attach without navigation. Read the visible outline only
+ // when Studies is explicitly opened, preserving the single note/collection lanes.
+ async function loadRestoredOutline(){
+  const key=workspace.workspace.tabKey,fields=workspace.views.get(key),tab=workspace.latest.current.tabs.find(tab=>tab.tabKey===key);
+  const selected=fields?.get('study') as StudyView|undefined,id=selected?.id;
+  if(!fields||!tab||!id||!token||!authority||!fields.get('restoredOutline')||fields.get('restoredOutlineRead'))return;
+  const captured=epoch.current,capturedToken=token,incarnation=tab.incarnation,intent=workspace.latest.current.deviceIntent.current,note=fields.get('current'),nav=fields.get('ref:navigation') as {current:number}|undefined,generation=nav?.current;
+  const attempt=new AbortController(),end=setTimeout(()=>attempt.abort(),30000),lane=collectionLane(id);
+  fields.set('restoredOutlineRead',attempt);
+  const currentRead=()=>valid(captured)&&currentToken.current===capturedToken&&workspace.views.get(key)===fields&&workspace.latest.current.tabs.includes(tab)&&workspace.latest.current.workspace.tabKey===key&&workspace.latest.current.deviceIntent.current===intent&&fields.get('study')===selected&&fields.get('current')===note&&nav?.current===generation&&fields.get('restoredOutlineRead')===attempt&&!studyBlocked(id);
+  const fresh=()=>!attempt.signal.aborted&&currentRead();
+  try{
+   const page=await api.notes(capturedToken,id,undefined,attempt.signal);
+   if(!fresh())return;
+   if(!page||!Array.isArray(page.items)||!page.items.every(item=>item&&accountId(item.id)&&item.study_id===id&&item.owner_account_id===account)||new Set(page.items.map(item=>item.id)).size!==page.items.length||page.next_cursor!==null&&typeof page.next_cursor!=='string')throw new NotesFailure('response_invalid');
+   if(lane.attempt||lane.running||lane.intent)return;
+   const read=lane.read+1,collectionFresh=()=>fresh()&&collections.current.get(id)===lane&&lane.read===read&&!lane.attempt&&!lane.running&&!lane.intent;
+   const latest=await refreshPassages(lane,captured,collectionFresh,attempt.signal);
+   if(!latest||!collectionFresh())return;
+   fields.set('notes',page.items.filter(item=>!deleted.current.has(item.id)));fields.set('notesCursor',page.next_cursor);
+   const position=fields.get('ref:notesPosition') as {current:string|null}|undefined;if(position)position.current=page.next_cursor;
+   fields.set('restoredOutline',false);fields.set('error','');lane.status='ready';lane.message='';workspace.redraw();
+  }catch(error){
+   if(valid(captured)&&currentToken.current===capturedToken&&!attempt.signal.aborted){const code=error instanceof NotesFailure?error.code:'';
+    if(['authentication_required','studies_access_denied'].includes(code)){fail(error,code==='authentication_required');return;}
+    if(['resource_unavailable','resource_access_denied','study_not_found','resource_not_found','scribeswell_study_not_found'].includes(code)){clearResourceContexts(id);return;}
+   }
+   if(currentRead()){fields.set('error','Study outline could not be loaded. Retry.');workspace.redraw();}
+  }finally{
+   clearTimeout(end);
+   if(fields.get('restoredOutlineRead')===attempt){
+    fields.delete('restoredOutlineRead');
+    // New input wins over this read, but the still-visible partial outline must
+    // have an explicit recovery path after a cancelled rename/delete dialog.
+    if(fields.get('restoredOutline')&&!fields.get('error')&&valid(captured)&&currentToken.current===capturedToken&&workspace.views.get(key)===fields&&workspace.latest.current.tabs.some(live=>live.tabKey===key&&live.incarnation===incarnation)&&workspace.latest.current.workspace.tabKey===key&&(fields.get('study') as StudyView|undefined)?.id===id&&fields.get('current')===note&&fields.get('tool')==='studies'&&!studyBlocked(id)){
+     fields.set('error','Study outline could not be loaded. Retry.');workspace.redraw();
+    }
+   }
+  }
+ }
  // Collection authority/revisions/recovery are independent of notes and metadata.
  function collectionLane(id:string){let lane=collections.current.get(id);if(!lane){lane={study:id,status:'loading',message:'',read:0};collections.current.set(id,lane);}return lane;}
- async function refreshPassages(lane:CollectionLane,captured:number,currentRead=()=>true){
-  if(!token)return;const read=++lane.read;const latest=await api.passages(authorizedToken(),lane.study);
+ async function refreshPassages(lane:CollectionLane,captured:number,currentRead=()=>true,signal?:AbortSignal){
+  if(!token)return;const read=++lane.read;const latest=await api.passages(authorizedToken(),lane.study,signal);
   if(!valid(captured)||!liveStudy(lane.study)||collections.current.get(lane.study)!==lane||read!==lane.read||!currentRead())return;
   const identifier=(value:unknown)=>typeof value==='string'&&/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/.test(value)&&value!=='00000000-0000-0000-0000-000000000000';
   if(!latest||Object.keys(latest).sort().join(',')!=='items,revision,study_id'||latest.study_id!==lane.study||!Array.isArray(latest.items)||latest.items.length>200||!latest.items.every(item=>item&&Object.keys(item).sort().join(',')==='id,reference'&&identifier(item.id)&&validateReference(item.reference))||new Set(latest.items.map(item=>item.id)).size!==latest.items.length||new Set(latest.items.map(item=>referenceKey(item.reference))).size!==latest.items.length||typeof latest.revision!=='string'||!(/^[1-9][0-9]{0,18}$/).test(latest.revision)||BigInt(latest.revision)>9223372036854775807n)throw new NotesFailure('response_invalid');
@@ -309,6 +483,7 @@ function useStatefulStudies(){
   try{const pending=execute(authorizedToken(),target.attempt);childDeleteRunning.current.set(lane.note.id,pending);await pending;if(!valid(captured)||!liveStudy(lane.note.study_id)||lanes.current.get(lane.note.id)!==lane)return;
    if(selectedNote.current===lane.note.id&&selectedStudy.current===lane.note.study_id){const source=deletionFocusSource(lane.note.id);setDeletionFocus(source?{epoch:captured,navigation:navigation.current,study:lane.note.study_id,source}:null);}
    for(const fields of workspace.views.values()){if(fields.get('current')===lane.note.id)fields.set('current',null);const list=fields.get('notes') as NoteView[]|undefined;if(list)fields.set('notes',list.filter(note=>note.id!==lane.note.id));}
+   for(const candidate of workspace.remembered?.tabs??[])if(candidate.note===lane.note.id)workspace.forgetRemembered(candidate.tabKey);
    deleted.current.add(lane.note.id);clearTimeout(lane.timer);lanes.current.delete(lane.note.id);deletions.current.delete(lane.note.id);setNotes(old=>old.filter(note=>note.id!==lane.note.id));setCurrent(old=>old===lane.note.id?null:old);setDeleteTarget(old=>old===lane.note.id?null:old);
   }catch(e){if(!valid(captured)||!liveStudy(lane.note.study_id)||lanes.current.get(lane.note.id)!==lane)return;const code=e instanceof NotesFailure?e.code:'';
    if(['note_revision_conflict','resource_unavailable','operation_payload_mismatch','scribeswell_personal_notes_input_invalid'].includes(code)){lane.status='conflict';target.status='conflict';target.attempt=undefined;target.reviewRevision=undefined;target.review=undefined;target.message='Deletion not confirmed. Your input is kept. Review the current note before confirming again.';}
@@ -375,6 +550,7 @@ function useStatefulStudies(){
      try{await wait(()=>childDeleteRunning.current.get(lane.note.id)??execute(authorizedToken(),child.attempt!));}
      catch(e){if(!current())return;if(known(e,['note_revision_conflict','resource_unavailable','operation_payload_mismatch','scribeswell_personal_notes_input_invalid'])){lane.status='conflict';child.status='conflict';child.attempt=undefined;child.review=undefined;child.reviewRevision=undefined;child.message='Deletion not confirmed. Your input is kept. Review the current note before confirming again.';continue;}throw e;}
      for(const fields of workspace.views.values()){if(fields.get('current')===lane.note.id)fields.set('current',null);const list=fields.get('notes') as NoteView[]|undefined;if(list)fields.set('notes',list.filter(note=>note.id!==lane.note.id));}
+   for(const candidate of workspace.remembered?.tabs??[])if(candidate.note===lane.note.id)workspace.forgetRemembered(candidate.tabKey);
    deleted.current.add(lane.note.id);clearTimeout(lane.timer);lanes.current.delete(lane.note.id);deletions.current.delete(lane.note.id);setNotes(old=>old.filter(note=>note.id!==lane.note.id));setCurrent(old=>old===lane.note.id?null:old);setDeleteTarget(old=>old===lane.note.id?null:old);
     }
    }
@@ -409,6 +585,7 @@ function useStatefulStudies(){
    const restored=document.activeElement,replacement=restored instanceof HTMLElement?restored.closest<HTMLElement>('[aria-label="Note editor"],[aria-label="My studies"]'):null;
    const focusSource=replacement??source;
    for(const fields of workspace.views.values()){if((fields.get('study') as StudyView|undefined)?.id===id){fields.set('study',null);fields.set('current',null);fields.set('notes',[]);fields.set('tool','studies');}const list=fields.get('studies') as StudyView[]|undefined;if(list)fields.set('studies',list.filter(item=>item.id!==id));}
+   for(const candidate of workspace.remembered?.tabs??[])if(candidate.study===id)workspace.forgetRemembered(candidate.tabKey);
    deletedStudies.current.add(id);studyDeletions.current.delete(id);setStudyDeleteTarget(old=>old===id?null:old);
    for(const lane of targetLanes(id)){clearTimeout(lane.timer);deleted.current.add(lane.note.id);lanes.current.delete(lane.note.id);deletions.current.delete(lane.note.id);}
    titles.current.delete(id);titleReads.current.delete(id);metadataReads.current.delete(id);collections.current.delete(id);
@@ -480,11 +657,9 @@ function useStatefulStudies(){
   };
   return next();
  }
- return {pendingSaves:visible?[...lanes.current.values()].filter(item=>item.abandoned&&item.attempt&&item.status!=='conflict'):[],recoverSave:(lane:Lane)=>flush(lane,true),creationRecovery:visible&&!!creation.current,creationKnown:visible&&!!creationConfirmed.current,creationLabel:creationConfirmed.current?.note_id&&study?.id===creationConfirmed.current.study_id?'Open created note':'Open created study',recoverCreation:()=>creationOrigin.current?.resume(),openCreated,editorLanes,studyDeletedFocus:visible&&studyDeletedFocus&&valid(studyDeletedFocus.captured)&&navigation.current===studyDeletedFocus.navigation&&!selectedStudy.current&&activeTool.current!==null&&(stillReplacingFocus(studyDeletedFocus.source)||document.activeElement?.hasAttribute('data-study-deleted-focus'))?studyDeletedFocus:null,studyDeletion:visible&&studyDeleteTarget?studyDeletions.current.get(studyDeleteTarget):undefined,studyDeletionPaused:!!study&&studyBlocked(study.id),studyWritesFrozen:!!study&&!!studyDeletions.current.get(study.id)?.attempt,pendingStudyDeletions:visible?[...studyDeletions.current.values()].filter(target=>!!target.attempt&&!target.open):[],beginStudyDelete,closeStudyDelete,confirmStudyDelete,recoverStudyWrites,reviewStudyDelete,openStudyDeletion:(target:StudyDeletion)=>{if(!visible||studyDeletions.current.get(target.study.id)!==target)return;target.open=true;setStudyDeleteTarget(target.study.id);update();},deletionFocus:visible?deletionFocus:null,canFocusDeletion:()=>!!deletionFocus&&activeTool.current!==null&&stillReplacingFocus(deletionFocus.source)&&valid(deletionFocus.epoch)&&authority&&dataAccount.current===account&&selectedNote.current===null&&selectedStudy.current===deletionFocus.study&&navigation.current===deletionFocus.navigation,pendingDeletions:visible?[...deletions.current.values()].filter(target=>!!target.attempt&&!target.open):[],openDeletion:(target:Deletion)=>{if(!visible||deletions.current.get(target.lane.note.id)!==target)return;target.open=true;setDeleteTarget(target.lane.note.id);update();},deletion:visible&&deleteTarget?deletions.current.get(deleteTarget):undefined,beginDelete,closeDelete,confirmDelete,recoverDeleteSave,reviewDelete,accountKey:account??'anonymous',enabled:import.meta.env.VITE_STUDIES_ENABLED==='true',tool,setTool,analysisTab,setAnalysisTab,invalidInput:(bound?:Lane)=>{const target=bound??lane;if(target&&!target.deletion?.attempt){target.invalid=true;target.status='failed';clearTimeout(target.timer);update();}},studies:visible&&libraryVerified?studies:[],study:visible?study:null,notes:visible?notes:[],current:visible?current:null,lane,error,accountError,busy,searchCandidate:visible?searchCandidate:'',searchMasked:!visible,setSearchCandidate:changeSearchCandidate,searchStudies,clearSearch,libraryBusy,libraryError,libraryInputInvalid,libraryVerified:visible&&libraryVerified,libraryRestore,libraryPosition:library.current.position,canRestoreLibrary,finishLibraryRestore:()=>{if(canRestoreLibrary())library.current.positionLocked=false;},rememberLibrary,studyCursor:visible?studyCursor:null,notesCursor,collection,collect,removePassage,retryPassages,reviewPassages,cancelPassageIntent,titleEdit: titleEdit?.open?titleEdit:undefined,beginRename,changeTitle,cancelRename,saveTitle,reloadTitle,loadStudies,moreNotes,openStudies,openStudy,openNote,start,create,addNote,change,composition,retry:(bound?:Lane)=>(bound??lane)&&flush((bound??lane)!,true),exit:exitAccount,exitPrompt,stay:()=>{setExitPrompt(null);workspace.cancelRestore();},proceed:async()=>{const prompt=exitPrompt;setExitPrompt(null);if(!prompt||!prompt.fresh())return;
+ return {pendingSaves:visible?[...lanes.current.values()].filter(item=>item.abandoned&&item.attempt&&item.status!=='conflict'):[],recoverSave:(lane:Lane)=>flush(lane,true),creationRecovery:visible&&!!creation.current,creationKnown:visible&&!!creationConfirmed.current,creationLabel:creationConfirmed.current?.note_id&&study?.id===creationConfirmed.current.study_id?'Open created note':'Open created study',recoverCreation:()=>creationOrigin.current?.resume(),openCreated,editorLanes,studyDeletedFocus:visible&&studyDeletedFocus&&valid(studyDeletedFocus.captured)&&navigation.current===studyDeletedFocus.navigation&&!selectedStudy.current&&activeTool.current!==null&&(stillReplacingFocus(studyDeletedFocus.source)||document.activeElement?.hasAttribute('data-study-deleted-focus'))?studyDeletedFocus:null,studyDeletion:visible&&studyDeleteTarget?studyDeletions.current.get(studyDeleteTarget):undefined,studyDeletionPaused:!!study&&studyBlocked(study.id),studyWritesFrozen:!!study&&!!studyDeletions.current.get(study.id)?.attempt,pendingStudyDeletions:visible?[...studyDeletions.current.values()].filter(target=>!!target.attempt&&!target.open):[],beginStudyDelete,closeStudyDelete,confirmStudyDelete,recoverStudyWrites,reviewStudyDelete,openStudyDeletion:(target:StudyDeletion)=>{if(!visible||studyDeletions.current.get(target.study.id)!==target)return;target.open=true;setStudyDeleteTarget(target.study.id);update();},deletionFocus:visible?deletionFocus:null,canFocusDeletion:()=>!!deletionFocus&&activeTool.current!==null&&stillReplacingFocus(deletionFocus.source)&&valid(deletionFocus.epoch)&&authority&&dataAccount.current===account&&selectedNote.current===null&&selectedStudy.current===deletionFocus.study&&navigation.current===deletionFocus.navigation,pendingDeletions:visible?[...deletions.current.values()].filter(target=>!!target.attempt&&!target.open):[],openDeletion:(target:Deletion)=>{if(!visible||deletions.current.get(target.lane.note.id)!==target)return;target.open=true;setDeleteTarget(target.lane.note.id);update();},deletion:visible&&deleteTarget?deletions.current.get(deleteTarget):undefined,beginDelete,closeDelete,confirmDelete,recoverDeleteSave,reviewDelete,accountKey:account??'anonymous',enabled:import.meta.env.VITE_STUDIES_ENABLED==='true',tool,setTool,analysisTab,setAnalysisTab,invalidInput:(bound?:Lane)=>{const target=bound??lane;if(target&&!target.deletion?.attempt){target.invalid=true;target.status='failed';clearTimeout(target.timer);update();}},studies:visible&&libraryVerified?studies:[],study:visible?study:null,notes:visible?notes:[],current:visible?current:null,lane,error,accountError,busy,searchCandidate:visible?searchCandidate:'',searchMasked:!visible,setSearchCandidate:changeSearchCandidate,searchStudies,clearSearch,libraryBusy,libraryError,libraryInputInvalid,libraryVerified:visible&&libraryVerified,libraryRestore,libraryPosition:library.current.position,canRestoreLibrary,finishLibraryRestore:()=>{if(canRestoreLibrary())library.current.positionLocked=false;},rememberLibrary,studyCursor:visible?studyCursor:null,notesCursor,collection,collect,removePassage,retryPassages,reviewPassages,cancelPassageIntent,titleEdit: titleEdit?.open?titleEdit:undefined,beginRename,changeTitle,cancelRename,saveTitle,reloadTitle,loadStudies,moreNotes,openStudies,openStudy,openNote,start,create,addNote,change,composition,retry:(bound?:Lane)=>(bound??lane)&&flush((bound??lane)!,true),exit:exitAccount,exitPrompt,stay:()=>{setExitPrompt(null);workspace.cancelRestore();if(workspace.devicePending)workspace.cancelDevice();},proceed:async()=>{const prompt=exitPrompt;setExitPrompt(null);if(!prompt||!prompt.fresh())return;
  if(prompt.discard&&!contexts(prompt.discard,prompt.key).length){
-  const lane=prompt.discard;clearTimeout(lane.timer);lane.abandoned=true;lane.composing=false;lane.invalid=false;
-  if(lane.attempt){lane.value=structuredClone(lane.attempt.payload.value as NoteValue);lane.generation=lane.attempt.generation;}
-  else lanes.current.delete(lane.note.id);
+  abandonLane(prompt.discard);
  }
  await prompt.action();},leave:()=>{const requestNavigation=++navigation.current;return exit(()=>{if(requestNavigation!==navigation.current)return;collectionNavigation.current++;selectedStudy.current=undefined;notesPosition.current=null;setStudy(null);setCurrent(null);setNotes([]);setTool('studies');void loadStudies();},true);}};
 }

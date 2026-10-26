@@ -1,0 +1,154 @@
+
+> scribeswell-web@0.1.0 test:browser
+> playwright test --config playwright.config.cjs --workers=4 --fully-parallel workspace-restoration.spec.cjs personal-notes.spec.cjs -g outline return|account replacement discards prior private UI|rejected study title can be corrected|same-account reauthentication preserves input
+
+[WebServer] (node:70332) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 34 tests using 4 workers
+
+(node:70414) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:70427) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:70420) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:70428) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   3 [desktop] › tests/personal-notes.spec.cjs:212:1 › review: rejected study title can be corrected without replaying invalid payload (1.4s)
+  ✓   2 [desktop] › tests/personal-notes.spec.cjs:167:59 › account replacement discards prior private UI and late saves (other-account) (2.6s)
+  ✓   1 [desktop] › tests/personal-notes.spec.cjs:187:1 › same-account reauthentication preserves input and requires explicit retry (2.5s)
+  ✓   4 [desktop] › tests/personal-notes.spec.cjs:167:59 › account replacement discards prior private UI and late saves (current) (2.7s)
+  ✓   5 [desktop] › tests/workspace-restoration.spec.cjs:297:1 › outline return opens complete current notes and passages without leaving or reselecting the restored study (2.8s)
+  ✓   6 [desktop] › tests/workspace-restoration.spec.cjs:303:136 › outline return late notes ignores dirty input without changing lanes or focus (2.1s)
+  ✓   7 [desktop] › tests/workspace-restoration.spec.cjs:303:136 › outline return late notes ignores leave study without changing lanes or focus (2.1s)
+  ✓   9 [desktop] › tests/workspace-restoration.spec.cjs:303:136 › outline return late notes ignores close tab without changing lanes or focus (2.2s)
+  ✓  10 [desktop] › tests/workspace-restoration.spec.cjs:303:136 › outline return late notes ignores account switch without changing lanes or focus (2.8s)
+  ✓  11 [desktop] › tests/workspace-restoration.spec.cjs:303:136 › outline return late passages ignores dirty input without changing lanes or focus (3.4s)
+  ✓  12 [desktop] › tests/workspace-restoration.spec.cjs:303:136 › outline return late passages ignores leave study without changing lanes or focus (4.9s)
+  ✓  14 [desktop] › tests/workspace-restoration.spec.cjs:303:136 › outline return late passages ignores close tab without changing lanes or focus (5.5s)
+  ✓  15 [desktop] › tests/workspace-restoration.spec.cjs:303:136 › outline return late passages ignores account switch without changing lanes or focus (4.2s)
+  ✓  16 [desktop] › tests/workspace-restoration.spec.cjs:319:1 › outline return readonly refresh preserves an existing dirty selected lane and retries invalid owner pages (4.4s)
+  ✓  17 [desktop] › tests/workspace-restoration.spec.cjs:324:1 › outline return inherited restored context loads its own current outline on first explicit open (3.2s)
+(node:71363) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:71448) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  18 [mobile] › tests/personal-notes.spec.cjs:167:59 › account replacement discards prior private UI and late saves (current) (4.6s)
+  ✓  19 [mobile] › tests/personal-notes.spec.cjs:167:59 › account replacement discards prior private UI and late saves (other-account) (4.0s)
+  ✓  21 [mobile] › tests/personal-notes.spec.cjs:212:1 › review: rejected study title can be corrected without replaying invalid payload (1.8s)
+  ✓  20 [mobile] › tests/personal-notes.spec.cjs:187:1 › same-account reauthentication preserves input and requires explicit retry (2.9s)
+  ✓  23 [mobile] › tests/workspace-restoration.spec.cjs:303:136 › outline return late notes ignores dirty input without changing lanes or focus (3.4s)
+  ✓  22 [mobile] › tests/workspace-restoration.spec.cjs:297:1 › outline return opens complete current notes and passages without leaving or reselecting the restored study (4.6s)
+  ✘   8 [desktop] › tests/workspace-restoration.spec.cjs:303:136 › outline return late notes ignores replace study without changing lanes or focus (30.1s)
+(node:72033) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  24 [mobile] › tests/workspace-restoration.spec.cjs:303:136 › outline return late notes ignores leave study without changing lanes or focus (3.4s)
+  ✘  13 [desktop] › tests/workspace-restoration.spec.cjs:303:136 › outline return late passages ignores replace study without changing lanes or focus (30.1s)
+  ✓  27 [mobile] › tests/workspace-restoration.spec.cjs:303:136 › outline return late notes ignores account switch without changing lanes or focus (3.3s)
+  ✓  26 [mobile] › tests/workspace-restoration.spec.cjs:303:136 › outline return late notes ignores close tab without changing lanes or focus (3.6s)
+(node:72218) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  28 [mobile] › tests/workspace-restoration.spec.cjs:303:136 › outline return late passages ignores leave study without changing lanes or focus (4.1s)
+  ✓  30 [mobile] › tests/workspace-restoration.spec.cjs:303:136 › outline return late passages ignores dirty input without changing lanes or focus (4.3s)
+  ✓  31 [mobile] › tests/workspace-restoration.spec.cjs:303:136 › outline return late passages ignores close tab without changing lanes or focus (3.1s)
+  ✓  32 [mobile] › tests/workspace-restoration.spec.cjs:303:136 › outline return late passages ignores account switch without changing lanes or focus (3.2s)
+  ✓  33 [mobile] › tests/workspace-restoration.spec.cjs:319:1 › outline return readonly refresh preserves an existing dirty selected lane and retries invalid owner pages (3.8s)
+  ✓  34 [mobile] › tests/workspace-restoration.spec.cjs:324:1 › outline return inherited restored context loads its own current outline on first explicit open (2.9s)
+  ✘  25 [mobile] › tests/workspace-restoration.spec.cjs:303:136 › outline return late notes ignores replace study without changing lanes or focus (30.0s)
+  ✘  29 [mobile] › tests/workspace-restoration.spec.cjs:303:136 › outline return late passages ignores replace study without changing lanes or focus (30.0s)
+
+
+  1) [desktop] › tests/workspace-restoration.spec.cjs:303:136 › outline return late notes ignores replace study without changing lanes or focus 
+
+    Test timeout of 30000ms exceeded.
+
+    Error: locator.click: Test timeout of 30000ms exceeded.
+    Call log:
+      - waiting for getByRole('button', { name: 'Study B', exact: true })
+
+
+      307 |  if(action==='dirty input'){await page.getByRole('button',{name:'Analysis',exact:true}).click();await page.getByRole('textbox',{name:'Note text',exact:true}).fill('New dirty lane remains authoritative');}
+      308 |  else if(action==='leave study'){await page.getByRole('button',{name:'Leave study',exact:true}).click();await page.getByRole('textbox',{name:'Search studies',exact:true}).fill('New library intent');}
+    > 309 |  else if(action==='replace study'){await page.getByRole('button',{name:'Leave study',exact:true}).click();await page.getByRole('button',{name:'Study B',exact:true}).click();await page.getByRole('button',{name:'Saved note B',exact:true}).click();}
+          |                                                                                                                                                                      ^
+      310 |  else if(action==='close tab'){await page.getByRole('button',{name:'Close tab 1',exact:true}).click();await tabs(page).first().focus();}
+      311 |  else {await page.route('**/auth/v1/token*',r=>r.fulfill({json:{...session,access_token:'other-token',user:{...session.user,id:other}}}));await page.evaluate(async()=>{const {supabase}=await import('/src/lib/supabase.ts');await supabase.auth.signInWithPassword({email:'other@example.invalid',password:'fixture'});});await page.getByRole('button',{name:'Studies',exact:true}).focus();}
+      312 |  const focus=await page.evaluate(()=>document.activeElement?.getAttribute('aria-label')||document.activeElement?.textContent);release();await page.waitForTimeout(200);expect(await page.evaluate(()=>document.activeElement?.getAttribute('aria-label')||document.activeElement?.textContent)).toBe(focus);
+        at /home/ck/repos/innodat/agriplatform/apps/scribeswell/web/tests/workspace-restoration.spec.cjs:309:166
+
+    Error Context: test-results/workspace-restoration-outl-e22e8-out-changing-lanes-or-focus-desktop/error-context.md
+
+  2) [desktop] › tests/workspace-restoration.spec.cjs:303:136 › outline return late passages ignores replace study without changing lanes or focus 
+
+    Test timeout of 30000ms exceeded.
+
+    Error: locator.click: Test timeout of 30000ms exceeded.
+    Call log:
+      - waiting for getByRole('button', { name: 'Study B', exact: true })
+
+
+      307 |  if(action==='dirty input'){await page.getByRole('button',{name:'Analysis',exact:true}).click();await page.getByRole('textbox',{name:'Note text',exact:true}).fill('New dirty lane remains authoritative');}
+      308 |  else if(action==='leave study'){await page.getByRole('button',{name:'Leave study',exact:true}).click();await page.getByRole('textbox',{name:'Search studies',exact:true}).fill('New library intent');}
+    > 309 |  else if(action==='replace study'){await page.getByRole('button',{name:'Leave study',exact:true}).click();await page.getByRole('button',{name:'Study B',exact:true}).click();await page.getByRole('button',{name:'Saved note B',exact:true}).click();}
+          |                                                                                                                                                                      ^
+      310 |  else if(action==='close tab'){await page.getByRole('button',{name:'Close tab 1',exact:true}).click();await tabs(page).first().focus();}
+      311 |  else {await page.route('**/auth/v1/token*',r=>r.fulfill({json:{...session,access_token:'other-token',user:{...session.user,id:other}}}));await page.evaluate(async()=>{const {supabase}=await import('/src/lib/supabase.ts');await supabase.auth.signInWithPassword({email:'other@example.invalid',password:'fixture'});});await page.getByRole('button',{name:'Studies',exact:true}).focus();}
+      312 |  const focus=await page.evaluate(()=>document.activeElement?.getAttribute('aria-label')||document.activeElement?.textContent);release();await page.waitForTimeout(200);expect(await page.evaluate(()=>document.activeElement?.getAttribute('aria-label')||document.activeElement?.textContent)).toBe(focus);
+        at /home/ck/repos/innodat/agriplatform/apps/scribeswell/web/tests/workspace-restoration.spec.cjs:309:166
+
+    Error Context: test-results/workspace-restoration-outl-3b2c5-out-changing-lanes-or-focus-desktop/error-context.md
+
+  3) [mobile] › tests/workspace-restoration.spec.cjs:303:136 › outline return late notes ignores replace study without changing lanes or focus 
+
+    Test timeout of 30000ms exceeded.
+
+    Error: locator.click: Test timeout of 30000ms exceeded.
+    Call log:
+      - waiting for getByRole('button', { name: 'Study B', exact: true })
+
+
+      307 |  if(action==='dirty input'){await page.getByRole('button',{name:'Analysis',exact:true}).click();await page.getByRole('textbox',{name:'Note text',exact:true}).fill('New dirty lane remains authoritative');}
+      308 |  else if(action==='leave study'){await page.getByRole('button',{name:'Leave study',exact:true}).click();await page.getByRole('textbox',{name:'Search studies',exact:true}).fill('New library intent');}
+    > 309 |  else if(action==='replace study'){await page.getByRole('button',{name:'Leave study',exact:true}).click();await page.getByRole('button',{name:'Study B',exact:true}).click();await page.getByRole('button',{name:'Saved note B',exact:true}).click();}
+          |                                                                                                                                                                      ^
+      310 |  else if(action==='close tab'){await page.getByRole('button',{name:'Close tab 1',exact:true}).click();await tabs(page).first().focus();}
+      311 |  else {await page.route('**/auth/v1/token*',r=>r.fulfill({json:{...session,access_token:'other-token',user:{...session.user,id:other}}}));await page.evaluate(async()=>{const {supabase}=await import('/src/lib/supabase.ts');await supabase.auth.signInWithPassword({email:'other@example.invalid',password:'fixture'});});await page.getByRole('button',{name:'Studies',exact:true}).focus();}
+      312 |  const focus=await page.evaluate(()=>document.activeElement?.getAttribute('aria-label')||document.activeElement?.textContent);release();await page.waitForTimeout(200);expect(await page.evaluate(()=>document.activeElement?.getAttribute('aria-label')||document.activeElement?.textContent)).toBe(focus);
+        at /home/ck/repos/innodat/agriplatform/apps/scribeswell/web/tests/workspace-restoration.spec.cjs:309:166
+
+    Error Context: test-results/workspace-restoration-outl-e22e8-out-changing-lanes-or-focus-mobile/error-context.md
+
+  4) [mobile] › tests/workspace-restoration.spec.cjs:303:136 › outline return late passages ignores replace study without changing lanes or focus 
+
+    Test timeout of 30000ms exceeded.
+
+    Error: locator.click: Test timeout of 30000ms exceeded.
+    Call log:
+      - waiting for getByRole('button', { name: 'Study B', exact: true })
+
+
+      307 |  if(action==='dirty input'){await page.getByRole('button',{name:'Analysis',exact:true}).click();await page.getByRole('textbox',{name:'Note text',exact:true}).fill('New dirty lane remains authoritative');}
+      308 |  else if(action==='leave study'){await page.getByRole('button',{name:'Leave study',exact:true}).click();await page.getByRole('textbox',{name:'Search studies',exact:true}).fill('New library intent');}
+    > 309 |  else if(action==='replace study'){await page.getByRole('button',{name:'Leave study',exact:true}).click();await page.getByRole('button',{name:'Study B',exact:true}).click();await page.getByRole('button',{name:'Saved note B',exact:true}).click();}
+          |                                                                                                                                                                      ^
+      310 |  else if(action==='close tab'){await page.getByRole('button',{name:'Close tab 1',exact:true}).click();await tabs(page).first().focus();}
+      311 |  else {await page.route('**/auth/v1/token*',r=>r.fulfill({json:{...session,access_token:'other-token',user:{...session.user,id:other}}}));await page.evaluate(async()=>{const {supabase}=await import('/src/lib/supabase.ts');await supabase.auth.signInWithPassword({email:'other@example.invalid',password:'fixture'});});await page.getByRole('button',{name:'Studies',exact:true}).focus();}
+      312 |  const focus=await page.evaluate(()=>document.activeElement?.getAttribute('aria-label')||document.activeElement?.textContent);release();await page.waitForTimeout(200);expect(await page.evaluate(()=>document.activeElement?.getAttribute('aria-label')||document.activeElement?.textContent)).toBe(focus);
+        at /home/ck/repos/innodat/agriplatform/apps/scribeswell/web/tests/workspace-restoration.spec.cjs:309:166
+
+    Error Context: test-results/workspace-restoration-outl-3b2c5-out-changing-lanes-or-focus-mobile/error-context.md
+
+  4 failed
+    [desktop] › tests/workspace-restoration.spec.cjs:303:136 › outline return late notes ignores replace study without changing lanes or focus 
+    [desktop] › tests/workspace-restoration.spec.cjs:303:136 › outline return late passages ignores replace study without changing lanes or focus 
+    [mobile] › tests/workspace-restoration.spec.cjs:303:136 › outline return late notes ignores replace study without changing lanes or focus 
+    [mobile] › tests/workspace-restoration.spec.cjs:303:136 › outline return late passages ignores replace study without changing lanes or focus 
+  30 passed (1.2m)
+npm error Lifecycle script `test:browser` failed with error:
+npm error code 1
+npm error path /home/ck/repos/innodat/agriplatform/apps/scribeswell/web
+npm error workspace scribeswell-web@0.1.0
+npm error location /home/ck/repos/innodat/agriplatform/apps/scribeswell/web
+npm error command failed
+npm error command sh -c playwright test --config playwright.config.cjs --workers=4 --fully-parallel workspace-restoration.spec.cjs personal-notes.spec.cjs -g 'outline return|account replacement discards prior private UI|rejected study title can be corrected|same-account reauthentication preserves input'

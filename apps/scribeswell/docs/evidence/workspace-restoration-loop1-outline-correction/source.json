@@ -1,0 +1,6 @@
+{
+  "apps/scribeswell/web/src/context/StudiesContext.tsx": "8dd2a1661216307c0e7565aeaa8c501cf0a3eb25cb76ce1e02a1b977584e771d",
+  "apps/scribeswell/web/src/lib/personal-notes.ts": "f0dbb8196a92f960a635954a005a6d76448c545797252d66f264d6c550902ab5",
+  "apps/scribeswell/web/tests/personal-notes.spec.cjs": "61ae99cb33511edbee5bd46694dd56a00f934a7ade7073fc9b1829e601898375",
+  "apps/scribeswell/web/tests/workspace-restoration.spec.cjs": "977c2969d42673a1705424ae9196d7aab4c02bbc8107e15d4e322fa376ca0604"
+}

@@ -1,0 +1,49 @@
+
+> scribeswell-web@0.1.0 test:browser
+> playwright test --config playwright.config.cjs --workers=1 --project=desktop workspace-restoration.spec.cjs -g outline return Back
+
+[WebServer] (node:73748) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 1 test using 1 worker
+
+(node:73781) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  1 [desktop] › tests/workspace-restoration.spec.cjs:327:1 › outline return Back to Studies loads the visible restored outline without rail navigation (6.1s)
+
+
+  1) [desktop] › tests/workspace-restoration.spec.cjs:327:1 › outline return Back to Studies loads the visible restored outline without rail navigation 
+
+    Error: expect(locator).toHaveCount(expected) failed
+
+    Locator:  getByRole('list', { name: 'Notes', exact: true }).getByRole('button')
+    Expected: 2
+    Received: 1
+    Timeout:  5000ms
+
+    Call log:
+      - Expect "toHaveCount" getByRole('list', { name: 'Notes', exact: true }).getByRole('button') with timeout 5000ms
+      - waiting for getByRole('list', { name: 'Notes', exact: true }).getByRole('button')
+        14 × locator resolved to 1 element
+           - unexpected value "1"
+
+
+      326 | });
+      327 | test('outline return Back to Studies loads the visible restored outline without rail navigation',async({page})=>{
+    > 328 |  await setup(page);await seed(page,publicSetup(1),privateSetup(1));await owner(page,{read:normalResources});await page.goto('/');await expect(tabs(page).first()).toHaveText('Private label 1');await page.getByRole('button',{name:'Analysis',exact:true}).click();await page.getByRole('button',{name:'Back to Studies',exact:true}).click();await expect(page.getByRole('list',{name:'Notes',exact:true}).getByRole('button')).toHaveCount(2);await expect(page.getByRole('button',{name:'Add passage',exact:true})).toBeEnabled();
+          |                                                                                                                                                                                                                                                                                                                                                                                                                                   ^
+      329 | });
+      330 |
+        at /home/ck/repos/innodat/agriplatform/apps/scribeswell/web/tests/workspace-restoration.spec.cjs:328:419
+
+    Error Context: test-results/workspace-restoration-outl-1c5e0-ine-without-rail-navigation-desktop/error-context.md
+
+  1 failed
+    [desktop] › tests/workspace-restoration.spec.cjs:327:1 › outline return Back to Studies loads the visible restored outline without rail navigation 
+npm error Lifecycle script `test:browser` failed with error:
+npm error code 1
+npm error path /home/ck/repos/innodat/agriplatform/apps/scribeswell/web
+npm error workspace scribeswell-web@0.1.0
+npm error location /home/ck/repos/innodat/agriplatform/apps/scribeswell/web
+npm error command failed
+npm error command sh -c playwright test --config playwright.config.cjs --workers=1 --project=desktop workspace-restoration.spec.cjs -g 'outline return Back'

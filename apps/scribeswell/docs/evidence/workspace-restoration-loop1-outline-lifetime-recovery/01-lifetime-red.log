@@ -1,0 +1,131 @@
+
+> scribeswell-web@0.1.0 test:browser
+> playwright test --config playwright.config.cjs --workers=2 --project=desktop --fully-parallel workspace-restoration.spec.cjs -g outline lifetime Retry
+
+[WebServer] (node:97438) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 4 tests using 2 workers
+
+(node:97583) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:97585) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  2 [desktop] › tests/workspace-restoration.spec.cjs:342:91 › outline lifetime Retry survives Rename tab during held notes without restoring stale public or note state (6.6s)
+  ✘  1 [desktop] › tests/workspace-restoration.spec.cjs:342:91 › outline lifetime Retry survives Next chapter during held notes without restoring stale public or note state (6.7s)
+(node:98060) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:98066) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  3 [desktop] › tests/workspace-restoration.spec.cjs:342:91 › outline lifetime Retry survives Next chapter during held passages without restoring stale public or note state (8.9s)
+  ✘  4 [desktop] › tests/workspace-restoration.spec.cjs:342:91 › outline lifetime Retry survives Rename tab during held passages without restoring stale public or note state (8.9s)
+
+
+  1) [desktop] › tests/workspace-restoration.spec.cjs:342:91 › outline lifetime Retry survives Next chapter during held notes without restoring stale public or note state 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByRole('alert').filter({ hasText: 'Study outline could not be loaded.' })
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByRole('alert').filter({ hasText: 'Study outline could not be loaded.' }) with timeout 5000ms
+      - waiting for getByRole('alert').filter({ hasText: 'Study outline could not be loaded.' })
+
+
+      346 |  await owner(page,{read:async r=>{if(held&&new URL(r.request().url()).pathname.endsWith('/'+phase))await new Promise(resolve=>releases.push(resolve));return normalResources(r);}});await page.goto('/');await expect(tabs(page).first()).toHaveText('Private label 1');await page.getByRole('button',{name:'Studies',exact:true}).click();await expect.poll(()=>releases.length).toBeGreaterThan(0);
+      347 |  if(action==='Next chapter')await page.getByRole('button',{name:'Next chapter',exact:true}).click();else {await page.getByRole('button',{name:'Rename tab 1',exact:true}).click();await page.getByLabel('Tab name',{exact:true}).fill('New explicit tab label');await page.getByRole('dialog',{name:'Rename workspace tab',exact:true}).getByRole('button',{name:'Save',exact:true}).click();}
+    > 348 |  const chapter=()=>page.evaluate(()=>history.state.usr.scribeswellReader.panes[0].ref.target.chapter);if(action==='Next chapter')expect(await chapter()).toBe(2);else await expect(tabs(page).first()).toHaveText('New explicit tab label');held=false;for(const release of releases)release();const retry=page.getByRole('alert').filter({hasText:'Study outline could not be loaded.'});await expect(retry).toBeVisible();await expect(page.getByRole('list',{name:'Notes',exact:true}).getByRole('button')).toHaveCount(1);await retry.getByRole('button',{name:'Retry',exact:true}).click();await expect(page.getByRole('list',{name:'Notes',exact:true}).getByRole('button')).toHaveCount(2);await expect(page.getByRole('button',{name:'Add passage',exact:true})).toBeEnabled();if(action==='Next chapter')expect(await chapter()).toBe(2);else await expect(tabs(page).first()).toHaveText('New explicit tab label');await page.getByRole('button',{name:'Analysis',exact:true}).click();await expect(page.getByRole('textbox',{name:'Note text',exact:true})).toHaveText('Saved note A');
+          |                                                                                                                                                                                                                                                                                                                                                                                                               ^
+      349 | });
+      350 |
+        at /home/ck/repos/innodat/agriplatform/apps/scribeswell/web/tests/workspace-restoration.spec.cjs:348:399
+
+    Error Context: test-results/workspace-restoration-outl-08300--stale-public-or-note-state-desktop/error-context.md
+
+  2) [desktop] › tests/workspace-restoration.spec.cjs:342:91 › outline lifetime Retry survives Rename tab during held notes without restoring stale public or note state 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByRole('alert').filter({ hasText: 'Study outline could not be loaded.' })
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByRole('alert').filter({ hasText: 'Study outline could not be loaded.' }) with timeout 5000ms
+      - waiting for getByRole('alert').filter({ hasText: 'Study outline could not be loaded.' })
+
+
+      346 |  await owner(page,{read:async r=>{if(held&&new URL(r.request().url()).pathname.endsWith('/'+phase))await new Promise(resolve=>releases.push(resolve));return normalResources(r);}});await page.goto('/');await expect(tabs(page).first()).toHaveText('Private label 1');await page.getByRole('button',{name:'Studies',exact:true}).click();await expect.poll(()=>releases.length).toBeGreaterThan(0);
+      347 |  if(action==='Next chapter')await page.getByRole('button',{name:'Next chapter',exact:true}).click();else {await page.getByRole('button',{name:'Rename tab 1',exact:true}).click();await page.getByLabel('Tab name',{exact:true}).fill('New explicit tab label');await page.getByRole('dialog',{name:'Rename workspace tab',exact:true}).getByRole('button',{name:'Save',exact:true}).click();}
+    > 348 |  const chapter=()=>page.evaluate(()=>history.state.usr.scribeswellReader.panes[0].ref.target.chapter);if(action==='Next chapter')expect(await chapter()).toBe(2);else await expect(tabs(page).first()).toHaveText('New explicit tab label');held=false;for(const release of releases)release();const retry=page.getByRole('alert').filter({hasText:'Study outline could not be loaded.'});await expect(retry).toBeVisible();await expect(page.getByRole('list',{name:'Notes',exact:true}).getByRole('button')).toHaveCount(1);await retry.getByRole('button',{name:'Retry',exact:true}).click();await expect(page.getByRole('list',{name:'Notes',exact:true}).getByRole('button')).toHaveCount(2);await expect(page.getByRole('button',{name:'Add passage',exact:true})).toBeEnabled();if(action==='Next chapter')expect(await chapter()).toBe(2);else await expect(tabs(page).first()).toHaveText('New explicit tab label');await page.getByRole('button',{name:'Analysis',exact:true}).click();await expect(page.getByRole('textbox',{name:'Note text',exact:true})).toHaveText('Saved note A');
+          |                                                                                                                                                                                                                                                                                                                                                                                                               ^
+      349 | });
+      350 |
+        at /home/ck/repos/innodat/agriplatform/apps/scribeswell/web/tests/workspace-restoration.spec.cjs:348:399
+
+    Error Context: test-results/workspace-restoration-outl-9c18d--stale-public-or-note-state-desktop/error-context.md
+
+  3) [desktop] › tests/workspace-restoration.spec.cjs:342:91 › outline lifetime Retry survives Next chapter during held passages without restoring stale public or note state 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByRole('alert').filter({ hasText: 'Study outline could not be loaded.' })
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByRole('alert').filter({ hasText: 'Study outline could not be loaded.' }) with timeout 5000ms
+      - waiting for getByRole('alert').filter({ hasText: 'Study outline could not be loaded.' })
+
+
+      346 |  await owner(page,{read:async r=>{if(held&&new URL(r.request().url()).pathname.endsWith('/'+phase))await new Promise(resolve=>releases.push(resolve));return normalResources(r);}});await page.goto('/');await expect(tabs(page).first()).toHaveText('Private label 1');await page.getByRole('button',{name:'Studies',exact:true}).click();await expect.poll(()=>releases.length).toBeGreaterThan(0);
+      347 |  if(action==='Next chapter')await page.getByRole('button',{name:'Next chapter',exact:true}).click();else {await page.getByRole('button',{name:'Rename tab 1',exact:true}).click();await page.getByLabel('Tab name',{exact:true}).fill('New explicit tab label');await page.getByRole('dialog',{name:'Rename workspace tab',exact:true}).getByRole('button',{name:'Save',exact:true}).click();}
+    > 348 |  const chapter=()=>page.evaluate(()=>history.state.usr.scribeswellReader.panes[0].ref.target.chapter);if(action==='Next chapter')expect(await chapter()).toBe(2);else await expect(tabs(page).first()).toHaveText('New explicit tab label');held=false;for(const release of releases)release();const retry=page.getByRole('alert').filter({hasText:'Study outline could not be loaded.'});await expect(retry).toBeVisible();await expect(page.getByRole('list',{name:'Notes',exact:true}).getByRole('button')).toHaveCount(1);await retry.getByRole('button',{name:'Retry',exact:true}).click();await expect(page.getByRole('list',{name:'Notes',exact:true}).getByRole('button')).toHaveCount(2);await expect(page.getByRole('button',{name:'Add passage',exact:true})).toBeEnabled();if(action==='Next chapter')expect(await chapter()).toBe(2);else await expect(tabs(page).first()).toHaveText('New explicit tab label');await page.getByRole('button',{name:'Analysis',exact:true}).click();await expect(page.getByRole('textbox',{name:'Note text',exact:true})).toHaveText('Saved note A');
+          |                                                                                                                                                                                                                                                                                                                                                                                                               ^
+      349 | });
+      350 |
+        at /home/ck/repos/innodat/agriplatform/apps/scribeswell/web/tests/workspace-restoration.spec.cjs:348:399
+
+    Error Context: test-results/workspace-restoration-outl-b56d7--stale-public-or-note-state-desktop/error-context.md
+
+  4) [desktop] › tests/workspace-restoration.spec.cjs:342:91 › outline lifetime Retry survives Rename tab during held passages without restoring stale public or note state 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByRole('alert').filter({ hasText: 'Study outline could not be loaded.' })
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByRole('alert').filter({ hasText: 'Study outline could not be loaded.' }) with timeout 5000ms
+      - waiting for getByRole('alert').filter({ hasText: 'Study outline could not be loaded.' })
+
+
+      346 |  await owner(page,{read:async r=>{if(held&&new URL(r.request().url()).pathname.endsWith('/'+phase))await new Promise(resolve=>releases.push(resolve));return normalResources(r);}});await page.goto('/');await expect(tabs(page).first()).toHaveText('Private label 1');await page.getByRole('button',{name:'Studies',exact:true}).click();await expect.poll(()=>releases.length).toBeGreaterThan(0);
+      347 |  if(action==='Next chapter')await page.getByRole('button',{name:'Next chapter',exact:true}).click();else {await page.getByRole('button',{name:'Rename tab 1',exact:true}).click();await page.getByLabel('Tab name',{exact:true}).fill('New explicit tab label');await page.getByRole('dialog',{name:'Rename workspace tab',exact:true}).getByRole('button',{name:'Save',exact:true}).click();}
+    > 348 |  const chapter=()=>page.evaluate(()=>history.state.usr.scribeswellReader.panes[0].ref.target.chapter);if(action==='Next chapter')expect(await chapter()).toBe(2);else await expect(tabs(page).first()).toHaveText('New explicit tab label');held=false;for(const release of releases)release();const retry=page.getByRole('alert').filter({hasText:'Study outline could not be loaded.'});await expect(retry).toBeVisible();await expect(page.getByRole('list',{name:'Notes',exact:true}).getByRole('button')).toHaveCount(1);await retry.getByRole('button',{name:'Retry',exact:true}).click();await expect(page.getByRole('list',{name:'Notes',exact:true}).getByRole('button')).toHaveCount(2);await expect(page.getByRole('button',{name:'Add passage',exact:true})).toBeEnabled();if(action==='Next chapter')expect(await chapter()).toBe(2);else await expect(tabs(page).first()).toHaveText('New explicit tab label');await page.getByRole('button',{name:'Analysis',exact:true}).click();await expect(page.getByRole('textbox',{name:'Note text',exact:true})).toHaveText('Saved note A');
+          |                                                                                                                                                                                                                                                                                                                                                                                                               ^
+      349 | });
+      350 |
+        at /home/ck/repos/innodat/agriplatform/apps/scribeswell/web/tests/workspace-restoration.spec.cjs:348:399
+
+    Error Context: test-results/workspace-restoration-outl-47ffb--stale-public-or-note-state-desktop/error-context.md
+
+  4 failed
+    [desktop] › tests/workspace-restoration.spec.cjs:342:91 › outline lifetime Retry survives Next chapter during held notes without restoring stale public or note state 
+    [desktop] › tests/workspace-restoration.spec.cjs:342:91 › outline lifetime Retry survives Rename tab during held notes without restoring stale public or note state 
+    [desktop] › tests/workspace-restoration.spec.cjs:342:91 › outline lifetime Retry survives Next chapter during held passages without restoring stale public or note state 
+    [desktop] › tests/workspace-restoration.spec.cjs:342:91 › outline lifetime Retry survives Rename tab during held passages without restoring stale public or note state 
+npm error Lifecycle script `test:browser` failed with error:
+npm error code 1
+npm error path /home/ck/repos/innodat/agriplatform/apps/scribeswell/web
+npm error workspace scribeswell-web@0.1.0
+npm error location /home/ck/repos/innodat/agriplatform/apps/scribeswell/web
+npm error command failed
+npm error command sh -c playwright test --config playwright.config.cjs --workers=2 --project=desktop --fully-parallel workspace-restoration.spec.cjs -g 'outline lifetime Retry'

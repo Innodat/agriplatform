@@ -1,0 +1,23 @@
+
+> scribeswell-web@0.1.0 test:browser
+> playwright test --config playwright.config.cjs --workers=2 --fully-parallel personal-notes.spec.cjs -g explicitly enroll|note deletion composing cancel
+
+[WebServer] (node:37719) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 4 tests using 2 workers
+
+(node:37774) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:37780) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  1 [desktop] › tests/personal-notes.spec.cjs:136:1 › explicitly enroll, create, write Hebrew and reopen saved text after reload (2.6s)
+  ✓  2 [desktop] › tests/personal-notes.spec.cjs:806:1 › note deletion composing cancel preserves final composition through saving and reopen (2.8s)
+(node:38032) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:38039) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  3 [mobile] › tests/personal-notes.spec.cjs:136:1 › explicitly enroll, create, write Hebrew and reopen saved text after reload (3.9s)
+  ✓  4 [mobile] › tests/personal-notes.spec.cjs:806:1 › note deletion composing cancel preserves final composition through saving and reopen (4.4s)
+
+  4 passed (10.0s)

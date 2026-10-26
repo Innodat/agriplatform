@@ -1,0 +1,92 @@
+
+> scribeswell-web@0.1.0 test:browser
+> playwright test --config playwright.config.cjs personal-notes.spec.cjs --workers=4 --fully-parallel --grep same-account reauthentication preserves|library search authentication failure|stale old-token401|note deletion same-account authority|study deletion review explicit reopening|workspace tabs mask all private labels
+
+[WebServer] (node:1399973) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 12 tests using 4 workers
+
+(node:1400034) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:1400047) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:1400041) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:1400040) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   2 [desktop] › tests/personal-notes.spec.cjs:666:1 › library review: stale old-token401 cannot remask restored same-account search (1.4s)
+  ✓   4 [desktop] › tests/personal-notes.spec.cjs:635:1 › library search authentication failure stops loading and successful same-account retry clears sign-in error (1.3s)
+  ✓   1 [desktop] › tests/personal-notes.spec.cjs:813:1 › note deletion same-account authority recovery never automatically repeats deletion (1.8s)
+(node:1400415) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   3 [desktop] › tests/personal-notes.spec.cjs:162:1 › same-account reauthentication preserves input and requires explicit retry (2.5s)
+(node:1400464) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   7 [mobile] › tests/personal-notes.spec.cjs:162:1 › same-account reauthentication preserves input and requires explicit retry (3.3s)
+  ✓   8 [mobile] › tests/personal-notes.spec.cjs:635:1 › library search authentication failure stops loading and successful same-account retry clears sign-in error (2.2s)
+  ✓   9 [mobile] › tests/personal-notes.spec.cjs:666:1 › library review: stale old-token401 cannot remask restored same-account search (2.3s)
+  ✓  10 [mobile] › tests/personal-notes.spec.cjs:813:1 › note deletion same-account authority recovery never automatically repeats deletion (3.2s)
+  ✘   6 [desktop] › tests/personal-notes.spec.cjs:1364:1 › workspace tabs mask all private labels during authentication loss and clear them on account replacement (8.1s)
+  ✓  11 [mobile] › tests/personal-notes.spec.cjs:1006:1 › study deletion review explicit reopening after same-user authentication restarts interrupted preparation (3.7s)
+  ✓  12 [mobile] › tests/personal-notes.spec.cjs:1364:1 › workspace tabs mask all private labels during authentication loss and clear them on account replacement (4.0s)
+  ✘   5 [desktop] › tests/personal-notes.spec.cjs:1006:1 › study deletion review explicit reopening after same-user authentication restarts interrupted preparation (30.0s)
+
+
+  1) [desktop] › tests/personal-notes.spec.cjs:1006:1 › study deletion review explicit reopening after same-user authentication restarts interrupted preparation 
+
+    Test timeout of 30000ms exceeded.
+
+    Error: locator.click: Test timeout of 30000ms exceeded.
+    Call log:
+      - waiting for getByRole('button', { name: 'Delete study', exact: true }).visible()
+
+
+      877 | });
+      878 |
+    > 879 | async function openWholeDeletion(page){await page.getByRole('button',{name:'Delete study',exact:true}).filter({visible:true}).click();return page.getByRole('dialog',{name:'Delete this study?',exact:true});}
+          |                                                                                                                               ^
+      880 | async function confirmWholeDeletion(page){const dialog=await openWholeDeletion(page);await expect(dialog.getByRole('button',{name:'Delete study',exact:true})).toBeEnabled();await dialog.getByRole('button',{name:'Delete study',exact:true}).click();return dialog;}
+      881 | async function firstNoteWithPausedClock(page){
+      882 |  await page.clock.install();await firstNote(page);
+        at openWholeDeletion (/home/ck/repos/innodat/agriplatform/apps/scribeswell/web/tests/personal-notes.spec.cjs:879:127)
+        at /home/ck/repos/innodat/agriplatform/apps/scribeswell/web/tests/personal-notes.spec.cjs:1007:899
+
+    Error Context: test-results/personal-notes-study-delet-9712f-rts-interrupted-preparation-desktop/error-context.md
+
+  2) [desktop] › tests/personal-notes.spec.cjs:1364:1 › workspace tabs mask all private labels during authentication loss and clear them on account replacement 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByText('private label A', { exact: true })
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByText('private label A', { exact: true }) with timeout 5000ms
+      - waiting for getByText('private label A', { exact: true })
+
+
+      1365 |  const options={failPut:401};await setup(page,options);await firstNote(page);const rename=async(index,label)=>{await page.getByRole('button',{name:`Rename tab ${index}`,exact:true}).click();await page.getByLabel('Tab name',{exact:true}).fill(label);await page.getByRole('dialog',{name:'Rename workspace tab'}).getByRole('button',{name:'Save',exact:true}).click();};
+      1366 |  await rename(1,'private label A');await page.getByRole('button',{name:'New workspace tab',exact:true}).click();await page.getByRole('dialog',{name:'Book and chapter selector'}).getByRole('button',{name:'Cancel',exact:true}).click();await rename(2,'private label B');await page.getByRole('button',{name:'Analysis',exact:true}).click();await page.getByRole('textbox',{name:'Note text',exact:true}).fill('auth failure input');await expect(page.getByRole('alert')).toContainText('Sign in');await expect(page.getByText('private label A',{exact:true})).toHaveCount(0);await expect(page.getByText('private label B',{exact:true})).toHaveCount(0);
+    > 1367 |  await page.route('**/auth/v1/token*',r=>r.fulfill({json:{...session,access_token:'renewed-current'}}));await page.evaluate(async()=>{const {supabase}=await import('/src/lib/supabase.ts');await supabase.auth.signInWithPassword({email:'reader@example.invalid',password:'fixture'});});options.failPut=0;await page.getByRole('button',{name:'Retry Studies',exact:true}).click();await expect(page.getByText('private label A',{exact:true})).toBeVisible();await expect(page.getByText('private label B',{exact:true})).toBeVisible();
+           |                                                                                                                                                                                                                                                                                                                                                                                                                                                    ^
+      1368 |  await page.route('**/auth/v1/token*',r=>r.fulfill({json:{...session,user:{...session.user,id:'10000000-0000-4000-8000-000000000002'}}}));await page.evaluate(async()=>{const {supabase}=await import('/src/lib/supabase.ts');await supabase.auth.signOut({scope:'local'});await supabase.auth.signInWithPassword({email:'other@example.invalid',password:'fixture'});});await expect(page.getByText('private label A',{exact:true})).toHaveCount(0);await expect(page.getByText('private label B',{exact:true})).toHaveCount(0);await expect(page.getByText('auth failure input',{exact:true})).toHaveCount(0);await page.getByRole('button',{name:'Add reader pane',exact:true}).click();await page.getByRole('dialog',{name:'Book and chapter selector'}).getByRole('button',{name:'Cancel',exact:true}).click();await expect(page.getByText('private label A',{exact:true})).toHaveCount(0);await expect(page.getByText('private label B',{exact:true})).toHaveCount(0);
+      1369 | });
+      1370 |
+        at /home/ck/repos/innodat/agriplatform/apps/scribeswell/web/tests/personal-notes.spec.cjs:1367:436
+
+    Error Context: test-results/personal-notes-workspace-t-85bee-them-on-account-replacement-desktop/error-context.md
+
+  2 failed
+    [desktop] › tests/personal-notes.spec.cjs:1006:1 › study deletion review explicit reopening after same-user authentication restarts interrupted preparation 
+    [desktop] › tests/personal-notes.spec.cjs:1364:1 › workspace tabs mask all private labels during authentication loss and clear them on account replacement 
+  10 passed (33.6s)
+npm error Lifecycle script `test:browser` failed with error:
+npm error code 1
+npm error path /home/ck/repos/innodat/agriplatform/apps/scribeswell/web
+npm error workspace scribeswell-web@0.1.0
+npm error location /home/ck/repos/innodat/agriplatform/apps/scribeswell/web
+npm error command failed
+npm error command sh -c playwright test --config playwright.config.cjs personal-notes.spec.cjs --workers=4 --fully-parallel --grep 'same-account reauthentication preserves|library search authentication failure|stale old-token401|note deletion same-account authority|study deletion review explicit reopening|workspace tabs mask all private labels'

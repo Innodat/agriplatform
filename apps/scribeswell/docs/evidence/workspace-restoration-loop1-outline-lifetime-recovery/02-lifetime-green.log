@@ -1,0 +1,53 @@
+
+> scribeswell-web@0.1.0 test:browser
+> playwright test --config playwright.config.cjs --workers=4 --fully-parallel workspace-restoration.spec.cjs -g outline lifetime Retry|outline return cancelled|outline return late.*(close tab|account switch)|outline return tab reentry
+
+[WebServer] (node:99030) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 26 tests using 4 workers
+
+(node:99055) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:99048) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:99054) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:99047) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   3 [desktop] › tests/workspace-restoration.spec.cjs:303:136 › outline return late notes ignores account switch without changing lanes or focus (2.6s)
+  ✓   1 [desktop] › tests/workspace-restoration.spec.cjs:303:136 › outline return late notes ignores close tab without changing lanes or focus (2.7s)
+  ✓   2 [desktop] › tests/workspace-restoration.spec.cjs:303:136 › outline return late passages ignores account switch without changing lanes or focus (2.9s)
+  ✓   4 [desktop] › tests/workspace-restoration.spec.cjs:303:136 › outline return late passages ignores close tab without changing lanes or focus (2.9s)
+  ✓   5 [desktop] › tests/workspace-restoration.spec.cjs:331:1 › outline return tab reentry reloads a cancelled visible outline and never starts hidden outline reads (4.9s)
+  ✓   6 [desktop] › tests/workspace-restoration.spec.cjs:335:86 › outline return cancelled Rename during held notes has complete outline or truthful Retry (5.3s)
+  ✓   7 [desktop] › tests/workspace-restoration.spec.cjs:335:86 › outline return cancelled Delete study during held notes has complete outline or truthful Retry (5.3s)
+  ✓   8 [desktop] › tests/workspace-restoration.spec.cjs:335:86 › outline return cancelled Rename during held passages has complete outline or truthful Retry (5.3s)
+  ✓   9 [desktop] › tests/workspace-restoration.spec.cjs:335:86 › outline return cancelled Delete study during held passages has complete outline or truthful Retry (5.4s)
+  ✓  10 [desktop] › tests/workspace-restoration.spec.cjs:342:91 › outline lifetime Retry survives Next chapter during held notes without restoring stale public or note state (5.5s)
+  ✓  11 [desktop] › tests/workspace-restoration.spec.cjs:342:91 › outline lifetime Retry survives Rename tab during held notes without restoring stale public or note state (5.4s)
+  ✓  12 [desktop] › tests/workspace-restoration.spec.cjs:342:91 › outline lifetime Retry survives Next chapter during held passages without restoring stale public or note state (5.6s)
+(node:99825) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:99839) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:99847) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  13 [desktop] › tests/workspace-restoration.spec.cjs:342:91 › outline lifetime Retry survives Rename tab during held passages without restoring stale public or note state (5.9s)
+(node:100186) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  14 [mobile] › tests/workspace-restoration.spec.cjs:303:136 › outline return late notes ignores close tab without changing lanes or focus (5.6s)
+  ✓  15 [mobile] › tests/workspace-restoration.spec.cjs:303:136 › outline return late notes ignores account switch without changing lanes or focus (5.3s)
+  ✓  16 [mobile] › tests/workspace-restoration.spec.cjs:303:136 › outline return late passages ignores close tab without changing lanes or focus (5.4s)
+  ✓  18 [mobile] › tests/workspace-restoration.spec.cjs:331:1 › outline return tab reentry reloads a cancelled visible outline and never starts hidden outline reads (5.7s)
+  ✓  17 [mobile] › tests/workspace-restoration.spec.cjs:303:136 › outline return late passages ignores account switch without changing lanes or focus (5.9s)
+  ✓  19 [mobile] › tests/workspace-restoration.spec.cjs:335:86 › outline return cancelled Rename during held notes has complete outline or truthful Retry (6.1s)
+  ✓  20 [mobile] › tests/workspace-restoration.spec.cjs:335:86 › outline return cancelled Delete study during held notes has complete outline or truthful Retry (6.3s)
+  ✓  21 [mobile] › tests/workspace-restoration.spec.cjs:335:86 › outline return cancelled Rename during held passages has complete outline or truthful Retry (5.6s)
+  ✓  23 [mobile] › tests/workspace-restoration.spec.cjs:342:91 › outline lifetime Retry survives Next chapter during held notes without restoring stale public or note state (5.8s)
+  ✓  22 [mobile] › tests/workspace-restoration.spec.cjs:335:86 › outline return cancelled Delete study during held passages has complete outline or truthful Retry (6.5s)
+  ✓  24 [mobile] › tests/workspace-restoration.spec.cjs:342:91 › outline lifetime Retry survives Rename tab during held notes without restoring stale public or note state (5.7s)
+  ✓  25 [mobile] › tests/workspace-restoration.spec.cjs:342:91 › outline lifetime Retry survives Next chapter during held passages without restoring stale public or note state (3.6s)
+  ✓  26 [mobile] › tests/workspace-restoration.spec.cjs:342:91 › outline lifetime Retry survives Rename tab during held passages without restoring stale public or note state (3.4s)
+
+  26 passed (38.4s)

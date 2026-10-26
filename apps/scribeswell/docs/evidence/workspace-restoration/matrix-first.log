@@ -1,0 +1,106 @@
+
+> scribeswell-web@0.1.0 test:browser
+> playwright test --config playwright.config.cjs workspace-restoration.spec.cjs --project=desktop --workers=4 --fully-parallel
+
+[WebServer] (node:1307458) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 18 tests using 4 workers
+
+(node:1307475) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:1307482) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:1307488) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:1307481) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   1 [desktop] › tests/workspace-restoration.spec.cjs:16:1 › closed codec bounds privacy expiry and future version policy (1.4s)
+  ✓   3 [desktop] › tests/workspace-restoration.spec.cjs:58:1 › fresh equal-reference link has a new incarnation and no private association (2.2s)
+  ✓   2 [desktop] › tests/workspace-restoration.spec.cjs:12:1 › real IndexedDB reload restores two public setups (2.9s)
+  ✓   6 [desktop] › tests/workspace-restoration.spec.cjs:66:187 › authority 503 retains hidden candidate without affecting public setups (1.8s)
+  ✓   7 [desktop] › tests/workspace-restoration.spec.cjs:66:187 › authority 401 retains hidden candidate without affecting public setups (1.6s)
+  ✓   8 [desktop] › tests/workspace-restoration.spec.cjs:66:187 › authority 403 clears candidate without affecting public setups (1.6s)
+  ✓   9 [desktop] › tests/workspace-restoration.spec.cjs:66:187 › authority 404 clears candidate without affecting public setups (1.7s)
+  ✓  11 [desktop] › tests/workspace-restoration.spec.cjs:72:48 › storage denied keeps reading usable and offers truthful Retry (791ms)
+  ✓  10 [desktop] › tests/workspace-restoration.spec.cjs:69:1 › different verified account never reads or displays another owner selections (1.5s)
+  ✘   5 [desktop] › tests/workspace-restoration.spec.cjs:61:1 › same verified owner refetches private selections into one resource lane while public storage stays closed (6.3s)
+  ✘   4 [desktop] › tests/workspace-restoration.spec.cjs:52:1 › fresh explicit target stages twelve stored tabs and Cancel preserves the record with explicit Retry (7.8s)
+  ✓  12 [desktop] › tests/workspace-restoration.spec.cjs:72:48 › storage quota keeps reading usable and offers truthful Retry (1.7s)
+  ✓  13 [desktop] › tests/workspace-restoration.spec.cjs:72:48 › storage blocked keeps reading usable and offers truthful Retry (1.5s)
+(node:1308153) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:1308159) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  15 [desktop] › tests/workspace-restoration.spec.cjs:76:69 › future stored record is bounded and future records remain untouched (5.7s)
+  ✓  14 [desktop] › tests/workspace-restoration.spec.cjs:76:69 › oversize stored record is bounded and future records remain untouched (5.7s)
+  ✓  16 [desktop] › tests/workspace-restoration.spec.cjs:76:69 › expired stored record is bounded and future records remain untouched (5.5s)
+  ✓  17 [desktop] › tests/workspace-restoration.spec.cjs:76:69 › malformed stored record is bounded and future records remain untouched (5.4s)
+  ✓  18 [desktop] › tests/workspace-restoration.spec.cjs:76:69 › old stored record is bounded and future records remain untouched (2.9s)
+
+
+  1) [desktop] › tests/workspace-restoration.spec.cjs:52:1 › fresh explicit target stages twelve stored tabs and Cancel preserves the record with explicit Retry 
+
+    Error: expect(locator).toHaveCount(expected) failed
+
+    Locator:  getByRole('tablist', { name: 'Workspace tabs' }).getByRole('tab')
+    Expected: 12
+    Received: 1
+    Timeout:  5000ms
+
+    Call log:
+      - Expect "toHaveCount" getByRole('tablist', { name: 'Workspace tabs' }).getByRole('tab') with timeout 5000ms
+      - waiting for getByRole('tablist', { name: 'Workspace tabs' }).getByRole('tab')
+        14 × locator resolved to 1 element
+           - unexpected value "1"
+
+
+      54 |  const dialog=page.getByRole('dialog',{name:'Restore remembered reading setups'});await expect(dialog).toBeVisible();await expect(tabs(page)).toHaveCount(1);expect(new URL(page.url()).searchParams.get('chapter')).toBe('2');
+      55 |  await dialog.getByRole('button',{name:'Cancel',exact:true}).click();await page.waitForTimeout(450);expect((await stored(page)).public.tabs).toHaveLength(12);await expect(tabs(page)).toHaveCount(1);
+    > 56 |  await page.getByRole('status').filter({hasText:'Remembered reading setups are ready.'}).getByRole('button',{name:'Retry',exact:true}).click();await expect(dialog).toBeVisible();await dialog.getByRole('button',{name:/Close remembered tab 2:/}).click();await expect(tabs(page)).toHaveCount(12);await expect(tabs(page).first()).toHaveText('Genesis 2');await expect(tabs(page).first()).toBeFocused();
+         |                                                                                                                                                                                                                                                                                      ^
+      57 | });
+      58 | test('fresh equal-reference link has a new incarnation and no private association',async({page})=>{
+      59 |  await setup(page);await seed(page,publicSetup(1),privateSetup(1));await owner(page);await page.goto('/?book=Gen&chapter=1');await expect(tabs(page)).toHaveCount(2);await expect(tabs(page).nth(1)).toHaveText('Private label 1');await expect(tabs(page).first()).toHaveText('Genesis 1');await expect(tabs(page).first()).toHaveAttribute('aria-selected','true');await page.getByRole('button',{name:'Analysis',exact:true}).click();await expect(page.getByRole('textbox',{name:'Note text',exact:true})).toHaveCount(0);
+        at /home/ck/repos/innodat/agriplatform/apps/scribeswell/web/tests/workspace-restoration.spec.cjs:56:278
+
+    Error Context: test-results/workspace-restoration-fres-99f99--record-with-explicit-Retry-desktop/error-context.md
+
+  2) [desktop] › tests/workspace-restoration.spec.cjs:61:1 › same verified owner refetches private selections into one resource lane while public storage stays closed 
+
+    Error: expect(locator).toHaveText(expected) failed
+
+    Locator: getByRole('tablist', { name: 'Workspace tabs' }).getByRole('tab').first()
+    Expected: "Private label 1"
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toHaveText" getByRole('tablist', { name: 'Workspace tabs' }).getByRole('tab').first() with timeout 5000ms
+      - waiting for getByRole('tablist', { name: 'Workspace tabs' }).getByRole('tab').first()
+        2 × locator resolved to <button role="tab" dir="auto" tabindex="0" aria-selected="true" data-workspace-tab="saved-0" aria-controls="workspace-panel" class="px-3 py-2 max-w-48 truncate" id="workspace-tab-00730061007600650064002d0030">Genesis 1</button>
+          - unexpected value "Genesis 1"
+
+
+      60 | });
+      61 | test('same verified owner refetches private selections into one resource lane while public storage stays closed',async({page})=>{
+    > 62 |  await setup(page);await seed(page,publicSetup(),privateSetup());const calls=await owner(page);await page.goto('/');await expect(tabs(page)).toHaveCount(2);await expect(tabs(page).first()).toHaveText('Private label 1');await expect(tabs(page).nth(1)).toHaveText('Private label 2');expect(calls.max()).toBeLessThanOrEqual(2);
+         |                                                                                                                                                                                              ^
+      63 |  await page.getByRole('button',{name:'Analysis',exact:true}).click();await expect(page.getByRole('textbox',{name:'Note text',exact:true})).toContainText('Saved private body');await tabs(page).nth(1).click();await page.getByRole('button',{name:'Analysis',exact:true}).click();await expect(page.locator('[aria-label="Note text"]')).toHaveCount(1);
+      64 |  await page.waitForTimeout(600);const records=await stored(page),pub=JSON.stringify(records.public),all=JSON.stringify(records);for(const forbidden of ['Private label','owner-token','Saved private body','Secret study title','owner_account_id','connections','highlights','selection'])expect(pub).not.toContain(forbidden);for(const forbidden of ['owner-token','Saved private body','Secret study title','owner_account_id','connections','highlights'])expect(all).not.toContain(forbidden);expect(JSON.stringify(await page.evaluate(()=>history.state))+page.url()).not.toContain('Private label');expect(records[`account:${account}`].tabs).toHaveLength(2);
+      65 | });
+        at /home/ck/repos/innodat/agriplatform/apps/scribeswell/web/tests/workspace-restoration.spec.cjs:62:190
+
+    Error Context: test-results/workspace-restoration-same-bc3c7-public-storage-stays-closed-desktop/error-context.md
+
+  2 failed
+    [desktop] › tests/workspace-restoration.spec.cjs:52:1 › fresh explicit target stages twelve stored tabs and Cancel preserves the record with explicit Retry 
+    [desktop] › tests/workspace-restoration.spec.cjs:61:1 › same verified owner refetches private selections into one resource lane while public storage stays closed 
+  16 passed (19.0s)
+npm error Lifecycle script `test:browser` failed with error:
+npm error code 1
+npm error path /home/ck/repos/innodat/agriplatform/apps/scribeswell/web
+npm error workspace scribeswell-web@0.1.0
+npm error location /home/ck/repos/innodat/agriplatform/apps/scribeswell/web
+npm error command failed
+npm error command sh -c playwright test --config playwright.config.cjs workspace-restoration.spec.cjs --project=desktop --workers=4 --fully-parallel

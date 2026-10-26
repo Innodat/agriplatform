@@ -1,0 +1,17 @@
+{
+  "diff_file": "/tmp/scribeswell-restoration-loop1-review-uyebtkfx.patch",
+  "bytes": 1469452,
+  "sha256": "92b37bcc602376331280d2c9f57a35f7b1a5a4eb5fb99e02ea176304b9234a80",
+  "baseline": "95e54f90b37d7b7c0c00c0a4c7ee3acdd29f5a43",
+  "reviewers": [
+    "/root/restoration_loop1_blind",
+    "/root/restoration_loop1_edge",
+    "/root/restoration_loop1_verification"
+  ],
+  "schedule": "All three fresh context-free same-capability reviewers launched before collection and triage; all final reports received before any verdict.",
+  "triage": "12 individual rows in delivery spec; 4 patch roots, 1 pre-existing defer.",
+  "edge_report_note": "Reviewer cites isValidNoteView as illustrative guard; actual source has inline identifier validation, not a function named isValidNoteView.",
+  "parent_patch_audit": "Read provider operation-order delta and all six new browser cases. Two real-IDB pre-fix failures establish suppression/newer-read-warning defects; 20 focused cases pass. Only ReaderWorkspaceContext.tsx and workspace-restoration.spec.cjs differ from prior full165-source proof; no controller/owner contract change. Full996-case requalification running.",
+  "retained_input_archive": "input.patch.gz",
+  "archive_sha256": "42a81288671d969496b8f062814bf11ea024b2515cdcd6b1ac68f62990f0d8ec"
+}

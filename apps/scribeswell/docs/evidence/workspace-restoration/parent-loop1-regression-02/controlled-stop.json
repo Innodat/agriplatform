@@ -1,0 +1,5 @@
+{
+  "reason": "Parent source audit found restored-study passages and full note outline never loaded; stop for focused ATDD before further broad qualification.",
+  "playwright_pid": 53250,
+  "signal": "SIGINT"
+}

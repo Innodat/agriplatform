@@ -1,0 +1,8 @@
+{
+  "method": "Conservative closed-shape envelope: each128-code-unit key uses maximum six JSON bytes per unit; all48 panes, longest fixed reference identifiers,3-digit coordinates (including some invalid),29-digit timestamp envelope;80scalar labels at4UTF8 bytes. Duplicate keys/invalid coordinates intentionally make this an upper bound, not an accepted DTO fixture.",
+  "public_upper_envelope_bytes": 84770,
+  "public_budget": 98304,
+  "private_upper_envelope_bytes": 24026,
+  "private_budget": 32768,
+  "accepted_maximum_combinations": "Existing executable codec case verifies valid12x4/80scalar combinations."
+}

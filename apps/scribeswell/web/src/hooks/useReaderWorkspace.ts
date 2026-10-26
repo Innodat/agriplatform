@@ -1,3 +1,4 @@
+import type {PublicSetup,DeviceTab} from '@/lib/workspace-storage';
 import {projectAccountCallback} from '@/lib/account-entry';
 import { useLayoutEffect, useRef, useState } from 'react';
 import { useLocation, useNavigate, useNavigationType } from 'react-router-dom';
@@ -11,6 +12,8 @@ export type ReaderPane = PublicPane & {
 };
 export type Workspace = {
   tabKey: string;
+  incarnation: string;
+  labelGeneration: number;
   panes: ReaderPane[];
   activePaneKey: string;
   revision: number;
@@ -56,6 +59,8 @@ export function useReaderWorkspace(root: React.RefObject<HTMLElement | null>) {
     }));
     return {
       tabKey: snapshot?.tabKey ?? uuid(),
+      incarnation: uuid(),
+      labelGeneration: 0,
       panes,
       activePaneKey: snapshot?.activePaneKey ?? panes[url.active].paneKey,
       revision: ++layoutGeneration.current,
@@ -66,8 +71,16 @@ export function useReaderWorkspace(root: React.RefObject<HTMLElement | null>) {
   const [workspace, setWorkspace] = useState(incoming),
     current = useRef(workspace);
   const tabs = useRef<Workspace[]>([workspace]);
+  const original=useRef({search:window.location.search,tabKey:workspace.tabKey,native:!!window.history.state?.usr?.scribeswellReader});
+  const deviceIntent=useRef(0),onCheckpoint=useRef<()=>void>(()=>{});
+  const [devicePending,setDevicePending]=useState<{record:PublicSetup;union:Workspace[];active:string;victims:string[];intent:number}|null>(null);
+  const deviceCandidate=useRef<typeof devicePending>(null);
+  const restoredDevice=useRef(false);
+  const [deviceInstalled,setDeviceInstalled]=useState(0);
+
   const inherited=useRef(new Map<string,string>());
   const removed=useRef<(key:string)=>void>(()=>{});
+  const deviceDeparture=useRef<(survivors:string[],action:()=>void,valid:()=>boolean)=>void>((_survivors,action)=>action());
   const departure = useRef<(key:string,action:()=>void,valid:()=>boolean)=>void>((_key,action)=>action());
   const [pendingRestore,setPendingRestore] = useState<{next:Workspace;entry:string;revision:number}|null>(null);
   const pending = useRef(pendingRestore);pending.current=pendingRestore;
@@ -121,6 +134,12 @@ export function useReaderWorkspace(root: React.RefObject<HTMLElement | null>) {
               };
               if (validAnchor(candidate, ref)) anchor = candidate;
             }
+          } else {
+            // Hidden/not-ready current panes retain the latest entry checkpoint,
+            // rather than the older anchor with which this pane was restored.
+            const prior=cache.current.get(entry());
+            const latest=prior?.tabKey===w.tabKey?prior.panes.find(p=>p.paneKey===paneKey&&referenceKey(p.ref)===referenceKey(ref)):undefined;
+            if(latest?.anchor)anchor=latest.anchor;
           }
         }
         return {
@@ -139,6 +158,7 @@ export function useReaderWorkspace(root: React.RefObject<HTMLElement | null>) {
     while (cache.current.size > 64) cache.current.delete(cache.current.keys().next().value!);
   }
   function checkpoint() {
+    onCheckpoint.current();
     if(heldRestore.current)return snapshot(read(),true);
     const key = entry(),
       s = snapshot(read(), true);
@@ -152,6 +172,7 @@ export function useReaderWorkspace(root: React.RefObject<HTMLElement | null>) {
     return s;
   }
   function commit(next: Workspace, replace = false) {
+    deviceIntent.current++;
     next = {
       ...next,
       revision: ++layoutGeneration.current
@@ -208,7 +229,8 @@ export function useReaderWorkspace(root: React.RefObject<HTMLElement | null>) {
       const held={next,entry:id,revision:read().revision};pending.current=held;heldRestore.current=held;setPendingRestore(held);return;
     }
     pending.current=null;heldRestore.current=null;setPendingRestore(null);
-    publish({...next,panes:next.panes.map(p=>{const prior=live?.panes.find(old=>old.paneKey===p.paneKey&&referenceKey(old.ref)===referenceKey(p.ref));return prior?{...p,generation:prior.generation,seek:p.generation}:p;}),...(live?.label?{label:live.label}:{})});
+    deviceIntent.current++;
+    publish({...next,incarnation:live?.incarnation??next.incarnation,labelGeneration:live?.labelGeneration??0,panes:next.panes.map(p=>{const prior=live?.panes.find(old=>old.paneKey===p.paneKey&&referenceKey(old.ref)===referenceKey(p.ref));return prior?{...p,generation:prior.generation,seek:p.generation}:p;}),...(live?.label?{label:live.label}:{})});
   }, [location.key, location.pathname, location.search, location.hash, navigationType]);
   useLayoutEffect(()=>{
     const target=displacedTab.current;if(!target)return;displacedTab.current=null;
@@ -362,7 +384,7 @@ export function useReaderWorkspace(root: React.RefObject<HTMLElement | null>) {
     if(tabs.current.length>=12){setNotice('Close a tab to open another.');return;}
     const w=read(),old=snapshot(w,true),pane:ReaderPane={paneKey:uuid(),ref,generation:++generation.current,picker:picker?1:0,valid:!(w.invalid&&picker)};
     tabs.current=tabs.current.map(t=>t.tabKey===w.tabKey?{...w,panes:w.panes.map(p=>({...p,picker:0,anchor:old.panes.find(q=>q.paneKey===p.paneKey)?.anchor}))}:t);
-    const next:Workspace={tabKey:uuid(),panes:[pane],activePaneKey:pane.paneKey,revision:0,invalid:w.invalid&&picker,invalidSearch:w.invalid&&picker?w.invalidSearch:''};
+    const next:Workspace={tabKey:uuid(),incarnation:uuid(),labelGeneration:0,panes:[pane],activePaneKey:pane.paneKey,revision:0,invalid:w.invalid&&picker,invalidSearch:w.invalid&&picker?w.invalidSearch:''};
     const index=tabs.current.findIndex(t=>t.tabKey===w.tabKey);tabs.current.splice(index+1,0,next);inherited.current.set(next.tabKey,w.tabKey);
     commit(next);setNotice('');return next.tabKey;
   }
@@ -385,14 +407,60 @@ export function useReaderWorkspace(root: React.RefObject<HTMLElement | null>) {
     departure.current(key,()=>{if(!fresh())return;removed.current(key);inherited.current.delete(key);tabs.current=tabs.current.filter(t=>t.tabKey!==key);pending.current=null;heldRestore.current=null;setPendingRestore(null);publish(held.next);},fresh);
   }
   function renameTab(key:string,label?:string){
+    deviceIntent.current++;
     if(label!==undefined){label=label.trim();if(!label||Array.from(label).length>80||/[\p{Cc}\p{Cs}]/u.test(label))return false;}
-    tabs.current=tabs.current.map(t=>t.tabKey===key?{...t,label}:t);
+    tabs.current=tabs.current.map(t=>t.tabKey===key?{...t,label,labelGeneration:t.labelGeneration+1}:t);
     const active=tabs.current.find(t=>t.tabKey===read().tabKey)!;current.current=active;setWorkspace({...active});return true;
   }
+  function deviceProjection():PublicSetup {
+    return {v:1,updated:Date.now(),activeTabKey:read().tabKey,tabs:tabs.current.map(tab=>({...snapshot(tab,tab.tabKey===read().tabKey),incarnation:tab.incarnation,invalid:tab.invalid}))};
+  }
+
+  function deviceWorkspace(tab:DeviceTab):Workspace {
+    return {tabKey:tab.tabKey,incarnation:tab.incarnation,labelGeneration:0,activePaneKey:tab.activePaneKey,panes:tab.panes.map(p=>({...p,generation:++generation.current,picker:0,valid:!tab.invalid})),revision:++layoutGeneration.current,invalid:tab.invalid,invalidSearch:''};
+  }
+  function finishDevice(union:Workspace[],active:string){
+    const origin=document.activeElement;if(origin instanceof HTMLElement&&origin.closest('dialog[aria-label="Restore remembered reading setups"]'))displacedTab.current={origin,key:active,entry:''};
+    tabs.current=union;deviceCandidate.current=null;setDevicePending(null);restoredDevice.current=true;
+    const next=union.find(t=>t.tabKey===active)??union[0];
+    // Restoration replaces this entry; it never creates a history step.
+    commit(next,true);setDeviceInstalled(n=>n+1);
+  }
+  function restoreDevice(record:PublicSetup,decision=false){
+    if(!decision&&deviceIntent.current>0)return false;
+    const rootReturn=!original.current.search&&!restoredDevice.current&&deviceIntent.current===0;
+    const retained=!restoredDevice.current&&original.current.native?record.tabs.find(t=>t.tabKey===original.current.tabKey):undefined;
+    const saved=record.tabs.map(tab=>retained?.tabKey===tab.tabKey?{...read(),incarnation:tab.incarnation,panes:read().panes.map(p=>{const prior=tab.panes.find(q=>q.paneKey===p.paneKey&&referenceKey(q.ref)===referenceKey(p.ref));return {...p,anchor:p.anchor??prior?.anchor};})}:deviceWorkspace(tab));
+    const live=rootReturn?[]:tabs.current;
+    const union=[...live,...saved.filter(tab=>!live.some(t=>t.tabKey===tab.tabKey))];
+    const active=rootReturn?record.activeTabKey:read().tabKey;
+    if(retained&&live.length===1&&live[0].tabKey===retained.tabKey)union[0]=saved.find(t=>t.tabKey===retained.tabKey)!;
+    if(decision||union.length>12){const candidate={record,union,active,victims:[],intent:deviceIntent.current};deviceCandidate.current=candidate;setDevicePending(candidate);return false;}
+    finishDevice(union,active);return true;
+  }
+  function installDevice(candidate:NonNullable<typeof devicePending>){
+    const valid=()=>deviceCandidate.current===candidate&&candidate.intent===deviceIntent.current;
+    if(!valid()||candidate.union.length>12)return;
+    deviceDeparture.current(candidate.union.map(tab=>tab.tabKey),()=>{
+      if(!valid())return;
+      for(const tab of tabs.current)if(!candidate.union.some(t=>t.tabKey===tab.tabKey)){removed.current(tab.tabKey);inherited.current.delete(tab.tabKey);}
+      finishDevice(candidate.union,candidate.active);
+    },valid);
+  }
+  function chooseDeviceVictim(key:string){
+    const candidate=deviceCandidate.current;if(!candidate||candidate.intent!==deviceIntent.current||!candidate.union.some(tab=>tab.tabKey===key)||key===candidate.active)return;
+    // Choosing victims is reversible staging. Guard only the complete final departure.
+    const next={...candidate,union:candidate.union.filter(tab=>tab.tabKey!==key),victims:[...candidate.victims,key]};
+    deviceCandidate.current=next;setDevicePending(next);
+    if(next.union.length<=12)installDevice(next);
+  }
   return {
+    deviceInstalled,deviceIntent,onCheckpoint,deviceProjection,restoreDevice,devicePending,chooseDeviceVictim,
+    acceptDevice:()=>{const candidate=deviceCandidate.current;if(candidate)installDevice(candidate);},
+    cancelDevice:()=>{const origin=document.activeElement,id=entry(),key=read().tabKey;deviceCandidate.current=null;setDevicePending(null);requestAnimationFrame(()=>{if(id===entry()&&origin instanceof HTMLElement&&!origin.isConnected&&(document.activeElement===document.body||document.activeElement===origin))document.getElementById(workspaceTabId(key))?.focus({preventScroll:true});});},
     historyHeld:!!heldRestore.current,retryRestore:()=>{const held=heldRestore.current;if(held&&entry()===held.entry){pending.current=held;setPendingRestore(held);}},removed,inherited,tabs:tabs.current,activateTab,newTab,closeTab,renameTab,notice,pendingRestore,restoreReplacing,
     cancelRestore:()=>{pending.current=null;setPendingRestore(null);},
-    departure,
+    departure,deviceDeparture,
     workspace,
     read,
     activate,

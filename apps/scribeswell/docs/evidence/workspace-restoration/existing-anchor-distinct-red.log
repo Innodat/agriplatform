@@ -1,0 +1,50 @@
+
+> scribeswell-web@0.1.0 test:browser
+> playwright test --config playwright.config.cjs workspace-restoration.spec.cjs --project=mobile --workers=1 --grep last public scroll checkpoint
+
+[WebServer] (node:1395408) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 1 test using 1 worker
+
+(node:1395428) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  1 [mobile] › tests/workspace-restoration.spec.cjs:179:1 › last public scroll checkpoint survives tools hiding the pane before the durable write (3.5s)
+
+
+  1) [mobile] › tests/workspace-restoration.spec.cjs:179:1 › last public scroll checkpoint survives tools hiding the pane before the durable write 
+
+    Error: expect(received).toEqual(expected) // deep equality
+
+    - Expected  - 2
+    + Received  + 2
+
+      Object {
+        "chapter": 1,
+    -   "offset": -8,
+    -   "verse": 10,
+    +   "offset": 0,
+    +   "verse": 3,
+        "word": 1,
+      }
+
+      178 | });
+      179 | test('last public scroll checkpoint survives tools hiding the pane before the durable write',async({page})=>{
+    > 180 |  await setup(page);const initial=publicSetup(1);initial.tabs[0].panes[0].anchor={chapter:1,verse:3,word:1,offset:0};await seed(page,initial);await page.route('**/api/bible/**/verses',r=>r.fulfill({json:{data:Array.from({length:31},(_,i)=>({id:i+1,verse_num:i+1,book_id:1,chapter_num:1,words:[{id:i+1,position:1,surface_he:'בְּרֵאשִׁית',display_he:'בְּרֵאשִׁית',lemma_strong:null,morph_code:null}]})),total:31}}));await page.goto('/');const scroll=page.locator('[data-reader-scroll]');await expect(scroll).toHaveAttribute('data-ready','true');await scroll.evaluate(el=>{el.dispatchEvent(new WheelEvent('wheel',{bubbles:true}));el.scrollTop=350;el.dispatchEvent(new Event('scroll',{bubbles:true}));});await expect.poll(()=>page.evaluate(()=>history.state.usr?.scribeswellReader?.panes[0]?.anchor?.verse)).toBeGreaterThan(3);const anchor=await page.evaluate(()=>history.state.usr.scribeswellReader.panes[0].anchor);await expect.poll(async()=>(await stored(page)).public?.tabs[0]?.panes[0]?.anchor).toEqual(anchor);await page.getByRole('button',{name:'Analysis',exact:true}).click();await page.waitForTimeout(2100);expect((await stored(page)).public.tabs[0].panes[0].anchor).toEqual(anchor);
+          |                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    ^
+      181 | });
+      182 | test('real device reload restores four independent pane references anchors and active pane plus inactive tab position',async({page})=>{
+      183 |  await setup(page);const pub=publicSetup();pub.tabs[0].panes=Array.from({length:4},(_,i)=>({paneKey:`four-${i}`,ref:{...reference,target:{kind:'chapter',chapter:i+1}},anchor:{chapter:i+1,verse:3+i*2,word:1,offset:0}}));pub.tabs[0].activePaneKey='four-2';pub.tabs[1].panes[0].ref={...reference,target:{kind:'chapter',chapter:5}};pub.tabs[1].panes[0].anchor={chapter:5,verse:10,word:1,offset:0};await seed(page,pub);
+        at /home/ck/repos/innodat/agriplatform/apps/scribeswell/web/tests/workspace-restoration.spec.cjs:180:1172
+
+    Error Context: test-results/workspace-restoration-last-5367f-ne-before-the-durable-write-mobile/error-context.md
+
+  1 failed
+    [mobile] › tests/workspace-restoration.spec.cjs:179:1 › last public scroll checkpoint survives tools hiding the pane before the durable write 
+npm error Lifecycle script `test:browser` failed with error:
+npm error code 1
+npm error path /home/ck/repos/innodat/agriplatform/apps/scribeswell/web
+npm error workspace scribeswell-web@0.1.0
+npm error location /home/ck/repos/innodat/agriplatform/apps/scribeswell/web
+npm error command failed
+npm error command sh -c playwright test --config playwright.config.cjs workspace-restoration.spec.cjs --project=mobile --workers=1 --grep 'last public scroll checkpoint'
