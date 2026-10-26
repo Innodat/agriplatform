@@ -1,3 +1,29 @@
+## Current delivery — candidate persistence HTTP path, 2026-10-26
+
+Read [path evidence](PERSISTENCE_HTTP_PATH_EVIDENCE.md), [machine record](evidence/persistence-http-path-20261026.json)
+and current [contracts](contracts.md). Explicit candidate POST, generated create contract,
+create transport and Auth consumer now join edit/recovery. Actual loopback HTTP exercises
+all boundaries/business handlers with synthetic authority/storage. Seven requirement
+groups pass, including original receipt recovery and a committed fresh release failure
+recovered exactly once.21 HTTP/4 contract/90 create client,199 synthetic backend,
+327 compiled Auth/client and124 direct regressions pass; strict TS7.0.2 and four scaffold
+checks pass. Review completed: ten addressed, one rejected with evidence, none deferred. Three
+process controls/two fixture guards pass. Current source-bound receipt is final.
+
+Continuation policy: user authorizes implementing across internal slices without repeated
+next/approval prompts. Keep BMAD, behavioral ATDD and focused TDD; stop only for a genuine
+decision or permission gap. A prior small-slice label is not a new approval requirement.
+Candidates remain unconnected until activation/release prerequisites are met; doubles do
+not establish production readiness.
+
+No editor/Leave, browser/queue/default-startup activation, real accounts/Access, native
+qualification, Docker, provisioning/migrations, production/deployment/pilot or cleanup.
+Preserve concurrent work, historical evidence/resources and dependencies including
+TypeScript7.0.2. Fingerprints/HMAC remain deferred. Never read/run/copy the preexisting
+untracked migration fixture. Historical handoffs follow unchanged.
+
+---
+
 ## Current delivery — isolated own-edit Auth execution entry, 2026-10-26
 
 Read [entry evidence](EDIT_ENTRY_EVIDENCE.md) and the [source-bound record](evidence/edit-entry-20261026.json).

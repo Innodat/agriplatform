@@ -1,0 +1,4 @@
+{
+  "extends": "./tsconfig.json",
+  "files": ["src/create.ts", "tests/create.types.ts"]
+}

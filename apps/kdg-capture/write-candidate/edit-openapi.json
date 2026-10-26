@@ -21,7 +21,7 @@
             "properties": {
               "details": {
                 "maxLength": 5000,
-                "pattern": "^[^\\u0000]*(?![\\s\\S])",
+                "pattern": "^[^\\u0000\\ud800-\\udfff]*(?![\\s\\S])",
                 "type": "string"
               },
               "value": {
@@ -808,7 +808,7 @@
         "properties": {
           "value": {
             "maxLength": 5000,
-            "pattern": "^[^\\u0000]*(?![\\s\\S])",
+            "pattern": "^[^\\u0000\\ud800-\\udfff]*(?![\\s\\S])",
             "title": "Value",
             "type": "string"
           }

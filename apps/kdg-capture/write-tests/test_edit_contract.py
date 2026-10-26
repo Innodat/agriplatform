@@ -56,7 +56,10 @@ class EditContract(unittest.TestCase):
             observation_date='2026-10-25',answers={})
         cases=[(True,{ids[0]:{'value':3}}),(True,{ids[0]:{'value':False}}),
             (True,{ids[0]:{'value':True}}),(True,{ids[0]:{'value':True,'details':'méér'}}),
-            (True,{ids[0]:{'value':'text'}}),(True,{ids[0]:{'value':''}}),
+            (True,{ids[0]:{'value':'text'}}),(True,{ids[0]:{'value':'😀𐀀'}}),
+            (False,{ids[0]:{'value':'\ud800'}}),(False,{ids[0]:{'value':'\udfff'}}),
+            (False,{ids[0]:{'value':True,'details':'\ud800'}}),
+            (True,{ids[0]:{'value':True,'details':'😀'}}),(True,{ids[0]:{'value':''}}),
             (True,{ids[0]:{'value':3},ids[1]:{'value':False},ids[2]:{'value':'text'}}),
             (False,{ids[0]:{'value':False,'details':'hidden'}}),
             (False,{ids[0]:{'value':False,'details':None}}),

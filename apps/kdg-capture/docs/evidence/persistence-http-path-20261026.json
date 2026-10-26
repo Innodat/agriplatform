@@ -1,0 +1,384 @@
+{
+  "date": "2026-10-26",
+  "baseline_commit": "d7f942a1c247570e07bb5dd7be4d242566b9e734",
+  "scope": "explicit candidate create/edit/recovery HTTP path and future-caller clients; synthetic local/CI only",
+  "commands_manifest": {
+    "path": "platform/deployment/.local/kdg-persistence-http-path-20261026/root-final/commands.json",
+    "sha256": "ff6d443407aabd2a35509ed7328cbba0122ce264bca2cc9e678ac6faedb619ac"
+  },
+  "implementation_report": {
+    "path": "platform/deployment/.local/kdg-persistence-http-path-20261026/implementation-report.json",
+    "sha256": "728d374b07d639998459545fde12da8702e0fe277c6751b12a0df646184f8abc"
+  },
+  "proofs": {
+    "auth": "/home/ck/repos/innodat/agriplatform/platform/deployment/.local/kdg-auth-entry-20261023/auth-9178648a-a99e-4704-a40b-617d22d09533",
+    "network": "platform/deployment/.local/kdg-persistence-http-path-20261026/network-99dc71fe-c0b7-4673-8f69-5c6847c1312c",
+    "network_result_sha256": "b2653c736d49fefddd3633ecf1ba579e377843ffde06a1b52b3ef6a1a6682812",
+    "pre_review_network": "platform/deployment/.local/kdg-persistence-http-path-20261026/network-e09fd02b-671d-454b-942c-6d919a6feba3"
+  },
+  "checks": {
+    "create_http": 21,
+    "create_contract": 4,
+    "create_client_entry": 90,
+    "business_http_contract_regressions": 199,
+    "compiled_auth_client": 327,
+    "direct_adapter_context_regressions": 124,
+    "network_requirement_checks": 7,
+    "strict_adapter_configurations": 3,
+    "typescript": "7.0.2",
+    "scaffold_parity_checks": 4,
+    "child_process_controls": 3,
+    "synthetic_fixture_guards": 2,
+    "edit_contract": 5
+  },
+  "historical_preservation": {
+    "contracts.md": {
+      "bytes": 76220,
+      "sha256": "78fbd1eb27b984a252c069e629a7d9f89b42bf6078ae123a4fbed7af281eab27"
+    },
+    "next-session.md": {
+      "bytes": 222560,
+      "sha256": "95b5dce62d24a320beecc5f01e8f3d6876e4162293f494c6a0601c326fcfe86f"
+    },
+    "baseline_commit": "d7f942a1c247570e07bb5dd7be4d242566b9e734",
+    "protected": {
+      "package.json": "f353097548bbc53b737b88ee2c836af561aa805491405e3c0b6cd8c098e9f6da",
+      "package-lock.json": "9a8128448ab80c4319e61fb325e0030eeb71e2e31966b65f3e11f5774a667fe4",
+      "apps/kdg-capture/api/pyproject.toml": "75b87a5a99d7e6d39b3c74ba16a4016e51027f2352665bcb1276c1aa5de31241",
+      "apps/kdg-capture/api/uv.lock": "9b3164930e96657ff76be97ff992b8a5dd64b713b0dd09c3d9b08e56ab88ec2b",
+      "apps/kdg-capture/api/main.py": "a44bc61f1d8d8e93a28cf6e38da45da70feb4f8fe1b1da7791e99f0a1c697fe3",
+      "apps/kdg-capture/api/runtime.py": "c070ba130f327a01c9332c0b67cb35a7cf46a137bbc359e498bb75594cdb616e",
+      "apps/kdg-capture/web/src/main.ts": "8366e31255bbf90279d286008ff17e408fb580c6a2175f4bf4817ee8dac2f87d",
+      "apps/kdg-capture/web/src/startup.tsx": "4a7dce76162da93b3203ee1318cb42f77374aa4d56ebb028ad9e75de067d6b3e",
+      "apps/kdg-capture/web/src/auth/lifecycle.ts": "dc9a959b9de712eba2c80f26650eaa3439a85fbef93f8099eaf18366e95961a9"
+    }
+  },
+  "review": {
+    "layers": 3,
+    "addressed": 10,
+    "rejected_with_evidence": 1,
+    "deferred": 0
+  },
+  "qualification_limits": [
+    "Synthetic Access and transactional storage model; no native permissions/rollback/driver cancellation or TCP drain claim",
+    "No active browser/editor/queue/API startup, real accounts/Access, migration/provisioning, production/deployment/pilot or cleanup",
+    "Synchronous preflight is not preemptible; transport deadlines do not prove rollback or safe new identity",
+    "Backend initial missing-module RED is infrastructure only; separate retained non-dispatching API control is a post-implementation replay",
+    "Broad native qualification verifier was rejected by automatic approval review; explicit14 synthetic business/HTTP modules passed instead"
+  ],
+  "impacts": {
+    "scaffold": "Existing generator/Auth/transaction templates unchanged. App-owned create/edit schema constraints aligned through owners; test-only calendar checker and child-process helper have no corresponding scaffold owner/template.",
+    "shared_ui": "none",
+    "agent_context": "none",
+    "documentation": "Tracked exact commands, prerequisites, evidence and preserved contracts/handoff",
+    "adr": "none; accepted decisions unchanged"
+  },
+  "continuation_policy": "User authorizes implementation across internal slices without repeated next or routine approval halts; explicit exclusions and genuine decisions still bind",
+  "pre_review_commands": [
+    {
+      "command": "platform/deployment/.local/access-organization-check-20261022/owner-env/bin/python -I -B -m unittest discover -s apps/kdg-capture/write-tests -p test_create_http.py",
+      "exit_code": 0,
+      "log": "platform/deployment/.local/kdg-persistence-http-path-20261026/create-http-final3.log",
+      "log_sha256": "431f65b2f711cc975bc860f4b8e2488560ecb3234e0f0423f673350d729487d2",
+      "qualification": "21 passed"
+    },
+    {
+      "command": "platform/deployment/.local/access-organization-check-20261022/owner-env/bin/python -I -B -m unittest discover -s apps/kdg-capture/write-tests -p test_create_contract.py",
+      "exit_code": 0,
+      "log": "platform/deployment/.local/kdg-persistence-http-path-20261026/create-contract-first.log",
+      "log_sha256": "e47f65b627e41c1de8184bf00ce3810bf2dbb8e86a952b0a05af510b03f7c837",
+      "qualification": "3 passed"
+    },
+    {
+      "command": "platform/deployment/.local/kdg-toolchains/ad277eef-a10e-4aac-bb82-5743653fb2e0/payload/node/bin/node apps/kdg-capture/web/tests/auth-proof.mjs --create-only",
+      "exit_code": 0,
+      "log": "platform/deployment/.local/kdg-persistence-http-path-20261026/client-final.log",
+      "log_sha256": "a5ce2aeb59d2ae713a7e1c7606805fdb37bdd02690ebc0fcd27475429fea1a23",
+      "qualification": "90 passed; strict TypeScript7.0.2 and negative compiler control passed"
+    },
+    {
+      "command": "platform/deployment/.local/access-organization-check-20261022/owner-env/bin/python -I -B apps/kdg-capture/write-candidate/export_create_openapi.py --check",
+      "exit_code": 0,
+      "log": "platform/deployment/.local/kdg-persistence-http-path-20261026/create-schema-check.log",
+      "log_sha256": "c7746ca8aba6aef50cfcc6ea40a9fbb05f07b177e916175cacf95a7f49fd42b2",
+      "qualification": "create_openapi_current"
+    },
+    {
+      "command": "platform/deployment/.local/kdg-toolchains/ad277eef-a10e-4aac-bb82-5743653fb2e0/payload/node/bin/node platform/deployment/.local/scaffold-application/proof-dI2Gy9/root/platform/api-client/src/cli.mjs --schema apps/kdg-capture/write-candidate/create-openapi.json --output apps/kdg-capture/contracts/create-generated --check",
+      "exit_code": 0,
+      "log": "platform/deployment/.local/kdg-persistence-http-path-20261026/create-generated-check.log",
+      "log_sha256": "424b5c23138700dd087af75e38510a873ce524d6be41d685b10d79cc06084457",
+      "qualification": "api_client_current"
+    },
+    {
+      "command": "platform/deployment/.local/kdg-toolchains/ad277eef-a10e-4aac-bb82-5743653fb2e0/payload/node/bin/node apps/kdg-capture/web/tests/persistence-http-proof.mjs",
+      "exit_code": 0,
+      "log": "platform/deployment/.local/kdg-persistence-http-path-20261026/network-fourth.log",
+      "log_sha256": "6c70d99a8fb1bcf189b8ea04ba78498adce45b6a4b252f68b2424b79d6585422",
+      "qualification": "7 checks passed; source unchanged, normal server stop, disposed3; synthetic final outcomes4/history3/captures2"
+    },
+    {
+      "command": "platform/deployment/.local/kdg-toolchains/ad277eef-a10e-4aac-bb82-5743653fb2e0/payload/node/bin/node apps/kdg-capture/web/tests/auth-proof.mjs --create-only",
+      "exit_code": 1,
+      "log": "platform/deployment/.local/kdg-persistence-http-path-20261026/red/client-red.log",
+      "log_sha256": "c28e1edf05078ccb41aebff2c4def5d62e82dcb9db7b46f58c5106030753912a",
+      "qualification": "Genuine behavioral RED before adapter implementation: strict compile passes,80fail/10pass/0skip against non-dispatching typed adapter stub"
+    },
+    {
+      "command": "platform/deployment/.local/kdg-toolchains/ad277eef-a10e-4aac-bb82-5743653fb2e0/payload/node/bin/node apps/kdg-capture/web/tests/persistence-http-proof.mjs",
+      "exit_code": 1,
+      "log": "platform/deployment/.local/kdg-persistence-http-path-20261026/red/network-red-second.log",
+      "log_sha256": "d3c66dca5902692af08359d402fd9650acd6f6a4e59c83c73a1ee8ca39ee893d",
+      "qualification": "Genuine pre-dispatch fixture behavioral RED: host runs/strict compile passes;503 context refuses admission, committed expectation gets superseded"
+    },
+    {
+      "command": "platform/deployment/.local/access-organization-check-20261022/owner-env/bin/python -I -B -c 'import sys,unittest;sys.path.insert(0,\"platform/deployment/.local/kdg-persistence-http-path-20261026/backend-stub-control-final/capsule/apps/kdg-capture/write-tests\");unittest.main(module=\"test_create_http\",defaultTest=\"HTTPAcceptance.test_fresh_create_and_original_duplicate_receipt\")'",
+      "exit_code": 1,
+      "log": "platform/deployment/.local/kdg-persistence-http-path-20261026/backend-stub-control-final/behavior-final.log",
+      "log_sha256": "6a41054498c38bccbc3fb3c80c0106dfc2595d777b60302804e7d0b2993c5ac3",
+      "qualification": "Post-implementation explicit non-dispatching backend negative-control replay: one behavioral failure503!=200; NOT original ATDD"
+    },
+    {
+      "command": "timeout 50s platform/deployment/.local/access-organization-check-20261022/owner-env/bin/python -m unittest -v test_capture_create test_capture_create_handler test_capture_edit test_capture_edit_handler test_create_contract test_create_http test_edit_contract test_edit_export test_edit_http test_operation_outcomes test_operation_recovery test_owner_context test_recovery_contract test_recovery_http",
+      "cwd": "apps/kdg-capture/write-tests",
+      "exit_code": 0,
+      "log": "platform/deployment/.local/kdg-persistence-http-path-20261026/root-final/business-http.log",
+      "qualification": "198 synthetic business/HTTP/contract cases; native/schema qualification excluded",
+      "log_sha256": "27c161c414f13df1b3fec2ddf6d1ed772946184bdf4c02c98a3e66b19b88c61e"
+    },
+    {
+      "command": "platform/deployment/.local/kdg-toolchains/ad277eef-a10e-4aac-bb82-5743653fb2e0/payload/node/bin/node apps/kdg-capture/web/tests/auth-proof.mjs --unit-only",
+      "exit_code": 0,
+      "log": "platform/deployment/.local/kdg-persistence-http-path-20261026/root-final/auth.log",
+      "qualification": "327 compiled Auth/client cases; strict TS7 and compiler negative control",
+      "log_sha256": "8340759aa949cd4c6bf8174559ff1c9d0b1e6ab496ff86607065ebdae849274a"
+    },
+    {
+      "command": "platform/deployment/.local/kdg-toolchains/ad277eef-a10e-4aac-bb82-5743653fb2e0/payload/node/bin/node --test --test-isolation=none apps/kdg-capture/web/tests/edit.test.mjs apps/kdg-capture/web/tests/recovery.test.mjs apps/kdg-capture/web/tests/entry.test.mjs",
+      "exit_code": 0,
+      "log": "platform/deployment/.local/kdg-persistence-http-path-20261026/root-final/adapters-final.log",
+      "qualification": "124 direct-source adapter/context regressions",
+      "log_sha256": "58152a35fd3c086faf7a55559b687834d1818848381d7759e38d60edc942480a"
+    },
+    {
+      "command": "platform/deployment/.local/kdg-toolchains/ad277eef-a10e-4aac-bb82-5743653fb2e0/payload/node/bin/node node_modules/typescript/bin/tsc -p apps/kdg-capture/web/tsconfig.create.json",
+      "exit_code": 0,
+      "log": "platform/deployment/.local/kdg-persistence-http-path-20261026/root-final/types-create-final.log",
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "command": "platform/deployment/.local/kdg-toolchains/ad277eef-a10e-4aac-bb82-5743653fb2e0/payload/node/bin/node node_modules/typescript/bin/tsc -p apps/kdg-capture/web/tsconfig.edit.json",
+      "exit_code": 0,
+      "log": "platform/deployment/.local/kdg-persistence-http-path-20261026/root-final/types-edit.log",
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "command": "platform/deployment/.local/kdg-toolchains/ad277eef-a10e-4aac-bb82-5743653fb2e0/payload/node/bin/node node_modules/typescript/bin/tsc -p apps/kdg-capture/web/tsconfig.recovery.json",
+      "exit_code": 0,
+      "log": "platform/deployment/.local/kdg-persistence-http-path-20261026/root-final/types-recovery.log",
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "command": "platform/deployment/.local/kdg-toolchains/ad277eef-a10e-4aac-bb82-5743653fb2e0/payload/node/bin/node platform/builder-cli/scripts/sync-kdg-auth.mjs --check",
+      "exit_code": 0,
+      "log": "platform/deployment/.local/kdg-persistence-http-path-20261026/root-final/parity-auth.log",
+      "log_sha256": "4b5a33370ab94c8eb2c30482243c02e3c361bdc3fbeb500f6a537c818347b8b8"
+    },
+    {
+      "command": "platform/deployment/.local/kdg-toolchains/ad277eef-a10e-4aac-bb82-5743653fb2e0/payload/node/bin/node platform/builder-cli/scripts/sync-kdg-write.mjs --check",
+      "exit_code": 0,
+      "log": "platform/deployment/.local/kdg-persistence-http-path-20261026/root-final/parity-write.log",
+      "log_sha256": "8f30b74c18ce5092fd85528d63efc0a3cb932d95dbb3adb62e42c717e8e054f8"
+    },
+    {
+      "command": "platform/deployment/.local/kdg-toolchains/ad277eef-a10e-4aac-bb82-5743653fb2e0/payload/node/bin/node platform/builder-cli/scripts/sync-kdg-database.mjs --check",
+      "exit_code": 0,
+      "log": "platform/deployment/.local/kdg-persistence-http-path-20261026/root-final/parity-database.log",
+      "log_sha256": "0d4bb5ed7e466491068271cc8944768f1c553e601f25ef3ccd3fb777e73c106b"
+    },
+    {
+      "command": "platform/deployment/.local/kdg-toolchains/ad277eef-a10e-4aac-bb82-5743653fb2e0/payload/node/bin/node platform/builder-cli/scripts/sync-kdg-native-database.mjs --check",
+      "exit_code": 0,
+      "log": "platform/deployment/.local/kdg-persistence-http-path-20261026/root-final/parity-native-database.log",
+      "log_sha256": "cc0a1669a50c37bef62f2e0873ce748988e4ee1b885c835953a07bf0c1571fd3"
+    }
+  ],
+  "reproduction": {
+    "requires_retained_approved_capsules": true,
+    "fresh_install_qualified": false,
+    "instructions": "apps/kdg-capture/docs/PERSISTENCE_HTTP_PATH_EVIDENCE.md#reproduction-prerequisites"
+  },
+  "pre_review_checks": {
+    "create_http": 21,
+    "create_contract": 3,
+    "create_client_entry": 90,
+    "business_http_contract_regressions": 198,
+    "compiled_auth_client": 327,
+    "direct_adapter_context_regressions": 124,
+    "network_requirement_checks": 7,
+    "strict_adapter_configurations": 3,
+    "typescript": "7.0.2",
+    "scaffold_parity_checks": 4
+  },
+  "post_review_commands": [
+    {
+      "command": "platform/deployment/.local/kdg-toolchains/ad277eef-a10e-4aac-bb82-5743653fb2e0/payload/node/bin/node apps/kdg-capture/web/tests/auth-proof.mjs --unit-only",
+      "exit_code": 0,
+      "log": "platform/deployment/.local/kdg-persistence-http-path-20261026/root-post-review/auth.log",
+      "log_sha256": "acf4f5a9126c6e159fc46afdfd9562f76aacc8c58acb31b2cd6c88cb1cf2f897"
+    },
+    {
+      "command": "platform/deployment/.local/kdg-toolchains/ad277eef-a10e-4aac-bb82-5743653fb2e0/payload/node/bin/node --test --test-isolation=none apps/kdg-capture/web/tests/edit.test.mjs apps/kdg-capture/web/tests/recovery.test.mjs apps/kdg-capture/web/tests/entry.test.mjs apps/kdg-capture/web/tests/persistence-child.test.mjs",
+      "exit_code": 0,
+      "log": "platform/deployment/.local/kdg-persistence-http-path-20261026/root-post-review/adapters-and-child.log",
+      "log_sha256": "88bd6d64a0a3f7e598e85a0ee1df256b3f9ef9cd3932e94aff1e41cac746ee79"
+    },
+    {
+      "command": "platform/deployment/.local/access-organization-check-20261022/owner-env/bin/python apps/kdg-capture/web/tests/test_persistence_http_fixture.py",
+      "exit_code": 0,
+      "log": "platform/deployment/.local/kdg-persistence-http-path-20261026/root-post-review/fixture-guards.log",
+      "log_sha256": "fe008aab760eb03ccac7578e2b84665b1b50b0d7f855b17a0c7a8d039435b658"
+    },
+    {
+      "command": "platform/deployment/.local/kdg-toolchains/ad277eef-a10e-4aac-bb82-5743653fb2e0/payload/node/bin/node node_modules/typescript/bin/tsc -p apps/kdg-capture/web/tsconfig.create.json",
+      "exit_code": 0,
+      "log": "platform/deployment/.local/kdg-persistence-http-path-20261026/root-post-review/types-create.log",
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "command": "platform/deployment/.local/kdg-toolchains/ad277eef-a10e-4aac-bb82-5743653fb2e0/payload/node/bin/node node_modules/typescript/bin/tsc -p apps/kdg-capture/web/tsconfig.edit.json",
+      "exit_code": 0,
+      "log": "platform/deployment/.local/kdg-persistence-http-path-20261026/root-post-review/types-edit.log",
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "command": "platform/deployment/.local/kdg-toolchains/ad277eef-a10e-4aac-bb82-5743653fb2e0/payload/node/bin/node node_modules/typescript/bin/tsc -p apps/kdg-capture/web/tsconfig.recovery.json",
+      "exit_code": 0,
+      "log": "platform/deployment/.local/kdg-persistence-http-path-20261026/root-post-review/types-recovery.log",
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "command": "platform/deployment/.local/kdg-toolchains/ad277eef-a10e-4aac-bb82-5743653fb2e0/payload/node/bin/node platform/builder-cli/scripts/sync-kdg-auth.mjs --check",
+      "exit_code": 0,
+      "log": "platform/deployment/.local/kdg-persistence-http-path-20261026/root-post-review/parity-auth.log",
+      "log_sha256": "4b5a33370ab94c8eb2c30482243c02e3c361bdc3fbeb500f6a537c818347b8b8"
+    },
+    {
+      "command": "platform/deployment/.local/kdg-toolchains/ad277eef-a10e-4aac-bb82-5743653fb2e0/payload/node/bin/node platform/builder-cli/scripts/sync-kdg-write.mjs --check",
+      "exit_code": 0,
+      "log": "platform/deployment/.local/kdg-persistence-http-path-20261026/root-post-review/parity-write.log",
+      "log_sha256": "8f30b74c18ce5092fd85528d63efc0a3cb932d95dbb3adb62e42c717e8e054f8"
+    },
+    {
+      "command": "platform/deployment/.local/kdg-toolchains/ad277eef-a10e-4aac-bb82-5743653fb2e0/payload/node/bin/node platform/builder-cli/scripts/sync-kdg-database.mjs --check",
+      "exit_code": 0,
+      "log": "platform/deployment/.local/kdg-persistence-http-path-20261026/root-post-review/parity-database.log",
+      "log_sha256": "0d4bb5ed7e466491068271cc8944768f1c553e601f25ef3ccd3fb777e73c106b"
+    },
+    {
+      "command": "platform/deployment/.local/kdg-toolchains/ad277eef-a10e-4aac-bb82-5743653fb2e0/payload/node/bin/node platform/builder-cli/scripts/sync-kdg-native-database.mjs --check",
+      "exit_code": 0,
+      "log": "platform/deployment/.local/kdg-persistence-http-path-20261026/root-post-review/parity-native-database.log",
+      "log_sha256": "cc0a1669a50c37bef62f2e0873ce748988e4ee1b885c835953a07bf0c1571fd3"
+    },
+    {
+      "command": "platform/deployment/.local/access-organization-check-20261022/owner-env/bin/python -I -B apps/kdg-capture/write-candidate/export_create_openapi.py --check",
+      "exit_code": 0,
+      "log": "platform/deployment/.local/kdg-persistence-http-path-20261026/root-post-review/schema-create.log",
+      "log_sha256": "c7746ca8aba6aef50cfcc6ea40a9fbb05f07b177e916175cacf95a7f49fd42b2"
+    },
+    {
+      "command": "platform/deployment/.local/access-organization-check-20261022/owner-env/bin/python -I -B apps/kdg-capture/write-candidate/export_edit_openapi.py --check",
+      "exit_code": 0,
+      "log": "platform/deployment/.local/kdg-persistence-http-path-20261026/root-post-review/schema-edit.log",
+      "log_sha256": "f28ca75ecdbeb9fe97a37b20660ec93eab74a67447ef8ddbcadbe686947e6fa8"
+    },
+    {
+      "command": "platform/deployment/.local/kdg-toolchains/ad277eef-a10e-4aac-bb82-5743653fb2e0/payload/node/bin/node platform/deployment/.local/scaffold-application/proof-dI2Gy9/root/platform/api-client/src/cli.mjs --schema apps/kdg-capture/write-candidate/create-openapi.json --output apps/kdg-capture/contracts/create-generated --check",
+      "exit_code": 0,
+      "log": "platform/deployment/.local/kdg-persistence-http-path-20261026/root-post-review/generated-create.log",
+      "log_sha256": "424b5c23138700dd087af75e38510a873ce524d6be41d685b10d79cc06084457"
+    },
+    {
+      "command": "platform/deployment/.local/kdg-toolchains/ad277eef-a10e-4aac-bb82-5743653fb2e0/payload/node/bin/node platform/deployment/.local/scaffold-application/proof-dI2Gy9/root/platform/api-client/src/cli.mjs --schema apps/kdg-capture/write-candidate/edit-openapi.json --output apps/kdg-capture/contracts/edit-generated --check",
+      "exit_code": 0,
+      "log": "platform/deployment/.local/kdg-persistence-http-path-20261026/root-post-review/generated-edit.log",
+      "log_sha256": "424b5c23138700dd087af75e38510a873ce524d6be41d685b10d79cc06084457"
+    },
+    {
+      "command": "timeout 50s /home/ck/repos/innodat/agriplatform/platform/deployment/.local/access-organization-check-20261022/owner-env/bin/python -m unittest -v test_capture_create test_capture_create_handler test_capture_edit test_capture_edit_handler test_create_contract test_create_http test_edit_contract test_edit_export test_edit_http test_operation_outcomes test_operation_recovery test_owner_context test_recovery_contract test_recovery_http",
+      "cwd": "apps/kdg-capture/write-tests",
+      "exit_code": 0,
+      "log": "platform/deployment/.local/kdg-persistence-http-path-20261026/root-post-review/backend.log",
+      "log_sha256": "acc3fb60810e13af7b0d1f6ca1cc837aadec8c1f9622eb750030ad3d8e3922e8"
+    },
+    {
+      "command": "platform/deployment/.local/access-organization-check-20261022/owner-env/bin/python -I -B -m unittest discover -s apps/kdg-capture/write-tests -p test_create_contract.py",
+      "log": "platform/deployment/.local/kdg-persistence-http-path-20261026/post-review/create-contract-aware.log",
+      "exit_code": 0,
+      "log_sha256": "61441db28bb95bc0501252780a6b59eba63ec8ce2c66a7b9ad854204378ba8c8",
+      "result": "4 passed"
+    },
+    {
+      "command": "platform/deployment/.local/access-organization-check-20261022/owner-env/bin/python -I -B -m unittest discover -s apps/kdg-capture/write-tests -p test_edit_contract.py",
+      "log": "platform/deployment/.local/kdg-persistence-http-path-20261026/post-review/edit-contract.log",
+      "exit_code": 0,
+      "log_sha256": "9db3c00c5681b12690038593682de61eb1ef5fc3cf8452d38a08f980d7e0ea3e",
+      "result": "5 passed"
+    },
+    {
+      "command": "platform/deployment/.local/access-organization-check-20261022/owner-env/bin/python -I -B apps/kdg-capture/web/tests/test_persistence_http_fixture.py",
+      "log": "platform/deployment/.local/kdg-persistence-http-path-20261026/post-review/fixture-guards.log",
+      "exit_code": 0,
+      "log_sha256": "fe008aab760eb03ccac7578e2b84665b1b50b0d7f855b17a0c7a8d039435b658",
+      "result": "2 passed"
+    },
+    {
+      "command": "platform/deployment/.local/kdg-toolchains/ad277eef-a10e-4aac-bb82-5743653fb2e0/payload/node/bin/node --test --test-isolation=none --test-reporter=tap apps/kdg-capture/web/tests/persistence-child.test.mjs",
+      "log": "platform/deployment/.local/kdg-persistence-http-path-20261026/post-review/child-controls-final.log",
+      "exit_code": 0,
+      "log_sha256": "ce30f38327dc72c02684053a68b88adae479d3788779324d8963b73457264c72",
+      "result": "3 passed"
+    },
+    {
+      "command": "platform/deployment/.local/kdg-toolchains/ad277eef-a10e-4aac-bb82-5743653fb2e0/payload/node/bin/node apps/kdg-capture/web/tests/auth-proof.mjs --create-only",
+      "log": "platform/deployment/.local/kdg-persistence-http-path-20261026/post-review/create-client-labels.log",
+      "exit_code": 0,
+      "log_sha256": "db65fd766dfad98182969a0ffd16db65ec37c4db294718bdf06f0fc18eb63be9",
+      "result": "90 passed, retained strict TS7 source"
+    },
+    {
+      "command": "platform/deployment/.local/kdg-toolchains/ad277eef-a10e-4aac-bb82-5743653fb2e0/payload/node/bin/node apps/kdg-capture/web/tests/persistence-http-proof.mjs",
+      "log": "platform/deployment/.local/kdg-persistence-http-path-20261026/post-review/network.log",
+      "exit_code": 0,
+      "log_sha256": "04700f295ab0c75a4230b0eb2d6aff058eb079ece2810e4b5ee35d635ff3fcb6",
+      "result": "7 loopback checks passed, normal stop, no forced termination"
+    },
+    {
+      "command": "platform/deployment/.local/kdg-toolchains/ad277eef-a10e-4aac-bb82-5743653fb2e0/payload/node/bin/node platform/deployment/.local/scaffold-application/proof-dI2Gy9/root/platform/api-client/src/cli.mjs --schema apps/kdg-capture/write-candidate/create-openapi.json --output apps/kdg-capture/contracts/create-generated",
+      "log": "platform/deployment/.local/kdg-persistence-http-path-20261026/post-review/create-generate.log",
+      "exit_code": 0,
+      "log_sha256": "e7b7ef7912aff8cbbfb961dcc258fbc4a6472e29561c6c3fbd97d18afe70ee8b",
+      "result": "owner generated"
+    },
+    {
+      "command": "platform/deployment/.local/kdg-toolchains/ad277eef-a10e-4aac-bb82-5743653fb2e0/payload/node/bin/node platform/deployment/.local/scaffold-application/proof-dI2Gy9/root/platform/api-client/src/cli.mjs --schema apps/kdg-capture/write-candidate/edit-openapi.json --output apps/kdg-capture/contracts/edit-generated",
+      "log": "platform/deployment/.local/kdg-persistence-http-path-20261026/post-review/edit-generate.log",
+      "exit_code": 0,
+      "log_sha256": "e7b7ef7912aff8cbbfb961dcc258fbc4a6472e29561c6c3fbd97d18afe70ee8b",
+      "result": "owner generated"
+    }
+  ],
+  "post_review_implementation_report": {
+    "path": "platform/deployment/.local/kdg-persistence-http-path-20261026/post-review/implementer-report.json",
+    "sha256": "ffed9a7626d40700a1f2e73ff303781f38e985a7ba84b420f10c4e85056f2baa"
+  },
+  "spec": {
+    "path": "_bmad-output/implementation-artifacts/spec-kdg-persistence-http-path.md",
+    "frozen_intent_sha256": "02720525b11e06cfc52b80bcaa0bd0a15293b1e81778959b8354c288832e0d2b"
+  },
+  "final_source_manifest": {
+    "path": "platform/deployment/.local/kdg-persistence-http-path-20261026/root-post-review/source-sha256.json",
+    "sha256": "ecbb09f513ecc6c0d4aa6f5a68ec5874b8e292c90c7d298b0385a04019f49bed"
+  }
+}

@@ -18,6 +18,9 @@
     "skipLibCheck": true
   },
   "files": [
+    "src/create-entry.ts",
+    "tests/create.types.ts",
+    "tests/create-entry.types.ts",
     "src/edit-entry.ts",
     "tests/edit-entry.types.ts",
     "src/auth-entry.ts",

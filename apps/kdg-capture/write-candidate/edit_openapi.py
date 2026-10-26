@@ -28,7 +28,7 @@ def schema_for(app,error_pairs):
     command['properties']['answers']['propertyNames']=deepcopy(uuid)
     # Explicit Boolean branches retain the runtime details rule in generated
     # TypeScript as well as JSON Schema (if/then is not a type-level constraint).
-    text={'type':'string','maxLength':5000,'pattern':r'^[^\u0000]*(?![\s\S])'}
+    text={'type':'string','maxLength':5000,'pattern':r'^[^\u0000\ud800-\udfff]*(?![\s\S])'}
     models['TextAnswer']['properties']['value'].update(deepcopy(text))
     models['BooleanAnswer']={'title':'BooleanAnswer','oneOf':[
         {'type':'object','additionalProperties':False,'required':['value'],

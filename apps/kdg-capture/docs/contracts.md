@@ -1065,3 +1065,27 @@ candidate is unconnected to browser/editor/startup and creates no new session li
 retry/recovery, queue mutation or Synced feedback. Results observe completion only;
 cancellation/deadline does not prove rollback or absence. Real Auth/Access, backend/native,
 browser and release activation remain unqualified.
+
+
+## Candidate create/edit/recovery HTTP path — 2026-10-26
+
+`write-candidate/create_http.py:create_candidate` adds explicit POST with one original
+body/Access/checkout/transaction/release budget and current create-all or assigned
+authority before acquisition. Existing transaction/replay handlers own original receipts
+and stored-child checks; worker ownership remains through cancellation and unwind.
+Offline create OpenAPI/owner-generated types describe the safe wire. `createCapture`
+and `createCreateEntry` add the pinned client/current-Auth consumer alongside edit/recovery.
+Synchronous capture/serialization is not preemptible; cancellation may still commit.
+No automatic retry, new identity, refresh or saved-state effect follows from a result.
+
+[Evidence](PERSISTENCE_HTTP_PATH_EVIDENCE.md) records21 HTTP/4 contract/90 client cases,
+199 synthetic backend regressions,327 compiled Auth/client and124 direct regressions,
+strict TS7.0.2, four scaffold checks and seven loopback requirement groups. Real handlers
+execute against synthetic authority/storage: create1/edit2, original receipt recovery,
+replay/no-op/conflict and fresh release-failure recovery. This proves wire/control-flow
+agreement, not native permissions/rollback or TCP drain. No browser/editor/queue/default
+startup activation. Historical native evidence and ADR-0020 release gates remain binding.
+
+Review: ten addressed, one rejected with evidence, none deferred. Three proof-process
+controls and two strict synthetic fixture cases pass. Sibling edit schema Unicode
+constraints and shared schema test-tool calendar checking are synchronized.

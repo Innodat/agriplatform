@@ -53,7 +53,7 @@ class PrivateResponses:
         await self.app(scope, receive, private_send)
 
 
-def _engine(database_url):
+def _engine(database_url, *, engine_factory=None):
     try:
         url = make_url(database_url)
         if (url.drivername not in ('postgresql','postgresql+psycopg') or url.query
@@ -61,7 +61,7 @@ def _engine(database_url):
             or (url.port is not None and not 1 <= url.port <= 65535)):
             raise ValueError('invalid_database_policy')
         ip_address(url.host)
-        return create_engine(url.set(drivername='postgresql+psycopg'),
+        return (engine_factory or create_engine)(url.set(drivername='postgresql+psycopg'),
             poolclass=QueuePool, pool_size=5, max_overflow=0, pool_timeout=.25,
             pool_pre_ping=False, pool_recycle=-1, hide_parameters=True,
             isolation_level='READ COMMITTED', connect_args=dict(
