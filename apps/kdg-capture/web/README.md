@@ -418,3 +418,20 @@ with N set to retained Node26.11.1:
 ```
 
 This does not mount administrator editing or change the own-only PWA cache contract.
+
+
+### Inert administrator conditional edit/recovery proof
+
+The new candidate preserves original ownership and uses current organization all-read/
+all-edit checks; read-only original-operation recovery needs current all-read only.
+It is not mounted and provides no offline administrator authority. With retained N
+(Node 26.11.1, TypeScript 7.0.2), from repository root:
+
+```sh
+"$N" platform/deployment/.local/web-baseline-qualification/new-5/root/node_modules/typescript/bin/tsc --project apps/kdg-capture/web/tsconfig.admin-edit.json
+"$N" apps/kdg-capture/web/tests/admin-edit-http-proof.mjs
+```
+
+The actual loopback API proof uses synthetic Access and recorded storage only. It does
+not qualify native SQL/RLS/locks, installed devices or release activation. See
+[write evidence](../docs/ONLINE_ADMIN_EDIT_EVIDENCE.md).

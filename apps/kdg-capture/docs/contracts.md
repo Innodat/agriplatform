@@ -1748,3 +1748,34 @@ contracts must close separately and recheck authority at their own action bounda
 See [administrator context evidence](ONLINE_ADMIN_EDIT_CONTEXT_EVIDENCE.md) and owner
 OpenAPI/generated client. No schema change, native/driver qualification, named portal
 presentation or complete Story3.1/3.2 claim is made.
+
+
+## Online administrator conditional edit and recovery candidate — 2026-10-27
+
+The inert PUT `/api/v1/admin/captures/{capture_id}` consumes existing EditCommand
+(operation_id, command_version=1, expected_revision, observation_date, answers) and
+returns the existing compact committed CaptureReceipt. Current organization read.all
+then edit.all must match verified account/durable actor/membership before checkout.
+Use actual executor all_write; never impersonate the original owner or fall back to own.
+The first read observation remains one-second fresh at SQL entry, under one three-second
+Access-pair and original ten-second total budget. Original-version validation and row
+locking/conditional revision apply; original owner/child/questionnaire/creation/device
+facts remain unchanged. Changed capture, private operation receipt and revision evidence
+commit together. No-op records a receipt without an update/history event; stale no-op
+still conflicts. Conflict409 carries only stable error_id and current_revision.
+
+GET `/api/v1/admin/operations/{operation_id}?command_type=capture.edit` requires exactly
+that query item and current read.all under all_read, without edit.all, body or selectors.
+Receipt lookup remains organization/current-executor/command/operation private. Authorize
+the actual stored target before replay/recovery, even when retry path/answers differ;
+return the original receipt/revision without another effect. A private missing operation
+returns unresolved, which never proves in-flight work cannot commit later. Invalid or
+unavailable stored target yields safe503 operation_verification_unavailable. Existing
+receipts have no own/admin surface discriminator; this route asserts current all-read,
+not invented provenance. All responses/errors private/no-store; final serialization and
+owned release remain within the original execution budget.
+
+No proposal store, force overwrite, draft, offline all-edit observation or schema change.
+The candidate is not mounted or released. See [qualified evidence](ONLINE_ADMIN_EDIT_EVIDENCE.md)
+and [generated contract](../contracts/admin-edit-generated/index.ts). Full portal conflict
+comparison, session rendering, native SQL/RLS/driver and release qualification remain.
