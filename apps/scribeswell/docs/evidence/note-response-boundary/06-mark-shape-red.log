@@ -1,0 +1,41 @@
+
+> scribeswell-web@0.1.0 test:browser
+> playwright test --config playwright.config.cjs workspace-restoration.spec.cjs --workers=1 --project=desktop --grep rejects unreadable direct reads
+
+[WebServer] (node:245646) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 1 test using 1 worker
+
+(node:245681) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  1 [desktop] › tests/workspace-restoration.spec.cjs:375:1 › note response boundary rejects unreadable direct reads and pages before consumer attachment (753ms)
+
+
+  1) [desktop] › tests/workspace-restoration.spec.cjs:375:1 › note response boundary rejects unreadable direct reads and pages before consumer attachment 
+
+    Error: expect(received).toBe(expected) // Object.is equality
+
+    Expected: "response_invalid"
+    Received: undefined
+
+      384 |  ].map(block=>({document:{version:2,blocks:[block]},connections:[],highlights:[]}))];
+      385 |  for(const value of malformed){await page.route('**/api/studies**',r=>r.fulfill({json:r.request().url().endsWith('/notes')?{items:[{...ownedNote(note),value}],next_cursor:null}:{...ownedNote(note),value}}));
+    > 386 |   for(const method of ['note','notes'])expect(await page.evaluate(async({method,study,note})=>{const {api}=await import('/src/lib/personal-notes.ts');try{await api[method]('fixture-token',study,...(method==='note'?[note]:[]));return 'accepted';}catch(error){return error.code;}},{method,study,note})).toBe('response_invalid');
+          |                                                                                                                                                                                                                                                                                                              ^
+      387 |  }
+      388 | });
+      389 | for(const entry of ['ordinary','restored'])test(`note response boundary ${entry} outline rejects malformed values and Retry preserves current context`,async({page})=>{
+        at /home/ck/repos/innodat/agriplatform/apps/scribeswell/web/tests/workspace-restoration.spec.cjs:386:302
+
+    Error Context: test-results/workspace-restoration-note-55d82--before-consumer-attachment-desktop/error-context.md
+
+  1 failed
+    [desktop] › tests/workspace-restoration.spec.cjs:375:1 › note response boundary rejects unreadable direct reads and pages before consumer attachment 
+npm error Lifecycle script `test:browser` failed with error:
+npm error code 1
+npm error path /home/ck/repos/innodat/agriplatform/apps/scribeswell/web
+npm error workspace scribeswell-web@0.1.0
+npm error location /home/ck/repos/innodat/agriplatform/apps/scribeswell/web
+npm error command failed
+npm error command sh -c playwright test --config playwright.config.cjs workspace-restoration.spec.cjs --workers=1 --project=desktop --grep 'rejects unreadable direct reads'

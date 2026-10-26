@@ -4,18 +4,11 @@ import {type Lane,useStudies} from '@/context/StudiesContext';
 import {BookChapterSelector} from '@/components/bible/book-chapter-selector';
 import {referenceLabel,validateReference,type PassageReference} from '@/lib/passage-references';
 import type {NoteValue} from '@/lib/personal-notes';
+import {safeNoteUrl as safeUrl} from '@/lib/note-value';
 type Block=NoteValue['document']['blocks'][number];
 type Paragraph=Extract<Block,{type:'paragraph'}>;
 type Inline=Paragraph['content'][number];
-function safeUrl(raw:string){
- try{
-  const url=new URL(raw),authority=raw.match(/^https?:\/\/([^/?#]+)/i)?.[1];
-  if(!authority||authority.includes('@')||!['http:','https:'].includes(url.protocol)||url.username||url.password||new TextEncoder().encode(raw).length>2048||/[\s\\\u0000-\u001f\u007f-\u009f]/u.test(raw)||/%(?![0-9a-f]{2})|%(?:0[0-9a-f]|1[0-9a-f]|7f|5c)/i.test(raw)||url.port==='0')return false;
-  if(/^\d+\.\d+\.\d+\.\d+$/.test(url.hostname)&&authority.replace(/:\d+$/,'')!==url.hostname)return false;
-  if(!url.hostname.startsWith('[')&&(url.hostname.length>253||url.hostname.replace(/\.$/,'').split('.').some(label=>! /^[A-Za-z0-9](?:[A-Za-z0-9-]{0,61}[A-Za-z0-9])?$/.test(label))))return false;
-  return true;
- }catch{return false;}
-}
+
 type PassageInline=Extract<Inline,{type:'passage_link'}>;
 // Only nodes constructed by this editor carry authority; pasted/foreign metadata does not.
 const passageNodes=new WeakMap<HTMLElement,PassageInline>();

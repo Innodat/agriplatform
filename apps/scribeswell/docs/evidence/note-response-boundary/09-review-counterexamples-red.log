@@ -1,0 +1,60 @@
+
+> scribeswell-web@0.1.0 test:browser
+> playwright test --config playwright.config.cjs workspace-restoration.spec.cjs --workers=2 --project=desktop --fully-parallel --grep exact budgets agree|corrupt note revisions
+
+[WebServer] (node:260309) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 2 tests using 2 workers
+
+(node:260365) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:260359) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  1 [desktop] › tests/workspace-restoration.spec.cjs:411:1 › note response boundary exact budgets agree with authoritative server validation (698ms)
+  ✘  2 [desktop] › tests/workspace-restoration.spec.cjs:405:1 › note response boundary rejects corrupt note revisions and page envelopes with safe typed failures (857ms)
+
+
+  1) [desktop] › tests/workspace-restoration.spec.cjs:405:1 › note response boundary rejects corrupt note revisions and page envelopes with safe typed failures 
+
+    Error: expect(received).toEqual(expected) // deep equality
+
+    Expected: {"code": "response_invalid", "message": "response_invalid"}
+    Received: "accepted"
+
+      406 |  await setup(page);const good=ownedNote(note),invalidNotes=[null,{}, {...good,id:''},{...good,study_id:secondStudy},{...good,owner_account_id:null},...['0','01','1.5','9223372036854775808','private-body-marker'].map(revision=>({...good,revision}))];
+      407 |  const cases=[...invalidNotes.map(payload=>({method:'note',payload})),...[...['a/b','?other=value','00000000-0000-0000-0000-000000000000'].map(id=>({items:[{...good,id}],next_cursor:null})),null,{}, {items:null,next_cursor:null},{items:[null],next_cursor:null},{items:[good,good],next_cursor:null},{items:[{...good,study_id:secondStudy}],next_cursor:null},{items:[good],next_cursor:0},{items:[good],next_cursor:'!invalid'},{items:[good],next_cursor:'x'.repeat(513)}].map(payload=>({method:'notes',payload}))];
+    > 408 |  for(const {method,payload} of cases){await page.route('**/api/studies**',r=>r.fulfill({json:payload}));expect(await page.evaluate(async({method,study,note})=>{const {api}=await import('/src/lib/personal-notes.ts');try{await api[method]('fixture',study,...(method==='note'?[note]:[]));return 'accepted';}catch(error){return {code:error.code,message:error.message};}},{method,study,note})).toEqual({code:'response_invalid',message:'response_invalid'});}
+          |                                                                                                                                                                                                                                                                                                                                                                                                      ^
+      409 | });
+      410 |
+      411 | test('note response boundary exact budgets agree with authoritative server validation',async({page})=>{
+        at /home/ck/repos/innodat/agriplatform/apps/scribeswell/web/tests/workspace-restoration.spec.cjs:408:390
+
+    Error Context: test-results/workspace-restoration-note-75d9e-es-with-safe-typed-failures-desktop/error-context.md
+
+  2) [desktop] › tests/workspace-restoration.spec.cjs:411:1 › note response boundary exact budgets agree with authoritative server validation 
+
+    Error: spawnSync /usr/bin/python3 E2BIG
+
+      414 |  const referenceNodes=extra=>value(Array.from({length:3},(_,i)=>paragraph([...Array.from({length:227},()=>({type:'passage_link',label:'🙂',reference})),...(i===2?Array.from({length:1+extra},()=>text('א')):[])])));
+      415 |  const cases=[{name:'blocks256',value:value(Array.from({length:256},()=>paragraph([]))),expected:true},{name:'blocks257',value:value(Array.from({length:257},()=>paragraph([]))),expected:false},{name:'inline256',value:value([paragraph(Array.from({length:256},()=>text('א')))]),expected:true},{name:'inline257',value:value([paragraph(Array.from({length:257},()=>text('א')))]),expected:false},...([0,1].flatMap(extra=>[{name:`nodes${2048+extra}`,value:textNodes(extra),expected:!extra},{name:`reference-nodes${2048+extra}`,value:referenceNodes(extra),expected:!extra},{name:`characters${50000+extra}`,value:value([paragraph([...Array.from({length:12},()=>text('🙂'.repeat(4096))),text('🙂'.repeat(848+extra))])]),expected:!extra},{name:`list-items${128+extra}`,value:value([{type:'list',style:'bullet',items:Array.from({length:128+extra},()=>[paragraph([])])}]),expected:!extra},{name:`item-paragraphs${16+extra}`,value:value([{type:'list',style:'bullet',items:[Array.from({length:16+extra},()=>paragraph([]))]}]),expected:!extra},{name:`external-content${64+extra}`,value:value([paragraph([{type:'external_link',url:'https://example.invalid/',content:Array.from({length:64+extra},()=>text('א'))}])]),expected:!extra}]))];
+    > 416 |  const {execFileSync}=require('node:child_process'),path=require('node:path');const script="import json,sys;from apps.scribeswell.backend.personal_notes_contract import NoteValue\ndef valid(v):\n try:NoteValue.model_validate_json(json.dumps(v));return True\n except ValueError:return False\nprint(json.dumps([valid(v) for v in json.loads(sys.argv[1])]))";const expected=cases.map(row=>row.expected),server=JSON.parse(execFileSync(process.env.SCRIBESWELL_TEST_PYTHON||'python3',['-c',script,JSON.stringify(cases.map(row=>row.value))],{cwd:path.resolve(__dirname,'../../../..'),encoding:'utf8'}));expect(server).toEqual(expected);
+          |                                                                                                                                                                                                                                                                                                                                                                                                                                  ^
+      417 |  const actual=await page.evaluate(async cases=>{const {isReadableNoteValue}=await import('/src/lib/note-value.ts');return cases.map(row=>({name:row.name,valid:isReadableNoteValue(row.value)}));},cases);expect(actual).toEqual(cases.map((row,i)=>({name:row.name,valid:expected[i]})));
+      418 | });
+      419 |
+        at /home/ck/repos/innodat/agriplatform/apps/scribeswell/web/tests/workspace-restoration.spec.cjs:416:418
+
+    Error Context: test-results/workspace-restoration-note-be026-oritative-server-validation-desktop/error-context.md
+
+  2 failed
+    [desktop] › tests/workspace-restoration.spec.cjs:405:1 › note response boundary rejects corrupt note revisions and page envelopes with safe typed failures 
+    [desktop] › tests/workspace-restoration.spec.cjs:411:1 › note response boundary exact budgets agree with authoritative server validation 
+npm error Lifecycle script `test:browser` failed with error:
+npm error code 1
+npm error path /home/ck/repos/innodat/agriplatform/apps/scribeswell/web
+npm error workspace scribeswell-web@0.1.0
+npm error location /home/ck/repos/innodat/agriplatform/apps/scribeswell/web
+npm error command failed
+npm error command sh -c playwright test --config playwright.config.cjs workspace-restoration.spec.cjs --workers=2 --project=desktop --fully-parallel --grep 'exact budgets agree|corrupt note revisions'

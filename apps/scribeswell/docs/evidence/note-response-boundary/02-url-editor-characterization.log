@@ -1,0 +1,29 @@
+
+> scribeswell-web@0.1.0 test:browser
+> playwright test --config playwright.config.cjs personal-notes.spec.cjs --workers=3 --fully-parallel --grep rich paragraphs|editor toolbar actions|invalid DNS link
+
+[WebServer] (node:237717) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 6 tests using 3 workers
+
+(node:237741) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:237735) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:237734) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  1 [desktop] › tests/personal-notes.spec.cjs:230:1 › review: invalid DNS link remains correctable without changing note text (2.6s)
+(node:238102) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  2 [desktop] › tests/personal-notes.spec.cjs:192:1 › rich paragraphs directions lists marks and safe links survive saving and reopening (2.9s)
+(node:238149) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  3 [desktop] › tests/personal-notes.spec.cjs:196:1 › editor toolbar actions persist direction marks lists and safe links (3.7s)
+(node:238239) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  4 [mobile] › tests/personal-notes.spec.cjs:192:1 › rich paragraphs directions lists marks and safe links survive saving and reopening (4.9s)
+  ✓  6 [mobile] › tests/personal-notes.spec.cjs:230:1 › review: invalid DNS link remains correctable without changing note text (4.0s)
+  ✓  5 [mobile] › tests/personal-notes.spec.cjs:196:1 › editor toolbar actions persist direction marks lists and safe links (6.1s)
+
+  6 passed (11.6s)

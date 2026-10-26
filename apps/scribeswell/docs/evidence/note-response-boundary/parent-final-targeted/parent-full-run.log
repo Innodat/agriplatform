@@ -1,0 +1,94 @@
+Command: SCRIBESWELL_TEST_PYTHON=/usr/bin/python3 npm run test:browser --workspace=apps/scribeswell/web -- --workers=4 --fully-parallel personal-notes.spec.cjs workspace-restoration.spec.cjs --repeat-each=2 --grep note response boundary|last public scroll checkpoint|rich paragraphs|editor toolbar actions|invalid DNS link
+
+> scribeswell-web@0.1.0 test:browser
+> playwright test --config playwright.config.cjs --workers=4 --fully-parallel personal-notes.spec.cjs workspace-restoration.spec.cjs --repeat-each=2 --grep note response boundary|last public scroll checkpoint|rich paragraphs|editor toolbar actions|invalid DNS link
+
+[WebServer] (node:307791) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 48 tests using 4 workers
+
+(node:307829) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:307830) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:307823) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:307832) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   4 [desktop] › tests/personal-notes.spec.cjs:230:1 › review: invalid DNS link remains correctable without changing note text (2.6s)
+  ✓   2 [desktop] › tests/personal-notes.spec.cjs:192:1 › rich paragraphs directions lists marks and safe links survive saving and reopening (3.2s)
+  ✓   5 [desktop] › tests/workspace-restoration.spec.cjs:375:1 › note response boundary rejects unreadable direct reads and pages before consumer attachment (985ms)
+  ✓   3 [desktop] › tests/personal-notes.spec.cjs:196:1 › editor toolbar actions persist direction marks lists and safe links (3.9s)
+  ✓   1 [desktop] › tests/workspace-restoration.spec.cjs:179:1 › last public scroll checkpoint survives tools hiding the pane before the durable write (4.3s)
+  ✓   6 [desktop] › tests/workspace-restoration.spec.cjs:389:44 › note response boundary ordinary outline rejects malformed values and Retry preserves current context (1.8s)
+  ✓   8 [desktop] › tests/workspace-restoration.spec.cjs:395:1 › note response boundary uses current server-valid grammar for both document versions (1.4s)
+  ✓   7 [desktop] › tests/workspace-restoration.spec.cjs:389:44 › note response boundary restored outline rejects malformed values and Retry preserves current context (2.2s)
+  ✓  10 [desktop] › tests/workspace-restoration.spec.cjs:405:1 › note response boundary rejects corrupt note revisions and page envelopes with safe typed failures (2.1s)
+  ✓   9 [desktop] › tests/workspace-restoration.spec.cjs:401:1 › note response boundary malformed restored outline preserves dirty writing and original unknown save (3.7s)
+  ✓  11 [desktop] › tests/workspace-restoration.spec.cjs:411:1 › note response boundary exact budgets agree with authoritative server validation (3.3s)
+(node:308483) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:308490) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:308497) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  12 [desktop] › tests/workspace-restoration.spec.cjs:421:1 › note response boundary direct editor retry preserves another shared dirty note lane (7.4s)
+(node:308799) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  15 [desktop] › tests/personal-notes.spec.cjs:230:1 › review: invalid DNS link remains correctable without changing note text (5.0s)
+  ✓  13 [desktop] › tests/personal-notes.spec.cjs:192:1 › rich paragraphs directions lists marks and safe links survive saving and reopening (7.3s)
+  ✓  17 [desktop] › tests/workspace-restoration.spec.cjs:375:1 › note response boundary rejects unreadable direct reads and pages before consumer attachment (2.9s)
+  ✓  14 [desktop] › tests/personal-notes.spec.cjs:196:1 › editor toolbar actions persist direction marks lists and safe links (9.5s)
+  ✓  18 [desktop] › tests/workspace-restoration.spec.cjs:389:44 › note response boundary ordinary outline rejects malformed values and Retry preserves current context (3.9s)
+  ✓  16 [desktop] › tests/workspace-restoration.spec.cjs:179:1 › last public scroll checkpoint survives tools hiding the pane before the durable write (7.2s)
+  ✓  20 [desktop] › tests/workspace-restoration.spec.cjs:395:1 › note response boundary uses current server-valid grammar for both document versions (2.4s)
+  ✓  19 [desktop] › tests/workspace-restoration.spec.cjs:389:44 › note response boundary restored outline rejects malformed values and Retry preserves current context (4.8s)
+  ✓  22 [desktop] › tests/workspace-restoration.spec.cjs:405:1 › note response boundary rejects corrupt note revisions and page envelopes with safe typed failures (3.7s)
+  ✓  23 [desktop] › tests/workspace-restoration.spec.cjs:411:1 › note response boundary exact budgets agree with authoritative server validation (4.8s)
+(node:309267) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  21 [desktop] › tests/workspace-restoration.spec.cjs:401:1 › note response boundary malformed restored outline preserves dirty writing and original unknown save (6.7s)
+(node:309327) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:309342) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  24 [desktop] › tests/workspace-restoration.spec.cjs:421:1 › note response boundary direct editor retry preserves another shared dirty note lane (7.2s)
+(node:309574) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  25 [mobile] › tests/personal-notes.spec.cjs:192:1 › rich paragraphs directions lists marks and safe links survive saving and reopening (7.0s)
+  ✓  27 [mobile] › tests/personal-notes.spec.cjs:230:1 › review: invalid DNS link remains correctable without changing note text (5.2s)
+  ✓  29 [mobile] › tests/workspace-restoration.spec.cjs:375:1 › note response boundary rejects unreadable direct reads and pages before consumer attachment (2.9s)
+  ✓  26 [mobile] › tests/personal-notes.spec.cjs:196:1 › editor toolbar actions persist direction marks lists and safe links (9.7s)
+  ✓  28 [mobile] › tests/workspace-restoration.spec.cjs:179:1 › last public scroll checkpoint survives tools hiding the pane before the durable write (6.8s)
+  ✓  30 [mobile] › tests/workspace-restoration.spec.cjs:389:44 › note response boundary ordinary outline rejects malformed values and Retry preserves current context (4.3s)
+  ✓  32 [mobile] › tests/workspace-restoration.spec.cjs:395:1 › note response boundary uses current server-valid grammar for both document versions (2.9s)
+  ✓  31 [mobile] › tests/workspace-restoration.spec.cjs:389:44 › note response boundary restored outline rejects malformed values and Retry preserves current context (4.7s)
+  ✓  34 [mobile] › tests/workspace-restoration.spec.cjs:405:1 › note response boundary rejects corrupt note revisions and page envelopes with safe typed failures (3.3s)
+(node:310012) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  35 [mobile] › tests/workspace-restoration.spec.cjs:411:1 › note response boundary exact budgets agree with authoritative server validation (4.3s)
+  ✓  33 [mobile] › tests/workspace-restoration.spec.cjs:401:1 › note response boundary malformed restored outline preserves dirty writing and original unknown save (6.5s)
+(node:310155) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:310164) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  36 [mobile] › tests/workspace-restoration.spec.cjs:421:1 › note response boundary direct editor retry preserves another shared dirty note lane (7.9s)
+(node:310424) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  37 [mobile] › tests/personal-notes.spec.cjs:192:1 › rich paragraphs directions lists marks and safe links survive saving and reopening (7.5s)
+  ✓  39 [mobile] › tests/personal-notes.spec.cjs:230:1 › review: invalid DNS link remains correctable without changing note text (6.0s)
+  ✓  41 [mobile] › tests/workspace-restoration.spec.cjs:375:1 › note response boundary rejects unreadable direct reads and pages before consumer attachment (2.9s)
+  ✓  42 [mobile] › tests/workspace-restoration.spec.cjs:389:44 › note response boundary ordinary outline rejects malformed values and Retry preserves current context (3.9s)
+  ✓  38 [mobile] › tests/personal-notes.spec.cjs:196:1 › editor toolbar actions persist direction marks lists and safe links (10.5s)
+  ✓  40 [mobile] › tests/workspace-restoration.spec.cjs:179:1 › last public scroll checkpoint survives tools hiding the pane before the durable write (6.3s)
+  ✓  43 [mobile] › tests/workspace-restoration.spec.cjs:389:44 › note response boundary restored outline rejects malformed values and Retry preserves current context (4.9s)
+  ✓  44 [mobile] › tests/workspace-restoration.spec.cjs:395:1 › note response boundary uses current server-valid grammar for both document versions (3.1s)
+  ✓  46 [mobile] › tests/workspace-restoration.spec.cjs:405:1 › note response boundary rejects corrupt note revisions and page envelopes with safe typed failures (3.3s)
+  ✓  47 [mobile] › tests/workspace-restoration.spec.cjs:411:1 › note response boundary exact budgets agree with authoritative server validation (3.7s)
+  ✓  45 [mobile] › tests/workspace-restoration.spec.cjs:401:1 › note response boundary malformed restored outline preserves dirty writing and original unknown save (6.2s)
+  ✓  48 [mobile] › tests/workspace-restoration.spec.cjs:421:1 › note response boundary direct editor retry preserves another shared dirty note lane (4.9s)
+
+  48 passed (1.2m)
+
+Exit status: 0

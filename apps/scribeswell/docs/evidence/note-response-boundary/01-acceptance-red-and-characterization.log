@@ -1,0 +1,196 @@
+
+> scribeswell-web@0.1.0 test:browser
+> playwright test --config playwright.config.cjs workspace-restoration.spec.cjs personal-notes.spec.cjs --workers=4 --fully-parallel --grep note response boundary|formatting|external link|mixed Hebrew|passage atoms
+
+[WebServer] (node:235868) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 14 tests using 4 workers
+
+(node:235925) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:235933) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:235926) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:235932) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   2 [desktop] › tests/personal-notes.spec.cjs:861:1 › deletion review shows list semantics formatting external destinations and canonical passage targets (1.8s)
+  ✓   4 [desktop] › tests/personal-notes.spec.cjs:950:1 › whole-study deletion executing and unknown freeze visible editing and formatting after Close (1.9s)
+  ✘   5 [desktop] › tests/workspace-restoration.spec.cjs:375:1 › note response boundary rejects unreadable direct reads and pages before consumer attachment (588ms)
+(node:236348) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   3 [desktop] › tests/personal-notes.spec.cjs:1051:49 › four-pane layout retains the same composing editor and owned passage atoms through add close and replay (caret) (5.0s)
+  ✓   1 [desktop] › tests/personal-notes.spec.cjs:1051:49 › four-pane layout retains the same composing editor and owned passage atoms through add close and replay (selection) (5.0s)
+(node:236486) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:236485) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   9 [mobile] › tests/personal-notes.spec.cjs:950:1 › whole-study deletion executing and unknown freeze visible editing and formatting after Close (1.3s)
+  ✓   8 [mobile] › tests/personal-notes.spec.cjs:861:1 › deletion review shows list semantics formatting external destinations and canonical passage targets (1.3s)
+  ✘   6 [desktop] › tests/workspace-restoration.spec.cjs:388:44 › note response boundary ordinary outline rejects malformed values and Retry preserves current context (6.1s)
+(node:236763) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘   7 [desktop] › tests/workspace-restoration.spec.cjs:388:44 › note response boundary restored outline rejects malformed values and Retry preserves current context (6.2s)
+(node:236876) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  12 [mobile] › tests/workspace-restoration.spec.cjs:375:1 › note response boundary rejects unreadable direct reads and pages before consumer attachment (2.3s)
+(node:237017) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  10 [mobile] › tests/personal-notes.spec.cjs:1051:49 › four-pane layout retains the same composing editor and owned passage atoms through add close and replay (selection) (7.7s)
+  ✓  11 [mobile] › tests/personal-notes.spec.cjs:1051:49 › four-pane layout retains the same composing editor and owned passage atoms through add close and replay (caret) (7.9s)
+  ✘  13 [mobile] › tests/workspace-restoration.spec.cjs:388:44 › note response boundary ordinary outline rejects malformed values and Retry preserves current context (8.5s)
+  ✘  14 [mobile] › tests/workspace-restoration.spec.cjs:388:44 › note response boundary restored outline rejects malformed values and Retry preserves current context (7.6s)
+
+
+  1) [desktop] › tests/workspace-restoration.spec.cjs:375:1 › note response boundary rejects unreadable direct reads and pages before consumer attachment 
+
+    Error: expect(received).toBe(expected) // Object.is equality
+
+    Expected: "response_invalid"
+    Received: "accepted"
+
+      383 |  ].map(block=>({document:{version:2,blocks:[block]},connections:[],highlights:[]}))];
+      384 |  for(const value of malformed){await page.route('**/api/studies**',r=>r.fulfill({json:r.request().url().endsWith('/notes')?{items:[{...ownedNote(note),value}],next_cursor:null}:{...ownedNote(note),value}}));
+    > 385 |   for(const method of ['note','notes'])expect(await page.evaluate(async({method,study,note})=>{const {api}=await import('/src/lib/personal-notes.ts');try{await api[method]('fixture-token',study,...(method==='note'?[note]:[]));return 'accepted';}catch(error){return error.code;}},{method,study,note})).toBe('response_invalid');
+          |                                                                                                                                                                                                                                                                                                              ^
+      386 |  }
+      387 | });
+      388 | for(const entry of ['ordinary','restored'])test(`note response boundary ${entry} outline rejects malformed values and Retry preserves current context`,async({page})=>{
+        at /home/ck/repos/innodat/agriplatform/apps/scribeswell/web/tests/workspace-restoration.spec.cjs:385:302
+
+    Error Context: test-results/workspace-restoration-note-55d82--before-consumer-attachment-desktop/error-context.md
+
+  2) [desktop] › tests/workspace-restoration.spec.cjs:388:44 › note response boundary ordinary outline rejects malformed values and Retry preserves current context 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByRole('alert').filter({ hasText: 'Studies could not be loaded.' })
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByRole('alert').filter({ hasText: 'Studies could not be loaded.' }) with timeout 5000ms
+      - waiting for getByRole('alert').filter({ hasText: 'Studies could not be loaded.' })
+
+
+      389 |  const errors=[];page.on('pageerror',error=>errors.push(error.name));await setup(page);if(entry==='restored')await seed(page,publicSetup(1),privateSetup(1));let malformed=true;
+      390 |  await owner(page,{read:r=>new URL(r.request().url()).pathname.endsWith('/notes')&&malformed?r.fulfill({json:{items:[{...ownedNote(secondNote),value:{document:{version:1},connections:[],highlights:[]}}],next_cursor:null}}):normalResources(r)});await page.goto('/');if(entry==='restored')await expect(tabs(page).first()).toHaveText('Private label 1');await page.getByRole('button',{name:'Studies',exact:true}).click();if(entry==='ordinary')await page.getByRole('button',{name:'Study A',exact:true}).click();
+    > 391 |  const failure=page.getByRole('alert').filter({hasText:entry==='restored'?'Study outline could not be loaded.':'Studies could not be loaded.'});await expect(failure).toBeVisible();expect(errors).toEqual([]);malformed=false;
+          |                                                                                                                                                                       ^
+      392 |  if(entry==='restored')await failure.getByRole('button',{name:'Retry',exact:true}).click();else await page.getByRole('button',{name:'Study A',exact:true}).click();await expect(page.getByRole('list',{name:'Notes',exact:true}).getByRole('button')).toHaveCount(2);expect(errors).toEqual([]);await page.getByRole('button',{name:'Analysis',exact:true}).click();if(entry==='restored')await expect(page.getByRole('textbox',{name:'Note text',exact:true})).toHaveText('Saved note A');
+      393 | });
+      394 |
+        at /home/ck/repos/innodat/agriplatform/apps/scribeswell/web/tests/workspace-restoration.spec.cjs:391:167
+
+    Error Context: test-results/workspace-restoration-note-1ec68-y-preserves-current-context-desktop/error-context.md
+
+  3) [desktop] › tests/workspace-restoration.spec.cjs:388:44 › note response boundary restored outline rejects malformed values and Retry preserves current context 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByRole('alert').filter({ hasText: 'Study outline could not be loaded.' })
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByRole('alert').filter({ hasText: 'Study outline could not be loaded.' }) with timeout 5000ms
+      - waiting for getByRole('alert').filter({ hasText: 'Study outline could not be loaded.' })
+
+
+      389 |  const errors=[];page.on('pageerror',error=>errors.push(error.name));await setup(page);if(entry==='restored')await seed(page,publicSetup(1),privateSetup(1));let malformed=true;
+      390 |  await owner(page,{read:r=>new URL(r.request().url()).pathname.endsWith('/notes')&&malformed?r.fulfill({json:{items:[{...ownedNote(secondNote),value:{document:{version:1},connections:[],highlights:[]}}],next_cursor:null}}):normalResources(r)});await page.goto('/');if(entry==='restored')await expect(tabs(page).first()).toHaveText('Private label 1');await page.getByRole('button',{name:'Studies',exact:true}).click();if(entry==='ordinary')await page.getByRole('button',{name:'Study A',exact:true}).click();
+    > 391 |  const failure=page.getByRole('alert').filter({hasText:entry==='restored'?'Study outline could not be loaded.':'Studies could not be loaded.'});await expect(failure).toBeVisible();expect(errors).toEqual([]);malformed=false;
+          |                                                                                                                                                                       ^
+      392 |  if(entry==='restored')await failure.getByRole('button',{name:'Retry',exact:true}).click();else await page.getByRole('button',{name:'Study A',exact:true}).click();await expect(page.getByRole('list',{name:'Notes',exact:true}).getByRole('button')).toHaveCount(2);expect(errors).toEqual([]);await page.getByRole('button',{name:'Analysis',exact:true}).click();if(entry==='restored')await expect(page.getByRole('textbox',{name:'Note text',exact:true})).toHaveText('Saved note A');
+      393 | });
+      394 |
+        at /home/ck/repos/innodat/agriplatform/apps/scribeswell/web/tests/workspace-restoration.spec.cjs:391:167
+
+    Error Context: test-results/workspace-restoration-note-43ec6-y-preserves-current-context-desktop/error-context.md
+
+  4) [mobile] › tests/workspace-restoration.spec.cjs:375:1 › note response boundary rejects unreadable direct reads and pages before consumer attachment 
+
+    Error: expect(received).toBe(expected) // Object.is equality
+
+    Expected: "response_invalid"
+    Received: "accepted"
+
+      383 |  ].map(block=>({document:{version:2,blocks:[block]},connections:[],highlights:[]}))];
+      384 |  for(const value of malformed){await page.route('**/api/studies**',r=>r.fulfill({json:r.request().url().endsWith('/notes')?{items:[{...ownedNote(note),value}],next_cursor:null}:{...ownedNote(note),value}}));
+    > 385 |   for(const method of ['note','notes'])expect(await page.evaluate(async({method,study,note})=>{const {api}=await import('/src/lib/personal-notes.ts');try{await api[method]('fixture-token',study,...(method==='note'?[note]:[]));return 'accepted';}catch(error){return error.code;}},{method,study,note})).toBe('response_invalid');
+          |                                                                                                                                                                                                                                                                                                              ^
+      386 |  }
+      387 | });
+      388 | for(const entry of ['ordinary','restored'])test(`note response boundary ${entry} outline rejects malformed values and Retry preserves current context`,async({page})=>{
+        at /home/ck/repos/innodat/agriplatform/apps/scribeswell/web/tests/workspace-restoration.spec.cjs:385:302
+
+    Error Context: test-results/workspace-restoration-note-55d82--before-consumer-attachment-mobile/error-context.md
+
+  5) [mobile] › tests/workspace-restoration.spec.cjs:388:44 › note response boundary ordinary outline rejects malformed values and Retry preserves current context 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByRole('alert').filter({ hasText: 'Studies could not be loaded.' })
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByRole('alert').filter({ hasText: 'Studies could not be loaded.' }) with timeout 5000ms
+      - waiting for getByRole('alert').filter({ hasText: 'Studies could not be loaded.' })
+
+
+      389 |  const errors=[];page.on('pageerror',error=>errors.push(error.name));await setup(page);if(entry==='restored')await seed(page,publicSetup(1),privateSetup(1));let malformed=true;
+      390 |  await owner(page,{read:r=>new URL(r.request().url()).pathname.endsWith('/notes')&&malformed?r.fulfill({json:{items:[{...ownedNote(secondNote),value:{document:{version:1},connections:[],highlights:[]}}],next_cursor:null}}):normalResources(r)});await page.goto('/');if(entry==='restored')await expect(tabs(page).first()).toHaveText('Private label 1');await page.getByRole('button',{name:'Studies',exact:true}).click();if(entry==='ordinary')await page.getByRole('button',{name:'Study A',exact:true}).click();
+    > 391 |  const failure=page.getByRole('alert').filter({hasText:entry==='restored'?'Study outline could not be loaded.':'Studies could not be loaded.'});await expect(failure).toBeVisible();expect(errors).toEqual([]);malformed=false;
+          |                                                                                                                                                                       ^
+      392 |  if(entry==='restored')await failure.getByRole('button',{name:'Retry',exact:true}).click();else await page.getByRole('button',{name:'Study A',exact:true}).click();await expect(page.getByRole('list',{name:'Notes',exact:true}).getByRole('button')).toHaveCount(2);expect(errors).toEqual([]);await page.getByRole('button',{name:'Analysis',exact:true}).click();if(entry==='restored')await expect(page.getByRole('textbox',{name:'Note text',exact:true})).toHaveText('Saved note A');
+      393 | });
+      394 |
+        at /home/ck/repos/innodat/agriplatform/apps/scribeswell/web/tests/workspace-restoration.spec.cjs:391:167
+
+    Error Context: test-results/workspace-restoration-note-1ec68-y-preserves-current-context-mobile/error-context.md
+
+  6) [mobile] › tests/workspace-restoration.spec.cjs:388:44 › note response boundary restored outline rejects malformed values and Retry preserves current context 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByRole('alert').filter({ hasText: 'Study outline could not be loaded.' })
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByRole('alert').filter({ hasText: 'Study outline could not be loaded.' }) with timeout 5000ms
+      - waiting for getByRole('alert').filter({ hasText: 'Study outline could not be loaded.' })
+
+
+      389 |  const errors=[];page.on('pageerror',error=>errors.push(error.name));await setup(page);if(entry==='restored')await seed(page,publicSetup(1),privateSetup(1));let malformed=true;
+      390 |  await owner(page,{read:r=>new URL(r.request().url()).pathname.endsWith('/notes')&&malformed?r.fulfill({json:{items:[{...ownedNote(secondNote),value:{document:{version:1},connections:[],highlights:[]}}],next_cursor:null}}):normalResources(r)});await page.goto('/');if(entry==='restored')await expect(tabs(page).first()).toHaveText('Private label 1');await page.getByRole('button',{name:'Studies',exact:true}).click();if(entry==='ordinary')await page.getByRole('button',{name:'Study A',exact:true}).click();
+    > 391 |  const failure=page.getByRole('alert').filter({hasText:entry==='restored'?'Study outline could not be loaded.':'Studies could not be loaded.'});await expect(failure).toBeVisible();expect(errors).toEqual([]);malformed=false;
+          |                                                                                                                                                                       ^
+      392 |  if(entry==='restored')await failure.getByRole('button',{name:'Retry',exact:true}).click();else await page.getByRole('button',{name:'Study A',exact:true}).click();await expect(page.getByRole('list',{name:'Notes',exact:true}).getByRole('button')).toHaveCount(2);expect(errors).toEqual([]);await page.getByRole('button',{name:'Analysis',exact:true}).click();if(entry==='restored')await expect(page.getByRole('textbox',{name:'Note text',exact:true})).toHaveText('Saved note A');
+      393 | });
+      394 |
+        at /home/ck/repos/innodat/agriplatform/apps/scribeswell/web/tests/workspace-restoration.spec.cjs:391:167
+
+    Error Context: test-results/workspace-restoration-note-43ec6-y-preserves-current-context-mobile/error-context.md
+
+  6 failed
+    [desktop] › tests/workspace-restoration.spec.cjs:375:1 › note response boundary rejects unreadable direct reads and pages before consumer attachment 
+    [desktop] › tests/workspace-restoration.spec.cjs:388:44 › note response boundary ordinary outline rejects malformed values and Retry preserves current context 
+    [desktop] › tests/workspace-restoration.spec.cjs:388:44 › note response boundary restored outline rejects malformed values and Retry preserves current context 
+    [mobile] › tests/workspace-restoration.spec.cjs:375:1 › note response boundary rejects unreadable direct reads and pages before consumer attachment 
+    [mobile] › tests/workspace-restoration.spec.cjs:388:44 › note response boundary ordinary outline rejects malformed values and Retry preserves current context 
+    [mobile] › tests/workspace-restoration.spec.cjs:388:44 › note response boundary restored outline rejects malformed values and Retry preserves current context 
+  8 passed (23.3s)
+npm error Lifecycle script `test:browser` failed with error:
+npm error code 1
+npm error path /home/ck/repos/innodat/agriplatform/apps/scribeswell/web
+npm error workspace scribeswell-web@0.1.0
+npm error location /home/ck/repos/innodat/agriplatform/apps/scribeswell/web
+npm error command failed
+npm error command sh -c playwright test --config playwright.config.cjs workspace-restoration.spec.cjs personal-notes.spec.cjs --workers=4 --fully-parallel --grep 'note response boundary|formatting|external link|mixed Hebrew|passage atoms'

@@ -1,0 +1,15 @@
+{
+  "reviewer": "/root/note_response_boundary_blind",
+  "mode": "BMAD oneshot configured blind layer; fresh context-free same-capability child",
+  "scope": [
+    "apps/scribeswell/web/src/lib/note-value.ts",
+    "apps/scribeswell/web/src/lib/personal-notes.ts",
+    "apps/scribeswell/web/src/components/studies/NoteEditor.tsx",
+    "apps/scribeswell/web/tests/workspace-restoration.spec.cjs",
+    "apps/scribeswell/docs/NOTE_RESPONSE_BOUNDARY_EVIDENCE.md",
+    "_bmad-output/implementation-artifacts/spec-scribeswell-note-response-boundary.md"
+  ],
+  "baseline": "5d3bbbfd10ed3af447d787f7939810a67f3001c9",
+  "triage": "All6 individual verdicts logged before grouping; five direct corrections, one refuted pending-status claim.",
+  "source_evidence": "Parent first affected regression before/after166-source manifest covers prepatch runtime/test hashes. Review read current files directly; no claim that original whole-file review input bytes were archived."
+}

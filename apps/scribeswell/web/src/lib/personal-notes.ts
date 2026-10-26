@@ -1,6 +1,7 @@
 /** Same-origin private adapter. No private bodies in browser storage or diagnostics. */
 import type {NoteValue, NoteView, StudyView, OperationAck, StudyPage, NotePage, Outcome, EnrollmentAck, PassageList} from '@/generated/personal-notes/types.gen';
 export type {NoteValue,NoteView,StudyView,OperationAck,PassageList};
+import {isReadableNoteValue} from './note-value';
 const base=import.meta.env.BASE_URL.replace(/\/$/,'');
 export class NotesFailure extends Error { constructor(public code:string){super(code);} }
 export const emptyValue=():NoteValue=>({document:{version:1,blocks:[]},connections:[],highlights:[]});
@@ -17,14 +18,30 @@ export async function request<T>(token:string,path:string,method='GET',body?:unk
  }catch(error){if(error instanceof NotesFailure)throw error;throw new NotesFailure('operation_unresolved');}
  finally{clearTimeout(timer);}
 }
+const noteIdentifier=(value:unknown):value is string=>typeof value==='string'&&/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/.test(value)&&value!=='00000000-0000-0000-0000-000000000000';
+function readableNote(value:unknown):value is NoteView {
+ if(!value||typeof value!=='object'||Array.isArray(value))return false;
+ const note=value as Record<string,unknown>;
+ return ['id','study_id','owner_account_id'].every(key=>noteIdentifier(note[key]))&&typeof note.revision==='string'&&/^[1-9][0-9]{0,18}$/.test(note.revision)&&BigInt(note.revision)<=9223372036854775807n&&isReadableNoteValue(note.value);
+}
+async function readNote(token:string,study:string,id:string,signal?:AbortSignal):Promise<NoteView>{
+ const value=await request<unknown>(token,`/api/studies/${study}/notes/${id}`,'GET',undefined,15000,signal);
+ if(!readableNote(value)||value.id!==id||value.study_id!==study)throw new NotesFailure('response_invalid');
+ return value;
+}
+async function readNotes(token:string,study:string,cursor?:string,signal?:AbortSignal):Promise<NotePage>{
+ const value=await request<NotePage>(token,`/api/studies/${study}/notes`+(cursor?'?cursor='+encodeURIComponent(cursor):''),'GET',undefined,15000,signal);
+ if(!value||!Array.isArray(value.items)||value.items.length>50||!value.items.every(note=>readableNote(note)&&note.study_id===study)||new Set(value.items.map(note=>note.id)).size!==value.items.length||value.next_cursor!==null&&(typeof value.next_cursor!=='string'||!/^[A-Za-z0-9_-]{1,512}$/.test(value.next_cursor)))throw new NotesFailure('response_invalid');
+ return value;
+}
 export const api={
  search:(token:string,query:string,cursor?:string)=>request<StudyPage>(token,'/api/studies/search','POST',{query,cursor:cursor??null}),
  enroll:(token:string,operation_id:string)=>request<EnrollmentAck>(token,'/api/studies/enrollment','POST',{operation_id}),
  studies:(token:string,cursor?:string,signal?:AbortSignal)=>request<StudyPage>(token,'/api/studies'+(cursor?'?cursor='+encodeURIComponent(cursor):''),'GET',undefined,15000,signal),
  study:(token:string,id:string,signal?:AbortSignal)=>request<StudyView>(token,`/api/studies/${id}`,'GET',undefined,15000,signal),
- notes:(token:string,id:string,cursor?:string,signal?:AbortSignal)=>request<NotePage>(token,`/api/studies/${id}/notes`+(cursor?'?cursor='+encodeURIComponent(cursor):''),'GET',undefined,15000,signal),
+ notes:readNotes,
  passages:(token:string,id:string,signal?:AbortSignal)=>request<PassageList>(token,`/api/studies/${id}/passages`,'GET',undefined,15000,signal),
- note:(token:string,study:string,id:string,signal?:AbortSignal)=>request<NoteView>(token,`/api/studies/${study}/notes/${id}`,'GET',undefined,15000,signal),
+ note:readNote,
  lookup:(token:string,operation:string,command:string,timeout=15000)=>request<Outcome>(token,`/api/operations/${operation}?command=${command}`,'GET',undefined,timeout),
 };
 export type Attempt={operation_id:string;command:'study.create'|'study.rename'|'study.passages.replace'|'study.delete'|'note.create'|'note.replace'|'note.delete';path:string;method:string;payload:Record<string,unknown>;study?:string;note?:string;generation:number};

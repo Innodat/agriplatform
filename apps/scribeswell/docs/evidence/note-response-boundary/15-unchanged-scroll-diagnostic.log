@@ -1,0 +1,59 @@
+
+> scribeswell-web@0.1.0 test:browser
+> playwright test --config playwright.config.cjs workspace-restoration.spec.cjs --project=mobile --repeat-each=12 --workers=4 --fully-parallel --grep last public scroll checkpoint
+
+[WebServer] (node:304131) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 12 tests using 4 workers
+
+(node:304211) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:304204) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:304217) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:304206) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+SCROLL_FIXTURE_PROBE {"before":{"top":76,"height":531,"total":1194,"fonts":"loaded","deviceReady":"true","tab":"saved-0"},"after":350}
+SCROLL_FIXTURE_PROBE {"before":{"top":76,"height":531,"total":1194,"fonts":"loaded","deviceReady":"true","tab":"saved-0"},"after":350}
+SCROLL_FIXTURE_PROBE {"before":{"top":76,"height":531,"total":1194,"fonts":"loaded","deviceReady":"true","tab":"saved-0"},"after":350}
+SCROLL_FIXTURE_PROBE {"before":{"top":76,"height":531,"total":1194,"fonts":"loaded","deviceReady":"true","tab":"saved-0"},"after":350}
+  ✓   3 [mobile] › tests/workspace-restoration.spec.cjs:179:1 › last public scroll checkpoint survives tools hiding the pane before the durable write (4.7s)
+  ✓   1 [mobile] › tests/workspace-restoration.spec.cjs:179:1 › last public scroll checkpoint survives tools hiding the pane before the durable write (4.7s)
+  ✓   2 [mobile] › tests/workspace-restoration.spec.cjs:179:1 › last public scroll checkpoint survives tools hiding the pane before the durable write (4.7s)
+  ✓   4 [mobile] › tests/workspace-restoration.spec.cjs:179:1 › last public scroll checkpoint survives tools hiding the pane before the durable write (4.7s)
+(node:304726) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:304740) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:304733) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:304747) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+SCROLL_FIXTURE_PROBE {"before":{"top":76,"height":531,"total":1194,"fonts":"loaded","deviceReady":"true","tab":"saved-0"},"after":350}
+SCROLL_FIXTURE_PROBE {"before":{"top":76,"height":531,"total":1194,"fonts":"loaded","deviceReady":"true","tab":"saved-0"},"after":350}
+SCROLL_FIXTURE_PROBE {"before":{"top":76,"height":531,"total":1194,"fonts":"loaded","deviceReady":"true","tab":"saved-0"},"after":350}
+SCROLL_FIXTURE_PROBE {"before":{"top":76,"height":531,"total":1194,"fonts":"loaded","deviceReady":"true","tab":"saved-0"},"after":350}
+  ✓   5 [mobile] › tests/workspace-restoration.spec.cjs:179:1 › last public scroll checkpoint survives tools hiding the pane before the durable write (4.4s)
+(node:305133) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   6 [mobile] › tests/workspace-restoration.spec.cjs:179:1 › last public scroll checkpoint survives tools hiding the pane before the durable write (4.6s)
+  ✓   7 [mobile] › tests/workspace-restoration.spec.cjs:179:1 › last public scroll checkpoint survives tools hiding the pane before the durable write (4.6s)
+  ✓   8 [mobile] › tests/workspace-restoration.spec.cjs:179:1 › last public scroll checkpoint survives tools hiding the pane before the durable write (4.5s)
+(node:305188) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:305194) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:305202) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+SCROLL_FIXTURE_PROBE {"before":{"top":76,"height":531,"total":1194,"fonts":"loaded","deviceReady":"true","tab":"saved-0"},"after":350}
+SCROLL_FIXTURE_PROBE {"before":{"top":76,"height":531,"total":1194,"fonts":"loaded","deviceReady":"true","tab":"saved-0"},"after":350}
+  ✓   9 [mobile] › tests/workspace-restoration.spec.cjs:179:1 › last public scroll checkpoint survives tools hiding the pane before the durable write (5.7s)
+SCROLL_FIXTURE_PROBE {"before":{"top":76,"height":531,"total":1194,"fonts":"loaded","deviceReady":"true","tab":"saved-0"},"after":350}
+SCROLL_FIXTURE_PROBE {"before":{"top":76,"height":531,"total":1194,"fonts":"loaded","deviceReady":"true","tab":"saved-0"},"after":350}
+  ✓  10 [mobile] › tests/workspace-restoration.spec.cjs:179:1 › last public scroll checkpoint survives tools hiding the pane before the durable write (7.4s)
+  ✓  12 [mobile] › tests/workspace-restoration.spec.cjs:179:1 › last public scroll checkpoint survives tools hiding the pane before the durable write (7.7s)
+  ✓  11 [mobile] › tests/workspace-restoration.spec.cjs:179:1 › last public scroll checkpoint survives tools hiding the pane before the durable write (7.8s)
+
+  12 passed (21.0s)

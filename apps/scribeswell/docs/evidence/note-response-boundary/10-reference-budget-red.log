@@ -1,0 +1,54 @@
+
+> scribeswell-web@0.1.0 test:browser
+> playwright test --config playwright.config.cjs workspace-restoration.spec.cjs --workers=1 --project=desktop --grep exact budgets agree
+
+[WebServer] (node:261224) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 1 test using 1 worker
+
+(node:261256) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  1 [desktop] › tests/workspace-restoration.spec.cjs:411:1 › note response boundary exact budgets agree with authoritative server validation (1.2s)
+
+
+  1) [desktop] › tests/workspace-restoration.spec.cjs:411:1 › note response boundary exact budgets agree with authoritative server validation 
+
+    Error: expect(received).toEqual(expected) // deep equality
+
+    - Expected  - 1
+    + Received  + 1
+
+    @@ -43,11 +43,11 @@
+          "name": "nodes2049",
+          "valid": false,
+        },
+        Object {
+          "name": "reference-nodes2049",
+    -     "valid": false,
+    +     "valid": true,
+        },
+        Object {
+          "name": "characters50001",
+          "valid": false,
+        },
+
+      415 |  const cases=[{name:'blocks256',value:value(Array.from({length:256},()=>paragraph([]))),expected:true},{name:'blocks257',value:value(Array.from({length:257},()=>paragraph([]))),expected:false},{name:'inline256',value:value([paragraph(Array.from({length:256},()=>text('א')))]),expected:true},{name:'inline257',value:value([paragraph(Array.from({length:257},()=>text('א')))]),expected:false},...([0,1].flatMap(extra=>[{name:`nodes${2048+extra}`,value:textNodes(extra),expected:!extra},{name:`reference-nodes${2048+extra}`,value:referenceNodes(extra),expected:!extra},{name:`characters${50000+extra}`,value:value([paragraph([...Array.from({length:12},()=>text('🙂'.repeat(4096))),text('🙂'.repeat(848+extra))])]),expected:!extra},{name:`list-items${128+extra}`,value:value([{type:'list',style:'bullet',items:Array.from({length:128+extra},()=>[paragraph([])])}]),expected:!extra},{name:`item-paragraphs${16+extra}`,value:value([{type:'list',style:'bullet',items:[Array.from({length:16+extra},()=>paragraph([]))]}]),expected:!extra},{name:`external-content${64+extra}`,value:value([paragraph([{type:'external_link',url:'https://example.invalid/',content:Array.from({length:64+extra},()=>text('א'))}])]),expected:!extra}]))];
+      416 |  const {execFileSync}=require('node:child_process'),path=require('node:path');const script="import json,sys;from apps.scribeswell.backend.personal_notes_contract import NoteValue\ndef valid(v):\n try:NoteValue.model_validate_json(json.dumps(v));return True\n except ValueError:return False\nprint(json.dumps([valid(v) for v in json.load(sys.stdin)]))";const expected=cases.map(row=>row.expected),server=JSON.parse(execFileSync(process.env.SCRIBESWELL_TEST_PYTHON||'python3',['-c',script],{input:JSON.stringify(cases.map(row=>row.value)),cwd:path.resolve(__dirname,'../../../..'),encoding:'utf8'}));expect(server).toEqual(expected);
+    > 417 |  const actual=await page.evaluate(async cases=>{const {isReadableNoteValue}=await import('/src/lib/note-value.ts');return cases.map(row=>({name:row.name,valid:isReadableNoteValue(row.value)}));},cases);expect(actual).toEqual(cases.map((row,i)=>({name:row.name,valid:expected[i]})));
+          |                                                                                                                                                                                                                          ^
+      418 | });
+      419 |
+        at /home/ck/repos/innodat/agriplatform/apps/scribeswell/web/tests/workspace-restoration.spec.cjs:417:218
+
+    Error Context: test-results/workspace-restoration-note-be026-oritative-server-validation-desktop/error-context.md
+
+  1 failed
+    [desktop] › tests/workspace-restoration.spec.cjs:411:1 › note response boundary exact budgets agree with authoritative server validation 
+npm error Lifecycle script `test:browser` failed with error:
+npm error code 1
+npm error path /home/ck/repos/innodat/agriplatform/apps/scribeswell/web
+npm error workspace scribeswell-web@0.1.0
+npm error location /home/ck/repos/innodat/agriplatform/apps/scribeswell/web
+npm error command failed
+npm error command sh -c playwright test --config playwright.config.cjs workspace-restoration.spec.cjs --workers=1 --project=desktop --grep 'exact budgets agree'

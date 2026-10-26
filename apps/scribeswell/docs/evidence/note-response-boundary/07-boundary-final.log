@@ -1,0 +1,37 @@
+
+> scribeswell-web@0.1.0 test:browser
+> playwright test --config playwright.config.cjs workspace-restoration.spec.cjs --workers=4 --fully-parallel --grep note response boundary
+
+[WebServer] (node:246450) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 10 tests using 4 workers
+
+(node:246472) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:246475) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:246467) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:246474) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   2 [desktop] › tests/workspace-restoration.spec.cjs:395:1 › note response boundary uses current server-valid grammar for both document versions (2.2s)
+  ✓   4 [desktop] › tests/workspace-restoration.spec.cjs:375:1 › note response boundary rejects unreadable direct reads and pages before consumer attachment (2.1s)
+  ✓   3 [desktop] › tests/workspace-restoration.spec.cjs:389:44 › note response boundary ordinary outline rejects malformed values and Retry preserves current context (2.7s)
+(node:246908) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   1 [desktop] › tests/workspace-restoration.spec.cjs:389:44 › note response boundary restored outline rejects malformed values and Retry preserves current context (2.9s)
+(node:246941) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:246948) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   6 [mobile] › tests/workspace-restoration.spec.cjs:375:1 › note response boundary rejects unreadable direct reads and pages before consumer attachment (1.5s)
+  ✓   5 [desktop] › tests/workspace-restoration.spec.cjs:401:1 › note response boundary malformed restored outline preserves dirty writing and original unknown save (3.4s)
+(node:247253) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   9 [mobile] › tests/workspace-restoration.spec.cjs:395:1 › note response boundary uses current server-valid grammar for both document versions (3.1s)
+  ✓   7 [mobile] › tests/workspace-restoration.spec.cjs:389:44 › note response boundary ordinary outline rejects malformed values and Retry preserves current context (4.4s)
+  ✓   8 [mobile] › tests/workspace-restoration.spec.cjs:389:44 › note response boundary restored outline rejects malformed values and Retry preserves current context (4.9s)
+  ✓  10 [mobile] › tests/workspace-restoration.spec.cjs:401:1 › note response boundary malformed restored outline preserves dirty writing and original unknown save (3.4s)
+
+  10 passed (13.2s)

@@ -1,0 +1,41 @@
+
+> scribeswell-web@0.1.0 test:browser
+> playwright test --config playwright.config.cjs workspace-restoration.spec.cjs personal-notes.spec.cjs --workers=4 --fully-parallel --grep note response boundary|rich paragraphs|editor toolbar actions|invalid DNS link|outline return opens complete
+
+[WebServer] (node:240016) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 14 tests using 4 workers
+
+(node:240039) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:240040) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:240046) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:240033) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   2 [desktop] › tests/personal-notes.spec.cjs:230:1 › review: invalid DNS link remains correctable without changing note text (3.5s)
+  ✓   4 [desktop] › tests/personal-notes.spec.cjs:192:1 › rich paragraphs directions lists marks and safe links survive saving and reopening (6.4s)
+  ✓   1 [desktop] › tests/workspace-restoration.spec.cjs:297:1 › outline return opens complete current notes and passages without leaving or reselecting the restored study (6.8s)
+  ✓   5 [desktop] › tests/workspace-restoration.spec.cjs:375:1 › note response boundary rejects unreadable direct reads and pages before consumer attachment (4.1s)
+  ✓   3 [desktop] › tests/personal-notes.spec.cjs:196:1 › editor toolbar actions persist direction marks lists and safe links (8.6s)
+(node:240758) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:240784) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   6 [desktop] › tests/workspace-restoration.spec.cjs:388:44 › note response boundary ordinary outline rejects malformed values and Retry preserves current context (5.9s)
+  ✓   7 [desktop] › tests/workspace-restoration.spec.cjs:388:44 › note response boundary restored outline rejects malformed values and Retry preserves current context (7.0s)
+(node:240965) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:241054) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   8 [mobile] › tests/personal-notes.spec.cjs:192:1 › rich paragraphs directions lists marks and safe links survive saving and reopening (8.0s)
+  ✓  10 [mobile] › tests/personal-notes.spec.cjs:230:1 › review: invalid DNS link remains correctable without changing note text (5.6s)
+  ✓  12 [mobile] › tests/workspace-restoration.spec.cjs:375:1 › note response boundary rejects unreadable direct reads and pages before consumer attachment (2.3s)
+  ✓   9 [mobile] › tests/personal-notes.spec.cjs:196:1 › editor toolbar actions persist direction marks lists and safe links (9.8s)
+  ✓  11 [mobile] › tests/workspace-restoration.spec.cjs:297:1 › outline return opens complete current notes and passages without leaving or reselecting the restored study (7.5s)
+  ✓  13 [mobile] › tests/workspace-restoration.spec.cjs:388:44 › note response boundary ordinary outline rejects malformed values and Retry preserves current context (3.9s)
+  ✓  14 [mobile] › tests/workspace-restoration.spec.cjs:388:44 › note response boundary restored outline rejects malformed values and Retry preserves current context (3.9s)
+
+  14 passed (27.1s)
