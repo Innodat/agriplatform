@@ -1,3 +1,30 @@
+## Current delivery — atomic local create Save, 2026-10-26
+
+Read [local create Save evidence](LOCAL_CREATE_SAVE_EVIDENCE.md), its
+[machine record](evidence/local-create-save-20261026.json) and current [contracts](contracts.md).
+The isolated schema3 store now imports exact setup with before-request durable ordering,
+pins original create context and atomically saves completed local capture/immutable
+create action. Reopen and exact retry retain one original attempt. Local content has
+no fabricated server baseline, revision/audit or Synced state. No UI/sender/startup
+is activated. Qualification passes15 affected jobs, including141 real IDB checks,
+18 actual synthetic HTTP/Auth/IDB integration groups, existing storage/Auth regressions
+and five scaffold parities. Two review rounds complete;24 findings addressed, three rejected with evidence,
+no new deferrals.
+
+Continue ready authorized implementation without routine next/approval stops. Next
+consume saved creates through explicit receipt recovery/delivery and exact authorized
+readback, then add pending-create own-edit Save using that real predecessor contract.
+Preserve immutable create bytes and never guess a server revision. Consult approved
+Story1.6/2.2 first.
+Synthetic local/CI only: no editor/Leave, active sender/queue/browser/service-worker/
+default-startup, real accounts/Auth/Access, native PostgreSQL/Docker work, provisioning/
+migrations, deployment/production/pilot or cleanup. Preserve concurrent changes,
+historical evidence/resources and TypeScript7.0.2. Fingerprints/HMAC remain deferred.
+Never read/run/copy/hash the preexisting untracked migration fixture. Earlier handoffs
+follow unchanged.
+
+---
+
 ## Current delivery — protected setup contract/consumer, 2026-10-26
 
 Read [setup evidence](PROVISION_CONTRACT_EVIDENCE.md), its

@@ -1417,3 +1417,33 @@ startup activation is implied. Current runtime grants deliberately lack eligibil
 INSERT: controlled narrow authorization and actual PostgreSQL qualification, including
 latest-version query ordering and rollback, remain pre-activation requirements.
 See [setup evidence](PROVISION_CONTRACT_EVIDENCE.md).
+
+
+## Atomic local completed-create persistence — 2026-10-26
+
+The isolated schema3 store implements `beginSetupRefresh` → exact
+`importProvision`, pinned `openCreate`, atomic `saveCreate`, bounded
+`readCreateActions` and local content through `read`. The request ticket is minted
+before HTTP, durable, scoped and one-use; older responses cannot publish over a newer
+request/known denial. `createSetupEntry.refresh` explicitly composes Auth, request and
+import within one total deadline and lease. HTTP denial publication compares the
+same current ticket before locking. Stale denials return superseded. After a current
+partition denial, reopen the store and construct a fresh entry for explicit verified
+restoration; invalidated handles are never revived. The consumer is unmounted.
+
+Completed local content uses `local_capture` and pending create status, separate from
+actual server `baseline`. Capture/operation IDs are distinct and stable for one Save;
+immutable generated create bytes survive reopening and exact retries. Existing exact
+committed-result recovery requires current own-read, independently of expired original
+creation evidence; new writes retain all creation checks. Initial Save
+checks read/selected-create/child and original pinned expiry independently, without
+requiring own-edit. Hidden false details are excluded before durable identity; whole
+original answers and the131072-byte UTF8 command limit apply. Multiple same-day
+records are allowed. No unfinished typing, guessed server revision/audit or Synced
+claim is introduced. Pending-only creates cannot enter server-backed edit APIs.
+
+Supported v1/v2 storage upgrades retain populated/opaque rows; stale connections
+refuse safely and unknown newer storage is retained. Schema3 browser update and
+connection coordination remains a release prerequisite, alongside existing native
+setup issuance qualification. See [local create Save evidence](LOCAL_CREATE_SAVE_EVIDENCE.md)
+and its [source-bound record](evidence/local-create-save-20261026.json).

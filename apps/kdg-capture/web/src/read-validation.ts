@@ -75,7 +75,14 @@ export function validateDetail(value:unknown,pending:PendingRead):Frozen<Capture
  if(d.capture_id!==pending.capture_id||d.org_id!==pending.org_id||d.owner_account_id!==pending.account_id||d.created_by!==d.owner_actor_id||
  !decimal(d.revision)||!decimal(d.questionnaire_version)||!text(d.child_label,200,true)||!date(d.observation_date)||
  !instant(d.captured_at)||!instant(d.created_at)||!instant(d.updated_at))return invalid();
- const definition=validateDefinition(d.definition),answers=objectMap(d.answers),seen=new Set(definition.questions.map(q=>q.id));
+ validateAnswers(d.definition,d.answers);
+ // Shape and all nested relationships were checked above. This is a private
+ // parsed object; deep freezing never mutates caller input or a shared response.
+ return freeze(value as CaptureDetail);
+}
+/** Complete answers against their original questionnaire; callers own private copies. */
+export function validateAnswers(original:unknown,value:unknown):CaptureDetail['answers'] {
+ const definition=validateDefinition(original),answers=objectMap(value),seen=new Set(definition.questions.map(q=>q.id));
  if(Object.keys(answers).length>50)return invalid();
  for(const q of definition.questions){
   if(!Object.hasOwn(answers,q.id)){if(q.required)return invalid();continue;}
@@ -85,9 +92,7 @@ export function validateDetail(value:unknown,pending:PendingRead):Frozen<Capture
   else if(typeof answer.value!=='boolean'||(Object.hasOwn(answer,'details')&&(answer.value!==true||q.details_enabled!==true||!text(answer.details,5000))))return invalid();
  }
  if(Object.keys(answers).some(k=>!seen.has(k)))return invalid();
- // Shape and all nested relationships were checked above. This is a private
- // parsed object; deep freezing never mutates caller input or a shared response.
- return freeze(value as CaptureDetail);
+ return value as CaptureDetail['answers'];
 }
 function objectMap(v:unknown):Record<string,unknown>{
  if(!v||typeof v!=='object'||Array.isArray(v))return invalid();return v as Record<string,unknown>;

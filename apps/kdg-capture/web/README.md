@@ -319,3 +319,13 @@ capsule with approved retained modules, TypeScript7.0.2 and existing Auth `skipL
 It uses Node's sequential test-file mode; individual cancellation/deadline assertions
 still execute. The HTTP proof owns and stops its synthetic fixture. No normal API
 startup, account access, dependency installation or actual database work occurs.
+
+
+Atomic completed local-create Save is an isolated schema3 candidate. See
+[owner evidence](../docs/LOCAL_CREATE_SAVE_EVIDENCE.md). Run the retained Node26.11.1
+against `apps/kdg-capture/web/tests/local-create-save-proof.mjs` and
+`apps/kdg-capture/web/tests/local-create-http-proof.mjs`
+from the repository root for real Chromium IndexedDB and synthetic HTTP/Auth integration.
+The proof uses TypeScript7.0.2 and explicitly selected source capsules; no installation
+is required. Setup, editor and sender remain unmounted. Schema3 activation needs
+separate browser-update/connection qualification; no older storage is deleted/reset.
