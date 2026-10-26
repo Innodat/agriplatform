@@ -1377,3 +1377,43 @@ Simultaneous explicit calls may submit the identical operation; existing server
 idempotency prevents duplicate effects. This consumer introduces no exclusive sender
 claim, scheduling, automatic retry or startup integration. Durable claims and active
 queue delivery remain separate prerequisites; this is not a production release gate.
+
+## Candidate protected setup contract — 2026-10-26
+
+The unmounted selector-free `GET /api/v1/provision` composes exact current own-read,
+own-edit, create-all and create-assigned checks before checkout. Positive evidence
+must agree on verified organization/account/durable actor/membership and retains each
+actual decision plus exact seven-day expiry. Own-read is required; known edit/create
+denial produces null positive slots, while verification unavailability fails the whole
+request. Read/create success never mints edit authority.
+
+Closed `Provision` contains schema_version1, org_id/account_id/actor_id/membership_id,
+read_observation, nullable edit_observation/create_all_observation/
+create_assigned_observation, create_state, children and nullable questionnaire.
+Questionnaire contains questionnaire_id/questionnaire_version_id/questionnaire_version
+and original definition. Latest published display version belongs to an explicitly
+configured questionnaire; no browser questionnaire selector or arbitrary cross-catalog
+latest choice is introduced.
+
+Each child contains child_id/child_label/child_revision, child_eligibility_ref,
+create_permission, nullable assignment (assignment_id/assignment_revision) and independent
+checked_at/expires_at. All-create requires no assignment. Assigned creation requires a
+current same-account/membership assignment. Child locks and current rechecks precede
+atomic issuance of immutable references with trusted actor attribution. New references
+are43 URL-safe opaque characters, grant no rights, and introduce no expiry or purge of stored eligibility
+records. Existing general create references remain opaque text≤200 code points.
+
+Creation state precedence is not_permitted (no children/positive create observation),
+no_published_questionnaire, no_eligible_children, then ready. Bounds:1000 complete
+children,1MiB UTF8 response and existing128KiB definition. Overflow is safe unavailable,
+not partial setup. Response publication follows commit/release/final validation under
+one original ten-second budget; release failure can leave committed references.
+No capture, outcome or history writes, pruning or authority renewal from unverified data.
+
+Strict generated types, transport and explicit Auth consumer validate the entire
+closed response, evidence relationships, original definition, safe typed errors and
+request/session/deadline fences. No setup/local capture persistence, PWA readiness or
+startup activation is implied. Current runtime grants deliberately lack eligibility
+INSERT: controlled narrow authorization and actual PostgreSQL qualification, including
+latest-version query ordering and rollback, remain pre-activation requirements.
+See [setup evidence](PROVISION_CONTRACT_EVIDENCE.md).

@@ -1,3 +1,39 @@
+## Current delivery — protected setup contract/consumer, 2026-10-26
+
+Read [setup evidence](PROVISION_CONTRACT_EVIDENCE.md), its
+[machine record](evidence/provision-contract-20261026.json) and current [contracts](contracts.md).
+Unmounted GET `/api/v1/provision` independently verifies own-read/edit/create-all/
+create-assigned and returns exact observations, configured latest questionnaire and
+bounded eligible children with committed opaque references. The strict generated
+contract and explicit Auth consumer preserve scope, deadlines and safe failure states.
+No setup/local capture persistence, installed PWA, sender or startup is activated.
+
+Final37 jobs pass:87 setup-client,29 setup-backend and18 integrated setup HTTP groups;
+73 delivery/29 delivery HTTP,103 reconciliation,92 Save,61 history,575 existing clients,
+127 direct tests, four guards and16 existing loopback groups. Eight strict TS7.0.2
+configurations, fourteen schema/client freshness checks and five scaffold parities pass.
+Prior313 backend proof reused with77 unchanged sources. Review: seven addressed,
+four rejected, two native findings grouped into one pre-activation follow-up.
+Three existing deadline fixtures now use controlled timing without changing production
+budgets; all expected results remain. Historical failures and evidence are retained.
+
+Continue authorized KDG work without routine next/approval stops. The next consumer
+can add atomic completed pending-create persistence and definition/setup import, then
+pending-create edits waiting on the original create receipt. Consume the actual setup
+contract; never fabricate server revisions/audit or infer edit/create rights.
+Native issuance privileges/rollback/latest-version SQL/load and controlled narrow
+eligibility INSERT authorization remain release prerequisites, recorded in deferred work.
+Broader Story1.4 installation/device/readiness gates remain; no full-story completion.
+
+Synthetic local/CI only: no UI/editor/Leave, active sender/queue/browser/service-worker/
+default-startup, real accounts/Auth/Access, actual PostgreSQL/native-driver/Docker work,
+provisioning/migration execution, deployment/production/pilot or cleanup. Preserve
+concurrent changes, historical evidence/resources and approved dependencies including
+TypeScript7.0.2. Fingerprints/HMAC remain deferred. Never read/run/copy/hash the
+preexisting untracked migration fixture. Historical handoffs follow unchanged.
+
+---
+
 ## Current delivery — explicit saved-edit delivery/recovery, 2026-10-26
 
 Read [delivery evidence](EDIT_DELIVERY_EVIDENCE.md), its

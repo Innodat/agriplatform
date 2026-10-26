@@ -14,7 +14,7 @@ const tick=()=>new Promise(r=>setTimeout(r,0));
 function fixture(recover=async()=>response(),options={}){
  let cb,current=session(),sdk=0;const states=[],requests=[];
  const auth={getSession:async()=>{sdk++;return{data:{session:current},error:null};},refreshSession:async()=>{sdk++;return{data:{session:current},error:null};},signOut:async()=>{sdk++;return{error:null};},onAuthStateChange:callback=>{cb=callback;return{data:{subscription:{unsubscribe(){}}}};}};
- const gate=createEditContextEntry({org:ORG,auth,publish:s=>states.push(s),beginSignIn:async()=>{sdk++;},timeoutMs:100,editContextTimeoutMs:100,
+ const gate=createEditContextEntry({org:ORG,auth,publish:s=>states.push(s),beginSignIn:async()=>{sdk++;},timeoutMs:1000,editContextTimeoutMs:1000,
  request:async(url,init)=>{if(url.startsWith('/api/v1/context'))return response(context(init.headers.Authorization.includes(B)?B:A));requests.push({url,init});return recover(url,init);},...options});
  return{gate,states,requests,sdk:()=>sdk,emit(event,s){current=s;cb(event,s);}};
 }
@@ -41,9 +41,12 @@ test('body-phase stale error cannot escape after A to B to A replacement',async(
  await f.gate.start();const old=f.gate.load(pending());await tick();f.emit('SIGNED_IN',session(B));await tick();f.emit('SIGNED_IN',session(A));await tick();
  assert.equal((await old).kind,'superseded');try{send();}catch{}assert.equal(f.gate.state().context.account_id,A);f.gate.dispose();
 });
-test('completion preserves other current work and deadline bounds ignored transport',async()=>{
+test('completion preserves other current work and deadline bounds ignored transport',async(t)=>{
  const held=deferred();let n=0;const f=fixture(()=>++n===1?held.promise:Promise.resolve(response()),{editContextTimeoutMs:20});await f.gate.start();
- const first=f.gate.load(pending());await tick();assert.equal((await f.gate.load(pending())).kind,'loaded');assert.equal(f.requests[0].init.signal.aborted,false);
+ // Control both clock and timer: another fast operation is not a host-latency assertion.
+ let now=0;t.mock.method(performance,'now',()=>now);t.mock.timers.enable({apis:['setTimeout']});
+ const first=f.gate.load(pending());await Promise.resolve();assert.equal((await f.gate.load(pending())).kind,'loaded');assert.equal(f.requests[0].init.signal.aborted,false);
+ now=20;t.mock.timers.tick(20);
  assert.equal((await first).kind,'verification_unavailable');assert.equal(f.gate.state().kind,'authorized');held.resolve(response());f.gate.dispose();
 });
 for(const [value,status,kind] of [

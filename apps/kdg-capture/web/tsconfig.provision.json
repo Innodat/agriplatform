@@ -1,0 +1,4 @@
+{
+  "extends": "./tsconfig.auth.json",
+  "files": ["src/provision.ts", "src/provision-entry.ts", "tests/provision.types.ts"]
+}

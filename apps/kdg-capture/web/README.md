@@ -299,3 +299,23 @@ and selected-source capsules; they install nothing. The strict Auth compilation
 uses approved retained modules and the existing upstream declaration-check exception.
 The checkout's older root node_modules cannot qualify the approved Auth SDK contract.
 Neither proof starts normal application entry, schedules delivery or accesses real accounts.
+
+Protected setup remains an unmounted candidate. `createProvisionEntry` exposes
+`load({account_id, org_id})`; `loadProvision` is the strict request primitive.
+No setup, observation or command is persisted by these consumers. See
+[setup contract evidence](../docs/PROVISION_CONTRACT_EVIDENCE.md).
+
+Run from repository root with the retained approved tools:
+
+```sh
+platform/deployment/.local/kdg-toolchains/ad277eef-a10e-4aac-bb82-5743653fb2e0/payload/node/bin/node apps/kdg-capture/web/tests/provision-proof.mjs
+platform/deployment/.local/kdg-toolchains/ad277eef-a10e-4aac-bb82-5743653fb2e0/payload/node/bin/node apps/kdg-capture/web/tests/provision-http-proof.mjs
+platform/deployment/.local/access-organization-check-20261022/owner-env/bin/python -B -m unittest discover -s apps/kdg-capture/write-tests -p 'test_provision*.py' -v
+platform/deployment/.local/access-organization-check-20261022/owner-env/bin/python -B apps/kdg-capture/write-candidate/export_provision_openapi.py --check
+```
+
+The unit proof executes the actual `tsconfig.provision.json` chain in a selected-source
+capsule with approved retained modules, TypeScript7.0.2 and existing Auth `skipLibCheck`.
+It uses Node's sequential test-file mode; individual cancellation/deadline assertions
+still execute. The HTTP proof owns and stops its synthetic fixture. No normal API
+startup, account access, dependency installation or actual database work occurs.

@@ -51,17 +51,11 @@ export function freeze<T>(value:T):Frozen<T> {
  if(value&&typeof value==='object'){for(const item of Object.values(value))freeze(item);Object.freeze(value);}
  return value as Frozen<T>;
 }
-export function validateDetail(value:unknown,pending:PendingRead):Frozen<CaptureDetail> {
- const d=object(value,['capture_id','org_id','owner_account_id','owner_actor_id','child_id','child_label','questionnaire_id','questionnaire_version_id','questionnaire_version','definition','revision','observation_date','answers','captured_at','created_by','created_at','updated_by','updated_at']);
- for(const k of ['capture_id','org_id','owner_account_id','owner_actor_id','child_id','questionnaire_id','questionnaire_version_id','created_by','updated_by'])if(!id(d[k]))return invalid();
- if(d.capture_id!==pending.capture_id||d.org_id!==pending.org_id||d.owner_account_id!==pending.account_id||d.created_by!==d.owner_actor_id||
- !decimal(d.revision)||!decimal(d.questionnaire_version)||!text(d.child_label,200,true)||!date(d.observation_date)||
- !instant(d.captured_at)||!instant(d.created_at)||!instant(d.updated_at))return invalid();
- const definition=object(d.definition,['schema_version','questions']);
- if(definition.schema_version!==1||!Array.isArray(definition.questions)||!definition.questions.length||definition.questions.length>50||
- new TextEncoder().encode(JSON.stringify(definition)).byteLength>131072)return invalid();
- const answers=objectMap(d.answers),seen=new Set<string>();
- if(Object.keys(answers).length>50)return invalid();
+/** Validate immutable original questionnaire content without fabricating a capture. */
+export function validateDefinition(value:unknown):CaptureDetail['definition'] {
+ const definition=object(value,['schema_version','questions']);
+ if(definition.schema_version!==1||!Array.isArray(definition.questions)||!definition.questions.length||definition.questions.length>50||new TextEncoder().encode(JSON.stringify(definition)).byteLength>131072)return invalid();
+ const seen=new Set<string>();
  for(const raw of definition.questions){
   const q=object(raw,['id','type','label','required'],['minimum','maximum','minimum_label','maximum_label','default','details_enabled','details_label']);
   if(!id(q.id)||seen.has(q.id)||!text(q.label,500,true)||typeof q.required!=='boolean')return invalid();seen.add(q.id);
@@ -72,6 +66,18 @@ export function validateDetail(value:unknown,pending:PendingRead):Frozen<Capture
    object(q,['id','type','label','required','default','details_enabled'],['details_label']);
    if(q.default!==false||typeof q.details_enabled!=='boolean'||(q.details_enabled?!text(q.details_label,500,true):(q.details_label!==undefined&&q.details_label!==null)))return invalid();
   }else if(q.type==='text')object(q,['id','type','label','required']);else return invalid();
+ }
+ return value as CaptureDetail['definition'];
+}
+export function validateDetail(value:unknown,pending:PendingRead):Frozen<CaptureDetail> {
+ const d=object(value,['capture_id','org_id','owner_account_id','owner_actor_id','child_id','child_label','questionnaire_id','questionnaire_version_id','questionnaire_version','definition','revision','observation_date','answers','captured_at','created_by','created_at','updated_by','updated_at']);
+ for(const k of ['capture_id','org_id','owner_account_id','owner_actor_id','child_id','questionnaire_id','questionnaire_version_id','created_by','updated_by'])if(!id(d[k]))return invalid();
+ if(d.capture_id!==pending.capture_id||d.org_id!==pending.org_id||d.owner_account_id!==pending.account_id||d.created_by!==d.owner_actor_id||
+ !decimal(d.revision)||!decimal(d.questionnaire_version)||!text(d.child_label,200,true)||!date(d.observation_date)||
+ !instant(d.captured_at)||!instant(d.created_at)||!instant(d.updated_at))return invalid();
+ const definition=validateDefinition(d.definition),answers=objectMap(d.answers),seen=new Set(definition.questions.map(q=>q.id));
+ if(Object.keys(answers).length>50)return invalid();
+ for(const q of definition.questions){
   if(!Object.hasOwn(answers,q.id)){if(q.required)return invalid();continue;}
   const answer=object(answers[q.id],['value'],q.type==='boolean'?['details']:[]);
   if(q.type==='rating'){if(typeof answer.value!=='number'||!Number.isInteger(answer.value)||answer.value<1||answer.value>5)return invalid();}
